@@ -8,7 +8,7 @@
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY bootoptions SYSTEM "user/intro/bootoptions.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
-  <!ENTITY cdpack SYSTEM "dev/advandev/cdpack.xml">
+  <!ENTITY cdpack SYSTEM "dev/newdev/cdpack.xml">
   <!ENTITY cvsapply SYSTEM "dev/shcode/cvsapply.xml">
   <!ENTITY cvsco SYSTEM "dev/shcode/cvsco.xml">
   <!ENTITY cvsget SYSTEM "dev/shcode/cvsget.xml">
@@ -75,6 +75,7 @@
 	&cvsget;
 	&cvsco;
 	&cvsupd;
+        &cdpack;
 	&mailpatch;
 	&cvsapply;
 	&cvssubmit;
@@ -90,8 +91,6 @@
 
     <part>
       <title>Advanced Developer</title>
-
-      &cdpack;
 
       &archoverview;
 
