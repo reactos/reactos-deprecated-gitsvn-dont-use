@@ -35,7 +35,7 @@ How to create the ReactOS Boot CD (FIXME)
 <title>Requirements</title>
 <itemizedlist>
 <listitem>ReactOS and Freeldr cvs modules</listitem>
-<listitem>djgpp 3.1 and current MinGW</listitem>
+<listitem>DJGPP 3.1 and current MinGW</listitem>
 <listitem>some free disk space</listitem>
 <listitem>a cd-r/cd-rw recorder</listitem>
 <listitem>at least one cd-r/cd-rw (cd-rw is recommended)</listitem>
@@ -108,7 +108,7 @@ Cd' to your reactos module and run 'make'. I guess you already know how to do th
 Start your CD recording application. Since I'm only using 'Nero burning ROM' (5.0/5.5) you will have to have a look at the manual if your using another application.
 </para>
 <para>
-Now create a 'boot CD' project. Click the boot options tab in the project dialog, select isoboot.bin as the current boot image and change the boot emulation to 'No emulation'. Finally set the number of boot sectors to 4 (four!).
+First, create a 'boot CD' project. Click the boot options tab in the project dialog, select isoboot.bin as the current boot image and change the boot emulation to 'No emulation'. Finally set the number of boot sectors to 4 (four!).
 </para>
 <para>
 Next, click the title tab and change the cd label to 'REACTOS' (without quotes). Ntoskrnl needs this label to find the Boot-CD because the bios drive number is useless in this case. Close the project dialog.
@@ -129,18 +129,6 @@ Finally, write the project onto a CD-R or CD-RW.
 <para>
 I assume you already know how to boot your computer from a CD. If not, ask
 your local guru, seach the web or read the manual.
-</para>
-<para>
-Usetup.exe has got a bug that crashes it right after the intro screen is
-displayed. I know about this bug and I'm going to fix it asap.
-</para>
-<para>
-Please send comments, ideas and complaints. Flames and insults will be
-ignored.
-</para>
-<para>
-Regards,
-Eric Kohl
 </para>
 </sect2>
 </chapter>
