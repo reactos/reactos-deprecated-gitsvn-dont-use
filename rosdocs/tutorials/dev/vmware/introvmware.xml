@@ -49,6 +49,7 @@ There are other Virtual Machines you may want to try out with ReactOS. Be warned
 <itemizedlist>
 <listitem><ulink url="http://www.plex86.org/">Plex86</ulink>: Plex86 by Kevin Lawton for MandrakeSoft. At the time of this writing, Plex86 only runs on Linux.</listitem>
 <listitem><ulink url="http://www.maconlinux.org/">Mac on Linux for PPC</ulink>: Mac on Linux is a Virtual Machine for the PowerPC platform allowing you to run the MacOS or LinuxPPC in a Virtual Machine under Linux for PPC. ReactOS at the time of this writing does not support the PowerPC but you are more the welcome to try. =)</listitem>
+<listitem><ulink url="http://www.microsoft.com/windows/virtualpc/default.mspx">Virtual PC</ulink>: Virtual PC is Virtual Machine software made by Microsoft that runs on Windows and Mac OS X.</listitem>
 </itemizedlist>
 </para>
 </sect2>
