@@ -22,14 +22,14 @@ A description of the organization of people within the ReactOS project.
 </para>
 </abstract>
 
-<sect1>
+<sect2>
 <title>Teams and Coordinators</title>
 <para>
 ReactOS consists of several teams, including the Kernel, Applications and Media teams. Each team has a coordinator and there is an overall project coordinator.
 </para>
-</sect1>
+</sect2>
 
-<sect1>
+<sect2>
 <title>Coordinators</title>
 <para>
 The coordinators are more facilitators than instructors of the teams. They are those who organize and assist the team where needed and are usually developers as well. Each coordinator has authority to make an overruling decision in any argument that may occur. This is exceptionally rare as ReactOS coordinators and developers always try to find the best solution that everyone is happy with.
@@ -68,9 +68,9 @@ The coordinators are more facilitators than instructors of the teams. They are t
 </tbody>
 </tgroup>
 </table>
-</sect1>
+</sect2>
 
-<sect1>
+<sect2>
 <title>Team definitions</title>
 <table>
 <title>Teams</title>
@@ -97,6 +97,6 @@ The coordinators are more facilitators than instructors of the teams. They are t
 </tbody>
 </tgroup>
 </table>
-</sect1>
+</sect2>
 
 </chapter>

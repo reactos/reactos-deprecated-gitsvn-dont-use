@@ -3,8 +3,9 @@
   <!ENTITY whyandhow SYSTEM "user/intro/whyandhow.xml">
   <!ENTITY organizational SYSTEM "user/intro/organizational.xml">
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
+  <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
 ]>
-<?xml-stylesheet type="text/xsl" href="../../docbook-xsl-1.45/xhtml/docbook.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../docbook-xsl-1.45/html/chunk.xsl"?>
 
 <set>
   <title>Tutorials for ReactOS</title>
@@ -46,9 +47,26 @@
 
   <book>
     <title>Developer Tutorials</title>
-    <para>
-    ...
-    </para>
+    <part>
+      <title>Newbie Developer</title>
+
+      <chapter>
+        <title>Introduction to ReactOS development</title>
+      </chapter>
+
+      &compilesrc;
+
+      <chapter>
+        <title>Testing your compiled ReactOS code</title>
+      </chapter>
+      <chapter>
+        <title>Updating your tree with the latest code</title>
+      </chapter>
+      <chapter>
+        <title>Where to go from here (newbie developer)</title>
+      </chapter>
+
+    </part>
   </book>
 </set>
 
