@@ -6,6 +6,7 @@
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
+  <!ENTITY cdpack SYSTEM "dev/advandev/cdpack.xml">
   <!ENTITY archoverview SYSTEM "dev/advandev/archoverview.xml">
   <!ENTITY win32wine SYSTEM "dev/advandev/win32wine.xml">
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
@@ -71,7 +72,9 @@
 
     <part>
       <title>Advanced Developer</title>
-    
+      
+      &cdpack;    
+
       &archoverview;
 
       &win32wine;
