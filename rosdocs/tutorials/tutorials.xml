@@ -6,6 +6,7 @@
   <!ENTITY installiso SYSTEM "user/intro/installiso.xml">
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
+  <!ENTITY bootoptions SYSTEM "user/intro/bootoptions.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
   <!ENTITY cdpack SYSTEM "dev/advandev/cdpack.xml">
   <!ENTITY cvsapply SYSTEM "dev/shcode/cvsapply.xml">
@@ -51,6 +52,8 @@
       &installbin;
 
       &testbin;
+
+      &bootoptions;
 
       <chapter>
         <title>Where to go from here (newbie user)</title>
