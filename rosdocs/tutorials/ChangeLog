@@ -1,5 +1,9 @@
 2002-11-05  Casper S. Hornstrup  <chorns@users.sourceforge.net>
 
+	* dev/shcode/mailpatch.xml: Use "cvs diff -up" instead of "diff".
+
+2002-11-05  Casper S. Hornstrup  <chorns@users.sourceforge.net>
+
 	* ChangeLog: Added.
 
 
