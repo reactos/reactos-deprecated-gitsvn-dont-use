@@ -68,9 +68,6 @@ bootcd
   \- disk
        \- bootdisk
             \- ... (bootdisk image files)
-       \- install
-            \- txtsetup.sif
-            \- ... (more install files)
        \- loader
             \- fat.bin
             \- fat32.bin
@@ -78,11 +75,12 @@ bootcd
             \- freeldr.sys
             \- setupldr.sys
        \- reactos
+            \- txtsetup.sif
             \- atapi.sys
             \- blue.sys
-            \- ... (more drivers)
             \- hal.dll
             \- ntoskrnl.exe
+            \- ... (more drivers, dlls, etc.)
             \- system32
                  \- ntdll.dll
                  \- smss.exe (renamed usetup.exe)
@@ -90,7 +88,7 @@ bootcd
 </para>
 
 <para>
-When you create the CD only the contents of the 'disk' directory will be copied to the CDs filesystem. So the directories 'bootdisk', 'install', 'loader' and 'reactos' will reside in the root directory of the CD. 'Isoboot.bin' will be the bootsector of the CD and will not be a visible part of the filesystem.
+When you create the CD only the contents of the 'disk' directory will be copied to the CDs filesystem. So the directories 'bootdisk', 'loader' and 'reactos' will reside in the root directory of the CD. 'Isoboot.bin' will be the bootsector of the CD and will not be a visible part of the filesystem.
 </para>
 </sect2>
 
