@@ -46,7 +46,7 @@ Bochs (pronounced "box") is an emulator written for the PC. It can run on both D
 <para>
 There are other emulators which you may want to try out when testing ReactOS. Here are some worth mentioning:
 <itemizedlist>
-<listitem><ulink url="http://www.vmware.com/">VMWare</ulink>: VMWare is a commercial product, although it appears that older versions are available for download.</listitem>
+<listitem><ulink url="http://www.vmware.com/">VMWare</ulink>: VMWare is a commercial product. Free trial versions are available for download from their website.</listitem>
 <listitem><ulink url="http://www.plex86.org/">Plex86</ulink>: Plex86 is another project started by Kevin Lawton. It is meant as the successor to Bochs and includes several new techniques to increase the speed of emulation. At the time of this writing, Plex86 only runs on Linux.</listitem>
 </itemizedlist>
 </para>
