@@ -123,7 +123,7 @@ System services include:
 <sect2>
 <title>3 PROTECTED SUBSYSTEMS</title>
 <para>
-The Protected Subsystems allow differnt Operating System personalities to run on top of the ReactOS Executive. The initial target for ReactOS was the Win32 subsystem -- however, the Win32 subsystem runs in kernel mode as part of the Executive and is not featured here.
+The Protected Subsystems allow different Operating System personalities to run on top of the ReactOS Executive. The initial target for ReactOS was the Win32 subsystem -- however, the Win32 subsystem runs in kernel mode as part of the Executive and is not featured here.
 </para>
 <para>
 User mode subsystems in the works:
