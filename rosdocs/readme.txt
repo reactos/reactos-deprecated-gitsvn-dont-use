@@ -142,6 +142,8 @@ defined:
     - ros32. The Ros32 subsystem's structure and boot sequence; the RPC APIs to
       the Windows and Console servers; general considerations on the API
 
+    - err. Ros32 error codes; messages, parameters and meanings
+
     - base. Basic Ros32 APIs. These include file, device and console I/O and
       control; registry, memory, handles, thread, process and service
       management; DLL loading; and basic error handling
@@ -178,6 +180,8 @@ defined:
       API to the Base server; the Process Environment Block; the Thread
       Environment Block; the Kernel/User Shared Data
 
+    - err. NTSTATUS error codes; messages, parameters and meanings
+
     - obj. Native objects and handles; overview of predefined object types;
       Object Manager basics; the system objects namespace
 
@@ -202,16 +206,22 @@ defined:
     - csr. The Client-Server Runtime API (Csr*); server modules API and
       implementation
 
-    - nls. National Language Support API(Nls*), both kernel and user mode
+    - nls. National Language Support API (Nls*), both kernel and user mode
 
     - ntuser. Native User Interface (NtUser*) system calls, both kernel and user
       mode
 
     - w32k. Native GDI (W32k*) system calls, both kernel and user mode
 
-    - peexe. Structures describing the PE executable format
+    - peexe. Structure and semantics of the PE executable format
 
  - ddk.reactos domain:
+
+    - err. Bugcheck codes; messages, parameters and meanings
+
+    - ke. The Kernel; architecture and API
+
+    - hal. The Hardware Abstraction Layer; architecture and API
 
     - cc. The Cache Manager subsystem; architecture and API
 
@@ -221,14 +231,10 @@ defined:
     - ex. The Executive Support subsystem; architecture and API;
       implemented object types
 
-    - hal. The Hardware Abstraction Layer; architecture and API
-
     - io. The I/O Manager subsystem; architecture and API; implemented object
       types
 
     - kd. Kernel debugging; protocols and API
-
-    - ke. The Kernel; architecture and API
 
     - ki. Predefined interrupt handlers
 
@@ -323,6 +329,9 @@ their source form. There's essentially two kinds of indexes:
           - they are referenced from more than one reference page. If they are
             referenced just once, they must be documented in the page that
             references them
+
+       - errors. Specialization of the constants index. Constants used to return
+         status codes
 
        - macros. Macros, or groups of macros, that comply with at least one of
          the following requirements:
