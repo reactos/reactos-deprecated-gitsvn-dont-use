@@ -48,7 +48,7 @@ How to create an ISO image file and a Boot-CD.
 <itemizedlist>
 <listitem>ReactOS and Freeldr cvs modules</listitem>
 <listitem>Rosapps module (optional)</listitem>
-<listitem>Current DJGPP and current MinGW</listitem>
+<listitem>Current MinGW toolset</listitem>
 <listitem>Some free disk space</listitem>
 <listitem>A cd-r/cd-rw recorder</listitem>
 <listitem>At least one cd-r/cd-rw (cd-rw is recommended)</listitem>
