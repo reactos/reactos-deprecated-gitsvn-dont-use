@@ -27,7 +27,7 @@
 
 <abstract>
 <para>
-How to create the ReactOS Boot CD (FIXME)
+How to create the ReactOS Boot CD
 </para>
 </abstract>
 
@@ -57,7 +57,15 @@ bootcd
   \- isoboot.bin
   \- disk
        \- bootdisk
+            \- ... (bootdisk image files)
        \- install
+            \- txtsetup.sif
+            \- ... (more install files)
+       \- loader
+            \- fat.bin
+            \- fat32.bin
+            \- ... (more bootsector files)
+            \- freeldr.sys
        \- reactos
             \- atapi.sys
             \- blue.sys
@@ -71,7 +79,7 @@ bootcd
 </para>
 
 <para>
-When you create the CD only the contents of the 'disk' directory will be copied to the CDs filesystem. So the directories 'bootdisk', 'install' and 'reactos' will reside in the root directory of the CD. 'Isoboot.bin' will be the bootsector of the CD and will not be a visible part of the filesystem.
+When you create the CD only the contents of the 'disk' directory will be copied to the CDs filesystem. So the directories 'bootdisk', 'install', 'loader' and 'reactos' will reside in the root directory of the CD. 'Isoboot.bin' will be the bootsector of the CD and will not be a visible part of the filesystem.
 </para>
 </sect2>
 
@@ -84,21 +92,21 @@ This description is based on the german edition of Nero 5.0. If you are using an
 <sect2>
 <title>1 Build and install the bootsector</title>
 <para>
-Cd' to the bootsect directory in the freeldr module and run 'make' and 'make bootcd'. Running 'make bootcd' creates the basic directory structure of the Boot-CD and copies the iso-9660 bootsector 'isoboot.bin' into this structure.
+Cd' to the bootsect directory in the freeldr module and run 'make' and 'make bootcd'. Running 'make bootcd' creates the basic directory structure of the Boot-CD and copies the bootsectors into this structure.
 </para>
 </sect2>
 
 <sect2>
 <title>2 Build and install the setup loader</title>
 <para>
-The setup loader (setupldr.sys) is a modified FreeLoader which is used to boot ReactOS (notskrnl, hal and drivers) from the Boot-CD. Cd' to the freeldr directory in the freeldr module and run 'make' and 'make bootcd'. Running 'make bootcd' creates the basic directory structure of the Boot-CD and copies 'setupldr.sys' into this structure.
+The setup loader (setupldr.sys) is a modified FreeLoader which is used to boot ReactOS (notskrnl, hal and drivers) from the Boot-CD. Cd' to the freeldr directory in the freeldr module and run 'make' and 'make bootcd'. Running 'make bootcd' creates the basic directory structure of the Boot-CD and copies 'freeldr.sys' and 'setupldr.sys' into this structure.
 </para>
 </sect2>
 
 <sect2>
 <title>3 Build and install reactos</title>
 <para>
-Cd' to your reactos module and run 'make'. I guess you already know how to do that. ;-) Instead of running 'install.bat' run 'bootcd.bat'. It will copy the components which are needed to run the setup program into the directory structure.
+Cd' to your reactos module and run 'make'. I guess you already know how to do that. ;-) Instead of running 'install.bat' run 'bootcd.bat'. It will copy all components which are needed to boot and install ReactOS from CD into the directory structure.
 </para>
 </sect2>
 
@@ -108,16 +116,13 @@ Cd' to your reactos module and run 'make'. I guess you already know how to do th
 Start your CD recording application. Since I'm only using 'Nero burning ROM' (5.0/5.5) you will have to have a look at the manual if your using another application.
 </para>
 <para>
-First, create a 'boot CD' project. Click the boot options tab in the project dialog, select isoboot.bin as the current boot image and change the boot emulation to 'No emulation'. Finally set the number of boot sectors to 4 (four!).
+First, create a 'boot CD' project. Click the boot options tab in the project dialog, select 'isoboot.bin' as the current boot image and change the boot emulation to 'No emulation'. Finally set the number of boot sectors to 4 (four!).
 </para>
 <para>
 Next, click the title tab and change the cd label to 'REACTOS' (without quotes). Ntoskrnl needs this label to find the Boot-CD because the bios drive number is useless in this case. Close the project dialog.
 </para>
 <para>
-The project explorer will open next. Select all objects in the 'bootcd/disk'
-directory and drop them on the cd project. The directories 'bootsect',
-'install' and 'reactos' are now located in the root directory of the cd
-project.
+The project explorer will open next. Select all objects in the 'bootcd/disk' directory and drop them on the cd project. The directories 'bootsect', 'install' and 'reactos' are now located in the root directory of the cd project.
 </para>
 <para>
 Finally, write the project onto a CD-R or CD-RW.
