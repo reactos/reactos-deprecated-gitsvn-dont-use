@@ -22,23 +22,23 @@ Where to get the latest ReactOS binaries and how to install them.
 </para>
 </abstract>
 
-<sect1>
+<sect2>
 <title>Where to download from</title>
 <para>
 ReactOS binaries are physically stored on ReactOS' SourceForge development site. You can download ReactOS directly from the SourceForge site, but some users may prefer to go via ReactOS.com.
 </para>
-</sect1>
+</sect2>
 
-<sect1>
+<sect2>
 <title>Obtaining the latest binaries via reactos.com</title>
 <itemizedlist>
 <listitem><para>Visit <ulink url="http://reactos.com">reactos.com</ulink> which is the ReactOS portal site. This site will always point to the latest binaries.</para></listitem>
 <listitem>Click on the link, on the opening page of reactos.com that points to the latest "Kernel Release".</listitem>
 <listitem>On the Latest Release page, click on the "Download kernel x.x.xx binaries" (eg. "Download kernel 0.0.18 binaries") link.</listitem>
 </itemizedlist>
-</sect1>
+</sect2>
 
-<sect1>
+<sect2>
 <title>Obtaining the latest binaries via SourceForge</title>
 <itemizedlist>
 <listitem>Visit <ulink url="http://sourceforge.net/projects/reactos">sourceforge.net/projects/reactos</ulink> which is ReactOS' development site, hosted by SourceForge.</listitem>
@@ -46,9 +46,9 @@ ReactOS binaries are physically stored on ReactOS' SourceForge development site.
 <listitem>Click on the "Download" link for the reactos package.</listitem>
 <listitem>Scroll down to the reactos package (should be hilighted purple) and click on the xxxx_binary.zip (eg. 0018_binary.zip) link to download the binaries.</listitem>
 </itemizedlist>
-</sect1>
+</sect2>
 
-<sect1>
+<sect2>
 <title>Installing the binaries</title>
 <itemizedlist>
 <listitem>Use your favourite zip utility to open the downloaded binary file.</listitem>
@@ -61,6 +61,6 @@ ReactOS binaries are physically stored on ReactOS' SourceForge development site.
 <para>
 <emphasis>Note:</emphasis> If you are going to use emulation software (we recommend Bochs; see Bochs documentation) to test ReactOS, then it does not matter where you extract to.
 </para>
-</sect1>
+</sect2>
 
 </chapter>
