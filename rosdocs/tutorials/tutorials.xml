@@ -8,6 +8,13 @@
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
   <!ENTITY cdpack SYSTEM "dev/advandev/cdpack.xml">
+  <!ENTITY cvsapply SYSTEM "dev/shcode/cvsapply.xml">
+  <!ENTITY cvsco SYSTEM "dev/shcode/cvsco.xml">
+  <!ENTITY cvsget SYSTEM "dev/shcode/cvsget.xml">
+  <!ENTITY cvsintro SYSTEM "dev/shcode/cvsintro.xml">
+  <!ENTITY cvssubmit SYSTEM "dev/shcode/cvssubmit.xml">
+  <!ENTITY cvsupd SYSTEM "dev/shcode/cvsupd.xml">
+  <!ENTITY mailpatch SYSTEM "dev/shcode/mailpatch.xml">
   <!ENTITY archoverview SYSTEM "dev/advandev/archoverview.xml">
   <!ENTITY win32wine SYSTEM "dev/advandev/win32wine.xml">
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
@@ -59,13 +66,17 @@
         <title>Introduction to ReactOS development</title>
       </chapter>
 
-      &compilesrc;
+	&compilesrc;
+	&cvsintro;
+	&cvsget;
+	&cvsco;
+	&cvsupd;
+	&mailpatch;
+	&cvsapply;
+	&cvssubmit;
 
       <chapter>
         <title>Testing your compiled ReactOS code</title>
-      </chapter>
-      <chapter>
-        <title>Updating your tree with the latest code</title>
       </chapter>
       <chapter>
         <title>Where to go from here (newbie developer)</title>
