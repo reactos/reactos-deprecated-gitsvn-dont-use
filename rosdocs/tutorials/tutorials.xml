@@ -3,8 +3,10 @@
   <!ENTITY whyandhow SYSTEM "user/intro/whyandhow.xml">
   <!ENTITY organizational SYSTEM "user/intro/organizational.xml">
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
+  <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
+  <!ENTITY wineconf SYSTEM "history/2002/wineconf.xml">
 ]>
 <?xml-stylesheet type="text/xsl" href="../docbook-xsl-1.45/html/chunk.xsl"?>
 
@@ -37,9 +39,8 @@
       
       &installbin;
 
-      <chapter>
-        <title>Testing ReactOS</title>
-      </chapter>
+      &testbin;
+
       <chapter>
         <title>Where to go from here (newbie user)</title>
       </chapter>
@@ -85,6 +86,19 @@
     </part>
 
   </book>
+ 
+  <book>
+    <title>Historical</title>
+    <part>
+      <title>2002</title>
+
+      &wineconf;
+
+    </part>
+
+  </book>
+
+
 </set>
 
 <!--
