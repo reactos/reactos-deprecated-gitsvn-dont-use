@@ -6,6 +6,7 @@
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
   <!ENTITY archoverview SYSTEM "dev/advandev/archoverview.xml">
+  <!ENTITY win32wine SYSTEM "dev/advandev/win32wine.xml">
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
   <!ENTITY getbochs SYSTEM "dev/bochtest/getbochs.xml">
   <!ENTITY bochscyc SYSTEM "dev/bochtest/bochscyc.xml">
@@ -77,6 +78,8 @@
       <title>Advanced Developer</title>
     
       &archoverview;
+
+      &win32wine;
 
     </part>
 
