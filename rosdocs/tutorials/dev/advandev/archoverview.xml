@@ -49,7 +49,7 @@ ReactOS Architecture Overview.
 <sect2>
 <title>1 INTRODUCTION</title>
 <para>
-The ReactOS architecture is based on that of Microsoft Windows NT 4.0. Although Microsoft claims that the architecture is a modified microkernel (combining aspects of both microkernels and layered operating systems), at ReactOS we have a different definition of the architecture. The NT, and therefore ReactOS architecture, is modular and layered. The small traces of microkernel architecture are not enough for it to be described as a modified microkernel.
+The ReactOS architecture is based on that of Microsoft Windows NT 4.0. Although Microsoft claims that the architecture is a modified micro-kernel (combining aspects of both micro-kernels and layered operating systems), at ReactOS we have a different definition of the architecture. The NT, and therefore ReactOS architecture, is modular and layered. The small traces of microkernel architecture are not enough for it to be described as a modified micro-kernel.
 </para>
 <para>
 At the lowest layer is the Executive. The executive includes everything that runs in kernel mode. Above the executive are the Protected Subsystems. These subsystems provide implementations of different Operating System personalities.
@@ -149,7 +149,7 @@ The Windows NT graphics device drivers are tightly integrated in design with the
 <sect2>
 <title>4 NATIVE API ARCHITECTURE</title>
 <para>
-The Native API Architecture alls for user mode code to call kernel mode services in a standard manner. It is the equivalent to the System Call Inteface used by most UNIXes. Microsoft Windows NT/2000/XP does not document the Native API Architecture for programmers, they must use the Win32 APIs instead. Since ReactOS is Open Source, our Native API Architecture is open to the application programmer.
+The Native API Architecture alls for user mode code to call kernel mode services in a standard manner. It is the equivalent to the System Call Interface used by most UNIXes. Microsoft Windows NT/2000/XP does not document the Native API Architecture for programmers, they must use the Win32 APIs instead. Since ReactOS is Open Source, our Native API Architecture is open to the application programmer.
 </para>
 <para>
 The Native API Architecture is implemented in NTDLL.DLL. Aside from containing Native API user mode entry points, NTDLL.DLL also contains process startup and module loading code. These entry points call KiSystemService in kernel mode, which looks up the kernel mode service in a system table - KiSystemServiceTable.
@@ -165,7 +165,7 @@ Since then, Microsoft Windows 2000 and Windows XP have been released.
 <para>
 Microsoft Windows 2000 and Windows XP are both descendants of Windows NT. 
 As such we can gradually shift our compatibility target without worrying about the architecture changing too much. 
-In fact, internally, Windows 2000 is versioned as Windows 5.0 and Windows XP as Windows 5.1.
+In fact, internally, Windows 2000 reports version information as Windows 5.0 and Windows XP as Windows 5.1.
 </para>
 <para>
 The ReactOS team have decided to maintain Windows NT 4.0 as the official compatibility target. 

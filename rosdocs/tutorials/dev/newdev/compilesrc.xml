@@ -44,7 +44,7 @@ The ReactOS source is physically stored on ReactOS' SourceForge development site
 <listitem>Visit <ulink url="http://sourceforge.net/projects/reactos">sourceforge.net/projects/reactos</ulink> which is ReactOS' development site, hosted by SourceForge.</listitem>
 <listitem>Scroll down to the "Latest File Releases".</listitem>
 <listitem>Click on the "Download" link for the reactos package.</listitem>
-<listitem>Scroll down to the reactos package (should be hilighted purple) and click on the xxxx_source.zip (eg. 0018_source.zip) link to download the source.</listitem>
+<listitem>Scroll down to the reactos package (should be high-lighted purple) and click on the xxxx_source.zip (eg. 0018_source.zip) link to download the source.</listitem>
 </itemizedlist>
 </sect2>
 

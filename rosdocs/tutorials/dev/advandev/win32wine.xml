@@ -18,13 +18,13 @@
 
 <abstract>
 <para>
-ReactOS WINE Fork Overview, providing infomation on building the pure Win32 dlls, 
+ReactOS WINE Fork Overview, providing information on building the pure Win32 dlls, 
 tools and programs from the Wine and ReWind projects.
 </para>
 
 <para>
 The ReactOS Project will try to do quarterly imports of the Winehq or ReWind trees 
-right after each ReactOS release. This document only applys to the ReactOS build
+right after each ReactOS release. This document only relates to the ReactOS build
 system. If you are seeking information on building Wine for Mingw in a standalone 
 configuration, please go to <ulink url="http://www.winehq.com">WineHQ</ulink> and 
 read the Mingw WINE porters guide. 
@@ -50,7 +50,7 @@ Report any bugs in this document to the ReactOS WINE
 <title>Requirements</title>
 <itemizedlist>
 <listitem>Current copy Of the ReactOS kernel source tree.</listitem>
-<listitem>MSYS unix enviorment for Mingw (Only if building from Winehq/ReWind trees)</listitem>
+<listitem>MSYS UNIX enviroment for Mingw (Only if building from Winehq/ReWind trees)</listitem>
 <listitem>Standard ReactOS build system (Current Mingw/Win32api)</listitem>
 <listitem>Knowledge of the Winehq standards and Mingw support.</listitem>
 </itemizedlist>
@@ -62,10 +62,10 @@ Report any bugs in this document to the ReactOS WINE
 <para> 2. Download the ReactOS WINE fork via cvs using "co wine" to the SAME parent 
 directory where you store your ReactOS source tree. If you store your ReactOS 
 tree in C:\src\ReactOS then your WINE checkout would be in C:\src\WINE.</para>
-<para>3. set the enviomental varible ROS_BUILD_WINE=1</para>
+<para>3. set the enviromental variable ROS_BUILD_WINE=1</para>
 <para>4. Rebuild ReactOS sources as normal.</para>
 <para>
-Instead of ending in the normal location, the build will contenue in to the WINE tree 
+Instead of ending in the normal location, the build will continue in to the WINE tree 
 and build the target applications, tools and dlls.
 </para>
 </sect2>
@@ -82,7 +82,7 @@ these directions:</para>
 <itemizedlist>
 <listitem>Follow the Directions at www.winehq.com for configuring WINE under Mingw.(Does not Exist Yet)</listitem>
 <listitem>Run importwineros.sh on the most current wine sources(Does not Exist Yet)</listitem>
-<listitem>set the enviomental varible ROS_BUILD_WINE=1</listitem>
+<listitem>set the enviromental variable ROS_BUILD_WINE=1</listitem>
 <listitem>Rebuild ReactOS sources as normal</listitem>
 </itemizedlist>
 
@@ -90,7 +90,7 @@ these directions:</para>
 When adding, removing or changing exported functions in a WINE dll please be sure you have 
 updated the wine dllname.spec file. This file contains the import/export information for 
 win32 shared libraries on UNIX platforms and is used by to auto-generate the dllname.def 
-export file for Windows platforms. If you are adding funcationality to WINE, such as 
+export file for Windows platforms. If you are adding functionality to WINE, such as 
 implementing a function in a WINE dll that is currently stubbed, follow the patch guidelines 
 at <ulink url="http://www.winehq.com">Winehq</ulink>
 </para>
