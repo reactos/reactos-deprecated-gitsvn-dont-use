@@ -63,34 +63,18 @@ Examples:
 <prompt>C:\ROS\REACTOS\SUBSYS\WIN32K\NTUSER></prompt>cvs add *.c
 </programlisting>
 </para>
-Once you have added the file information, you must you the CVS commit command to actually copy the files to the repository:
-<programlisting>
-<prompt>C:\ROS\REACTOS\SUBSYS\WIN32K\NTUSER></prompt>cvs commit -m "Added NTUSER files"
-</programlisting>
-You'll notice that the -m switch is used to denote a commit message. This should be a short, overall description of what the commit is about. It will be stored in the CVS repository next to the version of the file committed and appear in the ros-commit mailing list. All changes to the ReactOS CVS repository are mailed to a subscription list, ros-commit.
+Once you have added the file information, you must you the CVS commit command to actually copy the files to the repository.
 </sect2>
 
 <sect2>
-<title>Committing changes to files in a single directory</title>
+<title>Committing changes to the repository</title>
 <para>
-If you wish to commit changes to a single files:
-<programlisting>
-cvs commit file.c -m "Commit message"
-cvs commit file1.c file2.c file3.c -m "Commit message"
-cvs commit *.c -m "Commit message"
-</programlisting>
-</para>
-</sect2>
-
-<sect2>
-<title>Committing new and changed files in multiple directories</title>
-<para>
-Lets say that you want to add all new files and update all the files you changed in reactos\subsys\win32k:
+The CVS commit command is used to upload your changes to the repository, including new files and changed files. Lets say that you want to add all new files and update all the files you changed in reactos\subsys\win32k:
 <programlisting>
 <prompt>C:\></prompt>cd\ros\reactos\subsys\win32k
 <prompt>C:\ROS\REACTOS\SUBSYS\WIN32K></prompt>cvs commit -m "Commit message"
 </programlisting>
-CVS will then commit any new and changed files in win32k's directory and subdirectories. Be sure to make your commit message descriptive of all the changes that will be committed -- but don't be too long with your description.
+CVS will then commit any new and changed files in win32k's directory and subdirectories to the repository. You'll notice that the -m switch is used to denote a commit message. This should be a short, overall description of what the commit is about. It will be stored in the CVS repository next to the version of the file committed and appear in the ros-commit mailing list. All changes to the ReactOS CVS repository are mailed to a subscription list, ros-commit.
 </para>
 </sect2>
 
