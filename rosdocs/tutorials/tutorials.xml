@@ -3,6 +3,7 @@
   <!ENTITY whyandhow SYSTEM "user/intro/whyandhow.xml">
   <!ENTITY license SYSTEM "user/intro/license.xml">
   <!ENTITY organizational SYSTEM "user/intro/organizational.xml">
+  <!ENTITY installiso SYSTEM "user/intro/installiso.xml">
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
@@ -36,7 +37,9 @@
       <chapter>
         <title>About ReactOS</title>
       </chapter>
-      
+
+      &installiso;
+
       &installbin;
 
       &testbin;
@@ -72,8 +75,8 @@
 
     <part>
       <title>Advanced Developer</title>
-      
-      &cdpack;    
+
+      &cdpack;
 
       &archoverview;
 
