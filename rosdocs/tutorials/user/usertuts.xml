@@ -25,7 +25,7 @@
 <listitem><ulink url="intro/organizational.html">Organizational structure</ulink></listitem>
 <listitem>About ReactOS</listitem>
 <listitem><ulink url="installbin.html">Download and install the latest ReactOS release binaries</ulink></listitem>
-<listitem>Testing ReactOS</listitem>
+<listitem><ulink url="testbin.html">Testing ReactOS</ulink></listitem>
 <listitem>Where to go from here (newbie user)</listitem>
 </itemizedlist>
 </sect1>
