@@ -1,9 +1,9 @@
 <chapter>
-<title>CD Packaging Guide</title>
+<title>Creating the ReactOS Boot-CD</title>
 
 <!--
 <artheader>
-   <title>CD Packaging Guide</title>
+   <title>Creating the ReactOS Boot-CD</title>
    <author>
       <firstname>Eric</firstname>
       <surname>Kohl</surname>
@@ -27,28 +27,38 @@
 
 <abstract>
 <para>
-How to create the ReactOS Boot CD
+How to create an ISO image file and a Boot-CD.
 </para>
 </abstract>
+
+<sect2>
+<title>TABLE OF CONTENTS</title>
+<itemizedlist>
+<listitem>Requirements</listitem>
+<listitem>Directory structure</listitem>
+<listitem>Creating the ISO image file</listitem>
+<listitem>Creating the Boot-CD</listitem>
+<listitem>Booting ReactOS from CD</listitem>
+</itemizedlist>
+</sect2>
+
 
 <sect2>
 <title>Requirements</title>
 <itemizedlist>
 <listitem>ReactOS and Freeldr cvs modules</listitem>
-<listitem>DJGPP 3.1 and current MinGW</listitem>
-<listitem>some free disk space</listitem>
-<listitem>a cd-r/cd-rw recorder</listitem>
-<listitem>at least one cd-r/cd-rw (cd-rw is recommended)</listitem>
+<listitem>Rosapps module (optional)</listitem>
+<listitem>Current DJGPP and current MinGW</listitem>
+<listitem>Some free disk space</listitem>
+<listitem>A cd-r/cd-rw recorder</listitem>
+<listitem>At least one cd-r/cd-rw (cd-rw is recommended)</listitem>
 </itemizedlist>
 </sect2>
 
 <sect2>
 <title>Directory structure</title>
 <para>
-To create a Boot-CD all required components must be copied into a seperate directory to write them onto the CD. At present, this root directory will be created in your local cvs root directory. For example, if you checked-out the reactos and freeldr modules to 'c:\cvs' the new root directoy will be 'c:\cvs\bootcd'. The directory layout looks like this:
-</para>
-<para>
-
+To create a Boot-CD all required components must be copied into a separate directory to write them onto the CD. At present, this root directory will be created in your local cvs root directory. For example, if you checked-out the reactos and freeldr modules to 'c:\cvs' the new root directoy will be 'c:\cvs\bootcd'. The directory layout looks like this:
 </para>
 
 <para>
@@ -66,6 +76,7 @@ bootcd
             \- fat32.bin
             \- ... (more bootsector files)
             \- freeldr.sys
+            \- setupldr.sys
        \- reactos
             \- atapi.sys
             \- blue.sys
@@ -84,48 +95,46 @@ When you create the CD only the contents of the 'disk' directory will be copied 
 </sect2>
 
 <sect2>
-<title>Creating the CD</title>
+<title>Creating the ISO image file</title>
 <para>
 This description is based on the german edition of Nero 5.0. If you are using another edition, read the manual first.</para>
+
+<sect3>
+<title>1 Build the bootsectors</title>
+<para>
+Cd' to the bootsect directory in the freeldr module and run 'make'.
+</para>
+</sect3>
+
+<sect3>
+<title>2 Build the loaders</title>
+<para>
+Cd' to the freeldr directory in the freeldr module and run 'make'.
+</para>
+<para>
+FreeLoader (freeldr.sys) is a boot loader/manager that is used to load multiple operating system from a Harddisk. SetupLoader (setupldr.sys) is a modified FreeLoader which is used to boot ReactOS (notskrnl, hal and drivers) from the Boot-CD. It can not be used to load ReactOS from a Harddisk.
+</para>
+</sect3>
+
+<sect3>
+<title>3 Build ReactOS</title>
+<para>
+Cd' to your reactos module and run 'make'.
+</para>
+</sect3>
+
+<sect3>
+<title>4 Create the iso image file</title>
+<para>
+Run 'bootcd.bat' from the reactos directory. This creates the 'bootcd' directory tree and copies all required components into the directory tree. Finally, the ISO image file 'reactos.iso' is created in the 'bootcd' directory.
+</para>
+</sect3>
 </sect2>
 
 <sect2>
-<title>1 Build and install the bootsector</title>
+<title>Creating the Boot-CD</title>
 <para>
-Cd' to the bootsect directory in the freeldr module and run 'make' and 'make bootcd'. Running 'make bootcd' creates the basic directory structure of the Boot-CD and copies the bootsectors into this structure.
-</para>
-</sect2>
-
-<sect2>
-<title>2 Build and install the setup loader</title>
-<para>
-The setup loader (setupldr.sys) is a modified FreeLoader which is used to boot ReactOS (notskrnl, hal and drivers) from the Boot-CD. Cd' to the freeldr directory in the freeldr module and run 'make' and 'make bootcd'. Running 'make bootcd' creates the basic directory structure of the Boot-CD and copies 'freeldr.sys' and 'setupldr.sys' into this structure.
-</para>
-</sect2>
-
-<sect2>
-<title>3 Build and install reactos</title>
-<para>
-Cd' to your reactos module and run 'make'. I guess you already know how to do that. ;-) Instead of running 'install.bat' run 'bootcd.bat'. It will copy all components which are needed to boot and install ReactOS from CD into the directory structure.
-</para>
-</sect2>
-
-<sect2>
-<title>4 Burning the CD</title>
-<para>
-Start your CD recording application. Since I'm only using 'Nero burning ROM' (5.0/5.5) you will have to have a look at the manual if your using another application.
-</para>
-<para>
-First, create a 'boot CD' project. Click the boot options tab in the project dialog, select 'isoboot.bin' as the current boot image and change the boot emulation to 'No emulation'. Finally set the number of boot sectors to 4 (four!).
-</para>
-<para>
-Next, click the title tab and change the cd label to 'REACTOS' (without quotes). Ntoskrnl needs this label to find the Boot-CD because the bios drive number is useless in this case. Close the project dialog.
-</para>
-<para>
-The project explorer will open next. Select all objects in the 'bootcd/disk' directory and drop them on the cd project. The directories 'bootsect', 'install' and 'reactos' are now located in the root directory of the cd project.
-</para>
-<para>
-Finally, write the project onto a CD-R or CD-RW.
+Start your CD recording application and write the ISO image file 'reactos.iso' onto a CD-R or CD-RW.
 </para>
 </sect2>
 
