@@ -4,6 +4,7 @@
   <!ENTITY organizational SYSTEM "user/intro/organizational.xml">
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
+  <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
 ]>
 <?xml-stylesheet type="text/xsl" href="../docbook-xsl-1.45/html/chunk.xsl"?>
 
@@ -67,6 +68,22 @@
       </chapter>
 
     </part>
+
+    <part>
+      <title>Bochs testing</title>
+
+      &introbochs;
+
+      <chapter>
+        <title>Configuring Bochs for use with ReactOS</title>
+      </chapter>
+
+      <chapter>
+        <title>The compile, test and debug cycle under Bochs</title>
+      </chapter>
+
+    </part>
+
   </book>
 </set>
 
