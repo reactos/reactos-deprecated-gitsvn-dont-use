@@ -30,12 +30,12 @@ endif
 # Tools
 #
 tools:
-	make -C tools
+	$(MAKE) -C tools
 
 tools_implib:
 
 tools_clean:
-	make -C tools clean
+	$(MAKE) -C tools clean
 
 tools_install:
 
@@ -52,8 +52,8 @@ htmlbig: $(OUTPUT_DIR_HTMLBIG)
 	- $(XSLTPROC) -o $(OUTPUT_DIR_HTMLBIG)/tutorials.html $(XSLSTYLESHEET_HTMLBIG) tutorials/tutorials.xml
 
 htmlhelp: $(OUTPUT_DIR_HTMLHELP)
-	- $(XSLTPROC) $(XSLSTYLESHEET_HTMLHELP) tutorials/tutorials.xml
-	- $(HHC) $(OUTPUT_DIR)/htmlhelp.hhp
+	- $(XSLTPROC) -o $(OUTPUT_DIR_HTMLHELP)/tutorials.html $(XSLSTYLESHEET_HTMLHELP) tutorials/tutorials.xml
+	- $(HHC) $(OUTPUT_DIR_HTMLHELP)/htmlhelp.hhp
 
 cleanoutput: tools
 	- $(RM) $(OUTPUT_DIR_HTMLBIG)/*.html
@@ -70,13 +70,13 @@ cleanoutput: tools
 clean: cleanoutput tools_clean
 	
 
-$(OUTPUT_DIR_HTMLBIG):
+$(OUTPUT_DIR_HTMLBIG): $(OUTPUT_DIR)
 	- $(RMKDIR) $(OUTPUT_DIR_HTMLBIG)
 
 $(OUTPUT_DIR_HTMLCHUNK): $(OUTPUT_DIR)
 	- $(RMKDIR) $(OUTPUT_DIR_HTMLCHUNK)
 
-$(OUTPUT_DIR_HTMLHELP):
+$(OUTPUT_DIR_HTMLHELP): $(OUTPUT_DIR)
 	- $(RMKDIR) $(OUTPUT_DIR_HTMLHELP)
 
 $(OUTPUT_DIR):
