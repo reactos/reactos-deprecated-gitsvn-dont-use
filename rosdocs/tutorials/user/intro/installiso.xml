@@ -66,8 +66,7 @@ ReactOS ISO-CD images are physically stored on ReactOS' SourceForge development 
 </para>
 <para>The setup utility is also limited in several ways:</para>
 <itemizedlist>
-<listitem>Disk partition can not be created, deleted or modified.</listitem>
-<listitem>Disk partitions can not be formatted.</listitem>
+<listitem>Disk partitions can be formatted using FAT32 only (don't format a partition smaller than approx. 500MB).</listitem>
 <listitem>ReactOS can only be installed on FAT16 or FAT32 partitions.</listitem>
 <listitem>The active partition must be a FAT16 or FAT32 partitions.</listitem>
 <listitem>Filesystem integrity can not be checked.</listitem>
