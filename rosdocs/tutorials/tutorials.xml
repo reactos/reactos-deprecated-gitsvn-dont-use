@@ -16,6 +16,7 @@
   <!ENTITY cvsupd SYSTEM "dev/shcode/cvsupd.xml">
   <!ENTITY mailpatch SYSTEM "dev/shcode/mailpatch.xml">
   <!ENTITY archoverview SYSTEM "dev/advandev/archoverview.xml">
+  <!ENTITY taggingfunctions SYSTEM "dev/advandev/taggingfunctions.xml">
   <!ENTITY win32wine SYSTEM "dev/advandev/win32wine.xml">
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
   <!ENTITY getbochs SYSTEM "dev/bochtest/getbochs.xml">
@@ -90,6 +91,8 @@
       &cdpack;
 
       &archoverview;
+
+      &taggingfunctions;
 
       &win32wine;
 
