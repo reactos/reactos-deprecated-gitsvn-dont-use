@@ -18,7 +18,7 @@
 
 <abstract>
 <para>
-Explains what Bochs is and a general idea of how it works. Links and briefly describes alternatives.
+Explains what Bochs is and a general idea of how it works.
 </para>
 </abstract>
 
@@ -38,17 +38,6 @@ An emulator is a software program that provides a virtual hardware platform. Sof
 <title>Introducing Bochs</title>
 <para>
 Bochs (pronounced "box") is an emulator written for the PC. It can run on both DOS/Windows and Linux operating systems. It emulates an x86 hardware system and has emulation for the 386, 486 and Pentium CPUs. It also provides IO port and BIOS emulation. Bochs can run Linux, DOS, Windows 95, Windows NT 4, ReactOS and many other operating systems. The software was initially written by Kevin Lawton and is now maintained by the <ulink url="http://bochs.sourceforge.net/">Bochs SourceForge project</ulink>. Although this project provides the latest Bochs binaries, we recommend that you test ReactOS with the Bochs binaries provided by our <ulink url="http://reactos.com/index.php?current_menu=tools&amp;content_page=bochsget.inc">reactos.com Bochs page</ulink>.
-</para>
-</sect2>
-
-<sect2>
-<title>Other Emulators</title>
-<para>
-There are other emulators which you may want to try out when testing ReactOS. Here are some worth mentioning:
-<itemizedlist>
-<listitem><ulink url="http://www.vmware.com/">VMWare</ulink>: VMWare is a commercial product. Free trial versions are available for download from their website.</listitem>
-<listitem><ulink url="http://www.plex86.org/">Plex86</ulink>: Plex86 is another project started by Kevin Lawton. It is meant as the successor to Bochs and includes several new techniques to increase the speed of emulation. At the time of this writing, Plex86 only runs on Linux.</listitem>
-</itemizedlist>
 </para>
 </sect2>
 
