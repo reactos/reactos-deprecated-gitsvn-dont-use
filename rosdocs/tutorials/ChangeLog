@@ -1,3 +1,13 @@
+2003-07-11  Casper S. Hornstrup  <chorns@users.sourceforge.net>
+
+	* tutorials.xml: New entity taggingfunctions.
+	* dev/advandev/taggingfunctions.xml: New file.
+
+2003-05-28  Casper S. Hornstrup  <chorns@users.sourceforge.net>
+
+	* user/intro/installiso.xml: Installation program can create
+	and delete partitions and format them with a FAT32 filesystem.
+
 2002-11-05  Casper S. Hornstrup  <chorns@users.sourceforge.net>
 
 	* dev/shcode/mailpatch.xml: Use "cvs diff -up" instead of "diff".
