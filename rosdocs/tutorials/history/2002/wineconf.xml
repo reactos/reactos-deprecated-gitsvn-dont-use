@@ -39,7 +39,7 @@ Opening speech by Jason on the history of ReactOS.
 <sect2>
 <title>ReactOS Mission and Goals</title>
 <para>
-Disscussion on the original goal of compatibility with NT 4 applications and drivers. Further discussion looking at 2K/XP compatibility, short discussion on .NET plan by Capser Hornstroup.
+Disscussion on the original goal of compatibility with NT 4 applications and drivers. Further discussion looking at 2K/XP compatibility, short discussion on .NET plan by Casper Hornstrup.
 </para>
 </sect2>
 
@@ -58,7 +58,7 @@ Short Disscussion on Console Application support followed by demos.
 Discussion on plans to Stabilize win32 console applications
 <itemizedlist>
 <listitem>Self-hosted building of ReactOS using Mingw32</listitem>
-<listitem>Fix and separate dfalt in to dll for other console applications.</listitem>
+<listitem>Fix and separate DFlat in to dll for other console applications.</listitem>
 </itemizedlist>
 </para>
 </sect2>
@@ -107,10 +107,7 @@ Overview of ReactOS Kernel Architecture
 <title>Subsystems</title>
 <para>
 
-Architecture
-Subsystems allow ReactOS, as they do WinNT, to run applications designed for other systems.
-
-ReactOS Subsystem Philosophy
+Subsystems allow ReactOS, as they do WinNT, to run applications designed for other systems. 
 The original goal of win32 support has not been dropped. Developers who work on subsystems other than win32 are those who would never have contributed to the win32 system. This means that we are NOT dispersing our existing win32 developers. Instead, we are attracting developers that work on other subsystems and could bring more developers to the kernel.
 </para>
 </sect2>
