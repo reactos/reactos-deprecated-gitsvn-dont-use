@@ -28,7 +28,7 @@ How to test the installed ReactOS binaries.
 Reboot your system in plain DOS 
 Change directory to C:\reactos 
 Type "boot" or "aboot" at the command prompt (aboot.bat is the boot script with ACPI support). 
-You should observe serveral messages as drivers load.
+You should observe a few messages as drivers load.
 Wait until the prompt reappears (the screen should turn blue while ReactOS boots). 
 Go on to next section.
 </para>

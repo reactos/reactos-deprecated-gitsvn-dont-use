@@ -21,7 +21,7 @@ As an introduction to ReactOS. The chapter is about how the project came about a
 </abstract>
 
 <sect2>
-<title>Running Windows applications on an Open Source OS</title>
+<title>Running Windows applications on an Open Source Operating System</title>
 <para>
 Since Microsoft Windows has a monopoly on the desktop, many projects have been started to get Windows applications to run on other operating systems. This is because if you have a fantastic OS, but no or little applications, your OS will probably see little growth or die. This is the story of many OSs, that while technically superior to Windows at the time, died off or have seen little growth.
 </para>
