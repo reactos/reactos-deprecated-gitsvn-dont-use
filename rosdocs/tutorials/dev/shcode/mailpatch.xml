@@ -44,11 +44,16 @@ Since ReactOS does not have a definite maintainer for each section of the code, 
 <listitem>Make sure that your patch is against the latest code from CVS.</listitem>
 <listitem>Where you have made changes to an existing source file, you will use diff to obtain a file that contains only the changes that you have made:
 <itemizedlist>
-<listitem>Make sure you have diff.exe on your system. If you don't, you can obtain it from <ulink url="http://www.cygwin.com/">http://www.cygwin.com/</ulink>, click on their "Install Cygwin now" link (diff can be found under the Base category).</listitem>
-<listitem>You must have both the old version of the file, and your new modified version to make the diff.</listitem>
-<listitem>To create the diff file:
+<listitem>Make sure you have cvs and diff on your system (cvs.exe and diff.exe on Windows). If you use Windows and don't have these tools, you can obtain WinCVS from <ulink url="http://www.wincvs.org/">http://www.wincvs.org/</ulink> (remember to put the WinCVS directory in your path).</listitem>
+<listitem>To create the patch:
 <programlisting>
-diff.exe file1 file2 > mypatch.dif
+cvs diff -up file1 file2 > mypatch.diff
+</programlisting>
+</listitem>
+<listitem>If you have changed many files, then you can avoid typing each filename by doing this:
+<programlisting>
+cd &lt;top-directory-for-all-changed-files&gt;
+cvs diff -up > mypatch.diff
 </programlisting>
 </listitem>
 </itemizedlist>
