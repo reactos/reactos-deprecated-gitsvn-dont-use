@@ -1,9 +1,58 @@
 <?xml version="1.0"?>
-<!DOCTYPE book SYSTEM "../dtd/docbook-xml-4.1.2/docbookx.dtd">
-<?xml-stylesheet type="text/xsl" href="../docbook-xsl-1.45/xhtml/docbook.xsl"?>
+<!DOCTYPE book SYSTEM "../dtd/docbook-xml-4.1.2/docbookx.dtd" [
+  <!ENTITY whyandhow SYSTEM "user/intro/whyandhow.xml">
+  <!ENTITY organizational SYSTEM "user/intro/organizational.xml">
+  <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
+]>
+<?xml-stylesheet type="text/xsl" href="../../docbook-xsl-1.45/xhtml/docbook.xsl"?>
 
-<article>
+<set>
+  <title>Tutorials for ReactOS</title>
+  <setinfo>
+    <corpauthor>ReactOS Development Team</corpauthor>
+  </setinfo>
 
+  <book>
+    <title>User Tutorials</title>
+    <part>
+      <title>Introduction</title>
+      &whyandhow;
+<!--
+      &GPL;
+-->
+      <chapter>
+        <title>ReactOS license: GNU General Public License</title>
+      </chapter>
+<!--
+      &GDL;
+-->
+      
+      &organizational;
+      
+      <chapter>
+        <title>About ReactOS</title>
+      </chapter>
+      
+      &installbin;
+
+      <chapter>
+        <title>Testing ReactOS</title>
+      </chapter>
+      <chapter>
+        <title>Where to go from here (newbie user)</title>
+      </chapter>
+    </part>
+  </book>
+
+  <book>
+    <title>Developer Tutorials</title>
+    <para>
+    ...
+    </para>
+  </book>
+</set>
+
+<!--
 <artheader>
    <title>Tutorials for ReactOS</title>
    <author>
@@ -16,12 +65,4 @@
       </affiliation>
    </author>
 </artheader>
-
-<sect1>
-<itemizedlist>
-<listitem><ulink url="user/usertuts.html">User Tutorials</ulink></listitem>
-<listitem>Developer Tutorials</listitem>
-</itemizedlist>
-</sect1>
-
-</article>
+-->

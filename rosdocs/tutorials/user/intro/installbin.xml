@@ -1,9 +1,7 @@
-<?xml version="1.0"?>
-<!DOCTYPE book SYSTEM "../../../dtd/docbook-xml-4.1.2/docbookx.dtd">
-<?xml-stylesheet type="text/xsl" href="../../../docbook-xsl-1.45/xhtml/docbook.xsl"?>
+<chapter>
+<title>Download and install the latest ReactOS release binaries</title>
 
-<article>
-
+<!--
 <artheader>
    <title>Downloading and installing the latest ReactOS binaries</title>
    <author>
@@ -16,6 +14,7 @@
       </affiliation>
    </author>
 </artheader>
+-->
 
 <abstract>
 <para>
@@ -64,4 +63,4 @@ ReactOS binaries are physically stored on ReactOS' SourceForge development site.
 </para>
 </sect1>
 
-</article>
+</chapter>
