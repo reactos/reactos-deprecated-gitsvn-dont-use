@@ -34,7 +34,7 @@ To download a CVS client, visit Cyclic Software's CVS client <ulink url="http://
 <para>
 Set the following environment variables (for anonymous login):
 <programlisting>
-set CVSROOT=:pserver:cvsanon@mok.lvcm.com:/CVS/ReactOS
+set CVSROOT=:pserver:cvsanon@osexperts.com:/CVS/ReactOS
 set HOME=c:\temp 
 </programlisting>
 You will probably want to put these settings into your autoexec.bat file. These settings assume that you have a directory called c:\temp for temporary files. To log into the CVS server run "cvs login" and, when prompted for a password, enter "cvsanon". This anonymous user has rights to check out source trees and get updates, but cannot add, remove or commit anything into the repository.
