@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE book SYSTEM "../dtd/docbook-xml-4.1.2/docbookx.dtd" [
   <!ENTITY whyandhow SYSTEM "user/intro/whyandhow.xml">
+  <!ENTITY license SYSTEM "user/intro/license.xml">
   <!ENTITY organizational SYSTEM "user/intro/organizational.xml">
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
@@ -25,15 +26,8 @@
     <part>
       <title>Introduction</title>
       &whyandhow;
-<!--
-      &GPL;
--->
-      <chapter>
-        <title>ReactOS license: GNU General Public License</title>
-      </chapter>
-<!--
-      &GDL;
--->
+
+      &license;
       
       &organizational;
       
