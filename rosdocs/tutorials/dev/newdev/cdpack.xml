@@ -1,9 +1,9 @@
 <chapter>
-<title>Creating the ReactOS bootable CD</title>
+<title>Creating the ReactOS bootable CD or Live CD</title>
 
 <!--
 <artheader>
-   <title>Creating the ReactOS bootable CD</title>
+   <title>Creating the ReactOS bootable CD or Live CD</title>
    <author>
       <firstname>Eric</firstname>
       <surname>Kohl</surname>
@@ -108,6 +108,9 @@ Change the current directory to your reactos module working copy directory and r
 <title>2 Create the iso image file</title>
 <para>
 In your reactos module working copy directory run 'make bootcd'. This will first build FreeLoader in the freeldr directory parallel to reactos. FreeLoader (freeldr.sys) is a boot loader/manager that is used to load multiple operating systems from a harddisk. SetupLoader (setupldr.sys) is a modified FreeLoader which is used to boot ReactOS from the bootable CD. It can not be used to load ReactOS from a harddisk. Executing the 'make bootcd' command will also create the 'bootcd' directory tree and all required components will be copied into this directory tree. Finally, the ISO image file 'ReactOS.iso' is created in the reactos directory.
+</para>
+<para>
+To create the ReactOS Live CD just issue the command 'make livecd' in the root of the reactos source tree. This will create the roslive.iso.
 </para>
 </sect3>
 </sect2>
