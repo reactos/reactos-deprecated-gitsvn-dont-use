@@ -1,8 +1,0 @@
-2001-07-10  Norman Walsh <nwalsh@users.sourceforge.net>
-
-	* dblib.dsl: Bug fix: (strip) was returning the empty string for any string one character long
-
-2001-04-02  Norman Walsh <nwalsh@users.sourceforge.net>
-
-	* dblib.dsl: New file.
-
