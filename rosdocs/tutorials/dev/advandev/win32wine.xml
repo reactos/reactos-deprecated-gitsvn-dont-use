@@ -1,0 +1,130 @@
+<chapter>
+<title>ReactOS WINE Developer Guide</title>
+
+<!--
+<artheader>
+   <title>ReactOS WINE Developer Guide</title>
+   <author>
+      <firstname>Steven</firstname>
+      <surname>Edwards</surname>
+      <affiliation>
+        <address>
+          <email>Steven_Ed4153@yahoo.com</email>
+        </address>
+      </affiliation>
+   </author>
+</artheader>
+-->
+
+<abstract>
+<para>
+ReactOS WINE Fork Overview, providing infomation on building the pure Win32 dlls, 
+tools and programs from the Wine and ReWind projects.
+</para>
+
+<para>
+The ReactOS Project will try to do quarterly imports of the Winehq or ReWind trees 
+right after each ReactOS release. This document only applys to the ReactOS build
+system. If you are seeking information on building Wine for Mingw in a standalone 
+configuration, please go to <ulink url="http://www.winehq.com">WineHQ</ulink> and 
+read the Mingw WINE porters guide. 
+</para>
+
+<para>
+Report any bugs in this document to the ReactOS WINE
+<ulink url="mailto:Steven_Ed4153@yahoo.com">Maintainer</ulink>
+</para>
+</abstract>
+
+<sect2>
+<title>TABLE OF CONTENTS</title>
+<itemizedlist>
+<listitem>Requirements</listitem>
+<listitem>ReactOS Wine Build Directions</listitem>
+<listitem>Advanced ReactOS WINE Developer Directions</listitem>
+<listitem>TODO LIST</listitem>
+</itemizedlist>
+</sect2>
+
+<sect2>
+<title>Requirements</title>
+<itemizedlist>
+<listitem>Current copy Of the ReactOS kernel source tree.</listitem>
+<listitem>MSYS unix enviorment for Mingw (Only if building from Winehq/ReWind trees)</listitem>
+<listitem>Standard ReactOS build system (Current Mingw/Win32api)</listitem>
+<listitem>Knowledge of the Winehq standards and Mingw support.</listitem>
+</itemizedlist>
+</sect2>
+
+<sect2>
+<title>ReactOS Wine Build Directions</title>
+<para> 1. Download the most current ReactOS source's as normal.</para>
+<para> 2. Download the ReactOS WINE fork via cvs using "co wine" to the SAME parent 
+directory where you store your ReactOS source tree. If you store your ReactOS 
+tree in C:\src\ReactOS then your WINE checkout would be in C:\src\WINE.</para>
+<para>3. set the enviomental varible ROS_BUILD_WINE=1</para>
+<para>4. Rebuild ReactOS sources as normal.</para>
+<para>
+Instead of ending in the normal location, the build will contenue in to the WINE tree 
+and build the target applications, tools and dlls.
+</para>
+</sect2>
+
+<sect2>
+<title>Advanced ReactOS WINE Developer Directions</title>
+<para> WARNING: Building the WINE from any other source other then the ReactOS cvs tree 
+is not supported by the ReactOS project.</para>
+<para>
+If you need to import the WINE sources in to the ReactOS build system or 
+want to build ReactOS with a newer copy of the WINE sources follow 
+these directions:</para>
+
+<itemizedlist>
+<listitem>Follow the Directions at www.winehq.com for configuring WINE under Mingw.(Does not Exist Yet)</listitem>
+<listitem>Run importwineros.sh on the most current wine sources(Does not Exist Yet)</listitem>
+<listitem>set the enviomental varible ROS_BUILD_WINE=1</listitem>
+<listitem>Rebuild ReactOS sources as normal</listitem>
+</itemizedlist>
+
+<para>
+When adding, removing or changing exported functions in a WINE dll please be sure you have 
+updated the wine dllname.spec file. This file contains the import/export information for 
+win32 shared libraries on UNIX platforms and is used by to auto-generate the dllname.def 
+export file for Windows platforms. If you are adding funcationality to WINE, such as 
+implementing a function in a WINE dll that is currently stubbed, follow the patch guidelines 
+at <ulink url="http://www.winehq.com">Winehq</ulink>
+</para>
+
+<para>
+Any ReactOS changes in the REACTOS fork must be clearly commented and should 
+not be used unless there is no other way to work around the problem.
+</para>
+
+<para>Example:</para>
+<para>#ifdef __REACTOS__</para>
+<para>ReactOS code</para>
+<para>#endif</para>
+
+<para>Send ReactOS WINE patches to <ulink url="mailto:reactos-kernel@lists.sourceforge.net">ReactOS Wine Patches</ulink></para>
+<para>Send WINE only patches to <ulink url="mailto:wine-patches@winehq.com">WINE-Patches</ulink></para>
+<para>DO NOT MAIL REACTOS PATCHES TO WINEHQ. All to the WINE project must be licensed either LGPL or X11.</para>
+
+</sect2>
+
+<sect2>
+<title>TODO LIST</title>
+
+<para>ReactOS fork</para>
+<itemizedlist>
+<listitem>Write importwineros.sh script to convert wine Makefiles to ReactOS makefile's when doing a import.</listitem>
+<listitem>Improve this HOWTO</listitem>
+</itemizedlist>
+
+<para>Winehq/ReWind Source tree</para>
+<itemizedlist>
+<listitem>Improve NTDLL functionality with WINESERVER</listitem>
+<listitem>Correct DLLs that work around missing NTDLL functions</listitem>
+</itemizedlist>
+</sect2>
+
+</chapter>
