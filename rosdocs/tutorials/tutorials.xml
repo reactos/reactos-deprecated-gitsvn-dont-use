@@ -11,7 +11,7 @@
   <!ENTITY bochscyc SYSTEM "dev/bochtest/bochscyc.xml">
   <!ENTITY wineconf SYSTEM "history/2002/wineconf.xml">
 ]>
-<?xml-stylesheet type="text/xsl" href="../docbook-xsl-1.45/html/chunk.xsl"?>
+<?xml-stylesheet type="text/xsl" href="../xsl/html/chunk.xsl"?>
 
 <set>
   <title>Tutorials for ReactOS</title>
