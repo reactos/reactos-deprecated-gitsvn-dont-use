@@ -11,6 +11,7 @@
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
   <!ENTITY getbochs SYSTEM "dev/bochtest/getbochs.xml">
   <!ENTITY bochscyc SYSTEM "dev/bochtest/bochscyc.xml">
+  <!ENTITY introvmware SYSTEM "dev/vmware/introvmware.xml">
   <!ENTITY wineconf SYSTEM "history/2002/wineconf.xml">
 ]>
 <?xml-stylesheet type="text/xsl" href="../xsl/html/chunk.xsl"?>
@@ -90,6 +91,13 @@
       <title>The compile, test and debug cycle under Bochs</title>
 
       &bochscyc;
+
+    </part>
+
+    <part>
+      <title>VMware Testing</title>
+
+      &introvmware;
 
     </part>
 
