@@ -118,6 +118,15 @@
     </part>
 
     <part>
+      <title>QEMU testing</title>
+
+      <title>Downloading and Using QEMU with ReactOS</title>
+
+      <title>The compile, test and debug cycle under QEMU</title>
+
+    </part>
+
+    <part>
       <title>VMware Testing</title>
 
       &introvmware;
