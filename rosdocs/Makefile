@@ -21,7 +21,7 @@ ifeq ($(HOST),mingw32-linux)
 all: tools htmlbig htmlchunk
 	
 else
-all: tools htmlbig htmlchunk htmlhelp
+all: tools htmlbig htmlchunk # htmlhelp
 	
 endif
 	
