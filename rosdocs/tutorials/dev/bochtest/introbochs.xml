@@ -37,7 +37,7 @@ An emulator is a software program that provides a virtual hardware platform. Sof
 <sect2>
 <title>Introducing Bochs</title>
 <para>
-Bochs (pronounced "box") is an emulator written for the PC. It can run on both DOS/Windows and Linux operating systems. It emulates an x86 hardware system and has emulation for the 386, 486 and Pentium CPUs. It also provides IO port and BIOS emulation. Bochs can run Linux, DOS, Windows 95, Windows NT 4, ReactOS and many other operating systems. The software was initially written by Kevin Lawton and is now maintained by the <ulink url="http://bochs.sourceforge.net/">Bochs SourceForge project</ulink>. Although this project provides the latest Bochs binaries, we recommend that you test ReactOS with the Bochs binaries provided by our <ulink url="http://reactos.com/index.php?current_menu=tools&content_page=bochsget.inc">reactos.com Bochs page</ulink>.
+Bochs (pronounced "box") is an emulator written for the PC. It can run on both DOS/Windows and Linux operating systems. It emulates an x86 hardware system and has emulation for the 386, 486 and Pentium CPUs. It also provides IO port and BIOS emulation. Bochs can run Linux, DOS, Windows 95, Windows NT 4, ReactOS and many other operating systems. The software was initially written by Kevin Lawton and is now maintained by the <ulink url="http://bochs.sourceforge.net/">Bochs SourceForge project</ulink>. Although this project provides the latest Bochs binaries, we recommend that you test ReactOS with the Bochs binaries provided by our <ulink url="http://reactos.com/index.php?current_menu=tools&amp;content_page=bochsget.inc">reactos.com Bochs page</ulink>.
 </para>
 </sect2>
 
