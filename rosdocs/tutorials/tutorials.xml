@@ -5,6 +5,7 @@
   <!ENTITY installbin SYSTEM "user/intro/installbin.xml">
   <!ENTITY testbin SYSTEM "user/intro/testbin.xml">
   <!ENTITY compilesrc SYSTEM "dev/newdev/compilesrc.xml">
+  <!ENTITY archoverview SYSTEM "dev/advandev/archoverview.xml">
   <!ENTITY introbochs SYSTEM "dev/bochtest/introbochs.xml">
   <!ENTITY wineconf SYSTEM "history/2002/wineconf.xml">
 ]>
@@ -67,6 +68,13 @@
       <chapter>
         <title>Where to go from here (newbie developer)</title>
       </chapter>
+
+    </part>
+
+    <part>
+      <title>Advaced Developer</title>
+    
+      &archoverview;
 
     </part>
 
