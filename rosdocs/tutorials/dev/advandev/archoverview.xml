@@ -130,6 +130,7 @@ User mode subsystems in the works:
 </para>
 <itemizedlist>
 <listitem>POSIX</listitem>
+<listitem>OS/2</listitem>
 </itemizedlist>
 <para>
 Potential Protected Subsystems for the future:
@@ -137,7 +138,6 @@ Potential Protected Subsystems for the future:
 <itemizedlist>
 <listitem>DOS (Possibly a port of the FreeDOS Operating System)</listitem>
 <listitem>Java Operating System (JOS: Open Source Java Operating System)</listitem>
-<listitem>OS/2 (FreeOS: Open Source OS/2 clone)</listitem>
 <listitem>Many more</listitem>
 </itemizedlist>
 <para>
