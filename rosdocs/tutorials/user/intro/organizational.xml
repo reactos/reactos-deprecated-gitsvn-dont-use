@@ -1,9 +1,7 @@
-<?xml version="1.0"?>
-<!DOCTYPE book SYSTEM "../../../dtd/docbook-xml-4.1.2/docbookx.dtd">
-<?xml-stylesheet type="text/xsl" href="../../../docbook-xsl-1.45/xhtml/docbook.xsl"?>
+<chapter>
+<title>Organizational structure</title>
 
-<article>
-
+<!--
 <artheader>
    <title>The organizational structure of the ReactOS project</title>
    <author>
@@ -16,6 +14,7 @@
       </affiliation>
    </author>
 </artheader>
+-->
 
 <abstract>
 <para>
@@ -100,4 +99,4 @@ The coordinators are more facilitators than instructors of the teams. They are t
 </table>
 </sect1>
 
-</article>
+</chapter>

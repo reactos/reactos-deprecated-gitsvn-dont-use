@@ -1,9 +1,6 @@
-<?xml version="1.0"?>
-<!DOCTYPE book SYSTEM "../../../dtd/docbook-xml-4.1.2/docbookx.dtd">
-<?xml-stylesheet type="text/xsl" href="../../../docbook-xsl-1.45/xhtml/docbook.xsl"?>
-
-<article>
-
+<chapter>
+<title>The why and how of ReactOS</title>
+<!--
 <artheader>
    <title>The why and how of ReactOS</title>
    <author>
@@ -16,10 +13,10 @@
       </affiliation>
    </author>
 </artheader>
-
+-->
 <abstract>
 <para>
-As an introduction to ReactOS. The article is about how the project came about and what the developers hope to achieve.
+As an introduction to ReactOS. The chapter is about how the project came about and what the developers hope to achieve.
 </para>
 </abstract>
 
@@ -50,4 +47,4 @@ ReactOS still has a long way to go, but the developers are confident that ReactO
 </para>
 </sect1>
 
-</article>
+</chapter>
