@@ -46,7 +46,7 @@ sub check_dir
 				my $path = "$dir/$file";
 				$path =~ s/^\.\///;
 
-				my $url = "http://svn.reactos.com/viewcvs/trunk/reactos/$path";
+				my $url = "http://svn.reactos.org/viewcvs/trunk/reactos/$path";
 				
 				print "<tr>\n";
 				print "<td><a href='$url'>$path</a></td>\n";
@@ -64,22 +64,49 @@ sub check_dir
 	}
 }
 
-print "<html>\n";
-print "<head>\n";
-print "<title>Resources to update</title>\n";
-print "</head>\n";
+sub generate_content
+{
+	print '<h1><a href="http://www.reactos.org/xhtml/en/dev.html">';
+	print "ReactOS Development</a> &gt; Resource translation status</h1>\n";
+	print "<h2>Resource translation status</h2>\n";
 
-print "<body>\n";
-print "<table border='1'>\n";
+	open(SVNINVOKE, "svn info . |");
+	my @props = <SVNINVOKE>;
+	close(SVNINVOKE);
+	
+	print "<h3>Last update: ";
+	system "date";
+	# pick out the appropriate property
+	my ($propline) = grep { $_ =~ /Last Changed Rev: / } @props;
+	if ($propline =~ /Last Changed Rev: (\d+)/)
+	{
+		print " (revision $1)";
+	}
+	print "</h3>\n";
+	
+	print "<table border='1'>\n";
+	
+	print "<tr>\n";
+	print "<td>File</td>\n";
+	print "<td>Rev</td>\n";
+	print "<td>En.rc Rev</td>\n";
+	print "</tr>\n";
+	
+	check_dir('.');
+}
 
-print "<tr>\n";
-print "<td>File</td>\n";
-print "<td>Rev</td>\n";
-print "<td>En.rc Rev</td>\n";
-print "</tr>\n";
-
-check_dir('.');
-
-print "</table>\n";
-print "</body>\n";
-print "</html>\n";
+open(TEMPLATE, '../../htdocs/xhtml/en/dev_template.html' );
+while (<TEMPLATE>)
+{
+	s/Template title/Resource translation status/;
+#  s/^\/\/extramessage$/$extramessage/;
+	if ($_ =~ '<!-- Replace this by the real content -->')
+	{
+		generate_content();
+	}
+	else
+	{
+		print "$_";
+	}
+}
+close(TEMPLATE);
