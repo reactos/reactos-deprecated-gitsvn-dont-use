@@ -1,0 +1,89 @@
+[%# 1.0@bugzilla.org %]
+[%# The contents of this file are subject to the Mozilla Public
+  # License Version 1.1 (the "License"); you may not use this file
+  # except in compliance with the License. You may obtain a copy of
+  # the License at http://www.mozilla.org/MPL/
+  #
+  # Software distributed under the License is distributed on an "AS
+  # IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+  # implied. See the License for the specific language governing
+  # rights and limitations under the License.
+  #
+  # The Original Code is the Bugzilla Bug Tracking System.
+  #
+  # The Initial Developer of the Original Code is Netscape Communications
+  # Corporation. Portions created by Netscape are
+  # Copyright (C) 1998 Netscape Communications Corporation. All
+  # Rights Reserved.
+  #
+  # Contributor(s): Gervase Markham <gerv@gerv.net>
+  #%]
+
+[% DEFAULT start_at = 0 mode = "show" %]
+[% count = 0 %]
+[% isinsider = Param("insidergroup") && UserInGroup(Param("insidergroup")) %]
+[% FOREACH comment = comments %]
+  [% IF count >= start_at %]
+    [% PROCESS a_comment %]
+  [% END %]
+  
+  [% count = count + 1 %]
+[% END %]
+
+[% PROCESS bug/time.html.tmpl %]
+
+[%# Note: this template is used in multiple places; if you use this hook,
+  # make sure you are aware of this fact.
+  #%]  
+[% Hook.process("aftercomments") %]
+
+[%############################################################################%]
+[%# Block for individual comments                                            #%]
+[%############################################################################%]
+
+[% BLOCK a_comment %]
+  [% IF NOT comment.isprivate || isinsider %]
+    <div [% "class=\"bz_private\"" IF comment.isprivate %]>
+      [% IF count > 0 %]
+        <br>
+        <span class="bz_comment">
+          ------- <i>Additional Comment
+          <a name="c[% count %]" href="#c[% count %]">#[% count %]</a> From 
+          <a href="mailto:[% comment.email FILTER html %]">
+            [% comment.name FILTER html %]</a>
+          [%+ comment.time FILTER time %] 
+          </i>
+          [% IF mode == "edit" %]
+          <script type="text/javascript" language="JavaScript"><!-- 
+            addReplyLink([% count %]); //--></script>
+          [% END %]
+          -------
+        </span>
+      [% END %]
+        
+      [% IF mode == "edit" && isinsider %]
+        <i>
+          <input type="hidden" name="oisprivate-[% count %]" 
+                 value="[% comment.isprivate %]">
+          <input type="hidden" name="when-[% count %]" value="[% comment.when %]">
+          <input type="checkbox" name="isprivate-[% count %]" value="1"
+                 id="isprivate-[% count %]"
+          [% " checked=\"checked\"" IF comment.isprivate %]> Private
+        </i>
+      [% END %]
+      [% IF UserInGroup(Param('timetrackinggroup')) &&
+            (comment.work_time > 0 || comment.work_time < 0) %]
+         <br>
+         Additional hours worked: 
+         [% PROCESS formattimeunit time_unit=comment.work_time %]
+      [% END %]
+
+[%# Don't indent the <pre> block, since then the spaces are displayed in the
+  # generated HTML
+  #%]
+<pre[% ' id="comment_text_' _ count _ '"' IF mode == "edit" %]>
+  [%- comment.body FILTER quoteUrls -%]
+</pre>
+    </div>
+  [% END %]
+[% END %]

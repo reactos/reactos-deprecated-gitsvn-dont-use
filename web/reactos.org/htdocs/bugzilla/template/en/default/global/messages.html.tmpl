@@ -1,0 +1,173 @@
+[%# 1.0@bugzilla.org %]
+[%# The contents of this file are subject to the Mozilla Public
+  # License Version 1.1 (the "License"); you may not use this file
+  # except in compliance with the License. You may obtain a copy of
+  # the License at http://www.mozilla.org/MPL/
+  #
+  # Software distributed under the License is distributed on an "AS
+  # IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+  # implied. See the License for the specific language governing
+  # rights and limitations under the License.
+  #
+  # The Original Code is the Bugzilla Bug Tracking System.
+  #
+  # The Initial Developer of the Original Code is Netscape Communications
+  # Corporation. Portions created by Netscape are
+  # Copyright (C) 1998 Netscape Communications Corporation. All
+  # Rights Reserved.
+  #
+  # Contributor(s): Gervase Markham <gerv@gerv.net>
+  #%]
+
+[%# This is a list of all the possible messages. Please keep them in
+  # alphabetical order by message tag, and leave a blank line between messages.
+  #%]
+
+[% PROCESS global/variables.none.tmpl %]
+
+[% message_tag = message %]
+
+[% message = BLOCK %]
+  [% IF    message_tag == "buglist_adding_field" %]
+    [% title = "Adding field to search page..." %]
+    [% link  = "Click here if the page does not redisplay automatically." %]
+
+  [% ELSIF message_tag == "buglist_load_named_query" %]
+    [% title = BLOCK %]
+      Loading your search named [% namedcmd FILTER html %]
+    [% END %]
+    [% link  = "Click here if the page does not redisplay automatically." %]
+
+  [% ELSIF message_tag == "buglist_updated_named_query" %]
+    OK, your search named <code>[% queryname FILTER html %]</code> is updated.
+
+  [% ELSIF message_tag == "buglist_new_default_query" %]
+    OK, you now have a new default search.  You may
+    also bookmark the result of any individual search.
+
+  [% ELSIF message_tag == "buglist_new_named_query" %]
+    OK, you have a new search named <code>[% queryname FILTER html %]</code>.
+
+  [% ELSIF message_tag == "buglist_query_gone" %]
+    [% title = "Search is gone" %]
+    [% link  = "Go back to the search page." %]
+    OK, the <b>[% namedcmd FILTER html %]</b> search is gone.
+
+  [% ELSIF message_tag == "buglist_sorted_by_relevance" %]
+    [% terms.Bugs %] on this list are sorted by relevance, with the most
+    relevant [% terms.bugs %] at the top.
+    [% IF bugs.size == 200 %]
+      Only the 200 most relevant [% terms.bugs %] are shown.
+    [% END %]
+
+  [% ELSIF message_tag == "change_columns" %]
+    [% title = "Change columns" %]
+    Resubmitting your search with new columns...
+    Click <a href="[% redirect_url FILTER html %]">here</a>
+    if the page does not automatically refresh.
+
+  [% ELSIF message_tag == "emailold_change_cancelled" %]
+    [% title = "Cancel Request to Change Email Address" %]
+    The request to change the email address for your account to
+    [%+ new_email FILTER html %] has been cancelled.
+
+  [% ELSIF message_tag == "email_change_cancelled" %]
+    [% title = "Cancel Request to Change Email Address" %]
+    The request to change the email address for the
+    account [%+ old_email FILTER html %] to
+    [%+ new_email FILTER html %] has been cancelled.
+
+  [% ELSIF message_tag == "email_change_cancelled_reinstated" %]
+    [% title = "Cancel Request to Change Email Address" %]
+    The request to change the email address for the
+    account [%+ old_email FILTER html %] to 
+    [%+ new_email FILTER html %] has been cancelled.
+   Your old account settings have been reinstated.
+
+  [% ELSIF message_tag == "logged_out" %]
+    [% title = "Logged Out" %]
+    [% url = "query.cgi?GoAheadAndLogIn=1" %]
+    [% link = "Log in again." %]
+    <b>Your login has been forgotten</b>.
+    The cookie that was remembering your login is now gone. You will be
+    prompted for a login the next time it is required.
+
+  [% ELSIF message_tag == "login_changed" %]
+    [% title = "$terms.Bugzilla Login Changed" %]
+    Your [% terms.Bugzilla %] login has been changed.
+
+  [% ELSIF message_tag == "password_change_cancelled" %]
+    [% title = "Cancel Request to Change Password" %]
+    Your request has been cancelled.
+
+  [% ELSIF message_tag == "password_change_request" %]
+    [% title = "Request to Change Password" %]
+    A token for changing your password has been emailed to you.
+    Follow the instructions in that email to change your password.
+
+  [% ELSIF message_tag == "password_changed" %]
+    [% title = "Password Changed" %]
+    Your password has been changed.
+
+  [% ELSIF message_tag == "flag_type_created" %]
+    [% title = "Flag Type Created" %]
+      The flag type <em>[% name FILTER html %]</em> has been created.
+      <a href="editflagtypes.cgi">Back to flag types.</a>
+    
+  [% ELSIF message_tag == "flag_type_changes_saved" %]
+    [% title = "Flag Type Changes Saved" %]
+    <p>
+      Your changes to the flag type <em>[% name FILTER html %]</em> 
+      have been saved.
+      <a href="editflagtypes.cgi">Back to flag types.</a>
+    </p>
+    
+  [% ELSIF message_tag == "flag_type_deleted" %]
+    [% title = "Flag Type Deleted" %]
+    <p>
+      The flag type <em>[% name FILTER html %]</em> has been deleted.
+      <a href="editflagtypes.cgi">Back to flag types.</a>
+    </p>
+    
+  [% ELSIF message_tag == "flag_type_deactivated" %]
+    [% title = "Flag Type Deactivated" %]
+    <p>
+      The flag type <em>[% flag_type.name FILTER html %]</em> 
+      has been deactivated.
+      <a href="editflagtypes.cgi">Back to flag types.</a>
+    </p>
+    
+  [% ELSIF message_tag == "product_invalid" %]
+    [% title = "$terms.Bugzilla Component Descriptions" %]
+    The product <em>[% product FILTER html %]</em> does not exist
+    or you don't have access to it. The following is a list of the
+    products you can choose from.
+
+  [% ELSIF message_tag == "series_created" %]
+    [% title = "Series Created" %]
+      The series <em>[% series.category FILTER html %] /
+      [%+ series.subcategory FILTER html %] / 
+      [%+ series.name FILTER html %]</em>
+      has been created. Note that you may need to wait up to 
+      [%+ series.frequency * 2 %] days before there will be enough data for a
+      chart of this series to be produced.
+      <br><br>
+      Go back or 
+      <a href="query.cgi?format=create-series">create another series</a>.
+    
+  [% ELSIF message_tag == "shutdown" %]
+    [% title = "$terms.Bugzilla is Down" %]
+    [% Param("shutdownhtml") %]
+    
+  [% ELSE %]
+    [%# Give sensible error if error functions are used incorrectly.
+      #%]        
+    You are using [% terms.Bugzilla %]'s messaging functions incorrectly. You
+    passed in the string '[% message_tag %]'. The correct use is to pass
+    in a tag, and define that tag in the file messages.html.tmpl.<br>
+    <br>
+    If you are a [% terms.Bugzilla %] end-user seeing this message, please 
+    save this page and send it to [% Param('maintainer') %].
+    
+  [% END %]
+[% END %]
