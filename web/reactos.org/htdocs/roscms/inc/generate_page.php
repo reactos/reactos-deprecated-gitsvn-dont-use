@@ -129,7 +129,7 @@
 			else if ($rpm_site != "" && $rpm_sec2=="genpage") {
 				$sql_lang="SELECT * 
 							FROM languages
-							WHERE lang_level != '0' AND lang_id = '$rpm_lang'
+							WHERE lang_level != '0'
 							ORDER BY 'lang_level' DESC";
 			}
 			else {
@@ -208,12 +208,22 @@
 					$gentimea = $gentimea[1] + $gentimea[0]; 
 					$pg_starta = $gentimea; 
 		
+		
+		
 					// Content:
+					
+					// Known Bug: language names that begin with "a" will not work; reason -> ORDER BY `content_lang` DESC" <=> content_lang = 'all'
 					$query_content = mysql_query("SELECT * 
 							FROM content
 							WHERE content_visible != 0 AND content_active = '1' AND (content_lang = '$myrow_lang[0]' OR content_lang = '$w3cformat' OR content_lang = 'all')
-							ORDER BY 'content_id' ASC");
+							ORDER BY `content_lang` DESC");
 					while($result_content = mysql_fetch_array($query_content)) { // Content
+						/*if ($result_content['content_lang'] == "") {
+							continue;
+						}
+						if ($result_content['content_lang'] != $myrow_lang[0] || $result_content['content_lang'] != $w3cformat) {
+							if ()continue;
+						}*/
 						$data_content=$result_content['content_text'];
 						$data_page = str_replace("[#cont_".$result_content['content_name']."]",$data_content,$data_page);
 

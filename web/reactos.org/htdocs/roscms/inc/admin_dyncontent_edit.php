@@ -451,11 +451,8 @@
 				`dyn_content_text1` = '". mysql_escape_string($content_text1) ."',
 				`dyn_content_text2` = '". mysql_escape_string($content_text2) ."',
 				`dyn_content_text3` = '". mysql_escape_string($content_text3) ."',
-				`dyn_content_text4` = '". addslashes($content_data) ."',
-				`dyn_content_date` = CURDATE( ) ,
-				`dyn_content_time` = CURTIME( )
+				`dyn_content_text4` = '". addslashes($content_data) ."'
 				WHERE `dyn_id` = '$rpm_db_id' LIMIT 1 ;";
-				//`dyn_content_usrname_id` = '". $roscms_intern_account_id ."' ,
 			$content_post_lista=mysql_query($content_posta);
 			
 			$query_content = mysql_query("SELECT dyn_content_text4, dyn_content_id, dyn_content_name
