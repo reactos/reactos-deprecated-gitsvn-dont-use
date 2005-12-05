@@ -38,7 +38,7 @@
 			WHERE dyn_id = '$rpm_db_id'
 			ORDER BY 'dyn_content_lang' ASC") ;
 
-	$farbe="#E2E2E2";
+	$farbe=$roscms_intern_color1;
 	
 	$result_content = mysql_fetch_array($query_content);
 	$roscms_intern_editor_content = $result_content['dyn_content_text4'];

@@ -36,6 +36,7 @@
 	
 ?> 
 <h1>myReactOS - User Accounts </h1>
+<p>myReactOS user accounts sorted by account name</p>
   
 <?php
 
@@ -49,7 +50,7 @@ if (!$roscms_SET_curpos) {
 	$roscms_SET_curpos = 0;
 }
 
-$query_count_cat=mysql_query("SELECT * 
+$query_count_cat=mysql_query("SELECT COUNT('user_id') 
 								FROM `users` 
 								WHERE `user_account_enabled` = 'yes'
 								AND `user_account_hidden` = 'no'
@@ -60,7 +61,12 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 	$j=0;
 	for ($i=0; $i < $result_count_cat[0]; $i += $roscms_intern_items_per_page) {
 		$j++;
-		echo "<a href='?page=user&amp;sec=accountlist&amp;curpos=".$i."'>".$j."</a> ";
+		if ($roscms_SET_curpos == $i) {
+			echo "<b>".$j."</b> ";
+		}
+		else {
+			echo "<a href='?page=user&amp;sec=accountlist&amp;curpos=".$i."'>".$j."</a> ";
+		}
 	}
 	$j=0;
 	echo "</p>";
@@ -68,16 +74,16 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 ?> 
 <table width="100%" border="0" cellpadding="1" cellspacing="1">
   <tr bgcolor="#5984C3"> 
-    <td> <div align="center"></div>
-      <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Nick</strong></font></div></td>
-    <td> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"></font></div>
-      <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Fullname</strong></font></div></td>
-    <td bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Occupation</strong></font></div>
-      <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"></font></div>
+    <td bgcolor="#5984C3"> <div align="center"></div>
+    <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"><strong>Nick</strong></font></div></td>
+    <td> <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"></font></div>
+      <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"><strong>Fullname</strong></font></div></td>
+    <td bgcolor="#5984C3"> <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"><strong>Occupation</strong></font></div>
+      <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"></font></div>
       <div align="center"></div></td>
-    <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong> 
+    <td width="13%"> <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"><strong> 
         Country</strong></font></div></td>
-    <td width="10%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Lang</strong></font></div></td>
+    <td width="10%"> <div align="center"><font color="<?php echo $roscms_intern_color0; ?>" face="Arial, Helvetica, sans-serif"><strong>Lang</strong></font></div></td>
   </tr>
   <?php
 
@@ -88,10 +94,10 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 									ORDER BY `user_name` ASC
 									LIMIT " . $roscms_SET_curpos . " , " . $roscms_intern_items_per_page . " ;") ;
 
-	$farbe1="#E2E2E2";
-	$farbe2="#EEEEEE";
+	$color1=$roscms_intern_color1;
+	$color2=$roscms_intern_color2;
 	$zaehler="0";
-	//$farbe="#CCCCC";
+	//$color="#CCCCC";
 	
 	while($result_page = mysql_fetch_array($query_page)) { // users
 ?>
@@ -99,13 +105,13 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
     <td valign="middle" bgcolor="<?php
 								$zaehler++;
 								if ($zaehler == "1") {
-									echo $farbe1;
-									$farbe = $farbe1;
+									echo $color1;
+									$color = $color1;
 								}
 								elseif ($zaehler == "2") {
 									$zaehler="0";
-									echo $farbe2;
-									$farbe = $farbe2;
+									echo $color2;
+									$color = $color2;
 								}
 							 ?>"> 
       <div align="center"></div>
@@ -115,25 +121,25 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 			echo "<a href='?page=user&sec=profil&sec2=".$result_page['user_id']."'>".$result_page['user_name']."</a>";
 		?>
       </font></td>
-    <td valign="middle" bgcolor="<?php echo $farbe; ?>"> 
+    <td valign="middle" bgcolor="<?php echo $color; ?>"> 
       <div align="center"></div>
       <font face="Arial, Helvetica, sans-serif"> 
       <?php 
 			echo $result_page['user_fullname'];
 		?>
       </font></td>
-    <td valign="middle" bgcolor="<?php echo $farbe; ?>"><font face="Arial, Helvetica, sans-serif"> 
+    <td valign="middle" bgcolor="<?php echo $color; ?>"><font face="Arial, Helvetica, sans-serif"> 
       <?php 
 			echo substr(htmlentities($result_page['user_occupation'], ENT_QUOTES), 0, 10);
 		?>
       </font> <div align="right"><font face="Arial, Helvetica, sans-serif"> </font></div>
       <div align="center"><font face="Arial, Helvetica, sans-serif"> </font></div></td>
-    <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
+    <td width="13%" valign="middle" bgcolor="<?php echo $color; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
         <?php 
 			echo $result_page['user_country'];;
 		?>
         </font></div></td>
-    <td width="10%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
+    <td width="10%" valign="middle" bgcolor="<?php echo $color; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
         <?php 
 			echo $result_page['user_language'];
 		?>

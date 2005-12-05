@@ -349,7 +349,12 @@
 										$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_gererator."?page=$rpm_page&amp;sec=generator&amp;sec2=view&amp;site=".$roscms_pagename."&amp;lang=".$myrow_lang[0]."&amp;forma=".$w3cformat."&amp;skin=".$rpm_skin,$data_page); // correct link
 									}
 									else {
-										$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_html.$myrow_lang[0]."/".$roscms_pagename.".".$fileformat,$data_page); // correct link
+										if ($result_page_link['pages_extention'] == "default") {
+											$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_html.$myrow_lang[0]."/".$roscms_pagename.".".$fileformat,$data_page); // correct link
+										}
+										else {
+											$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_html.$myrow_lang[0]."/".$roscms_pagename.".".$result_page_link['pages_extention'],$data_page); // correct link
+										}
 									}
 									//echo " HTML: [#link_".$result_page_link['page_name']."]<br>";
 								}
@@ -363,7 +368,12 @@
 										$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_gererator."?page=$rpm_page&amp;sec=generator&amp;sec2=view&amp;site=".$roscms_pagename."&amp;lang=".$myrow_lang[0]."&amp;forma=".$w3cformat."&amp;skin=".$rpm_skin,$data_page); // correct link
 									}
 									else {
-										$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_xhtml.$myrow_lang[0]."/".$roscms_pagename.".".$fileformat,$data_page); // correct link
+										if ($result_page_link['pages_extention'] == "default") {
+											$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_xhtml.$myrow_lang[0]."/".$roscms_pagename.".".$fileformat,$data_page); // correct link
+										}
+										else {
+											$data_page = str_replace("[#link_".$roscms_pagename."]", $roscms_intern_path_server.$roscms_intern_path_xhtml.$myrow_lang[0]."/".$roscms_pagename.".".$result_page_link['pages_extention'],$data_page); // correct link
+										}
 									}
 									//echo " XHTML: [#link_".$result_page_link['page_name']."]<br>";
 								}
@@ -378,15 +388,21 @@
 					switch ($rpm_sec2) {
 						case "genpage": // generate a single page
 						case "output":
-							// create HTML file:
-							$filename_page_html = $roscms_path_formatfile.$myrow_lang[0]."/".$roscms_pagename_file.".".$fileformat; // create HTML file
+							// create HTML file:					
+							if ($result_page['pages_extention'] == "default") {
+								$output_fileformat = $fileformat;
+							}
+							else {
+								$output_fileformat = $result_page['pages_extention'];
+							}
+							$filename_page_html = $roscms_path_formatfile.$myrow_lang[0]."/".$roscms_pagename_file.".".$output_fileformat; // create HTML file
 							$fp = fopen($filename_page_html,"w");
 							flock($fp,2);
 							fputs($fp,$data_page); // write content
 							fputs($fp,"\n\n<!-- Generated with ".$roscms_intern_version." -->");
 							flock($fp,3);
 							fclose($fp);
-							echo "<br>&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp; \"".$roscms_path_formatfile.$myrow_lang[0]."/".$roscms_pagename_file.".".$fileformat."\" generated";
+							echo "<br>&nbsp;&nbsp;&nbsp;&nbsp;* &nbsp; \"".$roscms_path_formatfile.$myrow_lang[0]."/".$roscms_pagename_file.".".$output_fileformat."\" generated";
 							$page_gen_id=$result_page['page_id'];
 							$page_gen_timestamp=time();
 							$page_gen_timestamp_query="UPDATE `pages` SET `page_generate_usrid` = '$roscms_intern_account_id', `page_generate_timestamp` = '$page_gen_timestamp' WHERE `page_id` = '$page_gen_id' LIMIT 1 ;";
@@ -400,7 +416,7 @@
 								echo(" &nbsp; (" . $showtimea . " sec; #".$roscms_intern_page_counter.")");
 							$roscms_intern_page_counter++;
 							break;
-						default:				
+						default:
 						case "view":
 							echo $data_page;
 							echo "\n\n<!-- Generated with ".$roscms_intern_version." -->";

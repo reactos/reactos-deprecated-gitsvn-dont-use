@@ -38,7 +38,23 @@
 
 ?>
  
-<div class="contentSmall"> <span class="contentSmallTitle">Admin Interface - Content</span> 
+<div class="contentSmall"> <span class="contentSmallTitle"><?php
+	if ($rpm_page == "admin") {
+		echo "Admin Interface - Content";
+	}
+	elseif ($rpm_page == "dev") {
+		echo "Dev Interface - Content";
+	}
+	elseif ($rpm_page == "trans") {
+		echo "Translator Interface - Content";
+	}
+	elseif ($rpm_page == "team") {
+		echo "Team Interface - Content";
+	}
+	else {
+		echo $rpm_page." Interface - Content";
+	}
+  ?></span> 
   <ul>
     <li><strong>Content</strong></li>
   </ul>
@@ -47,14 +63,14 @@
     sort</a></p>
     
   <?php
-	if($roscms_intern_account_level>50) {
+	if($roscms_intern_usrgrp_admin == true) {
 		$rpm_content_active="";
 		$rpm_content_active_set="";
 		if(array_key_exists("content_active", $_GET)) $rpm_content_active=$_GET["content_active"];
 		if(array_key_exists("content_active_set", $_GET)) $rpm_content_active_set=$_GET["content_active_set"];
 	
 		if ($rpm_content_active != "" AND $rpm_content_active_set != "") {
-			$content_postc="UPDATE `content` SET `content_active` = '$rpm_content_active' WHERE `content_id` = '$rpm_content_active_set' LIMIT 1 ;";
+			$content_postc="UPDATE `content` SET `content_active` = '$rpm_content_active' WHERE `content_id` = '". $rpm_content_active_set ."' LIMIT 1 ;";
 			$content_post_listc=mysql_query($content_postc);
 		}
 	}
@@ -62,7 +78,7 @@
 
 	if ($rpm_lang_id == "") {
 		if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team")) {
-			$rpm_lang_id="en";
+			$rpm_lang_id="nolang";
 		}
 		else {
 			$rpm_lang_id="all";
@@ -78,17 +94,23 @@
 			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">All</a>';
 		}
 		echo ' | ';
+	}
+
 		if ($rpm_lang_id == "nolang") {	
 			echo '<b>International</b>';
-			$ros_cms_intern_content_lang = "AND content_lang = 'all'";
+			if ($roscms_intern_usrgrp_admin == true) {
+				$ros_cms_intern_content_lang = "AND content_lang = 'all'";
+			}
+			if ($roscms_intern_usrgrp_dev == true && $rpm_page == "dev") {
+				$ros_cms_intern_content_lang = "AND content_lang = 'all'";
+			}
+			if (($roscms_intern_usrgrp_team == true && $rpm_page == "team") || ($roscms_intern_usrgrp_trans == true && $rpm_page == "trans")) {
+				$ros_cms_intern_content_lang = "AND content_lang = 'all' AND content_type = 'default'";
+			}
 		}
 		else {
 			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">International</a>';
 		}
-	}
-	else {
-		echo '->';
-	}
 	// Languages
 	$sql_lang="SELECT * 
 				FROM languages
@@ -96,6 +118,11 @@
 				ORDER BY 'lang_level' DESC";
 	$sql_query_lang=mysql_query($sql_lang);
 	while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
+		if ($roscms_intern_usrgrp_dev != true || $roscms_intern_usrgrp_admin != true) {
+			if ($myrow_lang[0] == "en") {
+				continue;
+			}
+		}
 		$roscms_sel_lang = $myrow_lang[0];
 		echo ' | ';
 		if ($rpm_lang_id == $roscms_sel_lang) {	
@@ -285,8 +312,8 @@
 		die("");
 	}
 
-	$farbe1="#E2E2E2";
-	$farbe2="#EEEEEE";
+	$farbe1=$roscms_intern_color1;
+	$farbe2=$roscms_intern_color2;
 	$zaehler="0";
 	//$farbe="#CCCCC";
 	
@@ -308,7 +335,7 @@
         <div align="center"> 
           <a name="<?php echo $result_content['content_id']; ?>"></a>
 		  <?php
-		  if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "en") { ?>
+		  if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") { ?>
           <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=translate&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/tool.gif" alt="Translate" width="19" height="18" border="0"></a> 
           <?php } else { ?>
           <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
@@ -327,8 +354,10 @@
 			-->
 			</script>
           <a href="javascript:DeleteContent()"><img src="images/delete.gif" alt="Delete" width="19" height="18" border="0"></a> 
+          <?php } 
+		  if($roscms_intern_usrgrp_admin == true || $roscms_intern_usrgrp_team == true) {?>
+			  <a href="<?php echo "?page=".$rpm_page."&amp;sec=content&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['content_name']."&amp;langid=".$result_content['content_lang']; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
           <?php } ?>
-          <a href="<?php echo "?page=".$rpm_page."&amp;sec=content&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['content_name']."&amp;langid=".$result_content['content_lang']; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
         </div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
           <?php

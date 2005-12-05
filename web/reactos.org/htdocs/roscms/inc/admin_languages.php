@@ -37,8 +37,8 @@
 			FROM languages
 			ORDER BY 'lang_name' ASC") ;
 
-	$farbe1="#E2E2E2";
-	$farbe2="#EEEEEE";
+	$farbe1=$roscms_intern_color1;
+	$farbe2=$roscms_intern_color2;
 	$zaehler="0";
 	//$farbe="#CCCCC";
 	

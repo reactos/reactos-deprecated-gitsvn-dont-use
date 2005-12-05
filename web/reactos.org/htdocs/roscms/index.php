@@ -2,7 +2,7 @@
     /*
     RosCMS - ReactOS Content Management System
     Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
-                        Ge van Geldorp <gvg@reactos.org>
+	                    Ge van Geldorp <gvg@reactos.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -70,6 +70,8 @@ if (get_magic_quotes_gpc()) {
 	$roscms_intern_account_level="";
 	$roscms_intern_login_check="false";
 	
+	// Central Color Settings:
+	include("colors.php");
 	
 	$roscms_infotable="";
 	
@@ -120,6 +122,7 @@ function check_lang($lang)
 		case 'en':
 		case 'fr':
 		case 'ru':
+		case 'es':
 			break;
 		default:
 			$checked_lang = '';
@@ -388,6 +391,17 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 			require("inc/login.php");
 			include("inc/generate_page.php"); // static page generator
 			break;
+			
+		case "webstatus": // Website Status
+			$rpm_page_title="Website Status";
+			include("inc/head.php");
+			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
+			include("inc/structure.php");
+			create_structure($rpm_page);
+			include("inc/website_status.php"); 
+			include("inc/body.php");
+			break;
+
 		case "404":
 			$rpm_page_title="Page not found";
 			include("inc/head.php");
