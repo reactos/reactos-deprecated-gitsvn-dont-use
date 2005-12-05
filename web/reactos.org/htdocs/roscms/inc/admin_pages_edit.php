@@ -32,7 +32,7 @@
 			WHERE page_id = '$rpm_db_id'
 			ORDER BY 'page_language' ASC") ;
 
-	$farbe="#E2E2E2";
+	$farbe=$roscms_intern_color1;
 	
 	$result_page = mysql_fetch_array($query_page);
 ?>

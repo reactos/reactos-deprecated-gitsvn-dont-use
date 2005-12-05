@@ -157,6 +157,30 @@ while($roscms_login_usrgrp_member_list = mysql_fetch_array($roscms_login_usrgrp_
 	}
 }
 
+// Account level:
+
+if ($roscms_intern_usrgrp_sadmin == true) {
+	$roscms_intern_account_level = 100;
+}
+else {
+	if ($roscms_intern_usrgrp_admin == true) {
+		$roscms_intern_account_level = 75;
+	}
+	else {
+		if ($roscms_intern_usrgrp_dev == true) {
+			$roscms_intern_account_level = 50;
+		}
+		else {
+			if ($roscms_intern_usrgrp_team == true || $roscms_intern_usrgrp_trans == true) {
+				$roscms_intern_account_level = 25;
+			}
+			else {
+				$roscms_intern_account_level = 0;
+			}
+		}
+	}
+}
+
 // user id
 $roscms_intern_account_id = $roscms_currentuser_id;
 $roscms_intern_login_check_username=$result_usr['user_name'];
@@ -164,7 +188,6 @@ $roscms_intern_login_check_username=$result_usr['user_name'];
 // quick hack to test RosCMS; the following vars will change soon
 $roscms_intern_login_check_usrgroup = "ros_sadmin";
 $roscms_intern_account_group = "ros_sadmin";
-$roscms_intern_account_level = 100;
 $roscms_intern_login_check = "valid"; // valid login sequenze
 
 ?>

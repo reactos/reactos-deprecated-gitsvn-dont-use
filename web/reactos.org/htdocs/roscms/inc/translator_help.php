@@ -23,7 +23,7 @@
 <h2>Intro</h2>
 <p>Welcome to the Translator Interface!</p>
 <p>If you use the RosCMS the first time, please take some time and read this documentation. 
-  If you have any question about RosCMS, join the #reactos-hp irc channel and/or 
+  If you have any question about RosCMS, join the #reactos-web irc channel and/or 
   ask one of the admins.</p>
 <h3>About RosCMS</h3>
 <p>The RosCMS has been written from scratch by Klemens Friedl (frik85). Some parts 
@@ -43,7 +43,7 @@
   <li><em>To be continued! [...]</em></li>
 </ul>
 <p>If you do NOT follow the rules, a member of the admin group will delete your 
-  translator group memebership and/or ban/kick your account!</p>
+  translator group membership and/or ban/kick your account!</p>
 
 <h2>General</h2>
   <p align="left">Use the &quot;filter &amp; sort&quot; function to browse through 

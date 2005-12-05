@@ -53,8 +53,8 @@
 			FROM user_sessions
 			ORDER BY 'usersession_timestamp_touch2' DESC ;") ;
 
-	$farbe1="#E2E2E2";
-	$farbe2="#EEEEEE";
+	$farbe1=$roscms_intern_color1;
+	$farbe2=$roscms_intern_color2;
 	$zaehler="0";
 	//$farbe="#CCCCC";
 	

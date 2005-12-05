@@ -18,7 +18,23 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 ?>
-<div class="contentSmall"> <span class="contentSmallTitle">Admin Interface - Content</span> 
+<div class="contentSmall"> <span class="contentSmallTitle"><?php
+	if ($rpm_page == "admin") {
+		echo "Admin Interface - Content";
+	}
+	elseif ($rpm_page == "dev") {
+		echo "Dev Interface - Content";
+	}
+	elseif ($rpm_page == "trans") {
+		echo "Translator Interface - Content";
+	}
+	elseif ($rpm_page == "team") {
+		echo "Team Interface - Content";
+	}
+	else {
+		echo $rpm_page." Interface - Content";
+	}
+  ?></span> 
   <?php if(!isset($_POST['content_rad_opt']) || $_POST['content_rad_opt'] == "preview") { ?>
   <ul>
     <li><strong><a href="?page=<?php echo $rpm_page; ?>&sec=content&sec2=view&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id."#".$rpm_db_id ; ?>">Content</a></strong> 
@@ -34,7 +50,7 @@
 			WHERE content_id = '$rpm_db_id'
 			ORDER BY 'content_lang' ASC") ;
 
-	$farbe="#E2E2E2";
+	$farbe=$roscms_intern_color1;
 	
 	$result_content = mysql_fetch_array($query_content);
 	$roscms_intern_editor_content = "";
@@ -182,10 +198,6 @@
 		?>
           </font></td>
       </tr>
-      <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Action</strong></font></div></td>
-        <td valign="top" bgcolor="#EEEEEE"></td>
-      </tr>
     </table>
     <p> 
       <?php
@@ -232,12 +244,12 @@
     <p>&nbsp;</p>
     <?php
 	  } else { ?>
-    <input name="content_rad_opt" type="radio" value="insert" <?php if($roscms_intern_usrgrp_admin != true OR $roscms_intern_content_name == "") { echo "checked"; } ?>>
+    <input name="content_rad_opt" type="radio" value="insert" <?php if($roscms_intern_account_id != $result_content['content_usrname_id'] || date("Y-m-d") != $result_content['content_date']) { echo "checked"; } ?>>
     Save (new version) &nbsp; 
     <?php 
-				if(($roscms_intern_usrgrp_admin == true || $roscms_intern_account_id == $result_content['content_usrname_id']) AND $roscms_intern_content_name != ""  ) {
-			?>
-    <input name="content_rad_opt" type="radio" value="update" <?php if($result_content['content_editor'] != "bbcode") { echo "checked"; } ?>>
+		if(($roscms_intern_usrgrp_admin == true || ($roscms_intern_account_id == $result_content['content_usrname_id'] && date("Y-m-d") == $result_content['content_date'])) AND $roscms_intern_content_name != "" ) {
+	?>
+    <input name="content_rad_opt" type="radio" value="update" <?php if($roscms_intern_account_id == $result_content['content_usrname_id'] && date("Y-m-d") == $result_content['content_date']) { echo "checked"; } ?>>
     Update 
     <?php } ?>
     <?php 
@@ -299,7 +311,7 @@
 		if (array_key_exists("txt_extra", $_POST)) $content_extra=$_POST['txt_extra'];
 		if (array_key_exists("content_rad_opt", $_POST)) $content_savemode=$_POST['content_rad_opt'];
 
-		echo "<br>aa".$content_act;
+		//echo "<br>".$content_act;
 		if ($content_langa == "") {
 			$content_langa = "all";
 		}
@@ -351,20 +363,24 @@
 
 
 		if ($content_savemode == "update") {
+			$content_description = date("Y-m-d H:i:s")." [".$roscms_intern_account_id."] ";
+			
 			$content_posta="UPDATE `content` SET `content_name` = '". mysql_escape_string($content_contentid) ."',
 				`content_lang` = '". mysql_escape_string($content_langa) ."',
 				`content_editor` = '". mysql_escape_string($content_extra) ."',
 				`content_text` = '". mysql_real_escape_string($content_data)  ."',
 				`content_visible` = '". mysql_escape_string($content_vis) ."',
 				`content_active` = '". mysql_escape_string($content_act) ."',
-				`content_date` = CURDATE( ) ,
-				`content_time` = CURTIME( )
+				`content_description` = '". mysql_escape_string($content_description) ."'
 				WHERE `content_id` = '$rpm_db_id' LIMIT 1 ;";
 				//`content_active` = '1',
 				//`content_usrname_id` = '$roscms_intern_account_id',
+				//`content_date` = CURDATE( ) ,
+				//`content_time` = CURTIME( )
 			$content_post_lista=mysql_query($content_posta);
 		}
 		elseif ($content_savemode == "translate") {
+			$content_version="1";
 			$content_postb="INSERT INTO `content` ( `content_id` , `content_name` , `content_lang` , `content_editor` , `content_text` , `content_version` , `content_active` , `content_visible` , `content_date` , `content_time` , `content_usrname_id`)
 				VALUES ('', '". mysql_escape_string($content_contentid) ."', '". mysql_escape_string($content_langa) ."', '". mysql_escape_string($content_extra) ."', '". mysql_real_escape_string($content_data) ."', '1', '". mysql_escape_string($content_act) ."', '". mysql_escape_string($content_vis) ."', CURDATE( ), CURTIME( ), '". mysql_escape_string($roscms_intern_account_id) ."');";
 			$content_post_listb=mysql_query($content_postb);
@@ -402,9 +418,24 @@
 				WHERE content_id = '$rpm_db_id'") ;
 		$result_content = mysql_fetch_array($query_content);
 
-		echo "<p>The content '".$result_content['content_name']."' (id='".$rpm_db_id."') has been saved!</p>";
-		echo "<p><a href=".$_SERVER['HTTP_REFERER'].">Back to the 'content edit' page</a></p>";
 
+		if ($content_savemode == "update") {
+			echo "<p>The content '".$result_content['content_name']."' (id='".$rpm_db_id."') has been saved!</p>";
+			echo "<p><a href=".$_SERVER['HTTP_REFERER'].">Back to the 'content edit' page</a></p>";
+		}
+		else {		
+			$query_content_new_revision_preview = mysql_query("SELECT * 
+														FROM `content` 
+														WHERE `content_name` LIKE '$content_contentid'
+														AND `content_lang` = '$content_langa'
+														AND `content_version` = ". $content_version ."
+														LIMIT 1;");
+			$result_content_new_revision_preview = mysql_fetch_array($query_content_new_revision_preview);
+			
+			echo "<p>A new version of content '".$result_content_new_revision_preview['content_name']."' (old id='".$rpm_db_id."', new id='". $result_content_new_revision_preview["content_id"] ."') has been saved!</p>";		
+			echo "<p><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>Go to the 'content edit' page (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
+			echo "<p><a href='".$_SERVER['HTTP_REFERER']."'>Back to the 'content edit' page (revision ". $result_content['content_id'] .")</a></p>";
+		}
 		echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content['content_text']."</fieldset></p>";
 
 }

@@ -32,7 +32,7 @@ require_once("subsys_utils.php");
 
 	$query_contenta = mysql_query("SELECT * FROM users WHERE user_id = '".$roscms_intern_account_id."'") ;
 
-	$farbe="#E2E2E2";
+	$farbe=$roscms_intern_color1;
 	
 	$result_contenta = mysql_fetch_array($query_contenta);
 	

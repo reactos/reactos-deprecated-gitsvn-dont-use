@@ -296,8 +296,8 @@
 				ORDER BY '$ros_cms_intern_content_sortby' $ros_cms_intern_content_sort") ;
 	}
 
-	$farbe1="#E2E2E2";
-	$farbe2="#EEEEEE";
+	$farbe1=$roscms_intern_color1;
+	$farbe2=$roscms_intern_color2;
 	$zaehler="0";
 	//$farbe="#CCCCC";
 	
@@ -315,7 +315,7 @@
 									echo $farbe2;
 									$farbe = $farbe2;
 								}
-							 ?>" title="RosCMS action buttons:&#10;&#10;* View content&#10;* Delete content&#10;* Locked"> 
+							 ?>"> 
         <div align="center"><a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;<?php echo 'sec3='.$result_content['dyn_content_name'].'&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['dyn_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
           <a href="<?php echo "?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['dyn_content_id']."&amp;filt2=".$rpm_filt2."&amp;langid=".$result_content['dyn_content_lang']; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
         </div></td>
