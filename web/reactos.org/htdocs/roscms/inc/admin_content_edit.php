@@ -66,7 +66,7 @@
         <td width="85%" bgcolor="#E2E2E2"> <div align="left"><font face="Arial, Helvetica, sans-serif"> 
             [#cont_
             <input name="txt_contentid" type="text" id="txt_contentid" value="<?php echo $result_content['content_name']; ?>" size="50" maxlength="50">
-            ] &nbsp; (e.g. &quot;media&quot;)</font></div></td>
+            ] &nbsp; (e.g. &quot;about&quot;)</font></div></td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
@@ -182,9 +182,35 @@
             </optgroup>
           </select> </td>
       </tr>
+      <tr>
+        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Type</strong></font></div></td>
+        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif">
+          <input name="txt_content_type" type="text" id="txt_content_type" value="<?php echo $result_content['content_type']; ?>" size="30" maxlength="30">
+(&quot;default&quot;, &quot;layout&quot;, ...)        </font></td>
+      </tr>
+      <tr>
+        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Description</strong></font></div></td>
+        <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
+          <input name="txt_content_desc" type="text" id="txt_content_desc" value="<?php echo $result_content['content_description']; ?>" size="50" maxlength="255">
+        </font></td>
+      </tr>
+      <tr>
+        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Username</strong></font></div></td>
+        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"><?php 
+		
+				if ($result_content['content_usrname_id']) {
+					$query_user_name = mysql_query("SELECT * 
+																FROM `users` 
+																WHERE `user_id` = ". $result_content['content_usrname_id'] ." ;") ;
+					$result_user_name = mysql_fetch_array($query_user_name);
+			
+					echo "<b>".$result_user_name['user_name']."</b> (".$result_user_name['user_fullname'].") <a href='?page=user&amp;sec=profil&amp;sec2=".$result_content['content_usrname_id']."' target='_blank'>[Profile]</a>";
+				}
+		?></font></td>
+      </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Date</strong></font></div></td>
-        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
+        <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_content['content_date'];
 		?>
@@ -192,7 +218,7 @@
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Time</strong></font></div></td>
-        <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
+        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_content['content_time'];
 		?>
@@ -303,6 +329,8 @@
 		$content_act="";
 		$content_extra="";
 		$content_savemode="";
+		$content_typea="";
+		$content_desca="";
 
 		if (array_key_exists("txt_contentid", $_POST)) $content_contentid=$_POST['txt_contentid'];
 		if (array_key_exists("txt_langa", $_POST)) $content_langa=$_POST['txt_langa'];
@@ -310,6 +338,9 @@
 		if (array_key_exists("content_active", $_POST)) $content_act=$_POST['content_active'];
 		if (array_key_exists("txt_extra", $_POST)) $content_extra=$_POST['txt_extra'];
 		if (array_key_exists("content_rad_opt", $_POST)) $content_savemode=$_POST['content_rad_opt'];
+		if (array_key_exists("txt_content_type", $_POST)) $content_typea=$_POST['txt_content_type'];
+		if (array_key_exists("txt_content_desc", $_POST)) $content_desca=$_POST['txt_content_desc'];
+
 
 		//echo "<br>".$content_act;
 		if ($content_langa == "") {
@@ -363,7 +394,7 @@
 
 
 		if ($content_savemode == "update") {
-			$content_description = date("Y-m-d H:i:s")." [".$roscms_intern_account_id."] ";
+			$content_description = date("Y-m-d H:i:s")." [".$roscms_intern_account_id."] | ".$content_desca;
 			
 			$content_posta="UPDATE `content` SET `content_name` = '". mysql_escape_string($content_contentid) ."',
 				`content_lang` = '". mysql_escape_string($content_langa) ."',
@@ -371,12 +402,14 @@
 				`content_text` = '". mysql_real_escape_string($content_data)  ."',
 				`content_visible` = '". mysql_escape_string($content_vis) ."',
 				`content_active` = '". mysql_escape_string($content_act) ."',
-				`content_description` = '". mysql_escape_string($content_description) ."'
+				`content_description` = '". mysql_escape_string($content_description) ."',
+				`content_type` = '". mysql_escape_string($content_description) ."'
 				WHERE `content_id` = '$rpm_db_id' LIMIT 1 ;";
 				//`content_active` = '1',
 				//`content_usrname_id` = '$roscms_intern_account_id',
 				//`content_date` = CURDATE( ) ,
 				//`content_time` = CURTIME( )
+
 			$content_post_lista=mysql_query($content_posta);
 		}
 		elseif ($content_savemode == "translate") {

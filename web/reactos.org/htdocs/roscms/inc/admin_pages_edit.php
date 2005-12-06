@@ -122,9 +122,9 @@
 		?>
           </font></td>
       </tr>
-      <tr> 
+      <tr>
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Visible</strong></font></div></td>
-        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
+        <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
           <?php 
 			if ($result_page['page_visible'] == 1) {
 				echo ' <input name="page_visible" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="page_visible" value="no"> no';
@@ -133,6 +133,19 @@
 				echo ' <input name="page_visible" type="radio" value="yes"> yes &nbsp; <input type="radio" name="page_visible" value="no" checked> no';
 			}	
 		?>
+</font></td>
+      </tr>
+      <tr> 
+        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Active</strong></font></div></td>
+        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif">
+          <?php 
+			if ($result_page['page_active'] == 1) {
+				echo ' <input name="page_active" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="page_active" value="no"> no';
+			}
+			else {
+				echo ' <input name="page_active" type="radio" value="yes"> yes &nbsp; <input type="radio" name="page_active" value="no" checked> no';
+			}	
+		?> 
           </font></td>
       </tr>
       <tr> 
@@ -157,6 +170,12 @@
             <option value="dynamic">dynamic</option>
             </optgroup>
           </select> </td>
+      </tr>
+      <tr>
+        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Extention</strong></font></div></td>
+        <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
+          <input name="txt_pageextent" type="text" id="txt_pageextent" value="<?php echo $result_page['pages_extention']; ?>" size="10" maxlength="10">
+(&quot;default&quot;, &quot;xml&quot;, ...) </font></td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Date</strong></font></div></td>

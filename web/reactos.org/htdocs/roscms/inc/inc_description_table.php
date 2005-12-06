@@ -30,7 +30,7 @@ if ($roscms_infotable == "" || $roscms_infotable == "page") { ?>
     <td width="50%" valign="top"> <table width="100%" border="0">
         <tr> 
           <td width="25" valign="top"><img src="images/view.gif" width="19" height="18" border="0"></td>
-          <td valign="middle"><font size="1"><strong>View</strong> entry</font></td>
+          <td valign="middle"><font size="1"><strong>View/Edit</strong> entry</font></td>
         </tr>
         <tr> 
           <td valign="top"><img src="images/tool.gif" width="19" height="18" border="0"></td>
@@ -96,7 +96,11 @@ if ($roscms_infotable == "" || $roscms_infotable == "page") { ?>
     <td width="50%" valign="top"> <table width="100%" border="0">
         <tr> 
           <td width="25" valign="top"><img src="images/view.gif" width="19" height="18" border="0"></td>
-          <td valign="middle"><font size="1"><strong>View</strong> entry</font></td>
+          <td valign="middle"><font size="1"><strong>View/Edit</strong> entry</font></td>
+        </tr>
+        <tr>
+          <td valign="top"><img src="images/tool.gif" width="19" height="18" border="0"></td>
+          <td valign="middle"><font size="1"><strong>Add</strong> entry</font></td>
         </tr>
         <tr> 
           <td valign="top"><img src="images/delete.gif" width="19" height="18"></td>

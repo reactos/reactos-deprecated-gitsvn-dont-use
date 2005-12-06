@@ -168,9 +168,62 @@
 	else {
 		echo '<a href="?page=admin&amp;sec=users&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">language</a>';
 	}
+	echo ' | ';
+	if ($rpm_sort == "occupation") {	
+		echo '<b>occupation</b>';
+		$ros_cms_intern_users_sortby="user_occupation";
+		$ros_cms_intern_users_sort="ASC";
+	}
+	else {
+		echo '<a href="?page=admin&amp;sec=users&amp;sec2=view&amp;sort=occupation&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">occupation</a>';
+	}
+	echo ' | ';
+	if ($rpm_sort == "counter") {	
+		echo '<b>counter</b>';
+		$ros_cms_intern_users_sortby="user_login_counter";
+		$ros_cms_intern_users_sort="DESC";
+	}
+	else {
+		echo '<a href="?page=admin&amp;sec=users&amp;sec2=view&amp;sort=counter&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">counter</a>';
+	}
 	echo '</p>';
 
 ?>
+
+<?php
+
+// Setting:
+$roscms_intern_items_per_page = 50;
+
+
+$roscms_SET_curpos = "";
+if (array_key_exists("curpos", $_GET)) $roscms_SET_curpos=htmlspecialchars($_GET["curpos"]);
+if (!$roscms_SET_curpos) {
+	$roscms_SET_curpos = 0;
+}
+
+$query_count_cat=mysql_query("SELECT COUNT('user_id') 
+								FROM `users` 
+								WHERE `user_account_enabled` = 'yes'
+								AND `user_account_hidden` = 'no'
+								ORDER BY `user_name` ASC ;");	
+$result_count_cat = mysql_fetch_row($query_count_cat);
+
+	echo "<p align='center'>";
+	$j=0;
+	for ($i=0; $i < $result_count_cat[0]; $i += $roscms_intern_items_per_page) {
+		$j++;
+		if ($roscms_SET_curpos == $i) {
+			echo "<b>".$j."</b> ";
+		}
+		else {
+			echo "<a href='?page=admin&amp;sec=users&amp;sec2=view&amp;sort=".$rpm_sort."&amp;filt=".$rpm_filt."&amp;opt=".$rpm_opt."&amp;langid=".$rpm_lang_id."&amp;curpos=".$i."'>".$j."</a> ";
+		}
+	}
+	$j=0;
+	echo "</p>";
+
+?> 
   <table width="100%" border="0" cellpadding="1" cellspacing="1">
     <tr bgcolor="#5984C3"> 
       <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Action</strong></font></div></td>
@@ -192,13 +245,13 @@
 		$query_page = mysql_query("SELECT * 
 				FROM users
 				$ros_cms_intern_users_filt $ros_cms_intern_users_lang
-				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort") ;
+				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
 	}
 	else {
 		$query_page = mysql_query("SELECT * 
 				FROM users
 				$ros_cms_intern_users_filt AND user_account_hidden != 0 $ros_cms_intern_users_lang
-				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort") ;
+				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
 	}
 
 	$farbe1=$roscms_intern_color1;
@@ -220,8 +273,8 @@
 									echo $farbe2;
 									$farbe = $farbe2;
 								}
-							 ?>" title="RosCMS action buttons:&#10;&#10;* View account&#10;* Delete account&#10;* Email&#10;* Website"> 
-        <div align="center"><img src="images/view.gif" alt="View" width="19" height="18" border="0">&nbsp; 
+							 ?>"> 
+        <div align="center"><a href="<?php echo "?page=user&amp;sec=profil&amp;sec2=".$result_page['user_id']; ?>"><img src="images/view.gif" alt="Profil" width="19" height="18" border="0"></a>&nbsp; 
           <?php
 		if ($result_page['user_email'] != "") {
 		?>
@@ -289,6 +342,20 @@
 	}	// end while
 ?>
   </table>
+<p align="center"><b><?php
+
+	echo ($roscms_SET_curpos+1)." to ";
+
+	if (($roscms_SET_curpos + $roscms_intern_items_per_page) > $result_count_cat[0]) {
+		echo $result_count_cat[0];
+	}
+	else {
+		echo ($roscms_SET_curpos + $roscms_intern_items_per_page);
+	}
+		
+	echo " of ".$result_count_cat[0]; 
+	
+?></b></p>
   <?php
   	$roscms_infotable = "user";
 	include("inc/inc_description_table.php");

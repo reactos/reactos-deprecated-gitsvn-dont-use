@@ -40,7 +40,7 @@ if ( !defined('ROSCMS_SYSTEM') )
     <td width="200">
     <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Title</strong></font></div></td>
     <td width="250"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Description</strong></font></div></td>
-    <td width="150"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Filename</strong></font></div></td>
+    <td width="200"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Name</strong></font></div></td>
     <td width="150">
     <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
     <td width="150"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Date &amp; Time </strong></font></div></td>
@@ -53,7 +53,7 @@ if ( !defined('ROSCMS_SYSTEM') )
 									AND `content_visible` = 1
 									AND `content_type` = 'default'
 									ORDER BY `content_id` DESC 
-									LIMIT 0 , 10 ;") ;
+									LIMIT 0 , 15 ;") ;
 	$color="";
 	$color1=$roscms_intern_color1;
 	$color2=$roscms_intern_color2;
@@ -74,7 +74,7 @@ if ( !defined('ROSCMS_SYSTEM') )
 									echo $color2;
 									$color = $color2;
 								}
-							 ?>"><font face="Arial, Helvetica, sans-serif" size="2"><b>
+							 ?>"><font face="Arial, Helvetica, sans-serif" size="2">
       <?php 
 							 
 			$query_count_title=mysql_query("SELECT COUNT('page_id')
@@ -91,7 +91,7 @@ if ( !defined('ROSCMS_SYSTEM') )
 			
 			
 			if ($result_count_title[0] == "0" || $result_count_title[0] == "") {
-				echo $result_updates['content_name'];
+				//echo $result_updates['content_name'];
 			}
 			else { 
 				$query_lang_page_name_update = mysql_query("SELECT * 
@@ -102,11 +102,11 @@ if ( !defined('ROSCMS_SYSTEM') )
 															AND `page_visible` = 1 ;") ;
 				$result_lang_page_name_update = mysql_fetch_array($query_lang_page_name_update);
 		
-				echo $result_lang_page_name_update['page_title'];
+				echo "<b>".$result_lang_page_name_update['page_title']."</b>";
 			
 			}
 		?>
-    </b></font></td>
+    </font></td>
     <td valign="middle" bgcolor="<?php echo $color; ?>"><font face="Arial, Helvetica, sans-serif" size="2">
       <?php 
 							 
@@ -114,9 +114,7 @@ if ( !defined('ROSCMS_SYSTEM') )
 				// temp
 			}
 			else { 
-
-		
-				echo $result_lang_page_name_update['page_description'];
+				echo substr($result_lang_page_name_update['page_description'], 0, 40);
 			}
 		?>
     </font></td>
@@ -143,7 +141,8 @@ if ( !defined('ROSCMS_SYSTEM') )
     </font></div></td>
     <td valign="middle" bgcolor="<?php echo $color; ?>"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2">
         <?php 
-		echo $result_updates['content_date'].' '.$result_updates['content_time'];
+		echo "<b>".$result_updates['content_date'].' '.$result_updates['content_time']."</b>";
+
 	?>
     </font></div></td>
   </tr>
@@ -156,7 +155,7 @@ if ( !defined('ROSCMS_SYSTEM') )
 <table cellpadding="1" cellspacing="1">
   <tr bgcolor="#5984C3">
     <td width="200"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Title </strong></font></div></td>
-    <td width="200">      <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Filename</strong></font></div></td>
+    <td width="200">      <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Name</strong></font></div></td>
     <td width="100">      <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>English</strong></font></div></td>
 	<?php
 		$query_lang_names = mysql_query("SELECT * 
