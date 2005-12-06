@@ -178,11 +178,13 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 				FROM usergroup_members
 				$ros_cms_intern_users_filt $ros_cms_intern_users_lang
 				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort  LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
+
 	}
 	else {
+	//AND user_account_hidden != 0
 		$query_page = mysql_query("SELECT * 
 				FROM usergroup_members
-				$ros_cms_intern_users_filt AND user_account_hidden != 0 $ros_cms_intern_users_lang
+				$ros_cms_intern_users_filt  $ros_cms_intern_users_lang
 				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort  LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
 	}
 
@@ -206,7 +208,7 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 									$farbe = $farbe2;
 								}
 							 ?>"> 
-        <div align="center"><a href="?page=admin&amp;sec=usrgrpmbr&amp;sec2=edit&amp;sec3=<?php echo $result_page['usergroupmember_usergroupid']; ?>&amp;db_id=<?php echo $result_page['usergroupmember_userid']; ?>"><img src="images/view.gif" alt="Edit Membership" width="19" height="18" border="0"></a>&nbsp;<a href="?page=admin&amp;sec=usrgrpmbr&amp;sec2=add&amp;sec3=new&amp;db_id=<?php echo $result_page['usergroupmember_userid']; ?>"><img src="images/tool.gif" alt="Add Membership" width="19" height="18" border="0"></a>&nbsp;<a href="?page=admin&amp;sec=usrgrpmbr&amp;sec2=delete&amp;sec3=<?php echo $result_page['usergroupmember_usergroupid']; ?>&amp;db_id=<?php echo $result_page['usergroupmember_userid']; ?>"><img src="images/delete.gif" alt="Add Membership" width="19" height="18" border="0"></a></div></td>
+        <div align="center"><a href="?page=admin&amp;sec=usrgrpmbr&amp;sec2=edit&amp;sec3=<?php echo $result_page['usergroupmember_usergroupid']; ?>&amp;db_id=<?php echo $result_page['usergroupmember_userid']; ?>"><img src="images/view.gif" alt="Edit Membership" width="19" height="18" border="0"></a>&nbsp;<a href="?page=admin&amp;sec=usrgrpmbr&amp;sec2=add&amp;sec3=new&amp;db_id=<?php echo $result_page['usergroupmember_userid']; ?>"><img src="images/tool.gif" alt="Add Membership" width="19" height="18" border="0"></a>&nbsp;<a href="?page=admin&amp;sec=usrgrpmbr&amp;sec2=delete&amp;sec3=<?php echo $result_page['usergroupmember_usergroupid']; ?>&amp;db_id=<?php echo $result_page['usergroupmember_userid']; ?>"><img src="images/delete.gif" alt="Delete Membership" width="19" height="18" border="0"></a></div></td>
       <td width="7%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"><?php echo "<b>".$result_page['usergroupmember_userid']."</b>"; ?></font></div></td>
       <td width="10%" valign="middle" bgcolor="<?php echo $farbe; ?>"><font face="Arial, Helvetica, sans-serif"><?php
 		$query_usra = mysql_query("SELECT user_id, user_name FROM users WHERE user_id = '".$result_page['usergroupmember_userid']."'") or die('DB error (membership script)!');
