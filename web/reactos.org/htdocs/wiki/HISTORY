@@ -1,0 +1,652 @@
+Change notes from older releases. For current info see RELEASE-NOTES.
+
+Security reminder: MediaWiki does not require PHP's register_globals
+setting since version 1.2.0. If you have it on, turn it *off* if you can.
+
+== Version 1.3.11, 2005-02-20 ==
+
+MediaWiki 1.3.11 is a security release.
+
+A security audit found and fixed a number of problems. Users of MediaWiki
+1.3.10 and earlier should upgrade to 1.3.11; users of 1.4 beta releases
+should upgrade to 1.4rc1.
+
+
+=== Cross-site scripting vulnerability ===
+
+XSS injection points can be used to hijack session and authentication
+cookies as well as more serious attacks.
+
+* Media: links output raw text into an attribute value, potentially
+  abusable for JavaScript injection. This has been corrected.
+* Additional checks added to file upload to protect against MSIE and
+  Safari MIME-type autodetection bugs.
+
+As of 1.3.10/1.4beta6, per-user customized CSS and JavaScript is disabled
+by default as a general precaution. Sites which want this ability may set
+$wgAllowUserCss and $wgAllowUserJs in LocalSettings.php.
+
+
+=== Cross-site request forgery ===
+
+An attacker could use JavaScript-submitted forms to perform various
+restricted actions by tricking an authenticated user into visiting
+a malicious web page. A fix for page editing in 1.3.10/1.4beta6 has
+been expanded in this release to other forms and functions.
+
+Authors of bot tools may need to update their code to include the
+additional fields.
+
+
+=== Directory traversal ===
+
+An unchecked parameter in image deletion could allow an authenticated
+administrator to delete arbitary files in directories writable by the
+web server, and confirm existence of files not deletable.
+
+
+== Version 1.3.10, 2005-02-03 ==
+
+MediaWiki 1.3.10 is a security release.
+
+An attacker could craft a URL which, when visited by a particular
+logged-in user, would execute arbitrary JavaScript code on the user's
+browser in the wiki's site context. This attack has been blocked, and as
+an extra precaution the user CSS and JavaScript subpage support is now
+disabled by default. Sites which want this ability may set $wgAllowUserCss
+and $wgAllowUserJs in LocalSettings.php.
+
+Additional protections have been added against off-site form submissions
+hijacking user credentials. Authors of bot tools may need to update their
+code to include additional fields.
+
+All wikis running 1.3.x are strongly urged to upgrade to 1.3.10.
+
+Changes from 1.3.9:
+* Logged-in edits and preview of user CSS/JS are now locked to a session token.
+* Per-user CSS and JavaScript subpage customizations now disabled by default.
+  They can be re-enabled via $wgAllowUserJs and $wgAllowUserCss.
+* Removed .ogg from the default uploads whitelist as an extra precaution.
+  If your web server is configured to serve Ogg files with the correct
+  Content-Type header, you can re-add it in LocalSettings.php:
+    $wgFileExtensions[] = 'ogg';
+
+
+
+== Version 1.3.9, 2004-12-12 ==
+
+MediaWiki 1.3.9 is a security and bug fix release.
+
+A flaw in upload handling has been found which may allow upload and 
+execution of arbitrary scripts with the permissions of the web server.
+Only wikis that have enabled uploads and have a vulnerable Apache 
+configuration will be affected, but to be safe all wikis should upgrade.
+
+Wikis with uploads available should either disable uploads or upgrade to
+1.3.9 immediately; if other files are customized and require merging 
+changes, includes/SpecialUpload.php may be replaced individually to add
+the fix.
+
+(It is also recommended to configure your web server to disable script
+execution in the 'images' subdirectory where uploads are placed, which
+prevents most attacks even if the wiki fails.)
+
+Changes from 1.3.8:
+* Backported "Templates used in this page"-feature of EditPage
+* Allow "MySkin" as a default skin.
+* (bug 938) Parse namespaces correctly on self-interwiki links
+* (bug 1010) fix broken Commons image link on Classic & Cologne Blue
+* (bug 1004) Norsk language names for interwiki links changed,
+  Nauruan language name changed
+* Enhance upload extension blacklist to protect against vulnerable
+  Apache configurations
+
+
+== Version 1.3.8, 2004-11-15 ==
+
+MediaWiki 1.3.8 is a bugfix release. Those running wikis with uploads
+enabled are strongly recommended to upgrade as this fixes several problems
+with overwriting previously-uploaded files.
+
+Changes from 1.3.7:
+* (bug 506) fix array_key_exists() warning for IIS servers using
+  ISAPI mode
+* (bug 718) fix bad charset in (file) cached pages
+* use local numerals in category page (for Hindi et al)
+* alias month abbreviations to month names in Hindi
+* add localized numerals for Gujarati and Kannada
+* fix Category and project namespaces for Hindi
+* Don't output bogus timestamp on Special:Recentchanges if no entries
+* Correct template include path which broke some but not all Windows installs
+* Fix edit form submission problem with some PHP versions
+* Disallow unreachable titles with %XX hex codes
+* Allow page [[0]] to be renamed
+* (bug 774) when saving with section=new, return to the anchor as with
+  existing numbered section edits
+* Experimental shared upload overlay area (disabled by default)
+* (bug 806) Removed some "Wikipedia" hardcoding in German localization
+* User option localization fix for some extensions
+* (bug 809) now try to load the mysql php extension if it isn't loaded
+* (bug 848) fix error message in Special:Newpages RSS and Atom feeds
+* (bug 26) fix cache headers on anon talk page notification
+* (bug 874) added 'cgi' to wgFileBlacklist
+* (bug 862) localize date and time format for Finnish
+* (bug 548) Don't overwrite images until the user confirms it
+
+
+== Version 1.3.7, 2004-10-18 ==
+Changes from 1.3.6:
+* Fix protected-page related security issue.
+
+
+== Version 1.3.6, 2004-10-14 ==
+
+Changes from 1.3.5:
+* (bug 296) Variables in user interface messages are no longer substituted
+  at install time, so changes to the site name etc should be easier to make
+* (bug 149) Special:Recentchanges "changes from" link preserves limit
+* (bug 433) tooltip for "Undelete" tab now labeled correctly
+* (bug 439) unclickable "Move" tab no longer displays on protected pages
+* (bug 484) graceful deletion of images where the actual file is missing
+* (bug 686) fixed [[plural]]s in Catalan localization
+* Fixed potential HTML/JavaScript injection attack in the UnicodeConverter
+  extension. (This extension is not enabled by default.)
+* Fixed potential HTML/JavaScript injection attack via raw page views to
+  a maliciously crafted wiki page.
+* (bug 187, bug 669) Fixed centered thumbnails, using <div> instead of
+  <span>.
+* catch MySQL error 2000 during installation.
+* (bug 704) Removed misleading LocalSettings.sample
+* Fix cross site scripting bugs in SpecialIpblocklist, SpecialEmailuser
+* Fix SQL injection and cross site scripting bugs in SpecialMaintenance
+* Fix cross site scripting bugs and possible filename validation vulnerability
+  in ImagePage.
+* and more of that sort
+
+
+== Version 1.3.5, 2004-09-30 ==
+
+Changes from 1.3.4:
+* Clean up input validation in 'raw' page output mode which was a potential
+  cross-site scripting opportunity.
+
+
+== Version 1.3.4, 2004-09-28 ==
+
+************************** SECURITY NOTE! ******************************
+
+As of 1.3.4, MediaWiki performs some screening of newly uploaded files for
+validity. (Some)  corrupt image files, and HTML files mistakenly or
+maliciously masquerading as images, should now be rejected.
+
+These checks protect against Internet Explorer security holes relating
+to type autodetection which are a potential cross-site scripting attack
+vector, and also rejects at least one known version of the "JPEG virus"
+which might attack unpatched clients.
+
+If you already have invalid files uploaded this will not protect against
+them. If you have expanded the filetype whitelist or disabled the strict
+type checking, other dangerous file types may still get through. You should
+always be careful when allowing uploads!
+
+
+Changes from 1.3.3:
+* Fixed lots of template-related bugs, esp. for cases where template
+  variables are used for links, images, etc.
+* Fixed transformation of page messages when viewing Special:Allmessages
+* Handle "ISBN ISBN 1234" correctly
+* Fixed warning on Category pages
+* Fixed some bad error messages on login page
+* Fixed history entry for initial main page on install
+* Removed problematic { and } from legal title characters
+* Strip leading blank from output in preformated text.
+* Fixed problem when moving pages to titles with '#' in
+* Optional $wgRawHtml for raw <html> sections. Use only on limited-
+  participation 'trusted' wikis, as it does not protect against cross-site
+  scripting attacks. For security, this option can only be enabled if in
+  $wgWhitelistEdit mode.
+* Fixed problem where pages which were created as a redirect following
+  a move never showed on Special:Randompage.
+* Fixed line spacing on printed table of contents
+* Allow links to pages with names of the form [[RFC 1234]]
+* Fixed broken edit links being shown for sections from included templates
+* Verify that uploaded image files are of the claimed type.
+
+
+== Version 1.3.3, 2004-09-09 ==
+
+Changes from 1.3.2:
+* Fix for long numeric page titles
+* Fix Go search for "0", numeric almost-self-links
+* Avoid caching of pages with "You have new messages" headers
+* Fix for upgrades as non-root users from 1.2 command-line installs.
+* Fix for $wgDebugDumpSql debug mode.
+* $wgExtraNamespaces setting for configuring additional namespaces
+  (see note in DefaultSettings.php)
+* 'recache' on query pages now disabled when miser mode is on; special case the
+  global settings in your LocalSettings.php to do automatic updates.
+* Don't block UTF-8 titles containing byte 0xA0 (bug added in 1.3.2)
+* Watch/unwatch tabs now shown on edit pages in MonoBook.
+* Fix default skin in Irish localization (ga)
+* Add Traditional Chinese localization (zh-tw)
+* Changed default sortkey of subcategories. Don't include "Category:"-prefix
+  any longer
+* More helpful info on spam catcher.
+* Allow larger offsets for queries such as Special:Listusers
+* Semicolon (;) added to French non-break space rules
+* Possible fix for some install errors with path names permission problems.
+* Removed [[Project:All system messages]], which has been superceded by
+  the much faster [[Special:Allmessages]]. This speeds up installation
+  considerably.
+
+== Version 1.3.2, 2004-08-30 ==
+
+Changes from 1.3.1:
+* Fix namespaced page creation links when no go match
+* When cookies are disabled, don't show login screen twice
+* Install should no longer die when PHP is pre-configured to compress output
+* Fixed bug that caused long Japanese pages to time out with Tidy active
+* When session.handler is set incorrectly, try automatic override to 'files'
+* Watch/Unwatch links back to the affected page instead of Main Page
+* Upload link no longer displayed on Monobook if uploading is disabled
+* Special:Allmessages faster, shows correct original text, works in safe mode
+
+
+== Version 1.3.1, 2004-08-14 ==
+
+Changes from 1.3.0:
+* Watchlist parameters now work with register_globals off
+* Fixed parsing of ''italics'' and '''bold''' mark-up (again)
+* Special:Allpages display is more sensible on smaller wikis
+* Fixed XHTML parsing error in classic skins
+* Moved pages update watchlist correctly
+* Fixed rebuildall.php on case-sensitive Unix filesystems
+* Disabled file cache compression by default due to incompatibility
+  with output buffer compression (ob_gzhandler)
+* New magic word PAGENAMEE (URL-escaped version of PAGENAME)
+* Installation avoids blank username; better message on missing XML module
+* $wgWhitelistAccount no longer breaks all logins.
+
+== Version 1.3.0, 2004-08-11 ==
+
+Look & layout:
+* New default layout 'MonoBook' (available on PHP4 only currently)
+* Print stylesheet now built-in to every page
+* More or less correct XHTML 1.0 (served as text/html by default)
+
+Wiki features:
+* Image captions can now include links and other basic formatting
+* Image bounding box can be specified instead of width, e.g. as
+  100x100px, making the image not wider than 100px and not higher
+  than 100px, keeping aspect ratio.
+* Templates have been expanded with parameters, and separated from
+  the MediaWiki: localization scheme.
+* Categories more or less work
+* added a special page for listing users with sysop rights.
+
+Editing:
+* Automatic merging of edit conflicts that don't directly interfere
+* Edit summaries can now include basic formatting and links
+
+Metadata and output:
+* Linked Creative Commons copyright metadata (optional)
+* RSS 2.0 & Atom 0.3 feeds for Recent Changes, New Pages
+
+Optional modules:
+* WikiHiero hieroglyphic module can be added (separate download)
+* Timeline module can be added (separate download).
+  Requires ploticus.
+* TeX now has an experimental MathML output mode (incomplete!)
+
+Installation and upgrading:
+* The old install.php and update.php have been removed. In-place
+  installation introduced in 1.2 is now the standard installation
+  and upgrade method, see INSTALL and UPGRADE for directions.
+
+Database:
+* The links table has been changed to use a cur_id for l_from.
+  The link tables must be converted on upgrade, which may entail
+  some downtime.
+
+Code and compatibility:
+* Should now run clean with error reporting set to E_ALL.
+* register_globals hack from 1.2 has been replaced with safer code
+* Bundled PHPTAL 0.7.0 from http://phptal.sourceforge.net/
+  (with some patches)
+* Most image-related code moved to Image.php
+* More fixes for PHP 4.1.2 (thanks to Asheesh Laroia)
+* URL encoding fix for anchors
+* All languages now available in UTF-8 mode
+* Various other fixes
+
+=== Caveats ===
+
+Some output, particularly involving user-supplied inline HTML, may not
+produce 100% valid or well-formed XHTML output. Testers are welcome to
+set $wgMimeType = "application/xhtml+xml"; to test for remaining problem
+cases, but this is not recommended on live sites. (This must be set for
+MathML to display properly in Mozilla.)
+
+The new 'MonoBook' skin is not compatible with PHP 5 due to bugs in the
+underlying PHPTAL library. It will be automatically disabled when running
+on PHP5; the older look and feel will be used instead.
+
+
+== Version 1.2.6, 2004-05-24 ==
+* Spam blocker ($wgSpamRegex - refuses to save edits that match)
+* Updated documentation about $wgWhitelistRead
+* Ensure that searchindex table is created as MyISAM
+* Interwiki cache timeout (memcached)
+* Fix uploads on Windows with magic_quotes_gpc
+* Some config fixes for Windows (slashes etc)
+* Local interwiki URL redirects
+* Fixed obscure deletion problem in squid mode on corrupt entries
+* Language files updated to remove more hard-coded "Wikipedia" strings
+
+== Version 1.2.5, 2004-05-01 ==
+* Fixed install problem with blank root password
+* Fixed Special:Emailuser/Username links
+* Fixed main-page edit links on fuzzy search results
+* Fixed wikipedia-interwiki.sql
+* Fixed install with apache2filter (ugly URLs)
+* IP in 'go' search brings up contributions
+* Switch from broken & to ? on top-level wiki URL hack
+
+== Version 1.2.4, 2004-04-13 ==
+
+* Fixed edit toolbar in Mozilla
+* Diff links in Contributions for 'top' edits
+* Fixed Nostalgia skin drop-down for register_globals off
+* Backported optional open proxy blocker
+* Backported $wgWhitelistRead
+* $wgCapitalLinks option to force full case sensitivity in titles
+* Cleaned up error handling when can't talk to database
+* Disabled unsafe command-line installer (remove the "die()" call to use)
+
+== Version 1.2.3, 2004-04-02 ==
+
+* Fixed an in-place install bug with non-root MySQL user
+* Fixed history diff checkboxes bug on titles with ampersands
+* Fixed printable link bug on special pages with parameters
+* Fixed bug that broke IP blocking w/o memcached
+* Turns off E_NOTICE warnings if PHP settings have them on
+  (you can grope in and turn this off if you like to debug)
+
+== Version 1.2.2, 2004-03-28 ==
+
+* Fixed an upgrade bug introduced in 1.2.1.
+* Disabled $wgUseCategoryMagic, which feature is incomplete broken
+
+== Version 1.2.1, 2004-03-27 ==
+
+Installation, compatibility, security fixlets:
+* Detect use of PHP as CGI and disable index.php/Title URLs
+* Try to auto-create math tmp & output directories if not present
+* Disable Asksql in default install ($wgAllowSysopQueries)
+* Better handling of get_magic_quotes_gpc (apostrophe problems)
+* French localisation no longer hard-codes "Wikipedia" name
+
+== Version 1.2.0 ==
+
+New features in 1.2:
+* Image resizing/thumbnail generation
+* Stricter upload file extension blacklist and whitelist options
+* More flexible blocking system; time period may be set
+* Handier sysop account management. An account marked "bureaucrat"
+  may assign sysop access to other accounts via Special:Makesysop.
+  (The exact details of this may change in the future)
+* Support for a squid cache with explicit purging of cached anon pages
+* Optional compression of old revision text (requires zlib support)
+* Fuzzy title search (experimental, requires memcached)
+* Page rendering cache (experimental)
+* Editing toolbar to demonstrate wiki syntax to newbies
+  (off by default in user preferences)
+* Support for authenticated SMTP outgoing e-mail (experimental)
+* It's now possible to assign sysop accounts from within the wiki.
+  An account with this ability must be labeled with the "bureaucrat"
+  privilege, such as the 'Developer' account created by the install.
+
+Fixes and tweaks:
+* Now works with register_globals off!
+* Works with short tags disabled.
+* Should work out of the box on MySQL 3.2.x again. On 4.x set
+  $wgEnablePersistentLC = true; to turn on the link cache table
+  for a slight rendering speed boost.
+* rebuildMessages.php can now selectively update new messages, or
+  overwrite everything.
+* Various bug fixes.
+* Other stuff we forgot.
+* Documentation more out of date than ever before!
+
+=== Behavior changes ===
+
+* wiki.phtml and redirect.phtml are now renamed to index.php and redirect.php
+  The old names are provided too for compatibility, but make sure they don't
+  conflict if you've been putting other files in your wiki.
+* Uploaded filenames are more strictly checked than before. See bits in
+  DefaultSettings.php to tweak this behavior to your needs.
+* Database messages are now enabled by default, so the interface messages can
+  be tweaked through the wiki with a sysop account. Disable this if you
+  don't want the performance hit.
+
+=== Database changes ===
+
+An index was added to recentchanges table to speed up Newpages
+(patch-rc-newindex.sql for manual updaters).
+
+Expiration date field has been added to ipblocks table
+(patch-ipb_expiry.sql for manual updaters).
+
+
+== Version 1.1.0, 2003-12-08 ==
+
+This is the new production release. Any following 1.1.x releases are expected
+to contain only bug fixes; developments of new features will go towards a 1.2.0
+release.
+
+New features in 1.1:
+* New wiki table syntax:
+  http://meta.wikipedia.org/wiki/MediaWiki_User%27s_Guide:_Using_tables
+* User-editable interface messages:
+  http://meta.wikipedia.org/wiki/MediaWiki_namespace
+* XML-wrapped page source export with optional history:
+  http://meta.wikipedia.org/wiki/XML_import_and_export
+  (There is not yet an import function!)
+* "Magic words"
+
+Fixes and tweaks:
+* linkscc table caches link data for rendering; faster rebuildlinks.php
+* Numerous bugs in Cologne Blue skin fixed
+* Login gives warning about missing cookies
+* Block log, protection log added; deletion log now includes undeletions
+* Deletion & upload logs now escape comment text properly
+* Problems with <nowiki> segments in section titles etc mitigated
+* Contributions offset and minor edit bugs fixed
+* Whatlinkshere now sorted alphabetically
+* Various exciting new profiling options.
+* Debug log is off by default.
+* Various small bugs fixed.
+
+Internal changes:
+* wfQuery has had a second parameter inserted, DB_READ or DB_WRITE. This value
+  is not actually used so far.
+* Partial code for categories and Smarty template-based skins is in the tree
+  but disabled.
+* Parts of Article.php have been moved to EditPage.php and ImagePage.php.
+
+New translations:
+* fi - Finnish
+* ia - Interlingua
+* no - Norwegian
+* sk - Slovak
+* ta - Tamil
+
+=== Database changes ===
+
+"linkscc" table added. If upgrading manually (rather than with update.php),
+run maintenance/archives/patch-linkscc.sql to create the table.
+
+Older releases were dated snapshots from the old 'stable' branch:
+
+== mediawiki-20031118 ==
+
+* Image deletion fixed.
+* Deletion of image old revisions now restricted to sysops
+  (this is an irreversible action and not well logged)
+* Fixed maintenance scripts broken by last release's security fix
+* Many errors in rebuildlinks script fixed.
+
+== mediawiki-20031117 ==
+
+* SECURITY FIX: stricter checking of include path
+* Fixed user contributions next/prev bug
+* Login cookies now have the database name prefixed to allow wikis
+  to coexist in the same domain. This will invalidate any old saved
+  password cookies.
+* Update cache timestamp when talk pages are created
+* Saving the login form in Mozilla no longer blanks password in prefs.
+* Check existence of source page before performing a move.
+* Detect invalid titles in Special:Allpages
+* Q-encode headers on outgoing inter-user e-mail
+* Updates to some translations.
+* Added table of contents border/bg to Cologne Blue, Nostalgia skins
+* Protected pages no longer appear unprotected when visited via redirect
+* Swapped old Wikipedia logo for the MediaWiki sunflower logo
+* install.php, update.php print warning on old PHP versions,
+  added compatibility functions that might or might not help
+
+No database changes since 20031107; upgrading should be clean.
+
+
+== mediawiki-20031107 ==
+
+* Fixed various bugs!
+* Some speed improvements from tweaks to the table indexes
+* Limited support for memcached (see below)
+* New translations (see below)
+* Interwiki link data now kept in database for flexibility
+* Friendlier read-only source view if asked to edit a page when
+  the db is locked or the page is protected.
+* Normal IP blocks auto-expire after 24 hours
+* Optional support for blocking usernames
+* Uploads disabled by default (see below)
+
+
+=== Security note ===
+
+Uploads are now disabled by default. If you've set up a secure configuration
+you can reenable uploads by putting:
+
+  $wgDisableUploads = false;
+
+into LocalSettings.php.
+
+Earlier versions of MediaWiki included a bug that potentially allows logged-
+in users to delete arbitrary files in directories writable by the web server
+user by manually feeding false form data; this is now fixed.
+
+As a reminder, disable PHP script execution in the upload directory!
+You may also wish to serve HTML pages as plaintext to prevent cookie-
+stealing JavaScript attacks. Example Apache config fragment:
+
+  <Directory "/Library/MediaWiki/web/upload">
+     # Ignore .htaccess files
+     AllowOverride None
+     
+     # Serve HTML as plaintext
+     AddType text/plain .html .htm .shtml
+     
+     # Don't run arbitrary PHP code.
+     php_admin_flag engine off
+     
+     # If you've other scripting languages, disable them too.
+  </Directory>
+
+
+=== Database updates ===
+
+If you're using update.php, the necessary database changes should
+be made automatically.
+
+To manually upgrade your database from the 2003-08-29 release, run the
+following SQL scripts from the maintenance subdirectory:
+
+  archives/patch-ipblocks.sql
+  archives/patch-interwiki.sql
+  archives/patch-indexes.sql
+  interwiki.sql
+
+To copy in the Wikipedia language-prefix interwikis as well, add:
+
+  wikipedia-interwiki.sql
+
+
+=== Translations ===
+
+New interface localization files are included for:
+  fy Frisian
+  ro Romanian
+  sl Slovene
+  sq Albanian
+  sr Serbian
+
+
+=== Memcached ===
+
+Memcached is a distributed cache system. See http://www.danga.com/memcached/
+MediaWiki can optionally use memcached to store some data between calls
+to reduce load on the database. Currently this is limited to user and
+talk page notification data, interwiki prefix/URL matches, and the
+UTF-8 conversion tables.
+
+MediaWiki includes version 1.0.10 of the (GPL'd) PHP memcached client by
+Ryan Gilfether; if memcached is disabled it acts as a dummy object with
+minimal overhead.
+
+To use memcached you'll need PHP installed with sockets support (this is not
+in the default configure options). See docs/memcached for some more details.
+
+Additionally, you can store login session data in memcached instead of the
+local filesystem, which can help to enable load-balancing by letting login
+sessions transparently work on multiple front-end web servers. (The primary
+other issue is with uploads, which requires some care in handling.)
+
+To enable this, set $wgSessionsInMemcached = true; and set $wgCookieDomain
+appropriately if exposing multiple hostnames. This system is new and may be
+volatile; login sessions will fail dramatically if memcached is unavailable
+when this option is turned on.
+
+
+=== Online documentation ===
+
+Documentation for both end-users and site administrators is currently being
+built up on Meta-Wikipedia, and is covered under the GNU Free Documentation
+License:
+
+  http://meta.wikipedia.org/wiki/MediaWiki_User%27s_Guide
+
+
+=== Mailing list ===
+
+A MediaWiki-l mailing list has been set up distinct from the Wikipedia
+wikitech-l list:
+
+  http://mail.wikipedia.org/mailman/listinfo/mediawiki-l
+
+
+=== UseModWiki import script ===
+
+A stripped-down UseModWiki import script is available in the maintenance
+subdirectory. It is incomplete and requires a lot of manual clean-up, but
+does function for the brave and pure of heart.
+
+
+=== Test suite removed ===
+
+The unmaintained Java-based test suite has been removed from the tarball
+release. If you really want it you can check it out from CVS.
+
+
+== mediawiki-20030829 ==
+
+First release under MediaWiki name.
