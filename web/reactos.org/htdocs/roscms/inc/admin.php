@@ -147,7 +147,24 @@
 				include("inc/admin_user_groups.php"); 
 				break;
 			case "usrgrpmbr":
-				include("inc/admin_user_group_memebers.php"); 
+				if ($rpm_sec2=="view" || $rpm_sec2=="") {
+					include("inc/admin_user_group_members.php"); 
+				}
+				else if ($rpm_sec2=="edit") {
+					include("inc/admin_user_group_members_edit.php"); 
+				}
+				else if ($rpm_sec2=="add") {
+					include("inc/admin_user_group_members_edit.php"); 
+				}
+				else if ($rpm_sec2=="save") {
+					include("inc/admin_user_group_members_edit.php"); 
+				}
+				else if ($rpm_sec2=="insert") {
+					include("inc/admin_user_group_members_edit.php"); 
+				}
+				else if ($rpm_sec2=="delete") {
+					include("inc/admin_user_group_members_edit.php"); 
+				}
 				break;
 			case "sessions":
 				include("inc/admin_user_sessions.php"); 

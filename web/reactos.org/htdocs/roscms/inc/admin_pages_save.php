@@ -50,6 +50,9 @@
 		$page_savemode=$_POST['page_rad_opt'];
 		$page_pagetitle=$_POST['txt_pagetitle'];
 		$page_pagedesc=$_POST['txt_pagedesc'];
+		$page_pageextention=$_POST['txt_pageextent'];
+		$page_pageactive=$_POST['page_active'];
+		
 		
 		if ($page_langa == "") {
 			$page_langa = "all";
@@ -60,6 +63,13 @@
 		}
 		else {
 			$page_vis="0";
+		}
+
+		if ($page_pageactive == "yes") {
+			$page_pageactive="1";
+		}
+		else {
+			$page_pageactive="0";
 		}
 		
 		$page_data=$_POST['textarea_pages'];
@@ -73,6 +83,8 @@
 				`page_description` = '". mysql_real_escape_string($page_pagedesc) ."',
 				`page_text` = '". mysql_real_escape_string($page_data) ."',
 				`page_visible` = '". mysql_real_escape_string($page_vis) ."',
+				`pages_extention` = '". mysql_real_escape_string($page_pageextention) ."',
+				`page_active` = '". mysql_real_escape_string($page_pageactive) ."',
 				`page_date` = CURDATE( ) ,
 				`page_time` = CURTIME( ) WHERE `page_id` = '$rpm_db_id' LIMIT 1 ;";
 				//`page_active` = '1',
