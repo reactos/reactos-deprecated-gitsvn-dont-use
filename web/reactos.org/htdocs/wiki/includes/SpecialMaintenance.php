@@ -9,9 +9,8 @@
  * shortcut to get the current language "special" namespace name
  */
 function sns() {
-	global $wgContLang ;
-	$ns = $wgContLang->getNamespaces() ;
-	return $ns[NS_SPECIAL] ;
+	global $wgContLang;
+	return $wgContLang->getNsText(NS_SPECIAL);
 }
 
 
@@ -53,7 +52,6 @@ function wfSpecialMaintenance( $par=NULL ) {
 	if ( !is_null( $submitmll ) ) return wfSpecialMissingLanguageLinks() ;
 
 	$sk = $wgUser->getSkin();
-	$ns = $wgContLang->getNamespaces() ;
 
 	# Generate page output
 	
@@ -72,7 +70,7 @@ function wfSpecialMaintenance( $par=NULL ) {
 	  $l = getMPL('missinglanguagelinks');
 	  $l = str_replace ( '</a>' , '' , $l ) ;
 	  $l = str_replace ( '<a ' , '<form method="post" ' , $l ) ;
-		$l = str_replace ( ' href=' , ' action=' , $l ) ;
+	  $l = str_replace ( ' href=' , ' action=' , $l ) ;
 	  $l = explode ( '>' , $l ) ;
 	  $l = $l[0] ;
 	$r .= $l.">\n" ;
@@ -105,11 +103,10 @@ function getMPL ( $x ) {
 
 
 function getMaintenancePageBacklink( $subfunction ) {
-	global $wgUser , $wgContLang;
-	$sk = $wgUser->getSkin() ;
-	$ns = $wgContLang->getNamespaces() ;
+	global $wgUser, $wgContLang;
+	$sk = $wgUser->getSkin();
 	$r = $sk->makeKnownLink (
-		$ns[-1].':Maintenance',
+		$wgContLang->getNsText( NS_SPECIAL ) . ':Maintenance',
 		wfMsg( 'maintenancebacklink' ) ) ;
 	$t = wfMsg ( $subfunction ) ;
 	
@@ -158,8 +155,8 @@ function wfSpecialSelfLinks() {
 
 	list( $limit, $offset ) = wfCheckLimits();
 
-	$sql = "SELECT cur_namespace,cur_title FROM cur,links " . 
-	  "WHERE l_from=l_to AND l_to=cur_id " . 
+	$sql = "SELECT page_namespace,page_title FROM page,links " . 
+	  "WHERE l_from=l_to AND l_to=page_id " . 
 	  "LIMIT {$offset}, {$limit}";
 
 	$res = wfQuery( $sql, DB_SLAVE, $fname );
@@ -176,7 +173,7 @@ function wfSpecialSelfLinks() {
 	$sk = $wgUser->getSkin();
 	$s = '<ol start=' . ( $offset + 1 ) . '>';
 	while ( $obj = wfFetchObject( $res ) ) {
-		$title = Title::makeTitle( $obj->cur_namespace, $obj->cur_title );
+		$title = Title::makeTitle( $obj->page_namespace, $obj->page_title );
 		$s .= "<li>".$sk->makeKnownLinkObj( $title )."</li>\n" ;
 	}
 	wfFreeResult( $res );
@@ -219,7 +216,7 @@ function wfSpecialMispeelings () {
 			$y = $x ;
 			$x = preg_replace( '/^(\S+).*$/', '$1', $x );
 			$sql = "SELECT DISTINCT cur_title FROM $cur,$searchindex WHERE cur_id=si_page AND ".
-				"cur_namespace=0 AND cur_is_redirect=0 AND " .
+				"cur_namespace=".NS_MAIN." AND cur_is_redirect=0 AND " .
 				"(MATCH(si_text) AGAINST ('" . $dbr->strencode( $wgContLang->stripForSearch( $x ) ) . "'))" ;
 			$res = $dbr->query( $sql, $fname );
 			while ( $obj = $dbr->fetchObject ( $res ) ) {
@@ -269,7 +266,7 @@ function wfSpecialMissingLanguageLinks() {
 	$cur = $dbr->tableName( 'cur' );
 
 	$sql = "SELECT cur_title FROM $cur " .
-	  "WHERE cur_namespace=0 AND cur_is_redirect=0 " .
+	  "WHERE cur_namespace=".NS_MAIN." AND cur_is_redirect=0 " .
 	  "AND cur_title NOT LIKE '%/%' AND cur_text NOT LIKE '%[[" . wfStrencode( $thelang ) . ":%' " .
 	  "LIMIT {$offset}, {$limit}";
 

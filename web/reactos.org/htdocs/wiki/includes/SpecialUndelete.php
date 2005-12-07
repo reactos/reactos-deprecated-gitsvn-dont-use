@@ -1,9 +1,12 @@
 <?php
 /**
- *
+ * @todo document
  * @package MediaWiki
  * @subpackage SpecialPage
  */
+
+/** */
+require_once( 'Revision.php' );
 
 /**
  *
@@ -37,7 +40,7 @@ class PageArchive {
 	 *
 	 * @return ResultWrapper
 	 */
-	/* static */ function &listAllPages() {
+	/* static */ function listAllPages() {
 		$dbr =& wfGetDB( DB_SLAVE );
 		$archive = $dbr->tableName( 'archive' );
 
@@ -53,7 +56,7 @@ class PageArchive {
 	 *
 	 * @return ResultWrapper
 	 */
-	function &listRevisions() {
+	function listRevisions() {
 		$dbr =& wfGetDB( DB_SLAVE );
 		return $dbr->resultObject( $dbr->select( 'archive',
 			array( 'ar_minor_edit', 'ar_timestamp', 'ar_user', 'ar_user_text', 'ar_comment' ),
@@ -70,13 +73,26 @@ class PageArchive {
 	 * @return string
 	 */
 	function getRevisionText( $timestamp ) {
+		$fname = 'PageArchive::getRevisionText';
 		$dbr =& wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'archive',
-			array( 'ar_text', 'ar_flags' ),
+			array( 'ar_text', 'ar_flags', 'ar_text_id' ),
 			array( 'ar_namespace' => $this->title->getNamespace(),
 			       'ar_title' => $this->title->getDbkey(),
-			       'ar_timestamp' => $dbr->timestamp( $timestamp ) ) );
-		return Article::getRevisionText( $row, "ar_" );
+			       'ar_timestamp' => $dbr->timestamp( $timestamp ) ),
+			$fname );
+		if( is_null( $row->ar_text_id ) ) {
+			// An old row from MediaWiki 1.4 or previous.
+			// Text is embedded in this row in classic compression format.
+			return Revision::getRevisionText( $row, "ar_" );
+		} else {
+			// New-style: keyed to the text storage backend.
+			$text = $dbr->selectRow( 'text',
+				array( 'old_text', 'old_flags' ),
+				array( 'old_id' => $row->ar_text_id ),
+				$fname );
+			return Revision::getRevisionText( $text );
+		}
 	}
 	
 	/**
@@ -96,7 +112,7 @@ class PageArchive {
 			'PageArchive::getLastRevisionText',
 			array( 'ORDER BY' => 'ar_timestamp DESC' ) );
 		if( $row ) {
-			return Article::getRevisionText( $row, "ar_" );
+			return Revision::getRevisionText( $row, "ar_" );
 		} else {
 			return NULL;
 		}
@@ -128,133 +144,146 @@ class PageArchive {
 	function undelete( $timestamps ) {
 		global $wgUser, $wgOut, $wgLang, $wgDeferredUpdateList;
 		global $wgUseSquid, $wgInternalServer, $wgLinkCache;
+		global $wgDBtype;
 
 		$fname = "doUndeleteArticle";
 		$restoreAll = empty( $timestamps );
 		$restoreRevisions = count( $timestamps );
 
 		$dbw =& wfGetDB( DB_MASTER );
-		extract( $dbw->tableNames( 'cur', 'archive', 'old' ) );
-		$namespace = $this->title->getNamespace();
-		$ttl = $this->title->getDBkey();
-		$t = $dbw->strencode( $ttl );
+		extract( $dbw->tableNames( 'page', 'archive' ) );
 
-		# Move article and history from the "archive" table
-		$sql = "SELECT COUNT(*) AS count FROM $cur WHERE cur_namespace={$namespace} AND cur_title='{$t}'";
-		global $wgDBtype;
-		if( $wgDBtype != 'PostgreSQL' ) { # HACKHACKHACKHACK
-			$sql .= ' FOR UPDATE';
-		}
-		$res = $dbw->query( $sql, $fname );
-		$row = $dbw->fetchObject( $res );
-		$now = wfTimestampNow();
-
-		if( $row->count == 0) {
-			# Have to create new article...
-			$sql = "SELECT ar_text,ar_comment,ar_user,ar_user_text,ar_timestamp,ar_minor_edit,ar_flags FROM $archive WHERE ar_namespace={$namespace} AND ar_title='{$t}' ";
-			if( !$restoreAll ) {
-				$max = $dbw->addQuotes( $dbw->timestamp( array_shift( $timestamps ) ) );
-				$sql .= "AND ar_timestamp={$max} ";
-			}
-			$sql .= "ORDER BY ar_timestamp DESC LIMIT 1 FOR UPDATE";
-			$res = $dbw->query( $sql, $fname );
-			$s = $dbw->fetchObject( $res );
-			if( $restoreAll ) {
-				$max = $s->ar_timestamp;
-			}
-			$text = Article::getRevisionText( $s, "ar_" );
-			
-			$redirect = MagicWord::get( MAG_REDIRECT );
-			$redir = $redirect->matchStart( $text ) ? 1 : 0;
-			
-			$rand = wfRandom();
-			$dbw->insert( 'cur', array(
-				'cur_id' => $dbw->nextSequenceValue( 'cur_cur_id_seq' ),
-				'cur_namespace' => $namespace,
-				'cur_title' => $ttl,
-				'cur_text' => $text,
-				'cur_comment' => $s->ar_comment,
-				'cur_user' => $s->ar_user,
-				'cur_timestamp' => $s->ar_timestamp,
-				'cur_minor_edit' => $s->ar_minor_edit,
-				'cur_user_text' => $s->ar_user_text,
-				'cur_is_redirect' => $redir,
-				'cur_random' => $rand,
-				'cur_touched' => $dbw->timestamp( $now ),
-				'inverse_timestamp' => wfInvertTimestamp( wfTimestamp( TS_MW, $s->ar_timestamp ) ),
-			), $fname );
-			
-			$newid = $dbw->insertId();
-			if( $restoreAll ) {
-				$oldones = "AND ar_timestamp<" . $dbw->addQuotes( $dbw->timestamp( $max ) );
-			}
+		# Does this page already exist? We'll have to update it...
+		$article = new Article( $this->title );
+		$options = ( $wgDBtype == 'PostgreSQL' )
+			? '' // pg doesn't support this?
+			: 'FOR UPDATE';
+		$page = $dbw->selectRow( 'page',
+			array( 'page_id', 'page_latest' ),
+			array( 'page_namespace' => $this->title->getNamespace(),
+			       'page_title'     => $this->title->getDBkey() ),
+			$fname,
+			$options );
+		if( $page ) {
+			# Page already exists. Import the history, and if necessary
+			# we'll update the latest revision field in the record.
+			$newid             = 0;
+			$pageId            = $page->page_id;
+			$previousRevId     = $page->page_latest;
+			$previousTimestamp = $page->rev_timestamp;
 		} else {
-			# If already exists, put history entirely into old table
-			$oldones = "";
-			$newid = 0;
-			
-			# But to make the history list show up right, we need to touch it.
-			$sql = "UPDATE $cur SET cur_touched='{$now}' WHERE cur_namespace={$namespace} AND cur_title='{$t}'";
-			$dbw->query( $sql, $fname );
-			
-			# FIXME: Sometimes restored entries will be _newer_ than the current version.
-			# We should merge.
+			# Have to create a new article...
+			$newid  = $article->insertOn( $dbw );
+			$pageId = $newid;
+			$previousRevId = 0;
+			$previousTimestamp = 0;
 		}
 		
-		if( !$restoreAll ) {
-			$oldts = array();
-			foreach( $timestamps as $ts ) {
-				array_push( $oldts, $dbw->addQuotes( $dbw->timestamp( $ts ) ) );
-			}
-			$oldts = join( ",", $oldts );
-			$oldones = "AND ar_timestamp IN ( {$oldts} )";
-		}
-		$sql = "INSERT INTO $old (old_namespace,old_title,old_text," .
-		  "old_comment,old_user,old_user_text,old_timestamp,inverse_timestamp,old_minor_edit," .
-		  "old_flags) SELECT ar_namespace,ar_title,ar_text,ar_comment," .
-		  "ar_user,ar_user_text,ar_timestamp,99999999999999-ar_timestamp,ar_minor_edit,ar_flags " .
-		  "FROM $archive WHERE ar_namespace={$namespace} AND ar_title='{$t}' {$oldones}";
-		if( $restoreAll || !empty( $oldts ) ) {
-			$dbw->query( $sql, $fname );
-		}
-
-		# Finally, clean up the link tables 
-		if( $newid ) {
-			$wgLinkCache = new LinkCache();
-			# Select for update
-			$wgLinkCache->forUpdate( true );
-			# Create a dummy OutputPage to update the outgoing links
-			$dummyOut = new OutputPage();
-			$dummyOut->addWikiText( $text );
-
-			$u = new LinksUpdate( $newid, $this->title->getPrefixedDBkey() );
-			array_push( $wgDeferredUpdateList, $u );
+		if( $restoreAll ) {
+			$oldones = '1'; # All revisions...
+		} else {
+			$oldts = implode( ',',
+				array_map( array( &$dbw, 'addQuotes' ),
+					array_map( array( &$dbw, 'timestamp' ),
+						$timestamps ) ) );
 			
-			Article::onArticleCreate( $this->title );
+			$oldones = "ar_timestamp IN ( {$oldts} )";
+		}
+		
+		/**
+		 * Restore each revision...
+		 */
+		$result = $dbw->select( 'archive',
+			/* fields */ array(
+				'ar_rev_id',
+				'ar_text',
+				'ar_comment',
+				'ar_user',
+				'ar_user_text',
+				'ar_timestamp',
+				'ar_minor_edit',
+				'ar_flags',
+				'ar_text_id' ),
+			/* WHERE */ array(
+				'ar_namespace' => $this->title->getNamespace(),
+				'ar_title'     => $this->title->getDBkey(),
+				$oldones ),
+			$fname,
+			/* options */ array(
+				'ORDER BY' => 'ar_timestamp' )
+			);
+		$revision = null;
+		while( $row = $dbw->fetchObject( $result ) ) {
+			if( $row->ar_text_id ) {
+				// Revision was deleted in 1.5+; text is in
+				// the regular text table, use the reference.
+				// Specify null here so the so the text is
+				// dereferenced for page length info if needed.
+				$revText = null;
+			} else {
+				// Revision was deleted in 1.4 or earlier.
+				// Text is squashed into the archive row, and
+				// a new text table entry will be created for it.
+				$revText = Revision::getRevisionText( $row, 'ar_' );
+			}
+			$revision = new Revision( array(
+				'page'       => $pageId,
+				'id'         => $row->ar_rev_id,
+				'text'       => $revText,
+				'comment'    => $row->ar_comment,
+				'user'       => $row->ar_user,
+				'user_text'  => $row->ar_user_text,
+				'timestamp'  => $row->ar_timestamp,
+				'minor_edit' => $row->ar_minor_edit,
+				'text_id'    => $row->ar_text_id,
+				) );
+			$revision->insertOn( $dbw );
+		}
+		
+		if( $revision ) {
+			# FIXME: Update latest if newer as well...
+			if( $newid ) {
+				# FIXME: update article count if changed...
+				$article->updateRevisionOn( $dbw, $revision, $previousRevId );
+				
+				# Finally, clean up the link tables
+				$wgLinkCache = new LinkCache();
+				# Select for update
+				$wgLinkCache->forUpdate( true );
+				
+				# Create a dummy OutputPage to update the outgoing links
+				$dummyOut = new OutputPage();
+				$dummyOut->addWikiText( $revision->getText() );
 
-			#TODO: SearchUpdate, etc.
+				$u = new LinksUpdate( $newid, $this->title->getPrefixedDBkey() );
+				array_push( $wgDeferredUpdateList, $u );
+				
+				#TODO: SearchUpdate, etc.
+			}
+				
+			if( $newid ) {
+				Article::onArticleCreate( $this->title );
+			} else {
+				Article::onArticleEdit( $this->title );
+			}
+		} else {
+			# Something went terribly worong!
 		}
 
 		# Now that it's safely stored, take it out of the archive
-		$sql = "DELETE FROM $archive WHERE ar_namespace={$namespace} AND " .
-		  "ar_title='{$t}'";
-		if( !$restoreAll ) {
-			$sql .= " AND ar_timestamp IN ( {$oldts}";
-			if( $newid ) {
-				if( !empty( $oldts ) ) $sql .= ",";
-				$sql .= $max;
-			}
-			$sql .= ")";
-		}
-		$dbw->query( $sql, $fname );
-
+		$dbw->delete( 'archive',
+			/* WHERE */ array(
+				'ar_namespace' => $this->title->getNamespace(),
+				'ar_title' => $this->title->getDBkey(),
+				$oldones ),
+			$fname );
 		
-		# Touch the log?
+		# Touch the log!
 		$log = new LogPage( 'delete' );
 		if( $restoreAll ) {
-			$reason = "";
+			$reason = '';
 		} else {
-			$reason = wfMsg( 'undeletedrevisions', $restoreRevisions );
+			$reason = wfMsgForContent( 'undeletedrevisions', $restoreRevisions );
 		}
 		$log->addEntry( 'restore', $this->title, $reason );
 
@@ -415,8 +444,8 @@ class UndeleteForm {
 					Title::makeTitle( NS_SPECIAL, 'Contributions' ),
 					$userLink, 'target=' . $row->ar_user_text );
 			}
-			$comment = $sk->formatComment( $row->ar_comment );
-			$wgOut->addHTML( "<li>$checkBox $pageLink . . $userLink (<i>$comment</i>)</li>\n" );
+			$comment = $sk->commentBlock( $row->ar_comment );
+			$wgOut->addHTML( "<li>$checkBox $pageLink . . $userLink $comment</li>\n" );
 
 		}
 		$revisions->free();
@@ -434,7 +463,7 @@ class UndeleteForm {
 
 				if (NS_IMAGE == $this->mTargetObj->getNamespace()) {
 					/* refresh image metadata cache */
-					new Image( $this->mTargetObj->getText(), true );
+					new Image( $this->mTargetObj );
 				}
 
 				return true;

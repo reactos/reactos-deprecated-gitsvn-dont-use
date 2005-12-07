@@ -22,27 +22,28 @@ class PopularPagesPage extends QueryPage {
 	}
 
 	function isExpensive() {
-		# cur_counter is not indexed
+		# page_counter is not indexed
 		return true;
 	}
 	function isSyndicated() { return false; }
 
 	function getSQL() {
 		$dbr =& wfGetDB( DB_SLAVE );
-		$cur = $dbr->tableName( 'cur' );
+		$page = $dbr->tableName( 'page' );
 
 		return
 			"SELECT 'Popularpages' as type,
-			        cur_namespace as namespace,
-			        cur_title as title,
-			        cur_counter as value
-			FROM $cur
-			WHERE cur_namespace=0 AND cur_is_redirect=0";
+			        page_namespace as namespace,
+			        page_title as title,
+			        page_counter as value
+			FROM $page
+			WHERE page_namespace=".NS_MAIN." AND page_is_redirect=0";
 	}
 
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
-		$link = $skin->makeKnownLink( $result->title, $wgContLang->convert( $result->title ) );
+		$title = Title::makeTitle( $result->namespace, $result->title );
+		$link = $skin->makeKnownLinkObj( $title, $wgContLang->convert( $title->getPrefixedText() ) );
 		$nv = wfMsg( "nviews", $wgLang->formatNum( $result->value ) );
 		return "{$link} ({$nv})";
 	}

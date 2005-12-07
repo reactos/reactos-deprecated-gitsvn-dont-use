@@ -2,7 +2,11 @@
 /**
  *
  * @package MediaWiki
+ * @subpackage Cache
  */
+
+/** */
+require_once( 'Revision.php' );
 
 /**
  *
@@ -21,7 +25,7 @@ class MessageCache
 {
 	var $mCache, $mUseCache, $mDisable, $mExpiry;
 	var $mMemcKey, $mKeys, $mParserOptions, $mParser;
-	var $mExtensionMessages;
+	var $mExtensionMessages = array();
 	var $mInitialised = false;
 	var $mDeferred = true;
 
@@ -50,7 +54,7 @@ class MessageCache
 		# can return a cache hit, this saves
 		# some extra milliseconds
 		$this->mDeferred = true;
-		
+
 		wfProfileOut( $fname );
 	}
 
@@ -63,7 +67,11 @@ class MessageCache
 		global $wgAllMessagesEn;
 
 		if ( $this->mDisable ) {
-			wfDebug( "MessageCache::load(): disabled\n" );
+			static $shownDisabled = false;
+			if ( !$shownDisabled ) {
+				wfDebug( "MessageCache::load(): disabled\n" );
+				$shownDisabled = true;
+			}
 			return true;
 		}
 		$fname = 'MessageCache::load';
@@ -77,10 +85,10 @@ class MessageCache
 
 			# If there's nothing in memcached, load all the messages from the database
 			if ( !$this->mCache ) {
-				wfProfileIn( $fname.'-fromdb');
 				wfDebug( "MessageCache::load(): loading all messages\n" );
+				$this->lock();
 				# Other threads don't need to load the messages if another thread is doing it.
-				$success = $this->mMemc->add( $this->mMemcKey, "loading", MSG_LOAD_TIMEOUT );
+				$success = $this->mMemc->add( $this->mMemcKey.'-status', "loading", MSG_LOAD_TIMEOUT );
 				if ( $success ) {
 					wfProfileIn( $fname.'-load' );
 					$this->loadFromDB();
@@ -88,20 +96,21 @@ class MessageCache
 					# Save in memcached
 					# Keep trying if it fails, this is kind of important
 					wfProfileIn( $fname.'-save' );
-					for ( $i=0; $i<20 && !$this->mMemc->set( $this->mMemcKey, $this->mCache, $this->mExpiry ); $i++ ) {
+					for ($i=0; $i<20 &&
+					           !$this->mMemc->set( $this->mMemcKey, $this->mCache, $this->mExpiry );
+					     $i++ ) {
 						usleep(mt_rand(500000,1500000));
 					}
 					wfProfileOut( $fname.'-save' );
 					if ( $i == 20 ) {
-						$this->mMemc->set( $this->mMemcKey, 'error', 60*5 );
+						$this->mMemc->set( $this->mMemcKey.'-status', 'error', 60*5 );
 						wfDebug( "MemCached set error in MessageCache: restart memcached server!\n" );
 					}
 				}
-				wfProfileOut( $fname.'-fromdb' );
+				$this->unlock();
 			}
 
 			if ( !is_array( $this->mCache ) ) {
-				wfProfileIn( $fname.'-error' );
 				wfDebug( "MessageCache::load(): individual message mode\n" );
 				# If it is 'loading' or 'error', switch to individual message mode, otherwise disable
 				# Causing too much DB load, disabling -- TS
@@ -117,7 +126,6 @@ class MessageCache
 					$success = false;
 				}*/
 				$this->mCache = false;
-				wfProfileOut( $fname.'-error' );
 			}
 		}
 		wfProfileOut( $fname );
@@ -129,28 +137,36 @@ class MessageCache
 	 * Loads all or main part of cacheable messages from the database
 	 */
 	function loadFromDB() {
-		global $wgPartialMessageCache;
 		$fname = 'MessageCache::loadFromDB';
 		$dbr =& wfGetDB( DB_SLAVE );
-		$conditions = array( 'cur_is_redirect' => 0, 
-					'cur_namespace' => NS_MEDIAWIKI);
-		if ($wgPartialMessageCache) {
-			if (is_array($wgPartialMessageCache)) {
-				$conditions['cur_title']=$wgPartialMessageCache;
-			} else {
-				require_once("MessageCacheHints.php");
-				$conditions['cur_title']=MessageCacheHints::get();
-			}
-		}
-		$res = $dbr->select( 'cur',
-			array( 'cur_title', 'cur_text' ), $conditions, $fname);
+		$conditions = array( 'page_is_redirect' => 0,
+					'page_namespace' => NS_MEDIAWIKI);
+		$res = $dbr->select( array( 'page', 'revision', 'text' ),
+			array( 'page_title', 'old_text', 'old_flags' ),
+			'page_is_redirect=0 AND page_namespace='.NS_MEDIAWIKI.' AND page_latest=rev_id AND rev_text_id=old_id',
+			$fname
+		);
 
 		$this->mCache = array();
 		for ( $row = $dbr->fetchObject( $res ); $row; $row = $dbr->fetchObject( $res ) ) {
-			$this->mCache[$row->cur_title] = $row->cur_text;
+			$this->mCache[$row->page_title] = Revision::getRevisionText( $row );
 		}
 
 		$dbr->freeResult( $res );
+		/*
+		# FIXME: This is too slow currently.
+		# We need to bulk-fetch revisions, but in a portable way...
+		$resultSet = Revision::fetchFromConds( $dbr, array(
+			'page_namespace'   => NS_MEDIAWIKI,
+			'page_is_redirect' => 0,
+			'page_id=rev_page' ) );
+		while( $row = $resultSet->fetchObject() ) {
+			$revision = new Revision( $row );
+			$title = $revision->getTitle();
+			$this->mCache[$title->getDBkey()] = $revision->getText();
+		}
+		$resultSet->free();
+		*/
 	}
 
 	/**
@@ -169,15 +185,10 @@ class MessageCache
 	}
 
 	/**
-	 * Obsolete
+	 * @deprecated
 	 */
 	function isCacheable( $key ) {
 		return true;
-		/*
-		global $wgAllMessagesEn, $wgLang;
-		return array_key_exists( $wgLang->lcfirst( $key ), $wgAllMessagesEn ) ||
-			array_key_exists( $key, $wgAllMessagesEn );
-		*/
 	}
 
 	function replace( $title, $text ) {
@@ -199,15 +210,11 @@ class MessageCache
 			return true;
 		}
 
-		$fname = 'MessageCache::lock';
-		wfProfileIn( $fname );
-		
 		$lockKey = $this->mMemcKey . 'lock';
 		for ($i=0; $i < MSG_WAIT_TIMEOUT && !$this->mMemc->add( $lockKey, 1, MSG_LOCK_TIMEOUT ); $i++ ) {
 			sleep(1);
 		}
 
-		wfProfileOut( $fname );
 		return $i >= MSG_WAIT_TIMEOUT;
 	}
 
@@ -220,7 +227,7 @@ class MessageCache
 		$this->mMemc->delete( $lockKey );
 	}
 
-	function get( $key, $useDB, $forcontent=true, $isfullkey=false ) {
+	function get( $key, $useDB, $forcontent=true, $isfullkey = false ) {
 		global $wgContLanguageCode;
 		if( $forcontent ) {
 			global $wgContLang;
@@ -233,7 +240,7 @@ class MessageCache
 		}
 		# If uninitialised, someone is trying to call this halfway through Setup.php
 		if( !$this->mInitialised ) {
-			return "&lt;$key&gt;";
+			return '&lt;' . htmlspecialchars($key) . '&gt;';
 		}
 		# If cache initialization was deferred, start it now.
 		if( $this->mDeferred ) {
@@ -273,10 +280,10 @@ class MessageCache
 			!$isfullkey && ($langcode != $wgContLanguageCode) ) {
 			$message = $this->getFromCache( $lang->ucfirst( $key ) );
 		}
-		
+
 		# Final fallback
 		if( !$message ) {
-			$message = "&lt;$key&gt;";
+			return '&lt;' . htmlspecialchars($key) . '&gt;';
 		}
 
 		# Replace brace tags
@@ -286,7 +293,7 @@ class MessageCache
 
 	function getFromCache( $title ) {
 		$message = false;
-		
+
 		# Try the cache
 		if( $this->mUseCache && is_array( $this->mCache ) && array_key_exists( $title, $this->mCache ) ) {
 			$message = $this->mCache[$title];
@@ -301,22 +308,19 @@ class MessageCache
 
 		# If it wasn't in the cache, load each message from the DB individually
 		if ( !$message ) {
-			$dbr =& wfGetDB( DB_SLAVE );
-			$result = $dbr->selectRow( 'cur', array('cur_text'),
-			  array( 'cur_namespace' => NS_MEDIAWIKI, 'cur_title' => $title ),
-			  'MessageCache::get' );
-			if ( $result ) {
-				$message = $result->cur_text;
-				if( $this->mUseCache ) {
-					$this->mCache[$title] = $message;
-					/* individual messages may be often 
-					   recached until proper purge code exists 
+			$revision = Revision::newFromTitle( Title::makeTitle( NS_MEDIAWIKI, $title ) );
+			if( $revision ) {
+				$message = $revision->getText();
+				if ($this->mUseCache) {
+					$this->mCache[$title]=$message;
+					/* individual messages may be often
+					   recached until proper purge code exists
 					*/
 					$this->mMemc->set( $this->mMemcKey . ':' . $title, $message, 300 );
 				}
 			}
 		}
-		
+
 		return $message;
 	}
 
@@ -334,13 +338,24 @@ class MessageCache
 	function disableTransform() { $this->mDisableTransform = true; }
 	function enableTransform() { $this->mDisableTransform = false; }
 
+	/**
+	 * Add a message to the cache
+	 *
+	 * @param mixed $key
+	 * @param mixed $value
+	 */
 	function addMessage( $key, $value ) {
 		$this->mExtensionMessages[$key] = $value;
 	}
 
+	/**
+	 * Add an associative array of message to the cache
+	 *
+	 * @param array $messages An associative array of key => values to be added
+	 */
 	function addMessages( $messages ) {
 		foreach ( $messages as $key => $value ) {
-			$this->mExtensionMessages[$key] = $value;
+			$this->addMessage( $key, $value );
 		}
 	}
 

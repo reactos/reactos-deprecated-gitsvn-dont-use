@@ -156,7 +156,7 @@ nowiki 3
 !! end
 
 ###
-### comment test cases
+### Comments
 ###
 !! test
 Comment test 1
@@ -239,7 +239,7 @@ And a <a href="/wiki/Main_Page" title="Main Page">link</a>
 !! end
 
 ###
-### Definition list
+### Definition lists
 ###
 !! test
 Simple definition
@@ -276,7 +276,7 @@ Definition list with URL link
 !! input
 ; http://example.com/ : definition
 !! result
-<dl><dt> <a href="http://example.com/" class='external' rel="nofollow">http://example.com/</a>&nbsp;</dt><dd> definition
+<dl><dt> <a href="http://example.com/" class='external free' title="http://example.com/" rel="nofollow">http://example.com/</a>&nbsp;</dt><dd> definition
 </dd></dl>
 
 !! end
@@ -286,7 +286,7 @@ Definition list with bracketed URL link
 !! input
 ;[http://www.google.com/ Google]:Number one search engine
 !! result
-<dl><dt><a href="http://www.google.com/" class='external' title="http://www.google.com/" rel="nofollow">Google</a><span class='urlexpansion'>&nbsp;(<i>http://www.google.com/</i>)</span></dt><dd>Number one search engine
+<dl><dt><a href="http://www.google.com/" class='external text' title="http://www.google.com/" rel="nofollow">Google</a></dt><dd>Number one search engine
 </dd></dl>
 
 !! end
@@ -294,9 +294,9 @@ Definition list with bracketed URL link
 !! test
 Definition list with wikilink containing colon
 !! input
-; [[Wikipedia:FAQ]]: The least-read page on Wikipedia
+; [[Help:FAQ]]: The least-read page on Wikipedia
 !! result
-<dl><dt> <a href="http://en.wikipedia.org/wiki/FAQ" class='extiw'>Wikipedia:FAQ</a></dt><dd> The least-read page on Wikipedia
+<dl><dt> <a href="/index.php?title=Help:FAQ&amp;action=edit" class="new" title="Help:FAQ">Help:FAQ</a></dt><dd> The least-read page on Wikipedia
 </dd></dl>
 
 !! end
@@ -307,7 +307,7 @@ Definition list with wikilink containing colon
 !! input
 ;  news:alt.wikipedia.rox: This isn't even a real newsgroup!
 !! result
-<dl><dt>  <a href="news:alt.wikipedia.rox" class='external' rel="nofollow">news:alt.wikipedia.rox</a></dt><dd> This isn't even a real newsgroup!
+<dl><dt>  <a href="news:alt.wikipedia.rox" class='external free' title="news:alt.wikipedia.rox" rel="nofollow">news:alt.wikipedia.rox</a></dt><dd> This isn't even a real newsgroup!
 </dd></dl>
 
 !! end
@@ -317,7 +317,7 @@ Malformed definition list with colon
 !! input
 ;  news:alt.wikipedia.rox -- don't crash or enter an infinite loop
 !! result
-<dl><dt>  <a href="news:alt.wikipedia.rox" class='external' rel="nofollow">news:alt.wikipedia.rox</a> -- don't crash or enter an infinite loop
+<dl><dt>  <a href="news:alt.wikipedia.rox" class='external free' title="news:alt.wikipedia.rox" rel="nofollow">news:alt.wikipedia.rox</a> -- don't crash or enter an infinite loop
 </dt></dl>
 
 !! end
@@ -327,7 +327,7 @@ Definition lists: colon in external link text
 !! input
 ; [http://www.wikipedia2.org/ Wikipedia : The Next Generation]: OK, I made that up
 !! result
-<dl><dt> <a href="http://www.wikipedia2.org/" class='external' title="http://www.wikipedia2.org/" rel="nofollow">Wikipedia&nbsp;: The Next Generation</a><span class='urlexpansion'>&nbsp;(<i>http://www.wikipedia2.org/</i>)</span></dt><dd> OK, I made that up
+<dl><dt> <a href="http://www.wikipedia2.org/" class='external text' title="http://www.wikipedia2.org/" rel="nofollow">Wikipedia&nbsp;: The Next Generation</a></dt><dd> OK, I made that up
 </dd></dl>
 
 !! end
@@ -341,7 +341,7 @@ External links: non-bracketed
 !! input
 Non-bracketed: http://example.com
 !! result
-<p>Non-bracketed: <a href="http://example.com" class='external' rel="nofollow">http://example.com</a>
+<p>Non-bracketed: <a href="http://example.com" class='external free' title="http://example.com" rel="nofollow">http://example.com</a>
 </p>
 !! end
 
@@ -349,8 +349,12 @@ Non-bracketed: http://example.com
 External links: numbered
 !! input
 Numbered: [http://example.com]
+Numbered: [http://example.net]
+Numbered: [http://example.org]
 !! result
-<p>Numbered: <a href="http://example.com" class='external' title="http://example.com" rel="nofollow">[1]</a><span class='urlexpansion'>&nbsp;(<i>http://example.com</i>)</span>
+<p>Numbered: <a href="http://example.com" class='external autonumber' title="http://example.com" rel="nofollow">[1]</a>
+Numbered: <a href="http://example.net" class='external autonumber' title="http://example.net" rel="nofollow">[2]</a>
+Numbered: <a href="http://example.org" class='external autonumber' title="http://example.org" rel="nofollow">[3]</a>
 </p>
 !!end
 
@@ -359,16 +363,16 @@ External links: specified text
 !! input
 Specified text: [http://example.com link]
 !! result
-<p>Specified text: <a href="http://example.com" class='external' title="http://example.com" rel="nofollow">link</a><span class='urlexpansion'>&nbsp;(<i>http://example.com</i>)</span>
+<p>Specified text: <a href="http://example.com" class='external text' title="http://example.com" rel="nofollow">link</a>
 </p>
 !!end
 
 !! test
 External links: trail
 !! input
-Trail (not sure if this is meant to work): [http://example.com link]s
+Linktrails should not work for external links: [http://example.com link]s
 !! result
-<p>Trail (not sure if this is meant to work): <a href="http://example.com" class='external' title="http://example.com" rel="nofollow">link</a>s<span class='urlexpansion'>&nbsp;(<i>http://example.com</i>)</span>
+<p>Linktrails should not work for external links: <a href="http://example.com" class='external text' title="http://example.com" rel="nofollow">link</a>s
 </p>
 !! end
 
@@ -377,7 +381,7 @@ External links: dollar sign in URL
 !! input
 http://example.com/1$2345
 !! result
-<p><a href="http://example.com/1$2345" class='external' rel="nofollow">http://example.com/1$2345</a>
+<p><a href="http://example.com/1$2345" class='external free' title="http://example.com/1$2345" rel="nofollow">http://example.com/1$2345</a>
 </p>
 !! end
 
@@ -386,7 +390,7 @@ External links: dollar sign in URL (named)
 !! input
 [http://example.com/1$2345]
 !! result
-<p><a href="http://example.com/1$2345" class='external' title="http://example.com/1$2345" rel="nofollow">[1]</a><span class='urlexpansion'>&nbsp;(<i>http://example.com/1$2345</i>)</span>
+<p><a href="http://example.com/1$2345" class='external autonumber' title="http://example.com/1$2345" rel="nofollow">[1]</a>
 </p>
 !!end
 
@@ -413,7 +417,7 @@ Link to non-http image, no img tag
 !! input
 Link to non-http image, no img tag: ftp://example.com/test.jpg
 !! result
-<p>Link to non-http image, no img tag: <a href="ftp://example.com/test.jpg" class='external' rel="nofollow">ftp://example.com/test.jpg</a>
+<p>Link to non-http image, no img tag: <a href="ftp://example.com/test.jpg" class='external free' title="ftp://example.com/test.jpg" rel="nofollow">ftp://example.com/test.jpg</a>
 </p>
 !! end
 
@@ -422,7 +426,7 @@ External links: terminating separator
 !! input
 Terminating separator: http://example.com/thing,
 !! result
-<p>Terminating separator: <a href="http://example.com/thing" class='external' rel="nofollow">http://example.com/thing</a>,
+<p>Terminating separator: <a href="http://example.com/thing" class='external free' title="http://example.com/thing" rel="nofollow">http://example.com/thing</a>,
 </p>
 !! end
 
@@ -431,7 +435,7 @@ External links: intervening separator
 !! input
 Intervening separator: http://example.com/1,2,3
 !! result
-<p>Intervening separator: <a href="http://example.com/1,2,3" class='external' rel="nofollow">http://example.com/1,2,3</a>
+<p>Intervening separator: <a href="http://example.com/1,2,3" class='external free' title="http://example.com/1,2,3" rel="nofollow">http://example.com/1,2,3</a>
 </p>
 !! end
 
@@ -440,7 +444,7 @@ External links: old bug with URL in query
 !! input
 Old bug with URL in query: [http://example.com/thing?url=http://example.com link]
 !! result
-<p>Old bug with URL in query: <a href="http://example.com/thing?url=http://example.com" class='external' title="http://example.com/thing?url=http://example.com" rel="nofollow">link</a><span class='urlexpansion'>&nbsp;(<i>http://example.com/thing?url=http://example.com</i>)</span>
+<p>Old bug with URL in query: <a href="http://example.com/thing?url=http://example.com" class='external text' title="http://example.com/thing?url=http://example.com" rel="nofollow">link</a>
 </p>
 !! end
 
@@ -449,7 +453,7 @@ External links: old URL-in-URL bug, mixed protocols
 !! input
 And again with mixed protocols: [ftp://example.com?url=http://example.com link]
 !! result
-<p>And again with mixed protocols: <a href="ftp://example.com?url=http://example.com" class='external' title="ftp://example.com?url=http://example.com" rel="nofollow">link</a><span class='urlexpansion'>&nbsp;(<i>ftp://example.com?url=http://example.com</i>)</span>
+<p>And again with mixed protocols: <a href="ftp://example.com?url=http://example.com" class='external text' title="ftp://example.com?url=http://example.com" rel="nofollow">link</a>
 </p>
 !!end
 
@@ -458,7 +462,7 @@ External links: URL in text
 !! input
 URL in text: [http://example.com http://example.com]
 !! result
-<p>URL in text: <a href="http://example.com" class='external' rel="nofollow">http://example.com</a>
+<p>URL in text: <a href="http://example.com" class='external free' title="http://example.com" rel="nofollow">http://example.com</a>
 </p>
 !! end
 
@@ -467,7 +471,7 @@ External links: Clickable images
 !! input
 ja-style clickable images: [http://example.com http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png]
 !! result
-<p>ja-style clickable images: <a href="http://example.com" class='external' title="http://example.com" rel="nofollow"><img src="http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png" alt="Ncwikicol.png" /></a><span class='urlexpansion'>&nbsp;(<i>http://example.com</i>)</span>
+<p>ja-style clickable images: <a href="http://example.com" class='external text' title="http://example.com" rel="nofollow"><img src="http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png" alt="Ncwikicol.png" /></a>
 </p>
 !!end
 
@@ -476,7 +480,7 @@ External links: raw ampersand
 !! input
 Old &amp; use: http://x&y
 !! result
-<p>Old &amp; use: <a href="http://x&amp;y" class='external' rel="nofollow">http://x&amp;y</a>
+<p>Old &amp; use: <a href="http://x&amp;y" class='external free' title="http://x&amp;y" rel="nofollow">http://x&amp;y</a>
 </p>
 !! end
 
@@ -485,7 +489,7 @@ External links: encoded ampersand
 !! input
 Old &amp; use: http://x&amp;y
 !! result
-<p>Old &amp; use: <a href="http://x&amp;y" class='external' rel="nofollow">http://x&amp;y</a>
+<p>Old &amp; use: <a href="http://x&amp;y" class='external free' title="http://x&amp;y" rel="nofollow">http://x&amp;y</a>
 </p>
 !! end
 
@@ -494,7 +498,7 @@ External links: [raw ampersand]
 !! input
 Old &amp; use: [http://x&y]
 !! result
-<p>Old &amp; use: <a href="http://x&amp;y" class='external' title="http://x&amp;y" rel="nofollow">[1]</a><span class='urlexpansion'>&nbsp;(<i>http://x&amp;y</i>)</span>
+<p>Old &amp; use: <a href="http://x&amp;y" class='external autonumber' title="http://x&amp;y" rel="nofollow">[1]</a>
 </p>
 !! end
 
@@ -503,7 +507,7 @@ External links: [encoded ampersand]
 !! input
 Old &amp; use: [http://x&amp;y]
 !! result
-<p>Old &amp; use: <a href="http://x&amp;y" class='external' title="http://x&amp;y" rel="nofollow">[1]</a><span class='urlexpansion'>&nbsp;(<i>http://x&amp;y</i>)</span>
+<p>Old &amp; use: <a href="http://x&amp;y" class='external autonumber' title="http://x&amp;y" rel="nofollow">[1]</a>
 </p>
 !! end
 
@@ -512,7 +516,7 @@ External links: www.jpeg.org (bug 554)
 !! input
 http://www.jpeg.org
 !!result
-<p><a href="http://www.jpeg.org" class='external' rel="nofollow">http://www.jpeg.org</a>
+<p><a href="http://www.jpeg.org" class='external free' title="http://www.jpeg.org" rel="nofollow">http://www.jpeg.org</a>
 </p>
 !! end
 
@@ -521,7 +525,7 @@ External links: URL within URL (original bug 2)
 !! input
 [http://www.unausa.org/newindex.asp?place=http://www.unausa.org/programs/mun.asp]
 !! result
-<p><a href="http://www.unausa.org/newindex.asp?place=http://www.unausa.org/programs/mun.asp" class='external' title="http://www.unausa.org/newindex.asp?place=http://www.unausa.org/programs/mun.asp" rel="nofollow">[1]</a><span class='urlexpansion'>&nbsp;(<i>http://www.unausa.org/newindex.asp?place=http://www.unausa.org/programs/mun.asp</i>)</span>
+<p><a href="http://www.unausa.org/newindex.asp?place=http://www.unausa.org/programs/mun.asp" class='external autonumber' title="http://www.unausa.org/newindex.asp?place=http://www.unausa.org/programs/mun.asp" rel="nofollow">[1]</a>
 </p>
 !! end
 
@@ -530,7 +534,7 @@ BUG 361: URL inside bracketed URL
 !! input
 [http://www.example.com/foo http://www.example.com/bar]
 !! result
-<p><a href="http://www.example.com/foo" class='external' title="http://www.example.com/foo" rel="nofollow">http://www.example.com/bar</a><span class='urlexpansion'>&nbsp;(<i>http://www.example.com/foo</i>)</span>
+<p><a href="http://www.example.com/foo" class='external text' title="http://www.example.com/foo" rel="nofollow">http://www.example.com/bar</a>
 </p>
 !! end
 
@@ -539,7 +543,7 @@ BUG 361: URL within URL, not bracketed
 !! input
 http://www.example.com/foo?=http://www.example.com/bar
 !! result
-<p><a href="http://www.example.com/foo?=http://www.example.com/bar" class='external' rel="nofollow">http://www.example.com/foo?=http://www.example.com/bar</a>
+<p><a href="http://www.example.com/foo?=http://www.example.com/bar" class='external free' title="http://www.example.com/foo?=http://www.example.com/bar" rel="nofollow">http://www.example.com/foo?=http://www.example.com/bar</a>
 </p>
 !! end
 
@@ -548,7 +552,7 @@ BUG 289: ">"-token in URL-tail
 !! input
 http://www.example.com/<hello>
 !! result
-<p><a href="http://www.example.com/" class='external' rel="nofollow">http://www.example.com/</a>&lt;hello&gt;
+<p><a href="http://www.example.com/" class='external free' title="http://www.example.com/" rel="nofollow">http://www.example.com/</a>&lt;hello&gt;
 </p>
 !!end
 
@@ -557,7 +561,7 @@ BUG 289: literal ">"-token in URL-tail
 !! input
 http://www.example.com/<b>html</b>
 !! result
-<p><a href="http://www.example.com/" class='external' rel="nofollow">http://www.example.com/</a><b >html</b >
+<p><a href="http://www.example.com/" class='external free' title="http://www.example.com/" rel="nofollow">http://www.example.com/</a><b>html</b>
 </p>
 !!end
 
@@ -566,7 +570,7 @@ BUG 289: ">"-token in bracketed URL
 !! input
 [http://www.example.com/<hello> stuff]
 !! result
-<p><a href="http://www.example.com/" class='external' title="http://www.example.com/" rel="nofollow">&lt;hello&gt; stuff</a><span class='urlexpansion'>&nbsp;(<i>http://www.example.com/</i>)</span>
+<p><a href="http://www.example.com/" class='external text' title="http://www.example.com/" rel="nofollow">&lt;hello&gt; stuff</a>
 </p>
 !!end
 
@@ -575,7 +579,7 @@ BUG 289: literal ">"-token in bracketed URL
 !! input
 [http://www.example.com/<b>html</b> stuff]
 !! result
-<p><a href="http://www.example.com/" class='external' title="http://www.example.com/" rel="nofollow"><b >html</b > stuff</a><span class='urlexpansion'>&nbsp;(<i>http://www.example.com/</i>)</span>
+<p><a href="http://www.example.com/" class='external text' title="http://www.example.com/" rel="nofollow"><b>html</b> stuff</a>
 </p>
 !!end
 
@@ -584,7 +588,7 @@ BUG 289: literal double quote at end of URL
 !! input
 http://www.example.com/"hello"
 !! result
-<p><a href="http://www.example.com/" class='external' rel="nofollow">http://www.example.com/</a>"hello"
+<p><a href="http://www.example.com/" class='external free' title="http://www.example.com/" rel="nofollow">http://www.example.com/</a>"hello"
 </p>
 !!end
 
@@ -593,7 +597,7 @@ BUG 289: literal double quote in bracketed URL
 !! input
 [http://www.example.com/"hello" stuff]
 !! result
-<p><a href="http://www.example.com/" class='external' title="http://www.example.com/" rel="nofollow">"hello" stuff</a><span class='urlexpansion'>&nbsp;(<i>http://www.example.com/</i>)</span>
+<p><a href="http://www.example.com/" class='external text' title="http://www.example.com/" rel="nofollow">"hello" stuff</a>
 </p>
 !!end
 
@@ -602,7 +606,7 @@ External links: invalid character
 !! input
 [http://www.example.com  test]
 !! result
-<p>[<a href="http://www.example.com" class='external' rel="nofollow">http://www.example.com</a>  test]
+<p>[<a href="http://www.example.com" class='external free' title="http://www.example.com" rel="nofollow">http://www.example.com</a>  test]
 </p>
 !! end
 
@@ -614,8 +618,16 @@ http:/example.com
 [http:/example.com title]
 !! result
 <p>http:/example.com
-</p><p>
-[http:/example.com title]
+</p><p>[http:/example.com title]
+</p>
+!! end
+
+!! test
+Bug 2702: Mismatched <i> and <a> tags are invalid
+!! input
+''[http://example.com text'']
+!! result
+<p><i><a href="http://example.com" class='external text' title="http://example.com" rel="nofollow">text</a></i>
 </p>
 !! end
 
@@ -673,8 +685,36 @@ Normal text.
 ###
 ### Tables
 ###
-### content taken from http://meta.wikimedia.org/wiki/MediaWiki_User%27s_Guide:_Using_tables
+### some content taken from http://meta.wikimedia.org/wiki/MediaWiki_User%27s_Guide:_Using_tables
 ###
+
+# This should not produce <table></table> as <table><tr><td></td></tr></table>
+# is the bare minimun required by the spec, see:
+# http://www.w3.org/TR/xhtml-modularization/dtd_module_defs.html#a_module_Basic_Tables
+!! test
+A table with no data.
+!! input
+{||}
+!! result
+!! end
+
+# A table with nothing but a caption is invalid XHTML, we might want to render
+# this as <p>caption</p>
+!! test
+A table with nothing but a caption
+!! input 
+{|
+|+ caption
+|}
+!! result
+<table>
+<caption> caption
+</caption>
+<tr>
+<td>
+</td></tr></table>
+!! end
+
 !! test
 Simple table
 !! input
@@ -684,11 +724,11 @@ Simple table
 | 3 || 4
 |}
 !! result
-<table >
-<tr >
+<table>
+<tr>
 <td> 1 </td><td> 2
 </td></tr>
-<tr >
+<tr>
 <td> 3 </td><td> 4
 </td></tr></table>
 
@@ -721,26 +761,26 @@ Multiplication table
 <table border="1" cellpadding="2">
 <caption>Multiplication table
 </caption>
-<tr >
+<tr>
 <th> &times; </th><th> 1 </th><th> 2 </th><th> 3
 </th></tr>
-<tr >
+<tr>
 <th> 1
 </th><td> 1 </td><td> 2 </td><td> 3
 </td></tr>
-<tr >
+<tr>
 <th> 2
 </th><td> 2 </td><td> 4 </td><td> 6
 </td></tr>
-<tr >
+<tr>
 <th> 3
 </th><td> 3 </td><td> 6 </td><td> 9
 </td></tr>
-<tr >
+<tr>
 <th> 4
 </th><td> 4 </td><td> 8 </td><td> 12
 </td></tr>
-<tr >
+<tr>
 <th> 5
 </th><td> 5 </td><td> 10 </td><td> 15
 </td></tr></table>
@@ -759,13 +799,13 @@ Table rowspan
 | Cell 3, row 2 
 |}
 !! result
-<table align=right border=1>
-<tr >
+<table align="right" border="1">
+<tr>
 <td> Cell 1, row 1
-</td><td rowspan=2> Cell 2, row 1 (and 2)
+</td><td rowspan="2"> Cell 2, row 1 (and 2)
 </td><td> Cell 3, row 1
 </td></tr>
-<tr >
+<tr>
 <td> Cell 1, row 2
 </td><td> Cell 3, row 2
 </td></tr></table>
@@ -786,15 +826,15 @@ Nested table
 |the original table again
 |}
 !! result
-<table border=1>
-<tr >
+<table border="1">
+<tr>
 <td> &alpha;
 </td><td>
-<table bgcolor=#ABCDEF border=2>
-<tr >
+<table bgcolor="#ABCDEF" border="2">
+<tr>
 <td>nested
 </td></tr>
-<tr >
+<tr>
 <td>table
 </td></tr></table>
 </td><td>the original table again
@@ -809,9 +849,9 @@ Invalid attributes in table cell (bug 1830)
 |Cell:|broken
 |}
 !! result
-<table >
-<tr >
-<td >broken
+<table>
+<tr>
+<td>broken
 </td></tr></table>
 
 !! end
@@ -893,6 +933,15 @@ Piped link with 3 brackets
 !! end
 
 !! test
+Link with multiple pipes
+!! input
+[[Main Page|The|Main|Page]]
+!! result
+<p><a href="/wiki/Main_Page" title="Main Page">The|Main|Page</a>
+</p>
+!! end
+
+!! test
 Link to namespaces
 !! input
 [[Talk:Parser testing]], [[Meta:Disclaimers]]
@@ -951,7 +1000,7 @@ Plain link to URL
 !! input
 [[http://www.example.org]]
 !! result
-<p>[<a href="http://www.example.org" class='external' title="http://www.example.org" rel="nofollow">[1]</a><span class='urlexpansion'>&nbsp;(<i>http://www.example.org</i>)</span>]
+<p>[<a href="http://www.example.org" class='external autonumber' title="http://www.example.org" rel="nofollow">[1]</a>]
 </p>
 !! end
 
@@ -971,7 +1020,7 @@ Piped link to URL
 !! input
 Piped link to URL: [[http://www.example.org|an example URL]]
 !! result
-<p>Piped link to URL: [<a href="http://www.example.org|an" class='external' title="http://www.example.org|an" rel="nofollow">example URL</a><span class='urlexpansion'>&nbsp;(<i>http://www.example.org|an</i>)</span>]
+<p>Piped link to URL: [<a href="http://www.example.org|an" class='external text' title="http://www.example.org|an" rel="nofollow">example URL</a>]
 </p>
 !! end
 
@@ -1016,7 +1065,7 @@ title=[[Main Page]]
 !! end
 
 ###
-### Interwiki links
+### Interwiki links (see maintenance/interwiki.sql)
 ###
 
 !! test
@@ -1024,7 +1073,16 @@ Inline interwiki link
 !! input
 [[MeatBall:SoftSecurity]]
 !! result
-<p><a href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" class='extiw'>MeatBall:SoftSecurity</a>
+<p><a href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity" class='extiw' title="MeatBall:SoftSecurity">MeatBall:SoftSecurity</a>
+</p>
+!! end
+
+!! test
+Inline interwiki link with empty title (bug 2372)
+!! input
+[[MeatBall:]]
+!! result
+<p><a href="http://www.usemod.com/cgi-bin/mb.pl?" class='extiw' title="MeatBall:">MeatBall:</a>
 </p>
 !! end
 
@@ -1034,10 +1092,19 @@ Interwiki link encoding conversion (bug 1636)
 *[[Wikipedia:ro:Olteni&#0355;a]]
 *[[Wikipedia:ro:Olteni&#355;a]]
 !! result
-<ul><li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class='extiw' title="Wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#0355;a</a>
+<ul><li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class='extiw' title="Wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#355;a</a>
 </li><li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class='extiw' title="Wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#355;a</a>
 </li></ul>
 
+!! end
+
+!! test
+Interwiki link with fragment (bug 2130)
+!! input
+[[MeatBall:SoftSecurity#foo]]
+!! result
+<p><a href="http://www.usemod.com/cgi-bin/mb.pl?SoftSecurity#foo" class='extiw' title="MeatBall:SoftSecurity">MeatBall:SoftSecurity#foo</a>
+</p>
 !! end
 
 ##
@@ -1051,6 +1118,41 @@ Interwiki link encoding conversion (bug 1636)
 !! result
 <p>1<br />2<br />3
 </p>
+!! end
+
+!! test
+Incorrecly removing closing slashes from correctly formed XHTML
+!! input
+<br style="clear:both;" />
+!! result
+<p><br style="clear:both;" />
+</p>
+!! end
+
+!! test 
+Failing to transform badly formed HTML into correct XHTML
+!! input
+<br clear=left>
+<br clear=right>
+<br clear=all>
+!! result
+<p><br style="clear:left;" />
+<br style="clear:right;" />
+<br style="clear:both;" />
+</p>
+!!end
+
+!! test 
+Horizontal ruler (should it add that extra space?)
+!! input 
+<hr>
+<hr >
+foo <hr
+> bar
+!! result 
+<hr />
+<hr />
+foo <hr /> bar
 !! end
 
 ###
@@ -1156,7 +1258,7 @@ Magic variables
 ### Magic links
 ###
 !! test
-Magic links: internal link to RFC
+Magic links: internal link to RFC (bug 479)
 !! input
 [[RFC 123]]
 !! result
@@ -1165,20 +1267,29 @@ Magic links: internal link to RFC
 !! end
 
 !! test
-Magic links: RFC
+Magic links: RFC (bug 479)
 !! input
 RFC 822
 !! result
-<p><a href='http://www.faqs.org/rfcs/rfc822.html' class='external' title="http://www.faqs.org/rfcs/rfc822.html">RFC 822</a>
+<p><a href='http://www.ietf.org/rfc/rfc822.txt' class='external' title="http://www.ietf.org/rfc/rfc822.txt">RFC 822</a>
 </p>
 !! end
 
 !! test
-Magic links: ISBN
+Magic links: ISBN (bug 1937)
 !! input
 ISBN 0-306-40615-2
 !! result
 <p><a href="/index.php?title=Special:Booksources&amp;isbn=0306406152" class="internal">ISBN 0-306-40615-2</a>
+</p>
+!! end
+
+!! test
+Magic links: PMID incorrectly converts space to underscore
+!! input
+PMID 1234
+!! result
+<p><a href='http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&amp;db=pubmed&amp;dopt=Abstract&amp;list_uids=1234' class='external' title="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?cmd=Retrieve&amp;db=pubmed&amp;dopt=Abstract&amp;list_uids=1234">PMID 1234</a>
 </p>
 !! end
 
@@ -1257,8 +1368,8 @@ BUG 553: link with two variables in a piped link
 |[[{{{1}}}|{{{2}}}]]
 |}
 !! result
-<table >
-<tr >
+<table>
+<tr>
 <td>[[{{{1}}}|{{{2}}}]]
 </td></tr></table>
 
@@ -1337,7 +1448,7 @@ Template infinite loop
 !! input
 {{loop1}}
 !! result
-<p>{{loop2}}<!-- WARNING: template loop detected -->
+<p>{{loop1}}<!-- WARNING: template loop detected -->
 </p>
 !! end
 
@@ -1367,11 +1478,11 @@ foo {{table}}
 !! result
 <p>foo 
 </p>
-<table >
-<tr >
+<table>
+<tr>
 <td> 1 </td><td> 2
 </td></tr>
-<tr >
+<tr>
 <td> 3 </td><td> 4
 </td></tr></table>
 
@@ -1385,11 +1496,11 @@ foo
 !! result
 <p>foo
 </p>
-<table >
-<tr >
+<table>
+<tr>
 <td> 1 </td><td> 2
 </td></tr>
-<tr >
+<tr>
 <td> 3 </td><td> 4
 </td></tr></table>
 
@@ -1539,7 +1650,7 @@ Template:dangerous
 !! input
 {{Template:dangerous}}
 !! result
-<p><span >Oh no</span >
+<p><span>Oh no</span>
 </p>
 !! end
 
@@ -1575,7 +1686,7 @@ Simple image
 !! input
 [[Image:foobar.jpg]]
 !! result
-<p><a href="/wiki/Image:Foobar.jpg" class="image" title="Image:foobar.jpg"><img src="/images/3/3a/Foobar.jpg" alt="Image:foobar.jpg" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="Image:foobar.jpg"><img src="/images/3/3a/Foobar.jpg" alt="Image:foobar.jpg" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !! end
 
@@ -1584,7 +1695,7 @@ Right-aligned image
 !! input
 [[Image:foobar.jpg|right]]
 !! result
-<div class="floatright"><span><a href="/wiki/Image:Foobar.jpg" class="image" title=""><img src="/images/3/3a/Foobar.jpg" alt="" longdesc="/wiki/Image:Foobar.jpg" /></a></span></div>
+<div class="floatright"><span><a href="/wiki/Image:Foobar.jpg" class="image" title=""><img src="/images/3/3a/Foobar.jpg" alt="" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a></span></div>
 
 !! end
 
@@ -1593,7 +1704,7 @@ Image with caption
 !! input
 [[Image:foobar.jpg|right|Caption text]]
 !! result
-<div class="floatright"><span><a href="/wiki/Image:Foobar.jpg" class="image" title="Caption text"><img src="/images/3/3a/Foobar.jpg" alt="Caption text" longdesc="/wiki/Image:Foobar.jpg" /></a></span></div>
+<div class="floatright"><span><a href="/wiki/Image:Foobar.jpg" class="image" title="Caption text"><img src="/images/3/3a/Foobar.jpg" alt="Caption text" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a></span></div>
 
 !! end
 
@@ -1602,7 +1713,7 @@ Image with frame and link
 !! input
 [[Image:Foobar.jpg|frame|left|This is a test image [[Main Page]]]]
 !! result
-<div class="thumb tleft"><div style="width:202px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="This is a test image "><img src="/images/3/3a/Foobar.jpg" alt="This is a test image " width="200" height="200" longdesc="/wiki/Image:Foobar.jpg" /></a>  <div class="thumbcaption" >This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div></div>
+<div class="thumb tleft"><div style="width:1943px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="This is a test image Main Page"><img src="/images/3/3a/Foobar.jpg" alt="This is a test image Main Page" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>  <div class="thumbcaption" >This is a test image <a href="/wiki/Main_Page" title="Main Page">Main Page</a></div></div></div>
 
 !! end
 
@@ -1620,7 +1731,7 @@ Frameless image caption with a free URL
 !! input
 [[Image:foobar.jpg|http://example.com]]
 !! result
-<p><a href="/wiki/Image:Foobar.jpg" class="image" title="http://example.com"><img src="/images/3/3a/Foobar.jpg" alt="http://example.com" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="http://example.com"><img src="/images/3/3a/Foobar.jpg" alt="http://example.com" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !! end
 
@@ -1629,8 +1740,24 @@ Thumbnail image caption with a free URL
 !! input
 [[Image:foobar.jpg|thumb|http://example.com]]
 !! result
-<div class="thumb tright"><div style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="http://example.com"><img src="/images/3/3a/Foobar.jpg" alt="http://example.com" width="180" height="180" longdesc="/wiki/Image:Foobar.jpg" /></a>  <div class="thumbcaption" ><div class="magnify" style="float:right"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="Enlarge" /></a></div><a href="http://example.com" class='external' rel="nofollow">http://example.com</a></div></div></div>
+<div class="thumb tright"><div style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="http://example.com"><img src="/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" alt="http://example.com" width="180" height="20" longdesc="/wiki/Image:Foobar.jpg" /></a>  <div class="thumbcaption" ><div class="magnify" style="float:right"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="Enlarge" /></a></div><a href="http://example.com" class='external free' title="http://example.com" rel="nofollow">http://example.com</a></div></div></div>
 
+!! end
+
+!! test
+BUG 1887: A ISBN with a thumbnail
+!! input
+[[Image:foobar.jpg|thumb|ISBN 12354]]
+!! result
+<div class="thumb tright"><div style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="ISBN 12354"><img src="/images/3/3a/Foobar.jpg" alt="ISBN 12354" longdesc="/wiki/Image:Foobar.jpg" height="180" width="180"></a>  <div class="thumbcaption"><div class="magnify" style="float:right;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="Enlarge"></a></div><a href="index.php?title=Special:Booksources&amp;isbn=12354" class="internal">ISBN 12354</a></div></div></div>
+!! end
+
+!! test
+BUG 1887: A <math> with a thumbnail
+!! input
+[[Image:foobar.jpg|thumb|<math>2+2</math>]]
+!! result
+<div class="thumb tright"><div style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="2+2"><img src="/images/3/3a/Foobar.jpg" alt="2+2" longdesc="/wiki/Image:Foobar.jpg" height="180" width="180"></a>  <div class="thumbcaption"><div class="magnify" style="float:right;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="Enlarge"></a></div>&lt;math&gt;2+2&lt;math&gt;</div></div></div>
 !! end
 
 # Pending resolution to bug 368
@@ -1639,7 +1766,34 @@ BUG 648: Frameless image caption with a link
 !! input
 [[Image:foobar.jpg|text with a [[link]] in it]]
 !! result
-<p><a href="/wiki/Image:Foobar.jpg" class="image" title="text with a link in it"><img src="/images/3/3a/Foobar.jpg" alt="text with a link in it" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="text with a link in it"><img src="/images/3/3a/Foobar.jpg" alt="text with a link in it" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
+</p>
+!! end
+
+!! test
+BUG 648: Frameless image caption with a link (suffix)
+!! input
+[[Image:foobar.jpg|text with a [[link]]foo in it]]
+!! result
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="text with a linkfoo in it"><img src="/images/3/3a/Foobar.jpg" alt="text with a linkfoo in it" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
+</p>
+!! end
+
+!! test
+BUG 648: Frameless image caption with an interwiki link
+!! input
+[[Image:foobar.jpg|text with a [[MeatBall:Link]] in it]]
+!! result
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="text with a MeatBall:Link in it"><img src="/images/3/3a/Foobar.jpg" alt="text with a MeatBall:Link in it" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
+</p>
+!! end
+
+!! test
+BUG 648: Frameless image caption with a piped interwiki link
+!! input
+[[Image:foobar.jpg|text with a [[MeatBall:Link|link]] in it]]
+!! result
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="text with a link in it"><img src="/images/3/3a/Foobar.jpg" alt="text with a link in it" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !! end
 
@@ -1648,7 +1802,7 @@ Escape HTML special chars in image alt text
 !! input
 [[Image:foobar.jpg|& < > "]]
 !! result
-<p><a href="/wiki/Image:Foobar.jpg" class="image" title="&amp; &lt; &gt; &quot;"><img src="/images/3/3a/Foobar.jpg" alt="&amp; &lt; &gt; &quot;" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="&amp; &lt; &gt; &quot;"><img src="/images/3/3a/Foobar.jpg" alt="&amp; &lt; &gt; &quot;" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !! end
 
@@ -1657,7 +1811,7 @@ BUG 499: Alt text should have &#1234;, not &amp;1234;
 !! input
 [[Image:foobar.jpg|&#9792;]]
 !! result
-<p><a href="/wiki/Image:Foobar.jpg" class="image" title="&#9792;"><img src="/images/3/3a/Foobar.jpg" alt="&#9792;" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="&#9792;"><img src="/images/3/3a/Foobar.jpg" alt="&#9792;" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !! end
 
@@ -1675,9 +1829,30 @@ Image caption containing another image
 !! input
 [[Image:Foobar.jpg|thumb|This is a caption with another [[Image:icon.png|image]] inside it!]]
 !! result
-<div class="thumb tright"><div style="width:182px;"><b>Missing image</b><br /><i>Foobar.jpg</i>   <div class="thumbcaption" >This is a caption with another <a href="/wiki/Image:Icon.png" class="image" title="image"><img src="/images/9/96/Icon.png" alt="image" longdesc="/wiki/Image:Icon.png" /></a> inside it!</div></div></div>
+<div class="thumb tright"><div style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="This is a caption with another Image:Icon.png inside it!"><img src="/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" alt="This is a caption with another Image:Icon.png inside it!" width="180" height="20" longdesc="/wiki/Image:Foobar.jpg" /></a>  <div class="thumbcaption" ><div class="magnify" style="float:right"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="Enlarge" /></a></div>This is a caption with another <a href="/index.php?title=Special:Upload&amp;wpDestFile=Icon.png" class="new" title="Image:Icon.png">Image:Icon.png</a> inside it!</div></div></div>
 
 !! end
+
+!! test
+Image caption containing a newline
+!! input
+[[Image:Foobar.jpg|This
+*is some text]]
+!! result
+<p><a href="/wiki/Image:Foobar.jpg" class="image" title="This *is some text"><img src="/images/3/3a/Foobar.jpg" alt="This *is some text" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
+</p>
+!!end
+
+
+!! test
+Bug 3090: External links other than http: in image captions
+!! input
+[[Image:Foobar.jpg|thumb|200px|This caption has [irc://example.net irc] and [https://example.com Secure] ext links in it.]]
+!! result
+<div class="thumb tright"><div style="width:202px;"><a href="/wiki/Image:Foobar.jpg" class="internal" title="This caption has irc and Secure ext links in it."><img src="/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg" alt="This caption has irc and Secure ext links in it." width="200" height="23" longdesc="/wiki/Image:Foobar.jpg" /></a>  <div class="thumbcaption" ><div class="magnify" style="float:right"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="Enlarge" /></a></div>This caption has <a href="irc://example.net" class='external text' title="irc://example.net" rel="nofollow">irc</a> and <a href="https://example.com" class='external text' title="https://example.com" rel="nofollow">Secure</a> ext links in it.</div></div></div>
+
+!! end
+
 
 ###
 ### Subpages
@@ -1814,29 +1989,29 @@ title=[[Parser test script]]
 Some text
 ===Another headline===
 !! result
-<table border="0" id="toc"><tr id="toctitle"><td align="center">
-<b>Table of contents</b> <script type="text/javascript">showTocToggle("show","hide")</script></td></tr><tr id="tocinside"><td>
-<div class="tocline"><a href="#Headline_1">1 Headline 1</a><br /></div>
-<div class="tocindent">
-<p><a href="#Subheadline_1">1.1 Subheadline 1</a><br />
-</p>
-<div class="tocindent">
-<div class="tocindent">
-<p><a href="#Skipping_a_level">1.1.1 Skipping a level</a><br />
-</p>
-<div class="tocindent">
-<p><a href="#Skipping_a_level_2">1.1.1.1 Skipping a level</a><br />
-</p>
-</div>
-</div>
-</div>
-</div>
-<div class="tocline"><a href="#Headline_2">2 Headline 2</a><br /></div>
-<div class="tocindent">
-<p><a href="#Another_headline">2.1 Another headline</a><br />
-</p>
-</div>
+<table id='toc' class='toc'><tr><td><div id='toctitle'><h2>Contents</h2></div>
+<ul>
+<li class='toclevel-1'><a href="#Headline_1"><span class="tocnumber">1</span> <span class="toctext">Headline 1</span></a>
+<ul>
+<li class='toclevel-2'><a href="#Subheadline_1"><span class="tocnumber">1.1</span> <span class="toctext">Subheadline 1</span></a>
+<ul>
+<li class='toclevel-3'><a href="#Skipping_a_level"><span class="tocnumber">1.1.1</span> <span class="toctext">Skipping a level</span></a>
+<ul>
+<li class='toclevel-4'><a href="#Skipping_a_level_2"><span class="tocnumber">1.1.1.1</span> <span class="toctext">Skipping a level</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class='toclevel-1'><a href="#Headline_2"><span class="tocnumber">2</span> <span class="toctext">Headline 2</span></a>
+<ul>
+<li class='toclevel-2'><a href="#Another_headline"><span class="tocnumber">2.1</span> <span class="toctext">Another headline</span></a></li>
+</ul>
+</li>
+</ul>
 </td></tr></table>
+<script type="text/javascript"> if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
 <div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test_script&amp;action=edit&amp;section=1" title="Parser test script">edit</a>]</div><a name="Headline_1"></a><h2> Headline 1 </h2>
 <div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test_script&amp;action=edit&amp;section=2" title="Parser test script">edit</a>]</div><a name="Subheadline_1"></a><h3> Subheadline 1 </h3>
 <div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test_script&amp;action=edit&amp;section=3" title="Parser test script">edit</a>]</div><a name="Skipping_a_level"></a><h5> Skipping a level </h5>
@@ -1848,16 +2023,75 @@ Some text
 
 !! end
 
+# perl -e 'print "="x$_," Level $_ heading","="x$_,"\n" for 1..10'
+!! test
+Handling of sections up to level 6 and beyond
+!! input 
+= Level 1 Heading=
+== Level 2 Heading==
+=== Level 3 Heading===
+==== Level 4 Heading====
+===== Level 5 Heading=====
+====== Level 6 Heading======
+======= Level 7 Heading=======
+======== Level 8 Heading========
+========= Level 9 Heading=========
+========== Level 10 Heading==========
+!! result
+<table id='toc' class='toc'><tr><td><div id='toctitle'><h2>Contents</h2></div>
+<ul>
+<li class='toclevel-1'><a href="#Level_1_Heading"><span class="tocnumber">1</span> <span class="toctext">Level 1 Heading</span></a>
+<ul>
+<li class='toclevel-2'><a href="#Level_2_Heading"><span class="tocnumber">1.1</span> <span class="toctext">Level 2 Heading</span></a>
+<ul>
+<li class='toclevel-3'><a href="#Level_3_Heading"><span class="tocnumber">1.1.1</span> <span class="toctext">Level 3 Heading</span></a>
+<ul>
+<li class='toclevel-4'><a href="#Level_4_Heading"><span class="tocnumber">1.1.1.1</span> <span class="toctext">Level 4 Heading</span></a>
+<ul>
+<li class='toclevel-5'><a href="#Level_5_Heading"><span class="tocnumber">1.1.1.1.1</span> <span class="toctext">Level 5 Heading</span></a>
+<ul>
+<li class='toclevel-6'><a href="#Level_6_Heading"><span class="tocnumber">1.1.1.1.1.1</span> <span class="toctext">Level 6 Heading</span></a></li>
+<li class='toclevel-6'><a href="#.3D_Level_7_Heading.3D"><span class="tocnumber">1.1.1.1.1.2</span> <span class="toctext">= Level 7 Heading=</span></a></li>
+<li class='toclevel-6'><a href="#.3D.3D_Level_8_Heading.3D.3D"><span class="tocnumber">1.1.1.1.1.3</span> <span class="toctext">== Level 8 Heading==</span></a></li>
+<li class='toclevel-6'><a href="#.3D.3D.3D_Level_9_Heading.3D.3D.3D"><span class="tocnumber">1.1.1.1.1.4</span> <span class="toctext">=== Level 9 Heading===</span></a></li>
+<li class='toclevel-6'><a href="#.3D.3D.3D.3D_Level_10_Heading.3D.3D.3D.3D"><span class="tocnumber">1.1.1.1.1.5</span> <span class="toctext">==== Level 10 Heading====</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</td></tr></table>
+<p><script type="text/javascript"> if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
+</p>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Parser test">edit</a>]</div><a name="Level_1_Heading"></a><h1> Level 1 Heading</h1>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Parser test">edit</a>]</div><a name="Level_2_Heading"></a><h2> Level 2 Heading</h2>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Parser test">edit</a>]</div><a name="Level_3_Heading"></a><h3> Level 3 Heading</h3>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Parser test">edit</a>]</div><a name="Level_4_Heading"></a><h4> Level 4 Heading</h4>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Parser test">edit</a>]</div><a name="Level_5_Heading"></a><h5> Level 5 Heading</h5>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Parser test">edit</a>]</div><a name="Level_6_Heading"></a><h6> Level 6 Heading</h6>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=7" title="Parser test">edit</a>]</div><a name=".3D_Level_7_Heading.3D"></a><h6>= Level 7 Heading=</h6>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=8" title="Parser test">edit</a>]</div><a name=".3D.3D_Level_8_Heading.3D.3D"></a><h6>== Level 8 Heading==</h6>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=9" title="Parser test">edit</a>]</div><a name=".3D.3D.3D_Level_9_Heading.3D.3D.3D"></a><h6>=== Level 9 Heading===</h6>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=10" title="Parser test">edit</a>]</div><a name=".3D.3D.3D.3D_Level_10_Heading.3D.3D.3D.3D"></a><h6>==== Level 10 Heading====</h6>
+
+!! end
+
 !! test
 Resolving duplicate section names
 !! options
 title=[[Parser test script]]
 !! input
 == Foo bar ==
-==Foo bar==
+== Foo bar ==
 !! result
 <div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test_script&amp;action=edit&amp;section=1" title="Parser test script">edit</a>]</div><a name="Foo_bar"></a><h2> Foo bar </h2>
-<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test_script&amp;action=edit&amp;section=2" title="Parser test script">edit</a>]</div><a name="Foo_bar_2"></a><h2>Foo bar</h2>
+<div class="editsection" style="float:right;margin-left:5px;">[<a href="/index.php?title=Parser_test_script&amp;action=edit&amp;section=2" title="Parser test script">edit</a>]</div><a name="Foo_bar_2"></a><h2> Foo bar </h2>
 
 !! end
 
@@ -1910,20 +2144,20 @@ title=[[Parser test script]]
 
 
 !! test
-Bug 1219 URL next to image (good)
+BUG 1219 URL next to image (good)
 !! input
 http://example.com [[Image:foobar.jpg]]
 !! result
-<p><a href="http://example.com" class='external' rel="nofollow">http://example.com</a> <a href="/wiki/Image:Foobar.jpg" class="image" title="Image:foobar.jpg"><img src="/images/3/3a/Foobar.jpg" alt="Image:foobar.jpg" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="http://example.com" class='external free' title="http://example.com" rel="nofollow">http://example.com</a> <a href="/wiki/Image:Foobar.jpg" class="image" title="Image:foobar.jpg"><img src="/images/3/3a/Foobar.jpg" alt="Image:foobar.jpg" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !!end
 
 !! test
-Bug 1219 URL next to image (broken)
+BUG 1219 URL next to image (broken)
 !! input
 http://example.com[[Image:foobar.jpg]]
 !! result
-<p><a href="http://example.com" class='external' rel="nofollow">http://example.com</a><a href="/wiki/Image:Foobar.jpg" class="image" title="Image:foobar.jpg"><img src="/images/3/3a/Foobar.jpg" alt="Image:foobar.jpg" longdesc="/wiki/Image:Foobar.jpg" /></a>
+<p><a href="http://example.com" class='external free' title="http://example.com" rel="nofollow">http://example.com</a><a href="/wiki/Image:Foobar.jpg" class="image" title="Image:foobar.jpg"><img src="/images/3/3a/Foobar.jpg" alt="Image:foobar.jpg" width="1941" height="220" longdesc="/wiki/Image:Foobar.jpg" /></a>
 </p>
 !!end
 
@@ -1932,7 +2166,7 @@ Bug 1186 news: in the middle of text
 !! input
 http://en.wikinews.org/wiki/Wikinews:Workplace
 !! result
-<p><a href="http://en.wikinews.org/wiki/Wikinews:Workplace" class='external' rel="nofollow">http://en.wikinews.org/wiki/Wikinews:Workplace</a>
+<p><a href="http://en.wikinews.org/wiki/Wikinews:Workplace" class='external free' title="http://en.wikinews.org/wiki/Wikinews:Workplace" rel="nofollow">http://en.wikinews.org/wiki/Wikinews:Workplace</a>
 </p>
 !!end
 
@@ -1957,6 +2191,156 @@ Namespaced link must have a title (bad fragment version)
 
 
 !! test
+div with no attributes
+!! input
+<div>HTML rocks</div>
+!! result
+<div>HTML rocks</div>
+
+!! end
+
+!! test
+div with double-quoted attribute
+!! input
+<div id="rock">HTML rocks</div>
+!! result
+<div id="rock">HTML rocks</div>
+
+!! end
+
+!! test
+div with single-quoted attribute
+!! input
+<div id='rock'>HTML rocks</div>
+!! result
+<div id="rock">HTML rocks</div>
+
+!! end
+
+!! test
+div with unquoted attribute
+!! input
+<div id=rock>HTML rocks</div>
+!! result
+<div id="rock">HTML rocks</div>
+
+!! end
+
+!! test
+div with illegal double attributes
+!! input
+<div align="center" align="right">HTML rocks</div>
+!! result
+<div align="right">HTML rocks</div>
+
+!!end
+
+!! test
+HTML multiple attributes correction
+!! input
+<p class="error" class="awesome">Awesome!</p>
+!! result
+<p class="awesome">Awesome!</p>
+
+!!end
+
+!! test
+Table multiple attributes correction
+!! input
+{|
+!+ class="error" class="awesome"| status
+|}
+!! result
+<table>
+<tr>
+<th class="awesome">status</th>
+</tr>
+</table>
+
+!!end
+
+!! test
+DIV IN UPPERCASE
+!! input
+<DIV ALIGN="center">HTML ROCKS</DIV>
+!! result
+<div align="center">HTML ROCKS</div>
+
+!!end
+
+
+!! test
+text with amp in the middle of nowhere
+!! input
+Remember AT&T?
+!!result
+<p>Remember AT&amp;T?
+</p>
+!! end
+
+!! test
+text with character entity: eacute
+!! input
+I always thought &eacute; was a cute letter.
+!! result
+<p>I always thought &eacute; was a cute letter.
+</p>
+!! end
+
+!! test
+text with undefined character entity: xacute
+!! input
+I always thought &xacute; was a cute letter.
+!! result
+<p>I always thought &amp;xacute; was a cute letter.
+</p>
+!! end
+
+
+###
+### Media links
+###
+
+!! test
+Media link
+!! input
+[[Media:Foobar.jpg]]
+!! result
+<p><a href="/images/3/3a/Foobar.jpg" class='internal' title="Foobar.jpg">Media:Foobar.jpg</a>
+</p>
+!! end
+
+!! test
+Media link with text
+!! input
+[[Media:Foobar.jpg|A neat file to look at]]
+!! result
+<p><a href="/images/3/3a/Foobar.jpg" class='internal' title="Foobar.jpg">A neat file to look at</a>
+</p>
+!! end
+
+# FIXME: this is still bad HTML tag nesting
+!! test
+Media link with nasty text
+!! input
+[[Media:Foobar.jpg|Safe Link<div style=display:none>" onmouseover="alert(document.cookie)" onfoo="</div>]]
+!! result
+<p><a href="/images/3/3a/Foobar.jpg" class='internal' title="Foobar.jpg">Safe Link<div style="display:none">" onmouseover="alert(document.cookie) onfoo="</div></a>
+</p>
+!! end
+
+!! test
+Media link to nonexistent file (bug 1702)
+!! input
+[[Media:No such.jpg]]
+!! result
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=No_such.jpg" class='new' title="No such.jpg">Media:No such.jpg</a>
+</p>
+!! end
+
+
+
+!! test
 Character reference normalization in link text (bug 1938)
 !! input
 [[Main Page|this&that]]
@@ -1965,6 +2349,78 @@ Character reference normalization in link text (bug 1938)
 </p>
 !!end
 
+!! test
+Empty attribute crash test (bug 2067)
+!! input
+<font color="">foo</font>
+!! result
+<p><font color="">foo</font>
+</p>
+!! end
+
+!! test
+Empty attribute crash test single-quotes (bug 2067)
+!! input
+<font color=''>foo</font>
+!! result
+<p><font color="">foo</font>
+</p>
+!! end
+
+!! test
+Attribute test: equals, then nothing
+!! input
+<font color=>foo</font>
+!! result
+<p><font>foo</font>
+</p>
+!! end
+
+!! test
+Attribute test: unquoted value
+!! input
+<font color=x>foo</font>
+!! result
+<p><font color="x">foo</font>
+</p>
+!! end
+
+!! test
+Attribute test: unquoted but illegal value (hash)
+!! input
+<font color=#x>foo</font>
+!! result
+<p><font color="#x">foo</font>
+</p>
+!! end
+
+!! test
+Attribute test: no value
+!! input
+<font color>foo</font>
+!! result
+<p><font color="color">foo</font>
+</p>
+!! end
+
+!! test
+Bug 2095: link with three closing brackets
+!! input
+[[Main Page]]]
+!! result
+<p><a href="/wiki/Main_Page" title="Main Page">Main Page</a>]
+</p>
+!! end
+
+!! test
+Bug 2095: link with pipe and three closing brackets
+!! input
+[[Main Page|link]]]
+!! result
+<p><a href="/wiki/Main_Page" title="Main Page">link</a>]
+</p>
+!! end
+
 
 ###
 ### Safety
@@ -1972,15 +2428,15 @@ Character reference normalization in link text (bug 1938)
 
 !! article
 Template:Dangerous attribute
-!!text
+!! text
 " onmouseover="alert(document.cookie)
-!!endarticle
+!! endarticle
 
 !! article
 Template:Dangerous style attribute
-!!text
+!! text
 border-size: expression(alert(document.cookie))
-!!endarticle
+!! endarticle
 
 !! article
 Template:Div style
@@ -1993,7 +2449,7 @@ Bug 2304: HTML attribute safety (safe template; regression bug 2309)
 !! input
 <div title="{{test}}"></div>
 !! result
-<div title="This is a test template"></div >
+<div title="This is a test template"></div>
 
 !! end
 
@@ -2002,7 +2458,7 @@ Bug 2304: HTML attribute safety (dangerous template; 2309)
 !! input
 <div title="{{dangerous attribute}}"></div>
 !! result
-<div title=""></div >
+<div title=""></div>
 
 !! end
 
@@ -2011,7 +2467,7 @@ Bug 2304: HTML attribute safety (dangerous style template; 2309)
 !! input
 <div style="{{dangerous style attribute}}"></div>
 !! result
-<div ></div >
+<div></div>
 
 !! end
 
@@ -2020,7 +2476,7 @@ Bug 2304: HTML attribute safety (safe parameter; 2309)
 !! input
 {{div style|width: 200px}}
 !! result
-<div style="float: right; width: 200px">Magic div</div >
+<div style="float: right; width: 200px">Magic div</div>
 
 !! end
 
@@ -2029,7 +2485,7 @@ Bug 2304: HTML attribute safety (unsafe parameter; 2309)
 !! input
 {{div style|width: expression(alert(document.cookie))}}
 !! result
-<div >Magic div</div >
+<div>Magic div</div>
 
 !! end
 
@@ -2038,7 +2494,7 @@ Bug 2304: HTML attribute safety (unsafe breakout parameter; 2309)
 !! input
 {{div style|"><script>alert(document.cookie)</script>}}
 !! result
-<div >Magic div</div >
+<div>Magic div</div>
 
 !! end
 
@@ -2047,7 +2503,7 @@ Bug 2304: HTML attribute safety (unsafe breakout parameter 2; 2309)
 !! input
 {{div style|" ><script>alert(document.cookie)</script>}}
 !! result
-<div style="float: right; ">Magic div</div >
+<div style="float: right; ">Magic div</div>
 
 !! end
 
@@ -2056,7 +2512,7 @@ Bug 2304: HTML attribute safety (link)
 !! input
 <div title="[[Main Page]]"></div>
 !! result
-<div title="&#91;&#91;Main Page]]"></div >
+<div title="&#91;&#91;Main Page]]"></div>
 
 !! end
 
@@ -2065,7 +2521,7 @@ Bug 2304: HTML attribute safety (italics)
 !! input
 <div title="''foobar''"></div>
 !! result
-<div title="&#39;&#39;foobar&#39;&#39;"></div >
+<div title="&#39;&#39;foobar&#39;&#39;"></div>
 
 !! end
 
@@ -2074,7 +2530,7 @@ Bug 2304: HTML attribute safety (bold)
 !! input
 <div title="'''foobar'''"></div>
 !! result
-<div title="&#39;&#39;'foobar&#39;&#39;'"></div >
+<div title="&#39;&#39;'foobar&#39;&#39;'"></div>
 
 !! end
 
@@ -2083,7 +2539,7 @@ Bug 2304: HTML attribute safety (ISBN)
 !! input
 <div title="ISBN 1234567890"></div>
 !! result
-<div title="&#73;SBN 1234567890"></div >
+<div title="&#73;SBN 1234567890"></div>
 
 !! end
 
@@ -2092,7 +2548,7 @@ Bug 2304: HTML attribute safety (RFC)
 !! input
 <div title="RFC 1234"></div>
 !! result
-<div title="&#82;FC 1234"></div >
+<div title="&#82;FC 1234"></div>
 
 !! end
 
@@ -2101,7 +2557,7 @@ Bug 2304: HTML attribute safety (PMID)
 !! input
 <div title="PMID 1234567890"></div>
 !! result
-<div title="&#80;MID 1234567890"></div >
+<div title="&#80;MID 1234567890"></div>
 
 !! end
 
@@ -2110,7 +2566,7 @@ Bug 2304: HTML attribute safety (web link)
 !! input
 <div title="http://example.com/"></div>
 !! result
-<div title="http&#58;//example.com/"></div >
+<div title="http&#58;//example.com/"></div>
 
 !! end
 
@@ -2119,7 +2575,7 @@ Bug 2304: HTML attribute safety (named web link)
 !! input
 <div title="[http://example.com/ link]"></div>
 !! result
-<div title="&#91;http&#58;//example.com/ link]"></div >
+<div title="&#91;http&#58;//example.com/ link]"></div>
 
 !! end
 
@@ -2128,7 +2584,7 @@ Bug 3244: HTML attribute safety (extension; safe)
 !! input
 <div style="<nowiki>background:blue</nowiki>"></div>
 !! result
-<div style="background:blue"></div >
+<div style="background:blue"></div>
 
 !! end
 
@@ -2137,9 +2593,88 @@ Bug 3244: HTML attribute safety (extension; unsafe)
 !! input
 <div style="<nowiki>border-left:expression(alert(document.cookie))</nowiki>"></div>
 !! result
-<div ></div >
+<div></div>
 
 !! end
+
+
+!! test
+Math section safety when disabled
+!! input
+<math><script>alert(document.cookies);</script></math>
+!! result
+<p>&lt;math&gt;&lt;script&gt;alert(document.cookies);&lt;/script&gt;&lt;/math&gt;
+</p>
+!! end
+
+
+!! test
+Table attribute legitimate extension
+!! input
+{|
+!+ style="<nowiki>color:blue</nowiki>"| status
+|}
+!! result
+<table>
+<tr>
+<th style="color:blue"> status
+</th></tr></table>
+
+!!end
+
+!! test
+Table attribute safety
+!! input
+{|
+!+ style="<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>"| status
+|}
+!! result
+<table>
+<tr>
+<th> status
+</th></tr></table>
+
+!! end
+
+
+# More MSIE fun discovered by Tom Gilder
+
+!! test
+MSIE CSS safety test: spurious slash
+!! input
+<div style="background-image:u\rl(javascript:alert('boo'))">evil</div>
+!! result
+<div>evil</div>
+
+!! end
+
+!! test
+MSIE CSS safety test: hex code
+!! input
+<div style="background-image:u\72l(javascript:alert('boo'))">evil</div>
+!! result
+<div>evil</div>
+
+!! end
+
+!! test
+MSIE CSS safety test: comment in url
+!! input
+<div style="background-image:u/**/rl(javascript:alert('boo'))">evil</div>
+!! result
+<div style="background-image:u rl(javascript:alert('boo'))">evil</div>
+
+!! end
+
+!! test
+MSIE CSS safety test: comment in expression
+!! input
+<div style="background-image:expres/**/sion(alert('boo4'))">evil4</div>
+!! result
+<div style="background-image:expres sion(alert('boo4'))">evil4</div>
+
+!! end
+
 
 TODO:
 more images

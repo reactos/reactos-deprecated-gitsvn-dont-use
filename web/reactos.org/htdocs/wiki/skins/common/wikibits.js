@@ -29,11 +29,11 @@ else if (window.attachEvent) window.attachEvent("onload",onloadhook);
 // document.write special stylesheet links
 if(typeof stylepath != 'undefined' && typeof skin != 'undefined') {
     if (is_opera_preseven) {
-        document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera6Fixes.css" />');
+        document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera6Fixes.css">');
     } else if (is_opera_seven) {
-        document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera7Fixes.css" />');
+        document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera7Fixes.css">');
     } else if (is_khtml) {
-        document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/KHTMLFixes.css" />');
+        document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/KHTMLFixes.css">');
     }
 }
 // Un-trap us from framesets
@@ -205,33 +205,55 @@ function guessTimezone(box) {
 	document.preferences.wpHourDiff.value = fetchTimezone();
 }
 
-function showTocToggle(show,hide) {
-	if(document.getElementById) {
-		document.writeln('<span class=\'toctoggle\'>[<a href="javascript:toggleToc()" class="internal">' +
-		'<span id="showlink" style="display:none;">' + show + '</span>' +
-		'<span id="hidelink">' + hide + '</span>'
-		+ '</a>]</span>');
-	}
+function showTocToggle() {
+  if (document.createTextNode) {
+    // Uses DOM calls to avoid document.write + XHTML issues
+
+    var linkHolder = document.getElementById('toctitle')
+    if (!linkHolder) return;
+
+    var outerSpan = document.createElement('span');
+    outerSpan.className = 'toctoggle';
+
+    var toggleLink = document.createElement('a');
+    toggleLink.id = 'togglelink';
+    toggleLink.className = 'internal';
+    toggleLink.href = 'javascript:toggleToc()';
+    toggleLink.appendChild(document.createTextNode(tocHideText));
+
+    outerSpan.appendChild(document.createTextNode('['));
+    outerSpan.appendChild(toggleLink);
+    outerSpan.appendChild(document.createTextNode(']'));
+
+    linkHolder.appendChild(document.createTextNode(' '));
+    linkHolder.appendChild(outerSpan);
+
+    var cookiePos = document.cookie.indexOf("hidetoc=");
+    if (cookiePos > -1 && document.cookie.charAt(cookiePos + 8) == 1)
+     toggleToc();
+  }
 }
 
-
+function changeText(el, newText) {
+  // Safari work around
+  if (el.innerText)
+    el.innerText = newText;
+  else if (el.firstChild && el.firstChild.nodeValue)
+    el.firstChild.nodeValue = newText;
+}
+  
 function toggleToc() {
-	var tocmain = document.getElementById('toc');
-	var toc = document.getElementById('tocinside');
-	var showlink=document.getElementById('showlink');
-	var hidelink=document.getElementById('hidelink');
-	if(toc.style.display == 'none') {
-		toc.style.display = tocWas;
-		hidelink.style.display='';
-		showlink.style.display='none';
-		tocmain.className = '';
-
+ 	var toc = document.getElementById('toc').getElementsByTagName('ul')[0];
+  var toggleLink = document.getElementById('togglelink')
+  
+ 	if(toc && toggleLink && toc.style.display == 'none') {
+     changeText(toggleLink, tocHideText);
+ 		toc.style.display = 'block';
+     document.cookie = "hidetoc=0";
 	} else {
-		tocWas = toc.style.display;
+    changeText(toggleLink, tocShowText);
 		toc.style.display = 'none';
-		hidelink.style.display='none';
-		showlink.style.display='';
-		tocmain.className = 'tochidden';
+    document.cookie = "hidetoc=1";
 	}
 }
 
@@ -239,7 +261,8 @@ function toggleToc() {
 // we use it to avoid creating the toolbar where javascript is not enabled
 function addButton(imageFile, speedTip, tagOpen, tagClose, sampleText) {
 
-	speedTip=escapeQuotes(speedTip);
+	imageFile=escapeQuotesHTML(imageFile);
+	speedTip=escapeQuotesHTML(speedTip);
 	tagOpen=escapeQuotes(tagOpen);
 	tagClose=escapeQuotes(tagClose);
 	sampleText=escapeQuotes(sampleText);
@@ -252,13 +275,13 @@ function addButton(imageFile, speedTip, tagOpen, tagClose, sampleText) {
 		var re=new RegExp("\\\\n","g");
 		tagOpen=tagOpen.replace(re,"");
 		tagClose=tagClose.replace(re,"");
-		mouseOver = "onmouseover=\"if(!noOverwrite){document.infoform.infobox.value='"+tagOpen+sampleText+tagClose+"'};\"";
+		mouseOver = "onMouseover=\"if(!noOverwrite){document.infoform.infobox.value='"+tagOpen+sampleText+tagClose+"'};\"";
 	}
 
 	document.write("<a href=\"javascript:insertTags");
 	document.write("('"+tagOpen+"','"+tagClose+"','"+sampleText+"');\">");
 
-        document.write("<img width=\"23\" height=\"22\" src=\""+imageFile+"\" border=\"0\" alt=\""+speedTip+"\" title=\""+speedTip+"\""+mouseOver+" />");
+	document.write("<img width=\"23\" height=\"22\" src=\""+imageFile+"\" border=\"0\" alt=\""+speedTip+"\" title=\""+speedTip+"\""+mouseOver+">");
 	document.write("</a>");
 	return;
 }
@@ -285,16 +308,20 @@ function addInfobox(infoText,text_alert) {
 function escapeQuotes(text) {
 	var re=new RegExp("'","g");
 	text=text.replace(re,"\\'");
-	re=new RegExp('"',"g");
-	text=text.replace(re,'&quot;');
 	re=new RegExp("\\n","g");
 	text=text.replace(re,"\\n");
-	return text;
+	return escapeQuotesHTML(text);
 }
 
 function escapeQuotesHTML(text) {
+	var re=new RegExp('&',"g");
+	text=text.replace(re,"&amp;");
 	var re=new RegExp('"',"g");
 	text=text.replace(re,"&quot;");
+	var re=new RegExp('<',"g");
+	text=text.replace(re,"&lt;");
+	var re=new RegExp('>',"g");
+	text=text.replace(re,"&gt;");
 	return text;
 }
 
@@ -391,4 +418,80 @@ function akeytt() {
             }
         }
     }
+}
+
+function setupRightClickEdit() {
+	if( document.getElementsByTagName ) {
+		var divs = document.getElementsByTagName( 'div' );
+		for( var i = 0; i < divs.length; i++ ) {
+			var el = divs[i];
+			if( el.className == 'editsection' ) {
+				addRightClickEditHandler( el );
+			}
+		}
+	}
+}
+
+function addRightClickEditHandler( el ) {
+	for( var i = 0; i < el.childNodes.length; i++ ) {
+		var link = el.childNodes[i];
+		if( link.nodeType == 1 && link.nodeName.toLowerCase() == 'a' ) {
+			var editHref = link.getAttribute( 'href' );
+			
+			// find the following a
+			var next = el.nextSibling;
+			while( next.nodeType != 1 )
+				next = next.nextSibling;
+			
+			// find the following header
+			next = next.nextSibling;
+			while( next.nodeType != 1 )
+				next = next.nextSibling;
+			
+			if( next && next.nodeType == 1 &&
+				next.nodeName.match( /^[Hh][1-6]$/ ) ) {
+				next.oncontextmenu = function() {
+					document.location = editHref;
+					return false;
+				}
+			}
+		}
+	}
+}
+
+function fillDestFilename() {
+	if (!document.getElementById) return;
+	var path = document.getElementById('wpUploadFile').value;
+	// Find trailing part
+	var slash = path.lastIndexOf( '/' );
+	var backslash = path.lastIndexOf( '\\' );
+	var fname;
+	if ( slash == -1 && backslash == -1 ) {
+		fname = path;
+	} else if ( slash > backslash ) {
+		fname = path.substring( slash+1, 10000 );
+	} else {
+		fname = path.substring( backslash+1, 10000 );
+	}
+
+	// Capitalise first letter and replace spaces by underscores
+	fname = fname.charAt(0).toUpperCase().concat(fname.substring(1,10000)).replace( / /g, '_' );
+
+	// Output result
+	var destFile = document.getElementById('wpDestFile');
+	if (destFile) destFile.value = fname;
+}
+	
+
+function considerChangingExpiryFocus() {
+	if (!document.getElementById) return;
+	var drop = document.getElementById('wpBlockExpiry');
+	if (!drop) return;
+	var field = document.getElementById('wpBlockOther');
+	if (!field) return;
+	var opt = drop.value;
+	if (opt == 'other')
+		field.style.display = '';
+	else
+		field.style.display = 'none';
 }

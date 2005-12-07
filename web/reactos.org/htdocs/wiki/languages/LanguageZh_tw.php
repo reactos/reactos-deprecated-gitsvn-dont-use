@@ -1,14 +1,11 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 require_once( "LanguageUtf8.php" );
 require_once( "LanguageZh_cn.php" );
 
-# NOTE: To turn off "Current Events" in the sidebar,
-# set "currentevents" => "-"
-
-# The names of the namespaces can be set here, but the numbers
-# are magical, so don't change or move them!  The Namespace class
-# encapsulates some of the magic-ness.
-#
 /* private */ $wgNamespaceNamesZh_tw = array(
 	NS_MEDIA            => "媒體",
 	NS_SPECIAL          => "特殊",
@@ -41,16 +38,7 @@ require_once( "LanguageZh_cn.php" );
         "標準",/* "Standard" */
 	"懷舊",/* "Nostalgia" */
 	"科隆香水藍" /* "Cologne Blue" */
-);
-
-/* private */ $wgMathNamesZh_tw = array(
-	"永遠使用PNG圖像",    /* "Always render PNG" */
-	"如果是簡單的公式使用HTML，否則使用PNG圖像",   /* "HTML if very simple or else PNG" */
-	"如果可以用HTML，否則用PNG圖像",   /* "HTML if possible or else PNG" */
-	"顯示為TeX代碼(使用文字流覽器時)",  /* "Leave it as TeX (for text browsers)" */
-	"推薦為新版流覽器使用"  /* "Recommended for modern browsers" */
-);
-
+) + $wgSkinNamesEn;
 
 /* private */ $wgBookstoreListZh_tw = array(
 	"博客來書店" => "http://www.books.com.tw/exep/openfind_book_keyword.php?cat1=4&key1=$1",
@@ -59,74 +47,9 @@ require_once( "LanguageZh_cn.php" );
 	"新絲書店" => "http://www.silkbook.com/function/Search_List_Book.asp?item=5&text=$1"
 );
 
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesZh_tw = array(
-	"Userlogin"		=> "註冊",
-	"Userlogout"	=> "註銷",
-	"Preferences"	=> "參數設置",
-/*"Set my user preferences", */
-	"Watchlist"		=> "監視列表",
-/* "My watchlist", */
-	"Recentchanges" => "最近更新",
-/* "Recently updated pages", */
-	"Upload"		=> "上載文件",
-/* "Upload image files", */
-	"Imagelist"		=> "圖像列表",
-/* "Image list", */
-	"Listusers"		=> "註冊用戶",
-/* "Registered users", */
-	"Statistics"	=> "站點統計",
-/* "Site statistics", */
-	"Randompage"	=> "隨機條目",
-/* "Random article", */
-
-	"Lonelypages"	=> "孤立條目",
-/* "Orphaned articles",*/
-	"Unusedimages"	=> "孤立圖像",
-/* "Orphaned images", */
-	"Popularpages"	=> "熱點條目",
-/* "Popular articles", */
-	"Wantedpages"	=> "待撰條目",
-/* "Most wanted articles", */
-	"Shortpages"	=> "短條目",
-	"Longpages"		=> "長條目",
-	"Newpages"		=> "新建條目",
-#	"Intl"		=> "跨語言鏈接", # this page not done yet!
-	"Ancientpages"		=> "舊條目",
-	"Allpages"		=> "所有條目",
-
-	"Ipblocklist"	=> "被封網址列表",
-	"Maintenance" => "維護頁",
-	"Specialpages"  => "",
-	"Contributions" => "",
-	"Emailuser"		=> "",
-	"Whatlinkshere" => "鏈入頁面",
-	"Recentchangeslinked" => "链出更改",
-	"Movepage"		=> "鏈出更改",
-	"Booksources"	=> "站外書源",
-#           "Categories" => "頁面分類"
-	"Export" => "導出為XML",
-	"Version" => "媒體維基版本",
-);
-
-/* private */ $wgSysopSpecialPagesZh_tw = array(
-	"Blockip"		=> "查封一個網址",
-	"Asksql"		=> "查詢數據庫",
-	"Undelete"		=> "恢復被刪頁面"
-);
-
-/* private */ $wgDeveloperSpecialPagesZh_tw = array(
-	"Lockdb"		=> "設置數據庫只讀",
-	"Unlockdb"		=> "恢復數據庫修改權限",
-);
-
 /* private */ $wgAllMessagesZh_tw = array(
 
 /* User toggles */
-	"tog-hover"		=> "滑過維基鏈結時顯示注釋", /* "Show hoverbox over wiki links",*/
 	"tog-underline" => "下劃鏈結", /* "Underline links", */
 	"tog-highlightbroken" => "毀壞的鏈結格式<a href=\"\" class=\"new\">像這樣</a> (或者像這個<a href=\"\" class=\"internal\">?</a>)", /* "Format broken links <a href=\"\" class=\"new\">like this</a> (alternative: like this<a href=\"\" class=\"internal\">?</a>).", */
 	"tog-justify"	=> "段落對齊", /* "Justify paragraphs", */
@@ -156,11 +79,9 @@ require_once( "LanguageZh_cn.php" );
 "linktrail"		=> "/^([a-z]+)(.*)\$/sD",
 "mainpage"		=> "首頁",
 "about"			=> "關於",
-"aboutwikipedia" => "關於維基百科",
 "aboutpage"		=> "維基百科:關於",
 "help"			=> "幫助",
 "helppage"		=> "維基百科:幫助",
-"wikititlesuffix" => "維基百科",
 "bugreports"	=> "錯誤報告",
 "bugreportspage" => "維基百科:錯誤報告",
 "faq"			=> "常見問題解答",
@@ -179,13 +100,12 @@ require_once( "LanguageZh_cn.php" );
 "currentevents" => "新聞動態",
 "errorpagetitle" => "錯誤",
 "returnto"		=> "返回到$1.",
-"fromwikipedia"	=> "維基百科，自由的百科全書",
 "whatlinkshere"	=> "鏈入頁面",
 "help"			=> "幫助",
 "search"		=> "搜索",
 "go"		=> "進入",
 "history"		=> "較早版本",
-"printableversion" => "可打印版",
+"printableversion" => "可列印版",
 "editthispage"	=> "編輯本頁",
 "deletethispage" => "刪除本頁",
 "protectthispage" => "保護本頁",
@@ -203,8 +123,7 @@ require_once( "LanguageZh_cn.php" );
 "redirectedfrom" => "(重定向自$1)",
 "lastmodified"	=> "最後更改$1.",
 "viewcount"		=> "本頁面已經被瀏覽$1次。",
-"gnunote" => "所有文本在<a class=internal href='/wiki/GNU_FDL'>GNU自由文檔協議證書 </a>下發佈",
-"printsubtitle" => "(來自 http://zh-tw.wikipedia.org)",
+"printsubtitle" => "(來自 {{SERVER}})",
 "protectedpage" => "被保護頁",
 "administrators" => "維基百科:管理員",
 "sysoptitle"	=> "需要管理員權限",
@@ -323,7 +242,7 @@ MySQL返回錯誤 \"<tt>$3: $4</tt>\"。",
 "newusersonly"	=> "（僅限新用戶）",
 "remembermypassword" => "下次登錄記住密碼。",
 "loginproblem"	=> "<b>登錄有問題。</b><br />再試一次！",
-"alreadyloggedin" => "<font color=red><b>用戶$1，您已經登錄了!</b></font><br />\n",
+"alreadyloggedin" => "<strong>用戶$1，您已經登錄了!</strong><br />\n",
 
 "login"			=> "登錄",
 "userlogin"		=> "用戶登錄",
@@ -392,11 +311,11 @@ MySQL返回錯誤 \"<tt>$3: $4</tt>\"。",
 上面的文字框內顯示的是目前本頁的內容。
 你所做的修改顯示在下面的文字框中。
 你應當將你所做的修改加入現有的內容中。
-<b>只有</b>在上面文字框中的內容會在你點擊\"保存頁面\"後被保存。\n<p>",
+<b>只有</b>在上面文字框中的內容會在你點擊\"保存頁面\"後被保存。<br />",
 "yourtext"		=> "您的文字",
 "storedversion" => "已保存版本",
 "editingold"	=> "<strong>警告：你正在編輯的是本頁的舊版本。
-如果你保存它的話，在本版本之後的任何修改都會丟失。</strong>\n",
+如果你保存它的話，在本版本之後的任何修改都會丟失。</strong>",
 "yourdiff"		=> "差別",
 "copyrightwarning" => "請注意對W維基百科的任何貢獻都將被認為是在GNU自由文檔協議證書下發佈。
 (細節請見$1).
@@ -404,11 +323,11 @@ MySQL返回錯誤 \"<tt>$3: $4</tt>\"。",
 您同時也向我們保證你所提交的內容是你自己所作，或得自一個不受版權保護或相似自由的來源。
 <strong>不要在未獲授權的情況下發表！</strong>",
 
-"longpagewarning" => "警告：本頁長度達$1千位；一些瀏覽器將無法編輯長過三十二千位的文章。請考慮將本文切割成幾個小段落。",
+"longpagewarning" => "<strong>警告：本頁長度達$1千位；一些瀏覽器將無法編輯長過三十二千位的文章。請考慮將本文切割成幾個小段落。</strong>",
 
-"readonlywarning" => "警告：數據庫被鎖以進行維護，所以您目前將無法保存您的修改。您或許希望先將本斷文字複製並保存到文本文件，然後等一會兒再修改。",
-"protectedpagewarning" => "警告：本頁已經被保護，只有擁有管理員權限的用戶才可修改。請確認您遵守
-<a href='/wiki/Wikipedia:Protected_page_guidelines'>保護頁面守則</a>.",
+"readonlywarning" => "<strong>警告：數據庫被鎖以進行維護，所以您目前將無法保存您的修改。您或許希望先將本斷文字複製並保存到文本文件，然後等一會兒再修改。</strong>",
+"protectedpagewarning" => "<strong>警告：本頁已經被保護，只有擁有管理員權限的用戶才可修改。請確認您遵守
+[[Project:Protected_page_guidelines|保護頁面守則]].</strong>",
 
 # History pages
 #
@@ -436,8 +355,6 @@ MySQL返回錯誤 \"<tt>$3: $4</tt>\"。",
 # Search results
 #
 "searchresults" => "搜索結果",
-"searchhelppage" => "維基百科:搜索",
-"searchingwikipedia" => "搜索維基百科",
 "searchresulttext" => "有關搜索維基百科的更多詳情,參見$1。",
 "searchquery"	=> "查詢\"$1\"",
 "badquery"		=> "搜索查詢不正確",
@@ -465,31 +382,13 @@ MySQL返回錯誤 \"<tt>$3: $4</tt>\"。",
 "searchdisabled" => "<p>維基百科內部搜索功能由於高峰時段服務器超載而停止使用。
 您可以暫時通過
 <a href=\"http://google.com.tw/\">google</a>搜索維基百科。
-謝謝您的耐心。
-<!-- Search Google -->
-<form id=\"google\" method=\"get\" action=\"http://www.google.com.tw/custom\">
-<table bgcolor=\"#FFFFFF\" cellspacing=0 border=0>
-<tr valign=top><td>
-<a href=\"http://www.google.com.tw/search\">
-<img src=\"http://www.google.com.tw/logos/Logo_40wht.gif\" border=0
-alt=\"Google\" align=\"middle\"></a>
-</td>
-<td>
-<input type=text name=\"q\" size=31 maxlength=255 value=\"$1\">
-<input type=submit name=\"sa\" value=\"Google搜索\">
-<input type=hidden name=\"cof\" value=\"LW:135;L:http://zh-tw.wikipedia.org/upload/wiki.png;LH:133;AH:left;S:http://www.wikiped<font face=arial,sans-serif size=-1>
-<input type=hidden name=\"domains\" value=\"zh-tw.wikipedia.org\"><br />
-<input type=radio name=\"sitesearch\" value=\"\"> 搜索WWW
-<input type=radio name=\"sitesearch\" value=\"zh-tw.wikipedia.org\" checked> 搜索zh-tw.wikipedia.org </font><br />
-</td></tr></table></form>
-<!-- Search Google -->\n",
+謝謝您的耐心。",
 
 # Preferences page
 #
 "preferences"	=> "參數設置",
 "prefsnologin" => "還未登錄",
-"prefsnologintext"	=> "您必須先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登錄</a>才能設置個人參數。",
+"prefsnologintext"	=> "您必須先[[Special:Userlogin|登錄]]才能設置個人參數。",
 "prefslogintext" => "你已經以\"$1\"的身份登錄。
 你的內部ID是$2。",
 "prefsreset"	=> "參數重新設置。",
@@ -563,10 +462,8 @@ alt=\"Google\" align=\"middle\"></a>
 "reupload"		=> "重新上載",
 "reuploaddesc"	=> "返回上載表單。",
 "uploadnologin" => "未登錄",
-"uploadnologintext"	=> "您必須先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登錄</a>
+"uploadnologintext"	=> "您必須先[[Special:Userlogin|登錄]]
 才能上載文件。",
-"uploadfile"	=> "上載文件",
 "uploaderror"	=> "上載錯誤",
 "uploadtext"	=> "<strong>停止！</strong>在您上載之前，請先閱讀並遵守維基百科<a href=\"" .
 "{{localurle:Wikipedia:Image use policy}}\">圖像使用守則</a>。
@@ -597,11 +494,9 @@ alt=\"Google\" align=\"middle\"></a>
 ",
 "filename"		=> "文件名",
 "filedesc"		=> "簡述",
-"affirmation"	=> "我保證本文件的版權持有人同意將其在$1條款下發佈。",
 "copyrightpage" => "維基百科:版權信息",
 "copyrightpagename" => "維基百科版權",
 "uploadedfiles"	=> "已上載文件",
-"noaffirmation" => "您必須保證您上載的文件並沒有侵犯版權。",
 "ignorewarning"	=> "忽略警告並保存文件。",
 "minlength"		=> "圖像名字必須至少有三個字母。",
 "badfilename"	=> "圖像名已被改為\"$1\"。",
@@ -613,17 +508,15 @@ alt=\"Google\" align=\"middle\"></a>
 以及其他任何您知道的關於改圖像的信息。",
 "uploadwarning" => "上載警告",
 "savefile"		=> "保存文件",
-"uploadedimage" => "已上載\"$1\"",
+"uploadedimage" => "已上載\"[[$1]]\"",
 
 # Image list
 #
 "imagelist"		=> "圖像列表",
 "imagelisttext"	=> "以下是按$2排列的$1幅圖像列表。",
 "getimagelist"	=> "正在獲取圖像列表",
-"ilshowmatch"	=> "顯示所有匹對的圖像",
 "ilsubmit"		=> "搜索",
 "showlast"		=> "顯示按$2排列的最後$1幅圖像。",
-"all"			=> "全部",
 "byname"		=> "名字",
 "bydate"		=> "日期",
 "bysize"		=> "大小",
@@ -696,8 +589,6 @@ alt=\"Google\" align=\"middle\"></a>
 "listusers"		=> "用戶列表",
 "specialpages"	=> "特殊頁面",
 "spheading"		=> "特殊頁面",
-"sysopspheading" => "管理員特殊頁面",
-"developerspheading" => "發展者特殊頁面",
 "protectpage"	=> "保護頁面",
 "recentchangeslinked" => "鏈出更改",
 "rclsub"		=> "（從 \"$1\"鏈出的頁面）",
@@ -717,10 +608,8 @@ alt=\"Google\" align=\"middle\"></a>
 # Email this user
 #
 "mailnologin"	=> "無電郵地址",
-"mailnologintext" => "您必須先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登錄</a>
-並在<a href=\"" .
-  "{{localurle:Special:Preferences}}\">參數設置</a>
+"mailnologintext" => "您必須先[[Special:Userlogin|登錄]]
+並在[[Special:Preferences|參數設置]]
 中有一個有效的電子郵件地址才可以電郵其他用戶。",
 "emailuser"		=> "電子郵件該用戶",
 "emailpage"		=> "電子郵件用戶",
@@ -743,8 +632,7 @@ alt=\"Google\" align=\"middle\"></a>
 "watchlistsub"	=> "(用戶\"$1\")",
 "nowatchlist"	=> "您的監視列表為空。",
 "watchnologin"	=> "未登錄",
-"watchnologintext"	=> "您必須先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登錄</a>
+"watchnologintext"	=> "您必須先[[Special:Userlogin|登錄]]
 才能更改您的監視列表",
 "addedwatch"	=> "加入到監視列表",
 "addedwatchtext" => "本頁（“$1”）已經被加入到您的<a href=\"" .
@@ -764,7 +652,7 @@ alt=\"Google\" align=\"middle\"></a>
  	 "watchdetails" => "($1個頁面（不含對話頁）被監視；
  	 總共$2個頁面被編輯；
  	 $3...
- 	 <a href='$4'>顯示並編輯完整列表</a>.)",
+ 	 [$4 顯示並編輯完整列表].)",
  	 "watchmethod-recent" => "檢查被監視頁面的最近編輯",
  	 "watchmethod-list" => "checking watched pages for recent edits",
  	 "removechecked" => "將被選頁面從監視列表中移除",
@@ -784,7 +672,6 @@ alt=\"Google\" align=\"middle\"></a>
 "confirmdeletetext" => "您即將從數據庫中永遠刪除一個頁面或圖像以及其歷史。
 請確定您要進行此項操作，並且瞭解其後果，同時您的行為符合[[維基百科:守則與指導]]。
 ",
-"confirmcheck"	=> "是的，我確定要刪除。",
 "actioncomplete" => "操作完成",
 "deletedtext"	=> "“$1”已經被刪除。
 最近刪除的紀錄請參見$2。",
@@ -851,7 +738,6 @@ alt=\"Google\" align=\"middle\"></a>
 "ipbreason"		=> "原因",
 "ipbsubmit"		=> "查封該地址",
 "badipaddress"	=> "網址不正確。",
-"noblockreason" => "您必須說明查封的具體理由。",
 "blockipsuccesssub" => "查封成功",
 "blockipsuccesstext" => "網址“$1”已經被查封。
 <br />參看[[特殊:被封網址列表|被封網址列表]]以復審查封。",
@@ -860,7 +746,7 @@ alt=\"Google\" align=\"middle\"></a>
 "ipusubmit"		=> "解除禁封",
 "ipusuccess"	=> "網址”$1”已經被解除禁封",
 "ipblocklist"	=> "被封網址列表",
-"blocklistline"	=> "$1，$2禁封$3",
+"blocklistline"	=> "$1，$2禁封$3 ($4)",
 "blocklink"		=> "禁封",
 "unblocklink"	=> "解除禁封",
 "contribslink"	=> "貢獻",
@@ -884,17 +770,6 @@ alt=\"Google\" align=\"middle\"></a>
 "lockdbsuccesstext" => "維基百科數據庫已經上鎖。
 <br />請記住在維護完成後重新開放數據庫。",
 "unlockdbsuccesstext" => "維基百科數據庫重新開放。",
-
-# SQL query
-#
-"asksql"		=> "SQL查詢",
-"asksqltext"	=> "用下麵的表單對維基百科數據庫進行直接查詢。
-使用單引號（'像這樣'）來分割字串符。
-這樣做有可能增加服務器的負擔，所以請慎用本功能。",
-"sqlquery"		=> "輸入查詢",
-"querybtn"		=> "提交查詢",
-"selectonly"	=> "除了“SELECT”以外的所有查詢都只限維基百科發展者使用。",
-"querysuccessful" => "查詢成功",
 
 # Move page
 #
@@ -921,8 +796,7 @@ alt=\"Google\" align=\"middle\"></a>
 在這些情況下，您在必要時必須手工移動或合併頁面。",
 "movearticle"	=> "移動頁面",
 "movenologin"	=> "未登錄",
-"movenologintext" => "您必須是一名登記用戶並且<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登錄</a>
+"movenologintext" => "您必須是一名登記用戶並且[[Special:Userlogin|登錄]]
 後才可移動一個頁面。",
 "newtitle"		=> "新標題",
 "movepagebtn"	=> "移動頁面",
@@ -946,9 +820,7 @@ alt=\"Google\" align=\"middle\"></a>
 'allmessages' => "系統界面", //"All system messages",
 'allmessagesnotsupportedDB' => "系統界面功能處於關閉狀態 (wgUseDatabaseMessages)。", //"Special:AllMessages not supported because wgUseDatabaseMessages is off.",
 'allmessagestext' => "這裡列出所有可定製的系統界面。", //"This is a list of all system messages available in the MediaWiki: namespace.",
-'allpagesformtext1' => "列出從 $1 起的條目", //"Display pages starting at: $1",
-'allpagesformtext2' => "選定名字空間： $1 $2", //"Choose namespace: $1 $2",
-'allpagesnamespace' => "所有 $1 名字空間的條目", //"All pages ($1 namespace)",
+'allinnamespace' => "所有 $1 名字空間的條目", //"All pages ($1 namespace)",
 'allpagesnext' => "下一頁", //"Next",
 'allpagesprev' => "上一頁", //"Previous",
 'allpagessubmit' => "提交", //"Go",
@@ -962,7 +834,7 @@ alt=\"Google\" align=\"middle\"></a>
 'blocklogpage' => "封鎖記錄", //"Block_log",
 'categoriespagetext' => "以下列出所有的頁面分類。", //"The following categories exists in the wiki.",
 'categoryarticlecount' => "該類頁面共有 $1 條目", //There are $1 articles in this category.",
-'clearyourcache' => "'''註意：''' 保存設置後，要清掉瀏覽器的緩存才能生效：'''Mozilla:''' 點''刷新'' （或用快鍵''Ctrl-R''），'''IE / Opera:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-R'', '''Konqueror''' ''Ctrl-R''。",//"'''Note:''' After saving, you have to clear your browser cache to see the changes: '''Mozilla:''' click ''Reload'' (or ''Ctrl-R''), '''IE / Opera:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-R'', '''Konqueror''' ''Ctrl-R''.",
+'clearyourcache' => "'''注意：''' 保存設置後，要清掉瀏覽器的緩存才能生效：'''Mozilla / Firefox:''' ''Ctrl-Shift-R'', '''Internet Explorer:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-Shift-R'', '''Konqueror:''' ''F5''。",
 'edit' => "編輯", //"Edit",
 'navigation' => "導航", //"Navigation",
 'nstab-category' => "分類", //"Category",
@@ -975,14 +847,15 @@ alt=\"Google\" align=\"middle\"></a>
 'nstab-user' => "用戶頁面", //"User page",
 'nstab-wp' => "關於", //"About",
 'portal' => "社區",//"Community portal",
-'prefs-help-userdata' => "*<strong>真實姓名</strong>（可選）：用以對您的貢獻署名。<br />*<strong>點子郵件</strong>（可選）：讓他人通過網站在不知道您的電子郵件地址的情況下通過電子郵件與您聯絡，以及通過電子郵件取得遺忘的密碼。", /*"* <strong>Real name</strong> (optional): if you choose to provide it this will be used for giving you attribution for your work.<br />
+'prefs-help-realname' => "*<strong>真實姓名</strong>（可選）：用以對您的貢獻署名。<br />",
+'prefs-help-email' => "*<strong>點子郵件</strong>（可選）：讓他人通過網站在不知道您的電子郵件地址的情況下通過電子郵件與您聯絡，以及通過電子郵件取得遺忘的密碼。", /*"* <strong>Real name</strong> (optional): if you choose to provide it this will be used for giving you attribution for your work.<br />
 * <strong>Email</strong> (optional): Enables people to contact you through the website without you having to reveal your
 email address to them, and it can be used to send you a new password if you forget it.", */
 'prefs-misc' => "雜項", //"Misc settings",
 'prefs-personal' => "用戶數據",//"User data",
 'prefs-rc' => "最近更新", //"Recent changes and stub display",
 'showhideminor' => "$1 小修改 | $2 bots | $3 登錄用戶 | $4 檢查過的", //"$1 minor edits | $2 bots | $3 logged in users | $4 patrolled edits ",
-'skin' => "皮膚", //"Skin",
+'skin' => "面板", //"Skin",
 'talk' => "討論",//"Discussion",
 'timezonelegend' => "時區", //"Time zone",
 'toolbox' => "工具",//"Toolbox",
@@ -991,6 +864,21 @@ email address to them, and it can be used to send you a new password if you forg
 'yourrealname' => "真實姓名*", //"Your real name"
 'yourvariant' => "中文字體", //"language variant"
 
+'personaltools' => "個人工具", //"personaltools""
+'history_short' => "沿革",
+"protect" => "封鎖",
+"delete" => "刪除",
+"move" => "移動",
+"tog-nocache" => "停用頁面快取",
+"specialpage" => "特殊頁面",
+"defaultns" => "預設的搜尋範圍",
+"default" => "預設",
+"aboutsite" => "關於 {{SITENAME}}",
+"disclaimers" => "免責聲明",
+"tog-fancysig" => "使用原始簽名 (不產生自動連結)",
+"tog-previewonfirst" => "第一次編輯時顯示原文內容的預覽",
+"copyright" => "本站所有內容允許以下方式利用: $1",
+"loginprompt" => "您必須允許瀏覽器紀錄Cookie才能成功登入 Wikipedia 並順利進行操作",
 );
 
 class LanguageZh_tw extends LanguageZh_cn {
@@ -1004,10 +892,6 @@ class LanguageZh_tw extends LanguageZh_cn {
 		return $wgNamespaceNamesZh_tw;
 	}
 
-	function getNsText( $index ) {
-		global $wgNamespaceNamesZh_tw;
-		return $wgNamespaceNamesZh_tw[$index];
-	}
 
 	function getNsIndex( $text ) {
 		global $wgNamespaceNamesZh_tw;
@@ -1016,14 +900,14 @@ class LanguageZh_tw extends LanguageZh_cn {
 			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
 		}
 		# Aliases
-        if ( 0 == strcasecmp( "特殊", $text ) ) { return -1; }
-        if ( 0 == strcasecmp( "", $text ) ) { return ; }
-        if ( 0 == strcasecmp( "對話", $text ) ) { return 1; }
-        if ( 0 == strcasecmp( "用戶", $text ) ) { return 2; }
-        if ( 0 == strcasecmp( "用戶對話", $text ) ) { return 3; }
-        if ( 0 == strcasecmp( "維基百科對話", $text ) ) { return 5; }
-        if ( 0 == strcasecmp( "圖像", $text ) ) { return 6; }
-        if ( 0 == strcasecmp( "圖像對話", $text ) ) { return 7; }
+		if ( 0 == strcasecmp( "特殊", $text ) ) { return -1; }
+		if ( 0 == strcasecmp( "", $text ) ) { return ; }
+		if ( 0 == strcasecmp( "對話", $text ) ) { return 1; }
+		if ( 0 == strcasecmp( "用戶", $text ) ) { return 2; }
+		if ( 0 == strcasecmp( "用戶對話", $text ) ) { return 3; }
+		if ( 0 == strcasecmp( "維基百科對話", $text ) ) { return 5; }
+		if ( 0 == strcasecmp( "圖像", $text ) ) { return 6; }
+		if ( 0 == strcasecmp( "圖像對話", $text ) ) { return 7; }
 		return false;
 	}
 
@@ -1042,32 +926,12 @@ class LanguageZh_tw extends LanguageZh_cn {
 		return $wgMathNamesZh_tw;
 	}
 
-	function getValidSpecialPages()
-	{
-		global $wgValidSpecialPagesZh_tw;
-		return $wgValidSpecialPagesZh_tw;
-	}
-
-	function getSysopSpecialPages()
-	{
-		global $wgSysopSpecialPagesZh_tw;
-		return $wgSysopSpecialPagesZh_tw;
-	}
-
-	function getDeveloperSpecialPages()
-	{
-		global $wgDeveloperSpecialPagesZh_tw;
-		return $wgDeveloperSpecialPagesZh_tw;
-
-	}
-
-	function getMessage( $key )
-	{
+	function getMessage( $key ) {
 		global $wgAllMessagesZh_tw;
 		if(array_key_exists($key, $wgAllMessagesZh_tw))
 			return $wgAllMessagesZh_tw[$key];
 		else
-			return Language::getMessage( $key );
+			return parent::getMessage( $key );
 	}
 
 }

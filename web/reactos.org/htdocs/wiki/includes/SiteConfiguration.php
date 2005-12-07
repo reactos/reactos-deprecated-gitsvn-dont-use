@@ -1,13 +1,6 @@
 <?php
 /**
- *This file is used to configure the live Wikimedia wikis. The file that
- * includes it contains passwords and other sensitive data, and there's
- * currently no public equivalent.
- *
- * @package MediaWiki
- */
-
-/**
+ * This is a class used to hold configuration settings, particularly for multi-wiki sites. 
  *
  * @package MediaWiki
  */
@@ -20,10 +13,15 @@
 if (!defined('SITE_CONFIGURATION')) {
 define('SITE_CONFIGURATION', 1);
 
+/** @package MediaWiki */
 class SiteConfiguration {
-	var $suffixes, $wikis, $settings;
-	var $localDatabases;
-	
+	var $suffixes = array();
+	var $wikis = array();
+	var $settings = array();
+	var $localDatabases = array();
+	var $localVHosts = array();
+
+	/** */	
 	function get( $setting, $wiki, $suffix, $params = array() ) {
 		if ( array_key_exists( $wiki, $this->settings[$setting] ) ) {
 			$retval = $this->settings[$setting][$wiki];
@@ -42,27 +40,32 @@ class SiteConfiguration {
 		return $retval;
 	}
 
+	/** */
 	function getBool( $setting, $wiki, $suffix ) {
 		return (bool)($this->get( $setting, $wiki, $suffix ));
 	}
 
+	/** */
 	function &getLocalDatabases() {
 		return $this->localDatabases;
 	}
-	
+
+	/** */
 	function initialise() {
 		foreach ( $this->wikis as $db ) {
 			$this->localDatabases[$db] = $db;
 		}
 	}
 
+	/** */
 	function extractVar( $setting, $wiki, $suffix, &$var, $params ) {
 		$value = $this->get( $setting, $wiki, $suffix, $params );
 		if ( !is_null( $value ) ) {
 			$var = $value;
 		}
 	}
-	
+
+	/** */
 	function extractGlobal( $setting, $wiki, $suffix, $params ) {
 		$value = $this->get( $setting, $wiki, $suffix, $params );
 		if ( !is_null( $value ) ) {
@@ -70,6 +73,7 @@ class SiteConfiguration {
 		}
 	}
 
+	/** */
 	function extractAllGlobals( $wiki, $suffix, $params ) {
 		foreach ( $this->settings as $varName => $setting ) {
 			$this->extractGlobal( $varName, $wiki, $suffix, $params );
@@ -90,7 +94,13 @@ class SiteConfiguration {
 				break;
 			}
 		}
+		$lang = str_replace( '_', '-', $lang );
 		return array( $site, $lang );
+	}
+
+	/** */
+	function isLocalVHost( $vhost ) {
+		return in_array( $vhost, $this->localVHosts );
 	}
 }
 }

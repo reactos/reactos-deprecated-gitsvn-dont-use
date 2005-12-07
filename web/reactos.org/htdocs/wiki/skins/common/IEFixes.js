@@ -52,9 +52,15 @@ function fixalpha() {
             }
             logospan.style.top = '50%';
             logospan.style.setExpression('marginTop', '"-" + (this.offsetHeight / 2) + "px"');
+ 
+            var linkFix = logoa.appendChild(logoa.cloneNode());
+            linkFix.style.position = 'absolute';
+            linkFix.style.height = '100%';
+            linkFix.style.width = '100%';
         }
     }
 }
+
 // fix ie6 disappering float bug
 function relativeforfloats() {
     var bc = document.getElementById('bodyContent');
@@ -76,4 +82,45 @@ function setrelative (nodes) {
         }
         i++;
     }
+}
+
+
+// Expand links for printing
+
+String.prototype.hasClass = function(classWanted)
+{
+    var classArr = this.split(/\s/);
+    for (var i=0; i<classArr.length; i++)
+      if (classArr[i].toLowerCase() == classWanted.toLowerCase()) return true;
+    return false;
+}
+
+var expandedURLs;
+
+onbeforeprint = function() { 
+    expandedURLs = [];
+
+    var contentEl = document.getElementById("content");
+
+    if (contentEl)
+    {
+      var allLinks = contentEl.getElementsByTagName("a");
+
+      for (var i=0; i < allLinks.length; i++) {
+          if (allLinks[i].className.hasClass("external") && !allLinks[i].className.hasClass("free")) {
+              var expandedLink = document.createElement("span");
+              var expandedText = document.createTextNode(" (" + allLinks[i].href + ")");
+              expandedLink.appendChild(expandedText);
+              allLinks[i].parentNode.insertBefore(expandedLink, allLinks[i].nextSibling);
+              expandedURLs[i] = expandedLink;
+          }
+      }
+   }
+}
+
+onafterprint = function()
+{
+    for (var i=0; i < expandedURLs.length; i++)
+        if (expandedURLs[i])
+            expandedURLs[i].removeNode(true);
 }

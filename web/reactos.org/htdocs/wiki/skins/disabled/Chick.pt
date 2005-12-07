@@ -5,11 +5,11 @@
     <div tal:replace="structure headlinks"></div>
     <title tal:content="pagetitle">Exciting xhtml slimfast</title>
     <style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "${stylepath}/${stylename}/main.css"; /*]]>*/</style>
-    <script tal:condition="jsvarurl" type="text/javascript" tal:attributes="src jsvarurl"></script>
-    <script type="text/javascript" src="${stylepath}/common/wikibits.js"></script>
+    <script tal:condition="jsvarurl" type="${jsmimetype}" tal:attributes="src jsvarurl"></script>
+    <script type="${jsmimetype}" src="${stylepath}/common/wikibits.js"></script>
     <style tal:condition="usercss" tal:content="structure usercss" type="text/css"></style>
-    <script tal:condition="userjs" type="text/javascript" tal:attributes="src userjs"></script><script 
-      tal:condition="userjsprev" tal:content="structure userjsprev" type="text/javascript"></script>
+    <script tal:condition="userjs" type="${jsmimetype}" tal:attributes="src userjs"></script><script 
+      tal:condition="userjsprev" tal:content="structure userjsprev" type="${jsmimetype}"></script>
   </head>
   <body>
     <a name="top"></a>
@@ -48,7 +48,7 @@
             class item/class|default" tal:content="item/text">Log in</a> </span>
     </div>
 
-    <div class="portlet" id="p-nav">
+    <div class="portlet" id="p-navigation">
       <strong><span i18n:translate="string:navigation">Navigation</span>:</strong>
       <a href="${nav_urls/mainpage/href}" i18n:translate="string:mainpage">Main Page</a>
       <a href="${nav_urls/portal/href}" i18n:translate="string:portal">Community Portal</a>

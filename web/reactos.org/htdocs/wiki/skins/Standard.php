@@ -1,6 +1,6 @@
 <?php
 /**
- * See skin.doc
+ * See skin.txt
  *
  * @todo document
  * @package MediaWiki
@@ -21,11 +21,11 @@ class SkinStandard extends Skin {
 	 *
 	 */
 	function getHeadScripts() {
-		global $wgStylePath;
+		global $wgStylePath, $wgJsMimeType;
 
 		$s = parent::getHeadScripts();
 		if ( 3 == $this->qbSetting() ) { # Floating left
-			$s .= "<script language='javascript' type='text/javascript' " .
+			$s .= "<script language='javascript' type='$wgJsMimeType' " .
 			  "src='{$wgStylePath}/common/sticky.js'></script>\n";
 		}
 		return $s;
@@ -40,6 +40,9 @@ class SkinStandard extends Skin {
 		if ( 3 == $this->qbSetting() ) { # Floating left
 			$s .= "<style type='text/css'>\n" .
 			  "@import '{$wgStylePath}/common/quickbar.css';\n</style>\n";
+		} else if ( 4 == $this->qbSetting() ) { # Floating right	
+			$s .= "<style type='text/css'>\n" .
+			  "@import '{$wgStylePath}/common/quickbar-right.css';\n</style>\n";
 		}
 		$s .= parent::getUserStyles();
 		return $s;
@@ -62,7 +65,10 @@ class SkinStandard extends Skin {
 			$s .= "#quickbar { position: absolute; top: 4px; left: 4px; " .
 			  "border-right: 1px solid gray; }\n" .
 			  "#article { margin-left: 152px; margin-right: 4px; }\n";
-		}
+		} else if ( 4 == $qb) {
+			$s .= "#quickbar { border-right: 1px solid gray; }\n" .
+			  "#article { margin-right: 152px; margin-left: 4px; }\n";
+		}	
 		return $s;
 	}
 
@@ -132,7 +138,7 @@ class SkinStandard extends Skin {
 
 	function quickBar() {
 		global $wgOut, $wgTitle, $wgUser, $wgRequest, $wgContLang;
-		global $wgDisableUploads, $wgRemoteUploads, $wgNavigationLinks;
+		global $wgEnableUploads, $wgRemoteUploads;
 
 		$fname =  'Skin::quickBar';
 		wfProfileIn( $fname );
@@ -145,18 +151,19 @@ class SkinStandard extends Skin {
 		$s .= "\n" . $this->logoText() . "\n<hr class='sep' />";
 
 		$sep = "\n<br />";
+		
+		# Use the first heading from the Monobook sidebar as the "browse" section
+		$bar = $this->buildSidebar();
+		$browseLinks = reset( $bar );
 
-		foreach ( $wgNavigationLinks as $link ) {
-			$msg = wfMsgForContent( $link['href'] );
-			$text = wfMsg( $link['text'] );
-			if ( $msg != '-' && $text != '-' ) {
-				$s .= '<a href="' . $this->makeInternalOrExternalUrl( $msg ) . '">' .
-					htmlspecialchars( $text ) . '</a>' . $sep;
+		foreach ( $browseLinks as $link ) {
+			if ( $link['text'] != '-' ) {
+				$s .= "<a href=\"{$link['href']}\">" .
+					htmlspecialchars( $link['text'] ) . '</a>' . $sep;
 			}
 		}
 
-
-		if ($wgUser->getID()) {
+		if( $wgUser->isLoggedIn() ) {
 			$s.= $this->specialLink( 'watchlist' ) ;
 			$s .= $sep . $this->makeKnownLink( $wgContLang->specialPage( 'Contributions' ),
 				wfMsg( 'mycontris' ), 'target=' . wfUrlencode($wgUser->getName() ) );
@@ -204,7 +211,7 @@ class SkinStandard extends Skin {
 					}
 
 					$s .= $this->makeLink( $link, $text );
-				} elseif( $wgTitle->getNamespace() != Namespace::getSpecial() ) {
+				} elseif( $wgTitle->getNamespace() != NS_SPECIAL ) {
 					# we just throw in a "New page" text to tell the user that he's in edit mode,
 					# and to avoid messing with the separator that is prepended to the next item
 					$s .= '<strong>' . wfMsg('newpage') . '</strong>';
@@ -223,7 +230,7 @@ class SkinStandard extends Skin {
 			article with "Watch this article" checkbox disabled, the article is transparently
 			unwatched. Therefore we do not show the "Watch this page" link in edit mode
 			*/
-			if ( 0 != $wgUser->getID() && $articleExists) {
+			if ( $wgUser->isLoggedIn() && $articleExists) {
 				if($action!='edit' && $action != 'submit' )
 				{
 					$s .= $sep . $this->watchThisPage();
@@ -245,9 +252,8 @@ class SkinStandard extends Skin {
 				$s .= $sep . $this->watchPageLinksLink();
 			}
 
-			if ( Namespace::getUser() == $wgTitle->getNamespace()
-			|| $wgTitle->getNamespace() == Namespace::getTalk(Namespace::getUser())
-			) {
+			if ( NS_USER == $wgTitle->getNamespace()
+				|| $wgTitle->getNamespace() == NS_USER_TALK ) {
 
 				$id=User::idFromName($wgTitle->getText());
 				$ip=User::isIP($wgTitle->getText());
@@ -262,7 +268,7 @@ class SkinStandard extends Skin {
 			$s .= "\n<br /><hr class='sep' />";
 		}
 
-		if ( 0 != $wgUser->getID() && ( !$wgDisableUploads || $wgRemoteUploads ) ) {
+		if ( $wgUser->isLoggedIn() && ( $wgEnableUploads || $wgRemoteUploads ) ) {
 			$s .= $this->specialLink( 'upload' ) . $sep;
 		}
 		$s .= $this->specialLink( 'specialpages' )

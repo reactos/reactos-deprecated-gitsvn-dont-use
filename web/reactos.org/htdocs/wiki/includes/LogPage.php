@@ -32,11 +32,16 @@
  * @package MediaWiki
  */
 class LogPage {
-	/* private */ var $type, $action, $comment, $params;
+	/* private */ var $type, $action, $comment, $params, $target;
 	var $updateRecentChanges = true;
 
+	/**
+	  * Constructor
+	  *
+	  * @param string $type One of '', 'block', 'protect', 'rights', 'delete',
+	  *               'upload', 'move'
+	  */
 	function LogPage( $type ) {
-		# Type is one of 'block', 'protect', 'rights', 'delete', 'upload'
 		$this->type = $type;
 	}
 
@@ -65,11 +70,15 @@ class LogPage {
 		
 		# And update recentchanges
 		if ( $this->updateRecentChanges ) {
+			$titleObj = Title::makeTitle( NS_SPECIAL, 'Log/' . $this->type );
 			$rcComment = $this->actionText;
 			if( '' != $this->comment ) {
-				$rcComment .= ': ' . $this->comment;
+				if ($rcComment == '')
+					$rcComment = $this->comment;
+				else
+					$rcComment .= ': ' . $this->comment;
 			}
-			$titleObj = Title::makeTitle( NS_SPECIAL, 'Log/' . $this->type );
+			
 			RecentChange::notifyLog( $now, $titleObj, $wgUser, $rcComment );
 		}
 		return true;
@@ -79,7 +88,8 @@ class LogPage {
 	 * @static
 	 */
 	function validTypes() {
-		static $types = array( '', 'block', 'protect', 'rights', 'delete', 'upload' );
+		static $types = array( '', 'block', 'protect', 'rights', 'delete', 'upload', 'move' );
+		wfRunHooks( 'LogPageValidTypes', array( &$types) );
 		return $types;
 	}
 	
@@ -93,7 +103,8 @@ class LogPage {
 			'protect' => array( 'protect', 'unprotect' ),
 			'rights' => array( 'rights' ),
 			'delete' => array( 'delete', 'restore' ),
-			'upload' => array( 'upload' )
+			'upload' => array( 'upload' ),
+			'move' => array( 'move' )
 		);
 		return $actions[$type];
 	}
@@ -116,7 +127,10 @@ class LogPage {
 			'rights'  => 'bureaucratlog',
 			'delete'  => 'dellogpage',
 			'upload'  => 'uploadlogpage',
+			'move'    => 'movelogpage'
 		);
+		wfRunHooks( 'LogPageLogName', array( &$typeText) );
+		
 		return str_replace( '_', ' ', wfMsg( $typeText[$type] ) );
 	}
 	
@@ -130,51 +144,77 @@ class LogPage {
 			'protect' => 'protectlogtext',
 			'rights'  => 'rightslogtext',
 			'delete'  => 'dellogpagetext',
-			'upload'  => 'uploadlogpagetext'
+			'upload'  => 'uploadlogpagetext',
+			'move'    => 'movelogpagetext'
 		);
+		wfRunHooks( 'LogPageLogHeader', array( &$headerText ) );
+		
 		return wfMsg( $headerText[$type] );
 	}
 	
 	/**
 	 * @static
 	 */
-	function actionText( $type, $action, $titleLink = NULL, $params = array() ) {
+	function actionText( $type, $action, $title = NULL, $skin = NULL, $params = array(), $filterWikilinks=false ) {
 		static $actions = array(
-			'block/block' => 'blocklogentry',
-			'block/unblock' => 'unblocklogentry',
-			'protect/protect' => 'protectedarticle',
+			'block/block'       => 'blocklogentry',
+			'block/unblock'     => 'unblocklogentry',
+			'protect/protect'   => 'protectedarticle',
 			'protect/unprotect' => 'unprotectedarticle',
-			'rights/rights' => 'bureaucratlogentry',
-			'delete/delete' => 'deletedarticle',
-			'delete/restore' => 'undeletedarticle',
-			'upload/upload' => 'uploadedimage',
-			'upload/revert' => 'uploadedimage',
+			'rights/rights'     => 'bureaucratlogentry',
+			'rights/addgroup'   => 'addgrouplogentry',
+			'rights/rngroup'    => 'renamegrouplogentry',
+			'rights/chgroup'    => 'changegrouplogentry',
+			'delete/delete'     => 'deletedarticle',
+			'delete/restore'    => 'undeletedarticle',
+			'upload/upload'     => 'uploadedimage',
+			'upload/revert'     => 'uploadedimage',
+			'move/move'         => '1movedto2',
+			'move/move_redir'   => '1movedto2_redir'
 		);
 		$key = "$type/$action";
 		if( isset( $actions[$key] ) ) {
-			if( is_null( $titleLink ) ) {
-				return wfMsgForContent( $actions[$key] );
-			} elseif ( count( $params ) == 0 ) {
-				return wfMsgForContent( $actions[$key], $titleLink );
+			if( is_null( $title ) ) {
+				$rv=wfMsgForContent( $actions[$key] );
 			} else {
-				array_unshift( $params, $titleLink );
-				return wfMsgReal( $actions[$key], $params, true, true );
+				if( $skin ) {
+					if ( $type == 'move' ) {
+						$titleLink = $skin->makeLinkObj( $title, $title->getPrefixedText(), 'redirect=no' );
+						// Change $param[0] into a link to the title specified in $param[0]
+						$movedTo = Title::newFromText( $params[0] );
+						$params[0] = $skin->makeLinkObj( $movedTo, $params[0] );
+					} else {
+						$titleLink = $skin->makeLinkObj( $title );
+					}
+				} else {
+					$titleLink = $title->getPrefixedText();
+				}
+				if( count( $params ) == 0 ) {
+					$rv = wfMsgForContent( $actions[$key], $titleLink );
+				} else {
+					array_unshift( $params, $titleLink );
+					$rv = wfMsgReal( $actions[$key], $params, true, true );
+				}
 			}
 		} else {
 			wfDebug( "LogPage::actionText - unknown action $key\n" );
-			return "$action $titleLink";
+			$rv = "$action";
 		}
+		if( $filterWikilinks ) {
+			$rv = str_replace( "[[", "", $rv );
+			$rv = str_replace( "]]", "", $rv );
+		}
+		return $rv;
 	}
 
 	/**
 	 * Add a log entry
-	 * @param string $action one of 'block', 'protect', 'rights', 'delete', 'upload'
-	 * @param &$target
+	 * @param string $action one of '', 'block', 'protect', 'rights', 'delete', 'upload', 'move', 'move_redir'
+	 * @param object &$target A title object.
 	 * @param string $comment Description associated
+	 * @param array $params Parameters passed later to wfMsg.* functions
 	 */
 	function addEntry( $action, &$target, $comment, $params = array() ) {
-		global $wgLang, $wgUser;
-		
 		if ( !is_array( $params ) ) {
 			$params = array( $params );
 		}
@@ -184,8 +224,8 @@ class LogPage {
 		$this->comment = $comment;
 		$this->params = LogPage::makeParamBlob( $params );
 		
-		$this->actionText = LogPage::actionText( $this->type, $action, 
-		  $target->getPrefixedText(), $params );
+		$this->actionText = LogPage::actionText( $this->type, $action, $target, NULL, $params );
+
 		return $this->saveContent();
 	}
 
@@ -193,8 +233,7 @@ class LogPage {
 	 * Create a blob from a parameter array
 	 * @static
 	 */
-	function makeParamBlob( $params )
-	{
+	function makeParamBlob( $params ) {
 		return implode( "\n", $params );
 	}
 
@@ -202,8 +241,7 @@ class LogPage {
 	 * Extract a parameter array from a blob
 	 * @static
 	 */
-	function extractParams( $blob )
-	{
+	function extractParams( $blob ) {
 		if ( $blob === '' ) {
 			return array();
 		} else {

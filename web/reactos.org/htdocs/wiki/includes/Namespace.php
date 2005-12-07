@@ -30,11 +30,11 @@ $wgCanonicalNamespaceNames = array(
 	NS_TEMPLATE_TALK    => 'Template_talk',
 	NS_HELP             => 'Help',
 	NS_HELP_TALK        => 'Help_talk',
-	NS_CATEGORY	        => 'Category',
-	NS_CATEGORY_TALK    => 'Category_talk'
+	NS_CATEGORY	    => 'Category',
+	NS_CATEGORY_TALK    => 'Category_talk',
 );
 
-if( defined( 'MEDIAWIKI' ) && is_array( $wgExtraNamespaces ) ) {
+if( is_array( $wgExtraNamespaces ) ) {
 	$wgCanonicalNamespaceNames = $wgCanonicalNamespaceNames + $wgExtraNamespaces;
 }
 
@@ -50,18 +50,6 @@ if( defined( 'MEDIAWIKI' ) && is_array( $wgExtraNamespaces ) ) {
  * @package MediaWiki
  */
 class Namespace {
-
-	/**#@+
-	 * These functions are deprecated
-	 * @deprecated
-	 */
-	function getSpecial() { return NS_SPECIAL; }
-	function getUser() { return NS_USER; }
-	function getWikipedia() { return NS_PROJECT; }
-	function getImage() { return NS_IMAGE; }
-	function getMedia() { return NS_MEDIA; }
-	function getCategory() { return NS_CATEGORY; }
-	/**#@-*/
 
 	/**
 	 * Check if the given namespace might be moved
@@ -112,7 +100,7 @@ class Namespace {
 	/**
 	 * Returns the canonical (English Wikipedia) name for a given index
 	 */
-	function &getCanonicalName( $index ) {
+	function getCanonicalName( $index ) {
 		global $wgCanonicalNamespaceNames;
 		return $wgCanonicalNamespaceNames[$index];
 	}
@@ -121,7 +109,7 @@ class Namespace {
 	 * Returns the index for a given canonical name, or NULL
 	 * The input *must* be converted to lower case first
 	 */
-	function &getCanonicalIndex( $name ) {
+	function getCanonicalIndex( $name ) {
 		global $wgCanonicalNamespaceNames;
 		static $xNamespaces = false;
 		if ( $xNamespaces === false ) {

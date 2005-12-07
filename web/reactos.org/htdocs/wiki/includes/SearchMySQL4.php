@@ -23,19 +23,21 @@
  * @subpackage Search
  */
 
-require_once( 'SearchEngine.php' );
+require_once( 'SearchMySQL.php' );
 
-class SearchMySQL4 extends SearchEngine {
+/**
+ * @package MediaWiki
+ * @subpackage Search
+ */
+class SearchMySQL4 extends SearchMySQL {
 	var $strictMatching = true;
 	
+	/** @todo document */
 	function SearchMySQL4( &$db ) {
 		$this->db =& $db;
 	}
-	
-	function getIndexField( $fulltext ) {
-		return $fulltext ? 'si_text' : 'si_title';
-	}
 
+	/** @todo document */
 	function parseQuery( $filteredText, $fulltext ) {
 		global $wgContLang;
 		$lc = SearchEngine::legalSearchChars();
@@ -62,22 +64,12 @@ class SearchMySQL4 extends SearchEngine {
 			wfDebug( "Would search with '$searchon'\n" );
 			wfDebug( "Match with /\b" . implode( '\b|\b', $this->searchTerms ) . "\b/\n" );
 		} else {
-			wfDebug( "Can't understand search query '{$this->filteredText}'\n" );
+			wfDebug( "Can't understand search query '{$filteredText}'\n" );
 		}
 		
 		$searchon = $this->db->strencode( $searchon );
 		$field = $this->getIndexField( $fulltext );
 		return " MATCH($field) AGAINST('$searchon' IN BOOLEAN MODE) ";
 	}
-
-	function queryMain( $filteredTerm, $fulltext ) {
-		$match = $this->parseQuery( $filteredTerm, $fulltext );
-		$cur = $this->db->tableName( 'cur' );
-		$searchindex = $this->db->tableName( 'searchindex' );
-		return 'SELECT cur_id, cur_namespace, cur_title, cur_text ' .
-			"FROM $cur,$searchindex " .
-			'WHERE cur_id=si_page AND ' . $match;
-	}
 }
-
 ?>

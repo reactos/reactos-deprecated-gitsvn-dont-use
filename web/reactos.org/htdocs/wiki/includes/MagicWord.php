@@ -2,6 +2,7 @@
 /**
  * File for magic words
  * @package MediaWiki
+ * @subpackage Parser
  */
 
 /**
@@ -9,63 +10,73 @@
  */
 $wgMagicFound = false;
 
-
-define('MAG_REDIRECT', 0);
-define('MAG_NOTOC', 1);
-define('MAG_START', 2);
-define('MAG_CURRENTMONTH', 3);
-define('MAG_CURRENTMONTHNAME', 4);
-define('MAG_CURRENTDAY', 5);
-define('MAG_CURRENTDAYNAME', 6);
-define('MAG_CURRENTYEAR', 7);
-define('MAG_CURRENTTIME', 8);
-define('MAG_NUMBEROFARTICLES', 9);
-define('MAG_CURRENTMONTHNAMEGEN', 10);
-define('MAG_MSG', 11);
-define('MAG_SUBST', 12);
-define('MAG_MSGNW', 13);
-define('MAG_NOEDITSECTION', 14);
-define('MAG_END', 15);
-define('MAG_IMG_THUMBNAIL',  16);
-define('MAG_IMG_RIGHT',      17);
-define('MAG_IMG_LEFT',       18);
-define('MAG_IMG_NONE',       19);
-define('MAG_IMG_WIDTH',      20);
-define('MAG_IMG_CENTER',      21);
-define('MAG_INT', 22);
-define('MAG_FORCETOC', 23);
-define('MAG_SITENAME', 24);
-define('MAG_NS', 25);
-define('MAG_LOCALURL', 26);
-define('MAG_LOCALURLE', 27);
-define('MAG_SERVER', 28);
-define('MAG_IMG_FRAMED', 29);
-define('MAG_PAGENAME', 30);
-define('MAG_PAGENAMEE', 31);
-define('MAG_NAMESPACE', 32);
-define('MAG_TOC', 33);
-define('MAG_GRAMMAR', 34);
-define('MAG_NOTITLECONVERT', 35);
-define('MAG_NOCONTENTCONVERT', 36);
-define('MAG_CURRENTWEEK', 37);
-define('MAG_CURRENTDOW', 38);
+/** Actual keyword to be used is set in Language.php */
+define('MAG_REDIRECT',			0);
+define('MAG_NOTOC',			1);
+define('MAG_START',			2);
+define('MAG_CURRENTMONTH',		3);
+define('MAG_CURRENTMONTHNAME',		4);
+define('MAG_CURRENTMONTHNAMEGEN',	5);
+define('MAG_CURRENTMONTHABBREV',	6);
+define('MAG_CURRENTDAY',		7);
+define('MAG_CURRENTDAYNAME',		8);
+define('MAG_CURRENTYEAR',		9);
+define('MAG_CURRENTTIME',		10);
+define('MAG_NUMBEROFARTICLES',		11);
+define('MAG_SUBST',			12);
+define('MAG_MSG',			13);
+define('MAG_MSGNW',			14);
+define('MAG_NOEDITSECTION',		15);
+define('MAG_END',			16);
+define('MAG_IMG_THUMBNAIL',		17);
+define('MAG_IMG_RIGHT',			18);
+define('MAG_IMG_LEFT',			19);
+define('MAG_IMG_NONE',			20);
+define('MAG_IMG_WIDTH',			21);
+define('MAG_IMG_CENTER',		22);
+define('MAG_INT',			23);
+define('MAG_FORCETOC',			24);
+define('MAG_SITENAME',			25);
+define('MAG_NS',			26);
+define('MAG_LOCALURL',			27);
+define('MAG_LOCALURLE',			28);
+define('MAG_SERVER',			29);
+define('MAG_IMG_FRAMED',		30);
+define('MAG_PAGENAME',			31);
+define('MAG_PAGENAMEE',			32);
+define('MAG_NAMESPACE',			33);
+define('MAG_TOC',			34);
+define('MAG_GRAMMAR',			35);
+define('MAG_NOTITLECONVERT',		36);
+define('MAG_NOCONTENTCONVERT',		37);
+define('MAG_CURRENTWEEK',		38);
+define('MAG_CURRENTDOW',		39);
+define('MAG_REVISIONID',		40);
+define('MAG_SCRIPTPATH',		41);
+define('MAG_SERVERNAME',		42);
+define('MAG_NUMBEROFFILES',		43);
 
 $wgVariableIDs = array(
 	MAG_CURRENTMONTH,
 	MAG_CURRENTMONTHNAME,
+	MAG_CURRENTMONTHNAMEGEN,
+	MAG_CURRENTMONTHABBREV,
 	MAG_CURRENTDAY,
 	MAG_CURRENTDAYNAME,
 	MAG_CURRENTYEAR,
 	MAG_CURRENTTIME,
 	MAG_NUMBEROFARTICLES,
-	MAG_CURRENTMONTHNAMEGEN,
+	MAG_NUMBEROFFILES,
 	MAG_SITENAME,
 	MAG_SERVER,
+	MAG_SERVERNAME,
+	MAG_SCRIPTPATH,
 	MAG_PAGENAME,
 	MAG_PAGENAMEE,
 	MAG_NAMESPACE,
 	MAG_CURRENTWEEK,
-	MAG_CURRENTDOW
+	MAG_CURRENTDOW,
+	MAG_REVISIONID,
 );
 
 /**
@@ -132,15 +143,18 @@ class MagicWord {
 	 * @private
 	 */
 	function initRegex() {
-		$variableClass = Title::legalChars();
+		#$variableClass = Title::legalChars();
+		# This was used for matching "$1" variables, but different uses of the feature will have
+		# different restrictions, which should be checked *after* the MagicWord has been matched,
+		# not here. - IMSoP
 		$escSyn = array_map( 'preg_quote', $this->mSynonyms );
 		$this->mBaseRegex = implode( '|', $escSyn );
 		$case = $this->mCaseSensitive ? '' : 'i';
 		$this->mRegex = "/{$this->mBaseRegex}/{$case}";
-		$this->mRegexStart = "/^({$this->mBaseRegex})/{$case}";
-		$this->mVariableRegex = str_replace( "\\$1", "([$variableClass]*?)", $this->mRegex );
-		$this->mVariableStartToEndRegex = str_replace( "\\$1", "([$variableClass]*?)", 
-			"/^({$this->mBaseRegex})$/{$case}" );
+		$this->mRegexStart = "/^(?:{$this->mBaseRegex})/{$case}";
+		$this->mVariableRegex = str_replace( "\\$1", "(.*?)", $this->mRegex );
+		$this->mVariableStartToEndRegex = str_replace( "\\$1", "(.*?)", 
+			"/^(?:{$this->mBaseRegex})$/{$case}" );
 	}
 	
 	/**
@@ -199,10 +213,13 @@ class MagicWord {
 		$matchcount = preg_match( $this->getVariableStartToEndRegex(), $text, $matches );
 		if ( $matchcount == 0 ) {
 			return NULL;
-		} elseif ( count($matches) == 2 ) {
+		} elseif ( count($matches) == 1 ) {
 			return $matches[0];
 		} else {
-			return $matches[2];
+			# multiple matched parts (variable match); some will be empty because of synonyms
+			# the variable will be the second non-empty one so remove any blank elements and re-sort the indices
+			$matches = array_values(array_filter($matches));
+			return $matches[1];
 		}
 	}
 

@@ -59,9 +59,9 @@ class LogReader {
 	 * @private
 	 */
 	function setupQuery( $request ) {
-		$cur = $this->db->tableName( 'cur' );
+		$page = $this->db->tableName( 'page' );
 		$user = $this->db->tableName( 'user' );
-		$this->joinClauses = array( "LEFT OUTER JOIN $cur ON log_namespace=cur_namespace AND log_title=cur_title" );
+		$this->joinClauses = array( "LEFT OUTER JOIN $page ON log_namespace=page_namespace AND log_title=page_title" );
 		$this->whereClauses = array( 'user_id=log_user' );
 		
 		$this->limitType( $request->getVal( 'type' ) );
@@ -145,7 +145,7 @@ class LogReader {
 		$user = $this->db->tableName( 'user' );
 		$sql = "SELECT log_type, log_action, log_timestamp,
 			log_user, user_name,
-			log_namespace, log_title, cur_id,
+			log_namespace, log_title, page_id,
 			log_comment, log_params FROM $user, $logging ";
 		if( !empty( $this->joinClauses ) ) {
 			$sql .= implode( ',', $this->joinClauses );
@@ -202,6 +202,7 @@ class LogViewer {
 	 * @var LogReader $reader
 	 */
 	var $reader;
+	var $numResults = 0;
 	
 	/**
 	 * @param LogReader &$reader where to get our data from
@@ -219,10 +220,46 @@ class LogViewer {
 		global $wgOut;
 		$this->showHeader( $wgOut );
 		$this->showOptions( $wgOut );
+		$result = $this->getLogRows();
 		$this->showPrevNext( $wgOut );
-		$this->showList( $wgOut );
+		$this->doShowList( $wgOut, $result );
 		$this->showPrevNext( $wgOut );
 	}
+
+	/**
+	 * Load the data from the linked LogReader
+	 * Preload the link cache
+	 * Initialise numResults
+	 * 
+	 * Must be called before calling showPrevNext
+	 *
+	 * @return object database result set
+	 */
+	function getLogRows() {
+		global $wgLinkCache;
+		$result = $this->reader->getRows();
+		$this->numResults = 0;
+
+		// Fetch results and form a batch link existence query
+		$batch = new LinkBatch;
+		while ( $s = $result->fetchObject() ) {
+			// User link
+			$title = Title::makeTitleSafe( NS_USER, $s->user_name );
+			$batch->addObj( $title );
+
+			// Move destination link
+			if ( $s->log_type == 'move' ) {
+				$paramArray = LogPage::extractParams( $s->log_params );
+				$title = Title::newFromText( $paramArray[0] );
+				$batch->addObj( $title );
+			}
+			$this->numResults++;
+		}
+		$batch->execute( $wgLinkCache );
+
+		return $result;
+	}
+
 	
 	/**
 	 * Output just the list of entries given by the linked LogReader,
@@ -231,13 +268,21 @@ class LogViewer {
 	 * @param OutputPage $out where to send output
 	 */
 	function showList( &$out ) {
-		$html = "\n<ul>\n";
-		$result = $this->reader->getRows();
-		while( $s = $result->fetchObject() ) {
-			$html .= $this->logLine( $s );
+		$this->doShowList( $out, $this->getLogRows() );
+	}
+	
+	function doShowList( &$out, $result ) {
+		// Rewind result pointer and go through it again, making the HTML
+		$html='';
+		if ($this->numResults > 0) {
+			$html = "\n<ul>\n";
+			$result->seek( 0 );
+			while( $s = $result->fetchObject() ) {
+				$html .= $this->logLine( $s );
+			}
+			$html .= "\n</ul>\n";
 		}
 		$result->free();
-		$html .= "\n</ul>\n";
 		$out->addHTML( $html );
 	}
 	
@@ -247,25 +292,37 @@ class LogViewer {
 	 * @private
 	 */
 	function logLine( $s ) {
-		global $wgLang;
+		global $wgLang, $wgLinkCache;
 		$title = Title::makeTitle( $s->log_namespace, $s->log_title );
 		$user = Title::makeTitleSafe( NS_USER, $s->user_name );
 		$time = $wgLang->timeanddate( $s->log_timestamp, true );
-		if( $s->cur_id ) {
-			$titleLink = $this->skin->makeKnownLinkObj( $title );
+
+		// Enter the existence or non-existence of this page into the link cache,
+		// for faster makeLinkObj() in LogPage::actionText()
+		if( $s->page_id ) {
+			$wgLinkCache->addGoodLinkObj( $s->page_id, $title );
 		} else {
-			$titleLink = $this->skin->makeBrokenLinkObj( $title );
+			$wgLinkCache->addBadLinkObj( $title );
 		}
-		$userLink = $this->skin->makeLinkObj( $user, htmlspecialchars( $s->user_name ) );
-		if( '' === $s->log_comment ) {
-			$comment = '';
-		} else {
-			$comment = '(<em>' . $this->skin->formatComment( $s->log_comment ) . '</em>)';
-		}
-		$paramArray = LogPage::extractParams( $s->log_params );
 		
-		$action = LogPage::actionText( $s->log_type, $s->log_action, $titleLink, $paramArray );
-		$out = "<li>$time $userLink $action $comment</li>\n";
+		$userLink = $this->skin->makeLinkObj( $user, htmlspecialchars( $s->user_name ) );
+		$comment = $this->skin->commentBlock( $s->log_comment );
+		$paramArray = LogPage::extractParams( $s->log_params );
+		$revert = '';
+		if ( $s->log_type == 'move' && isset( $paramArray[0] ) ) {
+			$specialTitle = Title::makeTitle( NS_SPECIAL, 'Movepage' );
+			$destTitle = Title::newFromText( $paramArray[0] );
+			if ( $destTitle ) {
+				$revert = '(' . $this->skin->makeKnownLinkObj( $specialTitle, wfMsg( 'revertmove' ),
+					'wpOldTitle=' . urlencode( $destTitle->getPrefixedDBkey() ) . 
+					'&wpNewTitle=' . urlencode( $title->getPrefixedDBkey() ) .
+					'&wpReason=' . urlencode( wfMsgForContent( 'revertmove' ) ) .
+					'&wpMovetalk=0' ) . ')';
+			}
+		}
+
+		$action = LogPage::actionText( $s->log_type, $s->log_action, $title, $this->skin, $paramArray, true );
+		$out = "<li>$time $userLink $action $comment $revert</li>\n";
 		return $out;
 	}
 	
@@ -295,7 +352,7 @@ class LogViewer {
 			$this->getTypeMenu() .
 			$this->getUserInput() .
 			$this->getTitleInput() .
-			"<input type='submit' value=\"" . wfMsg( 'querybtn' ) . "\" />" .
+			"<input type='submit' value=\"" . wfMsg( 'allpagessubmit' ) . "\" />" .
 			"</form>" );
 	}
 	
@@ -350,7 +407,7 @@ class LogViewer {
 		$html = wfViewPrevNext( $offset, $limit,
 			$wgContLang->specialpage( 'Log' ),
 			$bits,
-			false);
+			$this->numResults < $limit);
 		$out->addHTML( '<p>' . $html . '</p>' );
 	}
 }

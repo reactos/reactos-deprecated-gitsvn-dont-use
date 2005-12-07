@@ -18,8 +18,8 @@ function wfSpecialEmailuser( $par ) {
 		return;
 	}
 	
-	if ( 0 == $wgUser->getID() ||
-		( false === strpos( $wgUser->getEmail(), "@" ) ) ) {
+	if( !$wgUser->canSendEmail() ) {
+		wfDebug( "User can't send.\n" );
 		$wgOut->errorpage( "mailnologin", "mailnologintext" );
 		return;
 	}
@@ -27,29 +27,26 @@ function wfSpecialEmailuser( $par ) {
 	$action = $wgRequest->getVal( 'action' );
 	$target = isset($par) ? $par : $wgRequest->getVal( 'target' );
 	if ( "" == $target ) {
+		wfDebug( "Target is empty.\n" );
 		$wgOut->errorpage( "notargettitle", "notargettext" );
 		return;
 	}
+	
 	$nt = Title::newFromURL( $target );
 	if ( is_null( $nt ) ) {
+		wfDebug( "Target is invalid title.\n" );
 		$wgOut->errorpage( "notargettitle", "notargettext" );
 		return;
 	}
+	
 	$nu = User::newFromName( $nt->getText() );
-
-	if ( 0 == $nu->getID() ) {
+	if( is_null( $nu ) || !$nu->canReceiveEmail() ) {
+		wfDebug( "Target is invalid user or can't receive.\n" );
 		$wgOut->errorpage( "noemailtitle", "noemailtext" );
 		return;
 	}
 
 	$address = $nu->getEmail();
-
-	if ( ( false === strpos( $address, "@" ) ) ||
-	  ( 1 == $nu->getOption( "disablemail" ) ) ) {
-		$wgOut->errorpage( "noemailtitle", "noemailtext" );
-		return;
-	}
-
 	$f = new EmailUserForm( $nu->getName() . " <{$address}>", $target );
 
 	if ( "success" == $action ) {
@@ -142,13 +139,13 @@ class EmailUserForm {
 			
 			$mailResult = userMailer( $this->mAddress, $from, $subject, $this->text );
 			
-			if (!$mailResult) {
+			if( WikiError::isError( $mailResult ) ) {
+				$wgOut->addHTML( wfMsg( "usermailererror" ) . $mailResult);
+			} else {
 				$titleObj = Title::makeTitle( NS_SPECIAL, "Emailuser" );
 				$encTarget = wfUrlencode( $this->target );
 				$wgOut->redirect( $titleObj->getFullURL( "target={$encTarget}&action=success" ) );
 				wfRunHooks('EmailUserComplete', array($this->mAddress, $from, $subject, $this->text));
-			} else {
-			  $wgOut->addHTML( wfMsg( "usermailererror" ) . $mailResult);
 			}
 		}
 	}

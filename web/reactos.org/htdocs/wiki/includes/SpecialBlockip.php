@@ -42,35 +42,57 @@ class IPBlockForm {
 		global $wgRequest;
 		$this->BlockAddress = $wgRequest->getVal( 'wpBlockAddress', $wgRequest->getVal( 'ip' ) );
 		$this->BlockReason = $wgRequest->getText( 'wpBlockReason' );
-		$this->BlockExpiry = $wgRequest->getVal( 'wpBlockExpiry' );
+		$this->BlockExpiry = $wgRequest->getVal( 'wpBlockExpiry', wfMsg('ipbotheroption') );
+		$this->BlockOther = $wgRequest->getVal( 'wpBlockOther', '' );
 	}
 	
 	function showForm( $err ) {
-		global $wgOut, $wgUser, $wgLang, $wgDefaultBlockExpiry;
-		global $wgRequest;
+		global $wgOut, $wgUser, $wgLang;
+		global $wgRequest, $wgSysopUserBans;
 
 		$wgOut->setPagetitle( htmlspecialchars( wfMsg( 'blockip' ) ) );
 		$wgOut->addWikiText( wfMsg( 'blockiptext' ) );
 
-		if ( is_null( $this->BlockExpiry ) || $this->BlockExpiry === '' ) {
-			$this->BlockExpiry = $wgDefaultBlockExpiry;
+		if($wgSysopUserBans) {
+			$mIpaddress = htmlspecialchars( wfMsg( 'ipadressorusername' ) );
+		} else {
+			$mIpaddress = htmlspecialchars( wfMsg( 'ipaddress' ) );
 		}
-
-		$mIpaddress = htmlspecialchars( wfMsg( 'ipaddress' ) );
 		$mIpbexpiry = htmlspecialchars( wfMsg( 'ipbexpiry' ) );
+		$mIpbother = htmlspecialchars( wfMsg( 'ipbother' ) );
+		$mIpbothertime = htmlspecialchars( wfMsg( 'ipbotheroption' ) );
 		$mIpbreason = htmlspecialchars( wfMsg( 'ipbreason' ) );
 		$mIpbsubmit = htmlspecialchars( wfMsg( 'ipbsubmit' ) );
 		$titleObj = Title::makeTitle( NS_SPECIAL, 'Blockip' );
 		$action = $titleObj->escapeLocalURL( "action=submit" );
 
 		if ( "" != $err ) {
-			$wgOut->setSubtitle( htmlspecialchars( wfMsg( 'formerror' ) ) );
+			$wgOut->setSubtitle( wfMsgHtml( 'formerror' ) );
 			$wgOut->addHTML( "<p class='error'>{$err}</p>\n" );
 		}
 
 		$scBlockAddress = htmlspecialchars( $this->BlockAddress );
 		$scBlockExpiry = htmlspecialchars( $this->BlockExpiry );
 		$scBlockReason = htmlspecialchars( $this->BlockReason );
+		$scBlockOtherTime = htmlspecialchars( $this->BlockOther );
+		$scBlockExpiryOptions = htmlspecialchars( wfMsgForContent( 'ipboptions' ) );
+
+		$showblockoptions = $scBlockExpiryOptions != '-';
+		if (!$showblockoptions)
+			$mIpbother = $mIpbexpiry;
+
+		$blockExpiryFormOptions = "<option value=\"other\">$mIpbothertime</option>";
+		foreach (explode(',', $scBlockExpiryOptions) as $option) {
+			if ( strpos($option, ":") === false ) $option = "$option:$option";
+			list($show, $value) = explode(":", $option);
+			$show = htmlspecialchars($show);
+			$value = htmlspecialchars($value);
+			$selected = "";
+			if ($this->BlockExpiry === $value)
+				$selected = ' selected="selected"';
+			$blockExpiryFormOptions .= "<option value=\"$value\"$selected>$show</option>";
+		}
+
 		$token = htmlspecialchars( $wgUser->editToken() );
 		
 		$wgOut->addHTML( "
@@ -82,10 +104,23 @@ class IPBlockForm {
 				<input tabindex='1' type='text' size='20' name=\"wpBlockAddress\" value=\"{$scBlockAddress}\" />
 			</td>
 		</tr>
-		<tr>
+		<tr>");
+		if ($showblockoptions) {
+			$wgOut->addHTML("
 			<td align=\"right\">{$mIpbexpiry}:</td>
 			<td align=\"left\">
-				<input tabindex='2' type='text' size='20' name=\"wpBlockExpiry\" value=\"{$scBlockExpiry}\" />
+				<select tabindex='2' id='wpBlockExpiry' name=\"wpBlockExpiry\" onchange=\"considerChangingExpiryFocus()\">
+					$blockExpiryFormOptions
+				</select>
+			</td>
+			");
+		}
+		$wgOut->addHTML("
+		</tr>
+		<tr id='wpBlockOther'>
+			<td align=\"right\">{$mIpbother}:</td>
+			<td align=\"left\">
+				<input tabindex='3' type='text' size='40' name=\"wpBlockOther\" value=\"{$scBlockOtherTime}\" />
 			</td>
 		</tr>
 		<tr>
@@ -143,11 +178,20 @@ class IPBlockForm {
 			}
 		}
 
-		if ( $this->BlockExpiry == 'infinite' || $this->BlockExpiry == 'indefinite' ) {
+		$expirestr = $this->BlockExpiry;
+		if( $expirestr == 'other' )
+			$expirestr = $this->BlockOther;
+
+		if (strlen($expirestr) == 0) {
+			$this->showForm( wfMsg( 'ipb_expiry_invalid' ) );
+			return;
+		}
+
+		if ( $expirestr == 'infinite' || $expirestr == 'indefinite' ) {
 			$expiry = '';
 		} else {
 			# Convert GNU-style date, returns -1 on error
-			$expiry = strtotime( $this->BlockExpiry );
+			$expiry = strtotime( $expirestr );
 
 			if ( $expiry < 0 ) {
 				$this->showForm( wfMsg( 'ipb_expiry_invalid' ) );
@@ -156,11 +200,6 @@ class IPBlockForm {
 			
 			$expiry = wfTimestamp( TS_MW, $expiry );
 
-		}
-		
-		if ( $this->BlockReason == '') {
-			$this->showForm( wfMsg( 'noblockreason' ) );
-			return;
 		}
 		
 		# Create block
@@ -178,7 +217,7 @@ class IPBlockForm {
 			# Make log entry
 			$log = new LogPage( 'block' );
 			$log->addEntry( 'block', Title::makeTitle( NS_USER, $this->BlockAddress ), 
-			  $this->BlockReason, $this->BlockExpiry );
+			  $this->BlockReason, $expirestr );
 
 			# Report to the user
 			$titleObj = Title::makeTitle( NS_SPECIAL, 'Blockip' );

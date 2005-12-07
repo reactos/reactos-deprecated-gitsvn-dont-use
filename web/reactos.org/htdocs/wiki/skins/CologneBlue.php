@@ -1,6 +1,6 @@
 <?php
 /**
- * See skin.doc
+ * See skin.txt
  *
  * @todo document
  * @package MediaWiki
@@ -25,7 +25,7 @@ class SkinCologneBlue extends Skin {
 	}
 
 	function doBeforeContent() {
-		global $wgUser, $wgOut, $wgTitle;
+		global $wgOut, $wgTitle;
 
 		$s = "";
 		$qb = $this->qbSetting();
@@ -68,7 +68,7 @@ class SkinCologneBlue extends Skin {
 
 	function doAfterContent()
 	{
-		global $wgUser, $wgOut;
+		global $wgOut;
 
 		$s = "\n</div><br clear='all' />\n";
 
@@ -97,9 +97,9 @@ class SkinCologneBlue extends Skin {
 		if ( 0 != $qb ) { $s .= $this->quickBar(); }
 		return $s;
 	}
-	function doGetUserStyles()
-	{
-		global $wgUser, $wgOut, $wgStyleSheetPath;
+	
+	function doGetUserStyles() {
+		global $wgOut, $wgStyleSheetPath;
 		$s = parent::doGetUserStyles();
 		$qb = $this->qbSetting();
 
@@ -109,16 +109,21 @@ class SkinCologneBlue extends Skin {
 		} else if ( 1 == $qb ) {
 			$s .= "#quickbar { position: absolute; left: 4px; }\n" .
 			  "#article { margin-left: 148px; margin-right: 4px; }\n";
-		} else if ( 3 == $qb ) { # Floating
+		} else if ( 3 == $qb ) { # Floating left
 			$s .= "#quickbar { position:absolute; left:4px } \n" .
 			  "#topbar { margin-left: 148px }\n" .
 			  "#article { margin-left:148px; margin-right: 4px; } \n" .
 			  "body>#quickbar { position:fixed; left:4px; top:4px; overflow:auto ;bottom:4px;} \n"; # Hides from IE
+		} else if ( 4 == $qb ) { # Floating right
+			$s .= "#quickbar { position: fixed; right: 4px; } \n" .
+			  "#topbar { margin-right: 148px }\n" .
+			  "#article { margin-right: 148px; margin-left: 4px; } \n" .
+			  "body>#quickbar { position: fixed; right: 4px; top: 4px; overflow: auto ;bottom:4px;} \n"; # Hides from IE
 		}
 		return $s;
 	}
-	function sysLinks()
-	{
+	
+	function sysLinks() {
 		global $wgUser, $wgContLang, $wgTitle;
 		$li = $wgContLang->specialPage("Userlogin");
 		$lo = $wgContLang->specialPage("Userlogout");
@@ -141,12 +146,9 @@ class SkinCologneBlue extends Skin {
 		  . " | " .
 		  $this->specialLink( "specialpages" ) . " | ";
 
-		if ( $wgUser->getID() )
-		{
+		if ( $wgUser->isLoggedIn() ) {
 			$s .=  $this->makeKnownLink( $lo, wfMsg( "logout" ), $q );
-		}
-		else
-		{
+		} else {
 			$s .=  $this->makeKnownLink( $li, wfMsg( "login" ), $q );
 		}
 
@@ -174,7 +176,7 @@ class SkinCologneBlue extends Skin {
 	 */
 	function quickBar()
 	{
-		global $wgOut, $wgTitle, $wgUser, $wgLang, $wgContLang, $wgDisableUploads, $wgNavigationLinks;
+		global $wgOut, $wgTitle, $wgUser, $wgLang, $wgContLang, $wgEnableUploads;
 
 		$tns=$wgTitle->getNamespace();
 
@@ -186,22 +188,24 @@ class SkinCologneBlue extends Skin {
 
 		$s .= $this->menuHead( "qbbrowse" );
 
-		foreach ( $wgNavigationLinks as $link ) {
-			$msg = wfMsgForContent( $link['href'] );
-			$text = wfMsg( $link['text'] );
-			if ( $msg != '-' && $text != '-' ) {
-				$s .= '<a href="' . $this->makeInternalOrExternalUrl( $msg ) . '">' .
-					htmlspecialchars( $text ) . '</a>' . $sep;
+		# Use the first heading from the Monobook sidebar as the "browse" section
+		$bar = $this->buildSidebar();
+		$browseLinks = reset( $bar );
+
+		foreach ( $browseLinks as $link ) {
+			if ( $link['text'] != '-' ) {
+				$s .= "<a href=\"{$link['href']}\">" .
+					htmlspecialchars( $link['text'] ) . '</a>' . $sep;
 			}
 		}
-
+		
 		if ( $wgOut->isArticle() ) {
 			$s .= $this->menuHead( "qbedit" );
 			$s .= "<strong>" . $this->editThisPage() . "</strong>";
 
 			$s .= $sep . $this->makeKnownLink( wfMsgForContent( "edithelppage" ), wfMsg( "edithelp" ) );
 
-			if ( 0 != $wgUser->getID() ) {
+			if( $wgUser->isLoggedIn() ) {
 				$s .= $sep . $this->moveThisPage();
 			}
 			if ( $wgUser->isAllowed('delete') ) {
@@ -222,7 +226,7 @@ class SkinCologneBlue extends Skin {
 			$s .= $this->talkLink()
 			  . $sep . $this->commentLink() 
 			  . $sep . $this->printableLink();
-			if ( 0 != $wgUser->getID() ) {
+			if ( $wgUser->isLoggedIn() ) {
 				$s .= $sep . $this->watchThisPage();
 			}
 
@@ -233,7 +237,7 @@ class SkinCologneBlue extends Skin {
 			  . $sep . $this->whatLinksHere()
 			  . $sep . $this->watchPageLinksLink();
 			  
-			if ( Namespace::getUser() == $tns || Namespace::getTalk(Namespace::getUser()) == $tns ) {
+			if( $tns == NS_USER || $tns == NS_USER_TALK ) {
 				$id=User::idFromName($wgTitle->getText());
 				if ($id != 0) {
 					$s .= $sep . $this->userContribsLink();
@@ -246,18 +250,19 @@ class SkinCologneBlue extends Skin {
 		}
 
 		$s .= $this->menuHead( "qbmyoptions" );
-		if ( 0 != $wgUser->getID() ) {
+		if ( $wgUser->isLoggedIn() ) {
 			$name = $wgUser->getName();
-			$tl = $this->makeKnownLink( $wgContLang->getNsText(
-			  Namespace::getTalk( Namespace::getUser() ) ) . ":{$name}",
-			  wfMsg( "mytalk" ) );
-			if ( 0 != $wgUser->getNewtalk() ) { $tl .= " *"; }
+			$tl = $this->makeKnownLinkObj( $wgUser->getTalkPage(),
+				wfMsg( 'mytalk' ) );
+			if ( $wgUser->getNewtalk() ) {
+				$tl .= " *";
+			}
 
-			$s .= $this->makeKnownLink( $wgContLang->getNsText(
-			  Namespace::getUser() ) . ":{$name}", wfMsg( "mypage" ) )
+			$s .= $this->makeKnownLinkObj( $wgUser->getUserPage(),
+				wfMsg( "mypage" ) )
 			  . $sep . $tl
 			  . $sep . $this->specialLink( "watchlist" )
-			  . $sep . $this->makeKnownLink( $wgContLang->specialPage( "Contributions" ),
+			  . $sep . $this->makeKnownLinkObj( Title::makeTitle( NS_SPECIAL, "Contributions" ),
 			  	wfMsg( "mycontris" ), "target=" . wfUrlencode($wgUser->getName() ) )		
 		  	  . $sep . $this->specialLink( "preferences" )
 		  	  . $sep . $this->specialLink( "userlogout" );
@@ -270,7 +275,7 @@ class SkinCologneBlue extends Skin {
 		  . $sep . $this->specialLink( "imagelist" ) 
 		  . $sep . $this->specialLink( "statistics" ) 
 		  . $sep . $this->bugReportsLink();
-		if ( 0 != $wgUser->getID() && !$wgDisableUploads ) {
+		if ( $wgUser->isLoggedIn() && $wgEnableUploads ) {
 			$s .= $sep . $this->specialLink( "upload" );
 		}
 		global $wgSiteSupportPage;
@@ -279,7 +284,9 @@ class SkinCologneBlue extends Skin {
 			      .wfMsg( "sitesupport" )."</a>";
 		}
 		
-		$s .= $sep . $this->makeKnownLink( $wgContLang->specialPage( "Specialpages" ), wfMsg("moredotdotdot") );
+		$s .= $sep . $this->makeKnownLinkObj(
+			Title::makeTitle( NS_SPECIAL, 'Specialpages' ),
+			wfMsg( 'moredotdotdot' ) );
 
 		$s .= $sep . "\n</div>\n";
 		return $s;

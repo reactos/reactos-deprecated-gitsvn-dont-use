@@ -25,6 +25,7 @@ if ( !isset( $optionsWithArgs ) ) {
 }
 
 $self = array_shift( $argv );
+$self = __FILE__;
 $IP = realpath( dirname( $self ) . "/.." );
 chdir( $IP );
 
@@ -91,7 +92,7 @@ if ( file_exists( '/home/wikipedia/common/langlist' ) ) {
 	if ( empty( $wgNoDBParam ) ) {
 		# Check if we were passed a db name
 		$db = array_shift( $args );
-		list( $site, $lang ) = $conf->siteFromDB( $db );
+		list( $site, $lang ) = $wgConf->siteFromDB( $db );
 
 		# If not, work out the language and site the old way
 		if ( is_null( $site ) || is_null( $lang ) ) {
@@ -117,18 +118,18 @@ if ( file_exists( '/home/wikipedia/common/langlist' ) ) {
 		$wgUseNormalUser = true;
 	}
 
-	if ( !$wgUseNormalUser ) {
-		$wgDBuser = $wgDBadminuser = "wikiadmin";
-		$wgDBpassword = $wgDBadminpassword = trim(`wikiadmin_pass`);
-	}
-
 	putenv( "wikilang=$lang");
 
 	$DP = $IP;
 	ini_set( "include_path", ".:$IP:$IP/includes:$IP/languages:$IP/maintenance" );
 
 	require_once( "$IP/includes/Defines.php" );
-	require_once( "/home/wikipedia/common/php-1.4/CommonSettings.php" );
+	require_once( "$IP/CommonSettings.php" );
+
+	if ( !$wgUseNormalUser ) {
+		$wgDBuser = $wgDBadminuser = "wikiadmin";
+		$wgDBpassword = $wgDBadminpassword = trim(`wikiadmin_pass`);
+	}
 } else {
 	$wgWikiFarm = false;
 	$settingsFile = "$IP/LocalSettings.php";
@@ -154,7 +155,7 @@ if ( file_exists( '/home/wikipedia/common/langlist' ) ) {
 # Same with these
 $wgCommandLineMode = true;
 
-if ( !$wgUseNormalUser && isset( $wgDBadminuser ) ) {
+if ( empty( $wgUseNormalUser ) && isset( $wgDBadminuser ) && $wgDBservers ) {
 	$wgDBuser = $wgDBadminuser;
 	$wgDBpassword = $wgDBadminpassword;
 
@@ -170,7 +171,6 @@ require_once( "Setup.php" );
 require_once( "install-utils.inc" );
 $wgTitle = Title::newFromText( "Command line script" );
 set_time_limit(0);
-
 
 // --------------------------------------------------------------------
 // Functions

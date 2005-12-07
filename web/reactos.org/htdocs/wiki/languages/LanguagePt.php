@@ -1,4 +1,8 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 
 # NOTE: To turn off "Current Events" in the sidebar,
 # set "currentevents" => "-"
@@ -7,130 +11,47 @@
 # are magical, so don't change or move them!  The Namespace class
 # encapsulates some of the magic-ness.
 #
-# This translation was made by Yves Marques Junqueira 
+# This translation was made by Yves Marques Junqueira
 # and Rodrigo Calanca Nishino from Portuguese Wikipedia
 #
 /* private */ $wgNamespaceNamesPt = array(
-    NS_MEDIA		=> "Media",
-    NS_SPECIAL		=> "Especial",
-    NS_MAIN 		=> "",
-    NS_TALK  		=> "Discussão",
-    NS_USER   		=> "Usuário",
-    NS_USER_TALK   	=> "Usuário_Discussão",
-    NS_PROJECT      => $wgMetaNamespace,
-    NS_PROJECT_TALK   => "{$wgMetaNamespace}_Discussão",
-    NS_IMAGE   		=> "Imagem",
-    NS_IMAGE_TALK   	=> "Imagem_Discussão",
-    NS_MEDIAWIKI   	=> "MediaWiki",
-    NS_MEDIAWIKI_TALK   => "MediaWiki_Discussão",
-    NS_TEMPLATE  	=> "Predefinição",
-    NS_TEMPLATE_TALK  	=> "Predefinição_Discussão",
-    NS_HELP		=> "Ajuda",
-    NS_HELP_TALK	=> "Ajuda_Discussão",
-    NS_CATEGORY		=> "Categoria",
-    NS_CATEGORY_TALK	=> "Categoria_Discussão"
+	NS_MEDIA		=> "Media",
+	NS_SPECIAL		=> "Especial",
+	NS_MAIN 		=> "",
+	NS_TALK  		=> "Discussão",
+	NS_USER   		=> "Usuário",
+	NS_USER_TALK   	=> "Usuário_Discussão",
+	NS_PROJECT      => $wgMetaNamespace,
+	NS_PROJECT_TALK   => "{$wgMetaNamespace}_Discussão",
+	NS_IMAGE   		=> "Imagem",
+	NS_IMAGE_TALK   	=> "Imagem_Discussão",
+	NS_MEDIAWIKI   	=> "MediaWiki",
+	NS_MEDIAWIKI_TALK   => "MediaWiki_Discussão",
+	NS_TEMPLATE  	=> "Predefinição",
+	NS_TEMPLATE_TALK  	=> "Predefinição_Discussão",
+	NS_HELP		=> "Ajuda",
+	NS_HELP_TALK	=> "Ajuda_Discussão",
+	NS_CATEGORY		=> "Categoria",
+	NS_CATEGORY_TALK	=> "Categoria_Discussão"
 
 ) + $wgNamespaceNamesEn;
 
-/* private */ $wgDefaultUserOptionsPt = array(
-    "quickbar" => 1, "underline" => 1, "hover" => 1,
-    "cols" => 80, "rows" => 25, "searchlimit" => 20,
-    "contextlines" => 5, "contextchars" => 50,
-    "skin" => 0, "math" => 1, "rcdays" => 7, "rclimit" => 50,
-    "highlightbroken" => 1, "stubthreshold" => 0,
-    "previewontop" => 1, "editsection"=>1,"editsectiononrightclick"=>0, "showtoc"=>1,
-    "date" => 0
-);
-
 /* private */ $wgQuickbarSettingsPt = array(
-    "Nada", "Fixado �  esquerda", "Fixado �  direita", "Flutuando �  Esquerda"
+	"Nada", "Fixado �  esquerda", "Fixado �  direita", "Flutuando �  Esquerda"
 );
 
 /* private */ $wgSkinNamesPt = array(
 	'standard' => "Padrão",
 	'nostalgia' => "Nostalgia",
-	'cologneblue' => "Azul Colonial",
-	'smarty' => "Paddington",
-	'montparnasse' => "Montparnasse",
-	'davinci' => "DaVinci",
-	'mono' => "Mono",
-	'monobook' => "MonoBook",
- "myskin" => "MySkin" 
-);
+	'cologneblue' => "Azul Colonial"
+) + $wgSkinNamesEn;
 
 /* private */ $wgDateFormatsPt = array(
-    "Sem preferência",
-    "Janeiro 15, 2001",
-    "15 Janeiro 2001",
-    "2001 Janeiro 15"
-);
-
-
-/* private */ $wgBookstoreListPt = array(
-    "AddALL" => "http://www.addall.com/New/Partner.cgi?query=$1&type=ISBN",
-    "PriceSCAN" => "http://www.pricescan.com/books/bookDetail.asp?isbn=$1",
-    "Barnes & Noble" => "http://shop.barnesandnoble.com/bookSearch/isbnInquiry.asp?isbn=$1",
-    "Amazon.com" => "http://www.amazon.com/exec/obidos/ISBN=$1"
-);
-
-
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesPt = array(
-    "Userlogin"     => "",
-    "Userlogout"    => "",
-    "Preferences"   => "Configura minhas pref. de usuário",
-    "Watchlist"     => "Minha lista de arigos observados",
-    "Recentchanges" => "Páginas modificadas recentemente",
-    "Upload"        => "Envia arquivo de imagens",
-    "Imagelist"     => "Lista de imagens",
-    "Listusers"     => "Usuários registrados",
-    "Statistics"    => "Estatísticas do site",
-    "Randompage"    => "Artigo aleatório",
-
-    "Lonelypages"   => "Artigos órfãos",
-    "Unusedimages"  => "Imagens órfãs",
-    "Popularpages"  => "Artigos populares",
-    "Wantedpages"   => "Artigos mais requisitados",
-    "Shortpages"    => "Artigos curtos",
-    "Longpages"     => "Artigos longos",
-    "Newpages"      => "Artigos criados recentemente",
-    "Ancientpages"  => "Artigos mais antigos",
-    "Intl"      => "Links de Interlinguagens",
-    "Allpages"      => "Todas as páginas, org. por títulos",
-
-    "Ipblocklist"   => "Endereços IP bloqueados",
-    "Maintenance" => "Página de manutenção",
-    "Specialpages"  => "Páginas Especiais",
-    "Contributions" => "Contribuições",
-    "Emailuser"     => "Enviar e-mail ao usuário",
-    "Whatlinkshere" => "Relacionados",
-    "Recentchangeslinked" => "Modificações recentes",
-    "Movepage"      => "Mover Página",
-    "Booksources"   => "Fontes bibliográficas externas",
-    #"Categories" => "Categorias de Páginas",
-    "Export"    => "XML export",
-);
-
-/* private */ $wgSysopSpecialPagesPt = array(
-    "Blockip"       => "Bloquear um endereço IP",
-    "Asksql"        => "Busca o banco-de-dados",
-    "Undelete"      => "Ver e restaura páginas apagadas"
-);
-
-/* private */ $wgDeveloperSpecialPagesPt = array(
-    "Lockdb"        => "Torna o banco de dados como apenas leitura",
-    "Unlockdb"      => "Restaura o acesso �  escrita no banco de dados",
-    "Debug"         => "\'Debugar\' informações"
+#	"Sem preferência",
 );
 
 /* private */ $wgAllMessagesPt = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 # User Toggles
-"tog-hover"     => "Mostra caixa flutante sobre os links wiki",
 "tog-underline" => "Sublinha links",
 "tog-highlightbroken" => "Formata links quebrados <a href=\"\" class=\"new\"> como isto </a> (alternative: como isto<a href=\"\" class=\"internal\">?</a>).",
 "tog-justify"   => "Justifica parágrafos",
@@ -198,7 +119,6 @@
 "aboutpage"     => "{{ns:4}}:Sobre",
 "help"          => "Ajuda",
 "helppage"      => "{{ns:4}}:Ajuda",
-"wikititlesuffix" => "{{SITENAME}}",
 "bugreports"    => "Reportagem de 'bugs'",
 "bugreportspage" => "{{ns:4}}:Reportag_Bug",
 "faq"           => "FAQ",
@@ -241,8 +161,7 @@
 "redirectedfrom" => "(Redirecionado de $1)",
 "lastmodified"  => "Está página foi modificada pela última vez em $1.",
 "viewcount"     => "Esta página foi acessada $1 vezes.",
-"gnunote" => "Todo o texto é disponível sob os termos da <a class=internal href='$wgScriptPath/GNU_FDL'>GNU Free Documentation License</a>.",
-"printsubtitle" => "(De http://www.wikipedia.org/pt)",
+"printsubtitle" => "(De {{SERVER}})",
 "protectedpage" => "Página protegida",
 "administrators" => "{{ns:4}}:Administradores",
 "sysoptitle"    => "Acesso de OpSys necessário",
@@ -250,7 +169,7 @@
 executada por usuários com status de \"opsys\".
 Veja $1.",
 "developertitle" => "Acesso de desenvolvedor necessário",
-"developertext" => "A ação que você requisitou só pode ser 
+"developertext" => "A ação que você requisitou só pode ser
 executada por usuários com status de \"desenvolvedor\".
 Veja $1.",
 "nbytes"        => "$1 bytes",
@@ -293,7 +212,7 @@ MySQL retornou o erro \"$3: $4\".\n",
 "noconnect"     => "Desculpe! O wiki está passando por algumas
 dificuldades técnicas, e não pode contatar o servidor de bando de dados.",
 "nodb"          => "Não foi possível selecionar o banco de dados $1",
-"cachederror"       => "O que segue é uma cópia em cache da página 
+"cachederror"       => "O que segue é uma cópia em cache da página
 solicitada, e pode não estar atualizada.",
 "readonly"      => "Banco de dados somente para leitura",
 "enterlockreason" => "Entre com um motivo para trancá-lo, incluindo uma estimativa de quando poderá novamente ser escrito",
@@ -303,7 +222,7 @@ mais tarde voltará ao normal.
 
 O administrador que fez o bloqueio oferece a seguinte explicação:
 <p>$1",
-"missingarticle" => "O Banco-de-Dados não encontrou o texto de uma página 
+"missingarticle" => "O Banco-de-Dados não encontrou o texto de uma página
 que deveria ser encontrado, chamado \"$1\".
 
 <p>Isto é geralmente causado pela procura de um diff antigo ou um histórico que leva a uma página que foi deletada.
@@ -316,7 +235,7 @@ Por favor, comunique isto ao administrador, tenha nota da URL.",
 "filedeleteerror" => "Não foi possível deletar o arquivo \"$1\".",
 "filenotfound"  => "Não foi possível encontrar o arquivo \"$1\".",
 "unexpected"    => "Valor não esperado: \"$1\"=\"$2\".",
-"formerror"     => "Erro: Não foi possível enviar o formulário", 
+"formerror"     => "Erro: Não foi possível enviar o formulário",
 "badarticleerror" => "Esta acção não pode ser performada nesta página.",
 "cannotdelete"  => "Não foi possível excluir página ou imagem especificada. (Ela já pode ter sido deletada por alguém.)",
 "badtitle"      => "Título ruim",
@@ -343,9 +262,7 @@ Não se esqueça de personalizar suas preferências na {{SITENAME}}.",
 "newusersonly"  => " (somente novos usuários)",
 "remembermypassword" => "Lembrar de minha senha em outras sessões.",
 "loginproblem"  => "<b>Houve um problema com a sua autenticação.</b><br />Tente novamente!",
-"alreadyloggedin" => "<font color=red><b>Utilizador $1, você já está autenticado!</b></font><br />\n",
-
-"areyounew"     => "Se você é novo(a) na {{SITENAME}} e quer fazer uma conta de utilizador, entre com um nome de utilizador e depois digite e re-digite uma senha. Seu e-mail é opcional - se você perder a sua senha, você pode requisitar para que ela seja enviada para o endereço que você informou.<br />\n",
+"alreadyloggedin" => "<strong>Utilizador $1, você já está autenticado!</strong><br />\n",
 
 "login"         => "Entrar",
 "userlogin"     => "Entrar",
@@ -373,7 +290,7 @@ solicitou que nós lhe enviássemos uma nova senha para login.
 A senha para o usuário \"$2\" é a partir de agora \"$3\".
 Você pode realizar um login e mudar sua senha agora.",
 "noemail"       => "Não há nenhum e-Mail associado ao usuário \"$1\".",
-"passwordsent"  => "Uma nova senha está sendo enviada para o endereço de e-Mail 
+"passwordsent"  => "Uma nova senha está sendo enviada para o endereço de e-Mail
 registrado para \"$1\".
 Por favor, reconecte-se ao recebê-lo.",
 
@@ -401,7 +318,7 @@ O motivo é:<br />''$2''<p>Você pode contactar $1 ou outro
 "newarticle"    => "(Novo)",
 "newarticletext" =>
 "Você seguiu um link para um artigo que não existe mais.
-Para criar a página, começe escrevendo na caixa a baixo 
+Para criar a página, começe escrevendo na caixa a baixo
 (veja [[{{ns:4}}:Ajuda| a página de ajuda]] para mais informações).
 Se você chegou aqui por engano, apenas clique no botão  '''volta''' do seu navegador.",
 
@@ -419,22 +336,22 @@ Se você chegou aqui por engano, apenas clique no botão  '''volta''' do seu nav
 A área de texto acima mostra o texto original.
 Suas mudanças são mostradas na área a baixo.
 Você terá que mesclar suas modificações no texto existente.
-<b>SOMENTE</b> o texto na área acima será salvo quando você pressionar \"Salvar página\".\n<p>",
+<b>SOMENTE</b> o texto na área acima será salvo quando você pressionar \"Salvar página\".<br />",
 "yourtext"      => "Seu texto",
 "storedversion" => "Versão guardada",
 "editingold"    => "<strong>CUIDADO: Você está editando uma revisão desatualizada deste artigo.
-Se você salvá-lo, todas as mudanças feitas a partir desta revisão serão perdidas.</strong>\n",
+Se você salvá-lo, todas as mudanças feitas a partir desta revisão serão perdidas.</strong>",
 "yourdiff"      => "Diferenças",
 "copyrightwarning" => "Por favor note que todas as contribuições �  {{SITENAME}} são consideradas lançadas sobre a GNU Free Documentation License
 (veja $1 para detalhes).
 Se você não quer que seu texto esteja sobre estes termos, então não os envie.<br />
 Você também promete que está nos enviando um artigo escrito por você mesmo, ou extraindo de uma fonte de domínio público similar.
 <strong>NÃO ENVIE TRABALHO SOB COPYRIGHT SEM PERMISSÃO!</strong>",
-"longpagewarning" => "CUIDADO: Esta página tem $1 kilobytes ; alguns browsers podem ter problemas ao editar páginas maiores que 32kb.
-Por favor considere quebrar a página em sessões menores.",
-"readonlywarning" => "CUIDADO: O banco de dados está sendo bloqueado para manutenção,
-você não está habilitado a salvar suas edições. Você pode copiar e colar o texto em um arquivo de texto e salvá-lo em seu computador para adicioná-lo mais tarde.",
-"protectedpagewarning" => "CUIDADO:  Está página foi bloqueada então apenas os usuários com privilégios de sysop podem editá-la. Certifique-se de que você está seguindo o <a href='$wgScriptPath/$wgMetaNamespace:Guia_de_páginas_protegidas'>guia de páginas protegidas</a>.",
+"longpagewarning" => "<strong>CUIDADO: Esta página tem $1 kilobytes ; alguns browsers podem ter problemas ao editar páginas maiores que 32kb.
+Por favor considere quebrar a página em sessões menores.</strong>",
+"readonlywarning" => "<strong>CUIDADO: O banco de dados está sendo bloqueado para manutenção,
+você não está habilitado a salvar suas edições. Você pode copiar e colar o texto em um arquivo de texto e salvá-lo em seu computador para adicioná-lo mais tarde.</strong>",
+"protectedpagewarning" => "<strong>CUIDADO:  Está página foi bloqueada então apenas os usuários com privilégios de sysop podem editá-la. Certifique-se de que você está seguindo o [[Project:Guia_de_páginas_protegidas|guia de páginas protegidas]].</strong>",
 
 # History pages
 #
@@ -495,14 +412,14 @@ $2 Lista redireciona &nbsp; Procura por $3 $9",
 #
 "preferences"   => "Preferências",
 "prefsnologin" => "Não autenticado",
-"prefsnologintext"  => "Você precisa estar <a href=\"{{localurle:Special:Userlogin}}\">autenticado</a>
+"prefsnologintext"  => "Você precisa estar [[Special:Userlogin|autenticado]]
 para definir suas preferências.",
 "prefslogintext" => "Você está autenticado como \"$1\".
 Seu número identificador interno é $2.
 
 veja [[{{ns:4}}:Ajuda_preferências_de_usuários]] para aprender a decifrar as opções.",
 "prefsreset"    => "Preferências foram reconfiguradas.",
-"qbsettings"    => "Configurações da Barra Rápida", 
+"qbsettings"    => "Configurações da Barra Rápida",
 "changepassword" => "Mudar senha",
 "skin"          => "Aparência(Skin)",
 "math"          => "Rendering math",
@@ -548,7 +465,7 @@ Por favor, dê uma olhada nestas páginas: [[{{ns:4}}:FAQ|FAQ da {{SITENAME}}]],
 e [[{{ns:4}}:Most common {{SITENAME}} faux pas|most common {{SITENAME}} faux pas]].
 
 Se você quer ver a {{SITENAME}} crescer, é muito importante que você não adicione material restrito por outras [[{{ns:4}}:Copyrights|copyrights]].
-Um problema legal poderia realmente prejudicar o projeto de maneira que pedimos, por avor, não faça isso. 
+Um problema legal poderia realmente prejudicar o projeto de maneira que pedimos, por avor, não faça isso.
 Veja também [http://meta.wikipedia.org/wiki/Special:Recentchanges recent meta discussion].",
 "rcloaderr"     => "Carregando alterações recentes",
 "rcnote"        => "Abaixo estão as últimas <strong>$1</strong> alterações nos últimos <strong>$2</strong> dias.",
@@ -577,9 +494,8 @@ Veja também [http://meta.wikipedia.org/wiki/Special:Recentchanges recent meta d
 "reupload"      => "Re-carregar",
 "reuploaddesc"  => "Retornar ao formulário de Uploads.",
 "uploadnologin" => "Não autenticado",
-"uploadnologintext" => "Você deve estar<a href=\"{{localurle:Special:Userlogin}}\">autenticado</a>
+"uploadnologintext" => "Você deve estar [[Special:Userlogin|autenticado]]
 para carregar arquivos.",
-"uploadfile"    => "Carregar imagens, sons, documentos etc.",
 "uploaderror"   => "Erro ao Carregar",
 "uploadtext"    => "'''PARE!''' Antes de você carregar arquivos aqui,
 tenha certeza de ter lido e estar em acordo com a
@@ -614,12 +530,10 @@ Todas as datas mostradas são do servidor (UTC).
 ",
 "filename"      => "Nome do arquivo",
 "filedesc"      => "Sumário",
-"affirmation"   => "Eu afirmo que o proprietário deste arquivo concorda em licenciá-lo sob os termos da $1.",
 "copyrightpage" => "{{ns:4}}:Copyrights",
 "copyrightpagename" => "Direitos Autorais da {{SITENAME}}",
 
 "uploadedfiles" => "Arquivos carregados",
-"noaffirmation" => "Você tem que afirmar que o carregamento deste arquivo não fere nenhum direito autoral.",
 "ignorewarning" => "Ignorar aviso e salvar de qualquer forma.",
 "minlength"     => "Os nomes das imagens devem ter ao menos três letras.",
 "badfilename"   => "O nome da imagem mudou para \"$1\".",
@@ -630,17 +544,15 @@ Todas as datas mostradas são do servidor (UTC).
 Por favor, siga este link : ($2) para ir �  página de descrição e preencha-a com informações sobre o arquivo, como de onde veio , quando e por quem foi criada, e qualquer outra coisa a mais que você saiba.",
 "uploadwarning" => "Aviso de Upload",
 "savefile"      => "Salvar arquivo",
-"uploadedimage" => "\"$1\" carregado",
+"uploadedimage" => "\"[[$1]]\" carregado",
 
 # Image list
 #
 "imagelist"     => "Lista de Imagens",
 "imagelisttext" => "A seguir uma lista de $1 imagens organizadas $2.",
 "getimagelist"  => "buscando lista de imagens",
-"ilshowmatch"   => "Mostrar todas as imagens com semelhança no nome",
 "ilsubmit"      => "Procura",
 "showlast"      => "Mostrar as  $1 imagens organizadas $2.",
-"all"           => "todas",
 "byname"        => "por nome",
 "bydate"        => "por data",
 "bysize"        => "por tamanho",
@@ -710,8 +622,6 @@ Destes, <b>$2</b> são administradores (veja $3).",
 "listusers"     => "Lista de Usuários",
 "specialpages"  => "Páginas especiais",
 "spheading"     => "Páginas especiais para todos os usuários",
-"sysopspheading" => "Somente para uso dos SYSOP",
-"developerspheading" => "Somente para uso dos desenvolvedores",
 "protectpage"   => "Páginas Protegidas",
 "recentchangeslinked" => "Páginas relacionadas",
 "rclsub"        => "(para páginas linkadas de \"$1\")",
@@ -730,8 +640,8 @@ A {{SITENAME}} não é afiliada a nenhum destes empreendimentos, e a lista não 
 # Email this user
 #
 "mailnologin"   => "No send address",
-"mailnologintext" => "Você deve estar <a href=\"{{localurle:Special:Userlogin}}\">autenticado</a>
-e ter um e-mail válido em suas <a href=\"{{localurle:Special:Preferences}}\">preferências</a>
+"mailnologintext" => "Você deve estar [[Special:Userlogin|autenticado]]
+e ter um e-mail válido em suas [[Special:Preferences|preferências]]
 para poder enviar e-mails para outros usuários.",
 "emailuser"     => "Contactar usuário",
 "emailpage"     => "Enviar e-mail ao usuário",
@@ -753,7 +663,7 @@ O endereço de e-mail que você disponibilizou em suas preferências aparecerá 
 "watchlistsub"  => "(do usuário \"$1\")",
 "nowatchlist"   => "Você não está monitorando nenhum artigo.",
 "watchnologin"  => "Não está autenticado",
-"watchnologintext"  => "Você deve estar <a href=\"{{localurle:Special:Userlogin}}\">autenticado</a>
+"watchnologintext"  => "Você deve estar [[Special:Userlogin|autenticado]]
 para modificar sua lista de artigos interessantes.",
 "addedwatch"    => "Adicionados �  lista",
 "addedwatchtext" => "A página \"$1\" foi adicionada a sua <a href=\"{{localurle:Special:Watchlist}}\">lista de artigos de vosso interesse</a>.
@@ -771,7 +681,7 @@ possa pegá-lo com maior facilidade.</p>
 "watchdetails" => "($1 páginas monitoradas excluindo-se as páginas talk;
 $2 páginas editadas desde data limite;
 $3...
-<a href='$4'>mostrar e editar a lista completa</a>.)",
+[$4 mostrar e editar a lista completa].)",
 "watchmethod-recent" => "checando edições recentes para os artigos monitorados",
 "watchmethod-list" => "checando páginas monitoradas de edições recentes",
 "removechecked" => "Remover itens selecionados",
@@ -781,21 +691,20 @@ $3...
 "couldntremove" => "Não consegui remover o item '$1'...",
 "iteminvalidname" => "Problema com item '$1', nome inválido...",
 "wlnote" => "Segue as últimas $1 mudanças nas últimas <b>$2</b> horas.",
-                                                                                                                                       
+
 
 # Delete/protect/revert
 #
 "deletepage"    => "Deletar página",
 "confirm"       => "Confirmar",
-"excontent" => "conteúdo era:",
-"exbeforeblank" => "conteúdo antes de apagar era:",
+"excontent" => "conteúdo era: '$1'",
+"exbeforeblank" => "conteúdo antes de apagar era: '$1'",
 "exblank" => "página estava vazia",
 "confirmdelete" => "Confirmar deleção",
 "deletesub"     => "(Apagando \"$1\")",
 "historywarning" => "Atenção: A página que você quer deletar tem um histório: ",
 "confirmdeletetext" => "Você está  prestes a deletar permanentemente uma página ou imagem junto com todo seu histórico do banco de dados.
 Por favor, confirme que você realmente pretende fazer isto, que você compreende as consequências, e que você está fazendo isto em acordo com a [[{{ns:4}}:Policy| Política da Wkipedia]].",
-"confirmcheck"  => "Sim, eu realmente desejo apagar este arquivo.",
 "actioncomplete" => "Ação efetuada com sucesso",
 "deletedtext"   => "\"$1\" foi deletada.
 Veja $2 para um registro de deleções recentes.",
@@ -815,11 +724,11 @@ Todos os horários mostrados estão no horário do servidor (UTC).
 "rollbackfailed" => "Rollback falhou",
 "cantrollback"  => "Não foi possível reverter a edição; o último contribuidor é o único autor deste artigo.",
 "alreadyrolled" => "Não foi possível reverter as edições de  [[$1]]
-por [[User:$2|$2]] ([[User talk:$2|Talk]]); alguém o editou ou já o reverteu. 
+por [[User:$2|$2]] ([[User talk:$2|Talk]]); alguém o editou ou já o reverteu.
 
 A última edição foi de  [[User:$3|$3]] ([[User talk:$3|Conversar com ele]]). ",
 #   only shown if there is an edit comment
-"editcomment" => "O comentário de edição era: \"<i>$1</i>\".", 
+"editcomment" => "O comentário de edição era: \"<i>$1</i>\".",
 "revertpage"    => "Revertido para a última edição por  $1",
 
 # Undelete
@@ -866,7 +775,6 @@ Preencha com um motivo específico (por exemplo, citando páginas que sofreram v
 "ipbreason"     => "Motivo",
 "ipbsubmit"     => "Bloquear este endereço",
 "badipaddress"  => "O endereço de IP está mal-formado.",
-"noblockreason" => "Você deve colocar um motivo.",
 "blockipsuccesssub" => "Bloqueio bem sucedido",
 "blockipsuccesstext" => "O endereço de IP \"$1\" Foi bloqueado.
 <br />Veja [[Special:Ipblocklist|Lista de IP's bloqueados]] para rever os bloqueios.",
@@ -875,7 +783,7 @@ Preencha com um motivo específico (por exemplo, citando páginas que sofreram v
 "ipusubmit"     => "Desbloquear este endereço",
 "ipusuccess"    => "Endereço de IP  \"$1\" foi desbloqueado",
 "ipblocklist"   => "Lista de IP's bloqueados",
-"blocklistline" => "$1, $2 bloqueado $3",
+"blocklistline" => "$1, $2 bloqueado $3 ($4)",
 "blocklink"     => "block",
 "unblocklink"   => "unblock",
 "contribslink"  => "contribs",
@@ -898,24 +806,12 @@ Por favor confirme que você realmente pretende fazer isto, e que você vai desb
 <br />Lembre-se de remover a tranca após a manutenção.",
 "unlockdbsuccesstext" => "O bando de dados da {{SITENAME}} foi destrancado.",
 
-# SQL query
-#
-"asksql"        => "SQL query",
-"asksqltext"    => "Use o formulário a seguir para fazer uma pesquisa direta no banco de dados.
-Use aspas simples ('como isto') para delimitar strings literais.
-Isto pode frequentemente sobrecarregar o servidor , sendo assim, por favor use esta função moderadamente .",
-"sqlislogged"   => "Por favor, note de todas as pesquisas são registradas (log).",
-"sqlquery"      => "Entrar com pesquisa",
-"querybtn"      => "Enviar pesquisa",
-"selectonly"    => "Pesquisas diferentes de  \"SELECT\" são restritas a desenvolvedores da {{SITENAME}}.",
-"querysuccessful" => "Pesquisa bem sucedida",
-
 # Move page
 #
 "movepage"      => "Mover página",
 "movepagetext"  => "Usando o formulário a seguir você poderá renomear uma página , movendo todo o histórico para o novo nome.
 O título antigo será transformado num redirecionamento para o novo título.
-Links para as páginas antigas não serão mudados; certifique-se de [[Especial:Maintenance| checar]] redirecionamentos  quebrados ou artigos duplos.
+Links para as páginas antigas não serão mudados; certifique-se de checar redirecionamentos  quebrados ou artigos duplos.
 Você é responsável por certificar-se que os links continuam apontando para onde eles deveriam apontar.
 
 Note que a página '''não''' será movida se já existe uma página com o novo título, a não ser que ele esteja vazio ou seja um redirecionamento e não tenha histórico de edições. Isto significa que você pode renomear uma págna de volta para o nome que era antigamente se você cometer algum enganoe você não pode sobrescrever uma página.
@@ -931,7 +827,7 @@ por favor tenha certeza de que compreende as consequencias disto antes de proced
 Nestes casos, você terá que mover ou mesclar a página manualmente se desejar .",
 "movearticle"   => "Mover página",
 "movenologin"   => "Não Autenticado",
-"movenologintext" => "Você deve ser um usuário registrado e <a href=\"{{localurle:Special:Userlogin}}\">autenticado</a>
+"movenologintext" => "Você deve ser um usuário registrado e [[Special:Userlogin|autenticado]]
 para mover uma página.",
 "newtitle"      => "Pata novo título",
 "movepagebtn"   => "Mover página",
@@ -945,12 +841,12 @@ Por favor, escolha outro nome.",
 "talkpagemoved" => "A página talk correspondente foi movida com sucesso.",
 "talkpagenotmoved" => "A página talk correspondente  <strong>não</strong> foi movida.",
 # Math
-    'mw_math_png' => "Sempre renderizar PNG",
-    'mw_math_simple' => "HTML se for bem simples e PNG",
-    'mw_math_html' => "HTML se possível ou então PNG",
-    'mw_math_source' => "Deixar como TeX (para navegadores em modo texto)",
-    'mw_math_modern' => "Recomendado para navegadores modernos",
-    'mw_math_mathml' => 'MathML',
+'mw_math_png' => "Sempre renderizar PNG",
+'mw_math_simple' => "HTML se for bem simples e PNG",
+'mw_math_html' => "HTML se possível ou então PNG",
+'mw_math_source' => "Deixar como TeX (para navegadores em modo texto)",
+'mw_math_modern' => "Recomendado para navegadores modernos",
+'mw_math_mathml' => 'MathML',
 
 );
 
@@ -958,77 +854,46 @@ require_once( "LanguageUtf8.php" );
 
 class LanguagePt extends LanguageUtf8 {
 
-    function getBookstoreList () {
-        global $wgBookstoreListPt;
-        return $wgBookstoreListPt;
-    }
+	function getNamespaces() {
+		global $wgNamespaceNamesPt;
+		return $wgNamespaceNamesPt;
+	}
 
-    function getNamespaces() {
-        global $wgNamespaceNamesPt;
-        return $wgNamespaceNamesPt;
-    }
+	function getQuickbarSettings() {
+		global $wgQuickbarSettingsPt;
+		return $wgQuickbarSettingsPt;
+	}
 
-    function getNsText( $index ) {
-        global $wgNamespaceNamesPt;
-        return $wgNamespaceNamesPt[$index];
-    }
+	function getSkinNames() {
+		global $wgSkinNamesPt;
+		return $wgSkinNamesPt;
+	}
 
-    function getNsIndex( $text ) {
-        global $wgNamespaceNamesPt;
+	function getDateFormats() {
+		global $wgDateFormatsPt;
+		return $wgDateFormatsPt;
+	}
 
-        foreach ( $wgNamespaceNamesPt as $i => $n ) {
-            if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-        }
-        return false;
-    }
+	function timeanddate( $ts, $adj = false ) {
+		return $this->time( $ts, $adj ) . ", " . $this->date( $ts, $adj );
+	}
 
-    function getQuickbarSettings() {
-        global $wgQuickbarSettingsPt;
-        return $wgQuickbarSettingsPt;
-    }
-
-    function getSkinNames() {
-        global $wgSkinNamesPt;
-        return $wgSkinNamesPt;
-    }
-
-    function getDateFormats() {
-        global $wgDateFormatsPt;
-        return $wgDateFormatsPt;
-    }
-
-    function timeanddate( $ts, $adj = false )
-    {
-        return $this->time( $ts, $adj ) . ", " . $this->date( $ts, $adj );
-    }
-
-    function getValidSpecialPages()
-    {
-        global $wgValidSpecialPagesPt;
-        return $wgValidSpecialPagesPt;
-    }
-
-    function getSysopSpecialPages()
-    {
-        global $wgSysopSpecialPagesPt;
-        return $wgSysopSpecialPagesPt;
-    }
-
-    function getDeveloperSpecialPages()
-    {
-        global $wgDeveloperSpecialPagesPt;
-        return $wgDeveloperSpecialPagesPt;
-    }
-
-    function getMessage( $key )
-    {
-        global $wgAllMessagesPt;
-		if( isset( $wgAllMessagesPt[$key] ) ) {
-			return $wgAllMessagesPt[$key];
-		} else {
-			return Language::getMessage( $key );
+	function getMessage( $key ) {
+		 global $wgAllMessagesPt;
+		 if( isset( $wgAllMessagesPt[$key] ) ) {
+			 return $wgAllMessagesPt[$key];
+		 } else {
+			 return parent::getMessage( $key );
 		}
-    }
+	}
+
+	/**
+	 * Portuguese numeric format is 123 456,78
+	 */
+	function formatNum( $number, $year = false ) {
+		return $year ? $number : strtr($this->commafy($number), '.,', ', ' );
+	}
+
 }
 
 ?>

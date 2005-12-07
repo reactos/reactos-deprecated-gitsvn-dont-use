@@ -1,7 +1,11 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 
 /*
-<Melancholie> for the moment it would be the best if LanguageAls.php would be 
+<Melancholie> for the moment it would be the best if LanguageAls.php would be
               the same like LanguageDe.php. That would help us a lot at als.
 <Melancholie> at the moment all is in English
 <TimStarling> ok

@@ -9,7 +9,7 @@
 define( "REPORTING_INTERVAL", 100 );
 
 function refreshLinks( $start, $newOnly = false, $maxLag = false ) {
-	global $wgUser, $wgLoadBalancer, $wgParser, $wgUseImageResize;
+	global $wgUser, $wgParser, $wgUseImageResize;
 
 	$fname = 'refreshLinks';
 	$dbr =& wfGetDB( DB_SLAVE );
@@ -21,14 +21,14 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false ) {
 
 	# Don't generate extension images (e.g. Timeline)
 	$wgParser->mTagHooks = array();
-
+	
 	# Don't generate thumbnail images
 	$wgUseImageResize = false;
 
 	if ( $newOnly ) {
 		print "Refreshing links from ";
-		$res = $dbr->select( 'cur', array( 'cur_id' ), 
-		  array( 'cur_is_new' => 1, "cur_id > $start" ), $fname );
+		$res = $dbr->select( 'page', array( 'page_id' ), 
+		  array( 'page_is_new' => 1, "page_id > $start" ), $fname );
 		$num = $dbr->numRows( $res );
 		print "$num new articles...\n";
 		
@@ -39,12 +39,12 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false ) {
 				wfWaitForSlaves( $maxLag );
 			}
 
-			fixLinksFromArticle( $row->cur_id );
+			fixLinksFromArticle( $row->page_id );
 		}
 	} else {
 		print "Refreshing link table.\n";
-		$end = $dbr->selectField( 'cur', 'max(cur_id)', false );
-		print("Starting from cur_id $start of $end.\n");
+		$end = $dbr->selectField( 'page', 'max(page_id)', false );
+		print("Starting from page_id $start of $end.\n");
 
 		for ($id = $start; $id <= $end; $id++) {
 			
@@ -60,7 +60,7 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false ) {
 }
 
 function fixLinksFromArticle( $id ) {
-	global $wgUser, $wgTitle, $wgArticle, $wgEnablePersistentLC, $wgLinkCache, $wgOut;
+	global $wgTitle, $wgArticle, $wgLinkCache, $wgOut;
 	
 	$wgTitle = Title::newFromID( $id );
 	$dbw =& wfGetDB( DB_MASTER );
@@ -92,12 +92,8 @@ function fixLinksFromArticle( $id ) {
 	$wgOut->transformBuffer();
 	$wgOut->clearHTML();
 
-	if ( $wgEnablePersistentLC ) {
-		$wgLinkCache->saveToLinkscc( $id, $dbw->strencode( $wgTitle->getPrefixedDBkey() ) );
-	}
 	$linksUpdate = new LinksUpdate( $id, $wgTitle->getPrefixedDBkey() );
 	$linksUpdate->doDumbUpdate();
-	$linksUpdate->fixBrokenLinks();
 	$dbw->immediateCommit();
 }
 
@@ -109,13 +105,12 @@ function deleteLinksFromNonexistent( $maxLag = 0 ) {
 	$dbw =& wfGetDB( DB_WRITE );
 	
 	$linksTables = array( 
-		'links' => 'l_from',
-		'brokenlinks' => 'bl_from',
+		'pagelinks' => 'pl_from',
 		'imagelinks' => 'il_from',
 		'categorylinks' => 'cl_from',
 	);
 
-	$cur = $dbw->tableName( 'cur' );
+	$page = $dbw->tableName( 'page' );
 
 
 	foreach ( $linksTables as $table => $field ) {
@@ -131,12 +126,12 @@ function deleteLinksFromNonexistent( $maxLag = 0 ) {
 		$pTable = $dbw->tableName( $table );
 		global $wgDBmysql4, $wgDBtype;
 		if( $wgDBmysql4 || $wgDBtype != 'mysql' ) {
-			$sql = "DELETE $pTable FROM $pTable LEFT JOIN $cur ON cur_id=$field WHERE cur_id IS NULL";
+			$sql = "DELETE $pTable FROM $pTable LEFT JOIN $page ON page_id=$field WHERE page_id IS NULL";
 		} else {
 			# Hack-around for MySQL 3.x, which lacks support
 			# for multi-table deletes.
 			
-			$sql = "SELECT DISTINCT $field AS id FROM $pTable LEFT JOIN $cur ON cur_id=$field WHERE cur_id IS NULL";
+			$sql = "SELECT DISTINCT $field AS id FROM $pTable LEFT JOIN $page ON page_id=$field WHERE page_id IS NULL";
 			echo "Looking in $table from non-existent articles...";
 			$result = $dbw->query( $sql );
 			$ids = array();

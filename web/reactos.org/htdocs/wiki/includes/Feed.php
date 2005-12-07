@@ -42,7 +42,7 @@ class FeedItem {
 	var $Author = '';
 	/**#@-*/
 	
-	/**
+	/**#@+
 	 * @todo document
 	 */
 	function FeedItem( $Title, $Description, $Url, $Date = '', $Author = '', $Comments = '' ) {
@@ -56,49 +56,24 @@ class FeedItem {
 	
 	/**
 	 * @static
-	 * @todo document
 	 */
 	function xmlEncode( $string ) {
-		global $wgInputEncoding, $wgContLang;
 		$string = str_replace( "\r\n", "\n", $string );
 		$string = preg_replace( '/[\x00-\x08\x0b\x0c\x0e-\x1f]/', '', $string );
-		if( strcasecmp( $wgInputEncoding, 'utf-8' ) != 0 ) {
-			$string = $wgContLang->iconv( $wgInputEncoding, 'utf-8', $string );
-		}
 		return htmlspecialchars( $string );
 	}
 	
-	/**
-	 * @todo document
-	 */
 	function getTitle() { return $this->xmlEncode( $this->Title ); }
-	/**
-	 * @todo document
-	 */
 	function getUrl() { return $this->xmlEncode( $this->Url ); }
-	/**
-	 * @todo document
-	 */
 	function getDescription() { return $this->xmlEncode( $this->Description ); }
-	/**
-	 * @todo document
-	 */
 	function getLanguage() {
 		global $wgContLanguageCode;
 		return $wgContLanguageCode;
 	}
-	/**
-	 * @todo document
-	 */
 	function getDate() { return $this->Date; }
-	/**
-	 * @todo document
-	 */
 	function getAuthor() { return $this->xmlEncode( $this->Author ); }
-	/**
-	 * @todo document
-	 */
 	function getComments() { return $this->xmlEncode( $this->Comments ); }
+	/**#@-*/
 }
 
 /**
@@ -177,8 +152,8 @@ class ChannelFeed extends FeedItem {
 		global $wgServer, $wgStylePath;
 		
 		$this->httpHeaders();
-		print '<' . '?xml version="1.0" encoding="utf-8"?' . ">\n";
-		print '<' . '?xml-stylesheet type="text/css" href="' .
+		echo '<?xml version="1.0" encoding="utf-8"?' . ">\n";
+		echo '<?xml-stylesheet type="text/css" href="' .
 			htmlspecialchars( "$wgServer$wgStylePath/common/feed.css" ) . '"?' . ">\n";
 	}
 }
@@ -265,7 +240,7 @@ class AtomFeed extends ChannelFeed {
 		global $wgVersion, $wgOut;
 		
 		$this->outXmlHeader();
-		?><feed version="0.3" xml:lang="<?php print $this->getLanguage() ?>">	
+		?><feed version="0.3" xmlns="http://purl.org/atom/ns#" xml:lang="<?php print $this->getLanguage() ?>">	
 		<title><?php print $this->getTitle() ?></title>
 		<link rel="alternate" type="text/html" href="<?php print $this->getUrl() ?>"/>
 		<modified><?php print $this->formatTime( wfTimestampNow() ) ?>Z</modified>

@@ -1,4 +1,8 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 #
 # Low Saxon (Plattdüütsch) localisation for MediaWiki
 #
@@ -11,31 +15,31 @@ require_once( 'LanguageUtf8.php' );
 # See Language.php for notes.
 
 if($wgMetaNamespace === FALSE)
-        $wgMetaNamespace = str_replace( ' ', '_', $wgSitename );
+	$wgMetaNamespace = str_replace( ' ', '_', $wgSitename );
 
 /* private */ $wgNamespaceNamesNds = array(
-        NS_MEDIA            => 'Media',
-        NS_SPECIAL          => 'Spezial',
-        NS_MAIN             => '',
-        NS_TALK             => 'Diskuschoon',
-        NS_USER             => 'Bruker',
-        NS_USER_TALK        => 'Bruker_Diskuschoon',
-        NS_PROJECT          => $wgMetaNamespace,
-        NS_PROJECT_TALK     => $wgMetaNamespace . '_Diskuschoon',
-        NS_IMAGE            => 'Bild',
-        NS_IMAGE_TALK       => 'Bild_Diskuschoon',
-        NS_MEDIAWIKI        => 'MediaWiki',
-        NS_MEDIAWIKI_TALK   => 'MediaWiki_Diskuschoon',
-        NS_TEMPLATE         => 'Vörlaag',
-        NS_TEMPLATE_TALK    => 'Vörlaag_Diskuschoon',
-        NS_HELP             => 'Hülp',
-        NS_HELP_TALK        => 'Hülp_Diskuschoon',
-        NS_CATEGORY         => 'Kategorie',
-        NS_CATEGORY_TALK    => 'Kategorie_Diskuschoon'
+	NS_MEDIA            => 'Media',
+	NS_SPECIAL          => 'Spezial',
+	NS_MAIN             => '',
+	NS_TALK             => 'Diskuschoon',
+	NS_USER             => 'Bruker',
+	NS_USER_TALK        => 'Bruker_Diskuschoon',
+	NS_PROJECT          => $wgMetaNamespace,
+	NS_PROJECT_TALK     => $wgMetaNamespace . '_Diskuschoon',
+	NS_IMAGE            => 'Bild',
+	NS_IMAGE_TALK       => 'Bild_Diskuschoon',
+	NS_MEDIAWIKI        => 'MediaWiki',
+	NS_MEDIAWIKI_TALK   => 'MediaWiki_Diskuschoon',
+	NS_TEMPLATE         => 'Vörlaag',
+	NS_TEMPLATE_TALK    => 'Vörlaag_Diskuschoon',
+	NS_HELP             => 'Hülp',
+	NS_HELP_TALK        => 'Hülp_Diskuschoon',
+	NS_CATEGORY         => 'Kategorie',
+	NS_CATEGORY_TALK    => 'Kategorie_Diskuschoon'
 );
 
 /* private */ $wgQuickbarSettingsNds = array(
-        'Keen', 'Links, fast', 'Rechts, fast', 'Links, sweven'
+	'Keen', 'Links, fast', 'Rechts, fast', 'Links, sweven'
 );
 
 # Note to translators:
@@ -44,117 +48,62 @@ if($wgMetaNamespace === FALSE)
 #
 /* private */ $wgMagicWordsNds = array(
 #   ID                                 CASE  SYNONYMS
-        MAG_REDIRECT             => array( 0,    '#redirect',                   '#wiederleiden'          ),
-        MAG_NOTOC                => array( 0,    '__NOTOC__',                   '__KEENINHOLTVERTEKEN__' ),
-        MAG_FORCETOC             => array( 0,    '__FORCETOC__',                '__WIESINHOLTVERTEKEN__' ),
-        MAG_TOC                  => array( 0,    '__TOC__',                     '__INHOLTVERTEKEN__'     ),
-        MAG_NOEDITSECTION        => array( 0,    '__NOEDITSECTION__',           '__KEENÄNNERNLINK__'     ),
-        MAG_START                => array( 0,    '__START__'                                             ),
-        MAG_CURRENTMONTH         => array( 1,    'CURRENTMONTH',                'AKTMAAND'               ),
-        MAG_CURRENTMONTHNAME     => array( 1,    'CURRENTMONTHNAME',            'AKTMAANDNAAM'           ),
-        MAG_CURRENTDAY           => array( 1,    'CURRENTDAY',                  'AKTDAG'                 ),
-        MAG_CURRENTDAYNAME       => array( 1,    'CURRENTDAYNAME',              'AKTDAGNAAM'             ),
-        MAG_CURRENTYEAR          => array( 1,    'CURRENTYEAR',                 'AKTJOHR'                ),
-        MAG_CURRENTTIME          => array( 1,    'CURRENTTIME',                 'AKTTIED'                ),
-        MAG_NUMBEROFARTICLES     => array( 1,    'NUMBEROFARTICLES',            'ARTIKELTALL'            ),
-        MAG_CURRENTMONTHNAMEGEN  => array( 1,    'CURRENTMONTHNAMEGEN',         'AKTMAANDNAAMGEN'        ),
-        MAG_PAGENAME             => array( 1,    'PAGENAME',                    'SIETNAAM'               ),
-        MAG_PAGENAMEE            => array( 1,    'PAGENAMEE',                   'SIETNAAME'              ),
-        MAG_NAMESPACE            => array( 1,    'NAMESPACE',                   'NAAMRUUM'               ),
-        MAG_MSG                  => array( 0,    'MSG:'                                                  ),
-        MAG_SUBST                => array( 0,    'SUBST:'                                                ),
-        MAG_MSGNW                => array( 0,    'MSGNW:'                                                ),
-        MAG_END                  => array( 0,    '__END__',                     '__ENN__'                ),
-        MAG_IMG_THUMBNAIL        => array( 1,    'thumbnail', 'thumb',          'duum'                   ),
-        MAG_IMG_RIGHT            => array( 1,    'right',                       'rechts'                 ),
-        MAG_IMG_LEFT             => array( 1,    'left',                        'links'                  ),
-        MAG_IMG_NONE             => array( 1,    'none',                        'keen'                   ),
-        MAG_IMG_WIDTH            => array( 1,    '$1px',                        '$1px'                   ),
-        MAG_IMG_CENTER           => array( 1,    'center', 'centre',            'merrn'                  ),
-        MAG_IMG_FRAMED           => array( 1,    'framed', 'enframed', 'frame', 'rahmt'                  ),
-        MAG_INT                  => array( 0,    'INT:'                                                  ),
-        MAG_SITENAME             => array( 1,    'SITENAME',                    'STEEDNAAM'              ),
-        MAG_NS                   => array( 0,    'NS:',                         'NR:'                    ),
-        MAG_LOCALURL             => array( 0,    'LOCALURL:',                   'STEEDURL:'              ),
-        MAG_LOCALURLE            => array( 0,    'LOCALURLE:',                  'STEEDURLE:'             ),
-        MAG_SERVER               => array( 0,    'SERVER',                      'SERVER'                 ),
-        MAG_GRAMMAR              => array( 0,    'GRAMMAR:',                    'GRAMMATIK:'             )
+	MAG_REDIRECT             => array( 0,    '#redirect',                   '#wiederleiden'          ),
+	MAG_NOTOC                => array( 0,    '__NOTOC__',                   '__KEENINHOLTVERTEKEN__' ),
+	MAG_FORCETOC             => array( 0,    '__FORCETOC__',                '__WIESINHOLTVERTEKEN__' ),
+	MAG_TOC                  => array( 0,    '__TOC__',                     '__INHOLTVERTEKEN__'     ),
+	MAG_NOEDITSECTION        => array( 0,    '__NOEDITSECTION__',           '__KEENÄNNERNLINK__'     ),
+	MAG_START                => array( 0,    '__START__'                                             ),
+	MAG_CURRENTMONTH         => array( 1,    'CURRENTMONTH',                'AKTMAAND'               ),
+	MAG_CURRENTMONTHNAME     => array( 1,    'CURRENTMONTHNAME',            'AKTMAANDNAAM'           ),
+	MAG_CURRENTDAY           => array( 1,    'CURRENTDAY',                  'AKTDAG'                 ),
+	MAG_CURRENTDAYNAME       => array( 1,    'CURRENTDAYNAME',              'AKTDAGNAAM'             ),
+	MAG_CURRENTYEAR          => array( 1,    'CURRENTYEAR',                 'AKTJOHR'                ),
+	MAG_CURRENTTIME          => array( 1,    'CURRENTTIME',                 'AKTTIED'                ),
+	MAG_NUMBEROFARTICLES     => array( 1,    'NUMBEROFARTICLES',            'ARTIKELTALL'            ),
+	MAG_CURRENTMONTHNAMEGEN  => array( 1,    'CURRENTMONTHNAMEGEN',         'AKTMAANDNAAMGEN'        ),
+	MAG_PAGENAME             => array( 1,    'PAGENAME',                    'SIETNAAM'               ),
+	MAG_PAGENAMEE            => array( 1,    'PAGENAMEE',                   'SIETNAAME'              ),
+	MAG_NAMESPACE            => array( 1,    'NAMESPACE',                   'NAAMRUUM'               ),
+	MAG_SUBST                => array( 0,    'SUBST:'                                                ),
+	MAG_MSGNW                => array( 0,    'MSGNW:'                                                ),
+	MAG_END                  => array( 0,    '__END__',                     '__ENN__'                ),
+	MAG_IMG_THUMBNAIL        => array( 1,    'thumbnail', 'thumb',          'duum'                   ),
+	MAG_IMG_RIGHT            => array( 1,    'right',                       'rechts'                 ),
+	MAG_IMG_LEFT             => array( 1,    'left',                        'links'                  ),
+	MAG_IMG_NONE             => array( 1,    'none',                        'keen'                   ),
+	MAG_IMG_WIDTH            => array( 1,    '$1px',                        '$1px'                   ),
+	MAG_IMG_CENTER           => array( 1,    'center', 'centre',            'merrn'                  ),
+	MAG_IMG_FRAMED           => array( 1,    'framed', 'enframed', 'frame', 'rahmt'                  ),
+	MAG_INT                  => array( 0,    'INT:'                                                  ),
+	MAG_SITENAME             => array( 1,    'SITENAME',                    'STEEDNAAM'              ),
+	MAG_NS                   => array( 0,    'NS:',                         'NR:'                    ),
+	MAG_LOCALURL             => array( 0,    'LOCALURL:',                   'STEEDURL:'              ),
+	MAG_LOCALURLE            => array( 0,    'LOCALURLE:',                  'STEEDURLE:'             ),
+	MAG_SERVER               => array( 0,    'SERVER',                      'SERVER'                 ),
+	MAG_GRAMMAR              => array( 0,    'GRAMMAR:',                    'GRAMMATIK:'             )
 );
 
 /* private */ $wgSkinNamesNds = array(
-        'standard'      => 'Klassik',
-        'nostalgia'     => 'Nostalgie',
-        'cologneblue'   => 'Kölsch Blau',
-        'smarty'        => 'Paddington',
-        'montparnasse'  => 'Montparnasse',
-        'davinci'       => 'DaVinci',
-        'mono'          => 'Mono',
-        'monobook'      => 'MonoBook',
-        'myskin'        => 'MySkin',
-        'chick'         => 'Küken'
-);
+	'standard'      => 'Klassik',
+	'nostalgia'     => 'Nostalgie',
+	'cologneblue'   => 'Kölsch Blau',
+	'smarty'        => 'Paddington',
+	'chick'         => 'Küken'
+) + $wgSkinNamesEn;
 
 
 /* private */ $wgBookstoreListNds = array(
-        'Verteken vun leverbore Böker' => 'http://www.buchhandel.de/sixcms/list.php?page=buchhandel_profisuche_frameset&suchfeld=isbn&suchwert=$1=0&y=0',
-        'abebooks.de'                   => 'http://www.abebooks.de/servlet/BookSearchPL?ph=2&isbn=$1',
-        'Amazon.de'                     => 'http://www.amazon.de/exec/obidos/ISBN=$1',
-        'Lehmanns Fachbuchhandlung'     => 'http://www.lob.de/cgi-bin/work/suche?flag=new&stich1=$1',
+	'Verteken vun leverbore Böker' => 'http://www.buchhandel.de/sixcms/list.php?page=buchhandel_profisuche_frameset&suchfeld=isbn&suchwert=$1=0&y=0',
+	'abebooks.de'                   => 'http://www.abebooks.de/servlet/BookSearchPL?ph=2&isbn=$1',
+	'Amazon.de'                     => 'http://www.amazon.de/exec/obidos/ISBN=$1',
+	'Lehmanns Fachbuchhandlung'     => 'http://www.lob.de/cgi-bin/work/suche?flag=new&stich1=$1',
 );
 
 
-/* private */ $wgValidSpecialPagesNds = array(
-  'Userlogin'           => '',
-  'Userlogout'          => '',
-  'Preferences'         => 'Mien Brukerinstellen',
-  'Watchlist'           => 'Mien Oppasslist',
-  'Recentchanges'       => 'Letzte Ännern',
-  'Upload'              => 'Datei hoochladen',
-  'Imagelist'           => 'Hoochladene Datein',
-  'Listusers'           => 'Registreerte Bruker',
-  'Statistics'          => 'Sietenstatistik',
-  'Randompage'          => 'Tofällige Siet',
-
-  'Lonelypages'         => 'Weetsieten',
-  'Unusedimages'        => 'Weetdatein',
-  'Popularpages'        => 'Veel opropene Sieten',
-  'Wantedpages'         => 'Wünschte Sieten',
-  'Shortpages'          => 'Kotte Sieten',
-  'Longpages'           => 'Lange Sieten',
-  'Newpages'            => 'Niege Sieten',
-  'Ancientpages'        => 'Ole Sieten',
-  'Allpages'            => 'Alle Sieten',
-
-  'Ipblocklist'         => 'Blockte IP-Adressen',
-  'Maintenance'         => 'Pleegsieten',
-  'Specialpages'        => 'Spezialsieten',
-  'Contributions'       => 'Brukerbidreeg',
-  'Movepage'            => 'Siet schuven',
-  'Emailuser'           => 'dissen Bruker en E-Mail schrieven',
-  'Whatlinkshere'       => 'Wat wiest hierher',
-  'Recentchangeslinked' => 'Ännern vun verlinkte Sieten',
-  'Booksources'         => 'Externe Bookhöker',
-  'Categories'          => 'Kategorien',
-  'Export'              => 'XML-Sietenexport',
-  'Version'              => 'Historie',
-);
-
-/* private */ $wgSysopSpecialPagesNds = array(
-        'Blockip'              => 'Block en IP-Adress',
-        'Asksql'               => 'Datenbank-Affraag',
-        'Undelete'             => 'Löschte Sieten weerholen'
-);
-
-/* private */ $wgDeveloperSpecialPagesNds = array(
-        'Lockdb'               => 'Datenbank sparren',
-        'Unlockdb'             => 'Datenbank freegeven',
-);
 
 /* private */ $wgAllMessagesNds = array(
-'special_version_prefix'      => '',
-'special_version_postfix'     => '',
 # Schalter för de Brukers
-'tog-hover'                    => 'Henwies över interne Verwies',
 'tog-underline'               => 'Verwies ünnerstrieken',
 'tog-highlightbroken'         => 'Verwies op leddige Sieten hervörheven',
 'tog-justify'                 => 'Text as Blocksatz',
@@ -226,15 +175,14 @@ un dat [http://meta.wikipedia.org/wiki/MediaWiki_User%27s_Guide Brukerhandbook] 
 'article'               => 'Artikel',
 'help'                          => 'Hülp',
 'helppage'                      => '{{ns:4}}:Hülp',
-'wikititlesuffix'       => '{{SITENAME}}',
 'bugreports'               => 'Kontakt',
 'bugreportspage'        => '{{ns:4}}:Kontakt',
 'sitesupport'           => 'Gaven',
 'faq'                                   => 'Faken stellte Fragen',
-'faqpage'                       => '{{SITENAME}}:Faken stellte Fragen',
+'faqpage'                       => '{{ns:project}}:Faken stellte Fragen',
 'newwindow'                     => '(apent sik in en nieg Finster)',
 'edithelp'                          => 'Bearbeidenshülp',
-'edithelppage'           => '{{SITENAME}}:Editeerhülp',
+'edithelppage'           => '{{ns:project}}:Editeerhülp',
 'cancel'                              => 'Afbreken',
 'qbfind'                              => 'Finnen',
 'qbbrowse'                          => 'Blädern',
@@ -290,15 +238,12 @@ un dat [http://meta.wikipedia.org/wiki/MediaWiki_User%27s_Guide Brukerhandbook] 
 'copyright'             => 'De Inholt is verfögbor ünner de $1.',
 'poweredby'                 => '{{SITENAME}} bruukt [http://www.mediawiki.org/ MediaWiki], en Wiki-Software mit apen Borntext.',
 'printsubtitle'         => '(Vun {{SERVER}})',
-'gnunote'               => 'Disse Siet is ünner de <a class=\'internal\' href=\'$wgScriptPath/GNU_FDL\'>GNU FDL</a> verfögbor.',
 'protectedpage'         => 'Schulte Sieten',
 'administrators'        => '{{ns:4}}:Administratern',
 'sysoptitle'               => 'Sysop-Togang notwennig',
 'sysoptext'                     => 'Dissen Vörgang kann ut Sekerheitsgrünnen blots vun Brukern mit „Sysop“-Rechten dörföhrt warrn. Kiek ok $1.',
 'developertitle'        => 'Entwickler-Togang notwennig',
 'developertext'         => 'Dissen Vörgang kann ut Sekerheitsgrünnen blots vun Brukern mit „Entwickler“-Rechten dörföhrt warrn. Kiek ok $1.',
-'bureaucrattitle'       => 'Bürokraten-Rechten notwennig',
-'bureaucrattext'               => 'Dissen Vörgang kann blots vun Brukern mit „Bürokrat“-Rechten dörföhrt warrn.',
 'nbytes'                              => '$1 Bytes',
 'go'                                     => 'Los',
 'ok'                                    => 'OK',
@@ -401,7 +346,6 @@ Query: $2
 'protectedtext'         => 'Disse Siet is för dat Bearbeiden sparrt. Dorför kann dat verschedene Grünn geven; kiek [[{{ns:4}}:Schulte Sieten]].
 
 Du kannst den Borntext vun disse Siet ankieken un kopeern:',
-'seriousxhtmlerrors'    => 'Tidy hett swore Fehler in\'n XHTML-Markup funnen.',
 
 
 # Login- un Logoutsieten
@@ -419,7 +363,7 @@ Vergeet nich, dien [[Special:Preferences|Instellen]] antopassen.',
 'newusersonly'          => ' (blots för niege Liddmaten)',
 'remembermypassword'    => 'Duersam inloggen',
 'loginproblem'           => '<b>Dor weer en Problem mit dien Anmellen.</b><br />Versöök dat noch eenmal!',
-'alreadyloggedin'       => '<font color=\'red\'><b>Bruker $1, du büst al anmellt!</b></font><br />',
+'alreadyloggedin'       => '<strong>Bruker $1, du büst al anmellt!</strong><br />',
 
 'login'                         => 'Anmellen',
 'loginprompt'           => 'Üm sik bi {{SITENAME}} antomellen, musst du Cookies aktiveert hebben.',
@@ -437,9 +381,10 @@ Vergeet nich, dien [[Special:Preferences|Instellen]] antopassen.',
 'yourlanguage'           => 'Snittstellenspraak',
 'yourvariant'           => 'Dien Spraak',
 'emailforlost'          => 'Wenn du dien Password vergeten hest, kann en nieg Password an dien E-Mail-Adress send warrn.',
-'prefs-help-userdata'   => '* <strong>E-Mail</strong> (kene Plicht): Wenn du en E-Mailadress angiffst, könen annere di E-Mails sennen,
-ahn dat diene Adress no buten künnig warrt. Wenn du dien ol Password vergeten hest,
-kannst du ok blots denn en nieg Passwort kriegen, wenn du en E-Mailadress angeven hest.',
+// FIXME: following should be split to 'prefs-help-realname' & 'prefs-help-email'
+#'prefs-help-userdata'   => '* <strong>E-Mail</strong> (kene Plicht): Wenn du en E-Mailadress angiffst, könen annere di E-Mails sennen,
+#ahn dat diene Adress no buten künnig warrt. Wenn du dien ol Password vergeten hest,
+#kannst du ok blots denn en nieg Passwort kriegen, wenn du en E-Mailadress angeven hest.',
 'loginerror'               => 'Fehler bi dat Anmellen',
 'noname'                              => 'Du muttst en Brukernaam angeven.',
 'loginsuccesstitle'     => 'Anmellen hett Spood',
@@ -489,8 +434,7 @@ dat disse Kommentaren nich an di richt sünd, denn [[Special:Userlogin|mell di d
 'noarticletext'          => '(Disse Siet hett in\'n Momang kenen Text)',
 'usercsspreview'         => "'''Denk doran, dat du blots en Vörschau vun dien CSS ankiekst, dat is noch nich spiekert!'''",
 'userjspreview'          => "'''Denk doran, dat du blots en Vörschau vun dien JS ankiekst, dat is noch nich spiekert!'''",
-'clearyourcache'         => "'''Denk doran:''' No den Spiekern muttst du dien Browser noch seggen, de niege Version to laden:
-'''Mozilla:''' Klick op ''Neu laden''(oder ''Strg-R''), '''IE / Opera:''' ''Strg-F5'', '''Safari:''' ''Cmd-r'', '''Konqueror''' ''Strg-R''.',
+'clearyourcache'         => "'''Denk doran:''' No den Spiekern muttst du dien Browser noch seggen, de niege Version to laden: '''Mozilla/Firefox:''' ''Strg-Shift-R'', '''IE:''' ''Strg-F5'', '''Safari:''' ''Cmd-Shift-R'', '''Konqueror:''' ''F5''.",
 'usercssjsyoucanpreview' => '<strong>Tipp:</strong> Bruuk den Vörschau-Knoop, üm dien nieg CSS/JS vör dat Spiekern to testen.',
 'updated'                       => '(Ännert)',
 'note'                          => '<strong>Henwies:</strong> ',
@@ -505,7 +449,7 @@ Dat Textfeld baven wiest de aktuelle Siet.
 Dat Textfeld nerrn wiest diene Ännern.
 Föög diene Ännern in dat Textfeld baven in.
 
-<b>Blots</b> de Text in dat Textfeld baven warrt spiekert, wenn du op Spiekern klickst!<p>",
+<b>Blots</b> de Text in dat Textfeld baven warrt spiekert, wenn du op Spiekern klickst!<br />',
 'yourtext'                      => 'Dien Text',
 'storedversion'          => 'Spiekerte Version',
 'nonunicodebrowser'      => '<strong>Wohrscho: Dien Browser ünnerstütt keen Unicode, wähl en annern Browser, wenn du en Siet ännern wullst.</strong>',
@@ -513,7 +457,7 @@ Föög diene Ännern in dat Textfeld baven in.
 Wenn du spiekerst, warrn alle niegeren Versionen överschrieven.</strong>',
 'yourdiff'                      => 'Ünnerscheed',
 'copyrightwarning'       => "
-<b><font size='+1'>Kopeer kene Websieten</font>, de nich dien egen sünd un bruuk <font size='+1'>kene Warken, de enen Oorheverrecht ünnerliggt,</font>
+<b><big>Kopeer kene Websieten</big>, de nich dien egen sünd un bruuk <big>kene Warken, de enen Oorheverrecht ünnerliggt,</big>
 ahn Verlööv vun de Copyright-Inhebbers!</b>
 <p>Du giffst hiermit dien Tosaag, dat du dien Text <strong>sülvst verfaat</strong> hest, dat de Text Gemeengood
 (<strong>„Public Domain“</strong>) is, oder dat de <strong>Copyright-Inhebber</strong> sien <strong>Tostimmen</strong> geven hett.
@@ -522,13 +466,13 @@ vun wegen dat he denkt, dat weer en Brook vun dat Oorheverrecht.
 
 <p><i>Denk doran, dat alle {{SITENAME}}-Bidreeg automatsch ünner de „GNU Fre'e Dokumentatschoonslizenz“ steiht.
 Wenn du nich wullst, dat dien Arbeid hier vun annern ännert un verbreed warrt, denn klick nich op Spiekern.</i>",
-'longpagewarning'        => 'Wohrscho: Disse Siet is $1 KB groot; en poor Browser köönt Probleme hebben, Sieten to bearbeiden, de grötter as 32 KB sünd.
-Bedenk of disse Siet vilicht in lüttere Afsnitten opdeelt warrn kann.',
-'readonlywarning'        => 'Wohrscho: De Datenbank is wiel dat Ännern vun de
+'longpagewarning'        => '<strong>Wohrscho: Disse Siet is $1 KB groot; en poor Browser köönt Probleme hebben, Sieten to bearbeiden, de grötter as 32 KB sünd.
+Bedenk of disse Siet vilicht in lüttere Afsnitten opdeelt warrn kann.</strong>',
+'readonlywarning'        => '<strong>Wohrscho: De Datenbank is wiel dat Ännern vun de
 Siet för Pleegarbeiden sparrt worrn, so dat du de Siet en Stoot nich
-spiekern kannst. Seker di den Text un versöök later weer de Ännern to spiekern.',
-'protectedpagewarning'   => 'Wohrscho: Disse Siet is sparrt worrn, so dat blots
-Bruker mit Sysop-Rechten doran arbeiden könnt. Kiek ok bi de [[{{ns:4}}:Schulte Sieten|Regeln för schulte Sieten]].',
+spiekern kannst. Seker di den Text un versöök later weer de Ännern to spiekern.</strong>',
+'protectedpagewarning'   => '<strong>Wohrscho: Disse Siet is sparrt worrn, so dat blots
+Bruker mit Sysop-Rechten doran arbeiden könnt. Kiek ok bi de [[Project:Schulte Sieten|Regeln för schulte Sieten]].</strong>',
 'copyrightwarning2'      => 'Dien Text, de du op {{SITENAME}} stellen wullst, könnt vun elkeen ännert oder wegmaakt warrn.
 Wenn du dat nich wullst, dröffst du dien Text hier nich apentlich maken.<br />
 
@@ -606,12 +550,11 @@ de aver nich jümmer den aktuellsten Stand weerspegelt.<p>',
 #
 'preferences'          => 'Instellen',
 'prefsnologin'       => 'Nich anmellt',
-'prefsnologintext'   => 'Du muttst <a href=\'{{localurle:Special:Userlogin}}\'>anmellt</a> ween, üm dien Instellen to ännern.',
+'prefsnologintext'   => 'Du muttst [[Special:Userlogin|anmellt]] ween, üm dien Instellen to ännern.',
 'prefslogintext'     => 'Du büst anmellt as „$1“.
 Dien interne ID-Nummer is $2.',
 'prefsreset'            => 'Instellen sünd op Standard trüchsett.',
 'qbsettings'         => 'Sietenliest',
-'qbsettingsnote'            => 'Disse Instellen funktschoneert blots mit den Skins „Standard“ un „CologneBlue“.',
 'changepassword'     => 'Password ännern',
 'skin'                          => 'Utsehn vun de Steed',
 'math'                          => 'TeX',
@@ -675,8 +618,7 @@ Disse Siet warrt wiel dat Laden automatsch aktualiseert. Wiest warrn Sieten, de 
 'reupload'                      => 'Nieg hoochladen',
 'reuploaddesc'          => 'Trüch to de Hoochladen-Siet.',
 'uploadnologin'     => 'Nich anmellt',
-'uploadnologintext'     => 'Du muttst <a href=\'{{localurle:Spezial:Userlogin}}\'>anmellt ween</a> üm Datein hoochladen to könen.',
-'uploadfile'            => 'Datei hoochladen',
+'uploadnologintext'     => 'Du muttst [[Spezial:Userlogin|anmellt ween]] üm Datein hoochladen to könen.',
 'uploaderror'         => 'Fehler bi dat Hoochladen',
 'uploadtext'           => "
 Üm hoochladene Biller to söken un antokieken,
@@ -703,16 +645,13 @@ Alle Tieden sünd UTC.
 <ul>
 
 </ul>",
-'uploadlogtext'     => 'Hoochladene un löschte Datein warrn in $1 utwiest.',
 'filename'                      => 'Dateinaam',
 'filedesc'                      => 'Beschrieven',
 'filestatus'        => 'Copyright-Status',
 'filesource'        => 'Born',
-'affirmation'           => 'Hiermit bestätige ik, dat ik de Inhebber vun dat Copyright vun disse Datei bün, un de Datei ünner $1 apentlich maak, oder dat de Datei Gemeengood („Public Domain“) is.',
 'copyrightpage'     => '{{ns:4}}:Copyright',
 'copyrightpagename' => '{{SITENAME}} Copyright',
 'uploadedfiles'         => 'Hoochladene Datein',
-'noaffirmation'     => 'Du muttst bestätigen, dat dat Hoochladen vun de Datei kenen Copyright-Brook is.',
 'ignorewarning'         => 'Warnen ignoreern un Datei liekers spiekern.',
 'minlength'             => 'Bilddatein möten tominnst dree Bookstaven hebben.',
 'badfilename'           => 'De Bildnaam is in „$1“ ännert worrn.',
@@ -734,10 +673,8 @@ Disse ($2) Link föhrt to de Bildsiet. Dor kann indregen warrn, woneem dat Bild 
 'imagelist'               => 'Billerlist',
 'imagelisttext'       => 'Hier is en List vun $1 Biller, sorteert $2.',
 'getimagelist'          => 'Billerlist laden',
-'ilshowmatch'           => 'Wies alle Biller mit Naam',
 'ilsubmit'                        => 'Söök',
 'showlast'                      => 'Wies de letzten $1 Biller, sorteert $2.',
-'all'                           => 'all',
 'byname'                        => 'no Naam',
 'bydate'                        => 'no Datum',
 'bysize'                        => 'no Grött',
@@ -816,29 +753,20 @@ In Klammern angevene Wöör geven de korrekte Schrievwies weer.',
 'shortpages'                 => 'Kotte Sieten',
 'longpages'                     => 'Lange Sieten',
 'listusers'                          => 'Brukerlist',
-'listadmins'                    => 'Administraterlist',
 'specialpages'                  => 'Spezialsieten',
 'spheading'                             => 'Spezialsieten för alle Bruker',
-'asksqlpheading'          => 'SQL-Affraag-Evene',
-'blockpheading'           => 'Block-Evene',
-'createaccountpheading'   => 'Kontoanlegg-Evene',
-'deletepheading'          => 'Lösch-Evene',
-'userrightspheading'      => 'Brukerrecht-Evene',
-'siteadminpheading'       => 'Sietenadmininstrater-Evene',
 'protectpage'               => 'Siet schulen',
 'recentchangeslinked'     => 'Verlinkte Sieten',
 'rclsub'                                => '(op Artikel vun „$1“)',
 'debug'                                 => 'Fehlerkorregeern',
 'newpages'                              => 'Niege Sieten',
 'ancientpages'            => 'Öllste Sieten',
-'Intl'                    => 'annere Spraken',
 'move'                    => 'Schuven',
 'movethispage'                  => 'Siet schuven',
 'unusedimagestext'        => 'Denk doran, dat annere Wikis mööglicherwies en poor vun disse Biller bruken.',
 'booksources'               => 'Bookhannel',
 'categoriespagetext'      => 'Disse Kategorien existeern in dissen Wiki',
 'data'                     => 'Daten',
-'userlevels'              => 'Brukerrechten-Verwalten',
 'booksourcetext'          => 'Dit is en List mit Links to Internetsieten, de niege un bruukte Böker verkööpt.
 Dor kann dat ok mehr Informatschonen över de Böker geven, de di interesseert.
 {{SITENAME}} is mit kenen vun disse Höker warflich verbunnen.',
@@ -851,7 +779,7 @@ Du kannst de List kötter maken, wenn du den Logtyp, den Brukernaam oder de de S
 # E-Mail an'n Bruker
 #
 'mailnologin'             => 'Du büst nich anmellt.',
-'mailnologintext'       => 'Du muttst <a href=\'{{localurle:Spezial:Userlogin}}\'>anmellt ween</a> un en güllige E-Mail-Adress hebben, dormit du en annern Bruker en E-Mail sennen kannst.',
+'mailnologintext'       => 'Du muttst [[Spezial:Userlogin|anmellt ween]] un en güllige E-Mail-Adress hebben, dormit du en annern Bruker en E-Mail sennen kannst.',
 'emailuser'                     => 'E-Mail an dissen Bruker',
 'emailpage'                     => 'E-Mail an Bruker',
 'emailpagetext'         => 'Wenn disse Bruker en güllige E-Mail-Adress angeven hett, kannst du em mit den nerrn stahn Formular en E-Mail sennen. As Afsenner warrt de E-Mail-Adress ut dien Instellen indregen, dormit de Bruker di antern kann.',
@@ -869,13 +797,10 @@ Du kannst de List kötter maken, wenn du den Logtyp, den Brukernaam oder de de S
 
 # Special:Allpages
 'nextpage'          => 'tokamen Siet ($1)',
-'articlenamespace'  => '(Artikels)',
-'allpagesformtext1' => 'Wies Sieten, anfungen bi: $1',
-'allpagesformtext2' => 'Wähl Naamruum: $1 $2',
 'allarticles'       => 'Alle Artikels',
 'allpagesprev'      => 'vörig',
 'allpagesnext'      => 'tokamen',
-'allpagesnamespace' => 'Alle Sieten ($1 Naamruum)',
+'allinnamespace' => 'Alle Sieten ($1 Naamruum)',
 'allpagessubmit'    => 'Los',
 
 # Oppasslist
@@ -884,7 +809,7 @@ Du kannst de List kötter maken, wenn du den Logtyp, den Brukernaam oder de de S
 'watchlistsub'           => '(för Bruker „$1“)',
 'nowatchlist'           => 'Du hest kene Indreeg op dien Oppasslist.',
 'watchnologin'            => 'Du büst nich anmellt',
-'watchnologintext'      => 'Du muttst <a href=\'{{localurle:Spezial:Userlogin}}\'>anmellt</a> ween, wenn du dien Oppasslist ännern willst.',
+'watchnologintext'      => 'Du muttst [[Spezial:Userlogin|anmellt]] ween, wenn du dien Oppasslist ännern willst.',
 'addedwatch'            => 'To de Oppasslist hentofögt',
 'addedwatchtext'        => 'De Siet „$1“ is to dien <a href=\'{{localurle:Spezial:Watchlist}}\'>Oppasslist</a> hentofögt worrn.
 Ännern, de in Tokumst an disse Siet un an de toheurige Diskuschoonssiet mookt warrn, sünd dorop list un de Siet is op de
@@ -898,7 +823,7 @@ hebben wullst, klick op „Nich mehr oppassen“ in de Linklist.',
 'watchnochange'         => 'Kene Siet, op de du oppasst, is in den wiesten Tiedruum bearbeid worrn.',
 'watchdetails'          => '($1 Sieten sünd op de Oppasslist (ahn Diskuschoonssieten);
 $2 Sieten werrn in de instellte Tied bearbeid;
-$3... <a href=\'$4\'>komplette List wiesen un bearbeiden</a>.)',
+$3... [$4 komplette List wiesen un bearbeiden].)',
 'watchmethod-recent'    => 'letzte Ännern no Oppasslist pröven',
 'watchmethod-list'      => 'Oppasslist no letzte Ännern pröven',
 'removechecked'         => 'Markeerte Indreeg löschen',
@@ -915,15 +840,14 @@ $3... <a href=\'$4\'>komplette List wiesen un bearbeiden</a>.)',
 #
 'deletepage'               => 'Siet löschen',
 'confirm'                            => 'Bestätigen',
-'excontent'             => 'Olen Inholt:',
-'exbeforeblank'         => 'Inholt vör dat Leddigmaken vun de Siet:',
+'excontent'             => "Olen Inholt: '$1'",
+'exbeforeblank'         => "Inholt vör dat Leddigmaken vun de Siet: '$1'",
 'exblank'               => 'Siet weer leddig',
 'confirmdelete'         => 'Löschen bestätigen',
 'deletesub'                     => '(Lösche „$1“)',
 'historywarning'        => 'Wohrscho: De Siet, de du versöökst to löschen, hett en Versionshistorie: ',
 'confirmdeletetext'     => 'Du büst dorbi, en Siet oder en Bild un alle ölleren Versionen duersam ut de Datenbank to löschen.
 Segg to, dat du över de Folgen Bescheed weetst un dat du in Övereenstimmen mit uns [[{{ns:4}}:Leidlienen|Leidlienen]] hannelst.',
-'confirmcheck'            => 'Ja, ik will mit den Löschvörgang wiedermaken.',
 'actioncomplete'        => 'Aktschoon beennt',
 'deletedtext'           => '„$1“ is löscht.
 In $2 kannst du en List vun de letzten Löschen finnen.',
@@ -998,7 +922,6 @@ Ok den Grund för dat Blocken indregen.',
 'ipbreason'                     => 'Grund',
 'ipbsubmit'                        => 'Adress blocken',
 'badipaddress'          => 'De IP-Adress hett en falsch Format.',
-'noblockreason'         => 'Du muttst en Grund för dat Blocken angeven.',
 'blockipsuccesssub'     => 'Blocken hett Spood',
 'blockipsuccesstext'    => 'De IP-Adress „$1“ is nu blockt.
 
@@ -1008,7 +931,7 @@ Ok den Grund för dat Blocken indregen.',
 'ipusubmit'                     => 'Disse Adress freegeven',
 'ipusuccess'               => 'IP-Adress „$1“ is freegeven',
 'ipblocklist'           => 'List vun blockte IP-Adressen',
-'blocklistline'              => '$1, $2 hett $3 blockt',
+'blocklistline'              => '$1, $2 hett $3 blockt ($4)',
 'blocklink'                     => 'blocken',
 'unblocklink'             => 'freegeven',
 'contribslink'           => 'Bidreeg',
@@ -1033,17 +956,6 @@ Schall de Datenbank-Sparr redig beennt warrn?',
 <br />Du muttst de Datenbank weer freegeven, wenn de Pleegarbeiden beennt sünd.',
 'unlockdbsuccesstext'   => 'De {{SITENAME}}-Datenbank is weer freegeven.',
 
-# SQL-Affraag
-#
-'asksql'                              => 'SQL-Affraag',
-'asksqltext'                 => 'Bruuk dat Formular för en direkte Datenbank-Affraag. Bruuk enkelte Hoochkommata (\'so\'), üm Text to begrenzen.
-Disse Funktschoon kann de Datenbank bannig in Anspröök nehmen, dorum vörsichtig bruken.',
-'sqlislogged'           => 'Bedenk dat alle SQL-Affragen mitprotokolleert warrn.',
-'sqlquery'                            => 'Affraag ingeven',
-'querybtn'                          => 'Affraag starten',
-'selectonly'                 => 'Annere Affragen as \'SELECT\' köönt eenzig vun Entwicklern bruukt warrn.',
-'querysuccessful'       => 'Affraag hett Spood',
-
 # Siet schuven
 #
 'movepage'                           => 'Siet schuven',
@@ -1057,7 +969,7 @@ In disse Fäll muttst du de Siet, wenn du dat wullst, vun Hand schuven.",
 'movearticle'           => 'Siet schuven',
 'movenologin'           => 'Du büst nich anmellt',
 'movenologintext'       => 'Du muttst en registreert Bruker un
-<a href=\'{{localurle:Special:Userlogin}}\'>anmellt</a> ween,
+[[Special:Userlogin|anmellt]] ween,
 üm en Siet to schuven.',
 'newtitle'                     => 'To niegen Titel',
 'movepagebtn'             => 'Siet schuven',
@@ -1079,90 +991,18 @@ Diskuschoonssiet nich, vun wegen dat dor al en Siet mit dissen Titel existeert. 
 'missingimage'          => '<b>Bild fehlt</b><br /><i>$1</i>',
 
 #Tooltips:
-'tooltip-atom'          => 'Atom-Feed vun disse Siet',
-'tooltip-addsection'    => 'En Kommentar to disse Siet hentofögen. [alt-+]',
-'tooltip-article'       => 'Siet ankieken [alt-a]',
-'tooltip-talk'          => 'Disse Siet diskuteern [alt-t]',
-'tooltip-edit'          => 'Du kannst disse Siet bearbeiden. Bitte bruuk de Vörschau, vördem du de Siet spiekerst. [alt-e]',
-'tooltip-viewsource'    => 'Disse Siet is schuult. Du kannst den Borntext ankieken. [alt-e]',
-'tooltip-history'       => 'Öllere Versionen vun disse Siet. [alt-h]',
-'tooltip-protect'       => 'Disse Siet schulen [alt--]',
-'tooltip-delete'        => 'Disse Siet löschen [alt-d]',
-'tooltip-undelete'      => '$1 Versionen vun disse Siet weerholen. [alt-d]',
-'tooltip-move'          => 'Disse Siet schuven. [alt-m]',
-'tooltip-nomove'        => 'Du kannst disse Siet nich schuven',
 'tooltip-watch'         => 'Op disse Siet oppassen. [alt-w]',
-'tooltip-unwatch'       => 'Op disse Siet nich mehr oppassen. [alt-w]',
-'tooltip-watchlist'     => 'De List vun de Sieten, op de du oppasst. [alt-l]',
-'tooltip-userpage'      => 'Mien Brukersiet [alt-.]',
-'tooltip-anonuserpage'  => 'De Brukersiet vun dien IP-Adress [alt-.]',
-'tooltip-mytalk'        => 'Mien Brukerdiskuschoon [alt-n]',
-'tooltip-anontalk'      => 'Diskuschonen to Bearbeiden, de vun disse IP-Adress mookt warrn. [alt-n]',
-'tooltip-preferences'   => 'Mien Instellen',
-'tooltip-mycontris'     => 'List vun mien Bidreeg [alt-y]',
-'tooltip-login'         => 'Du kannst di geern anmellen, dat is aver nich neudig, üm Sieten to bearbeiden. [alt-o]',
-'tooltip-logout'        => 'De Startknoop [alt-o]',
 'tooltip-search'        => 'Söken [alt-f]',
-'tooltip-mainpage'      => 'To de Hööftsiet [alt-z]',
-'tooltip-portal'        => 'över dat Projekt, wat du doon kannst, woans du de Saken finnen kannst',
-'tooltip-randompage'    => 'Tofällige Siet [alt-x]',
-'tooltip-currentevents' => 'Achtergrünn to aktuellen Schehn finnen',
-'tooltip-sitesupport'   => 'Hülp de {{SITENAME}} mit Gaven',
-'tooltip-help'          => 'Hier kriegst du Hülp.',
-'tooltip-recentchanges' => 'De letzten Ännern in dissen Wiki. [alt-r]',
-'tooltip-recentchangeslinked' => 'De letzten Ännern an Sieten, de vun disse Siet verlinkt sünd. [alt-c]',
-'tooltip-whatlinkshere' => 'List vun alle Sieten, de op disse Siet wiesen [alt-b]',
-'tooltip-specialpages'  => 'List vun alle Spezialsieten [alt-q]',
-'tooltip-upload'        => 'Biller oder annere Medien hoochladen [alt-u]',
-'tooltip-specialpage'   => 'Dit is en Spezialsiet, de nich bearbeid warrn kann.',
 'tooltip-minoredit'     => 'Disse Ännern as lütt markeern. [alt-i]',
 'tooltip-save'          => 'Ännern spiekern [alt-s]',
 'tooltip-preview'       => 'Vörschau vun de Ännern an disse Siet. Bruuk dat vör dat Spiekern. [alt-p]',
-'tooltip-contributions' => 'List vun de Bidreeg vun dissen Bruker.',
-'tooltip-emailuser'     => 'Send en E-Mail an dissen Bruker',
-'tooltip-rss'           => 'RSS-Feed vun disse Siet.',
 'tooltip-compareselectedversions' => 'Ünnerscheed twüschen twee utwählte Versionen vun disse Siet verglieken. [alt-v]',
 
 #Tastatur-Shortcuts
-'accesskey-article'                 => 'a',
-'accesskey-addsection'              => '+',
-'accesskey-talk'                    => 't',
-'accesskey-edit'                    => 'e',
-'accesskey-viewsource'              => 'e',
-'accesskey-history'                 => 'h',
-'accesskey-protect'                 => '-',
-'accesskey-delete'                  => 'd',
-'accesskey-undelete'                => 'd',
-'accesskey-move'                    => 'm',
-'accesskey-watch'                   => 'w',
-'accesskey-unwatch'                 => 'w',
-'accesskey-watchlist'               => 'l',
-'accesskey-userpage'                => '.',
-'accesskey-anonuserpage'            => '.',
-'accesskey-mytalk'                  => 'n',
-'accesskey-anontalk'                => 'n',
-'accesskey-preferences'             => '',
-'accesskey-mycontris'               => 'y',
-'accesskey-login'                   => 'o',
-'accesskey-logout'                  => 'o',
 'accesskey-search'                  => 'f',
-'accesskey-mainpage'                => 'z',
-'accesskey-portal'                  => '',
-'accesskey-randompage'              => 'x',
-'accesskey-currentevents'           => '',
-'accesskey-sitesupport'             => '',
-'accesskey-help'                    => '',
-'accesskey-recentchanges'           => 'r',
-'accesskey-recentchangeslinked'     => 'c',
-'accesskey-whatlinkshere'           => 'b',
-'accesskey-specialpages'            => 'q',
-'accesskey-specialpage'             => '',
-'accesskey-upload'                  => 'u',
 'accesskey-minoredit'               => 'i',
 'accesskey-save'                    => 's',
 'accesskey-preview'                 => 'p',
-'accesskey-contributions'           => '',
-'accesskey-emailuser'               => '',
 'accesskey-compareselectedversions' => 'v',
 
 'makesysoptitle'        => 'Maak en Bruker to en Administrater',
@@ -1185,7 +1025,7 @@ Diskuschoonssiet nich, vun wegen dat dor al en Siet mit dissen Titel existeert. 
 'thumbnail-more'               => 'vergröttern',
 'and'                                   => 'un',
 'rchide'                        => 'in $4 form; $1 lütte Ännern; $2 sekundäre Naamrüüm; $3 mehrfache Ännern.',
-'showhideminor'                 => 'lütte Ännern $1',
+'showhideminor'                 => 'lütte Ännern $1 | $2 bots | $3 logged in users | $4 patrolled edits',
 'rcliu'                               => '$1 Ännern dör inloggte Bruker',
 'uploaddisabled'               => 'Dat Hoochladen is deaktiveert.',
 'deadendpages'                  => 'Sackstraatsieten',
@@ -1212,7 +1052,6 @@ Kiek [[Special:Ipblocklist|IP-Blocklist]] för en List vun den blockten Brukern.
 'confirmunprotecttext'  => 'Schall de Sparr vun disse Siet redig beennt warrn?',
 'confirmunprotect'           => 'De Sparr beennen',
 'unprotectcomment'           => 'Grund för dat Beennen vun de Sparr',
-'protectreason'                => '(Grund för dat Beennen vun de Sparr angeven)',
 'proxyblocker'          => 'Proxyblocker',
 'proxyblockreason'      => 'Dien IP-Adress is blockt, vun wegen dat se en apenen Proxy is.
 Kontakteer dien Provider oder diene Systemtechnik un informeer se över dat möögliche Sekerheitsproblem.',
@@ -1297,7 +1136,6 @@ ta[\'ca-protect\'] = new Array(\'=\',\'Disse Siet schulen\');
 ta[\'ca-delete\'] = new Array(\'d\',\'Disse Siet löschen\');
 ta[\'ca-undelete\'] = new Array(\'d\',\'Weerholen vun de Siet, so as se vör dat löschen ween is\');
 ta[\'ca-move\'] = new Array(\'m\',\'Disse Siet schuven\');
-ta[\'ca-nomove\'] = new Array(\'\',\'Du hest nich de Rechten disse Siet to schuven\');
 ta[\'ca-watch\'] = new Array(\'w\',\'Disse Siet to de Oppasslist hentofögen\');
 ta[\'ca-unwatch\'] = new Array(\'w\',\'Disse Siet vun de Oppasslist löschen\');
 ta[\'search\'] = new Array(\'f\',\'In dissen Wiki söken\');
@@ -1340,39 +1178,6 @@ ta[\'ca-nstab-category\'] = new Array(\'c\',\'Kategoriesiet ankieken\');',
 
 'newimages'                             => 'Galeree vun niege Biller',
 
-'sitesettings'                          => 'Sietenwiet Instellen',
-'sitesettings-features'                 => 'Anlagen',
-'sitesettings-permissions'              => 'Rechten',
-'sitesettings-memcached'                => 'Memcache-Daemon',
-'sitesettings-debugging'                => 'Fehlerkorrigeern',
-'sitesettings-caching'                  => 'Sietencachen',
-'sitesettings-wgShowIPinHeader'         => 'Wies de IP in de Koppliest (för nichinloggt Brukers)',
-'sitesettings-wgUseDatabaseMessages'    => 'Bruuk Datenbank-Norichten för Bruker-Snittstell-Texten',
-'sitesettings-wgUseCategoryMagic'       => 'Kategorien aktiveern',
-'sitesettings-wgUseCategoryBrowser'     => 'experimentelle dmoz-lieke Kategorie-Ansicht aktiveern. Dat sieht so ut: Hööftkategorie > Musik > Musikrichten > Jazz',
-'sitesettings-wgHitcounterUpdateFreq'   => 'wo faken schall de Togriepstähler aktualiseert warrn',
-'sitesettings-wgAllowExternalImages'    => 'Biller vun annere Server tolaten',
-'sitesettings-permissions-readonly'     => 'Pleegmodus: Schrievtogang deaktiveern',
-'sitesettings-permissions-whitelist'    => 'Wittlist-Modus',
-'sitesettings-permissions-banning'      => 'Brukerblocken',
-'sitesettings-permissions-miser'        => 'Leisten-Instellen',
-'sitesettings-wgReadOnly'               => 'Modus för blots lesen',
-'sitesettings-wgReadOnlyFile'           => 'Norichtendatei op blots lesen',
-'sitesettings-wgWhitelistEdit'          => 'Brukers möten inloggt ween üm Ännern to maken',
-'sitesettings-wgWhitelistRead'          => 'Anonyme Brukers dröfft blots disse Sieten lesen:',
-'sitesettings-wgWhitelistAccount-user'  => 'Bruker dröfft sülvst Brukerkontos anleggen',
-'sitesettings-wgWhitelistAccount-sysop' => 'Sysops dröfft Brukerkontos för de Bruker anleggen',
-'sitesettings-wgWhitelistAccount-developer' => 'Entwickler dröfft Brukerkontos för de Bruker anleggen',
-'sitesettings-wgSysopUserBans'          => 'Sysops dröfft inloggte Brukers blocken',
-'sitesettings-wgSysopRangeBans'         => 'Sysops dröfft IP-Rebeden blocken',
-'sitesettings-wgDefaultBlockExpiry'     => 'Standardduer för dat Blocken:',
-'sitesettings-wgMiserMode'              => 'Pennschieter-Modus aktiveern, de de mehrsten opwennigen Anlagen utschalt',
-'sitesettings-wgDisableQueryPages'      => 'wenn de Pennschieter-Modus aktiveert is, nich blots de opwennigen Anlagen utschalten, sünnern alle Affraagsieten',
-'sitesettings-wgUseWatchlistCache'      => 'Oppasslist eenmal in en Tiedspann genereern',
-'sitesettings-wgWLCacheTimeout'         => 'Tiedspann (in Sekunnen):',
-'sitesettings-cookies'                  => 'Cookies',
-'sitesettings-performance'              => 'Leisten',
-'sitesettings-images'                   => 'Biller',
 
 # Validatschoon
 'val_clear_old'                         => 'Maak mien annere Validatschoonsdaten för $1 weg.',
@@ -1403,29 +1208,16 @@ sett de annern Optschonen mit dien vörige Instellen.',
 'val_page_validation_statistics'        => 'Sietenvalideer-Statistik för $1',
 
 # Schalttafel
-'userlevels-lookup-group'               => 'Gruppenrechten verwalten',
-'userlevels-group-edit'                 => 'Existeern Gruppen: ',
 'editgroup'                             => 'Grupp bearbeiden',
 'addgroup'                              => 'Grupp hentofögen',
 
-'userlevels-lookup-user'                => 'Brukergruppen verwalten',
-'userlevels-user-editname'              => 'Brukernaam ingeven: ',
 'editusergroup'                         => 'Brukergruppen bearbeiden',
 
 # Gruppen bearbeiden
-'userlevels-editgroup'                  => 'Grupp bearbeiden',
-'userlevels-addgroup'                   => 'Grupp hentofögen',
-'userlevels-editgroup-name'             => 'Gruppennaam: ',
-'userlevels-editgroup-description'      => 'Gruppenbeschrieven (max. 255 Teken):<br />',
 'savegroup'                             => 'Grupp spiekern',
 
 # Brukergruppen bearbeiden
-'userlevels-editusergroup'              => 'Brukergruppen bearbeiden',
 'saveusergroups'                        => 'Brukergruppen spiekern',
-'userlevels-groupsmember'               => 'Liddmaat vun:',
-'userlevels-groupsavailable'            => 'verfögbore Brukergruppen:',
-'userlevels-groupshelp'                 => 'Wähl de Gruppen ut, bi de de Bruker hentofögt oder rutnommen warrn schall.
-Gruppen, de nich wählt warrn, warrn nich ännert. Du kannst de Utwahl vun en Grupp trüchnehmen, wenn du Strg (CTRL) un en Klick mit de linke Muustast maakst.',
 
 # Metadata
 'nodublincore'                          => 'Dublin-Core-RDF-Metadaten sünd för dissen Server nich aktiveert.',
@@ -1453,7 +1245,7 @@ Gruppen, de nich wählt warrn, warrn nich ännert. Du kannst de Utwahl vun en Gr
 
 # Patrolleern
 'markaspatrolleddiff'       => 'As patrolleert markeern',
-'markaspatrolledlink'       => '<div class=\'patrollink\'>[$1]</div>',
+'markaspatrolledlink'       => '[$1]',
 'markaspatrolledtext'       => 'Disse Siet as patrolleert markeern',
 'markedaspatrolled'         => 'As patrolleert markeert',
 'markedaspatrolledtext'     => 'Disse Revision is as patrolleert markeert.',
@@ -1471,74 +1263,48 @@ Gruppen, de nich wählt warrn, warrn nich ännert. Du kannst de Utwahl vun en Gr
 
 class LanguageNds extends LanguageUtf8 {
 
-        function getBookstoreList() {
-                global $wgBookstoreListNds;
-                return $wgBookstoreListNds;
-        }
+	function getBookstoreList() {
+		global $wgBookstoreListNds;
+		return $wgBookstoreListNds;
+	}
 
-        function getNamespaces() {
-                global $wgNamespaceNamesNds;
-                return $wgNamespaceNamesNds;
-        }
+	function getNamespaces() {
+		global $wgNamespaceNamesNds;
+		return $wgNamespaceNamesNds;
+	}
 
-        function getNsText( $index ) {
-                global $wgNamespaceNamesNds;
-                return $wgNamespaceNamesNds[$index];
-        }
+	function getQuickbarSettings() {
+		global $wgQuickbarSettingsNds;
+		return $wgQuickbarSettingsNds;
+	}
 
-        function getNsIndex( $text ) {
-                global $wgNamespaceNamesNds;
+	function getSkinNames() {
+		global $wgSkinNamesNds;
+		return $wgSkinNamesNds;
+	}
 
-                foreach ( $wgNamespaceNamesNds as $i => $n ) {
-                        if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-                }
-                return false;
-        }
+	function date( $ts, $adj = false ) {
+		if ( $adj ) { $ts = $this->userAdjust( $ts ); }
 
-        function getQuickbarSettings() {
-                global $wgQuickbarSettingsNds;
-                return $wgQuickbarSettingsNds;
-        }
+		$d = (0 + substr( $ts, 6, 2 )) . '. ' .
+		$this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) .
+		  ' ' .
+		  substr( $ts, 0, 4 );
+		return $d;
+	}
 
-        function getSkinNames() {
-                global $wgSkinNamesNds;
-                return $wgSkinNamesNds;
-        }
-
-        function date( $ts, $adj = false ) {
-                if ( $adj ) { $ts = $this->userAdjust( $ts ); }
-
-                $d = (0 + substr( $ts, 6, 2 )) . '. ' .
-                $this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) .
-                  ' ' .
-                  substr( $ts, 0, 4 );
-                return $d;
-        }
-
-        function getValidSpecialPages() {
-                global $wgValidSpecialPagesNds;
-                return $wgValidSpecialPagesNds;
-        }
-
-        function getSysopSpecialPages() {
-                global $wgSysopSpecialPagesNds;
-                return $wgSysopSpecialPagesNds;
-        }
-
-        function getDeveloperSpecialPages() {
-                global $wgDeveloperSpecialPagesNds;
-                return $wgDeveloperSpecialPagesNds;
-        }
-
-        function getMessage( $key ) {
-                global $wgAllMessagesNds;
-                if( isset( $wgAllMessagesNds[$key] ) ) {
-                        return $wgAllMessagesNds[$key];
-                } else {
+	function getMessage( $key ) {
+		global $wgAllMessagesNds;
+		if( isset( $wgAllMessagesNds[$key] ) ) {
+			return $wgAllMessagesNds[$key];
+		} else {
 			return parent::getMessage( $key );
-                }
-        }
+		}
+	}
 
+	function formatNum( $number, $year = false ) {
+		return $year ? $number : strtr($this->commafy($number), '.,', ',.' );
+	}
 }
 
 ?>

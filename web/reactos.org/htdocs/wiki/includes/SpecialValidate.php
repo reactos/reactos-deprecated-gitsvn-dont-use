@@ -23,502 +23,707 @@
  * @subpackage SpecialPage
  */
 
-/**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
- */
 class Validation {
+	var $topicList;
+	var $voteCache;
+	var $page_id;
+
+	function getRevisionFromId( $rev_id ) {
+		if( isset( $this->id2rev[$rev_id] ) ) return $this->id2rev[$rev_id];
+
+		$db =& wfGetDB( DB_SLAVE );
+		$fname = 'SpecialValidate::getRevisionFromId';
+		$res = $db->select( 'revision', '*', array( 'rev_id' => $rev_id ), $fname, array( 'LIMIT' => 1 ) );
+		$rev = $db->fetchObject($res);
+		$db->freeResult($res);
+
+		$this->id2rev[$rev->rev_id] = $rev;
+		$this->ts2rev[$rev->rev_timestamp] = $rev;
+
+		return $rev;
+	}
+
+	function getRevisionFromTimestamp( $timestamp ) {
+		if( isset( $this->ts2rev[$timestamp] ) ) return $this->ts2rev[$timestamp];
+
+		$db =& wfGetDB( DB_SLAVE );
+		$fname = 'SpecialValidate::getRevisionFromTimestamp';
+		$res = $db->select( 'revision', '*',
+			array( 'rev_page' => $this->page_id, 'rev_timestamp' => $timestamp ),
+			$fname, array( 'LIMIT' => 1 )
+		);
+		$rev = $db->fetchObject($res);
+		$db->freeResult($res);
+
+		$this->id2rev[$rev->rev_id] = $rev;
+		$this->ts2rev[$rev->rev_timestamp] = $rev;
+
+		return $rev;
+	}
+
+	# Returns a HTML link to the specified article revision
+	function getRevisionLink( &$article, $revision, $text = "" ) {
+		global $wgUser;
+		$sk = $wgUser->getSkin();
+		$t = $article->getTitle();
+		if( $text == "" ) $text = wfMsg("val_view_version");
+		return $sk->makeKnownLinkObj( $t, $this->getParsedWiki($text), 'oldid='.urlencode($revision) );
+	}
+
+	# Returns an array containing all topics you can vote on
+	function getTopicList() {
+		$db =& wfGetDB( DB_SLAVE );
+
+		$topics = array();
+		$res = $db->select( 'validate', '*', array( 'val_page' => 0 ), 'SpecialValidate::getTopicList' );
+		while( $topic = $db->fetchObject($res) ) {
+			$topics[$topic->val_type] = $topic;
+		}
+		$db->freeResult($res);
+
+		ksort( $topics );
+		return $topics;
+	}
 	
-	function find_this_version( $article_title , &$article_time , &$id , &$tab ) {
-		$id = "";
-		$tab = "";
-		$sql = "SELECT cur_id,cur_timestamp FROM cur WHERE cur_namespace=0 AND cur_title='" . wfStrencode( $article_title ) . "'";
-		$res = wfQuery( $sql, DB_READ );
-		if( $s = wfFetchObject( $res ) ) {
-			if ( $article_time == "" ) {
-				# No timestamp = current version
-				$article_time = $s->cur_timestamp;
-			} elseif ( $article_time == $s->cur_timestamp ) {
-				# Means current version
-				$tab = "cur";
-				$id = $s->cur_id;
+	# Merges one dataset into another
+	function mergeInto( &$source, &$dest ) {
+		$ret = false;
+		foreach( $source as $x => $y ) {
+			$doit = false;
+			if( !isset( $dest[$x] ) ) {
+				$doit = true;
+			} elseif( $dest[$x]->value == 0 ) {
+				$doit = true;
+			}
+			if( $doit ) {
+				$dest[$x] = $y;
+				$ret = true;
 			}
 		}
-			
-		if ( $id == "" ) {
-			$sql = "SELECT old_id FROM old WHERE old_namespace=0 AND old_title='" . wfStrencode( $article_title ) .
-				"' AND old_timestamp='" . wfStrencode( $article_time ) . "'";
-			$res = wfQuery( $sql, DB_READ );
-			if( $s = wfFetchObject( $res ) ) {
-				$tab = "old";
-				$id = $s->old_id;
-			}
-		}
-	}
-
-	function get_prev_data( $user_id , $article_title , $article_timestamp = "" ) {
-		$ret = array ();
-		$sql = "SELECT * FROM validate WHERE val_user='" . wfStrencode( $user_id ) .
-			"' AND val_title='" . wfStrencode( $article_title ) . "'";
-		if ( $article_timestamp != "" ) {
-			$sql .= " AND val_timestamp='" . wfStrencode( $article_timestamp ) . "'";
-		}
-		$res = wfQuery( $sql, DB_READ );
-		while( $s = wfFetchObject( $res ) ) {
-			$ret[$s->val_timestamp][$s->val_type] = $s;
+		if( $ret ) {
+			ksort ( $dest );
 		}
 		return $ret;
 	}
 
-	function validate_form( $article_title = "" ) {
-		global $wgOut, $wgLang, $wgUser, $wgArticle, $wgRequest;
-		
-		if ( $wgUser->getID() == 0 ) {
-			# Anon
-			$wgOut->addHTML( htmlspecialchars( wfMsg( 'val_no_anon_validation' ) ) .
-				$this->getPageStatistics ( $article_title ) ) ;
-			return;
+	# Merges all votes prior to the given revision into it
+	function mergeOldRevisions( &$article, $revision ) {
+		$tmp = $this->voteCache;
+		krsort( $tmp );
+		$update = false;
+		$ts = $this->getRevisionTimestamp( $revision );
+		$data = $this->voteCache[$ts];
+		foreach( $tmp as $x => $y ) {
+			if( $x < $ts ) {
+				if( $this->mergeInto( $y, $data ) ) {
+					$update = true;
+				}
+			}
 		}
-			
-		$validationtypes = $wgLang->getValidationTypes();
-		if ( $article_title == "" ) {
-			$article_title = $wgRequest->getVal( 'article_title' );
-			$heading = "<h1>" . htmlspecialchars( $article_title ) . "</h1>\n";
+		if( $update ) {
+			$this->setRevision( $article, $revision, $data );
+		}
+	}
+	
+	# Clears all votes prior to the given revision
+	function clearOldRevisions( &$article, $revision ) {
+		$tmp = $this->voteCache;
+		$ts = $this->getRevisionTimestamp( $revision );
+		foreach( $tmp as $x => $y ) {
+			if( $x < $ts ) {
+				$this->deleteRevisionVote ( $article, $this->getRevisionId( $x ) );
+			}
+		}
+	}
+	
+	# Updates the votes for the given revision from the FORM data
+	function updateRevision( &$article, $revision ) {
+		global $wgRequest;
+		
+		if( isset( $this->voteCache[$this->getRevisionTimestamp( $revision )] ) ) {
+			$data = $this->voteCache[$this->getRevisionTimestamp( $revision )];
 		} else {
-			$heading = "";
+			$data = array();
 		}
-		$article_time = "";
-		$article_time = $wgRequest->getVal( 'timestamp' );
-		$article = Title::newFromText( $article_title );
-		if( is_null( $article ) ) {
-			$wgOut->errorpage( "badtitle", "badtitletext" );
-			return;
-		}
+		$nv = $wgRequest->getArray( "re_v_{$revision}", array() );
+		$nc = $wgRequest->getArray( "re_c_{$revision}", array() );
 		
-		# Now we get all the "votes" for the different versions of this article for this user
-		$val = $this->get_prev_data( $wgUser->getID() , $article_title );
+		foreach( $nv as $x => $y ) {
+			$data[$x]->value = $y;
+			$data[$x]->comment = $nc[$x];
+		}
+		krsort( $data );
 		
-		# No votes for this version, initial data
-		if( !isset( $val[$article_time] ) ) {
-			if( $article_time == "" ) {
-				$res = wfQuery( "select cur_timestamp FROM cur WHERE cur_title='" .
-					wfStrencode( $article_title ) . "' AND cur_namespace=0", DB_READ );
-				if( $s = wfFetchObject( $res ) ) {
-					$article_time = $s->cur_timestamp;
-				}
+		$this->setRevision( $article, $revision, $data );
+	}
+	
+	# Sets a specific revision to both cache and database
+	function setRevision( &$article, $revision, &$data ) {
+		global $wgUser;
+		$this->deleteRevisionVote( $article, $revision );
+		$this->voteCache[ $this->getRevisionTimestamp($revision) ] = $data;
+		foreach( $data as $x => $y ) {
+			if( $y->value > 0 ) {
+				$ip = $wgUser->isAnon() ? $wgUser->getName() : '';
+				$dbw =& wfGetDB( DB_MASTER );
+				$dbw->insert( 'validate',
+					array(
+						'val_user'     => $wgUser->getId(),
+						'val_page'     => $article->getId(),
+						'val_revision' => $revision,
+						'val_type'     => $x,
+						'val_value'    => $y->value,
+						'val_comment'  => $y->comment,
+						'val_ip'       => $ip ),
+					'SpecialValidate::setRevision'
+				);
 			}
-			$val[$article_time] = array();
+		}
+	}
+	
+	# Returns a map identifying the current user
+	function identifyUser( $user = "" ) {
+		global $wgUser;
+		if( $user == "" ) $user = $wgUser->getID();
+		return User::isIP($user)
+			? array( 'val_user' => 0, 'val_ip' => $user )
+			: array( 'val_user' => $user );
+	}
+	
+	# Deletes a specific vote set in both cache and database
+	function deleteRevisionVote( &$article, $revision ) {
+		$ts = $this->getRevisionTimestamp( $revision );
+		if( !isset ( $this->voteCache[$ts] ) ) return;
+
+		$db =& wfGetDB( DB_MASTER );
+		$db->delete(
+			'validate',
+			array_merge(
+				$this->identifyUser(),
+				array(
+					'val_page' => $article->getID(),
+					'val_revision' => $revision
+				)
+			),
+			'SpecialValidate::deleteRevisionVote'
+		);
+
+		unset( $this->voteCache[$ts] );
+	}
+	
+	# Reads the entire vote list for this user for the given article
+	function getVoteList( $id, $user = "" ) {
+		$db =& wfGetDB( DB_SLAVE );
+		$res = $db->select( 'validate', '*', array_merge( array( 'val_page' => $id ), $this->identifyUser($user) ) );
+
+		$revisions = array();
+		while( $vote = $db->fetchObject($res) ) {
+			$ts = $this->getRevisionTimestamp( $vote->val_revision );
+			if( ! isset( $revisions[$ts] ) ) {
+				$revisions[$ts] = array();
+			}
+			$revisions[$ts][$vote->val_type]->value = $vote->val_value;
+			$revisions[$ts][$vote->val_type]->comment = $vote->val_comment;
+		}
+		$db->freeResult($res);
+
+		return $revisions;
+	}
+	
+	# Reads the entire vote list for this user for all articles
+	# XXX Should be paged
+	function getAllVoteLists( $user ) {
+		$db =& wfGetDB( DB_SLAVE );
+		$res = $db->select( 'validate', '*', $this->identifyUser($user) );
+
+		$votes = array();
+		while( $vote = $db->fetchObject($res) ) {
+			$votes[$vote->val_page][$vote->val_revision][$vote->val_type] = $vote;
+		}
+		$db->freeResult($res);
+
+		return $votes;
+	}
+	
+	# This functions adds a topic to the database
+	function addTopic( $topic, $limit ) {
+		$db =& wfGetDB( DB_MASTER );
+
+		$next_idx = 1;
+		while( isset( $this->topicList[$next_idx] ) ) {
+		       $next_idx++;
 		}
 
-		# Newest versions first
-		krsort( $val );
+		$db->insert(
+			'validate',
+			array(
+				'val_user' => 0,
+				'val_page' => 0,
+				'val_revision' => 0,
+				'val_type' => $next_idx,
+				'val_value' => $limit,
+				'val_comment' => $topic,
+				'val_ip' => ''
+			),
+			'SpecialValidate::addTopic'
+		);
 
-		# User has clicked "Doit" before, so evaluate form
-		if( $wgRequest->wasPosted() ) {
-			$oldtime = StrVal( $wgRequest->getVal( 'oldtime' ) );
-			if( !isset ( $val[$oldtime] ) ) {
-				$val[$oldtime] = array();
-			}
-			
-			# Reading postdata
-			$postrad = array();
-			$poscomment = array();
-			for( $idx = 0 ; $idx < count( $validationtypes) ; $idx++ ) {
-				$postrad[$idx] = $wgRequest->getVal( "rad{$idx}" );
-				$postcomment[$idx] = $wgRequest->getText( "comment{$idx}" );
-			}
-			
-			# Merge others into this one
-			if( $wgRequest->getCheck( 'merge_other' ) ) {
-				foreach( $val as $time => $stuff ) {
-					if( $time != $article_time ) {
-						for( $idx = 0; $idx < count( $validationtypes ); $idx++ ) {
-							$rad = $postrad[$idx];
-							if( isset ( $stuff[$idx] ) && $stuff[$idx]->val_value != -1 && $rad == -1 ) {
-								$postrad[$idx] = $stuff[$idx]->val_value;
-								$postcomment[$idx] = $stuff[$idx]->val_comment;
-							}
-						}
-					}
-				}
-			}
+		$t->val_user = $t->val_page = $t->val_revision = 0;
+		$t->val_type = $next_idx;
+		$t->val_value = $limit;
+		$t->val_comment = $topic;
+		$t->val_ip = "";
+		$this->topicList[$next_idx] = $t;
 
-			# Clear all others
-			if( $wgRequest->getCheck( 'clear_other' ) ) {
-				$sql = "DELETE FROM validate WHERE val_title='" . wfStrencode( $article_title ) .
-					"' AND val_timestamp<>'" . wfStrencode( $oldtime ) . "' AND val_user='";
-				$sql .= wfStrencode( $wgUser->getID() ) . "'";
-				wfQuery( $sql, DB_WRITE );
-				$val2 = $val[$oldtime]; # Only version left
-				$val = array(); # So clear others
-				$val[$oldtime] = $val2;
-			}
-
-			# Delete old "votes" for this version
-			$sql = "DELETE FROM validate WHERE val_title='" . wfStrencode( $article_title ) .
-				"' AND val_timestamp='" . wfStrencode( $oldtime ) . "' AND val_user='";
-			$sql .= wfStrencode( $wgUser->getID() ) . "'";
-			wfQuery( $sql, DB_WRITE );
-
-			# Incorporate changes
-			for( $idx = 0; $idx < count( $validationtypes ); $idx++ ) {
-				$comment = $postcomment[$idx] ;
-				$rad = $postrad[$idx] ;
-				if ( !isset( $val[$oldtime][$idx] ) ) {
-					$val[$oldtime][$idx] = "";
-				}
-				$val[$oldtime][$idx]->val_value = $rad;
-				$val[$oldtime][$idx]->val_comment = $comment;
-				if( $rad != -1 ) {
-					# Store it in the database
-					$sql = "INSERT INTO validate (val_user,val_title,val_timestamp,val_type,val_value,val_comment) " . 
-						 "VALUES ( '" . wfStrencode( $wgUser->getID() ) . "','" .
-						 wfStrencode( $article_title ) . "','" .
-						 wfStrencode( $oldtime ) . "','" . 
-						 wfStrencode( $idx ) . "','" . 
-						 wfStrencode( $rad ) . "','" .
-						 wfStrencode( $comment ) . "')";
-					wfQuery( $sql, DB_WRITE );
-				}
-			}
-			$wgArticle->showArticle( "Juhuu", wfMsg( 'val_validated' ) );
-			return; # Show article instead of validation page
-		}
-
-		# Generating HTML
-		$html = "";
-
-		$skin = $wgUser->getSkin();
-		$staturl = $skin->makeSpecialURL( "validate" , "mode=stat_page&article_title=" . urlencode( $article_title ) );
-		$listurl = $skin->makeSpecialURL( "validate" , "mode=list_page" );
-		$html .= "<a href=\"" . htmlspecialchars( $staturl ) . "\">" . wfMsg('val_stat_link_text') . "</a> \n";
-		$html .= "<a href=\"" . htmlspecialchars( $listurl ) . "\">" . wfMsg('val_article_lists') . "</a><br />\n";
-		$html .= "<small>" . wfMsg('val_form_note') . "</small><br />\n";
-		
-		# Generating data tables
-		$tabsep = "<td width='0' style='border-left:2px solid black;'></td>";
-		$topstyle = "style='border-top:2px solid black'";
-		foreach( $val as $time => $stuff ) {
-			$tablestyle = "cellspacing='0' cellpadding='2'";
-			if ( $article_time == $time ) {
-				$tablestyle .=" style='border: 2px solid red'";
-			}
-			$html .= "<h2>" . wfMsg( 'val_version_of', gmdate( "F d, Y H:i:s", wfTimestamp( TS_UNIX, $time ) ) );
-			$this->find_this_version ( $article_title , $time , $table_id , $table_name );
-			if( $table_name == "cur" ) {
-				$html .= " (" . wfMsg( 'val_this_is_current_version' ) . ")";
-			}
-			$html .= "</h2>\n" ;
-			$html .= "<form method='post'>\n" ;
-			$html .= "<input type='hidden' name='oldtime' value=\"" . htmlspecialchars( $time ) . "\" />" ;
-			$html .= "<table {$tablestyle}>\n" ;
-			$html .= wfMsg( 'val_table_header', $tabsep );
-			for( $idx = 0; $idx < count( $validationtypes ); $idx++ ) {
-				$x = explode( "|" , $validationtypes[$idx] , 4 );
-				if( isset ( $stuff[$idx] ) ) {
-					$choice = $stuff[$idx]->val_value;
-				} else {
-					$choice = -1;
-				}
-				if( isset( $stuff[$idx] ) ) {
-					$comment = $stuff[$idx]->val_comment;
-				} else {
-					$comment = "";
-				}
-				$html .= "<tr><th align='left'>{$x[0]}</th>{$tabsep}<td align='right'>{$x[1]}</td>"
-				      .  "<td align='center'><span style='white-space: nowrap;'>" ;
-				for( $cnt = 0 ; $cnt < $x[3] ; $cnt++) {
-					$html .= "<input type='radio' name='rad{$idx}' value='{$cnt}'";
-					if ( $choice == $cnt ) $html .= " checked='checked'";
-					$html .= " /> ";
-				}
-				$html .= "</span></td><td>{$x[2]}</td>";
-				$html .= "<td><input type='radio' name='rad{$idx}' value='-1'";
-				if( $choice == -1 ) {
-					$html .= " checked='checked'";
-				}
-				$html .= " /> " . wfMsg ( "val_noop" ) . "</td>{$tabsep}";
-				$html .= "<td><input type='text' name='comment{$idx}' value=\"" . htmlspecialchars( $comment ) . "\" /></td>";
-				$html .= "</tr>\n";
-			}
-			$html .= "<tr><td {$topstyle} colspan='2'>";
-
-			# link to version
-			$title = Title::newFromDBkey( $article_title );
-			if ( $table_name == "cur" ) {
-				$link_version = $title->getLocalURL( "" );
-			} else {
-				$link_version = $title->getLocalURL( "oldid={$table_id}" );
-			}
-			$link_version = "<a href=\"" . htmlspecialchars( $link_version ) . "\">" . wfMsg ( 'val_view_version' ) . "</a>";
-			$html .= $link_version;
-			$html .= "</td><td {$topstyle} colspan='5'>";
-			$html .= "<input type='checkbox' name='merge_other' value='1' checked='checked' />";
-			$html .= wfMsg( 'val_merge_old' );
-			$html .= "<br /><input type='checkbox' name='clear_other' value='1' checked='checked' />";
-			$html .= wfMsg( 'val_clear_old', $skin->makeKnownLinkObj( $article ) );
-			$html .= "</td><td {$topstyle} align='right' valign='center'><input type='submit' name='doit' value=\"" . htmlspecialchars( wfMsg("ok") ) . "\" /></td>";
-			$html .= "</tr></table></form>\n";
-		}
-		
-		$html .= "<h2>" . wfMsg( 'preview' ) . "</h2>";
-		$wgOut->addHTML( $html );
-		$wgOut->addWikiText( $wgArticle->getContent( true ) );
+		ksort( $this->topicList );
 	}
 
-	function getData( $user = -1 , $title = "" , $type = -1 ) {
-		$ret = array();
-		$sql = array();
-		if( $user != -1 ) {
-			$sql[] = "val_user='" . wfStrencode( $user ) . "'";
+	function deleteTopic( $id ) {
+		$db =& wfGetDB( DB_MASTER );
+		$db->delete( 'validate', array( 'val_type' => $id ), 'SpecialValidate::deleteTopic' );
+		unset( $this->topicList[$id] );
+	}
+	
+	# This function returns a link text to the page validation statistics
+	function getStatisticsLink( &$article ) {
+		global $wgUser;
+		$sk = $wgUser->getSkin();
+		$nt = $article->getTitle();
+		return $sk->makeKnownLinkObj( $nt, wfMsg( 'val_rev_stats', $nt->getPrefixedText() ), 'action=validate&mode=list' );
+	}
+
+	# This function returns a link text to the page validation statistics of a single revision
+	function getRevisionStatsLink( &$article, $revision ) {
+		global $wgUser;
+		$sk = $wgUser->getSkin();
+		$nt = $article->getTitle();
+		$text = $this->getParsedWiki( wfMsg('val_revision_stats_link') );
+		$query = "action=validate&mode=details&revision={$revision}";
+		return '(' . $sk->makeKnownLinkObj( $nt, $text, $query ) . ')';
+	}
+
+	# This function returns a link text to the user rating statistics page
+	function getUserRatingsLink( $user, $text ) {
+		global $wgUser;
+		$sk = $wgUser->getSkin();
+		if( $user == 0 ) $user = $wgUser->getName();
+		$nt = Title::newFromText( 'Special:Validate' );
+		return $sk->makeKnownLinkObj( $nt, $text, 'mode=userstats&user='.urlencode($user) );
+	}
+
+	# Returns the timestamp of a revision based on the revision number
+	function getRevisionTimestamp( $rev_id ) {
+		$rev = $this->getRevisionFromId( $rev_id );
+		return $rev->rev_timestamp;
+	}
+
+	# Returns the revision number of a revision based on the timestamp
+	function getRevisionId( $ts ) {
+		$rev = $this->getRevisionFromTimestamp( $ts );
+		return $rev->rev_id;
+	}
+
+
+	# HTML generation functions from this point on
+	
+	# Returns the metadata string for a revision
+	function getMetadata( $rev_id, &$article ) {
+		global $wgUser;
+		$sk = $wgUser->getSkin();
+
+		$metadata = "";
+		$x = $this->getRevisionFromId($rev_id);
+		$metadata .= wfTimestamp( TS_DB, $x->rev_timestamp );
+		$metadata .= " by ";
+		if( $x->rev_user == 0 ) {
+			$metadata .= $x->rev_user_text;
+		} else {
+			$u = new User;
+			$u->setId( $x->rev_user );
+			$u->setName( $x->rev_user_text );
+			$nt = $u->getUserPage();
+			$metadata .= $sk->makeKnownLinkObj( $nt, htmlspecialchars( $nt->getText() ) );
 		}
-		if( $type != -1 ) {
-			$sql[] = "val_type='" . wfStrencode( $type ) . "'";
+		$metadata .= ': '. $sk->commentBlock( $x->rev_comment, $article->getTitle() );
+		return $metadata;
+	}
+	
+	# Generates a link to the topic description
+	function getTopicLink($s) {
+		$t = Title::newFromText ( wfMsg ( 'val_topic_desc_page' ) ) ;
+		# FIXME: Why doesn't this use standard linking code?
+		$r = "<a href=\"" ;
+		$r .= $t->escapeLocalURL () ;
+		$r .= "#" . urlencode ( $s ) ;
+		$r .= "\">{$s}</a>" ;
+		return $r ;
+	}
+		
+	# Generates HTML from a wiki text, e.g., a wfMsg
+	function getParsedWiki ( $text ) {
+		global $wgOut, $wgTitle, $wgParser ;
+		$parserOutput = $wgParser->parse( $text , $wgTitle, $wgOut->mParserOptions,false);
+		return $parserOutput->getText() ;
+	}
+
+	# Generates a form for a single revision
+	function getRevisionForm( &$article, $idx, &$data, $focus = false ) {
+		# Fill data with blank values
+		$ts = $idx;
+		$revision = $this->getRevisionId( $ts );
+		foreach( $this->topicList as $x => $y ) {
+			if( !isset( $data[$x] ) ) {
+				$data[$x]->value = 0;
+				$data[$x]->comment = "";
+			}
 		}
-		if( $title != "" ) {
-			$sql[] = "val_title='" . wfStrencode( $title ) . "'";
+		ksort( $data ) ;		
+	
+		# Generate form
+		$table_class = $focus ? 'revisionform_focus' : 'revisionform_default';
+		$ret = "<form method='post'><table class='{$table_class}'>\n";
+		$head = "Revision #" . $revision;
+		$link = $this->getRevisionLink( $article, $revision );
+		$metadata = $this->getMetadata( $revision, $article );
+		$ret .= "<tr><th colspan='3'>" . $head . " ({$link}) {$metadata}</th></tr>\n";
+		$line = 0;
+		foreach( $data as $x => $y ) {
+			$line = 1 - $line;
+			$trclass = $line == 1 ? "revision_tr_first" : "revision_tr_default";
+			$idx = "_{$revision}[{$x}]";
+			$ret .= "<tr class='{$trclass}'>\n";
+			$ret .= "<th>\n";
+			$ret .= $this->getTopicLink ( $this->topicList[$x]->val_comment ) ;
+			$ret .= "</th>\n";
+			
+			$tlx = $this->topicList[$x];
+			$vote = "";
+			$max = $tlx->val_value;
+			for( $a = 0 ; $a <= $max ; $a++ ) {
+				if( $a == 0 ) {
+					$vote .= wfMsg ( "val_noop" );
+				}
+				$vote .= "<input type='radio' name='re_v{$idx}' value='{$a}'";
+				if( $a == $y->value ) {
+					$vote .= " checked='checked'";
+				}
+				$vote .= " />";
+				if( $max == 2 && $a == 1 ) {
+					$vote .= wfMsg( "val_no" ) . " ";
+				} elseif( $max == 2 && $a == 2 ) {
+					$vote .= wfMsg( "val_yes" );
+				} elseif( $a != 0 ) {
+					$vote .= $a . " ";
+				}
+				if ( $a == 0 ) {
+					$vote .= " &nbsp; ";
+				}
+			}			
+			$ret .= "<td>{$vote}</td>\n";
+			
+			$ret .= "<td><input size='50' style='width:98%' maxlength='250' type='text' name='re_c{$idx}' value='{$y->comment}'/>";
+			$ret .= "</td></tr>\n";
 		}
-		$sql = implode( " AND " , $sql );
-		if( $sql != "" ) {
-			$sql = " WHERE " . $sql;
+		$checked = $focus ? " checked='checked'" : "";
+		$ret .= "<tr><td colspan='3'>\n";
+		$ret .= "<input type='checkbox' name='re_merge_{$revision}' value='1'{$checked} />" . $this->getParsedWiki( wfMsg( 'val_merge_old' ) ) . " \n";
+		$ret .= "<input type='checkbox' name='re_clear_{$revision}' value='1'{$checked} />" . $this->getParsedWiki( wfMsg( 'val_clear_old' ) ) . " \n";
+		$ret .= "<input type='submit' name='re_submit[{$revision}]' value=\"" . wfMsgHtml( "ok" ) . "\" />\n";
+		
+		if( $focus ) $ret .= "<br/>\n<small>" . $this->getParsedWiki ( wfMsg( "val_form_note" ) ) . "</small>";
+		$ret .= "</td></tr>\n";
+		$ret .= "</table></form>\n\n";
+		return $ret;
+	}
+	
+
+	# Generates the page from the validation tab
+	function validatePageForm( &$article, $revision ) {
+		global $wgOut, $wgRequest, $wgUser;
+		
+		$ret = "";
+		$this->page_id = $article->getID();
+		$this->topicList = $this->getTopicList();
+		$this->voteCache = $this->getVoteList( $article->getID() );
+		
+		# Check for POST data
+		$re = $wgRequest->getArray( 're_submit' );
+		if ( isset( $re ) ) {
+			$id = array_keys( $re );
+			$id = $id[0] ; # $id is now the revision number the user clicked "OK" for
+			$clearOldRev = $wgRequest->getVal( "re_clear_{$id}", 0 );
+			$mergeOldRev = $wgRequest->getVal( "re_merge_{$id}", 0 );
+			$this->updateRevision( $article, $id );
+			if( $mergeOldRev ) {
+				$this->mergeOldRevisions( $article, $id );
+			}
+			if( $clearOldRev ) {
+				$this->clearOldRevisions( $article, $id );
+			}
+			$ret .= '<p class="revision_saved">' . $this->getParsedWiki( wfMsg( 'val_revision_changes_ok' ) ) . "</p>";
+		} else {
+			$ret .= $this->getParsedWiki( wfMsg ('val_votepage_intro') );
 		}
-		$sql = "SELECT * FROM validate" . $sql;
-		$res = wfQuery( $sql, DB_READ );
-		while( $s = wfFetchObject( $res ) ) {
-			$ret["{$s->val_title}"]["{$s->val_timestamp}"]["{$s->val_type}"][] = $s;
+		
+		# Make sure the requested revision exists
+		$rev = $this->getRevisionFromId($revision);
+		$ts = $rev->rev_timestamp;
+		if( !isset( $this->voteCache[$ts] ) ) {
+			$this->voteCache[$ts] = array();
+		}
+		
+		# Sort revisions list, newest first
+		krsort( $this->voteCache );
+		
+		# Output
+		$title = $article->getTitle();
+		$title = $title->getPrefixedText();
+		$wgOut->setPageTitle( wfMsg( 'val_rev_for', $title ) );
+		foreach( $this->voteCache as $x => $y ) {
+			$ret .= $this->getRevisionForm( $article, $x, $y, $x == $ts );
+			$ret .= "<br/>\n";
+		}
+		$ret .= $this->getStatisticsLink( $article );
+		$ret .= "<p>" . $this->getUserRatingsLink( $wgUser->getID(), wfMsg( 'val_show_my_ratings' ) ) . "</p>";
+		return $ret ;	
+	}
+	
+	# This function performs the "management" mode on Special:Validate
+	function manageTopics() {
+		global $wgRequest;
+		$this->topicList = $this->getTopicList();
+		
+		$iamsure = $wgRequest->getVal( "iamsure", "0" ) == 1;
+		
+		if( $iamsure && $wgRequest->getVal( "m_add", "--" ) != "--" ) {
+			$new_topic = $wgRequest->getVal( "m_topic" );
+			$new_limit = $wgRequest->getVal( "m_limit" );
+			if( $new_topic != "" && $new_limit > 1 ) {
+				$this->addTopic( $new_topic, $new_limit );
+			}
+		}
+
+		$da = $wgRequest->getArray( "m_del" );
+		if( $iamsure && isset( $da ) && count( $da ) > 0 ) {
+			$id = array_keys( $da );
+			$id = array_shift( $id );
+			$this->deleteTopic( $id );
+		}
+		
+		# FIXME: Wikitext this
+		$r = "<p>" . $this->getParsedWiki( wfMsg( 'val_warning' ) ) . "</p>\n";
+		$r .= "<form method='post'>\n";
+		$r .= "<table>\n";
+		$r .= "<tr>" . wfMsg( 'val_list_header' ) . "</tr>\n";
+		foreach( $this->topicList as $x => $y ) {
+			$r .= "<tr>\n";
+			$r .= "<th>{$y->val_type}</th>\n";
+			$r .= "<td>" . $this->getTopicLink ( $y->val_comment ) . "</td>\n";
+			$r .= "<td>1 .. <b>" . intval( $y->val_value ) . "</b></td>\n";
+			$r .= "<td><input type='submit' name='m_del[" . intval( $x ) . "]' value='" . htmlspecialchars( wfMsg( 'val_del' ) ) . "'/></td>\n";
+			$r .= "</tr>\n";
+		}
+		$r .= "<tr>\n";
+		$r .= "<td></td>\n";
+		$r .= '<td><input type="text" name="m_topic" value=""/></td>' . "\n";
+		$r .= '<td>1 .. <input type="text" name="m_limit" value="" size="4"/></td>' . "\n";
+		$r .= '<td><input type="submit" name="m_add" value="' . htmlspecialchars( wfMsg( 'val_add' ) ) . '"/></td>' . "\n";
+		$r .= "</tr></table>\n";
+		$r .= '<p><input type="checkbox" name="iamsure" id="iamsure" value="1"/>';
+		$r .= '<label for="iamsure">' . $this->getParsedWiki( wfMsg( 'val_iamsure' ) ) . "</label></p>\n";
+		$r .= "</form>\n";
+		return $r;
+	}
+	
+	# Generates an ID for both logged-in users and anons; $res is an object from an SQL query
+	function make_user_id( &$res ) {
+		return $res->val_user == 0 ? $res->val_ip : $res->val_user;
+	}
+
+	function showDetails( &$article, $revision ) {
+		global $wgOut, $wgUser;
+		$this->page_id = $article->getID();
+		$this->topicList = $this->getTopicList();
+
+		$sk = $wgUser->getSkin();
+		$title = $article->getTitle();
+		$wgOut->setPageTitle( str_replace( '$1', $title->getPrefixedText(), wfMsg( 'val_validation_of' ) ) );
+		
+		$data = array();
+		$users = array();
+		$topics = array();
+
+		# Collecting statistic data
+		$db =& wfGetDB( DB_SLAVE );
+		$res = $db->select( 'validate', '*', array( 'val_page' => $this->page_id, 'val_revision' => $revision ), 'SpecialValidate::showDetails' );
+		while( $x = $db->fetchObject($res) ) {
+			$data[$this->make_user_id($x)][$x->val_type] = $x;
+			$users[$this->make_user_id($x)] = true;
+			$topics[$x->val_type] = true;
+		}
+		$db->freeResult($res);
+		
+		# Sorting lists of topics and users
+		ksort( $users );
+		ksort( $topics );
+		
+		$ts = $this->getRevisionTimestamp( $revision );
+		$url = $this->getRevisionLink( $article, $revision, wfTimestamp( TS_DB, $ts ) );
+
+		# Table headers
+		$ret = "" ;			
+		$ret .= "<p><b>" . str_replace( '$1', $url, wfMsg( 'val_revision_of' ) ) . "</b></p>\n";
+		$ret .= "<table>\n";
+		$ret .= "<tr><th>" . $this->getParsedWiki ( wfMsg('val_details_th') ) . "</th>" ;
+		
+		foreach( $topics as $t => $dummy ) {
+			$ret .= '<th>' . $sk->commentBlock( $this->topicList[$t]->val_comment, $article->getTitle() ) . '</th>';
+		}
+		$ret .= "</tr>\n";
+
+		# Table data
+		foreach( $users as $u => $dummy ) { # Every row a user
+			$ret .= "<tr>";
+			$ret .= "<th>";
+			if( !User::IsIP( $u ) ) { # Logged-in user rating
+				$ret .= $this->getUserRatingsLink( $u, User::whoIs( $u ) );
+			} else { # Anon rating
+				$ret .= $this->getUserRatingsLink( $u, $u );
+			}
+			$ret .= "</th>";
+			foreach( $topics as $t => $dummy ) { # Every column a topic
+				if( !isset( $data[$u][$t] ) ) {
+					$ret .= "<td/>";
+				} else {
+					$ret .= "<td>";
+					$ret .= $data[$u][$t]->val_value;
+					if( $data[$u][$t]->val_comment != "" ) {
+						$ret .= ' ' . $sk->commentBlock( $data[$u][$t]->val_comment, $article->getTitle() );
+					}
+					$ret .= "</td>";
+				}
+			}
+			$ret .= "</tr>";
+		}
+		$ret .= "</table>";
+		$ret .= "<p>" . $this->getStatisticsLink( $article ) . "</p>";
+		$ret .= "<p>" . $this->getUserRatingsLink( $wgUser->getID(), wfMsg( 'val_show_my_ratings' ) ) . "</p>";
+		
+		return $ret;
+	}
+	
+	# XXX This should be paged
+	function showList( &$article ) {
+		global $wgOut, $wgUser;
+		$this->page_id = $article->getID();
+		$this->topicList = $this->getTopicList();
+
+		$title = $article->getTitle();
+		$wgOut->setPageTitle( str_replace( '$1', $title->getPrefixedText(), wfMsg( 'val_validation_of' ) ) );
+		
+		# Collecting statistic data
+		$db =& wfGetDB( DB_SLAVE );
+		$res = $db->select( 'validate', '*', array( "val_page" => $this->page_id ), 'SpecialValidate::showList' );
+
+		$statistics = array();
+		while( $vote = $db->fetchObject($res) ) {
+			$ts = $this->getRevisionTimestamp($vote->val_revision);
+			if ( !isset ( $statistics[$ts] ) ) $statistics[$ts] = array () ;
+			if ( !isset ( $statistics[$ts][$vote->val_type]->count ) ) $statistics[$ts][$vote->val_type]->count = 0 ;
+			if ( !isset ( $statistics[$ts][$vote->val_type]->sum ) ) $statistics[$ts][$vote->val_type]->sum = 0 ;
+			$statistics[$ts][$vote->val_type]->count++;
+			$statistics[$ts][$vote->val_type]->sum += $vote->val_value;
+		}
+		$db->freeResult($res);
+
+		krsort( $statistics );
+		
+		$ret = "<table><tr>\n";
+		$ret .= "<th>" . $this->getParsedWiki( wfMsg( "val_revision" ) ) . "</th>\n";
+		foreach( $this->topicList as $topic ) {
+			$ret .= "<th>" . $this->getTopicLink($topic->val_comment) . "</th>";
+		}
+		$ret .= "</tr>\n";
+
+		foreach( $statistics as $ts => $data ) {
+			$rev_id = $this->getRevisionId( $ts );
+			$revision_link = $this->getRevisionLink( $article, $rev_id, wfTimestamp( TS_DB, $ts ) );
+			$details_link = $this->getRevisionStatsLink( $article, $rev_id );
+			$ret .= "<tr><td>{$revision_link} {$details_link}</td>";
+			foreach( $this->topicList as $topicType => $topic ) {
+				if( isset( $data[$topicType] ) ) {
+					$stats = $data[$topicType];
+					$average = $stats->count == 0 ? 0 : $stats->sum / $stats->count;
+					$ret .= sprintf( "<td><b>%1.1f</b> (%d)</td>", $average, $stats->count );
+				} else {
+					$ret .= "<td></td>";
+				}
+			}
+			$ret .= "</tr>\n";
+		}
+		$ret .= "</table>\n";
+		$ret .= "<p>" . $this->getUserRatingsLink( $wgUser->getID(), wfMsg( 'val_show_my_ratings' ) ) . "</p>";
+		return $ret;
+	}
+	
+	function getRatingText( $value, $max ) {
+		if( $max == 2 && $value == 1 ) {
+			$ret = wfMsg ( "val_no" ) . " ";
+		} elseif( $max == 2 && $value == 2 ) {
+			$ret = wfMsg( "val_yes" );
+		} elseif( $value != 0 ) {
+			$ret = wfMsg( "val_of", $value, $max ) . " ";
+		} else {
+			$ret = "";
 		}
 		return $ret;
 	}
 
-	# Show statistics for the different versions of a single article
-	function getPageStatistics( $article_title = "" ) {
-		global $wgLang, $wgUser, $wgOut, $wgRequest;
-		$validationtypes = $wgLang->getValidationTypes();
-		if( $article_title == "" ) {
-			$article_title = $wgRequest->getVal( 'article_title' );
-		}
-		$d = $this->getData( -1 , $article_title , -1 );
-		if( count ( $d ) ) {
-			$d = array_shift ( $d ) ;
+	# XXX This should be paged
+	function showUserStats( $user ) {
+		global $wgOut, $wgUser;
+		$this->topicList = $this->getTopicList();
+		$data = $this->getAllVoteLists( $user );
+		$sk = $wgUser->getSkin();
+		
+		if( $user == $wgUser->getID() ) {
+			$wgOut->setPageTitle ( wfMsg ( 'val_my_stats_title' ) );
+		} elseif( !User::IsIP( $user ) ) {
+			$wgOut->setPageTitle( wfMsg( 'val_user_stats_title', User::whoIs( $user ) ) );
 		} else {
-			$d = array();
+			$wgOut->setPageTitle( wfMsg( 'val_user_stats_title', $user ) );
 		}
-		krsort( $d );
-
-		# Getting table data (cur_id, old_id etc.) for each version
-		$table_id = array();
-		$table_name = array();
-		foreach( $d as $version => $data ) {
-			$this->find_this_version( $article_title, $version, $table_id[$version], $table_name[$version] );
-		}
-
-		# Generating HTML
-		$title = Title::newFromDBkey( $article_title );
-		$wgOut->setPageTitle( wfMsg( 'val_page_validation_statistics' , $title->getPrefixedText() ) );
-		$html = "";
-		$skin = $wgUser->getSkin();
-		$listurl = $skin->makeSpecialURL( "validate" , "mode=list_page" );
-		$html .= "<a href=\"" . htmlspecialchars( $listurl ) . "\">" . wfMsg( 'val_article_lists' ) . "</a><br /><br />\n";
-
-		$html .= "<table border='1' cellpadding='2' style='font-size:8pt;'>\n";
-		$html .= "<tr><th>" . wfMsg('val_version') . "</th>";
-		foreach( $validationtypes as $idx => $title ) {
-			$title = explode ( "|" , $title );
-			$html .= "<th>{$title[0]}</th>";
-		}
-		$html .= "<th>" . wfMsg('val_total') . "</th>";
-		$html .= "</tr>\n";
-		foreach( $d as $version => $data ) {
-			# Preamble for this version
-			$title = Title::newFromDBkey( $article_title );
-			$version_date = $wgLang->timeanddate( $version );
-			$version_validate_link = $title->escapeLocalURL( "action=validate&timestamp={$version}" );
-			$version_validate_link = "<a href=\"{$version_validate_link}\">" . wfMsg('val_validate_version') . "</a>";
-			if( $table_name[$version] == 'cur' ) {
-				$version_view_link = $title->escapeLocalURL( "" );
-			} else {
-				$version_view_link = $title->escapeLocalURL( "oldid={$table_id[$version]}" );
-			}
-			$version_view_link = "<a href=\"{$version_view_link}\">" . wfMsg('val_view_version') . "</a>";
-			$html .= "<tr>";
-			$html .= "<td align='center' valign='top' nowrap='nowrap'><b>{$version_date}</b><br />{$version_view_link}<br />{$version_validate_link}</td>";
-
-			# Individual data
-			$vmax = array();
-			$vcur = array();
-			$users = array();
-			foreach( $data as $type => $x2 ) {
-				if ( !isset ( $vcur[$type] ) ) $vcur[$type] = 0 ;
-				if ( !isset ( $vmax[$type] ) ) $vmax[$type] = 0 ;
-				if ( !isset ( $users[$type] ) ) $users[$type] = 0 ;
-				foreach( $x2 as $user => $x ) {
-					$vcur[$type] += $x->val_value;
-					$temp = explode( "|" , $validationtypes[$type] );
-					$vmax[$type] += $temp[3] - 1;
-					$users[$type] += 1;
-				}
-			}
-
-			$total_count = 0;
-			$total_percent = 0;
-			foreach( $validationtypes as $idx => $title ) {
-				if( isset ( $vcur[$idx] ) ) {
-					$average = 100 * $vcur[$idx] / $vmax[$idx] ;
-					$total_count += 1;
-					$total_percent += $average;
-					if( $users[$idx] > 1 ) {
-						$msgid = "val_percent";
-					} else {
-						$msgid = "val_percent_single";
+		
+		$ret = "<table>\n";
+		foreach( $data as $articleid => $revisions ) {
+			$title = Title::newFromID( $articleid );
+			$ret .= "<tr><th colspan='4'>";
+			$ret .= $sk->makeKnownLinkObj( $title, $title->getEscapedText() );
+			$ret .= "</th></tr>";
+			krsort( $revisions );
+			foreach( $revisions as $revid => $revision ) {
+				$url = $title->getLocalURL( "oldid={$revid}" );
+				$ret .= "<tr><th>";
+				$ret .= $sk->makeKnownLinkObj( $title, wfMsg('val_revision_number', $revid ), "oldid={$revid}" );
+				$ret .= "</th>";
+				ksort( $revision );
+				$initial = true;
+				foreach( $revision as $topic => $rating ) {
+					if( !$initial ) {
+						$ret .= "<tr><td/>";
 					}
-					$html .= "<td align='center' valign='top'>" .
-							wfMsg( $msgid, number_format( $average, 2 ) ,
-									$vcur[$idx] , $vmax[$idx] , $users[$idx] );
-				} else {
-					$html .= "<td align='center' valign='center'>";
-					$html .= "(" . wfMsg ( "val_noop" ) . ")";
-				}
-				$html .= "</td>";
-			}
-			
-			if( $total_count > 0 ) {
-				$total = $total_percent / $total_count;
-				$total = number_format( $total , 2 ) . " %";
-			} else {
-				$total = "";
-			}
-			$html .= "<td align='center' valign='top' nowrap='nowrap'><b>{$total}</b></td>";
-
-			$html .= "</tr>";
-		}
-		$html .= "</table>\n";
-		return $html ;
-	}
-
-	function countUserValidations( $userid ) {
-		$sql = "SELECT count(DISTINCT val_title) AS num FROM validate WHERE val_user=" . IntVal( $userid );
-		$res = wfQuery( $sql, DB_READ );
-		if ( $s = wfFetchObject( $res ) ) {
-			$num = $s->num;
-		} else {
-			$num = 0;
-		}
-		return $num;
-	}
-
-	function getArticleList() {
-		global $wgLang, $wgOut;
-		$validationtypes = $wgLang->getValidationTypes();
-		$wgOut->setPageTitle( wfMsg( 'val_article_lists' ) );
-		$html = "";
-
-		# Choices
-		$choice = array ();
-		$maxw = 0;
-		foreach( $validationtypes as $idx => $data ) {
-			$x = explode( "|" , $data , 4 );
-			if( $x[3] > $maxw ) {
-				$maxw = $x[3];
-			}
-		}
-		foreach( $validationtypes as $idx => $data ) {
-			$choice[$idx] = array();
-			for( $a = 0 ; $a < $maxw ; $a++ ) {
-				$var = "cb_{$idx}_{$a}";
-				if( isset ( $_POST[$var] ) ) $choice[$idx][$a] = $_POST[$var] ; # Selected
-				else if ( !isset ( $_POST["doit"] ) ) $choice[$idx][$a] = 1 ; # First time
-				else $choice[$idx][$a] = 0 ; # De-selected
-			}
-		}
-
-		# The form
-		$html .= "<form method='post'>\n";
-		$html .= "<table border='1' cellspacing='0' cellpadding='2'>" ;
-		foreach( $validationtypes as $idx => $data ) {
-			$x = explode ( "|" , $data , 4 );
-			
-			$html .= "<tr>";
-			$html .= "<th nowrap='nowrap'>{$x[0]}</th>";
-			$html .= "<td align='right' nowrap='nowrap'>{$x[1]}</td>";
-
-			for( $a = 0; $a < $maxw; $a++ ) {
-				if( $a < $x[3] ) {
-					$td = "<input type='checkbox' name='cb_{$idx}_{$a}' value='1'";
-					if( $choice[$idx][$a] == 1 ) {
-						$td .= " checked='checked'" ;
-					}
-					$td .= " />";
-				} else {
-					$td = '';
-				}
-				$html .= "<td>{$td}</td>";
-			}
-
-			$html .= "<td nowrap='nowrap'>{$x[2]}</td>";
-			$html .= "</tr>\n";
-		}
-		$html .= "<tr><td colspan='" . ( $maxw + 2 ) . "'></td>\n";
-		$html .= "<td align='right' valign='center'><input type='submit' name='doit' value=\"" . htmlspecialchars( wfMsg ( 'ok' ) ) . "\" /></td></tr>";
-		$html .= "</table>\n";
-		$html .= "</form>\n";
-
-		# The query
-		$articles = array();
-		$sql = "SELECT DISTINCT val_title,val_timestamp,val_type,avg(val_value) AS avg FROM validate GROUP BY val_title,val_timestamp,val_type";
-		$res = wfQuery( $sql, DB_READ );
-		while( $s = wfFetchObject( $res ) ) {
-			$articles[$s->val_title][$s->val_timestamp][$s->val_type] = $s;
-		}
-
-		# The list
-		$html .= "<ul>\n";
-		foreach( $articles as $dbkey => $timedata ) {
-			$title = Title::newFromDBkey( $dbkey );
-			$out = array();
-			krsort( $timedata );
-
-			foreach( $timedata as $timestamp => $typedata ) {
-				$showit = true;
-				foreach( $typedata as $type => $data ) {
-					$avg = intval ( $data->avg + 0.5 );
-					if ( $choice[$type][$avg] == 0 ) $showit = false;
-				}
-				if( $showit ) {
-					$out[] = "<li>" . $this->getVersionLink ( $title , $timestamp ) . "</li>\n";
+					$initial = false;
+					$ret .= "<td>" . $this->getTopicLink ( $this->topicList[$topic]->val_comment ) . "</td>";
+					$ret .= "<td>" . $this->getRatingText( $rating->val_value, $this->topicList[$topic]->val_value ) . "</td>";
+					$ret .= "<td>" . $sk->commentBlock( $rating->val_comment ) . "</td>";
+					$ret .= "</tr>";
 				}
 			}
-
-			if( count( $out ) > 0 ) {
-				$html .= "<li>\n";
-				$html .= htmlspecialchars( $title->getText() ) . "\n";
-				$html .= "<ul>\n";
-				$html .= implode( "\n" , $out );
-				$html .= "</ul>\n</li>\n";
-			}
+			$ret .= "</tr>";
 		}
-		$html .= "</ul>\n";
-		return $html;
-	}
-
-	function getVersionLink( &$title , $timestamp ) {
-		global $wgLang;
-		$dbkey = $title->getDBkey();
-		$this->find_this_version( $dbkey, $timestamp, $table_id, $table_name );
-		if( $table_name == 'cur' ) {
-			$link = $title->getLocalURL( "" );
-		} else {
-			$link = $title->getLocalURL( "action=validate&timestamp={$table_id}" );
-		}
-		$linktitle = wfMsg( 'val_version_of', $wgLang->timeanddate( $timestamp ) );
-		$link = "<a href=\"" . htmlspecialchars( $link ) . "\">" . $linktitle . "</a>";
-		if( $table_name == 'cur' ) {
-			$link .= " (" . wfMsg ( 'val_this_is_current_version' ) . ")";
-		}
-
-		$vlink = wfMsg( 'val_tab' );
-		$vlink = "[<a href=\"" . $title->escapeLocalURL( "action=validate&timestamp={$timestamp}" ) . "\">{$vlink}</a>] " . $link;
-		return $vlink ;
+		$ret .= "</table>";
+		
+		return $ret;
 	}
 
 }
@@ -527,25 +732,43 @@ class Validation {
  * constructor
  */
 function wfSpecialValidate( $page = '' ) {
-	global $wgOut, $wgRequest, $wgUseValidation;
-
+	global $wgOut, $wgRequest, $wgUseValidation, $wgUser, $wgContLang;
+	
 	if( !$wgUseValidation ) {
 		$wgOut->errorpage( "nosuchspecialpage", "nospecialpagetext" );
 		return;
 	}
 
-	$mode = $wgRequest->getVal( 'mode', 'form' );
-	$v = new Validation;
-	$html = "" ;
-/*	if( $mode == "form" ) {
-		$html = $v->validate_form () ;
-	} else */
-	if( $mode == "stat_page" ) {
-		$html = $v->getPageStatistics();
-	} else if( $mode == "list_page" ) {
-		$html = $v->getArticleList();
+/*
+	# Can do?
+	if( ! $wgUser->isAllowed('change_validation') ) {
+		$wgOut->sysopRequired();
+		return;
 	}
+*/	
+
+	$mode = $wgRequest->getVal( "mode" );
+	$skin = $wgUser->getSkin();
+
 	
+	if( $mode == "manage" ) {
+		$v = new Validation();
+		$html = $v->manageTopics();
+	} elseif( $mode == "userstats" ) {
+		$v = new Validation();
+		$user = $wgRequest->getVal( "user" );
+		$html = $v->showUserStats( $user );
+	} else {
+		$html = "$mode";
+		$html .= "<ul>\n";
+
+		$t = Title::newFromText( "Special:Validate" );
+		$url = $t->escapeLocalURL( "mode=manage" );
+		$html .= "<li><a href=\"" . $url . "\">Manage</a></li>\n";
+
+		$html .= "</ul>\n";
+	}
+
 	$wgOut->addHTML( $html );
 }
 

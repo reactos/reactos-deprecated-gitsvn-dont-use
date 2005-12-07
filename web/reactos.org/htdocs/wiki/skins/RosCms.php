@@ -96,9 +96,11 @@ echo "<?xml version='1.0'?>\n";?>
 
 <div class="navTitle">Wiki</div>
       <ol>
-        <?php foreach($this->data['navigation_urls'] as $navlink) { ?>
-        <li><a href="<?php echo htmlspecialchars($navlink['href']) ?>"><?php
-                echo htmlspecialchars($navlink['text']) ?></a></li>
+        <?php foreach ($this->data['sidebar'] as $bar => $cont) { ?>
+            <?php foreach($cont as $key => $val) { ?>
+              <li><a href="<?php echo htmlspecialchars($val['href']) ?>"><?php
+                      echo htmlspecialchars($val['text'])?></a></li>
+             <?php } ?>
         <?php } ?>
       </ol>
       <p></p>

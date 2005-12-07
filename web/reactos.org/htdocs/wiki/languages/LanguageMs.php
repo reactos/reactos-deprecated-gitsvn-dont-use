@@ -1,30 +1,27 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 
 # This localisation is based on a file kindly donated by the folks at MIMOS
 # http://www.asiaosc.org/enwiki/page/Knowledgebase_Home.html
 
-# NOTE: To turn off "Current Events" in the sidebar,
-# set "currentevents" => "-"
-
-# The names of the namespaces can be set here, but the numbers
-# are magical, so don't change or move them!  The Namespace class
-# encapsulates some of the magic-ness.
-#
 /* private */ $wgNamespaceNamesMs = array(
-	-2	=> "Media",
-	-1	=> "Istimewa", #Special
-	0	=> "",
-	1	=> "Perbualan",#Talk
-	2	=> "Pengguna",#User
-	3	=> "Perbualan_Pengguna",#User_talk
-	4	=> "Wikipedia",#Wikipedia
-	5	=> "Perbualan_Wikipedia",#Wikipedia_talk
-	6	=> "Imej",#Image
-	7	=> "Imej_Perbualan",#Image_talk
-	8	=> "MediaWiki",
-	9	=> "MediaWiki_Perbualan",
-	10  => "Template",
-	11  => "Template_talk"
+	NS_MEDIA          => "Media",
+	NS_SPECIAL        => "Istimewa", #Special
+	NS_MAIN           => "",
+	NS_TALK           => "Perbualan",#Talk
+	NS_USER           => "Pengguna",#User
+	NS_USER_TALK      => "Perbualan_Pengguna",#User_talk
+	NS_PROJECT        => "Wikipedia",#Wikipedia
+	NS_PROJECT_TALK   => "Perbualan_Wikipedia",#Wikipedia_talk
+	NS_IMAGE          => "Imej",#Image
+	NS_IMAGE_TALK     => "Imej_Perbualan",#Image_talk
+	NS_MEDIAWIKI      => "MediaWiki",
+	NS_MEDIAWIKI_TALK => "MediaWiki_Perbualan",
+	NS_TEMPLATE       => "Template",
+	NS_TEMPLATE_TALK  => "Template_talk"
 
 ) + $wgNamespaceNamesEn;
 
@@ -32,91 +29,14 @@
 	"Tiada", "Tetap sebelah kiri", "Tetap sebelah kanan", "Berubah-ubah sebelah kiri"
 );
 
-/* private */ $wgSkinNamesMs = array(
-	'standard' => "Standard",
-	'nostalgia' => "Nostalgia",
-	'cologneblue' => "Cologne Blue",
-	'smarty' => "Paddington",
-	'montparnasse' => "Montparnasse",
-	'davinci' => "DaVinci",
-	'mono' => "Mono",
-	'monobook' => "MonoBook",
- "myskin" => "MySkin"
-);
-
 /* private */ $wgDateFormatsMs = array(
-	"Tiada pilihan", # "No preference",
-	"15 Januari 2001", # "Januari 15, 2001",
-	"15 Januari 2001", # "2001 Januari 15"
-);
-
-
-/* private */ $wgBookstoreListMs = array(
-	"AddALL" => "http://www.addall.com/New/Partner.cgi?query=$1&type=ISBN",
-	"PriceSCAN" => "http://www.pricescan.com/books/bookDetail.asp?isbn=$1",
-	"Barnes & Noble" => "http://shop.barnesandnoble.com/bookSearch/isbnInquiry.asp?isbn=$1",
-	"Amazon.com" => "http://www.amazon.com/exec/obidos/ISBN=$1"
-);
-
-
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesMs = array(
-	"Userlogin"		=> "Laluan masuk pengguna", #"Login Pengguna",
-	"Userlogout"	=> "Laluan keluar pengguna", #"Logout Pengguna",
-	"Preferences"	=> "Ubah konfigurasi saya", #"Set my user preferences",
-	"Watchlist"		=> "Senarai pilihan",#My watchlist",
-	"Recentchanges" => "Halaman terkini setelah diubah",#Recently updated pages",
-	"Upload"		=> "Muatnaik fail imej", #"Upload image files"
-	"Imagelist"		=> "Senarai imej",#Image list",
-	"Listusers"		=> "Senarai pengguna",#List of users",
-	"Statistics"	=> "Statistik halaman",#site statistics",
-	"Randompage"	=> "Halaman Rawak",#Random article",
-
-	"Lonelypages"	=> "Halaman yatim", # pages",
-	"Unusedimages"	=> "Imej yatim", #"Orphaned images",
-	"Popularpages"	=> "Halaman popular", #"Popular pages",
-	"Wantedpages"	=> "Halaman yang paling dikehendaki", #"Most wanted pages",
-	"Shortpages"	=> "Halaman pendek", #"Short pages",
-	"Longpages"		=> "Halaman panjang", #"Long pages",
-	"Newpages"		=> "Halaman yang baru dicipta", #"Newly created pages",
-	"Ancientpages"	=> "Rencana tertua", #Oldest articles
-	"Intl"		=> "Pautan antarabahasa", #Interlanguage links
-	"Allpages"		=> "Semua halaman mengikut tajuk", #"All pages by title",
-
-	"Ipblocklist"	=> "IP dan pengguna yang diblok", #"Blocked IPs and users",
-	"Maintenance" => "Halaman penyelenggaraan", #"Maintenance page",
-	"Specialpages"  => "",
-	"Contributions" => "",
-	"Emailuser"		=> "",
-	"Whatlinkshere" => "",
-	"Recentchangeslinked" => "",
-	"Movepage"		=> "",
-	"Booksources"	=> "Sumber buku luaran", #"External book sources"
-	"Export"	=> "XML export",
-	"Version"	=> "Version",
-);
-
-/* private */ $wgSysopSpecialPagesMs = array(
-	"Blockip"		=> "Sekat IP dan pengguna", #"Block IP or user",
-	"Asksql"		=> "Kueri terhadap pangkalan data", #"Query the database",
-	"Undelete"		=> "Papar dan masukkan semula halaman yang telah dibuang", #"View and restore deleted pages",
-);
-
-/* private */ $wgDeveloperSpecialPagesEn = array(
-	"Lockdb"		=> "Membuat pangkalan data hanya untuk dibaca", #"Make database read-only",
-	"Unlockdb"		=> "Memperbaharui cara kemasukan pangkalan data", #"Restore database write access",
+#	"Tiada pilihan", # "No preference",
 );
 
 /* private */ $wgAllMessagesMs = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 
 # User Toggles
 
-"tog-hover"		=> "Papar hoverbox atas pautan", #"Show hoverbox over links",
 "tog-underline" => "Pautan bergaris", #"Underline links",
 "tog-highlightbroken" => "Pautan bertanda ke topik kosong",
 #TODO: <a href=\"\" class=\"new\">like this</a> (alternative: like this<a href=\"\" class=\"internal\">?</a>)
@@ -180,7 +100,6 @@
 "aboutpage"		=> "Wikipedia:Perihal", #"Wikipedia:About",
 "help"			=> "Bantuan",
 "helppage"		=> "Wikipedia:Bantuan",
-"wikititlesuffix"       => "Wikipedia",
 "bugreports"	        => "Laporan Pepijat",
 "bugreportspage"        => "Wikipedia:Laporan Pepijat",
 "faq"			=> "FAQ",
@@ -222,8 +141,7 @@
 "redirectedfrom"        => "(Dialih dari $1)", #"(Redirected from $1)",
 "lastmodified"	        => "Halaman ini diubah kali terakhir pada $1.", #"The page was last modified $1.",
 "viewcount"		=> "Halaman ini telah diakses sebanyak $1 kali.", #"This page has been accessed $1 times.",
-"gnunote"		=> "Halaman ini tertakluk di bawah istilah <a class=internal href='$wgScriptPath/GNU_FDL'>GNU Free Documentation License</a>.", #"This page is released under the terms of the $1.",
-"printsubtitle"         => "(From http://www.aposc.org)",
+"printsubtitle"         => "(From {{SERVER}})",
 "protectedpage"         => "Halaman yang dilindungi", #"Protected page",
 "administrators"        => "Istimewa:Listadministrators", #"Special:Listadministrators",
 "sysoptitle"	        => "Kemasukan sysop diperlukan", #"Sysop access required",
@@ -277,11 +195,6 @@ kemasukan baru.
 Pentadbir yang menutup
 memberikan penjelasan berikut:
 <p>$1",
-"rencana hilang"=>"Pengkalan data tidak menjumpai teks bagi laman yang patut dijumpai, bernama\"$1\".
-
-<p>Ini biasanya disebabkan oleh lewat tarikh diff atau sejarah pautan kepada laman telah dipadamkan.
-
-<p>Jika ini bukan sebabnya, anda mungkin menjumpai pepijat dalam aturcara. Sila lapurkan kepada penyelia, catitkan URL, # If this is not the case, you may have found a bug in the software. Please report this to an administrator, making note of the URL.",
 # "missingarticle" => "The database did not find the text of a page that it should have found, named \"$1\".
 # This is usually caused by following an outdated diff or history link to a page that has been deleted.
 "internalerror" => "Ralat dalaman", # Internal error",
@@ -314,12 +227,7 @@ Sila kemaskini konfigurasi butir-butir diri anda.", #"<h2>Welcome, $1!</h2><p>Yo
 "newusersonly"	 => "(Hanya pengguna baru)", # (new users only)",
 "remembermypassword" => "Sentiasa ingatan kata laluan.", # Remember my password across sessions.",
 "loginproblem"	=> "<b>Terdapat masalah dengan data kemasukan.</b><br />Cuba semula!", # There has been a problem with your login.</b><br />Try again!",
-"alreadyloggedin" => "<font color=red><b>Pengguna $1, anda telah berjaya masuk!</b></font><br />\n",
-
-"areyounew"		=>"Sekiranya anda baru dalam Wikipedia dan ingin mendapatkan akaun pengguna,
-masukan nama pengguna, kemudia taip kata laluan dan ulang semula kata laluan.
-Alamat email anda adalah tidak diwajibkan;sekiranya kehilangan kata laluan
-boleh diminta melalui email yg diberikan.<br />\n",
+"alreadyloggedin" => "<strong>Pengguna $1, anda telah berjaya masuk!</strong><br />\n",
 
 "login"			=> "Masuk", #Log in
 "userlogin"		=> "Laluan masuk", #Log in
@@ -388,12 +296,12 @@ Bahagian atas teks mengandungi halaman teks yang terkini.
 Perubahan yang anda lakukan akan ditunjukkan pada bahagian bawah teks.
 Anda hanya perlu mencantumkan perubahan-perubahan dalam teks.
 <b>Hanya</b> teks pada bahagian atas akan hanya disimpan apabila anda
-menekan \"Simpan halaman\".\n<p>",
+menekan \"Simpan halaman\".<br />",
 "yourtext"		=> "Teks anda", #"Your text",
 "storedversion" => "Simpan versi", #"Stored version",
 "editingold"	=> "<strong>AMARAN: Anda mengemaskini halaman revisi yang ketinggalan tarikh.
 Jika anda menyimpannya,
-sebarang perubahan yang dibuat sejak revisi ini akan hilang.</strong>\n",
+sebarang perubahan yang dibuat sejak revisi ini akan hilang.</strong>",
 "yourdiff"		=> "Perbezaan", #"Differences",
 "copyrightwarning" => "Semua sumbangan terhadap Wikipedia adalah
 tertakluk di bawah GNU Free Documentation License
@@ -402,17 +310,16 @@ Jika anda tidak mahu tulisan anda disunting dan/atau disebarkan ke halaman
 web percuma yang lain, jangan hantarnya ke sini.
 Anda juga perlu akui bahawa ini adalah hasil tulisan anda sendiri, atau anda
 menyalinnya daripada domain awam atau mana-mana sumber percuma yang sama.
-<p><strong><font color=\"red\">JANGAN HANTAR SEBARANG KARYA HAK CIPTA ORANG LAIN TANPA KEBENARAN.</font></strong></p> <p><strong><font color=\"red\">JANGAN SALIN DARIPADA HALAMAN WEB YANG LAIN.</font></strong></p> ",
-"longpagewarning" => "WARNING: This page is $1 kilobytes long; some
+<p><strong>JANGAN HANTAR SEBARANG KARYA HAK CIPTA ORANG LAIN TANPA KEBENARAN.</strong></p> <p><strong>JANGAN SALIN DARIPADA HALAMAN WEB YANG LAIN.</strong></p> ",
+"longpagewarning" => "<strong>WARNING: This page is $1 kilobytes long; some
 browsers may have problems editing pages approaching or longer than 32kb.
-Please consider breaking the page into smaller sections.",
-"readonlywarning" => "WARNING: The database has been locked for maintenance,
+Please consider breaking the page into smaller sections.</strong>",
+"readonlywarning" => "<strong>WARNING: The database has been locked for maintenance,
 so you will not be able to save your edits right now. You may wish to cut-n-paste
-the text into a text file and save it for later.",
-"protectedpagewarning" => "WARNING:  This page has been locked so that only
+the text into a text file and save it for later.</strong>",
+"protectedpagewarning" => "<strong>WARNING:  This page has been locked so that only
 users with sysop privileges can edit it. Be sure you are following the
-<a href='$wgScriptPath/$wgMetaNamespace:Protected_page_guidelines'>protected page
-guidelines</a>.",
+[[Project:Protected_page_guidelines|protected page guidelines]].</strong>",
 
 # History pages
 #
@@ -476,8 +383,7 @@ $2 List redirects &nbsp; Search for $3 $9",
 #
 "preferences"	=> "Konfigurasi", #"Preferences",
 "prefsnologin" => "Belum mendaftar masuk", #"Not logged in",
-"prefsnologintext"	=> "Anda mesti <a href=\"" .
-  "{{localurle:Istimewa:Userlogin}}\">mendaftar masuk</a>
+"prefsnologintext"	=> "Anda mesti [[Istimewa:Userlogin|mendaftar masuk]]
 untuk tetapkan butir-butir diri anda.", #"You must be <a href=\"" .
 "prefslogintext" => "Anda telah masuk sebagai \"$1\".
 Nombor ID anda ialah $2.",
@@ -561,10 +467,8 @@ jadi sila patuhi amaran ini.",
 "reupload"		=> "Muatnaik semula", #"Re-upload",
 "reuploaddesc"	=> "Kembali ke borang muatnaik", #"Return to the upload form.",
 "uploadnologin" => "Tidak mendaftar masuk", #"Not logged in",
-"uploadnologintext"	=> "Anda mesti <a href=\"" .
-  "{{localurle:Istimewa:Userlogin}}\">pengguna</a>
+"uploadnologintext"	=> "Anda mesti [[Istimewa:Userlogin|pengguna]]
 untuk muatnaik fail.",
-"uploadfile"	=> "Muatnaik fail", #"Upload file",
 "uploaderror"	=> "Muatnaik ralat", #"Upload error",
 "uploadlog"		=> "muatnaik log", #"upload log",
 "uploadlogpage" => "Muatnaik_log", #"Upload_log",
@@ -575,13 +479,9 @@ Semua waktu yang ditunjukkan adalah waktu pelayan (UTC).
 ",
 "filename"		=> "Filename",
 "filedesc"		=> "Ringkasan", #"Summary",
-"affirmation"	=> "Saya berikrar bahawa pemilik hak cipta fail ini
-telah bersetuju untuk melesenkannya di bawah terma $1.", #"I affirm that the copyright holder of this file agrees to license it under the terms of the $1.",
 "copyrightpage" => "Wikipedia:Hak cipta",
 "copyrightpagename" => "Hak cipta Wikipedia",
 "uploadedfiles"	=> "Fail yang telah dimuatnaik", #"Uploaded files",
-"noaffirmation" => "Anda mesti berikrar bahawa fail yang dimuatnaik tidak
-tertakluk di bawah sebarang hak cipta.", #"You must affirm that your upload does not violate any copyrights.",
 "ignorewarning"	=> "Abaikan amaran dan simpan fail sahaja", #"Ignore warning and save file anyway.",
 "minlength"		=> "Nama imej mesti sekurang-kurangnya tiga huruf.", #"Image names must be at least three letters.",
 "badfilename"	=> "Nama imej telah ditukar kepada \"$1\".", #"Image name has been changed to \"$1\".",
@@ -594,17 +494,15 @@ tentang fail tersebut, seperti fail itu dari mana, bila ia dibuat dan
 oleh siapa, dan lain-lain yang anda ketahui.",
 "uploadwarning" => "Amaran muaturun", # Upload warning",
 "savefile"		=> "Simpan fail", #"Save file",
-"uploadedimage" => "Telah dimuaturun \"$1\"",     #"uploaded \"$1\"",
+"uploadedimage" => "Telah dimuaturun \"[[$1]]\"",     #"uploaded \"$1\"",
 
 # Image list
 #
 "imagelist"	=> "Senarai imej",   #"Image list",
 "imagelisttext"	=> "Di bawah ialah senarai imej yang telah diasingkan $2.", #"Below is a list of $1 images sorted $2.",
 "getimagelist"	=> "senarai imej yang diperolehi",    #"fetching image list",
-"ilshowmatch"	=> "Paparan semua imej dengan nama yang berpadanan",    #"Show all images with names matching",
 "ilsubmit"		=> "Carian", #"Search",
 "showlast"		=> "Paparan imej terakhir $1 yang telah diasingkan $2.", #"Show last $1 images sorted $2.",
-"all"			=> "semua", #"all",
 "byname"		=> "mengikut nama",   #"by name",
 "bydate"		=> "mengikut tarikh", #by date",
 "bysize"		=> "mengikut saiz",  #"by size",
@@ -676,8 +574,6 @@ Ini menjadikan <b>$5</b> purata halaman yang disunting, dan <b>$6</b> paparan ya
 "listusers"		=> "Senarai Pengguna",
 "specialpages"	=> "Halaman Istimewa",
 "spheading"		=> "Halaman Istimewa", #"Special pages",
-"sysopspheading" => "Halaman Istimewa Admin",
-"developerspheading" => "",
 "protectpage"	=> "Halaman dilindungi",
 "recentchangeslinked" => "Pautan pilihan",
 "rclsub"		=> "(Untuk halaman yang berpaut dari \"$1\")",   #"(to pages linked from \"$1\")",
@@ -701,7 +597,7 @@ dan senarai ini sepatutnya tidak ditafsirkan sebagai sokongan.",
 # Email this user
 #
 "mailnologin"	=> "Tidak dibenarkan hantar alamat", #"No send address",
-"mailnologintext" => "Anda mesti <a href=\"{{localurle:Istimewa:Userlogin}}\logged in</a> dan mempunyai alamat email yang sah di <a href=\"{{localurle:Istimewa:Preferences}}\"preferences</a> untuk menghantar email kepada pengguna lain.",
+"mailnologintext" => "Anda mesti [[Istimewa:Userlogin|logged in]] dan mempunyai alamat email yang sah di [[Istimewa:Preferences|preferences]] untuk menghantar email kepada pengguna lain.",
 #"You must be <a href=\"{{localurle:Special:Userlogin}}\">logged in</a> and have a valid e-mail address in your <#a href=\"{{localurle:Special:Preferences}}\">preferences</a> to send e-mail to other users.",
 
 "emailuser"		=> "E-mail pengguna ini", #"E-mail this user",
@@ -730,8 +626,7 @@ dan senarai ini sepatutnya tidak ditafsirkan sebagai sokongan.",
 "watchlistsub"	=> "( untuk pengguna \"$1\")",   #"(for user \"$1\")",
 "nowatchlist"	=> "Tiada apa-apa dalam senarai pilihan.",    #"You have no items on your watchlist.",
 "watchnologin"	=> "Tidak memasuki sistem", #"Not logged in",
-"watchnologintext"	=> "Anda mesti < a href=\"".
-  "{{localurle:Istimewa:Userlogin}}\">mendaftar masuk<a/>
+"watchnologintext"	=> "Anda mesti [[Istimewa:Userlogin|mendaftar masuk]]
 untuk mengubah senarai pilihan.",
 "addedwatch"	=> "Tambah ke senarai pilihan",
 "addedwatchtext" => "Halaman \"$1\" telah ditambah pada <a href=\"".
@@ -752,8 +647,8 @@ akan disenaraikan di sini, dan halaman itu akan muncul <b>bolded</b> dalam <a hr
 #
 "deletepage"	=> "Keluarkan halaman", #"Delete page",
 "confirm"		=> "Sah", #"Confirm",
-"excontent" => "Kandungan dahulu:",
-"exbeforeblank" => "kandungan sebelum dikosongankan adalah:",
+"excontent" => "Kandungan dahulu: '$1'",
+"exbeforeblank" => "kandungan sebelum dikosongankan adalah: '$1'",
 "exblank" => "laman kosong",
 "confirmdelete" => "Sah keluarkan", #"Confirm delete",
 "deletesub"		=> "(Keluarkan \"$1\")", #"(Deleting \"$1\")",
@@ -763,7 +658,6 @@ imej ini dengan semua sejarahnya dari pangkalan data.  Sila pastikan
 yang anda memang mahu berbuat demikian, bahawa anda faham segala
 akibatnya, dan apa yang anda lakukan ini adalah mengikut
 [[Wikipedia:Polisi]].",
-"confirmcheck"	=> "Ya, saya mahu keluarkan halaman ini", #"Yes, I really want to delete this.",
 "actioncomplete" => "Proses selesai", #"Action complete",
 "deletedtext"	=> "\"$1\" telah dikeluarkan.
 Lihat $2 untuk rekod terkini halaman yang telah dikeluarkan.",
@@ -841,7 +735,6 @@ halaman tertentu yang telah dirosakkan).",
 "ipbreason"		=> "Alasan", #"Reason",
 "ipbsubmit"		=> "Hantar", #"Submit",
 "badipaddress"	=> "Alamat IP atau pengguna ini dalam format yang tidak betul.", #"The IP address or username is badly formed.",
-"noblockreason" => "Anda mesti sediakan alasan untuk pemblokan tersebut.", #"You must supply a reason for the block.",
 "blockipsuccesssub" => "Pemblokan berjaya", #"Block succeeded",
 "blockipsuccesstext" => "Alamat IP atau pengguna \"$1\" telah diblok.
 <br />Lihat [[Istimewa:Ipblocklist|IP and user block list]] untuk semak pemblokan.", #"The IP address or username \"$1\" has been blocked.
@@ -851,7 +744,7 @@ capaian kemaskini ke alamat IP atau pengguna yang telah diblok sebelumnya.",
 "ipusubmit"		=> "Lepaskan semula alamat ini dari diblok", #"Unblock this address",
 "ipusuccess"	=> "Alamat IP atau pengguna \"$1\" dilepaskan dari diblok", #"IP address or user \"$1\" unblocked",
 "ipblocklist"	=> "Senarai alamat IP dan pengguna yang diblok", #"List of blocked IP addresses and users",
-"blocklistline"	=> "$1, $2 blok $3", #"$1, $2 blocked $3",
+"blocklistline"	=> "$1, $2 blok $3 ($4)",
 "blocklink"		=> "blok", #"block",
 "unblocklink"	=> "lepaskan dari diblok", #"unblock",
 "contribslink"	=> "contribs",
@@ -879,21 +772,6 @@ kemaskini terhadap pangkalan data.  Sila pastikan anda mahu berbuat demikian.",
 "lockdbsuccesstext" => "Pangkalan data Wikipedia telah dikunci.
 <br />Pastikan anda membukanya semula dari dikunci setelah penyelenggaraan selesai.",
 "unlockdbsuccesstext" => "Pangkalan data Wikipedia telah dibuka semula dari dikunci.", #"The Wikipedia database has been unlocked.",
-
-# SQL query
-#
-"asksql"		=> "Kueri SQL", #"SQL query",
-"asksqltext"	=> "Gunakan borang di bawah untuk membuat kueri langsung
-bagi pangkalan data Wikipedia.
-Gunakan pembuka kata tunggal ('seperti ini') untuk menghadkan rangkaian
-string.  Ini selalunya menambah beban terhadap pelayan, jadi sila gunakan
-fungsi ini dengan cermat.",
-"sqlislogged"	=> "Harap maklum semua pertanyaan dilogkan.",
-"sqlquery"		=> "Masukkan kueri", #"Enter query",
-"querybtn"		=> "Hantar kueri", #"Submit query",
-"selectonly"	=> "Kueri selain dari \"SELECT\" adalah tidak dibenarkan
-kepada pembangun Wikipedia.", #"Queries other than \"SELECT\" are restricted to
-"querysuccessful" => "Kueri berjaya", #"Query successful",
 
 # Move page
 #
@@ -924,8 +802,7 @@ belok borang ini sebelum anda teruskan.",
 In those cases, you will have to move or merge the page manually if desired.",
 "movearticle"	=> "Alih halaman", #"Move page",
 "movenologin"	=> "Tidak masuk sistem", #"Not logged in",
-"movenologintext" => "Anda mesti menjadi pengguna berdaftar dan <a href=\"" .
-  "{{localurle:Istimewa:Userlogin}}\">logged in</a>
+"movenologintext" => "Anda mesti menjadi pengguna berdaftar dan [[Istimewa:Userlogin|logged in]]
 untuk mengalihkan halaman.",
 "newtitle"	=> "Tajuk baru",   #"To new title",
 "movepagebtn"	=> "Alih halaman", #"Move page",
@@ -955,33 +832,9 @@ require_once( "LanguageUtf8.php" );
 
 class LanguageMs extends LanguageUtf8 {
 
-	function getBookstoreList () {
-		global $wgBookstoreListMs;
-		return $wgBookstoreListMs;
-	}
-
 	function getNamespaces() {
 		global $wgNamespaceNamesMs;
 		return $wgNamespaceNamesMs;
-	}
-
-	function getNsText( $index ) {
-		global $wgNamespaceNamesMs;
-		return $wgNamespaceNamesMs[$index];
-	}
-
-	function getNsIndex( $text ) {
-		global $wgNamespaceNamesMs;
-
-		foreach ( $wgNamespaceNamesMs as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-		}
-		# For backwards compatibility
-		global $wgNamespaceNamesEn;
-		foreach ( $wgNamespaceNamesEn as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-		}
-		return false;
 	}
 
 	function getQuickbarSettings() {
@@ -989,41 +842,17 @@ class LanguageMs extends LanguageUtf8 {
 		return $wgQuickbarSettingsMs;
 	}
 
-	function getSkinNames() {
-		global $wgSkinNamesMs;
-		return $wgSkinNamesMs;
-	}
-
 	function getDateFormats() {
 		global $wgDateFormatsMs;
 		return $wgDateFormatsMs;
 	}
 
-	function getValidSpecialPages()
-	{
-		global $wgValidSpecialPagesMs;
-		return $wgValidSpecialPagesMs;
-	}
-
-	function getSysopSpecialPages()
-	{
-		global $wgSysopSpecialPagesMs;
-		return $wgSysopSpecialPagesMs;
-	}
-
-	function getDeveloperSpecialPages()
-	{
-		global $wgDeveloperSpecialPagesMs;
-		return $wgDeveloperSpecialPagesMs;
-	}
-
-	function getMessage( $key )
-	{
+	function getMessage( $key ) {
 		global $wgAllMessagesMs;
 		if( isset( $wgAllMessagesMs[$key] ) ) {
 			return $wgAllMessagesMs[$key];
 		} else {
-			return Language::getMessage( $key );
+			return parent::getMessage( $key );
 		}
 	}
 }

@@ -1,23 +1,23 @@
 <?php
 /**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
- */
+*
+* @package MediaWiki
+* @subpackage SpecialPage
+*/
 
 /**
- * constructor
- */
+* constructor
+*/
 function wfSpecialStatistics() {
-	global $wgUser, $wgOut, $wgLang;
-	$fname = "wfSpecialStatistics";
+	global $wgUser, $wgOut, $wgLang, $wgRequest;
+	$fname = 'wfSpecialStatistics';
 
-	$wgOut->addHTML( "<h2>" . wfMsg( "sitestats" ) . "</h2>\n" );
-	
-	$dbr =& wfGetDB( DB_SLAVE, array( 'SpecialStatistics', 'vslow'));
-	extract( $dbr->tableNames( 'cur', 'site_stats', 'user', 'user_rights' ) );
+	$action = $wgRequest->getVal( 'action' );
 
-	$row = $dbr->selectRow( 'site_stats', '*', false, 'wfSpecialStatistics' );
+	$dbr =& wfGetDB( DB_SLAVE );
+	extract( $dbr->tableNames( 'page', 'site_stats', 'user', 'user_groups' ) );
+
+	$row = $dbr->selectRow( 'site_stats', '*', false, $fname );
 	$views = $row->ss_total_views;
 	$edits = $row->ss_total_edits;
 	$good = $row->ss_good_articles;
@@ -27,57 +27,58 @@ function wfSpecialStatistics() {
 		# Update schema
 		$u = new SiteStatsUpdate( 0, 0, 0 );
 		$u->doUpdate();
-		$dbw =& wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( 'site_stats', '*', false, 'wfSpecialStatistics' );
-
+		$row = $dbr->selectRow( 'site_stats', '*', false, $fname );
 	}
 
 	if ( isset( $row->ss_total_pages ) ) {
 		$total = $row->ss_total_pages;
 	} else {
-		$sql = "SELECT COUNT(cur_namespace) AS total FROM $cur";
+		$sql = "SELECT COUNT(page_namespace) AS total FROM $page";
 		$res = $dbr->query( $sql, $fname );
-		$curRow = $dbr->fetchObject( $res );
-		$total = $curRow->total;
+		$pageRow = $dbr->fetchObject( $res );
+		$total = $pageRow->total;
 	}
 
 	if ( isset( $row->ss_users ) ) {
-		$totalUsers = $row->ss_users;
+		$users = $row->ss_users;
 	} else {
 		$sql = "SELECT MAX(user_id) AS total FROM $user";
 		$res = $dbr->query( $sql, $fname );
 		$userRow = $dbr->fetchObject( $res );
-		$totalUsers = $userRow->total;
-	}
+		$users = $userRow->total;
+	} 	
 
-	if ( isset( $row->ss_admins ) ) {
-		$admins = $row->ss_admins;
-	} else {
-		$sql = "SELECT COUNT(ur_user) AS total FROM $user_rights WHERE ur_rights LIKE '%sysop%'";
-		$res = $dbr->query( $sql, $fname );
-		$urRow = $dbr->fetchObject( $res );
-		$admins = $urRow->total;
-	}
+	$sql = "SELECT COUNT(*) AS total FROM $user_groups WHERE ug_group='sysop'";
+	$res = $dbr->query( $sql, $fname );
+	$row = $dbr->fetchObject( $res );
+	$admins = $row->total;
 	
-	$text = wfMsg( "sitestatstext",
-		$wgLang->formatNum( $total ),
-		$wgLang->formatNum( $good ),
-		$wgLang->formatNum( $views ),
-		$wgLang->formatNum( $edits ),
-		$wgLang->formatNum( sprintf( "%.2f", $total ? $edits / $total : 0 ) ),
-		$wgLang->formatNum( sprintf( "%.2f", $edits ? $views / $edits : 0 ) ) );
-
-	$wgOut->addWikiText( $text );
-	$wgOut->addHTML( "<h2>" . wfMsg( "userstats" ) . "</h2>\n" );
-
-	$sk = $wgUser->getSkin();
-	$ap = "[[" . wfMsg( "administrators" ) . "]]";
-
-	$text = wfMsg( "userstatstext",
-		$wgLang->formatNum( $totalUsers ),
-		$wgLang->formatNum( $admins ), $ap );
-	$wgOut->addWikiText( $text );
-
+	if ($action == 'raw') {
+		$wgOut->disable();
+		header( 'Pragma: nocache' );
+		echo "total=$total;good=$good;views=$views;edits=$edits;users=$users;admins=$admins\n";
+		return;
+	} else {
+		$text = '==' . wfMsg( 'sitestats' ) . "==\n" ;
+		$text .= wfMsg( 'sitestatstext',
+			$wgLang->formatNum( $total ),
+			$wgLang->formatNum( $good ),
+			$wgLang->formatNum( $views ),
+			$wgLang->formatNum( $edits ),
+			$wgLang->formatNum( sprintf( '%.2f', $total ? $edits / $total : 0 ) ),
+			$wgLang->formatNum( sprintf( '%.2f', $edits ? $views / $edits : 0 ) ) );
+	
+		$text .= "\n==" . wfMsg( 'userstats' ) . "==\n";
+	
+		$text .= wfMsg( 'userstatstext',
+			$wgLang->formatNum( $users ),
+			$wgLang->formatNum( $admins ),
+			'[[' . wfMsg( 'administrators' ) . ']]',
+			// should logically be after #admins, danm backwards compatability!
+			$wgLang->formatNum( sprintf( '%.2f', $admins / $users * 100 ) )
+		);
+		
+		$wgOut->addWikiText( $text );
+	}
 }
-
 ?>

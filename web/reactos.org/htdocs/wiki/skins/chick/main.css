@@ -241,9 +241,7 @@ table.small { font-size: 100% }
     padding:5px;
     font-size: 95%;
 }
-#toc .tocindent { margin-left: 2em; }
-#toc .tocline { margin-bottom: 0px; }
-#toc p { margin: 0 }
+#toc ul { margin-left: 2em; }
 #toc .toctoggle { font-size: 94%; }
 #toc .editsection {
     margin-top: 0.7em;
@@ -311,7 +309,7 @@ div.tleft {
     margin-right:0.5em;
     border-width: 0.5em 1.4em 0.8em 0;
 }
-.urlexpansion,
+
 .hiddenStructure {
     display: none;
 }
@@ -420,7 +418,7 @@ div.portlet { margin: 0.5em 0; }
 	margin:5px;
 }
 
-ul.special li.not_patrolled, ol.special li.not_patrolled {
+ul.special li.not-patrolled, ol.special li.not-patrolled {
 	background-color: #ffa;
 }
 div.patrollink {
@@ -477,3 +475,4 @@ div.gallerytext {
         font-size: 94%;
         padding: 2px 4px;
 }       
+

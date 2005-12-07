@@ -1,4 +1,8 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 #
 # Nederlands localisation for MediaWiki
 #
@@ -8,10 +12,6 @@
 #
 
 require_once( "LanguageUtf8.php" );
-
-# The names of the namespaces can be set here, but the numbers
-# are magical, so don't change or move them!  The Namespace class
-# encapsulates some of the magic-ness.
 
 /* private */ $wgNamespaceNamesNl = array(
 	NS_MEDIA			=> "Media",
@@ -43,74 +43,13 @@ require_once( "LanguageUtf8.php" );
 	'standard' => "Standaard",
 	'nostalgia' => "Nostalgie",
 	'cologneblue' => "Keuls blauw",
-	'smarty' => "Paddington",
-	'montparnasse' => "Montparnasse",
-	'davinci' => "DaVinci",
-	'mono' => "Mono",
-	'monobook' => "MonoBook",
- "myskin" => "MySkin" 
-);
+) + $wgSkinNamesEn;
 
 
-
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesNl = array(
- "Userlogin"  => "",
- "Userlogout" => "",
- "Preferences" => "Mijn gebruikersvoorkeuren instellen",
- "Watchlist"  => "Mijn volglijst",
- "Recentchanges" => "Recent bijgewerkte pagina's",
- "Upload"  => "Afbeeldingen uploaden",
- "Imagelist"  => "Lijst ge-uploade afbeeldingen",
- "Listusers"  => "Geregistreerde gebruikers",
- "Statistics" => "Statistieken",
- "Randompage" => "Ga naar een willekeurig artikel",
-
- "Lonelypages" => "Niet-gelinkte artikels",
- "Unusedimages" => "Niet-gelinkte afbeeldingen",
- "Popularpages" => "Populaire artikels",
- "Wantedpages" => "Meest gewenste artikels",
- "Shortpages" => "Korte artikels",
- "Longpages"  => "Lange artikels",
- "Newpages"  => "Nieuwe artikels",
- "Ancientpages" => "Oudste artikels",
-#"Intl" => "Taallinks",
- "Allpages"  => "Alle paginatitels",
-
- "Ipblocklist" => "Geblokkeerde IP-adressen",
- "Maintenance" => "Onderhoudspagina",
- "Specialpages"  => "",
- "Contributions" => "",
- "Emailuser"  => "",
- "Whatlinkshere" => "",
- "Recentchangeslinked" => "",
- "Movepage"  => "",
- "Booksources" => "",
-# "Categories" => "Rubrieken",
- "Export" => "XML export",
- "Version" => "Version",
-);
-
-/* private */ $wgSysopSpecialPagesNl = array(
- "Blockip"  => "Blokkeer een IP-adres of gebruiker",
- "Asksql"  => "Raadpleeg de database",
- "Undelete" => "Verwijderde pagina's herstellen"
-);
-
-/* private */ $wgDeveloperSpecialPagesNl = array(
- "Lockdb"  => "Maak de database alleen-lezen",
- "Unlockdb"  => "Maak de database overschrijfbaar",
-);
 
 /* private */ $wgAllMessagesNl = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 # User Toggles
 
-"tog-hover"  => "Wikilinks in zwevend tekstvak tonen",
 "tog-underline" => "Links onderstrepen",
 "tog-highlightbroken" => "Links naar lege pagina's laten oplichten",
 "tog-justify" => "Paragrafen uitvullen",
@@ -120,7 +59,6 @@ require_once( "LanguageUtf8.php" );
 "tog-showtoolbar" => "Show edit toolbar",
 "tog-editondblclick" => "Dubbelklikken levert bewerkingspagina (vereist JavaScript)",
 "tog-editsection" => "Maak het bewerken van deelpagina's mogelijk",
-"tog-editsectionondblclick" => "Edit deelpagina's met rechtermuisklik (vereist JavaScript)",
 "tog-showtoc" => "Geef een inhoudsopgave (van pagina's met minstens 3 tussenkoppen)",
 "tog-rememberpassword" => "Wachtwoord onthouden",
 "tog-editwidth" => "Bewerkingsveld over volle breedte",
@@ -177,7 +115,6 @@ require_once( "LanguageUtf8.php" );
 "aboutpage"  => "{{ns:4}}:info",
 "help"   => "Help",
 "helppage"  => "{{ns:4}}:Help",
-"wikititlesuffix" => "{{SITENAME}} NL",
 "bugreports" => "Foutenrapportage",
 "sitesupport" => "Financieel bijdragen",
 "bugreportspage" => "{{ns:4}}:Foutenrapportage",
@@ -221,8 +158,7 @@ require_once( "LanguageUtf8.php" );
 "redirectedfrom" => "(Doorverwezen vanaf $1)",
 "lastmodified" => "De laatste wijziging op deze pagina vond plaats op $1.",
 "viewcount"  => "Deze pagina werd $1 maal bekeken. ",
-"gnunote" => "Alle tekst op deze pagina valt onder de  <a class=internal href='/wiki/Gnu_Vrije_Documentatie_Licentie'>GNU FDL</a>.",
-"printsubtitle" => "(Uit http://nl.wikipedia.org)",
+"printsubtitle" => "(Uit {{SERVER}})",
 "protectedpage" => "Beveiligde pagina",
 "administrators" => "{{ns:4}}:Systeembeheerders",
 "sysoptitle" => "Toegang alleen voor systeembeheerders",
@@ -279,10 +215,10 @@ De verantwoordelijke systeembeheerder gaf hiervoor volgende reden op:
 "filedeleteerror" => "Kon bestand \"$1\" niet verwijderen.",
 "filenotfound" => "Kon bestand \"$1\" niet vinden.",
 "unexpected" => "Onverwachte waarde: \"$1\"=\"$2\".",
-"formerror"  => "Fout: kon formulier niet verzenden", 
+"formerror"  => "Fout: kon formulier niet verzenden",
 "badarticleerror" => "Deze handeling kan op deze pagina niet worden uitgevoerd.",
 "cannotdelete" => "Kon de pagina of afbeelding niet verwijderen.",
-"badtitle"              => "Ongeldige paginatitel", 
+"badtitle"              => "Ongeldige paginatitel",
 "badtitletext"  => "De opgevraagde pagina is niet beschikbaar of leeg.",
 "perfdisabled" => "Om overbelasting van het systeem te voorkomen, is deze optie momenteel niet bruikbaar.",
 "perfdisabledsub" => "We kunnen u wel onderstaande kopie van $1 tonen; deze is echter mogelijk niet up-to-date.",
@@ -302,7 +238,7 @@ U kunt {{SITENAME}} anoniem blijven gebruiken, of u opnieuw aanmelden onder deze
 "newusersonly" => " (alleen nieuwe gebruikers)",
 "remembermypassword" => "Mijn wachtwoord onthouden voor latere sessies.",
 "loginproblem" => "<b>Er is een probleem met het aanmelden.</b><br />Probeer het opnieuw a.u.b.",
-"alreadyloggedin" => "<font color=red><b>Gebruiker $1, u bent al aangemeld.</b></font><br />\n",
+"alreadyloggedin" => "<strong>Gebruiker $1, u bent al aangemeld.</strong><br />\n",
 
 "login"   => "Aanmelden & Inschrijven",
 "userlogin"  => "Aanmelden",
@@ -360,15 +296,15 @@ Gelieve na ontvangst opnieuw aan te melden.",
 "editingsection"  => "Bewerkingspagina: $1 (deelpagina)",
 "editingcomment"  => "Bewerkingspagina: $1 (nieuwe opmerking)",
 "editconflict" => "Bewerkingsconflict: $1",
-"explainconflict" => "Iemand anders heeft deze pagina gewijzigd nadat u aan deze bewerking bent begonnen. Het bovenste tekstveld toont de huidige versie van de pagina. U zal uw eigen wijzigingen moeten integreren in die tekst. Alleen de tekst in het bovenste veld wordt bewaard wanneer u kiest voor \"Pagina opslaan\".\n<p>",
+"explainconflict" => "Iemand anders heeft deze pagina gewijzigd nadat u aan deze bewerking bent begonnen. Het bovenste tekstveld toont de huidige versie van de pagina. U zal uw eigen wijzigingen moeten integreren in die tekst. Alleen de tekst in het bovenste veld wordt bewaard wanneer u kiest voor \"Pagina opslaan\".<br />",
 "yourtext"  => "Uw tekst",
 "storedversion" => "Opgeslagen versie",
-"editingold" => "<strong>WAARSCHUWING: U bent bezig een oude versie van deze pagina te bewerken. Wanneer u uw bewerking opslaat, gaan alle wijzigingen die na deze versie gedaan zijn verloren.\n.</strong>\n",
+"editingold" => "<strong>WAARSCHUWING: U bent bezig een oude versie van deze pagina te bewerken. Wanneer u uw bewerking opslaat, gaan alle wijzigingen die na deze versie gedaan zijn verloren.</strong>",
 "yourdiff"  => "Wijzigingen",
 "copyrightwarning" => "Opgelet: Alle bijdragen aan {{SITENAME}} worden geacht te zijn vrijgegeven onder de GNU Free Documentation License. Als u niet wil dat uw tekst door anderen naar believen bewerkt en verspreid kan worden, kies dan niet voor 'Pagina Opslaan'.<br /> Hierbij belooft u ons tevens dat u deze tekst zelf hebt geschreven, of overgenomen uit een vrije, openbare bron.<br /> <strong>GEBRUIK GEEN MATERIAAL DAT BESCHERMD WORDT DOOR AUTEURSRECHT, TENZIJ JE DAARTOE TOESTEMMING HEBT!</strong>",
-"longpagewarning" => "Waarschuwing! Deze pagina is $1 kilobyte lang. Pagina's langer dan 32 kb zorgen voor problemen op sommige browsers. Het is daarom waarschijnlijk een goed idee deze pagina in meerdere pagina's te splitsen.",
-"readonlywarning" => "Waarschuwing! De database is op dit moment in onderhoud; het is daarom niet mogelijk op dit moment pagina's te wijzigen. Wij adviseren u de tekst op uw eigen computer op te slaan en later opnieuw te proberen deze pagina te bewerken.",
-"protectedpagewarning" => "Waarschuwing! U staat op het punt een beveiligde pagina te wijzigen. Gewone gebruikers kunnen deze pagina niet bewerken.",
+"longpagewarning" => "<strong>Waarschuwing! Deze pagina is $1 kilobyte lang. Pagina's langer dan 32 kb zorgen voor problemen op sommige browsers. Het is daarom waarschijnlijk een goed idee deze pagina in meerdere pagina's te splitsen.</strong>",
+"readonlywarning" => "<strong>Waarschuwing! De database is op dit moment in onderhoud; het is daarom niet mogelijk op dit moment pagina's te wijzigen. Wij adviseren u de tekst op uw eigen computer op te slaan en later opnieuw te proberen deze pagina te bewerken.</strong>",
+"protectedpagewarning" => "<strong>Waarschuwing! U staat op het punt een beveiligde pagina te wijzigen. Gewone gebruikers kunnen deze pagina niet bewerken.</strong>",
 
 # History pages
 # Geschiedenis pagina's
@@ -412,32 +348,19 @@ Gelieve na ontvangst opnieuw aan te melden.",
 "showingresultsnum" => "Hieronder <b>$3</b> resultaten vanaf nummer <b>$2</b>.",
 "nonefound"  => "<strong>Merk op:</strong> wanneer een zoekopdracht mislukt komt dat vaak door gebruik van veel voorkomende woorden zoals \"de\" en \"het\", die niet geïndexeerd zijn, of door verschillende zoektermen tegelijk op te geven (u krijgt dan alleen in pagina's waaarin alle opgegeven termen voorkomen).
 
-Het kan natuurlijk dat er gewoon nog geen artikel aanwezig op {{SITENAME}} NL over dit onderwerp. Mogelijk is het aanwezig in een andere taal. Zoek met de <a HREF=\"http://pliny.wikipedia.org/tools/wikisearch.php\">multi-wikipedia zoeker</a> in de andere {{SITENAME}}'s, of buiten {{SITENAME}} in een <a href=\"http://encyclopedie.zoekhulp.nl/?refer=Wikipedia.nl\">andere encyclopedie</a>. Wanneer u gevonden heeft wat u zocht, kunt u wellicht daarover een artikel schrijven op {{SITENAME}} NL, zodat de volgende die zoekt wat u zocht het wel kan vinden. 
+Het kan natuurlijk dat er gewoon nog geen artikel aanwezig op {{SITENAME}} NL over dit onderwerp. Mogelijk is het aanwezig in een andere taal. Zoek met de <a HREF=\"http://pliny.wikipedia.org/tools/wikisearch.php\">multi-wikipedia zoeker</a> in de andere {{SITENAME}}'s, of buiten {{SITENAME}} in een <a href=\"http://encyclopedie.zoekhulp.nl/?refer=Wikipedia.nl\">andere encyclopedie</a>. Wanneer u gevonden heeft wat u zocht, kunt u wellicht daarover een artikel schrijven op {{SITENAME}} NL, zodat de volgende die zoekt wat u zocht het wel kan vinden.
 ",
 "powersearch" => "Zoeken",
-"powersearchtext" => "   
+"powersearchtext" => "
  Zoek in naamruimten :<br />
 $1<br />
-$2 Toon redirects &nbsp; Zoek: $3 $9",   
+$2 Toon redirects &nbsp; Zoek: $3 $9",
 "searchdisabled" => "Wegens een overbelasting van de server zijn sommige functies die het systeem extra belasten tijdelijk niet beschikbaar.
  Hierdoor is in de interne zoekfunctie van {{SITENAME}} (vermoedelijk) niet beschikbaar voor onbepaalde duur.<p>
-Via google kunt u zoeken op {{SITENAME}}. <br />
-<form method=\"get\" action=\"http://www.google.com/search\">
-<table bgcolor=\"#ffffff\" style=\"width: 752px; height: 76px;\"><tbody><tr><td>
-<a href=\"http://www.google.com/\">
-<img src=\"http://www.google.com/logos/Logo_40wht.gif\" border=\"0\" alt=\"Google\"></a>
-</td>
-<td>
-<input type=\"text\" name=\"q\" size=\"31\" maxlength=\"255\" value=\"\">
-<input type=\"submit\" name=\"btnG\" value=\"Met Google zoeken in {{SITENAME}}\">
-<font size=\"-1\">
-<input type=\"hidden\" name=\"domains\" value=\"http://nl.wikipedia.org\"><br /><input type=\"radio\" name=\"sitesearch\" value=\"\">Het volledige internet<input type=\"radio\" name=\"sitesearch\" value=\"http://nl.wikipedia.org\" checked=\"checked\">{{SITENAME}} NL<br />
-</font>
-</td></tr></tbody></table>
-</form>
-<p> U zal niet alle artikels kunnen vinden maar het zal niet veel schelen. 
-Als u zoekt via google op {{SITENAME}} zal u ook treffers vinden op {{SITENAME}} die geen artikels zijn. 
-{{SITENAME}} heeft bij de meeste artikels ook een \"overlegpagina\" en diverse soorten dienstpagina's. 
+Via google kunt u zoeken op {{SITENAME}}.
+<p> U zal niet alle artikels kunnen vinden maar het zal niet veel schelen.
+Als u zoekt via google op {{SITENAME}} zal u ook treffers vinden op {{SITENAME}} die geen artikels zijn.
+{{SITENAME}} heeft bij de meeste artikels ook een \"overlegpagina\" en diverse soorten dienstpagina's.
 Enkel de pagina's die geen prefix (zoals {{ns:4}}:, Gebruiker: of Overleg:) hebben zijn artikels.
 ",
 "blanknamespace" => "(encyclopedie)",
@@ -446,13 +369,12 @@ Enkel de pagina's die geen prefix (zoals {{ns:4}}:, Gebruiker: of Overleg:) hebb
 # Voorkeuren
 "preferences" => "Voorkeuren",
 "prefsnologin" => "Niet aangemeld",
-"prefsnologintext" => "U dient <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">aangemeld</a> te zijn om voorkeuren te kunnen instellen.",
+"prefsnologintext" => "U dient [[Special:Userlogin|aangemeld]] te zijn om voorkeuren te kunnen instellen.",
 "prefslogintext" => "U bent aangemeld als \"$1\". Uw interne identificatienummer is $2.
 
 Een beschrijving van de verschillende opties staat op [[{{ns:4}}:Voorkeuren]].",
 "prefsreset" => "Standaardvoorkeuren hersteld.",
-"qbsettings" => "Menubalkinstellingen", 
+"qbsettings" => "Menubalkinstellingen",
 "changepassword" => "Wachtwoord wijzigen",
 "skin" => "{{SITENAME}}-Uiterlijk",
 "math" => "Wiskundige formules",
@@ -518,10 +440,8 @@ Om {{SITENAME}} te laten slagen is het erg belangrijk geen materiaal toe te voeg
 "reupload"  => "Opnieuw uploaden",
 "reuploaddesc" => "Terug naar het uploadformulier.",
 "uploadnologin" => "Niet aangemeld",
-"uploadnologintext" => "U dient <a href=\"" .
-  "{{localurle:Speciaal:Userlogin}}\">aangemeld te zijn</a>
+"uploadnologintext" => "U dient [[Speciaal:Userlogin|aangemeld te zijn]]
 om bestanden te uploaden.",
-"uploadfile" => "upload bestand",
 "uploaderror" => "upload fout",
 "uploadtext" => "'''STOP!''' Voor u iets hier upload,
 wees zeker dat het in overeenkomst is met het {{SITENAME}} NL
@@ -534,7 +454,7 @@ Uploads en verwijderingen worden bijgehouden in het
 
 Gebruik het onderstaande formulier om bestanden zoals afbeeldingen en geluidsbestanden die relevant zijn voor uw artikel te u-loaden. Bij de meeste browers zoals 'Internet Explorer' en 'Mozilla' zult u een \"Bladeren...\" of \"Browse..\" knop zien die een standaard dialoogscherm van uw bestuuringssysteem oproept. Kiest u een bestand, dan zal het ingevuld worden in het veld naast de \"Bladeren...\" knop. U dient ook het vakje aan te vinken waarmee u bevestigt dat er geen schending van auteursrechten plaatsvindt door het gebruik van dat bestand. Vul het veld \"Omschrijving\" in. Druk op de \"Upload\" knop om het uploaden te voltooien. Dit kan even duren als u een langzame internetverbinding gebruikt.
 
-Gebruik bij voorkeur JPEG voor foto's, PNG voor tekeningen en dergelijke en OGG voor geluid. 
+Gebruik bij voorkeur JPEG voor foto's, PNG voor tekeningen en dergelijke en OGG voor geluid.
 Geef uw bestanden een duidelijk omschrijvende naam om verwarring te voorkomen. Om het bestand in een pagina te laten verschijnen, kunt u het volgende doen;  '''<nowiki>[[afbeelding:uw_foto.jpg]]</nowiki>''' of '''<nowiki>[[afbeelding:uw_logo.png|alt text]]</nowiki>''' of '''<nowiki>[[media:uw_geluid.ogg]]</nowiki>''' voor audio.
 
 Vergeet niet dat net als met andere pagina's op {{SITENAME}} anderen de ge-uploade bestanden kunnen verwijderen indien men denkt dat dat in het voordeel van het project is. Bij misbruik van dit systeem kan u de toegang tot {{SITENAME}} NL ontzegd worden.",
@@ -548,11 +468,9 @@ Vergeet niet dat net als met andere pagina's op {{SITENAME}} anderen de ge-uploa
 "filedesc"  => "Beschrijving",
 "filestatus" => "Auteursrechtensituatie",
 "filesource" => "Auteur/bron",
-"affirmation" => "Ik verklaar dat de eigenaar van de rechten op dit bestand toestemt om het onder de voorwaarden van $1 te verspreiden.",
 "copyrightpage" => "{{ns:4}}:Auteursrechten",
 "copyrightpagename" => "{{SITENAME}} NL auteursrechten",
 "uploadedfiles" => "Ge-uploade bestanden",
-"noaffirmation" => "U dient te bevestigen dat deze handeling geen inbreuk maakt op auteursrechten.",
 "ignorewarning" => "Negeer de waarschuwing en sla het bestand op.",
 "minlength"  => "De naam van het bestand moet uit ten minste drie tekens bestaan.",
 "badfilename" => "De naam van het bestand is gewijzigd in \"$1\".",
@@ -562,7 +480,7 @@ Vergeet niet dat net als met andere pagina's op {{SITENAME}} anderen de ge-uploa
 "fileuploaded" => "<b>Het uploaden van bestand \"$1\" is geslaagd.</b> Gelieve deze link naar de omschrijvingspagina te volgen: ($2). Vul daar informatie in over dit bestand, bijvoorbeeld de oorsprong, wanneer en door wie het gemaakt is en wat u verder er nog over te vertellen heeft.",
 "uploadwarning" => "Upload waarschuwing ",
 "savefile"  => "Bestand opslaan",
-"uploadedimage" => "heeft ge-upload: \"$1\"",
+"uploadedimage" => "heeft ge-upload: \"[[$1]]\"",
 "uploaddisabled" => "Uploads zijn op deze server niet mogelijk.",
 
 # Image list
@@ -570,10 +488,8 @@ Vergeet niet dat net als met andere pagina's op {{SITENAME}} anderen de ge-uploa
 "imagelist"  => "Lijst van afbeeldingen",
 "imagelisttext" => "Hier volgt een lijst met $1 afbeeldingen geordend $2.",
 "getimagelist" => "Lijst van afbeeldingen ophalen",
-"ilshowmatch" => "Toon alle afbeeldingen waarvan de naam voldoet aan",
 "ilsubmit"  => "Zoek",
 "showlast"  => "Toon de laatste $1 afbeeldingen geordend $2.",
-"all"   => "alle",
 "byname"  => "op naam",
 "bydate"  => "op datum",
 "bysize"  => "op grootte",
@@ -599,7 +515,7 @@ Vergeet niet dat net als met andere pagina's op {{SITENAME}} anderen de ge-uploa
 Er is in totaal $3 maal een pagina bekeken, en $4 maal een pagina bewerkt. Dat geeft een gemiddelde van $5 bewerkingen per pagina, en $6 paginabezoeken per wijziging.",
 "userstatstext" => "Er zijn momenteel $1 geregistreerde gebruikers; hiervan zijn er $2 systeembeheerders (zie $3).",
 
-# Maintenance Page   
+# Maintenance Page
 #
 "maintenance"           => "Onderhoudspagina",
 "maintnancepagetext"    => "Op deze pagina vindt u een aantal handige zoekopdrachten om kleine alledaagse problemen in de {{SITENAME}} te verhelpen. Sommige van deze zoekopdrachten vormen een grote belasting voor de database; ga dus niet na elke paar pagina's die u hersteld heeft, de pagina opnieuw laden.",
@@ -636,8 +552,6 @@ Er is in totaal $3 maal een pagina bekeken, en $4 maal een pagina bewerkt. Dat g
 "listusers"  => "Lijst van gebruikers",
 "specialpages" => "Speciale pagina's",
 "spheading"  => "",
-"sysopspheading" => "Alleen voor systeembeheerders",
-"developerspheading" => "Alleen voor systeemontwikkelaars",
 "protectpage" => "Beveilig pagina",
 "recentchangeslinked" => "Volg links",
 "rclsub"  => "(van pagina's waarnaar \"$1\" verwijst)",
@@ -654,10 +568,8 @@ Er is in totaal $3 maal een pagina bekeken, en $4 maal een pagina bewerkt. Dat g
 # Email this user
 # E-mail deze gebruiker
 "mailnologin" => "Geen verzendadres beschikbaar",
-"mailnologintext" => "U dient <a href=\"" .
-  "{{localurle:Speciaal:Userlogin}}\">aangemeld te zijn </a>
-en een geldig e-mailadres in uw <a href=\"" .
-  "{{localurle:Speciaal:Preferences}}\">voorkeuren</a>
+"mailnologintext" => "U dient [[Speciaal:Userlogin|aangemeld te zijn]]
+en een geldig e-mailadres in uw [[Speciaal:Preferences|voorkeuren]]
 te vermelden om deze functie te kunnen gebruiken.",
 "emailuser"  => "E-mail deze gebruiker",
 "emailpage"  => "E-mail gebruiker",
@@ -678,13 +590,12 @@ te vermelden om deze functie te kunnen gebruiken.",
 "watchlistsub" => "(van gebruiker \"$1\")",
 "nowatchlist" => "Er staat niets op uw volglijst.",
 "watchnologin" => "U bent niet aangemeld",
-"watchnologintext" => "Om uw volglijst te veranderen dient u eerst <a href=\"" .
-  "{{localurle:Speciaal:Userlogin}}\">aangemeld</a>
+"watchnologintext" => "Om uw volglijst te veranderen dient u eerst [[Speciaal:Userlogin|aangemeld]]
 te zijn.",
 "addedwatch" => "Toegevoegd aan volglijst",
 "addedwatchtext" => "De pagina \"$1\" is aan uw <a href=\"" .
   "{{localurle:Speciaal:Watchlist}}\">volglijst</a> toegevoegd.
-Toekomstige wijzigingen aan deze pagina en overlegpagina zullen hier vermeld worden. 
+Toekomstige wijzigingen aan deze pagina en overlegpagina zullen hier vermeld worden.
 Ook zullen deze pagina's in het <b>vet</b> verschijnen in de <a href=\"" .
   "{{localurle:Speciaal:Recentchanges}}\">lijst van recente wijzigingen</a> zodat u ze eenvoudiger kunt opmerken.</p>
 
@@ -697,7 +608,7 @@ Ook zullen deze pagina's in het <b>vet</b> verschijnen in de <a href=\"" .
 "watchnochange" => "Geen van de pagina's op uw volglijst is in deze periode gewijzigd",
 "watchdetails" => "Er staan $1 pagina's op uw volglijst (overlegpagina's niet meegeteld.
 In de aangegeven periode zijn $2 pagina's gewijzigd.
-$3. (<a href='$4'>Toon mijn volledige volglijst</a>.)",
+$3. ([$4 Toon mijn volledige volglijst].)",
 "watchmethod-recent" => "Bij de recent gewijzigde pagina's gezocht naar gevolgde pagina's",
 "watchmethod-list" => "Bij de gevolgde pagina's naar wijzigingen bekeken",
 "removechecked" => "Verwijderen",
@@ -715,14 +626,13 @@ op 'Verwijderen' onderaan deze pagina.",
 # Verwijderen/beschermen/annuleren
 "deletepage" => "Pagina verwijderen",
 "confirm"  => "Bevestig",
-"excontent" => "De inhoud was:",
-"exbeforeblank" => "Voor leegmaking was de inhoud:",
+"excontent" => "De inhoud was: '$1'",
+"exbeforeblank" => "Voor leegmaking was de inhoud: '$1'",
 "exblank" => "Dit was een lege pagina.",
 "confirmdelete" => "Bevestig verwijdering",
 "deletesub"  => "(Verwijderen \"$1\")",
 "historywarning" => "Waarschuwing: Deze pagina heeft een voorgeschiedenis. Overtuig uzelf ervan dat geen van de oudere versies een te behouden pagina is.",
 "confirmdeletetext" => "U bent staat op het punt een pagina of afbeelding voorgoed te verwijderen. Dit verwijdert alle inhoud en geschiedenis van de database. Bevestig hieronder dat dit inderdaad uw bedoeling is, dat u de gevolgen begrijpt, en dat uw verwijdering overeenkomt met de [[{{ns:4}}:Instructies]].",
-"confirmcheck" => "Ja, ik wil dit voorgoed verwijderen.",
 "actioncomplete" => "Actie voltooid",
 "deletedtext" => "\"$1\" is verwijderd. Zie $2 voor een overzicht van recente verwijderingen.",
 "deletedarticle" => "\"$1\" is verwijderd",
@@ -736,7 +646,7 @@ op 'Verwijderen' onderaan deze pagina.",
 "rollbacklink"  => "Terugdraaien",
 "rollbackfailed" => "Ongedaan maken van wijzigingen mislukt.",
 "cantrollback"  => "Ongedaan maken van wijzigingen onmogelijk: Dit artikel heeft slechts 1 auteur.",
-"allreadyrolled" => "[[Gebruiker:$3|$3]] heeft de pagina [[$1]] bewerkt na de laatste bewerking door [[Gebruiker:$2|$2]].",
+// "allreadyrolled" => "[[Gebruiker:$3|$3]] heeft de pagina [[$1]] bewerkt na de laatste bewerking door [[Gebruiker:$2|$2]].",
 "editcomment"   => "Commentaar bij de wijziging: <i>$1</i>",
 "revertpage"    => "Hersteld tot de versie na de laatste wijziging door $1.",
 
@@ -780,7 +690,6 @@ op 'Verwijderen' onderaan deze pagina.",
 "ipbreason"  => "Reden",
 "ipbsubmit"  => "Blokkeer deze gebruiker",
 "badipaddress" => "Geen bestaande gebruikersnaam of geldig IP-adres",
-"noblockreason" => "U dient een reden op te geven voor het blokkeren van een gebruiker.",
 "blockipsuccesssub" => "Blokkering gelukt",
 "blockipsuccesstext" => "\"$1\" is geblokkeerd.<br />
 Zie de [[speciaal:Ipblocklist|Lijst van geblokkeerde IP-adressen]].",
@@ -789,7 +698,7 @@ Zie de [[speciaal:Ipblocklist|Lijst van geblokkeerde IP-adressen]].",
 "ipusubmit"  => "De-blokkeer deze gebruiker.",
 "ipusuccess" => "\"$1\" is gedeblokkeerd.",
 "ipblocklist" => "Lijst van geblokkeerde gebruikers en IP-adressen.",
-"blocklistline" => "Op $1 blokkeerde $2: $3",
+"blocklistline" => "Op $1 blokkeerde $2: $3 ($4)",
 "blocklink"  => "blokkeer",
 "unblocklink" => "de-blokkeer",
 "contribslink" => "bijdragen",
@@ -812,16 +721,6 @@ Zie de [[speciaal:Ipblocklist|Lijst van geblokkeerde IP-adressen]].",
 Vergeet niet de database opnieuw te de-blokkeren zodra u klaar bent met uw onderhoud.",
 "unlockdbsuccesstext" => "Blokkering van de database van {{SITENAME}} NL is opgeheven.",
 
-# SQL query
-# SQL raadplegen
-"asksql"  => "SQL raadplegen",
-"asksqltext" => "Gebruik het onderstaande formulier om een direct verzoek naar de database van {{SITENAME}} NL te zenden. Gebruik enkelvoudige aanhalingstekens ('zoals hier') voor letterlijke teksten. Een ingewikkelde aanvraag kan de sever vaak extra belasten. Gelieve deze mogelijkheid daarom spaarzaam te gebruiken. Zie ook: [[{{ns:4}}:SQL opdrachten]].",
-"sqlislogged" => "Alle SQL Queries worden gelogd.",
-"sqlquery"  => "Voer opdracht in",
-"querybtn"  => "Verstuur opdracht",
-"selectonly" => "Opdrachten anders dan \"SELECT\" zijn voorbehouden aan {{SITENAME}} ontwikkelaars.",
-"querysuccessful" => "Opdracht succesvol",
-
 # Move page
 # Verplaats pagina
 "movepage"  => "Verplaats pagina",
@@ -832,8 +731,7 @@ Vergeet niet de database opnieuw te de-blokkeren zodra u klaar bent met uw onder
 * Als u de onderstaande radiobox niet aangevinkt laat",
 "movearticle" => "Verplaats pagina",
 "movenologin" => "Niet aangemeld",
-"movenologintext" => "U dient <a href=\"" .
-  "{{localurle:Speciaal:Userlogin}}\">aangemeld</a>
+"movenologintext" => "U dient [[Speciaal:Userlogin|aangemeld]]
 te zijn om een pagina te verplaatsen.",
 "newtitle"  => "Naar de nieuwe titel",
 "movepagebtn" => "Verplaats pagina",
@@ -847,95 +745,56 @@ te zijn om een pagina te verplaatsen.",
 "talkpagenotmoved" => "De bijhorende overlegpagina is <strong>niet</strong> verplaatst.",
 
 # Math
-           'mw_math_png' => "Altijd als PNG weergeven",
-           'mw_math_simple' => "HTML voor eenvoudige formules, anders PNG",
-           'mw_math_html' => "HTML indien mogelijk, anders PNG",
-           'mw_math_source' => "Laat de TeX broncode staan (voor tekstbrowsers)",
-           'mw_math_modern' => "Aanbevolen methode voor recente browsers",
-	   'mw_math_mathml' => 'MathML',
+'mw_math_png' => "Altijd als PNG weergeven",
+'mw_math_simple' => "HTML voor eenvoudige formules, anders PNG",
+'mw_math_html' => "HTML indien mogelijk, anders PNG",
+'mw_math_source' => "Laat de TeX broncode staan (voor tekstbrowsers)",
+'mw_math_modern' => "Aanbevolen methode voor recente browsers",
+'mw_math_mathml' => 'MathML',
 );
 
 class LanguageNl extends LanguageUtf8 {
-	
-	function getDefaultUserOptions () {
-		$opt = Language::getDefaultUserOptions();
-		$opt["date"]=2;
-		return $opt;
-	}
-	
+
 	function getNamespaces() {
 		global $wgNamespaceNamesNl;
 		return $wgNamespaceNamesNl;
 	}
-	
-	function getNsText( $index ) {
-		global $wgNamespaceNamesNl;
-		return $wgNamespaceNamesNl[$index];
-	}
-	
-	function getNsIndex( $text ) {
-		global $wgNamespaceNamesNl;
-		
-		foreach ( $wgNamespaceNamesNl as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-		}
-		return false;
-	}
-	
-	# Inherit specialPage()
-	
+
 	function getQuickbarSettings() {
 		global $wgQuickbarSettingsNl;
 		return $wgQuickbarSettingsNl;
 	}
-	
+
 	function getSkinNames() {
 		global $wgSkinNamesNl;
 		return $wgSkinNamesNl;
 	}
-	
-	# Inherit userAdjust()
-	
+
 	function date( $ts, $adj = false ) {
 		if ( $adj ) { $ts = $this->userAdjust( $ts ); }
-		
+
 		$d = (0 + substr( $ts, 6, 2 )) . " " .
-		$this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) . " " . 
+		$this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) . " " .
 		substr( $ts, 0, 4 );
 		return $d;
 	}
-	
+
 	function timeanddate( $ts, $adj = false ) {
 		return $this->date( $ts, $adj ) . " " . $this->time( $ts, $adj );
 	}
-	
-	function getValidSpecialPages() {
-		global $wgValidSpecialPagesNl;
-		return $wgValidSpecialPagesNl;
-	}	
-	
-	function getSysopSpecialPages() {
-		global $wgSysopSpecialPagesNl;
-		return $wgSysopSpecialPagesNl;
-	}
-	
-	function getDeveloperSpecialPages() {
-		global $wgDeveloperSpecialPagesNl;
-		return $wgDeveloperSpecialPagesNl;
-	}
-	
+
 	function getMessage( $key ) {
 		global $wgAllMessagesNl;
 		if( isset( $wgAllMessagesNl[$key] ) ) {
 			return $wgAllMessagesNl[$key];
 		} else {
-			return Language::getMessage( $key );
+			return parent::getMessage( $key );
 		}
 	}
-	
-	# Inherit iconv(), ucfirst(), stripForSearch(), recodeForEdit(), recodeInput()
-	# since they are same as English/Latin1
 
+	function formatNum( $number, $year = false ) {
+		return $year ? $number : strtr( $this->commafy( $number ), '.,', ',.' );
+	}
 }
 
 ?>

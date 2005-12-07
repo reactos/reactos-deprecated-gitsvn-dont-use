@@ -8,7 +8,7 @@
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
@@ -49,7 +49,8 @@ function showCreditsPage($article) {
 }
 
 function getCredits($article, $cnt, $showIfMax=true) {
-
+	$fname = 'getCredits';
+	wfProfileIn( $fname );
     $s = '';
 
     if (isset($cnt) && $cnt != 0) {
@@ -59,6 +60,7 @@ function getCredits($article, $cnt, $showIfMax=true) {
 		}
     }
 
+	wfProfileOut( $fname );
     return $s;
 }
 
@@ -66,15 +68,14 @@ function getCredits($article, $cnt, $showIfMax=true) {
  *
  */
 function getAuthorCredits($article) {
-    global $wgLang;
+    global $wgLang, $wgAllowRealName;
 
     $last_author = $article->getUser();
 
     if ($last_author == 0) {
 		$author_credit = wfMsg('anonymous');
     } else {
-
-		$real_name = User::whoIsReal($last_author);
+		if($wgAllowRealName) { $real_name = User::whoIsReal($last_author); }
 		$user_name = User::whoIs($last_author);
 
 		if (!empty($real_name)) {

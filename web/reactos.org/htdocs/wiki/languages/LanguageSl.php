@@ -1,4 +1,8 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 
 #
 # Revision/
@@ -10,32 +14,28 @@
 #         1.00.31 romanm        2003-11-11 |    merged incorrectly broken lines
 #         1.00.32 romanm        2003-11-19 |    merged incorrectly broken lines
 #         1.00.40 romanm        2003-11-21 |    fixed Google search
-#
+
+#         1.00.50 Nikerabbit    2005-08-15 |    removed old stuff, some cleanup, NOT COMPLETE!
+
 
 require_once( "LanguageUtf8.php" );
 
-# NOTE: To turn off "Current Events" in the sidebar,
-# set "currentevents" => "-"
-
-# The names of the namespaces can be set here, but the numbers
-# are magical, so don't change or move them!  The Namespace class
-# encapsulates some of the magic-ness.
-#
+/** TODO: fixme, remove wikipedia
 /* private */ $wgNamespaceNamesSl = array(
-	-2  => "Media",
-	-1	=> "Posebno",
-	0	=> "",
-	1	=> "Pogovor",
-	2	=> "Uporabnik",
-	3	=> "Uporabniški_pogovor",
-	4	=> "Wikipedija",
-	5	=> "Pogovor_k_Wikipediji",
-	6	=> "Slika",
-	7	=> "Pogovor_k_sliki",
-	8	=> "MediaWiki",
-	9	=> "MediaWiki_talk",
-	10  => "Template",
-	11  => "Template_talk"
+	NS_MEDIA          => "Media",
+	NS_SPECIAL        => "Posebno",
+	NS_MAIN           => "",
+	NS_TALK           => "Pogovor",
+	NS_USER           => "Uporabnik",
+	NS_USER_TALK      => "Uporabniški_pogovor",
+	NS_PROJECT        => "Wikipedija",
+	NS_PROJECT_TALK   => "Pogovor_k_Wikipediji",
+	NS_IMAGE          => "Slika",
+	NS_IMAGE_TALK     => "Pogovor_k_sliki",
+	NS_MEDIAWIKI      => "MediaWiki",
+	NS_MEDIAWIKI_TALK => "MediaWiki_talk",
+	NS_TEMPLATE       => "Template",
+	NS_TEMPLATE_TALK  => "Template_talk"
 
 ) + $wgNamespaceNamesEn;
 
@@ -43,93 +43,14 @@ require_once( "LanguageUtf8.php" );
 	"Brez", "Levo nepomično", "Desno nepomično", "Levo leteče"
 );
 
-/* private */ $wgSkinNamesSl = array(
-	'standard' => "Standard",
-	'nostalgia' => "Nostalgia",
-	'cologneblue' => "Cologne Blue",
-	'smarty' => "Paddington",
-	'montparnasse' => "Montparnasse",
-	'davinci' => "DaVinci",
-	'mono' => "Mono",
-	'monobook' => "MonoBook",
- "myskin" => "MySkin" 
-);
-
-
-
-/* private */ $wgBookstoreListSl = array(
-	"AddALL" => "http://www.addall.com/New/Partner.cgi?query=$1&type=ISBN",
-	"PriceSCAN" => "http://www.pricescan.com/books/bookDetail.asp?isbn=$1",
-	"Barnes & Noble" => "http://shop.barnesandnoble.com/bookSearch/isbnInquiry.asp?isbn=$1",
-	"Amazon.com" => "http://www.amazon.com/exec/obidos/ISBN=$1"
-);
-
-
-
-
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesSl = array(
-	"Userlogin"	=> "",
-	"Userlogout"	=> "",
-	"Preferences"	=> "Ponastavi moje uporabniške nastavitve",
-	"Watchlist"	=> "Moj opazovalni seznam",
-	"Recentchanges" => "Nedavno posodobljene strani",
-	"Upload"	=> "Naloži slikovne datoteke",
-	"Imagelist"	=> "Seznam slik",
-	"Listusers"	=> "Vpisani uporabniki",
-	"Statistics"	=> "Statistika strani",
-	"Randompage"	=> "Naključni članek",
-	"Lonelypages"	=> "Osamljeni članki",
-	"Unusedimages"	=> "Osamljene slike",
-	"Popularpages"	=> "Priljubljeni članki",
-	"Wantedpages"	=> "Najbolj iskani članki",
-	"Shortpages"	=> "Kratki članki",
-	"Longpages"	=> "Dolgi članki",
-	"Newpages"	=> "Nanovo ustvarjeni članki",
-	"Ancientpages"	=> "Oldest pages",
-	"Allpages"	=> "Vse strani po naslovu",
-	"Ipblocklist"	=> "Zaprti IP naslovi",
-	"Maintenance"   => "Vzdrževalna stran",
-	"Specialpages"  => "",
-	"Contributions" => "",
-	"Emailuser"	=> "",
-	"Whatlinkshere" => "",
-	"Recentchangeslinked" => "",
-	"Movepage"	=> "",
-	"Booksources"	=> "Zunanji knjižni viri",
-	"Export"	=> "XML export",
-	"Version"	=> "Version",
-);
-
-/* private */ $wgSysopSpecialPagesSl = array(
-	"Blockip"		=> "Zapri IP naslov",
-	"Asksql"		=> "Preglej podatkovno bazo",
-	"Undelete"		=> "Poglej in obnovi zbrisane strani"
-);
-
-/* private */ $wgDeveloperSpecialPagesSl = array(
-	"Lockdb"		=> "Postavi podatkovno bazo samo za branje",
-	"Unlockdb"		=> "Obnovi zapisovalni dostop podatkovne baze",
-);
-
 /* private */ $wgDateFormatsSl = array(
-        'No preference',
-        'januar 15, 2001',
-        '15 januar 2001',
-        '2001 januar 15',
-        '2001-01-15'
+#        'No preference',
 );
 
 
 /* private */ $wgAllMessagesSl = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 # User Toggles
 
-"tog-hover"		   => "Prikaži lebdečo škatlo nad wikijevimi povezavami",
 "tog-underline"        => "Podčrtane povezave",
 "tog-highlightbroken"  => "Oblikuj prekinjene povezave <a href=\"\" class=\"new\">kot</a> (druga možnost: kot<a href=\"\" class=\"internal\">?</a>).",
 "tog-justify"	   => "Poravnaj odstavke",
@@ -186,7 +107,6 @@ require_once( "LanguageUtf8.php" );
 "aboutpage"		=> "Wikipedija:O_Wikipediji",
 "help"			=> "Pomoč",
 "helppage"		=> "Wikipedija:Pomoč",
-"wikititlesuffix"       => "Wikipedija",
 "bugreports"	        => "Poročila o hroščih",
 "bugreportspage"        => "Wikipedija:Poročila_o_hroščih",
 "faq"			=> "Najpogostejša vprašanja",
@@ -228,8 +148,7 @@ require_once( "LanguageUtf8.php" );
 "redirectedfrom"        => "(Preusmerjeno iz $1)",
 "lastmodified"	        => "Zadnja sprememba $1.",
 "viewcount"		=> "To stran so pogledali $1 krat.",
-"gnunote" => "Vse besedilo je na razpolago pod pogoji <a class=internal href='/wiki/GNU_FDL'>GNU licence proste dokumentacije</a>.",
-"printsubtitle"         => "(Iz http://sl.wikipedia.org)",
+"printsubtitle"         => "(Iz {{SERVER}})",
 "protectedpage"         => "Zaščitena stran",
 "administrators"        => "Wikipedija:Administratorji",
 "sysoptitle"	        => "Zahtevan dostop sistemskega operaterja",
@@ -303,7 +222,7 @@ Lahko nadaljujete z uporabo Wikipedije nepodpisani, ali pa se lahko ponovno vpi�
 "newusersonly"	        => " (Samo novi uporabniki)",
 "remembermypassword"    => "Zapomni si moje geslo vseskozi.",
 "loginproblem"	        => "<b>Nastala je tažava z vašim vpisom.</b><br />Poskusite znova!",
-"alreadyloggedin"       => "<font color=red><b>Uporabnik $1, ste že vpisani!</b></font><br />\n",
+"alreadyloggedin"       => "<strong>Uporabnik $1, ste že vpisani!</strong><br />\n",
 
 "login"			=> "Vpis",
 "userlogin"		=> "Vpis",
@@ -360,20 +279,20 @@ Za izdelavo strani, začnite vnašati besedilo v spodnjo škatlo
 Zgodnji predel besedila vsebuje besedilo strani, ki trenutno obstaja.
 Vaše spremembe so prikazane v spodnjem predelu besedila.
 Morali boste spojiti vaše spremembe v obstoječe besedilo.
-<b>Samo</b> besedilo z zgornjem predelu besedila bo shranjeno, ko boste pritisnili \"Shrani stran\".\n<p>",
+<b>Samo</b> besedilo z zgornjem predelu besedila bo shranjeno, ko boste pritisnili \"Shrani stran\".<br />",
 "yourtext"		=> "Vaše besedilo",
 "storedversion"         => "Shranjena inačica",
 "editingold"	        => "<strong>OPOZORILO: Urejujete zastarelo inačico te strani.
-Če jo boste shranili, bodo vse spremembe, narejene od tedaj, izgubljene.</strong>\n",
+Če jo boste shranili, bodo vse spremembe, narejene od tedaj, izgubljene.</strong>",
 "yourdiff"		=> "Razlike",
 "copyrightwarning"      => "Prosimo upoštevajte, da se vsi doprinosi k Wikipediji smatrajo kot objave pod GNU licenco proste dokumentacije (glej $1 za podrobnosti).
 Če ne želite, da se vaša pisanja neusmiljeno urejujejo ali ponovno razdeljujejo prostovoljno, potem jih ne predlagajte tukaj.<br />
 Poleg tega nam obljubljate, da ste to napisali samo ali pa prepisali iz javno dostopnega ali podobnega prostega vira.
 <strong>NE PREDLAGAJTE AVTORSKO ZAŠČITENEGA DELA BREZ DOVOLJENJA!</strong>",
-"longpagewarning" => "OPOZORILO: Ta stran je dolga $1 kilobitov; nekateri brskalniki s težavo urejujejo strani, ki so daljše kot 32 kB. Prosimo, da upoštevate delitev strani na manjše dele.",
-"readonlywarning" => "OPOZORILO: Baza je trenutno zaprta zaradi vzdrževanja
-in trenutno ne morete shranjevati sprememb. Skopirajte besedilo v urejevalnik in ga posnemite kasneje.",
-"protectedpagewarning" => "OPOZORILO: Ta stran je zaključena in jo lahko spreminjajo samo uporabniki, ki imajo vzdrževalne pravice. Prosimo poglejte <a href='/wiki/Wikipedija:Smernice_zaščitenih_strani'>smernice zaščitenih strani</a>.",
+"longpagewarning" => "<strong>OPOZORILO: Ta stran je dolga $1 kilobitov; nekateri brskalniki s težavo urejujejo strani, ki so daljše kot 32 kB. Prosimo, da upoštevate delitev strani na manjše dele.</strong>",
+"readonlywarning" => "<strong>OPOZORILO: Baza je trenutno zaprta zaradi vzdrževanja
+in trenutno ne morete shranjevati sprememb. Skopirajte besedilo v urejevalnik in ga posnemite kasneje.</strong>",
+"protectedpagewarning" => "<strong>OPOZORILO: Ta stran je zaključena in jo lahko spreminjajo samo uporabniki, ki imajo vzdrževalne pravice. Prosimo poglejte [[Project:Smernice_zaščitenih_strani|smernice zaščitenih strani]].</strong>",
 
 # History pages
 #
@@ -510,10 +429,8 @@ Poglejte tudi [http://meta.wikipedia.org/wiki/Special:Recentchanges recent meta 
 "reupload"		=> "Ponovno naložite",
 "reuploaddesc"	        => "Vrnite se v obrazec za nalaganje.",
 "uploadnologin"         => "Niste vpisani",
-"uploadnologintext"	=> "Za nalaganje datotek morate biti <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">vpisani</a>
+"uploadnologintext"	=> "Za nalaganje datotek morate biti [[Special:Userlogin|vpisani]]
 .",
-"uploadfile"	        => "Naložite datoteko",
 "uploaderror"	        => "Naložite napako",
 "uploadtext"	=> "'''USTAVITE SE!''' Preden tukaj naložite,
 se prepričajte, da ste prebrali in sledili Wikipedijini
@@ -555,13 +472,10 @@ Vsi prikazani časi so strežnikov čas (UTC).
 ",
 "filename"		=> "Imedatoteke",
 "filedesc"		=> "Povzetek",
-"affirmation"	        => "Potrjujem da se nosilec avtorske pravice te datoteke
-strinja z licenco pod pogoji $1.",
+
 "copyrightpage"         => "Wikipedija:Avtorske pravice",
 "copyrightpagename"     => "Avtorske pravice Wikipedije",
 "uploadedfiles"	        => "Naložene datoteke",
-"noaffirmation"         => "Morate potrditi, da vaše nalaganje ne krši
-nobenih avtorskih pravic.",
 "ignorewarning"	        => "Zanemari opozorilo in vseeno shrani.",
 "minlength"		=> "Imena slik morajo vsebovati vsaj tri črke.",
 "badfilename"	        => "Slika se je spremenila v \"$1\".",
@@ -574,17 +488,15 @@ podatke o datoteki, na primer od kod prihaja, kdaj je bila
 izdelana in kdo jo je izdelal ali karkoli bi še vedeli o njej.",
 "uploadwarning"         => "Opozorilo nalaganja",
 "savefile"		=> "Shrani datoteko",
-"uploadedimage"         => "naloženo \"$1\"",
+"uploadedimage"         => "naloženo \"[[$1]]\"",
 
 # Image list
 #
 "imagelist"		=> "Seznam slik",
 "imagelisttext"	        => "Spodaj je seznam $1 slik zložen $2.",
 "getimagelist"	        => "prinašam seznam slik",
-"ilshowmatch"	        => "Prikaži vse slike s podobnimi imeni",
 "ilsubmit"		=> "Išči",
 "showlast"		=> "Prikaži zadnjih $1 slik zloženih $2.",
-"all"			=> "vse",
 "byname"		=> "po imenu",
 "bydate"		=> "po datumu",
 "bysize"		=> "po velikosti",
@@ -655,8 +567,6 @@ na eno urejevanje.",
 "listusers"	=> "Seznam uporabnikov",
 "specialpages"	=> "Posebne strani",
 "spheading"	=> "Posebne strani za vse uporabnike",
-"sysopspheading" => "Posebne strani za vzdrževalce",
-"developerspheading" => "Posebne strani za razvijalce",
 "protectpage"	=> "Zaščiti stran",
 "recentchangeslinked" => "Povezane strani",
 "rclsub"	=> "(na strani povezano od \"$1\")",
@@ -671,10 +581,8 @@ Wikipedija ne služi z nobenim od teh poslov in ta spisek ni pokazatelj njihovih
 # Email this user
 #
 "mailnologin"	=> "Ni naslova odpošiljatelja",
-"mailnologintext" => "Morate biti <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">prijavljeni</a>
-in imeti veljaven naslov e-pošte v vaših <a href=\"" .
-  "{{localurle:Special:Preferences}}\">nastavitvah</a>,
+"mailnologintext" => "Morate biti [[Special:Userlogin|prijavljeni]]
+in imeti veljaven naslov e-pošte v vaših [[Special:Preferences|nastavitvah]],
 da lahko pošljete pošto drugim uporabnikom.",
 "emailuser"	=> "Pošlji e-pošto temu uporabniku",
 "emailpage"	=> "Pošlji e-pošto uporabniku",
@@ -697,8 +605,7 @@ Naslov e-pošte, ki ste jo vnesli v vaših uporabniških nastavitvah, bo v
 "watchlistsub"	=> "(za uporabnika \"$1\")",
 "nowatchlist"	=> "Na vašem spisku nadzorov ni nobenega članka.",
 "watchnologin"	=> "Niste prijavljeni",
-"watchnologintext" => "Morate biti <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">prijavljeni</a>
+"watchnologintext" => "Morate biti [[Special:Userlogin|prijavljeni]]
 za spremembo seznama nadzorov.",
 "addedwatch"	=> "Dodano k seznamu nadzorov",
 "addedwatchtext" => "Stran \"$1\" je dodana na vaš <a href=\"" .
@@ -716,15 +623,14 @@ Morebitne spremembe te strani in njena pripadajoča pogovorna stran bosta navede
 #
 "deletepage"	=> "Zbriši stran",
 "confirm"	=> "Potrdi",
-"excontent"     => "vsebina je bila:",
-"exbeforeblank" => "vsebina pred brisanjem je bila:",
+"excontent"     => "vsebina je bila: '$1'",
+"exbeforeblank" => "vsebina pred brisanjem je bila: '$1'",
 "exblank"       => "stran je bila prazna",
 "confirmdelete" => "Potrdi brisanje",
 "deletesub"	=> "(Brišem \"$1\")",
 "historywarning" => "OPOZORILO: stran, ki jo želite brisati ima zgodovino: ",
 "confirmdeletetext" => "Za stalno boste zbrisali stran ali sliko skupaj z zgodovino iz podatkovne baze.
 Prosimo potrdite vaš namen, da razumete posledice in da to počnete v skladu s [[Wikipedija:Pravila|pravili]].",
-"confirmcheck"	 => "Da, resnično želim to zbrisati.",
 "actioncomplete" => "Poseg zaključen",
 "deletedtext"	 => "\"$1\" je zbrisana.
 Glej $2 za zabeležbe nadavnih brisanj.",
@@ -795,7 +701,6 @@ Vnesi razloge spodaj (na primer z navedbo določenih strani, ki so jih po nepotr
 "ipbreason"	=> "Razlog",
 "ipbsubmit"	=> "Prekini ta naslov",
 "badipaddress"	=> "IP naslov je slabo oblikovan.",
-"noblockreason" => "Morate navesti razlog prekinitve.",
 "blockipsuccesssub" => "Prekinitev je uspela",
 "blockipsuccesstext" => "IP naslov \"$1\" je prekinjen.
 <br />Glej [[Posebno:Ipseznamprekinitev|seznam prekinitev IP]] za pregled prekinitev.",
@@ -804,7 +709,7 @@ Vnesi razloge spodaj (na primer z navedbo določenih strani, ki so jih po nepotr
 "ipusubmit"	=> "Poveži ta naslov",
 "ipusuccess"	=> "IP naslov \"$1\" je povezan",
 "ipblocklist"	=> "Seznam prekinjenih IP naslovov",
-"blocklistline"	=> "$1, $2 je prekinil $3",
+"blocklistline"	=> "$1, $2 je prekinil $3 ($4)",
 "blocklink"	=> "prekini",
 "unblocklink"	=> "poveži",
 "contribslink"	=> "prispevki",
@@ -830,17 +735,6 @@ Prosimo potrdite vaš resnični namen.",
 <br />Ne pozabite odkleniti, ko boste končali z vzdrževanjem.",
 "unlockdbsuccesstext" => "Podatkovna baza Wikipedije je bila odklenjena.",
 
-# SQL query
-#
-"asksql"	=> "SQL vprašanje",
-"asksqltext"	=> "Uporabi spodnjo obliko za neposedno vprašanje podatkovni bazi Wikipedije.
-Uporabite enojne narekovaje ('tako') za razmejitev črkovnih nizov.
-To precej obremeni strežnik zato, prosimo, previdno uporabljajte to funkcijo.",
-"sqlquery"	=> "Vnesite vprašanje",
-"querybtn"	=> "Pošljite vprašanje",
-"selectonly"	=> "Vsa vprašanja razen \"SELECT\" so omejeni za razvijalce Wikipedije.",
-"querysuccessful" => "Vprašanje uspešno",
-
 # Move page
 #
 "movepage"	=> "Prestavi stran",
@@ -862,8 +756,7 @@ prosimo bodite prepričani, da razumete posledice tega, preden nadaljujete.",
 V teh primerih boste morali prestaviti ali povezati stran ročno, če to želite.",
 "movearticle"	=> "Prestavite stran",
 "movenologin"	=> "Niste vpisani",
-"movenologintext" => "Za prestavitev strani morate biti zabeležen uporabnik in <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">prijavljeni</a>.",
+"movenologintext" => "Za prestavitev strani morate biti zabeležen uporabnik in [[Special:Userlogin|prijavljeni]].",
 "newtitle"	=> "Na nov naslov",
 "movepagebtn"	=> "Prestavite stran",
 "pagemovedsub"	=> "Prstavitev uspela",
@@ -875,12 +768,12 @@ V teh primerih boste morali prestaviti ali povezati stran ročno, če to želite
 "talkpagemoved" => "Pripadajoča pogovorna stran je tudi prestavljena.",
 "talkpagenotmoved" => "Pripadajoča pogovorna stran <strong>ni</strong> prestavljena.",
 # Math
-	'mw_math_png' => "Vedno prikaži PNG",
-	'mw_math_simple' => "Če je dovolj preprosto, uporabi HTML, drugače pa PNG",
-	'mw_math_html' => "Uporabi HTML, če je možno, drugače pa PNG",
-	'mw_math_source' => "Pusti v TeX-ovi obliki (za tekstovne brskljalnike)",
-	'mw_math_modern' => "Priporočeno za sodobne brskljalnike",
-	'mw_math_mathml' => 'MathML',
+'mw_math_png' => "Vedno prikaži PNG",
+'mw_math_simple' => "Če je dovolj preprosto, uporabi HTML, drugače pa PNG",
+'mw_math_html' => "Uporabi HTML, če je možno, drugače pa PNG",
+'mw_math_source' => "Pusti v TeX-ovi obliki (za tekstovne brskljalnike)",
+'mw_math_modern' => "Priporočeno za sodobne brskljalnike",
+'mw_math_mathml' => 'MathML',
 
 );
 
@@ -889,20 +782,16 @@ V teh primerih boste morali prestaviti ali povezati stran ročno, če to želite
 #--------------------------------------------------------------------------
 
 class LanguageSl extends LanguageUtf8 {
-	
+
 	function getNamespaces() {
 		global $wgNamespaceNamesSl;
 		return $wgNamespaceNamesSl;
 	}
-	
-	function getNsText( $index ) {
-		global $wgNamespaceNamesSl;
-		return $wgNamespaceNamesSl[$index];
-	}
-	
+
+
 	function getNsIndex( $text ) {
 		global $wgNamespaceNamesSl;
-		
+
 		foreach ( $wgNamespaceNamesSl as $i => $n ) {
 			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
 		}
@@ -911,51 +800,31 @@ class LanguageSl extends LanguageUtf8 {
 		if( 0 == strcasecmp( "Wikipedia", $text ) ) { return 4; }
 		return false;
 	}
-	
+
 	function getQuickbarSettings() {
 		global $wgQuickbarSettingsSl;
 		return $wgQuickbarSettingsSl;
 	}
-	
-	function getSkinNames() {
-		global $wgSkinNamesSl;
-		return $wgSkinNamesSl;
-	}
-	
+
 	function getDateFormats() {
 		global $wgDateFormatsSl;
 		return $wgDateFormatsSl;
 	}
-	
-	function getValidSpecialPages()
-	{
-		global $wgValidSpecialPagesSl;
-		return $wgValidSpecialPagesSl;
-	}
-	
-	function getSysopSpecialPages()
-	{
-		global $wgSysopSpecialPagesSl;
-		return $wgSysopSpecialPagesSl;
-	}
-	
-	function getDeveloperSpecialPages()
-	{
-		global $wgDeveloperSpecialPagesSl;
-		return $wgDeveloperSpecialPagesSl;
-	}
-	
-	function getMessage( $key )
-	{
+
+	function getMessage( $key ) {
 		global $wgAllMessagesSl;
 		if(array_key_exists($key, $wgAllMessagesSl))
 			return $wgAllMessagesSl[$key];
 		else
-			return Language::getMessage($key);
+			return parent::getMessage($key);
 	}
-	
+
 	function fallback8bitEncoding() {
 		return "iso-8859-2";
+	}
+
+	function formatNum( $number, $year = false ) {
+		return $year ? $number : strtr($this->commafy($number), '.,', ',.' );
 	}
 }
 
