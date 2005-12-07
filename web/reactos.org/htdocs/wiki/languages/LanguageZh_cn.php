@@ -5,13 +5,6 @@
   */
 require_once( "LanguageUtf8.php" );
 
-# NOTE: To turn off "Current Events" in the sidebar,
-# set "currentevents" => "-"
-
-# The names of the namespaces can be set here, but the numbers
-# are magical, so don't change or move them!  The Namespace class
-# encapsulates some of the magic-ness.
-#
 /* private */ $wgNamespaceNamesZh_cn = array(
 	NS_MEDIA            => "Media",
 	NS_SPECIAL          => "Special",
@@ -35,96 +28,24 @@ require_once( "LanguageUtf8.php" );
 ) + $wgNamespaceNamesEn;
 
 /* private */ $wgQuickbarSettingsZh_cn = array(
-	"无", /* "None" */ 
-	"左侧固定", /* "Fixed left" */ 
-	"右侧固定", /* "Fixed right" */ 
-	"左侧漂移" /* "Floating left" */ 	
+	"无", /* "None" */
+	"左侧固定", /* "Fixed left" */
+	"右侧固定", /* "Fixed right" */
+	"左侧漂移" /* "Floating left" */
 );
 
 /* private */ $wgSkinNamesZh_cn = array(
 	'standard' => "标准",
 	'nostalgia' => "怀旧",
-	'cologneblue' => "科隆香水蓝",
-	'smarty' => "Paddington",
-	'montparnasse' => "Montparnasse",
-	'davinci' => "DaVinci",
-	'mono' => "Mono",
-	'monobook' => "MonoBook",
-	'myskin' => "MySkin"
-);
+	'cologneblue' => "科隆香水蓝"
+) + $wgSkinNamesEn;
 
 /* private */ $wgUserTogglesZh_cn = array(
 	'nolangconversion',
 ) + $wgUserTogglesEn;
 
 
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesZh_cn = array(
-	"Userlogin"		=> "",
-	"Userlogout"	=> "",
-	"Preferences"	=> "参数设置", 
-/*"Set my user preferences", */
-	"Watchlist"		=> "监视列表",
-/* "My watchlist", */
-	"Recentchanges" => "最近更新",
-/* "Recently updated pages", */
-	"Upload"		=> "上载",
-/* "Upload image files", */
-	"Imagelist"		=> "图像列表",
-/* "Image list", */
-	"Listusers"		=> "注册用户",
-/* "Registered users", */
-	"Statistics"	=> "站点统计",
-/* "Site statistics", */
-	"Randompage"	=> "随机页面",
-/* "Random article", */
-
-	"Lonelypages"	=> "孤立页面",
-/* "Orphaned articles",*/
-	"Unusedimages"	=> "孤立图像",
-/* "Orphaned images", */
-	"Popularpages"	=> "热点条目",
-/* "Popular articles", */
-	"Wantedpages"	=> "待撰页面",
-/* "Most wanted articles", */
-	"Shortpages"	=> "短条目",
-	"Longpages"		=> "长条目",
-	"Newpages"		=> "新建条目",
-#	"Intl"		=> "跨语言链接", # this page not done yet!
-	"Ancientpages"		=> "Oldest pages",
-	"Allpages"		=> "所有条目",
-
-	"Ipblocklist"	=> "被封IP地址",
-	"Maintenance" => "维护页",
-	"Specialpages"  => "",
-	"Contributions" => "",
-	"Emailuser"		=> "",
-	"Whatlinkshere" => "",
-	"Recentchangeslinked" => "",
-	"Movepage"		=> "",
-	"Booksources"	=> "站外书源",
-#           "Categories" => "页面分类"
-	"Export" => "XML export",
-	"Version" => "Version",
-);
-
-/* private */ $wgSysopSpecialPagesZh_cn = array(
-	"Blockip"		=> "查封一个IP地址",
-	"Asksql"		=> "查询数据库",
-	"Undelete"		=> "恢复被删页面"
-);
-
-/* private */ $wgDeveloperSpecialPagesZh_cn = array(
-	"Lockdb"		=> "设置数据库只读",
-	"Unlockdb"		=> "恢复数据库修改权限",
-);
-
 /* private */ $wgAllMessagesZh_cn = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 # User Toggles
 
 "tog-underline" => "下划链接", /* "Underline links", */
@@ -192,7 +113,6 @@ require_once( "LanguageUtf8.php" );
 "aboutpage"		=> "Wikipedia:关于",
 "help"			=> "帮助",
 "helppage"		=> "Wikipedia:帮助",
-"wikititlesuffix" => "Wikipedia",
 "bugreports"	=> "错误报告",
 "bugreportspage" => "Wikipedia:错误报告",
 "faq"			=> "常见问题解答",
@@ -235,8 +155,7 @@ require_once( "LanguageUtf8.php" );
 "redirectedfrom" => "(重定向自$1)",
 "lastmodified"	=> "最后更改$1.",
 "viewcount"		=> "本页面已经被浏览$1次。",
-"gnunote" => "所有文本在<a class=internal href='/wiki/GNU_FDL'>GNU自由文档协议证书 </a>下发布",
-"printsubtitle" => "(来自 http://zh.wikipedia.org)",
+"printsubtitle" => "(来自 {{SERVER}})",
 "protectedpage" => "被保护页",
 "administrators" => "Wikipedia:管理员",
 "sysoptitle"	=> "需要管理员权限",
@@ -253,7 +172,7 @@ require_once( "LanguageUtf8.php" );
 "retrievedfrom" => "取自\"$1\"",
 "newmessages" => "您有$1。",
 "newmessageslink" => "新信息",
- "editsection"=>"编辑",	 
+ "editsection"=>"编辑",
  "toc" => "目录",
 "showtoc" => "显示",
  	 "hidetoc" => "隐藏",
@@ -297,7 +216,7 @@ MySQL返回错误 \"<tt>$3: $4</tt>\"。",
 "filedeleteerror" => "无法删除文件 \"$1\"。",
 "filenotfound"	=> "找不到文件 \"$1\"。",
 "unexpected"	=> "不正常值: \"$1\"=\"$2\"。",
-"formerror"		=> "错误：无法提交表单",	
+"formerror"		=> "错误：无法提交表单",
 "badarticleerror" => "无法在本页上进行此项操作。",
 "cannotdelete"	=> "无法删除选定的页面或图像（它可能已经被其他人删除了）。",
 "badtitle"		=> "错误的标题",
@@ -320,7 +239,7 @@ MySQL返回错误 \"<tt>$3: $4</tt>\"。",
 "newusersonly"	=> "（仅限新用户）",
 "remembermypassword" => "下次登录记住密码。",
 "loginproblem"	=> "<b>登录有问题。</b><br />再试一次！",
-"alreadyloggedin" => "<font color=red><b>用户$1，您已经登录了!</b></font><br />\n",
+"alreadyloggedin" => "<strong>用户$1，您已经登录了!</strong><br />\n",
 
 "login"			=> "登录",
 "userlogin"		=> "用户登录",
@@ -389,11 +308,11 @@ MySQL返回错误 \"<tt>$3: $4</tt>\"。",
 上面的文字框内显示的是目前本页的内容。
 你所做的修改显示在下面的文字框中。
 你应当将你所做的修改加入现有的内容中。
-<b>只有</b>在上面文字框中的内容会在你点击\"保存页面\"后被保存。\n<p>",
+<b>只有</b>在上面文字框中的内容会在你点击\"保存页面\"后被保存。<br />",
 "yourtext"		=> "您的文字",
 "storedversion" => "已保存版本",
 "editingold"	=> "<strong>警告：你正在编辑的是本页的旧版本。
-如果你保存它的话，在本版本之后的任何修改都会丢失。</strong>\n",
+如果你保存它的话，在本版本之后的任何修改都会丢失。</strong>",
 "yourdiff"		=> "差别",
 "copyrightwarning" => "请注意对Wikipedia的任何贡献都将被认为是在GNU自由文档协议证书下发布。
 (细节请见$1).
@@ -401,11 +320,11 @@ MySQL返回错误 \"<tt>$3: $4</tt>\"。",
 您同时也向我们保证你所提交的内容是你自己所作，或得自一个不受版权保护或相似自由的来源。
 <strong>不要在未获授权的情况下发表！</strong>",
 
-"longpagewarning" => "警告：本页长度达$1KB；一些浏览器将无法编辑长过32KB的文章。请考虑将本文切割成几个小段落。",
+"longpagewarning" => "<strong>警告：本页长度达$1KB；一些浏览器将无法编辑长过32KB的文章。请考虑将本文切割成几个小段落。</strong>",
 
-"readonlywarning" => "警告：数据库被锁以进行维护，所以您目前将无法保存您的修改。您或许希望先将本断文字复制并保存到文本文件，然后等一会儿再修改。",
-"protectedpagewarning" => "警告：本页已经被保护，只有拥有管理员权限的用户才可修改。请确认您遵守
-<a href='/wiki/Wikipedia:Protected_page_guidelines'>保护页面守则</a>.",
+"readonlywarning" => "<strong>警告：数据库被锁以进行维护，所以您目前将无法保存您的修改。您或许希望先将本断文字复制并保存到文本文件，然后等一会儿再修改。</strong>",
+"protectedpagewarning" => "<strong>警告：本页已经被保护，只有拥有管理员权限的用户才可修改。请确认您遵守
+[[Project:Protected_page_guidelines|保护页面守则]].</strong>",
 
 # History pages
 #
@@ -460,35 +379,17 @@ MySQL返回错误 \"<tt>$3: $4</tt>\"。",
 "searchdisabled" => "<p>Wikipedia内部搜索功能由于高峰时段服务器超载而停止使用。
 您可以暂时通过
 <a href=\"http://google.com/\">google</a>搜索Wikipedia。
-谢谢您的耐心。
-<!-- Search Google -->
-<form id=\"google\" method=\"get\" action=\"http://www.google.com/custom\">
-<table bgcolor=\"#FFFFFF\" cellspacing=0 border=0>
-<tr valign=top><td>
-<a href=\"http://www.google.com/search\">
-<img src=\"http://www.google.com/logos/Logo_40wht.gif\" border=0
-alt=\"Google\" align=\"middle\"></a>
-</td>
-<td>
-<input type=text name=\"q\" size=31 maxlength=255 value=\"$1\">
-<input type=submit name=\"sa\" value=\"Google搜索\">
-<input type=hidden name=\"cof\" value=\"LW:135;L:http://zh.wikipedia.org/upload/wiki.png;LH:133;AH:left;S:http://www.wikiped<font face=arial,sans-serif size=-1>
-<input type=hidden name=\"domains\" value=\"zh.wikipedia.org\"><br />
-<input type=radio name=\"sitesearch\" value=\"\"> 搜索WWW
-<input type=radio name=\"sitesearch\" value=\"zh.wikipedia.org\" checked> 搜索zh.wikipedia.org </font><br />
-</td></tr></table></form>
-<!-- Search Google -->\n",
+谢谢您的耐心。",
 
 # Preferences page
 #
 "preferences"	=> "参数设置",
 "prefsnologin" => "还未登录",
-"prefsnologintext"	=> "您必须先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登录</a>才能设置个人参数。",
+"prefsnologintext"	=> "您必须先[[Special:Userlogin|登录]]才能设置个人参数。",
 "prefslogintext" => "你已经以\"$1\"的身份登录。
 你的内部ID是$2。",
 "prefsreset"	=> "参数重新设置。",
-"qbsettings"	=> "快速导航条设置", 
+"qbsettings"	=> "快速导航条设置",
 "changepassword" => "更改密码",
 "skin"			=> "Skin",
 "math"			=> "数学显示",
@@ -558,10 +459,8 @@ alt=\"Google\" align=\"middle\"></a>
 "reupload"		=> "重新上载",
 "reuploaddesc"	=> "返回上载表单。",
 "uploadnologin" => "未登录",
-"uploadnologintext"	=> "您必须先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登录</a>
+"uploadnologintext"	=> "您必须先[[Special:Userlogin|登录]]
 才能上载文件。",
-"uploadfile"	=> "上载文件",
 "uploaderror"	=> "上载错误",
 "uploadtext"	=> "'''停止！'''在您上载之前，请先阅读并遵守Wikipedia
 [[Project:Image use policy|图像使用守则]]。
@@ -596,11 +495,9 @@ alt=\"Google\" align=\"middle\"></a>
 ",
 "filename"		=> "文件名",
 "filedesc"		=> "简述",
-"affirmation"	=> "我保证本文件的版权持有人同意将其在$1条款下发布。",
 "copyrightpage" => "Wikipedia:版权信息",
 "copyrightpagename" => "Wikipedia版权",
 "uploadedfiles"	=> "已上载文件",
-"noaffirmation" => "您必须保证您上载的文件并没有侵犯版权。",
 "ignorewarning"	=> "忽略警告并保存文件。",
 "minlength"		=> "图像名字必须至少有三个字母。",
 "badfilename"	=> "图像名已被改为\"$1\"。",
@@ -619,7 +516,6 @@ alt=\"Google\" align=\"middle\"></a>
 "imagelist"		=> "图像列表",
 "imagelisttext"	=> "以下是按$2排列的$1幅图像列表。",
 "getimagelist"	=> "正在获取图像列表",
-"ilshowmatch"	=> "显示所有匹对的图像",
 "ilsubmit"		=> "搜索",
 "showlast"		=> "显示按$2排列的最后$1幅图像。",
 "byname"		=> "名字",
@@ -696,8 +592,6 @@ alt=\"Google\" align=\"middle\"></a>
 "listusers"		=> "用户列表",
 "specialpages"	=> "特殊页面",
 "spheading"		=> "特殊页面",
-"sysopspheading" => "管理员特殊页面",
-"developerspheading" => "发展者特殊页面",
 "protectpage"	=> "保护页面",
 "recentchangeslinked" => "链出更改",
 "rclsub"		=> "（从 \"$1\"链出的页面）",
@@ -717,10 +611,8 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 # Email this user
 #
 "mailnologin"	=> "无电邮地址",
-"mailnologintext" => "您必须先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登录</a>
-并在<a href=\"" .
-  "{{localurle:Special:Preferences}}\">参数设置</a>
+"mailnologintext" => "您必须先[[Special:Userlogin|登录]]
+并在[[Special:Preferences|参数设置]]
 中有一个有效的e-mail地址才可以电邮其他用户。",
 "emailuser"		=> "E-mail该用户",
 "emailpage"		=> "E-mail用户",
@@ -743,8 +635,7 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 "watchlistsub"	=> "(用户\"$1\")",
 "nowatchlist"	=> "您的监视列表为空。",
 "watchnologin"	=> "未登录",
-"watchnologintext"	=> "您必须先<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登录</a>
+"watchnologintext"	=> "您必须先[[Special:Userlogin|登录]]
 才能更改您的监视列表",
 "addedwatch"	=> "加入到监视列表",
 "addedwatchtext" => "本页（“$1”）已经被加入到您的<a href=\"" .
@@ -764,7 +655,7 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
  	 "watchdetails" => "($1个页面（不含对话页）被监视；
  	 总共$2个页面被编辑；
  	 $3...
- 	 <a href='$4'>显示并编辑完整列表</a>.)",
+ 	 [$4 显示并编辑完整列表].)",
  	 "watchmethod-recent" => "检查被监视页面的最近编辑",
  	 "watchmethod-list" => "checking watched pages for recent edits",
  	 "removechecked" => "将被选页面从监视列表中移除",
@@ -850,7 +741,6 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 "ipbreason"		=> "原因",
 "ipbsubmit"		=> "查封该地址",
 "badipaddress"	=> "IP地址不正确。",
-"noblockreason" => "您必须说明查封的具体理由。",
 "blockipsuccesssub" => "查封成功",
 "blockipsuccesstext" => "IP地址“$1”已经被查封。
 <br />参看[[Special:被封IP地址列表|被封IP地址列表]]以复审查封。",
@@ -859,7 +749,7 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 "ipusubmit"		=> "解除禁封",
 "ipusuccess"	=> "IP地址“$1”已经被解除禁封",
 "ipblocklist"	=> "被封IP地址列表",
-"blocklistline"	=> "$1，$2禁封$3",
+"blocklistline"	=> "$1，$2禁封$3 ($4)",
 "blocklink"		=> "禁封",
 "unblocklink"	=> "解除禁封",
 "contribslink"	=> "贡献",
@@ -884,24 +774,13 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 <br />请记住在维护完成后重新开放数据库。",
 "unlockdbsuccesstext" => "Wikipedia数据库重新开放。",
 
-# SQL query
-#
-"asksql"		=> "SQL查询",
-"asksqltext"	=> "用下面的表单对Wikipedia数据库进行直接查询。
-使用单引号（'像这样'） 来分割字串符。
-这样做有可能增加服务器的负担，所以请慎用本功能。",
-"sqlquery"		=> "输入查询",
-"querybtn"		=> "提交查询",
-"selectonly"	=> "除了“SELECT”以外的所有查询都只限Wikipedia发展者使用。",
-"querysuccessful" => "查询成功",
-
 # Move page
 #
 "movepage"		=> "移动页面",
 "movepagetext"	=> "用下面的表单来重命名一个页面，并将其修订历史同时移动到新页面。
 老的页面将成为新页面的重定向页。
 链接到老页面的链接并不会自动更改；
-请[[Special:Maintenance|检查]]双重或损坏重定向链接。
+请检查双重或损坏重定向链接。
 您应当负责确定所有链接依然会链到指定的页面。
 
 注意如果新页面已经有内容的话，页面将'''不会'''被移动，
@@ -920,8 +799,7 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 在这些情况下，您在必要时必须手工移动或合并页面。",
 "movearticle"	=> "移动页面",
 "movenologin"	=> "未登录",
-"movenologintext" => "您必须是一名登记用户并且<a href=\"" .
-  "{{localurle:Special:Userlogin}}\">登录</a>
+"movenologintext" => "您必须是一名登记用户并且[[Special:Userlogin|登录]]
 后才可移动一个页面。",
 "newtitle"		=> "新标题",
 "movepagebtn"	=> "移动页面",
@@ -966,7 +844,7 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 'blocklogpage' => "封锁记录", //"Block_log",
 'categoriespagetext' => "以下列出所有的页面分类。", //"The following categories exists in the wiki.",
 'categoryarticlecount' => "该类页面共有 $1 条目", //There are $1 articles in this category.",
-'clearyourcache' => "'''注意：''' 保存设置后，要清掉浏览器的缓存才能生效：'''Mozilla:''' 点''刷新'' （或用快键''Ctrl-R''），'''IE / Opera:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-R'', '''Konqueror''' ''Ctrl-R''。",//"'''Note:''' After saving, you have to clear your browser cache to see the changes: '''Mozilla:''' click ''Reload'' (or ''Ctrl-R''), '''IE / Opera:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-R'', '''Konqueror''' ''Ctrl-R''.",
+'clearyourcache' => "'''注意：''' 保存设置后，要清掉浏览器的缓存才能生效：'''Mozilla:''' ''Ctrl-Shift-R'', '''Internet Explorer:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-Shift-R'', '''Konqueror:''' ''F5''。",
 'edit' => "编辑", //"Edit",
 'navigation' => "导航", //"Navigation",
 'nstab-category' => "分类", //"Category",
@@ -979,7 +857,8 @@ Wikipedia与这些公司并没有任何商业关系，因此本表不应该
 'nstab-user' => "用户页面", //"User page",
 'nstab-wp' => "关于", //"About",
 'portal' => "社区",//"Community portal",
-'prefs-help-userdata' => "*<strong>真实姓名</strong>（可选）：用以对您的贡献署名。<br />*<strong>点子邮件</strong>（可选）：让他人通过网站在不知道您的电子邮件地址的情况下通过电子邮件与您联络，以及通过电子邮件取得遗忘的密码。", /*"* <strong>Real name</strong> (optional): if you choose to provide it this will be used for giving you attribution for your work.<br />
+'prefs-help-realname' => "*<strong>真实姓名</strong>（可选）：用以对您的贡献署名。<br />",
+'prefs-help-email' => "*<strong>点子邮件</strong>（可选）：让他人通过网站在不知道您的电子邮件地址的情况下通过电子邮件与您联络，以及通过电子邮件取得遗忘的密码。", /*"* <strong>Real name</strong> (optional): if you choose to provide it this will be used for giving you attribution for your work.<br />
 * <strong>Email</strong> (optional): Enables people to contact you through the website without you having to reveal your
 email address to them, and it can be used to send you a new password if you forget it.", */
 'prefs-misc' => "杂项", //"Misc settings",
@@ -995,7 +874,7 @@ email address to them, and it can be used to send you a new password if you forg
 'yourrealname' => "真实姓名*", //"Your real name"
 'yourvariant' => "中文字体", //"language variant"
 
-# short names for language variants used for language conversion links. 
+# short names for language variants used for language conversion links.
 # to disable showing a particular link, set it to 'disable', e.g.
 # 'variantname-zh-sg' => 'disable',
 'variantname-zh-cn' => '大陆简体',
@@ -1018,10 +897,6 @@ class LanguageZh_cn extends LanguageUtf8 {
 		return $wgNamespaceNamesZh_cn;
 	}
 
-	function getNsText( $index ) {
-		global $wgNamespaceNamesZh_cn;
-		return $wgNamespaceNamesZh_cn[$index];
-	}
 
 	function getNsIndex( $text ) {
 		global $wgNamespaceNamesZh_cn;
@@ -1030,14 +905,14 @@ class LanguageZh_cn extends LanguageUtf8 {
 			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
 		}
 		# Aliases
-        if ( 0 == strcasecmp( "特殊", $text ) ) { return -1; }
-        if ( 0 == strcasecmp( "", $text ) ) { return ; }
-        if ( 0 == strcasecmp( "对话", $text ) ) { return 1; }
-        if ( 0 == strcasecmp( "用户", $text ) ) { return 2; }
-        if ( 0 == strcasecmp( "用户对话", $text ) ) { return 3; }
-        if ( 0 == strcasecmp( "Wikipedia_对话", $text ) ) { return 5; }
-        if ( 0 == strcasecmp( "图像", $text ) ) { return 6; }
-        if ( 0 == strcasecmp( "图像对话", $text ) ) { return 7; }
+		if ( 0 == strcasecmp( "特殊", $text ) ) { return -1; }
+		if ( 0 == strcasecmp( "", $text ) ) { return ; }
+		if ( 0 == strcasecmp( "对话", $text ) ) { return 1; }
+		if ( 0 == strcasecmp( "用户", $text ) ) { return 2; }
+		if ( 0 == strcasecmp( "用户对话", $text ) ) { return 3; }
+		if ( 0 == strcasecmp( "Wikipedia_对话", $text ) ) { return 5; }
+		if ( 0 == strcasecmp( "图像", $text ) ) { return 6; }
+		if ( 0 == strcasecmp( "图像对话", $text ) ) { return 7; }
 		return false;
 	}
 
@@ -1051,12 +926,7 @@ class LanguageZh_cn extends LanguageUtf8 {
 		return $wgSkinNamesZh_cn;
 	}
 
-# The date and time functions can be tweaked if need be
-
-	# inherit userAdjust()
- 
-	function date( $ts, $adj = false )
-	{
+	function date( $ts, $adj = false ) {
 		if ( $adj ) { $ts = $this->userAdjust( $ts ); }
 
 		$d = substr( $ts, 0, 4 ) . "年" .
@@ -1065,37 +935,16 @@ class LanguageZh_cn extends LanguageUtf8 {
 		return $d;
 	}
 
-	function timeanddate( $ts, $adj = false )
-	{
+	function timeanddate( $ts, $adj = false ) {
 		return $this->time( $ts, $adj ) . " " . $this->date( $ts, $adj );
 	}
 
-	function getValidSpecialPages()
-	{
-		global $wgValidSpecialPagesZh_cn;
-		return $wgValidSpecialPagesZh_cn;
-	}
-
-	function getSysopSpecialPages()
-	{
-		global $wgSysopSpecialPagesZh_cn;
-		return $wgSysopSpecialPagesZh_cn;
-	}
-
-	function getDeveloperSpecialPages()
-	{
-		global $wgDeveloperSpecialPagesZh_cn;
-		return $wgDeveloperSpecialPagesZh_cn;
-
-	}
-
-	function getMessage( $key )
-	{
+	function getMessage( $key ) {
 		global $wgAllMessagesZh_cn;
 		if( isset( $wgAllMessagesZh_cn[$key] ) )
 			return $wgAllMessagesZh_cn[$key];
 		else
-			return Language::getMessage( $key );
+			return parent::getMessage( $key );
 	}
 
 	# inherit default iconv(), ucfirst(), checkTitleEncoding()

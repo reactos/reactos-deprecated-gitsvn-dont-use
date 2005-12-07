@@ -44,7 +44,7 @@ function wfSpecialImagelist() {
 	}
 	list( $limit, $offset ) = wfCheckLimits( 50 );
 	if ( 0 == $limit ) {
-		$lt = wfMsg( "all" );
+		$lt = wfMsg( 'imagelistall' );
 	} else {
 		$lt = $wgLang->formatNum( "${limit}" );
 		$sql .= " LIMIT {$limit}";
@@ -56,7 +56,6 @@ function wfSpecialImagelist() {
 	$wgOut->addHTML( "<p>{$text}\n</p>" );
 
 	$sk = $wgUser->getSkin();
-	$cap = wfMsg( "ilshowmatch" );
 	$sub = wfMsg( "ilsubmit" );
 	$titleObj = Title::makeTitle( NS_SPECIAL, "Imagelist" );
 	$action = $titleObj->escapeLocalURL(  "sort={$sort}&limit={$limit}" );
@@ -64,12 +63,12 @@ function wfSpecialImagelist() {
 	if ( !$wgMiserMode ) {
 		$wgOut->addHTML( "<form id=\"imagesearch\" method=\"post\" action=\"" .
 		  "{$action}\">" .
-		  "{$cap}: <input type='text' size='8' name=\"wpIlMatch\" value=\"" .
+		  "<input type='text' size='20' name=\"wpIlMatch\" value=\"" .
 		  htmlspecialchars( $wpIlMatch ) . "\" /> " .
 		  "<input type='submit' name=\"wpIlSubmit\" value=\"{$sub}\" /></form>" );
 	}
 	$nums = array( 50, 100, 250, 500 );
-	$here = $wgContLang->specialPage( "Imagelist" );
+	$here = Title::makeTitle( NS_SPECIAL, 'Imagelist' );
 
 	$fill = "";
 	$first = true;
@@ -77,7 +76,7 @@ function wfSpecialImagelist() {
 		if ( ! $first ) { $fill .= " | "; }
 		$first = false;
 
-		$fill .= $sk->makeKnownLink( $here, $wgLang->formatNum( $num ),
+		$fill .= $sk->makeKnownLinkObj( $here, $wgLang->formatNum( $num ),
 		  "sort=byname&limit={$num}&wpIlMatch=" . urlencode( $wpIlMatch ) );
 	}
 	$text = wfMsg( "showlast", $fill, $byname );
@@ -89,7 +88,7 @@ function wfSpecialImagelist() {
 		if ( ! $first ) { $fill .= " | "; }
 		$first = false;
 
-		$fill .= $sk->makeKnownLink( $here, $wgLang->formatNum( $num ),
+		$fill .= $sk->makeKnownLinkObj( $here, $wgLang->formatNum( $num ),
 		  "sort=bysize&limit={$num}&wpIlMatch=" . urlencode( $wpIlMatch ) );
 	}
 	$text = wfMsg( "showlast", $fill, $bysize );
@@ -101,7 +100,7 @@ function wfSpecialImagelist() {
 		if ( ! $first ) { $fill .= " | "; }
 		$first = false;
 
-		$fill .= $sk->makeKnownLink( $here, $wgLang->formatNum( $num ),
+		$fill .= $sk->makeKnownLinkObj( $here, $wgLang->formatNum( $num ),
 		  "sort=bydate&limit={$num}&wpIlMatch=" . urlencode( $wpIlMatch ) );
 	}
 	$text = wfMsg( "showlast", $fill, $bydate );
@@ -111,23 +110,23 @@ function wfSpecialImagelist() {
 	while ( $s = $dbr->fetchObject( $res ) ) {
 		$name = $s->img_name;
 		$ut = $s->img_user_text;
-		if ( 0 == $s->img_user ) { $ul = $ut; }
-		else { $ul = $sk->makeLink( $wgContLang->getNsText(
-		  Namespace::getUser() ) . ":{$ut}", $ut ); }
+		if ( 0 == $s->img_user ) {
+			$ul = $ut;
+		} else {
+			$ul = $sk->makeLinkObj( Title::makeTitle( NS_USER, $ut ), $ut );
+		}
 
-		$ilink = "<a href=\"" . htmlspecialchars( Image::wfImageUrl( $name ) ) .
-		  "\">" . htmlspecialchars( $name ) . "</a>";
+		$ilink = "<a href=\"" . htmlspecialchars( Image::imageUrl( $name ) ) .
+		  "\">" . strtr(htmlspecialchars( $name ), '_', ' ') . "</a>";
 
 		$nb = wfMsg( "nbytes", $wgLang->formatNum( $s->img_size ) );
 		$l = "(" .
-		  $sk->makeKnownLink( $wgContLang->getNsText(
-		  Namespace::getImage() ) . ":{$name}", wfMsg( "imgdesc" ) ) .
+		  $sk->makeKnownLinkObj( Title::makeTitle( NS_IMAGE, $name ),
+		  wfMsg( "imgdesc" ) ) .
 		  ") {$ilink} . . {$nb} . . {$ul} . . " .
 		  $wgLang->timeanddate( $s->img_timestamp, true );
 
-		if ( "" != $s->img_description ) {
-			$l .= ' <i>(' . $sk->formatComment( $s->img_description ) . ')</i>';
-		}
+		$l .= $sk->commentBlock( $s->img_description );
 		$wgOut->addHTML( "{$l}<br />\n" );
 	}
 	$wgOut->addHTML( "</p>" );

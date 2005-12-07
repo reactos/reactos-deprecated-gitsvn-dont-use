@@ -32,79 +32,11 @@
 /* private */ $wgSkinNamesLa = array(
 	'standard' => 'Norma',
 	'nostalgia' => 'Nostalgia',
-	'cologneblue' => 'Caerulus Colonia',
-	'smarty' => 'Paddington',
-	'montparnasse' => 'Montparnasse',
-	'davinci' => 'DaVinci',
-	'mono' => 'Mono',
-	'monobook' => 'MonoBook',
-	'myskin' => 'MySkin' 
-);
+	'cologneblue' => 'Caerulus Colonia'
+) + $wgSkinNamesEn;
 
-
-/* private */ $wgBookstoreListLa = array(
-	'AddALL' => 'http://www.addall.com/New/Partner.cgi?query=$1&type=ISBN',
-	'PriceSCAN' => 'http://www.pricescan.com/books/bookDetail.asp?isbn=$1',
-	'Barnes & Noble' => 'http://shop.barnesandnoble.com/bookSearch/isbnInquiry.asp?isbn=$1',
-	'Amazon.com' => 'http://www.amazon.com/exec/obidos/ISBN=$1'
-);
-
-
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesLa = array(
-	'Userlogin'		=> '',
-	'Userlogout'	=> '',
-	'Preferences'	=> 'Praeferentiae usoris',
-	'Watchlist'		=> 'Paginae custoditae',
-	'Recentchanges' => 'Mutationes recentes',
-	'Upload'		=> 'Onerare fascicula',
-	'Imagelist'		=> 'Index imaginum',
-	'Listusers'		=> 'Usores perscripti',
-	'Statistics'	=> 'Statisticas',
-	'Randompage'	=> 'Pagina fortuita',
-
-	'Lonelypages'	=> 'Paginae orbatae',
-	'Unusedimages'	=> 'Imagines orbatae',
-	'Popularpages'	=> 'Res populares',
-	'Wantedpages'	=> 'Res desideratissimae',
-	'Shortpages'	=> 'Res breves',
-	'Longpages'		=> 'Res longae',
-	'Newpages'		=> 'Res novae',
-#	"Intl"                => "Interlanguage Links",
-	"Allpages"		=> "Totae paginae (ex indice)",
-
-	"Ipblocklist"	=> "Loci IP obstructi",
-	"Maintenance" => "Pagina alimentori",
-	"Specialpages"  => "", # "Paginae specialiae",
-	"Contributions" => "", # "Conlationes",
-	"Emailuser"		=> "", # "Mittere litteras electronicas ad usorum(?)",
-	"Whatlinkshere" => "", # "Nexi ad hanc paginam",
-	"Recentchangeslinked" => "", # "Mutationes conlata (?)",
-	"Movepage"		=> "", # "Motare hanc paginam",
-	"Booksources"	=> "Fontes externi (libri)",
-#	"Categories"	=> "Page categories",
-	"Export"		=> "Exportare in XML",
-	"Version"		=> "Version",
-);
-
-/* private */ $wgSysopSpecialPagesLa = array(
-	'Blockip'		=> 'Obstruere locum IP',
-	'Asksql'		=> 'Quaerere basem dati',
-	'Undelete'		=> 'Videre et restituere paginas deletas'
-);
-
-/* private */ $wgDeveloperSpecialPagesLa = array(
-	'Lockdb'		=> 'Suspendere mutationes',
-	'Unlockdb'		=> 'Permittere mutationes',
-	'Debug'			=> 'Nuntii de refectis'
-);
 
 $wgAllMessagesLa = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 
 # User Toggles
 
@@ -156,12 +88,12 @@ $wgAllMessagesLa = array(
 'dec' => 'dec',
 
 # Math
-	'mw_math_png' => "Semper vertere PNG",
-	'mw_math_simple' => "HTML si admodum simplex, alioqui PNG",
-	'mw_math_html' => "HTML si fieri potest, alioqui PNG",
-	'mw_math_source' => "Stet ut TeX (pro navigatri texti)",
-	'mw_math_modern' => "Commendatum pro navigatri recentes",
-	'mw_math_mathml' => 'MathML',
+'mw_math_png' => "Semper vertere PNG",
+'mw_math_simple' => "HTML si admodum simplex, alioqui PNG",
+'mw_math_html' => "HTML si fieri potest, alioqui PNG",
+'mw_math_source' => "Stet ut TeX (pro navigatri texti)",
+'mw_math_modern' => "Commendatum pro navigatri recentes",
+'mw_math_mathml' => 'MathML',
 );
 
 require_once( "LanguageUtf8.php" );
@@ -179,11 +111,6 @@ class LanguageLa extends LanguageUtf8 {
 		return $wgNamespaceNamesLa;
 	}
 
-	function getNsText( $index ) {
-		global $wgNamespaceNamesLa;
-		return $wgNamespaceNamesLa[$index];
-	}
-
 	function getNsIndex( $text ) {
 		global $wgNamespaceNamesLa;
 		global $wgMetaNamespace;
@@ -191,7 +118,7 @@ class LanguageLa extends LanguageUtf8 {
 		foreach ( $wgNamespaceNamesLa as $i => $n ) {
 			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
 		}
-		
+
 		# Backwards compatibility hacks
 		if( $wgMetaNamespace == 'Vicipaedia' || $wgMetaNamespace == 'Victionarium' ) {
 			if( 0 == strcasecmp( 'Wikipedia', $text ) ) return NS_PROJECT;
@@ -210,8 +137,7 @@ class LanguageLa extends LanguageUtf8 {
 		return $wgSkinNamesLa;
 	}
 
-	function date( $ts, $adj = false )
-	{
+	function date( $ts, $adj = false ) {
 		if ( $adj ) { $ts = $this->userAdjust( $ts ); }
 
 		$d = $this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) .
@@ -220,27 +146,8 @@ class LanguageLa extends LanguageUtf8 {
 		return $d;
 	}
 
-	function timeanddate( $ts, $adj = false )
-	{
+	function timeanddate( $ts, $adj = false ) {
 		return $this->time( $ts, $adj ) . " " . $this->date( $ts, $adj );
-	}
-
-	function getValidSpecialPages()
-	{
-		global $wgValidSpecialPagesLa;
-		return $wgValidSpecialPagesLa;
-	}
-
-	function getSysopSpecialPages()
-	{
-		global $wgSysopSpecialPagesLa;
-		return $wgSysopSpecialPagesLa;
-	}
-
-	function getDeveloperSpecialPages()
-	{
-		global $wgDeveloperSpecialPagesLa;
-		return $wgDeveloperSpecialPagesLa;
 	}
 
 	function getMessage( $key ) {

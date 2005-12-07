@@ -11,13 +11,22 @@
 class WatchedItem {
 	var $mTitle, $mUser;
 
-	# Create a WatchedItem object with the given user and title
-	/* static */ function &fromUserTitle( &$user, &$title ) {
+	/**
+	 * Create a WatchedItem object with the given user and title
+	 * @todo document
+	 * @private
+	 */
+	function &fromUserTitle( &$user, &$title ) {
 		$wl = new WatchedItem;
 		$wl->mUser =& $user;
 		$wl->mTitle =& $title;
 		$wl->id = $user->getId();
-		$wl->ns = $title->getNamespace() & ~1;
+# Patch (also) for email notification on page changes T.Gries/M.Arndt 11.09.2004
+# TG patch: here we do not consider pages and their talk pages equivalent - why should we ?
+# The change results in talk-pages not automatically included in watchlists, when their parent page is included
+#		$wl->ns = $title->getNamespace() & ~1;
+		$wl->ns = $title->getNamespace();
+
 		$wl->ti = $title->getDBkey();
 		return $wl;
 	}
@@ -33,8 +42,7 @@ class WatchedItem {
 	/**
 	 * Is mTitle being watched by mUser?
 	 */
-	function isWatched()
-	{
+	function isWatched() {
 		# Pages and their talk pages are considered equivalent for watching;
 		# remember that talk namespaces are numbered as page namespace+1.
 		global $wgMemc;
@@ -52,52 +60,100 @@ class WatchedItem {
 		return $iswatched;
 	}
 
+	/**
+	 * @todo document
+	 */
 	function addWatch() {
-		$fname = "WatchedItem::addWatch";
+		$fname = 'WatchedItem::addWatch';
+		wfProfileIn( $fname );
 		# REPLACE instead of INSERT because occasionally someone
 		# accidentally reloads a watch-add operation.
 		$dbw =& wfGetDB( DB_MASTER );
-		$dbw->replace( 'watchlist', array(array('wl_user', 'wl_namespace', 'wl_title')),
+		$dbw->replace( 'watchlist', array(array('wl_user', 'wl_namespace', 'wl_title', 'wl_notificationtimestamp')),
 		  array( 
 		    'wl_user' => $this->id,
-			'wl_namespace' => $this->ns,
+			'wl_namespace' => ($this->ns & ~1),
 			'wl_title' => $this->ti,
+			'wl_notificationtimestamp' => '0'
+		  ), $fname );
+
+		# the following code compensates the new behaviour, introduced by the enotif patch,
+		# that every single watched page needs now to be listed in watchlist
+		# namespace:page and namespace_talk:page need separate entries: create them
+		$dbw->replace( 'watchlist', array(array('wl_user', 'wl_namespace', 'wl_title', 'wl_notificationtimestamp')),
+		  array(
+			'wl_user' => $this->id,
+			'wl_namespace' => ($this->ns | 1 ),
+			'wl_title' => $this->ti,
+			'wl_notificationtimestamp' => '0'
 		  ), $fname );
 
 		global $wgMemc;
 		$wgMemc->set( $this->watchkey(), 1 );
+		wfProfileOut( $fname );
 		return true;
 	}
 
 	function removeWatch() {
+		global $wgMemc;
 		$fname = 'WatchedItem::removeWatch';
 
+		$success = false;
 		$dbw =& wfGetDB( DB_MASTER );
 		$dbw->delete( 'watchlist', 
 			array( 
 				'wl_user' => $this->id, 
-				'wl_namespace' => $this->ns,  
+				'wl_namespace' => ($this->ns & ~1),
+				'wl_title' => $this->ti
+			), $fname
+		);
+		if ( $dbw->affectedRows() ) {
+			$success = true;
+		}
+
+		# the following code compensates the new behaviour, introduced by the
+		# enotif patch, that every single watched page needs now to be listed
+		# in watchlist namespace:page and namespace_talk:page had separate
+		# entries: clear them
+		$dbw->delete( 'watchlist',
+			array(
+				'wl_user' => $this->id,
+				'wl_namespace' => ($this->ns | 1),
 				'wl_title' => $this->ti
 			), $fname
 		);
 		
 		if ( $dbw->affectedRows() ) {
-			global $wgMemc;
-			$wgMemc->set( $this->watchkey(), 0 );
-			return true;
-		} else {
-			return false;
+			$success = true;
 		}
+		if ( $success ) {
+			$wgMemc->set( $this->watchkey(), 0 );
+		}
+		return $success;
 	}
 
 	/**
+	 * Check if the given title already is watched by the user, and if so
+	 * add watches on a new title. To be used for page renames and such.
+	 *
+	 * @param Title $ot Page title to duplicate entries from, if present
+	 * @param Title $nt Page title to add watches on
 	 * @static
 	 */
 	function duplicateEntries( $ot, $nt ) {
+		WatchedItem::doDuplicateEntries( $ot->getSubjectPage(), $nt->getSubjectPage() );
+		WatchedItem::doDuplicateEntries( $ot->getTalkPage(), $nt->getTalkPage() );
+	}
+	
+	/**
+	 * @static
+	 * @access private
+	 */
+	function doDuplicateEntries( $ot, $nt ) {
 		$fname = "WatchedItem::duplicateEntries";
 		global $wgMemc, $wgDBname;
-		$oldnamespace = $ot->getNamespace() & ~1;
-		$newnamespace = $nt->getNamespace() & ~1;
+		$oldnamespace = $ot->getNamespace();
+		$newnamespace = $nt->getNamespace();
 		$oldtitle = $ot->getDBkey();
 		$newtitle = $nt->getDBkey();
 
@@ -118,6 +174,11 @@ class WatchedItem {
 			);
 		}
 		$dbw->freeResult( $res );
+		
+		if( empty( $values ) ) {
+			// Nothing to do
+			return true;
+		}
 
 		# Perform replace
 		# Note that multi-row replace is very efficient for MySQL but may be inefficient for

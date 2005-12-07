@@ -9,8 +9,9 @@
 
 /** */
 require_once( "commandLine.inc" );
+require_once("memcached-client.php");
 
-$mcc = new memcached( array('persistant' => true) );
+$mcc = new memcached( array('persistant' => true, 'debug' => true) );
 $mcc->set_servers( $wgMemCachedServers );
 $mcc->set_debug( true );
 
@@ -18,6 +19,7 @@ do {
 	$bad = false;
 	$quit = false;
 	$line = readconsole( "> " );
+	if ($line === false) exit;
 	$args = explode( " ", $line );
 	$command = array_shift( $args );
 	switch ( $command ) {
@@ -41,9 +43,6 @@ do {
 			$sock = $mcc->get_sock( $args[0] );
 			var_dump( $sock );
 			break;
-                case "getserver":
-                       var_dump($wgMemCachedServers[(hexdec(substr(md5($args[0]),0,8)) & 0x7fffffff)%count($wgMemCachedServers)]);
-                        break;
 		case "set":
 			$key = array_shift( $args );
 			if ( $args[0] == "#" && is_numeric( $args[1] ) ) {

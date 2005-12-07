@@ -58,9 +58,12 @@ class Block
 		$mUser = $mBy = 0;
 	}
 
-	# Get a ban from the DB, with either the given address or the given username
+	/**
+	 * Get a ban from the DB, with either the given address or the given username
+	 */
 	function load( $address = '', $user = 0, $killExpired = true ) 
 	{
+		global $wgDBmysql4, $wgAntiLockFlags;
 		$fname = 'Block::load';
 		wfDebug( "Block::load: '$address', '$user', $killExpired\n" );
 
@@ -68,7 +71,11 @@ class Block
 		$killed = false;
 		if ( $this->forUpdate() ) {
 			$db =& wfGetDB( DB_MASTER );
-			$options = 'FOR UPDATE';
+			if ( $wgAntiLockFlags & ALF_NO_BLOCK_LOCK ) {
+				$options = '';
+			} else {
+				$options = 'FOR UPDATE';
+			}
 		} else {
 			$db =& wfGetDB( DB_SLAVE );
 			$options = '';
@@ -81,7 +88,14 @@ class Block
 			$sql = "SELECT * FROM $ipblocks WHERE ipb_user={$user} $options";
 		} elseif ($user=="") {
 			$sql = "SELECT * FROM $ipblocks WHERE ipb_address='" . $db->strencode( $address ) . "' $options";
+		} elseif ( $options=='' && $wgDBmysql4 ) {
+			# If there are no optiones (e.g. FOR UPDATE), use a UNION
+			# so that the query can make efficient use of indices
+			$sql = "SELECT * FROM $ipblocks WHERE ipb_address='" . $db->strencode( $address ) .
+				"' UNION SELECT * FROM $ipblocks WHERE ipb_user={$user}";
 		} else {
+			# If there are options, a UNION can not be used, use one
+			# SELECT instead. Will do a full table scan.
 			$sql = "SELECT * FROM $ipblocks WHERE (ipb_address='" . $db->strencode( $address ) . 
 				"' OR ipb_user={$user}) $options";
 		}
@@ -154,13 +168,21 @@ class Block
 		}
 	}
 	
-	# Callback with a Block object for every block
+	/**
+	 * Callback with a Block object for every block
+	 */
 	/*static*/ function enumBlocks( $callback, $tag, $flags = 0 ) 
 	{
+		global $wgAntiLockFlags;
+
 		$block = new Block();
 		if ( $flags & EB_FOR_UPDATE ) {
 			$db =& wfGetDB( DB_MASTER );
-			$options = 'FOR UPDATE';
+			if ( $wgAntiLockFlags & ALF_NO_BLOCK_LOCK ) {
+				$options = '';
+			} else {
+				$options = 'FOR UPDATE';
+			}
 			$block->forUpdate( true );
 		} else {
 			$db =& wfGetDB( DB_SLAVE );

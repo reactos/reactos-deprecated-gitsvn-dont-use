@@ -23,9 +23,16 @@
  * @subpackage SpecialPage
  */
 
+/** */
 require_once( 'SearchEngine.php' );
+require_once( 'Revision.php' );
 
-function wfSpecialSearch( $par='' ) {
+/**
+ * Entry point
+ *
+ * @param string $par (default '')
+ */
+function wfSpecialSearch( $par = '' ) {
 	global $wgRequest, $wgUser;
 	
 	$search = $wgRequest->getText( 'search', $par );
@@ -39,8 +46,13 @@ function wfSpecialSearch( $par='' ) {
 	}
 }
 
-
+/**
+ * @todo document
+ * @package MediaWiki
+ * @subpackage SpecialPage
+ */
 class SpecialSearch {
+
 	/**
 	 * Set up basic search parameters from the request and user settings.
 	 * Typically you'll pass $wgRequest and $wgUser.
@@ -58,7 +70,7 @@ class SpecialSearch {
 			$this->namespaces = $this->userNamespaces( $user );
 		}
 		
-		$this->searchRedirects = false;
+		$this->searchRedirects = $request->getcheck( 'redirs' ) ? true : false;
 	}
 	
 	/**
@@ -101,8 +113,7 @@ class SpecialSearch {
 				$editurl = $t->escapeLocalURL( 'action=edit' );
 			}
 		}
-		# FIXME: HTML in wiki message
-		$wgOut->addHTML( '<p>' . wfMsg('nogomatch', $editurl, htmlspecialchars( $term ) ) . "</p>\n" );
+		$wgOut->addWikiText( wfMsg('nogomatch', ":$term" ) );
 
 		return $this->showResults( $term );
 	}
@@ -123,9 +134,8 @@ class SpecialSearch {
 		
 		#if ( !$this->parseQuery() ) {
 		if( '' === trim( $term ) ) {
-			$wgOut->addWikiText(
-				'==' . wfMsg( 'badquery' ) . "==\n" .
-				wfMsg( 'badquerytext' ) );
+			$wgOut->setSubtitle( '' );
+			$wgOut->addHTML( $this->powerSearchBox( $term ) );
 			wfProfileOut( $fname );
 			return;
 		}
@@ -140,18 +150,26 @@ class SpecialSearch {
 			}
 			global $wgInputEncoding;
 			$wgOut->addHTML( wfMsg( 'searchdisabled' ) );
-			$wgOut->addHTML( wfMsg( 'googlesearch',
-				htmlspecialchars( $term ),
-				htmlspecialchars( $wgInputEncoding ) ) );
+			$wgOut->addHTML(
+				wfMsg( 'googlesearch',
+					htmlspecialchars( $term ),
+					htmlspecialchars( $wgInputEncoding ),
+					htmlspecialchars( wfMsg( 'search' ) )
+				)
+			);
 			wfProfileOut( $fname );
 			return;
 		}
 
-		$search =& $this->getSearchEngine();
+		$search = SearchEngine::create();
+		$search->setLimitOffset( $this->limit, $this->offset );
+		$search->setNamespaces( $this->namespaces );
+		$search->showRedirects = $this->searchRedirects;
 		$titleMatches = $search->searchTitle( $term );
 		$textMatches = $search->searchText( $term );
 		
-		$num = $titleMatches->numRows() + $textMatches->numRows();
+		$num = ( $titleMatches ? $titleMatches->numRows() : 0 )
+			+ ( $textMatches ? $textMatches->numRows() : 0);
 		if ( $num >= $this->limit ) {
 			$top = wfShowingResults( $this->offset, $this->limit );
 		} else {
@@ -168,23 +186,23 @@ class SpecialSearch {
 			$wgOut->addHTML( "<br />{$prevnext}\n" );
 		}
 
-		global $wgContLang;
-		$tm = $wgContLang->convertForSearchResult( $search->termMatches() );
-		$terms = implode( '|', $tm );
-		
-		if( $titleMatches->numRows() ) {
-			$wgOut->addWikiText( '==' . wfMsg( 'titlematches' ) . "==\n" );
-			$wgOut->addHTML( $this->showMatches( $titleMatches, $terms ) );
-		} else {
-			$wgOut->addWikiText( '==' . wfMsg( 'notitlematches' ) . "==\n" );
+		if( $titleMatches ) {
+			if( $titleMatches->numRows() ) {
+				$wgOut->addWikiText( '==' . wfMsg( 'titlematches' ) . "==\n" );
+				$wgOut->addHTML( $this->showMatches( $titleMatches ) );
+			} else {
+				$wgOut->addWikiText( '==' . wfMsg( 'notitlematches' ) . "==\n" );
+			}
 		}
 		
-		if( $textMatches->numRows() ) {
-			$wgOut->addWikiText( '==' . wfMsg( 'textmatches' ) . "==\n" );
-			$wgOut->addHTML( $this->showMatches( $textMatches, $terms ) );
-		} elseif( $num == 0 ) {
-			# Don't show the 'no text matches' if we received title matches
-			$wgOut->addWikiText( '==' . wfMsg( 'notextmatches' ) . "==\n" );
+		if( $textMatches ) {
+			if( $textMatches->numRows() ) {
+				$wgOut->addWikiText( '==' . wfMsg( 'textmatches' ) . "==\n" );
+				$wgOut->addHTML( $this->showMatches( $textMatches ) );
+			} elseif( $num == 0 ) {
+				# Don't show the 'no text matches' if we received title matches
+				$wgOut->addWikiText( '==' . wfMsg( 'notextmatches' ) . "==\n" );
+			}
 		}
 		
 		if ( $num == 0 ) {
@@ -206,38 +224,9 @@ class SpecialSearch {
 	function setupPage( $term ) {
 		global $wgOut;
 		$wgOut->setPageTitle( wfMsg( 'searchresults' ) );
-		$wgOut->setSubtitle( wfMsg( 'searchquery', htmlspecialchars( $term ) ) );
+		$wgOut->setSubtitle( htmlspecialchars( wfMsg( 'searchquery', $term ) ) );
 		$wgOut->setArticleRelated( false );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
-	}
-
-	/**
-	 * Load up the appropriate search engine class for the currently
-	 * active database backend, and return a configured instance.
-	 *
-	 * @return SearchEngine
-	 * @access private
-	 */
-	function &getSearchEngine() {
-		global $wgDBtype, $wgDBmysql4, $wgSearchType;
-		if( $wgDBtype == 'mysql' ) {
-			if( $wgDBmysql4 ) {
-				$class = 'SearchMySQL4';
-				require_once( 'SearchMySQL4.php' );
-			} else {
-				$class = 'SearchMysql3';
-				require_once( 'SearchMySQL3.php' );
-			}
-		} else if ( $wgDBtype == 'PostgreSQL' ) {
-			$class = 'SearchTsearch2';
-			require_once( 'SearchTsearch2.php' );
-		} else {
-			$class = 'SearchEngineDummy';
-		}
-		$search = new $class( wfGetDB( DB_SLAVE ) );
-		$search->setLimitOffset( $this->limit, $this->offset );
-		$search->setNamespaces( $this->namespaces );
-		return $search;
 	}
 	
 	/**
@@ -292,19 +281,23 @@ class SpecialSearch {
 	}
 	
 	/**
-	 * @param ResultWrapper $matches
+	 * @param SearchResultSet $matches
 	 * @param string $terms partial regexp for highlighting terms
 	 */
-	function showMatches( &$matches, $terms ) {
+	function showMatches( &$matches ) {
 		$fname = 'SpecialSearch::showMatches';
 		wfProfileIn( $fname );
+		
+		global $wgContLang;
+		$tm = $wgContLang->convertForSearchResult( $matches->termMatches() );
+		$terms = implode( '|', $tm );
 		
 		global $wgOut;
 		$off = $this->offset + 1;
 		$out = "<ol start='{$off}'>\n";
 
-		while( $row = $matches->fetchObject() ) {
-			$out .= $this->showHit( $row, $terms );
+		while( $result = $matches->next() ) {
+			$out .= $this->showHit( $result, $terms );
 		}
 		$out .= "</ol>\n";
 
@@ -317,15 +310,15 @@ class SpecialSearch {
 	
 	/**
 	 * Format a single hit result
-	 * @param object $row
+	 * @param SearchResult $result
 	 * @param string $terms partial regexp for highlighting terms
 	 */
-	function showHit( $row, $terms ) {
+	function showHit( $result, $terms ) {
 		$fname = 'SpecialSearch::showHit';
 		wfProfileIn( $fname );
 		global $wgUser, $wgContLang;
 
-		$t = Title::makeTitle( $row->cur_namespace, $row->cur_title );
+		$t = $result->getTitle();
 		if( is_null( $t ) ) {
 			wfProfileOut( $fname );
 			return "<!-- Broken link in search result -->\n";
@@ -337,10 +330,12 @@ class SpecialSearch {
 		$contextchars = $wgUser->getOption( 'contextchars' );
 		if ( '' == $contextchars ) { $contextchars = 50; }
 
-		$link = $sk->makeKnownLinkObj( $t, '' );
-		$size = wfMsg( 'nbytes', strlen( $row->cur_text ) );
+		$link = $sk->makeKnownLinkObj( $t );
+		$revision = Revision::newFromTitle( $t );
+		$text = $revision->getText();
+		$size = wfMsg( 'nbytes', strlen( $text ) );
 
-		$lines = explode( "\n", $row->cur_text );
+		$lines = explode( "\n", $text );
 
 		$max = IntVal( $contextchars ) + 1;
 		$pat1 = "/(.*)($terms)(.{0,$max})/i";

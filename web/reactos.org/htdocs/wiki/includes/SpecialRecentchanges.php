@@ -10,53 +10,94 @@
  */
 require_once( 'Feed.php' );
 require_once( 'ChangesList.php' );
+require_once( 'Revision.php' );
 
 /**
  * Constructor
  */
-function wfSpecialRecentchanges( $par ) {
+function wfSpecialRecentchanges( $par, $specialPage ) {
 	global $wgUser, $wgOut, $wgLang, $wgContLang, $wgTitle, $wgMemc, $wgDBname;
 	global $wgRequest, $wgSitename, $wgLanguageCode, $wgContLanguageCode;
 	global $wgFeedClasses, $wgUseRCPatrol;
+	global $wgRCShowWatchingUsers, $wgShowUpdatedMarker;
+	global $wgLinkCache;
 	$fname = 'wfSpecialRecentchanges';
 
 	# Get query parameters
 	$feedFormat = $wgRequest->getVal( 'feed' );
 
-	$defaultDays = $wgUser->getOption( 'rcdays' );
-	if ( !$defaultDays ) { $defaultDays = 3; }
+	$defaults = array(
+	/* int  */ 'days' => $wgUser->getDefaultOption('rcdays'),
+	/* int  */ 'limit' => $wgUser->getDefaultOption('rclimit'),
+	/* bool */ 'hideminor' => false,
+	/* bool */ 'hidebots' => true,
+	/* bool */ 'hideliu' => false,
+	/* bool */ 'hidepatrolled' => false,
+	/* text */ 'from' => '',
+	/* text */ 'namespace' => null,
+	/* bool */ 'invert' => false,
+	);
 
-	$days = $wgRequest->getInt( 'days', $defaultDays );
-	$hideminor = $wgRequest->getBool( 'hideminor', $wgUser->getOption( 'hideminor' ) ) ? 1 : 0;
-	list( $limit, $offset ) = wfCheckLimits( 100, 'rclimit' );
+	extract($defaults);
+	
+
+	$days = $wgUser->getOption( 'rcdays' );
+	if ( !$days ) { $days = $defaults['days']; }
+	$days = $wgRequest->getInt( 'days', $days );
+
+	$limit = $wgUser->getOption( 'rclimit' );
+	if ( !$limit ) { $limit = $defaults['limit']; }
+
+	#	list( $limit, $offset ) = wfCheckLimits( 100, 'rclimit' );
+	$limit = $wgRequest->getInt( 'limit', $limit );
+
+	/* order of selection: url > preferences > default */
+	$hideminor = $wgRequest->getBool( 'hideminor', $wgUser->getOption( 'hideminor') ? true : $defaults['hideminor'] );	
+
 	
 	# As a feed, use limited settings only
 	if( $feedFormat ) {
-		$from = null;
-		$hidebots = 1;
-		$hideliu = 0;
-		$hidepatrolled = 0;
 		global $wgFeedLimit;
 		if( $limit > $wgFeedLimit ) {
-			$limit = $wgFeedLimit;
+			$options['limit'] = $wgFeedLimit;
 		}
+
 	} else {
-		$from = $wgRequest->getText( 'from' );
-		$hidebots = $wgRequest->getBool( 'hidebots', true ) ? 1 : 0;
-		$hideliu = $wgRequest->getBool( 'hideliu', false ) ? 1 : 0;
-		$hidepatrolled = $wgRequest->getBool( 'hidepatrolled', false ) ? 1 : 0;
-	
+
+		$namespace = $wgRequest->getIntOrNull( 'namespace' );
+		$invert = $wgRequest->getBool( 'invert', $defaults['invert'] );
+		$hidebots = $wgRequest->getBool( 'hidebots', $defaults['hidebots'] );
+		$hideliu = $wgRequest->getBool( 'hideliu', $defaults['hideliu'] );
+		$hidepatrolled = $wgRequest->getBool( 'hidepatrolled', $defaults['hidepatrolled'] );
+		$from = $wgRequest->getVal( 'from', $defaults['from'] );	
+
 		# Get query parameters from path
 		if( $par ) {
 			$bits = preg_split( '/\s*,\s*/', trim( $par ) );
-			if( in_array( 'hidebots', $bits ) ) $hidebots = 1;
-			if( in_array( 'bots', $bits ) ) $hidebots = 0;
-			if( in_array( 'hideminor', $bits ) ) $hideminor = 1;
-			if( in_array( 'minor', $bits ) ) $hideminor = 0;
-			if( in_array( 'hideliu', $bits) ) $hideliu = 1;
-			if( in_array( 'hidepatrolled', $bits) ) $hidepatrolled = 1;
+			foreach ( $bits as $bit ) {
+				if ( 'hidebots' == $bit ) $hidebots = 1;
+				if ( 'bots' == $bit ) $hidebots = 0;
+				if ( 'hideminor' == $bit ) $hideminor = 1;
+				if ( 'minor' == $bit ) $hideminor = 0;
+				if ( 'hideliu' == $bit ) $hideliu = 1;
+				if ( 'hidepatrolled' == $bit ) $hidepatrolled = 1;
+
+				if ( is_numeric( $bit ) ) {
+					$limit = $bit;
+				}
+
+				if ( preg_match( '/^limit=(\d+)$/', $bit, $m ) ) {
+					$limit = $m[1];
+				}
+
+				if ( preg_match( '/^days=(\d+)$/', $bit, $m ) ) {
+					$days = $m[1];
+				}
+			}
 		}
 	}
+
+	if ( $limit < 0 || $limit > 5000 ) $limit = $defaults['limit'];
 
 
 	# Database connection and caching
@@ -64,6 +105,15 @@ function wfSpecialRecentchanges( $par ) {
 	extract( $dbr->tableNames( 'recentchanges', 'watchlist' ) );
 
 	
+	$cutoff_unixtime = time() - ( $days * 86400 );
+	$cutoff_unixtime = $cutoff_unixtime - ($cutoff_unixtime % 86400);
+	$cutoff = $dbr->timestamp( $cutoff_unixtime );
+	if(preg_match('/^[0-9]{14}$/', $from) and $from > wfTimestamp(TS_MW,$cutoff)) {
+		$cutoff = $dbr->timestamp($from);
+	} else {
+		$from = $defaults['from'];
+	}
+		
 	# 10 seconds server-side caching max
 	$wgOut->setSquidMaxage( 10 );
 
@@ -77,77 +127,73 @@ function wfSpecialRecentchanges( $par ) {
 		}
 	}
 
-	# Output header
-	$rctext = wfMsgForContent( "recentchangestext" );
-	$wgOut->addWikiText( $rctext );
+	$hidem  = $hideminor ? 'AND rc_minor=0' : '';
+	$hidem .= $hidebots ? ' AND rc_bot=0' : '';
+	$hidem .= $hideliu ? ' AND rc_user=0' : '';
+	$hidem .= $hidepatrolled ? ' AND rc_patrolled=0' : '';
+	$hidem .= is_null( $namespace ) ?  '' : ' AND rc_namespace' . ($invert ? '!=' : '=') . $namespace;
 
-	
-	$now = wfTimestampNow();
-	$cutoff_unixtime = time() - ( $days * 86400 );
-	$cutoff_unixtime = $cutoff_unixtime - ($cutoff_unixtime % 86400);
-	$cutoff = $dbr->timestamp( $cutoff_unixtime );
-	if(preg_match('/^[0-9]{14}$/', $from) and $from > wfTimestamp(TS_MW,$cutoff)) {
-		$cutoff = $dbr->timestamp($from);
-	} else {
-		unset($from);
-	}
-
-	$sk = $wgUser->getSkin();
-
-	$showhide = array( wfMsg( 'show' ), wfMsg( 'hide' ));
-
-	$hidem  = ( $hideminor )    ? 'AND rc_minor=0' : '';
-	$hidem .= ( $hidebots )     ? ' AND rc_bot=0' : '';
-	$hidem .= ( $hideliu )      ? ' AND rc_user=0' : '';
-	$hidem .= ( $hidepatrolled )? ' AND rc_patrolled=0' : '';
-
-	$urlparams = array( 'hideminor' => $hideminor,  'hideliu'       => $hideliu,
-	                    'hidebots'  => $hidebots,   'hidepatrolled' => $hidepatrolled,
-	                    'limit'     => $limit );
-	$hideparams = wfArrayToCGI( $urlparams );
-
-	$minorLink = $sk->makeKnownLink( $wgContLang->specialPage( 'Recentchanges' ),
-	  $showhide[1-$hideminor], wfArrayToCGI( array( 'hideminor' => 1-$hideminor ), $urlparams ) );
-	$botLink = $sk->makeKnownLink( $wgContLang->specialPage( 'Recentchanges' ),
-	  $showhide[1-$hidebots], wfArrayToCGI( array( 'hidebots' => 1-$hidebots ), $urlparams ) );
-	$liuLink = $sk->makeKnownLink( $wgContLang->specialPage( 'Recentchanges' ),
-	  $showhide[1-$hideliu], wfArrayToCGI( array( 'hideliu' => 1-$hideliu ), $urlparams ) );
-	$patrLink = $sk->makeKnownLink( $wgContLang->specialPage( 'Recentchanges' ),
-	  $showhide[1-$hidepatrolled], wfArrayToCGI( array( 'hidepatrolled' => 1-$hidepatrolled ), $urlparams ) );
+	// This is the big thing!
 
 	$uid = $wgUser->getID();
-	$sql2 = "SELECT $recentchanges.*" . ($uid ? ",wl_user" : "") . " FROM $recentchanges " .
-	  ($uid ? "LEFT OUTER JOIN $watchlist ON wl_user={$uid} AND wl_title=rc_title AND wl_namespace=rc_namespace & 65534 " : "") .
+        $notifts = ($wgShowUpdatedMarker?",wl_notificationtimestamp":"");
+
+	// Perform query
+	$sql2 = "SELECT $recentchanges.*" . ($uid ? ",wl_user".$notifts : "") . " FROM $recentchanges " .
+	  ($uid ? "LEFT OUTER JOIN $watchlist ON wl_user={$uid} AND wl_title=rc_title AND wl_namespace=rc_namespace " : "") .
 	  "WHERE rc_timestamp > '{$cutoff}' {$hidem} " .
 	  "ORDER BY rc_timestamp DESC LIMIT {$limit}";
-
 	$res = $dbr->query( $sql2, $fname );
+
+	// Fetch results, prepare a batch link existence check query
 	$rows = array();
+	$batch = new LinkBatch;
 	while( $row = $dbr->fetchObject( $res ) ){
 		$rows[] = $row;
+		// User page link
+		$title = Title::makeTitleSafe( NS_USER, $row->rc_user_text );
+		$batch->addObj( $title );
+
+		// User talk
+		$title = Title::makeTitleSafe( NS_USER_TALK, $row->rc_user_text );
+		$batch->addObj( $title );
+
 	}
 	$dbr->freeResult( $res );
 
-	if(isset($from)) {
-		$note = wfMsg( 'rcnotefrom', $wgLang->formatNum( $limit ),
-			$wgLang->timeanddate( $from, true ) );
-	} else {
-		$note = wfMsg( 'rcnote', $wgLang->formatNum( $limit ), $wgLang->formatNum( $days ) );
-	}
-	$wgOut->addHTML( "\n<hr />\n{$note}\n<br />" );
-
-	$note = rcDayLimitLinks( $days, $limit, 'Recentchanges', $hideparams, false, $minorLink, $botLink, $liuLink, $patrLink );
-
-	$note .= "<br />\n" . wfMsg( 'rclistfrom',
-	  $sk->makeKnownLink( $wgContLang->specialPage( 'Recentchanges' ),
-	  $wgLang->timeanddate( $now, true ), $hideparams.'&from='.$now ) );
-
-	$wgOut->addHTML( $note."\n" );
+	// Run existence checks
+	$batch->execute( $wgLinkCache );
 
 	if( $feedFormat ) {
 		rcOutputFeed( $rows, $feedFormat, $limit, $hideminor, $lastmod );
 	} else {
+
 		# Web output...
+
+		// Output header
+		if ( !$specialPage->including() ) {
+			$wgOut->addWikiText( wfMsgForContent( "recentchangestext" ) );
+		
+			// Dump everything here
+			$nondefaults = array();
+		
+			wfAppendToArrayIfNotDefault( 'days', $days, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'limit', $limit , $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'hideminor', $hideminor, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'hidebots', $hidebots, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'hideliu', $hideliu, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'hidepatrolled', $hidepatrolled, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'from', $from, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'namespace', $namespace, $defaults, $nondefaults);
+			wfAppendToArrayIfNotDefault( 'invert', $invert, $defaults, $nondefaults);
+
+			// Add end of the texts
+			$wgOut->addHTML( '<div class="rcoptions">' . rcOptionsPanel( $defaults, $nondefaults ) );
+			$wgOut->addHTML( rcNamespaceForm( $namespace, $invert, $nondefaults) . '</div>');
+		}
+
+		// And now for the content
+		$sk = $wgUser->getSkin();
 		$wgOut->setSyndicated( true );
 		$list =& new ChangesList( $sk );
 		$s = $list->beginRecentChangesList();
@@ -161,6 +207,23 @@ function wfSpecialRecentchanges( $par ) {
 			     ! ( $hidepatrolled && $obj->rc_patrolled ) ) {
 				$rc = RecentChange::newFromRow( $obj );
 				$rc->counter = $counter++;
+
+				if ($wgShowUpdatedMarker
+					&& !empty( $obj->wl_notificationtimestamp )
+					&& ($obj->rc_timestamp >= $obj->wl_notificationtimestamp)) {
+						$rc->notificationtimestamp = true;
+				} else {
+					$rc->notificationtimestamp = false;
+				}
+
+				if ($wgRCShowWatchingUsers && $wgUser->getOption( 'shownumberswatching' )) {
+					$sql3 = "SELECT COUNT(*) AS n FROM $watchlist WHERE wl_title='" . $dbr->strencode($obj->rc_title) ."' AND wl_namespace=$obj->rc_namespace" ;
+					$res3 = $dbr->query( $sql3, 'wfSpecialRecentChanges');
+					$x = $dbr->fetchObject( $res3 );
+					$rc->numberofWatchingusers = $x->n;
+				} else {
+					$rc->numberofWatchingusers = 0;
+				}
 				$s .= $list->recentChangesLine( $rc, !empty( $obj->wl_user ) );
 				--$limit;
 			}
@@ -274,7 +337,7 @@ function rcCountLink( $lim, $d, $page='Recentchanges', $more='' ) {
 	global $wgUser, $wgLang, $wgContLang;
 	$sk = $wgUser->getSkin();
 	$s = $sk->makeKnownLink( $wgContLang->specialPage( $page ),
-	  ($lim ? $wgLang->formatNum( "{$lim}" ) : wfMsg( 'all' ) ), "{$more}" .
+	  ($lim ? $wgLang->formatNum( "{$lim}" ) : wfMsg( 'recentchangesall' ) ), "{$more}" .
 	  ($d ? "days={$d}&" : '') . 'limit='.$lim );
 	return $s;
 }
@@ -286,13 +349,13 @@ function rcDaysLink( $lim, $d, $page='Recentchanges', $more='' ) {
 	global $wgUser, $wgLang, $wgContLang;
 	$sk = $wgUser->getSkin();
 	$s = $sk->makeKnownLink( $wgContLang->specialPage( $page ),
-	  ($d ? $wgLang->formatNum( "{$d}" ) : wfMsg( "all" ) ), $more.'days='.$d .
+	  ($d ? $wgLang->formatNum( "{$d}" ) : wfMsg( 'recentchangesall' ) ), $more.'days='.$d .
 	  ($lim ? '&limit='.$lim : '') );
 	return $s;
 }
 
 /**
- * Used also by Recentchangeslinked
+ * Used by Recentchangeslinked
  */
 function rcDayLimitLinks( $days, $limit, $page='Recentchanges', $more='', $doall = false, $minorLink = '',
 	$botLink = '', $liuLink = '', $patrLink = '' ) {
@@ -313,6 +376,111 @@ function rcDayLimitLinks( $days, $limit, $page='Recentchanges', $more='', $doall
 	return $note;
 }
 
+
+/**
+ * Makes change an option link which carries all the other options
+ */
+function makeOptionsLink( $title, $override, $options ) {
+	global $wgUser, $wgLang, $wgContLang;
+	$sk = $wgUser->getSkin();
+	return $sk->makeKnownLink( $wgContLang->specialPage( 'Recentchanges' ),
+		$title, wfArrayToCGI( $override, $options ) );
+}
+
+/**
+ * Creates the options panel
+ */
+function rcOptionsPanel( $defaults, $nondefaults ) {
+	global $wgLang;
+
+	$options = $nondefaults + $defaults;
+
+	if( $options['from'] )
+		$note = wfMsg( 'rcnotefrom', $wgLang->formatNum( $options['limit'] ), $wgLang->timeanddate( $options['from'], true ) );
+	else
+		$note = wfMsg( 'rcnote', $wgLang->formatNum( $options['limit'] ), $wgLang->formatNum( $options['days'] ) );
+
+	// limit links
+	$cl = '';
+	$options_limit = array(50, 100, 250, 500);
+	$i = 0;
+	while ( $i+1 < count($options_limit) ) {
+		$cl .=  makeOptionsLink( $options_limit[$i], array( 'limit' => $options_limit[$i] ), $nondefaults) . ' | ' ;
+		$i++;
+	}
+	$cl .=  makeOptionsLink( $options_limit[$i], array( 'limit' => $options_limit[$i] ), $nondefaults) ;
+
+	// day links, reset 'from' to none
+	$dl = '';
+	$options_days = array(1, 3, 7, 14, 30);
+	$i = 0;
+	while ( $i+1 < count($options_days) ) {
+		$dl .=  makeOptionsLink( $options_days[$i], array( 'days' => $options_days[$i], 'from' => '' ), $nondefaults) . ' | ' ;
+		$i++;
+	}
+	$dl .=  makeOptionsLink( $options_days[$i], array( 'days' => $options_days[$i], 'from' => '' ), $nondefaults) ;
+
+	// show/hide links
+	$showhide = array( wfMsg( 'show' ), wfMsg( 'hide' ));
+	$minorLink = makeOptionsLink( $showhide[1-$options['hideminor']],
+		array( 'hideminor' => 1-$options['hideminor'] ), $nondefaults);
+	$botLink = makeOptionsLink( $showhide[1-$options['hidebots']],
+		array( 'hidebots' => 1-$options['hidebots'] ), $nondefaults);
+	$liuLink   = makeOptionsLink( $showhide[1-$options['hideliu']],
+		array( 'hideliu' => 1-$options['hideliu'] ), $nondefaults);
+	$patrLink  = makeOptionsLink( $showhide[1-$options['hidepatrolled']],
+		array( 'hidepatrolled' => 1-$options['hidepatrolled'] ), $nondefaults);
+
+	$hl = wfMsg( 'showhideminor', $minorLink, $botLink, $liuLink, $patrLink );
+	
+	// show from this onward link
+	$now = $wgLang->timeanddate( wfTimestampNow(), true );
+	$tl =  makeOptionsLink( $now, array( 'from' => wfTimestampNow()), $nondefaults );
+	
+	$rclinks = wfMsg( 'rclinks', $cl, $dl, $hl );
+	$rclistfrom = wfMsg( 'rclistfrom', $tl );
+	return "$note<br />$rclinks<br />$rclistfrom";
+
+}
+
+/**<F2>
+ * Creates the choose namespace selection
+ *
+ * @access private
+ *
+ * @param mixed $namespace The key of the currently selected namespace, empty string
+ *              if there is none
+ * @param bool $invert Whether to invert the namespace selection
+ * @param array $nondefaults An array of non default options to be remembered
+ *
+ * @return string
+ */
+function rcNamespaceForm ( $namespace, $invert, $nondefaults ) {
+	global $wgContLang, $wgScript;
+	$t = Title::makeTitle( NS_SPECIAL, 'Recentchanges' );
+
+	$namespaceselect = HTMLnamespaceselector($namespace, '');
+	$submitbutton = '<input type="submit" value="' . wfMsgHtml( 'allpagessubmit' ) . '" />';
+	$invertbox = "<input type='checkbox' name='invert' value='1' id='nsinvert'" . ( $invert ? ' checked="checked"' : '' ) . ' />';
+
+	$out = "<div class='namespacesettings'><form method='get' action='{$wgScript}'>\n";
+
+	foreach ( $nondefaults as $key => $value ) {
+		if ($key != 'namespace' && $key != 'invert')
+			$out .= wfElement('input', array( 'type' => 'hidden', 'name' => $key, 'value' => $value));
+	}
+
+	$out .= '<input type="hidden" name="title" value="'.$t->getPrefixedText().'" />';
+	$out .= "
+<div id='nsselect' class='recentchanges'>
+	<label for='namespace'>" . wfMsgHtml('namespace') . "</label>
+	$namespaceselect $submitbutton $invertbox <label for='nsinvert'>" . wfMsgHtml('invert') . "</label>
+</div>";
+	$out .= '</form></div>';
+	return $out;
+}
+
+
 /**
  * Format a diff for the newsfeed
  */
@@ -329,44 +497,42 @@ function rcFormatDiff( $row ) {
 		#$diff =& new DifferenceEngine( $row->rc_this_oldid, $row->rc_last_oldid, $row->rc_id );
 		#$diff->showDiffPage();
 		
+		$titleObj = Title::makeTitle( $row->rc_namespace, $row->rc_title );
 		$dbr =& wfGetDB( DB_SLAVE );
-		if( $row->rc_this_oldid ) {
-			$newrow = $dbr->selectRow( 'old',
-				array( 'old_flags', 'old_text' ),
-				array( 'old_id' => $row->rc_this_oldid ) );
-			$newtext = Article::getRevisionText( $newrow );
+		$newrev =& Revision::newFromTitle( $titleObj, $row->rc_this_oldid );
+		if( $newrev ) {
+			$newtext = $newrev->getText();
 		} else {
-			$newrow = $dbr->selectRow( 'cur',
-				array( 'cur_text' ),
-				array( 'cur_id' => $row->rc_cur_id ) );
-			$newtext = $newrow->cur_text;
+			$diffText = "<p>Can't load revision $row->rc_this_oldid</p>";
+			wfProfileOut( $fname );
+			return $comment . $diffText;
 		}
+
 		if( $row->rc_last_oldid ) {
 			wfProfileIn( "$fname-dodiff" );
-			$oldrow = $dbr->selectRow( 'old',
-				array( 'old_flags', 'old_text' ),
-				array( 'old_id' => $row->rc_last_oldid ) );
-			$oldtext = Article::getRevisionText( $oldrow );
-			
-			global $wgUseLatin1;
-			if( !$wgUseLatin1 ) {
-				# Old entries may contain illegal characters
-				# which will damage output
-				$oldtext = UtfNormal::cleanUp( $oldtext );
+			$oldrev =& Revision::newFromId( $row->rc_last_oldid );
+			if( !$oldrev ) {
+				$diffText = "<p>Can't load old revision $row->rc_last_oldid</p>";
+				wfProfileOut( $fname );
+				return $comment . $diffText;
 			}
+			$oldtext = $oldrev->getText();
+				
+			# Old entries may contain illegal characters
+			# which will damage output
+			$oldtext = UtfNormal::cleanUp( $oldtext );
 			
 			global $wgFeedDiffCutoff;
 			if( strlen( $newtext ) > $wgFeedDiffCutoff ||
-			    strlen( $oldtext ) > $wgFeedDiffCutoff ) {
-			    $titleObj = Title::makeTitle( $row->rc_namespace, $row->rc_title );
+				strlen( $oldtext ) > $wgFeedDiffCutoff ) {
 				$diffLink = $titleObj->escapeFullUrl(
 					'diff=' . $row->rc_this_oldid .
 					'&oldid=' . $row->rc_last_oldid );
-			    $diffText = '<a href="' .
-			    	$diffLink .
-			    	'">' .
-			    	htmlspecialchars( wfMsgForContent( 'difference' ) ) .
-			    	'</a>';
+				$diffText = '<a href="' .
+					$diffLink .
+					'">' .
+					htmlspecialchars( wfMsgForContent( 'difference' ) ) .
+					'</a>';
 			} else {
 				$diffText = DifferenceEngine::getDiff( $oldtext, $newtext,
 				  wfMsg( 'revisionasof', $wgContLang->timeanddate( $row->rc_timestamp ) ),
@@ -374,7 +540,13 @@ function rcFormatDiff( $row ) {
 			}
 			wfProfileOut( "$fname-dodiff" );
 		} else {
-			$diffText = '<p><b>' . wfMsg( 'newpage' ) . '</b></p>' . 
+			$rev = Revision::newFromId( $row->rc_this_oldid );
+			if( is_null( $rev ) ) {
+				$newtext = '';
+			} else {
+				$newtext = $rev->getText();
+			}
+			$diffText = '<p><b>' . wfMsg( 'newpage' ) . '</b></p>' .
 				'<div>' . nl2br( htmlspecialchars( $newtext ) ) . '</div>';
 		}
 		

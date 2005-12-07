@@ -39,7 +39,7 @@ class BookSourceList {
 		global $wgOut;
 
 		$wgOut->setPagetitle( wfMsg( "booksources" ) );
-		if( empty( $this->mIsbn ) ) {
+		if( $this->mIsbn == '' ) {
 			$this->askForm();
 		} else {
 			$this->showList();
@@ -53,12 +53,14 @@ class BookSourceList {
 		# First, see if we have a custom list setup in
 		# [[Wikipedia:Book sources]] or equivalent.
 		$bstitle = Title::makeTitleSafe( NS_PROJECT, wfMsg( "booksources" ) );
-		$dbr =& wfGetDB( DB_SLAVE );
-		$bstext = $dbr->selectField( 'cur', 'cur_text', $bstitle->curCond(), $fname );
-		if( $bstext ) {	
-			$bstext = str_replace( "MAGICNUMBER", $this->mIsbn, $bstext );
-			$wgOut->addWikiText( $bstext );
-			return;
+		$bsarticle = new Article( $bstitle );
+		if( $bsarticle->exists() ) {
+			$bstext = $bsarticle->getContent( false );
+			if( $bstext ) {	
+				$bstext = str_replace( "MAGICNUMBER", $this->mIsbn, $bstext );
+				$wgOut->addWikiText( $bstext );
+				return;
+			}
 		}
 		
 		# Otherwise, use the list of links in the default Language.php file.

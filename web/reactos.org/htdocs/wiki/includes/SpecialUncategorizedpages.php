@@ -16,7 +16,7 @@ require_once( "QueryPage.php" );
  * @subpackage SpecialPage
  */
 class UncategorizedPagesPage extends PageQueryPage {
-	var $requestedNamespace = 0;
+	var $requestedNamespace = NS_MAIN;
 	
 	function getName() {
 		return "Uncategorizedpages";
@@ -33,11 +33,12 @@ class UncategorizedPagesPage extends PageQueryPage {
 	
 	function getSQL() {
 		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'cur', 'categorylinks' ) );
+		extract( $dbr->tableNames( 'page', 'categorylinks' ) );
+		$name = $dbr->addQuotes( $this->getName() );
 
-		return "SELECT 'Uncategorizedpages' as type, cur_namespace AS namespace, cur_title AS title, cur_title AS value " .
-			"FROM $cur LEFT JOIN $categorylinks ON cur_id=cl_from ".
-			"WHERE cl_from IS NULL AND cur_namespace=$this->requestedNamespace AND cur_is_redirect=0";
+		return "SELECT $name as type, page_namespace AS namespace, page_title AS title, page_title AS value " .
+			"FROM $page LEFT JOIN $categorylinks ON page_id=cl_from ".
+			"WHERE cl_from IS NULL AND page_namespace=$this->requestedNamespace AND page_is_redirect=0";
 	}
 }
 

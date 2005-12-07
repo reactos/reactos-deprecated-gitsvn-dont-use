@@ -74,19 +74,20 @@ header( "Content-type: text/html; charset=utf-8" );
 
 <div id="credit">
  <center>
-  <a href="http://www.mediawiki.org/"><img
-    src="../skins/common/images/wiki.png" width="135" height="135" alt="" border="0" /></a>
+  <a href="http://www.mediawiki.org/">
+   <img src="../skins/common/images/mediawiki.png" width="135" height="135" alt="" border="0" />
+  </a>
  </center>
 
- <b><a href="http://www.mediawiki.org/">MediaWiki</a></b> is
- Copyright (C) 2001-2004 by Magnus Manske, Brion Vibber, Lee Daniel Crocker,
+ <p><strong><a href="http://www.mediawiki.org/">MediaWiki</a></strong> is
+ Copyright (C) 2001-2005 by Magnus Manske, Brion Vibber, Lee Daniel Crocker,
  Tim Starling, Erik M&ouml;ller, Gabriel Wicke and others.</p>
 
  <ul>
- <li><a href="../README">Readme</a></li>
- <li><a href="../RELEASE-NOTES">Release notes</a></li>
- <li><a href="../docs/">doc/</a></li>
- <li><a href="http://meta.wikipedia.org/wiki/MediaWiki_User's_Guide">User's Guide</a></li>
+  <li><a href="../README">Readme</a></li>
+  <li><a href="../RELEASE-NOTES">Release notes</a></li>
+  <li><a href="../docs/">doc/</a></li>
+  <li><a href="http://meta.wikipedia.org/wiki/MediaWiki_User's_Guide">User's Guide</a></li>
  </ul>
 
  <p>This program is free software; you can redistribute it and/or modify
@@ -131,7 +132,7 @@ require_once( "includes/Namespace.php" );
 
 /* Check for existing configurations and bug out! */
 
-if( file_exists( "../LocalSettings.php" ) || file_exists( "../AdminSettings.php" ) ) {
+if( file_exists( "../LocalSettings.php" ) ) {
 	dieout( "<h2>Wiki is configured.</h2>
 
 	<p>Already configured... <a href='../index.php'>return to the wiki</a>.</p>
@@ -139,12 +140,10 @@ if( file_exists( "../LocalSettings.php" ) || file_exists( "../AdminSettings.php"
 	<p>(You should probably remove this directory for added security.)</p>" );
 }
 
-if( file_exists( "./LocalSettings.php" ) || file_exists( "./AdminSettings.php" ) ) {
-	dieout( "<h2>You're configured!</h2>
+if( file_exists( "./LocalSettings.php" ) ) {
+	writeSuccessMessage();
 
-	<p>Please move <tt>LocalSettings.php</tt> to the parent directory, then
-	<a href='../index.php'>try out your wiki</a>.
-	(You should remove this config directory for added security once you're done.)</p>" );
+	dieout( '' );
 }
 
 if( !is_writable( "." ) ) {
@@ -166,18 +165,11 @@ if( !is_writable( "." ) ) {
 
 require_once( "install-utils.inc" );
 require_once( "maintenance/updaters.inc" );
-require_once( "maintenance/convertLinks.inc" );
-require_once( "maintenance/archives/moveCustomMessages.inc" );
 
 class ConfigData {
 	function getEncoded( $data ) {
-		# Hackish
-		global $wgUseLatin1;
-		if( $wgUseLatin1 ) {
-			return utf8_decode( $data ); /* to latin1 wikis */
-		} else {
-			return $data;
-		}
+		# removing latin1 support, no need...
+		return $data;
 	}
 	function getSitename() { return $this->getEncoded( $this->Sitename ); }
 	function getSysopName() { return $this->getEncoded( $this->SysopName ); }
@@ -186,14 +178,14 @@ class ConfigData {
 
 ?>
 
-<p><i>Please include all of the lines below when reporting installation problems.</i></p>
+<p><em>Please include all of the lines below when reporting installation problems.</em></p>
 
 <h2>Checking environment...</h2>
 <ul>
 <?php
 $endl = "
 ";
-$wgConfiguring = true;
+$wgNoOutputBuffer = true;
 $conf = new ConfigData;
 
 install_version_checks();
@@ -202,20 +194,11 @@ print "<li>PHP " . phpversion() . ": ok</li>\n";
 
 if( ini_get( "register_globals" ) ) {
 	?>
-	<li><b class='error'>Warning:</b> <b>PHP's
+	<li><b class='error'>Warning:</b> <strong>PHP's
 	<tt><a href="http://php.net/register_globals">register_globals</a></tt>
-	option is enabled.</b> MediaWiki will work correctly, but this setting
+	option is enabled.</strong> MediaWiki will work correctly, but this setting
 	increases your exposure to potential security vulnerabilities in PHP-based
-	software running on your server. <b>You should disable it if you are able.</b></li>
-	<?php
-}
-
-if( ini_get( "safe_mode" ) ) {
-	?>
-	<li class='error'><b>Warning: PHP's
-	<a href='http://www.php.net/features.safe-mode'>safe mode</a> is active!</b>
-	You may have problems caused by this, particularly if using image uploads.
-	</li>
+	software running on your server. <strong>You should disable it if you are able.</strong></li>
 	<?php
 }
 
@@ -223,7 +206,7 @@ $fatal = false;
 
 if( ini_get( "magic_quotes_runtime" ) ) {
 	$fatal = true;
-	?><li class='error'><b>Fatal: <a href='http://www.php.net/manual/en/ref.info.php#ini.magic-quotes-runtime'>magic_quotes_runtime</a> is active!</b>
+	?><li class='error'><strong>Fatal: <a href='http://www.php.net/manual/en/ref.info.php#ini.magic-quotes-runtime'>magic_quotes_runtime</a> is active!</strong>
 	This option corrupts data input unpredictably; you cannot install or use
 	MediaWiki unless this option is disabled.
 	<?php
@@ -231,15 +214,36 @@ if( ini_get( "magic_quotes_runtime" ) ) {
 
 if( ini_get( "magic_quotes_sybase" ) ) {
 	$fatal = true;
-	?><li class='error'><b>Fatal: <a href='http://www.php.net/manual/en/ref.sybase.php#ini.magic-quotes-sybase'>magic_quotes_sybase</a> is active!</b>
+	?><li class='error'><strong>Fatal: <a href='http://www.php.net/manual/en/ref.sybase.php#ini.magic-quotes-sybase'>magic_quotes_sybase</a> is active!</strong>
 	This option corrupts data input unpredictably; you cannot install or use
 	MediaWiki unless this option is disabled.
+	<?php
+}
+
+if( ini_get( "mbstring.func_overload" ) ) {
+	$fatal = true;
+	?><li class='error'><strong>Fatal: <a href='http://www.php.net/manual/en/ref.mbstring.php#mbstring.overload'>mbstring.func_overload</a> is active!</strong>
+	This option causes errors and may corrupt data unpredictably;
+	you cannot install or use MediaWiki unless this option is disabled.
 	<?php
 }
 
 if( $fatal ) {
 	dieout( "</ul><p>Cannot install wiki.</p>" );
 }
+
+if( ini_get( "safe_mode" ) ) {
+	$conf->safeMode = true;
+	?>
+	<li><b class='error'>Warning:</b> <strong>PHP's
+	<a href='http://www.php.net/features.safe-mode'>safe mode</a> is active.</strong>
+	You may have problems caused by this, particularly if using image uploads.
+	</li>
+	<?php
+} else {
+	$conf->safeMode = false;
+}
+
 
 $sapi = php_sapi_name();
 $conf->prettyURLs = true;
@@ -271,10 +275,10 @@ if( $conf->xml ) {
 
 $memlimit = ini_get( "memory_limit" );
 $conf->raiseMemory = false;
-if( empty( $memlimit ) ) {
+if( empty( $memlimit ) || $memlimit == -1 ) {
 	print "<li>PHP is configured with no <tt>memory_limit</tt>.</li>\n";
 } else {
-	print "<li>PHP's <tt>memory_limit</tt> is " . htmlspecialchars( $memlimit ) . ". <b>If this is too low, installation may fail!</b> ";
+	print "<li>PHP's <tt>memory_limit</tt> is " . htmlspecialchars( $memlimit ) . ". <strong>If this is too low, installation may fail!</strong> ";
 	$n = IntVal( $memlimit );
 	if( preg_match( '/^([0-9]+)[Mm]$/', trim( $memlimit ), $m ) ) {
 		$n = IntVal( $m[1] * (1024*1024) );
@@ -301,10 +305,34 @@ if( $conf->zlib ) {
 $conf->turck = function_exists( 'mmcache_get' );
 if ( $conf->turck ) {
 	print "<li><a href=\"http://turck-mmcache.sourceforge.net/\">Turck MMCache</a> installed</li>\n";
-} else {
-	print "<li><a href=\"http://turck-mmcache.sourceforge.net/\">Turck MMCache</a> not installed, " .
+}
+$conf->eaccel = function_exists( 'eaccelerator_get' );
+if ( $conf->eaccel ) {
+    $conf->turck = 'eaccelerator';
+    print "<li><a href=\"http://eaccelerator.sourceforge.net/\">eAccelerator</a> installed</li>\n";
+}
+if (!$conf->turck && !$conf->eaccel) {
+	print "<li>Neither <a href=\"http://turck-mmcache.sourceforge.net/\">Turck MMCache</a> nor <a href=\"http://eaccelerator.sourceforge.net/\">eAccelerator</a> are installed, " .
 	  "can't use object caching functions</li>\n";
 }
+
+$conf->diff3 = false;
+$diff3locations = array("/usr/bin", "/opt/csw/bin", "/usr/gnu/bin", "/usr/sfw/bin") + explode(":", getenv("PATH"));
+$diff3names = array("gdiff3", "diff3");
+
+$diff3versioninfo = array('$1 --version 2>&1', 'diff3 (GNU diffutils)');
+foreach ($diff3locations as $loc) {
+	$exe = locate_executable($loc, $diff3names, $diff3versioninfo);
+	if ($exe !== false) {
+		$conf->diff3 = $exe;
+		break;
+	}
+}
+
+if ($conf->diff3)
+	print "<li>Found GNU diff3: <tt>$conf->diff3</tt>.</li>";
+else
+	print "<li>GNU diff3 not found.</li>";
 
 $conf->ImageMagick = false;
 $imcheck = array( "/usr/bin", "/usr/local/bin", "/sw/bin", "/opt/local/bin" );
@@ -337,7 +365,7 @@ $conf->IP = dirname( dirname( __FILE__ ) );
 print "<li>Installation directory: <tt>" . htmlspecialchars( $conf->IP ) . "</tt></li>\n";
 
 # $conf->ScriptPath = "/~brion/inplace";
-$conf->ScriptPath = preg_replace( '{^(.*)/config.*$}', '$1', $_SERVER["SCRIPT_NAME"] );
+$conf->ScriptPath = preg_replace( '{^(.*)/config.*$}', '$1', $_SERVER["PHP_SELF"] ); # was SCRIPT_NAME
 print "<li>Script URI path: <tt>" . htmlspecialchars( $conf->ScriptPath ) . "</tt></li>\n";
 
 	$conf->posted = ($_SERVER["REQUEST_METHOD"] == "POST");
@@ -353,6 +381,7 @@ print "<li>Script URI path: <tt>" . htmlspecialchars( $conf->ScriptPath ) . "</t
 	$conf->DBpassword = importPost( "DBpassword" );
 	$conf->DBpassword2 = importPost( "DBpassword2" );
 	$conf->DBprefix = importPost( "DBprefix" );
+	$conf->DBmysql5 = (importPost( "DBmysql5" ) == "true") ? "true" : "false";
 	$conf->RootPW = importPost( "RootPW" );
 	$conf->LanguageCode = importPost( "LanguageCode", "en" );
 	$conf->SysopName = importPost( "SysopName", "WikiSysop" );
@@ -418,6 +447,12 @@ if ( $conf->Shm == 'memcached' && $conf->MCServers ) {
 	$errs["MCServers"] = "Please specify at least one server if you wish to use memcached";
 }
 
+/* default values for installation */
+$conf->Email	=importRequest("Email", "email_enabled");
+$conf->Emailuser=importRequest("Emailuser", "emailuser_enabled");
+$conf->Enotif	=importRequest("Enotif", "enotif_allpages");
+$conf->Eauthent	=importRequest("Eauthent", "eauthent_enabled");
+
 if( $conf->posted && ( 0 == count( $errs ) ) ) {
 	do { /* So we can 'continue' to end prematurely */
 		$conf->Root = ($conf->RootPW != "");
@@ -438,16 +473,24 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 		require_once( "maintenance/InitialiseMessages.inc" );
 
 		$wgTitle = Title::newFromText( "Installation script" );
+		$mysqlOldClient = version_compare( mysql_get_client_info(), "4.1.0", "lt" );
+		if( $mysqlOldClient ) {
+			print "<li><b>PHP is linked with old MySQL client libraries. If you are
+				using a MySQL 4.1 server and have problems connecting to the database,
+				see <a href='http://dev.mysql.com/doc/mysql/en/old-client.html'
+			 	>http://dev.mysql.com/doc/mysql/en/old-client.html</a> for help.</b></li>\n";
+		}
+		print "<li>Trying to connect to MySQL on $wgDBserver as root...\n";
 		$wgDatabase = Database::newFromParams( $wgDBserver, "root", $conf->RootPW, "", 1 );
-		$wgDatabase->ignoreErrors(true);
 
-		@$myver = mysql_get_server_info( $wgDatabase->mConn );
-		if( $myver ) {
+		if( $wgDatabase->isOpen() ) {
+			$myver = mysql_get_server_info( $wgDatabase->mConn );
+			$wgDatabase->ignoreErrors(true);
 			$conf->Root = true;
-			print "<li>Connected as root (automatic)</li>\n";
+			print "<ul><li>Connected as root (automatic)</li></ul></li>\n";
 		} else {
-			print "<li>MySQL error " . ($err = mysql_errno() ) .
-				": " . htmlspecialchars( mysql_error() );
+			print "<ul><li>MySQL error " . ($err = mysql_errno() ) .
+				": " . htmlspecialchars( mysql_error() ) . "</li></ul></li>";
 			$ok = false;
 			switch( $err ) {
 			case 1045:
@@ -459,17 +502,19 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 					/* Try the regular user... */
 					$wgDBadminuser = $wgDBuser;
 					$wgDBadminpassword = $wgDBpassword;
+					/* Wait one second for connection rate limiting, present on some systems */
+					sleep(1);
 					$wgDatabase = Database::newFromParams( $wgDBserver, $wgDBuser, $wgDBpassword, "", 1 );
-					$wgDatabase->isOpen();
-					$wgDatabase->ignoreErrors(true);
-					@$myver = mysql_get_server_info( $wgDatabase->mConn );
-					if( !$myver ) {
+					if( !$wgDatabase->isOpen() ) {
+						print "<ul><li>MySQL error " . ($err = mysql_errno() ) .
+							": " . htmlspecialchars( mysql_error() ) . "</li></ul></li>";
 						$errs["DBuser"] = "Check name/pass";
 						$errs["DBpassword"] = "or enter root";
 						$errs["DBpassword2"] = "password below";
 						$errs["RootPW"] = "Got root?";
-						print " need password.</li>\n";
 					} else {
+						$myver = mysql_get_server_info( $wgDatabase->mConn );
+						$wgDatabase->ignoreErrors(true);
 						$conf->Root = false;
 						$conf->RootPW = "";
 						print " ok.</li>\n";
@@ -483,7 +528,7 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 				$errs["DBserver"] = "Connection failed";
 				break;
 			default:
-				$errs["DBserver"] = "Couldn't connect to database";
+				$errs["DBserver"] = "Couldn't connect to database ($err)";
 				break;
 			}
 			if( !$ok ) continue;
@@ -494,11 +539,26 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 			continue;
 		}
 
-		print "<li>Connected to database... $myver";
+		print "<li>Connected to $myver";
 		if( version_compare( $myver, "4.0.0" ) >= 0 ) {
 			print "; enabling MySQL 4 enhancements";
 			$conf->DBmysql4 = true;
 			$local = writeLocalSettings( $conf );
+		}
+		$mysqlNewAuth   = version_compare( $myver, "4.1.0", "ge" );
+		if( $mysqlNewAuth && $mysqlOldClient ) {
+			print "; <b class='error'>You are using MySQL 4.1 server, but PHP is linked
+			 	to old client libraries; if you have trouble with authentication, see
+			 	<a href='http://dev.mysql.com/doc/mysql/en/old-client.html'
+			 	>http://dev.mysql.com/doc/mysql/en/old-client.html</a> for help.</b>";
+		}
+		if( $wgDBmysql5 ) {
+			if( $mysqlNewAuth ) {
+				print "; enabling MySQL 4.1/5.0 charset mode";
+			} else {
+				print "; <b class='error'>MySQL 4.1/5.0 charset mode enabled,
+					but older version detected; will likely fail.</b>";
+			}
 		}
 		print "</li>\n";
 
@@ -506,6 +566,12 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 		if( $sel ) {
 			print "<li>Database <tt>" . htmlspecialchars( $wgDBname ) . "</tt> exists</li>\n";
 		} else {
+			$err = mysql_errno();
+			if ( $err != 1049 ) {
+				print "<ul><li>Error selecting database $wgDBname: $err " . htmlspecialchars( mysql_error() ) .
+					"</li></ul>";
+				continue;
+			}
 			$res = $wgDatabase->query( "CREATE DATABASE `$wgDBname`" );
 			if( !$res ) {
 				print "<li>Couldn't create database <tt>" .
@@ -519,9 +585,9 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 
 		$wgDatabase->selectDB( $wgDBname );
 
-		if( $wgDatabase->tableExists( "cur" ) ) {
+		if( $wgDatabase->tableExists( "cur" ) || $wgDatabase->tableExists( "revision" ) ) {
 			print "<li>There are already MediaWiki tables in this database. Checking if updates are needed...</li>\n";
-			
+
 			# Create user if required
 			if ( $conf->Root ) {
 				$conn = Database::newFromParams( $wgDBserver, $wgDBuser, $wgDBpassword, $wgDBname, 1 );
@@ -529,7 +595,11 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 					print "<li>DB user account ok</li>\n";
 					$conn->close();
 				} else {
-					print "<li>Granting user permissions...</li>\n";
+					print "<li>Granting user permissions...";
+					if( $mysqlOldClient && $mysqlNewAuth ) {
+						print " <b class='error'>If the next step fails, see <a href='http://dev.mysql.com/doc/mysql/en/old-client.html'>http://dev.mysql.com/doc/mysql/en/old-client.html</a> for help.</b>";
+					}
+					print "</li>\n";
 					dbsource( "../maintenance/users.sql", $wgDatabase );
 				}
 			}
@@ -544,7 +614,13 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 		} else {
 			# FIXME: Check for errors
 			print "<li>Creating tables...";
-			dbsource( "../maintenance/tables.sql", $wgDatabase );
+			if( $wgDBmysql5 ) {
+				print " using MySQL 5 table defs...";
+				dbsource( "../maintenance/mysql5/tables.sql", $wgDatabase );
+			} else {
+				print " using MySQL 3/4 table defs...";
+				dbsource( "../maintenance/tables.sql", $wgDatabase );
+			}
 			dbsource( "../maintenance/interwiki.sql", $wgDatabase );
 			print " done.</li>\n";
 
@@ -565,9 +641,11 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 				if ( 0 == $u->idForName() ) {
 					$u->addToDatabase();
 					$u->setPassword( $conf->getSysopPass() );
-					$u->addRight( "sysop" );
-					$u->addRight( "bureaucrat" );
 					$u->saveSettings();
+
+					$u->addGroup( "sysop" );
+					$u->addGroup( "bureaucrat" );
+
 					print "<li>Created sysop account <tt>" .
 						htmlspecialchars( $conf->SysopName ) . "</tt>.</li>\n";
 				} else {
@@ -578,18 +656,17 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 			}
 
 			$titleobj = Title::newFromText( wfMsgNoDB( "mainpage" ) );
-			$now = wfTimestampNow();
-			$won = wfInvertTimestamp( $now );
-			$wgDatabase->insert( 'cur',
-				array( 'cur_namespace'     => $titleobj->getNamespace(),
-				       'cur_title'         => $titleobj->getDBkey(),
-				       'cur_text'          => wfMsg( 'mainpagetext' ) . "\n\n" .
-				                              wfMsg( 'mainpagedocfooter' ),
-				       'cur_timestamp'     => $now,
-				       'inverse_timestamp' => $won,
-				       'cur_touched'       => $now,
-				       'cur_user'          => 0,
-				       'cur_user_text'     => 'MediaWiki default' ) );
+			$article = new Article( $titleobj );
+			$newid = $article->insertOn( $wgDatabase );
+			$revision = new Revision( array(
+				'page'      => $newid,
+				'text'      => wfMsg( 'mainpagetext' ) . "\n\n" . wfMsg( 'mainpagedocfooter' ),
+				'comment'   => '',
+				'user'      => 0,
+				'user_text' => 'MediaWiki default',
+				) );
+			$revid = $revision->insertOn( $wgDatabase );
+			$article->updateRevisionOn( $wgDatabase, $revision );
 
 			print "<li><pre>";
 			initialiseMessages();
@@ -599,6 +676,8 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 		/* Write out the config file now that all is well */
 		print "<p>Creating LocalSettings.php...</p>\n\n";
 		$localSettings =  "<" . "?php$endl$local$endl?" . ">";
+		// Fix up a common line-ending problem (due to CVS on Windows)
+		$localSettings = str_replace( "\r\n", "\n", $localSettings );
 
 		if( version_compare( phpversion(), "4.3.2" ) >= 0 ) {
 			$xt = "xt"; # Refuse to overwrite an existing file
@@ -614,13 +693,11 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 		}
 		if(fwrite( $f, $localSettings ) ) {
 			fclose( $f );
-
-			print "<p>Success! Move the config/LocalSettings.php file into the parent directory, then follow
-			<a href='{$conf->ScriptPath}/index.php'>this link</a> to your wiki.</p>\n";
+			writeSuccessMessage();
 		} else {
 			fclose( $f );
 			die("<p class='error'>An error occured while writing the config/LocalSettings.php file. Check user rights and disk space then try again.</p>\n");
-			 
+
 		}
 
 	} while( false );
@@ -639,7 +716,7 @@ if( count( $errs ) ) {
 	}
 ?>
 
-<form name="config" method="post">
+<form action="index.php" name="config" method="post">
 
 
 <h2>Site config</h2>
@@ -666,12 +743,14 @@ if( count( $errs ) ) {
 	<dt>
 		This will be used as the return address for password reminders and
 		may be displayed in some error conditions so visitors can get in
-		touch with you.
+		touch with you. It is also be used as the default sender address of e-mail
+		notifications (enotifs).
 	</dt>
 
 	<dd>
 		<label class='column' for="LanguageCode">Language</label>
 		<select id="LanguageCode" name="LanguageCode">
+
 		<?php
 			$list = getLanguageList();
 			foreach( $list as $code => $name ) {
@@ -683,10 +762,8 @@ if( count( $errs ) ) {
 	</dd>
 	<dt>
 		You may select the language for the user interface of the wiki...
-		Some localizations are less complete than others. This also controls
-		the character encoding; Unicode is more flexible, but Latin-1 may be
-		more compatible with older browsers for some languages. Unicode will
-		be used where not specified otherwise.
+		Some localizations are less complete than others. Unicode (UTF-8 encoding)
+		is used for all localizations.
 	</dt>
 
 	<dd>
@@ -745,10 +822,17 @@ if( count( $errs ) ) {
 
 		<ul class="plain">
 		<li><?php aField( $conf, "Shm", "no caching", "radio", "none" ); ?></li>
-		<?php 
+		<?php
 			if ( $conf->turck ) {
 				echo "<li>";
 				aField( $conf, "Shm", "Turck MMCache", "radio", "turck" );
+				echo "</li>";
+			}
+		?>
+		<?php
+			if ( $conf->eaccel ) {
+				echo "<li>";
+				aField( $conf, "Shm", "eAccelerator", "radio", "eaccel" );
 				echo "</li>";
 			}
 		?>
@@ -757,10 +841,83 @@ if( count( $errs ) ) {
 		</ul>
 	</dd>
 	<dt>
-		Using a shared memory system such as Turck MMCache or Memcached will speed
-		up MediaWiki significantly. Memcached is the best solution but needs to be 
-		installed. Specify the server addresses and ports in a comma-separted list. Only 
+		Using a shared memory system such as Turck MMCache, eAccelerator, or Memcached will speed
+		up MediaWiki significantly. Memcached is the best solution but needs to be
+		installed. Specify the server addresses and ports in a comma-separted list. Only
 		use Turck shared memory if the wiki will be running on a single Apache server.
+	</dl>
+
+<h2>E-mail, e-mail notification and authentication setup</h2>
+
+<dl class="setup">
+	<dd>
+		<label class='column'>E-mail (general)</label>
+		<div>Select one:</div>
+
+		<ul class="plain">
+		<li><?php aField( $conf, "Email", "enabled", "radio", "email_enabled" ); ?></li>
+		<li><?php aField( $conf, "Email", "disabled", "radio", "email_disabled" ); ?></li>
+		</ul>
+	</dd>
+	<dt>
+		Use this to disable all e-mail functions (send a password reminder, user-to-user e-mail and e-mail notification),
+		if sending e-mails on your server doesn't work.
+	</dt>
+	<dd>
+		<label class='column'>User-to-user e-mail</label>
+		<div>Select one:</div>
+
+		<ul class="plain">
+		<li><?php aField( $conf, "Emailuser", "enabled", "radio", "emailuser_enabled" ); ?></li>
+		<li><?php aField( $conf, "Emailuser", "disabled", "radio", "emailuser_disabled" ); ?></li>
+		</ul>
+	</dd>
+	<dt>
+		Use this to disable only the user-to-user e-mail function (EmailUser).
+	</dt>
+	<dd>
+		<label class='column'>E-mail notification</label>
+		<div>Select one:</div>
+
+		<ul class="plain">
+		<li><?php aField( $conf, "Enotif", "disabled", "radio", "enotif_disabled" ); ?></li>
+		<li><?php aField( $conf, "Enotif", "enabled for changes of watch-listed and user_talk pages (recommended for small wikis; perhaps not suited for large wikis)", "radio", "enotif_allpages" ); ?></li>
+		<li><?php aField( $conf, "Enotif", "enabled for changes of user_talk pages only (suited for small and large wikis)", "radio", "enotif_usertalk" ); ?></li>
+		</ul>
+	</dd>
+	<dt>
+		<p>
+		E-mail notification sends a notification e-mail to a user, when the user_talk page is changed
+                and/or when watch-listed pages are changed, depending on the above settings.
+		When testing this feature, be reminded, that obviously an e-mail address must be present in your preferences
+		and that your own changes never trigger notifications to be sent to yourself.</p>
+
+		<p>Users get corresponding options to select or deselect in their users' preferences.
+		The user options are not shown on the preference page, if e-mail notification is disabled.</p>
+
+		<p>There are additional options for fine tuning in /includes/DefaultSettings.php .</p>
+	</dt>
+
+	<dd>
+		<label class='column'>E-mail address authentication</label>
+		<div>Select one:</div>
+
+		<ul class="plain">
+		<li><?php aField( $conf, "Eauthent", "disabled", "radio", "eauthent_disabled" ); ?></li>
+		<li><?php aField( $conf, "Eauthent", "enabled", "radio", "eauthent_enabled" ); ?></li>
+		</ul>
+	</dd>
+	<dt>
+		<p>E-mail address authentication uses a scheme to authenticate e-mail addresses of the users. The user who initially enters or changes his/her stored e-mail address
+		gets a link with a token mailed to that address. The stored e-mail address is authenticated at the moment the user comes back to the wiki via the link.</p>
+
+		<p>The e-mail address stays authenticated as long as the user does not change it; the time of authentication is indicated
+		on the user preference page.</p>
+
+		<p>If the option is enabled, only authenticated e-mail addresses can receive EmailUser mails and/or
+		e-mail notification mails.</p>
+	</dt>
+
 	</dl>
 
 <h2>Database config</h2>
@@ -799,8 +956,22 @@ if( count( $errs ) ) {
 		<p>If you need to share one database between multiple wikis, or
 		MediaWiki and another web application, you may choose to
 		add a prefix to all the table names to avoid conflicts.</p>
-		
+
 		<p>Avoid exotic characters; something like <tt>mw_</tt> is good.</p>
+	</dt>
+	
+	<dd><label class="column">Database charset</label>
+		<div>Select one:</div>
+		<ul class="plain">
+		<li><?php aField( $conf, "DBmysql5", "Backwards-compatible UTF-8", "radio", "false" ); ?></li>
+		<li><?php aField( $conf, "DBmysql5", "Experimental MySQL 4.1/5.0 UTF-8", "radio", "true" ); ?></li>
+		</ul>
+	</dd>
+	<dt>
+		<b>EXPERIMENTAL:</b> You can enable explicit Unicode charset support
+		for MySQL 4.1 and 5.0 servers. This is not well tested and may
+		cause things to break. <b>If upgrading an older installation, leave
+		in backwards-compatible mode.</b>
 	</dt>
 
 	<dd>
@@ -829,13 +1000,29 @@ if( count( $errs ) ) {
 }
 
 /* -------------------------------------------------------------------------------------- */
-
-function writeAdminSettings( $conf ) {
-	return "
-\$wgDBadminuser      = \"{$conf->DBadminuser}\";
-\$wgDBadminpassword  = \"{$conf->DBadminpassword}\";
-";
+function writeSuccessMessage() {
+	global $conf;
+	if ( ini_get( 'safe_mode' ) && !ini_get( 'open_basedir' ) ) {
+		echo <<<EOT
+<p>Installation successful!</p>
+<p>To complete the installation, please do the following:
+<ol>
+	<li>Download config/LocalSettings.php with your FTP client or file manager</li>
+	<li>Upload it to the parent directory</li>
+	<li>Delete config/LocalSettings.php</li>
+	<li>Start using <a href='../index.php'>your wiki</a>!
+</ol>
+<p>If you are in a shared hosting environment, do <strong>not</strong> just move LocalSettings.php
+remotely. LocalSettings.php is currently owned by the user your webserver is running under,
+which means that anyone on the same server can read your database password! Downloading
+it and uploading it again will hopefully change the ownership to a user ID specific to you.</p>
+EOT;
+	} else {
+		echo "<p>Installation successful! Move the config/LocalSettings.php file into the parent directory, then follow
+			<a href='../index.php'>this link</a> to your wiki.</p>\n";
+	}
 }
+
 
 function escapePhpString( $string ) {
 	return strtr( $string,
@@ -853,36 +1040,53 @@ function writeLocalSettings( $conf ) {
 	$conf->DBmysql4 = @$conf->DBmysql4 ? 'true' : 'false';
 	$conf->UseImageResize = $conf->UseImageResize ? 'true' : 'false';
 	$conf->PasswordSender = $conf->EmergencyContact;
-	if( preg_match( '/^([a-z]+)-latin1$/', $conf->LanguageCode, $m ) ) {
-		$conf->LanguageCode = $m[1];
-		$conf->Latin1 = true;
-	} else {
-		$conf->Latin1 = false;
-	}
 	$zlib = ($conf->zlib ? "" : "# ");
 	$magic = ($conf->ImageMagick ? "" : "# ");
 	$convert = ($conf->ImageMagick ? $conf->ImageMagick : "/usr/bin/convert" );
 	$pretty = ($conf->prettyURLs ? "" : "# ");
 	$ugly = ($conf->prettyURLs ? "# " : "");
 	$rights = ($conf->RightsUrl) ? "" : "# ";
-	
+	$hashedUploads = $conf->safeMode ? '' : '# ';
+
 	switch ( $conf->Shm ) {
 		case 'memcached':
-			$memcached = 'true';
-			$turck = '#';
+			$cacheType = 'CACHE_MEMCACHED';
 			$mcservers = var_export( $conf->MCServerArray, true );
 			break;
 		case 'turck':
-			$memcached = 'false';
+		case 'eaccel':
+			$cacheType = 'CACHE_ACCEL';
 			$mcservers = 'array()';
-			$turck = '';
 			break;
 		default:
-			$memcached = 'false';
+			$cacheType = 'CACHE_NONE';
 			$mcservers = 'array()';
-			$turck = '#';
 	}
 
+	if ( $conf->Email == 'email_enabled' ) {
+		$enableemail = 'true';
+		$enableuseremail = ( $conf->Emailuser == 'emailuser_enabled' ) ? 'true' : 'false' ;
+		$eauthent = ( $conf->Eauthent == 'eauthent_enabled' ) ? 'true' : 'false' ;
+		switch ( $conf->Enotif ) {
+			case 'enotif_usertalk':
+				$enotifusertalk = 'true';
+				$enotifwatchlist = 'false';
+				break;
+			case 'enotif_allpages':
+				$enotifusertalk = 'true';
+				$enotifwatchlist = 'true';
+				break;
+			default:
+				$enotifusertalk = 'false';
+				$enotifwatchlist = 'false';
+		}
+	} else {
+		$enableuseremail = 'false';
+		$enableemail = 'false';
+		$eauthent = 'false';
+		$enotifusertalk = 'false';
+		$enotifwatchlist = 'false';
+	}
 
 	$file = @fopen( "/dev/urandom", "r" );
 	if ( $file ) {
@@ -920,7 +1124,7 @@ if ( \$wgCommandLineMode ) {
 	if ( isset( \$_SERVER ) && array_key_exists( 'REQUEST_METHOD', \$_SERVER ) ) {
 		die( \"This script must be run from the command line\\n\" );
 	}
-} elseif ( empty( \$wgConfiguring ) ) {
+} elseif ( empty( \$wgNoOutputBuffer ) ) {
 	## Compress output if the browser supports it
 	{$zlib}if( !ini_get( 'zlib.output_compression' ) ) @ob_start( 'ob_gzhandler' );
 }
@@ -942,8 +1146,20 @@ if ( \$wgCommandLineMode ) {
 \$wgUploadPath       = \"\$wgScriptPath/images\";
 \$wgUploadDirectory  = \"\$IP/images\";
 
+\$wgEnableEmail = $enableemail;
+\$wgEnableUserEmail = $enableuseremail;
+
 \$wgEmergencyContact = \"{$slconf['EmergencyContact']}\";
 \$wgPasswordSender	= \"{$slconf['PasswordSender']}\";
+
+## For a detailed description of the following switches see
+## http://meta.wikimedia.org/Enotif and http://meta.wikimedia.org/Eauthent
+## There are many more options for fine tuning available see
+## /includes/DefaultSettings.php
+## UPO means: this is also a user preference option
+\$wgEnotifUserTalk = $enotifusertalk; # UPO
+\$wgEnotifWatchlist = $enotifwatchlist; # UPO
+\$wgEmailAuthentication = $eauthent;
 
 \$wgDBserver         = \"{$slconf['DBserver']}\";
 \$wgDBname           = \"{$slconf['DBname']}\";
@@ -951,30 +1167,28 @@ if ( \$wgCommandLineMode ) {
 \$wgDBpassword       = \"{$slconf['DBpassword']}\";
 \$wgDBprefix         = \"{$slconf['DBprefix']}\";
 
-## To allow SQL queries through the wiki's Special:Askaql page,
-## uncomment the next lines. THIS IS VERY INSECURE. If you want
-## to allow semipublic read-only SQL access for your sysops,
-## you should define a MySQL user with limited privileges.
-## See MySQL docs: http://www.mysql.com/doc/en/GRANT.html
-#
-# \$wgAllowSysopQueries = true;
-# \$wgDBsqluser        = \"sqluser\";
-# \$wgDBsqlpassword    = \"sqlpass\";
-
 # If you're on MySQL 3.x, this next line must be FALSE:
-\$wgDBmysql4 = \$wgEnablePersistentLC = {$conf->DBmysql4};
+\$wgDBmysql4 = {$conf->DBmysql4};
+
+# Experimental charset support for MySQL 4.1/5.0.
+\$wgDBmysql5 = {$conf->DBmysql5};
 
 ## Shared memory settings
-\$wgUseMemCached = $memcached;
+\$wgMainCacheType = $cacheType;
 \$wgMemCachedServers = $mcservers;
-{$turck}\$wgUseTurckShm = function_exists( 'mmcache_get' ) && php_sapi_name() == 'apache';
 
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then uncomment this:
-# \$wgDisableUploads		= false;
+# \$wgEnableUploads		= true;
 \$wgUseImageResize		= {$conf->UseImageResize};
 {$magic}\$wgUseImageMagick = true;
 {$magic}\$wgImageMagickConvertCommand = \"{$convert}\";
+
+## If you want to use image uploads under safe mode,
+## create the directories images/archive, images/thumb and
+## images/temp, and make them all writable. Then uncomment
+## this, if it's not already uncommented:
+{$hashedUploads}\$wgHashedUploadDirectory = false;
 
 ## If you have the appropriate support software installed
 ## you can enable inline LaTeX equations:
@@ -986,7 +1200,6 @@ if ( \$wgCommandLineMode ) {
 \$wgLocalInterwiki   = \$wgSitename;
 
 \$wgLanguageCode = \"{$slconf['LanguageCode']}\";
-\$wgUseLatin1 = " . ($conf->Latin1 ? 'true' : 'false') . ";\n
 
 \$wgProxyKey = \"$secretKey\";
 
@@ -1003,6 +1216,8 @@ if ( \$wgCommandLineMode ) {
 \$wgRightsText = \"{$slconf['RightsText']}\";
 \$wgRightsIcon = \"{$slconf['RightsIcon']}\";
 # \$wgRightsCode = \"{$slconf['RightsCode']}\"; # Not yet used
+
+\$wgDiff3 = \"{$slconf['diff3']}\";
 ";
 	// Keep things in Unix line endings internally;
 	// the system will write out as local text type.
@@ -1078,7 +1293,6 @@ function getLanguageList() {
 	}
 
 	$codes = array();
-	$latin1 = array( "da", "de", "en", "es", "fr", "nl", "sv" );
 
 	$d = opendir( "../languages" );
 	while( false !== ($f = readdir( $d ) ) ) {
@@ -1089,17 +1303,33 @@ function getLanguageList() {
 			} else {
 				$name = $code;
 			}
-			if( in_array( $code, $latin1 ) ) {
-				$codes[$code] = $name . " - Unicode";
-				$codes[$code.'-latin1'] = $name . " - Latin-1";
-			} else {
-				$codes[$code] = $name;
-			}
+			$codes[$code] = $name;
 		}
 	}
 	closedir( $d );
 	ksort( $codes );
 	return $codes;
+}
+
+#Check for location of an executable
+# @param string $loc single location to check
+# @param array $names filenames to check for.
+# @param mixed $versioninfo array of details to use when checking version, use false for no version checking
+function locate_executable($loc, $names, $versioninfo = false) {
+	if (!is_array($names))
+		$names = array($names);
+
+	foreach ($names as $name) {
+		if (file_exists("$loc/$name")) {
+			if (!$versioninfo)
+				return "$loc/$name";
+
+			$file = str_replace('$1', "$loc/$name", $versioninfo[0]);
+			if (strstr(`$file`, $versioninfo[1]) !== false)
+				return "$loc/$name";
+		}
+	}
+	return false;
 }
 
 # Test a memcached server

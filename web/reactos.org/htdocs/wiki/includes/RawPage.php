@@ -10,6 +10,9 @@
  * @package MediaWiki
  */
 
+/** */
+require_once( 'Revision.php' );
+
 /**
  * @todo document
  * @package MediaWiki
@@ -17,17 +20,14 @@
 class RawPage {
 
 	function RawPage( $article ) {
-		global $wgRequest, $wgInputEncoding, $wgSquidMaxage;
-		$allowedCTypes = array('text/x-wiki', 'text/javascript', 'text/css', 'application/x-zope-edit');
+		global $wgRequest, $wgInputEncoding, $wgSquidMaxage, $wgJsMimeType;
+		$allowedCTypes = array('text/x-wiki', $wgJsMimeType, 'text/css', 'application/x-zope-edit');
 		$this->mArticle =& $article;
 		$this->mTitle =& $article->mTitle;
 			
 		$ctype = $wgRequest->getText( 'ctype' );
-		# getInt eats the zero, breaks caching
-		$smaxage= $wgRequest->getText( 'smaxage' ) == '0' ? 0 : 
-		          $wgRequest->getInt( 'smaxage', $wgSquidMaxage );
-		$maxage= $wgRequest->getText( 'maxage' ) == '0' ? 0 : 
-		          $wgRequest->getInt( 'maxage', $wgSquidMaxage );
+		$smaxage = $wgRequest->getInt( 'smaxage', $wgSquidMaxage );
+		$maxage = $wgRequest->getInt( 'maxage', $wgSquidMaxage );
 		$this->mOldId = $wgRequest->getInt( 'oldid' );
 		# special case for 'generated' raw things: user css/js
 		$gen = $wgRequest->getText( 'gen' );
@@ -38,7 +38,7 @@ class RawPage {
 		} else if ($gen == 'js') {
 			$this->mGen = $gen;
 			if($smaxage == '') $smaxage = $wgSquidMaxage;
-			if($ctype == '') $ctype = 'text/javascript';
+			if($ctype == '') $ctype = $wgJsMimeType;
 		} else {
 			$this->mGen = false;
 		}
@@ -55,30 +55,42 @@ class RawPage {
 	function view() {
 		global $wgUser, $wgOut, $wgScript;
 
-		/* XXX: breaks toplevel wikis */
-		if( strcmp( $wgScript, $_SERVER['PHP_SELF'] ) ) {
+		if( isset( $_SERVER['SCRIPT_URL'] ) ) {
+			# Normally we use PHP_SELF to get the URL to the script
+			# as it was called, minus the query string.
+			#
+			# Some sites use Apache rewrite rules to handle subdomains,
+			# and have PHP set up in a weird way that causes PHP_SELF
+			# to contain the rewritten URL instead of the one that the
+			# outside world sees.
+			#
+			# If in this mode, use SCRIPT_URL instead, which mod_rewrite
+			# provides containing the "before" URL.
+			$url = $_SERVER['SCRIPT_URL'];
+		} else {
+			$url = $_SERVER['PHP_SELF'];
+		}
+		if( strcmp( $wgScript, $url ) ) {
 			# Internet Explorer will ignore the Content-Type header if it
 			# thinks it sees a file extension it recognizes. Make sure that
 			# all raw requests are done through the script node, which will
 			# have eg '.php' and should remain safe.
-			
-			$destUrl = $this->mTitle->getFullUrl(
-				'action=raw' .
-				'&ctype=' . urlencode( $this->mContentType ) .
-				'&smaxage=' . urlencode( $this->mSmaxage ) .
-				'&maxage=' . urlencode( $this->mMaxage ) .
-				'&gen=' . urlencode( $this->mGen ) .
-				'&oldid=' . urlencode( $this->mOldId ) );
-			header( 'Location: ' . $destUrl );
-			$wgOut->disable();
+			#
+			# We used to redirect to a canonical-form URL as a general
+			# backwards-compatibility / good-citizen nice thing. However
+			# a lot of servers are set up in buggy ways, resulting in
+			# redirect loops which hang the browser until the CSS load
+			# times out.
+			#
+			# Just return a 403 Forbidden and get it over with.
+			wfHttpError( 403, 'Forbidden',
+				'Raw pages must be accessed through the primary script entry point.' );
 			return;
 		}
 		
 		header( "Content-type: ".$this->mContentType.'; charset='.$this->mCharset );
 		# allow the client to cache this for 24 hours
 		header( 'Cache-Control: s-maxage='.$this->mSmaxage.', max-age='.$this->mMaxage );
-		# Make sure each logged-in user gets his/her own stylesheet
-		header( 'Last-modified: '.gmdate( "D, j M Y H:i:s", time() - 3600).' GMT' );
 		if($this->mGen) {
 			$sk = $wgUser->getSkin();
 			$sk->initPage($wgOut);
@@ -97,36 +109,31 @@ class RawPage {
 		global $wgInputEncoding, $wgContLang;
 		$fname = 'RawPage::getrawtext';
 		
-		if( !$this->mTitle ) return '';
-		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'cur', 'old' ) );
-
-		$t = $dbr->strencode( $this->mTitle->getDBKey() );
-		$ns = $this->mTitle->getNamespace();
-		# special case
-		if($ns == NS_MEDIAWIKI) {
-			$rawtext = wfMsg($t);
-			header( 'Last-modified: '.gmdate( "D, j M Y H:i:s", time() - 3600).' GMT' );
-			return $rawtext;
+		if( $this->mTitle ) {
+			# Special case for MediaWiki: messages; we can hit the message cache.
+			if( $this->mTitle->getNamespace() == NS_MEDIAWIKI) {
+				$rawtext = wfMsgForContent( $this->mTitle->getDbkey() );
+				return $rawtext;
+			}
+			
+			# else get it from the DB
+			$rev = Revision::newFromTitle( $this->mTitle, $this->mOldId );
+			if( $rev ) {
+				$lastmod = wfTimestamp( TS_RFC2822, $rev->getTimestamp() );
+				header( 'Last-modified: ' . $lastmod );
+				return $rev->getText();
+			}
 		}
-		# else get it from the DB
-		if(!empty($this->mOldId)) {
-			$sql = "SELECT old_text AS text,old_timestamp AS timestamp,".
-				    "old_user AS user,old_flags AS flags FROM $old " .
-			"WHERE old_id={$this->mOldId}";
-		} else {
-			$sql = "SELECT cur_id as id,cur_timestamp as timestamp,cur_user as user,cur_user_text as user_text," .
-			"cur_restrictions as restrictions,cur_comment as comment,cur_text as text FROM $cur " .
-			"WHERE cur_namespace=$ns AND cur_title='$t'";
+		
+		# Bad title or page does not exist
+		if( $this->mContentType == 'text/x-wiki' ) {
+			# Don't return a 404 response for CSS or JavaScript;
+			# 404s aren't generally cached and it would create
+			# extra hits when user CSS/JS are on and the user doesn't
+			# have the pages.
+			header( "HTTP/1.0 404 Not Found" );
 		}
-		$res = $dbr->query( $sql, $fname );
-		if( $s = $dbr->fetchObject( $res ) ) {
-			$rawtext = Article::getRevisionText( $s, "" );
-			header( 'Last-modified: '.gmdate( "D, j M Y H:i:s", wfTimestamp( TS_UNIX, $s->timestamp )).' GMT' );
-			return $rawtext;
-		} else {
-			return '';
-		}
+		return '';
 	}
 }
 ?>

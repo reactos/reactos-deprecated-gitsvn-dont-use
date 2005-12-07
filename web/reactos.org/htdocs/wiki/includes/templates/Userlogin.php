@@ -1,7 +1,11 @@
 <?php
-
+/**
+ * @package MediaWiki
+ * @subpackage Templates
+ */
 if( !defined( 'MEDIAWIKI' ) ) die();
 
+/** */
 require_once( 'includes/SkinTemplate.php' );
 
 /**
@@ -45,6 +49,21 @@ class UserloginTemplate extends QuickTemplate {
 					value="<?php $this->msg('login') ?>" />
 			</td>
 		</tr>
+	<?php if( $this->data['usedomain'] ) {
+		$doms = "";
+		foreach( $this->data['domainnames'] as $dom ) {
+			$doms .= "<option>" . htmlspecialchars( $dom ) . "</option>";
+		}
+	?>
+		<tr>
+			<td align='right'><?php $this->msg( 'yourdomainname' ) ?>:</td>
+			<td align='left'>
+				<select tabindex='11' name="wpDomain" value="<?php $this->text( 'domain' ) ?>">
+					<?php echo $doms ?>
+				</select>
+			</td>
+		</tr>
+	<?php } ?>
 	<?php if( $this->data['create'] ) { ?>
 		<tr>
 			<td colspan='3'>&nbsp;</td>

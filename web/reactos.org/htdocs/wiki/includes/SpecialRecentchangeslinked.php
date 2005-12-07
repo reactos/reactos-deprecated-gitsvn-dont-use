@@ -22,7 +22,7 @@ function wfSpecialRecentchangeslinked( $par = NULL ) {
 	$target = isset($par) ? $par : $wgRequest->getText( 'target' );
 	$hideminor = $wgRequest->getBool( 'hideminor' ) ? 1 : 0;
 	
-	$wgOut->setPagetitle( wfMsg( "recentchanges" ) );
+	$wgOut->setPagetitle( wfMsg( 'recentchangeslinked' ) );
 	$sk = $wgUser->getSkin();
 
 	if (is_null($target)) {
@@ -36,7 +36,7 @@ function wfSpecialRecentchangeslinked( $par = NULL ) {
 	}
 	$id = $nt->getArticleId();
 	
-	$wgOut->setSubtitle( wfMsg( 'rclsub', $nt->getPrefixedText() ) );
+	$wgOut->setSubtitle( htmlspecialchars( wfMsg( 'rclsub', $nt->getPrefixedText() ) ) );
 
 	if ( ! $days ) {
 		$days = $wgUser->getOption( 'rcdays' );
@@ -59,25 +59,46 @@ function wfSpecialRecentchangeslinked( $par = NULL ) {
 		  "&days={$days}&limit={$limit}&hideminor=1" );
 	}
 	if ( $hideminor ) {
-		$cmq = 'AND cur_minor_edit=0';
+		$cmq = 'AND rev_minor_edit=0';
 	} else { $cmq = ''; }
 
+	extract( $dbr->tableNames( 'categorylinks', 'pagelinks', 'revision', 'page' ) );
+	
 	// If target is a Category, use categorylinks and invert from and to
-	if ( $nt->getNamespace() == NS_CATEGORY ) {
-		extract( $dbr->tableNames( 'cur', 'categorylinks' ) );
+	if( $nt->getNamespace() == NS_CATEGORY ) {
 		$catkey = $dbr->addQuotes( $nt->getDBKey() );
-		$sql = "SELECT cur_id,cur_namespace,cur_title,cur_user,cur_comment," .
-	  	  "cur_user_text,cur_timestamp,cur_minor_edit,cur_is_new FROM $categorylinks, $cur " .
-	  	  "WHERE cur_timestamp > '{$cutoff}' {$cmq} AND cl_from=cur_id AND cl_to=$catkey " .
-	  	  "GROUP BY cur_id,cur_namespace,cur_title,cur_user,cur_comment,cur_user_text," .
-	  	  "cur_timestamp,cur_minor_edit,cur_is_new,inverse_timestamp ORDER BY inverse_timestamp LIMIT {$limit}";
+		$sql =
+ "SELECT page_id,page_namespace,page_title,rev_id,rev_user,rev_comment,
+         rev_user_text,rev_timestamp,rev_minor_edit,
+         page_is_new
+    FROM $categorylinks, $revision, $page
+   WHERE rev_timestamp > '{$cutoff}'
+         {$cmq}
+     AND rev_page=page_id
+     AND cl_from=page_id
+     AND cl_to=$catkey
+GROUP BY page_id,page_namespace,page_title,
+         rev_user,rev_comment,rev_user_text,rev_timestamp,rev_minor_edit,
+         page_is_new
+ORDER BY rev_timestamp DESC
+   LIMIT {$limit}";
 	} else {
-		extract( $dbr->tableNames( 'cur', 'links' ) );
-		$sql = "SELECT cur_id,cur_namespace,cur_title,cur_user,cur_comment," .
-		  "cur_user_text,cur_timestamp,cur_minor_edit,cur_is_new FROM $links, $cur " .
-		  "WHERE cur_timestamp > '{$cutoff}' {$cmq} AND l_to=cur_id AND l_from=$id " .
-			  "GROUP BY cur_id,cur_namespace,cur_title,cur_user,cur_comment,cur_user_text," .
-		  "cur_timestamp,cur_minor_edit,cur_is_new,inverse_timestamp ORDER BY inverse_timestamp LIMIT {$limit}";
+		$sql =
+ "SELECT page_id,page_namespace,page_title,
+         rev_user,rev_comment,rev_user_text,rev_id,rev_timestamp,rev_minor_edit,
+         page_is_new
+    FROM $pagelinks, $revision, $page
+   WHERE rev_timestamp > '{$cutoff}'
+         {$cmq}
+     AND rev_page=page_id
+     AND pl_namespace=page_namespace
+     AND pl_title=page_title
+     AND pl_from=$id
+GROUP BY page_id,page_namespace,page_title,
+         rev_user,rev_comment,rev_user_text,rev_timestamp,rev_minor_edit,
+         page_is_new
+ORDER BY rev_timestamp DESC
+   LIMIT {$limit}";
 	}
 	$res = $dbr->query( $sql, $fname );
 

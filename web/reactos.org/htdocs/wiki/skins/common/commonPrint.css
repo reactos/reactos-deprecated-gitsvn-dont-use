@@ -62,7 +62,6 @@ div.thumb div a img {
 }
 div.thumb div div.thumbcaption {
     border: none;
-    text-align: left;
     padding: 0.3em 0 0.1em 0;
 }
 div.magnify { display: none; }
@@ -94,6 +93,7 @@ body {
     padding: 0;
 }
 
+.noprint,
 div.top,
 div#column-one,
 #colophon,
@@ -119,7 +119,6 @@ ul {
     font-size: 11pt;
     padding: 0 ! important;
     margin: 0 ! important;
-    text-align: left;
 }
 #footer {
     border-top: 1px solid black;
@@ -163,11 +162,11 @@ a:link, a:visited {
     background: transparent;
     text-decoration: underline;
 }
-/*
-#content a:link:after, 
-#content a:visited:after {
-   content: " ( " attr(href) " ) ";
-}*/
+
+#content a.external.text:after, #content a.external.autonumber:after {
+    /* Expand URLs for printing */
+    content: " (" attr(href) ") ";
+}
 
 #globalWrapper {
     width: 100% !important;
@@ -197,11 +196,6 @@ a, a.external, a.new, a.stub {
 img { border: none; }
 img.tex { vertical-align: middle; }
 span.texhtml { font-family: serif; }
-
-/* Show some stuff */
-.urlexpansion {
-	display: inline ! important;
-}
 
 div.townBox {
     position:relative;

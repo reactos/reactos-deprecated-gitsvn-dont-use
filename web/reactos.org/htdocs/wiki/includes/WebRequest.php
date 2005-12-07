@@ -65,7 +65,7 @@ class WebRequest {
 	
 	/**
 	 * If magic_quotes_gpc option is on, run the global arrays
-	 * through fix_magic_quotes to strip out the stupid dlashes.
+	 * through fix_magic_quotes to strip out the stupid slashes.
 	 * WARNING: This should only be done once! Running a second
 	 * time could damage the values.
 	 * @private
@@ -82,37 +82,25 @@ class WebRequest {
 	}
 	
 	/**
-	 * Recursively normalizes strings in the given array.
-	 * For Latin-1, strips illegal XML characters only.
-	 * For Unicode, marks illegal chars and normalizes to form C.
-	 *
+	 * Recursively normalizes UTF-8 strings in the given array.
 	 * @param array $data string or array
-	 * @return mixed cleaned-up version of the given
+	 * @return cleaned-up version of the given
 	 * @private
 	 */
 	function normalizeUnicode( $data ) {
-		global $wgUseLatin1;
 		if( is_array( $data ) ) {
 			foreach( $data as $key => $val ) {
 				$data[$key] = $this->normalizeUnicode( $val );
 			}
-			return $data;
 		} else {
-			if( $wgUseLatin1 ) {
-				# Strip control characters not legal in XML.
-				return preg_replace(
-					'/[\x00-\x08\x0b\x0c\x0e-\x1f]/',
-					'',
-					$data );
-			} else {
-				require_once( 'normal/UtfNormal.php' );
-				return UtfNormal::cleanUp( $data );
-			}
+			$data = UtfNormal::cleanUp( $data );
 		}
+		return $data;
 	}
 	
 	/**
 	 * Fetch a value from the given array or return $default if it's not set.
+	 *
 	 * @param array &$arr
 	 * @param string $name
 	 * @param mixed $default
@@ -123,55 +111,58 @@ class WebRequest {
 		if( isset( $arr[$name] ) ) {
 			global $wgServer, $wgContLang;
 			$data = $arr[$name];
-			if( isset( $_GET[$name] ) &&
-				( empty( $_SERVER['HTTP_REFERER'] ) ||
-				strncmp($wgServer, $_SERVER['HTTP_REFERER'], strlen( $wgServer ) ) ) ) {
-				# For links that came from outside, check for alternate/legacy
-				# character encoding.
-				if ( isset( $wgContLang ) ) {
+			if( isset( $_GET[$name] ) && !is_array( $data ) ) {
+				# Check for alternate/legacy character encoding.
+				if( isset( $wgContLang ) ) {
 					$data = $wgContLang->checkTitleEncoding( $data );
 				}
 			}
-			return $this->normalizeUnicode( $data );
+			require_once( 'normal/UtfNormal.php' );
+			$data = $this->normalizeUnicode( $data );
+			return $data;
 		} else {
 			return $default;
 		}
 	}
-	
+
 	/**
-	 * Fetch a value from the given array or return $default if it's not set.
-	 * \r is stripped from the text, and with some language modules there is
-	 * an input transliteration applied.
-	 * @param array &$arr
+	 * Fetch a scalar from the input or return $default if it's not set.
+	 * Returns a string. Arrays are discarded.
+	 *
 	 * @param string $name
-	 * @param string $default
+	 * @param string $default optional default (or NULL)
 	 * @return string
-	 * @private
-	 */
-	function getGPCText( &$arr, $name, $default ) {
-		# Text fields may be in an alternate encoding which we should check.
-		# Also, strip CRLF line endings down to LF to achieve consistency.
-		global $wgContLang;
-		if( isset( $arr[$name] ) ) {
-			$data = str_replace( "\r\n", "\n",
-				$wgContLang->recodeInput( $arr[$name] ) );
-			return $this->normalizeUnicode( $data );
-		} else {
-			return $default;
-		}
-	}
-	
-	/**
-	 * Fetch a value from the input or return $default if it's not set.
-	 * Value may be of a string or array, and is not altered.
-	 * @param string $name
-	 * @param mixed $default optional default (or NULL)
-	 * @return mixed
 	 */
 	function getVal( $name, $default = NULL ) {
-		return $this->getGPCVal( $_REQUEST, $name, $default );
+		$val = $this->getGPCVal( $_REQUEST, $name, $default );
+		if( is_array( $val ) ) {
+			$val = $default;
+		}
+		if( is_null( $val ) ) {
+			return null;
+		} else {
+			return (string)$val;
+		}
 	}
 	
+	/**
+	 * Fetch an array from the input or return $default if it's not set.
+	 * If source was scalar, will return an array with a single element.
+	 * If no source and no default, returns NULL.
+	 *
+	 * @param string $name
+	 * @param array $default optional default (or NULL)
+	 * @return array
+	 */
+	function getArray( $name, $default = NULL ) {
+		$val = $this->getGPCVal( $_REQUEST, $name, $default );
+		if( is_null( $val ) ) {
+			return null;
+		} else {
+			return (array)$val;
+		}
+	}
+
 	/**
 	 * Fetch an integer value from the input or return $default if not set.
 	 * Guaranteed to return an integer; non-numeric input will typically
@@ -182,6 +173,20 @@ class WebRequest {
 	 */
 	function getInt( $name, $default = 0 ) {
 		return IntVal( $this->getVal( $name, $default ) );
+	}
+	
+	/**
+	 * Fetch an integer value from the input or return null if empty.
+	 * Guaranteed to return an integer or null; non-numeric input will
+	 * typically return null.
+	 * @param string $name
+	 * @return int
+	 */
+	function getIntOrNull( $name ) {
+		$val = $this->getVal( $name );
+		return is_numeric( $val )
+			? IntVal( $val )
+			: null;
 	}
 	
 	/**
@@ -221,7 +226,10 @@ class WebRequest {
 	 * @return string
 	 */
 	function getText( $name, $default = '' ) {
-		return $this->getGPCText( $_REQUEST, $name, $default );
+		global $wgContLang;
+		$val = $this->getVal( $name, $default );
+		return str_replace( "\r\n", "\n",
+			$wgContLang->recodeInput( $val ) );
 	}
 	
 	/**
@@ -382,15 +390,8 @@ class WebRequest {
 		
 		# Safari sends filenames in HTML-encoded Unicode form D...
 		# Horrid and evil! Let's try to make some kind of sense of it.
-		global $wgUseLatin1;
-		if( $wgUseLatin1 ) {
-			$name = utf8_encode( $name );
-		}
-		$name = wfMungeToUtf8( $name );
+		$name = Sanitizer::decodeCharReferences( $name );
 		$name = UtfNormal::cleanUp( $name );
-		if( $wgUseLatin1 ) {
-			$name = utf8_decode( $name );
-		}
 		wfDebug( "WebRequest::getFileName() '" . $_FILES[$key]['name'] . "' normalized to '$name'\n" );
 		return $name;
 	}

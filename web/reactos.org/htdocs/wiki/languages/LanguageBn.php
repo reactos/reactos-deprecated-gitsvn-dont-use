@@ -5,6 +5,7 @@
   * @subpackage Language
   */
 
+/** This is an UTF8 language */
 require_once( 'LanguageUtf8.php' );
 
 /* private */ $wgNamespaceNamesBn = array(
@@ -66,7 +67,6 @@ require_once( 'LanguageUtf8.php' );
 'aboutpage'   => 'উইকিপেডিয়া:বৃত্তান্ত',
 'help'      => 'সহায়িকা',
 'helppage'    => 'উইকিপেডিয়া:সহায়িকা',
-'wikititlesuffix' => 'উইকিপেডিয়া',
 'bugreports'  => 'ত্রুটি বিবরণী',
 'bugreportspage' => 'উইকিপেডিয়া:ত্রুটি_বিবরণী',
 'faq'     => 'প্রশ্নোত্তর',
@@ -134,20 +134,6 @@ class LanguageBn extends LanguageUtf8 {
 		return $wgNamespaceNamesBn;
 	}
 
-	function getNsText( $index ) {
-		global $wgNamespaceNamesBn;
-		return $wgNamespaceNamesBn[$index];
-	}
-
-	function getNsIndex( $text ) {
-		global $wgNamespaceNamesBn;
-
-		foreach ( $wgNamespaceNamesBn as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-		}
-		return parent::getNsIndex( $text );
-	}
-
 	function getMessage( $key ) {
 		global $wgAllMessagesBn;
 		if(array_key_exists($key, $wgAllMessagesBn)) {
@@ -174,7 +160,7 @@ class LanguageBn extends LanguageUtf8 {
 		'8' => '৮',
 		'9' => '৯'
 	);
-	
+
 	function formatNum( $number ) {
 		global $wgTranslateNumerals;
 		if( $wgTranslateNumerals ) {

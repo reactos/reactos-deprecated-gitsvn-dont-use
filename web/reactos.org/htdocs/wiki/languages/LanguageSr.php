@@ -1,4 +1,8 @@
 <?php
+/**
+  * @package MediaWiki
+  * @subpackage Language
+  */
 
 require_once( "LanguageUtf8.php" );
 
@@ -10,18 +14,24 @@ require_once( "LanguageUtf8.php" );
 # encapsulates some of the magic-ness.
 #
 /* private */ $wgNamespaceNamesSr = array(
-	-2	=> "Media",
- -1 => "Посебно",
- 0 => "",
- 1 => "Разговор",
- 2 => "Корисник",
- 3 => "Разговор_са_корисником",
- 4 => $wgMetaNamespace,
- 5 => ($wgMetaNamespaceTalk ? $wgMetaNamespaceTalk : "Разговор_о_".$wgMetaNamespace ),
- 6 => "Слика",
- 7 => "Разговор_о_слици",
- 8 => "МедијаВики",
- 9 => "Разговор_о_МедијаВикију"
+	NS_MEDIA            => "Media",
+	NS_SPECIAL          => "Посебно",
+	NS_MAIN             => "",
+	NS_TALK             => "Разговор",
+	NS_USER             => "Корисник",
+	NS_USER_TALK        => "Разговор_са_корисником",
+	NS_PROJECT          => $wgMetaNamespace,
+	NS_PROJECT_TALK     => ($wgMetaNamespaceTalk ? $wgMetaNamespaceTalk : "Разговор_о_".$wgMetaNamespace ),
+	NS_IMAGE            => "Слика",
+	NS_IMAGE_TALK       => "Разговор_о_слици",
+	NS_MEDIAWIKI        => "МедијаВики",
+	NS_MEDIAWIKI_TALK   => "Разговор_о_МедијаВикију",
+	NS_TEMPLATE         => 'Шаблон',
+	NS_TEMPLATE_TALK    => 'Разговор_о_шаблону',
+	NS_HELP             => 'Помоћ',
+	NS_HELP_TALK        => 'Разговор_о_помоћи',
+	NS_CATEGORY         => 'Категорија',
+	NS_CATEGORY_TALK    => 'Разговор_о_категорији',
 ) + $wgNamespaceNamesEn;
 
 /* private */ $wgQuickbarSettingsSr = array(
@@ -30,13 +40,22 @@ require_once( "LanguageUtf8.php" );
 
 /* private */ $wgSkinNamesSr = array(
  "Обична", "Носталгија", "Келнско плаво", "Педингтон", "Монпарнас"
-);
+) + $wgSkinNamesEn;
 
 /* private */ $wgDateFormatsSr = array(
- "Без посебних жеља",
- "Јануар 15, 2001",
- "15 Јануар 2001",
- "2001 Јануар 15"
+	'Није битно',
+	'06:12, 5. јануар 2001.',
+	'06:12, 5 јануар 2001',
+	'06:12, 05.01.2001.',
+	'06:12, 5.1.2001.',
+	'06:12, 5. јан 2001.',
+	'06:12, 5 јан 2001',
+	'6:12, 5. јануар 2001.',
+	'6:12, 5 јануар 2001',
+	'6:12, 05.01.2001.',
+	'6:12, 5.1.2001.',
+	'6:12, 5. јан 2001.',
+	'6:12, 5 јан 2001',
 );
 
 
@@ -44,81 +63,25 @@ require_once( "LanguageUtf8.php" );
 /* NOT USED IN STABLE VERSION */
 /* private */ $wgMagicWordsSr = array(
 #   ID                                 CASE  SYNONYMS
-    MAG_REDIRECT             => array( 0,    "#преусмери"              ),
-    MAG_NOTOC                => array( 0,    "__БЕЗСАДРЖАЈА__"              ),
-    MAG_START                => array( 0,    "__ПОЧЕТАК__"              ),
-    MAG_CURRENTMONTH         => array( 1,    "{{ТРЕНУТНИМЕСЕЦ}}"       ),
-    MAG_CURRENTMONTHNAME     => array( 1,    "{{ИМЕТРЕНУТНОГМЕСЕЦА}}"   ),
-    MAG_CURRENTDAY           => array( 1,    "{{ТРЕНУТНИДАН}}"         ),
-    MAG_CURRENTDAYNAME       => array( 1,    "{{ИМЕТРЕНУТНОГДАНА}}"     ),
-    MAG_CURRENTYEAR          => array( 1,    "{{ТРЕНУТНАГОДИНА}}"        ),
-    MAG_CURRENTTIME          => array( 1,    "{{ТРЕНУТНОВРЕМЕ}}"        ),
-    MAG_NUMBEROFARTICLES     => array( 1,    "{{БРОЈЧЛАНАКА}}"   ),
-    MAG_CURRENTMONTHNAMEGEN  => array( 1,    "{{ГЕНЕРИСАНОИМЕТРЕНУТНОГМЕСЕЦА}}"),
- MAG_MSG                  => array( 1,    "{{ПОР:$1}}"             ),
- MAG_SUBST                => array( 1,    "{{ПОДСТ:$1}}"           ),
-    MAG_MSGNW                => array( 1,    "{{НВПОР:$1}}"           )
-);
-
-# All special pages have to be listed here: a description of ""
-# will make them not show up on the "Special Pages" page, which
-# is the right thing for some of them (such as the "targeted" ones).
-#
-/* private */ $wgValidSpecialPagesSr = array(
- "Userlogin"  => "",
- "Userlogout" => "",
- "Preferences" => "Моја корисничка подешавања",
- "Watchlist"  => "Мој списак надгледања",
- "Recentchanges" => "скорашње измене страница",
- "Upload"  => "Пошаљи слике",
- "Imagelist"  => "Листа слика",
- "Listusers"  => "Регистровани корисници",
- "Statistics" => "Статистике сајта",
- "Randompage" => "Случајни чланак",
-
- "Lonelypages" => "Чланци - сирочићи",
- "Unusedimages" => "Слике - Сирочићи",
- "Popularpages" => "Жељени чланци",
- "Wantedpages" => "Најтраженији чланци",
- "Shortpages" => "Кратки чланци",
- "Longpages"  => "Дугачки чланци",
- "Newpages"  => "Нови чланци",
- "Ancientpages" => "Најстарији чланци",
-# "Intl"  => "Међујезичке везе",
- "Allpages"  => "Све странице по наслову",
-
- "Ipblocklist" => "Блокирани корисници/ИП адресе",
- "Maintenance" => "Страница за одржавање",
- "Specialpages"  => "",
- "Contributions" => "",
- "Emailuser"  => "",
- "Whatlinkshere" => "",
- "Recentchangeslinked" => "",
- "Movepage"  => "",
- "Booksources" => "Спољњи извори литературе",
-#"Categories" => "Категорије странице",
- "Export" => "XML export",
- "Version" => "Version",
-);
-
-/* private */ $wgSysopSpecialPagesSr = array(
- "Blockip"  => "Блокирај корисника/ИП адресу",
- "Asksql"  => "Постави упит бази података",
- "Undelete"  => "Поврати обрисане странице"
-);
-
-/* private */ $wgDeveloperSpecialPagesSr = array(
- "Lockdb"  => "Омогући само право читања из базе",
- "Unlockdb"  => "Поврати право уписа у базу",
+	MAG_REDIRECT             => array( 0,    "#преусмери"              ),
+	MAG_NOTOC                => array( 0,    "__БЕЗСАДРЖАЈА__"              ),
+	MAG_START                => array( 0,    "__ПОЧЕТАК__"              ),
+	MAG_CURRENTMONTH         => array( 1,    "{{ТРЕНУТНИМЕСЕЦ}}"       ),
+	MAG_CURRENTMONTHNAME     => array( 1,    "{{ИМЕТРЕНУТНОГМЕСЕЦА}}"   ),
+	MAG_CURRENTDAY           => array( 1,    "{{ТРЕНУТНИДАН}}"         ),
+	MAG_CURRENTDAYNAME       => array( 1,    "{{ИМЕТРЕНУТНОГДАНА}}"     ),
+	MAG_CURRENTYEAR          => array( 1,    "{{ТРЕНУТНАГОДИНА}}"        ),
+	MAG_CURRENTTIME          => array( 1,    "{{ТРЕНУТНОВРЕМЕ}}"        ),
+	MAG_NUMBEROFARTICLES     => array( 1,    "{{БРОЈЧЛАНАКА}}"   ),
+	MAG_CURRENTMONTHNAMEGEN  => array( 1,    "{{ГЕНЕРИСАНОИМЕТРЕНУТНОГМЕСЕЦА}}"),
+	MAG_SUBST                => array( 1,    "{{ПОДСТ:$1}}"           ),
+	MAG_MSGNW                => array( 1,    "{{НВПОР:$1}}"           )
 );
 
 /* private */ $wgAllMessagesSr = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 
 # User Toggles
 #
-"tog-hover"  => "Прикажи лебдећи текст изнад вики веза",
 "tog-underline" => "Подвуци везе",
 "tog-highlightbroken" => "Форматирај покварене везе <a href=\"\" class=\"new\">овако</a> (алтернатива: овако<a href=\"\" class=\"internal\">?</a>).",
 "tog-justify" => "Поравнај пасусе",
@@ -147,30 +110,30 @@ require_once( "LanguageUtf8.php" );
 'thursday' => "Четвртак",
 'friday' => "Петак",
 'saturday' => "Субота",
-'january' => "Јануар",
-'february' => "Фебруар",
-'march' => "Март",
-'april' => "Април",
-'may_long' => "Мај",
-'june' => "Јуни",
-'july' => "Јули",
-'august' => "Август",
-'september' => "Септембар",
-'october' => "Октобар",
-'november' => "Новембар",
-'december' => "Децембар",
-'jan' => "Јан",
-'feb' => "Феб",
-'mar' => "Мар",
-'apr' => "Апр",
-'may' => "Мај",
-'jun' => "Јун",
-'jul' => "Јул",
-'aug' => "Авг",
-'sep' => "Сеп",
-'oct' => "Окт",
-'nov' => "Нов",
-'dec' => "Дец",
+'january' => "јануар",
+'february' => "фебруар",
+'march' => "март",
+'april' => "април",
+'may_long' => "мај",
+'june' => "јун",
+'july' => "јул",
+'august' => "август",
+'september' => "септембар",
+'october' => "октобар",
+'november' => "новембар",
+'december' => "децембар",
+'jan' => "јан",
+'feb' => "феб",
+'mar' => "мар",
+'apr' => "апр",
+'may' => "мај",
+'jun' => "јун",
+'jul' => "јул",
+'aug' => "авг",
+'sep' => "сеп",
+'oct' => "окт",
+'nov' => "нов",
+'dec' => "дец",
 
 # Bits of text used by many pages:
 #
@@ -179,7 +142,7 @@ require_once( "LanguageUtf8.php" );
 "category_header" => "Чланака у категорији: \"$1\"",
 "subcategories" => "Подкатегорије",
 
-"linktrail"  => "/^([a-z\x80-\xff]+)(.*)\$/sD",
+"linktrail" => "/^([абвгдђежзијклљмнњопрстћуфхцчџш]+)(.*)$/usD",
 "mainpage"  => "Главна страна",
 "mainpagetext" => "Вики софтвер је успешно инсталиран.",
 "about"   => "О...",
@@ -187,7 +150,6 @@ require_once( "LanguageUtf8.php" );
 "aboutpage"  => "{{ns:4}}:О",
 "help"   => "Помоћ",
 "helppage"  => "{{ns:4}}:Помоћ",
-"wikititlesuffix" => "{{SITENAME}}",
 "bugreports" => "Пријаве грешака",
 "bugreportspage" => "{{ns:4}}:Пријаве_грешака",
 "faq"   => "FAQ",
@@ -230,8 +192,7 @@ require_once( "LanguageUtf8.php" );
 "redirectedfrom" => "(Преусмерено са $1)",
 "lastmodified" => "Ова страница је последњи пут измењена $1.",
 "viewcount"  => "Овој страници је приступљено $1 пута.",
-"gnunote" => "Сав текст је доступан под условима <a class=internal href='/wiki/GNU_FDL'>ГНУ лиценце за слободну документацију</a>.",
-"printsubtitle" => "(Са http://sr.wikipedia.org)",
+"printsubtitle" => "(Са {{SERVER}})",
 "protectedpage" => "Заштићена страница",
 "administrators" => "{{ns:4}}:Администратори",
 "sysoptitle" => "Неопходан је сисопски приступ",
@@ -336,7 +297,7 @@ MySQL је вратио грешку \"$3: $4\".\n",
 "newusersonly" => " (само за нове кориснике)",
 "remembermypassword" => "Запамти моју шифру током више сеанси.",
 "loginproblem" => "<b>Било је проблема са вашим пријављивањем.</b><br />Пробајте поново!",
-"alreadyloggedin" => "<font color=red><b>Корисниче $1, већ сте пријављени!</b></font><br />\n",
+"alreadyloggedin" => "<strong>Корисниче $1, већ сте пријављени!</strong><br />\n",
 
 "login"   => "Пријави се",
 "userlogin"  => "Пријави се",
@@ -414,12 +375,12 @@ Sada biste trebali da se ulogujete i promenite svoju sifru.",
 Ваше измене су приказане у доњем тексту.
 Мораћете да унесете своје промене у постојећи текст.
 <b>Само</b> текст у горњем текстуалном пољу ће бити снимљен када
-притиснете \"Сними страницу\".\n<p>",
+притиснете \"Сними страницу\".<br />",
 "yourtext"  => "Ваш текст",
 "storedversion" => "Ускладиштена верзија",
 "editingold" => "<strong>ПАЖЊА: Ви мењате старију
 ревизију ове странице.
-Ако је снимите, све промене учињене од ове ревизије биће изгубљене.</strong>\n",
+Ако је снимите, све промене учињене од ове ревизије биће изгубљене.</strong>",
 "yourdiff"  => "Разлике",
 "copyrightwarning" => "Молимо вас да обратите пажњу да се за сваки допринос Википедији
 сматра да је објављен под ГНУ лиценцом за слободну документацију
@@ -429,15 +390,15 @@ Sada biste trebali da se ulogujete i promenite svoju sifru.",
 Такође нам обећавате да сте га сами написали, или ископирали из
 извора који је у јавном власништву или сличног слободног извора.
 <strong>НЕ ШАЉИТЕ РАД ЗАШТИЋЕН АУТОРСКИМ ПРАВИМА БЕЗ ДОЗВОЛЕ!</strong>",
-"longpagewarning" => "ПАЖЊА: Ова страница има $1 килобајта; неки
+"longpagewarning" => "<strong>ПАЖЊА: Ова страница има $1 килобајта; неки
 бровсери могу имати проблема са мењањем страница дугачких скоро 32кб или више.
-Молимо вас да размотрите разбијање странице на мање делове.",
-"readonlywarning" => "ПАЖЊА: База је ушраво закључана због одржавања,
+Молимо вас да размотрите разбијање странице на мање делове.</strong>",
+"readonlywarning" => "<strong>ПАЖЊА: База је ушраво закључана због одржавања,
 тако да нећете моћи да снимите своје измене управо сада. Можда желите да ископирате и налепите
-текст у текст едитор и снимите га за касније.",
-"protectedpagewarning" => "ПАЖЊА:  Ова страница је закључана тако да само
+текст у текст едитор и снимите га за касније.</strong>",
+"protectedpagewarning" => "<strong>ПАЖЊА:  Ова страница је закључана тако да само
 корисници са сисопским привилегијама могу да је мењају. Уверите се да пратите
-<a href='/wiki/{{ns:4}}:Смернице_о_заштићеним_страницама'>смернице о заштићеним страницама</a>.",
+[[Project:Смернице_о_заштићеним_страницама|смернице о заштићеним страницама]].</strong>",
 
 # History pages
 #
@@ -505,8 +466,7 @@ $2 Излистај преусмерења &nbsp; Тражи $3 $9",
 #
 "preferences" => "Подешавања",
 "prefsnologin" => "Нисте пријављени",
-"prefsnologintext" => "Морате бити <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">пријављени</a>
+"prefsnologintext" => "Морате бити [[Special:Userlogin|пријављени]]
 да бисте подешавали корисничка подешавања.",
 "prefslogintext" => "Пријављени сте као \"$1\".
 Ваш интерни ИД број је $2.
@@ -595,10 +555,8 @@ $2 Излистај преусмерења &nbsp; Тражи $3 $9",
 "reupload"  => "Поново пошаљи",
 "reuploaddesc" => "Врати се на упитник за слање.",
 "uploadnologin" => "Нисте пријављени",
-"uploadnologintext" => "Морате бити <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">пријављени</a>
+"uploadnologintext" => "Морате бити [[Special:Userlogin|пријављени]]
 да бисте слали фајлове.",
-"uploadfile" => "Пошаљи слике, звуке, документа итд.",
 "uploaderror" => "Грешка при слању",
 "uploadtext" => "'''СТОП!''' Пре него што шаљете овде,
 обавезно прочитајте и пратите Википедијина
@@ -641,13 +599,9 @@ or '''<nowiki>[[media:file.ogg]]</nowiki>''' за звукове.
 "filedesc"  => "Опис",
 "filestatus" => "Статус ауторских права",
 "filesource" => "Извор",
-"affirmation" => "Потврђујем да se носилац ауторских права на овај фајл
-слаже да их лиценцира под условима $1.",
 "copyrightpage" => "{{ns:4}}:Ауторска_права",
 "copyrightpagename" => "{{SITENAME}} ауторска права",
 "uploadedfiles" => "Послати фајлови",
-"noaffirmation" => "Порате потврдити да ваше слање не крши
-никаква ауторска права.",
 "ignorewarning" => "Игнориши упозорење и свеједно сними фајл.",
 "minlength"  => "Имена слика морају имате бар три слова.",
 "badfilename" => "Име слике је промељено у \"$1\".",
@@ -660,17 +614,15 @@ or '''<nowiki>[[media:file.ogg]]</nowiki>''' за звукове.
 ко га је направио, ибило шта друго што знате о њему.",
 "uploadwarning" => "Упозорење при слању",
 "savefile"  => "Сними фајл",
-"uploadedimage" => "послато \"$1\"",
+"uploadedimage" => "послато \"[[$1]]\"",
 
 # Image list
 #
 "imagelist"  => "Листа слика",
 "imagelisttext" => "Испод је списак $1 слика поређаних $2.",
 "getimagelist" => "прибављам списак слика",
-"ilshowmatch" => "Прикажи све слике чије име одговара",
 "ilsubmit"  => "Тражи",
 "showlast"  => "Прикажи последњих $1 слика поређаних по $2.",
-"all"   => "све",
 "byname"  => "по имену",
 "bydate"  => "по датуму",
 "bysize"  => "по величини",
@@ -742,8 +694,6 @@ or '''<nowiki>[[media:file.ogg]]</nowiki>''' за звукове.
 "listusers"  => "Листа корисника",
 "specialpages" => "Посебне странице",
 "spheading"  => "Посебне странице за све кориснике",
-"sysopspheading" => "Само за сисопе",
-"developerspheading" => "Само за девелопере",
 "protectpage" => "Заштити страницу",
 "recentchangeslinked" => "Сродне промене",
 "rclsub"  => "(на странице повезане од \"$1\")",
@@ -767,10 +717,8 @@ or '''<nowiki>[[media:file.ogg]]</nowiki>''' за звукове.
 # Email this user
 #
 "mailnologin" => "Нема адресе за слање",
-"mailnologintext" => "Морате бити <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">пријављени</a>
-и имати исправну е-адресу in your <a href=\"" .
-  "{{localurle:Special:Preferences}}\">подешавањима</a>
+"mailnologintext" => "Морате бити [[Special:Userlogin|пријављени]]
+и имати исправну е-адресу in your [[Special:Preferences|подешавањима]]
 да бисте слали електронску пошту другим корисницима.",
 "emailuser"  => "Пошаљи е-писмо овом кориснику",
 "emailpage"  => "Пошаљи е-писмо кориснику",
@@ -796,8 +744,7 @@ or '''<nowiki>[[media:file.ogg]]</nowiki>''' за звукове.
 "watchlistsub" => "(за корисника \"$1\")",
 "nowatchlist" => "Немате ништа на свом списку надгледања.",
 "watchnologin" => "Нисте пријављени",
-"watchnologintext" => "Морате бити <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">пријављени</a>
+"watchnologintext" => "Морате бити [[Special:Userlogin|пријављени]]
 да бисте мењали списак надгледања.",
 "addedwatch" => "Додати списку надгледања",
 "addedwatchtext" => "Страница \"$1\" је додата вашој <a href=\"" .
@@ -817,7 +764,7 @@ or '''<nowiki>[[media:file.ogg]]</nowiki>''' за звукове.
 "watchdetails" => "($1 страница надгледано не рачунајући странице за разговор;
 $2 укупно страница измењено од одсецања;
 $3...
-<a href='$4'>прикажи и мењај потпуни списак</a>.)",
+[$4 прикажи и мењај потпуни списак].)",
 "watchmethod-recent" => "проверавам има ли надгледаних страница у скорашњим изменама",
 "watchmethod-list" => "проверавам има ли скорашњих измена у надгледаним страницама",
 "removechecked" => "Уклони обележене уносе из списка надгледања",
@@ -837,8 +784,8 @@ $3...
 #
 "deletepage" => "Обриши страницу",
 "confirm"  => "Потврди",
-"excontent" => "садржај је био:",
-"exbeforeblank" => "садржај пре брисања је био:",
+"excontent" => "садржај је био: '$1'",
+"exbeforeblank" => "садржај пре брисања је био: '$1'",
 "exblank" => "страница је била празна",
 "confirmdelete" => "Потврди брисање",
 "deletesub"  => "(Бришем \"$1\")",
@@ -848,7 +795,6 @@ $3...
 Молим вас потврдите да намеравате да урадите ово, да разумете
 последице, и да ово радите у складу са
 [[{{ns:4}}:Правила]].",
-"confirmcheck" => "Да, стварно желим да обришем ово.",
 "actioncomplete" => "Акција завршена",
 "deletedtext" => "\"$1\" је обрисана.
 Погледајте $2 за запис о скорашњим брисањима.",
@@ -926,7 +872,6 @@ $3...
 "ipbreason"  => "Разлог",
 "ipbsubmit"  => "Обуздај овог корисника",
 "badipaddress" => "Не постоји ниједан корисник који се тако зове",
-"noblockreason" => "Морате дати разлог за обуздавање.",
 "blockipsuccesssub" => "Обуздавање је успело",
 "blockipsuccesstext" => "\"$1\" је обуздан.
 <br />Погледајте [[Посебно:ИПсписакаобузданих|ИП списак обузданих]] за преглед обуздавања.",
@@ -936,17 +881,11 @@ $3...
 "ipusubmit"  => "Отпусти ову адресу",
 "ipusuccess" => "\"$1\" отпуштен",
 "ipblocklist" => "Списак обузданих ИП адреса и корисника",
-"blocklistline" => "$1, $2 је обуздао $3",
+"blocklistline" => "$1, $2 је обуздао $3 ($4)",
 "blocklink"  => "блокирај",
 "unblocklink" => "деблокирај",
 "contribslink" => "прилози",
 "autoblocker" => "Аутоматски сте обуздани јер делите ИП адресу са \"$1\". Разлог \"$2\".",
-/*
-</pre>
-
-==Део 4==
-<pre>
-*/
 # Developer tools
 #
 "lockdb"  => "Закључај базу",
@@ -970,21 +909,6 @@ $3...
 "lockdbsuccesstext" => "Википедијина база података је закључана.
 <br />Сетите се да је откључате када завршите са одржавањем.",
 "unlockdbsuccesstext" => "Википедијина база података је откључана.",
-
-# SQL query
-#
-"asksql"  => "SQL упит",
-"asksqltext" => "Употребите доњи упитник да направите директан упит
-Википедијиној бази.
-Употребите једноструке наводнике ('овако') за разграничење словних ниски.
-Ово често може да дода значајно оптерећење серверу, молимо
-користите ову могућност штедљиво.",
-"sqlislogged" => "Обратите пажњу да су сви упити логовани.",
-"sqlquery"  => "Унесите упит",
-"querybtn"  => "Пошаљи упит",
-"selectonly" => "Сви упити осим \"SELECT\" су ограничени на
-развојни тим Википедије.",
-"querysuccessful" => "Упит успешан",
 
 # Move page
 #
@@ -1015,8 +939,7 @@ $3...
 У тим случајевима, мораћете ручно да преместите страницу уколико то желите.",
 "movearticle" => "Премести страницу",
 "movenologin" => "Нисте улоговани",
-"movenologintext" => "Морате бити регистровани корисник и <a href=\"" .
-  "{{localurle:Special:Userlogin}}\">пријављени</a>
+"movenologintext" => "Морате бити регистровани корисник и [[Special:Userlogin||пријављени]]
 да бисте преместили страницу.",
 "newtitle"  => "Нови наслов",
 "movepagebtn" => "премести страницу",
@@ -1046,11 +969,11 @@ $3...
 
 # Math
 
- 'mw_math_png' => "Увек прикажи PNG",
- 'mw_math_simple' => "HTML ако је врло једноставно, иначе PNG",
- 'mw_math_html' => "HTML ако је могуће, иначе PNG",
- 'mw_math_source' => "Остави као ТеХ (за текстуалне бровсере)",
- 'mw_math_modern' => "Препоручено за савремене бровсере",
+'mw_math_png' => "Увек прикажи PNG",
+'mw_math_simple' => "HTML ако је врло једноставно, иначе PNG",
+'mw_math_html' => "HTML ако је могуће, иначе PNG",
+'mw_math_source' => "Остави као ТеХ (за текстуалне бровсере)",
+'mw_math_modern' => "Препоручено за савремене бровсере",
 
 );
 
@@ -1060,70 +983,147 @@ $3...
 
 class LanguageSr extends LanguageUtf8 {
 
- function getNamespaces() {
-  global $wgNamespaceNamesSr;
-  return $wgNamespaceNamesSr;
- }
+	function getNamespaces() {
+	global $wgNamespaceNamesSr;
+	return $wgNamespaceNamesSr;
+	}
 
- function getNsText( $index ) {
-  global $wgNamespaceNamesSr;
-  return $wgNamespaceNamesSr[$index];
- }
+	function getNsIndex( $text ) {
+	global $wgNamespaceNamesSr;
 
- function getNsIndex( $text ) {
-  global $wgNamespaceNamesSr;
+	foreach ( $wgNamespaceNamesSr as $i => $n ) {
+		if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
+	}
+	if( 0 == strcasecmp( "Special", $text ) ) { return -1; }
+	if( 0 == strcasecmp( "User", $text ) ) { return 2; }
+	if( 0 == strcasecmp( "Wikipedia", $text ) ) { return 4; }
+	return false;
+	}
 
-  foreach ( $wgNamespaceNamesSr as $i => $n ) {
-   if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-  }
-  if( 0 == strcasecmp( "Special", $text ) ) { return -1; }
-  if( 0 == strcasecmp( "User", $text ) ) { return 2; }
-  if( 0 == strcasecmp( "Wikipedia", $text ) ) { return 4; }
-  return false;
- }
+	function getQuickbarSettings() {
+	global $wgQuickbarSettingsSr;
+	return $wgQuickbarSettingsSr;
+	}
 
- function getQuickbarSettings() {
-  global $wgQuickbarSettingsSr;
-  return $wgQuickbarSettingsSr;
- }
+	function getSkinNames() {
+	global $wgSkinNamesSr;
+	return $wgSkinNamesSr;
+	}
 
- function getSkinNames() {
-  global $wgSkinNamesSr;
-  return $wgSkinNamesSr;
- }
+	function getDateFormats() {
+	global $wgDateFormatsSr;
+	return $wgDateFormatsSr;
+	}
 
- function getDateFormats() {
-  global $wgDateFormatsSr;
-  return $wgDateFormatsSr;
- }
-
- function getValidSpecialPages()
- {
-  global $wgValidSpecialPagesSr;
-  return $wgValidSpecialPagesSr;
- }
-
- function getSysopSpecialPages()
- {
-  global $wgSysopSpecialPagesSr;
-  return $wgSysopSpecialPagesSr;
- }
-
- function getDeveloperSpecialPages()
- {
-  global $wgDeveloperSpecialPagesSr;
-  return $wgDeveloperSpecialPagesSr;
- }
-
- function getMessage( $key )
- {
+	function getMessage( $key ) {
 		global $wgAllMessagesSr;
 		if(array_key_exists($key, $wgAllMessagesSr))
 			return $wgAllMessagesSr[$key];
 		else
-			return Language::getMessage($key);
- }
- 
+			return parent::getMessage($key);
+	}
+
+	function formatNum( $number, $year = false ) {
+		return $year ? $number : strtr($this->commafy($number), '.,', ',.' );
+	}
+
+	/**
+	 * @access public
+	 * @param mixed  $ts the time format which needs to be turned into a
+	 *               date('YmdHis') format with wfTimestamp(TS_MW,$ts)
+	 * @param bool   $adj whether to adjust the time output according to the
+	 *               user configured offset ($timecorrection)
+	 * @param mixed  $format what format to return, if it's false output the
+	 *               default one.
+	 * @param string $timecorrection the time offset as returned by
+	 *               validateTimeZone() in Special:Preferences
+	 * @return string
+	 */
+	function date( $ts, $adj = false, $format = true, $timecorrection = false ) {
+
+		if ( $adj ) { $ts = $this->userAdjust( $ts, $timecorrection ); }
+
+		$mm = substr( $ts, 4, 2 );
+		$m = 0 + $mm;
+		$mmmm = $this->getMonthName( $mm );
+		$mmm = $this->getMonthAbbreviation( $mm );
+		$dd = substr( $ts, 6, 2 );
+		$d = 0 + $dd;
+		$yyyy =  substr( $ts, 0, 4 );
+		$yy =  substr( $ts, 2, 2 );
+
+		switch( $format ) {
+			case '2':
+			case '8':
+				return "$d $mmmm $yyyy";
+			case '3':
+			case '9':
+				return "$dd.$mm.$yyyy.";
+			case '4':
+			case '10':
+				return "$d.$m.$yyyy.";
+			case '5':
+			case '11':
+				return "$d. $mmm $yyyy.";
+			case '6':
+			case '12':
+				return "$d $mmm $yyyy";
+			default:
+				return "$d. $mmmm $yyyy.";
+		}
+
+	}
+
+	/**
+	* @access public
+	* @param mixed  $ts the time format which needs to be turned into a
+	*               date('YmdHis') format with wfTimestamp(TS_MW,$ts)
+	* @param bool   $adj whether to adjust the time output according to the
+	*               user configured offset ($timecorrection)
+	* @param mixed  $format what format to return, if it's false output the
+	*               default one (default true)
+	* @param string $timecorrection the time offset as returned by
+	*               validateTimeZone() in Special:Preferences
+	* @return string
+	*/
+	function time( $ts, $adj = false, $format = true, $timecorrection = false ) {
+
+		if ( $adj ) { $ts = $this->userAdjust( $ts, $timecorrection ); }
+		$hh = substr( $ts, 8, 2 );
+		$h = 0 + $hh;
+		$mm = substr( $ts, 10, 2 );
+		switch( $format ) {
+			case '7':
+			case '8':
+			case '9':
+			case '10':
+			case '11':
+			case '12':
+				return "$h:$mm";
+			default:
+				return "$hh:$mm";
+		}
+	}
+
+	/**
+	* @access public
+	* @param mixed  $ts the time format which needs to be turned into a
+	*               date('YmdHis') format with wfTimestamp(TS_MW,$ts)
+	* @param bool   $adj whether to adjust the time output according to the
+	*               user configured offset ($timecorrection)
+	* @param mixed  $format what format to return, if it's false output the
+	*               default one (default true)
+	* @param string $timecorrection the time offset as returned by
+	*               validateTimeZone() in Special:Preferences
+	* @return string
+	*/
+	function timeanddate( $ts, $adj = false, $format = true, $timecorrection = false) {
+		$datePreference = $this->dateFormat($format);
+		return $this->time( $ts, $adj, $datePreference, $timecorrection ) . ', ' . $this->date( $ts, $adj, $datePreference, $timecorrection );
+
+	}
+
+
 }
 
 ?>

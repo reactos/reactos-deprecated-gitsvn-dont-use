@@ -12,59 +12,44 @@
  * DO NOT manipulate this array at run-time.
  *
  * @package MediaWiki
+ * @subpackage SpecialPage
  */
 
-/**
- *
- */
-global $wgSpecialPages;
 
 /**
  * @access private
  */
 $wgSpecialPages = array(
-	'DoubleRedirects'	=> new UnlistedSpecialPage ( 'DoubleRedirects' ),
-	'BrokenRedirects'	=> new UnlistedSpecialPage ( 'BrokenRedirects' ),
-	'Disambiguations'	=> new UnlistedSpecialPage ( 'Disambiguations' ),
+	'DoubleRedirects'	=> new SpecialPage ( 'DoubleRedirects' ),
+	'BrokenRedirects'	=> new SpecialPage ( 'BrokenRedirects' ),
+	'Disambiguations'	=> new SpecialPage ( 'Disambiguations' ),
 
 	'Userlogin'         => new SpecialPage( 'Userlogin' ),
 	'Userlogout'        => new UnlistedSpecialPage( 'Userlogout' ),
 	'Preferences'       => new SpecialPage( 'Preferences' ),
 	'Watchlist'         => new SpecialPage( 'Watchlist' ),
-	'Recentchanges'     => new SpecialPage( 'Recentchanges' ),
+
+	'Recentchanges'     => new IncludableSpecialPage( 'Recentchanges' ),
 	'Upload'            => new SpecialPage( 'Upload' ),
 	'Imagelist'         => new SpecialPage( 'Imagelist' ),
 	'Newimages'         => new SpecialPage( 'Newimages' ),
 	'Listusers'         => new SpecialPage( 'Listusers' ),
-	'Listadmins'        => new SpecialPage( 'Listadmins' ),
 	'Statistics'        => new SpecialPage( 'Statistics' ),
-	'Randompage'        => new SpecialPage( 'Randompage' ),
+	'Random'        => new SpecialPage( 'Randompage' ),
 	'Lonelypages'       => new SpecialPage( 'Lonelypages' ),
 	'Uncategorizedpages'=> new SpecialPage( 'Uncategorizedpages' ),
 	'Uncategorizedcategories'=> new SpecialPage( 'Uncategorizedcategories' ),
-	'Unusedimages'      => new SpecialPage( 'Unusedimages' )
-);
-
-global $wgDisableCounters;
-if( !$wgDisableCounters ) {
-	$wgSpecialPages['Popularpages'] = new SpecialPage( 'Popularpages' );
-}
-
-global $wgDisableInternalSearch;
-if ( !$wgDisableInternalSearch ) {
-	$wgSpecialPages['Search'] = new UnlistedSpecialPage( 'Search' );
-}
-
-$wgSpecialPages = array_merge($wgSpecialPages, array (
+	'Unusedcategories'	=> new SpecialPage( 'Unusedcategories' ),
+	'Unusedimages'      => new SpecialPage( 'Unusedimages' ),
 	'Wantedpages'	=> new SpecialPage( 'Wantedpages' ),
+	'Mostlinked'	=> new SpecialPage( 'Mostlinked' ),
 	'Shortpages'	=> new SpecialPage( 'Shortpages' ),
 	'Longpages'		=> new SpecialPage( 'Longpages' ),
-	'Newpages'		=> new SpecialPage( 'Newpages' ),
+	'Newpages'		=> new IncludableSpecialPage( 'Newpages' ),
 	'Ancientpages'	=> new SpecialPage( 'Ancientpages' ),
 	'Deadendpages'  => new SpecialPage( 'Deadendpages' ),
-	'Allpages'		=> new SpecialPage( 'Allpages' ),
+	'Allpages'		=> new IncludableSpecialPage( 'Allpages' ),
 	'Ipblocklist'	=> new SpecialPage( 'Ipblocklist' ),
-	'Maintenance'	=> new SpecialPage( 'Maintenance' ),
 	'Specialpages'  => new UnlistedSpecialPage( 'Specialpages' ),
 	'Contributions' => new UnlistedSpecialPage( 'Contributions' ),
 	'Emailuser'		=> new UnlistedSpecialPage( 'Emailuser' ),
@@ -72,8 +57,6 @@ $wgSpecialPages = array_merge($wgSpecialPages, array (
 	'Recentchangeslinked' => new UnlistedSpecialPage( 'Recentchangeslinked' ),
 	'Movepage'		=> new UnlistedSpecialPage( 'Movepage' ),
 	'Blockme'       => new UnlistedSpecialPage( 'Blockme' ),
-	'Geo'           => new UnlistedSpecialPage( 'Geo' ),
-	'Validate'      => new UnlistedSpecialPage( 'Validate' ),
 	'Booksources'	=> new SpecialPage( 'Booksources' ),
 	'Categories'	=> new SpecialPage( 'Categories' ),
 	'Export'		=> new SpecialPage( 'Export' ),
@@ -81,16 +64,27 @@ $wgSpecialPages = array_merge($wgSpecialPages, array (
 	'Allmessages'	=> new SpecialPage( 'Allmessages' ),
 	'Log'           => new SpecialPage( 'Log' ),
 	'Blockip'		=> new SpecialPage( 'Blockip', 'block' ),
-	'Asksql'		=> new SpecialPage( 'Asksql', 'asksql' ),
 	'Undelete'		=> new SpecialPage( 'Undelete', 'delete' ),
-	'Makesysop'		=> new SpecialPage( 'Makesysop', 'userrights' ),
-
-# Special:Import is half-written
-#	"Import"		=> new SpecialPage( "Import", "sysop" ),
+	"Import"		=> new SpecialPage( "Import", 'import' ),
 	'Lockdb'		=> new SpecialPage( 'Lockdb', 'siteadmin' ),
 	'Unlockdb'		=> new SpecialPage( 'Unlockdb', 'siteadmin' ),
-#	'Sitesettings'  => new SpecialPage( 'Sitesettings', 'siteadmin' ),
-));
+	'Userrights'	=> new SpecialPage( 'Userrights', 'userrights' ),
+);
+
+if ( $wgUseValidation )
+	$wgSpecialPages['Validate'] = new SpecialPage( 'Validate' );
+
+if( !$wgDisableCounters ) {
+	$wgSpecialPages['Popularpages'] = new SpecialPage( 'Popularpages' );
+}
+
+if( !$wgDisableInternalSearch ) {
+	$wgSpecialPages['Search'] = new UnlistedSpecialPage( 'Search' );
+}
+
+if( $wgEmailAuthentication ) {
+	$wgSpecialPages['Confirmemail'] = new UnlistedSpecialPage( 'Confirmemail' );
+}
 
 /**
  * Parent special page class, also static functions for handling the special
@@ -124,7 +118,18 @@ class SpecialPage
 	 * File which needs to be included before the function above can be called
 	 */
 	var $mFile;
-	/**#@- */
+	/**
+	 * Whether or not this special page is being included from an article
+	 */
+	var $mIncluding;
+	/**
+	 * Whether the special page can be included in an article
+	 */
+	var $mIncludable;
+
+
+	/**#@-*/
+
 
 	/**
 	 * Add a page to the list of valid special pages
@@ -152,12 +157,35 @@ class SpecialPage
 	 * @static
 	 * @param string $name
 	 */
-	function &getPage( $name ) {
+	function getPage( $name ) {
 		global $wgSpecialPages;
 		if ( array_key_exists( $name, $wgSpecialPages ) ) {
 			return $wgSpecialPages[$name];
 		} else {
 			return NULL;
+		}
+	}
+
+	/**
+	 * @static
+	 * @param string $name
+	 * @return mixed Title object if the redirect exists, otherwise NULL
+	 */
+	function getRedirect( $name ) {
+		global $wgUser;
+		switch ( $name ) {
+			case 'Mypage':
+				return Title::makeTitle( NS_USER, $wgUser->getName() );
+			case 'Mytalk':
+				return Title::makeTitle( NS_USER_TALK, $wgUser->getName() );
+			case 'Mycontributions':
+				return Title::makeTitle( NS_SPECIAL, 'Contributions/' . $wgUser->getName() );
+			case 'Listadmins':
+				return Title::makeTitle( NS_SPECIAL, 'Listusers/sysop' ); # @bug 2832
+			case 'Randompage':
+				return Title::makeTitle( NS_SPECIAL, 'Random' );
+			default:
+				return NULL;
 		}
 	}
 
@@ -187,9 +215,13 @@ class SpecialPage
 	 * The path	may contain parameters, e.g. Special:Name/Params
 	 * Extracts the special page name and call the execute method, passing the parameters
 	 *
-	 * @param $title should be a title object
+	 * Returns a title object if the page is redirected, false if there was no such special
+	 * page, and true if it was successful.
+	 *
+	 * @param $title          a title object
+	 * @param $including      output is being captured for use in {{special:whatever}}
 	 */
-	function executePath( &$title ) {
+	function executePath( &$title, $including = false ) {
 		global $wgSpecialPages, $wgOut, $wgTitle;
 
 		$bits = split( "/", $title->getDBkey(), 2 );
@@ -200,20 +232,62 @@ class SpecialPage
 			$par = $bits[1];
 		}
 
-		$page =& SpecialPage::getPage( $name );
+		$page = SpecialPage::getPage( $name );
 		if ( is_null( $page ) ) {
-			$wgOut->setArticleRelated( false );
-			$wgOut->setRobotpolicy( "noindex,follow" );
-			$wgOut->errorpage( "nosuchspecialpage", "nospecialpagetext" );
+			if ( $including ) {
+				return false;
+			} else {
+				$redir = SpecialPage::getRedirect( $name );
+				if ( isset( $redir ) ) {
+					if ( isset( $par ) )
+						$wgOut->redirect( $redir->getFullURL() . '/' . $par );
+					else
+						$wgOut->redirect( $redir->getFullURL() );
+					$retVal = $redir;
+				} else {
+					$wgOut->setArticleRelated( false );
+					$wgOut->setRobotpolicy( "noindex,follow" );
+					$wgOut->errorpage( "nosuchspecialpage", "nospecialpagetext" );
+					$retVal = false;
+				}
+			}
 		} else {
+			if ( $including && !$page->includable() ) {
+				return false;
+			}
 			if($par !== NULL) {
 				$wgTitle = Title::makeTitle( NS_SPECIAL, $name );
 			} else {
 				$wgTitle = $title;
 			}
+			$page->including( $including );
 
 			$page->execute( $par );
+			$retVal = true;
 		}
+		return $retVal;
+	}
+
+	/**
+	 * Just like executePath() except it returns the HTML instead of outputting it
+	 * Returns false if there was no such special page, or a title object if it was
+	 * a redirect.
+	 * @static
+	 */
+	function capturePath( &$title ) {
+		global $wgOut, $wgTitle;
+
+		$oldTitle = $wgTitle;
+		$oldOut = $wgOut;
+		$wgOut = new OutputPage;
+
+		$ret = SpecialPage::executePath( $title, true );
+		if ( $ret === true ) {
+			$ret = $wgOut->getHTML();
+		}
+		$wgTitle = $oldTitle;
+		$wgOut = $oldOut;
+		return $ret;
 	}
 
 	/**
@@ -232,10 +306,11 @@ class SpecialPage
 	 * @param string $function Function called by execute(). By default it is constructed from $name
 	 * @param string $file File which is included by execute(). It is also constructed from $name by default
 	 */
-	function SpecialPage( $name = '', $restriction = '', $listed = true, $function = false, $file = 'default' ) {
+	function SpecialPage( $name = '', $restriction = '', $listed = true, $function = false, $file = 'default', $includable = false ) {
 		$this->mName = $name;
 		$this->mRestriction = $restriction;
 		$this->mListed = $listed;
+		$this->mIncludable = $includable;
 		if ( $function == false ) {
 			$this->mFunction = 'wfSpecial'.$name;
 		} else {
@@ -253,6 +328,8 @@ class SpecialPage
 	function getRestriction() { return $this->mRestriction; }
 	function isListed() { return $this->mListed; }
 	function getFile() { return $this->mFile; }
+	function including( $x = NULL ) { return wfSetVar( $this->mIncluding, $x ); }
+	function includable( $x = NULL ) { return wfSetVar( $this->mIncludable, $x ); }
 
 	/**
 	 * Checks if the given user (identified by an object) can execute this
@@ -262,7 +339,11 @@ class SpecialPage
 		if ( $this->mRestriction == "" ) {
 			return true;
 		} else {
-			return $user->isAllowed( $this->mRestriction );
+			if ( in_array( $this->mRestriction, $user->getRights() ) ) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
@@ -271,11 +352,7 @@ class SpecialPage
 	 */
 	function displayRestrictionError() {
 		global $wgOut;
-		if ( $this->mRestriction == "developer" ) {
-			$wgOut->developerRequired();
-		} else {
-			$wgOut->sysopRequired();
-		}
+		$wgOut->permissionRequired( $this->mRestriction );
 	}
 
 	/**
@@ -302,7 +379,7 @@ class SpecialPage
 				require_once( $this->mFile );
 			}
 			$func = $this->mFunction;
-			$func( $par );
+			$func( $par, $this );
 		} else {
 			$this->displayRestrictionError();
 		}
@@ -330,6 +407,7 @@ class SpecialPage
 	function setListed( $listed ) {
 		return wfSetVar( $this->mListed, $listed );
 	}
+
 }
 
 /**
@@ -342,3 +420,15 @@ class UnlistedSpecialPage extends SpecialPage
 		SpecialPage::SpecialPage( $name, $restriction, false, $function, $file );
 	}
 }
+
+/**
+ * Shortcut to construct an includable special  page
+ * @package MediaWiki
+ */
+class IncludableSpecialPage extends SpecialPage
+{
+	function IncludableSpecialPage( $name, $restriction = '', $listed = true, $function = false, $file = 'default' ) {
+		SpecialPage::SpecialPage( $name, $restriction, $listed, $function, $file, true );
+	}
+}
+?>

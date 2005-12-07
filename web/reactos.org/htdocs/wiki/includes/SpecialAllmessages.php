@@ -23,13 +23,12 @@ function wfSpecialAllmessages() {
 	
 	wfProfileIn( "$fname-setup");
 	$ot = $wgRequest->getText( 'ot' );
-	$mwMsg =& MagicWord::get( MAG_MSG );
 	
-	$navText = wfMsg( 'allmessagestext', $mwMsg->getSynonym( 0 ) );
+	$navText = wfMsg( 'allmessagestext' );
 
 
 	$first = true;
-	$sortedArray = $wgAllMessagesEn;
+	$sortedArray = array_merge( $wgAllMessagesEn, $wgMessageCache->mExtensionMessages );
 	ksort( $sortedArray );
 	$messages = array();
 	$wgMessageCache->disableTransform();
@@ -78,7 +77,7 @@ function makePhp($messages) {
 		} else {
 			$comment = '';
 		}
-		$txt .= "'".$key."' => \"".str_replace('"','\"',$m['msg'])."\",$comment\n";
+		$txt .= "'$key' => '" . preg_replace( "/(?<!\\\\)'/", "\'", $m['msg']) . "',$comment\n";
 	}
 	$txt .= ');';
 	return $txt;
@@ -88,7 +87,7 @@ function makePhp($messages) {
  *
  */
 function makeHTMLText( $messages ) {
-	global $wgLang, $wgUser, $wgLanguageCode, $wgContLanguageCode;
+	global $wgLang, $wgUser, $wgLanguageCode, $wgContLanguageCode, $wgContLang;
 	$fname = "makeHTMLText";
 	wfProfileIn( $fname );
 	
@@ -97,12 +96,13 @@ function makeHTMLText( $messages ) {
 	$mwnspace = $wgLang->getNsText( NS_MEDIAWIKI );
 	$mwtalk = $wgLang->getNsText( NS_MEDIAWIKI_TALK );
 	$txt = "
-
-	<table border='1' cellspacing='0' width='100%'>
-	<tr bgcolor='#b2b2ff'>
-		<th>" . wfMsg('allmessagesname') . "</th>
-		<th>" . wfMsg('allmessagesdefault') . "</th>
-		<th>" . wfMsg('allmessagescurrent')  . "</th>
+<table border='1' cellspacing='0' width='100%' id='allmessagestable'>
+	<tr >
+		<th rowspan='2'>" . wfMsgHtml('allmessagesname') . "</th>
+		<th>" . wfMsgHtml('allmessagesdefault') . "</th>
+	</tr>
+	<tr>
+		<th>" . wfMsgHtml('allmessagescurrent') . "</th>
 	</tr>";
 	
 	wfProfileIn( "$fname-check" );
@@ -113,25 +113,27 @@ function makeHTMLText( $messages ) {
 		NS_MEDIAWIKI_TALK => array()
 	);
 	$dbr =& wfGetDB( DB_SLAVE );
-	$res = $dbr->select( 'cur',
-		array( 'cur_namespace', 'cur_title' ),
-		"cur_namespace IN (" . NS_MEDIAWIKI . ", " . NS_MEDIAWIKI_TALK . ")" );
+	$page = $dbr->tableName( 'page' );
+	$sql = "SELECT page_namespace,page_title FROM $page WHERE page_namespace IN (" . NS_MEDIAWIKI . ", " . NS_MEDIAWIKI_TALK . ")";
+	$res = $dbr->query( $sql );
 	while( $s = $dbr->fetchObject( $res ) ) {
-		$pageExists[$s->cur_namespace][$s->cur_title] = true;
+		$pageExists[$s->page_namespace][$s->page_title] = true;
 	}
 	$dbr->freeResult( $res );
 	wfProfileOut( "$fname-check" );
 
 	wfProfileIn( "$fname-output" );
+
 	foreach( $messages as $key => $m ) {
 
 		$title = $wgLang->ucfirst( $key );
 		if($wgLanguageCode != $wgContLanguageCode)
 			$title.="/$wgLanguageCode";
+
 		$titleObj =& Title::makeTitle( NS_MEDIAWIKI, $title );
 		$talkPage =& Title::makeTitle( NS_MEDIAWIKI_TALK, $title );
 
-		$colorIt = ($m['statmsg'] == $m['msg']) ? " bgcolor=\"#f0f0ff\"" : " bgcolor=\"#ffe2e2\"";
+		$changed = ($m['statmsg'] != $m['msg']);
 		$message = htmlspecialchars( $m['statmsg'] );
 		$mw = htmlspecialchars( $m['msg'] );
 		
@@ -148,15 +150,32 @@ function makeHTMLText( $messages ) {
 			$talkLink = $sk->makeBrokenLinkObj( $talkPage, htmlspecialchars( $talk ) );
 		}
 
-		$txt .= 
-		"<tr$colorIt><td>
-		$pageLink<br />
-		$talkLink
+		if($changed) {
+
+			$txt .=
+	"<tr class='orig'>
+		<td rowspan='2'>
+			$pageLink<br />$talkLink
 		</td><td>
-		$message
+$message
+		</td>
+	</tr><tr class='new'>
+		<td>
+$mw
+		</td>
+	</tr>";
+		} else {
+
+			$txt .=
+	"<tr class='def'>
+		<td>
+			$pageLink<br />$talkLink
 		</td><td>
-		$mw
-		</td></tr>";
+$mw
+		</td>
+	</tr>";
+
+		}
 	}
 	$txt .= "</table>";
 	wfProfileOut( "$fname-output" );

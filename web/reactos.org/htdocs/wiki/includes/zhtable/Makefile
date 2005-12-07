@@ -36,7 +36,7 @@ wordlist: phrase_lib.txt EZ.txt.in tsi.src
 	iconv -c -f big5 -t utf8 tsi.src | $(SED) 's/# //g' | $(SED) 's/[ ][0-9].*//' > wordlist
 	$(SED) 's/\(.*\)\t[0-9][0-9]*.*/\1/' phrase_lib.txt | $(SED) '1,5d' >>wordlist
 	$(SED) '1,/BEGIN_TABLE/d' EZ.txt.in | colrm 1 8 | $(SED) 's/\t.*//' | $(GREP) "^...*" >> wordlist
-	cat wordlist | $(SED) '/[a-zA-Z]/d' | sort | uniq | $(SED) 's/ //g' > t
+	sort wordlist | uniq | $(SED) 's/ //g' > t
 	mv t wordlist
 
 printutf8: printutf8.c
@@ -48,7 +48,7 @@ unihan.t2s.t: Unihan.txt printutf8
 trad2simp.t: trad2simp.manual unihan.t2s.t
 	cp unihan.t2s.t tmp1
 	for I in `colrm 11 < trad2simp.manual` ; do $(SED) "/^$$I/d" tmp1 > tmp2; mv tmp2 tmp1; done
-	cat tmp1 trad2simp.manual > trad2simp.t
+	cat trad2simp.manual tmp1 > trad2simp.t
 
 unihan.s2t.t: Unihan.txt printutf8
 	$(GREP) kTraditionalVariant Unihan.txt | $(SED)  '/#/d' | $(SED)  's/kTraditionalVariant//' | ./printutf8 > unihan.s2t.t
@@ -56,7 +56,7 @@ unihan.s2t.t: Unihan.txt printutf8
 simp2trad.t: unihan.s2t.t simp2trad.manual
 	cp unihan.s2t.t tmp1
 	for I in `colrm 11 < simp2trad.manual` ; do $(SED) "/^$$I/d" tmp1 > tmp2; mv tmp2 tmp1; done
-	cat tmp1 simp2trad.manual > simp2trad.t
+	cat simp2trad.manual tmp1 > simp2trad.t
 
 t2s_1tomany.t: trad2simp.t
 	$(GREP) -s ".\{19,\}" trad2simp.t | $(SED)  's/U+...../"/' | $(SED)  's/|U+...../"=>"/' | $(SED)  's/|U+.....//g' | $(SED)  's/|/",/'  > t2s_1tomany.t
@@ -116,7 +116,7 @@ tradphrases_4.t: alltradphrases.t
 	mv t tradphrases_4.t
 
 tradphrases.t: tradphrases.manual tradphrases_2.t tradphrases_3.t tradphrases_4.t t2s_1tomany.t
-	cat  tradphrases_2.t tradphrases_3.t tradphrases_4.t tradphrases.manual |sort | uniq > tradphrases.t
+	cat tradphrases.manual tradphrases_2.t tradphrases_3.t tradphrases_4.t |sort | uniq > tradphrases.t
 	for i in `$(SED) 's/"\(.\).*/\1/' t2s_1tomany.t ` ; do $(GREP) $$i tradphrases.t ; done | $(DIFF) tradphrases.t - | $(GREP) '<' | $(SED) 's/< //' > t
 	mv t tradphrases.t
 

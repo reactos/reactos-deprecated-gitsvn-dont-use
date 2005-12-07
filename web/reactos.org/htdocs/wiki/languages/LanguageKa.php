@@ -33,22 +33,6 @@ class LanguageKa extends LanguageUtf8 {
 		global $wgNamespaceNamesKa;
 		return $wgNamespaceNamesKa;
 	}
-	
-	function getNsText( $index ) {
-		global $wgNamespaceNamesKa;
-		return $wgNamespaceNamesKa[$index];
-	}
-	
-	function getNsIndex( $text ) {
-		global $wgNamespaceNamesKa;
-		
-		foreach ( $wgNamespaceNamesKa as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) {
-				return $i;
-			}
-		}
-		return false;
-	}
 }
 
 ?>

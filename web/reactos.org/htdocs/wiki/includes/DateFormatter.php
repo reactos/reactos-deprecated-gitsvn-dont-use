@@ -3,37 +3,27 @@
  * Contain things
  * @todo document
  * @package MediaWiki
+ * @subpackage Parser
  */
 
 /** */
 define('DF_ALL', -1);
-/** */
 define('DF_NONE', 0);
-/** */
 define('DF_MDY', 1);
-/** */
 define('DF_DMY', 2);
-/** */
 define('DF_YMD', 3);
-/** */
 define('DF_ISO1', 4);
-/** */
 define('DF_LASTPREF', 4);
-
-/** */
 define('DF_ISO2', 5);
-/** */
 define('DF_YDM', 6);
-/** */
 define('DF_DM', 7);
-/** */
 define('DF_MD', 8);
-/** */
 define('DF_LAST', 8);
 
 /**
  * @todo preferences, OutputPage
  * @package MediaWiki
+ * @subpackage Parser
  */
 class DateFormatter
 {
@@ -132,6 +122,7 @@ class DateFormatter
 	 * @param $text
 	 */
 	function reformat( $preference, $text ) {
+		if ($preference == 'ISO 8601') $preference = 4; # The ISO 8601 option used to be 4
 		for ( $i=1; $i<=DF_LAST; $i++ ) {
 			$this->mSource = $i;
 			if ( @$this->rules[$preference][$i] ) {

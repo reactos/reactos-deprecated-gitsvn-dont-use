@@ -18,7 +18,7 @@ require_once('QueryPage.php');
 class DisambiguationsPage extends PageQueryPage {
 
 	function getName() {
-		return 'disambiguations';
+		return 'Disambiguations';
 	}
 	
 	function isExpensive( ) { return true; }
@@ -34,21 +34,20 @@ class DisambiguationsPage extends PageQueryPage {
 
 	function getSQL() {
 		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'cur', 'links' ) );
-
+		extract( $dbr->tableNames( 'page', 'pagelinks' ) );
+		
 		$dp = Title::newFromText(wfMsgForContent("disambiguationspage"));
-		$dns = $dp->getNamespace();
-		$dtitle = $dbr->addQuotes( $dp->getDBkey() );
+		$id = $dp->getArticleId();
+        $dns = $dp->getNamespace();
+        $dtitle = $dbr->addQuotes( $dp->getDBkey() );
 
-		$sql = "SELECT 'Disambiguations' as type,"
-			.   " ca.cur_namespace AS namespace, ca.cur_title AS title"
-			. " FROM {$links} as la, {$links} as lb, {$cur} as ca, {$cur} as cb"
-			. " WHERE cb.cur_namespace = $dns"
-			. " AND cb.cur_title = $dtitle"
-			. " AND la.l_from = lb.l_to"
-			. " AND ca.cur_id = lb.l_from"
-			. " AND cb.cur_id = lb.l_to" ;
-
+		$sql = "SELECT 'Disambiguations' AS type, pa.page_namespace AS namespace,"
+			 ." pa.page_title AS title, la.pl_from AS value"
+			 ." FROM {$pagelinks} AS lb, {$page} AS pa, {$pagelinks} AS la"
+			 ." WHERE lb.pl_namespace = $dns AND lb.pl_title = $dtitle" # disambiguation template
+			 ." AND pa.page_id = lb.pl_from"        
+			 ." AND pa.page_namespace = la.pl_namespace"
+			 ." AND pa.page_title = la.pl_title";
 		return $sql;
 	}
 
@@ -58,8 +57,8 @@ class DisambiguationsPage extends PageQueryPage {
 	
 	function formatResult( $skin, $result ) {
 		global $wgContLang ;
-		$dp = Title::newFromText(wfMsgForContent("disambiguationspage"));
-        $title = Title::makeTitle( $result->namespace, $result->title );
+		$title = Title::newFromId( $result->value );
+        $dp = Title::makeTitle( $result->namespace, $result->title );
 
 		$from = $skin->makeKnownLinkObj( $title,'');
 		$edit = $skin->makeBrokenLinkObj( $title, "(".wfMsg("qbedit").")" , 'redirect=no');
@@ -78,6 +77,5 @@ function wfSpecialDisambiguations() {
 	$sd = new DisambiguationsPage();
 	
 	return $sd->doQuery( $offset, $limit );
-
 }
 ?>

@@ -1,10 +1,9 @@
 <?php
-
-# The names of the namespaces can be set here, but the numbers
-# are magical, so don't change or move them!  The Namespace class
-# encapsulates some of the magic-ness.
-# Limburgish file - Limburgse versie 2.2.a
-
+/** Limburgish (Limburgs)
+  *
+  * @package MediaWiki
+  * @subpackage Language
+  */
 /**
  * @access private
  */
@@ -38,74 +37,9 @@ $wgNamespaceNamesLi = array(
 	'standard' => "Standaard",
 	'nostalgia' => "Nostalgie",
 	'cologneblue' => "Keuls blauw",
-	'smarty' => "Paddington",
-	'montparnasse' => "Montparnasse",
-	'davinci' => "DaVinci",
-	'mono' => "Mono",
-	'monobook' => "MonoBook",
- "myskin" => "MySkin" 
-);
-
-/* private */ $wgUserTogglesLi = array(
- "hover"  => "Wikilinks in zwevend tekstvak toene",
- "underline" => "Links ongerstjreipe",
- "highlightbroken" => "Links noa lege pagina's loate oplichte",
- "justify" => "Paragrafen oetvullen",
- "hideminor" => "Kleine wiezigingen verbergen in recente wijzigingen",
- "numberheadings" => "Koppen automatisch nummeren",
- "rememberpassword" => "Wachtwoord onthouwe",
- "editwidth" => "Bewirkingsveld euver ganse breidte",
- "editondblclick" => "Dubbelklikke levert bewerkingspagina (vereist JavaScript)",
- "watchdefault" => "Artikelen die u wijzigt automatisch volgen",
- "minordefault" => "Maak 'kleine' veranderingen mien standaard"
-);
-
-/* private */ $wgValidSpecialPagesLi = array(
- "Userlogin"  => "Aanmelden",
- "Userlogout" => "Afmelden",
- "Preferences" => "Mien gebroekersvoorkeuren einsjtille",
- "Watchlist"  => "Mien volgliest loate zeen",
- "Recentchanges" => "Recent biegewirkte pagina's loate zeen",
- "Upload"  => "Afbeeldingen uploade",
- "Imagelist"  => "Liest ge-uploade plètjes loate zeen",
- "Listusers"  => "Geregistreerde gebroekers loate zeen",
- "Statistics" => "Statistieken tonen",
- "Randompage" => "Ga naar een willekeurig artikel",
-
- "Lonelypages" => "Neet-gelinkte artikels tonen",
- "Unusedimages" => "Neet-gelinkte afbeeldingen tonen",
- "Popularpages" => "Populaire artikels tonen",
- "Wantedpages" => "Meist gewunsjte artikels tonen",
- "Shortpages" => "Korte artikels tonen",
- "Longpages"  => "Lange artikels tonen",
- "Newpages"  => "Nieuwe artikels tonen",
- "Allpages"  => "Alle paginatitels tonen",
-
- "Ipblocklist" => "Geblokkierde IP-adressen tonen",
- "Maintenance" => "Ongerhoudspagina",
- "Specialpages"  => "Speciale pagina's",
- "Contributions" => "Bijdragen per gebroeker",
- "Emailuser"  => "E-mail gebroeker",
- "Whatlinkshere" => "Verwijzende pagina's",
- "Recentchangeslinked" => "verwante verangeringen",
- "Movepage"  => "Pagina verplaatsen",
- "Booksources" => "Bookwinkels"
-);
-
-/* private */ $wgSysopSpecialPagesLi = array(
- "Blockip"  => "Blokkier un IP-adres",
- "Asksql"  => "Raadpleeg de database",
- "Undelete" => "Verwiederde pagina's truukzitten"
-);
-
-/* private */ $wgDeveloperSpecialPagesLi = array(
- "Lockdb"  => "Maak de database alleen-lèze",
- "Unlockdb"  => "Maak de database euversjriefbaar",
-);
+) + $wgSkinNamesEn;
 
 /* private */ $wgAllMessagesLi = array(
-'special_version_prefix' => '',
-'special_version_postfix' => '',
 
 'sunday' => 'zondig',
 'monday' => 'moandig',
@@ -144,11 +78,10 @@ $wgNamespaceNamesLi = array(
 "linktrail" => "/^([àáèéìíòóùúâêîôûäöüïëça-z]+)(.*)$/sDu",
 "mainpage"  => "Hoofdpagina",
 "about"   => "Info",
-"aboutwikipedia" => "Euver Wikipedia",
+'aboutsite' => 'Euver {{SITENAME}}',
 "aboutpage"  => "Wikipedia:info",
 "help"   => "Help",
 "helppage"  => "Wikipedia:Help",
-"wikititlesuffix" => "Wikipedia",
 "bugreports" => "Foutenrapportage",
 "bugreportspage" => "Wikipedia:Foutenrapportage",
 "faq"   => "FAQ",
@@ -167,7 +100,6 @@ $wgNamespaceNamesLi = array(
 "currentevents" => "In het nuuis",
 "errorpagetitle" => "Fout",
 "returnto"  => "Truuk noa $1.",
-"fromwikipedia" => " ",
 "whatlinkshere" => "Pagina's die hierheen verwijzen",
 "help"   => "Hulp",
 "search"  => "Zeuke",
@@ -187,8 +119,7 @@ $wgNamespaceNamesLi = array(
 "redirectedfrom" => "(Doorverwezen vanaf $1)",
 "lastmodified" => "Deze pagina werd het laatst gewijzigd op $1.",
 "viewcount"  => "Deze pagina werd $1 maal bekeken.",
-"gnunote" => "Deze pagina valt onder de  <a class=internal href='/wiki/Gnu_Vrije_Documentatie_Licentie'>GNU FDL</a>.",
-"printsubtitle" => "(Uit http://li.wikipedia.org)",
+"printsubtitle" => "(Uit {{SERVER}})",
 "protectedpage" => "Beveiligde pagina",
 "administrators" => "Wikipedia:Systeembeheerders",
 "sysoptitle" => "Toegang alleen voor systeembeheerders",
@@ -215,7 +146,7 @@ $wgNamespaceNamesLi = array(
 "databaseerror" => "Database fout",
 "dberrortext" => "Bie ut zeuke is un syntaxfout in de database opgetreden.
 Dit kan zijn veroorzaakt door een illegale zoekactie (zie $5),
- of het duidt op een fout in de software. 
+ of het duidt op een fout in de software.
 De laatste zoekpoging in de database was:
 <blockquote><tt>$1</tt></blockquote>
 vanuit de functie \"<tt>$2</tt>\".
@@ -234,10 +165,10 @@ De verantwoordelijke systeembeheerder gaf hiervoor volgende reden op:
 "filedeleteerror" => "Kos bestjand \"$1\" neet weghoale.",
 "filenotfound" => "Kos bestjand \"$1\" neet vinge.",
 "unexpected" => "Onverwachte waarde: \"$1\"=\"$2\".",
-"formerror"  => "Fout: kos formulier neet verzenden", 
+"formerror"  => "Fout: kos formulier neet verzenden",
 "badarticleerror" => "Deze handeling kan op deze pagina neet worden uitgevoerd.",
 "cannotdelete" => "Kos de pagina of afbeelding neet verwijderen.",
-"badtitle"              => "Ongeldige paginatitel", 
+"badtitle"              => "Ongeldige paginatitel",
 "badtitletext"  => "De opgevraagde pagina is neet beschikbaar of leeg.",
 "perfdisabled" => "Om te veurkomme dat de database weurt euverbelast is deze pagina allein tusje 03:00 en 15:00 (West-Europese zomertied) beschikbaar.",
 
@@ -256,10 +187,7 @@ U kan Wikipedia anoniem blijven gebruiken, of u opnieuw aanmelden onder dezelfde
 "newusersonly" => " (alleen nieuwe gebroekers)",
 "remembermypassword" => "mien wachtwoord onthouden voor latere sessies.",
 "loginproblem" => "<b>Er is een probleem met het aanmelden.</b><br />Probeer het opnieuw a.u.b.",
-"alreadyloggedin" => "<font color=red><b>gebroeker $1, u bent al aangemeld.</b></font><br />\n",
-
-"areyounew"  => "Bent u nieuw op Wikipedia en wilt u een gebroekersprofiel aanmaken, voer dan een gebroekersnaam in en voer tweemaal hetzelfde wachtwoord in.
-Invoeren van uw e-mailadres is neet verplicht; het is handig als u uw wachtwoord bent vergeten; dat kan dan per e-mail worden opgestuurd.<br />\n",
+"alreadyloggedin" => "<strong>gebroeker $1, u bent al aangemeld.</strong><br />\n",
 
 "login"   => "Aanmelden",
 "userlogin"  => "Aanmelden",
@@ -303,10 +231,10 @@ Gelieve na ontvangst opnieuw aan te melden.",
 "previewconflict" => "Deze versie toont hoe de tekst in het bovenste veld eruit gaat zien wanneer u zou opslaan.",
 "editing"  => "Bewerkingspagina: $1",
 "editconflict" => "Bewerkingsconflict: $1",
-"explainconflict" => "Iemand anders heeft deze pagina gewijzigd nadat u aan deze bewerking bent begonnen. Het bovenste tekstveld toont de huidige versie van de pagina. U zal uw eigen wijzigingen moeten integreren in die tekst. Alleen de tekst in het bovenste veld wordt bewaard wanneer u kiest voor \"Pagina opslaan\".\n<p>",
+"explainconflict" => "Iemand anders heeft deze pagina gewijzigd nadat u aan deze bewerking bent begonnen. Het bovenste tekstveld toont de huidige versie van de pagina. U zal uw eigen wijzigingen moeten integreren in die tekst. Alleen de tekst in het bovenste veld wordt bewaard wanneer u kiest voor \"Pagina opslaan\".<br />",
 "yourtext"  => "Uw tekst",
 "storedversion" => "Opgesjlage versie",
-"editingold" => "<strong>WAARSCHUWING: U bent bezig een oude versie van deze pagina te bewerken. Wanneer u uw bewerking opslaat, gaan alle wijzigingen die na deze versie gedaan zijn verloren.\n.</strong>\n",
+"editingold" => "<strong>WAARSCHUWING: U bent bezig een oude versie van deze pagina te bewerken. Wanneer u uw bewerking opslaat, gaan alle wijzigingen die na deze versie gedaan zijn verloren.</strong>",
 "yourdiff"  => "Wijzigingen",
 "copyrightwarning" => "Opgelet: Alle bijdragen aan Wikipedia worden geacht te zijn vrijgegeven onder de GNU Free Documentation License. Als u neet wil dat uw tekst door anderen naar believen bewerkt en verspreid kan worden, kies dan neet voor 'Pagina Opslaan'.<br /> Hierbij belooft u ons tevens dat u deze tekst zelf hebt geschreven, of overgenomen uit een vrije, openbare bron.<br /> <strong>GEBRUIK GEEN MATERIAAL DAT BESCHERMD WORDT DOOR AUTEURSRECHT, TENZIJ JE DAARTOE TOESTEMMING HEBT!</strong>",
 
@@ -336,8 +264,6 @@ Gelieve na ontvangst opnieuw aan te melden.",
 # Search results
 # Zoek resultaten
 "searchresults" => "Zoekresultaten",
-"searchhelppage" => "Wikipedia:Zoeken",
-"searchingwikipedia" => "Zoeken op Wikipedia",
 "searchresulttext" => "Voor meer informatie over zoeken op Wikipedia: zie $1.",
 "searchquery" => "Voor zoekopdracht \"$1\"",
 "badquery"  => "Slecht geformuleerde zoekopdracht",
@@ -353,19 +279,19 @@ Gelieve na ontvangst opnieuw aan te melden.",
 "showingresults" => "Hieronder de resultaten <b>$1</b> beginnend met #<b>$2</b>.",
 "nonefound"  => "<strong>Merk op:</strong> wanneer een zoekopdracht mislukt komt dat vaak door gebruik van (in het Engels) veel voorkomende woorden zoals \"of\" en \"be\", die neet geïndexeerd zijn, of door verschillende zoektermen tegelijk op te geven (u krijgt dan alleen in pagina's waaarin alle opgegeven termen voorkomen).",
 "powersearch" => "Zoeken",
-"powersearchtext" => "   
+"powersearchtext" => "
  Zoek in naamruimten :<br />
 $1<br />
-$2 Toon redirects   Zoek: $3 $9",   
+$2 Toon redirects   Zoek: $3 $9",
 
 # Preferences page
 # Voorkeuren
 "preferences" => "Voorkeuren",
 "prefsnologin" => "Niet aangemeld",
-"prefsnologintext" => "U dient <a href=\"{{localurl:Special:Userlogin}}\">aangemeld</a> te zijn om voorkeuren te kunnen instellen.",
+"prefsnologintext" => "U dient [[Special:Userlogin|aangemeld]] te zijn om voorkeuren te kunnen instellen.",
 "prefslogintext" => "U bent aangemeld als \"$1\". Uw interne identificatienummer is $2.",
 "prefsreset" => "Standaardvoorkeuren hersteld.",
-"qbsettings" => "Menubalkinstellingen", 
+"qbsettings" => "Menubalkinstellingen",
 "changepassword" => "Wachtwoord wijzigen",
 "skin"   => "Wikipedia-Uiterlijk",
 "saveprefs"  => "Voorkeuren opslaan",
@@ -420,9 +346,8 @@ Als u pagina's wilt verwijderen, ga naar [[Wikipedia:Te verwijderen pagina's|Te 
 "reupload"  => "Opnieuw uploaden",
 "reuploaddesc" => "Terug naar het uploadformulier.",
 "uploadnologin" => "Niet aangemeld",
-"uploadnologintext" => "U dient <a href=\"{{localurl:Special:Userlogin}}\">aangemeld te zijn</a>
+"uploadnologintext" => "U dient [[Special:Userlogin|aangemeld te zijn]]
 om bestanden te uploaden.",
-"uploadfile" => "upload bestand",
 "uploaderror" => "upload fout",
 "uploadtext" => "<strong>STOP!</strong> Voor u iets hier upload,
 wees zeker dat het in overeenkomst is met het Wikipedia
@@ -434,7 +359,7 @@ Uploads en verwijderingen worden bijgehouden in het
 
 Gebroek het onderstaande formulier om bestanden zoals afbeeldingen en geluidsbestanden die relevant zijn voor uw artikel te u-loaden. Bij de meeste browers zoals 'Internet Explorer' en 'Mozilla' zult u een \"Bladeren...\" of \"Browse..\" knop zien die een standaard dialoogscherm van uw bestuuringssysteem oproept. Kiest u een bestand, dan zal het ingevuld worden in het veld naast de \"Bladeren...\" knop. U dient ook het vakje aan te vinken waarmee u bevestigt dat er geen schending van auteursrechten plaatsvindt door het gebruik van dat bestand. Vul het veld \"Omschrijving\" in. Druk op de \"Upload\" knop om het uploaden te voltooien. Dit kan even duren als u een langzame internetverbinding gebruikt.
 
-Gebroek bij voorkeur JPEG voor foto's, PNG voor tekeningen en dergelijke en OGG voor geluid. 
+Gebroek bij voorkeur JPEG voor foto's, PNG voor tekeningen en dergelijke en OGG voor geluid.
 Geef uw bestanden een duidelijk omschrijvende naam om verwarring te voorkomen. Om het bestand in een pagina te laten verschijnen, kunt u het volgende doen;  <b><nowiki>[[afbeelding:uw_foto.jpg]]</nowiki></b> of <b><nowiki>[[afbeelding:uw_logo.png|alt text]]</nowiki></b> of <b><nowiki>[[media:uw_geluid.ogg]]</nowiki></b> voor audio.
 
 Vergeet neet dat net als met andere pagina's op Wikipedia anderen de ge-uploade bestanden kunnen verwijderen indien men denkt dat dat in het voordeel van het project is. Bij misbruik van dit systeem kan u de toegang tot Wikipedia ontzegd worden.",
@@ -446,11 +371,9 @@ Vergeet neet dat net als met andere pagina's op Wikipedia anderen de ge-uploade 
 ",
 "filename"  => "Bestandsnaam",
 "filedesc"  => "Beschrijving",
-"affirmation" => "Ik verklaar dat de eigenaar van de rechten op dit bestand toestemt om het onder de voorwaarden van $1 te verspreiden.",
 "copyrightpage" => "Wikipedia:Auteursrechten",
 "copyrightpagename" => "Wikipedia auteursrechten",
 "uploadedfiles" => "Ge-uploade bestanden",
-"noaffirmation" => "U dient te bevestigen dat deze handeling geen inbreuk maakt op auteursrechten.",
 "ignorewarning" => "Negeer de waarschuwing en sla het bestand op.",
 "minlength"  => "De naam van het bestand moet uit ten minste drie tekens bestaan.",
 "badfilename" => "De naam van het bestand is gewijzigd in \"$1\".",
@@ -460,17 +383,15 @@ Vergeet neet dat net als met andere pagina's op Wikipedia anderen de ge-uploade 
 "fileuploaded" => "<b>Het uploaden van bestand \"$1\" is geslaagd.</b> Gelieve deze link naar de omschrijvingspagina te volgen: ($2). Vul daar informatie in over dit bestand, bijvoorbeeld de oorsprong, wanneer en door wie het gemaakt is en wat u verder er nog over te vertellen heeft.",
 "uploadwarning" => "Upload waarschuwing ",
 "savefile"  => "Bestand opslaan",
-"uploadedimage" => "heeft ge-upload: \"$1\"",
+"uploadedimage" => "heeft ge-upload: \"[[$1]]\"",
 
 # Image list
 # Afbeeldingsliest
 "imagelist"  => "liest van afbeeldingen",
 "imagelisttext" => "Hier volgt een liest met $1 afbeeldingen geordend $2.",
 "getimagelist" => "liest van afbeeldingen ophalen",
-"ilshowmatch" => "Toon alle afbeeldingen waarvan de naam voldoet aan",
 "ilsubmit"  => "Zoek",
 "showlast"  => "Toon de laatste $1 afbeeldingen geordend $2.",
-"all"   => "alle",
 "byname"  => "op naam",
 "bydate"  => "op datum",
 "bysize"  => "op grootte",
@@ -495,7 +416,7 @@ Vergeet neet dat net als met andere pagina's op Wikipedia anderen de ge-uploade 
 Er is in totaal $3 maal een pagina bekeken, en $4 maal een pagina bewerkt. Dat geeft een gemiddelde van $5 bewerkingen per pagina, en $6 paginabezoeken per wijziging.",
 "userstatstext" => "Er zijn momenteel $1 geregistreerde gebroekers; hiervan zijn er $2 systeembeheerders (zie $3).",
 
-# Maintenance Page   
+# Maintenance Page
 #
 "maintenance"           => "Onderhoudspagina",
 "maintnancepagetext"    => "Op deze pagina vindt u een aantal handige zoekopdrachten om kleine alledaagse problemen in de Wikipedia te verhelpen. Sommige van deze zoekopdrachten vormen een grote belasting voor de database; ga dus neet na elke paar pagina's die u hersteld heeft, de pagina opnieuw laden.",
@@ -532,8 +453,6 @@ Er is in totaal $3 maal een pagina bekeken, en $4 maal een pagina bewerkt. Dat g
 "listusers"  => "liest van gebroekers",
 "specialpages" => "Speciale pagina's",
 "spheading"  => "Speciale pagina's",
-"sysopspheading" => "Speciale pagina's voor systeembeheerders",
-"developerspheading" => "Speciale pagina's voor systeemontwikkelaars",
 "protectpage" => "Beveilig pagina",
 "recentchangeslinked" => "Volg links",
 "rclsub"  => "(van pagina's waarnaar \"$1\" verwijst)",
@@ -547,8 +466,8 @@ Er is in totaal $3 maal een pagina bekeken, en $4 maal een pagina bewerkt. Dat g
 # Email this user
 # E-mail deze gebroeker
 "mailnologin" => "Geen e-mailadres gekend voor deze gebroeker",
-"mailnologintext" => "U dient <a href=\"{{localurl:Special:Userlogin}}\">aangemeld te zijn </a>
-en een geldig e-mailadres in uw <a href=\"{{localurl:Special:Preferences}}\">voorkeuren</a>
+"mailnologintext" => "U dient [[Special:Userlogin|aangemeld te zijn]]
+en een geldig e-mailadres in uw [[Special:Preferences|voorkeuren]]
 to send e-mail to other users.",
 "emailuser"  => "E-mail deze gebroeker",
 "emailpage"  => "E-mail gebroeker",
@@ -569,11 +488,11 @@ to send e-mail to other users.",
 "watchlistsub" => "(van gebroeker \"$1\")",
 "nowatchlist" => "Er staat neets op uw volgliest.",
 "watchnologin" => "U bent neet aangemeld",
-"watchnologintext" => "Om uw volgliest te veranderen dient u eerst <a href=\"{{localurl:Special:Userlogin}}\">aangemeld</a>
+"watchnologintext" => "Om uw volgliest te veranderen dient u eerst [[Special:Userlogin|aangemeld]]
 te zijn.",
 "addedwatch" => "Toegevoegd aan volgliest",
 "addedwatchtext" => "De pagina \"$1\" is aan uw [[Special:Watchlist|volgliest]] toegevoegd.
-Toekomstige wijzigingen aan deze pagina en euverlikpagina zullen hier vermeld worden. 
+Toekomstige wijzigingen aan deze pagina en euverlikpagina zullen hier vermeld worden.
 Ook zullen deze pagina's in het <b>vet</b> verschijnen in de [[Special:Recentchanges|liest van recente wijzigingen]] zodat u ze eenvoudiger kan opmerken.
 
 Indien u een pagina wenst te verwijderen van uw volgliest klik dan op \"Van volgliest verwijderen\" in de menubalk.",
@@ -592,7 +511,6 @@ Indien u een pagina wenst te verwijderen van uw volgliest klik dan op \"Van volg
 "deletesub"  => "(Verwijderen \"$1\")",
 "confirmdeletetext" => "U bent staat op het punt een pagina of afbeelding voorgoed te verwijderen. Dit verwijdert alle inhoud en geschiedenis van de database. Bevestig hieronder dat dit inderdaad uw bedoeling is, dat u de gevolgen begrijpt, en dat uw verwijdering overeenkomt met de [[Wikipedia:Instructies]].",
 
-"confirmcheck" => "Ja, ik wil dit voorgoed verwijderen.",
 "actioncomplete" => "Actie voltooid",
 "deletedtext" => "\"$1\" is verwijderd. Zie $2 voor een overzicht van recente verwijderingen.",
 "deletedarticle" => "\"$1\" is verwijderd",
@@ -646,7 +564,6 @@ Indien u een pagina wenst te verwijderen van uw volgliest klik dan op \"Van volg
 "ipbreason"  => "Reden",
 "ipbsubmit"  => "Blokkier dit IP-adres",
 "badipaddress" => "Het IP-adres heeft een ongeldige opmaak.",
-"noblockreason" => "U dient een reden op te geven voor het blokkeren van een IP-adres.",
 "blockipsuccesssub" => "Blokkering gelukt",
 "blockipsuccesstext" => "Het IP-adres \"$1\" is geBlokkierd.<br />
 Zie de [[Special:Ipblocklist|liest van geBlokkierde IP-adressen]].",
@@ -655,7 +572,7 @@ Zie de [[Special:Ipblocklist|liest van geBlokkierde IP-adressen]].",
 "ipusubmit"  => "De-Blokkier dit IP-adres.",
 "ipusuccess" => "Het IP-adres \"$1\" is gedeBlokkierd.",
 "ipblocklist" => "Liest van geblokkierde IP-adressen.",
-"blocklistline" => "Op $1 blokkierde $2 ut adres $3",
+"blocklistline" => "Op $1 blokkierde $2 ut adres $3 ($4)",
 "blocklink"  => "Blokkier",
 "unblocklink" => "de-Blokkier",
 "contribslink" => "bijdragen",
@@ -677,15 +594,6 @@ Zie de [[Special:Ipblocklist|liest van geBlokkierde IP-adressen]].",
 Vergeet neet de database opnieuw te de-blokkeren zodra u klaar bent met uw onderhoud.",
 "unlockdbsuccesstext" => "Blokkering van de database van Wikipedia LI is opgeheven.",
 
-# SQL query
-# SQL raadplegen
-"asksql"  => "SQL raadplegen",
-"asksqltext" => "Gebroek het onderstaande formulier om een direct verzoek naar de database van Wikipedia te zenden. Gebroek enkelvoudige aanhalingstekens ('zoals hier') voor letterlijke teksten. Een ingewikkelde aanvraag kan de sever vaak extra belasten. Gelieve deze mogelijkheid daarom spaarzaam te gebruiken. Zie ook: [[Wikipedia:SQL opdrachten]].",
-"sqlquery"  => "Voer opdracht in",
-"querybtn"  => "Verstuur opdracht",
-"selectonly" => "Opdrachten anders dan \"SELECT\" zijn voorbehouden aan Wikipedia ontwikkelaars.",
-"querysuccessful" => "Opdracht succesvol",
-
 # Move page
 # Verplaats pagina
 "movepage"  => "Verplaats pagina",
@@ -696,7 +604,7 @@ Vergeet neet de database opnieuw te de-blokkeren zodra u klaar bent met uw onder
 * Als u de onderstaande radiobox neet aangevinkt laat",
 "movearticle" => "Verplaatsj pagina",
 "movenologin" => "Neet aangemeld",
-"movenologintext" => "U dient <a href=\"{{localurl:Special:Userlogin}}\">aangemeld</a>
+"movenologintext" => "U dient [[Special:Userlogin|aangemeld]]
 te zijn om een pagina te verplaatsen.",
 "newtitle"  => "Noa de nuuje titel",
 "movepagebtn" => "Verplaatsj pagina",
@@ -709,6 +617,251 @@ te zijn om een pagina te verplaatsen.",
 "talkpagemoved" => "De bieheurende euverlikpagina is auch verplaatsjt.",
 "talkpagenotmoved" => "De bijheurende euverlikpagina is <strong>neet</strong> verplaatsjt.",
 
+
+# Update from wikipedia
+'accmailtext' => "'t Wachwaord veur '$1' is nao $2 versjtuurd.",
+'accmailtitle' => "Wachwaord versjtuurd.",
+'acct_creation_throttle_hit' => "Sorry, de höbs al $1 accounts aangemak. De kins d'r gein mië aanmake.",
+'addgroup' => "Groep toevoge",
+'allarticles' => "Alle artikele",
+'alllogstext' => "Gecombinierde wiergaaf van uploads, verwiederinge, besjerminge, blokkieringe, en sysop logs.
+De kins ouch 'n log type, de gebroekersname of de betriffende pazjena selectiere.",
+'allmessages' => "Alle systeemberichte",
+'allmessagescurrent' => "Huidige tèks",
+'allmessagesdefault' => "Default tèks",
+'allmessagesname' => "Naom",
+'allmessagesnotsupportedDB' => "Special:AllMessages neet ongersjteund omdat wgUseDatabaseMessages oet (off) sjtèt.",
+'allmessagesnotsupportedUI' => "Dien huidige interface taol <b>$1</b> weurt bie dees site neet ongerstjeund doer Special:AllMessages.",
+'allmessagestext' => "Dit is 'n liest van alle systeemberichte besjikbaar in de MediaWiki: naomroemde.",
+'allpagesnext' => "Volgende",
+'allpagesprev' => "Vurrige",
+'alphaindexline' => "$1 nao $2",
+'ancientpages' => "Awdste pazjena's",
+'and' => "en",
+'anontalk' => "Euverlik veur dit IP adres",
+'anontalkpagetext' => "----''Dit is de euverlikpazjena veur 'ne anonieme gebroeker dae nog gein account haet aangemak of dae 't neet gebroek. Daorom gebroeke v'r 't [[IP adres]] om de gebroeker te identificere. Dat adres kint weure gedeild doer miedere gebroekers. As e 'ne anonieme gebroeker bis en de höbs 't geveul dat 'r onrillevante commentare aan dich gericht zint, kins e 't biste [[Special:Userlogin|'n account crëere of inlogge]] om toekomstige verwarring mit angere anonieme gebroekers te veurkomme.''",
+'anonymous' => "Anonieme gebroeker(s) van Wikipedia",
+'article' => "Contentpazjena",
+'autoblocker' => "Omdas e 'n IP addres deils mit \"$1\" (rede \"$2\") bis e automatisch geblokkierd.",
+'blocklogentry' => "\"$1\" geblokkierd veur de tied van $2",
+'blocklogpage' => "Blokkier log",
+'blocklogtext' => "Dit is 'n log van 't blokkieringe van gebroekers. Automatisch geblokkierde IP adresse sjtón hie neet bie. Zuug de [[Special:Ipblocklist|IP blokkier liest]] vuur de liest van op dit mement akteve blokkieringe.",
+'bold_sample' => "Vètte tèks",
+'bold_tip' => "Vètte tèks",
+'bureaucratlogentry' => "Rechte vuur gebroeker \"$1\" op \"$2\" gesjtèld",
+'cachederror' => "Dit is 'n gecachete kopie van de gevraogde pazjena, en is mesjien neet gans up to date.",
+'categories' => "Kattegorië",
+'category' => "Kattegorie",
+'category_header' => "Artikele in kategorie \"$1\"",
+'categoryarticlecount' => "D'r zunt $1 artikele in dees kategorie.",
+'categoryarticlecount1' => "D'r is $1 artikel in dees kategorie.",
+'changes' => "verangeringe",
+'clearyourcache' => "'''Mèrk op:''' Nao 't opsjlaon, kins e diene browsercache wisse om de verangeringe te zeen: '''Mozilla / Firefox:''' ''Ctrl-Shift-R'', '''Internet Explorer:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-Shift-R'', '''Konqueror''' ''F5''.",
+'compareselectedversions' => "Vergeliek geselecteerde versies",
+'confirmemail_body' => "Someone, probably you from IP address $1, has registered an
+account \"$2\" with this e-mail address on {{SITENAME}}.
+
+To confirm that this account really does belong to you and activate
+e-mail features on {{SITENAME}}, open this link in your browser:
+
+$3
+
+If this is *not* you, don't follow the link. This confirmation code
+will expire at $4.",
+'confirmprotect' => "Bevèstig besjerme",
+'confirmprotecttext' => "Wits e zeker das e dees pazjena wils besjerme?",
+'confirmunprotect' => "Bevèstig vriegaeve van besjèrming",
+'confirmunprotecttext' => "Wits e zeker das de besjèrming van dees pazjena wils vriegaeve?",
+'copyright' => "De inhawd is besjikbaar onger de $1.",
+'copyrightwarning2' => "Mèrk op dat alle biedraag aan {{SITENAME}} kinne weure verangerd, aangepas of weggehaold doer anger luui. As e neet wils dat dien tèks zoemer kint weure aangepas mos e 't hie neet plaatsje.<br />
+De beluifs os auch das e dees tèks zelf höbs gesjreve, of gekopieerd van 'n [[public domain]] of vergeliekbare vrieë bron (zuug $1 vuur details).
+<strong>HIE GEIN AUTEURSRECHTELIK BESJERMD WERK ZONGER TOESJTUMMING!</strong>",
+'couldntremove' => "Kos item '$1' neet wisse...",
+'createaccountmail' => "per e-mail",
+'creditspage' => "Sjrievers van dees pazjena",
+'currentevents-url' => "In 't nuuis",
+'currentrevisionlink' => "zuug huidige versie",
+'dateformat' => "Datumformaat",
+'deadendpages' => "Doedlaupende pazjena's",
+'default' => "sjtandaard",
+'defaultns' => "Zeuk sjtandaard in dees naomroemdes:",
+'delete' => "Wisse",
+'deletedrevision' => "Aw versie $1 gewist.",
+'deleteimgcompletely' => "Wis al versies",
+'edit' => "Bewirk",
+'editcomment' => "'t Edit commentaor waor: \"<i>$1</i>\".",
+'editingcomment' => "Bewirk $1 (commentaar)",
+'editingsection' => "Bewirke van sectie van $1",
+'editsection' => "bewirk",
+'emptyfile' => "'t Besjtand das e höbs geupload is laeg. Dit kump waorsjienliek doer 'n tiepfout in de besjtandsnaom. Kiek estebleef of se dit besjtand wirkelik wils uploade.",
+'exbeforeblank' => "inhawd veur 't wisse waor:",
+'exblank' => "pazjena waor laeg",
+'excontent' => "inhawd waor:",
+'export' => "Exportier pazjena's",
+'extlink_sample' => "http://www.example.com link titel",
+'extlink_tip' => "Externe link (mit de http:// prefix)",
+'fileexists' => "D'r is al e besjtand mit dees naam, bekiek $1 of se dat besjtand mesjien wils vervange.",
+'filemissing' => "Besjtand ontbrik",
+'filesource' => "Bron",
+'geo' => "GEO coördinate",
+'groups-editgroup-name' => "Group name:",
+'groups-group-edit' => "Existing groups:",
+'guesstimezone' => "Invulle van browser",
+'hidetoc' => "verberg",
+'history_short' => "Historie",
+'imagemaxsize' => "Bepèrk plaetsjes op de besjrievingspazjena's van aafbeildinge tot:",
+'ipboptions' => "2 hours,1 day,3 days,1 week,2 weeks,1 month,3 months,6 months,1 year,infinite",
+'italic_sample' => "Italic tèks",
+'italic_tip' => "Italic tèks",
+'lastmodifiedby' => "Dees pazjena is 't litst verangert op $1 doer $2.",
+'link_sample' => "Link titel",
+'link_tip' => "Interne link",
+'loginreqtext' => "De mos [[special:Userlogin|inglogge]] om anger pazjenas te bekieke.",
+'longpagewarning' => "WAARSJUWING: Dees pazjena is $1 kilobytes lang; 'n aantal browsers kint probleme höbbe mit 't verangere van pazjena's in de buurt van of grotter as 32 kB. Kiek of se sjtukke van de pazjena mesjiens kins verplaatsje nao 'n nuui pazjena.",
+'mailerror' => "Fout bie 't versjture van mail: $1",
+'mainpagetext' => "Wiki software succesvol geïnsjtalleerd.",
+'math' => "Mattemetik rendere",
+'math_bad_output' => "Kin neet sjrieve nao de output directory veur mattematik",
+'math_tip' => "Wiskundige formule (LaTeX)",
+'math_unknown_error' => "onbekènde fout",
+'math_unknown_function' => "onbekènde functie",
+'missingimage' => "<b>Plaetsje neet besjikbaar</b><br /><i>$1</i>",
+'moredotdotdot' => "Miè...",
+'move' => "Verplaatsj",
+'mw_math_html' => "HTML woe meugelik en angesj PNG",
+'mw_math_mathml' => "MathML woe meugelik (experimenteil)",
+'mw_math_modern' => "Aangeroaje vuur nuui browsers",
+'mw_math_png' => "Ummer PNG rendere",
+'mw_math_simple' => "HTML in erg simpele gevalle en angesj PNG",
+'mw_math_source' => "Laot de TeX code sjtaon (vuur tèksbrowsers)",
+'mycontris' => "Mien biedraag",
+'namespace' => "Naamruumde:",
+'navigation' => "Navegatie",
+'newimages' => "Nuui plaetjes",
+'newmessages' => "De höbs $1.",
+'newmessageslink' => "nuui berichte",
+'newpage' => "Nuui pazjena",
+'newwindow' => "(in nuui venster)",
+'nextdiff' => "Gank nao de volgende diff →",
+'nextpage' => "Volgende pazjena ($1)",
+'nogomatch' => "Inne pazjena mit exak dees titel besjtit neet, probeer noe alle teks doer te zeuke.",
+'noimages' => "Niks te zeen.",
+'nonunicodebrowser' => "<strong>WAARSJUWING: Diene browser is voldit neet aan de unicode sjtandaarde, gebroek estebleef inne angere browser veurdas e artikele gis bewirke.</strong>",
+'nstab-category' => "Kategorie",
+'nstab-image' => "Aafbeilding",
+'nstab-main' => "Artikel",
+'nstab-mediawiki' => "Berich",
+'nstab-template' => "Sjabloon",
+'nstab-user' => "Gebroeker",
+'nstab-wp' => "Euver",
+'perfcached' => "De volgende data is gecachet en is mesjien neet gans up to date:",
+'perfdisabledsub' => "Hie is 'n opgesjlage kopie van $1:",
+'personaltools' => "Persoenlike hulpmiddele",
+'portal' => "Gebroekersportaal",
+'portal-url' => "Wikipedia:Gebroekersportaal",
+'poweredby' => "{{SITENAME}} dreit op [http://www.mediawiki.org/ MediaWiki], 'n vriej software wiki.",
+'prefs-misc' => "Anger insjtèllinge",
+'prefs-personal' => "Gebroekersinfo",
+'prefs-rc' => "Recènte verangeringe en weergaaf van sjtumpkes",
+'previousdiff' => "← Gank nao de vurrige diff",
+'previousrevision' => "←Awwer versie",
+'protect' => "Besjerm",
+'protectcomment' => "Rede veur besjerming",
+'protectedarticle' => "$1 besjermd",
+'protectedpagewarning' => "WAARSJUWING:  Dees pazjena is besjermd zoedat ze allein doer gebroekers mit administratorrechte kint weure verangerd.",
+'protectedtext' => "Dizze pazjena is besjermd om bewirkinge te veurkomme; d'r zint 'n aantal meugelike redene hieveur.
+<!-- Zuug ouch [[Project:Protected page]]. -->
+
+De kins de brontèks van dees pazjena bekieke en kopiëre:",
+'protectmoveonly' => "Besjerm allein taege verplaatsje",
+'protectsub' => "(Besjerme van \"$1\")",
+'proxyblockreason' => "Dien IP adres is geblokkierd omdat 't 'n ôpe proxy is. Contactier estebleef diene internet service provider of technische ongersjteuning en informeer ze van dit sirrieuze veiligheidsprebleim.",
+'proxyblocksuccess' => "Klaor.",
+'qbspecialpages' => "Speciaal pazjena's",
+'readonlywarning' => "WAARSJUWING: De database is vasgezèt veur ongerhoud, dus op 't mement kins e dien verangeringe neet opsjlaon. De kins dien tèks 't biste opsjlaon in 'n tèksbesjtand om 't later hie nog es te prebere.",
+'removechecked' => "Verwieder aangevinkde pazjena's van dien volgliest",
+'removingchecked' => "Pazjena's van volgliest aafgehaold...",
+'restorelink' => "$1 verwiederde versies",
+'scarytranscludefailed' => "[Template fetch failed; sorry]",
+'showbigimage' => "Download versie met hoege resolutie ($1x$2, $3 kB)",
+'showhideminor' => "$1 klein verangeringe | $2 bots | $3 ingelogde gebroekers | $4 patrolled edits",
+'showingresultsnum' => "Hieonger de <b>$3</b> resultate vanaaf #<b>$2</b>.",
+'siteuser' => "Wikipedia gebroeker $1",
+'siteusers' => "Wikipedia gebroekers(s) $1",
+'specialpage' => "Speciaal Pazjena",
+'subcategories' => "Subkattegorië",
+'subcategorycount' => "Dees kategorie haet $1 subkategorieë.",
+'subcategorycount1' => "Dees kategorie haet $1 subkategorie.",
+'tagline' => "Van {{SITENAME}}",
+'talk' => "Euverlik",
+'templatesused' => "Sjablone gebroek in dees pazjena:",
+'thisisdeleted' => "$1 bekieke of trökzètte?",
+'thumbnail-more' => "Vergroete",
+'thumbsize' => "Thumbnail size :",
+'timezonelegend' => "Tiedzone",
+'toc' => "Inhawd",
+'tog-editondblclick' => "Bewirk pazjena's bie 'ne dubbelklik (JavaScript)",
+'tog-editsection' => "Bewirke van secties via [bewirke] links",
+'tog-editsectiononrightclick' => "Sècties bewirke mit inne rechtermoesklik op sèctietitels (JavaScript)",
+'tog-editwidth' => "Edit boks haet de vol breidte",
+'tog-fancysig' => "Rauwe signature (zonger automatische link)",
+'tog-hideminor' => "Verbèrg klein bewirking bie recènte verangeringe",
+'tog-highlightbroken' => 'Formatteer gebraoke links <a href="" class="new">op dees meneer</a> (angesj: zoe<a href="" class="internal">?</a>).',
+'tog-justify' => "Paragrafe oetvulle",
+'tog-minordefault' => "Merkeer sjtandaard alle bewirke as klein",
+'tog-nocache' => "Pazjena cache oetzitte",
+'tog-numberheadings' => "Köpkes automatisch nummere",
+'tog-previewonfirst' => "Preview laote zien bie de iesjte bewirking",
+'tog-rememberpassword' => "Paswoerd onthawwe bie 't aafmèlde",
+'tog-showtoc' => "Inhawdsopgaaf vuur pazjena's mit mië as 3 köpkes",
+'tog-showtoolbar' => "Laot edit toolbar zeen",
+'tog-underline' => "Links ongersjtreipe",
+'tog-usenewrc' => "Oetgebreide recènte vervangeringe (neet vuur alle browsers)",
+'tog-watchdefault' => "Voog pazjena's die se bewirks toe aan dien volgliest",
+'toolbox' => "Gereidsjapskis",
+'tooltip-compareselectedversions' => "Bekiek de versjille tusje de twie geselectierde versies van dees pazjena. [alt-v]",
+'tooltip-minoredit' => "Markeer dit as 'n kleine verangering [alt-i]",
+'tooltip-preview' => "Bekiek dien verangeringe verdas e ze definnetief opsjleus! [alt-p]",
+'tooltip-save' => "Bewaar dien verangeringe [alt-s]",
+'tooltip-search' => "Doerzeuk dizze wiki [alt-f]",
+'tooltip-watch' => "Voog dees pazjena toe aan dien volgliest [alt-w]",
+'uncategorizedcategories' => "Ongekattegoriseerde kattegorië",
+'uncategorizedpages' => "Ongekattegoriseerde pazjena's",
+'unprotect' => "Besjerming opheffe",
+'unprotectcomment' => "Rede veur opheffe van besjerming",
+'unprotectedarticle' => "besjerming van $1 opgeheve",
+'unprotectsub' => "(Besjerming van \"$1\" opheve)",
+'unwatch' => "Sjtop volge",
+'usenewcategorypage' => '1
+
+Set first character to "0" to disable the nuui layout veur kategorieë.',
+'userrights-user-editname' => 'Enter a username:',
+
+'val_tab' => "Valideer",
+'val_this_is_current_version' => "dit is de litste versie",
+'val_total' => "Totaal",
+'val_user_validations' => "Deze gebroeker haet $1 pazjena's gevalideerd.",
+'val_validate_article_namespace_only' => "Allein artikele kinne weure gevalideerd. Dees pazjena bevink zich <i>neet</i> in de artikel naomroemde.",
+'val_validate_version' => "Valideer dees versie",
+'val_validated' => "Gevalideerd.",
+'val_version' => "Versie",
+'val_version_of' => "Versie van $1",
+'val_view_version' => "Bekiek dees versie",
+'validate' => "Valideer pazjena",
+'version' => "Versie",
+'viewsource' => "Bekiek brontèks",
+'viewtalkpage' => "Bekiek euverlik",
+'watch' => "Volg",
+'watchlistcontains' => "Diene volgliest bevat $1 pazjena's.",
+'watchmethod-list' => "controlere van gevolgde pazjena's veur recènte verangeringe",
+'watchmethod-recent' => "Controleer recènte verangere veur gevolgde pazjena's",
+'watchnochange' => "Gein van dien gevolgde items is aangepas in dees periode.",
+'wlnote' => "Hieonger de litste $1 verangeringe van de litste <b>$2</b> oer.",
+'wlsaved' => "Dit is 'n opgesjlage versie van dien volgliest.",
+'wlshowlast' => "Toen litste $1 oere $2 daag $3",
+'yourlanguage' => "Taol van de gebroekersinterface",
+'yourrealname' => "Dien echte naam*",
+'yourvariant' => "Taalvariant",
 );
 
 require_once( "LanguageUtf8.php" );
@@ -718,20 +871,6 @@ class LanguageLi extends LanguageUtf8 {
 	function getNamespaces() {
 		global $wgNamespaceNamesLi;
 		return $wgNamespaceNamesLi;
-	}
-
-	function getNsText( $index ) {
-		global $wgNamespaceNamesLi;
-		return $wgNamespaceNamesLi[$index];
-	}
-
-	function getNsIndex( $text ) {
-		global $wgNamespaceNamesLi;
-
-		foreach ( $wgNamespaceNamesLi as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-		}
-		return false;
 	}
 
 	function getQuickbarSettings() {
@@ -746,9 +885,9 @@ class LanguageLi extends LanguageUtf8 {
 
 	function date( $ts, $adj = false ) {
 		if ( $adj ) { $ts = $this->userAdjust( $ts ); }
-		
+
 		$d = (0 + substr( $ts, 6, 2 )) . " " .
-		$this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) . " " . 
+		$this->getMonthAbbreviation( substr( $ts, 4, 2 ) ) . " " .
 		substr( $ts, 0, 4 );
 		return $d;
 	}
@@ -757,27 +896,12 @@ class LanguageLi extends LanguageUtf8 {
 		return $this->date( $ts, $adj ) . " " . $this->time( $ts, $adj );
 	}
 
-	function getValidSpecialPages() {
-		global $wgValidSpecialPagesLi;
-		return $wgValidSpecialPagesLi;
-	}
-
-	function getSysopSpecialPages() {
-		global $wgSysopSpecialPagesLi;
-		return $wgSysopSpecialPagesLi;
-	}
-
-	function getDeveloperSpecialPages() {
-		global $wgDeveloperSpecialPagesLi;
-		return $wgDeveloperSpecialPagesLi;
-	}
-
 	function getMessage( $key ) {
 		global $wgAllMessagesLi;
 		if( isset( $wgAllMessagesLi[$key] ) ) {
 			return $wgAllMessagesLi[$key];
 		} else {
-			return Language::getMessage( $key );
+			return parent::getMessage( $key );
 		}
 	}
 }

@@ -21,8 +21,7 @@ CREATE TABLE cur (
     cur_minor_edit smallint DEFAULT 0 NOT NULL,
     cur_is_new smallint DEFAULT 0 NOT NULL,
     cur_random double precision DEFAULT random(),
-    cur_touched timestamp without time zone,
-    inverse_timestamp varchar(14)
+    cur_touched timestamp without time zone
 );
 CREATE INDEX cur_title_namespace_idx ON cur (cur_title, cur_namespace);
 CREATE INDEX cur_random_idx ON cur (cur_random);
@@ -39,8 +38,7 @@ CREATE TABLE "old" (
     old_user_text varchar(255) NOT NULL,
     old_timestamp timestamp without time zone NOT NULL,
     old_minor_edit smallint NOT NULL,
-    old_flags text NOT NULL,
-    inverse_timestamp varchar(14) NOT NULL
+    old_flags text NOT NULL
 );
 CREATE INDEX old_name_title_ts_idx ON "old" (old_namespace, old_title, old_timestamp);
 CREATE INDEX old_timestamp ON "old" (old_timestamp);
@@ -275,7 +273,8 @@ CREATE INDEX log_page_time ON logging USING btree (log_namespace, log_title, log
 CREATE TABLE "group" (
   group_id integer PRIMARY KEY,
   group_name varchar(50) NOT NULL,
-  group_description varchar(255) NOT NULL
+  group_description varchar(255) NOT NULL,
+  group_rights text NOT NULL
 );
 
 -- Relation table between user and groups

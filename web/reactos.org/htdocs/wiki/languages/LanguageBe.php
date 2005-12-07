@@ -47,7 +47,7 @@ require_once('LanguageUtf8.php');
 	'monobook' => 'Монакніга',
 	'myskin' => 'MySkin',
 	'chick' => 'Цыпа'
-);
+) + $wgSkinNamesEn;
 
 /* private */ $wgMagicWordsBe = array(
 	MAG_REDIRECT		=> array( 0,	'#redirect', '#перанакіраваньне' ),
@@ -67,7 +67,6 @@ require_once('LanguageUtf8.php');
 	MAG_PAGENAME		=> array( 1,	'PAGENAME', 'НАЗВА_СТАРОНКІ' ),
 	MAG_PAGENAMEE		=> array( 1,	'PAGENAMEE', 'НАЗВА_СТАРОНКІ_2' ),
 	MAG_NAMESPACE		=> array( 1,	'NAMESPACE', 'ПРАСТОРА_НАЗВАЎ'),
-	MAG_MSG			=> array( 0,	'MSG:', 'ПАВЕДАМЛЕНЬНЕ:' ),
 	MAG_SUBST		=> array( 0,	'SUBST:', 'ПАДСТАНОЎКА:'),
 	MAG_MSGNW		=> array( 0,	'MSGNW:', 'ПАВЕДАМЛЕНЬНЕ_БЯЗЬ_ВІКІ:' ),
 	MAG_END			=> array( 0,	'__END__', '__КАНЕЦ__'   ),
@@ -113,17 +112,12 @@ require_once('LanguageUtf8.php');
 'addedwatch' => 'Даданая ў сьпіс назіраньня',
 'addgroup' => 'Дадаць групу',
 'administrators' => 'Project:Адміністрацыя',
-'affirmation' => 'Я пацьвярджаю, што ўладальнік/уладальніца аўтарскіх правоў на гэты файл згодзен/згодная распаўсюджваць яго адпаведна з умовамі ліцэнзіі $1.',
-'all' => 'усе',
 'allarticles' => 'Усе артыкулы',
 'allmessages' => 'Усе сыстэмныя паведамленьні',
 'allmessagescurrent' => 'Бягучы тэкст',
 'allmessagesname' => 'Назва',
 'allmessagestext' => 'Сьпіс усіх сыстэмных паведамленьняў, якія існуюць у прасторы назваў \'\'\'MediaWiki:\'\'\'.',
 'allpages' => 'Усе старонкі',
-'allpagesformtext1' => 'Паказаць старонкі пачынаючы з: $1',
-'allpagesformtext2' => 'Выберыце прастору назваў: $1 $2',
-'allpagesnamespace' => 'Усе старонкі (прастора назваў: $1)',
 'allpagesnext' => 'Наступныя',
 'allpagesprev' => 'Папярэднія',
 'allpagessubmit' => 'Паказаць',
@@ -134,7 +128,6 @@ require_once('LanguageUtf8.php');
 'apr' => '04',
 'april' => 'красавіка',
 'article' => 'Артыкул',
-'articlenamespace' => '(артыкулы)',
 'articlepage' => 'Паказаць артыкул',
 'aug' => '08',
 'august' => 'жніўня',
@@ -156,7 +149,6 @@ require_once('LanguageUtf8.php');
 'categoryarticlecount1' => 'У катэгорыі ёсьць $1 артыкул.',
 'changepassword' => 'Зьмяніць пароль',
 'compareselectedversions' => 'Параўнаць выбраныя вэрсіі',
-'confirmcheck' => 'Так, я сапраўды жадаю выдаліць гэта.',
 'confirmprotecttext' => 'Вы сапраўды жадаеце абараніць гэтую старонку?',
 'contribslink' => 'унёсак',
 'contributions' => 'Унёсак удзельніка/удзельніцы',
@@ -253,7 +245,6 @@ public domain or similar free resource.<br />
 'hr_tip' => 'Гарызантальная лінія (не выкарыстоўвайце часта)',
 'ignorewarning' => 'Праігнараваць папярэджаньне і захаваць файл.',
 'illegalfilename' => 'Назва файла «$1» зьмяшчае сымбалі, якія нельга выкарыстоўваць у назвах старонак. Калі ласка, зьмяніце назву файла і паспрабуйце загрузіць яго зноў.',
-'ilshowmatch' => 'Паказаць усе выявы з адпавядаючымі назвамі',
 'ilsubmit' => 'Шукаць',
 'image_sample' => 'Прыклад.jpg',
 'imagelist' => 'Сьпіс выяваў',
@@ -283,7 +274,6 @@ public domain or similar free resource.<br />
 'linklistsub' => '(Сьпіс спасылак)',
 'linkshere' => 'Наступныя старонкі спасылаюцца на гэтую:',
 'linkstoimage' => 'Наступныя старонкі спасылаюцца на гэтую выяву:',
-'listadmins' => 'Сьпіс адміністратараў і адміністратарак',
 'listform' => 'сьпіс',
 'listusers' => 'Сьпіс удзельнікаў і ўдзельніц',
 'loadhist' => 'Загрузка гісторыі старонкі',
@@ -337,10 +327,9 @@ public domain or similar free resource.<br />
 'newtitle' => 'Новая назва',
 'newusersonly' => ' (толькі для новых удзельнікаў і ўдзельніц)',
 'newwindow' => '(адчыняецца ў новым акне)',
-'nextdiff' => 'Перайсьці да наступнай зьмены &rarr;',
+'nextdiff' => 'Перайсьці да наступнай зьмены →',
 'nextn' => 'наступныя $1',
 'nextpage' => 'Наступная старонка ($1)',
-'noaffirmation' => 'Вы павінныя пацьвердзіць, што загрузка гэтага файла не парушае нічыіх аўтарскіх правоў.',
 'noarticletext' => '(Зараз тэкст на гэтай старонцы адсутнічае)',
 'nodb' => 'Немагчыма выбраць базу дадзеных $1',
 'noemailtitle' => 'Адрас электроннай пошты адсутнічае',
@@ -393,7 +382,7 @@ public domain or similar free resource.<br />
 'postcomment' => 'Пракамэнтаваць',
 'preferences' => 'Устаноўкі',
 'preview' => 'Прагляд',
-'previousdiff' => '&larr; Перайсьці да папярэдняй зьмены',
+'previousdiff' => '← Перайсьці да папярэдняй зьмены',
 'prevn' => 'папярэднія $1',
 'printableversion' => 'Вэрсія для друку',
 'protect' => 'Абараніць',
@@ -450,9 +439,6 @@ public domain or similar free resource.<br />
 'showpreview' => 'Праглядзець',
 'showtoc' => 'паказаць',
 'sig_tip' => 'Ваш подпіс і момант часу',
-'sitesettings-images' => 'Выявы',
-'sitesettings-permissions' => 'Правы',
-'sitesettings-wgUseCategoryMagic' => 'Дазволіць катэгорыі',
 'sitesubtitle' => 'Вольная энцыкляпэдыя',
 'sitesupport' => 'Ахвяраваньні',
 'sitetitle' => '{{SITENAME}}',
@@ -519,13 +505,6 @@ public domain or similar free resource.<br />
 ** \'\'\'ліцэнзіі\'\'\', згодна ўмоваў якіх магчыма распаўсюджваць файл.
 * \'\'\'Выкарыстоўвайце файл\'\'\' у артыкуле(ах). Напрыклад: <code><nowiki>[[Image:file.jpg]]</nowiki></code> ці <code><nowiki>[[Image:file.jpg|thumb|200px|Апісаньне]]</nowiki></code> — для выяваў; <code><nowiki>[[Media:file.ogg]]</nowiki></code> — для аўдыёфайлаў.',
 'userexists' => 'Выбранае Вамі імя ўдзельніка/ўдзельніцы ўжо выкарыстоўваецца кімсьці іншым. Калі ласка, выберыце іншае імя.',
-'userlevels-addgroup' => 'Дадаць групу',
-'userlevels-editgroup' => 'Рэдагаваць групу',
-'userlevels-editgroup-name' => 'Назва групы:',
-'userlevels-editusergroup' => 'Рэдагаваць групы ўдзельнікаў і ўдзельніц',
-'userlevels-group-edit' => 'Існуючыя групы:',
-'userlevels-groupsavailable' => 'Даступныя групы:',
-'userlevels-lookup-user' => 'Кіраваць групамі ўдзельнікаў і ўдзельніц',
 'userlogout' => 'Выйсьці',
 'val_table_header' => '<tr><th>Кляса</th>$1<th colspan=4>Меркаваньне</th>$1<th>Камэнтар</th></tr>',
 'val_version' => 'Вэрсія',
@@ -542,7 +521,6 @@ public domain or similar free resource.<br />
 'wednesday' => 'серада',
 'whatlinkshere' => 'Адкуль спасылаюцца на старонку',
 'whitelistacctitle' => 'Вам не дазволена ствараць рахунак',
-'wikititlesuffix' => '{{SITENAME}}',
 'youremail' => 'Ваш адрас электроннай пошты (*)',
 'yourname' => 'Ваша імя ўдзельніка/ўдзельніцы',
 'yournick' => 'Ваша мянушка (для подпісаў)',
@@ -552,25 +530,11 @@ public domain or similar free resource.<br />
 );
 
 class LanguageBe extends LanguageUtf8 {
-	
+
 	// Namespaces
 	function getNamespaces() {
 		global $wgNamespaceNamesBe;
 		return $wgNamespaceNamesBe;
-	}
-
-	function getNsText( $index ) {
-		global $wgNamespaceNamesBe;
-		return $wgNamespaceNamesBe[$index];
-	}
-
-	function getNsIndex( $text ) {
-		global $wgNamespaceNamesBe;
-
-		foreach ( $wgNamespaceNamesBe as $i => $n ) {
-			if ( 0 == strcasecmp( $n, $text ) ) { return $i; }
-		}
-		return false;
 	}
 
 	// Quickbar
@@ -578,7 +542,7 @@ class LanguageBe extends LanguageUtf8 {
 		global $wgQuickbarSettingsBe;
 		return $wgQuickbarSettingsBe;
 	}
-	
+
 	// Skins
 	function getSkinNames() {
 		global $wgSkinNamesBe;
@@ -586,13 +550,12 @@ class LanguageBe extends LanguageUtf8 {
 	}
 
 	// Magic words
-	function getMagicWords() 
-	{
+	function getMagicWords() {
 		global $wgMagicWordsBe;
 		return $wgMagicWordsBe;
 	}
-	
-	// The date and time format 
+
+	// The date and time format
 	function date( $ts, $adj = false ) {
 		if ( $adj ) { $ts = $this->userAdjust( $ts ); } # Adjust based on the timezone setting.
 		// 20050310001506 => 10.03.2005
@@ -610,7 +573,7 @@ class LanguageBe extends LanguageUtf8 {
 	function timeanddate( $ts, $adj = false ) {
 		return $this->time( $ts, $adj ) . ', ' .$this->date( $ts, $adj );
 	}
-	
+
 	function getMessage( $key ) {
 		global $wgAllMessagesBe;
 		if( isset( $wgAllMessagesBe[$key] ) ) {
@@ -619,10 +582,9 @@ class LanguageBe extends LanguageUtf8 {
 			return parent::getMessage( $key );
 		}
 	}
-	
+
 	function formatNum( $number ) {
-		global $wgTranslateNumerals;
-		return $wgTranslateNumerals ? strtr($number, '.,', ',.' ) : $number;
+		return strtr($number, '.,', ',.' );
 	}
 }
 ?>

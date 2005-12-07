@@ -10,15 +10,15 @@
  * @subpackage Maintenance
  */
 
-
+/** */
 function initialiseMessages( $overwrite = false, $messageArray = false ) {
 	global $wgContLang, $wgContLanguageCode;
 	global $wgContLangClass, $wgAllMessagesEn;
 	global $wgDisableLangConversion;
 	global $wgForceUIMsgAsContentMsg;
 	global $wgLanguageNames;
-	global $IP, $wgUseLatin1;
-	
+	global $IP;
+
 	# overwrite language conversion	option so that all variants 
 	# of the messages are initialised
 	$wgDisableLangConversion = false;
@@ -42,12 +42,7 @@ function initialiseMessages( $overwrite = false, $messageArray = false ) {
 			die ("class $langclass not defined. perhaps you need to include the file $langclass.php in $wgContLangClass.php?");
 		}
 		$lang = new $langclass;
-		if($wgUseLatin1) {
-			require_once( "$IP/languages/LanguageLatin1.php" );
-			$latin1 = new LanguageLatin1( $lang );
-			unset($lang);
-			$lang = $latin1;
-		}
+
 		if($v==$wgContLanguageCode)
 			$suffix='';
 		else
@@ -74,15 +69,8 @@ function initialiseMessages( $overwrite = false, $messageArray = false ) {
 			}
 		}
 	}
-
 	initialiseMessagesReal( $overwrite, $messages );
 }
-
-
-
-
-
-
 
 /** */
 function initialiseMessagesReal( $overwrite = false, $messageArray = false ) {
@@ -114,12 +102,14 @@ function initialiseMessagesReal( $overwrite = false, $messageArray = false ) {
 	
 	$dbr =& wfGetDB( DB_SLAVE );
 	$dbw =& wfGetDB( DB_MASTER );
-	$cur = $dbr->tableName( 'cur' );
+	$page = $dbr->tableName( 'page' );
+	$revision = $dbr->tableName( 'revision' );
 
 	$timestamp = wfTimestampNow();
-	$invTimestamp = wfInvertTimestamp( $timestamp );
 
-	$sql = "SELECT cur_title,cur_is_new,cur_user_text FROM $cur WHERE cur_namespace=$ns AND cur_title IN(";
+	#$sql = "SELECT cur_title,cur_is_new,cur_user_text FROM $cur WHERE cur_namespace=$ns AND cur_title IN(";
+	$sql = "SELECT page_title,page_is_new,rev_user_text FROM $page, $revision WHERE
+		page_namespace=$ns AND rev_page=page_id AND page_title IN(";
 
 	# Get keys from $wgAllMessagesEn, which is more complete than the local language
 	$first = true;
@@ -154,10 +144,10 @@ function initialiseMessagesReal( $overwrite = false, $messageArray = false ) {
 	# Decide whether or not each one needs to be overwritten
 	$existingTitles = array();
 	while ( $row ) {
-		if ( $row->cur_user_text != $username && $row->cur_user_text != 'Template namespace initialisation script' ) {
-			$existingTitles[$row->cur_title] = 'keep';
+		if ( $row->rev_user_text != $username  && $row->rev_user_text != 'Template namespace initialisation script' ) {
+			$existingTitles[$row->page_title] = 'keep';
 		} else {
-			$existingTitles[$row->cur_title] = 'chuck';
+			$existingTitles[$row->page_title] = 'chuck';
 		}
 
 		$row = $dbr->fetchObject( $res );
@@ -169,6 +159,9 @@ function initialiseMessagesReal( $overwrite = false, $messageArray = false ) {
 	$talk = $wgContLang->getNsText( NS_TALK );
 	$mwtalk = $wgContLang->getNsText( NS_MEDIAWIKI_TALK );
 	
+	# Merge these into a single transaction for speed
+	$dbw->begin();
+
 	# Process each message
 	foreach ( $sortedArray as $key => $enMsg ) {
 		if ( $key == '' ) {
@@ -180,34 +173,36 @@ function initialiseMessagesReal( $overwrite = false, $messageArray = false ) {
 		} else {
 			$message = wfMsgNoDBForContent( $key );
 		}
-		$titleObj = Title::newFromText( $wgContLang->ucfirst( $key ) );
+		$titleObj = Title::newFromText( $wgContLang->ucfirst( $key ), NS_MEDIAWIKI );
 		$title = $titleObj->getDBkey();
 
 		# Update messages which already exist
 		if ( array_key_exists( $title, $existingTitles ) ) {
 			if ( $existingTitles[$title] == 'chuck' || $overwrite) {
-				# print "$title\n";
-				$mwTitleObj = Title::makeTitle( NS_MEDIAWIKI, $title );
-				$article = new Article( $mwTitleObj );
-				$article->quickEdit( $message );
+				# Don't bother writing a new revision if we're the same
+				# as the current text!
+				$revision = Revision::newFromTitle( $titleObj );
+				if( is_null( $revision ) || $revision->getText() != $message ) {
+					$article = new Article( $titleObj );
+					$article->quickEdit( $message );
+				}
 			}
-			$doInsert = false;
 		} else {
-			array_push( $arr, array(
-				'cur_namespace' => $ns,
-				'cur_title' => $title,
-				'cur_text' => $message,
-				'cur_user' => 0,
-				'cur_user_text' => $username,
-				'cur_timestamp' => $dbw->timestamp( $timestamp ),
-				'cur_restrictions' => 'sysop',
-				'cur_is_new' => 1,
-				'inverse_timestamp' => $invTimestamp,
-				'cur_touched' => $dbw->timestamp( $timestamp ) ) );
+			$article = new Article( $titleObj );
+			$newid = $article->insertOn( $dbw, 'sysop' );
+			# FIXME: set restrictions
+			$revision = new Revision( array(
+				'page'      => $newid,
+				'text'      => $message,
+				'user'      => 0,
+				'user_text' => $username,
+				'comment'   => '',
+				) );
+			$revid = $revision->insertOn( $dbw );
+			$article->updateRevisionOn( $dbw, $revision );
 		}
 	}
-
-	$dbw->insert( 'cur', $arr, $fname );
+	$dbw->commit();
 
 	# Clear the relevant memcached key
 	print 'Clearing message cache...';
@@ -215,8 +210,8 @@ function initialiseMessagesReal( $overwrite = false, $messageArray = false ) {
 	print "Done.\n";
 }
 
-function loadLanguageFile( $filename )
-{
+/** */
+function loadLanguageFile( $filename ) {
 	$contents = file_get_contents( $filename );
 	# Remove header line
 	$p = strpos( $contents, "\n" ) + 1;
@@ -225,9 +220,9 @@ function loadLanguageFile( $filename )
 	return unserialize( $contents );
 }
 
+/** */
 function doUpdates() {
 	global $wgDeferredUpdateList;
 	foreach ( $wgDeferredUpdateList as $up ) { $up->doUpdate(); }
 }
-
 ?>

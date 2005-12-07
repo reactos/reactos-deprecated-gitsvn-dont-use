@@ -10,7 +10,8 @@ if( !defined( 'MEDIAWIKI' ) )
 	die();
 
 global $wgCategoryMagicGallery;
-if( $wgCategoryMagicGallery ) 
+if( $wgCategoryMagicGallery )
+	/** */
 	require_once('ImageGallery.php');
 
 /**
@@ -89,12 +90,12 @@ class CategoryPage extends Article {
 		}
 		$limit = 200;
 		$res = $dbr->select(
-			array( 'cur', 'categorylinks' ),
-			array( 'cur_title', 'cur_namespace', 'cl_sortkey' ),
+			array( 'page', 'categorylinks' ),
+			array( 'page_title', 'page_namespace', 'page_len', 'cl_sortkey' ),
 			array( $pageCondition,
-			       'cl_from          =  cur_id',
-			       'cl_to'           => $this->mTitle->getDBKey(),
-			       'cur_is_redirect' => 0),
+			       'cl_from          =  page_id',
+			       'cl_to'           => $this->mTitle->getDBKey()),
+			       #'page_is_redirect' => 0),
 			#+ $pageCondition,
 			$fname,
 			array( 'ORDER BY' => $flip ? 'cl_sortkey DESC' : 'cl_sortkey',
@@ -112,21 +113,23 @@ class CategoryPage extends Article {
 				break;
 			}
 			
-			$title = Title::makeTitle( $x->cur_namespace, $x->cur_title );
+			$title = Title::makeTitle( $x->page_namespace, $x->page_title );
 			
 			if( $title->getNamespace() == NS_CATEGORY ) {
 				// Subcategory; strip the 'Category' namespace from the link text.
-				array_push( $children, $sk->makeKnownLinkObj( $title, $title->getText() ) );
+				array_push( $children, $sk->makeKnownLinkObj( $title, $wgContLang->convertHtml( $title->getText() ) ) );
 				
 				// If there's a link from Category:A to Category:B, the sortkey of the resulting
 				// entry in the categorylinks table is Category:A, not A, which it SHOULD be.
 				// Workaround: If sortkey == "Category:".$title, than use $title for sorting,
 				// else use sortkey...
+				$sortkey='';
 				if( $title->getPrefixedText() == $x->cl_sortkey ) {
-					array_push( $children_start_char, $wgContLang->firstChar( $x->cur_title ) );
+					$sortkey=$wgContLang->firstChar( $x->page_title );
 				} else {
-					array_push( $children_start_char, $wgContLang->firstChar( $x->cl_sortkey ) ) ;
+					$sortkey=$wgContLang->firstChar( $x->cl_sortkey );
 				}
+				array_push( $children_start_char, $wgContLang->convert( $sortkey ) ) ;
 			} elseif( $wgCategoryMagicGallery && $title->getNamespace() == NS_IMAGE ) {
 				// Show thumbnails of categorized images, in a separate chunk
 				if( $flip ) {
@@ -136,8 +139,8 @@ class CategoryPage extends Article {
 				}
 			} else {
 				// Page in this category
-				array_push( $articles, $sk->makeKnownLinkObj( $title ) ) ;
-				array_push( $articles_start_char, $wgContLang->firstChar( $x->cl_sortkey ) ) ;
+				array_push( $articles, $sk->makeSizeLinkObj( $x->page_len, $title, $wgContLang->convert( $title->getPrefixedText() ) ) ) ;
+				array_push( $articles_start_char, $wgContLang->convert( $wgContLang->firstChar( $x->cl_sortkey ) ) );
 			}
 		}
 		$dbr->freeResult( $res );

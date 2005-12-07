@@ -1,6 +1,6 @@
 <?php
 /**
- * See deferred.doc
+ * See deferred.txt
  * @package MediaWiki
  */
 
@@ -14,7 +14,7 @@ class LinksUpdate {
 	 * @access private
 	 */
 	var $mId, $mTitle;
-	/**#@- */
+	/**#@-*/
 
 	/**
 	 * Constructor
@@ -34,13 +34,13 @@ class LinksUpdate {
 	
 	function doUpdate() {
 		global $wgUseDumbLinkUpdate, $wgLinkCache, $wgDBtransactions;
-		global $wgEnablePersistentLC, $wgUseCategoryMagic;
+		global $wgUseCategoryMagic;
 
 		if ( $wgUseDumbLinkUpdate ) {
 			$this->doDumbUpdate();
 			return;
 		}
-		
+
 		$fname = 'LinksUpdate::doUpdate';
 		wfProfileIn( $fname );
 
@@ -48,92 +48,57 @@ class LinksUpdate {
 		$add = array();
 
 		$dbw =& wfGetDB( DB_MASTER );
-		$links = $dbw->tableName( 'links' );
-		$brokenlinks = $dbw->tableName( 'brokenlinks' );
+		$pagelinks = $dbw->tableName( 'pagelinks' );
 		$imagelinks = $dbw->tableName( 'imagelinks' );
 		$categorylinks = $dbw->tableName( 'categorylinks' );
 		
 		#------------------------------------------------------------------------------
 		# Good links
 
-		if ( $wgLinkCache->incrementalSetup( LINKCACHE_GOOD, $del, $add ) ) {
+		if ( $wgLinkCache->incrementalSetup( LINKCACHE_PAGE, $del, $add ) ) {
 			# Delete where necessary
 			if ( count( $del ) ) {
-				$sql = "DELETE FROM $links WHERE l_from={$this->mId} AND l_to IN(".
-					implode( ',', $del ) . ')';
-				$dbw->query( $sql, $fname );
+				$batch = new LinkBatch( $del );
+				$set = $batch->constructSet( 'pl', $dbw );
+				if ( $set ) {
+					$sql = "DELETE FROM $pagelinks WHERE pl_from={$this->mId} AND ($set)";
+					$dbw->query( $sql, $fname );
+				}
 			}
 		} else {
 			# Delete everything
-			$dbw->delete( 'links', array( 'l_from' => $this->mId ), $fname );
+			$dbw->delete( 'pagelinks', array( 'pl_from' => $this->mId ), $fname );
 						
 			# Get the addition list
-			$add = $wgLinkCache->getGoodLinks();
+			$add = $wgLinkCache->getPageLinks();
 		}
 
 		# Do the insertion
-		if ( 0 != count( $add ) ) {
-			$arr=array();
-			foreach($add as $lt=>$lid) 
+		if( 0 != count( $add ) ) {
+			$arr = array();
+			foreach( $add as $lt => $target ) {
 				array_push( $arr, array(
-							'l_from' => $this->mId,
-							'l_to'   => $lid ) );
+							'pl_from' => $this->mId,
+							'pl_namespace' => $target->getNamespace(),
+							'pl_title'     => $target->getDbKey() ) );
+			}
+			
 			# The link cache was constructed without FOR UPDATE, so there may be collisions
 			# Ignoring for now, I'm not sure if that causes problems or not, but I'm fairly
 			# sure it's better than without IGNORE
-			$dbw->insert( 'links', $arr, $fname, array( 'IGNORE' ) );
-		}
-
-		#------------------------------------------------------------------------------
-		# Bad links
-
-		if ( $wgLinkCache->incrementalSetup( LINKCACHE_BAD, $del, $add ) ) {
-			# Delete where necessary
-			if ( count( $del ) ) {
-				$sql = "DELETE FROM $brokenlinks WHERE bl_from={$this->mId} AND bl_to IN(";
-				$first = true;
-				foreach( $del as $badTitle ) {
-					if ( $first ) {
-						$first = false;
-					} else {
-						$sql .= ',';
-					}
-					$sql .= $dbw->addQuotes( $badTitle );
-				}
-				$sql .= ')';
-				$dbw->query( $sql, $fname );
-			}
-		} else {
-			# Delete all
-			$dbw->delete( 'brokenlinks', array( 'bl_from' => $this->mId ) );
-			
-			# Get addition list
-			$add = $wgLinkCache->getBadLinks();
-		}
-
-		# Do additions
-		$sql = '';
-		if ( 0 != count ( $add ) ) {
-			$arr = array();
-			foreach( $add as $blt ) {
-				array_push( $arr, array(
-					'bl_from' => $this->mId,
-					'bl_to'   => $blt ) );
-			}
-			$dbw->insert( 'brokenlinks', $arr, $fname, array( 'IGNORE' ) );
+			$dbw->insert( 'pagelinks', $arr, $fname, array( 'IGNORE' ) );
 		}
 
 		#------------------------------------------------------------------------------
 		# Image links
-		$sql = "DELETE FROM $imagelinks WHERE il_from='{$this->mId}'";
-		$dbw->query( $sql, $fname );
+		$dbw->delete('imagelinks',array('il_from'=>$this->mId),$fname);
 		
 		# Get addition list
 		$add = $wgLinkCache->getImageLinks();
 		
 		# Do the insertion
 		$sql = '';
-		$image = Namespace::getImage();
+		$image = NS_IMAGE;
 		if ( 0 != count ( $add ) ) {
 			$arr = array();
 			foreach ($add as $iname => $val ) {
@@ -150,39 +115,78 @@ class LinksUpdate {
 		#------------------------------------------------------------------------------
 		# Category links
 		if( $wgUseCategoryMagic ) {
-			$sql = "DELETE FROM $categorylinks WHERE cl_from='{$this->mId}'";
-			$dbw->query( $sql, $fname );
+			global $messageMemc, $wgDBname;
 			
 			# Get addition list
 			$add = $wgLinkCache->getCategoryLinks();
 			
-			# Do the insertion
-			$sql = '';
-			if ( 0 != count ( $add ) ) {
+			# select existing catlinks for this page
+			$res = $dbw->select( 'categorylinks',
+				array( 'cl_to', 'cl_sortkey' ),
+				array( 'cl_from' => $this->mId ), 
+				$fname,
+				'FOR UPDATE' );
+
+			$del = array();
+			if( 0 != $dbw->numRows( $res ) ) {
+				while( $row = $dbw->fetchObject( $res ) ) {
+					if( !isset( $add[$row->cl_to] ) || $add[$row->cl_to] != $row->cl_sortkey ) {
+						// in the db, but no longer in the page
+						// or sortkey has changed -> delete
+						$del[] = $row->cl_to;
+					} else {
+						// remove already existing category memberships
+						// from the add array
+						unset( $add[$row->cl_to] );
+					}
+				}
+			}
+			
+			// delete any removed categorylinks
+			if( count( $del ) > 0) {
+				// delete old ones
+				$dbw->delete( 'categorylinks',
+					array(
+						'cl_from' => $this->mId,
+						'cl_to'   => $del ),
+					$fname );
+				foreach( $del as $cname ){
+					$nt = Title::makeTitle( NS_CATEGORY, $cname );
+					$nt->invalidateCache();
+					// update the timestamp which indicates when the last article
+					// was added or removed to/from this article
+					$key = $wgDBname . ':Category:' . md5( $nt->getDBkey() ) . ':adddeltimestamp';
+					$messageMemc->set( $key , wfTimestamp( TS_MW ), 24*3600 );
+				}
+			}
+			
+			// add any new category memberships
+			if( count( $add ) > 0 ) {
 				$arr = array();
 				foreach( $add as $cname => $sortkey ) {
 					$nt = Title::makeTitle( NS_CATEGORY, $cname );
-					if( !$nt ) continue;
 					$nt->invalidateCache();
+					// update the timestamp which indicates when the last article
+					// was added or removed to/from this article
+					$key = $wgDBname . ':Category:' . md5( $nt->getDBkey() ) . ':adddeltimestamp';
+					$messageMemc->set( $key , wfTimestamp( TS_MW ), 24*3600 );
 					array_push( $arr, array(
 						'cl_from'    => $this->mId,
 						'cl_to'      => $cname,
 						'cl_sortkey' => $sortkey ) );
 				}
+				// do the actual sql insertion
 				$dbw->insert( 'categorylinks', $arr, $fname, array( 'IGNORE' ) );
 			}
 		}
 		
-		$this->fixBrokenLinks();
-
 		wfProfileOut( $fname );
 	}
 
 	/**
-	 * Old inefficient update function
-	 * Used for rebuilding the link table
-	 * @todo Only used by ./maintenance/refreshLinks.inc probably need to be replaced
-	 * @deprecated
+	  * Link update which clears the previous entries and inserts new ones
+	  * May be slower or faster depending on level of lock contention and write speed of DB
+	  * Also useful where link table corruption needs to be repaired, e.g. in refreshLinks.php
 	 */
 	function doDumbUpdate() {
 		global $wgLinkCache, $wgDBtransactions, $wgUseCategoryMagic;
@@ -191,41 +195,25 @@ class LinksUpdate {
 		
 		
 		$dbw =& wfGetDB( DB_MASTER );
-		$links = $dbw->tableName( 'links' );
-		$brokenlinks = $dbw->tableName( 'brokenlinks' );
+		$pagelinks = $dbw->tableName( 'pagelinks' );
 		$imagelinks = $dbw->tableName( 'imagelinks' );
 		$categorylinks = $dbw->tableName( 'categorylinks' );
 		
-		$sql = "DELETE FROM $links WHERE l_from={$this->mId}";
-		$dbw->query( $sql, $fname );
+		$dbw->delete('pagelinks', array('pl_from'=>$this->mId),$fname);
 
-		$a = $wgLinkCache->getGoodLinks();
+		$a = $wgLinkCache->getPageLinks();
 		if ( 0 != count( $a ) ) {
 			$arr = array();
-			foreach( $a as $lt => $lid ) {
+			foreach( $a as $lt => $target ) {
 				array_push( $arr, array(
-					'l_from' => $this->mId,
-					'l_to'   => $lid ) );
+					'pl_from'      => $this->mId,
+					'pl_namespace' => $target->getNamespace(),
+					'pl_title'     => $target->getDBkey() ) );
 			}
-			$dbw->insert( 'links', $arr, $fname, array( 'IGNORE' ) );
+			$dbw->insert( 'pagelinks', $arr, $fname, array( 'IGNORE' ) );
 		}
 
-		$sql = "DELETE FROM $brokenlinks WHERE bl_from={$this->mId}";
-		$dbw->query( $sql, $fname );
-
-		$a = $wgLinkCache->getBadLinks();
-		if ( 0 != count ( $a ) ) {
-			$arr = array();
-			foreach( $a as $blt ) {
-				array_push($arr,array(
-					'bl_from' => $this->mId,
-					'bl_to'   => $blt));
-			}
-			$dbw->insert( 'brokenlinks', $arr, $fname, array( 'IGNORE' ) );
-		}
-		
-		$sql = "DELETE FROM $imagelinks WHERE il_from={$this->mId}";
-		$dbw->query( $sql, $fname );
+		$dbw->delete('imagelinks', array('il_from'=>$this->mId),$fname);
 
 		$a = $wgLinkCache->getImageLinks();
 		$sql = '';
@@ -239,8 +227,7 @@ class LinksUpdate {
 		}
 
 		if( $wgUseCategoryMagic ) {
-			$sql = "DELETE FROM $categorylinks WHERE cl_from='{$this->mId}'";
-			$dbw->query( $sql, $fname );
+			$dbw->delete('categorylinks', array('cl_from'=>$this->mId),$fname);
 			
 			# Get addition list
 			$add = $wgLinkCache->getCategoryLinks();
@@ -262,45 +249,7 @@ class LinksUpdate {
 				$dbw->insert( 'categorylinks', $arr, $fname, array( 'IGNORE' ) );
 			}
 		}
-		$this->fixBrokenLinks();
 		wfProfileOut( $fname );
 	}
-
-	/**
-	 * Update any brokenlinks *to* this page
-	 * Call for a newly created page, or just to make sure state is consistent
-	 */
-	function fixBrokenLinks() {
-		$fname = 'LinksUpdate::fixBrokenLinks';
-
-		$dbw =& wfGetDB( DB_MASTER );
-		$cur = $dbw->tableName( 'cur' );
-		$links = $dbw->tableName( 'links' );
-		
-		$res = $dbw->select( 'brokenlinks', array( 'bl_from' ), array( 'bl_to' => $this->mTitle ), 
-		  $fname, 'FOR UPDATE' );
-		if ( 0 == $dbw->numRows( $res ) ) { return; }
-
-		$arr=array();
-		$now = $dbw->timestamp();
-		$sql2 = "UPDATE $cur SET cur_touched='{$now}' WHERE cur_id IN (";
-		$first = true;
-		while ( $row = $dbw->fetchObject( $res ) ) {
-			if ( ! $first ) { $sql2 .= ","; }
-			$first = false;
-			array_push( $arr, array(
-				'l_from' => $row->bl_from,
-				'l_to'   => $this->mId ) );
-			$sql2 .= $row->bl_from;
-		}
-		$sql2 .= ')';
-		
-		# Ignore errors. If a link existed in both the brokenlinks table and the links 
-		# table, that's an error which can be fixed at this stage by simply ignoring collisions
-		$dbw->insert( 'links', $arr, $fname, array( 'IGNORE' ) );
-		$dbw->query( $sql2, $fname );
-		$dbw->delete( 'brokenlinks', array( 'bl_to' => $this->mTitle ), $fname );
-	}
 }
-
 ?>

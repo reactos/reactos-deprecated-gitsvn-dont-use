@@ -1,6 +1,6 @@
 <?php
 /**
- * See deferred.doc
+ * See deferred.txt
  * @package MediaWiki
  */
 
@@ -38,17 +38,12 @@ class SearchUpdate {
 		wfProfileIn( $fname );
 
 		require_once( 'SearchEngine.php' );
-		$lc = SearchEngine::legalSearchChars() . '&#;';
-		$db =& wfGetDB( DB_MASTER );
-		$searchindex = $db->tableName( 'searchindex' );
+		$search = SearchEngine::create();
+		$lc = $search->legalSearchChars() . '&#;';
 		
-		if( $this->mText == false ) {
-			# Just update the title
-			$lowpri = $db->lowPriorityOption();
-			$sql = "UPDATE $lowpri $searchindex SET si_title='" .
-			  $db->strencode( Title::indexTitle( $this->mNamespace, $this->mTitle ) ) .
-			  "' WHERE si_page={$this->mId}";
-			$db->query( $sql, "SearchUpdate::doUpdate" );
+		if( $this->mText === false ) {
+			$search->updateTitle($this->mId,
+				Title::indexTitle( $this->mNamespace, $this->mTitle ));
 			wfProfileOut( $fname );
 			return;
 		}
@@ -104,17 +99,16 @@ class SearchUpdate {
 		# Strip wiki '' and '''
 		$text = preg_replace( "/''[']*/", " ", $text );
 		wfProfileOut( "$fname-regexps" );
-		$db->replace( 'searchindex', array(array('si_page')),
-			array(
-				'si_page' => $this->mId,
-				'si_title' => Title::indexTitle( $this->mNamespace, $this->mTitle ),
-				'si_text' => $text
-			), 'SearchUpdate::doUpdate' );
+		$search->update($this->mId, Title::indexTitle( $this->mNamespace, $this->mTitle ),
+				$text);
 		wfProfileOut( $fname );
 	}
 }
 
-/* Placeholder class */
+/**
+ * Placeholder class
+ * @package MediaWiki
+ */
 class SearchUpdateMyISAM extends SearchUpdate {
 	# Inherits everything
 }

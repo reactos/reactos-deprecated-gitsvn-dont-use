@@ -32,11 +32,20 @@ class LonelyPagesPage extends PageQueryPage {
 	
 	function getSQL() {
 		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'cur', 'links' ) );
+		extract( $dbr->tableNames( 'page', 'pagelinks' ) );
 
-		return "SELECT 'Lonelypages' as type, cur_namespace AS namespace, cur_title AS title, cur_title AS value " .
-			"FROM $cur LEFT JOIN $links ON cur_id=l_to ".
-			"WHERE l_to IS NULL AND cur_namespace=0 AND cur_is_redirect=0";
+		return
+		  "SELECT 'Lonelypages'  AS type,
+		          page_namespace AS namespace,
+		          page_title     AS title,
+		          page_title     AS value
+		     FROM $page
+		LEFT JOIN $pagelinks
+		       ON page_namespace=pl_namespace AND page_title=pl_title
+		    WHERE pl_namespace IS NULL
+		      AND page_namespace=".NS_MAIN."
+		      AND page_is_redirect=0";
+
 	}
 }
 

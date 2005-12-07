@@ -22,23 +22,29 @@ class ShortPagesPage extends QueryPage {
 		return "Shortpages";
 	}
 
+	/**
+	 * This query is indexed as of 1.5
+	 */
 	function isExpensive() {
-		return true;
+		return false;
 	}
-	function isSyndicated() { return false; }
+	
+	function isSyndicated() {
+		return false;
+	}
 
 	function getSQL() {
 		$dbr =& wfGetDB( DB_SLAVE );
-		$cur = $dbr->tableName( 'cur' );
+		$page = $dbr->tableName( 'page' );
 		$name = $dbr->addQuotes( $this->getName() );
 		
 		return
 			"SELECT $name as type,
-					cur_namespace as namespace,
-			        cur_title as title,
-			        LENGTH(cur_text) AS value
-			FROM $cur
-			WHERE cur_namespace=0 AND cur_is_redirect=0";
+					page_namespace as namespace,
+			        page_title as title,
+			        page_len AS value
+			FROM $page
+			WHERE page_namespace=".NS_MAIN." AND page_is_redirect=0";
 	}
 	
 	function sortDescending() {
@@ -47,8 +53,9 @@ class ShortPagesPage extends QueryPage {
 
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
-		$nb = wfMsg( "nbytes", $wgLang->formatNum( $result->value ) );
-		$link = $skin->makeKnownLink( $result->title, $wgContLang->convert( $result->title ) );
+		$nb = htmlspecialchars( wfMsg( "nbytes", $wgLang->formatNum( $result->value ) ) );
+		$title = Title::makeTitle( $result->namespace, $result->title );
+		$link = $skin->makeKnownLinkObj( $title, $wgContLang->convert( $title->getPrefixedText() ) );
 		return "{$link} ({$nb})";
 	}
 }

@@ -23,14 +23,21 @@
  * @subpackage Search
  */
 
+/** */
 require_once( 'SearchEngine.php' );
 
+/**
+ * @todo document
+ * @package MediaWiki
+ * @subpackage Search
+ */
 class SearchTsearch2 extends SearchEngine {
 	var $strictMatching = false;
 	
 	function SearchTsearch2( &$db ) {
 		$this->db =& $db;
 		$this->db->setSchema('tsearch');
+		$this->mRanking = true;
 	}
 	
 	function getIndexField( $fulltext ) {
@@ -68,18 +75,53 @@ class SearchTsearch2 extends SearchEngine {
 		
 		$searchon = preg_replace('/(\s+)/','&',$searchon);
 		$searchon = $this->db->strencode( $searchon );
-		$field = $this->getIndexField( $fulltext );
-		return " $field @@ to_tsquery('$searchon')";
+		return $searchon;
 	}
+
+	function queryRanking($filteredTerm, $fulltext) {
+		$field = $this->getIndexField( $fulltext );
+		$searchon = $this->parseQuery($filteredTerm,$fulltext);
+		if ($this->mRanking)
+			return " ORDER BY rank($field,to_tsquery('$searchon')) DESC";
+		else
+			return "";
+	}
+		
 
 	function queryMain( $filteredTerm, $fulltext ) {
 		$match = $this->parseQuery( $filteredTerm, $fulltext );
+		$field = $this->getIndexField( $fulltext );
 		$cur = $this->db->tableName( 'cur' );
 		$searchindex = $this->db->tableName( 'searchindex' );
 		return 'SELECT cur_id, cur_namespace, cur_title, cur_text ' .
 			"FROM $cur,$searchindex " .
-			'WHERE cur_id=si_page AND ' . $match;
+			'WHERE cur_id=si_page AND ' . 
+			" $field @@ to_tsquery ('$match') " ;
 	}
+
+        function update( $id, $title, $text ) {
+                $dbw=& wfGetDB(DB_MASTER);
+		$searchindex = $dbw->tableName( 'searchindex' );
+		$sql = "DELETE FROM $searchindex WHERE si_page={$id}";
+		$dbw->query($sql,"SearchTsearch2:update");
+		$sql = "INSERT INTO $searchindex (si_page,si_title,si_text) ".
+			" VALUES ( $id, to_tsvector('".
+				$dbw->strencode($title).
+				"'),to_tsvector('".
+				$dbw->strencode( $text)."')) ";
+		$dbw->query($sql,"SearchTsearch2:update");
+        }
+
+        function updateTitle($id,$title) {
+                $dbw=& wfGetDB(DB_MASTER);
+                $searchindex = $dbw->tableName( 'searchindex' );
+                $sql = "UPDATE $searchindex SET si_title=to_tsvector('" .
+                          $db->strencode( $title ) .
+                          "') WHERE si_page={$id}";
+
+                $dbw->query( $sql, "SearchMySQL4::updateTitle" );
+        }
+
 }
 
 ?>

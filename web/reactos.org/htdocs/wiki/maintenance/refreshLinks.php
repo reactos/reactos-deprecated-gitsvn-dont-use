@@ -6,7 +6,6 @@
  */
 
 /** */
-
 $optionsWithArgs = array( 'm' );
 require_once( "commandLine.inc" );
 require_once( "refreshLinks.inc" );
@@ -22,6 +21,6 @@ if ( !$options['dfn-only'] ) {
 
 	refreshLinks( $start, $options['new-only'], $options['m'] );
 }
-deleteLinksFromNonexistent( $options['m'] );
+deleteLinksFromNonexistent();
 
 ?>

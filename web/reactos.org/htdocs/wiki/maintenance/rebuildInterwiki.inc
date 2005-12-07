@@ -30,7 +30,7 @@ class Site {
 }
 
 function getRebuildInterwikiSQL() {
-	global $langlist, $languageAliases;
+	global $langlist, $languageAliases, $wgDBname;
 
 	# Initialise lists of wikis
 	$sites = array( 
@@ -49,6 +49,7 @@ function getRebuildInterwikiSQL() {
 		'textbookwiki' => 'wikibooks.org',
 		'sep11wiki' => 'sep11.wikipedia.org',
 		'metawiki' => 'meta.wikimedia.org',
+		'commonswiki' => 'commons.wikimedia.org',
 	);
 
 	$extraLinks = array(
@@ -77,15 +78,13 @@ function getRebuildInterwikiSQL() {
 	}
 
 	# Extract the intermap from meta
-	$dbr =& wfGetDB( DB_SLAVE );
-	$row = $dbr->selectRow( "`metawiki`.cur", array( "cur_text" ), 
-		array( "cur_namespace" => 0, "cur_title" => "Interwiki_map" ) );
+	$intermap = wfGetHTTP( 'http://meta.wikimedia.org/w/index.php?title=Interwiki_map&action=raw' );
+	$lines = array_map( 'trim', explode( "\n", trim( $intermap ) ) );
 
-	if ( !$row ) {
+	if ( !$lines ) {
 		die( "m:Interwiki_map not found" );
 	}
 
-	$lines = explode( "\n", $row->cur_text );
 	$iwArray = array();
 
 	foreach ( $lines as $line ) {

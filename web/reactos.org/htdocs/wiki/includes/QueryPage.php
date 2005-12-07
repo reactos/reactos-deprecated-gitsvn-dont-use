@@ -24,15 +24,18 @@ $wgQueryPages = array(
     array( 'LonelyPagesPage',           'Lonelypages'       ),
     array( 'LongPagesPage',             'Longpages'         ),
     array( 'NewPagesPage',              'Newpages'          ),
-    array( 'PopularPagesPage',          'Popularpages'      ),
     array( 'ShortPagesPage',            'Shortpages'        ),
     array( 'UncategorizedCategoriesPage','Uncategorizedcategories'),
     array( 'UncategorizedPagesPage',    'Uncategorizedpages'),
     array( 'UnusedimagesPage',          'Unusedimages'      ),
     array( 'WantedPagesPage',           'Wantedpages'       ),
+    array( 'MostlinkedPage',		'Mostlinked'	    ),
 );
     
-
+global $wgDisableCounters;
+if( !$wgDisableCounters ) {
+	$wgQueryPages[] = array( 'PopularPagesPage',          'Popularpages'      );
+}
 
 /**
  * This is a class for doing query pages; since they're almost all the same,
@@ -104,6 +107,7 @@ class QueryPage {
 	 * Formats the results of the query for display. The skin is the current
 	 * skin; you can use it for making links. The result is a single row of
 	 * result data. You should be able to grab SQL results off of it.
+	 * If the function return "false", the line output will be skipped.
 	 */
 	function formatResult( $skin, $result ) {
 		return '';
@@ -111,9 +115,29 @@ class QueryPage {
 
 	/**
 	 * The content returned by this function will be output before any result
-	*/
+	 */
 	function getPageHeader( ) {
 		return '';
+	}
+	
+	/**
+	 * If using extra form wheely-dealies, return a set of parameters here
+	 * as an associative array. They will be encoded and added to the paging
+	 * links (prev/next/lengths).
+	 * @return array
+	 */
+	function linkParameters() {
+		return array();
+	}
+	
+	/**
+	 * Some special pages (for example SpecialListusers) might not return the
+	 * current object formatted, but return the previous one instead.
+	 * Setting this to return true, will call one more time wfFormatResult to
+	 * be sure that the very last result is formatted and shown.
+	 */
+	function tryLastResult( ) {
+		return false;
 	}
 
 	/**
@@ -134,6 +158,8 @@ class QueryPage {
 			$ignoreR = $dbr->ignoreErrors( true );
 		}
 
+		# Clear out any old cached data
+		$dbw->delete( 'querycache', array( 'qc_type' => $this->getName() ), $fname );
 		# Do query
 		$res = $dbr->query( $this->getSQL() . $this->getOrder() . $dbr->limitResult( 1000,0 ), $fname );
 		$num = false;
@@ -161,26 +187,12 @@ class QueryPage {
 					$dbw->addQuotes( $value ) . ')';
 			}
 
-			# Clear out any old cached data
-			$dbw->delete( 'querycache', array( 'qc_type' => $this->getName() ), $fname );
 			# Save results into the querycache table on the master
 			if ( !$first ) {
 				if ( !$dbw->query( $insertSql, $fname ) ) {
-					// Try reconnecting
-					for ( $i=0; $i<10 && !$dbw->ping(); $i++)  {
-						sleep(10);
-					}
-					if ( $i<10 ) {
-						$dbw->immediateCommit();
-						if ( !$dbw->query( $insertSql, $fname ) ) {
-							// Set $num to false to indicate error
-							$num = false;
-						}
-						$dbr->freeResult( $res );
-					} else {
-						$num = false;
-					}
-
+					// Set result to false to indicate error
+					$dbr->freeResult( $res );
+					$res = false;
 				}
 			}
 			if ( $res ) {
@@ -200,9 +212,10 @@ class QueryPage {
 	 *
 	 * @param $offset database query offset
 	 * @param $limit database query limit
+	 * @param $shownavigation show navigation like "next 200"?
 	 */
-	function doQuery( $offset, $limit ) {
-		global $wgUser, $wgOut, $wgLang, $wgContLang, $wgRequest;
+	function doQuery( $offset, $limit, $shownavigation=true ) {
+		global $wgUser, $wgOut, $wgLang, $wgRequest, $wgContLang;
 		global $wgMiserMode;
 
 		$sname = $this->getName();
@@ -213,7 +226,6 @@ class QueryPage {
 		$querycache = $dbr->tableName( 'querycache' );
 
 		$wgOut->setSyndicated( $this->isSyndicated() );
-		$res = false;
 
 		if ( $this->isExpensive() ) {
 			// Disabled recache parameter due to retry problems -- TS
@@ -222,44 +234,60 @@ class QueryPage {
 				$sql =
 					"SELECT qc_type as type, qc_namespace as namespace,qc_title as title, qc_value as value
 					 FROM $querycache WHERE qc_type='$type'";
-			}
-			if( $wgMiserMode ) {
 				$wgOut->addWikiText( wfMsg( 'perfcached' ) );
 			}
 		}
-		if ( $res === false ) {
-			$res = $dbr->query( $sql . $this->getOrder() .
-					    $dbr->limitResult( $limit,$offset ), $fname );
-			$num = $dbr->numRows($res);
-		}
-
+		
+		$res = $dbr->query( $sql . $this->getOrder() .
+				    $dbr->limitResult( $limit,$offset ), $fname );
+		$num = $dbr->numRows($res);
+		
 		$sk = $wgUser->getSkin( );
 
-		$wgOut->addHTML( $this->getPageHeader() );
-
-		$top = wfShowingResults( $offset, $num);
-		$wgOut->addHTML( "<p>{$top}\n" );
-
-		# often disable 'next' link when we reach the end
-		if($num < $limit) { $atend = true; } else { $atend = false; }
-
-		$sl = wfViewPrevNext( $offset, $limit , $wgContLang->specialPage( $sname ), "" ,$atend );
-		$wgOut->addHTML( "<br />{$sl}</p>\n" );
-
+		if($shownavigation) {
+			$wgOut->addHTML( $this->getPageHeader() );
+			$top = wfShowingResults( $offset, $num);
+			$wgOut->addHTML( "<p>{$top}\n" );
+	
+			# often disable 'next' link when we reach the end
+			if($num < $limit) { $atend = true; } else { $atend = false; }
+			
+			$sl = wfViewPrevNext( $offset, $limit ,
+				$wgContLang->specialPage( $sname ),
+				wfArrayToCGI( $this->linkParameters() ), $atend );
+			$wgOut->addHTML( "<br />{$sl}</p>\n" );
+		}
 		if ( $num > 0 ) {
 			$s = "<ol start='" . ( $offset + 1 ) . "' class='special'>";
+
 			# Only read at most $num rows, because $res may contain the whole 1000
 			for ( $i = 0; $i < $num && $obj = $dbr->fetchObject( $res ); $i++ ) {
 				$format = $this->formatResult( $sk, $obj );
-				$attr = ( isset ( $obj->usepatrol ) && $obj->usepatrol &&
-									$obj->patrolled == 0 ) ? ' class="not_patrolled"' : '';
-				$s .= "<li{$attr}>{$format}</li>\n";
+				if ( $format ) {
+					$attr = ( isset ( $obj->usepatrol ) && $obj->usepatrol &&
+										$obj->patrolled == 0 ) ? ' class="not-patrolled"' : '';
+					$s .= "<li{$attr}>{$format}</li>\n";
+				}
 			}
+
+			if($this->tryLastResult()) {
+				// flush the very last result
+				$obj = null;
+				$format = $this->formatResult( $sk, $obj );
+				if( $format ) {
+					$attr = ( isset ( $obj->usepatrol ) && $obj->usepatrol &&
+										$obj->patrolled == 0 ) ? ' class="not-patrolled"' : '';
+					$s .= "<li{$attr}>{$format}</li>\n";
+				}
+			}
+			
 			$dbr->freeResult( $res );
 			$s .= '</ol>';
 			$wgOut->addHTML( $s );
 		}
-		$wgOut->addHTML( "<p>{$sl}</p>\n" );
+		if($shownavigation) {
+			$wgOut->addHTML( "<p>{$sl}</p>\n" );
+		}
 		return $num;
 	}
 
@@ -315,7 +343,7 @@ class QueryPage {
 			}
 
 			return new FeedItem(
-				$title->getText(),
+				$title->getPrefixedText(),
 				$this->feedItemDesc( $row ),
 				$title->getFullURL(),
 				$date,
@@ -327,18 +355,9 @@ class QueryPage {
 	}
 
 	function feedItemDesc( $row ) {
-		$text = '';
-		if( isset( $row->comment ) ) {
-			$text = htmlspecialchars( $row->comment );
-		} else {
-			$text = '';
-		}
-
-		if( isset( $row->text ) ) {
-			$text = '<p>' . htmlspecialchars( wfMsg( 'summary' ) ) . ': ' . $text . "</p>\n<hr />\n<div>" .
-				nl2br( htmlspecialchars( $row->text ) ) . "</div>";;
-		}
-		return $text;
+		return isset( $row->comment )
+			? htmlspecialchars( $row->comment )
+			: '';
 	}
 
 	function feedItemAuthor( $row ) {
@@ -379,7 +398,7 @@ class PageQueryPage extends QueryPage {
 	function formatResult( $skin, $result ) {
 		global $wgContLang;
 		$nt = Title::makeTitle( $result->namespace, $result->title );
-		return $skin->makeKnownLinkObj( $nt, $wgContLang->convert( $result->title ) );
+		return $skin->makeKnownLinkObj( $nt, $wgContLang->convert( $nt->getPrefixedText() ) );
 	}
 }
 

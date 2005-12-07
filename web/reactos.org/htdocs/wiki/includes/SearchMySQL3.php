@@ -23,17 +23,18 @@
  * @subpackage Search
  */
 
-require_once( 'SearchEngine.php' );
+/** */
+require_once( 'SearchMySQL.php' );
 
-class SearchMySQL3 extends SearchEngine {
+/**
+ * @package MediaWiki
+ * @subpackage Search
+ */
+class SearchMySQL3 extends SearchMySQL {
 	function SearchMySQL3( &$db ) {
 		$this->db =& $db;
 	}
-	
-	function getIndexField( $fulltext ) {
-		return $fulltext ? 'si_text' : 'si_title';
-	}
-	
+
 	function parseQuery( $filteredText, $fulltext ) {
 		global $wgDBminWordLen, $wgContLang;
 		
@@ -75,14 +76,6 @@ class SearchMySQL3 extends SearchEngine {
 		return '(' . $cond . ' )';
 	}
 
-	function queryMain( $filteredTerm, $fulltext ) {
-		$match = $this->parseQuery( $filteredTerm, $fulltext );
-		$cur = $this->db->tableName( 'cur' );
-		$searchindex = $this->db->tableName( 'searchindex' );
-		return 'SELECT cur_id, cur_namespace, cur_title, cur_text ' .
-			"FROM $cur,$searchindex " .
-			'WHERE cur_id=si_page AND ' . $match;
-	}
 }
 
 ?>

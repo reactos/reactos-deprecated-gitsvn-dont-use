@@ -2,6 +2,7 @@
 /**
  *
  * @package MediaWiki
+ * @subpackage Cache
  */
 
 /**
@@ -18,15 +19,20 @@ class ParserCache {
 	function ParserCache( &$memCached ) {
 		$this->mMemc =& $memCached;
 	}
-	
+
 	function getKey( &$article, &$user ) {
-		global $wgDBname;
+		global $wgDBname, $action;
 		$hash = $user->getPageRenderingHash();
 		$pageid = intval( $article->getID() );
-		$key = "$wgDBname:pcache:idhash:$pageid-$hash";
+		$renderkey = (int)($action == 'render');
+		$key = "$wgDBname:pcache:idhash:$pageid-$renderkey!$hash";
 		return $key;
 	}
-	
+
+	function getETag( &$article, &$user ) {
+		return 'W/"' . $this->getKey($article, $user) . "--" . $article->mTouched. '"';
+	}
+
 	function get( &$article, &$user ) {
 		global $wgCacheEpoch;
 		$fname = 'ParserCache::get';
@@ -67,7 +73,7 @@ class ParserCache {
 		wfProfileOut( $fname );
 		return $value;
 	}
-	
+
 	function save( $parserOutput, &$article, &$user ){
 		$key = $this->getKey( $article, $user );
 		$now = wfTimestampNow();

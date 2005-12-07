@@ -5,6 +5,7 @@
  * @subpackage SpecialPage
  */
 
+/** */
 require_once( 'ImageGallery.php' );
 
 /**
@@ -83,13 +84,13 @@ function wfSpecialNewimages() {
 		$name = $s->img_name;
 		$ut = $s->img_user_text;
 
-		$nt = Title::makeTitle( NS_IMAGE, $name );
+		$nt = Title::newFromText( $name, NS_IMAGE );
 		$img = Image::newFromTitle( $nt );
-		$ul = $sk->makeLink( $wgContLang->getNsText( Namespace::getUser() ) . ":{$ut}", $ut );
+		$ul = $sk->makeLinkObj( Title::makeTitle( NS_USER, $ut ), $ut );
 
-		$gallery->add( $img, $ul.'<br /><i>'.$wgLang->timeanddate( $s->img_timestamp, true ).'</i><br />' );
+		$gallery->add( $img, "$ul<br />\n<i>".$wgLang->timeanddate( $s->img_timestamp, true )."</i><br />\n" );
 		
-		$timestamp = wfTImestamp( TS_MW, $s->img_timestamp );
+		$timestamp = wfTimestamp( TS_MW, $s->img_timestamp );
 		if( empty( $firstTimestamp ) ) {
 			$firstTimestamp = $timestamp;
 		}
@@ -102,14 +103,13 @@ function wfSpecialNewimages() {
 		"<strong>{$lt}</strong>", "<strong>{$bydate}</strong>" );
 	$wgOut->addHTML( "<p>{$text}\n</p>" );
 
-	$cap = wfMsg( 'ilshowmatch' );
 	$sub = wfMsg( 'ilsubmit' );
 	$titleObj = Title::makeTitle( NS_SPECIAL, 'Newimages' );
 	$action = $titleObj->escapeLocalURL(  "limit={$limit}" );
 
 	$wgOut->addHTML( "<form id=\"imagesearch\" method=\"post\" action=\"" .
 	  "{$action}\">" .
-	  "{$cap}: <input type='text' size='8' name=\"wpIlMatch\" value=\"" .
+	  "<input type='text' size='20' name=\"wpIlMatch\" value=\"" .
 	  htmlspecialchars( $wpIlMatch ) . "\" /> " .
 	  "<input type='submit' name=\"wpIlSubmit\" value=\"{$sub}\" /></form>" );
 	$here = $wgContLang->specialPage( 'Newimages' );
@@ -117,7 +117,7 @@ function wfSpecialNewimages() {
 	/**
 	 * Paging controls...
 	 */
-	$now = wfTimestamp( TS_MW );
+	$now = wfTimestampNow();
 	$date = $wgLang->timeanddate( $now );
 	$dateLink = $sk->makeKnownLinkObj( $titleObj, wfMsg( 'rclistfrom', $date ), 'from=' . $now );
 	
