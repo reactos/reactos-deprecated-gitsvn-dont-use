@@ -240,8 +240,12 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
       <td width="10%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Lang</strong></font></div></td>
     </tr>
     <?php
+		$query_page = mysql_query("SELECT * 
+				FROM users
+				$ros_cms_intern_users_filt $ros_cms_intern_users_lang
+				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
 
-	if($roscms_intern_account_level==100) {
+/*	if($roscms_intern_account_level==100) {
 		$query_page = mysql_query("SELECT * 
 				FROM users
 				$ros_cms_intern_users_filt $ros_cms_intern_users_lang
@@ -252,7 +256,7 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 				FROM users
 				$ros_cms_intern_users_filt AND user_account_hidden != 0 $ros_cms_intern_users_lang
 				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
-	}
+	}*/
 
 	$farbe1=$roscms_intern_color1;
 	$farbe2=$roscms_intern_color2;
