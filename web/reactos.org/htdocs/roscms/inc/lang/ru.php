@@ -1,4 +1,4 @@
-<?php
+﻿<?php
     /*
     RosCMS - ReactOS Content Management System
     Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
@@ -68,5 +68,9 @@ $roscms_langres['Account_Information_description'] = 'A sum up of the account da
 // Right side bar:
 $roscms_langres['Latest_Release'] = 'Latest Release';
 $roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
+
+// Error 404
+$roscms_langres['Page_not_found'] = 'Page not found';
+
 
 ?>
