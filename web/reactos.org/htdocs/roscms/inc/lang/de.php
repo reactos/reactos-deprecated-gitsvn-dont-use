@@ -43,7 +43,8 @@
 );*/
 
 // Language settings
-$roscms_langres['charset'] = 'iso-8859-1';
+$roscms_langres['charset'] = 'utf-8';
+//$roscms_langres['charset'] = 'iso-8859-1';
 $roscms_langres['lang_code'] = 'DE';
 
 
