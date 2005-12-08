@@ -69,4 +69,8 @@ $roscms_langres['Account_Information_description'] = 'A sum up of the account da
 $roscms_langres['Latest_Release'] = 'Latest Release';
 $roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
 
+// Error 404
+$roscms_langres['Page_not_found'] = 'Page not found';
+
+
 ?>

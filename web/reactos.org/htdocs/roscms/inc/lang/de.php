@@ -51,8 +51,8 @@ $roscms_langres['lang_code'] = 'DE';
 $roscms_langres['Navigation'] = 'Navigation';
 $roscms_langres['Home'] = 'Startseite';
 $roscms_langres['Dev'] = 'Entwicklung';
-$roscms_langres['Community'] = 'Gemeinschaft';
-$roscms_langres['Support'] = 'Unterstützung';
+$roscms_langres['Community'] = 'Community';
+$roscms_langres['Support'] = 'Support';
 $roscms_langres['myReactOS'] = 'meinReactOS';
 
 // Login bar:
@@ -60,7 +60,7 @@ $roscms_langres['Account'] = 'Benutzerkonto';
 $roscms_langres['Login'] = 'Login';
 $roscms_langres['Logout'] = 'Logout';
 $roscms_langres['Global_Login_System'] = 'Login System';
-$roscms_langres['Register_Account'] = 'Account Registrieren';
+$roscms_langres['Register_Account'] = 'Registrieren';
 $roscms_langres['Login_Nick'] = '&nbsp;Nick:&nbsp;';
 $roscms_langres['LoginPwd'] = '&nbsp;Pwd:&nbsp;';
 
@@ -84,8 +84,10 @@ $roscms_langres['Account_Information'] = 'Account Informationen';
 $roscms_langres['Account_Information_description'] = 'Eine Zusammenfassung ... &lt;placeholder&gt;';
 
 // Right side bar:
-$roscms_langres['Latest_Release'] = 'Neuste Veröffentlichung';
+$roscms_langres['Latest_Release'] = 'Neueste Veröffentlichung';
 $roscms_langres['myReactOS_Developer_Quotes'] = 'Entwickler Zitat';
 
+// Error 404
+$roscms_langres['Page_not_found'] = 'Seite nicht gefunden';
 
 ?>
