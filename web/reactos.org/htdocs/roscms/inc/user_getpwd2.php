@@ -183,8 +183,10 @@ echo "<br><br>New Password: <b>" . $reg_randompwd . "</b><br><br><br>";
 
 include("roscms_config.php");
 
-echo "<b><a href='" . $roscms_intern_path_server . "roscms/?page=user&sec=account&sec2=edit'>Login and change your password</a></b><br><br>";
+echo "<b><a href='" . $roscms_intern_path_server . "roscms/?page=user&amp;sec=account&amp;sec2=edit'>Login and change your password</a></b><br><br>";
 
+// Do NOT remove the comment slashes! This would be a big security risc.
+//echo "<p>usrname=" . $reg_txtusername . " pwd=" . $reg_randompwd ."</p>";
 
 
 

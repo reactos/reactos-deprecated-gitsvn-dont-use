@@ -46,8 +46,8 @@ function create_head($page_title, $logo, $roscms_langres)
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="de">
 <head>
-	<title>ReactOS Homepage - <?php echo $page_title ; ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $roscms_langres['charset']; ?>" />
+	<title>ReactOS Homepage - <?php echo $page_title ; ?></title>
 	<meta http-equiv="Pragma" content="no-cache" >
 	<meta name="Copyright" content="ReactOS Foundation" >
 	<meta name="generator" content="RosCMS" >

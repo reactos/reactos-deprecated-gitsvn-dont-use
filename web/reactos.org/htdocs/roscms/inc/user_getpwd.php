@@ -400,7 +400,7 @@ $reg_accounta_query_list = mysql_fetch_array($reg_accounta_query);
 	$subject = "ReactOS Homepage - myReactOS Account [New Password - #1]";
 	
 	/* Message */
-	$message = "ReactOS Homepage - myReactOS Account [New Password - #1]\n\n\nUsername: ".$reg_txtusername."\nActivation Code: ".$reg_randompwd."\n\n\nUse this link to get a new password:\nhttp://www.reactos.org/roscms/?page=getpwd2&amp;usrname=" . $reg_txtusername . "&amp;code=" . $reg_randompwd . "\n\n\n\nIf you find any problems, feel free to register them in BugZilla.\n\n\nBest regards,\nThe ReactOS Web Team\n\n\n\nPlease do not reply as this is an auto generated email! If you have not requested a new password, then someone tried to recover your password.";
+	$message = "ReactOS Homepage - myReactOS Account [New Password - #1]\n\n\nUsername: ".$reg_txtusername."\nActivation Code: ".$reg_randompwd."\n\n\nUse this link to get a new password:\nhttp://www.reactos.org/roscms/?page=getpwd2&usrname=" . $reg_txtusername . "&code=" . $reg_randompwd . "\n\n\n\nIf you find any problems, feel free to register them in BugZilla.\n\n\nBest regards,\nThe ReactOS Web Team\n\n\n\nPlease do not reply as this is an auto generated email! If you have not requested a new password, then someone tried to recover your password.";
 	
 	/* build the mail header */
 	$headers = "";

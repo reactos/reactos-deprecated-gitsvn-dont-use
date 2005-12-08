@@ -115,7 +115,9 @@
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><textarea name="textarea_content" cols="60" rows="20" id="textarea_content"><?php
 				//echo htmlentities(ereg_replace("&amp;(#[0-9]{4};)", "&\\1", $roscms_intern_editor_content), ENT_QUOTES, 'UTF-8'); 
-				echo ereg_replace("&amp;(#[0-9]{4};)", "&\\1", htmlentities($roscms_intern_editor_content, ENT_QUOTES, 'UTF-8'))
+				echo ereg_replace("&amp;(#[0-9]{4};)", "&\\1", htmlentities($roscms_intern_editor_content, ENT_QUOTES, 'UTF-8'));
+				//echo ereg_replace("&amp;(#[0-9]{4};)", "&\\1", $roscms_intern_editor_content);
+				//echo htmlspecialchars($roscms_intern_editor_content);
 
 				//echo htmlentities($roscms_intern_editor_content);
 				
