@@ -93,7 +93,7 @@ if ($result_usr['user_name'] != "") {
 	$roscms_intern_timeout_option = $result_usr['user_setting_timeout'];
 }
 else { // only hacker/cracker/script kiddy/brute force script/bot/etc. is able to reach this part
-	die("<blink>No valid user session found!<br><br>You are a hacker/cracker/script kiddy/brute force script/bot/etc.<br><br>RosCMS does not like you, anymore! Your ip address, etc. has been saved and you are on the watch list!</blink>");
+	die("<blink>No valid user session found!</blink><p><a href='http://www.reactos.org/roscms/?page=getpwd'>Delete all old sessions and login again!</a> (this function will also allow you to set a new password)</p>");
 	// TODO: add it to the watchlist!
 }
 

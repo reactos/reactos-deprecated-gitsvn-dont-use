@@ -405,7 +405,7 @@
 				`content_visible` = '". mysql_escape_string($content_vis) ."',
 				`content_active` = '". mysql_escape_string($content_act) ."',
 				`content_description` = '". mysql_escape_string($content_description) ."',
-				`content_type` = '". mysql_escape_string($content_description) ."'
+				`content_type` = '". mysql_escape_string($content_typea) ."'
 				WHERE `content_id` = '$rpm_db_id' LIMIT 1 ;";
 				//`content_active` = '1',
 				//`content_usrname_id` = '$roscms_intern_account_id',
