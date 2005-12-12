@@ -214,7 +214,7 @@ if ( !defined('ROSCMS_SYSTEM') )
 				$query_lang_page_name_trans = mysql_query("SELECT * 
 															FROM `pages` 
 															WHERE `page_name` = '". $result_page['content_name'] ."'
-															AND (`page_language` = 'all' OR `page_language` = 'en') 
+															AND (`page_language` = 'all' OR `page_language` = 'en' OR `page_language` = '". $result_page['content_lang'] ."') 
 															AND `page_active` = 1
 															AND `page_visible` = 1 ;") ;
 				$result_lang_page_name_trans = mysql_fetch_array($query_lang_page_name_trans);
@@ -238,10 +238,10 @@ if ( !defined('ROSCMS_SYSTEM') )
 		?></font></td>
     <td valign="middle" bgcolor="<?php echo $color; ?>"><div align="center"><font face="Arial, Helvetica, sans-serif" size="2"><?php 
 		if ($link_current_line == "true") {
-			echo '<a href="../?page='.$result_page['content_name'].'&amp;lang=en">done</a>';
+			echo '<a href="../?page='.$result_page['content_name'].'&amp;lang=en">'. $result_page['content_date'] .'</a>';
 		}
 		else {
-			echo "done";
+			echo $result_page['content_date'];
 		}
 	?></font></div></td>
 	<?php
@@ -263,13 +263,12 @@ if ( !defined('ROSCMS_SYSTEM') )
 			$result_count_lang_item = mysql_fetch_row($query_count_lang_item);
 			if ($result_count_lang_item[0] != "0" && $result_count_lang_item[0] != "") {
 				if ($link_current_line == "true") {
-					echo '<a href="../?page='.$result_page['content_name'].'&amp;lang='.$result_lang_name['lang_id'].'">done</a>';
+					echo '<a href="../?page='.$result_page['content_name'].'&amp;lang='.$result_lang_name['lang_id'].'">'. $result_page['content_date'] .'</a>';
 				}
 				else {
-					echo "done";
+					echo $result_page['content_date'];
 				}
 			}
-	
 	?></font></div></td>
 	<?php	
 		}
