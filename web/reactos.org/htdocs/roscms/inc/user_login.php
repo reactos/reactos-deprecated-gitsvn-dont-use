@@ -290,8 +290,8 @@ else { // login process
 		exit;
 	}
 
-	$rem_adr = $HTTP_SERVER_VARS['REMOTE_ADDR'];
-	$useragent = $HTTP_SERVER_VARS['HTTP_USER_AGENT'];
+	$rem_adr = $_SERVER['REMOTE_ADDR'];
+	$useragent = $_SERVER['HTTP_USER_AGENT'];
 	
 	// Query DB table 'users' and read the login_counter and settings of
 	// the specific user
