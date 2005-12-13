@@ -255,18 +255,27 @@ if ( !defined('ROSCMS_SYSTEM') )
 
 			$query_count_lang_item=mysql_query("SELECT COUNT('content_id')
 												FROM `content` 
-												WHERE `content_name` = '".$result_page['content_name']."'
+												WHERE `content_name` LIKE '".$result_page['content_name']."'
 												AND `content_lang` = '". $result_lang_name["lang_id"] ."'
 												AND `content_active` = 1
 												AND `content_visible` = 1
 												AND `content_type` = 'default' ;");	
 			$result_count_lang_item = mysql_fetch_row($query_count_lang_item);
+
 			if ($result_count_lang_item[0] != "0" && $result_count_lang_item[0] != "") {
+				$query_lang_item2=mysql_query("SELECT * 
+													FROM `content` 
+													WHERE `content_name` LIKE '".$result_page['content_name']."'
+													AND `content_lang` = '". $result_lang_name["lang_id"] ."'
+													AND `content_active` = 1
+													AND `content_visible` = 1 ;");	
+				$result_lang_item2 = mysql_fetch_array($query_lang_item2);
+				
 				if ($link_current_line == "true") {
-					echo '<a href="../?page='.$result_page['content_name'].'&amp;lang='.$result_lang_name['lang_id'].'">'. $result_page['content_date'] .'</a>';
+					echo '<a href="../?page='.$result_page['content_name'].'&amp;lang='.$result_lang_name['lang_id'].'">'. $result_lang_item2['content_date'] .'</a>';
 				}
 				else {
-					echo $result_page['content_date'];
+					echo $result_lang_item2['content_date'];
 				}
 			}
 	?></font></div></td>
