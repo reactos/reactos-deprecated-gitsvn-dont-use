@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
     /*
     RosCMS - ReactOS Content Management System
     Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
