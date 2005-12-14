@@ -19,11 +19,27 @@
     */
 
 
-	// RosCMS Colors:
-	$roscms_intern_color0="#5984C3"; // table head line
-	$roscms_intern_color1="#E2E2E2"; // table color1
-	$roscms_intern_color2="#EEEEEE"; // table color2
-	$roscms_intern_color_new="#339900"; // new content
-	$roscms_intern_color_old="#FF3300"; // new content
-
+	function compareDate ($i_sFirstDate, $i_sSecondDate)
+	{
+		// Break the Date strings into seperate components
+		$arrFirstDate = explode ("-", $i_sFirstDate);
+		$arrSecondDate = explode ("-", $i_sSecondDate);
+		
+		$intFirstYear = $arrFirstDate[0];
+		$intFirstMonth = $arrFirstDate[1];
+		$intFirstDay = $arrFirstDate[2];
+		
+		$intSecondYear = $arrSecondDate[0];
+		$intSecondMonth = $arrSecondDate[1];
+		$intSecondDay = $arrSecondDate[2];
+		
+		
+		// Calculate the diference of the two dates and return the number of days
+		$intDate1Jul = gregoriantojd($intFirstMonth, $intFirstDay, $intFirstYear);
+		$intDate2Jul = gregoriantojd($intSecondMonth, $intSecondDay, $intSecondYear);
+//		echo "|".$intDate1Jul."|".$intDate2Jul."|";
+		return $intDate1Jul - $intDate2Jul;
+	
+	} // end Compare Date
+	
 ?>
