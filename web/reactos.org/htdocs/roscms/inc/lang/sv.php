@@ -49,7 +49,7 @@ $roscms_langres['LoginPwd'] = '&nbsp;L&ouml;senord:&nbsp;';
 
 
 // myReactOS menu
-$roscms_langres['User_Profil_Overview'] = 'Medlems profil Information';
+$roscms_langres['User_Profil_Overview'] = 'Medlems profil &Ouml;verblick';
 $roscms_langres['User_Profil'] = 'Medlems profil';
 $roscms_langres['Overview'] = '&Ouml;verblick';
 $roscms_langres['Login_System'] = 'Logg in System';
