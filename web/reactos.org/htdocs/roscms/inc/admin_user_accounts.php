@@ -459,24 +459,24 @@ $result_count_cat = mysql_fetch_row($query_count_cat);
 				ORDER BY '$ros_cms_intern_users_sortby' $ros_cms_intern_users_sort LIMIT ". $roscms_SET_curpos ." , ". $roscms_intern_items_per_page ." ;") ;
 	}*/
 
-	$farbe1=$roscms_intern_color1;
-	$farbe2=$roscms_intern_color2;
-	$zaehler="0";
+	$color1=$roscms_intern_color1;
+	$color2=$roscms_intern_color2;
+	$colorcounter="0";
 	//$farbe="#CCCCC";
 	
 	while($result_page = mysql_fetch_array($query_page)) { // users
 ?>
     <tr> 
       <td width="9%" valign="middle" bgcolor="<?php
-								$zaehler++;
-								if ($zaehler == "1") {
-									echo $farbe1;
-									$farbe = $farbe1;
+								$colorcounter++;
+								if ($colorcounter == "1") {
+									echo $color1;
+									$farbe = $color1;
 								}
-								elseif ($zaehler == "2") {
-									$zaehler="0";
-									echo $farbe2;
-									$farbe = $farbe2;
+								elseif ($colorcounter == "2") {
+									$colorcounter="0";
+									echo $color2;
+									$farbe = $color2;
 								}
 							 ?>"> 
         <div align="center"><a href="<?php echo "?page=user&amp;sec=profil&amp;sec2=".$result_page['user_id']; ?>"><img src="images/view.gif" alt="Profil" width="19" height="18" border="0"></a>&nbsp; 
