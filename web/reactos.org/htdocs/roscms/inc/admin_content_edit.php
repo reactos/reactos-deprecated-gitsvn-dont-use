@@ -64,9 +64,14 @@
         <td width="15%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
             ID </strong></font></div></td>
         <td width="85%" bgcolor="#E2E2E2"> <div align="left"><font face="Arial, Helvetica, sans-serif"> 
-            [#cont_
-            <input name="txt_contentid" type="text" id="txt_contentid" value="<?php echo $result_content['content_name']; ?>" size="50" maxlength="50">
-            ] &nbsp; (e.g. &quot;about&quot;)</font></div></td>
+            [#cont_<?php
+			if ($rpm_page == "trans") {
+				echo '<input name="txt_contentid" type="hidden" id="txt_contentid" value="'.$result_content['content_name'].'"><b>'.$result_content['content_name'].'</b>';
+			}
+			else {
+				echo '<input name="txt_contentid" type="text" id="txt_contentid" value="'.$result_content['content_name'].'" size="50" maxlength="50">';
+			}
+            ?>] &nbsp; (e.g. &quot;about&quot;)</font></div></td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
@@ -81,10 +86,15 @@
 					ORDER BY 'lang_level' DESC Limit 1";
 				$sql_query_lang=mysql_query($sql_lang);
 				$myrow_lang=mysql_fetch_row($sql_query_lang); // Languages
-			?>
+?>
               <optgroup label="languages"> 
+<?php 
+			if ($rpm_page != "trans") {
+?>
               <option value="all"<?php if ($cmsros_intern_temp_lang_short == "all") { echo ' selected="selected"'; } ?>>All</option>
-              <?php
+<?php
+			}
+
 			  
 		// Languages
 		$sql_langa="SELECT * 
@@ -93,18 +103,29 @@
 					ORDER BY 'lang_level' DESC";
 		$sql_query_langa=mysql_query($sql_langa);
 		while($myrow_langa=mysql_fetch_row($sql_query_langa)) {
-              echo '<option value="'.$myrow_langa[0].'"';
-			  if ($myrow_lang[0] == $myrow_langa[0]) {
+			if ($rpm_page == "trans" && $myrow_langa[0] == "en") {
+				// temp
+			}
+			else {
+				echo '<option value="'.$myrow_langa[0].'"';
+				if ($myrow_lang[0] == $myrow_langa[0]) {
 					echo ' selected="selected"';
-			  }
-			  echo '>'.$myrow_langa[1].'</option>';
+				}
+				echo '>'.$myrow_langa[1].'</option>';
+			}
 		}
               ?>
               </optgroup>
+			  <?php
+			if ($rpm_page != "trans") {
+              ?>
               <optgroup label="other"> 
               <option value="xhtml"<?php if ($result_content['content_lang'] == "xhtml") { echo ' selected="selected"'; } ?>>XHTML</option>
               <option value="html"<?php if ($result_content['content_lang'] == "html") { echo ' selected="selected"'; } ?>>HTML</option>
               </optgroup>
+			  <?php
+			}
+              ?>
             </select>
           </div></td>
       </tr>
@@ -138,25 +159,36 @@
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Visible</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			if ($result_content['content_visible'] == 1) {
-				echo ' <input name="content_visible" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_visible" value="no"> no';
+			if ($rpm_page == "trans") {
+				echo '<input name="content_visible" type="hidden" id="content_visible" value="yes">yes';
 			}
 			else {
-				echo ' <input name="content_visible" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_visible" value="no" checked> no';
-			}	
+				if ($result_content['content_visible'] == 1) {
+					echo ' <input name="content_visible" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_visible" value="no"> no';
+				}
+				else {
+					echo ' <input name="content_visible" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_visible" value="no" checked> no';
+				}	
+			}
 		?>
-          </font></td>
+          
+</font></td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Active</strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			if ($result_content['content_active'] == 1) {
-				echo ' <input name="content_active" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_active" value="no"> no';
+			if ($rpm_page == "trans") {
+				echo '<input name="content_active" type="hidden" id="content_active" value="yes">yes';
 			}
 			else {
-				echo ' <input name="content_active" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_active" value="no" checked> no';
-			}	
+				if ($result_content['content_active'] == 1) {
+					echo ' <input name="content_active" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_active" value="no"> no';
+				}
+				else {
+					echo ' <input name="content_active" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_active" value="no" checked> no';
+				}	
+			}
 		?>
           </font></td>
       </tr>
@@ -187,14 +219,27 @@
       <tr>
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Type</strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif">
-          <input name="txt_content_type" type="text" id="txt_content_type" value="<?php echo $result_content['content_type']; ?>" size="30" maxlength="30">
-(&quot;default&quot;, &quot;layout&quot;, ...)        </font></td>
+<?php
+
+			if ($rpm_page == "trans") {
+				echo '<input name="txt_content_type" type="hidden" id="txt_content_type" value="'.$result_content['content_type'].'">'.$result_content['content_type'];
+			}
+			else {
+				echo '<input name="txt_content_type" type="text" id="txt_content_type" value="'.$result_content['content_type'].'" size="30" maxlength="30">  (&quot;default&quot;, &quot;layout&quot;, ...)';
+			}
+?></font></td>
       </tr>
       <tr>
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Description</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
-          <input name="txt_content_desc" type="text" id="txt_content_desc" value="<?php echo $result_content['content_description']; ?>" size="50" maxlength="255">
-        </font></td>
+<?php
+			if ($rpm_page == "trans") {
+				echo '<input name="txt_content_desc" type="hidden" id="txt_content_desc" value="'.$result_content['content_description'].'">'.$result_content['content_description'];
+			}
+			else {
+				echo '<input name="txt_content_desc" type="text" id="txt_content_desc" value="'.$result_content['content_description'].'" size="50" maxlength="255">';
+			}
+        ?></font></td>
       </tr>
       <tr>
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Username</strong></font></div></td>
@@ -263,10 +308,11 @@
 	?>
     </p>
     <p> 
-      <?php if ($rpm_opt=="translate") { ?>
+      <?php if ($rpm_opt == "translate") { ?>
+	  
       <input name="content_rad_opt" type="radio" value="translate" checked>
       Translate 
-    <p><b><blink>Please check, if you selected the right language, before you 
+    <p><b><blink>Please check, if you have selected the right language, before you 
       click "submit"!</blink></b></p>
     <input type="submit" name="Submit" value="Submit">
     <p>&nbsp;</p>
@@ -457,6 +503,7 @@
 		if ($content_savemode == "update") {
 			echo "<p>The content '".$result_content['content_name']."' (id='".$rpm_db_id."') has been saved!</p>";
 			echo "<p><a href=".$_SERVER['HTTP_REFERER'].">Back to the 'content edit' page</a></p>";
+			echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content['content_text']."</fieldset></p>";
 		}
 		else {		
 			$query_content_new_revision_preview = mysql_query("SELECT * 
@@ -470,8 +517,8 @@
 			echo "<p>A new version of content '".$result_content_new_revision_preview['content_name']."' (old id='".$rpm_db_id."', new id='". $result_content_new_revision_preview["content_id"] ."') has been saved!</p>";		
 			echo "<p><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>Go to the 'content edit' page (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
 			echo "<p><a href='".$_SERVER['HTTP_REFERER']."'>Back to the 'content edit' page (revision ". $result_content['content_id'] .")</a></p>";
+			echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content_new_revision_preview['content_text']."</fieldset></p>";
 		}
-		echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content['content_text']."</fieldset></p>";
 
 }
 ?>
