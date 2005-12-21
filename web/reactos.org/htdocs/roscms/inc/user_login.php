@@ -338,7 +338,8 @@ else { // login process
 
 		if ($roscms_currentuser_login_user_lastsession_counter > 0) {
 			create_login_page("Your account settings only allow you to login once.<br>\n" .
-			                  "You are already logged in so you cannot login again");
+			                  "You are already logged in so you cannot login again. <br>\n".
+			                  "For more informations please have a look at the <a href=\"http://www.reactos.org/xhtml/de/about_userfaq.html#multilogin\">FAQ</a>");
 			exit;
 		}
 	}
