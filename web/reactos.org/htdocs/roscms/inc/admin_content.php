@@ -81,7 +81,8 @@
 			$rpm_lang_id="nolang";
 		}
 		else {
-			$rpm_lang_id="all";
+			$rpm_lang_id="nolang";
+			//$rpm_lang_id="all";
 		}
 	}
 	echo '<p>Language: ';
