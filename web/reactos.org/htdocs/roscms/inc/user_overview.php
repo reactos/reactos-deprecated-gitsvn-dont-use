@@ -128,7 +128,7 @@
                 <td colspan="2" valign="top"> <font size="2" face="Arial, Helvetica, sans-serif"><?php 
 					
 					include("../editor/bbcode/cbparser.php");
-					echo bb2html(stripslashes($result_usraccount['user_description']),'');
+					echo bb2html($result_usraccount['user_description'],'');
 				
 				?></font></td>
               </tr>

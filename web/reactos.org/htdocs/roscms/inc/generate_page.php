@@ -48,7 +48,7 @@
 		ob_start(); 
 		$roscms_template_var_pageid="";
 		$roscms_template_var_pageid=$dyncontid;
-		eval(' ?'.'> '.$code.' <'.'?php '); 
+		eval(' ?'.'>'.$code.' <'.'?php '); 
 		$output = ob_get_contents(); 
 		ob_end_clean(); 
 		//echo ob_get_status();
@@ -152,11 +152,20 @@
 //						echo "<br>=".$rpm_site;
 			}
 			else {
-				echo "<br><br>&nbsp;&nbsp;<b>".$myrow_lang[1]."</b><br>";
-				$query_page = mysql_query("SELECT * 
-						FROM pages
-						WHERE page_visible != 0 AND page_active = '1' AND (page_language = '$myrow_lang[0]' OR page_language = 'all') 
-						ORDER BY 'page_name' ASC");
+				if ($rpm_newcontent == true) {
+					echo "<br><br>&nbsp;&nbsp;<b>".$myrow_lang[1]."</b><br>";
+					$query_page = mysql_query("SELECT * 
+							FROM pages
+							WHERE page_visible = '1' AND page_active = '1' AND page_generate_force = '1' AND (page_language = '$myrow_lang[0]' OR page_language = 'all') 
+							ORDER BY 'page_name' ASC");
+				}
+				else {
+					echo "<br><br>&nbsp;&nbsp;<b>".$myrow_lang[1]."</b><br>";
+					$query_page = mysql_query("SELECT * 
+							FROM pages
+							WHERE page_visible = '1' AND page_active = '1' AND (page_language = '$myrow_lang[0]' OR page_language = 'all') 
+							ORDER BY 'page_name' ASC");
+				}
 			}
 	//		$result = mysql_fetch_array($query); AND pages_extra = ''
 			while($result_page = mysql_fetch_array($query_page)) { // Pages
@@ -452,6 +461,17 @@ if ($rpm_site == "") {
 }
 else {
 	echo("\n\n\n<!-- information for dynamic version -->\n<br><center><font size='1'>This dynamic <b>".$w3cformat." page</b> was <b>generated</b> with ".$roscms_intern_version." in <b>" . $showtime . " seconds.</b></font></center>");
+}
+
+if ($rpm_site == "" && $rpm_sec2 != "view" && $rpm_sec2 !="genpage") {
+	$query_pagegen_status = mysql_query("SELECT * 
+			FROM pages
+			WHERE page_visible = '1' AND page_active = '1' 
+			ORDER BY 'page_name' ASC ;") ;
+	while($result_pagegen_status = mysql_fetch_array($query_pagegen_status)) { // Pages
+		$content_postd="UPDATE `pages` SET `page_generate_force` = '0' WHERE `page_id` = '". $result_pagegen_status['page_id'] ."' ;";
+		$content_post_listd=mysql_query($content_postd);
+	}
 }
 
 set_time_limit(30);

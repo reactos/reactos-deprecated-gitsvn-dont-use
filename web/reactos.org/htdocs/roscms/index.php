@@ -59,7 +59,8 @@ if (get_magic_quotes_gpc()) {
 	$rpm_debug="";
 	$rpm_logo="";
 	$rpm_db_id="";
-
+	$rpm_newcontent="";
+	
 	$varlang="";
 	$varw3cformat="";
 	$varformat="";
@@ -97,6 +98,8 @@ if (get_magic_quotes_gpc()) {
 	if (array_key_exists("debug", $_GET)) $rpm_debug=htmlspecialchars($_GET["debug"]);
 	if (array_key_exists("logo", $_GET)) $rpm_logo=htmlspecialchars($_GET["logo"]);
 	if (array_key_exists("db_id", $_GET)) $rpm_db_id=htmlspecialchars($_GET["db_id"]);
+	if (array_key_exists("newcontent", $_GET)) $rpm_newcontent=htmlspecialchars($_GET["newcontent"]);
+	
 	
 	if (array_key_exists('HTTP_REFERER', $_SERVER)) $roscms_referrer=htmlspecialchars($_SERVER['HTTP_REFERER']);
 	
