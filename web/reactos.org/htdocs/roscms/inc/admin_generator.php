@@ -27,32 +27,37 @@
     </tr>
     <tr> 
       <td colspan="2" bgcolor="#F9F8F8"> <table width="650" border="0" cellpadding="4">
-          <tr> 
-            <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=output" title="Generate all static pages (only if you need to update all pages, e.g. one time per day)">Generate 
-                all static pages</a> </font></strong></div></td>
-            <td width="10">&nbsp;</td>
-            <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td width="300"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default&amp;debug=yes" title="Don't use this function if you don't know what this function do!">View 
-              page - debug mode</a></font></strong></td>
-          </tr>
-          <tr> 
-            <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="#gensinglepage" title="Generate one static page (if you want to update one specific page)">Generate/view 
-                a specific static page</a></font></strong></div></td>
-            <td width="10">&nbsp;</td>
-            <td> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default" title="Don't use this function if you don't know what this function do!">View 
-                all pages - test mode</a></font></strong></div></td>
-          </tr>
-          <tr> 
-            <td> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;sec3=menu&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default" title="View the static homepage in a dynamic way">View 
-              page (dynamic from database)</a></font></strong></td>
+          <tr>
+            <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=output&amp;newcontent=true" title="Generate all UPDATED static pages! (except content that is visible on several pages, e.g. menu bars -> then use the 'generate all pages' link instead!)">Generate  all UPDATED static pages</a> </font></strong></td>
             <td>&nbsp;</td>
-            <td> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default&amp;debug=yes" title="Don't use this function if you don't know what this function do!">View 
-                all pages - debug mode</a></font></strong></div></td>
+            <td>
+              <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td width="300">
+              <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default&amp;debug=yes" title="Don't use this function if you don't know what this function do!">View page - debug mode</a></font></strong></div></td>
+          </tr>
+          <tr>
+            <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=output" title="Generate all static pages (only if you need to update all pages, e.g. one time per day)">Generate all static pages</a> </font></strong></td>
+            <td>&nbsp;</td>
+            <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default" title="Don't use this function if you don't know what this function do!">View all pages - test mode</a></font></strong></td>
+          </tr>
+          <tr> 
+            <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="#gensinglepage" title="Generate one static page (if you want to update one specific page)">Generate/view a specific static page</a></font></strong></div></td>
+            <td width="10">&nbsp;</td>
+            <td>
+              <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td>
+              <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default&amp;debug=yes" title="Don't use this function if you don't know what this function do!">View all pages - debug mode</a></font></strong></div></td>
+          </tr>
+          <tr> 
+            <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
+            <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;sec3=menu&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default" title="View the static homepage in a dynamic way">View page (dynamic from database)</a></font></strong></div></td>
+            <td width="10">&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
           </tr>
         </table></tr>
     <tr bgcolor=#AEADAD> 
@@ -281,6 +286,9 @@
 									$zaehler="0";
 									echo $farbe2;
 									$farbe = $farbe2;
+								}
+								if ($result_page['page_generate_force'] == "1") {
+									$farbe = "#00FF00";
 								}
 							 ?>" title="RosCMS action buttons:&#10;&#10;* Generate static page&#10;* View page in dynamc mode&#10;* Delete static pagse"> 
         <div align="center">

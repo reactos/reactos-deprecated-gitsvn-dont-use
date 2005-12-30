@@ -62,6 +62,7 @@
 					}
 				}
 				break;
+			default:
 			case "generate": // generator menu page
 				include("inc/admin_generator.php"); 
 				break;
@@ -187,7 +188,6 @@
 				include("inc/admin_subsys.php");
 				break;
 			case "overview":
-			default:
 				include("inc/admin_overview.php"); 
 				break;
 		}	

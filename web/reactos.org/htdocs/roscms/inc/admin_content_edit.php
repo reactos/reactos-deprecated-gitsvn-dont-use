@@ -501,6 +501,7 @@
 
 
 		if ($content_savemode == "update") {
+			$roscms_TEMP_cont_name = $result_content['content_name'];
 			echo "<p>The content '".$result_content['content_name']."' (id='".$rpm_db_id."') has been saved!</p>";
 			echo "<p><a href=".$_SERVER['HTTP_REFERER'].">Back to the 'content edit' page</a></p>";
 			echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content['content_text']."</fieldset></p>";
@@ -513,13 +514,29 @@
 														AND `content_version` = ". $content_version ."
 														LIMIT 1;");
 			$result_content_new_revision_preview = mysql_fetch_array($query_content_new_revision_preview);
-			
+			$roscms_TEMP_cont_name = $result_content_new_revision_preview['content_name'];
 			echo "<p>A new version of content '".$result_content_new_revision_preview['content_name']."' (old id='".$rpm_db_id."', new id='". $result_content_new_revision_preview["content_id"] ."') has been saved!</p>";		
 			echo "<p><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>Go to the 'content edit' page (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
 			echo "<p><a href='".$_SERVER['HTTP_REFERER']."'>Back to the 'content edit' page (revision ". $result_content['content_id'] .")</a></p>";
 			echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content_new_revision_preview['content_text']."</fieldset></p>";
 		}
-
+		
+	
+	$query_TEMP_content = mysql_query("SELECT COUNT('page_id') 
+									FROM `pages` 
+									WHERE `page_name` = '". $roscms_TEMP_cont_name ."'
+									AND `page_active` = 1
+									AND `page_visible` = 1 ;") ;
+	$result_TEMP_content = mysql_fetch_row($query_TEMP_content);
+	
+	// Update the "page" generator info:
+	if ($result_TEMP_content[0] == "0" || $result_TEMP_content[0] == "") {
+		// temp
+	}
+	else { 
+		$content_postc="UPDATE `pages` SET `page_generate_force` = '1' WHERE `page_name` = '". $roscms_TEMP_cont_name ."' ;";
+		$content_post_listc=mysql_query($content_postc);
+	}
 }
 ?>
 </div>

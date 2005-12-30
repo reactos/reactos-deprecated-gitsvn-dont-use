@@ -20,10 +20,9 @@
 ?>
 <div class="navTitle">Admin Interface</div>
 	<ol>
-		<li><a href="?page=admin">Overview</a></li>
 		<li><a href="?page=admin&amp;sec=generate">Page Generator</a></li>
 <?php
-	if ($rpm_sec == "pages" || $rpm_sec == "content" || $rpm_sec == "inctext" || $rpm_sec == "dyncontent" || $rpm_sec == "languages" || $rpm_sec == "generate") {
+	if ($rpm_sec == "" || $rpm_sec == "pages" || $rpm_sec == "content" || $rpm_sec == "inctext" || $rpm_sec == "dyncontent" || $rpm_sec == "languages" || $rpm_sec == "generate") {
 ?>
 		<li><a href="?page=admin&sec=pages&sec2=view">&nbsp;- Pages</a></li>
 		<li><a href="?page=admin&sec=content&sec2=view">&nbsp;- Content</a></li>
