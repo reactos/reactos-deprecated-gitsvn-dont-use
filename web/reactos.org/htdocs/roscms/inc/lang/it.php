@@ -62,7 +62,7 @@ $roscms_langres['Accountlist'] = 'Lista Utenti';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'Un'interfaccia potente e facile da usare per gestire il tuo ReactOS homepage account.';
+$roscms_langres['myReactOS_description'] = 'Un interfaccia potente e facile da usare per gestire il tuo ReactOS homepage account.';
 $roscms_langres['Account_Information'] = 'Informazioni Account';
 $roscms_langres['Account_Information_description'] = 'Un riassunto delle informazioni sul tuo account  ... &ltda supportare&gt;';
 
