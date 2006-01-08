@@ -127,6 +127,9 @@ function create_structure($page )
               <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=de">Deutsch (German)</option>
               <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Français (French)</option>
               <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Russian (Russian)</option>
+              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=es">Spanish</option>
+              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=sv">Swedish</option>
+              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=it">Italian</option>
               </optgroup>
             </select>
           </div>
