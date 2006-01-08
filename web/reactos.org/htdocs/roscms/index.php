@@ -126,6 +126,8 @@ function check_lang($lang)
 		case 'fr':
 		case 'ru':
 		case 'es':
+		case 'sv':
+		case 'it':
 			break;
 		default:
 			$checked_lang = '';
@@ -226,6 +228,24 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 				$var = strchr($roscms_referrer, "/ru/");				
 				if ($var != "" AND $rpm_lang == "") {
 					$rpm_lang_session="ru/";
+					$rpm_lang="ru";
+				}
+				$var = "";
+				$var = strchr($roscms_referrer, "/es/");				
+				if ($var != "" AND $rpm_lang == "") {
+					$rpm_lang_session="es/";
+					$rpm_lang="ru";
+				}
+				$var = "";
+				$var = strchr($roscms_referrer, "/sv/");				
+				if ($var != "" AND $rpm_lang == "") {
+					$rpm_lang_session="sv/";
+					$rpm_lang="ru";
+				}
+				$var = "";
+				$var = strchr($roscms_referrer, "/it/");				
+				if ($var != "" AND $rpm_lang == "") {
+					$rpm_lang_session="it/";
 					$rpm_lang="ru";
 				}
 				if ($rpm_lang == "") {
