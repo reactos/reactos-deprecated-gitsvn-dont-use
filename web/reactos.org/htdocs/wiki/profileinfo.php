@@ -21,7 +21,6 @@
      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
      SOFTWARE.
 
-     $Id: profileinfo.php,v 1.4 2005/07/06 05:18:09 vibber Exp $
 -->
 <html>
 <head>

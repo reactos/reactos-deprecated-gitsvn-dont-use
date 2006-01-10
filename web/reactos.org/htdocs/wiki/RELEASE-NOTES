@@ -3,6 +3,50 @@
 Security reminder: MediaWiki does not require PHP's register_globals
 setting since version 1.2.0. If you have it on, turn it *off* if you can.
 
+== MediaWiki 1.5.5 ==
+
+January 5, 2006
+
+MediaWiki 1.5.5 is a security and bugfix maintenance release.
+
+Detection for uploads of Windows Metafile (.wmf) images has been added
+to help protect against a client-side vulnerability in unpatched Microsoft
+Windows operating systems.
+
+Sites which have enabled uploads and added non-standard file types
+(such as .ogg, .doc, or .pdf) should upgrade to this release to ensure
+that malicious .wmf files can't be uploaded with a fake extension;
+such files could put visitors to the site at risk.
+
+For more details on this, see:
+http://en.wikipedia.org/wiki/Windows_Metafile_vulnerability
+
+Additionally, a maintenance script removeUnusedAccounts.php has been added;
+this replaces an older Perl script which had not been updated for the new
+schema in 1.5.
+
+
+== MediaWiki 1.5.4 ==
+
+December 21, 2005
+
+MediaWiki 1.5.4 is a security and bugfix maintenance release.
+
+A hardcoded internal placeholder string has been replaced with a random
+one. This closes a hole where security checks in inline style attributes
+could be bypassed, injecting JavaScript code that could execute in
+Microsoft Internet Explorer.
+
+Other browsers would not be vulnerable.
+
+Several minor fixes are included in this release, most notably a fix
+to clear the "you have new messages" flag properly for usernames
+containing spaces when e-mail notification is enabled.
+
+See the changelog at the end of the release notes for a full list of
+fixes.
+
+
 == MediaWiki 1.5.3 ==
 
 December 4, 2005
@@ -937,6 +981,29 @@ of MediaWiki:Newpagetext) to &action=edit, if page is new.
 * (bug 4071) Generate passwords long enough for $wgMinimalPasswordLength
 * (bug 4035) Fix prev/next revision links on edit page
 * (bug 4165) Correct validation for user language selection (data taint)
+* Clearer message in DefaultSettings.php: edit LocalSettings.php instead
+
+
+=== Changes since 1.5.3 ===
+
+* (bug 3805) Clear 'new messages' flag properly in enotif mode
+  for usernames containing spaces
+* (bug 2714) Backlink from special:whatlinkshere was hard set as 'existing'
+* (bug 4249) Typo in entities2literals.pl
+* (bug 4233) Update for japanese language
+* (bug 4279) Small correction to LanguageDa.php
+* (bug 4267) Switch dv sd ug ks arc languages to RTL
+* (bug 3991) Allow the operation of wikicode on Protect move only text
+* Added AutoAuthenticate hook for external User object suppliers
+* Parser internal placeholder string now fully randomized for safety
+
+=== Changes since 1.5.4 ===
+
+* Maintenance script to delete unused user accounts
+* Added detection for WMF files (application/x-msmetafile), added this 
+  MIME type to the default blacklist. Prevented inline display of images
+  which are not of known image types. This is in response to
+  http://en.wikipedia.org/wiki/Windows_Metafile_vulnerability
 
 
 === Caveats ===
