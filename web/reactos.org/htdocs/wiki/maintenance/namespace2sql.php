@@ -1,5 +1,4 @@
 <?php
-# $Header: /cvsroot/wikipedia/phase3/maintenance/namespace2sql.php,v 1.1 2005/03/20 03:29:12 kateturner Exp $
 #
 # Print SQL to insert namespace names into database.
 # This source code is in the public domain.
