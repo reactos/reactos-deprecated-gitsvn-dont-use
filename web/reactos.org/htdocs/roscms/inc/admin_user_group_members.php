@@ -351,12 +351,14 @@ if ($roscms_SET_letter == "all") {
 	$roscms_SET_letter = "%";
 }
 
-$query_count_cat=mysql_query("SELECT COUNT('user_id') 
-								FROM `users` 
-								WHERE `user_account_enabled` = 'yes'
-								AND `user_account_hidden` = 'no'
-								AND `user_name` LIKE  '" . $roscms_SET_letter . "%'
-								ORDER BY `user_name` ASC ;");	
+$query_count_cat=mysql_query("SELECT COUNT('A1.user_id') 
+								FROM users A1
+								WHERE A1.user_account_enabled = 'yes'
+								AND A1.user_account_hidden = 'no'
+								AND A1.user_name LIKE  '" . $roscms_SET_letter . "%' 
+								$ros_cms_intern_users_filt 
+								$ros_cms_intern_users_lang
+								ORDER BY A1.user_name ASC ;");	
 $result_count_cat = mysql_fetch_row($query_count_cat);
 
 	echo "<p align='center'>";
