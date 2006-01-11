@@ -147,6 +147,9 @@
 			case "usergroups":
 				include("inc/admin_user_groups.php"); 
 				break;
+			case "userhistory":
+				include("inc/admin_user_history.php"); 
+				break;
 			case "usrgrpmbr":
 				if ($rpm_sec2=="view" || $rpm_sec2=="") {
 					include("inc/admin_user_group_members.php"); 

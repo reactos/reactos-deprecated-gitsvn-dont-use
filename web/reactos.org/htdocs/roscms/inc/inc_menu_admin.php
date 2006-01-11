@@ -34,11 +34,12 @@
 ?>
 		<li><a href="?page=admin&amp;sec=users">User Accounts</a></li>
 <?php
-	if ($rpm_sec == "users" || $rpm_sec == "usergroups" || $rpm_sec == "usrgrpmbr" || $rpm_sec == "sessions") { 
+	if ($rpm_sec == "users" || $rpm_sec == "usergroups" || $rpm_sec == "usrgrpmbr" || $rpm_sec == "userhistory" || $rpm_sec == "sessions") { 
 ?>
 		<li><a href="?page=admin&amp;sec=usergroups">&nbsp;- Usergroups</a></li>
 		<li><a href="?page=admin&amp;sec=usrgrpmbr">&nbsp;- Group Members</a></li>
 		<li><a href="?page=admin&amp;sec=sessions">&nbsp;- Sessions</a></li>		
+		<li><a href="?page=admin&amp;sec=userhistory">&nbsp;- User History</a></li>
 <?php
 	}
 ?>
