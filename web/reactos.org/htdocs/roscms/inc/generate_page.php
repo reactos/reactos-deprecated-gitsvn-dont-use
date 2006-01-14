@@ -392,7 +392,9 @@
 					
 					// redirect all bad links to the frontpage:
 					$data_page = str_replace("[#link_",$roscms_intern_path_server."?page=index&amp;temp=",$data_page); // correct link
-					
+					// Replace high chars by their html-escaped version
+					$data_page = roscms_unicode_escape($data_page);
+
 					// Output & View:
 					switch ($rpm_sec2) {
 						case "genpage": // generate a single page
