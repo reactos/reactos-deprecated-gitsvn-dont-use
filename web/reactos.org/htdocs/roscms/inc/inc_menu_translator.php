@@ -20,8 +20,8 @@
 ?>
 <div class="navTitle">Translator Int.</div>
 	<ol>
-		<li><a href="?page=trans">Overview</a></li>
 		<li><a href="?page=trans&amp;sec=content&amp;sec2=view">Translate Content</a></li>
+		<li><a href="?page=trans&amp;sec=dyncontent&amp;sec2=view">&nbsp;- Dynamic Content</a></li>
 		<li><a href="?page=trans&amp;sec=help">Documentation</a></li>
 	</ol>
 </div>

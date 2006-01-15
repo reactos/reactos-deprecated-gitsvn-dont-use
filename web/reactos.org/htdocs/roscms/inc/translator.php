@@ -42,8 +42,9 @@
 		create_structure($rpm_page);
 
 		switch ($rpm_sec) {
+			default:
 			case "content":
-				if ($rpm_sec2=="view") {
+				if ($rpm_sec2=="view" || $rpm_sec2=="") {
 					include("inc/admin_content.php"); 
 				}
 				else if ($rpm_sec2=="edit") {
@@ -56,13 +57,24 @@
 					include("inc/admin_content_edit.php"); 
 				}
 				break;
+			case "dyncontent":
+				if ($rpm_sec2=="view") {
+					include("inc/admin_dyncontent.php"); 
+				}
+				else if ($rpm_sec2=="edit") {
+					include("inc/admin_dyncontent_edit.php"); 
+				}
+				else if ($rpm_sec2=="save") {
+					include("inc/admin_dyncontent_edit.php"); 
+				}
+				break;
 			case "help":
 				include("inc/translator_help.php"); 
 				break;
-			case "overview":
+/*			case "overview":
 			default:
 				include("inc/translator_overview.php"); 
-				break;
+				break;*/
 		}	
 	}
 	else { // for all other user groups

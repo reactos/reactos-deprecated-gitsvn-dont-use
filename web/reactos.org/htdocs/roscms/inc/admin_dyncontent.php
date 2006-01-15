@@ -39,11 +39,15 @@
   <ul>
     <li><strong>Dynamic Content</strong></li>
   </ul>
-  <p>Action: <a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=news_page&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    News</a> | <a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=newsletter&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Newsletter</a> | <a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=blog&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Blog</a> | <a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new"></a><a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Dynamic Content (plain)</a> | <a href="?page=admin&sec=dyncontent&sec2=view">reset 
+  <p>Action: <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=news_page&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">
+    <?php if ($roscms_intern_usrgrp_admin == true && $rpm_page == "admin") { ?>
+    New 
+    News</a> | <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=newsletter&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
+    Newsletter</a> | <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=blog&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
+    Blog</a> | <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new"></a><a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
+    Dynamic Content (plain)</a> | <a href="?page=<?php echo $rpm_page; ?>&sec=dyncontent&sec2=view">
+    <?php } ?>
+    reset 
     filters & sort</a></p>
     
   <?php
@@ -61,23 +65,25 @@
 
 
 	if ($rpm_lang_id == "") {
-		$rpm_lang_id="all";
+		$rpm_lang_id="nolang";
 	}
 	echo '<p>Language: ';
-	if ($rpm_lang_id == "all") {	
-		echo '<b>All</b>';
-		$ros_cms_intern_dyn_content_lang = "";
+	if ($roscms_intern_usrgrp_dev == true || $roscms_intern_usrgrp_admin == true) {
+		if ($rpm_lang_id == "all") {	
+			echo '<b>All</b>';
+			$ros_cms_intern_dyn_content_lang = "";
+		}
+		else {
+			echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid=all">All</a>';
+		}
+		echo ' | ';
 	}
-	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid=all">All</a>';
-	}
-	echo ' | ';
 	if ($rpm_lang_id == "nolang") {	
 		echo '<b>International</b>';
 		$ros_cms_intern_dyn_content_lang = "AND dyn_content_lang = 'all'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid=nolang">International</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid=nolang">International</a>';
 	}
 	// Languages
 	$sql_lang="SELECT * 
@@ -93,7 +99,7 @@
 			$ros_cms_intern_dyn_content_lang = "AND dyn_content_lang = '".$roscms_sel_lang."'";
 		}
 		else {
-			echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
+			echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
 		}
 	}
 
@@ -107,7 +113,7 @@
 		$ros_cms_intern_content_filt = "WHERE dyn_content_active = '1'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=active&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">active content</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=active&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">active content</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "all") {	
@@ -115,7 +121,7 @@
 		$ros_cms_intern_content_filt = "WHERE `dyn_content_name` != ''";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=all&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">all content</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=all&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">all content</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "user") {	
@@ -123,7 +129,7 @@
 		$ros_cms_intern_content_filt = "WHERE dyn_content_usrname_id = '".$roscms_intern_account_id."'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=user&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">current user</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=user&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">current user</a>';
 	}
 	if ($rpm_filt == "history") {	
 		echo ' | <b>history</b>';
@@ -141,7 +147,7 @@
 		$ros_cms_intern_content_filt2 = "";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=all&amp;langid='.$rpm_lang_id.'">all</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=all&amp;langid='.$rpm_lang_id.'">all</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt2 == "news") {	
@@ -149,7 +155,7 @@
 		$ros_cms_intern_content_filt2 = " AND `dyn_content_name` = 'news_page'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=news&amp;langid='.$rpm_lang_id.'">news</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=news&amp;langid='.$rpm_lang_id.'">news</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt2 == "newsletter") {	
@@ -157,7 +163,7 @@
 		$ros_cms_intern_content_filt2 = " AND `dyn_content_name` = 'newsletter'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=newsletter&amp;langid='.$rpm_lang_id.'">newsletter</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=newsletter&amp;langid='.$rpm_lang_id.'">newsletter</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt2 == "blog") {	
@@ -165,7 +171,7 @@
 		$ros_cms_intern_content_filt2 = " AND `dyn_content_name` = 'blog'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=blog&amp;langid='.$rpm_lang_id.'">blog</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=blog&amp;langid='.$rpm_lang_id.'">blog</a>';
 	}
 	/*echo ' | ';
 	if ($rpm_filt2 == "dev_page") {	
@@ -173,7 +179,7 @@
 		$ros_cms_intern_content_filt2 = " AND `dyn_content_name` = 'dev_page'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=dev_page&amp;langid='.$rpm_lang_id.'">dev page</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=dev_page&amp;langid='.$rpm_lang_id.'">dev page</a>';
 	}*/
 	echo '</p>';
 
@@ -188,7 +194,7 @@
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=id&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">content id</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=id&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">content id</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "nr") {	
@@ -197,7 +203,7 @@
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=nr&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">entry nr</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=nr&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">entry nr</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "name") {	
@@ -206,7 +212,7 @@
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=name&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">name</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=name&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">name</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "date") {	
@@ -215,7 +221,7 @@
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=date&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">date</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=date&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">date</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "user") {	
@@ -224,7 +230,7 @@
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=user&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">user</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=user&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">user</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "active") {	
@@ -233,7 +239,7 @@
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=active&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">active</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=active&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">active</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "visible") {	
@@ -242,7 +248,7 @@
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=visible&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">visible</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=visible&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">visible</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "version") {	
@@ -251,7 +257,7 @@
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=version&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">version</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=version&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">version</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "language") {	
@@ -260,10 +266,13 @@
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">language</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'">language</a>';
 	}
 	echo '</p>';
 
+	if ($rpm_page == "trans" || $rpm_page == "team")  {
+		echo "<p><i>The <b>dynamic content interface</b> for translators is <b>under heavy construction</b>! Please <b>do NOT use it</b> today, come back later this week.<br />--frik85 (2006-01-15)</i></p>";
+	}
 ?>
   <table width="100%" border="0" cellpadding="1" cellspacing="1">
     <tr bgcolor="#5984C3"> 
@@ -283,7 +292,7 @@
     </tr>
     <?php
 
-	if($roscms_intern_account_level==100) {
+	if($roscms_intern_account_level>=50) {
 		$query_content = mysql_query("SELECT * 
 				FROM dyn_content
 				$ros_cms_intern_content_filt $ros_cms_intern_content_filt2 $ros_cms_intern_dyn_content_lang
@@ -316,17 +325,23 @@
 									$farbe = $farbe2;
 								}
 							 ?>"> 
-        <div align="center"><a href="?page=admin&amp;sec=dyncontent&amp;sec2=edit&amp;<?php echo 'sec3='.$result_content['dyn_content_name'].'&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['dyn_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
-          <a href="<?php echo "?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['dyn_content_id']."&amp;filt2=".$rpm_filt2."&amp;langid=".$result_content['dyn_content_lang']; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
+        <div align="center">
+		  <?php
+		  if (($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") { ?>
+		<a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;opt=translate&amp;<?php echo 'sec3='.$result_content['dyn_content_name'].'&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['dyn_id']; ?>"><img src="images/tool.gif" alt="Translate" width="19" height="18" border="0"></a> 
+		<?php } else { ?>
+		<a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;<?php echo 'sec3='.$result_content['dyn_content_name'].'&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['dyn_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
+          <?php } ?>
+          <a href="<?php echo "?page=".$rpm_page."&amp;sec=dyncontent&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['dyn_content_id']."&amp;filt2=".$rpm_filt2."&amp;langid=".$result_content['dyn_content_lang']; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
         </div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
           <?php
 		 if($result_content['dyn_content_active'] == "1") { ?>
-          <a href="<?php if($roscms_intern_account_level>50) { echo '?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;dyn_content_active=0&amp;dyn_content_active_set='.$result_content['dyn_id'] ; } else { echo '#'; } ?>"><img src="images/active.gif" alt="active" width="19" height="18" border="0"></a> 
+          <a href="<?php if($roscms_intern_account_level>50) { echo '?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;dyn_content_active=0&amp;dyn_content_active_set='.$result_content['dyn_id'] ; } else { echo '#'; } ?>"><img src="images/active.gif" alt="active" width="19" height="18" border="0"></a> 
           <?php
 		 }
 		 else { ?>
-          <a href="<?php if($roscms_intern_account_level>50) { echo '?page=admin&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;dyn_content_active=1&amp;dyn_content_active_set='.$result_content['dyn_id'] ; } else { echo '#'; } ?>"><img src="images/notactive.gif" alt="NOT active" width="19" height="18" border="0"></a> 
+          <a href="<?php if($roscms_intern_account_level>50) { echo '?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id.'&amp;dyn_content_active=1&amp;dyn_content_active_set='.$result_content['dyn_id'] ; } else { echo '#'; } ?>"><img src="images/notactive.gif" alt="NOT active" width="19" height="18" border="0"></a> 
           <?php } ?>
         </div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
