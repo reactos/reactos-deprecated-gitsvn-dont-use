@@ -166,12 +166,6 @@ require_once("subsys_utils.php");
             </font></p></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Interests</strong></font></div></td>
-        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
-          <input name="intere" type="text" id="intere" value="<?php echo $result_content['user_fullname']; ?>" size="50" maxlength="100">
-          </font></td>
-      </tr>
-      <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Description</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><textarea name="textarea_content" cols="60" rows="5" id="textarea_content"><?php 
 				echo $result_content['user_description'];
@@ -259,6 +253,6 @@ require_once("subsys_utils.php");
     <br>
     <address>* only required if you want to set a new password</address>
     <p><input type="submit" name="Submit" value="Update"> 
-    </form>
+  </form>
 </div>
 
