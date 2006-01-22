@@ -76,23 +76,23 @@ function roscms_subsys_login($subsys, $login_type, $target)
       if ($subsys == "roscms" || $subsys == "")
         {
           $query = "SELECT u.user_id, s.usersession_expires " .
-                   "  FROM user_sessions s, " .
-                   "       users u " .
+                   "  FROM roscms.user_sessions s, " .
+                   "       roscms.users u " .
                    $bulk_of_where;
         }
       else
         {
           $query = "SELECT m.map_subsys_userid, s.usersession_expires " .
-                   "  FROM user_sessions s, " .
-                   "       users u, " .
-                   "       subsys_mappings m " .
+                   "  FROM roscms.user_sessions s, " .
+                   "       roscms.users u, " .
+                   "       roscms.subsys_mappings m " .
                    $bulk_of_where .
                    "   AND m.map_roscms_userid = s.usersession_user_id " .
                    "   AND m.map_subsys_name = '" .
                            mysql_escape_string($subsys) . "'";
         }
       $statement = mysql_query($query, $connect)
-                   or die('DB error (user login)');
+                   or die('DB error (user login) ' . $query);
 
       if ($row = mysql_fetch_array($statement))
         {
@@ -103,7 +103,7 @@ function roscms_subsys_login($subsys, $login_type, $target)
           {
             /* Session with timeout. Update the expiry time in the table and 
                the expiry time of the cookie */
-            $query = "UPDATE user_sessions " .
+            $query = "UPDATE roscms.user_sessions " .
                      "   SET usersession_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE) " .
                      " WHERE usersession_id = '" .
                              mysql_escape_string($session_id_clean) . "'";
