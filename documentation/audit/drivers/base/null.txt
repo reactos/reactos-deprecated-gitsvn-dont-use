@@ -1,0 +1,32 @@
+Audit result: NULL driver
+Result: Obvious implementation
+
+The null driver implements two virtual devices;
+
+\device\null -- A device which always consumes all bytes written and which 
+perpetually reads at EOF (this is similar to the unix /dev/null device).
+@null.c:155
+
+\device\zero -- A device which simulates an infinite well of zero bytes on
+read, and which rejects attempts to write.
+@null.c:156
+
+The null driver initializes resources in its DriverEntry function as outlined
+in drivers/standard_driver_entry_tasks.txt.  This initialization can be 
+considered trivial, as it performs only tasks which are trivially considered
+to be required.
+
+@null.c:159 -- Register dispatch functions
+@null.c:167,184 -- Create device object
+@null.c:176,193 -- Gracefully handle failures
+@null.c:200 -- Set buffered IO flag as described here:
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/IFSK_r/hh/IFSK_r/irpref_e73f783d-00eb-4d50-82a2-67ce60a36c76.xml.asp
+
+The null driver contains only one other nonempty function, the IRP handling
+dispatch function.  This function can be considered to be trivial in that
+everything it does is trivially considered to be required as outlined in
+drivers/standard_irp_handling_tasks.txt.
+
+@null.c:82 -- Protect the kernel mode environment
+@null.c:58,62,78,85,115,121,127,133,138 -- Complete irps on behalf of user
+  processes.

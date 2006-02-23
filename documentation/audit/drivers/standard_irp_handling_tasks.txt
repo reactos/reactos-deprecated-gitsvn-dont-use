@@ -1,0 +1,19 @@
+These tasks are required of any IRP handling callbacks provided by a driver
+and are outlined in "The Windows NT Device Driver Book" by Art Baker, chapters
+9, 10 and 11.
+
+Essential tasks are:
+
+- In the case of device open, close and cleanup requests, manage resources
+  needed by each open device instance, including device specific and driver
+  specific data allocated in DRIVER_EXTENSION and DEVICE_EXTENSION structures,
+  any uncompleted, queued IRPs, and any internally queued requests on behalf
+  of either ioctls which cause persistent driver state changes or hardware with
+  persistent states that must be tracked.
+- Actually interacting with hardware in order to fulfill user requests.
+- Manage access to user buffers using MDLs.
+- Complete or enqueue IRPs on behalf of user processes or other drivers.
+- Manage timers and other system services needed to ensure that the system
+  functions correctly.
+- Protect the kernel mode environment from harm by validating pointers to user
+  memory.

@@ -1,0 +1,12 @@
+These tasks are required of the DriverEntry portion of any driver, and are
+described in "The Windows NT Device Driver Book" by Art Baker.
+
+While mostly outlined in chapters 4 and 5, essential tasks include:
+
+- Initializing the device object with function pointers which are called to
+  service IRPs on behalf of drivers and devices.
+- Creating device objects used to represent driver instances and making them
+  available by name in the kernel namespace.
+- Possibly acquiring resources for well known, fixed instance devices such as
+  legacy ISA.
+- Gracefully handling errors and cleaning up resources.
