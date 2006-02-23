@@ -1,0 +1,166 @@
+Audit result: ISA PNP driver
+Result: Based substantially on linux implementation/Necessary implementation
+
+The isapnp driver implements a virtual device which serves as the parent bus
+of devices which follow the ISA Plug And Play specification.  
+
+The specification can be found here: 
+http://www.microsoft.com/whdc/resources/respec/specs/pnpisa.mspx
+
+The ISA PnP driver initializes resources in its DriverEntry function as
+outlined in drivers/standard_driver_entry_tasks.txt.  This initialization can
+be considered trivial, as it performs only tasks which are trivially considered
+to be required.
+
+@isapnp.c:1727-1737 -- Initialize callbacks in the DriverObject
+
+IRPs handled by the ISA PnP driver are outlined in:
+
+Art Baker, "The Windows NT Device Driver Book", chapter 8, page 166 lists
+
+- IRP_MJ_CREATE
+- IRP_MJ_CLOSE
+- IRP_MJ_READ
+- IRP_MJ_WRITE
+- IRP_MJ_DEVICE_CONTROL
+
+Which are generic IRP types resulting from NtCreateFile, NtClose, NtReadFile,
+NtWriteFile and NtDeviceIoControl and are implemented for virtually all device
+drivers, and may be considered as required.
+
+OSROnline ( http://www.osronline.com/DDKx/kmarch/k113_8ur6.htm ) describes
+handling of:
+
+- IRP_MJ_PNP
+
+Which is required for Plug And Play capable bus drivers.
+
+Some of these provide minor codes which further distinguish the requested
+task.  In the case of IRP_MJ_DEVICE_CONTROL, these codes are device or function
+specific.
+
+In the case of IRP_MJ_PNP, the minor codes are well known.
+
+Handling of each Irp type and subtype is outlined below:
+
+ISAPNPDispatchOpenClose (isapnp.c:1580-1586)
+Status: Obvious.
+
+ISAPNPDispatchReadWrite (isapnp.c:1596-1602)
+Status: Obvious.
+
+ISAPNPDispatchDeviceControl (isapnp.c:1612-1634)
+Status: 
+Tail starting at 1627: Obvious.
+Head until line 1621: Obvious.
+At line 1621: A switch statement with a single default failure case appears.
+Status:
+audit/switch_default/ReadMe.txt -- Such a construct cannot be arrived at 
+through reverse engineering
+
+ISAPNPControl (isapnp.c:1644-1676)
+Status: Obvious
+This function dispatches to several other functions:
+
+ISAPNPQueryDeviceRelations
+ISAPNPStartDevice
+ISAPNPStopDevice
+
+And otherwise performs only IRP completion activities outlined in
+audit/drivers/standard_irp_handling_tasks.txt
+
+ISAPNPQueryDeviceRelations (isapnp.c:1491-1510)
+Status: Obvious
+Following form with the other functions in the file, ISAPNPQuery
+DeviceRelations uses a switch statement to dispatch to another
+function in the case of a recognized request type.  That a switch
+statement is used for a single non-default case, given that it
+is also used for default-only switches in the same file, reflects
+a stylistic choice that allows more cases to be added without
+changing the basic code structure.
+
+As documented here:
+http://www.osronline.com/DDKx/kmarch/pnp-irps_5aia.htm
+
+ISAPNPQueryDeviceRelations dispatches to ISAPNPQueryBusRelations.
+
+ISAPNPQueryBusRelations: (isapnp.c:1423-1481)
+Status: obvious
+Head until line 1440 -- obvious
+Tail after line 1468 -- obvious
+@isapnp.c:1440 -- Compute the size of the DEVICE_RELATIONS return based on
+the number of detected devices (from device extension)
+-1 (constant) explained here:
+http://www.codecomments.com/archive421-2005-5-501037.html
+@isapnp.c:1450-1454 -- obvious -- list crawl
+@isapnp.c:1457 -- Call to IoCreateDevice as described:
+http://www.osronline.com/DDKx/kmarch/k104_8piq.htm
+@isapnp.c:1465 -- Example of marking a device as being created by a bus driver
+http://www.osronline.com/showThread.cfm?link=5419
+
+ISAPNPStartDevice: (isapnp.c:1520-1549)
+Status: obvious
+Head until line 1531 -- obvious
+Tail after line 1542 -- obvious
+This function simply calls several functions to which functionality is
+delegated, and gracefully responds to failures.
+
+IsolatePnPCards
+BuildDeviceList
+BuildResourceListsForAll
+
+BuildDeviceList:
+Status: based on linux isapnp_device_list
+(http://glide.stanford.edu/lxr/ident?v=linux-2.6.5;i=isapnp_build_device_list)
+
+BuildResourceListsForAll: (@isapnp.c:1348-1362)
+Status: obvious
+This function simply iterates over every card, calling 
+BuildResourceListsForCard on each
+
+BuildResourceListsForCard: (@isapnp.c:1324-1338)
+Status: obvious
+Iterates logical functions per card, calling BuildResourceLists for each
+
+BuildresourceLists: (@isapnp.c: (@isapnp.c:1273-1315)
+Status: necessary
+In order to make resource information available to windows PNP drivers, each
+Physical device object must have an IO_RESOURCE_REQUIREMENTS_LIST attached.
+This function prepares these lists as documented here:
+http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Kernel_r/hh/Kernel_r/k112_3a1f163a-5841-4284-9ee7-c0999e1a9bbc.xml.asp
+http://www.osronline.com/ddkx/kmarch/plugplay_7mef.htm
+
+@isapnp.c:1279 -- Compute size of resource list in memory
+@isapnp.c:1288-1302 -- Prepare memory for resource list storage
+@isapnp.c:1302-1312 -- Call BuildResourceList for each slot
+@isapnp.c:Tail after 1312 -- Set list size.  AlternativeLists set to the
+number of lists returned.
+
+BuildResourceList: (isapnp.c:1211-1264)
+Status: necessary
+Fills in an IO_RESOURCE_LIST as documented
+@isapnp.c:Head before 1230 -- Necessary list management code.
+@isapnp.c:1230-1232 -- Set header information for resource list
+@isapnp.c:1234-1245 -- Crawl list information gathered while enumerating cards
+@isapnp.c:1245-1247 -- Copy resource information
+@isapnp.c:Tail after 1251 -- Tails of list crawls
+
+IsolatePnPCards: (isapnp.c:293-356)
+Status: Based on linux isapnp_isolate
+This function carries out the Isolation Protocol described in the ISA PNP
+specification.
+
+(isapnp) shall refer to the ISA PNP Specification
+
+Based substantially on linux isapnp_isolate
+(http://glide.stanford.edu/lxr/ident?v=linux-2.6.5;i=isapnp_isolate)
+
+Used Functions:
+IsolateReadDataPortSelect
+
+IsolateReadDataPortSelect:
+Status: Based on Linux isapnp_isolate_rdp_select
+(http://glide.stanford.edu/lxr/ident?v=linux-2.6.5;i=isapnp_isolate_rdp_select)
+
+Past this point, there is a 1 to 1 correspondence between functions in the 
+linux isapnp/core.c and reactos' isapnp.c.
