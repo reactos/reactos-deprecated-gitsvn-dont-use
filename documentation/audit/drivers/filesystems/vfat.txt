@@ -1,0 +1,76 @@
+Audit: vfat filesystem
+References: 
+	    Rajeev Nagar: Windows NT File System Internals,
+	    Art Baker: The Windows NT Device Driver Book
+Audit Result: In progress
+      blockdev.c: Obvious
+
+The vfat filesystem provides access to fat variants (fat-12, fat-16, fat-32).
+These are ms-dos and windows 95 filesystems, but are still widely used because
+virtually every operating system implements them.
+
+blockdev.c:
+
+VfatReadWritePartialCompletion:
+Result: Obvious
+
+The VfatReadWritePartialCompletion function is called when an IRP representing
+part of a full request to read data from a user is completed.  An event is set
+when the last part is completed, allowing the caller to proceed.
+
+@blockdev.c:29-34 -- Free MDLs 
+(as standard_irp_handling_tasks.txt: Manage access to user buffers using MDLs)
+@blockdev.c:34-42 -- Set context information for the caller
+@blockdev.c:42-47 -- Set an event for the caller if this is the last IRP
+@blockdev.c:47    -- This IRP is ours, and we don't need it anymore
+
+VfatReadDisk:
+Result: Obvious
+
+The VfatReadDisk function reads the filesystem, waiting for the block to be
+returned.  It is used when the call may block.
+
+@blockdev.c:67     -- Create an event to use to wait on completion of blocks
+@blockdev.c:73-80  -- Allocate a read IRP
+@blockdev.c:86-92  -- If override, set SL_OVERRIDE_VERIFY_VOLUME as in [1]
+@blockdev.c:93     -- Pass on IRP
+@blockdev.c:93-112 -- Await completion, propogate status
+
+[1] http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Kernel_r/hh/Kernel_r/k112_8fcba8ca-d004-4800-87d1-d5c7714a494b.xml.asp
+
+VfatReadDiskPartial:
+Result: Obvious/Suspicious
+
+This function uses VfatReadWritePartialCompletion to wait for all fired IRPs
+to return.  It only waits for completion if Wait is set.  If Wait is not set,
+the event provided in IrpStatus is fired when the last sub IRP returns.
+
+blockdev.c:132     -- Get the address of the MDL provided by the user [2]
+blockdev.c:134-141 -- Allocate a sub-IRP and handle error
+blockdev.c:141     -- Suspicious.  Can somebody tell me if this is OK?
+blockdev.c:142     -- Irp->Tail.Overlay is a general information structure
+blockdev.c:144-155 -- Set up IRP stack location
+blockdev.c:155-164 -- Allocate MDL for callee to use, handle error
+blockdev.c:164-171 -- Make use of VfatReadWritePartialCompletion
+blockdev.c:182     -- Call block device
+blockdev.c:184-190 -- Wait for completion if requested
+
+[2] http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q115758
+
+VfatWriteDiskPartial:
+Result: Virtually identical to VfatReadDiskPartial
+
+VfatBlockDeviceIoControl:
+Result: Obvious
+
+Manage an IOCTL call to the underlying block device.  This function is 
+synchronous.
+
+@blockdev.c:292     -- Create the event we'll need to wait on
+@blockdev.c:295-310 -- Allocate an IRP, handle error
+@blockdev.c:310-316 -- Override flag as above
+@blockdev.c:317     -- Call underlying driver
+@blockdev.c:320-329 -- Wait if needed
+@blockdev.c:334     -- Propogate returned data length [3]
+
+[3] http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dndevice/html/IRP_Handle.asp
