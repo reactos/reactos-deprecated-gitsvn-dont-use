@@ -10,6 +10,7 @@ These are ms-dos and windows 95 filesystems, but are still widely used because
 virtually every operating system implements them.
 
 blockdev.c:
+Result: Mostly Obvious
 
 VfatReadWritePartialCompletion:
 Result: Obvious
@@ -39,7 +40,7 @@ returned.  It is used when the call may block.
 [1] http://msdn.microsoft.com/library/default.asp?url=/library/en-us/Kernel_r/hh/Kernel_r/k112_8fcba8ca-d004-4800-87d1-d5c7714a494b.xml.asp
 
 VfatReadDiskPartial:
-Result: Obvious/Suspicious
+Result: Obvious
 
 This function uses VfatReadWritePartialCompletion to wait for all fired IRPs
 to return.  It only waits for completion if Wait is set.  If Wait is not set,
@@ -47,7 +48,7 @@ the event provided in IrpStatus is fired when the last sub IRP returns.
 
 blockdev.c:132     -- Get the address of the MDL provided by the user [2]
 blockdev.c:134-141 -- Allocate a sub-IRP and handle error
-blockdev.c:141     -- Suspicious.  Can somebody tell me if this is OK?
+blockdev.c:141     -- This has been identified as a bug.  We'll fix it.
 blockdev.c:142     -- Irp->Tail.Overlay is a general information structure
 blockdev.c:144-155 -- Set up IRP stack location
 blockdev.c:155-164 -- Allocate MDL for callee to use, handle error
@@ -74,3 +75,12 @@ synchronous.
 @blockdev.c:334     -- Propogate returned data length [3]
 
 [3] http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dndevice/html/IRP_Handle.asp
+
+cleanup.c:
+Result: 
+
+VfatCleanupFile:
+Result:
+
+This function returns resources after a file handle is closed.
+
