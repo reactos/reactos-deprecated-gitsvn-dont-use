@@ -1,0 +1,214 @@
+Audit: RTL library
+References: 
+	Wine
+	Well-known algorithms
+	???
+	w3seek's comments
+
+Audit Result: In progress
+
+lib/rtl:
+
+access.c:
+Result: Functions < 5 lines of code, thus clean
+
+acl.c:
+Info: Simple structure modifications. Alex mentioned that RtlpAddKnownAce
+in there was the same as in windows (in terms of internal name and parameters).
+openrce.org however documents the call flow... The parameters are kind of
+obvious, and it doesn't really make a lot of sense to choose different ones.
+w3seek posted a patch in bug 1344 that modifies (extends) the parameters
+of this internal function to reduce code duplication even more. The functions
+themselves are nothing complex, only basic structure maniuplations.
+The structure layout is thoroughly documented in the platform sdk and on
+various websites.
+Result: No signs of reverse engineering found, the only hardcoded value is
+0xffff found in RtlCreateAcl. Clean.
+
+atom.c:
+Info: w3seek rewrote some (he doesn't know how much) of the code so it
+would work with the new structure definitions that were added to the ndk
+around June, 2004. w3seek changed it to use rtl handle tables (as per
+definitions of the new atom structures) and added support for pinned atoms.
+The implementation containted a few bugs that were later fixed by others. Atom
+tables are more or less just referenced hash tables, nothing complicated.
+Result: Clean
+
+bit.c:
+Result: Reverse engineering these functions does not make any sense, they are
+clean.
+
+
+bitmap.c:
+Info: Wine's implementation could be used as a reference. Other than that,
+blackbox testing should've been sufficient.
+w3seek says: "From what I know, these functions still are a bit buggy. I don't
+know if the implementation is clean or not, however bitmaps themselves
+aren't something very complicated..."
+Result: Clean, need to be checked and fixed.
+
+bootdata.c:
+Info: By w3seek: RtlCreateSystemVolumeInformationFolder is the only function
+implemented in there. It's implemented using a few of the internal function
+names documented by openrce.org (don't know if parameters match). Looking at
+the call flow, it should be rather obvious what the function should do (take
+ownership and/or fix the dacl of the system volume information directory).
+Taking ownership:
+1) requires the SE_TAKE_OWNERSHIP_PRIVILEGE which has to be enabled,
+2) the well-known SID of the Administrators group
+3) creating a new security descriptor with the new owner
+4) changing the owner by setting the new descriptor
+5) restoring the enabled privillege.
+
+Checking security is also not very difficult:
+1) reading the owner+dacl
+2) determining the SIDs of the Administrators and SYSTEM group/user
+3) searching the dacl for the SYSTEM SID and make them inheritable
+4) set the Administrators account as owner and try to apply the ideal DACL
+   (created in RtlpSysVolCreateSecurityDescriptor).
+
+The function is currently not used in ReactOS, and also not really tested.
+Due to the nature of NT's security, it's quite a lot of code to do simple
+tasks. The function should do it's job as expected, but I haven't tested if it
+actually works. I mostly used openrce.org's call flows to understand what it
+should do.
+
+Result: Function is documented thoroughly, thus considered clean.
+
+compress.c:
+Result: Clean (<5 LOC or no code in funcs at all).
+
+crc32.c:
+Result: Clean (There are lots of implementations, no need to RE)
+
+critical.c:
+Result: Clean, the code is rather similar to wine's implementation.
+
+dbgbuffer.c:
+Info: The base of psapi. I don't know how well it is documented.
+But it shouldn't be very difficult to implement them, a lot of information
+can be queried from ldr.
+Result: Clean, and James Tabor doesn't do RE at all.
+
+debug.c:
+Result: Clean, as <5 LOC functions, and code of vDbgPrintExWithPrefixInternal()
+doesn't really look like dirty.
+
+dos8dot3.c:
+ - Legacy DOS stuff, don't know details about them.
+
+encode.c:
+ - string encoding/decoding functions, don't know details about them. States code was contributed by crazylord (clean?).
+
+env.c:
+ - Environment functions to access and modify the environment variables in the PEB and the string expansion code. Shouldn't be very difficult to implement, but I don't know details.
+
+error.c:
+ - Converts NTSTATUS->WIN32 and code to access and modify the last error code in the PEB. Comes from wine.
+
+exception.c:
+ - Code to throw exceptions, there's not so many ways to do that...
+
+generictable.c:
+ - Doesn't contain much code...
+
+handle.c:
+ - Implements the very basic RTL handle tables. The code is very incomplete and barely does it's job. I fixed some severe flaws of the previous implementation when making the atom code depend on it. Also because of updated structures in the ndk. It's a minimalistic implementation, mostly just manages an array of handle table entries. Studied wine's implementation before.
+
+heap.c:
+ - Implements the heap manager. Imported from wine...
+
+image.c:
+ - Implements some PE header functions, nothing complicated. Should be self-explainatory considering how well the PE structures are documented.
+
+largeint.c:
+ - 64 bit maths is very difficult, especially when the compiler does most of the magic for us...
+
+luid.c:
+ - LUIDs are nothing but unique 64 bit numbers. Contains only a few lines of simple, stupid code.
+
+mem.c:
+ - Some basic RTL functions, really basic stuff...
+
+message.c:
+ - Contains the code to find messages in resources. The format of the data in the resources is documented well.
+
+network.c:
+ - Code to translate network addresses from and to strings. Contains only very few lines of code...
+
+nls.c:
+ - Contains code to convert between character code sets. Don't know details about them.
+
+path.c:
+ - Legacy DOS code to translate DOS paths into NT paths and vice versa. Looks like the code comes from wine?
+
+ppb.c:
+ - Contains code for process parameters (normalizing/denormalizing, creating and duplicating them). They're mostly tables of strings, nothing complicated. Don't have more details.
+
+process.c:
+ - Contains mostly code relevant to create user mode processes (mapping executable, initializing the environment and actually starting it). If familiar with the native api, not that difficult to achieve. Don't have more details.
+
+propvar.c:
+ - Variant support for the native api. Contains no code...
+
+qsort.c:
+ - Quicksort algorithm, one of countless implementations.
+
+random.c:
+ - Generates random numbers. Don't know where the constants come from, but maybe it's just a standard random number generator. Don't know details.
+
+rangelist.c:
+registry.c:
+res.c:
+resource.c:
+sd.c:
+security.c:
+sid.c:
+splaytree.c:
+sprintf.c:
+swprintf.c:
+thread.c:
+time.c:
+timerqueue.c:
+timezone.c:
+unicode.c:
+unicodeprefix.c:
+vectoreh.c:
+version.c:
+
+
+-------------
+lib/rtl/i386:
+
+alldiv_asm.s:
+alldvrm_asm.s:
+allmul_asm.s:
+allrem_asm.s:
+allshl_asm.s:
+allshr_asm.s:
+atan_asm.s:
+aulldiv_asm.s:
+aulldvrm_asm.s:
+aullrem_asm.s:
+aullshr_asm.s:
+ceil_asm.s:
+chkstk_asm.s:
+comparememory_asm.s:
+comparememory_ulong_asm.s:
+cos_asm.s:
+debug_asm.S:
+except_asm.s:
+fabs_asm.s:
+fillmemory_asm.s:
+fillmemory_ulong_asm.s:
+floor_asm.s:
+ftol_asm.s:
+log_asm.s:
+pow_asm.s:
+prefetchmemory_asm.s:
+random_asm.S:
+res_asm.s:
+sin_asm.s:
+sqrt_asm.s:
+tan_asm.s:
+zeromemory_asm.s:
