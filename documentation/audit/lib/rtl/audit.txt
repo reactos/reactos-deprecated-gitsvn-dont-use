@@ -166,14 +166,20 @@ security.c:
 sid.c:
 splaytree.c:
 sprintf.c:
+
 swprintf.c:
+Result: Clean, stated by Alex Ionescu (generic C implementations)
+
 thread.c:
 time.c:
 timerqueue.c:
 timezone.c:
 unicode.c:
 unicodeprefix.c:
+
 vectoreh.c:
+Result: Clean, based on Matt Pietrek's article
+
 version.c:
 
 
@@ -212,3 +218,6 @@ sin_asm.s:
 sqrt_asm.s:
 tan_asm.s:
 zeromemory_asm.s:
+
+Result: All asm is clean, stated by Alex Ionescu, as it comes from another
+FOSS project.
