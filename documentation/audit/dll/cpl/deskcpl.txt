@@ -1,0 +1,64 @@
+Here is a full list of api functions desk.cpl calls:
+
+KERNEL32.DLL:
+ AddAtom - Documented in msdn.
+ FindAtom - Documented in msdn.
+ GetAtomName - Documented in msdn.
+ 
+ADVAPI32.DLL:
+ RegCloseKey - Documented in msdn.
+ RegCreateKeyEx - Documented in msdn.
+ RegOpenKeyEx - Documented in msdn.
+ RegQueryValueEx - Documented in msdn.
+ RegSetValueEx - Documented in msdn.
+ 
+COMCTL32.DLL:
+ PropertySheet - Documented in msdn.
+
+COMDLG32.DLL:
+ GetOpenFileName - Documented in msdn.
+ 
+GDI32.DLL:
+ CreateIC  - Documented in msdn.
+ DeleteDC - Documented in msdn.
+ GetDeviceCaps - Documented in msdn.
+ SetStretchBltMode - Documented in msdn. 
+ StretchDIBits - Documented in msdn.
+
+SETUPAPI.DLL:
+ SetupCloseInfFile  - Documented in msdn.
+ SetupDiGetActualSectionToInstall  - Documented in msdn.
+ SetupDiGetDeviceInstallParams - Documented in msdn.
+ SetupDiGetDeviceRegistryProperty  - Documented in msdn.
+ SetupDiGetDriverInfoDetail - Documented in msdn.
+ SetupDiGetSelectedDriver - Documented in msdn.
+ SetupDiInstallDevice - Documented in msdn.
+ SetupDiOpenDevRegKey - Documented in msdn.
+ SetupDiSetDeviceInstallParams - Documented in msdn.
+ SetupInstallFromInfSection - Documented in msdn.
+ SetupOpenInfFile - Documented in msdn.
+ 
+SHELL32.DLL:
+ SHGetFileInfo - Documented in msdn.
+
+USER32.DLL:
+ ChangeDisplaySettingsEx - Documented in msdn.
+ EnableWindow - Documented in msdn.
+ EnumDisplayDevices - Documented in msdn.
+ EnumDisplaySettingsEx - Documented in msdn.
+ FillRect - Documented in msdn.
+ GetClientRect - Documented in msdn.
+ GetDlgItem - Documented in msdn.
+ GetParent - Documented in msdn.
+ GetSysColorBrush - Documented in msdn.
+ GetSystemMetrics - Documented in msdn.
+ InvalidateRect - Documented in msdn.
+ LoadIcon - Documented in msdn.
+ LoadString - Documented in msdn.
+ MessageBox - Documented in msdn.
+ SendDlgItemMessage - Documented in msdn.
+ SendMessage - Documented in msdn.
+ SystemParametersInfo - Documented in msdn.
+
+
+Resolution: desk.cpl uses only documented functions.
