@@ -1,0 +1,98 @@
+Audit: ntoskrnl / io / pnpmgr.c
+References: 
+	Books listed in reactos/media/doc/Books.txt
+	other stuff in the internet (hpoussin may add more info sources here)
+
+Audit Result: In progress
+
+Functions:
+
+IopGetDeviceNode()
+Result: Clean (<5 lines)
+
+IopQueryDeviceCapabilities()
+Info: Google reports only references to ReactOS's source code, no results in msdn search too
+Result: Author needs to be contacted, however function implementation seems to be rather small and has a few comments
+
+IoInvalidateDeviceRelations()
+Result: Clean (<5 lines)
+
+IoGetDeviceProperty()
+Info: This function is documented in lots of places (Google tells results: OSR, msdn, etc).
+Result: Clean (has public documentation)
+
+IoInvalidateDeviceState()
+Result: Unimplemented -> Clean
+
+IoOpenDeviceRegistryKey()
+Result: Public function, documented -> Clean
+
+IoRequestDeviceEject()
+Result: Unimplemented -> Clean
+
+IopGetSystemPowerDeviceObject()
+Result: <5 lines of actual code -> Clean
+
+IopGetBusTypeGuidIndex()
+Info: Only ReactOS source code got in results of Google search. Function is heavily commented. There is a goto usage, however it's obvious and doesn't seem to come
+        from reverse engineering.
+Result: ?
+
+IopCreateDeviceNode() / IopFreeDeviceNode()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopInitiatePnpIrp()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopTraverseDeviceTreeNode() / IopTraverseDeviceTree()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopCreateDeviceKeyPath()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ? afaik Hartmut Birr is the author, and he always claimed he never uses reverse engineering methods
+
+IopSetDeviceInstanceData()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopAssignDeviceResources()
+Info: Google finds only ReactOS results. I haven't checked other information sources. This function seems to be absolutely ReactOS-specific (especially the irq-hacks/etc)
+Result: Probably Clean?
+
+IopGetParentIdPrefix()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopActionInterrogateDeviceStack()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopActionConfigureChildServices() / IopActionInitChildServices()
+Info: Google finds only ReactOS results. I haven't checked other information sources
+Result: ?
+
+IopActionInitAllServices()
+Result: Clean (<5 LOC)
+
+IopActionInitBootServices()
+Result: Clean (<5 LOC)
+
+IopInitializePnpServices()
+Result: Clean (<5 LOC)
+
+IopInvalidateDeviceRelations()
+Info: hpoussin worked on it, and also I remember there are sources of documentation for it
+Result: probably Clean
+
+IopSetRootDeviceInstanceData()
+Result: Clean, because it's unimplemented
+
+PnpInit()
+Info: Documentation sources should be located
+Result: ? Author(s) should be contacted
+
+PnpInit2()
+Result: Clean (<5 LOC)
