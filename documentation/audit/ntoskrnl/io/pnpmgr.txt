@@ -11,8 +11,11 @@ IopGetDeviceNode()
 Result: Clean (<5 lines)
 
 IopQueryDeviceCapabilities()
-Info: Google reports only references to ReactOS's source code, no results in msdn search too
-Result: Author needs to be contacted, however function implementation seems to be rather small and has a few comments
+Info:
+	Google reports only references to ReactOS's source code, no results in msdn search too.
+	IRP_MN_QUERY_CAPABILITIES and DEVICE_CAPABILITIES structure are described here: http://www.osronline.com/DDKx/kmarch/k112_22r6.htm
+	Uses IopInitiatePnpIrp to send the IRP_MJ_PNP Irp
+Result: Clean
 
 IoInvalidateDeviceRelations()
 Result: Clean (<5 lines)
@@ -34,8 +37,10 @@ IopGetSystemPowerDeviceObject()
 Result: <5 lines of actual code -> Clean
 
 IopGetBusTypeGuidIndex()
-Info: Only ReactOS source code got in results of Google search. Function is heavily commented. There is a goto usage, however it's obvious and doesn't seem to come
-        from reverse engineering.
+Info:
+	Searches BusTypeGuid entry in the IopBusTypeGuidList list. If it is not found, create a new entry in the list and return its index
+	Only ReactOS source code got in results of Google search. Function is heavily commented. There is a goto usage, however it's obvious and doesn't seem to come
+	from reverse engineering.
 Result: ?
 
 IopCreateDeviceNode() / IopFreeDeviceNode()
@@ -43,8 +48,11 @@ Info: Google finds only ReactOS results. I haven't checked other information sou
 Result: ?
 
 IopInitiatePnpIrp()
-Info: Google finds only ReactOS results. I haven't checked other information sources
-Result: ?
+Info:
+	Google finds only ReactOS results.
+	Sends a IRP_MJ_PNP Irp to a device stack.
+	Method to send a synchronous Irp is well documented on the Web, and all used methods are documented
+Result: Clean
 
 IopTraverseDeviceTreeNode() / IopTraverseDeviceTree()
 Info: Google finds only ReactOS results. I haven't checked other information sources
@@ -59,16 +67,25 @@ Info: Google finds only ReactOS results. I haven't checked other information sou
 Result: ?
 
 IopAssignDeviceResources()
-Info: Google finds only ReactOS results. I haven't checked other information sources. This function seems to be absolutely ReactOS-specific (especially the irq-hacks/etc)
-Result: Probably Clean?
+Info:
+	Google finds only ReactOS results.
+	Creates a allocated resource list by using the resource requirements list. It doesn't do resource arbitration.
+	Structures are documented at http://www.osronline.com/DDKx/kmarch/k112_5quq.htm and http://www.osronline.com/DDKx/kmarch/k112_92k2.htm
+	There is a goto usage, to prevent duplication of resources cleanup code
+Result: Clean
 
 IopGetParentIdPrefix()
-Info: Google finds only ReactOS results. I haven't checked other information sources
-Result: ?
+Info:
+	Google finds only ReactOS results.
+	Creates a prefix for the device instance string, when it may be not unique on the whole computer.
+	The prefix is the crc32 of the instance path of the parent device node.
+Result: Clean
 
 IopActionInterrogateDeviceStack()
-Info: Google finds only ReactOS results. I haven't checked other information sources
-Result: ?
+Info:
+	Google finds only ReactOS results. I haven't checked other information sources
+	Sends lots of IRP_MJ_PNP Irps to fill the device node structure
+Result: Probably clean
 
 IopActionConfigureChildServices() / IopActionInitChildServices()
 Info: Google finds only ReactOS results. I haven't checked other information sources
@@ -84,7 +101,7 @@ IopInitializePnpServices()
 Result: Clean (<5 LOC)
 
 IopInvalidateDeviceRelations()
-Info: hpoussin worked on it, and also I remember there are sources of documentation for it
+Info: Fireball remembers there are sources of documentation for it
 Result: probably Clean
 
 IopSetRootDeviceInstanceData()
