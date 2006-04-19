@@ -7,11 +7,13 @@
 use strict;
 use warnings;
 
-my $in_path  = "/reactos";            # enter the local path of the main reactos folder
-my $out_file = "/progress_bar.html";  # enter the html output path
-my $log_file = "/audit_progress.log"; # enter the log file path
+my $in_path  = "/reactos";              # enter the local path of the main reactos folder
+my $out_file = "/progress_bar.html";    # enter the html output path
+my $log_file = "/audit_progress.log";   # enter the log file path
+my $locked_files = "/locked_files.log"; # enter the locked files log path
 my $total_width = 200;
-my ($unclean_files, $total_files, $todo_width, $done_width, $done_pct);
+my $unclean_files = 0;
+my (@locked_files, $total_files, $todo_width, $done_width, $done_pct);
 
 open HTML, "> $out_file"
     or die "couldn't open $out_file for writing: $!\n";
@@ -21,8 +23,10 @@ my @files = `svn ls -v -R $in_path`;
 foreach (@files) {
     next if /\/$/;
     $total_files++;
-    if (/\sO\s/) {
+    my @fields = split /\s+/;
+    if( $fields[3] eq 'O' ) {
         $unclean_files++;
+        push @locked_files, "$fields[-1]\n";
     }
 }
 
@@ -36,13 +40,18 @@ if ($unclean_files != 0) {
     $done_pct = 100;
 }
 
+open LOCK, "> $locked_files"
+    or die "couldn't open $locked_files for writing: $!\n";
+
+print LOCK "Number of locked files: $unclean_files\n\n";
+print LOCK @locked_files;
+
 output_html();
 
 open LOG, ">> $log_file"
     or die "couldn't open $log_file for writing: $!\n";
 my $date = localtime;
 print LOG "$date  :  total files = $total_files\tfiles unaudited = $unclean_files\tcompleted $done_pct%\n";
-
 
 
 
