@@ -40,13 +40,12 @@ if ($unclean_files != 0) {
     $done_pct = 100;
 }
 
+output_html();
+
 open LOCK, "> $locked_files"
     or die "couldn't open $locked_files for writing: $!\n";
-
 print LOCK "Number of locked files: $unclean_files\n\n";
 print LOCK @locked_files;
-
-output_html();
 
 open LOG, ">> $log_file"
     or die "couldn't open $log_file for writing: $!\n";
