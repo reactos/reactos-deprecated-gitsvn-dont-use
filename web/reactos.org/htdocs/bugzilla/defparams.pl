@@ -25,6 +25,7 @@
 #                 J. Paul Reed <preed@sigkill.com>
 #                 Bradley Baetz <bbaetz@student.usyd.edu.au>
 #                 Joseph Heenan <joseph@heenan.me.uk>
+#                 Erik Stambaugh <erik@dasbistro.com>
 #
 
 # This file defines all the parameters that we have a GUI to edit within
@@ -35,12 +36,12 @@
 # Only adding new parameters is done here.  Once the parameter exists, you
 # must use %baseurl%/editparams.cgi from the web to edit the settings.
 
-# This file is included via |do|, mainly because of circular dependancy issues
+# This file is included via |do|, mainly because of circular dependency issues
 # (such as globals.pl -> Bugzilla::Config -> this -> Bugzilla::Config)
 # which preclude compile time loading.
 
 # Those issues may go away at some point, and the contents of this file
-# moved somewhere else. Please try to avoid more dependancies from here
+# moved somewhere else. Please try to avoid more dependencies from here
 # to other code
 
 # (Note that these aren't just added directly to Bugzilla::Config, because
@@ -49,11 +50,36 @@
 use strict;
 use vars qw(@param_list);
 use File::Spec; # for find_languages
+use Socket;
 
 use Bugzilla::Config qw(:DEFAULT $templatedir $webdotdir);
+use Bugzilla::Util;
+use Bugzilla::Constants;
 
 # Checking functions for the various values
 # Some generic checking functions are included in Bugzilla::Config
+
+sub check_sslbase {
+    my $url = shift;
+    if ($url ne '') {
+        if ($url !~ m#^https://([^/]+).*/$#) {
+            return "must be a legal URL, that starts with https and ends with a slash.";
+        }
+        my $host = $1;
+        if ($host =~ /:\d+$/) {
+            return "must not contain a port.";
+        }
+        local *SOCK;
+        my $proto = getprotobyname('tcp');
+        socket(SOCK, PF_INET, SOCK_STREAM, $proto);
+        my $sin = sockaddr_in(443, inet_aton($host));
+        if (!connect(SOCK, $sin)) {
+            return "Failed to connect to " . html_quote($host) . 
+                   ":443, unable to enable SSL.";
+        }
+    }
+    return "";
+}
 
 sub check_priority {
     my ($value) = (@_);
@@ -61,6 +87,36 @@ sub check_priority {
     if (lsearch(\@::legal_priority, $value) < 0) {
         return "Must be a legal priority value: one of " .
             join(", ", @::legal_priority);
+    }
+    return "";
+}
+
+sub check_severity {
+    my ($value) = (@_);
+    &::GetVersionTable();
+    if (lsearch(\@::legal_severity, $value) < 0) {
+        return "Must be a legal severity value: one of " .
+            join(", ", @::legal_severity);
+    }
+    return "";
+}
+
+sub check_platform {
+    my ($value) = (@_);
+    &::GetVersionTable();
+    if (lsearch(['', @::legal_platform], $value) < 0) {
+        return "Must be empty or a legal platform value: one of " .
+            join(", ", @::legal_platform);
+    }
+    return "";
+}
+
+sub check_opsys {
+    my ($value) = (@_);
+    &::GetVersionTable();
+    if (lsearch(['', @::legal_opsys], $value) < 0) {
+        return "Must be empty or a legal operating system value: one of " .
+            join(", ", @::legal_opsys);
     }
     return "";
 }
@@ -127,29 +183,31 @@ sub check_netmask {
     return "";
 }
 
-sub check_loginmethod {
+sub check_user_verify_class {
     # doeditparams traverses the list of params, and for each one it checks,
     # then updates. This means that if one param checker wants to look at 
     # other params, it must be below that other one. So you can't have two 
-    # params mutually dependant on each other.
+    # params mutually dependent on each other.
     # This means that if someone clears the LDAP config params after setting
     # the login method as LDAP, we won't notice, but all logins will fail.
     # So don't do that.
 
-    my ($method, $entry) = @_;
-    my $res = check_multi($method, $entry);
-    return $res if $res;
-    if ($method eq 'DB') {
-        # No params
-    } elsif ($method eq 'LDAP') {
-        eval "require Net::LDAP";
-        return "Error requiring Net::LDAP: '$@'" if $@;
-        return "LDAP servername is missing" unless Param("LDAPserver");
-        return "LDAPBaseDN is empty" unless Param("LDAPBaseDN");
-    } elsif ($method eq 'ROSCMS') {
-        # No params
-    } else {
-        return "Unknown loginmethod '$method' in check_loginmethod";
+    my ($list, $entry) = @_;
+    for my $class (split /,\s*/, $list) {
+        my $res = check_multi($class, $entry);
+        return $res if $res;
+        if ($class eq 'DB') {
+            # No params
+        } elsif ($class eq 'LDAP') {
+            eval "require Net::LDAP";
+            return "Error requiring Net::LDAP: '$@'" if $@;
+            return "LDAP servername is missing" unless Param("LDAPserver");
+            return "LDAPBaseDN is empty" unless Param("LDAPBaseDN");
+        } elsif ($class eq 'ROSCMS') {
+            # No params
+        } else {
+                return "Unknown user_verify_class '$class' in check_user_verify_class";
+        }
     }
     return "";
 }
@@ -171,16 +229,28 @@ sub check_languages {
 sub find_languages {
     my @languages = ();
     opendir(DIR, $templatedir) || return "Can't open 'template' directory: $!";
-    my @langdirs = grep { /^[a-z-]+$/i } readdir(DIR);
-    closedir DIR;
-
-    foreach my $lang (@langdirs) {
+    foreach my $dir (readdir(DIR)) {
+        next unless $dir =~ /^([a-z-]+)$/i;
+        my $lang = $1;
         next if($lang =~ /^CVS$/i);
         my $deft_path = File::Spec->catdir('template', $lang, 'default');
         my $cust_path = File::Spec->catdir('template', $lang, 'custom');
         push(@languages, $lang) if(-d $deft_path or -d $cust_path);
     }
+    closedir DIR;
     return join(', ', @languages);
+}
+
+sub check_mail_delivery_method {
+    my $check = check_multi(@_);
+    return $check if $check;
+    my $mailer = shift;
+    if ($mailer eq 'sendmail' && $^O =~ /MSWin32/i) {
+        # look for sendmail.exe 
+        return "Failed to locate " . SENDMAIL_EXE
+            unless -e SENDMAIL_EXE;
+    }
+    return "";
 }
 
 # OK, here are the parameter definitions themselves.
@@ -262,6 +332,24 @@ sub find_languages {
   },
 
   {
+   name => 'sslbase',
+   desc => 'The URL that is the common initial leading part of all HTTPS ' .
+           '(SSL) Bugzilla URLs.',
+   type => 't',
+   default => '',
+   checker => \&check_sslbase
+  },
+
+  {
+   name => 'ssl',
+   desc => 'Controls when Bugzilla should enforce sessions to use HTTPS by ' .
+           'using <tt>sslbase</tt>.',
+   type => 's',
+   choices => ['never', 'authenticated sessions', 'always'],
+   default => 'never'
+  },
+
+  {
    name => 'languages' ,
    desc => 'A comma-separated list of RFC 1766 language tags. These ' .
            'identify the languages in which you wish Bugzilla output ' .
@@ -285,6 +373,17 @@ sub find_languages {
   },
 
   {
+   name => 'cookiedomain',
+   desc => 'The domain for Bugzilla cookies.  Normally blank.  ' .
+           'If your website is at "www.foo.com", setting this to ' .
+           '".foo.com" will also allow bar.foo.com to access ' .
+           'Bugzilla cookies.  This is useful if you have more than ' .
+           'one hostname pointing at the same web server, and you ' .
+           'want them to share the Bugzilla cookie.',
+   type => 't',
+   default => ''
+  },
+  {
    name => 'cookiepath',
    desc => 'Path, relative to your web document root, to which to restrict ' .
            'Bugzilla cookies.  Normally this is the URI portion of your URL ' .
@@ -306,17 +405,34 @@ sub find_languages {
   },
 
   {
-   name => 'enablequips',
-   desc => 'Controls the appearance of quips at the top of buglists.<ul> ' .
-           '<li>on - Bugzilla will display a quip, and lets users add to ' .
-           'the list.</li><li>approved - quips can be entered, but need ' .
-           'be approved before shown</li><li>frozen - Bugzilla will display ' .
-           'a quip but not permit new additions.</li><li>off - Bugzilla ' .
-           'will not display quips.</li></ul>',
+   name => 'quip_list_entry_control',
+   desc => 'Controls how easily users can add entries to the quip list.' .
+           '<ul><li>open - Users may freely add to the quip list, and ' .
+           'their entries will immediately be available for viewing.</li>' .
+           '<li>moderated - quips can be entered, but need to be approved ' .
+           'by an admin before they will be shown</li><li>closed - no new ' .
+           'additions to the quips list are allowed.</li></ul>',
    type => 's',
-   choices => ['on', 'approved', 'frozen', 'off'],
-   default => 'on',
+   choices => ['open', 'moderated', 'closed'],
+   default => 'open',
    checker => \&check_multi
+  },
+
+  {
+   name => 'useclassification',
+   desc => 'If this is on, Bugzilla will associate each product with a ' .
+           'specific classification.  But you must have "editclassification" ' .
+           'permissions enabled in order to edit classifications',
+   type => 'b',
+   default => 0
+  },
+
+  {
+   name => 'showallproducts',
+   desc => 'If this is on and useclassification is set, Bugzilla will add a' .
+           '"All" link in the "New Bug" page to list all available products',
+   type => 'b',
+   default => 0
   },
 
   {
@@ -435,12 +551,82 @@ sub find_languages {
   },
 
   {
-   name => 'loginmethod',
-   desc => 'The type of login authentication to use:
+   name => 'auth_env_id',
+   desc    => 'Environment variable used by external authentication system ' .
+              'to store a unique identifier for each user.  Leave it blank ' .
+              'if there isn\'t one or if this method of authentication ' .
+              'is not being used.',
+   type    => 't',
+   default => '',
+  },
+
+  {
+   name    => 'auth_env_email',
+   desc    => 'Environment variable used by external authentication system ' .
+              'to store each user\'s email address.  This is a required ' .
+              'field for environmental authentication.  Leave it blank ' .
+              'if you are not going to use this feature.',
+   type    => 't',
+   default => '',
+  },
+
+  {
+   name    => 'auth_env_realname',
+   desc    => 'Environment variable used by external authentication system ' .
+              'to store the user\'s real name.  Leave it blank if there ' .
+              'isn\'t one or if this method of authentication is not being ' .
+              'used.',
+   type    => 't',
+   default => '',
+  },
+
+  # XXX in the future:
+  #
+  # user_verify_class and user_info_class should have choices gathered from
+  # whatever sits in their respective directories
+  #
+  # rather than comma-separated lists, these two should eventually become
+  # arrays, but that requires alterations to editparams first
+
+  {
+   name => 'user_info_class',
+   desc => 'Mechanism(s) to be used for gathering a user\'s login information.
+              <add>
+            More than one may be selected. If the first one returns nothing,
+            the second is tried, and so on.<br />
+            The types are:
+            <dl>
+              <dt>CGI</dt>
+              <dd>
+                Asks for username and password via CGI form interface.
+              </dd>
+              <dt>Env</dt>
+              <dd>
+                Info for a pre-authenticated user is passed in system
+                environment variables.
+              </dd>
+              <dt>ROSCMS</dt>
+              <dd>
+                Use the ROSCMS login system.
+              </dd>
+            </dl>',
+   type => 's',
+   choices => [ 'CGI', 'Env', 'Env,CGI', 'ROSCMS' ],
+   default => 'CGI',
+   checker => \&check_multi
+  },
+
+  {
+   name => 'user_verify_class',
+   desc => 'Mechanism(s) to be used for verifying (authenticating) information
+            gathered by user_info_class.
+            More than one may be selected. If the first one cannot find the
+            user, the second is tried, and so on.<br />
+            The types are:
             <dl>
               <dt>DB</dt>
               <dd>
-                Bugzilla\'s builtin authentication. This is the most common
+                Bugzilla\'s built-in authentication. This is the most common
                 choice.
               </dd>
               <dt>LDAP</dt>
@@ -456,9 +642,9 @@ sub find_languages {
               </dd>
              </dl>',
    type => 's',
-   choices => [ 'DB', 'LDAP', 'ROSCMS' ],
+   choices => [ 'DB', 'LDAP', 'DB,LDAP', 'LDAP,DB', 'ROSCMS' ],
    default => 'DB',
-   checker => \&check_loginmethod
+   checker => \&check_user_verify_class
   },
 
   {
@@ -486,7 +672,8 @@ sub find_languages {
            'If you have a large database and this page takes a long time to ' .
            'load, try increasing this number.',
    type => 't',
-   default => '2'
+   default => '2',
+   checker => \&check_numeric
   },
 
   {
@@ -508,6 +695,26 @@ sub find_languages {
   },
 
   {
+   name => 'mail_delivery_method',
+   desc => 'Defines how email is sent, or if it is sent at all.<br><ul>' .
+           '<li>\'sendmail\', \'smtp\' and \'qmail\' are all MTAs. ' .
+           'You need to install a third-party sendmail replacement if ' .
+           'you want to use sendmail on Windows.' .
+           '<li>\'testfile\' is useful for debugging: all email is stored' .
+           'in data/mailer.testfile instead of being sent. For more ' .
+           'information, see the Mail::Mailer manual.</li>' .
+           '<li>\'none\' will completely disable email. Bugzilla continues ' .
+           'to act as though it is sending mail, but nothing is sent or ' .
+           'stored.</li></ul>' ,
+   type => 's',
+   choices => $^O =~ /MSWin32/i 
+                  ? ['smtp', 'testfile', 'sendmail', 'none']
+                  : ['sendmail', 'smtp', 'qmail', 'testfile', 'none'],
+   default => 'sendmail',
+   checker => \&check_mail_delivery_method
+  },
+
+  {
    name => 'sendmailnow',
    desc => 'Sites using anything older than version 8.12 of \'sendmail\' ' .
            'can achieve a significant performance increase in the ' .
@@ -518,6 +725,13 @@ sub find_languages {
            '*must* leave it on, or no bug mail will be sent.',
    type => 'b',
    default => 1
+  },
+
+  {
+   name => 'smtpserver',
+   desc => 'The SMTP server address (if using SMTP for mail delivery).',
+   type => 't',
+   default => 'localhost'
   },
 
   {
@@ -547,7 +761,7 @@ To use the wonders of Bugzilla, you can use the following:
    name => 'newchangedmail',
    desc => 'The email that gets sent to people when a bug changes. Within ' .
            'this text, %to% gets replaced with the e-mail address of the ' .
-           'person recieving the mail.  %bugid% gets replaced by the bug ' .
+           'person receiving the mail.  %bugid% gets replaced by the bug ' .
            'number.  %diffs% gets replaced with what\'s changed. ' .
            '%neworchanged% is "New:" if this mail is reporting a new bug or ' .
            'empty if changes were made to an existing one. %summary% gets ' .
@@ -556,14 +770,21 @@ To use the wonders of Bugzilla, you can use the following:
            'getting the email, suitable for use in an email header (such ' .
            'as X-Bugzilla-Reason). %reasonsbody% is replaced by text that ' .
            'explains why the user is getting the email in more user ' .
-           'friendly text than %reasonsheader%. %<i>anythingelse</i>% gets ' .
+           'friendly text than %reasonsheader%. ' .
+           '%threadingmarker% will become either a Message-ID line (for ' .
+           'new-bug messages) or a In-Reply-To line (for bug-change ' .
+           'messages). ' .
+           '%<i>anythingelse</i>% gets ' .
            'replaced by the definition of that parameter (as defined on ' .
            'this page).',
    type => 'l',
    default => 'From: bugzilla-daemon
 To: %to%
 Subject: [Bug %bugid%] %neworchanged%%summary%
+%threadingmarker%
 X-Bugzilla-Reason: %reasonsheader%
+X-Bugzilla-Product: %product%
+X-Bugzilla-Component: %component%
 
 %urlbase%show_bug.cgi?id=%bugid%
 
@@ -580,7 +801,8 @@ Configure bugmail: %urlbase%userprefs.cgi?tab=email
              state before our cronjob will whine at the owner.<br>
              Set to 0 to disable whining.},
    type => 't',
-   default => 7
+   default => 7,
+   checker => \&check_numeric
   },
 
   {
@@ -617,7 +839,7 @@ Generally, this means one of three things:
 (2) You decide the bug doesn\'t belong to you, and you reassign it to someone
     else.  (Hint: if you don\'t know who to reassign it to, make sure that
     the Component field seems reasonable, and then use the "Reassign bug to
-    owner of selected component" option.)
+    default assignee of selected component" option.)
 (3) You decide the bug belongs to you, but you can\'t solve it this moment.
     Just use the "Accept bug" command.
 
@@ -627,7 +849,7 @@ it if you like!):
  %urlbase%buglist.cgi?bug_status=NEW&bug_status=REOPENED&assigned_to=%userid%
 
 Or, you can use the general query page, at
-%urlbase%query.cgi.
+%urlbase%query.cgi
 
 Appended below are the individual URLs to get to all of your NEW bugs that
 haven\'t been touched for a week or more.
@@ -664,10 +886,51 @@ You will get this message once a day until you\'ve dealt with these bugs!
   },
 
   {
+   name => 'defaultseverity',
+   desc => 'This is the severity that newly entered bugs are set to.',
+   type => 't',
+   default => 'normal',
+   checker => \&check_severity
+  },
+
+  {
+    name => 'defaultplatform',
+    desc => 'This is the platform that is preselected on the bug '.
+            'entry form.<br>'.
+            'You can leave this empty: '.
+            'Bugzilla will then use the platform that the browser '.
+            'reports to be running on as the default.',
+    type => 't',
+    default => '',
+    checker => \&check_platform
+  },
+
+  {
+    name => 'defaultopsys',
+    desc => 'This is the operating system that is preselected on the bug '.
+            'entry form.<br>'.
+            'You can leave this empty: '.
+            'Bugzilla will then use the operating system that the browser '.
+            'reports to be running on as the default.',
+    type => 't',
+    default => '',
+    checker => \&check_opsys
+  },
+
+  {
    name => 'usetargetmilestone',
    desc => 'Do you wish to use the Target Milestone field?',
    type => 'b',
    default => 0
+  },
+
+  {
+   name => 'letsubmitterchoosemilestone',
+   desc => 'If this is on, then people submitting bugs can choose the ' .
+           'Target Milestone for that bug.  If off, then all bugs initially ' .
+           'have the default milestone for the product being filed in.',
+   type => 'b',
+   default => 1
   },
 
   {
@@ -693,14 +956,6 @@ You will get this message once a day until you\'ve dealt with these bugs!
   },
 
   {
-   name => 'usebrowserinfo',
-   desc => 'Do you want bug reports to be assigned an OS & Platform based ' .
-           'on the browser the user makes the report from?',
-   type => 'b',
-   default => 1
-  },
-
-  {
    name => 'usevotes',
    desc => 'Do you wish to allow users to vote for bugs? Note that in order ' .
            'for this to be effective, you will have to change the maximum ' .
@@ -719,6 +974,14 @@ You will get this message once a day until you\'ve dealt with these bugs!
   },
 
   {
+   name => 'usevisibilitygroups',
+   desc => 'Do you wish to restrict visibility of users to members of ' .
+           'specific groups?',
+   type => 'b',
+   default => 0
+  },
+
+  {
    name => 'webdotbase',
    desc => 'It is possible to show graphs of dependent bugs. You may set ' .
            'this parameter to any of the following:
@@ -731,7 +994,7 @@ You will get this message once a day until you\'ve dealt with these bugs!
    package</a> will generate the graphs remotely.</li>
    <li>A blank value will disable dependency graphing.</li>
    </ul>
-   The default value is a publically-accessible webdot server. If you change
+   The default value is a publicly-accessible webdot server. If you change
    this value, make certain that the webdot server can read files from your
    webdot directory. On Apache you do this by editing the .htaccess file,
    for other systems the needed measures may vary. You can run checksetup.pl
@@ -754,7 +1017,7 @@ You will get this message once a day until you\'ve dealt with these bugs!
 
   {
    name => 'emailregexpdesc',
-   desc => 'This describes in english words what kinds of legal addresses ' .
+   desc => 'This describes in English words what kinds of legal addresses ' .
            'are allowed by the <tt>emailregexp</tt> param.',
    type => 'l',
    default => 'A legal address must contain exactly one \'@\', and at least ' .
@@ -793,7 +1056,7 @@ You will get this message once a day until you\'ve dealt with these bugs!
            'why the vote(s) were removed. %votesremoved%, %votesold% and ' .
            '%votesnew% is the number of votes removed, before and after ' .
            'respectively. %votesremovedtext%, %votesoldtext% and ' .
-           '%votesnewtext% are these as sentences, eg "You had 2 votes on ' .
+           '%votesnewtext% are these as sentences, e.g. "You had 2 votes on ' .
            'this bug."  %count% is also supported for backwards ' .
            'compatibility. %<i>anythingelse</i>% gets replaced by the ' .
            'definition of that parameter (as defined on this page).',
@@ -835,10 +1098,13 @@ Reason: %reason%
 
   {
    name => 'allowuserdeletion',
-   desc => 'The pages to edit users can also let you delete a user. But there ' .
-           'is no code that goes and cleans up any references to that user in ' .
-           'other tables, so such deletions are kinda scary. So, you have to ' .
-           'turn on this option before any such deletions will ever happen.',
+   desc => q{The user editing pages are capable of letting you delete user
+             accounts.
+             Bugzilla will issue a warning in case you'd run into
+             inconsistencies when you're about to do so,
+             but such deletions remain kinda scary.
+             So, you have to turn on this option before any such deletions
+             will ever happen.},
    type => 'b',
    default => 0
   },
@@ -1044,6 +1310,17 @@ Reason: %reason%
   },
 
   {
+   name => 'maxlocalattachment',
+   desc => 'The maximum size (in Megabytes) of attachments identified by ' .
+           'the user as "Big Files" to be stored locally on the webserver. ' .
+           'If set to zero, attachments will never be kept on the local ' .
+           'filesystem.',
+   type => 't',
+   default => '0',
+   checker => \&check_numeric
+  },
+
+  {
    name => 'chartgroup',
    desc => 'The name of the group of users who can use the "New Charts" ' .
            'feature. Administrators should ensure that the public categories ' .
@@ -1086,6 +1363,16 @@ Reason: %reason%
    desc => 'If this option is set, all access to the system beyond the ' .
            ' front page will require a login. No anonymous users will ' .
            ' be permitted.',
+   type => 'b',
+   default => '0'
+  },
+
+  {
+   name => 'usemenuforusers',
+   desc => 'If this option is set, Bugzilla will offer you a list' .
+           ' to select from (instead of a text entry field) where a user' .
+           ' needs to be selected.  This option should not be enabled on' .
+           ' sites where there are a large number of users.',
    type => 'b',
    default => '0'
   },

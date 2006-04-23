@@ -31,7 +31,7 @@ use File::Find;
 @additional_files = ();
 %exclude_deps = (
     'XML::Parser' => ['importxml.pl'],
-    'Net::LDAP' => ['Bugzilla/Auth/LDAP.pm'],
+    'Net::LDAP' => ['Bugzilla/Auth/Verify/LDAP.pm'],
 );
 
 

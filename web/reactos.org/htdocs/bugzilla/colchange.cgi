@@ -33,7 +33,8 @@ use vars qw(
 );
 
 use Bugzilla;
-
+use Bugzilla::Constants;
+use Bugzilla::User;
 require "CGI.pl";
 
 Bugzilla->login();
@@ -47,14 +48,19 @@ my $cgi = Bugzilla->cgi;
 my @masterlist = ("opendate", "changeddate", "bug_severity", "priority",
                   "rep_platform", "assigned_to", "assigned_to_realname",
                   "reporter", "reporter_realname", "bug_status",
-                  "resolution", "product", "component", "version", 
-                  "op_sys");
+                  "resolution");
 
-if (Param("usebugaliases")) {
-    unshift(@masterlist, "alias");
+if (Param("useclassification")) {
+    push(@masterlist, "classification");
 }
+
+push(@masterlist, ("product", "component", "version", "op_sys"));
+
 if (Param("usevotes")) {
     push (@masterlist, "votes");
+}
+if (Param("usebugaliases")) {
+    unshift(@masterlist, "alias");
 }
 if (Param("usetargetmilestone")) {
     push(@masterlist, "target_milestone");
@@ -72,7 +78,7 @@ if (@::legal_keywords) {
 
 if (UserInGroup(Param("timetrackinggroup"))) {
     push(@masterlist, ("estimated_time", "remaining_time", "actual_time",
-                       "percentage_complete")); 
+                       "percentage_complete", "deadline")); 
 }
 
 push(@masterlist, ("short_desc", "short_short_desc"));
@@ -83,7 +89,7 @@ my @collist;
 if (defined $cgi->param('rememberedquery')) {
     my $splitheader = 0;
     if (defined $cgi->param('resetit')) {
-        @collist = @::default_column_list;
+        @collist = DEFAULT_COLUMN_LIST;
     } else {
         foreach my $i (@masterlist) {
             if (defined $cgi->param("column_$i")) {
@@ -138,7 +144,7 @@ if (defined $cgi->param('rememberedquery')) {
 if (defined $cgi->cookie('COLUMNLIST')) {
     @collist = split(/ /, $cgi->cookie('COLUMNLIST'));
 } else {
-    @collist = @::default_column_list;
+    @collist = DEFAULT_COLUMN_LIST;
 }
 
 $vars->{'collist'} = \@collist;

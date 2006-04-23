@@ -22,13 +22,15 @@
 [% PROCESS global/variables.none.tmpl %]
 
 [% filt_product = product FILTER html %]
+[% filt_classification = classification FILTER html %]
 [% PROCESS global/header.html.tmpl
-  title = "Edit Group Controls for '$filt_product'"
+  title = "Edit Group Controls for $filt_product"
 %]
 
 <form method="post" action="editproducts.cgi">
   <input type="hidden" name="action" value="updategroupcontrols">
   <input type="hidden" name="product" value="[% filt_product %]">
+  <input type="hidden" name="classification" value="[% filt_classification %]">
 
   <table id="form" cellspacing="0" cellpadding="4" border="1">
     <tr bgcolor="#6666ff">
@@ -177,7 +179,7 @@ this group according to the following definitions.
     </td>
     <td>
       [% terms.Bugs %] in this product are permitted to be restricted to this
-      group.  Users who are a member of this group will be able to place [% terms.bugs %] in
+      group.  Users who are members of this group will be able to place [% terms.bugs %] in
       this group.
     </td>
   </tr>
@@ -216,7 +218,7 @@ this group according to the following definitions.
     </td>
     <td>
       [% terms.Bugs %] in this product are permitted to be restricted to this
-      group.  Users who are a member of this group will be able to place [% terms.bugs %]
+      group.  Users who are members of this group will be able to place [% terms.bugs %]
        in this group.  Non-members will be forced to restrict [% terms.bugs %] to
        this group when they initially enter [% terms.abug %] in this product.
     </td>
@@ -230,7 +232,7 @@ this group according to the following definitions.
     </td>
     <td>
       [% terms.Bugs %] in this product are permitted to be restricted to this
-      group and are placed in this group by default.  Users who are a member of this
+      group and are placed in this group by default.  Users who are members of this
       group will be able to place [% terms.bugs %] in this group.
     </td>
   </tr>
@@ -243,7 +245,7 @@ this group according to the following definitions.
     </td>
     <td>
       [% terms.Bugs %] in this product are permitted to be restricted to this
-      group and are placed in this group by default.  Users who are a member of this group
+      group and are placed in this group by default.  Users who are members of this group
       will be able to place [% terms.bugs %] in this group.  Non-members will be
       able to restrict [% terms.bugs %] to this group on entry and will do so by default
     </td>
@@ -257,7 +259,7 @@ this group according to the following definitions.
     </td>
     <td>
       [% terms.Bugs %] in this product are permitted to be restricted to this
-      group and are placed in this group by default.  Users who are a member of this group
+      group and are placed in this group by default.  Users who are members of this group
       will be able to place [% terms.bugs %] in this group. Non-members will be forced
       to place [% terms.bugs %] in this group on entry.
     </td>
@@ -275,7 +277,11 @@ this group according to the following definitions.
     </td>
   </tr>
 </table>
-
-
+<p>
+Please note that the above table delineates the only allowable combinations
+for the <b>MemberControl</b> and <b>OtherControl</b> field settings.
+Attempting to submit a combination not listed there (e.g. Mandatory/NA,
+Default/Shown, etc.) will produce an error message.
+</p>
 [% PROCESS global/footer.html.tmpl %]
 

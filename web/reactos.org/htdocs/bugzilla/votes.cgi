@@ -28,6 +28,7 @@ use lib ".";
 
 use Bugzilla;
 use Bugzilla::Constants;
+use Bugzilla::Bug;
 
 require "CGI.pl";
 
@@ -95,9 +96,9 @@ sub show_bug {
     my @users;
     
     SendSQL("SELECT profiles.login_name, votes.who, votes.vote_count 
-             FROM votes, profiles 
-             WHERE votes.bug_id = $bug_id 
-               AND profiles.userid = votes.who");
+               FROM votes INNER JOIN profiles 
+                 ON profiles.userid = votes.who
+              WHERE votes.bug_id = $bug_id");
                    
     while (MoreSQLData()) {
         my ($name, $userid, $count) = (FetchSQLData());
@@ -118,22 +119,23 @@ sub show_bug {
 # doing the viewing, give them the option to edit them too.
 sub show_user {
     GetVersionTable();
-    
+
     my $cgi = Bugzilla->cgi;
+    my $dbh = Bugzilla->dbh;
 
     # If a bug_id is given, and we're editing, we'll add it to the votes list.
     $bug_id ||= "";
     
     my $name = $cgi->param('user') || Bugzilla->user->login;
     my $who = DBNameToIdAndCheck($name);
-    my $userid = Bugzilla->user ? Bugzilla->user->id : 0;
+    my $userid = Bugzilla->user->id;
     
     my $canedit = (Param('usevotes') && $userid == $who) ? 1 : 0;
-    
-    SendSQL("LOCK TABLES bugs READ, products READ, votes WRITE,
-             cc READ, bug_group_map READ, user_group_map READ,
-             cc AS selectVisible_cc READ");
-    
+
+    $dbh->bz_lock_tables('bugs READ', 'products READ', 'votes WRITE',
+             'cc READ', 'bug_group_map READ', 'user_group_map READ',
+             'cc AS selectVisible_cc READ', 'groups READ');
+
     if ($canedit && $bug_id) {
         # Make sure there is an entry for this bug
         # in the vote table, just so that things display right.
@@ -169,10 +171,10 @@ sub show_user {
         
         SendSQL("SELECT votes.bug_id, votes.vote_count, bugs.short_desc,
                         bugs.bug_status 
-                  FROM  votes, bugs, products
+                  FROM  votes
+                  INNER JOIN bugs ON votes.bug_id = bugs.bug_id
+                  INNER JOIN products ON bugs.product_id = products.id 
                   WHERE votes.who = $who 
-                    AND votes.bug_id = bugs.bug_id 
-                    AND bugs.product_id = products.id 
                     AND products.name = " . SqlQuote($product) . 
                  "ORDER BY votes.bug_id");        
         
@@ -185,7 +187,7 @@ sub show_user {
             # and they can see there are votes 'missing', but not on what bug
             # they are. This seems a reasonable compromise; the alternative is
             # to lie in the totals.
-            next if !CanSeeBug($id, $userid);            
+            next if !Bugzilla->user->can_see_bug($id);            
             
             push (@bugs, { id => $id, 
                            summary => $summary,
@@ -212,11 +214,12 @@ sub show_user {
     }
 
     SendSQL("DELETE FROM votes WHERE vote_count <= 0");
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
 
     $vars->{'canedit'} = $canedit;
     $vars->{'voting_user'} = { "login" => $name };
     $vars->{'products'} = \@products;
+    $vars->{'bug_id'} = $bug_id;
 
     print $cgi->header();
     $template->process("bug/votes/list-for-user.html.tmpl", $vars)
@@ -230,6 +233,7 @@ sub record_votes {
     ############################################################################
 
     my $cgi = Bugzilla->cgi;
+    my $dbh = Bugzilla->dbh;
 
     # Build a list of bug IDs for which votes have been submitted.  Votes
     # are submitted in form fields in which the field names are the bug 
@@ -277,9 +281,10 @@ sub record_votes {
     # the ballot box.
     if (scalar(@buglist)) {
         SendSQL("SELECT bugs.bug_id, products.name, products.maxvotesperbug
-                 FROM bugs, products
-                 WHERE products.id = bugs.product_id
-                   AND bugs.bug_id IN (" . join(", ", @buglist) . ")");
+                   FROM bugs
+             INNER JOIN products
+                     ON products.id = bugs.product_id
+                  WHERE bugs.bug_id IN (" . join(", ", @buglist) . ")");
 
         my %prodcount;
 
@@ -313,12 +318,9 @@ sub record_votes {
     # for products that only allow one vote per bug).  In that case, we still
     # need to clear the user's votes from the database.
     my %affected;
-    SendSQL("LOCK TABLES bugs WRITE, bugs_activity WRITE, votes WRITE, 
-             longdescs WRITE, profiles READ, products READ, components READ, 
-             cc READ, dependencies READ, groups READ, fielddefs READ, 
-             namedqueries READ, watch READ, 
-             profiles AS watchers READ, profiles AS watched READ, 
-             user_group_map READ, bug_group_map READ");
+    $dbh->bz_lock_tables('bugs WRITE', 'bugs_activity WRITE',
+                         'votes WRITE', 'longdescs WRITE',
+                         'products READ', 'fielddefs READ');
     
     # Take note of, and delete the user's old votes from the database.
     SendSQL("SELECT bug_id FROM votes WHERE who = $who");
@@ -340,16 +342,33 @@ sub record_votes {
     
     # Update the cached values in the bugs table
     print $cgi->header();
+    my @updated_bugs = ();
+
+    my $sth_getVotes = $dbh->prepare("SELECT SUM(vote_count) FROM votes
+                                      WHERE bug_id = ?");
+
+    my $sth_updateVotes = $dbh->prepare("UPDATE bugs SET votes = ?
+                                         WHERE bug_id = ?");
+
     foreach my $id (keys %affected) {
-        SendSQL("SELECT sum(vote_count) FROM votes WHERE bug_id = $id");
-        my $v = FetchOneColumn() || 0;
-        SendSQL("UPDATE bugs SET votes = $v, delta_ts=delta_ts 
-                 WHERE bug_id = $id");
+        $sth_getVotes->execute($id);
+        my $v = $sth_getVotes->fetchrow_array || 0;
+        $sth_updateVotes->execute($v, $id);
+
         my $confirmed = CheckIfVotedConfirmed($id, $who);
-        $vars->{'header_done'} = 1 if $confirmed;
+        push (@updated_bugs, $id) if $confirmed;
     }
+    $dbh->bz_unlock_tables();
 
-    SendSQL("UNLOCK TABLES");
+    $vars->{'type'} = "votes";
+    $vars->{'mailrecipients'} = { 'changer' => $who };
 
+    foreach my $bug_id (@updated_bugs) {
+        $vars->{'id'} = $bug_id;
+        $template->process("bug/process/results.html.tmpl", $vars)
+          || ThrowTemplateError($template->error());
+        # Set header_done to 1 only after the first bug.
+        $vars->{'header_done'} = 1;
+    }
     $vars->{'votes_recorded'} = 1;
 }

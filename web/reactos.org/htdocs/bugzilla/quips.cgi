@@ -41,10 +41,6 @@ Bugzilla->login(LOGIN_REQUIRED);
 
 my $cgi = Bugzilla->cgi;
 
-if (Param('enablequips') eq "off") {
-    ThrowUserError("quips_disabled");
-}
-    
 my $action = $cgi->param('action') || "";
 
 if ($action eq "show") {
@@ -75,15 +71,14 @@ if ($action eq "show") {
 }
 
 if ($action eq "add") {
-    (Param('enablequips') eq "on" or Param('enablequips') eq "approved")
-      || ThrowUserError("no_new_quips");
-    
+    (Param('quip_list_entry_control') eq "closed") &&
+      ThrowUserError("no_new_quips");
+
     # Add the quip 
-    my $approved = (Param('enablequips') eq "on") ? '1' : '0';
-    $approved = 1 if(UserInGroup('admin'));
+    my $approved = 
+      (Param('quip_list_entry_control') eq "open") || (UserInGroup('admin')) || 0;
     my $comment = $cgi->param("quip");
     $comment || ThrowUserError("need_quip");
-    $comment !~ m/</ || ThrowUserError("no_html_in_quips");
 
     SendSQL("INSERT INTO quips (userid, quip, approved) VALUES " .
            '(' . $userid . ', ' . SqlQuote($comment) . ', ' . $approved . ')');
@@ -119,9 +114,10 @@ if ($action eq 'approve') {
 }
 
 if ($action eq "delete") {
-    if (!UserInGroup('admin')) {
-        ThrowUserError("quips_edit_denied");
-    }
+    UserInGroup("admin")
+      || ThrowUserError("auth_failure", {group  => "admin",
+                                         action => "delete",
+                                         object => "quips"});
     my $quipid = $cgi->param("quipid");
     ThrowCodeError("need_quipid") unless $quipid =~ /(\d+)/; 
     $quipid = $1;

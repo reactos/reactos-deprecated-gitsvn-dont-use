@@ -5,7 +5,7 @@
 	maintainer CDATA #REQUIRED
 	exporter CDATA #IMPLIED
 >
-<!ELEMENT bug (bug_id, (alias?, creation_ts, short_desc, delta_ts, reporter_accessible, cclist_accessible, product, component, version, rep_platform, op_sys, bug_status, resolution?, bug_file_loc?, status_whiteboard?, keywords*, priority, bug_severity, target_milestone?, dependson*, blocked*, votes?, reporter, assigned_to, qa_contact?, cc*, (estimated_time, remaining_time, actual_time)?, group*, long_desc*, attachment*)?)>
+<!ELEMENT bug (bug_id, (alias?, creation_ts, short_desc, delta_ts, reporter_accessible, cclist_accessible, classification_id, classification, product, component, version, rep_platform, op_sys, bug_status, resolution?, bug_file_loc?, status_whiteboard?, keywords*, priority, bug_severity, target_milestone?, dependson*, blocked*, votes?, reporter, assigned_to, qa_contact?, cc*, (estimated_time, remaining_time, actual_time)?, group*, long_desc*, attachment*)?)>
 <!ATTLIST bug
 	error (NotFound | NotPermitted | InvalidBugId) #IMPLIED
 >
@@ -16,6 +16,8 @@
 <!ELEMENT exporter (#PCDATA)>
 <!ELEMENT urlbase (#PCDATA)>
 <!ELEMENT bug_status (#PCDATA)>
+<!ELEMENT classification_id (#PCDATA)>
+<!ELEMENT classification (#PCDATA)>
 <!ELEMENT product (#PCDATA)>
 <!ELEMENT priority (#PCDATA)>
 <!ELEMENT version (#PCDATA)>
@@ -46,9 +48,20 @@
 <!ELEMENT who (#PCDATA)>
 <!ELEMENT bug_when (#PCDATA)>
 <!ELEMENT thetext (#PCDATA)>
-<!ELEMENT attachment (attachid, date, desc, type?, data?)>
+<!ELEMENT attachment (attachid, date, desc, type?, data?, flag*)>
+<!ATTLIST attachment
+          isobsolete (0|1) #IMPLIED
+          ispatch (0|1) #IMPLIED
+>
 <!ELEMENT attachid (#PCDATA)>
 <!ELEMENT date (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT type (#PCDATA)>
 <!ELEMENT data (#PCDATA)>
+<!ELEMENT flag EMPTY>
+<!ATTLIST flag
+          name CDATA #REQUIRED
+          status CDATA #REQUIRED
+          setter CDATA #IMPLIED
+          requestee CDATA #IMPLIED
+>

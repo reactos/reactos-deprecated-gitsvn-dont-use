@@ -23,33 +23,42 @@
      * bz-ver to current stable
      * bz-nexver to next stable
      * bz-date to the release date
+     * Remove the BZ-DEVEL comments
+     - COMPILE DOCS AND CHECKIN -
+       Also, tag and tarball before completing
+     * bz-ver to devel version
+ 
+     For a devel release, simple bump bz-ver and bz-date
 -->
 
-<!ENTITY bz-ver "2.18.3">
-<!ENTITY bz-nextver "2.18.4">
-<!ENTITY bz-date "2005-07-09">
-<!ENTITY current-year "2005">
+<!ENTITY bz-ver "2.20.1">
+<!ENTITY bz-nextver "2.20.2">
+<!ENTITY bz-date "2006-02-20">
+<!ENTITY current-year "2006">
 
-<!ENTITY landfillbase "http://landfill.bugzilla.org/bugzilla-2.18-branch/">
+<!ENTITY landfillbase "http://landfill.bugzilla.org/bugzilla-tip/">
 <!ENTITY bz "http://www.bugzilla.org/">
 <!ENTITY bzg-bugs "<ulink url='http://bugzilla.mozilla.org/enter_bug.cgi?product=Bugzilla&amp;component=Documentation'>Bugzilla Documentation</ulink>">
 <!ENTITY mysql "http://www.mysql.com/">
-<!ENTITY newest-perl-ver "5.8.3">
 
 <!-- For minimum versions -->
 <!ENTITY min-mysql-ver "3.23.41">
-<!ENTITY min-perl-ver "5.6.0">
+<!ENTITY min-pg-ver "7.3.x">
+<!ENTITY min-perl-ver "5.6.1">
 <!ENTITY min-perl-ver-win "5.8.1">
 <!ENTITY min-template-ver "2.08">
 <!ENTITY min-file-temp-ver "any">
 <!ENTITY min-appconfig-ver "1.52">
 <!ENTITY min-text-wrap-ver "2001.0131">
-<!ENTITY min-file-spec-ver "0.82">
+<!ENTITY min-file-spec-ver "0.84">
 <!ENTITY min-data-dumper-ver "any">
-<!ENTITY min-dbd-mysql-ver "2.1010">
-<!ENTITY min-dbi-ver "1.36">
+<!ENTITY min-dbd-mysql-ver "2.9003">
+<!ENTITY min-dbd-pg-ver "1.31">
+<!ENTITY min-dbi-ver "1.38">
 <!ENTITY min-date-format-ver "2.21">
 <!ENTITY min-cgi-ver "2.93">
+<!ENTITY min-mail-mailer-ver "1.65">
+<!ENTITY min-storable-ver "any">
 <!-- Optional modules -->
 <!ENTITY min-gd-ver "1.20">
 <!ENTITY min-gd-graph-ver "any">
@@ -89,7 +98,8 @@
 <!-- Header -->
 
   <bookinfo>
-    <title>The Bugzilla Guide - &bz-ver; Release</title>
+    <title>The Bugzilla Guide - &bz-ver; 
+    Release</title>
 
     <authorgroup>
       <corpauthor>The Bugzilla Team</corpauthor>
@@ -189,3 +199,4 @@ sgml-shorttag:t
 sgml-tag-region-if-active:t
 End:
 -->
+

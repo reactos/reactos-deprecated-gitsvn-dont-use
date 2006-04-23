@@ -1,5 +1,5 @@
 <!-- <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"> -->
-<!-- $Id: troubleshooting.xml,v 1.2.2.4 2005/02/05 04:33:42 travis%sedsystems.ca Exp $ -->
+<!-- $Id: troubleshooting.xml,v 1.5.4.1 2005/09/08 20:57:06 mozilla%colinogilvie.co.uk Exp $ -->
 
 <appendix id="troubleshooting">
 <title>Troubleshooting</title>
@@ -29,9 +29,22 @@
     fix the problem. If not, see below for some commonly-encountered 
     errors. If that doesn't help, post the errors to the newsgroup.
     </para>
+
+    <para>
+      Bugzilla can also log all user-based errors (and many code-based errors)
+      that occur, without polluting the web server error log.  To enable
+      Bugzilla error logging, create a file that Bugzilla can write to, named
+      <filename>errorlog</filename>, in the Bugzilla <filename>data</filename>
+      directory.  Errors will be logged as they occur, and will include the type
+      of the error, the IP address and username (if available) of the user who
+      triggered the error, and the values of all environment variables; if a
+      form was being submitted, the data in the form will also be included.
+      To disable error logging, delete or rename the
+      <filename>errorlog</filename> file.
+    </para>
   </section>
         
-  <section>
+  <section id="trbl-testserver">
   <title>The Apache webserver is not serving Bugzilla pages</title>
     <para>After you have run <command>checksetup.pl</command> twice,
     run <command>testserver.pl http://yoursite.yourdomain/yoururl</command>
@@ -47,7 +60,7 @@ TEST-OK Webserver is preventing fetch of http://landfill.bugzilla.org/bugzilla-t
 </programlisting>
   </section>
 
-  <section>
+  <section id="trbl-perlmodule">
   <title>I installed a Perl module, but 
       <filename>checksetup.pl</filename> claims it's not installed!</title>
       
@@ -70,7 +83,7 @@ TEST-OK Webserver is preventing fetch of http://landfill.bugzilla.org/bugzilla-t
     </orderedlist>
   </section>
     
-  <section>
+  <section id="trbl-bundleBugzilla">
   <title>Bundle::Bugzilla makes me upgrade to Perl 5.6.1</title>
 
     <para>Try executing <command>perl -MCPAN -e 'install CPAN'</command>
@@ -88,7 +101,7 @@ TEST-OK Webserver is preventing fetch of http://landfill.bugzilla.org/bugzilla-t
   </section>
 
 
-  <section>
+  <section id="trbl-dbdSponge">
   <title>DBD::Sponge::db prepare failed</title>
       
     <para>The following error message may appear due to a bug in DBD::mysql
@@ -257,8 +270,7 @@ at /usr/lib/perl5/site_perl/5.6.0/File/Temp.pm line 233.</programlisting>
     past and need to set it to something more restrictive
     (i.e. <quote>/bugzilla/</quote>), you can safely do this without
     requiring users to delete their Bugzilla-related cookies in their
-    browser (this is true starting with 
-    Bugzilla 2.18 and Bugzilla 2.16.5).
+    browser (this is true starting with Bugzilla 2.18 and Bugzilla 2.16.5).
     </para>
   </section>
 
@@ -276,7 +288,7 @@ at /usr/lib/perl5/site_perl/5.6.0/File/Temp.pm line 233.</programlisting>
      log in again.
      </para>
 
-     <para>If you are using 2.18, there is a
+     <para>If you are using 2.18 (or later), there is a
      parameter called <quote>loginnetmask</quote>, which you can use to set
      the number of bits of the user's IP address to require to be matched when
      authenticating the cookies. If you set this to something less than 32,

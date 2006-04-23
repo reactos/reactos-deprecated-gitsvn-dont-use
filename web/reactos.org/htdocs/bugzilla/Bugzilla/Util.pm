@@ -22,6 +22,7 @@
 #                 Jacob Steenhagen <jake@bugzilla.org>
 #                 Bradley Baetz <bbaetz@student.usyd.edu.au>
 #                 Christopher Aillon <christopher@aillon.com>
+#                 Max Kanat-Alexander <mkanat@bugzilla.org>
 
 package Bugzilla::Util;
 
@@ -32,10 +33,20 @@ use base qw(Exporter);
                              detaint_signed
                              html_quote url_quote value_quote xml_quote
                              css_class_quote
+                             i_am_cgi
                              lsearch max min
-                             trim format_time);
+                             diff_arrays diff_strings
+                             trim wrap_comment find_wrap_point
+                             format_time format_time_decimal
+                             file_mod_time
+                             bz_crypt clean_text);
 
 use Bugzilla::Config;
+use Bugzilla::Error;
+use Bugzilla::Constants;
+use Date::Parse;
+use Date::Format;
+use Text::Wrap;
 
 # This is from the perlsec page, slightly modifed to remove a warning
 # From that page:
@@ -120,6 +131,12 @@ sub xml_quote {
     return $var;
 }
 
+sub i_am_cgi {
+    # I use SERVER_SOFTWARE because it's required to be
+    # defined for all requests in the CGI spec.
+    return exists $ENV{'SERVER_SOFTWARE'} ? 1 : 0;
+}
+
 sub lsearch {
     my ($list,$item) = (@_);
     my $count = 0;
@@ -148,6 +165,29 @@ sub min {
     return $min;
 }
 
+sub diff_arrays {
+    my ($old_ref, $new_ref) = @_;
+
+    my @old = @$old_ref;
+    my @new = @$new_ref;
+
+    # For each pair of (old, new) entries:
+    # If they're equal, set them to empty. When done, @old contains entries
+    # that were removed; @new contains ones that got added.
+    foreach my $oldv (@old) {
+        foreach my $newv (@new) {
+            next if ($newv eq '');
+            if ($oldv eq $newv) {
+                $newv = $oldv = '';
+            }
+        }
+    }
+
+    my @removed = grep { $_ ne '' } @old;
+    my @added = grep { $_ ne '' } @new;
+    return (\@removed, \@added);
+}
+
 sub trim {
     my ($str) = @_;
     if ($str) {
@@ -157,38 +197,172 @@ sub trim {
     return $str;
 }
 
-sub format_time {
-    my ($time) = @_;
+sub diff_strings {
+    my ($oldstr, $newstr) = @_;
 
-    my ($year, $month, $day, $hour, $min, $sec);
-    if ($time =~ m/^\d{14}$/) {
-        # We appear to have a timestamp direct from MySQL
-        $year  = substr($time,0,4);
-        $month = substr($time,4,2);
-        $day   = substr($time,6,2);
-        $hour  = substr($time,8,2);
-        $min   = substr($time,10,2);
+    # Split the old and new strings into arrays containing their values.
+    $oldstr =~ s/[\s,]+/ /g;
+    $newstr =~ s/[\s,]+/ /g;
+    my @old = split(" ", $oldstr);
+    my @new = split(" ", $newstr);
+
+    my ($rem, $add) = diff_arrays(\@old, \@new);
+
+    my $removed = join (", ", @$rem);
+    my $added = join (", ", @$add);
+
+    return ($removed, $added);
+}
+
+sub wrap_comment ($) {
+    my ($comment) = @_;
+    my $wrappedcomment = "";
+
+    # Use 'local', as recommended by Text::Wrap's perldoc.
+    local $Text::Wrap::columns = COMMENT_COLS;
+    # Make words that are longer than COMMENT_COLS not wrap.
+    local $Text::Wrap::huge    = 'overflow';
+    # Don't mess with tabs.
+    local $Text::Wrap::unexpand = 0;
+
+    # If the line starts with ">", don't wrap it. Otherwise, wrap.
+    foreach my $line (split(/\r\n|\r|\n/, $comment)) {
+      if ($line =~ qr/^>/) {
+        $wrappedcomment .= ($line . "\n");
+      }
+      else {
+        $wrappedcomment .= (wrap('', '', $line) . "\n");
+      }
     }
-    elsif ($time =~ m/^(\d{4})[-\.](\d{2})[-\.](\d{2}) (\d{2}):(\d{2})(:(\d{2}))?$/) {
-        $year  = $1;
-        $month = $2;
-        $day   = $3;
-        $hour  = $4;
-        $min   = $5;
-        $sec   = $7;
+
+    return $wrappedcomment;
+}
+
+sub find_wrap_point ($$) {
+    my ($string, $maxpos) = @_;
+    if (!$string) { return 0 }
+    if (length($string) < $maxpos) { return length($string) }
+    my $wrappoint = rindex($string, ",", $maxpos); # look for comma
+    if ($wrappoint < 0) {  # can't find comma
+        $wrappoint = rindex($string, " ", $maxpos); # look for space
+        if ($wrappoint < 0) {  # can't find space
+            $wrappoint = rindex($string, "-", $maxpos); # look for hyphen
+            if ($wrappoint < 0) {  # can't find hyphen
+                $wrappoint = $maxpos;  # just truncate it
+            } else {
+                $wrappoint++; # leave hyphen on the left side
+            }
+        }
+    }
+    return $wrappoint;
+}
+
+sub format_time ($;$) {
+    my ($date, $format) = @_;
+
+    # If $format is undefined, try to guess the correct date format.    
+    my $show_timezone;
+    if (!defined($format)) {
+        if ($date =~ m/^(\d{4})[-\.](\d{2})[-\.](\d{2}) (\d{2}):(\d{2})(:(\d{2}))?$/) {
+            my $sec = $7;
+            if (defined $sec) {
+                $format = "%Y-%m-%d %T";
+            } else {
+                $format = "%Y-%m-%d %R";
+            }
+        } else {
+            # Default date format. See Date::Format for other formats available.
+            $format = "%Y-%m-%d %R";
+        }
+        # By default, we want the timezone to be displayed.
+        $show_timezone = 1;
     }
     else {
-        warn "Date/Time format ($time) unrecogonzied";
+        # Search for %Z or %z, meaning we want the timezone to be displayed.
+        # Till bug 182238 gets fixed, we assume Param('timezone') is used.
+        $show_timezone = ($format =~ s/\s?%Z$//i);
     }
 
-    if (defined $year) {
-        $time = "$year-$month-$day $hour:$min";
-        if (defined $sec) {
-            $time .= ":$sec";
-        }
-        $time .= " " . &::Param('timezone') if &::Param('timezone');
+    # str2time($date) is undefined if $date has an invalid date format.
+    my $time = str2time($date);
+
+    if (defined $time) {
+        $date = time2str($format, $time);
+        $date .= " " . &::Param('timezone') if $show_timezone;
     }
-    return $time;
+    else {
+        # Don't let invalid (time) strings to be passed to templates!
+        $date = '';
+    }
+    return trim($date);
+}
+
+sub format_time_decimal {
+    my ($time) = (@_);
+
+    my $newtime = sprintf("%.2f", $time);
+
+    if ($newtime =~ /0\Z/) {
+        $newtime = sprintf("%.1f", $time);
+    }
+
+    return $newtime;
+}
+
+sub file_mod_time ($) {
+    my ($filename) = (@_);
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
+        $atime,$mtime,$ctime,$blksize,$blocks)
+        = stat($filename);
+    return $mtime;
+}
+
+sub bz_crypt ($) {
+    my ($password) = @_;
+
+    # The list of characters that can appear in a salt.  Salts and hashes
+    # are both encoded as a sequence of characters from a set containing
+    # 64 characters, each one of which represents 6 bits of the salt/hash.
+    # The encoding is similar to BASE64, the difference being that the
+    # BASE64 plus sign (+) is replaced with a forward slash (/).
+    my @saltchars = (0..9, 'A'..'Z', 'a'..'z', '.', '/');
+
+    # Generate the salt.  We use an 8 character (48 bit) salt for maximum
+    # security on systems whose crypt uses MD5.  Systems with older
+    # versions of crypt will just use the first two characters of the salt.
+    my $salt = '';
+    for ( my $i=0 ; $i < 8 ; ++$i ) {
+        $salt .= $saltchars[rand(64)];
+    }
+
+    # Crypt the password.
+    my $cryptedpassword = crypt($password, $salt);
+
+    # Return the crypted password.
+    return $cryptedpassword;
+}
+
+sub ValidateDate {
+    my ($date, $format) = @_;
+    my $date2;
+
+    # $ts is undefined if the parser fails.
+    my $ts = str2time($date);
+    if ($ts) {
+        $date2 = time2str("%Y-%m-%d", $ts);
+
+        $date =~ s/(\d+)-0*(\d+?)-0*(\d+?)/$1-$2-$3/; 
+        $date2 =~ s/(\d+)-0*(\d+?)-0*(\d+?)/$1-$2-$3/;
+    }
+    if (!$ts || $date ne $date2) {
+        ThrowUserError('illegal_date', {date => $date, format => $format});
+    } 
+}
+
+sub clean_text {
+    my ($dtext) = shift;
+    $dtext =~ s/[\x00-\x1F\x7F]+/ /g;   # change control characters to a space
+    return trim($dtext);
 }
 
 1;
@@ -220,11 +394,22 @@ Bugzilla::Util - Generic utility functions for bugzilla
   $val = max($a, $b, $c);
   $val = min($a, $b, $c);
 
-  # Functions for trimming variables
+  # Data manipulation
+  ($removed, $added) = diff_arrays(\@old, \@new);
+
+  # Functions for manipulating strings
   $val = trim(" abc ");
+  ($removed, $added) = diff_strings($old, $new);
+  $wrapped = wrap_comment($comment);
 
   # Functions for formatting time
   format_time($time);
+
+  # Functions for dealing with files
+  $time = file_mod_time($filename);
+
+  # Cryptographic Functions
+  $crypted_password = bz_crypt($password);
 
 =head1 DESCRIPTION
 
@@ -333,7 +518,25 @@ Returns the minimum from a set of values.
 
 =back
 
-=head2 Trimming
+=head2 Data Manipulation
+
+=over 4
+
+=item C<diff_arrays(\@old, \@new)>
+
+ Description: Takes two arrayrefs, and will tell you what it takes to 
+              get from @old to @new.
+ Params:      @old = array that you are changing from
+              @new = array that you are changing to
+ Returns:     A list of two arrayrefs. The first is a reference to an 
+              array containing items that were removed from @old. The
+              second is a reference to an array containing items
+              that were added to @old. If both returned arrays are 
+              empty, @old and @new contain the same values.
+
+=back
+
+=head2 String Manipulation
 
 =over 4
 
@@ -341,6 +544,30 @@ Returns the minimum from a set of values.
 
 Removes any leading or trailing whitespace from a string. This routine does not
 modify the existing string.
+
+=item C<diff_strings($oldstr, $newstr)>
+
+Takes two strings containing a list of comma- or space-separated items
+and returns what items were removed from or added to the new one, 
+compared to the old one. Returns a list, where the first entry is a scalar
+containing removed items, and the second entry is a scalar containing added
+items.
+
+=item C<wrap_comment($comment)>
+
+Takes a bug comment, and wraps it to the appropriate length. The length is
+currently specified in C<Bugzilla::Constants::COMMENT_COLS>. Lines beginning
+with ">" are assumed to be quotes, and they will not be wrapped.
+
+The intended use of this function is to wrap comments that are about to be
+displayed or emailed. Generally, wrapped text should not be stored in the
+database.
+
+=item C<find_wrap_point($string, $maxpos)>
+
+Search for a comma, a whitespace or a hyphen to split $string, within the first
+$maxpos characters. If none of them is found, just split $string at $maxpos.
+The search starts at $maxpos and goes back to the beginning of the string.
 
 =back
 
@@ -350,10 +577,58 @@ modify the existing string.
 
 =item C<format_time($time)>
 
-Takes a time and appends the timezone as defined in editparams.cgi.  This routine
-will be expanded in the future to adjust for user preferences regarding what
-timezone to display times in.  In the future, it may also allow for the time to be
-shown in different formats.
+Takes a time, converts it to the desired format and appends the timezone
+as defined in editparams.cgi, if desired. This routine will be expanded
+in the future to adjust for user preferences regarding what timezone to
+display times in.
+
+This routine is mainly called from templates to filter dates, see
+"FILTER time" in Templates.pm. In this case, $format is undefined and
+the routine has to "guess" the date format that was passed to $dbh->sql_date_format().
+
+
+=item C<format_time_decimal($time)>
+
+Returns a number with 2 digit precision, unless the last digit is a 0. Then it 
+returns only 1 digit precision.
 
 =back
 
+
+=head2 Files
+
+=over 4
+
+=item C<file_mod_time($filename)>
+
+Takes a filename and returns the modification time. It returns it in the format
+of the "mtime" parameter of the perl "stat" function.
+
+=back
+
+=head2 Cryptography
+
+=over 4
+
+=item C<bz_crypt($password)>
+
+Takes a string and returns a C<crypt>ed value for it, using a random salt.
+
+Please always use this function instead of the built-in perl "crypt"
+when initially encrypting a password.
+
+=item C<clean_text($str)>
+Returns the parameter "cleaned" by exchanging non-printable characters with a space.
+Specifically characters (ASCII 0 through 31) and (ASCII 127) will become ASCII 32 (Space).
+
+=begin undocumented
+
+Random salts are generated because the alternative is usually
+to use the first two characters of the password itself, and since
+the salt appears in plaintext at the beginning of the encrypted
+password string this has the effect of revealing the first two
+characters of the password to anyone who views the encrypted version.
+
+=end undocumented
+
+=back

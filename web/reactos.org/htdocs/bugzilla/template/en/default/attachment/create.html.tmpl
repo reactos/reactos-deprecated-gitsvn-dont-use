@@ -43,6 +43,12 @@
       vertical-align: baseline;
       padding-bottom: 5px;
     }
+    
+    table#flags th, table#flags td {
+      text-align: left;
+      vertical-align: baseline;
+      font-size: small;
+    }
   "
   onload="setContentTypeDisabledState();"
 %]
@@ -53,17 +59,29 @@
 
   <table class="attachment_entry">
     <tr>
-      <th>File:</th>
+      <th><label for="data">File:</label></th>
       <td>
         <em>Enter the path to the file on your computer.</em><br>
-        <input type="file" name="data" size="50">
+        <input type="file" id="data" name="data" size="50">
       </td>
     </tr>
+    [% IF Param("maxlocalattachment") %]
     <tr>
-      <th>Description:</th>
+      <th>BigFile:</th>
+      <td>
+        <input type="checkbox" id="bigfile"
+               name="bigfile" value="bigfile">
+        <label for="bigfile">
+          Big File - Stored locally and may be purged
+        </label>
+      </td>
+    </tr>
+    [% END %]
+    <tr>
+      <th><label for="description">Description:</label></th>
       <td>
         <em>Describe the attachment briefly.</em><br>
-        <input type="text" name="description" size="60" maxlength="200">
+        <input type="text" id="description" name="description" size="60" maxlength="200">
       </td>
     </tr>
     <tr>
@@ -138,10 +156,18 @@
       </tr>
     [% END %]
     <tr>
-      <th>Comment:</th>
+      <td> </td>
+      <td>
+        [% IF flag_types.size > 0 %]
+          [% PROCESS "flag/list.html.tmpl" bug_id=bugid attach_id=attachid %]<br>
+        [% END %]
+      </td>
+    </tr>
+    <tr>
+      <th><label for="comment">Comment:</label></th>
       <td>
         <em>(optional) Add a comment about this attachment to the [% terms.bug %].</em><br>
-        <textarea wrap="soft" name="comment" rows="6" cols="80"></textarea>
+        <textarea wrap="soft" id="commment" name="comment" rows="6" cols="80"></textarea>
       </td>
     </tr>
     <tr>
@@ -152,7 +178,7 @@
 
 </form>
 
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
   <!--
   function setContentTypeDisabledState()
   {
@@ -172,6 +198,3 @@
 </script>
 
 [% PROCESS global/footer.html.tmpl %]
-
-
-

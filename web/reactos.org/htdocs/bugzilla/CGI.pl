@@ -45,6 +45,12 @@ use Bugzilla::Config;
 use Bugzilla::Constants;
 use Bugzilla::Error;
 use Bugzilla::BugMail;
+use Bugzilla::Bug;
+use Bugzilla::User;
+
+# Used in LogActivityEntry(). Gives the max length of lines in the
+# activity table.
+use constant MAX_LINE_LENGTH => 254;
 
 # Shut up misguided -w warnings about "used only once".  For some reason,
 # "use vars" chokes on me when I try it here.
@@ -61,15 +67,21 @@ require 'globals.pl';
 use vars qw($template $vars);
 
 # If Bugzilla is shut down, do not go any further, just display a message
-# to the user about the downtime.  (do)editparams.cgi is exempted from
-# this message, of course, since it needs to be available in order for
+# to the user about the downtime and log out.  (do)editparams.cgi is exempted
+# from this message, of course, since it needs to be available in order for
 # the administrator to open Bugzilla back up.
 if (Param("shutdownhtml") && $0 !~ m:(^|[\\/])(do)?editparams\.cgi$:) {
-    $::vars->{'message'} = "shutdown";
+    # For security reasons, log out users when Bugzilla is down.
+    # Bugzilla->login() is required to catch the logincookie, if any.
+    my $user = Bugzilla->login(LOGIN_OPTIONAL);
+    my $userid = $user->id;
+    Bugzilla->logout();
     
     # Return the appropriate HTTP response headers.
     print Bugzilla->cgi->header();
     
+    $::vars->{'message'} = "shutdown";
+    $::vars->{'userid'} = $userid;
     # Generate and return an HTML message about the downtime.
     $::template->process("global/message.html.tmpl", $::vars)
       || ThrowTemplateError($::template->error());
@@ -91,17 +103,17 @@ sub url_decode {
 # legal value.  assume a browser bug and abort appropriately if not.
 # if $legalsRef is not passed, just check to make sure the value exists and 
 # is non-NULL
-sub CheckFormField (\%$;\@) {
-    my ($formRef,                # a reference to the form to check (a hash)
+sub CheckFormField ($$;\@) {
+    my ($cgi,                    # a CGI object
         $fieldname,              # the fieldname to check
         $legalsRef               # (optional) ref to a list of legal values 
        ) = @_;
 
-    if ( !defined $formRef->{$fieldname} ||
-         trim($formRef->{$fieldname}) eq "" ||
-         (defined($legalsRef) && 
-          lsearch($legalsRef, $formRef->{$fieldname})<0) ){
-
+    if (!defined $cgi->param($fieldname)
+        || trim($cgi->param($fieldname)) eq ""
+        || (defined($legalsRef)
+            && lsearch($legalsRef, $cgi->param($fieldname))<0))
+    {
         SendSQL("SELECT description FROM fielddefs WHERE name=" . SqlQuote($fieldname));
         my $result = FetchOneColumn();
         my $field;
@@ -112,35 +124,19 @@ sub CheckFormField (\%$;\@) {
             $field = $fieldname;
         }
         
-        ThrowCodeError("illegal_field", { field => $field }, "abort");
-      }
-}
-
-# check and see if a given field is defined, and abort if not
-sub CheckFormFieldDefined (\%$) {
-    my ($formRef,                # a reference to the form to check (a hash)
-        $fieldname,              # the fieldname to check
-       ) = @_;
-
-    if (!defined $formRef->{$fieldname}) {
-        ThrowCodeError("undefined_field", { field => $fieldname });
+        ThrowCodeError("illegal_field", { field => $field });
     }
 }
 
-sub BugAliasToID {
-    # Queries the database for the bug with a given alias, and returns
-    # the ID of the bug if it exists or the undefined value if it doesn't.
-    
-    my ($alias) = @_;
-    
-    return undef unless Param("usebugaliases");
-    
-    PushGlobalSQLState();
-    SendSQL("SELECT bug_id FROM bugs WHERE alias = " . SqlQuote($alias));
-    my $id = FetchOneColumn();
-    PopGlobalSQLState();
-    
-    return $id;
+# check and see if a given field is defined, and abort if not
+sub CheckFormFieldDefined ($$) {
+    my ($cgi,                    # a CGI object
+        $fieldname,              # the fieldname to check
+       ) = @_;
+
+    if (!defined $cgi->param($fieldname)) {
+        ThrowCodeError("undefined_field", { field => $fieldname });
+    }
 }
 
 sub ValidateBugID {
@@ -157,7 +153,7 @@ sub ValidateBugID {
     # If the ID isn't a number, it might be an alias, so try to convert it.
     my $alias = $id;
     if (!detaint_natural($id)) {
-        $id = BugAliasToID($alias);
+        $id = bug_alias_to_id($alias);
         $id || ThrowUserError("invalid_bug_id_or_alias",
                               {'bug_id' => $alias,
                                'field'  => $field });
@@ -175,7 +171,7 @@ sub ValidateBugID {
 
     return if (defined $field && ($field eq "dependson" || $field eq "blocked"));
     
-    return if CanSeeBug($id, $::userid);
+    return if Bugzilla->user->can_see_bug($id);
 
     # The user did not pass any of the authorization tests, which means they
     # are not authorized to see the bug.  Display an error and stop execution.
@@ -186,27 +182,6 @@ sub ValidateBugID {
     } else {
         ThrowUserError("bug_access_query", {'bug_id' => $id});
     }
-}
-
-sub ValidateComment {
-    # Make sure a comment is not too large (greater than 64K).
-    
-    my ($comment) = @_;
-    
-    if (defined($comment) && length($comment) > 65535) {
-        ThrowUserError("comment_too_long");
-    }
-}
-
-sub PasswordForLogin {
-    my ($login) = (@_);
-    SendSQL("select cryptpassword from profiles where login_name = " .
-            SqlQuote($login));
-    my $result = FetchOneColumn();
-    if (!defined $result) {
-        $result = "";
-    }
-    return $result;
 }
 
 sub CheckEmailSyntax {
@@ -226,7 +201,7 @@ sub MailPassword {
                              "login" => $login,
                              "password" => $password});
 
-    Bugzilla::BugMail::MessageToMTA($msg, $login . Param('emailsuffix'));
+    Bugzilla::BugMail::MessageToMTA($msg);
 }
 
 sub PutHeader {
@@ -242,43 +217,6 @@ sub PutFooter {
       || ThrowTemplateError($::template->error());
 }
 
-sub CheckIfVotedConfirmed {
-    my ($id, $who) = (@_);
-    PushGlobalSQLState();
-    SendSQL("SELECT bugs.votes, bugs.bug_status, products.votestoconfirm, " .
-            "       bugs.everconfirmed " .
-            "FROM bugs, products " .
-            "WHERE bugs.bug_id = $id AND products.id = bugs.product_id");
-    my ($votes, $status, $votestoconfirm, $everconfirmed) = (FetchSQLData());
-    my $ret = 0;
-    if ($votes >= $votestoconfirm && $status eq $::unconfirmedstate) {
-        SendSQL("UPDATE bugs SET bug_status = 'NEW', everconfirmed = 1 " .
-                "WHERE bug_id = $id");
-        my $fieldid = GetFieldID("bug_status");
-        SendSQL("INSERT INTO bugs_activity " .
-                "(bug_id,who,bug_when,fieldid,removed,added) VALUES " .
-                "($id,$who,now(),$fieldid,'$::unconfirmedstate','NEW')");
-        if (!$everconfirmed) {
-            $fieldid = GetFieldID("everconfirmed");
-            SendSQL("INSERT INTO bugs_activity " .
-                    "(bug_id,who,bug_when,fieldid,removed,added) VALUES " .
-                    "($id,$who,now(),$fieldid,'0','1')");
-        }
-        
-        AppendComment($id, DBID_to_name($who),
-                      "*** This bug has been confirmed by popular vote. ***", 0);
-                      
-        $vars->{'type'} = "votes";
-        $vars->{'id'} = $id;
-        $vars->{'mailrecipients'} = { 'changer' => $who };
-        
-        $template->process("bug/process/results.html.tmpl", $vars)
-          || ThrowTemplateError($template->error());
-        $ret = 1;
-    }
-    PopGlobalSQLState();
-    return $ret;
-}
 sub LogActivityEntry {
     my ($i,$col,$removed,$added,$whoid,$timestamp) = @_;
     # in the case of CCs, deps, and keywords, there's a possibility that someone
@@ -287,16 +225,16 @@ sub LogActivityEntry {
     # into multiple entries if it's too long.
     while ($removed || $added) {
         my ($removestr, $addstr) = ($removed, $added);
-        if (length($removestr) > 254) {
-            my $commaposition = FindWrapPoint($removed, 254);
+        if (length($removestr) > MAX_LINE_LENGTH) {
+            my $commaposition = find_wrap_point($removed, MAX_LINE_LENGTH);
             $removestr = substr($removed,0,$commaposition);
             $removed = substr($removed,$commaposition);
             $removed =~ s/^[,\s]+//; # remove any comma or space
         } else {
             $removed = ""; # no more entries
         }
-        if (length($addstr) > 254) {
-            my $commaposition = FindWrapPoint($added, 254);
+        if (length($addstr) > MAX_LINE_LENGTH) {
+            my $commaposition = find_wrap_point($added, MAX_LINE_LENGTH);
             $addstr = substr($added,0,$commaposition);
             $added = substr($added,$commaposition);
             $added =~ s/^[,\s]+//; # remove any comma or space
@@ -315,32 +253,40 @@ sub LogActivityEntry {
 sub GetBugActivity {
     my ($id, $starttime) = (@_);
     my $datepart = "";
+    my $dbh = Bugzilla->dbh;
 
     die "Invalid id: $id" unless $id=~/^\s*\d+\s*$/;
 
     if (defined $starttime) {
-        $datepart = "and bugs_activity.bug_when > " . SqlQuote($starttime);
+        $datepart = "AND bugs_activity.bug_when > " . SqlQuote($starttime);
     }
     my $suppjoins = "";
     my $suppwhere = "";
     if (Param("insidergroup") && !UserInGroup(Param('insidergroup'))) {
         $suppjoins = "LEFT JOIN attachments 
                    ON attachments.attach_id = bugs_activity.attach_id";
-        $suppwhere = "AND NOT(COALESCE(attachments.isprivate,0))"; 
+        $suppwhere = "AND COALESCE(attachments.isprivate, 0) = 0";
     }
     my $query = "
-        SELECT IFNULL(fielddefs.description, bugs_activity.fieldid),
-                fielddefs.name,
-                bugs_activity.attach_id,
-                DATE_FORMAT(bugs_activity.bug_when,'%Y.%m.%d %H:%i:%s'),
-                bugs_activity.removed, bugs_activity.added,
-                profiles.login_name
-        FROM bugs_activity $suppjoins LEFT JOIN fielddefs ON 
-                                     bugs_activity.fieldid = fielddefs.fieldid,
-             profiles
-        WHERE bugs_activity.bug_id = $id $datepart
-              AND profiles.userid = bugs_activity.who $suppwhere
-        ORDER BY bugs_activity.bug_when";
+        SELECT COALESCE(fielddefs.description, " 
+               # This is a hack - PostgreSQL requires both COALESCE
+               # arguments to be of the same type, and this is the only
+               # way supported by both MySQL 3 and PostgreSQL to convert
+               # an integer to a string. MySQL 4 supports CAST.
+               . $dbh->sql_string_concat('bugs_activity.fieldid', q{''}) .
+               "), fielddefs.name, bugs_activity.attach_id, " .
+        $dbh->sql_date_format('bugs_activity.bug_when', '%Y.%m.%d %H:%i:%s') .
+            ", bugs_activity.removed, bugs_activity.added, profiles.login_name
+          FROM bugs_activity
+               $suppjoins
+     LEFT JOIN fielddefs
+            ON bugs_activity.fieldid = fielddefs.fieldid
+    INNER JOIN profiles
+            ON profiles.userid = bugs_activity.who
+         WHERE bugs_activity.bug_id = $id
+               $datepart
+               $suppwhere
+      ORDER BY bugs_activity.bug_when";
 
     SendSQL($query);
     
@@ -358,7 +304,8 @@ sub GetBugActivity {
         # check if the user should see this field's activity
         if ($fieldname eq 'remaining_time' ||
             $fieldname eq 'estimated_time' ||
-            $fieldname eq 'work_time') {
+            $fieldname eq 'work_time' ||
+            $fieldname eq 'deadline') {
 
             if (!UserInGroup(Param('timetrackinggroup'))) {
                 $activity_visible = 0;
@@ -391,7 +338,7 @@ sub GetBugActivity {
                 $operation = {};
                 $changes = [];
             }  
-        
+            
             $operation->{'who'} = $who;
             $operation->{'when'} = $when;            
         
@@ -419,23 +366,7 @@ use Bugzilla;
 # XXX - mod_perl - reset this between runs
 $::cgi = Bugzilla->cgi;
 
-# Set up stuff for compatibility with the old CGI.pl code
-# This code will be removed as soon as possible, in favour of
-# using the CGI.pm stuff directly
-
-# XXX - mod_perl - reset these between runs
-
-foreach my $name ($::cgi->param()) {
-    my @val = $::cgi->param($name);
-    $::FORM{$name} = join('', @val);
-    $::MFORM{$name} = \@val;
-}
-
 $::buffer = $::cgi->query_string();
-
-foreach my $name ($::cgi->cookie()) {
-    $::COOKIE{$name} = $::cgi->cookie($name);
-}
 
 # This could be needed in any CGI, so we set it here.
 $vars->{'help'} = $::cgi->param('help') ? 1 : 0;

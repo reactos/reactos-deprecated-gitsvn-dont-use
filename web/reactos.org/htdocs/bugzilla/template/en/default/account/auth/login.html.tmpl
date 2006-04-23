@@ -22,22 +22,21 @@
 
 [%# INTERFACE:
   # target: string. URL to go to after login.
-  # form: hash; the form values which need to be submitted to the target script
-  # mform: hash; the form values with multiple values which need to be
-  #   submitted to the target script
+  # has_db: true if DB is one of the available authentication mechanisms
   #%]
 
 [% PROCESS global/variables.none.tmpl %]
 
 [% PROCESS global/header.html.tmpl
-  title = "Login"
+  title = "Log in to $terms.Bugzilla",
+  onload = "document.forms['login'].Bugzilla_login.focus()"
 %]
 
 <p>
   I need a legitimate login and password to continue.
 </p>
 
-<form action="[% target FILTER html %]" method="POST">
+<form name="login" action="[% target FILTER html %]" method="POST">
   <table>
     <tr>
       <td align="right">
@@ -88,11 +87,11 @@
   [% PROCESS "global/hidden-fields.html.tmpl"
      exclude="^Bugzilla_(login|password|restrictlogin)$" %]
 
-  <input type="submit" name="GoAheadAndLogIn" value="Login">
+  <input type="submit" name="GoAheadAndLogIn" value="Log in">
   
   <p>
     (Note: you should make sure cookies are enabled for this site. 
-    Otherwise, you will frequently be required to re-login.)
+    Otherwise, you will be required to log in frequently.)
   </p>
 </form>
 
@@ -101,23 +100,33 @@
   #%]
 
 [% IF caneditaccount %]
-  <hr>
 
   [% IF Param("createemailregexp") %]
+    <hr>
+
     <p>
       If you don't have a [% terms.Bugzilla %] account, you can
       <a href="createaccount.cgi">create a new account</a>.
     </p>
   [% END %]
 
-  <form method="get" action="token.cgi">
-    <input type="hidden" name="a" value="reqpw">
-    If you have an account, but have forgotten your password,
-    enter your login name below and submit a request
-    to change your password.<br>
-    <input size="35" name="loginname">
-    <input type="submit" value="Submit Request">
-  </form>
+  [%# For now, password change requests only apply to the DB
+    # verification method #%]
+
+  [% IF has_db != 0 %]
+    <hr>
+
+    <a name="forgot"></a>
+    <form method="get" action="token.cgi">
+      <input type="hidden" name="a" value="reqpw">
+      If you have an account, but have forgotten your password,
+      enter your login name below and submit a request
+      to change your password.<br>
+      <input size="35" name="loginname">
+      <input type="submit" value="Submit Request">
+    </form>
+
+  [% END %]
 
   <hr>
 [% END %]

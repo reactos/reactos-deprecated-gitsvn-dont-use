@@ -21,6 +21,8 @@
   #
   # Contributor(s): Gervase Markham <gerv@gerv.net>
   #                 Vaskin Kissoyan <vkissoyan@yahoo.com>
+  #                 Vitaly Harisov <vitaly@rathedg.com>
+  #                 Svetlana Harisova <light@rathedg.com>
   #%]
 
 [%# INTERFACE:
@@ -29,15 +31,14 @@
   # h1: string. Main page header.
   # h2: string. Page subheader.
   # h3: string. Right-aligned subheader.
-  # bgcolor: string. the page's background color ("#rrggbb").
-  # bodyattrs: any extra attributes for the <body> tag
   # bodyclasses: array of extra CSS classes for the <body>
   # onload: string. JavaScript code to run when the page finishes loading.
   # javascript: string. Javascript to go in the header.
-  # javascript_urls: list. List of URLs to Javascript
+  # javascript_urls: list. List of URLs to Javascript.
   # style: string. CSS style.
   # style_urls: list. List of URLs to CSS style sheets.
   # message: string. A message to display to the user. May contain HTML.
+  # atomlink: Atom link url, May contain HTML
   #%]
 
 [% IF message %]
@@ -47,9 +48,7 @@
 [% DEFAULT
   h2 = ""
   h3 = ""
-  bgcolor = "#ffffff"
   onload = ""
-  bodyattrs = ""
 %]
 
 [%# We should be able to set the default value of the h1 variable
@@ -61,7 +60,8 @@
   # set h1's default value here only if it is undefined. %]
 [% IF !h1.defined %][% h1 = title %][% END %]
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                      "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
   <head>
     <title>ReactOS Homepage - [% title FILTER html %]</title>
@@ -71,14 +71,14 @@
     [% PROCESS "global/site-navigation.html.tmpl" %]
 
     [% IF javascript %]
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
         [% javascript %]
       </script>
     [% END %]
     
     [% IF javascript_urls %]
       [% FOREACH javascript_url = javascript_urls %]
-        <script src="[% javascript_url FILTER html %]" type="text/javascript" language="JavaScript"></script>
+        <script src="[% javascript_url FILTER html %]" type="text/javascript"></script>
       [% END %]
     [% END %]
 
@@ -95,24 +95,32 @@
 
     [% IF style_urls %]
       [% FOREACH style_url = style_urls %]
-        <link href="[% style_url %]" rel="stylesheet" type="text/css">
+        <link href="[% style_url FILTER html %]" rel="stylesheet" type="text/css">
+        [% IF style_url.match('^skins/standard/') %]
+          <link href="[% style_url.replace('^skins/standard/', 'skins/custom/')
+                         FILTER html %]" rel="stylesheet" type="text/css">
+        [% END %]
       [% END %]
+    [% END %]
+
+    [%# this puts the live bookmark up on firefox for the Atom feed %]
+    [% IF atomlink %]
+       <link rel="alternate" 
+             type="application/atom+xml" title="Atom feed" 
+             href="[% atomlink FILTER html %]" />
     [% END %]
 
   </head>
 
 [%# Migration note: contents of the old Param 'bodyhtml' go in the body tag,
-  # but set the bgcolor and onload attributes in the DEFAULT directive above.
+  # but set the onload attribute in the DEFAULT directive above.
   #%]
 
-  <body bgcolor="[% bgcolor %]" onload="[% onload %]"
-    [% IF bodyclasses %]
-      class="
-        [% FOREACH class = bodyclasses %]
-          [% ' ' %][% class FILTER css_class_quote %]
-        [% END %]"
-    [% END %]
-  [% bodyattrs %]>
+  <body onload="[% onload %]"
+        class="[% Param('urlbase').replace('^https?://','').replace('/$','').replace('[-~@:/.]+','-') %]
+               [% FOREACH class = bodyclasses %]
+                 [% ' ' %][% class FILTER css_class_quote %]
+               [% END %]">
 
 <div id="top">
   <div id="topMenu"> 
@@ -206,29 +214,20 @@
 
 [% INCLUDE global/banner.html.tmpl %]
 
-[% IF h1 || h2 %]
-    <table border="0" cellspacing="0" width="100%">
-      <tr>
-        <td valign="top" align="left">
-          <table border="0" cellpadding="0" cellspacing="2">
-            <tr>
-              <td valign="top" align="left" nowrap="nowrap">
-                <font size="+1"><b>[% h1 %]</b></font>
-              </td>
-            </tr>
-          </table>
-        </td>
-        <td valign="middle" align="left">&nbsp;</td>
-        <td valign="middle" align="left">[% h2 %]</td>
-        [% IF h3 %]
-          <td valign="middle" align="right">[% h3 %]</td>
-        [% END %]
-      </tr>
-    </table>
-[% END %]
+<div id="header">
+  [% IF h1 %]
+    <h1>[% h1 %]</h1>
+  [% END %]
+
+  [% IF h2 %]
+    <h2>[% h2 %]</h2>
+  [% END %]
+
+  [% IF h3 %]
+    <h3>[% h3 %]</h3>
+  [% END %]
+</div>
 
 [% IF message %]
-  <table width="100%" cellspacing="0" cellpadding="5" border="1"><tr><td>
-    <font color="green">[% message %]</font>
-  </td></tr></table>
+<div id="message">[% message %]</div>
 [% END %]

@@ -20,6 +20,7 @@
 #
 # Contributor(s): Terry Weissman <terry@mozilla.org>
 #                 Matthew Tuck <matty@chariot.net.au>
+#                 Max Kanat-Alexander <mkanat@bugzilla.org>
 #                 Marc Schumann <wurblzap@gmail.com>
 
 use strict;
@@ -28,8 +29,7 @@ use lib qw(.);
 
 require "CGI.pl";
 use Bugzilla::Constants;
-
-use vars qw($unconfirmedstate);
+use Bugzilla::User;
 
 ###########################################################################
 # General subs
@@ -84,7 +84,9 @@ my $dbh = Bugzilla->dbh;
 # prevents users with a legitimate interest in Bugzilla integrity
 # from accessing the script).
 UserInGroup("editbugs")
-  || ThrowUserError("sanity_check_access_denied");
+  || ThrowUserError("auth_failure", {group  => "editbugs",
+                                     action => "run",
+                                     object => "sanity_check"});
 
 print $cgi->header();
 
@@ -98,18 +100,19 @@ PutHeader("Bugzilla Sanity Check");
 
 if (defined $cgi->param('rebuildvotecache')) {
     Status("OK, now rebuilding vote cache.");
-    SendSQL("LOCK TABLES bugs WRITE, votes READ");
-    SendSQL("UPDATE bugs SET votes = 0, delta_ts = delta_ts");
-    SendSQL("SELECT bug_id, SUM(vote_count) FROM votes GROUP BY bug_id");
+    $dbh->bz_lock_tables('bugs WRITE', 'votes READ');
+    SendSQL("UPDATE bugs SET votes = 0");
+    SendSQL("SELECT bug_id, SUM(vote_count) FROM votes " .
+            $dbh->sql_group_by('bug_id'));
     my %votes;
     while (@row = FetchSQLData()) {
         my ($id, $v) = (@row);
         $votes{$id} = $v;
     }
     foreach my $id (keys %votes) {
-        SendSQL("UPDATE bugs SET votes = $votes{$id}, delta_ts = delta_ts WHERE bug_id = $id");
+        SendSQL("UPDATE bugs SET votes = $votes{$id} WHERE bug_id = $id");
     }
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
     Status("Vote cache has been rebuilt.");
 }
 
@@ -120,7 +123,7 @@ if (defined $cgi->param('rebuildvotecache')) {
 if (defined $cgi->param('rederivegroups')) {
     Status("OK, All users' inherited permissions will be rechecked when " .
            "they next access Bugzilla.");
-    SendSQL("UPDATE groups SET last_changed = NOW() LIMIT 1");
+    SendSQL("UPDATE groups SET last_changed = NOW() " . $dbh->sql_limit(1));
 }
 
 # rederivegroupsnow is REALLY only for testing.
@@ -146,16 +149,17 @@ if (defined $cgi->param('cleangroupsnow')) {
     # to get the groups up to date.
     # If any page starts taking longer than one hour to load, this interval
     # should be revised.
-    SendSQL("SELECT MAX(last_changed) FROM groups WHERE last_changed < NOW() - INTERVAL 1 HOUR");
+    SendSQL("SELECT MAX(last_changed) FROM groups WHERE last_changed < NOW() - " . 
+            $dbh->sql_interval(1, 'HOUR'));
     (my $cutoff) = FetchSQLData();
     Status("Cutoff is $cutoff");
     SendSQL("SELECT COUNT(*) FROM user_group_map");
     (my $before) = FetchSQLData();
-    SendSQL("LOCK TABLES user_group_map WRITE, profiles WRITE");
+    $dbh->bz_lock_tables('user_group_map WRITE', 'profiles WRITE');
     SendSQL("SELECT userid FROM profiles " .
             "WHERE refreshed_when > 0 " .
-            "AND refreshed_when < " . SqlQuote($cutoff) .
-            " LIMIT 1000");
+            "AND refreshed_when < " . SqlQuote($cutoff) . " " .
+            $dbh->sql_limit(1000));
     my $count = 0;
     while ((my $id) = FetchSQLData()) {
         $count++;
@@ -165,12 +169,16 @@ if (defined $cgi->param('cleangroupsnow')) {
         SendSQL("UPDATE profiles SET refreshed_when = 0 WHERE userid = $id");
         PopGlobalSQLState();
     }
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
     SendSQL("SELECT COUNT(*) FROM user_group_map");
     (my $after) = FetchSQLData();
     Status("Cleaned table for $count users " .
            "- reduced from $before records to $after records");
 }
+
+###########################################################################
+# Create missing group_control_map entries
+###########################################################################
 
 if (defined $cgi->param('createmissinggroupcontrolmapentries')) {
     Status(qq{OK, now creating <code>SHOWN</code> member control entries
@@ -212,7 +220,8 @@ if (defined $cgi->param('createmissinggroupcontrolmapentries')) {
                    ON bugs.product_id = gcm.product_id
                   AND    bgm.group_id = gcm.group_id
                 WHERE COALESCE(gcm.membercontrol, $na) = $na
-             GROUP BY bugs.product_id, bgm.group_id});
+          } . $dbh->sql_group_by('bugs.product_id, bgm.group_id',
+                                 'gcm.membercontrol, groups.name, products.name'));
 
     foreach (@$invalid_combinations) {
         my ($product_id, $group_id, $currentmembercontrol,
@@ -237,12 +246,44 @@ if (defined $cgi->param('createmissinggroupcontrolmapentries')) {
     Status("Repaired $counter defective group control settings.");
 }
 
+###########################################################################
+# Fix missing creation date
+###########################################################################
+
+if (defined $cgi->param('repair_creation_date')) {
+    Status("OK, now fixing missing bug creation dates");
+
+    my $bug_ids = $dbh->selectcol_arrayref('SELECT bug_id FROM bugs
+                                            WHERE creation_ts IS NULL');
+
+    my $sth_UpdateDate = $dbh->prepare('UPDATE bugs SET creation_ts = ?
+                                        WHERE bug_id = ?');
+
+    # All bugs have an entry in the 'longdescs' table when they are created,
+    # even if 'commentoncreate' is turned off.
+    my $sth_getDate = $dbh->prepare('SELECT MIN(bug_when) FROM longdescs
+                                     WHERE bug_id = ?');
+
+    foreach my $bugid (@$bug_ids) {
+        $sth_getDate->execute($bugid);
+        my $date = $sth_getDate->fetchrow_array;
+        $sth_UpdateDate->execute($date, $bugid);
+    }
+    Status(scalar(@$bug_ids) . " bugs have been fixed.");
+}
+
+###########################################################################
+# Send unsent mail
+###########################################################################
+
 if (defined $cgi->param('rescanallBugMail')) {
     require Bugzilla::BugMail;
 
     Status("OK, now attempting to send unsent mail");
-    SendSQL("SELECT bug_id FROM bugs WHERE lastdiffed < delta_ts AND 
-             delta_ts < date_sub(now(), INTERVAL 30 minute) ORDER BY bug_id");
+    SendSQL("SELECT bug_id FROM bugs 
+              WHERE (lastdiffed IS NULL OR lastdiffed < delta_ts) AND
+             delta_ts < now() - " . $dbh->sql_interval(30, 'MINUTE') .
+            " ORDER BY bug_id");
     my @list;
     while (MoreSQLData()) {
         push (@list, FetchOneColumn());
@@ -262,30 +303,43 @@ if (defined $cgi->param('rescanallBugMail')) {
     exit;
 }
 
-print "OK, now running sanity checks.<p>\n";
-
 ###########################################################################
-# Check enumeration values
+# Remove all references to deleted bugs
 ###########################################################################
 
-# This one goes first, because if this is wrong, then the below tests
-# will probably fail too
+if (defined $cgi->param('remove_invalid_references')) {
+    Status("OK, now removing all references to deleted bugs.");
 
-# This isn't extensible. Thats OK; we're not adding any more enum fields
-Status("Checking for invalid enumeration values");
-foreach my $field (("bug_severity", "bug_status", "op_sys",
-                    "priority", "rep_platform", "resolution")) {
-    # undefined enum values in mysql are an empty string which equals 0
-    SendSQL("SELECT bug_id FROM bugs WHERE $field=0 ORDER BY bug_id");
-    my @invalid;
-    while (MoreSQLData()) {
-        push (@invalid, FetchOneColumn());
+    $dbh->bz_lock_tables('attachments WRITE', 'bug_group_map WRITE',
+                         'bugs_activity WRITE', 'cc WRITE',
+                         'dependencies WRITE', 'duplicates WRITE',
+                         'flags WRITE', 'keywords WRITE',
+                         'longdescs WRITE', 'votes WRITE', 'bugs READ');
+
+    foreach my $pair ('attachments/', 'bug_group_map/', 'bugs_activity/', 'cc/',
+                      'dependencies/blocked', 'dependencies/dependson',
+                      'duplicates/dupe', 'duplicates/dupe_of',
+                      'flags/', 'keywords/', 'longdescs/', 'votes/') {
+
+        my ($table, $field) = split('/', $pair);
+        $field ||= "bug_id";
+
+        my $bug_ids =
+          $dbh->selectcol_arrayref("SELECT $table.$field FROM $table
+                                    LEFT JOIN bugs ON $table.$field = bugs.bug_id
+                                    WHERE bugs.bug_id IS NULL");
+
+        if (scalar(@$bug_ids)) {
+            $dbh->do("DELETE FROM $table WHERE $field IN (" . join(',', @$bug_ids) . ")");
+        }
     }
-    if (@invalid) {
-        Alert("Bug(s) found with invalid $field value: ".
-              BugListLinks(@invalid));
-    }
+
+    $dbh->bz_unlock_tables();
+    Status("All references to deleted bugs have been removed.");
 }
+
+
+print "OK, now running sanity checks.<p>\n";
 
 ###########################################################################
 # Perform referential (cross) checks
@@ -330,6 +384,7 @@ sub CrossCheck {
                 "WHERE  $table.$field IS NULL " .
                 "  AND  $refertable.$referfield IS NOT NULL");
 
+        my $has_bad_references = 0;
         while (MoreSQLData()) {
             my ($value, $key) = FetchSQLData();
             if (!$exceptions{$value}) {
@@ -343,10 +398,18 @@ sub CrossCheck {
                     }
                 }
                 Alert($alert);
+                $has_bad_references = 1;
             }
+        }
+        # References to non existent bugs can be safely removed, bug 288461
+        if ($table eq 'bugs' && $has_bad_references) {
+            print qq{<a href="sanitycheck.cgi?remove_invalid_references=1">Remove invalid references to non existent bugs.</a><p>\n};
         }
     }
 }
+
+CrossCheck('classifications', 'id',
+           ['products', 'classification_id']);
 
 CrossCheck("keyworddefs", "id",
            ["keywords", "keywordid"]);
@@ -383,9 +446,11 @@ CrossCheck("groups", "id",
 CrossCheck("profiles", "userid",
            ['profiles_activity', 'userid'],
            ['profiles_activity', 'who'],
+           ['email_setting', 'user_id'],
+           ['profile_setting', 'user_id'],
            ["bugs", "reporter", "bug_id"],
            ["bugs", "assigned_to", "bug_id"],
-           ["bugs", "qa_contact", "bug_id", ["0"]],
+           ["bugs", "qa_contact", "bug_id"],
            ["attachments", "submitter_id", "bug_id"],
            ['flags', 'setter_id', 'bug_id'],
            ['flags', 'requestee_id', 'bug_id'],
@@ -399,10 +464,11 @@ CrossCheck("profiles", "userid",
            ['series', 'creator', 'series_id', ['0']],
            ["watch", "watcher"],
            ["watch", "watched"],
+           ['whine_events', 'owner_userid'],
            ["tokens", "userid"],
            ["user_group_map", "user_id"],
            ["components", "initialowner", "name"],
-           ["components", "initialqacontact", "name", ["0"]]);
+           ["components", "initialqacontact", "name"]);
 
 CrossCheck("products", "id",
            ["bugs", "product_id", "bug_id"],
@@ -413,11 +479,34 @@ CrossCheck("products", "id",
            ["flaginclusions", "product_id", "type_id"],
            ["flagexclusions", "product_id", "type_id"]);
 
+# Check the former enum types -mkanat@bugzilla.org
+CrossCheck("bug_status", "value",
+            ["bugs", "bug_status", "bug_id"]);
+
+CrossCheck("resolution", "value",
+            ["bugs", "resolution", "bug_id"]);
+
+CrossCheck("bug_severity", "value",
+            ["bugs", "bug_severity", "bug_id"]);
+
+CrossCheck("op_sys", "value",
+            ["bugs", "op_sys", "bug_id"]);
+
+CrossCheck("priority", "value",
+            ["bugs", "priority", "bug_id"]);
+
+CrossCheck("rep_platform", "value",
+            ["bugs", "rep_platform", "bug_id"]);
+
 CrossCheck('series', 'series_id',
            ['series_data', 'series_id']);
 
 CrossCheck('series_categories', 'id',
            ['series', 'category']);
+
+CrossCheck('whine_events', 'id',
+           ['whine_queries', 'eventid'],
+           ['whine_schedules', 'eventid']);
 
 ###########################################################################
 # Perform double field referential (cross) checks
@@ -538,7 +627,8 @@ while (@row = FetchSQLData()) {
 }
 
 Status("Checking cached vote counts");
-SendSQL("SELECT bug_id, SUM(vote_count) FROM votes GROUP BY bug_id");
+SendSQL("SELECT bug_id, SUM(vote_count) FROM votes " .
+        $dbh->sql_group_by('bug_id'));
 
 while (@row = FetchSQLData()) {
     my ($id, $v) = (@row);
@@ -596,13 +686,16 @@ Status("Checking cached keywords");
 my %realk;
 
 if (defined $cgi->param('rebuildkeywordcache')) {
-    SendSQL("LOCK TABLES bugs write, keywords read, keyworddefs read");
+    $dbh->bz_lock_tables('bugs write', 'keywords read',
+                                  'keyworddefs read');
 }
 
 SendSQL("SELECT keywords.bug_id, keyworddefs.name " .
-        "FROM keywords, keyworddefs, bugs " .
-        "WHERE keyworddefs.id = keywords.keywordid " .
-        "  AND keywords.bug_id = bugs.bug_id " .
+        "FROM keywords " .
+        "INNER JOIN keyworddefs " .
+        "   ON keyworddefs.id = keywords.keywordid " .
+        "INNER JOIN bugs " .
+        "   ON keywords.bug_id = bugs.bug_id " .
         "ORDER BY keywords.bug_id, keyworddefs.name");
 
 my $lastb = 0;
@@ -645,8 +738,7 @@ if (@badbugs) {
             if (exists($realk{$b})) {
                 $k = $realk{$b};
             }
-            SendSQL("UPDATE bugs SET delta_ts = delta_ts, keywords = " .
-                    SqlQuote($k) .
+            SendSQL("UPDATE bugs SET keywords = " . SqlQuote($k) .
                     " WHERE bug_id = $b");
         }
         Status("Keyword cache fixed.");
@@ -656,7 +748,7 @@ if (@badbugs) {
 }
 
 if (defined $cgi->param('rebuildkeywordcache')) {
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
 }
 
 ###########################################################################
@@ -687,11 +779,15 @@ sub BugCheck ($$;$$) {
     }
 }
 
+Status("Checking for bugs with no creation date (which makes them invisible)");
+
+BugCheck("bugs WHERE creation_ts IS NULL", "Bugs with no creation date",
+         "repair_creation_date", "Repair missing creation date for these bugs");
+
 Status("Checking resolution/duplicates");
 
-BugCheck("bugs, duplicates WHERE " .
-         "bugs.resolution != 'DUPLICATE' AND " .
-         "bugs.bug_id = duplicates.dupe",
+BugCheck("bugs INNER JOIN duplicates ON bugs.bug_id = duplicates.dupe " .
+         "WHERE bugs.resolution != 'DUPLICATE'",
          "Bug(s) found on duplicates table that are not marked duplicate");
 
 BugCheck("bugs LEFT JOIN duplicates ON bugs.bug_id = duplicates.dupe WHERE " .
@@ -711,23 +807,19 @@ BugCheck("bugs WHERE bug_status NOT IN ($open_states) AND resolution = ''",
 
 Status("Checking statuses/everconfirmed");
 
-my $sqlunconfirmed = SqlQuote($unconfirmedstate);                            
-
-BugCheck("bugs WHERE bug_status = $sqlunconfirmed AND everconfirmed = 1",
+BugCheck("bugs WHERE bug_status = 'UNCONFIRMED' AND everconfirmed = 1",
          "Bugs that are UNCONFIRMED but have everconfirmed set");
 # The below list of resolutions is hardcoded because we don't know if future
 # resolutions will be confirmed, unconfirmed or maybeconfirmed.  I suspect
-# they will be maybeconfirmed, eg ASLEEP and REMIND.  This hardcoding should
+# they will be maybeconfirmed, e.g. ASLEEP and REMIND.  This hardcoding should
 # disappear when we have customised statuses.
 BugCheck("bugs WHERE bug_status IN ('NEW', 'ASSIGNED', 'REOPENED') AND everconfirmed = 0",
          "Bugs with confirmed status but don't have everconfirmed set"); 
 
 Status("Checking votes/everconfirmed");
 
-BugCheck("bugs, products WHERE " .
-         "bugs.product_id = products.id AND " .
-         "everconfirmed = 0 AND " .
-         "votestoconfirm <= votes",
+BugCheck("bugs INNER JOIN products ON bugs.product_id = products.id " .
+         "WHERE everconfirmed = 0 AND votestoconfirm <= votes",
          "Bugs that have enough votes to be confirmed but haven't been");
 
 ###########################################################################
@@ -773,9 +865,11 @@ if ($c) {
 
 Status("Checking for bugs with groups violating their product's group controls");
 BugCheck("bugs
-         INNER JOIN bug_group_map ON bugs.bug_id = bug_group_map.bug_id
-         LEFT JOIN group_control_map ON bugs.product_id = group_control_map.product_id
-                                     AND bug_group_map.group_id = group_control_map.group_id
+         INNER JOIN bug_group_map
+            ON bugs.bug_id = bug_group_map.bug_id
+          LEFT JOIN group_control_map
+            ON bugs.product_id = group_control_map.product_id
+           AND bug_group_map.group_id = group_control_map.group_id
          WHERE ((group_control_map.membercontrol = " . CONTROLMAPNA . ")
          OR (group_control_map.membercontrol IS NULL))",
          'Have groups not permitted for their products',
@@ -784,13 +878,16 @@ BugCheck("bugs
           (set member control to <code>SHOWN</code>)');
 
 BugCheck("bugs
-         INNER JOIN group_control_map ON bugs.product_id = group_control_map.product_id
-         INNER JOIN groups ON group_control_map.group_id = groups.id
-         LEFT JOIN bug_group_map ON bugs.bug_id = bug_group_map.bug_id
-                                 AND group_control_map.group_id = bug_group_map.group_id
+         INNER JOIN group_control_map
+            ON bugs.product_id = group_control_map.product_id
+         INNER JOIN groups
+            ON group_control_map.group_id = groups.id
+          LEFT JOIN bug_group_map
+            ON bugs.bug_id = bug_group_map.bug_id
+           AND group_control_map.group_id = bug_group_map.group_id
          WHERE group_control_map.membercontrol = " . CONTROLMAPMANDATORY . "
-         AND bug_group_map.group_id IS NULL
-         AND groups.isactive != 0",
+           AND bug_group_map.group_id IS NULL
+           AND groups.isactive != 0",
          "Are missing groups required for their products");
 
 
@@ -803,9 +900,9 @@ Status("Checking for unsent mail");
 @badbugs = ();
 
 SendSQL("SELECT bug_id " .
-        "FROM bugs WHERE lastdiffed < delta_ts AND ".
-        "delta_ts < date_sub(now(), INTERVAL 30 minute) ".
-        "ORDER BY bug_id");
+        "FROM bugs WHERE (lastdiffed IS NULL OR lastdiffed < delta_ts) AND " .
+        "delta_ts < now() - " . $dbh->sql_interval(30, 'MINUTE') .
+        " ORDER BY bug_id");
 
 while (@row = FetchSQLData()) {
     my ($id) = (@row);

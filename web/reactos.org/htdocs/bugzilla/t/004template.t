@@ -36,7 +36,7 @@ use Support::Templates;
 # Bug 137589 - Disable command-line input of CGI.pm when testing
 use CGI qw(-no_debug);
 
-use File::Spec 0.82;
+use File::Spec;
 use Template;
 use Test::More tests => ( scalar(@referenced_files) * scalar(@languages)
                         + $num_actual_files * 2 );
@@ -94,6 +94,7 @@ foreach my $include_path (@include_paths) {
         FILTERS =>
         {
             html_linebreak => sub { return $_; },
+            no_break => sub { return $_; } ,
             js        => sub { return $_ } ,
             inactive => [ sub { return sub { return $_; } }, 1] ,
             closed => [ sub { return sub { return $_; } }, 1] ,
@@ -106,6 +107,7 @@ foreach my $include_path (@include_paths) {
             csv       => sub { return $_ } ,
             unitconvert => sub { return $_ },
             time      => sub { return $_ } ,
+            wrap_comment => sub { return $_ },
             none      => sub { return $_ } ,
             ics       => [ sub { return sub { return $_; } }, 1] ,
         },

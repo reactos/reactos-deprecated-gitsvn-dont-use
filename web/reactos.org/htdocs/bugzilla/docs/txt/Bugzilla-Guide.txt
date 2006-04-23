@@ -1,9 +1,9 @@
 
-The Bugzilla Guide - 2.18.3 Release
+The Bugzilla Guide - 2.20.1 Release
 
 The Bugzilla Team
 
-   2005-07-09
+   2006-02-20
 
    This is the documentation for Bugzilla, a bug-tracking system from
    mozilla.org. Bugzilla is an enterprise-class piece of software that tracks
@@ -74,6 +74,7 @@ The Bugzilla Team
         6.10. User Preferences
         6.11. Reports and Charts
         6.12. Flags
+        6.13. Whining
 
    A. The Bugzilla FAQ
    B. Troubleshooting
@@ -137,7 +138,7 @@ Chapter 1. About This Guide
 
 1.1. Copyright Information
 
-   This document is copyright (c) 2000-2005 by the various Bugzilla
+   This document is copyright (c) 2000-2006 by the various Bugzilla
    contributors who wrote it.
 
      Permission is granted to copy, distribute and/or modify this document
@@ -174,7 +175,7 @@ Chapter 1. About This Guide
 
 1.3. New Versions
 
-   This is the 2.18.3 version of The Bugzilla Guide. It is so named to match
+   This is the 2.20.1 version of The Bugzilla Guide. It is so named to match
    the current version of Bugzilla.
 
    The latest version of this guide can always be found at
@@ -300,9 +301,9 @@ Chapter 2. Installing Bugzilla
    installing Bugzilla (and at regular intervals thereafter :-).
 
    In outline, the installation proceeds as follows:
-    1. Install Perl (5.6.0 or above for non-Windows platforms; 5.8.1 for
+    1. Install Perl (5.6.1 or above for non-Windows platforms; 5.8.1 for
        Windows)
-    2. Install MySQL (3.23.41 or above)
+    2. Install a Database Engine
     3. Install a Webserver
     4. Install Bugzilla
     5. Install Perl modules
@@ -317,12 +318,18 @@ Chapter 2. Installing Bugzilla
 
    Any machine that doesn't have Perl on it is a sad machine indeed. If you
    don't have it and your OS doesn't provide official packages, visit
-   http://www.perl.com. Although Bugzilla runs with Perl 5.6.0, it's a good
-   idea to be using the latest stable version. As of this writing, that is Perl
-   5.8.3.
+   http://www.perl.com. Although Bugzilla runs with Perl 5.6.1, it's a good
+   idea to be using the latest stable version.
      _________________________________________________________________
 
-2.1.2. MySQL
+2.1.2. Database Engine
+
+   From Bugzilla 2.20, support is included for using both the MySQL and
+   PostgreSQL database servers. You only require one of these systems to make
+   use of Bugzilla.
+     _________________________________________________________________
+
+2.1.2.1. MySQL
 
    Installed Version Test: mysql -V
 
@@ -338,6 +345,19 @@ Chapter 2. Installing Bugzilla
    such as .rpm (Redhat Package), .deb (Debian Package), .exe (Windows
    Executable), or .msi (Microsoft Installer), make sure the MySQL server is
    started when the machine boots.
+     _________________________________________________________________
+
+2.1.2.2. PostgreSQL
+
+   Installed Version Test: psql -V
+
+   If you don't have it and your OS doesn't provide official packages, visit
+   http://www.postgresql.org/. You need PostgreSQL version 7.3.x or higher.
+
+   If you install from something other than a packaging/installation system,
+   such as .rpm (Redhat Package), .deb (Debian Package), .exe (Windows
+   Executable), or .msi (Microsoft Installer), make sure the PostgreSQL server
+   is started when the machine boots.
      _________________________________________________________________
 
 2.1.3. Web Server
@@ -378,11 +398,11 @@ Chapter 2. Installing Bugzilla
    Bugzilla's installation process is based on a script called checksetup.pl.
    The first thing it checks is whether you have appropriate versions of all
    the required Perl modules. The aim of this section is to pass this check.
-   When it passes, do not run it again, but proceed to Section 2.2.
+   When it passes, proceed to Section 2.2.
 
    At this point, you need to su to root. You should remain as root until the
-   end of the install. Then run:
-   bash# ./checksetup.pl
+   end of the install. To check you have the required modules, run:
+   bash# ./checksetup.pl --check-modules
 
    checksetup.pl will print out a list of the required and optional Perl
    modules, together with the versions (if any) installed on your machine. The
@@ -427,12 +447,15 @@ Chapter 2. Installing Bugzilla
     2. CGI (2.93)
     3. Data::Dumper (any)
     4. Date::Format (2.21)
-    5. DBI (1.36)
-    6. DBD::mysql (2.1010)
-    7. File::Spec (0.82)
-    8. File::Temp (any)
-    9. Template (2.08)
-   10. Text::Wrap (2001.0131)
+    5. DBI (1.38)
+    6. DBD::mysql (2.9003) if using MySQL
+    7. DBD::Pg (1.31) if using PostgreSQL
+    8. File::Spec (0.84)
+    9. File::Temp (any)
+   10. Template (2.08)
+   11. Text::Wrap (2001.0131)
+   12. Mail::Mailer (1.65)
+   13. Storable (any)
 
    Optional Perl modules:
 
@@ -526,11 +549,19 @@ Chapter 2. Installing Bugzilla
    Bugzilla is dependent on the availability of an e-mail system for its user
    authentication and for other tasks.
 
+   Note This is not entirely true. It is possible to completely disable email
+   sending, or to have Bugzilla store email messages in a file instead of
+   sending them. However, this is mainly intended for testing, as disabling or
+   diverting email on a production machine would mean that users could miss
+   important events (such as bug changes or the creation of new accouts).
+
+      For more information, see the "maildeliverymethod" parameter in Section 3.1.
+
    On Linux, any Sendmail-compatible MTA (Mail Transfer Agent) will suffice.
    Sendmail, Postfix, qmail and Exim are examples of common MTAs. Sendmail is
    the original Unix MTA, but the others are easier to configure, and therefore
    many people replace Sendmail with Postfix or Exim. They are drop-in
-   replacements, so that Bugzilla will not distinguish between them.
+   replacements, so Bugzilla will not distinguish between them.
 
    If you are using Sendmail, version 8.7 or higher is required. If you are
    using a Sendmail-compatible MTA, it must be congruent with at least version
@@ -557,14 +588,26 @@ Chapter 2. Installing Bugzilla
 
 2.2.1. localconfig
 
-   Once you run checksetup.pl with all the correct modules installed, it
-   displays a message about, and write out a file called, localconfig. This
-   file contains the default settings for a number of Bugzilla parameters.
+   You should now run checksetup.pl again, this time without the
+   --check-modules switch.
+   bash# ./checksetup.pl
+
+   This time, checksetup.pl should tell you that all the correct modules are
+   installed and will display a message about, and write out a file called,
+   localconfig. This file contains the default settings for a number of
+   Bugzilla parameters.
 
    Load this file in your editor. The only value you need to change is
    $db_pass, the password for the user you will create for your database. Pick
    a strong password (for simplicity, it should not contain single quote
    characters) and put it here.
+
+   You may need to change the value of webservergroup if your web server does
+   not run in the "apache" group. On Debian, for example, Apache runs in the
+   "www-data" group. If you are going to run Bugzilla on a machine where you do
+   not have root access (such as on a shared web hosting account), you will
+   need to leave webservergroup empty, ignoring the warnings that checksetup.pl
+   will subsequently display every time it in run.
 
    The other options in the localconfig file are documented by their
    accompanying comments. If you have a slightly non-standard MySQL setup, you
@@ -576,13 +619,19 @@ Chapter 2. Installing Bugzilla
    checksetup.pl, the changes will get picked up.
      _________________________________________________________________
 
-2.2.2. MySQL
+2.2.2. Database Server
+
+   This section deals with configuring your database server for use with
+   Bugzilla. Currently Section 2.2.2.1 and Section 2.2.2.2 are available.
+     _________________________________________________________________
+
+2.2.2.1. MySQL
 
    Caution MySQL's default configuration is very insecure. Section 4.2 has some
       good information for improving your installation's security.
      _________________________________________________________________
 
-2.2.2.1. Allow large attachments
+2.2.2.1.1. Allow large attachments
 
    By default, MySQL will only accept packets up to 64Kb in size. If you want
    to have attachments larger than this, you will need to modify your
@@ -602,9 +651,13 @@ Chapter 2. Installing Bugzilla
    1000 Kb) that controls the maximum allowable attachment size. Attachments
    larger than either the 'max_allowed_packet' or 'maxattachmentsize' value
    will not be accepted by Bugzilla.
+
+   Note This does not affect Big Files, attachments that are stored directly on
+   disk instead of in the database. Their maximum size is controlled using the
+      'maxlocalattachment' parameter.
      _________________________________________________________________
 
-2.2.2.2. Allow small words in full-text indexes
+2.2.2.1.2. Allow small words in full-text indexes
 
    By default, words must be at least four characters in length in order to be
    indexed by MySQL's full-text indexes. This causes a lot of Bugzilla specific
@@ -623,7 +676,7 @@ Chapter 2. Installing Bugzilla
    Note The ft_min_word_len parameter is only suported in MySQL v4 or higher.
      _________________________________________________________________
 
-2.2.2.3. Permit attachments table to grow beyond 4GB
+2.2.2.1.3. Permit attachments table to grow beyond 4GB
 
    By default, MySQL will limit the size of a table to 4GB. This limit is
    present even if the underlying filesystem has no such limit. To set a higher
@@ -631,14 +684,17 @@ Chapter 2. Installing Bugzilla
 
    Run the MySQL command-line client and enter:
   mysql> ALTER TABLE attachments
-          AVG_ROW_LENGTH=1000000, MAX_ROWS=20000;
+            AVG_ROW_LENGTH=1000000, MAX_ROWS=20000;
 
    The above command will change the limit to 20GB. Mysql will have to make a
    temporary copy of your entire table to do this. Ideally, you should do this
    when your attachments table is still small.
+
+   Note This does not affect Big Files, attachments that are stored directly on
+      disk instead of in the database.
      _________________________________________________________________
 
-2.2.2.4. Add a user to MySQL
+2.2.2.1.4. Add a user to MySQL
 
    You need to add a new MySQL user for Bugzilla to use. (It's not safe to have
    Bugzilla use the MySQL root account.) The following instructions assume the
@@ -655,19 +711,75 @@ Chapter 2. Installing Bugzilla
 
    If you are using MySQL 4.0 or newer, enter:
   mysql> GRANT SELECT, INSERT,
-         UPDATE, DELETE, INDEX, ALTER, CREATE, LOCK TABLES,
-         CREATE TEMPORARY TABLES, DROP, REFERENCES ON bugs.*
-         TO bugs@localhost IDENTIFIED BY '$db_pass';
-  mysql> FLUSH PRIVILEGES;
+           UPDATE, DELETE, INDEX, ALTER, CREATE, LOCK TABLES,
+           CREATE TEMPORARY TABLES, DROP, REFERENCES ON bugs.*
+           TO bugs@localhost IDENTIFIED BY '$db_pass';
+           mysql> FLUSH PRIVILEGES;
 
    If you are using an older version of MySQL,the LOCK TABLES and CREATE
    TEMPORARY TABLES permissions will be unavailable and should be removed from
    the permissions list. In this case, the following command line can be used:
   mysql> GRANT SELECT, INSERT,
-         UPDATE, DELETE, INDEX, ALTER, CREATE, DROP,
-         REFERENCES ON bugs.* TO bugs@localhost IDENTIFIED BY
-         '$db_pass';
-  mysql> FLUSH PRIVILEGES;
+           UPDATE, DELETE, INDEX, ALTER, CREATE, DROP,
+           REFERENCES ON bugs.* TO bugs@localhost IDENTIFIED BY
+           '$db_pass';
+           mysql> FLUSH PRIVILEGES;
+     _________________________________________________________________
+
+2.2.2.2. PostgreSQL
+
+   Note Note if you are using PostgreSQL 8.0.1 or higher, then you will require
+      to use a version of DBD::Pg which is equal to or greater than version 1.41
+     _________________________________________________________________
+
+2.2.2.2.1. Add a User to PostgreSQL
+
+   You need to add a new user to PostgreSQL for the Bugzilla application to use
+   when accessing the database. The following instructions assume the defaults
+   in localconfig; if you changed those, you need to modify the commands
+   appropriately. You will need the $db_pass password you set in localconfig in
+   Section 2.2.1.
+
+   On most systems, to create the user in PostgreSQL, you will need to login as
+   the root user, and then
+    bash# su - postgres
+
+   As the postgres user, you then need to create a new user:
+    bash$ createuser -U postgres -dAP bugs
+
+   When asked for a password, provide the password which will be set as
+   $db_pass in localconfig. The created user will have the ability to create
+   databases and will not be able to create new users.
+     _________________________________________________________________
+
+2.2.2.2.2. Configure PostgreSQL
+
+   Now, you will need to edit pg_hba.conf which is usually located in
+   /var/lib/pgsql/data/. In this file, you will need to add a new line to it as
+   follows:
+
+   host all bugs 127.0.0.1 255.255.255.255 md5
+
+   This means that for TCP/IP (host) connections, allow connections from
+   '127.0.0.1' to 'all' databases on this server from the 'bugs' user, and use
+   password authentication (md5) for that user.
+
+   If you are using versions of PostgreSQL before version 8, you may also need
+   to edit postgresql.conf , also usually found in the /var/lib/pgsql/data/
+   folder. You will need to make a single line change, changing
+
+   # tcpip_socket = false
+
+   to
+
+   tcpip_socket = true
+
+   Now, you will need to restart PostgreSQL, but you will need to fully stop
+   and start the server rather than just restarting due to the possibility of a
+   change to postgresql.conf. After the server has restarted, you will need to
+   edit localconfig, finding the $db_driver variable and setting it to Pg and
+   changing the password in $db_pass to the one you picked previously, while
+   setting up the account.
      _________________________________________________________________
 
 2.2.3. checksetup.pl
@@ -785,51 +897,15 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
    4.3.1.
      _________________________________________________________________
 
-2.2.4.3. AOL Server
-
-   Ben FrantzDale reported success using AOL Server with Bugzilla. He reported
-   his experience and what appears below is based on that.
-
-   AOL Server will have to be configured to run CGI scripts, please consult the
-   documentation that came with your server for more information on how to do
-   this.
-
-   Because AOL Server doesn't support .htaccess files, you'll have to create a
-   TCL script. You should create an aolserver/modules/tcl/filter.tcl file (the
-   filename shouldn't matter) with the following contents (change /bugzilla/ to
-   the web-based path to your Bugzilla installation):
-  ns_register_filter preauth GET /bugzilla/localconfig filter_deny
-  ns_register_filter preauth GET /bugzilla/localconfig~ filter_deny
-  ns_register_filter preauth GET /bugzilla/\#localconfig\# filter_deny
-  ns_register_filter preauth GET /bugzilla/*.pl filter_deny
-  ns_register_filter preauth GET /bugzilla/syncshadowdb filter_deny
-  ns_register_filter preauth GET /bugzilla/runtests.sh filter_deny
-  ns_register_filter preauth GET /bugzilla/data/* filter_deny
-  ns_register_filter preauth GET /bugzilla/template/* filter_deny
-
-  proc filter_deny { why } {
-      ns_log Notice "filter_deny"
-      return "filter_return"
-  }
-
-   Warning This probably doesn't account for all possible editor backup files
-   so you may wish to add some additional variations of localconfig. For more
-      information, see bug 186383 or Bugtraq ID 6501.
-
-   Note If you are using webdot from research.att.com (the default
-   configuration for the webdotbase paramater), you will need to allow access
-   to data/webdot/*.dot for the reasearch.att.com machine.
-
-   If you are using a local installation of GraphViz, you will need to allow
-   everybody to access *.png, *.gif, *.jpg, and *.map in the data/webdot
-      directory.
-     _________________________________________________________________
-
 2.2.5. Bugzilla
 
    Your Bugzilla should now be working. Access http://<your-bugzilla-server>/ -
    you should see the Bugzilla front page. If not, consult the Troubleshooting
    section, Appendix B.
+
+   Note The URL above may be incorrect if you installed Bugzilla into a
+   subdirectory or used a symbolic link from your web site root to the Bugzilla
+      directory.
 
    Log in with the administrator account you defined in the last checksetup.pl
    run. You should go through the parameters on the Edit Parameters page (see
@@ -865,6 +941,13 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
 
    After two days have passed you'll be able to view bug graphs from the
    Reports page.
+
+   When upgrading Bugzilla, this format may change. To create new status data,
+   (re)move old data and run the following commands:
+        bash$
+        cd <your-bugzilla-directory>
+        bash$
+        ./collectstats.pl --regenerate
 
    Note Windows does not have 'cron', but it does have the Task Scheduler,
    which performs the same duties. There are also third-party tools that can be
@@ -908,7 +991,30 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
       used to implement cron, such as nncron.
      _________________________________________________________________
 
-2.3.4. Patch Viewer
+2.3.4. Whining
+
+   As of Bugzilla 2.20, users can configure Bugzilla to regularly annoy them at
+   regular intervals, by having Bugzilla execute saved searches at certain
+   times and emailing the results to the user. This is known as "Whining". The
+   process of configuring Whining is described in Section 6.13, but for it to
+   work a Perl script must be executed at regular intervals.
+
+   This can be done by adding the following command as a daily crontab entry,
+   in the same manner as explained above for bug graphs. This example runs it
+   every 15 minutes.
+   */15 * * * * cd <your-bugzilla-directory> ; ./whine.pl
+
+   Note Whines can be executed as often as every 15 minutes, so if you specify
+   longer intervals between executions of whine.pl, some users may not be
+   whined at as often as they would expect. Depending on the person, this can
+      either be a very Good Thing or a very Bad Thing.
+
+   Note Windows does not have 'cron', but it does have the Task Scheduler,
+   which performs the same duties. There are also third-party tools that can be
+      used to implement cron, such as nncron.
+     _________________________________________________________________
+
+2.3.5. Patch Viewer
 
    Patch Viewer is the engine behind Bugzilla's graphical display of code
    patches. You can integrate this with copies of the cvs, lxr and bonsai tools
@@ -921,7 +1027,7 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
    in the system path, you can configure their locations in localconfig.
      _________________________________________________________________
 
-2.3.5. LDAP Authentication
+2.3.6. LDAP Authentication
 
    LDAP authentication is a module for Bugzilla's plugin authentication
    architecture.
@@ -997,7 +1103,7 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
           Ex. "mail"
      _________________________________________________________________
 
-2.3.6. Serving Alternate Formats with the right MIME type
+2.3.7. Serving Alternate Formats with the right MIME type
 
    Some Bugzilla pages have alternate formats, other than just plain HTML. In
    particular, a few Bugzilla pages can output their contents as either XUL (a
@@ -1066,38 +1172,8 @@ ppm repository add landfill http://www.landfill.bugzilla.org/ppm/
 
 2.4.1.3. Code changes required to run on Win32
 
-   Bugzilla on Win32 is mostly supported out of the box; one remaining issue is
-   related to bug email. To make bug email work on Win32 (until bug 49893
-   lands), the simplest way is to have the Net::SMTP Perl module installed and
-   change these lines in the file Bugzilla/Bugmail.pm:
-open(SENDMAIL, "|/usr/lib/sendmail $sendmailparam -t -i") ||
-  die "Can't open sendmail";
-
-print SENDMAIL trim($msg) . "\n";
-close SENDMAIL;
-
-   to
-use Net::SMTP;
-my $smtp_server = 'smtp.mycompany.com';  # change this
-
-($enableSendMail && $rcpt_to) || return;
-
-# Use die on error, so that the mail will be in the 'unsent mails' and
-# can be sent from the sanity check page.
-my $smtp = Net::SMTP->new($smtp_server) ||
-  die 'Cannot connect to server \'$smtp_server\'';
-
-$smtp->mail('bugzilla-daemon@mycompany.com');  # change this
-$smtp->to($rcpt_to);
-$smtp->data();
-$smtp->datasend($msg);
-$smtp->dataend();
-$smtp->quit;
-
-   Don't forget to change the name of your SMTP server and the domain of the
-   sending email address (after the '@') in the above lines of code.
-
-   Please be aware that flag email will continue not to work.
+   Bugzilla on Win32 is supported out of the box from version 2.20; this means
+   that no code changes are required to get Bugzilla running.
      _________________________________________________________________
 
 2.4.1.4. Serving the web pages
@@ -1111,6 +1187,12 @@ $smtp->quit;
    Note If using Apache on windows, you can set the ScriptInterpreterSource
    directive in your Apache config to avoid having to modify the first line of
       every script to contain your path to perl perl instead of /usr/bin/perl.
+     _________________________________________________________________
+
+2.4.1.5. Sending Email
+
+   To enable Bugzilla to send email on Windows, the server running the Bugzilla
+   code must be able to connect to, or act as, an SMTP server.
      _________________________________________________________________
 
 2.4.2. Mac OS X
@@ -1467,6 +1549,13 @@ Chapter 3. Administering Bugzilla
           initially created, the group controls can be further adjusted without
           interference by this mechanism.
 
+   maildeliverymethod
+          This is used to specify how email is sent, or if it is sent at all.
+          There are several options included for different MTAs, along with two
+          additional options that disable email sending. "testfile" does not
+          send mail, but instead saves it in data/mailer.testfile for later
+          review. "none" disables email sending entirely.
+
    shadowdb
           You run into an interesting problem when Bugzilla reaches a high
           level of continuous activity. MySQL supports only table-level write
@@ -1529,8 +1618,8 @@ Chapter 3. Administering Bugzilla
 
    useqacontact
           This allows you to define an email address for each component, in
-          addition to that of the default owner, who will be sent carbon copies
-          of incoming bugs.
+          addition to that of the default assignee, who will be sent carbon
+          copies of incoming bugs.
 
    usestatuswhiteboard
           This defines whether you wish to have a free-form, overwritable field
@@ -1720,23 +1809,23 @@ Chapter 3. Administering Bugzilla
    programmer. It often makes sense to divide Components in Bugzilla according
    to the natural divisions of responsibility within your Product or company.
 
-   Each component has a owner and (if you turned it on in the parameters), a QA
-   Contact. The owner should be the primary person who fixes bugs in that
-   component. The QA Contact should be the person who will ensure these bugs
-   are completely fixed. The Owner, QA Contact, and Reporter will get email
-   when new bugs are created in this Component and when these bugs change.
-   Default Owner and Default QA Contact fields only dictate the default
-   assignments; these can be changed on bug submission, or at any later point
-   in a bug's life.
+   Each component has a default assignee and (if you turned it on in the
+   parameters), a QA Contact. The default assignee should be the primary person
+   who fixes bugs in that component. The QA Contact should be the person who
+   will ensure these bugs are completely fixed. The Assignee, QA Contact, and
+   Reporter will get email when new bugs are created in this Component and when
+   these bugs change. Default Assignee and Default QA Contact fields only
+   dictate the default assignments; these can be changed on bug submission, or
+   at any later point in a bug's life.
 
    To create a new Component:
 
     1. Select the "Edit components" link from the "Edit product" page
     2. Select the "Add" link in the bottom right.
-    3. Fill out the "Component" field, a short "Description", the "Initial
-       Owner" and "Initial QA Contact" (if enabled.) The Component and
-       Description fields may contain HTML; the "Initial Owner" field must be a
-       login name already existing in the database.
+    3. Fill out the "Component" field, a short "Description", the "Default
+       Assignee" and "Default QA Contact" (if enabled.) The Component and
+       Description fields may contain HTML; the "Default Assignee" field must
+       be a login name already existing in the database.
      _________________________________________________________________
 
 3.5. Versions
@@ -1883,7 +1972,7 @@ Chapter 3. Administering Bugzilla
    in the "Show Bug" screen (editbug.cgi).
 
    Only users with the ability to edit the bug may set flags on bugs. This
-   includes the owner, reporter, and any user with the editbugs permission.
+   includes the assignee, reporter, and any user with the editbugs permission.
      _________________________________________________________________
 
 3.7.5. Administering Flags
@@ -1900,7 +1989,7 @@ Chapter 3. Administering Bugzilla
 3.7.5.1. Creating a Flag
 
    When you click on the "Create a Flag Type for..." link, you will be
-   presented with a form. Here is what the felds in the form mean:
+   presented with a form. Here is what the fields in the form mean:
      _________________________________________________________________
 
 3.7.5.1.1. Name
@@ -1912,7 +2001,7 @@ Chapter 3. Administering Bugzilla
 
 3.7.5.1.2. Description
 
-   This describes the flag in more detail. At present, this doesn't whos up
+   This describes the flag in more detail. At present, this doesn't show up
    anywhere helpful; ideally, it would be nice to have it show up as a tooltip.
    This field can be as long as you like, and can contain any character you
    want.
@@ -2133,7 +2222,9 @@ Chapter 3. Administering Bugzilla
      Note This is a change from 2.16 where the regular expression resulted in a
    user acquiring permanent membership in a group. To remove a user from a
    group the user was in due to a regular expression in version 2.16 or
-      earlier, the user must be explicitly removed from the group.
+   earlier, the user must be explicitly removed from the group. This can easily
+   be done by pressing buttons named 'Remove Memberships' or 'Remove
+      Memberships included in regular expression' under the table.
 
      Warning If specifying a domain in the regexp, make sure you end the regexp
    with a $. Otherwise, when granting access to "@mycompany\.com", you will
@@ -2570,7 +2661,7 @@ skip-networking
       found in Section 2.2.4.1
 
      * In the main Bugzilla directory, you should:
-          + Block: *.pl, *localconfig*, runtests.sh
+          + Block: *.pl, *localconfig*
           + But allow: localconfig.js, localconfig.rdf
      * In data:
           + Block everything
@@ -2731,15 +2822,15 @@ Chapter 5. Customising Bugzilla
    One thing you should take particular care about is the need to properly HTML
    filter data that has been passed into the template. This means that if the
    data can possibly contain special HTML characters such as <, and the data
-   was not intended to be HTML, they need to be converted to entity form, ie
+   was not intended to be HTML, they need to be converted to entity form, i.e.
    &lt;. You use the 'html' filter in the Template Toolkit to do this. If you
    forget, you may open up your installation to cross-site scripting attacks.
 
    Also note that Bugzilla adds a few filters of its own, that are not in
    standard Template Toolkit. In particular, the 'url_quote' filter can convert
    characters that are illegal or have special meaning in URLs, such as &, to
-   the encoded form, ie %26. This actually encodes most characters (but not the
-   common ones such as letters and numbers and so on), including the
+   the encoded form, i.e. %26. This actually encodes most characters (but not
+   the common ones such as letters and numbers and so on), including the
    HTML-special characters, so there's never a need to HTML filter afterwards.
 
    Editing templates is a good way of doing a "poor man's custom fields". For
@@ -3053,7 +3144,7 @@ s %]
    sections should not be changed - these are the "plumbing" which makes the
    rest of the function work. In between those sections, you'll find snippets
    of code like:
-    # Allow the owner to change anything.
+    # Allow the assignee to change anything.
     if ($ownerid eq $whoid) {
         return 1;
     }
@@ -3472,7 +3563,7 @@ Chapter 6. Using Bugzilla
    If you want to use Bugzilla, first you need to create an account. Consult
    with the administrator responsible for your installation of Bugzilla for the
    URL you should use to access it. If you're test-driving Bugzilla, use this
-   URL: http://landfill.bugzilla.org/bugzilla-2.18-branch/.
+   URL: http://landfill.bugzilla.org/bugzilla-tip/.
 
     1. Click the "Open a new Bugzilla account" link, enter your email address
        and, optionally, your name in the spaces provided, then click "Create
@@ -3550,6 +3641,9 @@ Chapter 6. Using Bugzilla
    14. CC list: A list of people who get mail when the bug changes.
    15. Attachments: You can attach files (e.g. testcases or patches) to bugs.
        If there are any attachments, they are listed in this section.
+       Attachments are normally stored in the Bugzilla database, unless they
+       are marked as Big Files, which are stored directly on disk and (unlike
+       attachments kept in the database) may be deleted at some future time.
    16. *Dependencies: If this bug cannot be fixed unless other bugs are fixed
        (depends on), or this bug stops other bugs being fixed (blocks), their
        numbers are recorded here.
@@ -3572,9 +3666,9 @@ Chapter 6. Using Bugzilla
 
 6.5. Searching for Bugs
 
-   The Bugzilla Search page is is the interface where you can find any bug
-   report, comment, or patch currently in the Bugzilla system. You can play
-   with it here: http://landfill.bugzilla.org/bugzilla-2.18-branch/query.cgi.
+   The Bugzilla Search page is the interface where you can find any bug report,
+   comment, or patch currently in the Bugzilla system. You can play with it
+   here: http://landfill.bugzilla.org/bugzilla-tip/query.cgi.
 
    The Search page has controls for selecting different possible values for all
    of the fields in a bug, as described above. For some fields, multiple values
@@ -3584,9 +3678,95 @@ Chapter 6. Using Bugzilla
 
    Once you've run a search, you can save it as a Saved Search, which appears
    in the page footer.
+     _________________________________________________________________
 
-   Highly advanced querying is done using Boolean Charts. See the Boolean
-   Charts help link on the Search page for more information.
+6.5.1. Boolean Charts
+
+   Highly advanced querying is done using Boolean Charts.
+
+   The boolean charts further restrict the set of results returned by a query.
+   It is possible to search for bugs based on elaborate combinations of
+   critera.
+
+   The simplest boolean searches have only one term. These searches permit the
+   selected left field to be compared using a selectable operator to a
+   specified value. Using the "And," "Or," and "Add Another Boolean Chart"
+   buttons, additonal terms can be included in the query, further altering the
+   list of bugs returned by the query.
+
+   There are three fields in each row of a boolean search.
+
+     * Field: the items being searched
+     * Operator: the comparison operator
+     * Value: the value to which the field is being compared
+     _________________________________________________________________
+
+6.5.1.1. Pronoun Substitution
+
+   Sometimes, a query needs to compare a field containing a user's ID (such as
+   ReportedBy) with a user's ID (such as the user running the query or the user
+   to whom each bug is assigned). When the operator is either "equals" or
+   "notequals", the value can be "%reporter%", "%assignee%", "%qacontact%", or
+   "%user%." The user pronoun referes to the user who is executing the query
+   or, in the case of whining reports, the user who will be the recipient of
+   the report. The reporter, assignee, and qacontact pronouns refer to the
+   corresponding fields in the bug.
+     _________________________________________________________________
+
+6.5.1.2. Negation
+
+   At first glance, negation seems redundant. Rather than searching for
+
+     NOT("summary" "contains the string" "foo"),
+
+   one could search for
+
+     ("summary" "does not contain the string" "foo").
+
+   However, the search
+
+     ("CC" "does not contain the string" "@mozilla.org")
+
+   would find every bug where anyone on the CC list did not contain
+   "@mozilla.org" while
+
+     NOT("CC" "contains the string" "@mozilla.org")
+
+   would find every bug where there was nobody on the CC list who did contain
+   the string. Similarly, the use of negation also permits complex expressions
+   to be built using terms OR'd together and then negated. Negation permits
+   queries such as
+
+     NOT(("product" "equals" "update") OR ("component" "equals"
+     "Documentation"))
+
+   to find bugs that are neither in the update product or in the documentation
+   component or
+
+     NOT(("commenter" "equals" "%assignee%") OR ("component" "equals"
+     "Documentation"))
+
+   to find non-documentation bugs on which the assignee has never commented.
+     _________________________________________________________________
+
+6.5.1.3. Multiple Charts
+
+   The terms within a single row of a boolean chart are all constraints on a
+   single piece of data. If you are looking for a bug that has two different
+   people cc'd on it, then you need to use two boolean charts. A search for
+
+     ("cc" "contains the string" "foo@") AND ("cc" "contains the string"
+     "@mozilla.org")
+
+   would return only bugs with "foo@mozilla.org" on the cc list. If you wanted
+   bugs where there is someone on the cc list containing "foo@" and someone
+   else containing "@mozilla.org", then you would need two boolean charts.
+
+     First chart: ("cc" "contains the string" "foo@")
+
+     Second chart: ("cc" "contains the string" "@mozilla.org")
+
+   The bugs listed will be only the bugs where ALL the charts are true.
      _________________________________________________________________
 
 6.6. Bug Lists
@@ -3601,17 +3781,32 @@ Chapter 6. Using Bugzilla
    fields of each bug.
    CSV: get the buglist as comma-separated values, for import into e.g. a
    spreadsheet.
+   RSS get the buglist as an RSS 1.0 feed. Copy this link into your favorite
+   feed reader. If you are using Firefox, you can also save the list as a live
+   bookmark by clicking the live bookmark icon in the status bar. To limit the
+   number of bugs in the feed, add a limit=n parameter to the URL.
+   iCalendar Get the buglist as an iCalendar file. Each bug is represented as a
+   to-do item in the imported calendar.
    Change Columns: change the bug attributes which appear in the list.
    Change several bugs at once: If your account is sufficiently empowered, you
    can make the same change to all the bugs in the list - for example, changing
-   their owner.
-   Send mail to bug owners: Sends mail to the owners of all bugs on the list.
+   their assignee.
+   Send mail to bug assignees: Sends mail to the assignees of all bugs on the
+   list.
    Edit Search: If you didn't get exactly the results you were looking for, you
    can return to the Query page through this link and make small revisions to
    the query you just made so you get more accurate results.
    Remember Search As: You can give a search a name and remember it; a link
    will appear in your page footer giving you quick access to run it again
    later.
+
+   If you would like to access the bug list from another program it is often
+   useful to have the list returned in something other than HTML. By adding the
+   ctype=type parameter into the bug list URL you can specify several alternate
+   formats. The supported formats are: Comma Separated Values (ctype=csv),
+   iCalendar (ctype=ics), RDF Site Summary (RSS) 1.0 (ctype=rss), ECMAScript,
+   also known as JavaScript (ctype=js), and finally Resource Description
+   Framework RDF/XML (ctype=rdf).
      _________________________________________________________________
 
 6.7. Filing Bugs
@@ -3805,6 +4000,13 @@ Chapter 6. Using Bugzilla
    text/html). To download an attachment as a different Content-Type (e.g.
    application/xhtml+xml), you can override this using a 'content-type'
    parameter on the URL, e.g. &content-type=text/plain.
+
+   If you have a really large attachment, something that does not need to be
+   recorded forever (as most attachments are), you can mark your attachment as
+   a Big File, Assuming the administrator of the installation has enabled this
+   feature. Big Files are stored directly on disk instead of in the database,
+   and can be deleted when it is no longer needed. The maximum size of a Big
+   File is normally larger than the maximum size of a regular attachment.
      _________________________________________________________________
 
 6.10. User Preferences
@@ -4037,6 +4239,144 @@ Chapter 6. Using Bugzilla
    the flag name and the user who has been requested to set the flag appended
    to the flag name within parentheses. For example, if Jack asks Jill for
    review, it appears as Jack: review [ ? ] (Jill).
+
+   You can browse through open requests made of you and by you by selecting 'My
+   Requests' from the footer. You can also look at open requests limited by
+   other requesters, requestees, products, components, and flag names from this
+   page. Note that you can use '-' for requestee to specify flags with 'no
+   requestee' set.
+     _________________________________________________________________
+
+6.13. Whining
+
+   Whining is a feature in Bugzilla that can regularly annoy users at specified
+   times. Using this feature, users can execute saved searches at specific
+   times (i.e. the 15th of the month at midnight) or at regular intervals (i.e.
+   every 15 minutes on Sundays). The results of the searches are sent to the
+   user, either as a single email or as one email per bug, along with some
+   descriptive text.
+
+   Warning Throughout this section it will be assumed that all users are
+   members of the bz_canusewhines group, membership in which is required in
+   order to use the Whining system. You can easily make all users members of
+   the bz_canusewhines group by setting the User RegExp to ".*" (without the
+   quotes).
+
+   Also worth noting is the bz_canusewhineatothers group. Members of this group
+   can create whines for any user or group in Bugzilla using a extended form of
+   the whining interface. Features only available to members of the
+      bz_canusewhineatothers group will be noted in the appropriate places.
+
+   Note For whining to work, a special Perl script must be executed at regular
+      intervals. More information on this is available in Section 2.3.4.
+
+   Note This section does not cover the whineatnews.pl script. See Section
+      2.3.3 for more information on The Whining Cron.
+     _________________________________________________________________
+
+6.13.1. The Event
+
+   The whining system defines an "Event" as one or more queries being executed
+   at regular intervals, with the results of said queries (if there are any)
+   being emailed to the user. Events are created by clicking on the "Add new
+   event" button.
+
+   Once a new event is created, the first thing to set is the "Email subject
+   line". The contents of this field will be used in the subject line of every
+   email generated by this event. In addition to setting a subject, space is
+   provided to enter some descriptive text that will be included at the top of
+   each message (to help you in understanding why you received the email in the
+   first place).
+
+   The next step is to specify when the Event is to be run (the Schedule) and
+   what searches are to be performed (the Queries).
+     _________________________________________________________________
+
+6.13.2. Whining Schedule
+
+   Each whining event is associated with zero or more schedules. A schedule is
+   used to specify when the query (specified below) is to be run. A new event
+   starts out with no schedules (which means it will never run, as it is not
+   scheduled to run). To add a schedule, press the "Add a new schedule" button.
+
+   Each schedule includes an interval, which you use to tell Bugzilla when the
+   event should be run. An event can be run on certain days of the week,
+   certain days of the month, during weekdays (defined as Monday through
+   Friday), or every day.
+
+   Warning Be careful if you set your event to run on the 29th, 30th, or 31st
+   of the month, as your event may not run exactly when expected. If you want
+   your event to run on the last day of the month, select "Last day of the
+      month" as the interval.
+
+   Once you have specified the day(s) on which the event is to be run, you
+   should now specify the time at which the event is to be run. You can have
+   the event run at a certain hour on the specified day(s), or every hour,
+   half-hour, or quarter-hour on the specified day(s).
+
+   If a single schedule does not execute an event as many times as you would
+   want, you can create another schedule for the same event. For example, if
+   you want to run an event on days whose numbers are divisible by seven, you
+   would need to add four schedules to the event, setting the schedules to run
+   on the 7th, 14th, 21st, and 28th (one day per schedule) at whatever time (or
+   times) you choose.
+
+   Note If you are a member of the bz_canusewhineatothers group, then you will
+   be presented with another option: "Mail to". Using this you can control who
+   will receive the emails generated by this event. You can choose to send the
+   emails to a single user (identified by email address) or a single group
+   (identified by group name). To send to multiple users or groups, create a
+      new schedule for each additional user/group.
+     _________________________________________________________________
+
+6.13.3. Whining Queries
+
+   Each whining event is associated with zero or more queries. A query is a
+   saved search that is executed on the schedule specified (see above). You
+   start out with zero queries attached to the event (which means that the
+   event will not run, as there will never be any results to return). To add a
+   query, press the "Add a new query" button.
+
+   The first field to examine in your new query is the Sort field. Queries are
+   executed, and results returned, in the order specified by the Sort field.
+   Queries with lower Sort values will run before queries with higher Sort
+   values.
+
+   The next field to examine is the Search field. This is where you choose the
+   actual search that is to be run. Instead of defining search parameters here,
+   you are asked to choose from the list of saved searches (the same list that
+   appears at the bottom of every Bugzilla page). You are only allowed to
+   choose from searches that you have saved yourself (the default saved search,
+   "My Bugs", is not a valid choice). If you do not have any saved searches,
+   you can take this opportunity to create one (see Section 6.6).
+
+   Note When running queries, the whining system acts as if you are the user
+   executing the query. This means that the whining system will ignore bugs
+      that match your query, but that you can not access.
+
+   Once you have chosen the saved search to be executed, give the query a
+   descriptive title. This title will appear in the email, above the results of
+   the query. If you choose "One message per bug", the query title will appear
+   at the top of each email that contains a bug matching your query.
+
+   Finally, decide if the results of the query should be sent in a single
+   email, or if each bug should appear in its own email.
+
+   Warning Think carefully before checking the "One message per bug" box. If
+   you create a query that matches thousands of bugs, you will receive
+      thousands of emails!
+     _________________________________________________________________
+
+6.13.4. Saving Your Changes
+
+   Once you have defined at least one schedule, and created at least one query,
+   go ahead and "Update/Commit". This will save your Event and make it
+   available for immediate execution.
+
+   Note If you ever feel like deleting your event, you may do so using the
+   "Remove Event" button in the upper-right corner of each Event. You can also
+   modify an existing event, so long as you "Update/Commit" after completing
+      your modifications.
      _________________________________________________________________
 
 Appendix A. The Bugzilla FAQ
@@ -4425,7 +4765,7 @@ perl runtests.pl 2 --verbose
 
    To use the RDF format of the buglist it is necessary to append a &ctype=rdf
    to the URL. RDF is meant to be machine readable and thus it is assumed that
-   the URL would be generated programatically so there is no user visible link
+   the URL would be generated programmatically so there is no user visible link
    to this format.
 
    Currently the only script included with Bugzilla that can import data is
@@ -4636,7 +4976,8 @@ password=mypassword
    A.5.2. I'm evaluating/testing Bugzilla, and don't want it to send email to
    anyone but me. How do I do it?
 
-   To disable email, set the
+   To disable email, set the mail_delivery_method parameter to none (2.20 and
+   later), or
    $enableSendMail
 
    parameter to '0' in either BugMail.pm (2.18 and later) or processmail (up to
@@ -4695,8 +5036,8 @@ password=mypassword
 
    Double-check that you have not turned off email in your user preferences.
    Confirm that Bugzilla is able to send email by visiting the "Log In" link of
-   your Bugzilla installation and clicking the "Email me a password" button
-   after entering your email address.
+   your Bugzilla installation and clicking the "Submit Request" button after
+   entering your email address.
 
    If you never receive mail from Bugzilla, chances are you do not have
    sendmail in "/usr/lib/sendmail". Ensure sendmail lives in, or is symlinked
@@ -4754,7 +5095,7 @@ password=mypassword
    work one way -- you can create a read-only copy of the database at one site,
    and have it regularly updated at intervals from the main database.
 
-   MySQL has some synchronization features builtin to the latest releases. It
+   MySQL has some synchronization features built-in to the latest releases. It
    would be great if someone looked into the possibilities there and provided a
    report to the newsgroup on how to effectively synchronize two Bugzilla
    installations.
@@ -4933,8 +5274,8 @@ password=mypassword
 
    Try this link to view current bugs or requests for enhancement for Bugzilla.
 
-   You can view bugs marked for 2.18.4 release here. This list includes bugs
-   for the 2.18.4 release that have already been fixed and checked into CVS.
+   You can view bugs marked for 2.20.2 release here. This list includes bugs
+   for the 2.20.2 release that have already been fixed and checked into CVS.
    Please consult the Bugzilla Project Page for details on how to check current
    sources out of CVS so you can have these bug fixes early!
 
@@ -4989,6 +5330,15 @@ B.1. General Advice
    be self-explanatory enough to enable you to diagnose and fix the problem. If
    not, see below for some commonly-encountered errors. If that doesn't help,
    post the errors to the newsgroup.
+
+   Bugzilla can also log all user-based errors (and many code-based errors)
+   that occur, without polluting the web server error log. To enable Bugzilla
+   error logging, create a file that Bugzilla can write to, named errorlog, in
+   the Bugzilla data directory. Errors will be logged as they occur, and will
+   include the type of the error, the IP address and username (if available) of
+   the user who triggered the error, and the values of all environment
+   variables; if a form was being submitted, the data in the form will also be
+   included. To disable error logging, delete or rename the errorlog file.
      _________________________________________________________________
 
 B.2. The Apache webserver is not serving Bugzilla pages
@@ -5172,15 +5522,16 @@ B.9. Some users are constantly being forced to relogin
    periodically. Since Bugzilla cookies are tied to a specific IP address, each
    time the effective address changes, the user will have to log in again.
 
-   If you are using 2.18, there is a parameter called "loginnetmask", which you
-   can use to set the number of bits of the user's IP address to require to be
-   matched when authenticating the cookies. If you set this to something less
-   than 32, then the user will be given a checkbox for "Restrict this login to
-   my IP address" on the login screen, which defaults to checked. If they leave
-   the box checked, Bugzilla will behave the same as it did before, requiring
-   an exact match on their IP address to remain logged in. If they uncheck the
-   box, then only the left side of their IP address (up to the number of bits
-   you specified in the parameter) has to match to remain logged in.
+   If you are using 2.18 (or later), there is a parameter called
+   "loginnetmask", which you can use to set the number of bits of the user's IP
+   address to require to be matched when authenticating the cookies. If you set
+   this to something less than 32, then the user will be given a checkbox for
+   "Restrict this login to my IP address" on the login screen, which defaults
+   to checked. If they leave the box checked, Bugzilla will behave the same as
+   it did before, requiring an exact match on their IP address to remain logged
+   in. If they uncheck the box, then only the left side of their IP address (up
+   to the number of bits you specified in the parameter) has to match to remain
+   logged in.
      _________________________________________________________________
 
 B.10. index.cgi doesn't show up unless specified in the URL
@@ -5886,10 +6237,11 @@ M
 
    Message Transport Agent (MTA)
           A Message Transport Agent is used to control the flow of email on a
-          system. Many unix based systems use sendmail which is what Bugzilla
-          expects to find by default at /usr/sbin/sendmail. Many other MTA's
-          will work, but they all require that the sendmailnow param be set to
-          on.
+          system. The Mail::Mailer Perl module, which Bugzilla uses to send
+          email, can be configured to use many different underlying
+          implementations for actually sending the mail using the
+          mail_delivery_method parameter. Implementations other than sendmail
+          require that the sendmailnow param be set to on.
 
    MySQL
           MySQL is currently the required RDBMS for Bugzilla. MySQL can be

@@ -7,7 +7,8 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 2.18.3 Release"
+TITLE="The Bugzilla Guide - 2.20.1 
+    Release"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Using Bugzilla"
@@ -37,7 +38,8 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 2.18.3 Release</TH
+>The Bugzilla Guide - 2.20.1 
+    Release</TH
 ></TR
 ><TR
 ><TD
@@ -109,6 +111,27 @@ BORDER="0"
 ><TR
 ><TD
 >&#13;      <EM
+>RSS</EM
+>
+
+      get the buglist as an RSS 1.0 feed.  Copy this link into your
+      favorite feed reader.  If you are using Firefox, you can also
+      save the list as a live bookmark by clicking the live bookmark
+      icon in the status bar.  To limit the number of bugs in the feed,
+      add a limit=n parameter to the URL.</TD
+></TR
+><TR
+><TD
+>&#13;      <EM
+>iCalendar</EM
+>
+
+      Get the buglist as an iCalendar file. Each bug is represented as a 
+      to-do item in the imported calendar.</TD
+></TR
+><TR
+><TD
+>&#13;      <EM
 >Change Columns:</EM
 >
 
@@ -122,15 +145,15 @@ BORDER="0"
 
       If your account is sufficiently empowered, you can make the same
       change to all the bugs in the list - for example, changing their
-      owner.</TD
+      assignee.</TD
 ></TR
 ><TR
 ><TD
 >&#13;      <EM
->Send mail to bug owners:</EM
+>Send mail to bug assignees:</EM
 >
 
-      Sends mail to the owners of all bugs on the list.</TD
+      Sends mail to the assignees of all bugs on the list.</TD
 ></TR
 ><TR
 ><TD
@@ -157,6 +180,16 @@ BORDER="0"
 ><P
 ></P
 >
+    </P
+><P
+>&#13;      If you would like to access the bug list from another program 
+      it is often useful to have the list returned in something other
+      than HTML. By adding the ctype=type parameter into the bug list URL
+      you can specify several alternate formats. The supported formats
+      are: Comma Separated Values (ctype=csv), iCalendar (ctype=ics),
+      RDF Site Summary (RSS) 1.0 (ctype=rss), ECMAScript, also known
+      as JavaScript (ctype=js), and finally Resource Description Framework
+      RDF/XML (ctype=rdf).
     </P
 ></DIV
 ><DIV

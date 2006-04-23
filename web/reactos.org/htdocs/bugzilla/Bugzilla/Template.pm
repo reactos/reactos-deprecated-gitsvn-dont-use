@@ -23,6 +23,8 @@
 #                 Bradley Baetz <bbaetz@student.usyd.edu.au>
 #                 Christopher Aillon <christopher@aillon.com>
 #                 Tobias Burnus <burnus@net-b.de>
+#                 Myk Melez <myk@mozilla.org>
+#                 Max Kanat-Alexander <mkanat@bugzilla.org>
 
 
 package Bugzilla::Template;
@@ -31,11 +33,36 @@ use strict;
 
 use Bugzilla::Config qw(:DEFAULT $templatedir $datadir);
 use Bugzilla::Util;
+use Bugzilla::User;
 
 # for time2str - replace by TT Date plugin??
 use Date::Format ();
 
 use base qw(Template);
+
+# Convert the constants in the Bugzilla::Constants module into a hash we can
+# pass to the template object for reflection into its "constants" namespace
+# (which is like its "variables" namespace, but for constants).  To do so, we
+# traverse the arrays of exported and exportable symbols, pulling out functions
+# (which is how Perl implements constants) and ignoring the rest (which, if
+# Constants.pm exports only constants, as it should, will be nothing else).
+use Bugzilla::Constants ();
+my %constants;
+foreach my $constant (@Bugzilla::Constants::EXPORT,
+                      @Bugzilla::Constants::EXPORT_OK)
+{
+    if (defined &{$Bugzilla::Constants::{$constant}}) {
+        # Constants can be lists, and we can't know whether we're getting
+        # a scalar or a list in advance, since they come to us as the return
+        # value of a function call, so we have to retrieve them all in list
+        # context into anonymous arrays, then extract the scalar ones (i.e.
+        # the ones whose arrays contain a single element) from their arrays.
+        $constants{$constant} = [&{$Bugzilla::Constants::{$constant}}];
+        if (scalar(@{$constants{$constant}}) == 1) {
+            $constants{$constant} = @{$constants{$constant}}[0];
+        }
+    }
+}
 
 # XXX - mod_perl
 my $template_include_path;
@@ -107,6 +134,12 @@ sub getTemplateIncludePath () {
 ###############################################################################
 # Templatization Code
 
+# The Template Toolkit throws an error if a loop iterates >1000 times.
+# We want to raise that limit.
+# NOTE: If you change this number, you MUST RE-RUN checksetup.pl!!!
+# If you do not re-run checksetup.pl, the change you make will not apply
+$Template::Directive::WHILE_MAX = 1000000;
+
 # Use the Toolkit Template's Stash module to add utility pseudo-methods
 # to template variables.
 use Template::Stash;
@@ -170,6 +203,14 @@ $Template::Stash::SCALAR_OPS->{ truncate } =
 
 sub create {
     my $class = shift;
+    my %opts = @_;
+
+    # checksetup.pl will call us once for any template/lang directory.
+    # We need a possibility to reset the cache, so that no files from
+    # the previous language pollute the action.
+    if ($opts{'clean_cache'}) {
+        $template_include_path = undef;
+    }
 
     # IMPORTANT - If you make any configuration changes here, make sure to
     # make them in t/004.template.t and checksetup.pl.
@@ -192,8 +233,7 @@ sub create {
 
         # Functions for processing text within templates in various ways.
         # IMPORTANT!  When adding a filter here that does not override a
-        # built-in filter, please also add a stub filter to checksetup.pl
-        # and t/004template.t.
+        # built-in filter, please also add a stub filter to t/004template.t.
         FILTERS => {
 
             # Render text in required style.
@@ -249,6 +289,14 @@ sub create {
                 return $var;
             },
 
+            # Prevents line break on hyphens and whitespaces.
+            no_break => sub {
+                my ($var) = @_;
+                $var =~ s/ /\&nbsp;/g;
+                $var =~ s/-/\&#8209;/g;
+                return $var;
+            },
+
             xml => \&Bugzilla::Util::xml_quote ,
 
             # This filter escapes characters in a variable or value string for
@@ -261,7 +309,15 @@ sub create {
             # as prefix. In addition it replaces a ' ' by a '_'.
             css_class_quote => \&Bugzilla::Util::css_class_quote ,
 
-            quoteUrls => \&::quoteUrls ,
+            quoteUrls => [ sub {
+                               my ($context, $bug) = @_;
+                               return sub {
+                                   my $text = shift;
+                                   return &::quoteUrls($text, $bug);
+                               };
+                           },
+                           1
+                         ],
 
             bug_link => [ sub {
                               my ($context, $bug) = @_;
@@ -345,6 +401,9 @@ sub create {
                      1
                      ],
 
+            # Wrap a displayed comment to the appropriate length
+            wrap_comment => \&Bugzilla::Util::wrap_comment,
+
             # We force filtering of every variable in key security-critical
             # places; we have a none filter for people to use when they 
             # really, really don't want a variable to be changed.
@@ -352,6 +411,8 @@ sub create {
         },
 
         PLUGIN_BASE => 'Bugzilla::Template::Plugin',
+
+        CONSTANTS => \%constants,
 
         # Default variables for all templates
         VARIABLES => {
@@ -368,7 +429,7 @@ sub create {
             'user' => sub { return Bugzilla->user; },
 
             # UserInGroup. Deprecated - use the user.* functions instead
-            'UserInGroup' => \&::UserInGroup,
+            'UserInGroup' => \&Bugzilla::User::UserInGroup,
 
             # SendBugMail - sends mail about a bug, using Bugzilla::BugMail.pm
             'SendBugMail' => sub {

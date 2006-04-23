@@ -61,6 +61,10 @@
     The ID <code>[% page_id FILTER html %]</code> is not a
     valid page identifier.
 
+  [% ELSIF error == "bad_arg" %]
+    Bad argument <code>[% argument FILTER html %]</code> sent to
+    <code>[% function FILTER html %]</code> function.
+
   [% ELSIF error == "bug_error" %]
     Trying to retrieve [% terms.bug %] [%+ bug.bug_id FILTER html %] returned 
     the error [% bug.error FILTER html %].
@@ -73,7 +77,7 @@
         
   [% ELSIF error == "chart_dir_nonexistent" %]
     One of the directories <tt>[% dir FILTER html %]</tt> and 
-    <tt>[% graphdir FILTER html %]</tt> does not exist.
+    <tt>[% graph_dir FILTER html %]</tt> does not exist.
   
   [% ELSIF error == "chart_file_open_fail" %]
     Unable to open the chart datafile <tt>[% filename FILTER html %]</tt>.
@@ -107,10 +111,6 @@
     Attempted to add [% terms.bug %] to an inactive group, identified by the bit
     '[% bit FILTER html %]'.
 
-  [% ELSIF error == "bad_arg" %]
-    Bad argument <code>[% argument FILTER html %]</code> sent to
-    <code>[% function FILTER html %]</code> function.
-
   [% ELSIF error == "invalid_attach_id_to_obsolete" %]
      The attachment number of one of the attachments you wanted to obsolete,
      [% attach_id FILTER html %], is invalid.
@@ -134,17 +134,6 @@
   [% ELSIF error == "invalid_dimensions" %]
     [% title = "Invalid Dimensions" %]
     The width or height specified is not a positive integer.
-    
-  [% ELSIF error == "invalid_series_id" %]
-    [% title = "Invalid Series" %]
-    The series_id [% series_id FILTER html %] is not valid. It may be that
-    this series has been deleted.
-    
-  [% ELSIF error == "mismatched_bug_ids_on_obsolete" %]
-    Attachment [% attach_id FILTER html %] ([% description FILTER html %]) 
-    is attached to [% terms.bug %] [%+ attach_bug_id FILTER html %], 
-    but you tried to flag it as obsolete while creating a new attachment to 
-    [% terms.bug %] [%+ my_bug_id FILTER html %].
 
   [% ELSIF error == "invalid_flag_association" %]
     [% title = "Invalid Flag Association" %]
@@ -155,18 +144,34 @@
       [%+ terms.bug %] [%+ bug_id FILTER html %].
     [% END %]
 
+  [% ELSIF error == "invalid_series_id" %]
+    [% title = "Invalid Series" %]
+    The series_id [% series_id FILTER html %] is not valid. It may be that
+    this series has been deleted.
+    
+  [% ELSIF error == "mismatched_bug_ids_on_obsolete" %]
+    Attachment [% attach_id FILTER html %] ([% description FILTER html %]) 
+    is attached to [% terms.bug %] [%+ attach_bug_id FILTER html %], 
+    but you tried to flag it as obsolete while creating a new attachment to 
+    [% terms.bug %] [%+ my_bug_id FILTER html %].
+        
   [% ELSIF error == "flag_nonexistent" %]
     There is no flag with ID #[% id FILTER html %].
 
   [% ELSIF error == "flags_not_available" %]
     [% title = "Flag Editing not Allowed" %]
-    Flags cannot be set or changed when
-    changing several [% terms.bugs %] at once.
+    [% IF type == "b" %]
+      Flags cannot be set or changed when
+      changing several [% terms.bugs %] at once.
+    [% ELSE %]
+      References to existing flags when creating
+      a new attachment are invalid.
+    [% END %] 
 
   [% ELSIF error == "flag_requestee_disabled" %]
     [% title = "Flag not Specifically Requestable" %]
     The flag <em>[% name FILTER html %]</em> is not specifically requestable.
-
+  
   [% ELSIF error == "flag_status_invalid" %]
     The flag status <em>[% status FILTER html %]</em>
     [% IF id %]
@@ -197,7 +202,7 @@
   
   [% ELSIF error == "flag_type_target_type_invalid" %]
     The target type was neither <em>[% terms.bug %]</em> nor <em>attachment</em>
-    but rather <em>[% variables.target_type FILTER html %]</em>.
+    but rather <em>[% target_type FILTER html %]</em>.
   
   [% ELSIF error == "invalid_field_name" %]
     Can't use [% field FILTER html %] as a field name.
@@ -205,7 +210,18 @@
   [% ELSIF error == "invalid_keyword_id" %]
     The keyword ID <em>[% id FILTER html %]</em> couldn't be
     found.
-    
+
+  [% ELSIF error == "invalid_user" %]
+    [% title = "Invalid User" %]
+    There is no user account
+    [% IF user_id %]
+      with ID <em>[% user_id FILTER html %]</em>.
+    [% ELSIF user_login %]
+      with login name <em>[% user_login FILTER html %]</em>.
+    [% ELSE %]
+      given.
+    [% END %]
+
   [% ELSIF error == "missing_bug_id" %]
     No [% terms.bug %] ID was given.
     
@@ -214,10 +230,6 @@
     it. Series: [% series.category FILTER html %] / 
     [%+ series.subcategory FILTER html %] / 
     [%+ series.name FILTER html %].
-    
-  [% ELSIF error == "no_y_axis_defined" %]
-    No Y axis was defined when creating report. The X axis is optional,
-    but the Y axis is compulsory.
     
   [% ELSIF error == "need_quipid" %]
     A valid quipid is needed.
@@ -231,6 +243,19 @@
     [%+ ELSIF fld == "y" %]the vertical axis
     [%+ ELSIF fld == "z" %]the multiple tables/images
     [%+ ELSE %]a report axis[% END %] field.
+
+  [% ELSIF error == "setting_info_invalid" %]
+    To create a new setting, you must supply a setting name, a list of 
+    value/sortindex pairs, and the devault value.
+
+  [% ELSIF error == "setting_name_invalid" %]
+    The setting name <em>[% name FILTER html %]</em> is not a valid
+    option. Setting names must begin with a letter, and contain only
+    letters, digits, or the symbols '_', '-', '.', or ':'.
+
+  [% ELSIF error == "setting_value_invalid" %]
+    The value "<code>[% value FILTER html %]</code>" is not in the list of
+    legal values for the <em>[% name FILTER html %]</em> setting.
 
   [% ELSIF error == "token_generation_error" %]
     Something is seriously wrong with the token generation system.
@@ -254,6 +279,25 @@
     [% ELSE %]
        I could not figure out what you wanted to do.
     [% END %]
+
+  [% ELSIF error == "nested_transaction" %]
+    Attempted to start a new transaction without finishing previous one first.
+
+  [% ELSIF error == "not_in_transaction" %]
+    Attempted to end transaction without starting one first.
+
+  [% ELSIF error == "already_locked" %]
+    Attempted to lock a table without releasing previous lock first:
+    <p>Tables already locked:<br>[% current FILTER html %]
+    <p>Tables requesting locking:<br>[% new FILTER html %]
+
+  [% ELSIF error == "no_matching_lock" %]
+    Attempted to unlock tables without locking them first.
+
+  [% ELSIF error == "comma_operator_deprecated" %]
+    [% title = "SQL query generator internal error" %]
+    There is an internal error in the SQL query generation code,
+    creating queries with implicit JOIN.
 
   [% ELSE %]
     [% title = "Internal error" %]

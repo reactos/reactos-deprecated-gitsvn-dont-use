@@ -81,7 +81,6 @@ tbody.file pre {
 
 tbody.file pre:empty {
   display: block;
-  height: 1em;
 }
 
 .changed {
@@ -229,7 +228,7 @@ tbody.file pre:empty {
   <style type="text/css">
   [% style %]
   </style>
-  <script type="text/javascript" language="JavaScript">
+  <script type="text/javascript">
   <!--
   [% javascript %]
   -->
@@ -244,12 +243,12 @@ tbody.file pre:empty {
   [% IF headers %]
     <a href="[% PROCESS viewurl id=attachid %]">View</a>
     | <a href="[% PROCESS editurl id=attachid %]">Edit</a>
-    | <a href="[% PROCESS diffurl id=attachid %]&amp;context=[% context FILTER html %]&amp;collapsed=[% collapsed FILTER html %]&amp;headers=[% headers FILTER html %]&amp;format=raw">Raw&nbsp;Unified</a>
+    | <a href="[% PROCESS diffurl id=attachid %]&amp;context=[% context FILTER url_quote %]&amp;collapsed=[% collapsed FILTER url_quote %]&amp;headers=[% headers FILTER url_quote %]&amp;format=raw">Raw&nbsp;Unified</a>
   [% END %]
   [% IF other_patches.size > 0 %]
     [% IF headers %] |[%END%]
     Differences between
-    <form style="display: inline" action="">
+    <form style="display: inline" action="attachment.cgi">
       <select name="oldid">
       [% FOREACH patch = other_patches %]
         <option value="[% patch.id %]"
@@ -288,19 +287,19 @@ tbody.file pre:empty {
   [% IF context == "patch" %]
     (<strong>Patch</strong> / 
   [% ELSE %]
-    (<a href="[% PROCESS diffurl id=attachid %]&amp;headers=[% headers FILTER html %]">Patch</a> / 
+    (<a href="[% PROCESS diffurl id=attachid %]&amp;headers=[% headers FILTER url_quote %]">Patch</a> / 
   [% END %]
   [% IF context == "file" %]
     <strong>File</strong> /
   [% ELSE %]
-    <a href="[% PROCESS diffurl id=attachid %]&amp;headers=[% headers FILTER html %]&amp;context=file">File</a> / 
+    <a href="[% PROCESS diffurl id=attachid %]&amp;headers=[% headers FILTER url_quote %]&amp;context=file">File</a> / 
   [% END %]
 
   [% IF context == "patch" || context == "file" %]
     [% context = 3 %]
   [% END %]
   [%# textbox for context %]
-  <form style="display: inline" action=""><input type="hidden" name="action" value="diff"><input type="hidden" name="id" value="[% attachid %]"><input type="hidden" name="collapsed" value="[% collapsed FILTER html %]"><input type="hidden" name="headers" value="[% headers FILTER html %]"><input type="text" name="context" value="[% context FILTER html %]" size="3"></form>)
+  <form style="display: inline" action="attachment.cgi"><input type="hidden" name="action" value="diff"><input type="hidden" name="id" value="[% attachid %]"><input type="hidden" name="collapsed" value="[% collapsed FILTER html %]"><input type="hidden" name="headers" value="[% headers FILTER html %]"><input type="text" name="context" value="[% context FILTER html %]" size="3"></form>)
 [% END %]
 
 [% IF warning %]
@@ -320,7 +319,7 @@ tbody.file pre:empty {
 [% END %]
  
 [%# Restore Stuff %]
-<form name="checkboxform" action="">
+<form name="checkboxform" action="attachment.cgi">
 <input type="checkbox" name="restore_indicator" style="display: none">
 
 

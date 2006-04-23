@@ -106,7 +106,9 @@ sub initFromDatabase {
         "WHERE series.series_id = $series_id AND " .
         "(public = 1 OR creator = " . Bugzilla->user->id . " OR " .
         "(ugm.group_id IS NOT NULL)) " . 
-        "GROUP BY series_id");
+        $dbh->sql_group_by('series.series_id', 'cc1.name, cc2.name, ' .
+                           'series.name, series.creator, series.frequency, ' .
+                           'series.query, series.public'));
     
     if (@series) {
         $self->initFromParameters(@series);
@@ -163,14 +165,14 @@ sub initFromCGI {
     
     # Change 'admin' here and in series.html.tmpl, or remove the check
     # completely, if you want to change who can make series public.
-    $self->{'public'} = 0 unless &::UserInGroup('admin');
+    $self->{'public'} = 0 unless UserInGroup('admin');
 }
 
 sub writeToDatabase {
     my $self = shift;
 
     my $dbh = Bugzilla->dbh;
-    $dbh->do("LOCK TABLES series_categories WRITE, series WRITE");
+    $dbh->bz_lock_tables('series_categories WRITE', 'series WRITE');
 
     my $category_id = getCategoryID($self->{'category'});
     my $subcategory_id = getCategoryID($self->{'subcategory'});
@@ -210,7 +212,7 @@ sub writeToDatabase {
           || &::ThrowCodeError("missing_series_id", { 'series' => $self });
     }
     
-    $dbh->do("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
 }
 
 # Check whether a series with this name, category and subcategory exists in

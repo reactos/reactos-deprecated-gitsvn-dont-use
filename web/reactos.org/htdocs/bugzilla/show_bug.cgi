@@ -26,6 +26,7 @@ use lib qw(.);
 
 use Bugzilla;
 use Bugzilla::Constants;
+use Bugzilla::User;
 
 require "CGI.pl";
 
@@ -59,6 +60,7 @@ my $format = GetFormat("bug/show", scalar $cgi->param('format'),
 GetVersionTable();
 
 my @bugs = ();
+my %marks;
 
 if ($single) {
     my $id = $cgi->param('id');
@@ -66,6 +68,17 @@ if ($single) {
     # probably move into Bug.pm at some point
     ValidateBugID($id);
     push @bugs, new Bugzilla::Bug($id, $userid);
+    if (defined $cgi->param('mark')) {
+        foreach my $range (split ',', $cgi->param('mark')) {
+            if ($range =~ /^(\d+)-(\d+)$/) {
+               foreach my $i ($1..$2) {
+                   $marks{$i} = 1;
+               }
+            } elsif ($range =~ /^(\d+)$/) {
+               $marks{$1} = 1;
+            }
+        }
+    }
 } else {
     foreach my $id ($cgi->param('id')) {
         my $bug = new Bugzilla::Bug($id, $userid);
@@ -80,6 +93,8 @@ eval {
 };
 
 $vars->{'bugs'} = \@bugs;
+$vars->{'marks'} = \%marks;
+$vars->{'use_keywords'} = 1 if (@::legal_keywords);
 
 # Next bug in list (if there is one)
 my @bug_list;

@@ -26,24 +26,63 @@ use base qw(Exporter);
 
 @Bugzilla::Error::EXPORT = qw(ThrowCodeError ThrowTemplateError ThrowUserError);
 
-use Bugzilla::Config;
+use Bugzilla::Config qw($datadir);
+use Bugzilla::Constants;
 use Bugzilla::Util;
+use Date::Format;
 
 sub _throw_error {
-    my ($name, $error, $vars, $unlock_tables) = @_;
+    my ($name, $error, $vars) = @_;
 
     $vars ||= {};
 
     $vars->{error} = $error;
 
-    Bugzilla->dbh->do("UNLOCK TABLES") if $unlock_tables;
+    # Make sure any locked tables are unlocked
+    # and the transaction is rolled back (if supported)
+    Bugzilla->dbh->bz_unlock_tables(UNLOCK_ABORT);
 
-    print Bugzilla->cgi->header();
+    # If a writable $datadir/errorlog exists, log error details there.
+    if (-w "$datadir/errorlog") {
+        require Data::Dumper;
+        my $mesg = "";
+        for (1..75) { $mesg .= "-"; };
+        $mesg .= "\n[$$] " . time2str("%D %H:%M:%S ", time());
+        $mesg .= "$name $error ";
+        $mesg .= "$ENV{REMOTE_ADDR} " if $ENV{REMOTE_ADDR};
+        $mesg .= Bugzilla->user->login;
+        $mesg .= "\n";
+        my %params = Bugzilla->cgi->Vars;
+        $Data::Dumper::Useqq = 1;
+        for my $param (sort keys %params) {
+            my $val = $params{$param};
+            # obscure passwords
+            $val = "*****" if $param =~ /password/i;
+            # limit line length
+            $val =~ s/^(.{512}).*$/$1\[CHOP\]/;
+            $mesg .= "[$$] " . Data::Dumper->Dump([$val],["param($param)"]);
+        }
+        for my $var (sort keys %ENV) {
+            my $val = $ENV{$var};
+            $val = "*****" if $val =~ /password|http_pass/i;
+            $mesg .= "[$$] " . Data::Dumper->Dump([$val],["env($var)"]);
+        }
+        open(ERRORLOGFID, ">>$datadir/errorlog");
+        print ERRORLOGFID "$mesg\n";
+        close ERRORLOGFID;
+    }
 
     my $template = Bugzilla->template;
-    $template->process($name, $vars)
-      || ThrowTemplateError($template->error());
-
+    if (Bugzilla->batch) {
+        my $message;
+        $template->process($name, $vars, \$message)
+          || ThrowTemplateError($template->error());
+        die("$message");
+    } else {
+        print Bugzilla->cgi->header();
+        $template->process($name, $vars)
+          || ThrowTemplateError($template->error());
+    }
     exit;
 }
 
@@ -58,7 +97,14 @@ sub ThrowCodeError {
 sub ThrowTemplateError {
     my ($template_err) = @_;
 
+    # Make sure any locked tables are unlocked
+    # and the transaction is rolled back (if supported)
+    Bugzilla->dbh->bz_unlock_tables(UNLOCK_ABORT);
+
     my $vars = {};
+    if (Bugzilla->batch) {
+        die("error: template error: $template_err");
+    }
 
     $vars->{'template_error_msg'} = $template_err;
     $vars->{'error'} = "template_error";
@@ -68,9 +114,9 @@ sub ThrowTemplateError {
     # Try a template first; but if this one fails too, fall back
     # on plain old print statements.
     if (!$template->process("global/code-error.html.tmpl", $vars)) {
-        my $maintainer = Param('maintainer');
-        my $error = html_quote($vars->{'template_error_msg'});
-        my $error2 = html_quote($template->error());
+        my $maintainer = Bugzilla::Config::Param('maintainer');
+        my $error = Bugzilla::Util::html_quote($vars->{'template_error_msg'});
+        my $error2 = Bugzilla::Util::html_quote($template->error());
         print <<END;
         <tt>
           <p>
@@ -115,6 +161,10 @@ Various places throughout the Bugzilla codebase need to report errors to the
 user. The C<Throw*Error> family of functions allow this to be done in a
 generic and localisable manner.
 
+These functions automatically unlock the database tables, if there were any
+locked. They will also roll back the transaction, if it is supported by
+the underlying DB.
+
 =head1 FUNCTIONS
 
 =over 4
@@ -125,11 +175,6 @@ This function takes an error tag as the first argument, and an optional hashref
 of variables as a second argument. These are used by the
 I<global/user-error.html.tmpl> template to format the error, using the passed
 in variables as required.
-
-An optional third argument may be supplied. If present (and defined), then the
-error handling code will unlock the database tables. In the long term, this
-argument will go away, to be replaced by transactional C<rollback> calls. There
-is no timeframe for doing so, however.
 
 =item C<ThrowCodeError>
 

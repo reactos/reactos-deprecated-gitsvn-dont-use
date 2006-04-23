@@ -115,16 +115,11 @@ sub add {
     my $self = shift;
     my @series_ids = @_;
 
-    # If we are going from < 2 to >= 2 series, add the Grand Total line.
-    if (!$self->{'gt'}) {
-        my $current_size = scalar($self->getSeriesIDs());
-        if ($current_size < 2 &&
-            $current_size + scalar(@series_ids) >= 2) 
-        {
-            $self->{'gt'} = 1;
-        }
-    }
-        
+    # Get the current size of the series; required for adding Grand Total later
+    my $current_size = scalar($self->getSeriesIDs());
+    
+    # Count the number of added series
+    my $added = 0;
     # Create new Series and push them on to the list of lines.
     # Note that new lines have no label; the display template is responsible
     # for inventing something sensible.
@@ -133,6 +128,16 @@ sub add {
         if ($series) {
             push(@{$self->{'lines'}}, [$series]);
             push(@{$self->{'labels'}}, "");
+            $added++;
+        }
+    }
+    
+    # If we are going from < 2 to >= 2 series, add the Grand Total line.
+    if (!$self->{'gt'}) {
+        if ($current_size < 2 &&
+            $current_size + $added >= 2) 
+        {
+            $self->{'gt'} = 1;
         }
     }
 }
@@ -229,9 +234,9 @@ sub readData {
     }
 
     # Prepare the query which retrieves the data for each series
-    my $query = "SELECT TO_DAYS(series_date) - " . 
-                "  TO_DAYS(FROM_UNIXTIME($datefrom)), " . 
-                "series_value FROM series_data " .
+    my $query = "SELECT " . $dbh->sql_to_days('series_date') . " - " . 
+                            $dbh->sql_to_days("FROM_UNIXTIME($datefrom)") .
+                ", series_value FROM series_data " .
                 "WHERE series_id = ? " .
                 "AND series_date >= FROM_UNIXTIME($datefrom)";
     if ($dateto) {
@@ -320,7 +325,8 @@ sub getVisibleSeries {
                         "    AND cgm.group_id NOT IN($grouplist) " .
                         "WHERE creator = " . Bugzilla->user->id . " OR " .
                         "      cgm.category_id IS NULL " . 
-                        "GROUP BY series_id");
+                   $dbh->sql_group_by('series.series_id', 'cc1.name, cc2.name, ' .
+                                      'series.name'));
     foreach my $series (@$serieses) {
         my ($cat, $subcat, $name, $series_id) = @$series;
         $cats{$cat}{$subcat}{$name} = $series_id;

@@ -181,11 +181,11 @@ FIN
 }
 
 sub calculate_dupes {
-    SendSQL("SELECT * FROM duplicates");
+    my $dbh = Bugzilla->dbh;
+    my $rows = $dbh->selectall_arrayref("SELECT dupe_of, dupe FROM duplicates");
 
     my %dupes;
     my %count;
-    my @row;
     my $key;
     my $changed = 1;
 
@@ -203,9 +203,8 @@ sub calculate_dupes {
 
     # Create a hash with key "a bug number", value "bug which that bug is a
     # direct dupe of" - straight from the duplicates table.
-    while (@row = FetchSQLData()) {
-        my $dupe_of = shift @row;
-        my $dupe = shift @row;
+    foreach my $row (@$rows) {
+        my ($dupe_of, $dupe) = @$row;
         $dupes{$dupe} = $dupe_of;
     }
 
@@ -258,8 +257,9 @@ sub calculate_dupes {
 sub regenerate_stats {
     my $dir = shift;
     my $product = shift;
-    my $when = localtime(time());
 
+    my $dbh = Bugzilla->dbh;
+    my $when = localtime(time());
     my $tstart = time();
 
     # NB: Need to mangle the product for the filename, but use the real
@@ -274,20 +274,21 @@ sub regenerate_stats {
     my $from_product = "";
                     
     if ($product ne '-All-') {
-        $and_product = "AND bugs.product_id = products.id " .
-                       "AND products.name = " . SqlQuote($product) . " ";
-        $from_product = ", products";                       
+        $and_product = " AND products.name = " . SqlQuote($product);
+        $from_product = "INNER JOIN products " .
+                        "ON bugs.product_id = products.id";
     }          
               
     # Determine the start date from the date the first bug in the
     # database was created, and the end date from the current day.
     # If there were no bugs in the search, return early.
-    SendSQL("SELECT to_days(creation_ts) AS start, " .
-            "to_days(current_date) AS end, " .
-            "to_days('1970-01-01') " . 
-            "FROM bugs $from_product WHERE to_days(creation_ts) != 'NULL' " .
+    SendSQL("SELECT " . $dbh->sql_to_days('creation_ts') . " AS start, " .
+                        $dbh->sql_to_days('current_date') . " AS end, " .
+                        $dbh->sql_to_days("'1970-01-01'") . 
+            " FROM bugs $from_product WHERE " .
+            $dbh->sql_to_days('creation_ts') . " IS NOT NULL " .
             $and_product .
-            "ORDER BY start LIMIT 1");
+            " ORDER BY start " . $dbh->sql_limit(1));
     
     my ($start, $end, $base) = FetchSQLData();
     if (!defined $start) {
@@ -315,8 +316,8 @@ FIN
             # Get a list of bugs that were created the previous day, and
             # add those bugs to the list of bugs for this product.
             SendSQL("SELECT bug_id FROM bugs $from_product " .
-                    "WHERE bugs.creation_ts < from_days(" . ($day - 1) . ") " . 
-                    "AND bugs.creation_ts >= from_days(" . ($day - 2) . ") " .
+                    " WHERE bugs.creation_ts < " . $dbh->sql_from_days($day - 1) .
+                    " AND bugs.creation_ts >= " . $dbh->sql_from_days($day - 2) .
                     $and_product .
                     " ORDER BY bug_id");
             
@@ -348,12 +349,14 @@ FIN
             for my $bug (@bugs) {
                 # First, get information on various bug states.
                 SendSQL("SELECT bugs_activity.removed " .
-                        "FROM bugs_activity,fielddefs " .
-                        "WHERE bugs_activity.fieldid = fielddefs.fieldid " .
-                        "AND fielddefs.name = 'bug_status' " .
-                        "AND bugs_activity.bug_id = $bug " .
-                        "AND bugs_activity.bug_when >= from_days($day) " .
-                        "ORDER BY bugs_activity.bug_when LIMIT 1");
+                        "  FROM bugs_activity " .
+                    "INNER JOIN fielddefs " .
+                        "    ON bugs_activity.fieldid = fielddefs.fieldid " .
+                        " WHERE fielddefs.name = 'bug_status' " .
+                        "   AND bugs_activity.bug_id = $bug " .
+                        "   AND bugs_activity.bug_when >= " . $dbh->sql_from_days($day) .
+                     " ORDER BY bugs_activity.bug_when " .
+                        $dbh->sql_limit(1));
                 
                 my $status;
                 if (@row = FetchSQLData()) {
@@ -369,12 +372,14 @@ FIN
 
                 # Next, get information on various bug resolutions.
                 SendSQL("SELECT bugs_activity.removed " .
-                        "FROM bugs_activity,fielddefs " .
-                        "WHERE bugs_activity.fieldid = fielddefs.fieldid " .
-                        "AND fielddefs.name = 'resolution' " .
-                        "AND bugs_activity.bug_id = $bug " .
-                        "AND bugs_activity.bug_when >= from_days($day) " .
-                        "ORDER BY bugs_activity.bug_when LIMIT 1");
+                        "  FROM bugs_activity " .
+                    "INNER JOIN fielddefs " .
+                        "    ON bugs_activity.fieldid = fielddefs.fieldid " .
+                        " WHERE fielddefs.name = 'resolution' " .
+                        "   AND bugs_activity.bug_id = $bug " .
+                        "   AND bugs_activity.bug_when >= " . $dbh->sql_from_days($day) .
+                     " ORDER BY bugs_activity.bug_when " . 
+                        $dbh->sql_limit(1));
                         
                 if (@row = FetchSQLData()) {
                     $status = $row[0];
@@ -453,10 +458,8 @@ sub CollectSeriesData {
 
     # We save a copy of the main $dbh and then switch to the shadow and get
     # that one too. Remember, these may be the same.
-    Bugzilla->switch_to_main_db();
-    my $dbh = Bugzilla->dbh;
-    Bugzilla->switch_to_shadow_db();
-    my $shadow_dbh = Bugzilla->dbh;
+    my $dbh = Bugzilla->switch_to_main_db();
+    my $shadow_dbh = Bugzilla->switch_to_shadow_db();
     
     my $serieses = $dbh->selectall_hashref("SELECT series_id, query, creator " .
                       "FROM series " .

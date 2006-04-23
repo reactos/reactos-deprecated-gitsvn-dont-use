@@ -76,9 +76,6 @@
 
 [% PROCESS depthControlToolbar %]
 
-[% PROCESS global/footer.html.tmpl %]
-
-
 [%###########################################################################%]
 [%# Block to display a tree                                                 #%]
 [%###########################################################################%]
@@ -99,7 +96,7 @@
         [% IF dep.seen %]
           <i>This [% terms.bug %] appears elsewhere in this tree.</i></a>
         [% ELSE %]
-          [% dep.summary FILTER html %].</a>
+          [%+ dep.summary FILTER html %].</a>
         [% END %]
       [% END %]
       [% INCLUDE display_tree bug_id=dep_id
@@ -109,14 +106,12 @@
 </ul>
 [% END %]
 
-[%###########################################################################%]
-[%# Block for depth control toolbar                                         #%]
-[%###########################################################################%]
-
- <script type="text/javascript" language="JavaScript">
-if (!Node) {
-    /* MSIE doesn't define Node, so provide a compatibility array */
-    var Node = { TEXT_NODE: 3, };
+<script type="text/javascript">
+if (typeof Node == 'undefined') {
+    /* MSIE doesn't define Node, so provide a compatibility object */
+    window.Node = {
+        TEXT_NODE: 3
+    };
 }
 
 function toggleDisplay(node)
@@ -124,7 +119,7 @@ function toggleDisplay(node)
     var display = node.style.display;
     if (display == "none") {
         node.style.display =
-           ("oldDisplay" in node) ? node.oldDisplay : "block";
+            ("oldDisplay" in node) ? node.oldDisplay : "block";
         return true;
     }
 
@@ -136,17 +131,26 @@ function toggleDisplay(node)
 function listToggle(event)
 {
     var node = event.target;
+    if (!node)
+        node = event.srcElement;
     if (node.nodeType == Node.TEXT_NODE)
         node = node.parentNode;
     var toggle = node.nextSibling;
     while (toggle && toggle.tagName != "UL")
-      toggle = toggle.nextSibling;
+        toggle = toggle.nextSibling;
     if (toggle) {
-      node.firstChild.data = toggleDisplay(toggle) ? "[-]" : "[+]";
+        node.firstChild.data = toggleDisplay(toggle) ? "[-]" : "[+]";
     }
 }
 
- </script>
+</script>
+
+[% PROCESS global/footer.html.tmpl %]
+
+[%###########################################################################%]
+[%# Block for depth control toolbar                                         #%]
+[%###########################################################################%]
+
 [% BLOCK depthControlToolbar %]
  <table cellpadding="3" border="0" cellspacing="0" bgcolor="#d0d0d0">
  <tr>

@@ -20,6 +20,7 @@
 #                 Christopher Aillon <christopher@aillon.com>
 #                 Gervase Markham <gerv@gerv.net>
 #                 Vlad Dascalu <jocuri@softhome.net>
+#                 Shane H. W. Travis <travis@sedsystems.ca>
 
 use strict;
 
@@ -28,17 +29,13 @@ use lib qw(.);
 use Bugzilla;
 use Bugzilla::Constants;
 use Bugzilla::Search;
+use Bugzilla::Util;
+use Bugzilla::User;
 
 require "CGI.pl";
 
-use Bugzilla::RelationSet;
-
 # Use global template variables.
 use vars qw($template $vars $userid);
-
-my @roles = ("Owner", "Reporter", "QAcontact", "CClist", "Voter");
-my @reasons = ("Removeme", "Comments", "Attachments", "Status", "Resolved", 
-               "Keywords", "CC", "Other", "Unconfirmed");
 
 ###############################################################################
 # Each panel has two functions - panel Foo has a DoFoo, to get the data 
@@ -47,15 +44,17 @@ my @reasons = ("Removeme", "Comments", "Attachments", "Status", "Resolved",
 # SaveFoo may be called before DoFoo.    
 ###############################################################################
 sub DoAccount {
+    my $dbh = Bugzilla->dbh;
     SendSQL("SELECT realname FROM profiles WHERE userid = $userid");
     $vars->{'realname'} = FetchSQLData();
 
     if(Param('allowemailchange')) {
-        SendSQL("SELECT tokentype, issuedate + INTERVAL 3 DAY, eventdata 
+        SendSQL("SELECT tokentype, issuedate + " . $dbh->sql_interval(3, 'DAY') .
+                ", eventdata
                     FROM tokens
                     WHERE userid = $userid
                     AND tokentype LIKE 'email%' 
-                    ORDER BY tokentype ASC LIMIT 1");
+                    ORDER BY tokentype ASC " . $dbh->sql_limit(1));
         if(MoreSQLData()) {
             my ($tokentype, $change_date, $eventdata) = &::FetchSQLData();
             $vars->{'login_change_date'} = $change_date;
@@ -69,112 +68,173 @@ sub DoAccount {
 }
 
 
-sub DoEmail {
-    if (Param("supportwatchers")) {
-        my $watcheduserSet = new Bugzilla::RelationSet;
-        $watcheduserSet->mergeFromDB("SELECT watched FROM watch WHERE" .
-                                    " watcher=$userid");
-        $vars->{'watchedusers'} = $watcheduserSet->toString();
-    }
+sub DoSettings {
+    $vars->{'settings'} = Bugzilla->user->settings;
 
-    SendSQL("SELECT emailflags FROM profiles WHERE userid = $userid");
-
-    my ($flagstring) = FetchSQLData();
-
-    # The 255 param is here, because without a third param, split will
-    # trim any trailing null fields, which causes Perl to eject lots of
-    # warnings. Any suitably large number would do.
-    my %emailflags = split(/~/, $flagstring, 255);
-
-    # Determine the value of the "excludeself" global email preference.
-    # Note that the value of "excludeself" is assumed to be off if the
-    # preference does not exist in the user's list, unlike other 
-    # preferences whose value is assumed to be on if they do not exist.
-    if (exists($emailflags{'ExcludeSelf'}) 
-        && $emailflags{'ExcludeSelf'} eq 'on')
-    {
-        $vars->{'excludeself'} = 1;
-    }
-    else {
-        $vars->{'excludeself'} = 0;
-    }
-    
-    foreach my $flag (qw(FlagRequestee FlagRequester)) {
-        $vars->{$flag} = 
-          !exists($emailflags{$flag}) || $emailflags{$flag} eq 'on';
-    }
-    
-    # Parse the info into a hash of hashes; the first hash keyed by role,
-    # the second by reason, and the value being 1 or 0 for (on or off).
-    # Preferences not existing in the user's list are assumed to be on.
-    foreach my $role (@roles) {
-        $vars->{$role} = {};
-        foreach my $reason (@reasons) {
-            my $key = "email$role$reason";
-            if (!exists($emailflags{$key}) || $emailflags{$key} eq 'on') {
-                $vars->{$role}{$reason} = 1;
-            }
-            else {
-                $vars->{$role}{$reason} = 0;
-            }
-        }
-    }
+    my @setting_list = keys %{Bugzilla->user->settings};
+    $vars->{'setting_names'} = \@setting_list;
 }
 
-# Note: we no longer store "off" values in the database.
-sub SaveEmail {
-    my $updateString = "";
+sub SaveSettings {
     my $cgi = Bugzilla->cgi;
-    
-    if (defined $cgi->param('ExcludeSelf')) {
-        $updateString .= 'ExcludeSelf~on';
-    } else {
-        $updateString .= 'ExcludeSelf~';
-    }
-    
-    foreach my $flag (qw(FlagRequestee FlagRequester)) {
-        $updateString .= "~$flag~" . (defined $cgi->param($flag) ? "on" : "");
-    }
-    
-    foreach my $role (@roles) {
-        foreach my $reason (@reasons) {
-            # Add this preference to the list without giving it a value,
-            # which is the equivalent of setting the value to "off."
-            $updateString .= "~email$role$reason~";
-            
-            # If the form field for this preference is defined, then we
-            # know the checkbox was checked, so set the value to "on".
-            $updateString .= "on" if defined $cgi->param("email$role$reason");
+
+    my $settings = Bugzilla->user->settings;
+    my @setting_list = keys %{Bugzilla->user->settings};
+
+    foreach my $name (@setting_list) {
+        next if ! ($settings->{$name}->{'is_enabled'});
+        my $value = $cgi->param($name);
+        my $setting = new Bugzilla::User::Setting($name);
+
+        if ($value eq "${name}-isdefault" ) {
+            if (! $settings->{$name}->{'is_default'}) {
+                $settings->{$name}->reset_to_default;
+            }
+        }
+        else {
+            $setting->validate_value($value);
+            $settings->{$name}->set($value);
         }
     }
-            
-    SendSQL("UPDATE profiles SET emailflags = " . SqlQuote($updateString) . 
-            " WHERE userid = $userid");
+    $vars->{'settings'} = Bugzilla->user->settings(1);
+}
 
+sub DoEmail {
+    my $dbh = Bugzilla->dbh;
+    
+    ###########################################################################
+    # User watching
+    ###########################################################################
+    if (Param("supportwatchers")) {
+        my $watched_ref = $dbh->selectcol_arrayref(
+            "SELECT profiles.login_name FROM watch INNER JOIN profiles" .
+            " ON watch.watched = profiles.userid" .
+            " WHERE watcher = ?",
+            undef, $userid);
+        $vars->{'watchedusers'} = join(',', @$watched_ref);
+
+        my $watcher_ids = $dbh->selectcol_arrayref(
+            "SELECT watcher FROM watch WHERE watched = ?",
+            undef, $userid);
+
+        my @watchers;
+        foreach my $watcher_id (@$watcher_ids) {
+            my $watcher = new Bugzilla::User($watcher_id);
+            push (@watchers, Bugzilla::User::identity($watcher));
+        }
+
+        @watchers = sort { lc($a) cmp lc($b) } @watchers;
+        $vars->{'watchers'} = \@watchers;
+    }
+
+    ###########################################################################
+    # Role-based preferences
+    ###########################################################################
+    my $sth = Bugzilla->dbh->prepare("SELECT relationship, event " . 
+                                     "FROM email_setting " . 
+                                     "WHERE user_id = $userid");
+    $sth->execute();
+
+    my %mail;
+    while (my ($relationship, $event) = $sth->fetchrow_array()) {
+        $mail{$relationship}{$event} = 1;
+    }
+
+    $vars->{'mail'} = \%mail;      
+}
+
+sub SaveEmail {
+    my $dbh = Bugzilla->dbh;
+    my $cgi = Bugzilla->cgi;
+    
+    ###########################################################################
+    # Role-based preferences
+    ###########################################################################
+    $dbh->bz_lock_tables("email_setting WRITE");
+
+    # Delete all the user's current preferences
+    $dbh->do("DELETE FROM email_setting WHERE user_id = $userid");
+
+    # Repopulate the table - first, with normal events in the 
+    # relationship/event matrix.
+    # Note: the database holds only "off" email preferences, as can be implied 
+    # from the name of the table - profiles_nomail.
+    foreach my $rel (RELATIONSHIPS) {
+        # Positive events: a ticked box means "send me mail."
+        foreach my $event (POS_EVENTS) {
+            if (defined($cgi->param("email-$rel-$event"))
+                && $cgi->param("email-$rel-$event") == 1)
+            {
+                $dbh->do("INSERT INTO email_setting " . 
+                         "(user_id, relationship, event) " . 
+                         "VALUES ($userid, $rel, $event)");
+            }
+        }
+        
+        # Negative events: a ticked box means "don't send me mail."
+        foreach my $event (NEG_EVENTS) {
+            if (!defined($cgi->param("neg-email-$rel-$event")) ||
+                $cgi->param("neg-email-$rel-$event") != 1) 
+            {
+                $dbh->do("INSERT INTO email_setting " . 
+                         "(user_id, relationship, event) " . 
+                         "VALUES ($userid, $rel, $event)");
+            }
+        }
+    }
+
+    # Global positive events: a ticked box means "send me mail."
+    foreach my $event (GLOBAL_EVENTS) {
+        if (defined($cgi->param("email-" . REL_ANY . "-$event"))
+            && $cgi->param("email-" . REL_ANY . "-$event") == 1)
+        {
+            $dbh->do("INSERT INTO email_setting " . 
+                     "(user_id, relationship, event) " . 
+                     "VALUES ($userid, " . REL_ANY . ", $event)");
+        }
+    }
+
+    $dbh->bz_unlock_tables();
+
+    ###########################################################################
+    # User watching
+    ###########################################################################
     if (Param("supportwatchers") && defined $cgi->param('watchedusers')) {
         # Just in case.  Note that this much locking is actually overkill:
         # we don't really care if anyone reads the watch table.  So 
         # some small amount of contention could be gotten rid of by
         # using user-defined locks rather than table locking.
-        SendSQL("LOCK TABLES watch WRITE, profiles READ");
+        $dbh->bz_lock_tables('watch WRITE', 'profiles READ');
 
         # what the db looks like now
-        my $origWatchedUsers = new Bugzilla::RelationSet;
-        $origWatchedUsers->mergeFromDB("SELECT watched FROM watch WHERE" .
-                                       " watcher=$userid");
+        my $old_watch_ids =
+            $dbh->selectcol_arrayref("SELECT watched FROM watch"
+                                   . " WHERE watcher = ?", undef, $userid);
+ 
+       # The new information given to us by the user.
+        my @new_watch_names = split(/[,\s]+/, $cgi->param('watchedusers'));
+        my %new_watch_ids;
+        foreach my $username (@new_watch_names) {
+            my $watched_userid = DBNameToIdAndCheck(trim($username));
+            $new_watch_ids{$watched_userid} = 1;
+        }
+        my ($removed, $added) = diff_arrays($old_watch_ids, [keys %new_watch_ids]);
 
-        # Update the database to look like the form
-        my $newWatchedUsers = new Bugzilla::RelationSet($cgi->param('watchedusers'));
-        my @CCDELTAS = $origWatchedUsers->generateSqlDeltas(
-                                                         $newWatchedUsers, 
-                                                         "watch", 
-                                                         "watcher", 
-                                                         $userid,
-                                                         "watched");
-        ($CCDELTAS[0] eq "") || SendSQL($CCDELTAS[0]);
-        ($CCDELTAS[1] eq "") || SendSQL($CCDELTAS[1]);
+        # Remove people who were removed.
+        my $delete_sth = $dbh->prepare('DELETE FROM watch WHERE watched = ?'
+                                     . ' AND watcher = ?');
+        foreach my $remove_me (@$removed) {
+            $delete_sth->execute($remove_me, $userid);
+        }
 
-        SendSQL("UNLOCK TABLES");       
+        # Add people who were added.
+        my $insert_sth = $dbh->prepare('INSERT INTO watch (watched, watcher)'
+                                     . ' VALUES (?, ?)');
+        foreach my $add_me (@$added) {
+            $insert_sth->execute($add_me, $userid);
+        }
+
+        $dbh->bz_unlock_tables();
     }
 }
 
@@ -182,9 +242,10 @@ sub SaveEmail {
 sub DoPermissions {
     my (@has_bits, @set_bits);
     
-    SendSQL("SELECT DISTINCT name, description FROM groups, user_group_map " .
-            "WHERE user_group_map.group_id = groups.id " .
-            "AND user_id = $::userid " .
+    SendSQL("SELECT DISTINCT name, description FROM groups " .
+            "INNER JOIN user_group_map " .
+            "ON user_group_map.group_id = groups.id " .
+            "WHERE user_id = $::userid " .
             "AND isbless = 0 " .
             "ORDER BY name");
     while (MoreSQLData()) {
@@ -196,7 +257,7 @@ sub DoPermissions {
             "ORDER BY name");
     while (MoreSQLData()) {
         my ($nam, $desc) = FetchSQLData();
-        if (UserCanBlessGroup($nam)) {
+        if (Bugzilla->user->can_bless($nam)) {
             push(@set_bits, {"desc" => $desc, "name" => $nam});
         }
     }
@@ -285,6 +346,11 @@ $vars->{'current_tab_name'} = $current_tab_name;
 SWITCH: for ($current_tab_name) {
     /^account$/ && do {
         DoAccount();
+        last SWITCH;
+    };
+    /^settings$/ && do {
+        SaveSettings() if $cgi->param('dosave');
+        DoSettings();
         last SWITCH;
     };
     /^email$/ && do {

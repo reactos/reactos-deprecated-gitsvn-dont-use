@@ -25,7 +25,7 @@
 <bugzilla version="[% VERSION %]"
           urlbase="[% Param('urlbase') %]"
           maintainer="[% Param('maintainer') FILTER xml %]"
-[% IF user %]
+[% IF user.id %]
           exporter="[% user.email FILTER xml %]"
 [% END %]
 >
@@ -65,10 +65,29 @@
       [% IF displayfields.attachment %]
         [% FOREACH a = bug.attachments %]
           [% NEXT IF a.isprivate && !UserInGroup(Param("insidergroup")) %]
-          <attachment>
+          <attachment
+            [% IF a.isobsolete %]
+              isobsolete="1"
+            [% END %]
+            [% IF a.ispatch %]
+              ispatch="1"
+            [% END %]
+          >
             <attachid>[% a.attachid %]</attachid>
             <date>[% a.date FILTER time FILTER xml %]</date>
             <desc>[% a.description FILTER xml %]</desc>
+            <ctype>[% a.contenttype FILTER xml %]</ctype>
+            [% FOREACH flag = a.flags %]
+              <flag name="[% flag.type.name FILTER xml %]"
+                    status="[% flag.status FILTER xml %]"
+                    [% IF flag.setter %]
+                      setter="[% flag.setter.email FILTER xml %]"
+                    [% END %]
+                    [% IF flag.status == "?" && flag.requestee %]
+                      requestee="[% flag.requestee.email FILTER xml %]"
+                    [% END %]
+               />
+            [% END %]
           </attachment>
         [% END %]
       [% END %]
