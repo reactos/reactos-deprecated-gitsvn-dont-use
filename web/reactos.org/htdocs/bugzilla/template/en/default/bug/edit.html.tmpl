@@ -203,7 +203,7 @@
                 <a href="page.cgi?id=fields.html#assigned_to">Assigned&nbsp;To</a>:
               </b>
             </td>
-            <td>[% bug.assigned_to.identity FILTER html %]</td>
+            <td>[% bug.assigned_to.name FILTER html %]</td>
           </tr>
 
         </table>
@@ -274,8 +274,7 @@
               <b>Reporter:</b>
             </td>
             <td>
-              <a href="mailto:[% bug.reporter.email FILTER html %]">
-                [% bug.reporter.identity FILTER html %]</a>
+              [% bug.reporter.name FILTER html %]
             </td>
           </tr>
 
