@@ -37,10 +37,14 @@ use Bugzilla::BugMail;
 # Whining is disabled if whinedays is zero
 exit unless Param('whinedays') >= 1;
 
-SendSQL("select bug_id,short_desc,login_name from bugs,profiles where " .
-        "(bug_status = 'NEW' or bug_status = 'REOPENED') and " . 
-        "to_days(now()) - to_days(delta_ts) > " . Param('whinedays') .
-        " and userid=assigned_to order by bug_id");
+my $dbh = Bugzilla->dbh;
+SendSQL("SELECT bug_id, short_desc, login_name " .
+        "FROM bugs INNER JOIN profiles ON userid = assigned_to " .
+        "WHERE (bug_status = 'NEW' OR bug_status = 'REOPENED') " .
+        "AND " . $dbh->sql_to_days('NOW()') . " - " .
+                 $dbh->sql_to_days('delta_ts') . " > " .
+                 Param('whinedays') . " " .
+        "ORDER BY bug_id");
 
 my %bugs;
 my %desc;
@@ -74,7 +78,7 @@ foreach my $email (sort (keys %bugs)) {
         $msg .= "    -> ${urlbase}show_bug.cgi?id=$i\n";
     }
 
-    Bugzilla::BugMail::MessageToMTA($msg, $substs{'email'});
+    Bugzilla::BugMail::MessageToMTA($msg);
 
     print "$email      " . join(" ", @{$bugs{$email}}) . "\n";
 }

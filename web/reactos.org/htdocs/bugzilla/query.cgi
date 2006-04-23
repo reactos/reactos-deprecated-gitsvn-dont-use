@@ -23,6 +23,7 @@
 #                 Matthias Radestock <matthias@sorted.org>
 #                 Gervase Markham <gerv@gerv.net>
 #                 Byron Jones <bugzilla@glob.com.au>
+#                 Max Kanat-Alexander <mkanat@bugzilla.org>
 
 use strict;
 use lib ".";
@@ -31,6 +32,7 @@ require "CGI.pl";
 
 use Bugzilla::Constants;
 use Bugzilla::Search;
+use Bugzilla::User;
 
 use vars qw(
     @CheckOptionValues
@@ -48,14 +50,14 @@ use vars qw(
     @log_columns
     %versions
     %components
-    %FORM
     $template
     $vars
 );
 
 my $cgi = Bugzilla->cgi;
+my $dbh = Bugzilla->dbh;
 
-if (defined $::FORM{"GoAheadAndLogIn"}) {
+if ($cgi->param("GoAheadAndLogIn")) {
     # We got here from a login page, probably from relogin.cgi.  We better
     # make sure the password is legit.
     Bugzilla->login(LOGIN_REQUIRED);
@@ -63,57 +65,61 @@ if (defined $::FORM{"GoAheadAndLogIn"}) {
     Bugzilla->login();
 }
 
-my $user = Bugzilla->user;
-my $userid = $user ? $user->id : 0;
+my $userid = Bugzilla->user->id;
 
 # Backwards compatibility hack -- if there are any of the old QUERY_*
 # cookies around, and we are logged in, then move them into the database
 # and nuke the cookie. This is required for Bugzilla 2.8 and earlier.
-if ($user) {
+if ($userid) {
     my @oldquerycookies;
-    foreach my $i (keys %::COOKIE) {
+    foreach my $i ($cgi->cookie()) {
         if ($i =~ /^QUERY_(.*)$/) {
-            push(@oldquerycookies, [$1, $i, $::COOKIE{$i}]);
+            push(@oldquerycookies, [$1, $i, $cgi->cookie($i)]);
         }
     }
-    if (defined $::COOKIE{'DEFAULTQUERY'}) {
-        push(@oldquerycookies, [$::defaultqueryname, 'DEFAULTQUERY',
-                                $::COOKIE{'DEFAULTQUERY'}]);
+    if (defined $cgi->cookie('DEFAULTQUERY')) {
+        push(@oldquerycookies, [DEFAULT_QUERY_NAME, 'DEFAULTQUERY',
+                                $cgi->cookie('DEFAULTQUERY')]);
     }
     if (@oldquerycookies) {
         foreach my $ref (@oldquerycookies) {
             my ($name, $cookiename, $value) = (@$ref);
             if ($value) {
-                my $qname = SqlQuote($name);
-                SendSQL("LOCK TABLES namedqueries WRITE");
-                SendSQL("SELECT query FROM namedqueries " .
-                        "WHERE userid = $userid AND name = $qname");
-                my $query = FetchOneColumn();
+                # If the query name contains invalid characters, don't import.
+                $name =~ /[<>&]/ && next;
+                trick_taint($name);
+                $dbh->bz_lock_tables('namedqueries WRITE');
+                my $query = $dbh->selectrow_array(
+                    "SELECT query FROM namedqueries " .
+                     "WHERE userid = ? AND name = ?",
+                     undef, ($userid, $name));
                 if (!$query) {
-                    SendSQL("INSERT INTO namedqueries " .
+                    $dbh->do("INSERT INTO namedqueries " .
                             "(userid, name, query) VALUES " .
-                            "($userid, $qname, " . SqlQuote($value) . ")");
+                            "(?, ?, ?)", undef, ($userid, $name, $value));
                 }
-                SendSQL("UNLOCK TABLES");
+                $dbh->bz_unlock_tables();
             }
             $cgi->remove_cookie($cookiename);
         }
     }
 }
 
-if ($::FORM{'nukedefaultquery'}) {
-    if ($user) {
-        SendSQL("DELETE FROM namedqueries " .
-                "WHERE userid = $userid AND name = '$::defaultqueryname'");
+if ($cgi->param('nukedefaultquery')) {
+    if ($userid) {
+        $dbh->do("DELETE FROM namedqueries" .
+                 " WHERE userid = ? AND name = ?", 
+                 undef, ($userid, DEFAULT_QUERY_NAME));
     }
     $::buffer = "";
 }
 
 my $userdefaultquery;
-if ($user) {
-    SendSQL("SELECT query FROM namedqueries " .
-            "WHERE userid = $userid AND name = '$::defaultqueryname'");
-    $userdefaultquery = FetchOneColumn();
+if ($userid) {
+    $userdefaultquery = $dbh->selectrow_array(
+        "SELECT query FROM namedqueries " .
+         "WHERE userid = ? AND name = ?", 
+         undef, ($userid, DEFAULT_QUERY_NAME));
 }
 
 my %default;
@@ -128,7 +134,7 @@ sub PrefillForm {
     # Nothing must be undef, otherwise the template complains.
     foreach my $name ("bug_status", "resolution", "assigned_to",
                       "rep_platform", "priority", "bug_severity",
-                      "product", "reporter", "op_sys",
+                      "classification", "product", "reporter", "op_sys",
                       "component", "version", "chfield", "chfieldfrom",
                       "chfieldto", "chfieldvalue", "target_milestone",
                       "email", "emailtype", "emailreporter",
@@ -283,8 +289,23 @@ for (my $i = 0; $i < @products; ++$i) {
     # Assign hash back to product array.
     $products[$i] = \%product;
 }
-
 $vars->{'product'} = \@products;
+
+# Create data structures representing each classification
+if (Param('useclassification')) {
+    my @classifications = ();
+
+    foreach my $c (GetSelectableClassifications()) {
+        # Create hash to hold attributes for each classification.
+        my %classification = (
+            'name'       => $c,
+            'products'   => [ GetSelectableProducts(0,$c) ]
+        );
+        # Assign hash back to classification array.
+        push @classifications, \%classification;
+    }
+    $vars->{'classification'} = \@classifications;
+}
 
 # We use 'component_' because 'component' is a Template Toolkit reserved word.
 $vars->{'component_'} = \@components;
@@ -309,7 +330,9 @@ push @chfields, "[Bug creation]";
 # This is what happens when you have variables whose definition depends
 # on the DB schema, and then the underlying schema changes...
 foreach my $val (@::log_columns) {
-    if ($val eq 'product_id') {
+    if ($val eq 'classification_id') {
+        $val = 'classification';
+    } elsif ($val eq 'product_id') {
         $val = 'product';
     } elsif ($val eq 'component_id') {
         $val = 'component';
@@ -334,71 +357,68 @@ $vars->{'bug_severity'} = \@::legal_severity;
 # Boolean charts
 my @fields;
 push(@fields, { name => "noop", description => "---" });
-push(@fields, GetFieldDefs());
+push(@fields, $dbh->bz_get_field_defs());
 $vars->{'fields'} = \@fields;
 
 # Creating new charts - if the cmd-add value is there, we define the field
 # value so the code sees it and creates the chart. It will attempt to select
 # "xyzzy" as the default, and fail. This is the correct behaviour.
-foreach my $cmd (grep(/^cmd-/, keys(%::FORM))) {
+foreach my $cmd (grep(/^cmd-/, $cgi->param)) {
     if ($cmd =~ /^cmd-add(\d+)-(\d+)-(\d+)$/) {
-        $::FORM{"field$1-$2-$3"} = "xyzzy";
+        $cgi->param(-name => "field$1-$2-$3", -value => "xyzzy");
     }
 }
 
-if (!exists $::FORM{'field0-0-0'}) {
-    $::FORM{'field0-0-0'} = "xyzzy";
+if (!$cgi->param('field0-0-0')) {
+    $cgi->param(-name => 'field0-0-0', -value => "xyzzy");
 }
 
 # Create data structure of boolean chart info. It's an array of arrays of
 # arrays - with the inner arrays having three members - field, type and
 # value.
 my @charts;
-for (my $chart = 0; $::FORM{"field$chart-0-0"}; $chart++) {
+for (my $chart = 0; $cgi->param("field$chart-0-0"); $chart++) {
     my @rows;
-    for (my $row = 0; $::FORM{"field$chart-$row-0"}; $row++) {
+    for (my $row = 0; $cgi->param("field$chart-$row-0"); $row++) {
         my @cols;
-        for (my $col = 0; $::FORM{"field$chart-$row-$col"}; $col++) {
-            push(@cols, { field => $::FORM{"field$chart-$row-$col"},
-                          type => $::FORM{"type$chart-$row-$col"},
-                          value => $::FORM{"value$chart-$row-$col"} });
+        for (my $col = 0; $cgi->param("field$chart-$row-$col"); $col++) {
+            push(@cols, { field => $cgi->param("field$chart-$row-$col"),
+                          type => $cgi->param("type$chart-$row-$col") || 'noop',
+                          value => $cgi->param("value$chart-$row-$col") || '' });
         }
         push(@rows, \@cols);
     }
-    push(@charts, \@rows);
+    push(@charts, {'rows' => \@rows, 'negate' => scalar($cgi->param("negate$chart")) });
 }
 
 $default{'charts'} = \@charts;
 
 # Named queries
-if ($user) {
-    my @namedqueries;
-    SendSQL("SELECT name FROM namedqueries " .
-            "WHERE userid = $userid AND name != '$::defaultqueryname' " .
-            "ORDER BY name");
-    while (MoreSQLData()) {
-        push(@namedqueries, FetchOneColumn());
-    }
-    
-    $vars->{'namedqueries'} = \@namedqueries;    
+if ($userid) {
+     $vars->{'namedqueries'} = $dbh->selectcol_arrayref(
+           "SELECT name FROM namedqueries " .
+            "WHERE userid = ? AND name != ?" .
+         "ORDER BY name",
+         undef, ($userid, DEFAULT_QUERY_NAME));
 }
 
 # Sort order
 my $deforder;
 my @orders = ('Bug Number', 'Importance', 'Assignee', 'Last Changed');
 
-if ($::COOKIE{'LASTORDER'}) {
+if ($cgi->cookie('LASTORDER')) {
     $deforder = "Reuse same sort as last time";
     unshift(@orders, $deforder);
 }
 
-if ($::FORM{'order'}) { $deforder = $::FORM{'order'} }
+if ($cgi->param('order')) { $deforder = $cgi->param('order') }
 
 $vars->{'userdefaultquery'} = $userdefaultquery;
 $vars->{'orders'} = \@orders;
 $default{'querytype'} = $deforder || 'Importance';
 
-if (($::FORM{'query_format'} || $::FORM{'format'} || "") eq "create-series") {
+if (($cgi->param('query_format') || $cgi->param('format') || "")
+    eq "create-series") {
     require Bugzilla::Chart;
     $vars->{'category'} = Bugzilla::Chart::getVisibleSeries();
 }
@@ -423,7 +443,7 @@ if (!($cgi->param('query_format') || $cgi->param('format'))) {
 
 # Set cookie to current format as default, but only if the format
 # one that we should remember.
-if (IsValidQueryType($vars->{'format'})) {
+if (defined($vars->{'format'}) && IsValidQueryType($vars->{'format'})) {
     $cgi->send_cookie(-name => 'DEFAULTFORMAT',
                       -value => $vars->{'format'},
                       -expires => "Fri, 01-Jan-2038 00:00:00 GMT");
@@ -435,7 +455,7 @@ if (IsValidQueryType($vars->{'format'})) {
 # format.
 my $format = GetFormat("search/search", 
                        $vars->{'query_format'} || $vars->{'format'}, 
-                       $cgi->param('ctype'));
+                       scalar $cgi->param('ctype'));
 
 print $cgi->header($format->{'ctype'});
 

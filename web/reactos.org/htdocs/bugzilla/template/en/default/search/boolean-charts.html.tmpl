@@ -27,8 +27,9 @@
   { name => "substring", description => "contains the string" },
   { name => "casesubstring", description => "contains the string (exact case)" },
   { name => "notsubstring", description => "does not contain the string" },
-  { name => "allwordssubstr", description => "contains all of the strings" },
   { name => "anywordssubstr", description => "contains any of the strings" },
+  { name => "allwordssubstr", description => "contains all of the strings" },
+  { name => "nowordssubstr", description => "contains none of the strings" },
   { name => "regexp", description => "contains regexp" },
   { name => "notregexp", description => "does not contain regexp" },
   { name => "lessthan", description => "is less than" },
@@ -56,7 +57,17 @@
 [% FOREACH chart = default.charts %]
   [% chartnum = loop.count - 1 %]
   <table>
-  [% FOREACH row = chart %]
+    <tr>
+      <td>
+        <input type="checkbox" id="negate[% chartnum FILTER html %]"
+             name="negate[% chartnum FILTER html %]" value="1"
+            [% "checked" IF chart.negate %]>
+        <label for="negate[% chartnum FILTER html %]">
+          Not (negate this whole chart)
+        </label>
+      </td>
+    </tr>
+  [% FOREACH row = chart.rows %]
     [% rownum = loop.count - 1 %]
     <tr>
     [% FOREACH col = row %]

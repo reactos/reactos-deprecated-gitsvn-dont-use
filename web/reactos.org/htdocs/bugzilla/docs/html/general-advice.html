@@ -7,7 +7,8 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 2.18.3 Release"
+TITLE="The Bugzilla Guide - 2.20.1 
+    Release"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Troubleshooting"
@@ -17,7 +18,7 @@ TITLE="Troubleshooting"
 HREF="troubleshooting.html"><LINK
 REL="NEXT"
 TITLE="The Apache webserver is not serving Bugzilla pages"
-HREF="x2941.html"></HEAD
+HREF="trbl-testserver.html"></HEAD
 ><BODY
 CLASS="section"
 BGCOLOR="#FFFFFF"
@@ -37,7 +38,8 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 2.18.3 Release</TH
+>The Bugzilla Guide - 2.20.1 
+    Release</TH
 ></TR
 ><TR
 ><TD
@@ -59,7 +61,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="x2941.html"
+HREF="trbl-testserver.html"
 ACCESSKEY="N"
 >Next</A
 ></TD
@@ -111,6 +113,27 @@ CLASS="filename"
     fix the problem. If not, see below for some commonly-encountered 
     errors. If that doesn't help, post the errors to the newsgroup.
     </P
+><P
+>&#13;      Bugzilla can also log all user-based errors (and many code-based errors)
+      that occur, without polluting the web server error log.  To enable
+      Bugzilla error logging, create a file that Bugzilla can write to, named
+      <TT
+CLASS="filename"
+>errorlog</TT
+>, in the Bugzilla <TT
+CLASS="filename"
+>data</TT
+>
+      directory.  Errors will be logged as they occur, and will include the type
+      of the error, the IP address and username (if available) of the user who
+      triggered the error, and the values of all environment variables; if a
+      form was being submitted, the data in the form will also be included.
+      To disable error logging, delete or rename the
+      <TT
+CLASS="filename"
+>errorlog</TT
+> file.
+    </P
 ></DIV
 ><DIV
 CLASS="NAVFOOTER"
@@ -146,7 +169,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="x2941.html"
+HREF="trbl-testserver.html"
 ACCESSKEY="N"
 >Next</A
 ></TD

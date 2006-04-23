@@ -7,7 +7,8 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 2.18.3 Release"
+TITLE="The Bugzilla Guide - 2.20.1 
+    Release"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Installing Bugzilla"
@@ -37,7 +38,8 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 2.18.3 Release</TH
+>The Bugzilla Guide - 2.20.1 
+    Release</TH
 ></TR
 ><TR
 ><TD
@@ -182,17 +184,16 @@ TYPE="1"
 HREF="installation.html#install-perl"
 >Install Perl</A
 >
-        (5.6.0 or above for non-Windows platforms; 5.8.1
+        (5.6.1 or above for non-Windows platforms; 5.8.1
         for Windows)
         </P
 ></LI
 ><LI
 ><P
 ><A
-HREF="installation.html#install-mysql"
->Install MySQL</A
+HREF="installation.html#install-database"
+>Install a Database Engine</A
 >
-        (3.23.41 or above)
         </P
 ></LI
 ><LI
@@ -256,32 +257,44 @@ HREF="http://www.perl.com"
 TARGET="_top"
 >http://www.perl.com</A
 >.
-      Although Bugzilla runs with Perl 5.6.0,
-      it's a good idea to be using the latest stable version. 
-      As of this writing, that is Perl 5.8.3.</P
+      Although Bugzilla runs with Perl 5.6.1,
+      it's a good idea to be using the latest stable version.
+      </P
 ></DIV
 ><DIV
 CLASS="section"
 ><H2
 CLASS="section"
 ><A
-NAME="install-mysql"
->2.1.2. MySQL</A
+NAME="install-database"
+>2.1.2. Database Engine</A
 ></H2
+><P
+>From Bugzilla 2.20, support is included for using both the MySQL and
+      PostgreSQL database servers. You only require one of these systems to make
+      use of Bugzilla.</P
+><DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="install-mysql"
+>2.1.2.1. MySQL</A
+></H3
 ><P
 >Installed Version Test: <TT
 CLASS="filename"
 >mysql -V</TT
 ></P
 ><P
->&#13;      If you don't have it and your OS doesn't provide official packages, 
-      visit <A
+>&#13;          If you don't have it and your OS doesn't provide official packages, 
+          visit <A
 HREF="http://www.mysql.com"
 TARGET="_top"
 >http://www.mysql.com</A
 >. You need MySQL version
-      3.23.41 or higher.
-      </P
+          3.23.41 or higher.
+          </P
 ><DIV
 CLASS="note"
 ><P
@@ -304,15 +317,15 @@ ALIGN="LEFT"
 VALIGN="TOP"
 ><P
 > Many of the binary
-        versions of MySQL store their data files in 
-        <TT
+            versions of MySQL store their data files in 
+            <TT
 CLASS="filename"
 >/var</TT
 >.
-        On some Unix systems, this is part of a smaller root partition,
-        and may not have room for your bug database. To change the data
-         directory, you have to build MySQL from source yourself, and
-         set it as an option to <TT
+            On some Unix systems, this is part of a smaller root partition,
+            and may not have room for your bug database. To change the data
+            directory, you have to build MySQL from source yourself, and
+            set it as an option to <TT
 CLASS="filename"
 >configure</TT
 >.</P
@@ -322,10 +335,40 @@ CLASS="filename"
 ></DIV
 ><P
 >If you install from something other than a packaging/installation
-      system, such as .rpm (Redhat Package), .deb (Debian Package), .exe
-      (Windows Executable), or .msi (Microsoft Installer), make sure the MySQL
-      server is started when the machine boots.
-      </P
+          system, such as .rpm (Redhat Package), .deb (Debian Package), .exe
+          (Windows Executable), or .msi (Microsoft Installer), make sure the MySQL
+          server is started when the machine boots.
+          </P
+></DIV
+><DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="install-pg"
+>2.1.2.2. PostgreSQL</A
+></H3
+><P
+>Installed Version Test: <TT
+CLASS="filename"
+>psql -V</TT
+></P
+><P
+>&#13;          If you don't have it and your OS doesn't provide official packages, 
+          visit <A
+HREF="http://www.postgresql.org/"
+TARGET="_top"
+>http://www.postgresql.org/</A
+>. You need PostgreSQL
+          version 7.3.x or higher.
+          </P
+><P
+>If you install from something other than a packaging/installation
+          system, such as .rpm (Redhat Package), .deb (Debian Package), .exe
+          (Windows Executable), or .msi (Microsoft Installer), make sure the
+          PostgreSQL server is started when the machine boots.
+          </P
+></DIV
 ></DIV
 ><DIV
 CLASS="section"
@@ -456,11 +499,7 @@ CLASS="filename"
       The first thing it checks is whether you have appropriate 
       versions of all the required
       Perl modules. The aim of this section is to pass this check. 
-      When it passes, 
-      <EM
->do not run it again</EM
->, 
-      but proceed to <A
+      When it passes, proceed to <A
 HREF="configuration.html"
 >Section 2.2</A
 >.
@@ -470,7 +509,8 @@ HREF="configuration.html"
 CLASS="filename"
 >su</TT
 > to root. You should
-      remain as root until the end of the install. Then run:
+      remain as root until the end of the install. To check you have the
+      required modules, run:
       </P
 ><TABLE
 BORDER="0"
@@ -485,7 +525,7 @@ CLASS="screen"
 ><SAMP
 CLASS="prompt"
 >bash#</SAMP
-> ./checksetup.pl</PRE
+> ./checksetup.pl --check-modules</PRE
 ></FONT
 ></TD
 ></TR
@@ -653,7 +693,7 @@ TYPE="1"
 ></LI
 ><LI
 ><P
->&#13;            DBI (1.36)
+>&#13;            DBI (1.38)
           </P
 ></LI
 ><LI
@@ -662,12 +702,17 @@ TYPE="1"
 HREF="installation.html#install-modules-dbd-mysql"
 >DBD::mysql</A
 >
-            (2.1010)
+            (2.9003) if using MySQL
           </P
 ></LI
 ><LI
 ><P
->&#13;            File::Spec (0.82)
+>&#13;            DBD::Pg (1.31) if using PostgreSQL
+          </P
+></LI
+><LI
+><P
+>&#13;            File::Spec (0.84)
           </P
 ></LI
 ><LI
@@ -687,6 +732,16 @@ HREF="installation.html#install-modules-template"
 ><LI
 ><P
 >&#13;            Text::Wrap (2001.0131)
+          </P
+></LI
+><LI
+><P
+>&#13;            Mail::Mailer (1.65)
+          </P
+></LI
+><LI
+><P
+>&#13;            Storable (any)
           </P
 ></LI
 ></OL
@@ -992,27 +1047,73 @@ NAME="install-MTA"
 >2.1.6. Mail Transfer Agent (MTA)</A
 ></H2
 ><P
->Bugzilla is dependent on the availability of an e-mail system for its user
-      authentication and for other tasks. </P
+>&#13;        Bugzilla is dependent on the availability of an e-mail system for its 
+        user authentication and for other tasks.
+      </P
+><DIV
+CLASS="note"
 ><P
->On Linux, any Sendmail-compatible MTA (Mail Transfer Agent) will suffice.
-      Sendmail, Postfix, qmail and Exim are examples of common MTAs. Sendmail is the 
-      original Unix MTA, but the others are easier to configure, and therefore many people
-      replace Sendmail with Postfix or Exim. They are drop-in replacements, so that Bugzilla
-      will not distinguish between them.</P
+></P
+><TABLE
+CLASS="note"
+WIDTH="100%"
+BORDER="0"
+><TR
+><TD
+WIDTH="25"
+ALIGN="CENTER"
+VALIGN="TOP"
+><IMG
+SRC="../images/note.gif"
+HSPACE="5"
+ALT="Note"></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
 ><P
->&#13;        If you are using Sendmail, version 8.7 or higher is required.
-        If you are using a Sendmail-compatible MTA, it must be congruent with at least version 8.7 of Sendmail.
+>&#13;          This is not entirely true.  It is possible to completely disable 
+          email sending, or to have Bugzilla store email messages in a 
+          file instead of sending them.  However, this is mainly intended 
+          for testing, as disabling or diverting email on a production 
+          machine would mean that users could miss important events (such 
+          as bug changes or the creation of new accouts).
+        </P
+><P
+>&#13;          For more information, see the "maildeliverymethod" parameter in 
+          <A
+HREF="parameters.html"
+>Section 3.1</A
+>.
+        </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>&#13;        On Linux, any Sendmail-compatible MTA (Mail Transfer Agent) will 
+        suffice.  Sendmail, Postfix, qmail and Exim are examples of common 
+        MTAs. Sendmail is the original Unix MTA, but the others are easier to 
+        configure, and therefore many people replace Sendmail with Postfix or 
+        Exim. They are drop-in replacements, so Bugzilla will not 
+        distinguish between them.
       </P
 ><P
->Consult the manual for the specific MTA you choose for detailed installation
-      instructions. Each of these programs will have their own configuration files where you must
-      configure certain parameters to ensure that the mail is delivered properly. They
-      are implemented as services, and you should ensure that the MTA is in the
-      auto-start list of services for the machine.</P
+>&#13;        If you are using Sendmail, version 8.7 or higher is required.
+        If you are using a Sendmail-compatible MTA, it must be congruent with 
+        at least version 8.7 of Sendmail.
+      </P
 ><P
->If a simple mail sent with the command-line 'mail' program succeeds, then
-      Bugzilla should also be fine.</P
+>&#13;        Consult the manual for the specific MTA you choose for detailed 
+        installation instructions. Each of these programs will have their own 
+        configuration files where you must configure certain parameters to 
+        ensure that the mail is delivered properly. They are implemented 
+        as services, and you should ensure that the MTA is in the auto-start 
+        list of services for the machine.
+      </P
+><P
+>&#13;        If a simple mail sent with the command-line 'mail' program 
+        succeeds, then Bugzilla should also be fine.
+      </P
 ></DIV
 ></DIV
 ><DIV

@@ -1,5 +1,5 @@
 <!-- <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"> -->
-<!-- $Id: installation.xml,v 1.72.2.23 2005/06/13 09:29:30 mozilla%colinogilvie.co.uk Exp $ -->
+<!-- $Id: installation.xml,v 1.98.2.9 2005/12/30 15:29:01 mozilla%colinogilvie.co.uk Exp $ -->
 <chapter id="installing-bugzilla">
   <title>Installing Bugzilla</title>
 
@@ -59,8 +59,7 @@
         </para>
       </step>
       <step>
-        <para><link linkend="install-mysql">Install MySQL</link>
-        (&min-mysql-ver; or above)
+        <para><link linkend="install-database">Install a Database Engine</link>
         </para>
       </step>
       <step>
@@ -96,37 +95,61 @@
       If you don't have it and your OS doesn't provide official packages, 
       visit <ulink url="http://www.perl.com"/>.
       Although Bugzilla runs with Perl &min-perl-ver;,
-      it's a good idea to be using the latest stable version. 
-      As of this writing, that is Perl &newest-perl-ver;.</para>
+      it's a good idea to be using the latest stable version.
+      </para>
     </section>
 
-    <section id="install-mysql">
-      <title>MySQL</title>
+    <section id="install-database">
+      <title>Database Engine</title>
+      
+      <para>From Bugzilla 2.20, support is included for using both the MySQL and
+      PostgreSQL database servers. You only require one of these systems to make
+      use of Bugzilla.</para>
 
-      <para>Installed Version Test: <filename>mysql -V</filename></para>
+      <section id="install-mysql">
+          <title>MySQL</title>
+          <para>Installed Version Test: <filename>mysql -V</filename></para>
       
-      <para>
-      If you don't have it and your OS doesn't provide official packages, 
-      visit <ulink url="http://www.mysql.com"/>. You need MySQL version
-      &min-mysql-ver; or higher.
-      </para>
+          <para>
+          If you don't have it and your OS doesn't provide official packages, 
+          visit <ulink url="http://www.mysql.com"/>. You need MySQL version
+          &min-mysql-ver; or higher.
+          </para>
       
-      <note>
-        <para> Many of the binary
-        versions of MySQL store their data files in 
-        <filename class="directory">/var</filename>.
-        On some Unix systems, this is part of a smaller root partition,
-        and may not have room for your bug database. To change the data
-         directory, you have to build MySQL from source yourself, and
-         set it as an option to <filename>configure</filename>.</para>
-      </note> 
+          <note>
+            <para> Many of the binary
+            versions of MySQL store their data files in 
+            <filename class="directory">/var</filename>.
+            On some Unix systems, this is part of a smaller root partition,
+            and may not have room for your bug database. To change the data
+            directory, you have to build MySQL from source yourself, and
+            set it as an option to <filename>configure</filename>.</para>
+          </note> 
            
-      <para>If you install from something other than a packaging/installation
-      system, such as .rpm (Redhat Package), .deb (Debian Package), .exe
-      (Windows Executable), or .msi (Microsoft Installer), make sure the MySQL
-      server is started when the machine boots.
-      </para>
-
+          <para>If you install from something other than a packaging/installation
+          system, such as .rpm (Redhat Package), .deb (Debian Package), .exe
+          (Windows Executable), or .msi (Microsoft Installer), make sure the MySQL
+          server is started when the machine boots.
+          </para>
+      </section>
+      
+      <section id="install-pg">
+          <title>PostgreSQL</title>
+          <para>Installed Version Test: <filename>psql -V</filename></para>
+      
+          <para>
+          If you don't have it and your OS doesn't provide official packages, 
+          visit <ulink url="http://www.postgresql.org/"/>. You need PostgreSQL
+          version &min-pg-ver; or higher.
+          </para>
+           
+          <para>If you install from something other than a packaging/installation
+          system, such as .rpm (Redhat Package), .deb (Debian Package), .exe
+          (Windows Executable), or .msi (Microsoft Installer), make sure the
+          PostgreSQL server is started when the machine boots.
+          </para>
+      </section>
+      
     </section>
     
     <section id="install-webserver">
@@ -188,22 +211,16 @@
       The first thing it checks is whether you have appropriate 
       versions of all the required
       Perl modules. The aim of this section is to pass this check. 
-      When it passes, 
-      <emphasis>do not run it again</emphasis>, 
-      but proceed to <xref linkend="configuration"/>.
+      When it passes, proceed to <xref linkend="configuration"/>.
       </para>
       
       <para>
       At this point, you need to <filename>su</filename> to root. You should
-      remain as root until the end of the install. Then run:
+      remain as root until the end of the install. To check you have the
+      required modules, run:
       </para>
       
-      <screen><prompt>bash#</prompt> ./checksetup.pl</screen>
-
-      <!-- We really need a "module-check" switch for checksetup,
-      which we can use here to make it really clear when they've got
-      all the modules. -->
- 
+      <screen><prompt>bash#</prompt> ./checksetup.pl --check-modules</screen>
  
       <para>
         <filename>checksetup.pl</filename> will print out a list of the
@@ -301,7 +318,13 @@
         <listitem>
           <para>
             <link linkend="install-modules-dbd-mysql">DBD::mysql</link>
-            (&min-dbd-mysql-ver;)
+            (&min-dbd-mysql-ver;) if using MySQL
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            DBD::Pg (&min-dbd-pg-ver;) if using PostgreSQL
           </para>
         </listitem>
 
@@ -327,6 +350,18 @@
         <listitem>
           <para>
             Text::Wrap (&min-text-wrap-ver;)
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            Mail::Mailer (&min-mail-mailer-ver;)
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            Storable (&min-storable-ver;)
           </para>
         </listitem>
       </orderedlist>
@@ -496,29 +531,58 @@
     <section id="install-MTA">
       <title>Mail Transfer Agent (MTA)</title>
     
-      <para>Bugzilla is dependent on the availability of an e-mail system for its user
-      authentication and for other tasks. </para>
+      <para>
+        Bugzilla is dependent on the availability of an e-mail system for its 
+        user authentication and for other tasks.
+      </para>
+
+      <note>
+        <para>
+          This is not entirely true.  It is possible to completely disable 
+          email sending, or to have Bugzilla store email messages in a 
+          file instead of sending them.  However, this is mainly intended 
+          for testing, as disabling or diverting email on a production 
+          machine would mean that users could miss important events (such 
+          as bug changes or the creation of new accouts).
+        </para>
+
+        <para>
+          For more information, see the "maildeliverymethod" parameter in 
+          <xref linkend="parameters" />.
+        </para>
+      </note>
     
-      <para>On Linux, any Sendmail-compatible MTA (Mail Transfer Agent) will suffice.
-      Sendmail, Postfix, qmail and Exim are examples of common MTAs. Sendmail is the 
-      original Unix MTA, but the others are easier to configure, and therefore many people
-      replace Sendmail with Postfix or Exim. They are drop-in replacements, so that Bugzilla
-      will not distinguish between them.</para>
+      <para>
+        On Linux, any Sendmail-compatible MTA (Mail Transfer Agent) will 
+        suffice.  Sendmail, Postfix, qmail and Exim are examples of common 
+        MTAs. Sendmail is the original Unix MTA, but the others are easier to 
+        configure, and therefore many people replace Sendmail with Postfix or 
+        Exim. They are drop-in replacements, so Bugzilla will not 
+        distinguish between them.
+      </para>
 
       <para>
         If you are using Sendmail, version 8.7 or higher is required.
-        If you are using a Sendmail-compatible MTA, it must be congruent with at least version 8.7 of Sendmail.
+        If you are using a Sendmail-compatible MTA, it must be congruent with 
+        at least version 8.7 of Sendmail.
       </para>
 
-      <para>Consult the manual for the specific MTA you choose for detailed installation
-      instructions. Each of these programs will have their own configuration files where you must
-      configure certain parameters to ensure that the mail is delivered properly. They
-      are implemented as services, and you should ensure that the MTA is in the
-      auto-start list of services for the machine.</para>
+      <para>
+        Consult the manual for the specific MTA you choose for detailed 
+        installation instructions. Each of these programs will have their own 
+        configuration files where you must configure certain parameters to 
+        ensure that the mail is delivered properly. They are implemented 
+        as services, and you should ensure that the MTA is in the auto-start 
+        list of services for the machine.
+      </para>
 
-      <para>If a simple mail sent with the command-line 'mail' program succeeds, then
-      Bugzilla should also be fine.</para>
+      <para>
+        If a simple mail sent with the command-line 'mail' program 
+        succeeds, then Bugzilla should also be fine.
+      </para>
+
     </section>  
+
   </section>
   
   
@@ -539,10 +603,15 @@
       <title>localconfig</title>
       
       <para>
-        Once you run <filename>checksetup.pl</filename> with all the correct 
-        modules installed, it displays a message about, and write out a 
-        file called, <filename>localconfig</filename>. This file contains
-        the default settings for a number of Bugzilla parameters.
+        You should now run <filename>checksetup.pl</filename> again, this time
+        without the <literal>--check-modules</literal> switch.
+      </para>
+      <screen><prompt>bash#</prompt> ./checksetup.pl</screen>
+      <para>
+        This time, <filename>checksetup.pl</filename> should tell you that all
+        the correct modules are installed and will display a message about, and
+        write out a  file called, <filename>localconfig</filename>. This file
+        contains the default settings for a number of Bugzilla parameters.
       </para>
       
       <para>
@@ -551,6 +620,18 @@
         the user you will create for your database. Pick a strong
         password (for simplicity, it should not contain single quote
         characters) and put it here.
+      </para>
+
+      <para>
+        You may need to change the value of 
+        <emphasis>webservergroup</emphasis> if your web server does not 
+        run in the "apache" group.  On Debian, for example, Apache runs in 
+        the "www-data" group.  If you are going to run Bugzilla on a 
+        machine where you do not have root access (such as on a shared web 
+        hosting account), you will need to leave
+        <emphasis>webservergroup</emphasis> empty, ignoring the warnings 
+        that <filename>checksetup.pl</filename> will subsequently display 
+        every time it in run.
       </para>
       
       <para>
@@ -569,159 +650,254 @@
       </para>
     </section>
     
-    <section id="mysql">
-      <title>MySQL</title>
+    <section id="database-engine">
+      <title>Database Server</title>
+      <para>This section deals with configuring your database server for use
+      with Bugzilla. Currently <xref linkend="mysql"/> and
+      <xref linkend="postgresql"/> are available.</para>
+      
+      <section id="mysql">
+        <title>MySQL</title>
 
-      <caution>
-        <para>
-          MySQL's default configuration is very insecure.
-          <xref linkend="security-mysql"/> has some good information for
-          improving your installation's security.
-        </para>
-      </caution>
-     
-      <section id="install-setupdatabase">
-        <title>Allow large attachments</title>
+        <caution>
+          <para>
+            MySQL's default configuration is very insecure.
+            <xref linkend="security-mysql"/> has some good information for
+            improving your installation's security.
+          </para>
+        </caution>
         
-        <para>
-          By default, MySQL will only accept packets up to 64Kb in size.
-          If you want to have attachments larger than this, you will need
-          to modify your <filename>/etc/my.cnf</filename> as below.
-        </para>
+        <section id="install-setupdatabase">
+          <title>Allow large attachments</title>
+        
+          <para>
+            By default, MySQL will only accept packets up to 64Kb in size.
+            If you want to have attachments larger than this, you will need
+            to modify your <filename>/etc/my.cnf</filename> as below.
+          </para>
 
-        <para>
-          If you are using MySQL 4.0 or newer, enter:
-        </para>
-        <screen>  [mysqld]
+          <para>
+            If you are using MySQL 4.0 or newer, enter:
+          </para>
+          <screen>  [mysqld]
   # Allow packets up to 1M
   max_allowed_packet=1M</screen>
 
-        <para>
-          If you are using an older version of MySQL, enter:
-        </para>
-        <screen>  [mysqld]
+          <para>
+            If you are using an older version of MySQL, enter:
+          </para>
+          <screen>  [mysqld]
   # Allow packets up to 1M
   set-variable = max_allowed_packet=1M</screen>
 
-        <para>
-          There is also a parameter in Bugzilla called 'maxattachmentsize'
-          (default = 1000 Kb) that controls the maximum allowable attachment
-          size. Attachments larger than <emphasis>either</emphasis> the 
-          'max_allowed_packet' or 'maxattachmentsize' value will not be
-          accepted by Bugzilla.
-        </para>
-      </section>
+          <para>
+            There is also a parameter in Bugzilla called 'maxattachmentsize'
+            (default = 1000 Kb) that controls the maximum allowable attachment
+            size. Attachments larger than <emphasis>either</emphasis> the 
+            'max_allowed_packet' or 'maxattachmentsize' value will not be
+            accepted by Bugzilla.
+          </para>
 
+          <note>
+            <para>
+              This does not affect Big Files, attachments that are stored directly
+              on disk instead of in the database.  Their maximum size is
+              controlled using the 'maxlocalattachment' parameter.
+            </para>
+          </note>
+        </section>
+        
+        <section>
+          <title>Allow small words in full-text indexes</title>
 
+          <para>By default, words must be at least four characters in length
+          in order to be indexed by MySQL's full-text indexes. This causes
+          a lot of Bugzilla specific words to be missed, including "cc",
+          "ftp" and "uri".</para>
 
-      <section>
-        <title>Allow small words in full-text indexes</title>
+          <para>MySQL can be configured to index those words by setting the
+          ft_min_word_len param to the minimum size of the words to index.
+          This can be done by modifying the <filename>/etc/my.cnf</filename>
+          according to the example below:</para>
 
-        <para>By default, words must be at least four characters in length
-        in order to be indexed by MySQL's full-text indexes. This causes
-        a lot of Bugzilla specific words to be missed, including "cc",
-        "ftp" and "uri".</para>
-
-        <para>MySQL can be configured to index those words by setting the
-        ft_min_word_len param to the minimum size of the words to index.
-        This can be done by modifying the <filename>/etc/my.cnf</filename>
-        according to the example below:</para>
-
-        <screen>  [mysqld]
+          <screen>  [mysqld]
   # Allow small words in full-text indexes
   ft_min_word_len=2</screen>
 
-        <para>Rebuilding the indexes can be done based on documentation found at
-        <ulink url="http://www.mysql.com/doc/en/Fulltext_Fine-tuning.html"/>.
-        </para>
+          <para>Rebuilding the indexes can be done based on documentation found at
+          <ulink url="http://www.mysql.com/doc/en/Fulltext_Fine-tuning.html"/>.
+          </para>
 
-        <note>
+          <note>
+            <para>
+              The ft_min_word_len parameter is only suported in MySQL v4 or higher.
+            </para>
+          </note>
+        </section>
+        
+        <section>
+          <title>Permit attachments table to grow beyond 4GB</title>
+
           <para>
-            The ft_min_word_len parameter is only suported in MySQL v4 or higher.
+            By default, MySQL will limit the size of a table to 4GB.
+            This limit is present even if the underlying filesystem
+            has no such limit.  To set a higher limit, follow these
+            instructions.
+          </para>
+
+          <para>
+            Run the <filename>MySQL</filename> command-line client and
+            enter:
+          </para>
+
+          <screen>  <prompt>mysql&gt;</prompt> ALTER TABLE attachments 
+            AVG_ROW_LENGTH=1000000, MAX_ROWS=20000;
+          </screen>
+
+          <para>
+            The above command will change the limit to 20GB. Mysql will have 
+            to make a temporary copy of your entire table to do this. Ideally, 
+            you should do this when your attachments table is still small.
+          </para>
+
+          <note>
+            <para>
+              This does not affect Big Files, attachments that are stored directly
+              on disk instead of in the database.
+            </para>
+          </note>
+        </section>
+        
+        <section id="install-setupdatabase-adduser">
+          <title>Add a user to MySQL</title>
+
+          <para>
+            You need to add a new MySQL user for Bugzilla to use.
+            (It's not safe to have Bugzilla use the MySQL root account.)
+            The following instructions assume the defaults in
+            <filename>localconfig</filename>; if you changed those,
+            you need to modify the SQL command appropriately. You will
+            need the <replaceable>$db_pass</replaceable> password you
+            set in <filename>localconfig</filename> in 
+            <xref linkend="localconfig"/>.
+          </para>
+
+          <para>
+            We use an SQL <command>GRANT</command> command to create
+            a <quote>bugs</quote> user. This also restricts the 
+            <quote>bugs</quote>user to operations within a database
+            called <quote>bugs</quote>, and only allows the account
+            to connect from <quote>localhost</quote>. Modify it to
+            reflect your setup if you will be connecting from another
+            machine or as a different user.
+          </para>
+        
+          <para>
+            Run the <filename>mysql</filename> command-line client.
+          </para>
+
+          <para>
+            If you are using MySQL 4.0 or newer, enter:
+          </para>
+
+          <screen>  <prompt>mysql&gt;</prompt> GRANT SELECT, INSERT,
+           UPDATE, DELETE, INDEX, ALTER, CREATE, LOCK TABLES,
+           CREATE TEMPORARY TABLES, DROP, REFERENCES ON bugs.*
+           TO bugs@localhost IDENTIFIED BY '<replaceable>$db_pass</replaceable>';
+           <prompt>mysql&gt;</prompt> FLUSH PRIVILEGES;</screen>
+
+          <para>
+            If you are using an older version of MySQL,the
+            <computeroutput>LOCK TABLES</computeroutput> and 
+            <computeroutput>CREATE TEMPORARY TABLES</computeroutput>
+            permissions will be unavailable and should be removed from
+            the permissions list. In this case, the following command
+            line can be used:
+          </para>
+
+          <screen>  <prompt>mysql&gt;</prompt> GRANT SELECT, INSERT,
+           UPDATE, DELETE, INDEX, ALTER, CREATE, DROP,
+           REFERENCES ON bugs.* TO bugs@localhost IDENTIFIED BY
+           '<replaceable>$db_pass</replaceable>';
+           <prompt>mysql&gt;</prompt> FLUSH PRIVILEGES;</screen>
+        </section>      
+      </section>
+      
+      <section id="postgresql">
+        <title>PostgreSQL</title>
+        <note>
+          <para>Note if you are using PostgreSQL 8.0.1 or higher, then you
+          will require to use a version of DBD::Pg which is equal to or
+          greater than version 1.41
           </para>
         </note>
-      </section>
+        
+        <section>
+          <title>Add a User to PostgreSQL</title>
 
-      <section>
-        <title>Permit attachments table to grow beyond 4GB</title>
-
-        <para>
-          By default, MySQL will limit the size of a table to 4GB.
-          This limit is present even if the underlying filesystem
-          has no such limit.  To set a higher limit, follow these
-          instructions.
-        </para>
-
-        <para>
-          Run the <filename>MySQL</filename> command-line client and
-          enter:
-        </para>
-
-        <screen>  <prompt>mysql&gt;</prompt> ALTER TABLE attachments 
-          AVG_ROW_LENGTH=1000000, MAX_ROWS=20000;
-        </screen>
-
-        <para>
-          The above command will change the limit to 20GB. Mysql will have 
-          to make a temporary copy of your entire table to do this. Ideally, 
-          you should do this when your attachments table is still small.
-        </para>
-      </section>
-            
-      <section id="install-setupdatabase-adduser">
-        <title>Add a user to MySQL</title>
-
-        <para>
-          You need to add a new MySQL user for Bugzilla to use.
-          (It's not safe to have Bugzilla use the MySQL root account.)
-          The following instructions assume the defaults in
-          <filename>localconfig</filename>; if you changed those,
-          you need to modify the SQL command appropriately. You will
+          <para>You need to add a new user to PostgreSQL for the Bugzilla
+          application to use when accessing the database. The following instructions
+          assume the defaults in <filename>localconfig</filename>; if you
+          changed those, you need to modify the commands appropriately. You will
           need the <replaceable>$db_pass</replaceable> password you
           set in <filename>localconfig</filename> in 
-          <xref linkend="localconfig"/>.
-        </para>
+          <xref linkend="localconfig"/>.</para>
 
-        <para>
-          We use an SQL <command>GRANT</command> command to create
-          a <quote>bugs</quote> user. This also restricts the 
-          <quote>bugs</quote>user to operations within a database
-          called <quote>bugs</quote>, and only allows the account
-          to connect from <quote>localhost</quote>. Modify it to
-          reflect your setup if you will be connecting from another
-          machine or as a different user.
-        </para>
+          <para>On most systems, to create the user in PostgreSQL, you will need to
+          login as the root user, and then</para>
+
+          <screen> <prompt>bash#</prompt> su - postgres</screen>
+
+          <para>As the postgres user, you then need to create a new user: </para>
+            
+          <screen> <prompt>bash$</prompt> createuser -U postgres -dAP bugs</screen>
+ 
+          <para>When asked for a password, provide the password which will be set as
+          <replaceable>$db_pass</replaceable> in <filename>localconfig</filename>.
+          The created user will have the ability to create databases and will not be
+          able to create new users.</para>
+        </section>
         
-        <para>
-          Run the <filename>mysql</filename> command-line client.
-        </para>
+        <section>
+          <title>Configure PostgreSQL</title>
 
-        <para>
-          If you are using MySQL 4.0 or newer, enter:
-        </para>
+          <para>Now, you will need to edit <filename>pg_hba.conf</filename> which is
+          usually located in <filename>/var/lib/pgsql/data/</filename>. In this file,
+          you will need to add a new line to it as follows:</para>
 
-        <screen>  <prompt>mysql&gt;</prompt> GRANT SELECT, INSERT,
-         UPDATE, DELETE, INDEX, ALTER, CREATE, LOCK TABLES,
-         CREATE TEMPORARY TABLES, DROP, REFERENCES ON bugs.*
-         TO bugs@localhost IDENTIFIED BY '<replaceable>$db_pass</replaceable>';
-  <prompt>mysql&gt;</prompt> FLUSH PRIVILEGES;</screen>
+          <para>
+            <computeroutput>host   all    bugs   127.0.0.1    255.255.255.255  md5</computeroutput>
+          </para>
 
-        <para>
-          If you are using an older version of MySQL,the
-          <computeroutput>LOCK TABLES</computeroutput> and 
-          <computeroutput>CREATE TEMPORARY TABLES</computeroutput>
-          permissions will be unavailable and should be removed from
-          the permissions list. In this case, the following command
-          line can be used:
-        </para>
+          <para>This means that for TCP/IP (host) connections, allow connections from
+          '127.0.0.1' to 'all' databases on this server from the 'bugs' user, and use
+          password authentication (md5) for that user.</para>
 
-        <screen>  <prompt>mysql&gt;</prompt> GRANT SELECT, INSERT,
-         UPDATE, DELETE, INDEX, ALTER, CREATE, DROP,
-         REFERENCES ON bugs.* TO bugs@localhost IDENTIFIED BY
-         '<replaceable>$db_pass</replaceable>';
-  <prompt>mysql&gt;</prompt> FLUSH PRIVILEGES;</screen>
-      </section>      
-    </section>
+          <para>If you are using <emphasis role="bold">versions of PostgreSQL
+          before version 8</emphasis>, you may also need to edit <filename>postgresql.conf</filename>
+          , also usually found in the <filename>/var/lib/pgsql/data/</filename> folder.
+          You will need to make a single line change, changing</para>
+
+          <para>
+	    <computeroutput># tcpip_socket = false</computeroutput>
+          </para>
+
+          <para>to</para>
+            
+	  <para>
+	    <computeroutput>tcpip_socket = true</computeroutput>
+          </para>
+	  
+          <para>Now, you will need to restart PostgreSQL, but you will need to fully
+          stop and start the server rather than just restarting due to the possibility
+          of a change to <filename>postgresql.conf</filename>. After the server has
+          restarted, you will need to edit <filename>localconfig</filename>, finding
+          the <literal>$db_driver</literal> variable and setting it to
+          <literal>Pg</literal> and changing the password in <literal>$db_pass</literal>
+          to the one you picked previously, while setting up the account.</para> 
+        </section>
+      </section>
+    </section>  
 
     <section>
       <title>checksetup.pl</title>
@@ -940,70 +1116,6 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
 
       </section>
 
-      <section id="http-aol">
-        <title>AOL Server</title>
-
-        <para>Ben FrantzDale reported success using AOL Server with Bugzilla. He
-        reported his experience and what appears below is based on that.
-        </para>
-
-        <para>AOL Server will have to be configured to run
-        <glossterm linkend="gloss-cgi">CGI</glossterm> scripts, please consult
-        the documentation that came with your server for more information on
-        how to do this.
-        </para>
-
-        <para>Because AOL Server doesn't support <filename>.htaccess</filename>
-        files, you'll have to create a <glossterm linkend="gloss-tcl">TCL</glossterm>
-        script. You should create an <filename>aolserver/modules/tcl/filter.tcl</filename>
-        file (the filename shouldn't matter) with the following contents (change
-        <computeroutput>/bugzilla/</computeroutput> to the web-based path to
-        your Bugzilla installation):
-        </para>
-
-        <programlisting>
-  ns_register_filter preauth GET /bugzilla/localconfig filter_deny
-  ns_register_filter preauth GET /bugzilla/localconfig~ filter_deny
-  ns_register_filter preauth GET /bugzilla/\#localconfig\# filter_deny
-  ns_register_filter preauth GET /bugzilla/*.pl filter_deny
-  ns_register_filter preauth GET /bugzilla/syncshadowdb filter_deny
-  ns_register_filter preauth GET /bugzilla/runtests.sh filter_deny
-  ns_register_filter preauth GET /bugzilla/data/* filter_deny
-  ns_register_filter preauth GET /bugzilla/template/* filter_deny
-
-  proc filter_deny { why } {
-      ns_log Notice "filter_deny"
-      return "filter_return"
-  }
-        </programlisting>
-
-        <warning>
-          <para>This probably doesn't account for all possible editor backup
-          files so you may wish to add some additional variations of
-          <filename>localconfig</filename>. For more information, see 
-          <ulink url="http://bugzilla.mozilla.org/show_bug.cgi?id=186383">
-          bug 186383</ulink> or <ulink
-          url="http://online.securityfocus.com/bid/6501">Bugtraq ID 6501</ulink>.
-          </para>
-        </warning>
-
-        <note>
-          <para>If you are using webdot from research.att.com (the default
-          configuration for the <option>webdotbase</option> paramater), you
-          will need to allow access to <filename>data/webdot/*.dot</filename>
-          for the reasearch.att.com machine.
-          </para>
-          <para>If you are using a local installation of <ulink
-          url="http://www.graphviz.org">GraphViz</ulink>, you will need to allow
-          everybody to access <filename>*.png</filename>,
-          <filename>*.gif</filename>, <filename>*.jpg</filename>, and
-          <filename>*.map</filename> in the
-          <filename class="directory">data/webdot</filename> directory.
-          </para>
-        </note>
-      </section>
-      
-      
     </section>
     
     <section id="install-config-bugzilla">
@@ -1016,6 +1128,14 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
         front page. If not, consult the Troubleshooting section,
         <xref linkend="troubleshooting"/>.
       </para>
+
+      <note>
+        <para>
+          The URL above may be incorrect if you installed Bugzilla into a 
+          subdirectory or used a symbolic link from your web site root to 
+          the Bugzilla directory.
+        </para>
+      </note>
       
       <para>
         Log in with the administrator account you defined in the last 
@@ -1078,6 +1198,19 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
         the Reports page.
       </para>
 
+      <para>
+        When upgrading Bugzilla, this format may change.
+        To create new status data, (re)move old data and run the following
+        commands:
+      </para>
+
+      <screen>
+        <prompt>bash$</prompt>
+        <command>cd &lt;your-bugzilla-directory&gt;</command>
+        <prompt>bash$</prompt>
+        <command>./collectstats.pl --regenerate</command>
+      </screen>
+
       <note>
         <para>
           Windows does not have 'cron', but it does have the Task
@@ -1136,7 +1269,7 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
       </para>
    </section>
 
-    <section>
+    <section id="installation-whining-cron">
       <title>The Whining Cron</title>
 
       <para>What good are
@@ -1151,6 +1284,45 @@ c:\perl\bin\perl.exe -xc:\bugzilla -wT "%s" %s
       </para>
 
       <programlisting>55 0 * * * cd &lt;your-bugzilla-directory&gt; ; ./whineatnews.pl</programlisting>
+
+      <note>
+        <para>
+          Windows does not have 'cron', but it does have the Task
+          Scheduler, which performs the same duties. There are also
+          third-party tools that can be used to implement cron, such as
+          <ulink url="http://www.nncron.ru/">nncron</ulink>.
+        </para>
+      </note>
+    </section>
+
+    <section id="installation-whining">
+      <title>Whining</title>
+
+      <para>
+        As of Bugzilla 2.20, users can configure Bugzilla to regularly annoy 
+        them at regular intervals, by having Bugzilla execute saved searches
+        at certain times and emailing the results to the user.  This is known
+        as "Whining".  The process of configuring Whining is described 
+        in <xref linkend="whining"/>, but for it to work a Perl script must be
+        executed at regular intervals.
+      </para>
+
+      <para>
+        This can be done by adding the following command as a daily
+        crontab entry, in the same manner as explained above for bug
+        graphs. This example runs it every 15 minutes. 
+      </para>
+
+      <programlisting>*/15 * * * * cd &lt;your-bugzilla-directory&gt; ; ./whine.pl</programlisting>
+
+      <note>
+        <para>
+          Whines can be executed as often as every 15 minutes, so if you specify
+          longer intervals between executions of whine.pl, some users may not 
+          be whined at as often as they would expect.  Depending on the person,
+          this can either be a very Good Thing or a very Bad Thing.
+        </para>
+      </note>
 
       <note>
         <para>
@@ -1367,9 +1539,9 @@ AddType application/rdf+xml .rdf</screen>
            url="http://aspn.activestate.com/ASPN/Downloads/ActivePerl/" />.
            The following instructions assume that you are using version
            5.8.1 of ActiveState.
-        </para>
-      </section>
-
+          </para>
+        </section>
+  
       <section id="win32-perl-modules">
         <title>Perl Modules on Win32</title>
 
@@ -1414,59 +1586,15 @@ C:\perl&gt; <command>ppm install &lt;module name&gt;</command>
           </para>
         </tip>
       </section>
-
+  
       <section id="win32-code-changes">
         <title>Code changes required to run on Win32</title>
 
         <para>
-          Bugzilla on Win32 is mostly supported out of the box; one
-          remaining issue is related to bug email. To make bug email
-          work on Win32 (until
-          <ulink url="http://bugzilla.mozilla.org/show_bug.cgi?id=49893">bug
-          49893</ulink> lands), the
-          simplest way is to have the Net::SMTP Perl module installed and 
-          change these lines in the file Bugzilla/Bugmail.pm:
+          Bugzilla on Win32 is supported out of the box from version 2.20; this
+          means that no code changes are required to get Bugzilla running.
         </para>
-
-        <programlisting>
-open(SENDMAIL, "|/usr/lib/sendmail $sendmailparam -t -i") ||
-  die "Can't open sendmail";
-
-print SENDMAIL trim($msg) . "\n";
-close SENDMAIL;
-        </programlisting>
-
-        <para>
-          to
-        </para>
-
-        <programlisting>
-use Net::SMTP;
-my $smtp_server = 'smtp.mycompany.com';  # change this
-
-($enableSendMail &amp;&amp; $rcpt_to) || return;
-
-# Use die on error, so that the mail will be in the 'unsent mails' and
-# can be sent from the sanity check page.
-my $smtp = Net::SMTP->new($smtp_server) ||
-  die 'Cannot connect to server \'$smtp_server\'';
-
-$smtp->mail('bugzilla-daemon@mycompany.com');  # change this
-$smtp->to($rcpt_to);
-$smtp->data();
-$smtp->datasend($msg);
-$smtp->dataend();
-$smtp->quit;
-        </programlisting>
-
-        <para>
-          Don't forget to change the name of your SMTP server and the
-          domain of the sending email address (after the '@') in the
-          above lines of code.
-        </para>
-        <para>
-          Please be aware that flag email will continue not to work.
-        </para>
+        
       </section>
 
       <section id="win32-http">
@@ -1493,7 +1621,16 @@ $smtp->quit;
         </note>
 
       </section>
+      
+      <section id="win32-email">
+        <title>Sending Email</title>
 
+        <para>
+          To enable Bugzilla to send email on Windows, the server running the
+          Bugzilla code must be able to connect to, or act as, an SMTP server.
+        </para>
+        
+      </section>
     </section>
 
     <section id="os-macosx">

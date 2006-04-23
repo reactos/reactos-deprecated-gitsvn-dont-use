@@ -42,14 +42,16 @@
     [% END %]
   [% END %]
 </td></tr></thead><tbody class="[% collapsed ? 'file_collapse' : 'file' %]">
-<script type="application/x-javascript" language="JavaScript">
+<script type="text/javascript">
 incremental_restore()
 </script>
 
 [% section_num = 0 %]
 [% FOREACH section = sections %]
   [% section_num = section_num + 1 %]
-  <tr><th class="section_head" colspan="2">
+  <tr><th colspan="2" class="section_head">
+    <table cellpadding="0" cellspacing="0">
+    <tr><th width="95%" align="left">
   [% IF file.is_add %]
     Added
   [% ELSIF file.is_remove %]
@@ -63,15 +65,19 @@ incremental_restore()
       <a href="[% bonsai_prefix %]#[% section.old_start %]">
     [% END %]
     [% IF section.old_lines > 1 %]
-      Lines [% section.old_start %]-[% section.old_start + section.old_lines - 1 %]
+      &nbsp;Lines&nbsp;[% section.old_start %]-[% section.old_start + 
+                                             section.old_lines - 1 %]
     [% ELSE %]
-      Line [% section.old_start %]
+      Line&nbsp;[% section.old_start %]
     [% END %]
     [% IF bonsai_prefix %]
       </a>
     [% END %]
+    &nbsp;&nbsp;[% section.func_info FILTER html IF section.func_info %]
   [% END %] 
-  (<a name="[% file.filename FILTER html %]_sec[% section_num %]" href="#[% file.filename FILTER html %]_sec[% section_num %]">Link Here</a>)
+    </th><th>
+  <a name="[% file.filename FILTER html %]_sec[% section_num %]" href="#[% file.filename FILTER html %]_sec[% section_num %]">Link&nbsp;Here</a>&nbsp;
+    </th></tr></table>
   </th></tr>
   [% FOREACH group = section.groups %]
     [% IF group.context %]

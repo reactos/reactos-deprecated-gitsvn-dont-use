@@ -56,6 +56,7 @@ exit;
 
 sub queue {
     my $cgi = Bugzilla->cgi;
+    my $dbh = Bugzilla->dbh;
     
     validateStatus($cgi->param('status'));
     validateGroup($cgi->param('group'));
@@ -75,46 +76,45 @@ sub queue {
                 flags.attach_id, attachments.description,
                 requesters.realname, requesters.login_name,
                 requestees.realname, requestees.login_name,
-                DATE_FORMAT(flags.creation_date,'%Y.%m.%d %H:%i'),
-    " . 
-    # Select columns that help us weed out secure bugs to which the user
-    # should not have access.
-    "            COUNT(DISTINCT ugmap.group_id) AS cntuseringroups, 
-                COUNT(DISTINCT bgmap.group_id) AS cntbugingroups, 
-                ((COUNT(DISTINCT ccmap.who) AND cclist_accessible = 1) 
-                  OR ((bugs.reporter = $::userid) AND bugs.reporter_accessible = 1) 
-                  OR bugs.assigned_to = $::userid ) AS canseeanyway 
-    " . 
+    " . $dbh->sql_date_format('flags.creation_date', '%Y.%m.%d %H:%i') .
     # Use the flags and flagtypes tables for information about the flags,
     # the bugs and attachments tables for target info, the profiles tables
     # for setter and requestee info, the products/components tables
     # so we can display product and component names, and the bug_group_map
-    # and user_group_map tables to help us weed out secure bugs to which
-    # the user should not have access.
-    " FROM      flags 
-                LEFT JOIN attachments ON ($attach_join_clause), 
-                flagtypes, 
-                profiles AS requesters
-                LEFT JOIN profiles AS requestees 
-                  ON flags.requestee_id  = requestees.userid, 
-                bugs 
-                LEFT JOIN products ON bugs.product_id = products.id
-                LEFT JOIN components ON bugs.component_id = components.id
-                LEFT JOIN bug_group_map AS bgmap 
-                  ON bgmap.bug_id = bugs.bug_id 
-                LEFT JOIN user_group_map AS ugmap 
-                  ON bgmap.group_id = ugmap.group_id 
-                  AND ugmap.user_id = $::userid 
-                  AND ugmap.isbless = 0
-                LEFT JOIN cc AS ccmap 
-                ON ccmap.who = $::userid AND ccmap.bug_id = bugs.bug_id 
-    " . 
-    # All of these are inner join clauses.  Actual match criteria are added
-    # in the code below.
-    " WHERE     flags.type_id       = flagtypes.id
-      AND       flags.setter_id     = requesters.userid
-      AND       flags.bug_id        = bugs.bug_id
-    ";
+    # table to help us weed out secure bugs to which the user should not have
+    # access.
+    "
+      FROM           flags 
+           LEFT JOIN attachments
+                  ON ($attach_join_clause)
+          INNER JOIN flagtypes
+                  ON flags.type_id = flagtypes.id
+          INNER JOIN profiles AS requesters
+                  ON flags.setter_id = requesters.userid
+           LEFT JOIN profiles AS requestees
+                  ON flags.requestee_id  = requestees.userid
+          INNER JOIN bugs
+                  ON flags.bug_id = bugs.bug_id
+          INNER JOIN products
+                  ON bugs.product_id = products.id
+          INNER JOIN components
+                  ON bugs.component_id = components.id
+           LEFT JOIN bug_group_map AS bgmap
+                  ON bgmap.bug_id = bugs.bug_id
+                 AND bgmap.group_id NOT IN (" .
+                     join(', ', (-1, values(%{Bugzilla->user->groups}))) . ")
+           LEFT JOIN cc AS ccmap
+                  ON ccmap.who = $::userid
+                 AND ccmap.bug_id = bugs.bug_id
+    " .
+
+    # Weed out bug the user does not have access to
+    " WHERE     ((bgmap.group_id IS NULL) OR
+                 (ccmap.who IS NOT NULL AND cclist_accessible = 1) OR
+                 (bugs.reporter = $::userid AND bugs.reporter_accessible = 1) OR
+                 (bugs.assigned_to = $::userid) " .
+                 (Param('useqacontact') ? "OR
+                 (bugs.qa_contact = $::userid))" : ")");
     
     # Non-deleted flags only
     $query .= " AND flags.is_active = 1 ";
@@ -147,12 +147,16 @@ sub queue {
     
     # Filter results by exact email address of requester or requestee.
     if (defined $cgi->param('requester') && $cgi->param('requester') ne "") {
-        push(@criteria, "requesters.login_name = " . SqlQuote($cgi->param('requester')));
+        push(@criteria, $dbh->sql_istrcmp('requesters.login_name',
+                                          SqlQuote($cgi->param('requester'))));
         push(@excluded_columns, 'requester') unless $cgi->param('do_union');
     }
     if (defined $cgi->param('requestee') && $cgi->param('requestee') ne "") {
-        push(@criteria, "requestees.login_name = " .
-            SqlQuote($cgi->param('requestee')));
+        if ($cgi->param('requestee') ne "-") {
+            push(@criteria, $dbh->sql_istrcmp('requestees.login_name',
+                            SqlQuote($cgi->param('requestee'))));
+        }
+        else { push(@criteria, "flags.requestee_id IS NULL") }
         push(@excluded_columns, 'requestee') unless $cgi->param('do_union');
     }
     
@@ -203,8 +207,14 @@ sub queue {
     # Group the records by flag ID so we don't get multiple rows of data
     # for each flag.  This is only necessary because of the code that
     # removes flags on bugs the user is unauthorized to access.
-    $query .= " GROUP BY flags.id " . 
-              "HAVING cntuseringroups = cntbugingroups OR canseeanyway ";
+    $query .= ' ' . $dbh->sql_group_by('flags.id',
+               'flagtypes.name, flags.status, flags.bug_id, bugs.short_desc,
+                products.name, components.name, flags.attach_id,
+                attachments.description, requesters.realname,
+                requesters.login_name, requestees.realname,
+                requestees.login_name, flags.creation_date,
+                cclist_accessible, bugs.reporter, bugs.reporter_accessible,
+                bugs.assigned_to');
 
     # Group the records, in other words order them by the group column
     # so the loop in the display template can break them up into separate

@@ -37,18 +37,23 @@
   [% IF bug && bug_list && bug_list.size > 0 %]
     <link rel="Up" href="buglist.cgi?regetlastlist=1">
 
+    <link rel="First" href="show_bug.cgi?id=[% bug_list.first %]">
+    <link rel="Last" href="show_bug.cgi?id=[% bug_list.last %]">
+
     [% current_bug_idx = lsearch(bug_list, bug.bug_id) %]
 
-    [% IF current_bug_idx > 0 %]
-      <link rel="First" href="show_bug.cgi?id=[% bug_list.first %]">
-    [% prev_bug = current_bug_idx - 1 %]
-      <link rel="Prev" href="show_bug.cgi?id=[% bug_list.$prev_bug %]">
-    [% END %]
+    [% IF current_bug_idx != -1 %]
 
-    [% IF current_bug_idx + 1 < bug_list.size %]
-      [% next_bug = current_bug_idx + 1 %]
-      <link rel="Next" href="show_bug.cgi?id=[% bug_list.$next_bug %]">
-      <link rel="Last" href="show_bug.cgi?id=[% bug_list.last %]">
+      [% IF current_bug_idx > 0 %]
+      [% prev_bug = current_bug_idx - 1 %]
+        <link rel="Prev" href="show_bug.cgi?id=[% bug_list.$prev_bug %]">
+      [% END %]
+
+      [% IF current_bug_idx + 1 < bug_list.size %]
+        [% next_bug = current_bug_idx + 1 %]
+        <link rel="Next" href="show_bug.cgi?id=[% bug_list.$next_bug %]">
+      [% END %]
+
     [% END %]
   [% END %]
 
@@ -68,7 +73,7 @@
       <link rel="Show" title="[% terms.Bug %] Activity"
             href="show_activity.cgi?id=[% bug.bug_id %]">
       <link rel="Show" title="Printer-Friendly Version"
-            href="long_list.cgi?buglist=[% bug.bug_id %]">
+            href="show_bug.cgi?format=multiple&amp;id=[% bug.bug_id %]">
   [% END %]
 
 
@@ -99,6 +104,8 @@
               href="editgroups.cgi">' IF user.groups.creategroups %]
     [% '<link rel="Administration" title="Keywords"      
               href="editkeywords.cgi">' IF user.groups.editkeywords %]
+    [% '<link rel="Administration" title="Whining"       
+              href="editwhines.cgi">' IF user.groups.bz_canusewhines %]
     [% '<link rel="Administration" title="Sanity Check"  
               href="sanitycheck.cgi">' IF user.groups.tweakparams %]
   [% END %]  

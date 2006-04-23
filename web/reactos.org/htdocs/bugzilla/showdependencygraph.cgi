@@ -28,6 +28,8 @@ use lib qw(.);
 use File::Temp;
 use Bugzilla;
 use Bugzilla::Config qw(:DEFAULT $webdotdir);
+use Bugzilla::Util;
+use Bugzilla::BugMail;
 
 require "CGI.pl";
 
@@ -111,7 +113,7 @@ my $urlbase = Param('urlbase');
 
 print $fh "digraph G {";
 print $fh qq{
-graph [URL="${urlbase}query.cgi", rankdir=$rankdir, size="64,64"]
+graph [URL="${urlbase}query.cgi", rankdir=$rankdir]
 node [URL="${urlbase}show_bug.cgi?id=\\N", style=filled, color=lightgrey]
 };
 
@@ -170,7 +172,7 @@ foreach my $k (keys(%seen)) {
     $summary ||= '';
 
     # Resolution and summary are shown only if user can see the bug
-    if (!CanSeeBug($k, $::userid)) {
+    if (!Bugzilla->user->can_see_bug($k)) {
         $resolution = $summary = '';
     }
 
@@ -230,7 +232,7 @@ if ($webdotbase =~ /^https?:/) {
                                                      SUFFIX => '.png',
                                                      DIR => $webdotdir);
     binmode $pngfh;
-    open(DOT, "$webdotbase -Tpng $filename|");
+    open(DOT, "\"$webdotbase\" -Tpng $filename|");
     binmode DOT;
     print $pngfh $_ while <DOT>;
     close DOT;
@@ -249,7 +251,7 @@ if ($webdotbase =~ /^https?:/) {
                                                      SUFFIX => '.map',
                                                      DIR => $webdotdir);
     binmode $mapfh;
-    open(DOT, "$webdotbase -Tismap $filename|");
+    open(DOT, "\"$webdotbase\" -Tismap $filename|");
     binmode DOT;
     print $mapfh $_ while <DOT>;
     close DOT;
@@ -271,7 +273,7 @@ foreach my $f (@files)
     # symlinks), this can't escape to delete anything it shouldn't
     # (unless someone moves the location of $webdotdir, of course)
     trick_taint($f);
-    if (ModTime($f) < $since) {
+    if (file_mod_time($f) < $since) {
         unlink $f;
     }
 }

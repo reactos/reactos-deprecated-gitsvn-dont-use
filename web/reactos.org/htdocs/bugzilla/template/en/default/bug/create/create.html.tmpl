@@ -22,31 +22,47 @@
   #%]
 
 [% PROCESS global/variables.none.tmpl %]
+[% PROCESS "global/field-descs.none.tmpl" %]
 
+[% product_name = product FILTER html %]
 [% PROCESS global/header.html.tmpl
-  title = "Enter $terms.Bug"
+  title = "Enter $terms.Bug: $product_name"
   h2 = "This page lets you enter a new $terms.bug into ${terms.Bugzilla}."
   onload="set_assign_to();"
 %]
 [% USE Bugzilla %]
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 <!--
 
-var default_owners = new Array([% component_.size %]);
+var initialowners = new Array([% component_.size %]);
+var last_initialowner;
 var components = new Array([% component_.size %]);
+[% IF Param("useqacontact") %]
+    var initialqacontacts = new Array([% component_.size %]);
+    var last_initialqacontact;
+[% END %]
 [% count = 0 %]
 [%- FOREACH c = component_ %]
     components[[% count %]] = "[% c.name FILTER js %]";
-    default_owners[[% count %]] = "[% c.default_login FILTER js %]";
+    initialowners[[% count %]] = "[% c.initialowner FILTER js %]";
+    [% IF Param("useqacontact") %]
+        initialqacontacts[[% count %]] = "[% c.initialqacontact FILTER js %]";
+    [% END %]
     [% count = count + 1 %]
 [%- END %]
-var last_default_owner;
+
 function set_assign_to() {
     // Based on the selected component, fill the "Assign To:" field
-    // with the default component owner.
+    // with the default component owner, and the the "QA Contact:" field
+    // with the default QA Contact.
     var form = document.Create;
     var assigned_to = form.assigned_to.value;
+
+[% IF Param("useqacontact") %]
+    var qa_contact = form.qa_contact.value;
+[% END %]
+
     var index = -1;
     if (form.component.type == 'select-one') {
         index = form.component.selectedIndex;
@@ -55,14 +71,23 @@ function set_assign_to() {
         index = 0;
     }
     if (index != -1) {
-        var owner = default_owners[index];
+        var owner = initialowners[index];
         var component = components[index];
-        if (assigned_to == last_default_owner
+        if (assigned_to == last_initialowner
             || assigned_to == owner
             || assigned_to == '') {
             form.assigned_to.value = owner;
-            last_default_owner = owner;
+            last_initialowner = owner;
         }
+        [% IF Param("useqacontact") %]
+            var contact = initialqacontacts[index];
+            if (qa_contact == last_initialqacontact
+                || qa_contact == contact
+                || qa_contact == '') {
+                  form.qa_contact.value = contact;
+                  last_initialqacontact = contact;
+            }
+        [% END %]
     }
 }
 -->
@@ -158,6 +183,14 @@ function set_assign_to() {
   [% INCLUDE select %]
   </tr>
 
+  [% IF Param('usetargetmilestone') && Param('letsubmitterchoosemilestone') %]
+    <tr>
+    [% sel = { description => 'Target Milestone', name => 'target_milestone' } %]
+    [% INCLUDE select %]
+    <td colspan="2"></td>
+    </tr>
+  [% END %]
+
   <tr>
     <td>&nbsp;</td>
     <td colspan="3"></td>
@@ -168,7 +201,7 @@ function set_assign_to() {
   <input type="hidden" name="bug_status" 
          value="[% default.bug_status FILTER html %]">
     <td align="right" valign="top"><strong>Initial State:</strong></td>
-    <td valign="top">[% default.bug_status FILTER html %]</td>
+    <td valign="top">[% status_descs.${default.bug_status} FILTER html %]</td>
 [% ELSE %]
     [% sel = { description => 'Initial State', name => 'bug_status' } %]
     [% INCLUDE select %]
@@ -183,16 +216,43 @@ function set_assign_to() {
       </strong>
     </td>
     <td colspan="3">
-      <input name="assigned_to" size="32" 
-             value="[% assigned_to FILTER html %]">
-      <noscript>(Leave blank to assign to default component owner)</noscript>
+      [% INCLUDE global/userselect.html.tmpl
+         name => "assigned_to"
+         value => assigned_to
+         disabled => assigned_to_disabled
+         size => 32
+         emptyok => 1
+       %]
+      <noscript>(Leave blank to assign to component's default assignee)</noscript>
     </td>
   </tr>
   
+[% IF Param("useqacontact") %]
+    <tr>
+      <td align="right"><strong>QA Contact:</strong></td>
+      <td colspan="3">
+      [% INCLUDE global/userselect.html.tmpl
+         name => "qa_contact"
+         value => qa_contact
+         disabled => qa_contact_disabled
+         size => 32
+         emptyok => 1
+       %]
+        <noscript>(Leave blank to assign to default qa contact)</noscript>
+      </td>
+    </tr>
+[% END %]
+
   <tr>
     <td align="right"><strong>Cc:</strong></td>
     <td colspan="3">
-      <input name="cc" size="45" value="[% cc FILTER html %]">
+      [% INCLUDE global/userselect.html.tmpl
+         name => "cc"
+         value => cc
+         disabled => cc_disabled
+         size => 45
+         multiple => 5
+       %]
     </td>
   </tr>
   
@@ -206,6 +266,13 @@ function set_assign_to() {
     <td align="right"><strong>Estimated Hours:</strong></td>
     <td colspan="3">
       <input name="estimated_time" size="6" maxlength="6" value="0.0">
+    </td>
+  </tr>
+  <tr>
+    <td align="right"><strong>Deadline:</strong></td>
+    <td colspan="3">
+      <input name="deadline" size="10" maxlength="10" value="[% deadline FILTER html %]">
+      <small>(YYYY-MM-DD)</small>
     </td>
   </tr>
 
@@ -232,7 +299,12 @@ function set_assign_to() {
 
   <tr><td align="right" valign="top"><strong>Description:</strong></td>
     <td colspan="3">
-      <textarea wrap="hard" name="comment" rows="10" cols="80">
+      <textarea name="comment" rows="10" cols="80">
+        [% IF cloned_bug_id %]
++++ This [% terms.bug %] was initially created as a clone of [% terms.Bug %] #[% cloned_bug_id %] +++
+
+
+        [% END %]
         [% comment FILTER html %]</textarea>
       <br>
     </td>
@@ -313,6 +385,9 @@ function set_assign_to() {
     </td>
   </tr>
 
+  [%# Form controls for entering additional data about the bug being created. %]
+  [% Hook.process("form") %]
+
   <tr>
     <td></td>
     <td colspan="3">
@@ -326,13 +401,20 @@ function set_assign_to() {
     </td>
   </tr>
 
-[% IF Param('usebrowserinfo') %]
+[% UNLESS (Param('defaultplatform') && Param('defaultopsys')) %]
   <tr>
     <td></td>
     <td colspan="3">
       <br>
-      We've made a guess at your operating system and platform.
-      Please check them and, if we got it wrong, email
+      We've made a guess at your
+  [% IF Param('defaultplatform') %]
+      operating system. Please check it
+  [% ELSIF Param('defaultopsys') %]
+      platform. Please check it
+  [% ELSE %]
+      operating system and platform. Please check them
+  [% END %]
+      and, if we got it wrong, email
       [%+ Param('maintainer') %].
     </td>
   </tr>
@@ -341,6 +423,9 @@ function set_assign_to() {
   </table>
   <input type="hidden" name="form_name" value="enter_bug">
 </form>
+
+[%# Links or content with more information about the bug being created. %]
+[% Hook.process("end") %]
 
 [% PROCESS global/footer.html.tmpl %]
 
@@ -362,9 +447,13 @@ function set_assign_to() {
     <select name="[% sel.name %]">
     [%- FOREACH x = ${sel.name} %]
       <option value="[% x FILTER html %]"
-        [% " selected=\"selected\"" IF x == default.${sel.name} %]>[% x FILTER html -%]
-      </option>
-    [%- END %]
+        [% " selected=\"selected\"" IF x == default.${sel.name} %]>
+        [% IF sel.name == "bug_status" %]
+          [% status_descs.$x FILTER html %]
+        [% ELSE %]
+          [% x FILTER html %]
+        [% END %]</option>
+    [% END %]
     </select>
   </td>
 [% END %]

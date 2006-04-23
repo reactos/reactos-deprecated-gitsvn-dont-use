@@ -27,9 +27,15 @@
 
 [% PROCESS global/variables.none.tmpl %]
 
+[% js_data = BLOCK %]
+    var queryform = "chartform";
+[% END %]
+
 [% PROCESS global/header.html.tmpl 
   title = "Create New Data Set"
   onload = "selectProduct(document.forms['chartform']);"
+  javascript = js_data 
+  javascript_urls = [ "js/productform.js" ]
 %]
 
 <form method="get" action="chart.cgi" name="chartform">
@@ -47,7 +53,7 @@
    button_name = "Create Data Set" %]
   <input type="hidden" name="action" value="create">
 
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
   document.chartform.category[0].selected = true;
   catSelected();
   checkNewState();

@@ -18,6 +18,7 @@
   #
   # Contributor(s):     Myk Melez <myk@mozilla.org>
   #                     Jeff Hedlund <jeff.hedlund@matrixsi.com>
+  #                     Frédéric Buclin <LpSolit@gmail.com>
   #%]
 
 [% PROCESS global/variables.none.tmpl %]
@@ -28,17 +29,16 @@
 [% statuses = { '+' => "granted" , '-' => 'denied' , 'X' => "cancelled" ,
                 '?' => "asked" } %]
 [% IF flag.status == '?' %]
-   [% to_email = flag.requestee.email IF flag.requestee.email_prefs.FlagRequestee %]
-   [% to_identity = flag.requestee.identity %]
-   [% subject_status = "requested" %]
+  [% to_identity = flag.addressee.identity _ " for" %]
+  [% subject_status = "requested" %]
 [% ELSE %]
-   [% to_email = flag.setter.email IF flag.setter.email_prefs.FlagRequester %]
-   [% to_identity = flag.setter.identity _ "'s request" %]
-   [% subject_status = statuses.${flag.status} %]
+  [% IF flag.addressee %]
+    [% to_identity = flag.addressee.identity _ "'s request for" %]
+  [% END %]
+  [% subject_status = statuses.${flag.status} %]
 [% END %]
 From: bugzilla-request-daemon
-To: [% to_email %]
-CC: [% flag.type.cc_list %]
+To: [% to %]
 Subject: [% flag.type.name %] [%+ subject_status %]: [[% terms.Bug %] [%+ flag.target.bug.id %]] [% flag.target.bug.summary %]
 [%- IF flag.target.attachment.exists %] :
   [Attachment [% flag.target.attachment.id %]] [% flag.target.attachment.summary %][% END %]
@@ -46,7 +46,7 @@ Subject: [% flag.type.name %] [%+ subject_status %]: [[% terms.Bug %] [%+ flag.t
 [%+ USE wrap -%]
 [%- FILTER bullet = wrap(80) -%]
 
-[% user.identity %] has [% statuses.${flag.status} %] [%+ to_identity %] for [% flag.type.name %]:
+[% user.identity %] has [% statuses.${flag.status} %] [%+ to_identity %] [%+ flag.type.name %]:
 
 [% terms.Bug %] [%+ bugidsummary %]
 [% END %]
@@ -60,9 +60,10 @@ Attachment [% attidsummary %]
 [%- END %]
 [%- FILTER bullet = wrap(80) %]
 
-[% IF form.comment.length > 0 %]
+[% USE Bugzilla %]
+[% IF Bugzilla.cgi.param("comment").length > 0 %]
 ------- Additional Comments from [% user.identity %]
-[%+ form.comment %]
+[%+ Bugzilla.cgi.param("comment") %]
 [% END %]
 
 [%- END %]

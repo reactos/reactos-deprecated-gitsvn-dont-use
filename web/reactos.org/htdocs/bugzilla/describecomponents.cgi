@@ -45,7 +45,7 @@ if (!$product_id || !CanEnterProduct($product)) {
 
     if (AnyEntryGroups()) {
         # OK, now only add products the user can see
-        Bugzilla->login(LOGIN_REQUIRED) unless Bugzilla->user;
+        Bugzilla->login(LOGIN_REQUIRED);
         foreach my $p (@::legal_product) {
             if (CanEnterProduct($p)) {
                 $products{$p} = $::proddesc{$p};
@@ -78,6 +78,7 @@ if (!$product_id || !CanEnterProduct($product)) {
     }
 
     $product = (keys %products)[0];
+    $product_id = get_product_id($product);
 }
 
 ######################################################################

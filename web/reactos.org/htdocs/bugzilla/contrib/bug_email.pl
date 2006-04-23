@@ -38,7 +38,7 @@
 #
 # You need to work with bug_email.pl the MIME::Parser installed.
 # 
-# $Id: bug_email.pl,v 1.20.2.2 2005/05/12 19:18:00 lpsolit%gmail.com Exp $
+# $Id: bug_email.pl,v 1.28 2005/07/08 02:31:43 mkanat%kerio.com Exp $
 ###############################################################
 
 # 02/12/2000 (SML)
@@ -94,6 +94,7 @@ use lib ".";
 use lib "../";
 use Bugzilla::Constants;
 use Bugzilla::BugMail;
+use Bugzilla::User;
 
 my @mailerrors = ();       # Buffer for Errors in the mail
 my @mailwarnings = ();     # Buffer for Warnings found in the mail
@@ -110,6 +111,8 @@ my $test = 0;
 my $restricted = 0;
 my $SenderShort;
 my $Message_ID;
+
+my $dbh = Bugzilla->dbh;
 
 # change to use default product / component functionality
 my $DEFAULT_PRODUCT = "PENDING";
@@ -925,7 +928,7 @@ $Control{'component'} = $Component;
 # otherwise, retrieve it from the database.
 if ( defined($Control{'assigned_to'}) 
      && $Control{'assigned_to'} !~ /^\s*$/ ) {
-    $Control{'assigned_to'} = DBname_to_id($Control{'assigned_to'});
+    $Control{'assigned_to'} = login_to_id($Control{'assigned_to'});
 } else {
     SendSQL("select initialowner from components, products where " .
             "  components.product_id=products.id AND products.name=" .
@@ -945,7 +948,7 @@ if ( $Control{'assigned_to'} == 0 ) {
 }
 
 
-$Control{'reporter'} = DBname_to_id($Control{'reporter'});
+$Control{'reporter'} = login_to_id($Control{'reporter'});
 if ( ! $Control{'reporter'} ) {
     BugMailError( 1, "Could not resolve reporter !\n" );
 }
@@ -1090,7 +1093,7 @@ END
     my $reporter = "";
 
     my $query = "insert into bugs (\n" . join(",\n", @used_fields ) . 
-        ", bug_status, creation_ts, everconfirmed) values ( ";
+        ", bug_status, creation_ts, delta_ts, everconfirmed) values ( ";
     
     # 'Yuck'. Then again, this whole file should be rewritten anyway...
     $query =~ s/product/product_id/;
@@ -1145,10 +1148,11 @@ END
       $state = SqlQuote("NEW");
     }
 
-    $query .=  $state . ", \'$bug_when\', $ever_confirmed)\n";
+    $query .=  $state . ", \'$bug_when\', \'$bug_when\', $ever_confirmed)\n";
 #    $query .=  SqlQuote( "NEW" ) . ", now(), " . SqlQuote($comment) . " )\n";
 
-    SendSQL("SELECT userid FROM profiles WHERE login_name=\'$reporter\'");
+    SendSQL("SELECT userid FROM profiles WHERE " .
+            $dbh->sql_istrcmp('login_name', $dbh->quote($reporter)));
     my $userid = FetchOneColumn();
 
     my $id;
@@ -1156,8 +1160,7 @@ END
     if( ! $test ) {
         SendSQL($query);
 
-        SendSQL("select LAST_INSERT_ID()");
-        $id = FetchOneColumn();
+        $id = Bugzilla->dbh->bz_last_key('bugs', 'bug_id');
 
         my $long_desc_query = "INSERT INTO longdescs SET bug_id=$id, who=$userid, bug_when=\'$bug_when\', thetext=" . SqlQuote($comment);
         SendSQL($long_desc_query);

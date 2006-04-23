@@ -33,8 +33,10 @@ use vars qw($template $vars);
 
 use Bugzilla;
 use Bugzilla::Constants;
+use Bugzilla::Util;
 
 my $cgi = Bugzilla->cgi;
+my $dbh = Bugzilla->dbh;
 
 # Include the Bugzilla CGI and general utility library.
 require "CGI.pl";
@@ -66,6 +68,7 @@ if ($cgi->param('t')) {
   $::quotedtoken = SqlQuote($::token);
   
   # Make sure the token contains only valid characters in the right amount.
+  # Validate password will throw an error if token is invalid
   ValidatePassword($::token);
 
   Bugzilla::Token::CleanTokenTable();
@@ -91,18 +94,26 @@ if ($cgi->param('t')) {
   }
 }
 
+
 # If the user is requesting a password change, make sure they submitted
-# their login name and it exists in the database.
+# their login name and it exists in the database, and that the DB module is in
+# the list of allowed verification methids.
 if ( $::action eq 'reqpw' ) {
     defined $cgi->param('loginname')
       || ThrowUserError("login_needed_for_password_change");
+
+    # check verification methods
+    unless (Bugzilla::Auth->has_db) {
+        ThrowUserError("password_change_requests_not_allowed");
+    }
 
     # Make sure the login name looks like an email address.  This function
     # displays its own error and stops execution if the login name looks wrong.
     CheckEmailSyntax($cgi->param('loginname'));
 
     my $quotedloginname = SqlQuote($cgi->param('loginname'));
-    SendSQL("SELECT userid FROM profiles WHERE login_name = $quotedloginname");
+    SendSQL("SELECT userid FROM profiles WHERE " .
+            $dbh->sql_istrcmp('login_name', $quotedloginname));
     FetchSQLData()
       || ThrowUserError("account_inexistent");
 }
@@ -180,8 +191,10 @@ sub cancelChangePassword {
 }
 
 sub changePassword {
+    my $dbh = Bugzilla->dbh;
+
     # Quote the password and token for inclusion into SQL statements.
-    my $cryptedpassword = Crypt($cgi->param('password'));
+    my $cryptedpassword = bz_crypt($cgi->param('password'));
     my $quotedpassword = SqlQuote($cryptedpassword);
 
     # Get the user's ID from the tokens table.
@@ -190,12 +203,12 @@ sub changePassword {
     
     # Update the user's password in the profiles table and delete the token
     # from the tokens table.
-    SendSQL("LOCK TABLES profiles WRITE , tokens WRITE");
+    $dbh->bz_lock_tables('profiles WRITE', 'tokens WRITE');
     SendSQL("UPDATE   profiles
              SET      cryptpassword = $quotedpassword
              WHERE    userid = $userid");
     SendSQL("DELETE FROM tokens WHERE token = $::quotedtoken");
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
 
     Bugzilla->logout_user_by_id($userid);
 
@@ -217,6 +230,7 @@ sub confirmChangeEmail {
 }
 
 sub changeEmail {
+    my $dbh = Bugzilla->dbh;
 
     # Get the user's ID from the tokens table.
     SendSQL("SELECT userid, eventdata FROM tokens 
@@ -231,7 +245,7 @@ sub changeEmail {
     }
     # The new email address should be available as this was 
     # confirmed initially so cancel token if it is not still available
-    if (! ValidateNewUser($new_email,$old_email)) {
+    if (! is_available_username($new_email,$old_email)) {
         $vars->{'email'} = $new_email; # Needed for Bugzilla::Token::Cancel's mail
         Bugzilla::Token::Cancel($::token,"account_exists");
         ThrowUserError("account_exists", { email => $new_email } );
@@ -239,14 +253,14 @@ sub changeEmail {
 
     # Update the user's login name in the profiles table and delete the token
     # from the tokens table.
-    SendSQL("LOCK TABLES profiles WRITE , tokens WRITE");
+    $dbh->bz_lock_tables('profiles WRITE', 'tokens WRITE');
     SendSQL("UPDATE   profiles
          SET      login_name = $quotednewemail
          WHERE    userid = $userid");
     SendSQL("DELETE FROM tokens WHERE token = $::quotedtoken");
     SendSQL("DELETE FROM tokens WHERE userid = $userid 
                                   AND tokentype = 'emailnew'");
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
 
     # The email address has been changed, so we need to rederive the groups
     my $user = new Bugzilla::User($userid);
@@ -264,6 +278,8 @@ sub changeEmail {
 }
 
 sub cancelChangeEmail {
+    my $dbh = Bugzilla->dbh;
+
     # Get the user's ID from the tokens table.
     SendSQL("SELECT userid, tokentype, eventdata FROM tokens 
              WHERE token = $::quotedtoken");
@@ -280,11 +296,11 @@ sub cancelChangeEmail {
         if($actualemail ne $old_email) {
             my $quotedoldemail = SqlQuote($old_email);
 
-            SendSQL("LOCK TABLES profiles WRITE");
+            $dbh->bz_lock_tables('profiles WRITE');
             SendSQL("UPDATE   profiles
                  SET      login_name = $quotedoldemail
                  WHERE    userid = $userid");
-            SendSQL("UNLOCK TABLES");
+            $dbh->bz_unlock_tables();
 
             # email has changed, so rederive groups
             # Note that this is done _after_ the tables are unlocked
@@ -306,11 +322,11 @@ sub cancelChangeEmail {
     $vars->{'new_email'} = $new_email;
     Bugzilla::Token::Cancel($::token, $vars->{'message'});
 
-    SendSQL("LOCK TABLES tokens WRITE");
+    $dbh->bz_lock_tables('tokens WRITE');
     SendSQL("DELETE FROM tokens 
              WHERE userid = $userid 
              AND tokentype = 'emailold' OR tokentype = 'emailnew'");
-    SendSQL("UNLOCK TABLES");
+    $dbh->bz_unlock_tables();
 
     # Return HTTP response headers.
     print $cgi->header();

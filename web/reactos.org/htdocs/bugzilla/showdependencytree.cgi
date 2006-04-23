@@ -27,6 +27,7 @@ use strict;
 
 use lib qw(.);
 require "CGI.pl";
+use Bugzilla::User;
 
 # Use global template variables.
 use vars qw($template $vars);
@@ -146,18 +147,19 @@ sub GetBug {
     my ($id) = @_;
     
     my $bug = {};
-    if (CanSeeBug($id, $::userid)) {
+    if (Bugzilla->user->can_see_bug($id)) {
         SendSQL("SELECT 1, 
-                                  bug_status, 
-                                  short_desc, 
-                                  $milestone_column, 
-                                  assignee.userid, 
-                                  assignee.login_name
-                             FROM bugs, profiles AS assignee
-                            WHERE bugs.bug_id = $id
-                              AND bugs.assigned_to = assignee.userid");
-    
-    
+                        bug_status, 
+                        short_desc, 
+                        $milestone_column, 
+                        assignee.userid, 
+                        assignee.login_name
+                 FROM   bugs
+             INNER JOIN profiles AS assignee
+                     ON bugs.assigned_to = assignee.userid
+                  WHERE bugs.bug_id = $id");
+
+
         ($bug->{'exists'}, 
          $bug->{'status'}, 
          $bug->{'summary'}, 

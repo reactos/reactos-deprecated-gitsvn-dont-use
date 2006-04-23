@@ -7,7 +7,8 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 2.18.3 Release"
+TITLE="The Bugzilla Guide - 2.20.1 
+    Release"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Using Bugzilla"
@@ -37,7 +38,8 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 2.18.3 Release</TH
+>The Bugzilla Guide - 2.20.1 
+    Release</TH
 ></TR
 ><TR
 ><TD
@@ -80,7 +82,7 @@ NAME="bug_page"
 >The core of Bugzilla is the screen which displays a particular
     bug. It's a good place to explain some Bugzilla concepts. 
     <A
-HREF="http://landfill.bugzilla.org/bugzilla-2.18-branch/show_bug.cgi?id=1"
+HREF="http://landfill.bugzilla.org/bugzilla-tip/show_bug.cgi?id=1"
 TARGET="_top"
 >&#13;    Bug 1 on Landfill</A
 >
@@ -306,8 +308,12 @@ BORDER="0"
 >&#13;        <EM
 >Attachments:</EM
 >
-        You can attach files (e.g. testcases or patches) to bugs. If there
-        are any attachments, they are listed in this section.</P
+          You can attach files (e.g. testcases or patches) to bugs. If there
+          are any attachments, they are listed in this section.  Attachments are
+          normally stored in the Bugzilla database, unless they are marked as
+          Big Files, which are stored directly on disk and (unlike attachments
+          kept in the database) may be deleted at some future time.
+        </P
 ></LI
 ><LI
 ><P

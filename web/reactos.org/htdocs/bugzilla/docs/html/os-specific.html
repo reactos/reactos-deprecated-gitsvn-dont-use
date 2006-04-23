@@ -7,7 +7,8 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 2.18.3 Release"
+TITLE="The Bugzilla Guide - 2.20.1 
+    Release"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Installing Bugzilla"
@@ -37,7 +38,8 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 2.18.3 Release</TH
+>The Bugzilla Guide - 2.20.1 
+    Release</TH
 ></TR
 ><TR
 ><TD
@@ -128,7 +130,7 @@ TARGET="_top"
 >.
            The following instructions assume that you are using version
            5.8.1 of ActiveState.
-        </P
+          </P
 ></DIV
 ><DIV
 CLASS="section"
@@ -271,79 +273,8 @@ NAME="win32-code-changes"
 >2.4.1.3. Code changes required to run on Win32</A
 ></H3
 ><P
->&#13;          Bugzilla on Win32 is mostly supported out of the box; one
-          remaining issue is related to bug email. To make bug email
-          work on Win32 (until
-          <A
-HREF="http://bugzilla.mozilla.org/show_bug.cgi?id=49893"
-TARGET="_top"
->bug
-          49893</A
-> lands), the
-          simplest way is to have the Net::SMTP Perl module installed and 
-          change these lines in the file Bugzilla/Bugmail.pm:
-        </P
-><TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="programlisting"
->&#13;open(SENDMAIL, "|/usr/lib/sendmail $sendmailparam -t -i") ||
-  die "Can't open sendmail";
-
-print SENDMAIL trim($msg) . "\n";
-close SENDMAIL;
-        </PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->&#13;          to
-        </P
-><TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="programlisting"
->&#13;use Net::SMTP;
-my $smtp_server = 'smtp.mycompany.com';  # change this
-
-($enableSendMail &#38;&#38; $rcpt_to) || return;
-
-# Use die on error, so that the mail will be in the 'unsent mails' and
-# can be sent from the sanity check page.
-my $smtp = Net::SMTP-&#62;new($smtp_server) ||
-  die 'Cannot connect to server \'$smtp_server\'';
-
-$smtp-&#62;mail('bugzilla-daemon@mycompany.com');  # change this
-$smtp-&#62;to($rcpt_to);
-$smtp-&#62;data();
-$smtp-&#62;datasend($msg);
-$smtp-&#62;dataend();
-$smtp-&#62;quit;
-        </PRE
-></FONT
-></TD
-></TR
-></TABLE
-><P
->&#13;          Don't forget to change the name of your SMTP server and the
-          domain of the sending email address (after the '@') in the
-          above lines of code.
-        </P
-><P
->&#13;          Please be aware that flag email will continue not to work.
+>&#13;          Bugzilla on Win32 is supported out of the box from version 2.20; this
+          means that no code changes are required to get Bugzilla running.
         </P
 ></DIV
 ><DIV
@@ -406,6 +337,19 @@ CLASS="filename"
 ></TR
 ></TABLE
 ></DIV
+></DIV
+><DIV
+CLASS="section"
+><H3
+CLASS="section"
+><A
+NAME="win32-email"
+>2.4.1.5. Sending Email</A
+></H3
+><P
+>&#13;          To enable Bugzilla to send email on Windows, the server running the
+          Bugzilla code must be able to connect to, or act as, an SMTP server.
+        </P
 ></DIV
 ></DIV
 ><DIV

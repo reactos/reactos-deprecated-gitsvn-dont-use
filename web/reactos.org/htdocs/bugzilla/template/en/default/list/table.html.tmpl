@@ -53,7 +53,7 @@
     "resolution"        => { maxlength => 4 } , 
     "short_desc"        => { wrap => 1 } ,
     "short_short_desc"  => { maxlength => 60 , ellipsis => "..." , wrap => 1 } ,
-    "status_whiteboard" => { title => "StatusSummary" , wrap => 1 } , 
+    "status_whiteboard" => { title => "Whiteboard" , wrap => 1 } , 
     "component"         => { maxlength => 8 , title => "Comp" } , 
     "product"           => { maxlength => 8 } , 
     "version"           => { maxlength => 5 , title => "Vers" } , 
@@ -131,8 +131,15 @@
     [% IF sorted_by_relevance %]
       [%- abbrev.$id.title || field_descs.$id || column.title -%]
     [% ELSE %]
+      [% IF column.name.match('\s+AS\s+') %]
+        [%# For aliased columns, use their ID for sorting. %]
+        [% column.sortalias = id %]
+      [% ELSE %]
+        [%# Other columns may sort on their name directly. %]
+        [% column.sortalias = column.name %]
+      [% END %]
       <a href="buglist.cgi?[% urlquerypart FILTER html %]&amp;order=
-        [% column.name FILTER url_quote FILTER html %]
+        [% column.sortalias FILTER url_quote FILTER html %]
         [% ",$qorder" FILTER html IF order %]
         [%-#%]&amp;query_based_on=
         [% defaultsavename OR searchname FILTER html %]">
@@ -159,8 +166,9 @@
              bz_[% bug.priority FILTER css_class_quote -%]
              bz_[% bug.bug_status FILTER css_class_quote -%]
              [%+ "bz_$bug.resolution" FILTER css_class_quote IF bug.resolution -%]
-             [%+ "bz_secure" IF bug.isingroups -%]
-             [%+ count % 2 == 1 ? "bz_odd" : "bz_even" -%]
+             [%+ "bz_secure" IF bug.secure_mode -%]
+             [%+ "bz_secure_mode_$bug.secure_mode" FILTER css_class_quote IF bug.secure_mode -%]
+             [%+ count % 2 == 1 ? "bz_row_odd" : "bz_row_even" -%]
              ">
              
 
@@ -171,22 +179,24 @@
     [% END %]
     <td class="first-child">
       <a href="show_bug.cgi?id=[% bug.bug_id %]">[% bug.bug_id %]</a>
-      <span style="display: none">[%+ '[SEC]' IF bug.isingroups %]</span>
+      <span style="display: none">[%+ '[SEC]' IF bug.secure_mode %]</span>
     </td>
 
     [% FOREACH column = displaycolumns %]
-    <td>
-      [% '<nobr>' IF NOT abbrev.$column.wrap %]
+    <td [% 'style="white-space: nowrap"' IF NOT abbrev.$column.wrap %]>
       [% IF abbrev.$column.format_value %] 
         [%- bug.$column FILTER format(abbrev.$column.format_value) FILTER html -%] 
       [% ELSIF column == 'actual_time' ||
                column == 'remaining_time' ||
                column == 'estimated_time' %]
         [% PROCESS formattimeunit time_unit=bug.$column %] 
+      [% ELSIF column == 'bug_status' %]
+        [%- status_descs.${bug.$column}.truncate(abbrev.$column.maxlength, abbrev.$column.ellipsis) FILTER html %]
+      [% ELSIF column == 'resolution' %]
+        [%- resolution_descs.${bug.$column}.truncate(abbrev.$column.maxlength, abbrev.$column.ellipsis) FILTER html %]
       [% ELSE %]
         [%- bug.$column.truncate(abbrev.$column.maxlength, abbrev.$column.ellipsis) FILTER html -%]
       [% END %]
-      [%- '</nobr>' IF NOT abbrev.$column.wrap %]
     </td>
     [% END %]
 

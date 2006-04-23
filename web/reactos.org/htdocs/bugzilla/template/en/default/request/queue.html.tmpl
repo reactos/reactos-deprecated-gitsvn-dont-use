@@ -36,14 +36,24 @@
   [% END %]
 [% END %]
 
-[% filter_form = BLOCK %]
+[% PROCESS global/header.html.tmpl
+  title="Request Queue"
+  style = "
+    table.requests th { text-align: left; }
+    table#filter th { text-align: right; }
+  "
+  onload="selectProduct(document.forms[0], 'product', 'component', 'Any');"
+  javascript_urls=["productmenu.js"]
+%]
+
 <form action="request.cgi" method="get">
   <input type="hidden" name="action" value="queue">
 
   <table id="filter">
     <tr>
       <th>Requester:</th>
-      <td><input type="text" name="requester" value="[% cgi.param('requester') FILTER html %]" size="20"></td>
+      <td><input type="text" name="requester" value="[% cgi.param('requester') FILTER html %]" size="20" 
+           title="Requester's email address"></td>
       <th>Product:</th>
       <td>
         <select name="product" onchange="selectProduct(this.form, 'product', 'component', 'Any');">
@@ -76,7 +86,8 @@
     </tr>
     <tr>
       <th>Requestee:</th>
-      <td><input type="text" name="requestee" value="[% cgi.param('requestee') FILTER html %]" size="20"></td>
+      <td><input type="text" name="requestee" value="[% cgi.param('requestee') FILTER html %]" size="20" 
+           title="Requestee's email address or &quot;-&quot; (hyphen) for requests with no requestee"></td>
       <th>Component:</th>
       <td>
         <select name="component">
@@ -102,7 +113,6 @@
   </table>
 
 </form>
-[% END %]
 
 [% column_headers = {
       "type"       => "Flag" ,
@@ -117,18 +127,6 @@
 [% DEFAULT display_columns = ["requester", "requestee", "type", "bug", "attachment", "created"]
            group_field     = "Requestee"
            group_value     = ""
-%]
-
-
-[% PROCESS global/header.html.tmpl
-  title="Request Queue"
-  h2=filter_form
-  style = "
-    table.requests th { text-align: left; }
-    table#filter th { text-align: right; }
-  "
-  onload="selectProduct(document.forms[0], 'product', 'component', 'Any');"
-  javascript_urls=["productmenu.js"]
 %]
 
 [% IF debug %]

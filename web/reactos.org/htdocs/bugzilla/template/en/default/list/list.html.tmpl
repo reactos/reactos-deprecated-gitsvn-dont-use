@@ -36,7 +36,7 @@
   [% title = title _ ": " _ searchname %]
 [% END %]
 
-[% style_urls = [ "css/buglist.css" ] %]
+[% style_urls = [ "skins/standard/buglist.css" ] %]
 [% qorder = order FILTER url_quote IF order %]
 [% message = "buglist_sorted_by_relevance" IF sorted_by_relevance %]
 
@@ -48,6 +48,7 @@
 [% PROCESS global/header.html.tmpl
   title = title
   style = style
+  atomlink = "buglist.cgi?$urlquerypart&ctype=atom" 
 %]
 
 <div align="center">
@@ -61,7 +62,7 @@
     <p>[% query FILTER html %]</p>
   [% END %]
 
-  [% IF Param('enablequips') != 'off' %]
+  [% IF user.settings.display_quips.value == 'on' %]
     [% DEFAULT quip = "$terms.Bugzilla would like to put a random quip here, but no one has entered any." %]
     <a href="quips.cgi"><i>[% quip FILTER html %]</i></a>
   [% END %]
@@ -128,15 +129,24 @@
 [%# Navigation Bar                                                           #%]
 [%############################################################################%]
 
-<p>
 <table>
   <tr>
     [% IF bugs.size > 0 %]
       <td valign="middle">
-        <form method="post" action="long_list.cgi">
-          <input type="hidden" name="buglist" value="[% buglist %]">
+        <form method="post" action="show_bug.cgi">
+          [% FOREACH id = buglist %]
+            <input type="hidden" name="id" value="[% id FILTER html %]">
+          [% END %]
+          <input type="hidden" name="format" value="multiple">
           <input type="submit" value="Long Format">
         </form>
+
+        [% IF UserInGroup(Param('timetrackinggroup')) %]
+          <form method="post" action="summarize_time.cgi">
+            <input type="hidden" name="id" value="[% buglist_joined FILTER html %]">
+            <input type="submit" value="Time Summary">
+          </form>
+        [% END %]
       </td>
       
       <td>&nbsp;</td>
@@ -144,6 +154,8 @@
       <td valign="middle">
         <a href="buglist.cgi?
         [% urlquerypart FILTER html %]&amp;ctype=csv">CSV</a> |
+        <a href="buglist.cgi?
+        [% urlquerypart FILTER html %]&amp;ctype=atom">Feed</a> |
         <a href="buglist.cgi?
         [% urlquerypart FILTER html %]&amp;ctype=ics">iCalendar</a> |
         <a href="colchange.cgi?
@@ -158,17 +170,20 @@
 
         [% IF bugowners %]
           <a href="mailto:
-            [% bugowners FILTER html %]">Send&nbsp;Mail&nbsp;to&nbsp;[% terms.Bug %]&nbsp;Owners</a> |
+            [% bugowners FILTER html %]">Send&nbsp;Mail&nbsp;to&nbsp;[% terms.Bug %]&nbsp;Assignees</a> |
         [% END %]
+
+        [%# Links to more things users can do with this bug list. %]
+        [% Hook.process("links") %]
       </td>
     [% END %]
     
     <td valign="middle">
-        [% editqueryname = searchname OR defaultsavename OR '' %]
-        <a href="query.cgi?[% urlquerypart FILTER html %]
-        [% IF editqueryname != '' %]&amp;known_name=
-            [% editqueryname FILTER url_quote %]
-        [% END %]">Edit&nbsp;Search</a>
+      [% editqueryname = searchname OR defaultsavename OR '' %]
+      <a href="query.cgi?[% urlquerypart FILTER html %]
+      [% IF editqueryname != '' %]&amp;known_name=
+        [% editqueryname FILTER url_quote %]
+      [% END %]">Edit&nbsp;Search</a>
     </td>
       
     [% IF searchtype == "saved" %]
@@ -195,7 +210,6 @@
     [% END %]  
   </tr>
 </table>
-</p>  
 
 
 [%############################################################################%]
@@ -203,4 +217,3 @@
 [%############################################################################%]
 
 [% PROCESS global/footer.html.tmpl %]
-

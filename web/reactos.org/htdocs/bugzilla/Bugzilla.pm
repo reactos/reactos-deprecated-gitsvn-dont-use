@@ -18,6 +18,7 @@
 # Rights Reserved.
 #
 # Contributor(s): Bradley Baetz <bbaetz@student.usyd.edu.au>
+#                 Erik Stambaugh <erik@dasbistro.com>
 #
 
 package Bugzilla;
@@ -25,6 +26,7 @@ package Bugzilla;
 use strict;
 
 use Bugzilla::Auth;
+use Bugzilla::Auth::Login::WWW;
 use Bugzilla::CGI;
 use Bugzilla::Config;
 use Bugzilla::Constants;
@@ -49,68 +51,34 @@ sub cgi {
 my $_user;
 sub user {
     my $class = shift;
+
+    if (not defined $_user) {
+        $_user = new Bugzilla::User;
+    }
+
     return $_user;
 }
 
 sub login {
     my ($class, $type) = @_;
-
-    # Avoid double-logins, which may confuse the auth code
-    # (double cookies, odd compat code settings, etc)
-    # This is particularly important given the munging for
-    # $::COOKIE{'Bugzilla_login'} from a userid to a loginname
-    # (for backwards compat)
-    if (defined $_user) {
-        return $_user;
-    }
-
-    $type = LOGIN_NORMAL unless defined $type;
-
-    # For now, we can only log in from a cgi
-    # One day, we'll be able to log in via apache auth, an email message's
-    # PGP signature, and so on
-
-    use Bugzilla::Auth::ROSCMS;
-    my $userid = Bugzilla::Auth::ROSCMS->login($type);
-    if ($userid) {
-        $_user = new Bugzilla::User($userid);
-
-        # Compat stuff
-        $::userid = $userid;
-
-        # Evil compat hack. The cookie stores the id now, not the name, but
-        # old code still looks at this to get the current user's email
-        # so it needs to be set.
-        $::COOKIE{'Bugzilla_login'} = $_user->login;
-    } else {
-        logout_request();
-    }
-
-    return $_user;
+    $_user = Bugzilla::Auth::Login::WWW->login($type);
 }
 
 sub logout {
     my ($class, $option) = @_;
-    if (! $_user) {
-        # If we're not logged in, go away
-        return;
-    }
-    $option = LOGOUT_CURRENT unless defined $option;
 
-    use Bugzilla::Auth::ROSCMS;
-    Bugzilla::Auth::ROSCMS->logout($_user, $option);
-    if ($option != LOGOUT_KEEP_CURRENT) {
-        Bugzilla::Auth::ROSCMS->clear_browser_cookies();
-        logout_request();
-    }
+    # If we're not logged in, go away
+    return unless user->id;
+
+    $option = LOGOUT_CURRENT unless defined $option;
+    Bugzilla::Auth::Login::WWW->logout($_user, $option);
 }
 
 sub logout_user {
     my ($class, $user) = @_;
     # When we're logging out another user we leave cookies alone, and
-    # therefore avoid calling logout() directly.
-    use Bugzilla::Auth::ROSCMS;
-    Bugzilla::Auth::ROSCMS->logout($user, LOGOUT_ALL);
+    # therefore avoid calling Bugzilla->logout() directly.
+    Bugzilla::Auth::Login::WWW->logout($user, LOGOUT_ALL);
 }
 
 # just a compatibility front-end to logout_user that gets a user by id
@@ -123,13 +91,10 @@ sub logout_user_by_id {
 # hack that invalidates credentials for a single request
 sub logout_request {
     undef $_user;
+    # XXX clean this up eventually
     $::userid = 0;
-    # XXX clean these up eventually
-    delete $::COOKIE{"Bugzilla_login"};
-    # NB - Can't delete from $cgi->cookie, so the logincookie data will
-    # remain there; it's only used in Bugzilla::Auth::ROSCMS->logout anyway
-    # People shouldn't rely on the cookie param for the username
-    # - use Bugzilla->user instead!
+    # We can't delete from $cgi->cookie, so logincookie data will remain
+    # there. Don't rely on it: use Bugzilla->user->login instead!
 }
 
 my $_dbh;
@@ -144,6 +109,16 @@ sub dbh {
     }
 
     return $_dbh;
+}
+
+my $_batch;
+sub batch {
+    my $class = shift;
+    my $newval = shift;
+    if ($newval) {
+        $_batch = $newval;
+    }
+    return $_batch || 0;
 }
 
 sub dbwritesallowed {
@@ -169,12 +144,20 @@ sub switch_to_shadow_db {
     }
 
     $_dbh = $_dbh_shadow;
+    # we have to return $class->dbh instead of $_dbh as
+    # $_dbh_shadow may be undefined if no shadow DB is used
+    # and no connection to the main DB has been established yet.
+    return $class->dbh;
 }
 
 sub switch_to_main_db {
     my $class = shift;
 
     $_dbh = $_dbh_main;
+    # We have to return $class->dbh instead of $_dbh as
+    # $_dbh_main may be undefined if no connection to the main DB
+    # has been established yet.
+    return $class->dbh;
 }
 
 # Private methods
@@ -266,7 +249,7 @@ or should be something which is globally required by a large ammount of code
 
 =head1 METHODS
 
-Note that all C<Bugzilla> functionailty is method based; use C<Bugzilla->dbh>
+Note that all C<Bugzilla> functionality is method based; use C<Bugzilla-E<gt>dbh>
 rather than C<Bugzilla::dbh>. Nothing cares about this now, but don't rely on
 that.
 
@@ -290,7 +273,7 @@ or if the login code has not yet been run.
 =item C<login>
 
 Logs in a user, returning a C<Bugzilla::User> object, or C<undef> if there is
-no logged in user. See L<Bugzilla::Auth|Bugzilla::Auth> and
+no logged in user. See L<Bugzilla::Auth|Bugzilla::Auth>, and
 L<Bugzilla::User|Bugzilla::User>.
 
 =item C<logout($option)>
@@ -313,9 +296,16 @@ Bugzilla::User instance.
 
 =item C<logout_request>
 
-Essentially, causes calls to C<Bugzilla->user> to return C<undef>. This has the
+Essentially, causes calls to C<Bugzilla-E<gt>user> to return C<undef>. This has the
 effect of logging out a user for the current request only; cookies and
-database sessions are left intact. 
+database sessions are left intact.
+
+=item C<batch>
+
+Set to true, by calling Bugzilla->batch(1), to indicate that Bugzilla is
+being called in a non-interactive manner and errors should be passed to 
+die() rather than being sent to a browser and finished with an exit().
+Bugzilla->batch will return the current state of this flag.
 
 =item C<dbh>
 

@@ -17,6 +17,7 @@
   # Rights Reserved.
   #
   # Contributor(s): Myk Melez <myk@mozilla.org>
+  #                 Mark Bickford <markhb@maine.rr.com>
   #%]
 
 [% PROCESS global/variables.none.tmpl %]
@@ -192,12 +193,31 @@
     </tr>
 
     <tr>
+      <th>Grant Group:</th>
+      <td>
+        the group allowed to grant/deny flags of this type
+        (to allow all users to grant/deny these flags, leave this empty)<br>
+        <input type="text" name="grant_gid" value="[% type.grant_gid FILTER html %]" size="50" maxlength="255">
+      </td>
+    </tr>
+
+    <tr>
+      <th>Request Group:</th>
+      <td>
+        if flags of this type are requestable, the group allowed to request them
+        (to allow all users to request these flags, leave this empty)<br>
+        Note that the request group alone has no effect if the grant group is not defined!<br>
+        <input type="text" name="request_gid" value="[% type.request_gid FILTER html %]" size="50" maxlength="255">
+      </td>
+    </tr>
+
+    <tr>
       <th></th>
       <td>
-        <input type="submit" value="        
-          [% IF (last_action == "enter" || last_action == "copy") %]Create 
-          [% ELSE %]Save Changes 
-          [% END %]">
+        <input type="submit" value="
+          [%- IF (last_action == "enter" || last_action == "copy") %]Create
+          [%- ELSE %]Save Changes
+          [%- END %]">
       </td>
     </tr>
 

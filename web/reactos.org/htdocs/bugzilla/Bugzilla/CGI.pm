@@ -54,6 +54,11 @@ sub new {
     # Make sure that we don't send any charset headers
     $self->charset('');
 
+    # Redirect to SSL if required
+    if (Param('sslbase') ne '' and Param('ssl') eq 'always' and i_am_cgi()) {
+        $self->require_https(Param('sslbase'));
+    }
+
     # Check for errors
     # All of the Bugzilla code wants to do this, so do it here instead of
     # in each script
@@ -188,8 +193,9 @@ sub send_cookie {
         ThrowCodeError('cookies_need_value');
     }
 
-    # Add the default path in.
+    # Add the default path and the domain in.
     $paramhash{'-path'} = Param('cookiepath');
+    $paramhash{'-domain'} = Param('cookiedomain') if Param('cookiedomain');
 
     # Move the param list back into an array for the call to cookie().
     foreach (keys(%paramhash)) {
@@ -209,7 +215,22 @@ sub remove_cookie {
     $self->send_cookie('-name'    => $cookiename,
                        '-expires' => 'Tue, 15-Sep-1998 21:49:00 GMT',
                        '-value'   => 'X');
+}
 
+# Redirect to https if required
+sub require_https {
+    my $self = shift;
+    if ($self->protocol ne 'https') {
+        my $url = shift;
+        if (defined $url) {
+            $url .= $self->url('-path_info' => 1, '-query' => 1, '-relative' => 1);
+        } else {
+            $url = $self->self_url;
+            $url =~ s/^http:/https:/i;
+        }
+        print $self->redirect(-location => $url);
+        exit;
+    }
 }
 
 1;
@@ -273,6 +294,14 @@ This is a wrapper around send_cookie, setting an expiry date in the past,
 effectively removing the cookie.
 
 As its only argument, it takes the name of the cookie to expire.
+
+=item C<require_https($baseurl)>
+
+This routine checks if the current page is being served over https, and
+redirects to the https protocol if required, retaining QUERY_STRING.
+
+It takes an option argument which will be used as the base URL.  If $baseurl
+is not provided, the current URL is used.
 
 =back
 

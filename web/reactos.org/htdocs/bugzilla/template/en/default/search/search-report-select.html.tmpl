@@ -27,7 +27,7 @@
 [% PROCESS "global/field-descs.none.tmpl" %]
 
 [% BLOCK select %]
-  [% rep_fields = ["product", "component", "version", "rep_platform",  
+  [% rep_fields = ["classification", "product", "component", "version", "rep_platform",  
                    "op_sys", "bug_status", "resolution", "bug_severity", 
                    "priority", "target_milestone", "assigned_to",
                    "reporter", "qa_contact", "votes" ] %]
@@ -36,6 +36,7 @@
     <option value="">&lt;none&gt;</option>
     
     [% FOREACH field = rep_fields %]
+      [% NEXT IF field == "classification" AND !Param('useclassification') %]
       [% NEXT IF field == "target_milestone" AND !Param('usetargetmilestone') %]
       [% NEXT IF field == "qa_contact" AND !Param('useqacontact') %]
       [% NEXT IF field == "votes" AND !Param('usevotes') %]      
