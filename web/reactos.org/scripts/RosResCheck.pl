@@ -46,7 +46,7 @@ sub check_dir
 				my $path = "$dir/$file";
 				$path =~ s/^\.\///;
 
-				my $url = "http://svn.reactos.org/viewcvs/trunk/reactos/$path";
+				my $url = "http://svn.reactos.org/viewcvs/reactos/trunk/reactos/$path";
 				
 				print "<tr>\n";
 				print "<td><a href='$url'>$path</a></td>\n";
