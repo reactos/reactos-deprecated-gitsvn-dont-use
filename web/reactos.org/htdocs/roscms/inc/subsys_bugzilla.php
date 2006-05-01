@@ -36,6 +36,50 @@ require_once("subsys_utils.php");
 
 define('SUBSYS_BUGZILLA_DBNAME', "bugs");
 
+/* These constants are defined in bugzilla/Bugzilla/Constants.pm.
+ * We can't define arrays, so we just use a regular variable for them */
+
+define('BUGZILLA_REL_ASSIGNEE', 0);
+define('BUGZILLA_REL_QA', 1);
+define('BUGZILLA_REL_REPORTER', 2);
+define('BUGZILLA_REL_CC', 3);
+define('BUGZILLA_REL_VOTER', 4);
+
+$bugzilla_relationships = array(BUGZILLA_REL_ASSIGNEE, BUGZILLA_REL_QA,
+                                BUGZILLA_REL_REPORTER, BUGZILLA_REL_CC,
+                                BUGZILLA_REL_VOTER);
+
+define('BUGZILLA_REL_ANY', 100);
+
+define('BUGZILLA_EVT_OTHER', 0);
+define('BUGZILLA_EVT_ADDED_REMOVED', 1);
+define('BUGZILLA_EVT_COMMENT', 2);
+define('BUGZILLA_EVT_ATTACHMENT', 3);
+define('BUGZILLA_EVT_ATTACHMENT_DATA', 4);
+define('BUGZILLA_EVT_PROJ_MANAGEMENT', 5);
+define('BUGZILLA_EVT_OPENED_CLOSED', 6);
+define('BUGZILLA_EVT_KEYWORD', 7);
+define('BUGZILLA_EVT_CC', 8);
+
+$bugzilla_pos_events = array(BUGZILLA_EVT_OTHER, BUGZILLA_EVT_ADDED_REMOVED,
+                             BUGZILLA_EVT_COMMENT, BUGZILLA_EVT_ATTACHMENT,
+                             BUGZILLA_EVT_ATTACHMENT_DATA,
+                             BUGZILLA_EVT_PROJ_MANAGEMENT,
+                             BUGZILLA_EVT_OPENED_CLOSED, BUGZILLA_EVT_KEYWORD,
+                             BUGZILLA_EVT_CC);
+
+define('BUGZILLA_EVT_UNCONFIRMED', 50);
+define('BUGZILLA_EVT_CHANGED_BY_ME', 51);
+
+$bugzilla_neg_events = array(BUGZILLA_EVT_UNCONFIRMED,
+                             BUGZILLA_EVT_CHANGED_BY_ME);
+
+define('BUGZILLA_EVT_FLAG_REQUESTED', 100); # Flag has been requested of me
+define('BUGZILLA_EVT_REQUESTED_FLAG', 101); # I have requested a flag
+
+$bugzilla_global_events = array(BUGZILLA_EVT_FLAG_REQUESTED,
+                                BUGZILLA_EVT_REQUESTED_FLAG);
+
 function subsys_bugzilla_info_check()
 {
   $inconsistency_count = 0;
@@ -135,72 +179,38 @@ function subsys_bugzilla_add_bugzilla_user($roscms_user_id,
                                            $roscms_user_name,
                                            $roscms_user_email)
 {
-  /* These default settings were taken from bugzilla/Bugzilla/Constants.pm,
-     DEFAULT_EMAIL_SETTINGS */
-  $default_email_settings = "ExcludeSelf~on" .
-
-                            "~FlagRequestee~on" .
-                            "~FlagRequester~on" .
-
-                            "~emailOwnerRemoveme~on" .
-                            "~emailOwnerComments~on" .
-                            "~emailOwnerAttachments~on" .
-                            "~emailOwnerStatus~on" .
-                            "~emailOwnerResolved~on" .
-                            "~emailOwnerKeywords~on" .
-                            "~emailOwnerCC~on" .
-                            "~emailOwnerOther~on" .
-                            "~emailOwnerUnconfirmed~on" .
-  
-                            "~emailReporterRemoveme~on" .
-                            "~emailReporterComments~on" .
-                            "~emailReporterAttachments~on" .
-                            "~emailReporterStatus~on" .
-                            "~emailReporterResolved~on" .
-                            "~emailReporterKeywords~on" .
-                            "~emailReporterCC~" .
-                            "~emailReporterOther~on" .
-                            "~emailReporterUnconfirmed~on" .
-  
-                            "~emailQAcontactRemoveme~on" .
-                            "~emailQAcontactComments~on" .
-                            "~emailQAcontactAttachments~on" .
-                            "~emailQAcontactStatus~on" .
-                            "~emailQAcontactResolved~on" .
-                            "~emailQAcontactKeywords~on" .
-                            "~emailQAcontactCC~" .
-                            "~emailQAcontactOther~on" .
-                            "~emailQAcontactUnconfirmed~on" .
-  
-                            "~emailCClistRemoveme~on" .
-                            "~emailCClistComments~on" .
-                            "~emailCClistAttachments~on" .
-                            "~emailCClistStatus~on" .
-                            "~emailCClistResolved~on" .
-                            "~emailCClistKeywords~on" .
-                            "~emailCClistCC~" .
-                            "~emailCClistOther~on" .
-                            "~emailCClistUnconfirmed~on" .
-  
-                            "~emailVoterRemoveme~on" .
-                            "~emailVoterComments~on" .
-                            "~emailVoterAttachments~on" .
-                            "~emailVoterStatus~on" .
-                            "~emailVoterResolved~on" .
-                            "~emailVoterKeywords~on" .
-                            "~emailVoterCC~" .
-                            "~emailVoterOther~on" .
-                            "~emailVoterUnconfirmed~on";
+  global $bugzilla_relationships, $bugzilla_pos_events, $bugzilla_neg_events;
+  global $bugzilla_global_events;
 
   $query = "INSERT INTO " . SUBSYS_BUGZILLA_DBNAME . ".profiles " .
-           "       (login_name, cryptpassword, realname, emailflags) " .
+           "       (login_name, cryptpassword, realname) " .
            "       VALUES ('" . mysql_real_escape_string($roscms_user_email) .
                            "', " .
                            "'*', " .
                            "'" . mysql_real_escape_string($roscms_user_name) .
-                           "', " .
-                           "'" . $default_email_settings . "')";
+                           "')";
   mysql_query($query) or die("DB error (subsys_bugzilla #10)");
+
+  /* The default email_setting was copied from bugzilla/Bugzilla/User.pm
+     function insert_new_user */
+  foreach ($bugzilla_relationships as $rel) {
+    foreach (array_merge($bugzilla_pos_events, $bugzilla_neg_events)
+             as $event) {
+      if ($event != BUGZILLA_EVT_CHANGED_BY_ME &&
+          ($event != BUGZILLA_EVT_CC || $rel == BUGZILLA_REL_REPORTER)) {
+        $query = "INSERT INTO " . SUBSYS_BUGZILLA_DBNAME . ".email_setting " .
+                 "(user_id, relationship, event) " .
+                 "VALUES (LAST_INSERT_ID(), $rel, $event)";
+        mysql_query($query) or die("DB error (subsys_bugzilla #14)");
+      }
+    }
+  }
+  foreach ($bugzilla_global_events as $event) {
+    $query = "INSERT INTO " . SUBSYS_BUGZILLA_DBNAME . ".email_setting " .
+             "(user_id, relationship, event) " .
+             "VALUES (LAST_INSERT_ID(), " . BUGZILLA_REL_ANY . ", $event)";
+    mysql_query($query) or die("DB error (subsys_bugzilla #15)");
+  }
 
   /* Finally, insert a row in the mapping table */
   $query = "INSERT INTO subsys_mappings " .
