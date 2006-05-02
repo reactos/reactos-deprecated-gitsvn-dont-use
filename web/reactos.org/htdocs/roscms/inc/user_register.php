@@ -470,7 +470,7 @@ if ($reg_account_counter != "") {
 
 //echo  "PWD::".$reg_randompwd;
 $reg_account_post="INSERT INTO `users` ( `user_id` , `user_name` , `user_roscms_password` , `user_timestamp_touch` , `user_timestamp_touch2` , `user_login_counter` , `user_account_enabled` , `user_account_hidden` , `user_register` , `user_fullname` , `user_email` , `user_website` , `user_language` , `user_country` , `user_timezone` , `user_occupation` , `user_description` , `user_setting_multisession` , `user_setting_browseragent` , `user_setting_ipaddress` , `user_setting_timeout` ) 
-				VALUES ('', '". mysql_escape_string($reg_txtusername) ."', MD5( '". mysql_escape_string($reg_randompwd) ."' ) , '', NOW( ) , '0', 'yes', 'no', NOW( ) , '', '". mysql_escape_string($reg_txtemail) ."', '', 'en', '', '', '', '', 'false', 'true', 'true', 'true');";
+				VALUES ('', '". mysql_escape_string($reg_txtusername) ."', MD5( '". mysql_escape_string($reg_randompwd) ."' ) , '', NOW( ) , '0', 'yes', 'no', NOW( ) , '', '". mysql_escape_string($reg_txtemail) ."', '', 'en', '', '', '', '', 'true', 'false', 'false', 'true');";
 $reg_account_list=mysql_query($reg_account_post);
 
 
