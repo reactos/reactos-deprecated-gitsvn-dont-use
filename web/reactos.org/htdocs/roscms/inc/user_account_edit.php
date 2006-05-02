@@ -90,11 +90,10 @@ require_once("subsys_utils.php");
 			if (!$save_account_noses) {
 				$save_account_noses = "false";
 			}
-			
+
 			$content_posta="UPDATE `users` SET ". $new_pwd ."
 								`user_timestamp_touch2` = NOW( ) ,
 								`user_fullname` = '". mysql_real_escape_string($save_account_fullname) ."',
-								`user_email` = '". mysql_real_escape_string($save_account_email) ."',
 								`user_website` = '". mysql_real_escape_string($save_account_hp) ."',
 								`user_language` = '". mysql_real_escape_string($save_account_txt_langa) ."',
 								`user_country` = '". mysql_real_escape_string($save_account_country) ."',
@@ -104,8 +103,17 @@ require_once("subsys_utils.php");
 								`user_setting_multisession` = '". mysql_real_escape_string($save_account_multi) ."',
 								`user_setting_browseragent` = '". mysql_real_escape_string($save_account_brows) ."',
 								`user_setting_ipaddress` = '". mysql_real_escape_string($save_account_ipadd) ."',
-								`user_setting_timeout` = '". mysql_real_escape_string($save_account_noses) ."'
-							 WHERE `user_id` ='". mysql_real_escape_string($roscms_intern_account_id) ."' LIMIT 1 ;";
+								`user_setting_timeout` = '". mysql_real_escape_string($save_account_noses) . "'";
+			
+		        if (! preg_match('/^[\\w\\.\\+\\-=]+@[\\w\\.-]+\\.[\\w\\-]+$/',
+		                         $save_account_email)) {
+                		echo '<p><font color="#FF0000">The email address ' . 
+				     htmlspecialchars($save_account_email) .
+				     " is not valid.</font></p><br>\n";
+			} else {
+				$content_posta .= ", `user_email` = '". mysql_real_escape_string($save_account_email) . "'";
+			}
+			$content_posta .= " WHERE `user_id` ='". mysql_real_escape_string($roscms_intern_account_id) . "'";
 			$content_post_lista=mysql_query($content_posta);
 			subsys_update_user($roscms_intern_account_id);
 		}
