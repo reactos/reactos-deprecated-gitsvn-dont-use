@@ -21,26 +21,24 @@
 <table border="0" cellspacing="0" cellpadding="0" width="650">
   <tr> 
       
-    <td colspan="3"><span class="contentSmallTitle">Developer Interface Overview</span></td>
+    <td colspan="3"><span class="contentSmallTitle"><?php echo $roscms_langres['Dev_DeveloperInterfaceOverview']; ?></span></td>
     </tr>
     <tr> 
       <td colspan="2" bgcolor="#F9F8F8"> <table width="650" border="0" cellpadding="4">
         <tr> 
           <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-          <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="#">Overview</a> 
+          <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=dev&amp;sec=content&amp;sec2=view"><?php echo $roscms_langres['Dev_Pages']; ?></a> 
               </font></strong></div></td>
           <td width="10">&nbsp;</td>
           <td> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-          <td> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="#">My 
-              own Page</a></font></strong></div></td>
+          <td> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=dev&amp;sec=generate"><?php echo $roscms_langres['Dev_PageGenerator']; ?></a></font></strong></div></td>
         </tr>
         <tr> 
           <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-          <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="#">Static 
-              Page Content</a></font></strong></div></td>
+          <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=dev&amp;sec=content&amp;sec2=view"><?php echo $roscms_langres['Dev_Contents']; ?></a></font></strong></div></td>
           <td width="10">&nbsp;</td>
           <td width="20"> <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-          <td width="300"><strong><font face="Arial, Helvetica, sans-serif"><a href="#">Documentation</a></font></strong></td>
+          <td width="300"><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=dev&amp;sec=help"><?php echo $roscms_langres['Dev_Help']; ?></a></font></strong></td>
         </tr>
       </table>
     </tr>
@@ -49,6 +47,4 @@
     </tr>
   </table>
 <br />
-<div class="contentSmall"> <span class="contentSmallTitle">Developer Interface - Overview</span> 
-<p>&lt;placeholder&gt;</p>
 </div>

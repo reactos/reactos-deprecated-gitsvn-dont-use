@@ -31,6 +31,9 @@
 		include('securitylog.php'); // open security log
 		die("Hacking attempt");
 	}
+	
+	include("roscms_config.php");
+	
 	if ($rpm_page != "admin" && $rpm_page != "dev" && $rpm_page != "team" && $rpm_page != "trans") {
 		die("");
 	}
@@ -43,7 +46,7 @@
 		echo "Admin Interface - Content";
 	}
 	elseif ($rpm_page == "dev") {
-		echo "Dev Interface - Content";
+		echo $roscms_langres['ContTrans_Interface_Content'];
 	}
 	elseif ($rpm_page == "trans") {
 		echo "Translator Interface - Content";
@@ -56,11 +59,200 @@
 	}
   ?></span> 
   <ul>
-    <li><strong>Content</strong></li>
+    <li><strong><?php echo $roscms_langres['ContTrans_Contents']; ?></strong></li>
   </ul>
-  <p>Action: <?php if ($roscms_intern_usrgrp_admin == true && $rpm_page == "admin") { ?><a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Content</a> | <?php } ?><a href="?page=<?php echo $rpm_page; ?>&sec=content&sec2=view">reset filters & 
-    sort</a></p>
+
+<?php 
+
+	$roscms_temp_diff="";
+	if (array_key_exists("diff", $_GET)) $roscms_temp_diff=htmlspecialchars($_GET["diff"]);
+
+	if ($roscms_temp_diff != "") {
+		$query_diff_content=mysql_query("SELECT *
+											FROM `content`
+											WHERE `content_id` = '".mysql_escape_string($roscms_temp_diff)."' ;");
+		$result_diff_content = mysql_fetch_array($query_diff_content);
+
+		echo '<p><b><a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">Back to the content list</a></b></p>';
+		echo "<h3>".$result_diff_content['content_name']."</h3>";
+		echo "<p>ID: <b>".$result_diff_content['content_id']."</b><br />Lang: <b>".$result_diff_content['content_lang']."</b></p>";
+		
+		
+		
+?>
+
+<!-- Diff 3 -->
+<script src="js/jsdiff1.js" language="javascript"></script>
+<script src="js/jsdiff2.js" language="javascript"></script>
+<script src="js/diff.js" language="javascript"></script>
+<table width="100%"  border="0">
+  <tr bgcolor="<?php echo $roscms_intern_color0; ?>">
+    <td colspan="2"><div align="center"><?php 
+	
+	$tlang="";
+	
+	echo "<select name=\"vendor\" id=\"vendor\" onChange=\"ajat_LoadText('?page=export&amp;export=diff_content&amp;diff2='+this.value,'d1')\">";
+	echo '<option value="0" selected >Select a revision</option>';
+	
+	$query_diff_sbox1 = mysql_query("SELECT * 
+								FROM `content` 
+								WHERE `content_name` = '".mysql_escape_string($result_diff_content['content_name'])."'
+								ORDER BY `content_lang` ASC, `content_id` DESC ;") ;
+
+	while($result_diff_sbox1 = mysql_fetch_array($query_diff_sbox1)) { // Diff ComboBox
+		if ($tlang != $result_diff_sbox1['content_lang']) {
+			echo '<optgroup label="'.$result_diff_sbox1['content_lang'].'">';
+		}
+		echo "\n <option value=\"". $result_diff_sbox1['content_id'] ."\">".$result_diff_sbox1['content_id']." &nbsp;(act: ".$result_diff_sbox1['content_active']." | vis: ".$result_diff_sbox1['content_visible'].") - ".$result_diff_sbox1['content_date']." ".$result_diff_sbox1['content_time']."</option>"; 
+		$tlang = $result_diff_sbox1['content_lang'];
+		if ($tlang != $result_diff_sbox1['content_lang']) {
+			echo '</optgroup>';
+		}
+	}	// end while
+	
+	echo '</select>';
+	
+	?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button name="bdiff" id="bdiff" type="button" value="Diff" onClick="DoDiff()" >&nbsp;Diff&nbsp;</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php 
+	
+	$tlang="";
+	
+	echo "<select name=\"vendor\" id=\"vendor\" onChange=\"ajat_LoadText('?page=export&amp;export=diff_content&amp;diff2='+this.value,'d2')\">";
+	echo '<option value="0" selected >Select a revision</option>';
+	
+	$query_diff_sbox2 = mysql_query("SELECT * 
+								FROM `content` 
+								WHERE `content_name` = '".mysql_escape_string($result_diff_content['content_name'])."'
+								ORDER BY `content_lang` ASC, `content_id` DESC ;") ;
+
+	while($result_diff_sbox2 = mysql_fetch_array($query_diff_sbox2)) { // Diff ComboBox
+		if ($tlang != $result_diff_sbox2['content_lang']) {
+			echo '<optgroup label="'.$result_diff_sbox2['content_lang'].'">';
+		}
+		echo "\n <option value=\"". $result_diff_sbox2['content_id'] ."\">".$result_diff_sbox2['content_id']." &nbsp;(act: ".$result_diff_sbox2['content_active']." | vis: ".$result_diff_sbox2['content_visible'].") - ".$result_diff_sbox2['content_date']." ".$result_diff_sbox2['content_time']."</option>"; 
+		$tlang = $result_diff_sbox2['content_lang'];
+		if ($tlang != $result_diff_sbox2['content_lang']) {
+			echo '</optgroup>';
+		}
+	}	// end while
+	
+	echo '</select>';
+	
+	?>
+</div></td>
+    </tr>
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#CCCCCC">
+    <td width="50%" valign="top"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">
+      <div id="diff11"></div>&nbsp;</font></td>
+    <td width="50%" valign="top"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">
+      <div id="diff12"></div>&nbsp;</font></td>
+  </tr>
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#CCCCCC">
+    <td colspan="2"><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><div id="diff13"></div>&nbsp;</font></td>
+  </tr>
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#CCCCCC">
+    <td colspan="2"><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><div id="diff2"></div>&nbsp;</font></td>
+    </tr>
+  <tr>
+    <td colspan="2">&nbsp;</td>
+  </tr>
+  <tr bgcolor="#CCCCCC">
+    <td colspan="2"><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><div id="diff3"></div>&nbsp;</font></td>
+    </tr>
+</table>
+<div id="d1" style="display:none;"></div>
+<div id="d2" style="display:none;"></div>
+<script language="JavaScript1.2">
+<!--
+
+	var oOld = document.getElementById('d1');
+	var oNew = document.getElementById('d2');
+	var oDiff = document.getElementById("diff13");
+	var oDiff21 = document.getElementById("diff11");
+	var oDiff22 = document.getElementById("diff12");
+	var out = "";
+
+	function DoDiff() {
+
+		// Diff 1: (jsdiff1.js)
+		oDiff.innerHTML = diffString(oOld.innerHTML, oNew.innerHTML);
+
+		out = diffString2(oOld.innerHTML, oNew.innerHTML);
+		oDiff21.innerHTML = out.o;
+		oDiff22.innerHTML = out.n;
+
+		// Diff 2: (jsdiff2.js)
+		document.getElementById('diff2').innerHTML = diffString_ver2( 
+		   document.getElementById('d1').innerHTML, 
+		   document.getElementById('d2').innerHTML 
+		); 
+		
+		// Diff 3: (diff.js)
+		document.getElementById('diff3').innerHTML = StringDiff( 
+		   document.getElementById('d1').innerHTML, 
+		   document.getElementById('d2').innerHTML 
+		); 
+	}
+-->
+</script>
+<script type="text/javascript">
+<!--
+
+	function setCursor(mode) {
+	  var docBody = document.getElementsByTagName("body")[0];
+	  docBody.style.cursor = mode;
+	}	
+
+
+	var xmlhttp=false;
+	/* IE 5+ only: */
+	/*@cc_on @*/
+		/*@if (@_jscript_version >= 5)
+			try {
+				xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch (e) {
+			try {
+				xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (E) {
+				xmlhttp = false;
+			}
+		}
+	@end @*/
+	
+	if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
+		xmlhttp = new XMLHttpRequest();
+	}
+	
+	function ajat_LoadText(serverPage, objID) {
+		var obj = document.getElementById(objID);
+		xmlhttp.open("GET", serverPage);
+		xmlhttp.onreadystatechange = function() {
+			setCursor('wait');
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				setCursor('auto');
+				obj.innerHTML = xmlhttp.responseText;
+			}
+		}
+		xmlhttp.send(null);
+	}
+	
+//-->
+</script>
+<?php
+	}
+	else {
+
+?>
+  
+  <p><?php echo $roscms_langres['ContTrans_Action'].": "; if (($roscms_intern_usrgrp_admin == true && $rpm_page == "admin") || ($roscms_intern_usrgrp_dev == true && $rpm_page == "dev")) { ?><a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new"><?php echo $roscms_langres['ContTrans_NewContent']; ?></a> | <?php } ?><a href="?page=<?php echo $rpm_page; ?>&sec=content&sec2=view"><?php echo $roscms_langres['ContTrans_resetfilters']; ?></a></p>
     
   <?php
 	if($roscms_intern_usrgrp_admin == true) {
@@ -85,20 +277,20 @@
 			//$rpm_lang_id="all";
 		}
 	}
-	echo '<p>Language: ';
+	echo '<p>'.$roscms_langres['ContTrans_Language'].': ';
 	if ($roscms_intern_usrgrp_dev == true || $roscms_intern_usrgrp_admin == true) {
 		if ($rpm_lang_id == "all") {	
-			echo '<b>All</b>';
+			echo '<b>'.$roscms_langres['ContTrans_All'].'</b>';
 			$ros_cms_intern_content_lang = "";
 		}
 		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">All</a>';
+			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">'.$roscms_langres['ContTrans_All'].'</a>';
 		}
 		echo ' | ';
 	}
 
 		if ($rpm_lang_id == "nolang") {	
-			echo '<b>International</b>';
+			echo '<b>'.$roscms_langres['ContTrans_International'].'</b>';
 			if ($roscms_intern_usrgrp_admin == true) {
 				$ros_cms_intern_content_lang = "AND content_lang = 'all'";
 			}
@@ -110,7 +302,7 @@
 			}
 		}
 		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">International</a>';
+			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">'.$roscms_langres['ContTrans_International'].'</a>';
 		}
 	// Languages
 	$sql_lang="SELECT * 
@@ -120,7 +312,7 @@
 	$sql_query_lang=mysql_query($sql_lang);
 	while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
 		if ($roscms_intern_usrgrp_dev != true || $roscms_intern_usrgrp_admin != true) {
-			if ($myrow_lang[0] == "en") {
+			if ($myrow_lang[0] == $roscms_standard_language) {
 				continue;
 			}
 		}
@@ -147,42 +339,42 @@
 			$rpm_filt="anvc";
 		}
 	}
-	echo '<p>Filter: ';
+	echo '<p>'.$roscms_langres['ContTrans_Filter'].': ';
 	if (($roscms_intern_usrgrp_admin == true && $rpm_page == "admin") || ($roscms_intern_usrgrp_dev == true && $rpm_page == "dev")) {
 		if ($rpm_filt == "active") {	
-			echo '<b>active content</b>';
+			echo '<b>'.$roscms_langres['ContTrans_activecontent'].'</b>';
 			$ros_cms_intern_content_filt = "WHERE content_active = '1'";
 		}
 		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=active&amp;langid='.$rpm_lang_id.'">active content</a>';
+			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=active&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_activecontent'].'</a>';
 		}
 		echo ' | ';
 		if ($rpm_filt == "all") {	
-			echo '<b>all content</b>';
+			echo '<b>'.$roscms_langres['ContTrans_allcontent'].'</b>';
 			$ros_cms_intern_content_filt = "WHERE `content_name` != ''";
 		}
 		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=all&amp;langid='.$rpm_lang_id.'">all content</a>';
+			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=all&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_allcontent'].'</a>';
 		}
 		echo ' | ';
 	}
 	if ($rpm_filt == "anvc") {	
-		echo '<b>active and visible content</b>';
+		echo '<b>'.$roscms_langres['ContTrans_activeandvisiblecontent'].'</b>';
 		$ros_cms_intern_content_filt = "WHERE content_active = '1' AND content_visible = '1'";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=anvc&amp;langid='.$rpm_lang_id.'">active and visible content</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=anvc&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_activeandvisiblecontent'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "user") {	
-		echo '<b>current user</b>';
+		echo '<b>'.$roscms_langres['ContTrans_currentuser'].'</b>';
 		$ros_cms_intern_content_filt = "WHERE content_usrname_id = '".$roscms_intern_account_id."'";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=user&amp;langid='.$rpm_lang_id.'">current user</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=user&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_currentuser'].'</a>';
 	}
 	if ($rpm_filt == "history") {	
-		echo ' | <b>history</b>';
+		echo ' | <b>'.$roscms_langres['ContTrans_history'].'</b>';
 		$ros_cms_intern_content_filt = "WHERE content_name = '".$rpm_opt."'";
 	}
 	echo '</p>';
@@ -190,94 +382,93 @@
 	if ($rpm_sort == "") {
 		$rpm_sort="id";
 	}
-	echo '<p>Sorted by: ';
+	echo '<p>'.$roscms_langres['ContTrans_Sortedby'].': ';
 	if ($rpm_sort == "id") {	
-		echo '<b>content id</b>';
+		echo '<b>'.$roscms_langres['ContTrans_contentid'].'</b>';
 		$ros_cms_intern_content_sortby="content_name";
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=id&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">content id</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=id&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_contentid'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "date") {	
-		echo '<b>date</b>';
+		echo '<b>'.$roscms_langres['ContTrans_date'].'</b>';
 		$ros_cms_intern_content_sortby="content_date";
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=date&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">date</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=date&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_date'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "user") {	
-		echo '<b>user</b>';
+		echo '<b>'.$roscms_langres['ContTrans_user'].'</b>';
 		$ros_cms_intern_content_sortby="content_usrname_id";
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=user&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">user</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=user&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_user'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "active") {	
-		echo '<b>active</b>';
+		echo '<b>'.$roscms_langres['ContTrans_active'].'</b>';
 		$ros_cms_intern_content_sortby="content_active";
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=active&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">active</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=active&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_active'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "visible") {	
-		echo '<b>visible</b>';
+		echo '<b>'.$roscms_langres['ContTrans_visible'].'</b>';
 		$ros_cms_intern_content_sortby="content_visible";
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=visible&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">visible</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=visible&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_visible'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "version") {	
-		echo '<b>version</b>';
+		echo '<b>'.$roscms_langres['ContTrans_version'].'</b>';
 		$ros_cms_intern_content_sortby="content_version";
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=version&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">version</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=version&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_version'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "language") {	
-		echo '<b>language</b>';
+		echo '<b>'.$roscms_langres['ContTrans_language'].'</b>';
 		$ros_cms_intern_content_sortby="content_lang";
 		$ros_cms_intern_content_sort="ASC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">language</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_language'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "editor") {	
-		echo '<b>editor</b>';
+		echo '<b>'.$roscms_langres['ContTrans_editor'].'</b>';
 		$ros_cms_intern_content_sortby="content_editor";
 		$ros_cms_intern_content_sort="DESC";
 	}
 	else {
-		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=editor&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">editor</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort=editor&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_editor'].'</a>';
 	}
 	echo '</p>';
 
 ?>
   <table width="100%" border="0" cellpadding="1" cellspacing="1">
-    <tr bgcolor="#5984C3"> 
-      <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Action</strong></font></div></td>
-      <td width="8%" colspan="3" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Info</strong></font></div></td>
-      <td width="13%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
-          ID</strong></font></div></td>
-      <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
-      <td width="26%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content</strong></font></div></td>
-      <td width="7%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Rev.</strong></font></div>
+    <tr bgcolor="<?php echo $roscms_intern_color0; ?>"> 
+      <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Action']; ?></strong></font></div></td>
+      <td width="8%" colspan="3" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Info']; ?></strong></font></div></td>
+      <td width="13%" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_ContentID']; ?></strong></font></div></td>
+      <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Language']; ?></strong></font></div></td>
+      <td width="26%" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Content']; ?></strong></font></div></td>
+      <td width="7%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Rev']; ?></strong></font></div>
         <div align="center"></div></td>
       <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong> 
-          Date</strong></font></div></td>
-      <td width="10%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>User</strong></font></div></td>
+          <?php echo $roscms_langres['ContTrans_Date']; ?></strong></font></div></td>
+      <td width="10%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_User']; ?></strong></font></div></td>
     </tr>
     <?php
 
@@ -337,9 +528,9 @@
           <a name="<?php echo $result_content['content_id']; ?>"></a>
 		  <?php
 		  if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") { ?>
-          <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=translate&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/tool.gif" alt="Translate" width="19" height="18" border="0"></a> 
+          <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=translate&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/tool.gif" alt="<?php echo $roscms_langres['ContTrans_Translate']; ?>" width="19" height="18" border="0"></a> 
           <?php } else { ?>
-          <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
+          <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/view.gif" alt="<?php echo $roscms_langres['ContTrans_Edit']; ?>" width="19" height="18" border="0"></a> 
           <?php
 		  }
 		  if($roscms_intern_usrgrp_sadmin == true) { ?>
@@ -354,10 +545,10 @@
 				}
 			-->
 			</script>
-          <a href="javascript:DeleteContent()"><img src="images/delete.gif" alt="Delete" width="19" height="18" border="0"></a> 
+          <a href="javascript:DeleteContent()"><img src="images/delete.gif" alt="<?php echo $roscms_langres['ContTrans_Delete']; ?>" width="19" height="18" border="0"></a> 
           <?php } 
 		  if($roscms_intern_usrgrp_admin == true || $roscms_intern_usrgrp_team == true) {?>
-			  <a href="<?php echo "?page=".$rpm_page."&amp;sec=content&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['content_name']."&amp;langid=".$result_content['content_lang']; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
+			  <a href="<?php echo "?page=".$rpm_page."&amp;sec=content&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_content['content_name']."&amp;langid=".$result_content['content_lang']; ?>"><img src="images/history.gif" alt="<?php echo $roscms_langres['ContTrans_filter_history']; ?>" width="19" height="18" border="0"></a> 
           <?php } ?>
         </div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
@@ -389,7 +580,7 @@
 			  <img src="images/bbcode.gif" alt="bbcode Editor" width="19" height="18"> 
 		  <?php } ?>
         </div></td>
-      <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font face="Arial, Helvetica, sans-serif"><?php echo "[#cont_<b>".$result_content['content_name']."</b>]"; ?></font></div></td>
+      <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font face="Arial, Helvetica, sans-serif"><?php echo '<font size="1">[#cont_</font><b>'.$result_content['content_name'].'</b><font size="1">]</font>'; ?></font></div></td>
       <td width="13%" valign="middle" bgcolor="<?php if ($result_content['content_lang'] != "") { echo $farbe; } else { echo "#FF0000"; } ?>"> <div align="center"> 
           <font face="Arial, Helvetica, sans-serif">
           <?php 
@@ -416,7 +607,7 @@
 		?></font></pre> </td>
       <td width="7%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="right"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			echo $result_content['content_version'];
+			echo '<b><a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;diff='.$result_content['content_id'].'">'.$result_content['content_version'].'</a></b>';
 		?>
           </font></div>
         <div align="center"><font face="Arial, Helvetica, sans-serif"> </font></div></td>
@@ -432,7 +623,7 @@
 			
 			$roscms_intern_accountuser = $accountinfo_result['user_name'];
 			if ($roscms_intern_accountuser && $roscms_intern_accountuser != "") {
-				echo "<b>".$roscms_intern_accountuser."</b><br><a href='?page=user&amp;sec=profil&amp;sec2=".$result_content['content_usrname_id']."' target='_blank'>Profile</a>";
+				echo "<b>".$roscms_intern_accountuser."</b><br><a href='?page=user&amp;sec=profil&amp;sec2=".$result_content['content_usrname_id']."' target='_blank'>".$roscms_langres['ContTrans_Profile']."</a>";
 			}
 			else {
 				echo "<b>RosCMS</b>";
@@ -446,6 +637,7 @@
   </table>
   <?php
 	include("inc/inc_description_table.php");
+	}
 ?>
 </div>
 <?php

@@ -35,7 +35,7 @@
 ?>
  <div class="contentSmall"><span class="contentSmallTitle">Admin Interface - Pages - Save</span> 
 <ul>
-<li><strong><a href="?page=admin&sec=pages&sec2=view">Pages</a></strong> 
+<li><strong><a href="?page=<?php echo $rpm_page; ?>&sec=pages&sec2=view">Pages</a></strong> 
   <ul>
 	<li>Save page</li>
   </ul>
@@ -128,7 +128,7 @@
 				WHERE page_id = '$rpm_db_id'") ;
 		$result_page = mysql_fetch_array($query_page);
 	
-		echo "<p>The page '".$result_page['page_name']."' (id='".$rpm_db_id."') has been saved! (methode: ".$page_storeinfo."</p>";
+		echo "<p>".$roscms_langres['ContTrans_Save5']." '".$result_page['page_name']."' (id='".$rpm_db_id."') ".$roscms_langres['ContTrans_Save2']." (methode: ".$page_storeinfo.")</p>";
 	}
 	else {
 		echo "<p>No access!</p>"; ?>
@@ -141,6 +141,6 @@
 	}
 ?>
 
-<p><a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=<?php echo $result_page['page_name']; ?>&amp;lang=en&amp;forma=html&amp;skin=default">View the page (dynamic version)</a></p>
-  <?php echo "<p><a href=".$_SERVER['HTTP_REFERER'].">Back to the 'content edit' page</a></p>"; ?>
+<p><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=<?php echo $result_page['page_name']; ?>&amp;lang=en&amp;forma=html&amp;skin=default" target="_blank"><?php echo $roscms_langres['ContTrans_Save6']; ?></a></p>
+  <?php echo "<p><a href=".$_SERVER['HTTP_REFERER'].">".$roscms_langres['ContTrans_Save7']."</a></p>"; ?>
 </div>

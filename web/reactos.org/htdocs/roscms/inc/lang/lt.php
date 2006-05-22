@@ -27,15 +27,15 @@
 // Language settings
 $roscms_langres['charset'] = 'utf-8';
 //$roscms_langres['charset'] = 'iso-8859-1';
-$roscms_langres['lang_code'] = 'IT';
+$roscms_langres['lang_code'] = 'EN';
 
 			   
 // main menu
-$roscms_langres['Navigation'] = 'Navigazione';
+$roscms_langres['Navigation'] = 'Navigation';
 $roscms_langres['Home'] = 'Home';
-$roscms_langres['Dev'] = 'Sviluppo';
+$roscms_langres['Dev'] = 'Development';
 $roscms_langres['Community'] = 'Community';
-$roscms_langres['Support'] = 'Supporto';
+$roscms_langres['Support'] = 'Support';
 $roscms_langres['myReactOS'] = 'myReactOS';
 
 // Login bar:
@@ -43,36 +43,35 @@ $roscms_langres['Account'] = 'Account';
 $roscms_langres['Login'] = 'Login';
 $roscms_langres['Logout'] = 'Logout';
 $roscms_langres['Global_Login_System'] = 'Global Login System';
-$roscms_langres['Register_Account'] = 'Registerazione Account';
+$roscms_langres['Register_Account'] = 'Register Account';
 $roscms_langres['Login_Nick'] = '&nbsp;Nick:&nbsp;';
 $roscms_langres['LoginPwd'] = '&nbsp;Pwd:&nbsp;';
 
 
 // myReactOS menu
-$roscms_langres['User_Profil_Overview'] = 'Descrizione Profilo Utente';
-$roscms_langres['User_Profil'] = 'Profilo Utente';
-$roscms_langres['Overview'] = 'Descrizione';
+$roscms_langres['User_Profil_Overview'] = 'User Profile Overview';
+$roscms_langres['User_Profil'] = 'User Profile';
+$roscms_langres['Overview'] = 'Overview';
 $roscms_langres['Login_System'] = 'Login System';
-$roscms_langres['Messages'] = 'Messaggi';
-$roscms_langres['Contacts'] = 'Contatti';
-$roscms_langres['Favorites'] = 'Preferiti';
-$roscms_langres['Documentation'] = 'Documentazione';
-$roscms_langres['Account_Edit'] = 'Impostazioni';
-$roscms_langres['Accountlist'] = 'Lista Utenti';
+$roscms_langres['Messages'] = 'Messages';
+$roscms_langres['Contacts'] = 'Contacts';
+$roscms_langres['Favorites'] = 'Favorites';
+$roscms_langres['Documentation'] = 'Documentation';
+$roscms_langres['Account_Edit'] = 'Settings';
+$roscms_langres['Accountlist'] = 'User List';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'Un interfaccia potente e facile da usare per gestire il tuo ReactOS homepage account.';
-$roscms_langres['Account_Information'] = 'Informazioni Account';
-$roscms_langres['Account_Information_description'] = 'Un riassunto delle informazioni sul tuo account  ... &ltda supportare&gt;';
+$roscms_langres['myReactOS_description'] = 'A powerful and easy to use interface to manage your ReactOS homepage account.';
+$roscms_langres['Account_Information'] = 'Account Information';
+$roscms_langres['Account_Information_description'] = 'A sum up of the account data ... &lt;placeholder&gt;';
 
 // Right side bar:
-$roscms_langres['Latest_Release'] = 'Ultime Release';
-$roscms_langres['myReactOS_Developer_Quotes'] = 'Citazioni degli sviluppatori';
+$roscms_langres['Latest_Release'] = 'Latest Release';
+$roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
 
 // Error 404
-$roscms_langres['Page_not_found'] = 'Pagina non trovata';
-
+$roscms_langres['Page_not_found'] = 'Page not found';
 
 
 // Admin/Dev/Translator Interface

@@ -19,7 +19,7 @@
     */
 
 	// To prevent hacking activity:
-	if ( !defined('ROSCMS_SYSTEM') OR !defined('ROSCMS_SYSTEM_ADMIN') )
+	if ( !defined('ROSCMS_SYSTEM') )
 	{
 		if ( !defined('ROSCMS_SYSTEM_LOG') ) {
 			define ("ROSCMS_SYSTEM_LOG", "Hacking attempt");
@@ -33,17 +33,18 @@
 	}
 
 	include("db/connect_db.inc.php"); // database connection script
-	include("inc_accountlevel_check.php"); // check if the account is valid (login, etc.)
 	
+	if ($rpm_page != "admin" && $rpm_page != "dev") {
+		die("");
+	}
 ?> 
-<div class="contentSmall"> <span class="contentSmallTitle">Admin Interface - Pages</span> 
+<div class="contentSmall"> <span class="contentSmallTitle"><?php echo $roscms_langres['ContTrans_Interface_Pages']; ?></span> 
   <ul>
-    <li><strong>Pages</strong></li>
+    <li><strong><?php echo $roscms_langres['ContTrans_Pages']; ?></strong></li>
   </ul>
 
 
-  <p>Action: <a href="?page=admin&amp;sec=pages&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Page</a> | <a href="?page=admin&sec=pages&sec2=view">reset filters & sort</a></p>
+  <p><?php echo $roscms_langres['ContTrans_Action'].": "; ?><a href="?page=<?php echo $rpm_page; ?>&amp;sec=pages&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new"><?php echo $roscms_langres['ContTrans_NewPage']; ?></a> | <a href="?page=<?php echo $rpm_page; ?>&sec=pages&sec2=view"><?php echo $roscms_langres['ContTrans_resetfilters']; ?></a></p>
 <?php
 	if($roscms_intern_usrgrp_sadmin == true) {
                 $rpm_page_active = "";
@@ -61,21 +62,21 @@
 	if ($rpm_lang_id == "") {
 		$rpm_lang_id="all";
 	}
-	echo '<p>Language: ';
+	echo '<p>'.$roscms_langres['ContTrans_Language'].': ';
 	if ($rpm_lang_id == "all") {	
-		echo '<b>All</b>';
+		echo '<b>'.$roscms_langres['ContTrans_All'].'</b>';
 		$ros_cms_intern_pages_lang = "";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">All</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">'.$roscms_langres['ContTrans_All'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_lang_id == "nolang") {	
-		echo '<b>International</b>';
+		echo '<b>'.$roscms_langres['ContTrans_International'].'</b>';
 		$ros_cms_intern_pages_lang = "AND page_language = 'all'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">International</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">'.$roscms_langres['ContTrans_International'].'</a>';
 	}
 	// Languages
 	$sql_lang="SELECT * 
@@ -91,7 +92,7 @@
 			$ros_cms_intern_pages_lang = "AND page_language = '".$roscms_sel_lang."'";
 		}
 		else {
-			echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
+			echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
 		}
 	}
 
@@ -99,48 +100,48 @@
 	if ($rpm_filt == "") {
 		$rpm_filt="active";
 	}
-	echo '<p>Filter: ';
+	echo '<p>'.$roscms_langres['ContTrans_Filter'].': ';
 	if ($rpm_filt == "active") {	
-		echo '<b>active pages</b>';
+		echo '<b>'.$roscms_langres['ContTrans_activepages'].'</b>';
 		$ros_cms_intern_pages_filt = "WHERE page_active = '1'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=active&amp;langid='.$rpm_lang_id.'">active pages</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=active&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_activepages'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "all") {	
-		echo '<b>all pages</b>';
+		echo '<b>'.$roscms_langres['ContTrans_allpages'].'</b>';
 		$ros_cms_intern_pages_filt = "WHERE `page_name` != ''";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=all&amp;langid='.$rpm_lang_id.'">all pages</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=all&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_allpages'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "user") {	
-		echo '<b>current user</b>';
+		echo '<b>'.$roscms_langres['ContTrans_currentuser'].'</b>';
 		$ros_cms_intern_pages_filt = "WHERE page_usrname_id = '".$roscms_intern_account_id."'";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=user&amp;langid='.$rpm_lang_id.'">current user</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=user&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_currentuser'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "normalpages") {	
-		echo '<b>normal pages</b>';
+		echo '<b>'.$roscms_langres['ContTrans_normalpages'].'</b>';
 		$ros_cms_intern_pages_filt = "WHERE pages_extra = ''";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=normalpages&amp;langid='.$rpm_lang_id.'">normal pages</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=normalpages&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_normalpages'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_filt == "dynamicpages") {	
-		echo '<b>dynamic pages</b>';
+		echo '<b>'.$roscms_langres['ContTrans_dynamicpages'].'</b>';
 		$ros_cms_intern_pages_filt = "WHERE pages_extra != ''";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=dynamicpages&amp;langid='.$rpm_lang_id.'">dynamic pages</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt=dynamicpages&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_dynamicpages'].'</a>';
 	}
 	if ($rpm_filt == "history") {	
-		echo ' | <b>history</b>';
+		echo ' | <b>'.$roscms_langres['ContTrans_history'].'</b>';
 		$ros_cms_intern_pages_filt = "WHERE page_name = '".$rpm_opt."'";
 	}
 	echo '</p>';
@@ -148,94 +149,93 @@
 	if ($rpm_sort == "") {
 		$rpm_sort="id";
 	}
-	echo '<p>Sorted by: ';
+	echo '<p>'.$roscms_langres['ContTrans_Sortedby'].': ';
 	if ($rpm_sort == "id") {	
-		echo '<b>page ID</b>';
+		echo '<b>'.$roscms_langres['ContTrans_pageid'].'</b>';
 		$ros_cms_intern_pages_sortby="page_name";
 		$ros_cms_intern_pages_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=id&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">page ID</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=id&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_pageid'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "date") {	
-		echo '<b>date</b>';
+		echo '<b>'.$roscms_langres['ContTrans_date'].'</b>';
 		$ros_cms_intern_pages_sortby="page_date";
 		$ros_cms_intern_pages_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=date&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">date</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=date&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_date'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "user") {	
-		echo '<b>user</b>';
+		echo '<b>'.$roscms_langres['ContTrans_user'].'</b>';
 		$ros_cms_intern_pages_sortby="page_usrname_id";
 		$ros_cms_intern_pages_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=user&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">user</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=user&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_user'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "active") {	
-		echo '<b>active</b>';
+		echo '<b>'.$roscms_langres['ContTrans_active'].'</b>';
 		$ros_cms_intern_pages_sortby="page_active";
 		$ros_cms_intern_pages_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=active&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">active</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=active&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_active'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "visible") {	
-		echo '<b>visible</b>';
+		echo '<b>'.$roscms_langres['ContTrans_visible'].'</b>';
 		$ros_cms_intern_pages_sortby="page_visible";
 		$ros_cms_intern_pages_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=visible&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">visible</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=visible&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_visible'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "version") {	
-		echo '<b>version</b>';
+		echo '<b>'.$roscms_langres['ContTrans_version'].'</b>';
 		$ros_cms_intern_pages_sortby="page_version";
 		$ros_cms_intern_pages_sort="DESC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=version&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">version</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=version&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_version'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "extra") {	
-		echo '<b>extra</b>';
+		echo '<b>'.$roscms_langres['ContTrans_extra'].'</b>';
 		$ros_cms_intern_pages_sortby="pages_extra";
 		$ros_cms_intern_pages_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=extra&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">extra</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=extra&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_extra'].'</a>';
 	}
 	echo ' | ';
 	if ($rpm_sort == "language") {	
-		echo '<b>language</b>';
+		echo '<b>'.$roscms_langres['ContTrans_language'].'</b>';
 		$ros_cms_intern_pages_sortby="page_language";
 		$ros_cms_intern_pages_sort="ASC";
 	}
 	else {
-		echo '<a href="?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">language</a>';
+		echo '<a href="?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort=language&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'">'.$roscms_langres['ContTrans_language'].'</a>';
 	}
 	echo '</p>';
 
 ?>
   <table width="100%" border="0" cellpadding="1" cellspacing="1">
-    <tr bgcolor="#5984C3"> 
-      <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Action</strong></font></div></td>
-      <td width="8%" colspan="3" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Info</strong></font></div></td>
-      <td width="13%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Page 
-          ID</strong></font></div></td>
-      <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
-      <td width="26%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content</strong></font></div></td>
-      <td width="7%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Rev.</strong></font></div>
+    <tr bgcolor="<?php echo $roscms_intern_color0; ?>"> 
+      <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Action']; ?></strong></font></div></td>
+      <td width="8%" colspan="3" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Info']; ?></strong></font></div></td>
+      <td width="13%" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_PageID']; ?></strong></font></div></td>
+      <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Language']; ?></strong></font></div></td>
+      <td width="26%" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Content']; ?></strong></font></div></td>
+      <td width="7%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Rev']; ?></strong></font></div>
         <div align="center"></div></td>
       <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong> 
-          Date</strong></font></div></td>
-      <td width="10%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>User</strong></font></div></td>
+          <?php echo $roscms_langres['ContTrans_Date']; ?></strong></font></div></td>
+      <td width="10%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_User']; ?></strong></font></div></td>
     </tr>
     <?php
 
@@ -272,30 +272,30 @@
 									$farbe = $farbe2;
 								}
 							 ?>" title="RosCMS action buttons:&#10;&#10;* View page&#10;* Delete page&#10;* Locked"> 
-        <div align="center"><a href="?page=admin&amp;sec=pages&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_page['page_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
+        <div align="center"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=pages&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_page['page_id']; ?>"><img src="images/view.gif" alt="<?php echo $roscms_langres['ContTrans_Edit']; ?>" width="19" height="18" border="0"></a> 
           <?php if($roscms_intern_usrgrp_sadmin == true) { ?>
           <script type="text/javascript">
 			<!--
 				function DeletePage() {
 					var chk = window.confirm("Do you really want to delete this page?");
 					if (chk == true) {
-						parent.location.href = "?page=admin&amp;sec=pages&amp;sec2=delete&amp;db_id=<?php echo $result_page['page_id']; ?>";
+						parent.location.href = "?page=<?php echo $rpm_page; ?>&amp;sec=pages&amp;sec2=delete&amp;db_id=<?php echo $result_page['page_id']; ?>";
 					}
 				}
 			-->
 			</script>
           <a href="javascript:DeletePage()"><img src="images/delete.gif" alt="Delete" width="19" height="18" border="0"></a> 
           <?php } ?>
-          <a href="<?php echo "?page=admin&amp;sec=pages&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_page['page_name']."&amp;langid=".$rpm_lang_id; ?>"><img src="images/history.gif" alt="Filter: history" width="19" height="18" border="0"></a> 
+          <a href="<?php echo "?page=".$rpm_page."&amp;sec=pages&amp;sec2=view&amp;sort=version&amp;filt=history&amp;opt=".$result_page['page_name']."&amp;langid=".$rpm_lang_id; ?>"><img src="images/history.gif" alt="<?php echo $roscms_langres['ContTrans_filter_history']; ?>" width="19" height="18" border="0"></a> 
         </div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
           <?php
 		 if($result_page['page_active'] == "1") { ?>
-          <a href="<?php if($roscms_intern_usrgrp_admin == true) { echo '?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'&amp;page_active=0&amp;page_active_set='.$result_page['page_id'] ; } else { echo '#'; } ?>"><img src="images/active.gif" alt="active" width="19" height="18" border="0"></a> 
+          <a href="<?php if($roscms_intern_usrgrp_admin == true) { echo '?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'&amp;page_active=0&amp;page_active_set='.$result_page['page_id'] ; } else { echo '#'; } ?>"><img src="images/active.gif" alt="active" width="19" height="18" border="0"></a> 
           <?php
 		 }
 		 else { ?>
-          <a href="<?php if($roscms_intern_usrgrp_admin == true) { echo '?page=admin&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'&amp;page_active=1&amp;page_active_set='.$result_page['page_id'] ; } else { echo '#'; } ?>"><img src="images/notactive.gif" alt="NOT active" width="19" height="18" border="0"></a> 
+          <a href="<?php if($roscms_intern_usrgrp_admin == true) { echo '?page='.$rpm_page.'&amp;sec=pages&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$rpm_lang_id.'&amp;page_active=1&amp;page_active_set='.$result_page['page_id'] ; } else { echo '#'; } ?>"><img src="images/notactive.gif" alt="NOT active" width="19" height="18" border="0"></a> 
           <?php } ?>
         </div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
@@ -363,7 +363,7 @@
 
 			$roscms_intern_accountuser = $accountinfo_result['user_name'];
 			if ($roscms_intern_accountuser && $roscms_intern_accountuser != "") {
-				echo "<b>".$roscms_intern_accountuser."</b><br><a href='?page=user&amp;sec=profil&amp;sec2=".$result_page['page_usrname_id']."' target='_blank'>Profile</a>";
+				echo "<b>".$roscms_intern_accountuser."</b><br><a href='?page=user&amp;sec=profil&amp;sec2=".$result_page['page_usrname_id']."' target='_blank'>".$roscms_langres['ContTrans_Profile']."</a>";
 			}
 			else {
 				echo "<b>RosCMS</b>";

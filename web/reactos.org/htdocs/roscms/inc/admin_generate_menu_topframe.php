@@ -26,8 +26,7 @@
 <body bgcolor="#FFFFCC">
 <table width="100%" border="0" align="center">
   <tr> 
-    <td width="20%"><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><strong><a href="?page=admin" target="_parent">RosCMS 
-        - View Dynamic</a>&nbsp;&nbsp;&nbsp;</strong></font></div></td>
+    <td width="20%"><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><strong><a href="?page=admin" target="_parent">RosCMS</a></strong></font></div></td>
     <td width="80%"> 
       <div align="center"> 
         <table width="760" border="1">
