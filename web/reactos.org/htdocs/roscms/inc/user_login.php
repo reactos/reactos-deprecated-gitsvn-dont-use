@@ -35,9 +35,12 @@ if ( !defined('ROSCMS_SYSTEM') )
 
 require_once("utils.php");
 require_once("subsys_login.php");
+include("roscms_login_config.php");
 	
 function create_login_page($message)
 {
+	include("roscms_login_config.php");
+
 	global $rpm_page_title;
 	global $rpm_logo;
 	global $roscms_langres;
@@ -49,13 +52,13 @@ function create_login_page($message)
 
 	if ($rpm_sec == "security") { 
 		$random_string_security = make_key();
-		setcookie("roscms_sec_key", $random_string_security, 0, "/", cookie_domain());
+		setcookie($roscms_login_cookie_roscms_sec_key, $random_string_security, 0, "/", cookie_domain());
 
 		echo '<script language="JavaScript" src="js/md5.js"></script>';
 	} 
 	else {
 		$random_string_security = "";
-		setcookie("roscms_sec_key", $random_string_security, time() - 3600, "/", cookie_domain());
+		setcookie($roscms_login_cookie_roscms_sec_key, $random_string_security, time() - 3600, "/", cookie_domain());
 	}
 
 	create_head($rpm_page_title, $rpm_logo, $roscms_langres);
@@ -157,11 +160,11 @@ function create_login_page($message)
           <div align="right">Username:</div></td>
         <td width="380" bgcolor="#E2E2E2"> 
           <input name="rosusername" type="text" class="input" id="rosusername" <?php 
-			if (isset($_POST['rosusername'])) {
-				echo 'value="' . $_POST['rosusername'] .  '"';
+			if (isset($_POST[$roscms_login_cookie_rosusername])) {
+				echo 'value="' . $_POST[$roscms_login_cookie_rosusername] .  '"';
 			}
-			else if (isset($_COOKIE['roscms_loginname'])) {
-				echo 'value="' . $_COOKIE['roscms_loginname'] .  '"';
+			else if (isset($_COOKIE[$roscms_login_cookie_roscms_loginname])) {
+				echo 'value="' . $_COOKIE[$roscms_login_cookie_roscms_loginname] .  '"';
 			}
 		  ?> size="50" maxlength="50">
         </td>
@@ -182,7 +185,7 @@ function create_login_page($message)
           <legend>&nbsp;<b><font color="#5984C3">Options</font></b>&nbsp;</legend>
           
         <input name="loginoption1" type="checkbox" id="loginoption1" value="save" <?php 
-			if (isset($_COOKIE['roscms_loginname'])) {
+			if (isset($_COOKIE[$roscms_login_cookie_roscms_loginname])) {
 				echo 'checked';
 			}
 		?>>Save username <sup>1</sup><br>
@@ -211,21 +214,21 @@ function create_login_page($message)
 <?php
 }
 
-if ((! isset($_POST['rosusername']) || $_POST['rosusername'] == "") &&
-    (! isset($_POST['rospassword']) || $_POST['rospassword'] == "")) {
+if ((! isset($_POST[$roscms_login_cookie_rosusername]) || $_POST[$roscms_login_cookie_rosusername] == "") &&
+    (! isset($_POST[$roscms_login_cookie_rospassword]) || $_POST[$roscms_login_cookie_rospassword] == "")) {
 	create_login_page("");
 }
-elseif(! isset($_POST['rosusername']) || $_POST['rosusername'] == "") {
+elseif(! isset($_POST[$roscms_login_cookie_rosusername]) || $_POST[$roscms_login_cookie_rosusername] == "") {
 	create_login_page("Please enter your username!");
 }
-elseif(! isset($_POST['rospassword']) || $_POST['rospassword'] == "") {
+elseif(! isset($_POST[$roscms_login_cookie_rospassword]) || $_POST[$roscms_login_cookie_rospassword] == "") {
 	create_login_page("Please enter your password");
 }
 else { // login process
 	$roscms_currentuser_id = "";
 	$roscms_ses_id_key="";
-	if (isset($_COOKIE['roscms_sec_key']) &&
-	    preg_match('/^([a-z0-9]{32})$/', $_COOKIE['roscms_sec_key'], $matches)) {
+	if (isset($_COOKIE[$roscms_login_cookie_roscms_sec_key]) &&
+	    preg_match('/^([a-z0-9]{32})$/', $_COOKIE[$roscms_login_cookie_roscms_sec_key], $matches)) {
 		$roscms_ses_id_key = $matches[1];
 	}
 	else {
@@ -239,7 +242,7 @@ else { // login process
 	}
 		
 	/* Check username. It should only contain printable ASCII chars */
-	if (preg_match('/^([ !-~]+)$/', $_POST['rosusername'], $matches)) {
+	if (preg_match('/^([ !-~]+)$/', $_POST[$roscms_login_cookie_rosusername], $matches)) {
 		$rosusername = $matches[1];
 	}
 	else {
@@ -250,7 +253,7 @@ else { // login process
 	}
 		
 	/* Check password. It should only contain printable ASCII chars */
-	if (preg_match('/^([ !-~]+)$/', $_POST['rospassword'], $matches)) {
+	if (preg_match('/^([ !-~]+)$/', $_POST[$roscms_login_cookie_rospassword], $matches)) {
 		$rospassword = $matches[1];
 	}
 	else {
@@ -290,8 +293,8 @@ else { // login process
 		exit;
 	}
 
-	$rem_adr = $_SERVER['REMOTE_ADDR'];
-	$useragent = $_SERVER['HTTP_USER_AGENT'];
+	$rem_adr = $HTTP_SERVER_VARS['REMOTE_ADDR'];
+	$useragent = $HTTP_SERVER_VARS['HTTP_USER_AGENT'];
 	
 	// Query DB table 'users' and read the login_counter and settings of
 	// the specific user
@@ -338,8 +341,7 @@ else { // login process
 
 		if ($roscms_currentuser_login_user_lastsession_counter > 0) {
 			create_login_page("Your account settings only allow you to login once.<br>\n" .
-			                  "You are already logged in so you cannot login again. <br>\n".
-			                  "For more informations please have a look at the <a href=\"http://www.reactos.org/xhtml/de/about_userfaq.html#multilogin\">FAQ</a>");
+			                  "You are already logged in so you cannot login again");
 			exit;
 		}
 	}
@@ -349,19 +351,19 @@ else { // login process
 	if (0 != roscms_subsys_login("roscms", ROSCMS_LOGIN_OPTIONAL, "")) {
 		$query = "DELETE FROM user_sessions " .
 		         " WHERE usersession_id = '" .
-                                 mysql_escape_string($_COOKIE['roscmsusrkey']) . "'";
+                                 mysql_escape_string($_COOKIE[$roscms_login_cookie_roscmsusrkey]) . "'";
 		mysql_query($query);
 	}
 	
 	// save username
 	if (isset($_POST['loginoption1']) && $_POST['loginoption1'] == "save") {
 		// save username (cookie)
-		setcookie('roscms_loginname', $rosusername,
+		setcookie($roscms_login_cookie_roscms_loginname, $rosusername,
 		          time() + 24 * 3600 * 30 * 5, '/', cookie_domain());
 	}
 	else {
 		// delete username (cookie)
-		setcookie('roscms_loginname', '',
+		setcookie($roscms_login_cookie_roscms_loginname, '',
 		          time() - 3600, '/', cookie_domain());
 	}
 
@@ -394,7 +396,7 @@ else { // login process
 	                       or die('DB error (user login #4)!');
 
 	// save session_id (cookie)
-	setcookie('roscmsusrkey', $random_string,
+	setcookie($roscms_login_cookie_roscmsusrkey, $random_string,
 		  $cookie_time, '/', cookie_domain());
 	
 	$now = explode(' ',microtime());

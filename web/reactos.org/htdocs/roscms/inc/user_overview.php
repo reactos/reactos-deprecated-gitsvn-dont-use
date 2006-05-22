@@ -21,7 +21,7 @@
 <table border="0" cellspacing="0" cellpadding="0">
   <tr> 
       <td width="460" colspan="3"><span class="contentSmallTitle"><?php echo $roscms_langres['User_Profil_Overview']; ?></span></td>
-    </tr>
+  </tr>
     <tr> 
       <td colspan="2" bgcolor="#F9F8F8"> <table border="0" cellpadding="4">
         <tr> 
@@ -53,7 +53,7 @@
     <tr bgcolor=#AEADAD> 
       <td><img src="images/line.gif" width="1" height="1"></td>
     </tr>
-  </table>
+</table>
 <br>
 <table width="460" border="0" cellpadding="0" cellspacing="0">
   <tr> 

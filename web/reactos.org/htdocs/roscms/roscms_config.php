@@ -31,4 +31,10 @@
 	$roscms_intern_fileformat_xhtml="html"; // htm
 	$roscms_intern_w3cformat_xhtml="xhtml"; // html
 
+
+	$roscms_standard_output_format="both"; // html/xhtml/both	
+
+	$roscms_standard_language="en"; // en/de/fr/...
+		
+	
 ?>

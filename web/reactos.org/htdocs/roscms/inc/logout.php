@@ -35,10 +35,10 @@ if ( !defined('ROSCMS_SYSTEM') )
 
 require_once("utils.php");
 
-if (isset($_COOKIE['roscmsusrkey']))
+if (isset($_COOKIE[$roscms_login_cookie_roscmsusrkey]))
 {
-	$del_session_id = $_COOKIE['roscmsusrkey'];
-	setcookie("roscmsusrkey", "", time() - 3600, "/", cookie_domain());
+	$del_session_id = $_COOKIE[$roscms_login_cookie_roscmsusrkey];
+	setcookie($roscms_login_cookie_roscmsusrkey, "", time() - 3600, "/", cookie_domain());
 	$logout_usr_key_post = "DELETE FROM user_sessions " .
 	                       " WHERE usersession_id = '" .
 	                               mysql_escape_string($del_session_id) .

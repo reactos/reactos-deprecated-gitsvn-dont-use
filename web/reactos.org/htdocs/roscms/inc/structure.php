@@ -123,13 +123,10 @@ function create_structure($page )
               ?>
               </optgroup>
 			  <optgroup label="most popular">
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=en">English</option>
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=de">Deutsch (German)</option>
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Français (French)</option>
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Russian (Russian)</option>
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=es">Spanish</option>
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=sv">Swedish</option>
-              <option value="<?php echo $roscms_intern_path_server; ?>?page=<?php echo $rpm_page; ?>&amp;lang=it">Italian</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=en">English</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=de">Deutsch (German)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Français (French)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Russian (Russian)</option>
               </optgroup>
             </select>
           </div>
@@ -151,24 +148,24 @@ function create_structure($page )
 <?php
 	if ($page == "admin" || $page == "home" || $page == "dev" || $page == "team" || $page == "trans") { 
 ?>
-		<div class="contentSmall"> <span class="contentSmallTitle">RosCMS System</span> 
+		<div class="contentSmall"> <span class="contentSmallTitle">RosCMS</span> 
 			  <p>A powerful and easy to use CMS interface (for administrator, developer and translator) to manage the ReactOS 
 				homepage and its components.</p>
-			  </div>
+	    </div>
 <?php
 	}
 	elseif ($page == "user") { 
 ?>
 		<div class="contentSmall"> <span class="contentSmallTitle"><?php echo $roscms_langres['myReactOS']; ?></span> 
 			  <p><?php echo $roscms_langres['myReactOS_description']; ?></p>
-			  </div>
+	    </div>
 <?php
 	}
 	elseif ($page == "login" || $page == "noaccess" || $page == "register") { 
 ?>
 		<div class="contentSmall"> <span class="contentSmallTitle">ReactOS Homepage - Global Login System</span> 
 			  <p>The useful ReactOS Homepage Global Login System provide you with one login, access to myReactOS, wiki, forum and bugzilla.</p>
-			  </div>
+	    </div>
 <?php
 	}
 } // End of function create_structure

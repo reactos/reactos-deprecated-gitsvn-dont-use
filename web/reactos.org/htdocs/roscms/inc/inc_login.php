@@ -32,7 +32,8 @@
 		die("Hacking attempt");
 	}
 
-
+	
+	require_once("subsys_login.php");
 
 	$check_ip = true; // check the IP address; avoid this setting if the user is behind a proxy or use more than one pc the same time (a possible security risk, but some persons wanted that behavior ...); Note: this is a per user setting, everyone can change it!
 	$do_time_out = true; // session_time enabled
@@ -68,9 +69,9 @@
 	
 	
 	// check time-out and if no key has been found -> new radom key for the user
-	if (isset($_SESSION['roscmsusrkey'])) {
-		echo "<br>ID ".$_SESSION['roscmsusrkey'];
-		$random_string = $_SESSION['roscmsusrkey'];
+	if (isset($_SESSION[$roscms_login_cookie_roscmsusrkey])) {
+		echo "<br>ID ".$_SESSION[$roscms_login_cookie_roscmsusrkey];
+		$random_string = $_SESSION[$roscms_login_cookie_roscmsusrkey];
 		$query_sesid = mysql_query("<br><br>SQL:<br>SELECT usersession_id, usersession_userid, usersession_timestamp_touch, usersession_browseragent, usersession_ipaddress FROM user_sessions WHERE usersession_id = '".$random_string."'"); // or die('DB error (login script)!');
 		$result_sesid = mysql_fetch_array($query_sesid); // or die("Your session id has been deleted, oops.<br><br>To solve this problem use the <a href='?page=logout'>logout function</a>!");
 		

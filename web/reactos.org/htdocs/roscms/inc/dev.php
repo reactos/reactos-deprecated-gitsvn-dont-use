@@ -42,6 +42,20 @@
 		create_structure($rpm_page);
 
 		switch ($rpm_sec) {
+			case "pages":
+				if ($rpm_sec2=="view") {
+					include("inc/admin_pages.php"); 
+				}
+				else if ($rpm_sec2=="edit") {
+					include("inc/admin_pages_edit.php"); 
+				}
+				else if ($rpm_sec2=="delete") {
+					include("inc/admin_pages.php"); 
+				}
+				else if ($rpm_sec2=="save") {
+					include("inc/admin_pages_save.php"); 
+				}
+				break;
 			case "content":
 				if ($rpm_sec2=="view") {
 					include("inc/admin_content.php"); 
@@ -53,7 +67,7 @@
 					include("inc/admin_content.php"); 
 				}
 				else if ($rpm_sec2=="save") {
-					include("inc/admin_content.php"); 
+					include("inc/admin_content_edit.php"); 
 					//include("inc/admin_content_edit.php"); 
 				}
 				break;
@@ -62,6 +76,28 @@
 				break;
 			case "help":
 				echo "<br><p>under construction ...</p>";
+				break;
+			case "generator": // static page generator (output/view)
+				if ($rpm_site == "") {
+					echo '<div class="contentSmall"> <span class="contentSmallTitle">Dev Interface - Generator</span>';
+					include("inc/generate_page.php"); 
+					echo "</div>";
+				}
+				else {
+					if ($rpm_sec3 == "menu") {
+						include("admin_generate_menu.php");
+					}
+					if ($rpm_sec3 == "menutop") {
+						include("admin_generate_menu_topframe.php");
+					}
+					else {
+						include("inc/generate_page.php"); 
+					}
+				}
+				break;
+			default:
+			case "generate": // generator menu page
+				include("inc/admin_generator.php"); 
 				break;
 			case "overview":
 			default:

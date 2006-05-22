@@ -95,6 +95,7 @@ require_once("subsys_utils.php");
 								`user_timestamp_touch2` = NOW( ) ,
 								`user_fullname` = '". mysql_real_escape_string($save_account_fullname) ."',
 								`user_website` = '". mysql_real_escape_string($save_account_hp) ."',
+								`user_email` = '". mysql_real_escape_string($save_account_email) ."',
 								`user_language` = '". mysql_real_escape_string($save_account_txt_langa) ."',
 								`user_country` = '". mysql_real_escape_string($save_account_country) ."',
 								`user_timezone` = '". mysql_real_escape_string($save_account_timezone) ."',

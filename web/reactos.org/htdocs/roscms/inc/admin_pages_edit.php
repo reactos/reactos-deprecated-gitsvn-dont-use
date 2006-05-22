@@ -17,11 +17,16 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
-?><div class="contentSmall"> <span class="contentSmallTitle">Admin Interface - Pages</span> 
+	
+	if ($rpm_page != "admin" && $rpm_page != "dev") {
+		die("");
+	}
+
+?><div class="contentSmall"> <span class="contentSmallTitle"><?php echo $roscms_langres['ContTrans_Interface_Pages']; ?></span> 
   <ul>
-    <li><strong><a href="?page=admin&sec=pages&sec2=view&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id ; ?>">Pages</a></strong> 
+    <li><strong><a href="?page=<?php echo $rpm_page; ?>&sec=pages&sec2=view&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id ; ?>"><?php echo $roscms_langres['ContTrans_Pages']; ?></a></strong> 
       <ul>
-        <li>View page</li>
+        <li><?php echo $roscms_langres['ContTrans_ViewEditpage']; ?></li>
       </ul>
     </li>
   </ul>
@@ -43,31 +48,29 @@
 	else {
 		echo '?page=admin&amp;sec=pages&amp;sec2=save&amp;opt=insert&amp;db_id='.$rpm_db_id;
 	}*/
-		echo '?page=admin&amp;sec=pages&amp;sec2=save&amp;db_id='.$rpm_db_id;
+		echo '?page='.$rpm_page.'&amp;sec=pages&amp;sec2=save&amp;db_id='.$rpm_db_id;
 	 ?>">
     <table width="600" border="0" cellpadding="1" cellspacing="1">
-      <tr bgcolor="#5984C3"> 
-        <td width="80" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Page 
-            ID </strong></font></div></td>
+      <tr bgcolor="<?php echo $roscms_intern_color0; ?>"> 
+        <td width="80" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_PageID']; ?></strong></font></div></td>
         <td bgcolor="#E2E2E2"> <div align="left"><font face="Arial, Helvetica, sans-serif"> 
             <input name="txt_pageid" type="text" id="txt_pageid" value="<?php echo $result_page['page_name']; ?>" size="50" maxlength="50">
             (e.g. &quot;about&quot;)</font></div></td>
       </tr>
-      <tr bgcolor="#5984C3"> 
-        <td bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Page 
-            Title </strong></font></div></td>
+      <tr bgcolor="<?php echo $roscms_intern_color0; ?>"> 
+        <td bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_PageTitle']; ?></strong></font></div></td>
         <td bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <input name="txt_pagetitle" type="text" id="txt_pagetitle" value="<?php echo $result_page['page_title']; ?>" size="50" maxlength="150">
-          (e.g. &quot;About ReactOS&quot;) </font></td>
+          (e.g. &quot;About xyz&quot;) </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Description</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Description']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <input name="txt_pagedesc" type="text" id="txt_pagedesc" value="<?php echo $result_page['page_description']; ?>" size="50" maxlength="255">
-          (for the sitemap page)</font></td>
+          (-&gt; Sitemap) </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Language']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><div align="left"> 
             <select id="txt_langa" size="1" name="txt_langa" class="selectbox">
               <?php 
@@ -107,7 +110,7 @@
           </div></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Content']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <textarea name="textarea_pages" cols="60" rows="15" id="textarea_pages"><?php 
 			echo $result_page['page_text'];
@@ -115,7 +118,7 @@
           </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Revision</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Rev']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_page['page_version'];
@@ -123,7 +126,7 @@
           </font></td>
       </tr>
       <tr>
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Visible</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Visible']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
           <?php 
 			if ($result_page['page_visible'] == 1) {
@@ -136,7 +139,7 @@
 </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Active</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Active']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif">
           <?php 
 			if ($result_page['page_active'] == 1) {
@@ -149,7 +152,7 @@
           </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Extra</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Extra']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"> <select id="txt_extra" size="1" name="txt_extra" class="selectbox">
             <optgroup label="current"> 
             <?php   
@@ -172,13 +175,13 @@
           </select> </td>
       </tr>
       <tr>
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Extention</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Extention']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
           <input name="txt_pageextent" type="text" id="txt_pageextent" value="<?php echo $result_page['pages_extention']; ?>" size="10" maxlength="10">
 (&quot;default&quot;, &quot;xml&quot;, ...) </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Date</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Date']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_page['page_date'];
@@ -186,7 +189,7 @@
           </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Time</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Time']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_page['page_time'];
@@ -194,7 +197,7 @@
           </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Action</strong></font></div></td>
+        <td valign="top" bgcolor="<?php echo $roscms_intern_color0; ?>"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Action']; ?></strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"> 
           <?php if($roscms_intern_usrgrp_sadmin == true) { ?>
           <script type="text/javascript">
@@ -202,7 +205,7 @@
 				function DeletePage() {
 					var chk = window.confirm("Do you really want to delete this page?");
 					if (chk == true) {
-						parent.location.href = "?page=admin&amp;sec=pages&amp;sec2=delete&amp;db_id=<?php echo $result_page['page_id']; ?>";
+						parent.location.href = "?page=<?php echo $rpm_page; ?>&amp;sec=pages&amp;sec2=delete&amp;db_id=<?php echo $result_page['page_id']; ?>";
 					}
 				}
 			-->
@@ -213,23 +216,25 @@
     </table>
     <p> 
       <input name="page_rad_opt" type="radio" value="insert" checked>
-      Save (new version) &nbsp; 
+      <?php echo $roscms_langres['ContTrans_SAVE']; ?> &nbsp; 
       <?php 
-			if($roscms_intern_account_level>50 AND $result_page['page_name'] != "") {
+			//if($roscms_intern_account_level>50 AND $result_page['page_name'] != "") {
 		?>
       <input name="page_rad_opt" type="radio" value="update">
-      Update 
-      <?php } ?>
+      <?php echo $roscms_langres['ContTrans_UPDATE']; ?> 
+      <?php //} ?>
     </p>
-    <p>
+
       <?php 
-			if($roscms_intern_account_level>20) {
+			//if($roscms_intern_account_level>20) {
 		?>
-      <input type="submit" name="Submit" value="Save">
-      <?php  } if($roscms_intern_account_level<=20) { ?>
+      <input type="submit" name="Submit" value="Submit">
+      <?php // }  
+	  /*if($roscms_intern_account_level<=20) { ?>
       <img src="images/lock.gif" alt="Locked" width="19" height="18"> (you need 
       a higher account level to save the content to the database)</p>
-    <?php } ?>
+    <?php } */?>
+    <p>&nbsp;</p>
     <p><strong>Info:</strong><br>
       for each [#cont_xyz] or [#inc_xyz] tag the RosCMS will include the code 
       that is linked with this tag from database.<br>
