@@ -44,7 +44,20 @@
           </tr>
           <tr>
             <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=output" title="Generate all static pages (only if you need to update all pages, e.g. one time per day)"><strong><?php echo $roscms_langres['ContTrans_Gen_menu2']; ?></strong></a> </font></td>
+            <td><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=output" title="Generate all static pages (only if you need to update all pages, e.g. one time per day)"><strong><?php echo $roscms_langres['ContTrans_Gen_menu2']; ?></strong></a> <?php 
+			
+	
+	// Languages
+	$sql_lang="SELECT * 
+				FROM languages
+				WHERE lang_level != '0'
+				ORDER BY 'lang_level' DESC";
+	$sql_query_lang=mysql_query($sql_lang);
+	while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
+		echo ', <a href="?page='.$rpm_page.'&amp;sec=generator&amp;sec2=output&amp;gen_lang='.$myrow_lang[0].'&amp;skin=default">'.$myrow_lang[1].'</a>';
+	}
+			
+			?></font></td>
             <td>&nbsp;</td>
             <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
             <td><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default" title="Don't use this function if you don't know what this function do!">View all pages - test mode</a></font></td>
@@ -361,17 +374,17 @@
 		?>
           </font></strong></div>
         <div align="center"><strong><font face="Arial, Helvetica, sans-serif"> </font></strong></div></td>
-      <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><strong><font face="Arial, Helvetica, sans-serif"> 
+      <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_page['page_date']." ".$result_page['page_time'];;
 		?>
-          </font></strong></div></td>
+          </font></div></td>
       <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>">
-        <div align="center"><strong><font face="Arial, Helvetica, sans-serif">
+        <div align="center"><font face="Arial, Helvetica, sans-serif">
           <?php 
 			echo "<b>".date("Y-m-d",$result_page['page_generate_timestamp'])."</b><br>".date("H:i:s",$result_page['page_generate_timestamp']);
 		?>
-      </font></strong></div></td>
+      </font></div></td>
       <td width="23%" valign="middle" bgcolor="<?php echo $farbe; ?>"> 
         <div align="center"><strong><font face="Arial, Helvetica, sans-serif"> 
           <?php 

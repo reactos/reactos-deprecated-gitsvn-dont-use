@@ -64,6 +64,14 @@
 	set_time_limit(0);
 
 	
+	$rpm_gen_lang="";
+	if (array_key_exists("gen_lang", $_GET)) $rpm_gen_lang=htmlspecialchars($_GET["gen_lang"]);
+	if ($rpm_gen_lang != "") {
+		$rpm_temp_gen_lang = " AND lang_id = '".mysql_escape_string($rpm_gen_lang)."'";
+	}
+	else {
+		$rpm_temp_gen_lang = "";
+	}
 	
 	//include("db/connect_db.inc.php"); // database connection script
 
@@ -129,20 +137,20 @@
 			if ($rpm_site != "" && $rpm_sec2=="view") {
 				$sql_lang="SELECT * 
 							FROM languages
-							WHERE lang_level != '0' AND lang_id = '$rpm_lang'
+							WHERE lang_level != '0' AND lang_id = '".mysql_escape_string($rpm_lang)."'
 							ORDER BY 'lang_level' DESC";
-//				echo "<br>".$rpm_lang;
+				//echo "<br>!!".$rpm_lang;
 			}
 			else if ($rpm_site != "" && $rpm_sec2=="genpage") {
 				$sql_lang="SELECT * 
 							FROM languages
-							WHERE lang_level != '0'
+							WHERE lang_level != '0' ".$rpm_temp_gen_lang."
 							ORDER BY 'lang_level' DESC";
 			}
 			else {
 				$sql_lang="SELECT * 
 							FROM languages
-							WHERE lang_level != '0'
+							WHERE lang_level != '0' ".$rpm_temp_gen_lang."
 							ORDER BY 'lang_level' DESC";
 			}
 		$sql_query_lang=mysql_query($sql_lang);

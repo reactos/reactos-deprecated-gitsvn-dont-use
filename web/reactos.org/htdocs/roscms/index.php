@@ -37,7 +37,7 @@ if (get_magic_quotes_gpc()) {
  *	
  *	(c) by Klemens Friedl <frik85>
  *	
- */
+ */ 
 
 	if ( !defined('ROSCMS_SYSTEM') ) {
 		define ("ROSCMS_SYSTEM", "Version 0.1"); // to prevent hacking activity
