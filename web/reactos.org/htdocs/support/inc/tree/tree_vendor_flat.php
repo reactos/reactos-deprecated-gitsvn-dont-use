@@ -41,7 +41,8 @@ if ($RSDB_SET_letter == "all") {
 
 $query_count_cat=mysql_query("SELECT COUNT('cat_id')
 									FROM `rsdb_item_vendor` 
-									WHERE `vendor_name` LIKE  '" . $RSDB_SET_letter . "%' ;");	
+									WHERE `vendor_name` LIKE  '" . $RSDB_SET_letter . "%' 
+									AND `vendor_visible` = '1' ;");	
 $result_count_cat = mysql_fetch_row($query_count_cat);
 if ($result_count_cat[0]) {
 
@@ -73,6 +74,7 @@ if ($result_count_cat[0]) {
 		$query_page = mysql_query("SELECT * 
 									FROM `rsdb_item_vendor` 
 									WHERE `vendor_name` LIKE  '" . mysql_real_escape_string($RSDB_SET_letter) . "%' 
+									AND `vendor_visible` = '1' 
 									ORDER BY `vendor_name` ASC
 									LIMIT " . mysql_real_escape_string($RSDB_SET_curpos) . " , " . mysql_real_escape_string($RSDB_intern_items_per_page) . " ;") ;
 	

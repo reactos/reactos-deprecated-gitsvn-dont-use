@@ -37,20 +37,25 @@
 	// Language detection
 	function check_lang($lang)
 	{
-		if (preg_match('/^([a-zA-Z]+)(-[a-zA-Z]+)?$/', $lang, $matches)) {
-			$checked_lang = strtolower($matches[1]);
-			switch($checked_lang) {
-			case 'de':
-			case 'en':
-			case 'fr':
-			case 'ru':
-				break;
-			default:
+		if ($lang) {
+			if (@preg_match('/^([a-zA-Z]+)(-[a-zA-Z]+)?$/', $lang, $matches)) {
+				$checked_lang = @strtolower($matches[1]);
+				switch($checked_lang) {
+				case 'de':
+				case 'en':
+				case 'fr':
+				case 'ru':
+					break;
+				default:
+					$checked_lang = '';
+				}
+			}
+			else if ($lang == '*') {
+				$checked_lang = 'en';
+			}
+			else {
 				$checked_lang = '';
 			}
-		}
-		else if ($lang == '*') {
-			$checked_lang = 'en';
 		}
 		else {
 			$checked_lang = '';
@@ -73,11 +78,11 @@
 			   help us. */
 		$accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 		$best_q = 0;
-		while (preg_match('/^\s*([^,]+)((,(.*))|$)/',
+		while (@preg_match('/^\s*([^,]+)((,(.*))|$)/',
 						  $accept_language, $matches)) {
 			$lang_range = @$matches[1];
 			$accept_language = @$matches[4];
-			if (preg_match('/^(([a-zA-Z]+)(-[a-zA-Z]+)?)(;q=([0-1](\.[0-9]{1,3})?))?/',
+			if (@preg_match('/^(([a-zA-Z]+)(-[a-zA-Z]+)?)(;q=([0-1](\.[0-9]{1,3})?))?/',
 						   $lang_range, $matches)) {
 				$lang = check_lang($matches[1]);
 				if ($lang != '') {
@@ -114,7 +119,7 @@
 				  '/', cookie_domain());
 	}
 		
-/* This HACK is only to for the first few weeks; when more language files are available, simply delete the following file */
+/* This HACK is only to for the first few weeks; when more language files are available, simply delete the following line */
 	$rpm_lang="en";
 	
 	

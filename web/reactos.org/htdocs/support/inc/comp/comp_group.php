@@ -254,7 +254,8 @@
 	
 				$query_entry_vendor = mysql_query("SELECT * 
 													FROM `rsdb_item_vendor` 
-													WHERE `vendor_id` = " .  $result_page['grpentr_vendor'] ." ;") ;
+													WHERE `vendor_id` = " .  $result_page['grpentr_vendor'] ."
+													AND `vendor_visible` = '1' ;") ;
 				$result_entry_vendor = mysql_fetch_array($query_entry_vendor);
 	
 
@@ -262,6 +263,7 @@
 	$query_item_entry_records=mysql_query("SELECT COUNT('comp_id')
 											FROM `rsdb_item_comp`
 											WHERE `comp_groupid` = '" . mysql_real_escape_string($RSDB_SET_group) . "' 
+											AND `comp_visible` = '1' 
 											AND `comp_visible` = '1' ;");	
 	$result_item_entry_records = mysql_fetch_array($query_item_entry_records);
 	
@@ -269,7 +271,8 @@
 	
 		$query_vend = mysql_query("SELECT * 
 											FROM `rsdb_item_vendor` 
-											WHERE `vendor_id` = " .  $result_page['grpentr_vendor'] ." ;") ;
+											WHERE `vendor_id` = " .  $result_page['grpentr_vendor'] ."
+											AND `vendor_visible` = '1' ;") ;
 		$result_vend = mysql_fetch_array($query_vend);
 ?>
 		<p>&nbsp;</p>
@@ -326,6 +329,7 @@
 					$RSDB_TEMP_version_newest = "SELECT * 
 										FROM `rsdb_item_comp` 
 										WHERE `comp_groupid` = '" . mysql_real_escape_string($RSDB_SET_group) . "'
+										AND `comp_visible` = '1' 
 										ORDER BY `comp_award` DESC, `comp_appversion` DESC, `comp_osversion` DESC
 										LIMIT 1;";
 				}
@@ -333,6 +337,7 @@
 					$RSDB_TEMP_version_newest = "SELECT * 
 										FROM `rsdb_item_comp` 
 										WHERE `comp_groupid` = '" . mysql_real_escape_string($RSDB_SET_group) . "'
+										AND `comp_visible` = '1' 
 										AND `comp_appversion` = '" . mysql_real_escape_string($RSDB_SET_group2) . "' 
 										ORDER BY `comp_award` DESC, `comp_appversion` DESC, `comp_osversion` DESC
 										LIMIT 1;";

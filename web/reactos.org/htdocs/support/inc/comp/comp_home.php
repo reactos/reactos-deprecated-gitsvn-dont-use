@@ -209,7 +209,13 @@
 ?>
 </table>
 </div>
-<p><font size="2">Some of the features of the ReactOS Compatibility Database require that you have a <a href="<?php echo $RSDB_intern_loginsystem_fullpath; ?>?page=register">myReactOS account</a> and are <a href="<?php echo $RSDB_intern_loginsystem_fullpath; ?>?page=login">logged in</a>.</font></p>
+<?php
+	if ($RSDB_intern_user_id <= 0) {
+?>
+	<p><font size="2">Some of the features of the ReactOS Compatibility Database require that you have a <a href="<?php echo $RSDB_intern_loginsystem_fullpath; ?>?page=register">myReactOS account</a> and are <a href="<?php echo $RSDB_intern_loginsystem_fullpath; ?>?page=login">logged in</a>.</font></p>
+<?php
+	}
+?>
 <script language="JavaScript" type="text/JavaScript">
 <!--
 	document.getElementById('StartList').style.display = "block";

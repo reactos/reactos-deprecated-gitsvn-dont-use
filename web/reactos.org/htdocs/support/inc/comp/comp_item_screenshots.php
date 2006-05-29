@@ -42,8 +42,8 @@
 	
 	$result_page = mysql_fetch_array($query_page);		
 	
-	
-	echo "<h2>".$result_page['comp_name'] ." [". "ReactOS ".show_osversion($result_page['comp_osversion']) ."]</h2>"; 
+if ($result_page['comp_id']) {
+	echo "<h2>".$result_page['comp_name'] ." [". "ReactOS ".@show_osversion($result_page['comp_osversion']) ."]</h2>"; 
 	
 	include('inc/tree/tree_item_menubar.php');
 	
@@ -136,5 +136,5 @@ else {
 	echo '<p><b>EXIF-Data:</b><br />'.nl2br($result_screenshots["media_exif"]).'</p>';
 	echo '<p align="center"><b><a href="'.$RSDB_intern_link_item_item2.'screens">Show all screenshots</a></b></p>';
 }
-
+}
 ?>

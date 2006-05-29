@@ -42,8 +42,10 @@ $query_page = mysql_query("SELECT *
 
 $result_page = mysql_fetch_array($query_page);		
 
+if ($result_page['comp_id']) {
 
-	echo "<h2>".htmlentities($result_page['comp_name']) ." [". "ReactOS ".show_osversion($result_page['comp_osversion']) ."]</h2>"; 
+	echo "<h2>".htmlentities($result_page['comp_name']) ." [". "ReactOS ".@show_osversion($result_page['comp_osversion']) ."]</h2>"; 
+
 
 
 if ($RSDB_intern_user_id <= 0) {
@@ -132,7 +134,10 @@ else {
 
 <form name="RSDB_comp_testreport" method="post" action="<?php echo $RSDB_intern_link_submit_comp_test; ?>submit">
 
-<p><font size="2">Please write full sentenses and avoid abbreviations!</font></p>
+<p><font size="2">Please report compatibility with ReactOS release versions only,  write full sentenses and avoid abbreviations!</font></p>
+<p>&nbsp;</p>
+<p><font size="3"><?php echo "<b>".htmlentities($result_page['comp_name']) ."</b>"; ?></font> and <font size="3"><?php echo "<b>". "ReactOS ".show_osversion($result_page['comp_osversion']) ."</b>"; ?></font> release</p>
+<p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>You cannot submit compatibility test reports for unstable ReactOS revisions (SVN builds), please <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">submit</a> bugs/regressions to <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead. Thank you!</em></font></p>
 <p><font size="2"><strong>What works:</strong><br />
     <textarea name="txtwhatwork" cols="70" rows="5" id="txtwhatwork"><?php echo $RSDB_TEMP_txtwhatwork; ?></textarea>
 </font></p>
@@ -200,5 +205,6 @@ else {
 <?php
 	}
 	
+}
 }
 ?>

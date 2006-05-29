@@ -34,13 +34,13 @@
 	}
 
 ?>
-<a href="<?php echo $RSDB_intern_link_db_sec; ?>home"><?php echo $RSDB_intern_code_view_name; ?></a> &gt; Submit Appilication/Driver
+<a href="<?php echo $RSDB_intern_link_db_sec; ?>home"><?php echo $RSDB_intern_code_view_name; ?></a> &gt; Submit Application/Driver
 <a href="<?php echo $RSDB_intern_index_php; ?>?page=about"><img src="media/pictures/compatibility_small.jpg" vspace="1" border="0" align="right"></a>
 </h1> 
 <p>ReactOS Software and Hardware Compatibility Database.</p>
 
-<h1>Submit Appilication/Driver</h1>
-<h2>Submit Appilication/Driver</h2>
+<h1>Submit Application/Driver</h1>
+<h2>Submit Application/Driver</h2>
   <?php 
   
 if ($RSDB_intern_user_id <= 0) {
@@ -168,13 +168,17 @@ else {
               <p>&nbsp;</p>
               <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 				  <label for="searchinput"><strong>Application name:</strong></label> &nbsp;
-				  <input name="searchinput" type="text" id="searchinput" tabindex="0" onblur="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" onkeyup="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" size="30" maxlength="100"/>  <img id="ajaxload" src="images/ajax_loading.gif"  style="display: none" />
+				  <input name="searchinput" type="text" id="searchinput" tabindex="0" onblur="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" onkeyup="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" size="30" maxlength="100"/> 
+				  <font size="1"><em>(no vendor name, no versions number)</em></font> <img id="ajaxload" src="images/ajax_loading.gif"  style="display: none" />
 			  </font></p>
 			  <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 			  <div id="submitresult" style="display: none"></div>
 			  </font></p>
 			  <p>&nbsp;</p>
-			  <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>Note: &quot;application&quot; does mean in this context &quot;application or driver&quot;</em></font></p>
+			  <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em><strong>Note:</strong> <br>
+		      &quot;application&quot; means in this context &quot;application or driver&quot;.
+		      <br>
+		      You cannot submit data for unstable ReactOS releases (SVN builds), please <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">submit</a> bugs/regressions to <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead.			  </em></font></p>
 			  <hr size="1" noshade color="#CCCCCC" id="sdsd">			  <table width="100%"  border="0">
                 <tr>
                   <td width="50%" align="left"><button name="helpwizp" type="button" value="Help" onClick="WizHelp()">&nbsp;Help&nbsp;</button></td>
@@ -201,7 +205,7 @@ else {
               <tr>
                 <td height="21" colspan="2" align="left" valign="top">
 
-				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Application name:</strong>  <font size="1"><em>(e.g. &quot;Firefox&quot;, &quot;OpenOffice.org&quot;, etc; no version number/data)</em></font><br>
+				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Application name:</strong>  <font size="1"><em>(e.g. &quot;Firefox&quot;, &quot;OpenOffice.org&quot;, etc; no vendor name and no version number/data)</em></font><br>
                         <strong>
                         <input name="txtname" type="text" id="txtname" onkeyup="checkFields()" value="<?php echo htmlentities($RSDB_TEMP_txtname); ?>" size="50" maxlength="100" /> 
                     </strong></font></p>
@@ -225,7 +229,7 @@ else {
 				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 					<label for="searchvendor"><strong>Vendor name:</strong></label> 
 					</font><font face="Verdana, Arial, Helvetica, sans-serif"><font size="1"><i>(Vendor, Company, Team or Project)</i></font></font><font size="2" face="Verdana, Arial, Helvetica, sans-serif"></font><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><br />
-					<input name="searchvendor" type="text" id="searchvendor" tabindex="0" onkeyup="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" size="30" maxlength="100"/> <img id="ajaxvendload" src="images/ajax_loading.gif"  style="display: none" />
+					<input name="searchvendor" type="text" id="searchvendor" tabindex="0"  onBlur="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" onkeyup="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" size="30" maxlength="100"/> <img id="ajaxvendload" src="images/ajax_loading.gif"  style="display: none" />
 					</font></p>
 					<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 					<div id="vendorresult" style="display: none"></div>
@@ -306,6 +310,9 @@ else {
 		}
 		else {
 			document.getElementById('pag2').style.display = 'table';
+		}
+		if (document.getElementById('txtname').value == "") {
+			document.getElementById('txtname').value = document.getElementById('searchinput').value;
 		}
 	}	
 

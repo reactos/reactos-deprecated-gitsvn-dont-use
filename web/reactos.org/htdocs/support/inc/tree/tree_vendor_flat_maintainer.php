@@ -72,7 +72,7 @@
 		if (array_key_exists("txtinfo", $_POST)) $RSDB_TEMP_txtinfo=htmlspecialchars($_POST["txtinfo"]);
 
 		// Edit application group data:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_sec == "vendor" && $RSDB_TEMP_vendname != "" && $RSDB_TEMP_fullname != "" && $RSDB_TEMP_txturl != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_sec == "vendor" && $RSDB_TEMP_vendname != "" && $RSDB_TEMP_txturl != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
 			// Submit vendor entry:
 				
 			$update_group_entry = "INSERT INTO `rsdb_item_vendor` ( `vendor_id` , `vendor_name` , `vendor_visible` , `vendor_fullname` , `vendor_url` , `vendor_email` , `vendor_infotext` , `vendor_usrid` , `vendor_usrip` , `vendor_date` , `vendor_checked` ) 
@@ -102,7 +102,7 @@
 			  <a href="javascript:Show_vendentry()">Submit new vendor</a> | <a href="javascript:Show_requests()">Special requests</a></p>
 		    <div id="vendentry" style="display: block">
 			<fieldset>
-			<legend>Edit vendor data</legend>
+			<legend>Submit new vendor</legend>
 				<div align="left">
 				  <form name="form1" method="post" action="<?php echo $RSDB_intern_link_db_sec.$RSDB_SET_sec."#maintainerbar"; ?>">
 				      <p><font size="2">Vendor </font><font size="2">name: 
@@ -111,7 +111,7 @@
 			          <br>
 			          Vendor fullname:
                       <input name="fullname" type="text" id="fullname" size="70" maxlength="255">
-			          (max. 255 chars) <br>
+			          (max. 255 chars, optional) <br>
 			          <br>
 			          URL:										        
 			          <input name="txturl" type="text" id="txturl" size="70" maxlength="255">
@@ -119,7 +119,7 @@
 			            <br>
 			          E-Mail:												
 			          <input name="txtemail" type="text" id="txtemail" size="70" maxlength="100">
-						(max. 100 chars)		            </font></p>
+						(max. 100 chars, optional)		            </font></p>
 				      <p><font size="2">Information:<br>
                       <textarea name="txtinfo" cols="70" rows="5" id="txtinfo"></textarea>
 				      <input name="pmod" type="hidden" id="pmod" value="ok">
@@ -128,7 +128,7 @@
 		                <br>
 		                <input type="submit" name="Submit" value="Save">	
 	                  </font>				  
-				              </p>
+	                </p>
 				  </form>
 				</div>
 			</fieldset>

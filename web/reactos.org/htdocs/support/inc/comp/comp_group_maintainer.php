@@ -181,10 +181,10 @@
 					  </select>
 						<font size="1">						[<?php echo $result_maintainer_group_vendor['vendor_name']; ?>]</font>
 						<input name="pmod" type="hidden" id="pmod" value="ok">
-						<br>
-				      <br>
-				        <br>
-				        <input type="submit" name="Submit" value="Save">	
+					  </font>
+				      <p><font size="2"><em>All fields are requiered!</em></font></p>
+				      <font size="2">
+				      <input type="submit" name="Submit" value="Save">	
 			          </font>				  
 				  </form>
 				</div>

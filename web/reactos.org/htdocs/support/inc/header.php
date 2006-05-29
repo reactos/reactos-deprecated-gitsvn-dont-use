@@ -47,16 +47,18 @@ function create_head($page_title, $logo, $RSDB_langres)
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html lang="de">
+<html lang="<?php echo $RSDB_langres['lang_code']; ?>">
 <head>
-	<title>ReactOS Homepage - <?php echo $page_title ; ?></title>
+	<title>ReactOS <?php echo $page_title ; ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $RSDB_langres['charset']; ?>" />
-	<meta http-equiv="Pragma" content="no-cache" >
-	<meta name="Copyright" content="ReactOS Foundation" >
-	<meta name="generator" content="RSDB" >
-	<meta name="Content-language" content="<?php echo $RSDB_langres['lang_code']; ?>">
-	<meta name="Robots" content="index,follow" >
-	<LINK REL="SHORTCUT ICON" HREF="../favicon.ico" >
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta name="Description" content="The ReactOS Compatibility Database has stored a lot of information about application and driver compatibility with ReactOS." />
+	<meta name="Keywords" content="ReactOS, Compatibility, application, driver, RSDB, support, database, DB, test, report, rating, Ros32, Ros64, Win32, Win64, W32, W64, Wine, vendor, release, version" />
+	<meta name="Copyright" content="ReactOS Foundation" />
+	<meta name="Generator" content="RSDB" />
+	<meta name="Content-language" content="<?php echo $RSDB_langres['lang_code']; ?>" />
+	<meta name="Robots" content="index,follow" />
+	<LINK REL="SHORTCUT ICON" HREF="../favicon.ico" />
 	<link href="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>style.css" type="text/css" rel="stylesheet" />
 	<script src="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>smoothscroll.js" language="javascript"></script>
 	<script src="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>search.js" language="javascript"></script>

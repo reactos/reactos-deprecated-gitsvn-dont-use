@@ -39,7 +39,7 @@ function please_register() {
 	global $RSDB_intern_path_server;
 	global $RSDB_intern_loginsystem_path;
 	
-	msg_bar("<b>Login required!</b><br /><br />Please use the <a href=\"".$RSDB_intern_path_server.$RSDB_intern_loginsystem_path."?page=login\">login function</a> to get access or 
+	msg_bar("<b>Login required!</b><br /><br />Please use the <a href=\"".$RSDB_intern_path_server.$RSDB_intern_loginsystem_path."?page=login&amp;target=%2Fsupport%2F\">login function</a> to get access or 
 				<a href=\"".$RSDB_intern_path_server.$RSDB_intern_loginsystem_path."?page=register\">register an account</a> for free!");
 }
 

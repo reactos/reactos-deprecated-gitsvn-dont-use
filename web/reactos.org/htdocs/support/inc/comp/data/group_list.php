@@ -26,20 +26,39 @@
  *	2005 - 2006 
  */
 
-
 	// To prevent hacking activity:
 	if ( !defined('RSDB') )
 	{
 		die(" ");
 	}
 
-
 	$query_count_groups=mysql_query("SELECT COUNT('grpentr_id')
-							FROM `rsdb_groups`
-							WHERE `grpentr_visible` = '1'
-							AND `grpentr_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%' 
-							AND `grpentr_comp` = '1' ;");	
+							FROM `rsdb_groups`, `rsdb_item_vendor`
+							WHERE grpentr_vendor = vendor_id 
+							AND (`grpentr_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%' 
+								OR `vendor_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%')					
+							AND `grpentr_comp` = '1'
+							AND `vendor_visible` = '1'
+							AND `grpentr_visible` = '1'
+							 ;");	
 	$result_count_groups = mysql_fetch_row($query_count_groups);
+
+	if (!$result_count_groups[0]) {
+		// Remove temp characters and try again
+		$RSDB_SET_search = str_replace("-","",$RSDB_SET_search);
+		$RSDB_SET_search = str_replace("_","",$RSDB_SET_search);
+		$RSDB_SET_search = str_replace(" ","",$RSDB_SET_search);
+		$query_count_groups=mysql_query("SELECT COUNT('grpentr_id')
+								FROM `rsdb_groups`, `rsdb_item_vendor`
+								WHERE grpentr_vendor = vendor_id 
+								AND (`grpentr_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%' 
+									OR `vendor_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%')					
+								AND `grpentr_comp` = '1'
+								AND `vendor_visible` = '1'
+								AND `grpentr_visible` = '1'
+								 ;");	
+		$result_count_groups = mysql_fetch_row($query_count_groups);
+	}
 
 header( 'Content-type: text/xml' );
 echo '<?xml version="1.0" encoding="UTF-8"?>
@@ -56,13 +75,17 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 if ($RSDB_SET_search != "" || strlen($RSDB_SET_search) > 1) {
 
 	$query_page = mysql_query("SELECT * 
-								FROM `rsdb_groups` 
-								WHERE `grpentr_visible` = '1'
-								AND `grpentr_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%'  
+								FROM `rsdb_groups`, `rsdb_item_vendor`
+								WHERE grpentr_vendor = vendor_id 
+								AND (`grpentr_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%' 
+									OR `vendor_name` LIKE '%" . mysql_real_escape_string($RSDB_SET_search) . "%')					
 								AND `grpentr_comp` = '1'
-								ORDER BY `grpentr_name` ASC ;") ;
+								AND `vendor_visible` = '1'
+								AND `grpentr_visible` = '1'
+								ORDER BY `grpentr_name` ASC 
+								LIMIT 20 ;") ; // Limit to 20 entry
 	
-	while($result_page = mysql_fetch_array($query_page)) { // Pages
+	while($result_page = mysql_fetch_array($query_page)) {
 ?>
 	<dbentry>
 		<item id="<?php echo $result_page['grpentr_id']; ?>"><?php echo $result_page['grpentr_name']; ?></item>
