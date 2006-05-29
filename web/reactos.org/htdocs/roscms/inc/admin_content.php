@@ -287,6 +287,22 @@
 			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">'.$roscms_langres['ContTrans_All'].'</a>';
 		}
 		echo ' | ';
+		if ($rpm_lang_id == "layout") {	
+			echo '<b>Layout</b>';
+			$ros_cms_intern_content_lang = "AND content_type = 'layout'";
+		}
+		else {
+			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=layout">Layout</a>';
+		}
+		echo ' | ';
+		if ($rpm_lang_id == "error") {	
+			echo '<b>Error</b>';
+			$ros_cms_intern_content_lang = "AND content_type != 'default' AND content_type != 'layout'";
+		}
+		else {
+			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=error">Error</a>';
+		}
+		echo ' | ';
 	}
 
 		if ($rpm_lang_id == "nolang") {	
@@ -304,6 +320,14 @@
 		else {
 			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">'.$roscms_langres['ContTrans_International'].'</a>';
 		}
+
+	$sql_lang_usr="SELECT * 
+				FROM users
+				WHERE user_id = '".mysql_escape_string($roscms_intern_account_id)."'
+				LIMIT 1 ;";
+	$sql_query_lang_usr=mysql_query($sql_lang_usr);
+	$myrow_lang_usr=mysql_fetch_array($sql_query_lang_usr);
+
 	// Languages
 	$sql_lang="SELECT * 
 				FROM languages
@@ -317,13 +341,15 @@
 			}
 		}
 		$roscms_sel_lang = $myrow_lang[0];
-		echo ' | ';
-		if ($rpm_lang_id == $roscms_sel_lang) {	
-			echo '<b>'.$myrow_lang[1].'</b>';
-			$ros_cms_intern_content_lang = "AND content_lang = '".$roscms_sel_lang."'";
-		}
-		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
+		if ( ($roscms_sel_lang == $myrow_lang_usr['user_language'] && $rpm_page == "trans") || $rpm_page == "team" || $rpm_page == "dev" || $rpm_page == "admin") {
+			echo ' | ';
+			if ($rpm_lang_id == $roscms_sel_lang) {	
+				echo '<b>'.$myrow_lang[1].'</b>';
+				$ros_cms_intern_content_lang = "AND content_lang = '".$roscms_sel_lang."'";
+			}
+			else {
+				echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
+			}
 		}
 	}
 
@@ -597,6 +623,7 @@
 			else if ($result_content['content_lang'] != "all") {
 				echo $result_content['content_lang'];
 			}
+			echo '<br /><font size="1">'.$result_content['content_type'].'</font>';
 		?>
           </font></div></td>
       <td width="26%" valign="middle" bgcolor="<?php echo $farbe; ?>" title="<?php 
@@ -605,12 +632,12 @@
 		?>"> <pre><font face="Arial, Helvetica, sans-serif"><?php 
 			echo substr(htmlentities($result_content['content_text'], ENT_QUOTES), 0, 40)."..." ;
 		?></font></pre> </td>
-      <td width="7%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="right"><font face="Arial, Helvetica, sans-serif"> 
+      <td width="7%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			echo '<b><a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;diff='.$result_content['content_id'].'">'.$result_content['content_version'].'</a></b>';
+			echo '<b>'.$result_content['content_version'].'</b><br /><a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;diff='.$result_content['content_id'].'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'"><i>Diff-Tool</i></a>';
 		?>
           </font></div>
-        <div align="center"><font face="Arial, Helvetica, sans-serif"> </font></div></td>
+      <div align="center"><font face="Arial, Helvetica, sans-serif"> </font></div></td>
       <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_content['content_date']." ".$result_content['content_time'];;

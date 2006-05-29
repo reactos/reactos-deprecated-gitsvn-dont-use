@@ -109,20 +109,40 @@
               <optgroup label="languages"> 
 <?php 
 			if ($rpm_page != "trans") {
-?>
-              <option value="all"<?php if ($cmsros_intern_temp_lang_short == "all") { echo ' selected="selected"'; } echo ">".$roscms_langres['ContTrans_All']; ?></option>
-<?php
+				echo '<option value="all"';
+				if ($cmsros_intern_temp_lang_short == "all") {
+					echo ' selected="selected"';
+				}
+				echo ">".$roscms_langres['ContTrans_All']; 
+				echo "</option>";
 			}
 
-			  
+
+		$sql_lang_usr="SELECT * 
+					FROM users
+					WHERE user_id = '".mysql_escape_string($roscms_intern_account_id)."'
+					LIMIT 1 ;";
+		$sql_query_lang_usr=mysql_query($sql_lang_usr);
+		$myrow_lang_usr=mysql_fetch_array($sql_query_lang_usr);
+
 		// Languages
-		$sql_langa="SELECT * 
-					FROM languages
-					WHERE lang_level != '0'
-					ORDER BY 'lang_level' DESC";
-		$sql_query_langa=mysql_query($sql_langa);
+		if ($rpm_page == "trans") {
+			$sql_langa="SELECT * 
+						FROM languages
+						WHERE lang_level != '0'
+						AND lang_id = '".mysql_escape_string($myrow_lang_usr['user_language'])."'
+						ORDER BY 'lang_level' DESC";
+			$sql_query_langa=mysql_query($sql_langa);
+		}
+		else {
+			$sql_langa="SELECT * 
+						FROM languages
+						WHERE lang_level != '0'
+						ORDER BY 'lang_level' DESC";
+			$sql_query_langa=mysql_query($sql_langa);
+		}
 		while($myrow_langa=mysql_fetch_row($sql_query_langa)) {
-			if ($rpm_page == "trans" && $myrow_langa[0] == "en") {
+			if ($rpm_page == "trans" && $myrow_langa[0] == "en" && $myrow_lang_usr['user_language'] != "en") {
 				// temp
 			}
 			else {
@@ -534,7 +554,7 @@
 			$result_content_new_revision_preview = mysql_fetch_array($query_content_new_revision_preview);
 			$roscms_TEMP_cont_name = $result_content_new_revision_preview['content_name'];
 			echo "<p>".$roscms_langres['ContTrans_Save1']." '".$result_content_new_revision_preview['content_name']."' (old id='".$rpm_db_id."', new id='". $result_content_new_revision_preview["content_id"] ."') ".$roscms_langres['ContTrans_Save2']."</p>";		
-			echo "<p><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>".$roscms_langres['ContTrans_Save3']." (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
+			echo "<p><b><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>".$roscms_langres['ContTrans_Save3']."</b> (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
 			echo "<p><a href='".$_SERVER['HTTP_REFERER']."'>".$roscms_langres['ContTrans_Save4']." (revision ". $result_content['content_id'] .")</a></p>";
 			echo "<p>&nbsp;</p><p><fieldset><legend>".$roscms_langres['ContTrans_Preview']."</legend><br>".$result_content_new_revision_preview['content_text']."</fieldset></p>";
 		}
