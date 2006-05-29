@@ -42,6 +42,7 @@
 	
 	$result_page = mysql_fetch_array($query_page);		
 	
+	if ($result_page['comp_id']) {
 	
 	echo "<h2>".$result_page['comp_name'] ." [". "ReactOS ".show_osversion($result_page['comp_osversion']) ."]</h2>"; 
 	
@@ -67,4 +68,5 @@
 			include("inc/tools/forum_submit.php");
 			break;
 	}
+}
 ?>

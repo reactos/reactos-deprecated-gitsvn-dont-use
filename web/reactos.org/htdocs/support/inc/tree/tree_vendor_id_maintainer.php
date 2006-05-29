@@ -73,7 +73,7 @@
 
 
 		// Edit application group data:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_vendor != "" && $RSDB_TEMP_vendname != "" && $RSDB_TEMP_fullname != "" && $RSDB_TEMP_txturl != "" && $RSDB_TEMP_txtemail != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_vendor != "" && $RSDB_TEMP_vendname != "" && $RSDB_TEMP_txturl != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
 			// Update group entry:
 			$update_group_entry = "UPDATE `rsdb_item_vendor` SET `vendor_name` = '". mysql_real_escape_string($RSDB_TEMP_vendname) ."',
 								`vendor_fullname` = '". mysql_real_escape_string($RSDB_TEMP_fullname) ."',
@@ -136,7 +136,7 @@
 			          <br>
 			          Vendor fullname:
                       <input name="fullname" type="text" id="fullname" value="<?php echo $result_maintainer_vendor['vendor_fullname']; ?>" size="70" maxlength="255">
-			          (max. 255 chars) <br>
+			          (max. 255 chars, optional) <br>
 			          <br>
 			          URL:										        
 			          <input name="txturl" type="text" id="txturl" value="<?php echo $result_maintainer_vendor['vendor_url']; ?>" size="70" maxlength="255">
@@ -144,7 +144,7 @@
 			            <br>
 			          E-Mail:												
 			          <input name="txtemail" type="text" id="txtemail" value="<?php echo $result_maintainer_vendor['vendor_email']; ?>" size="70" maxlength="100">
-						(max. 100 chars)		            </font></p>
+						(max. 100 chars, optional)		            </font></p>
 				      <p><font size="2">Information:<br>
                       <textarea name="txtinfo" cols="70" rows="5" id="txtinfo"><?php echo $result_maintainer_vendor['vendor_infotext']; ?></textarea>
 				      <input name="pmod" type="hidden" id="pmod" value="ok">

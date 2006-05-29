@@ -312,7 +312,8 @@ else {
 		}
 	?>
               <p>&nbsp;</p>
-              <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>Note: You cannot submit data for unstable ReactOS releases (SVN builds). Please use <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead to <b>report current regressions</b>, to do so <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">please submit bugs</a>. Thank you!</em></font></p>
+              <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em><strong>Note:</strong><br> 
+              You cannot submit data for unstable ReactOS releases (SVN builds), please <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">submit</a> bugs/regressions to <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead.  Thank you!</em></font></p>
 			  <hr size="1" noshade color="#CCCCCC" id="sdsd">
 			  <table width="100%"  border="0">
                 <tr>
