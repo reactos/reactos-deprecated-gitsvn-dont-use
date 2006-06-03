@@ -1,29 +1,11 @@
 <?php
-    /*
-    RSDB - ReactOS Support Database
-    Copyright (C) 2005-2006  Klemens Friedl <frik85@reactos.org>
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-    */
 
 /*
  *	ReactOS Support Database System - RSDB
  *	
  *	(c) by Klemens Friedl <frik85>
  *	
- *	2005 - 2006 
+ *  11/2005, 12/2005, 01/2006, 02/2006
  */
 
 error_reporting(E_ALL);
@@ -33,10 +15,19 @@ if (get_magic_quotes_gpc()) {
 	die("ERROR: Disable 'magic quotes' in php.ini (=Off)");
 }
 
+
+
 //global $HTTP_GET_VARS; // set the Get var global
 
 
 	require_once("connect.db.php");
+
+
+
+	// stop MySQL bug (http://dev.mysql.com/doc/refman/4.1/en/news-4-1-20.html):
+	$SQLinjectionprevention ="SET GLOBAL sql_mode='NO_BACKSLASH_ESCAPES';";
+	$SQLinjectionprevention_query=mysql_query($SQLinjectionprevention);
+
 
 
 
