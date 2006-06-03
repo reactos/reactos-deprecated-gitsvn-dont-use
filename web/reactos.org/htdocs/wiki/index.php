@@ -62,6 +62,13 @@ if( !file_exists( 'LocalSettings.php' ) ) {
 require_once( './LocalSettings.php' );
 require_once( 'includes/Setup.php' );
 
+
+	// stop MySQL bug (http://dev.mysql.com/doc/refman/4.1/en/news-4-1-20.html):
+	$SQLinjectionprevention ="SET GLOBAL sql_mode='NO_BACKSLASH_ESCAPES';";
+	$SQLinjectionprevention_query=mysql_query($SQLinjectionprevention);
+
+
+
 wfProfileIn( 'main-misc-setup' );
 OutputPage::setEncodings(); # Not really used yet
 

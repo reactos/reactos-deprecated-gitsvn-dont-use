@@ -32,12 +32,19 @@ if (get_magic_quotes_gpc()) {
 	//include("./inc/db/connect_db.inc.php");
 	include("connect.db.php");
 
+
+	// stop MySQL bug (http://dev.mysql.com/doc/refman/4.1/en/news-4-1-20.html):
+	$SQLinjectionprevention ="SET GLOBAL sql_mode='NO_BACKSLASH_ESCAPES';";
+	$SQLinjectionprevention_query=mysql_query($SQLinjectionprevention);
+
+
+
 /*
  *	ReactOS CMS System - Version 2006-05-22
  *	
  *	(c) by Klemens Friedl <frik85>
  *	
- */ 
+ */
 
 	if ( !defined('ROSCMS_SYSTEM') ) {
 		define ("ROSCMS_SYSTEM", "Version 0.1"); // to prevent hacking activity
@@ -392,7 +399,7 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 			include("inc/body.php");
 			break;
 
-		case "generate_fast": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate"); TODO check why this link doesn't work -> errors, etc.?
+		case "generate_fast_secret": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate"); TODO check why this link doesn't work -> errors, etc.?
 			//require("inc/login.php");
 			include("inc/generate_page.php"); // static page generator
 			break;
