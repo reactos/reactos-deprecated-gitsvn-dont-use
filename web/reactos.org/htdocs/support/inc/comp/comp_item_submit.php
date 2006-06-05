@@ -207,7 +207,8 @@ else {
 
 				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Application name:</strong>  <font size="1"><em>(e.g. &quot;Firefox&quot;, &quot;OpenOffice.org&quot;, etc; no vendor name and no version number/data)</em></font><br>
                         <strong>
-                        <input name="txtname" type="text" id="txtname" onkeyup="checkFields()" value="<?php echo htmlentities($RSDB_TEMP_txtname); ?>" size="50" maxlength="100" /> 
+						<input name="txtname" type="text" id="txtname" onkeyup="checkFields()" value="<?php echo htmlentities($RSDB_TEMP_txtname); ?>" size="50" maxlength="100" /> 
+						<input name="txtregex" type="hidden" id="txtregex" value="\b[0-9]+\b" />			  
                     </strong></font></p>
 				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Short Description:</strong> <font size="1"><em>(255 characters)</em></font><br>
                         <input name="txtdesc" type="text" id="txtdesc" onkeyup="checkFields()" value="<?php echo htmlentities($RSDB_TEMP_txtdesc); ?>" size="50" maxlength="255" />
@@ -376,6 +377,10 @@ else {
 	}
 
 	function checkFields() {
+		var re;
+		var m;
+		var s;
+		
 		document.getElementById('category').style.background = '#FFFFFF';
 		document.getElementById('txtname').style.background = '#FFFFFF';
 		document.getElementById('txtdesc').style.background = '#FFFFFF';
@@ -420,6 +425,15 @@ else {
 			document.getElementById('txtvurl').style.background = '#FF9900';
 			checking = true;
 		}
+		
+		re = new RegExp(document.getElementById('txtregex').value);
+		m = re.exec(document.getElementById('txtname').value);
+		if (m != null) {
+			alert("Please remove the application version number from the application name field! You will be able to input the application version later!");
+			document.getElementById('txtname').style.background = '#FF9900';
+			checking = true;
+		}
+		
 		
 		if (checking == false) {
 			document.getElementById('Submit').disabled=false;
