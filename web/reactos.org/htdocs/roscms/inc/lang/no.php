@@ -27,160 +27,160 @@
 // Language settings
 $roscms_langres['charset'] = 'utf-8';
 //$roscms_langres['charset'] = 'iso-8859-1';
-$roscms_langres['lang_code'] = 'EN';
+$roscms_langres['lang_code'] = 'NO';
 
 			   
 // main menu
-$roscms_langres['Navigation'] = 'Navigation';
-$roscms_langres['Home'] = 'Home';
-$roscms_langres['Dev'] = 'Development';
-$roscms_langres['Community'] = 'Community';
-$roscms_langres['Support'] = 'Support';
-$roscms_langres['myReactOS'] = 'myReactOS';
+$roscms_langres['Navigation'] = 'Navigasjon';
+$roscms_langres['Home'] = 'Hjem';
+$roscms_langres['Dev'] = 'Utvikling';
+$roscms_langres['Community'] = 'Fellesskap';
+$roscms_langres['Support'] = 'Kompatibilitet';
+$roscms_langres['myReactOS'] = 'Min ReactOS';
 
 // Login bar:
-$roscms_langres['Account'] = 'Account';
-$roscms_langres['Login'] = 'Login';
-$roscms_langres['Logout'] = 'Logout';
-$roscms_langres['Global_Login_System'] = 'Global Login System';
-$roscms_langres['Register_Account'] = 'Register Account';
-$roscms_langres['Login_Nick'] = '&nbsp;Nick:&nbsp;';
-$roscms_langres['LoginPwd'] = '&nbsp;Pwd:&nbsp;';
+$roscms_langres['Account'] = 'Konto';
+$roscms_langres['Login'] = 'Logg inn';
+$roscms_langres['Logout'] = 'Logg ut';
+$roscms_langres['Global_Login_System'] = 'Nettverk Logg inn System';
+$roscms_langres['Register_Account'] = 'Register en Konto';
+$roscms_langres['Login_Nick'] = '&nbsp;Brukernavn:&nbsp;';
+$roscms_langres['LoginPwd'] = '&nbsp;Passord:&nbsp;';
 
 
 // myReactOS menu
-$roscms_langres['User_Profil_Overview'] = 'User Profile Overview';
-$roscms_langres['User_Profil'] = 'User Profile';
-$roscms_langres['Overview'] = 'Overview';
-$roscms_langres['Login_System'] = 'Login System';
-$roscms_langres['Messages'] = 'Messages';
-$roscms_langres['Contacts'] = 'Contacts';
-$roscms_langres['Favorites'] = 'Favorites';
-$roscms_langres['Documentation'] = 'Documentation';
-$roscms_langres['Account_Edit'] = 'Settings';
-$roscms_langres['Accountlist'] = 'User List';
+$roscms_langres['User_Profil_Overview'] = 'Bruker Profil Oversikt';
+$roscms_langres['User_Profil'] = 'Bruker Profil';
+$roscms_langres['Overview'] = 'Oversikt';
+$roscms_langres['Login_System'] = 'Logg inn System';
+$roscms_langres['Messages'] = 'Meldinger';
+$roscms_langres['Contacts'] = 'Kontakter';
+$roscms_langres['Favorites'] = 'Favoritter';
+$roscms_langres['Documentation'] = 'Dokumentasjon';
+$roscms_langres['Account_Edit'] = 'Innstillinger';
+$roscms_langres['Accountlist'] = 'Bruker liste';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'A powerful and easy to use interface to manage your ReactOS homepage account.';
-$roscms_langres['Account_Information'] = 'Account Information';
-$roscms_langres['Account_Information_description'] = 'A sum up of the account data ... &lt;placeholder&gt;';
+$roscms_langres['myReactOS_description'] = 'Et fullkraftig og lett bruker grensesnitt for å bestemme over din ReactOS hjemmeside konto.';
+$roscms_langres['Account_Information'] = 'Konto Informasjon';
+$roscms_langres['Account_Information_description'] = 'sumerer opp av konto dataene ... &lt;plass holder&gt;';
 
 // Right side bar:
-$roscms_langres['Latest_Release'] = 'Latest Release';
-$roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
+$roscms_langres['Latest_Release'] = 'Sist oppdatert';
+$roscms_langres['myReactOS_Developer_Quotes'] = 'Utvikling sitat';
 
 // Error 404
-$roscms_langres['Page_not_found'] = 'Page not found';
+$roscms_langres['Page_not_found'] = 'Siden ble ikke funnet';
 
 
 
 // Admin/Dev/Translator Interface
-$roscms_langres['Dev_Interface'] = 'Dev Interface';
-$roscms_langres['Dev_Overview'] = 'Overview';
-$roscms_langres['Dev_Pages'] = 'Pages';
-$roscms_langres['Dev_Contents'] = 'Contents';
-$roscms_langres['Dev_Help'] = 'Help';
+$roscms_langres['Dev_Interface'] = 'Dev grensesnitt';
+$roscms_langres['Dev_Overview'] = 'Oversikt';
+$roscms_langres['Dev_Pages'] = 'Sider';
+$roscms_langres['Dev_Contents'] = 'Innholdet';
+$roscms_langres['Dev_Help'] = 'Hjelp';
 
-$roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Developer Interface - Overview';
+$roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Fremkalle grensesnitt - Oversikt';
 
 
 
-$roscms_langres['ContTrans_Interface_Content'] = 'Dev Interface - Content';
+$roscms_langres['ContTrans_Interface_Content'] = 'Fremkaller grensesnitt - Innhold';
 $roscms_langres['ContTrans_Contents'] = 'Content';
-$roscms_langres['ContTrans_Interface_Pages'] = 'Dev Interface - Pages';
-$roscms_langres['ContTrans_Pages'] = 'Pages';
+$roscms_langres['ContTrans_Interface_Pages'] = 'Fremkaller grensesnitt - Sider';
+$roscms_langres['ContTrans_Pages'] = 'Sider';
 
-$roscms_langres['ContTrans_Profile'] = 'Profile';
+$roscms_langres['ContTrans_Profile'] = 'Profil';
 
-$roscms_langres['ContTrans_Action'] = 'Action';
-$roscms_langres['ContTrans_NewContent'] = 'New Content';
-$roscms_langres['ContTrans_NewPage'] = 'New Page';
+$roscms_langres['ContTrans_Action'] = 'Handling';
+$roscms_langres['ContTrans_NewContent'] = 'Ny Innhold';
+$roscms_langres['ContTrans_NewPage'] = 'Ny side';
 
-$roscms_langres['ContTrans_resetfilters'] = 'reset filters & sort';
-$roscms_langres['ContTrans_Info'] = 'Info';
-$roscms_langres['ContTrans_ContentID'] = 'Content ID';
-$roscms_langres['ContTrans_PageID'] = 'Page ID';
-$roscms_langres['ContTrans_Content'] = 'Content';
+$roscms_langres['ContTrans_resetfilters'] = 'restart filter & sorter';
+$roscms_langres['ContTrans_Info'] = 'Infomasjon';
+$roscms_langres['ContTrans_ContentID'] = 'Innhold ID';
+$roscms_langres['ContTrans_PageID'] = 'Side ID';
+$roscms_langres['ContTrans_Content'] = 'Innhold';
 $roscms_langres['ContTrans_Rev'] = 'Rev.';
-$roscms_langres['ContTrans_Date'] = 'Date';
-$roscms_langres['ContTrans_Time'] = 'Time';
-$roscms_langres['ContTrans_User'] = 'User';
-$roscms_langres['ContTrans_Language'] = 'Language';
-$roscms_langres['ContTrans_International'] = 'Original (English)';
-$roscms_langres['ContTrans_All'] = 'All';
+$roscms_langres['ContTrans_Date'] = 'Dato';
+$roscms_langres['ContTrans_Time'] = 'Klokkeslett';
+$roscms_langres['ContTrans_User'] = 'Bruker';
+$roscms_langres['ContTrans_Language'] = 'Språk';
+$roscms_langres['ContTrans_International'] = 'Original (Engelsk)';
+$roscms_langres['ContTrans_All'] = 'Alt';
 $roscms_langres['ContTrans_Filter'] = 'Filter';
-$roscms_langres['ContTrans_activecontent'] = 'active content';
-$roscms_langres['ContTrans_activepages'] = 'active pages';
-$roscms_langres['ContTrans_allcontent'] = 'all content';
-$roscms_langres['ContTrans_allpages'] = 'all pages';
-$roscms_langres['ContTrans_activeandvisiblecontent'] = 'active and visible content';
-$roscms_langres['ContTrans_currentuser'] = 'current user';
+$roscms_langres['ContTrans_activecontent'] = 'aktive innhold';
+$roscms_langres['ContTrans_activepages'] = 'aktive sider';
+$roscms_langres['ContTrans_allcontent'] = 'alt innhold';
+$roscms_langres['ContTrans_allpages'] = 'alle sider';
+$roscms_langres['ContTrans_activeandvisiblecontent'] = 'aktive og synlig innhold';
+$roscms_langres['ContTrans_currentuser'] = 'nåværende bruker';
 
-$roscms_langres['ContTrans_normalpages'] = 'normal pages';
-$roscms_langres['ContTrans_dynamicpages'] = 'dynamic pages';
+$roscms_langres['ContTrans_normalpages'] = 'normal sider';
+$roscms_langres['ContTrans_dynamicpages'] = 'dynamisk sider';
 
-$roscms_langres['ContTrans_history'] = 'history';
-$roscms_langres['ContTrans_Sortedby'] = 'Sorted by';
-$roscms_langres['ContTrans_contentid'] = 'content id';
-$roscms_langres['ContTrans_pageid'] = 'page id';
-$roscms_langres['ContTrans_date'] = 'date';
-$roscms_langres['ContTrans_user'] = 'user';
-$roscms_langres['ContTrans_active'] = 'active';
-$roscms_langres['ContTrans_Active'] = 'Active';
-$roscms_langres['ContTrans_visible'] = 'visible';
-$roscms_langres['ContTrans_Visible'] = 'Visible';
-$roscms_langres['ContTrans_version'] = 'version';
-$roscms_langres['ContTrans_extra'] = 'extra';
-$roscms_langres['ContTrans_Extra'] = 'Extra';
-$roscms_langres['ContTrans_language'] = 'language';
+$roscms_langres['ContTrans_history'] = 'historie';
+$roscms_langres['ContTrans_Sortedby'] = 'Sorteres etter';
+$roscms_langres['ContTrans_contentid'] = 'innhold id';
+$roscms_langres['ContTrans_pageid'] = 'side id';
+$roscms_langres['ContTrans_date'] = 'dato';
+$roscms_langres['ContTrans_user'] = 'bruker';
+$roscms_langres['ContTrans_active'] = 'aktiv';
+$roscms_langres['ContTrans_Active'] = 'Aktiv';
+$roscms_langres['ContTrans_visible'] = 'ikke aktiv';
+$roscms_langres['ContTrans_Visible'] = 'ikke aktiv';
+$roscms_langres['ContTrans_version'] = 'versjon';
+$roscms_langres['ContTrans_extra'] = 'ekstra';
+$roscms_langres['ContTrans_Extra'] = 'Ekstra';
+$roscms_langres['ContTrans_language'] = 'språk';
 $roscms_langres['ContTrans_editor'] = 'editor';
 $roscms_langres['ContTrans_Editor'] = 'Editor';
-$roscms_langres['ContTrans_Translate'] = 'Translate';
-$roscms_langres['ContTrans_Edit'] = 'View / Edit';
-$roscms_langres['ContTrans_Delete'] = 'Delete';
-$roscms_langres['ContTrans_filter_history'] = 'Filter: history';
+$roscms_langres['ContTrans_Translate'] = 'Oversette';
+$roscms_langres['ContTrans_Edit'] = 'Vis / Rediger';
+$roscms_langres['ContTrans_Delete'] = 'Slett';
+$roscms_langres['ContTrans_filter_history'] = 'Filter: historie';
 
-$roscms_langres['ContTrans_ViewEditContent'] = 'View / Edit content';
-$roscms_langres['ContTrans_ViewEditpage'] = 'View / Edit page';
-$roscms_langres['ContTrans_SaveContent'] = 'Save content';
+$roscms_langres['ContTrans_ViewEditContent'] = 'Vis / rediger innhold';
+$roscms_langres['ContTrans_ViewEditpage'] = 'Vis / rediger side';
+$roscms_langres['ContTrans_SaveContent'] = 'Lagre innhold';
 $roscms_langres['ContTrans_Type'] = 'Type';
-$roscms_langres['ContTrans_Description'] = 'Description';
-$roscms_langres['ContTrans_Username'] = 'Username';
-$roscms_langres['ContTrans_egAbout'] = 'e.g. &quot;about&quot;';
-$roscms_langres['ContTrans_checklang'] = 'Please check, if you have selected the right language, before you click "submit"!';
-$roscms_langres['ContTrans_SAVE'] = '<b>Save</b> (new version and new db entry)';
-$roscms_langres['ContTrans_UPDATE'] = '<b>Update</b>  (overwrite the current entry)';
-$roscms_langres['ContTrans_Save1'] = 'A new version of content';
-$roscms_langres['ContTrans_Save2'] = 'has been saved!';
-$roscms_langres['ContTrans_Save3'] = 'Go to the \'content edit\' page';
-$roscms_langres['ContTrans_Save4'] = 'Back to the \'content edit\' page';
-$roscms_langres['ContTrans_Save5'] = 'The page';
-$roscms_langres['ContTrans_Save6'] = 'View the page (dynamic version; new window)';
-$roscms_langres['ContTrans_Save7'] = 'Back to the \'page edit\' page';
+$roscms_langres['ContTrans_Description'] = 'Beskrivelse';
+$roscms_langres['ContTrans_Username'] = 'Brukernavn';
+$roscms_langres['ContTrans_egAbout'] = 'e.g. &quot;om&quot;';
+$roscms_langres['ContTrans_checklang'] = 'Vennligst sjekk, om du har valgt riktig språk, før du trykker "submit"!';
+$roscms_langres['ContTrans_SAVE'] = '<b>Lagre</b> (ny versjon og ny db fil)';
+$roscms_langres['ContTrans_UPDATE'] = '<b>Oppdater</b>  (overskriver nåværende fil)';
+$roscms_langres['ContTrans_Save1'] = 'En ny versjon av innholdet';
+$roscms_langres['ContTrans_Save2'] = ' har blitt lagret!';
+$roscms_langres['ContTrans_Save3'] = 'Gå til  \'innhold rediger\' side';
+$roscms_langres['ContTrans_Save4'] = 'Tilbake til \'innhold rediger\' side';
+$roscms_langres['ContTrans_Save5'] = 'Siden';
+$roscms_langres['ContTrans_Save6'] = 'Vis siden (dynamisk versjon; ny vindu)';
+$roscms_langres['ContTrans_Save7'] = 'Tilbake til \'innhold rediger\' side';
 
-$roscms_langres['ContTrans_Preview'] = 'Preview';
-$roscms_langres['ContTrans_PageTitle'] = 'Page Title';
-$roscms_langres['ContTrans_Extention'] = 'Extention';
+$roscms_langres['ContTrans_Preview'] = 'Forhåndsvisning';
+$roscms_langres['ContTrans_PageTitle'] = 'Side Tittel';
+$roscms_langres['ContTrans_Extention'] = 'Utvidelse';
 
-$roscms_langres['ContTrans_DevPageGenerator'] = 'Developer Interface - Page Generator';
-$roscms_langres['Dev_PageGenerator'] = 'Page Generator';
-$roscms_langres['Dev_PageGeneratorOverview'] = 'Page Generator Overview';
-$roscms_langres['ContTrans_Change'] = 'Change';
-$roscms_langres['ContTrans_LatestGen'] = 'Latest Gen.';
-$roscms_langres['ContTrans_UserGen'] = 'User (Generator)';
+$roscms_langres['ContTrans_DevPageGenerator'] = 'Utvike Grensesnitt - Side Generator';
+$roscms_langres['Dev_PageGenerator'] = 'Side Generator';
+$roscms_langres['Dev_PageGeneratorOverview'] = 'Side Generator Oversikt';
+$roscms_langres['ContTrans_Change'] = 'Endre';
+$roscms_langres['ContTrans_LatestGen'] = 'Nyeste Gen.';
+$roscms_langres['ContTrans_UserGen'] = 'Bruker (Generator)';
 
-$roscms_langres['ContTrans_Gen_desc'] = 'The static page generator can output the pages to files or to the browser.';
-$roscms_langres['ContTrans_Gen_menu1'] = 'Generate  all UPDATED static pages';
-$roscms_langres['ContTrans_Gen_menu2'] = 'Generate all static pages';
-$roscms_langres['ContTrans_Gen_menu3'] = 'Generate/view a specific static page';
-$roscms_langres['ContTrans_Gen_menu4'] = 'View page (dynamic from database)';
-$roscms_langres['ContTrans_Gen_menu3_desc'] = 'Generate one static page; e.g. if you want to update one specific page';
-$roscms_langres['ContTrans_allactivepages'] = 'all (active) pages';
+$roscms_langres['ContTrans_Gen_desc'] = ' statisk side generator utgang sidene til filer eller til nettleseren.';
+$roscms_langres['ContTrans_Gen_menu1'] = 'Generate  alt OPPDATERT statisk sider';
+$roscms_langres['ContTrans_Gen_menu2'] = 'Generate alle statisk sider';
+$roscms_langres['ContTrans_Gen_menu3'] = 'Generate/vis en spesifisk statisk side';
+$roscms_langres['ContTrans_Gen_menu4'] = 'Vis side (dynamisk fra database)';
+$roscms_langres['ContTrans_Gen_menu3_desc'] = 'Generate en statisk side; f.eks. hvis du ønsker å oppdatere en spesifikt side';
+$roscms_langres['ContTrans_allactivepages'] = 'alle (aktive) sider';
 
 
-$roscms_langres['ContTrans_yes'] = 'yes';
-$roscms_langres['ContTrans_no'] = 'no';
+$roscms_langres['ContTrans_yes'] = 'ja';
+$roscms_langres['ContTrans_no'] = 'nei';
 
 
 ?>
