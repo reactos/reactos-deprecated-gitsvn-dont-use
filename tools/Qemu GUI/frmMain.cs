@@ -330,7 +330,6 @@ namespace Qemu_GUI
             this.cboMachine.Name = "cboMachine";
             this.cboMachine.Size = new System.Drawing.Size(239, 21);
             this.cboMachine.TabIndex = 20;
-            this.cboMachine.SelectedIndexChanged += new System.EventHandler(this.cboMachineFrom_SelectedIndexChanged);
             // 
             // HardDisk2
             // 
@@ -907,6 +906,7 @@ namespace Qemu_GUI
             this.btnVDKImage.TabIndex = 8;
             this.btnVDKImage.Text = "...";
             this.btnVDKImage.UseVisualStyleBackColor = true;
+            this.btnVDKImage.Click += new System.EventHandler(this.btnVDKImage_Click);
             // 
             // btnUnmount
             // 
@@ -1394,10 +1394,6 @@ namespace Qemu_GUI
             this.openFile.Title = "Path to VDK";
             this.openFile.ValidateNames = false;
             // 
-            // folderBrowserDialog1
-            // 
-            this.folderBrowserDialog1.HelpRequest += new System.EventHandler(this.folderBrowserDialog1_HelpRequest);
-            // 
             // btnLoad
             // 
             this.btnLoad.Location = new System.Drawing.Point(12, 243);
@@ -1710,13 +1706,26 @@ namespace Qemu_GUI
         {
             qemu = new QEmu();
 
+            /* Fill a list with possible free driveletters */
+            ArrayList DriveLetters = new ArrayList();
+            for (int i = 100; i < 123; i++)
+            {
+                DriveLetters.Add(Convert.ToChar(i).ToString().ToUpper() + @":\");
+            }
+
             DriveInfo[] drives = DriveInfo.GetDrives();
             foreach (DriveInfo drive in drives)
             {
+                /* remove all driveletters which are in use */
+                DriveLetters.Remove(drive.RootDirectory.ToString());
                 if (drive.DriveType == DriveType.CDRom)
                     cboCDROM.Items.Add(drive.RootDirectory);  
             }
 
+            foreach (object o in DriveLetters)
+                cboVDKDrive.Items.Add(o);
+
+            cboVDKDrive.SelectedIndex = 0; 
             cboCDROM.SelectedIndex = 0;
             cboBootFrom.SelectedIndex = 1;
             cboImageFormat.SelectedIndex = 4;
@@ -1922,15 +1931,13 @@ namespace Qemu_GUI
 
         #endregion
 
-        private void folderBrowserDialog1_HelpRequest(object sender, EventArgs e)
+        private void btnVDKImage_Click(object sender, EventArgs e)
         {
-
-        }
-
-        private void cboMachineFrom_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-           
+            openFile.Filter = "VMWare Images (*.vmdk)|*.vmdk";
+            if (openFile.ShowDialog() == DialogResult.OK)
+            {
+                txtVDKImage.Text = openFile.FileName;  
+            }
         }
 
 
