@@ -18,7 +18,10 @@ namespace Qemu_GUI
         ARM_integratorcp926,
         ARM_integratorcp1026,
         ARM_versatilepb,
-        ARM_versatileab 
+        ARM_versatileab,
+        PPC_g3bw,                
+        PPC_mac99,
+        PPC_prep
     }
 
     [XmlRoot("Settings")]
@@ -149,6 +152,11 @@ namespace Qemu_GUI
                 case Platforms.ARM_versatilepb:
                 case Platforms.ARM_versatileab:
                     p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-arm.exe";
+                    break;
+                case Platforms.PPC_g3bw:                
+                case Platforms.PPC_mac99:
+                case Platforms.PPC_prep:
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-ppc.exe";
                     break;
         
             }     
@@ -407,6 +415,17 @@ namespace Qemu_GUI
                 case Platforms.ARM_versatileab:
                     buffer += "-M versatileab ";
                     break;
+                case Platforms.PPC_g3bw:
+                    buffer += "-M g3bw ";
+                    break;  
+                case Platforms.PPC_mac99:
+                    buffer += "-M mac99 ";
+                    break;
+                case Platforms.PPC_prep:
+                    buffer += "-M prep ";
+                    break;
+                    
+     
             }    
 
             /* Boot options */
