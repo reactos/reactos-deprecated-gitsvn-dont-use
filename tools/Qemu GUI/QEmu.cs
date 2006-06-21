@@ -365,6 +365,8 @@ namespace Qemu_GUI
             if (this.ES1370)
                 buffer += "es1370,";
 
+
+            Console.WriteLine(buffer.Substring(0, buffer.Length - 1) + " ");
             return buffer.Substring(0, buffer.Length - 1) + " ";
         }
             
@@ -402,7 +404,7 @@ namespace Qemu_GUI
             if (this.VBE3)
                 buffer += "-std-vga ";
 
-            if (this.GDBPort != "1234")
+            if (this.GDBPort != 1234)
                 buffer += "-p " + this.GDBPort.ToString() + " ";
 
             return buffer;
