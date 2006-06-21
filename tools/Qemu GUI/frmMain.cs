@@ -577,6 +577,7 @@ namespace Qemu_GUI
             // cboCDROM
             // 
             this.cboCDROM.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCDROM.Enabled = false;
             this.cboCDROM.FormattingEnabled = true;
             this.cboCDROM.Location = new System.Drawing.Point(61, 77);
             this.cboCDROM.Name = "cboCDROM";
