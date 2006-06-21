@@ -344,53 +344,26 @@ namespace Qemu_GUI
         {
             bool audio_on = (this.ES1370 | this.OPL2 | this.Soundblaster | this.Speaker);
 
-            bool audio_check = false;
             if (!audio_on)
                 return "";
 
             string buffer = "-soundhw ";
 
             if (this.Speaker)
-            {
-                buffer += "pcspk";
-                audio_check = true;
-            }
+                buffer += "pcspk,";
 
             if (this.Soundblaster)
-            {
-                if (audio_check == true)
-                    buffer += ",";
-                else
-                    audio_check = true;
- 
                 buffer += "sb16,";
-            }
 
             if (this.OPL2)
-            {
-                if (audio_check == true)
-                    buffer += ",";
-                else
-                    audio_check = true;
-
-                buffer += "adlib";
-            }
+                buffer += "adlib,";
 
             if (this.ES1370)
-            {
-                if (audio_check == true)
-                    buffer += ",";
-                else
-                    audio_check = true;
+                buffer += "es1370,";
 
-                buffer += "es1370";
-            }
-            
-            buffer += " ";
-
-            return buffer.Substring(0, buffer.Length - 1) + " "; 
+            return buffer.Substring(0, buffer.Length - 1) + " ";
         }
-
+            
     }
 
     public class Debug
