@@ -9,9 +9,20 @@ using System.IO;
 namespace Qemu_GUI
 {
 
+    public enum Platforms
+    {
+        x86 = 0,
+        x86_ISA,
+        x64,
+        x64_ISA
+    }
+
     [XmlRoot("Settings")]
     public class QEmu : IDisposable 
     {
+
+
+
         private Misc m_Misc = new Misc();
         private Floppies m_Floppies = new Floppies();
         private Harddisks m_Harddisks = new Harddisks();
@@ -60,19 +71,26 @@ namespace Qemu_GUI
             return m_LastError;
         }
 
-        public bool Start(string platfrom)
+        public bool Start(Platforms Platform)
         {
             Process p = new Process();
             
-            if (platfrom == "Standard PC 32Bit") 
-                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
-            if (platfrom == "Standard PC 64Bit") 
-                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe"; 
-            if (platfrom == "ISA only PC 32Bit") 
-                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
-            if (platfrom == "ISA only PC 64Bit")
-                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe"; 
-                       
+            switch (Platform)
+            {
+                case Platforms.x86:
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
+                    break;
+                case Platforms.x86_ISA:
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe";
+                    break;
+                case Platforms.x64:
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
+                    break;
+                case Platforms.x64_ISA:
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe";
+                    break;
+            }     
+    
             p.StartInfo.WorkingDirectory = this.Paths.QEmu;
             p.StartInfo.Arguments = GetArgv();
             p.StartInfo.RedirectStandardError = true;
@@ -179,7 +197,6 @@ namespace Qemu_GUI
             {
                 if (this.HDD[i].Enabled && (this.HDD[i].Path.Length > 0))
                     buffer += "-hd" + Convert.ToChar('a' + i) + " \"" + this.HDD[i].Path + "\" ";
-
             }
             return buffer;
         }
@@ -254,7 +271,7 @@ namespace Qemu_GUI
     public class Misc
     {
         [XmlElement("Machine")]
-        public string Machine;
+        public Platforms Machine;
         [XmlElement("Memory")]
         public int Memory;
         [XmlElement("CPUs")]
@@ -295,15 +312,21 @@ namespace Qemu_GUI
                 buffer += "-no-kqemu ";
 
             /* Machine settings */
-            if (this.Machine == "Standard PC 32Bits") 
-                buffer += "-M pc ";
-            if (this.Machine == "Standard PC 64Bits") 
-                buffer += "-M pc ";
-            if (this.Machine == "ISA only PC 32Bits") 
-                buffer += "-M isapc ";
-            if (this.Machine == "ISA only PC 64Bits") 
-                buffer += "-M isapc ";
-         
+            switch (this.Machine)
+            {
+                case Platforms.x86:
+                    buffer += "-M pc ";
+                    break;
+                case Platforms.x86_ISA:
+                    buffer += "-M isapc ";
+                    break;
+                case Platforms.x64:
+                    buffer += "-M pc ";
+                    break;
+                case Platforms.x64_ISA:
+                    buffer += "-M isapc ";
+                    break;
+            }    
 
             /* Boot options */
             switch (this.BootFrom)

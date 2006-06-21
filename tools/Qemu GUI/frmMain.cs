@@ -319,12 +319,13 @@ namespace Qemu_GUI
             // cboMachine
             // 
             this.cboMachine.DisplayMember = "1";
+            this.cboMachine.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMachine.FormattingEnabled = true;
             this.cboMachine.Items.AddRange(new object[] {
-            "Standard PC 32Bits",
-            "ISA only PC 32Bits",
-            "Standard PC 64Bits",
-            "ISA only PC 64Bits"});
+            "Standard PC 32Bit",
+            "ISA only PC 32Bit",
+            "Standard PC 64Bit",
+            "ISA only PC 64Bit"});
             this.cboMachine.Location = new System.Drawing.Point(19, 19);
             this.cboMachine.Name = "cboMachine";
             this.cboMachine.Size = new System.Drawing.Size(239, 21);
@@ -1660,7 +1661,7 @@ namespace Qemu_GUI
         private void btnLaunch_Click(object sender, System.EventArgs e)
         {
             SaveSettings();
-            if (!qemu.Start(cboMachine.SelectedItem.ToString()))
+            if (!qemu.Start((Platforms)cboMachine.SelectedIndex))
             {
                 frmError fError = new frmError();
                 fError.txtError.Text = qemu.GetLastError();
@@ -1817,7 +1818,7 @@ namespace Qemu_GUI
         private void LoadSettings()
         {
             /* Misc */
-            cboMachine.Text = qemu.Misc.Machine;  
+            cboMachine.SelectedIndex = (int) qemu.Misc.Machine;  
             numMemory.Value = qemu.Misc.Memory;
             numSMP.Value = qemu.Misc.CPUs;
             cboBootFrom.Text = qemu.Misc.BootFrom;
@@ -1871,7 +1872,7 @@ namespace Qemu_GUI
         private void SaveSettings()
         {
             /* Misc */            
-            qemu.Misc.Machine = cboMachine.SelectedText;
+            qemu.Misc.Machine = (Platforms) cboMachine.SelectedIndex;
             qemu.Misc.Memory = (int) numMemory.Value;
             qemu.Misc.CPUs = (int) numSMP.Value;
             qemu.Misc.BootFrom = cboBootFrom.Text;
