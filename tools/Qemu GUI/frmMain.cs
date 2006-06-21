@@ -509,6 +509,8 @@ namespace Qemu_GUI
             // chkSetClock
             // 
             this.chkSetClock.AutoSize = true;
+            this.chkSetClock.Checked = true;
+            this.chkSetClock.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkSetClock.Location = new System.Drawing.Point(16, 21);
             this.chkSetClock.Name = "chkSetClock";
             this.chkSetClock.Size = new System.Drawing.Size(71, 17);
@@ -532,9 +534,9 @@ namespace Qemu_GUI
             this.chkVGAoutput.AutoSize = true;
             this.chkVGAoutput.Location = new System.Drawing.Point(16, 51);
             this.chkVGAoutput.Name = "chkVGAoutput";
-            this.chkVGAoutput.Size = new System.Drawing.Size(118, 17);
+            this.chkVGAoutput.Size = new System.Drawing.Size(136, 17);
             this.chkVGAoutput.TabIndex = 20;
-            this.chkVGAoutput.Text = "Display VGA output";
+            this.chkVGAoutput.Text = " VGA Display output off";
             this.chkVGAoutput.UseVisualStyleBackColor = true;
             // 
             // chkFullscreen
@@ -656,6 +658,7 @@ namespace Qemu_GUI
             // 
             // txtFloppyB
             // 
+            this.txtFloppyB.Enabled = false;
             this.txtFloppyB.Location = new System.Drawing.Point(32, 113);
             this.txtFloppyB.Name = "txtFloppyB";
             this.txtFloppyB.Size = new System.Drawing.Size(369, 20);
@@ -663,6 +666,7 @@ namespace Qemu_GUI
             // 
             // txtFloppyA
             // 
+            this.txtFloppyA.Enabled = false;
             this.txtFloppyA.Location = new System.Drawing.Point(32, 49);
             this.txtFloppyA.Name = "txtFloppyA";
             this.txtFloppyA.Size = new System.Drawing.Size(369, 20);
@@ -739,6 +743,7 @@ namespace Qemu_GUI
             // 
             // txtHDD
             // 
+            this.txtHDD.Enabled = false;
             this.txtHDD.Location = new System.Drawing.Point(73, 163);
             this.txtHDD.Name = "txtHDD";
             this.txtHDD.Size = new System.Drawing.Size(341, 20);
@@ -746,6 +751,7 @@ namespace Qemu_GUI
             // 
             // txtHDC
             // 
+            this.txtHDC.Enabled = false;
             this.txtHDC.Location = new System.Drawing.Point(73, 122);
             this.txtHDC.Name = "txtHDC";
             this.txtHDC.Size = new System.Drawing.Size(341, 20);
@@ -753,6 +759,7 @@ namespace Qemu_GUI
             // 
             // txtHDB
             // 
+            this.txtHDB.Enabled = false;
             this.txtHDB.Location = new System.Drawing.Point(73, 77);
             this.txtHDB.Name = "txtHDB";
             this.txtHDB.Size = new System.Drawing.Size(341, 20);
@@ -760,6 +767,7 @@ namespace Qemu_GUI
             // 
             // txtHDA
             // 
+            this.txtHDA.Enabled = false;
             this.txtHDA.Location = new System.Drawing.Point(73, 30);
             this.txtHDA.Name = "txtHDA";
             this.txtHDA.Size = new System.Drawing.Size(341, 20);
