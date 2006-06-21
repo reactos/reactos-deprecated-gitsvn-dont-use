@@ -30,6 +30,7 @@ namespace Qemu_GUI
         private Debug m_Debug = new Debug();
         private Paths m_Paths = new Paths();
         private CDROM m_CDROM = new CDROM();
+        private Tools m_Tools = new Tools();
         private string m_LastError = "";
 
         public QEmu()
@@ -69,6 +70,55 @@ namespace Qemu_GUI
         public string GetLastError()
         {
             return m_LastError;
+        }
+
+        public bool MountImage()
+        {
+            Process p = new Process();
+            p.StartInfo.FileName = this.Paths.VDK + "\\vdk.exe";
+            p.StartInfo.WorkingDirectory = this.Paths.VDK;
+            p.StartInfo.Arguments = "open * " + "\"" + this.Tools.vdk.Image + "\"" + @" /RW /L:" + this.Tools.vdk.DriveLetter.Substring(0, 1);
+            Console.WriteLine(p.StartInfo.Arguments);  
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            try
+            {
+                p.Start();
+                m_LastError = p.StandardOutput.ReadToEnd();
+                if (m_LastError.Length > 0)
+                    return false;
+            }
+            catch
+            {
+                m_LastError = "vdk not found!";
+                return false;
+            }
+            return true;
+        }
+
+        public bool UnmountImage()
+        {
+            Process p = new Process();
+            p.StartInfo.FileName = this.Paths.VDK + "\\vdk.exe";
+            p.StartInfo.WorkingDirectory = this.Paths.VDK;
+            p.StartInfo.Arguments = "CLOSE * /F";
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            try
+            {
+                p.Start();
+                m_LastError = p.StandardError.ReadToEnd();
+                if (m_LastError.Length > 0)
+                    return false;
+            }
+            catch
+            {
+                m_LastError = "vdk not found!";
+                return false;
+            }
+            return true;
         }
 
         public bool Start(Platforms Platform)
@@ -117,6 +167,13 @@ namespace Qemu_GUI
         {
             get { return m_Misc; }
             set { this.m_Misc = value; }
+        }
+
+        [XmlElement("Tools")]
+        public Tools Tools
+        {
+            get { return m_Tools; }
+            set { this.m_Tools = value; }
         }
 
         [XmlElement("Floppies")]
@@ -346,6 +403,34 @@ namespace Qemu_GUI
         }
 
         public Misc()
+        {
+        }
+    }
+
+    public class Tools
+    {
+        private VDK m_VDK = new VDK();
+
+        [XmlElement("VDK")]
+        public VDK vdk
+        {
+            get { return this.m_VDK; }
+            set { this.m_VDK = value; }
+        }
+        
+        public Tools()
+        {
+        }
+    }
+
+    public class VDK
+    {
+        [XmlElement("Image")]
+        public string Image = "";
+        [XmlElement("DriveLetter")]
+        public string DriveLetter = "";
+
+        public VDK()
         {
         }
     }
