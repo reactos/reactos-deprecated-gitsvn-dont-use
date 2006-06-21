@@ -19,8 +19,6 @@ namespace Qemu_GUI
         private System.Windows.Forms.GroupBox grpMachine;
         private System.Windows.Forms.TabPage tabMisc;
         private System.Windows.Forms.TabControl HardDisk2;
-        private System.Windows.Forms.RadioButton optStandardPC;
-        private System.Windows.Forms.RadioButton optLegacyPC;
         private System.Windows.Forms.GroupBox grpFloppy;
         private System.Windows.Forms.CheckBox chkFloppyA;
         private System.Windows.Forms.CheckBox chkFloppyB;
@@ -127,6 +125,7 @@ namespace Qemu_GUI
         private Label lblImage;
         private TextBox txtVDKImage;
         private ComboBox cboVDKDrive;
+        private ComboBox cboMachineFrom;
         private QEmu qemu;
 
 		public frmMain()
@@ -165,8 +164,6 @@ namespace Qemu_GUI
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.grpMachine = new System.Windows.Forms.GroupBox();
-            this.optLegacyPC = new System.Windows.Forms.RadioButton();
-            this.optStandardPC = new System.Windows.Forms.RadioButton();
             this.HardDisk2 = new System.Windows.Forms.TabControl();
             this.tabMisc = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -274,6 +271,7 @@ namespace Qemu_GUI
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.cboMachineFrom = new System.Windows.Forms.ComboBox();
             this.grpMachine.SuspendLayout();
             this.HardDisk2.SuspendLayout();
             this.tabMisc.SuspendLayout();
@@ -310,34 +308,13 @@ namespace Qemu_GUI
             // 
             // grpMachine
             // 
-            this.grpMachine.Controls.Add(this.optLegacyPC);
-            this.grpMachine.Controls.Add(this.optStandardPC);
+            this.grpMachine.Controls.Add(this.cboMachineFrom);
             this.grpMachine.Location = new System.Drawing.Point(3, 3);
             this.grpMachine.Name = "grpMachine";
             this.grpMachine.Size = new System.Drawing.Size(274, 48);
             this.grpMachine.TabIndex = 2;
             this.grpMachine.TabStop = false;
             this.grpMachine.Text = "Machine";
-            // 
-            // optLegacyPC
-            // 
-            this.optLegacyPC.CausesValidation = false;
-            this.optLegacyPC.Location = new System.Drawing.Point(154, 16);
-            this.optLegacyPC.Name = "optLegacyPC";
-            this.optLegacyPC.Size = new System.Drawing.Size(98, 24);
-            this.optLegacyPC.TabIndex = 5;
-            this.optLegacyPC.Text = "ISA only PC";
-            // 
-            // optStandardPC
-            // 
-            this.optStandardPC.CausesValidation = false;
-            this.optStandardPC.Checked = true;
-            this.optStandardPC.Location = new System.Drawing.Point(19, 16);
-            this.optStandardPC.Name = "optStandardPC";
-            this.optStandardPC.Size = new System.Drawing.Size(104, 24);
-            this.optStandardPC.TabIndex = 4;
-            this.optStandardPC.TabStop = true;
-            this.optStandardPC.Text = "Standard PC";
             // 
             // HardDisk2
             // 
@@ -1417,6 +1394,18 @@ namespace Qemu_GUI
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
+            // cboMachineFrom
+            // 
+            this.cboMachineFrom.FormattingEnabled = true;
+            this.cboMachineFrom.Items.AddRange(new object[] {
+            "Standard PC",
+            "ISA only PC"});
+            this.cboMachineFrom.Location = new System.Drawing.Point(19, 19);
+            this.cboMachineFrom.Name = "cboMachineFrom";
+            this.cboMachineFrom.Size = new System.Drawing.Size(239, 21);
+            this.cboMachineFrom.TabIndex = 20;
+            this.cboMachineFrom.Text = "Standard PC";
+            // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -1522,28 +1511,28 @@ namespace Qemu_GUI
         #region Harddisks
         private void btnBrowseHDA_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDA.Text = openFile.FileName;
         }
 
         private void btnBrowseHDB_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
             if (openFile.ShowDialog() == DialogResult.OK)
                 qemu.Harddisks.HDD[1].Path = openFile.FileName;
         }
 
         private void btnBrowseHDC_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDC.Text = openFile.FileName;
         }
 
         private void btnBrowseHDD_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDD.Text = openFile.FileName;
         }
@@ -1821,8 +1810,7 @@ namespace Qemu_GUI
         private void LoadSettings()
         {
             /* Misc */
-            optStandardPC.Checked = qemu.Misc.StandardPC;
-            optLegacyPC.Checked = !qemu.Misc.StandardPC;
+            cboMachineFrom.Text = qemu.Misc.Machine;            
             numMemory.Value = qemu.Misc.Memory;
             numSMP.Value = qemu.Misc.CPUs;
             cboBootFrom.Text = qemu.Misc.BootFrom;
@@ -1874,8 +1862,8 @@ namespace Qemu_GUI
 
         private void SaveSettings()
         {
-            /* Misc */
-            qemu.Misc.StandardPC = optStandardPC.Checked;
+            /* Misc */            
+            qemu.Misc.Machine = cboMachineFrom.SelectedText;
             qemu.Misc.Memory = (int) numMemory.Value;
             qemu.Misc.CPUs = (int) numSMP.Value;
             qemu.Misc.BootFrom = cboBootFrom.Text;
