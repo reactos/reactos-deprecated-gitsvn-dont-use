@@ -60,10 +60,19 @@ namespace Qemu_GUI
             return m_LastError;
         }
 
-        public bool Start()
+        public bool Start(string platfrom)
         {
             Process p = new Process();
-            p.StartInfo.FileName = this.Paths.QEmu;
+            
+            if (platfrom == "Standard PC 32Bits") 
+                p.StartInfo.FileName = this.Paths.QEmu+"\\qemu.exe";
+            if (platfrom == "Standard PC 64Bits") 
+                p.StartInfo.FileName = this.Paths.QEmu+"\\qemu-system-x86_64.exe"; 
+            if (platfrom == "ISA only PC 32Bits") 
+                p.StartInfo.FileName = this.Paths.QEmu+"\\qemu.exe";
+            if (platfrom == "ISA only PC 64Bits")
+                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe"; 
+                       
             p.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.Paths.QEmu);
             p.StartInfo.Arguments = GetArgv();
             p.StartInfo.RedirectStandardError = true;
@@ -79,7 +88,7 @@ namespace Qemu_GUI
             }
             catch 
             {
-                m_LastError = "qemu.exe not found!";
+                m_LastError = "qemu not found!";
                 return false;
             }
             return true;
@@ -136,7 +145,7 @@ namespace Qemu_GUI
 
         private string GetArgv()
         {
-            string arg = "-L " + Path.GetDirectoryName(this.Paths.QEmu) + " ";
+            string arg = "-L " + this.Paths.QEmu + " ";
 
             arg += Misc.ToString();
             arg += Floppies.ToString();  
@@ -286,11 +295,15 @@ namespace Qemu_GUI
                 buffer += "-no-kqemu ";
 
             /* Machine settings */
-            if (this.Machine == "Standard PC")
+            if (this.Machine == "Standard PC 32Bits") 
                 buffer += "-M pc ";
-            if (this.Machine == "ISA only PC")
+            if (this.Machine == "Standard PC 64Bits") 
+                buffer += "-M pc ";
+            if (this.Machine == "ISA only PC 32Bits") 
                 buffer += "-M isapc ";
-    
+            if (this.Machine == "ISA only PC 64Bits") 
+                buffer += "-M isapc ";
+         
 
             /* Boot options */
             switch (this.BootFrom)
