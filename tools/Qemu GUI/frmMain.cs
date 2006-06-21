@@ -529,9 +529,9 @@ namespace Qemu_GUI
             this.chkVGAoutput.AutoSize = true;
             this.chkVGAoutput.Location = new System.Drawing.Point(16, 51);
             this.chkVGAoutput.Name = "chkVGAoutput";
-            this.chkVGAoutput.Size = new System.Drawing.Size(136, 17);
+            this.chkVGAoutput.Size = new System.Drawing.Size(105, 17);
             this.chkVGAoutput.TabIndex = 20;
-            this.chkVGAoutput.Text = " VGA Display output off";
+            this.chkVGAoutput.Text = " VGA Display Off";
             this.chkVGAoutput.UseVisualStyleBackColor = true;
             // 
             // chkFullscreen
