@@ -164,6 +164,7 @@ namespace Qemu_GUI
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.grpMachine = new System.Windows.Forms.GroupBox();
+            this.cboMachineFrom = new System.Windows.Forms.ComboBox();
             this.HardDisk2 = new System.Windows.Forms.TabControl();
             this.tabMisc = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
@@ -271,7 +272,6 @@ namespace Qemu_GUI
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
-            this.cboMachineFrom = new System.Windows.Forms.ComboBox();
             this.grpMachine.SuspendLayout();
             this.HardDisk2.SuspendLayout();
             this.tabMisc.SuspendLayout();
@@ -315,6 +315,21 @@ namespace Qemu_GUI
             this.grpMachine.TabIndex = 2;
             this.grpMachine.TabStop = false;
             this.grpMachine.Text = "Machine";
+            // 
+            // cboMachineFrom
+            // 
+            this.cboMachineFrom.DisplayMember = "1";
+            this.cboMachineFrom.FormattingEnabled = true;
+            this.cboMachineFrom.Items.AddRange(new object[] {
+            "Standard PC 32Bits",
+            "ISA only PC 32Bits",
+            "Standard PC 64Bits",
+            "ISA only PC 64Bits"});
+            this.cboMachineFrom.Location = new System.Drawing.Point(19, 19);
+            this.cboMachineFrom.Name = "cboMachineFrom";
+            this.cboMachineFrom.Size = new System.Drawing.Size(239, 21);
+            this.cboMachineFrom.TabIndex = 20;
+            this.cboMachineFrom.SelectedIndexChanged += new System.EventHandler(this.cboMachineFrom_SelectedIndexChanged);
             // 
             // HardDisk2
             // 
@@ -367,6 +382,8 @@ namespace Qemu_GUI
             // chkKQEmu
             // 
             this.chkKQEmu.AutoSize = true;
+            this.chkKQEmu.Checked = true;
+            this.chkKQEmu.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkKQEmu.Location = new System.Drawing.Point(19, 106);
             this.chkKQEmu.Name = "chkKQEmu";
             this.chkKQEmu.Size = new System.Drawing.Size(177, 17);
@@ -1376,6 +1393,10 @@ namespace Qemu_GUI
             this.openFile.Title = "Path to VDK";
             this.openFile.ValidateNames = false;
             // 
+            // folderBrowserDialog1
+            // 
+            this.folderBrowserDialog1.HelpRequest += new System.EventHandler(this.folderBrowserDialog1_HelpRequest);
+            // 
             // btnLoad
             // 
             this.btnLoad.Location = new System.Drawing.Point(12, 243);
@@ -1393,18 +1414,6 @@ namespace Qemu_GUI
             this.btnSave.TabIndex = 6;
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // cboMachineFrom
-            // 
-            this.cboMachineFrom.FormattingEnabled = true;
-            this.cboMachineFrom.Items.AddRange(new object[] {
-            "Standard PC",
-            "ISA only PC"});
-            this.cboMachineFrom.Location = new System.Drawing.Point(19, 19);
-            this.cboMachineFrom.Name = "cboMachineFrom";
-            this.cboMachineFrom.Size = new System.Drawing.Size(239, 21);
-            this.cboMachineFrom.TabIndex = 20;
-            this.cboMachineFrom.Text = "Standard PC";
             // 
             // frmMain
             // 
@@ -1651,7 +1660,7 @@ namespace Qemu_GUI
         private void btnLaunch_Click(object sender, System.EventArgs e)
         {
             SaveSettings();
-            if (!qemu.Start())
+            if (!qemu.Start(cboMachineFrom.SelectedItem.ToString()))
             {
                 frmError fError = new frmError();
                 fError.txtError.Text = qemu.GetLastError();
@@ -1715,6 +1724,7 @@ namespace Qemu_GUI
             cboCDROM.SelectedIndex = 0;
             cboBootFrom.SelectedIndex = 1;
             cboImageFormat.SelectedIndex = 4;
+            cboMachineFrom.SelectedIndex = 0;
 
             /* try to load config.xml from current directory */
             try
@@ -1761,9 +1771,13 @@ namespace Qemu_GUI
         #region Paths
         private void btnQEmuPath_Click(object sender, EventArgs e)
         {
-            openFile.Filter = "Executable files (*.exe)|*.exe"; 
-            if (openFile.ShowDialog() == DialogResult.OK)
-                txtQEmuPath.Text = openFile.FileName; 
+            //openFile.Filter = "Executable files (*.exe)|*.exe"; 
+
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                txtQEmuPath.Text = folderBrowserDialog1.SelectedPath;
+                qemu.Paths.QEmu = txtQEmuPath.Text; 
+            }
         }
 
         private void btnVDKBrowse_Click(object sender, EventArgs e)
@@ -1911,6 +1925,17 @@ namespace Qemu_GUI
         }
 
         #endregion
+
+        private void folderBrowserDialog1_HelpRequest(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cboMachineFrom_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+           
+        }
 
 
  
