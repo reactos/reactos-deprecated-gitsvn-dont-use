@@ -34,8 +34,8 @@ namespace Qemu_GUI
             long d = Size * 1024;
             string argv = " create -f " + Format + " \""+ FileName + "\" " + d.ToString(); ;
             Process p = new Process();
-            p.StartInfo.FileName = Path.GetDirectoryName (this.Paths.QEmu) + "\\" + "qemu-img.exe";
-            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.Paths.QEmu);
+            p.StartInfo.FileName = this.Paths.QEmu + "\\" + "qemu-img.exe";
+            p.StartInfo.WorkingDirectory = this.Paths.QEmu;
             p.StartInfo.Arguments = argv;
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.UseShellExecute = false;
@@ -64,16 +64,16 @@ namespace Qemu_GUI
         {
             Process p = new Process();
             
-            if (platfrom == "Standard PC 32Bits") 
-                p.StartInfo.FileName = this.Paths.QEmu+"\\qemu.exe";
-            if (platfrom == "Standard PC 64Bits") 
-                p.StartInfo.FileName = this.Paths.QEmu+"\\qemu-system-x86_64.exe"; 
-            if (platfrom == "ISA only PC 32Bits") 
-                p.StartInfo.FileName = this.Paths.QEmu+"\\qemu.exe";
-            if (platfrom == "ISA only PC 64Bits")
+            if (platfrom == "Standard PC 32Bit") 
+                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
+            if (platfrom == "Standard PC 64Bit") 
+                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe"; 
+            if (platfrom == "ISA only PC 32Bit") 
+                p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
+            if (platfrom == "ISA only PC 64Bit")
                 p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe"; 
                        
-            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.Paths.QEmu);
+            p.StartInfo.WorkingDirectory = this.Paths.QEmu;
             p.StartInfo.Arguments = GetArgv();
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.UseShellExecute = false;
@@ -377,6 +377,8 @@ namespace Qemu_GUI
 
         [XmlElement("VBE3")]
         public bool VBE3;
+        [XmlElement("GDBPort")]
+        public int GDBPort;
 
         public override string ToString()
         {
@@ -399,6 +401,9 @@ namespace Qemu_GUI
             /*  Standard VGA */
             if (this.VBE3)
                 buffer += "-std-vga ";
+
+            if (this.GDBPort != "1234")
+                buffer += "-p " + this.GDBPort.ToString() + " ";
 
             return buffer;
         }
