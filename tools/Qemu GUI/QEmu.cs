@@ -17,6 +17,7 @@ namespace Qemu_GUI
         private Audio m_Audio = new Audio();
         private Debug m_Debug = new Debug();
         private Paths m_Paths = new Paths();
+        private CDROM m_CDROM = new CDROM();
 
         public QEmu()
         {
@@ -77,6 +78,13 @@ namespace Qemu_GUI
             set { this.m_Floppies = value; }
         }
 
+        [XmlElement("CDROM")]
+        public CDROM CDROM
+        {
+            get { return m_CDROM; }
+            set { this.m_CDROM = value; }
+        }
+
         [XmlElement("Harddisks")]
         public Harddisks Harddisks
         {
@@ -132,6 +140,15 @@ namespace Qemu_GUI
                     arg = arg + "-hd" + ((char) i + 97) + " " + this.Harddisks.HDD[i].Path + " ";
             }
 
+
+            /* CD-ROM */
+            if (this.CDROM.Enabled)
+            {
+                if (this.CDROM.UseFromHost)
+                    arg = arg + "-cdrom " + this.CDROM.HostDrive + " ";
+                else if (this.CDROM.Image.Length >  0)
+                    arg = arg + "-cdrom " + this.CDROM.Image + " ";
+            }
 
             return arg;
         }
@@ -251,6 +268,22 @@ namespace Qemu_GUI
         public string FileName;
 
         public ParPort()
+        {
+        }
+    }
+
+    public class CDROM
+    {
+        [XmlAttribute("Image")]
+        public string Image;
+        [XmlAttribute("UseFromHost")]
+        public bool UseFromHost;
+        [XmlAttribute("HostDrive")]
+        public string HostDrive;
+        [XmlAttribute("Enabled")]
+        public bool Enabled;
+
+        public CDROM()
         {
         }
     }
