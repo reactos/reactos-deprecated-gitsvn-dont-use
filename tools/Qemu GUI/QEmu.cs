@@ -169,18 +169,9 @@ namespace Qemu_GUI
             for (int i = 0; i < 4; i++)
             {
                 if (this.HDD[i].Enabled && (this.HDD[i].Path.Length > 0))
-                {
-                   if (i == 0)
-                       buffer += "-hda \"" + this.HDD[i].Path + "\" ";
-                   if (i == 1)
-                       buffer += "-hdb \"" + this.HDD[i].Path + "\" ";
-                   if (i == 2)
-                       buffer += "-hdc \"" + this.HDD[i].Path + "\" ";
-                   if (i == 3)
-                       buffer += "-hdd \""+ this.HDD[i].Path + "\" ";
-
-                }
+                   buffer += String.Format(@"-hd{0} ""{1}""", (char) ('a' + i), this.HDD[i].Path);
             }
+            Console.WriteLine(buffer);
             return buffer;
         }
 
