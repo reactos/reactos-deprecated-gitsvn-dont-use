@@ -169,7 +169,7 @@ namespace Qemu_GUI
             for (int i = 0; i < 4; i++)
             {
                 if (this.HDD[i].Enabled && (this.HDD[i].Path.Length > 0))
-                    buffer += "-hd" + ((char)i + 97) + " " + (char) 34 + this.HDD[i].Path + (char) 34 +" ";
+                    buffer += "-hd" + ((char) (i + 97)) + " " + (char) 34 + this.HDD[i].Path + (char) 34 +" ";
             }
             return buffer;
         }
