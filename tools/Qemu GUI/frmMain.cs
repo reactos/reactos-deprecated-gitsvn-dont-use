@@ -223,6 +223,7 @@ namespace Qemu_GUI
             this.btnMount = new System.Windows.Forms.Button();
             this.lblImage = new System.Windows.Forms.Label();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
+            this.lblImageSizeMB = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.txtImageSize = new System.Windows.Forms.TextBox();
             this.lblImageSize = new System.Windows.Forms.Label();
@@ -273,7 +274,6 @@ namespace Qemu_GUI
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
-            this.lblImageSizeMB = new System.Windows.Forms.Label();
             this.grpMachine.SuspendLayout();
             this.HardDisk2.SuspendLayout();
             this.tabMisc.SuspendLayout();
@@ -327,7 +327,11 @@ namespace Qemu_GUI
             "Standard PC 32Bit",
             "ISA only PC 32Bit",
             "Standard PC 64Bit",
-            "ISA only PC 64Bit"});
+            "ISA only PC 64Bit",
+            "ARM Integrator/CP (ARM926EJ-S) ",
+            "ARM Integrator/CP (ARM1026EJ-S)",
+            "ARM Versatile/PB  (ARM926EJ-S)",
+            "ARM Versatile/AB  (ARM926EJ-S)"});
             this.cboMachine.Location = new System.Drawing.Point(19, 19);
             this.cboMachine.Name = "cboMachine";
             this.cboMachine.Size = new System.Drawing.Size(239, 21);
@@ -952,6 +956,15 @@ namespace Qemu_GUI
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Harddisk Tools";
             // 
+            // lblImageSizeMB
+            // 
+            this.lblImageSizeMB.AutoSize = true;
+            this.lblImageSizeMB.Location = new System.Drawing.Point(83, 42);
+            this.lblImageSizeMB.Name = "lblImageSizeMB";
+            this.lblImageSizeMB.Size = new System.Drawing.Size(23, 13);
+            this.lblImageSizeMB.TabIndex = 8;
+            this.lblImageSizeMB.Text = "MB";
+            // 
             // label11
             // 
             this.label11.Location = new System.Drawing.Point(125, 24);
@@ -1414,15 +1427,6 @@ namespace Qemu_GUI
             this.btnSave.TabIndex = 6;
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
-            // 
-            // lblImageSizeMB
-            // 
-            this.lblImageSizeMB.AutoSize = true;
-            this.lblImageSizeMB.Location = new System.Drawing.Point(83, 42);
-            this.lblImageSizeMB.Name = "lblImageSizeMB";
-            this.lblImageSizeMB.Size = new System.Drawing.Size(23, 13);
-            this.lblImageSizeMB.TabIndex = 8;
-            this.lblImageSizeMB.Text = "MB";
             // 
             // frmMain
             // 

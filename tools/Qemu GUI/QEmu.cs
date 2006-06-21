@@ -14,7 +14,11 @@ namespace Qemu_GUI
         x86 = 0,
         x86_ISA,
         x64,
-        x64_ISA
+        x64_ISA,       
+        ARM_integratorcp926,
+        ARM_integratorcp1026,
+        ARM_versatilepb,
+        ARM_versatileab 
     }
 
     [XmlRoot("Settings")]
@@ -71,6 +75,7 @@ namespace Qemu_GUI
         {
             return m_LastError;
         }
+
 
         public bool MountImage()
         {
@@ -138,7 +143,14 @@ namespace Qemu_GUI
                     break;
                 case Platforms.x64_ISA:
                     p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe";
+                    break;       
+                case Platforms.ARM_integratorcp926:
+                case Platforms.ARM_integratorcp1026:
+                case Platforms.ARM_versatilepb:
+                case Platforms.ARM_versatileab:
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-arm.exe";
                     break;
+        
             }     
     
             p.StartInfo.WorkingDirectory = this.Paths.QEmu;
@@ -380,6 +392,20 @@ namespace Qemu_GUI
                     break;
                 case Platforms.x64_ISA:
                     buffer += "-M isapc ";
+                    break;
+                case Platforms.ARM_integratorcp926:
+                    buffer += "-M integratorcp926 ";
+                    break;
+
+                case Platforms.ARM_integratorcp1026:
+                    buffer += "-M integratorcp1026 ";
+                    break;
+
+                case Platforms.ARM_versatilepb:
+                    buffer += "-M versatilepb ";
+                    break;
+                case Platforms.ARM_versatileab:
+                    buffer += "-M versatileab ";
                     break;
             }    
 
