@@ -331,7 +331,10 @@ namespace Qemu_GUI
             "ARM Integrator/CP (ARM926EJ-S) ",
             "ARM Integrator/CP (ARM1026EJ-S)",
             "ARM Versatile/PB  (ARM926EJ-S)",
-            "ARM Versatile/AB  (ARM926EJ-S)"});
+            "ARM Versatile/AB  (ARM926EJ-S)",
+            "PPC Heathrow based PowerMAC",
+            "PPC Mac99 based PowerMAC",
+            "PPC PowerPC PREP platform"});
             this.cboMachine.Location = new System.Drawing.Point(19, 19);
             this.cboMachine.Name = "cboMachine";
             this.cboMachine.Size = new System.Drawing.Size(239, 21);
