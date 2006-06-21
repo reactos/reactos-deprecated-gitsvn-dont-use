@@ -56,7 +56,7 @@ namespace Qemu_GUI
         private System.Windows.Forms.Button btnLaunch;
         private System.Windows.Forms.GroupBox groupBox9;
         private System.Windows.Forms.Button btnCreateImage;
-        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label lblImageSize;
         private System.Windows.Forms.TextBox txtImageSize;
         private System.Windows.Forms.TabPage tabNetwork;
         private System.Windows.Forms.TabPage tabDebug;
@@ -126,6 +126,7 @@ namespace Qemu_GUI
         private TextBox txtVDKImage;
         private ComboBox cboVDKDrive;
         private ComboBox cboMachine;
+        private Label lblImageSizeMB;
         private QEmu qemu;
 
 		public frmMain()
@@ -224,7 +225,7 @@ namespace Qemu_GUI
             this.groupBox9 = new System.Windows.Forms.GroupBox();
             this.label11 = new System.Windows.Forms.Label();
             this.txtImageSize = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
+            this.lblImageSize = new System.Windows.Forms.Label();
             this.btnCreateImage = new System.Windows.Forms.Button();
             this.cboImageFormat = new System.Windows.Forms.ComboBox();
             this.tabAudio = new System.Windows.Forms.TabPage();
@@ -272,6 +273,7 @@ namespace Qemu_GUI
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.lblImageSizeMB = new System.Windows.Forms.Label();
             this.grpMachine.SuspendLayout();
             this.HardDisk2.SuspendLayout();
             this.tabMisc.SuspendLayout();
@@ -937,9 +939,10 @@ namespace Qemu_GUI
             // 
             // groupBox9
             // 
+            this.groupBox9.Controls.Add(this.lblImageSizeMB);
             this.groupBox9.Controls.Add(this.label11);
             this.groupBox9.Controls.Add(this.txtImageSize);
-            this.groupBox9.Controls.Add(this.label12);
+            this.groupBox9.Controls.Add(this.lblImageSize);
             this.groupBox9.Controls.Add(this.btnCreateImage);
             this.groupBox9.Controls.Add(this.cboImageFormat);
             this.groupBox9.Location = new System.Drawing.Point(4, 3);
@@ -951,7 +954,7 @@ namespace Qemu_GUI
             // 
             // label11
             // 
-            this.label11.Location = new System.Drawing.Point(96, 24);
+            this.label11.Location = new System.Drawing.Point(125, 24);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(48, 12);
             this.label11.TabIndex = 5;
@@ -965,17 +968,17 @@ namespace Qemu_GUI
             this.txtImageSize.TabIndex = 3;
             this.txtImageSize.Text = "512";
             // 
-            // label12
+            // lblImageSize
             // 
-            this.label12.Location = new System.Drawing.Point(13, 24);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(64, 24);
-            this.label12.TabIndex = 2;
-            this.label12.Text = "Image Size";
+            this.lblImageSize.Location = new System.Drawing.Point(13, 24);
+            this.lblImageSize.Name = "lblImageSize";
+            this.lblImageSize.Size = new System.Drawing.Size(64, 24);
+            this.lblImageSize.TabIndex = 2;
+            this.lblImageSize.Text = "Size";
             // 
             // btnCreateImage
             // 
-            this.btnCreateImage.Location = new System.Drawing.Point(190, 36);
+            this.btnCreateImage.Location = new System.Drawing.Point(201, 36);
             this.btnCreateImage.Name = "btnCreateImage";
             this.btnCreateImage.Size = new System.Drawing.Size(93, 23);
             this.btnCreateImage.TabIndex = 1;
@@ -991,7 +994,7 @@ namespace Qemu_GUI
             "qcow",
             "raw",
             "vmdk"});
-            this.cboImageFormat.Location = new System.Drawing.Point(99, 39);
+            this.cboImageFormat.Location = new System.Drawing.Point(128, 39);
             this.cboImageFormat.Name = "cboImageFormat";
             this.cboImageFormat.Size = new System.Drawing.Size(56, 21);
             this.cboImageFormat.TabIndex = 7;
@@ -1411,6 +1414,15 @@ namespace Qemu_GUI
             this.btnSave.TabIndex = 6;
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // lblImageSizeMB
+            // 
+            this.lblImageSizeMB.AutoSize = true;
+            this.lblImageSizeMB.Location = new System.Drawing.Point(83, 42);
+            this.lblImageSizeMB.Name = "lblImageSizeMB";
+            this.lblImageSizeMB.Size = new System.Drawing.Size(23, 13);
+            this.lblImageSizeMB.TabIndex = 8;
+            this.lblImageSizeMB.Text = "MB";
             // 
             // frmMain
             // 
