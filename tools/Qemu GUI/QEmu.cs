@@ -32,7 +32,7 @@ namespace Qemu_GUI
         public bool CreateImage(string FileName, long Size, string Format)
         {
             long d = Size * 1024;
-            string argv = " create -f " + Format + " " + (char) 34 + FileName + (char) 34 + " " + d.ToString(); ;
+            string argv = " create -f " + Format + " \""+ FileName + "\" " + d.ToString(); ;
             Process p = new Process();
             p.StartInfo.FileName = Path.GetDirectoryName (this.Paths.QEmu) + "\\" + "qemu-img.exe";
             p.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.Paths.QEmu);
@@ -169,7 +169,17 @@ namespace Qemu_GUI
             for (int i = 0; i < 4; i++)
             {
                 if (this.HDD[i].Enabled && (this.HDD[i].Path.Length > 0))
-                    buffer += "-hd" + ((char) (i + 97)) + " " + (char) 34 + this.HDD[i].Path + (char) 34 +" ";
+                {
+                   if (i == 0)
+                       buffer += "-hda \"" + this.HDD[i].Path + "\" ";
+                   if (i == 1)
+                       buffer += "-hdb \"" + this.HDD[i].Path + "\" ";
+                   if (i == 2)
+                       buffer += "-hdc \"" + this.HDD[i].Path + "\" ";
+                   if (i == 3)
+                       buffer += "-hdd \""+ this.HDD[i].Path + "\" ";
+
+                }
             }
             return buffer;
         }
@@ -197,10 +207,10 @@ namespace Qemu_GUI
         {
             string buffer = "";
             if (this.FDD[0].Enabled && (this.FDD[0].Path.Length > 0))
-                buffer += "-fda " + (char) 34 + this.FDD[0].Path + (char) 34 + " ";
+                buffer += "-fda \"" + this.FDD[0].Path + "\" ";
 
             if (this.FDD[1].Enabled && (this.FDD[1].Path.Length > 0))
-                buffer += "-fdb " + (char) 34 + this.FDD[1].Path + (char) 34 + " ";
+                buffer += "-fdb \"" + this.FDD[1].Path + "\" ";
 
             return buffer;
         }
@@ -243,8 +253,8 @@ namespace Qemu_GUI
 
     public class Misc
     {
-        [XmlElement("StandardPC")]
-        public bool StandardPC;
+        [XmlElement("Machine")]
+        public string Machine;
         [XmlElement("Memory")]
         public int Memory;
         [XmlElement("CPUs")]
@@ -285,10 +295,11 @@ namespace Qemu_GUI
                 buffer += "-no-kqemu ";
 
             /* Machine settings */
-            if (!this.StandardPC)
-                buffer += "-M isapc ";
-            else
+            if (this.Machine == "Standard PC")
                 buffer += "-M pc ";
+            if (this.Machine == "ISA only PC")
+                buffer += "-M isapc ";
+    
 
             /* Boot options */
             switch (this.BootFrom)
