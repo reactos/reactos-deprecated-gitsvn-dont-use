@@ -910,21 +910,21 @@ namespace Qemu_GUI
             // 
             // btnUnmount
             // 
-            this.btnUnmount.Enabled = false;
             this.btnUnmount.Location = new System.Drawing.Point(353, 77);
             this.btnUnmount.Name = "btnUnmount";
             this.btnUnmount.Size = new System.Drawing.Size(93, 23);
             this.btnUnmount.TabIndex = 5;
             this.btnUnmount.Text = "Unmount";
+            this.btnUnmount.Click += new System.EventHandler(this.btnUnmount_Click);
             // 
             // btnMount
             // 
-            this.btnMount.Enabled = false;
             this.btnMount.Location = new System.Drawing.Point(255, 77);
             this.btnMount.Name = "btnMount";
             this.btnMount.Size = new System.Drawing.Size(93, 23);
             this.btnMount.TabIndex = 3;
             this.btnMount.Text = "Mount";
+            this.btnMount.Click += new System.EventHandler(this.btnMount_Click);
             // 
             // lblImage
             // 
@@ -1874,8 +1874,11 @@ namespace Qemu_GUI
             chkSerialToFile.Checked = qemu.Debug.SerialPort.Redirect;
             chkParallelToFile.Checked = qemu.Debug.ParallelPort.Redirect;
             chkVBE30.Checked = qemu.Debug.VBE3;
-            txtGDBPort.Text = qemu.Debug.GDBPort.ToString();     
+            txtGDBPort.Text = qemu.Debug.GDBPort.ToString();
 
+            /* Tools */
+            txtVDKImage.Text = qemu.Tools.vdk.Image;
+            cboVDKDrive.Text = qemu.Tools.vdk.DriveLetter;
         }
 
         private void SaveSettings()
@@ -1927,6 +1930,10 @@ namespace Qemu_GUI
             qemu.Debug.ParallelPort.Redirect = chkParallelToFile.Checked;
             qemu.Debug.VBE3 = chkVBE30.Checked;
             qemu.Debug.GDBPort = Int32.Parse(txtGDBPort.Text);
+
+            /* Tools */
+            qemu.Tools.vdk.Image = txtVDKImage.Text;
+            qemu.Tools.vdk.DriveLetter = cboVDKDrive.Text;
         }
 
         #endregion
@@ -1937,6 +1944,27 @@ namespace Qemu_GUI
             if (openFile.ShowDialog() == DialogResult.OK)
             {
                 txtVDKImage.Text = openFile.FileName;  
+            }
+        }
+
+        private void btnUnmount_Click(object sender, EventArgs e)
+        {
+            if (!qemu.UnmountImage())
+            {
+                frmError fError = new frmError();
+                fError.txtError.Text = qemu.GetLastError();
+                fError.ShowDialog(this);
+            }
+        }
+
+        private void btnMount_Click(object sender, EventArgs e)
+        {
+            SaveSettings(); 
+            if (!qemu.MountImage())
+            {
+                frmError fError = new frmError();
+                fError.txtError.Text = qemu.GetLastError();
+                fError.ShowDialog(this);
             }
         }
 
