@@ -474,7 +474,7 @@ namespace Qemu_GUI
                 if (this.UseFromHost)
                     buffer = "-cdrom " + this.HostDrive + " ";
                 else if (this.Image.Length > 0)
-                    buffer = "-cdrom " + (char)34 + this.Image + (char)34 + " ";
+                    buffer = "-cdrom \"" + this.Image + "\" ";
             }
             return buffer;
         }
