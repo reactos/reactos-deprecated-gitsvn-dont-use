@@ -6,64 +6,56 @@ using System.Windows.Forms;
 using System.Data;
 using System.Globalization;
 using System.IO;
-using System.Diagnostics;
+using System.Xml.Serialization;
 
 namespace Qemu_GUI
 {
 	/// <summary>
 	/// Summary description for Form1.
 	/// </summary>
-	public class Form1 : System.Windows.Forms.Form
+	public class frmMain : System.Windows.Forms.Form
 	{
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabMisc;
         private System.Windows.Forms.TabControl HardDisk2;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton2;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.GroupBox grpFloppy;
+        private System.Windows.Forms.CheckBox chkFloppyA;
+        private System.Windows.Forms.CheckBox chkFloppyB;
+        private System.Windows.Forms.Button btnBrowseFloppyA;
+        private System.Windows.Forms.Button btnBrowseFloppyB;
+        private System.Windows.Forms.TabPage tabFloppy;
         private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.CheckBox checkBox5;
-        private System.Windows.Forms.CheckBox checkBox6;
-        private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.Button btnBrowseHDB;
+        private System.Windows.Forms.Button btnBrowseHDA;
+        private System.Windows.Forms.CheckBox chkUseHDA;
+        private System.Windows.Forms.Button btnBrowseHDD;
+        private System.Windows.Forms.Button btnBrowseHDC;
+        private System.Windows.Forms.CheckBox chkUseHDD;
+        private System.Windows.Forms.CheckBox chkUseHDC;
+        private System.Windows.Forms.CheckBox chkUseHDB;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.Button button8;
-        private System.Windows.Forms.CheckBox checkBox8;
+        private System.Windows.Forms.Button btnBrowseCDROM;
+        private System.Windows.Forms.CheckBox chkUseCDROM;
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton radioButton4;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TabPage HardDisk;
-        private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.TabPage tabCDROM;
+        private System.Windows.Forms.TabPage tabAudio;
         private System.Windows.Forms.GroupBox groupBox5;
         private System.Windows.Forms.CheckBox checkBox7;
         private System.Windows.Forms.CheckBox checkBox9;
         private System.Windows.Forms.CheckBox checkBox11;
         private System.Windows.Forms.CheckBox checkBox12;
-        private System.Windows.Forms.TabPage tabPage6;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.TabPage tabTools;
+        private System.Windows.Forms.ComboBox cboBootFrom;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.RadioButton radioButton5;
-        private System.Windows.Forms.RadioButton radioButton6;
         private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.RadioButton radioButton7;
-        private System.Windows.Forms.RadioButton radioButton8;
-        private System.Windows.Forms.RadioButton radioButton9;
-        private System.Windows.Forms.RadioButton radioButton10;
-        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button btnLaunch;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Label label9;
@@ -72,24 +64,14 @@ namespace Qemu_GUI
         private System.Windows.Forms.GroupBox groupBox8;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.GroupBox groupBox9;
-        private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Button btnCreateImage;
         private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage7;
-        private System.Windows.Forms.TabPage tabPage8;
-        private System.Windows.Forms.TextBox textBox5;
+        private System.Windows.Forms.TextBox txtImageSize;
+        private System.Windows.Forms.TabPage tabNetwork;
+        private System.Windows.Forms.TabPage tabDebug;
+        private System.Windows.Forms.TabPage tabAbout;
         private System.Windows.Forms.GroupBox groupBox10;
         private System.Windows.Forms.GroupBox groupBox11;
-        private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.RadioButton radioButton11;
-        private System.Windows.Forms.RadioButton radioButton12;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Button button15;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button button16;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button button17;
         private System.Windows.Forms.GroupBox groupBox12;
         private System.Windows.Forms.CheckBox checkBox10;
         private System.Windows.Forms.Button button18;
@@ -107,19 +89,35 @@ namespace Qemu_GUI
         private System.Windows.Forms.GroupBox groupBox16;
         private System.Windows.Forms.Button button20;
         private System.Windows.Forms.CheckBox checkBox16;
-        private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.OpenFileDialog openFile;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.Windows.Forms.TabPage tabPage9;
-        private System.Windows.Forms.ComboBox comboBox3;
+        private System.Windows.Forms.ComboBox cboImageFormat;
         private System.Windows.Forms.Label label11;
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container components = null;
+        private Label lblMB;
+        private CheckBox chkSetClock;
+        private NumericUpDown numMemory;
+        private NumericUpDown numSMP;
+        private Label lblCPUs;
+        private CheckBox chkKQEmu;
+        private CheckBox chkFullscreen;
+        private CheckBox chkVGAoutput;
+        private TextBox textBox5;
+        private TextBox txtFloppyA;
+        private TextBox txtFloppyB;
+        private TextBox txtCDROM;
+        private PictureBox pictureBox1;
+        private PictureBox pictureBox4;
+        private PictureBox pictureBox3;
+        private PictureBox pictureBox2;
+        private Button btnLoad;
+        private Button btnSave;
+        private IContainer components;
+        private GroupBox groupBox2;
+        private Button btnQEmuPath;
+        private QEmu qemu;
 
-		public Form1()
+		public frmMain()
 		{
 			//
 			// Required for Windows Form Designer support
@@ -153,59 +151,62 @@ namespace Qemu_GUI
 		/// </summary>
 		private void InitializeComponent()
 		{
-            System.Resources.ResourceManager resources = new System.Resources.ResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.HardDisk2 = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.radioButton11 = new System.Windows.Forms.RadioButton();
-            this.radioButton12 = new System.Windows.Forms.RadioButton();
+            this.tabMisc = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnQEmuPath = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.chkKQEmu = new System.Windows.Forms.CheckBox();
+            this.lblCPUs = new System.Windows.Forms.Label();
+            this.numSMP = new System.Windows.Forms.NumericUpDown();
+            this.numMemory = new System.Windows.Forms.NumericUpDown();
+            this.lblMB = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.radioButton5 = new System.Windows.Forms.RadioButton();
-            this.label4 = new System.Windows.Forms.Label();
-            this.radioButton6 = new System.Windows.Forms.RadioButton();
-            this.textBox3 = new System.Windows.Forms.TextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.cboBootFrom = new System.Windows.Forms.ComboBox();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
-            this.radioButton7 = new System.Windows.Forms.RadioButton();
-            this.radioButton8 = new System.Windows.Forms.RadioButton();
+            this.chkSetClock = new System.Windows.Forms.CheckBox();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
-            this.radioButton9 = new System.Windows.Forms.RadioButton();
-            this.radioButton10 = new System.Windows.Forms.RadioButton();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.chkVGAoutput = new System.Windows.Forms.CheckBox();
+            this.chkFullscreen = new System.Windows.Forms.CheckBox();
+            this.tabCDROM = new System.Windows.Forms.TabPage();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.txtCDROM = new System.Windows.Forms.TextBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
-            this.button8 = new System.Windows.Forms.Button();
-            this.checkBox8 = new System.Windows.Forms.CheckBox();
+            this.btnBrowseCDROM = new System.Windows.Forms.Button();
+            this.chkUseCDROM = new System.Windows.Forms.CheckBox();
             this.radioButton4 = new System.Windows.Forms.RadioButton();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.tabFloppy = new System.Windows.Forms.TabPage();
+            this.grpFloppy = new System.Windows.Forms.GroupBox();
+            this.txtFloppyB = new System.Windows.Forms.TextBox();
+            this.txtFloppyA = new System.Windows.Forms.TextBox();
+            this.btnBrowseFloppyB = new System.Windows.Forms.Button();
+            this.btnBrowseFloppyA = new System.Windows.Forms.Button();
+            this.chkFloppyB = new System.Windows.Forms.CheckBox();
+            this.chkFloppyA = new System.Windows.Forms.CheckBox();
             this.HardDisk = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.checkBox5 = new System.Windows.Forms.CheckBox();
-            this.checkBox6 = new System.Windows.Forms.CheckBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
-            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.btnBrowseHDD = new System.Windows.Forms.Button();
+            this.btnBrowseHDC = new System.Windows.Forms.Button();
+            this.chkUseHDD = new System.Windows.Forms.CheckBox();
+            this.chkUseHDC = new System.Windows.Forms.CheckBox();
+            this.btnBrowseHDB = new System.Windows.Forms.Button();
+            this.btnBrowseHDA = new System.Windows.Forms.Button();
+            this.chkUseHDB = new System.Windows.Forms.CheckBox();
+            this.chkUseHDA = new System.Windows.Forms.CheckBox();
+            this.tabTools = new System.Windows.Forms.TabPage();
             this.groupBox9 = new System.Windows.Forms.GroupBox();
-            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtImageSize = new System.Windows.Forms.TextBox();
             this.label12 = new System.Windows.Forms.Label();
-            this.button13 = new System.Windows.Forms.Button();
+            this.btnCreateImage = new System.Windows.Forms.Button();
+            this.cboImageFormat = new System.Windows.Forms.ComboBox();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.button12 = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
@@ -213,13 +214,17 @@ namespace Qemu_GUI
             this.label9 = new System.Windows.Forms.Label();
             this.button11 = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.tabAudio = new System.Windows.Forms.TabPage();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.checkBox9 = new System.Windows.Forms.CheckBox();
             this.checkBox7 = new System.Windows.Forms.CheckBox();
             this.checkBox11 = new System.Windows.Forms.CheckBox();
             this.checkBox12 = new System.Windows.Forms.CheckBox();
-            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.tabDebug = new System.Windows.Forms.TabPage();
             this.groupBox15 = new System.Windows.Forms.GroupBox();
             this.textBox7 = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
@@ -237,587 +242,343 @@ namespace Qemu_GUI
             this.groupBox16 = new System.Windows.Forms.GroupBox();
             this.button20 = new System.Windows.Forms.Button();
             this.checkBox16 = new System.Windows.Forms.CheckBox();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage8 = new System.Windows.Forms.TabPage();
-            this.button17 = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
-            this.button16 = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
-            this.button15 = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
+            this.tabAbout = new System.Windows.Forms.TabPage();
             this.textBox5 = new System.Windows.Forms.TextBox();
-            this.tabPage9 = new System.Windows.Forms.TabPage();
-            this.button7 = new System.Windows.Forms.Button();
+            this.tabNetwork = new System.Windows.Forms.TabPage();
+            this.btnLaunch = new System.Windows.Forms.Button();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.comboBox3 = new System.Windows.Forms.ComboBox();
-            this.label11 = new System.Windows.Forms.Label();
+            this.btnLoad = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.HardDisk2.SuspendLayout();
-            this.tabPage2.SuspendLayout();
-            this.groupBox7.SuspendLayout();
+            this.tabMisc.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.groupBox6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numSMP)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMemory)).BeginInit();
             this.groupBox10.SuspendLayout();
             this.groupBox11.SuspendLayout();
-            this.tabPage4.SuspendLayout();
+            this.tabCDROM.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.tabFloppy.SuspendLayout();
+            this.grpFloppy.SuspendLayout();
             this.HardDisk.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.tabPage6.SuspendLayout();
+            this.tabTools.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.groupBox8.SuspendLayout();
-            this.tabPage5.SuspendLayout();
+            this.tabAudio.SuspendLayout();
             this.groupBox5.SuspendLayout();
-            this.tabPage7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.tabDebug.SuspendLayout();
             this.groupBox15.SuspendLayout();
             this.groupBox14.SuspendLayout();
             this.groupBox12.SuspendLayout();
             this.groupBox13.SuspendLayout();
             this.groupBox16.SuspendLayout();
-            this.tabPage8.SuspendLayout();
+            this.tabAbout.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.radioButton2);
             this.groupBox1.Controls.Add(this.radioButton1);
-            this.groupBox1.Location = new System.Drawing.Point(32, 8);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(280, 48);
+            this.groupBox1.Size = new System.Drawing.Size(274, 48);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Machine";
-            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
             // 
             // radioButton2
             // 
             this.radioButton2.CausesValidation = false;
-            this.radioButton2.Location = new System.Drawing.Point(120, 16);
+            this.radioButton2.Location = new System.Drawing.Point(154, 16);
             this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(98, 24);
             this.radioButton2.TabIndex = 5;
-            this.radioButton2.Text = "ISA Only PC";
+            this.radioButton2.Text = "ISA only PC";
             // 
             // radioButton1
             // 
             this.radioButton1.CausesValidation = false;
             this.radioButton1.Checked = true;
-            this.radioButton1.Location = new System.Drawing.Point(8, 16);
+            this.radioButton1.Location = new System.Drawing.Point(19, 16);
             this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(104, 24);
             this.radioButton1.TabIndex = 4;
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "Standard PC";
             // 
             // HardDisk2
             // 
-            this.HardDisk2.Controls.Add(this.tabPage2);
-            this.HardDisk2.Controls.Add(this.tabPage4);
-            this.HardDisk2.Controls.Add(this.tabPage3);
+            this.HardDisk2.Controls.Add(this.tabMisc);
+            this.HardDisk2.Controls.Add(this.tabCDROM);
+            this.HardDisk2.Controls.Add(this.tabFloppy);
             this.HardDisk2.Controls.Add(this.HardDisk);
-            this.HardDisk2.Controls.Add(this.tabPage6);
-            this.HardDisk2.Controls.Add(this.tabPage5);
-            this.HardDisk2.Controls.Add(this.tabPage7);
-            this.HardDisk2.Controls.Add(this.tabPage1);
-            this.HardDisk2.Controls.Add(this.tabPage8);
-            this.HardDisk2.Controls.Add(this.tabPage9);
-            this.HardDisk2.Location = new System.Drawing.Point(24, 8);
+            this.HardDisk2.Controls.Add(this.tabTools);
+            this.HardDisk2.Controls.Add(this.tabAudio);
+            this.HardDisk2.Controls.Add(this.tabDebug);
+            this.HardDisk2.Controls.Add(this.tabNetwork);
+            this.HardDisk2.Controls.Add(this.tabAbout);
+            this.HardDisk2.Location = new System.Drawing.Point(12, 10);
             this.HardDisk2.Name = "HardDisk2";
             this.HardDisk2.SelectedIndex = 0;
-            this.HardDisk2.Size = new System.Drawing.Size(488, 248);
+            this.HardDisk2.Size = new System.Drawing.Size(468, 227);
             this.HardDisk2.TabIndex = 3;
-            this.HardDisk2.SelectedIndexChanged += new System.EventHandler(this.HardDisk2_SelectedIndexChanged);
             // 
-            // tabPage2
+            // tabMisc
             // 
-            this.tabPage2.Controls.Add(this.groupBox7);
-            this.tabPage2.Controls.Add(this.groupBox6);
-            this.tabPage2.Controls.Add(this.groupBox1);
-            this.tabPage2.Controls.Add(this.groupBox10);
-            this.tabPage2.Controls.Add(this.groupBox11);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(480, 222);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Misc";
+            this.tabMisc.Controls.Add(this.groupBox2);
+            this.tabMisc.Controls.Add(this.groupBox6);
+            this.tabMisc.Controls.Add(this.groupBox1);
+            this.tabMisc.Controls.Add(this.groupBox10);
+            this.tabMisc.Controls.Add(this.groupBox11);
+            this.tabMisc.Location = new System.Drawing.Point(4, 22);
+            this.tabMisc.Name = "tabMisc";
+            this.tabMisc.Size = new System.Drawing.Size(460, 201);
+            this.tabMisc.TabIndex = 1;
+            this.tabMisc.Text = "Misc";
+            this.tabMisc.UseVisualStyleBackColor = true;
             // 
-            // groupBox7
+            // groupBox2
             // 
-            this.groupBox7.Controls.Add(this.radioButton11);
-            this.groupBox7.Controls.Add(this.radioButton12);
-            this.groupBox7.Location = new System.Drawing.Point(328, 160);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(120, 56);
-            this.groupBox7.TabIndex = 20;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "Kqemu";
+            this.groupBox2.Controls.Add(this.btnQEmuPath);
+            this.groupBox2.Location = new System.Drawing.Point(283, 137);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(173, 61);
+            this.groupBox2.TabIndex = 20;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "QEmu";
             // 
-            // radioButton11
+            // btnQEmuPath
             // 
-            this.radioButton11.CausesValidation = false;
-            this.radioButton11.Location = new System.Drawing.Point(8, 24);
-            this.radioButton11.Name = "radioButton11";
-            this.radioButton11.Size = new System.Drawing.Size(48, 24);
-            this.radioButton11.TabIndex = 13;
-            this.radioButton11.Text = "Yes";
-            // 
-            // radioButton12
-            // 
-            this.radioButton12.CausesValidation = false;
-            this.radioButton12.Checked = true;
-            this.radioButton12.Location = new System.Drawing.Point(56, 24);
-            this.radioButton12.Name = "radioButton12";
-            this.radioButton12.Size = new System.Drawing.Size(56, 24);
-            this.radioButton12.TabIndex = 14;
-            this.radioButton12.TabStop = true;
-            this.radioButton12.Text = "No";
+            this.btnQEmuPath.Location = new System.Drawing.Point(29, 23);
+            this.btnQEmuPath.Name = "btnQEmuPath";
+            this.btnQEmuPath.Size = new System.Drawing.Size(118, 21);
+            this.btnQEmuPath.TabIndex = 0;
+            this.btnQEmuPath.Text = "Path to executable";
+            this.btnQEmuPath.UseVisualStyleBackColor = true;
+            this.btnQEmuPath.Click += new System.EventHandler(this.btnQEmuPath_Click);
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.comboBox2);
+            this.groupBox6.Controls.Add(this.chkKQEmu);
+            this.groupBox6.Controls.Add(this.lblCPUs);
+            this.groupBox6.Controls.Add(this.numSMP);
+            this.groupBox6.Controls.Add(this.numMemory);
+            this.groupBox6.Controls.Add(this.lblMB);
             this.groupBox6.Controls.Add(this.label3);
             this.groupBox6.Controls.Add(this.label1);
             this.groupBox6.Controls.Add(this.label2);
-            this.groupBox6.Controls.Add(this.radioButton5);
-            this.groupBox6.Controls.Add(this.label4);
-            this.groupBox6.Controls.Add(this.radioButton6);
-            this.groupBox6.Controls.Add(this.textBox3);
-            this.groupBox6.Controls.Add(this.comboBox1);
-            this.groupBox6.Location = new System.Drawing.Point(32, 64);
+            this.groupBox6.Controls.Add(this.cboBootFrom);
+            this.groupBox6.Location = new System.Drawing.Point(3, 57);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(280, 152);
+            this.groupBox6.Size = new System.Drawing.Size(274, 142);
             this.groupBox6.TabIndex = 4;
             this.groupBox6.TabStop = false;
             // 
-            // comboBox2
+            // chkKQEmu
             // 
-            this.comboBox2.Items.AddRange(new object[] {
-                                                           "1",
-                                                           "2",
-                                                           "3",
-                                                           "4",
-                                                           "5",
-                                                           "6",
-                                                           "7",
-                                                           "8",
-                                                           "9",
-                                                           "10",
-                                                           "11",
-                                                           "12",
-                                                           "13",
-                                                           "14",
-                                                           "15",
-                                                           "16",
-                                                           "17",
-                                                           "18",
-                                                           "19",
-                                                           "20",
-                                                           "21",
-                                                           "22",
-                                                           "23",
-                                                           "24",
-                                                           "25",
-                                                           "26",
-                                                           "27",
-                                                           "28",
-                                                           "29",
-                                                           "30",
-                                                           "31",
-                                                           "32",
-                                                           "33",
-                                                           "34",
-                                                           "35",
-                                                           "36",
-                                                           "37",
-                                                           "38",
-                                                           "39",
-                                                           "40",
-                                                           "41",
-                                                           "42",
-                                                           "43",
-                                                           "44",
-                                                           "45",
-                                                           "46",
-                                                           "47",
-                                                           "48",
-                                                           "49",
-                                                           "50",
-                                                           "51",
-                                                           "52",
-                                                           "53",
-                                                           "54",
-                                                           "55",
-                                                           "56",
-                                                           "57",
-                                                           "58",
-                                                           "59",
-                                                           "60",
-                                                           "61",
-                                                           "62",
-                                                           "63",
-                                                           "64",
-                                                           "65",
-                                                           "66",
-                                                           "67",
-                                                           "68",
-                                                           "69",
-                                                           "70",
-                                                           "71",
-                                                           "72",
-                                                           "73",
-                                                           "74",
-                                                           "75",
-                                                           "76",
-                                                           "77",
-                                                           "78",
-                                                           "79",
-                                                           "80",
-                                                           "81",
-                                                           "82",
-                                                           "83",
-                                                           "84",
-                                                           "85",
-                                                           "86",
-                                                           "87",
-                                                           "88",
-                                                           "89",
-                                                           "90",
-                                                           "91",
-                                                           "92",
-                                                           "93",
-                                                           "94",
-                                                           "95",
-                                                           "96",
-                                                           "97",
-                                                           "98",
-                                                           "99",
-                                                           "100",
-                                                           "101",
-                                                           "102",
-                                                           "103",
-                                                           "104",
-                                                           "105",
-                                                           "106",
-                                                           "107",
-                                                           "108",
-                                                           "109",
-                                                           "110",
-                                                           "111",
-                                                           "112",
-                                                           "113",
-                                                           "114",
-                                                           "115",
-                                                           "116",
-                                                           "117",
-                                                           "118",
-                                                           "119",
-                                                           "120",
-                                                           "121",
-                                                           "122",
-                                                           "123",
-                                                           "124",
-                                                           "125",
-                                                           "126",
-                                                           "127",
-                                                           "128",
-                                                           "129",
-                                                           "130",
-                                                           "131",
-                                                           "132",
-                                                           "133",
-                                                           "134",
-                                                           "135",
-                                                           "136",
-                                                           "137",
-                                                           "138",
-                                                           "139",
-                                                           "140",
-                                                           "141",
-                                                           "142",
-                                                           "143",
-                                                           "144",
-                                                           "145",
-                                                           "146",
-                                                           "147",
-                                                           "148",
-                                                           "149",
-                                                           "150",
-                                                           "151",
-                                                           "152",
-                                                           "153",
-                                                           "154",
-                                                           "155",
-                                                           "156",
-                                                           "157",
-                                                           "158",
-                                                           "159",
-                                                           "160",
-                                                           "161",
-                                                           "162",
-                                                           "163",
-                                                           "164",
-                                                           "165",
-                                                           "166",
-                                                           "167",
-                                                           "168",
-                                                           "169",
-                                                           "170",
-                                                           "171",
-                                                           "172",
-                                                           "173",
-                                                           "174",
-                                                           "175",
-                                                           "176",
-                                                           "177",
-                                                           "178",
-                                                           "179",
-                                                           "180",
-                                                           "181",
-                                                           "182",
-                                                           "183",
-                                                           "184",
-                                                           "185",
-                                                           "186",
-                                                           "187",
-                                                           "188",
-                                                           "189",
-                                                           "190",
-                                                           "191",
-                                                           "192",
-                                                           "193",
-                                                           "194",
-                                                           "195",
-                                                           "196",
-                                                           "197",
-                                                           "198",
-                                                           "199",
-                                                           "200",
-                                                           "201",
-                                                           "202",
-                                                           "203",
-                                                           "204",
-                                                           "205",
-                                                           "206",
-                                                           "207",
-                                                           "208",
-                                                           "209",
-                                                           "210",
-                                                           "211",
-                                                           "212",
-                                                           "213",
-                                                           "214",
-                                                           "215",
-                                                           "216",
-                                                           "217",
-                                                           "218",
-                                                           "219",
-                                                           "220",
-                                                           "221",
-                                                           "222",
-                                                           "223",
-                                                           "224",
-                                                           "225",
-                                                           "226",
-                                                           "227",
-                                                           "228",
-                                                           "229",
-                                                           "230",
-                                                           "231",
-                                                           "232",
-                                                           "233",
-                                                           "234",
-                                                           "235",
-                                                           "236",
-                                                           "237",
-                                                           "238",
-                                                           "239",
-                                                           "240",
-                                                           "241",
-                                                           "242",
-                                                           "243",
-                                                           "244",
-                                                           "245",
-                                                           "246",
-                                                           "247",
-                                                           "248",
-                                                           "249",
-                                                           "250",
-                                                           "251",
-                                                           "252",
-                                                           "253",
-                                                           "254",
-                                                           "255"});
-            this.comboBox2.Location = new System.Drawing.Point(16, 120);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(120, 21);
-            this.comboBox2.TabIndex = 10;
-            this.comboBox2.Text = "1";
+            this.chkKQEmu.AutoSize = true;
+            this.chkKQEmu.Location = new System.Drawing.Point(19, 106);
+            this.chkKQEmu.Name = "chkKQEmu";
+            this.chkKQEmu.Size = new System.Drawing.Size(177, 17);
+            this.chkKQEmu.TabIndex = 18;
+            this.chkKQEmu.Text = "Use KQEmu accelerator module";
+            this.chkKQEmu.UseVisualStyleBackColor = true;
+            // 
+            // lblCPUs
+            // 
+            this.lblCPUs.AutoSize = true;
+            this.lblCPUs.Location = new System.Drawing.Point(218, 75);
+            this.lblCPUs.Name = "lblCPUs";
+            this.lblCPUs.Size = new System.Drawing.Size(40, 13);
+            this.lblCPUs.TabIndex = 14;
+            this.lblCPUs.Text = "CPU(s)";
+            // 
+            // numSMP
+            // 
+            this.numSMP.Location = new System.Drawing.Point(166, 73);
+            this.numSMP.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.numSMP.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numSMP.Name = "numSMP";
+            this.numSMP.Size = new System.Drawing.Size(46, 20);
+            this.numSMP.TabIndex = 13;
+            this.numSMP.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // numMemory
+            // 
+            this.numMemory.Location = new System.Drawing.Point(166, 47);
+            this.numMemory.Maximum = new decimal(new int[] {
+            2048,
+            0,
+            0,
+            0});
+            this.numMemory.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numMemory.Name = "numMemory";
+            this.numMemory.Size = new System.Drawing.Size(46, 20);
+            this.numMemory.TabIndex = 12;
+            this.numMemory.Value = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            // 
+            // lblMB
+            // 
+            this.lblMB.AutoSize = true;
+            this.lblMB.Location = new System.Drawing.Point(229, 49);
+            this.lblMB.Name = "lblMB";
+            this.lblMB.Size = new System.Drawing.Size(23, 13);
+            this.lblMB.TabIndex = 11;
+            this.lblMB.Text = "MB";
             // 
             // label3
             // 
-            this.label3.Location = new System.Drawing.Point(152, 24);
+            this.label3.Location = new System.Drawing.Point(16, 51);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(112, 23);
+            this.label3.Size = new System.Drawing.Size(60, 23);
             this.label3.TabIndex = 6;
-            this.label3.Text = "Memmory";
+            this.label3.Text = "Memory";
             // 
             // label1
             // 
             this.label1.Location = new System.Drawing.Point(16, 24);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(120, 23);
+            this.label1.Size = new System.Drawing.Size(60, 23);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Boot From";
+            this.label1.Text = "Boot from";
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(16, 96);
+            this.label2.Location = new System.Drawing.Point(16, 76);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(120, 23);
+            this.label2.Size = new System.Drawing.Size(80, 23);
             this.label2.TabIndex = 3;
             this.label2.Text = "SMP (1 to 255)";
             // 
-            // radioButton5
+            // cboBootFrom
             // 
-            this.radioButton5.CausesValidation = false;
-            this.radioButton5.Checked = true;
-            this.radioButton5.Location = new System.Drawing.Point(152, 120);
-            this.radioButton5.Name = "radioButton5";
-            this.radioButton5.Size = new System.Drawing.Size(48, 24);
-            this.radioButton5.TabIndex = 8;
-            this.radioButton5.TabStop = true;
-            this.radioButton5.Text = "Yes";
-            this.radioButton5.CheckedChanged += new System.EventHandler(this.radioButton5_CheckedChanged);
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(152, 96);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(112, 23);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "Showing VGA Output";
-            // 
-            // radioButton6
-            // 
-            this.radioButton6.CausesValidation = false;
-            this.radioButton6.Location = new System.Drawing.Point(208, 120);
-            this.radioButton6.Name = "radioButton6";
-            this.radioButton6.Size = new System.Drawing.Size(56, 24);
-            this.radioButton6.TabIndex = 9;
-            this.radioButton6.Text = "No";
-            this.radioButton6.CheckedChanged += new System.EventHandler(this.radioButton6_CheckedChanged);
-            // 
-            // textBox3
-            // 
-            this.textBox3.Location = new System.Drawing.Point(152, 56);
-            this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(112, 20);
-            this.textBox3.TabIndex = 5;
-            this.textBox3.Text = "32";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.DisplayMember = "1";
-            this.comboBox1.Items.AddRange(new object[] {
-                                                           "Floppy",
-                                                           "HardDisk",
-                                                           "CDRom"});
-            this.comboBox1.Location = new System.Drawing.Point(16, 56);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
-            this.comboBox1.TabIndex = 1;
-            this.comboBox1.Text = "HardDisk";
+            this.cboBootFrom.DisplayMember = "1";
+            this.cboBootFrom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboBootFrom.Items.AddRange(new object[] {
+            "Floppy",
+            "Harddisk",
+            "CD-ROM"});
+            this.cboBootFrom.Location = new System.Drawing.Point(135, 21);
+            this.cboBootFrom.Name = "cboBootFrom";
+            this.cboBootFrom.Size = new System.Drawing.Size(121, 21);
+            this.cboBootFrom.TabIndex = 1;
             // 
             // groupBox10
             // 
-            this.groupBox10.Controls.Add(this.radioButton7);
-            this.groupBox10.Controls.Add(this.radioButton8);
-            this.groupBox10.Location = new System.Drawing.Point(328, 8);
+            this.groupBox10.Controls.Add(this.chkSetClock);
+            this.groupBox10.Location = new System.Drawing.Point(283, 3);
             this.groupBox10.Name = "groupBox10";
-            this.groupBox10.Size = new System.Drawing.Size(120, 56);
+            this.groupBox10.Size = new System.Drawing.Size(174, 48);
             this.groupBox10.TabIndex = 18;
             this.groupBox10.TabStop = false;
-            this.groupBox10.Text = "Set clock";
+            this.groupBox10.Text = "Clock";
             // 
-            // radioButton7
+            // chkSetClock
             // 
-            this.radioButton7.CausesValidation = false;
-            this.radioButton7.Checked = true;
-            this.radioButton7.Location = new System.Drawing.Point(8, 16);
-            this.radioButton7.Name = "radioButton7";
-            this.radioButton7.Size = new System.Drawing.Size(48, 24);
-            this.radioButton7.TabIndex = 10;
-            this.radioButton7.TabStop = true;
-            this.radioButton7.Text = "Yes";
-            // 
-            // radioButton8
-            // 
-            this.radioButton8.CausesValidation = false;
-            this.radioButton8.Location = new System.Drawing.Point(64, 16);
-            this.radioButton8.Name = "radioButton8";
-            this.radioButton8.Size = new System.Drawing.Size(40, 24);
-            this.radioButton8.TabIndex = 11;
-            this.radioButton8.Text = "No";
+            this.chkSetClock.AutoSize = true;
+            this.chkSetClock.Location = new System.Drawing.Point(16, 21);
+            this.chkSetClock.Name = "chkSetClock";
+            this.chkSetClock.Size = new System.Drawing.Size(71, 17);
+            this.chkSetClock.TabIndex = 12;
+            this.chkSetClock.Text = "Set clock";
+            this.chkSetClock.UseVisualStyleBackColor = true;
             // 
             // groupBox11
             // 
-            this.groupBox11.Controls.Add(this.radioButton9);
-            this.groupBox11.Controls.Add(this.radioButton10);
-            this.groupBox11.Location = new System.Drawing.Point(328, 80);
+            this.groupBox11.Controls.Add(this.chkVGAoutput);
+            this.groupBox11.Controls.Add(this.chkFullscreen);
+            this.groupBox11.Location = new System.Drawing.Point(283, 57);
             this.groupBox11.Name = "groupBox11";
-            this.groupBox11.Size = new System.Drawing.Size(120, 64);
+            this.groupBox11.Size = new System.Drawing.Size(174, 74);
             this.groupBox11.TabIndex = 19;
             this.groupBox11.TabStop = false;
-            this.groupBox11.Text = "Start in fullscreen";
+            this.groupBox11.Text = "Display";
             // 
-            // radioButton9
+            // chkVGAoutput
             // 
-            this.radioButton9.CausesValidation = false;
-            this.radioButton9.Location = new System.Drawing.Point(8, 24);
-            this.radioButton9.Name = "radioButton9";
-            this.radioButton9.Size = new System.Drawing.Size(48, 24);
-            this.radioButton9.TabIndex = 13;
-            this.radioButton9.Text = "Yes";
+            this.chkVGAoutput.AutoSize = true;
+            this.chkVGAoutput.Location = new System.Drawing.Point(16, 51);
+            this.chkVGAoutput.Name = "chkVGAoutput";
+            this.chkVGAoutput.Size = new System.Drawing.Size(118, 17);
+            this.chkVGAoutput.TabIndex = 20;
+            this.chkVGAoutput.Text = "Display VGA output";
+            this.chkVGAoutput.UseVisualStyleBackColor = true;
             // 
-            // radioButton10
+            // chkFullscreen
             // 
-            this.radioButton10.CausesValidation = false;
-            this.radioButton10.Checked = true;
-            this.radioButton10.Location = new System.Drawing.Point(56, 24);
-            this.radioButton10.Name = "radioButton10";
-            this.radioButton10.Size = new System.Drawing.Size(56, 24);
-            this.radioButton10.TabIndex = 14;
-            this.radioButton10.TabStop = true;
-            this.radioButton10.Text = "No";
+            this.chkFullscreen.AutoSize = true;
+            this.chkFullscreen.Location = new System.Drawing.Point(16, 23);
+            this.chkFullscreen.Name = "chkFullscreen";
+            this.chkFullscreen.Size = new System.Drawing.Size(107, 17);
+            this.chkFullscreen.TabIndex = 19;
+            this.chkFullscreen.Text = "Start in fullscreen";
+            this.chkFullscreen.UseVisualStyleBackColor = true;
             // 
-            // tabPage4
+            // tabCDROM
             // 
-            this.tabPage4.Controls.Add(this.groupBox4);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(480, 222);
-            this.tabPage4.TabIndex = 4;
-            this.tabPage4.Text = "CDRom";
+            this.tabCDROM.Controls.Add(this.groupBox4);
+            this.tabCDROM.Location = new System.Drawing.Point(4, 22);
+            this.tabCDROM.Name = "tabCDROM";
+            this.tabCDROM.Size = new System.Drawing.Size(460, 201);
+            this.tabCDROM.TabIndex = 4;
+            this.tabCDROM.Text = "CD-ROM";
+            this.tabCDROM.UseVisualStyleBackColor = true;
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.txtCDROM);
             this.groupBox4.Controls.Add(this.textBox1);
             this.groupBox4.Controls.Add(this.radioButton3);
-            this.groupBox4.Controls.Add(this.button8);
-            this.groupBox4.Controls.Add(this.checkBox8);
+            this.groupBox4.Controls.Add(this.btnBrowseCDROM);
+            this.groupBox4.Controls.Add(this.chkUseCDROM);
             this.groupBox4.Controls.Add(this.radioButton4);
-            this.groupBox4.Location = new System.Drawing.Point(168, 24);
+            this.groupBox4.Location = new System.Drawing.Point(3, 3);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(176, 176);
+            this.groupBox4.Size = new System.Drawing.Size(454, 195);
             this.groupBox4.TabIndex = 5;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "CDROM";
+            this.groupBox4.Text = "CD-ROM";
+            // 
+            // txtCDROM
+            // 
+            this.txtCDROM.Location = new System.Drawing.Point(61, 134);
+            this.txtCDROM.Name = "txtCDROM";
+            this.txtCDROM.Size = new System.Drawing.Size(338, 20);
+            this.txtCDROM.TabIndex = 6;
             // 
             // textBox1
             // 
             this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point(16, 72);
+            this.textBox1.Location = new System.Drawing.Point(61, 78);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(152, 20);
             this.textBox1.TabIndex = 5;
@@ -827,121 +588,140 @@ namespace Qemu_GUI
             // 
             this.radioButton3.Checked = true;
             this.radioButton3.Enabled = false;
-            this.radioButton3.Location = new System.Drawing.Point(16, 48);
+            this.radioButton3.Location = new System.Drawing.Point(43, 54);
             this.radioButton3.Name = "radioButton3";
+            this.radioButton3.Size = new System.Drawing.Size(104, 24);
             this.radioButton3.TabIndex = 3;
             this.radioButton3.TabStop = true;
-            this.radioButton3.Text = "Host CDRom";
+            this.radioButton3.Text = "Host CD-ROM";
             this.radioButton3.CheckedChanged += new System.EventHandler(this.radioButton3_CheckedChanged);
             // 
-            // button8
+            // btnBrowseCDROM
             // 
-            this.button8.Enabled = false;
-            this.button8.Location = new System.Drawing.Point(16, 128);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(152, 23);
-            this.button8.TabIndex = 2;
-            this.button8.Text = " Browse Images File";
-            this.button8.Click += new System.EventHandler(this.button8_Click);
+            this.btnBrowseCDROM.Enabled = false;
+            this.btnBrowseCDROM.Location = new System.Drawing.Point(405, 134);
+            this.btnBrowseCDROM.Name = "btnBrowseCDROM";
+            this.btnBrowseCDROM.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseCDROM.TabIndex = 2;
+            this.btnBrowseCDROM.Text = "...";
+            this.btnBrowseCDROM.Click += new System.EventHandler(this.btnBrowseCDROM_Click);
             // 
-            // checkBox8
+            // chkUseCDROM
             // 
-            this.checkBox8.Location = new System.Drawing.Point(16, 24);
-            this.checkBox8.Name = "checkBox8";
-            this.checkBox8.Size = new System.Drawing.Size(72, 24);
-            this.checkBox8.TabIndex = 0;
-            this.checkBox8.Text = "CDROM";
-            this.checkBox8.CheckedChanged += new System.EventHandler(this.checkBox8_CheckedChanged);
+            this.chkUseCDROM.Location = new System.Drawing.Point(15, 24);
+            this.chkUseCDROM.Name = "chkUseCDROM";
+            this.chkUseCDROM.Size = new System.Drawing.Size(72, 24);
+            this.chkUseCDROM.TabIndex = 0;
+            this.chkUseCDROM.Text = "CD-ROM";
+            this.chkUseCDROM.CheckedChanged += new System.EventHandler(this.chkUseCDROM_CheckedChanged);
             // 
             // radioButton4
             // 
             this.radioButton4.Enabled = false;
-            this.radioButton4.Location = new System.Drawing.Point(16, 104);
+            this.radioButton4.Location = new System.Drawing.Point(43, 104);
             this.radioButton4.Name = "radioButton4";
             this.radioButton4.Size = new System.Drawing.Size(144, 24);
             this.radioButton4.TabIndex = 4;
             this.radioButton4.Text = "Image File";
             this.radioButton4.CheckedChanged += new System.EventHandler(this.radioButton4_CheckedChanged);
             // 
-            // tabPage3
+            // tabFloppy
             // 
-            this.tabPage3.Controls.Add(this.groupBox2);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(480, 222);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Floppy";
+            this.tabFloppy.Controls.Add(this.grpFloppy);
+            this.tabFloppy.Location = new System.Drawing.Point(4, 22);
+            this.tabFloppy.Name = "tabFloppy";
+            this.tabFloppy.Size = new System.Drawing.Size(460, 201);
+            this.tabFloppy.TabIndex = 2;
+            this.tabFloppy.Text = "Floppy";
+            this.tabFloppy.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
+            // grpFloppy
             // 
-            this.groupBox2.Controls.Add(this.button2);
-            this.groupBox2.Controls.Add(this.button1);
-            this.groupBox2.Controls.Add(this.checkBox2);
-            this.groupBox2.Controls.Add(this.checkBox1);
-            this.groupBox2.Location = new System.Drawing.Point(184, 40);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(128, 152);
-            this.groupBox2.TabIndex = 4;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Floppy";
+            this.grpFloppy.Controls.Add(this.txtFloppyB);
+            this.grpFloppy.Controls.Add(this.txtFloppyA);
+            this.grpFloppy.Controls.Add(this.btnBrowseFloppyB);
+            this.grpFloppy.Controls.Add(this.btnBrowseFloppyA);
+            this.grpFloppy.Controls.Add(this.chkFloppyB);
+            this.grpFloppy.Controls.Add(this.chkFloppyA);
+            this.grpFloppy.Location = new System.Drawing.Point(3, 3);
+            this.grpFloppy.Name = "grpFloppy";
+            this.grpFloppy.Size = new System.Drawing.Size(454, 195);
+            this.grpFloppy.TabIndex = 4;
+            this.grpFloppy.TabStop = false;
+            this.grpFloppy.Text = "Floppy";
             // 
-            // button2
+            // txtFloppyB
             // 
-            this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(16, 112);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(104, 23);
-            this.button2.TabIndex = 3;
-            this.button2.Text = "Browse Disk B";
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.txtFloppyB.Location = new System.Drawing.Point(32, 113);
+            this.txtFloppyB.Name = "txtFloppyB";
+            this.txtFloppyB.Size = new System.Drawing.Size(369, 20);
+            this.txtFloppyB.TabIndex = 5;
             // 
-            // button1
+            // txtFloppyA
             // 
-            this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(16, 48);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(104, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Browse Disk A";
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.txtFloppyA.Location = new System.Drawing.Point(32, 49);
+            this.txtFloppyA.Name = "txtFloppyA";
+            this.txtFloppyA.Size = new System.Drawing.Size(369, 20);
+            this.txtFloppyA.TabIndex = 4;
             // 
-            // checkBox2
+            // btnBrowseFloppyB
             // 
-            this.checkBox2.Location = new System.Drawing.Point(16, 88);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(72, 24);
-            this.checkBox2.TabIndex = 1;
-            this.checkBox2.Text = "Floppy B";
-            this.checkBox2.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            this.btnBrowseFloppyB.Enabled = false;
+            this.btnBrowseFloppyB.Location = new System.Drawing.Point(407, 110);
+            this.btnBrowseFloppyB.Name = "btnBrowseFloppyB";
+            this.btnBrowseFloppyB.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseFloppyB.TabIndex = 3;
+            this.btnBrowseFloppyB.Text = "...";
+            this.btnBrowseFloppyB.Click += new System.EventHandler(this.btnBrowseFloppyB_Click);
             // 
-            // checkBox1
+            // btnBrowseFloppyA
             // 
-            this.checkBox1.Location = new System.Drawing.Point(16, 24);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(72, 24);
-            this.checkBox1.TabIndex = 0;
-            this.checkBox1.Text = "Floppy A";
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.btnBrowseFloppyA.Enabled = false;
+            this.btnBrowseFloppyA.Location = new System.Drawing.Point(407, 46);
+            this.btnBrowseFloppyA.Name = "btnBrowseFloppyA";
+            this.btnBrowseFloppyA.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseFloppyA.TabIndex = 2;
+            this.btnBrowseFloppyA.Text = "...";
+            this.btnBrowseFloppyA.Click += new System.EventHandler(this.btnBrowseFloppyA_Click);
+            // 
+            // chkFloppyB
+            // 
+            this.chkFloppyB.Location = new System.Drawing.Point(16, 88);
+            this.chkFloppyB.Name = "chkFloppyB";
+            this.chkFloppyB.Size = new System.Drawing.Size(72, 24);
+            this.chkFloppyB.TabIndex = 1;
+            this.chkFloppyB.Text = "Floppy B";
+            this.chkFloppyB.CheckedChanged += new System.EventHandler(this.chkFloppyB_CheckedChanged);
+            // 
+            // chkFloppyA
+            // 
+            this.chkFloppyA.Location = new System.Drawing.Point(16, 24);
+            this.chkFloppyA.Name = "chkFloppyA";
+            this.chkFloppyA.Size = new System.Drawing.Size(72, 24);
+            this.chkFloppyA.TabIndex = 0;
+            this.chkFloppyA.Text = "Floppy A";
+            this.chkFloppyA.CheckedChanged += new System.EventHandler(this.chkFloppyA_CheckedChanged);
             // 
             // HardDisk
             // 
             this.HardDisk.Controls.Add(this.groupBox3);
             this.HardDisk.Location = new System.Drawing.Point(4, 22);
             this.HardDisk.Name = "HardDisk";
-            this.HardDisk.Size = new System.Drawing.Size(480, 222);
+            this.HardDisk.Size = new System.Drawing.Size(460, 201);
             this.HardDisk.TabIndex = 3;
             this.HardDisk.Text = " Harddisk";
+            this.HardDisk.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.button5);
-            this.groupBox3.Controls.Add(this.button6);
-            this.groupBox3.Controls.Add(this.checkBox5);
-            this.groupBox3.Controls.Add(this.checkBox6);
-            this.groupBox3.Controls.Add(this.button3);
-            this.groupBox3.Controls.Add(this.button4);
-            this.groupBox3.Controls.Add(this.checkBox3);
-            this.groupBox3.Controls.Add(this.checkBox4);
+            this.groupBox3.Controls.Add(this.btnBrowseHDD);
+            this.groupBox3.Controls.Add(this.btnBrowseHDC);
+            this.groupBox3.Controls.Add(this.chkUseHDD);
+            this.groupBox3.Controls.Add(this.chkUseHDC);
+            this.groupBox3.Controls.Add(this.btnBrowseHDB);
+            this.groupBox3.Controls.Add(this.btnBrowseHDA);
+            this.groupBox3.Controls.Add(this.chkUseHDB);
+            this.groupBox3.Controls.Add(this.chkUseHDA);
             this.groupBox3.Location = new System.Drawing.Point(136, 40);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(232, 152);
@@ -949,113 +729,122 @@ namespace Qemu_GUI
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = " Harddisk";
             // 
-            // button5
+            // btnBrowseHDD
             // 
-            this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(120, 112);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(104, 23);
-            this.button5.TabIndex = 11;
-            this.button5.Text = " Browse Disk D";
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.btnBrowseHDD.Enabled = false;
+            this.btnBrowseHDD.Location = new System.Drawing.Point(120, 112);
+            this.btnBrowseHDD.Name = "btnBrowseHDD";
+            this.btnBrowseHDD.Size = new System.Drawing.Size(104, 23);
+            this.btnBrowseHDD.TabIndex = 11;
+            this.btnBrowseHDD.Text = " Browse Disk D";
+            this.btnBrowseHDD.Click += new System.EventHandler(this.btnBrowseHDD_Click);
             // 
-            // button6
+            // btnBrowseHDC
             // 
-            this.button6.Enabled = false;
-            this.button6.Location = new System.Drawing.Point(120, 48);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(104, 23);
-            this.button6.TabIndex = 10;
-            this.button6.Text = " Browse Disk C";
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.btnBrowseHDC.Enabled = false;
+            this.btnBrowseHDC.Location = new System.Drawing.Point(120, 48);
+            this.btnBrowseHDC.Name = "btnBrowseHDC";
+            this.btnBrowseHDC.Size = new System.Drawing.Size(104, 23);
+            this.btnBrowseHDC.TabIndex = 10;
+            this.btnBrowseHDC.Text = " Browse Disk C";
+            this.btnBrowseHDC.Click += new System.EventHandler(this.btnBrowseHDC_Click);
             // 
-            // checkBox5
+            // chkUseHDD
             // 
-            this.checkBox5.Location = new System.Drawing.Point(120, 88);
-            this.checkBox5.Name = "checkBox5";
-            this.checkBox5.Size = new System.Drawing.Size(72, 24);
-            this.checkBox5.TabIndex = 9;
-            this.checkBox5.Text = "HDD";
-            this.checkBox5.CheckedChanged += new System.EventHandler(this.checkBox5_CheckedChanged);
+            this.chkUseHDD.Location = new System.Drawing.Point(120, 88);
+            this.chkUseHDD.Name = "chkUseHDD";
+            this.chkUseHDD.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDD.TabIndex = 9;
+            this.chkUseHDD.Text = "HDD";
+            this.chkUseHDD.CheckedChanged += new System.EventHandler(this.checkBox5_CheckedChanged);
             // 
-            // checkBox6
+            // chkUseHDC
             // 
-            this.checkBox6.Location = new System.Drawing.Point(120, 24);
-            this.checkBox6.Name = "checkBox6";
-            this.checkBox6.Size = new System.Drawing.Size(72, 24);
-            this.checkBox6.TabIndex = 8;
-            this.checkBox6.Text = "HDC";
-            this.checkBox6.CheckedChanged += new System.EventHandler(this.checkBox6_CheckedChanged);
+            this.chkUseHDC.Location = new System.Drawing.Point(120, 24);
+            this.chkUseHDC.Name = "chkUseHDC";
+            this.chkUseHDC.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDC.TabIndex = 8;
+            this.chkUseHDC.Text = "HDC";
+            this.chkUseHDC.CheckedChanged += new System.EventHandler(this.checkBox6_CheckedChanged);
             // 
-            // button3
+            // btnBrowseHDB
             // 
-            this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point(8, 112);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(104, 23);
-            this.button3.TabIndex = 7;
-            this.button3.Text = " Browse Disk B";
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.btnBrowseHDB.Enabled = false;
+            this.btnBrowseHDB.Location = new System.Drawing.Point(8, 112);
+            this.btnBrowseHDB.Name = "btnBrowseHDB";
+            this.btnBrowseHDB.Size = new System.Drawing.Size(104, 23);
+            this.btnBrowseHDB.TabIndex = 7;
+            this.btnBrowseHDB.Text = " Browse Disk B";
+            this.btnBrowseHDB.Click += new System.EventHandler(this.btnBrowseHDB_Click);
             // 
-            // button4
+            // btnBrowseHDA
             // 
-            this.button4.Enabled = false;
-            this.button4.Location = new System.Drawing.Point(8, 48);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(104, 23);
-            this.button4.TabIndex = 6;
-            this.button4.Text = " Browse Disk A";
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.btnBrowseHDA.Enabled = false;
+            this.btnBrowseHDA.Location = new System.Drawing.Point(8, 48);
+            this.btnBrowseHDA.Name = "btnBrowseHDA";
+            this.btnBrowseHDA.Size = new System.Drawing.Size(104, 23);
+            this.btnBrowseHDA.TabIndex = 6;
+            this.btnBrowseHDA.Text = " Browse Disk A";
+            this.btnBrowseHDA.Click += new System.EventHandler(this.btnBrowseHDA_Click);
             // 
-            // checkBox3
+            // chkUseHDB
             // 
-            this.checkBox3.Location = new System.Drawing.Point(8, 88);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(72, 24);
-            this.checkBox3.TabIndex = 5;
-            this.checkBox3.Text = "HDB";
-            this.checkBox3.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
+            this.chkUseHDB.Location = new System.Drawing.Point(8, 88);
+            this.chkUseHDB.Name = "chkUseHDB";
+            this.chkUseHDB.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDB.TabIndex = 5;
+            this.chkUseHDB.Text = "HDB";
+            this.chkUseHDB.CheckedChanged += new System.EventHandler(this.checkBox3_CheckedChanged);
             // 
-            // checkBox4
+            // chkUseHDA
             // 
-            this.checkBox4.Location = new System.Drawing.Point(8, 24);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(72, 24);
-            this.checkBox4.TabIndex = 4;
-            this.checkBox4.Text = "HDA";
-            this.checkBox4.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
+            this.chkUseHDA.Location = new System.Drawing.Point(8, 24);
+            this.chkUseHDA.Name = "chkUseHDA";
+            this.chkUseHDA.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDA.TabIndex = 4;
+            this.chkUseHDA.Text = "HDA";
+            this.chkUseHDA.CheckedChanged += new System.EventHandler(this.checkBox4_CheckedChanged);
             // 
-            // tabPage6
+            // tabTools
             // 
-            this.tabPage6.Controls.Add(this.groupBox9);
-            this.tabPage6.Controls.Add(this.groupBox8);
-            this.tabPage6.Location = new System.Drawing.Point(4, 22);
-            this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(480, 222);
-            this.tabPage6.TabIndex = 6;
-            this.tabPage6.Text = "Tools";
+            this.tabTools.Controls.Add(this.groupBox9);
+            this.tabTools.Controls.Add(this.groupBox8);
+            this.tabTools.Location = new System.Drawing.Point(4, 22);
+            this.tabTools.Name = "tabTools";
+            this.tabTools.Size = new System.Drawing.Size(460, 201);
+            this.tabTools.TabIndex = 6;
+            this.tabTools.Text = "Tools";
+            this.tabTools.UseVisualStyleBackColor = true;
             // 
             // groupBox9
             // 
             this.groupBox9.Controls.Add(this.label11);
-            this.groupBox9.Controls.Add(this.textBox4);
+            this.groupBox9.Controls.Add(this.txtImageSize);
             this.groupBox9.Controls.Add(this.label12);
-            this.groupBox9.Controls.Add(this.button13);
-            this.groupBox9.Controls.Add(this.comboBox3);
+            this.groupBox9.Controls.Add(this.btnCreateImage);
+            this.groupBox9.Controls.Add(this.cboImageFormat);
             this.groupBox9.Location = new System.Drawing.Point(264, 16);
             this.groupBox9.Name = "groupBox9";
             this.groupBox9.Size = new System.Drawing.Size(160, 184);
             this.groupBox9.TabIndex = 6;
             this.groupBox9.TabStop = false;
-            this.groupBox9.Text = "HardDisk Tools";
+            this.groupBox9.Text = "Harddisk Tools";
             // 
-            // textBox4
+            // label11
             // 
-            this.textBox4.Location = new System.Drawing.Point(16, 64);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(64, 20);
-            this.textBox4.TabIndex = 3;
-            this.textBox4.Text = "512";
+            this.label11.Location = new System.Drawing.Point(96, 32);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(48, 23);
+            this.label11.TabIndex = 5;
+            this.label11.Text = "Format";
+            // 
+            // txtImageSize
+            // 
+            this.txtImageSize.Location = new System.Drawing.Point(16, 64);
+            this.txtImageSize.Name = "txtImageSize";
+            this.txtImageSize.Size = new System.Drawing.Size(64, 20);
+            this.txtImageSize.TabIndex = 3;
+            this.txtImageSize.Text = "512";
             // 
             // label12
             // 
@@ -1065,14 +854,30 @@ namespace Qemu_GUI
             this.label12.TabIndex = 2;
             this.label12.Text = "Image Size";
             // 
-            // button13
+            // btnCreateImage
             // 
-            this.button13.Location = new System.Drawing.Point(16, 112);
-            this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(128, 48);
-            this.button13.TabIndex = 1;
-            this.button13.Text = "Browse and Create";
-            this.button13.Click += new System.EventHandler(this.button13_Click);
+            this.btnCreateImage.Location = new System.Drawing.Point(16, 112);
+            this.btnCreateImage.Name = "btnCreateImage";
+            this.btnCreateImage.Size = new System.Drawing.Size(128, 48);
+            this.btnCreateImage.TabIndex = 1;
+            this.btnCreateImage.Text = "Browse and Create";
+            this.btnCreateImage.Click += new System.EventHandler(this.btnCreateImage_Click);
+            // 
+            // cboImageFormat
+            // 
+            this.cboImageFormat.Items.AddRange(new object[] {
+            "cloop",
+            "cow ",
+            "qcow",
+            "raw ",
+            "vmdk ",
+            "",
+            " "});
+            this.cboImageFormat.Location = new System.Drawing.Point(96, 64);
+            this.cboImageFormat.Name = "cboImageFormat";
+            this.cboImageFormat.Size = new System.Drawing.Size(56, 21);
+            this.cboImageFormat.TabIndex = 7;
+            this.cboImageFormat.Text = "vmdk ";
             // 
             // groupBox8
             // 
@@ -1102,6 +907,7 @@ namespace Qemu_GUI
             // 
             this.label8.Location = new System.Drawing.Point(16, 24);
             this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(100, 23);
             this.label8.TabIndex = 0;
             this.label8.Text = "Path to VDK";
             // 
@@ -1140,33 +946,74 @@ namespace Qemu_GUI
             this.label10.TabIndex = 4;
             this.label10.Text = "UnMount HdX Image";
             // 
-            // tabPage5
+            // tabAudio
             // 
-            this.tabPage5.Controls.Add(this.groupBox5);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(480, 222);
-            this.tabPage5.TabIndex = 5;
-            this.tabPage5.Text = "Audio";
+            this.tabAudio.Controls.Add(this.groupBox5);
+            this.tabAudio.Location = new System.Drawing.Point(4, 22);
+            this.tabAudio.Name = "tabAudio";
+            this.tabAudio.Size = new System.Drawing.Size(460, 201);
+            this.tabAudio.TabIndex = 5;
+            this.tabAudio.Text = "Audio";
+            this.tabAudio.UseVisualStyleBackColor = true;
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.pictureBox4);
+            this.groupBox5.Controls.Add(this.pictureBox3);
+            this.groupBox5.Controls.Add(this.pictureBox2);
+            this.groupBox5.Controls.Add(this.pictureBox1);
             this.groupBox5.Controls.Add(this.checkBox9);
             this.groupBox5.Controls.Add(this.checkBox7);
             this.groupBox5.Controls.Add(this.checkBox11);
             this.groupBox5.Controls.Add(this.checkBox12);
-            this.groupBox5.Location = new System.Drawing.Point(8, 16);
+            this.groupBox5.Location = new System.Drawing.Point(3, 3);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(192, 152);
+            this.groupBox5.Size = new System.Drawing.Size(454, 195);
             this.groupBox5.TabIndex = 4;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Emulate Audio Cards";
+            // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Image = global::Qemu_GUI.Properties.Resources.audio_volume_high;
+            this.pictureBox4.Location = new System.Drawing.Point(116, 143);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(25, 24);
+            this.pictureBox4.TabIndex = 6;
+            this.pictureBox4.TabStop = false;
+            // 
+            // pictureBox3
+            // 
+            this.pictureBox3.Image = global::Qemu_GUI.Properties.Resources.audio_volume_high;
+            this.pictureBox3.Location = new System.Drawing.Point(116, 108);
+            this.pictureBox3.Name = "pictureBox3";
+            this.pictureBox3.Size = new System.Drawing.Size(25, 24);
+            this.pictureBox3.TabIndex = 5;
+            this.pictureBox3.TabStop = false;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Image = global::Qemu_GUI.Properties.Resources.audio_volume_high;
+            this.pictureBox2.Location = new System.Drawing.Point(116, 74);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(25, 24);
+            this.pictureBox2.TabIndex = 4;
+            this.pictureBox2.TabStop = false;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::Qemu_GUI.Properties.Resources.audio_volume_high;
+            this.pictureBox1.Location = new System.Drawing.Point(116, 40);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(25, 24);
+            this.pictureBox1.TabIndex = 3;
+            this.pictureBox1.TabStop = false;
             // 
             // checkBox9
             // 
             this.checkBox9.Checked = true;
             this.checkBox9.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox9.Location = new System.Drawing.Point(8, 48);
+            this.checkBox9.Location = new System.Drawing.Point(159, 70);
             this.checkBox9.Name = "checkBox9";
             this.checkBox9.Size = new System.Drawing.Size(176, 32);
             this.checkBox9.TabIndex = 1;
@@ -1176,7 +1023,7 @@ namespace Qemu_GUI
             // 
             this.checkBox7.Checked = true;
             this.checkBox7.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox7.Location = new System.Drawing.Point(8, 16);
+            this.checkBox7.Location = new System.Drawing.Point(159, 40);
             this.checkBox7.Name = "checkBox7";
             this.checkBox7.Size = new System.Drawing.Size(168, 24);
             this.checkBox7.TabIndex = 0;
@@ -1184,7 +1031,7 @@ namespace Qemu_GUI
             // 
             // checkBox11
             // 
-            this.checkBox11.Location = new System.Drawing.Point(8, 120);
+            this.checkBox11.Location = new System.Drawing.Point(159, 144);
             this.checkBox11.Name = "checkBox11";
             this.checkBox11.Size = new System.Drawing.Size(176, 24);
             this.checkBox11.TabIndex = 2;
@@ -1192,25 +1039,26 @@ namespace Qemu_GUI
             // 
             // checkBox12
             // 
-            this.checkBox12.Location = new System.Drawing.Point(8, 88);
+            this.checkBox12.Location = new System.Drawing.Point(157, 108);
             this.checkBox12.Name = "checkBox12";
             this.checkBox12.Size = new System.Drawing.Size(176, 24);
             this.checkBox12.TabIndex = 2;
             this.checkBox12.Text = " Yamaha YM3812 (OPL2)";
             // 
-            // tabPage7
+            // tabDebug
             // 
-            this.tabPage7.Controls.Add(this.groupBox15);
-            this.tabPage7.Controls.Add(this.groupBox14);
-            this.tabPage7.Controls.Add(this.groupBox12);
-            this.tabPage7.Controls.Add(this.groupBox13);
-            this.tabPage7.Controls.Add(this.groupBox16);
-            this.tabPage7.Controls.Add(this.checkBox16);
-            this.tabPage7.Location = new System.Drawing.Point(4, 22);
-            this.tabPage7.Name = "tabPage7";
-            this.tabPage7.Size = new System.Drawing.Size(480, 222);
-            this.tabPage7.TabIndex = 8;
-            this.tabPage7.Text = "Debug";
+            this.tabDebug.Controls.Add(this.groupBox15);
+            this.tabDebug.Controls.Add(this.groupBox14);
+            this.tabDebug.Controls.Add(this.groupBox12);
+            this.tabDebug.Controls.Add(this.groupBox13);
+            this.tabDebug.Controls.Add(this.groupBox16);
+            this.tabDebug.Controls.Add(this.checkBox16);
+            this.tabDebug.Location = new System.Drawing.Point(4, 22);
+            this.tabDebug.Name = "tabDebug";
+            this.tabDebug.Size = new System.Drawing.Size(460, 201);
+            this.tabDebug.TabIndex = 8;
+            this.tabDebug.Text = "Debug";
+            this.tabDebug.UseVisualStyleBackColor = true;
             // 
             // groupBox15
             // 
@@ -1285,7 +1133,6 @@ namespace Qemu_GUI
             this.checkBox14.Size = new System.Drawing.Size(144, 24);
             this.checkBox14.TabIndex = 0;
             this.checkBox14.Text = "Wait connection to port";
-            this.checkBox14.CheckedChanged += new System.EventHandler(this.checkBox14_CheckedChanged);
             // 
             // groupBox12
             // 
@@ -1312,8 +1159,9 @@ namespace Qemu_GUI
             // 
             this.checkBox10.Location = new System.Drawing.Point(8, 16);
             this.checkBox10.Name = "checkBox10";
+            this.checkBox10.Size = new System.Drawing.Size(104, 24);
             this.checkBox10.TabIndex = 2;
-            this.checkBox10.Text = "Redirect to File";
+            this.checkBox10.Text = "Redirect to file";
             this.checkBox10.CheckedChanged += new System.EventHandler(this.checkBox10_CheckedChanged);
             // 
             // groupBox13
@@ -1325,7 +1173,7 @@ namespace Qemu_GUI
             this.groupBox13.Size = new System.Drawing.Size(120, 80);
             this.groupBox13.TabIndex = 1;
             this.groupBox13.TabStop = false;
-            this.groupBox13.Text = "Pararell Port";
+            this.groupBox13.Text = "Parallel port";
             // 
             // button19
             // 
@@ -1341,6 +1189,7 @@ namespace Qemu_GUI
             // 
             this.checkBox13.Location = new System.Drawing.Point(8, 16);
             this.checkBox13.Name = "checkBox13";
+            this.checkBox13.Size = new System.Drawing.Size(104, 24);
             this.checkBox13.TabIndex = 2;
             this.checkBox13.Text = "Redirect to File";
             this.checkBox13.CheckedChanged += new System.EventHandler(this.checkBox13_CheckedChanged);
@@ -1366,85 +1215,22 @@ namespace Qemu_GUI
             // 
             // checkBox16
             // 
-            this.checkBox16.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((System.Byte)(0)));
-            this.checkBox16.Location = new System.Drawing.Point(32, 184);
+            this.checkBox16.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.checkBox16.Location = new System.Drawing.Point(32, 169);
             this.checkBox16.Name = "checkBox16";
             this.checkBox16.Size = new System.Drawing.Size(416, 32);
             this.checkBox16.TabIndex = 2;
             this.checkBox16.Text = "Simulate a standard VGA card with Bochs VBE 3.0 extensions ";
-            this.checkBox16.CheckedChanged += new System.EventHandler(this.checkBox16_CheckedChanged);
             // 
-            // tabPage1
+            // tabAbout
             // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Size = new System.Drawing.Size(480, 222);
-            this.tabPage1.TabIndex = 7;
-            this.tabPage1.Text = "NetWork";
-            // 
-            // tabPage8
-            // 
-            this.tabPage8.Controls.Add(this.button17);
-            this.tabPage8.Controls.Add(this.label7);
-            this.tabPage8.Controls.Add(this.button16);
-            this.tabPage8.Controls.Add(this.label6);
-            this.tabPage8.Controls.Add(this.button15);
-            this.tabPage8.Controls.Add(this.label5);
-            this.tabPage8.Controls.Add(this.textBox5);
-            this.tabPage8.Location = new System.Drawing.Point(4, 22);
-            this.tabPage8.Name = "tabPage8";
-            this.tabPage8.Size = new System.Drawing.Size(480, 222);
-            this.tabPage8.TabIndex = 9;
-            this.tabPage8.Text = "About";
-            // 
-            // button17
-            // 
-            this.button17.Location = new System.Drawing.Point(352, 160);
-            this.button17.Name = "button17";
-            this.button17.Size = new System.Drawing.Size(120, 56);
-            this.button17.TabIndex = 6;
-            this.button17.Text = "Save";
-            this.button17.Click += new System.EventHandler(this.button17_Click);
-            // 
-            // label7
-            // 
-            this.label7.Location = new System.Drawing.Point(352, 136);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(120, 23);
-            this.label7.TabIndex = 5;
-            this.label7.Text = "Save Config";
-            // 
-            // button16
-            // 
-            this.button16.Location = new System.Drawing.Point(184, 160);
-            this.button16.Name = "button16";
-            this.button16.Size = new System.Drawing.Size(112, 56);
-            this.button16.TabIndex = 4;
-            this.button16.Text = "Load";
-            this.button16.Click += new System.EventHandler(this.button16_Click);
-            // 
-            // label6
-            // 
-            this.label6.Location = new System.Drawing.Point(192, 136);
-            this.label6.Name = "label6";
-            this.label6.TabIndex = 3;
-            this.label6.Text = "Load Config";
-            // 
-            // button15
-            // 
-            this.button15.Location = new System.Drawing.Point(8, 160);
-            this.button15.Name = "button15";
-            this.button15.Size = new System.Drawing.Size(112, 56);
-            this.button15.TabIndex = 2;
-            this.button15.Text = "Where is Qemu";
-            this.button15.Click += new System.EventHandler(this.button15_Click);
-            // 
-            // label5
-            // 
-            this.label5.Location = new System.Drawing.Point(16, 136);
-            this.label5.Name = "label5";
-            this.label5.TabIndex = 1;
-            this.label5.Text = "Qemu path";
+            this.tabAbout.Controls.Add(this.textBox5);
+            this.tabAbout.Location = new System.Drawing.Point(4, 22);
+            this.tabAbout.Name = "tabAbout";
+            this.tabAbout.Size = new System.Drawing.Size(460, 201);
+            this.tabAbout.TabIndex = 9;
+            this.tabAbout.Text = "About";
+            this.tabAbout.UseVisualStyleBackColor = true;
             // 
             // textBox5
             // 
@@ -1452,93 +1238,105 @@ namespace Qemu_GUI
             this.textBox5.Multiline = true;
             this.textBox5.Name = "textBox5";
             this.textBox5.ReadOnly = true;
-            this.textBox5.Size = new System.Drawing.Size(464, 120);
+            this.textBox5.Size = new System.Drawing.Size(464, 186);
             this.textBox5.TabIndex = 0;
-            this.textBox5.Text = "This program is written by Magnus Olsen for ReactOS in C# to use with Qemu and VD" +
-                "K\r\n\r\n License GPL source code is in ReactOS SVN \r\n\r\nCopyRights (R) 2006 By Magnu" +
-                "s Olsen \r\n(magnus@greatlord.com / greatlord@reactos.com)";
+            this.textBox5.Text = resources.GetString("textBox5.Text");
             // 
-            // tabPage9
+            // tabNetwork
             // 
-            this.tabPage9.Location = new System.Drawing.Point(4, 22);
-            this.tabPage9.Name = "tabPage9";
-            this.tabPage9.Size = new System.Drawing.Size(480, 222);
-            this.tabPage9.TabIndex = 10;
-            this.tabPage9.Text = "Config";
+            this.tabNetwork.Location = new System.Drawing.Point(4, 22);
+            this.tabNetwork.Name = "tabNetwork";
+            this.tabNetwork.Size = new System.Drawing.Size(460, 201);
+            this.tabNetwork.TabIndex = 7;
+            this.tabNetwork.Text = "Network";
+            this.tabNetwork.UseVisualStyleBackColor = true;
             // 
-            // button7
+            // btnLaunch
             // 
-            this.button7.Location = new System.Drawing.Point(24, 264);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(488, 23);
-            this.button7.TabIndex = 4;
-            this.button7.Text = "Lanuch Qemu 0.8.1 (32Bits Guest)";
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.btnLaunch.Location = new System.Drawing.Point(387, 243);
+            this.btnLaunch.Name = "btnLaunch";
+            this.btnLaunch.Size = new System.Drawing.Size(93, 23);
+            this.btnLaunch.TabIndex = 4;
+            this.btnLaunch.Text = "Launch";
+            this.btnLaunch.Click += new System.EventHandler(this.btnLaunch_Click);
             // 
             // openFile
             // 
             this.openFile.Title = "Path to VDK";
             this.openFile.ValidateNames = false;
             // 
-            // comboBox3
+            // btnLoad
             // 
-            this.comboBox3.Items.AddRange(new object[] {
-                                                           "cloop",
-                                                           "cow ",
-                                                           "qcow",
-                                                           "raw ",
-                                                           "vmdk ",
-                                                           "",
-                                                           " "});
-            this.comboBox3.Location = new System.Drawing.Point(96, 64);
-            this.comboBox3.Name = "comboBox3";
-            this.comboBox3.Size = new System.Drawing.Size(56, 21);
-            this.comboBox3.TabIndex = 7;
-            this.comboBox3.Text = "vmdk ";
+            this.btnLoad.Location = new System.Drawing.Point(12, 243);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(93, 23);
+            this.btnLoad.TabIndex = 5;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
             // 
-            // label11
+            // btnSave
             // 
-            this.label11.Location = new System.Drawing.Point(96, 32);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(48, 23);
-            this.label11.TabIndex = 5;
-            this.label11.Text = "Format";
+            this.btnSave.Location = new System.Drawing.Point(111, 243);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(93, 23);
+            this.btnSave.TabIndex = 6;
+            this.btnSave.Text = "Save";
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
-            // Form1
+            // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(536, 293);
-            this.Controls.Add(this.button7);
+            this.ClientSize = new System.Drawing.Size(485, 270);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnLoad);
+            this.Controls.Add(this.btnLaunch);
             this.Controls.Add(this.HardDisk2);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.Name = "Form1";
+            this.MaximizeBox = false;
+            this.Name = "frmMain";
             this.Text = "Qemu GUI Lancher Version 1.0 written by Magnus Olsen for ReactOS";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.groupBox1.ResumeLayout(false);
             this.HardDisk2.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox10.ResumeLayout(false);
-            this.groupBox11.ResumeLayout(false);
-            this.tabPage4.ResumeLayout(false);
-            this.groupBox4.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
+            this.tabMisc.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
+            this.groupBox6.ResumeLayout(false);
+            this.groupBox6.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numSMP)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMemory)).EndInit();
+            this.groupBox10.ResumeLayout(false);
+            this.groupBox10.PerformLayout();
+            this.groupBox11.ResumeLayout(false);
+            this.groupBox11.PerformLayout();
+            this.tabCDROM.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
+            this.tabFloppy.ResumeLayout(false);
+            this.grpFloppy.ResumeLayout(false);
+            this.grpFloppy.PerformLayout();
             this.HardDisk.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
-            this.tabPage6.ResumeLayout(false);
+            this.tabTools.ResumeLayout(false);
             this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
             this.groupBox8.ResumeLayout(false);
-            this.tabPage5.ResumeLayout(false);
+            this.tabAudio.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
-            this.tabPage7.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.tabDebug.ResumeLayout(false);
             this.groupBox15.ResumeLayout(false);
+            this.groupBox15.PerformLayout();
             this.groupBox14.ResumeLayout(false);
+            this.groupBox14.PerformLayout();
             this.groupBox12.ResumeLayout(false);
             this.groupBox13.ResumeLayout(false);
             this.groupBox16.ResumeLayout(false);
-            this.tabPage8.ResumeLayout(false);
+            this.tabAbout.ResumeLayout(false);
+            this.tabAbout.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1550,25 +1348,9 @@ namespace Qemu_GUI
 		[STAThread]
 		static void Main() 
 		{
-			Application.Run(new Form1());
+			Application.Run(new frmMain());
 		}
 
-        private void groupBox1_Enter(object sender, System.EventArgs e)
-        {
-        
-        }
-
-        private void radioButton6_CheckedChanged(object sender, System.EventArgs e)
-        {
-           
-           
-        }
-
-        private void radioButton5_CheckedChanged(object sender, System.EventArgs e)
-        {
-          
-        }
-        
         static string vdk_path;
         private void button10_Click(object sender, System.EventArgs e)
         {
@@ -1587,38 +1369,13 @@ namespace Qemu_GUI
 
         }
 
-        private void button13_Click(object sender, System.EventArgs e)
+        private void btnCreateImage_Click(object sender, System.EventArgs e)
         {
-            saveFileDialog1.ShowDialog();
-            if (saveFileDialog1.CheckPathExists == true)
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            if (saveFileDialog1.CheckPathExists)
             {
-                string argv; 
-                long d;
-                Process Qemu = new Process();
-                Qemu.StartInfo.FileName   = qemu_path +"\\"+ "qemu-img.exe";    
-                Qemu.StartInfo.WorkingDirectory = qemu_path ;
-
-                d = Convert.ToInt32(textBox4.Text)*1024; //524288 kb
-                argv = " create -f "+comboBox3.SelectedItem+" "+saveFileDialog1.FileName+"."+comboBox3.SelectedItem+" "+d;
-                Qemu.StartInfo.Arguments = argv;
-  
-                try 
-                {
-                    Qemu.Start();
-                }
-                catch 
-                {
-
-                }
-
+                qemu.CreateImage(saveFileDialog1.FileName, Convert.ToInt32(txtImageSize.Text), cboImageFormat.Text); 
             }
-        }
-
-        static string qemu_path=".";
-        private void button15_Click(object sender, System.EventArgs e)
-        {
-             folderBrowserDialog1.ShowDialog();
-             qemu_path = folderBrowserDialog1.SelectedPath;
         }
 
         private void button11_Click(object sender, System.EventArgs e)
@@ -1630,54 +1387,41 @@ namespace Qemu_GUI
         {
             openFile.ShowDialog();
         }
-        
-        static string floppy_a;
-        private void button1_Click(object sender, System.EventArgs e)
+
+
+        #region Harddisks
+        private void btnBrowseHDA_Click(object sender, System.EventArgs e)
         {
-            openFile.ShowDialog();
-            floppy_a = openFile.FileName;
+            if (openFile.ShowDialog() == DialogResult.OK)
+                qemu.Harddisks[0].Path = openFile.FileName;
         }
 
-        static string floppy_b;
-        private void button2_Click(object sender, System.EventArgs e)
+        private void btnBrowseHDB_Click(object sender, System.EventArgs e)
         {
-            openFile.ShowDialog();
-            floppy_b = openFile.FileName;            
+            if (openFile.ShowDialog() == DialogResult.OK)
+                qemu.Harddisks[1].Path = openFile.FileName;
         }
 
-        static string hda;
-        private void button4_Click(object sender, System.EventArgs e)
+        private void btnBrowseHDC_Click(object sender, System.EventArgs e)
         {
-            openFile.ShowDialog();
-            hda = openFile.FileName;
+            if (openFile.ShowDialog() == DialogResult.OK)
+                qemu.Harddisks[2].Path = openFile.FileName;
         }
 
-        static string hdc;
-        private void button6_Click(object sender, System.EventArgs e)
+        private void btnBrowseHDD_Click(object sender, System.EventArgs e)
         {
             openFile.ShowDialog();
-            hdc = openFile.FileName;
+            qemu.Harddisks[3].Path = openFile.FileName;
         }
+        #endregion
 
-        static string hdb;
-        private void button3_Click(object sender, System.EventArgs e)
+        #region CDROM
+        private void btnBrowseCDROM_Click(object sender, System.EventArgs e)
         {
             openFile.ShowDialog();
-            hdb = openFile.FileName;
+            txtCDROM.Text = openFile.FileName;
         }
-
-         static string hdd;
-        private void button5_Click(object sender, System.EventArgs e)
-        {
-            openFile.ShowDialog();
-            hdd = openFile.FileName;
-        }
-
-        private void button8_Click(object sender, System.EventArgs e)
-        {
-            openFile.ShowDialog();
-            cdrom = openFile.FileName;
-        }
+        #endregion
 
         static string serial_path;
         private void button18_Click(object sender, System.EventArgs e)
@@ -1699,420 +1443,107 @@ namespace Qemu_GUI
             openFile.ShowDialog();
             qemu_state = openFile.FileName;
         }
-
-        private void button16_Click(object sender, System.EventArgs e)
-        {
-            openFile.ShowDialog();
-            if (openFile.CheckFileExists == true)
-            {
-               loadarg(openFile.FileName);
-            }   
            
-         
-        }
-
-        private void loadarg(string file)
-        {
-            openFile.FileName = file;
-            if (openFile.CheckFileExists == true)
-            {
-                string s_arg = "";                
-                string[] split ; //= new string[70]; 
-                int count =0;
-                bool read = true;
-                StreamReader x = new StreamReader(file);
-                while (read)
-                {
-                    s_arg = x.ReadLine();
-                    if (s_arg!="") break;
-                }
-              
-                split = s_arg.Split(' ');                
-
-                // rest parama
-                radioButton1.Checked = true;                
-                checkBox1.Checked = false;
-                checkBox2.Checked = false;
-                radioButton8.Checked=true;
-                radioButton10.Checked=true;
-                radioButton12.Checked=true;
-                radioButton5.Checked=true;
-                textBox3.Text = "32";
-                comboBox1.Text = "HardDisk";
-                comboBox2.Text = "1";
-                checkBox8.Checked = false;
-                checkBox3.Checked = false;
-                checkBox4.Checked = false;
-                checkBox5.Checked = false;
-                checkBox6.Checked = false;
-                textBox4.Text = "512";
-                checkBox7.Checked = false;
-                checkBox9.Checked = false;
-                checkBox12.Checked = false;
-                checkBox11.Checked=false;
-                checkBox10.Checked=false;
-                checkBox13.Checked=false;
-                checkBox16.Checked=false;
-                checkBox15.Checked=false;
-                checkBox14.Checked=false;
-                textBox6.Text="1234";
-
-
-                // set parama
-                while (count < split.Length)
-                {
-                    switch(split[count])
-                    {
-                        case "-L":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                qemu_path = split[count];
-                            }
-                            break;
-
-                        case "-M":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                if (split[count].ToLower() == "pc")
-                                {
-                                    radioButton1.Checked=true;
-                                    radioButton2.Checked=false;
-                                }
-                                else
-                                {
-                                    radioButton1.Checked=false;
-                                    radioButton2.Checked=true;
-                                }
-                            }
-                            else
-                            {
-                                radioButton1.Checked=true;
-                                radioButton2.Checked=false;
-                            }
-                            break;
-
-                        case "-fda":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox1.Checked = true;
-                                floppy_a = split[count];
-                            }
-                            break;
-
-                        case "-fdb":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox2.Checked = true;
-                                floppy_a = split[count];
-                            }
-                            break;
-
-                        case "-hda":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox4.Checked = true;
-                                hda = split[count];
-                            }
-                            break;
-
-                        case "-hdb":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox3.Checked = true;
-                                hdb = split[count];
-                            }
-                            break;
-                        case "-hdc":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox6.Checked = true;
-                                hdb = split[count];
-                            }
-                            break;
-                        case "-hdd":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox5.Checked = true;
-                                hdb = split[count];
-                            }
-                            break;
-                            
-                        case "-cdrom":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox8.Checked = true;
-                                cdrom = split[count];
-                                if (cdrom.Length<4)
-                                {
-                                    radioButton3.Checked=true;
-                                    textBox1.Text = cdrom;
-                                }
-                                else
-                                {
-                                    radioButton4.Checked = true;
-                                }
-                            }
-                            break;
-
-                        case "-boot":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                if (split[count].ToLower() == "a")
-                                {
-                                    comboBox1.Text = "Floppy";
-                                }
-                                if (split[count].ToLower() == "c")
-                                {
-                                    comboBox1.Text = "HardDisk";
-                                }
-                                if (split[count].ToLower() == "d")
-                                {
-                                    comboBox1.Text = "CDRom";
-                                }                                
-                            }
-                            break;
-
-                        case "-m":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                textBox3.Text = split[count];
-                            }
-                            break;
-
-                            
-                        case "-smp":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                comboBox2.Text = split[count];
-                            }
-                            break;
-
-                        case "-nographic":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                radioButton6.Checked = true;
-                            }
-                            break;
-
-                        case "-vnc":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox15.Checked = true;
-                                textBox7.Text = split[count];
-                            }
-                            break;
-
-                        case "-soundhw":
-                            break;
-
-                        case "-localtime":                                                        
-                            radioButton7.Checked = true;                                                          
-                            break;
-
-                        case "-full-screen":
-                            radioButton9.Checked = true;
-                            break;
-
-                        case "-serial":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox10.Checked = true;
-                                serial_path = split[count];
-                            }
-                            break;
-
-                        case "-parallel":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                checkBox13.Checked = true;
-                                par_path = split[count];
-                            }
-                            break;
-                        case "-s":
-                            checkBox14.Checked=true;
-                            break;
-
-                        case "-p":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                textBox6.Text = split[count];
-                            }       
-                            break;
-
-                        case "-std-vga":
-                            checkBox16.Checked = true;
-                            break;
-
-                        case "-loadvm":
-                            count++;
-                            if (count < split.Length)
-                            {
-                                qemu_state = split[count];
-                            }                            
-                            break;
-                        
-                        default: 
-
-                            // `-snapshot' 
-                            // -Set virtual RAM
-                            // `-k language
-                            // -audio-help
-                            // -pidfile file
-                            // -win2k-hack
-                            break;
-                    }
-                    count++;
-                }
-            }
-    }
-
-
-
-        private void checkBox1_CheckedChanged(object sender, System.EventArgs e)
-        {
-            if (checkBox1.Checked == true)
-            {
-                button1.Enabled = true;
-            }
-            else
-            {
-                button1.Enabled = false;
-            }
-        }
-
-        private void checkBox2_CheckedChanged(object sender, System.EventArgs e)
-        {
-            if (checkBox2.Checked == true)
-            {
-                button2.Enabled = true;
-            }
-            else
-            {
-                button2.Enabled = false;
-            }
-        }
-
         private void checkBox4_CheckedChanged(object sender, System.EventArgs e)
         {
-            if (checkBox4.Checked == true)
-                button4.Enabled=true;
+            if (chkUseHDA.Checked == true)
+                btnBrowseHDA.Enabled=true;
             else
-                button4.Enabled=false;
+                btnBrowseHDA.Enabled=false;
 
         }
 
         private void checkBox6_CheckedChanged(object sender, System.EventArgs e)
         {
-            if (checkBox6.Checked == true)
+            if (chkUseHDC.Checked == true)
             {
                 radioButton3.Enabled = false;
                 textBox1.Enabled = false;
                 radioButton4.Enabled = false;
-                button8.Enabled = false;
-                checkBox8.Enabled = false;
+                btnBrowseCDROM.Enabled = false;
+                chkUseCDROM.Enabled = false;
             }
             else
             {             
-                checkBox8.Enabled = true;
+                chkUseCDROM.Enabled = true;
             }
 
-            if (checkBox6.Checked == true)
-                button6.Enabled=true;
+            if (chkUseHDC.Checked == true)
+                btnBrowseHDC.Enabled=true;
             else
-                button6.Enabled=false;
+                btnBrowseHDC.Enabled=false;
         }
 
         private void checkBox3_CheckedChanged(object sender, System.EventArgs e)
         {
-            if (checkBox3.Checked == true)
-                button3.Enabled=true;
+            if (chkUseHDB.Checked == true)
+                btnBrowseHDB.Enabled=true;
             else
-                button3.Enabled=false;
+                btnBrowseHDB.Enabled=false;
         }
 
         private void checkBox5_CheckedChanged(object sender, System.EventArgs e)
         {
-            if (checkBox5.Checked == true)
-                button5.Enabled=true;
+            if (chkUseHDD.Checked == true)
+                btnBrowseHDD.Enabled=true;
             else
-                button5.Enabled=false;
+                btnBrowseHDD.Enabled=false;
         }
 
-        private void checkBox8_CheckedChanged(object sender, System.EventArgs e)
+        private void chkUseCDROM_CheckedChanged(object sender, System.EventArgs e)
         {
            
-            if (checkBox6.Checked == true)
+            if (chkUseHDC.Checked == true)
             {
                 radioButton3.Enabled = false;
                 textBox1.Enabled = false;
                 radioButton4.Enabled = false;
-                button8.Enabled = false;
-                checkBox8.Enabled = false;
+                btnBrowseCDROM.Enabled = false;
+                chkUseCDROM.Enabled = false;
             }
             else
             {             
-                checkBox8.Enabled = true;
+                chkUseCDROM.Enabled = true;
             }
 
-            if (checkBox8.Checked == true)
+            if (chkUseCDROM.Checked == true)
             {
-                checkBox6.Enabled = false;
+                chkUseHDC.Enabled = false;
 
                 radioButton3.Enabled = true;                
                 radioButton4.Enabled = true;
                 if (radioButton4.Checked == true)
                 {
                     textBox1.Enabled = false;
-                    button8.Enabled = true;
+                    btnBrowseCDROM.Enabled = true;
                 }
                 else
                 {
                     textBox1.Enabled = true;
-                    button8.Enabled = false;
+                    btnBrowseCDROM.Enabled = false;
                 }
-
-
-
             }
             else
             {
                 radioButton3.Enabled = false;
                 textBox1.Enabled = false;
                 radioButton4.Enabled = false;
-                button8.Enabled = false;
-                checkBox6.Enabled = true;
+                btnBrowseCDROM.Enabled = false;
+                chkUseHDC.Enabled = true;
             }
         }
 
-        static string cdrom;
         private void radioButton3_CheckedChanged(object sender, System.EventArgs e)
         {
             if (radioButton4.Checked == true)
             {
                 textBox1.Enabled = false;
-                button8.Enabled = true;
+                btnBrowseCDROM.Enabled = true;
             }
             else
             {
                 textBox1.Enabled = true;
-                button8.Enabled = false;
+                btnBrowseCDROM.Enabled = false;
             }
         }
 
@@ -2121,38 +1552,23 @@ namespace Qemu_GUI
             if (radioButton4.Checked == true)
             {
                 textBox1.Enabled = false;
-                button8.Enabled = true;
+                btnBrowseCDROM.Enabled = true;
             }
             else
             {
                 textBox1.Enabled = true;
-                button8.Enabled = false;
+                btnBrowseCDROM.Enabled = false;
             }
         }
 
-        private void button7_Click(object sender, System.EventArgs e)
+        private void btnLaunch_Click(object sender, System.EventArgs e)
         {
-            string argv; 
-            Process Qemu = new Process();
-            Qemu.StartInfo.FileName   = qemu_path +"\\"+ "qemu.exe";    
-            Qemu.StartInfo.WorkingDirectory = qemu_path ;
-            argv = GetArgv();
-            Qemu.StartInfo.Arguments = argv;
+            qemu.Start();  
+        }
 
-            try 
-            {
-                Qemu.Start();
-            }
-            catch 
-            {
-
-            }
-            
-            
-            }
         private string GetArgv()
         {
-            string arg = "-L "+qemu_path+" ";
+            string arg = "-L " + qemu.Path + " ";
             bool audio_on = false;
             bool hdd_on = false;
 
@@ -2163,104 +1579,104 @@ namespace Qemu_GUI
                 arg = arg + "-M pc ";
 
             /// Floppy settings
-            if (checkBox1.Checked == true)
+            if (chkFloppyA.Checked == true)
             {
-                if (floppy_a != "" && floppy_a != null)
+                if (txtFloppyA.Text != "" && txtFloppyA.Text != null)
                 {
-                  arg = arg + "-fda "+floppy_a+" ";
+                    arg = arg + "-fda " + txtFloppyA.Text + " ";
                 }
             }
-            if (checkBox2.Checked == true)
+            if (chkFloppyB.Checked == true)
             {
-                if (floppy_b != "" && floppy_b != null)
+                if (txtFloppyB.Text != "" && txtFloppyB.Text != null)
                 {
-                    arg = arg + "-fdb "+floppy_b+" ";
+                    arg = arg + "-fdb " + txtFloppyB.Text + " ";
                 }
             }
 
             /// Harddisk settings
-            if (checkBox4.Checked == true)
+            if (chkUseHDA.Checked == true)
             {
-                if (hda != "" && hda != null)
+                if (qemu.Harddisks[0].Path != "")
                 {                    
-                    arg = arg + "-hda "+hda+" ";
+                    arg = arg + "-hda "+qemu.Harddisks[0].Path+" ";
                 }
             }
-            if (checkBox3.Checked == true)
+            if (chkUseHDB.Checked == true)
             {
-                if (hda != "" && hdb != null)
-                {                    
-                    arg = arg + "-hdb "+hdb+" ";
+                if (qemu.Harddisks[1].Path != "")
+                {
+                    arg = arg + "-hdb " + qemu.Harddisks[1].Path + " ";
                 }
             }
-            if (checkBox6.Checked == true)
+            if (chkUseHDC.Checked == true)
             {
-                if (hda != "" && hdc != null)
+                if (qemu.Harddisks[2].Path != "")
                 {
                     hdd_on = true;
-                    arg = arg + "-hdc "+hdc+" ";
+                    arg = arg + "-hdc " + qemu.Harddisks[2].Path + " ";
                 }
             }
-            if (checkBox5.Checked == true)
+            if (chkUseHDD.Checked == true)
             {
-                if (hda != "" && hdd != null)
-                {                    
-                    arg = arg + "-hdd "+hdd+" ";
+                if (qemu.Harddisks[3].Path != "")
+                {
+                    arg = arg + "-hdd " + qemu.Harddisks[3].Path + " ";
                 }
             }
             /// cdrom
-            if ((checkBox8.Checked == true) && (hdd_on == false))
+            if ((chkUseCDROM.Checked == true) && (hdd_on == false))
             {
                 if (radioButton3.Checked == true)
                 {
                     arg = arg + "-cdrom " + textBox1.Text +" "; 
                 }
-                else if (cdrom != "" && cdrom != null)
-                {                    
-                    arg = arg + "-cdrom "+cdrom+" ";
+                else if (txtCDROM.Text != "" && txtCDROM.Text != null)
+                {
+                    arg = arg + "-cdrom " + txtCDROM.Text + " ";
                 }
             }
             
             /// boot options
-            if (comboBox1.Text == "Floppy")
+            if (cboBootFrom.Text == "Floppy")
             {
                 arg = arg + "-boot a ";
             }            
-            else if (comboBox1.Text == "HardDisk")
+            else if (cboBootFrom.Text == "HardDisk")
             {
                 arg = arg + "-boot c ";
             }
            
-            else if (comboBox1.Text == "CDRom")
+            else if (cboBootFrom.Text == "CDRom")
             {
                 arg = arg + "-boot d ";
             }
 
             /// memmory setting
-            arg = arg + "-m "+textBox3.Text + " ";
+            arg = arg + "-m " + numMemory.Value.ToString() + " ";
 
             // smp setting
-            arg = arg + "-smp " + comboBox2.SelectedItem + " ";
+            arg = arg + "-smp " + numSMP.Value.ToString() + " ";
             
             // no vga output
-            if (radioButton6.Checked == true)
+            if (chkVGAoutput.Checked == false)
             {
                 arg = arg + "-nographic "; 
             }
 
             // set clock
-            if (radioButton7.Checked == true)
+            if (chkSetClock.Checked)
             {
                 arg = arg + "-localtime "; 
             }
 
-            /// fullscreen ??
-            if (radioButton9.Checked == true)
+            // fullscreen
+            if (chkFullscreen.Checked)
             {
                 arg = arg + "-full-screen "; 
             }
 
-            if (radioButton12.Checked == true)
+            if (!chkKQEmu.Checked)
             {
                 arg = arg + "-no-kqemu "; 
             }
@@ -2355,31 +1771,9 @@ namespace Qemu_GUI
             }
             
 
-
-            
-
-
-            
-
-            
-
-            
-            
-
-            
-
-
-
-
-            
             
 
             return arg;
-        }
-
-        private void HardDisk2_SelectedIndexChanged(object sender, System.EventArgs e)
-        {
-        
         }
 
         private void checkBox10_CheckedChanged(object sender, System.EventArgs e)
@@ -2419,37 +1813,71 @@ namespace Qemu_GUI
             }
         }
 
-        private void checkBox16_CheckedChanged(object sender, System.EventArgs e)
-        {           
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            qemu = new QEmu(); 
+            cboBootFrom.SelectedIndex = 1;
         }
 
-        private void checkBox17_CheckedChanged(object sender, System.EventArgs e)
+        #region Floppy
+        private void chkFloppyA_CheckedChanged(object sender, EventArgs e)
         {
-         
+            btnBrowseFloppyA.Enabled = chkFloppyA.Checked;
+            txtFloppyA.Enabled = chkFloppyA.Checked;
         }
 
-        private void checkBox14_CheckedChanged(object sender, System.EventArgs e)
+        private void chkFloppyB_CheckedChanged(object sender, EventArgs e)
         {
-           
+            btnBrowseFloppyB.Enabled = chkFloppyB.Checked;
+            txtFloppyB.Enabled = chkFloppyB.Checked;
         }
 
-        private void button17_Click(object sender, System.EventArgs e)
+        private void btnBrowseFloppyA_Click(object sender, System.EventArgs e)
         {
-            saveFileDialog1.ShowDialog();
-                
-            if ((saveFileDialog1.FileName != "") && (saveFileDialog1.FileName != null))
+            if (openFile.ShowDialog() == DialogResult.OK) 
+                txtFloppyA.Text = openFile.FileName;
+        }
+
+        private void btnBrowseFloppyB_Click(object sender, System.EventArgs e)
+        {
+            if (openFile.ShowDialog() == DialogResult.OK) 
+                txtFloppyB.Text = openFile.FileName;
+        }
+
+        #endregion
+
+        private void btnQEmuPath_Click(object sender, EventArgs e)
+        {
+            openFile.Filter = "Executable files (*.exe)|*.exe"; 
+            if (openFile.ShowDialog() == DialogResult.OK)
             {
-                
-                //x = saveFileDialog1.OpenFile();
-                StreamWriter x = new StreamWriter(saveFileDialog1.FileName);                
-                x.WriteLine(GetArgv());
-                x.Close();
+                qemu.Path = Path.GetDirectoryName(openFile.FileName); 
             }
         }
 
-        private void button21_Click(object sender, System.EventArgs e)
+        private void btnSave_Click(object sender, EventArgs e)
         {
-        
+            saveFileDialog1.Filter = "QEmu GUI Config (*.xml)|*.xml"; 
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                XmlSerializer s = new XmlSerializer(typeof(QEmu));
+                TextWriter w = new StreamWriter(saveFileDialog1.FileName);
+                s.Serialize(w, qemu);
+                w.Close();
+            }
         }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            openFile.Filter = "QEmu GUI Config (*.xml)|*.xml"; 
+            if (openFile.ShowDialog() == DialogResult.OK)
+            {
+                XmlSerializer s = new XmlSerializer(typeof(QEmu));
+                TextReader r = new StreamReader(openFile.FileName);
+                qemu = (QEmu)s.Deserialize(r);
+                r.Close();
+            }
+        }
+
 	}
 }
