@@ -585,6 +585,7 @@ namespace Qemu_GUI
             // 
             // txtCDROM
             // 
+            this.txtCDROM.Enabled = false;
             this.txtCDROM.Location = new System.Drawing.Point(61, 134);
             this.txtCDROM.Name = "txtCDROM";
             this.txtCDROM.Size = new System.Drawing.Size(338, 20);
@@ -1609,12 +1610,14 @@ namespace Qemu_GUI
         {
             cboCDROM.Enabled = !optCDImage.Checked;
             btnBrowseCDROM.Enabled = optCDImage.Checked;
+            txtCDROM.Enabled = false;
         }
 
         private void optCDImage_CheckedChanged(object sender, System.EventArgs e)
         {
             cboCDROM.Enabled = !optCDImage.Checked;
             btnBrowseCDROM.Enabled = optCDImage.Checked;
+            txtCDROM.Enabled = true;
         }
 
         #endregion
