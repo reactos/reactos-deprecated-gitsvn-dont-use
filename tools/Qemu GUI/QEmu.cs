@@ -4,6 +4,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Xml;
 using System.Xml.Serialization;
+using System.IO;
 
 namespace Qemu_GUI
 {
@@ -18,6 +19,7 @@ namespace Qemu_GUI
         private Debug m_Debug = new Debug();
         private Paths m_Paths = new Paths();
         private CDROM m_CDROM = new CDROM();
+        private string m_LastError = "";
 
         public QEmu()
         {
@@ -30,35 +32,54 @@ namespace Qemu_GUI
         public bool CreateImage(string FileName, long Size, string Format)
         {
             long d = Size * 1024;
-            string argv = " create -f " + Format + " " + FileName + "." + Format + " " + d.ToString(); ;
-
-            Process Qemu = new Process();
-            Qemu.StartInfo.FileName = this.Paths.QEmu + "\\" + "qemu-img.exe";
-            Qemu.StartInfo.WorkingDirectory = this.Paths.QEmu;
-            Qemu.StartInfo.Arguments = argv;
+            string argv = " create -f " + Format + " " + (char) 34 + FileName + (char) 34 + " " + d.ToString(); ;
+            Process p = new Process();
+            p.StartInfo.FileName = Path.GetDirectoryName (this.Paths.QEmu) + "\\" + "qemu-img.exe";
+            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.Paths.QEmu);
+            p.StartInfo.Arguments = argv;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
             try
             {
-                Qemu.Start();
+                p.Start();
+                m_LastError = p.StandardError.ReadToEnd();
+                if (m_LastError.Length > 0)
+                    return false;
             }
             catch
             {
+                m_LastError = "qemu-img.exe not found!";
                 return false;
             }
             return true;
         }
 
+        public string GetLastError()
+        {
+            return m_LastError;
+        }
+
         public bool Start()
         {
-            Process Qemu = new Process();
-            Qemu.StartInfo.FileName = this.Paths.QEmu + "\\" + "qemu.exe";
-            Qemu.StartInfo.WorkingDirectory = this.Paths.QEmu;
-            Qemu.StartInfo.Arguments = GetArgv();
+            Process p = new Process();
+            p.StartInfo.FileName = this.Paths.QEmu;
+            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(this.Paths.QEmu);
+            p.StartInfo.Arguments = GetArgv();
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;  
+ 
             try
             {
-                Qemu.Start();
+                p.Start();
+                m_LastError = p.StandardError.ReadToEnd();
+                if (m_LastError.Length > 0)
+                    return false;    
             }
             catch 
             {
+                m_LastError = "qemu.exe not found!";
                 return false;
             }
             return true;
@@ -115,40 +136,16 @@ namespace Qemu_GUI
 
         private string GetArgv()
         {
-            string arg = "-L " + this.Paths.QEmu + " ";
-            /*  bool audio_on = false; */
+            string arg = "-L " + Path.GetDirectoryName(this.Paths.QEmu) + " ";
 
-            /* Machine settings */
-            if (!this.m_Misc.StandardPC)
-                arg = arg + "-M isapc ";
-            else
-                arg = arg + "-M pc ";
+            arg += Misc.ToString();
+            arg += Floppies.ToString();  
+            arg += Harddisks.ToString();  
+            arg += CDROM.ToString();
+            arg += Audio.ToString();  
+            arg += Debug.ToString();
 
-
-            /* Floppy settings */
-            if (this.Floppies.FDD[0].Enabled && (this.Floppies.FDD[0].Path.Length > 0))
-                arg = arg + "-fda " + this.Floppies.FDD[0].Path + " ";
-
-            if (this.Floppies.FDD[1].Enabled && (this.Floppies.FDD[1].Path.Length > 0))
-                arg = arg + "-fdb " + this.Floppies.FDD[1].Path + " ";
-
-
-            /* Harddisk settings */
-            for (int i = 0; i < 4; i++)
-            {
-                if (this.Harddisks.HDD[i].Enabled && (this.Harddisks.HDD[i].Path.Length > 0))
-                    arg = arg + "-hd" + ((char) i + 97) + " " + this.Harddisks.HDD[i].Path + " ";
-            }
-
-
-            /* CD-ROM */
-            if (this.CDROM.Enabled)
-            {
-                if (this.CDROM.UseFromHost)
-                    arg = arg + "-cdrom " + this.CDROM.HostDrive + " ";
-                else if (this.CDROM.Image.Length >  0)
-                    arg = arg + "-cdrom " + this.CDROM.Image + " ";
-            }
+            Console.WriteLine(arg); 
 
             return arg;
         }
@@ -164,6 +161,17 @@ namespace Qemu_GUI
             /* init array */
             for (int i = 0; i < 4; i++)
                 m_HardDisks[i] = new Drive(); 
+        }
+
+        public override string ToString()
+        {
+            string buffer = "";
+            for (int i = 0; i < 4; i++)
+            {
+                if (this.HDD[i].Enabled && (this.HDD[i].Path.Length > 0))
+                    buffer += "-hd" + ((char)i + 97) + " " + (char) 34 + this.HDD[i].Path + (char) 34 +" ";
+            }
+            return buffer;
         }
 
         [XmlElement("Harddisk")]
@@ -185,6 +193,18 @@ namespace Qemu_GUI
                 m_Floppies[i] = new Drive();
         }
 
+        public override string ToString()
+        {
+            string buffer = "";
+            if (this.FDD[0].Enabled && (this.FDD[0].Path.Length > 0))
+                buffer += "-fda " + (char) 34 + this.FDD[0].Path + (char) 34 + " ";
+
+            if (this.FDD[1].Enabled && (this.FDD[1].Path.Length > 0))
+                buffer += "-fdb " + (char) 34 + this.FDD[1].Path + (char) 34 + " ";
+
+            return buffer;
+        }
+
         [XmlElement("Floppy")]
         public Drive[] FDD
         {
@@ -195,13 +215,29 @@ namespace Qemu_GUI
 
     public class Paths
     {
+        private string m_QEmu = "";
+
         [XmlElement("QEmu")]
-        public string QEmu;
+        public string QEmu
+        {
+            get
+            { 
+                return m_QEmu;
+            }
+            set 
+            { 
+                if (value != "")
+                    m_QEmu = value;
+                else
+                    m_QEmu = ".";
+            }
+        }
         [XmlElement("VDK")]
-        public string VDK;
+        public string VDK = ".";
 
         public Paths()
         {
+            m_QEmu = ".";
         }
     }
 
@@ -213,6 +249,65 @@ namespace Qemu_GUI
         public int Memory;
         [XmlElement("CPUs")]
         public int CPUs;
+        [XmlElement("BootFrom")]
+        public string BootFrom = "";
+        [XmlElement("SetClock")]
+        public bool SetClock;
+        [XmlElement("Fullscreen")]
+        public bool Fullscreen;
+        [XmlElement("VGA")]
+        public bool VGA;
+        [XmlElement("KQEmu")]
+        public bool KQEmu;
+
+        public override string ToString()
+        {
+            /* Memory settings */
+            string buffer = "-m " + this.Memory.ToString() + " ";
+
+            /* SMP settings */
+            buffer += "-smp " + this.CPUs.ToString() + " ";
+
+            /* Set clock */
+            if (this.SetClock)
+                buffer += "-localtime ";
+
+            /* No vga output */
+            if (this.VGA)
+                buffer += "-nographic ";
+
+            /* Fullscreen */
+            if (this.Fullscreen)
+                buffer += "-full-screen ";
+
+            /* KQEmu */
+            if (!this.KQEmu)
+                buffer += "-no-kqemu ";
+
+            /* Machine settings */
+            if (!this.StandardPC)
+                buffer += "-M isapc ";
+            else
+                buffer += "-M pc ";
+
+            /* Boot options */
+            switch (this.BootFrom)
+            {
+                case "Floppy":
+                    buffer += "-boot a ";
+                    break;
+                case "Harddisk":
+                    buffer += "-boot c ";
+                    break;
+                case "CD-ROM":
+                    buffer += "-boot d ";
+                    break;
+                default:
+                    break;
+            }
+
+            return buffer;
+        }
 
         public Misc()
         {
@@ -233,6 +328,28 @@ namespace Qemu_GUI
         public Audio()
         {
         }
+
+        public override string ToString() 
+        {
+            bool audio_on = (this.ES1370 | this.OPL2 | this.Soundblaster | this.Speaker);
+
+            if (!audio_on)
+                return "";
+
+            string buffer = "-soundhw ";
+
+            if (this.Speaker)
+                buffer += "pcspk,";
+            if (this.Soundblaster)
+                buffer += "sb16,";
+            if (this.OPL2)
+                buffer += "adlib,";
+            if (this.ES1370)
+                buffer += "es1370,";
+
+            return buffer.Substring(0, buffer.Length - 1) + " "; 
+        }
+
     }
 
     public class Debug
@@ -242,6 +359,31 @@ namespace Qemu_GUI
 
         [XmlElement("VBE3")]
         public bool VBE3;
+
+        public override string ToString()
+        {
+            string buffer = "";
+
+            /* Serial port */
+            if (this.SerialPort.Redirect)
+            {
+                if (this.SerialPort.FileName.Length > 0)
+                    buffer = "-serial file:" + (char) 34 + this.SerialPort.FileName + (char) 34 + " ";
+            }
+
+            /* Parallel port */
+            if (this.ParallelPort.Redirect)
+            {
+                if (this.ParallelPort.FileName.Length > 0)
+                    buffer += "-parallel  file:" + (char) 34 + this.ParallelPort.FileName + (char) 34 + " ";
+            }
+
+            /*  Standard VGA */
+            if (this.VBE3)
+                buffer += "-std-vga ";
+
+            return buffer;
+        }
 
         public Debug()
         {
@@ -282,6 +424,19 @@ namespace Qemu_GUI
         public string HostDrive;
         [XmlAttribute("Enabled")]
         public bool Enabled;
+
+        public override string ToString()
+        {
+            string buffer = "";
+            if (this.Enabled)
+            {
+                if (this.UseFromHost)
+                    buffer = "-cdrom " + this.HostDrive + " ";
+                else if (this.Image.Length > 0)
+                    buffer = "-cdrom " + (char)34 + this.Image + (char)34 + " ";
+            }
+            return buffer;
+        }
 
         public CDROM()
         {

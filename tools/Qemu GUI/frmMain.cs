@@ -988,19 +988,17 @@ namespace Qemu_GUI
             // 
             // cboImageFormat
             // 
+            this.cboImageFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboImageFormat.Items.AddRange(new object[] {
             "cloop",
-            "cow ",
+            "cow",
             "qcow",
-            "raw ",
-            "vmdk ",
-            "",
-            " "});
+            "raw",
+            "vmdk"});
             this.cboImageFormat.Location = new System.Drawing.Point(99, 39);
             this.cboImageFormat.Name = "cboImageFormat";
             this.cboImageFormat.Size = new System.Drawing.Size(56, 21);
             this.cboImageFormat.TabIndex = 7;
-            this.cboImageFormat.Text = "vmdk ";
             // 
             // tabAudio
             // 
@@ -1430,6 +1428,7 @@ namespace Qemu_GUI
             this.ImeMode = System.Windows.Forms.ImeMode.On;
             this.MaximizeBox = false;
             this.Name = "frmMain";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Qemu GUI Launcher Version 1.0 written by Magnus Olsen for ReactOS";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.grpMachine.ResumeLayout(false);
@@ -1492,8 +1491,20 @@ namespace Qemu_GUI
 
         private void btnCreateImage_Click(object sender, System.EventArgs e)
         {
+            saveFileDialog1.Filter = "All files (*.*)|*.*";
+            saveFileDialog1.FileName = "image." + cboImageFormat.Text;
+            saveFileDialog1.DefaultExt = cboImageFormat.Text;
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                qemu.CreateImage(saveFileDialog1.FileName, Convert.ToInt32(txtImageSize.Text), cboImageFormat.Text); 
+            {
+                if (!qemu.CreateImage(saveFileDialog1.FileName, Convert.ToInt32(txtImageSize.Text), cboImageFormat.Text))
+                {
+                    frmError fError = new frmError();
+                    fError.txtError.Text = qemu.GetLastError();
+                    fError.ShowDialog(this);
+                }
+                else
+                    MessageBox.Show("Image created"); 
+            }
         }
 
         private void button11_Click(object sender, System.EventArgs e)
@@ -1560,6 +1571,7 @@ namespace Qemu_GUI
         #region CDROM
         private void btnBrowseCDROM_Click(object sender, System.EventArgs e)
         {
+            openFile.Filter = "CD-Images (*.iso)|*.iso";  
             if (openFile.ShowDialog() == DialogResult.OK) 
                 txtCDROM.Text = openFile.FileName;
         }
@@ -1645,126 +1657,17 @@ namespace Qemu_GUI
         private void btnLaunch_Click(object sender, System.EventArgs e)
         {
             SaveSettings();
-            qemu.Start();  
+            if (!qemu.Start())
+            {
+                frmError fError = new frmError();
+                fError.txtError.Text = qemu.GetLastError();
+                fError.ShowDialog(this); 
+            }
+
         }
         /*
         private string GetArgv()
         {
-    
-            /// boot options
-            if (cboBootFrom.Text == "Floppy")
-            {
-                arg = arg + "-boot a ";
-            }            
-            else if (cboBootFrom.Text == "HardDisk")
-            {
-                arg = arg + "-boot c ";
-            }
-           
-            else if (cboBootFrom.Text == "CDRom")
-            {
-                arg = arg + "-boot d ";
-            }
-
-            /// memmory setting
-            arg = arg + "-m " + numMemory.Value.ToString() + " ";
-
-            // smp setting
-            arg = arg + "-smp " + numSMP.Value.ToString() + " ";
-            
-            // no vga output
-            if (chkVGAoutput.Checked == false)
-            {
-                arg = arg + "-nographic "; 
-            }
-
-            // set clock
-            if (chkSetClock.Checked)
-            {
-                arg = arg + "-localtime "; 
-            }
-
-            // fullscreen
-            if (chkFullscreen.Checked)
-            {
-                arg = arg + "-full-screen "; 
-            }
-
-            if (!chkKQEmu.Checked)
-            {
-                arg = arg + "-no-kqemu "; 
-            }
-
-            /// Audio setting
-            if (chkPCSpeaker.Checked == true)
-            {
-               audio_on = true;
-               arg = arg + "-soundhw pcspk"; 
-            }
-
-            if (chkSoundBlaster.Checked == true)
-            {
-                if (audio_on == false)
-                {
-                    arg = arg + "-soundhw sb16"; 
-                    audio_on = true;
-                }
-                else
-                {
-                  arg = arg + ",sb16"; 
-                }
-            }
-
-            if (chkOPL2.Checked == true)
-            {
-                if (audio_on == false)
-                {
-                    arg = arg + "-soundhw adlib"; 
-                    audio_on = true;
-                }
-                else
-                {
-                    arg = arg + ",adlib"; 
-                }
-            }
-
-            if (chkES1370.Checked == true)
-            {
-                if (audio_on == false)
-                {
-                    arg = arg + "-soundhw es1370"; 
-                    audio_on = true;
-                }
-                else
-                {
-                    arg = arg + ",es1370"; 
-                }
-            }
-
-            if (audio_on == true)
-            {
-                   arg = arg + " "; 
-            }
-
-            /// serial 
-            if (chkSerialToFile.Checked == true)
-            {
-                if (qemu.Debug.SerialPort.FileName != "")
-                    arg = arg + "-serial file:" + qemu.Debug.SerialPort.FileName + " "; 
-            }
-            
-            // paraell port
-            if (chkParallelToFile.Checked == true)
-            {
-                if (par_path != "")
-                    arg = arg + "-parallel  file:" + par_path +" "; 
-            }
-
-            //  vga standard
-            if (chkVBE30.Checked == true)
-            {                
-                  arg = arg + "-std-vga ";
-            }
 
             // gdb
             if (checkBox14.Checked == true)
@@ -1784,7 +1687,6 @@ namespace Qemu_GUI
               arg = arg + "-loadvm "+qemu_state+" "; 
             }
 
-            return arg;
         }
 
           */
@@ -1818,6 +1720,7 @@ namespace Qemu_GUI
 
             cboCDROM.SelectedIndex = 0;
             cboBootFrom.SelectedIndex = 1;
+            cboImageFormat.SelectedIndex = 4; 
         }
 
         #region Floppy
@@ -1852,7 +1755,7 @@ namespace Qemu_GUI
         {
             openFile.Filter = "Executable files (*.exe)|*.exe"; 
             if (openFile.ShowDialog() == DialogResult.OK)
-                txtQEmuPath.Text = Path.GetDirectoryName(openFile.FileName); 
+                txtQEmuPath.Text = openFile.FileName; 
         }
 
         private void btnVDKBrowse_Click(object sender, EventArgs e)
@@ -1902,18 +1805,50 @@ namespace Qemu_GUI
             optLegacyPC.Checked = !qemu.Misc.StandardPC;
             numMemory.Value = qemu.Misc.Memory;
             numSMP.Value = qemu.Misc.CPUs;
+            cboBootFrom.Text = qemu.Misc.BootFrom;
+            chkSetClock.Checked = qemu.Misc.SetClock;
+            chkVGAoutput.Checked = qemu.Misc.VGA;
+            chkFullscreen.Checked = qemu.Misc.Fullscreen;
+            chkKQEmu.Checked = qemu.Misc.KQEmu;
 
             /* CD-ROM */
             optHostCDROM.Checked = qemu.CDROM.UseFromHost;
             optCDImage.Checked = !qemu.CDROM.UseFromHost;
             txtCDROM.Text = qemu.CDROM.Image;
             cboCDROM.Text = qemu.CDROM.HostDrive;
-            chkUseCDROM.Checked = qemu.CDROM.Enabled;  
+            chkUseCDROM.Checked = qemu.CDROM.Enabled;
+
+            /* Floppies */
+            chkFloppyA.Checked = qemu.Floppies.FDD[0].Enabled;
+            txtFloppyA.Text = qemu.Floppies.FDD[0].Path;
+            chkFloppyB.Checked = qemu.Floppies.FDD[1].Enabled;
+            txtFloppyB.Text = qemu.Floppies.FDD[1].Path;
 
             /* Paths */
             txtQEmuPath.Text = qemu.Paths.QEmu;
             txtVDKPath.Text = qemu.Paths.VDK;
-            grpVDK.Enabled = (txtVDKPath.Text.Length > 0); 
+            grpVDK.Enabled = (txtVDKPath.Text.Length > 0);
+
+            /* Harddisks */
+            chkUseHDA.Checked = qemu.Harddisks.HDD[0].Enabled;
+            txtHDA.Text = qemu.Harddisks.HDD[0].Path;
+            chkUseHDB.Checked = qemu.Harddisks.HDD[1].Enabled;
+            txtHDB.Text = qemu.Harddisks.HDD[1].Path;
+            chkUseHDC.Checked = qemu.Harddisks.HDD[2].Enabled;
+            txtHDC.Text = qemu.Harddisks.HDD[2].Path;
+            chkUseHDD.Checked = qemu.Harddisks.HDD[3].Enabled;
+            txtHDD.Text = qemu.Harddisks.HDD[3].Path;
+
+            /* Audio */
+            chkES1370.Checked = qemu.Audio.ES1370;
+            chkSoundBlaster.Checked = qemu.Audio.Soundblaster;
+            chkPCSpeaker.Checked = qemu.Audio.Speaker;
+            chkOPL2.Checked = qemu.Audio.OPL2;
+
+            /* Debug */
+            chkSerialToFile.Checked = qemu.Debug.SerialPort.Redirect;
+            chkParallelToFile.Checked = qemu.Debug.ParallelPort.Redirect;
+            chkVBE30.Checked = qemu.Debug.VBE3;
 
         }
 
@@ -1922,7 +1857,12 @@ namespace Qemu_GUI
             /* Misc */
             qemu.Misc.StandardPC = optStandardPC.Checked;
             qemu.Misc.Memory = (int) numMemory.Value;
-            qemu.Misc.CPUs = (int) numSMP.Value; 
+            qemu.Misc.CPUs = (int) numSMP.Value;
+            qemu.Misc.BootFrom = cboBootFrom.Text;
+            qemu.Misc.SetClock = chkSetClock.Checked;
+            qemu.Misc.VGA = chkVGAoutput.Checked;
+            qemu.Misc.Fullscreen = chkFullscreen.Checked;
+            qemu.Misc.KQEmu = chkKQEmu.Checked;    
 
             /* Paths */
             qemu.Paths.QEmu = txtQEmuPath.Text;
