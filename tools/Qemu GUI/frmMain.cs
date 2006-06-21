@@ -1639,21 +1639,7 @@ namespace Qemu_GUI
         /*
         private string GetArgv()
         {
-
-          
-            /// cdrom
-            if ((chkUseCDROM.Checked == true) && (hdd_on == false))
-            {
-                if (optHostCDROM.Checked == true)
-                {
-                    arg = arg + "-cdrom " + cboCDROM.Text + " "; 
-                }
-                else if (txtCDROM.Text != "" && txtCDROM.Text != null)
-                {
-                    arg = arg + "-cdrom " + txtCDROM.Text + " ";
-                }
-            }
-            
+    
             /// boot options
             if (cboBootFrom.Text == "Floppy")
             {
@@ -1906,6 +1892,13 @@ namespace Qemu_GUI
             numMemory.Value = qemu.Misc.Memory;
             numSMP.Value = qemu.Misc.CPUs;
 
+            /* CD-ROM */
+            optHostCDROM.Checked = qemu.CDROM.UseFromHost;
+            optCDImage.Checked = !qemu.CDROM.UseFromHost;
+            txtCDROM.Text = qemu.CDROM.Image;
+            cboCDROM.Text = qemu.CDROM.HostDrive;
+            chkUseCDROM.Checked = qemu.CDROM.Enabled;  
+
             /* Paths */
             txtQEmuPath.Text = qemu.Paths.QEmu;
             txtVDKPath.Text = qemu.Paths.VDK;
@@ -1929,6 +1922,12 @@ namespace Qemu_GUI
             qemu.Floppies.FDD[0].Path = txtFloppyA.Text;
             qemu.Floppies.FDD[1].Enabled = chkFloppyB.Checked;
             qemu.Floppies.FDD[1].Path = txtFloppyB.Text;
+
+            /* CD-ROM */
+            qemu.CDROM.UseFromHost = optHostCDROM.Checked;
+            qemu.CDROM.Image = txtCDROM.Text;
+            qemu.CDROM.HostDrive = cboCDROM.Text;
+            qemu.CDROM.Enabled = chkUseCDROM.Checked;
 
             /* Harddisks */
             qemu.Harddisks.HDD[0].Enabled = chkUseHDA.Checked;
