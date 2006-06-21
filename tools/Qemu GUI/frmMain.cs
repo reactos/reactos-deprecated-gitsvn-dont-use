@@ -1309,7 +1309,7 @@ namespace Qemu_GUI
             this.groupBox2.Size = new System.Drawing.Size(454, 195);
             this.groupBox2.TabIndex = 21;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "QEmu";
+            this.groupBox2.Text = "Paths";
             // 
             // txtQEmuPath
             // 
@@ -1521,24 +1521,28 @@ namespace Qemu_GUI
         #region Harddisks
         private void btnBrowseHDA_Click(object sender, System.EventArgs e)
         {
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDA.Text = openFile.FileName;
         }
 
         private void btnBrowseHDB_Click(object sender, System.EventArgs e)
         {
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
             if (openFile.ShowDialog() == DialogResult.OK)
                 qemu.Harddisks.HDD[1].Path = openFile.FileName;
         }
 
         private void btnBrowseHDC_Click(object sender, System.EventArgs e)
         {
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDC.Text = openFile.FileName;
         }
 
         private void btnBrowseHDD_Click(object sender, System.EventArgs e)
         {
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDD.Text = openFile.FileName;
         }
@@ -1720,7 +1724,21 @@ namespace Qemu_GUI
 
             cboCDROM.SelectedIndex = 0;
             cboBootFrom.SelectedIndex = 1;
-            cboImageFormat.SelectedIndex = 4; 
+            cboImageFormat.SelectedIndex = 4;
+
+            /* try to load config.xml from current directory */
+            try
+            {
+                XmlSerializer s = new XmlSerializer(typeof(QEmu));
+                TextReader r = new StreamReader(".//config.xml");
+                qemu = (QEmu)s.Deserialize(r);
+                r.Close();
+                LoadSettings();
+            }
+            catch
+            {
+            }
+
         }
 
         #region Floppy
@@ -1774,7 +1792,8 @@ namespace Qemu_GUI
         #region Settings
         private void btnSave_Click(object sender, EventArgs e)
         {
-            SaveSettings(); 
+            SaveSettings();
+            saveFileDialog1.FileName = "config.xml";
             saveFileDialog1.Filter = "QEmu GUI Config (*.xml)|*.xml"; 
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
