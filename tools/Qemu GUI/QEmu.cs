@@ -178,9 +178,9 @@ namespace Qemu_GUI
             for (int i = 0; i < 4; i++)
             {
                 if (this.HDD[i].Enabled && (this.HDD[i].Path.Length > 0))
-                   buffer += String.Format(@"-hd{0} ""{1}""", (char) ('a' + i), this.HDD[i].Path);
+                    buffer += "-hd" + Convert.ToChar('a' + i) + " \"" + this.HDD[i].Path + "\" ";
+
             }
-            Console.WriteLine(buffer);
             return buffer;
         }
 
