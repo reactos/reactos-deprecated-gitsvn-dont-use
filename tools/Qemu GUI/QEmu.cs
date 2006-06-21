@@ -172,8 +172,6 @@ namespace Qemu_GUI
             arg += Audio.ToString();  
             arg += Debug.ToString();
 
-            Console.WriteLine(arg); 
-
             return arg;
         }
         
@@ -388,8 +386,6 @@ namespace Qemu_GUI
             if (this.ES1370)
                 buffer += "es1370,";
 
-
-            Console.WriteLine(buffer.Substring(0, buffer.Length - 1) + " ");
             return buffer.Substring(0, buffer.Length - 1) + " ";
         }
             
