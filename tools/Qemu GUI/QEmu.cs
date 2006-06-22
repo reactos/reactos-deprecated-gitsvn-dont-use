@@ -59,12 +59,14 @@ namespace Qemu_GUI
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
+            p.EnableRaisingEvents = true;
+            p.Exited += new EventHandler(mytask_output);
             try
             {
                 p.Start();
-                m_LastError = p.StandardError.ReadToEnd();
-                if (m_LastError.Length > 0)
-                    return false;
+                //m_LastError = p.StandardError.ReadToEnd();
+                //if (m_LastError.Length > 0)
+                //    return false;
             }
             catch
             {
@@ -90,12 +92,14 @@ namespace Qemu_GUI
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
+            p.EnableRaisingEvents = true;
+            p.Exited += new EventHandler(mytask_output);
             try
             {
                 p.Start();
-                m_LastError = p.StandardOutput.ReadToEnd();
-                if (m_LastError.Length > 0)
-                    return false;
+                //m_LastError = p.StandardOutput.ReadToEnd();
+                //if (m_LastError.Length > 0)
+                //    return false;
             }
             catch
             {
@@ -114,12 +118,16 @@ namespace Qemu_GUI
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
+
+            p.EnableRaisingEvents = true;
+            p.Exited += new EventHandler(mytask_output);
+
             try
             {
                 p.Start();
-                m_LastError = p.StandardError.ReadToEnd();
-                if (m_LastError.Length > 0)
-                    return false;
+                //m_LastError = p.StandardError.ReadToEnd();
+                //if (m_LastError.Length > 0)
+                //    return false;
             }
             catch
             {
@@ -165,14 +173,18 @@ namespace Qemu_GUI
             p.StartInfo.Arguments = GetArgv();
             p.StartInfo.RedirectStandardError = true;
             p.StartInfo.UseShellExecute = false;
-            p.StartInfo.CreateNoWindow = true;  
- 
+            p.StartInfo.CreateNoWindow = true;
+
+            p.EnableRaisingEvents = true;
+            p.Exited += new EventHandler(mytask_output);
+            
+
             try
             {
                 p.Start();
-                m_LastError = p.StandardError.ReadToEnd();
-                if (m_LastError.Length > 0)
-                    return false;    
+              //  m_LastError = p.StandardError.ReadLine();
+             //   if (m_LastError.Length > 0)
+             //       return false;    
             }
             catch 
             {
@@ -180,6 +192,12 @@ namespace Qemu_GUI
                 return false;
             }
             return true;
+        }
+
+        private void mytask_output(object sender, EventArgs e)
+        {
+            Process ps = (Process)sender; 
+           // add error handling here and do not freze the gui  
         }
 
         [XmlElement("Misc")]
@@ -253,6 +271,8 @@ namespace Qemu_GUI
         }
         
     }
+
+    
 
     public class Harddisks
     {
