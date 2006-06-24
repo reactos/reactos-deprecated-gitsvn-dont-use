@@ -11,8 +11,10 @@
 	var tWhere = "";
 	var tPicAnimation = "";
 	var tResults = "";
-	var twebsite = "http://localhost/reactos.org/support/index.php";
-	//var twebsite = "http://www.reactos.org/support/index.php";
+	//var twebsite = "http://localhost/reactos.org/support/index.php";
+	//var twebsite2 = "http://localhost/reactos.org/";
+	var twebsite = "http://www.reactos.org/support/index.php";
+	var twebsite2 = "http://www.reactos.org/";
 	
 
 	function writeItemList_style_header() {
@@ -55,6 +57,12 @@
 	function write_bar_entry(itemid, itemname) {
 		var tempb = "";	
 		tempb += "<a href=\""+twebsite+"?page=db&amp;view=comp&amp;sec=category&amp;group=" + itemid + "\">&bull; " + itemname + "</a>\n";
+		return tempb;
+	}
+
+	function write_rosweb_entry(itemname, itemid) {
+		var tempb = "";	
+		tempb += "<a href=\""+twebsite2+"?page=" + itemid + "\">&bull; " + itemname + "</a>\n";
 		return tempb;
 	}
 
@@ -137,32 +145,37 @@
 		if (asearch.length > 1) {
 			document.getElementById(tResults).style.display = "block";
 			document.getElementById(tPicAnimation).style.display = "inline";
-		   if (asearch != "") {
-			 setCursor('wait');
-			 if (http_request && (http_request.readyState == 2 || http_request.readyState == 3)) {
-			   http_request.abort();   // stop running request
-			 }
-		
-			 if (tWhere == "comp") {
-				 makeRequest(twebsite+'?page=dat&export=grplst&search='+asearch);
-			 }
-			 else if (tWhere == "vendor") {
-				 //alert("vendor");
-				 makeRequest(twebsite+'?page=dat&export=vdrlst&search='+asearch);
-			 }
-		   }
-	   }
-	   else {
+			if (asearch != "") {
+				setCursor('wait');
+				if (http_request && (http_request.readyState == 2 || http_request.readyState == 3)) {
+					http_request.abort();   // stop running request
+				}
+				
+			
+				if (tWhere == "comp") {
+					makeRequest(twebsite+'?page=dat&export=grplst&search='+asearch);
+				}
+				else if (tWhere == "vendor") {
+					//alert("vendor");
+					makeRequest(twebsite+'?page=dat&export=vdrlst&search='+asearch);
+				}
+				else if (tWhere.substr(0, 6) == "roscms") {
+					//alert("vendor");
+					makeRequest(twebsite2+'roscms/search.php?search='+asearch+'&searchlang='+tWhere.substr(7, 2));
+				}
+			}
+		}
+		else {
 			document.getElementById(tResults).style.display = "none";
 			document.getElementById(tPicAnimation).style.display = "none";
 			deleteItemList();
-	   }
+		}
 	}
 	
 	
 	function setCursor(mode) {
-	  var pageBody = document.getElementsByTagName("body")[0];
-	  pageBody.style.cursor = mode;
+		var pageBody = document.getElementsByTagName("body")[0];
+		pageBody.style.cursor = mode;
 	}
 	
 	
@@ -230,7 +243,10 @@
 						var vendo =  http_request.responseXML.getElementsByTagName("vendor");
 						var vendurl =  http_request.responseXML.getElementsByTagName("url");
 					}
-					
+					else if (tWhere.substr(0, 6) == "roscms") {
+						var webcontent =  http_request.responseXML.getElementsByTagName("content");
+					}
+	
 					// Colors:
 					var colorcur="";
 					var color1="#E2E2E2";
@@ -245,7 +261,10 @@
 					else if (tWhere == "vendor") {
 						xmllength = vendo.length;
 					}
-
+					else if (tWhere.substr(0, 6) == "roscms") {
+						xmllength = webcontent.length;
+					}
+					
 					// XML-Loop:
 					for (var i = 0; i < xmllength; i++) {
 						// Table colors:
@@ -271,6 +290,10 @@
 						else if (tView == "submit_vendor") {
 							lstData += write_vendorsubmit_entry(vendo[i].getAttributeNode("id").value, vendo[i].firstChild.data, vendurl[i].firstChild.data, colorcur);
 						}
+						else if (tView == "rosweb") {
+							lstData += write_rosweb_entry(webcontent[i].getAttributeNode("id").value, webcontent[i].firstChild.data);
+						}
+						
 					}
 					
 					// Table footer:
@@ -307,6 +330,9 @@
 					}	
 					else if (tView == "submit_vendor") {
 						document.getElementById(tResults).innerHTML = "<p>Your search - " + tSearch + " - did not match any database entries.</p><p>Choose a vendor from the <b><a href=\"javascript://\" onclick=\"SelectVendor()\">vendor list</a></b> or <b><a href=\"javascript://\" onclick=\"AddVendor()\">submit a new vendor</a></b> to the database.</p>";
+					}	
+					else if (tView == "rosweb") {
+						document.getElementById(tResults).innerHTML = "<center>no entries found</center>";
 					}	
 				}	
 				
