@@ -8,6 +8,7 @@ IF "%1" == "" GOTO help
 IF "%1" == "download" GOTO download
 IF "%1" == "process" GOTO process
 IF "%1" == "link" GOTO link
+IF "%1" == "merge" GOTO merge
 IF "%1" == "fullprocessing" GOTO fullprocessing
 
 :help
@@ -15,6 +16,7 @@ ECHO Syntax:
 ECHO %0 download {wine_lib} [{wine_lib} ...]
 ECHO %0 process {wine_lib} [{wine_lib} ...]
 ECHO %0 link {path_to_reactos} {wine_lib}
+ECHO %0 merge {path_to_reactos} {wine_lib} [{wine_lib} ...]
 ECHO %0 fullprocessing {path_to_reactos} {wine_lib} [{wine_lib} ...]
 GOTO :eof
 
@@ -23,6 +25,11 @@ IF "%2" == "" GOTO help
 SET CVSROOT=:pserver:cvs@cvs.winehq.org:/home/wine
 ECHO *** Password is "cvs" ***
 cvs.exe login
+IF ERRORLEVEL 2 (
+	ECHO Error when executing cvs.exe. Try to download the lastest version at
+	ECHO http://ftp.gnu.org/non-gnu/cvs/binary/stable/x86-woe/
+)
+IF ERRORLEVEL 1 GOTO :eof
 :startdownload
 ECHO Downloading %2 ...
 >NUL 2>NUL cvs.exe -z 3 checkout wine/dlls/%2
@@ -107,6 +114,54 @@ IF ERRORLEVEL 1 (
 )
 GOTO :eof
 
+:merge
+IF "%3" == "" GOTO help
+IF NOT EXIST "%2\ReactOS.rbuild" (
+	ECHO %2\ReactOS.rbuild doesn't exit.
+	GOTO :help
+)
+SET WINE_ROS_DIR=%2
+:mergenext
+SHIFT
+IF "%2" == "" GOTO :eof
+IF NOT EXIST "wine\dlls\%2" GOTO :mergenext
+COPY /Y "wine\dlls\%2\*.*" "%WINE_ROS_DIR%\dll\win32\%2" >NUL
+FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
+	IF "%%f" == ".cvsignore" (
+		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+	) ELSE IF "%%f" == "Makefile.in" (
+		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+	) ELSE IF NOT EXIST "wine\dlls\%2\%%f" (
+		SET WINE_FILE=%%f
+		IF NOT "%WINE_FILE:~-9" == "_ros.diff" (
+			svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
+			IF ERRORLEVEL 2 GOTO :helpsvn
+		)
+	) ELSE (
+		svn.exe add "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
+		IF ERRORLEVEL 2 GOTO :helpsvn
+		svn.exe propset svn:eol-style native "%WINE_ROS_DIR%\dll\win32\%2\%%f" >NUL 2>NUL
+	)
+)
+IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" (
+	svn.exe add "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" 2>NUL
+	IF ERRORLEVEL 2 GOTO :helpsvn
+	svn.exe propset svn:eol-style native "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" >NUL 2>NUL
+	PUSHD "%WINE_ROS_DIR%"
+	patch.exe -p0 -N < "dll\win32\%2\%2_ros.diff"
+	POPD
+	IF ERRORLEVEL 1 (
+		ECHO Error when executing patch.exe. Try to download the lastest version at
+		ECHO http://unxutils.sourceforge.net/
+		GOTO :eof
+	)
+)
+GOTO :mergenext
+:helpsvn
+ECHO Error when executing svn.exe. Try to download the lastest version at
+ECHO http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91
+GOTO :eof
+
 :fullprocessing
 SETLOCAL ENABLEEXTENSIONS
 IF "%3" == "" GOTO help
@@ -119,10 +174,14 @@ SET WINE_LIST=%WINE_LIST% %2
 GOTO fullprocessing_filllist
 :fullprocessing_download
 CALL :download download%WINE_LIST%
+IF ERRORLEVEL 1 GOTO :eof
 FOR %%m IN (%WINE_LIST%) DO (
 	>wine\dlls\%%m\%%m.rbuild CALL :process process %%m
 	CALL :link link "%WINE_ROS_DIR%" %%m
+	IF ERRORLEVEL 1 GOTO :eof
 )
+CALL :merge merge "%WINE_ROS_DIR%" %WINE_LIST%
+IF ERRORLEVEL 1 GOTO :eof
 IF EXIST "%WINE_ROS_DIR%\makefile.auto" DEL "%WINE_ROS_DIR%\makefile.auto"
 PUSHD "%WINE_ROS_DIR%"
 make.exe %WINE_LIST%
