@@ -22,9 +22,8 @@ GOTO :eof
 
 :download
 IF "%2" == "" GOTO help
-SET CVSROOT=:pserver:cvs@cvs.winehq.org:/home/wine
-ECHO *** Password is "cvs" ***
-cvs.exe login
+SET CVSROOT=:pserver:cvs:cvs@cvs.winehq.org:/home/wine
+cvs.exe login >NUL
 IF ERRORLEVEL 2 (
 	ECHO Error when executing cvs.exe. Try to download the lastest version at
 	ECHO http://ftp.gnu.org/non-gnu/cvs/binary/stable/x86-woe/
