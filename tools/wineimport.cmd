@@ -6,7 +6,7 @@ SET WINE_TMPFILE1=tmpfile1.wine
 
 IF "%1" == "" GOTO help
 IF "%1" == "download" GOTO download
-IF "%1" == "process" GOTO process
+IF "%1" == "createrbuild" GOTO createrbuild
 IF "%1" == "link" GOTO link
 IF "%1" == "merge" GOTO merge
 IF "%1" == "fullprocessing" GOTO fullprocessing
@@ -14,7 +14,7 @@ IF "%1" == "fullprocessing" GOTO fullprocessing
 :help
 ECHO Syntax:
 ECHO %0 download {wine_lib} [{wine_lib} ...]
-ECHO %0 process {wine_lib} [{wine_lib} ...]
+ECHO %0 createrbuild {wine_lib} [{wine_lib} ...]
 ECHO %0 link {path_to_reactos} {wine_lib}
 ECHO %0 merge {path_to_reactos} {wine_lib} [{wine_lib} ...]
 ECHO %0 fullprocessing {path_to_reactos} {wine_lib} [{wine_lib} ...]
@@ -37,15 +37,15 @@ IF NOT "%2" == "" GOTO startdownload
 >NUL 2>NUL cvs.exe logout
 GOTO :eof
 
-:process
+:createrbuild
 SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
 SET WINE_BATCH=%0
 IF "%2" == "" GOTO help
-:startprocess
+:startcreaterbuild
 IF NOT EXIST wine\dlls\%2\makefile.in (
 	ECHO WARNING: Did you forget "%WINE_BATCH% download %2"?
-	GOTO :processnext
+	GOTO :createrbuildnext
 )
 
 SET WINE_LOWER=abcdefghijklmnopqrstuvwxyz0123456789
@@ -83,9 +83,9 @@ FOR /F "eol=# delims=" %%l IN (%WINE_TMPFILE1%) DO (
 ECHO 	^<file^>%2.spec^</file^>
 ECHO ^</module^>
 
-:processnext
+:createrbuildnext
 SHIFT
-IF NOT "%2" == "" GOTO startprocess
+IF NOT "%2" == "" GOTO startcreaterbuild
 DEL %WINE_TMPFILE1%
 GOTO :eof
 
@@ -103,7 +103,7 @@ IF NOT EXIST "wine\dlls\%3" (
 )
 IF NOT EXIST "wine\dlls\%3\%3.rbuild" (
 	ECHO wine\dlls\%3.rbuild doesn't exist.
-	ECHO Did you forget "%WINE_BATCH% process %3 >wine\dlls\%3\%3.rbuild"?
+	ECHO Did you forget "%WINE_BATCH% createrbuild %3 >wine\dlls\%3\%3.rbuild"?
 	GOTO :eof
 )
 >NUL 2>NUL junction.exe "%2\dll\win32\%3.wine" "wine\dlls\%3"
@@ -124,6 +124,7 @@ SET WINE_ROS_DIR=%2
 SHIFT
 IF "%2" == "" GOTO :eof
 IF NOT EXIST "wine\dlls\%2" GOTO :mergenext
+ATTRIB -R "%WINE_ROS_DIR%\dll\win32\%2\*" >NUL
 COPY /Y "wine\dlls\%2\*.*" "%WINE_ROS_DIR%\dll\win32\%2" >NUL
 FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
 	IF "%%f" == ".cvsignore" (
@@ -175,9 +176,8 @@ GOTO fullprocessing_filllist
 CALL :download download%WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 FOR %%m IN (%WINE_LIST%) DO (
-	>wine\dlls\%%m\%%m.rbuild CALL :process process %%m
-	CALL :link link "%WINE_ROS_DIR%" %%m
-	IF ERRORLEVEL 1 GOTO :eof
+	>wine\dlls\%%m\%%m.rbuild CALL :createrbuild createrbuild %%m
+	>NUL CALL :link link "%WINE_ROS_DIR%" %%m
 )
 CALL :merge merge "%WINE_ROS_DIR%" %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
@@ -185,6 +185,9 @@ IF EXIST "%WINE_ROS_DIR%\makefile.auto" DEL "%WINE_ROS_DIR%\makefile.auto"
 PUSHD "%WINE_ROS_DIR%"
 make.exe %WINE_LIST%
 POPD
+IF ERRORLEVEL 1 GOTO :eof
+ECHO Compilation successful. You should try to run ReactOS to see if
+ECHO no visible regressions appeared before committing the changes.
 GOTO :eof
 
 :internal_analyseline
