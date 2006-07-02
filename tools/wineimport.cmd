@@ -9,6 +9,7 @@ IF "%1" == "download" GOTO download
 IF "%1" == "createrbuild" GOTO createrbuild
 IF "%1" == "link" GOTO link
 IF "%1" == "merge" GOTO merge
+IF "%1" == "make" GOTO make
 IF "%1" == "fullprocessing" GOTO fullprocessing
 
 :help
@@ -17,6 +18,7 @@ ECHO %0 download {wine_lib} [{wine_lib} ...]
 ECHO %0 createrbuild {wine_lib} [{wine_lib} ...]
 ECHO %0 link {path_to_reactos} {wine_lib}
 ECHO %0 merge {path_to_reactos} {wine_lib} [{wine_lib} ...]
+ECHO %0 make {path_to_reactos} {wine_lib} [{wine_lib} ...]
 ECHO %0 fullprocessing {path_to_reactos} {wine_lib} [{wine_lib} ...]
 GOTO :eof
 
@@ -162,6 +164,26 @@ ECHO Error when executing svn.exe. Try to download the lastest version at
 ECHO http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91
 GOTO :eof
 
+:make
+SETLOCAL ENABLEEXTENSIONS
+IF "%3" == "" GOTO help
+IF NOT EXIST "%2\ReactOS.rbuild" (
+	ECHO %2\ReactOS.rbuild doesn't exit.
+	GOTO :help
+)
+SET WINE_LIST=
+SET WINE_ROS_DIR=%2
+:make_filllist
+SHIFT
+IF "%2" == "" GOTO make_doit
+SET WINE_LIST=%WINE_LIST% %2
+GOTO make_filllist
+:make_doit
+PUSHD "%WINE_ROS_DIR%"
+make.exe %WINE_LIST%
+POPD
+GOTO :eof
+
 :fullprocessing
 SETLOCAL ENABLEEXTENSIONS
 IF "%3" == "" GOTO help
@@ -182,9 +204,7 @@ FOR %%m IN (%WINE_LIST%) DO (
 CALL :merge merge "%WINE_ROS_DIR%" %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 IF EXIST "%WINE_ROS_DIR%\makefile.auto" DEL "%WINE_ROS_DIR%\makefile.auto"
-PUSHD "%WINE_ROS_DIR%"
-make.exe %WINE_LIST%
-POPD
+CALL :make make "%WINE_ROS_DIR%" %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 ECHO Compilation successful. You should try to run ReactOS to see if
 ECHO no visible regressions appeared before committing the changes.
