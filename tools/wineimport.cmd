@@ -30,10 +30,14 @@ IF ERRORLEVEL 2 (
 	ECHO Error when executing cvs.exe. Try to download the lastest version at
 	ECHO http://ftp.gnu.org/non-gnu/cvs/binary/stable/x86-woe/
 )
-IF ERRORLEVEL 1 GOTO :eof
 :startdownload
 ECHO Downloading %2 ...
 >NUL 2>NUL cvs.exe -z 3 checkout wine/dlls/%2
+IF NOT EXIST "wine\dlls\%2\" (
+	ECHO Error when downloading %2. Are you sure it does exist?
+	COLOR 00
+	GOTO :eof
+)
 SHIFT
 IF NOT "%2" == "" GOTO startdownload
 >NUL 2>NUL cvs.exe logout
@@ -75,10 +79,10 @@ ECHO 	^<define name="_WIN32_IE"^>0x600^</define^>
 ECHO 	^<define name="_WIN32_WINNT"^>0x501^</define^>
 ECHO 	^<define name="WINVER"^>0x501^</define^>
 ECHO 	^<library^>wine^</library^>
-ECHO 	^<library^>ntdll^</library^>
 SET WINE_FULL_LINE=
 SET WINE_END_PREC_LINE=
 SET WINE_VARTYPE=0
+SET WINE_HAS_NTDLL=
 FOR /F "eol=# delims=" %%l IN (%WINE_TMPFILE1%) DO (
 	CALL :internal_analyseline %%l
 )
@@ -218,9 +222,11 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 		FOR /F "tokens=2* delims= " %%h IN ("%WINE_FULL_LINE%") DO (
 			FOR %%j IN (%%i) DO (
 				IF "%WINE_VARTYPE%" == "1" (
+					IF "%WINE_HAS_NTDLL%" == "" ECHO 	^<library^>ntdll^</library^>
 					ECHO 	^<file^>%%j^</file^>
 				) ELSE IF "%WINE_VARTYPE%" == "2" (
 					ECHO 	^<library^>%%j^</library^>
+					IF "%%j" == "ntdll" SET WINE_HAS_NTDLL=1
 				) ELSE (
 					IF "%%j" == "-luuid" ECHO 	^<library^>uuid^</library^>
 				)
