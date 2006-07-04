@@ -222,7 +222,10 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 		FOR /F "tokens=2* delims= " %%h IN ("%WINE_FULL_LINE%") DO (
 			FOR %%j IN (%%i) DO (
 				IF "%WINE_VARTYPE%" == "1" (
-					IF "%WINE_HAS_NTDLL%" == "" ECHO 	^<library^>ntdll^</library^>
+					IF "!WINE_HAS_NTDLL!" == "" (
+						ECHO 	^<library^>ntdll^</library^>
+						SET WINE_HAS_NTDLL=1
+					)
 					ECHO 	^<file^>%%j^</file^>
 				) ELSE IF "%WINE_VARTYPE%" == "2" (
 					ECHO 	^<library^>%%j^</library^>
