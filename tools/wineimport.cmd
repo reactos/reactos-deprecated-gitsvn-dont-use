@@ -120,6 +120,7 @@ IF ERRORLEVEL 1 (
 GOTO :eof
 
 :merge
+SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%3" == "" GOTO help
 IF NOT EXIST "%2\ReactOS.rbuild" (
 	ECHO %2\ReactOS.rbuild doesn't exit.
@@ -139,7 +140,7 @@ FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
 		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
 	) ELSE IF NOT EXIST "wine\dlls\%2\%%f" (
 		SET WINE_FILE=%%f
-		IF NOT "%WINE_FILE:~-9" == "_ros.diff" (
+		IF NOT "!WINE_FILE:~-9!" == "_ros.diff" (
 			svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 			IF ERRORLEVEL 2 GOTO :helpsvn
 		)
@@ -154,7 +155,9 @@ IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" (
 	IF ERRORLEVEL 2 GOTO :helpsvn
 	svn.exe propset svn:eol-style native "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" >NUL 2>NUL
 	PUSHD "%WINE_ROS_DIR%"
-	patch.exe -p0 -N < "dll\win32\%2\%2_ros.diff"
+	PUSHD "dll\win32\%2"
+	patch.exe -p0 -N < "%2_ros.diff"
+	POPD
 	POPD
 	IF ERRORLEVEL 1 (
 		ECHO Error when executing patch.exe. Try to download the lastest version at
