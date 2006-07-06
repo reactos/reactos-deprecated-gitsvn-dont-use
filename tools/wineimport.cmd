@@ -32,11 +32,15 @@ IF ERRORLEVEL 2 (
 )
 :startdownload
 ECHO Downloading %2 ...
->NUL 2>NUL cvs.exe -z 3 checkout wine/dlls/%2
-IF NOT EXIST "wine\dlls\%2\" (
-	ECHO Error when downloading %2. Are you sure it does exist?
-	COLOR 00
-	GOTO :eof
+IF NOT EXIST "wine\dlls\%2" (
+	>NUL 2>NUL cvs.exe -z 3 checkout wine/dlls/%2
+	IF NOT EXIST "wine\dlls\%2\" (
+		ECHO Error when downloading %2. Are you sure it does exist?
+		COLOR 00
+		GOTO :eof
+	)
+) ELSE (
+	>NUL 2>NUL cvs.exe -z 3 update -PA wine/dlls/%2
 )
 SHIFT
 IF NOT "%2" == "" GOTO startdownload
@@ -135,14 +139,17 @@ ATTRIB -R "%WINE_ROS_DIR%\dll\win32\%2\*" >NUL
 COPY /Y "wine\dlls\%2\*.*" "%WINE_ROS_DIR%\dll\win32\%2" >NUL
 FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
 	IF "%%f" == ".cvsignore" (
+		svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
 	) ELSE IF "%%f" == "Makefile.in" (
+		svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
 	) ELSE IF NOT EXIST "wine\dlls\%2\%%f" (
 		SET WINE_FILE=%%f
 		IF NOT "!WINE_FILE:~-9!" == "_ros.diff" (
 			svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 			IF ERRORLEVEL 2 GOTO :helpsvn
+			IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%%f" DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
 		)
 	) ELSE (
 		svn.exe add "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
