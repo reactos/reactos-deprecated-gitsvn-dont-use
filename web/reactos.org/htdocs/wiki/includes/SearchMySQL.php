@@ -1,20 +1,20 @@
 <?php
 # Copyright (C) 2004 Brion Vibber <brion@pobox.com>
 # http://www.mediawiki.org/
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or 
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 # http://www.gnu.org/copyleft/gpl.html
 
 /**
@@ -23,9 +23,6 @@
  * @package MediaWiki
  * @subpackage Search
  */
-
-/** */
-require_once( 'SearchEngine.php' );
 
 /** @package MediaWiki */
 class SearchMySQL extends SearchEngine {
@@ -52,12 +49,12 @@ class SearchMySQL extends SearchEngine {
 		$resultSet = $this->db->resultObject( $this->db->query( $this->getQuery( $this->filter( $term ), false ) ) );
 		return new MySQLSearchResultSet( $resultSet, $this->searchTerms );
 	}
-	
-	
+
+
 	/**
 	 * Return a partial WHERE clause to exclude redirects, if so set
 	 * @return string
-	 * @access private
+	 * @private
 	 */
 	function queryRedirect() {
 		if( $this->showRedirects ) {
@@ -66,11 +63,11 @@ class SearchMySQL extends SearchEngine {
 			return 'AND page_is_redirect=0';
 		}
 	}
-	
+
 	/**
 	 * Return a partial WHERE clause to limit the search to the given namespaces
 	 * @return string
-	 * @access private
+	 * @private
 	 */
 	function queryNamespaces() {
 		$namespaces = implode( ',', $this->namespaces );
@@ -79,32 +76,32 @@ class SearchMySQL extends SearchEngine {
 		}
 		return 'AND page_namespace IN (' . $namespaces . ')';
 	}
-	
+
 	/**
 	 * Return a LIMIT clause to limit results on the query.
 	 * @return string
-	 * @access private
+	 * @private
 	 */
 	function queryLimit() {
-		return $this->db->limitResult( $this->limit, $this->offset );
+		return $this->db->limitResult( '', $this->limit, $this->offset );
 	}
 
 	/**
 	 * Does not do anything for generic search engine
 	 * subclasses may define this though
 	 * @return string
-	 * @access private
+	 * @private
 	 */
 	function queryRanking( $filteredTerm, $fulltext ) {
 		return '';
 	}
-	
+
 	/**
 	 * Construct the full SQL query to do the search.
 	 * The guts shoulds be constructed in queryMain()
 	 * @param string $filteredTerm
 	 * @param bool $fulltext
-	 * @access private
+	 * @private
 	 */
 	function getQuery( $filteredTerm, $fulltext ) {
 		return $this->queryMain( $filteredTerm, $fulltext ) . ' ' .
@@ -133,7 +130,7 @@ class SearchMySQL extends SearchEngine {
 	 * @param string $filteredTerm
 	 * @param bool $fulltext
 	 * @return string
-	 * @access private
+	 * @private
 	 */
 	function queryMain( $filteredTerm, $fulltext ) {
 		$match = $this->parseQuery( $filteredTerm, $fulltext );
@@ -172,7 +169,7 @@ class SearchMySQL extends SearchEngine {
 	 */
     function updateTitle( $id, $title ) {
 		$dbw =& wfGetDB( DB_MASTER );
-		
+
 		$dbw->update( 'searchindex',
 			array( 'si_title' => $title ),
 			array( 'si_page'  => $id ),
@@ -187,15 +184,15 @@ class MySQLSearchResultSet extends SearchResultSet {
 		$this->mResultSet = $resultSet;
 		$this->mTerms = $terms;
 	}
-	
+
 	function termMatches() {
 		return $this->mTerms;
 	}
-	
+
 	function numRows() {
 		return $this->mResultSet->numRows();
 	}
-	
+
 	function next() {
 		$row = $this->mResultSet->fetchObject();
 		if( $row === false ) {

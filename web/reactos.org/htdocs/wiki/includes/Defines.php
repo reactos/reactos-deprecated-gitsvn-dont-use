@@ -4,6 +4,11 @@
  * @package MediaWiki
  */
 
+/**
+ * Version constants for the benefit of extensions
+ */
+define( 'MW_SPECIALPAGE_VERSION', 2 );
+
 /**#@+
  * Database related constants
  */
@@ -75,10 +80,25 @@ define( 'MW_MATH_MATHML', 5 );
  * database.
  * @todo Is this necessary?
  */
-$wgAvailableRights = array('read', 'edit', 'move', 'delete', 'undelete',
-'protect', 'block', 'userrights', 'createaccount', 'upload',
-'rollback', 'patrol', 'editinterface', 'siteadmin', 'bot', 'validate', 
-'import', 'importupload', 'renameuser' );
+$wgAvailableRights = array(
+	'block',
+	'bot',
+	'createaccount',
+	'delete',
+	'edit',
+	'editinterface',
+	'import',
+	'importupload',
+	'move',
+	'patrol',
+	'protect',
+	'read',
+	'rollback',
+	'siteadmin',
+	'unwatchedpages',
+	'upload',
+	'userrights',
+);
 
 /**#@+
  * Cache type
@@ -93,10 +113,9 @@ define( 'CACHE_ACCEL', 3 );      // eAccelerator or Turck, whichever is availabl
 
 
 /**#@+
- * Media types. 
+ * Media types.
  * This defines constants for the value returned by Image::getMediaType()
  */
-
 define( 'MEDIATYPE_UNKNOWN',    'UNKNOWN' );     // unknown format
 define( 'MEDIATYPE_BITMAP',     'BITMAP' );      // some bitmap image or image source (like psd, etc). Can't scale up.
 define( 'MEDIATYPE_DRAWING',    'DRAWING' );     // some vector drawing (SVG, WMF, PS, ...) or image source (oo-draw, etc). Can scale up.
@@ -110,9 +129,8 @@ define( 'MEDIATYPE_ARCHIVE',    'ARCHIVE' );     // archive file (zip, tar, etc)
 /**#@-*/
 
 /**#@+
- * Antivirus result codes, for use in $wgAntivirusSetup. 
+ * Antivirus result codes, for use in $wgAntivirusSetup.
  */
-
 define( 'AV_NO_VIRUS', 0 );  #scan ok, no virus found
 define( 'AV_VIRUS_FOUND', 1 );  #virus found!
 define( 'AV_SCAN_ABORTED', -1 );  #scan aborted, the file is probably imune
@@ -138,6 +156,28 @@ define( 'MW_DATE_MDY', '1' );
 define( 'MW_DATE_DMY', '2' );
 define( 'MW_DATE_YMD', '3' );
 define( 'MW_DATE_ISO', 'ISO 8601' );
+/**#@-*/
+
+/**#@+
+ * RecentChange type identifiers
+ * This may be obsolete; log items are now used for moves?
+ */
+define( 'RC_EDIT', 0);
+define( 'RC_NEW', 1);
+define( 'RC_MOVE', 2);
+define( 'RC_LOG', 3);
+define( 'RC_MOVE_OVER_REDIRECT', 4);
+/**#@-*/
+
+/**#@+
+ * Article edit flags
+ */
+define( 'EDIT_NEW', 1 );
+define( 'EDIT_UPDATE', 2 );
+define( 'EDIT_MINOR', 4 ); 
+define( 'EDIT_SUPPRESS_RC', 8 );
+define( 'EDIT_FORCE_BOT', 16 );
+define( 'EDIT_DEFER_UPDATES', 32 );
 /**#@-*/
 
 ?>

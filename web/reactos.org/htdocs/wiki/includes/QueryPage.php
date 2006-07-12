@@ -5,37 +5,45 @@
  */
 
 /**
- *
- */
-require_once ( 'Feed.php' );
-
-/**
  * List of query page classes and their associated special pages, for periodic update purposes
  */
+global $wgQueryPages; // not redundant
 $wgQueryPages = array(
-//         QueryPage subclass           Special page name
-//------------------------------------------------------------
-    array( 'AncientPagesPage',          'Ancientpages'      ),
-    array( 'BrokenRedirectsPage',       'BrokenRedirects'   ),
-    array( 'DeadendPagesPage',          'Deadendpages'      ),
-    array( 'DisambiguationsPage',       'Disambiguations'   ),
-    array( 'DoubleRedirectsPage',       'DoubleRedirects'   ),
-    array( 'ListUsersPage',             'Listusers'         ), 
-    array( 'LonelyPagesPage',           'Lonelypages'       ),
-    array( 'LongPagesPage',             'Longpages'         ),
-    array( 'NewPagesPage',              'Newpages'          ),
-    array( 'ShortPagesPage',            'Shortpages'        ),
-    array( 'UncategorizedCategoriesPage','Uncategorizedcategories'),
-    array( 'UncategorizedPagesPage',    'Uncategorizedpages'),
-    array( 'UnusedimagesPage',          'Unusedimages'      ),
-    array( 'WantedPagesPage',           'Wantedpages'       ),
-    array( 'MostlinkedPage',		'Mostlinked'	    ),
+//         QueryPage subclass           Special page name         Limit (false for none, none for the default)
+//----------------------------------------------------------------------------
+	array( 'AncientPagesPage',		'Ancientpages'			),
+	array( 'BrokenRedirectsPage',		'BrokenRedirects'		),
+	array( 'CategoriesPage',		'Categories'			),
+	array( 'DeadendPagesPage',		'Deadendpages'			),
+	array( 'DisambiguationsPage',		'Disambiguations'		),
+	array( 'DoubleRedirectsPage',		'DoubleRedirects'		),
+	array( 'ListUsersPage',			'Listusers'			),
+	array( 'ListredirectsPage', 'Listredirects' ),
+	array( 'LonelyPagesPage',		'Lonelypages'			),
+	array( 'LongPagesPage',			'Longpages'			),
+	array( 'MostcategoriesPage',		'Mostcategories'		),
+	array( 'MostimagesPage',		'Mostimages'			),
+	array( 'MostlinkedCategoriesPage',	'Mostlinkedcategories'		),
+	array( 'MostlinkedPage',		'Mostlinked'			),
+	array( 'MostrevisionsPage',		'Mostrevisions'			),
+	array( 'NewPagesPage',			'Newpages'			),
+	array( 'ShortPagesPage',		'Shortpages'			),
+	array( 'UncategorizedCategoriesPage',	'Uncategorizedcategories'	),
+	array( 'UncategorizedPagesPage',	'Uncategorizedpages'		),
+	array( 'UncategorizedImagesPage', 'Uncategorizedimages' ),
+	array( 'UnusedCategoriesPage',		'Unusedcategories'		),
+	array( 'UnusedimagesPage',		'Unusedimages'			),
+	array( 'WantedCategoriesPage',		'Wantedcategories'		),
+	array( 'WantedPagesPage',		'Wantedpages'			),
+	array( 'UnwatchedPagesPage',		'Unwatchedpages'		),
+	array( 'UnusedtemplatesPage', 'Unusedtemplates' ),
 );
-    
+wfRunHooks( 'wgQueryPages', array( &$wgQueryPages ) );
+
 global $wgDisableCounters;
-if( !$wgDisableCounters ) {
-	$wgQueryPages[] = array( 'PopularPagesPage',          'Popularpages'      );
-}
+if ( !$wgDisableCounters )
+	$wgQueryPages[] = array( 'PopularPagesPage',		'Popularpages'		);
+
 
 /**
  * This is a class for doing query pages; since they're almost all the same,
@@ -45,6 +53,29 @@ if( !$wgDisableCounters ) {
  * @package MediaWiki
  */
 class QueryPage {
+	/**
+	 * Whether or not we want plain listoutput rather than an ordered list
+	 *
+	 * @var bool
+	 */
+	var $listoutput = false;
+	
+	/**
+	 * The offset and limit in use, as passed to the query() function
+	 *
+	 * @var integer
+	 */
+	var $offset = 0;
+	var $limit = 0;
+
+	/**
+	 * A mutator for $this->listoutput;
+	 *
+	 * @param bool $bool
+	 */
+	function setListoutput( $bool ) {
+		$this->listoutput = $bool;
+	}
 
 	/**
 	 * Subclasses return their name here. Make sure the name is also
@@ -53,6 +84,15 @@ class QueryPage {
 	 */
 	function getName() {
 		return '';
+	}
+
+	/**
+	 * Return title object representing this page
+	 *
+	 * @return Title
+	 */
+	function getTitle() {
+		return Title::makeTitle( NS_SPECIAL, $this->getName() );
 	}
 
 	/**
@@ -97,6 +137,18 @@ class QueryPage {
 	}
 
 	/**
+	 * Whether or not the output of the page in question is retrived from
+	 * the database cache.
+	 *
+	 * @return bool
+	 */
+	function isCached() {
+		global $wgMiserMode;
+
+		return $this->isExpensive() && $wgMiserMode;
+	}
+
+	/**
 	 * Sometime we dont want to build rss / atom feeds.
 	 */
 	function isSyndicated() {
@@ -119,7 +171,7 @@ class QueryPage {
 	function getPageHeader( ) {
 		return '';
 	}
-	
+
 	/**
 	 * If using extra form wheely-dealies, return a set of parameters here
 	 * as an associative array. They will be encoded and added to the paging
@@ -129,7 +181,7 @@ class QueryPage {
 	function linkParameters() {
 		return array();
 	}
-	
+
 	/**
 	 * Some special pages (for example SpecialListusers) might not return the
 	 * current object formatted, but return the previous one instead.
@@ -143,7 +195,7 @@ class QueryPage {
 	/**
 	 * Clear the cache and save new results
 	 */
-	function recache( $ignoreErrors = true ) {
+	function recache( $limit, $ignoreErrors = true ) {
 		$fname = get_class($this) . '::recache';
 		$dbw =& wfGetDB( DB_MASTER );
 		$dbr =& wfGetDB( DB_SLAVE, array( $this->getName(), 'QueryPage::recache', 'vslow' ) );
@@ -152,7 +204,7 @@ class QueryPage {
 		}
 
 		$querycache = $dbr->tableName( 'querycache' );
-		
+
 		if ( $ignoreErrors ) {
 			$ignoreW = $dbw->ignoreErrors( true );
 			$ignoreR = $dbr->ignoreErrors( true );
@@ -161,7 +213,10 @@ class QueryPage {
 		# Clear out any old cached data
 		$dbw->delete( 'querycache', array( 'qc_type' => $this->getName() ), $fname );
 		# Do query
-		$res = $dbr->query( $this->getSQL() . $this->getOrder() . $dbr->limitResult( 1000,0 ), $fname );
+		$sql = $this->getSQL() . $this->getOrder();
+		if ($limit !== false)
+			$sql = $dbr->limitResult($sql, $limit, 0);
+		$res = $dbr->query($sql, $fname);
 		$num = false;
 		if ( $res ) {
 			$num = $dbr->numRows( $res );
@@ -202,6 +257,11 @@ class QueryPage {
 				$dbw->ignoreErrors( $ignoreW );
 				$dbr->ignoreErrors( $ignoreR );
 			}
+
+			# Update the querycache_info record for the page
+			$dbw->delete( 'querycache_info', array( 'qci_type' => $this->getName() ), $fname );
+			$dbw->insert( 'querycache_info', array( 'qci_type' => $this->getName(), 'qci_timestamp' => $dbw->timestamp() ), $fname );
+
 		}
 		return $num;
 	}
@@ -215,50 +275,71 @@ class QueryPage {
 	 * @param $shownavigation show navigation like "next 200"?
 	 */
 	function doQuery( $offset, $limit, $shownavigation=true ) {
-		global $wgUser, $wgOut, $wgLang, $wgRequest, $wgContLang;
-		global $wgMiserMode;
+		global $wgUser, $wgOut, $wgLang, $wgContLang;
+
+		$this->offset = $offset;
+		$this->limit = $limit;
 
 		$sname = $this->getName();
 		$fname = get_class($this) . '::doQuery';
 		$sql = $this->getSQL();
 		$dbr =& wfGetDB( DB_SLAVE );
-		$dbw =& wfGetDB( DB_MASTER );
 		$querycache = $dbr->tableName( 'querycache' );
 
 		$wgOut->setSyndicated( $this->isSyndicated() );
 
-		if ( $this->isExpensive() ) {
-			// Disabled recache parameter due to retry problems -- TS
-			if( $wgMiserMode ) {
-				$type = $dbr->strencode( $sname );
-				$sql =
-					"SELECT qc_type as type, qc_namespace as namespace,qc_title as title, qc_value as value
-					 FROM $querycache WHERE qc_type='$type'";
-				$wgOut->addWikiText( wfMsg( 'perfcached' ) );
+		if ( $this->isCached() ) {
+			$type = $dbr->strencode( $sname );
+			$sql =
+				"SELECT qc_type as type, qc_namespace as namespace,qc_title as title, qc_value as value
+				 FROM $querycache WHERE qc_type='$type'";
+
+			if( !$this->listoutput ) {
+
+				# Fetch the timestamp of this update
+				$tRes = $dbr->select( 'querycache_info', array( 'qci_timestamp' ), array( 'qci_type' => $type ), $fname );
+				$tRow = $dbr->fetchObject( $tRes );
+				
+				if( $tRow ) {
+					$updated = $wgLang->timeAndDate( $tRow->qci_timestamp, true, true );
+					$cacheNotice = wfMsg( 'perfcachedts', $updated );
+					$wgOut->addMeta( 'Data-Cache-Time', $tRow->qci_timestamp );
+					$wgOut->addScript( '<script language="JavaScript">var dataCacheTime = \'' . $tRow->qci_timestamp . '\';</script>' );
+				} else {
+					$cacheNotice = wfMsg( 'perfcached' );
+				}
+	
+				$wgOut->addWikiText( $cacheNotice );
 			}
+
 		}
-		
-		$res = $dbr->query( $sql . $this->getOrder() .
-				    $dbr->limitResult( $limit,$offset ), $fname );
+
+		$sql .= $this->getOrder();
+		$sql = $dbr->limitResult($sql, $limit, $offset);
+		$res = $dbr->query( $sql );
 		$num = $dbr->numRows($res);
-		
+
+		$this->preprocessResults( $dbr, $res );
+
 		$sk = $wgUser->getSkin( );
 
 		if($shownavigation) {
 			$wgOut->addHTML( $this->getPageHeader() );
 			$top = wfShowingResults( $offset, $num);
 			$wgOut->addHTML( "<p>{$top}\n" );
-	
+
 			# often disable 'next' link when we reach the end
-			if($num < $limit) { $atend = true; } else { $atend = false; }
-			
+			$atend = $num < $limit;
+
 			$sl = wfViewPrevNext( $offset, $limit ,
 				$wgContLang->specialPage( $sname ),
 				wfArrayToCGI( $this->linkParameters() ), $atend );
 			$wgOut->addHTML( "<br />{$sl}</p>\n" );
 		}
 		if ( $num > 0 ) {
-			$s = "<ol start='" . ( $offset + 1 ) . "' class='special'>";
+			$s = array();
+			if ( ! $this->listoutput )
+				$s[] = "<ol start='" . ( $offset + 1 ) . "' class='special'>";
 
 			# Only read at most $num rows, because $res may contain the whole 1000
 			for ( $i = 0; $i < $num && $obj = $dbr->fetchObject( $res ); $i++ ) {
@@ -266,7 +347,7 @@ class QueryPage {
 				if ( $format ) {
 					$attr = ( isset ( $obj->usepatrol ) && $obj->usepatrol &&
 										$obj->patrolled == 0 ) ? ' class="not-patrolled"' : '';
-					$s .= "<li{$attr}>{$format}</li>\n";
+					$s[] = $this->listoutput ? $format : "<li{$attr}>{$format}</li>\n";
 				}
 			}
 
@@ -277,13 +358,15 @@ class QueryPage {
 				if( $format ) {
 					$attr = ( isset ( $obj->usepatrol ) && $obj->usepatrol &&
 										$obj->patrolled == 0 ) ? ' class="not-patrolled"' : '';
-					$s .= "<li{$attr}>{$format}</li>\n";
+					$s[] = "<li{$attr}>{$format}</li>\n";
 				}
 			}
-			
+
 			$dbr->freeResult( $res );
-			$s .= '</ol>';
-			$wgOut->addHTML( $s );
+			if ( ! $this->listoutput )
+				$s[] = '</ol>';
+			$str = $this->listoutput ? $wgContLang->listToText( $s ) : implode( '', $s );
+			$wgOut->addHTML( $str );
 		}
 		if($shownavigation) {
 			$wgOut->addHTML( "<p>{$sl}</p>\n" );
@@ -292,11 +375,17 @@ class QueryPage {
 	}
 
 	/**
+	 * Do any necessary preprocessing of the result object.
+	 * You should pass this by reference: &$db , &$res
+	 */
+	function preprocessResults( $db, $res ) {}
+
+	/**
 	 * Similar to above, but packaging in a syndicated feed instead of a web page
 	 */
-	function doFeed( $class = '' ) {
+	function doFeed( $class = '', $limit = 50 ) {
 		global $wgFeedClasses;
-		global $wgOut, $wgLanguageCode, $wgLang;
+
 		if( isset($wgFeedClasses[$class]) ) {
 			$feed = new $wgFeedClasses[$class](
 				$this->feedTitle(),
@@ -305,7 +394,8 @@ class QueryPage {
 			$feed->outHeader();
 
 			$dbr =& wfGetDB( DB_SLAVE );
-			$sql = $this->getSQL() . $this->getOrder().$dbr->limitResult( 50, 0 );
+			$sql = $this->getSQL() . $this->getOrder();
+			$sql = $dbr->limitResult( $sql, $limit, 0 );
 			$res = $dbr->query( $sql, 'QueryPage::doFeed' );
 			while( $obj = $dbr->fetchObject( $res ) ) {
 				$item = $this->feedResult( $obj );
@@ -328,14 +418,9 @@ class QueryPage {
 		if( !isset( $row->title ) ) {
 			return NULL;
 		}
-		$title = Title::MakeTitle( IntVal( $row->namespace ), $row->title );
+		$title = Title::MakeTitle( intval( $row->namespace ), $row->title );
 		if( $title ) {
-			if( isset( $row->timestamp ) ) {
-				$date = $row->timestamp;
-			} else {
-				$date = '';
-			}
-
+			$date = isset( $row->timestamp ) ? $row->timestamp : '';
 			$comments = '';
 			if( $title ) {
 				$talkpage = $title->getTalkPage();
@@ -355,21 +440,15 @@ class QueryPage {
 	}
 
 	function feedItemDesc( $row ) {
-		return isset( $row->comment )
-			? htmlspecialchars( $row->comment )
-			: '';
+		return isset( $row->comment ) ? htmlspecialchars( $row->comment ) : '';
 	}
 
 	function feedItemAuthor( $row ) {
-		if( isset( $row->user_text ) ) {
-			return $row->user_text;
-		} else {
-			return '';
-		}
+		return isset( $row->user_text ) ? $row->user_text : '';
 	}
 
 	function feedTitle() {
-		global $wgLanguageCode, $wgSitename, $wgLang;
+		global $wgLanguageCode, $wgSitename;
 		$page = SpecialPage::getPage( $this->getName() );
 		$desc = $page->getDescription();
 		return "$wgSitename - $desc [$wgLanguageCode]";
@@ -380,7 +459,6 @@ class QueryPage {
 	}
 
 	function feedUrl() {
-		global $wgLang;
 		$title = Title::MakeTitle( NS_SPECIAL, $this->getName() );
 		return $title->getFullURL();
 	}
@@ -398,7 +476,7 @@ class PageQueryPage extends QueryPage {
 	function formatResult( $skin, $result ) {
 		global $wgContLang;
 		$nt = Title::makeTitle( $result->namespace, $result->title );
-		return $skin->makeKnownLinkObj( $nt, $wgContLang->convert( $nt->getPrefixedText() ) );
+		return $skin->makeKnownLinkObj( $nt, htmlspecialchars( $wgContLang->convert( $nt->getPrefixedText() ) ) );
 	}
 }
 

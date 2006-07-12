@@ -4,20 +4,20 @@
  */
 # Copyright (C) 2004 Brion Vibber <brion@pobox.com>
 # http://www.mediawiki.org/
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or 
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 # http://www.gnu.org/copyleft/gpl.html
 
 /**
@@ -42,36 +42,36 @@ class AuthPlugin {
 	 * you might need to munge it (for instance, for lowercase initial
 	 * letters).
 	 *
-	 * @param string $username
+	 * @param $username String: username.
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function userExists( $username ) {
 		# Override this!
 		return false;
 	}
-	
+
 	/**
 	 * Check if a username+password pair is a valid login.
 	 * The name will be normalized to MediaWiki's requirements, so
 	 * you might need to munge it (for instance, for lowercase initial
 	 * letters).
 	 *
-	 * @param string $username
-	 * @param string $password
+	 * @param $username String: username.
+	 * @param $password String: user password.
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function authenticate( $username, $password ) {
 		# Override this!
 		return false;
 	}
-	
+
 	/**
 	 * Modify options in the login template.
 	 *
-	 * @param UserLoginTemplate $template
-	 * @access public
+	 * @param $template UserLoginTemplate object.
+	 * @public
 	 */
 	function modifyUITemplate( &$template ) {
 		# Override this!
@@ -81,8 +81,8 @@ class AuthPlugin {
 	/**
 	 * Set the domain this plugin is supposed to use when authenticating.
 	 *
-	 * @param string $domain
-	 * @access public
+	 * @param $domain String: authentication domain.
+	 * @public
 	 */
 	function setDomain( $domain ) {
 		$this->domain = $domain;
@@ -91,9 +91,9 @@ class AuthPlugin {
 	/**
 	 * Check to see if the specific domain is a valid domain.
 	 *
-	 * @param string $domain
+	 * @param $domain String: authentication domain.
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function validDomain( $domain ) {
 		# Override this!
@@ -109,7 +109,7 @@ class AuthPlugin {
 	 * forget the & on your function declaration.
 	 *
 	 * @param User $user
-	 * @access public
+	 * @public
 	 */
 	function updateUser( &$user ) {
 		# Override this and do something
@@ -129,19 +129,28 @@ class AuthPlugin {
 	 * This is just a question, and shouldn't perform any actions.
 	 *
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function autoCreate() {
 		return false;
 	}
-	
+
+	/**
+	 * Can users change their passwords?
+	 *
+	 * @return bool
+	 */
+	function allowPasswordChange() {
+		return true;
+	}
+
 	/**
 	 * Set the given password in the authentication database.
 	 * Return true if successful.
 	 *
-	 * @param string $password
+	 * @param $password String: password.
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function setPassword( $password ) {
 		return true;
@@ -151,9 +160,9 @@ class AuthPlugin {
 	 * Update user information in the external authentication database.
 	 * Return true if successful.
 	 *
-	 * @param User $user
+	 * @param $user User object.
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function updateExternalDB( $user ) {
 		return true;
@@ -163,7 +172,7 @@ class AuthPlugin {
 	 * Check to see if external accounts can be created.
 	 * Return true if external accounts can be created.
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function canCreateAccounts() {
 		return false;
@@ -176,7 +185,7 @@ class AuthPlugin {
 	 * @param User $user
 	 * @param string $password
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function addUser( $user, $password ) {
 		return true;
@@ -190,12 +199,12 @@ class AuthPlugin {
 	 * This is just a question, and shouldn't perform any actions.
 	 *
 	 * @return bool
-	 * @access public
+	 * @public
 	 */
 	function strict() {
 		return false;
 	}
-	
+
 	/**
 	 * When creating a user account, optionally fill in preferences and such.
 	 * For instance, you might pull the email address or real name from the
@@ -204,13 +213,13 @@ class AuthPlugin {
 	 * The User object is passed by reference so it can be modified; don't
 	 * forget the & on your function declaration.
 	 *
-	 * @param User $user
-	 * @access public
+	 * @param $user User object.
+	 * @public
 	 */
 	function initUser( &$user ) {
 		# Override this to do something.
 	}
-	
+
 	/**
 	 * If you want to munge the case of an account name before the final
 	 * check, now is your chance.

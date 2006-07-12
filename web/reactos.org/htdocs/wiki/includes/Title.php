@@ -8,7 +8,6 @@
 /** */
 require_once( 'normal/UtfNormal.php' );
 
-$wgTitleInterwikiCache = array();
 define ( 'GAID_FOR_UPDATE', 1 );
 
 # Title::newFromTitle maintains a cache to avoid
@@ -27,12 +26,19 @@ define( 'MW_TITLECACHE_MAX', 1000 );
  */
 class Title {
 	/**
+	 * Static cache variables
+	 */
+	static private $titleCache=array();
+	static private $interwikiCache=array();
+	
+	
+	/**
 	 * All member variables should be considered private
 	 * Please use the accessor functions
 	 */
 
 	 /**#@+
-	 * @access private
+	 * @private
 	 */
 
 	var $mTextform;           # Text form (spaces not underscores) of the main part
@@ -44,18 +50,18 @@ class Title {
 	var $mArticleID;          # Article ID, fetched from the link cache on demand
 	var $mLatestID;         # ID of most recent revision
 	var $mRestrictions;       # Array of groups allowed to edit this article
-                              # Only null or "sysop" are supported
+	                        # Only null or "sysop" are supported
 	var $mRestrictionsLoaded; # Boolean for initialisation on demand
 	var $mPrefixedText;       # Text form including namespace/interwiki, initialised on demand
 	var $mDefaultNamespace;   # Namespace index when there is no namespace
-                              # Zero except in {{transclusion}} tags
-	var $mWatched;            # Is $wgUser watching this page? NULL if unfilled, accessed through userIsWatching()
+	                    # Zero except in {{transclusion}} tags
+	var $mWatched;      # Is $wgUser watching this page? NULL if unfilled, accessed through userIsWatching()
 	/**#@-*/
 
 
 	/**
 	 * Constructor
-	 * @access private
+	 * @private
 	 */
 	/* private */ function Title() {
 		$this->mInterwiki = $this->mUrlform =
@@ -104,10 +110,9 @@ class Title {
 	 */
 	function newFromText( $text, $defaultNamespace = NS_MAIN ) {
 		$fname = 'Title::newFromText';
-		wfProfileIn( $fname );
 
 		if( is_object( $text ) ) {
-			wfDebugDieBacktrace( 'Title::newFromText given an object' );
+			throw new MWException( 'Title::newFromText given an object' );
 		}
 
 		/**
@@ -118,10 +123,8 @@ class Title {
 		 *
 		 * In theory these are value objects and won't get changed...
 		 */
-		static $titleCache = array();
-		if( $defaultNamespace == NS_MAIN && isset( $titleCache[$text] ) ) {
-			wfProfileOut( $fname );
-			return $titleCache[$text];
+		if( $defaultNamespace == NS_MAIN && isset( Title::$titleCache[$text] ) ) {
+			return Title::$titleCache[$text];
 		}
 
 		/**
@@ -133,19 +136,21 @@ class Title {
 		$t->mDbkeyform = str_replace( ' ', '_', $filteredText );
 		$t->mDefaultNamespace = $defaultNamespace;
 
+		static $cachedcount = 0 ;
 		if( $t->secureAndSplit() ) {
 			if( $defaultNamespace == NS_MAIN ) {
-				if( count( $titleCache ) >= MW_TITLECACHE_MAX ) {
+				if( $cachedcount >= MW_TITLECACHE_MAX ) {
 					# Avoid memory leaks on mass operations...
-					$titleCache = array();
+					Title::$titleCache = array();
+					$cachedcount=0;
 				}
-				$titleCache[$text] =& $t;
+				$cachedcount++;
+				Title::$titleCache[$text] =& $t;
 			}
-			wfProfileOut( $fname );
 			return $t;
 		} else {
-			wfProfileOut( $fname );
-			return NULL;
+			$ret = NULL;
+			return $ret;
 		}
 	}
 
@@ -158,15 +163,17 @@ class Title {
 	 * @access public
 	 */
 	function newFromURL( $url ) {
-		global $wgLang, $wgServer;
+		global $wgLegalTitleChars;
 		$t = new Title();
 
-		# For compatibility with old buggy URLs. "+" is not valid in titles,
+		# For compatibility with old buggy URLs. "+" is usually not valid in titles,
 		# but some URLs used it as a space replacement and they still come
 		# from some external search tools.
-		$s = str_replace( '+', ' ', $url );
+		if ( strpos( $wgLegalTitleChars, '+' ) === false ) {
+			$url = str_replace( '+', ' ', $url );
+		}
 
-		$t->mDbkeyform = str_replace( ' ', '_', $s );
+		$t->mDbkeyform = str_replace( ' ', '_', $url );
 		if( $t->secureAndSplit() ) {
 			return $t;
 		} else {
@@ -199,6 +206,21 @@ class Title {
 	}
 
 	/**
+	 * Make an array of titles from an array of IDs 
+	 */
+	function newFromIDs( $ids ) {
+		$dbr =& wfGetDB( DB_SLAVE );
+		$res = $dbr->select( 'page', array( 'page_namespace', 'page_title' ),
+			'page_id IN (' . $dbr->makeList( $ids ) . ')', __METHOD__ );
+
+		$titles = array();
+		while ( $row = $dbr->fetchObject( $res ) ) {
+			$titles[] = Title::makeTitle( $row->page_namespace, $row->page_title );
+		}
+		return $titles;
+	}
+
+	/**
 	 * Create a new Title from a namespace index and a DB key.
 	 * It's assumed that $ns and $title are *valid*, for instance when
 	 * they came directly from the database or a special page name.
@@ -215,7 +237,7 @@ class Title {
 		$t =& new Title();
 		$t->mInterwiki = '';
 		$t->mFragment = '';
-		$t->mNamespace = IntVal( $ns );
+		$t->mNamespace = intval( $ns );
 		$t->mDbkeyform = str_replace( ' ', '_', $title );
 		$t->mArticleID = ( $ns >= 0 ) ? -1 : 0;
 		$t->mUrlform = wfUrlencode( $t->mDbkeyform );
@@ -264,9 +286,9 @@ class Title {
 	 * @access public
 	 */
 	function newFromRedirect( $text ) {
-		global $wgMwRedir;
+		$mwRedir = MagicWord::get( MAG_REDIRECT );
 		$rt = NULL;
-		if ( $wgMwRedir->matchStart( $text ) ) {
+		if ( $mwRedir->matchStart( $text ) ) {
 			if ( preg_match( '/\[{2}(.*?)(?:\||\]{2})/', $text, $m ) ) {
 				# categories are escaped using : for example one can enter:
 				# #REDIRECT [[:Category:Music]]. Need to remove it.
@@ -315,24 +337,8 @@ class Title {
 	 * @access public
 	 */
 	function legalChars() {
-		# Missing characters:
-		#  * []|# Needed for link syntax
-		#  * % and + are corrupted by Apache when they appear in the path
-		#
-		# % seems to work though
-		#
-		# The problem with % is that URLs are double-unescaped: once by Apache's
-		# path conversion code, and again by PHP. So %253F, for example, becomes "?".
-		# Our code does not double-escape to compensate for this, indeed double escaping
-		# would break if the double-escaped title was passed in the query string
-		# rather than the path. This is a minor security issue because articles can be
-		# created such that they are hard to view or edit. -- TS
-		#
-		# Theoretically 0x80-0x9F of ISO 8859-1 should be disallowed, but
-		# this breaks interlanguage links
-
-		$set = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF";
-		return $set;
+		global $wgLegalTitleChars;
+		return $wgLegalTitleChars;
 	}
 
 	/**
@@ -345,8 +351,7 @@ class Title {
 	 * 	search index
 	 */
 	/* static */ function indexTitle( $ns, $title ) {
-		global $wgDBminWordLen, $wgContLang;
-		require_once( 'SearchEngine.php' );
+		global $wgContLang;
 
 		$lc = SearchEngine::legalSearchChars() . '&#;';
 		$t = $wgContLang->stripForSearch( $title );
@@ -386,23 +391,26 @@ class Title {
 	 * @static (arguably)
 	 * @access public
 	 */
-	function getInterwikiLink( $key, $transludeonly = false ) {
-		global $wgMemc, $wgDBname, $wgInterwikiExpiry, $wgTitleInterwikiCache;
+	function getInterwikiLink( $key )  {
+		global $wgMemc, $wgDBname, $wgInterwikiExpiry;
+		global $wgInterwikiCache;
 		$fname = 'Title::getInterwikiLink';
 
-		wfProfileIn( $fname );
+		$key = strtolower( $key );
 
 		$k = $wgDBname.':interwiki:'.$key;
-		if( array_key_exists( $k, $wgTitleInterwikiCache ) ) {
-			wfProfileOut( $fname );
-			return $wgTitleInterwikiCache[$k]->iw_url;
+		if( array_key_exists( $k, Title::$interwikiCache ) ) {
+			return Title::$interwikiCache[$k]->iw_url;
+		}
+
+		if ($wgInterwikiCache) {
+			return Title::getInterwikiCached( $key );
 		}
 
 		$s = $wgMemc->get( $k );
 		# Ignore old keys with no iw_local
 		if( $s && isset( $s->iw_local ) && isset($s->iw_trans)) {
-			$wgTitleInterwikiCache[$k] = $s;
-			wfProfileOut( $fname );
+			Title::$interwikiCache[$k] = $s;
 			return $s->iw_url;
 		}
 
@@ -411,7 +419,6 @@ class Title {
 			array( 'iw_url', 'iw_local', 'iw_trans' ),
 			array( 'iw_prefix' => $key ), $fname );
 		if( !$res ) {
-			wfProfileOut( $fname );
 			return '';
 		}
 
@@ -424,12 +431,54 @@ class Title {
 			$s->iw_trans = 0;
 		}
 		$wgMemc->set( $k, $s, $wgInterwikiExpiry );
-		$wgTitleInterwikiCache[$k] = $s;
+		Title::$interwikiCache[$k] = $s;
 
-		wfProfileOut( $fname );
 		return $s->iw_url;
 	}
+	
+	/**
+	 * Fetch interwiki prefix data from local cache in constant database
+	 *
+	 * More logic is explained in DefaultSettings
+	 *
+	 * @return string URL of interwiki site
+	 * @access public
+	 */
+	function getInterwikiCached( $key ) {
+		global $wgDBname, $wgInterwikiCache, $wgInterwikiScopes, $wgInterwikiFallbackSite;
+		static $db, $site;
 
+		if (!$db)
+			$db=dba_open($wgInterwikiCache,'r','cdb');
+		/* Resolve site name */
+		if ($wgInterwikiScopes>=3 and !$site) {
+			$site = dba_fetch("__sites:{$wgDBname}", $db);
+			if ($site=="")
+				$site = $wgInterwikiFallbackSite;
+		}
+		$value = dba_fetch("{$wgDBname}:{$key}", $db);
+		if ($value=='' and $wgInterwikiScopes>=3) {
+			/* try site-level */
+			$value = dba_fetch("_{$site}:{$key}", $db);
+		}
+		if ($value=='' and $wgInterwikiScopes>=2) {
+			/* try globals */
+			$value = dba_fetch("__global:{$key}", $db);
+		}
+		if ($value=='undef')
+			$value='';
+		$s = (object)false;
+		$s->iw_url = '';
+		$s->iw_local = 0;
+		$s->iw_trans = 0;
+		if ($value!='') {
+			list($local,$url)=explode(' ',$value,2);
+			$s->iw_url=$url;
+			$s->iw_local=(int)$local;
+		}
+		Title::$interwikiCache[$wgDBname.':interwiki:'.$key] = $s;
+		return $s->iw_url;
+	}
 	/**
 	 * Determine whether the object refers to a page within
 	 * this project.
@@ -439,13 +488,13 @@ class Title {
 	 * @access public
 	 */
 	function isLocal() {
-		global $wgTitleInterwikiCache, $wgDBname;
+		global $wgDBname;
 
 		if ( $this->mInterwiki != '' ) {
 			# Make sure key is loaded into cache
 			$this->getInterwikiLink( $this->mInterwiki );
 			$k = $wgDBname.':interwiki:' . $this->mInterwiki;
-			return (bool)($wgTitleInterwikiCache[$k]->iw_local);
+			return (bool)(Title::$interwikiCache[$k]->iw_local);
 		} else {
 			return true;
 		}
@@ -459,14 +508,14 @@ class Title {
 	 * @access public
 	 */
 	function isTrans() {
-		global $wgTitleInterwikiCache, $wgDBname;
+		global $wgDBname;
 
-		if ($this->mInterwiki == '' || !$this->isLocal())
+		if ($this->mInterwiki == '')
 			return false;
 		# Make sure key is loaded into cache
 		$this->getInterwikiLink( $this->mInterwiki );
 		$k = $wgDBname.':interwiki:' . $this->mInterwiki;
-		return (bool)($wgTitleInterwikiCache[$k]->iw_trans);
+		return (bool)(Title::$interwikiCache[$k]->iw_trans);
 	}
 
 	/**
@@ -480,7 +529,6 @@ class Title {
 	 * @access public
 	 */
 	function touchArray( $titles, $timestamp = '' ) {
-		global $wgUseFileCache;
 
 		if ( count( $titles ) == 0 ) {
 			return;
@@ -489,8 +537,8 @@ class Title {
 		if ( $timestamp == '' ) {
 			$timestamp = $dbw->timestamp();
 		}
-		$page = $dbw->tableName( 'page' );
 		/*
+		$page = $dbw->tableName( 'page' );
 		$sql = "UPDATE $page SET page_touched='{$timestamp}' WHERE page_id IN (";
 		$first = true;
 
@@ -554,6 +602,42 @@ class Title {
 	 */
 	function getNamespace() { return $this->mNamespace; }
 	/**
+	 * Get the namespace text
+	 * @return string
+	 * @access public
+	 */
+	function getNsText() {
+		global $wgContLang;
+		return $wgContLang->getNsText( $this->mNamespace );
+	}
+	/**
+	 * Get the namespace text of the subject (rather than talk) page
+	 * @return string
+	 * @access public
+	 */
+	function getSubjectNsText() {
+		global $wgContLang;
+		return $wgContLang->getNsText( Namespace::getSubject( $this->mNamespace ) );
+	}
+
+	/**
+	 * Get the namespace text of the talk page
+	 * @return string
+	 */
+	function getTalkNsText() {
+		global $wgContLang;
+		return( $wgContLang->getNsText( Namespace::getTalk( $this->mNamespace ) ) );
+	}
+	
+	/**
+	 * Could this title have a corresponding talk page?
+	 * @return bool
+	 */
+	function canTalk() {
+		return( Namespace::canTalk( $this->mNamespace ) );
+	}
+	
+	/**
 	 * Get the interwiki prefix (or null string)
 	 * @return string
 	 * @access public
@@ -600,8 +684,7 @@ class Title {
 	 * @access public
 	 */
 	function getPrefixedText() {
-		global $wgContLang;
-		if ( empty( $this->mPrefixedText ) ) {
+		if ( empty( $this->mPrefixedText ) ) { // FIXME: bad usage of empty() ?
 			$s = $this->prefix( $this->mTextform );
 			$s = str_replace( '_', ' ', $s );
 			$this->mPrefixedText = $s;
@@ -617,12 +700,53 @@ class Title {
 	 * @access public
 	 */
 	function getFullText() {
-		global $wgContLang;
 		$text = $this->getPrefixedText();
 		if( '' != $this->mFragment ) {
 			$text .= '#' . $this->mFragment;
 		}
 		return $text;
+	}
+
+	/**
+	 * Get the base name, i.e. the leftmost parts before the /
+	 * @return string Base name
+	 */
+	function getBaseText() {
+		global $wgNamespacesWithSubpages;
+		if( isset( $wgNamespacesWithSubpages[ $this->mNamespace ] ) && $wgNamespacesWithSubpages[ $this->mNamespace ] ) {
+			$parts = explode( '/', $this->getText() );
+			# Don't discard the real title if there's no subpage involved
+			if( count( $parts ) > 1 )
+				unset( $parts[ count( $parts ) - 1 ] );
+			return implode( '/', $parts );
+		} else {
+			return $this->getText();
+		}
+	}
+
+	/**
+	 * Get the lowest-level subpage name, i.e. the rightmost part after /
+	 * @return string Subpage name
+	 */
+	function getSubpageText() {
+		global $wgNamespacesWithSubpages;
+		if( isset( $wgNamespacesWithSubpages[ $this->mNamespace ] ) && $wgNamespacesWithSubpages[ $this->mNamespace ] ) {
+			$parts = explode( '/', $this->mTextform );
+			return( $parts[ count( $parts ) - 1 ] );
+		} else {
+			return( $this->mTextform );
+		}
+	}
+	
+	/**
+	 * Get a URL-encoded form of the subpage text
+	 * @return string URL-encoded subpage name
+	 */
+	function getSubpageUrlForm() {
+		$text = $this->getSubpageText();
+		$text = wfUrlencode( str_replace( ' ', '_', $text ) );
+		$text = str_replace( '%28', '(', str_replace( '%29', ')', $text ) ); # Clean up the URL; per below, this might not be safe
+		return( $text );
 	}
 
 	/**
@@ -653,93 +777,42 @@ class Title {
 	 * @access public
 	 */
 	function getFullURL( $query = '' ) {
-		global $wgContLang, $wgServer, $wgScript, $wgMakeDumpLinks, $wgArticlePath;
+		global $wgContLang, $wgServer, $wgRequest;
 
 		if ( '' == $this->mInterwiki ) {
-			return $wgServer . $this->getLocalUrl( $query );
-		} elseif ( $wgMakeDumpLinks && $wgContLang->getLanguageName( $this->mInterwiki ) ) {
-			$baseUrl = str_replace( '$1', "../../{$this->mInterwiki}/$1", $wgArticlePath );
-			$baseUrl = str_replace( '$1', $this->getHashedDirectory() . '/$1', $baseUrl );
+			$url = $this->getLocalUrl( $query );
+
+			// Ugly quick hack to avoid duplicate prefixes (bug 4571 etc)
+			// Correct fix would be to move the prepending elsewhere.
+			if ($wgRequest->getVal('action') != 'render') {
+				$url = $wgServer . $url;
+			}
 		} else {
 			$baseUrl = $this->getInterwikiLink( $this->mInterwiki );
+
+			$namespace = $wgContLang->getNsText( $this->mNamespace );
+			if ( '' != $namespace ) {
+				# Can this actually happen? Interwikis shouldn't be parsed.
+				$namespace .= ':';
+			}
+			$url = str_replace( '$1', $namespace . $this->mUrlform, $baseUrl );
+			if( $query != '' ) {
+				if( false === strpos( $url, '?' ) ) {
+					$url .= '?';
+				} else {
+					$url .= '&';
+				}
+				$url .= $query;
+			}
 		}
 
-		$namespace = $wgContLang->getNsText( $this->mNamespace );
-		if ( '' != $namespace ) {
-			# Can this actually happen? Interwikis shouldn't be parsed.
-			$namespace .= ':';
-		}
-		$url = str_replace( '$1', $namespace . $this->mUrlform, $baseUrl );
-		if( $query != '' ) {
-			if( false === strpos( $url, '?' ) ) {
-				$url .= '?';
-			} else {
-				$url .= '&';
-			}
-			$url .= $query;
-		}
+		# Finally, add the fragment.
 		if ( '' != $this->mFragment ) {
 			$url .= '#' . $this->mFragment;
 		}
+
+		wfRunHooks( 'GetFullURL', array( &$this, &$url, $query ) );
 		return $url;
-	}
-
-	/**
-	 * Get a relative directory for putting an HTML version of this article into
-	 */
-	function getHashedDirectory() {
-		global $wgMakeDumpLinks, $wgInputEncoding;
-		$dbkey = $this->getDBkey();
-
-		# Split into characters
-		if ( $wgInputEncoding == 'UTF-8' ) {
-			preg_match_all( '/./us', $dbkey, $m );
-		} else {
-			preg_match_all( '/./s', $dbkey, $m );
-		}
-		$chars = $m[0];
-		$length = count( $chars );
-		$dir = '';
-
-		for ( $i = 0; $i < $wgMakeDumpLinks; $i++ ) {
-			if ( $i ) {
-				$dir .= '/';
-			}
-			if ( $i >= $length ) {
-				$dir .= '_';
-			} elseif ( ord( $chars[$i] ) > 32 ) {
-				$dir .= strtolower( $chars[$i] );
-			} else {
-				$dir .= sprintf( "%02X", ord( $chars[$i] ) );
-			}
-		}
-		return $dir;
-	}
-
-	function getHashedFilename() {
-		$dbkey = $this->getPrefixedDBkey();
-		$mainPage = Title::newMainPage();
-		if ( $mainPage->getPrefixedDBkey() == $dbkey ) {
-			return 'index.html';
-		}
-
-		$dir = $this->getHashedDirectory();
-
-		# Replace illegal charcters for Windows paths with underscores
-		$friendlyName = strtr( $dbkey, '/\\*?"<>|~', '_________' );
-
-		# Work out lower case form. We assume we're on a system with case-insensitive
-		# filenames, so unless the case is of a special form, we have to disambiguate
-		$lowerCase = $this->prefix( ucfirst( strtolower( $this->getDBkey() ) ) );
-
-		# Make it mostly unique
-		if ( $lowerCase != $friendlyName  ) {
-			$friendlyName .= '_' . substr(md5( $dbkey ), 0, 4);
-		}
-		# Handle colon specially by replacing it with tilde
-		# Thus we reduce the number of paths with hashes appended
-		$friendlyName = str_replace( ':', '~', $friendlyName );
-		return "$dir/$friendlyName.html";
 	}
 
 	/**
@@ -751,40 +824,51 @@ class Title {
 	 * @access public
 	 */
 	function getLocalURL( $query = '' ) {
-		global $wgLang, $wgArticlePath, $wgScript, $wgMakeDumpLinks, $wgServer, $action;
+		global $wgArticlePath, $wgScript, $wgServer, $wgRequest;
 
 		if ( $this->isExternal() ) {
-			return $this->getFullURL();
-		}
-
-		$dbkey = wfUrlencode( $this->getPrefixedDBkey() );
-		if ( $wgMakeDumpLinks ) {
-			$url = str_replace( '$1', wfUrlencode( $this->getHashedFilename() ), $wgArticlePath );
-		} elseif ( $query == '' ) {
-			$url = str_replace( '$1', $dbkey, $wgArticlePath );
+			$url = $this->getFullURL();
+			if ( $query ) {
+				// This is currently only used for edit section links in the
+				// context of interwiki transclusion. In theory we should
+				// append the query to the end of any existing query string,
+				// but interwiki transclusion is already broken in that case.
+				$url .= "?$query";
+			}
 		} else {
-			global $wgActionPaths;
-			if( !empty( $wgActionPaths ) &&
-				preg_match( '/^(.*&|)action=([^&]*)(&(.*)|)$/', $query, $matches ) ) {
-				$action = urldecode( $matches[2] );
-				if( isset( $wgActionPaths[$action] ) ) {
-					$query = $matches[1];
-					if( isset( $matches[4] ) ) $query .= $matches[4];
-					$url = str_replace( '$1', $dbkey, $wgActionPaths[$action] );
-					if( $query != '' ) $url .= '?' . $query;
-					return $url;
+			$dbkey = wfUrlencode( $this->getPrefixedDBkey() );
+			if ( $query == '' ) {
+				$url = str_replace( '$1', $dbkey, $wgArticlePath );
+			} else {
+				global $wgActionPaths;
+				$url = false;
+				if( !empty( $wgActionPaths ) &&
+					preg_match( '/^(.*&|)action=([^&]*)(&(.*)|)$/', $query, $matches ) )
+				{
+					$action = urldecode( $matches[2] );
+					if( isset( $wgActionPaths[$action] ) ) {
+						$query = $matches[1];
+						if( isset( $matches[4] ) ) $query .= $matches[4];
+						$url = str_replace( '$1', $dbkey, $wgActionPaths[$action] );
+						if( $query != '' ) $url .= '?' . $query;
+					}
+				}
+				if ( $url === false ) {
+					if ( $query == '-' ) {
+						$query = '';
+					}
+					$url = "{$wgScript}?title={$dbkey}&{$query}";
 				}
 			}
-			if ( $query == '-' ) {
-				$query = '';
+			
+			// FIXME: this causes breakage in various places when we
+			// actually expected a local URL and end up with dupe prefixes.
+			if ($wgRequest->getVal('action') == 'render') {
+				$url = $wgServer . $url;
 			}
-			$url = "{$wgScript}?title={$dbkey}&{$query}";
 		}
-
-		if ($action == 'render')
-			return $wgServer . $url;
-		else
-			return $url;
+		wfRunHooks( 'GetLocalURL', array( &$this, &$url, $query ) );
+		return $url;
 	}
 
 	/**
@@ -821,7 +905,9 @@ class Title {
 	 */
 	function getInternalURL( $query = '' ) {
 		global $wgInternalServer;
-		return $wgInternalServer . $this->getLocalURL( $query );
+		$url = $wgInternalServer . $this->getLocalURL( $query );
+		wfRunHooks( 'GetInternalURL', array( &$this, &$url, $query ) );
+		return $url;
 	}
 
 	/**
@@ -831,8 +917,6 @@ class Title {
 	 * @access public
 	 */
 	function getEditURL() {
-		global $wgServer, $wgScript;
-
 		if ( '' != $this->mInterwiki ) { return ''; }
 		$s = $this->getLocalURL( 'action=edit' );
 
@@ -857,22 +941,51 @@ class Title {
 	function isExternal() { return ( '' != $this->mInterwiki ); }
 
 	/**
+	 * Is this page "semi-protected" - the *only* protection is autoconfirm?
+	 *
+	 * @param string Action to check (default: edit)
+	 * @return bool
+	 */
+	function isSemiProtected( $action = 'edit' ) {
+		$restrictions = $this->getRestrictions( $action );
+		# We do a full compare because this could be an array
+		foreach( $restrictions as $restriction ) {
+			if( strtolower( $restriction ) != 'autoconfirmed' ) {
+				return( false );
+			}
+		}
+		return( true );
+	}
+
+	/**
 	 * Does the title correspond to a protected article?
 	 * @param string $what the action the page is protected from,
 	 *	by default checks move and edit
 	 * @return boolean
 	 * @access public
 	 */
-	function isProtected($action = '') {
+	function isProtected( $action = '' ) {
+		global $wgRestrictionLevels;
 		if ( -1 == $this->mNamespace ) { return true; }
-		if($action == 'edit' || $action == '') {
-			$a = $this->getRestrictions("edit");
-			if ( in_array( 'sysop', $a ) ) { return true; }
+				
+		if( $action == 'edit' || $action == '' ) {
+			$r = $this->getRestrictions( 'edit' );
+			foreach( $wgRestrictionLevels as $level ) {
+				if( in_array( $level, $r ) && $level != '' ) {
+					return( true );
+				}
+			}
 		}
-		if($action == 'move' || $action == '') {
-			$a = $this->getRestrictions("move");
-			if ( in_array( 'sysop', $a ) ) { return true; }
+		
+		if( $action == 'move' || $action == '' ) {
+			$r = $this->getRestrictions( 'move' );
+			foreach( $wgRestrictionLevels as $level ) {
+				if( in_array( $level, $r ) && $level != '' ) {
+					return( true );
+				}
+			}
 		}
+
 		return false;
 	}
 
@@ -895,35 +1008,38 @@ class Title {
 	}
 
  	/**
-	 * Is $wgUser perform $action this page?
+	 * Can $wgUser perform $action this page?
 	 * @param string $action action that permission needs to be checked for
 	 * @return boolean
-	 * @access private
+	 * @private
  	 */
 	function userCan($action) {
-		$fname = 'Title::userCanEdit';
+		$fname = 'Title::userCan';
 		wfProfileIn( $fname );
 
 		global $wgUser;
+
+		$result = null;
+		wfRunHooks( 'userCan', array( &$this, &$wgUser, $action, &$result ) );
+		if ( $result !== null ) {
+			wfProfileOut( $fname );
+			return $result;
+		}
+
 		if( NS_SPECIAL == $this->mNamespace ) {
 			wfProfileOut( $fname );
 			return false;
 		}
+		// XXX: This is the code that prevents unprotecting a page in NS_MEDIAWIKI
+		// from taking effect -ævar
 		if( NS_MEDIAWIKI == $this->mNamespace &&
 		    !$wgUser->isAllowed('editinterface') ) {
 			wfProfileOut( $fname );
 			return false;
 		}
+
 		if( $this->mDbkeyform == '_' ) {
 			# FIXME: Is this necessary? Shouldn't be allowed anyway...
-			wfProfileOut( $fname );
-			return false;
-		}
-
-		# protect global styles and js
-		if ( NS_MEDIAWIKI == $this->mNamespace
-	         && preg_match("/\\.(css|js)$/", $this->mTextform )
-		     && !$wgUser->isAllowed('editinterface') ) {
 			wfProfileOut( $fname );
 			return false;
 		}
@@ -956,6 +1072,13 @@ class Title {
 			return false;
 		}
 
+		if( $action == 'create' ) {
+			if( (  $this->isTalkPage() && !$wgUser->isAllowed( 'createtalk' ) ) ||
+				( !$this->isTalkPage() && !$wgUser->isAllowed( 'createpage' ) ) ) {
+				return false;
+			}
+		}
+
 		wfProfileOut( $fname );
 		return true;
 	}
@@ -967,6 +1090,15 @@ class Title {
 	 */
 	function userCanEdit() {
 		return $this->userCan('edit');
+	}
+
+	/**
+	 * Can $wgUser create this page?
+	 * @return boolean
+	 * @access public
+	 */
+	function userCanCreate() {
+		return $this->userCan('create');
 	}
 
 	/**
@@ -997,6 +1129,12 @@ class Title {
 	 */
 	function userCanRead() {
 		global $wgUser;
+
+		$result = null;
+		wfRunHooks( 'userCan', array( &$this, &$wgUser, 'read', &$result ) );
+		if ( $result !== null ) {
+			return $result;
+		}
 
 		if( $wgUser->isAllowed('read') ) {
 			return true;
@@ -1043,6 +1181,26 @@ class Title {
 	 */
 	function isCssJsSubpage() {
 		return ( NS_USER == $this->mNamespace and preg_match("/\\.(css|js)$/", $this->mTextform ) );
+	}
+	/**
+	 * Is this a *valid* .css or .js subpage of a user page?
+	 * Check that the corresponding skin exists
+	 */
+	function isValidCssJsSubpage() {
+		if ( $this->isCssJsSubpage() ) {
+			$skinNames = Skin::getSkinNames();
+			return array_key_exists( $this->getSkinFromCssJsSubpage(), $skinNames );
+		} else {
+			return false;
+		}
+	}
+	/**
+	 * Trim down a .css or .js subpage title to get the corresponding skin name
+	 */
+	function getSkinFromCssJsSubpage() {
+		$subpage = explode( '/', $this->mTextform );
+		$subpage = $subpage[ count( $subpage ) - 1 ];
+		return( str_replace( array( '.css', '.js' ), array( '', '' ), $subpage ) );
 	}
 	/**
 	 * Is this a .css subpage of a user page?
@@ -1126,6 +1284,10 @@ class Title {
 			$dbr =& wfGetDB( DB_SLAVE );
 			$n = $dbr->selectField( 'archive', 'COUNT(*)', array( 'ar_namespace' => $this->getNamespace(),
 				'ar_title' => $this->getDBkey() ), $fname );
+			if( $this->getNamespace() == NS_IMAGE ) {
+				$n += $dbr->selectField( 'filearchive', 'COUNT(*)',
+					array( 'fa_name' => $this->getDBkey() ), $fname );
+			}
 		}
 		return (int)$n;
 	}
@@ -1139,15 +1301,14 @@ class Title {
 	 * @access public
 	 */
 	function getArticleID( $flags = 0 ) {
-		global $wgLinkCache;
-
+		$linkCache =& LinkCache::singleton();
 		if ( $flags & GAID_FOR_UPDATE ) {
-			$oldUpdate = $wgLinkCache->forUpdate( true );
-			$this->mArticleID = $wgLinkCache->addLinkObj( $this );
-			$wgLinkCache->forUpdate( $oldUpdate );
+			$oldUpdate = $linkCache->forUpdate( true );
+			$this->mArticleID = $linkCache->addLinkObj( $this );
+			$linkCache->forUpdate( $oldUpdate );
 		} else {
 			if ( -1 == $this->mArticleID ) {
-				$this->mArticleID = $wgLinkCache->addLinkObj( $this );
+				$this->mArticleID = $linkCache->addLinkObj( $this );
 			}
 		}
 		return $this->mArticleID;
@@ -1166,7 +1327,7 @@ class Title {
 
 	/**
 	 * This clears some fields in this object, and clears any associated
-	 * keys in the "bad links" section of $wgLinkCache.
+	 * keys in the "bad links" section of the link cache.
 	 *
 	 * - This is called from Article::insertNewArticle() to allow
 	 * loading of the new page_id. It's also called from
@@ -1176,8 +1337,8 @@ class Title {
 	 * @access public
 	 */
 	function resetArticleID( $newid ) {
-		global $wgLinkCache;
-		$wgLinkCache->clearBadLink( $this->getPrefixedDBkey() );
+		$linkCache =& LinkCache::singleton();
+		$linkCache->clearBadLink( $this->getPrefixedDBkey() );
 
 		if ( 0 == $newid ) { $this->mArticleID = -1; }
 		else { $this->mArticleID = $newid; }
@@ -1197,7 +1358,6 @@ class Title {
 			return;
 		}
 
-		$now = wfTimestampNow();
 		$dbw =& wfGetDB( DB_MASTER );
 		$success = $dbw->update( 'page',
 			array( /* SET */
@@ -1222,7 +1382,7 @@ class Title {
 	 *
 	 * @param string $name the text
 	 * @return string the prefixed text
-	 * @access private
+	 * @private
 	 */
 	/* private */ function prefix( $name ) {
 		global $wgContLang;
@@ -1246,12 +1406,11 @@ class Title {
 	 * namespace prefixes, sets the other forms, and canonicalizes
 	 * everything.
 	 * @return bool true on success
-	 * @access private
+	 * @private
 	 */
 	/* private */ function secureAndSplit() {
 		global $wgContLang, $wgLocalInterwiki, $wgCapitalLinks;
 		$fname = 'Title::secureAndSplit';
- 		wfProfileIn( $fname );
 
 		# Initialisation
 		static $rxTc = false;
@@ -1269,13 +1428,11 @@ class Title {
 		$t = trim( $t, '_' );
 
 		if ( '' == $t ) {
-			wfProfileOut( $fname );
 			return false;
 		}
 
 		if( false !== strpos( $t, UTF8_REPLACEMENT ) ) {
 			# Contained illegal UTF-8 sequences or forbidden Unicode chars.
-			wfProfileOut( $fname );
 			return false;
 		}
 
@@ -1306,25 +1463,30 @@ class Title {
 					if( !$firstPass ) {
 						# Can't make a local interwiki link to an interwiki link.
 						# That's just crazy!
-						wfProfileOut( $fname );
 						return false;
 					}
 
 					# Interwiki link
 					$t = $m[2];
-					$this->mInterwiki = $p;
+					$this->mInterwiki = strtolower( $p );
 
 					# Redundant interwiki prefix to the local wiki
 					if ( 0 == strcasecmp( $this->mInterwiki, $wgLocalInterwiki ) ) {
 						if( $t == '' ) {
 							# Can't have an empty self-link
-							wfProfileOut( $fname );
 							return false;
 						}
 						$this->mInterwiki = '';
 						$firstPass = false;
 						# Do another namespace split...
 						continue;
+					}
+
+					# If there's an initial colon after the interwiki, that also
+					# resets the default namespace
+					if ( $t !== '' && $t[0] == ':' ) {
+						$this->mNamespace = NS_MAIN;
+						$t = substr( $t, 1 );
 					}
 				}
 				# If there's no recognized interwiki or namespace,
@@ -1351,7 +1513,6 @@ class Title {
 		# Reject illegal characters.
 		#
 		if( preg_match( $rxTc, $r ) ) {
-			wfProfileOut( $fname );
 			return false;
 		}
 
@@ -1367,14 +1528,12 @@ class Title {
 		       strpos( $r, '/./' ) !== false ||
 		       strpos( $r, '/../' ) !== false ) )
 		{
-			wfProfileOut( $fname );
 			return false;
 		}
 
 		# We shouldn't need to query the DB for the size.
 		#$maxSize = $dbr->textFieldSize( 'page', 'page_title' );
 		if ( strlen( $r ) > 255 ) {
-			wfProfileOut( $fname );
 			return false;
 		}
 
@@ -1400,17 +1559,20 @@ class Title {
 		if( $t == '' &&
 			$this->mInterwiki == '' &&
 			$this->mNamespace != NS_MAIN ) {
-			wfProfileOut( $fname );
 			return false;
 		}
 
+		// Any remaining initial :s are illegal.
+		if ( $t !== '' && ':' == $t{0} ) {
+			return false;
+		}
+		
 		# Fill fields
 		$this->mDbkeyform = $t;
 		$this->mUrlform = wfUrlencode( $t );
 
 		$this->mTextform = str_replace( '_', ' ', $t );
 
-		wfProfileOut( $fname );
 		return true;
 	}
 
@@ -1438,12 +1600,15 @@ class Title {
 	 * Get an array of Title objects linking to this Title
 	 * Also stores the IDs in the link cache.
 	 *
+	 * WARNING: do not use this function on arbitrary user-supplied titles!
+	 * On heavily-used templates it will max out the memory.
+	 *
 	 * @param string $options may be FOR UPDATE
 	 * @return array the Title objects linking here
 	 * @access public
 	 */
-	function getLinksTo( $options = '' ) {
-		global $wgLinkCache;
+	function getLinksTo( $options = '', $table = 'pagelinks', $prefix = 'pl' ) {
+		$linkCache =& LinkCache::singleton();
 		$id = $this->getArticleID();
 
 		if ( $options ) {
@@ -1452,12 +1617,12 @@ class Title {
 			$db =& wfGetDB( DB_SLAVE );
 		}
 
-		$res = $db->select( array( 'page', 'pagelinks' ),
+		$res = $db->select( array( 'page', $table ),
 			array( 'page_namespace', 'page_title', 'page_id' ),
 			array(
-				'pl_from=page_id',
-				'pl_namespace' => $this->getNamespace(),
-				'pl_title'     => $this->getDbKey() ),
+				"{$prefix}_from=page_id",
+				"{$prefix}_namespace" => $this->getNamespace(),
+				"{$prefix}_title"     => $this->getDbKey() ),
 			'Title::getLinksTo',
 			$options );
 
@@ -1465,13 +1630,28 @@ class Title {
 		if ( $db->numRows( $res ) ) {
 			while ( $row = $db->fetchObject( $res ) ) {
 				if ( $titleObj = Title::makeTitle( $row->page_namespace, $row->page_title ) ) {
-					$wgLinkCache->addGoodLinkObj( $row->page_id, $titleObj );
+					$linkCache->addGoodLinkObj( $row->page_id, $titleObj );
 					$retVal[] = $titleObj;
 				}
 			}
 		}
 		$db->freeResult( $res );
 		return $retVal;
+	}
+
+	/**
+	 * Get an array of Title objects using this Title as a template
+	 * Also stores the IDs in the link cache.
+	 *
+	 * WARNING: do not use this function on arbitrary user-supplied titles!
+	 * On heavily-used templates it will max out the memory.
+	 *
+	 * @param string $options may be FOR UPDATE
+	 * @return array the Title objects linking here
+	 * @access public
+	 */
+	function getTemplateLinksTo( $options = '' ) {
+		return $this->getLinksTo( $options, 'templatelinks', 'tl' );
 	}
 
 	/**
@@ -1482,8 +1662,6 @@ class Title {
 	 * @access public
 	 */
 	function getBrokenLinksFrom( $options = '' ) {
-		global $wgLinkCache;
-
 		if ( $options ) {
 			$db =& wfGetDB( DB_MASTER );
 		} else {
@@ -1498,7 +1676,7 @@ class Title {
 			      AND pl_title=page_title
 			    WHERE pl_from=?
 			      AND page_namespace IS NULL
-			          !",
+				  !",
 			$db->tableName( 'pagelinks' ),
 			$db->tableName( 'page' ),
 			$this->getArticleId(),
@@ -1529,6 +1707,15 @@ class Title {
 		);
 	}
 
+	function purgeSquid() {
+		global $wgUseSquid;
+		if ( $wgUseSquid ) {
+			$urls = $this->getSquidURLs();
+			$u = new SquidUpdate( $urls );
+			$u->doUpdate();
+		}
+	}
+
 	/**
 	 * Move this page without authentication
 	 * @param Title &$nt the new page Title
@@ -1548,8 +1735,7 @@ class Title {
 	 * @return mixed true on success, message name on failure
 	 * @access public
 	 */
-	function isValidMoveOperation( &$nt, $auth = true, $reason = '' ) {
-		global $wgUser;
+	function isValidMoveOperation( &$nt, $auth = true ) {
 		if( !$this or !$nt ) {
 			return 'badtitletext';
 		}
@@ -1560,7 +1746,6 @@ class Title {
 			return 'immobile_namespace';
 		}
 
-		$fname = 'Title::move';
 		$oldid = $this->getArticleID();
 		$newid = $nt->getArticleID();
 
@@ -1600,7 +1785,7 @@ class Title {
 	 * @access public
 	 */
 	function moveTo( &$nt, $auth = true, $reason = '' ) {
-		$err = $this->isValidMoveOperation( $nt, $auth, $reason );
+		$err = $this->isValidMoveOperation( $nt, $auth );
 		if( is_string( $err ) ) {
 			return $err;
 		}
@@ -1610,7 +1795,7 @@ class Title {
 			$this->moveOverExistingRedirect( $nt, $reason );
 			$pageCountChange = 0;
 		} else { # Target didn't exist, do normal move.
-			$this->moveToNewTitle( $nt, $newid, $reason );
+			$this->moveToNewTitle( $nt, $reason );
 			$pageCountChange = 1;
 		}
 		$redirid = $this->getArticleID();
@@ -1670,10 +1855,10 @@ class Title {
 	 *
 	 * @param Title &$nt the page to move to, which should currently
 	 * 	be a redirect
-	 * @access private
+	 * @private
 	 */
 	function moveOverExistingRedirect( &$nt, $reason = '' ) {
-		global $wgUser, $wgLinkCache, $wgUseSquid, $wgMwRedir;
+		global $wgUseSquid;
 		$fname = 'Title::moveOverExistingRedirect';
 		$comment = wfMsgForContent( '1movedto2', $this->getPrefixedText(), $nt->getPrefixedText() );
 
@@ -1686,7 +1871,7 @@ class Title {
 		$newid = $nt->getArticleID();
 		$oldid = $this->getArticleID();
 		$dbw =& wfGetDB( DB_MASTER );
-		$links = $dbw->tableName( 'links' );
+		$linkCache =& LinkCache::singleton();
 
 		# Delete the old redirect. We don't save it to history since
 		# by definition if we've got here it's rather uninteresting.
@@ -1695,9 +1880,7 @@ class Title {
 		$dbw->delete( 'page', array( 'page_id' => $newid ), $fname );
 
 		# Save a null revision in the page's history notifying of the move
-		$nullRevision = Revision::newNullRevision( $dbw, $oldid,
-			wfMsgForContent( '1movedto2', $this->getPrefixedText(), $nt->getPrefixedText() ),
-			true );
+		$nullRevision = Revision::newNullRevision( $dbw, $oldid, $comment, true );
 		$nullRevId = $nullRevision->insertOn( $dbw );
 
 		# Change the name of the target page:
@@ -1711,10 +1894,11 @@ class Title {
 			/* WHERE */ array( 'page_id' => $oldid ),
 			$fname
 		);
-		$wgLinkCache->clearLink( $nt->getPrefixedDBkey() );
+		$linkCache->clearLink( $nt->getPrefixedDBkey() );
 
 		# Recreate the redirect, this time in the other direction.
-		$redirectText = $wgMwRedir->getSynonym( 0 ) . ' [[' . $nt->getPrefixedText() . "]]\n";
+		$mwRedir = MagicWord::get( MAG_REDIRECT );
+		$redirectText = $mwRedir->getSynonym( 0 ) . ' [[' . $nt->getPrefixedText() . "]]\n";
 		$redirectArticle = new Article( $this );
 		$newid = $redirectArticle->insertOn( $dbw );
 		$redirectRevision = new Revision( array(
@@ -1723,7 +1907,7 @@ class Title {
 			'text'    => $redirectText ) );
 		$revid = $redirectRevision->insertOn( $dbw );
 		$redirectArticle->updateRevisionOn( $dbw, $redirectRevision, 0 );
-		$wgLinkCache->clearLink( $this->getPrefixedDBkey() );
+		$linkCache->clearLink( $this->getPrefixedDBkey() );
 
 		# Log the move
 		$log = new LogPage( 'move' );
@@ -1750,12 +1934,10 @@ class Title {
 	/**
 	 * Move page to non-existing title.
 	 * @param Title &$nt the new Title
-	 * @param int &$newid set to be the new article ID
-	 * @access private
+	 * @private
 	 */
-	function moveToNewTitle( &$nt, &$newid, $reason = '' ) {
-		global $wgUser, $wgLinkCache, $wgUseSquid;
-		global $wgMwRedir;
+	function moveToNewTitle( &$nt, $reason = '' ) {
+		global $wgUseSquid;
 		$fname = 'MovePageForm::moveToNewTitle';
 		$comment = wfMsgForContent( '1movedto2', $this->getPrefixedText(), $nt->getPrefixedText() );
 		if ( $reason ) {
@@ -1766,13 +1948,11 @@ class Title {
 		$oldid = $this->getArticleID();
 		$dbw =& wfGetDB( DB_MASTER );
 		$now = $dbw->timestamp();
-		wfSeedRandom();
 		$rand = wfRandom();
+		$linkCache =& LinkCache::singleton();
 
 		# Save a null revision in the page's history notifying of the move
-		$nullRevision = Revision::newNullRevision( $dbw, $oldid,
-			wfMsgForContent( '1movedto2', $this->getPrefixedText(), $nt->getPrefixedText() ),
-			true );
+		$nullRevision = Revision::newNullRevision( $dbw, $oldid, $comment, true );
 		$nullRevId = $nullRevision->insertOn( $dbw );
 
 		# Rename cur entry
@@ -1787,10 +1967,11 @@ class Title {
 			$fname
 		);
 
-		$wgLinkCache->clearLink( $nt->getPrefixedDBkey() );
+		$linkCache->clearLink( $nt->getPrefixedDBkey() );
 
 		# Insert redirect
-		$redirectText = $wgMwRedir->getSynonym( 0 ) . ' [[' . $nt->getPrefixedText() . "]]\n";
+		$mwRedir = MagicWord::get( MAG_REDIRECT );
+		$redirectText = $mwRedir->getSynonym( 0 ) . ' [[' . $nt->getPrefixedText() . "]]\n";
 		$redirectArticle = new Article( $this );
 		$newid = $redirectArticle->insertOn( $dbw );
 		$redirectRevision = new Revision( array(
@@ -1799,7 +1980,7 @@ class Title {
 			'text'    => $redirectText ) );
 		$revid = $redirectRevision->insertOn( $dbw );
 		$redirectArticle->updateRevisionOn( $dbw, $redirectRevision, 0 );
-		$wgLinkCache->clearLink( $this->getPrefixedDBkey() );
+		$linkCache->clearLink( $this->getPrefixedDBkey() );
 
 		# Log the move
 		$log = new LogPage( 'move' );
@@ -1816,21 +1997,9 @@ class Title {
 				'pl_title'     => $nt->getDBkey() ),
 			$fname );
 
-		# Non-existent target may have had broken links to it; these must
-		# now be touched to update link coloring.
-		$nt->touchLinks();
-
 		# Purge old title from squid
 		# The new title, and links to the new title, are purged in Article::onArticleCreate()
-		$titles = $nt->getLinksTo();
-		if ( $wgUseSquid ) {
-			$urls = $this->getSquidURLs();
-			foreach ( $titles as $linkTitle ) {
-				$urls[] = $linkTitle->getInternalURL();
-			}
-			$u = new SquidUpdate( $urls );
-			$u->doUpdate();
-		}
+		$this->purgeSquid();
 	}
 
 	/**
@@ -1854,19 +2023,24 @@ class Title {
 
 		if ( !$obj || 0 == $obj->page_is_redirect ) {
 			# Not a redirect
+			wfDebug( __METHOD__ . ": not a redirect\n" );
 			return false;
 		}
 		$text = Revision::getRevisionText( $obj );
 
 		# Does the redirect point to the source?
+		# Or is it a broken self-redirect, usually caused by namespace collisions?
 		if ( preg_match( "/\\[\\[\\s*([^\\]\\|]*)]]/", $text, $m ) ) {
 			$redirTitle = Title::newFromText( $m[1] );
 			if( !is_object( $redirTitle ) ||
-				$redirTitle->getPrefixedDBkey() != $this->getPrefixedDBkey() ) {
+				( $redirTitle->getPrefixedDBkey() != $this->getPrefixedDBkey() &&
+				$redirTitle->getPrefixedDBkey() != $nt->getPrefixedDBkey() ) ) {
+				wfDebug( __METHOD__ . ": redirect points to other page\n" );
 				return false;
 			}
 		} else {
 			# Fail safe
+			wfDebug( __METHOD__ . ": failsafe\n" );
 			return false;
 		}
 
@@ -1893,7 +2067,6 @@ class Title {
 	 * @access public
 	 */
 	function createRedirect( $dest, $comment ) {
-		global $wgUser;
 		if ( $this->getArticleID() ) {
 			return false;
 		}
@@ -1933,11 +2106,9 @@ class Title {
 	 * @access public
 	 */
 	function getParentCategories() {
-		global $wgContLang,$wgUser;
+		global $wgContLang;
 
 		$titlekey = $this->getArticleId();
-		$sk =& $wgUser->getSkin();
-		$parents = array();
 		$dbr =& wfGetDB( DB_SLAVE );
 		$categorylinks = $dbr->tableName( 'categorylinks' );
 
@@ -1970,8 +2141,7 @@ class Title {
 		$parents = $this->getParentCategories();
 
 		if($parents != '') {
-			foreach($parents as $parent => $current)
-			{
+			foreach($parents as $parent => $current) {
 				if ( array_key_exists( $parent, $children ) ) {
 					# Circular reference
 					$stack[$parent] = array();
@@ -1989,26 +2159,13 @@ class Title {
 
 	/**
 	 * Get an associative array for selecting this title from
-	 * the "cur" table
+	 * the "page" table
 	 *
 	 * @return array
 	 * @access public
 	 */
-	function curCond() {
-		wfDebugDieBacktrace( 'curCond called' );
-		return array( 'cur_namespace' => $this->mNamespace, 'cur_title' => $this->mDbkeyform );
-	}
-
-	/**
-	 * Get an associative array for selecting this title from the
-	 * "old" table
-	 *
-	 * @return array
-	 * @access public
-	 */
-	function oldCond() {
-		wfDebugDieBacktrace( 'oldCond called' );
-		return array( 'old_namespace' => $this->mNamespace, 'old_title' => $this->mDbkeyform );
+	function pageCond() {
+		return array( 'page_namespace' => $this->mNamespace, 'page_title' => $this->mDbkeyform );
 	}
 
 	/**
@@ -2020,8 +2177,8 @@ class Title {
 	function getPreviousRevisionID( $revision ) {
 		$dbr =& wfGetDB( DB_SLAVE );
 		return $dbr->selectField( 'revision', 'rev_id',
-			'rev_page=' . IntVal( $this->getArticleId() ) .
-			' AND rev_id<' . IntVal( $revision ) . ' ORDER BY rev_id DESC' );
+			'rev_page=' . intval( $this->getArticleId() ) .
+			' AND rev_id<' . intval( $revision ) . ' ORDER BY rev_id DESC' );
 	}
 
 	/**
@@ -2033,8 +2190,8 @@ class Title {
 	function getNextRevisionID( $revision ) {
 		$dbr =& wfGetDB( DB_SLAVE );
 		return $dbr->selectField( 'revision', 'rev_id',
-			'rev_page=' . IntVal( $this->getArticleId() ) .
-			' AND rev_id>' . IntVal( $revision ) . ' ORDER BY rev_id' );
+			'rev_page=' . intval( $this->getArticleId() ) .
+			' AND rev_id>' . intval( $revision ) . ' ORDER BY rev_id' );
 	}
 
 	/**
@@ -2044,9 +2201,10 @@ class Title {
 	 * @return bool
 	 */
 	function equals( $title ) {
-		return $this->getInterwiki() == $title->getInterwiki()
+		// Note: === is necessary for proper matching of number-like titles.
+		return $this->getInterwiki() === $title->getInterwiki()
 			&& $this->getNamespace() == $title->getNamespace()
-			&& $this->getDbkey() == $title->getDbkey();
+			&& $this->getDbkey() === $title->getDbkey();
 	}
 
 	/**
@@ -2060,44 +2218,27 @@ class Title {
 	/**
 	 * Should a link should be displayed as a known link, just based on its title?
 	 *
-	 * Currently, a self-link with a fragment, special pages and image pages are in
-	 * this category. Special pages never exist in the database. Some images do not
-	 * have description pages in the database, but the description page contains
-	 * useful history information that the user may want to link to.
+	 * Currently, a self-link with a fragment and special pages are in
+	 * this category. Special pages never exist in the database.
 	 */
 	function isAlwaysKnown() {
 		return  $this->isExternal() || ( 0 == $this->mNamespace && "" == $this->mDbkeyform )
-		  || NS_SPECIAL == $this->mNamespace || NS_IMAGE == $this->mNamespace;
+		  || NS_SPECIAL == $this->mNamespace;
 	}
 
 	/**
-	 * Update page_touched timestamps on pages linking to this title.
-	 * In principal, this could be backgrounded and could also do squid
-	 * purging.
+	 * Update page_touched timestamps and send squid purge messages for
+	 * pages linking to this title.	May be sent to the job queue depending 
+	 * on the number of links. Typically called on create and delete.
 	 */
 	function touchLinks() {
-		$fname = 'Title::touchLinks';
+		$u = new HTMLCacheUpdate( $this, 'pagelinks' );
+		$u->doUpdate();
 
-		$dbw =& wfGetDB( DB_MASTER );
-
-		$res = $dbw->select( 'pagelinks',
-			array( 'pl_from' ),
-			array(
-				'pl_namespace' => $this->getNamespace(),
-				'pl_title'     => $this->getDbKey() ),
-			$fname );
-		if ( 0 == $dbw->numRows( $res ) ) {
-			return;
+		if ( $this->getNamespace() == NS_CATEGORY ) {
+			$u = new HTMLCacheUpdate( $this, 'categorylinks' );
+			$u->doUpdate();
 		}
-
-		$arr = array();
-		$toucharr = array();
-		while( $row = $dbw->fetchObject( $res ) ) {
-			$toucharr[] = $row->pl_from;
-		}
-
-		$dbw->update( 'page', /* SET */ array( 'page_touched' => $dbw->timestamp() ),
-							/* WHERE */ array( 'page_id' => $toucharr ),$fname);
 	}
 
 	function trackbackURL() {
@@ -2122,6 +2263,45 @@ class Title {
    dc:title=\"$title\"
    trackback:ping=\"$tburl\" />
 </rdf:RDF>";
+	}
+
+	/**
+	 * Generate strings used for xml 'id' names in monobook tabs
+	 * @return string
+	 */
+	function getNamespaceKey() {
+		switch ($this->getNamespace()) {
+			case NS_MAIN:
+			case NS_TALK:
+				return 'nstab-main';
+			case NS_USER:
+			case NS_USER_TALK:
+				return 'nstab-user';
+			case NS_MEDIA:
+				return 'nstab-media';
+			case NS_SPECIAL:
+				return 'nstab-special';
+			case NS_PROJECT:
+			case NS_PROJECT_TALK:
+				return 'nstab-project';
+			case NS_IMAGE:
+			case NS_IMAGE_TALK:
+				return 'nstab-image';
+			case NS_MEDIAWIKI:
+			case NS_MEDIAWIKI_TALK:
+				return 'nstab-mediawiki';
+			case NS_TEMPLATE:
+			case NS_TEMPLATE_TALK:
+				return 'nstab-template';
+			case NS_HELP:
+			case NS_HELP_TALK:
+				return 'nstab-help';
+			case NS_CATEGORY:
+			case NS_CATEGORY_TALK:
+				return 'nstab-category';
+			default:
+				return 'nstab-' . strtolower( $this->getSubjectNsText() );
+		}
 	}
 }
 ?>

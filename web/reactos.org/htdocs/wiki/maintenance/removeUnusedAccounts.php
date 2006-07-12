@@ -8,35 +8,51 @@
  * @subpackage Maintenance
  * @author Rob Church <robchur@gmail.com>
  */
- 
+
+/**
+ * @todo Don't delete sysops or bureaucrats
+ */
+
+$options = array( 'help', 'delete' );
 require_once( 'commandLine.inc' );
 require_once( 'removeUnusedAccounts.inc' );
-echo( "REMOVE UNUSED ACCOUNTS\nThis script will delete all users who have made no edits.\n\n" );
+echo( "Remove Unused Accounts\n\n" );
+$fname = 'removeUnusedAccounts';
 
-$count = 0;
+if( isset( $options['help'] ) ) {
+	showHelp();
+	exit();
+}
+
+# Do an initial scan for inactive accounts and report the result
+echo( "Checking for unused user accounts...\n" );
 $del = array();
-
-# Right, who needs deleting?
-$users = GetUsers();
-echo( "Found " . count( $users ) . " accounts.\n" );
-echo( "Locating inactive users..." );
-foreach( $users as $user ) {
-	if( $user != 1 ) {	# Don't *touch* the first user account, ever
-		if( CountEdits( $user ) == 0 ) {
-			# User has no edits, mark them for deletion
-			$del[] = $user;
-			$count++;
-		}
+$dbr =& wfGetDB( DB_SLAVE );
+$res = $dbr->select( 'user', array( 'user_id', 'user_name' ), '', $fname );
+while( $row = $dbr->fetchObject( $res ) ) {
+	# Check the account, but ignore it if it's the primary administrator
+	if( $row->user_id > 1 && isInactiveAccount( $row->user_id, true ) ) {
+		# Inactive; print out the name and flag it
+		$del[] = $row->user_id;
+		echo( $row->user_name . "\n" );
 	}
 }
-echo( "done.\n" );
+$count = count( $del );
+echo( "...found {$count}.\n" );
 
-# Purge the inactive accounts we found
-echo( $count . " inactive accounts found. Deleting..." );
-DeleteUsers( $del );
-echo( "done.\n" );
-
-# We're done
-echo( "Complete.\n" );
+# If required, go back and delete each marked account
+if( $count > 0 && isset( $options['delete'] ) ) {
+	echo( "\nDeleting inactive accounts..." );
+	$dbw =& wfGetDB( DB_MASTER );
+	$dbw->delete( 'user', array( 'user_id' => $del ), $fname );
+	echo( "done.\n" );
+	# Update the site_stats.ss_users field
+	$users = $dbw->selectField( 'user', 'COUNT(*)', array(), $fname );
+	$dbw->update( 'site_stats', array( 'ss_users' => $users ), array( 'ss_row_id' => 1 ), $fname );
+} else {
+	if( $count > 0 )
+		echo( "\nRun the script again with --delete to remove them from the database.\n" );
+}
+echo( "\n" );
 
 ?>

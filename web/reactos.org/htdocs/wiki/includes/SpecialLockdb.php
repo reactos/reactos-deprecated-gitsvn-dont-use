@@ -35,15 +35,14 @@ function wfSpecialLockdb() {
  */
 class DBLockForm {
 	var $reason = '';
-	
+
 	function DBLockForm() {
 		global $wgRequest;
 		$this->reason = $wgRequest->getText( 'wpLockReason' );
 	}
-	
-	function showForm( $err )
-	{
-		global $wgOut, $wgUser, $wgLang;
+
+	function showForm( $err ) {
+		global $wgOut, $wgUser;
 
 		$wgOut->setPagetitle( wfMsg( 'lockdb' ) );
 		$wgOut->addWikiText( wfMsg( 'lockdbtext' ) );
@@ -95,7 +94,7 @@ END
 		$fp = fopen( $wgReadOnlyFile, 'w' );
 
 		if ( false === $fp ) {
-			$wgOut->fileNotFoundError( $wgReadOnlyFile );
+			$wgOut->showFileNotFoundError( $wgReadOnlyFile );
 			return;
 		}
 		fwrite( $fp, $this->reason );
@@ -108,7 +107,7 @@ END
 	}
 
 	function showSuccess() {
-		global $wgOut, $wgUser;
+		global $wgOut;
 
 		$wgOut->setPagetitle( wfMsg( 'lockdb' ) );
 		$wgOut->setSubtitle( wfMsg( 'lockdbsuccesssub' ) );
