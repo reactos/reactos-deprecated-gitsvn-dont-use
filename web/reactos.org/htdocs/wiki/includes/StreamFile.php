@@ -3,19 +3,33 @@
 
 /** */
 function wfStreamFile( $fname ) {
-	global $wgSquidMaxage;
 	$stat = @stat( $fname );
 	if ( !$stat ) {
 		header( 'HTTP/1.0 404 Not Found' );
 		echo "<html><body>
 <h1>File not found</h1>
-<p>Although this PHP script ({$_SERVER['SCRIPT_NAME']}) exists, the file requested for output 
+<p>Although this PHP script ({$_SERVER['SCRIPT_NAME']}) exists, the file requested for output
 does not.</p>
 </body></html>";
 		return;
 	}
 
 	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $stat['mtime'] ) . ' GMT' );
+
+	// Cancel output buffering and gzipping if set
+	while( $status = ob_get_status() ) {
+		ob_end_clean();
+		if( $status['name'] == 'ob_gzhandler' ) {
+			header( 'Content-Encoding:' );
+		}
+	}
+	
+	$type = wfGetType( $fname );
+	if ( $type and $type!="unknown/unknown") {
+		header("Content-type: $type");
+	} else {
+		header('Content-type: application/x-wiki');
+	}
 
 	if ( !empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
 		$modsince = preg_replace( '/;.*$/', '', $_SERVER['HTTP_IF_MODIFIED_SINCE'] );
@@ -25,16 +39,9 @@ does not.</p>
 			return;
 		}
 	}
-	
+
 	header( 'Content-Length: ' . $stat['size'] );
-	
-	$type = wfGetType( $fname );
-	if ( $type and $type!="unknown/unknown") {
-		header("Content-type: $type");
-	} else {
-		header('Content-type: application/x-wiki');
-	}
-	
+
 	readfile( $fname );
 }
 
@@ -46,14 +53,14 @@ function wfGetType( $filename ) {
 	# used for thumbnails (thumb.php)
 	if ($wgTrivialMimeDetection) {
 		$ext= strtolower(strrchr($filename, '.'));
-		
+
 		switch ($ext) {
 			case '.gif': return 'image/gif';
 			case '.png': return 'image/png';
 			case '.jpg': return 'image/jpeg';
 			case '.jpeg': return 'image/jpeg';
 		}
-		
+
 		return 'unknown/unknown';
 	}
 	else {

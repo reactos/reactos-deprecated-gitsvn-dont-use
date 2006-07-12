@@ -15,9 +15,9 @@ require_once( 'MogileFS.php' );
  * Entry point
  */
 function wfSpecialUploadMogile() {
-        global $wgRequest;
-        $form = new UploadFormMogile( $wgRequest );
-        $form->execute();
+	global $wgRequest;
+	$form = new UploadFormMogile( $wgRequest );
+	$form->execute();
 }
 
 /** @package MediaWiki */
@@ -34,30 +34,30 @@ class UploadFormMogile extends UploadForm {
 	 * @param bool $useRename  Not used in this implementation
 	 */
 	function saveUploadedFile( $saveName, $tempName, $useRename = false ) {
-		global $wgUploadDirectory, $wgOut;
+		global $wgOut;
 		$mfs = MogileFS::NewMogileFS();
 
 		$this->mSavedFile = "image!{$saveName}";
 
 		if( $mfs->getPaths( $this->mSavedFile )) {
 			$this->mUploadOldVersion = gmdate( 'YmdHis' ) . "!{$saveName}";
-			if( !$mfs->rename( $this->mSavedFile, "archive!{$this->mUploadOldVersion}" ) ) { 
-				$wgOut->fileRenameError( $this->mSavedFile,
+			if( !$mfs->rename( $this->mSavedFile, "archive!{$this->mUploadOldVersion}" ) ) {
+				$wgOut->showFileRenameError( $this->mSavedFile,
 				  "archive!{$this->mUploadOldVersion}" );
 				return false;
 			}
 		} else {
 			$this->mUploadOldVersion = '';
 		}
-		
+
 		if ( $this->mStashed ) {
 			if (!$mfs->rename($tempName,$this->mSavedFile)) {
-				$wgOut->fileRenameError($tempName, $this->mSavedFile );
+				$wgOut->showFileRenameError($tempName, $this->mSavedFile );
 				return false;
 			}
 		} else {
 			if ( !$mfs->saveFile($this->mSavedFile,'normal',$tempName )) {
-				$wgOut->fileCopyError( $tempName, $this->mSavedFile );
+				$wgOut->showFileCopyError( $tempName, $this->mSavedFile );
 				return false;
 			}
 			unlink($tempName);
@@ -83,13 +83,13 @@ class UploadFormMogile extends UploadForm {
 		$stash = 'stash!' . gmdate( "YmdHis" ) . '!' . $saveName;
 		$mfs = MogileFS::NewMogileFS();
 		if ( !$mfs->saveFile( $stash, 'normal', $tempName ) ) {
-			$wgOut->fileCopyError( $tempName, $stash );
+			$wgOut->showFileCopyError( $tempName, $stash );
 			return false;
 		}
 		unlink($tempName);
 		return $stash;
 	}
-	
+
 	/**
 	 * Stash a file in a temporary directory for later processing,
 	 * and save the necessary descriptive info into the session.
@@ -107,7 +107,7 @@ class UploadFormMogile extends UploadForm {
 			# Couldn't save the file.
 			return false;
 		}
-		
+
 		$key = mt_rand( 0, 0x7fffffff );
 		$_SESSION['wsUploadData'][$key] = array(
 			'mUploadTempName' => $stash,
@@ -119,12 +119,16 @@ class UploadFormMogile extends UploadForm {
 	/**
 	 * Remove a temporarily kept file stashed by saveTempUploadedFile().
 	 * @access private
+	 * @return success
 	 */
 	function unsaveUploadedFile() {
 		global $wgOut;
 		$mfs = MogileFS::NewMogileFS();
 		if ( ! $mfs->delete( $this->mUploadTempName ) ) {
-			$wgOut->fileDeleteError( $this->mUploadTempName );
+			$wgOut->showFileDeleteError( $this->mUploadTempName );
+			return false;
+		} else {
+			return true;
 		}
 	}
 }

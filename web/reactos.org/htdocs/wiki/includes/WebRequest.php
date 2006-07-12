@@ -6,20 +6,20 @@
 
 # Copyright (C) 2003 Brion Vibber <brion@pobox.com>
 # http://www.mediawiki.org/
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or 
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 # http://www.gnu.org/copyleft/gpl.html
 
 /**
@@ -62,7 +62,7 @@ class WebRequest {
 		}
 		return $arr;
 	}
-	
+
 	/**
 	 * If magic_quotes_gpc option is on, run the global arrays
 	 * through fix_magic_quotes to strip out the stupid slashes.
@@ -80,7 +80,7 @@ class WebRequest {
 			$this->fix_magic_quotes( $_SERVER );
 		}
 	}
-	
+
 	/**
 	 * Recursively normalizes UTF-8 strings in the given array.
 	 * @param array $data string or array
@@ -97,19 +97,19 @@ class WebRequest {
 		}
 		return $data;
 	}
-	
+
 	/**
 	 * Fetch a value from the given array or return $default if it's not set.
 	 *
-	 * @param array &$arr
+	 * @param array $arr
 	 * @param string $name
 	 * @param mixed $default
 	 * @return mixed
 	 * @private
 	 */
-	function getGPCVal( &$arr, $name, $default ) {
+	function getGPCVal( $arr, $name, $default ) {
 		if( isset( $arr[$name] ) ) {
-			global $wgServer, $wgContLang;
+			global $wgContLang;
 			$data = $arr[$name];
 			if( isset( $_GET[$name] ) && !is_array( $data ) ) {
 				# Check for alternate/legacy character encoding.
@@ -144,7 +144,7 @@ class WebRequest {
 			return (string)$val;
 		}
 	}
-	
+
 	/**
 	 * Fetch an array from the input or return $default if it's not set.
 	 * If source was scalar, will return an array with a single element.
@@ -162,6 +162,24 @@ class WebRequest {
 			return (array)$val;
 		}
 	}
+	
+	/**
+	 * Fetch an array of integers, or return $default if it's not set.
+	 * If source was scalar, will return an array with a single element.
+	 * If no source and no default, returns NULL.
+	 * If an array is returned, contents are guaranteed to be integers.
+	 *
+	 * @param string $name
+	 * @param array $default option default (or NULL)
+	 * @return array of ints
+	 */
+	function getIntArray( $name, $default = NULL ) {
+		$val = $this->getArray( $name, $default );
+		if( is_array( $val ) ) {
+			$val = array_map( 'intval', $val );
+		}
+		return $val;
+	}
 
 	/**
 	 * Fetch an integer value from the input or return $default if not set.
@@ -172,9 +190,9 @@ class WebRequest {
 	 * @return int
 	 */
 	function getInt( $name, $default = 0 ) {
-		return IntVal( $this->getVal( $name, $default ) );
+		return intval( $this->getVal( $name, $default ) );
 	}
-	
+
 	/**
 	 * Fetch an integer value from the input or return null if empty.
 	 * Guaranteed to return an integer or null; non-numeric input will
@@ -185,10 +203,10 @@ class WebRequest {
 	function getIntOrNull( $name ) {
 		$val = $this->getVal( $name );
 		return is_numeric( $val )
-			? IntVal( $val )
+			? intval( $val )
 			: null;
 	}
-	
+
 	/**
 	 * Fetch a boolean value from the input or return $default if not set.
 	 * Guaranteed to return true or false, with normal PHP semantics for
@@ -200,7 +218,7 @@ class WebRequest {
 	function getBool( $name, $default = false ) {
 		return $this->getVal( $name, $default ) ? true : false;
 	}
-	
+
 	/**
 	 * Return true if the named value is set in the input, whatever that
 	 * value is (even "0"). Return false if the named value is not set.
@@ -214,10 +232,10 @@ class WebRequest {
 		$val = $this->getVal( $name, NULL );
 		return isset( $val );
 	}
-	
+
 	/**
 	 * Fetch a text string from the given array or return $default if it's not
-	 * set. \r is stripped from the text, and with some language modules there 
+	 * set. \r is stripped from the text, and with some language modules there
 	 * is an input transliteration applied. This should generally be used for
 	 * form <textarea> and <input> fields.
 	 *
@@ -231,20 +249,20 @@ class WebRequest {
 		return str_replace( "\r\n", "\n",
 			$wgContLang->recodeInput( $val ) );
 	}
-	
+
 	/**
 	 * Extracts the given named values into an array.
 	 * If no arguments are given, returns all input values.
 	 * No transformation is performed on the values.
 	 */
-	function getValues() {	
+	function getValues() {
 		$names = func_get_args();
 		if ( count( $names ) == 0 ) {
 			$names = array_keys( $_REQUEST );
 		}
 
 		$retVal = array();
-		foreach ( $names as $name ) { 
+		foreach ( $names as $name ) {
 			$value = $this->getVal( $name );
 			if ( !is_null( $value ) ) {
 				$retVal[$name] = $value;
@@ -265,7 +283,7 @@ class WebRequest {
 	function wasPosted() {
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
 	}
-	
+
 	/**
 	 * Returns true if there is a session cookie set.
 	 * This does not necessarily mean that the user is logged in!
@@ -275,15 +293,21 @@ class WebRequest {
 	function checkSessionCookie() {
 		return isset( $_COOKIE[ini_get('session.name')] );
 	}
-	
+
 	/**
 	 * Return the path portion of the request URI.
 	 * @return string
 	 */
 	function getRequestURL() {
-		return $_SERVER['REQUEST_URI'];
+		$base = $_SERVER['REQUEST_URI'];
+		if( $base{0} == '/' ) {
+			return $base;
+		} else {
+			// We may get paths with a host prepended; strip it.
+			return preg_replace( '!^[^:]+://[^/]+/!', '/', $base );
+		}
 	}
-	
+
 	/**
 	 * Return the request URI with the canonical service and hostname.
 	 * @return string
@@ -292,47 +316,53 @@ class WebRequest {
 		global $wgServer;
 		return $wgServer . $this->getRequestURL();
 	}
-	
+
 	/**
 	 * Take an arbitrary query and rewrite the present URL to include it
-	 * @param string $query Query string fragment; do not include initial '?'
+	 * @param $query String: query string fragment; do not include initial '?'
 	 * @return string
 	 */
 	function appendQuery( $query ) {
 		global $wgTitle;
 		$basequery = '';
 		foreach( $_GET as $var => $val ) {
-			if( $var == 'title' ) continue;
+			if ( $var == 'title' )
+				continue;
+			if ( is_array( $val ) )
+				/* This will happen given a request like
+				 * http://en.wikipedia.org/w/index.php?title[]=Special:Userlogin&returnto[]=Main_Page
+				 */
+				continue;
 			$basequery .= '&' . urlencode( $var ) . '=' . urlencode( $val );
 		}
 		$basequery .= '&' . $query;
-		
+
 		# Trim the extra &
 		$basequery = substr( $basequery, 1 );
 		return $wgTitle->getLocalURL( $basequery );
 	}
-	
+
 	/**
 	 * HTML-safe version of appendQuery().
-	 * @param string $query Query string fragment; do not include initial '?'
+	 * @param $query String: query string fragment; do not include initial '?'
 	 * @return string
 	 */
 	function escapeAppendQuery( $query ) {
 		return htmlspecialchars( $this->appendQuery( $query ) );
 	}
-	
+
 	/**
 	 * Check for limit and offset parameters on the input, and return sensible
 	 * defaults if not given. The limit must be positive and is capped at 5000.
 	 * Offset must be positive but is not capped.
 	 *
-	 * @param int $deflimit Limit to use if no input and the user hasn't set the option.
-	 * @param string $optionname To specify an option other than rclimit to pull from.
+	 * @param $deflimit Integer: limit to use if no input and the user hasn't set the option.
+	 * @param $optionname String: to specify an option other than rclimit to pull from.
 	 * @return array first element is limit, second is offset
 	 */
 	function getLimitOffset( $deflimit = 50, $optionname = 'rclimit' ) {
 		global $wgUser;
-	
+
 		$limit = $this->getInt( 'limit', 0 );
 		if( $limit < 0 ) $limit = 0;
 		if( ( $limit == 0 ) && ( $optionname != '' ) ) {
@@ -340,16 +370,16 @@ class WebRequest {
 		}
 		if( $limit <= 0 ) $limit = $deflimit;
 		if( $limit > 5000 ) $limit = 5000; # We have *some* limits...
-	
+
 		$offset = $this->getInt( 'offset', 0 );
 		if( $offset < 0 ) $offset = 0;
-	
+
 		return array( $limit, $offset );
 	}
-	
+
 	/**
 	 * Return the path to the temporary file where PHP has stored the upload.
-	 * @param string $key
+	 * @param $key String:
 	 * @return string or NULL if no such file.
 	 */
 	function getFileTempname( $key ) {
@@ -358,10 +388,10 @@ class WebRequest {
 		}
 		return $_FILES[$key]['tmp_name'];
 	}
-	
+
 	/**
 	 * Return the size of the upload, or 0.
-	 * @param string $key
+	 * @param $key String:
 	 * @return integer
 	 */
 	function getFileSize( $key ) {
@@ -370,7 +400,19 @@ class WebRequest {
 		}
 		return $_FILES[$key]['size'];
 	}
-	
+
+	/**
+	 * Return the upload error or 0
+	 * @param $key String:
+	 * @return integer
+	 */
+	function getUploadError( $key ) {
+		if( !isset( $_FILES[$key] ) || !isset( $_FILES[$key]['error'] ) ) {
+			return 0/*UPLOAD_ERR_OK*/;
+		}
+		return $_FILES[$key]['error'];
+	}
+
 	/**
 	 * Return the original filename of the uploaded file, as reported by
 	 * the submitting user agent. HTML-style character entities are
@@ -379,7 +421,7 @@ class WebRequest {
 	 *
 	 * Other than this the name is not verified for being a safe filename.
 	 *
-	 * @param string $key
+	 * @param $key String: 
 	 * @return string or NULL if no such file.
 	 */
 	function getFileName( $key ) {
@@ -387,7 +429,7 @@ class WebRequest {
 			return NULL;
 		}
 		$name = $_FILES[$key]['name'];
-		
+
 		# Safari sends filenames in HTML-encoded Unicode form D...
 		# Horrid and evil! Let's try to make some kind of sense of it.
 		$name = Sanitizer::decodeCharReferences( $name );
@@ -405,12 +447,12 @@ class WebRequest {
 class FauxRequest extends WebRequest {
 	var $data = null;
 	var $wasPosted = false;
-	
+
 	function FauxRequest( $data, $wasPosted = false ) {
 		if( is_array( $data ) ) {
 			$this->data = $data;
 		} else {
-			wfDebugDieBacktrace( "FauxRequest() got bogus data" );
+			throw new MWException( "FauxRequest() got bogus data" );
 		}
 		$this->wasPosted = $wasPosted;
 	}
@@ -418,32 +460,32 @@ class FauxRequest extends WebRequest {
 	function getVal( $name, $default = NULL ) {
 		return $this->getGPCVal( $this->data, $name, $default );
 	}
-	
+
 	function getText( $name, $default = '' ) {
 		# Override; don't recode since we're using internal data
 		return $this->getVal( $name, $default );
 	}
-	
-	function getValues() {	
+
+	function getValues() {
 		return $this->data;
 	}
 
 	function wasPosted() {
 		return $this->wasPosted;
 	}
-	
+
 	function checkSessionCookie() {
 		return false;
 	}
-	
+
 	function getRequestURL() {
-		wfDebugDieBacktrace( 'FauxRequest::getRequestURL() not implemented' );
+		throw new MWException( 'FauxRequest::getRequestURL() not implemented' );
 	}
-	
+
 	function appendQuery( $query ) {
-		wfDebugDieBacktrace( 'FauxRequest::appendQuery() not implemented' );
+		throw new MWException( 'FauxRequest::appendQuery() not implemented' );
 	}
-	
+
 }
 
 ?>
