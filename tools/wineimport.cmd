@@ -222,6 +222,9 @@ CALL :make make "%WINE_ROS_DIR%" %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 ECHO Compilation successful. You should try to run ReactOS to see if
 ECHO no visible regressions appeared before committing the changes.
+FOR %%m IN (%WINE_LIST%) DO (
+	REM svn.exe commit "%WINE_ROS_DIR%\dll\win32\%%m" -m "Autosyncing with Wine HEAD" --username LOGIN --password PASSWORD --non-interactive
+)
 GOTO :eof
 
 :internal_analyseline
