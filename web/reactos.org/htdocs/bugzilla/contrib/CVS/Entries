@@ -1,0 +1,21 @@
+/BugzillaEmail.pm/1.4/Wed Aug 31 08:00:25 2005//TBUGZILLA-2_22
+/README/1.10/Mon Jul  5 21:54:00 2004//TBUGZILLA-2_22
+/README.Mailif/1.4/Fri Nov 25 19:47:38 2005//TBUGZILLA-2_22
+/bug_email.pl/1.31.2.1/Tue Feb 21 14:52:37 2006//TBUGZILLA-2_22
+/bugmail_help.html/1.3/Fri Nov 25 19:47:38 2005//TBUGZILLA-2_22
+/bugzilla.procmailrc/1.1/Wed Mar 15 23:39:09 2000//TBUGZILLA-2_22
+/bugzilla_email_append.pl/1.10/Fri Nov 25 21:57:07 2005//TBUGZILLA-2_22
+/bugzilla_ldapsync.rb/1.2/Sat Apr 26 16:35:04 2003//TBUGZILLA-2_22
+/bzdbcopy.pl/1.1/Tue Jul 12 07:56:16 2005//TBUGZILLA-2_22
+/cvs-update.pl/1.1/Tue Nov 11 05:58:52 2003//TBUGZILLA-2_22
+/gnats2bz.pl/1.6/Thu Jan 31 14:29:21 2002//TBUGZILLA-2_22
+/jb2bz.py/1.5/Fri Aug 26 23:11:32 2005//TBUGZILLA-2_22
+/merge-users.pl/1.1.2.2/Sun Feb 26 13:17:48 2006//TBUGZILLA-2_22
+/mysqld-watcher.pl/1.5/Thu Mar 27 00:06:53 2003//TBUGZILLA-2_22
+/sendbugmail.pl/1.3/Thu Feb 24 23:42:48 2005//TBUGZILLA-2_22
+/sendunsentbugmail.pl/1.7/Sun Nov 13 17:32:12 2005//TBUGZILLA-2_22
+/syncLDAP.pl/1.4/Wed Aug 10 01:30:40 2005//TBUGZILLA-2_22
+/yp_nomail.sh/1.1/Tue Sep 12 23:50:31 2000//TBUGZILLA-2_22
+D/bugzilla-submit////
+D/cmdline////
+D/gnatsparse////
