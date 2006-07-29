@@ -1104,7 +1104,7 @@ class WaterfallStatusResource(HtmlResource):
             return self.phase0(request, (changeNames + builderNames),
                                timestamps, eventGrid)
         # start the table: top-header material
-        data += '<table border="0" cellspacing="0">\n'
+        data += '<table class="table" border="0" cellspacing="0">\n'
 
         if projectName and projectURL:
             # TODO: this is going to look really ugly
@@ -1119,16 +1119,17 @@ class WaterfallStatusResource(HtmlResource):
             data += box.td(align="center")
         data += " </tr>\n"
 
-        data += ' <tr class="Activity">\n'
-        data += td('current activity', align='right', colspan=2)
+        data += ' <tr>\n'
+        data += td('current activity', align='right', colspan=2, class_='Activity')
         for b in builders:
+	    state = b.getState()
             box = ICurrentBox(b).getBox(self.status)
-            data += box.td(align="center")
+            data += box.td(align="center", class_="Activity %s" % state[0])
         data += " </tr>\n"
         
         data += " <tr>\n"
         TZ = time.tzname[time.daylight]
-        data += td("time (%s)" % TZ, align="center", class_="Time")
+        data += td("time<br> (%s)" % TZ, align="center", class_="Time")
         name = changeNames[0]
         data += td(
                 "<a href=\"%s\">%s</a>" % (urllib.quote(name, safe=''), name),
