@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo Cleaning...
+
+if [ -f makefile.auto ]
+then
+    rm makefile.auto
+fi
+
+rm -r obj-i386
+rm -r output-i386
+rm *.iso
+echo done.
+exit 0
