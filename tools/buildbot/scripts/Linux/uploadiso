@@ -1,0 +1,56 @@
+#!/bin/sh
+
+if [ -f reactos.iso  ]
+then
+    echo No ISO file found.
+    exit 2
+fi
+
+echo Getting revision number...
+REV=`svnversion .`
+echo Revision $REV. 
+
+echo Compressing iso files...
+cp ReactOS.iso bootcd-$REV-$1.iso
+cp ReactOS-LiveCD.iso livecd-$REV-$1.iso
+
+7za a -bd -t7z bootcd-$REV-$1.7z bootcd-$REV-$1.iso -mx9
+7za a -bd -t7z livecd-$REV-$1.7z livecd-$REV-$1.iso -mx9
+
+if [ -f bootcd-$REV-$1.iso ]
+then
+    rm bootcd-$REV-$1.iso
+fi
+
+if [ -f livecd-$REV-$1.iso ]
+then
+    rm livecd-$REV-$1.iso
+fi
+
+echo done.
+echo Uploading rev $REV BootCD and LiveCD...
+
+ftp -n svn.reactos.org <<EOF
+user username password
+cd www
+cd iso
+binary
+put bootcd-$REV-$1.7z
+put livecd-$REV-$1.7z
+bye
+EOF
+
+if [ -f bootcd-$REV-$1.7z ]
+then
+    rm bootcd-$REV-$1.7z
+fi	
+
+if [ -f livecd-$REV-$1.7z ]
+then
+    rm livecd-$REV-$1.7z
+fi
+
+echo done.
+exit 0
+
+
