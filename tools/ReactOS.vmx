@@ -1,0 +1,56 @@
+config.version = "8"
+virtualHW.version = "3"
+memsize = "128"
+ide0:0.present = "TRUE"
+ide0:0.fileName = "ReactOS.vmdk"
+floppy0.present = "FALSE"
+floppy0.startConnected = "FALSE"
+floppy0.fileName = ""
+Ethernet0.present = "TRUE"
+displayName = "ReactOS"
+guestOS = "winxppro"
+priority.grabbed = "normal"
+priority.ungrabbed = "normal"
+powerType.powerOff = "hard"
+powerType.powerOn = "hard"
+powerType.suspend = "hard"
+powerType.reset = "hard"
+ 
+sound.present = "FALSE"
+sound.virtualDev = "es1371"
+ 
+Ethernet0.addressType = "generated"
+uuid.location = "56 4d f3 82 2e e6 c2 57-a8 3d d3 58 af 7c 4c 8b"
+uuid.bios = "56 4d f3 82 2e e6 c2 57-a8 3d d3 58 af 7c 4c 8b"
+ethernet0.generatedAddress = "00:0c:29:7c:4c:8b"
+ethernet0.generatedAddressOffset = "0"
+ 
+tools.remindInstall = "TRUE"
+
+### CDROM ###
+ide1:0.startConnected = "FALSE"
+ide1:0.present = "FALSE"
+ide1:0.fileName = "ReactOS.iso"
+ide1:0.deviceType = "cdrom-image"
+ 
+ide0:0.deviceType = "disk"
+usb.present = "FALSE"
+ 
+ide0:0.redo = ""
+ 
+nvram = "ReactOS.nvram"
+ 
+floppy0.fileType = "file"
+ 
+checkpoint.vmState = ""
+ 
+ethernet0.connectionType = "nat"
+ 
+serial0.present = "TRUE"
+serial0.fileName = "debug.txt"
+serial0.fileType = "file"
+serial0.tryNoRxLoss = "FALSE"
+serial0.yieldOnMsrRead = "TRUE"
+serial0.startConnected = "TRUE"
+
+uuid.action = "create"
