@@ -32,7 +32,7 @@ IF ERRORLEVEL 2 (
 )
 :startdownload
 ECHO Downloading %2 ...
-IF NOT EXIST "wine\dlls\%2" (
+IF NOT EXIST "wine\dlls\%2\makefile.in" (
 	>NUL 2>NUL cvs.exe -z 3 checkout wine/dlls/%2
 	IF NOT EXIST "wine\dlls\%2\" (
 		ECHO Error when downloading %2. Are you sure it does exist?
@@ -58,12 +58,12 @@ IF NOT EXIST wine\dlls\%2\makefile.in (
 	GOTO :createrbuildnext
 )
 
-SET WINE_LOWER=abcdefghijklmnopqrstuvwxyz0123456789
-SET WINE_UPPER=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+SET WINE_LOWER=abcdefghijklmnopqrstuvwxyz0123456789_.
+SET WINE_UPPER=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.
 SET WINE_LINE=%2
 SET WINE_UPPERCASE=
-FOR /L %%i IN (0, 1, 8) DO (
-	FOR /L %%j IN (0, 1, 35) DO (
+FOR /L %%i IN (0, 1, 13) DO (
+	FOR /L %%j IN (0, 1, 37) DO (
 		IF "!WINE_LOWER:~%%j,1!" == "!WINE_LINE:~%%i,1!" (
 			SET WINE_UPPERCASE=!WINE_UPPERCASE!!WINE_UPPER:~%%j,1!
 		)
@@ -137,6 +137,7 @@ IF "%2" == "" GOTO :eof
 IF NOT EXIST "wine\dlls\%2" GOTO :mergenext
 ATTRIB -R "%WINE_ROS_DIR%\dll\win32\%2\*" >NUL
 COPY /Y "wine\dlls\%2\*.*" "%WINE_ROS_DIR%\dll\win32\%2" >NUL
+SET WINE_FILES_DELETED=
 FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
 	IF "%%f" == ".cvsignore" (
 		svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
@@ -150,6 +151,7 @@ FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
 			svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 			IF ERRORLEVEL 2 GOTO :helpsvn
 			IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%%f" DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+			SET WINE_FILES_DELETED=!WINE_FILES_DELETED! %%f
 		)
 	) ELSE (
 		svn.exe add "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
@@ -170,6 +172,14 @@ IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" (
 		ECHO Error when executing patch.exe. Try to download the lastest version at
 		ECHO http://unxutils.sourceforge.net/
 		GOTO :eof
+	)
+	FOR %%f IN (%WINE_FILES_DELETED%) DO (
+		IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%%f" (
+			REN "%WINE_ROS_DIR%\dll\win32\%2\%%f" "%WINE_TMPFILE1%"
+			svn.exe revert -q "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
+			DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+			REN "%WINE_ROS_DIR%\dll\win32\%2\%WINE_TMPFILE1%" "%%f"
+		)
 	)
 )
 GOTO :mergenext
