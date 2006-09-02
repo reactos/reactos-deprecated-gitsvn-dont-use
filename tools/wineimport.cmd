@@ -70,9 +70,27 @@ FOR /L %%i IN (0, 1, 13) DO (
 	)
 )
 
+SET WINE_HAS_DLLINSTALL=0
+SET WINE_HAS_DLLREGISTERSERVER=0
+FOR /F "usebackq tokens=3,4 delims= " %%l IN ("wine\dlls\%2\%2.spec") DO (
+	IF NOT "%%l" == "" CALL :internal_analysespec %%l
+	IF NOT "%%m" == "" CALL :internal_analysespec %%m
+)
+
 >NUL COPY /Y wine\dlls\%2\makefile.in %WINE_TMPFILE1%
 
 ECHO ^<module name="%2" type="win32dll" baseaddress="${BASEADDRESS_!WINE_UPPERCASE!}" installbase="system32" installname="%2.dll" allowwarnings="true"^>
+IF "%WINE_HAS_DLLINSTALL%" == "1" (
+	IF "%WINE_HAS_DLLREGISTERSERVER%" == "1" (
+		ECHO 	^<autoregister infsection="OleControlDlls" type="Both" /^>
+	) ELSE (
+		ECHO 	^<autoregister infsection="OleControlDlls" type="DllInstall" /^>
+	)
+) ELSE (
+	IF "%WINE_HAS_DLLREGISTERSERVER%" == "1" (
+		ECHO 	^<autoregister infsection="OleControlDlls" type="DllRegisterServer" /^>
+	)
+)
 ECHO 	^<importlibrary definition="%2.spec.def" /^>
 ECHO 	^<include base="%2"^>.^</include^>
 ECHO 	^<include base="ReactOS"^>include/reactos/wine^</include^>
@@ -280,3 +298,9 @@ IF "%WINE_END_PREC_LINE%" == "\" (
 ) ELSE (
 	SET WINE_FULL_LINE=!WINE_FULL_LINE!!WINE_LINE!
 )
+GOTO :eof
+
+:internal_analysespec
+SET WINE_LINE=%*
+IF "%WINE_LINE:~0,10%" == "DllInstall" SET WINE_HAS_DLLINSTALL=1
+IF "%WINE_LINE:~0,17%" == "DllRegisterServer" SET WINE_HAS_DLLREGISTERSERVER=1
