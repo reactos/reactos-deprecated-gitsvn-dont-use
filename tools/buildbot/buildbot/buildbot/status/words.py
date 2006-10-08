@@ -82,44 +82,44 @@ class IrcStatusBot(irc.IRCClient):
                        bot retrieves all status information
         """
         self.nickname = nickname
-	self.wantnick = nickname
+        self.wantnick = nickname
         self.channels = channels
         self.password = password
         self.status = status
         self.categories = categories
         self.counter = 0
         self.hasQuit = 0
-	self.pingSelf = 1
-	self.hasReconnected = 0
-	self.timeout = 60
+        self.pingSelf = 1
+        self.hasReconnected = 0
+        self.timeout = 60
 
     def signedOn(self):
         if self.password:
-	    if self.nickname != self.wantnick:
-		    self.msg("Nickserv", "GHOST " + self.wantnick + " " + self.password)
-		    self.setNick(self.wantnick)
+            if self.nickname != self.wantnick:
+                    self.msg("Nickserv", "GHOST " + self.wantnick + " " + self.password)
+                    self.setNick(self.wantnick)
             self.msg("Nickserv", "IDENTIFY " + self.password)
         for c in self.channels:
             self.join(c)
-	reactor.callLater(self.timeout, self.checkPing)
-	self.lastping = time.time()
+        reactor.callLater(self.timeout, self.checkPing)
+        self.lastping = time.time()
     def checkPing(self):
-	if time.time() - self.lastping > (self.timeout * 2):
-		self.pingSelf = 1
-		log.msg("Dropping due to pingout")
-		self.shutdown()
+        if time.time() - self.lastping > (self.timeout * 2):
+                self.pingSelf = 1
+                log.msg("Dropping due to pingout")
+                self.shutdown()
         if self.pingSelf:
-		self.ping(self.nickname)
-		self.monitor = reactor.callLater(self.timeout, self.checkPing)
+                self.ping(self.nickname)
+                self.monitor = reactor.callLater(self.timeout, self.checkPing)
     def end(self):
-	self.pingSelf = 0
+        self.pingSelf = 0
     def shutdown(self):
-	self.sendLine("QUIT")
-	self.end()
+        self.sendLine("QUIT")
+        self.end()
     def joined(self, channel):
         log.msg("I have joined", channel)
-	if self.hasReconnected:
-		self.msg(channel, "Hello again")
+        if self.hasReconnected:
+                self.msg(channel, "Hello again")
     def left(self, channel):
         log.msg("I have left", channel)
     def kickedFrom(self, channel, kicker, message):
@@ -228,18 +228,18 @@ class IrcStatusBot(irc.IRCClient):
             reactor.callLater(when, self.reply, reply, r)
             when += 2.5
     def command_PING(self, user, reply, person):
-	self.reply(reply, "ping to " + person)
-	self.ping(person)
+        self.reply(reply, "ping to " + person)
+        self.ping(person)
     def pong(self, user, secs):
-	self.lastping = time.time()
+        self.lastping = time.time()
         log.msg("Pong from " + user + " took " + str(secs))
 #    def command_JOIN(self, user, reply, chan):
-#	self.reply(reply, "joining " + chan)
-#	self.join(chan)
+#       self.reply(reply, "joining " + chan)
+#       self.join(chan)
 
 #    def command_PART(self, user, reply, chan):
-#	self.reply(reply, "parting " + chan)
-#	self.part(chan)
+#       self.reply(reply, "parting " + chan)
+#       self.part(chan)
 
     def command_HELLO(self, user, reply, args):
         self.reply(reply, "yes?")
@@ -266,7 +266,7 @@ class IrcStatusBot(irc.IRCClient):
     command_LIST.usage = "list builders - List configured builders"
 
     def command_DEAD(self, user, reply, args):
-	self.pingSelf = 0
+        self.pingSelf = 0
 
     def command_STATUS(self, user, reply, args):
         args = args.split()
@@ -506,12 +506,12 @@ class IrcStatusBot(irc.IRCClient):
         self.reply(reply, "What you say!")
 
 #    def command_DISCON(self, user, reply, args):
-#	log.msg("Disconnecting on request: " + str(args))
-#	self.shutdown()
+#       log.msg("Disconnecting on request: " + str(args))
+#       self.shutdown()
 
     def connectionLost(self, reason = "foo"):
-	log.msg("Connection lost: " + str(reason))
-	self.shutdown()
+        log.msg("Connection lost: " + str(reason))
+        self.shutdown()
 
     def action(self, user, channel, data):
         #log.msg("action: %s,%s,%s" % (user, channel, data))
@@ -559,7 +559,7 @@ class IrcStatusFactory(ThrottledClientFactory):
         self.password = password
         self.channels = channels
         self.categories = categories
-	self.hasReconnected = False
+        self.hasReconnected = False
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -571,9 +571,9 @@ class IrcStatusFactory(ThrottledClientFactory):
 	self.hasReconnected = True
         if self.p:
             self.p.quit("buildmaster reconfigured: bot disconnecting")
-	    self.p.end()
-	self.factory.shutdown()
-	del self.factory
+            self.p.end()
+        self.factory.shutdown()
+        del self.factory
 
     def buildProtocol(self, address):
         p = self.protocol(self.nickname, self.password,
@@ -582,7 +582,7 @@ class IrcStatusFactory(ThrottledClientFactory):
         p.factory = self
         p.status = self.status
         p.control = self.control
-	p.hasReconnected = self.hasReconnected
+        p.hasReconnected = self.hasReconnected
         self.p = p
         return p
 
