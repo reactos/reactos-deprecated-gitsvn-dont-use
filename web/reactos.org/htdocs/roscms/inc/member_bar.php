@@ -33,6 +33,7 @@
 <p></p><?php
 	}
 	else {
+	/*
 		?><form action="?page=login" method="post"><div class="navTitle">Login</div>   
 		  <ol>
 			<li><?php echo $roscms_langres['Login_Nick']; ?><input type="text" name="rosusername" accesskey="l" size="10"/>
@@ -46,5 +47,6 @@
 		<li><a href="?page=register"><?php echo $roscms_langres['Register_Account']; ?></a></li>
 		  </ol></div></form>
 		  <p></p><?php
+		  */
 	}
 ?>
