@@ -35,6 +35,7 @@ $RSDB_langres['Dev'] = 'Development';
 $RSDB_langres['Community'] = 'Community';
 $RSDB_langres['Support'] = 'Support';
 $RSDB_langres['myReactOS'] = 'myReactOS';
+$RSDB_langres['Info'] = 'Info';
 
 
 
