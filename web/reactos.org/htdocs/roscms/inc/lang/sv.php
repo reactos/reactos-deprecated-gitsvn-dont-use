@@ -1,4 +1,4 @@
- <?php
+<?php
     /*
     RosCMS - ReactOS Content Management System
     Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
@@ -27,51 +27,52 @@
 // Language settings
 $roscms_langres['charset'] = 'utf-8';
 //$roscms_langres['charset'] = 'iso-8859-1';
-$roscms_langres['lang_code'] = 'SV';
+$roscms_langres['lang_code'] = 'EN';
 
 			   
 // main menu
 $roscms_langres['Navigation'] = 'Navigation';
-$roscms_langres['Home'] = 'Hem';
-$roscms_langres['Dev'] = 'Utveckling';
+$roscms_langres['Home'] = 'Home';
+$roscms_langres['Dev'] = 'Development';
 $roscms_langres['Community'] = 'Community';
 $roscms_langres['Support'] = 'Support';
-$roscms_langres['myReactOS'] = 'mittReactOS';
+$roscms_langres['myReactOS'] = 'myReactOS';
 
 // Login bar:
-$roscms_langres['Account'] = 'Konto';
-$roscms_langres['Login'] = 'Logga in';
-$roscms_langres['Logout'] = 'Logga ut';
-$roscms_langres['Global_Login_System'] = 'Globalt Logg in System';
-$roscms_langres['Register_Account'] = 'Registrera Konto';
+$roscms_langres['Account'] = 'Account';
+$roscms_langres['Login'] = 'Login';
+$roscms_langres['Logout'] = 'Logout';
+$roscms_langres['Global_Login_System'] = 'Global Login System';
+$roscms_langres['Register_Account'] = 'Register Account';
 $roscms_langres['Login_Nick'] = '&nbsp;Nick:&nbsp;';
-$roscms_langres['LoginPwd'] = '&nbsp;L&ouml;senord:&nbsp;';
+$roscms_langres['LoginPwd'] = '&nbsp;Pwd:&nbsp;';
 
 
 // myReactOS menu
-$roscms_langres['User_Profil_Overview'] = 'Medlems profil &Ouml;verblick';
-$roscms_langres['User_Profil'] = 'Medlems profil';
-$roscms_langres['Overview'] = '&Ouml;verblick';
-$roscms_langres['Login_System'] = 'Logg in System';
-$roscms_langres['Messages'] = 'Meddelande';
-$roscms_langres['Contacts'] = 'Kontakt';
-$roscms_langres['Favorites'] = 'Favoriter';
+$roscms_langres['User_Profil_Overview'] = 'User Profile Overview';
+$roscms_langres['User_Profil'] = 'User Profile';
+$roscms_langres['Overview'] = 'Overview';
+$roscms_langres['Login_System'] = 'Login System';
+$roscms_langres['Messages'] = 'Messages';
+$roscms_langres['Contacts'] = 'Contacts';
+$roscms_langres['Favorites'] = 'Favorites';
 $roscms_langres['Documentation'] = 'Documentation';
-$roscms_langres['Account_Edit'] = 'Inst&auml;llningar';
-$roscms_langres['Accountlist'] = 'Medlemslista';
+$roscms_langres['Account_Edit'] = 'Settings';
+$roscms_langres['Accountlist'] = 'User List';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'Ett kraftfult och l&auml;tts&auml;tt f&ouml;r hantera ditt ReactOS medlemskap konto och hemsidan.';
-$roscms_langres['Account_Information'] = 'Konto Information';
-$roscms_langres['Account_Information_description'] = 'Sammanst&auml;llning av konto information ... &lt;placeholder&gt;';
+$roscms_langres['myReactOS_description'] = 'A powerful and easy to use interface to manage your ReactOS homepage account.';
+$roscms_langres['Account_Information'] = 'Account Information';
+$roscms_langres['Account_Information_description'] = 'A sum up of the account data ... &lt;placeholder&gt;';
 
 // Right side bar:
-$roscms_langres['Latest_Release'] = 'Senaste Utg&aring;van';
-$roscms_langres['myReactOS_Developer_Quotes'] = 'Utvecklarna Citat';
+$roscms_langres['Latest_Release'] = 'Latest Release';
+$roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
 
 // Error 404
-$roscms_langres['Page_not_found'] = 'Sidan hittades inte';
+$roscms_langres['Page_not_found'] = 'Page not found';
+
 
 
 

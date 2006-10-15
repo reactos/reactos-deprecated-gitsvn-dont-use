@@ -42,10 +42,10 @@ $roscms_langres['myReactOS'] = 'Min ReactOS';
 $roscms_langres['Account'] = 'Konto';
 $roscms_langres['Login'] = 'Logg inn';
 $roscms_langres['Logout'] = 'Logg ut';
-$roscms_langres['Global_Login_System'] = 'Nettverk Logg inn System';
+$roscms_langres['Global_Login_System'] = 'hele verden Logg inn System';
 $roscms_langres['Register_Account'] = 'Register en Konto';
-$roscms_langres['Login_Nick'] = '&nbsp;Brukernavn:&nbsp;';
-$roscms_langres['LoginPwd'] = '&nbsp;Passord:&nbsp;';
+$roscms_langres['Login_Nick'] = '&nbsp;brukernavn: :&nbsp;';
+$roscms_langres['LoginPwd'] = '&nbsp;Passord: :&nbsp;';
 
 
 // myReactOS menu
@@ -62,9 +62,9 @@ $roscms_langres['Accountlist'] = 'Bruker liste';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'Et fullkraftig og lett bruker grensesnitt for å bestemme over din ReactOS hjemmeside konto.';
+$roscms_langres['myReactOS_description'] = 'Et fullkraftig og lett å bruke grensesnitt for å bestemme over din ReactOS hjemmeside konto.';
 $roscms_langres['Account_Information'] = 'Konto Informasjon';
-$roscms_langres['Account_Information_description'] = 'sumerer opp av konto dataene ... &lt;plass holder&gt;';
+$roscms_langres['Account_Information_description'] = 'En sum opp av konto dataene ... &lt;plass holder&gt;';
 
 // Right side bar:
 $roscms_langres['Latest_Release'] = 'Sist oppdatert';
@@ -104,7 +104,7 @@ $roscms_langres['ContTrans_PageID'] = 'Side ID';
 $roscms_langres['ContTrans_Content'] = 'Innhold';
 $roscms_langres['ContTrans_Rev'] = 'Rev.';
 $roscms_langres['ContTrans_Date'] = 'Dato';
-$roscms_langres['ContTrans_Time'] = 'Klokkeslett';
+$roscms_langres['ContTrans_Time'] = 'Time';
 $roscms_langres['ContTrans_User'] = 'Bruker';
 $roscms_langres['ContTrans_Language'] = 'Språk';
 $roscms_langres['ContTrans_International'] = 'Original (Engelsk)';
@@ -121,7 +121,7 @@ $roscms_langres['ContTrans_normalpages'] = 'normal sider';
 $roscms_langres['ContTrans_dynamicpages'] = 'dynamisk sider';
 
 $roscms_langres['ContTrans_history'] = 'historie';
-$roscms_langres['ContTrans_Sortedby'] = 'Sorteres etter';
+$roscms_langres['ContTrans_Sortedby'] = 'Sortert av';
 $roscms_langres['ContTrans_contentid'] = 'innhold id';
 $roscms_langres['ContTrans_pageid'] = 'side id';
 $roscms_langres['ContTrans_date'] = 'dato';
@@ -149,7 +149,7 @@ $roscms_langres['ContTrans_Description'] = 'Beskrivelse';
 $roscms_langres['ContTrans_Username'] = 'Brukernavn';
 $roscms_langres['ContTrans_egAbout'] = 'e.g. &quot;om&quot;';
 $roscms_langres['ContTrans_checklang'] = 'Vennligst sjekk, om du har valgt riktig språk, før du trykker "submit"!';
-$roscms_langres['ContTrans_SAVE'] = '<b>Lagre</b> (ny versjon og ny db fil)';
+$roscms_langres['ContTrans_SAVE'] = '<b>Lagre</b> (ny versjon oh ny db fil)';
 $roscms_langres['ContTrans_UPDATE'] = '<b>Oppdater</b>  (overskriver nåværende fil)';
 $roscms_langres['ContTrans_Save1'] = 'En ny versjon av innholdet';
 $roscms_langres['ContTrans_Save2'] = ' har blitt lagret!';
@@ -159,9 +159,9 @@ $roscms_langres['ContTrans_Save5'] = 'Siden';
 $roscms_langres['ContTrans_Save6'] = 'Vis siden (dynamisk versjon; ny vindu)';
 $roscms_langres['ContTrans_Save7'] = 'Tilbake til \'innhold rediger\' side';
 
-$roscms_langres['ContTrans_Preview'] = 'Forhåndsvisning';
+$roscms_langres['ContTrans_Preview'] = 'Forhånds visning';
 $roscms_langres['ContTrans_PageTitle'] = 'Side Tittel';
-$roscms_langres['ContTrans_Extention'] = 'Utvidelse';
+$roscms_langres['ContTrans_Extention'] = 'Extention';
 
 $roscms_langres['ContTrans_DevPageGenerator'] = 'Utvike Grensesnitt - Side Generator';
 $roscms_langres['Dev_PageGenerator'] = 'Side Generator';

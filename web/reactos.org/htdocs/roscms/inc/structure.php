@@ -59,8 +59,8 @@ function create_structure($page )
       <ol>
         
       <li><a href="<?php echo $roscms_intern_path_server; ?>?page=index"><?php echo $roscms_langres['Home']; ?></a></li>
+        <li><a href="<?php echo $roscms_intern_path_server; ?>?page=about"><?php echo $roscms_langres['Info']; ?></a></li>
         <li><a href="<?php echo $roscms_intern_path_server; ?>?page=community"><?php echo $roscms_langres['Community']; ?></a></li>
-        <li><a href="<?php echo $roscms_intern_path_server; ?>?page=support"><?php echo $roscms_langres['Support']; ?></a></li>
         <li><a href="<?php echo $roscms_intern_path_server; ?>?page=dev"><?php echo $roscms_langres['Dev']; ?></a></li>
         <li><a href="<?php echo $roscms_intern_path_server."roscms/"; ?>?page=user"><?php echo $roscms_langres['myReactOS']; ?></a></li>
       </ol></div>

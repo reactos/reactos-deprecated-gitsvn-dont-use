@@ -53,7 +53,7 @@ function create_head($page_title, $logo, $roscms_langres)
 	<meta name="generator" content="RosCMS" >
 	<meta name="Content-language" content="<?php echo $roscms_langres['lang_code']; ?>">
 	<meta name="Robots" content="noindex,nofollow" >
-	<LINK REL="SHORTCUT ICON" HREF="../favicon.ico" >
+	<link rel="SHORTCUT ICON" href="../favicon.ico" >
 	<link href="<?php echo $roscms_intern_path_server."roscms/"; ?>style.css" type="text/css" rel="stylesheet" />
 	
 <?php 
@@ -88,8 +88,8 @@ function create_head($page_title, $logo, $roscms_langres)
    -->
     <p align="center"> 
 		<a href="<?php echo $roscms_intern_path_server; ?>?page=index"><?php echo $roscms_langres['Home']; ?></a> <font color="#ffffff">|</font> 
+		<a href="<?php echo $roscms_intern_path_server; ?>?page=about"><?php echo $roscms_langres['Info']; ?></a> <font color="#ffffff">|</font> 
 		<a href="<?php echo $roscms_intern_path_server; ?>?page=community"><?php echo $roscms_langres['Community']; ?></a> <font color="#ffffff">|</font> 
-		<a href="<?php echo $roscms_intern_path_server; ?>?page=support"><?php echo $roscms_langres['Support']; ?></a> <font color="#ffffff">|</font> 
 		<a href="<?php echo $roscms_intern_path_server; ?>?page=dev"><?php echo $roscms_langres['Dev']; ?></a> <font color="#ffffff">|</font> 
 		<a href="<?php echo $roscms_intern_path_server."roscms/"; ?>?page=user"><?php echo $roscms_langres['myReactOS']; ?></a> </p>
  </div>
