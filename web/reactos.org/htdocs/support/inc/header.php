@@ -58,7 +58,7 @@ function create_head($page_title, $logo, $RSDB_langres)
 	<meta name="Generator" content="RSDB" />
 	<meta name="Content-language" content="<?php echo $RSDB_langres['lang_code']; ?>" />
 	<meta name="Robots" content="index,follow" />
-	<LINK REL="SHORTCUT ICON" HREF="../favicon.ico" />
+	<link rel="SHORTCUT ICON" href="../favicon.ico" />
 	<link href="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>style.css" type="text/css" rel="stylesheet" />
 	<script src="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>smoothscroll.js" language="javascript"></script>
 	<script src="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>search.js" language="javascript"></script>
@@ -95,8 +95,8 @@ function create_head($page_title, $logo, $RSDB_langres)
    -->
     <p align="center"> 
 		<a href="<?php echo $RSDB_intern_path_server; ?>?page=index"><?php echo $RSDB_langres['Home']; ?></a> <font color="#ffffff">|</font> 
+		<a href="<?php echo $RSDB_intern_path_server; ?>?page=about"><?php echo $RSDB_langres['Info']; ?></a> <font color="#ffffff">|</font> 
 		<a href="<?php echo $RSDB_intern_path_server; ?>?page=community"><?php echo $RSDB_langres['Community']; ?></a> <font color="#ffffff">|</font> 
-		<a href="<?php echo $RSDB_intern_path_server; ?>?page=support"><?php echo $RSDB_langres['Support']; ?></a> <font color="#ffffff">|</font> 
 		<a href="<?php echo $RSDB_intern_path_server; ?>?page=dev"><?php echo $RSDB_langres['Dev']; ?></a> <font color="#ffffff">|</font> 
 		<a href="<?php echo $RSDB_intern_path_server."roscms/"; ?>?page=user"><?php echo $RSDB_langres['myReactOS']; ?></a> </p>
  </div>

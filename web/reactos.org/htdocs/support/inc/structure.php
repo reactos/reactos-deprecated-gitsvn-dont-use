@@ -65,8 +65,8 @@ function create_structure($page )
       <ol>
         
       <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=index"><?php echo $RSDB_langres['Home']; ?></a></li>
+        <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=about"><?php echo $RSDB_langres['Info']; ?></a></li>
         <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=community"><?php echo $RSDB_langres['Community']; ?></a></li>
-        <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=support"><?php echo $RSDB_langres['Support']; ?></a></li>
         <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=dev"><?php echo $RSDB_langres['Dev']; ?></a></li>
         <li><a href="<?php echo $RSDB_intern_path_server."roscms/"; ?>?page=user"><?php echo $RSDB_langres['myReactOS']; ?></a></li>
       </ol></div>
@@ -133,6 +133,17 @@ function create_structure($page )
 		</li>
       </ol>
 	  <p></p>
+	  
+	 <div class="navTitle">Quick Links</div>
+      <ol>
+      <li><a href="<?php echo $RSDB_intern_path_server; ?>forum/">Support Forum</a></li>
+        <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=community_irc">Chat Channels</a></li>
+        <li><a href="<?php echo $RSDB_intern_path_server; ?>?page=community_mailinglists">Mailing Lists</a></li>
+        <li><a href="<?php echo $RSDB_intern_path_server; ?>wiki/">ReactOS Wiki</a></li>
+      </ol></div>
+      <p></p>
+
+	  
 	  <script type="text/javascript" language="javascript">
 	  <!--
 			document.getElementById('ajaxsearchbar').style.display = "block";
