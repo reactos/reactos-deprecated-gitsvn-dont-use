@@ -81,8 +81,7 @@
 		
 ?>
 
-<!-- Diff 3 -->
-<script src="js/jsdiff1.js" language="javascript"></script>
+<!-- Diff  -->
 <script src="js/jsdiff2.js" language="javascript"></script>
 <script src="js/diff.js" language="javascript"></script>
 <table width="100%"  border="0">
@@ -112,7 +111,7 @@
 	
 	echo '</select>';
 	
-	?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button name="bdiff" id="bdiff" type="button" value="Diff" onClick="DoDiff()" >&nbsp;Diff&nbsp;</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php 
+	?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button name="bdiff" id="bdiff" type="button" value="Diff" onclick="DoDiff()" >&nbsp;Diff&nbsp;</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php 
 	
 	$tlang="";
 	
@@ -143,21 +142,7 @@
   <tr>
     <td colspan="2">&nbsp;</td>
   </tr>
-  <tr bgcolor="#CCCCCC">
-    <td width="50%" valign="top"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">
-      <div id="diff11"></div>&nbsp;</font></td>
-    <td width="50%" valign="top"><font size="1" face="Verdana, Arial, Helvetica, sans-serif">
-      <div id="diff12"></div>&nbsp;</font></td>
-  </tr>
-  <tr>
-    <td colspan="2">&nbsp;</td>
-  </tr>
-  <tr bgcolor="#CCCCCC">
-    <td colspan="2"><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><div id="diff13"></div>&nbsp;</font></td>
-  </tr>
-  <tr>
-    <td colspan="2">&nbsp;</td>
-  </tr>
+
   <tr bgcolor="#CCCCCC">
     <td colspan="2"><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><div id="diff2"></div>&nbsp;</font></td>
     </tr>
@@ -175,19 +160,10 @@
 
 	var oOld = document.getElementById('d1');
 	var oNew = document.getElementById('d2');
-	var oDiff = document.getElementById("diff13");
-	var oDiff21 = document.getElementById("diff11");
-	var oDiff22 = document.getElementById("diff12");
 	var out = "";
 
 	function DoDiff() {
 
-		// Diff 1: (jsdiff1.js)
-		oDiff.innerHTML = diffString(oOld.innerHTML, oNew.innerHTML);
-
-		out = diffString2(oOld.innerHTML, oNew.innerHTML);
-		oDiff21.innerHTML = out.o;
-		oDiff22.innerHTML = out.n;
 
 		// Diff 2: (jsdiff2.js)
 		document.getElementById('diff2').innerHTML = diffString_ver2( 
