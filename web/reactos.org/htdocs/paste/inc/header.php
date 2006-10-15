@@ -67,8 +67,8 @@
    -->
     <p align="center"> 
 		<a href="http://www.reactos.org/?page=index">Home</a> <font color="#ffffff">|</font> 
+		<a href="http://www.reactos.org/?page=about">Info</a> <font color="#ffffff">|</font> 
 		<a href="http://www.reactos.org/?page=community">Community</a> <font color="#ffffff">|</font> 
-		<a href="http://www.reactos.org/?page=support">Support</a> <font color="#ffffff">|</font> 
 		<a href="http://www.reactos.org/?page=dev">Development</a> <font color="#ffffff">|</font> 
 		<a href="http://www.reactos.org/roscms/?page=user">myReactOS</a> </p>
  </div>
@@ -86,8 +86,8 @@
       <ol>
         
       <li><a href="http://www.reactos.org/?page=index">Home</a></li>
+        <li><a href="http://www.reactos.org/?page=about">Info</a></li>
         <li><a href="http://www.reactos.org/?page=community">Community</a></li>
-        <li><a href="http://www.reactos.org/?page=support">Support</a></li>
         <li><a href="http://www.reactos.org/?page=dev">Development</a></li>
         <li><a href="http://www.reactos.org/roscms/?page=user">myReactOS</a></li>
       </ol></div>
