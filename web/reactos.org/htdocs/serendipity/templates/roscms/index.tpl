@@ -40,10 +40,10 @@
 	   margin: 0; and use text-align: left/right/etc;.
    -->
 	<p style="text-align:left;"> 
-		<a href="http://www.reactos.org/xhtml/en/index.html">Home</a> <span style="color: #ffffff">|</span> 
-		<a href="http://www.reactos.org/xhtml/en/community.html">Community</a> <span style="color: #ffffff">|</span> 
-		<a href="http://www.reactos.org/xhtml/en/support.html">Support</a> <span style="color: #ffffff">|</span> 
-		<a href="http://www.reactos.org/xhtml/en/dev.html">Development</a> <span style="color: #ffffff">|</span> 
+		<a href="http://www.reactos.org/">Home</a> <span style="color: #ffffff">|</span> 
+		<a href="http://www.reactos.org/?page=about">Info</a> <span style="color: #ffffff">|</span> 
+		<a href="http://www.reactos.org/?page=community">Community</a> <span style="color: #ffffff">|</span> 
+		<a href="http://www.reactos.org/?page=dev">Development</a> <span style="color: #ffffff">|</span> 
 		<a href="http://www.reactos.org/roscms/?page=user">myReactOS</a> </p>
 	 </div>
 	</div>
@@ -52,10 +52,10 @@
   <td style="width:147px" id="leftNav"> 
   <div class="navTitle">Navigation</div>
     <ol>
-      <li><a href="http://www.reactos.org/xhtml/en/index.html">Home</a></li>
-      <li><a href="http://www.reactos.org/xhtml/en/community.html">Community</a></li>
-      <li><a href="http://www.reactos.org/xhtml/en/support.html">Support</a></li>
-      <li><a href="http://www.reactos.org/xhtml/en/dev.html">Development</a></li>
+      <li><a href="http://www.reactos.org/">Home</a></li>
+      <li><a href="http://www.reactos.org/?page=about">Info</a></li>
+      <li><a href="http://www.reactos.org/?page=community">Community</a></li>
+      <li><a href="http://www.reactos.org/?page=dev">Development</a></li>
       <li><a href="http://www.reactos.org/roscms/?page=user">myReactOS</a></li>
     </ol>
   <p></p>
