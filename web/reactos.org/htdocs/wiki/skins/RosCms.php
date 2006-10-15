@@ -74,8 +74,8 @@ echo "<?xml version='1.0'?>\n";?>
    -->
 	<p align="center"> 
 		<a href="/?page=index">Home</a> <font color="#ffffff">|</font> 
+		<a href="/?page=about">Info</a> <font color="#ffffff">|</font> 
 		<a href="/?page=community">Community</a> <font color="#ffffff">|</font> 
-		<a href="/?page=support">Support</a> <font color="#ffffff">|</font> 
 		<a href="/?page=dev">Development</a> <font color="#ffffff">|</font> 
 		<a href="/roscms/?page=user">myReactOS</a> </p>
 	 </div>
@@ -87,8 +87,8 @@ echo "<?xml version='1.0'?>\n";?>
       <div class="navTitle">Navigation</div>
    <ol>
         <li><a href="/?page=index">Home</a></li>
+        <li><a href="/?page=about">Info</a></li>
         <li><a href="/?page=community">Community</a></li>
-        <li><a href="/?page=support">Support</a></li>
         <li><a href="/?page=dev">Development</a></li>
 	<li><a href="/roscms/?page=user">myReactOS</a></li>
       </ol>
