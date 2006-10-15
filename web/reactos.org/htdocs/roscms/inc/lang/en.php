@@ -37,6 +37,7 @@ $roscms_langres['Dev'] = 'Development';
 $roscms_langres['Community'] = 'Community';
 $roscms_langres['Support'] = 'Support';
 $roscms_langres['myReactOS'] = 'myReactOS';
+$roscms_langres['Info'] = 'Info';
 
 // Login bar:
 $roscms_langres['Account'] = 'Account';

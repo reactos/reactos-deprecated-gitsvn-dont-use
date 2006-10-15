@@ -1,4 +1,4 @@
-<?php 
+<?php
     /*
     RosCMS - ReactOS Content Management System
     Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
@@ -17,25 +17,26 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
-
+	
 
 //
 // The format of this file is ---> $roscms_langres['message'] = 'text';
 //
 
+
 // Language settings
 $roscms_langres['charset'] = 'utf-8';
-$roscms_langres['lang_code'] = 'RU';
+//$roscms_langres['charset'] = 'iso-8859-1';
+$roscms_langres['lang_code'] = 'EN';
 
-		   
+			   
 // main menu
-$roscms_langres['Navigation'] = 'Навигация';
-$roscms_langres['Home'] = 'Главная';
+$roscms_langres['Navigation'] = 'Navigation';
+$roscms_langres['Home'] = 'Home';
 $roscms_langres['Dev'] = 'Development';
-$roscms_langres['Community'] = 'Сообщество';
-$roscms_langres['Support'] = 'Поддержка';
-$roscms_langres['myReactOS'] = 'mойReactOS';
-
+$roscms_langres['Community'] = 'Community';
+$roscms_langres['Support'] = 'Support';
+$roscms_langres['myReactOS'] = 'myReactOS';
 
 // Login bar:
 $roscms_langres['Account'] = 'Account';
@@ -56,7 +57,7 @@ $roscms_langres['Messages'] = 'Messages';
 $roscms_langres['Contacts'] = 'Contacts';
 $roscms_langres['Favorites'] = 'Favorites';
 $roscms_langres['Documentation'] = 'Documentation';
-$roscms_langres['Account_Edit'] = 'Account Edit';
+$roscms_langres['Account_Edit'] = 'Settings';
 $roscms_langres['Accountlist'] = 'User List';
 
 
@@ -71,6 +72,7 @@ $roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
 
 // Error 404
 $roscms_langres['Page_not_found'] = 'Page not found';
+
 
 
 
