@@ -94,7 +94,7 @@ if ($result_count_groups[0]) {
 										echo $farbe2;
 										$farbe = $farbe2;
 									}
-								 ?>" > <div align="left"><font size="2" face="Arial, Helvetica, sans-serif"><b><a href="<?php echo $RSDB_intern_link_group.$result_page['grpentr_id']; ?>">
+								 ?>" > <div align="left"><font size="2" face="Arial, Helvetica, sans-serif"><b><a href="<?php echo $RSDB_intern_link_group_EX.$result_page['grpentr_id'].$RSDB_URI_slash; ?>">
 		  <?php
 			$query_entry_vendor = mysql_query("SELECT * 
 												FROM `rsdb_item_vendor` 
@@ -117,14 +117,14 @@ if ($result_count_groups[0]) {
 												LIMIT 0 , 15 ;") ;
 			while($result_entry_appver = mysql_fetch_array($query_entry_appver)) {
 				if ($result_entry_appver['comp_name'] > $result_page['grpentr_name']) {
-					echo "<a href=\"".$RSDB_intern_link_group.$result_page['grpentr_id']."&amp;group2=".$result_entry_appver['comp_appversion']."\">".substr($result_entry_appver['comp_name'], strlen($result_page['grpentr_name'])+1 )."</a>, ";
+					echo "<a href=\"".$RSDB_intern_link_group_EX.$result_page['grpentr_id'].$RSDB_URI_slash2."&amp;group2=".$result_entry_appver['comp_appversion']."\">".substr($result_entry_appver['comp_name'], strlen($result_page['grpentr_name'])+1 )."</a>, ";
 				}
 			}
 			echo "</i>";
 		?></font></div></td>
 		<td valign="top" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font size="2" face="Arial, Helvetica, sans-serif">&nbsp;<?php
 		
-			echo '<a href="'.$RSDB_intern_link_vendor_sec.$result_entry_vendor['vendor_id'].'">'.$result_entry_vendor['vendor_name'].'</a>';
+			echo '<a href="'.$RSDB_intern_link_vendor_id_EX.$result_entry_vendor['vendor_id'].$RSDB_URI_slash.'">'.$result_entry_vendor['vendor_name'].'</a>';
 
 		  ?></font></div></td>
 		<td valign="top" bgcolor="<?php echo $farbe; ?>"><font size="2"><?php

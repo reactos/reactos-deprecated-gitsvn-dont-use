@@ -55,7 +55,7 @@ else {
 	
 	include('inc/tree/tree_item_menubar.php');
 	
-	echo "<h3>Submit a Report</h3>";
+	echo "<h3>Submit a Report - Step 3</h3>";
 
 	$RSDB_TEMP_SUBMIT_valid = true;
 	
@@ -90,7 +90,7 @@ else {
 			$RSDB_TEMP_SUBMIT_valid = false;
 			echo "<br />";
 		}*/
-		if (strlen($RSDB_TEMP_txtwhatnottested) <= 3) {
+		if ((strlen($RSDB_TEMP_txtwhatnottested) <= 3) || $RSDB_TEMP_txtwhatnottested != "Features tested:\n\n\nNOT tested features:\n") {
 			msg_bar("The 'What has been tested and what not' textbox is (almost) empty  ...");
 			$RSDB_TEMP_SUBMIT_valid = false;
 			echo "<br />";
@@ -133,11 +133,45 @@ else {
 ?>
 
 <form name="RSDB_comp_testreport" method="post" action="<?php echo $RSDB_intern_link_submit_comp_test; ?>submit">
-
-<p><font size="2">Please report compatibility with ReactOS release versions only,  write full sentenses and avoid abbreviations!</font></p>
+<fieldset><legend>&nbsp;<b><font color="#000000">Submit an Application in 3 Steps</font></b>&nbsp;</legend>
+	<table width="100%" border="0" cellpadding="1" cellspacing="5">
+      <tr>
+        <td width="33%"><h4><font color="#999999">Step 1</font></h4></td>
+        <td width="34%"><h4><font color="#999999">Step 2</font></h4></td>
+        <td width="33%"><h4>Step 3</h4></td>
+      </tr>
+      <tr>
+        <td valign="top"><p><font color="#999999" size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>general information</b>:</font></p>
+          <ul>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">application name</font></li>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">short  decription</font></li>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">category</font></li>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">vendor </font></li>
+          </ul></td>
+        <td valign="top"><p><font color="#999999" size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>version information</b></font></p>
+            <ul>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">application version</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">ReactOS</font> <font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">version</font></li>
+            </ul></td>
+        <td valign="top"><p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>test results &amp; screenshots</b></font></p>
+            <ul>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">What works</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">What does not work</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Describe what you have tested and what not</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Application function</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Installation routine</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Conclusion</font></li>
+            </ul></td>
+      </tr>
+    </table>
+</fieldset>
+<font size="1" face="Verdana, Arial, Helvetica, sans-serif"><br />
+</font>
+<p><font size="1" face="Verdana, Arial, Helvetica, sans-serif">Please report compatibility with ReactOS release versions only,  write full sentenses and avoid abbreviations!</font></p>
+<p><font size="1" face="Verdana, Arial, Helvetica, sans-serif">The Compatibility  Database is for <i><b>release versions</b></i> of ReactOS, use <a href="http://www.reactos.org/bugzilla/">Bugzilla</a> for development builds. [<a href="http://www.reactos.org/wiki/index.php/File_Bugs">more</a>]</font></p>
 <p>&nbsp;</p>
-<p><font size="3"><?php echo "<b>".htmlentities($result_page['comp_name']) ."</b>"; ?></font> and <font size="3"><?php echo "<b>". "ReactOS ".show_osversion($result_page['comp_osversion']) ."</b>"; ?></font> release</p>
-<p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>You cannot submit compatibility test reports for unstable ReactOS revisions (SVN builds), please <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">submit</a> bugs/regressions to <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead. Thank you!</em></font></p>
+<p><font size="4"><?php echo "<b>".htmlentities($result_page['comp_name']) ."</b>"; ?></font> and <font size="4"><?php echo "<b>". "ReactOS ".show_osversion($result_page['comp_osversion']) ."</b>"; ?></font> release version</p>
+<p>&nbsp;</p>
 <p><font size="2"><strong>What works:</strong><br />
     <textarea name="txtwhatwork" cols="70" rows="5" id="txtwhatwork"><?php echo $RSDB_TEMP_txtwhatwork; ?></textarea>
 </font></p>
@@ -145,7 +179,17 @@ else {
       <textarea name="txtwhatnot" cols="70" rows="5" id="txtwhatnot"><?php echo $RSDB_TEMP_txtwhatnot; ?></textarea>
 </font></p>
 <p><font size="2"><strong>Describe what you have tested and what not:</strong><br />
-      <textarea name="txtwhatnottested" cols="70" rows="5" id="txtwhatnottested"><?php echo $RSDB_TEMP_txtwhatnottested; ?></textarea>
+      <textarea name="txtwhatnottested" cols="70" rows="6" id="txtwhatnottested"><?php 
+	  
+	if ($RSDB_TEMP_txtwhatnottested) {
+		echo $RSDB_TEMP_txtwhatnottested; 
+	}
+	else {
+		echo "Features tested:\n\n\nNOT tested features:\n";
+	}
+	
+	  
+	  ?></textarea>
 </font></p>
 <p><font size="2"><strong>Tester Comment:</strong> (optional) <br />
       <textarea name="txtcomment" cols="70" rows="5" id="txtcomment"><?php echo $RSDB_TEMP_txtcomment; ?></textarea>

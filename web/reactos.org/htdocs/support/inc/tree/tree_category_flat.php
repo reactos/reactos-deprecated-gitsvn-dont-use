@@ -95,7 +95,7 @@ if ($result_count_cat[0]) {
 										echo $farbe2;
 										$farbe = $farbe2;
 									}
-								 ?>" > <div align="left"><font size="2" face="Arial, Helvetica, sans-serif">&nbsp;<b><a href="<?php echo $RSDB_intern_link_category_cat.$result_page['cat_id']; ?>"><?php echo $result_page['cat_name']; ?></a></b></font></div></td>
+								 ?>" > <div align="left"><font size="2" face="Arial, Helvetica, sans-serif">&nbsp;<b><a href="<?php echo $RSDB_intern_link_cat_EX.$result_page['cat_id'].$RSDB_URI_slash; ?>"><?php echo $result_page['cat_name']; ?></a></b></font></div></td>
 		<td width="65%" valign="top" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font face="Arial, Helvetica, sans-serif"><font size="2"> 
         </font><font face="Arial, Helvetica, sans-serif"><font size="2" face="Arial, Helvetica, sans-serif"><?php echo $result_page['cat_description']; ?></font></font><font size="2"> 
         </font> </font></div></td>

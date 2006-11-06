@@ -34,6 +34,7 @@
 	}
 
 ?>
+	<base href="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>" />
     <table width="100%" border="0" >
       <tr>
         <td><div align="left"><span class="Stil2">Sort by:
@@ -252,9 +253,9 @@
 			}*/  
 			   ?> title="<?php echo "Tests: ".$counter_testentries.", Forum entries: ".$counter_forumentries.", Screenshots: ".$counter_screenshots; ?>"><div align="center"><font size="1"><table width="100%" border="0" cellpadding="1" cellspacing="1">
             <tr>
-              <td width="33%"><div align="center"><?php if ($counter_testentries > 0) { ?><a href="<?php echo $RSDB_intern_link_item.$result_sortby_b['comp_id']; ?>&amp;item2=tests"><img src="media/icons/info/test.gif" alt="Compatibility Test Report entries" border="0" width="13" height="13"></a><?php } else { echo "&nbsp;"; } ?></div></td>
-              <td width="33%"><div align="center"><?php if ($counter_forumentries > 0) { ?><a href="<?php echo $RSDB_intern_link_item.$result_sortby_b['comp_id']; ?>&amp;item2=forum"><img src="media/icons/info/forum.gif" alt="Forum entries" border="0" width="13" height="13"></a><?php } else { echo "&nbsp;"; } ?></div></td>
-              <td width="33%"><div align="center"><?php if ($counter_screenshots > 0) { ?><a href="<?php echo $RSDB_intern_link_item.$result_sortby_b['comp_id']; ?>&amp;item2=screens"><img src="media/icons/info/screenshot.gif" alt="Screenshots" border="0" width="13" height="13"></a><?php } else { echo "&nbsp;"; } ?></div></td>
+              <td width="33%"><div align="center"><?php if ($counter_testentries > 0) { ?><a href="<?php echo $RSDB_intern_link_item_EX.$result_sortby_b['comp_id'].$RSDB_URI_slash2; ?>item2=tests"><img src="media/icons/info/test.gif" alt="Compatibility Test Report entries" border="0" width="13" height="13"></a><?php } else { echo "&nbsp;"; } ?></div></td>
+              <td width="33%"><div align="center"><?php if ($counter_forumentries > 0) { ?><a href="<?php echo $RSDB_intern_link_item_EX.$result_sortby_b['comp_id'].$RSDB_URI_slash2; ?>item2=forum"><img src="media/icons/info/forum.gif" alt="Forum entries" border="0" width="13" height="13"></a><?php } else { echo "&nbsp;"; } ?></div></td>
+              <td width="33%"><div align="center"><?php if ($counter_screenshots > 0) { ?><a href="<?php echo $RSDB_intern_link_item_EX.$result_sortby_b['comp_id'].$RSDB_URI_slash2; ?>item2=screens"><img src="media/icons/info/screenshot.gif" alt="Screenshots" border="0" width="13" height="13"></a><?php } else { echo "&nbsp;"; } ?></div></td>
             </tr>
           </table></font></div></td>            </tr>
             <?php

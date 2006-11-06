@@ -39,8 +39,8 @@
 </h1> 
 <p>ReactOS Software and Hardware Compatibility Database.</p>
 
-<h1>Submit Application/Driver</h1>
-<h2>Submit Application/Driver</h2>
+<h1>Submit Application - Step 1 </h1>
+<h2>Submit Application - Step 1 </h2>
   <?php 
   
 if ($RSDB_intern_user_id <= 0) {
@@ -148,9 +148,43 @@ else {
 
 ?>
 	<noscript>
-		<p>Sorry, the submit function is only useable with ECMAScript enabled! The noscript methode may be available soon!</p>
+		<p>Sorry, the submit function is only usable with ECMAScript enabled! The noscript methode may be available soon!</p>
 	</noscript>
-  <table width="100%" border="0">
+	
+<fieldset><legend>&nbsp;<b><font color="#000000">Submit an Application in 3 Steps</font></b>&nbsp;</legend>
+	<table width="100%" border="0" cellpadding="1" cellspacing="5">
+      <tr>
+        <td width="33%"><h4>Step 1</h4></td>
+        <td width="34%"><h4><font color="#999999">Step 2</font></h4></td>
+        <td width="33%"><h4><font color="#999999">Step 3</font></h4></td>
+      </tr>
+      <tr>
+        <td valign="top"><p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>general information</b>:</font></p>
+            <ul>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">application name</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">short  decription</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">category</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">vendor </font></li>
+            </ul></td>
+        <td valign="top"><p><font color="#999999" size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>version information</b></font></p>
+            <ul>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">application version</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">ReactOS</font> <font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">version</font></li>
+            </ul></td>
+        <td valign="top"><p><font color="#999999" size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>test results &amp; screenshots</b></font></p>
+            <ul>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><font color="#999999">What works</font></font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">What does not work</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Describe what you have tested and what not</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Application function</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Installation routine</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Conclusion</font></li>
+            </ul></td>
+      </tr>
+    </table>
+</fieldset>
+<br />
+	<table width="100%" border="0">
     <tr>
       <td width="5%">&nbsp;</td>
       <td width="90%"><table width="100%" border="1" cellpadding="30" cellspacing="0" bordercolor="#CCCCCC" id="pag1" style="display:table ">
@@ -160,29 +194,42 @@ else {
                 <tr>
                   <td width="54"><img src="media/icons/info/submitapp.png" width="56" height="56"></td>
                   <td width="20" height="56">&nbsp;</td>
-                  <td><h3> Welcome to the Submit Application Wizard</h3></td>
+                  <td><h3> Welcome to the Submit Application Wizard - Step 1 </h3></td>
                 </tr>
               </table>
               
-              <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">This Submit Application wizard will guide you through the submission process. </font></p>              
-              <p>&nbsp;</p>
+              <table width="170" border="0" align="right">
+                <tr>
+                  <td><font size="2" face="Arial, Helvetica, sans-serif">
+				  	<h1>Submit Checklist</h1>
+                      
+                    </font><ul>
+                      <li><font size="2" face="Arial, Helvetica, sans-serif"><b>Test</b> the application/driver in ReactOS</font>.</li>
+                      <li><font size="2" face="Arial, Helvetica, sans-serif"><b>Write down</b> testing results and take screenshots</font>.</li>
+                      <li><font size="2" face="Arial, Helvetica, sans-serif"><b>Visit </b>the<b> vendor</b> <b>website</b> and collect information.</font></li>
+                    </ul></td>
+                </tr>
+              </table>
+              <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">This Submit Application<sup>&dagger;</sup> Wizard- Step 1  will guide you through the submission process. The Compatibility  Database is for <i><b>release versions</b></i> of ReactOS, use <a href="http://www.reactos.org/bugzilla/">Bugzilla</a> for development builds<sup>&Dagger;</sup>. [<a href="http://www.reactos.org/wiki/index.php/File_Bugs">more</a>]</font></p>              
               <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
-				  <label for="searchinput"><strong>Application name:</strong></label> &nbsp;
-				  <input name="searchinput" type="text" id="searchinput" tabindex="0" onblur="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" onkeyup="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" size="30" maxlength="100"/> 
-				  <font size="1"><em>(no vendor name, no versions number)</em></font> <img id="ajaxload" src="images/ajax_loading.gif"  style="display: none" />
+				  <label for="searchinput"><strong><br />
+				  Application name:</strong></label> 
+				  &nbsp;<font size="1"><em>(no vendor name, no versions number)</em></font><br />
+				  <input name="searchinput" type="text" id="searchinput" tabindex="0" onblur="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" onkeyup="loadItemList(this.value,'submit','comp','ajaxload','submitresult')" size="30" maxlength="100"/>
+				  <img id="ajaxload" src="images/ajax_loading.gif"  style="display: none" />
 			  </font></p>
 			  <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 			  <div id="submitresult" style="display: none"></div>
 			  </font></p>
 			  <p>&nbsp;</p>
-			  <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em><strong>Note:</strong> <br>
-		      &quot;application&quot; means in this context &quot;application or driver&quot;.
-		      <br>
-		      You cannot submit data for unstable ReactOS releases (SVN builds), please <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">submit</a> bugs/regressions to <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead.			  </em></font></p>
+			  <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><sup>&dagger;</sup></font><strong><font size="1" face="Verdana, Arial, Helvetica, sans-serif"> </font></strong><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>&quot;application&quot; means in this context &quot;application or driver&quot;.
+		      
+			  </em></font><br />
+			  <font size="2" face="Verdana, Arial, Helvetica, sans-serif"><sup>&Dagger;</sup></font> <font size="1" face="Verdana, Arial, Helvetica, sans-serif"><i>development builds are marked with: SVN, RC1, RC2, etc. </i></font></p>
 			  <hr size="1" noshade color="#CCCCCC" id="sdsd">			  <table width="100%"  border="0">
                 <tr>
-                  <td width="50%" align="left"><button name="helpwizp" type="button" value="Help" onClick="WizHelp()">&nbsp;Help&nbsp;</button></td>
-                  <td width="50%" align="right"><button name="nextwizp2" id="nextwizp2" type="button" value="Next Page" onClick="WizPag2()" disabled >&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button></td>
+                  <td width="50%" align="left"><button name="helpwizp" type="button" value="Help" onclick="WizHelp()">&nbsp;Help&nbsp;</button></td>
+                  <td width="50%" align="right"><button name="nextwizp2" id="nextwizp2" type="button" value="Next Page" onclick="WizPag2()" disabled >&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button></td>
                 </tr>
               </table>			  </td>
           </tr>
@@ -214,7 +261,7 @@ else {
                         <input name="txtdesc" type="text" id="txtdesc" onkeyup="checkFields()" value="<?php echo htmlentities($RSDB_TEMP_txtdesc); ?>" size="50" maxlength="255" />
 			</font></p>
                     <p><font size="2"><strong><font face="Verdana, Arial, Helvetica, sans-serif">Category:</font></strong><font face="Verdana, Arial, Helvetica, sans-serif"><br>
-                      <select name="category" id="category" onChange="checkFields()">
+                      <select name="category" id="category" onchange="checkFields()">
 						<option value="0" <?php 
 							if  ($RSDB_TEMP_cboCategory == "") {
 								echo "selected";
@@ -230,7 +277,7 @@ else {
 				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 					<label for="searchvendor"><strong>Vendor name:</strong></label> 
 					</font><font face="Verdana, Arial, Helvetica, sans-serif"><font size="1"><i>(Vendor, Company, Team or Project)</i></font></font><font size="2" face="Verdana, Arial, Helvetica, sans-serif"></font><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><br />
-					<input name="searchvendor" type="text" id="searchvendor" tabindex="0"  onBlur="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" onkeyup="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" size="30" maxlength="100"/> <img id="ajaxvendload" src="images/ajax_loading.gif"  style="display: none" />
+					<input name="searchvendor" type="text" id="searchvendor" tabindex="0"  onblur="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" onkeyup="loadItemList(this.value,'submit_vendor','vendor','ajaxvendload','vendorresult')" size="30" maxlength="100"/> <img id="ajaxvendload" src="images/ajax_loading.gif"  style="display: none" />
 					</font></p>
 					<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 					<div id="vendorresult" style="display: none"></div>
@@ -245,7 +292,7 @@ else {
 			</div>
 			<div id="vendorfield3" style="display: none">
                     <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong>Vendor name:</strong> <em><font size="1">(Vendor, Company, Team or Project)</font></em><br>
-					<select name="vendor" id="vendor" onChange="checkFields()">
+					<select name="vendor" id="vendor" onchange="checkFields()">
 						<option value="0" <?php 
 						if  ($RSDB_TEMP_cboVendor == "") {
 						echo "selected";
@@ -260,11 +307,11 @@ else {
 			</div>
 				<div id="vendorsubmit" style="display: none">
                       <p><font face="Verdana, Arial, Helvetica, sans-serif"><strong><font size="2">Vendor name:</font></strong> <font size="1"><i>(Vendor, Company, Team or Project)</i></font><br>
-                            <input name="txtvname" type="text" id="txtvname" size="30" maxlength="100" onKeyUp="checkFields()" />
-                            <font size="2"> &nbsp;</font><font size="1">[<a href="javascript://" onClick="ChangeVendor()">search for vendor</a>]</font><font face="Verdana, Arial, Helvetica, sans-serif"><font size="1"> </font><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><i> </i></font></font></font></p>
+                            <input name="txtvname" type="text" id="txtvname" size="30" maxlength="100" onkeyup="checkFields()" />
+                            <font size="2"> &nbsp;</font><font size="1">[<a href="javascript://" onclick="ChangeVendor()">search for vendor</a>]</font><font face="Verdana, Arial, Helvetica, sans-serif"><font size="1"> </font><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><i> </i></font></font></font></p>
                       <p><font face="Verdana, Arial, Helvetica, sans-serif"> <strong><font size="2">Vendor website:</font><font face="Verdana, Arial, Helvetica, sans-serif"> <font size="1"><i></i></font></font></strong><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><i> (e.g. http://www.company.com)</i></font><br>
-                            <input name="txtvurl" type="text" id="txtvurl" value="http://" size="30" maxlength="100" onKeyUp="checkFields()" />
-                            <font face="Verdana, Arial, Helvetica, sans-serif"><font size="2"> &nbsp;</font></font><font size="1">[<a href="javascript://" onClick="window.open('http://www.google.com/search?q='+document.getElementById('txtvname').value)">search for website</a>] <em>(new window) </em></font></font></p>
+                            <input name="txtvurl" type="text" id="txtvurl" value="http://" size="30" maxlength="100" onkeyup="checkFields()" />
+                            <font face="Verdana, Arial, Helvetica, sans-serif"><font size="2"> &nbsp;</font></font><font size="1">[<a href="javascript://" onclick="window.open('http://www.google.com/search?q='+document.getElementById('txtvname').value)">search for website</a>] <em>(new window) </em></font></font></p>
 				    </div>
 					<p>&nbsp;</p>
 					<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">By clicking &quot;Submit&quot; below you agree to be bound by the <a href="<?php echo $RSDB_intern_index_php; ?>?page=conditions" target="_blank">submit conditions</a>.</font></p>
@@ -272,7 +319,7 @@ else {
 				<div align="right">
 				  <table width="100%"  border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                      <td width="50%" align="left"><button name="backwizp1" type="button" value="Back to Page 1" onClick="WizPag1()">&nbsp;&lt;&nbsp;&nbsp;Back&nbsp;</button>						</td>
+                      <td width="50%" align="left"><button name="backwizp1" type="button" value="Back to Page 1" onclick="WizPag1()">&nbsp;&lt;&nbsp;&nbsp;Back&nbsp;</button>						</td>
                       <td width="50%" align="right"><input name="vendmode" id="vendmode" type="hidden" value="">
                       <input name="subok" type="hidden" value="okay">
 				  <input type="submit" name="Submit" id="Submit" value="&nbsp;Submit&nbsp;&nbsp;&gt;&nbsp;" disabled></td>
@@ -288,8 +335,7 @@ else {
       <td width="5%">&nbsp;</td>
     </tr>
   </table>
-<p>&nbsp;</p>
-<script language="JavaScript1.2">
+  <script language="JavaScript1.2">
 <!--
 
 	var brow = navigator.appName;
@@ -456,7 +502,7 @@ else {
 						document.getElementById('vendorsubmit').style.display = 'none';
 						document.getElementById('vendrock').value = "";
 						checkFields();
-						alert("asds");
+						//alert("asds");
 				-->
 				</script>
 				<?php
@@ -539,7 +585,7 @@ else {
 		<p>&nbsp;</p>
 	 <hr size="1" noshade color="#CCCCCC" id="sdsd">
                <div align="right">
-				<button name="nextwiz" id="nextwiz" type="button" value="NextWizard" onClick="NextBigStep()" >&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button>
+				<button name="nextwiz" id="nextwiz" type="button" value="NextWizard" onclick="NextBigStep()" >&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button>
             </div></td>
         </tr>
       </table>

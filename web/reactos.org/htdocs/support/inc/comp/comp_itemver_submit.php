@@ -53,7 +53,40 @@ if ($RSDB_intern_user_id <= 0) {
 }
 else {
 ?>
-<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">If you want to submit a new application to the support database, <a href="<?php echo $RSDB_intern_link_db_sec; ?>submit">use this submit wizard instead</a>. </font></p>
+<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">If you want to <b>submit a new application</b> to the compatibility database, use the <a href="<?php echo $RSDB_intern_link_db_sec; ?>submit"><b>Submit Application Wizard - Step 1</b></a> instead. </font></p>
+<fieldset><legend>&nbsp;<b><font color="#000000">Submit an Application in 3 Steps</font></b>&nbsp;</legend>
+	<table width="100%" border="0" cellpadding="1" cellspacing="5">
+      <tr>
+        <td width="33%"><h4><font color="#999999">Step 1</font></h4></td>
+        <td width="34%"><h4>Step 2</h4></td>
+        <td width="33%"><h4><font color="#999999">Step 3</font></h4></td>
+      </tr>
+      <tr>
+        <td valign="top"><p><font color="#999999" size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>general information</b>:</font></p>
+          <ul>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">application name</font></li>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">short  decription</font></li>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">category</font></li>
+            <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">vendor </font></li>
+            </ul></td>
+        <td valign="top"><p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>version information</b></font></p>
+            <ul>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">application version</font></li>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif">ReactOS</font> <font size="1" face="Verdana, Arial, Helvetica, sans-serif">version</font></li>
+            </ul></td>
+        <td valign="top"><p><font color="#999999" size="2" face="Verdana, Arial, Helvetica, sans-serif">submit <b>test results &amp; screenshots</b></font></p>
+            <ul>
+              <li><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><font color="#999999">What works</font></font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">What does not work</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Describe what you have tested and what not</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Application function</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Installation routine</font></li>
+              <li><font color="#999999" size="1" face="Verdana, Arial, Helvetica, sans-serif">Conclusion</font></li>
+            </ul></td>
+      </tr>
+    </table>
+</fieldset>
+<br />
 <?php
 
    function is_num($var) {
@@ -168,11 +201,11 @@ else {
                 <tr>
                   <td width="54"><img src="media/icons/info/submitapp.png" width="56" height="56"></td>
                   <td width="20" height="56">&nbsp;</td>
-                  <td><h3> Welcome to the Submit new &quot;<?php echo htmlentities($result_page_group['grpentr_name']); ?>&quot; version Wizard</h3></td>
+                  <td><h3> Welcome to the Submit new &quot;<?php echo htmlentities($result_page_group['grpentr_name']); ?>&quot; version Wizard - Step2 </h3></td>
                 </tr>
               </table>
               
-              <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">This Submit new &quot;<?php echo htmlentities($result_page_group['grpentr_name']); ?>&quot; version Wizard wizard will guide you through the submission process. </font></p>              
+              <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">This Submit new &quot;<?php echo htmlentities($result_page_group['grpentr_name']); ?>&quot; version Wizard<sup>&dagger;</sup> wizard will guide you through the submission process. </font><font size="2" face="Verdana, Arial, Helvetica, sans-serif">The Compatibility  Database is for <i><b>release versions</b></i> of ReactOS, use <a href="http://www.reactos.org/bugzilla/">Bugzilla</a> for development builds<sup>&Dagger;</sup>. [<a href="http://www.reactos.org/wiki/index.php/File_Bugs">more</a>]</font></p>              
 
 	<?php
 		$query_date_entry_records=mysql_query("SELECT COUNT('comp_id')
@@ -312,13 +345,13 @@ else {
 		}
 	?>
               <p>&nbsp;</p>
-              <p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em><strong>Note:</strong><br> 
-              You cannot submit data for unstable ReactOS releases (SVN builds), please <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">submit</a> bugs/regressions to <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead.  Thank you!</em></font></p>
+              <p><font size="2" face="Verdana, Arial, Helvetica, sans-serif"><sup>&dagger;</sup></font><strong><font size="1" face="Verdana, Arial, Helvetica, sans-serif"> </font></strong><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>&quot;application&quot; means in this context &quot;application or driver&quot;. </em></font><br />
+                <font size="2" face="Verdana, Arial, Helvetica, sans-serif"><sup>&Dagger;</sup></font> <font size="1" face="Verdana, Arial, Helvetica, sans-serif"><i>development builds are marked with: SVN, RC1, RC2, etc. </i></font></p>
 			  <hr size="1" noshade color="#CCCCCC" id="sdsd">
 			  <table width="100%"  border="0">
                 <tr>
-                  <td width="50%" align="left"><button name="helpwizp" type="button" value="Help" onClick="WizHelp()">&nbsp;Help&nbsp;</button></td>
-                  <td width="50%" align="right"><button name="nextwizp2" id="nextwizp2" type="button" value="Next Page" onClick="WizPag2()">&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button></td>
+                  <td width="50%" align="left"><button name="helpwizp" type="button" value="Help" onclick="WizHelp()">&nbsp;Help&nbsp;</button></td>
+                  <td width="50%" align="right"><button name="nextwizp2" id="nextwizp2" type="button" value="Next Page" onclick="WizPag2()">&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button></td>
                 </tr>
               </table>			  </td>
           </tr>
@@ -369,7 +402,7 @@ else {
 				      <em><font size="1">(number)</font></em> </font></font></p>
 				<p><font size="2"><strong><font face="Verdana, Arial, Helvetica, sans-serif">ReactOS Version:</font></strong>
                     <font face="Verdana, Arial, Helvetica, sans-serif"><br>
-                    <select name="version" id="version" onChange="checkSubmit()">
+                    <select name="version" id="version" onchange="checkSubmit()">
                         <option value="0" <?php 
 					if  ($RSDB_TEMP_cboversion == "") {
 						echo "selected";
@@ -390,13 +423,15 @@ else {
 				?>
                     </select>
 </font></font></p>
-				<p><font size="1" face="Verdana, Arial, Helvetica, sans-serif"><em>You cannot submit data for unstable ReactOS releases (SVN builds). <br>
-				  Please use <a href="http://www.reactos.org/bugzilla/" target="_blank">bugzilla</a> instead to report current regressions, to do so <a href="http://www.reactos.org/wiki/index.php/File_Bugs" target="_blank">please submit bugs</a>.</em></font></p>				<p>&nbsp;</p>
-				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">By clicking &quot;Submit&quot; below you agree to be bound by the <a href="<?php echo $RSDB_intern_index_php; ?>?page=conditions" target="_blank">submit conditions</a>.</font></p>				<hr size="1" noshade color="#CCCCCC" id="sdsd">
+				<p>&nbsp;</p>
+				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">The Compatibility  Database is for <i><b>release versions</b></i> of ReactOS, use <a href="http://www.reactos.org/bugzilla/">Bugzilla</a> for development builds. [<a href="http://www.reactos.org/wiki/index.php/File_Bugs">more</a>]</font></p>
+				<p>&nbsp;</p>
+				<p><font size="2" face="Verdana, Arial, Helvetica, sans-serif">By clicking &quot;Submit&quot; below you agree to be bound by the <a href="<?php echo $RSDB_intern_index_php; ?>?page=conditions" target="_blank">submit conditions</a>.</font></p>
+				<hr size="1" noshade color="#CCCCCC" id="sdsd">
 				<div align="right">
 				  <table width="100%"  border="0" cellpadding="0" cellspacing="0">
                     <tr>
-                      <td width="50%" align="left"><button name="backwizp1" type="button" value="Back to Page 1" onClick="WizPag1()">&nbsp;&lt;&nbsp;&nbsp;Back&nbsp;</button>						</td>
+                      <td width="50%" align="left"><button name="backwizp1" type="button" value="Back to Page 1" onclick="WizPag1()">&nbsp;&lt;&nbsp;&nbsp;Back&nbsp;</button>						</td>
 					<td width="50%" align="right">	
 					<input name="subok" type="hidden" value="okay">
 						<input type="submit" name="Submit" id="Submit" value="&nbsp;Submit&nbsp;&nbsp;&gt;&nbsp;" disabled>
@@ -579,7 +614,7 @@ else {
 			<p>&nbsp;</p>
 		 <hr size="1" noshade color="#CCCCCC" id="sdsd">
 				   <div align="right">
-					<button name="nextwiz" id="nextwiz" type="button" value="NextWizard" onClick="NextBigStep()"  >&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button>
+					<button name="nextwiz" id="nextwiz" type="button" value="NextWizard" onclick="NextBigStep()"  >&nbsp;Next&nbsp;&nbsp;&gt;&nbsp;</button>
 				</div></td>
 			</tr>
 		  </table>

@@ -34,6 +34,9 @@
 	}
 
 
+	
+
+
 //	echo "Comp: ".$RSDB_intern_trigger_comp." | Pack:".$RSDB_intern_trigger_pack." | DevNet:".$RSDB_intern_trigger_devnet." | Media:".$RSDB_intern_trigger_media;
 //	echo "<br>".$RSDB_intern_code_db_rsdb_categories;
 
@@ -43,9 +46,16 @@
 ?>
 <table width="100%" border="1" cellpadding="3" cellspacing="0" bordercolor="#5984C3">
   <tr>
-    <td>&nbsp;<font size="2">Browsing &gt;&gt;</font> <a href="<?php echo $RSDB_intern_link_category_cat ?>0">Main</a>
-	
-	<?php
+    <td>&nbsp;<font size="2">Browsing: </font><a href="<?php echo $RSDB_intern_link_category_cat_EX."0";
+
+		if ($RSDB_SET_cat2 == "flat" || $RSDB_SET_cat2 == "") {
+			echo $RSDB_URI_slash;
+		}
+		else {
+			echo $RSDB_URI_slash2."cat2=".$RSDB_SET_cat2;
+		}
+		
+	?>">Main</a><?php
 		$RSDB_TEMP_current_category = "Main";
 		$RSDB_TEMP_current_category_desc = "Root directory of the tree.";
 	
@@ -155,7 +165,14 @@
 							if ($k == $RSDB_TEMP_cat_current_counter) {
 								$RSDB_TEMP_current_category = $result_category_tree_temp['cat_name'];
 								$RSDB_TEMP_current_category_desc = $result_category_tree_temp['cat_description'];
-								echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_category_cat.$result_category_tree_temp['cat_id']."'>".$result_category_tree_temp['cat_name']."</a>";
+								echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_category_cat_EX.$result_category_tree_temp['cat_id'];
+								if ($RSDB_SET_cat2 == "flat" || $RSDB_SET_cat2 == "") {
+									echo $RSDB_URI_slash;
+								}
+								else {
+									echo $RSDB_URI_slash2."cat2=".$RSDB_SET_cat2;
+								}
+								echo "'>".$result_category_tree_temp['cat_name']."</a>";
 							}
 					}
 					$RSDB_TEMP_cat_current_counter--;
@@ -175,7 +192,7 @@
 								" . $RSDB_intern_code_db_rsdb_groups . "
 								ORDER BY `grpentr_name` ASC") ;
 				$result_current_group = mysql_fetch_array($query_current_group);
-				echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_group.$RSDB_SET_group."'>".$result_current_group['grpentr_name']."</a>";
+				echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_group_EX.$RSDB_SET_group.$RSDB_URI_slash."'>".$result_current_group['grpentr_name']."</a>";
 			}
 			if ($RSDB_SET_item != "" && $RSDB_viewpage != false) {
 				$query_current_group = mysql_query("SELECT * 
@@ -184,7 +201,7 @@
 								AND `" . $RSDB_intern_code_view_shortname . "_id` = " . $RSDB_SET_item . "
 								ORDER BY `" . $RSDB_intern_code_view_shortname . "_name` ASC") ;
 				$result_current_group = mysql_fetch_array($query_current_group);
-				echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_item.$RSDB_SET_item."'>".$result_current_group[$RSDB_intern_code_view_shortname .'_name'];
+				echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_item2_id_EX.$RSDB_SET_item.$RSDB_URI_slash."'>".$result_current_group[$RSDB_intern_code_view_shortname .'_name'];
 				
 					switch ($RSDB_SET_view) {
 						case "comp": // Compatibility
@@ -221,10 +238,10 @@
 		else {
 			echo "<p align='center'>";
 			if ($RSDB_SET_cat2 == "flat") {
-				echo "<b>Flat Style</b> | <a href='".$RSDB_intern_link_category_cat2."tree'>Tree Style</a>";
+				echo "<b>Flat Style</b> | <a href='".$RSDB_intern_link_category_cat_EX.$RSDB_SET_cat.$RSDB_URI_slash2."cat2=tree'>Tree Style</a>";
 			}
 			if ($RSDB_SET_cat2 == "tree") {
-				echo "<a href='".$RSDB_intern_link_category_cat2."flat'>Flat Style</a> | <b>Tree Style</b>";
+				echo "<a href='".$RSDB_intern_link_category_cat_EX.$RSDB_SET_cat.$RSDB_URI_slash2."cat2=flat'>Flat Style</a> | <b>Tree Style</b>";
 			}
 			echo "</p>";
 		}
@@ -260,7 +277,7 @@
 	?>
 	<table width="100%" border="1" cellpadding="3" cellspacing="0" bordercolor="#5984C3">
 	  <tr>
-		<td>&nbsp;<font size="2">Browsing &gt;&gt;</font> <a href="<?php echo $RSDB_intern_link_name_letter.$RSDB_SET_letter ?>"><?php
+		<td>&nbsp;<font size="2">Browsing: </font> <a href="<?php echo $RSDB_intern_link_name_letter_EX."all".$RSDB_URI_slash; ?>"><?php
 	
 		if ($RSDB_SET_letter != "") {
 			echo ucfirst($RSDB_SET_letter);
@@ -296,7 +313,7 @@
 				//die("");
 				$RSDB_viewpage = false;
 			}
-			echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_group.$RSDB_SET_group."'>".$result_current_group['grpentr_name']."</a>";
+			echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_group_EX.$RSDB_SET_group.$RSDB_URI_slash."'>".$result_current_group['grpentr_name']."</a>";
 		}
 		if ($RSDB_SET_item != "" && $RSDB_viewpage != false) {
 			$query_current_group = mysql_query("SELECT * 
@@ -305,7 +322,7 @@
 							AND `" . $RSDB_intern_code_view_shortname . "_id` = " . $RSDB_SET_item . "
 							ORDER BY `" . $RSDB_intern_code_view_shortname . "_name` ASC") ;
 			$result_current_group = mysql_fetch_array($query_current_group);
-			echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_item.$RSDB_SET_item."'>".$result_current_group[$RSDB_intern_code_view_shortname .'_name'];
+			echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_item_EX.$RSDB_SET_item.$RSDB_URI_slash."'>".$result_current_group[$RSDB_intern_code_view_shortname .'_name'];
 			
 				switch ($RSDB_SET_view) {
 					case "comp": // Compatibility
@@ -345,7 +362,7 @@
 	?>
 	<table width="100%" border="1" cellpadding="3" cellspacing="0" bordercolor="#5984C3">
 	  <tr>
-		<td>&nbsp;<font size="2">Browsing &gt;&gt; <a href="<?php echo $RSDB_intern_link_name_letter.$RSDB_SET_letter; ?>">
+		<td>&nbsp;<font size="2">Browsing: <a href="<?php echo $RSDB_intern_link_vendor_letter_EX.$RSDB_SET_letter.$RSDB_URI_slash; ?>">
 		
 		<?php
 	
@@ -369,7 +386,7 @@
 				$RSDB_viewpage = false;
 			}
 			//$RSDB_SET_group = $result_itempid['vendor_id'];
-			echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_vendor.$RSDB_SET_vendor."'>".$result_itempid['vendor_name']."</a>";
+			echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_vendor_id_EX.$RSDB_SET_vendor.$RSDB_URI_slash."'>".$result_itempid['vendor_name']."</a>";
 		}
 		if ($RSDB_SET_group != "" && $RSDB_viewpage != false) {
 			$query_current_group = mysql_query("SELECT * 
@@ -383,7 +400,7 @@
 				//die("");
 				$RSDB_viewpage = false;
 			}
-			echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_group.$RSDB_SET_group."'>".$result_current_group['grpentr_name']."</a>";
+			echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_name_group_EX.$RSDB_SET_group.$RSDB_URI_slash."'>".$result_current_group['grpentr_name']."</a>";
 		}
 		if ($RSDB_SET_item != "" && $RSDB_viewpage != false) {
 			$query_current_group = mysql_query("SELECT * 
@@ -391,7 +408,7 @@
 												WHERE `vendor_id` = " . $RSDB_SET_vendor . "
 												ORDER BY `vendor_name` ASC") ;				
 			$result_current_group = mysql_fetch_array($query_current_group);
-			echo " <font size='2'>&gt;</font> <a href='".$RSDB_intern_link_vendor.$RSDB_SET_item."'>".$result_current_group['vendor_name'];
+			echo " <font size='2'>&rarr;</font> <a href='".$RSDB_intern_link_name_item_EX.$RSDB_SET_item.$RSDB_URI_slash."'>".$result_current_group['vendor_name'];
 			echo "</a>";
 		}
 	
@@ -405,10 +422,10 @@
 	include('inc/tree/tree_menubar_sections.php');	
 
 	if ($RSDB_SET_sec == "name") {
-		$RSDB_TEMP_link_letter = $RSDB_intern_link_name_letter;
+		$RSDB_TEMP_link_letter = $RSDB_intern_link_name_letter_EX;
 	}
 	elseif ($RSDB_SET_sec == "vendor") {
-		$RSDB_TEMP_link_letter = $RSDB_intern_link_name_letter;
+		$RSDB_TEMP_link_letter = $RSDB_intern_link_vendor_letter_EX;
 	}
 
 	if ($RSDB_viewpage != false) {
@@ -419,189 +436,189 @@
 			echo '  <b>All</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'all" class="letterbarlink">All</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'all'.$RSDB_URI_slash.'" class="letterbarlink">All</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "a") {
 			echo '  <b>A</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'a" class="letterbarlink">A</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'a'.$RSDB_URI_slash.'" class="letterbarlink">A</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "b") {
 			echo '  <b>B</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'b" class="letterbarlink">B</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'b'.$RSDB_URI_slash.'" class="letterbarlink">B</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "c") {
 			echo '  <b>C</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'c" class="letterbarlink">C</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'c'.$RSDB_URI_slash.'" class="letterbarlink">C</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "d") {
 			echo '  <b>D</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'d" class="letterbarlink">D</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'d'.$RSDB_URI_slash.'" class="letterbarlink">D</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "e") {
 			echo '  <b>E</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'e" class="letterbarlink">E</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'e'.$RSDB_URI_slash.'" class="letterbarlink">E</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "f") {
 			echo '  <b>F</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'f" class="letterbarlink">F</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'f'.$RSDB_URI_slash.'" class="letterbarlink">F</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "g") {
 			echo '  <b>G</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'g" class="letterbarlink">G</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'g'.$RSDB_URI_slash.'" class="letterbarlink">G</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "h") {
 			echo '  <b>H</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'h" class="letterbarlink">H</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'h'.$RSDB_URI_slash.'" class="letterbarlink">H</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "i") {
 			echo '  <b>I</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'i" class="letterbarlink">I</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'i'.$RSDB_URI_slash.'" class="letterbarlink">I</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "j") {
 			echo '  <b>J</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'j" class="letterbarlink">J</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'j'.$RSDB_URI_slash.'" class="letterbarlink">J</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "k") {
 			echo '  <b>K</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'k" class="letterbarlink">K</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'k'.$RSDB_URI_slash.'" class="letterbarlink">K</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "l") {
 			echo '  <b>L</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'l" class="letterbarlink">L</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'l'.$RSDB_URI_slash.'" class="letterbarlink">L</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "m") {
 			echo '  <b>M</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'m" class="letterbarlink">M</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'m'.$RSDB_URI_slash.'" class="letterbarlink">M</a> ';
 		}
 		
 		if ($RSDB_SET_letter == "n") {
 			echo '  <b>N</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'n" class="letterbarlink">N</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'n'.$RSDB_URI_slash.'" class="letterbarlink">N</a> ';
 		}
 		
 		if ($RSDB_SET_letter == "o") {
 			echo '  <b>O</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'o" class="letterbarlink">O</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'o'.$RSDB_URI_slash.'" class="letterbarlink">O</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "p") {
 			echo '  <b>P</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'p" class="letterbarlink">P</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'p'.$RSDB_URI_slash.'" class="letterbarlink">P</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "q") {
 			echo '  <b>Q</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'q" class="letterbarlink">Q</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'q'.$RSDB_URI_slash.'" class="letterbarlink">Q</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "r") {
 			echo '  <b>R</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'r" class="letterbarlink">R</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'r'.$RSDB_URI_slash.'" class="letterbarlink">R</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "s") {
 			echo '  <b>S</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'s" class="letterbarlink">S</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'s'.$RSDB_URI_slash.'" class="letterbarlink">S</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "t") {
 			echo '  <b>T</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'t" class="letterbarlink">T</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'t'.$RSDB_URI_slash.'" class="letterbarlink">T</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "u") {
 			echo '  <b>U</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'u" class="letterbarlink">U</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'u'.$RSDB_URI_slash.'" class="letterbarlink">U</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "v") {
 			echo '  <b>V</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'v" class="letterbarlink">V</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'v'.$RSDB_URI_slash.'" class="letterbarlink">V</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "w") {
 			echo '  <b>W</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'w" class="letterbarlink">W</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'w'.$RSDB_URI_slash.'" class="letterbarlink">W</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "x") {
 			echo '  <b>X</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'x" class="letterbarlink">X</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'x'.$RSDB_URI_slash.'" class="letterbarlink">X</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "y") {
 			echo '  <b>Y</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_TEMP_link_letter .'y" class="letterbarlink">Y</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'y'.$RSDB_URI_slash.'" class="letterbarlink">Y</a> ';
 		}
 	
 		if ($RSDB_SET_letter == "z") {
 			echo '  <b>Z</b> ';
 		}
 		else {
-			echo '  <a href="'. $RSDB_intern_link_name_letter .'z" class="letterbarlink">Z</a> ';
+			echo '  <a href="'. $RSDB_TEMP_link_letter .'z'.$RSDB_URI_slash.'" class="letterbarlink">Z</a> ';
 		}
 	
 		echo "</p><br />";
