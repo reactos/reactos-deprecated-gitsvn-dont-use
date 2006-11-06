@@ -20,31 +20,29 @@
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<title>RosCMS System</title>
+<title>RosCMS Generator Menu</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 <body bgcolor="#FFFFCC">
 <table width="100%" border="0" align="center">
   <tr> 
-    <td width="20%"><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><strong><a href="?page=admin" target="_parent">RosCMS</a></strong></font></div></td>
+    <td width="20%"><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><strong><a href="?page=admin" target="_parent">RosCMS - Generator</a></strong></font></div></td>
     <td width="80%"> 
-      <div align="center"> 
-        <table width="760" border="1">
-          <tr> 
-            <td width="190"><font face="Arial, Helvetica, sans-serif"><strong>English:</strong> 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=en&amp;forma=xhtml&amp;skin=default" target="mainFrame">XHTML</a>, 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default" target="mainFrame">HTML</a></font></td>
-            <td width="190"><font face="Arial, Helvetica, sans-serif"><strong>German:</strong> 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=de&amp;forma=xhtml&amp;skin=default" target="mainFrame">XHTML</a>, 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=de&amp;forma=html&amp;skin=default" target="mainFrame">HTML</a></font></td>
-            <td width="190"><font face="Arial, Helvetica, sans-serif"><strong>French:</strong> 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=fr&amp;forma=xhtml&amp;skin=default" target="mainFrame">XHTML</a>, 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=fr&amp;forma=html&amp;skin=default" target="mainFrame">HTML</a></font></td>
-            <td width="190"><font face="Arial, Helvetica, sans-serif"><strong>Russian:</strong> 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=ru&amp;forma=xhtml&amp;skin=default" target="mainFrame">XHTML</a>, 
-              <a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=ru&amp;forma=html&amp;skin=default" target="mainFrame">HTML</a></font></td>
-          </tr>
-        </table>
+      <div align="center">
+        <p>| <?php 
+			
+	
+	// Languages
+	$sql_lang="SELECT * 
+				FROM languages
+				WHERE lang_level != '0'
+				ORDER BY 'lang_level' DESC";
+	$sql_query_lang=mysql_query($sql_lang);
+	while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
+		echo '<a href="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;gen_lang='.$myrow_lang[0].'" target="mainFrame">'.$myrow_lang[1].'</a> | ';
+	}
+			
+			?></p>
       </div>
     </td>
   </tr>

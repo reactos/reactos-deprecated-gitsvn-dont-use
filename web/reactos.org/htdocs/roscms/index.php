@@ -130,21 +130,24 @@ function check_lang($lang)
 	if (preg_match('/^([a-zA-Z]+)(-[a-zA-Z]+)?$/', $lang, $matches)) {
 		$checked_lang = strtolower($matches[1]);
 		switch($checked_lang) {
-		case 'de':
-		case 'en':
-		case 'fr':
-		case 'ru':
-		case 'es':
-		case 'it':
-		case 'hu':
-		case 'sv':
-		case 'lt':
-		case 'nl':
-		case 'pl':
-		case 'no':
-		case 'da':
-		case 'id':
-		case 'zh':
+			case 'en': 
+			case 'de':
+			case 'fr':
+			case 'ru':
+			case 'es':
+			case 'it':
+			case 'hu':
+			case 'sv':
+			case 'lt':
+			case 'nl':
+			case 'pl':
+			case 'no':
+			case 'da':
+			case 'id':
+			case 'zh':
+			case 'ko':
+			case 'ja':
+			case 'ca':
 			break;
 		default:
 			$checked_lang = '';
@@ -214,141 +217,11 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 	setcookie('roscms_usrset_lang', $rpm_lang, time() + 5 * 30 * 24 * 3600,
 	          '/', cookie_domain());
 }
-	
-/*	// Language detection:
-	if ($rpm_lang == "") {
-		if ($roscms_usrsetting_lang != "") {
-			$rpm_lang = substr($roscms_usrsetting_lang, 0, 2);
-			$rpm_lang_session= $roscms_usrsetting_lang;
-		}
-		else {
-			if (isset($roscms_referrer) && $roscms_referrer != "") {
-				$var = "";
-				$var = strchr($roscms_referrer, "/en/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="en/";
-					$rpm_lang="en";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/de/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="de/";
-					$rpm_lang="de";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/fr/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="fr/";
-					$rpm_lang="fr";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/ru/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="ru/";
-					$rpm_lang="ru";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/es/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="es/";
-					$rpm_lang="es";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/it/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="it/";
-					$rpm_lang="it";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/hu/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="hu/";
-					$rpm_lang="hu";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/lt/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="lt/";
-					$rpm_lang="lt";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/nl/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="nl/";
-					$rpm_lang="nl";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/pl/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="pl/";
-					$rpm_lang="pl";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/no/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="no/";
-					$rpm_lang="no";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/da/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="da/";
-					$rpm_lang="da";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/id/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="id/";
-					$rpm_lang="id";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/zh/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="zh/";
-					$rpm_lang="zh";
-				}
-				$var = "";
-				$var = strchr($roscms_referrer, "/ko/");				
-				if ($var != "" AND $rpm_lang == "") {
-					$rpm_lang_session="ko/";
-					$rpm_lang="ko";
-				}
-				if ($rpm_lang == "") {
-					$rpm_lang_session="en/";
-					$rpm_lang="en";
-				}
-				setcookie("roscms_usrset_lang", $rpm_lang_session, time() + 60*60*24*30*12, "/");
-			}
-			else {
-				$rpm_lang_session="en/";
-				$rpm_lang="en";
-				$varlang = $rpm_lang_session;
-				setcookie("roscms_usrset_lang", $rpm_lang_session, time() + 60*60*24*30*12, "/");
-			}
-		}
-	}*/
+
 
 	require("inc/lang/en.php"); // preload the english language text
 	require("inc/lang/".$rpm_lang.".php"); // load the and overwrite the language text
 
-	/*
-	// Format detection:
-	if ($rpm_forma == "") {
-		if ($_COOKIE['varw3cformat'] == "") {
-			$var = "";
-			$var = strchr($HTTP_REFERER, "/xhtml/");				
-			if ($var != "") {
-				$rpm_lang="xhtml";
-				$varw3cformat = "xhtml/";
-				$varformat = "html";
-				session_register("varw3cformat");
-				session_register("varformat");
-			}
-		}
-		else {
-			$rpm_forma = $_COOKIE['varw3cformat'];
-		}
-	}*/
 	
 
 	
@@ -476,8 +349,7 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 			include("inc/body.php");
 			break;
 
-		case "generate_fast_secret": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate"); TODO check why this link doesn't work -> errors, etc.?
-			//require("inc/login.php");
+		case "generate": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate"); TODO check why this link doesn't work -> errors, etc.?
 			include("inc/generate_page.php"); // static page generator
 			break;
 			

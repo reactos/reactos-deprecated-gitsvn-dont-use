@@ -86,7 +86,7 @@ $roscms_langres['Dev_Help'] = 'Help';
 
 $roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Developer Interface - Overview';
 
-
+$roscms_langres['ContTrans_generalinfo'] = 'The ReactOS main website pages get updated once a day. You will see a preview of your changes after clicking on "Save".';
 
 $roscms_langres['ContTrans_Interface_Content'] = 'Dev Interface - Content';
 $roscms_langres['ContTrans_Contents'] = 'Content';

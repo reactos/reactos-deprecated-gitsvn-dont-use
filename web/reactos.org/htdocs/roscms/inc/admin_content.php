@@ -459,6 +459,7 @@
 	echo '</p>';
 
 ?>
+<p><?php echo $roscms_langres['ContTrans_generalinfo']; ?></p>
   <table width="100%" border="0" cellpadding="1" cellspacing="1">
     <tr bgcolor="<?php echo $roscms_intern_color0; ?>"> 
       <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Action']; ?></strong></font></div></td>
@@ -512,6 +513,20 @@
 	//$farbe="#CCCCC";
 	
 	while($result_content = mysql_fetch_array($query_content)) { // content
+		if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") {	
+			echo "<p></p>";
+			$accountinfo_query2 = @mysql_query("SELECT user_language FROM users WHERE user_id = '".$roscms_intern_account_id."'") or die('DB error (admin interface)!');
+			$accountinfo_result2 = @mysql_fetch_array($accountinfo_query2);
+
+			$RosCMS_query_translate_content3 = mysql_query("SELECT *
+				FROM content 
+				WHERE content_name = '". mysql_real_escape_string($result_content['content_name'])  ."' 
+				AND content_lang = '". mysql_real_escape_string($accountinfo_result2['user_language'])  ."' 
+				AND content_active = '1' 
+				AND content_visible = '1' 
+				LIMIT 1 ;");
+			$RosCMS_result_translate_content3 = mysql_fetch_array($RosCMS_query_translate_content3);
+		}
 ?>
     <tr> 
       <td width="9%" valign="middle" bgcolor="<?php
@@ -525,15 +540,21 @@
 									echo $farbe2;
 									$farbe = $farbe2;
 								}
-							 ?>"> 
+	?>"> 
         <div align="center"> 
           <a name="<?php echo $result_content['content_id']; ?>"></a>
-		  <?php
-		  if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") { ?>
-          <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=translate&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/tool.gif" alt="<?php echo $roscms_langres['ContTrans_Translate']; ?>" width="19" height="18" border="0"></a> 
-          <?php } else { ?>
+	<?php
+		  if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") { 
+          	if ($RosCMS_result_translate_content3['content_id'] == "") { ?>
+			  <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;opt=translate&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/tool.gif" alt="<?php echo $roscms_langres['ContTrans_Translate']; ?>" width="19" height="18" border="0"></a> 
+          
+	<?php	}
+			else { ?>
+			  <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$accountinfo_result2['user_language'].'&amp;db_id='.$RosCMS_result_translate_content3['content_id']; ?>"><img src="images/view.gif" alt="<?php echo $roscms_langres['ContTrans_Edit']; ?>" width="19" height="18" border="0"></a> 
+	<?php	}
+		  } else { ?>
           <a href="?page=<?php echo $rpm_page; ?>&amp;sec=content&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_content['content_id']; ?>"><img src="images/view.gif" alt="<?php echo $roscms_langres['ContTrans_Edit']; ?>" width="19" height="18" border="0"></a> 
-          <?php
+	<?php
 		  }
 		  if($roscms_intern_usrgrp_sadmin == true) { ?>
           <script type="text/javascript">

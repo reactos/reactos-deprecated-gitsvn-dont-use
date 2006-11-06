@@ -85,6 +85,7 @@
 				`page_visible` = '". mysql_real_escape_string($page_vis) ."',
 				`pages_extention` = '". mysql_real_escape_string($page_pageextention) ."',
 				`page_active` = '". mysql_real_escape_string($page_pageactive) ."',
+				`page_generate_force` = '1'
 				`page_date` = CURDATE( ) ,
 				`page_time` = CURTIME( ) WHERE `page_id` = '$rpm_db_id' LIMIT 1 ;";
 				//`page_active` = '1',

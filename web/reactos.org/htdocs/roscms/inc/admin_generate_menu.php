@@ -21,13 +21,13 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
 <html>
 <head>
-<title>RosCMS System - page generator</title>
+<title>RosCMS Generator - Preview</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 
 <frameset rows="60,*" frameborder="NO" border="0" framespacing="0">
-  <frame src="?page=admin&amp;sec=generator&amp;sec2=view&amp;sec3=menutop&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default" name="topFrame" scrolling="NO" noresize >
-  <frame src="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default" name="mainFrame">
+  <frame src="?page=admin&amp;sec=generator&amp;sec2=view&amp;sec3=menutop&amp;site=index&amp;gen_lang=en" name="topFrame" scrolling="NO" noresize >
+  <frame src="?page=admin&amp;sec=generator&amp;sec2=view&amp;site=index&amp;gen_lang=en" name="mainFrame">
 </frameset>
 <noframes><body>
 

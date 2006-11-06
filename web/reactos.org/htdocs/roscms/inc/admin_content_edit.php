@@ -489,6 +489,7 @@
 				`content_visible` = '". mysql_escape_string($content_vis) ."',
 				`content_active` = '". mysql_escape_string($content_act) ."',
 				`content_description` = '". mysql_escape_string($content_description) ."',
+				`content_altered` = '1',
 				`content_type` = '". mysql_escape_string($content_typea) ."'
 				WHERE `content_id` = '$rpm_db_id' LIMIT 1 ;";
 				//`content_active` = '1',
@@ -499,10 +500,23 @@
 			$content_post_lista=mysql_query($content_posta);
 		}
 		elseif ($content_savemode == "translate") {
-			$content_version="1";
-			$content_postb="INSERT INTO `content` ( `content_id` , `content_name` , `content_lang` , `content_editor` , `content_text` , `content_version` , `content_active` , `content_visible` , `content_date` , `content_time` , `content_usrname_id`)
-				VALUES ('', '". mysql_escape_string($content_contentid) ."', '". mysql_escape_string($content_langa) ."', '". mysql_escape_string($content_extra) ."', '". mysql_real_escape_string($content_data) ."', '1', '". mysql_escape_string($content_act) ."', '". mysql_escape_string($content_vis) ."', CURDATE( ), CURTIME( ), '". mysql_escape_string($roscms_intern_account_id) ."');";
-			$content_post_listb=mysql_query($content_postb);
+			$RosCMS_query_translate_content = mysql_query("SELECT COUNT('content_id') 
+				FROM content 
+				WHERE content_name = '". mysql_real_escape_string($content_contentid)  ."' 
+				AND content_lang = '". mysql_real_escape_string($content_langa)  ."' 
+				AND content_active = '1' 
+				AND content_visible = '1' ;");
+			$RosCMS_result_translate_content = mysql_fetch_row($RosCMS_query_translate_content);
+			
+			if ($RosCMS_result_translate_content[0] <= 0) {
+				$content_version="1";
+				$content_postb="INSERT INTO `content` ( `content_id` , `content_name` , `content_lang` , `content_editor` , `content_text` , `content_version` , `content_active` , `content_visible` , `content_date` , `content_time` , `content_usrname_id`)
+					VALUES ('', '". mysql_escape_string($content_contentid) ."', '". mysql_escape_string($content_langa) ."', '". mysql_escape_string($content_extra) ."', '". mysql_real_escape_string($content_data) ."', '1', '". mysql_escape_string($content_act) ."', '". mysql_escape_string($content_vis) ."', CURDATE( ), CURTIME( ), '". mysql_escape_string($roscms_intern_account_id) ."');";
+				$content_post_listb=mysql_query($content_postb);
+			}
+			else {
+			
+			}
 		}	
 		else {
 			// content Version:
@@ -544,19 +558,33 @@
 			echo "<p><a href=".$_SERVER['HTTP_REFERER'].">Back to the 'content edit' page</a></p>";
 			echo "<p>&nbsp;</p><p><fieldset><legend>Preview</legend><br>".$result_content['content_text']."</fieldset></p>";
 		}
-		else {		
-			$query_content_new_revision_preview = mysql_query("SELECT * 
-														FROM `content` 
-														WHERE `content_name` LIKE '$content_contentid'
-														AND `content_lang` = '$content_langa'
-														AND `content_version` = ". $content_version ."
-														LIMIT 1;");
-			$result_content_new_revision_preview = mysql_fetch_array($query_content_new_revision_preview);
-			$roscms_TEMP_cont_name = $result_content_new_revision_preview['content_name'];
-			echo "<p>".$roscms_langres['ContTrans_Save1']." '".$result_content_new_revision_preview['content_name']."' (old id='".$rpm_db_id."', new id='". $result_content_new_revision_preview["content_id"] ."') ".$roscms_langres['ContTrans_Save2']."</p>";		
-			echo "<p><b><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>".$roscms_langres['ContTrans_Save3']."</b> (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
-			echo "<p><a href='".$_SERVER['HTTP_REFERER']."'>".$roscms_langres['ContTrans_Save4']." (revision ". $result_content['content_id'] .")</a></p>";
-			echo "<p>&nbsp;</p><p><fieldset><legend>".$roscms_langres['ContTrans_Preview']."</legend><br>".$result_content_new_revision_preview['content_text']."</fieldset></p>";
+		else {
+			if ($content_savemode == "translate" && $RosCMS_result_translate_content[0] > 0) {
+				$RosCMS_query_translate_content2 = mysql_query("SELECT * 
+					FROM content 
+					WHERE content_name = '". mysql_real_escape_string($content_contentid)  ."' 
+					AND content_lang = '". mysql_real_escape_string($content_langa)  ."' 
+					AND content_active = '1' 
+					AND content_visible = '1' 
+					LIMIT 1 ;");
+				$RosCMS_result_translate_content2 = mysql_fetch_row($RosCMS_query_translate_content2);
+				
+				echo "<p>This content (".$RosCMS_result_translate_content2['content_name']." - ".$RosCMS_result_translate_content2['content_lang'].") has already been translated to your favorite language.<br /><b><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $RosCMS_result_translate_content2['content_id'] ."'>Click here to view/edit the entry</b> (revision ". $RosCMS_result_translate_content2["content_id"] .")</a></p>";
+			}
+			else {		
+				$query_content_new_revision_preview = mysql_query("SELECT * 
+															FROM `content` 
+															WHERE `content_name` LIKE '$content_contentid'
+															AND `content_lang` = '$content_langa'
+															AND `content_version` = ". $content_version ."
+															LIMIT 1;");
+				$result_content_new_revision_preview = mysql_fetch_array($query_content_new_revision_preview);
+				$roscms_TEMP_cont_name = $result_content_new_revision_preview['content_name'];
+				echo "<p>".$roscms_langres['ContTrans_Save1']." '".$result_content_new_revision_preview['content_name']."' (old id='".$rpm_db_id."', new id='". $result_content_new_revision_preview["content_id"] ."') ".$roscms_langres['ContTrans_Save2']."</p>";		
+				echo "<p><b><a href='?page=". $rpm_page ."&amp;sec=content&amp;sec2=edit&amp;sort=". $rpm_sort ."&amp;filt=". $rpm_filt ."&amp;langid=". $rpm_lang_id ."&amp;db_id=". $result_content_new_revision_preview['content_id'] ."'>".$roscms_langres['ContTrans_Save3']."</b> (revision ". $result_content_new_revision_preview["content_id"] .")</a></p>";
+				echo "<p><a href='".$_SERVER['HTTP_REFERER']."'>".$roscms_langres['ContTrans_Save4']." (revision ". $result_content['content_id'] .")</a></p>";
+				echo "<p>&nbsp;</p><p><fieldset><legend>".$roscms_langres['ContTrans_Preview']."</legend><br>".$result_content_new_revision_preview['content_text']."</fieldset></p>";
+			}
 		}
 		
 	
