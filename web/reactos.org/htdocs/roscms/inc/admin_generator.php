@@ -34,57 +34,59 @@
     <tr> 
       <td colspan="2" bgcolor="#F9F8F8"> <table width="650" border="0" cellpadding="4">
           <tr>
-            <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td><strong><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=output&amp;newcontent=true" title="Generate all UPDATED static pages! (except content that is visible on several pages, e.g. menu bars -> then use the 'generate all pages' link instead!)"><?php echo $roscms_langres['ContTrans_Gen_menu1']; ?></a> </font></strong></td>
-            <td>&nbsp;</td>
-            <td>
-              <div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td width="300">
-              <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default&amp;debug=yes" title="Don't use this function if you don't know what this function do!">View page - debug mode</a></font></div></td>
+            <td width="20" valign="top"><div align="center"><img src="images/dot.gif" vspace="3" /></div></td>
+            <td width="300" valign="top"><strong><font face="Arial, Helvetica, sans-serif"><a href="#gensinglepage" title="Generate one static page (if you want to update one specific page)"><?php echo $roscms_langres['ContTrans_Gen_menu3']; ?></a> </font></strong></td>
+            <td width="10" valign="top">&nbsp;</td>
+            <td valign="top">
+            <div align="center"><img src="images/dot.gif" vspace="3" /></div></td>
+            <td width="300" valign="top">
+            <div align="left">
+              <p><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;sec3=menu&amp;site=index&amp;gen_lang=en" title="View the static homepage in a dynamic way"><strong><?php echo $roscms_langres['ContTrans_Gen_menu4']; ?></strong></a></font></p>
+              </div></td>
           </tr>
           <tr>
-            <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=output" title="Generate all static pages (only if you need to update all pages, e.g. one time per day)"><strong><?php echo $roscms_langres['ContTrans_Gen_menu2']; ?></strong></a> <?php 
+            <td valign="top"><div align="center"><img src="images/dot.gif" vspace="3" /></div></td>
+            <td valign="top"><font face="Arial, Helvetica, sans-serif"><strong><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=output&amp;newcontent=true" title="Generate all UPDATED static pages! (except content that is visible on several pages, e.g. menu bars -&gt; then use the 'generate all pages' link instead!)"><?php echo $roscms_langres['ContTrans_Gen_menu1']; ?></a></strong> <br />
+                <?php 
+				
+				// Languages
+				$sql_lang="SELECT * 
+							FROM languages
+							WHERE lang_level != '0'
+							ORDER BY 'lang_level' DESC";
+				$sql_query_lang=mysql_query($sql_lang);
+				while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
+					echo '<a href="?page='.$rpm_page.'&amp;sec=generator&amp;sec2=output&amp;newcontent=true&amp;gen_lang='.$myrow_lang[0].'">'.$myrow_lang[1].'</a> ';
+				}
 			
-	
-	// Languages
-	$sql_lang="SELECT * 
-				FROM languages
-				WHERE lang_level != '0'
-				ORDER BY 'lang_level' DESC";
-	$sql_query_lang=mysql_query($sql_lang);
-	while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
-		echo ', <a href="?page='.$rpm_page.'&amp;sec=generator&amp;sec2=output&amp;gen_lang='.$myrow_lang[0].'&amp;skin=default">'.$myrow_lang[1].'</a>';
-	}
+			?>
+            </font></td>
+            <td valign="top">&nbsp;</td>
+            <td valign="top"><div align="center"><strong><img src="images/dot.gif" vspace="3" /></strong></div></td>
+            <td valign="top"><div align="left"><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=output" title="Generate all static pages (only if you need to update all pages, e.g. one time per day)"><strong><?php echo $roscms_langres['ContTrans_Gen_menu2']; ?></strong></a><br />
+			<?php 
+				
+				// Languages
+				$sql_lang="SELECT * 
+							FROM languages
+							WHERE lang_level != '0'
+							ORDER BY 'lang_level' DESC";
+				$sql_query_lang=mysql_query($sql_lang);
+				while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
+					echo '<a href="?page='.$rpm_page.'&amp;sec=generator&amp;sec2=output&amp;gen_lang='.$myrow_lang[0].'">'.$myrow_lang[1].'</a> ';
+				}
 			
-			?></font></td>
-            <td>&nbsp;</td>
-            <td><div align="center"><img src="images/dot.gif" vspace="3"></div></td>
-            <td><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default" title="Don't use this function if you don't know what this function do!">View all pages - test mode</a></font></td>
+			?>
+            </font></div></td>
           </tr>
-          <tr> 
-            <td width="20"> <div align="center"><strong><img src="images/dot.gif" vspace="3"></strong></div></td>
-            <td width="300"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><a href="#gensinglepage" title="Generate one static page (if you want to update one specific page)"><?php echo $roscms_langres['ContTrans_Gen_menu3']; ?></a></font></strong></div></td>
-            <td width="10">&nbsp;</td>
-            <td>
-              <div align="center"><strong><img src="images/dot.gif" vspace="3"></strong></div></td>
-            <td>
-              <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=&amp;lang=en&amp;forma=xhtml&amp;skin=default&amp;debug=yes" title="Don't use this function if you don't know what this function do!">View all pages - debug mode</a></font></div></td>
-          </tr>
-          <tr> 
-            <td width="20"> <div align="center"><strong><img src="images/dot.gif" vspace="3"></strong></div></td>
-            <td width="300"> <div align="left"><font face="Arial, Helvetica, sans-serif"><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;sec3=menu&amp;site=index&amp;lang=en&amp;forma=html&amp;skin=default" title="View the static homepage in a dynamic way"><strong><?php echo $roscms_langres['ContTrans_Gen_menu4']; ?></strong></a></font></div></td>
-            <td width="10">&nbsp;</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-          </tr>
-        </table></tr>
-    <tr bgcolor=#AEADAD> 
-      <td><strong><img src="images/line.gif" width="1" height="1"></strong></td>
+        </table></td>
+    </tr>
+    <tr bgcolor="#AEADAD"> 
+      <td><strong><img src="images/line.gif" width="1" height="1" /></strong></td>
     </tr>
   </table>
   <p>&nbsp; </p>
-  <span class="contentSmallTitle"><a name="gensinglepage"></a><?php echo $roscms_langres['ContTrans_Gen_menu3']; ?></span> 
+  <span class="contentSmallTitle"><a name="gensinglepage" id="gensinglepage"></a><?php echo $roscms_langres['ContTrans_Gen_menu3']; ?></span> 
   <p><?php echo $roscms_langres['ContTrans_Gen_menu3_desc']; ?></p>
  <?php
 	if($roscms_intern_account_level>50) {
@@ -260,7 +262,7 @@
       <td width="13%" bgcolor="<?php echo $roscms_intern_color0; ?>"> <div align="center"><strong><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><?php echo $roscms_langres['ContTrans_PageID']; ?></font></strong></div></td>
       <td width="13%"> <div align="center"><strong><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><?php echo $roscms_langres['ContTrans_Language']; ?></font></strong></div></td>
       <td width="7%"> <div align="center"><strong><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><?php echo $roscms_langres['ContTrans_Rev']; ?></font></strong></div>
-        <div align="center"></div></td>
+      </td>
       <td width="13%"> <div align="center"><strong><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"> 
           <?php echo $roscms_langres['ContTrans_Change']; ?></font></strong></div></td>
       <td width="13%">
@@ -305,7 +307,11 @@
 								if ($result_page['page_generate_force'] == "1") {
 									$farbe = "#00FF00";
 								}
-							 ?>" title="RosCMS action buttons:&#10;&#10;* Generate static page&#10;* View page in dynamc mode&#10;* Delete static pagse"> 
+							 ?>" title="RosCMS action buttons:
+
+* Generate static page
+* View page in dynamc mode
+* Delete static pagse"> 
         <div align="center">
           <strong><?php 
 		  	$cmsros_intern_temp_lang_short=$result_page['page_language'];
@@ -315,44 +321,31 @@
 				ORDER BY 'lang_level' DESC";
 			$sql_query_lang=mysql_query($sql_lang);
 			$myrow_lang=mysql_fetch_row($sql_query_lang); // Languages
-		?><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=genpage&amp;site=<?php echo $result_page['page_name'];?>&amp;lang=<?php echo $myrow_lang[0]; ?>&amp;skin=default" target="_blank"><img src="images/genpage.gif" alt="Generate this page (xhtml and html)" width="19" height="18" border="0"></a> 
-          <a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=<?php echo $result_page['page_name'];?>&amp;lang=<?php echo $myrow_lang[0]; ?>&amp;forma=xhtml&amp;skin=default" target="_blank"><img src="images/view.gif" alt="View page dynamic" width="19" height="18" border="0"></a> 
-          <?php
-			 if($roscms_intern_account_level==100) { ?>
-          <script type="text/javascript">
-			<!--
-				function DeletePage() {
-					var chk = window.confirm("Do you really want to delete the static xhtml/html pages?");
-					if (chk == true) {
-						//parent.location.href = "?page=<?php echo $rpm_page; ?>&amp;sec=generate&amp;sec2=delete&amp;db_id=<?php echo $result_page['page_id']; ?>";
-						alert("This function will be finished soon!");
-					}
-				}
-			-->
-			</script><a href="javascript:DeletePage()"><img src="images/delete.gif" alt="Delete the static pages (xhtml/html) and NOT the page content in the database!" width="19" height="18" border="0"></a><?php  } ?>        </strong></div></td>
+		?><a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=genpage&amp;site=<?php echo $result_page['page_name']; ?>&amp;gen_lang=allpages&amp;skin=default" target="_blank"><img src="images/genpage.gif" alt="Generate this page (xhtml and html)" width="19" height="18" border="0" /></a> 
+        &nbsp; <a href="?page=<?php echo $rpm_page; ?>&amp;sec=generator&amp;sec2=view&amp;site=<?php echo $result_page['page_name']; ?>&amp;gen_lang=<?php echo $rpm_lang; ?>&amp;forma=xhtml&amp;skin=default" target="_blank"><img src="images/view.gif" alt="View page dynamic" width="19" height="18" border="0" /></a>        </strong></div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
           <strong><?php
 		 if($result_page['page_active'] == "1") { ?>
-          <img src="images/active.gif" alt="active" width="19" height="18" border="0">
+          <img src="images/active.gif" alt="active" width="19" height="18" border="0" />
           <?php
 		 }
 		 else { ?>
-          <img src="images/notactive.gif" alt="NOT active" width="19" height="18" border="0">
+          <img src="images/notactive.gif" alt="NOT active" width="19" height="18" border="0" />
           <?php } ?>
         </strong></div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
           <strong><?php
 		 if($result_page['page_visible'] == "1") { ?>
-          <img src="images/visible.gif" alt="visible" width="19" height="18" border="0"> 
+          <img src="images/visible.gif" alt="visible" width="19" height="18" border="0" /> 
           <?php
 		 }
 		 else { ?>
-          <img src="images/notvisible.gif" alt="NOT visible" width="19" height="18" border="0"> 
+          <img src="images/notvisible.gif" alt="NOT visible" width="19" height="18" border="0" /> 
           <?php } ?>
         </strong></div></td>
       <td width="3%" valign="middle" bgcolor="<?php echo $farbe; ?>"><div align="center"> 
           <strong><?php if($roscms_intern_account_level<=10) { ?>
-          <img src="images/lock.gif" alt="Locked" width="19" height="18"> 
+          <img src="images/lock.gif" alt="Locked" width="19" height="18" /> 
           <?php } ?>
         </strong></div></td>
       <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="left"><strong><font face="Arial, Helvetica, sans-serif"><?php echo "<b>".$result_page['page_name']."</b>"; ?></font></strong></div></td>
@@ -373,7 +366,7 @@
 			echo $result_page['page_version'];
 		?>
           </font></strong></div>
-        <div align="center"><strong><font face="Arial, Helvetica, sans-serif"> </font></strong></div></td>
+      </td>
       <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
 			echo $result_page['page_date']." ".$result_page['page_time'];;

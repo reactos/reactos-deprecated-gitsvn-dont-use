@@ -62,23 +62,23 @@
     <table width="600" border="0" cellpadding="1" cellspacing="1">
       <tr bgcolor="#5984C3"> 
         <td bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Section</strong></font></div></td>
-        <td bgcolor="#E2E2E2"><input name="txt_contentname" type="text" id="txt_contentname" value="<?php if (!$result_content['dyn_content_name']) { echo $rpm_sec3; } echo $result_content['dyn_content_name']; ?>" size="50" maxlength="100"> 
-        </td>
+        <td bgcolor="#E2E2E2"><input name="txt_contentname" type="text" id="txt_contentname" value="<?php if (!$result_content['dyn_content_name']) { echo $rpm_sec3; } echo $result_content['dyn_content_name']; ?>" size="50" maxlength="100">        </td>
       </tr>
       <tr bgcolor="#5984C3"> 
         <td bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
             ID</strong></font></div></td>
-        <td bgcolor="#EEEEEE"> <input name="txt_contentid" type="text" id="txt_contentid" value="<?php echo $result_content['dyn_content_id']; ?>" size="20" maxlength="20"> 
-        </td>
-      </tr>
-      <tr bgcolor="#5984C3"> 
-        <td width="15%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
-            Nr</strong></font></div></td>
-        <td width="85%" bgcolor="#E2E2E2"> <input name="txt_contentnr" type="text" id="txt_contentnr" value="<?php echo $result_content['dyn_content_nr']; ?>" size="20" maxlength="20"></td>
+        <td bgcolor="#EEEEEE"> <input name="txt_contentid" type="text" id="txt_contentid" value="<?php echo $result_content['dyn_content_id']; ?>" size="20" maxlength="20">        </td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
-        <td valign="top" bgcolor="#EEEEEE"><div align="left"> 
+        <td valign="top" bgcolor="#E2E2E2"><div align="left"> 
+		<?php
+			if ($rpm_sec3 == "news_page" || $rpm_sec3 == "newsletter") {
+		?>
+			<input name="txt_contentnr" type="hidden" value="1" />
+		<?php
+			}
+		?>
             <select id="select" size="1" name="txt_langa" class="selectbox">
               <?php 
 				//echo $result_page['page_language'];
@@ -111,7 +111,28 @@
               </optgroup>
             </select>
           </div></td>
+      </tr>	  
+<?php
+	if ($rpm_sec3 != "news_page" && $rpm_sec3 != "newsletter") {
+?>
+      <tr bgcolor="#5984C3"> 
+        <td width="15%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
+            Nr</strong></font></div></td>
+        <td width="85%" bgcolor="#E2E2E2"> <input name="txt_contentnr" type="text" id="txt_contentnr" value="<?php 
+		
+		if ($result_content['dyn_content_nr'] == "") {
+			echo "1";
+		}
+		else {
+			echo $result_content['dyn_content_nr'];
+		}
+		
+		 ?>" size="20" maxlength="20"></td>
       </tr>
+<?php
+	}
+?>
+
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php 
 		if ($rpm_sec3 == "news_page") {
@@ -128,8 +149,11 @@
 		}
 		
 		?></strong></font></div></td>
-        <td valign="top" bgcolor="#E2E2E2"><input name="txt_content_text1" type="text" id="txt_content_text1" value="<?php echo $result_content['dyn_content_text1']; ?>" size="50" maxlength="100"></td>
+        <td valign="top" bgcolor="#EEEEEE"><input name="txt_content_text1" type="text" id="txt_content_text1" value="<?php echo $result_content['dyn_content_text1']; ?>" size="50" maxlength="100"></td>
       </tr>
+<?php
+	if ($rpm_sec3 != "news_page" && $rpm_sec3 != "newsletter") {
+?>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php 
 		if ($rpm_sec3 == "news_page") {
@@ -148,6 +172,9 @@
 		?></strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><input name="txt_content_text2" type="text" id="txt_content_text2" value="<?php echo $result_content['dyn_content_text2']; ?>" size="50" maxlength="100"></td>
       </tr>
+<?php
+	}
+?>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php 
 		if ($rpm_sec3 == "news_page") {
@@ -205,11 +232,11 @@
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Visible</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			if ($result_content['dyn_content_visible'] == 1) {
-				echo ' <input name="content_visible" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_visible" value="no"> no';
+			if ($result_content['dyn_content_visible'] == "0") {
+				echo ' <input name="content_visible" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_visible" value="no" checked> no';
 			}
 			else {
-				echo ' <input name="content_visible" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_visible" value="no" checked> no';
+				echo ' <input name="content_visible" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_visible" value="no"> no';
 			}	
 		?>
           </font></td>
@@ -218,11 +245,11 @@
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Active</strong></font></div></td>
         <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			if ($result_content['dyn_content_active'] == 1) {
-				echo ' <input name="content_active" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_active" value="no"> no';
+			if ($result_content['dyn_content_active'] == "0") {
+				echo ' <input name="content_active" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_active" value="no" checked> no';
 			}
 			else {
-				echo ' <input name="content_active" type="radio" value="yes"> yes &nbsp; <input type="radio" name="content_active" value="no" checked> no';
+				echo ' <input name="content_active" type="radio" value="yes" checked> yes &nbsp; <input type="radio" name="content_active" value="no"> no';
 			}	
 		?>
           </font></td>
@@ -250,8 +277,7 @@
             <option value="richtext">richtext</option>
             <option value="bbcode">bbcode</option>
             </optgroup>
-          </select>
-        </td>
+          </select>        </td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>User</strong></font></div></td>
@@ -265,24 +291,12 @@
           </font></td>
       </tr>
       <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Date</strong></font></div></td>
+        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Date/Time</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><font face="Arial, Helvetica, sans-serif">
-          <?php 
-			echo $result_content['dyn_content_date'];
+		<?php 
+			echo $result_content['dyn_content_date']." &nbsp; ".$result_content['dyn_content_time'];
 		?>
-          </font></td>
-      </tr>
-      <tr>
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Time</strong></font></div></td>
-        <td valign="top" bgcolor="#EEEEEE"><font face="Arial, Helvetica, sans-serif">
-          <?php 
-			echo $result_content['dyn_content_time'];
-		?>
-          </font></td>
-      </tr>
-      <tr> 
-        <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Action</strong></font></div></td>
-        <td valign="top" bgcolor="#E2E2E2"></td>
+        </font></td>
       </tr>
     </table>
     <p>
@@ -451,7 +465,8 @@
 				`dyn_content_text1` = '". mysql_escape_string($content_text1) ."',
 				`dyn_content_text2` = '". mysql_escape_string($content_text2) ."',
 				`dyn_content_text3` = '". mysql_escape_string($content_text3) ."',
-				`dyn_content_text4` = '". addslashes($content_data) ."'
+				`dyn_altered` = '1',
+				`dyn_content_text4` = '". mysql_real_escape_string($content_data) ."'
 				WHERE `dyn_id` = '$rpm_db_id' LIMIT 1 ;";
 			$content_post_lista=mysql_query($content_posta);
 			
