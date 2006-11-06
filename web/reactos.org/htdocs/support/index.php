@@ -1,11 +1,29 @@
 <?php
+    /*
+    RSDB - ReactOS Support Database
+    Copyright (C) 2005-2006  Klemens Friedl <frik85@reactos.org>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    */
 
 /*
  *	ReactOS Support Database System - RSDB
  *	
  *	(c) by Klemens Friedl <frik85>
  *	
- *  11/2005, 12/2005, 01/2006, 02/2006
+ *	2005 - 2006 
  */
 
 error_reporting(E_ALL);
@@ -15,19 +33,10 @@ if (get_magic_quotes_gpc()) {
 	die("ERROR: Disable 'magic quotes' in php.ini (=Off)");
 }
 
-
-
 //global $HTTP_GET_VARS; // set the Get var global
 
 
 	require_once("connect.db.php");
-
-
-
-	// stop MySQL bug (http://dev.mysql.com/doc/refman/4.1/en/news-4-1-20.html):
-	$SQLinjectionprevention ="SET GLOBAL sql_mode='NO_BACKSLASH_ESCAPES';";
-	$SQLinjectionprevention_query=mysql_query($SQLinjectionprevention);
-
 
 
 
@@ -109,10 +118,11 @@ if (get_magic_quotes_gpc()) {
 		}
 
 
+
 	// Global Vars:
 	$RSDB_SET_page=""; // Page: Home or DB
-	$RSDB_SET_view=""; // Compatibility, Packages, Dev Network, Media
 	$RSDB_SET_sec=""; // Browse by: Category, Name, Company, Rank, etc.
+	$RSDB_SET_view=""; // Compatibility, Packages, Dev Network, Media
 	$RSDB_SET_cat="0"; // Category ID
 	$RSDB_SET_cat2="flat"; // Category Style: Flat or Tree
 	$RSDB_SET_letter=""; // Browse by Name: Letter: All, A, B, C, ..., X, Y, Z
@@ -143,39 +153,6 @@ if (get_magic_quotes_gpc()) {
 	$RSDB_SET_filter="cur";
 	$RSDB_SET_filter2="";
 	
-		
-	// old unused Vars from RosCMS
-	/*$rpm_page="home";
-	$rpm_sec="category";
-	$rpm_sec2="";
-	$rpm_sec3="";
-	$rpm_site="";
-	$rpm_opt="";
-	$rpm_filt="";
-	$rpm_filt2="";
-	$rpm_lang="";
-	$rpm_langid="";
-	$rpm_forma="";
-	$rpm_skin="";
-	$rpm_debug="";
-	$rpm_logo="";
-	$rpm_db_id="";
-
-	$varlang="";
-	$varw3cformat="";
-	$varformat="";
-	$page_active="";
-	$page_active_set="";
-	$rpm_lang_id="";
-	$rpm_sort="";
-	$roscms_intern_account_level="";
-	$roscms_intern_login_check="false";
-	
-	
-	$roscms_infotable="";
-	
-	// this vars will be removed soon
-	$roscms_intern_login_check_username="";*/
 	$rpm_page="";
 	$rpm_lang="";
 	$rpm_logo="";
@@ -194,8 +171,8 @@ if (get_magic_quotes_gpc()) {
 
 	
 	if (array_key_exists("page", $_GET)) $RSDB_SET_page=htmlspecialchars($_GET["page"]);
-	if (array_key_exists("view", $_GET)) $RSDB_SET_view=htmlspecialchars($_GET["view"]);
 	if (array_key_exists("sec", $_GET)) $RSDB_SET_sec=htmlspecialchars($_GET["sec"]);
+	if (array_key_exists("view", $_GET)) $RSDB_SET_view=htmlspecialchars($_GET["view"]);
 	if (array_key_exists("cat", $_GET)) $RSDB_SET_cat=htmlspecialchars($_GET["cat"]);
 	if (array_key_exists("cat2", $_GET)) $RSDB_SET_cat2=htmlspecialchars($_GET["cat2"]);
 	if (array_key_exists("letter", $_GET)) $RSDB_SET_letter=htmlspecialchars($_GET["letter"]);
@@ -234,25 +211,10 @@ if (get_magic_quotes_gpc()) {
 	if (array_key_exists("filter", $_POST)) $RSDB_SET_filter=htmlspecialchars($_POST["filter"]);
 	if (array_key_exists("filter2", $_POST)) $RSDB_SET_filter2=htmlspecialchars($_POST["filter2"]);
 
+
 	session_start();
 
 
-	//if (array_key_exists("page", $_GET)) $rpm_page=htmlspecialchars($_GET["page"]);
-	//if (array_key_exists("sec", $_GET)) $rpm_sec=htmlspecialchars($_GET["sec"]);
-	//if (array_key_exists("sec2", $_GET)) $rpm_sec2=htmlspecialchars($_GET["sec2"]);
-	/*if (array_key_exists("sec3", $_GET)) $rpm_sec3=htmlspecialchars($_GET["sec3"]);
-	if (array_key_exists("site", $_GET)) $rpm_site=htmlspecialchars($_GET["site"]);
-	if (array_key_exists("opt", $_GET)) $rpm_opt=htmlspecialchars($_GET["opt"]);
-	if (array_key_exists("sort", $_GET)) $rpm_sort=htmlspecialchars($_GET["sort"]);
-	if (array_key_exists("filt", $_GET)) $rpm_filt=htmlspecialchars($_GET["filt"]);
-	if (array_key_exists("filt2", $_GET)) $rpm_filt2=htmlspecialchars($_GET["filt2"]);
-	if (array_key_exists("lang", $_GET)) $rpm_lang=htmlspecialchars($_GET["lang"]);
-	if (array_key_exists("langid", $_GET)) $rpm_lang_id=htmlspecialchars($_GET["langid"]);
-	if (array_key_exists("forma", $_GET)) $rpm_forma=htmlspecialchars($_GET["forma"]);
-	if (array_key_exists("skin", $_GET)) $rpm_skin=htmlspecialchars($_GET["skin"]);
-	if (array_key_exists("debug", $_GET)) $rpm_debug=htmlspecialchars($_GET["debug"]);
-	if (array_key_exists("logo", $_GET)) $rpm_logo=htmlspecialchars($_GET["logo"]);
-	if (array_key_exists("db_id", $_GET)) $rpm_db_id=htmlspecialchars($_GET["db_id"]);*/
 	
 	if (array_key_exists('HTTP_REFERER', $_SERVER)) $roscms_referrer=htmlspecialchars($_SERVER['HTTP_REFERER']);
 	
@@ -271,9 +233,18 @@ if (get_magic_quotes_gpc()) {
 	
 	$RSDB_SET_lang=$rpm_lang;
 
+
 	// Config
 	require_once('rsdb_setting.php');
+	
+	// Human Readable URI
+	if ($RSDB_SET_export == "") {
+		require_once('rsdb_human_readable_url.php');
+	}
+	
+	// URI building
 	require_once('rsdb_config.php');
+	
 	
 	// Security
 	require_once("inc/tools/log.php");
@@ -294,7 +265,7 @@ if (get_magic_quotes_gpc()) {
 	require_once("inc/tools/plugins.php");
 	
 
-
+//	echo "<hr />db: ".$RSDB_SET_page.", view: ".$RSDB_SET_view.", sec: ".$RSDB_SET_sec."<hr />";
 
 	switch ($RSDB_SET_page) {
 		case "home": // Frontpage

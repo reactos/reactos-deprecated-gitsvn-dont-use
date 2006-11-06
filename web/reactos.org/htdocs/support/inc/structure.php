@@ -92,30 +92,30 @@ function create_structure($page )
 								}
 						  ?></div>
 		<ol>
-		  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>home">Overview</a></li>
-		  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>category&amp;cat=0">Browse Database</a></li>
+		  <li><a href="<?php echo $RSDB_intern_link_view_EX."home".$RSDB_URI_slash; ?>">Overview</a></li>
+		  <li><a href="<?php echo $RSDB_intern_link_category_EX."0".$RSDB_URI_slash; ?>">Browse Database</a></li>
 	<?php
 		if ( $RSDB_SET_sec == "category" || $RSDB_SET_sec == "name" || $RSDB_SET_sec == "vendor" || $RSDB_SET_sec == "rank") {
 	?>
-			  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>category&amp;cat=0">&nbsp;- By Category</a></li>
-			  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>name&amp;letter=all">&nbsp;- By Name</a></li>
+			  <li><a href="<?php echo $RSDB_intern_link_category_EX."0".$RSDB_URI_slash; ?>">&nbsp;- By Category</a></li>
+			  <li><a href="<?php echo $RSDB_intern_link_name_letter_EX."all".$RSDB_URI_slash; ?>">&nbsp;- By Name</a></li>
 		<?php
 			if ($RSDB_SET_view == "comp" || $RSDB_SET_view == "pack") {
 		?>
-			  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>vendor&amp;letter=all">&nbsp;- By Vendor</a></li>
+			  <li><a href="<?php echo $RSDB_intern_link_vendor_letter_EX."all".$RSDB_URI_slash; ?>">&nbsp;- By Vendor</a></li>
 		<?php
 			}
 			if ($RSDB_SET_view == "comp" || $RSDB_SET_view == "pack") {
 		?>
-			  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>rank">&nbsp;- By Rank</a></li>
+			  <li><a href="<?php echo $RSDB_intern_link_rank_EX."rank".$RSDB_URI_slash; ?>">&nbsp;- By Rank</a></li>
 		<?php
 			}
 		}
 	?>
-		  <li id="noscriptsearchbar" style="display: block"><a href="<?php echo $RSDB_intern_link_db_sec; ?>search">Search</a></li>
-		  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>submit">Submit Application</a></li>
-		  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>stats">Database Statistics</a></li>
-		  <li><a href="<?php echo $RSDB_intern_link_db_sec; ?>help">Help &amp; FAQ</a></li>
+		  <li id="noscriptsearchbar" style="display: block"><a href="<?php echo $RSDB_intern_link_view_EX."search".$RSDB_URI_slash; ?>">Search</a></li>
+		  <li><a href="<?php echo $RSDB_intern_link_view_EX."submit".$RSDB_URI_slash; ?>">Submit Application</a></li>
+		  <li><a href="<?php echo $RSDB_intern_link_view_EX."stats".$RSDB_URI_slash; ?>">Database Statistics</a></li>
+		  <li><a href="<?php echo $RSDB_intern_link_view_EX."help".$RSDB_URI_slash; ?>">Help &amp; FAQ</a></li>
 		</ol>
 		</div>
 		<p></p>

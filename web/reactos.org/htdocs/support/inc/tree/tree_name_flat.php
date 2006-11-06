@@ -129,7 +129,7 @@ if ($result_count_cat[0]) {
 										echo $farbe2;
 										$farbe = $farbe2;
 									}
-								 ?>" > <div align="left"><font face="Arial, Helvetica, sans-serif">&nbsp;<a href="<?php echo $RSDB_intern_link_group.$result_page['grpentr_id']; ?>"><b><?php echo $result_page['grpentr_name']; ?></b></a></font></div></td>
+								 ?>" > <div align="left"><font face="Arial, Helvetica, sans-serif">&nbsp;<a href="<?php echo $RSDB_intern_link_group_EX.$result_page['grpentr_id'].$RSDB_URI_slash; ?>"><b><?php echo $result_page['grpentr_name']; ?></b></a></font></div></td>
     <td valign="top" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font size="2" face="Arial, Helvetica, sans-serif">&nbsp;<?php
 		
 			$query_entry_vendor = mysql_query("SELECT * 

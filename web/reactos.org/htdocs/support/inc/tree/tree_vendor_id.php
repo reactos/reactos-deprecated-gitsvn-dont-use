@@ -137,7 +137,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 
 	<h2><?php echo $result_page['vendor_name']; ?></h2>
 	<p><font size="3" face="Arial, Helvetica, sans-serif"><?php echo htmlentities($result_page['vendor_fullname']); ?></font></p>
-	<p><font size="2" face="Arial, Helvetica, sans-serif"><b>Website:</b> <a href="<?php echo htmlentities($result_page['vendor_url']); ?>"><?php echo htmlentities($result_page['vendor_url']); ?></a></font></p>
+	<p><font size="2" face="Arial, Helvetica, sans-serif"><b>Website:</b> <a href="<?php echo htmlentities($result_page['vendor_url']); ?>" onmousedown="return clk(this.href,'res','')"><?php echo htmlentities($result_page['vendor_url']); ?></a></font></p>
 	<p><font size="2" face="Arial, Helvetica, sans-serif"><b>E-Mail:</b> <a href="mailto:<?php echo htmlentities($result_page['vendor_email']); ?>"><?php echo htmlentities($result_page['vendor_email']); ?></a></font></p>
 	<p><font size="2" face="Arial, Helvetica, sans-serif"><b>Information:</b> <?php echo wordwrap(nl2br(htmlentities($result_page['vendor_infotext'], ENT_QUOTES))); ?></font></p>
 	<p>&nbsp;</p>

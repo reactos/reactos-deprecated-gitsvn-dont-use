@@ -72,8 +72,8 @@
 </h1> 
 <p>ReactOS Software and Hardware Compatibility Database</p>
 
-<h1>Overview</h1>
-<h2>Compatibility Database</h2>
+<h1>Compatibility Database - Overview </h1>
+<h2>Compatibility Database - Overview</h2>
 <table width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td width="100%" valign="top">
@@ -91,7 +91,7 @@
 	    <table width="100%"  border="0">
           <tr>
             <td width="110">&nbsp;</td>
-            <td><input name="searchinput" type="text" id="searchinput" tabindex="0" onblur="loadItemList(this.value,'table','comp','ajaxload','sresult')" onkeyup="loadItemList(this.value,'table','comp','ajaxload','sresult')" size="10" maxlength="50" style="background-color: #FFFFFF; color: #000000; font-family: Verdana; font-size: x-small; font-style: normal; border-left : 1px solid #FFFFFF; border-right : 1px solid #FFFFFF; border-top : 1px solid #FFFFFF; border-bottom : 1px solid #FFFFFF;" /><img id="ajaxload" src="images/ajax_loading.gif"  style="display: none">
+            <td><input name="searchinput" type="text" id="searchinput" tabindex="0" onBlur="loadItemList(this.value,'table','comp','ajaxload','sresult')" onKeyUp="loadItemList(this.value,'table','comp','ajaxload','sresult')" size="10" maxlength="50" style="background-color: #FFFFFF; color: #000000; font-family: Verdana; font-size: x-small; font-style: normal; border-left : 1px solid #FFFFFF; border-right : 1px solid #FFFFFF; border-top : 1px solid #FFFFFF; border-bottom : 1px solid #FFFFFF;" /><img id="ajaxload" src="images/ajax_loading.gif"  style="display: none">
 			<script language="JavaScript" type="text/JavaScript">
 				<!--
 					var brow = navigator.appName;
@@ -131,7 +131,7 @@
   <li>Browse through the database in several different ways (by <a href="<?php echo $RSDB_intern_link_db_sec; ?>category&amp;cat=0">category</a>, <a href="<?php echo $RSDB_intern_link_db_sec; ?>name&amp;letter=all">name</a>, <a href="<?php echo $RSDB_intern_link_db_sec; ?>vendor&amp;letter=all">vendor</a>, <a href="<?php echo $RSDB_intern_link_db_sec; ?>rank">ranks</a>, <a href="<?php echo $RSDB_intern_link_db_sec; ?>search">search</a>).</li>
   <li>Submit application entries, compatibility test reports, vendor information, screenshots and forum messages. </li>
   <li>Ability to vote on test reports, forum messages, screenshots, etc.</li>
-  <li>Ability to customize the layout, several settings (like personal thresholde, etc.) and behaviour of the Support Database.</li>
+  <li>Ability to customize the layout, several settings (like personal threshold, etc.) and behaviour of the Support Database.</li>
   <li>Ability to sign up to be an application maintainer.<br />
 </li>
 </ul>

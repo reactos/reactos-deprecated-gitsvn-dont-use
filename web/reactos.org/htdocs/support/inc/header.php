@@ -50,6 +50,7 @@ function create_head($page_title, $logo, $RSDB_langres)
 <html lang="<?php echo $RSDB_langres['lang_code']; ?>">
 <head>
 	<title>ReactOS <?php echo $page_title ; ?></title>
+	<base href="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>" />
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $RSDB_langres['charset']; ?>" />
 	<meta http-equiv="Pragma" content="no-cache" />
 	<meta name="Description" content="The ReactOS Compatibility Database has stored a lot of information about application and driver compatibility with ReactOS." />

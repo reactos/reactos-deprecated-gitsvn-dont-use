@@ -101,7 +101,7 @@ if ($result_count_cat[0]) {
 	  
 //		echo "<img src='media/icons/categories/".$result_treeview['cat_icon']."' width='16' height='16'>";
 		
-		echo "&nbsp;<b><a href='".$RSDB_intern_link_category_cat.$result_treeview['cat_id']."'>".$result_treeview['cat_name']."</a></b>";
+		echo "&nbsp;<b><a href='".$RSDB_intern_link_cat2_EX.$result_treeview['cat_id'].$RSDB_URI_slash2."&amp;cat2=".$RSDB_SET_cat2."'>".$result_treeview['cat_name']."</a></b>";
 //		$RSDB_TEMP_cat_icon = $result_treeview['cat_icon'];
 		$RSDB_TEMP_cat_path = $result_treeview['cat_path'];
 		$RSDB_TEMP_cat_id = $result_treeview['cat_id'];
