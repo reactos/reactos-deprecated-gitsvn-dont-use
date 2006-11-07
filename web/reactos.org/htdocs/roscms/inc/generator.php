@@ -1,7 +1,7 @@
 <?php
     /*
     RosCMS - ReactOS Content Management System
-    Copyright (C) 2006  Klemens Friedl <frik85@reactos.org>
+    Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,14 +19,13 @@
     */
 	
 
-
 	// To prevent hacking activity:
-	if ( !defined('ROSCMS_SYSTEM') && $rpm_page != "generate")
+	if ( !defined('ROSCMS_SYSTEM') && $rpm_page != "generate_fast_secret")
 	{
 		die("die");
 	}
 	
-	if ($rpm_page == "generate") {
+	if ($rpm_page == "generate_fast_secret") {
 		$rpm_sec="generator";
 		$rpm_sec2="output";
 		$roscms_intern_account_id = "1";
@@ -34,7 +33,7 @@
 
 
 
-	$RosCMS_global_generator_extention = true; // true/false
+	$RosCMS_global_generator_extention = false; // true/false
 
 	
 	$RosCMS_global_current_page_lang = "";
@@ -322,7 +321,7 @@ function generator_page ($RosCMS_generator_output = "client", $RosCMS_generator_
 												AND dyn_content_visible = '1' 
 												AND (dyn_content_lang = '".mysql_real_escape_string($RosCMS_generator_lang)."' OR dyn_content_lang = 'all') 
 												".$RosCMS_generator_current_sql_dynpagecount." 
-												ORDER BY dyn_content_id ASC ");
+												ORDER BY dyn_content_id ASC, dyn_content_lang DESC ;");
 		}
 		else {
 			$RosCMS_current_page_dynamic_flag = false;
@@ -493,7 +492,9 @@ function insert_content($matches) {
 											WHERE content_name = '".mysql_real_escape_string($RosCMS_current_content_name)."'
 											AND content_visible = '1'
 											AND content_active = '1'
-											AND (content_lang = '".mysql_real_escape_string($RosCMS_global_current_page_lang)."' OR content_lang = 'all' OR content_lang = 'html') ;");
+											AND (content_lang = '".mysql_real_escape_string($RosCMS_global_current_page_lang)."' OR content_lang = 'all' OR content_lang = 'html') 
+											ORDER BY content_lang DESC
+											LIMIT 1 ;");
 	$RosCMS_result_content = mysql_fetch_array($RosCMS_query_content);
 
 	return $RosCMS_result_content['content_text'];
@@ -511,6 +512,7 @@ function insert_inctext($matches) {
 											WHERE inc_word = '".mysql_real_escape_string($RosCMS_current_intext_word)."'
 											AND (inc_lang = '".mysql_real_escape_string($RosCMS_global_current_page_lang)."' OR inc_lang = 'html' OR inc_lang = 'all')
 											AND inc_vis= '1' 
+											ORDER BY inc_lang DESC
 											LIMIT 1 ;");
 	$RosCMS_result_intext = mysql_fetch_array($RosCMS_query_intext);
 
@@ -548,6 +550,7 @@ function insert_hyperlink($matches) {
 											AND page_visible = '1' 
 											AND page_active = '1' 
 											AND (page_language = '".mysql_real_escape_string($RosCMS_global_current_page_lang)."' OR page_language = 'all') 
+											ORDER BY page_language DESC
 											LIMIT 1 ;");
 	$RosCMS_result_page_link = mysql_fetch_array($RosCMS_query_page_link);
 
@@ -597,6 +600,7 @@ function generator_page_output_file ( $RosCMS_current_page_name, $RosCMS_current
 											AND page_visible = '1' 
 											AND page_active = '1' 
 											AND (page_language = '".mysql_real_escape_string($RosCMS_global_current_page_lang)."' OR page_language = 'all') 
+											ORDER BY page_language DESC
 											LIMIT 1 ;");
 	$RosCMS_result_page_out_file = mysql_fetch_array($RosCMS_query_page_out_file);
 
@@ -681,7 +685,8 @@ function generator_page_prepare_update ( $RosCMS_generator_update_language ) {
 									WHERE page_visible = '1' 
 									AND page_active = '1' 
 									AND page_text LIKE '%".mysql_real_escape_string($RosCMS_result_intext['inc_word'])."%'
-									AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') ;");
+									AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all')
+									ORDER BY page_language DESC ;");
 			while($RosCMS_result_pages3 = mysql_fetch_array($RosCMS_query_pages3)) {		
 				if ($RosCMS_result_pages3['pages_extra'] == "dynamic") {
 					if ($RosCMS_result_pages3['page_name'] != "" && tool_array_val_exists($array_pages_dyn, $RosCMS_result_pages3['page_name']."_".$RosCMS_generator_update_dynpageid)) {
@@ -741,14 +746,16 @@ function generator_page_prepare_update ( $RosCMS_generator_update_language ) {
 							FROM include_text
 							WHERE inc_vis = '1'
 							AND inc_altered = '1'
-							AND (inc_lang = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR inc_lang = 'html' OR inc_lang  = 'all') ;");
+							AND (inc_lang = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR inc_lang = 'html' OR inc_lang  = 'all') 
+							ORDER BY inc_lang DESC ;");
 	while($RosCMS_result_intext2 = mysql_fetch_array($RosCMS_query_intext2)) {
 		$RosCMS_query_content = mysql_query("SELECT content_name
 								FROM content
 								WHERE content_active = '1' 
 								AND content_visible = '1' 
 								AND content_text LIKE '%[#inc_".mysql_real_escape_string($RosCMS_result_intext2['inc_word'])."]%'
-								AND (content_lang  = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR content_lang  = 'all') ;");
+								AND (content_lang  = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR content_lang  = 'all') 
+								ORDER BY content_lang DESC ;");
 		while ($RosCMS_result_content = mysql_fetch_array($RosCMS_query_content)) {
 			if ($RosCMS_result_content['content_name'] != "" && tool_array_val_exists($array_content, $RosCMS_result_content['content_name'])) {
 				$array_content[count($array_content)] = $RosCMS_result_content['content_name'];
@@ -763,7 +770,8 @@ function generator_page_prepare_update ( $RosCMS_generator_update_language ) {
 								WHERE page_visible = '1' 
 								AND page_active = '1' 
 								AND page_text LIKE '%[#cont_".mysql_real_escape_string($val)."]%'
-								AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') ;");
+								AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') 
+								ORDER BY page_language DESC ;");
 		while($RosCMS_result_pages = mysql_fetch_array($RosCMS_query_pages)) {
 			if ($RosCMS_result_pages['page_name'] != "" && tool_array_val_exists($array_pages, $RosCMS_result_pages['page_name'])) {
 				$array_pages[count($array_pages)] = $RosCMS_result_pages['page_name'];
@@ -780,7 +788,8 @@ function generator_page_prepare_update ( $RosCMS_generator_update_language ) {
 							WHERE content_visible = '1'
 							AND content_active = '1' 
 							AND content_altered = '1'
-							AND (content_lang  = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR content_lang  = 'all') ;");
+							AND (content_lang  = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR content_lang  = 'all') 
+							ORDER BY content_lang DESC ;");
 	while($RosCMS_result_content2 = mysql_fetch_array($RosCMS_query_content2)) {
 
 //		echo "<br />+ ".$RosCMS_result_content2['content_name'];
@@ -790,7 +799,8 @@ function generator_page_prepare_update ( $RosCMS_generator_update_language ) {
 								AND page_active = '1'
 								AND pages_extra = '' 
 								AND page_text LIKE '%[#cont_".mysql_real_escape_string($RosCMS_result_content2['content_name'])."]%'
-								AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') ;");
+								AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') 
+								ORDER BY page_language DESC ;");
 		while($RosCMS_result_pages2 = mysql_fetch_array($RosCMS_query_pages2)) {
 			if ($RosCMS_result_pages2['page_name'] != "" && tool_array_val_exists($array_pages, $RosCMS_result_pages2['page_name'])) {
 //					echo "<br>&nbsp;&nbsp; |- ".$RosCMS_result_pages2['page_name'];
@@ -805,7 +815,8 @@ function generator_page_prepare_update ( $RosCMS_generator_update_language ) {
 							WHERE page_visible = '1' 
 							AND page_active = '1' 
 							AND page_generate_force = '1'
-							AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') ;");
+							AND (page_language = '".mysql_real_escape_string($RosCMS_generator_update_language)."' OR page_language = 'all') 
+							ORDER BY page_language DESC ;");
 	while($RosCMS_result_pages4 = mysql_fetch_array($RosCMS_query_pages4)) {
 		if ($RosCMS_result_pages4['page_name'] != "" && tool_array_val_exists($array_pages, $RosCMS_result_pages4['page_name'])) {
 //				echo "<br>&nbsp;&nbsp; |- ".$RosCMS_result_pages4['page_name'];
