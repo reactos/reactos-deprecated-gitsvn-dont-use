@@ -41,14 +41,14 @@
   </ul>
   <p>Action: <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=news_page&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">
     <?php if ($roscms_intern_usrgrp_admin == true && $rpm_page == "admin") { ?>
-    New 
-    News</a> | <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=newsletter&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Newsletter</a> | <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=blog&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Blog</a> | <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new"></a><a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New 
-    Dynamic Content (plain)</a> | <a href="?page=<?php echo $rpm_page; ?>&sec=dyncontent&sec2=view">
+    New News</a> |
+	<a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=newsletter&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New Newsletter</a> | 
+	<a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=interview&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New Interview</a> | 
+	<?php /* <a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;sec3=blog&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New Blog</a> |  */ ?>
+	<a href="?page=<?php echo $rpm_page; ?>&amp;sec=dyncontent&amp;sec2=edit&amp;opt=insert&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2='.$rpm_filt2.'&amp;langid='.$rpm_lang_id ; ?>&amp;db_id=new">New Dynamic Content (plain)</a> | 
+	<a href="?page=<?php echo $rpm_page; ?>&sec=dyncontent&sec2=view">
     <?php } ?>
-    reset 
-    filters & sort</a></p>
+    reset filters & sort</a></p>
     
   <?php
 	if($roscms_intern_account_level>50) {
@@ -166,13 +166,21 @@
 		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=newsletter&amp;langid='.$rpm_lang_id.'">newsletter</a>';
 	}
 	echo ' | ';
+	if ($rpm_filt2 == "interview") {	
+		echo '<b>interview</b>';
+		$ros_cms_intern_content_filt2 = " AND `dyn_content_name` = 'interview'";
+	}
+	else {
+		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=interview&amp;langid='.$rpm_lang_id.'">interview</a>';
+	}
+/*	echo ' | ';
 	if ($rpm_filt2 == "blog") {	
 		echo '<b>blog</b>';
 		$ros_cms_intern_content_filt2 = " AND `dyn_content_name` = 'blog'";
 	}
 	else {
 		echo '<a href="?page='.$rpm_page.'&amp;sec=dyncontent&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;filt2=blog&amp;langid='.$rpm_lang_id.'">blog</a>';
-	}
+	}*/
 	/*echo ' | ';
 	if ($rpm_filt2 == "dev_page") {	
 		echo '<b>dev page</b>';

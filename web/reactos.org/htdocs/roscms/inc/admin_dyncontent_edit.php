@@ -49,6 +49,9 @@
 	elseif ($rpm_sec3 == "newsletter") {
 		echo "<b>Newsletter Interface</b>";
 	}
+	elseif ($rpm_sec3 == "interview") {
+		echo "<b>Interview Interface</b>";
+	}
 	elseif ($rpm_sec3 == "blog") {
 		echo "<b>Blog Interface</b>";
 	}
@@ -67,13 +70,30 @@
       <tr bgcolor="#5984C3"> 
         <td bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
             ID</strong></font></div></td>
-        <td bgcolor="#EEEEEE"> <input name="txt_contentid" type="text" id="txt_contentid" value="<?php echo $result_content['dyn_content_id']; ?>" size="20" maxlength="20">        </td>
+        <td bgcolor="#EEEEEE"> <input name="txt_contentid" type="text" id="txt_contentid" value="<?php 
+		
+		if ($rpm_db_id == "new") {
+			$query_content_count = mysql_query("SELECT COUNT( * ) 
+												FROM `dyn_content` 
+												WHERE 1 
+												AND `dyn_content_name` = '".mysql_real_escape_string($rpm_sec3)."'
+												AND `dyn_content_nr` = '1'
+												ORDER BY dyn_content_id ASC ;");
+			$result_content_count = mysql_fetch_row($query_content_count);
+			
+			echo ($result_content_count[0]+1);
+		}
+		else {		
+			echo $result_content['dyn_content_id'];
+		}
+		
+		 ?>" size="20" maxlength="20">        </td>
       </tr>
       <tr> 
         <td valign="top" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
         <td valign="top" bgcolor="#E2E2E2"><div align="left"> 
 		<?php
-			if ($rpm_sec3 == "news_page" || $rpm_sec3 == "newsletter") {
+			if ($rpm_sec3 == "news_page" || $rpm_sec3 == "newsletter" || $rpm_sec3 == "interview") {
 		?>
 			<input name="txt_contentnr" type="hidden" value="1" />
 		<?php
@@ -113,7 +133,7 @@
           </div></td>
       </tr>	  
 <?php
-	if ($rpm_sec3 != "news_page" && $rpm_sec3 != "newsletter") {
+	if ($rpm_sec3 != "news_page" && $rpm_sec3 != "newsletter"  && $rpm_sec3 != "interview") {
 ?>
       <tr bgcolor="#5984C3"> 
         <td width="15%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Content 
@@ -141,6 +161,9 @@
 		elseif ($rpm_sec3 == "newsletter") {
 			echo "Title";
 		}
+		elseif ($rpm_sec3 == "interview") {
+			echo "Title";
+		}
 		elseif ($rpm_sec3 == "blog") {
 			echo "Title";
 		}
@@ -152,7 +175,7 @@
         <td valign="top" bgcolor="#EEEEEE"><input name="txt_content_text1" type="text" id="txt_content_text1" value="<?php echo $result_content['dyn_content_text1']; ?>" size="50" maxlength="100"></td>
       </tr>
 <?php
-	if ($rpm_sec3 != "news_page" && $rpm_sec3 != "newsletter") {
+	if ($rpm_sec3 != "news_page" && $rpm_sec3 != "newsletter" && $rpm_sec3 != "interview") {
 ?>
       <tr> 
         <td valign="top" bgcolor="#5984C3"><div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php 
@@ -160,6 +183,9 @@
 			echo "-";
 		}
 		elseif ($rpm_sec3 == "newsletter") {
+			echo "-";
+		}
+		elseif ($rpm_sec3 == "interview") {
 			echo "-";
 		}
 		elseif ($rpm_sec3 == "blog") {
@@ -183,6 +209,9 @@
 		elseif ($rpm_sec3 == "newsletter") {
 			echo "Description";
 		}
+		elseif ($rpm_sec3 == "interview") {
+			echo "Description";
+		}
 		elseif ($rpm_sec3 == "blog") {
 			echo "Description";
 		}
@@ -202,6 +231,9 @@
 			echo "Content";
 		}
 		elseif ($rpm_sec3 == "newsletter") {
+			echo "Content";
+		}
+		elseif ($rpm_sec3 == "interview") {
 			echo "Content";
 		}
 		elseif ($rpm_sec3 == "blog") {
