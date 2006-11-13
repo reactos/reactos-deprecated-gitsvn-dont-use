@@ -20,12 +20,12 @@
 	
 
 	// To prevent hacking activity:
-	if ( !defined('ROSCMS_SYSTEM') && $rpm_page != "generate_fast_secret")
+	if ( !defined('ROSCMS_SYSTEM') && $rpm_page != "generate")
 	{
 		die("die");
 	}
 	
-	if ($rpm_page == "generate_fast_secret") {
+	if ($rpm_page == "generate") {
 		$rpm_sec="generator";
 		$rpm_sec2="output";
 		$roscms_intern_account_id = "1";
@@ -294,7 +294,7 @@ function generator_page ($RosCMS_generator_output = "client", $RosCMS_generator_
 
 	$RosCMS_generator_log_entrycounter = 0;
 
-	$RosCMS_query_page = mysql_query("SELECT pages_extra, page_name, page_text, page_version, page_usrname_id 
+	$RosCMS_query_page = mysql_query("SELECT pages_extra, page_name, page_title, page_text, page_version, page_usrname_id 
 			FROM pages
 			WHERE ".$RosCMS_generator_pagename_sql." page_visible = '1' 
 			AND page_active = '1' 
@@ -338,10 +338,39 @@ function generator_page ($RosCMS_generator_output = "client", $RosCMS_generator_
 			$RosCMS_generator_page_content = $RosCMS_result_page['page_text'];
 			
 			if ($RosCMS_generator_output == "client") {
-				echo generator_page_data($RosCMS_result_page['page_name'], $RosCMS_generator_page_content, $RosCMS_generator_lang, $RosCMS_result_page['page_usrname_id'], $RosCMS_result_page['page_version'] );
+				echo generator_page_data($RosCMS_result_page['page_name'],
+											 $RosCMS_result_page['page_title'], 
+											 $RosCMS_generator_page_content,
+											 $RosCMS_generator_lang,
+											 $RosCMS_result_page['page_usrname_id'], 
+											 $RosCMS_result_page['page_version'], 
+											 $RosCMS_current_page_dynamic_flag
+										 );
 			}
 			elseif ($RosCMS_generator_output == "file") {
-				$RosCMS_generator_log .= generator_page_output_file( $RosCMS_result_page['page_name'], generator_page_data($RosCMS_generator_pagename, $RosCMS_generator_page_content, $RosCMS_generator_lang), $RosCMS_current_page_dynamic_cont_id, $RosCMS_result_page['page_usrname_id'], $RosCMS_result_page['page_version'] );
+				$RosCMS_generator_log .= generator_page_output_file( $RosCMS_result_page['page_name'], 
+																			generator_page_data($RosCMS_generator_pagename, 
+																				$RosCMS_result_page['page_title'], 
+																				$RosCMS_generator_page_content, 
+																				$RosCMS_generator_lang, 
+																				$RosCMS_result_page['page_usrname_id'], 
+																				$RosCMS_result_page['page_version'],
+																				$RosCMS_current_page_dynamic_flag
+																			),
+																			$RosCMS_current_page_dynamic_cont_id
+																		);
+																		/*
+																		$RosCMS_current_page, 
+																		$RosCMS_current_page_title, 
+																		$RosCMS_current_page_content, 
+																		$RosCMS_generator_page_lang, 
+																		$RosCMS_generator_page_usrid, 
+																		$RosCMS_generator_page_version, 
+																		$RosCMS_current_page_dynamic_flag
+																		
+																		$RosCMS_current_page_name, 
+																		$RosCMS_current_page_content, 
+																		$RosCMS_current_page_dynamic_cont_id*/
 				$showtimef="";
 			}
 
@@ -379,13 +408,12 @@ function generator_page ($RosCMS_generator_output = "client", $RosCMS_generator_
 }
 
 
-function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_content, $RosCMS_generator_page_lang, $RosCMS_generator_page_usrid = "0", $RosCMS_generator_page_version = "1") {
+function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_title, $RosCMS_current_page_content, $RosCMS_generator_page_lang, $RosCMS_generator_page_usrid = "0", $RosCMS_generator_page_version = "1", $RosCMS_current_page_dynamic_flag) {
 	global $RosCMS_global_current_page_lang;
 	global $roscms_intern_path_server;
 	global $RosCMS_current_page_dynamic_cont_id;
 	global $roscms_intern_account_id;
 	global $roscms_intern_usrnameid;
-	global $RosCMS_current_page_dynamic_flag;
 	global $RosCMS_global_generator_extention;
 
 
@@ -412,7 +440,7 @@ function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_content
 			// current page name:
 			$RosCMS_current_page_content = str_replace("[#roscms_pagename]", $RosCMS_current_page."_".$RosCMS_current_page_dynamic_cont_id, $RosCMS_current_page_content); 
 			// current page title:
-			$RosCMS_current_page_content = str_replace("[#roscms_pagetitle]", ucfirst($RosCMS_current_page."_".$RosCMS_current_page_dynamic_cont_id), $RosCMS_current_page_content); 
+			$RosCMS_current_page_content = str_replace("[#roscms_pagetitle]", ucfirst($RosCMS_current_page_title)." #".$RosCMS_current_page_dynamic_cont_id, $RosCMS_current_page_content); 
 		}
 		else {
 			// current filename:
@@ -420,7 +448,7 @@ function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_content
 			// current page name:
 			$RosCMS_current_page_content = str_replace("[#roscms_pagename]", $RosCMS_current_page, $RosCMS_current_page_content); 
 			// current page title:
-			$RosCMS_current_page_content = str_replace("[#roscms_pagetitle]", $RosCMS_current_page, $RosCMS_current_page_content); 
+			$RosCMS_current_page_content = str_replace("[#roscms_pagetitle]", ucfirst($RosCMS_current_page_title), $RosCMS_current_page_content); 
 		}
 		// current language:
 			$RosCMS_query_current_language = mysql_query("SELECT * 
@@ -432,11 +460,12 @@ function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_content
 		// current language:
 		$RosCMS_current_page_content = str_replace("[#roscms_language_short]", $RosCMS_global_current_page_lang, $RosCMS_current_page_content); 
 		// current page format (xhtml/html):
-		$RosCMS_current_page_content = str_replace("[#roscms_format]","html", $RosCMS_current_page_content); 
-		// current date
-		$RosCMS_current_page_content = str_replace("[#roscms_date]",date("Y-m-d"),$RosCMS_current_page_content); 
+		$RosCMS_current_page_content = str_replace("[#roscms_format]", "html", $RosCMS_current_page_content); 
+		// current date:
+		$RosCMS_current_page_content = str_replace("[#roscms_date]", date("Y-m-d"), $RosCMS_current_page_content); 
 			$zeit = localtime(time() , 1);
-		$RosCMS_current_page_content = str_replace("[#roscms_time]", sprintf("%02d",$zeit['tm_hour']).":".sprintf("%02d",$zeit['tm_min']),$RosCMS_current_page_content); // current time
+		// current time:
+		$RosCMS_current_page_content = str_replace("[#roscms_time]", sprintf("%02d", $zeit['tm_hour']).":".sprintf("%02d",$zeit['tm_min']), $RosCMS_current_page_content);
 			$query_usraccountb= mysql_query("SELECT user_name 
 								FROM `users` 
 								WHERE `user_id` = '".mysql_real_escape_string($roscms_intern_account_id)."' LIMIT 1 ;");
@@ -447,7 +476,7 @@ function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_content
 								FROM `users` 
 								WHERE `user_id` = '".mysql_real_escape_string($roscms_intern_usrnameid)."' LIMIT 1 ;");
 			$result_usraccount=mysql_fetch_array($query_usraccount);
-		// account that generate
+		// account that generate:
 		$RosCMS_current_page_content = str_replace("[#roscms_user]", $result_usraccountb['user_name'], $RosCMS_current_page_content);
 		// account that changed the include text:
 		$RosCMS_current_page_content = str_replace("[#roscms_inc_author]", $result_usraccount['user_name'], $RosCMS_current_page_content); 
@@ -459,7 +488,7 @@ function generator_page_data ($RosCMS_current_page, $RosCMS_current_page_content
 		$RosCMS_current_page_content = str_replace("[#roscms_page_version]", $RosCMS_generator_page_version, $RosCMS_current_page_content); 
 		
 		
-		// Replace high chars by their html-escaped version
+		// Replace high chars by their html-escaped version:
 		if ($RosCMS_global_generator_extention == true) {
 			$RosCMS_current_page_content = roscms_unicode_escape($RosCMS_current_page_content);
 		}
@@ -483,11 +512,12 @@ function eval_template($code, $dyncontid) // function code idea from: http://www
 
 function insert_content($matches) {
 	global $RosCMS_global_current_page_lang;
+	global $roscms_intern_account_id;
 	
 	// extract the name, e.g. [#cont_about] ... "about"
 	$RosCMS_current_content_name = substr($matches[0], 7, (strlen($matches[0])-8)); 
 	
-	$RosCMS_query_content = mysql_query("SELECT content_text 
+	$RosCMS_query_content = mysql_query("SELECT content_text, content_date, content_time, content_lang, content_version 
 											FROM content
 											WHERE content_name = '".mysql_real_escape_string($RosCMS_current_content_name)."'
 											AND content_visible = '1'
@@ -497,7 +527,26 @@ function insert_content($matches) {
 											LIMIT 1 ;");
 	$RosCMS_result_content = mysql_fetch_array($RosCMS_query_content);
 
-	return $RosCMS_result_content['content_text'];
+	$RosCMS_result_content_temp = $RosCMS_result_content['content_text'];
+
+
+	// latest content changes:
+	$query_usraccountc= mysql_query("SELECT user_name, user_fullname  
+										FROM `users` 
+										WHERE `user_id` = '".mysql_real_escape_string($roscms_intern_account_id)."' LIMIT 1 ;");
+	$result_usraccountc=mysql_fetch_array($query_usraccountc);
+
+	if ($result_usraccountc['user_fullname']) {
+		$RosCMS_result_user_temp = $result_usraccountc['user_fullname']." (".$result_usraccountc['user_name'].")";
+	}
+	else {
+		$RosCMS_result_user_temp = $result_usraccountc['user_name'];
+	}
+		
+	$RosCMS_result_content_temp = str_replace("[#roscms_content_version]", "<i>Last modified: ".$RosCMS_result_content['content_date']." ".$RosCMS_result_content['content_time'].", rev. ".$RosCMS_result_content['content_version']." by ".$RosCMS_result_user_temp."</i>", $RosCMS_result_content_temp); 
+
+
+	return $RosCMS_result_content_temp;
 }
 
 function insert_inctext($matches) {
@@ -585,6 +634,7 @@ function insert_hyperlink($matches) {
 function generator_page_output_file ( $RosCMS_current_page_name, $RosCMS_current_page_content, $RosCMS_current_page_dynamic_cont_id ) {
 	global $RosCMS_global_current_page_lang;
 	global $roscms_intern_version;
+	global $roscms_intern_account_id;
 
 	// Extract the dynamic page id:
 	if ( is_numeric(substr(strrchr($RosCMS_current_page_name,"_"), 1, strlen(strrchr($RosCMS_current_page_name,"_")-1))) ) {
@@ -629,6 +679,20 @@ function generator_page_output_file ( $RosCMS_current_page_name, $RosCMS_current
 	fputs($fp,"\n\n<!-- Generated with ".$roscms_intern_version." (new) -->");
 	flock($fp,3);
 	fclose($fp);
+	
+
+	// Update generation time & user information:
+	$page_gen_timestamp_query="UPDATE `pages` 
+								SET `page_generate_usrid` = '".mysql_real_escape_string($roscms_intern_account_id)."', 
+								`page_generate_timestamp` = '".mysql_real_escape_string(time())."' 
+								WHERE page_name = '".mysql_real_escape_string($RosCMS_current_page_name_save)."' 
+								AND page_visible = '1' 
+								AND page_active = '1' 
+								AND (page_language = '".mysql_real_escape_string($RosCMS_global_current_page_lang)."' OR page_language = 'all') 
+								ORDER BY page_language DESC
+								LIMIT 1 ;";
+	$page_gen_timestamp_list=mysql_query($page_gen_timestamp_query);
+	
 	
 	return "  <li>".$RosCMS_current_page_out_file;
 }
