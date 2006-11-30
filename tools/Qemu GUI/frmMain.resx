@@ -120,19 +120,29 @@
   <data name="txtAbout.Text" xml:space="preserve">
     <value>This program is written by Magnus Olsen for ReactOS in C# to use with Qemu and VDK
 
- License GPL source code is in ReactOS SVN 
+ License is GPL, original source code is in ReactOS SVN
 
 Copyright (C) 2006 By Magnus Olsen 
-(magnus@greatlord.com / greatlord@reactos.com)</value>
+(magnus@greatlord.com / greatlord@reactos.com)
+
+Version 1.1: (by Samuel Serapión samcharly@hotmail.com)
+-Fix serial/parallel capture options to actually work.
+-Save serial/parallel capture options to config file.
+-Partially implement network options.
+-Include every single option from qemu 0.8.2
+-Fix Load options on start up.
+-Change some OpenFile dialogs to SaveFile dialogs.
+-Tons of code shuffling and renaming.
+-Don't fail silently to open qemu</value>
   </data>
   <metadata name="openFile.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>23, 33</value>
+    <value>139, 17</value>
   </metadata>
   <metadata name="folderBrowserDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>116, 33</value>
+    <value>232, 17</value>
   </metadata>
-  <metadata name="saveFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>274, 33</value>
+  <metadata name="saveFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
