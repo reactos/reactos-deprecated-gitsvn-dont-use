@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Diagnostics;
 using System.Data;
 using System.Globalization;
 using System.IO;
@@ -15,76 +16,76 @@ namespace Qemu_GUI
 	/// Summary description for Form1.
 	/// </summary>
 	public class frmMain : System.Windows.Forms.Form
-	{
-        private System.Windows.Forms.GroupBox grpMachine;
-        private System.Windows.Forms.TabPage tabMisc;
-        private System.Windows.Forms.TabControl HardDisk2;
-        private System.Windows.Forms.GroupBox grpFloppy;
-        private System.Windows.Forms.CheckBox chkFloppyA;
-        private System.Windows.Forms.CheckBox chkFloppyB;
-        private System.Windows.Forms.Button btnBrowseFloppyA;
-        private System.Windows.Forms.Button btnBrowseFloppyB;
-        private System.Windows.Forms.TabPage tabFloppy;
-        private System.Windows.Forms.GroupBox grpHarddisk;
-        private System.Windows.Forms.Button btnBrowseHDB;
-        private System.Windows.Forms.Button btnBrowseHDA;
-        private System.Windows.Forms.CheckBox chkUseHDA;
-        private System.Windows.Forms.Button btnBrowseHDD;
-        private System.Windows.Forms.Button btnBrowseHDC;
-        private System.Windows.Forms.CheckBox chkUseHDD;
-        private System.Windows.Forms.CheckBox chkUseHDC;
-        private System.Windows.Forms.CheckBox chkUseHDB;
-        private System.Windows.Forms.GroupBox grpCDROM;
-        private System.Windows.Forms.Button btnBrowseCDROM;
-        private System.Windows.Forms.CheckBox chkUseCDROM;
-        private System.Windows.Forms.RadioButton optHostCDROM;
-        private System.Windows.Forms.RadioButton optCDImage;
-        private System.Windows.Forms.TabPage HardDisk;
-        private System.Windows.Forms.TabPage tabCDROM;
-        private System.Windows.Forms.TabPage tabAudio;
-        private System.Windows.Forms.GroupBox grpAudio;
-        private System.Windows.Forms.CheckBox chkPCSpeaker;
-        private System.Windows.Forms.CheckBox chkSoundBlaster;
-        private System.Windows.Forms.CheckBox chkES1370;
-        private System.Windows.Forms.CheckBox chkOPL2;
-        private System.Windows.Forms.TabPage tabTools;
-        private System.Windows.Forms.ComboBox cboBootFrom;
-        private System.Windows.Forms.Label lblBootFrom;
-        private System.Windows.Forms.Label lblSMP;
-        private System.Windows.Forms.Label lblMemory;
-        private System.Windows.Forms.GroupBox groupBox6;
-        private System.Windows.Forms.Button btnLaunch;
-        private System.Windows.Forms.GroupBox groupBox9;
-        private System.Windows.Forms.Button btnCreateImage;
-        private System.Windows.Forms.Label lblImageSize;
-        private System.Windows.Forms.TextBox txtImageSize;
-        private System.Windows.Forms.TabPage tabNetwork;
-        private System.Windows.Forms.TabPage tabDebug;
-        private System.Windows.Forms.TabPage tabAbout;
-        private System.Windows.Forms.GroupBox grpClock;
-        private System.Windows.Forms.GroupBox grpDisplay;
-        private System.Windows.Forms.GroupBox grpSerial;
-        private System.Windows.Forms.CheckBox chkSerialToFile;
-        private System.Windows.Forms.Button btnBrowseSerial;
-        private System.Windows.Forms.GroupBox grpParallel;
-        private System.Windows.Forms.Button btnBrowseParallel;
-        private System.Windows.Forms.CheckBox chkParallelToFile;
-        private System.Windows.Forms.GroupBox grpGDB;
-        private System.Windows.Forms.CheckBox checkBox14;
-        private System.Windows.Forms.TextBox txtGDBPort;
-        private System.Windows.Forms.Label lblGDBPort;
-        private System.Windows.Forms.GroupBox grpVNC;
-        private System.Windows.Forms.CheckBox chkVNC;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.TextBox textBox7;
-        private System.Windows.Forms.GroupBox groupBox16;
-        private System.Windows.Forms.Button button20;
-        private System.Windows.Forms.CheckBox chkVBE30;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.OpenFileDialog openFile;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.Windows.Forms.ComboBox cboImageFormat;
-        private System.Windows.Forms.Label label11;
+    {
+        #region declarations
+        private GroupBox grpMachine;
+        private TabPage tabGen;
+        private TabControl Tabs;
+        private GroupBox grpFloppy;
+        private CheckBox chkFloppyA;
+        private CheckBox chkFloppyB;
+        private Button btnBrowseFloppyA;
+        private Button btnBrowseFloppyB;
+        private TabPage tabFloppy;
+        private GroupBox grpHarddisk;
+        private Button btnBrowseHDB;
+        private Button btnBrowseHDA;
+        private CheckBox chkUseHDA;
+        private Button btnBrowseHDD;
+        private Button btnBrowseHDC;
+        private CheckBox chkUseHDD;
+        private CheckBox chkUseHDC;
+        private CheckBox chkUseHDB;
+        private GroupBox grpCDROM;
+        private Button btnBrowseCDROM;
+        private CheckBox chkUseCDROM;
+        private RadioButton optHostCDROM;
+        private RadioButton optCDImage;
+        private TabPage tabHardDisk;
+        private TabPage tabCDROM;
+        private TabPage tabAudio;
+        private GroupBox grpAudio;
+        private CheckBox chkPCSpeaker;
+        private CheckBox chkSoundBlaster;
+        private CheckBox chkES1370;
+        private CheckBox chkOPL2;
+        private TabPage tabTools;
+        private ComboBox cboBootFrom;
+        private Label lblBootFrom;
+        private Label lblSMP;
+        private Label lblMemory;
+        private GroupBox groupBox6;
+        private Button btnLaunch;
+        private GroupBox groupBox9;
+        private Button btnCreateImage;
+        private Label lblImageSize;
+        private TextBox txtImageSize;
+        private TabPage tabNetwork;
+        private TabPage tabDebug;
+        private TabPage tabAbout;
+        private GroupBox grpClock;
+        private GroupBox grpDisplay;
+        private GroupBox grpSerial;
+        private CheckBox chkSerialToFile;
+        private Button btnBrowseSerial;
+        private GroupBox grpParallel;
+        private Button btnBrowseParallel;
+        private CheckBox chkParallelToFile;
+        private GroupBox grpGDB;
+        private CheckBox checkBox14;
+        private TextBox txtGDBPort;
+        private Label lblGDBPort;
+        private GroupBox grpVNC;
+        private CheckBox chkVNC;
+        private Label label14;
+        private TextBox txtVNC;
+        private GroupBox groupBox16;
+        private Button button20;
+        private FolderBrowserDialog folderBrowserDialog1;
+        private OpenFileDialog openFile;
+        private SaveFileDialog saveFileDialog;
+        private ComboBox cboImageFormat;
+        private Label label11;
         private Label lblMB;
         private CheckBox chkSetClock;
         private NumericUpDown numMemory;
@@ -103,7 +104,6 @@ namespace Qemu_GUI
         private PictureBox pictureBox2;
         private Button btnLoad;
         private Button btnSave;
-        private IContainer components;
         private TextBox txtHDD;
         private TextBox txtHDC;
         private TextBox txtHDB;
@@ -128,27 +128,47 @@ namespace Qemu_GUI
         private ComboBox cboMachine;
         private Label lblImageSizeMB;
         private GroupBox grpNetwork;
+        private Data data;
+        private GroupBox grpACPI;
+        private CheckBox chkACPI;
+        private string currentDir = Directory.GetCurrentDirectory();
+        private CheckBox chckNetEnable;
+        private RadioButton rbtnNetUser;
+        private Panel panelNic;
+        private Label label3;
+        private TextBox txtNicMACaddr;
+        private Label label2;
+        private ComboBox cmbNICmodels;
+        private RadioButton rbtnNetNic;
+        private Label label1;
+        private Button btnNetRemove;
+        private Button btnNetAdd;
+        private ListView listVLANs;
+        private Label label4;
+        private Panel panelUser;
+        private TextBox txtNetHost;
+        private Label label5;
+        private Label label6;
+        private TabPage tabOther;
         private GroupBox groupBox1;
-        private NumericUpDown numericUpDown9;
-        private NumericUpDown numericUpDown10;
-        private NumericUpDown numericUpDown11;
-        private NumericUpDown numericUpDown12;
-        private Label lblGateway;
-        private NumericUpDown numericUpDown5;
-        private NumericUpDown numericUpDown6;
-        private NumericUpDown numericUpDown7;
-        private NumericUpDown numericUpDown8;
-        private Label lblNetmask;
-        private NumericUpDown numericUpDown4;
-        private NumericUpDown numericUpDown3;
-        private NumericUpDown numericUpDown2;
-        private NumericUpDown numericUpDown1;
-        private Label lblIP;
-        private RadioButton optStaticIP;
-        private RadioButton optDHCP;
-        private QEmu qemu;
+        private Button button1;
+        private TextBox textBox2;
+        private CheckBox chkFloopySig;
+        private CheckBox chkHardDiskHack;
+        private CheckBox chkVBE30;
+        private CheckBox checkBox2;
+        private CheckBox checkBox3;
+        private TextBox txtSerialFile;
+        private TextBox txtSerialPipe;
+        private CheckBox chkSerialToPipe;
+        private TextBox txtParallelFile;
+        private TextBox txtParallelPipe;
+        private CheckBox checkBox5;
+        private Label label7;
+        private Runner runner;
+        #endregion 
 
-		public frmMain()
+        public frmMain()
 		{
 			//
 			// Required for Windows Form Designer support
@@ -165,14 +185,14 @@ namespace Qemu_GUI
 		/// </summary>
 		protected override void Dispose( bool disposing )
 		{
-			if( disposing )
-			{
-				if (components != null) 
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
+            //if( disposing )
+            //{
+            //    if (components != null) 
+            //    {
+            //        components.Dispose();
+            //    }
+            //}
+            base.Dispose( disposing );
 		}
 
 		#region Windows Form Designer generated code
@@ -185,8 +205,10 @@ namespace Qemu_GUI
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.grpMachine = new System.Windows.Forms.GroupBox();
             this.cboMachine = new System.Windows.Forms.ComboBox();
-            this.HardDisk2 = new System.Windows.Forms.TabControl();
-            this.tabMisc = new System.Windows.Forms.TabPage();
+            this.Tabs = new System.Windows.Forms.TabControl();
+            this.tabGen = new System.Windows.Forms.TabPage();
+            this.grpACPI = new System.Windows.Forms.GroupBox();
+            this.chkACPI = new System.Windows.Forms.CheckBox();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.chkKQEmu = new System.Windows.Forms.CheckBox();
             this.lblCPUs = new System.Windows.Forms.Label();
@@ -202,23 +224,16 @@ namespace Qemu_GUI
             this.grpDisplay = new System.Windows.Forms.GroupBox();
             this.chkVGAoutput = new System.Windows.Forms.CheckBox();
             this.chkFullscreen = new System.Windows.Forms.CheckBox();
-            this.tabCDROM = new System.Windows.Forms.TabPage();
-            this.grpCDROM = new System.Windows.Forms.GroupBox();
-            this.cboCDROM = new System.Windows.Forms.ComboBox();
-            this.txtCDROM = new System.Windows.Forms.TextBox();
-            this.optHostCDROM = new System.Windows.Forms.RadioButton();
-            this.btnBrowseCDROM = new System.Windows.Forms.Button();
-            this.chkUseCDROM = new System.Windows.Forms.CheckBox();
-            this.optCDImage = new System.Windows.Forms.RadioButton();
-            this.tabFloppy = new System.Windows.Forms.TabPage();
-            this.grpFloppy = new System.Windows.Forms.GroupBox();
-            this.txtFloppyB = new System.Windows.Forms.TextBox();
-            this.txtFloppyA = new System.Windows.Forms.TextBox();
-            this.btnBrowseFloppyB = new System.Windows.Forms.Button();
-            this.btnBrowseFloppyA = new System.Windows.Forms.Button();
-            this.chkFloppyB = new System.Windows.Forms.CheckBox();
-            this.chkFloppyA = new System.Windows.Forms.CheckBox();
-            this.HardDisk = new System.Windows.Forms.TabPage();
+            this.tabPaths = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txtQEmuPath = new System.Windows.Forms.TextBox();
+            this.txtVDKPath = new System.Windows.Forms.TextBox();
+            this.btnVDKBrowse = new System.Windows.Forms.Button();
+            this.lblVDKPath = new System.Windows.Forms.Label();
+            this.btnQEmuPath = new System.Windows.Forms.Button();
+            this.lblQEmuPath = new System.Windows.Forms.Label();
+            this.tabHardDisk = new System.Windows.Forms.TabPage();
+            this.chkHardDiskHack = new System.Windows.Forms.CheckBox();
             this.grpHarddisk = new System.Windows.Forms.GroupBox();
             this.txtHDD = new System.Windows.Forms.TextBox();
             this.txtHDC = new System.Windows.Forms.TextBox();
@@ -232,6 +247,77 @@ namespace Qemu_GUI
             this.btnBrowseHDA = new System.Windows.Forms.Button();
             this.chkUseHDB = new System.Windows.Forms.CheckBox();
             this.chkUseHDA = new System.Windows.Forms.CheckBox();
+            this.tabCDROM = new System.Windows.Forms.TabPage();
+            this.grpCDROM = new System.Windows.Forms.GroupBox();
+            this.cboCDROM = new System.Windows.Forms.ComboBox();
+            this.txtCDROM = new System.Windows.Forms.TextBox();
+            this.optHostCDROM = new System.Windows.Forms.RadioButton();
+            this.btnBrowseCDROM = new System.Windows.Forms.Button();
+            this.chkUseCDROM = new System.Windows.Forms.CheckBox();
+            this.optCDImage = new System.Windows.Forms.RadioButton();
+            this.tabFloppy = new System.Windows.Forms.TabPage();
+            this.chkFloopySig = new System.Windows.Forms.CheckBox();
+            this.grpFloppy = new System.Windows.Forms.GroupBox();
+            this.txtFloppyB = new System.Windows.Forms.TextBox();
+            this.txtFloppyA = new System.Windows.Forms.TextBox();
+            this.btnBrowseFloppyB = new System.Windows.Forms.Button();
+            this.btnBrowseFloppyA = new System.Windows.Forms.Button();
+            this.chkFloppyB = new System.Windows.Forms.CheckBox();
+            this.chkFloppyA = new System.Windows.Forms.CheckBox();
+            this.tabNetwork = new System.Windows.Forms.TabPage();
+            this.grpNetwork = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.panelUser = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtNetHost = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.rbtnNetUser = new System.Windows.Forms.RadioButton();
+            this.panelNic = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtNicMACaddr = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cmbNICmodels = new System.Windows.Forms.ComboBox();
+            this.rbtnNetNic = new System.Windows.Forms.RadioButton();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btnNetRemove = new System.Windows.Forms.Button();
+            this.btnNetAdd = new System.Windows.Forms.Button();
+            this.listVLANs = new System.Windows.Forms.ListView();
+            this.chckNetEnable = new System.Windows.Forms.CheckBox();
+            this.tabAudio = new System.Windows.Forms.TabPage();
+            this.grpAudio = new System.Windows.Forms.GroupBox();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
+            this.pictureBox3 = new System.Windows.Forms.PictureBox();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.chkSoundBlaster = new System.Windows.Forms.CheckBox();
+            this.chkPCSpeaker = new System.Windows.Forms.CheckBox();
+            this.chkES1370 = new System.Windows.Forms.CheckBox();
+            this.chkOPL2 = new System.Windows.Forms.CheckBox();
+            this.tabDebug = new System.Windows.Forms.TabPage();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.grpVNC = new System.Windows.Forms.GroupBox();
+            this.txtVNC = new System.Windows.Forms.TextBox();
+            this.label14 = new System.Windows.Forms.Label();
+            this.chkVNC = new System.Windows.Forms.CheckBox();
+            this.grpGDB = new System.Windows.Forms.GroupBox();
+            this.lblGDBPort = new System.Windows.Forms.Label();
+            this.txtGDBPort = new System.Windows.Forms.TextBox();
+            this.checkBox14 = new System.Windows.Forms.CheckBox();
+            this.groupBox16 = new System.Windows.Forms.GroupBox();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.button20 = new System.Windows.Forms.Button();
+            this.grpSerial = new System.Windows.Forms.GroupBox();
+            this.txtSerialPipe = new System.Windows.Forms.TextBox();
+            this.chkSerialToPipe = new System.Windows.Forms.CheckBox();
+            this.txtSerialFile = new System.Windows.Forms.TextBox();
+            this.btnBrowseSerial = new System.Windows.Forms.Button();
+            this.chkSerialToFile = new System.Windows.Forms.CheckBox();
+            this.grpParallel = new System.Windows.Forms.GroupBox();
+            this.txtParallelFile = new System.Windows.Forms.TextBox();
+            this.txtParallelPipe = new System.Windows.Forms.TextBox();
+            this.checkBox5 = new System.Windows.Forms.CheckBox();
+            this.btnBrowseParallel = new System.Windows.Forms.Button();
+            this.chkParallelToFile = new System.Windows.Forms.CheckBox();
             this.tabTools = new System.Windows.Forms.TabPage();
             this.grpVDK = new System.Windows.Forms.GroupBox();
             this.txtVDKImage = new System.Windows.Forms.TextBox();
@@ -248,87 +334,41 @@ namespace Qemu_GUI
             this.lblImageSize = new System.Windows.Forms.Label();
             this.btnCreateImage = new System.Windows.Forms.Button();
             this.cboImageFormat = new System.Windows.Forms.ComboBox();
-            this.tabAudio = new System.Windows.Forms.TabPage();
-            this.grpAudio = new System.Windows.Forms.GroupBox();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.chkSoundBlaster = new System.Windows.Forms.CheckBox();
-            this.chkPCSpeaker = new System.Windows.Forms.CheckBox();
-            this.chkES1370 = new System.Windows.Forms.CheckBox();
-            this.chkOPL2 = new System.Windows.Forms.CheckBox();
-            this.tabDebug = new System.Windows.Forms.TabPage();
-            this.grpVNC = new System.Windows.Forms.GroupBox();
-            this.textBox7 = new System.Windows.Forms.TextBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.chkVNC = new System.Windows.Forms.CheckBox();
-            this.grpGDB = new System.Windows.Forms.GroupBox();
-            this.lblGDBPort = new System.Windows.Forms.Label();
-            this.txtGDBPort = new System.Windows.Forms.TextBox();
-            this.checkBox14 = new System.Windows.Forms.CheckBox();
-            this.grpSerial = new System.Windows.Forms.GroupBox();
-            this.btnBrowseSerial = new System.Windows.Forms.Button();
-            this.chkSerialToFile = new System.Windows.Forms.CheckBox();
-            this.grpParallel = new System.Windows.Forms.GroupBox();
-            this.btnBrowseParallel = new System.Windows.Forms.Button();
-            this.chkParallelToFile = new System.Windows.Forms.CheckBox();
-            this.groupBox16 = new System.Windows.Forms.GroupBox();
-            this.button20 = new System.Windows.Forms.Button();
+            this.tabOther = new System.Windows.Forms.TabPage();
             this.chkVBE30 = new System.Windows.Forms.CheckBox();
-            this.tabNetwork = new System.Windows.Forms.TabPage();
-            this.grpNetwork = new System.Windows.Forms.GroupBox();
-            this.numericUpDown9 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown10 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown11 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown12 = new System.Windows.Forms.NumericUpDown();
-            this.lblGateway = new System.Windows.Forms.Label();
-            this.numericUpDown5 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown6 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown7 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown8 = new System.Windows.Forms.NumericUpDown();
-            this.lblNetmask = new System.Windows.Forms.Label();
-            this.numericUpDown4 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.lblIP = new System.Windows.Forms.Label();
-            this.optStaticIP = new System.Windows.Forms.RadioButton();
-            this.optDHCP = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tabPaths = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.txtQEmuPath = new System.Windows.Forms.TextBox();
-            this.txtVDKPath = new System.Windows.Forms.TextBox();
-            this.btnVDKBrowse = new System.Windows.Forms.Button();
-            this.lblVDKPath = new System.Windows.Forms.Label();
-            this.btnQEmuPath = new System.Windows.Forms.Button();
-            this.lblQEmuPath = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.textBox2 = new System.Windows.Forms.TextBox();
             this.tabAbout = new System.Windows.Forms.TabPage();
             this.txtAbout = new System.Windows.Forms.TextBox();
             this.btnLaunch = new System.Windows.Forms.Button();
             this.openFile = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.btnLoad = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
             this.grpMachine.SuspendLayout();
-            this.HardDisk2.SuspendLayout();
-            this.tabMisc.SuspendLayout();
+            this.Tabs.SuspendLayout();
+            this.tabGen.SuspendLayout();
+            this.grpACPI.SuspendLayout();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numSMP)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMemory)).BeginInit();
             this.grpClock.SuspendLayout();
             this.grpDisplay.SuspendLayout();
+            this.tabPaths.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.tabHardDisk.SuspendLayout();
+            this.grpHarddisk.SuspendLayout();
             this.tabCDROM.SuspendLayout();
             this.grpCDROM.SuspendLayout();
             this.tabFloppy.SuspendLayout();
             this.grpFloppy.SuspendLayout();
-            this.HardDisk.SuspendLayout();
-            this.grpHarddisk.SuspendLayout();
-            this.tabTools.SuspendLayout();
-            this.grpVDK.SuspendLayout();
-            this.groupBox9.SuspendLayout();
+            this.tabNetwork.SuspendLayout();
+            this.grpNetwork.SuspendLayout();
+            this.panelUser.SuspendLayout();
+            this.panelNic.SuspendLayout();
             this.tabAudio.SuspendLayout();
             this.grpAudio.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
@@ -338,32 +378,21 @@ namespace Qemu_GUI
             this.tabDebug.SuspendLayout();
             this.grpVNC.SuspendLayout();
             this.grpGDB.SuspendLayout();
+            this.groupBox16.SuspendLayout();
             this.grpSerial.SuspendLayout();
             this.grpParallel.SuspendLayout();
-            this.groupBox16.SuspendLayout();
-            this.tabNetwork.SuspendLayout();
-            this.grpNetwork.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown11)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown12)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            this.tabPaths.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.tabTools.SuspendLayout();
+            this.grpVDK.SuspendLayout();
+            this.groupBox9.SuspendLayout();
+            this.tabOther.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.tabAbout.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpMachine
             // 
             this.grpMachine.Controls.Add(this.cboMachine);
-            this.grpMachine.Location = new System.Drawing.Point(3, 3);
+            this.grpMachine.Location = new System.Drawing.Point(20, 3);
             this.grpMachine.Name = "grpMachine";
             this.grpMachine.Size = new System.Drawing.Size(274, 48);
             this.grpMachine.TabIndex = 2;
@@ -386,42 +415,67 @@ namespace Qemu_GUI
             "ARM Versatile/AB  (ARM926EJ-S)",
             "PPC Heathrow based PowerMAC",
             "PPC Mac99 based PowerMAC",
-            "PPC PowerPC PREP platform"});
+            "PPC PowerPC PREP platform",
+            "Sparc Sun4m Platform"});
             this.cboMachine.Location = new System.Drawing.Point(19, 19);
             this.cboMachine.Name = "cboMachine";
             this.cboMachine.Size = new System.Drawing.Size(239, 21);
             this.cboMachine.TabIndex = 20;
             // 
-            // HardDisk2
+            // Tabs
             // 
-            this.HardDisk2.Controls.Add(this.tabMisc);
-            this.HardDisk2.Controls.Add(this.tabCDROM);
-            this.HardDisk2.Controls.Add(this.tabFloppy);
-            this.HardDisk2.Controls.Add(this.HardDisk);
-            this.HardDisk2.Controls.Add(this.tabTools);
-            this.HardDisk2.Controls.Add(this.tabAudio);
-            this.HardDisk2.Controls.Add(this.tabDebug);
-            this.HardDisk2.Controls.Add(this.tabNetwork);
-            this.HardDisk2.Controls.Add(this.tabPaths);
-            this.HardDisk2.Controls.Add(this.tabAbout);
-            this.HardDisk2.Location = new System.Drawing.Point(12, 10);
-            this.HardDisk2.Name = "HardDisk2";
-            this.HardDisk2.SelectedIndex = 0;
-            this.HardDisk2.Size = new System.Drawing.Size(468, 227);
-            this.HardDisk2.TabIndex = 3;
+            this.Tabs.Controls.Add(this.tabGen);
+            this.Tabs.Controls.Add(this.tabPaths);
+            this.Tabs.Controls.Add(this.tabHardDisk);
+            this.Tabs.Controls.Add(this.tabCDROM);
+            this.Tabs.Controls.Add(this.tabFloppy);
+            this.Tabs.Controls.Add(this.tabNetwork);
+            this.Tabs.Controls.Add(this.tabAudio);
+            this.Tabs.Controls.Add(this.tabDebug);
+            this.Tabs.Controls.Add(this.tabTools);
+            this.Tabs.Controls.Add(this.tabOther);
+            this.Tabs.Controls.Add(this.tabAbout);
+            this.Tabs.Location = new System.Drawing.Point(3, 10);
+            this.Tabs.Name = "Tabs";
+            this.Tabs.SelectedIndex = 0;
+            this.Tabs.Size = new System.Drawing.Size(535, 227);
+            this.Tabs.TabIndex = 3;
             // 
-            // tabMisc
+            // tabGen
             // 
-            this.tabMisc.Controls.Add(this.groupBox6);
-            this.tabMisc.Controls.Add(this.grpMachine);
-            this.tabMisc.Controls.Add(this.grpClock);
-            this.tabMisc.Controls.Add(this.grpDisplay);
-            this.tabMisc.Location = new System.Drawing.Point(4, 22);
-            this.tabMisc.Name = "tabMisc";
-            this.tabMisc.Size = new System.Drawing.Size(460, 201);
-            this.tabMisc.TabIndex = 1;
-            this.tabMisc.Text = "Misc";
-            this.tabMisc.UseVisualStyleBackColor = true;
+            this.tabGen.Controls.Add(this.grpACPI);
+            this.tabGen.Controls.Add(this.groupBox6);
+            this.tabGen.Controls.Add(this.grpMachine);
+            this.tabGen.Controls.Add(this.grpClock);
+            this.tabGen.Controls.Add(this.grpDisplay);
+            this.tabGen.Location = new System.Drawing.Point(4, 22);
+            this.tabGen.Name = "tabGen";
+            this.tabGen.Size = new System.Drawing.Size(527, 201);
+            this.tabGen.TabIndex = 1;
+            this.tabGen.Text = "General";
+            this.tabGen.UseVisualStyleBackColor = true;
+            // 
+            // grpACPI
+            // 
+            this.grpACPI.Controls.Add(this.chkACPI);
+            this.grpACPI.Location = new System.Drawing.Point(300, 57);
+            this.grpACPI.Name = "grpACPI";
+            this.grpACPI.Size = new System.Drawing.Size(174, 51);
+            this.grpACPI.TabIndex = 20;
+            this.grpACPI.TabStop = false;
+            this.grpACPI.Text = "ACPI";
+            // 
+            // chkACPI
+            // 
+            this.chkACPI.AutoSize = true;
+            this.chkACPI.Checked = true;
+            this.chkACPI.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkACPI.Location = new System.Drawing.Point(16, 20);
+            this.chkACPI.Name = "chkACPI";
+            this.chkACPI.Size = new System.Drawing.Size(86, 17);
+            this.chkACPI.TabIndex = 0;
+            this.chkACPI.Text = "Enable ACPI";
+            this.chkACPI.UseVisualStyleBackColor = true;
             // 
             // groupBox6
             // 
@@ -434,9 +488,9 @@ namespace Qemu_GUI
             this.groupBox6.Controls.Add(this.lblBootFrom);
             this.groupBox6.Controls.Add(this.lblSMP);
             this.groupBox6.Controls.Add(this.cboBootFrom);
-            this.groupBox6.Location = new System.Drawing.Point(3, 57);
+            this.groupBox6.Location = new System.Drawing.Point(20, 57);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(274, 142);
+            this.groupBox6.Size = new System.Drawing.Size(274, 131);
             this.groupBox6.TabIndex = 4;
             this.groupBox6.TabStop = false;
             // 
@@ -500,7 +554,7 @@ namespace Qemu_GUI
             this.numMemory.Size = new System.Drawing.Size(46, 20);
             this.numMemory.TabIndex = 12;
             this.numMemory.Value = new decimal(new int[] {
-            32,
+            64,
             0,
             0,
             0});
@@ -508,7 +562,7 @@ namespace Qemu_GUI
             // lblMB
             // 
             this.lblMB.AutoSize = true;
-            this.lblMB.Location = new System.Drawing.Point(229, 49);
+            this.lblMB.Location = new System.Drawing.Point(218, 49);
             this.lblMB.Name = "lblMB";
             this.lblMB.Size = new System.Drawing.Size(23, 13);
             this.lblMB.TabIndex = 11;
@@ -554,7 +608,7 @@ namespace Qemu_GUI
             // grpClock
             // 
             this.grpClock.Controls.Add(this.chkSetClock);
-            this.grpClock.Location = new System.Drawing.Point(283, 3);
+            this.grpClock.Location = new System.Drawing.Point(300, 3);
             this.grpClock.Name = "grpClock";
             this.grpClock.Size = new System.Drawing.Size(174, 48);
             this.grpClock.TabIndex = 18;
@@ -577,7 +631,7 @@ namespace Qemu_GUI
             // 
             this.grpDisplay.Controls.Add(this.chkVGAoutput);
             this.grpDisplay.Controls.Add(this.chkFullscreen);
-            this.grpDisplay.Location = new System.Drawing.Point(283, 57);
+            this.grpDisplay.Location = new System.Drawing.Point(300, 114);
             this.grpDisplay.Name = "grpDisplay";
             this.grpDisplay.Size = new System.Drawing.Size(174, 74);
             this.grpDisplay.TabIndex = 19;
@@ -599,17 +653,245 @@ namespace Qemu_GUI
             this.chkFullscreen.AutoSize = true;
             this.chkFullscreen.Location = new System.Drawing.Point(16, 23);
             this.chkFullscreen.Name = "chkFullscreen";
-            this.chkFullscreen.Size = new System.Drawing.Size(107, 17);
+            this.chkFullscreen.Size = new System.Drawing.Size(138, 17);
             this.chkFullscreen.TabIndex = 19;
-            this.chkFullscreen.Text = "Start in fullscreen";
+            this.chkFullscreen.Text = "Start Qemu in fullscreen";
             this.chkFullscreen.UseVisualStyleBackColor = true;
+            // 
+            // tabPaths
+            // 
+            this.tabPaths.Controls.Add(this.groupBox2);
+            this.tabPaths.Location = new System.Drawing.Point(4, 22);
+            this.tabPaths.Name = "tabPaths";
+            this.tabPaths.Size = new System.Drawing.Size(527, 201);
+            this.tabPaths.TabIndex = 10;
+            this.tabPaths.Text = "Paths";
+            this.tabPaths.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.txtQEmuPath);
+            this.groupBox2.Controls.Add(this.txtVDKPath);
+            this.groupBox2.Controls.Add(this.btnVDKBrowse);
+            this.groupBox2.Controls.Add(this.lblVDKPath);
+            this.groupBox2.Controls.Add(this.btnQEmuPath);
+            this.groupBox2.Controls.Add(this.lblQEmuPath);
+            this.groupBox2.Location = new System.Drawing.Point(18, 13);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(491, 172);
+            this.groupBox2.TabIndex = 21;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Paths";
+            // 
+            // txtQEmuPath
+            // 
+            this.txtQEmuPath.Location = new System.Drawing.Point(17, 46);
+            this.txtQEmuPath.Name = "txtQEmuPath";
+            this.txtQEmuPath.Size = new System.Drawing.Size(398, 20);
+            this.txtQEmuPath.TabIndex = 1;
+            // 
+            // txtVDKPath
+            // 
+            this.txtVDKPath.Location = new System.Drawing.Point(17, 98);
+            this.txtVDKPath.Name = "txtVDKPath";
+            this.txtVDKPath.Size = new System.Drawing.Size(398, 20);
+            this.txtVDKPath.TabIndex = 5;
+            // 
+            // btnVDKBrowse
+            // 
+            this.btnVDKBrowse.Location = new System.Drawing.Point(421, 97);
+            this.btnVDKBrowse.Name = "btnVDKBrowse";
+            this.btnVDKBrowse.Size = new System.Drawing.Size(27, 22);
+            this.btnVDKBrowse.TabIndex = 4;
+            this.btnVDKBrowse.Text = "...";
+            this.btnVDKBrowse.UseVisualStyleBackColor = true;
+            this.btnVDKBrowse.Click += new System.EventHandler(this.btnVDKBrowse_Click);
+            // 
+            // lblVDKPath
+            // 
+            this.lblVDKPath.AutoSize = true;
+            this.lblVDKPath.Location = new System.Drawing.Point(15, 82);
+            this.lblVDKPath.Name = "lblVDKPath";
+            this.lblVDKPath.Size = new System.Drawing.Size(29, 13);
+            this.lblVDKPath.TabIndex = 3;
+            this.lblVDKPath.Text = "VDK";
+            // 
+            // btnQEmuPath
+            // 
+            this.btnQEmuPath.Location = new System.Drawing.Point(421, 45);
+            this.btnQEmuPath.Name = "btnQEmuPath";
+            this.btnQEmuPath.Size = new System.Drawing.Size(27, 22);
+            this.btnQEmuPath.TabIndex = 0;
+            this.btnQEmuPath.Text = "...";
+            this.btnQEmuPath.UseVisualStyleBackColor = true;
+            this.btnQEmuPath.Click += new System.EventHandler(this.btnQEmuPath_Click);
+            // 
+            // lblQEmuPath
+            // 
+            this.lblQEmuPath.AutoSize = true;
+            this.lblQEmuPath.Location = new System.Drawing.Point(14, 30);
+            this.lblQEmuPath.Name = "lblQEmuPath";
+            this.lblQEmuPath.Size = new System.Drawing.Size(35, 13);
+            this.lblQEmuPath.TabIndex = 2;
+            this.lblQEmuPath.Text = "Qemu";
+            // 
+            // tabHardDisk
+            // 
+            this.tabHardDisk.Controls.Add(this.chkHardDiskHack);
+            this.tabHardDisk.Controls.Add(this.grpHarddisk);
+            this.tabHardDisk.Location = new System.Drawing.Point(4, 22);
+            this.tabHardDisk.Name = "tabHardDisk";
+            this.tabHardDisk.Size = new System.Drawing.Size(527, 201);
+            this.tabHardDisk.TabIndex = 3;
+            this.tabHardDisk.Text = " Harddisk";
+            this.tabHardDisk.UseVisualStyleBackColor = true;
+            // 
+            // chkHardDiskHack
+            // 
+            this.chkHardDiskHack.AutoSize = true;
+            this.chkHardDiskHack.Location = new System.Drawing.Point(19, 175);
+            this.chkHardDiskHack.Name = "chkHardDiskHack";
+            this.chkHardDiskHack.Size = new System.Drawing.Size(212, 17);
+            this.chkHardDiskHack.TabIndex = 6;
+            this.chkHardDiskHack.Text = "Win2k Hack (disk full bug during install)";
+            this.chkHardDiskHack.UseVisualStyleBackColor = true;
+            this.chkHardDiskHack.CheckedChanged += new System.EventHandler(this.chkHardDiskHack_CheckedChanged);
+            // 
+            // grpHarddisk
+            // 
+            this.grpHarddisk.Controls.Add(this.txtHDD);
+            this.grpHarddisk.Controls.Add(this.txtHDC);
+            this.grpHarddisk.Controls.Add(this.txtHDB);
+            this.grpHarddisk.Controls.Add(this.txtHDA);
+            this.grpHarddisk.Controls.Add(this.btnBrowseHDD);
+            this.grpHarddisk.Controls.Add(this.btnBrowseHDC);
+            this.grpHarddisk.Controls.Add(this.chkUseHDD);
+            this.grpHarddisk.Controls.Add(this.chkUseHDC);
+            this.grpHarddisk.Controls.Add(this.btnBrowseHDB);
+            this.grpHarddisk.Controls.Add(this.btnBrowseHDA);
+            this.grpHarddisk.Controls.Add(this.chkUseHDB);
+            this.grpHarddisk.Controls.Add(this.chkUseHDA);
+            this.grpHarddisk.Location = new System.Drawing.Point(19, 3);
+            this.grpHarddisk.Name = "grpHarddisk";
+            this.grpHarddisk.Size = new System.Drawing.Size(473, 165);
+            this.grpHarddisk.TabIndex = 5;
+            this.grpHarddisk.TabStop = false;
+            this.grpHarddisk.Text = " Harddisks";
+            // 
+            // txtHDD
+            // 
+            this.txtHDD.Enabled = false;
+            this.txtHDD.Location = new System.Drawing.Point(77, 127);
+            this.txtHDD.Name = "txtHDD";
+            this.txtHDD.Size = new System.Drawing.Size(341, 20);
+            this.txtHDD.TabIndex = 15;
+            // 
+            // txtHDC
+            // 
+            this.txtHDC.Enabled = false;
+            this.txtHDC.Location = new System.Drawing.Point(77, 92);
+            this.txtHDC.Name = "txtHDC";
+            this.txtHDC.Size = new System.Drawing.Size(341, 20);
+            this.txtHDC.TabIndex = 14;
+            // 
+            // txtHDB
+            // 
+            this.txtHDB.Enabled = false;
+            this.txtHDB.Location = new System.Drawing.Point(77, 53);
+            this.txtHDB.Name = "txtHDB";
+            this.txtHDB.Size = new System.Drawing.Size(341, 20);
+            this.txtHDB.TabIndex = 13;
+            // 
+            // txtHDA
+            // 
+            this.txtHDA.Enabled = false;
+            this.txtHDA.Location = new System.Drawing.Point(77, 21);
+            this.txtHDA.Name = "txtHDA";
+            this.txtHDA.Size = new System.Drawing.Size(341, 20);
+            this.txtHDA.TabIndex = 12;
+            // 
+            // btnBrowseHDD
+            // 
+            this.btnBrowseHDD.Enabled = false;
+            this.btnBrowseHDD.Location = new System.Drawing.Point(424, 127);
+            this.btnBrowseHDD.Name = "btnBrowseHDD";
+            this.btnBrowseHDD.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseHDD.TabIndex = 11;
+            this.btnBrowseHDD.Text = "...";
+            this.btnBrowseHDD.Click += new System.EventHandler(this.btnBrowseHDD_Click);
+            // 
+            // btnBrowseHDC
+            // 
+            this.btnBrowseHDC.Enabled = false;
+            this.btnBrowseHDC.Location = new System.Drawing.Point(424, 89);
+            this.btnBrowseHDC.Name = "btnBrowseHDC";
+            this.btnBrowseHDC.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseHDC.TabIndex = 10;
+            this.btnBrowseHDC.Text = "...";
+            this.btnBrowseHDC.Click += new System.EventHandler(this.btnBrowseHDC_Click);
+            // 
+            // chkUseHDD
+            // 
+            this.chkUseHDD.Location = new System.Drawing.Point(18, 127);
+            this.chkUseHDD.Name = "chkUseHDD";
+            this.chkUseHDD.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDD.TabIndex = 9;
+            this.chkUseHDD.Text = "HDD";
+            this.chkUseHDD.CheckedChanged += new System.EventHandler(this.chkUseHDD_CheckedChanged);
+            // 
+            // chkUseHDC
+            // 
+            this.chkUseHDC.Location = new System.Drawing.Point(18, 88);
+            this.chkUseHDC.Name = "chkUseHDC";
+            this.chkUseHDC.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDC.TabIndex = 8;
+            this.chkUseHDC.Text = "HDC";
+            this.chkUseHDC.CheckedChanged += new System.EventHandler(this.chkUseHDC_CheckedChanged);
+            // 
+            // btnBrowseHDB
+            // 
+            this.btnBrowseHDB.Enabled = false;
+            this.btnBrowseHDB.Location = new System.Drawing.Point(424, 49);
+            this.btnBrowseHDB.Name = "btnBrowseHDB";
+            this.btnBrowseHDB.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseHDB.TabIndex = 7;
+            this.btnBrowseHDB.Text = "...";
+            this.btnBrowseHDB.Click += new System.EventHandler(this.btnBrowseHDB_Click);
+            // 
+            // btnBrowseHDA
+            // 
+            this.btnBrowseHDA.Enabled = false;
+            this.btnBrowseHDA.Location = new System.Drawing.Point(424, 19);
+            this.btnBrowseHDA.Name = "btnBrowseHDA";
+            this.btnBrowseHDA.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseHDA.TabIndex = 6;
+            this.btnBrowseHDA.Text = " ...";
+            this.btnBrowseHDA.Click += new System.EventHandler(this.btnBrowseHDA_Click);
+            // 
+            // chkUseHDB
+            // 
+            this.chkUseHDB.Location = new System.Drawing.Point(18, 49);
+            this.chkUseHDB.Name = "chkUseHDB";
+            this.chkUseHDB.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDB.TabIndex = 5;
+            this.chkUseHDB.Text = "HDB";
+            this.chkUseHDB.CheckedChanged += new System.EventHandler(this.chkUseHDB_CheckedChanged);
+            // 
+            // chkUseHDA
+            // 
+            this.chkUseHDA.Location = new System.Drawing.Point(18, 19);
+            this.chkUseHDA.Name = "chkUseHDA";
+            this.chkUseHDA.Size = new System.Drawing.Size(72, 24);
+            this.chkUseHDA.TabIndex = 4;
+            this.chkUseHDA.Text = "HDA";
+            this.chkUseHDA.CheckedChanged += new System.EventHandler(this.chkUseHDA_CheckedChanged);
             // 
             // tabCDROM
             // 
             this.tabCDROM.Controls.Add(this.grpCDROM);
             this.tabCDROM.Location = new System.Drawing.Point(4, 22);
             this.tabCDROM.Name = "tabCDROM";
-            this.tabCDROM.Size = new System.Drawing.Size(460, 201);
+            this.tabCDROM.Size = new System.Drawing.Size(527, 201);
             this.tabCDROM.TabIndex = 4;
             this.tabCDROM.Text = "CD-ROM";
             this.tabCDROM.UseVisualStyleBackColor = true;
@@ -624,7 +906,7 @@ namespace Qemu_GUI
             this.grpCDROM.Controls.Add(this.optCDImage);
             this.grpCDROM.Location = new System.Drawing.Point(3, 3);
             this.grpCDROM.Name = "grpCDROM";
-            this.grpCDROM.Size = new System.Drawing.Size(454, 195);
+            this.grpCDROM.Size = new System.Drawing.Size(494, 195);
             this.grpCDROM.TabIndex = 5;
             this.grpCDROM.TabStop = false;
             this.grpCDROM.Text = "CD-ROM";
@@ -664,7 +946,7 @@ namespace Qemu_GUI
             this.btnBrowseCDROM.Enabled = false;
             this.btnBrowseCDROM.Location = new System.Drawing.Point(405, 134);
             this.btnBrowseCDROM.Name = "btnBrowseCDROM";
-            this.btnBrowseCDROM.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseCDROM.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseCDROM.TabIndex = 2;
             this.btnBrowseCDROM.Text = "...";
             this.btnBrowseCDROM.Click += new System.EventHandler(this.btnBrowseCDROM_Click);
@@ -690,13 +972,25 @@ namespace Qemu_GUI
             // 
             // tabFloppy
             // 
+            this.tabFloppy.Controls.Add(this.chkFloopySig);
             this.tabFloppy.Controls.Add(this.grpFloppy);
             this.tabFloppy.Location = new System.Drawing.Point(4, 22);
             this.tabFloppy.Name = "tabFloppy";
-            this.tabFloppy.Size = new System.Drawing.Size(460, 201);
+            this.tabFloppy.Size = new System.Drawing.Size(527, 201);
             this.tabFloppy.TabIndex = 2;
             this.tabFloppy.Text = "Floppy";
             this.tabFloppy.UseVisualStyleBackColor = true;
+            // 
+            // chkFloopySig
+            // 
+            this.chkFloopySig.AutoSize = true;
+            this.chkFloopySig.Location = new System.Drawing.Point(17, 173);
+            this.chkFloopySig.Name = "chkFloopySig";
+            this.chkFloopySig.Size = new System.Drawing.Size(251, 17);
+            this.chkFloopySig.TabIndex = 6;
+            this.chkFloopySig.Text = "Disable boot signature checking for floppy disks";
+            this.chkFloopySig.UseVisualStyleBackColor = true;
+            this.chkFloopySig.CheckedChanged += new System.EventHandler(this.chkFloopySig_CheckedChanged);
             // 
             // grpFloppy
             // 
@@ -706,9 +1000,9 @@ namespace Qemu_GUI
             this.grpFloppy.Controls.Add(this.btnBrowseFloppyA);
             this.grpFloppy.Controls.Add(this.chkFloppyB);
             this.grpFloppy.Controls.Add(this.chkFloppyA);
-            this.grpFloppy.Location = new System.Drawing.Point(3, 3);
+            this.grpFloppy.Location = new System.Drawing.Point(17, 15);
             this.grpFloppy.Name = "grpFloppy";
-            this.grpFloppy.Size = new System.Drawing.Size(454, 195);
+            this.grpFloppy.Size = new System.Drawing.Size(465, 152);
             this.grpFloppy.TabIndex = 4;
             this.grpFloppy.TabStop = false;
             this.grpFloppy.Text = "Floppy";
@@ -732,9 +1026,9 @@ namespace Qemu_GUI
             // btnBrowseFloppyB
             // 
             this.btnBrowseFloppyB.Enabled = false;
-            this.btnBrowseFloppyB.Location = new System.Drawing.Point(407, 110);
+            this.btnBrowseFloppyB.Location = new System.Drawing.Point(407, 113);
             this.btnBrowseFloppyB.Name = "btnBrowseFloppyB";
-            this.btnBrowseFloppyB.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseFloppyB.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseFloppyB.TabIndex = 3;
             this.btnBrowseFloppyB.Text = "...";
             this.btnBrowseFloppyB.Click += new System.EventHandler(this.btnBrowseFloppyB_Click);
@@ -742,9 +1036,9 @@ namespace Qemu_GUI
             // btnBrowseFloppyA
             // 
             this.btnBrowseFloppyA.Enabled = false;
-            this.btnBrowseFloppyA.Location = new System.Drawing.Point(407, 46);
+            this.btnBrowseFloppyA.Location = new System.Drawing.Point(407, 49);
             this.btnBrowseFloppyA.Name = "btnBrowseFloppyA";
-            this.btnBrowseFloppyA.Size = new System.Drawing.Size(27, 23);
+            this.btnBrowseFloppyA.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseFloppyA.TabIndex = 2;
             this.btnBrowseFloppyA.Text = "...";
             this.btnBrowseFloppyA.Click += new System.EventHandler(this.btnBrowseFloppyA_Click);
@@ -767,312 +1061,213 @@ namespace Qemu_GUI
             this.chkFloppyA.Text = "Floppy A";
             this.chkFloppyA.CheckedChanged += new System.EventHandler(this.chkFloppyA_CheckedChanged);
             // 
-            // HardDisk
+            // tabNetwork
             // 
-            this.HardDisk.Controls.Add(this.grpHarddisk);
-            this.HardDisk.Location = new System.Drawing.Point(4, 22);
-            this.HardDisk.Name = "HardDisk";
-            this.HardDisk.Size = new System.Drawing.Size(460, 201);
-            this.HardDisk.TabIndex = 3;
-            this.HardDisk.Text = " Harddisk";
-            this.HardDisk.UseVisualStyleBackColor = true;
+            this.tabNetwork.Controls.Add(this.grpNetwork);
+            this.tabNetwork.Location = new System.Drawing.Point(4, 22);
+            this.tabNetwork.Name = "tabNetwork";
+            this.tabNetwork.Size = new System.Drawing.Size(527, 201);
+            this.tabNetwork.TabIndex = 7;
+            this.tabNetwork.Text = "Network";
+            this.tabNetwork.UseVisualStyleBackColor = true;
             // 
-            // grpHarddisk
+            // grpNetwork
             // 
-            this.grpHarddisk.Controls.Add(this.txtHDD);
-            this.grpHarddisk.Controls.Add(this.txtHDC);
-            this.grpHarddisk.Controls.Add(this.txtHDB);
-            this.grpHarddisk.Controls.Add(this.txtHDA);
-            this.grpHarddisk.Controls.Add(this.btnBrowseHDD);
-            this.grpHarddisk.Controls.Add(this.btnBrowseHDC);
-            this.grpHarddisk.Controls.Add(this.chkUseHDD);
-            this.grpHarddisk.Controls.Add(this.chkUseHDC);
-            this.grpHarddisk.Controls.Add(this.btnBrowseHDB);
-            this.grpHarddisk.Controls.Add(this.btnBrowseHDA);
-            this.grpHarddisk.Controls.Add(this.chkUseHDB);
-            this.grpHarddisk.Controls.Add(this.chkUseHDA);
-            this.grpHarddisk.Location = new System.Drawing.Point(3, 3);
-            this.grpHarddisk.Name = "grpHarddisk";
-            this.grpHarddisk.Size = new System.Drawing.Size(457, 195);
-            this.grpHarddisk.TabIndex = 5;
-            this.grpHarddisk.TabStop = false;
-            this.grpHarddisk.Text = " Harddisk";
+            this.grpNetwork.Controls.Add(this.label6);
+            this.grpNetwork.Controls.Add(this.panelUser);
+            this.grpNetwork.Controls.Add(this.label4);
+            this.grpNetwork.Controls.Add(this.rbtnNetUser);
+            this.grpNetwork.Controls.Add(this.panelNic);
+            this.grpNetwork.Controls.Add(this.rbtnNetNic);
+            this.grpNetwork.Controls.Add(this.label1);
+            this.grpNetwork.Controls.Add(this.btnNetRemove);
+            this.grpNetwork.Controls.Add(this.btnNetAdd);
+            this.grpNetwork.Controls.Add(this.listVLANs);
+            this.grpNetwork.Controls.Add(this.chckNetEnable);
+            this.grpNetwork.Location = new System.Drawing.Point(3, 3);
+            this.grpNetwork.Name = "grpNetwork";
+            this.grpNetwork.Size = new System.Drawing.Size(494, 195);
+            this.grpNetwork.TabIndex = 1;
+            this.grpNetwork.TabStop = false;
+            this.grpNetwork.Text = "Network";
             // 
-            // txtHDD
+            // label6
             // 
-            this.txtHDD.Enabled = false;
-            this.txtHDD.Location = new System.Drawing.Point(73, 163);
-            this.txtHDD.Name = "txtHDD";
-            this.txtHDD.Size = new System.Drawing.Size(341, 20);
-            this.txtHDD.TabIndex = 15;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(320, 165);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(120, 13);
+            this.label6.TabIndex = 55;
+            this.label6.Text = "Leave Blank for default.";
+            this.label6.Visible = false;
             // 
-            // txtHDC
+            // panelUser
             // 
-            this.txtHDC.Enabled = false;
-            this.txtHDC.Location = new System.Drawing.Point(73, 122);
-            this.txtHDC.Name = "txtHDC";
-            this.txtHDC.Size = new System.Drawing.Size(341, 20);
-            this.txtHDC.TabIndex = 14;
+            this.panelUser.Controls.Add(this.label5);
+            this.panelUser.Controls.Add(this.txtNetHost);
+            this.panelUser.Location = new System.Drawing.Point(296, 57);
+            this.panelUser.Name = "panelUser";
+            this.panelUser.Size = new System.Drawing.Size(192, 100);
+            this.panelUser.TabIndex = 38;
+            this.panelUser.Visible = false;
             // 
-            // txtHDB
+            // label5
             // 
-            this.txtHDB.Enabled = false;
-            this.txtHDB.Location = new System.Drawing.Point(73, 77);
-            this.txtHDB.Name = "txtHDB";
-            this.txtHDB.Size = new System.Drawing.Size(341, 20);
-            this.txtHDB.TabIndex = 13;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(20, 13);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(58, 13);
+            this.label5.TabIndex = 1;
+            this.label5.Text = "Hostname:";
             // 
-            // txtHDA
+            // txtNetHost
             // 
-            this.txtHDA.Enabled = false;
-            this.txtHDA.Location = new System.Drawing.Point(73, 30);
-            this.txtHDA.Name = "txtHDA";
-            this.txtHDA.Size = new System.Drawing.Size(341, 20);
-            this.txtHDA.TabIndex = 12;
+            this.txtNetHost.Location = new System.Drawing.Point(23, 35);
+            this.txtNetHost.Name = "txtNetHost";
+            this.txtNetHost.Size = new System.Drawing.Size(121, 20);
+            this.txtNetHost.TabIndex = 0;
             // 
-            // btnBrowseHDD
+            // label4
             // 
-            this.btnBrowseHDD.Enabled = false;
-            this.btnBrowseHDD.Location = new System.Drawing.Point(420, 163);
-            this.btnBrowseHDD.Name = "btnBrowseHDD";
-            this.btnBrowseHDD.Size = new System.Drawing.Size(27, 23);
-            this.btnBrowseHDD.TabIndex = 11;
-            this.btnBrowseHDD.Text = "...";
-            this.btnBrowseHDD.Click += new System.EventHandler(this.btnBrowseHDD_Click);
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(200, 59);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(37, 13);
+            this.label4.TabIndex = 54;
+            this.label4.Text = "Mode:";
             // 
-            // btnBrowseHDC
+            // rbtnNetUser
             // 
-            this.btnBrowseHDC.Enabled = false;
-            this.btnBrowseHDC.Location = new System.Drawing.Point(420, 119);
-            this.btnBrowseHDC.Name = "btnBrowseHDC";
-            this.btnBrowseHDC.Size = new System.Drawing.Size(27, 23);
-            this.btnBrowseHDC.TabIndex = 10;
-            this.btnBrowseHDC.Text = "...";
-            this.btnBrowseHDC.Click += new System.EventHandler(this.btnBrowseHDC_Click);
+            this.rbtnNetUser.AutoSize = true;
+            this.rbtnNetUser.Checked = true;
+            this.rbtnNetUser.Location = new System.Drawing.Point(203, 78);
+            this.rbtnNetUser.Name = "rbtnNetUser";
+            this.rbtnNetUser.Size = new System.Drawing.Size(85, 17);
+            this.rbtnNetUser.TabIndex = 53;
+            this.rbtnNetUser.TabStop = true;
+            this.rbtnNetUser.Text = "User(default)";
+            this.rbtnNetUser.UseVisualStyleBackColor = true;
+            this.rbtnNetUser.CheckedChanged += new System.EventHandler(this.rbtnNetUser_CheckedChanged);
             // 
-            // chkUseHDD
+            // panelNic
             // 
-            this.chkUseHDD.Location = new System.Drawing.Point(14, 163);
-            this.chkUseHDD.Name = "chkUseHDD";
-            this.chkUseHDD.Size = new System.Drawing.Size(72, 24);
-            this.chkUseHDD.TabIndex = 9;
-            this.chkUseHDD.Text = "HDD";
-            this.chkUseHDD.CheckedChanged += new System.EventHandler(this.chkUseHDD_CheckedChanged);
+            this.panelNic.Controls.Add(this.label3);
+            this.panelNic.Controls.Add(this.txtNicMACaddr);
+            this.panelNic.Controls.Add(this.label2);
+            this.panelNic.Controls.Add(this.cmbNICmodels);
+            this.panelNic.Location = new System.Drawing.Point(296, 38);
+            this.panelNic.Name = "panelNic";
+            this.panelNic.Size = new System.Drawing.Size(192, 121);
+            this.panelNic.TabIndex = 52;
+            this.panelNic.Visible = false;
             // 
-            // chkUseHDC
+            // label3
             // 
-            this.chkUseHDC.Location = new System.Drawing.Point(14, 118);
-            this.chkUseHDC.Name = "chkUseHDC";
-            this.chkUseHDC.Size = new System.Drawing.Size(72, 24);
-            this.chkUseHDC.TabIndex = 8;
-            this.chkUseHDC.Text = "HDC";
-            this.chkUseHDC.CheckedChanged += new System.EventHandler(this.chkUseHDC_CheckedChanged);
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(20, 69);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(74, 13);
+            this.label3.TabIndex = 37;
+            this.label3.Text = "MAC Address:";
             // 
-            // btnBrowseHDB
+            // txtNicMACaddr
             // 
-            this.btnBrowseHDB.Enabled = false;
-            this.btnBrowseHDB.Location = new System.Drawing.Point(420, 73);
-            this.btnBrowseHDB.Name = "btnBrowseHDB";
-            this.btnBrowseHDB.Size = new System.Drawing.Size(27, 23);
-            this.btnBrowseHDB.TabIndex = 7;
-            this.btnBrowseHDB.Text = "...";
-            this.btnBrowseHDB.Click += new System.EventHandler(this.btnBrowseHDB_Click);
+            this.txtNicMACaddr.Location = new System.Drawing.Point(23, 88);
+            this.txtNicMACaddr.Name = "txtNicMACaddr";
+            this.txtNicMACaddr.Size = new System.Drawing.Size(121, 20);
+            this.txtNicMACaddr.TabIndex = 36;
             // 
-            // btnBrowseHDA
+            // label2
             // 
-            this.btnBrowseHDA.Enabled = false;
-            this.btnBrowseHDA.Location = new System.Drawing.Point(420, 28);
-            this.btnBrowseHDA.Name = "btnBrowseHDA";
-            this.btnBrowseHDA.Size = new System.Drawing.Size(27, 23);
-            this.btnBrowseHDA.TabIndex = 6;
-            this.btnBrowseHDA.Text = " ...";
-            this.btnBrowseHDA.Click += new System.EventHandler(this.btnBrowseHDA_Click);
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(20, 21);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(85, 13);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "Card to Emulate:";
             // 
-            // chkUseHDB
+            // cmbNICmodels
             // 
-            this.chkUseHDB.Location = new System.Drawing.Point(14, 73);
-            this.chkUseHDB.Name = "chkUseHDB";
-            this.chkUseHDB.Size = new System.Drawing.Size(72, 24);
-            this.chkUseHDB.TabIndex = 5;
-            this.chkUseHDB.Text = "HDB";
-            this.chkUseHDB.CheckedChanged += new System.EventHandler(this.chkUseHDB_CheckedChanged);
+            this.cmbNICmodels.FormattingEnabled = true;
+            this.cmbNICmodels.Items.AddRange(new object[] {
+            "ne2k_pci",
+            "ne2k_isa",
+            "rtl8139",
+            "smc91c11",
+            "lance"});
+            this.cmbNICmodels.Location = new System.Drawing.Point(23, 40);
+            this.cmbNICmodels.Name = "cmbNICmodels";
+            this.cmbNICmodels.Size = new System.Drawing.Size(121, 21);
+            this.cmbNICmodels.TabIndex = 34;
             // 
-            // chkUseHDA
+            // rbtnNetNic
             // 
-            this.chkUseHDA.Location = new System.Drawing.Point(14, 28);
-            this.chkUseHDA.Name = "chkUseHDA";
-            this.chkUseHDA.Size = new System.Drawing.Size(72, 24);
-            this.chkUseHDA.TabIndex = 4;
-            this.chkUseHDA.Text = "HDA";
-            this.chkUseHDA.CheckedChanged += new System.EventHandler(this.chkUseHDA_CheckedChanged);
+            this.rbtnNetNic.AutoSize = true;
+            this.rbtnNetNic.Location = new System.Drawing.Point(203, 101);
+            this.rbtnNetNic.Name = "rbtnNetNic";
+            this.rbtnNetNic.Size = new System.Drawing.Size(43, 17);
+            this.rbtnNetNic.TabIndex = 51;
+            this.rbtnNetNic.Text = "NIC";
+            this.rbtnNetNic.UseVisualStyleBackColor = true;
+            this.rbtnNetNic.CheckedChanged += new System.EventHandler(this.rbtnNetNic_CheckedChanged);
             // 
-            // tabTools
+            // label1
             // 
-            this.tabTools.Controls.Add(this.grpVDK);
-            this.tabTools.Controls.Add(this.groupBox9);
-            this.tabTools.Location = new System.Drawing.Point(4, 22);
-            this.tabTools.Name = "tabTools";
-            this.tabTools.Size = new System.Drawing.Size(460, 201);
-            this.tabTools.TabIndex = 6;
-            this.tabTools.Text = "Tools";
-            this.tabTools.UseVisualStyleBackColor = true;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(16, 40);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(40, 13);
+            this.label1.TabIndex = 50;
+            this.label1.Text = "VLANs";
             // 
-            // grpVDK
+            // btnNetRemove
             // 
-            this.grpVDK.Controls.Add(this.txtVDKImage);
-            this.grpVDK.Controls.Add(this.cboVDKDrive);
-            this.grpVDK.Controls.Add(this.lblDrive);
-            this.grpVDK.Controls.Add(this.btnVDKImage);
-            this.grpVDK.Controls.Add(this.btnUnmount);
-            this.grpVDK.Controls.Add(this.btnMount);
-            this.grpVDK.Controls.Add(this.lblImage);
-            this.grpVDK.Enabled = false;
-            this.grpVDK.Location = new System.Drawing.Point(4, 83);
-            this.grpVDK.Name = "grpVDK";
-            this.grpVDK.Size = new System.Drawing.Size(453, 115);
-            this.grpVDK.TabIndex = 7;
-            this.grpVDK.TabStop = false;
-            this.grpVDK.Text = "VDK";
+            this.btnNetRemove.Location = new System.Drawing.Point(134, 153);
+            this.btnNetRemove.Name = "btnNetRemove";
+            this.btnNetRemove.Size = new System.Drawing.Size(60, 25);
+            this.btnNetRemove.TabIndex = 49;
+            this.btnNetRemove.Text = "Remove";
+            this.btnNetRemove.UseVisualStyleBackColor = true;
+            this.btnNetRemove.Click += new System.EventHandler(this.btnNetRemove_Click);
             // 
-            // txtVDKImage
+            // btnNetAdd
             // 
-            this.txtVDKImage.Location = new System.Drawing.Point(16, 41);
-            this.txtVDKImage.Name = "txtVDKImage";
-            this.txtVDKImage.Size = new System.Drawing.Size(398, 20);
-            this.txtVDKImage.TabIndex = 6;
+            this.btnNetAdd.Location = new System.Drawing.Point(16, 153);
+            this.btnNetAdd.Name = "btnNetAdd";
+            this.btnNetAdd.Size = new System.Drawing.Size(60, 25);
+            this.btnNetAdd.TabIndex = 48;
+            this.btnNetAdd.Text = "Add";
+            this.btnNetAdd.UseVisualStyleBackColor = true;
+            this.btnNetAdd.Click += new System.EventHandler(this.btnNetAdd_Click);
             // 
-            // cboVDKDrive
+            // listVLANs
             // 
-            this.cboVDKDrive.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboVDKDrive.FormattingEnabled = true;
-            this.cboVDKDrive.Location = new System.Drawing.Point(64, 74);
-            this.cboVDKDrive.Name = "cboVDKDrive";
-            this.cboVDKDrive.Size = new System.Drawing.Size(69, 21);
-            this.cboVDKDrive.TabIndex = 10;
+            this.listVLANs.LabelWrap = false;
+            this.listVLANs.Location = new System.Drawing.Point(16, 59);
+            this.listVLANs.Name = "listVLANs";
+            this.listVLANs.ShowGroups = false;
+            this.listVLANs.Size = new System.Drawing.Size(178, 88);
+            this.listVLANs.TabIndex = 47;
+            this.listVLANs.UseCompatibleStateImageBehavior = false;
+            this.listVLANs.View = System.Windows.Forms.View.List;
             // 
-            // lblDrive
+            // chckNetEnable
             // 
-            this.lblDrive.AutoSize = true;
-            this.lblDrive.Location = new System.Drawing.Point(14, 77);
-            this.lblDrive.Name = "lblDrive";
-            this.lblDrive.Size = new System.Drawing.Size(35, 13);
-            this.lblDrive.TabIndex = 9;
-            this.lblDrive.Text = "Drive:";
-            // 
-            // btnVDKImage
-            // 
-            this.btnVDKImage.Location = new System.Drawing.Point(419, 39);
-            this.btnVDKImage.Name = "btnVDKImage";
-            this.btnVDKImage.Size = new System.Drawing.Size(27, 22);
-            this.btnVDKImage.TabIndex = 8;
-            this.btnVDKImage.Text = "...";
-            this.btnVDKImage.UseVisualStyleBackColor = true;
-            this.btnVDKImage.Click += new System.EventHandler(this.btnVDKImage_Click);
-            // 
-            // btnUnmount
-            // 
-            this.btnUnmount.Location = new System.Drawing.Point(353, 77);
-            this.btnUnmount.Name = "btnUnmount";
-            this.btnUnmount.Size = new System.Drawing.Size(93, 23);
-            this.btnUnmount.TabIndex = 5;
-            this.btnUnmount.Text = "Unmount";
-            this.btnUnmount.Click += new System.EventHandler(this.btnUnmount_Click);
-            // 
-            // btnMount
-            // 
-            this.btnMount.Location = new System.Drawing.Point(255, 77);
-            this.btnMount.Name = "btnMount";
-            this.btnMount.Size = new System.Drawing.Size(93, 23);
-            this.btnMount.TabIndex = 3;
-            this.btnMount.Text = "Mount";
-            this.btnMount.Click += new System.EventHandler(this.btnMount_Click);
-            // 
-            // lblImage
-            // 
-            this.lblImage.AutoSize = true;
-            this.lblImage.Location = new System.Drawing.Point(13, 25);
-            this.lblImage.Name = "lblImage";
-            this.lblImage.Size = new System.Drawing.Size(39, 13);
-            this.lblImage.TabIndex = 7;
-            this.lblImage.Text = "Image:";
-            // 
-            // groupBox9
-            // 
-            this.groupBox9.Controls.Add(this.lblImageSizeMB);
-            this.groupBox9.Controls.Add(this.label11);
-            this.groupBox9.Controls.Add(this.txtImageSize);
-            this.groupBox9.Controls.Add(this.lblImageSize);
-            this.groupBox9.Controls.Add(this.btnCreateImage);
-            this.groupBox9.Controls.Add(this.cboImageFormat);
-            this.groupBox9.Location = new System.Drawing.Point(4, 3);
-            this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(453, 74);
-            this.groupBox9.TabIndex = 6;
-            this.groupBox9.TabStop = false;
-            this.groupBox9.Text = "Harddisk Tools";
-            // 
-            // lblImageSizeMB
-            // 
-            this.lblImageSizeMB.AutoSize = true;
-            this.lblImageSizeMB.Location = new System.Drawing.Point(83, 42);
-            this.lblImageSizeMB.Name = "lblImageSizeMB";
-            this.lblImageSizeMB.Size = new System.Drawing.Size(23, 13);
-            this.lblImageSizeMB.TabIndex = 8;
-            this.lblImageSizeMB.Text = "MB";
-            // 
-            // label11
-            // 
-            this.label11.Location = new System.Drawing.Point(125, 24);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(48, 12);
-            this.label11.TabIndex = 5;
-            this.label11.Text = "Format";
-            // 
-            // txtImageSize
-            // 
-            this.txtImageSize.Location = new System.Drawing.Point(16, 39);
-            this.txtImageSize.Name = "txtImageSize";
-            this.txtImageSize.Size = new System.Drawing.Size(64, 20);
-            this.txtImageSize.TabIndex = 3;
-            this.txtImageSize.Text = "512";
-            // 
-            // lblImageSize
-            // 
-            this.lblImageSize.Location = new System.Drawing.Point(13, 24);
-            this.lblImageSize.Name = "lblImageSize";
-            this.lblImageSize.Size = new System.Drawing.Size(64, 24);
-            this.lblImageSize.TabIndex = 2;
-            this.lblImageSize.Text = "Size";
-            // 
-            // btnCreateImage
-            // 
-            this.btnCreateImage.Location = new System.Drawing.Point(201, 36);
-            this.btnCreateImage.Name = "btnCreateImage";
-            this.btnCreateImage.Size = new System.Drawing.Size(93, 23);
-            this.btnCreateImage.TabIndex = 1;
-            this.btnCreateImage.Text = "Create Image";
-            this.btnCreateImage.Click += new System.EventHandler(this.btnCreateImage_Click);
-            // 
-            // cboImageFormat
-            // 
-            this.cboImageFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboImageFormat.Items.AddRange(new object[] {
-            "cloop",
-            "cow",
-            "qcow",
-            "raw",
-            "vmdk"});
-            this.cboImageFormat.Location = new System.Drawing.Point(128, 39);
-            this.cboImageFormat.Name = "cboImageFormat";
-            this.cboImageFormat.Size = new System.Drawing.Size(56, 21);
-            this.cboImageFormat.TabIndex = 7;
+            this.chckNetEnable.AutoSize = true;
+            this.chckNetEnable.Location = new System.Drawing.Point(7, 20);
+            this.chckNetEnable.Name = "chckNetEnable";
+            this.chckNetEnable.Size = new System.Drawing.Size(59, 17);
+            this.chckNetEnable.TabIndex = 28;
+            this.chckNetEnable.Text = "Enable";
+            this.chckNetEnable.UseVisualStyleBackColor = true;
+            this.chckNetEnable.CheckedChanged += new System.EventHandler(this.chckNetEnable_CheckedChanged);
             // 
             // tabAudio
             // 
             this.tabAudio.Controls.Add(this.grpAudio);
             this.tabAudio.Location = new System.Drawing.Point(4, 22);
             this.tabAudio.Name = "tabAudio";
-            this.tabAudio.Size = new System.Drawing.Size(460, 201);
+            this.tabAudio.Size = new System.Drawing.Size(527, 201);
             this.tabAudio.TabIndex = 5;
             this.tabAudio.Text = "Audio";
             this.tabAudio.UseVisualStyleBackColor = true;
@@ -1089,7 +1284,7 @@ namespace Qemu_GUI
             this.grpAudio.Controls.Add(this.chkOPL2);
             this.grpAudio.Location = new System.Drawing.Point(3, 3);
             this.grpAudio.Name = "grpAudio";
-            this.grpAudio.Size = new System.Drawing.Size(454, 195);
+            this.grpAudio.Size = new System.Drawing.Size(494, 195);
             this.grpAudio.TabIndex = 4;
             this.grpAudio.TabStop = false;
             this.grpAudio.Text = "Emulate Audio Cards";
@@ -1160,7 +1355,7 @@ namespace Qemu_GUI
             // 
             // chkOPL2
             // 
-            this.chkOPL2.Location = new System.Drawing.Point(157, 108);
+            this.chkOPL2.Location = new System.Drawing.Point(159, 108);
             this.chkOPL2.Name = "chkOPL2";
             this.chkOPL2.Size = new System.Drawing.Size(176, 24);
             this.chkOPL2.TabIndex = 2;
@@ -1168,45 +1363,55 @@ namespace Qemu_GUI
             // 
             // tabDebug
             // 
+            this.tabDebug.Controls.Add(this.checkBox2);
             this.tabDebug.Controls.Add(this.grpVNC);
             this.tabDebug.Controls.Add(this.grpGDB);
+            this.tabDebug.Controls.Add(this.groupBox16);
             this.tabDebug.Controls.Add(this.grpSerial);
             this.tabDebug.Controls.Add(this.grpParallel);
-            this.tabDebug.Controls.Add(this.groupBox16);
-            this.tabDebug.Controls.Add(this.chkVBE30);
             this.tabDebug.Location = new System.Drawing.Point(4, 22);
             this.tabDebug.Name = "tabDebug";
-            this.tabDebug.Size = new System.Drawing.Size(460, 201);
+            this.tabDebug.Size = new System.Drawing.Size(527, 201);
             this.tabDebug.TabIndex = 8;
             this.tabDebug.Text = "Debug";
             this.tabDebug.UseVisualStyleBackColor = true;
             // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(5, 175);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(253, 17);
+            this.checkBox2.TabIndex = 4;
+            this.checkBox2.Text = "Freeze CPU at startup (use \'c\' to start execution)";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
             // grpVNC
             // 
-            this.grpVNC.Controls.Add(this.textBox7);
+            this.grpVNC.Controls.Add(this.txtVNC);
             this.grpVNC.Controls.Add(this.label14);
             this.grpVNC.Controls.Add(this.chkVNC);
-            this.grpVNC.Location = new System.Drawing.Point(336, 88);
+            this.grpVNC.Location = new System.Drawing.Point(278, 3);
             this.grpVNC.Name = "grpVNC";
-            this.grpVNC.Size = new System.Drawing.Size(112, 88);
+            this.grpVNC.Size = new System.Drawing.Size(119, 96);
             this.grpVNC.TabIndex = 3;
             this.grpVNC.TabStop = false;
             this.grpVNC.Text = "VNC Server";
             // 
-            // textBox7
+            // txtVNC
             // 
-            this.textBox7.Enabled = false;
-            this.textBox7.Location = new System.Drawing.Point(8, 64);
-            this.textBox7.Name = "textBox7";
-            this.textBox7.Size = new System.Drawing.Size(96, 20);
-            this.textBox7.TabIndex = 2;
-            this.textBox7.Text = "0";
+            this.txtVNC.Enabled = false;
+            this.txtVNC.Location = new System.Drawing.Point(8, 64);
+            this.txtVNC.Name = "txtVNC";
+            this.txtVNC.Size = new System.Drawing.Size(96, 20);
+            this.txtVNC.TabIndex = 2;
+            this.txtVNC.Text = "0";
             // 
             // label14
             // 
             this.label14.Location = new System.Drawing.Point(8, 40);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(88, 23);
+            this.label14.Size = new System.Drawing.Size(88, 21);
             this.label14.TabIndex = 1;
             this.label14.Text = "Display Number";
             // 
@@ -1224,16 +1429,16 @@ namespace Qemu_GUI
             this.grpGDB.Controls.Add(this.lblGDBPort);
             this.grpGDB.Controls.Add(this.txtGDBPort);
             this.grpGDB.Controls.Add(this.checkBox14);
-            this.grpGDB.Location = new System.Drawing.Point(160, 8);
+            this.grpGDB.Location = new System.Drawing.Point(278, 105);
             this.grpGDB.Name = "grpGDB";
-            this.grpGDB.Size = new System.Drawing.Size(160, 168);
+            this.grpGDB.Size = new System.Drawing.Size(152, 80);
             this.grpGDB.TabIndex = 2;
             this.grpGDB.TabStop = false;
             this.grpGDB.Text = "GDB";
             // 
             // lblGDBPort
             // 
-            this.lblGDBPort.Location = new System.Drawing.Point(6, 128);
+            this.lblGDBPort.Location = new System.Drawing.Point(3, 46);
             this.lblGDBPort.Name = "lblGDBPort";
             this.lblGDBPort.Size = new System.Drawing.Size(55, 23);
             this.lblGDBPort.TabIndex = 2;
@@ -1241,7 +1446,7 @@ namespace Qemu_GUI
             // 
             // txtGDBPort
             // 
-            this.txtGDBPort.Location = new System.Drawing.Point(92, 128);
+            this.txtGDBPort.Location = new System.Drawing.Point(64, 46);
             this.txtGDBPort.Name = "txtGDBPort";
             this.txtGDBPort.Size = new System.Drawing.Size(60, 20);
             this.txtGDBPort.TabIndex = 1;
@@ -1250,31 +1455,89 @@ namespace Qemu_GUI
             // 
             // checkBox14
             // 
-            this.checkBox14.Location = new System.Drawing.Point(8, 32);
+            this.checkBox14.Location = new System.Drawing.Point(6, 19);
             this.checkBox14.Name = "checkBox14";
             this.checkBox14.Size = new System.Drawing.Size(144, 24);
             this.checkBox14.TabIndex = 0;
             this.checkBox14.Text = "Wait connection to port";
             // 
+            // groupBox16
+            // 
+            this.groupBox16.Controls.Add(this.checkBox3);
+            this.groupBox16.Controls.Add(this.button20);
+            this.groupBox16.Location = new System.Drawing.Point(403, 3);
+            this.groupBox16.Name = "groupBox16";
+            this.groupBox16.Size = new System.Drawing.Size(118, 96);
+            this.groupBox16.TabIndex = 1;
+            this.groupBox16.TabStop = false;
+            this.groupBox16.Text = "LoadVM state";
+            // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(6, 18);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(65, 17);
+            this.checkBox3.TabIndex = 4;
+            this.checkBox3.Text = "Enabled";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
+            // button20
+            // 
+            this.button20.Location = new System.Drawing.Point(10, 47);
+            this.button20.Name = "button20";
+            this.button20.Size = new System.Drawing.Size(96, 23);
+            this.button20.TabIndex = 3;
+            this.button20.Text = "Browse";
+            this.button20.Click += new System.EventHandler(this.btnLoadVM_Click);
+            // 
             // grpSerial
             // 
+            this.grpSerial.Controls.Add(this.txtSerialPipe);
+            this.grpSerial.Controls.Add(this.chkSerialToPipe);
+            this.grpSerial.Controls.Add(this.txtSerialFile);
             this.grpSerial.Controls.Add(this.btnBrowseSerial);
             this.grpSerial.Controls.Add(this.chkSerialToFile);
-            this.grpSerial.Location = new System.Drawing.Point(32, 8);
+            this.grpSerial.Location = new System.Drawing.Point(5, 3);
             this.grpSerial.Name = "grpSerial";
-            this.grpSerial.Size = new System.Drawing.Size(120, 80);
+            this.grpSerial.Size = new System.Drawing.Size(267, 80);
             this.grpSerial.TabIndex = 1;
             this.grpSerial.TabStop = false;
             this.grpSerial.Text = "Serial Port";
             // 
+            // txtSerialPipe
+            // 
+            this.txtSerialPipe.Location = new System.Drawing.Point(107, 47);
+            this.txtSerialPipe.Name = "txtSerialPipe";
+            this.txtSerialPipe.Size = new System.Drawing.Size(146, 20);
+            this.txtSerialPipe.TabIndex = 6;
+            // 
+            // chkSerialToPipe
+            // 
+            this.chkSerialToPipe.AutoSize = true;
+            this.chkSerialToPipe.Location = new System.Drawing.Point(8, 47);
+            this.chkSerialToPipe.Name = "chkSerialToPipe";
+            this.chkSerialToPipe.Size = new System.Drawing.Size(101, 17);
+            this.chkSerialToPipe.TabIndex = 5;
+            this.chkSerialToPipe.Text = "Redirect to pipe";
+            this.chkSerialToPipe.UseVisualStyleBackColor = true;
+            this.chkSerialToPipe.CheckedChanged += new System.EventHandler(this.chkSerialToPipe_CheckedChanged);
+            // 
+            // txtSerialFile
+            // 
+            this.txtSerialFile.Location = new System.Drawing.Point(99, 19);
+            this.txtSerialFile.Name = "txtSerialFile";
+            this.txtSerialFile.Size = new System.Drawing.Size(129, 20);
+            this.txtSerialFile.TabIndex = 4;
+            // 
             // btnBrowseSerial
             // 
             this.btnBrowseSerial.Enabled = false;
-            this.btnBrowseSerial.Location = new System.Drawing.Point(8, 48);
+            this.btnBrowseSerial.Location = new System.Drawing.Point(234, 19);
             this.btnBrowseSerial.Name = "btnBrowseSerial";
-            this.btnBrowseSerial.Size = new System.Drawing.Size(96, 23);
+            this.btnBrowseSerial.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseSerial.TabIndex = 3;
-            this.btnBrowseSerial.Text = "Browse";
+            this.btnBrowseSerial.Text = "...";
             this.btnBrowseSerial.Click += new System.EventHandler(this.btnBrowseSerial_Click);
             // 
             // chkSerialToFile
@@ -1288,23 +1551,50 @@ namespace Qemu_GUI
             // 
             // grpParallel
             // 
+            this.grpParallel.Controls.Add(this.txtParallelFile);
+            this.grpParallel.Controls.Add(this.txtParallelPipe);
+            this.grpParallel.Controls.Add(this.checkBox5);
             this.grpParallel.Controls.Add(this.btnBrowseParallel);
             this.grpParallel.Controls.Add(this.chkParallelToFile);
-            this.grpParallel.Location = new System.Drawing.Point(32, 96);
+            this.grpParallel.Location = new System.Drawing.Point(5, 89);
             this.grpParallel.Name = "grpParallel";
-            this.grpParallel.Size = new System.Drawing.Size(120, 80);
+            this.grpParallel.Size = new System.Drawing.Size(267, 80);
             this.grpParallel.TabIndex = 1;
             this.grpParallel.TabStop = false;
             this.grpParallel.Text = "Parallel port";
             // 
+            // txtParallelFile
+            // 
+            this.txtParallelFile.Location = new System.Drawing.Point(99, 16);
+            this.txtParallelFile.Name = "txtParallelFile";
+            this.txtParallelFile.Size = new System.Drawing.Size(129, 20);
+            this.txtParallelFile.TabIndex = 8;
+            // 
+            // txtParallelPipe
+            // 
+            this.txtParallelPipe.Location = new System.Drawing.Point(107, 46);
+            this.txtParallelPipe.Name = "txtParallelPipe";
+            this.txtParallelPipe.Size = new System.Drawing.Size(146, 20);
+            this.txtParallelPipe.TabIndex = 7;
+            // 
+            // checkBox5
+            // 
+            this.checkBox5.AutoSize = true;
+            this.checkBox5.Location = new System.Drawing.Point(8, 44);
+            this.checkBox5.Name = "checkBox5";
+            this.checkBox5.Size = new System.Drawing.Size(101, 17);
+            this.checkBox5.TabIndex = 6;
+            this.checkBox5.Text = "Redirect to pipe";
+            this.checkBox5.UseVisualStyleBackColor = true;
+            // 
             // btnBrowseParallel
             // 
             this.btnBrowseParallel.Enabled = false;
-            this.btnBrowseParallel.Location = new System.Drawing.Point(8, 48);
+            this.btnBrowseParallel.Location = new System.Drawing.Point(234, 16);
             this.btnBrowseParallel.Name = "btnBrowseParallel";
-            this.btnBrowseParallel.Size = new System.Drawing.Size(96, 23);
+            this.btnBrowseParallel.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseParallel.TabIndex = 3;
-            this.btnBrowseParallel.Text = "Browse";
+            this.btnBrowseParallel.Text = "...";
             this.btnBrowseParallel.Click += new System.EventHandler(this.btnBrowseParallel_Click);
             // 
             // chkParallelToFile
@@ -1313,480 +1603,226 @@ namespace Qemu_GUI
             this.chkParallelToFile.Name = "chkParallelToFile";
             this.chkParallelToFile.Size = new System.Drawing.Size(104, 24);
             this.chkParallelToFile.TabIndex = 2;
-            this.chkParallelToFile.Text = "Redirect to File";
+            this.chkParallelToFile.Text = "Redirect to file";
             this.chkParallelToFile.CheckedChanged += new System.EventHandler(this.chkParallelToFile_CheckedChanged);
             // 
-            // groupBox16
+            // tabTools
             // 
-            this.groupBox16.Controls.Add(this.button20);
-            this.groupBox16.Location = new System.Drawing.Point(336, 8);
-            this.groupBox16.Name = "groupBox16";
-            this.groupBox16.Size = new System.Drawing.Size(112, 72);
-            this.groupBox16.TabIndex = 1;
-            this.groupBox16.TabStop = false;
-            this.groupBox16.Text = "LoadVM state";
+            this.tabTools.Controls.Add(this.grpVDK);
+            this.tabTools.Controls.Add(this.groupBox9);
+            this.tabTools.Location = new System.Drawing.Point(4, 22);
+            this.tabTools.Name = "tabTools";
+            this.tabTools.Size = new System.Drawing.Size(527, 201);
+            this.tabTools.TabIndex = 6;
+            this.tabTools.Text = "Tools";
+            this.tabTools.UseVisualStyleBackColor = true;
             // 
-            // button20
+            // grpVDK
             // 
-            this.button20.Location = new System.Drawing.Point(8, 24);
-            this.button20.Name = "button20";
-            this.button20.Size = new System.Drawing.Size(96, 23);
-            this.button20.TabIndex = 3;
-            this.button20.Text = "Browse";
-            this.button20.Click += new System.EventHandler(this.button20_Click);
+            this.grpVDK.Controls.Add(this.txtVDKImage);
+            this.grpVDK.Controls.Add(this.cboVDKDrive);
+            this.grpVDK.Controls.Add(this.lblDrive);
+            this.grpVDK.Controls.Add(this.btnVDKImage);
+            this.grpVDK.Controls.Add(this.btnUnmount);
+            this.grpVDK.Controls.Add(this.btnMount);
+            this.grpVDK.Controls.Add(this.lblImage);
+            this.grpVDK.Enabled = false;
+            this.grpVDK.Location = new System.Drawing.Point(4, 83);
+            this.grpVDK.Name = "grpVDK";
+            this.grpVDK.Size = new System.Drawing.Size(493, 115);
+            this.grpVDK.TabIndex = 7;
+            this.grpVDK.TabStop = false;
+            this.grpVDK.Text = "VDK";
+            // 
+            // txtVDKImage
+            // 
+            this.txtVDKImage.Location = new System.Drawing.Point(16, 41);
+            this.txtVDKImage.Name = "txtVDKImage";
+            this.txtVDKImage.Size = new System.Drawing.Size(398, 20);
+            this.txtVDKImage.TabIndex = 6;
+            // 
+            // cboVDKDrive
+            // 
+            this.cboVDKDrive.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboVDKDrive.FormattingEnabled = true;
+            this.cboVDKDrive.Location = new System.Drawing.Point(64, 74);
+            this.cboVDKDrive.Name = "cboVDKDrive";
+            this.cboVDKDrive.Size = new System.Drawing.Size(69, 21);
+            this.cboVDKDrive.TabIndex = 10;
+            this.cboVDKDrive.SelectedIndexChanged += new System.EventHandler(this.cboVDKDrive_SelectedIndexChanged);
+            // 
+            // lblDrive
+            // 
+            this.lblDrive.AutoSize = true;
+            this.lblDrive.Location = new System.Drawing.Point(14, 77);
+            this.lblDrive.Name = "lblDrive";
+            this.lblDrive.Size = new System.Drawing.Size(35, 13);
+            this.lblDrive.TabIndex = 9;
+            this.lblDrive.Text = "Drive:";
+            // 
+            // btnVDKImage
+            // 
+            this.btnVDKImage.Location = new System.Drawing.Point(419, 39);
+            this.btnVDKImage.Name = "btnVDKImage";
+            this.btnVDKImage.Size = new System.Drawing.Size(27, 22);
+            this.btnVDKImage.TabIndex = 8;
+            this.btnVDKImage.Text = "...";
+            this.btnVDKImage.UseVisualStyleBackColor = true;
+            this.btnVDKImage.Click += new System.EventHandler(this.btnVDKImage_Click);
+            // 
+            // btnUnmount
+            // 
+            this.btnUnmount.Location = new System.Drawing.Point(353, 77);
+            this.btnUnmount.Name = "btnUnmount";
+            this.btnUnmount.Size = new System.Drawing.Size(93, 23);
+            this.btnUnmount.TabIndex = 5;
+            this.btnUnmount.Text = "Unmount";
+            this.btnUnmount.Click += new System.EventHandler(this.btnUnmount_Click);
+            // 
+            // btnMount
+            // 
+            this.btnMount.Location = new System.Drawing.Point(255, 77);
+            this.btnMount.Name = "btnMount";
+            this.btnMount.Size = new System.Drawing.Size(93, 23);
+            this.btnMount.TabIndex = 3;
+            this.btnMount.Text = "Mount";
+            this.btnMount.Click += new System.EventHandler(this.btnMount_Click);
+            // 
+            // lblImage
+            // 
+            this.lblImage.AutoSize = true;
+            this.lblImage.Location = new System.Drawing.Point(13, 25);
+            this.lblImage.Name = "lblImage";
+            this.lblImage.Size = new System.Drawing.Size(39, 13);
+            this.lblImage.TabIndex = 7;
+            this.lblImage.Text = "Image:";
+            // 
+            // groupBox9
+            // 
+            this.groupBox9.Controls.Add(this.lblImageSizeMB);
+            this.groupBox9.Controls.Add(this.label11);
+            this.groupBox9.Controls.Add(this.txtImageSize);
+            this.groupBox9.Controls.Add(this.lblImageSize);
+            this.groupBox9.Controls.Add(this.btnCreateImage);
+            this.groupBox9.Controls.Add(this.cboImageFormat);
+            this.groupBox9.Location = new System.Drawing.Point(4, 3);
+            this.groupBox9.Name = "groupBox9";
+            this.groupBox9.Size = new System.Drawing.Size(493, 74);
+            this.groupBox9.TabIndex = 6;
+            this.groupBox9.TabStop = false;
+            this.groupBox9.Text = "Harddisk Tools";
+            // 
+            // lblImageSizeMB
+            // 
+            this.lblImageSizeMB.AutoSize = true;
+            this.lblImageSizeMB.Location = new System.Drawing.Point(83, 42);
+            this.lblImageSizeMB.Name = "lblImageSizeMB";
+            this.lblImageSizeMB.Size = new System.Drawing.Size(23, 13);
+            this.lblImageSizeMB.TabIndex = 8;
+            this.lblImageSizeMB.Text = "MB";
+            // 
+            // label11
+            // 
+            this.label11.Location = new System.Drawing.Point(125, 24);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(48, 12);
+            this.label11.TabIndex = 5;
+            this.label11.Text = "Format";
+            // 
+            // txtImageSize
+            // 
+            this.txtImageSize.Location = new System.Drawing.Point(16, 39);
+            this.txtImageSize.Name = "txtImageSize";
+            this.txtImageSize.Size = new System.Drawing.Size(64, 20);
+            this.txtImageSize.TabIndex = 3;
+            this.txtImageSize.Text = "512";
+            // 
+            // lblImageSize
+            // 
+            this.lblImageSize.Location = new System.Drawing.Point(13, 24);
+            this.lblImageSize.Name = "lblImageSize";
+            this.lblImageSize.Size = new System.Drawing.Size(64, 24);
+            this.lblImageSize.TabIndex = 2;
+            this.lblImageSize.Text = "Size";
+            // 
+            // btnCreateImage
+            // 
+            this.btnCreateImage.Location = new System.Drawing.Point(201, 36);
+            this.btnCreateImage.Name = "btnCreateImage";
+            this.btnCreateImage.Size = new System.Drawing.Size(93, 23);
+            this.btnCreateImage.TabIndex = 1;
+            this.btnCreateImage.Text = "Create Image";
+            this.btnCreateImage.Click += new System.EventHandler(this.btnCreateImage_Click);
+            // 
+            // cboImageFormat
+            // 
+            this.cboImageFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboImageFormat.Items.AddRange(new object[] {
+            "cloop",
+            "cow",
+            "qcow",
+            "raw",
+            "vmdk"});
+            this.cboImageFormat.Location = new System.Drawing.Point(128, 39);
+            this.cboImageFormat.Name = "cboImageFormat";
+            this.cboImageFormat.Size = new System.Drawing.Size(56, 21);
+            this.cboImageFormat.TabIndex = 7;
+            // 
+            // tabOther
+            // 
+            this.tabOther.Controls.Add(this.chkVBE30);
+            this.tabOther.Controls.Add(this.groupBox1);
+            this.tabOther.Location = new System.Drawing.Point(4, 22);
+            this.tabOther.Name = "tabOther";
+            this.tabOther.Padding = new System.Windows.Forms.Padding(3);
+            this.tabOther.Size = new System.Drawing.Size(527, 201);
+            this.tabOther.TabIndex = 11;
+            this.tabOther.Text = "Other";
+            this.tabOther.UseVisualStyleBackColor = true;
             // 
             // chkVBE30
             // 
             this.chkVBE30.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkVBE30.Location = new System.Drawing.Point(32, 169);
+            this.chkVBE30.Location = new System.Drawing.Point(13, 172);
             this.chkVBE30.Name = "chkVBE30";
-            this.chkVBE30.Size = new System.Drawing.Size(416, 32);
-            this.chkVBE30.TabIndex = 2;
+            this.chkVBE30.Size = new System.Drawing.Size(416, 23);
+            this.chkVBE30.TabIndex = 3;
             this.chkVBE30.Text = "Simulate a standard VGA card with Bochs VBE 3.0 extensions ";
-            // 
-            // tabNetwork
-            // 
-            this.tabNetwork.Controls.Add(this.grpNetwork);
-            this.tabNetwork.Controls.Add(this.groupBox1);
-            this.tabNetwork.Location = new System.Drawing.Point(4, 22);
-            this.tabNetwork.Name = "tabNetwork";
-            this.tabNetwork.Size = new System.Drawing.Size(460, 201);
-            this.tabNetwork.TabIndex = 7;
-            this.tabNetwork.Text = "Network";
-            this.tabNetwork.UseVisualStyleBackColor = true;
-            // 
-            // grpNetwork
-            // 
-            this.grpNetwork.Controls.Add(this.numericUpDown9);
-            this.grpNetwork.Controls.Add(this.numericUpDown10);
-            this.grpNetwork.Controls.Add(this.numericUpDown11);
-            this.grpNetwork.Controls.Add(this.numericUpDown12);
-            this.grpNetwork.Controls.Add(this.lblGateway);
-            this.grpNetwork.Controls.Add(this.numericUpDown5);
-            this.grpNetwork.Controls.Add(this.numericUpDown6);
-            this.grpNetwork.Controls.Add(this.numericUpDown7);
-            this.grpNetwork.Controls.Add(this.numericUpDown8);
-            this.grpNetwork.Controls.Add(this.lblNetmask);
-            this.grpNetwork.Controls.Add(this.numericUpDown4);
-            this.grpNetwork.Controls.Add(this.numericUpDown3);
-            this.grpNetwork.Controls.Add(this.numericUpDown2);
-            this.grpNetwork.Controls.Add(this.numericUpDown1);
-            this.grpNetwork.Controls.Add(this.lblIP);
-            this.grpNetwork.Controls.Add(this.optStaticIP);
-            this.grpNetwork.Controls.Add(this.optDHCP);
-            this.grpNetwork.Location = new System.Drawing.Point(222, 3);
-            this.grpNetwork.Name = "grpNetwork";
-            this.grpNetwork.Size = new System.Drawing.Size(235, 195);
-            this.grpNetwork.TabIndex = 1;
-            this.grpNetwork.TabStop = false;
-            this.grpNetwork.Text = "Network";
-            // 
-            // numericUpDown9
-            // 
-            this.numericUpDown9.Location = new System.Drawing.Point(173, 157);
-            this.numericUpDown9.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown9.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown9.Name = "numericUpDown9";
-            this.numericUpDown9.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown9.TabIndex = 27;
-            this.numericUpDown9.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown10
-            // 
-            this.numericUpDown10.Location = new System.Drawing.Point(121, 157);
-            this.numericUpDown10.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown10.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown10.Name = "numericUpDown10";
-            this.numericUpDown10.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown10.TabIndex = 26;
-            this.numericUpDown10.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown11
-            // 
-            this.numericUpDown11.Location = new System.Drawing.Point(69, 157);
-            this.numericUpDown11.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown11.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown11.Name = "numericUpDown11";
-            this.numericUpDown11.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown11.TabIndex = 25;
-            this.numericUpDown11.Value = new decimal(new int[] {
-            168,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown12
-            // 
-            this.numericUpDown12.Location = new System.Drawing.Point(17, 157);
-            this.numericUpDown12.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown12.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown12.Name = "numericUpDown12";
-            this.numericUpDown12.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown12.TabIndex = 24;
-            this.numericUpDown12.Value = new decimal(new int[] {
-            192,
-            0,
-            0,
-            0});
-            // 
-            // lblGateway
-            // 
-            this.lblGateway.AutoSize = true;
-            this.lblGateway.Location = new System.Drawing.Point(14, 141);
-            this.lblGateway.Name = "lblGateway";
-            this.lblGateway.Size = new System.Drawing.Size(49, 13);
-            this.lblGateway.TabIndex = 23;
-            this.lblGateway.Text = "Gateway";
-            // 
-            // numericUpDown5
-            // 
-            this.numericUpDown5.Location = new System.Drawing.Point(173, 115);
-            this.numericUpDown5.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown5.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown5.Name = "numericUpDown5";
-            this.numericUpDown5.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown5.TabIndex = 22;
-            this.numericUpDown5.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown6
-            // 
-            this.numericUpDown6.Location = new System.Drawing.Point(121, 115);
-            this.numericUpDown6.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown6.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown6.Name = "numericUpDown6";
-            this.numericUpDown6.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown6.TabIndex = 21;
-            this.numericUpDown6.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown7
-            // 
-            this.numericUpDown7.Location = new System.Drawing.Point(69, 115);
-            this.numericUpDown7.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown7.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown7.Name = "numericUpDown7";
-            this.numericUpDown7.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown7.TabIndex = 20;
-            this.numericUpDown7.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown8
-            // 
-            this.numericUpDown8.Location = new System.Drawing.Point(17, 115);
-            this.numericUpDown8.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown8.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown8.Name = "numericUpDown8";
-            this.numericUpDown8.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown8.TabIndex = 19;
-            this.numericUpDown8.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            // 
-            // lblNetmask
-            // 
-            this.lblNetmask.AutoSize = true;
-            this.lblNetmask.Location = new System.Drawing.Point(14, 97);
-            this.lblNetmask.Name = "lblNetmask";
-            this.lblNetmask.Size = new System.Drawing.Size(75, 13);
-            this.lblNetmask.TabIndex = 18;
-            this.lblNetmask.Text = "Network mask";
-            // 
-            // numericUpDown4
-            // 
-            this.numericUpDown4.Location = new System.Drawing.Point(173, 74);
-            this.numericUpDown4.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown4.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown4.Name = "numericUpDown4";
-            this.numericUpDown4.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown4.TabIndex = 17;
-            this.numericUpDown4.Value = new decimal(new int[] {
-            20,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown3
-            // 
-            this.numericUpDown3.Location = new System.Drawing.Point(121, 74);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown3.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown3.TabIndex = 16;
-            this.numericUpDown3.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown2
-            // 
-            this.numericUpDown2.Location = new System.Drawing.Point(69, 74);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown2.TabIndex = 15;
-            this.numericUpDown2.Value = new decimal(new int[] {
-            168,
-            0,
-            0,
-            0});
-            // 
-            // numericUpDown1
-            // 
-            this.numericUpDown1.Location = new System.Drawing.Point(17, 74);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(46, 20);
-            this.numericUpDown1.TabIndex = 14;
-            this.numericUpDown1.Value = new decimal(new int[] {
-            192,
-            0,
-            0,
-            0});
-            // 
-            // lblIP
-            // 
-            this.lblIP.AutoSize = true;
-            this.lblIP.Location = new System.Drawing.Point(14, 58);
-            this.lblIP.Name = "lblIP";
-            this.lblIP.Size = new System.Drawing.Size(58, 13);
-            this.lblIP.TabIndex = 2;
-            this.lblIP.Text = "IP Address";
-            // 
-            // optStaticIP
-            // 
-            this.optStaticIP.AutoSize = true;
-            this.optStaticIP.Location = new System.Drawing.Point(121, 29);
-            this.optStaticIP.Name = "optStaticIP";
-            this.optStaticIP.Size = new System.Drawing.Size(65, 17);
-            this.optStaticIP.TabIndex = 1;
-            this.optStaticIP.TabStop = true;
-            this.optStaticIP.Text = "Static IP";
-            this.optStaticIP.UseVisualStyleBackColor = true;
-            // 
-            // optDHCP
-            // 
-            this.optDHCP.AutoSize = true;
-            this.optDHCP.Checked = true;
-            this.optDHCP.Location = new System.Drawing.Point(17, 29);
-            this.optDHCP.Name = "optDHCP";
-            this.optDHCP.Size = new System.Drawing.Size(77, 17);
-            this.optDHCP.TabIndex = 0;
-            this.optDHCP.TabStop = true;
-            this.optDHCP.Text = "Use DHCP";
-            this.optDHCP.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
+            this.groupBox1.Controls.Add(this.label7);
+            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.textBox2);
+            this.groupBox1.Location = new System.Drawing.Point(6, 6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(213, 195);
+            this.groupBox1.Size = new System.Drawing.Size(308, 98);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Buildin Server";
+            this.groupBox1.Text = "Linux";
             // 
-            // tabPaths
+            // button1
             // 
-            this.tabPaths.Controls.Add(this.groupBox2);
-            this.tabPaths.Location = new System.Drawing.Point(4, 22);
-            this.tabPaths.Name = "tabPaths";
-            this.tabPaths.Size = new System.Drawing.Size(460, 201);
-            this.tabPaths.TabIndex = 10;
-            this.tabPaths.Text = "Paths";
-            this.tabPaths.UseVisualStyleBackColor = true;
+            this.button1.Location = new System.Drawing.Point(275, 19);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(27, 22);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "...";
+            this.button1.UseVisualStyleBackColor = true;
             // 
-            // groupBox2
+            // textBox2
             // 
-            this.groupBox2.Controls.Add(this.txtQEmuPath);
-            this.groupBox2.Controls.Add(this.txtVDKPath);
-            this.groupBox2.Controls.Add(this.btnVDKBrowse);
-            this.groupBox2.Controls.Add(this.lblVDKPath);
-            this.groupBox2.Controls.Add(this.btnQEmuPath);
-            this.groupBox2.Controls.Add(this.lblQEmuPath);
-            this.groupBox2.Location = new System.Drawing.Point(3, 3);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(454, 195);
-            this.groupBox2.TabIndex = 21;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Paths";
-            // 
-            // txtQEmuPath
-            // 
-            this.txtQEmuPath.Location = new System.Drawing.Point(17, 46);
-            this.txtQEmuPath.Name = "txtQEmuPath";
-            this.txtQEmuPath.Size = new System.Drawing.Size(398, 20);
-            this.txtQEmuPath.TabIndex = 1;
-            // 
-            // txtVDKPath
-            // 
-            this.txtVDKPath.Location = new System.Drawing.Point(17, 98);
-            this.txtVDKPath.Name = "txtVDKPath";
-            this.txtVDKPath.Size = new System.Drawing.Size(398, 20);
-            this.txtVDKPath.TabIndex = 5;
-            // 
-            // btnVDKBrowse
-            // 
-            this.btnVDKBrowse.Location = new System.Drawing.Point(421, 97);
-            this.btnVDKBrowse.Name = "btnVDKBrowse";
-            this.btnVDKBrowse.Size = new System.Drawing.Size(27, 21);
-            this.btnVDKBrowse.TabIndex = 4;
-            this.btnVDKBrowse.Text = "...";
-            this.btnVDKBrowse.UseVisualStyleBackColor = true;
-            this.btnVDKBrowse.Click += new System.EventHandler(this.btnVDKBrowse_Click);
-            // 
-            // lblVDKPath
-            // 
-            this.lblVDKPath.AutoSize = true;
-            this.lblVDKPath.Location = new System.Drawing.Point(15, 82);
-            this.lblVDKPath.Name = "lblVDKPath";
-            this.lblVDKPath.Size = new System.Drawing.Size(29, 13);
-            this.lblVDKPath.TabIndex = 3;
-            this.lblVDKPath.Text = "VDK";
-            // 
-            // btnQEmuPath
-            // 
-            this.btnQEmuPath.Location = new System.Drawing.Point(421, 45);
-            this.btnQEmuPath.Name = "btnQEmuPath";
-            this.btnQEmuPath.Size = new System.Drawing.Size(27, 21);
-            this.btnQEmuPath.TabIndex = 0;
-            this.btnQEmuPath.Text = "...";
-            this.btnQEmuPath.UseVisualStyleBackColor = true;
-            this.btnQEmuPath.Click += new System.EventHandler(this.btnQEmuPath_Click);
-            // 
-            // lblQEmuPath
-            // 
-            this.lblQEmuPath.AutoSize = true;
-            this.lblQEmuPath.Location = new System.Drawing.Point(14, 30);
-            this.lblQEmuPath.Name = "lblQEmuPath";
-            this.lblQEmuPath.Size = new System.Drawing.Size(36, 13);
-            this.lblQEmuPath.TabIndex = 2;
-            this.lblQEmuPath.Text = "QEmu";
+            this.textBox2.Location = new System.Drawing.Point(101, 19);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(168, 20);
+            this.textBox2.TabIndex = 0;
             // 
             // tabAbout
             // 
             this.tabAbout.Controls.Add(this.txtAbout);
             this.tabAbout.Location = new System.Drawing.Point(4, 22);
             this.tabAbout.Name = "tabAbout";
-            this.tabAbout.Size = new System.Drawing.Size(460, 201);
+            this.tabAbout.Size = new System.Drawing.Size(527, 201);
             this.tabAbout.TabIndex = 9;
             this.tabAbout.Text = "About";
             this.tabAbout.UseVisualStyleBackColor = true;
@@ -1798,13 +1834,14 @@ namespace Qemu_GUI
             this.txtAbout.Multiline = true;
             this.txtAbout.Name = "txtAbout";
             this.txtAbout.ReadOnly = true;
+            this.txtAbout.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtAbout.Size = new System.Drawing.Size(439, 186);
             this.txtAbout.TabIndex = 0;
             this.txtAbout.Text = resources.GetString("txtAbout.Text");
             // 
             // btnLaunch
             // 
-            this.btnLaunch.Location = new System.Drawing.Point(387, 243);
+            this.btnLaunch.Location = new System.Drawing.Point(423, 243);
             this.btnLaunch.Name = "btnLaunch";
             this.btnLaunch.Size = new System.Drawing.Size(93, 23);
             this.btnLaunch.TabIndex = 4;
@@ -1834,24 +1871,35 @@ namespace Qemu_GUI
             this.btnSave.Text = "Save";
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 22);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(69, 13);
+            this.label7.TabIndex = 3;
+            this.label7.Text = "Kernel Image";
+            // 
             // frmMain
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(485, 270);
+            this.ClientSize = new System.Drawing.Size(540, 272);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnLaunch);
-            this.Controls.Add(this.HardDisk2);
+            this.Controls.Add(this.Tabs);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.ImeMode = System.Windows.Forms.ImeMode.On;
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Qemu GUI Launcher Version 1.0 written by Magnus Olsen for ReactOS";
+            this.Text = "Qemu GUI Launcher Version 1.1";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.grpMachine.ResumeLayout(false);
-            this.HardDisk2.ResumeLayout(false);
-            this.tabMisc.ResumeLayout(false);
+            this.Tabs.ResumeLayout(false);
+            this.tabGen.ResumeLayout(false);
+            this.grpACPI.ResumeLayout(false);
+            this.grpACPI.PerformLayout();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numSMP)).EndInit();
@@ -1860,20 +1908,27 @@ namespace Qemu_GUI
             this.grpClock.PerformLayout();
             this.grpDisplay.ResumeLayout(false);
             this.grpDisplay.PerformLayout();
+            this.tabPaths.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.tabHardDisk.ResumeLayout(false);
+            this.tabHardDisk.PerformLayout();
+            this.grpHarddisk.ResumeLayout(false);
+            this.grpHarddisk.PerformLayout();
             this.tabCDROM.ResumeLayout(false);
             this.grpCDROM.ResumeLayout(false);
             this.grpCDROM.PerformLayout();
             this.tabFloppy.ResumeLayout(false);
+            this.tabFloppy.PerformLayout();
             this.grpFloppy.ResumeLayout(false);
             this.grpFloppy.PerformLayout();
-            this.HardDisk.ResumeLayout(false);
-            this.grpHarddisk.ResumeLayout(false);
-            this.grpHarddisk.PerformLayout();
-            this.tabTools.ResumeLayout(false);
-            this.grpVDK.ResumeLayout(false);
-            this.grpVDK.PerformLayout();
-            this.groupBox9.ResumeLayout(false);
-            this.groupBox9.PerformLayout();
+            this.tabNetwork.ResumeLayout(false);
+            this.grpNetwork.ResumeLayout(false);
+            this.grpNetwork.PerformLayout();
+            this.panelUser.ResumeLayout(false);
+            this.panelUser.PerformLayout();
+            this.panelNic.ResumeLayout(false);
+            this.panelNic.PerformLayout();
             this.tabAudio.ResumeLayout(false);
             this.grpAudio.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
@@ -1881,31 +1936,25 @@ namespace Qemu_GUI
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabDebug.ResumeLayout(false);
+            this.tabDebug.PerformLayout();
             this.grpVNC.ResumeLayout(false);
             this.grpVNC.PerformLayout();
             this.grpGDB.ResumeLayout(false);
             this.grpGDB.PerformLayout();
-            this.grpSerial.ResumeLayout(false);
-            this.grpParallel.ResumeLayout(false);
             this.groupBox16.ResumeLayout(false);
-            this.tabNetwork.ResumeLayout(false);
-            this.grpNetwork.ResumeLayout(false);
-            this.grpNetwork.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown9)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown10)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown11)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown12)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown6)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown7)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown8)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            this.tabPaths.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.groupBox16.PerformLayout();
+            this.grpSerial.ResumeLayout(false);
+            this.grpSerial.PerformLayout();
+            this.grpParallel.ResumeLayout(false);
+            this.grpParallel.PerformLayout();
+            this.tabTools.ResumeLayout(false);
+            this.grpVDK.ResumeLayout(false);
+            this.grpVDK.PerformLayout();
+            this.groupBox9.ResumeLayout(false);
+            this.groupBox9.PerformLayout();
+            this.tabOther.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.tabAbout.ResumeLayout(false);
             this.tabAbout.PerformLayout();
             this.ResumeLayout(false);
@@ -1924,37 +1973,22 @@ namespace Qemu_GUI
 
         private void btnCreateImage_Click(object sender, System.EventArgs e)
         {
-            saveFileDialog1.Filter = "All files (*.*)|*.*";
-            saveFileDialog1.FileName = "image." + cboImageFormat.Text;
-            saveFileDialog1.DefaultExt = cboImageFormat.Text;
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            saveFileDialog.Filter = "All files (*.*)|*.*";
+            saveFileDialog.FileName = "image." + cboImageFormat.Text;
+            saveFileDialog.DefaultExt = cboImageFormat.Text;
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                if (!qemu.CreateImage(saveFileDialog1.FileName, Convert.ToInt32(txtImageSize.Text), cboImageFormat.Text))
-                {
-                    frmError fError = new frmError();
-                    fError.txtError.Text = qemu.GetLastError();
-                    fError.ShowDialog(this);
-                }
-                else
+                SaveSettings();
+                runner = new Runner(data);
+                if (runner.CreateImage(saveFileDialog.FileName, Convert.ToInt32(txtImageSize.Text), cboImageFormat.Text))
                     MessageBox.Show("Image created"); 
             }
         }
 
-        private void button11_Click(object sender, System.EventArgs e)
-        {
-            openFile.ShowDialog();
-        }
-
-        private void button14_Click(object sender, System.EventArgs e)
-        {
-            openFile.ShowDialog();
-        }
-
-
         #region Harddisks
         private void btnBrowseHDA_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img | All Files | *.*";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDA.Text = openFile.FileName;
         }
@@ -1963,7 +1997,7 @@ namespace Qemu_GUI
         {
             openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
             if (openFile.ShowDialog() == DialogResult.OK)
-                qemu.Harddisks.HDD[1].Path = openFile.FileName;
+                txtHDB.Text = openFile.FileName;
         }
 
         private void btnBrowseHDC_Click(object sender, System.EventArgs e)
@@ -1996,6 +2030,7 @@ namespace Qemu_GUI
         {
             btnBrowseHDC.Enabled = chkUseHDC.Checked;
             txtHDC.Enabled = chkUseHDC.Checked;
+            txtHDC.Text = "";
         }
 
         private void chkUseHDD_CheckedChanged(object sender, System.EventArgs e)
@@ -2003,6 +2038,15 @@ namespace Qemu_GUI
             btnBrowseHDD.Enabled = chkUseHDD.Checked;
             txtHDD.Enabled = chkUseHDD.Checked;
         }
+
+        private void chkHardDiskHack_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkHardDiskHack.Checked == true)
+                data.Harddisks.W2kHack = true;
+            else
+                data.Harddisks.W2kHack = false;
+        }
+
         #endregion
 
         #region CDROM
@@ -2022,7 +2066,7 @@ namespace Qemu_GUI
                 cboCDROM.Enabled = false;
                 optCDImage.Enabled = false;
                 btnBrowseCDROM.Enabled = false;
-                chkUseCDROM.Enabled = false;
+                txtCDROM.Enabled = false;
             }
             else
             {
@@ -2032,6 +2076,10 @@ namespace Qemu_GUI
             if (chkUseCDROM.Checked == true)
             {
                 chkUseHDC.Enabled = false;
+                chkUseHDC.Checked = false;
+                txtHDC.Text = "Used for CD-ROM!";
+                txtHDC.Enabled = false;
+                txtCDROM.Enabled = true;
                 optHostCDROM.Enabled = true;
                 optCDImage.Enabled = true;
                 if (optCDImage.Checked == true)
@@ -2051,7 +2099,9 @@ namespace Qemu_GUI
                 cboCDROM.Enabled = false;
                 optCDImage.Enabled = false;
                 btnBrowseCDROM.Enabled = false;
+                txtCDROM.Enabled = false;
                 chkUseHDC.Enabled = true;
+                txtHDC.Text = "";
             }
         }
 
@@ -2071,77 +2121,124 @@ namespace Qemu_GUI
 
         #endregion
 
-        private void btnBrowseSerial_Click(object sender, System.EventArgs e)
-        {
-            if (openFile.ShowDialog() == DialogResult.OK) 
-                qemu.Debug.SerialPort.FileName = openFile.FileName; 
-        }
-
-         static string par_path;
-        private void btnBrowseParallel_Click(object sender, System.EventArgs e)
-        {
-            if (openFile.ShowDialog() == DialogResult.OK) 
-                par_path = openFile.FileName;
-        }
-
-        static string qemu_state; 
-        private void button20_Click(object sender, System.EventArgs e)
-        {
-            openFile.ShowDialog();
-            qemu_state = openFile.FileName;
-        }
- 
         private void btnLaunch_Click(object sender, System.EventArgs e)
         {
             SaveSettings();
-            if (!qemu.Start((Platforms)cboMachine.SelectedIndex))
+
+            bool HasHDisk = false;
+            bool HasFDisk = false;
+
+            /* There must be atleast one source of OS */
+            for (int i = 0; i < data.Harddisks.HDD.Length; i++)
             {
-                frmError fError = new frmError();
-                fError.txtError.Text = qemu.GetLastError();
-                fError.ShowDialog(this); 
+                if (data.Harddisks.HDD[i].Enabled == true)
+                    HasHDisk = true;
             }
 
-        }
-        /*
-        private string GetArgv()
-        {
-
-            // gdb
-            if (checkBox14.Checked == true)
-            {                
-                arg = arg + "-s ";
-            }
-
-            // qemu state
-            openFile.FileName = qemu_state;
-            if (openFile.CheckFileExists == true)
+            for (int i = 0; i < data.Floppies.FDD.Length; i++)
             {
-              arg = arg + "-loadvm "+qemu_state+" "; 
+                if (data.Floppies.FDD[i].Enabled == true)
+                    HasFDisk = true;
             }
-
+            if (HasHDisk == false && data.CDROM.Enabled == false && HasFDisk == false)
+                MessageBox.Show("Must enable atleast 1 Hard disk, CD-Rom or Floppy disk!", "Error");//or specify linux kernel image???
+            else
+            {
+                /* we must know where to look for qemu */
+                if (data.Paths.QEmu.Length == 0)
+                    MessageBox.Show("Please specify Qemu Path!", "Error");
+                else
+                {
+                    runner = new Runner(data);
+                    runner.StartQemu((Platforms)cboMachine.SelectedIndex);
+                }
+            }
         }
 
-          */
         #region Debug
         private void chkSerialToFile_CheckedChanged(object sender, System.EventArgs e)
         {
-            btnBrowseSerial.Enabled = chkSerialToFile.Checked;
+            if (chkSerialToFile.Checked == true)
+            {
+                btnBrowseSerial.Enabled = true;
+                txtSerialFile.Enabled = true;
+                data.Debug.SerialPort.FRedirect = true;
+                data.Debug.SerialPort.PRedirect = false;
+                chkSerialToPipe.Enabled = false;
+                chkSerialToPipe.Checked = false;
+                txtSerialPipe.Enabled = false;
+            }
+            else
+            {
+                data.Debug.SerialPort.FRedirect = false;
+                chkSerialToPipe.Enabled = true;
+                txtSerialFile.Enabled = false;
+                btnBrowseSerial.Enabled = false;
+            }
+        }
+        private void chkSerialToPipe_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkSerialToPipe.Checked == true)
+            {
+                txtSerialPipe.Enabled = true;
+                data.Debug.SerialPort.FRedirect = false;
+                data.Debug.SerialPort.PRedirect = true;
+                chkSerialToFile.Enabled = false;
+                chkSerialToFile.Checked = false;
+                txtSerialFile.Enabled = false;
+                btnBrowseSerial.Enabled = false;
+            }
+            else
+            {
+                chkSerialToFile.Enabled = true;
+                data.Debug.SerialPort.PRedirect = false;
+                txtSerialPipe.Enabled = false;
+            }
         }
 
         private void chkParallelToFile_CheckedChanged(object sender, System.EventArgs e)
         {
             btnBrowseParallel.Enabled = chkParallelToFile.Checked;
+            data.Debug.ParallelPort.FRedirect = chkParallelToFile.Checked;
         }
 
+        private void btnBrowseSerial_Click(object sender, System.EventArgs e)
+        {
+            saveFileDialog.Title = "Serial output to file";
+            saveFileDialog.FileName = "serial_ouput.txt";
+            saveFileDialog.Filter = "Text File (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                txtSerialFile.Text = saveFileDialog.FileName;
+            }
+        }
+
+        private void btnBrowseParallel_Click(object sender, System.EventArgs e)
+        {
+            saveFileDialog.Title = "Parallel output to file";
+            saveFileDialog.FileName = "parallel_output.txt";
+            saveFileDialog.Filter = "Text File (*.txt)|*.txt";
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                txtParallelFile.Text = saveFileDialog.FileName;
+        }
+
+        static string saved_state;
+        private void btnLoadVM_Click(object sender, System.EventArgs e)
+        {
+            openFile.ShowDialog();
+            saved_state = openFile.FileName;
+            data.Debug.EnableSavedState = true;
+        }
+        
         private void chkVNC_CheckedChanged(object sender, System.EventArgs e)
         {
-            textBox7.Enabled = chkVNC.Checked;
+            txtVNC.Enabled = chkVNC.Checked;
         }
         #endregion
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            qemu = new QEmu();
+            data = new Data();
 
             /* Fill a list with possible free driveletters */
             ArrayList DriveLetters = new ArrayList();
@@ -2156,31 +2253,40 @@ namespace Qemu_GUI
                 /* remove all driveletters which are in use */
                 DriveLetters.Remove(drive.RootDirectory.ToString());
                 if (drive.DriveType == DriveType.CDRom)
-                    cboCDROM.Items.Add(drive.RootDirectory);  
+                    cboCDROM.Items.Add(drive.RootDirectory);
             }
 
             foreach (object o in DriveLetters)
                 cboVDKDrive.Items.Add(o);
 
-            cboVDKDrive.SelectedIndex = 0; 
+            cboVDKDrive.SelectedIndex = 0;
             cboCDROM.SelectedIndex = 0;
             cboBootFrom.SelectedIndex = 1;
             cboImageFormat.SelectedIndex = 4;
             cboMachine.SelectedIndex = 0;
 
-            /* try to load config.xml from current directory */
-            try
+            /* Default config load */
+            string DefaultConfig = currentDir + "/config.xml";
+            if (File.Exists(DefaultConfig))
             {
-                XmlSerializer s = new XmlSerializer(typeof(QEmu));
-                TextReader r = new StreamReader(".//config.xml");
-                qemu = (QEmu)s.Deserialize(r);
+                XmlSerializer s = new XmlSerializer(typeof(Data));
+                TextReader r = new StreamReader(DefaultConfig);
+                data = (Data)s.Deserialize(r);
                 r.Close();
                 LoadSettings();
             }
-            catch
+            else
             {
-            }
+                /* if no settings file found, fallback to hardcoded defaults */
 
+                /* Network */
+                chckNetEnable.Checked = true;
+                VUser def = new VUser();
+                def.vlan = 0;
+                def.hostname = "host";
+                listVLANs.Items.Add(def.ToString());
+                VLanlist.Add(def);
+            }
         }
 
         #region Floppy
@@ -2208,6 +2314,14 @@ namespace Qemu_GUI
                 txtFloppyB.Text = openFile.FileName;
         }
 
+        private void chkFloopySig_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkFloopySig.Checked == true)
+                data.Floppies.fd_bootchk = true;
+            else
+                data.Floppies.fd_bootchk = false;
+        }
+
         #endregion
 
         #region Paths
@@ -2216,7 +2330,7 @@ namespace Qemu_GUI
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 txtQEmuPath.Text = folderBrowserDialog1.SelectedPath;
-                qemu.Paths.QEmu = txtQEmuPath.Text; 
+                data.Paths.QEmu = txtQEmuPath.Text; 
             }
         }
 
@@ -2237,176 +2351,332 @@ namespace Qemu_GUI
         private void btnSave_Click(object sender, EventArgs e)
         {
             SaveSettings();
-            saveFileDialog1.FileName = "config.xml";
-            saveFileDialog1.Filter = "QEmu GUI Config (*.xml)|*.xml"; 
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            saveFileDialog.Title = "Save settings";
+            saveFileDialog.InitialDirectory = currentDir;
+            saveFileDialog.FileName = "config.xml";
+            saveFileDialog.Filter = "QEMU GUI Config (*.xml)|*.xml"; 
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                XmlSerializer s = new XmlSerializer(typeof(QEmu));
-                TextWriter w = new StreamWriter(saveFileDialog1.FileName);
-                s.Serialize(w, qemu);
+                XmlSerializer s = new XmlSerializer(typeof(Data));
+                TextWriter w = new StreamWriter(saveFileDialog.FileName);
+                s.Serialize(w, data);
                 w.Close();
             }
         }
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
-            openFile.Filter = "QEmu GUI Config (*.xml)|*.xml"; 
+            openFile.Title = "Load settings";
+            openFile.InitialDirectory = currentDir;
+            openFile.FileName = "config.xml";
+            openFile.Filter = "QEMU GUI Config (*.xml)|*.xml"; 
             if (openFile.ShowDialog() == DialogResult.OK)
             {
-                XmlSerializer s = new XmlSerializer(typeof(QEmu));
+                XmlSerializer s = new XmlSerializer(typeof(Data));
                 TextReader r = new StreamReader(openFile.FileName);
-                qemu = (QEmu)s.Deserialize(r);
+                data = (Data)s.Deserialize(r);
                 r.Close();
-                LoadSettings(); 
+                LoadSettings();
             }
         }
 
         private void LoadSettings()
         {
-            /* Misc */
-            cboMachine.SelectedIndex = (int) qemu.Misc.Machine;  
-            numMemory.Value = qemu.Misc.Memory;
-            numSMP.Value = qemu.Misc.CPUs;
-            cboBootFrom.Text = qemu.Misc.BootFrom;
-            chkSetClock.Checked = qemu.Misc.SetClock;
-            chkVGAoutput.Checked = qemu.Misc.VGA;
-            chkFullscreen.Checked = qemu.Misc.Fullscreen;
-            chkKQEmu.Checked = qemu.Misc.KQEmu;
+            /* General */
+            cboMachine.SelectedIndex = (int) data.General.Machine;
+            numMemory.Value = data.General.Memory;
+            numSMP.Value = data.General.CPUs;
+            cboBootFrom.SelectedItem = data.General.BootFrom;
+            chkSetClock.Checked = data.General.SetClock;
+            chkVGAoutput.Checked = data.General.VGA;
+            chkFullscreen.Checked = data.General.Fullscreen;
+            chkKQEmu.Checked = data.General.KQEmu;
+            chkACPI.Checked = data.General.ACPI;
 
             /* CD-ROM */
-            optHostCDROM.Checked = qemu.CDROM.UseFromHost;
-            optCDImage.Checked = !qemu.CDROM.UseFromHost;
-            txtCDROM.Text = qemu.CDROM.Image;
-            cboCDROM.Text = qemu.CDROM.HostDrive;
-            chkUseCDROM.Checked = qemu.CDROM.Enabled;
+            chkUseCDROM.Checked = data.CDROM.Enabled;
+            if (chkUseCDROM.Checked)
+            {
+                txtHDC.Text = "Used for CD-ROM!";
+                txtHDC.Enabled = false;
+            }
+            optHostCDROM.Checked = data.CDROM.UseFromHost;
+            optCDImage.Checked = !data.CDROM.UseFromHost;
+            txtCDROM.Text = data.CDROM.Image;
+            cboCDROM.Text = data.CDROM.HostDrive;
 
             /* Floppies */
-            chkFloppyA.Checked = qemu.Floppies.FDD[0].Enabled;
-            txtFloppyA.Text = qemu.Floppies.FDD[0].Path;
-            chkFloppyB.Checked = qemu.Floppies.FDD[1].Enabled;
-            txtFloppyB.Text = qemu.Floppies.FDD[1].Path;
+            chkFloppyA.Checked = data.Floppies.FDD[0].Enabled;
+            txtFloppyA.Text = data.Floppies.FDD[0].Path;
+            chkFloppyB.Checked = data.Floppies.FDD[1].Enabled;
+            txtFloppyB.Text = data.Floppies.FDD[1].Path;
 
             /* Paths */
-            txtQEmuPath.Text = qemu.Paths.QEmu;
-            txtVDKPath.Text = qemu.Paths.VDK;
+            txtQEmuPath.Text = data.Paths.QEmu;
+            txtVDKPath.Text = data.Paths.VDK;
             grpVDK.Enabled = (txtVDKPath.Text.Length > 0);
 
             /* Harddisks */
-            chkUseHDA.Checked = qemu.Harddisks.HDD[0].Enabled;
-            txtHDA.Text = qemu.Harddisks.HDD[0].Path;
-            chkUseHDB.Checked = qemu.Harddisks.HDD[1].Enabled;
-            txtHDB.Text = qemu.Harddisks.HDD[1].Path;
-            chkUseHDC.Checked = qemu.Harddisks.HDD[2].Enabled;
-            txtHDC.Text = qemu.Harddisks.HDD[2].Path;
-            chkUseHDD.Checked = qemu.Harddisks.HDD[3].Enabled;
-            txtHDD.Text = qemu.Harddisks.HDD[3].Path;
+            chkUseHDA.Checked = data.Harddisks.HDD[0].Enabled;
+            txtHDA.Text = data.Harddisks.HDD[0].Path;
+            chkUseHDB.Checked = data.Harddisks.HDD[1].Enabled;
+            txtHDB.Text = data.Harddisks.HDD[1].Path;
+            chkUseHDC.Checked = data.Harddisks.HDD[2].Enabled;
+            txtHDC.Text = data.Harddisks.HDD[2].Path;
+            chkUseHDD.Checked = data.Harddisks.HDD[3].Enabled;
+            txtHDD.Text = data.Harddisks.HDD[3].Path;
 
             /* Audio */
-            chkES1370.Checked = qemu.Audio.ES1370;
-            chkSoundBlaster.Checked = qemu.Audio.Soundblaster;
-            chkPCSpeaker.Checked = qemu.Audio.Speaker;
-            chkOPL2.Checked = qemu.Audio.OPL2;
+            chkES1370.Checked = data.Audio.ES1370;
+            chkSoundBlaster.Checked = data.Audio.Soundblaster;
+            chkPCSpeaker.Checked = data.Audio.Speaker;
+            chkOPL2.Checked = data.Audio.OPL2;
 
             /* Debug */
-            chkSerialToFile.Checked = qemu.Debug.SerialPort.Redirect;
-            chkParallelToFile.Checked = qemu.Debug.ParallelPort.Redirect;
-            chkVBE30.Checked = qemu.Debug.VBE3;
-            txtGDBPort.Text = qemu.Debug.GDBPort.ToString();
+            chkSerialToFile.Checked = data.Debug.SerialPort.FRedirect;
+            txtSerialFile.Text = data.Debug.SerialPort.FileName;
+            chkSerialToPipe.Checked = data.Debug.SerialPort.PRedirect;
+            txtSerialPipe.Text = data.Debug.SerialPort.PipeName;
+            chkSerialToFile_CheckedChanged(null, null);
+
+            chkParallelToFile.Checked = data.Debug.ParallelPort.FRedirect;
+            txtParallelFile.Text = data.Debug.ParallelPort.FileName;
+            chkParallelToFile.Checked = data.Debug.ParallelPort.PRedirect;
+            txtParallelPipe.Text = data.Debug.ParallelPort.PipeName;
+            chkSerialToPipe_CheckedChanged(null, null);
+
+            saved_state = data.Debug.SavedStatePath;
+            chkVBE30.Checked = data.Debug.VBE3;
+            txtGDBPort.Text = data.Debug.GDBPort.ToString();
+
+            /* Network */
+            chckNetEnable.Checked = data.Network.Enabled;
+            foreach (string a in data.Network.VNicStringReader())
+                if(a != "ignore")
+                    listVLANs.Items.Add(a.ToString());
+            chckNetEnable_CheckedChanged(null, null);//Make visible the correct panel
+
 
             /* Tools */
-            txtVDKImage.Text = qemu.Tools.vdk.Image;
-            cboVDKDrive.Text = qemu.Tools.vdk.DriveLetter;
+            txtVDKImage.Text = data.Tools.vdk.Image;
+            cboVDKDrive.Text = data.Tools.vdk.DriveLetter;
         }
 
         private void SaveSettings()
         {
-            /* Misc */            
-            qemu.Misc.Machine = (Platforms) cboMachine.SelectedIndex;
-            qemu.Misc.Memory = (int) numMemory.Value;
-            qemu.Misc.CPUs = (int) numSMP.Value;
-            qemu.Misc.BootFrom = cboBootFrom.Text;
-            qemu.Misc.SetClock = chkSetClock.Checked;
-            qemu.Misc.VGA = chkVGAoutput.Checked;
-            qemu.Misc.Fullscreen = chkFullscreen.Checked;
-            qemu.Misc.KQEmu = chkKQEmu.Checked;    
+            /* General */
+            data.General.Machine = (Platforms) cboMachine.SelectedIndex;
+            data.General.Memory = (int) numMemory.Value;
+            data.General.CPUs = (int) numSMP.Value;
+            data.General.BootFrom = cboBootFrom.SelectedItem.ToString();
+            data.General.SetClock = chkSetClock.Checked;
+            data.General.VGA = chkVGAoutput.Checked;
+            data.General.Fullscreen = chkFullscreen.Checked;
+            data.General.KQEmu = chkKQEmu.Checked;
+            data.General.ACPI = chkACPI.Checked;
 
             /* Paths */
-            qemu.Paths.QEmu = txtQEmuPath.Text;
-            qemu.Paths.VDK = txtVDKPath.Text;
+            data.Paths.QEmu = txtQEmuPath.Text;
+            data.Paths.VDK = txtVDKPath.Text;
 
             /* Floppies */
-            qemu.Floppies.FDD[0].Enabled = chkFloppyA.Checked;
-            qemu.Floppies.FDD[0].Path = txtFloppyA.Text;
-            qemu.Floppies.FDD[1].Enabled = chkFloppyB.Checked;
-            qemu.Floppies.FDD[1].Path = txtFloppyB.Text;
+            data.Floppies.FDD[0].Enabled = chkFloppyA.Checked;
+            data.Floppies.FDD[0].Path = txtFloppyA.Text;
+            data.Floppies.FDD[1].Enabled = chkFloppyB.Checked;
+            data.Floppies.FDD[1].Path = txtFloppyB.Text;
 
             /* CD-ROM */
-            qemu.CDROM.UseFromHost = optHostCDROM.Checked;
-            qemu.CDROM.Image = txtCDROM.Text;
-            qemu.CDROM.HostDrive = cboCDROM.Text;
-            qemu.CDROM.Enabled = chkUseCDROM.Checked;
+            data.CDROM.UseFromHost = optHostCDROM.Checked;
+            data.CDROM.Image = txtCDROM.Text;
+            data.CDROM.HostDrive = cboCDROM.Text;
+            data.CDROM.Enabled = chkUseCDROM.Checked;
 
             /* Harddisks */
-            qemu.Harddisks.HDD[0].Enabled = chkUseHDA.Checked;
-            qemu.Harddisks.HDD[0].Path = txtHDA.Text;
-            qemu.Harddisks.HDD[1].Enabled = chkUseHDB.Checked;
-            qemu.Harddisks.HDD[1].Path = txtHDB.Text;
-            qemu.Harddisks.HDD[2].Enabled = chkUseHDC.Checked;
-            qemu.Harddisks.HDD[2].Path = txtHDC.Text;
-            qemu.Harddisks.HDD[3].Enabled = chkUseHDD.Checked;
-            qemu.Harddisks.HDD[3].Path = txtHDD.Text;
+            data.Harddisks.HDD[0].Enabled = chkUseHDA.Checked;
+            data.Harddisks.HDD[0].Path = txtHDA.Text;
+            data.Harddisks.HDD[1].Enabled = chkUseHDB.Checked;
+            data.Harddisks.HDD[1].Path = txtHDB.Text;
+            data.Harddisks.HDD[2].Enabled = chkUseHDC.Checked;
+            data.Harddisks.HDD[2].Path = txtHDC.Text;
+            data.Harddisks.HDD[3].Enabled = chkUseHDD.Checked;
+            data.Harddisks.HDD[3].Path = txtHDD.Text;
 
             /* Audio */
-            qemu.Audio.ES1370 = chkES1370.Checked;
-            qemu.Audio.Soundblaster = chkSoundBlaster.Checked;
-            qemu.Audio.Speaker = chkPCSpeaker.Checked;
-            qemu.Audio.OPL2 = chkOPL2.Checked;
+            data.Audio.ES1370 = chkES1370.Checked;
+            data.Audio.Soundblaster = chkSoundBlaster.Checked;
+            data.Audio.Speaker = chkPCSpeaker.Checked;
+            data.Audio.OPL2 = chkOPL2.Checked;
 
             /* Debug */
-            qemu.Debug.SerialPort.Redirect = chkSerialToFile.Checked;
-            qemu.Debug.ParallelPort.Redirect = chkParallelToFile.Checked;
-            qemu.Debug.VBE3 = chkVBE30.Checked;
-            qemu.Debug.GDBPort = Int32.Parse(txtGDBPort.Text);
+            data.Debug.SerialPort.FRedirect = chkSerialToFile.Checked;
+            data.Debug.SerialPort.FileName = txtSerialFile.Text;
+            data.Debug.ParallelPort.FRedirect = chkParallelToFile.Checked;
+            data.Debug.ParallelPort.FileName = txtParallelFile.Text;
+            data.Debug.SavedStatePath = saved_state;
+            data.Debug.VBE3 = chkVBE30.Checked;
+            data.Debug.GDBPort = Int32.Parse(txtGDBPort.Text);
+
+            /* Network */
+            data.Network.Enabled = chckNetEnable.Checked;
+            //no need to save the vlanstring, we already send it directly
 
             /* Tools */
-            qemu.Tools.vdk.Image = txtVDKImage.Text;
-            qemu.Tools.vdk.DriveLetter = cboVDKDrive.Text;
+            data.Tools.vdk.Image = txtVDKImage.Text;
+            data.Tools.vdk.DriveLetter = cboVDKDrive.Text;
         }
 
         #endregion
 
+        #region VDK
+
         private void btnVDKImage_Click(object sender, EventArgs e)
         {
-            openFile.Filter = "VMWare Images (*.vmdk)|*.vmdk";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img | All Files | *.* ";
             if (openFile.ShowDialog() == DialogResult.OK)
             {
-                txtVDKImage.Text = openFile.FileName;  
+                txtVDKImage.Text = openFile.FileName;
+                data.Tools.vdk.Image = openFile.FileName;
             }
+        }
+        
+        private void cboVDKDrive_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            data.Tools.vdk.DriveLetter = cboVDKDrive.SelectedItem.ToString();
         }
 
         private void btnUnmount_Click(object sender, EventArgs e)
         {
-            if (!qemu.UnmountImage())
-            {
-                frmError fError = new frmError();
-                fError.txtError.Text = qemu.GetLastError();
-                fError.ShowDialog(this);
-            }
+            SaveSettings();
+            runner = new Runner(data);
+            runner.UnmountImage();
+
         }
 
         private void btnMount_Click(object sender, EventArgs e)
         {
-            SaveSettings(); 
-            if (!qemu.MountImage())
+            SaveSettings();
+            runner = new Runner(data);
+            if(runner.MountImage())
             {
-                frmError fError = new frmError();
-                fError.txtError.Text = qemu.GetLastError();
-                fError.ShowDialog(this);
+                Process p = new Process();
+
+                p.StartInfo.FileName = "explorer";
+                p.StartInfo.Arguments = data.Tools.vdk.DriveLetter;
+                try
+                {
+                    p.Start();
+                }
+                catch 
+                {
+                    MessageBox.Show("Error launching explorer!", "Error!");
+                }
             }
+
         }
 
+        #endregion VDK
 
- 
+        #region Network
+        // This area needs heavy work, some of the shortcommings are:
+        // VLAN numbers are not assigned by users
+        // a VLAN can be redirected into another VLAN, currently not posible
+        // Design may be clumsy and complicated, specially for users that dont know alot about these qemu settings
+        // Find a way to name the VLANs in the listbox for the benefit of these users, instead of using the raw command string
+        // Find a way to implement the remove button, this will get complicated on redirected VLANs...
+        // for now -net user works great, which is the most important option ;)
+
+
+        public static ArrayList VLanlist = new ArrayList();
+        private void chckNetEnable_CheckedChanged(object sender, EventArgs e)
+        {
+            
+            if (chckNetEnable.Checked == false)
+            {
+                data.Network.Enabled = true;
+                /* Disable everything */
+                listVLANs.Enabled = false;
+                btnNetAdd.Enabled = false;
+                btnNetRemove.Enabled = false;
+                rbtnNetNic.Enabled = false;
+                rbtnNetUser.Enabled = false;
+                /* Make all panels invisible */
+                panelUser.Visible = false;
+                panelNic.Visible = false;
+                label6.Visible = false;
+            }
+            else
+            {
+                data.Network.Enabled = false;
+                /* Enable everything */
+                listVLANs.Enabled = true;
+                btnNetAdd.Enabled = true;
+                btnNetRemove.Enabled = true;
+                rbtnNetNic.Enabled = true;
+                rbtnNetUser.Enabled = true;
+                /* Find out which pannels need visibility */
+                rbtnNetUser_CheckedChanged(null, null);
+                rbtnNetNic_CheckedChanged(null, null);
+                label6.Visible = true;
+            }
+
+        }
+
+        private void btnNetAdd_Click(object sender, EventArgs e)
+        {
+            if (rbtnNetUser.Checked == true)
+            {
+                VUser item = new VUser();
+                if (txtNetHost.Text == "")
+                    item.hostname = "host";
+                else
+                    item.hostname = txtNetHost.Text;
+
+                item.vlan = VLanlist.Count;
+                listVLANs.Items.Add(item.ToString());
+                VLanlist.Add(item);
+            }
+            if (rbtnNetNic.Checked == true)
+            {
+                VNic item = new VNic();
+                if (txtNicMACaddr.Text == "")
+                    item.macAddress = "";//???
+                else
+                    item.macAddress = txtNicMACaddr.Text;
+
+                item.vlan = VLanlist.Count;
+                listVLANs.Items.Add(item.ToString());
+                VLanlist.Add(item);
+            }
+
+        }
+
+        private void rbtnNetUser_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbtnNetUser.Checked == true)
+                panelUser.Visible = true;
+            else
+                panelUser.Visible = false;
+        }
+
+        private void rbtnNetNic_CheckedChanged(object sender, EventArgs e)
+        {
+            if (rbtnNetNic.Checked == true)
+                panelNic.Visible = true;
+            else
+                panelNic.Visible = false;
+        }
+
+        private void btnNetRemove_Click(object sender, EventArgs e)
+        {
+            //VLanlist.RemoveAt(VLanlist.
+            //listVLANs.Items.RemoveAt(listVLANs.
+        }
+
+        #endregion
+
+
+
+
 
     }
 }
