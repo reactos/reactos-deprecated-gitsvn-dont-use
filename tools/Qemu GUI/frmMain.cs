@@ -2384,8 +2384,22 @@ namespace Qemu_GUI
         {
             /* General */
             cboMachine.SelectedIndex = (int) data.General.Machine;
-            numMemory.Value = data.General.Memory;
-            numSMP.Value = data.General.CPUs;
+            try
+            {
+                numMemory.Value = data.General.Memory;
+            }
+            catch (Exception)
+            {
+                numMemory.Value = 64;
+            }
+            try
+            {
+                numSMP.Value = data.General.CPUs;
+            }
+            catch (Exception)
+            {
+                numSMP.Value = 1;
+            }
             cboBootFrom.SelectedItem = data.General.BootFrom;
             chkSetClock.Checked = data.General.SetClock;
             chkVGAoutput.Checked = data.General.VGA;
@@ -2652,18 +2666,12 @@ namespace Qemu_GUI
 
         private void rbtnNetUser_CheckedChanged(object sender, EventArgs e)
         {
-            if (rbtnNetUser.Checked == true)
-                panelUser.Visible = true;
-            else
-                panelUser.Visible = false;
+            panelUser.Visible = rbtnNetUser.Checked;
         }
 
         private void rbtnNetNic_CheckedChanged(object sender, EventArgs e)
         {
-            if (rbtnNetNic.Checked == true)
-                panelNic.Visible = true;
-            else
-                panelNic.Visible = false;
+             panelNic.Visible = rbtnNetNic.Checked;
         }
 
         private void btnNetRemove_Click(object sender, EventArgs e)
