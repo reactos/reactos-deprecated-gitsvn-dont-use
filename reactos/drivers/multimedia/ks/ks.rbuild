@@ -6,7 +6,6 @@
 	<library>ntoskrnl</library>
 	<define name="__USE_W32API" />
 	<define name="BUILDING_KS" />
-	<file>ks.rc</file>
 	<file>allocators.c</file>
 	<file>clocks.c</file>
 	<file>connectivity.c</file>
