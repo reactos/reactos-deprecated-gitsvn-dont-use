@@ -11,6 +11,12 @@ int main(int argc, char* argv[])
         printf("%ld\n", SystemInformation.dwNumberOfProcessors);
         return 0;
     }
+    else if (!strcmp(argv[1], "-x1"))
+    {
+        GetSystemInfo(&SystemInformation);
+        printf("%ld\n", (SystemInformation.dwNumberOfProcessors + 1));
+        return 0;
+    }
     else if (!strcmp(argv[1], "-x2"))
     {
         GetSystemInfo(&SystemInformation);
