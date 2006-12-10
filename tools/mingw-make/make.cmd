@@ -1,4 +1,5 @@
 @echo off
-for /f "usebackq" %%i IN (`cpucount`) DO @set CPUCOUNT=%%i
+
+for /f "usebackq" %%i in (`cpucount`) do set CPUCOUNT=%%i
 echo %CPUCOUNT% Processors detected.
-mingw32-make -j %CPUCOUNT% %*
+rem mingw32-make -j %CPUCOUNT% %*
