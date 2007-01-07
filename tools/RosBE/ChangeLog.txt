@@ -1,0 +1,13 @@
+*** Janruary 08th, 2007 - RosBE 0.3.4 Released
+
+- New command 'makex' which automatically determines the correct
+  number for, and uses the -j option of mingw32-make.exe.
+- Fixed a bug concerning the date in log file names for
+  locales other than English.
+- Partial support for building ReactOS on Vista.
+- Updated GCC 4.1.2 to a newer snapshot (20061229).
+- Added a build timer.
+- Updated to win32api v3.8.
+- Updated to mingw-runtime v3.11.
+- Updated NSIS to v2.22.
+- Numerous other bug fixes and small changes.
