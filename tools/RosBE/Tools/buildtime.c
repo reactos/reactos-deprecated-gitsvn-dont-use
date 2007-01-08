@@ -10,7 +10,6 @@ int main(int argc, char* argv[])
     time_t StartTime, FinishTime;
     float TotalTime;
     int Hour, Minute, Second;
-    int Status;
 
     //
     // If nothing is on the command-line exit
@@ -44,13 +43,7 @@ int main(int argc, char* argv[])
     //
     // Run the program (Status is 1 on failure).
     //
-    Status = system(CommandLineBuffer);
-    if (Status)
-    {
-        printf("Unable to execute program. Exiting.\n");
-        free(CommandLineBuffer);
-        return 1;
-    }
+    system(CommandLineBuffer);
 
     //
     // Grab the finishing timestamp.
