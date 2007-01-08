@@ -18,7 +18,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "0.0.0.11"
+VIAddVersionKey /LANG=1033 "FileVersion" "0.0.0.12"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
