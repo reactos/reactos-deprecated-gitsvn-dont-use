@@ -84,6 +84,7 @@ if "%1" == "" (
     ) else (
         echo There is nothing to clean.
     )
+    goto :EOF
 )
 if "%1" == "logs" (
     ::
