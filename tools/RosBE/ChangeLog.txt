@@ -1,3 +1,8 @@
+- Added 'clean logs' command to clean up build logs created
+  by RosBE.
+- Added help for individual commands.
+- Fixed a bug concerning spaces in file names/paths.
+
 *** Janruary 08th, 2007 - RosBE 0.3.4 Released
 
 - New command 'makex' which automatically determines the correct
