@@ -84,7 +84,7 @@ goto :ExitRosBE
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *                 ReactOS Build Environment 0.3.4-3.4.5                       *
+    echo *                 ReactOS Build Environment 0.3.5b1-3.4.5                     *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
@@ -109,7 +109,7 @@ goto :EOF
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *     ReactOS Build Environment 0.3.4-4.1.2-20061229-prerelease-patched       *
+    echo *     ReactOS Build Environment 0.3.5b1-4.1.2-20070108-prerelease-patched     *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
