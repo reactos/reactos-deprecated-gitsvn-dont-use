@@ -1,7 +1,7 @@
-                     ReactOS Build Environment 0.3.4
+                     ReactOS Build Environment 0.3.5b1
 
 
-    The ReactOS Build Environment v0.3.4 contains two complete
+    The ReactOS Build Environment v0.3.5b1 contains two complete
 build environments for ReactOS one based on GCC 3.4.5 (the standard
 build environment), and one based on GCC 4.1.2 (for testers/developers).
 
@@ -19,7 +19,7 @@ a choice of using either the built in commands (which are displayed onscreen
 with information about their use) or you can build as you normally would
 using the standard MinGW/RBuild commands.
 
-The ReactOS Build Environment v0.3.4 contains the following
+The ReactOS Build Environment v0.3.5b1 contains the following
 packages:
 
 gcc-core-3.4.5-20060117-1.tar.gz
@@ -29,7 +29,7 @@ mingw-runtime-3.11.tar.gz
 w32api-3.8.tar.gz
 mingw32-make-3.81-1.tar.gz
 nasm-0.98.39-win32.zip
-gcc-4.1.2-20061229-Snapshot-Patched.7z
+gcc-4.1.2-20070108-Snapshot-Patched.7z
     - Patched to fix a GCC bug concerning
       decorating virtual methods with stdcall
       in C++, see GCC issue:

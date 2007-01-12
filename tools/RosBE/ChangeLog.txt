@@ -1,3 +1,6 @@
+*** Janruary 12th, 2007 - RosBE 0.3.5b1 Released
+
+- Updated GCC 4.1.2 to a newer snapshot (20070108).
 - Added 'clean logs' command to clean up build logs created
   by RosBE.
 - Added help for individual commands.

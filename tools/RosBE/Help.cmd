@@ -14,8 +14,10 @@ if "%1" == "" (
     echo    makex [OPTIONS] - Same as 'make' but automatically determines the
     echo                      number of CPUs in the system and uses -j with
     echo                      the appropriate number.
-    echo    clean           - Fully clean the ReactOS source directory.
-    echo    help            - Display the available commands.
+    echo    clean [logs]    - Fully clean the ReactOS source directory or the
+    echo                      RosBE build logs.
+    echo    help [COMMAND]  - Display the available commands or help on a
+    echo                      specific command.
     echo    basedir         - Switch back to the ReactOS source directory.
     goto :EOF
 )
@@ -35,7 +37,7 @@ if "%1" == "makex" (
     goto :EOF
 )
 if "%1" == "clean" (
-    echo Usage: clean [OPTION]
+    echo Usage: clean [logs]
     echo Fully clean the ReactOS source directory.
     echo.
     echo   logs - Removes all build logs in the RosBE-Logs directory.
