@@ -10,12 +10,12 @@ if "%1" == "" (
     echo Required parameter not specified. Exiting.
     goto :ExitRosBE
 )
-if "%1" == "--RosBE3" (
-    color 0A
-    cls
-    call :RosBE3
-    goto :EndCommandParse
-)
+::if "%1" == "--RosBE3" (
+::    color 0A
+::    cls
+::    call :RosBE3
+::    goto :EndCommandParse
+::)
 if "%1" == "--RosBE4" (
     color 0A
     cls
@@ -56,12 +56,12 @@ mingw32-make -v | find "GNU Make"
 ::
 :: Display the available commands
 ::
-call %ROSBEBASEDIR%\Help.cmd
+call "%ROSBEBASEDIR%\Help.cmd"
 
 ::
 :: Load the macros that serve as our commands.
 ::
-doskey /macrofile=%ROSBEBASEDIR%\RosBE.mac
+doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
 
 goto :ExitRosBE
 
@@ -84,7 +84,7 @@ goto :ExitRosBE
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *                 ReactOS Build Environment 0.3.5b1-3.4.5                     *
+    echo *                 ReactOS Build Environment 0.3.5b2-3.4.5                     *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
@@ -109,7 +109,7 @@ goto :EOF
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *     ReactOS Build Environment 0.3.5b1-4.1.2-20070108-prerelease-patched     *
+    echo *     ReactOS Build Environment 0.3.5b2-4.1.2-20070122-prerelease-patched     *
     echo *                                                                             *
     echo *******************************************************************************
     echo.

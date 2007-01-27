@@ -17,10 +17,10 @@ if "%1" == "" (
         if exist "%_ROSSOURCEDIR%\makefile.auto" (
             if not "%CD%" == "%_ROSSOURCEDIR%" (
                 pushd "%_ROSSOURCEDIR%"
-                %_MINGWMAKE% clean 1> NUL 2> NUL
+                "%_MINGWMAKE%" clean 1> NUL 2> NUL
                 popd
             ) else (
-                %_MINGWMAKE% clean 1> NUL 2> NUL
+                "%_MINGWMAKE%" clean 1> NUL 2> NUL
             )
         )
 
