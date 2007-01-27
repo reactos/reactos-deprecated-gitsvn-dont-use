@@ -1,5 +1,5 @@
-BASEDIR = cd /d %_ROSSOURCEDIR%
-CLEAN   = %ROSBEBASEDIR%\Clean.cmd $*
-HELP    = %ROSBEBASEDIR%\Help.cmd $*
-MAKE    = %ROSBEBASEDIR%\Build.cmd $*
-MAKEX   = %ROSBEBASEDIR%\Build-Multi.cmd $*
+BASEDIR = cd /d "%_ROSSOURCEDIR%"
+CLEAN   = "%ROSBEBASEDIR%\Clean.cmd" $*
+HELP    = "%ROSBEBASEDIR%\Help.cmd" $*
+MAKE    = "%ROSBEBASEDIR%\Build.cmd" $*
+MAKEX   = "%ROSBEBASEDIR%\Build-Multi.cmd" $*

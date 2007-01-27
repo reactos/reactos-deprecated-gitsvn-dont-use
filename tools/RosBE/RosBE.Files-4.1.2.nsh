@@ -1,4 +1,4 @@
-Section "-MinGW, GCC v4.1.2 and NASM 0.98.39" SEC02
+Section "-MinGW, GCC v4.1.2 and NASM 0.98.39" SEC01
     SetOutPath "$INSTDIR\4.1.2\bin"
     SetOverwrite try
     File "Components\4.1.2\bin\addr2line.exe"
@@ -506,6 +506,10 @@ Section "-MinGW, GCC v4.1.2 and NASM 0.98.39" SEC02
     File "Components\4.1.2\include\c++\4.1.2\mingw32\bits\gthr.h"
     File "Components\4.1.2\include\c++\4.1.2\mingw32\bits\messages_members.h"
     File "Components\4.1.2\include\c++\4.1.2\mingw32\bits\os_defines.h"
+    SetOutPath "$INSTDIR\4.1.2\include\c++\4.1.2\mingw32\bits\stdc++.h.gch"
+    File "Components\4.1.2\include\c++\4.1.2\mingw32\bits\stdc++.h.gch\O0g.gch"
+    File "Components\4.1.2\include\c++\4.1.2\mingw32\bits\stdc++.h.gch\O2g.gch"
+    SetOutPath "$INSTDIR\4.1.2\include\c++\4.1.2\mingw32\bits"
     File "Components\4.1.2\include\c++\4.1.2\mingw32\bits\time_members.h"
     SetOutPath "$INSTDIR\4.1.2\include\c++\4.1.2"
     File "Components\4.1.2\include\c++\4.1.2\new"

@@ -1,3 +1,10 @@
+*** Janruary 26th, 2007 - RosBE 0.3.5b2 Released
+
+- Updated GCC 4.1.2 to a newer snapshot (20070122).
+- Removed buildtime for the time being.
+- Fixed remaining bugs with spaces in paths.
+- Removed GCC 3.4.5.
+
 *** Janruary 12th, 2007 - RosBE 0.3.5b1 Released
 
 - Updated GCC 4.1.2 to a newer snapshot (20070108).

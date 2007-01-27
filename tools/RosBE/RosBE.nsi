@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment"
-!define PRODUCT_VERSION "0.3.5b1"
+!define PRODUCT_VERSION "0.3.5b2"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -26,7 +26,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "0.0.3.5b1"
+VIProductVersion "0.0.3.5b2"
 
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
@@ -103,11 +103,11 @@ var ICONS_GROUP
 ;; Add sections 1, 2 and 3 which contain the file lists for GCC3, GCC4
 ;; and Miscellaneous.
 ;;
-!include "RosBE.Files-3.4.5.nsh"
+;;!include "RosBE.Files-3.4.5.nsh"
 !include "RosBE.Files-4.1.2.nsh"
 !include "RosBE.Files-Miscellaneous.nsh"
 
-Section -StartMenuShortcuts SEC04
+Section -StartMenuShortcuts SEC03
     SetShellVarContext all
 
     ;;
@@ -116,55 +116,55 @@ Section -StartMenuShortcuts SEC04
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\GCC 3.4.5 ReactOS Build Environment.lnk" \
-                       "$SYSDIR\cmd.exe" \
-                       "/k $INSTDIR\RosBE.cmd --RosBE3"
+;;        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\GCC 3.4.5 ReactOS Build Environment.lnk" \
+;;                       "$SYSDIR\cmd.exe" \
+;;                       "/k $\"$INSTDIR\RosBE.cmd$\" --RosBE3"
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\GCC 4.1.2 ReactOS Build Environment.lnk" \
                        "$SYSDIR\cmd.exe" \
-                       "/k $INSTDIR\RosBE.cmd --RosBE4"
+                       "/k $\"$INSTDIR\RosBE.cmd$\" --RosBE4"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC05
+Section /o "Desktop Shortcuts" SEC04
     SetShellVarContext all
 
     ;;
     ;; Add our desktop shortcuts.
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
-    CreateShortCut "$DESKTOP\GCC 3.4.5 ReactOS Build Environment.lnk" \
-                   "$SYSDIR\cmd.exe" \
-                   "/k $INSTDIR\RosBE.cmd --RosBE3"
+;;    CreateShortCut "$DESKTOP\GCC 3.4.5 ReactOS Build Environment.lnk" \
+;;                   "$SYSDIR\cmd.exe" \
+;;                   "/k $\"$INSTDIR\RosBE.cmd$\" --RosBE3"
     CreateShortCut "$DESKTOP\GCC 4.1.2 ReactOS Build Environment.lnk" \
                    "$SYSDIR\cmd.exe" \
-                   "/k $INSTDIR\RosBE.cmd --RosBE4"
+                   "/k $\"$INSTDIR\RosBE.cmd$\" --RosBE4"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC06
+Section /o "Quick Launch Shortcuts" SEC05
     SetShellVarContext all
 
     ;;
     ;; Add our quick launch shortcuts.
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
-    CreateShortCut "$QUICKLAUNCH\GCC 3.4.5 ReactOS Build Environment.lnk" \
-                   "$SYSDIR\cmd.exe" \
-                   "/k $INSTDIR\RosBE.cmd --RosBE3"
+;;    CreateShortCut "$QUICKLAUNCH\GCC 3.4.5 ReactOS Build Environment.lnk" \
+;;                   "$SYSDIR\cmd.exe" \
+;;                   "/k $\"$INSTDIR\RosBE.cmd$\" --RosBE3"
     CreateShortCut "$QUICKLAUNCH\GCC 4.1.2 ReactOS Build Environment.lnk" \
                    "$SYSDIR\cmd.exe" \
-                   "/k $INSTDIR\RosBE.cmd --RosBE4"
+                   "/k $\"$INSTDIR\RosBE.cmd$\" --RosBE4"
 SectionEnd
 
-Section -AddEnvironmentVariable SEC07
+Section -AddEnvironmentVariable SEC06
     Push "ROSBEBASEDIR"
     Push "$INSTDIR"
     Call WriteEnvStr
 SectionEnd
 
-Section -Post SEC08
+Section -Post SEC07
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
@@ -193,17 +193,17 @@ Section Uninstall
     ;;
     ;; Clean up installed files.
     ;;
-    RMDir /r /REBOOTOK "$INSTDIR\3.4.5"
+;;    RMDir /r /REBOOTOK "$INSTDIR\3.4.5"
     RMDir /r /REBOOTOK "$INSTDIR\4.1.2"
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
     RMDir /r /REBOOTOK "$INSTDIR"
-    IfFileExists "$DESKTOP\GCC 3.4.5 ReactOS Build Environment.lnk" 0 +2
-        Delete /REBOOTOK "$DESKTOP\GCC 3.4.5 ReactOS Build Environment.lnk"
+;;    IfFileExists "$DESKTOP\GCC 3.4.5 ReactOS Build Environment.lnk" 0 +2
+;;        Delete /REBOOTOK "$DESKTOP\GCC 3.4.5 ReactOS Build Environment.lnk"
     IfFileExists "$DESKTOP\GCC 4.1.2 ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$DESKTOP\GCC 4.1.2 ReactOS Build Environment.lnk"
-    IfFileExists "$QUICKLAUNCH\GCC 3.4.5 ReactOS Build Environment.lnk" 0 +2
-        Delete /REBOOTOK "$QUICKLAUNCH\GCC 3.4.5 ReactOS Build Environment.lnk"
+;;    IfFileExists "$QUICKLAUNCH\GCC 3.4.5 ReactOS Build Environment.lnk" 0 +2
+;;        Delete /REBOOTOK "$QUICKLAUNCH\GCC 3.4.5 ReactOS Build Environment.lnk"
     IfFileExists "$QUICKLAUNCH\GCC 4.1.2 ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$QUICKLAUNCH\GCC 4.1.2 ReactOS Build Environment.lnk"
 
