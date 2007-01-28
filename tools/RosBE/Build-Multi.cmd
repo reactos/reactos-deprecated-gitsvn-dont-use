@@ -46,7 +46,7 @@ if exist "%_ROSSOURCEDIR%\config.rbuild" (
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
 ::
 if "%1" == "" (
-    "%_MINGWMAKE%" -j %CPUCOUNT% 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+    "%ROSBEBASEDIR%\Tools\buildtime.exe" "%_MINGWMAKE%" -j %CPUCOUNT% 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 ) else (
-    "%_MINGWMAKE%" -j %CPUCOUNT% %* 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+    "%ROSBEBASEDIR%\Tools\buildtime.exe" "%_MINGWMAKE%" -j %CPUCOUNT% %* 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 )
