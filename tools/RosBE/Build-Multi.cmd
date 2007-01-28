@@ -24,7 +24,7 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 :: No Option - Number of CPUs.
 :: -x1       - Number of CPUs, Plus 1.
 :: -x2       - Number of CPUs, Doubled.
-for /f "usebackq" %%i in (`"%ROSBEBASEDIR%\Tools\cpucount.exe -x1"`) do set CPUCOUNT=%%i
+for /f "usebackq" %%i in (`"%ROSBEBASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
 
 ::
 :: Check if config.template.rbuild is newer than config.rbuild,
