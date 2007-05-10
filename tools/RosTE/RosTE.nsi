@@ -65,6 +65,7 @@ Section "InstallGui" SEC01
   SetOutPath "$INSTDIR\GUI"
   SetOverwrite ifnewer
   File "${SOURCE_DIR}\GUI\QemuGUI.exe"
+  File "${SOURCE_DIR}\GUI\config.xml"
   CreateDirectory "$SMPROGRAMS\RosTE"
   CreateShortCut "$SMPROGRAMS\RosTE\RosTE.lnk" "$INSTDIR\GUI\QemuGUI.exe"
   CreateShortCut "$DESKTOP\RosTE.lnk" "$INSTDIR\GUI\QemuGUI.exe"
@@ -134,7 +135,17 @@ Section "InstallQemu" SEC02
   File "${SOURCE_DIR}\qemu-0.9.0-windows\License\README.TXT"
 SectionEnd
 
-Section "InstallQemu" SEC03
+Section "Installvdk" SEC03
+  SetOutPath "$INSTDIR\VDK"
+  SetOverwrite ifnewer
+  File "${SOURCE_DIR}\vdk\COPYING.TXT"
+  File "${SOURCE_DIR}\vdk\README.TXT"
+  File "${SOURCE_DIR}\vdk\READMEJ.TXT"
+  File "${SOURCE_DIR}\vdk\vdk.exe"
+  File "${SOURCE_DIR}\vdk\vdk.sys"
+SectionEnd
+
+Section "InstallQemu" SEC04
   SetOutPath "$INSTDIR\Kqemu"
   SetOverwrite ifnewer
   File "${SOURCE_DIR}\Kqemu\LICENSE"
@@ -190,6 +201,7 @@ Section Uninstall
   RMDir /r /REBOOTOK "$SMPROGRAMS\RosTE"
   RMDir /r /REBOOTOK "$INSTDIR\GUI"
   RMDir /r /REBOOTOK "$INSTDIR\QEmu"
+  RMDir /r /REBOOTOK "$INSTDIR\VDK"
   RMDir /r /REBOOTOK "$INSTDIR\Kqemu"
   RMDir /r /REBOOTOK "$INSTDIR"
 

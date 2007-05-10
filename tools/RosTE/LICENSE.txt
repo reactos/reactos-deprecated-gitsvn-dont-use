@@ -1,16 +1,12 @@
-            ReactOS Test Environment v0.1
+         == ReactOS Test Environment v0.1 ==
 
     The components of the ReactOS Test Environment are released under 
 the following licenses:
 
  ReactOS Test Environment installer and any accompanying data - GPLv2.
-
  ReactOS QEmu Manager - GPLv2
-
  QEmu - LGPLv2
-
  KQEmu - GPLv2
-
  VDK - GPLv2
 
  The respective licenses are detailed below
