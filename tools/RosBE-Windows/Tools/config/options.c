@@ -24,93 +24,98 @@
 #include "resources.h"
 
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
-WCHAR* Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"purple", 
-                    L"ochar", L"light grey", L"dark grey", L"light blue", L"light green", 
-				    L"cyan", L"light red", L"magenta", L"yellow", L"white" };
+WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"purple",
+    L"ochar", L"light grey", L"dark grey", L"light blue", L"light green",
+    L"cyan", L"light red", L"magenta", L"yellow", L"white"
+};
 
-int WriteSettings (HWND hwnd)
+int
+WriteSettings(HWND hwnd)
 {
-  int foreground, background;
-  BOOL showtime, writelog;
-  WCHAR logpath [MAX_PATH];
+    int foreground, background;
+    BOOL showtime, writelog;
+    WCHAR logpath[MAX_PATH];
 
-  showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
-  writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
-  foreground = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
-  background = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
-  GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
+    showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
+    writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
+    foreground = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
+    background = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
+    GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
 
-  FILE * pFile = fopen ("options.cmd","w");
+    FILE *pFile = fopen("options.cmd", "w");
 
-  fprintf (pFile, "REM This file has been automatically created by RosBE Options Dialog\n\n");
-  fprintf (pFile, "color %X%X\n",background,foreground);
-  fprintf (pFile, "set ROSBE_SHOWTIME=%d\n",showtime);
-  fprintf (pFile, "set ROSBE_WRITELOG=%d\n",writelog);
-  fprintf (pFile, "set ROSBE_LOGPATH=%S\n",logpath);
+    fprintf(pFile, "REM This file has been automatically created by RosBE Options Dialog\n\n");
+    fprintf(pFile, "color %X%X\n", background, foreground);
+    fprintf(pFile, "set ROSBE_SHOWTIME=%d\n", showtime);
+    fprintf(pFile, "set ROSBE_WRITELOG=%d\n", writelog);
+    fprintf(pFile, "set ROSBE_LOGPATH=%S\n", logpath);
 
-  fclose (pFile);
+    fclose(pFile);
 }
 
-INT_PTR CALLBACK DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK
+DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-  int i = 0;
-  switch (Msg)
-  {
-    case WM_INITDIALOG:
-	{
-      for(i = 0; i < sizeof(Colors)/sizeof(char*); i++)
-	  {
-		SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM)(Colors[i]));
-		SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_ADDSTRING, 0, (LPARAM)(Colors[i]));
-	  }
-	  SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0, 0);
-      SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0xA, 0);
-      EnableWindow (GetDlgItem(Dlg, ID_BROWSE), FALSE); 
-      EnableWindow (GetDlgItem(Dlg, ID_LOGDIR), FALSE); 
-      return TRUE;
-	}
+    int i = 0;
+    switch (Msg)
+    {
+        case WM_INITDIALOG:
+        {
+            for(i = 0; i < sizeof(Colors) / sizeof(char *); i++)
+            {
+                SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+                SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+            }
+            SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0, 0);
+            SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0xA, 0);
+            EnableWindow(GetDlgItem(Dlg, ID_BROWSE), FALSE);
+            EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), FALSE);
+            return TRUE;
+        }
 
-    case WM_COMMAND:
-	{
-      if (wParam == ID_CANCEL)
-      {
-          PostMessage(Dlg, WM_CLOSE, 0, 0);
-      }
-      else if (wParam == ID_OK)
-      {
-		  WriteSettings(Dlg);
-          PostMessage(Dlg, WM_CLOSE, 0, 0);
-      }
-      else if (wParam == ID_BROWSE)
-      {
-		  WCHAR Path [MAX_PATH];
-		  BROWSEINFO PathInfo = {0};
-          PathInfo.hwndOwner = Dlg;      
-          PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";     
-		  LPITEMIDLIST pidl = SHBrowseForFolder ( &PathInfo ); 
-		  if(pidl && SHGetPathFromIDList ( pidl, Path ))
-			SetDlgItemText(Dlg, ID_LOGDIR, Path);
-	  }
-	  else if (wParam == ID_SAVELOGS)
-	  {
-          BOOL WriteLogSet = SendMessage(GetDlgItem(Dlg, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED; 
-		  EnableWindow (GetDlgItem(Dlg, ID_BROWSE), WriteLogSet); 
-		  EnableWindow (GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet); 
-	  }
-      return FALSE;
-	}
+        case WM_COMMAND:
+        {
+            if (wParam == ID_CANCEL)
+            {
+                PostMessage(Dlg, WM_CLOSE, 0, 0);
+            }
+            else if (wParam == ID_OK)
+            {
+                WriteSettings(Dlg);
+                PostMessage(Dlg, WM_CLOSE, 0, 0);
+            }
+            else if (wParam == ID_BROWSE)
+            {
+                WCHAR Path[MAX_PATH];
+                BROWSEINFO PathInfo = { 0 };
+                PathInfo.hwndOwner = Dlg;
+                PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
+                LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
+                if (pidl && SHGetPathFromIDList(pidl, Path))
+                    SetDlgItemText(Dlg, ID_LOGDIR, Path);
+            }
+            else if (wParam == ID_SAVELOGS)
+            {
+                BOOL WriteLogSet = SendMessage(GetDlgItem(Dlg, ID_SAVELOGS), BM_GETCHECK, 0,
+                                               0) == BST_CHECKED;
+                EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
+                EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
+            }
+            return FALSE;
+        }
 
-    case WM_CLOSE:
-	{
-        EndDialog(Dlg, 0);
-        return TRUE;
-	}      
-  }
-  return FALSE;
+        case WM_CLOSE:
+        {
+            EndDialog(Dlg, 0);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
-int WINAPI WinMain (HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdline, int cmdshow)
+int WINAPI
+WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdline, int cmdshow)
 {
-  DialogBox(hInst, MAKEINTRESOURCE(ID_DIALOG), 0, DlgProc);
-  return 0;
+    DialogBox(hInst, MAKEINTRESOURCE(ID_DIALOG), 0, DlgProc);
+    return 0;
 }
