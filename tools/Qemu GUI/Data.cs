@@ -46,6 +46,7 @@ namespace Qemu_GUI
 
         public void Dispose()
         {
+            Dispose();
         }
 
         [XmlElement("General")]
@@ -122,7 +123,11 @@ namespace Qemu_GUI
         public string GetArgv()
         {
             /* qemu BIOS path */
-            string arg = "-L " + this.Paths.QEmu + " ";
+            string arg;
+            if(this.Other.ABios.Length > 0)
+                arg = "-L \"" + this.Other.ABios + "\" ";
+            else
+                arg = "-L \"" + this.Paths.Qemu + "\" ";
 
             arg += General.ToString();
             arg += Floppies.ToString();  
@@ -207,7 +212,7 @@ namespace Qemu_GUI
     {
 
         [XmlElement("Qemu")]
-        public string QEmu = "";
+        public string Qemu = "";
 
         [XmlElement("VDK")]
         public string VDK = "";
@@ -433,9 +438,6 @@ namespace Qemu_GUI
             string buffer = "";
             
             /* Serial port */
-            if (this.SerialPort.FRedirect && this.SerialPort.PRedirect)
-                MessageBox.Show("Mutualy exclusive options detected in data SerialPort section!!", "Error!");
-
             if (this.SerialPort.FRedirect)
             {
                 if (this.SerialPort.FileName.Length > 0)
@@ -444,17 +446,19 @@ namespace Qemu_GUI
             else if (this.SerialPort.PRedirect)
             {
                 if (this.SerialPort.PipeName.Length > 0)
-                    buffer = "-serial pipe:\"" + this.SerialPort.PipeName + "\" ";
+                    buffer = "-serial pipe:" + this.SerialPort.PipeName + " ";
+            }
+            else if (this.SerialPort.SRedirect)
+            {
+                /* fix me: use pipes!!!!!! */
+                buffer = "-serial file:\"" + SerialPort.FileName + "\" ";
             }
 
             /* Parallel port */
-            if (this.ParallelPort.FRedirect && this.ParallelPort.PRedirect)
-                MessageBox.Show("Mutualy exclusive options detected in data ParallelPort section!!", "Error!");
-
             if (this.ParallelPort.FRedirect)
             {
                 if (this.ParallelPort.FileName.Length > 0)
-                    buffer += "-parallel  file:\"" + this.ParallelPort.FileName + "\" ";
+                    buffer += "-parallel file:\"" + this.ParallelPort.FileName + "\" ";
             }
             else if (this.ParallelPort.PRedirect)
             {
@@ -488,6 +492,8 @@ namespace Qemu_GUI
 
     public class SerPort
     {
+        [XmlAttribute("SRedirect")]
+        public bool SRedirect;
         [XmlAttribute("FRedirect")]
         public bool FRedirect;
         [XmlAttribute("FileName")]
@@ -567,24 +573,22 @@ namespace Qemu_GUI
         public bool Enabled;
 
         [XmlAttribute("VNicString")]
-        public string VNicString
-        {
-            get{ return this.ToString(); }
-        }
+        public string VNicString;
 
         public string[] VNicStringReader()
         {
+
+
             string[] buffer = new string[1];
             int j = 0;
-            char[] chararray = this.VNicString.ToCharArray();
+            char[] chararray;
             bool start = false;
 
             /* we have no adaptors */
-            if (this.VNicString.Length < 0)
-            {
-                buffer[j] = "ignore";
-            }
+            if (this.VNicString == null)
+                return null;
             else
+                chararray = this.VNicString.ToCharArray();
 
             /* This is not a real adaptor, skip it */
             if (this.VNicString == "-net none ")
@@ -599,7 +603,7 @@ namespace Qemu_GUI
 
                 if (chararray[i] == '-') //we found the start of a -net string
                     start = true;
-                if (start == true && chararray[i + 1] != '-')
+                if (start == true)
                 {
                     buffer[j] += chararray[i];
                 }
@@ -616,13 +620,9 @@ namespace Qemu_GUI
         public override string ToString()
         {
             string buffer = "";
-            if (!Enabled)
-                buffer += "-net none ";
-            else
-            {
-                foreach(VLan lan in frmMain.VLanlist)
-                    buffer += lan.ToString();
-            }
+            foreach(VLan lan in MainForm.VLanlist)
+                buffer += lan.ToString();
+
             return buffer;
         }
     }
@@ -631,6 +631,8 @@ namespace Qemu_GUI
     {
         [XmlAttribute("LKernel")]
         public string LKernel;
+        [XmlAttribute("ABios")]
+        public string ABios;
 
         public override string ToString()
         {
