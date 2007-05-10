@@ -44,12 +44,12 @@ namespace Qemu_GUI
     }
 
     /* FIXME: Unimplemented */
-    public class Socket : VLan
-    {
-        public override string ToString()
-        {
-            return " ";
-        }
-    }
+    //public class Socket : VLan
+    //{
+    //    public override string ToString()
+    //    {
+    //        return " ";
+    //    }
+    //}
 
 }

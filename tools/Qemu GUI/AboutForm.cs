@@ -8,16 +8,16 @@ using System.Windows.Forms;
 
 namespace Qemu_GUI
 {
-    public partial class frmError : Form
+    public partial class AboutForm : Form
     {
-        public frmError()
+        public AboutForm()
         {
             InitializeComponent();
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
     }
 }
