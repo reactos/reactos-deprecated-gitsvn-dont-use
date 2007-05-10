@@ -24,9 +24,9 @@
 #include "resources.h"
 
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
-WCHAR* Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"violett", 
-                    L"olive", L"light grey", L"dark grey", L"light blue", L"light green", 
-				    L"don't know what this color is called", L"light red", L"pink", L"yellow", L"white" };
+WCHAR* Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"purple", 
+                    L"ochar", L"light grey", L"dark grey", L"light blue", L"light green", 
+				    L"cyan", L"light red", L"magenta", L"yellow", L"white" };
 
 int WriteSettings (HWND hwnd)
 {
