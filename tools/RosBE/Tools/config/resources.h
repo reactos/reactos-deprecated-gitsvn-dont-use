@@ -1,0 +1,9 @@
+#define ID_DIALOG 0x10
+#define ID_OK 0x1
+#define ID_CANCEL 0x2
+#define IDC_FONT 0x1
+#define IDC_BACK 0x2
+#define ID_SAVELOGS 0x5
+#define ID_SHOWBUILDTIME 0x6
+#define ID_LOGDIR 0x7
+#define ID_BROWSE 0x7
