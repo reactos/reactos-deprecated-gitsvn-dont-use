@@ -69,6 +69,7 @@ Section "InstallGui" SEC01
   CreateDirectory "$SMPROGRAMS\RosTE"
   CreateShortCut "$SMPROGRAMS\RosTE\RosTE.lnk" "$INSTDIR\GUI\QemuGUI.exe"
   CreateShortCut "$DESKTOP\RosTE.lnk" "$INSTDIR\GUI\QemuGUI.exe"
+  WriteRegStr HKCU "Software\RosTE" "DefaultConfig" "$INSTDIR\GUI\config.xml"
 SectionEnd
   
 Section "InstallQemu" SEC02
