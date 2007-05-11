@@ -79,7 +79,6 @@ namespace Qemu_GUI
                         }
                         catch { }
                     }
-
                 }
                 p.StartInfo.Arguments = data.GetArgv();
             }
