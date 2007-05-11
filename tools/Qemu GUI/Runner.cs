@@ -117,22 +117,29 @@ namespace Qemu_GUI
             string argv = " create -f " + Format + " \"" + FileName + "\" " + d.ToString();
 
             p.StartInfo.FileName = data.Paths.Qemu + "\\qemu-img.exe";
-            p.StartInfo.WorkingDirectory = data.Paths.Qemu;
-            p.StartInfo.Arguments = argv;
-            try
+            if (Directory.Exists(data.Paths.Qemu))
             {
-                p.Start();
+                p.StartInfo.WorkingDirectory = data.Paths.Qemu;
+                p.StartInfo.Arguments = argv;
+                try
+                {
+                    p.Start();
+                }
+                catch (Exception e)
+                {
+                    ErrBuffer += Environment.NewLine + "Error: " + e.Message;
+                    ErrorForm error = new ErrorForm();
+                    error.txtError.Text = ErrBuffer;
+                    //error.txtError.Text += p.StandardError.ReadToEnd();
+                    error.ShowDialog();
+                    return false;
+                }
+                return true;
             }
-            catch(Exception e)
-            {
-                ErrBuffer += Environment.NewLine + "Error: " + e.Message;
-                ErrorForm error = new ErrorForm();
-                error.txtError.Text = ErrBuffer;
-                error.txtError.Text += p.StandardError.ReadToEnd();
-                error.ShowDialog();
-                return false;
-            }
-            return true;
+            else
+                MessageBox.Show("\"" + data.Paths.Qemu + "\"" + " does not exist");
+
+            return false;
         }
 
         public string GetErrorBuffer()
@@ -143,28 +150,36 @@ namespace Qemu_GUI
         public bool MountImage()
         {
             p.StartInfo.FileName = data.Paths.VDK + "\\vdk.exe";
-            p.StartInfo.WorkingDirectory = data.Paths.VDK;
-            p.StartInfo.Arguments = "open 0 " + "\"" + data.Tools.vdk.Image + "\" /RW /L:" + data.Tools.vdk.DriveLetter;
 
-            try
+            if (Directory.Exists(data.Paths.VDK))
             {
-                p.Start();
-                //frmError error = new frmError();
-                //error.txtError.Text = ErrBuffer;
-                //error.txtError.Text += p.StandardError.ReadToEnd();
-                //error.txtError.Text += p.StandardOutput.ReadToEnd();
-                //error.ShowDialog();
+                p.StartInfo.WorkingDirectory = data.Paths.VDK;
+                p.StartInfo.Arguments = "open 0 " + "\"" + data.Tools.vdk.Image + "\" /RW /L:" + data.Tools.vdk.DriveLetter;
+
+                try
+                {
+                    p.Start();
+                    //frmError error = new frmError();
+                    //error.txtError.Text = ErrBuffer;
+                    //error.txtError.Text += p.StandardError.ReadToEnd();
+                    //error.txtError.Text += p.StandardOutput.ReadToEnd();
+                    //error.ShowDialog();
+                }
+                catch (Exception e)
+                {
+                    ErrBuffer += Environment.NewLine + "Error: " + e.Message;
+                    ErrorForm error = new ErrorForm();
+                    error.txtError.Text = ErrBuffer;
+                    error.txtError.Text += p.StandardError.ReadToEnd();
+                    error.ShowDialog();
+                    return false;
+                }
+                return true;
             }
-            catch(Exception e)
-            {
-                ErrBuffer += Environment.NewLine + "Error: " + e.Message;
-                ErrorForm error = new ErrorForm();
-                error.txtError.Text = ErrBuffer;
-                error.txtError.Text += p.StandardError.ReadToEnd();
-                error.ShowDialog();
-                return false;
-            }
-            return true;
+            else
+                MessageBox.Show("\"" + data.Paths.VDK + "\"" + " does not exist");
+
+            return false;
         }
 
         public bool UnmountImage()
