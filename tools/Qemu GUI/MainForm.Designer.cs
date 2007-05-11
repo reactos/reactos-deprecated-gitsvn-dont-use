@@ -40,6 +40,7 @@ namespace Qemu_GUI
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpContentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutReactOSQEmuManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabOther = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -177,7 +178,6 @@ namespace Qemu_GUI
             this.chkVGAoutput = new System.Windows.Forms.CheckBox();
             this.chkFullscreen = new System.Windows.Forms.CheckBox();
             this.Tabs = new System.Windows.Forms.TabControl();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.tabOther.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -223,7 +223,7 @@ namespace Qemu_GUI
             // 
             this.btnLaunch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
             this.btnLaunch.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btnLaunch.Location = new System.Drawing.Point(423, 266);
+            this.btnLaunch.Location = new System.Drawing.Point(435, 266);
             this.btnLaunch.Name = "btnLaunch";
             this.btnLaunch.Size = new System.Drawing.Size(93, 23);
             this.btnLaunch.TabIndex = 4;
@@ -323,6 +323,11 @@ namespace Qemu_GUI
             this.helpContentsToolStripMenuItem.Text = "Help Contents";
             this.helpContentsToolStripMenuItem.Click += new System.EventHandler(this.helpContentsToolStripMenuItem_Click);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(232, 6);
+            // 
             // aboutReactOSQEmuManagerToolStripMenuItem
             // 
             this.aboutReactOSQEmuManagerToolStripMenuItem.Name = "aboutReactOSQEmuManagerToolStripMenuItem";
@@ -342,7 +347,7 @@ namespace Qemu_GUI
             this.tabOther.Location = new System.Drawing.Point(4, 22);
             this.tabOther.Name = "tabOther";
             this.tabOther.Padding = new System.Windows.Forms.Padding(3);
-            this.tabOther.Size = new System.Drawing.Size(527, 204);
+            this.tabOther.Size = new System.Drawing.Size(508, 204);
             this.tabOther.TabIndex = 11;
             this.tabOther.Text = "Other";
             this.tabOther.UseVisualStyleBackColor = true;
@@ -395,7 +400,7 @@ namespace Qemu_GUI
             this.grpVNC.Controls.Add(this.chkVNC);
             this.grpVNC.Location = new System.Drawing.Point(363, 6);
             this.grpVNC.Name = "grpVNC";
-            this.grpVNC.Size = new System.Drawing.Size(146, 116);
+            this.grpVNC.Size = new System.Drawing.Size(139, 116);
             this.grpVNC.TabIndex = 10;
             this.grpVNC.TabStop = false;
             this.grpVNC.Text = "VNC Server";
@@ -511,7 +516,7 @@ namespace Qemu_GUI
             this.tabTools.Controls.Add(this.groupBox9);
             this.tabTools.Location = new System.Drawing.Point(4, 22);
             this.tabTools.Name = "tabTools";
-            this.tabTools.Size = new System.Drawing.Size(527, 204);
+            this.tabTools.Size = new System.Drawing.Size(508, 204);
             this.tabTools.TabIndex = 6;
             this.tabTools.Text = "Tools";
             this.tabTools.UseVisualStyleBackColor = true;
@@ -529,7 +534,7 @@ namespace Qemu_GUI
             this.grpVDK.Enabled = false;
             this.grpVDK.Location = new System.Drawing.Point(4, 83);
             this.grpVDK.Name = "grpVDK";
-            this.grpVDK.Size = new System.Drawing.Size(517, 115);
+            this.grpVDK.Size = new System.Drawing.Size(501, 118);
             this.grpVDK.TabIndex = 7;
             this.grpVDK.TabStop = false;
             this.grpVDK.Text = "VDK";
@@ -537,7 +542,7 @@ namespace Qemu_GUI
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(16, 96);
+            this.label9.Location = new System.Drawing.Point(116, 102);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(222, 13);
             this.label9.TabIndex = 11;
@@ -547,14 +552,14 @@ namespace Qemu_GUI
             // 
             this.txtVDKImage.Location = new System.Drawing.Point(19, 32);
             this.txtVDKImage.Name = "txtVDKImage";
-            this.txtVDKImage.Size = new System.Drawing.Size(398, 20);
+            this.txtVDKImage.Size = new System.Drawing.Size(443, 20);
             this.txtVDKImage.TabIndex = 6;
             // 
             // cboVDKDrive
             // 
             this.cboVDKDrive.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboVDKDrive.FormattingEnabled = true;
-            this.cboVDKDrive.Location = new System.Drawing.Point(89, 65);
+            this.cboVDKDrive.Location = new System.Drawing.Point(57, 70);
             this.cboVDKDrive.Name = "cboVDKDrive";
             this.cboVDKDrive.Size = new System.Drawing.Size(69, 21);
             this.cboVDKDrive.TabIndex = 10;
@@ -563,7 +568,7 @@ namespace Qemu_GUI
             // lblDrive
             // 
             this.lblDrive.AutoSize = true;
-            this.lblDrive.Location = new System.Drawing.Point(39, 68);
+            this.lblDrive.Location = new System.Drawing.Point(16, 73);
             this.lblDrive.Name = "lblDrive";
             this.lblDrive.Size = new System.Drawing.Size(35, 13);
             this.lblDrive.TabIndex = 9;
@@ -571,7 +576,7 @@ namespace Qemu_GUI
             // 
             // btnVDKImage
             // 
-            this.btnVDKImage.Location = new System.Drawing.Point(422, 30);
+            this.btnVDKImage.Location = new System.Drawing.Point(468, 30);
             this.btnVDKImage.Name = "btnVDKImage";
             this.btnVDKImage.Size = new System.Drawing.Size(27, 22);
             this.btnVDKImage.TabIndex = 8;
@@ -581,7 +586,7 @@ namespace Qemu_GUI
             // 
             // btnUnmount
             // 
-            this.btnUnmount.Location = new System.Drawing.Point(378, 68);
+            this.btnUnmount.Location = new System.Drawing.Point(402, 68);
             this.btnUnmount.Name = "btnUnmount";
             this.btnUnmount.Size = new System.Drawing.Size(93, 23);
             this.btnUnmount.TabIndex = 5;
@@ -590,7 +595,7 @@ namespace Qemu_GUI
             // 
             // btnMount
             // 
-            this.btnMount.Location = new System.Drawing.Point(280, 68);
+            this.btnMount.Location = new System.Drawing.Point(303, 68);
             this.btnMount.Name = "btnMount";
             this.btnMount.Size = new System.Drawing.Size(93, 23);
             this.btnMount.TabIndex = 3;
@@ -616,7 +621,7 @@ namespace Qemu_GUI
             this.groupBox9.Controls.Add(this.cboImageFormat);
             this.groupBox9.Location = new System.Drawing.Point(4, 3);
             this.groupBox9.Name = "groupBox9";
-            this.groupBox9.Size = new System.Drawing.Size(517, 74);
+            this.groupBox9.Size = new System.Drawing.Size(501, 74);
             this.groupBox9.TabIndex = 6;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Harddisk Tools";
@@ -684,7 +689,7 @@ namespace Qemu_GUI
             this.tabDebug.Controls.Add(this.grpSerial);
             this.tabDebug.Location = new System.Drawing.Point(4, 22);
             this.tabDebug.Name = "tabDebug";
-            this.tabDebug.Size = new System.Drawing.Size(527, 204);
+            this.tabDebug.Size = new System.Drawing.Size(508, 204);
             this.tabDebug.TabIndex = 8;
             this.tabDebug.Text = "Debug";
             this.tabDebug.UseVisualStyleBackColor = true;
@@ -696,14 +701,14 @@ namespace Qemu_GUI
             this.grpGDB.Controls.Add(this.checkBox14);
             this.grpGDB.Location = new System.Drawing.Point(350, 102);
             this.grpGDB.Name = "grpGDB";
-            this.grpGDB.Size = new System.Drawing.Size(171, 96);
+            this.grpGDB.Size = new System.Drawing.Size(155, 96);
             this.grpGDB.TabIndex = 2;
             this.grpGDB.TabStop = false;
             this.grpGDB.Text = "GDB";
             // 
             // lblGDBPort
             // 
-            this.lblGDBPort.Location = new System.Drawing.Point(12, 46);
+            this.lblGDBPort.Location = new System.Drawing.Point(2, 49);
             this.lblGDBPort.Name = "lblGDBPort";
             this.lblGDBPort.Size = new System.Drawing.Size(55, 23);
             this.lblGDBPort.TabIndex = 2;
@@ -711,16 +716,16 @@ namespace Qemu_GUI
             // 
             // txtGDBPort
             // 
-            this.txtGDBPort.Location = new System.Drawing.Point(73, 46);
+            this.txtGDBPort.Location = new System.Drawing.Point(63, 49);
             this.txtGDBPort.Name = "txtGDBPort";
-            this.txtGDBPort.Size = new System.Drawing.Size(60, 20);
+            this.txtGDBPort.Size = new System.Drawing.Size(47, 20);
             this.txtGDBPort.TabIndex = 1;
             this.txtGDBPort.Text = "1234";
             this.txtGDBPort.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // checkBox14
             // 
-            this.checkBox14.Location = new System.Drawing.Point(15, 19);
+            this.checkBox14.Location = new System.Drawing.Point(5, 19);
             this.checkBox14.Name = "checkBox14";
             this.checkBox14.Size = new System.Drawing.Size(144, 24);
             this.checkBox14.TabIndex = 0;
@@ -732,7 +737,7 @@ namespace Qemu_GUI
             this.groupBox16.Controls.Add(this.button20);
             this.groupBox16.Location = new System.Drawing.Point(350, 3);
             this.groupBox16.Name = "groupBox16";
-            this.groupBox16.Size = new System.Drawing.Size(171, 96);
+            this.groupBox16.Size = new System.Drawing.Size(155, 96);
             this.groupBox16.TabIndex = 1;
             this.groupBox16.TabStop = false;
             this.groupBox16.Text = "LoadVM state";
@@ -740,7 +745,7 @@ namespace Qemu_GUI
             // checkBox3
             // 
             this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(50, 30);
+            this.checkBox3.Location = new System.Drawing.Point(45, 30);
             this.checkBox3.Name = "checkBox3";
             this.checkBox3.Size = new System.Drawing.Size(65, 17);
             this.checkBox3.TabIndex = 4;
@@ -749,7 +754,7 @@ namespace Qemu_GUI
             // 
             // button20
             // 
-            this.button20.Location = new System.Drawing.Point(36, 53);
+            this.button20.Location = new System.Drawing.Point(29, 53);
             this.button20.Name = "button20";
             this.button20.Size = new System.Drawing.Size(96, 23);
             this.button20.TabIndex = 3;
@@ -764,9 +769,9 @@ namespace Qemu_GUI
             this.grpSerial.Controls.Add(this.txtSerialFile);
             this.grpSerial.Controls.Add(this.btnBrowseSerial);
             this.grpSerial.Controls.Add(this.chkSerialToFile);
-            this.grpSerial.Location = new System.Drawing.Point(5, 3);
+            this.grpSerial.Location = new System.Drawing.Point(3, 3);
             this.grpSerial.Name = "grpSerial";
-            this.grpSerial.Size = new System.Drawing.Size(339, 195);
+            this.grpSerial.Size = new System.Drawing.Size(341, 195);
             this.grpSerial.TabIndex = 1;
             this.grpSerial.TabStop = false;
             this.grpSerial.Text = "Serial Port";
@@ -803,9 +808,9 @@ namespace Qemu_GUI
             // 
             // txtSerialFile
             // 
-            this.txtSerialFile.Location = new System.Drawing.Point(97, 69);
+            this.txtSerialFile.Location = new System.Drawing.Point(105, 69);
             this.txtSerialFile.Name = "txtSerialFile";
-            this.txtSerialFile.Size = new System.Drawing.Size(201, 20);
+            this.txtSerialFile.Size = new System.Drawing.Size(193, 20);
             this.txtSerialFile.TabIndex = 4;
             // 
             // btnBrowseSerial
@@ -832,7 +837,7 @@ namespace Qemu_GUI
             this.tabAudio.Controls.Add(this.grpAudio);
             this.tabAudio.Location = new System.Drawing.Point(4, 22);
             this.tabAudio.Name = "tabAudio";
-            this.tabAudio.Size = new System.Drawing.Size(527, 204);
+            this.tabAudio.Size = new System.Drawing.Size(508, 204);
             this.tabAudio.TabIndex = 5;
             this.tabAudio.Text = "Audio";
             this.tabAudio.UseVisualStyleBackColor = true;
@@ -849,7 +854,7 @@ namespace Qemu_GUI
             this.grpAudio.Controls.Add(this.chkOPL2);
             this.grpAudio.Location = new System.Drawing.Point(3, 3);
             this.grpAudio.Name = "grpAudio";
-            this.grpAudio.Size = new System.Drawing.Size(494, 195);
+            this.grpAudio.Size = new System.Drawing.Size(502, 198);
             this.grpAudio.TabIndex = 4;
             this.grpAudio.TabStop = false;
             this.grpAudio.Text = "Audio Card Emulation";
@@ -939,7 +944,7 @@ namespace Qemu_GUI
             this.tabNetwork.Controls.Add(this.grpNetwork);
             this.tabNetwork.Location = new System.Drawing.Point(4, 22);
             this.tabNetwork.Name = "tabNetwork";
-            this.tabNetwork.Size = new System.Drawing.Size(527, 204);
+            this.tabNetwork.Size = new System.Drawing.Size(508, 204);
             this.tabNetwork.TabIndex = 7;
             this.tabNetwork.Text = "Network";
             this.tabNetwork.UseVisualStyleBackColor = true;
@@ -958,7 +963,7 @@ namespace Qemu_GUI
             this.grpNetwork.Controls.Add(this.listVLANs);
             this.grpNetwork.Location = new System.Drawing.Point(3, 3);
             this.grpNetwork.Name = "grpNetwork";
-            this.grpNetwork.Size = new System.Drawing.Size(518, 195);
+            this.grpNetwork.Size = new System.Drawing.Size(502, 198);
             this.grpNetwork.TabIndex = 1;
             this.grpNetwork.TabStop = false;
             this.grpNetwork.Text = "Network";
@@ -1093,7 +1098,7 @@ namespace Qemu_GUI
             // 
             // btnNetRemove
             // 
-            this.btnNetRemove.Location = new System.Drawing.Point(123, 159);
+            this.btnNetRemove.Location = new System.Drawing.Point(112, 167);
             this.btnNetRemove.Name = "btnNetRemove";
             this.btnNetRemove.Size = new System.Drawing.Size(60, 25);
             this.btnNetRemove.TabIndex = 49;
@@ -1103,7 +1108,7 @@ namespace Qemu_GUI
             // 
             // btnNetAdd
             // 
-            this.btnNetAdd.Location = new System.Drawing.Point(9, 159);
+            this.btnNetAdd.Location = new System.Drawing.Point(26, 167);
             this.btnNetAdd.Name = "btnNetAdd";
             this.btnNetAdd.Size = new System.Drawing.Size(60, 25);
             this.btnNetAdd.TabIndex = 48;
@@ -1118,7 +1123,7 @@ namespace Qemu_GUI
             this.listVLANs.Location = new System.Drawing.Point(6, 36);
             this.listVLANs.Name = "listVLANs";
             this.listVLANs.ShowGroups = false;
-            this.listVLANs.Size = new System.Drawing.Size(191, 117);
+            this.listVLANs.Size = new System.Drawing.Size(191, 125);
             this.listVLANs.TabIndex = 47;
             this.listVLANs.UseCompatibleStateImageBehavior = false;
             this.listVLANs.View = System.Windows.Forms.View.List;
@@ -1128,7 +1133,7 @@ namespace Qemu_GUI
             this.tabFloppy.Controls.Add(this.grpFloppy);
             this.tabFloppy.Location = new System.Drawing.Point(4, 22);
             this.tabFloppy.Name = "tabFloppy";
-            this.tabFloppy.Size = new System.Drawing.Size(527, 204);
+            this.tabFloppy.Size = new System.Drawing.Size(508, 204);
             this.tabFloppy.TabIndex = 2;
             this.tabFloppy.Text = "Floppy";
             this.tabFloppy.UseVisualStyleBackColor = true;
@@ -1141,9 +1146,9 @@ namespace Qemu_GUI
             this.grpFloppy.Controls.Add(this.btnBrowseFloppyA);
             this.grpFloppy.Controls.Add(this.chkFloppyB);
             this.grpFloppy.Controls.Add(this.chkFloppyA);
-            this.grpFloppy.Location = new System.Drawing.Point(5, 3);
+            this.grpFloppy.Location = new System.Drawing.Point(3, 3);
             this.grpFloppy.Name = "grpFloppy";
-            this.grpFloppy.Size = new System.Drawing.Size(516, 195);
+            this.grpFloppy.Size = new System.Drawing.Size(502, 195);
             this.grpFloppy.TabIndex = 4;
             this.grpFloppy.TabStop = false;
             this.grpFloppy.Text = "Floppy";
@@ -1153,7 +1158,7 @@ namespace Qemu_GUI
             this.txtFloppyB.Enabled = false;
             this.txtFloppyB.Location = new System.Drawing.Point(32, 135);
             this.txtFloppyB.Name = "txtFloppyB";
-            this.txtFloppyB.Size = new System.Drawing.Size(445, 20);
+            this.txtFloppyB.Size = new System.Drawing.Size(431, 20);
             this.txtFloppyB.TabIndex = 5;
             // 
             // txtFloppyA
@@ -1161,13 +1166,13 @@ namespace Qemu_GUI
             this.txtFloppyA.Enabled = false;
             this.txtFloppyA.Location = new System.Drawing.Point(32, 49);
             this.txtFloppyA.Name = "txtFloppyA";
-            this.txtFloppyA.Size = new System.Drawing.Size(445, 20);
+            this.txtFloppyA.Size = new System.Drawing.Size(431, 20);
             this.txtFloppyA.TabIndex = 4;
             // 
             // btnBrowseFloppyB
             // 
             this.btnBrowseFloppyB.Enabled = false;
-            this.btnBrowseFloppyB.Location = new System.Drawing.Point(483, 135);
+            this.btnBrowseFloppyB.Location = new System.Drawing.Point(469, 135);
             this.btnBrowseFloppyB.Name = "btnBrowseFloppyB";
             this.btnBrowseFloppyB.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseFloppyB.TabIndex = 3;
@@ -1177,7 +1182,7 @@ namespace Qemu_GUI
             // btnBrowseFloppyA
             // 
             this.btnBrowseFloppyA.Enabled = false;
-            this.btnBrowseFloppyA.Location = new System.Drawing.Point(483, 49);
+            this.btnBrowseFloppyA.Location = new System.Drawing.Point(469, 49);
             this.btnBrowseFloppyA.Name = "btnBrowseFloppyA";
             this.btnBrowseFloppyA.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseFloppyA.TabIndex = 2;
@@ -1207,7 +1212,7 @@ namespace Qemu_GUI
             this.tabCDROM.Controls.Add(this.grpCDROM);
             this.tabCDROM.Location = new System.Drawing.Point(4, 22);
             this.tabCDROM.Name = "tabCDROM";
-            this.tabCDROM.Size = new System.Drawing.Size(527, 204);
+            this.tabCDROM.Size = new System.Drawing.Size(508, 204);
             this.tabCDROM.TabIndex = 4;
             this.tabCDROM.Text = "CD-ROM";
             this.tabCDROM.UseVisualStyleBackColor = true;
@@ -1222,7 +1227,7 @@ namespace Qemu_GUI
             this.grpCDROM.Controls.Add(this.optCDImage);
             this.grpCDROM.Location = new System.Drawing.Point(3, 3);
             this.grpCDROM.Name = "grpCDROM";
-            this.grpCDROM.Size = new System.Drawing.Size(518, 195);
+            this.grpCDROM.Size = new System.Drawing.Size(502, 198);
             this.grpCDROM.TabIndex = 5;
             this.grpCDROM.TabStop = false;
             this.grpCDROM.Text = "CD-ROM";
@@ -1291,7 +1296,7 @@ namespace Qemu_GUI
             this.tabHardDisk.Controls.Add(this.grpHarddisk);
             this.tabHardDisk.Location = new System.Drawing.Point(4, 22);
             this.tabHardDisk.Name = "tabHardDisk";
-            this.tabHardDisk.Size = new System.Drawing.Size(527, 204);
+            this.tabHardDisk.Size = new System.Drawing.Size(508, 204);
             this.tabHardDisk.TabIndex = 3;
             this.tabHardDisk.Text = " Harddisk";
             this.tabHardDisk.UseVisualStyleBackColor = true;
@@ -1312,7 +1317,7 @@ namespace Qemu_GUI
             this.grpHarddisk.Controls.Add(this.chkUseHDA);
             this.grpHarddisk.Location = new System.Drawing.Point(5, 3);
             this.grpHarddisk.Name = "grpHarddisk";
-            this.grpHarddisk.Size = new System.Drawing.Size(516, 195);
+            this.grpHarddisk.Size = new System.Drawing.Size(500, 195);
             this.grpHarddisk.TabIndex = 5;
             this.grpHarddisk.TabStop = false;
             this.grpHarddisk.Text = " Harddisks";
@@ -1322,7 +1327,7 @@ namespace Qemu_GUI
             this.txtHDD.Enabled = false;
             this.txtHDD.Location = new System.Drawing.Point(77, 155);
             this.txtHDD.Name = "txtHDD";
-            this.txtHDD.Size = new System.Drawing.Size(394, 20);
+            this.txtHDD.Size = new System.Drawing.Size(384, 20);
             this.txtHDD.TabIndex = 15;
             // 
             // txtHDC
@@ -1330,7 +1335,7 @@ namespace Qemu_GUI
             this.txtHDC.Enabled = false;
             this.txtHDC.Location = new System.Drawing.Point(77, 110);
             this.txtHDC.Name = "txtHDC";
-            this.txtHDC.Size = new System.Drawing.Size(394, 20);
+            this.txtHDC.Size = new System.Drawing.Size(384, 20);
             this.txtHDC.TabIndex = 14;
             // 
             // txtHDB
@@ -1338,21 +1343,21 @@ namespace Qemu_GUI
             this.txtHDB.Enabled = false;
             this.txtHDB.Location = new System.Drawing.Point(77, 65);
             this.txtHDB.Name = "txtHDB";
-            this.txtHDB.Size = new System.Drawing.Size(394, 20);
+            this.txtHDB.Size = new System.Drawing.Size(384, 20);
             this.txtHDB.TabIndex = 13;
             // 
             // txtHDA
             // 
             this.txtHDA.Enabled = false;
-            this.txtHDA.Location = new System.Drawing.Point(77, 20);
+            this.txtHDA.Location = new System.Drawing.Point(77, 22);
             this.txtHDA.Name = "txtHDA";
-            this.txtHDA.Size = new System.Drawing.Size(394, 20);
+            this.txtHDA.Size = new System.Drawing.Size(384, 20);
             this.txtHDA.TabIndex = 12;
             // 
             // btnBrowseHDD
             // 
             this.btnBrowseHDD.Enabled = false;
-            this.btnBrowseHDD.Location = new System.Drawing.Point(477, 155);
+            this.btnBrowseHDD.Location = new System.Drawing.Point(467, 155);
             this.btnBrowseHDD.Name = "btnBrowseHDD";
             this.btnBrowseHDD.Size = new System.Drawing.Size(27, 23);
             this.btnBrowseHDD.TabIndex = 11;
@@ -1362,7 +1367,7 @@ namespace Qemu_GUI
             // btnBrowseHDC
             // 
             this.btnBrowseHDC.Enabled = false;
-            this.btnBrowseHDC.Location = new System.Drawing.Point(477, 110);
+            this.btnBrowseHDC.Location = new System.Drawing.Point(467, 110);
             this.btnBrowseHDC.Name = "btnBrowseHDC";
             this.btnBrowseHDC.Size = new System.Drawing.Size(27, 23);
             this.btnBrowseHDC.TabIndex = 10;
@@ -1371,7 +1376,7 @@ namespace Qemu_GUI
             // 
             // chkUseHDD
             // 
-            this.chkUseHDD.Location = new System.Drawing.Point(18, 155);
+            this.chkUseHDD.Location = new System.Drawing.Point(6, 151);
             this.chkUseHDD.Name = "chkUseHDD";
             this.chkUseHDD.Size = new System.Drawing.Size(72, 24);
             this.chkUseHDD.TabIndex = 9;
@@ -1380,7 +1385,7 @@ namespace Qemu_GUI
             // 
             // chkUseHDC
             // 
-            this.chkUseHDC.Location = new System.Drawing.Point(18, 110);
+            this.chkUseHDC.Location = new System.Drawing.Point(6, 106);
             this.chkUseHDC.Name = "chkUseHDC";
             this.chkUseHDC.Size = new System.Drawing.Size(72, 24);
             this.chkUseHDC.TabIndex = 8;
@@ -1390,7 +1395,7 @@ namespace Qemu_GUI
             // btnBrowseHDB
             // 
             this.btnBrowseHDB.Enabled = false;
-            this.btnBrowseHDB.Location = new System.Drawing.Point(477, 65);
+            this.btnBrowseHDB.Location = new System.Drawing.Point(467, 65);
             this.btnBrowseHDB.Name = "btnBrowseHDB";
             this.btnBrowseHDB.Size = new System.Drawing.Size(27, 23);
             this.btnBrowseHDB.TabIndex = 7;
@@ -1400,7 +1405,7 @@ namespace Qemu_GUI
             // btnBrowseHDA
             // 
             this.btnBrowseHDA.Enabled = false;
-            this.btnBrowseHDA.Location = new System.Drawing.Point(477, 20);
+            this.btnBrowseHDA.Location = new System.Drawing.Point(467, 20);
             this.btnBrowseHDA.Name = "btnBrowseHDA";
             this.btnBrowseHDA.Size = new System.Drawing.Size(27, 23);
             this.btnBrowseHDA.TabIndex = 6;
@@ -1409,7 +1414,7 @@ namespace Qemu_GUI
             // 
             // chkUseHDB
             // 
-            this.chkUseHDB.Location = new System.Drawing.Point(18, 65);
+            this.chkUseHDB.Location = new System.Drawing.Point(6, 61);
             this.chkUseHDB.Name = "chkUseHDB";
             this.chkUseHDB.Size = new System.Drawing.Size(72, 24);
             this.chkUseHDB.TabIndex = 5;
@@ -1418,7 +1423,7 @@ namespace Qemu_GUI
             // 
             // chkUseHDA
             // 
-            this.chkUseHDA.Location = new System.Drawing.Point(18, 20);
+            this.chkUseHDA.Location = new System.Drawing.Point(6, 16);
             this.chkUseHDA.Name = "chkUseHDA";
             this.chkUseHDA.Size = new System.Drawing.Size(72, 24);
             this.chkUseHDA.TabIndex = 4;
@@ -1430,7 +1435,7 @@ namespace Qemu_GUI
             this.tabPaths.Controls.Add(this.groupBox2);
             this.tabPaths.Location = new System.Drawing.Point(4, 22);
             this.tabPaths.Name = "tabPaths";
-            this.tabPaths.Size = new System.Drawing.Size(527, 204);
+            this.tabPaths.Size = new System.Drawing.Size(508, 204);
             this.tabPaths.TabIndex = 10;
             this.tabPaths.Text = "Paths";
             this.tabPaths.UseVisualStyleBackColor = true;
@@ -1443,9 +1448,9 @@ namespace Qemu_GUI
             this.groupBox2.Controls.Add(this.lblVDKPath);
             this.groupBox2.Controls.Add(this.btnQEmuPath);
             this.groupBox2.Controls.Add(this.lblQEmuPath);
-            this.groupBox2.Location = new System.Drawing.Point(18, 13);
+            this.groupBox2.Location = new System.Drawing.Point(3, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(491, 172);
+            this.groupBox2.Size = new System.Drawing.Size(502, 198);
             this.groupBox2.TabIndex = 21;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Paths";
@@ -1511,7 +1516,7 @@ namespace Qemu_GUI
             this.tabGen.Controls.Add(this.grpDisplay);
             this.tabGen.Location = new System.Drawing.Point(4, 22);
             this.tabGen.Name = "tabGen";
-            this.tabGen.Size = new System.Drawing.Size(527, 204);
+            this.tabGen.Size = new System.Drawing.Size(508, 204);
             this.tabGen.TabIndex = 1;
             this.tabGen.Text = "General";
             this.tabGen.UseVisualStyleBackColor = true;
@@ -1519,9 +1524,9 @@ namespace Qemu_GUI
             // grpACPI
             // 
             this.grpACPI.Controls.Add(this.chkACPI);
-            this.grpACPI.Location = new System.Drawing.Point(335, 57);
+            this.grpACPI.Location = new System.Drawing.Point(315, 57);
             this.grpACPI.Name = "grpACPI";
-            this.grpACPI.Size = new System.Drawing.Size(174, 51);
+            this.grpACPI.Size = new System.Drawing.Size(190, 51);
             this.grpACPI.TabIndex = 20;
             this.grpACPI.TabStop = false;
             this.grpACPI.Text = "ACPI";
@@ -1549,9 +1554,9 @@ namespace Qemu_GUI
             this.groupBox6.Controls.Add(this.lblBootFrom);
             this.groupBox6.Controls.Add(this.lblSMP);
             this.groupBox6.Controls.Add(this.cboBootFrom);
-            this.groupBox6.Location = new System.Drawing.Point(14, 57);
+            this.groupBox6.Location = new System.Drawing.Point(3, 57);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(301, 131);
+            this.groupBox6.Size = new System.Drawing.Size(306, 144);
             this.groupBox6.TabIndex = 4;
             this.groupBox6.TabStop = false;
             // 
@@ -1669,9 +1674,9 @@ namespace Qemu_GUI
             // grpMachine
             // 
             this.grpMachine.Controls.Add(this.cboMachine);
-            this.grpMachine.Location = new System.Drawing.Point(14, 3);
+            this.grpMachine.Location = new System.Drawing.Point(3, 3);
             this.grpMachine.Name = "grpMachine";
-            this.grpMachine.Size = new System.Drawing.Size(301, 48);
+            this.grpMachine.Size = new System.Drawing.Size(306, 48);
             this.grpMachine.TabIndex = 2;
             this.grpMachine.TabStop = false;
             this.grpMachine.Text = "Machine";
@@ -1702,9 +1707,9 @@ namespace Qemu_GUI
             // grpClock
             // 
             this.grpClock.Controls.Add(this.chkSetClock);
-            this.grpClock.Location = new System.Drawing.Point(335, 3);
+            this.grpClock.Location = new System.Drawing.Point(315, 3);
             this.grpClock.Name = "grpClock";
-            this.grpClock.Size = new System.Drawing.Size(174, 48);
+            this.grpClock.Size = new System.Drawing.Size(190, 48);
             this.grpClock.TabIndex = 18;
             this.grpClock.TabStop = false;
             this.grpClock.Text = "Clock";
@@ -1725,9 +1730,9 @@ namespace Qemu_GUI
             // 
             this.grpDisplay.Controls.Add(this.chkVGAoutput);
             this.grpDisplay.Controls.Add(this.chkFullscreen);
-            this.grpDisplay.Location = new System.Drawing.Point(335, 114);
+            this.grpDisplay.Location = new System.Drawing.Point(315, 114);
             this.grpDisplay.Name = "grpDisplay";
-            this.grpDisplay.Size = new System.Drawing.Size(174, 74);
+            this.grpDisplay.Size = new System.Drawing.Size(190, 87);
             this.grpDisplay.TabIndex = 19;
             this.grpDisplay.TabStop = false;
             this.grpDisplay.Text = "Display";
@@ -1764,21 +1769,16 @@ namespace Qemu_GUI
             this.Tabs.Controls.Add(this.tabDebug);
             this.Tabs.Controls.Add(this.tabTools);
             this.Tabs.Controls.Add(this.tabOther);
-            this.Tabs.Location = new System.Drawing.Point(0, 30);
+            this.Tabs.Location = new System.Drawing.Point(12, 30);
             this.Tabs.Name = "Tabs";
             this.Tabs.SelectedIndex = 0;
-            this.Tabs.Size = new System.Drawing.Size(535, 230);
+            this.Tabs.Size = new System.Drawing.Size(516, 230);
             this.Tabs.TabIndex = 3;
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(232, 6);
             // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(540, 301);
+            this.ClientSize = new System.Drawing.Size(540, 297);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnLaunch);
             this.Controls.Add(this.Tabs);

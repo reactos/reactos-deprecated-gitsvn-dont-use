@@ -116,10 +116,10 @@ namespace Qemu_GUI
             long d = Size * 1024;
             string argv = " create -f " + Format + " \"" + FileName + "\" " + d.ToString();
 
-            p.StartInfo.FileName = data.Paths.Qemu + "\\qemu-img.exe";
             if (Directory.Exists(data.Paths.Qemu))
             {
                 p.StartInfo.WorkingDirectory = data.Paths.Qemu;
+                p.StartInfo.FileName = data.Paths.Qemu + "\\qemu-img.exe";
                 p.StartInfo.Arguments = argv;
                 try
                 {
@@ -149,11 +149,10 @@ namespace Qemu_GUI
 
         public bool MountImage()
         {
-            p.StartInfo.FileName = data.Paths.VDK + "\\vdk.exe";
-
             if (Directory.Exists(data.Paths.VDK))
             {
                 p.StartInfo.WorkingDirectory = data.Paths.VDK;
+                p.StartInfo.FileName = data.Paths.VDK + "\\vdk.exe";
                 p.StartInfo.Arguments = "open 0 " + "\"" + data.Tools.vdk.Image + "\" /RW /L:" + data.Tools.vdk.DriveLetter;
 
                 try
