@@ -697,18 +697,56 @@ namespace Qemu_GUI
             bool HasHDisk = false;
             bool HasFDisk = false;
 
+            /* check the QEmu path */
+            if (!Directory.Exists(data.Paths.Qemu))
+            {
+                MessageBox.Show("\"" + data.Paths.Qemu + "\"" + " does not exist", "Error - QEmu path");
+                return;
+            }
+
             /* There must be atleast one source of OS */
             for (int i = 0; i < data.Harddisks.HDD.Length; i++)
             {
                 if (data.Harddisks.HDD[i].Enabled == true)
-                    HasHDisk = true;
+                {
+                    if (File.Exists(data.Harddisks.HDD[i].Path))
+                    {
+                        HasHDisk = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("\"" + data.Harddisks.HDD[i].Path + "\"" + " does not exist", "Error - Harddisk file");
+                        return;
+                    }
+                }
             }
 
             for (int i = 0; i < data.Floppies.FDD.Length; i++)
             {
                 if (data.Floppies.FDD[i].Enabled == true)
-                    HasFDisk = true;
+                {
+                    if (File.Exists(data.Floppies.FDD[i].Path))
+                    {
+                        HasFDisk = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("\"" + data.Floppies.FDD[i].Path + "\"" + " does not exist", "Error - Floppy File");
+                        return;
+                    }
+                }
             }
+
+            /* ensure we have a correct CD image if we need to boot from it */
+            if (optCDImage.Enabled && txtCDROM.Text.Length > 0)
+            {
+                if (!File.Exists(txtCDROM.Text))
+                {
+                    MessageBox.Show("\"" + txtCDROM.Text + "\"" + " does not exist", "Error - CD-ROM image");
+                    return;
+                }
+            }
+
             if (HasHDisk == false && data.CDROM.Enabled == false && HasFDisk == false)
                 MessageBox.Show("Must enable atleast 1 Hard disk, CD-Rom or Floppy disk!", "Error");//or specify linux kernel image???
             else
