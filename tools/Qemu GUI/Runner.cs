@@ -58,6 +58,14 @@ namespace Qemu_GUI
                     break;
             }
 
+            if (data.Debug.SerialPort.SRedirect)
+            {
+                /* create a random name */
+                //FIXME: rewrite when pipe client works
+                string filename = "serial" + DateTime.UtcNow.Ticks.ToString() + ".txt";
+                data.Debug.SerialPort.FileName = temp_path + filename;
+            }
+
             try
             {
                 p.StartInfo.WorkingDirectory = data.Paths.Qemu;
@@ -82,9 +90,9 @@ namespace Qemu_GUI
                 }
                 p.StartInfo.Arguments = data.GetArgv();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                MessageBox.Show("Invalid path or arguments. Your settings may be corrupt. \nException Information: " + e.Message , "Error");
+                MessageBox.Show("Invalid path or arguments. Your settings may be corrupt. \nException Information: " + e.Message, "Error");
                 return false;
             }
 
@@ -93,11 +101,12 @@ namespace Qemu_GUI
 
             try
             {
-                //MessageBox.Show(data.GetArgv());
                 p.Start();
-                if(data.Debug.SerialPort.SRedirect)
+                if (data.Debug.SerialPort.SRedirect)
+                {
+                    output = new DebugForm();
                     output.Listen(p, data.Debug.SerialPort.FileName);
-                
+                }
             }
             catch (Exception e)
             {
@@ -115,30 +124,23 @@ namespace Qemu_GUI
             long d = Size * 1024;
             string argv = " create -f " + Format + " \"" + FileName + "\" " + d.ToString();
 
-            if (Directory.Exists(data.Paths.Qemu))
+            p.StartInfo.FileName = data.Paths.Qemu + "\\qemu-img.exe";
+            p.StartInfo.WorkingDirectory = data.Paths.Qemu;
+            p.StartInfo.Arguments = argv;
+            try
             {
-                p.StartInfo.WorkingDirectory = data.Paths.Qemu;
-                p.StartInfo.FileName = data.Paths.Qemu + "\\qemu-img.exe";
-                p.StartInfo.Arguments = argv;
-                try
-                {
-                    p.Start();
-                }
-                catch (Exception e)
-                {
-                    ErrBuffer += Environment.NewLine + "Error: " + e.Message;
-                    ErrorForm error = new ErrorForm();
-                    error.txtError.Text = ErrBuffer;
-                    //error.txtError.Text += p.StandardError.ReadToEnd();
-                    error.ShowDialog();
-                    return false;
-                }
-                return true;
+                p.Start();
             }
-            else
-                MessageBox.Show("\"" + data.Paths.Qemu + "\"" + " does not exist");
-
-            return false;
+            catch(Exception e)
+            {
+                ErrBuffer += Environment.NewLine + "Error: " + e.Message;
+                ErrorForm error = new ErrorForm();
+                error.txtError.Text = ErrBuffer;
+                error.txtError.Text += p.StandardError.ReadToEnd();
+                error.ShowDialog();
+                return false;
+            }
+            return true;
         }
 
         public string GetErrorBuffer()
@@ -148,36 +150,33 @@ namespace Qemu_GUI
 
         public bool MountImage()
         {
-            if (Directory.Exists(data.Paths.VDK))
+            bool success = StartVdkService();
+
+            if (success == true)
             {
-                p.StartInfo.WorkingDirectory = data.Paths.VDK;
                 p.StartInfo.FileName = data.Paths.VDK + "\\vdk.exe";
+                p.StartInfo.WorkingDirectory = data.Paths.VDK;
                 p.StartInfo.Arguments = "open 0 " + "\"" + data.Tools.vdk.Image + "\" /RW /L:" + data.Tools.vdk.DriveLetter;
 
                 try
                 {
                     p.Start();
-                    //frmError error = new frmError();
-                    //error.txtError.Text = ErrBuffer;
-                    //error.txtError.Text += p.StandardError.ReadToEnd();
-                    //error.txtError.Text += p.StandardOutput.ReadToEnd();
-                    //error.ShowDialog();
                 }
                 catch (Exception e)
                 {
-                    ErrBuffer += Environment.NewLine + "Error: " + e.Message;
-                    ErrorForm error = new ErrorForm();
-                    error.txtError.Text = ErrBuffer;
-                    error.txtError.Text += p.StandardError.ReadToEnd();
-                    error.ShowDialog();
-                    return false;
+                    ErrBuffer = e.Message;
+                    success = false;
                 }
-                return true;
             }
-            else
-                MessageBox.Show("\"" + data.Paths.VDK + "\"" + " does not exist");
-
-            return false;
+            
+            if (success == false)
+            {
+                ErrorForm error = new ErrorForm();
+                error.txtError.Text = ErrBuffer;
+                error.txtError.Text += p.StandardOutput.ReadToEnd();//vdk does not use stderr
+                error.ShowDialog();
+            }
+            return success;
         }
 
         public bool UnmountImage()
@@ -202,6 +201,35 @@ namespace Qemu_GUI
             return true;
         }
 
+        private bool StartVdkService()
+        {
+            string buffer;
+
+            p.StartInfo.FileName = data.Paths.VDK + "\\vdk.exe";
+            p.StartInfo.WorkingDirectory = data.Paths.VDK;
+            p.StartInfo.Arguments = "start";
+            try
+            {
+                p.Start();
+            }
+            catch (Exception e)
+            {
+                ErrBuffer = e.Message;
+                return false;
+            }
+
+            buffer = p.StandardOutput.ReadToEnd();
+
+            if (buffer.Contains("Failed to start the Virtual Disk Driver.") == true)
+            {
+                ErrBuffer = buffer;
+                return false;
+            }
+            else
+                return true;
+
+        }
+
         public void ProcessStop(object sender, EventArgs e)
         {
             string buff = p.StandardError.ReadToEnd();
@@ -211,26 +239,6 @@ namespace Qemu_GUI
                 ErrorForm error = new ErrorForm();
                 error.txtError.Text = ErrBuffer;
                 error.ShowDialog();
-
-            }
-
-            //FIXME: remove when pipe client is online
-            if (data.Debug.SerialPort.SRedirect)
-            {
-                /* sometimes it takes a while for qemu to free the handle to the file */
-                while (File.Exists(data.Debug.SerialPort.FileName))
-                {
-                    try
-                    {
-                        File.Delete(data.Debug.SerialPort.FileName);
-                    }
-                    catch
-                    {
-                        // if (File.Exists(data.Debug.SerialPort.FileName))
-                        // MessageBox.Show("Warning temporary file still exists!");
-                    }
-                }
-                MessageBox.Show("Temporary file deleted!");
             }
         }
     }

@@ -136,7 +136,7 @@ namespace Qemu_GUI
             arg += Audio.ToString();
             arg += Debug.ToString();
             arg += Network.ToString();
-            //arg += Other.ToString();
+            arg += Other.ToString();
 
             return arg;
         }
@@ -145,8 +145,6 @@ namespace Qemu_GUI
     public class Harddisks
     {
         private Drive[] m_HardDisks = new Drive[4];
-
-        public bool W2kHack;
 
         public Harddisks()
         {
@@ -177,7 +175,6 @@ namespace Qemu_GUI
     public class Floppies
     {
         private Drive[] m_Floppies = new Drive[2];
-        public bool fd_bootchk;
 
         public Floppies()
         {
@@ -194,8 +191,6 @@ namespace Qemu_GUI
 
             if (this.FDD[1].Enabled && (this.FDD[1].Path.Length > 0))
                 buffer += "-fdb \"" + this.FDD[1].Path + "\" ";
-            if (fd_bootchk == true)
-                buffer += "-no-fd-bootchk ";
 
             return buffer;
         }
@@ -252,7 +247,8 @@ namespace Qemu_GUI
             string buffer = "-m " + this.Memory.ToString() + " ";
 
             /* SMP settings */
-            buffer += "-smp " + this.CPUs.ToString() + " ";
+            if(this.CPUs > 1)
+                buffer += "-smp " + this.CPUs.ToString() + " ";
 
             /* Set clock */
             if (this.SetClock)
@@ -451,8 +447,9 @@ namespace Qemu_GUI
             else if (this.SerialPort.SRedirect)
             {
                 /* fix me: use pipes!!!!!! */
-                buffer = "-serial file:\"" + SerialPort.FileName + "\" ";
+                buffer = "-serial file:\"" + this.SerialPort.FileName + "\" ";
             }
+
 
             /* Parallel port */
             if (this.ParallelPort.FRedirect)
@@ -633,6 +630,8 @@ namespace Qemu_GUI
         public string LKernel;
         [XmlAttribute("ABios")]
         public string ABios;
+        [XmlAttribute("AppendCmdLine")]
+        public string AppendCmdLine;
 
         public override string ToString()
         {
@@ -641,7 +640,12 @@ namespace Qemu_GUI
             if (LKernel.Length > 0)
                 buffer += "-kernel " + LKernel + " ";
 
+            if (AppendCmdLine.Length > 0)
+                buffer += "-append " + AppendCmdLine + " ";
+
             return buffer;
+
+            /* ABios is a special value that is handled in GetArgv()*/
         }
 
         public Other()

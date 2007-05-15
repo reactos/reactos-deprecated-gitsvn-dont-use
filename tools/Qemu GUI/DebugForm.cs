@@ -8,13 +8,13 @@ using System.Runtime.InteropServices;
 
 namespace Qemu_GUI
 {
-     public partial class DebugForm : Form
+    public partial class DebugForm : Form
     {
-        Process proc;
         string talker;
+        Process proc;
         ThreadStart start;
         Thread worker;
-        
+
         public DebugForm()
         {
             InitializeComponent();
@@ -28,7 +28,7 @@ namespace Qemu_GUI
         {
             proc = p;
             talker = Talker;
-           
+
             start = new ThreadStart(ThreadProc);
             worker = new Thread(start);
             worker.Priority = ThreadPriority.BelowNormal;//let other apps like qemu run before us.
@@ -41,14 +41,14 @@ namespace Qemu_GUI
             txtDebug.Text = "";
             string buffer = "";
             string temp = "";
-            
-            /* fix me: writting to a form from a thread that we did not create. it is unsafe */
+
+            /* fix me: writting to a form from a diferent thread, unsafe. */
             try
             {
                 log = new FileStream(talker, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
                 while (!proc.HasExited)
                 {
-                    
+
                     int data = log.ReadByte();
                     if (data != -1)
                     {
@@ -65,15 +65,18 @@ namespace Qemu_GUI
                         buffer = "";
                     }
                 }
-                log.Close();
+
                 temp = txtDebug.Text + buffer;
                 txtDebug.Text = "";
-                txtDebug.SelectedText = temp; 
+                txtDebug.SelectedText = temp;
 
+                DeleteTalker();
+                log.Close();
                 //txtDebug.Text += "QEMU GUI: Exited listener!" + Environment.NewLine;
             }
             catch (Exception e)
             {
+                /* fix me: writting to a form from a diferent thread, unsafe. */
                 try
                 {
                     txtDebug.Text += "QEMU GUI: Exited listener on exception!" + Environment.NewLine;
@@ -81,8 +84,35 @@ namespace Qemu_GUI
                 }
                 catch
                 {}
+                DeleteTalker();
             }
+            DeleteTalker();
         }
+         private void DeleteTalker()
+         {
+             int attempts = 0;
+             /* sometimes it takes a while for qemu to free the handle to the file */
+             
+             while (File.Exists(talker))
+             {
+                 try
+                 {
+                     File.Delete(talker);
+                 }
+                 catch
+                 {
+                     // if (File.Exists(data.Debug.SerialPort.FileName))
+                     // MessageBox.Show("Warning temporary file still exists!");
+                 }
+                 attempts++;
+                 Thread.Sleep(150);
+                 if (attempts > 15)
+                 {
+                     break;//we've spent 2.25minutes here.. just give up.
+                 }
+             }
+             //MessageBox.Show("Temp File deleted!");
+         }
 
          private void tsbuttonCopy_Click(object sender, EventArgs e)
          {
@@ -112,12 +142,8 @@ namespace Qemu_GUI
                      error.txtError.Text += ex.Message;
                      error.Show();
                  }
-                 log.Close();                    
+                 log.Close();
              }
          }
-
-
-
-
     }
 }
