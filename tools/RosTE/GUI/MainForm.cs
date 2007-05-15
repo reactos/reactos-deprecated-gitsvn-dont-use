@@ -18,16 +18,20 @@ namespace RosTEGUI
             InitializeComponent();
         }
 
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void MainMenuHelpAbout_Click(object sender, EventArgs e)
         {
             AboutForm Dlg = new AboutForm();
             Dlg.StartPosition = FormStartPosition.CenterParent;
             Dlg.Show();
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Close();
         }
     }
 }
