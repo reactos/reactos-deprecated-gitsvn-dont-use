@@ -29,7 +29,6 @@ namespace Qemu_GUI
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-
             /* Fill a list with possible free driveletters */
             ArrayList DriveLetters = new ArrayList();
             for (int i = 100; i < 123; i++)
@@ -66,28 +65,32 @@ namespace Qemu_GUI
         #region Harddisks
         private void btnBrowseHDA_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img | All Files | *.*";
+            openFile.Title = "Select Harddisk Image";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img|All Files | *.*";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDA.Text = openFile.FileName;
         }
 
         private void btnBrowseHDB_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
+            openFile.Title = "Select Harddisk Image";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img|All Files | *.*";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDB.Text = openFile.FileName;
         }
 
         private void btnBrowseHDC_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
+            openFile.Title = "Select Harddisk Image";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img|All Files | *.*";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDC.Text = openFile.FileName;
         }
 
         private void btnBrowseHDD_Click(object sender, System.EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img";
+            openFile.Title = "Select Harddisk Image";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img|All Files | *.*";
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtHDD.Text = openFile.FileName;
         }
@@ -117,19 +120,14 @@ namespace Qemu_GUI
             txtHDD.Enabled = chkUseHDD.Checked;
         }
 
-        private void chkHardDiskHack_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkHardDiskHack.Checked == true)
-                data.Harddisks.W2kHack = true;
-            else
-                data.Harddisks.W2kHack = false;
-        }
+
 
         #endregion
 
         #region CDROM
         private void btnBrowseCDROM_Click(object sender, System.EventArgs e)
         {
+            openFile.Title = "Select CD-ROM image";
             openFile.Filter = "CD-Images (*.iso)|*.iso";  
             if (openFile.ShowDialog() == DialogResult.OK) 
                 txtCDROM.Text = openFile.FileName;
@@ -158,7 +156,6 @@ namespace Qemu_GUI
                 txtHDC.Text = "Used for CD-ROM!";
                 txtHDC.Enabled = false;
                 txtCDROM.Enabled = true;
-                //optHostCDROM.Enabled = true;
                 optCDImage.Enabled = true;
                 if (optCDImage.Checked == true)
                 {
@@ -313,22 +310,20 @@ namespace Qemu_GUI
 
         private void btnBrowseFloppyA_Click(object sender, System.EventArgs e)
         {
+            openFile.Title = "Browse for a floppy image";
+            openFile.Filter = "All Files | *.*";
+
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtFloppyA.Text = openFile.FileName;
         }
 
         private void btnBrowseFloppyB_Click(object sender, System.EventArgs e)
         {
+            openFile.Title = "Browse for a floppy image";
+            openFile.Filter = "All Files | *.*";
+
             if (openFile.ShowDialog() == DialogResult.OK)
                 txtFloppyB.Text = openFile.FileName;
-        }
-
-        private void chkFloopySig_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkFloopySig.Checked == true)
-                data.Floppies.fd_bootchk = true;
-            else
-                data.Floppies.fd_bootchk = false;
         }
 
         #endregion
@@ -336,6 +331,10 @@ namespace Qemu_GUI
         #region Paths
         private void btnQEmuPath_Click(object sender, EventArgs e)
         {
+            folderBrowserDialog1.Description = "Select Qemu path";
+            folderBrowserDialog1.ShowNewFolderButton = false;
+            folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Programs;
+
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 txtQEmuPath.Text = folderBrowserDialog1.SelectedPath;
@@ -345,13 +344,15 @@ namespace Qemu_GUI
 
         private void btnVDKBrowse_Click(object sender, EventArgs e)
         {
+            folderBrowserDialog1.Description = "Select VDK path";
+            folderBrowserDialog1.ShowNewFolderButton = false;
+            folderBrowserDialog1.RootFolder = Environment.SpecialFolder.Programs;
+
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
                 txtVDKPath.Text = folderBrowserDialog1.SelectedPath;
-                grpVDK.Enabled = true;
+                data.Paths.VDK = txtVDKPath.Text;
             }
-            else
-                grpVDK.Enabled = false;
         }
 
         #endregion
@@ -371,7 +372,7 @@ namespace Qemu_GUI
                 try
                 {
                     s = new XmlSerializer(typeof(Data));
-                    w = new StreamWriter(saveFileDialog.FileName);                    
+                    w = new StreamWriter(saveFileDialog.FileName);
                     s.Serialize(w, data);
                 }
                 catch (Exception ex)
@@ -385,7 +386,7 @@ namespace Qemu_GUI
             }
         }
 
-        private void btnLoad_Click(object sender, EventArgs e)
+        private void btnClose_Click(object sender, EventArgs e)
         {
             Close();
         }
@@ -439,7 +440,6 @@ namespace Qemu_GUI
             /* Paths */
             txtQEmuPath.Text = data.Paths.Qemu;
             txtVDKPath.Text = data.Paths.VDK;
-            grpVDK.Enabled = (txtVDKPath.Text.Length > 0);
 
             /* Harddisks */
             chkUseHDA.Checked = data.Harddisks.HDD[0].Enabled;
@@ -464,7 +464,6 @@ namespace Qemu_GUI
             txtSerialPipe.Text = data.Debug.SerialPort.PipeName;
             chkSerialToScrn.Checked = data.Debug.SerialPort.SRedirect;
             chkSerialToFile_CheckedChanged(null, null);
-
 
             saved_state = data.Debug.SavedStatePath;
             chkVBE30.Checked = data.Debug.VBE3;
@@ -495,6 +494,7 @@ namespace Qemu_GUI
             /* Other */
             txtLinuxK.Text = data.Other.LKernel;
             txtABios.Text = data.Other.ABios;
+            txtAppendCmd.Text = data.Other.AppendCmdLine;
         }
 
         private void SaveSettings()
@@ -543,6 +543,7 @@ namespace Qemu_GUI
             data.Audio.OPL2 = chkOPL2.Checked;
 
             /* Debug */
+            data.Debug.SerialPort.SRedirect = chkSerialToScrn.Checked;
             data.Debug.SerialPort.FRedirect = chkSerialToFile.Checked;
             data.Debug.SerialPort.FileName = txtSerialFile.Text;
             data.Debug.SerialPort.PRedirect = chkSerialToPipe.Checked;
@@ -564,6 +565,7 @@ namespace Qemu_GUI
             /* Other */
             data.Other.LKernel = txtLinuxK.Text;
             data.Other.ABios = txtABios.Text;
+            data.Other.AppendCmdLine = txtAppendCmd.Text;
         }
 
         #endregion
@@ -572,7 +574,8 @@ namespace Qemu_GUI
 
         private void btnVDKImage_Click(object sender, EventArgs e)
         {
-            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img | All Files | *.* ";
+            openFile.Title = "Virtual Hardisk Image";
+            openFile.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img|All Files | *.*";
             if (openFile.ShowDialog() == DialogResult.OK)
             {
                 txtVDKImage.Text = openFile.FileName;
@@ -587,17 +590,28 @@ namespace Qemu_GUI
 
         private void btnUnmount_Click(object sender, EventArgs e)
         {
-            SaveSettings();
+            data.Paths.VDK = txtVDKPath.Text;
+            
+            if (data.Paths.VDK == "")
+                return;
+
             runner = new Runner(data);
             runner.UnmountImage();
-
         }
 
         private void btnMount_Click(object sender, EventArgs e)
         {
-            SaveSettings();
+            data.Tools.vdk.Image  = txtVDKImage.Text;
+            data.Paths.VDK = txtVDKPath.Text;
+
+            /* Check out if we have a vdk path and a image path */
+            if (data.Tools.vdk.Image == "" || data.Paths.VDK == "")
+            {
+                /* we don't do nothing */
+                return;
+            }
             runner = new Runner(data);
-            if(runner.MountImage())
+            if (runner.MountImage() == true)
             {
                 Thread.Sleep(500);
                 Process p = new Process();
@@ -608,7 +622,7 @@ namespace Qemu_GUI
                 {
                     p.Start();
                 }
-                catch 
+                catch
                 {
                     MessageBox.Show("Error launching explorer!", "Error!");
                 }
@@ -678,7 +692,8 @@ namespace Qemu_GUI
 
         private void btnCreateImage_Click(object sender, System.EventArgs e)
         {
-            saveFileDialog.Filter = "All files (*.*)|*.*";
+            saveFileDialog.Title = "Create a virtual Hardisk";
+            saveFileDialog.Filter = "Harddisk images |*.vmdk;*.cloop;*.cow;*.qcow;*.raw;*.img|All Files | *.*";
             saveFileDialog.FileName = "image." + cboImageFormat.Text;
             saveFileDialog.DefaultExt = cboImageFormat.Text;
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -811,7 +826,7 @@ namespace Qemu_GUI
                 catch (Exception ex)
                 {
                     ErrorForm error = new ErrorForm();
-                    error.txtError.Text = "Error trying to save settings, contact developers with error log!";
+                    error.txtError.Text = "Error trying to save settings!";
                     error.txtError.Text += "Exception Info:" + Environment.NewLine + ex.Message;
                     error.txtError.Text += Environment.NewLine + ex.StackTrace;
                 }
@@ -831,7 +846,6 @@ namespace Qemu_GUI
 
         private void setAsDefaultToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
             openFile.Title = "Default config settings";
             openFile.InitialDirectory = currentDir;
             openFile.FileName = "config.xml";
@@ -843,7 +857,6 @@ namespace Qemu_GUI
                 if (RegKey != null)
                 {
                     RegKey.SetValue(strDefCon, (string)openFile.FileName);
-
                     RegKey.Close();
                 }
             }

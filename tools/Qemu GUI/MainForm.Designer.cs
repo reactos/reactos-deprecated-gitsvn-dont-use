@@ -43,6 +43,9 @@ namespace Qemu_GUI
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutReactOSQEmuManagerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabOther = new System.Windows.Forms.TabPage();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtAppendCmd = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label8 = new System.Windows.Forms.Label();
             this.btnBrowseBios = new System.Windows.Forms.Button();
@@ -51,14 +54,12 @@ namespace Qemu_GUI
             this.txtVNC = new System.Windows.Forms.TextBox();
             this.label14 = new System.Windows.Forms.Label();
             this.chkVNC = new System.Windows.Forms.CheckBox();
-            this.chkFloopySig = new System.Windows.Forms.CheckBox();
-            this.checkBox2 = new System.Windows.Forms.CheckBox();
-            this.chkHardDiskHack = new System.Windows.Forms.CheckBox();
-            this.chkVBE30 = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label7 = new System.Windows.Forms.Label();
             this.btnBrowseLinuxK = new System.Windows.Forms.Button();
             this.txtLinuxK = new System.Windows.Forms.TextBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
+            this.chkVBE30 = new System.Windows.Forms.CheckBox();
             this.tabTools = new System.Windows.Forms.TabPage();
             this.grpVDK = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -180,6 +181,7 @@ namespace Qemu_GUI
             this.Tabs = new System.Windows.Forms.TabControl();
             this.menuStrip1.SuspendLayout();
             this.tabOther.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.grpVNC.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -243,7 +245,7 @@ namespace Qemu_GUI
             this.btnLoad.Size = new System.Drawing.Size(93, 23);
             this.btnLoad.TabIndex = 5;
             this.btnLoad.Text = "Close";
-            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            this.btnLoad.Click += new System.EventHandler(this.btnClose_Click);
             // 
             // menuStrip1
             // 
@@ -252,6 +254,7 @@ namespace Qemu_GUI
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.menuStrip1.Size = new System.Drawing.Size(540, 24);
             this.menuStrip1.TabIndex = 7;
             this.menuStrip1.Text = "menuStrip1";
@@ -337,13 +340,12 @@ namespace Qemu_GUI
             // 
             // tabOther
             // 
+            this.tabOther.Controls.Add(this.groupBox4);
             this.tabOther.Controls.Add(this.groupBox3);
             this.tabOther.Controls.Add(this.grpVNC);
-            this.tabOther.Controls.Add(this.chkFloopySig);
-            this.tabOther.Controls.Add(this.checkBox2);
-            this.tabOther.Controls.Add(this.chkHardDiskHack);
-            this.tabOther.Controls.Add(this.chkVBE30);
             this.tabOther.Controls.Add(this.groupBox1);
+            this.tabOther.Controls.Add(this.checkBox2);
+            this.tabOther.Controls.Add(this.chkVBE30);
             this.tabOther.Location = new System.Drawing.Point(4, 22);
             this.tabOther.Name = "tabOther";
             this.tabOther.Padding = new System.Windows.Forms.Padding(3);
@@ -351,6 +353,33 @@ namespace Qemu_GUI
             this.tabOther.TabIndex = 11;
             this.tabOther.Text = "Other";
             this.tabOther.UseVisualStyleBackColor = true;
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label10);
+            this.groupBox4.Controls.Add(this.txtAppendCmd);
+            this.groupBox4.Location = new System.Drawing.Point(3, 117);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(502, 52);
+            this.groupBox4.TabIndex = 12;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Append";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(6, 22);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(51, 13);
+            this.label10.TabIndex = 6;
+            this.label10.Text = "Cmd Line";
+            // 
+            // txtAppendCmd
+            // 
+            this.txtAppendCmd.Location = new System.Drawing.Point(101, 19);
+            this.txtAppendCmd.Name = "txtAppendCmd";
+            this.txtAppendCmd.Size = new System.Drawing.Size(388, 20);
+            this.txtAppendCmd.TabIndex = 4;
             // 
             // groupBox3
             // 
@@ -360,7 +389,7 @@ namespace Qemu_GUI
             this.groupBox3.Enabled = false;
             this.groupBox3.Location = new System.Drawing.Point(3, 65);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(354, 57);
+            this.groupBox3.Size = new System.Drawing.Size(351, 52);
             this.groupBox3.TabIndex = 11;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "BIOS";
@@ -368,8 +397,7 @@ namespace Qemu_GUI
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Enabled = false;
-            this.label8.Location = new System.Drawing.Point(6, 22);
+            this.label8.Location = new System.Drawing.Point(6, 20);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(77, 13);
             this.label8.TabIndex = 6;
@@ -377,8 +405,7 @@ namespace Qemu_GUI
             // 
             // btnBrowseBios
             // 
-            this.btnBrowseBios.Enabled = false;
-            this.btnBrowseBios.Location = new System.Drawing.Point(318, 17);
+            this.btnBrowseBios.Location = new System.Drawing.Point(318, 15);
             this.btnBrowseBios.Name = "btnBrowseBios";
             this.btnBrowseBios.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseBios.TabIndex = 5;
@@ -387,8 +414,7 @@ namespace Qemu_GUI
             // 
             // txtABios
             // 
-            this.txtABios.Enabled = false;
-            this.txtABios.Location = new System.Drawing.Point(101, 19);
+            this.txtABios.Location = new System.Drawing.Point(101, 17);
             this.txtABios.Name = "txtABios";
             this.txtABios.Size = new System.Drawing.Size(211, 20);
             this.txtABios.TabIndex = 4;
@@ -398,9 +424,9 @@ namespace Qemu_GUI
             this.grpVNC.Controls.Add(this.txtVNC);
             this.grpVNC.Controls.Add(this.label14);
             this.grpVNC.Controls.Add(this.chkVNC);
-            this.grpVNC.Location = new System.Drawing.Point(363, 6);
+            this.grpVNC.Location = new System.Drawing.Point(363, 3);
             this.grpVNC.Name = "grpVNC";
-            this.grpVNC.Size = new System.Drawing.Size(139, 116);
+            this.grpVNC.Size = new System.Drawing.Size(142, 114);
             this.grpVNC.TabIndex = 10;
             this.grpVNC.TabStop = false;
             this.grpVNC.Text = "VNC Server";
@@ -430,54 +456,14 @@ namespace Qemu_GUI
             this.chkVNC.TabIndex = 0;
             this.chkVNC.Text = "Activate VNC";
             // 
-            // chkFloopySig
-            // 
-            this.chkFloopySig.AutoSize = true;
-            this.chkFloopySig.Location = new System.Drawing.Point(231, 128);
-            this.chkFloopySig.Name = "chkFloopySig";
-            this.chkFloopySig.Size = new System.Drawing.Size(251, 17);
-            this.chkFloopySig.TabIndex = 9;
-            this.chkFloopySig.Text = "Disable boot signature checking for floppy disks";
-            this.chkFloopySig.UseVisualStyleBackColor = true;
-            // 
-            // checkBox2
-            // 
-            this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(13, 151);
-            this.checkBox2.Name = "checkBox2";
-            this.checkBox2.Size = new System.Drawing.Size(253, 17);
-            this.checkBox2.TabIndex = 8;
-            this.checkBox2.Text = "Freeze CPU at startup (use \'c\' to start execution)";
-            this.checkBox2.UseVisualStyleBackColor = true;
-            // 
-            // chkHardDiskHack
-            // 
-            this.chkHardDiskHack.AutoSize = true;
-            this.chkHardDiskHack.Location = new System.Drawing.Point(13, 128);
-            this.chkHardDiskHack.Name = "chkHardDiskHack";
-            this.chkHardDiskHack.Size = new System.Drawing.Size(212, 17);
-            this.chkHardDiskHack.TabIndex = 7;
-            this.chkHardDiskHack.Text = "Win2k Hack (disk full bug during install)";
-            this.chkHardDiskHack.UseVisualStyleBackColor = true;
-            // 
-            // chkVBE30
-            // 
-            this.chkVBE30.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkVBE30.Location = new System.Drawing.Point(13, 172);
-            this.chkVBE30.Name = "chkVBE30";
-            this.chkVBE30.Size = new System.Drawing.Size(416, 23);
-            this.chkVBE30.TabIndex = 3;
-            this.chkVBE30.Text = "Simulate a standard VGA card with Bochs VBE 3.0 extensions ";
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.btnBrowseLinuxK);
             this.groupBox1.Controls.Add(this.txtLinuxK);
-            this.groupBox1.Enabled = false;
-            this.groupBox1.Location = new System.Drawing.Point(3, 6);
+            this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(354, 53);
+            this.groupBox1.Size = new System.Drawing.Size(356, 56);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Linux";
@@ -485,8 +471,7 @@ namespace Qemu_GUI
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Enabled = false;
-            this.label7.Location = new System.Drawing.Point(6, 22);
+            this.label7.Location = new System.Drawing.Point(6, 20);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(69, 13);
             this.label7.TabIndex = 3;
@@ -494,8 +479,7 @@ namespace Qemu_GUI
             // 
             // btnBrowseLinuxK
             // 
-            this.btnBrowseLinuxK.Enabled = false;
-            this.btnBrowseLinuxK.Location = new System.Drawing.Point(318, 17);
+            this.btnBrowseLinuxK.Location = new System.Drawing.Point(318, 15);
             this.btnBrowseLinuxK.Name = "btnBrowseLinuxK";
             this.btnBrowseLinuxK.Size = new System.Drawing.Size(27, 22);
             this.btnBrowseLinuxK.TabIndex = 2;
@@ -504,11 +488,29 @@ namespace Qemu_GUI
             // 
             // txtLinuxK
             // 
-            this.txtLinuxK.Enabled = false;
-            this.txtLinuxK.Location = new System.Drawing.Point(101, 19);
+            this.txtLinuxK.Location = new System.Drawing.Point(101, 17);
             this.txtLinuxK.Name = "txtLinuxK";
             this.txtLinuxK.Size = new System.Drawing.Size(211, 20);
             this.txtLinuxK.TabIndex = 0;
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(244, 177);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(253, 17);
+            this.checkBox2.TabIndex = 8;
+            this.checkBox2.Text = "Freeze CPU at startup (use \'c\' to start execution)";
+            this.checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // chkVBE30
+            // 
+            this.chkVBE30.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkVBE30.Location = new System.Drawing.Point(13, 175);
+            this.chkVBE30.Name = "chkVBE30";
+            this.chkVBE30.Size = new System.Drawing.Size(225, 23);
+            this.chkVBE30.TabIndex = 3;
+            this.chkVBE30.Text = "Simulate VGA card with Bochs VBE 3.0";
             // 
             // tabTools
             // 
@@ -531,7 +533,6 @@ namespace Qemu_GUI
             this.grpVDK.Controls.Add(this.btnUnmount);
             this.grpVDK.Controls.Add(this.btnMount);
             this.grpVDK.Controls.Add(this.lblImage);
-            this.grpVDK.Enabled = false;
             this.grpVDK.Location = new System.Drawing.Point(3, 83);
             this.grpVDK.Name = "grpVDK";
             this.grpVDK.Size = new System.Drawing.Size(502, 118);
@@ -1620,7 +1621,7 @@ namespace Qemu_GUI
             this.numMemory.Size = new System.Drawing.Size(46, 20);
             this.numMemory.TabIndex = 12;
             this.numMemory.Value = new decimal(new int[] {
-            64,
+            128,
             0,
             0,
             0});
@@ -1778,23 +1779,29 @@ namespace Qemu_GUI
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-            this.ClientSize = new System.Drawing.Size(540, 297);
+            this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
+            this.ClientSize = new System.Drawing.Size(540, 301);
             this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.btnLaunch);
             this.Controls.Add(this.Tabs);
             this.Controls.Add(this.menuStrip1);
+            this.DoubleBuffered = true;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.ImeMode = System.Windows.Forms.ImeMode.On;
             this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "MainForm";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ReactOS QEmu Manager";
+            this.Text = "ReactOS Qemu GUI";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.tabOther.ResumeLayout(false);
             this.tabOther.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.grpVNC.ResumeLayout(false);
@@ -1878,9 +1885,7 @@ namespace Qemu_GUI
         private System.Windows.Forms.TextBox txtVNC;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.CheckBox chkVNC;
-        private System.Windows.Forms.CheckBox chkFloopySig;
         private System.Windows.Forms.CheckBox checkBox2;
-        private System.Windows.Forms.CheckBox chkHardDiskHack;
         private System.Windows.Forms.CheckBox chkVBE30;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label7;
@@ -2011,5 +2016,8 @@ namespace Qemu_GUI
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         #endregion
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox txtAppendCmd;
     }
 }
