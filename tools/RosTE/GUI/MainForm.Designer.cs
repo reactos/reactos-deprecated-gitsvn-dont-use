@@ -25,7 +25,7 @@ namespace RosTEGUI
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ImageListView = new System.Windows.Forms.ListView();
             this.columnName = new System.Windows.Forms.ColumnHeader();
@@ -45,18 +45,22 @@ namespace RosTEGUI
             this.toolbarImageDel = new System.Windows.Forms.ToolStripButton();
             this.toolbarSep2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolbarHelpContents = new System.Windows.Forms.ToolStripButton();
-            this.toolbarSep3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolbarSep4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolbarExit = new System.Windows.Forms.ToolStripButton();
             this.mainToolbar = new System.Windows.Forms.ToolStrip();
-            this.MainMenu = new System.Windows.Forms.MenuStrip();
+            this.toolbarSnapShot = new System.Windows.Forms.ToolStripButton();
+            this.toolbarScreenShot = new System.Windows.Forms.ToolStripButton();
+            this.toolbarSep3 = new System.Windows.Forms.ToolStripSeparator();
+            this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.mainmenuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.mainmenuFileExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.mainmenuOptions = new System.Windows.Forms.ToolStripMenuItem();
             this.mainmenuHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.mainmenuHelpContent = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.MainMenuHelpAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolbar.SuspendLayout();
-            this.MainMenu.SuspendLayout();
+            this.mainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // ImageListView
@@ -71,7 +75,7 @@ namespace RosTEGUI
             this.columnDebug});
             this.ImageListView.FullRowSelect = true;
             this.ImageListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem1});
             this.ImageListView.Location = new System.Drawing.Point(12, 52);
             this.ImageListView.Name = "ImageListView";
             this.ImageListView.Size = new System.Drawing.Size(516, 237);
@@ -130,6 +134,7 @@ namespace RosTEGUI
             this.toolbarLaunch.Name = "toolbarLaunch";
             this.toolbarLaunch.Size = new System.Drawing.Size(61, 22);
             this.toolbarLaunch.Text = "Launch";
+            this.toolbarLaunch.ToolTipText = "Starts the virtual machine";
             // 
             // toolbarStop
             // 
@@ -138,6 +143,7 @@ namespace RosTEGUI
             this.toolbarStop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolbarStop.Name = "toolbarStop";
             this.toolbarStop.Size = new System.Drawing.Size(23, 22);
+            this.toolbarStop.ToolTipText = "Stops the virtual machine";
             // 
             // toolbarSep1
             // 
@@ -151,6 +157,7 @@ namespace RosTEGUI
             this.toolbarImageAdd.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolbarImageAdd.Name = "toolbarImageAdd";
             this.toolbarImageAdd.Size = new System.Drawing.Size(23, 22);
+            this.toolbarImageAdd.ToolTipText = "Adds a new image";
             // 
             // toolbarImageDel
             // 
@@ -159,6 +166,7 @@ namespace RosTEGUI
             this.toolbarImageDel.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolbarImageDel.Name = "toolbarImageDel";
             this.toolbarImageDel.Size = new System.Drawing.Size(23, 22);
+            this.toolbarImageDel.ToolTipText = "Deletes an existing image";
             // 
             // toolbarSep2
             // 
@@ -172,11 +180,12 @@ namespace RosTEGUI
             this.toolbarHelpContents.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolbarHelpContents.Name = "toolbarHelpContents";
             this.toolbarHelpContents.Size = new System.Drawing.Size(23, 22);
+            this.toolbarHelpContents.ToolTipText = "Opens help file";
             // 
-            // toolbarSep3
+            // toolbarSep4
             // 
-            this.toolbarSep3.Name = "toolbarSep3";
-            this.toolbarSep3.Size = new System.Drawing.Size(6, 25);
+            this.toolbarSep4.Name = "toolbarSep4";
+            this.toolbarSep4.Size = new System.Drawing.Size(6, 25);
             // 
             // toolbarExit
             // 
@@ -185,6 +194,7 @@ namespace RosTEGUI
             this.toolbarExit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolbarExit.Name = "toolbarExit";
             this.toolbarExit.Size = new System.Drawing.Size(23, 22);
+            this.toolbarExit.ToolTipText = "Exits application";
             // 
             // mainToolbar
             // 
@@ -195,23 +205,52 @@ namespace RosTEGUI
             this.toolbarImageAdd,
             this.toolbarImageDel,
             this.toolbarSep2,
-            this.toolbarHelpContents,
+            this.toolbarSnapShot,
+            this.toolbarScreenShot,
             this.toolbarSep3,
+            this.toolbarHelpContents,
+            this.toolbarSep4,
             this.toolbarExit});
             this.mainToolbar.Location = new System.Drawing.Point(0, 24);
             this.mainToolbar.Name = "mainToolbar";
             this.mainToolbar.Size = new System.Drawing.Size(540, 25);
             this.mainToolbar.TabIndex = 10;
             // 
-            // MainMenu
+            // toolbarSnapShot
             // 
-            this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolbarSnapShot.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolbarSnapShot.Image = ((System.Drawing.Image)(resources.GetObject("toolbarSnapShot.Image")));
+            this.toolbarSnapShot.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolbarSnapShot.Name = "toolbarSnapShot";
+            this.toolbarSnapShot.Size = new System.Drawing.Size(23, 22);
+            this.toolbarSnapShot.Text = "toolStripButton1";
+            this.toolbarSnapShot.ToolTipText = "Create a snap shot of the current status";
+            // 
+            // toolbarScreenShot
+            // 
+            this.toolbarScreenShot.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolbarScreenShot.Image = ((System.Drawing.Image)(resources.GetObject("toolbarScreenShot.Image")));
+            this.toolbarScreenShot.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolbarScreenShot.Name = "toolbarScreenShot";
+            this.toolbarScreenShot.Size = new System.Drawing.Size(23, 22);
+            this.toolbarScreenShot.Text = "toolStripButton2";
+            this.toolbarScreenShot.ToolTipText = "Grab a screenshot of the display";
+            // 
+            // toolbarSep3
+            // 
+            this.toolbarSep3.Name = "toolbarSep3";
+            this.toolbarSep3.Size = new System.Drawing.Size(6, 25);
+            // 
+            // mainMenu
+            // 
+            this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mainmenuFile,
+            this.mainmenuOptions,
             this.mainmenuHelp});
-            this.MainMenu.Location = new System.Drawing.Point(0, 0);
-            this.MainMenu.Name = "MainMenu";
-            this.MainMenu.Size = new System.Drawing.Size(540, 24);
-            this.MainMenu.TabIndex = 11;
+            this.mainMenu.Location = new System.Drawing.Point(0, 0);
+            this.mainMenu.Name = "mainMenu";
+            this.mainMenu.Size = new System.Drawing.Size(540, 24);
+            this.mainMenu.TabIndex = 11;
             // 
             // mainmenuFile
             // 
@@ -224,9 +263,15 @@ namespace RosTEGUI
             // mainmenuFileExit
             // 
             this.mainmenuFileExit.Name = "mainmenuFileExit";
-            this.mainmenuFileExit.Size = new System.Drawing.Size(152, 22);
+            this.mainmenuFileExit.Size = new System.Drawing.Size(103, 22);
             this.mainmenuFileExit.Text = "Exit";
             this.mainmenuFileExit.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // mainmenuOptions
+            // 
+            this.mainmenuOptions.Name = "mainmenuOptions";
+            this.mainmenuOptions.Size = new System.Drawing.Size(56, 20);
+            this.mainmenuOptions.Text = "Options";
             // 
             // mainmenuHelp
             // 
@@ -254,7 +299,7 @@ namespace RosTEGUI
             this.MainMenuHelpAbout.Name = "MainMenuHelpAbout";
             this.MainMenuHelpAbout.Size = new System.Drawing.Size(152, 22);
             this.MainMenuHelpAbout.Text = "About";
-            this.MainMenuHelpAbout.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.MainMenuHelpAbout.Click += new System.EventHandler(this.MainMenuHelpAbout_Click);
             // 
             // MainForm
             // 
@@ -263,21 +308,22 @@ namespace RosTEGUI
             this.ClientSize = new System.Drawing.Size(540, 301);
             this.Controls.Add(this.ImageListView);
             this.Controls.Add(this.mainToolbar);
-            this.Controls.Add(this.MainMenu);
+            this.Controls.Add(this.mainMenu);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.MainMenuStrip = this.MainMenu;
+            this.MainMenuStrip = this.mainMenu;
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ReactOS Test Environment";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.mainToolbar.ResumeLayout(false);
             this.mainToolbar.PerformLayout();
-            this.MainMenu.ResumeLayout(false);
-            this.MainMenu.PerformLayout();
+            this.mainMenu.ResumeLayout(false);
+            this.mainMenu.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -303,16 +349,20 @@ namespace RosTEGUI
         private System.Windows.Forms.ToolStripButton toolbarImageDel;
         private System.Windows.Forms.ToolStripSeparator toolbarSep2;
         private System.Windows.Forms.ToolStripButton toolbarHelpContents;
-        private System.Windows.Forms.ToolStripSeparator toolbarSep3;
+        private System.Windows.Forms.ToolStripSeparator toolbarSep4;
         private System.Windows.Forms.ToolStripButton toolbarExit;
         private System.Windows.Forms.ToolStrip mainToolbar;
-        private System.Windows.Forms.MenuStrip MainMenu;
+        private System.Windows.Forms.MenuStrip mainMenu;
         private System.Windows.Forms.ToolStripMenuItem mainmenuFile;
         private System.Windows.Forms.ToolStripMenuItem mainmenuFileExit;
         private System.Windows.Forms.ToolStripMenuItem mainmenuHelp;
         private System.Windows.Forms.ToolStripMenuItem mainmenuHelpContent;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem MainMenuHelpAbout;
+        private System.Windows.Forms.ToolStripButton toolbarSnapShot;
+        private System.Windows.Forms.ToolStripButton toolbarScreenShot;
+        private System.Windows.Forms.ToolStripSeparator toolbarSep3;
+        private System.Windows.Forms.ToolStripMenuItem mainmenuOptions;
 
     }
 }
