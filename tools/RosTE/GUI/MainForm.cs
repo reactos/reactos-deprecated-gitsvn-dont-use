@@ -29,16 +29,16 @@ namespace RosTEGUI
 
         private void MainMenuHelpAbout_Click(object sender, EventArgs e)
         {
-            AboutForm Dlg = new AboutForm();
-            Dlg.StartPosition = FormStartPosition.CenterScreen;
-            Dlg.Show();
+            AboutForm dlg = new AboutForm();
+            dlg.StartPosition = FormStartPosition.CenterScreen;
+            dlg.Show();
         }
 
         private void ImageListView_DoubleClick(object sender, EventArgs e)
         {
-            SettingsForm SetFrm = new SettingsForm();
-            SetFrm.StartPosition = FormStartPosition.CenterScreen;
-            SetFrm.Show();
+            SettingsForm setFrm = new SettingsForm();
+            setFrm.StartPosition = FormStartPosition.CenterScreen;
+            setFrm.Show();
         }
 
         private void toolbarExit_Click(object sender, EventArgs e)
