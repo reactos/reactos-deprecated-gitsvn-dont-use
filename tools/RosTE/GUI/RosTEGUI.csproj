@@ -129,6 +129,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -150,6 +156,10 @@
     <EmbeddedResource Include="AboutForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SettingsForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <Content Include="ros.ico" />
   </ItemGroup>
