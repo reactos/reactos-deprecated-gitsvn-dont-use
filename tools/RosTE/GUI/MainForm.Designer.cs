@@ -83,6 +83,7 @@ namespace RosTEGUI
             this.ImageListView.TabIndex = 9;
             this.ImageListView.UseCompatibleStateImageBehavior = false;
             this.ImageListView.View = System.Windows.Forms.View.Details;
+            this.ImageListView.DoubleClick += new System.EventHandler(this.ImageListView_DoubleClick);
             // 
             // columnName
             // 
@@ -195,6 +196,7 @@ namespace RosTEGUI
             this.toolbarExit.Name = "toolbarExit";
             this.toolbarExit.Size = new System.Drawing.Size(23, 22);
             this.toolbarExit.ToolTipText = "Exits application";
+            this.toolbarExit.Click += new System.EventHandler(this.toolbarExit_Click);
             // 
             // mainToolbar
             // 
@@ -286,18 +288,18 @@ namespace RosTEGUI
             // mainmenuHelpContent
             // 
             this.mainmenuHelpContent.Name = "mainmenuHelpContent";
-            this.mainmenuHelpContent.Size = new System.Drawing.Size(152, 22);
+            this.mainmenuHelpContent.Size = new System.Drawing.Size(124, 22);
             this.mainmenuHelpContent.Text = "Content";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(121, 6);
             // 
             // MainMenuHelpAbout
             // 
             this.MainMenuHelpAbout.Name = "MainMenuHelpAbout";
-            this.MainMenuHelpAbout.Size = new System.Drawing.Size(152, 22);
+            this.MainMenuHelpAbout.Size = new System.Drawing.Size(124, 22);
             this.MainMenuHelpAbout.Text = "About";
             this.MainMenuHelpAbout.Click += new System.EventHandler(this.MainMenuHelpAbout_Click);
             // 
