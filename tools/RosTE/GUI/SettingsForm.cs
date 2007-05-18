@@ -28,7 +28,7 @@ namespace RosTEGUI
 
             optionsSelLstBox.ItemHeight = optionsSelLstBox.Height / optionsSelLstBox.Items.Count;
 
-            hardwarePanels = new Panel[] { memoryPanel, cdromPanel, harddiskPanel, networkPanel, ethernetPanel, soundPanel, displayPanel };
+            hardwarePanels = new Panel[] { memoryPanel, cdromPanel, harddiskPanel, networkPanel, ethernetPanel, audioPanel, displayPanel };
             optionsPanels = new Panel[] { generalPanel, powerPanel, snapshotsPanel, advancedPanel};
 
             foreach (Panel pan in hardwarePanels)
@@ -101,6 +101,11 @@ namespace RosTEGUI
                 optionsPrevSel = listbox.SelectedIndex;
                 optionsPanels[(int)listbox.SelectedIndex].Visible = true;
             }
+        }
+
+        private void settingsCancelBtn_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }
