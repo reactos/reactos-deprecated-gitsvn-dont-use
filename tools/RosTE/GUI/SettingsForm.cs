@@ -10,8 +10,10 @@ namespace RosTEGUI
 {
     public partial class SettingsForm : Form
     {
-        private Panel[] panels;
-        private int PrevSel = 0;
+        private Panel[] hardwarePanels;
+        private Panel[] optionsPanels;
+        private int hardwarePrevSel = 0;
+        private int optionsPrevSel = 0;
 
         public SettingsForm()
         {
@@ -20,20 +22,32 @@ namespace RosTEGUI
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            selectionLstBox.ItemHeight = selectionLstBox.Height / selectionLstBox.Items.Count;
-            selectionLstBox.SelectedItem = 0;
-            selectionLstBox.SelectedValue = 0;
+            hardwareSelLstBox.ItemHeight = hardwareSelLstBox.Height / hardwareSelLstBox.Items.Count;
+            hardwareSelLstBox.SelectedItem = 0;
+            hardwareSelLstBox.SelectedValue = 0;
 
-            panels = new Panel[] { generalPanel, pathsPanel, drivesPanel, networkPanel, ioPanel, mountPanel, debugPanel };
+            optionsSelLstBox.ItemHeight = optionsSelLstBox.Height / optionsSelLstBox.Items.Count;
 
-            foreach (Panel pan in panels)
+            hardwarePanels = new Panel[] { memoryPanel, cdromPanel, harddiskPanel, networkPanel, ethernetPanel, soundPanel, displayPanel };
+            optionsPanels = new Panel[] { generalPanel, powerPanel, snapshotsPanel, advancedPanel};
+
+            foreach (Panel pan in hardwarePanels)
             {
-                pan.Parent = tempDesignSheetTab.Parent;
+                pan.Parent = hardwareTempDesignSheetTab.Parent;
                 pan.Visible = false;
             }
 
-            tempDesignSheetTab.Visible = false;
-            panels[0].Visible = true;
+            foreach (Panel pan in optionsPanels)
+            {
+                pan.Parent = optionsTempDesignSheetTab.Parent;
+                pan.Visible = false;
+            }
+
+            hardwareTempDesignSheetTab.Visible = false;
+            optionsTempDesignSheetTab.Visible = false;
+            hardwarePanels[0].Visible = true;
+            optionsPanels[0].Visible = true;
+
         }
 
         private void listboxSelection_DrawItem(object sender, DrawItemEventArgs e)
@@ -47,14 +61,23 @@ namespace RosTEGUI
                 e.Graphics.FillRectangle(Brushes.White, e.Bounds);
             }
 
-            StringFormat strfmt = new StringFormat();
+            string buttStr = null;
+            if (settingsTab.SelectedIndex == 0)
+            {
+                buttStr = hardwareSelLstBox.Items[e.Index].ToString();
+            }
+            else if (settingsTab.SelectedIndex == 1)
+            {
+                buttStr = optionsSelLstBox.Items[e.Index].ToString();
+            }
 
+            StringFormat strfmt = new StringFormat();
             strfmt.Alignment = StringAlignment.Center;
             strfmt.LineAlignment = StringAlignment.Center;
 
-            e.Graphics.DrawString(selectionLstBox.Items[e.Index].ToString(),
-                                  this.Font, 
-                                  Brushes.Black, 
+            e.Graphics.DrawString(buttStr,
+                                  this.Font,
+                                  Brushes.Black,
                                   e.Bounds.X + e.Bounds.Width / 2,
                                   e.Bounds.Y + e.Bounds.Height / 2,
                                   strfmt);
@@ -66,9 +89,18 @@ namespace RosTEGUI
         {
             ListBox listbox = (ListBox)sender;
 
-            panels[PrevSel].Visible = false;
-            PrevSel = listbox.SelectedIndex;
-            panels[(int)listbox.SelectedIndex].Visible = true;
+            if (settingsTab.SelectedIndex == 0)
+            {
+                hardwarePanels[hardwarePrevSel].Visible = false;
+                hardwarePrevSel = listbox.SelectedIndex;
+                hardwarePanels[(int)listbox.SelectedIndex].Visible = true;
+            }
+            else if (settingsTab.SelectedIndex == 1)
+            {
+                optionsPanels[optionsPrevSel].Visible = false;
+                optionsPrevSel = listbox.SelectedIndex;
+                optionsPanels[(int)listbox.SelectedIndex].Visible = true;
+            }
         }
     }
 }
