@@ -61,7 +61,24 @@ SetCompressor /FINAL /SOLID lzma
 ShowInstDetails show
 ShowUnInstDetails show
 
+!macro Check_DotNet
+  ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\.NETFramework" "InstallRoot"
+	
+  StrCmp $R0 "" NotFound VerifyVersion
+		
+  VerifyVersion:
+    IfFileExists "$R0\v2.0.50727\*.*" Found NotFound
+	
+  NotFound:
+    MessageBox MB_OK|MB_ICONEXCLAMATION "This application requires the .NET 2.0 framework."
+    Quit
+		
+  Found:
+macroend
+
+
 Section "InstallGui" SEC01
+  !insertmacro Check_DotNet
   SetOutPath "$INSTDIR\GUI"
   SetOverwrite ifnewer
   File "${SOURCE_DIR}\GUI\QemuGUI.exe"
