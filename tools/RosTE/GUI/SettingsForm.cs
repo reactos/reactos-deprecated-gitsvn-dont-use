@@ -107,5 +107,31 @@ namespace RosTEGUI
         {
             Close();
         }
+
+        private void ethEditBtn_Click(object sender, EventArgs e)
+        {
+            if (ethEditBtn.Text == "Edit")
+            {
+                ethVlanTxtBox.BorderStyle = BorderStyle.Fixed3D;
+                ethVlanTxtBox.Enabled = true;
+                ethNetTypeTxtBox.BorderStyle = BorderStyle.Fixed3D;
+                ethNetTypeTxtBox.Enabled = true;
+                ethMacAddrTxtBox.BorderStyle = BorderStyle.Fixed3D;
+                ethMacAddrTxtBox.Enabled = true;
+                ethEditBtn.Text = "OK";
+            }
+            else if (ethEditBtn.Text == "OK")
+            {
+                ethVlanTxtBox.BorderStyle = BorderStyle.None;
+                ethVlanTxtBox.Enabled = false;
+                ethNetTypeTxtBox.BorderStyle = BorderStyle.None;
+                ethNetTypeTxtBox.Enabled = false;
+                ethMacAddrTxtBox.BorderStyle = BorderStyle.None;
+                ethMacAddrTxtBox.Enabled = false;
+                ethEditBtn.Text = "Edit";
+
+                // set values
+            }
+        }
     }
 }
