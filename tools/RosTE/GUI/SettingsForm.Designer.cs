@@ -34,20 +34,58 @@ namespace RosTEGUI
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.memoryPanel = new System.Windows.Forms.Panel();
             this.memoryGrpBox = new System.Windows.Forms.GroupBox();
+            this.memoryLabel = new System.Windows.Forms.Label();
             this.memoryUpDwn = new System.Windows.Forms.NumericUpDown();
             this.memoryTrkBar = new System.Windows.Forms.TrackBar();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.cdromPanel = new System.Windows.Forms.Panel();
             this.cdromGrpBox = new System.Windows.Forms.GroupBox();
+            this.cdromConGrpBox = new System.Windows.Forms.GroupBox();
+            this.cdromIsoBrwse = new System.Windows.Forms.Button();
+            this.cdromIsoTxtBox = new System.Windows.Forms.TextBox();
+            this.cdromPhyDrvCombo = new System.Windows.Forms.ComboBox();
+            this.cdromIsoRadio = new System.Windows.Forms.RadioButton();
+            this.cdromPhyDrvRadio = new System.Windows.Forms.RadioButton();
+            this.cdromConStatusLbl = new System.Windows.Forms.Label();
+            this.cdromLabel = new System.Windows.Forms.Label();
+            this.cdromEnableChkBox = new System.Windows.Forms.CheckBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.harddiskPanel = new System.Windows.Forms.Panel();
             this.harddiskGrpBox = new System.Windows.Forms.GroupBox();
+            this.harddiskRemoveBtn = new System.Windows.Forms.Button();
+            this.harddiskFreeSpcLbl = new System.Windows.Forms.Label();
+            this.harddiskLabel4 = new System.Windows.Forms.Label();
+            this.harddiskDetailsGrpBox = new System.Windows.Forms.GroupBox();
+            this.harddiskSizeLbl = new System.Windows.Forms.Label();
+            this.harddiskLabel3 = new System.Windows.Forms.Label();
+            this.harddiskLabel2 = new System.Windows.Forms.Label();
+            this.harddiskFileNameTxtBox = new System.Windows.Forms.TextBox();
+            this.harddiskLabel1 = new System.Windows.Forms.Label();
+            this.harddiskEditBtn = new System.Windows.Forms.Button();
+            this.harddiskAddBtn = new System.Windows.Forms.Button();
+            this.harddiskLstBox = new System.Windows.Forms.ListBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.networkPanel = new System.Windows.Forms.Panel();
             this.floppyGrpBox = new System.Windows.Forms.GroupBox();
+            this.floppyConnGrpBox = new System.Windows.Forms.GroupBox();
+            this.floppyImgBrwse = new System.Windows.Forms.Button();
+            this.floppyImgTxtBox = new System.Windows.Forms.TextBox();
+            this.floppyPhyDrvCombo = new System.Windows.Forms.ComboBox();
+            this.floppyImgRadio = new System.Windows.Forms.RadioButton();
+            this.floppyPhyDrvRadio = new System.Windows.Forms.RadioButton();
+            this.floppyConnLbl = new System.Windows.Forms.Label();
+            this.floppyLabel = new System.Windows.Forms.Label();
+            this.floppyEnableChkBox = new System.Windows.Forms.CheckBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ethernetPanel = new System.Windows.Forms.Panel();
             this.ethernetGrpBox = new System.Windows.Forms.GroupBox();
+            this.ethRemoveBtn = new System.Windows.Forms.Button();
+            this.ethDetailsGrpBox = new System.Windows.Forms.GroupBox();
+            this.ethLabel2 = new System.Windows.Forms.Label();
+            this.ethEditBtn = new System.Windows.Forms.Button();
+            this.ethAddBtn = new System.Windows.Forms.Button();
+            this.ethLstBox = new System.Windows.Forms.ListBox();
+            this.ethLabel1 = new System.Windows.Forms.Label();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.audioPanel = new System.Windows.Forms.Panel();
             this.audioGrpBox = new System.Windows.Forms.GroupBox();
@@ -66,6 +104,14 @@ namespace RosTEGUI
             this.tabPage8 = new System.Windows.Forms.TabPage();
             this.generalPanel = new System.Windows.Forms.Panel();
             this.generalGrpBox = new System.Windows.Forms.GroupBox();
+            this.generalSetClockHost = new System.Windows.Forms.CheckBox();
+            this.generalWorkDirBrows = new System.Windows.Forms.Button();
+            this.generalWorkDir = new System.Windows.Forms.TextBox();
+            this.generalLabel3 = new System.Windows.Forms.Label();
+            this.generalMachine = new System.Windows.Forms.ComboBox();
+            this.generalLabel2 = new System.Windows.Forms.Label();
+            this.generalLabel1 = new System.Windows.Forms.Label();
+            this.generalVMName = new System.Windows.Forms.TextBox();
             this.tabPage9 = new System.Windows.Forms.TabPage();
             this.powerPanel = new System.Windows.Forms.Panel();
             this.powerGrpBox = new System.Windows.Forms.GroupBox();
@@ -76,37 +122,12 @@ namespace RosTEGUI
             this.advancedPanel = new System.Windows.Forms.Panel();
             this.advancedGrpBox = new System.Windows.Forms.GroupBox();
             this.optionsSelLstBox = new System.Windows.Forms.ListBox();
-            this.memoryLabel = new System.Windows.Forms.Label();
-            this.cdromEnableChkBox = new System.Windows.Forms.CheckBox();
-            this.cdromLabel = new System.Windows.Forms.Label();
-            this.cdromConStatusLbl = new System.Windows.Forms.Label();
-            this.cdromConGrpBox = new System.Windows.Forms.GroupBox();
-            this.cdromPhyDrvRadio = new System.Windows.Forms.RadioButton();
-            this.cdromIsoRadio = new System.Windows.Forms.RadioButton();
-            this.cdromPhyDrvCombo = new System.Windows.Forms.ComboBox();
             this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
-            this.cdromIsoTxtBox = new System.Windows.Forms.TextBox();
-            this.cdromIsoBrwse = new System.Windows.Forms.Button();
-            this.harddiskLstBox = new System.Windows.Forms.ListBox();
-            this.harddiskAddBtn = new System.Windows.Forms.Button();
-            this.harddiskRemoveBtn = new System.Windows.Forms.Button();
-            this.harddiskLabel1 = new System.Windows.Forms.Label();
-            this.harddiskDetailsGrpBox = new System.Windows.Forms.GroupBox();
-            this.harddiskFileNameTxtBox = new System.Windows.Forms.TextBox();
-            this.harddiskLabel2 = new System.Windows.Forms.Label();
-            this.harddiskLabel3 = new System.Windows.Forms.Label();
-            this.harddiskSizeLbl = new System.Windows.Forms.Label();
-            this.harddiskLabel4 = new System.Windows.Forms.Label();
-            this.harddiskFreeSpcLbl = new System.Windows.Forms.Label();
-            this.floppyConnGrpBox = new System.Windows.Forms.GroupBox();
-            this.floppyImgBrwse = new System.Windows.Forms.Button();
-            this.floppyImgTxtBox = new System.Windows.Forms.TextBox();
-            this.floppyPhyDrvCombo = new System.Windows.Forms.ComboBox();
-            this.floppyImgRadio = new System.Windows.Forms.RadioButton();
-            this.floppyPhyDrvRadio = new System.Windows.Forms.RadioButton();
-            this.floppyConnLbl = new System.Windows.Forms.Label();
-            this.floppyLabel = new System.Windows.Forms.Label();
-            this.floppyEnableChkBox = new System.Windows.Forms.CheckBox();
+            this.ethLabel3 = new System.Windows.Forms.Label();
+            this.ethLabel4 = new System.Windows.Forms.Label();
+            this.ethVlanTxtBox = new System.Windows.Forms.TextBox();
+            this.ethNetTypeTxtBox = new System.Windows.Forms.TextBox();
+            this.ethMacAddrTxtBox = new System.Windows.Forms.TextBox();
             this.hardwareContainerPanel.SuspendLayout();
             this.hardwareTempDesignSheetTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -117,14 +138,19 @@ namespace RosTEGUI
             this.tabPage2.SuspendLayout();
             this.cdromPanel.SuspendLayout();
             this.cdromGrpBox.SuspendLayout();
+            this.cdromConGrpBox.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.harddiskPanel.SuspendLayout();
             this.harddiskGrpBox.SuspendLayout();
+            this.harddiskDetailsGrpBox.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.networkPanel.SuspendLayout();
             this.floppyGrpBox.SuspendLayout();
+            this.floppyConnGrpBox.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.ethernetPanel.SuspendLayout();
+            this.ethernetGrpBox.SuspendLayout();
+            this.ethDetailsGrpBox.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.audioPanel.SuspendLayout();
             this.tabPage7.SuspendLayout();
@@ -136,15 +162,13 @@ namespace RosTEGUI
             this.optionsTempDesignSheetTab.SuspendLayout();
             this.tabPage8.SuspendLayout();
             this.generalPanel.SuspendLayout();
+            this.generalGrpBox.SuspendLayout();
             this.tabPage9.SuspendLayout();
             this.powerPanel.SuspendLayout();
             this.tabPage10.SuspendLayout();
             this.snapshotsPanel.SuspendLayout();
             this.tabPage11.SuspendLayout();
             this.advancedPanel.SuspendLayout();
-            this.cdromConGrpBox.SuspendLayout();
-            this.harddiskDetailsGrpBox.SuspendLayout();
-            this.floppyConnGrpBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // hardwareSelLstBox
@@ -224,6 +248,16 @@ namespace RosTEGUI
             this.memoryGrpBox.TabStop = false;
             this.memoryGrpBox.Text = "Memory";
             // 
+            // memoryLabel
+            // 
+            this.memoryLabel.AutoSize = true;
+            this.memoryLabel.Location = new System.Drawing.Point(6, 32);
+            this.memoryLabel.Name = "memoryLabel";
+            this.memoryLabel.Size = new System.Drawing.Size(229, 26);
+            this.memoryLabel.TabIndex = 2;
+            this.memoryLabel.Text = "Select how much virtual memory you would like\r\nto make available for this virtual" +
+                " machine";
+            // 
             // memoryUpDwn
             // 
             this.memoryUpDwn.Location = new System.Drawing.Point(216, 85);
@@ -271,6 +305,94 @@ namespace RosTEGUI
             this.cdromGrpBox.TabStop = false;
             this.cdromGrpBox.Text = "CD-ROM";
             // 
+            // cdromConGrpBox
+            // 
+            this.cdromConGrpBox.Controls.Add(this.cdromIsoBrwse);
+            this.cdromConGrpBox.Controls.Add(this.cdromIsoTxtBox);
+            this.cdromConGrpBox.Controls.Add(this.cdromPhyDrvCombo);
+            this.cdromConGrpBox.Controls.Add(this.cdromIsoRadio);
+            this.cdromConGrpBox.Controls.Add(this.cdromPhyDrvRadio);
+            this.cdromConGrpBox.Location = new System.Drawing.Point(6, 96);
+            this.cdromConGrpBox.Name = "cdromConGrpBox";
+            this.cdromConGrpBox.Size = new System.Drawing.Size(268, 192);
+            this.cdromConGrpBox.TabIndex = 3;
+            this.cdromConGrpBox.TabStop = false;
+            this.cdromConGrpBox.Text = "Connection";
+            // 
+            // cdromIsoBrwse
+            // 
+            this.cdromIsoBrwse.Location = new System.Drawing.Point(194, 128);
+            this.cdromIsoBrwse.Name = "cdromIsoBrwse";
+            this.cdromIsoBrwse.Size = new System.Drawing.Size(68, 23);
+            this.cdromIsoBrwse.TabIndex = 4;
+            this.cdromIsoBrwse.Text = "Browse...";
+            this.cdromIsoBrwse.UseVisualStyleBackColor = true;
+            // 
+            // cdromIsoTxtBox
+            // 
+            this.cdromIsoTxtBox.Location = new System.Drawing.Point(26, 130);
+            this.cdromIsoTxtBox.Name = "cdromIsoTxtBox";
+            this.cdromIsoTxtBox.Size = new System.Drawing.Size(162, 20);
+            this.cdromIsoTxtBox.TabIndex = 3;
+            // 
+            // cdromPhyDrvCombo
+            // 
+            this.cdromPhyDrvCombo.FormattingEnabled = true;
+            this.cdromPhyDrvCombo.Location = new System.Drawing.Point(26, 51);
+            this.cdromPhyDrvCombo.Name = "cdromPhyDrvCombo";
+            this.cdromPhyDrvCombo.Size = new System.Drawing.Size(121, 21);
+            this.cdromPhyDrvCombo.TabIndex = 2;
+            // 
+            // cdromIsoRadio
+            // 
+            this.cdromIsoRadio.AutoSize = true;
+            this.cdromIsoRadio.Location = new System.Drawing.Point(6, 107);
+            this.cdromIsoRadio.Name = "cdromIsoRadio";
+            this.cdromIsoRadio.Size = new System.Drawing.Size(96, 17);
+            this.cdromIsoRadio.TabIndex = 1;
+            this.cdromIsoRadio.TabStop = true;
+            this.cdromIsoRadio.Text = "Use ISO image";
+            this.cdromIsoRadio.UseVisualStyleBackColor = true;
+            // 
+            // cdromPhyDrvRadio
+            // 
+            this.cdromPhyDrvRadio.AutoSize = true;
+            this.cdromPhyDrvRadio.Location = new System.Drawing.Point(6, 28);
+            this.cdromPhyDrvRadio.Name = "cdromPhyDrvRadio";
+            this.cdromPhyDrvRadio.Size = new System.Drawing.Size(111, 17);
+            this.cdromPhyDrvRadio.TabIndex = 0;
+            this.cdromPhyDrvRadio.TabStop = true;
+            this.cdromPhyDrvRadio.Text = "Use physical drive";
+            this.cdromPhyDrvRadio.UseVisualStyleBackColor = true;
+            // 
+            // cdromConStatusLbl
+            // 
+            this.cdromConStatusLbl.AutoSize = true;
+            this.cdromConStatusLbl.Location = new System.Drawing.Point(56, 26);
+            this.cdromConStatusLbl.Name = "cdromConStatusLbl";
+            this.cdromConStatusLbl.Size = new System.Drawing.Size(79, 13);
+            this.cdromConStatusLbl.TabIndex = 2;
+            this.cdromConStatusLbl.Text = "Not Connected";
+            // 
+            // cdromLabel
+            // 
+            this.cdromLabel.AutoSize = true;
+            this.cdromLabel.Location = new System.Drawing.Point(7, 26);
+            this.cdromLabel.Name = "cdromLabel";
+            this.cdromLabel.Size = new System.Drawing.Size(43, 13);
+            this.cdromLabel.TabIndex = 1;
+            this.cdromLabel.Text = "Status :";
+            // 
+            // cdromEnableChkBox
+            // 
+            this.cdromEnableChkBox.AutoSize = true;
+            this.cdromEnableChkBox.Location = new System.Drawing.Point(15, 51);
+            this.cdromEnableChkBox.Name = "cdromEnableChkBox";
+            this.cdromEnableChkBox.Size = new System.Drawing.Size(105, 17);
+            this.cdromEnableChkBox.TabIndex = 0;
+            this.cdromEnableChkBox.Text = "Enable CD-ROM";
+            this.cdromEnableChkBox.UseVisualStyleBackColor = true;
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.harddiskPanel);
@@ -293,11 +415,12 @@ namespace RosTEGUI
             // 
             // harddiskGrpBox
             // 
+            this.harddiskGrpBox.Controls.Add(this.harddiskRemoveBtn);
             this.harddiskGrpBox.Controls.Add(this.harddiskFreeSpcLbl);
             this.harddiskGrpBox.Controls.Add(this.harddiskLabel4);
             this.harddiskGrpBox.Controls.Add(this.harddiskDetailsGrpBox);
             this.harddiskGrpBox.Controls.Add(this.harddiskLabel1);
-            this.harddiskGrpBox.Controls.Add(this.harddiskRemoveBtn);
+            this.harddiskGrpBox.Controls.Add(this.harddiskEditBtn);
             this.harddiskGrpBox.Controls.Add(this.harddiskAddBtn);
             this.harddiskGrpBox.Controls.Add(this.harddiskLstBox);
             this.harddiskGrpBox.Location = new System.Drawing.Point(3, 3);
@@ -306,6 +429,116 @@ namespace RosTEGUI
             this.harddiskGrpBox.TabIndex = 0;
             this.harddiskGrpBox.TabStop = false;
             this.harddiskGrpBox.Text = "Hard Disk";
+            // 
+            // harddiskRemoveBtn
+            // 
+            this.harddiskRemoveBtn.Location = new System.Drawing.Point(175, 99);
+            this.harddiskRemoveBtn.Name = "harddiskRemoveBtn";
+            this.harddiskRemoveBtn.Size = new System.Drawing.Size(75, 23);
+            this.harddiskRemoveBtn.TabIndex = 7;
+            this.harddiskRemoveBtn.Text = "Remove";
+            this.harddiskRemoveBtn.UseVisualStyleBackColor = true;
+            // 
+            // harddiskFreeSpcLbl
+            // 
+            this.harddiskFreeSpcLbl.AutoSize = true;
+            this.harddiskFreeSpcLbl.Location = new System.Drawing.Point(129, 275);
+            this.harddiskFreeSpcLbl.Name = "harddiskFreeSpcLbl";
+            this.harddiskFreeSpcLbl.Size = new System.Drawing.Size(69, 13);
+            this.harddiskFreeSpcLbl.TabIndex = 6;
+            this.harddiskFreeSpcLbl.Text = "<free space>";
+            // 
+            // harddiskLabel4
+            // 
+            this.harddiskLabel4.AutoSize = true;
+            this.harddiskLabel4.Location = new System.Drawing.Point(18, 275);
+            this.harddiskLabel4.Name = "harddiskLabel4";
+            this.harddiskLabel4.Size = new System.Drawing.Size(105, 13);
+            this.harddiskLabel4.TabIndex = 5;
+            this.harddiskLabel4.Text = "Free space available";
+            // 
+            // harddiskDetailsGrpBox
+            // 
+            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskSizeLbl);
+            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskLabel3);
+            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskLabel2);
+            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskFileNameTxtBox);
+            this.harddiskDetailsGrpBox.Location = new System.Drawing.Point(13, 147);
+            this.harddiskDetailsGrpBox.Name = "harddiskDetailsGrpBox";
+            this.harddiskDetailsGrpBox.Size = new System.Drawing.Size(261, 96);
+            this.harddiskDetailsGrpBox.TabIndex = 4;
+            this.harddiskDetailsGrpBox.TabStop = false;
+            this.harddiskDetailsGrpBox.Text = "Details";
+            // 
+            // harddiskSizeLbl
+            // 
+            this.harddiskSizeLbl.AutoSize = true;
+            this.harddiskSizeLbl.Location = new System.Drawing.Point(53, 66);
+            this.harddiskSizeLbl.Name = "harddiskSizeLbl";
+            this.harddiskSizeLbl.Size = new System.Drawing.Size(37, 13);
+            this.harddiskSizeLbl.TabIndex = 3;
+            this.harddiskSizeLbl.Text = "<size>";
+            // 
+            // harddiskLabel3
+            // 
+            this.harddiskLabel3.AutoSize = true;
+            this.harddiskLabel3.Location = new System.Drawing.Point(6, 66);
+            this.harddiskLabel3.Name = "harddiskLabel3";
+            this.harddiskLabel3.Size = new System.Drawing.Size(27, 13);
+            this.harddiskLabel3.TabIndex = 2;
+            this.harddiskLabel3.Text = "Size";
+            // 
+            // harddiskLabel2
+            // 
+            this.harddiskLabel2.AutoSize = true;
+            this.harddiskLabel2.Location = new System.Drawing.Point(6, 29);
+            this.harddiskLabel2.Name = "harddiskLabel2";
+            this.harddiskLabel2.Size = new System.Drawing.Size(44, 13);
+            this.harddiskLabel2.TabIndex = 1;
+            this.harddiskLabel2.Text = "Disk file";
+            // 
+            // harddiskFileNameTxtBox
+            // 
+            this.harddiskFileNameTxtBox.Location = new System.Drawing.Point(56, 26);
+            this.harddiskFileNameTxtBox.Name = "harddiskFileNameTxtBox";
+            this.harddiskFileNameTxtBox.ReadOnly = true;
+            this.harddiskFileNameTxtBox.Size = new System.Drawing.Size(199, 20);
+            this.harddiskFileNameTxtBox.TabIndex = 0;
+            // 
+            // harddiskLabel1
+            // 
+            this.harddiskLabel1.AutoSize = true;
+            this.harddiskLabel1.Location = new System.Drawing.Point(10, 21);
+            this.harddiskLabel1.Name = "harddiskLabel1";
+            this.harddiskLabel1.Size = new System.Drawing.Size(101, 13);
+            this.harddiskLabel1.TabIndex = 3;
+            this.harddiskLabel1.Text = "Available hard disks";
+            // 
+            // harddiskEditBtn
+            // 
+            this.harddiskEditBtn.Location = new System.Drawing.Point(94, 99);
+            this.harddiskEditBtn.Name = "harddiskEditBtn";
+            this.harddiskEditBtn.Size = new System.Drawing.Size(75, 23);
+            this.harddiskEditBtn.TabIndex = 2;
+            this.harddiskEditBtn.Text = "Edit";
+            this.harddiskEditBtn.UseVisualStyleBackColor = true;
+            // 
+            // harddiskAddBtn
+            // 
+            this.harddiskAddBtn.Location = new System.Drawing.Point(13, 99);
+            this.harddiskAddBtn.Name = "harddiskAddBtn";
+            this.harddiskAddBtn.Size = new System.Drawing.Size(75, 23);
+            this.harddiskAddBtn.TabIndex = 1;
+            this.harddiskAddBtn.Text = "Add";
+            this.harddiskAddBtn.UseVisualStyleBackColor = true;
+            // 
+            // harddiskLstBox
+            // 
+            this.harddiskLstBox.FormattingEnabled = true;
+            this.harddiskLstBox.Location = new System.Drawing.Point(13, 37);
+            this.harddiskLstBox.Name = "harddiskLstBox";
+            this.harddiskLstBox.Size = new System.Drawing.Size(237, 56);
+            this.harddiskLstBox.TabIndex = 0;
             // 
             // tabPage4
             // 
@@ -340,6 +573,94 @@ namespace RosTEGUI
             this.floppyGrpBox.TabStop = false;
             this.floppyGrpBox.Text = "Floppy";
             // 
+            // floppyConnGrpBox
+            // 
+            this.floppyConnGrpBox.Controls.Add(this.floppyImgBrwse);
+            this.floppyConnGrpBox.Controls.Add(this.floppyImgTxtBox);
+            this.floppyConnGrpBox.Controls.Add(this.floppyPhyDrvCombo);
+            this.floppyConnGrpBox.Controls.Add(this.floppyImgRadio);
+            this.floppyConnGrpBox.Controls.Add(this.floppyPhyDrvRadio);
+            this.floppyConnGrpBox.Location = new System.Drawing.Point(6, 96);
+            this.floppyConnGrpBox.Name = "floppyConnGrpBox";
+            this.floppyConnGrpBox.Size = new System.Drawing.Size(268, 192);
+            this.floppyConnGrpBox.TabIndex = 7;
+            this.floppyConnGrpBox.TabStop = false;
+            this.floppyConnGrpBox.Text = "Connection";
+            // 
+            // floppyImgBrwse
+            // 
+            this.floppyImgBrwse.Location = new System.Drawing.Point(194, 128);
+            this.floppyImgBrwse.Name = "floppyImgBrwse";
+            this.floppyImgBrwse.Size = new System.Drawing.Size(68, 23);
+            this.floppyImgBrwse.TabIndex = 4;
+            this.floppyImgBrwse.Text = "Browse...";
+            this.floppyImgBrwse.UseVisualStyleBackColor = true;
+            // 
+            // floppyImgTxtBox
+            // 
+            this.floppyImgTxtBox.Location = new System.Drawing.Point(26, 130);
+            this.floppyImgTxtBox.Name = "floppyImgTxtBox";
+            this.floppyImgTxtBox.Size = new System.Drawing.Size(162, 20);
+            this.floppyImgTxtBox.TabIndex = 3;
+            // 
+            // floppyPhyDrvCombo
+            // 
+            this.floppyPhyDrvCombo.FormattingEnabled = true;
+            this.floppyPhyDrvCombo.Location = new System.Drawing.Point(26, 51);
+            this.floppyPhyDrvCombo.Name = "floppyPhyDrvCombo";
+            this.floppyPhyDrvCombo.Size = new System.Drawing.Size(121, 21);
+            this.floppyPhyDrvCombo.TabIndex = 2;
+            // 
+            // floppyImgRadio
+            // 
+            this.floppyImgRadio.AutoSize = true;
+            this.floppyImgRadio.Location = new System.Drawing.Point(6, 107);
+            this.floppyImgRadio.Name = "floppyImgRadio";
+            this.floppyImgRadio.Size = new System.Drawing.Size(106, 17);
+            this.floppyImgRadio.TabIndex = 1;
+            this.floppyImgRadio.TabStop = true;
+            this.floppyImgRadio.Text = "Use floppy image";
+            this.floppyImgRadio.UseVisualStyleBackColor = true;
+            // 
+            // floppyPhyDrvRadio
+            // 
+            this.floppyPhyDrvRadio.AutoSize = true;
+            this.floppyPhyDrvRadio.Location = new System.Drawing.Point(6, 28);
+            this.floppyPhyDrvRadio.Name = "floppyPhyDrvRadio";
+            this.floppyPhyDrvRadio.Size = new System.Drawing.Size(111, 17);
+            this.floppyPhyDrvRadio.TabIndex = 0;
+            this.floppyPhyDrvRadio.TabStop = true;
+            this.floppyPhyDrvRadio.Text = "Use physical drive";
+            this.floppyPhyDrvRadio.UseVisualStyleBackColor = true;
+            // 
+            // floppyConnLbl
+            // 
+            this.floppyConnLbl.AutoSize = true;
+            this.floppyConnLbl.Location = new System.Drawing.Point(56, 26);
+            this.floppyConnLbl.Name = "floppyConnLbl";
+            this.floppyConnLbl.Size = new System.Drawing.Size(70, 13);
+            this.floppyConnLbl.TabIndex = 6;
+            this.floppyConnLbl.Text = "<connected>";
+            // 
+            // floppyLabel
+            // 
+            this.floppyLabel.AutoSize = true;
+            this.floppyLabel.Location = new System.Drawing.Point(7, 26);
+            this.floppyLabel.Name = "floppyLabel";
+            this.floppyLabel.Size = new System.Drawing.Size(43, 13);
+            this.floppyLabel.TabIndex = 5;
+            this.floppyLabel.Text = "Status :";
+            // 
+            // floppyEnableChkBox
+            // 
+            this.floppyEnableChkBox.AutoSize = true;
+            this.floppyEnableChkBox.Location = new System.Drawing.Point(15, 51);
+            this.floppyEnableChkBox.Name = "floppyEnableChkBox";
+            this.floppyEnableChkBox.Size = new System.Drawing.Size(90, 17);
+            this.floppyEnableChkBox.TabIndex = 4;
+            this.floppyEnableChkBox.Text = "Enable floppy";
+            this.floppyEnableChkBox.UseVisualStyleBackColor = true;
+            // 
             // tabPage5
             // 
             this.tabPage5.Controls.Add(this.ethernetPanel);
@@ -362,12 +683,87 @@ namespace RosTEGUI
             // 
             // ethernetGrpBox
             // 
+            this.ethernetGrpBox.Controls.Add(this.ethRemoveBtn);
+            this.ethernetGrpBox.Controls.Add(this.ethDetailsGrpBox);
+            this.ethernetGrpBox.Controls.Add(this.ethAddBtn);
+            this.ethernetGrpBox.Controls.Add(this.ethLstBox);
+            this.ethernetGrpBox.Controls.Add(this.ethLabel1);
             this.ethernetGrpBox.Location = new System.Drawing.Point(3, 3);
             this.ethernetGrpBox.Name = "ethernetGrpBox";
             this.ethernetGrpBox.Size = new System.Drawing.Size(283, 364);
             this.ethernetGrpBox.TabIndex = 0;
             this.ethernetGrpBox.TabStop = false;
             this.ethernetGrpBox.Text = "Ethernet";
+            // 
+            // ethRemoveBtn
+            // 
+            this.ethRemoveBtn.Location = new System.Drawing.Point(102, 99);
+            this.ethRemoveBtn.Name = "ethRemoveBtn";
+            this.ethRemoveBtn.Size = new System.Drawing.Size(75, 23);
+            this.ethRemoveBtn.TabIndex = 9;
+            this.ethRemoveBtn.Text = "Remove";
+            this.ethRemoveBtn.UseVisualStyleBackColor = true;
+            // 
+            // ethDetailsGrpBox
+            // 
+            this.ethDetailsGrpBox.Controls.Add(this.ethMacAddrTxtBox);
+            this.ethDetailsGrpBox.Controls.Add(this.ethNetTypeTxtBox);
+            this.ethDetailsGrpBox.Controls.Add(this.ethVlanTxtBox);
+            this.ethDetailsGrpBox.Controls.Add(this.ethLabel4);
+            this.ethDetailsGrpBox.Controls.Add(this.ethEditBtn);
+            this.ethDetailsGrpBox.Controls.Add(this.ethLabel3);
+            this.ethDetailsGrpBox.Controls.Add(this.ethLabel2);
+            this.ethDetailsGrpBox.Location = new System.Drawing.Point(13, 147);
+            this.ethDetailsGrpBox.Name = "ethDetailsGrpBox";
+            this.ethDetailsGrpBox.Size = new System.Drawing.Size(253, 145);
+            this.ethDetailsGrpBox.TabIndex = 8;
+            this.ethDetailsGrpBox.TabStop = false;
+            this.ethDetailsGrpBox.Text = "Details";
+            // 
+            // ethLabel2
+            // 
+            this.ethLabel2.AutoSize = true;
+            this.ethLabel2.Location = new System.Drawing.Point(6, 27);
+            this.ethLabel2.Name = "ethLabel2";
+            this.ethLabel2.Size = new System.Drawing.Size(52, 13);
+            this.ethLabel2.TabIndex = 2;
+            this.ethLabel2.Text = "VLAN No";
+            // 
+            // ethEditBtn
+            // 
+            this.ethEditBtn.Location = new System.Drawing.Point(172, 112);
+            this.ethEditBtn.Name = "ethEditBtn";
+            this.ethEditBtn.Size = new System.Drawing.Size(75, 23);
+            this.ethEditBtn.TabIndex = 7;
+            this.ethEditBtn.Text = "Edit";
+            this.ethEditBtn.UseVisualStyleBackColor = true;
+            this.ethEditBtn.Click += new System.EventHandler(this.ethEditBtn_Click);
+            // 
+            // ethAddBtn
+            // 
+            this.ethAddBtn.Location = new System.Drawing.Point(13, 99);
+            this.ethAddBtn.Name = "ethAddBtn";
+            this.ethAddBtn.Size = new System.Drawing.Size(75, 23);
+            this.ethAddBtn.TabIndex = 6;
+            this.ethAddBtn.Text = "Add";
+            this.ethAddBtn.UseVisualStyleBackColor = true;
+            // 
+            // ethLstBox
+            // 
+            this.ethLstBox.FormattingEnabled = true;
+            this.ethLstBox.Location = new System.Drawing.Point(13, 37);
+            this.ethLstBox.Name = "ethLstBox";
+            this.ethLstBox.Size = new System.Drawing.Size(164, 56);
+            this.ethLstBox.TabIndex = 5;
+            // 
+            // ethLabel1
+            // 
+            this.ethLabel1.AutoSize = true;
+            this.ethLabel1.Location = new System.Drawing.Point(10, 21);
+            this.ethLabel1.Name = "ethLabel1";
+            this.ethLabel1.Size = new System.Drawing.Size(100, 13);
+            this.ethLabel1.TabIndex = 4;
+            this.ethLabel1.Text = "Available Net Cards";
             // 
             // tabPage6
             // 
@@ -540,12 +936,91 @@ namespace RosTEGUI
             // 
             // generalGrpBox
             // 
+            this.generalGrpBox.Controls.Add(this.generalSetClockHost);
+            this.generalGrpBox.Controls.Add(this.generalWorkDirBrows);
+            this.generalGrpBox.Controls.Add(this.generalWorkDir);
+            this.generalGrpBox.Controls.Add(this.generalLabel3);
+            this.generalGrpBox.Controls.Add(this.generalMachine);
+            this.generalGrpBox.Controls.Add(this.generalLabel2);
+            this.generalGrpBox.Controls.Add(this.generalLabel1);
+            this.generalGrpBox.Controls.Add(this.generalVMName);
             this.generalGrpBox.Location = new System.Drawing.Point(3, 3);
             this.generalGrpBox.Name = "generalGrpBox";
             this.generalGrpBox.Size = new System.Drawing.Size(283, 364);
             this.generalGrpBox.TabIndex = 0;
             this.generalGrpBox.TabStop = false;
             this.generalGrpBox.Text = "General";
+            // 
+            // generalSetClockHost
+            // 
+            this.generalSetClockHost.AutoSize = true;
+            this.generalSetClockHost.Location = new System.Drawing.Point(17, 201);
+            this.generalSetClockHost.Name = "generalSetClockHost";
+            this.generalSetClockHost.Size = new System.Drawing.Size(128, 17);
+            this.generalSetClockHost.TabIndex = 7;
+            this.generalSetClockHost.Text = "Set clock to host time";
+            this.generalSetClockHost.UseVisualStyleBackColor = true;
+            // 
+            // generalWorkDirBrows
+            // 
+            this.generalWorkDirBrows.Location = new System.Drawing.Point(199, 148);
+            this.generalWorkDirBrows.Name = "generalWorkDirBrows";
+            this.generalWorkDirBrows.Size = new System.Drawing.Size(75, 23);
+            this.generalWorkDirBrows.TabIndex = 6;
+            this.generalWorkDirBrows.Text = "Browse...";
+            this.generalWorkDirBrows.UseVisualStyleBackColor = true;
+            // 
+            // generalWorkDir
+            // 
+            this.generalWorkDir.Location = new System.Drawing.Point(9, 150);
+            this.generalWorkDir.Name = "generalWorkDir";
+            this.generalWorkDir.Size = new System.Drawing.Size(184, 20);
+            this.generalWorkDir.TabIndex = 5;
+            // 
+            // generalLabel3
+            // 
+            this.generalLabel3.AutoSize = true;
+            this.generalLabel3.Location = new System.Drawing.Point(6, 134);
+            this.generalLabel3.Name = "generalLabel3";
+            this.generalLabel3.Size = new System.Drawing.Size(90, 13);
+            this.generalLabel3.TabIndex = 4;
+            this.generalLabel3.Text = "Working directory";
+            // 
+            // generalMachine
+            // 
+            this.generalMachine.FormattingEnabled = true;
+            this.generalMachine.Items.AddRange(new object[] {
+            "Standard PC (default)",
+            "ISA-only PC"});
+            this.generalMachine.Location = new System.Drawing.Point(6, 93);
+            this.generalMachine.Name = "generalMachine";
+            this.generalMachine.Size = new System.Drawing.Size(268, 21);
+            this.generalMachine.TabIndex = 3;
+            // 
+            // generalLabel2
+            // 
+            this.generalLabel2.AutoSize = true;
+            this.generalLabel2.Location = new System.Drawing.Point(3, 77);
+            this.generalLabel2.Name = "generalLabel2";
+            this.generalLabel2.Size = new System.Drawing.Size(48, 13);
+            this.generalLabel2.TabIndex = 2;
+            this.generalLabel2.Text = "Machine";
+            // 
+            // generalLabel1
+            // 
+            this.generalLabel1.AutoSize = true;
+            this.generalLabel1.Location = new System.Drawing.Point(6, 26);
+            this.generalLabel1.Name = "generalLabel1";
+            this.generalLabel1.Size = new System.Drawing.Size(109, 13);
+            this.generalLabel1.TabIndex = 1;
+            this.generalLabel1.Text = "Virtual Machine name";
+            // 
+            // generalVMName
+            // 
+            this.generalVMName.Location = new System.Drawing.Point(6, 42);
+            this.generalVMName.Name = "generalVMName";
+            this.generalVMName.Size = new System.Drawing.Size(268, 20);
+            this.generalVMName.TabIndex = 0;
             // 
             // tabPage9
             // 
@@ -653,292 +1128,50 @@ namespace RosTEGUI
             this.optionsSelLstBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listboxSelection_DrawItem);
             this.optionsSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
             // 
-            // memoryLabel
+            // ethLabel3
             // 
-            this.memoryLabel.AutoSize = true;
-            this.memoryLabel.Location = new System.Drawing.Point(6, 32);
-            this.memoryLabel.Name = "memoryLabel";
-            this.memoryLabel.Size = new System.Drawing.Size(229, 26);
-            this.memoryLabel.TabIndex = 2;
-            this.memoryLabel.Text = "Select how much virtual memory you would like\r\nto make available for this virtual" +
-                " machine";
+            this.ethLabel3.AutoSize = true;
+            this.ethLabel3.Location = new System.Drawing.Point(6, 53);
+            this.ethLabel3.Name = "ethLabel3";
+            this.ethLabel3.Size = new System.Drawing.Size(74, 13);
+            this.ethLabel3.TabIndex = 4;
+            this.ethLabel3.Text = "Network Type";
             // 
-            // cdromEnableChkBox
+            // ethLabel4
             // 
-            this.cdromEnableChkBox.AutoSize = true;
-            this.cdromEnableChkBox.Location = new System.Drawing.Point(15, 51);
-            this.cdromEnableChkBox.Name = "cdromEnableChkBox";
-            this.cdromEnableChkBox.Size = new System.Drawing.Size(105, 17);
-            this.cdromEnableChkBox.TabIndex = 0;
-            this.cdromEnableChkBox.Text = "Enable CD-ROM";
-            this.cdromEnableChkBox.UseVisualStyleBackColor = true;
+            this.ethLabel4.AutoSize = true;
+            this.ethLabel4.Location = new System.Drawing.Point(6, 79);
+            this.ethLabel4.Name = "ethLabel4";
+            this.ethLabel4.Size = new System.Drawing.Size(69, 13);
+            this.ethLabel4.TabIndex = 6;
+            this.ethLabel4.Text = "Mac Address";
             // 
-            // cdromLabel
+            // ethVlanTxtBox
             // 
-            this.cdromLabel.AutoSize = true;
-            this.cdromLabel.Location = new System.Drawing.Point(7, 26);
-            this.cdromLabel.Name = "cdromLabel";
-            this.cdromLabel.Size = new System.Drawing.Size(43, 13);
-            this.cdromLabel.TabIndex = 1;
-            this.cdromLabel.Text = "Status :";
+            this.ethVlanTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ethVlanTxtBox.Enabled = false;
+            this.ethVlanTxtBox.Location = new System.Drawing.Point(89, 24);
+            this.ethVlanTxtBox.Name = "ethVlanTxtBox";
+            this.ethVlanTxtBox.Size = new System.Drawing.Size(100, 13);
+            this.ethVlanTxtBox.TabIndex = 8;
             // 
-            // cdromConStatusLbl
+            // ethNetTypeTxtBox
             // 
-            this.cdromConStatusLbl.AutoSize = true;
-            this.cdromConStatusLbl.Location = new System.Drawing.Point(56, 26);
-            this.cdromConStatusLbl.Name = "cdromConStatusLbl";
-            this.cdromConStatusLbl.Size = new System.Drawing.Size(79, 13);
-            this.cdromConStatusLbl.TabIndex = 2;
-            this.cdromConStatusLbl.Text = "Not Connected";
+            this.ethNetTypeTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ethNetTypeTxtBox.Enabled = false;
+            this.ethNetTypeTxtBox.Location = new System.Drawing.Point(89, 50);
+            this.ethNetTypeTxtBox.Name = "ethNetTypeTxtBox";
+            this.ethNetTypeTxtBox.Size = new System.Drawing.Size(100, 13);
+            this.ethNetTypeTxtBox.TabIndex = 9;
             // 
-            // cdromConGrpBox
+            // ethMacAddrTxtBox
             // 
-            this.cdromConGrpBox.Controls.Add(this.cdromIsoBrwse);
-            this.cdromConGrpBox.Controls.Add(this.cdromIsoTxtBox);
-            this.cdromConGrpBox.Controls.Add(this.cdromPhyDrvCombo);
-            this.cdromConGrpBox.Controls.Add(this.cdromIsoRadio);
-            this.cdromConGrpBox.Controls.Add(this.cdromPhyDrvRadio);
-            this.cdromConGrpBox.Location = new System.Drawing.Point(6, 96);
-            this.cdromConGrpBox.Name = "cdromConGrpBox";
-            this.cdromConGrpBox.Size = new System.Drawing.Size(268, 192);
-            this.cdromConGrpBox.TabIndex = 3;
-            this.cdromConGrpBox.TabStop = false;
-            this.cdromConGrpBox.Text = "Connection";
-            // 
-            // cdromPhyDrvRadio
-            // 
-            this.cdromPhyDrvRadio.AutoSize = true;
-            this.cdromPhyDrvRadio.Location = new System.Drawing.Point(6, 28);
-            this.cdromPhyDrvRadio.Name = "cdromPhyDrvRadio";
-            this.cdromPhyDrvRadio.Size = new System.Drawing.Size(111, 17);
-            this.cdromPhyDrvRadio.TabIndex = 0;
-            this.cdromPhyDrvRadio.TabStop = true;
-            this.cdromPhyDrvRadio.Text = "Use physical drive";
-            this.cdromPhyDrvRadio.UseVisualStyleBackColor = true;
-            // 
-            // cdromIsoRadio
-            // 
-            this.cdromIsoRadio.AutoSize = true;
-            this.cdromIsoRadio.Location = new System.Drawing.Point(6, 107);
-            this.cdromIsoRadio.Name = "cdromIsoRadio";
-            this.cdromIsoRadio.Size = new System.Drawing.Size(96, 17);
-            this.cdromIsoRadio.TabIndex = 1;
-            this.cdromIsoRadio.TabStop = true;
-            this.cdromIsoRadio.Text = "Use ISO image";
-            this.cdromIsoRadio.UseVisualStyleBackColor = true;
-            // 
-            // cdromPhyDrvCombo
-            // 
-            this.cdromPhyDrvCombo.FormattingEnabled = true;
-            this.cdromPhyDrvCombo.Location = new System.Drawing.Point(26, 51);
-            this.cdromPhyDrvCombo.Name = "cdromPhyDrvCombo";
-            this.cdromPhyDrvCombo.Size = new System.Drawing.Size(121, 21);
-            this.cdromPhyDrvCombo.TabIndex = 2;
-            // 
-            // cdromIsoTxtBox
-            // 
-            this.cdromIsoTxtBox.Location = new System.Drawing.Point(26, 130);
-            this.cdromIsoTxtBox.Name = "cdromIsoTxtBox";
-            this.cdromIsoTxtBox.Size = new System.Drawing.Size(162, 20);
-            this.cdromIsoTxtBox.TabIndex = 3;
-            // 
-            // cdromIsoBrwse
-            // 
-            this.cdromIsoBrwse.Location = new System.Drawing.Point(194, 128);
-            this.cdromIsoBrwse.Name = "cdromIsoBrwse";
-            this.cdromIsoBrwse.Size = new System.Drawing.Size(68, 23);
-            this.cdromIsoBrwse.TabIndex = 4;
-            this.cdromIsoBrwse.Text = "Browse...";
-            this.cdromIsoBrwse.UseVisualStyleBackColor = true;
-            // 
-            // harddiskLstBox
-            // 
-            this.harddiskLstBox.FormattingEnabled = true;
-            this.harddiskLstBox.Location = new System.Drawing.Point(13, 37);
-            this.harddiskLstBox.Name = "harddiskLstBox";
-            this.harddiskLstBox.Size = new System.Drawing.Size(202, 56);
-            this.harddiskLstBox.TabIndex = 0;
-            // 
-            // harddiskAddBtn
-            // 
-            this.harddiskAddBtn.Location = new System.Drawing.Point(13, 99);
-            this.harddiskAddBtn.Name = "harddiskAddBtn";
-            this.harddiskAddBtn.Size = new System.Drawing.Size(75, 23);
-            this.harddiskAddBtn.TabIndex = 1;
-            this.harddiskAddBtn.Text = "Add";
-            this.harddiskAddBtn.UseVisualStyleBackColor = true;
-            // 
-            // harddiskRemoveBtn
-            // 
-            this.harddiskRemoveBtn.Location = new System.Drawing.Point(94, 99);
-            this.harddiskRemoveBtn.Name = "harddiskRemoveBtn";
-            this.harddiskRemoveBtn.Size = new System.Drawing.Size(75, 23);
-            this.harddiskRemoveBtn.TabIndex = 2;
-            this.harddiskRemoveBtn.Text = "Remove";
-            this.harddiskRemoveBtn.UseVisualStyleBackColor = true;
-            // 
-            // harddiskLabel1
-            // 
-            this.harddiskLabel1.AutoSize = true;
-            this.harddiskLabel1.Location = new System.Drawing.Point(10, 21);
-            this.harddiskLabel1.Name = "harddiskLabel1";
-            this.harddiskLabel1.Size = new System.Drawing.Size(101, 13);
-            this.harddiskLabel1.TabIndex = 3;
-            this.harddiskLabel1.Text = "Available hard disks";
-            // 
-            // harddiskDetailsGrpBox
-            // 
-            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskSizeLbl);
-            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskLabel3);
-            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskLabel2);
-            this.harddiskDetailsGrpBox.Controls.Add(this.harddiskFileNameTxtBox);
-            this.harddiskDetailsGrpBox.Location = new System.Drawing.Point(13, 147);
-            this.harddiskDetailsGrpBox.Name = "harddiskDetailsGrpBox";
-            this.harddiskDetailsGrpBox.Size = new System.Drawing.Size(261, 96);
-            this.harddiskDetailsGrpBox.TabIndex = 4;
-            this.harddiskDetailsGrpBox.TabStop = false;
-            this.harddiskDetailsGrpBox.Text = "Details";
-            // 
-            // harddiskFileNameTxtBox
-            // 
-            this.harddiskFileNameTxtBox.Location = new System.Drawing.Point(56, 26);
-            this.harddiskFileNameTxtBox.Name = "harddiskFileNameTxtBox";
-            this.harddiskFileNameTxtBox.ReadOnly = true;
-            this.harddiskFileNameTxtBox.Size = new System.Drawing.Size(199, 20);
-            this.harddiskFileNameTxtBox.TabIndex = 0;
-            // 
-            // harddiskLabel2
-            // 
-            this.harddiskLabel2.AutoSize = true;
-            this.harddiskLabel2.Location = new System.Drawing.Point(6, 29);
-            this.harddiskLabel2.Name = "harddiskLabel2";
-            this.harddiskLabel2.Size = new System.Drawing.Size(44, 13);
-            this.harddiskLabel2.TabIndex = 1;
-            this.harddiskLabel2.Text = "Disk file";
-            // 
-            // harddiskLabel3
-            // 
-            this.harddiskLabel3.AutoSize = true;
-            this.harddiskLabel3.Location = new System.Drawing.Point(6, 66);
-            this.harddiskLabel3.Name = "harddiskLabel3";
-            this.harddiskLabel3.Size = new System.Drawing.Size(27, 13);
-            this.harddiskLabel3.TabIndex = 2;
-            this.harddiskLabel3.Text = "Size";
-            // 
-            // harddiskSizeLbl
-            // 
-            this.harddiskSizeLbl.AutoSize = true;
-            this.harddiskSizeLbl.Location = new System.Drawing.Point(53, 66);
-            this.harddiskSizeLbl.Name = "harddiskSizeLbl";
-            this.harddiskSizeLbl.Size = new System.Drawing.Size(37, 13);
-            this.harddiskSizeLbl.TabIndex = 3;
-            this.harddiskSizeLbl.Text = "<size>";
-            // 
-            // harddiskLabel4
-            // 
-            this.harddiskLabel4.AutoSize = true;
-            this.harddiskLabel4.Location = new System.Drawing.Point(18, 275);
-            this.harddiskLabel4.Name = "harddiskLabel4";
-            this.harddiskLabel4.Size = new System.Drawing.Size(105, 13);
-            this.harddiskLabel4.TabIndex = 5;
-            this.harddiskLabel4.Text = "Free space available";
-            // 
-            // harddiskFreeSpcLbl
-            // 
-            this.harddiskFreeSpcLbl.AutoSize = true;
-            this.harddiskFreeSpcLbl.Location = new System.Drawing.Point(129, 275);
-            this.harddiskFreeSpcLbl.Name = "harddiskFreeSpcLbl";
-            this.harddiskFreeSpcLbl.Size = new System.Drawing.Size(69, 13);
-            this.harddiskFreeSpcLbl.TabIndex = 6;
-            this.harddiskFreeSpcLbl.Text = "<free space>";
-            // 
-            // floppyConnGrpBox
-            // 
-            this.floppyConnGrpBox.Controls.Add(this.floppyImgBrwse);
-            this.floppyConnGrpBox.Controls.Add(this.floppyImgTxtBox);
-            this.floppyConnGrpBox.Controls.Add(this.floppyPhyDrvCombo);
-            this.floppyConnGrpBox.Controls.Add(this.floppyImgRadio);
-            this.floppyConnGrpBox.Controls.Add(this.floppyPhyDrvRadio);
-            this.floppyConnGrpBox.Location = new System.Drawing.Point(6, 96);
-            this.floppyConnGrpBox.Name = "floppyConnGrpBox";
-            this.floppyConnGrpBox.Size = new System.Drawing.Size(268, 192);
-            this.floppyConnGrpBox.TabIndex = 7;
-            this.floppyConnGrpBox.TabStop = false;
-            this.floppyConnGrpBox.Text = "Connection";
-            // 
-            // floppyImgBrwse
-            // 
-            this.floppyImgBrwse.Location = new System.Drawing.Point(194, 128);
-            this.floppyImgBrwse.Name = "floppyImgBrwse";
-            this.floppyImgBrwse.Size = new System.Drawing.Size(68, 23);
-            this.floppyImgBrwse.TabIndex = 4;
-            this.floppyImgBrwse.Text = "Browse...";
-            this.floppyImgBrwse.UseVisualStyleBackColor = true;
-            // 
-            // floppyImgTxtBox
-            // 
-            this.floppyImgTxtBox.Location = new System.Drawing.Point(26, 130);
-            this.floppyImgTxtBox.Name = "floppyImgTxtBox";
-            this.floppyImgTxtBox.Size = new System.Drawing.Size(162, 20);
-            this.floppyImgTxtBox.TabIndex = 3;
-            // 
-            // floppyPhyDrvCombo
-            // 
-            this.floppyPhyDrvCombo.FormattingEnabled = true;
-            this.floppyPhyDrvCombo.Location = new System.Drawing.Point(26, 51);
-            this.floppyPhyDrvCombo.Name = "floppyPhyDrvCombo";
-            this.floppyPhyDrvCombo.Size = new System.Drawing.Size(121, 21);
-            this.floppyPhyDrvCombo.TabIndex = 2;
-            // 
-            // floppyImgRadio
-            // 
-            this.floppyImgRadio.AutoSize = true;
-            this.floppyImgRadio.Location = new System.Drawing.Point(6, 107);
-            this.floppyImgRadio.Name = "floppyImgRadio";
-            this.floppyImgRadio.Size = new System.Drawing.Size(106, 17);
-            this.floppyImgRadio.TabIndex = 1;
-            this.floppyImgRadio.TabStop = true;
-            this.floppyImgRadio.Text = "Use floppy image";
-            this.floppyImgRadio.UseVisualStyleBackColor = true;
-            // 
-            // floppyPhyDrvRadio
-            // 
-            this.floppyPhyDrvRadio.AutoSize = true;
-            this.floppyPhyDrvRadio.Location = new System.Drawing.Point(6, 28);
-            this.floppyPhyDrvRadio.Name = "floppyPhyDrvRadio";
-            this.floppyPhyDrvRadio.Size = new System.Drawing.Size(111, 17);
-            this.floppyPhyDrvRadio.TabIndex = 0;
-            this.floppyPhyDrvRadio.TabStop = true;
-            this.floppyPhyDrvRadio.Text = "Use physical drive";
-            this.floppyPhyDrvRadio.UseVisualStyleBackColor = true;
-            // 
-            // floppyConnLbl
-            // 
-            this.floppyConnLbl.AutoSize = true;
-            this.floppyConnLbl.Location = new System.Drawing.Point(56, 26);
-            this.floppyConnLbl.Name = "floppyConnLbl";
-            this.floppyConnLbl.Size = new System.Drawing.Size(70, 13);
-            this.floppyConnLbl.TabIndex = 6;
-            this.floppyConnLbl.Text = "<connected>";
-            // 
-            // floppyLabel
-            // 
-            this.floppyLabel.AutoSize = true;
-            this.floppyLabel.Location = new System.Drawing.Point(7, 26);
-            this.floppyLabel.Name = "floppyLabel";
-            this.floppyLabel.Size = new System.Drawing.Size(43, 13);
-            this.floppyLabel.TabIndex = 5;
-            this.floppyLabel.Text = "Status :";
-            // 
-            // floppyEnableChkBox
-            // 
-            this.floppyEnableChkBox.AutoSize = true;
-            this.floppyEnableChkBox.Location = new System.Drawing.Point(15, 51);
-            this.floppyEnableChkBox.Name = "floppyEnableChkBox";
-            this.floppyEnableChkBox.Size = new System.Drawing.Size(90, 17);
-            this.floppyEnableChkBox.TabIndex = 4;
-            this.floppyEnableChkBox.Text = "Enable floppy";
-            this.floppyEnableChkBox.UseVisualStyleBackColor = true;
+            this.ethMacAddrTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ethMacAddrTxtBox.Enabled = false;
+            this.ethMacAddrTxtBox.Location = new System.Drawing.Point(89, 76);
+            this.ethMacAddrTxtBox.Name = "ethMacAddrTxtBox";
+            this.ethMacAddrTxtBox.Size = new System.Drawing.Size(100, 13);
+            this.ethMacAddrTxtBox.TabIndex = 10;
             // 
             // SettingsForm
             // 
@@ -966,16 +1199,26 @@ namespace RosTEGUI
             this.cdromPanel.ResumeLayout(false);
             this.cdromGrpBox.ResumeLayout(false);
             this.cdromGrpBox.PerformLayout();
+            this.cdromConGrpBox.ResumeLayout(false);
+            this.cdromConGrpBox.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.harddiskPanel.ResumeLayout(false);
             this.harddiskGrpBox.ResumeLayout(false);
             this.harddiskGrpBox.PerformLayout();
+            this.harddiskDetailsGrpBox.ResumeLayout(false);
+            this.harddiskDetailsGrpBox.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.networkPanel.ResumeLayout(false);
             this.floppyGrpBox.ResumeLayout(false);
             this.floppyGrpBox.PerformLayout();
+            this.floppyConnGrpBox.ResumeLayout(false);
+            this.floppyConnGrpBox.PerformLayout();
             this.tabPage5.ResumeLayout(false);
             this.ethernetPanel.ResumeLayout(false);
+            this.ethernetGrpBox.ResumeLayout(false);
+            this.ethernetGrpBox.PerformLayout();
+            this.ethDetailsGrpBox.ResumeLayout(false);
+            this.ethDetailsGrpBox.PerformLayout();
             this.tabPage6.ResumeLayout(false);
             this.audioPanel.ResumeLayout(false);
             this.tabPage7.ResumeLayout(false);
@@ -987,18 +1230,14 @@ namespace RosTEGUI
             this.optionsTempDesignSheetTab.ResumeLayout(false);
             this.tabPage8.ResumeLayout(false);
             this.generalPanel.ResumeLayout(false);
+            this.generalGrpBox.ResumeLayout(false);
+            this.generalGrpBox.PerformLayout();
             this.tabPage9.ResumeLayout(false);
             this.powerPanel.ResumeLayout(false);
             this.tabPage10.ResumeLayout(false);
             this.snapshotsPanel.ResumeLayout(false);
             this.tabPage11.ResumeLayout(false);
             this.advancedPanel.ResumeLayout(false);
-            this.cdromConGrpBox.ResumeLayout(false);
-            this.cdromConGrpBox.PerformLayout();
-            this.harddiskDetailsGrpBox.ResumeLayout(false);
-            this.harddiskDetailsGrpBox.PerformLayout();
-            this.floppyConnGrpBox.ResumeLayout(false);
-            this.floppyConnGrpBox.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1065,7 +1304,7 @@ namespace RosTEGUI
         private System.Windows.Forms.Button cdromIsoBrwse;
         private System.Windows.Forms.TextBox cdromIsoTxtBox;
         private System.Windows.Forms.Label harddiskLabel1;
-        private System.Windows.Forms.Button harddiskRemoveBtn;
+        private System.Windows.Forms.Button harddiskEditBtn;
         private System.Windows.Forms.Button harddiskAddBtn;
         private System.Windows.Forms.ListBox harddiskLstBox;
         private System.Windows.Forms.Label harddiskLabel4;
@@ -1084,5 +1323,26 @@ namespace RosTEGUI
         private System.Windows.Forms.Label floppyConnLbl;
         private System.Windows.Forms.Label floppyLabel;
         private System.Windows.Forms.CheckBox floppyEnableChkBox;
+        private System.Windows.Forms.Label generalLabel2;
+        private System.Windows.Forms.Label generalLabel1;
+        private System.Windows.Forms.TextBox generalVMName;
+        private System.Windows.Forms.CheckBox generalSetClockHost;
+        private System.Windows.Forms.Button generalWorkDirBrows;
+        private System.Windows.Forms.TextBox generalWorkDir;
+        private System.Windows.Forms.Label generalLabel3;
+        private System.Windows.Forms.ComboBox generalMachine;
+        private System.Windows.Forms.GroupBox ethDetailsGrpBox;
+        private System.Windows.Forms.Label ethLabel2;
+        private System.Windows.Forms.Button ethEditBtn;
+        private System.Windows.Forms.Button ethAddBtn;
+        private System.Windows.Forms.ListBox ethLstBox;
+        private System.Windows.Forms.Label ethLabel1;
+        private System.Windows.Forms.Button ethRemoveBtn;
+        private System.Windows.Forms.Button harddiskRemoveBtn;
+        private System.Windows.Forms.Label ethLabel3;
+        private System.Windows.Forms.Label ethLabel4;
+        private System.Windows.Forms.TextBox ethMacAddrTxtBox;
+        private System.Windows.Forms.TextBox ethNetTypeTxtBox;
+        private System.Windows.Forms.TextBox ethVlanTxtBox;
     }
 }
