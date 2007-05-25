@@ -37,8 +37,8 @@ int main()
     {
         fwi.cbSize = sizeof(FLASHWINFO);
         fwi.hwnd = hwnd;
-        fwi.dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG;
-        fwi.uCount = 20;
+        fwi.dwFlags = FLASHW_TRAY | FLASHW_TIMERNOFG;
+        fwi.uCount = 1;
 
         FlashWindowEx(&fwi);
     }

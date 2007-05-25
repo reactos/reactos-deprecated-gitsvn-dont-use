@@ -34,3 +34,8 @@ if "%1" == "" (
 ) else (
     "%ROSBEBASEDIR%\Tools\buildtime.exe" "%_MINGWMAKE%" %* 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 )
+
+::
+:: highlight the fact that building has ended
+::
+call "%ROSBEBASEDIR%\Tools\flash.exe"
