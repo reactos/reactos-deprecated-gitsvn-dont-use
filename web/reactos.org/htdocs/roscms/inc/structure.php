@@ -67,9 +67,11 @@ function create_structure($page )
       <p></p>
 <?php 
 
-	if ($page == "home" || $page == "trans" || $page == "team" || $page == "dev" || $page == "admin") { // RosCMS menu
+/*
+	if ($page == "home" || $page == "trans" || $page == "team" || $page == "dev" || $page == "admin" || $page == "data") { // RosCMS menu
 		include("inc/inc_menu_roscms.php");
 	}
+*/
 
 	if ($page == "user") {
 		require("./inc/inc_menu_user.php");
@@ -83,9 +85,11 @@ function create_structure($page )
 	if ($page == "dev") {
 		require("./inc/inc_menu_dev.php");
 	}
-	if ($page == "admin") {
-		require("./inc/inc_menu_admin.php");
+	
+	if ($page == "data" || $page == "admin") {
+		require("./inc/menu_main.php");
 	}
+
 
 	if ($page != "404") {
 		require("./inc/member_bar.php");

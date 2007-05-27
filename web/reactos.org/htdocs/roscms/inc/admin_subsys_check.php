@@ -42,11 +42,9 @@ require_once("subsys_blogs.php");
 <div class="contentSmall"> <span class="contentSmallTitle">Admin Interface - Check Subsystem Consistency</span> 
 <?php
 $inconsistency_count = 0;
-/*
 $inconsistency_count += subsys_bugzilla_check();
 $inconsistency_count += subsys_phpbb_check();
 $inconsistency_count += subsys_wiki_check();
-*/
 $inconsistency_count += subsys_blogs_check();
 ?>
 <h2>Total</h2>

@@ -112,17 +112,17 @@
 				}
 				break;
 			case "inctext":
-				if ($rpm_sec2=="view") {
+				if ($rpm_sec2=="view" || $rpm_sec2=="") {
 					include("inc/admin_inctext.php"); 
 				}
 				else if ($rpm_sec2=="edit") {
-					include("inc/nopermission.php"); 
+					include("inc/admin_inctext_edit.php"); 
 				}
 				else if ($rpm_sec2=="delete") {
 					include("inc/nopermission.php"); 
 				}
 				else if ($rpm_sec2=="save") {
-					include("inc/nopermission.php"); 
+					include("inc/admin_inctext_edit.php"); 
 				}
 				break;
 			case "languages":

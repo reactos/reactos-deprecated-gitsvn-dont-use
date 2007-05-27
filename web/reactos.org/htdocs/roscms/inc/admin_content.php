@@ -34,6 +34,9 @@
 	
 	include("roscms_config.php");
 	
+	include("inc/tools.php");
+
+	
 	if ($rpm_page != "admin" && $rpm_page != "dev" && $rpm_page != "team" && $rpm_page != "trans") {
 		die("");
 	}
@@ -253,79 +256,97 @@
 			//$rpm_lang_id="all";
 		}
 	}
-	echo '<p>'.$roscms_langres['ContTrans_Language'].': ';
-	if ($roscms_intern_usrgrp_dev == true || $roscms_intern_usrgrp_admin == true) {
-		if ($rpm_lang_id == "all") {	
-			echo '<b>'.$roscms_langres['ContTrans_All'].'</b>';
-			$ros_cms_intern_content_lang = "";
-		}
-		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">'.$roscms_langres['ContTrans_All'].'</a>';
-		}
-		echo ' | ';
-		if ($rpm_lang_id == "layout") {	
-			echo '<b>Layout</b>';
-			$ros_cms_intern_content_lang = "AND content_type = 'layout'";
-		}
-		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=layout">Layout</a>';
-		}
-		echo ' | ';
-		if ($rpm_lang_id == "error") {	
-			echo '<b>Error</b>';
-			$ros_cms_intern_content_lang = "AND content_type != 'default' AND content_type != 'layout'";
-		}
-		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=error">Error</a>';
-		}
-		echo ' | ';
+	if ($roscms_intern_usrgrp_admin != true || $roscms_intern_usrgrp_sadmin != true) {
+		$sql_lang_usr="SELECT * 
+					FROM users
+					WHERE user_id = '".mysql_escape_string($roscms_intern_account_id)."'
+					LIMIT 1 ;";
+		$sql_query_lang_usr=mysql_query($sql_lang_usr);
+		$myrow_lang_usr=mysql_fetch_array($sql_query_lang_usr);
+		$sql_lang_usr_lang=mysql_query("SELECT * 
+					FROM languages
+					WHERE lang_id  = '".mysql_escape_string($myrow_lang_usr['user_language'])."'
+					LIMIT 1 ;");
+		$myrow_lang_usr_lang=mysql_fetch_array($sql_lang_usr_lang);
+		
+		$ros_cms_intern_content_lang = "AND content_lang = 'all' AND content_type = 'default'";
+		echo '<p>'.$roscms_langres['ContTrans_Language'].': <b>'.$myrow_lang_usr_lang['lang_name'].'</b>';
 	}
-
-		if ($rpm_lang_id == "nolang") {	
-			echo '<b>'.$roscms_langres['ContTrans_International'].'</b>';
-			if ($roscms_intern_usrgrp_admin == true) {
-				$ros_cms_intern_content_lang = "AND content_lang = 'all'";
-			}
-			if ($roscms_intern_usrgrp_dev == true && $rpm_page == "dev") {
-				$ros_cms_intern_content_lang = "AND content_lang = 'all'";
-			}
-			if (($roscms_intern_usrgrp_team == true && $rpm_page == "team") || ($roscms_intern_usrgrp_trans == true && $rpm_page == "trans")) {
-				$ros_cms_intern_content_lang = "AND content_lang = 'all' AND content_type = 'default'";
-			}
-		}
-		else {
-			echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">'.$roscms_langres['ContTrans_International'].'</a>';
-		}
-
-	$sql_lang_usr="SELECT * 
-				FROM users
-				WHERE user_id = '".mysql_escape_string($roscms_intern_account_id)."'
-				LIMIT 1 ;";
-	$sql_query_lang_usr=mysql_query($sql_lang_usr);
-	$myrow_lang_usr=mysql_fetch_array($sql_query_lang_usr);
-
-	// Languages
-	$sql_lang="SELECT * 
-				FROM languages
-				WHERE lang_level != '0'
-				ORDER BY 'lang_level' DESC";
-	$sql_query_lang=mysql_query($sql_lang);
-	while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
-		if ($roscms_intern_usrgrp_dev != true || $roscms_intern_usrgrp_admin != true) {
-			if ($myrow_lang[0] == $roscms_standard_language) {
-				continue;
-			}
-		}
-		$roscms_sel_lang = $myrow_lang[0];
-		if ( ($roscms_sel_lang == $myrow_lang_usr['user_language'] && $rpm_page == "trans") || $rpm_page == "team" || $rpm_page == "dev" || $rpm_page == "admin") {
-			echo ' | ';
-			if ($rpm_lang_id == $roscms_sel_lang) {	
-				echo '<b>'.$myrow_lang[1].'</b>';
-				$ros_cms_intern_content_lang = "AND content_lang = '".$roscms_sel_lang."'";
+	else {	
+	
+		echo '<p>'.$roscms_langres['ContTrans_Language'].': ';
+		if ($roscms_intern_usrgrp_dev == true || $roscms_intern_usrgrp_admin == true) {
+			if ($rpm_lang_id == "all") {	
+				echo '<b>'.$roscms_langres['ContTrans_All'].'</b>';
+				$ros_cms_intern_content_lang = "";
 			}
 			else {
-				echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
+				echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=all">'.$roscms_langres['ContTrans_All'].'</a>';
 			}
+			echo ' | ';
+			if ($rpm_lang_id == "layout") {	
+				echo '<b>Layout</b>';
+				$ros_cms_intern_content_lang = "AND content_type = 'layout'";
+			}
+			else {
+				echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=layout">Layout</a>';
+			}
+			echo ' | ';
+			if ($rpm_lang_id == "error") {	
+				echo '<b>Error</b>';
+				$ros_cms_intern_content_lang = "AND content_type != 'default' AND content_type != 'layout'";
+			}
+			else {
+				echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=error">Error</a>';
+			}
+			echo ' | ';
+		}
+	
+			if ($rpm_lang_id == "nolang") {	
+				echo '<b>'.$roscms_langres['ContTrans_International'].'</b>';
+				if ($roscms_intern_usrgrp_admin == true) {
+					$ros_cms_intern_content_lang = "AND content_lang = 'all'";
+				}
+				if ($roscms_intern_usrgrp_dev == true && $rpm_page == "dev") {
+					$ros_cms_intern_content_lang = "AND content_lang = 'all'";
+				}
+				if (($roscms_intern_usrgrp_team == true && $rpm_page == "team") || ($roscms_intern_usrgrp_trans == true && $rpm_page == "trans")) {
+					$ros_cms_intern_content_lang = "AND content_lang = 'all' AND content_type = 'default'";
+				}
+			}
+			else {
+				echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid=nolang">'.$roscms_langres['ContTrans_International'].'</a>';
+			}
+	
+		$sql_lang_usr="SELECT * 
+					FROM users
+					WHERE user_id = '".mysql_escape_string($roscms_intern_account_id)."'
+					LIMIT 1 ;";
+		$sql_query_lang_usr=mysql_query($sql_lang_usr);
+		$myrow_lang_usr=mysql_fetch_array($sql_query_lang_usr);
+
+
+		// Languages
+		$sql_lang="SELECT * 
+					FROM languages
+					WHERE lang_level != '0'
+					ORDER BY 'lang_level' DESC";
+		$sql_query_lang=mysql_query($sql_lang);
+		while($myrow_lang=mysql_fetch_row($sql_query_lang)) {
+			if ($roscms_intern_usrgrp_dev != true || $roscms_intern_usrgrp_admin != true) {
+				if ($myrow_lang[0] == $roscms_standard_language) {
+					continue;
+				}
+			}
+			$roscms_sel_lang = $myrow_lang[0];
+				echo ' | ';
+				if ($rpm_lang_id == $roscms_sel_lang) {	
+					echo '<b>'.$myrow_lang[1].'</b>';
+					$ros_cms_intern_content_lang = "AND content_lang = '".$roscms_sel_lang."'";
+				}
+				else {
+					echo '<a href="?page='.$rpm_page.'&amp;sec=content&amp;sec2=view&amp;sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;opt='.$rpm_opt.'&amp;langid='.$roscms_sel_lang.'">'.$myrow_lang[1].'</a>';
+				}
 		}
 	}
 
@@ -459,7 +480,7 @@
 	echo '</p>';
 
 ?>
-<p><?php echo $roscms_langres['ContTrans_generalinfo']; ?></p>
+<p><i><?php echo $roscms_langres['ContTrans_generalinfo']; ?></i></p>
   <table width="100%" border="0" cellpadding="1" cellspacing="1">
     <tr bgcolor="<?php echo $roscms_intern_color0; ?>"> 
       <td width="9%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong><?php echo $roscms_langres['ContTrans_Action']; ?></strong></font></div></td>
@@ -513,8 +534,7 @@
 	//$farbe="#CCCCC";
 	
 	while($result_content = mysql_fetch_array($query_content)) { // content
-		if (($roscms_intern_usrgrp_trans == true || $roscms_intern_usrgrp_team == true) && ($rpm_page == "trans" || $rpm_page == "team") && $rpm_lang_id == "nolang") {	
-			echo "<p></p>";
+		if ($rpm_page == "trans" || $rpm_page == "team") {	
 			$accountinfo_query2 = @mysql_query("SELECT user_language FROM users WHERE user_id = '".$roscms_intern_account_id."'") or die('DB error (admin interface)!');
 			$accountinfo_result2 = @mysql_fetch_array($accountinfo_query2);
 
@@ -603,10 +623,74 @@
 			  <img src="images/bbcode.gif" alt="bbcode Editor" width="19" height="18"> 
 		  <?php } ?>
         </div></td>
-      <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font face="Arial, Helvetica, sans-serif"><?php echo '<font size="1">[#cont_</font><b>'.$result_content['content_name'].'</b><font size="1">]</font>'; ?></font></div></td>
+      <td width="13%" valign="middle" bgcolor="<?php
+	   
+	   		$temp_datecompare = 0;
+	   		if ($roscms_intern_usrgrp_admin != true || $roscms_intern_usrgrp_sadmin != true) {
+				$RosCMS_query_translate_lang2 = mysql_query("SELECT *
+					FROM content 
+					WHERE content_name = '". mysql_real_escape_string($result_content['content_name'])  ."' 
+					AND content_lang = '".mysql_real_escape_string($myrow_lang_usr['user_language'])."' 
+					AND content_active = '1' 
+					AND content_visible = '1' 
+					LIMIT 1 ;"); 
+				$RosCMS_result_translate_lang2 = mysql_fetch_array($RosCMS_query_translate_lang2);
+				$temp_date = $RosCMS_result_translate_lang2['content_date'];
+				$temp_time = $RosCMS_result_translate_lang2['content_time'];
+				$temp_usrid = $RosCMS_result_translate_lang2['content_usrname_id'];
+				$temp_lang = $RosCMS_result_translate_lang2['content_lang'];
+			}
+			else {
+				$temp_date = $result_content['content_date'];
+				$temp_time = $result_content['content_time'];
+				$temp_usrid = $result_content['content_usrname_id'];
+				$temp_lang = $result_content['content_lang'];
+			}
+	   
+   
+			$RosCMS_query_translate_org = mysql_query("SELECT *
+				FROM content 
+				WHERE content_name = '". mysql_real_escape_string($result_content['content_name'])  ."' 
+				AND content_lang = 'all' 
+				AND content_active = '1' 
+				AND content_visible = '1' 
+				LIMIT 1 ;"); /* $myrow_lang_usr['user_language'] */
+			$RosCMS_result_translate_org = mysql_fetch_array($RosCMS_query_translate_org);
+			if ($temp_lang) {
+				if ($temp_lang == "all") {
+					echo $farbe;
+				}
+				else {
+					$temp_datecompare = compareDate($RosCMS_result_translate_org['content_date'], $temp_date);
+					if ($temp_datecompare <= 0) {
+						echo $roscms_intern_color_new;
+					}
+					else { 
+						echo $roscms_intern_color_old;
+					}
+				}
+			}
+			else {
+				echo $farbe;
+			}
+				
+	   
+	   
+	    ?>" title="<?php
+		
+		echo $RosCMS_result_translate_org['content_date']." (en) vs. \n".$temp_date. " (" .$temp_lang. ")";
+		
+		?>"> <div align="left"><font face="Arial, Helvetica, sans-serif"><?php echo '<font size="1">[#cont_</font><b>'.$result_content['content_name'].'</b><font size="1">]</font>';
+		
+		if ($RosCMS_result_translate_org['content_date'] != "" && $temp_date != "" && $temp_datecompare > 0) {
+			echo "<br />".$temp_datecompare." day(s) outdated!";
+		}
+				
+		 ?></font></div></td>
       <td width="13%" valign="middle" bgcolor="<?php if ($result_content['content_lang'] != "") { echo $farbe; } else { echo "#FF0000"; } ?>"> <div align="center"> 
           <font face="Arial, Helvetica, sans-serif">
           <?php 
+		  
 		  	$cmsros_intern_temp_lang_short=$result_content['content_lang'];
 			$sql_lang="SELECT * 
 				FROM languages
@@ -637,12 +721,12 @@
       <div align="center"><font face="Arial, Helvetica, sans-serif"> </font></div></td>
       <td width="13%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			echo $result_content['content_date']." ".$result_content['content_time'];;
+				echo $temp_date." ".$temp_time;
 		?>
           </font></div></td>
       <td width="10%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			$accountinfo_query = @mysql_query("SELECT user_name, user_id FROM users WHERE user_id = '".$result_content['content_usrname_id']."'") or die('DB error (admin interface)!');
+			$accountinfo_query = @mysql_query("SELECT user_name, user_id FROM users WHERE user_id = '".$temp_usrid."'") or die('DB error (admin interface)!');
 			$accountinfo_result = @mysql_fetch_array($accountinfo_query);
 			
 			$roscms_intern_accountuser = $accountinfo_result['user_name'];

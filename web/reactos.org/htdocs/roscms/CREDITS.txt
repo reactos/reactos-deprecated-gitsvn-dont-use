@@ -3,7 +3,7 @@ ReactOS Content Management System is available thanks to the work of
 
 Klemens Friedl <frik85@reactos.org>
 Ge van Geldorp <gvg@reactos.org>
-Michael Wirth
+Michael Wirth <?>
    
 
 Design (ReactOS Website):
