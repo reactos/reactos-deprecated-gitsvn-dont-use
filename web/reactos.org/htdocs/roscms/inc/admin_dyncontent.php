@@ -279,7 +279,7 @@
 	echo '</p>';
 
 	if ($rpm_page == "trans" || $rpm_page == "team")  {
-		echo "<p><i>The <b>dynamic content interface</b> for translators is <b>under heavy construction</b>! Please <b>do NOT use it</b> today, come back later this week.<br />--frik85 (2006-01-15)</i></p>";
+		echo "<p><i>The <b>dynamic content interface</b> for translators is <b>under heavy construction</b>! </i></p>";
 	}
 ?>
   <table width="100%" border="0" cellpadding="1" cellspacing="1">

@@ -1,8 +1,8 @@
 <?php
     /*
     RosCMS - ReactOS Content Management System
-    Copyright (C) 2005  Klemens Friedl <frik85@reactos.org>
-	                    Ge van Geldorp <gvg@reactos.org>
+    Copyright (C) 2005-2007  Klemens Friedl <frik85@reactos.org>
+	              2005       Ge van Geldorp <gvg@reactos.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,12 +30,13 @@ if (get_magic_quotes_gpc()) {
 
 
 	//include("./inc/db/connect_db.inc.php");
-	include("connect.db.php");
+	require("connect.db.php");
 
 
 	// stop MySQL bug (http://dev.mysql.com/doc/refman/4.1/en/news-4-1-20.html):
 	$SQLinjectionprevention ="SET GLOBAL sql_mode='NO_BACKSLASH_ESCAPES';";
 	$SQLinjectionprevention_query=mysql_query($SQLinjectionprevention);
+
 
 
 
@@ -124,106 +125,11 @@ if (get_magic_quotes_gpc()) {
 	
 
 
-// Language detection
-function check_lang($lang)
-{
-	if (preg_match('/^([a-zA-Z]+)(-[a-zA-Z]+)?$/', $lang, $matches)) {
-		$checked_lang = strtolower($matches[1]);
-		switch($checked_lang) {
-			case 'en': 
-			case 'de':
-			case 'fr':
-			case 'ru':
-			case 'es':
-			case 'it':
-			case 'hu':
-			case 'sv':
-			case 'lt':
-			case 'nl':
-			case 'pl':
-			case 'no':
-			case 'da':
-			case 'id':
-			case 'zh':
-			case 'ko':
-			case 'ja':
-			case 'ca':
-			break;
-		default:
-			$checked_lang = '';
-		}
-	}
-	else if ($lang == '*') {
-		$checked_lang = 'en';
-	}
-	else {
-		$checked_lang = '';
-	}
-
-	return $checked_lang;
-}
-
-if ($rpm_lang == '' && isset($_COOKIE['roscms_usrset_lang'])) {
-	$rpm_lang = $_COOKIE['roscms_usrset_lang'];
-	if (substr($rpm_lang, -1) == '/') {
-		$rpm_lang = substr($rpm_lang, strlen($rpm_lang) - 1);
-	}
-	$rpm_lang = check_lang($rpm_lang);
-}
-
-if ($rpm_lang == '') {
-	/* After parameter and cookie processing, we still don't have a valid
-           language. So check whether the HTTP Accept-language header can
-           help us. */
-	$accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-	$best_q = 0;
-	while (preg_match('/^\s*([^,]+)((,(.*))|$)/',
-	                  $accept_language, $matches)) {
-		$lang_range = @$matches[1];
-		$accept_language = @$matches[4];
-		if (preg_match('/^(([a-zA-Z]+)(-[a-zA-Z]+)?)(;q=([0-1](\.[0-9]{1,3})?))?/',
-		               $lang_range, $matches)) {
-			$lang = check_lang($matches[1]);
-			if ($lang != '') {
-				$q = @$matches[5];
-				if ($q == "") {
-					$q = 1;
-				}
-				else {
-					settype($q, 'float');
-				}
-				if ($best_q < $q) {
-					$rpm_lang = $lang;
-					$best_q = $q;
-				}
-			}
-		}
-	}
-}
-if ($rpm_lang == '') {
-	/* If all else fails, use the default language */
-	$rpm_lang = check_lang('*');
-}
-
-$roscms_page_lang = $rpm_lang . '/';
-$rpm_lang_session = $rpm_lang . '/';
 
 
-if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
-	/* Delete an existing cookie (if any) which uses the full hostname */
-	setcookie('roscms_usrset_lang', '', -3600);
-	/* Add cookie using just the domain name */
-	require_once('inc/utils.php');
-	setcookie('roscms_usrset_lang', $rpm_lang, time() + 5 * 30 * 24 * 3600,
-	          '/', cookie_domain());
-}
-
-
-	require("inc/lang/en.php"); // preload the english language text
-	require("inc/lang/".$rpm_lang.".php"); // load the and overwrite the language text
-
+	require("lang.php"); // lang code outsourced
+	require("custom.php"); // custom on-screen information
 	
-
 	
 
 	ini_set ('session.name', 'roscms');
@@ -233,7 +139,7 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 		case "home":
 		default: // Frontpage
 			require("inc/login.php");
-			$rpm_page_title="RosCMS - Home";
+			$rpm_page_title = $roscms_extern_brand ." - Home";
 			include("inc/head.php"); // Head
 			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
 			include("inc/structure.php");  // Layout-Structure
@@ -241,6 +147,24 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 			include("inc/home.php"); // Content
 			include("inc/body.php"); // Body
 			break;
+		case "data": // RosCMS v3 Interface
+			require("inc/login.php");
+			$rpm_page_title = $roscms_extern_brand ." ".$roscms_extern_version;
+			include("inc/header.php");
+			require("inc/data_tools.php");
+			include("inc/data.php"); 
+			include("inc/footer.php");
+			break;
+		case "data_out": // data to client
+			require("inc/login.php");
+			require("inc/data_tools.php");
+			include("inc/tools.php"); 
+			include("inc/data_export.php"); 
+			break;
+		/*case "data_in": // data to server
+			require("inc/login.php");
+			include("inc/data_import.php"); 
+			break;*/
 		case "admin": // Admin interface
 			require("inc/login.php");
 			if ($rpm_site == "") {
@@ -349,7 +273,8 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 			include("inc/body.php");
 			break;
 
-		case "generate": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate"); TODO check why this link doesn't work -> errors, etc.?
+		case "generate": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate");
+			//require("inc/login.php");
 			include("inc/generate_page.php"); // static page generator
 			break;
 			

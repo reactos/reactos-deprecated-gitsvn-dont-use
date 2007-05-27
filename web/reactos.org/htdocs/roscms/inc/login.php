@@ -50,6 +50,8 @@ $roscms_intern_usrgrp_sadmin = false;
 $roscms_intern_usrgrp_admin = false;
 $roscms_intern_usrgrp_dev = false;
 $roscms_intern_usrgrp_team = false;
+$roscms_intern_usrgrp_men = false;
+$roscms_intern_usrgrp_transm = false;
 $roscms_intern_usrgrp_trans = false;
 $roscms_intern_usrgrp_user = false;
 
@@ -57,13 +59,18 @@ global $roscms_intern_usrgrp_sadmin;
 global $roscms_intern_usrgrp_admin;
 global $roscms_intern_usrgrp_deve;
 global $roscms_intern_usrgrp_team;
+global $roscms_intern_usrgrp_men;
+global $roscms_intern_usrgrp_transm;
 global $roscms_intern_usrgrp_trans;
 global $roscms_intern_usrgrp_user;
+
+
 
 $roscms_intern_login_check = "";
 $roscms_intern_login_check_usrgroup = "";
 $roscms_intern_account_group = "";
 $roscms_intern_account_level = "";
+
 
 $target = $_SERVER[ 'PHP_SELF' ];
 if ( IsSet( $_SERVER[ 'QUERY_STRING' ] ) ) {
@@ -135,8 +142,13 @@ while($roscms_login_usrgrp_member_list = mysql_fetch_array($roscms_login_usrgrp_
 			$roscms_intern_usrgrp_user = true;
 			break;
 		case "translator": // translator
-		case "test": // RosCMS test user
 			$roscms_intern_usrgrp_trans = true;
+			break;
+		case "m_lang": // language maintainer
+			$roscms_intern_usrgrp_transm = true;
+			break;
+		case "m_en": // maintainer for english (original language)
+			$roscms_intern_usrgrp_men = true;
 			break;
 		case "moderator": // moderator
 		case "mediateam": // mediateam (add here all other team's but not the 'web-team' => admin-group)
@@ -171,7 +183,11 @@ else {
 			$roscms_intern_account_level = 50;
 		}
 		else {
-			if ($roscms_intern_usrgrp_team == true || $roscms_intern_usrgrp_trans == true) {
+			if ($roscms_intern_usrgrp_team == true || 
+				$roscms_intern_usrgrp_trans == true || 
+				$roscms_intern_usrgrp_transm == true || 
+				$roscms_intern_usrgrp_men == true)
+			{
 				$roscms_intern_account_level = 25;
 			}
 			else {
@@ -180,6 +196,9 @@ else {
 		}
 	}
 }
+
+require_once("usergroups.php");
+
 
 // user id
 $roscms_intern_account_id = $roscms_currentuser_id;

@@ -184,7 +184,7 @@
           ID</strong></font></div></td>
       <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Language</strong></font></div></td>
       <td width="26%" bgcolor="#5984C3"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>inctext</strong></font></div></td>
-      <td width="7%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Lev.</strong></font></div>
+      <td width="7%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong>Ext.</strong></font></div>
         <div align="center"></div></td>
       <td width="13%"> <div align="center"><font color="#FFFFFF" face="Arial, Helvetica, sans-serif"><strong> 
           Date</strong></font></div></td>
@@ -230,17 +230,7 @@
 								}
 							 ?>" title="RosCMS action buttons:&#10;&#10;* View inctext&#10;* Delete inctext&#10;* Locked"> 
         <div align="center"><a href="?page=admin&amp;sec=inctext&amp;sec2=edit&amp;<?php echo 'sort='.$rpm_sort.'&amp;filt='.$rpm_filt.'&amp;langid='.$rpm_lang_id.'&amp;db_id='.$result_inctext['inc_id']; ?>"><img src="images/view.gif" alt="View" width="19" height="18" border="0"></a> 
-          <script type="text/javascript">
-			<!--
-				function Deleteinctext() {
-					var chk = window.confirm("Do you really want to delete this inctext?");
-					if (chk == true) {
-						alert("Sorry! This feature has been disabled. Please ask the administrator if you really want to delete a inctext.");
-					}
-				}
-			-->
-			</script>
-          <a href="javascript:Deleteinctext()"><img src="images/delete.gif" alt="Delete" width="19" height="18" border="0"></a> 
+
         </div></td>
       <td width="5%" valign="middle" bgcolor="<?php echo $farbe; ?>"> 
         <div align="center"> 
@@ -289,7 +279,7 @@
 		?></font></pre></td>
       <td width="7%" valign="middle" bgcolor="<?php echo $farbe; ?>"> <div align="center"><font face="Arial, Helvetica, sans-serif"> 
           <?php 
-			echo $result_inctext['inc_level'];
+			echo substr($result_inctext['inc_extra'], 0, 7);
 		?>
           </font></div>
         <div align="center"><font face="Arial, Helvetica, sans-serif"> </font></div></td>

@@ -261,10 +261,24 @@
 <?php
 
 			if ($rpm_page == "trans") {
-				echo '<input name="txt_content_type" type="hidden" id="txt_content_type" value="'.$result_content['content_type'].'">'.$result_content['content_type'];
+				echo '<input name="txt_content_type" type="hidden" id="txt_content_type" value="';
+				if ($rpm_db_id == "new") {
+					echo "default";
+				}
+				else {
+					echo $result_content['content_type'];
+				}
+				echo'">'.$result_content['content_type'];
 			}
 			else {
-				echo '<input name="txt_content_type" type="text" id="txt_content_type" value="'.$result_content['content_type'].'" size="30" maxlength="30">  (&quot;default&quot;, &quot;layout&quot;, ...)';
+				echo '<input name="txt_content_type" type="text" id="txt_content_type" value="';
+				if ($rpm_db_id == "new") {
+					echo "default";
+				}
+				else {
+					echo $result_content['content_type'];
+				}
+				echo '" size="30" maxlength="30">  (&quot;default&quot;, &quot;layout&quot;, ...)';
 			}
 ?></font></td>
       </tr>
@@ -346,7 +360,11 @@
 		$roscms_intern_content_name=$result_content['content_name'];
 	?>
     </p>
-    <p> 
+	
+
+	<p>&nbsp;</p>
+	<p>Click &quot;Submit&quot; to save the changes to the database, the best suitable save-setting already choosen. </p>
+	<p> 
       <?php if ($rpm_opt == "translate") { ?>
 	  
       <input name="content_rad_opt" type="radio" value="translate" checked>
@@ -386,15 +404,66 @@
 			 } 
 		}
 	?>
-    <p><strong>Info:</strong> for each [#inc_xyz] tag the RosCMS will include 
-      the code that is linked with this tag from database.<br>
-      <br>
-      <strong>Hints:</strong></p>
-    <ul>
-      <li>use &amp;amp; instead of &quot;&amp;&quot; in links, e.g. http://www.xyz.org/?page=support&amp;amp;lang=en</li>
-      <li> &quot;&lt;placeholder&gt;&quot; =&gt; &amp;lt;placeholder&amp;gt; </li>
-      <li> Homepage URL: [#roscms_path_homepage]</li>
-    </ul>
+	<p>&nbsp;</p>
+	<p>
+	<?php
+			$RosCMS_query_translate_content_current = mysql_query("SELECT *
+												FROM content 
+												WHERE content_name = '". mysql_real_escape_string($result_content['content_name'])  ."' 
+												AND `content_lang` = 'all'
+												AND `content_active` = 1
+												AND `content_visible` = 1
+												ORDER BY `content_version` DESC 
+												LIMIT 1 ;");
+			$RosCMS_result_translate_content_current = mysql_fetch_array($RosCMS_query_translate_content_current);
+			$RosCMS_query_translate_content_old = mysql_query("SELECT *
+												FROM content 
+												WHERE content_name = '". mysql_real_escape_string($result_content['content_name'])  ."' 
+												AND `content_lang` = 'all'
+												AND `content_active` = 0
+												ORDER BY `content_version` DESC 
+												LIMIT 1 ;");
+			$RosCMS_result_translate_content_old = mysql_fetch_array($RosCMS_query_translate_content_old);
+			
+		if ($rpm_db_id != "new" && $RosCMS_result_translate_content_old['content_id'] != "" && $RosCMS_result_translate_content_current['content_id'] != "") {
+	?>	
+			<!-- Diff  -->
+			<script src="js/diff.js" language="javascript"></script>
+			<b>Latest changes of the english content:<br />
+			</b>Note: some characters may appear in utf-8 encoded version, don't copy and paste directly; <a href="#orgcont">use the text box below</a> to copy&amp;paste content !!!
+	<table width="100%" border="1" cellpadding="0" cellspacing="0" bordercolor="#666666" bgcolor="#CCCCCC">
+			  <tr>
+				<td><font size="1"><div id="diff2"></div></font></td>
+			  </tr>
+	</table>
+			<div id="d1" style="display:none;"><?php echo $RosCMS_result_translate_content_old['content_text']; ?></div>
+			<div id="d2" style="display:none;"><?php echo $RosCMS_result_translate_content_current['content_text']; ?></div>
+			<script type="text/javascript">
+				document.getElementById('diff2').innerHTML = StringDiff( 
+					document.getElementById('d1').innerHTML, 
+					document.getElementById('d2').innerHTML 
+				);
+			</script>
+	<?php 
+		}
+		if ($rpm_db_id != "new") { ?>
+			<br /><b><a name="orgcont" id="orgcont"></a>Current english original content:</b><br />
+			<textarea name="txtorginal" cols="80" rows="5" id="txtorginal" readonly="readonly"><?php 
+			echo ereg_replace("&amp;(#[0-9]{4};)", "&\\1", htmlentities($RosCMS_result_translate_content_current['content_text'], ENT_QUOTES, 'UTF-8')); ?>
+			</textarea>
+	<?php
+		}
+	?>
+	</p>	    <table width="100%" border="1" cellpadding="5" cellspacing="0" bordercolor="#666666">
+      <tr>
+        <td><p><strong><font size="1">Hints:</font></strong></p>
+            <ul>
+              <li><font size="1">use &amp;amp; instead of &quot;&amp;&quot; in links, e.g. http://www.xyz.org/?page=support&amp;amp;lang=en</font></li>
+              <li> <font size="1">&quot;&lt;placeholder&gt;&quot; =&gt; &amp;lt;placeholder&amp;gt; </font></li>
+              <li><font size="1"> Homepage URL: [#roscms_path_homepage]</font></li>
+          </ul></td>
+      </tr>
+    </table>
   </form>
   <?php
 	}

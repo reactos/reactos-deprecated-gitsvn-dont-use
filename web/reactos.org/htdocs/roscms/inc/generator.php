@@ -20,12 +20,12 @@
 	
 
 	// To prevent hacking activity:
-	if ( !defined('ROSCMS_SYSTEM') && $rpm_page != "generate")
+	if ( !defined('ROSCMS_SYSTEM') && $rpm_page != "generate_fast_secret")
 	{
 		die("die");
 	}
 	
-	if ($rpm_page == "generate") {
+	if ($rpm_page == "generate_fast_secret") {
 		$rpm_sec="generator";
 		$rpm_sec2="output";
 		$roscms_intern_account_id = "1";
@@ -593,7 +593,7 @@ function insert_hyperlink($matches) {
 		$RosCMS_current_page_name_save = $RosCMS_current_page_name;
 	}
 	
-	$RosCMS_query_page_link = mysql_query("SELECT pages_extra, page_name
+	$RosCMS_query_page_link = mysql_query("SELECT pages_extra, page_name, pages_extention
 											FROM pages
 											WHERE page_name = '".mysql_real_escape_string($RosCMS_current_page_name_save)."' 
 											AND page_visible = '1' 
@@ -616,11 +616,16 @@ function insert_hyperlink($matches) {
 		}
 	}
 	else { // static pages
+		$RosCMS_current_page_link_extention = "html";
+		if ($RosCMS_result_page_link['pages_extention'] != "default") {
+			$RosCMS_current_page_link_extention = $RosCMS_result_page_link['pages_extention'];
+		}
+		
 		if ($RosCMS_result_page_link['pages_extra'] == "dynamic") {
-			$RosCMS_current_page_link = $roscms_intern_path_server.$RosCMS_global_current_page_lang."/".$RosCMS_result_page_link['page_name'].strrchr($RosCMS_current_page_name,"_").".html";
+			$RosCMS_current_page_link = $roscms_intern_path_server.$RosCMS_global_current_page_lang."/".$RosCMS_result_page_link['page_name'].strrchr($RosCMS_current_page_name,"_").".".$RosCMS_current_page_link_extention;
 		}
 		else {
-			$RosCMS_current_page_link = $roscms_intern_path_server.$RosCMS_global_current_page_lang."/".$RosCMS_result_page_link['page_name'].".html";
+			$RosCMS_current_page_link = $roscms_intern_path_server.$RosCMS_global_current_page_lang."/".$RosCMS_result_page_link['page_name'].".".$RosCMS_current_page_link_extention;
 		}
 		if ($RosCMS_result_page_link['page_name'] == "") {
 			$RosCMS_current_page_link = $roscms_intern_path_server.$RosCMS_global_current_page_lang."/404.html";

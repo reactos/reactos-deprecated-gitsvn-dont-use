@@ -40,7 +40,7 @@
 	}
 	
 
-	if ($roscms_intern_usrgrp_admin == true) { // only for (super) admin group member
+	if ($roscms_intern_usrgrp_admin == true || $roscms_intern_usrgrp_dev == true) { // only for (super) admin and dev group members
 
 
 
