@@ -28,7 +28,9 @@ namespace RosTEGUI
         /// </summary>
         private void InitializeComponent()
         {
-            this.hardwareSelLstBox = new System.Windows.Forms.ListBox();
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
+            this.optListBoxImgLst = new System.Windows.Forms.ImageList(this.components);
             this.hardwareContainerPanel = new System.Windows.Forms.Panel();
             this.hardwareTempDesignSheetTab = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -81,8 +83,13 @@ namespace RosTEGUI
             this.ethernetGrpBox = new System.Windows.Forms.GroupBox();
             this.ethRemoveBtn = new System.Windows.Forms.Button();
             this.ethDetailsGrpBox = new System.Windows.Forms.GroupBox();
-            this.ethLabel2 = new System.Windows.Forms.Label();
+            this.ethMacAddrTxtBox = new System.Windows.Forms.TextBox();
+            this.ethNetTypeTxtBox = new System.Windows.Forms.TextBox();
+            this.ethVlanTxtBox = new System.Windows.Forms.TextBox();
+            this.ethLabel4 = new System.Windows.Forms.Label();
             this.ethEditBtn = new System.Windows.Forms.Button();
+            this.ethLabel3 = new System.Windows.Forms.Label();
+            this.ethLabel2 = new System.Windows.Forms.Label();
             this.ethAddBtn = new System.Windows.Forms.Button();
             this.ethLstBox = new System.Windows.Forms.ListBox();
             this.ethLabel1 = new System.Windows.Forms.Label();
@@ -98,6 +105,7 @@ namespace RosTEGUI
             this.settingsHelpBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.TabControl();
             this.settingsHardwareTab = new System.Windows.Forms.TabPage();
+            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.settingsOptionsTab = new System.Windows.Forms.TabPage();
             this.optionsContainerPanel = new System.Windows.Forms.Panel();
             this.optionsTempDesignSheetTab = new System.Windows.Forms.TabControl();
@@ -121,13 +129,8 @@ namespace RosTEGUI
             this.tabPage11 = new System.Windows.Forms.TabPage();
             this.advancedPanel = new System.Windows.Forms.Panel();
             this.advancedGrpBox = new System.Windows.Forms.GroupBox();
-            this.optionsSelLstBox = new System.Windows.Forms.ListBox();
+            this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
-            this.ethLabel3 = new System.Windows.Forms.Label();
-            this.ethLabel4 = new System.Windows.Forms.Label();
-            this.ethVlanTxtBox = new System.Windows.Forms.TextBox();
-            this.ethNetTypeTxtBox = new System.Windows.Forms.TextBox();
-            this.ethMacAddrTxtBox = new System.Windows.Forms.TextBox();
             this.hardwareContainerPanel.SuspendLayout();
             this.hardwareTempDesignSheetTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -171,27 +174,21 @@ namespace RosTEGUI
             this.advancedPanel.SuspendLayout();
             this.SuspendLayout();
             // 
-            // hardwareSelLstBox
+            // optListBoxImgLst
             // 
-            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.hardwareSelLstBox.FormattingEnabled = true;
-            this.hardwareSelLstBox.ItemHeight = 45;
-            this.hardwareSelLstBox.Items.AddRange(new object[] {
-            "Memory",
-            "CD-ROM",
-            "Hard Disk",
-            "Floppy",
-            "Ethernet",
-            "Sound",
-            "Display"});
-            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
-            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
-            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 362);
-            this.hardwareSelLstBox.TabIndex = 0;
-            this.hardwareSelLstBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listboxSelection_DrawItem);
-            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
+            this.optListBoxImgLst.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("optListBoxImgLst.ImageStream")));
+            this.optListBoxImgLst.TransparentColor = System.Drawing.Color.Transparent;
+            this.optListBoxImgLst.Images.SetKeyName(0, "memory.png");
+            this.optListBoxImgLst.Images.SetKeyName(1, "cdrom.png");
+            this.optListBoxImgLst.Images.SetKeyName(2, "harddisk.png");
+            this.optListBoxImgLst.Images.SetKeyName(3, "floppy.png");
+            this.optListBoxImgLst.Images.SetKeyName(4, "network.png");
+            this.optListBoxImgLst.Images.SetKeyName(5, "audio.png");
+            this.optListBoxImgLst.Images.SetKeyName(6, "display.png");
+            this.optListBoxImgLst.Images.SetKeyName(7, "general.png");
+            this.optListBoxImgLst.Images.SetKeyName(8, "power.png");
+            this.optListBoxImgLst.Images.SetKeyName(9, "snapshot.png");
+            this.optListBoxImgLst.Images.SetKeyName(10, "advanced.png");
             // 
             // hardwareContainerPanel
             // 
@@ -720,14 +717,41 @@ namespace RosTEGUI
             this.ethDetailsGrpBox.TabStop = false;
             this.ethDetailsGrpBox.Text = "Details";
             // 
-            // ethLabel2
+            // ethMacAddrTxtBox
             // 
-            this.ethLabel2.AutoSize = true;
-            this.ethLabel2.Location = new System.Drawing.Point(6, 27);
-            this.ethLabel2.Name = "ethLabel2";
-            this.ethLabel2.Size = new System.Drawing.Size(52, 13);
-            this.ethLabel2.TabIndex = 2;
-            this.ethLabel2.Text = "VLAN No";
+            this.ethMacAddrTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ethMacAddrTxtBox.Enabled = false;
+            this.ethMacAddrTxtBox.Location = new System.Drawing.Point(89, 76);
+            this.ethMacAddrTxtBox.Name = "ethMacAddrTxtBox";
+            this.ethMacAddrTxtBox.Size = new System.Drawing.Size(100, 13);
+            this.ethMacAddrTxtBox.TabIndex = 10;
+            // 
+            // ethNetTypeTxtBox
+            // 
+            this.ethNetTypeTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ethNetTypeTxtBox.Enabled = false;
+            this.ethNetTypeTxtBox.Location = new System.Drawing.Point(89, 50);
+            this.ethNetTypeTxtBox.Name = "ethNetTypeTxtBox";
+            this.ethNetTypeTxtBox.Size = new System.Drawing.Size(100, 13);
+            this.ethNetTypeTxtBox.TabIndex = 9;
+            // 
+            // ethVlanTxtBox
+            // 
+            this.ethVlanTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ethVlanTxtBox.Enabled = false;
+            this.ethVlanTxtBox.Location = new System.Drawing.Point(89, 24);
+            this.ethVlanTxtBox.Name = "ethVlanTxtBox";
+            this.ethVlanTxtBox.Size = new System.Drawing.Size(100, 13);
+            this.ethVlanTxtBox.TabIndex = 8;
+            // 
+            // ethLabel4
+            // 
+            this.ethLabel4.AutoSize = true;
+            this.ethLabel4.Location = new System.Drawing.Point(6, 79);
+            this.ethLabel4.Name = "ethLabel4";
+            this.ethLabel4.Size = new System.Drawing.Size(69, 13);
+            this.ethLabel4.TabIndex = 6;
+            this.ethLabel4.Text = "Mac Address";
             // 
             // ethEditBtn
             // 
@@ -738,6 +762,24 @@ namespace RosTEGUI
             this.ethEditBtn.Text = "Edit";
             this.ethEditBtn.UseVisualStyleBackColor = true;
             this.ethEditBtn.Click += new System.EventHandler(this.ethEditBtn_Click);
+            // 
+            // ethLabel3
+            // 
+            this.ethLabel3.AutoSize = true;
+            this.ethLabel3.Location = new System.Drawing.Point(6, 53);
+            this.ethLabel3.Name = "ethLabel3";
+            this.ethLabel3.Size = new System.Drawing.Size(74, 13);
+            this.ethLabel3.TabIndex = 4;
+            this.ethLabel3.Text = "Network Type";
+            // 
+            // ethLabel2
+            // 
+            this.ethLabel2.AutoSize = true;
+            this.ethLabel2.Location = new System.Drawing.Point(6, 27);
+            this.ethLabel2.Name = "ethLabel2";
+            this.ethLabel2.Size = new System.Drawing.Size(52, 13);
+            this.ethLabel2.TabIndex = 2;
+            this.ethLabel2.Text = "VLAN No";
             // 
             // ethAddBtn
             // 
@@ -881,6 +923,20 @@ namespace RosTEGUI
             this.settingsHardwareTab.TabIndex = 0;
             this.settingsHardwareTab.Text = "Hardware";
             this.settingsHardwareTab.UseVisualStyleBackColor = true;
+            // 
+            // hardwareSelLstBox
+            // 
+            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.hardwareSelLstBox.FormattingEnabled = true;
+            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
+            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
+            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
+            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 353);
+            this.hardwareSelLstBox.TabIndex = 0;
+            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
+            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
             // 
             // settingsOptionsTab
             // 
@@ -1115,63 +1171,12 @@ namespace RosTEGUI
             this.optionsSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.optionsSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.optionsSelLstBox.FormattingEnabled = true;
-            this.optionsSelLstBox.ItemHeight = 45;
-            this.optionsSelLstBox.Items.AddRange(new object[] {
-            "General",
-            "Power",
-            "Snapshots",
-            "Advanced"});
+            this.optionsSelLstBox.ImageList = this.optListBoxImgLst;
             this.optionsSelLstBox.Location = new System.Drawing.Point(3, 6);
             this.optionsSelLstBox.Name = "optionsSelLstBox";
-            this.optionsSelLstBox.Size = new System.Drawing.Size(74, 362);
+            this.optionsSelLstBox.Size = new System.Drawing.Size(74, 353);
             this.optionsSelLstBox.TabIndex = 1;
-            this.optionsSelLstBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listboxSelection_DrawItem);
             this.optionsSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
-            // 
-            // ethLabel3
-            // 
-            this.ethLabel3.AutoSize = true;
-            this.ethLabel3.Location = new System.Drawing.Point(6, 53);
-            this.ethLabel3.Name = "ethLabel3";
-            this.ethLabel3.Size = new System.Drawing.Size(74, 13);
-            this.ethLabel3.TabIndex = 4;
-            this.ethLabel3.Text = "Network Type";
-            // 
-            // ethLabel4
-            // 
-            this.ethLabel4.AutoSize = true;
-            this.ethLabel4.Location = new System.Drawing.Point(6, 79);
-            this.ethLabel4.Name = "ethLabel4";
-            this.ethLabel4.Size = new System.Drawing.Size(69, 13);
-            this.ethLabel4.TabIndex = 6;
-            this.ethLabel4.Text = "Mac Address";
-            // 
-            // ethVlanTxtBox
-            // 
-            this.ethVlanTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ethVlanTxtBox.Enabled = false;
-            this.ethVlanTxtBox.Location = new System.Drawing.Point(89, 24);
-            this.ethVlanTxtBox.Name = "ethVlanTxtBox";
-            this.ethVlanTxtBox.Size = new System.Drawing.Size(100, 13);
-            this.ethVlanTxtBox.TabIndex = 8;
-            // 
-            // ethNetTypeTxtBox
-            // 
-            this.ethNetTypeTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ethNetTypeTxtBox.Enabled = false;
-            this.ethNetTypeTxtBox.Location = new System.Drawing.Point(89, 50);
-            this.ethNetTypeTxtBox.Name = "ethNetTypeTxtBox";
-            this.ethNetTypeTxtBox.Size = new System.Drawing.Size(100, 13);
-            this.ethNetTypeTxtBox.TabIndex = 9;
-            // 
-            // ethMacAddrTxtBox
-            // 
-            this.ethMacAddrTxtBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.ethMacAddrTxtBox.Enabled = false;
-            this.ethMacAddrTxtBox.Location = new System.Drawing.Point(89, 76);
-            this.ethMacAddrTxtBox.Name = "ethMacAddrTxtBox";
-            this.ethMacAddrTxtBox.Size = new System.Drawing.Size(100, 13);
-            this.ethMacAddrTxtBox.TabIndex = 10;
             // 
             // SettingsForm
             // 
@@ -1244,7 +1249,6 @@ namespace RosTEGUI
 
         #endregion
 
-        private System.Windows.Forms.ListBox hardwareSelLstBox;
         private System.Windows.Forms.Panel hardwareContainerPanel;
         private System.Windows.Forms.Button settingsOKBtn;
         private System.Windows.Forms.Button settingsCancelBtn;
@@ -1275,7 +1279,6 @@ namespace RosTEGUI
         private System.Windows.Forms.TabControl settingsTab;
         private System.Windows.Forms.TabPage settingsHardwareTab;
         private System.Windows.Forms.TabPage settingsOptionsTab;
-        private System.Windows.Forms.ListBox optionsSelLstBox;
         private System.Windows.Forms.TabControl optionsTempDesignSheetTab;
         private System.Windows.Forms.TabPage tabPage8;
         private System.Windows.Forms.Panel generalPanel;
@@ -1344,5 +1347,9 @@ namespace RosTEGUI
         private System.Windows.Forms.TextBox ethMacAddrTxtBox;
         private System.Windows.Forms.TextBox ethNetTypeTxtBox;
         private System.Windows.Forms.TextBox ethVlanTxtBox;
+        private System.Windows.Forms.ImageList optListBoxImgLst;
+
+        private RosTEGUI.OptListBox hardwareSelLstBox;
+        private RosTEGUI.OptListBox optionsSelLstBox;
     }
 }
