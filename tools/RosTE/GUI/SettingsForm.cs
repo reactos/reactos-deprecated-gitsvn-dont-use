@@ -18,6 +18,19 @@ namespace RosTEGUI
         public SettingsForm()
         {
             InitializeComponent();
+
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("Memory", 0));
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("CD-ROM", 1));
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("Hard Disk", 2));
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("Floppy", 3));
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("Ethernet", 4));
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("Sound", 5));
+            hardwareSelLstBox.Items.Add(new OptListBoxItem("Display", 6));
+
+            optionsSelLstBox.Items.Add(new OptListBoxItem("General", 7));
+            optionsSelLstBox.Items.Add(new OptListBoxItem("Power", 8));
+            optionsSelLstBox.Items.Add(new OptListBoxItem("Snapshots", 9));
+            optionsSelLstBox.Items.Add(new OptListBoxItem("Advanced", 10));
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
@@ -48,41 +61,6 @@ namespace RosTEGUI
             hardwarePanels[0].Visible = true;
             optionsPanels[0].Visible = true;
 
-        }
-
-        private void listboxSelection_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            {
-                e.Graphics.FillRectangle(Brushes.Silver, e.Bounds);
-            }
-            else
-            {
-                e.Graphics.FillRectangle(Brushes.White, e.Bounds);
-            }
-
-            string buttStr = null;
-            if (settingsTab.SelectedIndex == 0)
-            {
-                buttStr = hardwareSelLstBox.Items[e.Index].ToString();
-            }
-            else if (settingsTab.SelectedIndex == 1)
-            {
-                buttStr = optionsSelLstBox.Items[e.Index].ToString();
-            }
-
-            StringFormat strfmt = new StringFormat();
-            strfmt.Alignment = StringAlignment.Center;
-            strfmt.LineAlignment = StringAlignment.Center;
-
-            e.Graphics.DrawString(buttStr,
-                                  this.Font,
-                                  Brushes.Black,
-                                  e.Bounds.X + e.Bounds.Width / 2,
-                                  e.Bounds.Y + e.Bounds.Height / 2,
-                                  strfmt);
-
-            e.DrawFocusRectangle();
         }
 
         private void listboxSelection_SelectedIndexChanged(object sender, EventArgs e)
@@ -132,6 +110,13 @@ namespace RosTEGUI
 
                 // set values
             }
+        }
+
+        private void hardwareSelLstBox_MouseEnter(object sender, EventArgs e)
+        {
+            ListBox listbox = (ListBox)sender;
+
+            listbox.Invalidate();
         }
     }
 }
