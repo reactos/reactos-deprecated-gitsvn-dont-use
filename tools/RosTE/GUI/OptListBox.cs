@@ -10,7 +10,6 @@ namespace RosTEGUI
 {
     public class OptListBox : ListBox
     {
-        private IContainer components;
         private ImageList myImageList;
 
         public ImageList ImageList

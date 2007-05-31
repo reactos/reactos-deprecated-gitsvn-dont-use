@@ -39,7 +39,7 @@ namespace RosTEGUI
             hardwareSelLstBox.SelectedItem = 0;
             hardwareSelLstBox.SelectedValue = 0;
 
-            optionsSelLstBox.ItemHeight = optionsSelLstBox.Height / optionsSelLstBox.Items.Count;
+            optionsSelLstBox.ItemHeight = hardwareSelLstBox.ItemHeight;
 
             hardwarePanels = new Panel[] { memoryPanel, cdromPanel, harddiskPanel, networkPanel, ethernetPanel, audioPanel, displayPanel };
             optionsPanels = new Panel[] { generalPanel, powerPanel, snapshotsPanel, advancedPanel};
