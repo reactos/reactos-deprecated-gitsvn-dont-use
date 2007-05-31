@@ -18,7 +18,10 @@ namespace RosTEGUI
         public SettingsForm()
         {
             InitializeComponent();
+        }
 
+        private void SettingsForm_Load(object sender, EventArgs e)
+        {
             hardwareSelLstBox.Items.Add(new OptListBoxItem("Memory", 0));
             hardwareSelLstBox.Items.Add(new OptListBoxItem("CD-ROM", 1));
             hardwareSelLstBox.Items.Add(new OptListBoxItem("Hard Disk", 2));
@@ -31,10 +34,7 @@ namespace RosTEGUI
             optionsSelLstBox.Items.Add(new OptListBoxItem("Power", 8));
             optionsSelLstBox.Items.Add(new OptListBoxItem("Snapshots", 9));
             optionsSelLstBox.Items.Add(new OptListBoxItem("Advanced", 10));
-        }
-
-        private void SettingsForm_Load(object sender, EventArgs e)
-        {
+            
             hardwareSelLstBox.ItemHeight = hardwareSelLstBox.Height / hardwareSelLstBox.Items.Count;
             hardwareSelLstBox.SelectedItem = 0;
             hardwareSelLstBox.SelectedValue = 0;

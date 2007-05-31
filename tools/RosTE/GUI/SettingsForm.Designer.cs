@@ -105,6 +105,7 @@ namespace RosTEGUI
             this.settingsHelpBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.TabControl();
             this.settingsHardwareTab = new System.Windows.Forms.TabPage();
+            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.settingsOptionsTab = new System.Windows.Forms.TabPage();
             this.optionsContainerPanel = new System.Windows.Forms.Panel();
             this.optionsTempDesignSheetTab = new System.Windows.Forms.TabControl();
@@ -128,9 +129,8 @@ namespace RosTEGUI
             this.tabPage11 = new System.Windows.Forms.TabPage();
             this.advancedPanel = new System.Windows.Forms.Panel();
             this.advancedGrpBox = new System.Windows.Forms.GroupBox();
-            this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
-            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.optionsSelLstBox = new RosTEGUI.OptListBox();
+            this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
             this.hardwareContainerPanel.SuspendLayout();
             this.hardwareTempDesignSheetTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -183,7 +183,7 @@ namespace RosTEGUI
             this.optListBoxImgLst.Images.SetKeyName(2, "harddisk.png");
             this.optListBoxImgLst.Images.SetKeyName(3, "floppy.png");
             this.optListBoxImgLst.Images.SetKeyName(4, "network.png");
-            this.optListBoxImgLst.Images.SetKeyName(5, "audio.png");
+            this.optListBoxImgLst.Images.SetKeyName(5, "audio.bmp");
             this.optListBoxImgLst.Images.SetKeyName(6, "display.png");
             this.optListBoxImgLst.Images.SetKeyName(7, "general.png");
             this.optListBoxImgLst.Images.SetKeyName(8, "power.png");
@@ -207,7 +207,7 @@ namespace RosTEGUI
             this.hardwareTempDesignSheetTab.Controls.Add(this.tabPage5);
             this.hardwareTempDesignSheetTab.Controls.Add(this.tabPage6);
             this.hardwareTempDesignSheetTab.Controls.Add(this.tabPage7);
-            this.hardwareTempDesignSheetTab.Location = new System.Drawing.Point(0, 0);
+            this.hardwareTempDesignSheetTab.Location = new System.Drawing.Point(-12, 0);
             this.hardwareTempDesignSheetTab.Name = "hardwareTempDesignSheetTab";
             this.hardwareTempDesignSheetTab.SelectedIndex = 0;
             this.hardwareTempDesignSheetTab.Size = new System.Drawing.Size(294, 393);
@@ -924,6 +924,20 @@ namespace RosTEGUI
             this.settingsHardwareTab.Text = "Hardware";
             this.settingsHardwareTab.UseVisualStyleBackColor = true;
             // 
+            // hardwareSelLstBox
+            // 
+            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.hardwareSelLstBox.FormattingEnabled = true;
+            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
+            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
+            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
+            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 353);
+            this.hardwareSelLstBox.TabIndex = 0;
+            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
+            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
+            // 
             // settingsOptionsTab
             // 
             this.settingsOptionsTab.Controls.Add(this.optionsContainerPanel);
@@ -1022,7 +1036,7 @@ namespace RosTEGUI
             // generalLabel3
             // 
             this.generalLabel3.AutoSize = true;
-            this.generalLabel3.Location = new System.Drawing.Point(6, 134);
+            this.generalLabel3.Location = new System.Drawing.Point(3, 134);
             this.generalLabel3.Name = "generalLabel3";
             this.generalLabel3.Size = new System.Drawing.Size(90, 13);
             this.generalLabel3.TabIndex = 4;
@@ -1051,7 +1065,7 @@ namespace RosTEGUI
             // generalLabel1
             // 
             this.generalLabel1.AutoSize = true;
-            this.generalLabel1.Location = new System.Drawing.Point(6, 26);
+            this.generalLabel1.Location = new System.Drawing.Point(6, 25);
             this.generalLabel1.Name = "generalLabel1";
             this.generalLabel1.Size = new System.Drawing.Size(109, 13);
             this.generalLabel1.TabIndex = 1;
@@ -1150,20 +1164,6 @@ namespace RosTEGUI
             this.advancedGrpBox.TabIndex = 0;
             this.advancedGrpBox.TabStop = false;
             this.advancedGrpBox.Text = "Advanced";
-            // 
-            // hardwareSelLstBox
-            // 
-            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.hardwareSelLstBox.FormattingEnabled = true;
-            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
-            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
-            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
-            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 353);
-            this.hardwareSelLstBox.TabIndex = 0;
-            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
-            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
             // 
             // optionsSelLstBox
             // 
