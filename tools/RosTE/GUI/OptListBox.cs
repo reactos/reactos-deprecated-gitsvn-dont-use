@@ -11,7 +11,12 @@ namespace RosTEGUI
     public class OptListBox : ListBox
     {
         private ImageList myImageList;
+        private StringFormat strFmt;
 
+        /// <summary>
+        /// The image list accociated with the listbox.
+        /// </summary>
+        [Description("The image list accociated with the listbox")]
         public ImageList ImageList
         {
             get { return myImageList; }
@@ -20,48 +25,29 @@ namespace RosTEGUI
 
         public OptListBox()
         {
+            strFmt = new StringFormat();
+            strFmt.Alignment = StringAlignment.Center;
+            strFmt.LineAlignment = StringAlignment.Center;
             this.BorderStyle = BorderStyle.FixedSingle;
             this.Cursor = Cursors.Hand;
             this.DrawMode = DrawMode.OwnerDrawFixed;
             this.FormattingEnabled = true;
         }
 
+
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            e.DrawFocusRectangle();
-
-            OptListBoxItem item =(OptListBoxItem)Items[e.Index];
-            Size imageSize = myImageList.ImageSize;
-
-            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-            {
-                e.Graphics.FillRectangle(Brushes.Silver, e.Bounds);
+            // prevent from error Visual Designer
+            if (this.Items.Count > 0)
+            {                
+                OptListBoxItem item = (OptListBoxItem)this.Items[e.Index];
+                item.DrawItem(e, this.Margin, Font, strFmt, myImageList);
             }
-            else
-            {
-                e.Graphics.FillRectangle(Brushes.White, e.Bounds);
-            }
+        }
 
-            if (item.ImageIndex != -1)
-            {
-                ImageList.Draw(e.Graphics,
-                               e.Bounds.Right - (e.Bounds.Right / 2) - (imageSize.Width / 2),
-                               e.Bounds.Top + 4,
-                               item.ImageIndex);
-            }
-
-            StringFormat strfmt = new StringFormat();
-            strfmt.Alignment = StringAlignment.Center;
-            strfmt.LineAlignment = StringAlignment.Center;
-
-            e.Graphics.DrawString(item.Text,
-                                  this.Font,
-                                  Brushes.Black,
-                                  e.Bounds.X + e.Bounds.Width / 2,
-                                  e.Bounds.Y + e.Bounds.Height - Font.Height,
-                                  strfmt);
-
-            base.OnDrawItem(e);
+        protected override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
         }
     }
 
@@ -92,6 +78,47 @@ namespace RosTEGUI
         public override string ToString()
         {
             return itemText;
+        }
+
+        public void DrawItem(DrawItemEventArgs e,
+                             Padding margin,
+                             Font textFont,
+                             StringFormat aligment,
+                             ImageList imgLst)
+        {
+            if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+            {
+                e.Graphics.FillRectangle(Brushes.CornflowerBlue, e.Bounds);
+            }
+            else
+            {
+                e.Graphics.FillRectangle(Brushes.White, e.Bounds);
+            }
+
+            /*
+            e.Graphics.DrawLine(Pens.DarkGray,
+                                e.Bounds.X,
+                                e.Bounds.Y,
+                                e.Bounds.X + e.Bounds.Width,
+                                e.Bounds.Y);*/
+
+            imgLst.Draw(e.Graphics,
+                        e.Bounds.Right - (e.Bounds.Right / 2) - (imgLst.ImageSize.Width / 2),
+                        e.Bounds.Top + margin.Top,
+                        imgId);
+
+            Rectangle titleBounds = new Rectangle(e.Bounds.X + margin.Horizontal,
+                                                  e.Bounds.Y + margin.Top + imgLst.ImageSize.Height,
+                                                  e.Bounds.Width - margin.Right - margin.Horizontal,
+                                                  (int)textFont.GetHeight() + 2);
+
+            e.Graphics.DrawString(itemText,
+                                  textFont,
+                                  Brushes.Black,
+                                  titleBounds,
+                                  aligment);
+
+            e.DrawFocusRectangle();
         }
     }
 }
