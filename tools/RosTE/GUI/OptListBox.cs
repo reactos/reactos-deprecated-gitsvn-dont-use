@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace RosTEGUI
 {
@@ -28,10 +29,6 @@ namespace RosTEGUI
             strFmt = new StringFormat();
             strFmt.Alignment = StringAlignment.Center;
             strFmt.LineAlignment = StringAlignment.Center;
-            this.BorderStyle = BorderStyle.FixedSingle;
-            this.Cursor = Cursors.Hand;
-            this.DrawMode = DrawMode.OwnerDrawFixed;
-            this.FormattingEnabled = true;
         }
 
 
@@ -88,19 +85,22 @@ namespace RosTEGUI
         {
             if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
             {
-                e.Graphics.FillRectangle(Brushes.CornflowerBlue, e.Bounds);
+                LinearGradientBrush lgb = new LinearGradientBrush(e.Bounds,
+                                                                  Color.LightSteelBlue,
+                                                                  Color.SteelBlue,
+                                                                  65f,
+                                                                  true);
+                GraphicsPath gp = DrawBorder(e);
+                e.Graphics.FillPath(lgb, gp);
+                DrawGlow(e, gp);
+
+                gp.Dispose();
+                lgb.Dispose();
             }
             else
             {
                 e.Graphics.FillRectangle(Brushes.White, e.Bounds);
             }
-
-            /*
-            e.Graphics.DrawLine(Pens.DarkGray,
-                                e.Bounds.X,
-                                e.Bounds.Y,
-                                e.Bounds.X + e.Bounds.Width,
-                                e.Bounds.Y);*/
 
             imgLst.Draw(e.Graphics,
                         e.Bounds.Right - (e.Bounds.Right / 2) - (imgLst.ImageSize.Width / 2),
@@ -118,7 +118,60 @@ namespace RosTEGUI
                                   titleBounds,
                                   aligment);
 
-            e.DrawFocusRectangle();
+        }
+
+        protected GraphicsPath DrawBorder(DrawItemEventArgs e)
+        {
+            Rectangle rct = e.Bounds;
+            GraphicsPath gp = new GraphicsPath();
+            int ArcWidth = 10;
+
+            rct.Width -= 1;
+            rct.Inflate(-1, -1);
+
+            Rectangle arcRct = new Rectangle(rct.X, rct.Y, ArcWidth, ArcWidth);
+            Point pt1 = new Point(rct.X + ArcWidth, rct.Y);
+            Point pt2 = new Point(rct.X + rct.Width - ArcWidth, rct.Y);
+
+
+            gp.AddArc(arcRct, 180, 90);
+            gp.AddLine(pt1, pt2);
+
+            arcRct.Location = pt2;
+            gp.AddArc(arcRct, 270, 90);
+
+            pt1 = new Point(rct.X + rct.Width, rct.Y + ArcWidth);
+            pt2 = new Point(rct.X + rct.Width, rct.Y + rct.Height - ArcWidth);
+            gp.AddLine(pt1, pt2);
+
+            arcRct.Y = pt2.Y;
+            gp.AddArc(arcRct, 0, 90);
+
+            pt1 = new Point(rct.X + rct.Width - ArcWidth, rct.Y + rct.Height);
+            pt2 = new Point(rct.X + ArcWidth, rct.Y + rct.Height);
+            gp.AddLine(pt1, pt2);
+
+            arcRct.X = rct.X;
+            gp.AddArc(arcRct, 90, 90);
+
+            gp.CloseFigure();
+
+            e.Graphics.DrawPath(new Pen(Color.Black, 1), gp);
+
+            return gp;
+        }
+
+        private void DrawGlow(DrawItemEventArgs e, GraphicsPath gp)
+        {
+            RectangleF rctf = gp.GetBounds();
+
+            LinearGradientBrush lgBrush = new LinearGradientBrush(rctf,
+                                                                  Color.FromArgb(150, Color.White),
+                                                                  Color.FromArgb(0, Color.White),
+                                                                  90f,
+                                                                  true);
+            e.Graphics.FillPath(lgBrush, gp);
+            lgBrush.Dispose();
         }
     }
 }
