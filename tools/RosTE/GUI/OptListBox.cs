@@ -90,8 +90,9 @@ namespace RosTEGUI
                                                                   Color.SteelBlue,
                                                                   65f,
                                                                   true);
-                GraphicsPath gp = DrawBorder(e);
+                GraphicsPath gp = BuildPath(e);
                 e.Graphics.FillPath(lgb, gp);
+                e.Graphics.DrawPath(new Pen(Color.Black, 1), gp);
                 DrawGlow(e, gp);
 
                 gp.Dispose();
@@ -120,7 +121,7 @@ namespace RosTEGUI
 
         }
 
-        protected GraphicsPath DrawBorder(DrawItemEventArgs e)
+        protected GraphicsPath BuildPath(DrawItemEventArgs e)
         {
             Rectangle rct = e.Bounds;
             GraphicsPath gp = new GraphicsPath();
@@ -155,8 +156,6 @@ namespace RosTEGUI
             gp.AddArc(arcRct, 90, 90);
 
             gp.CloseFigure();
-
-            e.Graphics.DrawPath(new Pen(Color.Black, 1), gp);
 
             return gp;
         }

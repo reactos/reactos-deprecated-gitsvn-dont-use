@@ -59,7 +59,6 @@ namespace RosTEGUI
             optionsPanels[0].Visible = true;
             hardwareSelLstBox.SelectedItem = hardwareSelLstBox.Items[0];
             optionsSelLstBox.SelectedItem = optionsSelLstBox.Items[0];
-
         }
 
         private void listboxSelection_SelectedIndexChanged(object sender, EventArgs e)
@@ -114,8 +113,6 @@ namespace RosTEGUI
         private void hardwareSelLstBox_MouseEnter(object sender, EventArgs e)
         {
             ListBox listbox = (ListBox)sender;
-
-            listbox.Invalidate();
         }
     }
 }
