@@ -105,7 +105,6 @@ namespace RosTEGUI
             this.settingsHelpBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.TabControl();
             this.settingsHardwareTab = new System.Windows.Forms.TabPage();
-            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.settingsOptionsTab = new System.Windows.Forms.TabPage();
             this.optionsContainerPanel = new System.Windows.Forms.Panel();
             this.optionsTempDesignSheetTab = new System.Windows.Forms.TabControl();
@@ -129,8 +128,9 @@ namespace RosTEGUI
             this.tabPage11 = new System.Windows.Forms.TabPage();
             this.advancedPanel = new System.Windows.Forms.Panel();
             this.advancedGrpBox = new System.Windows.Forms.GroupBox();
-            this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
+            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
+            this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.hardwareContainerPanel.SuspendLayout();
             this.hardwareTempDesignSheetTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -177,18 +177,18 @@ namespace RosTEGUI
             // optListBoxImgLst
             // 
             this.optListBoxImgLst.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("optListBoxImgLst.ImageStream")));
-            this.optListBoxImgLst.TransparentColor = System.Drawing.Color.Transparent;
-            this.optListBoxImgLst.Images.SetKeyName(0, "memory.png");
+            this.optListBoxImgLst.TransparentColor = System.Drawing.Color.White;
+            this.optListBoxImgLst.Images.SetKeyName(0, "memory.ico");
             this.optListBoxImgLst.Images.SetKeyName(1, "cdrom.ico");
-            this.optListBoxImgLst.Images.SetKeyName(2, "harddisk.png");
-            this.optListBoxImgLst.Images.SetKeyName(3, "floppy.png");
-            this.optListBoxImgLst.Images.SetKeyName(4, "network.png");
-            this.optListBoxImgLst.Images.SetKeyName(5, "audio.bmp");
-            this.optListBoxImgLst.Images.SetKeyName(6, "display.png");
-            this.optListBoxImgLst.Images.SetKeyName(7, "general.png");
-            this.optListBoxImgLst.Images.SetKeyName(8, "power.png");
-            this.optListBoxImgLst.Images.SetKeyName(9, "snapshot.png");
-            this.optListBoxImgLst.Images.SetKeyName(10, "advanced.png");
+            this.optListBoxImgLst.Images.SetKeyName(2, "harddisk.ico");
+            this.optListBoxImgLst.Images.SetKeyName(3, "floppy.ico");
+            this.optListBoxImgLst.Images.SetKeyName(4, "network.ico");
+            this.optListBoxImgLst.Images.SetKeyName(5, "audio.ico");
+            this.optListBoxImgLst.Images.SetKeyName(6, "display.ico");
+            this.optListBoxImgLst.Images.SetKeyName(7, "general.ico");
+            this.optListBoxImgLst.Images.SetKeyName(8, "power.ico");
+            this.optListBoxImgLst.Images.SetKeyName(9, "snapshot.ico");
+            this.optListBoxImgLst.Images.SetKeyName(10, "advanced.ico");
             // 
             // hardwareContainerPanel
             // 
@@ -924,20 +924,6 @@ namespace RosTEGUI
             this.settingsHardwareTab.Text = "Hardware";
             this.settingsHardwareTab.UseVisualStyleBackColor = true;
             // 
-            // hardwareSelLstBox
-            // 
-            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.hardwareSelLstBox.FormattingEnabled = true;
-            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
-            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
-            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
-            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 340);
-            this.hardwareSelLstBox.TabIndex = 0;
-            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
-            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
-            // 
             // settingsOptionsTab
             // 
             this.settingsOptionsTab.Controls.Add(this.optionsContainerPanel);
@@ -1164,6 +1150,20 @@ namespace RosTEGUI
             this.advancedGrpBox.TabIndex = 0;
             this.advancedGrpBox.TabStop = false;
             this.advancedGrpBox.Text = "Advanced";
+            // 
+            // hardwareSelLstBox
+            // 
+            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.hardwareSelLstBox.FormattingEnabled = true;
+            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
+            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
+            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
+            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 340);
+            this.hardwareSelLstBox.TabIndex = 0;
+            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
+            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
             // 
             // optionsSelLstBox
             // 
