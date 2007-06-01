@@ -25,7 +25,7 @@ namespace RosTEGUI
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ImageListView = new System.Windows.Forms.ListView();
             this.columnName = new System.Windows.Forms.ColumnHeader();
@@ -36,8 +36,6 @@ namespace RosTEGUI
             this.columnAudio = new System.Windows.Forms.ColumnHeader();
             this.columnDebug = new System.Windows.Forms.ColumnHeader();
             this.mainImageList = new System.Windows.Forms.ImageList(this.components);
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.openFile = new System.Windows.Forms.OpenFileDialog();
             this.toolbarLaunch = new System.Windows.Forms.ToolStripButton();
             this.toolbarStop = new System.Windows.Forms.ToolStripButton();
             this.toolbarSep1 = new System.Windows.Forms.ToolStripSeparator();
@@ -75,7 +73,7 @@ namespace RosTEGUI
             this.columnDebug});
             this.ImageListView.FullRowSelect = true;
             this.ImageListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem2});
             this.ImageListView.Location = new System.Drawing.Point(12, 52);
             this.ImageListView.Name = "ImageListView";
             this.ImageListView.Size = new System.Drawing.Size(516, 237);
@@ -122,11 +120,6 @@ namespace RosTEGUI
             this.mainImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("mainImageList.ImageStream")));
             this.mainImageList.TransparentColor = System.Drawing.Color.Transparent;
             this.mainImageList.Images.SetKeyName(0, "images.png");
-            // 
-            // openFile
-            // 
-            this.openFile.Title = "Path to VDK";
-            this.openFile.ValidateNames = false;
             // 
             // toolbarLaunch
             // 
@@ -342,8 +335,6 @@ namespace RosTEGUI
         private System.Windows.Forms.ColumnHeader columnDebug;
         private System.Windows.Forms.ImageList mainImageList;
         private System.ComponentModel.IContainer components;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
-        private System.Windows.Forms.OpenFileDialog openFile;
         private System.Windows.Forms.ToolStripButton toolbarLaunch;
         private System.Windows.Forms.ToolStripButton toolbarStop;
         private System.Windows.Forms.ToolStripSeparator toolbarSep1;

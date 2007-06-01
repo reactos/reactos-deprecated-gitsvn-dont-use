@@ -12,6 +12,7 @@ namespace RosTEGUI
         [MTAThread]
         static void Main()
         {
+            Application.EnableVisualStyles();
             Application.Run(new MainForm());
         }
     }
