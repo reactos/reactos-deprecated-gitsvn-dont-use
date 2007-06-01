@@ -34,11 +34,8 @@ namespace RosTEGUI
             optionsSelLstBox.Items.Add(new OptListBoxItem("Power", 8));
             optionsSelLstBox.Items.Add(new OptListBoxItem("Snapshots", 9));
             optionsSelLstBox.Items.Add(new OptListBoxItem("Advanced", 10));
-            
-            hardwareSelLstBox.ItemHeight = hardwareSelLstBox.Height / hardwareSelLstBox.Items.Count;
-            hardwareSelLstBox.SelectedItem = 0;
-            hardwareSelLstBox.SelectedValue = 0;
 
+            hardwareSelLstBox.ItemHeight = hardwareSelLstBox.Height / hardwareSelLstBox.Items.Count;
             optionsSelLstBox.ItemHeight = hardwareSelLstBox.ItemHeight;
 
             hardwarePanels = new Panel[] { memoryPanel, cdromPanel, harddiskPanel, networkPanel, ethernetPanel, audioPanel, displayPanel };
@@ -60,6 +57,8 @@ namespace RosTEGUI
             optionsTempDesignSheetTab.Visible = false;
             hardwarePanels[0].Visible = true;
             optionsPanels[0].Visible = true;
+            hardwareSelLstBox.SelectedItem = hardwareSelLstBox.Items[0];
+            optionsSelLstBox.SelectedItem = optionsSelLstBox.Items[0];
 
         }
 
