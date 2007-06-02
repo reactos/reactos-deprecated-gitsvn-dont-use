@@ -823,7 +823,7 @@ $wgUseCommaCount = false;
  * every n hits. Should be set to either 1 or something largish, eg 1000, for
  * maximum efficiency.
 */
-$wgHitcounterUpdateFreq = 1;
+$wgHitcounterUpdateFreq = 1000;
 
 # Basic user rights and block settings
 $wgSysopUserBans        = true; # Allow sysops to ban logged-in users
