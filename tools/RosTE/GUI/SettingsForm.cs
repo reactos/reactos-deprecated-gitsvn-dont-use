@@ -59,12 +59,13 @@ namespace RosTEGUI
             optionsSelLstBox.Items.Add(new OptListBoxItem("Power", 8));
             optionsSelLstBox.Items.Add(new OptListBoxItem("Snapshots", 9));
             optionsSelLstBox.Items.Add(new OptListBoxItem("Advanced", 10));
+            optionsSelLstBox.Items.Add(new OptListBoxItem("Debug", 11));
 
             hardwareSelLstBox.ItemHeight = hardwareSelLstBox.Height / hardwareSelLstBox.Items.Count;
             optionsSelLstBox.ItemHeight = hardwareSelLstBox.ItemHeight;
 
             hardwarePanels = new Panel[] { memoryPanel, cdromPanel, harddiskPanel, networkPanel, ethernetPanel, audioPanel, displayPanel };
-            optionsPanels = new Panel[] { generalPanel, powerPanel, snapshotsPanel, advancedPanel};
+            optionsPanels = new Panel[] { generalPanel, powerPanel, snapshotsPanel, advancedPanel, debugPanel};
 
             foreach (Panel pan in hardwarePanels)
             {
@@ -150,6 +151,20 @@ namespace RosTEGUI
         private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
         {
             memoryTrkBar.Value = (int)memoryUpDwn.Value;
+        }
+
+        private void cdromEnableChkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            bool bEnabled = cdromEnableChkBox.Checked;
+
+            cdromConGrpBox.Enabled = bEnabled;
+        }
+
+        private void floppyEnableChkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            bool bEnabled = floppyEnableChkBox.Checked;
+
+            floppyConnGrpBox.Enabled = bEnabled;
         }
     }
 }

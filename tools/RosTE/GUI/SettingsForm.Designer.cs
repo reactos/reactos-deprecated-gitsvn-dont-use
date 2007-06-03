@@ -141,6 +141,9 @@ namespace RosTEGUI
             this.advancedPanel = new System.Windows.Forms.Panel();
             this.advancedGrpBox = new System.Windows.Forms.GroupBox();
             this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
+            this.tabPage12 = new System.Windows.Forms.TabPage();
+            this.debugPanel = new System.Windows.Forms.Panel();
+            this.debugGrpBox = new System.Windows.Forms.GroupBox();
             this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.hardwareContainerPanel.SuspendLayout();
@@ -185,6 +188,8 @@ namespace RosTEGUI
             this.snapshotsPanel.SuspendLayout();
             this.tabPage11.SuspendLayout();
             this.advancedPanel.SuspendLayout();
+            this.tabPage12.SuspendLayout();
+            this.debugPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // optListBoxImgLst
@@ -202,6 +207,7 @@ namespace RosTEGUI
             this.optListBoxImgLst.Images.SetKeyName(8, "power.ico");
             this.optListBoxImgLst.Images.SetKeyName(9, "snapshot.ico");
             this.optListBoxImgLst.Images.SetKeyName(10, "advanced.ico");
+            this.optListBoxImgLst.Images.SetKeyName(11, "debug.ico");
             // 
             // hardwareContainerPanel
             // 
@@ -528,6 +534,7 @@ namespace RosTEGUI
             this.cdromEnableChkBox.TabIndex = 0;
             this.cdromEnableChkBox.Text = "Enable CD-ROM";
             this.cdromEnableChkBox.UseVisualStyleBackColor = true;
+            this.cdromEnableChkBox.CheckedChanged += new System.EventHandler(this.cdromEnableChkBox_CheckedChanged);
             // 
             // tabPage3
             // 
@@ -796,6 +803,7 @@ namespace RosTEGUI
             this.floppyEnableChkBox.TabIndex = 4;
             this.floppyEnableChkBox.Text = "Enable floppy";
             this.floppyEnableChkBox.UseVisualStyleBackColor = true;
+            this.floppyEnableChkBox.CheckedChanged += new System.EventHandler(this.floppyEnableChkBox_CheckedChanged);
             // 
             // tabPage5
             // 
@@ -1089,6 +1097,7 @@ namespace RosTEGUI
             this.optionsTempDesignSheetTab.Controls.Add(this.tabPage9);
             this.optionsTempDesignSheetTab.Controls.Add(this.tabPage10);
             this.optionsTempDesignSheetTab.Controls.Add(this.tabPage11);
+            this.optionsTempDesignSheetTab.Controls.Add(this.tabPage12);
             this.optionsTempDesignSheetTab.Location = new System.Drawing.Point(0, 0);
             this.optionsTempDesignSheetTab.Name = "optionsTempDesignSheetTab";
             this.optionsTempDesignSheetTab.SelectedIndex = 0;
@@ -1290,6 +1299,35 @@ namespace RosTEGUI
             this.advancedGrpBox.TabStop = false;
             this.advancedGrpBox.Text = "Advanced";
             // 
+            // tabPage12
+            // 
+            this.tabPage12.Controls.Add(this.debugPanel);
+            this.tabPage12.Location = new System.Drawing.Point(4, 22);
+            this.tabPage12.Name = "tabPage12";
+            this.tabPage12.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage12.Size = new System.Drawing.Size(286, 367);
+            this.tabPage12.TabIndex = 4;
+            this.tabPage12.Text = "Debug";
+            this.tabPage12.UseVisualStyleBackColor = true;
+            // 
+            // debugPanel
+            // 
+            this.debugPanel.Controls.Add(this.debugGrpBox);
+            this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.debugPanel.Location = new System.Drawing.Point(3, 3);
+            this.debugPanel.Name = "debugPanel";
+            this.debugPanel.Size = new System.Drawing.Size(280, 361);
+            this.debugPanel.TabIndex = 1;
+            // 
+            // debugGrpBox
+            // 
+            this.debugGrpBox.Location = new System.Drawing.Point(3, 3);
+            this.debugGrpBox.Name = "debugGrpBox";
+            this.debugGrpBox.Size = new System.Drawing.Size(283, 364);
+            this.debugGrpBox.TabIndex = 0;
+            this.debugGrpBox.TabStop = false;
+            this.debugGrpBox.Text = "Debug";
+            // 
             // hardwareSelLstBox
             // 
             this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -1385,6 +1423,8 @@ namespace RosTEGUI
             this.snapshotsPanel.ResumeLayout(false);
             this.tabPage11.ResumeLayout(false);
             this.advancedPanel.ResumeLayout(false);
+            this.tabPage12.ResumeLayout(false);
+            this.debugPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1505,5 +1545,8 @@ namespace RosTEGUI
         private System.Windows.Forms.GroupBox memoryGrpBox1;
         private System.Windows.Forms.Label memoryPhyRam;
         private System.Windows.Forms.Label memoryLabel2;
+        private System.Windows.Forms.TabPage tabPage12;
+        private System.Windows.Forms.Panel debugPanel;
+        private System.Windows.Forms.GroupBox debugGrpBox;
     }
 }
