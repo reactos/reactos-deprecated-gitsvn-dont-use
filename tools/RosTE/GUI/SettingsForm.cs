@@ -5,6 +5,9 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Management;
+using System.Runtime.InteropServices;
+
 
 namespace RosTEGUI
 {
@@ -18,6 +21,28 @@ namespace RosTEGUI
         public SettingsForm()
         {
             InitializeComponent();
+        }
+
+        private void LoadDynamicControlInfo()
+        {
+            // set the memory dialog info
+            ulong totMem = Native.Memory.GetTotalMemory();
+            if (totMem != 0)
+            {
+                totMem /= 1048576; //(1024^2)
+                memoryPhyRam.Text = Convert.ToString(totMem) + " MB";
+
+                memoryTrkBar.Maximum = Convert.ToInt32(totMem) * 2;
+                memoryTrkBar.TickFrequency = memoryTrkBar.Maximum / 20;
+                memoryUpDwn.Maximum = memoryTrkBar.Maximum;
+
+                memoryMinLab.Text = Convert.ToString(0) + " MB";
+                memoryMaxLab.Text = memoryTrkBar.Maximum.ToString() + " MB";
+
+                memoryRecMin.Text = Convert.ToString(totMem / 8) + " MB";
+                memoryRec.Text = Convert.ToString(totMem / 4) + " MB";
+                memoryRecMax.Text = Convert.ToString(totMem / 1.4) + " MB";
+            }
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
@@ -59,6 +84,8 @@ namespace RosTEGUI
             optionsPanels[0].Visible = true;
             hardwareSelLstBox.SelectedItem = hardwareSelLstBox.Items[0];
             optionsSelLstBox.SelectedItem = optionsSelLstBox.Items[0];
+
+            LoadDynamicControlInfo();
         }
 
         private void listboxSelection_SelectedIndexChanged(object sender, EventArgs e)
@@ -113,6 +140,16 @@ namespace RosTEGUI
         private void hardwareSelLstBox_MouseEnter(object sender, EventArgs e)
         {
             ListBox listbox = (ListBox)sender;
+        }
+
+        private void memoryTrkBar_Scroll(object sender, EventArgs e)
+        {
+            memoryUpDwn.Value = memoryTrkBar.Value;
+        }
+
+        private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
+        {
+            memoryTrkBar.Value = (int)memoryUpDwn.Value;
         }
     }
 }

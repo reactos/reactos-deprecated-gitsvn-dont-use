@@ -36,7 +36,19 @@ namespace RosTEGUI
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.memoryPanel = new System.Windows.Forms.Panel();
             this.memoryGrpBox = new System.Windows.Forms.GroupBox();
-            this.memoryLabel = new System.Windows.Forms.Label();
+            this.memoryPhyRam = new System.Windows.Forms.Label();
+            this.memoryLabel2 = new System.Windows.Forms.Label();
+            this.memoryGrpBox1 = new System.Windows.Forms.GroupBox();
+            this.memoryLabel6 = new System.Windows.Forms.Label();
+            this.memoryRecMax = new System.Windows.Forms.Label();
+            this.memoryRec = new System.Windows.Forms.Label();
+            this.memoryRecMin = new System.Windows.Forms.Label();
+            this.memoryLabel5 = new System.Windows.Forms.Label();
+            this.memoryLabel4 = new System.Windows.Forms.Label();
+            this.memoryLabel3 = new System.Windows.Forms.Label();
+            this.memoryMaxLab = new System.Windows.Forms.Label();
+            this.memoryMinLab = new System.Windows.Forms.Label();
+            this.memoryLabel1 = new System.Windows.Forms.Label();
             this.memoryUpDwn = new System.Windows.Forms.NumericUpDown();
             this.memoryTrkBar = new System.Windows.Forms.TrackBar();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -136,6 +148,7 @@ namespace RosTEGUI
             this.tabPage1.SuspendLayout();
             this.memoryPanel.SuspendLayout();
             this.memoryGrpBox.SuspendLayout();
+            this.memoryGrpBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).BeginInit();
             this.tabPage2.SuspendLayout();
@@ -235,7 +248,18 @@ namespace RosTEGUI
             // 
             // memoryGrpBox
             // 
-            this.memoryGrpBox.Controls.Add(this.memoryLabel);
+            this.memoryGrpBox.Controls.Add(this.memoryPhyRam);
+            this.memoryGrpBox.Controls.Add(this.memoryLabel2);
+            this.memoryGrpBox.Controls.Add(this.memoryGrpBox1);
+            this.memoryGrpBox.Controls.Add(this.memoryRecMax);
+            this.memoryGrpBox.Controls.Add(this.memoryRec);
+            this.memoryGrpBox.Controls.Add(this.memoryRecMin);
+            this.memoryGrpBox.Controls.Add(this.memoryLabel5);
+            this.memoryGrpBox.Controls.Add(this.memoryLabel4);
+            this.memoryGrpBox.Controls.Add(this.memoryLabel3);
+            this.memoryGrpBox.Controls.Add(this.memoryMaxLab);
+            this.memoryGrpBox.Controls.Add(this.memoryMinLab);
+            this.memoryGrpBox.Controls.Add(this.memoryLabel1);
             this.memoryGrpBox.Controls.Add(this.memoryUpDwn);
             this.memoryGrpBox.Controls.Add(this.memoryTrkBar);
             this.memoryGrpBox.Location = new System.Drawing.Point(3, 3);
@@ -245,29 +269,144 @@ namespace RosTEGUI
             this.memoryGrpBox.TabStop = false;
             this.memoryGrpBox.Text = "Memory";
             // 
-            // memoryLabel
+            // memoryPhyRam
             // 
-            this.memoryLabel.AutoSize = true;
-            this.memoryLabel.Location = new System.Drawing.Point(6, 32);
-            this.memoryLabel.Name = "memoryLabel";
-            this.memoryLabel.Size = new System.Drawing.Size(229, 26);
-            this.memoryLabel.TabIndex = 2;
-            this.memoryLabel.Text = "Select how much virtual memory you would like\r\nto make available for this virtual" +
+            this.memoryPhyRam.AutoSize = true;
+            this.memoryPhyRam.Location = new System.Drawing.Point(175, 167);
+            this.memoryPhyRam.Name = "memoryPhyRam";
+            this.memoryPhyRam.Size = new System.Drawing.Size(24, 13);
+            this.memoryPhyRam.TabIndex = 14;
+            this.memoryPhyRam.Text = "ram";
+            // 
+            // memoryLabel2
+            // 
+            this.memoryLabel2.AutoSize = true;
+            this.memoryLabel2.Location = new System.Drawing.Point(6, 167);
+            this.memoryLabel2.Name = "memoryLabel2";
+            this.memoryLabel2.Size = new System.Drawing.Size(109, 13);
+            this.memoryLabel2.TabIndex = 13;
+            this.memoryLabel2.Text = "Current physical RAM";
+            // 
+            // memoryGrpBox1
+            // 
+            this.memoryGrpBox1.Controls.Add(this.memoryLabel6);
+            this.memoryGrpBox1.Location = new System.Drawing.Point(9, 272);
+            this.memoryGrpBox1.Name = "memoryGrpBox1";
+            this.memoryGrpBox1.Size = new System.Drawing.Size(265, 63);
+            this.memoryGrpBox1.TabIndex = 12;
+            this.memoryGrpBox1.TabStop = false;
+            this.memoryGrpBox1.Text = "Note";
+            // 
+            // memoryLabel6
+            // 
+            this.memoryLabel6.AutoSize = true;
+            this.memoryLabel6.Location = new System.Drawing.Point(6, 16);
+            this.memoryLabel6.Name = "memoryLabel6";
+            this.memoryLabel6.Size = new System.Drawing.Size(239, 39);
+            this.memoryLabel6.TabIndex = 11;
+            this.memoryLabel6.Text = "The hard disk may be used for anything above\r\nthe recomended maximum, resulting i" +
+                "n significant \r\nperformance loss";
+            // 
+            // memoryRecMax
+            // 
+            this.memoryRecMax.AutoSize = true;
+            this.memoryRecMax.Location = new System.Drawing.Point(175, 242);
+            this.memoryRecMax.Name = "memoryRecMax";
+            this.memoryRecMax.Size = new System.Drawing.Size(26, 13);
+            this.memoryRecMax.TabIndex = 10;
+            this.memoryRecMax.Text = "max";
+            // 
+            // memoryRec
+            // 
+            this.memoryRec.AutoSize = true;
+            this.memoryRec.Location = new System.Drawing.Point(175, 219);
+            this.memoryRec.Name = "memoryRec";
+            this.memoryRec.Size = new System.Drawing.Size(22, 13);
+            this.memoryRec.TabIndex = 9;
+            this.memoryRec.Text = "rec";
+            // 
+            // memoryRecMin
+            // 
+            this.memoryRecMin.AutoSize = true;
+            this.memoryRecMin.Location = new System.Drawing.Point(175, 196);
+            this.memoryRecMin.Name = "memoryRecMin";
+            this.memoryRecMin.Size = new System.Drawing.Size(23, 13);
+            this.memoryRecMin.TabIndex = 8;
+            this.memoryRecMin.Text = "min";
+            // 
+            // memoryLabel5
+            // 
+            this.memoryLabel5.AutoSize = true;
+            this.memoryLabel5.Location = new System.Drawing.Point(6, 242);
+            this.memoryLabel5.Name = "memoryLabel5";
+            this.memoryLabel5.Size = new System.Drawing.Size(117, 13);
+            this.memoryLabel5.TabIndex = 7;
+            this.memoryLabel5.Text = "Recomended maximum";
+            // 
+            // memoryLabel4
+            // 
+            this.memoryLabel4.AutoSize = true;
+            this.memoryLabel4.Location = new System.Drawing.Point(6, 219);
+            this.memoryLabel4.Name = "memoryLabel4";
+            this.memoryLabel4.Size = new System.Drawing.Size(71, 13);
+            this.memoryLabel4.TabIndex = 6;
+            this.memoryLabel4.Text = "Recomended";
+            // 
+            // memoryLabel3
+            // 
+            this.memoryLabel3.AutoSize = true;
+            this.memoryLabel3.Location = new System.Drawing.Point(6, 196);
+            this.memoryLabel3.Name = "memoryLabel3";
+            this.memoryLabel3.Size = new System.Drawing.Size(114, 13);
+            this.memoryLabel3.TabIndex = 5;
+            this.memoryLabel3.Text = "Recomended minimum";
+            // 
+            // memoryMaxLab
+            // 
+            this.memoryMaxLab.AutoSize = true;
+            this.memoryMaxLab.Location = new System.Drawing.Point(189, 133);
+            this.memoryMaxLab.Name = "memoryMaxLab";
+            this.memoryMaxLab.Size = new System.Drawing.Size(26, 13);
+            this.memoryMaxLab.TabIndex = 4;
+            this.memoryMaxLab.Text = "max";
+            this.memoryMaxLab.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // memoryMinLab
+            // 
+            this.memoryMinLab.AutoSize = true;
+            this.memoryMinLab.Location = new System.Drawing.Point(9, 133);
+            this.memoryMinLab.Name = "memoryMinLab";
+            this.memoryMinLab.Size = new System.Drawing.Size(23, 13);
+            this.memoryMinLab.TabIndex = 3;
+            this.memoryMinLab.Text = "min";
+            this.memoryMinLab.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // memoryLabel1
+            // 
+            this.memoryLabel1.AutoSize = true;
+            this.memoryLabel1.Location = new System.Drawing.Point(6, 32);
+            this.memoryLabel1.Name = "memoryLabel1";
+            this.memoryLabel1.Size = new System.Drawing.Size(229, 26);
+            this.memoryLabel1.TabIndex = 2;
+            this.memoryLabel1.Text = "Select how much virtual memory you would like\r\nto make available for this virtual" +
                 " machine";
             // 
             // memoryUpDwn
             // 
-            this.memoryUpDwn.Location = new System.Drawing.Point(216, 85);
+            this.memoryUpDwn.Location = new System.Drawing.Point(221, 85);
             this.memoryUpDwn.Name = "memoryUpDwn";
-            this.memoryUpDwn.Size = new System.Drawing.Size(58, 20);
+            this.memoryUpDwn.Size = new System.Drawing.Size(53, 20);
             this.memoryUpDwn.TabIndex = 1;
+            this.memoryUpDwn.ValueChanged += new System.EventHandler(this.memoryUpDwn_ValueChanged);
             // 
             // memoryTrkBar
             // 
+            this.memoryTrkBar.BackColor = System.Drawing.SystemColors.Window;
             this.memoryTrkBar.Location = new System.Drawing.Point(6, 85);
             this.memoryTrkBar.Name = "memoryTrkBar";
-            this.memoryTrkBar.Size = new System.Drawing.Size(204, 45);
+            this.memoryTrkBar.Size = new System.Drawing.Size(209, 45);
             this.memoryTrkBar.TabIndex = 0;
+            this.memoryTrkBar.Scroll += new System.EventHandler(this.memoryTrkBar_Scroll);
             // 
             // tabPage2
             // 
@@ -1199,6 +1338,8 @@ namespace RosTEGUI
             this.memoryPanel.ResumeLayout(false);
             this.memoryGrpBox.ResumeLayout(false);
             this.memoryGrpBox.PerformLayout();
+            this.memoryGrpBox1.ResumeLayout(false);
+            this.memoryGrpBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).EndInit();
             this.tabPage2.ResumeLayout(false);
@@ -1296,7 +1437,7 @@ namespace RosTEGUI
         private System.Windows.Forms.Panel optionsContainerPanel;
         private System.Windows.Forms.NumericUpDown memoryUpDwn;
         private System.Windows.Forms.TrackBar memoryTrkBar;
-        private System.Windows.Forms.Label memoryLabel;
+        private System.Windows.Forms.Label memoryLabel1;
         private System.Windows.Forms.Label cdromLabel;
         private System.Windows.Forms.CheckBox cdromEnableChkBox;
         private System.Windows.Forms.GroupBox cdromConGrpBox;
@@ -1352,5 +1493,17 @@ namespace RosTEGUI
 
         private RosTEGUI.OptListBox hardwareSelLstBox;
         private RosTEGUI.OptListBox optionsSelLstBox;
+        private System.Windows.Forms.Label memoryMaxLab;
+        private System.Windows.Forms.Label memoryMinLab;
+        private System.Windows.Forms.Label memoryLabel3;
+        private System.Windows.Forms.Label memoryLabel6;
+        private System.Windows.Forms.Label memoryRecMax;
+        private System.Windows.Forms.Label memoryRec;
+        private System.Windows.Forms.Label memoryRecMin;
+        private System.Windows.Forms.Label memoryLabel5;
+        private System.Windows.Forms.Label memoryLabel4;
+        private System.Windows.Forms.GroupBox memoryGrpBox1;
+        private System.Windows.Forms.Label memoryPhyRam;
+        private System.Windows.Forms.Label memoryLabel2;
     }
 }
