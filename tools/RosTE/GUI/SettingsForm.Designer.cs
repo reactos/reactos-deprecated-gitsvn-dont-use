@@ -278,7 +278,7 @@ namespace RosTEGUI
             // memoryPhyRam
             // 
             this.memoryPhyRam.AutoSize = true;
-            this.memoryPhyRam.Location = new System.Drawing.Point(175, 167);
+            this.memoryPhyRam.Location = new System.Drawing.Point(175, 161);
             this.memoryPhyRam.Name = "memoryPhyRam";
             this.memoryPhyRam.Size = new System.Drawing.Size(24, 13);
             this.memoryPhyRam.TabIndex = 14;
@@ -287,7 +287,7 @@ namespace RosTEGUI
             // memoryLabel2
             // 
             this.memoryLabel2.AutoSize = true;
-            this.memoryLabel2.Location = new System.Drawing.Point(6, 167);
+            this.memoryLabel2.Location = new System.Drawing.Point(6, 161);
             this.memoryLabel2.Name = "memoryLabel2";
             this.memoryLabel2.Size = new System.Drawing.Size(109, 13);
             this.memoryLabel2.TabIndex = 13;
@@ -370,7 +370,7 @@ namespace RosTEGUI
             // memoryMaxLab
             // 
             this.memoryMaxLab.AutoSize = true;
-            this.memoryMaxLab.Location = new System.Drawing.Point(189, 133);
+            this.memoryMaxLab.Location = new System.Drawing.Point(189, 120);
             this.memoryMaxLab.Name = "memoryMaxLab";
             this.memoryMaxLab.Size = new System.Drawing.Size(26, 13);
             this.memoryMaxLab.TabIndex = 4;
@@ -380,7 +380,7 @@ namespace RosTEGUI
             // memoryMinLab
             // 
             this.memoryMinLab.AutoSize = true;
-            this.memoryMinLab.Location = new System.Drawing.Point(9, 133);
+            this.memoryMinLab.Location = new System.Drawing.Point(6, 120);
             this.memoryMinLab.Name = "memoryMinLab";
             this.memoryMinLab.Size = new System.Drawing.Size(23, 13);
             this.memoryMinLab.TabIndex = 3;
@@ -407,7 +407,7 @@ namespace RosTEGUI
             // 
             // memoryTrkBar
             // 
-            this.memoryTrkBar.BackColor = System.Drawing.SystemColors.Window;
+            this.memoryTrkBar.BackColor = System.Drawing.SystemColors.Menu;
             this.memoryTrkBar.Location = new System.Drawing.Point(6, 85);
             this.memoryTrkBar.Name = "memoryTrkBar";
             this.memoryTrkBar.Size = new System.Drawing.Size(209, 45);
