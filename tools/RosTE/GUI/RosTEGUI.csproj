@@ -174,9 +174,6 @@
     <Content Include="ros.ico" />
   </ItemGroup>
   <ItemGroup>
-    <BaseApplicationManifest Include="Properties\app.manifest" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
