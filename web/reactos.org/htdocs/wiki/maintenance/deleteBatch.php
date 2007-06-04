@@ -3,11 +3,10 @@
 # delete a batch of pages
 # Usage: php deleteBatch.php [-u <user>] [-r <reason>] [-i <interval>] <listfile>
 # where
-# 	<listfile> is a file where each line has two titles separated by a pipe
-# character. The first title is the source, the second is the destination.
+# 	<listfile> is a file where each line contains the title of a page to be deleted.
 #	<user> is the username
-#	<reason> is the move reason
-#	<interval> is the number of seconds to sleep for after each move
+#	<reason> is the delete reason
+#	<interval> is the number of seconds to sleep for after each delete
 
 $oldCwd = getcwd();
 $optionsWithArgs = array( 'u', 'r', 'i' );
@@ -46,12 +45,12 @@ if ( !$file ) {
 	exit;
 }
 
-$dbw =& wfGetDB( DB_MASTER );
+$dbw = wfGetDB( DB_MASTER );
 
 for ( $linenum = 1; !feof( $file ); $linenum++ ) {
 	$line = trim( fgets( $file ) );
-	if ( $line === false ) {
-		break;
+	if ( $line == '' ) {
+		continue;
 	}
 	$page = Title::newFromText( $line );
 	if ( is_null( $page ) ) {
@@ -71,9 +70,13 @@ for ( $linenum = 1; !feof( $file ); $linenum++ ) {
 	} else {
 		$art = new Article( $page );
 	}
-	$art->doDelete( $reason );
+	$success = $art->doDeleteArticle( $reason );
 	$dbw->immediateCommit();
-	print "\n";
+	if ( $success ) {
+		print "\n";
+	} else {
+		print " FAILED\n";
+	}
 
 	if ( $interval ) {
 		sleep( $interval );

@@ -5,7 +5,7 @@ define( 'REPORTING_INTERVAL', 100 );
 if ( !defined( 'MEDIAWIKI' ) ) {
 	$optionsWithArgs = array( 'm' );
 
-	require_once( '../commandLine.inc' );
+	require_once( dirname(__FILE__) . '/../commandLine.inc' );
 	require_once( 'includes/ExternalStoreDB.php' );
 
 	resolveStubs();
@@ -18,21 +18,17 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 function resolveStubs() {
 	$fname = 'resolveStubs';
 
-	$dbr =& wfGetDB( DB_SLAVE );
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbr = wfGetDB( DB_SLAVE );
 	$maxID = $dbr->selectField( 'text', 'MAX(old_id)', false, $fname );
 	$blockSize = 10000;
 	$numBlocks = intval( $maxID / $blockSize ) + 1;
 
 	for ( $b = 0; $b < $numBlocks; $b++ ) {
-		wfWaitForSlaves( 5 );
+		wfWaitForSlaves( 2 );
 		
 		printf( "%5.2f%%\n", $b / $numBlocks * 100 );
 		$start = intval($maxID / $numBlocks) * $b + 1;
 		$end = intval($maxID / $numBlocks) * ($b + 1);
-		$stubs = array();
-		$flagsArray = array();
-
 		
 		$res = $dbr->select( 'text', array( 'old_id', 'old_text', 'old_flags' ),
 			"old_id>=$start AND old_id<=$end " .
@@ -40,7 +36,7 @@ function resolveStubs() {
 			#"AND old_flags LIKE '%object%' AND old_flags NOT LIKE '%external%' ".
 			
 			"AND old_flags='object' " .
-			"AND old_text LIKE 'O:15:\"historyblobstub\"%'", $fname );
+			"AND LOWER(LEFT(old_text,22)) = 'O:15:\"historyblobstub\"'", $fname );
 		while ( $row = $dbr->fetchObject( $res ) ) {
 			resolveStub( $row->old_id, $row->old_text, $row->old_flags );
 		}
@@ -60,8 +56,8 @@ function resolveStub( $id, $stubText, $flags ) {
 	$stub = unserialize( $stubText );
 	$flags = explode( ',', $flags );
 
-	$dbr =& wfGetDB( DB_SLAVE );
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbr = wfGetDB( DB_SLAVE );
+	$dbw = wfGetDB( DB_MASTER );
 
 	if ( strtolower( get_class( $stub ) ) !== 'historyblobstub' ) {
 		print "Error found object of class " . get_class( $stub ) . ", expecting historyblobstub\n";
@@ -87,6 +83,7 @@ function resolveStub( $id, $stubText, $flags ) {
 	}
 
 	# Update the row
+	#print "oldid=$id\n";
 	$dbw->update( 'text',
 		array( /* SET */
 			'old_flags' => $newFlags,

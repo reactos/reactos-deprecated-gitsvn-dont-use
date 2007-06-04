@@ -1,15 +1,12 @@
 <?php
 /**
  *
- * @package MediaWiki
  *
  * DB accessable external objects
  *
  */
-require_once( 'LoadBalancer.php' );
 
 
-/** @package MediaWiki */
 
 /**
  * External database storage will use one (or more) separate connection pools

@@ -1,0 +1,7 @@
+/* Fixes needed for all Opera versions (tested up to 9.21). Added for RosCMS */
+
+#p-cactions {
+	position: absolute;
+	left: 157px;
+	top: 176px;
+}

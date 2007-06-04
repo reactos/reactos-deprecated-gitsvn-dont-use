@@ -1,18 +1,12 @@
 <?php
 /**
- * A special page that displays a list of pages that are not on anyones watchlist
+ * A special page that displays a list of pages that are not on anyones watchlist.
+ * Implements Special:Unwatchedpages
  *
- * @package MediaWiki
- * @subpackage SpecialPage
- *
+ * @addtogroup SpecialPage
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
- */
-
-/**
- * @package MediaWiki
- * @subpackage SpecialPage
  */
 class UnwatchedpagesPage extends QueryPage {
 
@@ -21,8 +15,8 @@ class UnwatchedpagesPage extends QueryPage {
 	function isSyndicated() { return false; }
 
 	function getSQL() {
-		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'page', 'watchlist' ) );
+		$dbr = wfGetDB( DB_SLAVE );
+		list( $page, $watchlist ) = $dbr->tableNamesN( 'page', 'watchlist' );
 		$mwns = NS_MEDIAWIKI;
 		return
 			"

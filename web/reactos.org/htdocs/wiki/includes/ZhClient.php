@@ -1,12 +1,10 @@
 <?php
 /**
- * @package MediaWiki
  */
 
 /**
  * Client for querying zhdaemon
  *
- * @package MediaWiki
  */
 class ZhClient {
 	var $mHost, $mPort, $mFP, $mConnected;
@@ -38,6 +36,7 @@ class ZhClient {
 	 */
 	function connect() {
 		wfSuppressWarnings();
+		$errno = $errstr = '';
 		$this->mFP = fsockopen($this->mHost, $this->mPort, $errno, $errstr, 30);
 		wfRestoreWarnings();
 		if(!$this->mFP) {
@@ -115,7 +114,6 @@ class ZhClient {
 		foreach($info as $variant) {
 			list($code, $len) = explode(' ', $variant);
 			$ret[strtolower($code)] = substr($data, $i, $len);
-			$r = $ret[strtolower($code)];
 			$i+=$len;
 		}
 		return $ret;

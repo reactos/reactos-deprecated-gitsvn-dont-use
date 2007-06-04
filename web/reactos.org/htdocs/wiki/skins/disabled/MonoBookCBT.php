@@ -238,9 +238,9 @@ class SkinMonoBookCBT extends SkinTemplate {
 		if ( !$wgUseSiteJs ) return '';
 		
 		if ( $wgUser->isLoggedIn() ) {
-			$url = $this->makeUrl('-','action=raw&smaxage=0&gen=js');
+			$url = self::makeUrl( '-','action=raw&smaxage=0&gen=js' );
 		} else {
-			$url = $this->makeUrl('-','action=raw&gen=js');
+			$url = self::makeUrl( '-','action=raw&gen=js' );
 		}
 		return cbt_value( $url, 'loggedin' );
 	}
@@ -260,7 +260,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 			global $wgRequest;
 			$usercss = $this->makeStylesheetCdata( $wgRequest->getText('wpTextbox1') );
 		} else {
-			$usercss = $this->makeStylesheetLink( $this->makeUrl($this->getUserPageText() . 
+			$usercss = $this->makeStylesheetLink( self::makeUrl($this->getUserPageText() . 
 				'/'.$this->mStyleName.'.css', 'action=raw&ctype=text/css' ) );
 		}
 
@@ -283,9 +283,8 @@ class SkinMonoBookCBT extends SkinTemplate {
 			$sitecss .= $this->makeStylesheetLink( $wgStylePath . '/' . $this->mStyleName . '/rtl.css' ) . "\n";
 		}
 
-		$sitecss .= $this->makeStylesheetLink( $this->makeNSUrl('Common.css', $query, NS_MEDIAWIKI) ) . "\n";
-		$sitecss .= $this->makeStylesheetLink( $this->makeNSUrl(
-			ucfirst($this->mStyleName) . '.css', $query, NS_MEDIAWIKI) ) . "\n";
+		$sitecss .= $this->makeStylesheetLink( self::makeNSUrl( 'Common.css', $query, NS_MEDIAWIKI ) ) . "\n";
+		$sitecss .= $this->makeStylesheetLink( self::makeNSUrl( ucfirst( $this->mStyleName ) . '.css', $query, NS_MEDIAWIKI ) ) . "\n";
 
 		// No deps
 		return $sitecss;
@@ -308,7 +307,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 			$isTemplate = false;
 		}
 		
-		$link = $this->makeStylesheetLink( $this->makeUrl('-','action=raw&gen=css' . $siteargs) ) . "\n";
+		$link = $this->makeStylesheetLink( self::makeUrl('-','action=raw&gen=css' . $siteargs) ) . "\n";
 
 		if ( $wgAllowUserCss ) {
 			$deps = 'loggedin';
@@ -330,7 +329,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 		if ( $this->isJsPreview() ) {
 			$url = '';
 		} else {
-			$url = $this->makeUrl($this->getUserPageText().'/'.$this->mStyleName.'.js', 'action=raw&ctype='.$wgJsMimeType.'&dontcountme=s');
+			$url = self::makeUrl($this->getUserPageText().'/'.$this->mStyleName.'.js', 'action=raw&ctype='.$wgJsMimeType.'&dontcountme=s');
 		}
 		return cbt_value( $url, array( 'nonview dynamic', 'user' ) );
 	}
@@ -500,8 +499,8 @@ class SkinMonoBookCBT extends SkinTemplate {
 	}
 
 	function is_special() { return cbt_value( $this->mTitle->getNamespace() == NS_SPECIAL, 'title' ); }
-	function can_edit() { return cbt_value( (string)($this->mTitle->userCanEdit()), 'dynamic' ); }
-	function can_move() { return cbt_value( (string)($this->mTitle->userCanMove()), 'dynamic' ); }
+	function can_edit() { return cbt_value( (string)($this->mTitle->userCan( 'edit' )), 'dynamic' ); }
+	function can_move() { return cbt_value( (string)($this->mTitle->userCan( 'move' )), 'dynamic' ); }
 	function is_talk() { return cbt_value( (string)($this->mTitle->isTalkPage()), 'title' ); }
 	function is_protected() { return cbt_value( (string)$this->mTitle->isProtected(), 'dynamic' ); }
 	function nskey() { return cbt_value( $this->mTitle->getNamespaceKey(), 'title' ); }
@@ -765,7 +764,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 	}
 	
 	function logopath() { return $GLOBALS['wgLogo']; }
-	function mainpage() { return $this->makeI18nUrl( 'mainpage' ); }
+	function mainpage() { return self::makeMainPageUrl(); }
 	
 	function sidebar( $startSection, $endSection, $innerTpl ) {
 		$s = '';
@@ -800,7 +799,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 						$text = $line[1];
 					if (wfEmptyMsg($line[0], $link))
 						$link = $line[0];
-					$href = $this->makeInternalOrExternalUrl( $link );
+					$href = self::makeInternalOrExternalUrl( $link );
 					
 					$s .= strtr( $innerTpl,
 						array(
@@ -911,12 +910,12 @@ class SkinMonoBookCBT extends SkinTemplate {
 		} elseif ( $wgUploadNavigationUrl ) {
 			return $wgUploadNavigationUrl;
 		} else {
-			return $this->makeSpecialUrl('Upload');
+			return self::makeSpecialUrl('Upload');
 		}
 	}
 	
 	function nav_specialpages() {
-		return $this->makeSpecialUrl('Specialpages');
+		return self::makeSpecialUrl('Specialpages');
 	}
 	
 	function nav_print() {
@@ -1018,7 +1017,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 		global $wgPageShowWatchingUsers;
 		if ( !$wgPageShowWatchingUsers ) return '';
 
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		extract( $dbr->tableNames( 'watchlist' ) );
 		$sql = "SELECT COUNT(*) AS n FROM $watchlist
 			WHERE wl_title='" . $dbr->strencode($this->mTitle->getDBKey()) .
@@ -1301,7 +1300,7 @@ class SkinMonoBookCBT extends SkinTemplate {
 
 	/** Make a link to a special page using a template */
 	function makeSpecialTemplateLink( $template, $key, $specialName, $text, $query = '' ) {
-		$url = $this->makeSpecialUrl( $specialName, $query );
+		$url = self::makeSpecialUrl( $specialName, $query );
 		// Ignore the query when comparing
 		$active = ($this->mTitle->getNamespace() == NS_SPECIAL && $this->mTitle->getDBkey() == $specialName);
 		return strtr( $template, 

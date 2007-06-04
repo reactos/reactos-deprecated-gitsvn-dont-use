@@ -14,12 +14,12 @@ class DeleteImageCache {
 	}
 
 	function main() {
-		global $wgMemc, $wgDBname;
+		global $wgMemc;
 		$fname = 'DeleteImageCache::main';
 
 		ini_set( 'display_errors', false );
 
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 
 		$res = $dbr->select( 'image',
 			array( 'img_name' ),
@@ -32,9 +32,9 @@ class DeleteImageCache {
 
 		while ( $row = $dbr->fetchObject( $res ) ) {
 			if ($i % $this->report == 0)
-				printf("%s: %13s done (%s)\n", $wgDBname, "$i/$total", wfPercent( $i / $total * 100 ));
+				printf("%s: %13s done (%s)\n", wfWikiID(), "$i/$total", wfPercent( $i / $total * 100 ));
 			$md5 = md5( $row->img_name );
-			$wgMemc->delete( "$wgDBname:Image:$md5" );
+			$wgMemc->delete( wfMemcKey( 'Image', $md5 ) );
 
 			if ($this->sleep != 0)
 				usleep( $this->sleep );
@@ -46,7 +46,7 @@ class DeleteImageCache {
 	function getImageCount() {
 		$fname = 'DeleteImageCache::getImageCount';
 
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		return $dbr->selectField( 'image', 'COUNT(*)', array(), $fname );
 	}
 }

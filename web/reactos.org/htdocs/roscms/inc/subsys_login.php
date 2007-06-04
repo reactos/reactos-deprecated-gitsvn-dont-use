@@ -99,6 +99,11 @@ function roscms_subsys_login($subsys, $login_type, $target)
         /* Login session found */
         $userid = $row[0];
 
+		// For the Wiki, we have to start a session
+		define('MEDIAWIKI', '');
+		require_once("../wiki/includes/GlobalFunctions.php");
+		wfSetupSession();
+		
         if (isset($row[1]))
           {
             /* Session with timeout. Update the expiry time in the table and 

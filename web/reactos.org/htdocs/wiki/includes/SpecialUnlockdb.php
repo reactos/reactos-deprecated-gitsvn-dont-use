@@ -1,8 +1,7 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
@@ -11,10 +10,11 @@
 function wfSpecialUnlockdb() {
 	global $wgUser, $wgOut, $wgRequest;
 
-	if ( ! $wgUser->isAllowed('siteadmin') ) {
-		$wgOut->developerRequired();
+	if( !$wgUser->isAllowed( 'siteadmin' ) ) {
+		$wgOut->permissionRequired( 'siteadmin' );
 		return;
 	}
+
 	$action = $wgRequest->getVal( 'action' );
 	$f = new DBUnlockForm();
 
@@ -30,13 +30,18 @@ function wfSpecialUnlockdb() {
 
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 class DBUnlockForm {
 	function showForm( $err )
 	{
 		global $wgOut, $wgUser;
+
+		global $wgReadOnlyFile;
+		if( !file_exists( $wgReadOnlyFile ) ) {
+			$wgOut->addWikiText( wfMsg( 'databasenotlocked' ) );
+			return;
+		}
 
 		$wgOut->setPagetitle( wfMsg( "unlockdb" ) );
 		$wgOut->addWikiText( wfMsg( "unlockdbtext" ) );
@@ -47,7 +52,7 @@ class DBUnlockForm {
 		}
 		$lc = htmlspecialchars( wfMsg( "unlockconfirm" ) );
 		$lb = htmlspecialchars( wfMsg( "unlockbtn" ) );
-		$titleObj = Title::makeTitle( NS_SPECIAL, "Unlockdb" );
+		$titleObj = SpecialPage::getTitleFor( "Unlockdb" );
 		$action = $titleObj->escapeLocalURL( "action=submit" );
 		$token = htmlspecialchars( $wgUser->editToken() );
 
@@ -87,7 +92,7 @@ END
 			$wgOut->showFileDeleteError( $wgReadOnlyFile );
 			return;
 		}
-		$titleObj = Title::makeTitle( NS_SPECIAL, "Unlockdb" );
+		$titleObj = SpecialPage::getTitleFor( "Unlockdb" );
 		$success = $titleObj->getFullURL( "action=success" );
 		$wgOut->redirect( $success );
 	}

@@ -3,8 +3,7 @@
 /**
  * Support functions for the deleteOldRevisions script
  *
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  * @author Rob Church <robchur@gmail.com>
  */
  
@@ -13,7 +12,7 @@ require_once( 'purgeOldText.inc' );
 function DeleteOldRevisions( $delete = false ) {
 
 	# Data should come off the master, wrapped in a transaction
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	$dbw->begin();
 	
 	$tbl_pag = $dbw->tableName( 'page' );

@@ -3,7 +3,6 @@ if ( ! defined( 'MEDIAWIKI' ) )
 	die( 1 );
 
 /**
- * @package MediaWiki
  */
 
 /**
@@ -11,23 +10,32 @@ if ( ! defined( 'MEDIAWIKI' ) )
  *
  * Add images to the gallery using add(), then render that list to HTML using toHTML().
  *
- * @package MediaWiki
+ * @addtogroup Media
  */
 class ImageGallery
 {
 	var $mImages, $mShowBytes, $mShowFilename;
 	var $mCaption = false;
 	var $mSkin = false;
-	
+
 	/**
 	 * Is the gallery on a wiki page (i.e. not a special page)
 	 */
 	var $mParsing;
 
 	/**
+	 * Contextual title, used when images are being screened
+	 * against the bad image list
+	 */
+	private $contextTitle = false;
+
+	private $mPerRow = 4; // How many images wide should the gallery be?
+	private $mWidths = 120, $mHeights = 120; // How wide/tall each thumbnail should be
+
+	/**
 	 * Create a new image gallery object.
 	 */
-	function ImageGallery( ) {
+	function __construct( ) {
 		$this->mImages = array();
 		$this->mShowBytes = true;
 		$this->mShowFilename = true;
@@ -40,14 +48,56 @@ class ImageGallery
 	function setParsing( $val = true ) {
 		$this->mParsing = $val;
 	}
-	
+
 	/**
-	 * Set the caption
+	 * Set the caption (as plain text)
 	 *
 	 * @param $caption Caption
 	 */
 	function setCaption( $caption ) {
+		$this->mCaption = htmlspecialchars( $caption );
+	}
+
+	/**
+	 * Set the caption (as HTML)
+	 *
+	 * @param $caption Caption
+	 */
+	public function setCaptionHtml( $caption ) {
 		$this->mCaption = $caption;
+	}
+
+	/**
+	 * Set how many images will be displayed per row.
+	 *
+	 * @param int $num > 0; invalid numbers will be rejected
+	 */
+	public function setPerRow( $num ) {
+		if ($num > 0) {
+			$this->mPerRow = (int)$num;
+		}
+	}
+
+	/**
+	 * Set how wide each image will be, in pixels.
+	 *
+	 * @param int $num > 0; invalid numbers will be ignored
+	 */
+	public function setWidths( $num ) {
+		if ($num > 0) {
+			$this->mWidths = (int)$num;
+		}
+	}
+
+	/**
+	 * Set how high each image will be, in pixels.
+	 *
+	 * @param int $num > 0; invalid numbers will be ignored
+	 */
+	public function setHeights( $num ) {
+		if ($num > 0) {
+			$this->mHeights = (int)$num;
+		}
 	}
 
 	/**
@@ -55,10 +105,10 @@ class ImageGallery
 	 *
 	 * @param $skin Skin object
 	 */
-	function useSkin( &$skin ) {
-		$this->mSkin =& $skin;
+	function useSkin( $skin ) {
+		$this->mSkin = $skin;
 	}
-	
+
 	/**
 	 * Return the skin that should be used
 	 *
@@ -67,9 +117,9 @@ class ImageGallery
 	function getSkin() {
 		if( !$this->mSkin ) {
 			global $wgUser;
-			$skin =& $wgUser->getSkin();
+			$skin = $wgUser->getSkin();
 		} else {
-			$skin =& $this->mSkin;
+			$skin = $this->mSkin;
 		}
 		return $skin;
 	}
@@ -82,6 +132,7 @@ class ImageGallery
 	 */
 	function add( $image, $html='' ) {
 		$this->mImages[] = array( &$image, $html );
+		wfDebug( "ImageGallery::add " . $image->getName() . "\n" );
 	}
 
 	/**
@@ -133,39 +184,37 @@ class ImageGallery
 	 *
 	 */
 	function toHTML() {
-		global $wgLang, $wgIgnoreImageErrors, $wgGenerateThumbnailOnParse;
+		global $wgLang;
 
-		$sk =& $this->getSkin();
+		$sk = $this->getSkin();
 
 		$s = '<table class="gallery" cellspacing="0" cellpadding="0">';
 		if( $this->mCaption )
-			$s .= '<td class="galleryheader" colspan="4"><big>' . htmlspecialchars( $this->mCaption ) . '</big></td>';
-		
+			$s .= "\n\t<caption>{$this->mCaption}</caption>";
+
+		$params = array( 'width' => $this->mWidths, 'height' => $this->mHeights );
 		$i = 0;
 		foreach ( $this->mImages as $pair ) {
 			$img =& $pair[0];
 			$text = $pair[1];
 
-			$name = $img->getName();
 			$nt = $img->getTitle();
 
 			if( $nt->getNamespace() != NS_IMAGE ) {
 				# We're dealing with a non-image, spit out the name and be done with it.
-				$thumbhtml = '<div style="height: 152px;">' . htmlspecialchars( $nt->getText() ) . '</div>';
- 			}
-			else if( $this->mParsing && wfIsBadImage( $nt->getDBkey() ) ) {
+				$thumbhtml = "\n\t\t\t".'<div style="height: '.($this->mHeights*1.25+2).'px;">'
+					. htmlspecialchars( $nt->getText() ) . '</div>';
+ 			} elseif( $this->mParsing && wfIsBadImage( $nt->getDBkey(), $this->getContextTitle() ) ) {
 				# The image is blacklisted, just show it as a text link.
-				$thumbhtml = '<div style="height: 152px;">'
+				$thumbhtml = "\n\t\t\t".'<div style="height: '.($this->mHeights*1.25+2).'px;">'
 					. $sk->makeKnownLinkObj( $nt, htmlspecialchars( $nt->getText() ) ) . '</div>';
-			}
-			else if( !( $thumb = $img->getThumbnail( 120, 120, $wgGenerateThumbnailOnParse ) ) ) {
+			} elseif( !( $thumb = $img->transform( $params ) ) ) {
 				# Error generating thumbnail.
-				$thumbhtml = '<div style="height: 152px;">'
+				$thumbhtml = "\n\t\t\t".'<div style="height: '.($this->mHeights*1.25+2).'px;">'
 					. htmlspecialchars( $img->getLastError() ) . '</div>';
-			}
-			else {
-				$vpad = floor( ( 150 - $thumb->height ) /2 ) - 2;
-				$thumbhtml = '<div class="thumb" style="padding: ' . $vpad . 'px 0;">'
+			} else {
+				$vpad = floor( ( 1.25*$this->mHeights - $thumb->height ) /2 ) - 2;
+				$thumbhtml = "\n\t\t\t".'<div class="thumb" style="padding: ' . $vpad . 'px 0; width: '.($this->mWidths+30).'px;">'
 					. $sk->makeKnownLinkObj( $nt, $thumb->toHtml() ) . '</div>';
 			}
 
@@ -192,19 +241,54 @@ class ImageGallery
 			# in version 4.8.6 generated crackpot html in its absence, see:
 			# http://bugzilla.wikimedia.org/show_bug.cgi?id=1765 -Ævar
 
-			$s .= ($i%4==0) ? '<tr>' : '';
-			$s .= '<td><div class="gallerybox">' . $thumbhtml
-				. '<div class="gallerytext">' . "\n" . $textlink . $text . $nb
-				. "</div></div></td>\n";
-			$s .= ($i%4==3) ? '</tr>' : '';
-			$i++;
+			if ( $i % $this->mPerRow == 0 ) {
+				$s .= "\n\t<tr>";
+			}
+			$s .=
+				"\n\t\t" . '<td><div class="gallerybox" style="width: '.($this->mWidths*1.25).'px;">'
+					. $thumbhtml
+					. "\n\t\t\t" . '<div class="gallerytext">' . "\n"
+						. $textlink . $text . $nb
+					. "\n\t\t\t</div>"
+				. "\n\t\t</div></td>";
+			if ( $i % $this->mPerRow == $this->mPerRow - 1 ) {
+				$s .= "\n\t</tr>";
+			}
+			++$i;
 		}
-		if( $i %4 != 0 ) {
-			$s .= "</tr>\n";
+		if( $i % $this->mPerRow != 0 ) {
+			$s .= "\n\t</tr>";
 		}
-		$s .= '</table>';
+		$s .= "\n</table>";
 
 		return $s;
+	}
+
+	/**
+	 * @return int Number of images in the gallery
+	 */
+	public function count() {
+		return count( $this->mImages );
+	}
+	
+	/**
+	 * Set the contextual title
+	 *
+	 * @param Title $title Contextual title
+	 */
+	public function setContextTitle( $title ) {
+		$this->contextTitle = $title;
+	}
+	
+	/**
+	 * Get the contextual title, if applicable
+	 *
+	 * @return mixed Title or false
+	 */
+	public function getContextTitle() {
+		return is_object( $this->contextTitle ) && $this->contextTitle instanceof Title
+				? $this->contextTitle
+				: false;
 	}
 
 } //class

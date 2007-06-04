@@ -3,7 +3,6 @@
  * Page history
  *
  * Split off from Article.php and Skin.php, 2003-12-22
- * @package MediaWiki
  */
 
 /**
@@ -14,9 +13,7 @@
  * Construct it by passing in an Article, and call $h->history() to print the
  * history.
  *
- * @package MediaWiki
  */
-
 class PageHistory {
 	const DIR_PREV = 0;
 	const DIR_NEXT = 1;
@@ -33,15 +30,13 @@ class PageHistory {
 	 * @param Article $article
 	 * @returns nothing
 	 */
-	function PageHistory($article) {
+	function __construct($article) {
 		global $wgUser;
 
 		$this->mArticle =& $article;
 		$this->mTitle =& $article->mTitle;
 		$this->mNotificationTimestamp = NULL;
 		$this->mSkin = $wgUser->getSkin();
-
-		$this->defaultLimit = 50;
 	}
 
 	/**
@@ -72,7 +67,7 @@ class PageHistory {
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 		$wgOut->setSyndicated( true );
 
-		$logPage = Title::makeTitle( NS_SPECIAL, 'Log' );
+		$logPage = SpecialPage::getTitleFor( 'Log' );
 		$logLink = $this->mSkin->makeKnownLinkObj( $logPage, wfMsgHtml( 'viewpagelogs' ), 'page=' . $this->mTitle->getPrefixedUrl() );
 
 		$subtitle = wfMsgHtml( 'revhistory' ) . '<br />' . $logLink;
@@ -93,99 +88,31 @@ class PageHistory {
 			return;
 		}
 
-		$dbr =& wfGetDB(DB_SLAVE);
-
+		
 		/*
-		 * Extract limit, the number of revisions to show, and
-		 * offset, the timestamp to begin at, from the URL.
+		 * "go=first" means to jump to the last (earliest) history page.
+		 * This is deprecated, it no longer appears in the user interface
 		 */
-		$limit = $wgRequest->getInt('limit', $this->defaultLimit);
-		if ( $limit <= 0 ) {
-			$limit = $this->defaultLimit;
-		} elseif ( $limit > 50000 ) {
-			# Arbitrary maximum
-			# Any more than this and we'll probably get an out of memory error
-			$limit = 50000;
+		if ( $wgRequest->getText("go") == 'first' ) {
+			$limit = $wgRequest->getInt( 'limit', 50 );
+			$wgOut->redirect( $wgTitle->getLocalURL( "action=history&limit={$limit}&dir=prev" ) );
+			return;
 		}
+		
+		wfRunHooks( 'PageHistoryBeforeList', array( &$this->mArticle ) );
 
-		$offset = $wgRequest->getText('offset');
-
-		/* Offset must be an integral. */
-		if (!strlen($offset) || !preg_match("/^[0-9]+$/", $offset))
-			$offset = 0;
-#		$offset = $dbr->timestamp($offset);
-		$dboffset = $offset === 0 ? 0 : $dbr->timestamp($offset);
-		/*
-		 * "go=last" means to jump to the last history page.
+		/** 
+		 * Do the list
 		 */
-		if (($gowhere = $wgRequest->getText("go")) !== NULL) {
-			$gourl = null;
-			switch ($gowhere) {
-			case "first":
-				if (($lastid = $this->getLastOffsetForPaging($this->mTitle->getArticleID(), $limit)) === NULL)
-					break;
-				$gourl = $wgTitle->getLocalURL("action=history&limit={$limit}&offset=".
-						wfTimestamp(TS_MW, $lastid));
-				break;
-			}
-
-			if (!is_null($gourl)) {
-				$wgOut->redirect($gourl);
-				return;
-			}
-		}
-
-		/*
-		 * Fetch revisions.
-		 *
-		 * If the user clicked "previous", we retrieve the revisions backwards,
-		 * then reverse them.  This is to avoid needing to know the timestamp of
-		 * previous revisions when generating the URL.
-		 */
-		$direction = $this->getDirection();
-		$revisions = $this->fetchRevisions($limit, $dboffset, $direction);
-		$navbar = $this->makeNavbar($revisions, $offset, $limit, $direction);
-
-		/*
-		 * We fetch one more revision than needed to get the timestamp of the
-		 * one after this page (and to know if it exists).
-		 *
-		 * linesonpage stores the actual number of lines.
-		 */
-		if (count($revisions) < $limit + 1)
-			$this->linesonpage = count($revisions);
-		else
-			$this->linesonpage = count($revisions) - 1;
-
-		/* Un-reverse revisions */
-		if ($direction == PageHistory::DIR_PREV)
-			$revisions = array_reverse($revisions);
-
-		/*
-		 * Print the top navbar.
-		 */
-		$s = $navbar;
-		$s .= $this->beginHistoryList();
-		$counter = 1;
-
-		/*
-		 * Print each revision, excluding the one-past-the-end, if any.
-		 */
-		foreach (array_slice($revisions, 0, $limit) as $i => $line) {
-			$latest = !$i && $offset == 0;
-			$firstInList = !$i;
-			$next = isset( $revisions[$i + 1] ) ? $revisions[$i + 1 ] : null;
-			$s .= $this->historyLine($line, $next, $counter, $this->getNotificationTimestamp(), $latest, $firstInList);
-			$counter++;
-		}
-
-		/*
-		 * End navbar.
-		*/
-		$s .= $this->endHistoryList();
-		$s .= $navbar;
-
-		$wgOut->addHTML( $s );
+		$pager = new PageHistoryPager( $this );
+		$this->linesonpage = $pager->getNumRows();
+		$wgOut->addHTML(
+			$pager->getNavigationBar() . 
+			$this->beginHistoryList() . 
+			$pager->getBody() .
+			$this->endHistoryList() .
+			$pager->getNavigationBar()
+		);
 		wfProfileOut( $fname );
 	}
 
@@ -231,15 +158,27 @@ class PageHistory {
 					'class'     => 'historysubmit',
 					'type'      => 'submit',
 					'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
-					'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+					'title'     => wfMsg( 'tooltip-compareselectedversions' ).' ['.wfMsg( 'accesskey-compareselectedversions' ).']',
 					'value'     => wfMsg( 'compareselectedversions' ),
 				) ) )
 			: '';
 	}
 
-	/** @todo document */
+	/**
+	 * Returns a row from the history printout.
+	 *
+	 * @todo document some more, and maybe clean up the code (some params redundant?)
+	 *
+	 * @param object $row The database row corresponding to the line (or is it the previous line?).
+	 * @param object $next The database row corresponding to the next line (or is it this one?).
+	 * @param int $counter Apparently a counter of what row number we're at, counted from the top row = 1.
+	 * @param $notificationtimestamp
+	 * @param bool $latest Whether this row corresponds to the page's latest revision.
+	 * @param bool $firstInList Whether this row corresponds to the first displayed on this history page.
+	 * @return string HTML output for the row
+	 */
 	function historyLine( $row, $next, $counter = '', $notificationtimestamp = false, $latest = false, $firstInList = false ) {
-		global $wgUser;
+		global $wgUser, $wgLang;
 		$rev = new Revision( $row );
 		$rev->setTitle( $this->mTitle );
 
@@ -255,32 +194,62 @@ class PageHistory {
 		$s .= "($curlink) ($lastlink) $arbitrary";
 		
 		if( $wgUser->isAllowed( 'deleterevision' ) ) {
-			$revdel = Title::makeTitle( NS_SPECIAL, 'Revisiondelete' );
+			$revdel = SpecialPage::getTitleFor( 'Revisiondelete' );
 			if( $firstInList ) {
 				// We don't currently handle well changing the top revision's settings
 				$del = wfMsgHtml( 'rev-delundel' );
+			} else if( !$rev->userCan( Revision::DELETED_RESTRICTED ) ) {
+			// If revision was hidden from sysops
+				$del = wfMsgHtml( 'rev-delundel' );			
 			} else {
 				$del = $this->mSkin->makeKnownLinkObj( $revdel,
 					wfMsg( 'rev-delundel' ),
 					'target=' . urlencode( $this->mTitle->getPrefixedDbkey() ) .
 					'&oldid=' . urlencode( $rev->getId() ) );
 			}
-			$s .= "(<small>$del</small>) ";
+			$s .= " (<small>$del</small>) ";
 		}
 		
-		$s .= " $link <span class='history-user'>$user</span>";
+		$s .= " $link";
+		#getUser is safe, but this avoids making the invalid untargeted contribs links
+		if( $row->rev_deleted & Revision::DELETED_USER ) {
+			$user = '<span class="history-deleted">' . wfMsg('rev-deleted-user') . '</span>';
+		}
+		$s .= " <span class='history-user'>$user</span>";
 
 		if( $row->rev_minor_edit ) {
 			$s .= ' ' . wfElement( 'span', array( 'class' => 'minor' ), wfMsg( 'minoreditletter') );
 		}
 
-		$s .= $this->mSkin->revComment( $rev );
+		if (!is_null($size = $rev->getSize())) {
+			if ($size == 0)
+				$stxt = wfMsgHtml('historyempty');
+			else
+				$stxt = wfMsgHtml('historysize', $wgLang->formatNum( $size ) );
+			$s .= " <span class=\"history-size\">$stxt</span>";
+		}
+
+		#getComment is safe, but this is better formatted
+		if( $rev->isDeleted( Revision::DELETED_COMMENT ) ) {
+			$s .= " <span class=\"history-deleted\"><span class=\"comment\">" .
+			wfMsgHtml( 'rev-deleted-comment' ) . "</span></span>";
+		} else {
+			$s .= $this->mSkin->revComment( $rev );
+		}
+		
 		if ($notificationtimestamp && ($row->rev_timestamp >= $notificationtimestamp)) {
 			$s .= ' <span class="updatedmarker">' .  wfMsgHtml( 'updatedmarker' ) . '</span>';
 		}
+		#add blurb about text having been deleted
 		if( $row->rev_deleted & Revision::DELETED_TEXT ) {
 			$s .= ' ' . wfMsgHtml( 'deletedrev' );
 		}
+		if( $wgUser->isAllowed( 'rollback' ) && $latest ) {
+			$s .= ' '.$this->mSkin->generateRollback( $rev );
+		}
+		
+		wfRunHooks( 'PageHistoryLineEnding', array( &$row , &$s ) );
+		
 		$s .= "</li>\n";
 
 		return $s;
@@ -318,16 +287,15 @@ class PageHistory {
 	/** @todo document */
 	function lastLink( $rev, $next, $counter ) {
 		$last = wfMsgExt( 'last', array( 'escape' ) );
-		if( is_null( $next ) ) {
-			if( $rev->getTimestamp() == $this->getEarliestOffset() ) {
-				return $last;
-			} else {
-				// Cut off by paging; there are more behind us...
-				return $this->mSkin->makeKnownLinkObj(
-					$this->mTitle,
-					$last,
-					"diff=" . $rev->getId() . "&oldid=prev" );
-			}
+		if ( is_null( $next ) ) {
+			# Probably no next row
+			return $last;
+		} elseif ( $next === 'unknown' ) {
+			# Next row probably exists but is unknown, use an oldid=prev link
+			return $this->mSkin->makeKnownLinkObj(
+				$this->mTitle,
+				$last,
+				"diff=" . $rev->getId() . "&oldid=prev" );
 		} elseif( !$rev->userCan( Revision::DELETED_TEXT ) ) {
 			return $last;
 		} else {
@@ -387,76 +355,27 @@ class PageHistory {
 	}
 
 	/** @todo document */
-	function getLatestOffset( $id = null ) {
-		if ( $id === null) $id = $this->mTitle->getArticleID();
-		return $this->getExtremeOffset( $id, 'max' );
-	}
-
-	/** @todo document */
-	function getEarliestOffset( $id = null ) {
-		if ( $id === null) $id = $this->mTitle->getArticleID();
-		return $this->getExtremeOffset( $id, 'min' );
-	}
-
-	/** @todo document */
-	function getExtremeOffset( $id, $func ) {
-		$db =& wfGetDB(DB_SLAVE);
-		return $db->selectField( 'revision',
-			"$func(rev_timestamp)",
-			array( 'rev_page' => $id ),
-			'PageHistory::getExtremeOffset' );
-	}
-
-	/** @todo document */
 	function getLatestId() {
 		if( is_null( $this->mLatestId ) ) {
 			$id = $this->mTitle->getArticleID();
-			$db =& wfGetDB(DB_SLAVE);
-			$this->mLatestId = $db->selectField( 'revision',
-				"max(rev_id)",
-				array( 'rev_page' => $id ),
+			$db = wfGetDB(DB_SLAVE);
+			$this->mLatestId = $db->selectField( 'page',
+				"page_latest",
+				array( 'page_id' => $id ),
 				'PageHistory::getLatestID' );
 		}
 		return $this->mLatestId;
 	}
 
-	/** @todo document */
-	function getLastOffsetForPaging( $id, $step ) {
-		$fname = 'PageHistory::getLastOffsetForPaging';
-
-		$dbr =& wfGetDB(DB_SLAVE);
-		$res = $dbr->select(
-			'revision',
-			'rev_timestamp',
-			"rev_page=$id",
-			$fname,
-			array('ORDER BY' => 'rev_timestamp ASC', 'LIMIT' => $step));
-
-		$n = $dbr->numRows( $res );
-		$last = null;
-		while( $obj = $dbr->fetchObject( $res ) ) {
-			$last = $obj->rev_timestamp;
-		}
-		$dbr->freeResult( $res );
-		return $last;
-	}
-
 	/**
-	 * @return returns the direction of browsing watchlist
+	 * Fetch an array of revisions, specified by a given limit, offset and
+	 * direction. This is now only used by the feeds. It was previously 
+	 * used by the main UI but that's now handled by the pager.
 	 */
-	function getDirection() {
-		global $wgRequest;
-		if ($wgRequest->getText("dir") == "prev")
-			return PageHistory::DIR_PREV;
-		else
-			return PageHistory::DIR_NEXT;
-	}
-
-	/** @todo document */
 	function fetchRevisions($limit, $offset, $direction) {
 		$fname = 'PageHistory::fetchRevisions';
 
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 
 		if ($direction == PageHistory::DIR_PREV)
 			list($dirs, $oper) = array("ASC", ">=");
@@ -472,8 +391,7 @@ class PageHistory {
 
 		$res = $dbr->select(
 			'revision',
-			array('rev_id', 'rev_page', 'rev_text_id', 'rev_user', 'rev_comment', 'rev_user_text',
-				'rev_timestamp', 'rev_minor_edit', 'rev_deleted'),
+			Revision::selectFields(),
 			array_merge(array("rev_page=$page_id"), $offsets),
 			$fname,
 			array('ORDER BY' => "rev_timestamp $dirs",
@@ -498,7 +416,7 @@ class PageHistory {
 		if ($wgUser->isAnon() || !$wgShowUpdatedMarker)
 			return $this->mNotificationTimestamp = false;
 
-		$dbr =& wfGetDB(DB_SLAVE);
+		$dbr = wfGetDB(DB_SLAVE);
 
 		$this->mNotificationTimestamp = $dbr->selectField(
 			'watchlist',
@@ -516,83 +434,6 @@ class PageHistory {
 
 		return $this->mNotificationTimestamp;
 	}
-
-	/** @todo document */
-	function makeNavbar($revisions, $offset, $limit, $direction) {
-		global $wgLang;
-
-		$revisions = array_slice($revisions, 0, $limit);
-
-		$latestTimestamp = wfTimestamp(TS_MW, $this->getLatestOffset());
-		$earliestTimestamp = wfTimestamp(TS_MW, $this->getEarliestOffset());
-
-		/*
-		 * When we're displaying previous revisions, we need to reverse
-		 * the array, because it's queried in reverse order.
-		 */
-		if ($direction == PageHistory::DIR_PREV)
-			$revisions = array_reverse($revisions);
-
-		/*
-		 * lowts is the timestamp of the first revision on this page.
-		 * hights is the timestamp of the last revision.
-		 */
-
-		$lowts = $hights = 0;
-
-		if( count( $revisions ) ) {
-			$latestShown = wfTimestamp(TS_MW, $revisions[0]->rev_timestamp);
-			$earliestShown = wfTimestamp(TS_MW, $revisions[count($revisions) - 1]->rev_timestamp);
-		} else {
-			$latestShown = null;
-			$earliestShown = null;
-		}
-
-		/* Don't announce the limit everywhere if it's the default */
-		$usefulLimit = $limit == $this->defaultLimit ? '' : $limit;
-
-		$urls = array();
-		foreach (array(20, 50, 100, 250, 500) as $num) {
-			$urls[] = $this->MakeLink( $wgLang->formatNum($num),
-				array('offset' => $offset == 0 ? '' : wfTimestamp(TS_MW, $offset), 'limit' => $num, ) );
-		}
-
-		$bits = implode($urls, ' | ');
-
-		wfDebug("latestShown=$latestShown latestTimestamp=$latestTimestamp\n");
-		if( $latestShown < $latestTimestamp ) {
-			$prevtext = $this->MakeLink( wfMsgHtml("prevn", $limit),
-				array( 'dir' => 'prev', 'offset' => $latestShown, 'limit' => $usefulLimit ) );
-			$lasttext = $this->MakeLink( wfMsgHtml('histlast'),
-				array( 'limit' => $usefulLimit ) );
-		} else {
-			$prevtext = wfMsgHtml("prevn", $limit);
-			$lasttext = wfMsgHtml('histlast');
-		}
-
-		wfDebug("earliestShown=$earliestShown earliestTimestamp=$earliestTimestamp\n");
-		if( $earliestShown > $earliestTimestamp ) {
-			$nexttext = $this->MakeLink( wfMsgHtml("nextn", $limit),
-				array( 'offset' => $earliestShown, 'limit' => $usefulLimit ) );
-			$firsttext = $this->MakeLink( wfMsgHtml('histfirst'),
-				array( 'go' => 'first', 'limit' => $usefulLimit ) );
-		} else {
-			$nexttext = wfMsgHtml("nextn", $limit);
-			$firsttext = wfMsgHtml('histfirst');
-		}
-
-		$firstlast = "($lasttext | $firsttext)";
-
-		return "$firstlast " . wfMsgHtml("viewprevnext", $prevtext, $nexttext, $bits);
-	}
-
-	function MakeLink($text, $query = NULL) {
-		if ( $query === null ) return $text;
-		return $this->mSkin->makeKnownLinkObj(
-				$this->mTitle, $text,
-				wfArrayToCGI( $query, array( 'action' => 'history' )));
-	}
-	
 	
 	/**
 	 * Output a subscription feed listing recent edits to this page.
@@ -678,8 +519,74 @@ class PageHistory {
 	function stripComment( $text ) {
 		return preg_replace( '/\[\[([^]]*\|)?([^]]+)\]\]/', '\2', $text );
 	}
+}
 
 
+/**
+ * @addtogroup Pager
+ */
+class PageHistoryPager extends ReverseChronologicalPager {
+	public $mLastRow = false, $mPageHistory;
+	
+	function __construct( $pageHistory ) {
+		parent::__construct();
+		$this->mPageHistory = $pageHistory;
+	}
+
+	function getQueryInfo() {
+		return array(
+			'tables' => 'revision',
+			'fields' => Revision::selectFields(),
+			'conds' => array('rev_page' => $this->mPageHistory->mTitle->getArticleID() ),
+			'options' => array( 'USE INDEX' => 'page_timestamp' )
+		);
+	}
+
+	function getIndexField() {
+		return 'rev_timestamp';
+	}
+
+	function formatRow( $row ) {
+		if ( $this->mLastRow ) {
+			$latest = $this->mCounter == 1 && $this->mOffset == '';
+			$firstInList = $this->mCounter == 1;
+			$s = $this->mPageHistory->historyLine( $this->mLastRow, $row, $this->mCounter++, 
+				$this->mPageHistory->getNotificationTimestamp(), $latest, $firstInList );
+		} else {
+			$s = '';
+		}
+		$this->mLastRow = $row;
+		return $s;
+	}
+	
+	function getStartBody() {
+		$this->mLastRow = false;
+		$this->mCounter = 1;
+		return '';
+	}
+
+	function getEndBody() {
+		if ( $this->mLastRow ) {
+			$latest = $this->mCounter == 1 && $this->mOffset == 0;
+			$firstInList = $this->mCounter == 1;
+			if ( $this->mIsBackwards ) {
+				# Next row is unknown, but for UI reasons, probably exists if an offset has been specified
+				if ( $this->mOffset == '' ) {
+					$next = null;
+				} else {
+					$next = 'unknown';
+				}
+			} else {
+				# The next row is the past-the-end row
+				$next = $this->mPastTheEndRow;
+			}
+			$s = $this->mPageHistory->historyLine( $this->mLastRow, $next, $this->mCounter++, 
+				$this->mPageHistory->getNotificationTimestamp(), $latest, $firstInList );
+		} else {
+			$s = '';
+		}
+		return $s;
+	}
 }
 
 ?>

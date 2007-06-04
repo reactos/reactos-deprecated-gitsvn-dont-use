@@ -17,7 +17,7 @@ if(@$options['help']) {
 }
 
 $wgOut->disable();
-$dbw =& wfGetDB( DB_MASTER );
+$dbw = wfGetDB( DB_MASTER );
 
 foreach ( $wgQueryPages as $page ) {
 	@list( $class, $special, $limit ) = $page;
@@ -28,24 +28,29 @@ foreach ( $wgQueryPages as $page ) {
 		continue;
 	}
 
+	if ( $wgDisableQueryPageUpdate && in_array( $special, $wgDisableQueryPageUpdate ) ) {
+		printf("%-30s disabled\n", $special);
+		continue;
+	}
+
 	$specialObj = SpecialPage::getPage( $special );
 	if ( !$specialObj ) {
 		print "No such special page: $special\n";
 		exit;
 	}
-	$file = $specialObj->getFile();
-	if ( $file ) {
+	if ( !class_exists( $class ) ) {
+		$file = $specialObj->getFile();
 		require_once( $file );
 	}
 	$queryPage = new $class;
 
 	if( !(isset($options['only'])) or ($options['only'] == $queryPage->getName()) ) {
-	printf( '%-30s',  $special );
+	printf( '%-30s ',  $special );
 
 	if ( $queryPage->isExpensive() ) {
 		$t1 = explode( ' ', microtime() );
 		# Do the query
-		$num = $queryPage->recache( $limit === null ? 1000 : $limit );
+		$num = $queryPage->recache( $limit === null ? $wgQueryCacheLimit : $limit );
 		$t2 = explode( ' ', microtime() );
 
 		if ( $num === false ) {
@@ -80,12 +85,15 @@ foreach ( $wgQueryPages as $page ) {
 		}
 
 		# Wait for the slave to catch up
-		$slaveDB =& wfGetDB( DB_SLAVE, array('QueryPage::recache', 'vslow' ) );
+		/*
+		$slaveDB = wfGetDB( DB_SLAVE, array('QueryPage::recache', 'vslow' ) );
 		while( $slaveDB->getLag() > 600 ) {
 			print "Slave lagged, waiting...\n";
 			sleep(30);
 
 		}
+		*/
+		wfWaitForSlaves( 5 );
 
 	} else {
 		print "cheap, skipped\n";

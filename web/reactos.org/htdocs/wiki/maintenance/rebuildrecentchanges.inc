@@ -3,15 +3,14 @@
  * Rebuild recent changes table.
  *
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 /** */
 function rebuildRecentChangesTablePass1()
 {
 	$fname = 'rebuildRecentChangesTablePass1';
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	extract( $dbw->tableNames( 'recentchanges', 'cur', 'old' ) );
 
 	$dbw->delete( 'recentchanges', '*' );
@@ -41,17 +40,14 @@ function rebuildRecentChangesTablePass1()
 			'rev_page=page_id'
 		), $fname,
 		array(), // INSERT options
-		array( 'ORDER BY' => 'rev_timestamp', 'LIMIT' => 5000 ) // SELECT options
+		array( 'ORDER BY' => 'rev_timestamp DESC', 'LIMIT' => 5000 ) // SELECT options
 	);
 }
 
 function rebuildRecentChangesTablePass2()
 {
-	$dbw =& wfGetDB( DB_MASTER );
-	extract( $dbw->tableNames( 'recentchanges', 'revision' ) );
-
-	$ns = $id = $count = 0;
-	$title = $ct =  "";
+	$dbw = wfGetDB( DB_MASTER );
+	list ($recentchanges, $revision) = $dbw->tableNamesN( 'recentchanges', 'revision' );
 
 	print( "Updating links...\n" );
 

@@ -1,87 +1,41 @@
 <?php
 
-if (true) {
-
 /**
- * Main wiki script; see docs/design.txt
- * @package MediaWiki
+ * This is the main web entry point for MediaWiki.
+ *
+ * If you are reading this in your web browser, your server is probably
+ * not configured correctly to run PHP applications!
+ *
+ * See the README, INSTALL, and UPGRADE files for basic setup instructions
+ * and pointers to the online documentation.
+ *
+ * http://www.mediawiki.org/
+ *
+ * ----------
+ *
+ * Copyright (C) 2001-2007 Magnus Manske, Brion Vibber, Lee Daniel Crocker,
+ * Tim Starling, Erik Möller, Gabriel Wicke, Ævar Arnfjörð Bjarmason,
+ * Niklas Laxström, Domas Mituzas, Rob Church and others.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  */
-$wgRequestTime = microtime(true);
 
-# getrusage() does not exist on the Microsoft Windows platforms, catching this
-if ( function_exists ( 'getrusage' ) ) {
-	$wgRUstart = getrusage();
-} else {
-	$wgRUstart = array();
-}
 
-unset( $IP );
-@ini_set( 'allow_url_fopen', 0 ); # For security...
-
-if ( isset( $_REQUEST['GLOBALS'] ) ) {
-	die( '<a href="http://www.hardened-php.net/index.76.html">$GLOBALS overwrite vulnerability</a>');
-}
-
-# Valid web server entry point, enable includes.
-# Please don't move this line to includes/Defines.php. This line essentially
-# defines a valid entry point. If you put it in includes/Defines.php, then
-# any script that includes it becomes an entry point, thereby defeating
-# its purpose.
-define( 'MEDIAWIKI', true );
-
-# Load up some global defines.
-require_once( './includes/Defines.php' );
-
-# LocalSettings.php is the per site customization file. If it does not exit
-# the wiki installer need to be launched or the generated file moved from
-# ./config/ to ./
-if( !file_exists( 'LocalSettings.php' ) ) {
-	$IP = '.';
-	require_once( 'includes/DefaultSettings.php' ); # used for printing the version
-	
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
-	<head>
-		<title>MediaWiki <?php echo $wgVersion ?></title>
-		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
-		<style type='text/css' media='screen, projection'>
-			html, body {
-				color: #000;
-				background-color: #fff;
-				font-family: sans-serif;
-				text-align: center;
-			}
-
-			h1 {
-				font-size: 150%;
-			}
-		</style>
-	</head>
-	<body>
-		<img src='skins/common/images/mediawiki.png' alt='The MediaWiki logo' />
-
-		<h1>MediaWiki <?php echo $wgVersion ?></h1>
-		<div class='error'>
-		<?php
-		if ( file_exists( 'config/LocalSettings.php' ) ) {
-			echo( 'To complete the installation, move <tt>config/LocalSettings.php</tt> to the parent directory.' );
-		} else {
-			echo( 'Please <a href="config/index.php" title="setup">setup the wiki</a> first.' );
-		}
-		?>
-
-		</div>
-	</body>
-</html>
-<?php
-	die();
-}
-
-# Include this site setttings
-require_once( './LocalSettings.php' );
-# Prepare MediaWiki
-require_once( 'includes/Setup.php' );
+# Initialise common code
+require_once( './includes/WebStart.php' );
 
 # Initialize MediaWiki base class
 require_once( "includes/Wiki.php" );
@@ -90,26 +44,34 @@ $mediaWiki = new MediaWiki();
 wfProfileIn( 'main-misc-setup' );
 OutputPage::setEncodings(); # Not really used yet
 
+$maxLag = $wgRequest->getVal( 'maxlag' );
+if ( !is_null( $maxLag ) ) {
+	if ( !$mediaWiki->checkMaxLag( $maxLag ) ) {
+		exit;
+	}
+}
+
 # Query string fields
 $action = $wgRequest->getVal( 'action', 'view' );
 $title = $wgRequest->getVal( 'title' );
-
-#
-# Send Ajax requests to the Ajax dispatcher.
-#
-if ( $wgUseAjax && $action == 'ajax' ) {
-	require_once( 'AjaxDispatcher.php' );
-
-	$dispatcher = new AjaxDispatcher();
-	$dispatcher->performAction();
-
-	exit;
-}
 
 $wgTitle = $mediaWiki->checkInitialQueries( $title,$action,$wgOut, $wgRequest, $wgContLang );
 if ($wgTitle == NULL) {
 	unset( $wgTitle );
 }
+
+#
+# Send Ajax requests to the Ajax dispatcher.
+#
+if ( $wgUseAjax && $action == 'ajax' ) {
+	require_once( $IP . '/includes/AjaxDispatcher.php' );
+
+	$dispatcher = new AjaxDispatcher();
+	$dispatcher->performAction();
+	$mediaWiki->restInPeace( $wgLoadBalancer );
+	exit;
+}
+
 
 wfProfileOut( 'main-misc-setup' );
 
@@ -131,10 +93,4 @@ $mediaWiki->finalCleanup ( $wgDeferredUpdateList, $wgLoadBalancer, $wgOut );
 $mediaWiki->doUpdates( $wgPostCommitUpdateList );
 
 $mediaWiki->restInPeace( $wgLoadBalancer );
-
-}
-
-else {
-echo 'Site under maintenance. Please try again later.';
-}
 ?>

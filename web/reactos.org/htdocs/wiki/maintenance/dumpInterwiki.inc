@@ -4,16 +4,14 @@
  * Wikimedia specific!
  *
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 /** */
 
 /**
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 class Site {
 	var $suffix, $lateral, $url;
@@ -31,7 +29,7 @@ class Site {
 }
 
 function getRebuildInterwikiDump() {
-	global $langlist, $languageAliases, $prefixRewrites, $wgDBname;
+	global $langlist, $languageAliases, $prefixRewrites;
 
 	# Multi-language sites
 	# db suffix => db suffix, iw prefix, hostname
@@ -43,6 +41,7 @@ function getRebuildInterwikiDump() {
 		'wikinews' => new Site( 'wikinews', 'n', 'wikinews.org' ),
 		'wikisource' => new Site( 'wikisource', 's', 'wikisource.org' ),
 		'wikimedia' => new Site( 'wikimedia', 'chapter', 'wikimedia.org' ),
+		'wikiversity' => new Site( 'wikiversity', 'v', 'wikiversity.org' ),
 	);
 
 	# List of language prefixes likely to be found in multi-language sites
@@ -51,15 +50,10 @@ function getRebuildInterwikiDump() {
 	# List of all database names
 	$dblist = array_map( "trim", file( "/home/wikipedia/common/all.dblist" ) );
 
-	# Special-case hostnames
-	$specials = array(
-		'sourceswiki' => 'sources.wikipedia.org',
-		'quotewiki' => 'wikiquote.org',
-		'textbookwiki' => 'wikibooks.org',
-		'sep11wiki' => 'sep11.wikipedia.org',
-		'metawiki' => 'meta.wikimedia.org',
-		'commonswiki' => 'commons.wikimedia.org',
-	);
+	# Special-case databases
+	$specials = array_flip(
+		array_map( "trim",
+			file( "/home/wikipedia/common/special.dblist" ) ) );
 
 	# Extra interwiki links that can't be in the intermap for some reason
 	$extraLinks = array(
@@ -105,8 +99,7 @@ function getRebuildInterwikiDump() {
 		wfDie( "m:Interwiki_map not found" );
 	}
 
-	$iwArray = array();
-        # Global iterwiki map
+	# Global iterwiki map
 	foreach ( $lines as $line ) {
 		if ( preg_match( '/^\|\s*(.*?)\s*\|\|\s*(.*?)\s*$/', $line, $matches ) ) {
 			$prefix = strtolower( $matches[1] );
@@ -129,7 +122,7 @@ function getRebuildInterwikiDump() {
         
         #Multilanguage sites
         foreach ($sites as $site) 
-            $sql .= makeLanguageLinks ( $site, "_".$site->suffix );
+            makeLanguageLinks ( $site, "_".$site->suffix );
 
 
         foreach ( $dblist as $db ) {
@@ -161,7 +154,6 @@ function getRebuildInterwikiDump() {
 				continue;
 			}
 			$lang = $matches[1];
-			$host = "$lang." . $site->url;
 
 			# Lateral links
 			foreach ( $sites as $targetSite ) {
@@ -186,7 +178,7 @@ function getRebuildInterwikiDump() {
 
 # ------------------------------------------------------------------------------------------
 
-# Returns part of an INSERT statement, corresponding to all interlanguage links to a particular site
+# Executes part of an INSERT statement, corresponding to all interlanguage links to a particular site
 function makeLanguageLinks( &$site, $source ) {
 	global $langlist, $languageAliases;
 	# Actual languages with their own databases

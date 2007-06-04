@@ -1,7 +1,6 @@
 <?php
 /**
  * Provide things related to namespaces
- * @package MediaWiki
  */
 
 /**
@@ -11,7 +10,7 @@
 $wgCanonicalNamespaceNames = array(
 	NS_MEDIA            => 'Media',
 	NS_SPECIAL          => 'Special',
-	NS_TALK	            => 'Talk',
+	NS_TALK             => 'Talk',
 	NS_USER             => 'User',
 	NS_USER_TALK        => 'User_talk',
 	NS_PROJECT          => 'Project',
@@ -24,7 +23,7 @@ $wgCanonicalNamespaceNames = array(
 	NS_TEMPLATE_TALK    => 'Template_talk',
 	NS_HELP             => 'Help',
 	NS_HELP_TALK        => 'Help_talk',
-	NS_CATEGORY	        => 'Category',
+	NS_CATEGORY         => 'Category',
 	NS_CATEGORY_TALK    => 'Category_talk',
 );
 
@@ -41,7 +40,6 @@ if( is_array( $wgExtraNamespaces ) ) {
  * These are synonyms for the names given in the language file
  * Users and translators should not change them
  *
- * @package MediaWiki
  */
 class Namespace {
 
@@ -49,7 +47,7 @@ class Namespace {
 	 * Check if the given namespace might be moved
 	 * @return bool
 	 */
-	function isMovable( $index ) {
+	static function isMovable( $index ) {
 		return !( $index < NS_MAIN || $index == NS_IMAGE  || $index == NS_CATEGORY );
 	}
 
@@ -57,7 +55,7 @@ class Namespace {
 	 * Check if the given namespace is not a talk page
 	 * @return bool
 	 */
-	function isMain( $index ) {
+	static function isMain( $index ) {
 		return ! Namespace::isTalk( $index );
 	}
 
@@ -65,7 +63,7 @@ class Namespace {
 	 * Check if the give namespace is a talk page
 	 * @return bool
 	 */
-	function isTalk( $index ) {
+	static function isTalk( $index ) {
 		return ($index > NS_MAIN)  // Special namespaces are negative
 			&& ($index % 2); // Talk namespaces are odd-numbered
 	}
@@ -73,7 +71,7 @@ class Namespace {
 	/**
 	 * Get the talk namespace corresponding to the given index
 	 */
-	function getTalk( $index ) {
+	static function getTalk( $index ) {
 		if ( Namespace::isTalk( $index ) ) {
 			return $index;
 		} else {
@@ -82,7 +80,7 @@ class Namespace {
 		}
 	}
 
-	function getSubject( $index ) {
+	static function getSubject( $index ) {
 		if ( Namespace::isTalk( $index ) ) {
 			return $index - 1;
 		} else {
@@ -93,7 +91,7 @@ class Namespace {
 	/**
 	 * Returns the canonical (English Wikipedia) name for a given index
 	 */
-	function getCanonicalName( $index ) {
+	static function getCanonicalName( $index ) {
 		global $wgCanonicalNamespaceNames;
 		return $wgCanonicalNamespaceNames[$index];
 	}
@@ -102,7 +100,7 @@ class Namespace {
 	 * Returns the index for a given canonical name, or NULL
 	 * The input *must* be converted to lower case first
 	 */
-	function getCanonicalIndex( $name ) {
+	static function getCanonicalIndex( $name ) {
 		global $wgCanonicalNamespaceNames;
 		static $xNamespaces = false;
 		if ( $xNamespaces === false ) {
@@ -122,8 +120,22 @@ class Namespace {
 	 * Can this namespace ever have a talk namespace?
 	 * @param $index Namespace index
 	 */
-	 function canTalk( $index ) {
+	 static function canTalk( $index ) {
 	 	return( $index >= NS_MAIN );
 	 }
+	 
+	/**
+	 * Does this namespace contain content, for the purposes
+	 * of calculating statistics, etc?
+	 *
+	 * @param $index Index to check
+	 * @return bool
+	 */
+	public static function isContent( $index ) {
+		global $wgContentNamespaces;
+		return $index == NS_MAIN || in_array( $index, $wgContentNamespaces );
+	}	 
+	 
 }
+
 ?>

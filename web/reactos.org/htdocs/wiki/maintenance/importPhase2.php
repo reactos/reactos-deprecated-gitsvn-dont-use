@@ -24,8 +24,7 @@
 /**
  * @todo document
  * @deprecated
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 /** */
@@ -61,8 +60,7 @@ require_once( "rebuildtextindex.inc" );
 
 /**
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 class Phase2Importer {
 	var $olddb, $titleCache;
@@ -137,7 +135,7 @@ class Phase2Importer {
 		wfQuery( "DELETE FROM user", DB_MASTER );
 
 		print "Importing user data...\n";
-		wfQuery( "INSERT INTO $newdb.user (user_id,user_name,user_rights,
+		wfQuery( "INSERT INTO user (user_id,user_name,user_rights,
 			user_password,user_newpassword,user_email,user_options,user_touched)
 			SELECT user_id,user_name,REPLACE(user_rights,'is_',''),
 				MD5(CONCAT(user_id,'-',MD5(user_password))),'',user_email,user_options,NOW()+0
@@ -240,6 +238,7 @@ class Phase2Importer {
 		$a = explode( "\n", $s );
 
 		foreach ( $a as $l ) {
+			$m = array();
 			if ( preg_match( "/^([A-Za-z0-9_]+)=(.*)/", $l, $m ) ) {
 				$ops[$m[1]] = $m[2];
 			}
@@ -324,17 +323,16 @@ class Phase2Importer {
 
 /**
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 class TitleCache {
 	var $hash = array();
 
 	function &fetch( $dbkey ) {
-		if( !isset( $hash[$dbkey] ) ) {
-			$hash[$dbkey] = Title::newFromDBkey( $dbkey );
+		if( !isset( $this->hash[$dbkey] ) ) {
+			$this->hash[$dbkey] = Title::newFromDBkey( $dbkey );
 		}
-		return $hash[$dbkey];
+		return $this->hash[$dbkey];
 	}
 
 }

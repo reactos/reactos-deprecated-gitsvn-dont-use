@@ -46,7 +46,7 @@ class UserDupes {
 		# Confusingly, 'Non_unique' is 0 for *unique* indexes,
 		# and 1 for *non-unique* indexes. Pass the crack, MySQL,
 		# it's obviously some good stuff!
-		return ( $info->Non_unique == 0 );
+		return ( $info[0]->Non_unique == 0 );
 	}
 
 	/**
@@ -79,10 +79,8 @@ class UserDupes {
 	 * @return bool
 	 */
 	function checkDupes( $doDelete = false ) {
-		global $wgDBname;
-
 		if( $this->hasUniqueIndex() ) {
-			echo "$wgDBname already has a unique index on its user table.\n";
+			echo wfWikiID()." already has a unique index on its user table.\n";
 			return true;
 		}
 
@@ -92,7 +90,7 @@ class UserDupes {
 		$dupes = $this->getDupes();
 		$count = count( $dupes );
 
-		echo "Found $count accounts with duplicate records on $wgDBname.\n";
+		echo "Found $count accounts with duplicate records on ".wfWikiID().".\n";
 		$this->trimmed    = 0;
 		$this->reassigned = 0;
 		$this->failed     = 0;
@@ -114,9 +112,9 @@ class UserDupes {
 
 		if( $this->trimmed > 0 ) {
 			if( $doDelete ) {
-				echo "$this->trimmed duplicate user records were deleted from $wgDBname.\n";
+				echo "$this->trimmed duplicate user records were deleted from ".wfWikiID().".\n";
 			} else {
-				echo "$this->trimmed duplicate user accounts were found on $wgDBname which can be removed safely.\n";
+				echo "$this->trimmed duplicate user accounts were found on ".wfWikiID()." which can be removed safely.\n";
 			}
 		}
 
@@ -148,7 +146,7 @@ class UserDupes {
 		$names = array_map( array( $this, 'lockTable' ), $set );
 		$tables = implode( ',', $names );
 
-		$result = $this->db->query( "LOCK TABLES $tables", $fname );
+		$this->db->query( "LOCK TABLES $tables", $fname );
 	}
 
 	function lockTable( $table ) {
@@ -168,7 +166,7 @@ class UserDupes {
 	 */
 	function unlock() {
 		$fname = 'UserDupes::unlock';
-		$result = $this->db->query( "UNLOCK TABLES", $fname );
+		$this->db->query( "UNLOCK TABLES", $fname );
 	}
 
 	/**
@@ -303,7 +301,7 @@ class UserDupes {
 	function reassignEditsOn( $table, $field, $from, $to ) {
 		$fname = 'UserDupes::reassignEditsOn';
 		echo "reassigning on $table... ";
-		$result = $this->db->update( $table,
+		$this->db->update( $table,
 			array( $field => $to ),
 			array( $field => $from ),
 			$fname );

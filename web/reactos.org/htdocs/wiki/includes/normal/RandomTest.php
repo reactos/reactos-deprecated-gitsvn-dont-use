@@ -22,7 +22,7 @@
  * UtfNormal::cleanUp() code paths, and checks to see if there's a
  * difference. Will run forever until it finds one or you kill it.
  *
- * @package UtfNormal
+ * @addtogroup UtfNormal
  * @access private
  */
 
@@ -65,10 +65,11 @@ function showDiffs( $a, $b ) {
 	$ota = explode( "\n", str_replace( "\r\n", "\n", $a ) );
 	$nta = explode( "\n", str_replace( "\r\n", "\n", $b ) );
 
-	$diffs =& new Diff( $ota, $nta );
-	$formatter =& new TableDiffFormatter();
+	$diffs = new Diff( $ota, $nta );
+	$formatter = new TableDiffFormatter();
 	$funky = $formatter->format( $diffs );
-	preg_match_all( '/<span class="diffchange">(.*?)<\/span>/', $funky, $matches );
+	$matches = array();
+	preg_match_all( '/<(?:ins|del) class="diffchange">(.*?)<\/(?:ins|del)>/', $funky, $matches );
 	foreach( $matches[1] as $bit ) {
 		$hex = bin2hex( $bit );
 		echo "\t$hex\n";

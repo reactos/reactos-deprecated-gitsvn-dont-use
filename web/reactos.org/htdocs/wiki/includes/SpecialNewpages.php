@@ -1,20 +1,21 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * implements Special:Newpages
+ * @addtogroup SpecialPage
  */
 class NewPagesPage extends QueryPage {
-	var $namespace;
 
-	function NewPagesPage( $namespace = NS_MAIN ) {
+	var $namespace;
+	var $username = '';
+
+	function NewPagesPage( $namespace = NS_MAIN, $username = '' ) {
 		$this->namespace = $namespace;
+		$this->username = $username;
 	}
 
 	function getName() {
@@ -26,11 +27,22 @@ class NewPagesPage extends QueryPage {
 		return false;
 	}
 
+	function makeUserWhere( &$dbo ) {
+		$title = Title::makeTitleSafe( NS_USER, $this->username );
+		if( $title ) {
+			return ' AND rc_user_text = ' . $dbo->addQuotes( $title->getText() );
+		} else {
+			return '';
+		}
+	}
+
 	function getSQL() {
 		global $wgUser, $wgUseRCPatrol;
 		$usepatrol = ( $wgUseRCPatrol && $wgUser->isAllowed( 'patrol' ) ) ? 1 : 0;
-		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'recentchanges', 'page', 'text' ) );
+		$dbr = wfGetDB( DB_SLAVE );
+		list( $recentchanges, $page ) = $dbr->tableNamesN( 'recentchanges', 'page' );
+
+		$uwhere = $this->makeUserWhere( $dbr );
 
 		# FIXME: text will break with compression
 		return
@@ -38,9 +50,9 @@ class NewPagesPage extends QueryPage {
 				rc_namespace AS namespace,
 				rc_title AS title,
 				rc_cur_id AS cur_id,
-				rc_user AS user,
+				rc_user AS \"user\",
 				rc_user_text AS user_text,
-				rc_comment as comment,
+				rc_comment as \"comment\",
 				rc_timestamp AS timestamp,
 				rc_timestamp AS value,
 				'{$usepatrol}' as usepatrol,
@@ -50,7 +62,8 @@ class NewPagesPage extends QueryPage {
 				page_latest as rev_id
 			FROM $recentchanges,$page
 			WHERE rc_cur_id=page_id AND rc_new=1
-			AND rc_namespace=" . $this->namespace . " AND page_is_redirect=0";
+			AND rc_namespace=" . $this->namespace . " AND page_is_redirect=0
+			{$uwhere}";
 	}
 	
 	function preprocessResults( &$dbo, &$res ) {
@@ -81,8 +94,8 @@ class NewPagesPage extends QueryPage {
 		$time = $wgLang->timeAndDate( $result->timestamp, true );
 		$plink = $skin->makeKnownLinkObj( $title, '', $this->patrollable( $result ) ? 'rcid=' . $result->rcid : '' );
 		$hist = $skin->makeKnownLinkObj( $title, wfMsgHtml( 'hist' ), 'action=history' );
-		$length = wfMsgHtml( 'nbytes', $wgLang->formatNum( htmlspecialchars( $result->length ) ) );
-		$ulink = $skin->userLink( $result->user, $result->user_text ) . $skin->userToolLinks( $result->user, $result->user_text );
+		$length = wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ), $wgLang->formatNum( htmlspecialchars( $result->length ) ) );
+		$ulink = $skin->userLink( $result->user, $result->user_text ) . ' ' . $skin->userToolLinks( $result->user, $result->user_text );
 		$comment = $skin->commentBlock( $result->comment );
 
 		return "{$time} {$dm}{$plink} ({$hist}) {$dm}[{$length}] {$dm}{$ulink} {$comment}";
@@ -112,34 +125,23 @@ class NewPagesPage extends QueryPage {
 	}
 	
 	/**
-	 * Show a namespace selection form for filtering
+	 * Show a form for filtering namespace and username
 	 *
 	 * @return string
 	 */	
 	function getPageHeader() {
-		$thisTitle = Title::makeTitle( NS_SPECIAL, $this->getName() );
-		$form  = wfOpenElement( 'form', array(
-			'method' => 'post',
-			'action' => $thisTitle->getLocalUrl() ) );
-		$form .= wfElement( 'label', array( 'for' => 'namespace' ),
-			wfMsg( 'namespace' ) ) . ' ';
-		$form .= HtmlNamespaceSelector( $this->namespace );
-		# Preserve the offset and limit
-		$form .= wfElement( 'input', array(
-			'type' => 'hidden',
-			'name' => 'offset',
-			'value' => $this->offset ) );
-		$form .= wfElement( 'input', array(
-			'type' => 'hidden',
-			'name' => 'limit',
-			'value' => $this->limit ) );
-		$form .= wfElement( 'input', array(
-			'type' => 'submit',
-			'name' => 'submit',
-			'id' => 'submit',
-			'value' => wfMsg( 'allpagessubmit' ) ) );
-		$form .= wfCloseElement( 'form' );
-		return( $form );
+		$self = SpecialPage::getTitleFor( $this->getName() );
+		$form = Xml::openElement( 'form', array( 'method' => 'post', 'action' => $self->getLocalUrl() ) );
+		# Namespace selector
+		$form .= '<table><tr><td align="right">' . Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '</td>';
+		$form .= '<td>' . Xml::namespaceSelector( $this->namespace ) . '</td></tr>';
+		# Username filter
+		$form .= '<tr><td align="right">' . Xml::label( wfMsg( 'newpages-username' ), 'mw-np-username' ) . '</td>';
+		$form .= '<td>' . Xml::input( 'username', 30, $this->username, array( 'id' => 'mw-np-username' ) ) . '</td></tr>';
+		
+		$form .= '<tr><td></td><td>' . Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . '</td></tr></table>';
+		$form .= Xml::hidden( 'offset', $this->offset ) . Xml::hidden( 'limit', $this->limit ) . '</form>';
+		return $form;
 	}
 	
 	/**
@@ -148,7 +150,7 @@ class NewPagesPage extends QueryPage {
 	 * @return array
 	 */
 	function linkParameters() {
-		return( array( 'namespace' => $this->namespace ) );
+		return( array( 'namespace' => $this->namespace, 'username' => $this->username ) );
 	}
 	
 }
@@ -161,6 +163,7 @@ function wfSpecialNewpages($par, $specialPage) {
 
 	list( $limit, $offset ) = wfCheckLimits();
 	$namespace = NS_MAIN;
+	$username = '';
 
 	if ( $par ) {
 		$bits = preg_split( '/\s*,\s*/', trim( $par ) );
@@ -170,6 +173,7 @@ function wfSpecialNewpages($par, $specialPage) {
 			if ( is_numeric( $bit ) )
 				$limit = $bit;
 
+			$m = array();
 			if ( preg_match( '/^limit=(\d+)$/', $bit, $m ) )
 				$limit = intval($m[1]);
 			if ( preg_match( '/^offset=(\d+)$/', $bit, $m ) )
@@ -184,12 +188,14 @@ function wfSpecialNewpages($par, $specialPage) {
 	} else {
 		if( $ns = $wgRequest->getInt( 'namespace', 0 ) )
 			$namespace = $ns;
+		if( $un = $wgRequest->getText( 'username' ) )
+			$username = $un;
 	}
 	
 	if ( ! isset( $shownavigation ) )
 		$shownavigation = ! $specialPage->including();
 
-	$npp = new NewPagesPage( $namespace );
+	$npp = new NewPagesPage( $namespace, $username );
 
 	if ( ! $npp->doFeed( $wgRequest->getVal( 'feed' ), $limit ) )
 		$npp->doQuery( $offset, $limit, $shownavigation );

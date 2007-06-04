@@ -5,12 +5,12 @@
 
 require_once( "commandLine.inc" );
 
-$dbw =& wfGetDB( DB_MASTER );
+$dbw = wfGetDB( DB_MASTER );
 
 // Load the current value from the master
 $count = $dbw->selectField( 'site_stats', 'ss_images' );
 
-echo "$wgDBname: forcing ss_images to $count\n";
+echo wfWikiID().": forcing ss_images to $count\n";
 
 // First set to NULL so that it changes on the master
 $dbw->update( 'site_stats',

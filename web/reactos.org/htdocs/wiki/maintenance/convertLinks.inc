@@ -1,15 +1,14 @@
 <?php
 /**
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 /** */
 function convertLinks() {
 	global $wgDBtype;
-	if( $wgDBtype == 'PostgreSQL' ) {
-		print "Links table already ok on PostgreSQL.\n";
+	if( $wgDBtype == 'postgres' ) {
+		print "Links table already ok on Postgres.\n";
 		return;
 	}
 
@@ -18,7 +17,7 @@ function convertLinks() {
 	global $wgLang, $wgDBserver, $wgDBadminuser, $wgDBadminpassword, $wgDBname;
 	global $noKeys, $logPerformance, $fh;
 
-	$numRows = $tuplesAdded = $numBadLinks = $curRowsRead = 0; #counters etc
+	$tuplesAdded = $numBadLinks = $curRowsRead = 0; #counters etc
 	$totalTuplesInserted = 0; # total tuples INSERTed into links_temp
 
 	$reportCurReadProgress = true; #whether or not to give progress reports while reading IDs from cur table
@@ -43,8 +42,8 @@ function convertLinks() {
 	$perfLogFilename = "convLinksPerf.txt";
 	#--------------------------------------------------------------------
 
-	$dbw =& wfGetDB( DB_MASTER );
-	extract( $dbw->tableNames( 'cur', 'links', 'links_temp', 'links_backup' ) );
+	$dbw = wfGetDB( DB_MASTER );
+	list ($cur, $links, $links_temp, $links_backup) = $dbw->tableNamesN( 'cur', 'links', 'links_temp', 'links_backup' );
 
 	$res = $dbw->query( "SELECT l_from FROM $links LIMIT 1" );
 	if ( $dbw->fieldType( $res, 0 ) == "int" ) {

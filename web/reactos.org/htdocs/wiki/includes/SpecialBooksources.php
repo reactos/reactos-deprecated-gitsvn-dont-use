@@ -1,109 +1,113 @@
 <?php
+
 /**
- * ISBNs in wiki pages will create links to this page, with the ISBN passed
- * in via the query string.
+ * Special page outputs information on sourcing a book with a particular ISBN
+ * The parser creates links to this page when dealing with ISBNs in wikitext
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
+ * @author Rob Church <robchur@gmail.com>
+ * @todo Validate ISBNs using the standard check-digit method
  */
+class SpecialBookSources extends SpecialPage {
 
-/**
- * Constructor
- */
-function wfSpecialBooksources( $par ) {
-	global $wgRequest;
-
-	$isbn = $par;
-	if( empty( $par ) ) {
-		$isbn = $wgRequest->getVal( 'isbn' );
+	/**
+	 * ISBN passed to the page, if any
+	 */
+	private $isbn = '';
+	
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		parent::__construct( 'Booksources' );
 	}
-	$isbn = preg_replace( '/[^0-9X]/', '', $isbn );
-
-	$bsl = new BookSourceList( $isbn );
-	$bsl->show();
-}
-
-/**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
- */
-class BookSourceList {
-	var $mIsbn;
-
-	function BookSourceList( $isbn ) {
-		$this->mIsbn = $isbn;
-	}
-
-	function show() {
-		global $wgOut;
-
-		$wgOut->setPagetitle( wfMsg( "booksources" ) );
-		if( $this->mIsbn == '' ) {
-			$this->askForm();
-		} else {
+	
+	/**
+	 * Show the special page
+	 *
+	 * @param $isbn ISBN passed as a subpage parameter
+	 */
+	public function execute( $isbn = false ) {
+		global $wgOut, $wgRequest;
+		$this->setHeaders();
+		$this->isbn = $this->cleanIsbn( $isbn ? $isbn : $wgRequest->getText( 'isbn' ) );
+		$wgOut->addWikiText( wfMsgNoTrans( 'booksources-summary' ) );
+		$wgOut->addHtml( $this->makeForm() );
+		if( strlen( $this->isbn ) > 0 )
 			$this->showList();
-		}
 	}
-
-	function showList() {
+	
+	/**
+	 * Trim ISBN and remove characters which aren't required
+	 *
+	 * @param $isbn Unclean ISBN
+	 * @return string
+	 */
+	private function cleanIsbn( $isbn ) {
+		return trim( preg_replace( '![^0-9X]!', '', $isbn ) );
+	}
+	
+	/**
+	 * Generate a form to allow users to enter an ISBN
+	 *
+	 * @return string
+	 */
+	private function makeForm() {
+		global $wgScript;
+		$title = self::getTitleFor( 'Booksources' );
+		$form  = '<fieldset><legend>' . wfMsgHtml( 'booksources-search-legend' ) . '</legend>';
+		$form .= Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) );
+		$form .= Xml::hidden( 'title', $title->getPrefixedText() );
+		$form .= '<p>' . Xml::inputLabel( wfMsg( 'booksources-isbn' ), 'isbn', 'isbn', 20, $this->isbn );
+		$form .= '&nbsp;' . Xml::submitButton( wfMsg( 'booksources-go' ) ) . '</p>';
+		$form .= Xml::closeElement( 'form' );
+		$form .= '</fieldset>';
+		return $form;
+	}
+	
+	/**
+	 * Determine where to get the list of book sources from,
+	 * format and output them
+	 *
+	 * @return string
+	 */
+	private function showList() {
 		global $wgOut, $wgContLang;
-		$fname = "BookSourceList::showList()";
-
-		# First, see if we have a custom list setup in
-		# [[Wikipedia:Book sources]] or equivalent.
-		$bstitle = Title::makeTitleSafe( NS_PROJECT, wfMsg( "booksources" ) );
-		if( $bstitle ) {
-			$revision = Revision::newFromTitle( $bstitle );
-			if( $revision ) {
-				$bstext = $revision->getText();
-				if( $bstext ) {
-					$bstext = str_replace( "MAGICNUMBER", $this->mIsbn, $bstext );
-					$wgOut->addWikiText( $bstext );
-					return;
-				}
-			}
+		
+		# Hook to allow extensions to insert additional HTML,
+		# e.g. for API-interacting plugins and so on
+		wfRunHooks( 'BookInformation', array( $this->isbn, &$wgOut ) );
+		
+		# Check for a local page such as Project:Book_sources and use that if available
+		$title = Title::makeTitleSafe( NS_PROJECT, wfMsg( 'booksources' ) ); # Should this be wfMsgForContent()? -- RC
+		if( is_object( $title ) && $title->exists() ) {
+			$rev = Revision::newFromTitle( $title );
+			$wgOut->addWikiText( str_replace( 'MAGICNUMBER', $this->isbn, $rev->getText() ) );
+			return true;
 		}
-
-		# Otherwise, use the list of links in the default Language.php file.
-		$s = wfMsgWikiHtml( 'booksourcetext' ) . "<ul>\n";
-		$bs = $wgContLang->getBookstoreList() ;
-		$bsn = array_keys ( $bs ) ;
-		foreach ( $bsn as $name ) {
-			$adr = $bs[$name] ;
-			if ( ! $this->mIsbn ) {
-				$adr = explode( ":" , $adr , 2 );
-				$adr = explode( "/" , $adr[1] );
-				$a = "";
-				while ( $a == "" ) {
-					$a = array_shift( $adr );
-				}
-				$adr = "http://".$a ;
-			} else {
-				$adr = str_replace ( "$1" , $this->mIsbn , $adr ) ;
-			}
-			$name = htmlspecialchars( $name );
-			$adr = htmlspecialchars( $adr );
-			$s .= "<li><a href=\"{$adr}\" class=\"external\">{$name}</a></li>\n" ;
-		}
-		$s .= "</ul>\n";
-
-		$wgOut->addHTML( $s );
+		
+		# Fall back to the defaults given in the language file
+		$wgOut->addWikiText( wfMsgNoTrans( 'booksources-text' ) );
+		$wgOut->addHtml( '<ul>' );
+		$items = $wgContLang->getBookstoreList();
+		foreach( $items as $label => $url )
+			$wgOut->addHtml( $this->makeListItem( $label, $url ) );
+		$wgOut->addHtml( '</ul>' );
+		return true;
+	}
+	
+	/**
+	 * Format a book source list item
+	 *
+	 * @param $label Book source label
+	 * @param $url Book source URL
+	 * @return string
+	 */
+	private function makeListItem( $label, $url ) {
+		$url = str_replace( '$1', $this->isbn, $url );
+		return '<li><a href="' . htmlspecialchars( $url ) . '">' . htmlspecialchars( $label ) . '</a></li>';
 	}
 
-	function askForm() {
-		global $wgOut, $wgTitle;
-		$fname = "BookSourceList::askForm()";
-
-		$action = $wgTitle->escapeLocalUrl();
-		$isbn = htmlspecialchars( wfMsg( "isbn" ) );
-		$go = htmlspecialchars( wfMsg( "go" ) );
-		$out = "<form action=\"$action\" method='post'>
-			$isbn: <input name='isbn' id='isbn' />
-			<input type='submit' value=\"$go\" />
-		</form>";
-		$wgOut->addHTML( $out );
-	}
 }
 
 ?>

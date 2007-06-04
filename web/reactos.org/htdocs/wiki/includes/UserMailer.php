@@ -22,7 +22,6 @@
  * @author <brion@pobox.com>
  * @author <mail@tgries.de>
  *
- * @package MediaWiki
  */
 
 /**
@@ -33,13 +32,18 @@ function wfRFC822Phrase( $phrase ) {
 	return '"' . $phrase . '"';
 }
 
+/**
+ * Stores a single person's name and email address.
+ * These are passed in via the constructor, and will be returned in SMTP
+ * header format when requested.
+ */
 class MailAddress {
 	/**
 	 * @param mixed $address String with an email address, or a User object
 	 * @param string $name Human-readable name if a string address is given
 	 */
-	function MailAddress( $address, $name=null ) {
-		if( is_object( $address ) && is_a( $address, 'User' ) ) {
+	function __construct( $address, $name=null ) {
+		if( is_object( $address ) && $address instanceof User ) {
 			$this->address = $address->getEmail();
 			$this->name = $address->getName();
 		} else {
@@ -53,7 +57,10 @@ class MailAddress {
 	 * @return string
 	 */
 	function toString() {
-		if( $this->name != '' ) {
+		# PHP's mail() implementation under Windows is somewhat shite, and
+		# can't handle "Joe Bloggs <joe@bloggs.com>" format email addresses,
+		# so don't bother generating them
+		if( $this->name != '' && !wfIsWindows() ) {
 			$quoted = wfQuotedPrintable( $this->name );
 			if( strpos( $quoted, '.' ) !== false ) {
 				$quoted = '"' . $quoted . '"';
@@ -75,9 +82,9 @@ class MailAddress {
  * @param $from MailAddress: sender's email
  * @param $subject String: email's subject.
  * @param $body String: email's text.
- * @param $replyto String: optional reply-to email (default: false).
+ * @param $replyto String: optional reply-to email (default: null).
  */
-function userMailer( $to, $from, $subject, $body, $replyto=false ) {
+function userMailer( $to, $from, $subject, $body, $replyto=null ) {
 	global $wgUser, $wgSMTP, $wgOutputEncoding, $wgErrorString;
 
 	if (is_array( $wgSMTP )) {
@@ -89,7 +96,7 @@ function userMailer( $to, $from, $subject, $body, $replyto=false ) {
 		$headers['From'] = $from->toString();
 		$headers['To'] = $to->toString();
 		if ( $replyto ) {
-			$headers['Reply-To'] = $replyto;
+			$headers['Reply-To'] = $replyto->toString();
 		}
 		$headers['Subject'] = wfQuotedPrintable( $subject );
 		$headers['Date'] = date( 'r' );
@@ -101,6 +108,11 @@ function userMailer( $to, $from, $subject, $body, $replyto=false ) {
 
 		// Create the mail object using the Mail::factory method
 		$mail_object =& Mail::factory('smtp', $wgSMTP);
+		if( PEAR::isError( $mail_object ) ) {
+			wfDebug( "PEAR::Mail factory failed: " . $mail_object->getMessage() . "\n" );
+			return $mail_object->getMessage();
+		}
+
 		wfDebug( "Sending mail via PEAR::Mail to $dest\n" );
 		$mailResult =& $mail_object->send($dest, $headers, $body);
 
@@ -117,14 +129,23 @@ function userMailer( $to, $from, $subject, $body, $replyto=false ) {
 	} else	{
 		# In the following $headers = expression we removed "Reply-To: {$from}\r\n" , because it is treated differently
 		# (fifth parameter of the PHP mail function, see some lines below)
+
+		# Line endings need to be different on Unix and Windows due to 
+		# the bug described at http://trac.wordpress.org/ticket/2603
+		if ( wfIsWindows() ) {
+			$body = str_replace( "\n", "\r\n", $body );
+			$endl = "\r\n";
+		} else {
+			$endl = "\n";
+		}
 		$headers =
-			"MIME-Version: 1.0\n" .
-			"Content-type: text/plain; charset={$wgOutputEncoding}\n" .
-			"Content-Transfer-Encoding: 8bit\n" .
-			"X-Mailer: MediaWiki mailer\n".
-			'From: ' . $from->toString() . "\n";
+			"MIME-Version: 1.0$endl" .
+			"Content-type: text/plain; charset={$wgOutputEncoding}$endl" .
+			"Content-Transfer-Encoding: 8bit$endl" .
+			"X-Mailer: MediaWiki mailer$endl".
+			'From: ' . $from->toString();
 		if ($replyto) {
-			$headers .= "Reply-To: $replyto\n";
+			$headers .= "{$endl}Reply-To: " . $replyto->toString();
 		}
 
 		$dest = $to->toString();
@@ -150,7 +171,7 @@ function userMailer( $to, $from, $subject, $body, $replyto=false ) {
  */
 function mailErrorHandler( $code, $string ) {
 	global $wgErrorString;
-	$wgErrorString = preg_replace( "/^mail\(\): /", '', $string );
+	$wgErrorString = preg_replace( '/^mail\(\)(\s*\[.*?\])?: /', '', $string );
 }
 
 
@@ -172,7 +193,6 @@ function mailErrorHandler( $code, $string ) {
  *
  * Visit the documentation pages under http://meta.wikipedia.com/Enotif
  *
- * @package MediaWiki
  *
  */
 class EmailNotification {
@@ -209,6 +229,13 @@ class EmailNotification {
 		$enotifusertalkpage = ($isUserTalkPage && $wgEnotifUserTalk);
 		$enotifwatchlistpage = $wgEnotifWatchlist;
 
+		$this->title =& $title;
+		$this->timestamp = $timestamp;
+		$this->summary = $summary;
+		$this->minorEdit = $minorEdit;
+		$this->oldid = $oldid;
+		$this->composeCommonMailtext();
+
 		if ( (!$minorEdit || $wgEnotifMinorEdits) ) {
 			if( $wgEnotifWatchlist ) {
 				// Send updates to watchers other than the current editor
@@ -230,8 +257,7 @@ class EmailNotification {
 				$userCondition = false;
 			}
 			if( $userCondition ) {
-				$dbr =& wfGetDB( DB_MASTER );
-				extract( $dbr->tableNames( 'watchlist' ) );
+				$dbr = wfGetDB( DB_MASTER );
 
 				$res = $dbr->select( 'watchlist', array( 'wl_user' ),
 					array(
@@ -244,13 +270,7 @@ class EmailNotification {
 				# if anyone is watching ... set up the email message text which is
 				# common for all receipients ...
 				if ( $dbr->numRows( $res ) > 0 ) {
-					$this->title =& $title;
-					$this->timestamp = $timestamp;
-					$this->summary = $summary;
-					$this->minorEdit = $minorEdit;
-					$this->oldid = $oldid;
 
-					$this->composeCommonMailtext();
 					$watchingUser = new User();
 
 					# ... now do for all watching users ... if the options fit
@@ -258,8 +278,11 @@ class EmailNotification {
 
 						$wuser = $dbr->fetchObject( $res );
 						$watchingUser->setID($wuser->wl_user);
+						
 						if ( ( $enotifwatchlistpage && $watchingUser->getOption('enotifwatchlistpages') ) ||
-							( $enotifusertalkpage && $watchingUser->getOption('enotifusertalkpages') )
+							( $enotifusertalkpage
+								&& $watchingUser->getOption('enotifusertalkpages')
+								&& $title->equals( $watchingUser->getTalkPage() ) )
 						&& (!$minorEdit || ($wgEnotifMinorEdits && $watchingUser->getOption('enotifminoredits') ) )
 						&& ($watchingUser->isEmailConfirmed() ) ) {
 							# ... adjust remaining text and page edit time placeholders
@@ -272,10 +295,16 @@ class EmailNotification {
 			} # if anyone is watching
 		} # if $wgEnotifWatchlist = true
 
+		global $wgUsersNotifedOnAllChanges;
+		foreach ( $wgUsersNotifedOnAllChanges as $name ) {
+			$user = User::newFromName( $name );
+			$this->composeAndSendPersonalisedMail( $user );
+		}
+
 		if ( $wgShowUpdatedMarker || $wgEnotifWatchlist ) {
 			# mark the changed watch-listed page with a timestamp, so that the page is
 			# listed with an "updated since your last visit" icon in the watch list, ...
-			$dbw =& wfGetDB( DB_MASTER );
+			$dbw = wfGetDB( DB_MASTER );
 			$success = $dbw->update( 'watchlist',
 				array( /* SET */
 					'wl_notificationtimestamp' => $dbw->timestamp($timestamp)
@@ -286,7 +315,7 @@ class EmailNotification {
 			);
 			# FIXME what do we do on failure ?
 		}
-
+		wfProfileOut( $fname );
 	} # function NotifyOnChange
 
 	/**
@@ -351,7 +380,7 @@ class EmailNotification {
 			}
 		} else {
 			$from    = $adminAddress;
-			$replyto = $wgNoReplyAddress;
+			$replyto = new MailAddress( $wgNoReplyAddress );
 		}
 
 		if( $wgUser->isIP( $name ) ) {
@@ -362,7 +391,7 @@ class EmailNotification {
 		} else {
 			$subject = str_replace('$PAGEEDITOR', $name, $subject);
 			$keys['$PAGEEDITOR']          = $name;
-			$emailPage = Title::makeTitle( NS_SPECIAL, 'Emailuser/' . $name );
+			$emailPage = SpecialPage::getSafeTitleFor( 'Emailuser', $name );
 			$keys['$PAGEEDITOR_EMAIL'] = $emailPage->getFullUrl();
 		}
 		$userPage = $wgUser->getUserPage();

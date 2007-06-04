@@ -1,14 +1,12 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * implements Special:Wantedpages
+ * @addtogroup SpecialPage
  */
 class WantedPagesPage extends QueryPage {
 	var $nlinks;
@@ -30,7 +28,7 @@ class WantedPagesPage extends QueryPage {
 	function getSQL() {
 		global $wgWantedPagesThreshold;
 		$count = $wgWantedPagesThreshold - 1;
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$pagelinks = $dbr->tableName( 'pagelinks' );
 		$page      = $dbr->tableName( 'page' );
 		return
@@ -46,7 +44,7 @@ class WantedPagesPage extends QueryPage {
 			 WHERE pg1.page_namespace IS NULL
 			 AND pl_namespace NOT IN ( 2, 3 )
 			 AND pg2.page_namespace != 8
-			 GROUP BY pl_namespace, pl_title
+			 GROUP BY 1,2,3
 			 HAVING COUNT(*) > $count";
 	}
 
@@ -103,7 +101,7 @@ class WantedPagesPage extends QueryPage {
 	 * @return string
 	 */
 	function makeWlhLink( &$title, &$skin, $text ) {
-		$wlhTitle = Title::makeTitle( NS_SPECIAL, 'Whatlinkshere' );
+		$wlhTitle = SpecialPage::getTitleFor( 'Whatlinkshere' );
 		return $skin->makeKnownLinkObj( $wlhTitle, $text, 'target=' . $title->getPrefixedUrl() );
 	}
 	

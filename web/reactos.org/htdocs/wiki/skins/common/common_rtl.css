@@ -1,3 +1,6 @@
+/* This CSS file is called from absolutely every wiki that's RTL: unlike
+ * common.css, it's actually common to all skins. */
+
 /* js pref toc */
 #preftoc { float: right; }
 /* workaround for moz bug, displayed bullets on left side */
@@ -12,4 +15,18 @@ fieldset.operaprefsection {
 #pagehistory span.user { 
     margin-right: 1.4em;
     margin-left: 0.4em;
+}
+.editsection {
+	float: left;
+	margin-right: 5px;
+}
+div.tright, div.floatright {
+	clear: none;
+}
+div.tleft, div.floatleft {
+	clear: left;
+}
+/* Unblock and Ipblocklist links of Special:Blockip */
+p.mw-ipb-conveniencelinks {
+	float: left;
 }

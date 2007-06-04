@@ -1,6 +1,5 @@
 <?php
 /**
- * @package MediaWiki
  */
 # Copyright (C) 2004 Brion Vibber <brion@pobox.com>
 # http://www.mediawiki.org/
@@ -33,7 +32,6 @@
  * This interface is new, and might change a bit before 1.4.0 final is
  * done...
  *
- * @package MediaWiki
  */
 class AuthPlugin {
 	/**
@@ -146,13 +144,18 @@ class AuthPlugin {
 
 	/**
 	 * Set the given password in the authentication database.
+	 * As a special case, the password may be set to null to request
+	 * locking the password to an unusable value, with the expectation
+	 * that it will be set later through a mail reset or other method.
+	 *
 	 * Return true if successful.
 	 *
+	 * @param $user User object.
 	 * @param $password String: password.
 	 * @return bool
 	 * @public
 	 */
-	function setPassword( $password ) {
+	function setPassword( $user, $password ) {
 		return true;
 	}
 
@@ -182,12 +185,14 @@ class AuthPlugin {
 	 * Add a user to the external authentication database.
 	 * Return true if successful.
 	 *
-	 * @param User $user
+	 * @param User $user - only the name should be assumed valid at this point
 	 * @param string $password
+	 * @param string $email
+	 * @param string $realname
 	 * @return bool
 	 * @public
 	 */
-	function addUser( $user, $password ) {
+	function addUser( $user, $password, $email='', $realname='' ) {
 		return true;
 	}
 

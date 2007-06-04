@@ -4,27 +4,18 @@
 
 /* This bit is needed to make links clickable... WTF */
 #column-content #content {
-	margin-left: 12.2em;
 	margin-top: 3em;
 	height: 1%;
-}
-
-.rtl #column-one {
-	/* For some reason it tries to inherit the padding-top into every div,
-	 * and I can't figure out how to get it back off.
-	 */
-	padding-top: 0;
-}
-.rtl #column-one #p-navigation {
-	margin-top: 160px;
 }
 
 /* the tabs */
 
 #p-cactions {
+	position: absolute;
+	left: 157px;
+	top: 175px;
 	z-index: 3;
 }
-
 
 #p-cactions li {
 	padding-bottom: 0 !important;
@@ -47,10 +38,6 @@
 }
 #p-cactions li a:hover {
 	padding-bottom: 0.17em;
-}
-#p-navigation a {
-	display: inline-block;
-	width: 100%;
 }
 #portal-personaltools {
 	padding-bottom: 0.1em;

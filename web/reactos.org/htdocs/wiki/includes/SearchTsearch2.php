@@ -19,14 +19,12 @@
 
 /**
  * Search engine hook for PostgreSQL / Tsearch2
- * @package MediaWiki
- * @subpackage Search
+ * @addtogroup Search
  */
 
 /**
  * @todo document
- * @package MediaWiki
- * @subpackage Search
+ * @addtogroup Search
  */
 class SearchTsearch2 extends SearchEngine {
 	var $strictMatching = false;
@@ -47,6 +45,7 @@ class SearchTsearch2 extends SearchEngine {
 		$this->searchTerms = array();
 
 		# FIXME: This doesn't handle parenthetical expressions.
+		$m = array();
 		if( preg_match_all( '/([-+<>~]?)(([' . $lc . ']+)(\*?)|"[^"]*")/',
 			  $filteredText, $m, PREG_SET_ORDER ) ) {
 			foreach( $m as $terms ) {
@@ -64,7 +63,7 @@ class SearchTsearch2 extends SearchEngine {
 				$this->searchTerms[] = $regexp;
 			}
 			wfDebug( "Would search with '$searchon'\n" );
-			wfDebug( "Match with /\b" . implode( '\b|\b', $this->searchTerms ) . "\b/\n" );
+			wfDebug( 'Match with /\b' . implode( '\b|\b', $this->searchTerms ) . "\b/\n" );
 		} else {
 			wfDebug( "Can't understand search query '{$this->filteredText}'\n" );
 		}
@@ -96,7 +95,7 @@ class SearchTsearch2 extends SearchEngine {
 	}
 
 	function update( $id, $title, $text ) {
-	        $dbw=& wfGetDB(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 		$searchindex = $dbw->tableName( 'searchindex' );
 		$sql = "DELETE FROM $searchindex WHERE si_page={$id}";
 		$dbw->query($sql,"SearchTsearch2:update");
@@ -109,13 +108,13 @@ class SearchTsearch2 extends SearchEngine {
 	}
 
 	function updateTitle($id,$title) {
-	        $dbw=& wfGetDB(DB_MASTER);
-	        $searchindex = $dbw->tableName( 'searchindex' );
-	        $sql = "UPDATE $searchindex SET si_title=to_tsvector('" .
-	                  $db->strencode( $title ) .
-	                  "') WHERE si_page={$id}";
+		$dbw = wfGetDB(DB_MASTER);
+		$searchindex = $dbw->tableName( 'searchindex' );
+		$sql = "UPDATE $searchindex SET si_title=to_tsvector('" .
+				$dbw->strencode( $title ) .
+				"') WHERE si_page={$id}";
 
-	        $dbw->query( $sql, "SearchMySQL4::updateTitle" );
+		$dbw->query( $sql, "SearchMySQL4::updateTitle" );
 	}
 
 }

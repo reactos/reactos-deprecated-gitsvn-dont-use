@@ -4,8 +4,7 @@
  * Support functions for the removeUnusedAccounts maintenance script
  *
  *
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  * @author Rob Church <robchur@gmail.com>
  */
 
@@ -18,7 +17,7 @@
  * @return bool
  */
 function isInactiveAccount( $id, $master = false ) {
-	$dbo =& wfGetDB( $master ? DB_MASTER : DB_SLAVE );
+	$dbo = wfGetDB( $master ? DB_MASTER : DB_SLAVE );
 	$fname = 'isInactiveAccount';
 	$checks = array( 'revision' => 'rev', 'archive' => 'ar', 'logging' => 'log',
 					 'image' => 'img', 'oldimage' => 'oi' );

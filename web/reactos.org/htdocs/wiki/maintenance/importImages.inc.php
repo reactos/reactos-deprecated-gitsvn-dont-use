@@ -3,8 +3,7 @@
 /**
  * Support functions for the importImages script
  *
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  * @author Rob Church <robchur@gmail.com>
  */
 
@@ -20,7 +19,7 @@ function findFiles( $dir, $exts ) {
 		if( $dhl = opendir( $dir ) ) {
 			while( ( $file = readdir( $dhl ) ) !== false ) {
 				if( is_file( $dir . '/' . $file ) ) {
-					list( $name, $ext ) = splitFilename( $dir . '/' . $file );
+					list( /* $name */, $ext ) = splitFilename( $dir . '/' . $file );
 					if( array_search( strtolower( $ext ), $exts ) !== false )
 						$files[] = $dir . '/' . $file;
 				}

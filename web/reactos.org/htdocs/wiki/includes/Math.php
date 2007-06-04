@@ -1,7 +1,6 @@
 <?php
 /**
  * Contain everything related to <math> </math> parsing
- * @package MediaWiki
  */
 
 /**
@@ -11,7 +10,6 @@
  *
  * by Tomasz Wegrzanowski, with additions by Brion Vibber (2003, 2004)
  *
- * @package MediaWiki
  */
 class MathRenderer {
 	var $mode = MW_MATH_MODERN;
@@ -22,7 +20,7 @@ class MathRenderer {
 	var $mathml = '';
 	var $conservativeness = 0;
 
-	function MathRenderer( $tex ) {
+	function __construct( $tex ) {
 		$this->tex = $tex;
  	}
 
@@ -38,6 +36,9 @@ class MathRenderer {
 		if( $this->mode == MW_MATH_SOURCE ) {
 			# No need to render or parse anything more!
 			return ('$ '.htmlspecialchars( $this->tex ).' $');
+		}
+		if( $this->tex == '' ) {
+			return; # bug 8372
 		}
 
 		if( !$this->_recall() ) {
@@ -75,12 +76,13 @@ class MathRenderer {
 			$retval = substr ($contents, 0, 1);
 			$errmsg = '';
 			if (($retval == 'C') || ($retval == 'M') || ($retval == 'L')) {
-				if ($retval == 'C')
+				if ($retval == 'C') {
 					$this->conservativeness = 2;
-				else if ($retval == 'M')
+				} else if ($retval == 'M') {
 					$this->conservativeness = 1;
-				else
+				} else {
 					$this->conservativeness = 0;
+				}
 				$outdata = substr ($contents, 33);
 
 				$i = strpos($outdata, "\000");
@@ -89,12 +91,13 @@ class MathRenderer {
 				$this->mathml = substr($outdata, $i+1);
 			} else if (($retval == 'c') || ($retval == 'm') || ($retval == 'l'))  {
 				$this->html = substr ($contents, 33);
-				if ($retval == 'c')
+				if ($retval == 'c') {
 					$this->conservativeness = 2;
-				else if ($retval == 'm')
+				} else if ($retval == 'm') {
 					$this->conservativeness = 1;
-				else
+				} else {
 					$this->conservativeness = 0;
+				}
 				$this->mathml = NULL;
 			} else if ($retval == 'X') {
 				$this->html = NULL;
@@ -118,7 +121,7 @@ class MathRenderer {
 				 $this->hash = substr ($contents, 1, 32);
 			}
 
-			$res = wfRunHooks( 'MathAfterTexvc', array( &$this, &$errmsg ) );
+			wfRunHooks( 'MathAfterTexvc', array( &$this, &$errmsg ) );
 
 			if ( $errmsg ) {
 				 return $errmsg;
@@ -151,7 +154,7 @@ class MathRenderer {
 
 				$md5_sql = pack('H32', $this->md5); # Binary packed, not hex
 
-				$dbw =& wfGetDB( DB_MASTER );
+				$dbw = wfGetDB( DB_MASTER );
 				$dbw->replace( 'math', array( 'math_inputhash' ),
 				  array(
 					'math_inputhash' => $md5_sql,
@@ -180,7 +183,7 @@ class MathRenderer {
 		$fname = 'MathRenderer::_recall';
 
 		$this->md5 = md5( $this->tex );
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$rpage = $dbr->selectRow( 'math',
 			array( 'math_outputhash','math_html_conservativeness','math_html','math_mathml' ),
 			array( 'math_inputhash' => pack("H32", $this->md5)), # Binary packed, not hex
@@ -259,7 +262,7 @@ class MathRenderer {
 		return $path;
 	}
 
-	function renderMath( $tex ) {
+	public static function renderMath( $tex ) {
 		global $wgUser;
 		$math = new MathRenderer( $tex );
 		$math->setOutputMode( $wgUser->getOption('math'));

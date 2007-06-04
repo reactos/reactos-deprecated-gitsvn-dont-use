@@ -1,35 +1,33 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
  *
  */
-require_once( 'SpecialRecentchanges.php' );
+require_once( dirname(__FILE__) . '/SpecialRecentchanges.php' );
 
 /**
  * Constructor
- * @todo Document $par parameter.
- * @param $par String: FIXME
+ *
+ * @param $par Parameter passed to the page
  */
 function wfSpecialWatchlist( $par ) {
-	global $wgUser, $wgOut, $wgLang, $wgMemc, $wgRequest, $wgContLang;
-	global $wgUseWatchlistCache, $wgWLCacheTimeout, $wgDBname;
+	global $wgUser, $wgOut, $wgLang, $wgRequest, $wgContLang;
 	global $wgRCShowWatchingUsers, $wgEnotifWatchlist, $wgShowUpdatedMarker;
 	global $wgEnotifWatchlist;
 	$fname = 'wfSpecialWatchlist';
 
-	$skin =& $wgUser->getSkin();
-	$specialTitle = Title::makeTitle( NS_SPECIAL, 'Watchlist' );
+	$skin = $wgUser->getSkin();
+	$specialTitle = SpecialPage::getTitleFor( 'Watchlist' );
 	$wgOut->setRobotPolicy( 'noindex,nofollow' );
 
 	# Anons don't get a watchlist
 	if( $wgUser->isAnon() ) {
 		$wgOut->setPageTitle( wfMsg( 'watchnologin' ) );
-		$llink = $skin->makeKnownLinkObj( Title::makeTitle( NS_SPECIAL, 'Userlogin' ), wfMsgHtml( 'loginreqlink' ), 'returnto=' . $specialTitle->getPrefixedUrl() );
+		$llink = $skin->makeKnownLinkObj( SpecialPage::getTitleFor( 'Userlogin' ), wfMsgHtml( 'loginreqlink' ), 'returnto=' . $specialTitle->getPrefixedUrl() );
 		$wgOut->addHtml( wfMsgWikiHtml( 'watchlistanontext', $llink ) );
 		return;
 	} else {
@@ -45,6 +43,7 @@ function wfSpecialWatchlist( $par ) {
 	/* float */ 'days' => floatval( $wgUser->getOption( 'watchlistdays' ) ), /* 3.0 or 0.5, watch further below */
 	/* bool  */ 'hideOwn' => (int)$wgUser->getBoolOption( 'watchlisthideown' ),
 	/* bool  */ 'hideBots' => (int)$wgUser->getBoolOption( 'watchlisthidebots' ),
+	/* bool */ 'hideMinor' => (int)$wgUser->getBoolOption( 'watchlisthideminor' ),
 	/* ?     */ 'namespace' => 'all',
 	);
 
@@ -55,12 +54,14 @@ function wfSpecialWatchlist( $par ) {
 	$prefs['days'    ] = floatval( $wgUser->getOption( 'watchlistdays' ) );
 	$prefs['hideown' ] = $wgUser->getBoolOption( 'watchlisthideown' );
 	$prefs['hidebots'] = $wgUser->getBoolOption( 'watchlisthidebots' );
+	$prefs['hideminor'] = $wgUser->getBoolOption( 'watchlisthideminor' );
 
 	# Get query variables
-	$days = $wgRequest->getVal( 'days', $prefs['days'] );
-	$hideOwn = $wgRequest->getBool( 'hideOwn', $prefs['hideown'] );
+	$days     = $wgRequest->getVal(  'days', $prefs['days'] );
+	$hideOwn  = $wgRequest->getBool( 'hideOwn', $prefs['hideown'] );
 	$hideBots = $wgRequest->getBool( 'hideBots', $prefs['hidebots'] );
-	
+	$hideMinor = $wgRequest->getBool( 'hideMinor', $prefs['hideminor'] );
+
 	# Get namespace value, if supplied, and prepare a WHERE fragment
 	$nameSpace = $wgRequest->getIntOrNull( 'namespace' );
 	if( !is_null( $nameSpace ) ) {
@@ -74,51 +75,41 @@ function wfSpecialWatchlist( $par ) {
 	# Watchlist editing
 	$action = $wgRequest->getVal( 'action' );
 	$remove = $wgRequest->getVal( 'remove' );
-	$id = $wgRequest->getArray( 'id' );
+	$id     = $wgRequest->getArray( 'id' );
 
 	$uid = $wgUser->getID();
 	if( $wgEnotifWatchlist && $wgRequest->getVal( 'reset' ) && $wgRequest->wasPosted() ) {
 		$wgUser->clearAllNotifications( $uid );
 	}
 
-  # Deleting items from watchlist
+	 # Deleting items from watchlist
 	if(($action == 'submit') && isset($remove) && is_array($id)) {
 		$wgOut->addWikiText( wfMsg( 'removingchecked' ) );
-		$wgOut->addHTML( '<p>' );
+		$wgOut->addHTML( "<ul id=\"mw-unwatch-list\">\n" );
 		foreach($id as $one) {
 			$t = Title::newFromURL( $one );
 			if( !is_null( $t ) ) {
 				$wl = WatchedItem::fromUserTitle( $wgUser, $t );
 				if( $wl->removeWatch() === false ) {
-					$wgOut->addHTML( "<br />\n" . wfMsg( 'couldntremove', htmlspecialchars($one) ) );
+					$wgOut->addHTML( '<li class="mw-unwatch-failure">' . wfMsg( 'couldntremove', htmlspecialchars($one) ) . "</li>\n" );
 				} else {
 					wfRunHooks('UnwatchArticle', array(&$wgUser, new Article($t)));
-					$wgOut->addHTML( ' (' . htmlspecialchars($one) . ')' );
+					$wgOut->addHTML( '<li class="mw-unwatch-success">[[' . htmlspecialchars($one) . "]]</li>\n" );
 				}
 			} else {
-				$wgOut->addHTML( "<br />\n" . wfMsg( 'iteminvalidname', htmlspecialchars($one) ) );
+				$wgOut->addHTML( '<li class="mw-unwatch-invalid">' . wfMsg( 'iteminvalidname', htmlspecialchars($one) ) . "</li>\n" );
 			}
 		}
-		$wgOut->addHTML( "<br />\n" . wfMsg( 'wldone' ) . "</p>\n" );
+		$wgOut->addHTML( "</ul>\n<p>" . wfMsg( 'wldone' ) . "</p>\n" );
 	}
 
-	if ( $wgUseWatchlistCache ) {
-		$memckey = "$wgDBname:watchlist:id:" . $wgUser->getId();
-		$cache_s = @$wgMemc->get( $memckey );
-		if( $cache_s ){
-			$wgOut->addWikiText( wfMsg('wlsaved') );
-			$wgOut->addHTML( $cache_s );
-			return;
-		}
-	}
-
-	$dbr =& wfGetDB( DB_SLAVE );
-	extract( $dbr->tableNames( 'page', 'revision', 'watchlist', 'recentchanges' ) );
+	$dbr = wfGetDB( DB_SLAVE, 'watchlist' );
+	list( $page, $watchlist, $recentchanges ) = $dbr->tableNamesN( 'page', 'watchlist', 'recentchanges' );
 
 	$sql = "SELECT COUNT(*) AS n FROM $watchlist WHERE wl_user=$uid";
 	$res = $dbr->query( $sql, $fname );
 	$s = $dbr->fetchObject( $res );
-	
+
 #	Patch *** A1 *** (see A2 below)
 #	adjust for page X, talk:page X, which are both stored separately, but treated together
 	$nitems = floor($s->n / 2);
@@ -144,32 +135,29 @@ function wfSpecialWatchlist( $par ) {
 	// Dump everything here
 	$nondefaults = array();
 
-	wfAppendToArrayIfNotDefault( 'days', $days, $defaults, $nondefaults);
-	wfAppendToArrayIfNotDefault( 'hideOwn', (int)$hideOwn, $defaults, $nondefaults);
-	wfAppendToArrayIfNotDefault( 'hideBots', (int)$hideBots, $defaults, $nondefaults);
-	wfAppendToArrayIfNotDefault( 'namespace', $nameSpace, $defaults, $nondefaults );
+	wfAppendToArrayIfNotDefault('days'     , $days         , $defaults, $nondefaults);
+	wfAppendToArrayIfNotDefault('hideOwn'  , (int)$hideOwn , $defaults, $nondefaults);
+	wfAppendToArrayIfNotDefault('hideBots' , (int)$hideBots, $defaults, $nondefaults);
+	wfAppendToArrayIfNotDefault( 'hideMinor', (int)$hideMinor, $defaults, $nondefaults );
+	wfAppendToArrayIfNotDefault('namespace', $nameSpace    , $defaults, $nondefaults);
 
 	if ( $days <= 0 ) {
-		$docutoff = '';
-		$cutoff = false;
+		$andcutoff = '';
 		$npages = wfMsg( 'watchlistall1' );
 	} else {
-	        $docutoff = "AND rev_timestamp > '" .
-		  ( $cutoff = $dbr->timestamp( time() - intval( $days * 86400 ) ) )
-		  . "'";
-	          /*
-	          $sql = "SELECT COUNT(*) AS n FROM $page, $revision  WHERE rev_timestamp>'$cutoff' AND page_id=rev_page";
-	          $res = $dbr->query( $sql, $fname );
-	          $s = $dbr->fetchObject( $res );
-	          $npages = $s->n;
-	          */
-	          $npages = 40000 * $days;
-
+		$andcutoff = "AND rc_timestamp > '".$dbr->timestamp( time() - intval( $days * 86400 ) )."'";
+		/*
+		$sql = "SELECT COUNT(*) AS n FROM $page, $revision  WHERE rev_timestamp>'$cutoff' AND page_id=rev_page";
+		$res = $dbr->query( $sql, $fname );
+		$s = $dbr->fetchObject( $res );
+		$npages = $s->n;
+		*/
+		$npages = 40000 * $days;
 	}
 
 	/* Edit watchlist form */
 	if($wgRequest->getBool('edit') || $par == 'edit' ) {
-		$wgOut->addWikiText( wfMsg( 'watchlistcontains', $wgLang->formatNum( $nitems ) ) .
+		$wgOut->addWikiText( wfMsgExt( 'watchlistcontains', array( 'parseinline' ), $wgLang->formatNum( $nitems ) ) .
 			"\n\n" . wfMsg( 'watcheditlist' ) );
 
 		$wgOut->addHTML( '<form action=\'' .
@@ -182,15 +170,16 @@ function wfSpecialWatchlist( $par ) {
 		$sql = "SELECT wl_namespace, wl_title, page_is_redirect FROM $watchlist LEFT JOIN $page ON wl_namespace = page_namespace AND wl_title = page_title WHERE wl_user=$uid";
 
 		$res = $dbr->query( $sql, $fname );
-		
+
 		# Batch existence check
 		$linkBatch = new LinkBatch();
 		while( $row = $dbr->fetchObject( $res ) )
 			$linkBatch->addObj( Title::makeTitleSafe( $row->wl_namespace, $row->wl_title ) );
 		$linkBatch->execute();
+
 		if( $dbr->numRows( $res ) > 0 )
 			$dbr->dataSeek( $res, 0 ); # Let's do the time warp again!
-		
+
 		$sk = $wgUser->getSkin();
 
 		$list = array();
@@ -215,7 +204,6 @@ function wfSpecialWatchlist( $par ) {
 				} else {
 					global $wgContLang;
 					$toolLinks = array();
-					$titleText = $titleObj->getPrefixedText();
 					$pageLink = $sk->makeLinkObj( $titleObj );
 					$toolLinks[] = $sk->makeLinkObj( $titleObj->getTalkPage(), $wgLang->getNsText( NS_TALK ) );
 					if( $titleObj->exists() )
@@ -228,16 +216,15 @@ function wfSpecialWatchlist( $par ) {
 					} else {
 						$spanopen = $spanclosed = '';
 					}
-					
+
 					$wgOut->addHTML( "<li>{$checkbox}{$spanopen}{$pageLink}{$spanclosed} {$toolLinks}</li>\n" );
 				}
 			}
 			$wgOut->addHTML( '</ul>' );
 		}
 		$wgOut->addHTML(
-			"<input type='submit' name='remove' value=\"" .
-			htmlspecialchars( wfMsg( "removechecked" ) ) . "\" />\n" .
-			"</form>\n"
+			wfSubmitButton( wfMsg('removechecked'), array('name' => 'remove') ) .
+			"\n</form>\n"
 		);
 
 		return;
@@ -254,6 +241,7 @@ function wfSpecialWatchlist( $par ) {
 	# Toggles
 	$andHideOwn = $hideOwn ? "AND (rc_user <> $uid)" : '';
 	$andHideBots = $hideBots ? "AND (rc_bot = 0)" : '';
+	$andHideMinor = $hideMinor ? 'AND rc_minor = 0' : '';
 
 	# Show watchlist header
 	$header = '';
@@ -266,15 +254,16 @@ function wfSpecialWatchlist( $par ) {
 
   # Toggle watchlist content (all recent edits or just the latest)
 	if( $wgUser->getOption( 'extendwatchlist' )) {
-		$andLatest=''; 
+		$andLatest='';
  		$limitWatchlist = 'LIMIT ' . intval( $wgUser->getOption( 'wllimit' ) );
 	} else {
-		$andLatest= 'AND rc_this_oldid=page_latest';
+	# Top log Ids for a page are not stored
+		$andLatest= 'AND (rc_this_oldid=page_latest OR rc_type=' . RC_LOG . ') ';
 		$limitWatchlist = '';
 	}
 
 	# TODO: Consider removing the third parameter
-	$header .= wfMsg( 'watchdetails', $wgLang->formatNum( $nitems ),
+	$header .= wfMsgExt( 'watchdetails', array( 'parsemag' ), $wgLang->formatNum( $nitems ),
 		$wgLang->formatNum( $npages ), '',
 		$specialTitle->getFullUrl( 'edit=yes' ) );
 	$wgOut->addWikiText( $header );
@@ -288,23 +277,17 @@ function wfSpecialWatchlist( $par ) {
 			"\n\n" );
 	}
 
-	$sql = "SELECT
-	  rc_namespace AS page_namespace, rc_title AS page_title,
-	  rc_comment AS rev_comment, rc_cur_id AS page_id,
-	  rc_user AS rev_user, rc_user_text AS rev_user_text,
-	  rc_timestamp AS rev_timestamp, rc_minor AS rev_minor_edit,
-	  rc_this_oldid AS rev_id,
-	  rc_last_oldid, rc_id, rc_patrolled,
-	  rc_new AS page_is_new,wl_notificationtimestamp
+	$sql = "SELECT *
 	  FROM $watchlist,$recentchanges,$page
 	  WHERE wl_user=$uid
 	  AND wl_namespace=rc_namespace
 	  AND wl_title=rc_title
-	  AND rc_timestamp > '$cutoff'
 	  AND rc_cur_id=page_id
+	  $andcutoff
 	  $andLatest
 	  $andHideOwn
 	  $andHideBots
+	  $andHideMinor
 	  $nameSpaceClause
 	  ORDER BY rc_timestamp DESC
 	  $limitWatchlist";
@@ -313,63 +296,82 @@ function wfSpecialWatchlist( $par ) {
 	$numRows = $dbr->numRows( $res );
 
 	/* Start bottom header */
-	$wgOut->addHTML( "<hr />\n<p>" );
+	$wgOut->addHTML( "<hr />\n" );
 
-	if($days >= 1)
-		$wgOut->addWikiText( wfMsg( 'rcnote', $wgLang->formatNum( $numRows ),
+	if($days >= 1) {
+		$wgOut->addWikiText( wfMsgExt( 'rcnote', array( 'parseinline' ), $wgLang->formatNum( $numRows ),
 			$wgLang->formatNum( $days ), $wgLang->timeAndDate( wfTimestampNow(), true ) ) . '<br />' , false );
-	elseif($days > 0)
-		$wgOut->addWikiText( wfMsg( 'wlnote', $wgLang->formatNum( $numRows ),
+	} elseif($days > 0) {
+		$wgOut->addWikiText( wfMsgExt( 'wlnote', array( 'parseinline' ), $wgLang->formatNum( $numRows ),
 			$wgLang->formatNum( round($days*24) ) ) . '<br />' , false );
+	}
 
 	$wgOut->addHTML( "\n" . wlCutoffLinks( $days, 'Watchlist', $nondefaults ) . "<br />\n" );
 
 	# Spit out some control panel links
-	$thisTitle = Title::makeTitle( NS_SPECIAL, 'Watchlist' );
+	$thisTitle = SpecialPage::getTitleFor( 'Watchlist' );
 	$skin = $wgUser->getSkin();
-	$linkElements = array( 'hideOwn' => 'wlhideshowown', 'hideBots' => 'wlhideshowbots' );
-	
-	# Problems encountered using the fancier method
-	$label = $hideBots ? wfMsgHtml( 'show' ) : wfMsgHtml( 'hide' );
-	$linkBits = wfArrayToCGI( array( 'hideBots' => 1 - (int)$hideBots ), $nondefaults );
-	$link = $skin->makeKnownLinkObj( $thisTitle, $label, $linkBits );
-	$links[] = wfMsgHtml( 'wlhideshowbots', $link );
 
-	$label = $hideOwn ? wfMsgHtml( 'show' ) : wfMsgHtml( 'hide' );
+	# Hide/show bot edits
+	$label = $hideBots ? wfMsgHtml( 'watchlist-show-bots' ) : wfMsgHtml( 'watchlist-hide-bots' );
+	$linkBits = wfArrayToCGI( array( 'hideBots' => 1 - (int)$hideBots ), $nondefaults );
+	$links[] = $skin->makeKnownLinkObj( $thisTitle, $label, $linkBits );
+	
+	# Hide/show own edits
+	$label = $hideOwn ? wfMsgHtml( 'watchlist-show-own' ) : wfMsgHtml( 'watchlist-hide-own' );
 	$linkBits = wfArrayToCGI( array( 'hideOwn' => 1 - (int)$hideOwn ), $nondefaults );
-	$link = $skin->makeKnownLinkObj( $thisTitle, $label, $linkBits );
-	$links[] = wfMsgHtml( 'wlhideshowown', $link );
+	$links[] = $skin->makeKnownLinkObj( $thisTitle, $label, $linkBits );
+
+	# Hide/show minor edits
+	$label = $hideMinor ? wfMsgHtml( 'watchlist-show-minor' ) : wfMsgHtml( 'watchlist-hide-minor' );
+	$linkBits = wfArrayToCGI( array( 'hideMinor' => 1 - (int)$hideMinor ), $nondefaults );
+	$links[] = $skin->makeKnownLinkObj( $thisTitle, $label, $linkBits );
 
 	$wgOut->addHTML( implode( ' | ', $links ) );
 
 	# Form for namespace filtering
-	$thisAction = $thisTitle->escapeLocalUrl();
-	$nsForm  = "<form method=\"post\" action=\"{$thisAction}\">\n";
-	$nsForm .= "<label for=\"namespace\">" . wfMsgExt( 'namespace', array( 'parseinline') ) . "</label> ";
-	$nsForm .= HTMLnamespaceselector( $nameSpace, '' ) . "\n";
-	$nsForm .= ( $hideOwn ? "<input type=\"hidden\" name=\"hideown\" value=\"1\" />\n" : "" );
-	$nsForm .= ( $hideBots ? "<input type=\"hidden\" name=\"hidebots\" value=\"1\" />\n" : "" );
-	$nsForm .= "<input type=\"hidden\" name=\"days\" value=\"" . $days . "\" />\n";
-	$nsForm .= "<input type=\"submit\" name=\"submit\" value=\"" . wfMsgExt( 'allpagessubmit', array( 'escape') ) . "\" />\n";
-	$nsForm .= "</form>\n";
-	$wgOut->addHTML( $nsForm );
+	$form  = Xml::openElement( 'form', array( 'method' => 'post', 'action' => $thisTitle->getLocalUrl() ) );
+	$form .= '<p>';
+	$form .= Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '&nbsp;';
+	$form .= Xml::namespaceSelector( $nameSpace, '' ) . '&nbsp;';
+	$form .= Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . '</p>';
+	$form .= Xml::hidden( 'days', $days );
+	if( $hideOwn )
+		$form .= Xml::hidden( 'hideOwn', 1 );
+	if( $hideBots )
+		$form .= Xml::hidden( 'hideBots', 1 );
+	if( $hideMinor )
+		$form .= Xml::hidden( 'hideMinor', 1 );
+	$form .= Xml::closeElement( 'form' );
+	$wgOut->addHtml( $form );
 
-	if ( $numRows == 0 ) {
-		$wgOut->addWikitext( "<br />" . wfMsg( 'watchnochange' ), false );
-		$wgOut->addHTML( "</p>\n" );
+	# If there's nothing to show, stop here
+	if( $numRows == 0 ) {
+		$wgOut->addWikiText( wfMsgNoTrans( 'watchnochange' ) );
 		return;
 	}
 
-	$wgOut->addHTML( "</p>\n" );
 	/* End bottom header */
+
+	/* Do link batch query */
+	$linkBatch = new LinkBatch;
+	while ( $row = $dbr->fetchObject( $res ) ) {
+		$userNameUnderscored = str_replace( ' ', '_', $row->rc_user_text );
+		if ( $row->rc_user != 0 ) {
+			$linkBatch->add( NS_USER, $userNameUnderscored );
+		}
+		$linkBatch->add( NS_USER_TALK, $userNameUnderscored );
+	}
+	$linkBatch->execute();
+	$dbr->dataSeek( $res, 0 );
 
 	$list = ChangesList::newFromUser( $wgUser );
 
 	$s = $list->beginRecentChangesList();
 	$counter = 1;
 	while ( $obj = $dbr->fetchObject( $res ) ) {
-		# Make fake RC entry
-		$rc = RecentChange::newFromCurRow( $obj, $obj->rc_last_oldid );
+		# Make RC entry
+		$rc = RecentChange::newFromRow( $obj );
 		$rc->counter = $counter++;
 
 		if ( $wgShowUpdatedMarker ) {
@@ -380,8 +382,8 @@ function wfSpecialWatchlist( $par ) {
 		}
 
 		if ($wgRCShowWatchingUsers && $wgUser->getOption( 'shownumberswatching' )) {
-			$sql3 = "SELECT COUNT(*) AS n FROM $watchlist WHERE wl_title='" .wfStrencode($obj->page_title). "' AND wl_namespace='{$obj->page_namespace}'" ;
-			$res3 = $dbr->query( $sql3, DB_READ, $fname );
+			$sql3 = "SELECT COUNT(*) AS n FROM $watchlist WHERE wl_title='" .$dbr->strencode($obj->page_title). "' AND wl_namespace='{$obj->page_namespace}'" ;
+			$res3 = $dbr->query( $sql3, $fname );
 			$x = $dbr->fetchObject( $res3 );
 			$rc->numberofWatchingusers = $x->n;
 		} else {
@@ -394,10 +396,6 @@ function wfSpecialWatchlist( $par ) {
 
 	$dbr->freeResult( $res );
 	$wgOut->addHTML( $s );
-
-	if ( $wgUseWatchlistCache ) {
-		$wgMemc->set( $memckey, $s, $wgWLCacheTimeout);
-	}
 
 }
 
@@ -427,7 +425,6 @@ function wlDaysLink( $d, $page, $options = array() ) {
 function wlCutoffLinks( $days, $page = 'Watchlist', $options = array() ) {
 	$hours = array( 1, 2, 6, 12 );
 	$days = array( 1, 3, 7 );
-	$cl = '';
 	$i = 0;
 	foreach( $hours as $h ) {
 		$hours[$i++] = wlHoursLink( $h, $page, $options );
@@ -450,19 +447,19 @@ function wlCutoffLinks( $days, $page = 'Watchlist', $options = array() ) {
  * @return integer
  */
 function wlCountItems( &$user, $talk = true ) {
-	$dbr =& wfGetDB( DB_SLAVE );
-	
+	$dbr = wfGetDB( DB_SLAVE, 'watchlist' );
+
 	# Fetch the raw count
 	$res = $dbr->select( 'watchlist', 'COUNT(*) AS count', array( 'wl_user' => $user->mId ), 'wlCountItems' );
 	$row = $dbr->fetchObject( $res );
 	$count = $row->count;
 	$dbr->freeResult( $res );
-	
+
 	# Halve to remove talk pages if needed
 	if( !$talk )
 		$count = floor( $count / 2 );
-		
-	return( $count );	
+
+	return( $count );
 }
 
 /**
@@ -475,6 +472,8 @@ function wlCountItems( &$user, $talk = true ) {
  * 				code needs to do something further
  */
 function wlHandleClear( &$out, &$request, $par ) {
+	global $wgLang;
+
 	# Check this function has something to do
 	if( $request->getText( 'action' ) == 'clear' || $par == 'clear' ) {
 		global $wgUser;
@@ -484,19 +483,21 @@ function wlHandleClear( &$out, &$request, $par ) {
 			# See if we're clearing or confirming
 			if( $request->wasPosted() && $wgUser->matchEditToken( $request->getText( 'token' ), 'clearwatchlist' ) ) {
 				# Clearing, so do it and report the result
-				$dbw =& wfGetDB( DB_MASTER );
+				$dbw = wfGetDB( DB_MASTER );
 				$dbw->delete( 'watchlist', array( 'wl_user' => $wgUser->mId ), 'wlHandleClear' );
-				$out->addWikiText( wfMsg( 'watchlistcleardone', $count ) );
+				$out->addWikiText( wfMsgExt( 'watchlistcleardone', array( 'parsemag', 'escape'), $wgLang->formatNum( $count ) ) );
 				$out->returnToMain();
 			} else {
 				# Confirming, so show a form
-				$wlTitle = Title::makeTitle( NS_SPECIAL, 'Watchlist' );
+				$wlTitle = SpecialPage::getTitleFor( 'Watchlist' );
 				$out->addHTML( wfElement( 'form', array( 'method' => 'post', 'action' => $wlTitle->getLocalUrl( 'action=clear' ) ), NULL ) );
-				$out->addWikiText( wfMsg( 'watchlistcount', $count ) );
+				$out->addWikiText( wfMsgExt( 'watchlistcount', array( 'parsemag', 'escape'), $wgLang->formatNum( $count ) ) );
 				$out->addWikiText( wfMsg( 'watchlistcleartext' ) );
-				$out->addHTML( wfElement( 'input', array( 'type' => 'hidden', 'name' => 'token', 'value' => $wgUser->editToken( 'clearwatchlist' ) ), '' ) );
-				$out->addHTML( wfElement( 'input', array( 'type' => 'submit', 'name' => 'submit', 'value' => wfMsgHtml( 'watchlistclearbutton' ) ), '' ) );
-				$out->addHTML( wfCloseElement( 'form' ) ); 
+				$out->addHTML(
+					wfHidden( 'token', $wgUser->editToken( 'clearwatchlist' ) ) .
+					wfElement( 'input', array( 'type' => 'submit', 'name' => 'submit', 'value' => wfMsgHtml( 'watchlistclearbutton' ) ), '' ) .
+					wfCloseElement( 'form' )
+				);
 			}
 			return( true );
 		} else {
@@ -509,5 +510,4 @@ function wlHandleClear( &$out, &$request, $par ) {
 		return( false );
 	}
 }
-
 ?>

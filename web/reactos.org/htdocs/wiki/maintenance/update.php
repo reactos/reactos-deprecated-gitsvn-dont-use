@@ -4,21 +4,20 @@ require_once 'counter.php';
  * Run all updaters.
  *
  * @todo document
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 /** */
 $wgUseMasterForMaintenance = true;
-$options = array( 'quick' );
+$options = array( 'quick', 'nopurge' );
 require_once( "commandLine.inc" );
 require_once( "updaters.inc" );
 $wgTitle = Title::newFromText( "MediaWiki database updater" );
 $dbclass = 'Database' . ucfirst( $wgDBtype ) ;
-require_once("$dbclass.php");
-$dbc = new $dbclass;
 
 echo( "MediaWiki {$wgVersion} Updater\n\n" );
+
+install_version_checks();
 
 # Do a pre-emptive check to ensure we've got credentials supplied
 # We can't, at this stage, check them, but we can detect their absence,
@@ -32,20 +31,16 @@ if( !isset( $wgDBadminuser ) || !isset( $wgDBadminpassword ) ) {
 
 # Attempt to connect to the database as a privileged user
 # This will vomit up an error if there are permissions problems
-$wgDatabase = $dbc->newFromParams( $wgDBserver, $wgDBadminuser, $wgDBadminpassword, $wgDBname, 1 );
+$wgDatabase = new $dbclass( $wgDBserver, $wgDBadminuser, $wgDBadminpassword, $wgDBname, 1 );
 
 if( !$wgDatabase->isOpen() ) {
 	# Appears to have failed
 	echo( "A connection to the database could not be established. Check the\n" );
-	# Let's be a bit clever and guess at what's wrong
-	if( isset( $wgDBadminuser ) && isset( $wgDBadminpassword ) ) {
-		# Tell the user the value(s) are wrong
-		echo( 'values of $wgDBadminuser and $wgDBadminpassword.' . "\n" );
-	}
+	echo( "values of \$wgDBadminuser and \$wgDBadminpassword.\n" );
 	exit();
 }
 
-print "Going to run database updates for $wgDBname\n";
+print "Going to run database updates for ".wfWikiID()."\n";
 print "Depending on the size of your database this may take a while!\n";
 
 if( !isset( $options['quick'] ) ) {
@@ -58,13 +53,10 @@ if( !isset( $options['quick'] ) ) {
 	echo "\n";
 }
 
-if ( isset( $options['doshared'] ) ) {
-	$doShared = true;
-} else {
-	$doShared = false;
-}
+$shared = isset( $options['doshared'] );
+$purge = !isset( $options['nopurge'] );
 
-do_all_updates( $doShared );
+do_all_updates( $shared, $purge );
 
 print "Done.\n";
 

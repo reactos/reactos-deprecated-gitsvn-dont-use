@@ -24,8 +24,7 @@
  * Man this is depressing.
  *
  * @author <brion@pobox.com>
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 $options = array( 'fix' );
@@ -41,7 +40,7 @@ checkSeparation( isset( $options['fix'] ) );
 # ------
 
 function checkOrphans( $fix ) {
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	$page = $dbw->tableName( 'page' );
 	$revision = $dbw->tableName( 'revision' );
 
@@ -92,7 +91,7 @@ function checkOrphans( $fix ) {
  *       but valid revisions do exist)
  */
 function checkWidows( $fix ) {
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	$page = $dbw->tableName( 'page' );
 	$revision = $dbw->tableName( 'revision' );
 
@@ -135,7 +134,7 @@ function checkWidows( $fix ) {
 
 
 function checkSeparation( $fix ) {
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	$page     = $dbw->tableName( 'page' );
 	$revision = $dbw->tableName( 'revision' );
 	$text     = $dbw->tableName( 'text' );

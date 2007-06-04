@@ -1,7 +1,6 @@
 <?php
 /**
- * @package MediaWiki
- * @subpackage Metadata
+ * @addtogroup Media
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
@@ -22,13 +21,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @link http://exif.org/Exif2-2.PDF The Exif 2.2 specification
- * @bug 1555, 1947
+ * @see http://exif.org/Exif2-2.PDF The Exif 2.2 specification
  */
 
 /**
- * @package MediaWiki
- * @subpackage Metadata
+ * @todo document (e.g. one-sentence class-overview description)
+ * @addtogroup Media
  */
 class Exif {
 	//@{
@@ -95,9 +93,9 @@ class Exif {
 	var $basename;
 
 	/**
-	 * The private log to log to
+	 * The private log to log to, e.g. 'exif'
 	 */
-	var $log = 'exif';
+	var $log = false;
 
 	//@}
 
@@ -106,7 +104,7 @@ class Exif {
 	 *
 	 * @param $file String: filename.
 	 */
-	function Exif( $file ) {
+	function __construct( $file ) {
 		/**
 		 * Page numbers here refer to pages in the EXIF 2.2 standard
 		 *
@@ -293,7 +291,7 @@ class Exif {
 		);
 
 		$this->file = $file;
-		$this->basename = basename( $this->file );
+		$this->basename = wfBaseName( $this->file );
 
 		$this->makeFlatExifTags();
 
@@ -439,7 +437,7 @@ class Exif {
 			return false;
 		}
 
-		if ( preg_match( "/^\s*$/", $in ) ) {
+		if ( preg_match( '/^\s*$/', $in ) ) {
 			$this->debug( $in, __FUNCTION__, 'input consisted solely of whitespace' );
 			return false;
 		}
@@ -468,7 +466,8 @@ class Exif {
 	}
 
 	function isRational( $in ) {
-		if ( !is_array( $in ) && @preg_match( "/^(\d+)\/(\d+[1-9]|[1-9]\d*)$/", $in, $m ) ) { # Avoid division by zero
+		$m = array();
+		if ( !is_array( $in ) && @preg_match( '/^(\d+)\/(\d+[1-9]|[1-9]\d*)$/', $in, $m ) ) { # Avoid division by zero
 			return $this->isLong( $m[1] ) && $this->isLong( $m[2] );
 		} else {
 			$this->debug( $in, __FUNCTION__, 'fed a non-fraction value' );
@@ -477,7 +476,7 @@ class Exif {
 	}
 
 	function isUndefined( $in ) {
-		if ( !is_array( $in ) && preg_match( "/^\d{4}$/", $in ) ) { // Allow ExifVersion and FlashpixVersion
+		if ( !is_array( $in ) && preg_match( '/^\d{4}$/', $in ) ) { // Allow ExifVersion and FlashpixVersion
 			$this->debug( $in, __FUNCTION__, true );
 			return true;
 		} else {
@@ -497,7 +496,8 @@ class Exif {
 	}
 
 	function isSrational( $in ) {
-		if ( !is_array( $in ) && preg_match( "/^(\d+)\/(\d+[1-9]|[1-9]\d*)$/", $in, $m ) ) { # Avoid division by zero
+		$m = array();
+		if ( !is_array( $in ) && preg_match( '/^(\d+)\/(\d+[1-9]|[1-9]\d*)$/', $in, $m ) ) { # Avoid division by zero
 			return $this->isSlong( $m[0] ) && $this->isSlong( $m[1] );
 		} else {
 			$this->debug( $in, __FUNCTION__, 'fed a non-fraction value' );
@@ -561,7 +561,10 @@ class Exif {
 	 * @param $fname String: 
 	 * @param $action Mixed: , default NULL.
 	 */
-	 function debug( $in, $fname, $action = NULL ) {
+	function debug( $in, $fname, $action = NULL ) {
+		if ( !$this->log ) {
+			return;
+		}
 		$type = gettype( $in );
 		$class = ucfirst( __CLASS__ );
 		if ( $type === 'array' )
@@ -586,6 +589,9 @@ class Exif {
 	 * @param $io Boolean: Specify whether we're beginning or ending
 	 */
 	function debugFile( $fname, $io ) {
+		if ( !$this->log ) {
+			return;
+		}
 		$class = ucfirst( __CLASS__ );
 		if ( $io ) {
 			wfDebugLog( $this->log, "$class::$fname: begin processing: '{$this->basename}'\n" );
@@ -597,8 +603,8 @@ class Exif {
 }
 
 /**
- * @package MediaWiki
- * @subpackage Metadata
+ * @todo document (e.g. one-sentence class-overview description)
+ * @addtogroup Media
  */
 class FormatExif {
 	/**
@@ -729,7 +735,9 @@ class FormatExif {
 			case 'DateTime':
 			case 'DateTimeOriginal':
 			case 'DateTimeDigitized':
-				if( preg_match( "/^(\d{4}):(\d\d):(\d\d) (\d\d):(\d\d):(\d\d)$/", $val ) ) {
+				if( $val == '0000:00:00 00:00:00' ) {
+					$tags[$tag] = wfMsg('exif-unknowndate');
+				} elseif( preg_match( '/^(?:\d{4}):(?:\d\d):(?:\d\d) (?:\d\d):(?:\d\d):(?:\d\d)$/', $val ) ) {
 					$tags[$tag] = $wgLang->timeanddate( wfTimestamp(TS_MW, $val) );
 				}
 				break;
@@ -1054,6 +1062,7 @@ class FormatExif {
 	 * @return mixed A floating point number or whatever we were fed
 	 */
 	function formatNum( $num ) {
+		$m = array();
 		if ( preg_match( '/^(\d+)\/(\d+)$/', $num, $m ) )
 			return $m[2] != 0 ? $m[1] / $m[2] : $num;
 		else
@@ -1069,6 +1078,7 @@ class FormatExif {
 	 * @return mixed A floating point number or whatever we were fed
 	 */
 	function formatFraction( $num ) {
+		$m = array();
 		if ( preg_match( '/^(\d+)\/(\d+)$/', $num, $m ) ) {
 			$numerator = intval( $m[1] );
 			$denominator = intval( $m[2] );

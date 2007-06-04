@@ -41,6 +41,11 @@ html>body .portlet {
 	float: right;
 	clear: right;
 }
+.editsection {
+	float: left;
+	margin-right: 5px;
+	margin-left: 0; /* bug 9122: undo default LTR */
+}
 /* recover IEMac (might be fine with the float, but usually it's close to IE */
 *>body .portlet {
 	float: none;
@@ -209,4 +214,8 @@ input#wpSave, input#wpDiff {
 #userlogin {
 	float: right;
 	margin: 0 0 1em 3em;
+}
+/* Unblock and Ipblocklist links of Special:Blockip */
+p.mw-ipb-conveniencelinks {
+	float: left;
 }
