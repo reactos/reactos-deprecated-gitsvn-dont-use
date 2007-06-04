@@ -1,19 +1,15 @@
 <?php
 /**
- * See deferred.txt
- * @package MediaWiki
- */
-
-/**
- * @todo document
- * @package MediaWiki
+ * See docs/deferred.txt
+ * 
+ * @todo document (e.g. one-sentence top-level class description).
  */
 class LinksUpdate {
 
 	/**@{{
 	 * @private
 	 */
-	var $mId,            //!< Page ID of the article linked from
+	var 	$mId,            //!< Page ID of the article linked from
 		$mTitle,         //!< Title object of the article linked from
 		$mLinks,         //!< Map of title strings to IDs for the links in the document
 		$mImages,        //!< DB keys of the images used, in the array key only
@@ -41,7 +37,7 @@ class LinksUpdate {
 		} else {
 			$this->mOptions = array( 'FOR UPDATE' );
 		}
-		$this->mDb =& wfGetDB( DB_MASTER );
+		$this->mDb = wfGetDB( DB_MASTER );
 
 		if ( !is_object( $title ) ) {
 			throw new MWException( "The calling convention to LinksUpdate::LinksUpdate() has changed. " .
@@ -172,7 +168,7 @@ class LinksUpdate {
 		wfProfileIn( __METHOD__ );
 		
 		$batchSize = 100;
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$res = $dbr->select( array( 'templatelinks', 'page' ), 
 			array( 'page_namespace', 'page_title' ),
 			array( 

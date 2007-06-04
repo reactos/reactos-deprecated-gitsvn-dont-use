@@ -46,18 +46,21 @@
 
 $wgDBadminuser = $wgDBadminpassword = $wgDBserver = $wgDBname = $wgEnableProfileInfo = false;
 
-define("MEDIAWIKI", 1);
-
-require_once("./includes/Defines.php");
-require_once("./LocalSettings.php");
+define( 'MW_NO_SETUP', 1 );
+require_once( './includes/WebStart.php' );
 require_once("./AdminSettings.php");
 
-if (!$wgEnableProfileInfo)
-	die("disabled");
+if (!$wgEnableProfileInfo) {
+	echo "disabled\n";
+	exit( 1 );
+}
 
 foreach (array("wgDBadminuser", "wgDBadminpassword", "wgDBserver", "wgDBname") as $var)
-	if ($$var === false)
-		die("AdminSettings.php not correct");
+	if ($$var === false) {
+		echo "AdminSettings.php not correct\n";
+		exit( 1 );
+	}
+
 
 $expand = array();
 if (isset($_REQUEST['expand']))

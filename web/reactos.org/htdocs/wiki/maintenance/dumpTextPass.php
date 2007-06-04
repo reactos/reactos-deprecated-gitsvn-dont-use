@@ -18,8 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 $originalDir = getcwd();
@@ -99,9 +98,13 @@ stream_wrapper_register( 'mediawiki.compress.7z', 'SevenZipStream' );
 class TextPassDumper extends BackupDumper {
 	var $prefetch = null;
 	var $input = "php://stdin";
-	var $history = MW_EXPORT_FULL;
+	var $history = WikiExporter::FULL;
 	var $fetchCount = 0;
 	var $prefetchCount = 0;
+	
+	var $failures = 0;
+	var $maxFailures = 200;
+	var $failureTimeout = 5; // Seconds to sleep after db failure
 
 	function dump() {
 		# This shouldn't happen if on console... ;)
@@ -113,7 +116,7 @@ class TextPassDumper extends BackupDumper {
 
 		$this->initProgress( $this->history );
 
-		$this->db =& $this->backupDb();
+		$this->db = $this->backupDb();
 
 		$this->egress = new ExportProgressFilter( $this->sink, $this );
 
@@ -139,10 +142,10 @@ class TextPassDumper extends BackupDumper {
 			$this->input = $url;
 			break;
 		case 'current':
-			$this->history = MW_EXPORT_CURRENT;
+			$this->history = WikiExporter::CURRENT;
 			break;
 		case 'full':
-			$this->history = MW_EXPORT_FULL;
+			$this->history = WikiExporter::FULL;
 			break;
 		}
 	}
@@ -186,9 +189,8 @@ class TextPassDumper extends BackupDumper {
 				$etats = '-';
 				$fetchrate = '-';
 			}
-			global $wgDBname;
 			$this->progress( sprintf( "%s: %s %d pages (%0.3f/sec), %d revs (%0.3f/sec), %0.1f%% prefetched, ETA %s [max %d]",
-				$now, $wgDBname, $this->pageCount, $rate, $this->revCount, $revrate, $fetchrate, $etats, $this->maxCount ) );
+				$now, wfWikiID(), $this->pageCount, $rate, $this->revCount, $revrate, $fetchrate, $etats, $this->maxCount ) );
 		}
 	}
 
@@ -236,6 +238,27 @@ class TextPassDumper extends BackupDumper {
 				return $text;
 			}
 		}
+		while( true ) {
+			try {
+				return $this->doGetText( $id );
+			} catch (DBQueryError $ex) {
+				$this->failures++;
+				if( $this->failures > $this->maxFailures ) {
+					throw $ex;
+				} else {
+					$this->progress( "Database failure $this->failures " .
+						"of allowed $this->maxFailures! " .
+						"Pausing $this->failureTimeout seconds..." );
+					sleep( $this->failureTimeout );
+				}
+			}
+		}
+	}
+	
+	/**
+	 * May throw a database error if, say, the server dies during query.
+	 */
+	private function doGetText( $id ) {
 		$id = intval( $id );
 		$row = $this->db->selectRow( 'text',
 			array( 'old_text', 'old_flags' ),

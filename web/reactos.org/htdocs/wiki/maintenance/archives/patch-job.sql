@@ -13,8 +13,8 @@ CREATE TABLE /*$wgDBprefix*/job (
 
   -- Any other parameters to the command
   -- Presently unused, format undefined
-  job_params blob NOT NULL default '',
+  job_params blob NOT NULL,
 
   PRIMARY KEY job_id (job_id),
   KEY (job_cmd, job_namespace, job_title)
-) TYPE=InnoDB;
+) /*$wgDBTableOptions*/;

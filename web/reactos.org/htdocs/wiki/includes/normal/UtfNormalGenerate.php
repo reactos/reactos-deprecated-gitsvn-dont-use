@@ -21,7 +21,7 @@
  * This script generates UniNormalData.inc from the Unicode Character Database
  * and supplementary files.
  *
- * @package UtfNormal
+ * @addtogroup UtfNormal
  * @access private
  */
 
@@ -43,6 +43,7 @@ if( !$in ) {
 print "Initializing normalization quick check tables...\n";
 $checkNFC = array();
 while( false !== ($line = fgets( $in ) ) ) {
+	$matches = array();
 	if( preg_match( '/^([0-9A-F]+)(?:..([0-9A-F]+))?\s*;\s*(NFC_QC)\s*;\s*([MN])/', $line, $matches ) ) {
 		list( $junk, $first, $last, $prop, $value ) = $matches;
 		#print "$first $last $prop $value\n";
@@ -174,7 +175,6 @@ if( $out ) {
 /**
  * This file was automatically generated -- do not edit!
  * Run UtfNormalGenerate.php to create this file again (make clean && make)
- * @package MediaWiki
  */
 /** */
 global \$utfCombiningClass, \$utfCanonicalComp, \$utfCanonicalDecomp, \$utfCheckNFC;
@@ -199,7 +199,6 @@ if( $out ) {
 /**
  * This file was automatically generated -- do not edit!
  * Run UtfNormalGenerate.php to create this file again (make clean && make)
- * @package MediaWiki
  */
 /** */
 global \$utfCompatibilityDecomp;

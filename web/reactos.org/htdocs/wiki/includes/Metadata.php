@@ -18,11 +18,11 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  *
  * @author Evan Prodromou <evan@wikitravel.org>
- * @package MediaWiki
  */
 
 /**
- *
+ * TODO: Perhaps make this file into a Metadata class, with static methods (declared 
+ * as private where indicated), to move these functions out of the global namespace?
  */
 define('RDF_TYPE_PREFS', "application/rdf+xml,text/xml;q=0.7,application/xml;q=0.5,text/rdf;q=0.1");
 
@@ -73,14 +73,16 @@ function wfCreativeCommonsRdf($article) {
 function rdfSetup() {
 	global $wgOut, $_SERVER;
 
-	$rdftype = wfNegotiateType(wfAcceptToPrefs($_SERVER['HTTP_ACCEPT']), wfAcceptToPrefs(RDF_TYPE_PREFS));
+	$httpaccept = isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : null;
+
+	$rdftype = wfNegotiateType(wfAcceptToPrefs($httpaccept), wfAcceptToPrefs(RDF_TYPE_PREFS));
 
 	if (!$rdftype) {
 		wfHttpError(406, "Not Acceptable", wfMsg("notacceptable"));
 		return false;
 	} else {
 		$wgOut->disable();
-		header( "Content-type: {$rdftype}" );
+		header( "Content-type: {$rdftype}; charset=utf-8" );
 		$wgOut->sendCacheControl();
 		return true;
 	}
@@ -142,7 +144,7 @@ function dcBasics($article) {
 		dcPerson('contributor', $user_parts[0], $user_parts[1], $user_parts[2]);
 	}
 
-	dcRights($article);
+	dcRights();
 }
 
 /**
@@ -291,7 +293,7 @@ function dcPerson($name, $id, $user_name='', $user_real_name='') {
  * different pages.
  * @private
  */
-function dcRights($article) {
+function dcRights() {
 
 	global $wgRightsPage, $wgRightsUrl, $wgRightsText;
 
@@ -316,7 +318,11 @@ function ccGetTerms($url) {
 		return $wgLicenseTerms;
 	} else {
 		$known = getKnownLicenses();
-		return $known[$url];
+		if( isset( $known[$url] ) ) {
+			return $known[$url];
+		} else {
+			return array();
+		}
 	}
 }
 

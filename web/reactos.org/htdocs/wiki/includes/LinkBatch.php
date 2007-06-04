@@ -4,8 +4,7 @@
  * Class representing a list of titles
  * The execute() method checks them all for existence and adds them to a LinkCache object
  +
- * @package MediaWiki
- * @subpackage Cache
+ * @addtogroup Cache
  */
 class LinkBatch {
 	/**
@@ -13,7 +12,7 @@ class LinkBatch {
 	 */
 	var $data = array();
 
-	function LinkBatch( $arr = array() ) {
+	function __construct( $arr = array() ) {
 		foreach( $arr as $item ) {
 			$this->addObj( $item );
 		}
@@ -66,7 +65,7 @@ class LinkBatch {
 	 */
 	 function execute() {
 	 	$linkCache =& LinkCache::singleton();
-	 	$this->executeInto( $linkCache );
+	 	return $this->executeInto( $linkCache );
 	 }
 
 	/**
@@ -97,7 +96,7 @@ class LinkBatch {
 
 		// The remaining links in $data are bad links, register them as such
 		foreach ( $remaining as $ns => $dbkeys ) {
-			foreach ( $dbkeys as $dbkey => $nothing ) {
+			foreach ( $dbkeys as $dbkey => $unused ) {
 				$title = Title::makeTitle( $ns, $dbkey );
 				$cache->addBadLinkObj( $title );
 				$ids[$title->getPrefixedDBkey()] = 0;
@@ -112,7 +111,6 @@ class LinkBatch {
 	 */
 	function doQuery() {
 		$fname = 'LinkBatch::doQuery';
-		$namespaces = array();
 
 		if ( $this->isEmpty() ) {
 			return false;
@@ -121,7 +119,7 @@ class LinkBatch {
 
 		// Construct query
 		// This is very similar to Parser::replaceLinkHolders
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$page = $dbr->tableName( 'page' );
 		$set = $this->constructSet( 'page', $dbr );
 		if ( $set === false ) {
@@ -161,7 +159,7 @@ class LinkBatch {
 			$sql .= "({$prefix}_namespace=$ns AND {$prefix}_title IN (";
 
 			$firstTitle = true;
-			foreach( $dbkeys as $dbkey => $nothing ) {
+			foreach( $dbkeys as $dbkey => $unused ) {
 				if ( $firstTitle ) {
 					$firstTitle = false;
 				} else {

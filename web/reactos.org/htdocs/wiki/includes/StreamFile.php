@@ -6,23 +6,23 @@ function wfStreamFile( $fname ) {
 	$stat = @stat( $fname );
 	if ( !$stat ) {
 		header( 'HTTP/1.0 404 Not Found' );
+		header( 'Cache-Control: no-cache' );
+		header( 'Content-Type: text/html; charset=utf-8' );
+		$encFile = htmlspecialchars( $fname );
+		$encScript = htmlspecialchars( $_SERVER['SCRIPT_NAME'] );
 		echo "<html><body>
 <h1>File not found</h1>
-<p>Although this PHP script ({$_SERVER['SCRIPT_NAME']}) exists, the file requested for output
-does not.</p>
-</body></html>";
+<p>Although this PHP script ($encScript) exists, the file requested for output 
+($encFile) does not.</p>
+</body></html>
+";
 		return;
 	}
 
 	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $stat['mtime'] ) . ' GMT' );
 
 	// Cancel output buffering and gzipping if set
-	while( $status = ob_get_status() ) {
-		ob_end_clean();
-		if( $status['name'] == 'ob_gzhandler' ) {
-			header( 'Content-Encoding:' );
-		}
-	}
+	wfResetOutputBuffers();
 	
 	$type = wfGetType( $fname );
 	if ( $type and $type!="unknown/unknown") {
@@ -64,7 +64,7 @@ function wfGetType( $filename ) {
 		return 'unknown/unknown';
 	}
 	else {
-		$magic=& wfGetMimeMagic();
+		$magic=& MimeMagic::singleton();
 		return $magic->guessMimeType($filename); //full fancy mime detection
 	}
 }

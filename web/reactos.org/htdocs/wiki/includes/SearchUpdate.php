@@ -1,12 +1,7 @@
 <?php
 /**
  * See deferred.txt
- * @package MediaWiki
- */
-
-/**
- *
- * @package MediaWiki
+ * @addtogroup Search
  */
 class SearchUpdate {
 
@@ -38,7 +33,7 @@ class SearchUpdate {
 		wfProfileIn( $fname );
 
 		$search = SearchEngine::create();
-		$lc = $search->legalSearchChars() . '&#;';
+		$lc = SearchEngine::legalSearchChars() . '&#;';
 
 		if( $this->mText === false ) {
 			$search->updateTitle($this->mId,
@@ -98,15 +93,20 @@ class SearchUpdate {
 		# Strip wiki '' and '''
 		$text = preg_replace( "/''[']*/", " ", $text );
 		wfProfileOut( "$fname-regexps" );
+
+		wfRunHooks( 'SearchUpdate', array( $this->mId, $this->mNamespace, $this->mTitle, &$text ) );
+		
+		# Perform the actual update
 		$search->update($this->mId, Title::indexTitle( $this->mNamespace, $this->mTitle ),
 				$text);
+		
 		wfProfileOut( $fname );
 	}
 }
 
 /**
  * Placeholder class
- * @package MediaWiki
+ * @addtogroup Search
  */
 class SearchUpdateMyISAM extends SearchUpdate {
 	# Inherits everything

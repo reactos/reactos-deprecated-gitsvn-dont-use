@@ -1,10 +1,7 @@
 <?php
 /**
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
-
-require_once 'SpecialAllpages.php';
 
 /**
  * Entry point : initialise variables and call subfunctions.
@@ -27,7 +24,7 @@ function wfSpecialPrefixIndex( $par=NULL, $specialPage ) {
 		$namespace = 0;
 
 	$wgOut->setPagetitle( $namespace > 0 ?
-		wfMsg( 'allinnamespace', $namespaces[$namespace] ) :
+		wfMsg( 'allinnamespace', str_replace( '_', ' ', $namespaces[$namespace] ) ) :
 		wfMsg( 'allarticles' )
 		);
 
@@ -44,6 +41,10 @@ function wfSpecialPrefixIndex( $par=NULL, $specialPage ) {
 	}
 }
 
+/**
+ * implements Special:Prefixindex 
+ * @addtogroup SpecialPage
+ */
 class SpecialPrefixindex extends SpecialAllpages {
 	var $maxPerPage=960;
 	var $topLevelMax=50;
@@ -71,11 +72,11 @@ function showChunk( $namespace = NS_MAIN, $prefix, $including = false, $from = n
 		$out = wfMsgWikiHtml( 'allpagesbadtitle' );
 	} else {
 		list( $namespace, $prefixKey, $prefix ) = $prefixList;
-		list( $fromNs, $fromKey, $from ) = $fromList;
+		list( /* $fromNs */, $fromKey, $from ) = $fromList;
 
 		### FIXME: should complain if $fromNs != $namespace
 
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 
 		$res = $dbr->select( 'page',
 			array( 'page_namespace', 'page_title', 'page_is_redirect' ),
@@ -97,7 +98,6 @@ function showChunk( $namespace = NS_MAIN, $prefix, $including = false, $from = n
 		$n = 0;
 		$out = '<table style="background: inherit;" border="0" width="100%">';
 
-		$namespaces = $wgContLang->getFormattedNamespaces();
 		while( ($n < $this->maxPerPage) && ($s = $dbr->fetchObject( $res )) ) {
 			$t = Title::makeTitle( $s->page_namespace, $s->page_title );
 			if( $t ) {

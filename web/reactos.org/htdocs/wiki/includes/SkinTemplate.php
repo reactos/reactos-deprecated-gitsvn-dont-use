@@ -18,27 +18,11 @@ if ( ! defined( 'MEDIAWIKI' ) )
 # http://www.gnu.org/copyleft/gpl.html
 
 /**
- * Template-filler skin base class
- * Formerly generic PHPTal (http://phptal.sourceforge.net/) skin
- * Based on Brion's smarty skin
- * Copyright (C) Gabriel Wicke -- http://www.aulinx.de/
- *
- * Todo: Needs some serious refactoring into functions that correspond
- * to the computations individual esi snippets need. Most importantly no body
- * parsing for most of those of course.
- *
- * @package MediaWiki
- * @subpackage Skins
- */
-
-require_once 'GlobalFunctions.php';
-
-/**
  * Wrapper object for MediaWiki's localization functions,
  * to be passed to the template engine.
  *
  * @private
- * @package MediaWiki
+ * @addtogroup Skins
  */
 class MediaWiki_I18N {
 	var $_context = array();
@@ -56,6 +40,7 @@ class MediaWiki_I18N {
 
 		$value = wfMsg( $value );
 		// interpolate variables
+		$m = array();
 		while (preg_match('/\$([0-9]*?)/sm', $value, $m)) {
 			list($src, $var) = $m;
 			wfSuppressWarnings();
@@ -69,8 +54,16 @@ class MediaWiki_I18N {
 }
 
 /**
+ * Template-filler skin base class
+ * Formerly generic PHPTal (http://phptal.sourceforge.net/) skin
+ * Based on Brion's smarty skin
+ * @copyright Copyright © Gabriel Wicke -- http://www.aulinx.de/
  *
- * @package MediaWiki
+ * @todo Needs some serious refactoring into functions that correspond
+ * to the computations individual esi snippets need. Most importantly no body
+ * parsing for most of those of course.
+ *
+ * @addtogroup Skins
  */
 class SkinTemplate extends Skin {
 	/**#@+
@@ -136,11 +129,12 @@ class SkinTemplate extends Skin {
 		global $wgTitle, $wgArticle, $wgUser, $wgLang, $wgContLang, $wgOut;
 		global $wgScript, $wgStylePath, $wgContLanguageCode;
 		global $wgMimeType, $wgJsMimeType, $wgOutputEncoding, $wgRequest;
+		global $wgXhtmlDefaultNamespace, $wgXhtmlNamespaces;
 		global $wgDisableCounters, $wgLogo, $action, $wgFeedClasses, $wgHideInterlanguageLinks;
 		global $wgMaxCredits, $wgShowCreditsIfMax;
 		global $wgPageShowWatchingUsers;
 		global $wgUseTrackbacks;
-		global $wgDBname;
+		global $wgArticlePath, $wgScriptPath, $wgServer, $wgLang, $wgCanonicalNamespaceNames;
 
 		$fname = 'SkinTemplate::outputPage';
 		wfProfileIn( $fname );
@@ -149,7 +143,8 @@ class SkinTemplate extends Skin {
 		// adding of CSS or Javascript by extensions.
 		wfRunHooks( 'BeforePageDisplay', array( &$out ) );
 
-		extract( $wgRequest->getValues( 'oldid', 'diff' ) );
+		$oldid = $wgRequest->getVal( 'oldid' );
+		$diff = $wgRequest->getVal( 'diff' );
 
 		wfProfileIn( "$fname-init" );
 		$this->initPage( $out );
@@ -175,11 +170,11 @@ class SkinTemplate extends Skin {
 		$this->userpage = $userPage->getPrefixedText();
 
 		if ( $wgUser->isLoggedIn() || $this->showIPinHeader() ) {
-			$this->userpageUrlDetails = $this->makeUrlDetails($this->userpage);
+			$this->userpageUrlDetails = self::makeUrlDetails( $this->userpage );
 		} else {
 			# This won't be used in the standard skins, but we define it to preserve the interface
 			# To save time, we check for existence
-			$this->userpageUrlDetails = $this->makeKnownUrlDetails($this->userpage);
+			$this->userpageUrlDetails = self::makeKnownUrlDetails( $this->userpage );
 		}
 
 		$this->usercss =  $this->userjs = $this->userjsprev = false;
@@ -192,6 +187,20 @@ class SkinTemplate extends Skin {
 		$tpl->set( 'title', $wgOut->getPageTitle() );
 		$tpl->set( 'pagetitle', $wgOut->getHTMLTitle() );
 		$tpl->set( 'displaytitle', $wgOut->mPageLinkTitle );
+		$tpl->set( 'pageclass', Sanitizer::escapeClass( 'page-'.$this->mTitle->getPrefixedText() ) );
+
+		$nsname = isset( $wgCanonicalNamespaceNames[ $this->mTitle->getNamespace() ] ) ?
+		          $wgCanonicalNamespaceNames[ $this->mTitle->getNamespace() ] :
+		          $this->mTitle->getNsText();
+
+		$tpl->set( 'nscanonical', $nsname );
+		$tpl->set( 'nsnumber', $this->mTitle->getNamespace() );
+		$tpl->set( 'titleprefixeddbkey', $this->mTitle->getPrefixedDBKey() );
+		$tpl->set( 'titletext', $this->mTitle->getText() );
+		$tpl->set( 'articleid', $this->mTitle->getArticleId() );
+		$tpl->set( 'currevisionid', isset( $wgArticle ) ? $wgArticle->getLatest() : 0 );
+
+		$tpl->set( 'isarticle', $wgOut->isArticle() );
 
 		$tpl->setRef( "thispage", $this->thispage );
 		$subpagestr = $this->subPageSubtitle();
@@ -211,8 +220,14 @@ class SkinTemplate extends Skin {
 		if( $wgOut->isSyndicated() ) {
 			$feeds = array();
 			foreach( $wgFeedClasses as $format => $class ) {
+				$linktext = $format;
+				if ( $format == "atom" ) {
+					$linktext = wfMsg( 'feed-atom' );
+				} else if ( $format == "rss" ) {
+					$linktext = wfMsg( 'feed-rss' );
+				}
 				$feeds[$format] = array(
-					'text' => $format,
+					'text' => $linktext,
 					'href' => $wgRequest->appendQuery( "feed=$format" )
 				);
 			}
@@ -220,9 +235,14 @@ class SkinTemplate extends Skin {
 		} else {
 			$tpl->set( 'feeds', false );
 		}
-		if ($wgUseTrackbacks && $out->isArticleRelated())
-			$tpl->set( 'trackbackhtml', $wgTitle->trackbackRDF());
+		if ($wgUseTrackbacks && $out->isArticleRelated()) {
+			$tpl->set( 'trackbackhtml', $wgTitle->trackbackRDF() );
+		} else {
+			$tpl->set( 'trackbackhtml', null );
+		}
 
+		$tpl->setRef( 'xhtmldefaultnamespace', $wgXhtmlDefaultNamespace );
+		$tpl->set( 'xhtmlnamespaces', $wgXhtmlNamespaces );
 		$tpl->setRef( 'mimetype', $wgMimeType );
 		$tpl->setRef( 'jsmimetype', $wgJsMimeType );
 		$tpl->setRef( 'charset', $wgOutputEncoding );
@@ -230,6 +250,7 @@ class SkinTemplate extends Skin {
 		$tpl->set('headscripts', $out->getScript() );
 		$tpl->setRef( 'wgScript', $wgScript );
 		$tpl->setRef( 'skinname', $this->skinname );
+		$tpl->set( 'skinclass', get_class( $this ) );
 		$tpl->setRef( 'stylename', $this->stylename );
 		$tpl->set( 'printable', $wgRequest->getBool( 'printable' ) );
 		$tpl->setRef( 'loggedin', $this->loggedin );
@@ -245,15 +266,19 @@ class SkinTemplate extends Skin {
 		$tpl->set( 'searchaction', $this->escapeSearchLink() );
 		$tpl->set( 'search', trim( $wgRequest->getVal( 'search' ) ) );
 		$tpl->setRef( 'stylepath', $wgStylePath );
+		$tpl->setRef( 'articlepath', $wgArticlePath );
+		$tpl->setRef( 'scriptpath', $wgScriptPath );
+		$tpl->setRef( 'serverurl', $wgServer );
 		$tpl->setRef( 'logopath', $wgLogo );
 		$tpl->setRef( "lang", $wgContLanguageCode );
 		$tpl->set( 'dir', $wgContLang->isRTL() ? "rtl" : "ltr" );
 		$tpl->set( 'rtl', $wgContLang->isRTL() );
 		$tpl->set( 'langname', $wgContLang->getLanguageName( $wgContLanguageCode ) );
 		$tpl->set( 'showjumplinks', $wgUser->getOption( 'showjumplinks' ) );
-		$tpl->setRef( 'username', $this->username );
+		$tpl->set( 'username', $wgUser->isAnon() ? NULL : $this->username );
 		$tpl->setRef( 'userpage', $this->userpage);
 		$tpl->setRef( 'userpageurl', $this->userpageUrlDetails['href']);
+		$tpl->set( 'userlang', $wgLang->getCode() );
 		$tpl->set( 'pagecss', $this->setupPageCss() );
 		$tpl->setRef( 'usercss', $this->usercss);
 		$tpl->setRef( 'userjs', $this->userjs);
@@ -261,16 +286,16 @@ class SkinTemplate extends Skin {
 		global $wgUseSiteJs;
 		if ($wgUseSiteJs) {
 			if($this->loggedin) {
-				$tpl->set( 'jsvarurl', $this->makeUrl('-','action=raw&smaxage=0&gen=js') );
+				$tpl->set( 'jsvarurl', self::makeUrl('-','action=raw&smaxage=0&gen=js') );
 			} else {
-				$tpl->set( 'jsvarurl', $this->makeUrl('-','action=raw&gen=js') );
+				$tpl->set( 'jsvarurl', self::makeUrl('-','action=raw&gen=js') );
 			}
 		} else {
 			$tpl->set('jsvarurl', false);
 		}
 		$newtalks = $wgUser->getNewMessageLinks();
 
-		if (count($newtalks) == 1 && $newtalks[0]["wiki"] === $wgDBname) {
+		if (count($newtalks) == 1 && $newtalks[0]["wiki"] === wfWikiID() ) {
 			$usertitle = $this->mUser->getUserPage();
 			$usertalktitle = $usertitle->getTalkPage();
 			if( !$usertalktitle->equals( $this->mTitle ) ) {
@@ -308,7 +333,9 @@ class SkinTemplate extends Skin {
 		$tpl->setRef( 'newtalk', $ntl );
 		$tpl->setRef( 'skin', $this);
 		$tpl->set( 'logo', $this->logoText() );
-		if ( $wgOut->isArticle() and (!isset( $oldid ) or isset( $diff )) and 0 != $wgArticle->getID() ) {
+		if ( $wgOut->isArticle() and (!isset( $oldid ) or isset( $diff )) and
+			$wgArticle and 0 != $wgArticle->getID() )
+		{
 			if ( !$wgDisableCounters ) {
 				$viewcount = $wgLang->formatNum( $wgArticle->getCount() );
 				if ( $viewcount ) {
@@ -321,8 +348,8 @@ class SkinTemplate extends Skin {
 			}
 
 			if ($wgPageShowWatchingUsers) {
-				$dbr =& wfGetDB( DB_SLAVE );
-				extract( $dbr->tableNames( 'watchlist' ) );
+				$dbr = wfGetDB( DB_SLAVE );
+				$watchlist = $dbr->tableName( 'watchlist' );
 				$sql = "SELECT COUNT(*) AS n FROM $watchlist
 					WHERE wl_title='" . $dbr->strencode($this->mTitle->getDBKey()) .
 					"' AND  wl_namespace=" . $this->mTitle->getNamespace() ;
@@ -376,6 +403,7 @@ class SkinTemplate extends Skin {
 		$tpl->setRef( 'debug', $out->mDebugtext );
 		$tpl->set( 'reporttime', $out->reportTime() );
 		$tpl->set( 'sitenotice', wfGetSiteNotice() );
+		$tpl->set( 'bottomscripts', $this->bottomScripts() );
 
 		$printfooter = "<div class=\"printfooter\">\n" . $this->printSource() . "</div>\n";
 		$out->mBodytext .= $printfooter ;
@@ -424,6 +452,11 @@ class SkinTemplate extends Skin {
 		$tpl->set( 'sidebar', $this->buildSidebar() );
 		$tpl->set( 'nav_urls', $this->buildNavUrls() );
 
+		// original version by hansm
+		if( !wfRunHooks( 'SkinTemplateOutputPageBeforeExec', array( &$this, &$tpl ) ) ) {
+			wfDebug( __METHOD__ . ': Hook SkinTemplateOutputPageBeforeExec broke outputPage execution!' );
+		}
+
 		// execute template
 		wfProfileIn( "$fname-execute" );
 		$res = $tpl->execute();
@@ -442,7 +475,7 @@ class SkinTemplate extends Skin {
 	 * @param mixed $str
 	 * @private
 	 */
-	function printOrError( &$str ) {
+	function printOrError( $str ) {
 		echo $str;
 	}
 
@@ -452,7 +485,7 @@ class SkinTemplate extends Skin {
 	 * @private
 	 */
 	function buildPersonalUrls() {
-		global $wgTitle, $wgShowIPinHeader;
+		global $wgTitle, $wgRequest;
 
 		$fname = 'SkinTemplate::buildPersonalUrls';
 		$pageurl = $wgTitle->getLocalURL();
@@ -474,32 +507,50 @@ class SkinTemplate extends Skin {
 				'class' => $usertalkUrlDetails['exists']?false:'new',
 				'active' => ( $usertalkUrlDetails['href'] == $pageurl )
 			);
-			$href = $this->makeSpecialUrl('Preferences');
+			$href = self::makeSpecialUrl( 'Preferences' );
 			$personal_urls['preferences'] = array(
-				'text' => wfMsg('preferences'),
-				'href' => $this->makeSpecialUrl('Preferences'),
-				'active' => ( $href == $pageurl )
-			);
-			$href = $this->makeSpecialUrl('Watchlist');
-			$personal_urls['watchlist'] = array(
-				'text' => wfMsg('watchlist'),
+				'text' => wfMsg( 'mypreferences' ),
 				'href' => $href,
 				'active' => ( $href == $pageurl )
 			);
-			$href = $this->makeSpecialUrl("Contributions/$this->username");
+			$href = self::makeSpecialUrl( 'Watchlist' );
+			$personal_urls['watchlist'] = array(
+				'text' => wfMsg( 'mywatchlist' ),
+				'href' => $href,
+				'active' => ( $href == $pageurl )
+			);
+			
+			# We need to do an explicit check for Special:Contributions, as we
+			# have to match both the title, and the target (which could come
+			# from request values or be specified in "sub page" form. The plot
+			# thickens, because $wgTitle is altered for special pages, so doesn't
+			# contain the original alias-with-subpage.
+			$title = Title::newFromText( $wgRequest->getText( 'title' ) );
+			if( $title instanceof Title && $title->getNamespace() == NS_SPECIAL ) {			
+				list( $spName, $spPar ) =
+					SpecialPage::resolveAliasWithSubpage( $title->getText() );
+				$active = $spName == 'Contributions'
+					&& ( ( $spPar && $spPar == $this->username )
+						|| $wgRequest->getText( 'target' ) == $this->username );
+			} else {
+				$active = false;
+			}
+			
+			$href = self::makeSpecialUrlSubpage( 'Contributions', $this->username );
 			$personal_urls['mycontris'] = array(
-				'text' => wfMsg('mycontris'),
-				'href' => $href
-				# FIXME #  'active' => ( $href == $pageurl . '/' . $this->username )
+				'text' => wfMsg( 'mycontris' ),
+				'href' => $href,
+				'active' => $active
 			);
 			$personal_urls['logout'] = array(
-				'text' => wfMsg('userlogout'),
-				'href' => $this->makeSpecialUrl( 'Userlogout',
-					$wgTitle->getNamespace() === NS_SPECIAL && $wgTitle->getText() === 'Preferences' ? '' : "returnto={$this->thisurl}"
-				)
+				'text' => wfMsg( 'userlogout' ),
+				'href' => self::makeSpecialUrl( 'Userlogout',
+					$wgTitle->isSpecial( 'Preferences' ) ? '' : "returnto={$this->thisurl}"
+				),
+				'active' => false
 			);
 		} else {
-			if( $wgShowIPinHeader && isset(  $_COOKIE[ini_get("session.name")] ) ) {
+			if( $this->showIPinHeader() ) {
 				$href = &$this->userpageUrlDetails['href'];
 				$personal_urls['anonuserpage'] = array(
 					'text' => $this->username,
@@ -517,30 +568,22 @@ class SkinTemplate extends Skin {
 				);
 				$personal_urls['anonlogin'] = array(
 					'text' => wfMsg('userlogin'),
-					'href' => $this->makeSpecialUrl('Userlogin', 'returnto=' . $this->thisurl ),
-					'active' => ( NS_SPECIAL == $wgTitle->getNamespace() && 'Userlogin' == $wgTitle->getDBkey() )
+					'href' => self::makeSpecialUrl( 'Userlogin', 'returnto=' . $this->thisurl ),
+					'active' => $wgTitle->isSpecial( 'Userlogin' )
 				);
 			} else {
 
 				$personal_urls['login'] = array(
 					'text' => wfMsg('userlogin'),
-					'href' => $this->makeSpecialUrl('Userlogin', 'returnto=' . $this->thisurl ),
-					'active' => ( NS_SPECIAL == $wgTitle->getNamespace() && 'Userlogin' == $wgTitle->getDBkey() )
+					'href' => self::makeSpecialUrl( 'Userlogin', 'returnto=' . $this->thisurl ),
+					'active' => $wgTitle->isSpecial( 'Userlogin' )
 				);
 			}
 		}
 
-		wfRunHooks( 'PersonalUrls', array( &$personal_urls, &$wgTitle ) );		
+		wfRunHooks( 'PersonalUrls', array( &$personal_urls, &$wgTitle ) );
 		wfProfileOut( $fname );
 		return $personal_urls;
-	}
-
-	/**
-	 * Returns true if the IP should be shown in the header
-	 */
-	function showIPinHeader() {
-		global $wgShowIPinHeader;
-		return $wgShowIPinHeader && isset(  $_COOKIE[ini_get("session.name")] );
 	}
 
 	function tabAction( $title, $message, $selected, $query='', $checkEdit=false ) {
@@ -554,9 +597,9 @@ class SkinTemplate extends Skin {
 		}
 
 		$text = wfMsg( $message );
-		if ( $text == "&lt;$message&gt;" ) {
+		if ( wfEmptyMsg( $message, $text ) ) {
 			global $wgContLang;
-			$text = $wgContLang->getNsText( Namespace::getSubject( $title->getNamespace() ) );
+			$text = $wgContLang->getFormattedNsText( Namespace::getSubject( $title->getNamespace() ) );
 		}
 
 		return array(
@@ -565,23 +608,26 @@ class SkinTemplate extends Skin {
 			'href' => $title->getLocalUrl( $query ) );
 	}
 
-	function makeTalkUrlDetails( $name, $urlaction='' ) {
+	function makeTalkUrlDetails( $name, $urlaction = '' ) {
 		$title = Title::newFromText( $name );
+		if( !is_object($title) ) {
+			throw new MWException( __METHOD__." given invalid pagename $name" );
+		}
 		$title = $title->getTalkPage();
-		$this->checkTitle($title, $name);
+		self::checkTitle( $title, $name );
 		return array(
 			'href' => $title->getLocalURL( $urlaction ),
-			'exists' => $title->getArticleID() != 0?true:false
+			'exists' => $title->getArticleID() != 0 ? true : false
 		);
 	}
 
-	function makeArticleUrlDetails( $name, $urlaction='' ) {
+	function makeArticleUrlDetails( $name, $urlaction = '' ) {
 		$title = Title::newFromText( $name );
 		$title= $title->getSubjectPage();
-		$this->checkTitle($title, $name);
+		self::checkTitle( $title, $name );
 		return array(
 			'href' => $title->getLocalURL( $urlaction ),
-			'exists' => $title->getArticleID() != 0?true:false
+			'exists' => $title->getArticleID() != 0 ? true : false
 		);
 	}
 
@@ -622,7 +668,7 @@ class SkinTemplate extends Skin {
 				true);
 
 			wfProfileIn( "$fname-edit" );
-			if ( $this->mTitle->userCanEdit() && ( $this->mTitle->exists() || $this->mTitle->userCanCreate() ) ) {
+			if ( $this->mTitle->quickUserCan( 'edit' ) && ( $this->mTitle->exists() || $this->mTitle->quickUserCan( 'create' ) ) ) {
 				$istalk = $this->mTitle->isTalkPage();
 				$istalkclass = $istalk?' istalk':'';
 				$content_actions['edit'] = array(
@@ -679,24 +725,24 @@ class SkinTemplate extends Skin {
 						'href' => $this->mTitle->getLocalUrl( 'action=delete' )
 					);
 				}
-				if ( $this->mTitle->userCanMove()) {
-					$moveTitle = Title::makeTitle( NS_SPECIAL, 'Movepage' );
+				if ( $this->mTitle->quickUserCan( 'move' ) ) {
+					$moveTitle = SpecialPage::getTitleFor( 'Movepage', $this->thispage );
 					$content_actions['move'] = array(
-						'class' => ($this->mTitle->getDbKey() == 'Movepage' and $this->mTitle->getNamespace == NS_SPECIAL) ? 'selected' : false,
+						'class' => $this->mTitle->isSpecial( 'Movepage' ) ? 'selected' : false,
 						'text' => wfMsg('move'),
-						'href' => $moveTitle->getLocalUrl( 'target=' . urlencode( $this->thispage ) )
+						'href' => $moveTitle->getLocalUrl()
 					);
 				}
 			} else {
 				//article doesn't exist or is deleted
 				if( $wgUser->isAllowed( 'delete' ) ) {
 					if( $n = $this->mTitle->isDeleted() ) {
-						$undelTitle = Title::makeTitle( NS_SPECIAL, 'Undelete' );
+						$undelTitle = SpecialPage::getTitleFor( 'Undelete' );
 						$content_actions['undelete'] = array(
 							'class' => false,
 							'text' => wfMsgExt( 'undelete_short', array( 'parsemag' ), $n ),
 							'href' => $undelTitle->getLocalUrl( 'target=' . urlencode( $this->thispage ) )
-							#'href' => $this->makeSpecialUrl("Undelete/$this->thispage")
+							#'href' => self::makeSpecialUrl( "Undelete/$this->thispage" )
 						);
 					}
 				}
@@ -718,14 +764,15 @@ class SkinTemplate extends Skin {
 					);
 				}
 			}
+			
 
 			wfRunHooks( 'SkinTemplateTabs', array( &$this , &$content_actions ) )	;
 		} else {
 			/* show special page tab */
 
-			$content_actions['article'] = array(
+			$content_actions[$this->mTitle->getNamespaceKey()] = array(
 				'class' => 'selected',
-				'text' => wfMsg('specialpage'),
+				'text' => wfMsg('nstab-special'),
 				'href' => $wgRequest->getRequestURL(), // @bug 2457, 2510
 			);
 
@@ -737,9 +784,6 @@ class SkinTemplate extends Skin {
 		$variants = $wgContLang->getVariants();
 		if( !$wgDisableLangConversion && sizeof( $variants ) > 1 ) {
 			$preferred = $wgContLang->getPreferredVariant();
-			$actstr = '';
-			if( $action )
-				$actstr = 'action=' . $action . '&';
 			$vcount=0;
 			foreach( $variants as $code ) {
 				$varname = $wgContLang->getVariantname( $code );
@@ -749,7 +793,7 @@ class SkinTemplate extends Skin {
 				$content_actions['varlang-' . $vcount] = array(
 						'class' => $selected,
 						'text' => $varname,
-						'href' => $this->mTitle->getLocalUrl( $actstr . 'variant=' . urlencode( $code ) )
+						'href' => $this->mTitle->getLocalURL('',$code)
 					);
 				$vcount ++;
 			}
@@ -779,34 +823,33 @@ class SkinTemplate extends Skin {
 
 		$action = $wgRequest->getText( 'action' );
 		$oldid = $wgRequest->getVal( 'oldid' );
-		$diff = $wgRequest->getVal( 'diff' );
 
 		$nav_urls = array();
-		$nav_urls['mainpage'] = array('href' => $this->makeI18nUrl('mainpage'));
+		$nav_urls['mainpage'] = array( 'href' => self::makeMainPageUrl() );
 		if( $wgEnableUploads ) {
 			if ($wgUploadNavigationUrl) {
-				$nav_urls['upload'] = array('href' => $wgUploadNavigationUrl );
+				$nav_urls['upload'] = array( 'href' => $wgUploadNavigationUrl );
 			} else {
-				$nav_urls['upload'] = array('href' => $this->makeSpecialUrl('Upload'));
+				$nav_urls['upload'] = array( 'href' => self::makeSpecialUrl( 'Upload' ) );
 			}
 		} else {
 			if ($wgUploadNavigationUrl)
-				$nav_urls['upload'] = array('href' => $wgUploadNavigationUrl );
+				$nav_urls['upload'] = array( 'href' => $wgUploadNavigationUrl );
 			else
 				$nav_urls['upload'] = false;
 		}
-		$nav_urls['specialpages'] = array('href' => $this->makeSpecialUrl('Specialpages'));
+		$nav_urls['specialpages'] = array( 'href' => self::makeSpecialUrl( 'Specialpages' ) );
 
+		// default permalink to being off, will override it as required below.
+		$nav_urls['permalink'] = false;
 
 		// A print stylesheet is attached to all pages, but nobody ever
 		// figures that out. :)  Add a link...
 		if( $this->iscontent && ($action == '' || $action == 'view' || $action == 'purge' ) ) {
-			$revid = $wgArticle->getLatest();
-			if ( !( $revid == 0 )  )
-				$nav_urls['print'] = array(
-					'text' => wfMsg( 'printableversion' ),
-					'href' => $wgRequest->appendQuery( 'printable=yes' )
-				);
+			$nav_urls['print'] = array(
+				'text' => wfMsg( 'printableversion' ),
+				'href' => $wgRequest->appendQuery( 'printable=yes' )
+			);
 
 			// Also add a "permalink" while we're at it
 			if ( (int)$oldid ) {
@@ -815,6 +858,7 @@ class SkinTemplate extends Skin {
 					'href' => ''
 				);
 			} else {
+				$revid = $wgArticle ? $wgArticle->getLatest() : 0;
 				if ( !( $revid == 0 )  )
 					$nav_urls['permalink'] = array(
 						'text' => wfMsg( 'permalink' ),
@@ -826,15 +870,17 @@ class SkinTemplate extends Skin {
 		}
 
 		if( $this->mTitle->getNamespace() != NS_SPECIAL ) {
-			$wlhTitle = Title::makeTitle( NS_SPECIAL, 'Whatlinkshere' );
+			$wlhTitle = SpecialPage::getTitleFor( 'Whatlinkshere', $this->thispage );
 			$nav_urls['whatlinkshere'] = array(
-				'href' => $wlhTitle->getLocalUrl( 'target=' . urlencode( $this->thispage ) )
+				'href' => $wlhTitle->getLocalUrl()
 			);
 			if( $this->mTitle->getArticleId() ) {
-				$rclTitle = Title::makeTitle( NS_SPECIAL, 'Recentchangeslinked' );
+				$rclTitle = SpecialPage::getTitleFor( 'Recentchangeslinked', $this->thispage );
 				$nav_urls['recentchangeslinked'] = array(
-					'href' => $rclTitle->getLocalUrl( 'target=' . urlencode( $this->thispage ) )
+					'href' => $rclTitle->getLocalUrl()
 				);
+			} else {
+				$nav_urls['recentchangeslinked'] = false;
 			}
 			if ($wgUseTrackbacks)
 				$nav_urls['trackbacklink'] = array(
@@ -852,19 +898,23 @@ class SkinTemplate extends Skin {
 
 		if($id || $ip) { # both anons and non-anons have contri list
 			$nav_urls['contributions'] = array(
-				'href' => $this->makeSpecialUrl('Contributions/' . $this->mTitle->getText() )
+				'href' => self::makeSpecialUrlSubpage( 'Contributions', $this->mTitle->getText() )
 			);
-			if ( $wgUser->isAllowed( 'block' ) )
+			if ( $wgUser->isAllowed( 'block' ) ) {
 				$nav_urls['blockip'] = array(
-					'href' => $this->makeSpecialUrl( 'Blockip/' . $this->mTitle->getText() )
+					'href' => self::makeSpecialUrlSubpage( 'Blockip', $this->mTitle->getText() )
 				);
+			} else {
+				$nav_urls['blockip'] = false;
+			}
 		} else {
 			$nav_urls['contributions'] = false;
+			$nav_urls['blockip'] = false;
 		}
 		$nav_urls['emailuser'] = false;
 		if( $this->showEmailUser( $id ) ) {
 			$nav_urls['emailuser'] = array(
-				'href' => $this->makeSpecialUrl('Emailuser/' . $this->mTitle->getText() )
+				'href' => self::makeSpecialUrlSubpage( 'Emailuser', $this->mTitle->getText() )
 			);
 		}
 		wfProfileOut( $fname );
@@ -892,6 +942,11 @@ class SkinTemplate extends Skin {
 		$sitecss = '';
 		$usercss = '';
 		$siteargs = '&maxage=' . $wgSquidMaxage;
+		if( $this->loggedin ) {
+			// Ensure that logged-in users' generated CSS isn't clobbered
+			// by anons' publicly cacheable generated CSS.
+			$siteargs .= '&smaxage=0';
+		}
 
 		# Add user-specific code if this is a user and we allow that kind of thing
 
@@ -904,21 +959,24 @@ class SkinTemplate extends Skin {
 				$usercss = $wgRequest->getText('wpTextbox1');
 			} else {
 				$usercss = '@import "' .
-				  $this->makeUrl($this->userpage . '/'.$this->skinname.'.css',
+				  self::makeUrl($this->userpage . '/'.$this->skinname.'.css',
 								 'action=raw&ctype=text/css') . '";' ."\n";
 			}
 
 			$siteargs .= '&ts=' . $wgUser->mTouched;
 		}
 
-		if ($wgContLang->isRTL()) $sitecss .= '@import "' . $wgStylePath . '/' . $this->stylename . '/rtl.css";' . "\n";
+		if( $wgContLang->isRTL() ) {
+			global $wgStyleVersion;
+			$sitecss .= "@import \"$wgStylePath/$this->stylename/rtl.css?$wgStyleVersion\";\n";
+		}
 
 		# If we use the site's dynamic CSS, throw that in, too
 		if ( $wgUseSiteCss ) {
-			$query = "action=raw&ctype=text/css&smaxage=$wgSquidMaxage";
-			$sitecss .= '@import "' . $this->makeNSUrl('Common.css', $query, NS_MEDIAWIKI) . '";' . "\n";
-			$sitecss .= '@import "' . $this->makeNSUrl(ucfirst($this->skinname) . '.css', $query, NS_MEDIAWIKI) . '";' . "\n";
-			$sitecss .= '@import "' . $this->makeUrl('-','action=raw&gen=css' . $siteargs) . '";' . "\n";
+			$query = "usemsgcache=yes&action=raw&ctype=text/css&smaxage=$wgSquidMaxage";
+			$sitecss .= '@import "' . self::makeNSUrl( 'Common.css', $query, NS_MEDIAWIKI) . '";' . "\n";
+			$sitecss .= '@import "' . self::makeNSUrl( ucfirst( $this->skinname ) . '.css', $query, NS_MEDIAWIKI ) . '";' . "\n";
+			$sitecss .= '@import "' . self::makeUrl( '-', 'action=raw&gen=css' . $siteargs ) . '";' . "\n";
 		}
 
 		# If we use any dynamic CSS, make a little CDATA block out of it.
@@ -944,7 +1002,7 @@ class SkinTemplate extends Skin {
 				# XXX: additional security check/prompt?
 				$this->userjsprev = '/*<![CDATA[*/ ' . $wgRequest->getText('wpTextbox1') . ' /*]]>*/';
 			} else {
-				$this->userjs = $this->makeUrl($this->userpage.'/'.$this->skinname.'.js', 'action=raw&ctype='.$wgJsMimeType.'&dontcountme=s');
+				$this->userjs = self::makeUrl($this->userpage.'/'.$this->skinname.'.js', 'action=raw&ctype='.$wgJsMimeType.'&dontcountme=s');
 			}
 		}
 		wfProfileOut( $fname );
@@ -961,7 +1019,7 @@ class SkinTemplate extends Skin {
 		wfProfileIn( $fname );
 		$out = false;
 		wfRunHooks( 'SkinTemplateSetupPageCss', array( &$out ) );
-		
+
 		wfProfileOut( $fname );
 		return $out;
 	}
@@ -982,22 +1040,29 @@ class SkinTemplate extends Skin {
 	}
 
 	/**
-	 * @public
+	 * This returns MediaWiki:Common.js and MediaWiki:[Skinname].js concate-
+	 * nated together.  For some bizarre reason, it does *not* return any
+	 * custom user JS from subpages.  Huh?
+	 *
+	 * There's absolutely no reason to have separate Monobook/Common JSes.
+	 * Any JS that cares can just check the skin variable generated at the
+	 * top.  For now Monobook.js will be maintained, but it should be consi-
+	 * dered deprecated.
+	 *
+	 * @return string
 	 */
-	function getUserJs() {
+	public function getUserJs() {
 		$fname = 'SkinTemplate::getUserJs';
 		wfProfileIn( $fname );
 
-		global $wgStylePath;
-		$s = '/* generated javascript */';
-		$s .= "var skin = '{$this->skinname}';\nvar stylepath = '{$wgStylePath}';";
-		$s .= '/* MediaWiki:'.ucfirst($this->skinname)." */\n";
+		$s = parent::getUserJs();
+		$s .= "\n\n/* MediaWiki:".ucfirst($this->skinname).".js (deprecated; migrate to Common.js!) */\n";
 
 		// avoid inclusion of non defined user JavaScript (with custom skins only)
 		// by checking for default message content
 		$msgKey = ucfirst($this->skinname).'.js';
-		$userJS = wfMsg($msgKey);
-		if ('&lt;'.$msgKey.'&gt;' != $userJS) {
+		$userJS = wfMsgForContent($msgKey);
+		if ( !wfEmptyMsg( $msgKey, $userJS ) ) {
 			$s .= $userJS;
 		}
 
@@ -1009,8 +1074,7 @@ class SkinTemplate extends Skin {
 /**
  * Generic wrapper for template functions, with interface
  * compatible with what we use of PHPTAL 0.7.
- * @package MediaWiki
- * @subpackage Skins
+ * @addtogroup Skins
  */
 class QuickTemplate {
 	/**
@@ -1060,6 +1124,13 @@ class QuickTemplate {
 	/**
 	 * @private
 	 */
+	function jstext( $str ) {
+		echo Xml::escapeJsString( $this->data[$str] );
+	}
+
+	/**
+	 * @private
+	 */
 	function html( $str ) {
 		echo $this->data[$str];
 	}
@@ -1087,7 +1158,7 @@ class QuickTemplate {
 
 		$text = $this->translator->translate( $str );
 		$parserOutput = $wgParser->parse( $text, $wgTitle,
-			$wgOut->mParserOptions, true );
+			$wgOut->parserOptions(), true );
 		echo $parserOutput->getText();
 	}
 
@@ -1095,7 +1166,7 @@ class QuickTemplate {
 	 * @private
 	 */
 	function haveData( $str ) {
-		return $this->data[$str];
+		return isset( $this->data[$str] );
 	}
 
 	/**

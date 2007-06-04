@@ -1,7 +1,6 @@
 <?php
 /**
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  */
 
 /** */
@@ -14,9 +13,8 @@ function compressOldPages( $start = 0, $extdb = '' ) {
 
 	$chunksize = 50;
 	print "Starting from old_id $start...\n";
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	do {
-		$end = $start + $chunksize;
 		$res = $dbw->select( 'text', array( 'old_id','old_flags','old_namespace','old_title','old_text' ),
 			"old_id>=$start", $fname, array( 'ORDER BY' => 'old_id', 'LIMIT' => $chunksize, 'FOR UPDATE' ) );
 		if( $dbw->numRows( $res ) == 0 ) {
@@ -41,7 +39,7 @@ function compressPage( $row, $extdb ) {
 		#print "Already compressed row {$row->old_id}\n";
 		return false;
 	}
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	$flags = $row->old_flags ? "{$row->old_flags},gzip" : "gzip";
 	$compress = gzdeflate( $row->old_text );
 
@@ -77,8 +75,8 @@ function compressWithConcat( $startId, $maxChunkSize, $maxChunkFactor, $factorTh
 	$fname = 'compressWithConcat';
 	$loadStyle = LS_CHUNKED;
 
-	$dbr =& wfGetDB( DB_SLAVE );
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbr = wfGetDB( DB_SLAVE );
+	$dbw = wfGetDB( DB_MASTER );
 
 	# Set up external storage
 	if ( $extdb != '' ) {
@@ -112,9 +110,17 @@ function compressWithConcat( $startId, $maxChunkSize, $maxChunkFactor, $factorTh
 		"old_flags NOT LIKE '%object%' AND old_flags NOT LIKE '%external%'");
 
 	if ( $beginDate ) {
+		if ( !preg_match( '/^\d{14}$/', $beginDate ) ) {
+			print "Invalid begin date \"$beginDate\"\n";
+			return false;
+		}
 		$conds[] = "rev_timestamp>'" . $beginDate . "'";
 	}
 	if ( $endDate )  {
+		if ( !preg_match( '/^\d{14}$/', $endDate ) ) {
+			print "Invalid end date \"$endDate\"\n";
+			return false;
+		}
 		$conds[] = "rev_timestamp<'" . $endDate . "'";
 	}
 	if ( $loadStyle == LS_CHUNKED ) {
@@ -133,9 +139,6 @@ function compressWithConcat( $startId, $maxChunkSize, $maxChunkFactor, $factorTh
 	#$tables[] = 'page';
 	#$conds[] = 'page_id=rev_page AND rev_id != page_latest';
 
-	$oldReadsSinceLastSlaveWait = 0;	#check slave lag periodically
-	$totalMatchingRevisions = 0;
-	$masterPos = false;
 	for ( $pageId = $startId; $pageId <= $maxPageId; $pageId++ ) {
 		wfWaitForSlaves( 5 );
 
@@ -157,13 +160,13 @@ function compressWithConcat( $startId, $maxChunkSize, $maxChunkFactor, $factorTh
 
 		# Load revisions
 		$revRes = $dbw->select( $tables, $fields,
-			array( 
+			array_merge( array( 
 				'rev_page' => $pageRow->page_id, 
 				# Don't operate on the current revision
 				# Use < instead of <> in case the current revision has changed 
 				# since the page select, which wasn't locking
 				'rev_id < ' . $pageRow->page_latest
-			) + $conds,
+			), $conds ),
 			$fname,
 			$revLoadOptions
 		);
@@ -273,8 +276,8 @@ function compressWithConcat( $startId, $maxChunkSize, $maxChunkFactor, $factorTh
 
 					# Store the stub objects
 					for ( $j = 1; $j < $thisChunkSize; $j++ ) {
-						# Skip if not compressing
-						if ( $stubs[$j] !== false ) {
+						# Skip if not compressing and don't overwrite the first revision
+						if ( $stubs[$j] !== false && $revs[$i + $j]->rev_text_id != $primaryOldid ) {
 							$dbw->update( 'text',
 								array( /* SET */
 									'old_text' => serialize($stubs[$j]),

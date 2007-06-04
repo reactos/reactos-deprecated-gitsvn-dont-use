@@ -1,12 +1,7 @@
 <?php
 /**
  * Contain a class for special pages
- * @package MediaWiki
- * @subpackage Search
- */
-
-/**
- * @package MediaWiki
+ * @addtogroup Search
  */
 class SearchEngine {
 	var $limit = 10;
@@ -50,68 +45,73 @@ class SearchEngine {
 	 * @return Title
 	 * @private
 	 */
-	function getNearMatch( $term ) {
-		# Exact match? No need to look further.
-		$title = Title::newFromText( $term );
-		if (is_null($title))
-			return NULL;
+	function getNearMatch( $searchterm ) {
+		global $wgContLang;
 
-		if ( $title->getNamespace() == NS_SPECIAL || $title->exists() ) {
-			return $title;
+		$allSearchTerms = array($searchterm);
+
+		if($wgContLang->hasVariants()){
+			$allSearchTerms = array_merge($allSearchTerms,$wgContLang->convertLinkToAllVariants($searchterm));
 		}
 
-		# Now try all lower case (i.e. first letter capitalized)
-		#
-		$title = Title::newFromText( strtolower( $term ) );
-		if ( $title->exists() ) {
-			return $title;
-		}
+		foreach($allSearchTerms as $term){
 
-		# Now try capitalized string
-		#
-		$title = Title::newFromText( ucwords( strtolower( $term ) ) );
-		if ( $title->exists() ) {
-			return $title;
-		}
+			# Exact match? No need to look further.
+			$title = Title::newFromText( $term );
+			if (is_null($title))
+				return NULL;
 
-		# Now try all upper case
-		#
-		$title = Title::newFromText( strtoupper( $term ) );
-		if ( $title->exists() ) {
-			return $title;
-		}
+			if ( $title->getNamespace() == NS_SPECIAL || $title->exists() ) {
+				return $title;
+			}
 
-		# Now try Word-Caps-Breaking-At-Word-Breaks, for hyphenated names etc
-		$title = Title::newFromText( preg_replace_callback(
-			'/\b([\w\x80-\xff]+)\b/',
-			create_function( '$matches', '
-				global $wgContLang;
-				return $wgContLang->ucfirst($matches[1]);
-				' ),
-			$term ) );
-		if ( $title->exists() ) {
-			return $title;
-		}
-
-		global $wgCapitalLinks, $wgContLang;
-		if( !$wgCapitalLinks ) {
-			// Catch differs-by-first-letter-case-only
-			$title = Title::newFromText( $wgContLang->ucfirst( $term ) );
+			# Now try all lower case (i.e. first letter capitalized)
+			#
+			$title = Title::newFromText( $wgContLang->lc( $term ) );
 			if ( $title->exists() ) {
 				return $title;
 			}
-			$title = Title::newFromText( $wgContLang->lcfirst( $term ) );
+
+			# Now try capitalized string
+			#
+			$title = Title::newFromText( $wgContLang->ucwords( $term ) );
 			if ( $title->exists() ) {
 				return $title;
 			}
+
+			# Now try all upper case
+			#
+			$title = Title::newFromText( $wgContLang->uc( $term ) );
+			if ( $title->exists() ) {
+				return $title;
+			}
+
+			# Now try Word-Caps-Breaking-At-Word-Breaks, for hyphenated names etc
+			$title = Title::newFromText( $wgContLang->ucwordbreaks($term) );
+			if ( $title->exists() ) {
+				return $title;
+			}
+
+			global $wgCapitalLinks, $wgContLang;
+			if( !$wgCapitalLinks ) {
+				// Catch differs-by-first-letter-case-only
+				$title = Title::newFromText( $wgContLang->ucfirst( $term ) );
+				if ( $title->exists() ) {
+					return $title;
+				}
+				$title = Title::newFromText( $wgContLang->lcfirst( $term ) );
+				if ( $title->exists() ) {
+					return $title;
+				}
+			}
 		}
 
-		$title = Title::newFromText( $term );
+		$title = Title::newFromText( $searchterm );
 
 		# Entering an IP address goes to the contributions page
 		if ( ( $title->getNamespace() == NS_USER && User::isIP($title->getText() ) )
-			|| User::isIP( trim( $term ) ) ) {
-			return Title::makeTitle( NS_SPECIAL, "Contributions/" . $title->getDbkey() );
+			|| User::isIP( trim( $searchterm ) ) ) {
+			return SpecialPage::getTitleFor( 'Contributions', $title->getDbkey() );
 		}
 
 
@@ -119,16 +119,33 @@ class SearchEngine {
 		if ( $title->getNamespace() == NS_USER ) {
 			return $title;
 		}
-
-		# Quoted term? Try without the quotes...
-		if( preg_match( '/^"([^"]+)"$/', $term, $matches ) ) {
-			return SearchEngine::getNearMatch( $matches[1] );
+		
+		# Go to images that exist even if there's no local page.
+		# There may have been a funny upload, or it may be on a shared
+		# file repository such as Wikimedia Commons.
+		if( $title->getNamespace() == NS_IMAGE ) {
+			$image = new Image( $title );
+			if( $image->exists() ) {
+				return $title;
+			}
 		}
 
+		# MediaWiki namespace? Page may be "implied" if not customized.
+		# Just return it, with caps forced as the message system likes it.
+		if( $title->getNamespace() == NS_MEDIAWIKI ) {
+			return Title::makeTitle( NS_MEDIAWIKI, $wgContLang->ucfirst( $title->getText() ) );
+		}
+
+		# Quoted term? Try without the quotes...
+		$matches = array();
+		if( preg_match( '/^"([^"]+)"$/', $searchterm, $matches ) ) {
+			return SearchEngine::getNearMatch( $matches[1] );
+		}
+		
 		return NULL;
 	}
 
-	function legalSearchChars() {
+	public static function legalSearchChars() {
 		return "A-Za-z_'0-9\\x80-\\xFF\\-";
 	}
 
@@ -187,9 +204,8 @@ class SearchEngine {
 	 * active database backend, and return a configured instance.
 	 *
 	 * @return SearchEngine
-	 * @private
 	 */
-	function create() {
+	public static function create() {
 		global $wgDBtype, $wgSearchType;
 		if( $wgSearchType ) {
 			$class = $wgSearchType;
@@ -197,6 +213,8 @@ class SearchEngine {
 			$class = 'SearchMySQL4';
 		} else if ( $wgDBtype == 'postgres' ) {
 			$class = 'SearchPostgres';
+		} else if ( $wgDBtype == 'oracle' ) {
+			$class = 'SearchOracle';
 		} else {
 			$class = 'SearchEngineDummy';
 		}
@@ -226,12 +244,15 @@ class SearchEngine {
 	 * @param string $title
 	 * @abstract
 	 */
-    function updateTitle( $id, $title ) {
+	function updateTitle( $id, $title ) {
 		// no-op
-    }
+	}
 }
 
-/** @package MediaWiki */
+
+/**
+ * @addtogroup Search
+ */
 class SearchResultSet {
 	/**
 	 * Fetch an array of regular expression fragments for matching
@@ -306,7 +327,10 @@ class SearchResultSet {
 	}
 }
 
-/** @package MediaWiki */
+
+/**
+ * @addtogroup Search
+ */
 class SearchResult {
 	function SearchResult( $row ) {
 		$this->mTitle = Title::makeTitle( $row->page_namespace, $row->page_title );
@@ -329,7 +353,7 @@ class SearchResult {
 }
 
 /**
- * @package MediaWiki
+ * @addtogroup Search
  */
 class SearchEngineDummy {
 	function search( $term ) {

@@ -1,68 +1,66 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
-/**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
- */
-class CategoriesPage extends QueryPage {
+function wfSpecialCategories() {
+	global $wgOut;
 
-	function getName() {
-		return "Categories";
-	}
-
-	function isExpensive() {
-		return false;
-	}
-
-	function isSyndicated() { return false; }
-
-	function getPageHeader() {
-		return wfMsgWikiHtml( 'categoriespagetext' );
-	}
-	
-	function getSQL() {
-		$NScat = NS_CATEGORY;
-		$dbr =& wfGetDB( DB_SLAVE );
-		$categorylinks = $dbr->tableName( 'categorylinks' );
-		$s= "SELECT 'Categories' as type,
-				{$NScat} as namespace,
-				cl_to as title,
-				1 as value,
-				COUNT(*) as count
-			   FROM $categorylinks
-			   GROUP BY cl_to";
-		return $s;
-	}
-
-	function sortDescending() {
-		return false;
-	}
-
-	function formatResult( $skin, $result ) {
-		global $wgLang;
-		$title = Title::makeTitle( NS_CATEGORY, $result->title );
-		$plink = $skin->makeLinkObj( $title, $title->getText() );
-		$nlinks = wfMsgExt( 'nmembers', array( 'parsemag', 'escape'),
-			$wgLang->formatNum( $result->count ) );
-		return wfSpecialList($plink, $nlinks);
-	}
+	$cap = new CategoryPager();
+	$wgOut->addHTML( 
+		wfMsgWikiHtml( 'categoriespagetext' ) .
+		$cap->getNavigationBar()
+		. '<ul>' . $cap->getBody() . '</ul>' .
+		$cap->getNavigationBar()
+		);
 }
 
 /**
- *
+ * @addtogroup SpecialPage
+ * @addtogroup Pager
  */
-function wfSpecialCategories() {
-	list( $limit, $offset ) = wfCheckLimits();
-
-	$cap = new CategoriesPage();
-
-	return $cap->doQuery( $offset, $limit );
+class CategoryPager extends AlphabeticPager {
+	function getQueryInfo() {
+		return array(
+			'tables' => array('categorylinks'),
+			'fields' => array('cl_to','count(*) AS count'),
+			'options' => array('GROUP BY' => 'cl_to')
+			);
+	}
+	
+	function getIndexField() {
+		return "cl_to";
+	}
+	
+	/* Override getBody to apply LinksBatch on resultset before actually outputting anything. */
+	function getBody() {
+		if (!$this->mQueryDone) {
+			$this->doQuery();
+		}
+		$batch = new LinkBatch;
+	
+		$this->mResult->rewind();
+		
+		while ( $row = $this->mResult->fetchObject() ) {
+			$batch->addObj( Title::makeTitleSafe( NS_CATEGORY, $row->cl_to ) );
+		}
+		$batch->execute();
+		$this->mResult->rewind();
+		return parent::getBody();
+	}
+	
+	function formatRow($result) {
+		global $wgLang;
+		$title = Title::makeTitle( NS_CATEGORY, $result->cl_to );
+		return ( 
+			'<li>' .
+			$this->getSkin()->makeLinkObj( $title, $title->getText() )
+			. ' ' .
+			wfMsgExt( 'nmembers', array( 'parsemag', 'escape'),
+				$wgLang->formatNum( $result->count ) )
+			. "</li>\n" );
+	}
 }
 
 ?>

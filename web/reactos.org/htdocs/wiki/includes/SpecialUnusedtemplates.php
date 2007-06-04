@@ -1,19 +1,12 @@
 <?php
 
 /**
- * @package MediaWiki
- * @subpackage Special pages
- *
+ * implements Special:Unusedtemplates
  * @author Rob Church <robchur@gmail.com>
  * @copyright © 2006 Rob Church
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
+ * @addtogroup SpecialPage
  */
-
-/**
- * @package MediaWiki
- * @subpackage SpecialPage
- */
-
 class UnusedtemplatesPage extends QueryPage {
 
 	function getName() { return( 'Unusedtemplates' ); }
@@ -22,8 +15,8 @@ class UnusedtemplatesPage extends QueryPage {
 	function sortDescending() { return false; }
 
 	function getSQL() {
-		$dbr =& wfGetDB( DB_SLAVE );
-		extract( $dbr->tableNames( 'page', 'templatelinks' ) );
+		$dbr = wfGetDB( DB_SLAVE );
+		list( $page, $templatelinks) = $dbr->tableNamesN( 'page', 'templatelinks' );
 		$sql = "SELECT 'Unusedtemplates' AS type, page_title AS title,
 			page_namespace AS namespace, 0 AS value
 			FROM $page
@@ -37,7 +30,7 @@ class UnusedtemplatesPage extends QueryPage {
 		$title = Title::makeTitle( NS_TEMPLATE, $result->title );
 		$pageLink = $skin->makeKnownLinkObj( $title, '', 'redirect=no' );
 		$wlhLink = $skin->makeKnownLinkObj(
-			Title::makeTitle( NS_SPECIAL, 'Whatlinkshere' ),
+			SpecialPage::getTitleFor( 'Whatlinkshere' ),
 			wfMsgHtml( 'unusedtemplateswlh' ),
 			'target=' . $title->getPrefixedUrl() );
 		return wfSpecialList( $pageLink, $wlhLink );

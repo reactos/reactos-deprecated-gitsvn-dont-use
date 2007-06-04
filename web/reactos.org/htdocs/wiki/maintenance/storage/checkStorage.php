@@ -40,9 +40,9 @@ class CheckStorage
 
 	function check( $fix = false, $xml = '' ) {
 		$fname = 'checkStorage';
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		if ( $fix ) {
-			$dbw =& wfGetDB( DB_MASTER );
+			$dbw = wfGetDB( DB_MASTER );
 			print "Checking, will fix errors if possible...\n";
 		} else {
 			print "Checking...\n";
@@ -197,6 +197,7 @@ class CheckStorage
 					array( 'old_id IN (' . implode( ',', $objectRevs ) . ')' ), $fname );
 				while ( $row = $dbr->fetchObject( $res ) ) {
 					$oldId = $row->old_id;
+					$matches = array();
 					if ( !preg_match( '/^O:(\d+):"(\w+)"/', $row->header, $matches ) ) {
 						$this->error( 'restore text', "Error: invalid object header", $oldId );
 						continue;
@@ -410,8 +411,8 @@ class CheckStorage
 			return;
 		}
 
-		$dbr =& wfGetDB( DB_SLAVE );
-		$dbw =& wfGetDB( DB_MASTER );
+		$dbr = wfGetDB( DB_SLAVE );
+		$dbw = wfGetDB( DB_MASTER );
 		$dbr->ping();
 		$dbw->ping();
 		
@@ -443,7 +444,7 @@ class CheckStorage
 		}
 
 		// Find text row again
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$oldId = $dbr->selectField( 'revision', 'rev_text_id', array( 'rev_id' => $id ), $fname );
 		if ( !$oldId ) {
 			echo "Missing revision row for rev_id $id\n";
@@ -454,6 +455,7 @@ class CheckStorage
 		$flags = Revision::compressRevisionText( $text );
 
 		// Update the text row
+		$dbw = wfGetDB( DB_MASTER );
 		$dbw->update( 'text', 
 			array( 'old_flags' => $flags, 'old_text' => $text ),
 			array( 'old_id' => $oldId ),

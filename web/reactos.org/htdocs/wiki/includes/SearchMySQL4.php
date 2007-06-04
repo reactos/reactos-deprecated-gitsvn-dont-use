@@ -19,20 +19,14 @@
 
 /**
  * Search engine hook for MySQL 4+
- * @package MediaWiki
- * @subpackage Search
- */
-
-/**
- * @package MediaWiki
- * @subpackage Search
+ * @addtogroup Search
  */
 class SearchMySQL4 extends SearchMySQL {
 	var $strictMatching = true;
 
 	/** @todo document */
-	function SearchMySQL4( &$db ) {
-		$this->db =& $db;
+	function SearchMySQL4( $db ) {
+		$this->db = $db;
 	}
 
 	/** @todo document */
@@ -43,6 +37,7 @@ class SearchMySQL4 extends SearchMySQL {
 		$this->searchTerms = array();
 
 		# FIXME: This doesn't handle parenthetical expressions.
+		$m = array();
 		if( preg_match_all( '/([-+<>~]?)(([' . $lc . ']+)(\*?)|"[^"]*")/',
 			  $filteredText, $m, PREG_SET_ORDER ) ) {
 			foreach( $m as $terms ) {
@@ -60,7 +55,7 @@ class SearchMySQL4 extends SearchMySQL {
 				$this->searchTerms[] = $regexp;
 			}
 			wfDebug( "Would search with '$searchon'\n" );
-			wfDebug( "Match with /\b" . implode( '\b|\b', $this->searchTerms ) . "\b/\n" );
+			wfDebug( 'Match with /\b' . implode( '\b|\b', $this->searchTerms ) . "\b/\n" );
 		} else {
 			wfDebug( "Can't understand search query '{$filteredText}'\n" );
 		}

@@ -7,7 +7,7 @@
 
 
 image/gif	[BITMAP]
-image/png	[BITMAP]
+image/png image/x-png	[BITMAP]
 image/ief	[BITMAP]
 image/jpeg	[BITMAP]
 image/xbm	[BITMAP]
@@ -19,7 +19,7 @@ image/x-portable-graymap image/x-portable-greymap	[BITMAP]
 image/x-bmp image/bmp application/x-bmp application/bmp	[BITMAP]
 image/x-photoshop image/psd image/x-psd image/photoshop	[BITMAP]
  
-image/svg image/svg+xml application/svg+xml application/svg	[DRAWING]
+image/svg+xml application/svg+xml application/svg image/svg	[DRAWING]
 application/postscript	[DRAWING]
 application/x-latex	[DRAWING]
 application/x-tex	[DRAWING]
@@ -36,6 +36,7 @@ audio/x-realaudio	[AUDIO]
 video/mpeg application/mpeg	[VIDEO]
 video/ogg			[VIDEO]
 video/x-sgi-video		[VIDEO]
+video/x-flv			[VIDEO]
 
 application/ogg application/x-ogg audio/ogg audio/x-ogg video/ogg video/x-ogg		[MULTIMEDIA]
 

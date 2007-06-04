@@ -1,7 +1,9 @@
 <?php
 /**
-  * @package MediaWiki
-  * @subpackage Language
+  * These determine things like interwikis, language selectors, and so on.
+  * Safe to change without running scripts on the respective sites.
+  *
+  * @addtogroup Language
   */
 /* private */ $wgLanguageNames = array(
 	'aa' => 'Afar',			# Afar
@@ -13,25 +15,31 @@
 	'an' => 'Aragonés',	# Aragonese
 	'ang' => 'Anglo Saxon',	# Old English
 	'ar' => 'العربية',	# Arabic
-	'arc' => 'ܕܥܒܪܸܝܛ',	# Aramaic
+	'arc' => 'ܐܪܡܝܐ',	# Aramaic
 	'as' => 'অসমীয়া',	# Assamese
 	'ast' => 'Asturianu',	# Asturian
 	'av' => 'Авар',	# Avar
 	'ay' => 'Aymar',		# Aymara, should possibly be Aymará
 	'az' => 'Azərbaycan',	# Azerbaijani
 	'ba' => 'Башҡорт',	# Bashkir
+	'bar' => 'Boarisch',	# Bavarian (Austro-Bavarian and South Tyrolean)
 	'bat-smg' => 'Žemaitėška', # Samogitian 
-	'be' => 'Беларуская',	# Belarusian ''or'' Byelarussian
+	'be' => 'Беларуская',	#  Belarusian normative
+	'be-x-old' => 'Беларуская',	# Belarusian alternative
 	'bg' => 'Български',	# Bulgarian
 	'bh' => 'भोजपुरी',	# Bihara
 	'bi' => 'Bislama',		# Bislama
 	'bm' => 'Bamanankan',	# Bambara
 	'bn' => 'বাংলা',	# Bengali
 	'bo' => 'བོད་ཡིག',	# Tibetan
+	'bpy' => 'ইমার ঠার/বিষ্ণুপ্রিয়া মণিপুরী',	# Bishnupriya Manipuri
 	'br' => 'Brezhoneg',	# Breton
 	'bs' => 'Bosanski',		# Bosnian
 	'bug' => 'ᨅᨔ ᨕᨘᨁᨗ',	# Buginese
+	'bxr' => 'Буряад',	# Buryat (Russia)
 	'ca' => 'Català',	# Catalan
+	'cbk-zam' => 'Zamboangueño',	# Zamboanga Chavacano
+	'cdo' => 'Mìng-dĕ̤ng-ngṳ̄',	# Min Dong
 	'ce' => 'Нохчийн',	# Chechen
 	'ceb' => 'Cebuano',     # Cebuano
 	'ch' => 'Chamoru',		# Chamorro
@@ -39,18 +47,24 @@
 	'chr' => 'ᏣᎳᎩ', # Cherokee
 	'chy' => 'Tsetsêhestâhese',	# Cheyenne
 	'co' => 'Corsu',		# Corsican
-	'cr' => 'Nēhiyaw / ᓀᐦᐃᔭᐤ',		# Cree
+	'cr' => 'Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ',		# Cree
+	'crh' => 'Qırımtatarca',   # Crimean Tatar
+	'crh-latn' => "\xE2\x80\xAAQırımtatarca (Latin)\xE2\x80\xAC",       # Crimean Tatar (Latin)
+	'crh-cyrl' => "\xE2\x80\xAAQırımtatarca (Kiril)\xE2\x80\xAC",       # Crimean Tatar (Cyrillic)
 	'cs' => 'Česky',	# Czech
 	'csb' => 'Kaszëbsczi',	# Cassubian
+	'cu' => 'Словѣньскъ', 	# Old Church Slavonic (ancient language)
 	'cv' => 'Чăвашла',	# Chuvash
 	'cy' => 'Cymraeg',		# Welsh
 	'da' => 'Dansk',		# Danish
 	'de' => 'Deutsch',		# German
+	'diq' => 'Zazaki',		# Zazaki
 	'dk' => 'Dansk', 		# Unused code currently redirecting to Danish, 'da' is correct for the language
 	'dv' => 'ދިވެހިބަސް',		# Dhivehi
 	'dz' => 'ཇོང་ཁ',		# Bhutani
-	'ee' => 'Ɛʋɛ',	# Ewe
+	'ee' => 'Eʋegbe',	# Ewe
 	'el' => 'Ελληνικά',	# Greek
+	'eml' => 'Emiliàn e rumagnòl',	# Emilian-Romagnol / Sammarinese
 	'en' => 'English',		# English
 	'eo' => 'Esperanto',	# Esperanto
 	'es' => 'Español',	# Spanish
@@ -69,6 +83,7 @@
 	'ga' => 'Gaeilge',		# Irish
 	'gd' => 'Gàidhlig',	# Scots Gaelic
 	'gl' => 'Galego',		# Gallegan
+	'glk' => 'گیلکی',	# Gilaki
 	'gn' => 'Avañe\'ẽ',	# Guarani
 	'got' => '𐌲𐌿𐍄𐌹𐍃𐌺',	# Gothic
 	'gsw' => 'Alemannisch',	# Alemannic
@@ -78,8 +93,10 @@
 	'haw' => 'Hawai`i',		# Hawaiian
 	'he' => 'עברית',	# Hebrew
 	'hi' => 'हिन्दी',	# Hindi
+	'hil' => 'Ilonggo',	# Hiligaynon
 	'ho' => 'Hiri Motu',	# Hiri Motu
 	'hr' => 'Hrvatski',		# Croatian
+	'hsb' => 'Hornjoserbsce',	# Upper Sorbian
 	'ht' => 'Krèyol ayisyen',		# Haitian, common/popular form is Kreyòl
 	'hu' => 'Magyar',		# Hungarian
 	'hy' => 'Հայերեն',	# Armenian
@@ -99,10 +116,15 @@
 	'jbo' => 'Lojban',		# Lojban
 	'jv' => 'Basa Jawa',	# Javanese
 	'ka' => 'ქართული',	# Georgian
+	'kaa' => 'Qaraqalpaqsha',	# Karakalpak
+	'kab' => 'Taqbaylit',	# Kabyle
 	'kg' => 'Kongo',		# Kongo, (FIXME!) should probaly be KiKongo or KiKoongo
 	'ki' => 'Gĩkũyũ',	# Kikuyu, correctness not guaranteed
 	'kj' => 'Kuanyama',		# Kuanyama (FIXME!)
-	'kk' => 'қазақша',	# Kazakh
+	'kk' => 'Қазақша',	# Kazakh
+	'kk-cn' => "\xE2\x80\xABقازاقشا (تٴوتە)\xE2\x80\xAC",	# Kazakh Arabic
+	'kk-kz' => "\xE2\x80\xAAҚазақша (кирил)\xE2\x80\xAC",	# Kazakh Cyrillic
+	'kk-tr' => "\xE2\x80\xAAQazaqşa (latın)\xE2\x80\xAC",	# Kazakh Latin
 	'kl' => 'Kalaallisut',	# Greenlandic
 	'km' => 'ភាសាខ្មែរ',	# Cambodian
 	'kn' => 'ಕನ್ನಡ',	# Kannada
@@ -110,21 +132,26 @@
 	'kr' => 'Kanuri',		# Kanuri (FIXME!)
 	'ks' => 'कश्मीरी - (كشميري)',	# Kashmiri
 	'ksh' => 'Ripoarisch', 	# Ripuarian 
+	'ksh-c-a' => 'Ripoarisch c a', 	# Ripuarian 
+	'ksh-p-b' => 'Ripoarisch p b', 	# Ripuarian 
 	'ku' => 'Kurdî / كوردي',	# Kurdish
 	'kv' => 'Коми', 	# Komi, cyrillic is common script but also written in latin script
 	'kw' => 'Kernewek',		# Cornish
 	'ky' => 'Кыргызча',	# Kirghiz
 	'la' => 'Latina',		# Latin
 	'lad' => 'Ladino',	# Ladino
+	'lbe' => 'Лакку',	# Lak
 	'lb' => 'Lëtzebuergesch',	# Luxemburguish
 	'lg' => 'Luganda',		# Ganda
 	'li' => 'Limburgs',	# Limburgian
 	'lij' => 'Líguru',	# Ligurian
+	'lld' => 'Ladin',	# Ladin
 	'lmo' => 'Lumbaart',	# Lombard
-	'ln' => 'Lingala',		# Lingala
+	'ln' => 'Lingála',		# Lingala
 	'lo' => 'ລາວ',# Laotian
 	'lt' => 'Lietuvių',	# Lithuanian
 	'lv' => 'Latviešu',	# Latvian
+	'lzz' => 'Lazuri Nena',	#Laz
 	'map-bms' => 'Basa Banyumasan', # Banyumasan 
 	'mg' => 'Malagasy',		# Malagasy
 	'mh' => 'Ebon',			# Marshallese
@@ -139,18 +166,22 @@
 	'mt' => 'Malti',	# Maltese
 	'mus' => 'Muscogee',	# Creek, should possibly be Muskogee
 	'my' => 'Myanmasa',		# Burmese
+	'mzn' => 'مَزِروني',		# Mazandarin
 	'na' => 'Ekakairũ Naoero',		# Nauruan
 	'nah' => 'Nahuatl',		# Nahuatl, en:Wikipedia writes Nahuatlahtolli, while another form is Náhuatl
+	'nan' => 'Bân-lâm-gú', # Min-nan -- (bug 8217) nan instead of zh-min-nan, http://www.sil.org/iso639-3/codes.asp?order=639_3&letter=n
 	'nap' => 'Nnapulitano',	# Neapolitan
-	'nb' => 'Norsk (bokmål)',		# Norwegian (Bokmal)
+	'nb' => "\xE2\x80\xAANorsk (bokmål)\xE2\x80\xAC",		# Norwegian (Bokmal)
 	'nds' => 'Plattdüütsch',	# Low German ''or'' Low Saxon
 	'nds-nl' => 'Nedersaksisch',	# Dutch Low Saxon
 	'ne' => 'नेपाली',	# Nepali
+	'new' => 'नेपाल भाषा',		# Newar / Nepal Bhasa
 	'ng' => 'Oshiwambo',		# Ndonga
 	'nl' => 'Nederlands',	# Dutch
-	'nn' => 'Norsk (nynorsk)'	,	# Norwegian (Nynorsk)
-	'no' => 'Norsk (bokmål)',		# Norwegian
+	'nn' => "\xE2\x80\xAANorsk (nynorsk)\xE2\x80\xAC"	,	# Norwegian (Nynorsk)
+	'no' => "\xE2\x80\xAANorsk (bokmål)\xE2\x80\xAC",		# Norwegian
 	'non' => 'Norrǿna',		# Old Norse
+	'nov' => 'Novial',		# Novial
 	'nrm' => 'Nouormand',	# Norman
 	'nv' => 'Diné bizaad',	# Navajo
 	'ny' => 'Chi-Chewa',	# Chichewa
@@ -159,11 +190,12 @@
 	'or' => 'ଓଡ଼ିଆ',		# Oriya
 	'os' => 'Иронау', # Ossetic
 	'pa' => 'ਪੰਜਾਬੀ', # Punjabi
-	'pam' => 'Pampangan',   # Pampanga
+	'pag' => 'Pangasinan',	# Pangasinan
+	'pam' => 'Kapampangan',   # Pampanga
 	'pap' => 'Papiamentu',	# Papiamentu
 	'pdc' => 'Deitsch', 	# Pennsylvania German
-	'pih' => 'Norfuk / Pitkern', # Norfuk/Pitcairn/Norfolk
 	'pi' => 'पािऴ',	# Pali
+	'pih' => 'Norfuk / Pitkern', # Norfuk/Pitcairn/Norfolk
 	'pl' => 'Polski',		# Polish
 	'pms' => 'Piemontèis', 	# Piedmontese
 	'ps' => 'پښتو',	# Pashto
@@ -175,7 +207,9 @@
 	'rn' => 'Kirundi',		# Kirundi
 	'ro' => 'Română',	# Romanian
 	'roa-rup' => 'Armâneashti', # Aromanian
+	'roa-tara' => 'Tarandíne',	# Tarantino
 	'ru' => 'Русский',	# Russian
+	'ru-sib' => 'Сибирской',	# Siberian/North Russian
 	'rw' => 'Kinyarwanda',	# Kinyarwanda, should possibly be Kinyarwandi
 	'sa' => 'संस्कृत',	# Sanskrit
 	'sc' => 'Sardu',		# Sardinian
@@ -194,9 +228,9 @@
 	'so' => 'Soomaaliga',	# Somali
 	'sq' => 'Shqip',		# Albanian
 	'sr' => 'Српски / Srpski',	# Serbian
-	'sr-ec' => 'екавица',	# Serbian cyrillic ekavian
+	'sr-ec' => 'ћирилица',	# Serbian cyrillic ekavian
 	'sr-jc' => 'ијекавица',	# Serbian cyrillic iyekvian
-	'sr-el' => 'ekavica',	# Serbian latin ekavian
+	'sr-el' => 'latinica',	# Serbian latin ekavian
 	'sr-jl' => 'ijekavica',	# Serbian latin iyekavian
 	'ss' => 'SiSwati',		# Swati
 	'st' => 'seSotho',		# Southern Sotho
@@ -232,24 +266,30 @@
 	've' => 'Tshivenda',		# Venda
 	'vec' => 'Vèneto',	# Venetian
 	'vi' => 'Tiếng Việt',	# Vietnamese
-	'vls' => 'West-Vlaoms', # West Flemish
+	'vls' => 'West-Vlams', # West Flemish
 	'vo' => 'Volapük',	# Volapük
 	'wa' => 'Walon',		# Walloon
-	'war' => 'Samar-Leyte Visayan', # Waray-Waray
-	'wo' => 'Wollof',		# Wolof
+	'war' => 'Winaray', # Waray-Waray
+	'wo' => 'Wolof',		# Wolof
+	'wuu' => '吴语',		# Wu
 	'xal' => 'Хальмг',		# Kalmyk
 	'xh' => 'isiXhosa',		# Xhosan
 	'yi' => 'ייִדיש',	# Yiddish
 	'yo' => 'Yorùbá',	# Yoruba
+	'yue' => '粵語', 	# Cantonese -- (bug 8217) yue instead of zh-yue, http://www.sil.org/iso639-3/codes.asp?order=639_3&letter=y
 	'za' => '(Cuengh)',		# Zhuang
-	'zh' => '中文',	# (Zhōng Wén) - Chinese
-	'zh-cfr' => '閩南語', # Min-nan alias (site is at minnan)
-	'zh-cn' => '中文(简体)',	# Simplified
-	'zh-hk' => '中文(繁體)',	# Traditional (Hong Kong)
-	'zh-min-nan' => 'Bân-lâm-gú', # Min-nan
-	'zh-sg' => '中文(简体)', # Simplified (Singapore)
-	'zh-tw' => '中文(繁體)',	# Traditional
-	'zh-yue' => '粵語',	# Cantonese
+	'zea' => 'Zeêuws',	# Zealandic
+	'zh' => '中文',						# (Zhōng Wén) - Chinese
+	'zh-cfr' => '閩南語', 					# Min-nan alias (site is at minnan)
+	'zh-classical' => '古文 / 文言文',			# Classical Chinese/Literary Chinese
+	'zh-cn' => "\xE2\x80\xAA中文(中国大陆)\xE2\x80\xAC",	# Chinese (PRC)
+	'zh-hans' => "\xE2\x80\xAA中文(简体)\xE2\x80\xAC",	# Chinese written using the Simplified Chinese script
+	'zh-hant' => "\xE2\x80\xAA中文(繁體)\xE2\x80\xAC",	# Chinese written using the Traditional Chinese script
+	'zh-hk' => "\xE2\x80\xAA中文(香港)\xE2\x80\xAC",		# Chinese (Hong Kong)
+	'zh-min-nan' => 'Bân-lâm-gú', 				# Min-nan -- (see bug 8217)
+	'zh-sg' => "\xE2\x80\xAA中文(新加坡)\xE2\x80\xAC", 	# Chinese (Singapore)
+	'zh-tw' => "\xE2\x80\xAA中文(台灣)\xE2\x80\xAC",		# Chinese (Taiwan)
+	'zh-yue' => '粵語',					# Cantonese -- (see bug 8217)
 	'zu' => 'isiZulu'		# Zulu
 );
 ?>

@@ -19,7 +19,7 @@ function addWiki( $lang, $site, $dbName )
 
 	$name = $wgLanguageNames[$lang];
 
-	$dbw =& wfGetDB( DB_WRITE );
+	$dbw = wfGetDB( DB_WRITE );
 	$common = "/home/wikipedia/common";
 	$maintenance = "$IP/maintenance";
 
@@ -33,26 +33,42 @@ function addWiki( $lang, $site, $dbName )
 	print "Initialising tables\n";
 	dbsource( "$maintenance/tables.sql", $dbw );
 	dbsource( "$IP/extensions/OAI/update_table.sql", $dbw );
+	dbsource( "$IP/extensions/AntiSpoof/mysql/patch-antispoof.sql", $dbw );
+	dbsource( "$IP/extensions/CheckUser/cu_changes.sql", $dbw );
 	$dbw->query( "INSERT INTO site_stats(ss_row_id) VALUES (1)" );
 
 	# Initialise external storage
-	if ( $wgDefaultExternalStore && preg_match( '!^DB://(.*)$!', $wgDefaultExternalStore, $m ) ) {
-		print "Initialising external storage...\n";
+	if ( is_array( $wgDefaultExternalStore ) ) {
+		$stores = $wgDefaultExternalStore;
+	} elseif ( $stores ) {
+		$stores = array( $wgDefaultExternalStore );
+	} else {
+		$stores = array();
+	}
+	if ( count( $stores ) ) {
 		require_once( 'ExternalStoreDB.php' );
+		print "Initialising external storage $store...\n";
 		global $wgDBuser, $wgDBpassword, $wgExternalServers;
-		$cluster = $m[1];
-		
-		# Hack
-		$wgExternalServers[$cluster][0]['user'] = $wgDBuser;
-		$wgExternalServers[$cluster][0]['password'] = $wgDBpassword;
-		
-		$store = new ExternalStoreDB;
-		$extdb =& $store->getMaster( $cluster );
-		$extdb->query( "SET table_type=InnoDB" );
-		$extdb->query( "CREATE DATABASE $dbName" );
-		$extdb->selectDB( $dbName );
-		dbsource( "$maintenance/storage/blobs.sql", $extdb );
-		$extdb->immediateCommit();
+		foreach ( $stores as $storeURL ) {
+			$m = array();
+			if ( !preg_match( '!^DB://(.*)$!', $storeURL, $m ) ) {
+				continue;
+			}
+			
+			$cluster = $m[1];
+			
+			# Hack
+			$wgExternalServers[$cluster][0]['user'] = $wgDBuser;
+			$wgExternalServers[$cluster][0]['password'] = $wgDBpassword;
+			
+			$store = new ExternalStoreDB;
+			$extdb =& $store->getMaster( $cluster );
+			$extdb->query( "SET table_type=InnoDB" );
+			$extdb->query( "CREATE DATABASE $dbName" );
+			$extdb->selectDB( $dbName );
+			dbsource( "$maintenance/storage/blobs.sql", $extdb );
+			$extdb->immediateCommit();
+		}
 	}
 
 	$wgTitle = Title::newMainPage();
@@ -203,7 +219,17 @@ See the [http://www.wikipedia.org Wikipedia portal] for other language Wikipedia
 	fclose( $file );
 	print "Sourcing interwiki SQL\n";
 	dbsource( $tempname, $dbw );
-	unlink( $tempname );
+	#unlink( $tempname );
+	
+	# Create the upload dir
+	global $wgUploadDirectory;
+	if( file_exists( $wgUploadDirectory ) ) {
+		echo "$wgUploadDirectory already exists.\n";
+	} else {
+		echo "Creating $wgUploadDirectory...\n";
+		mkdir( $wgUploadDirectory, 0777 );
+		chmod( $wgUploadDirectory, 0777 );
+	}
 
 	print "Script ended. You now want to run sync-common-all to publish *dblist files (check them for duplicates first)\n";
 }

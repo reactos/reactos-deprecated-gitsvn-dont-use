@@ -1,7 +1,6 @@
 <?php
 /**
- * @package MediaWiki
- * @subpackage Templates
+ * @addtogroup Templates
  */
 if( !defined( 'MEDIAWIKI' ) ) die( -1 );
 
@@ -10,8 +9,7 @@ require_once( 'includes/SkinTemplate.php' );
 
 /**
  * HTML template for Special:Userlogin form
- * @package MediaWiki
- * @subpackage Templates
+ * @addtogroup Templates
  */
 class UserloginTemplate extends QuickTemplate {
 	function execute() {
@@ -37,6 +35,7 @@ class UserloginTemplate extends QuickTemplate {
 			<td align='right'><label for='wpName1'><?php $this->msg('yourname') ?>:</label></td>
 			<td align='left'>
 				<input type='text' class='loginText' name="wpName" id="wpName1"
+					tabindex="1"
 					value="<?php $this->text('name') ?>" size='20' />
 			</td>
 		</tr>
@@ -44,6 +43,7 @@ class UserloginTemplate extends QuickTemplate {
 			<td align='right'><label for='wpPassword1'><?php $this->msg('yourpassword') ?>:</label></td>
 			<td align='left'>
 				<input type='password' class='loginPassword' name="wpPassword" id="wpPassword1"
+					tabindex="2"
 					value="<?php $this->text('password') ?>" size='20' />
 			</td>
 		</tr>
@@ -56,7 +56,8 @@ class UserloginTemplate extends QuickTemplate {
 		<tr>
 			<td align='right'><?php $this->msg( 'yourdomainname' ) ?>:</td>
 			<td align='left'>
-				<select name="wpDomain" value="<?php $this->text( 'domain' ) ?>">
+				<select name="wpDomain" value="<?php $this->text( 'domain' ) ?>"
+					tabindex="3">
 					<?php echo $doms ?>
 				</select>
 			</td>
@@ -66,6 +67,7 @@ class UserloginTemplate extends QuickTemplate {
 			<td></td>
 			<td align='left'>
 				<input type='checkbox' name="wpRemember"
+					tabindex="4"
 					value="1" id="wpRemember"
 					<?php if( $this->data['remember'] ) { ?>checked="checked"<?php } ?>
 					/> <label for="wpRemember"><?php $this->msg('remembermypassword') ?></label>
@@ -74,7 +76,8 @@ class UserloginTemplate extends QuickTemplate {
 		<tr>
 			<td></td>
 			<td align='left' style="white-space:nowrap">
-				<input type='submit' name="wpLoginattempt" id="wpLoginattempt" value="<?php $this->msg('login') ?>" />&nbsp;<?php if( $this->data['useemail'] ) { ?><input type='submit' name="wpMailmypassword" id="wpMailmypassword"
+				<input type='submit' name="wpLoginattempt" id="wpLoginattempt" tabindex="5" value="<?php $this->msg('login') ?>" />&nbsp;<?php if( $this->data['useemail'] && $this->data['canreset']) { ?><input type='submit' name="wpMailmypassword" id="wpMailmypassword"
+					tabindex="6"
 									value="<?php $this->msg('mailmypassword') ?>" />
 				<?php } ?>
 			</td>
@@ -89,6 +92,9 @@ class UserloginTemplate extends QuickTemplate {
 	}
 }
 
+/**
+ * @addtogroup Templates
+ */
 class UsercreateTemplate extends QuickTemplate {
 	function execute() {
 		if( $this->data['message'] ) {
@@ -113,6 +119,7 @@ class UsercreateTemplate extends QuickTemplate {
 			<td align='right'><label for='wpName2'><?php $this->msg('yourname') ?>:</label></td>
 			<td align='left'>
 				<input type='text' class='loginText' name="wpName" id="wpName2"
+					tabindex="1"
 					value="<?php $this->text('name') ?>" size='20' />
 			</td>
 		</tr>
@@ -120,6 +127,7 @@ class UsercreateTemplate extends QuickTemplate {
 			<td align='right'><label for='wpPassword2'><?php $this->msg('yourpassword') ?>:</label></td>
 			<td align='left'>
 				<input type='password' class='loginPassword' name="wpPassword" id="wpPassword2"
+					tabindex="2"
 					value="<?php $this->text('password') ?>" size='20' />
 			</td>
 		</tr>
@@ -132,7 +140,8 @@ class UsercreateTemplate extends QuickTemplate {
 		<tr>
 			<td align='right'><?php $this->msg( 'yourdomainname' ) ?>:</td>
 			<td align='left'>
-				<select name="wpDomain" value="<?php $this->text( 'domain' ) ?>">
+				<select name="wpDomain" value="<?php $this->text( 'domain' ) ?>"
+					tabindex="3">
 					<?php echo $doms ?>
 				</select>
 			</td>
@@ -142,24 +151,27 @@ class UsercreateTemplate extends QuickTemplate {
 			<td align='right'><label for='wpRetype'><?php $this->msg('yourpasswordagain') ?>:</label></td>
 			<td align='left'>
 				<input type='password' class='loginPassword' name="wpRetype" id="wpRetype"
+					tabindex="4"
 					value="<?php $this->text('retype') ?>"
 					size='20' />
 			</td>
 		</tr>
 		<tr>
 			<?php if( $this->data['useemail'] ) { ?>
-				<td align='right'><label for='wpEmail'><?php $this->msg('youremail') ?>:</label></td>
+				<td align='right'><label for='wpEmail'><?php $this->msg('youremail') ?></label></td>
 				<td align='left'>
 					<input type='text' class='loginText' name="wpEmail" id="wpEmail"
+						tabindex="5"
 						value="<?php $this->text('email') ?>" size='20' />
 				</td>
 			<?php } ?>
 			<?php if( $this->data['userealname'] ) { ?>
 				</tr>
 				<tr>
-					<td align='right'><label for='wpRealName'><?php $this->msg('yourrealname') ?>:</label></td>
+					<td align='right'><label for='wpRealName'><?php $this->msg('yourrealname') ?></label></td>
 					<td align='left'>
 						<input type='text' class='loginText' name="wpRealName" id="wpRealName"
+							tabindex="6"
 							value="<?php $this->text('realname') ?>" size='20' />
 					</td>
 			<?php } ?>
@@ -168,6 +180,7 @@ class UsercreateTemplate extends QuickTemplate {
 			<td></td>
 			<td align='left'>
 				<input type='checkbox' name="wpRemember"
+					tabindex="7"
 					value="1" id="wpRemember"
 					<?php if( $this->data['remember'] ) { ?>checked="checked"<?php } ?>
 					/> <label for="wpRemember"><?php $this->msg('remembermypassword') ?></label>
@@ -177,9 +190,11 @@ class UsercreateTemplate extends QuickTemplate {
 			<td></td>
 			<td align='left'>
 				<input type='submit' name="wpCreateaccount" id="wpCreateaccount"
+					tabindex="8"
 					value="<?php $this->msg('createaccount') ?>" />
 				<?php if( $this->data['createemail'] ) { ?>
 				<input type='submit' name="wpCreateaccountMail" id="wpCreateaccountMail"
+					tabindex="9"
 					value="<?php $this->msg('createaccountmail') ?>" />
 				<?php } ?>
 			</td>

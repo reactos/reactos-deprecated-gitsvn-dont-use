@@ -17,26 +17,41 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
- *
- * @package MediaWiki
- * @subpackage SpecialPage
  */
 
+/**
+ * @todo document, briefly.
+ * @addtogroup SpecialPage
+ */
 class ProtectionForm {
 	var $mRestrictions = array();
 	var $mReason = '';
+	var $mCascade = false;
+	var $mExpiry = null;
 
-	function ProtectionForm( &$article ) {
+	function __construct( &$article ) {
 		global $wgRequest, $wgUser;
 		global $wgRestrictionTypes, $wgRestrictionLevels;
 		$this->mArticle =& $article;
 		$this->mTitle =& $article->mTitle;
 
 		if( $this->mTitle ) {
+			$this->mTitle->loadRestrictions();
+
 			foreach( $wgRestrictionTypes as $action ) {
 				// Fixme: this form currently requires individual selections,
 				// but the db allows multiples separated by commas.
 				$this->mRestrictions[$action] = implode( '', $this->mTitle->getRestrictions( $action ) );
+			}
+
+			$this->mCascade = $this->mTitle->areRestrictionsCascading();
+
+			if ( $this->mTitle->mRestrictionsExpiry == 'infinity' ) {
+				$this->mExpiry = 'infinite';
+			} else if ( strlen($this->mTitle->mRestrictionsExpiry) == 0 ) {
+				$this->mExpiry = '';
+			} else {
+				$this->mExpiry = wfTimestamp( TS_RFC2822, $this->mTitle->mRestrictionsExpiry );
 			}
 		}
 
@@ -48,6 +63,9 @@ class ProtectionForm {
 
 		if( $wgRequest->wasPosted() ) {
 			$this->mReason = $wgRequest->getText( 'mwProtect-reason' );
+			$this->mCascade = $wgRequest->getBool( 'mwProtect-cascade' );
+			$this->mExpiry = $wgRequest->getText( 'mwProtect-expiry' );
+
 			foreach( $wgRestrictionTypes as $action ) {
 				$val = $wgRequest->getVal( "mwProtect-level-$action" );
 				if( isset( $val ) && in_array( $val, $wgRestrictionLevels ) ) {
@@ -56,9 +74,21 @@ class ProtectionForm {
 			}
 		}
 	}
+	
+	function execute() {
+		global $wgRequest;
+		if( $wgRequest->wasPosted() ) {
+			if( $this->save() ) {
+				global $wgOut;
+				$wgOut->redirect( $this->mTitle->getFullUrl() );
+			}
+		} else {
+			$this->show();
+		}
+	}
 
-	function show() {
-		global $wgOut;
+	function show( $err = null ) {
+		global $wgOut, $wgUser;
 
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
@@ -69,17 +99,47 @@ class ProtectionForm {
 			return;
 		}
 
-		if( $this->save() ) {
-			$wgOut->redirect( $this->mTitle->getFullUrl() );
-			return;
+		list( $cascadeSources, $restrictions ) = $this->mTitle->getCascadeProtectionSources();
+
+		if ( "" != $err ) {
+			$wgOut->setSubtitle( wfMsgHtml( 'formerror' ) );
+			$wgOut->addHTML( "<p class='error'>{$err}</p>\n" );
+		}
+
+		if ( $cascadeSources && count($cascadeSources) > 0 ) {
+			$titles = '';
+
+			foreach ( $cascadeSources as $title ) {
+				$titles .= '* [[:' . $title->getPrefixedText() . "]]\n";
+			}
+
+			$notice = wfMsgExt( 'protect-cascadeon', array('parsemag'), count($cascadeSources) ) . "\r\n$titles";
+
+			$wgOut->addWikiText( $notice );
 		}
 
 		$wgOut->setPageTitle( wfMsg( 'confirmprotect' ) );
 		$wgOut->setSubtitle( wfMsg( 'protectsub', $this->mTitle->getPrefixedText() ) );
 
-		$wgOut->addWikiText(
-			wfMsg( $this->disabled ? "protect-viewtext" : "protect-text",
-				$this->mTitle->getPrefixedText() ) );
+		# Show an appropriate message if the user isn't allowed or able to change
+		# the protection settings at this time
+		if( $this->disabled ) {
+			if( $wgUser->isAllowed( 'protect' ) ) {
+				if( $wgUser->isBlocked() ) {
+					# Blocked
+					$message = 'protect-locked-blocked';
+				} else {
+					# Database lock
+					$message = 'protect-locked-dblock';
+				}
+			} else {
+				# Permission error
+				$message = 'protect-locked-access';
+			}
+		} else {
+			$message = 'protect-text';
+		}
+		$wgOut->addWikiText( wfMsg( $message, wfEscapeWikiText( $this->mTitle->getPrefixedText() ) ) );
 
 		$wgOut->addHTML( $this->buildForm() );
 
@@ -88,20 +148,43 @@ class ProtectionForm {
 
 	function save() {
 		global $wgRequest, $wgUser, $wgOut;
-		if( !$wgRequest->wasPosted() ) {
-			return false;
-		}
-
+		
 		if( $this->disabled ) {
+			$this->show();
 			return false;
 		}
 
 		$token = $wgRequest->getVal( 'wpEditToken' );
 		if( !$wgUser->matchEditToken( $token ) ) {
-			throw new FatalError( wfMsg( 'sessionfailure' ) );
+			$this->show( wfMsg( 'sessionfailure' ) );
+			return false;
 		}
 
-		$ok = $this->mArticle->updateRestrictions( $this->mRestrictions, $this->mReason );
+		if ( strlen( $this->mExpiry ) == 0 ) {
+			$this->mExpiry = 'infinite';
+		}
+
+		if ( $this->mExpiry == 'infinite' || $this->mExpiry == 'indefinite' ) {
+			$expiry = Block::infinity();
+		} else {
+			# Convert GNU-style date, on error returns -1 for PHP <5.1 and false for PHP >=5.1
+			$expiry = strtotime( $this->mExpiry );
+
+			if ( $expiry < 0 || $expiry === false ) {
+				$this->show( wfMsg( 'protect_expiry_invalid' ) );
+				return false;
+			}
+
+			$expiry = wfTimestamp( TS_MW, $expiry );
+
+			if ( $expiry < wfTimestampNow() ) {
+				$this->show( wfMsg( 'protect_expiry_old' ) );
+				return false;
+			}
+
+		}
+
+		$ok = $this->mArticle->updateRestrictions( $this->mRestrictions, $this->mReason, $this->mCascade, $expiry );
 		if( !$ok ) {
 			throw new FatalError( "Unknown error at restriction save time." );
 		}
@@ -117,6 +200,7 @@ class ProtectionForm {
 			// The submission needs to reenable the move permission selector
 			// if it's in locked mode, or some browsers won't submit the data.
 			$out .= wfOpenElement( 'form', array(
+				'id' => 'mw-Protect-Form',
 				'action' => $this->mTitle->getLocalUrl( 'action=protect' ),
 				'method' => 'post',
 				'onsubmit' => 'protectEnable(true)' ) );
@@ -148,13 +232,25 @@ class ProtectionForm {
 		$out .= "</tbody>\n";
 		$out .= "</table>\n";
 
+		global $wgEnableCascadingProtection;
+
+		if ($wgEnableCascadingProtection)
+			$out .= $this->buildCascadeInput();
+
+		$out .= "<table>\n";
+		$out .= "<tbody>\n";
+
+		$out .= $this->buildExpiryInput();
+
 		if( !$this->disabled ) {
-			$out .= "<table>\n";
-			$out .= "<tbody>\n";
 			$out .= "<tr><td>" . $this->buildReasonInput() . "</td></tr>\n";
 			$out .= "<tr><td></td><td>" . $this->buildSubmit() . "</td></tr>\n";
-			$out .= "</tbody>\n";
-			$out .= "</table>\n";
+		}
+
+		$out .= "</tbody>\n";
+		$out .= "</table>\n";
+
+		if ( !$this->disabled ) {
 			$out .= "</form>\n";
 			$out .= $this->buildCleanupScript();
 		}
@@ -202,25 +298,61 @@ class ProtectionForm {
 			wfElement( 'input', array(
 				'size' => 60,
 				'name' => $id,
-				'id' => $id ) );
+				'id' => $id,
+				'value' => $this->mReason ) );
+	}
+
+	function buildCascadeInput() {
+		$id = 'mwProtect-cascade';
+		$ci = wfCheckLabel( wfMsg( 'protect-cascade' ), $id, $id, $this->mCascade, $this->disabledAttrib);
+		return $ci;
+	}
+
+	function buildExpiryInput() {
+		$id = 'mwProtect-expiry';
+
+		$ci = "<tr> <td align=\"right\">";
+		$ci .= wfElement( 'label', array (
+				'id' => "$id-label",
+				'for' => $id ),
+				wfMsg( 'protectexpiry' ) );
+		$ci .= "</td> <td align=\"left\">";
+		$ci .= wfElement( 'input', array(
+				'size' => 60,
+				'name' => $id,
+				'id' => $id,
+				'value' => $this->mExpiry ) + $this->disabledAttrib );
+		$ci .= "</td></tr>";
+
+		return $ci;
 	}
 
 	function buildSubmit() {
 		return wfElement( 'input', array(
+			'id' => 'mw-Protect-submit',
 			'type' => 'submit',
 			'value' => wfMsg( 'confirm' ) ) );
 	}
 
 	function buildScript() {
-		global $wgStylePath;
+		global $wgStylePath, $wgStyleVersion;
 		return '<script type="text/javascript" src="' .
-			htmlspecialchars( $wgStylePath . "/common/protect.js" ) .
+			htmlspecialchars( $wgStylePath . "/common/protect.js?$wgStyleVersion" ) .
 			'"></script>';
 	}
 
 	function buildCleanupScript() {
-		return '<script type="text/javascript">protectInitialize("mwProtectSet","' .
-			wfEscapeJsString( wfMsg( 'protect-unchain' ) ) . '")</script>';
+		global $wgRestrictionLevels, $wgGroupPermissions;
+		$script = 'var wgCascadeableLevels=';
+		$CascadeableLevels = array();
+		foreach( $wgRestrictionLevels as $key ) {
+			if ( isset($wgGroupPermissions[$key]['protect']) && $wgGroupPermissions[$key]['protect'] ) {
+				$CascadeableLevels[]="'" . wfEscapeJsString($key) . "'";
+			}
+		}
+		$script .= "[" . implode(',',$CascadeableLevels) . "];\n";
+		$script .= 'protectInitialize("mwProtectSet","' . wfEscapeJsString( wfMsg( 'protect-unchain' ) ) . '")';
+		return '<script type="text/javascript">' . $script . '</script>';
 	}
 
 	/**
@@ -230,7 +362,6 @@ class ProtectionForm {
 	function showLogExtract( &$out ) {
 		# Show relevant lines from the deletion log:
 		$out->addHTML( "<h2>" . htmlspecialchars( LogPage::logName( 'protect' ) ) . "</h2>\n" );
-		require_once( 'SpecialLog.php' );
 		$logViewer = new LogViewer(
 			new LogReader(
 				new FauxRequest(
@@ -239,6 +370,5 @@ class ProtectionForm {
 		$logViewer->showList( $out );
 	}
 }
-
 
 ?>

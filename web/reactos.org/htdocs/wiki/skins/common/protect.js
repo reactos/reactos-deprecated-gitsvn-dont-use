@@ -3,26 +3,29 @@ function protectInitialize(tableId, labelText) {
 		var box = document.getElementById(tableId);
 		if (!box)
 			return false;
-		
+
 		var tbody = box.getElementsByTagName('tbody')[0];
 		var row = document.createElement('tr');
 		tbody.appendChild(row);
-		
+
 		row.appendChild(document.createElement('td'));
 		var col2 = document.createElement('td');
 		row.appendChild(col2);
-		
+
 		var check = document.createElement('input');
 		check.id = "mwProtectUnchained";
 		check.type = "checkbox";
 		check.onclick = protectChainUpdate;
 		col2.appendChild(check);
-		
+
+		var space = document.createTextNode(" ");
+		col2.appendChild(space);
+
 		var label = document.createElement('label');
 		label.setAttribute("for", "mwProtectUnchained");
 		label.appendChild(document.createTextNode(labelText));
 		col2.appendChild(label);
-		
+
 		if (protectAllMatch()) {
 			check.checked = false;
 			protectEnable(false);
@@ -31,7 +34,34 @@ function protectInitialize(tableId, labelText) {
 			protectEnable(true);
 		}
 		
+		allowCascade();
+
 		return true;
+	}
+	return false;
+}
+
+function allowCascade() {
+	var pr_types = document.getElementsByTagName("select");
+	for (var i = 0; i < pr_types.length; i++) {
+		if (pr_types[i].id.match(/^mwProtect-level-/)) {
+			var selected_level = pr_types[i].getElementsByTagName("option")[pr_types[i].selectedIndex].value;
+			if ( !isCascadeableLevel(selected_level) ) {
+				document.getElementById('mwProtect-cascade').checked=false;
+				document.getElementById('mwProtect-cascade').disabled=true;
+				return false;
+			}
+		}
+	}
+	document.getElementById('mwProtect-cascade').disabled=false;
+	return true;
+}
+
+function isCascadeableLevel( level ) {
+	for (var k = 0; k < wgCascadeableLevels.length; k++) {
+		if ( wgCascadeableLevels[k] == level ) {
+			return true;
+		}
 	}
 	return false;
 }
@@ -40,6 +70,7 @@ function protectLevelsUpdate(source) {
 	if (!protectUnchained()) {
 		protectUpdateAll(source.selectedIndex);
 	}
+	allowCascade();
 }
 
 function protectChainUpdate() {
@@ -49,6 +80,7 @@ function protectChainUpdate() {
 		protectChain();
 		protectEnable(false);
 	}
+	allowCascade();
 }
 
 

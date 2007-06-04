@@ -21,7 +21,6 @@
 /**
  * Contain log classes
  *
- * @package MediaWiki
  */
 
 /**
@@ -29,7 +28,6 @@
  * The logs are now kept in a table which is easier to manage and trim
  * than ever-growing wiki pages.
  *
- * @package MediaWiki
  */
 class LogPage {
 	/* @access private */
@@ -44,7 +42,7 @@ class LogPage {
 	  *               'upload', 'move'
 	  * @param bool $rc Whether to update recent changes as well as the logging table
 	  */
-	function LogPage( $type, $rc = true ) {
+	function __construct( $type, $rc = true ) {
 		$this->type = $type;
 		$this->updateRecentChanges = $rc;
 	}
@@ -55,7 +53,7 @@ class LogPage {
 		global $wgUser;
 		$fname = 'LogPage::saveContent';
 
-		$dbw =& wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_MASTER );
 		$uid = $wgUser->getID();
 
 		$this->timestamp = $now = wfTimestampNow();
@@ -74,7 +72,7 @@ class LogPage {
 
 		# And update recentchanges
 		if ( $this->updateRecentChanges ) {
-			$titleObj = Title::makeTitle( NS_SPECIAL, 'Log/' . $this->type );
+			$titleObj = SpecialPage::getTitleFor( 'Log', $this->type );
 			$rcComment = $this->actionText;
 			if( '' != $this->comment ) {
 				if ($rcComment == '')
@@ -107,7 +105,7 @@ class LogPage {
 	/**
 	 * @static
 	 */
-	function logName( $type ) {
+	public static function logName( $type ) {
 		global $wgLogNames;
 
 		if( isset( $wgLogNames[$type] ) ) {
@@ -119,7 +117,7 @@ class LogPage {
 	}
 
 	/**
-	 * @fixme: handle missing log types
+	 * @todo handle missing log types
 	 * @static
 	 */
 	function logHeader( $type ) {
@@ -134,6 +132,10 @@ class LogPage {
 		global $wgLang, $wgContLang, $wgLogActions;
 
 		$key = "$type/$action";
+		
+		if( $key == 'patrol/patrol' )
+			return PatrolLog::makeActionText( $title, $params, $skin );
+		
 		if( isset( $wgLogActions[$key] ) ) {
 			if( is_null( $title ) ) {
 				$rv=wfMsg( $wgLogActions[$key] );
@@ -150,7 +152,7 @@ class LogPage {
 								$titleLink = $title->getText();
 							} else {
 								$titleLink = $skin->makeLinkObj( $title, $title->getText() );
-								$titleLink .= ' (' . $skin->makeKnownLinkObj( Title::makeTitle( NS_SPECIAL, 'Contributions/' . $title->getDBkey() ), wfMsg( 'contribslink' ) ) . ')';
+								$titleLink .= ' (' . $skin->makeKnownLinkObj( SpecialPage::getTitleFor( 'Contributions', $title->getDBkey() ), wfMsg( 'contribslink' ) ) . ')';
 							}
 							break;
 						case 'rights':
@@ -183,8 +185,13 @@ class LogPage {
 					}
 				} else {
 					array_unshift( $params, $titleLink );
-					if ( $translate && $key == 'block/block' ) {
-						$params[1] = $wgLang->translateBlockExpiry($params[1]);
+					if ( $key == 'block/block' ) {
+						if ( $translate ) {
+							$params[1] = $wgLang->translateBlockExpiry( $params[1] );
+						}
+						$params[2] = isset( $params[2] )
+										? self::formatBlockFlags( $params[2] )
+										: '';
 					}
 					$rv = wfMsgReal( $wgLogActions[$key], $params, true, !$skin );
 				}
@@ -207,13 +214,13 @@ class LogPage {
 	 * @param string $comment Description associated
 	 * @param array $params Parameters passed later to wfMsg.* functions
 	 */
-	function addEntry( $action, &$target, $comment, $params = array() ) {
+	function addEntry( $action, $target, $comment, $params = array() ) {
 		if ( !is_array( $params ) ) {
 			$params = array( $params );
 		}
 
 		$this->action = $action;
-		$this->target =& $target;
+		$this->target = $target;
 		$this->comment = $comment;
 		$this->params = LogPage::makeParamBlob( $params );
 
@@ -241,6 +248,41 @@ class LogPage {
 			return explode( "\n", $blob );
 		}
 	}
+	
+	/**
+	 * Convert a comma-delimited list of block log flags
+	 * into a more readable (and translated) form
+	 *
+	 * @param $flags Flags to format
+	 * @return string
+	 */
+	public static function formatBlockFlags( $flags ) {
+		$flags = explode( ',', trim( $flags ) );
+		if( count( $flags ) > 0 ) {
+			for( $i = 0; $i < count( $flags ); $i++ )
+				$flags[$i] = self::formatBlockFlag( $flags[$i] );
+			return '(' . implode( ', ', $flags ) . ')';
+		} else {
+			return '';
+		}
+	}
+	
+	/**
+	 * Translate a block log flag if possible
+	 *
+	 * @param $flag Flag to translate
+	 * @return string
+	 */
+	public static function formatBlockFlag( $flag ) {
+		static $messages = array();
+		if( !isset( $messages[$flag] ) ) {
+			$k = 'block-log-flags-' . $flag;
+			$msg = wfMsg( $k );
+			$messages[$flag] = htmlspecialchars( wfEmptyMsg( $k, $msg ) ? $flag : $msg );
+		}
+		return $messages[$flag];
+	}
+	
 }
 
 ?>

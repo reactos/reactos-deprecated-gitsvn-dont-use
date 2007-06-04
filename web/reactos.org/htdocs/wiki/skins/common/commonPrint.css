@@ -22,13 +22,11 @@ a.new{ color:#ba0000; text-decoration:none; }
 .tocline {
 	margin-bottom: 0px;
 }
-.toctoggle, .editsection {
-	font-size: smaller;
-}
 
 /* images */
 div.floatright { 
-    float: right; 
+    float: right;
+    clear: right;
     margin: 0;
     position:relative;
     border: 0.5em solid White;
@@ -67,6 +65,7 @@ div.thumb div div.thumbcaption {
 div.magnify { display: none; }
 div.tright {
     float: right;
+    clear: right;
     border-width: 0.5em 0 0.8em 1.4em;
 }
 div.tleft {
@@ -103,10 +102,10 @@ div#column-one,
 .tochidden,
 div#f-poweredbyico,
 div#f-copyrightico,
-li#f-viewcount,
-li#f-about,
-li#f-disclaimer,
-li#f-privacy {
+li#viewcount,
+li#about,
+li#disclaimer,
+li#privacy {
     /* Hides all the elements irrelevant for printing */
     display: none;
 }
@@ -118,7 +117,6 @@ ul {
 #content {
     background: none;
     border: none ! important;
-    font-size: 11pt;
     padding: 0 ! important;
     margin: 0 ! important;
 }
@@ -130,12 +128,12 @@ ul {
 
 h1, h2, h3, h4, h5, h6
 {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 p, .documentDescription {
     margin: 1em 0 ! important;
-    line-height: 1.2em;    
+    line-height: 1.2em;
 }
 
 .tocindent p {
@@ -160,7 +158,8 @@ table.listing td {
 
 a {
     color: Black !important;
-    padding: 0 !important
+    background: none !important;
+    padding: 0 !important;
 }
 
 a:link, a:visited {
@@ -284,5 +283,8 @@ td.diff-context {
     background:#eeeeee;
     font-size: smaller;
 }
-span.diffchange { color: silver; font-weight: bold; text-decoration: underline; }
-
+.diffchange {
+    color: silver;
+    font-weight: bold;
+    text-decoration: underline;
+}

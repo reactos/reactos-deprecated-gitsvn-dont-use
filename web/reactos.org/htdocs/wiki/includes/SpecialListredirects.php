@@ -1,7 +1,6 @@
 <?php
 /**
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  *
  * @author Rob Church <robchur@gmail.com>
  * @copyright © 2006 Rob Church
@@ -9,10 +8,9 @@
  */
 
 /**
- * @package MediaWiki
- * @subpackage SpecialPage
+ * Special:Listredirects - Lists all the redirects on the wiki.
+ * @addtogroup SpecialPage
  */
-
 class ListredirectsPage extends QueryPage {
 
 	function getName() { return( 'Listredirects' ); }
@@ -21,7 +19,7 @@ class ListredirectsPage extends QueryPage {
 	function sortDescending() { return( false ); }
 
 	function getSQL() {
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$page = $dbr->tableName( 'page' );
 		$sql = "SELECT 'Listredirects' AS type, page_title AS title, page_namespace AS namespace, 0 AS value FROM $page WHERE page_is_redirect = 1";
 		return( $sql );
@@ -32,6 +30,7 @@ class ListredirectsPage extends QueryPage {
 	
 		# Make a link to the redirect itself
 		$rd_title = Title::makeTitle( $result->namespace, $result->title );
+		$arr = $wgContLang->getArrow() . $wgContLang->getDirMark();
 		$rd_link = $skin->makeKnownLinkObj( $rd_title, '', 'redirect=no' );
 
 		# Find out where the redirect leads
@@ -50,11 +49,8 @@ class ListredirectsPage extends QueryPage {
 			$targetLink = '*';
 		}
 
-		# Check the language; RTL wikis need a &larr;
-		$arr = $wgContLang->isRTL() ? ' &larr; ' : ' &rarr; ';
-
 		# Format the whole thing and return it
-		return( $rd_link . $arr . $targetLink );
+		return "$rd_link $arr $targetLink";
 
 	}
 

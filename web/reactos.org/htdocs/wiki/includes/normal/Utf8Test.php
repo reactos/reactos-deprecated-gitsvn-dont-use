@@ -21,7 +21,7 @@
  * Runs the UTF-8 decoder test at:
  * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
  *
- * @package UtfNormal
+ * @addtogroup UtfNormal
  * @access private
  */
 
@@ -45,6 +45,7 @@ if( !$in ) {
 
 $columns = 0;
 while( false !== ( $line = fgets( $in ) ) ) {
+	$matches = array();
 	if( preg_match( '/^(Here come the tests:\s*)\|$/', $line, $matches ) ) {
 		$columns = strpos( $line, '|' );
 		break;
@@ -86,6 +87,7 @@ $failed = 0;
 $success = 0;
 $total = 0;
 while( false !== ( $line = fgets( $in ) ) ) {
+	$matches = array();
 	if( preg_match( '/^(\d+)\s+(.*?)\s*\|/', $line, $matches ) ) {
 		$section = $matches[1];
 		print $line;

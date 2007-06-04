@@ -6,15 +6,13 @@
  * be necessary to change the cookie settings to work across hostnames.
  * See: http://www.php.net/manual/en/function.session-set-save-handler.php
  *
- * @package MediaWiki
  */
 
 /**
  * @todo document
  */
 function memsess_key( $id ) {
-	global $wgDBname;
-	return "$wgDBname:session:$id";
+	return wfMemcKey( 'session', $id );
 }
 
 /**

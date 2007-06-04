@@ -1,8 +1,7 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
@@ -18,11 +17,6 @@ function wfSpecialUserlogout() {
 		wfRunHooks('UserLogoutComplete', array(&$wgUser));
 
 		header("Location: /roscms/?page=logout");
-/*
-		$wgOut->setRobotpolicy( 'noindex,nofollow' );
-		$wgOut->addHTML( wfMsgExt( 'logouttext', array( 'parse' ) ) );
-		$wgOut->returnToMain();
-*/
 	}
 }
 

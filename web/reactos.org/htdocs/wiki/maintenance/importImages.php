@@ -4,8 +4,7 @@
  * Maintenance script to import one or more images from the local file system into
  * the wiki without using the web-based interface
  *
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  * @author Rob Church <robchur@gmail.com>
  */
 
@@ -25,14 +24,26 @@ if( count( $args ) > 1 ) {
 	# Search the directory given and pull out suitable candidates
 	$files = findFiles( $dir, $exts );
 
-	# Set up a fake user for this operation
-	$wgUser = User::newFromName( 'Image import script' );
-	$wgUser->setLoaded( true );
+	# Initialise the user for this operation
+	$user = isset( $options['user'] )
+		? User::newFromName( $options['user'] )
+		: User::newFromName( 'Maintenance script' );
+	if( !$user instanceof User )
+		$user = User::newFromName( 'Maintenance script' );
+	$wgUser = $user;
+	
+	# Get the upload comment
+	$comment = isset( $options['comment'] )
+		? $options['comment']
+		: 'Importing image file';
+	
+	# Get the license specifier
+	$license = isset( $options['license'] ) ? $options['license'] : '';
 	
 	# Batch "upload" operation
 	foreach( $files as $file ) {
 	
-		$base = basename( $file );
+		$base = wfBaseName( $file );
 		
 		# Validate a title
 		$title = Title::makeTitleSafe( NS_IMAGE, $base );
@@ -59,7 +70,7 @@ if( count( $args ) > 1 ) {
 					$image->loadFromFile();
 					
 					# Record the upload
-					if( $image->recordUpload( '', 'Importing image file' ) ) {
+					if( $image->recordUpload( '', $comment, $license ) ) {
 					
 						# We're done!
 						echo( "done.\n" );
@@ -92,9 +103,18 @@ exit();
 function showUsage( $reason = false ) {
 	if( $reason )
 		echo( $reason . "\n" );
-	echo( "USAGE: php importImages.php <dir> <ext1> <ext2>\n\n" );
-	echo( "<dir> : Path to the directory containing images to be imported\n" );
-	echo( "<ext1+> File extensions to import\n\n" );		
+	echo <<<END
+USAGE: php importImages.php [options] <dir> <ext1> ...
+
+<dir> : Path to the directory containing images to be imported
+<ext1+> File extensions to import
+
+Options:
+--user=<username> Set username of uploader, default 'Image import script'
+--comment=<text>  Set upload summary comment, default 'Importing image file'
+--license=<code>  Use an optional license template
+
+END;
 	exit();
 }
 

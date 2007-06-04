@@ -3,8 +3,7 @@
 /**
  * Support functions for the reassignEdits script
  *
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  * @author Rob Church <robchur@gmail.com>
  * @licence GNU General Public Licence 2.0 or later
  */
@@ -19,7 +18,7 @@
  * @return integer Number of entries changed, or that would be changed
  */
 function reassignEdits( &$from, &$to, $rc = false, $report = false ) {
-	$dbw =& wfGetDB( DB_MASTER );
+	$dbw = wfGetDB( DB_MASTER );
 	$dbw->immediateBegin();
 	$fname = 'reassignEdits';
 		
@@ -137,7 +136,7 @@ function initialiseUser( $username ) {
 	} else {
 		$user = User::newFromName( $username );
 	}
-	$user->loadFromDatabase();
+	$user->load();
 	return $user;
 }
 

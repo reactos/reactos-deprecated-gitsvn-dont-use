@@ -2,13 +2,11 @@
 /**
  * This file contain a class to easily build HTML forms as well as custom
  * functions used by SpecialUserrights.php
- * @package MediaWiki
  */
 
 /**
  * Class to build various forms
  *
- * @package MediaWiki
  * @author jeluf, hashar
  */
 class HTMLForm {
@@ -71,7 +69,7 @@ class HTMLForm {
 				( $checked ? ' checked="checked"' : '' ) . " />" . wfMsg( $this->mName.'-'.$varname.'-'.$value ) .
 				"</label></div>\n";
 		}
-		return $this->fieldset( $this->mName.'-'.$varname, $s );
+		return $this->fieldset( $varname, $s );
 	}
 
 	/**
@@ -99,7 +97,7 @@ class HTMLForm {
 		if ( $this->mRequest->wasPosted() ) {
 			$arr = $this->mRequest->getArray( $varname );
 			if ( is_array( $arr ) ) {
-				foreach ( $_POST[$varname] as $index => $element ) {
+				foreach ( $_POST[$varname] as $element ) {
 					$s .= htmlspecialchars( $element )."\n";
 				}
 			}
@@ -109,10 +107,11 @@ class HTMLForm {
 	}
 } // end class
 
-
-// functions used by SpecialUserrights.php
-
 /** Build a select with all defined groups
+ *
+ * used by SpecialUserrights.php
+ * @todo move it to there, and don't forget to copy it for SpecialMakesysop.php
+ *
  * @param $selectname String: name of this element. Name of form is automaticly prefixed.
  * @param $selectmsg String: FIXME
  * @param $selected Array: array of element selected when posted. Only multiples will show them.
@@ -124,6 +123,7 @@ class HTMLForm {
 function HTMLSelectGroups($selectname, $selectmsg, $selected=array(), $multiple=false, $size=6, $reverse=false) {
 	$groups = User::getAllGroups();
 	$out = htmlspecialchars( wfMsg( $selectmsg ) );
+	$out .= "<br />";
 
 	if( $multiple ) {
 		$attribs = array(
@@ -133,6 +133,7 @@ function HTMLSelectGroups($selectname, $selectmsg, $selected=array(), $multiple=
 	} else {
 		$attribs = array( 'name' => $selectname );
 	}
+	$attribs['style'] = 'width: 100%';
 	$out .= wfElement( 'select', $attribs, null );
 
 	foreach( $groups as $group ) {
@@ -154,24 +155,4 @@ function HTMLSelectGroups($selectname, $selectmsg, $selected=array(), $multiple=
 	return $out;
 }
 
-/** Build a select with all existent rights
- * @param $selected Array: Names(?) of user rights that should be selected.
- * @return string HTML select.
- */
-function HTMLSelectRights($selected='') {
-	global $wgAvailableRights;
-	$out = '<select name="editgroup-getrights[]" multiple="multiple">';
-	$groupRights = explode(',',$selected);
-
-	foreach($wgAvailableRights as $right) {
-
-		// check box when right exist
-		if(in_array($right, $groupRights)) { $selected = 'selected="selected" '; }
-		else { $selected = ''; }
-
-		$out .= '<option value="'.$right.'" '.$selected.'>'.$right."</option>\n";
-	}
-	$out .= "</select>\n";
-	return $out;
-}
 ?>

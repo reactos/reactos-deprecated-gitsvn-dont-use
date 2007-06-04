@@ -20,11 +20,8 @@
 /**
  * Search engine hook base class for MySQL.
  * Specific bits for MySQL 3 and 4 variants are in child classes.
- * @package MediaWiki
- * @subpackage Search
+ * @addtogroup Search
  */
-
-/** @package MediaWiki */
 class SearchMySQL extends SearchEngine {
 	/**
 	 * Perform a full text search query and return a result set.
@@ -150,7 +147,7 @@ class SearchMySQL extends SearchEngine {
 	 * @param string $text
 	 */
 	function update( $id, $title, $text ) {
-		$dbw=& wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_MASTER );
 		$dbw->replace( 'searchindex',
 			array( 'si_page' ),
 			array(
@@ -168,7 +165,7 @@ class SearchMySQL extends SearchEngine {
 	 * @param string $title
 	 */
     function updateTitle( $id, $title ) {
-		$dbw =& wfGetDB( DB_MASTER );
+		$dbw = wfGetDB( DB_MASTER );
 
 		$dbw->update( 'searchindex',
 			array( 'si_title' => $title ),
@@ -178,7 +175,9 @@ class SearchMySQL extends SearchEngine {
 	}
 }
 
-/** @package MediaWiki */
+/**
+ * @addtogroup Search
+ */
 class MySQLSearchResultSet extends SearchResultSet {
 	function MySQLSearchResultSet( $resultSet, $terms ) {
 		$this->mResultSet = $resultSet;

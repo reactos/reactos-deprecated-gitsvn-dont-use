@@ -1,14 +1,14 @@
 <?php
 require_once( 'commandLine.inc' );
 
-$dbw =& wfGetDB( DB_MASTER );
+$dbw = wfGetDB( DB_MASTER );
 
 if ( count( $args ) == 0 ) {
 	echo "Usage: php deleteRevision.php <revid> [<revid> ...]\n";
 	exit(1);
 }
 
-echo "Deleting revision(s) " . implode( ',', $args ) . " from $wgDBname...\n";
+echo "Deleting revision(s) " . implode( ',', $args ) . " from ".wfWikiID()."...\n";
 
 $affected = 0;
 foreach ( $args as $revID ) {

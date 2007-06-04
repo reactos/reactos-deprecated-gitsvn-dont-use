@@ -10,11 +10,11 @@ CREATE TABLE /*$wgDBprefix*/user_rights (
   ur_user int(5) unsigned NOT NULL,
   
   -- Comma-separated list of permission keys
-  ur_rights tinyblob NOT NULL default '',
+  ur_rights tinyblob NOT NULL,
   
   UNIQUE KEY ur_user (ur_user)
 
-) TYPE=InnoDB;
+) /*$wgDBTableOptions*/;
 
 INSERT INTO /*$wgDBprefix*/user_rights SELECT user_id,user_rights FROM /*$wgDBprefix*/user;
 

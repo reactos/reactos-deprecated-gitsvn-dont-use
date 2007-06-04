@@ -3,8 +3,7 @@
  * See skin.txt
  *
  * @todo document
- * @package MediaWiki
- * @subpackage Skins
+ * @addtogroup Skins
  */
 
 if( !defined( 'MEDIAWIKI' ) )
@@ -12,8 +11,7 @@ if( !defined( 'MEDIAWIKI' ) )
 
 /**
  * @todo document
- * @package MediaWiki
- * @subpackage Skins
+ * @addtogroup Skins
  */
 class SkinStandard extends Skin {
 
@@ -21,12 +19,12 @@ class SkinStandard extends Skin {
 	 *
 	 */
 	function getHeadScripts() {
-		global $wgStylePath, $wgJsMimeType;
+		global $wgStylePath, $wgJsMimeType, $wgStyleVersion;
 
 		$s = parent::getHeadScripts();
 		if ( 3 == $this->qbSetting() ) { # Floating left
 			$s .= "<script language='javascript' type='$wgJsMimeType' " .
-			  "src='{$wgStylePath}/common/sticky.js'></script>\n";
+			  "src='{$wgStylePath}/common/sticky.js?$wgStyleVersion'></script>\n";
 		}
 		return $s;
 	}
@@ -35,14 +33,14 @@ class SkinStandard extends Skin {
 	 *
 	 */
 	function getUserStyles() {
-		global $wgStylePath;
+		global $wgStylePath, $wgStyleVersion;
 		$s = '';
 		if ( 3 == $this->qbSetting() ) { # Floating left
 			$s .= "<style type='text/css'>\n" .
-			  "@import '{$wgStylePath}/common/quickbar.css';\n</style>\n";
+			  "@import '{$wgStylePath}/common/quickbar.css?$wgStyleVersion';\n</style>\n";
 		} else if ( 4 == $this->qbSetting() ) { # Floating right
 			$s .= "<style type='text/css'>\n" .
-			  "@import '{$wgStylePath}/common/quickbar-right.css';\n</style>\n";
+			  "@import '{$wgStylePath}/common/quickbar-right.css?$wgStyleVersion';\n</style>\n";
 		}
 		$s .= parent::getUserStyles();
 		return $s;
@@ -177,32 +175,42 @@ class SkinStandard extends Skin {
 			} else { # backlink to the article in edit or history mode
 				if($articleExists){ # no backlink if no article
 					switch($tns) {
-						case 0:
-						$text = wfMsg('articlepage');
-						break;
-						case 1:
-						$text = wfMsg('viewtalkpage');
-						break;
-						case 2:
-						$text = wfMsg('userpage');
-						break;
-						case 3:
-						$text = wfMsg('viewtalkpage');
-						break;
-						case 4:
-						$text = wfMsg('projectpage');
-						break;
-						case 5:
-						$text = wfMsg('viewtalkpage');
-						break;
-						case 6:
-						$text = wfMsg('imagepage');
-						break;
-						case 7:
-						$text = wfMsg('viewtalkpage');
-						break;
+						case NS_TALK:
+						case NS_USER_TALK:
+						case NS_PROJECT_TALK:
+						case NS_IMAGE_TALK:
+						case NS_MEDIAWIKI_TALK:
+						case NS_TEMPLATE_TALK:
+						case NS_HELP_TALK:
+						case NS_CATEGORY_TALK:
+							$text = wfMsg('viewtalkpage');
+							break;
+						case NS_MAIN:
+							$text = wfMsg( 'articlepage' );
+							break;
+						case NS_USER:
+							$text = wfMsg( 'userpage' );
+							break;
+						case NS_PROJECT:
+							$text = wfMsg( 'projectpage' );
+							break;
+						case NS_IMAGE:
+							$text = wfMsg( 'imagepage' );
+							break;
+						case NS_MEDIAWIKI:
+							$text = wfMsg( 'mediawikipage' );
+							break;
+						case NS_TEMPLATE:
+							$text = wfMsg( 'templatepage' );
+							break;
+						case NS_HELP:
+							$text = wfMsg( 'viewhelppage' );
+							break;
+						case NS_CATEGORY:
+							$text = wfMsg( 'categorypage' );
+							break;
 						default:
-						$text= wfMsg('articlepage');
+							$text= wfMsg( 'articlepage' );
 					}
 
 					$link = $wgTitle->getText();
@@ -238,7 +246,7 @@ class SkinStandard extends Skin {
 				{
 					$s .= $sep . $this->watchThisPage();
 				}
-				if ( $wgTitle->userCanEdit() )
+				if ( $wgTitle->userCan( 'edit' ) )
 					$s .= $sep . $this->moveThisPage();
 			}
 			if ( $wgUser->isAllowed('delete') and $articleExists ) {

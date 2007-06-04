@@ -4,11 +4,11 @@ Installing MediaWiki
 
 Starting with MediaWiki 1.2.0, it's possible to install
 and configure the wiki "in-place", as long as you have
-the necessary prerequesites available.
+the necessary prerequisites available.
 
 Required software:
 * Web server with PHP 5.x or higher.
-* A MySQL server, 4.0.14 or higher.
+* A MySQL server, 4.0.14 or higher OR a Postgres server, 8.1 or higher
 
 MediaWiki is developed and tested mainly on Unix/Linux
 platforms, but should work on Windows as well.
@@ -98,9 +98,9 @@ provide enough information to work with, and preferably be aware
 of what you're doing!) and keep track of major changes to the
 software, including performance improvements and security patches.
 
-http://mail.wikimedia.org/mailman/listinfo/mediawiki-announce (low traffic)
+http://lists.wikimedia.org/mailman/listinfo/mediawiki-announce (low traffic)
 
-http://mail.wikimedia.org/mailman/listinfo/mediawiki-l (site admin support)
+http://lists.wikimedia.org/mailman/listinfo/mediawiki-l (site admin support)
 
-http://mail.wikimedia.org/mailman/listinfo/wikitech-l (development)
+http://lists.wikimedia.org/mailman/listinfo/wikitech-l (development)
 

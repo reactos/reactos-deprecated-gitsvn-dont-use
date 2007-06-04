@@ -1,176 +1,25 @@
 <?php
 /**
  * File for magic words
- * @package MediaWiki
- * @subpackage Parser
+ * @addtogroup Parser
  */
-
-/**
- * private
- */
-$wgMagicFound = false;
-
-/** Actual keyword to be used is set in Language.php */
-
-$magicWords = array(
-	'MAG_REDIRECT',
-	'MAG_NOTOC',
-	'MAG_START',
-	'MAG_CURRENTMONTH',
-	'MAG_CURRENTMONTHNAME',
-	'MAG_CURRENTMONTHNAMEGEN',
-	'MAG_CURRENTMONTHABBREV',
-	'MAG_CURRENTDAY',
-	'MAG_CURRENTDAY2',
-	'MAG_CURRENTDAYNAME',
-	'MAG_CURRENTYEAR',
-	'MAG_CURRENTTIME',
-	'MAG_NUMBEROFARTICLES',
-	'MAG_SUBST',
-	'MAG_MSG',
-	'MAG_MSGNW',
-	'MAG_NOEDITSECTION',
-	'MAG_END',
-	'MAG_IMG_THUMBNAIL',
-	'MAG_IMG_RIGHT',
-	'MAG_IMG_LEFT',
-	'MAG_IMG_NONE',
-	'MAG_IMG_WIDTH',
-	'MAG_IMG_CENTER',
-	'MAG_INT',
-	'MAG_FORCETOC',
-	'MAG_SITENAME',
-	'MAG_NS',
-	'MAG_LOCALURL',
-	'MAG_LOCALURLE',
-	'MAG_SERVER',
-	'MAG_IMG_FRAMED',
-	'MAG_PAGENAME',
-	'MAG_PAGENAMEE',
-	'MAG_NAMESPACE',
-	'MAG_NAMESPACEE',
-	'MAG_TOC',
-	'MAG_GRAMMAR',
-	'MAG_NOTITLECONVERT',
-	'MAG_NOCONTENTCONVERT',
-	'MAG_CURRENTWEEK',
-	'MAG_CURRENTDOW',
-	'MAG_REVISIONID',
-	'MAG_SCRIPTPATH',
-	'MAG_SERVERNAME',
-	'MAG_NUMBEROFFILES',
-	'MAG_IMG_MANUALTHUMB',
-	'MAG_PLURAL',
-	'MAG_FULLURL',
-	'MAG_FULLURLE',
-	'MAG_LCFIRST',
-	'MAG_UCFIRST',
-	'MAG_LC',
-	'MAG_UC',
-	'MAG_FULLPAGENAME',
-	'MAG_FULLPAGENAMEE',
-	'MAG_RAW',
-	'MAG_SUBPAGENAME',
-	'MAG_SUBPAGENAMEE',
-	'MAG_DISPLAYTITLE',
-	'MAG_TALKSPACE',
-	'MAG_TALKSPACEE',
-	'MAG_SUBJECTSPACE',
-	'MAG_SUBJECTSPACEE',
-	'MAG_TALKPAGENAME',
-	'MAG_TALKPAGENAMEE',
-	'MAG_SUBJECTPAGENAME',
-	'MAG_SUBJECTPAGENAMEE',	
-	'MAG_NUMBEROFUSERS',
-	'MAG_RAWSUFFIX',
-	'MAG_NEWSECTIONLINK',
-	'MAG_NUMBEROFPAGES',
-	'MAG_CURRENTVERSION',
-	'MAG_BASEPAGENAME',
-	'MAG_BASEPAGENAMEE',
-	'MAG_URLENCODE',
-	'MAG_CURRENTTIMESTAMP',
-	'MAG_DIRECTIONMARK',
-	'MAG_LANGUAGE',
-	'MAG_CONTENTLANGUAGE',
-	'MAG_PAGESINNAMESPACE',
-	'MAG_NOGALLERY',
-	'MAG_NUMBEROFADMINS',
-	'MAG_FORMATNUM',
-);
-if ( ! defined( 'MEDIAWIKI_INSTALL' ) )
-	wfRunHooks( 'MagicWordMagicWords', array( &$magicWords ) );
-
-for ( $i = 0; $i < count( $magicWords ); ++$i )
-	define( $magicWords[$i], $i );
-
-$wgVariableIDs = array(
-	MAG_CURRENTMONTH,
-	MAG_CURRENTMONTHNAME,
-	MAG_CURRENTMONTHNAMEGEN,
-	MAG_CURRENTMONTHABBREV,
-	MAG_CURRENTDAY,
-	MAG_CURRENTDAY2,
-	MAG_CURRENTDAYNAME,
-	MAG_CURRENTYEAR,
-	MAG_CURRENTTIME,
-	MAG_NUMBEROFARTICLES,
-	MAG_NUMBEROFFILES,
-	MAG_SITENAME,
-	MAG_SERVER,
-	MAG_SERVERNAME,
-	MAG_SCRIPTPATH,
-	MAG_PAGENAME,
-	MAG_PAGENAMEE,
-	MAG_FULLPAGENAME,
-	MAG_FULLPAGENAMEE,
-	MAG_NAMESPACE,
-	MAG_NAMESPACEE,
-	MAG_CURRENTWEEK,
-	MAG_CURRENTDOW,
-	MAG_REVISIONID,
-	MAG_SUBPAGENAME,
-	MAG_SUBPAGENAMEE,
-	MAG_DISPLAYTITLE,
-	MAG_TALKSPACE,
-	MAG_TALKSPACEE,
-	MAG_SUBJECTSPACE,
-	MAG_SUBJECTSPACEE,
-	MAG_TALKPAGENAME,
-	MAG_TALKPAGENAMEE,
-	MAG_SUBJECTPAGENAME,
-	MAG_SUBJECTPAGENAMEE,
-	MAG_NUMBEROFUSERS,
-	MAG_RAWSUFFIX,
-	MAG_NEWSECTIONLINK,
-	MAG_NUMBEROFPAGES,
-	MAG_CURRENTVERSION,
-	MAG_BASEPAGENAME,
-	MAG_BASEPAGENAMEE,
-	MAG_URLENCODE,
-	MAG_CURRENTTIMESTAMP,
-	MAG_DIRECTIONMARK,
-	MAG_LANGUAGE,
-	MAG_CONTENTLANGUAGE,
-	MAG_PAGESINNAMESPACE,
-	MAG_NUMBEROFADMINS,
-);
-if ( ! defined( 'MEDIAWIKI_INSTALL' ) )
-	wfRunHooks( 'MagicWordwgVariableIDs', array( &$wgVariableIDs ) );
 
 /**
  * This class encapsulates "magic words" such as #redirect, __NOTOC__, etc.
  * Usage:
- *     if (MagicWord::get( MAG_REDIRECT )->match( $text ) )
+ *     if (MagicWord::get( 'redirect' )->match( $text ) )
  *
  * Possible future improvements:
  *   * Simultaneous searching for a number of magic words
- *   * $wgMagicWords in shared memory
+ *   * MagicWord::$mObjects in shared memory
  *
  * Please avoid reading the data out of one of these objects and then writing
  * special case code. If possible, add another match()-like function here.
  *
- * @package MediaWiki
+ * To add magic words in an extension, use the LanguageGetMagic hook. For 
+ * magic words which are also Parser variables, add a MagicWordwgVariableIDs
+ * hook. Use string keys.
+ *
  */
 class MagicWord {
 	/**#@+
@@ -178,10 +27,87 @@ class MagicWord {
 	 */
 	var $mId, $mSynonyms, $mCaseSensitive, $mRegex;
 	var $mRegexStart, $mBaseRegex, $mVariableRegex;
-	var $mModified;
+	var $mModified, $mFound;
+
+	static public $mVariableIDsInitialised = false;
+	static public $mVariableIDs = array(
+		'currentmonth',
+		'currentmonthname',
+		'currentmonthnamegen',
+		'currentmonthabbrev',
+		'currentday',
+		'currentday2',
+		'currentdayname',
+		'currentyear',
+		'currenttime',
+		'currenthour',
+		'localmonth',
+		'localmonthname',
+		'localmonthnamegen',
+		'localmonthabbrev',
+		'localday',
+		'localday2',
+		'localdayname',
+		'localyear',
+		'localtime',
+		'localhour',
+		'numberofarticles',
+		'numberoffiles',
+		'numberofedits',
+		'sitename',
+		'server',
+		'servername',
+		'scriptpath',
+		'pagename',
+		'pagenamee',
+		'fullpagename',
+		'fullpagenamee',
+		'namespace',
+		'namespacee',
+		'currentweek',
+		'currentdow',
+		'localweek',
+		'localdow',
+		'revisionid',
+		'revisionday',
+		'revisionday2',
+		'revisionmonth',
+		'revisionyear',
+		'revisiontimestamp',
+		'subpagename',
+		'subpagenamee',
+		'displaytitle',
+		'talkspace',
+		'talkspacee',
+		'subjectspace',
+		'subjectspacee',
+		'talkpagename',
+		'talkpagenamee',
+		'subjectpagename',
+		'subjectpagenamee',
+		'numberofusers',
+		'rawsuffix',
+		'newsectionlink',
+		'numberofpages',
+		'currentversion',
+		'basepagename',
+		'basepagenamee',
+		'urlencode',
+		'currenttimestamp',
+		'localtimestamp',
+		'directionmark',
+		'language',
+		'contentlanguage',
+		'pagesinnamespace',
+		'numberofadmins',
+		'defaultsort',
+	);
+
+	static public $mObjects = array();
+
 	/**#@-*/
 
-	function MagicWord($id = 0, $syn = '', $cs = false) {
+	function __construct($id = 0, $syn = '', $cs = false) {
 		$this->mId = $id;
 		$this->mSynonyms = (array)$syn;
 		$this->mCaseSensitive = $cs;
@@ -196,18 +122,32 @@ class MagicWord {
 	 * Factory: creates an object representing an ID
 	 * @static
 	 */
-	function &get( $id ) {
-		global $wgMagicWords;
-
-		if ( !is_array( $wgMagicWords ) ) {
-			throw new MWException( "Incorrect initialisation order, \$wgMagicWords does not exist\n" );
-		}
-		if (!array_key_exists( $id, $wgMagicWords ) ) {
+	static function &get( $id ) {
+		if (!array_key_exists( $id, self::$mObjects ) ) {
 			$mw = new MagicWord();
 			$mw->load( $id );
-			$wgMagicWords[$id] = $mw;
+			self::$mObjects[$id] = $mw;
 		}
-		return $wgMagicWords[$id];
+		return self::$mObjects[$id];
+	}
+
+	/**
+	 * Get an array of parser variable IDs
+	 */
+	static function getVariableIDs() {
+		if ( !self::$mVariableIDsInitialised ) {
+			# Deprecated constant definition hook, available for extensions that need it
+			$magicWords = array();
+			wfRunHooks( 'MagicWordMagicWords', array( &$magicWords ) );
+			foreach ( $magicWords as $word ) {
+				define( $word, $word );
+			}
+
+			# Get variable IDs
+			wfRunHooks( 'MagicWordwgVariableIDs', array( &self::$mVariableIDs ) );
+			self::$mVariableIDsInitialised = true;
+		}
+		return self::$mVariableIDs;
 	}
 
 	# Initialises this object with an ID
@@ -215,6 +155,11 @@ class MagicWord {
 		global $wgContLang;
 		$this->mId = $id;
 		$wgContLang->getMagic( $this );
+		if ( !$this->mSynonyms ) {
+			$this->mSynonyms = array( 'dkjsagfjsgashfajsh' );
+			#throw new MWException( "Error: invalid magic word '$id'" );
+			wfDebugLog( 'exception', "Error: invalid magic word '$id'\n" );
+		}
 	}
 
 	/**
@@ -233,7 +178,7 @@ class MagicWord {
 			$escSyn[] = preg_quote( $synonym, '/' );
 		$this->mBaseRegex = implode( '|', $escSyn );
 		
-		$case = $this->mCaseSensitive ? '' : 'i';
+		$case = $this->mCaseSensitive ? '' : 'iu';
 		$this->mRegex = "/{$this->mBaseRegex}/{$case}";
 		$this->mRegexStart = "/^(?:{$this->mBaseRegex})/{$case}";
 		$this->mVariableRegex = str_replace( "\\$1", "(.*?)", $this->mRegex );
@@ -260,7 +205,7 @@ class MagicWord {
 		if ( $this->mRegex === '' )
 			$this->initRegex();
 
-		return $this->mCaseSensitive ? '' : 'i';
+		return $this->mCaseSensitive ? '' : 'iu';
 	}
 
 	/**
@@ -310,14 +255,16 @@ class MagicWord {
 		$matchcount = preg_match( $this->getVariableStartToEndRegex(), $text, $matches );
 		if ( $matchcount == 0 ) {
 			return NULL;
-		} elseif ( count($matches) == 1 ) {
-			return $matches[0];
 		} else {
 			# multiple matched parts (variable match); some will be empty because of
 			# synonyms. The variable will be the second non-empty one so remove any
 			# blank elements and re-sort the indices.
+			# See also bug 6526
+
 			$matches = array_values(array_filter($matches));
-			return $matches[1];
+
+			if ( count($matches) == 1 ) { return $matches[0]; }
+			else { return $matches[1]; }
 		}
 	}
 
@@ -327,25 +274,31 @@ class MagicWord {
 	 * input string, removing all instances of the word
 	 */
 	function matchAndRemove( &$text ) {
-		global $wgMagicFound;
-		$wgMagicFound = false;
-		$text = preg_replace_callback( $this->getRegex(), 'pregRemoveAndRecord', $text );
-		return $wgMagicFound;
+		$this->mFound = false;
+		$text = preg_replace_callback( $this->getRegex(), array( &$this, 'pregRemoveAndRecord' ), $text );
+		return $this->mFound;
 	}
 
 	function matchStartAndRemove( &$text ) {
-		global $wgMagicFound;
-		$wgMagicFound = false;
-		$text = preg_replace_callback( $this->getRegexStart(), 'pregRemoveAndRecord', $text );
-		return $wgMagicFound;
+		$this->mFound = false;
+		$text = preg_replace_callback( $this->getRegexStart(), array( &$this, 'pregRemoveAndRecord' ), $text );
+		return $this->mFound;
 	}
 
+	/**
+	 * Used in matchAndRemove()
+	 * @private
+	 **/
+	function pregRemoveAndRecord( ) {
+		$this->mFound = true;
+		return '';
+	}
 
 	/**
 	 * Replaces the word with something else
 	 */
 	function replace( $replacement, $subject, $limit=-1 ) {
-		$res = preg_replace( $this->getRegex(), wfRegexReplacement( $replacement ), $subject, $limit );
+		$res = preg_replace( $this->getRegex(), StringUtils::escapeRegexReplacement( $replacement ), $subject, $limit );
 		$this->mModified = !($res === $subject);
 		return $res;
 	}
@@ -425,24 +378,15 @@ class MagicWord {
 	 * lookup in a list of magic words
 	 */
 	function addToArray( &$array, $value ) {
+		global $wgContLang;
 		foreach ( $this->mSynonyms as $syn ) {
-			$array[$syn] = $value;
+			$array[$wgContLang->lc($syn)] = $value;
 		}
 	}
 
 	function isCaseSensitive() {
 		return $this->mCaseSensitive;
 	}
-}
-
-/**
- * Used in matchAndRemove()
- * @private
- **/
-function pregRemoveAndRecord( $match ) {
-	global $wgMagicFound;
-	$wgMagicFound = true;
-	return '';
 }
 
 ?>

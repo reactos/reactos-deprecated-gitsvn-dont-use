@@ -4,8 +4,7 @@ define( 'GS_TALK', -1 );
 /**
  * Creates a Google sitemap for the site
  *
- * @package MediaWiki
- * @subpackage Maintenance
+ * @addtogroup Maintenance
  *
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
  * @copyright Copyright © 2005, Jens Frank <jeluf@gmx.de>
@@ -144,20 +143,19 @@ class GenerateSitemap {
 	 * @param string $path The path to append to the domain name
 	 * @param bool $compress Whether to compress the sitemap files
 	 */
-	function GenerateSitemap( $fspath, $path, $compress ) {
-		global $wgDBname, $wgScriptPath;
+	function GenerateSitemap( $fspath, $compress ) {
+		global $wgScriptPath;
 
 		$this->url_limit = 50000;
 		$this->size_limit = pow( 2, 20 ) * 10;
 		$this->fspath = isset( $fspath ) ? $fspath : '';
-		$this->path = isset( $path ) ? $path : $wgScriptPath;
 		$this->compress = $compress;
 
 		$this->stderr = fopen( 'php://stderr', 'wt' );
-		$this->dbr =& wfGetDB( DB_SLAVE );
+		$this->dbr = wfGetDB( DB_SLAVE );
 		$this->generateNamespaces();
 		$this->timestamp = wfTimestamp( TS_ISO_8601, wfTimestampNow() );
-		$this->findex = fopen( "{$this->fspath}sitemap-index-$wgDBname.xml", 'wb' );
+		$this->findex = fopen( "{$this->fspath}sitemap-index-" . wfWikiID() . ".xml", 'wb' );
 	}
 
 	/**
@@ -232,7 +230,7 @@ class GenerateSitemap {
 	 * @access public
 	 */
 	function main() {
-		global $wgDBname, $wgContLang;
+		global $wgContLang;
 
 		fwrite( $this->findex, $this->openIndex() );
 
@@ -264,6 +262,16 @@ class GenerateSitemap {
 				$entry = $this->fileEntry( $title->getFullURL(), $date, $this->priority( $namespace ) );
 				$length += strlen( $entry );
 				$this->write( $this->file, $entry );
+				// generate pages for language variants
+				if($wgContLang->hasVariants()){
+					$variants = $wgContLang->getVariants();
+					foreach($variants as $vCode){
+						if($vCode==$wgContLang->getCode()) continue; // we don't want default variant
+						$entry = $this->fileEntry( $title->getFullURL('',$vCode), $date, $this->priority( $namespace ) );
+						$length += strlen( $entry );
+						$this->write( $this->file, $entry );
+					}
+				}
 			}
 			if ( $this->file ) {
 				$this->write( $this->file, $this->closeFile() );
@@ -314,11 +322,8 @@ class GenerateSitemap {
 	 * @return string
 	 */
 	function sitemapFilename( $namespace, $count ) {
-		global $wgDBname;
-
 		$ext = $this->compress ? '.gz' : '';
-
-		return "sitemap-$wgDBname-NS_$namespace-$count.xml$ext";
+		return "sitemap-".wfWikiID()."-NS_$namespace-$count.xml$ext";
 	}
 
 	/**
@@ -441,23 +446,29 @@ class GenerateSitemap {
 }
 
 if ( in_array( '--help', $argv ) ) {
-	echo
-		"Usage: php generateSitemap.php [host] [options]\n" .
-		"\thost = hostname\n" .
-		"\toptions:\n" .
-		"\t\t--help\tshow this message\n" .
-		"\t\t--fspath\tThe file system path to save to, e.g /tmp/sitemap/\n" .
-		"\t\t--path\tThe http path to use, e.g. /wiki\n" .
-		"\t\t--compress=[yes|no]\tcompress the sitemap files, default yes\n";
+	echo <<<EOT
+Usage: php generateSitemap.php [options]
+	--help			show this message
+
+	--fspath=<path>		The file system path to save to, e.g /tmp/sitemap/
+
+	--server=<server>	The protocol and server name to use in URLs, e.g.
+		http://en.wikipedia.org. This is sometimes necessary because
+		server name detection may fail in command line scripts.
+
+	--compress=[yes|no]	compress the sitemap files, default yes
+
+EOT;
 	die( -1 );
 }
 
-if ( isset( $argv[1] ) && strpos( $argv[1], '--' ) !== 0 )
-	$_SERVER['SERVER_NAME'] = $argv[1];
+$optionsWithArgs = array( 'fspath', 'server', 'compress' );
+require_once( dirname( __FILE__ ) . '/commandLine.inc' );
 
-$optionsWithArgs = array( 'fspath', 'path', 'compress' );
-require_once 'commandLine.inc';
+if ( isset( $options['server'] ) ) {
+	$wgServer = $options['server'];
+}
 
-$gs = new GenerateSitemap( @$options['fspath'], @$options['path'], @$options['compress'] !== 'no' );
+$gs = new GenerateSitemap( @$options['fspath'], @$options['compress'] !== 'no' );
 $gs->main();
 ?>
