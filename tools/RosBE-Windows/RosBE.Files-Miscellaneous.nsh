@@ -1,20 +1,6 @@
 Section "-Other miscellaneous files." SEC02
-    SetOutPath "$INSTDIR\Tools"
-    SetOverwrite try
-    File "Tools\cpucount.exe"
-    File "Tools\getdate.exe"
-    File "Tools\libiconv2.dll"
-    File "Tools\libintl3.dll"
-    File "Tools\tee.exe"
-    File "Tools\test.exe"
     SetOutPath "$INSTDIR"
-    File "Build.cmd"
-    File "Build-Multi.cmd"
-    File "Clean.cmd"
-    File "Help.cmd"
-    File "LICENSE.txt"
-    File "README.txt"
-    File "RosBE.cmd"
-    File "RosBE.mac"
-    File "TimeDate.cmd"
+    SetOverwrite try
+    File /r Root\*.*
+    File /r Icons\*.*
 SectionEnd

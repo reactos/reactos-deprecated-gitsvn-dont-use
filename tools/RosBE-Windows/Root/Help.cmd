@@ -1,8 +1,9 @@
-:: Copyright (c) Peter Ward.  All rights reserved.
-::      (Inspired by Dazzle from TinyKRNL)
+:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
 ::
-::    Display help for the commands included with the
-::    ReactOS Build Environment.
+:: Display help for the commands included with the ReactOS Build Environment.
+::
+title ReactOS Build Environment 0.3.6
+
 @echo off
 
 if "%1" == "" (
@@ -11,9 +12,6 @@ if "%1" == "" (
     echo    make [OPTIONS]  - make, without options does a standard build of
     echo                      ReactOS. OPTIONS are the standard ReactOS build
     echo                      options ie. bootcd.
-    echo    makex [OPTIONS] - Same as 'make' but automatically determines the
-    echo                      number of CPUs in the system and uses -j with
-    echo                      the appropriate number.
     echo    clean [logs]    - Fully clean the ReactOS source directory or the
     echo                      RosBE build logs.
     echo    help [COMMAND]  - Display the available commands or help on a
@@ -27,15 +25,15 @@ if "%1" == "make" (
     echo are the standard ReactOS build options ie. bootcd.
     goto :EOF
 )
-if "%1" == "makex" (
-    echo Usage: makex [OPTIONS]
-    echo Same as 'make' but automatically determines the number of CPUs
-    echo in the system and uses -j with the appropriate number.
-    echo NOTE: The number makex uses can be modified by editing
-    echo       Build-Multi.cmd located in the RosBE directory,
-    echo       instructions for doing so are contained within the file.
-    goto :EOF
-)
+:: if "%1" == "makex" (
+::    echo Usage: makex [OPTIONS]
+::    echo Same as 'make' but automatically determines the number of CPUs
+::    echo in the system and uses -j with the appropriate number.
+::    echo NOTE: The number makex uses can be modified by editing
+::    echo       Build-Multi.cmd located in the RosBE directory,
+::    echo       instructions for doing so are contained within the file.
+::    goto :EOF
+:: )
 if "%1" == "clean" (
     echo Usage: clean [logs]
     echo Fully clean the ReactOS source directory.
