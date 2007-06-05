@@ -1,8 +1,7 @@
-:: Copyright (c) Peter Ward.  All rights reserved.
-::      (Inspired by Dazzle from TinyKRNL)
+:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
 ::
-::    Get the current date and time for use in
-::    in our build log's file name.
+:: Get the current date and time for use in our build log's file name.
+::
 @echo off
 
 ::
@@ -20,8 +19,7 @@ for /f "usebackq tokens=1" %%u in (`"%ROSBEBASEDIR%\Tools\getdate.exe"`) do set 
 for /f "usebackq tokens=1" %%u in (`time /t`) do set TIMERAW=%%u
 
 ::
-:: Check if we have an hour under 10, if so pad
-:: it with a zero.
+:: Check if we have an hour under 10, if so pad it with a zero.
 ::
 if "%TIMERAW:~1,1%" == ":" (
     set TIMERAW=0%t%

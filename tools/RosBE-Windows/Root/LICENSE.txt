@@ -1,14 +1,11 @@
-            ReactOS Build Environment v0.3.5b2
+            ReactOS Build Environment v0.3.6
 
-    Various parts of the ReactOS Build Environment are
-under different license's, the license's are as follows.
+Various parts of the ReactOS Build Environment are under different license's, the license's are as follows.
 (The complete text for each license is included in this document)
 
-- The ReactOS Build Environment installer and any accompanying
-  data are licensed under the GPLv2.
+- The ReactOS Build Environment installer and any accompanying data are licensed under the GPLv2.
 
-- MinGW is licensed under the GPLv2 with parts licensed
-  under the LGPLv2.1.
+- MinGW is licensed under the GPLv2 with parts licensed under the LGPLv2.1.
 
 - NASM is licensed under the LGPLv2.1.
 
@@ -18,8 +15,7 @@ under different license's, the license's are as follows.
 
 - libiconv is licensed under the LGPLv2.
 
-- libintl is licensed under the LGPLv2.1 and is part of
-  the GNU gettext package.
+- libintl is licensed under the LGPLv2.1 and is part of the GNU gettext package.
 
 *** The complete text of the GNU GENERAL PUBLIC LICENSE v2
 
