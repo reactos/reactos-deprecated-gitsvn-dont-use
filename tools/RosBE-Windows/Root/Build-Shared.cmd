@@ -25,7 +25,11 @@ call %ROSBEBASEDIR%\TimeDate.cmd
 ::
 :: Execute the Build command
 ::
-call "%ROSBEBASEDIR%\Tools\buildtime.exe" %MAKE_COMMAND% 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+if "%1" == "" (
+    %ROSBEBASEDIR%\Tools\buildtime.exe %_MINGWMAKE% 2>&1 | %ROSBEBASEDIR%\Tools\tee.exe %_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt
+) else (
+    %ROSBEBASEDIR%\Tools\buildtime.exe %_MINGWMAKE% %* 2>&1 | %ROSBEBASEDIR%\Tools\tee.exe %_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt
+)
 
 ::
 :: highlight the fact that building has ended
