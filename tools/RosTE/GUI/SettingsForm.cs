@@ -29,7 +29,7 @@ namespace RosTEGUI
             ulong totMem = Native.Memory.GetTotalMemory();
             if (totMem != 0)
             {
-                totMem /= 1048576; //(1024^2)
+                totMem /= (ulong)Math.Pow(1024, 2); // MB
                 memoryPhyRam.Text = Convert.ToString(totMem) + " MB";
 
                 memoryTrkBar.Maximum = Convert.ToInt32(totMem) * 2;

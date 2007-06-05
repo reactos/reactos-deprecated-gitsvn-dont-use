@@ -33,29 +33,29 @@ namespace RosTEGUI
             if (optionRadDefault.Checked == true)
                 e.Page = wizardFinishPage;
             else
-                e.Page = wizardNamePage;
+                e.Page = nameInfoPage;
         }
 
         private void wizardNamePage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
-            if (wizardNameTxtBox.Text == "")
+            if (nameTxtBox.Text == "")
             {
                 MessageBox.Show("You must enter a name", "Error");
-                e.Page = wizardNamePage;
+                e.Page = nameInfoPage;
             }
         }
 
         private void wizardDefaultDirPage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
-            if (wizardDefaultDirTextBox.Text == "")
+            if (defaultDirTxtBox.Text == "")
             {
                 MessageBox.Show("You must enter a name", "Error");
-                e.Page = wizardDefaultDirPage;
+                e.Page = defaultDirInfoPage;
             }
-            else if (Directory.Exists(wizardDefaultDirTextBox.Text) == false)
+            else if (Directory.Exists(defaultDirTxtBox.Text) == false)
             {
                 MessageBox.Show("Directory does not exist", "Error");
-                e.Page = wizardDefaultDirPage;
+                e.Page = defaultDirInfoPage;
             }
         }
 
@@ -65,8 +65,63 @@ namespace RosTEGUI
 
             if (result == DialogResult.OK)
             {
-                wizardDefaultDirTextBox.Text = wizardFolderBrowser.SelectedPath;
+                defaultDirTxtBox.Text = wizardFolderBrowser.SelectedPath;
             }
+        }
+
+        private void wizardHardDiskPage_Enter(object sender, EventArgs e)
+        {
+            DriveInfo di = new DriveInfo(defaultDirTxtBox.Text);
+            long AvailInGB = di.AvailableFreeSpace / (long)Math.Pow(1024, 3);
+
+            harddiskTrkBar.Maximum = Convert.ToInt32(AvailInGB);
+            harddiskTrkBar.TickFrequency = harddiskTrkBar.Maximum / 20;
+            harddiskUpDwn.Maximum = harddiskTrkBar.Maximum;
+
+            harddiskDiskLab.Text = di.Name;            
+            harddiskDiskSizeLab.Text = Convert.ToString(AvailInGB) + " GB";
+            harddiskRecMinLab.Text = "60 MB";
+        }
+
+        private void wizardMemoryPage_Enter(object sender, EventArgs e)
+        {
+            ulong totMem = Native.Memory.GetTotalMemory();
+            if (totMem != 0)
+            {
+                totMem /= 1048576; //(1024^2)
+                memoryPhyRam.Text = Convert.ToString(totMem) + " MB";
+
+                memoryTrkBar.Maximum = Convert.ToInt32(totMem) * 2;
+                memoryTrkBar.TickFrequency = memoryTrkBar.Maximum / 20;
+                memoryUpDwn.Maximum = memoryTrkBar.Maximum;
+
+                //memoryMinLab.Text = Convert.ToString(0) + " MB";
+                //memoryMaxLab.Text = memoryTrkBar.Maximum.ToString() + " MB";
+
+                memoryRecMin.Text = Convert.ToString(totMem / 8) + " MB";
+                memoryRec.Text = Convert.ToString(totMem / 4) + " MB";
+                memoryRecMax.Text = Convert.ToString(totMem / 1.4) + " MB";
+            }
+        }
+
+        private void harddiskTrkBar_Scroll(object sender, EventArgs e)
+        {
+            harddiskUpDwn.Value = harddiskTrkBar.Value;
+        }
+
+        private void harddiskUpdown_ValueChanged(object sender, EventArgs e)
+        {
+            harddiskTrkBar.Value = (int)harddiskUpDwn.Value;
+        }
+
+        private void memoryTrkBar_Scroll(object sender, EventArgs e)
+        {
+            memoryUpDwn.Value = memoryTrkBar.Value;
+        }
+
+        private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
+        {
+            memoryTrkBar.Value = (int)memoryUpDwn.Value;
         }
     }
 }

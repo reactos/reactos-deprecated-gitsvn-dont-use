@@ -184,12 +184,12 @@
   <data name="toolbarImageAdd.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAPxJREFUOE9jYKAV
-        8PDwYE9LS2Otr69nIscOxtDw4P8eXm5/gfQ/EDs+Pp6DJIPCItz+3L5z6/+u3Tv/h0WE/Pbx8eEiyQCQ
-        7Xfu3v6/e8+u/0DNv0JDQ3kIGgDyr729PQtQMRvI6TADIqLCfkZHR/PhNQDkTyj+B7Ldx8/r7917d8Au
-        iIwO/4MkD1aHYRhI8M7dW0B8+z9II4gG4QMH96Pgg4cO4DYAFGhHjh7+f/jIIbwYpwvQnXnm7On/IOzl
-        4wGKTpgXsbsA3U8gDVeuXgbj8Ej3PySnA5AB129cA2OyDbh85dJ/ECbLAFDiCY8M/Q3CIDYobxBMSAOi
-        AADca9/ITodzLwAAAABJRU5ErkJggg==
+        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAPdJREFUOE/Fk8sK
+        gkAUhiu6EdEruakYwl2Nl1y48zV8rizovqo23UntPSrr5C8F3UMhEj5mcM75z3/GYyz2q4cxljEMI2Wa
+        ZiJKjTiXq1RmxaO/nrDXdT0bSkhSip7tbMhqNkhSagdRFHOhBFDdcW1qtizyk/ec8/xXAfQrCELSD07D
+        +lVAqUs7TdMKHwXQ54UTqldEdnS3TuBA1WTv5jyIexLDS8fd+NiERKyg023f0e113gvg0gbDPvUHvY+8
+        dfBoczwZEWCVMj7ntcXXDh57QsJ8MQuQ1ZIXeg4gsFovAyILzOZTApEEMDyyyg8Ae/wbXwfpLwFngenf
+        oo2+XqwAAAAASUVORK5CYII=
 </value>
   </data>
   <data name="toolbarImageDel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -203,20 +203,20 @@
   <data name="toolbarHelpContents.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAuFJREFUOE99U11I
-        U2EYXllBF3Vjru4kyShKzBRhYokbSqZJPwTmzUAtUwIvZi4IOmZJkNOlzTmHOEnNUPLCfpSwluBEo7wR
-        Cwokm7mp6M7fPDtn5+ztvJ8luaADD+c753uf93ve532/bZqop/ViYbaUcqJI2b3nTEQjH8Dt7Zod/hiB
-        G9n5+Uv3jb6B8WgO+aYoapfztG6y7+gR5ZPbrfA8B5IkgSiKQNMB8LwZUZ4eTlQwBmO3JOnv749xJif7
-        3plvypLPB8LUJDAMDYHAKgHDBCDoGYf1mRkYKb8mYyxyNpM4T2W8f361NCzNzQFTVgZ0VhYwvp8kCcvS
-        wPgXgTYYgDHXgDA9Dc+MxjBySAL7pcIUe8JBWZidBcZoBEavh9WiIhg8VxCm7lIhxOD5wnCgtBTY/Hxg
-        TCbgJzxgj4+XHRcKTmqa6mtbx7qfRPhXL4HOzIS14mLo1MZF2vJy7FQztRfhVNed+7WRQGUlUcINvwb3
-        4IBiqbvdprFaLd9XV1dUo9aA9ftgqKBAchiyHkU7bc/Nbnxr0Mv8yhKJ9atlIRfdDwWDPDEL30S2emp0
-        AqJG3ROE9d/G0oBckgBbhq0ShOB/E9TWUSFRDJFYNJgkQBnLy0uq2ywIHAsvrpeLjrychmgFjlx907DJ
-        FBJVBSzLwOLiwkYJaMRYb4/Cd3QAW1EB9Ogo9CQkKI683NY/JradzbX1Jh5SuG9fga2/D5ztMbjb7Ao2
-        QIOtcMXFRXizGWidDniKAsbjgaFbZqnFVhdCDFGUFPwxD8GuLqDT04EtKYHO2NgIjgBR2qVLH59MS4Ng
-        dTXQGRnA1dQASpXlsAoZwpIIXEszIXPqPEwkJQFyNsvEsXQdP7YymZoKXFUVcO0OUidO4QYY4Fpt5GQk
-        Y+yWUf5zmbp0uo8urTbyodkqLyx4idsIr9cLU9ZG2RW3L4Ix/1ymvx23Xbmcab13p91iaZh/aHkgInCN
-        //CqR3fnFxD1L/BlfkDPAAAAAElFTkSuQmCC
+        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAt9JREFUOE99U11I
+        U2EYXllBF3VjW91JklGUmCnCxDIVR6ZJPwTmzUglUwIvZi4IOlJJkNOVzW3KpEX+gEoX9qOEtSCVWeGN
+        WFAg2cxNZe78zbNzds7ezvuZkgs68HC+c77nfb/nfd7326KJe9ovlOZJ6cfKlJ27Tsc08j7c3qrZFkgQ
+        uJHtX74+u943MBYfQ74pitrReVLv7Tt8SPnk8Sg8z4EkSSCKItB0CD68GVF6D6YoyEHupiT9/f0JnWlp
+        /nfmG7Lk94Mw6QWGoSEUChIwTAjC42OwOj0NI9VXZeRizEaSzhPZ7wcqr0Sl2VlgqqqAzs0Fxv+LJGFZ
+        GpjAAtAFBcCYG0CYmoJeozGKMSSB/WJpui15vyzMzABjNAKTnw/BsjIYPFsSVaVGEIPnSqOhykpgi4uB
+        MZmAnxgHW1KS7DxfclzT2tTY7nnqjvGvXgKdkwMr5eXg0mljjqJCO/WI2o3oVNeuvbpYqLaWKOGGX4Pn
+        +YBiuXPLobFaLT+CwWXVqBVgA34YKimRnAW5D+OdthvyWt7mnZL55UXCDahlYSy6HwmHeWIWvols9dT4
+        BESNuicIq3+MpQmXJMCWYasEIfz/BI1URBQjhIsGkwQoY2lpUXWbBYFj4cW1atFZVNgcr8BpyG8dNpki
+        oqqAZRlYWJhfKwGN8PR0K7zLBWxNDdCjo9CdnKw4iwzt6yY6zhhsPSkHFO77N2Cb7gFnewweh13BBmiw
+        FV1abYw3m4HW64GnKGDGx2HopllqszVGEEMUJYV/zkHY7QY6KwvYigpwJSbGcASIUrc+a8ybmQnh+nqg
+        s7OBa2gAlCrLURUyRCURuLZHJJhT52EiNRUwZqNMHMsnR48sezMygKurA67DSerEKVwDA1y7jZyMwcjd
+        NMrrl8mt13/u0uliH60t8vy8j7iN8Pl8MNnSLHdp98SQ889l+ttx2+VLOda7tzsslua5B5b7IgLX+A+v
+        enx3fgN9ry+rjwk39gAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="toolbarExit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
