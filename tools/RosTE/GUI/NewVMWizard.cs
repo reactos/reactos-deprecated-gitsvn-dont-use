@@ -32,6 +32,8 @@ namespace RosTEGUI
         {
             if (optionRadDefault.Checked == true)
                 e.Page = wizardFinishPage;
+            else if (optionRadExist.Checked == true)
+                e.Page = imageInfoPage;
             else
                 e.Page = nameInfoPage;
         }
@@ -122,6 +124,53 @@ namespace RosTEGUI
         private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
         {
             memoryTrkBar.Value = (int)memoryUpDwn.Value;
+        }
+
+        private void wizardFinishPage_CloseFromBack(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            if (optionRadDefault.Checked == true)
+                e.Page = optionInfoPage;
+            else
+                e.Page = memoryInfoPage;
+        }
+
+        private void imageInfoPage_CloseFromBack(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            if (optionRadExist.Checked == true)
+                e.Page = optionInfoPage;
+        }
+
+        private void imageFileBrowse_Click(object sender, EventArgs e)
+        {
+            wizardOpenFile.FileName = "";
+            wizardOpenFile.InitialDirectory = "C:\\";
+            wizardOpenFile.Filter = "img file (*.raw)|*.raw|vdk files (*.vmdk)|*.vmdk|dsk files (*.dsk)|*.dsk";
+            wizardOpenFile.FilterIndex = 1;
+            wizardOpenFile.RestoreDirectory = true;
+
+            DialogResult result = wizardOpenFile.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                imageLocTxtBox.Text = wizardOpenFile.FileName;
+            }
+        }
+
+        private void harddiskInfoPage_CloseFromBack(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            if (optionRadDefault.Checked == true)
+                e.Page = harddiskInfoPage;
+        }
+
+        private void harddiskInfoPage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            if (optionRadNew.Checked == true)
+                e.Page = memoryInfoPage;
+        }
+
+        private void memoryInfoPage_CloseFromBack(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            if (optionRadNew.Checked == true)
+                e.Page = harddiskInfoPage;
         }
     }
 }
