@@ -189,6 +189,16 @@ class RosCMSTemplate extends QuickTemplate {
 			</ol>
 			<p></p>
 			
+			<?php if( $this->data['language_urls'] ) { ?>
+				<div class="navTitle"><?php $this->msg('otherlanguages'); ?></div>
+				<ol>
+					<?php foreach($this->data['language_urls'] as $langlink) { ?>
+						<li><a href="<?php echo htmlspecialchars($langlink['href']) ?>"><?php echo $langlink['text'] ?></a></li>
+					<?php } ?>
+				</ol>
+				<p></p>
+			<?php } ?>
+			
 			<!-- Google AdSense - start -->
 			<script type="text/javascript"><!--
 			google_ad_client = "pub-8424466656027272";
@@ -245,11 +255,11 @@ class RosCMSTemplate extends QuickTemplate {
 		
 		<div id="p-cactions" class="portlet">
 			<h5><?php $this->msg('views') ?></h5>
-			
-				<ul>
-					<?php foreach($this->data['content_actions'] as $key => $tab) { ?><li id="ca-<?php echo Sanitizer::escapeId($key) ?>"<?php if($tab['class']) { ?> class="<?php echo htmlspecialchars($tab['class']) ?>"<?php } ?>><a href="<?php echo htmlspecialchars($tab['href']) ?>"<?php echo $skin->tooltipAndAccesskey('ca-'.$key) ?>><?php echo htmlspecialchars($tab['text']) ?></a></li><?php } ?>
-				</ul>
-			
+			<ul>
+				<?php foreach($this->data['content_actions'] as $key => $tab) { ?>
+					<li id="ca-<?php echo Sanitizer::escapeId($key) ?>"<?php if($tab['class']) { ?> class="<?php echo htmlspecialchars($tab['class']) ?>"<?php } ?>><a href="<?php echo htmlspecialchars($tab['href']) ?>"<?php echo $skin->tooltipAndAccesskey('ca-'.$key) ?>><?php echo htmlspecialchars($tab['text']) ?></a></li>
+				<?php } ?>
+			</ul>
 		</div>
 		<div class="visualClear"></div>
 			
