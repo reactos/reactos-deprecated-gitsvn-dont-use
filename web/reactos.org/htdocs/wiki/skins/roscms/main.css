@@ -725,14 +725,6 @@ special external link styling */
 	font-weight: normal;
 	white-space: nowrap;
 }
-.pBody {
-	font-size: 95%;
-	background-color: white;
-	color: black;
-	border-collapse: collapse;
-	border: 1px solid #aaa;
-	padding: 0 .8em .3em .5em;
-}
 .portlet h1,
 .portlet h2,
 .portlet h3,
@@ -850,14 +842,6 @@ input.searchButton {
 	}
 	li#ca-watch, li#ca-unwatch, li#ca-varlang-0, li#ca-print {
 		margin-left: 1.6em;
-	}
-	#p-cactions .pBody {
-		font-size: 1em;
-		background-color: transparent;
-		color: inherit;
-		border-collapse: inherit;
-		border: 0;
-		padding: 0;
 	}
 /* } */
 #p-cactions .hiddenStructure {
