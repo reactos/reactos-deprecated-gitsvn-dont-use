@@ -59,5 +59,12 @@ namespace RosTEGUI.Properties {
                 resourceCulture = value;
             }
         }
+        
+        internal static System.Drawing.Bitmap wizardSideImage {
+            get {
+                object obj = ResourceManager.GetObject("wizardSideImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

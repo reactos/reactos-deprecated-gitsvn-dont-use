@@ -140,10 +140,12 @@ namespace RosTEGUI
             this.tabPage11 = new System.Windows.Forms.TabPage();
             this.advancedPanel = new System.Windows.Forms.Panel();
             this.advancedGrpBox = new System.Windows.Forms.GroupBox();
-            this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
             this.tabPage12 = new System.Windows.Forms.TabPage();
             this.debugPanel = new System.Windows.Forms.Panel();
             this.debugGrpBox = new System.Windows.Forms.GroupBox();
+            this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
+            this.memoryHorizRuleDark = new System.Windows.Forms.Panel();
+            this.memoryHorizRuleLight = new System.Windows.Forms.Panel();
             this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.hardwareContainerPanel.SuspendLayout();
@@ -254,6 +256,8 @@ namespace RosTEGUI
             // 
             // memoryGrpBox
             // 
+            this.memoryGrpBox.Controls.Add(this.memoryHorizRuleLight);
+            this.memoryGrpBox.Controls.Add(this.memoryHorizRuleDark);
             this.memoryGrpBox.Controls.Add(this.memoryPhyRam);
             this.memoryGrpBox.Controls.Add(this.memoryLabel2);
             this.memoryGrpBox.Controls.Add(this.memoryGrpBox1);
@@ -308,10 +312,10 @@ namespace RosTEGUI
             this.memoryLabel6.AutoSize = true;
             this.memoryLabel6.Location = new System.Drawing.Point(6, 16);
             this.memoryLabel6.Name = "memoryLabel6";
-            this.memoryLabel6.Size = new System.Drawing.Size(239, 39);
+            this.memoryLabel6.Size = new System.Drawing.Size(244, 26);
             this.memoryLabel6.TabIndex = 11;
-            this.memoryLabel6.Text = "The hard disk may be used for anything above\r\nthe recomended maximum, resulting i" +
-                "n significant \r\nperformance loss";
+            this.memoryLabel6.Text = "Setting the virtual memory above the recomended \r\nmaximum may result in significa" +
+                "nt performance loss";
             // 
             // memoryRecMax
             // 
@@ -651,7 +655,7 @@ namespace RosTEGUI
             // harddiskLabel1
             // 
             this.harddiskLabel1.AutoSize = true;
-            this.harddiskLabel1.Location = new System.Drawing.Point(10, 21);
+            this.harddiskLabel1.Location = new System.Drawing.Point(10, 20);
             this.harddiskLabel1.Name = "harddiskLabel1";
             this.harddiskLabel1.Size = new System.Drawing.Size(101, 13);
             this.harddiskLabel1.TabIndex = 3;
@@ -1328,6 +1332,22 @@ namespace RosTEGUI
             this.debugGrpBox.TabStop = false;
             this.debugGrpBox.Text = "Debug";
             // 
+            // memoryHorizRuleDark
+            // 
+            this.memoryHorizRuleDark.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.memoryHorizRuleDark.Location = new System.Drawing.Point(9, 184);
+            this.memoryHorizRuleDark.Name = "memoryHorizRuleDark";
+            this.memoryHorizRuleDark.Size = new System.Drawing.Size(265, 1);
+            this.memoryHorizRuleDark.TabIndex = 15;
+            // 
+            // memoryHorizRuleLight
+            // 
+            this.memoryHorizRuleLight.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.memoryHorizRuleLight.Location = new System.Drawing.Point(9, 185);
+            this.memoryHorizRuleLight.Name = "memoryHorizRuleLight";
+            this.memoryHorizRuleLight.Size = new System.Drawing.Size(265, 1);
+            this.memoryHorizRuleLight.TabIndex = 16;
+            // 
             // hardwareSelLstBox
             // 
             this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -1548,5 +1568,7 @@ namespace RosTEGUI
         private System.Windows.Forms.TabPage tabPage12;
         private System.Windows.Forms.Panel debugPanel;
         private System.Windows.Forms.GroupBox debugGrpBox;
+        private System.Windows.Forms.Panel memoryHorizRuleDark;
+        private System.Windows.Forms.Panel memoryHorizRuleLight;
     }
 }

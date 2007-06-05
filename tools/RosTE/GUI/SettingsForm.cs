@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -43,6 +43,11 @@ namespace RosTEGUI
                 memoryRec.Text = Convert.ToString(totMem / 4) + " MB";
                 memoryRecMax.Text = Convert.ToString(totMem / 1.4) + " MB";
             }
+        }
+
+        private void GetHardwareInfo()
+        {
+
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)

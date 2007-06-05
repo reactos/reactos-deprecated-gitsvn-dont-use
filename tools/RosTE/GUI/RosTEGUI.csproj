@@ -98,6 +98,7 @@
     <Reference Include="System.Data">
       <Name>System.Data</Name>
     </Reference>
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing">
       <Name>System.Drawing</Name>
     </Reference>
@@ -126,6 +127,12 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="native.cs" />
+    <Compile Include="NewVMWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewVMWizard.Designer.cs">
+      <DependentUpon>NewVMWizard.cs</DependentUpon>
+    </Compile>
     <Compile Include="OptListBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -141,6 +148,31 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="VirtualMachine.cs">
+    </Compile>
+    <Compile Include="VMDataBase.cs" />
+    <Compile Include="Wizard\Header.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Wizard\HeaderDesigner.cs" />
+    <Compile Include="Wizard\InfoContainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Wizard\InfoContainerDesigner.cs" />
+    <Compile Include="Wizard\InfoPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Wizard\InfoPageDesigner.cs" />
+    <Compile Include="Wizard\PageCollection.cs" />
+    <Compile Include="Wizard\PageEventHandler.cs" />
+    <Compile Include="Wizard\Wizard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Wizard\WizardDesigner.cs" />
+    <Compile Include="Wizard\WizardPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Wizard\WizardPageDesigner.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -163,6 +195,10 @@
       <SubType>Designer</SubType>
       <DependentUpon>AboutForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="NewVMWizard.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>NewVMWizard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="OptListBox.resx">
       <SubType>Designer</SubType>
       <DependentUpon>OptListBox.cs</DependentUpon>
@@ -171,10 +207,40 @@
       <SubType>Designer</SubType>
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Wizard\Header.resx">
+      <DependentUpon>Header.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wizard\InfoContainer.resx">
+      <DependentUpon>InfoContainer.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wizard\InfoPage.resx">
+      <DependentUpon>InfoPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wizard\Wizard.resx">
+      <DependentUpon>Wizard.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wizard\WizardPage.resx">
+      <DependentUpon>WizardPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <None Include="Resources\wizardSideImage.gif" />
     <Content Include="ros.ico" />
+    <Content Include="Wizard\Wizard.bmp" />
+    <Content Include="Wizard\wizBigOnlineFolder.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <None Include="Config.xsd">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config.xsx">
+      <DependentUpon>Config.xsd</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
