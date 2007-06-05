@@ -25,7 +25,7 @@ namespace RosTEGUI
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ImageListView = new System.Windows.Forms.ListView();
             this.columnName = new System.Windows.Forms.ColumnHeader();
@@ -73,7 +73,7 @@ namespace RosTEGUI
             this.columnDebug});
             this.ImageListView.FullRowSelect = true;
             this.ImageListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem1});
             this.ImageListView.Location = new System.Drawing.Point(12, 52);
             this.ImageListView.Name = "ImageListView";
             this.ImageListView.Size = new System.Drawing.Size(516, 237);
@@ -152,6 +152,7 @@ namespace RosTEGUI
             this.toolbarImageAdd.Name = "toolbarImageAdd";
             this.toolbarImageAdd.Size = new System.Drawing.Size(23, 22);
             this.toolbarImageAdd.ToolTipText = "Adds a new image";
+            this.toolbarImageAdd.Click += new System.EventHandler(this.toolbarImageAdd_Click);
             // 
             // toolbarImageDel
             // 

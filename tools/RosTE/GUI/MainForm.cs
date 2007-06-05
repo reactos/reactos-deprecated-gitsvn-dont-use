@@ -13,6 +13,8 @@ namespace RosTEGUI
 {
 	public partial class MainForm : Form
     {
+        ArrayList VirtualMachines = new ArrayList();
+
         public MainForm()
         {
             InitializeComponent();
@@ -25,6 +27,8 @@ namespace RosTEGUI
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // read config and load any existing vm's
+            MainConfig mainConf = new MainConfig(this);
         }
 
         private void MainMenuHelpAbout_Click(object sender, EventArgs e)
@@ -44,6 +48,13 @@ namespace RosTEGUI
         private void toolbarExit_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void toolbarImageAdd_Click(object sender, EventArgs e)
+        {
+            NewVMWizard wizFrm = new NewVMWizard();
+            wizFrm.StartPosition = FormStartPosition.CenterScreen;
+            wizFrm.Show();
         }
     }
 }
