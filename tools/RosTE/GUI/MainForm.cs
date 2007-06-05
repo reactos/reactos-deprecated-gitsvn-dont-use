@@ -50,7 +50,7 @@ namespace RosTEGUI
             Close();
         }
 
-        private void toolbarImageAdd_Click(object sender, EventArgs e)
+        private void startNewVMWizard(object sender, EventArgs e)
         {
             NewVMWizard wizFrm = new NewVMWizard();
             wizFrm.StartPosition = FormStartPosition.CenterScreen;
