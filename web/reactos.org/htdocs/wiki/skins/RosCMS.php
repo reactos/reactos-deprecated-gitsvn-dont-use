@@ -190,7 +190,7 @@ class RosCMSTemplate extends QuickTemplate {
 			<p></p>
 			
 			<?php if( $this->data['language_urls'] ) { ?>
-				<div class="navTitle">Other Languages<?php /* $this->msg('otherlanguages'); */ ?></div>
+				<div class="navTitle"><?php $this->msg('otherlanguages'); ?></div>
 				<ol>
 					<?php foreach($this->data['language_urls'] as $langlink) { ?>
 						<li><a href="<?php echo htmlspecialchars($langlink['href']) ?>"><?php echo $langlink['text'] ?></a></li>

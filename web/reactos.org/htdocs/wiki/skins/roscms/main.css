@@ -1477,3 +1477,10 @@ p.mw-ipb-conveniencelinks {
 	vertical-align: middle;
 	font-size: 90%;
 }
+
+
+
+/* disable ReactOS Website alike list-bullet */
+#content li {
+	list-sytle-image: none;
+}
