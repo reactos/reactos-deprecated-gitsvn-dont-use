@@ -659,7 +659,7 @@ parent class in order maintain consistency across languages.
 'viewhelppage' => 	'View help page',
 'categorypage' => 	'View category page',
 'viewtalkpage' => 'View discussion',
-'otherlanguages' => 'In other languages',
+'otherlanguages' => 'Other Languages',
 'redirectedfrom' => '(Redirected from $1)',
 'redirectpagesub' => 'Redirect page',
 'lastmodifiedat'		=> 'This page was last modified $2, $1.',	//$1 date, $2 time
