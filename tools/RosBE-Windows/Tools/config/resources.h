@@ -1,3 +1,4 @@
+#define ID_OPTICON 0x3
 #define ID_DIALOG 0x10
 #define ID_OK 0x1
 #define ID_CANCEL 0x2

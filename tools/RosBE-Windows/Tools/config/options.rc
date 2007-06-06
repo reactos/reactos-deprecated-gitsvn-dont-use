@@ -1,4 +1,7 @@
 #include <windows.h>
 #include "resources.h"
 
-#include "en.rc"
+ID_OPTICON ICON "reactos.ico"
+
+#include "lang/en-US.rc"
+#include "lang/de-DE.rc"
