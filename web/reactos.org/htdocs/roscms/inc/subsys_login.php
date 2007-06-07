@@ -100,9 +100,12 @@ function roscms_subsys_login($subsys, $login_type, $target)
         $userid = $row[0];
 
 		// For the Wiki, we have to start a session
-		define('MEDIAWIKI', '');
-		require_once("/web/reactos.org/htdocs/wiki/includes/GlobalFunctions.php");
-		wfSetupSession();
+		if( $subsys == "wiki" )
+		{
+			define('MEDIAWIKI', '');
+			require_once("../wiki/includes/GlobalFunctions.php");
+			wfSetupSession();
+		}
 		
         if (isset($row[1]))
           {
