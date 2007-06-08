@@ -3,9 +3,9 @@
 :: This script provides/sets up various build environments for
 :: ReactOS. Currently it provides GCC 4.1.3 build environments.
 ::
-title ReactOS Build Environment 0.3.6
-
 @echo off
+
+title ReactOS Build Environment 0.3.6
 
 if "%1" == "" (
     color 0A

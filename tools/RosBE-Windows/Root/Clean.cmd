@@ -2,19 +2,19 @@
 ::
 :: Clean the ReactOS source directory.
 ::
-title Cleaning...
-
 @echo off
+
+title Cleaning...
 
 if "%1" == "" (
     ::
-    :: Check if we have something to clean, if so, clean it.
+    : Check if we have something to clean, if so, clean it.
     ::
     if exist "%_ROSSOURCEDIR%\obj-i386\." (
         echo Cleaning ReactOS source directory...
 
         ::
-        :: Run ReactOS's make clean.
+        : Run ReactOS's make clean.
         ::
         if exist "%_ROSSOURCEDIR%\makefile.auto" (
             if not "%CD%" == "%_ROSSOURCEDIR%" (
@@ -27,7 +27,7 @@ if "%1" == "" (
         )
 
         ::
-        :: Remove directories/makefile.auto created by the build.
+        : Remove directories/makefile.auto created by the build.
         ::
         if exist "%_ROSSOURCEDIR%\obj-i386\." (
             rd /s /q "%_ROSSOURCEDIR%\obj-i386" 1> NUL 2> NUL
@@ -43,7 +43,7 @@ if "%1" == "" (
         )
 
         ::
-        :: Now delete auto-generated/copied files not removed by make clean.
+        : Now delete auto-generated/copied files not removed by make clean.
         ::
         del /f "%_ROSSOURCEDIR%\media\inf\syssetup.inf" 1> NUL 2> NUL
         del /f "%_ROSSOURCEDIR%\include\roscfg.h" 1> NUL 2> NUL
@@ -90,7 +90,7 @@ if "%1" == "" (
 )
 if "%1" == "logs" (
     ::
-    :: Check if we have any logs to clean, if so, clean them.
+    : Check if we have any logs to clean, if so, clean them.
     ::
     if exist "%_ROSBELOGDIR%\*.txt" (
         echo Cleaning build logs...

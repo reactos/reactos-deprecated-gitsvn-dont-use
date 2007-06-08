@@ -1,10 +1,11 @@
-:: Copyright (c) Peter Ward.  All rights reserved.
-::      (Inspired by Dazzle from TinyKRNL)
+:: Copyright (c) Peter Ward, Colin Finck and Daniel Reimer. All rights reserved.
 ::
-::    Perform the build of ReactOS, but use the -j option
-::    with the appropriate number for the number of CPUs
-::    in the system.
+:: Perform the build of ReactOS, but use the -j option
+:: with the appropriate number for the number of CPUs
+:: in the system.
 @echo off
+
+title Building...
 
 ::
 :: Clear variables before use.

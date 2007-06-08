@@ -1,4 +1,10 @@
+:: Copyright (c) Peter Ward, Colin Finck and Daniel Reimer. All rights reserved.
+::
 :: Shared actions for "Build.cmd" and "Build-Multi.cmd"
+::
+@echo off
+
+title Building...
 
 ::
 :: Check if config.template.rbuild is newer than config.rbuild,

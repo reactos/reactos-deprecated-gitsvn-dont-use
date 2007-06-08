@@ -2,9 +2,9 @@
 ::
 :: Display help for the commands included with the ReactOS Build Environment.
 ::
-title ReactOS Build Environment 0.3.6
-
 @echo off
+
+title ReactOS Build Environment 0.3.6
 
 if "%1" == "" (
     echo.
