@@ -11,6 +11,27 @@ namespace RosTEGUI
 {
     public partial class NewVMWizard : Form
     {
+        public string VMName
+        {
+            get { return nameTxtBox.Text; }
+        }
+        public string DefDir
+        {
+            get { return defaultDirTxtBox.Text; }
+        }
+        public int DiskSizeGB
+        {
+            get { return (int)harddiskUpDwn.Value; }
+        }
+        public string ExistImg
+        {
+            get { return imageLocTxtBox.Text; }
+        }
+        public int MemSizeMB
+        {
+            get { return (int)memoryUpDwn.Value; }
+        }
+
         public NewVMWizard()
         {
             InitializeComponent();

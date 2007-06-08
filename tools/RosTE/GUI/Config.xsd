@@ -4,8 +4,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="ID" type="xs:int" />
-        <xs:element name="Name" type="xs:string" />
-        <xs:element name="ConfPath" type="xs:string" />
+        <xs:element name="Path" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

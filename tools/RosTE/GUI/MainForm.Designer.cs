@@ -25,7 +25,7 @@ namespace RosTEGUI
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ImageListView = new System.Windows.Forms.ListView();
             this.columnName = new System.Windows.Forms.ColumnHeader();
@@ -75,7 +75,7 @@ namespace RosTEGUI
             this.columnDebug});
             this.ImageListView.FullRowSelect = true;
             this.ImageListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem1});
             this.ImageListView.Location = new System.Drawing.Point(12, 52);
             this.ImageListView.Name = "ImageListView";
             this.ImageListView.Size = new System.Drawing.Size(516, 237);
@@ -154,7 +154,7 @@ namespace RosTEGUI
             this.toolbarImageAdd.Name = "toolbarImageAdd";
             this.toolbarImageAdd.Size = new System.Drawing.Size(23, 22);
             this.toolbarImageAdd.ToolTipText = "Adds a new image";
-            this.toolbarImageAdd.Click += new System.EventHandler(this.startNewVMWizard);
+            this.toolbarImageAdd.Click += new System.EventHandler(this.CreateNewVirtMach);
             // 
             // toolbarImageDel
             // 
@@ -264,7 +264,7 @@ namespace RosTEGUI
             this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.virtualMachineToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
             this.newToolStripMenuItem.Text = "New";
             // 
             // virtualMachineToolStripMenuItem
@@ -272,12 +272,12 @@ namespace RosTEGUI
             this.virtualMachineToolStripMenuItem.Name = "virtualMachineToolStripMenuItem";
             this.virtualMachineToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
             this.virtualMachineToolStripMenuItem.Text = "Virtual Machine";
-            this.virtualMachineToolStripMenuItem.Click += new System.EventHandler(this.startNewVMWizard);
+            this.virtualMachineToolStripMenuItem.Click += new System.EventHandler(this.CreateNewVirtMach);
             // 
             // mainmenuFileExit
             // 
             this.mainmenuFileExit.Name = "mainmenuFileExit";
-            this.mainmenuFileExit.Size = new System.Drawing.Size(152, 22);
+            this.mainmenuFileExit.Size = new System.Drawing.Size(106, 22);
             this.mainmenuFileExit.Text = "Exit";
             this.mainmenuFileExit.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -332,7 +332,8 @@ namespace RosTEGUI
             this.Name = "MainForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "ReactOS Test Environment";
+            this.Text = "QEmu Manager";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.mainToolbar.ResumeLayout(false);
             this.mainToolbar.PerformLayout();

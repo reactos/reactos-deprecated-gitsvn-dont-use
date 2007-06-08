@@ -184,12 +184,12 @@
   <data name="toolbarImageAdd.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAPdJREFUOE/Fk8sK
-        gkAUhiu6EdEruakYwl2Nl1y48zV8rizovqo23UntPSrr5C8F3UMhEj5mcM75z3/GYyz2q4cxljEMI2Wa
-        ZiJKjTiXq1RmxaO/nrDXdT0bSkhSip7tbMhqNkhSagdRFHOhBFDdcW1qtizyk/ec8/xXAfQrCELSD07D
-        +lVAqUs7TdMKHwXQ54UTqldEdnS3TuBA1WTv5jyIexLDS8fd+NiERKyg023f0e113gvg0gbDPvUHvY+8
-        dfBoczwZEWCVMj7ntcXXDh57QsJ8MQuQ1ZIXeg4gsFovAyILzOZTApEEMDyyyg8Ae/wbXwfpLwFngenf
-        oo2+XqwAAAAASUVORK5CYII=
+        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAPxJREFUOE9jYKAV
+        8PDwYE9LS2Otr69nIscOxtDw4P8ubk5/gfQ/EDs+Pp6DJIPCIpz+3L5z6/+u3Tv/h0WE/Pbx8eEiyQCQ
+        7Xfu3v6/e8+u/0DNv0JDQ3kIGgDyr729PQtQMRvI6TADIqLCfkZHR/PhNQDkTyj+B7Ldw8vt7917d8Au
+        iIwO/4MkD1aHYRhI8M7dW0B8+z9II4gG4QMH96Pgg4cO4DYAFGhHjh7+f/jIIbwYpwvQnXnm7On/IOzm
+        4QKKTpgXsbsA3U8gDVeuXgbj8EjnPySnA5AB129cA2OyDbh85dJ/ECbLAFDiCY8M/Q3CIDYobxBMSAOi
+        AAAnZ998TXTN7AAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="toolbarImageDel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -203,20 +203,20 @@
   <data name="toolbarHelpContents.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAt9JREFUOE99U11I
-        U2EYXllBF3VjW91JklGUmCnCxDIVR6ZJPwTmzUglUwIvZi4IOlJJkNOVzW3KpEX+gEoX9qOEtSCVWeGN
-        WFAg2cxNZe78zbNzds7ezvuZkgs68HC+c77nfb/nfd7326KJe9ovlOZJ6cfKlJ27Tsc08j7c3qrZFkgQ
-        uJHtX74+u943MBYfQ74pitrReVLv7Tt8SPnk8Sg8z4EkSSCKItB0CD68GVF6D6YoyEHupiT9/f0JnWlp
-        /nfmG7Lk94Mw6QWGoSEUChIwTAjC42OwOj0NI9VXZeRizEaSzhPZ7wcqr0Sl2VlgqqqAzs0Fxv+LJGFZ
-        GpjAAtAFBcCYG0CYmoJeozGKMSSB/WJpui15vyzMzABjNAKTnw/BsjIYPFsSVaVGEIPnSqOhykpgi4uB
-        MZmAnxgHW1KS7DxfclzT2tTY7nnqjvGvXgKdkwMr5eXg0mljjqJCO/WI2o3oVNeuvbpYqLaWKOGGX4Pn
-        +YBiuXPLobFaLT+CwWXVqBVgA34YKimRnAW5D+OdthvyWt7mnZL55UXCDahlYSy6HwmHeWIWvols9dT4
-        BESNuicIq3+MpQmXJMCWYasEIfz/BI1URBQjhIsGkwQoY2lpUXWbBYFj4cW1atFZVNgcr8BpyG8dNpki
-        oqqAZRlYWJhfKwGN8PR0K7zLBWxNDdCjo9CdnKw4iwzt6yY6zhhsPSkHFO77N2Cb7gFnewweh13BBmiw
-        FV1abYw3m4HW64GnKGDGx2HopllqszVGEEMUJYV/zkHY7QY6KwvYigpwJSbGcASIUrc+a8ybmQnh+nqg
-        s7OBa2gAlCrLURUyRCURuLZHJJhT52EiNRUwZqNMHMsnR48sezMygKurA67DSerEKVwDA1y7jZyMwcjd
-        NMrrl8mt13/u0uliH60t8vy8j7iN8Pl8MNnSLHdp98SQ889l+ttx2+VLOda7tzsslua5B5b7IgLX+A+v
-        enx3fgN9ry+rjwk39gAAAABJRU5ErkJggg==
+        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAtxJREFUOE+FU11I
+        U2EYXllBF3VjW91JklGUmCnCxBwqjswl/RCYNyOVTAm8mLkg6EQlUZuaa39OyUGaNKEL+1FCW4GTGeGN
+        WFAg2cxNZe78zbNzds55O99nSq6LDjyc75zved/veZ/3/bapUh7HhaoSIfdEtbR7z2lZJR5A29tVOyJp
+        HDO688vXZ9cHhyZSY/A3QRC7PMXa4ODRI9KU3y+xLAOCIADP80CSMfj4blR6fjhLQhzE3ZLE5/OleXJy
+        wu/NN0QhHAZuKggURUIsFsWgqBjEAxOwNjMDow1XRcRFMZtJPKcKP7y4YkwKc3NA1dcDqdMBFf6Fk9A0
+        CVRkEciyMqDMrcBNT0O/0ZhEMTiB82JVri3zoMjNzgJlNAJVWgrR6mrwnTUkFakJBN+5qmSsrg7oykqg
+        TCZgJwNgy8gQ3ecNJ1UdbXcc431PZfbNayCLimC1pgY8GrXsqih3El3EXgSPsvbs18ixpiashBl5C/6X
+        Q5L17i2XqrPT+iMaXVGMWgU6EoZhg0Fwl+kepzrt1Je0j+uKRXZlCXMjSlkoFrmfiMdZbBZ6Y9nKqakJ
+        sBplj+PW/hhLYi5OgFqGWsVx8f8m4PkE5iKDcQIkY3l5SXGbBo6h4dW1Bt5dUW5JVeDWl3aMmEwJXlFA
+        0xQsLi6sl4CM8A/0S2xvL9CNjUCOjUF/ZqbkrtA7Nkx0ndHbB7IOScz3b0C33QfG/gT8LqeEGqBCrehR
+        q2XWbAZSqwWWIIAKBGD4plmw2YkEwjBBCPGf8xD3eoEsKAC6thY86ekyGgGs1KstmAjm50O8pQXIwkJg
+        WlsBSRXFpAIRkgIPjK0LBzPKPExmZwOK2SwTjWXf8WMrwbw8YJqbgel24zrRFK6DAsZhxyejYMTdMsob
+        l8mr1X7u0WjkT+0WcWEhhN1GCIVCMGV5KPao98mI889l+ttx++VLRZ33bndbrZb5R9YHPAJao3/oqqd2
+        5zcLty92UZRhWQAAAABJRU5ErkJggg==
 </value>
   </data>
   <data name="toolbarExit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
