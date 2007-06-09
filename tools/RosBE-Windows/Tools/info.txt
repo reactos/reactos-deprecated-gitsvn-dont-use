@@ -1,1 +1,11 @@
-Built Tools need to be copied to /Root/Tools/
+Additional Tools needed:
+tee:      http://gnuwin32.sourceforge.net/packages/coreutils.htm
+test:     http://gnuwin32.sourceforge.net/packages/coreutils.htm
+sed:      http://gnuwin32.sourceforge.net/packages/sed.htm
+svn:      http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91
+
+Additional Libs needed:
+LibIntl:  http://gnuwin32.sourceforge.net/packages/libintl.htm
+LibIconv: http://gnuwin32.sourceforge.net/packages/libiconv.htm
+
+Built Tools and Rest needs to be copied to /Root/Tools/
