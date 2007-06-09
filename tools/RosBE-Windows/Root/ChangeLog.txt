@@ -9,6 +9,9 @@
 - New cool Icon. Thanks to ROSFan for it.
 - Readded buildtime.
 - Removed makex for now, until the bug is fixed.
+- Added Colin Finck's Build.cmd Unification
+- Added Ged Murphy's flash tool to letthe window flash at build's end
+- Updated all other tools
 
 *** Janruary 26th, 2007 - RosBE 0.3.5b2 Released
 

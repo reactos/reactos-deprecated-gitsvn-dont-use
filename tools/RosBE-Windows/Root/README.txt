@@ -1,7 +1,7 @@
-                     ReactOS Build Environment 0.3.6
+                     ReactOS Build Environment 0.3.7
 
 
-The ReactOS Build Environment v0.3.6 contains a complete build environment for ReactOS based on GCC 4.1.3/MinGW.
+The ReactOS Build Environment v0.3.7 contains a complete build environment for ReactOS based on GCC 4.1.3/MinGW.
 
 While installing the ReactOS Build Environment you are asked to provide the directory where your ReactOS sources
 are located (ie.reactos\), you must enter the complete path to them (ie. C:\projects\reactos). The path is now
@@ -12,7 +12,7 @@ To build ReactOS with the ReactOS Build Environment you run "GCC 4.1.3 ReactOS B
 menu. Now you have a choice of using either the built in commands (which are displayed onscreen with information
 about their use) or you can build as you normally would using the standard MinGW/RBuild commands.
 
-The ReactOS Build Environment v0.3.6 contains the following packages:
+The ReactOS Build Environment v0.3.7 contains the following packages:
 
 binutils-2.17.50-20070122-1.tar.gz
 mingw-runtime-3.12.tar.gz

@@ -5,7 +5,7 @@
 ::
 @echo off
 
-title ReactOS Build Environment 0.3.6
+title ReactOS Build Environment 0.3.7
 
 if "%1" == "" (
     color 0A
@@ -73,7 +73,7 @@ goto :ExitRosBE
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *     ReactOS Build Environment 0.3.6-4.1.3-20070405-prerelease-patched       *
+    echo *     ReactOS Build Environment 0.3.7-4.1.3-20070405-prerelease-patched       *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
