@@ -5,7 +5,7 @@
     PageExEnd
 
     Function RosDir.show
-        !insertmacro MUI_HEADER_TEXT "Select ReactOS Source Location" "Select the directory where the ReactOS sources are located."
+        !insertmacro MUI_HEADER_TEXT "Select ReactOS Source Location" "Select the directory where the ReactOS sources are located or will be checked out to later."
         !insertmacro MUI_INSTALLOPTIONS_WRITE "RosSourceDir.ini" "Field 2" "State" "$INSTDIR"
         !insertmacro MUI_INSTALLOPTIONS_DISPLAY "RosSourceDir.ini"
     FunctionEnd

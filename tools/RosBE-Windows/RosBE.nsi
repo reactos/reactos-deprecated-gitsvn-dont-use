@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "0.3.6"
+!define PRODUCT_VERSION "0.3.7"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -18,7 +18,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "0.0.3.6"
+VIAddVersionKey /LANG=1033 "FileVersion" "0.0.3.7"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
@@ -26,7 +26,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "0.0.3.6"
+VIProductVersion "0.0.3.7"
 
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
@@ -81,7 +81,7 @@ var ICONS_GROUP
 !insertmacro MUI_PAGE_INSTFILES
 
 !define MUI_FINISHPAGE_TITLE_3LINES
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.txt"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\readme.pdf"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !insertmacro MUI_PAGE_FINISH
 
@@ -117,6 +117,8 @@ Section -StartMenuShortcuts SEC03
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Readme.lnk" \
+                       "$INSTDIR\readme.pdf"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
