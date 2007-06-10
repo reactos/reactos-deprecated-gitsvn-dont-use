@@ -1,6 +1,6 @@
-:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
+:: Copyright (c) Daniel Reimer. All rights reserved.
 ::
-:: SVN Client
+:: Integrated SVN Client
 ::
 @echo off
 
