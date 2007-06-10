@@ -1,4 +1,4 @@
-                     ReactOS Build Environment 0.3.7
+ReactOS Build Environment 0.3.7
 
 
 The ReactOS Build Environment v0.3.7 contains a complete build environment for ReactOS based on GCC 4.1.3/MinGW.
@@ -45,6 +45,9 @@ http://nsis.sourceforge.net/
 The GnuWin32 Project (tee/test/sed/cut/grep and their dependencies were obtained here)
 http://gnuwin32.sourceforge.net/
 
-Inspired by blight's ReactOS Build Environment v0.2-3.4.4
+Subversion Client
+http://subversion.tigris.org/
+
+Inspired by blight's ReactOS Build Environment v0.2-3.4.5
 Inspired by Dazzle from TinyKRNL (http://www.tinykrnl.org/)
 Icon made by ROSFan
