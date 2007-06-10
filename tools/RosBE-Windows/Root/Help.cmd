@@ -21,15 +21,15 @@ if "%1" == "" (
     echo                      specific command.
     echo    svn [OPTIONS]   - Create, Update or clean up your ReactOS Source
     echo                      tree.
-    echo    config          - Configures the way, ReactOS will be built.
-    echo
+    echo    config [OPTIONS]- Configures the way, ReactOS will be built.
+    echo.
     echo    basedir         - Switch back to the ReactOS source directory.
     goto :EOF
 )
 if "%1" == "make" (
     echo Usage: make [OPTIONS]
     echo make, without options does a standard build of ReactOS. OPTIONS
-    echo are the standard ReactOS build options ie. bootcd.
+    echo are the standard ReactOS build options ie. bootcd, livecd, etc.
     goto :EOF
 )
 if "%1" == "makex" (
@@ -56,6 +56,15 @@ if "%1" == "help" (
 if "%1" == "svn" (
     echo Usage: svn [OPTIONS]
     echo Creates, Updates or cleans up your ReactOS Source tree.
+    echo    update - Updates to HEAD Revision.
+    echo    create - Creates a new ReactOS Tree.
+    echo    cleanup - Cleans up and fixes errors in Tree.
+    goto :EOF
+)
+if "%1" == "config" (
+    echo Usage: config [OPTIONS]
+    echo Creates a Configuration File, which tells RosBE how to build the Tree.
+    echo    delete - Deletes the configuration File and so sets back to default
     goto :EOF
 )
 if "%1" == "basedir" (

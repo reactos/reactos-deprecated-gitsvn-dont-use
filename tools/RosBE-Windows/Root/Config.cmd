@@ -6,8 +6,29 @@
 
 title ReactOS Build Configurator
 
-cd ""
+if not exist "%ROSBEBASEDIR%\Tools\config.rbuild" (
+    copy "%_ROSSOURCEDIR%\config.template.rbuild" "%ROSBEBASEDIR%\Tools\config.rbuild"
+)
 
+if "%1" == "delete" (
+    del %_ROSSOURCEDIR%\config.rbuild
+    del %ROSBEBASEDIR%\Tools\config.rbuild
+    goto :NOK
+)
+
+echo WARNING:
+echo Non-Default-Configurations are not useable for pasteing Bugs to Bugzilla
+echo or asking quesions about in Forum/Chat!
+echo.
+echo DID YOU UNDERSTAND?
+
+SET /P XY=(yes), (no)
+
+if /I "%XY%"=="yes" goto :OK
+if /I "%XY%"=="no" goto :NOK
+goto :NOK
+
+:OK
 echo Architecture to build for. Not Editable.
 echo.
 echo Right now
@@ -122,5 +143,6 @@ copy %ROSBEBASEDIR%\Tools\config10.rbuild %ROSBEBASEDIR%\Tools\config.tmp
 del %ROSBEBASEDIR%\Tools\*.rbuild
 copy %ROSBEBASEDIR%\Tools\config.tmp %ROSBEBASEDIR%\Tools\config.rbuild
 del %ROSBEBASEDIR%\Tools\*.tmp
-copy %ROSBEBASEDIR%\Tools\config.rbuild _ROSSOURCEDIR\config.rbuild
-cd..
+copy %ROSBEBASEDIR%\Tools\config.rbuild %_ROSSOURCEDIR%\config.rbuild
+
+:NOK
