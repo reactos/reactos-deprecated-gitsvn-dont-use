@@ -21,6 +21,8 @@ if "%1" == "" (
     echo                      specific command.
     echo    svn [OPTIONS]   - Create, Update or clean up your ReactOS Source
     echo                      tree.
+    echo    config          - Configures the way, ReactOS will be built.
+    echo
     echo    basedir         - Switch back to the ReactOS source directory.
     goto :EOF
 )

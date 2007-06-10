@@ -42,7 +42,7 @@ http://nasm.sourceforge.net/
 NSIS (Nullsoft Scriptable Install System)
 http://nsis.sourceforge.net/
 
-The GnuWin32 Project (tee/test and their dependencies were obtained here)
+The GnuWin32 Project (tee/test/sed/cut/grep and their dependencies were obtained here)
 http://gnuwin32.sourceforge.net/
 
 Inspired by blight's ReactOS Build Environment v0.2-3.4.4
