@@ -2,6 +2,8 @@
 
 - Added a SVN Client
 - Added a Build Configurator.
+- Added grep/cut/sed Tools for the two new commands
+- Added SVN 1.4.4 for the SVN Feature
 - Readded makex. If theres a Bug in Vista, it's a GCC Bug.
 
 *** May 21th, 2007 - RosBE 0.3.6 Released
