@@ -1,6 +1,11 @@
-:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
 ::
-:: Get the current date and time for use in our build log's file name.
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See COPYING in the top level directory
+:: FILE:        Root/TimeDate.cmd
+:: PURPOSE:     Get the current date and time for use in our build log's file name.
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::                             Peter Ward <dralnix@gmail.com>
+::
 ::
 @echo off
 

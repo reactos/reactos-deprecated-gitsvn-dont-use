@@ -1,6 +1,12 @@
-:: Copyright (c) Peter Ward, Colin Finck and Daniel Reimer. All rights reserved.
 ::
-:: Shared actions for "Build.cmd" and "Build-Multi.cmd"
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See COPYING in the top level directory
+:: FILE:        Root/Build-Shared.cmd
+:: PURPOSE:     Shared actions for "Build.cmd" and "Build-Multi.cmd"
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::                             Colin Finck <mail@colinfinck.de>
+::                             Peter Ward <dralnix@gmail.com>
+::
 ::
 @echo off
 

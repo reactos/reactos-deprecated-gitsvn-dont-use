@@ -1,4 +1,13 @@
-#include <windows.h>
+/*
+ * PROJECT:     RosBE - ReactOS Build Environment for Windows
+ * LICENSE:     GPL - See COPYING in the top level directory
+ * FILE:        Tools/buildtime.c
+ * PURPOSE:     Buildtime Counter
+ * COPYRIGHT:   Copyright 2007 KJK::Hyperion
+ *
+ */
+
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>

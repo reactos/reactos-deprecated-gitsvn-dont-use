@@ -1,7 +1,12 @@
-:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
 ::
-:: This script provides/sets up various build environments for
-:: ReactOS. Currently it provides GCC 4.1.3 build environments.
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See COPYING in the top level directory
+:: FILE:        Root/RosBE.cmd
+:: PURPOSE:     This script provides/sets up various build environments for
+::              ReactOS. Currently it provides GCC 4.1.3 build environments.
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::                             Peter Ward <dralnix@gmail.com>
+::
 ::
 @echo off
 

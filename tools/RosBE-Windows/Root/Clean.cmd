@@ -1,6 +1,11 @@
-:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
 ::
-:: Clean the ReactOS source directory.
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See COPYING in the top level directory
+:: FILE:        Root/Clean.cmd
+:: PURPOSE:     Clean the ReactOS source directory.
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::                             Peter Ward <dralnix@gmail.com>
+::
 ::
 @echo off
 
