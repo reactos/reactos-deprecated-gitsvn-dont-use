@@ -1,3 +1,13 @@
+/*
+ * PROJECT:     RosBE - ReactOS Build Environment for Windows
+ * LICENSE:     GPL - See COPYING in the top level directory
+ * FILE:        Tools/flash.c
+ * PURPOSE:     Taskbar Flasher
+ * COPYRIGHT:   Copyright 2007 Ged Murphy <gedmurphy@reactos.org>
+ *
+ */
+
+
 #include <windows.h>
 
 HWND GetConsoleHwnd(void)

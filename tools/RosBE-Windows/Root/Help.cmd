@@ -1,6 +1,11 @@
-:: Copyright (c) Peter Ward and Daniel Reimer. All rights reserved.
 ::
-:: Display help for the commands included with the ReactOS Build Environment.
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See COPYING in the top level directory
+:: FILE:        Root/Help.cmd
+:: PURPOSE:     Display help for the commands included with the ReactOS Build Environment.
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::                             Peter Ward <dralnix@gmail.com>
+::
 ::
 @echo off
 

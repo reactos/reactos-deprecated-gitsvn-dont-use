@@ -1,6 +1,10 @@
-:: Copyright (c) Daniel Reimer. All rights reserved.
 ::
-:: A Basic Config.rbuild Creator for ReactOS.
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See COPYING in the top level directory
+:: FILE:        Root/Config.cmd
+:: PURPOSE:     A Basic Config.rbuild Creator for ReactOS.
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::
 ::
 @echo off
 
