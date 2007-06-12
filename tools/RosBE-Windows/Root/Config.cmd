@@ -17,8 +17,8 @@ if "%1" == "delete" (
 )
 
 echo WARNING:
-echo Non-Default-Configurations are not useable for pasteing Bugs to Bugzilla
-echo or asking quesions about in Forum/Chat!
+echo Non-Default-Configurations are not useable for pasteing Bugs to
+echo Bugzilla or asking quesions about in Forum/Chat!
 echo.
 echo DID YOU UNDERSTAND?
 
@@ -40,33 +40,33 @@ echo Default is: none
 echo.
 echo Right now
 call "%ROSBEBASEDIR%\Tools\grep.exe" \"SARCH\" %ROSBEBASEDIR%\Tools\config.rbuild|"%ROSBEBASEDIR%\Tools\cut.exe" -d "\"" -f 4
-SET /P X= (), (xbox) 
+SET /P X= (), (xbox)
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" %ROSBEBASEDIR%\Tools\config.rbuild > %ROSBEBASEDIR%\Tools\config2.rbuild
 cls
 
 echo Which CPU ReactOS should be optimized for.
 echo.
-echo Examples: i486, i586, pentium, pentium2, pentium3, pentium4, athlon-xp,
-echo athlon-mp, k6-2
+echo Examples: i486, i586, pentium, pentium2, pentium3, pentium4,
+echo athlon-xp, athlon-mp, k6-2
 echo See GCC manual for more CPU names and which CPUs GCC can optimize for.
 echo Default is: pentium
 echo.
 echo Right now
 call "%ROSBEBASEDIR%\Tools\grep.exe" \"OARCH\" %ROSBEBASEDIR%\Tools\config.rbuild|"%ROSBEBASEDIR%\Tools\cut.exe" -d "\"" -f 4
-SET /P XX= 
+SET /P XX=
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" %ROSBEBASEDIR%\Tools\config2.rbuild > %ROSBEBASEDIR%\Tools\config21.rbuild
 cls
 
 echo What level do you want ReactOS to be optimized at.
-echo this setting does not work if GDB is set
+echo This setting does not work if GDB is set.
 echo 0 = off
-echo 1 = Normal compiling. Recommended, it is default setting in
-echo official build and debug build.
-echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk. 
+echo 1 = Normal compiling. Recommended. It is the default setting in
+echo official release builds and debug builds.
+echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk.
 echo.
 echo Right now
 call "%ROSBEBASEDIR%\Tools\grep.exe" \"OPTIMIZE\" %ROSBEBASEDIR%\Tools\config.rbuild|"%ROSBEBASEDIR%\Tools\cut.exe" -d "\"" -f 4
-SET /P Y= (0), (1), (2), (3), (4), (5) 
+SET /P Y= (0), (1), (2), (3), (4), (5)
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" %ROSBEBASEDIR%\Tools\config21.rbuild > %ROSBEBASEDIR%\Tools\config3.rbuild
 cls
 
@@ -98,8 +98,8 @@ SET /P B= (0), (1)
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" %ROSBEBASEDIR%\Tools\config5.rbuild > %ROSBEBASEDIR%\Tools\config6.rbuild
 cls
 
-echo Whether to compile for debugging with GDB. If you don't use GDB, don't
-echo enable this.
+echo Whether to compile for debugging with GDB. If you don't use GDB,
+echo don't enable this.
 echo Default is: 0
 echo.
 echo Right now
@@ -108,9 +108,10 @@ SET /P C= (0), (1)
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" %ROSBEBASEDIR%\Tools\config6.rbuild > %ROSBEBASEDIR%\Tools\config7.rbuild
 cls
 
-echo Whether to compile apps/libs with features covered software patents or not.
-echo If you live in a country where software patents are valid/apply, don't
-echo enable this (except they/you purchased a license from the patent owner).
+echo Whether to compile apps/libs with features covered software patents
+echo or not. If you live in a country where software patents are
+echo valid/apply, don't enable this (except they/you purchased a license
+echo from the patent owner).
 echo Default is: 0
 echo.
 echo Right now
@@ -119,7 +120,8 @@ SET /P D= (0), (1)
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" %ROSBEBASEDIR%\Tools\config7.rbuild > %ROSBEBASEDIR%\Tools\config8.rbuild
 cls
 
-echo Whether to compile with NT-compatible LPC Semantics. This should always be 1.
+echo Whether to compile with NT-compatible LPC Semantics. This should
+echo always be 1.
 echo.
 echo Right now
 call "%ROSBEBASEDIR%\Tools\grep.exe" \"NTLPC\" %ROSBEBASEDIR%\Tools\config.rbuild|"%ROSBEBASEDIR%\Tools\cut.exe" -d "\"" -f 4
@@ -127,11 +129,12 @@ SET /P E= (0), (1)
 call "%ROSBEBASEDIR%\Tools\sed.exe" "s/\"NTLPC\" value=\"[0-1]\"/\"NTLPC\" value=\"%E%\"/g" %ROSBEBASEDIR%\Tools\config8.rbuild > %ROSBEBASEDIR%\Tools\config9.rbuild
 cls
 
-echo Whether to compile with the KD protocol. This will disable support for KDBG
-echo as well as rossym and symbol lookups, and allow WinDBG to connect to ReactOS.
-echo This is currently not fully working, and requires kdcom from Windows 2003 or
-echo TinyKRNL. Booting into debug mode with this flag enabled will result in a
-echo failure to enter GUI mode. Do not enable unless you know what you're doing.
+echo Whether to compile with the KD protocol. This will disable support for
+echo KDBG as well as rossym and symbol lookups, and allow WinDBG to connect
+echo to ReactOS. This is currently not fully working, and requires kdcom
+echo from Windows 2003 or TinyKRNL. Booting into debug mode with this flag
+echo enabled will result in a failure to enter GUI mode. Do not enable
+echo unless you know what you're doing.
 echo Default is: 0
 echo.
 echo Right now
