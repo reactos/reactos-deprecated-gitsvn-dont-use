@@ -1,6 +1,7 @@
 :: Copyright (c) Peter Ward, Colin Finck and Daniel Reimer. All rights reserved.
 ::
-::    Perform the build of ReactOS.
+:: Perform the build of ReactOS.
+::
 @echo off
 
 title Building...

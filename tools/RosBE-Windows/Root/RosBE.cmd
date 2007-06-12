@@ -57,7 +57,8 @@ doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
 goto :ExitRosBE
 
 ::
-:: Display the banner and set up the environment for the GCC 4.x.x build environment.
+:: Display the banner and set up the environment for the GCC 4.x.x build
+:: environment.
 ::
 :RosBE4
     ::

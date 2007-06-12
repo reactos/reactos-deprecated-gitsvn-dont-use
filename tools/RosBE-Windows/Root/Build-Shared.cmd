@@ -7,8 +7,8 @@
 title Building...
 
 ::
-:: Check if config.template.rbuild is newer than config.rbuild,
-:: if it is then abort the build and inform the user.
+:: Check if config.template.rbuild is newer than config.rbuild, if it is then
+:: abort the build and inform the user.
 ::
 if exist "%_ROSSOURCEDIR%\config.rbuild" (
     %ROSBEBASEDIR%\Tools\test.exe "%_ROSSOURCEDIR%\config.template.rbuild" -nt "%_ROSSOURCEDIR%\config.rbuild"
@@ -23,8 +23,7 @@ if exist "%_ROSSOURCEDIR%\config.rbuild" (
 )
 
 ::
-:: Get the current date and time for use in
-:: in our build log's file name.
+:: Get the current date and time for use in in our build log's file name.
 ::
 call "%ROSBEBASEDIR%\TimeDate.cmd"
 
