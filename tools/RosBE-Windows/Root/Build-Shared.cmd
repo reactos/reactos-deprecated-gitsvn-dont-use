@@ -17,8 +17,11 @@ if "%1" == "strip" (
     goto :Build
 )
 if "%1"  == "" (
+    set ROS_LEAN_AND_MEAN = no
     goto :Build
 )
+
+:Build
 
 ::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
@@ -40,8 +43,6 @@ if exist "%_ROSSOURCEDIR%\config.rbuild" (
 :: Get the current date and time for use in in our build log's file name.
 ::
 call "%ROSBEBASEDIR%\TimeDate.cmd"
-
-:Build
 
 ::
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
