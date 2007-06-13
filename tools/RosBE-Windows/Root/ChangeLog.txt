@@ -1,14 +1,14 @@
-*** Juni 21th, 2007 - RosBE 0.3.7 Released
+*** June 21th, 2007 - RosBE 0.3.7 Released
 
 - Updated: GCC 4.1.3 Build 200706XX
-  (Here is the reason why the installer got smaller between .3.6 and .3.7, my bins are stripped, w3seeks were not)
+  (Here is the reason why the installer got smaller between 0.3.6 and 0.3.7, my bins are stripped now)
 - Updated: binutils 2.17.50 Build 200706XX
-- Added a SVN Client
-- Added a Build Configurator.
-- Added grep/cut/sed Tools for the new Configurator
-- Added SVN 1.4.4 for the SVN Feature
-- Added use of ROS_LEAN_AND_MEAN by setting make %1 strip
-- Readded makex. Sorry, bug in Vista still persists... its a GCC bug
+- Added a SVN Client.
+- Added a config.rbuild Configurator.
+- Added grep/cut/sed Tools for the new Configurator.
+- Added SVN 1.4.4 for the SVN Feature.
+- Added use of ROS_LEAN_AND_MEAN by typeing "make/makex %command% strip".
+- Readded makex. Sorry, bug in Vista still persists... its a GCC bug.
 
 *** May 21th, 2007 - RosBE 0.3.6 Released
 
@@ -21,9 +21,9 @@
 - New cool Icon. Thanks to ROSFan for it.
 - Readded buildtime.
 - Removed makex for now, until the bug is fixed.
-- Added Colin Finck's Build.cmd Unification
-- Added Ged Murphy's flash tool to letthe window flash at build's end
-- Updated all other tools
+- Added Colin Finck's Build.cmd Unification.
+- Added Ged Murphy's flash tool to let the window flash once at build's end.
+- Updated all other tools.
 
 *** Janruary 26th, 2007 - RosBE 0.3.5b2 Released
 
