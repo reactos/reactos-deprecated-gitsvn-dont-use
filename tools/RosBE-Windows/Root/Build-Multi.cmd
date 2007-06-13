@@ -30,9 +30,9 @@ for /f "usebackq" %%i in (`"%ROSBEBASEDIR%\Tools\cpucount.exe" -x1`) do set CPUC
 ::
 :: Set the build command
 ::
-set MAKE_COMMAND="%_MINGWMAKE%" -j %CPUCOUNT% %*
+set MAKE_COMMAND="%_MINGWMAKE%" -j %CPUCOUNT% %1
 
 ::
 :: Execute the shared build commands
 ::
-call "%ROSBEBASEDIR%\Build-Shared.cmd"
+call "%ROSBEBASEDIR%\Build-Shared.cmd" %2
