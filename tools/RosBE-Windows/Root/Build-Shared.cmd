@@ -12,6 +12,14 @@
 
 title Building...
 
+if "%1" == "strip" (
+    set ROS_LEAN_AND_MEAN = yes
+    goto :Build
+)
+if "%1"  == "" (
+    goto :Build
+)
+
 ::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
@@ -33,13 +41,14 @@ if exist "%_ROSSOURCEDIR%\config.rbuild" (
 ::
 call "%ROSBEBASEDIR%\TimeDate.cmd"
 
+:Build
+
 ::
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
 ::
-
 call "%ROSBEBASEDIR%\Tools\buildtime.exe" %MAKE_COMMAND% 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 
 ::
 :: highlight the fact that building has ended
 ::
-call "%ROSBEBASEDIR%\Tools\flash.exe"
+::call "%ROSBEBASEDIR%\Tools\flash.exe"

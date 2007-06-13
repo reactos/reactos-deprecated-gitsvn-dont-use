@@ -15,9 +15,9 @@ title Building...
 ::
 :: Set the build command
 ::
-set MAKE_COMMAND="%_MINGWMAKE%" %*
+set MAKE_COMMAND="%_MINGWMAKE%" %1
 
 ::
 :: Execute the shared build commands
 ::
-call "%ROSBEBASEDIR%\Build-Shared.cmd"
+call "%ROSBEBASEDIR%\Build-Shared.cmd" %2

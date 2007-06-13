@@ -2,10 +2,12 @@
 
 - Updated: GCC 4.1.3 Build 200706XX
   (Here is the reason why the installer got smaller between .3.6 and .3.7, my bins are stripped, w3seeks were not)
+- Updated: binutils 2.17.50 Build 200706XX
 - Added a SVN Client
 - Added a Build Configurator.
 - Added grep/cut/sed Tools for the new Configurator
 - Added SVN 1.4.4 for the SVN Feature
+- Added use of ROS_LEAN_AND_MEAN by setting make %1 strip
 - Readded makex. Sorry, bug in Vista still persists... its a GCC bug
 
 *** May 21th, 2007 - RosBE 0.3.6 Released

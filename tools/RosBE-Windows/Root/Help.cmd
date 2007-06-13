@@ -16,7 +16,8 @@ if "%1" == "" (
     echo Available Commands:
     echo    make [OPTIONS]  - make, without options does a standard build of
     echo                      ReactOS. OPTIONS are the standard ReactOS build
-    echo                      options ie. bootcd.
+    echo                      options ie. "bootcd" and "strip" as second option
+    echo                      sets strip = yes.
     echo    makex [OPTIONS] - Same as 'make' but automatically determines the
     echo                      number of CPUs in the system and uses -j with the
     echo                      appropriate number.
@@ -34,7 +35,8 @@ if "%1" == "" (
 if "%1" == "make" (
     echo Usage: make [OPTIONS]
     echo make, without options does a standard build of ReactOS. OPTIONS are
-    echo the standard ReactOS build options ie. bootcd, livecd, etc.
+    echo the standard ReactOS build options ie. "bootcd", "livecd", etc. "strip"
+    echo as second option sets strip = yes.
     goto :EOF
 )
 if "%1" == "makex" (
