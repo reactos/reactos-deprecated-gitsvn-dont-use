@@ -10,14 +10,28 @@
 
 title ReactOS Build Configurator
 
-if not exist "%ROSBEBASEDIR%\Tools\config.rbuild" (
-    copy "%_ROSSOURCEDIR%\config.template.rbuild" "%ROSBEBASEDIR%\Tools\config.rbuild"
+if "%1" == "delete" (
+    if exist "%_ROSSOURCEDIR%\config.rbuild" (
+        del %_ROSSOURCEDIR%\config.rbuild
+        echo Main Configuration File was found and deleted.
+    ) else (
+        echo Main Configuration File was not found in ReactOS Source Tree.
+    )
+    if exist "%ROSBEBASEDIR%\Tools\config.rbuild" (
+        del %ROSBEBASEDIR%\Tools\config.rbuild
+        echo Working Configuration File was found and deleted.
+    ) else (
+        echo Working Configuration File was not found in ReactOS Source Tree.
+    )
+goto :NOK
+)
+if not "%1" == "" (
+    echo Unknown parameter specified. Try 'help [COMMAND]'.
+    goto :NOK
 )
 
-if "%1" == "delete" (
-    del %_ROSSOURCEDIR%\config.rbuild
-    del %ROSBEBASEDIR%\Tools\config.rbuild
-    goto :NOK
+if not exist "%ROSBEBASEDIR%\Tools\config.rbuild" (
+    copy "%_ROSSOURCEDIR%\config.template.rbuild" "%ROSBEBASEDIR%\Tools\config.rbuild"
 )
 
 echo WARNING:

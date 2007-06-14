@@ -9,12 +9,20 @@
 @echo off
 
 ::
-:: Execute the Build command
+:: Receive the first Parameter and decide what to do.
 ::
+if "%1" == "" (
+    echo No parameter specified. Try 'help [COMMAND]'.
+    goto :ExitSVN
+)
 if "%1" == "update" (
     title Updating...
-    %ROSBEBASEDIR%\Tools\svn.exe update %_ROSSOURCEDIR% %2
-    goto :ExitSVN
+    if not "%2" == "" (    
+        %ROSBEBASEDIR%\Tools\svn.exe update %_ROSSOURCEDIR% -r %2
+    ) else (
+        %ROSBEBASEDIR%\Tools\svn.exe update %_ROSSOURCEDIR%
+    )
+goto :ExitSVN
 )
 if "%1" == "cleanup" (
     title Cleaning...
@@ -28,6 +36,14 @@ if "%1" == "create" (
         goto :SVN
     )
 )
+if not "%1" == "" (
+    echo Unknown parameter specified. Try 'help [COMMAND]'.
+    goto :ExitSVN
+)
+
+::
+:: Check if the Folder is empty. If not, output an error.
+::
 if exist "%_ROSSOURCEDIR%\.svn\." (
     echo Folder already cotains a Reposority. Exiting
     goto :ExitSVN
