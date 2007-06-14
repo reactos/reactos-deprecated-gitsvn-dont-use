@@ -12,6 +12,9 @@
 
 title Building...
 
+::
+:: Take over the 2nd parameter of Build.cmd, which enables/disables stripping
+::
 if "%1" == "strip" (
     set ROS_LEAN_AND_MEAN = yes
     goto :Build
