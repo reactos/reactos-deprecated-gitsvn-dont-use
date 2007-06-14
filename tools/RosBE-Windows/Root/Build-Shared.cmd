@@ -38,7 +38,7 @@ if exist "%_ROSSOURCEDIR%\config.rbuild" (
         echo *** aborting build. Please check for changes and       ***
         echo *** update your config.rbuild.                         ***
         echo.
-        goto :EOF
+        goto :EOB
     )
 )
 
@@ -55,4 +55,9 @@ call "%ROSBEBASEDIR%\Tools\buildtime.exe" %MAKE_COMMAND% 2>&1 | "%ROSBEBASEDIR%\
 ::
 :: highlight the fact that building has ended
 ::
-::call "%ROSBEBASEDIR%\Tools\flash.exe"
+call "%ROSBEBASEDIR%\Tools\flash.exe"
+
+goto :EOB
+
+:EOB
+title ReactOS Build Environment 0.3.7

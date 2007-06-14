@@ -36,3 +36,5 @@ set MAKE_COMMAND="%_MINGWMAKE%" -j %CPUCOUNT% %1
 :: Execute the shared build commands
 ::
 call "%ROSBEBASEDIR%\Build-Shared.cmd" %2
+
+title ReactOS Build Environment 0.3.7

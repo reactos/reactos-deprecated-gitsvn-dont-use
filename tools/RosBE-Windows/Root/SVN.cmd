@@ -50,6 +50,8 @@ if exist "%_ROSSOURCEDIR%\.svn\." (
 )
 if exist "%_ROSSOURCEDIR%\*.*" (
     echo Folder is not empty. Continuing is dangerous and can cause errors.
+    echo Press Strg+C to abort.
+    pause
     goto :SVN
 )
 
@@ -59,4 +61,3 @@ goto :ExitSVN
 
 :ExitSVN
 title ReactOS Build Environment 0.3.7
-pause
