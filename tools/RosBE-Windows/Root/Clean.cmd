@@ -91,7 +91,7 @@ if "%1" == "" (
     ) else (
         echo There is nothing to clean.
     )
-    goto :EOF
+    goto :EOC
 )
 if "%1" == "logs" (
     ::
@@ -106,9 +106,12 @@ if "%1" == "logs" (
     ) else (
         echo There are no logs to clean.
     )
-    goto :EOF
+    goto :EOC
 )
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
-    goto :EOF
+    goto :EOC
 )
+
+:EOC
+title ReactOS Build Environment 0.3.7

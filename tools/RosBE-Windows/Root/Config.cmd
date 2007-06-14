@@ -166,4 +166,7 @@ copy %ROSBEBASEDIR%\Tools\config.tmp %ROSBEBASEDIR%\Tools\config.rbuild
 del %ROSBEBASEDIR%\Tools\*.tmp
 copy %ROSBEBASEDIR%\Tools\config.rbuild %_ROSSOURCEDIR%\config.rbuild
 
+goto :NOK
+
 :NOK
+title ReactOS Build Environment 0.3.7
