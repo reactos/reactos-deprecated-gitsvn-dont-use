@@ -17,7 +17,7 @@ if "%1" == "" (
     echo    make [OPTIONS]  - make, without options does a standard build of
     echo                      ReactOS. OPTIONS are the standard ReactOS build
     echo                      options ie. "bootcd" and "strip" as second option
-    echo                      sets strip = yes.
+    echo                      sets striping to enabled.
     echo    makex [OPTIONS] - Same as 'make' but automatically determines the
     echo                      number of CPUs in the system and uses -j with the
     echo                      appropriate number.
@@ -33,14 +33,14 @@ if "%1" == "" (
     goto :EOF
 )
 if "%1" == "make" (
-    echo Usage: make [OPTIONS]
+    echo Usage: make [OPTIONS1] [OPTIONS2]
     echo make, without options does a standard build of ReactOS. OPTIONS are
     echo the standard ReactOS build options ie. "bootcd", "livecd", etc. "strip"
-    echo as second option sets strip = yes.
+    echo as second option sets stripping to enabled.
     goto :EOF
 )
 if "%1" == "makex" (
-    echo Usage: makex [OPTIONS]
+    echo Usage: makex [OPTIONS] [OPTIONS2]
     echo Same as 'make' but automatically determines the number of CPUs in the
     echo system and uses -j with the appropriate number.
     echo NOTE: The number makex uses can be modified by editing Build-Multi.cmd
@@ -63,6 +63,7 @@ if "%1" == "help" (
 if "%1" == "svn" (
     echo Usage: svn [OPTIONS]
     echo Creates, Updates or cleans up your ReactOS Source tree.
+    echo.
     echo    update - Updates to HEAD Revision.
     echo    create - Creates a new ReactOS Tree.
     echo    cleanup - Cleans up and fixes errors in Tree.
@@ -71,6 +72,7 @@ if "%1" == "svn" (
 if "%1" == "config" (
     echo Usage: config [OPTIONS]
     echo Creates a Configuration File, which tells RosBE how to build the Tree.
+    echo.
     echo    delete - Deletes the configuration File and so sets back to default
     goto :EOF
 )
