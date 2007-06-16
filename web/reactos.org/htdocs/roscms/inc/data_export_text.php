@@ -217,6 +217,8 @@
 		if (array_key_exists("stextsum", $_POST)) $RosCMS_POST_d_stextsum=htmlspecialchars($_POST["stextsum"]);
 		if (array_key_exists("plmsum", $_POST)) $RosCMS_POST_d_textsum=htmlspecialchars($_POST["plmsum"]);
 
+		echo "<h3>POST: ".$_POST["plm1"]."</h3>";
+
 		include("inc/data_edit.php");
 		include("inc/data_edit_tag.php");
 		
@@ -243,7 +245,7 @@
 														FROM data_revision
 														WHERE data_id = '".mysql_real_escape_string($RosCMS_GET_d_id)."'
 														AND rev_usrid = '".mysql_real_escape_string($roscms_intern_account_id)."'
-														AND rev_datetime LIKE '".mysql_real_escape_string(date("Y-m-d"))."%'
+														AND rev_date = '".mysql_real_escape_string(date("Y-m-d"))."'
 														AND rev_language = '".mysql_real_escape_string($RosCMS_intern_d_rev_lang)."'
 														ORDER BY rev_id DESC
 														LIMIT 1;");
@@ -322,7 +324,7 @@
 												VALUES (
 													NULL , 
 													'".mysql_real_escape_string($RosCMS_GET_d_id)."', 
-													'".mysql_real_escape_string($RosCMS_intern_d_rev_version)."', 
+													'".mysql_real_escape_string(0)/*$RosCMS_intern_d_rev_version*/."', 
 													'".mysql_real_escape_string($RosCMS_intern_d_rev_lang)."', 
 													'".mysql_real_escape_string($RosCMS_intern_d_rev_usrid)."', 
 													NOW( ),
@@ -332,7 +334,7 @@
 			$query_data_save_find_submit2 = mysql_query("SELECT rev_id
 														FROM data_revision
 														WHERE data_id = '".mysql_real_escape_string($RosCMS_GET_d_id)."'
-														AND rev_version = '".mysql_real_escape_string($RosCMS_intern_d_rev_version)."'
+														AND rev_version = '".mysql_real_escape_string(0)/*$RosCMS_intern_d_rev_version*/."'
 														AND rev_language = '".mysql_real_escape_string($RosCMS_intern_d_rev_lang)."'
 														AND rev_usrid = '".mysql_real_escape_string($roscms_intern_account_id)."'
 														ORDER BY rev_datetime DESC;");
@@ -367,14 +369,14 @@
 //				echo "<p>CONTENT###\n<br />".$_POST["plm".$i]."</p>";
 			}
 			
-			if ($RosCMS_GET_d_value3 == "submit") {
+			/*if ($RosCMS_GET_d_value3 == "submit") {
 //				echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'new', '-1');</h4>";
 				tag_add($RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], 'status', 'new', '-1');
 			}
 			else if ($RosCMS_GET_d_value3 == "draft") {
-//				echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'draft', '-1');</h4>";
+//				echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'draft', '-1');</h4>";*/
 				tag_add($RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], 'status', 'draft', '-1');
-			}
+			//}
 		}
 		else if ($RosCMS_intern_save_rev_id != "" && $RosCMS_GET_d_value3 == "draft") {
 			echo "<p>UPDATE</p>";
@@ -410,6 +412,7 @@
 																'".mysql_real_escape_string($_POST["plm".$i])."'
 															);");
 				}
+				echo "<p><pre>".$_POST["pdtext".$i].": <br />\n".$_POST["plm".$i]."</pre></p>";
 			}
 				
 		}

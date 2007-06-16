@@ -51,6 +51,8 @@ if (get_magic_quotes_gpc()) {
 		define ("ROSCMS_SYSTEM", "Version 0.1"); // to prevent hacking activity
 	}
 
+	$roscms_branch = "website";
+
 	// Global Vars:
 	$rpm_page="user";
 	$rpm_sec="";
@@ -140,10 +142,8 @@ if (get_magic_quotes_gpc()) {
 		default: // Frontpage
 			require("inc/login.php");
 			$rpm_page_title = $roscms_extern_brand ." - Home";
-			include("inc/head.php"); // Head
+			include("inc/header.php");
 			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");  // Layout-Structure
-			create_structure($rpm_page);
 			include("inc/home.php"); // Content
 			include("inc/body.php"); // Body
 			break;
@@ -273,10 +273,6 @@ if (get_magic_quotes_gpc()) {
 			include("inc/body.php");
 			break;
 
-		case "generate": // Generate the static HTML pages (for direct link, e.g. http://www.reactos.org/roscms/?page=generate");
-			//require("inc/login.php");
-			include("inc/generate_page.php"); // static page generator
-			break;
 			
 		case "webstatus": // Website Status
 			$rpm_page_title="Website Status";

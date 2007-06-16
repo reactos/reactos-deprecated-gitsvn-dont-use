@@ -1,4 +1,4 @@
-ReactOS Content Management System is available thanks to the work of
+ReactOS Content Management System version 3 is available thanks to the work of
 
 
 Klemens Friedl <frik85@reactos.org>

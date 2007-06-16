@@ -47,7 +47,7 @@ function create_head($page_title, $logo, $roscms_langres)
 	<meta name="Content-language" content="<?php echo $roscms_langres['lang_code']; ?>">
 	<meta name="Robots" content="noindex,nofollow" >
 	<link rel="SHORTCUT ICON" href="../favicon.ico" >
-	<link href="<?php echo $roscms_intern_path_server."roscms/"; ?>style_v2.css" type="text/css" rel="stylesheet" />
+	<link href="<?php echo $roscms_intern_path_server."roscms/"; ?>style_v3.css" type="text/css" rel="stylesheet" />
 	
 <?php 
 	if ($logo == "normal") {

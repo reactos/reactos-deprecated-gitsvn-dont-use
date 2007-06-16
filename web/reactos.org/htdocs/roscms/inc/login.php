@@ -131,6 +131,11 @@ if ($roscms_currentuser_login_user_account_enabled != "yes") {
 		$roscms_currentuser_login_user_account_enabled);
 }
 
+
+$roscms_security_level = 0;
+$roscms_security_memberships = "|";
+
+
 // check usergroup membership
 $query = "SELECT * " .
          "  FROM usergroup_members " .
@@ -141,6 +146,7 @@ while($roscms_login_usrgrp_member_list = mysql_fetch_array($roscms_login_usrgrp_
 		case "user": // normal user
 			$roscms_intern_usrgrp_user = true;
 			break;
+		case "transmaint": // translation maintainer
 		case "translator": // translator
 			$roscms_intern_usrgrp_trans = true;
 			break;
@@ -167,6 +173,20 @@ while($roscms_login_usrgrp_member_list = mysql_fetch_array($roscms_login_usrgrp_
 		default: // nothing
 			break;
 	}
+	
+		
+	$query_usergroup = mysql_query("SELECT * 
+									FROM usergroups 
+									WHERE usrgroup_name_id = '".mysql_real_escape_string($roscms_login_usrgrp_member_list['usergroupmember_usergroupid'])."'
+									LIMIT 1;");
+	$result_usergroup = mysql_fetch_array($query_usergroup);
+	
+	if ($result_usergroup['usrgroup_seclev'] > $roscms_security_level) {
+		$roscms_security_level = $result_usergroup['usrgroup_seclev'];
+	}
+	
+	$roscms_security_memberships .= $roscms_login_usrgrp_member_list['usergroupmember_usergroupid']."|";
+
 }
 
 // Account level:

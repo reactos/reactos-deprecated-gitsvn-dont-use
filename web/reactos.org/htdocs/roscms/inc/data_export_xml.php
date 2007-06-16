@@ -44,6 +44,9 @@
 		include("inc/data_edit_tag.php");
 
 		global $roscms_intern_account_id;
+		
+		global $roscms_security_level;
+		global $roscms_security_sql_read;
 
 		global $RosCMS_GET_d_curpos;
 		global $RosCMS_GET_d_arch;
@@ -67,15 +70,17 @@
 		$roscms_mtbl_cols2 = "";
 		$roscms_mtbl_translate = "";
 		$RosCMS_d_a = "";
+		$RosCMS_d_a2 = "";
+		
+		$temp_status_counter = 0;
 		
 		
 		header("Content-type: text/xml");
 		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");    // Date in the past
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); 
-															 // always modified
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT"); // always modified
 		header("Cache-Control: no-store, no-cache, must-revalidate");  // HTTP/1.1
 		header("Cache-Control: post-check=0, pre-check=0", false);
-		header("Pragma: no-cache");                          // HTTP/1.0
+		header("Pragma: no-cache");                          // HTTP/1.0col	
 		
 				
 		if ($RosCMS_GET_d_curpos == "") {
@@ -152,6 +157,7 @@
 						case 'k': // kind
 							if ($roscms_d_f2_typec == "archive") {
 								$RosCMS_d_a = "_a";
+								$RosCMS_d_a2 = "a";
 							}
 							break;
 					}
@@ -179,6 +185,8 @@
 							//die("hmm don't know this one: ".$roscms_d_f2_typea);
 							break;
 						case 'k': // kind (stable, new, draft, unknown)
+							$temp_status_counter++;
+
 							$roscms_d_tags = true;
 						
 							$roscms_d_filter2 .= " (n.tn_name = 'status'
@@ -228,7 +236,7 @@
 							
 							break;
 							
-						case 'y': // type	
+						case 'y': // type							
 							$roscms_d_filter2 .= "d.data_type";
 							
 							if ($roscms_d_f2_typeb == "is") {
@@ -362,8 +370,21 @@
 			$roscms_d_filter2 = "";
 		}
 		
+		// @FIXME:
+		/*if ($temp_status_counter == 0) {
+			$roscms_d_tags = true;
+			//echo "<p>COUNTER: ".$temp_status_counter."</p>";
+			if ($roscms_security_level > 1) {
+				$roscms_d_filter2 .= " AND (n.tn_name = 'status' AND v.tv_value != 'draft') ";
+			}
+			else {
+				$roscms_d_filter2 .= " AND (n.tn_name = 'status' AND (v.tv_value = 'new' OR v.tv_value = 'stable')) ";
+			}
+		}*/
+
+		
 		if ($roscms_d_stext == true) {
-			$roscms_sql_stext = ", data_stext s ";
+			$roscms_sql_stext = ", data_stext".$RosCMS_d_a." s ";
 			$roscms_sql_stext2 = ", s.stext_content ";
 			$roscms_sql_stext3 = " AND r.rev_id = s.data_rev_id ";
 			
@@ -375,7 +396,7 @@
 		}
 		
 		if ($roscms_d_tags == true) {
-			$roscms_sql_tags = ", data_tag a, data_tag_name n, data_tag_value v ";
+			$roscms_sql_tags = ", data_tag".$RosCMS_d_a." a, data_tag_name".$RosCMS_d_a." n, data_tag_value".$RosCMS_d_a." v ";
 			$roscms_sql_tags2 = ", n.tn_name, v.tv_value ";
 			$roscms_sql_tags3 = " AND r.data_id = a.data_id 
 									AND r.rev_id = a.data_rev_id 
@@ -388,11 +409,14 @@
 			$roscms_sql_tags2 = "";
 			$roscms_sql_tags3 = "";
 		}
+		
+				
 
 		$tzemp = "SELECT COUNT('d.data_id')
-											FROM data_revision".$RosCMS_d_a." r, data_ d ".$roscms_sql_stext." ".$roscms_sql_tags." 
+											FROM data_revision".$RosCMS_d_a." r, data_".$RosCMS_d_a2." d ".$roscms_sql_stext." ".$roscms_sql_tags." 
 											WHERE r.rev_version >= 0 
 											AND r.data_id = d.data_id 
+											". $roscms_security_sql_read ."
 											". $roscms_sql_stext3 ."
 											". $roscms_sql_tags3 ."
 											". $roscms_d_filter1 ."
@@ -421,6 +445,7 @@
 			$temp_status = "";
 			$temp_status2 = "";
 			$temp_counter = 1;
+			$temp_security = "";
 			
 						
 			if ($roscms_mtbl_order != "") {
@@ -436,10 +461,12 @@
 			$tdata .= "    <view curpos=\"".$RosCMS_GET_d_curpos."\" pagelimit=\"".$roscms_intern_entry_per_pag."\" pagemax=\"".$result_xml_ptm_count[0]."\" tblcols=\"".$roscms_mtbl_cols."\" /> \n";
 			
 			
-			$sql_xml_ptm = "SELECT d.data_id, d.data_name, d.data_type, r.rev_id, r.rev_version, r.rev_language, r.rev_datetime, r.rev_date, r.rev_usrid ".$roscms_sql_stext2." ".$roscms_sql_tags2."
-											FROM data_revision".$RosCMS_d_a." r, data_ d ".$roscms_sql_stext." ".$roscms_sql_tags."
+			$sql_xml_ptm = "SELECT d.data_id, d.data_name, d.data_type, r.rev_id, r.rev_version, r.rev_language, r.rev_datetime, r.rev_date, r.rev_usrid ".$roscms_sql_stext2." ".$roscms_sql_tags2." , y.sec_lev".mysql_real_escape_string($roscms_security_level)."_write 
+											FROM data_revision".$RosCMS_d_a." r, data_".$RosCMS_d_a2." d ".$roscms_sql_stext." ".$roscms_sql_tags." , data_security y
 											WHERE r.rev_version >= 0 
 											AND r.data_id = d.data_id 
+											AND d.data_acl = y.sec_name
+											". $roscms_security_sql_read ."
 											". $roscms_sql_stext3 ."
 											". $roscms_sql_tags3 ."
 											". $roscms_d_filter1 ."
@@ -495,7 +522,7 @@
 				}
 				else { // translation
 					$query_xml_ptm_trans = mysql_query("SELECT d.data_id, d.data_name, d.data_type, r.rev_id, r.rev_version, r.rev_language, r.rev_datetime, r.rev_date, r.rev_usrid 
-													FROM data_revision r, data_ d
+													FROM data_revision".$RosCMS_d_a." r, data_".$RosCMS_d_a2." d
 													WHERE d.data_id = '".mysql_real_escape_string($result_xml_ptm['data_id'])."'
 													AND r.rev_version >= 0 
 													AND d.data_id = r.data_id 
@@ -503,8 +530,10 @@
 													LIMIT 1");
 																										
 					$result_xml_ptm_trans = mysql_fetch_array($query_xml_ptm_trans);
-					echo "<p>DATE: ".$result_xml_ptm_trans['rev_datetime']."</p>";
-					if ($result_xml_ptm_trans['rev_datetime'] == "") {
+					
+//					echo "<p>DATE: ".$result_xml_ptm_trans['rev_datetime']."</p>";
+					
+					if ($result_xml_ptm_trans['rev_datetime'] == "") { // translation doesn't exist, so enable "translate mode"
 							$temp_status = "transb";
 
 						$tblentry_d_id = "tr".$result_xml_ptm['data_id'];
@@ -586,6 +615,10 @@
 						$roscms_mtbl_cols2 = "Unknown";
 					}
 				}
+				
+				if ($result_xml_ptm['sec_lev'.$roscms_security_level.'_write'] == 1) {
+					$temp_security = "write"; //roscms_security_check($tblentry_d_id);
+				}
 								
 				$tdata .= "    <row id=\"".$tblentry_d_id."\"";
 				$tdata .= " dname=\"".$tblentry_d_name."\"";
@@ -598,6 +631,7 @@
 				$tdata .= " star=\"". $temp_star ."\""; /* starred (on=1, off=0) */
 				$tdata .= " starid=\"". $temp_star2 ."\""; /* star tag id (from getTagId(...)) */
 				$tdata .= " status=\"". $temp_status ."\""; /* status (odd/even (=stable), new, draft, etc.) */
+				$tdata .= " security=\"". $temp_security ."\""; /* security (read, write, add, pub, trans) */
 				$tdata .= " xtrcol=\"".$roscms_mtbl_cols2."\"";
 				$tdata .= "><![CDATA[".substr($result_xml_ptm_stext['stext_content'], 0, 30)."]]></row>";	
 				
