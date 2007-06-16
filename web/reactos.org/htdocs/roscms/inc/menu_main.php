@@ -20,7 +20,8 @@
 ?>
 <div class="navTitle">RosCMS</div>
 	<ol>
-		<li><a href="?page=data">Pages</a></li>
+		<li><a href="?page=home">Welcome</a></li>
+		<li><a href="?page=data">Website</a></li>
 		<li><a href="?page=admin&amp;sec=users">Users</a></li>
 <?php
 	global $rpm_page;
@@ -34,7 +35,6 @@
 <?php
 	}
 ?>
-		<li><a href="?page=admin&sec=help">Help</a></li>
 	</ol>
 </div>
 <p></p>

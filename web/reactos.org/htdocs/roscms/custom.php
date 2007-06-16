@@ -22,11 +22,11 @@
 	
 	$roscms_extern_brand = "RosCMS";
 	$roscms_extern_version = "v3";
-	$roscms_extern_version_detail = "v3.0330";
+	$roscms_extern_version_detail = "v3.0614";
 	
-	$roscms_intern_webserver_pages = "http://localhost/reactos.org/";
+	$roscms_intern_webserver_pages = "http://www.reactos.org/";
 	
-	$roscms_intern_webserver_roscms = "http://localhost/reactos.org/roscms/";
+	$roscms_intern_webserver_roscms = "http://www.reactos.org/roscms/";
 	$roscms_intern_page_link = $roscms_intern_webserver_roscms . "?page=";
 	$roscms_intern_script_name =  $roscms_intern_page_link . $rpm_page;
 

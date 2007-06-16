@@ -29,14 +29,31 @@
 		define ("ROSCMS_SYSTEM_ADMIN", "Admin Interface"); // to prevent hacking activity
 	}*/
 
+	
+	$RosCMS_GET_branch = "";
+
+	if (array_key_exists("branch", $_GET)) $RosCMS_GET_branch=htmlspecialchars($_GET["branch"]);
+
+
+
+
 	if ($roscms_intern_usrgrp_policy_view_basic == true) { // view_basic
 		if ($rpm_site == "") {
 			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
 			//create_structure($rpm_page);
 		}
 	
-
-		include("inc/data_list.php");
+		switch ($RosCMS_GET_branch) {
+			default:
+			case "website":
+				include("inc/data_list.php");
+				break;
+			case "reactos":
+				require("inc/data_menu.php");
+				echo "<br />";
+				echo "<p>Currently not implemented!</p>";
+				break;
+		}
 
 	}
 	else { // for all other user groups

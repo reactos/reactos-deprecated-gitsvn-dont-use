@@ -23,8 +23,7 @@
 	{
 		die("Hacking attempt");
 	}
-	
-	global $roscms_intern_account_id;
+		global $roscms_intern_account_id;
 	
 	$RosCMS_GET_d_format = ""; // data export format (xml, text)
 	$RosCMS_GET_d_use = ""; // data usage (where the data will be used)
@@ -49,8 +48,6 @@
 	$RosCMS_GET_d_template = ""; // data template
 
 
-	
-	
 	if (array_key_exists("d_f", $_GET)) $RosCMS_GET_d_format=htmlspecialchars($_GET["d_f"]);
 	if (array_key_exists("d_u", $_GET)) $RosCMS_GET_d_use=htmlspecialchars($_GET["d_u"]);
 	if (array_key_exists("d_filter", $_GET)) $RosCMS_GET_d_filter=htmlspecialchars($_GET["d_filter"]);
@@ -73,7 +70,15 @@
 	if (array_key_exists("d_r_usr", $_GET)) $RosCMS_GET_d_r_usr=htmlspecialchars($_GET["d_r_usr"]);
 	if (array_key_exists("d_template", $_GET)) $RosCMS_GET_d_template=htmlspecialchars($_GET["d_template"]);
 	
-
+	
+	if ($RosCMS_GET_d_arch == "true") {
+		$h_a = "_a";
+		$h_a2 = "a";
+	}
+	else {
+		$h_a = "";
+		$h_a2 = "";
+	}
 	
 	switch ($RosCMS_GET_d_format) {
 		default:

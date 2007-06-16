@@ -26,6 +26,8 @@
 	
 	global $roscms_intern_account_id;
 	global $roscms_intern_login_check_username;
+	global $roscms_security_level;
+	global $roscms_security_memberships;
 	
 	$roscms_intern_entry_per_pag = 25;
 	
@@ -34,9 +36,15 @@
 <script type="text/javascript" language="javascript">
 <!--
 	/* Global Vars */
+	var roscms_branch = 'website';
+	
 	var roscms_current_page = 'new';
 	var roscms_prev_page = 'new';
 	var roscms_current_tbl_position = 0;
+	
+	var roscms_archive = 0;
+	
+	var autosave_coundown = 100000; // 10000
 	
 	var submenu_button = '';
 	
@@ -300,6 +308,50 @@
 		return n_ids + "|"+ mvstr.substr(2, mvstr.length);
 	}
 	
+	function select_inverse() {
+		var currentcolor, rownum;
+		
+		for (var i=1; i<=nres; i++) {
+			rownum = i;
+			currentcolor = document.getElementById("tr"+i).getElementsByTagName('td')[1].style.backgroundColor;
+			if(currentcolor == "rgb(255, 204, 153)" || currentcolor == "#ffcc99") {
+				
+				rowstatus = document.getElementById("tr"+rownum).className;
+				if (rowstatus == 'odd' || rowstatus == 'even') {
+					if (rownum%2) setrowcolor(rownum,"#dddddd");
+					else setrowcolor(rownum,"#eeeeee");
+				}
+				else if(rowstatus == 'new') {
+					setrowcolor(rownum,"#B5EDA3");
+				}
+				else if(rowstatus == 'draft') {
+					setrowcolor(rownum,"#FFE4C1");
+				}
+				else if(rowstatus == 'transg') {
+					setrowcolor(rownum,"#A3EDB4");
+				}
+				else if(rowstatus == 'transb') {
+					setrowcolor(rownum,"#D6CAE4");
+				}
+				else if(rowstatus == 'transr') {
+					setrowcolor(rownum,"#FAA5A5");
+				}
+				else {
+					setrowcolor(rownum,"#FFCCFF");
+				}
+				document.getElementById("cb"+i).checked = false;
+				markedrows["tr"+i]=0;
+
+			}
+			else {
+				setrowcolor(rownum,"#ffcc99");	
+				document.getElementById("cb"+i).checked = true;
+				markedrows["tr"+i]=1;
+
+			}
+		}
+	}
+	
 	function select_stars(zeroone) {
 		select_all(0); /* deselect all */
 		
@@ -380,150 +432,7 @@
 	
 -->
 </script>
-<style type="text/css">
-<!--
 
-	.roscms_page {
-		padding-bottom:		1ex;
-		padding-left:		1ex;
-		padding-right:		1ex;
-		padding-top:		1ex;
-	}
-
-	#myReactOS {
-		text-align:			right;
-	}
-	
-	.tc1 {
-		background:transparent url(images/corner_tl_sharp.gif) no-repeat scroll left top;
-		height:4px;
-	}
-	.tc2 {
-		background:transparent url(images/corner_tr_sharp.gif) no-repeat scroll right top;
-		height:4px;
-		padding:1px 6px;
-	}
-	.tc3 {
-		cursor:pointer;
-		font-weight:bold;
-		text-align:center;
-	}
-	
-	table#mt th {
-		background-color:#E5ECF9;
-		cursor:pointer;
-		font-weight:bold;
-		text-align:center;
-	}	
-	
-	table#mt div.tT {
-		font-family:arial,sans-serif;
-		font-size:small;
-		padding:0px 1em 2px;
-	}
-	
-	#mt {
-		margin-top:0.5ex;
-	}
-	
-	table {
-		border-collapse:separate;
-	}
-	
-	table#mt div.tT a {
-		color: #000000;
-		text-decoration: none;
-	}
-	 
-	table#mt div.tT a:hover {
-		color: #000000;
-		background-color: #E5ECF9;
-		text-decoration: none;
-	}
-	
-	table#mt th.int2 {
-		background-color: #C9DAF8;
-	}	
-	
-	table#mt th.int2 a:hover {
-		color: #000000;
-		background-color: #C9DAF8;
-	}	
-	
-	.submenu {
-		margin-left: -6px; /* fix FF glitch */
-		margin-right: -5.5px; /* fix FF glitch */
-		padding-top: 4px;
-		padding-right: 3px;
-		padding-bottom: 3px;
-		padding-left: 4px;
-		background-color: #C9DAF8;
-		background-image: none;
-		background-repeat: repeat;
-		background-attachment: scroll;
-		background-x-position: 0%;
-		background-y-position: 0%;
-	}
-.style1 {font-family: Arial, Helvetica, sans-serif}
-.style2 {font-size: smaller}
-		
--->
-</style>
-<script type="text/JavaScript">
-<!--
-	/*
-		function MM_jumpMenu(targ,selObj,restore){ //v3.0
-		  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
-		  if (restore) selObj.selectedIndex=0;
-		} 
-	*/
-//-->
-</script>
-<div id="myReactOS" style="padding-right: 10px;">
-	<b><?php echo $roscms_intern_login_check_username; ?></b> | <a href="<?php echo $roscms_intern_page_link; ?>user">myReactOS</a>| <a href="#">Settings</a> | <a href="#">Help</a> | <a href="<?php echo $roscms_intern_page_link; ?>logout">Sign out</a>  
-</div>
-<div class="roscms_page">
-	<table id="mt" border="0" cellpadding="0" cellspacing="0" width="100%">
-	  <tbody>
-		<tr>
-		  <th class="int1" onclick="if (!cancelBubble) _go('/p/google-summer-of-code/');"> <div class="tc1">
-			<div class="tc2">
-			  <div class="tc3"></div>
-			</div>
-		  </div>
-			  <div class="tT"><a onclick="cancelBubble=true;" href="#">Welcome</a></div></th>
-		  <td>&nbsp;&nbsp;</td>
-		  <th class="int2" onclick="if (!cancelBubble) _go('/p/google-summer-of-code/downloads/list');"> <div class="tc1">
-			<div class="tc2">
-			  <div class="tc3"></div>
-			</div>
-		  </div>
-			  <div class="tT"><a onclick="cancelBubble=true;" href="#">Pages</a></div></th>
-		  <td>&nbsp;&nbsp;</td>
-		  <th class="int6" onclick="if (!cancelBubble) _go('/p/google-summer-of-code/w/list');"> <div class="tc1">
-			<div class="tc2">
-			  <div class="tc3"></div>
-			</div>
-		  </div>
-			  <div class="tT"><a onclick="cancelBubble=true;" href="#">Users</a></div></th>
-		  <td>&nbsp;&nbsp;</td>
-		  <th class="int3" onclick="if (!cancelBubble) _go('/p/google-summer-of-code/issues/list');"> <div class="tc1">
-			<div class="tc2">
-			  <div class="tc3"></div>
-			</div>
-		  </div>
-			  <div class="tT"><a onclick="cancelBubble=true;" href="#">Settings</a></div></th>
-		  <td>&nbsp;&nbsp;</td>
-		  <td width="100%"><div align="right" id="ajaxloadinginfo" style="visibility:hidden;"><img src="images/ajax_loading.gif" alt="loading ..." width="13" height="13" /></div></td>
-		</tr>
-	  </tbody>
-	</table>
-	
-	<div class="tc2" style="background-color:#C9DAF8;">
-		<div class="submenu" style="font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;">
-			Quick Links: <a href="#">Help</a>, <a href="#">Video Tutorials</a>, <a href="#">Website Forum</a>
-		</div>
-	</div>
 	<style type="text/css">
 	<!--
 	
@@ -899,7 +808,7 @@
 		}
 	-->
 	</script>
-	
+<?php require("inc/data_menu.php"); ?>
 	<div class="spacer">&nbsp;</div>
 	<div align="center" style="padding-top: 8px; padding-bottom: 5px;">
 		<div id="alertb" class="infobox" style="visibility:hidden;">
@@ -919,33 +828,35 @@
 	
 	<div class="roscms_container" style="border: 1px dashed white; z-index: 2;">
 		<div class="tabmenu" style="position: absolute; top: 0px; width: 150px; left: 0px; border: 0px; z-index:1;">
-			<div id="smenutab1" class="submb" onclick="smenutab_open(this.id)">
+			<div id="smenutab1" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc1" class="subm2"><b>New Entry</b></div>
 				</div>
 			</div>
-			<div style="background: #FFFFFF none repeat scroll 0%;">&nbsp;</div>
+			<?php if ($roscms_security_level > 1) { ?>
+				<div style="background: #FFFFFF none repeat scroll 0%;">&nbsp;</div>
+			<?php } ?>
 			<div id="smenutab2" class="subma" onclick="smenutab_open(this.id)">
 				<div class="subm1">
 					<div id="smenutabc2" class="subm2"><b>New</b></div>
 				</div>
 			</div>
-			<div id="smenutab3" class="submb" onclick="smenutab_open(this.id)">
+			<div id="smenutab3" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc3" class="subm2">Page</div>
 				</div>
 			</div>
-			<div id="smenutab4" class="submb" onclick="smenutab_open(this.id)">
+			<div id="smenutab4" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc4" class="subm2">Content</div>
 				</div>
 			</div>
-			<div id="smenutab5" class="submb" onclick="smenutab_open(this.id)">
+			<div id="smenutab5" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc5" class="subm2">Template</div>
 				</div>
 			</div>
-			<div id="smenutab6" class="submb" onclick="smenutab_open(this.id)">
+			<div id="smenutab6" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc6" class="subm2">Script</div>
 				</div>
@@ -1300,6 +1211,7 @@
 					*/
 				?>
 
+				roscms_archive = 0;
 				
 				switch(objid.substring(8)) {
 					case '1':
@@ -1332,11 +1244,11 @@
 						load_frametable('translate');
 						break;
 					case '8':
-						filtstring2 = 'k_no_draft|l_is_'+getlang()+'|o_asc_name';
+						filtstring2 = 'k_no_draft_0|l_is_'+getlang()+'|o_desc_revid';
 						load_frametable('all');
 						break;
 					case '9':
-						filtstring2 = 's_is_true_0|l_is_'+getlang()+'|o_desc_revid';
+						filtstring2 = 's_is_true_0|l_is_'+getlang()+'_0|o_desc_revid';
 						load_frametable('starred');
 						break;
 					case '10':
@@ -1348,7 +1260,8 @@
 						load_frametable('my');
 						break;
 					case '12':
-						filtstring2 = 'k_is_archive_0|l_is_'+getlang()+'_0';
+						filtstring2 = 'k_is_archive_0|l_is_'+getlang()+'_0|o_asc_name';
+						roscms_archive = 1; /* activate archive mode*/
 						load_frametable('my');
 						break;
 				}
@@ -1423,11 +1336,6 @@
 						document.getElementById('frmedithead').innerHTML = '<span class="l" onclick="load_frametable_cp2(roscms_current_tbl_position)"><strong>&laquo; Back</strong></span> &nbsp; <b>Compare two Entries</b>';
 						break;
 					default:
-						roscms_prev_page = roscms_current_page;
-						roscms_current_page = objevent;
-
-						document.getElementById('frmedithead').innerHTML = '<span class="l" onclick="load_frametable_cp2(roscms_current_tbl_position)"><strong>&laquo; Back</strong></span> &nbsp; <b>Edit Entry</b>';
-						autosave_timer = window.setTimeout("autosave_try()", 10000);
 						if (entryid.indexOf("|") > -1) { 
 							var devideids1 = ''
 							var devideids2 = ''
@@ -1435,6 +1343,21 @@
 							devideids1 = entryid.indexOf("|");
 							devideids2 = entryid.substr(2, devideids1-2);
 							devideids3 = entryid.substr(devideids1+1);
+
+							if (devideids2.substr(0,2) == 'tr') {
+								/*uf_check = confirm("Do you want to translate this entry?");
+								if (uf_check != true) {
+									break;
+								}*/
+								alertbox('Translation functions is still partly unimplemented.');
+							}
+
+							roscms_prev_page = roscms_current_page;
+							roscms_current_page = objevent;
+	
+							document.getElementById('frmedithead').innerHTML = '<span class="l" onclick="load_frametable_cp2(roscms_current_tbl_position)"><strong>&laquo; Back</strong></span> &nbsp; <b>Edit Entry</b>';
+							autosave_timer = window.setTimeout("autosave_try()", autosave_coundown);
+
 												
 							//alert(devideids2+', '+devideids3);
 							document.getElementById('txttabelle').value = '?page=data_out&d_f=text&d_u=mef&d_fl='+objevent+'&d_id='+devideids2+'&d_r_id='+devideids3;
@@ -1543,7 +1466,7 @@
 													break;
 												case 'y': /* type */
 													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="page">Page</option><option value="content">Content</option><option value="template">Template</option><option value="script">Script</option></select>';
+													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="page">Page</option><option value="content">Content</option><option value="template">Template</option><option value="script">Script</option><option value="system">System</option></select>';
 													break;
 												case 's': /* starred */
 													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option></select>';
@@ -1684,8 +1607,12 @@
 													
 													if (lstfilterstr2[3] == 0) {
 														filtvisibility = 0;
+														<?php if ($roscms_security_level > 1) { ?>
 														lstfilterstr +=  '<span style="font-style: italic;">';
-														//lstfilterstr +=  '<span style="display: none">';
+														<?php } else { ?>
+														lstfilterstr +=  '<span style="display: none">';
+														<?php } ?>
+
 													}
 													else {
 														filtvisibility = 1;
@@ -1869,8 +1796,15 @@
 							  <div style="padding-top: 5px;">
 									<button type="button" id="cmddiff" style="font-weight: bold;" onclick="diffentries()">Compare</button> 
 									<button type="button" id="cmdpreview" onclick="bpreview()">Preview</button> 
-									<button type="button" id="cmdstable" onclick="bchangetags('ms')">Stable</button> 
-									<button type="button" id="cmdrefresh" onclick="pagerefresh()">Refresh</button>
+									<button type="button" id="cmdstable" onclick="bchangetags('mn')">Ready</button> 
+									<?php 
+										if ($roscms_security_level >= 2) {
+									?>
+										<button type="button" id="cmdstable" onclick="bchangetags('ms')">Stable</button> 
+									<?php
+										}
+									?>
+									<button type="button" id="cmdrefresh" onclick="load_frametable_cp2(roscms_current_tbl_position)">Refresh</button>&nbsp;
 									<select name="extraopt" id="extraopt" style="vertical-align: top; width: 22ex;" onchange="bchangetags(this.value)">
                                       <option value="sel" style="color: rgb(119, 119, 119);">More actions...</option>
                                       <option value="as">&nbsp;&nbsp;&nbsp;Add star</option>
@@ -1891,10 +1825,10 @@
                                     </select>
 							  </div>
 								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><strong><span id="mtblnav">&nbsp;</span></strong></div>
-								<div class="tabselect">Select: <span class="l" onclick="select_all(1)">All</span>, <span class="l" onclick="javascript:select_all(0)">None</span>, <span class="l" onclick="select_stars(1)">Starred</span>, <span class="l" onclick="select_stars(0)">Unstarred</span>, <span class="l" onclick="select_nds('stable')">Stable</span>, <span class="l" onclick="select_nds('new')">New</span>, <span class="l" onclick="select_nds('draft')">Draft</span>, <span class="l" onclick="select_nds('unknown')">Unknown</span><?php /* &nbsp; <span class="l" onclick="do_something()">marked?</span> */ ?></div>
+								<div class="tabselect">Select: <span class="l" onclick="select_all(1)">All</span>, <span class="l" onclick="javascript:select_all(0)">None</span>, <span class="l" onclick="select_inverse()">Inverse</span>, <span class="l" onclick="select_stars(1)">Starred</span>, <span class="l" onclick="select_stars(0)">Unstarred</span>, <span class="l" onclick="select_nds('stable')">Stable</span>, <span class="l" onclick="select_nds('new')">New</span>, <span class="l" onclick="select_nds('draft')">Draft</span>, <span class="l" onclick="select_nds('unknown')">Unknown</span><?php /* &nbsp; <span class="l" onclick="do_something()">marked?</span> */ ?></div>
 								<div id="tablist">&nbsp;</div>
 								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><strong><span id="mtbl2nav">&nbsp;</span></strong></div>
-								<div class="tabselect">Select: <span class="l" onclick="select_all(1)">All</span>, <span class="l" onclick="javascript:select_all(0)">None</span>, <span class="l" onclick="select_stars(1)">Starred</span>, <span class="l" onclick="select_stars(0)">Unstarred</span>, <span class="l" onclick="select_nds('stable')">Stable</span>, <span class="l" onclick="select_nds('new')">New</span>, <span class="l" onclick="select_nds('draft')">Draft</span>, <span class="l" onclick="select_nds('unknown')">Unknown</span></div>
+								<div class="tabselect">Select: <span class="l" onclick="select_all(1)">All</span>, <span class="l" onclick="javascript:select_all(0)">None</span>, <span class="l" onclick="select_inverse()">Inverse</span>, <span class="l" onclick="select_stars(1)">Starred</span>, <span class="l" onclick="select_stars(0)">Unstarred</span>, <span class="l" onclick="select_nds('stable')">Stable</span>, <span class="l" onclick="select_nds('new')">New</span>, <span class="l" onclick="select_nds('draft')">Draft</span>, <span class="l" onclick="select_nds('unknown')">Unknown</span></div>
 							</div>
 							<div id="frameedit" style="display: block; border: 0px dashed red; ">
 								<script type="text/javascript" language="javascript">
@@ -1974,6 +1908,7 @@
 											if (instatinymce != null) {
 //												alert('[TinMCE Text] i: '+i+'; mce-content: '+instatinymce);
 												poststr += "&plm"+i+"=" + encodeURI(instatinymce);
+//												alert('[TinMCE Text - 2.] i: '+i+'; mce-content: '+poststr);
 											}
 											else {
 //												alert('[Plain Text] i: '+i+'; txt-content: '+document.getElementById("elm"+i).value);
@@ -1989,6 +1924,7 @@
 									function edit_form_submit_draft(did, drid) {
 										edit_form_submit_draft_autosave(did, drid);
 										
+										document.getElementById("bsavedraft").disabled = true;
 										//alert('a'+roscms_current_tbl_position);
 										
 										load_frametable_cp2(roscms_current_tbl_position);
@@ -2002,7 +1938,7 @@
 
 										poststr = prepair_edit_form_submit();
 										
-//										alert('save_draft::: '+poststr.substr(1))
+//										alert('save_draft::::::::\n\n '+poststr.substr(1));
 										
 										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURI(did)+'&d_r_id='+encodeURI(drid)+'&d_r_lang='+encodeURI(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURI(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURI(document.getElementById("estextcount").className)+'&d_val2='+encodeURI(document.getElementById("elmcount").className)+'&d_val3=draft';
 										document.getElementById('txttabelle').value = usf_req;
@@ -2013,7 +1949,9 @@
 										var usf_req = '';
 										var poststr = "";
 										poststr = prepair_edit_form_submit();
-										
+						
+										document.getElementById("bsavenew").disabled = true;
+
 //										alert('??edit_form_submit: '+encodeURI(did)+' | '+encodeURI(drid));
 										//alert('lang: '+document.getElementById("mefrlang").innerHTML);
 
@@ -2029,13 +1967,13 @@
 										window.clearTimeout(autosave_timer);
 										
 										if (autosave_cache != prepair_edit_form_submit() && autosave_cache != '') {
-											alert('auto-save: '+prepair_edit_form_submit() +' vs. '+ autosave_cache);
+//											alert('auto-save: (txtbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
 											
 //											alert('!!!autosave_try: '+t_d_id+' vs. '+document.getElementById("entrydataid").className+' | '+t_d_revid+' vs. '+document.getElementById("entrydatarevid").className);
 											edit_form_submit_draft_autosave(document.getElementById("entrydataid").className, document.getElementById("entrydatarevid").className);
 										}
 
-										autosave_timer = window.setTimeout("autosave_try()", 10000); // 10000
+										autosave_timer = window.setTimeout("autosave_try()", autosave_coundown); // 10000
 									}
 									
 									function changecreateinterface() {
@@ -2128,12 +2066,12 @@
 										}
 										
 										document.getElementById('extraopt').value = 'sel';
-										document.getElementById('cmddiff').focus();
+										//document.getElementById('cmddiff').focus();
 									}
 
 
 									function bchangetags(ctk) {
-										if ((document.getElementById('extraopt').value != 'sel' && document.getElementById('extraopt').value != 'no') || ctk == 'ms') {
+										if ((document.getElementById('extraopt').value != 'sel' && document.getElementById('extraopt').value != 'no') || ctk == 'ms' || ctk == 'mn') {
 											
 											var tentrs = selectedEntries().split("|");
 											if (tentrs[0] < 1 || tentrs[0] == '') {
@@ -2274,16 +2212,23 @@
 			kind = 'GET';
 		}
 		
+		if (roscms_archive == 1) {
+			url = url + '&d_arch=true';
+		}
+		
 		if (kind == 'GET') {
 			http_request.onreadystatechange = function() { alertContents(http_request, action, objid); };
 			http_request.open('GET', url, true);
+			http_request.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");	// Bypass the IE Cache
 			http_request.send(null);
 		}
 		else if (kind == 'POST') {
 			http_request.onreadystatechange = function() { alertContents(http_request, action, objid); };
 			http_request.open('POST', url, true);
+//			alert('POST (length: '+parameters.length+'):\n\n:'+ parameters);
 			http_request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			http_request.setRequestHeader("Content-length", parameters.length);
+			http_request.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");	// Bypass the IE Cache
 			http_request.setRequestHeader("Connection", "close");
 			http_request.send(parameters);
 		}
@@ -2348,7 +2293,7 @@
 
 			//alert(xview[0].getAttributeNode("curpos").value+' >= '+<?php echo $roscms_intern_entry_per_pag; ?>*2);
 			if (xview[0].getAttributeNode("curpos").value >= <?php echo $roscms_intern_entry_per_pag; ?>*2) {
-				mtblnavstr += '<span class="l" onclick="load_frametable_cp(0)">&laquo;s</span>&nbsp;&nbsp;';
+				mtblnavstr += '<span class="l" onclick="load_frametable_cp(0)">&laquo;</span>&nbsp;&nbsp;';
 			}
 			
 			//alert(xview[0].getAttributeNode("curpos").value+' >= '+<?php echo $roscms_intern_entry_per_pag; ?>);
@@ -2417,6 +2362,7 @@
 												xrow[i].getAttributeNode("star").value,
 												xrow[i].getAttributeNode("starid").value,
 												xrow[i].getAttributeNode("rusrid").value,
+												xrow[i].getAttributeNode("security").value,
 												xrow[i].getAttributeNode("xtrcol").value,
 												xrow[i].firstChild.data
 											);
@@ -2481,7 +2427,7 @@
 		lstHeader = null;
 	}	
 	
-	function page_table_body( bnr, bclass, bid, bdname, btype, brid, brver, brlang, brdate, bstar, bstarid, brusrid, xtrtblcol, bdesc) {
+	function page_table_body( bnr, bclass, bid, bdname, btype, brid, brver, brlang, brdate, bstar, bstarid, brusrid, security, xtrtblcol, bdesc) {
 		//var xtrtblcols2 = xtrtblcols.split('|');
 		var lstBody = '';
 		
@@ -2499,7 +2445,11 @@
 		/*lstBody += '<td class="rv'+bid+'|'+brid+'"><div id="bstar'+(bnr+1)+'" class="'+bstatus+'">&nbsp;</div></td>';*/
 		lstBody += '<td class="rv'+bid+'|'+brid+'">'+bdname+'</td>';
 		lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
-		lstBody += '<td class="rv'+bid+'|'+brid+'"><div class="cell-height">'+btype+' <span class="tcp">'+bdesc+'</span></div></td>';
+		lstBody += '<td class="rv'+bid+'|'+brid+'"><div class="cell-height">';
+		if (security.indexOf("write") < 0 ) { // not found -> readonly
+			lstBody += '<img src="images/locked.gif" alt="read-only" style="width:11px; height:12px; border:0px;" /> ';
+		}
+		lstBody += btype+' <span class="tcp">'+bdesc+'</span></div></td>';
 
 		if (xtrtblcol != '') {
 			lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
@@ -2589,9 +2539,10 @@
 			default:
 				document.getElementById(objid).innerHTML = http_request.responseText;
 				autosave_cache = prepair_edit_form_submit();
-				alert('fill cache: '+prepair_edit_form_submit() +' vs. '+ autosave_cache);
+//				alert('fill cache: (textbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
 				break;
 		}
+		//alert('load: '+tsplits[0]);
 	}
 	
 	function autosave_info(http_request, objid) {
@@ -2599,6 +2550,23 @@
 			case 'mefasi':
 				//alert('test');
 				alertbox('<i>draft:</i> '+http_request.responseText);
+				
+				var tempcache = prepair_edit_form_submit();
+				
+				if (autosave_cache != tempcache) {
+					autosave_cache = prepair_edit_form_submit();			
+				}
+				
+//				alert('fill cache: (textbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
+				
+				var d = new Date();
+				var curr_hour = d.getHours();
+				var curr_min = d.getMinutes();
+				
+				if (curr_hour.length == 1) curr_hour = '0'+curr_hour;
+				if (curr_min.length == 1) curr_min = '0'+curr_min;
+				
+				document.getElementById('mefasi').innerHTML = 'Draft saved at '+ curr_hour +':'+ curr_min;
 				break;
 			case 'alert':
 				window.clearTimeout(autosave_timer);
@@ -2609,6 +2577,7 @@
 				alert('autosave_info() with no args');
 				break;
 		}
+//		alert('load_2: '+objid);
 	}
 	
 	function uf_storage(http_request, objid) {
@@ -2650,12 +2619,7 @@
 			bchangetag(devideids2, devideids3, 'star', dtv, dusr, devide2[1], objid, '3');
 		}
 	}
-		
-	function pagerefresh() {
-		exitmsg = '';
-		window.location.href = '<?php echo $roscms_intern_script_name; ?>&ptab='+roscms_current_page;
-	}
-	
+			
 -->
 </script>
 
