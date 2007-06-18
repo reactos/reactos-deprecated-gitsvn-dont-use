@@ -36,6 +36,20 @@ if "%1" == "create" (
         goto :SVN
     )
 )
+if "%1" == "status" (
+    title Status
+    call "%ROSBEBASEDIR%\Tools\svn.exe" info %_ROSSOURCEDIR% > "%ROSBEBASEDIR%\x.tmp"
+    echo Recent Offline Revision:
+    call "%ROSBEBASEDIR%\Tools\grep.exe" Revision: %ROSBEBASEDIR%\x.tmp|"%ROSBEBASEDIR%\Tools\cut.exe" -d " " -f 2
+    del "%ROSBEBASEDIR%\x.tmp"
+
+    call "%ROSBEBASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos > "%ROSBEBASEDIR%\x.tmp"
+    echo Online HEAD Revision:
+    call "%ROSBEBASEDIR%\Tools\grep.exe" Revision: %ROSBEBASEDIR%\x.tmp|"%ROSBEBASEDIR%\Tools\cut.exe" -d " " -f 2
+    del "%ROSBEBASEDIR%\x.tmp"
+    goto :ExitSVN
+)
+
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :ExitSVN
