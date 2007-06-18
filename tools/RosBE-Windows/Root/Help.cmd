@@ -25,7 +25,7 @@ if "%1" == "" (
     echo                      RosBE build logs.
     echo    help [COMMAND]  - Display the available commands or help on a
     echo                      specific command.
-    echo    svn [OPTIONS]   - Create, Update or clean up your ReactOS Source
+    echo    svn [OPTIONS]   - Create, Update or Clean-up your ReactOS Source
     echo                      Tree or show the Status.
     echo    config [OPTIONS]- Configures the way, ReactOS will be built.
     echo.
