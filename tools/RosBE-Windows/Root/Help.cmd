@@ -26,7 +26,7 @@ if "%1" == "" (
     echo    help [COMMAND]  - Display the available commands or help on a
     echo                      specific command.
     echo    svn [OPTIONS]   - Create, Update or clean up your ReactOS Source
-    echo                      Tree.
+    echo                      Tree or show the Status.
     echo    config [OPTIONS]- Configures the way, ReactOS will be built.
     echo.
     echo    basedir         - Switch back to the ReactOS source directory.
@@ -64,10 +64,12 @@ if "%1" == "svn" (
     echo Usage: svn [OPTIONS]
     echo Creates, Updates or cleans up your ReactOS Source Tree.
     echo.
-    echo    update - Updates to HEAD Revision or to a specific one when
-    echo    second parameter specifies one.
-    echo    create - Creates a new ReactOS Tree.
+    echo    update  - Updates to HEAD Revision or to a specific one when
+    echo              second parameter specifies one.
+    echo    create  - Creates a new ReactOS Tree.
     echo    cleanup - Cleans up and fixes errors in Tree.
+    echo    status  - Shows Actual offline Revision Number and online HEAD
+    echo              Revision Number.
     goto :EOF
 )
 if "%1" == "config" (
