@@ -1,8 +1,8 @@
-BASEDIR = cd /d "%_ROSSOURCEDIR%"
-CLEAN   = "%ROSBEBASEDIR%\Clean.cmd" $*
-SVN     = "%ROSBEBASEDIR%\SVN.cmd" $*
-CONFIG  = "%ROSBEBASEDIR%\Config.cmd" $*
-HELP    = "%ROSBEBASEDIR%\Help.cmd" $*
-MAKE    = "%ROSBEBASEDIR%\Build.cmd" $*
-MAKEX   = "%ROSBEBASEDIR%\Build-Multi.cmd" $*
-RELADDR2LINE = "%ROSBEBASEDIR%\reladdr2line.cmd" $*
+BASEDIR    = cd /d "%_ROSSOURCEDIR%"
+CLEAN      = "%ROSBEBASEDIR%\Clean.cmd" $*
+SVN        = "%ROSBEBASEDIR%\SVN.cmd" $*
+CONFIG     = "%ROSBEBASEDIR%\Config.cmd" $*
+HELP       = "%ROSBEBASEDIR%\Help.cmd" $*
+MAKE       = "%ROSBEBASEDIR%\Build.cmd" $*
+MAKEX      = "%ROSBEBASEDIR%\Build-Multi.cmd" $*
+RADDR2LINE = "%ROSBEBASEDIR%\RAddr.cmd" $*
