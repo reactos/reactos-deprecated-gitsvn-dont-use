@@ -25,6 +25,7 @@
 	$getbuilds_langres["nextrev"] = "Next revision";
 	$getbuilds_langres["showrev"] = "Show";
 	$getbuilds_langres["gettinglist"] = "Getting file list";
+	$getbuilds_langres["rangeinfo"] = "You can enter a revision number (e.g. <i>27154</i>) or a revision range (e.g. <i>27000-27154</i>).";
 	$getbuilds_langres["filename"] = "File name";
 	$getbuilds_langres["filesize"] = "Size";
 	$getbuilds_langres["filedate"] = "Last changed";
