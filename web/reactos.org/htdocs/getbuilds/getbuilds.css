@@ -1,0 +1,134 @@
+/*
+  PROJECT:    ReactOS Website
+  LICENSE:    GPL v2 or any later version
+  FILE:       web/reactos.org/htdocs/getbuilds/getbuilds.css
+  PURPOSE:    Easily download prebuilt ReactOS Revisions
+  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+*/
+
+body {
+	font-family: Verdana, Arial, Helvetica;
+	font-size: 10pt;
+}
+
+h2 {
+	font-size: 22px;
+	color: #5984C3;
+	font-weight: bold;
+	margin-top: 15px;
+}
+
+h3 {
+	font-size: 10pt;
+	color: black;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 1em;
+}
+
+.bubble_bg {
+	background: #C9DAF8 none repeat scroll 0%;
+	margin-bottom: 5pt;
+}
+
+.bubble {
+	padding: 8px;
+}
+
+.rounded_ul {
+	background: transparent url(images/ul.gif) no-repeat scroll left top;
+}
+.rounded_ur {
+	background: transparent url(images/ur.gif) no-repeat scroll right top;
+}
+.rounded_ll {
+	background: transparent url(images/ll.gif) no-repeat scroll left bottom;
+}
+.rounded_lr {
+	background: transparent url(images/lr.gif) no-repeat scroll right bottom;
+}
+
+ul.web {
+	list-style-image: url(images/web.png);
+	margin-top: 0;
+	margin-bottom: 1em;
+}
+
+ul.web li {
+	vertical-align: top;
+}
+
+#showrev {
+	margin-bottom: 2em;
+}
+
+#showrev img {
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+#showrev button,
+#showrev input {
+	vertical-align: middle;
+}
+
+#ajaxloadinginfo {
+	margin-left: 10px;
+}
+
+.datatable {
+	min-width: 350px;
+	width: 100%;
+	cursor: pointer;
+	empty-cells: show;
+}
+
+.datatable tr.head th,
+.datatable tr.head {
+	background-image: none;
+	background: #5984C3;
+	color: white;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	text-align: left;
+	cursor: default;
+}
+
+.datatable tr.head th.fname {
+	width: 50%;
+}
+
+.datatable tr.head th.fsize,
+.datatable tr.head th.fdate {
+	width: 25%;
+}
+
+.datatable tr.odd td,
+.datatable tr.even td {
+	color: black;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	border-bottom: 1px solid #bbb;
+	background-image: none;
+}
+
+.datatable tr.odd td,
+.datatable tr.odd {
+	background-color: #DDDDDD;
+}
+.datatable tr.even td,
+.datatable tr.even {
+	background-color: #EEEEEE;
+}
+
+.datatable tr.odd td a,
+.datatable tr.even td a {
+	color: black;
+	display: block;
+	text-decoration: none;
+}
+
+.datatable img {
+	border: 0;
+	padding: 1px;
+	vertical-align: top;
+}
