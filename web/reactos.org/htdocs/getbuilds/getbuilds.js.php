@@ -74,7 +74,7 @@ function ajaxGet(action, parameters, data)
 	}
 }
 
-function getfilesCallback(http_request, rev)
+function getfilesCallback(http_request, revs)
 {
 	if( http_request.responseXML == null )
 	{
@@ -91,7 +91,7 @@ function getfilesCallback(http_request, rev)
 	var files = http_request.responseXML.getElementsByTagName("file");
 
 	if( files.length == 0 )
-		datatable += '<tr class="odd"><td><?php echo $getbuilds_langres["nofiles1"]; ?>' + rev + '<?php echo $getbuilds_langres["nofiles2"]; ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+		datatable += '<tr class="odd"><td><?php echo $getbuilds_langres["nofiles1"]; ?>' + revs + '<?php echo $getbuilds_langres["nofiles2"]; ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
 	else
 	{
 		var oddeven = false;
@@ -139,56 +139,70 @@ function tr_mouseout(elem)
 		setrowcolor( elem, "#EEEEEE" );
 }
 
-function getrevnum()
+var from;
+var to;
+
+function getrevnums()
 {
 	var rev = document.getElementById("revnum").value;
 	
-	if( isNaN(rev) )
+	if( isNaN(rev) || rev < 1 )
 	{
-		alert("<?php echo $getbuilds_langres["invalidrev"]; ?>");
-		return false;
+		// Maybe the user entered a revision range
+		var hyphen = rev.indexOf("-");
+		
+		if( hyphen > 0 )
+		{
+			from = rev.substr( 0, hyphen );
+			to = rev.substr( hyphen + 1 );
+		}
+		
+		if( hyphen <= 0 || isNaN(from) || isNaN(to) )
+		{
+			alert("Invalid revision number!");
+			return false;
+		}
 	}
 	else
-		return rev;
+	{
+		from = rev;
+		to = rev;
+	}
+	
+	return true;
 }
 
 function prevrev()
 {
-	var rev = getrevnum();
-	
-	if( rev )
+	if( getrevnums() )
 	{
-		rev--;
+		from--;
 		
 		// 25700 is the lowest rev on the server at the time, when this script has been written
 		// There is no harm if this rev does not exist anymore on the FTP server, it's just a min value
-		if(rev < 25700)
+		if(from < 25700)
 			return;
 		
-		document.getElementById("revnum").value = rev;
+		document.getElementById("revnum").value = from;
 	}
 }
 
 function nextrev()
 {
-	var rev = getrevnum();
-	
-	if( rev )
+	if( getrevnums() )
 	{
-		rev++;
-		document.getElementById("revnum").value = rev;
+		from++;
+		document.getElementById("revnum").value = from;
 	}
 }
 
 function showrev()
 {
-	var rev = getrevnum();
-
-	if( rev )
-		ajaxGet( "getfiles", "rev=" + rev, rev );
+	if( getrevnums() )
+		ajaxGet( 'getfiles', 'from=' + from + '&to=' + to, document.getElementById("revnum").value );
 }
 
 function checkrevnum(elem)
 {
-	elem.value = elem.value.replace( /[^[0-9]/g, "");
+	elem.value = elem.value.replace( /[^[0-9-]/g, "");
 }

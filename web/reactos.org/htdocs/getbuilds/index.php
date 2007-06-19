@@ -39,7 +39,7 @@
 	<?php require_once("getbuilds.js.php"); ?>
 	</script>
 </head>
-<body onload="ajaxGet('getfiles', 'rev=<?php echo $rev; ?>', <?php echo $rev; ?>);">
+<body onload="ajaxGet('getfiles', 'from=<?php echo $rev; ?>&to=<?php echo $rev; ?>', <?php echo $rev; ?>);">
 
 <h2><?php echo $getbuilds_langres["title"]; ?></h2>
 
@@ -89,7 +89,7 @@
 				'<div id="showrev">' +
 					'<?php echo $getbuilds_langres["showrevfiles"]; ?>: ' +
 					'<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="prevrev();"> ' +
-					'<input type="text" id="revnum" value="<?php echo $rev; ?>" size="6" onkeyup="checkrevnum(this);"> ' +
+					'<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="checkrevnum(this);"> ' +
 					'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextrev();">&nbsp;&nbsp; ' +
 					
 					'<button type="submit" onclick="showrev();"><strong><?php echo $getbuilds_langres["showrev"]; ?></strong></button>' +
@@ -97,6 +97,10 @@
 					'<span id="ajaxloadinginfo">' +
 						'<img src="images/ajax_loading.gif"> <strong><?php echo $getbuilds_langres["gettinglist"]; ?>...</strong>' +
 					'</span>' +
+				'</div>' +
+				
+				'<div id="infobox">' +
+					'<img src="images/info.png" alt="INFO:"> <?php echo $getbuilds_langres["rangeinfo"]; ?>' +
 				'</div>' +
 				
 				'<div id="filetable">' +
