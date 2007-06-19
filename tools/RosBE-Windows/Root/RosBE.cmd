@@ -50,9 +50,11 @@ ld -v
 mingw32-make -v | find "GNU Make"
 
 ::
-:: Display the available commands
+:: Tell how to display the available commands
 ::
-call "%ROSBEBASEDIR%\Help.cmd"
+echo.
+echo For a list of all included commands, type: "help"
+echo -------------------------------------------------
 
 ::
 :: Load the macros that serve as our commands.
