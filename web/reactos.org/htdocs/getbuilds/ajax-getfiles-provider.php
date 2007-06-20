@@ -33,21 +33,6 @@
 		return number_format( $size, 2, ".", ",") . $unit;
 	}
 	
-	function ArraySort(&$array, $elem)
-	{
-		global $sort_elem;
-		
-		$sort_elem = $elem;
-		usort( $array, "ArraySort_callback" );
-	}
-	
-	function ArraySort_callback($a, $b)
-	{
-		global $sort_elem;
-		
-		return strnatcasecmp( $a[$sort_elem], $b[$sort_elem] );
-	}
-	
 	
 	// Entry point
 	if( !isset( $_GET["from"] ) || !isset( $_GET["to"] ) )
@@ -65,9 +50,7 @@
 		{
 			if( strpos( $fname, "-$j-" ) !== false )
 			{
-				$files[$i]["name"] = $fname;
-				$files[$i]["size"] = fsize_str( filesize( "$ISO_DIR/$fname" ) );
-				$files[$i]["date"] = date( "Y-m-d H:i", filemtime( "$ISO_DIR/$fname" ) );
+				$fnames[$i] = $fname;
 				
 				$i++;
 				break;
@@ -76,15 +59,15 @@
 	}
 	
 	closedir($dir);
-	ArraySort( $files, "name" );
+	sort($fnames);
 	
 	for( $j = 0; $j < $i; $j++ )
 	{
 ?>
 <file>
-	<name><?php echo $files[$j]["name"]; ?></name>
-	<size><?php echo $files[$j]["size"]; ?></size>
-	<date><?php echo $files[$j]["date"]; ?></date>
+	<name><?php echo $fnames[$j]; ?></name>
+	<size><?php echo fsize_str( filesize( "$ISO_DIR/$fnames[$j]" ) ); ?></size>
+	<date><?php echo date( "Y-m-d H:i", filemtime( "$ISO_DIR/$fnames[$j]" ) ); ?></date>
 </file>
 <?php
 	}
