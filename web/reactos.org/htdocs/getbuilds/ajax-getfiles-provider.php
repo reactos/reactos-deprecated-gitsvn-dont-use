@@ -12,7 +12,8 @@
 
 	// Configuration
 	$ISO_DIR = ".";
-
+	$MAX_FILES_PER_PAGE = 100;			// The same value has to be set in "config.inc.php"
+	$REV_RANGE_LIMIT = 3000;
 
 	// Functions
 	function fsize_str( $size )
@@ -35,41 +36,111 @@
 	
 	
 	// Entry point
-	if( !isset( $_GET["from"] ) || !isset( $_GET["to"] ) )
-		die("No revision range specified!");
+	if( !isset( $_GET["get"] ) || !isset( $_GET["startrev"] ) )
+		die("Necessary information not specified!");
 	
-	$files = array();
-	$i = 0;
-	$dir = opendir( $ISO_DIR ) or die("opendir failed!");
-?>
-<files>
-<?php
-	while( $fname = readdir($dir) )
+	if( $_GET["endrev"] - $_GET["startrev"] > $REV_RANGE_LIMIT )
+		die("Maximum revision range limit of $REV_RANGE_LIMIT exceeded!");
+	
+	switch( $_GET["get"] )
 	{
-		for( $j = $_GET["from"]; $j <= $_GET["to"]; $j++ )
-		{
-			if( strpos( $fname, "-$j-" ) !== false )
-			{
-				$fnames[$i] = $fname;
-				
-				$i++;
-				break;
-			}
-		}
+		case "all":
+			$get_infos = true;
+			$get_filelist = true;
+			break;
+		
+		case "infos":
+			$get_infos = true;
+			break;
+		
+		case "filelist":
+			$get_filelist = true;
+			break;
+		
+		default:
+			die("Wrong input for parameter 'get'!");
 	}
+	
+	$file_patterns = array();
+	if( $_GET["bootcd-dbg"] == 1 )
+		$file_patterns[] = "#bootcd-[0-9]+-dbg#";
+	if( $_GET["livecd-dbg"] == 1 )
+		$file_patterns[] = "#livecd-[0-9]+-dbg#";
+	if( $_GET["bootcd-rel"] == 1 )
+		$file_patterns[] = "#bootcd-[0-9]+-rel#";
+	if( $_GET["livecd-rel"] == 1 )
+		$file_patterns[] = "#livecd-[0-9]+-rel#";
+	
+	header("Content-type: text/xml");
+	echo "<fileinformation>";
+	
+	$exitloop = false;
+	$filenum = 0;
+	$firstrev = 0;
+	$lastrev = 0;
+	$morefiles = 0;
+	$dir = opendir( $ISO_DIR ) or die("opendir failed!");
+
+	while( $fname = readdir($dir) )
+		if( preg_match( "#-([0-9]+)-#", $fname, $matches ) )
+			$fnames[ $matches[1] ][] = $fname;
 	
 	closedir($dir);
-	sort($fnames);
 	
-	for( $j = 0; $j < $i; $j++ )
+	for( $i = $_GET["startrev"]; $i <= $_GET["endrev"]; $i++ )
 	{
-?>
-<file>
-	<name><?php echo $fnames[$j]; ?></name>
-	<size><?php echo fsize_str( filesize( "$ISO_DIR/$fnames[$j]" ) ); ?></size>
-	<date><?php echo date( "Y-m-d H:i", filemtime( "$ISO_DIR/$fnames[$j]" ) ); ?></date>
-</file>
-<?php
+		if( isset( $fnames[$i] ) )
+		{
+			sort( $fnames[$i] );
+			
+			foreach( $fnames[$i] as $fname )
+			{
+				// Is it an allowed CD Image type?
+				foreach( $file_patterns as $p )
+				{
+					if( preg_match( $p, $fname ) )
+					{
+						// This is a file we are looking for
+						if( $get_filelist )
+						{
+							echo "<file>";
+							printf("<name>%s</name>", $fname );
+							printf("<size>%s</size>", fsize_str( filesize( "$ISO_DIR/$fname" ) ) );
+							printf("<date>%s</date>", date( "Y-m-d H:i", filemtime( "$ISO_DIR/$fname" ) ) );
+							echo "</file>";
+						}
+					
+						if( $i < $firstrev || $firstrev == 0 )
+							$firstrev = $i;
+				
+						if( $i > $lastrev )
+							$lastrev = $i;
+						
+						$filenum++;
+						break;
+					}
+				}
+				
+				if( $filenum == $MAX_FILES_PER_PAGE )
+				{
+					$morefiles = 1;
+					$exitloop = true;
+					break;
+				}
+			}
+		}
+		
+		if( $exitloop )
+			break;
 	}
+	
+	if( $get_infos )
+	{
+		printf( "<filenum>%s</filenum>", $filenum );
+		printf( "<firstrev>%s</firstrev>", $firstrev );
+		printf( "<lastrev>%s</lastrev>", $lastrev );
+		printf( "<morefiles>%s</morefiles>", $morefiles );
+	}
+	
+	echo "</fileinformation>";
 ?>
-</files>

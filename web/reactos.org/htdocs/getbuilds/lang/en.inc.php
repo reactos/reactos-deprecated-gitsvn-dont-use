@@ -26,6 +26,16 @@
 	$getbuilds_langres["showrev"] = "Show";
 	$getbuilds_langres["gettinglist"] = "Getting file list";
 	$getbuilds_langres["rangeinfo"] = "You can enter a revision number (e.g. <i>27154</i>) or a revision range (e.g. <i>27000-27154</i>).";
+	$getbuilds_langres["isotype"] = "Show CD Image types";
+	
+	$getbuilds_langres["firstpage_title"] = "Go to the first page";
+	$getbuilds_langres["prevpage_title"] = "Previous page";
+	$getbuilds_langres["prevpage"] = "Previous";
+	$getbuilds_langres["page"] = "Page";
+	$getbuilds_langres["nextpage"] = "Next";
+	$getbuilds_langres["nextpage_title"] = "Next page";
+	$getbuilds_langres["lastpage_title"] = "Go to the last page";
+	
 	$getbuilds_langres["filename"] = "File name";
 	$getbuilds_langres["filesize"] = "Size";
 	$getbuilds_langres["filedate"] = "Last changed";

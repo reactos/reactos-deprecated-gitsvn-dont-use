@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
   PROJECT:    ReactOS Website
   LICENSE:    GPL v2 or any later version
@@ -39,7 +39,7 @@
 	<?php require_once("getbuilds.js.php"); ?>
 	</script>
 </head>
-<body onload="ajaxGet('getfiles', 'from=<?php echo $rev; ?>&to=<?php echo $rev; ?>', <?php echo $rev; ?>);">
+<body onload="showLatestFiles();">
 
 <h2><?php echo $getbuilds_langres["title"]; ?></h2>
 
@@ -86,23 +86,38 @@
 		
 		<script type="text/javascript">
 			document.write(
-				'<div id="showrev">' +
-					'<?php echo $getbuilds_langres["showrevfiles"]; ?>: ' +
-					'<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="prevrev();"> ' +
-					'<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="checkrevnum(this);"> ' +
-					'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextrev();">&nbsp;&nbsp; ' +
-					
-					'<button type="submit" onclick="showrev();"><strong><?php echo $getbuilds_langres["showrev"]; ?></strong></button>' +
+				'<table id="showrev" cellspacing="0" cellpadding="5">' +
+					'<tr>' +
+						'<td><?php echo $getbuilds_langres["showrevfiles"]; ?>: </td>' +
+						'<td>' +
+							'<span id="revcontrols">' +
+								'<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="prevRev();"> ' +
+								'<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="checkRevNum(this);"> ' +
+								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextRev();"><br>' +
+							'</span>' +
+							
+							'<img src="images/info.png" alt="INFO:"> <?php echo $getbuilds_langres["rangeinfo"]; ?>' +
+						'</td>' +
+					'</tr>' +
+					'<tr>' +
+						'<td><?php echo $getbuilds_langres["isotype"]; ?>: </td>' +
+						'<td>' +
+							'<input type="checkbox" id="bootcd-dbg" checked="checked"> Debug Boot CDs ' +
+							'<input type="checkbox" id="livecd-dbg" checked="checked"> Debug Live CDs ' +
+							'<input type="checkbox" id="bootcd-rel" checked="checked"> Release Boot CDs ' +
+							'<input type="checkbox" id="livecd-rel" checked="checked"> Release Live CDs' +
+						'</td>' +
+					'</tr>' +
+				'</table>'	 +
+
+				'<div id="controlbox">' +
+					'<button type="button" onclick="showRev();"><?php echo $getbuilds_langres["showrev"]; ?></button>' +
 					
 					'<span id="ajaxloadinginfo">' +
-						'<img src="images/ajax_loading.gif"> <strong><?php echo $getbuilds_langres["gettinglist"]; ?>...</strong>' +
+						'<img src="images/ajax_loading.gif"> <?php echo $getbuilds_langres["gettinglist"]; ?>...' +
 					'</span>' +
 				'</div>' +
-				
-				'<div id="infobox">' +
-					'<img src="images/info.png" alt="INFO:"> <?php echo $getbuilds_langres["rangeinfo"]; ?>' +
-				'</div>' +
-				
+
 				'<div id="filetable">' +
 					'<table class="datatable" cellspacing="0" cellpadding="1">' +
 						'<thead>' +
@@ -122,6 +137,8 @@
 					'</table>' +
 				'</div>'
 			);
+
+			document.getElementById("revnum").onkeypress = checkForReturn;
 		</script>
 	</div>
 	
