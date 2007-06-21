@@ -3,7 +3,7 @@
   <xs:element name="MainConfig">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="ID" type="xs:int" />
+        <xs:element name="VMConfigID" type="xs:int" />
         <xs:element name="Path" type="xs:string" />
       </xs:sequence>
     </xs:complexType>

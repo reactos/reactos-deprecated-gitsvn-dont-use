@@ -5,19 +5,24 @@ using System.Windows.Forms;
 
 namespace RosTEGUI
 {
-    public class MainConfig
+    public class Data
     {
-        private DataSet data;
+        private DataSet data = null;
 
-        private int GetNumberOfVms()
+        public Data()
         {
-            DataTable dt = data.Tables["MainConfig"];
-            return dt.Rows.Count;
         }
 
-        public MainConfig()
+        public DataSet DataSet
         {
-            string filename = "Config.xsd";
+            get { return data; }
+        }
+
+        public bool LoadMainData()
+        {
+            string filename = "MainConfig.xsd";
+            bool ret = false;
+
             data = new DataSet();
             if (File.Exists(filename))
             {
@@ -25,46 +30,86 @@ namespace RosTEGUI
                 XmlTextReader xtr = new XmlTextReader(fs);
                 data.ReadXmlSchema(xtr);
                 xtr.Close();
-
-                // FIXME: unfortunatley, .NET doesn't support binding of
-                // listview controls, we'll need to implement this manually
-                // and remove the need for LoadNewImage / LoadExistingImages
+                ret = true;
             }
+
+            return ret;
+        }
+
+        public bool LoadVirtMachData()
+        {
+            string filename = "VMConfig.xsd";
+            bool ret = false;
+
+            data = new DataSet();
+            if (File.Exists(filename))
+            {
+                FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                XmlTextReader xtr = new XmlTextReader(fs);
+                data.ReadXmlSchema(xtr);
+                xtr.Close();
+                ret = true;
+            }
+
+            return ret;
+        }
+    }
+
+    public class MainConfig
+    {
+        private Data data = null;
+
+        private int GetNumberOfVms()
+        {
+            DataTable dt = data.DataSet.Tables["MainConfig"];
+            return dt.Rows.Count;
+        }
+
+        public MainConfig(Data dataIn)
+        {
+            data = dataIn;
+
+            // FIXME: unfortunatley, .NET doesn't support binding of
+            // listview controls, we'll need to implement this manually
+            // and remove the need for LoadExistingImages / AddVirtMach / DeleteVirtMach
         }
 
         public void LoadExistingImages(ListView lv)
         {
-            DataTable dt = data.Tables["MainConfig"];
+            DataTable dt = data.DataSet.Tables["MainConfig"];
 
             int num = GetNumberOfVms();
             for (int i = 0; i < num; i++)
             {
                 DataRow dr = dt.Rows[i];
-                lv.Items.Add((string)dr["Path"], 0);
+
+                VirtualMachine vm = new VirtualMachine(data);
+                vm.LoadVirtMach((string)dr["Path"]);
+
+                ListViewItem lvi = lv.Items.Add((string)dr["Path"], 0);
+                lvi.Tag = vm;
             }
         }
 
-        public void LoadNewImage(ListView lv)
-        {
-            DataTable dt = data.Tables["MainConfig"];
-
-            int num = GetNumberOfVms();
-
-            DataRow dr = dt.Rows[num - 1];
-            lv.Items.Add((string)dr["Path"], 0);
-
-        }
-
-        public void AddVirtMach(string Path)
+        public int AddVirtMach(string Path)
         {
             int i;
             DataRow dr;
-            DataTable dt = data.Tables["MainConfig"];
+            DataTable dt = data.DataSet.Tables["MainConfig"];
             i = dt.Rows.Count + 1;
             dr = dt.NewRow();
-            dr["ID"] = i;
+            dr["VMConfigID"] = i;
             dr["Path"] = Path;
             dt.Rows.Add(dr);
+            return i;
+        }
+
+        public void DeleteVirtMach(int index)
+        {
+            DataRow dr;
+            DataTable dt = data.DataSet.Tables["MainConfig"];
+            //dt.Rows.re.RemoveAt(index);
+            //dr = dt.LoadDataRow(
         }
 
         public void SaveMainConfig()
@@ -72,7 +117,7 @@ namespace RosTEGUI
             string fileName = "Config.xml";
             FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
             XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-            data.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+            data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
             xtw.Close();
         }
 
@@ -85,7 +130,7 @@ namespace RosTEGUI
             {
                 FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
                 XmlTextReader xtr = new XmlTextReader(fs);
-                data.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
                 xtr.Close();
                 ret = true;
             }
@@ -97,14 +142,36 @@ namespace RosTEGUI
 
     public class VMConfig
     {
-        public VMConfig()
-        {
+        private Data data = null;
 
+        // default
+        public VMConfig(Data dataIn,
+                        string name)
+        {
+            data = dataIn;
+            //DataRow dr = MainConfig.DataSet;
         }
 
-        public VMConfig(string name)
+        // existing
+        public VMConfig(Data dataIn,
+                        string name,
+                        string existImg,
+                        int memSize)
         {
+            data = dataIn;
+            MessageBox.Show(existImg + " " + memSize);
+        }
 
+        // new
+        public VMConfig(Data dataIn,
+                        string name,
+                        string dir,
+                        int diskSize,
+                        string existImg,
+                        int memSize)
+        {
+            data = dataIn;
+            MessageBox.Show(name + " " + dir + " " + diskSize + " " + existImg + " " + memSize);
         }
     }
 }

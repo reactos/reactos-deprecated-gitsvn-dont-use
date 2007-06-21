@@ -27,7 +27,7 @@ namespace RosTEGUI
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.ImageListView = new System.Windows.Forms.ListView();
+            this.VirtMachListView = new System.Windows.Forms.ListView();
             this.columnName = new System.Windows.Forms.ColumnHeader();
             this.columnMemory = new System.Windows.Forms.ColumnHeader();
             this.columnHardDisk = new System.Windows.Forms.ColumnHeader();
@@ -63,9 +63,9 @@ namespace RosTEGUI
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
             // 
-            // ImageListView
+            // VirtMachListView
             // 
-            this.ImageListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.VirtMachListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnName,
             this.columnMemory,
             this.columnHardDisk,
@@ -73,17 +73,17 @@ namespace RosTEGUI
             this.columnNetwork,
             this.columnAudio,
             this.columnDebug});
-            this.ImageListView.FullRowSelect = true;
-            this.ImageListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            this.VirtMachListView.FullRowSelect = true;
+            this.VirtMachListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
             listViewItem1});
-            this.ImageListView.Location = new System.Drawing.Point(12, 52);
-            this.ImageListView.Name = "ImageListView";
-            this.ImageListView.Size = new System.Drawing.Size(516, 237);
-            this.ImageListView.SmallImageList = this.mainImageList;
-            this.ImageListView.TabIndex = 9;
-            this.ImageListView.UseCompatibleStateImageBehavior = false;
-            this.ImageListView.View = System.Windows.Forms.View.Details;
-            this.ImageListView.DoubleClick += new System.EventHandler(this.ImageListView_DoubleClick);
+            this.VirtMachListView.Location = new System.Drawing.Point(12, 52);
+            this.VirtMachListView.Name = "VirtMachListView";
+            this.VirtMachListView.Size = new System.Drawing.Size(516, 237);
+            this.VirtMachListView.SmallImageList = this.mainImageList;
+            this.VirtMachListView.TabIndex = 9;
+            this.VirtMachListView.UseCompatibleStateImageBehavior = false;
+            this.VirtMachListView.View = System.Windows.Forms.View.Details;
+            this.VirtMachListView.DoubleClick += new System.EventHandler(this.ImageListView_DoubleClick);
             // 
             // columnName
             // 
@@ -164,6 +164,7 @@ namespace RosTEGUI
             this.toolbarImageDel.Name = "toolbarImageDel";
             this.toolbarImageDel.Size = new System.Drawing.Size(23, 22);
             this.toolbarImageDel.ToolTipText = "Deletes an existing image";
+            this.toolbarImageDel.Click += new System.EventHandler(this.DeleteVirtMach);
             // 
             // toolbarSep2
             // 
@@ -320,7 +321,7 @@ namespace RosTEGUI
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ClientSize = new System.Drawing.Size(540, 301);
-            this.Controls.Add(this.ImageListView);
+            this.Controls.Add(this.VirtMachListView);
             this.Controls.Add(this.mainToolbar);
             this.Controls.Add(this.mainMenu);
             this.DoubleBuffered = true;
@@ -345,7 +346,7 @@ namespace RosTEGUI
         }
         #endregion
 
-        private System.Windows.Forms.ListView ImageListView;
+        private System.Windows.Forms.ListView VirtMachListView;
         private System.Windows.Forms.ColumnHeader columnName;
         private System.Windows.Forms.ColumnHeader columnMemory;
         private System.Windows.Forms.ColumnHeader columnHardDisk;

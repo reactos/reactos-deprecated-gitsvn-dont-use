@@ -94,13 +94,21 @@ namespace RosTEGUI
         }
 
 
-        public VirtualMachine()
+        public VirtualMachine(Data dataIn)
         {
             floppy = new StringCollection();
             hardDisk = new StringCollection();
 
             Floppy.Add("test");
-            MessageBox.Show(Floppy[0]);
+            //MessageBox.Show(Floppy[0]);
+        }
+
+        public bool LoadVirtMach(string path)
+        {
+            bool ret = false;
+
+
+            return ret;
         }
 
     }
