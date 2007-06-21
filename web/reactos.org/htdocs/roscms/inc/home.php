@@ -27,6 +27,21 @@
 	}
 	else {
 		?>
+		<h4>RosCMS v3 Information</h4>
+		<p>
+			We are currently testing a new version 3 of our Content Management System RosCMS on the ReactOS-Website.<br><br>
+			
+			If you want to edit something, please use the old interfaces until RosCMS v3 is fully ready:
+			<ul>
+				<?php 
+					if ($roscms_intern_usrgrp_trans == true) { ?><li><a href="?page=trans">Translator Interface</a></li><?php }
+					if ($roscms_intern_usrgrp_team == true) { ?><li><a href="?page=team">Team Interface</a></li><?php }
+					if ($roscms_intern_usrgrp_dev == true) { ?><li><a href="?page=dev">Developer Interface</a></li><?php }
+					if ($roscms_intern_usrgrp_admin == true) { ?><li><a href="?page=admin">Admin Interface</a></li><?php }
+				?>
+			</ul>
+		</p>
+		
 		<h4>Translator Information</h4>
 		<p>Language maintainer contact information [...]</p>
 		<?php
