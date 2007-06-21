@@ -271,7 +271,7 @@ function prevRev()
 {
 	if( getRevNums() )
 	{
-		startrev--;
+		inputbox_startrev--;
 		
 		// 25700 is the lowest rev on the server at the time, when this script has been written
 		// There is no harm if this rev does not exist anymore on the FTP server, it's just a min value
