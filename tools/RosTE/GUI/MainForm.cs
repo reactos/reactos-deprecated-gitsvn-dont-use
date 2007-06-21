@@ -13,8 +13,11 @@ namespace RosTEGUI
 {
 	public partial class MainForm : Form
     {
-        private ArrayList VirtualMachines;
+        //private ArrayList VirtualMachines;
         private MainConfig mainConf;
+        private ArrayList vmConfigs;
+        private Data mainData;
+        private Data vmData;
 
         public MainForm()
         {
@@ -28,11 +31,20 @@ namespace RosTEGUI
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            mainData = new Data();
+            if (!mainData.LoadMainData())
+                MessageBox.Show("Failed to load Main Schema");
+            vmData = new Data();
+            if (!vmData.LoadVirtMachData())
+                MessageBox.Show("Failed to load VM Schema");
+
+            vmConfigs = new ArrayList();
+
             // read config and load any existing vm's
-            mainConf = new MainConfig();
+            mainConf = new MainConfig(mainData);
 
             if (mainConf.LoadMainConfig())
-                mainConf.LoadExistingImages(ImageListView);
+                mainConf.LoadExistingImages(VirtMachListView);
         }
 
         private void MainMenuHelpAbout_Click(object sender, EventArgs e)
@@ -44,7 +56,10 @@ namespace RosTEGUI
 
         private void ImageListView_DoubleClick(object sender, EventArgs e)
         {
-            SettingsForm setFrm = new SettingsForm();
+            ListViewItem lvi = VirtMachListView.FocusedItem;
+            //lvi.Tag
+
+            SettingsForm setFrm = new SettingsForm(lvi.Text);
             setFrm.StartPosition = FormStartPosition.CenterScreen;
             setFrm.Show();
         }
@@ -58,12 +73,59 @@ namespace RosTEGUI
         {
             NewVMWizard wizFrm = new NewVMWizard();
             wizFrm.StartPosition = FormStartPosition.CenterScreen;
+
             if (wizFrm.ShowDialog() == DialogResult.OK)
             {
-                mainConf.AddVirtMach(wizFrm.VMName);
-                mainConf.LoadNewImage(ImageListView);
-            }
+                if (wizFrm.Option == 1)
+                {
+                    int i = mainConf.AddVirtMach(wizFrm.DefDir);
+                    VirtMachListView.Items.Add(i.ToString(), wizFrm.VMName, 0);
 
+                    vmConfigs.Add(new VMConfig(vmData,
+                                               wizFrm.VMName,
+                                               wizFrm.DefDir,
+                                               wizFrm.DiskSizeGB,
+                                               wizFrm.ExistImg,
+                                               wizFrm.MemSizeMB));
+                }
+                else if (wizFrm.Option == 2)
+                {
+
+                    DirectoryInfo di = Directory.GetParent(wizFrm.ExistImg);
+                    int i = mainConf.AddVirtMach(di.FullName);
+                    VirtMachListView.Items.Add(i.ToString(), wizFrm.VMName, 0);
+
+                    vmConfigs.Add(new VMConfig(vmData,
+                                               wizFrm.VMName,
+                                               wizFrm.ExistImg,
+                                               wizFrm.MemSizeMB));
+                }
+                else
+                {
+                    int i = mainConf.AddVirtMach("Images\\" + wizFrm.VMName);
+                    VirtMachListView.Items.Add(i.ToString(), wizFrm.VMName, 0);
+
+                    vmConfigs.Add(new VMConfig(vmData,
+                                               wizFrm.VMName));
+                }
+            }
+        }
+
+        private void DeleteVirtMach(object sender, EventArgs e)
+        {
+            ListViewItem lvi = VirtMachListView.FocusedItem;
+            if (lvi != null)
+            {
+                DeleteVM delFrm = new DeleteVM(lvi.Text/*lvi.Tag*/);
+                delFrm.StartPosition = FormStartPosition.CenterScreen;
+
+                if (delFrm.ShowDialog() == DialogResult.OK)
+                {
+                    mainConf.DeleteVirtMach(lvi.Index/*lvi.Tag*/);
+                    VirtMachListView.Items.Remove(lvi);
+                    vmConfigs.Remove(lvi.Tag);
+                }
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

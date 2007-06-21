@@ -18,9 +18,10 @@ namespace RosTEGUI
         private int hardwarePrevSel = 0;
         private int optionsPrevSel = 0;
 
-        public SettingsForm()
+        public SettingsForm(string title)
         {
             InitializeComponent();
+            Text = title + " " + Text;
         }
 
         private void LoadDynamicControlInfo()

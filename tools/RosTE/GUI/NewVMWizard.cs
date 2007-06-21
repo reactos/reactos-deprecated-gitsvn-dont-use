@@ -31,6 +31,15 @@ namespace RosTEGUI
         {
             get { return (int)memoryUpDwn.Value; }
         }
+        public int Option
+        {
+            get
+            {
+                if (optionRadNew.Checked) return 1;
+                else if (optionRadExist.Checked) return 2;
+                else return 3;
+            }
+        }
 
         public NewVMWizard()
         {
@@ -52,7 +61,7 @@ namespace RosTEGUI
         private void wizardSetupOptionPage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
             if (optionRadDefault.Checked == true)
-                e.Page = wizardFinishPage;
+                e.Page = nameInfoPage;
             else if (optionRadExist.Checked == true)
                 e.Page = imageInfoPage;
             else
@@ -66,6 +75,9 @@ namespace RosTEGUI
                 MessageBox.Show("You must enter a name", "Error");
                 e.Page = nameInfoPage;
             }
+
+            if (optionRadDefault.Checked)
+                e.Page = wizardFinishPage;
         }
 
         private void wizardDefaultDirPage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
@@ -150,7 +162,7 @@ namespace RosTEGUI
         private void wizardFinishPage_CloseFromBack(object sender, Gui.Wizard.PageEventArgs e)
         {
             if (optionRadDefault.Checked == true)
-                e.Page = optionInfoPage;
+                e.Page = nameInfoPage;
             else
                 e.Page = memoryInfoPage;
         }
@@ -165,7 +177,7 @@ namespace RosTEGUI
         {
             wizardOpenFile.FileName = "";
             wizardOpenFile.InitialDirectory = "C:\\";
-            wizardOpenFile.Filter = "img file (*.raw)|*.raw|vdk files (*.vmdk)|*.vmdk|dsk files (*.dsk)|*.dsk";
+            wizardOpenFile.Filter = "Image Files(*.RAW;*.VDK;*.DSK)|*.RAW;*.VDK;*.DSK|All files (*.*)|*.*";
             wizardOpenFile.FilterIndex = 1;
             wizardOpenFile.RestoreDirectory = true;
 
@@ -192,6 +204,20 @@ namespace RosTEGUI
         {
             if (optionRadNew.Checked == true)
                 e.Page = harddiskInfoPage;
+        }
+
+        private void imageInfoPage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            if (imageLocTxtBox.Text == "")
+            {
+                MessageBox.Show("You must enter a name", "Error");
+                e.Page = imageInfoPage;
+            }
+            else if (File.Exists(imageLocTxtBox.Text) == false)
+            {
+                MessageBox.Show("File does not exist", "Error");
+                e.Page = imageInfoPage;
+            }
         }
     }
 }
