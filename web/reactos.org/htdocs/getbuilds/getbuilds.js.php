@@ -8,6 +8,15 @@
 */
 ?>
 
+var currentpage;
+var endrev;
+var fullrange;
+var inputbox_startrev;
+var inputbox_endrev;
+var isoparameters;
+var pagecount;
+var startrev;
+
 function loadingsplash(zeroone)
 {
 	if (zeroone == 1)
@@ -74,51 +83,140 @@ function ajaxGet(action, parameters, data)
 	}
 }
 
-function getfilesCallback(http_request, revs)
+function getfilesCallback(http_request, data)
 {
-	if( http_request.responseXML == null )
+	// "ajax-getfiles.php" always outputs text/xml data, so we have to check here if it's really XML or just an error message
+	if( http_request.responseText.substr(0, 1) != "<" )
 	{
 		alert( http_request.responseText );
 		loadingsplash(0);
 		return;
 	}
 	
-	// Prepare the table
-	var datatable = '<table class="datatable" cellspacing="0" cellpadding="1">';
-	datatable += '<thead><tr class="head"><th class="fname"><?php echo $getbuilds_langres["filename"]; ?></th><th class="fsize"><?php echo $getbuilds_langres["filesize"]; ?></th><th class="fdate"><?php echo $getbuilds_langres["filedate"]; ?></th></tr></thead>';
-	datatable += '<tbody>';
-	
-	var files = http_request.responseXML.getElementsByTagName("file");
-
-	if( files.length == 0 )
-		datatable += '<tr class="odd"><td><?php echo $getbuilds_langres["nofiles1"]; ?>' + revs + '<?php echo $getbuilds_langres["nofiles2"]; ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
-	else
-	{
-		var oddeven = false;
+	var html = "";
 		
-		for( var i = 0; i < files.length; i++ )
+	if( data["requesttype"] == "FirstPageFullLoad" || data["requesttype"] == "PageSwitch" )
+	{
+		// Page number boxes
+		html += '<div id="pagesbox">';
+		
+		if( currentpage == 1 )
 		{
-			var fname = files[i].getElementsByTagName("name")[0].firstChild.data;
-			var fsize = files[i].getElementsByTagName("size")[0].firstChild.data;
-			var fdate = files[i].getElementsByTagName("date")[0].firstChild.data;
-			var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname + '">';
-			oddeven = !oddeven;
+			html += '<strong>&laquo;</strong> ';
+			html += '<strong>&lsaquo; <?php echo $getbuilds_langres["prevpage"]; ?></strong> ';
+		}
+		else
+		{
+			html += '<a href="javascript:firstPage()" title="<?php echo $getbuilds_langres["firstpage_title"]; ?>">&laquo;</a> ';
+			html += '<a href="javascript:prevPage()" title="<?php echo $getbuilds_langres["prevpage_title"]; ?>">&lsaquo; <?php echo $getbuilds_langres["prevpage"]; ?></a> ';
+		}
+		
+		html += '<select id="pagesel" size="1" onchange="pageboxChange(this)">';
+		
+		if( data["requesttype"] == "FirstPageFullLoad" )
+		{
+			pagecount = 1;
 			
-			datatable += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
-			datatable += '<td>' + flink + '<img src="images/cd.png" alt=""> ' + fname + '</a></td>';
-			datatable += '<td>' + flink + fsize + '</a></td>';
-			datatable += '<td>' + flink + fdate + '</a></td>';
-			datatable += '</tr>';
+			html += '<option selected="selected" value="' + currentpage + '-' + startrev + '"><?php echo $getbuilds_langres["page"]; ?> ' + currentpage;
+			
+			if( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data > 0 )
+				html += ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '</option>';
+		}
+		else
+		{
+			html += document.getElementById("pagesel").innerHTML;
+		}
+		
+		html += '</select> ';
+		
+		if( http_request.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 0 )
+		{
+			html += '<strong><?php echo $getbuilds_langres["nextpage"]; ?> &rsaquo;</strong> ';
+			html += '<strong>&raquo;</strong>';
+		}
+		else
+		{
+			html += '<a href="javascript:nextPage()" title="<?php echo $getbuilds_langres["nextpage_title"]; ?>"><?php echo $getbuilds_langres["nextpage"]; ?> &rsaquo;</a> ';
+			html += '<a href="javascript:lastPage()" title="<?php echo $getbuilds_langres["lastpage_title"]; ?>">&raquo;</a>';
+		}
+		
+		html += '</div>';
+
+		// File table
+		html += '<table class="datatable" cellspacing="0" cellpadding="1">';
+		html += '<thead><tr class="head"><th class="fname"><?php echo $getbuilds_langres["filename"]; ?></th><th class="fsize"><?php echo $getbuilds_langres["filesize"]; ?></th><th class="fdate"><?php echo $getbuilds_langres["filedate"]; ?></th></tr></thead>';
+		html += '<tbody>';
+		
+		var files = http_request.responseXML.getElementsByTagName("file");
+	
+		if( files.length == 0 )
+			html += '<tr class="odd"><td><?php echo $getbuilds_langres["nofiles1"]; ?>' + fullrange + '<?php echo $getbuilds_langres["nofiles2"]; ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+		else
+		{
+			var oddeven = false;
+			
+			for( var i = 0; i < files.length; i++ )
+			{
+				var fname = files[i].getElementsByTagName("name")[0].firstChild.data;
+				var fsize = files[i].getElementsByTagName("size")[0].firstChild.data;
+				var fdate = files[i].getElementsByTagName("date")[0].firstChild.data;
+				var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname + '">';
+				oddeven = !oddeven;
+				
+				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
+				html += '<td>' + flink + '<img src="images/cd.png" alt=""> ' + fname + '</a></td>';
+				html += '<td>' + flink + fsize + '</a></td>';
+				html += '<td>' + flink + fdate + '</a></td>';
+				html += '</tr>';
+			}
+		}
+		
+		html += '</tbody></table>';
+		
+		document.getElementById("filetable").innerHTML = html;
+		
+		if( data["requesttype"] == "PageSwitch" )
+		{
+			// Switch the selected page in the Page ComboBox
+			var options = document.getElementById("pagesel").getElementsByTagName("option");
+			
+			for( var i = 0; i < options.length; i++ )
+			{
+				if( options[i].value.substr( 0, options[i].value.indexOf("-") ) == currentpage )
+					options[i].selected = true;
+				else if( options[i].selected )
+					options[i].selected = false;
+			}
 		}
 	}
+	else if( data["requesttype"] == "FirstPageAddPage" )
+	{
+		pagecount++;
+		
+		// As always, we have to work around an IE bug
+		// If I use "innerHTML" here, the first <OPTION> start tag gets dropped in the IE...
+		// Therefore I have to use the DOM functions in this case.
+		var option_elem = document.createElement("option");
+		var option_text = document.createTextNode( '<?php echo $getbuilds_langres["page"]; ?> ' + pagecount + ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data );
+		
+		option_elem.value = pagecount + "-" + data["new_startrev"];
+		option_elem.appendChild( option_text );
+		
+		document.getElementById("pagesel").appendChild( option_elem );
+	}
 	
-	datatable += '</tbody></table>';
-	
-	document.getElementById("filetable").innerHTML = datatable;
-	loadingsplash(0);
+	if( http_request.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 1 && ( data["requesttype"] == "FirstPageFullLoad" || data["requesttype"] == "FirstPageAddPage" ) )
+	{
+		// There are more files available in the full range. Therefore we have to start another request and add a new page
+		data["new_startrev"] = http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data;
+		data["requesttype"] = "FirstPageAddPage";
+		ajaxGet( 'getfiles', 'get=infos&startrev=' + data["new_startrev"] + '&endrev=' + endrev + isoparameters, data );
+	}
+	else
+		loadingsplash(0);
 }
 
-function setrowcolor(elem, color)
+function setRowColor(elem, color)
 {
 	tdl = elem.getElementsByTagName("td");
 	
@@ -128,21 +226,18 @@ function setrowcolor(elem, color)
 
 function tr_mouseover(elem)
 {
-	setrowcolor( elem, "#FFFFCC" );
+	setRowColor( elem, "#FFFFCC" );
 }
 
 function tr_mouseout(elem)
 {
 	if( elem.className == "odd" )
-		setrowcolor( elem, "#DDDDDD" );
+		setRowColor( elem, "#DDDDDD" );
 	else
-		setrowcolor( elem, "#EEEEEE" );
+		setRowColor( elem, "#EEEEEE" );
 }
 
-var from;
-var to;
-
-function getrevnums()
+function getRevNums()
 {
 	var rev = document.getElementById("revnum").value;
 	
@@ -153,11 +248,11 @@ function getrevnums()
 		
 		if( hyphen > 0 )
 		{
-			from = rev.substr( 0, hyphen );
-			to = rev.substr( hyphen + 1 );
+			inputbox_startrev = rev.substr( 0, hyphen );
+			inputbox_endrev = rev.substr( hyphen + 1 );
 		}
 		
-		if( hyphen <= 0 || isNaN(from) || isNaN(to) )
+		if( hyphen <= 0 || isNaN(inputbox_startrev) || isNaN(inputbox_endrev) )
 		{
 			alert("Invalid revision number!");
 			return false;
@@ -165,44 +260,138 @@ function getrevnums()
 	}
 	else
 	{
-		from = rev;
-		to = rev;
+		inputbox_startrev = rev;
+		inputbox_endrev = rev;
 	}
 	
 	return true;
 }
 
-function prevrev()
+function prevRev()
 {
-	if( getrevnums() )
+	if( getRevNums() )
 	{
-		from--;
+		startrev--;
 		
 		// 25700 is the lowest rev on the server at the time, when this script has been written
 		// There is no harm if this rev does not exist anymore on the FTP server, it's just a min value
-		if(from < 25700)
+		if(inputbox_startrev < 25700)
 			return;
 		
-		document.getElementById("revnum").value = from;
+		document.getElementById("revnum").value = inputbox_startrev;
 	}
 }
 
-function nextrev()
+function nextRev()
 {
-	if( getrevnums() )
+	if( getRevNums() )
 	{
-		from++;
-		document.getElementById("revnum").value = from;
+		inputbox_startrev++;
+		document.getElementById("revnum").value = inputbox_startrev;
 	}
 }
 
-function showrev()
+function showRev()
 {
-	if( getrevnums() )
-		ajaxGet( 'getfiles', 'from=' + from + '&to=' + to, document.getElementById("revnum").value );
+	if( getRevNums() )
+	{
+		var data = new Array();
+		
+		currentpage = 1;
+		endrev = inputbox_endrev;
+		fullrange = document.getElementById("revnum").value;
+		isoparameters = "";
+		startrev = inputbox_startrev;
+		
+		if( document.getElementById("bootcd-dbg").checked )
+			isoparameters += '&bootcd-dbg=1';
+		if( document.getElementById("livecd-dbg").checked )
+			isoparameters += '&livecd-dbg=1';
+		if( document.getElementById("bootcd-rel").checked )
+			isoparameters += '&bootcd-rel=1';
+		if( document.getElementById("livecd-rel").checked )
+			isoparameters += '&livecd-rel=1';
+
+		data["requesttype"] = "FirstPageFullLoad";
+		
+		ajaxGet( 'getfiles', 'get=all&startrev=' + startrev + '&endrev=' + endrev + isoparameters, data );
+	}
 }
 
-function checkrevnum(elem)
+function checkForReturn( keyevent )
+{
+	// keyevent.which - supported under NS 4.0, Opera 5.12, Firefox, Konqueror 3.3, Safari
+	if( keyevent )
+	{
+		if( keyevent.which == 13 )
+			showRev();
+	}
+		
+	// window.event - for IE Browsers
+	else if( window.event )
+	{
+		if( window.event.keyCode == 13 )
+			showRev();
+	}
+}
+
+function checkRevNum(elem)
 {
 	elem.value = elem.value.replace( /[^[0-9-]/g, "");
+}
+
+function showLatestFiles()
+{
+	var data = new Array();
+	
+	currentpage = 1;
+	endrev = <?php echo $rev; ?>;
+	fullrange = <?php echo $rev; ?>;
+	isoparameters = "&bootcd-dbg=1&livecd-dbg=1&bootcd-rel=1&livecd-rel=1";
+	startrev = <?php echo $rev; ?>
+	
+	data["requesttype"] = "FirstPageFullLoad";
+	
+	ajaxGet( 'getfiles', 'get=all&startrev=<?php echo $rev; ?>&endrev=<?php echo $rev; ?>' + isoparameters, data );
+}
+
+function pageSwitch(new_page, new_startrev)
+{
+	var data = new Array();
+	
+	currentpage = new_page;
+	startrev = new_startrev;
+	data["requesttype"] = "PageSwitch";
+	
+	ajaxGet( 'getfiles', 'get=all&startrev=' + startrev + '&endrev=' + endrev + isoparameters, data );
+}
+
+function firstPage()
+{
+	var info = document.getElementById("pagesel").getElementsByTagName("option")[0].value.split("-");
+	pageSwitch( info[0], info[1] );
+}
+
+function prevPage()
+{
+	var info = document.getElementById("pagesel").getElementsByTagName("option")[ currentpage - 2 ].value.split("-");
+	pageSwitch( info[0], info[1] );
+}
+
+function pageboxChange(obj)
+{
+	var info = obj.value.split("-");
+	pageSwitch( info[0], info[1] );
+}
+
+function nextPage()
+{
+	var info = document.getElementById("pagesel").getElementsByTagName("option")[currentpage].value.split("-");
+	pageSwitch( info[0], info[1] );
+}
+
+function lastPage()
+{
+	var info = document.getElementById("pagesel").getElementsByTagName("option")[ document.getElementById("pagesel").getElementsByTagName("option").length - 1 ].value.split("-");
+	pageSwitch( info[0], info[1] );
 }

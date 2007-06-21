@@ -6,7 +6,7 @@
   COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
 */
 
-body {
+body, tr {
 	font-family: Verdana, Arial, Helvetica;
 	font-size: 10pt;
 }
@@ -58,22 +58,35 @@ ul.web li {
 	vertical-align: top;
 }
 
-#showrev img {
+#showrev td {
+	vertical-align: top;
+}
+
+#revcontrols img {
 	vertical-align: middle;
 	cursor: pointer;
 }
 
-#showrev button,
-#showrev input {
+#revcontrols input {
 	vertical-align: middle;
 }
 
-#ajaxloadinginfo {
-	margin-left: 10px;
+#controlbox {
+	margin-bottom: 2em;
 }
 
-#infobox {
-	margin-bottom: 2em;
+#controlbox button {
+	font-weight: bold;
+}
+
+#ajaxloadinginfo {
+	font-weight: bold;
+	margin-left: 20px;
+}
+
+#pagesbox {
+	font-weight: bold;
+	text-align: right;
 }
 
 .datatable {

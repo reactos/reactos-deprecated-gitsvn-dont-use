@@ -10,5 +10,6 @@
 	// Configuration
 	$AJAX_GETFILES_PROVIDER_URL = "http://svn.reactos.org/iso/ajax-getfiles-provider.php";
 	$ISO_DOWNLOAD_URL = "http://svn.reactos.org/iso/";
+	$MAX_FILES_PER_PAGE = 100;			// The same value has to be set in "ajax-getfiles-provider.php"
 	$SVN_ACTIVITY_URL = "http://svn.reactos.org/svnact/svn_activity.xml";
 ?>

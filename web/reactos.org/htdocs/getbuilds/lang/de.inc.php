@@ -26,6 +26,16 @@
 	$getbuilds_langres["showrev"] = "Anzeigen";
 	$getbuilds_langres["gettinglist"] = "Dateiliste wird geladen";
 	$getbuilds_langres["rangeinfo"] = "Sie können eine Revisionsnummer (z.B. <i>27154</i>) oder einen Revisionsbereich (z.B. <i>27000-27154</i>) eingeben.";
+	$getbuilds_langres["isotype"] = "CD-Image-Typen anzeigen";
+	
+	$getbuilds_langres["firstpage_title"] = "Gehe zur ersten Seite";
+	$getbuilds_langres["prevpage_title"] = "Vorherige Seite";
+	$getbuilds_langres["prevpage"] = "Zurück";
+	$getbuilds_langres["page"] = "Seite";
+	$getbuilds_langres["nextpage"] = "Vor";
+	$getbuilds_langres["nextpage_title"] = "Nächste Seite";
+	$getbuilds_langres["lastpage_title"] = "Gehe zur letzten Seite";
+	
 	$getbuilds_langres["filename"] = "Dateiname";
 	$getbuilds_langres["filesize"] = "Größe";
 	$getbuilds_langres["filedate"] = "Zuletzt geändert";
