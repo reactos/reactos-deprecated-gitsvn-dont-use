@@ -65,6 +65,15 @@ namespace RosTEGUI
             return dt.Rows.Count;
         }
 
+        private static void PrintRows(DataTable dt)
+        {
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string str = "row: " + i + ", VMConfigID: " + dt.Rows[i]["VMConfigID"] + ", Path " + dt.Rows[i]["Path"];
+                MessageBox.Show(str);
+            }
+        }
+
         public MainConfig(Data dataIn)
         {
             data = dataIn;
@@ -108,8 +117,8 @@ namespace RosTEGUI
         {
             DataRow dr;
             DataTable dt = data.DataSet.Tables["MainConfig"];
-            //dt.Rows.re.RemoveAt(index);
-            //dr = dt.LoadDataRow(
+            //dt.Rows[index].Delete();
+            dt.Rows.RemoveAt(index);
         }
 
         public void SaveMainConfig()
