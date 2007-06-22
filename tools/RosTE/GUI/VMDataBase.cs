@@ -124,8 +124,7 @@ namespace RosTEGUI
         public void SaveMainConfig()
         {
             string fileName = "Config.xml";
-            File.Delete(fileName); // overcome a .NET bug when rewriting XML files
-            FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
+            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
             XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
             data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
             xtw.Close();
