@@ -25,7 +25,6 @@ namespace RosTEGUI
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("ReactOS", 0);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.VirtMachListView = new System.Windows.Forms.ListView();
             this.columnName = new System.Windows.Forms.ColumnHeader();
@@ -74,8 +73,6 @@ namespace RosTEGUI
             this.columnAudio,
             this.columnDebug});
             this.VirtMachListView.FullRowSelect = true;
-            this.VirtMachListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
             this.VirtMachListView.Location = new System.Drawing.Point(12, 52);
             this.VirtMachListView.Name = "VirtMachListView";
             this.VirtMachListView.Size = new System.Drawing.Size(516, 237);

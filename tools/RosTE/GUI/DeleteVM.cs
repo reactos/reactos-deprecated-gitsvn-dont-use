@@ -10,6 +10,11 @@ namespace RosTEGUI
 {
     public partial class DeleteVM : Form
     {
+        public bool DeleteFullVM
+        {
+            get { return deleteFullVM.Checked; }
+        }
+
         public DeleteVM(string text)
         {
             InitializeComponent();
