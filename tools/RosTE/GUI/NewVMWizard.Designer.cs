@@ -32,29 +32,6 @@ namespace RosTEGUI
             this.wizardFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.wizardOpenFile = new System.Windows.Forms.OpenFileDialog();
             this.wizardNewVM = new Gui.Wizard.Wizard();
-            this.memoryInfoPage = new Gui.Wizard.WizardPage();
-            this.memoryLab7 = new System.Windows.Forms.Label();
-            this.memoryLab1 = new System.Windows.Forms.Label();
-            this.memoryHorizRuleLight = new System.Windows.Forms.Panel();
-            this.memoryHorizRuleDark = new System.Windows.Forms.Panel();
-            this.memoryLab6 = new System.Windows.Forms.Label();
-            this.memoryPhyRam = new System.Windows.Forms.Label();
-            this.memoryLab2 = new System.Windows.Forms.Label();
-            this.memoryRecMax = new System.Windows.Forms.Label();
-            this.memoryRec = new System.Windows.Forms.Label();
-            this.memoryRecMin = new System.Windows.Forms.Label();
-            this.memoryLab5 = new System.Windows.Forms.Label();
-            this.memoryLab4 = new System.Windows.Forms.Label();
-            this.memoryLab3 = new System.Windows.Forms.Label();
-            this.memoryUpDwn = new System.Windows.Forms.NumericUpDown();
-            this.memoryTrkBar = new System.Windows.Forms.TrackBar();
-            this.memoryheader = new Gui.Wizard.Header();
-            this.imageInfoPage = new Gui.Wizard.WizardPage();
-            this.imageHeader = new Gui.Wizard.Header();
-            this.imageLab2 = new System.Windows.Forms.Label();
-            this.imageLab1 = new System.Windows.Forms.Label();
-            this.imageFileBrowse = new System.Windows.Forms.Button();
-            this.imageLocTxtBox = new System.Windows.Forms.TextBox();
             this.harddiskInfoPage = new Gui.Wizard.WizardPage();
             this.label5 = new System.Windows.Forms.Label();
             this.harddiskDiskLab = new System.Windows.Forms.Label();
@@ -90,11 +67,30 @@ namespace RosTEGUI
             this.startInfoPage = new Gui.Wizard.InfoPage();
             this.wizardFinishPage = new Gui.Wizard.WizardPage();
             this.finishInfoPage = new Gui.Wizard.InfoPage();
+            this.memoryInfoPage = new Gui.Wizard.WizardPage();
+            this.memoryLab7 = new System.Windows.Forms.Label();
+            this.memoryLab1 = new System.Windows.Forms.Label();
+            this.memoryHorizRuleLight = new System.Windows.Forms.Panel();
+            this.memoryHorizRuleDark = new System.Windows.Forms.Panel();
+            this.memoryLab6 = new System.Windows.Forms.Label();
+            this.memoryPhyRam = new System.Windows.Forms.Label();
+            this.memoryLab2 = new System.Windows.Forms.Label();
+            this.memoryRecMax = new System.Windows.Forms.Label();
+            this.memoryRec = new System.Windows.Forms.Label();
+            this.memoryRecMin = new System.Windows.Forms.Label();
+            this.memoryLab5 = new System.Windows.Forms.Label();
+            this.memoryLab4 = new System.Windows.Forms.Label();
+            this.memoryLab3 = new System.Windows.Forms.Label();
+            this.memoryUpDwn = new System.Windows.Forms.NumericUpDown();
+            this.memoryTrkBar = new System.Windows.Forms.TrackBar();
+            this.memoryheader = new Gui.Wizard.Header();
+            this.imageInfoPage = new Gui.Wizard.WizardPage();
+            this.imageHeader = new Gui.Wizard.Header();
+            this.imageLab2 = new System.Windows.Forms.Label();
+            this.imageLab1 = new System.Windows.Forms.Label();
+            this.imageFileBrowse = new System.Windows.Forms.Button();
+            this.imageLocTxtBox = new System.Windows.Forms.TextBox();
             this.wizardNewVM.SuspendLayout();
-            this.memoryInfoPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).BeginInit();
-            this.imageInfoPage.SuspendLayout();
             this.harddiskInfoPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.harddiskUpDwn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.harddiskTrkBar)).BeginInit();
@@ -103,6 +99,10 @@ namespace RosTEGUI
             this.optionInfoPage.SuspendLayout();
             this.wizardStartPage.SuspendLayout();
             this.wizardFinishPage.SuspendLayout();
+            this.memoryInfoPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).BeginInit();
+            this.imageInfoPage.SuspendLayout();
             this.SuspendLayout();
             // 
             // wizardOpenFile
@@ -111,7 +111,6 @@ namespace RosTEGUI
             // 
             // wizardNewVM
             // 
-            this.wizardNewVM.Controls.Add(this.imageInfoPage);
             this.wizardNewVM.Controls.Add(this.harddiskInfoPage);
             this.wizardNewVM.Controls.Add(this.defaultDirInfoPage);
             this.wizardNewVM.Controls.Add(this.nameInfoPage);
@@ -119,6 +118,7 @@ namespace RosTEGUI
             this.wizardNewVM.Controls.Add(this.wizardStartPage);
             this.wizardNewVM.Controls.Add(this.wizardFinishPage);
             this.wizardNewVM.Controls.Add(this.memoryInfoPage);
+            this.wizardNewVM.Controls.Add(this.imageInfoPage);
             this.wizardNewVM.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardNewVM.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizardNewVM.Location = new System.Drawing.Point(0, 0);
@@ -135,6 +135,387 @@ namespace RosTEGUI
             this.wizardNewVM.Size = new System.Drawing.Size(453, 320);
             this.wizardNewVM.TabIndex = 0;
             this.wizardNewVM.CloseFromCancel += new System.ComponentModel.CancelEventHandler(this.wizard1_CloseFromCancel);
+            // 
+            // harddiskInfoPage
+            // 
+            this.harddiskInfoPage.Controls.Add(this.label5);
+            this.harddiskInfoPage.Controls.Add(this.harddiskDiskLab);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab2);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab1);
+            this.harddiskInfoPage.Controls.Add(this.harddiskDiskSizeLab);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab3);
+            this.harddiskInfoPage.Controls.Add(this.harddiskRecMinLab);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab4);
+            this.harddiskInfoPage.Controls.Add(this.harddiskUpDwn);
+            this.harddiskInfoPage.Controls.Add(this.harddiskTrkBar);
+            this.harddiskInfoPage.Controls.Add(this.harddiskHeader);
+            this.harddiskInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.harddiskInfoPage.IsFinishPage = false;
+            this.harddiskInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.harddiskInfoPage.Name = "harddiskInfoPage";
+            this.harddiskInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.harddiskInfoPage.TabIndex = 6;
+            this.harddiskInfoPage.Enter += new System.EventHandler(this.wizardHardDiskPage_Enter);
+            this.harddiskInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromNext);
+            this.harddiskInfoPage.CloseFromBack += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromBack);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(421, 142);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(21, 13);
+            this.label5.TabIndex = 37;
+            this.label5.Text = "MB";
+            // 
+            // harddiskDiskLab
+            // 
+            this.harddiskDiskLab.AutoSize = true;
+            this.harddiskDiskLab.Location = new System.Drawing.Point(197, 190);
+            this.harddiskDiskLab.Name = "harddiskDiskLab";
+            this.harddiskDiskLab.Size = new System.Drawing.Size(18, 13);
+            this.harddiskDiskLab.TabIndex = 36;
+            this.harddiskDiskLab.Text = "C:";
+            // 
+            // harddiskLab2
+            // 
+            this.harddiskLab2.AutoSize = true;
+            this.harddiskLab2.Location = new System.Drawing.Point(39, 190);
+            this.harddiskLab2.Name = "harddiskLab2";
+            this.harddiskLab2.Size = new System.Drawing.Size(66, 13);
+            this.harddiskLab2.TabIndex = 35;
+            this.harddiskLab2.Text = "Physical disk";
+            // 
+            // harddiskLab1
+            // 
+            this.harddiskLab1.AutoSize = true;
+            this.harddiskLab1.Location = new System.Drawing.Point(9, 83);
+            this.harddiskLab1.Name = "harddiskLab1";
+            this.harddiskLab1.Size = new System.Drawing.Size(352, 26);
+            this.harddiskLab1.TabIndex = 34;
+            this.harddiskLab1.Text = "Select a hard disk size for the virtual machine. The location of this image\r\ncorr" +
+                "esponds to the default directory previously chosen";
+            // 
+            // harddiskDiskSizeLab
+            // 
+            this.harddiskDiskSizeLab.AutoSize = true;
+            this.harddiskDiskSizeLab.Location = new System.Drawing.Point(197, 215);
+            this.harddiskDiskSizeLab.Name = "harddiskDiskSizeLab";
+            this.harddiskDiskSizeLab.Size = new System.Drawing.Size(25, 13);
+            this.harddiskDiskSizeLab.TabIndex = 33;
+            this.harddiskDiskSizeLab.Text = "size";
+            // 
+            // harddiskLab3
+            // 
+            this.harddiskLab3.AutoSize = true;
+            this.harddiskLab3.Location = new System.Drawing.Point(39, 215);
+            this.harddiskLab3.Name = "harddiskLab3";
+            this.harddiskLab3.Size = new System.Drawing.Size(104, 13);
+            this.harddiskLab3.TabIndex = 32;
+            this.harddiskLab3.Text = "Available free space";
+            // 
+            // harddiskRecMinLab
+            // 
+            this.harddiskRecMinLab.AutoSize = true;
+            this.harddiskRecMinLab.Location = new System.Drawing.Point(199, 238);
+            this.harddiskRecMinLab.Name = "harddiskRecMinLab";
+            this.harddiskRecMinLab.Size = new System.Drawing.Size(23, 13);
+            this.harddiskRecMinLab.TabIndex = 29;
+            this.harddiskRecMinLab.Text = "min";
+            // 
+            // harddiskLab4
+            // 
+            this.harddiskLab4.AutoSize = true;
+            this.harddiskLab4.Location = new System.Drawing.Point(39, 238);
+            this.harddiskLab4.Name = "harddiskLab4";
+            this.harddiskLab4.Size = new System.Drawing.Size(112, 13);
+            this.harddiskLab4.TabIndex = 26;
+            this.harddiskLab4.Text = "Recomended minimum";
+            // 
+            // harddiskUpDwn
+            // 
+            this.harddiskUpDwn.Location = new System.Drawing.Point(355, 140);
+            this.harddiskUpDwn.Name = "harddiskUpDwn";
+            this.harddiskUpDwn.Size = new System.Drawing.Size(60, 21);
+            this.harddiskUpDwn.TabIndex = 25;
+            this.harddiskUpDwn.ValueChanged += new System.EventHandler(this.harddiskUpdown_ValueChanged);
+            // 
+            // harddiskTrkBar
+            // 
+            this.harddiskTrkBar.Location = new System.Drawing.Point(12, 140);
+            this.harddiskTrkBar.Name = "harddiskTrkBar";
+            this.harddiskTrkBar.Size = new System.Drawing.Size(337, 45);
+            this.harddiskTrkBar.SmallChange = 100;
+            this.harddiskTrkBar.TabIndex = 24;
+            this.harddiskTrkBar.Scroll += new System.EventHandler(this.harddiskTrkBar_Scroll);
+            // 
+            // harddiskHeader
+            // 
+            this.harddiskHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.harddiskHeader.CausesValidation = false;
+            this.harddiskHeader.Description = "Choose the size of hard diskfor your virtual machine";
+            this.harddiskHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.harddiskHeader.Image = ((System.Drawing.Image)(resources.GetObject("harddiskHeader.Image")));
+            this.harddiskHeader.Location = new System.Drawing.Point(0, 0);
+            this.harddiskHeader.Name = "harddiskHeader";
+            this.harddiskHeader.Size = new System.Drawing.Size(453, 64);
+            this.harddiskHeader.TabIndex = 0;
+            this.harddiskHeader.Title = "Hard Disk Size";
+            // 
+            // defaultDirInfoPage
+            // 
+            this.defaultDirInfoPage.Controls.Add(this.defaultDirLab2);
+            this.defaultDirInfoPage.Controls.Add(this.defaultDirLab1);
+            this.defaultDirInfoPage.Controls.Add(this.defaultDirBrowse);
+            this.defaultDirInfoPage.Controls.Add(this.defaultDirTxtBox);
+            this.defaultDirInfoPage.Controls.Add(this.defaultDirHeader);
+            this.defaultDirInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.defaultDirInfoPage.IsFinishPage = false;
+            this.defaultDirInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.defaultDirInfoPage.Name = "defaultDirInfoPage";
+            this.defaultDirInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.defaultDirInfoPage.TabIndex = 7;
+            this.defaultDirInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardDefaultDirPage_CloseFromNext);
+            // 
+            // defaultDirLab2
+            // 
+            this.defaultDirLab2.AutoSize = true;
+            this.defaultDirLab2.Location = new System.Drawing.Point(12, 137);
+            this.defaultDirLab2.Name = "defaultDirLab2";
+            this.defaultDirLab2.Size = new System.Drawing.Size(89, 13);
+            this.defaultDirLab2.TabIndex = 4;
+            this.defaultDirLab2.Text = "Default Directory";
+            // 
+            // defaultDirLab1
+            // 
+            this.defaultDirLab1.AutoSize = true;
+            this.defaultDirLab1.Location = new System.Drawing.Point(9, 83);
+            this.defaultDirLab1.Name = "defaultDirLab1";
+            this.defaultDirLab1.Size = new System.Drawing.Size(347, 39);
+            this.defaultDirLab1.TabIndex = 3;
+            this.defaultDirLab1.Text = "Type a location for your virtual machine. This is the location which your\r\nvirtua" +
+                "l machine image and it\'s corresponding configuration settings wil\r\n be stored.";
+            // 
+            // defaultDirBrowse
+            // 
+            this.defaultDirBrowse.Location = new System.Drawing.Point(366, 155);
+            this.defaultDirBrowse.Name = "defaultDirBrowse";
+            this.defaultDirBrowse.Size = new System.Drawing.Size(75, 23);
+            this.defaultDirBrowse.TabIndex = 2;
+            this.defaultDirBrowse.Text = "Browse...";
+            this.defaultDirBrowse.UseVisualStyleBackColor = true;
+            this.defaultDirBrowse.Click += new System.EventHandler(this.defaultDirBrowse_Click);
+            // 
+            // defaultDirTxtBox
+            // 
+            this.defaultDirTxtBox.Location = new System.Drawing.Point(12, 157);
+            this.defaultDirTxtBox.Name = "defaultDirTxtBox";
+            this.defaultDirTxtBox.Size = new System.Drawing.Size(348, 21);
+            this.defaultDirTxtBox.TabIndex = 1;
+            // 
+            // defaultDirHeader
+            // 
+            this.defaultDirHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.defaultDirHeader.CausesValidation = false;
+            this.defaultDirHeader.Description = "Choose the location of the directory which wil be used to hold your virtual machi" +
+                "ne and accociated settings";
+            this.defaultDirHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.defaultDirHeader.Image = ((System.Drawing.Image)(resources.GetObject("defaultDirHeader.Image")));
+            this.defaultDirHeader.Location = new System.Drawing.Point(0, 0);
+            this.defaultDirHeader.Name = "defaultDirHeader";
+            this.defaultDirHeader.Size = new System.Drawing.Size(453, 64);
+            this.defaultDirHeader.TabIndex = 0;
+            this.defaultDirHeader.Title = "Default Directory";
+            // 
+            // nameInfoPage
+            // 
+            this.nameInfoPage.Controls.Add(this.nameLab1);
+            this.nameInfoPage.Controls.Add(this.nameHeader);
+            this.nameInfoPage.Controls.Add(this.nameLab2);
+            this.nameInfoPage.Controls.Add(this.nameTxtBox);
+            this.nameInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.nameInfoPage.IsFinishPage = false;
+            this.nameInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.nameInfoPage.Name = "nameInfoPage";
+            this.nameInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.nameInfoPage.TabIndex = 3;
+            this.nameInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardNamePage_CloseFromNext);
+            // 
+            // nameLab1
+            // 
+            this.nameLab1.AutoSize = true;
+            this.nameLab1.Location = new System.Drawing.Point(9, 83);
+            this.nameLab1.Name = "nameLab1";
+            this.nameLab1.Size = new System.Drawing.Size(343, 39);
+            this.nameLab1.TabIndex = 4;
+            this.nameLab1.Text = "Type a location for you virtual machine. This is the location which your\r\nvirtual" +
+                " machine image and it\'s corresponding configuration settings wil\r\n be stored.";
+            // 
+            // nameHeader
+            // 
+            this.nameHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.nameHeader.CausesValidation = false;
+            this.nameHeader.Description = "Choose a name for you virtual machine which will be used to identify it via the c" +
+                "onsole";
+            this.nameHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.nameHeader.Image = ((System.Drawing.Image)(resources.GetObject("nameHeader.Image")));
+            this.nameHeader.Location = new System.Drawing.Point(0, 0);
+            this.nameHeader.Name = "nameHeader";
+            this.nameHeader.Size = new System.Drawing.Size(453, 64);
+            this.nameHeader.TabIndex = 2;
+            this.nameHeader.Title = "Virtual Machine name";
+            // 
+            // nameLab2
+            // 
+            this.nameLab2.AutoSize = true;
+            this.nameLab2.Location = new System.Drawing.Point(12, 137);
+            this.nameLab2.Name = "nameLab2";
+            this.nameLab2.Size = new System.Drawing.Size(188, 13);
+            this.nameLab2.TabIndex = 1;
+            this.nameLab2.Text = "Enter a name for your virtual machine";
+            // 
+            // nameTxtBox
+            // 
+            this.nameTxtBox.Location = new System.Drawing.Point(12, 157);
+            this.nameTxtBox.Name = "nameTxtBox";
+            this.nameTxtBox.Size = new System.Drawing.Size(429, 21);
+            this.nameTxtBox.TabIndex = 0;
+            // 
+            // optionInfoPage
+            // 
+            this.optionInfoPage.Controls.Add(this.optionLab3);
+            this.optionInfoPage.Controls.Add(this.optionLab2);
+            this.optionInfoPage.Controls.Add(this.optionLab1);
+            this.optionInfoPage.Controls.Add(this.optionRadDefault);
+            this.optionInfoPage.Controls.Add(this.optionRadExist);
+            this.optionInfoPage.Controls.Add(this.optionRadNew);
+            this.optionInfoPage.Controls.Add(this.optionHeader);
+            this.optionInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.optionInfoPage.IsFinishPage = false;
+            this.optionInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.optionInfoPage.Name = "optionInfoPage";
+            this.optionInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.optionInfoPage.TabIndex = 2;
+            // 
+            // optionLab3
+            // 
+            this.optionLab3.AutoSize = true;
+            this.optionLab3.Location = new System.Drawing.Point(64, 220);
+            this.optionLab3.Name = "optionLab3";
+            this.optionLab3.Size = new System.Drawing.Size(277, 26);
+            this.optionLab3.TabIndex = 6;
+            this.optionLab3.Text = "This option will set up a virtual machine using the default\r\nrecommended settings" +
+                " for your hardware";
+            // 
+            // optionLab2
+            // 
+            this.optionLab2.AutoSize = true;
+            this.optionLab2.Location = new System.Drawing.Point(64, 165);
+            this.optionLab2.Name = "optionLab2";
+            this.optionLab2.Size = new System.Drawing.Size(298, 13);
+            this.optionLab2.TabIndex = 5;
+            this.optionLab2.Text = "This option will add an existing virtual machine to the console";
+            // 
+            // optionLab1
+            // 
+            this.optionLab1.AutoSize = true;
+            this.optionLab1.Location = new System.Drawing.Point(64, 110);
+            this.optionLab1.Name = "optionLab1";
+            this.optionLab1.Size = new System.Drawing.Size(297, 26);
+            this.optionLab1.TabIndex = 4;
+            this.optionLab1.Text = "This option will take you through the process of setting up a \r\nnew virtual machi" +
+                "ne";
+            // 
+            // optionRadDefault
+            // 
+            this.optionRadDefault.AutoSize = true;
+            this.optionRadDefault.Location = new System.Drawing.Point(46, 200);
+            this.optionRadDefault.Name = "optionRadDefault";
+            this.optionRadDefault.Size = new System.Drawing.Size(210, 17);
+            this.optionRadDefault.TabIndex = 3;
+            this.optionRadDefault.Text = "Use the default recommended settings";
+            this.optionRadDefault.UseVisualStyleBackColor = true;
+            // 
+            // optionRadExist
+            // 
+            this.optionRadExist.AutoSize = true;
+            this.optionRadExist.Location = new System.Drawing.Point(46, 145);
+            this.optionRadExist.Name = "optionRadExist";
+            this.optionRadExist.Size = new System.Drawing.Size(173, 17);
+            this.optionRadExist.TabIndex = 2;
+            this.optionRadExist.Text = "Use an existing virtual machine";
+            this.optionRadExist.UseVisualStyleBackColor = true;
+            // 
+            // optionRadNew
+            // 
+            this.optionRadNew.AutoSize = true;
+            this.optionRadNew.Checked = true;
+            this.optionRadNew.Location = new System.Drawing.Point(46, 90);
+            this.optionRadNew.Name = "optionRadNew";
+            this.optionRadNew.Size = new System.Drawing.Size(165, 17);
+            this.optionRadNew.TabIndex = 1;
+            this.optionRadNew.TabStop = true;
+            this.optionRadNew.Text = "Create a new virtual machine";
+            this.optionRadNew.UseVisualStyleBackColor = true;
+            // 
+            // optionHeader
+            // 
+            this.optionHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.optionHeader.CausesValidation = false;
+            this.optionHeader.Description = "Create a new virtual machine or hook up to an existing one";
+            this.optionHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.optionHeader.Image = ((System.Drawing.Image)(resources.GetObject("optionHeader.Image")));
+            this.optionHeader.Location = new System.Drawing.Point(0, 0);
+            this.optionHeader.Name = "optionHeader";
+            this.optionHeader.Size = new System.Drawing.Size(453, 64);
+            this.optionHeader.TabIndex = 0;
+            this.optionHeader.Title = "Choose a setup option";
+            // 
+            // wizardStartPage
+            // 
+            this.wizardStartPage.Controls.Add(this.startInfoPage);
+            this.wizardStartPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardStartPage.IsFinishPage = false;
+            this.wizardStartPage.Location = new System.Drawing.Point(0, 0);
+            this.wizardStartPage.Name = "wizardStartPage";
+            this.wizardStartPage.Size = new System.Drawing.Size(453, 272);
+            this.wizardStartPage.TabIndex = 1;
+            // 
+            // startInfoPage
+            // 
+            this.startInfoPage.BackColor = System.Drawing.Color.White;
+            this.startInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.startInfoPage.Image = ((System.Drawing.Image)(resources.GetObject("startInfoPage.Image")));
+            this.startInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.startInfoPage.Name = "startInfoPage";
+            this.startInfoPage.PageText = "This wizard enables you to quickly set up a new virtual machine";
+            this.startInfoPage.PageTitle = "Welcome to the New Virtual Machine wizard";
+            this.startInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.startInfoPage.TabIndex = 0;
+            // 
+            // wizardFinishPage
+            // 
+            this.wizardFinishPage.Controls.Add(this.finishInfoPage);
+            this.wizardFinishPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardFinishPage.IsFinishPage = false;
+            this.wizardFinishPage.Location = new System.Drawing.Point(0, 0);
+            this.wizardFinishPage.Name = "wizardFinishPage";
+            this.wizardFinishPage.Size = new System.Drawing.Size(453, 272);
+            this.wizardFinishPage.TabIndex = 4;
+            this.wizardFinishPage.CloseFromBack += new Gui.Wizard.PageEventHandler(this.wizardFinishPage_CloseFromBack);
+            // 
+            // finishInfoPage
+            // 
+            this.finishInfoPage.BackColor = System.Drawing.Color.White;
+            this.finishInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.finishInfoPage.Image = ((System.Drawing.Image)(resources.GetObject("finishInfoPage.Image")));
+            this.finishInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.finishInfoPage.Name = "finishInfoPage";
+            this.finishInfoPage.PageText = "You new virtual machine is now ready to use via the console. Use the settings dia" +
+                "log for any additional fine tuning";
+            this.finishInfoPage.PageTitle = "Completed the New Virtual Machine wizard";
+            this.finishInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.finishInfoPage.TabIndex = 0;
             // 
             // memoryInfoPage
             // 
@@ -374,387 +755,6 @@ namespace RosTEGUI
             this.imageLocTxtBox.Size = new System.Drawing.Size(348, 21);
             this.imageLocTxtBox.TabIndex = 5;
             // 
-            // harddiskInfoPage
-            // 
-            this.harddiskInfoPage.Controls.Add(this.label5);
-            this.harddiskInfoPage.Controls.Add(this.harddiskDiskLab);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab2);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab1);
-            this.harddiskInfoPage.Controls.Add(this.harddiskDiskSizeLab);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab3);
-            this.harddiskInfoPage.Controls.Add(this.harddiskRecMinLab);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab4);
-            this.harddiskInfoPage.Controls.Add(this.harddiskUpDwn);
-            this.harddiskInfoPage.Controls.Add(this.harddiskTrkBar);
-            this.harddiskInfoPage.Controls.Add(this.harddiskHeader);
-            this.harddiskInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.harddiskInfoPage.IsFinishPage = false;
-            this.harddiskInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.harddiskInfoPage.Name = "harddiskInfoPage";
-            this.harddiskInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.harddiskInfoPage.TabIndex = 6;
-            this.harddiskInfoPage.Enter += new System.EventHandler(this.wizardHardDiskPage_Enter);
-            this.harddiskInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromNext);
-            this.harddiskInfoPage.CloseFromBack += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromBack);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(421, 142);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(20, 13);
-            this.label5.TabIndex = 37;
-            this.label5.Text = "GB";
-            // 
-            // harddiskDiskLab
-            // 
-            this.harddiskDiskLab.AutoSize = true;
-            this.harddiskDiskLab.Location = new System.Drawing.Point(197, 190);
-            this.harddiskDiskLab.Name = "harddiskDiskLab";
-            this.harddiskDiskLab.Size = new System.Drawing.Size(18, 13);
-            this.harddiskDiskLab.TabIndex = 36;
-            this.harddiskDiskLab.Text = "C:";
-            // 
-            // harddiskLab2
-            // 
-            this.harddiskLab2.AutoSize = true;
-            this.harddiskLab2.Location = new System.Drawing.Point(39, 190);
-            this.harddiskLab2.Name = "harddiskLab2";
-            this.harddiskLab2.Size = new System.Drawing.Size(66, 13);
-            this.harddiskLab2.TabIndex = 35;
-            this.harddiskLab2.Text = "Physical disk";
-            // 
-            // harddiskLab1
-            // 
-            this.harddiskLab1.AutoSize = true;
-            this.harddiskLab1.Location = new System.Drawing.Point(9, 83);
-            this.harddiskLab1.Name = "harddiskLab1";
-            this.harddiskLab1.Size = new System.Drawing.Size(352, 26);
-            this.harddiskLab1.TabIndex = 34;
-            this.harddiskLab1.Text = "Select a hard disk size for the virtual machine. The location of this image\r\ncorr" +
-                "esponds to the default directory previously chosen";
-            // 
-            // harddiskDiskSizeLab
-            // 
-            this.harddiskDiskSizeLab.AutoSize = true;
-            this.harddiskDiskSizeLab.Location = new System.Drawing.Point(197, 215);
-            this.harddiskDiskSizeLab.Name = "harddiskDiskSizeLab";
-            this.harddiskDiskSizeLab.Size = new System.Drawing.Size(25, 13);
-            this.harddiskDiskSizeLab.TabIndex = 33;
-            this.harddiskDiskSizeLab.Text = "size";
-            // 
-            // harddiskLab3
-            // 
-            this.harddiskLab3.AutoSize = true;
-            this.harddiskLab3.Location = new System.Drawing.Point(39, 215);
-            this.harddiskLab3.Name = "harddiskLab3";
-            this.harddiskLab3.Size = new System.Drawing.Size(104, 13);
-            this.harddiskLab3.TabIndex = 32;
-            this.harddiskLab3.Text = "Available free space";
-            // 
-            // harddiskRecMinLab
-            // 
-            this.harddiskRecMinLab.AutoSize = true;
-            this.harddiskRecMinLab.Location = new System.Drawing.Point(199, 238);
-            this.harddiskRecMinLab.Name = "harddiskRecMinLab";
-            this.harddiskRecMinLab.Size = new System.Drawing.Size(23, 13);
-            this.harddiskRecMinLab.TabIndex = 29;
-            this.harddiskRecMinLab.Text = "min";
-            // 
-            // harddiskLab4
-            // 
-            this.harddiskLab4.AutoSize = true;
-            this.harddiskLab4.Location = new System.Drawing.Point(39, 238);
-            this.harddiskLab4.Name = "harddiskLab4";
-            this.harddiskLab4.Size = new System.Drawing.Size(112, 13);
-            this.harddiskLab4.TabIndex = 26;
-            this.harddiskLab4.Text = "Recomended minimum";
-            // 
-            // harddiskUpDwn
-            // 
-            this.harddiskUpDwn.Location = new System.Drawing.Point(355, 140);
-            this.harddiskUpDwn.Name = "harddiskUpDwn";
-            this.harddiskUpDwn.Size = new System.Drawing.Size(60, 21);
-            this.harddiskUpDwn.TabIndex = 25;
-            this.harddiskUpDwn.ValueChanged += new System.EventHandler(this.harddiskUpdown_ValueChanged);
-            // 
-            // harddiskTrkBar
-            // 
-            this.harddiskTrkBar.Location = new System.Drawing.Point(12, 140);
-            this.harddiskTrkBar.Name = "harddiskTrkBar";
-            this.harddiskTrkBar.Size = new System.Drawing.Size(337, 45);
-            this.harddiskTrkBar.TabIndex = 24;
-            this.harddiskTrkBar.Scroll += new System.EventHandler(this.harddiskTrkBar_Scroll);
-            // 
-            // harddiskHeader
-            // 
-            this.harddiskHeader.BackColor = System.Drawing.SystemColors.Control;
-            this.harddiskHeader.CausesValidation = false;
-            this.harddiskHeader.Description = "Choose the size of hard diskfor your virtual machine";
-            this.harddiskHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.harddiskHeader.Image = ((System.Drawing.Image)(resources.GetObject("harddiskHeader.Image")));
-            this.harddiskHeader.Location = new System.Drawing.Point(0, 0);
-            this.harddiskHeader.Name = "harddiskHeader";
-            this.harddiskHeader.Size = new System.Drawing.Size(453, 64);
-            this.harddiskHeader.TabIndex = 0;
-            this.harddiskHeader.Title = "Hard Disk Size";
-            // 
-            // defaultDirInfoPage
-            // 
-            this.defaultDirInfoPage.Controls.Add(this.defaultDirLab2);
-            this.defaultDirInfoPage.Controls.Add(this.defaultDirLab1);
-            this.defaultDirInfoPage.Controls.Add(this.defaultDirBrowse);
-            this.defaultDirInfoPage.Controls.Add(this.defaultDirTxtBox);
-            this.defaultDirInfoPage.Controls.Add(this.defaultDirHeader);
-            this.defaultDirInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.defaultDirInfoPage.IsFinishPage = false;
-            this.defaultDirInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.defaultDirInfoPage.Name = "defaultDirInfoPage";
-            this.defaultDirInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.defaultDirInfoPage.TabIndex = 7;
-            this.defaultDirInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardDefaultDirPage_CloseFromNext);
-            // 
-            // defaultDirLab2
-            // 
-            this.defaultDirLab2.AutoSize = true;
-            this.defaultDirLab2.Location = new System.Drawing.Point(12, 137);
-            this.defaultDirLab2.Name = "defaultDirLab2";
-            this.defaultDirLab2.Size = new System.Drawing.Size(89, 13);
-            this.defaultDirLab2.TabIndex = 4;
-            this.defaultDirLab2.Text = "Default Directory";
-            // 
-            // defaultDirLab1
-            // 
-            this.defaultDirLab1.AutoSize = true;
-            this.defaultDirLab1.Location = new System.Drawing.Point(9, 83);
-            this.defaultDirLab1.Name = "defaultDirLab1";
-            this.defaultDirLab1.Size = new System.Drawing.Size(347, 39);
-            this.defaultDirLab1.TabIndex = 3;
-            this.defaultDirLab1.Text = "Type a location for your virtual machine. This is the location which your\r\nvirtua" +
-                "l machine image and it\'s corresponding configuration settings wil\r\n be stored.";
-            // 
-            // defaultDirBrowse
-            // 
-            this.defaultDirBrowse.Location = new System.Drawing.Point(366, 155);
-            this.defaultDirBrowse.Name = "defaultDirBrowse";
-            this.defaultDirBrowse.Size = new System.Drawing.Size(75, 23);
-            this.defaultDirBrowse.TabIndex = 2;
-            this.defaultDirBrowse.Text = "Browse...";
-            this.defaultDirBrowse.UseVisualStyleBackColor = true;
-            this.defaultDirBrowse.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // defaultDirTxtBox
-            // 
-            this.defaultDirTxtBox.Location = new System.Drawing.Point(12, 157);
-            this.defaultDirTxtBox.Name = "defaultDirTxtBox";
-            this.defaultDirTxtBox.Size = new System.Drawing.Size(348, 21);
-            this.defaultDirTxtBox.TabIndex = 1;
-            // 
-            // defaultDirHeader
-            // 
-            this.defaultDirHeader.BackColor = System.Drawing.SystemColors.Control;
-            this.defaultDirHeader.CausesValidation = false;
-            this.defaultDirHeader.Description = "Choose the location of the directory which wil be used to hold your virtual machi" +
-                "ne and accociated settings";
-            this.defaultDirHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.defaultDirHeader.Image = ((System.Drawing.Image)(resources.GetObject("defaultDirHeader.Image")));
-            this.defaultDirHeader.Location = new System.Drawing.Point(0, 0);
-            this.defaultDirHeader.Name = "defaultDirHeader";
-            this.defaultDirHeader.Size = new System.Drawing.Size(453, 64);
-            this.defaultDirHeader.TabIndex = 0;
-            this.defaultDirHeader.Title = "Default Directory";
-            // 
-            // nameInfoPage
-            // 
-            this.nameInfoPage.Controls.Add(this.nameLab1);
-            this.nameInfoPage.Controls.Add(this.nameHeader);
-            this.nameInfoPage.Controls.Add(this.nameLab2);
-            this.nameInfoPage.Controls.Add(this.nameTxtBox);
-            this.nameInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.nameInfoPage.IsFinishPage = false;
-            this.nameInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.nameInfoPage.Name = "nameInfoPage";
-            this.nameInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.nameInfoPage.TabIndex = 3;
-            this.nameInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardNamePage_CloseFromNext);
-            // 
-            // nameLab1
-            // 
-            this.nameLab1.AutoSize = true;
-            this.nameLab1.Location = new System.Drawing.Point(9, 83);
-            this.nameLab1.Name = "nameLab1";
-            this.nameLab1.Size = new System.Drawing.Size(343, 39);
-            this.nameLab1.TabIndex = 4;
-            this.nameLab1.Text = "Type a location for you virtual machine. This is the location which your\r\nvirtual" +
-                " machine image and it\'s corresponding configuration settings wil\r\n be stored.";
-            // 
-            // nameHeader
-            // 
-            this.nameHeader.BackColor = System.Drawing.SystemColors.Control;
-            this.nameHeader.CausesValidation = false;
-            this.nameHeader.Description = "Choose a name for you virtual machine which will be used to identify it via the c" +
-                "onsole";
-            this.nameHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.nameHeader.Image = ((System.Drawing.Image)(resources.GetObject("nameHeader.Image")));
-            this.nameHeader.Location = new System.Drawing.Point(0, 0);
-            this.nameHeader.Name = "nameHeader";
-            this.nameHeader.Size = new System.Drawing.Size(453, 64);
-            this.nameHeader.TabIndex = 2;
-            this.nameHeader.Title = "Virtual Machine name";
-            // 
-            // nameLab2
-            // 
-            this.nameLab2.AutoSize = true;
-            this.nameLab2.Location = new System.Drawing.Point(12, 137);
-            this.nameLab2.Name = "nameLab2";
-            this.nameLab2.Size = new System.Drawing.Size(188, 13);
-            this.nameLab2.TabIndex = 1;
-            this.nameLab2.Text = "Enter a name for your virtual machine";
-            // 
-            // nameTxtBox
-            // 
-            this.nameTxtBox.Location = new System.Drawing.Point(12, 157);
-            this.nameTxtBox.Name = "nameTxtBox";
-            this.nameTxtBox.Size = new System.Drawing.Size(429, 21);
-            this.nameTxtBox.TabIndex = 0;
-            // 
-            // optionInfoPage
-            // 
-            this.optionInfoPage.Controls.Add(this.optionLab3);
-            this.optionInfoPage.Controls.Add(this.optionLab2);
-            this.optionInfoPage.Controls.Add(this.optionLab1);
-            this.optionInfoPage.Controls.Add(this.optionRadDefault);
-            this.optionInfoPage.Controls.Add(this.optionRadExist);
-            this.optionInfoPage.Controls.Add(this.optionRadNew);
-            this.optionInfoPage.Controls.Add(this.optionHeader);
-            this.optionInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.optionInfoPage.IsFinishPage = false;
-            this.optionInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.optionInfoPage.Name = "optionInfoPage";
-            this.optionInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.optionInfoPage.TabIndex = 2;
-            this.optionInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardSetupOptionPage_CloseFromNext);
-            // 
-            // optionLab3
-            // 
-            this.optionLab3.AutoSize = true;
-            this.optionLab3.Location = new System.Drawing.Point(64, 220);
-            this.optionLab3.Name = "optionLab3";
-            this.optionLab3.Size = new System.Drawing.Size(277, 26);
-            this.optionLab3.TabIndex = 6;
-            this.optionLab3.Text = "This option will set up a virtual machine using the default\r\nrecommended settings" +
-                " for your hardware";
-            // 
-            // optionLab2
-            // 
-            this.optionLab2.AutoSize = true;
-            this.optionLab2.Location = new System.Drawing.Point(64, 165);
-            this.optionLab2.Name = "optionLab2";
-            this.optionLab2.Size = new System.Drawing.Size(298, 13);
-            this.optionLab2.TabIndex = 5;
-            this.optionLab2.Text = "This option will add an existing virtual machine to the console";
-            // 
-            // optionLab1
-            // 
-            this.optionLab1.AutoSize = true;
-            this.optionLab1.Location = new System.Drawing.Point(64, 110);
-            this.optionLab1.Name = "optionLab1";
-            this.optionLab1.Size = new System.Drawing.Size(297, 26);
-            this.optionLab1.TabIndex = 4;
-            this.optionLab1.Text = "This option will take you through the process of setting up a \r\nnew virtual machi" +
-                "ne";
-            // 
-            // optionRadDefault
-            // 
-            this.optionRadDefault.AutoSize = true;
-            this.optionRadDefault.Location = new System.Drawing.Point(46, 200);
-            this.optionRadDefault.Name = "optionRadDefault";
-            this.optionRadDefault.Size = new System.Drawing.Size(210, 17);
-            this.optionRadDefault.TabIndex = 3;
-            this.optionRadDefault.Text = "Use the default recommended settings";
-            this.optionRadDefault.UseVisualStyleBackColor = true;
-            // 
-            // optionRadExist
-            // 
-            this.optionRadExist.AutoSize = true;
-            this.optionRadExist.Location = new System.Drawing.Point(46, 145);
-            this.optionRadExist.Name = "optionRadExist";
-            this.optionRadExist.Size = new System.Drawing.Size(173, 17);
-            this.optionRadExist.TabIndex = 2;
-            this.optionRadExist.Text = "Use an existing virtual machine";
-            this.optionRadExist.UseVisualStyleBackColor = true;
-            // 
-            // optionRadNew
-            // 
-            this.optionRadNew.AutoSize = true;
-            this.optionRadNew.Checked = true;
-            this.optionRadNew.Location = new System.Drawing.Point(46, 90);
-            this.optionRadNew.Name = "optionRadNew";
-            this.optionRadNew.Size = new System.Drawing.Size(165, 17);
-            this.optionRadNew.TabIndex = 1;
-            this.optionRadNew.TabStop = true;
-            this.optionRadNew.Text = "Create a new virtual machine";
-            this.optionRadNew.UseVisualStyleBackColor = true;
-            // 
-            // optionHeader
-            // 
-            this.optionHeader.BackColor = System.Drawing.SystemColors.Control;
-            this.optionHeader.CausesValidation = false;
-            this.optionHeader.Description = "Create a new virtual machine or hook up to an existing one";
-            this.optionHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.optionHeader.Image = ((System.Drawing.Image)(resources.GetObject("optionHeader.Image")));
-            this.optionHeader.Location = new System.Drawing.Point(0, 0);
-            this.optionHeader.Name = "optionHeader";
-            this.optionHeader.Size = new System.Drawing.Size(453, 64);
-            this.optionHeader.TabIndex = 0;
-            this.optionHeader.Title = "Choose a setup option";
-            // 
-            // wizardStartPage
-            // 
-            this.wizardStartPage.Controls.Add(this.startInfoPage);
-            this.wizardStartPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardStartPage.IsFinishPage = false;
-            this.wizardStartPage.Location = new System.Drawing.Point(0, 0);
-            this.wizardStartPage.Name = "wizardStartPage";
-            this.wizardStartPage.Size = new System.Drawing.Size(453, 272);
-            this.wizardStartPage.TabIndex = 1;
-            // 
-            // startInfoPage
-            // 
-            this.startInfoPage.BackColor = System.Drawing.Color.White;
-            this.startInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.startInfoPage.Image = ((System.Drawing.Image)(resources.GetObject("startInfoPage.Image")));
-            this.startInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.startInfoPage.Name = "startInfoPage";
-            this.startInfoPage.PageText = "This wizard enables you to quickly set up a new virtual machine";
-            this.startInfoPage.PageTitle = "Welcome to the New Virtual Machine wizard";
-            this.startInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.startInfoPage.TabIndex = 0;
-            // 
-            // wizardFinishPage
-            // 
-            this.wizardFinishPage.Controls.Add(this.finishInfoPage);
-            this.wizardFinishPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardFinishPage.IsFinishPage = false;
-            this.wizardFinishPage.Location = new System.Drawing.Point(0, 0);
-            this.wizardFinishPage.Name = "wizardFinishPage";
-            this.wizardFinishPage.Size = new System.Drawing.Size(453, 272);
-            this.wizardFinishPage.TabIndex = 4;
-            this.wizardFinishPage.CloseFromBack += new Gui.Wizard.PageEventHandler(this.wizardFinishPage_CloseFromBack);
-            // 
-            // finishInfoPage
-            // 
-            this.finishInfoPage.BackColor = System.Drawing.Color.White;
-            this.finishInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.finishInfoPage.Image = ((System.Drawing.Image)(resources.GetObject("finishInfoPage.Image")));
-            this.finishInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.finishInfoPage.Name = "finishInfoPage";
-            this.finishInfoPage.PageText = "You new virtual machine is now ready to use via the console. Use the settings dia" +
-                "log for any additional fine tuning";
-            this.finishInfoPage.PageTitle = "Completed the New Virtual Machine wizard";
-            this.finishInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.finishInfoPage.TabIndex = 0;
-            // 
             // NewVMWizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -765,12 +765,6 @@ namespace RosTEGUI
             this.Name = "NewVMWizard";
             this.Text = "New Virtual Machine Wizard";
             this.wizardNewVM.ResumeLayout(false);
-            this.memoryInfoPage.ResumeLayout(false);
-            this.memoryInfoPage.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).EndInit();
-            this.imageInfoPage.ResumeLayout(false);
-            this.imageInfoPage.PerformLayout();
             this.harddiskInfoPage.ResumeLayout(false);
             this.harddiskInfoPage.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.harddiskUpDwn)).EndInit();
@@ -783,6 +777,12 @@ namespace RosTEGUI
             this.optionInfoPage.PerformLayout();
             this.wizardStartPage.ResumeLayout(false);
             this.wizardFinishPage.ResumeLayout(false);
+            this.memoryInfoPage.ResumeLayout(false);
+            this.memoryInfoPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).EndInit();
+            this.imageInfoPage.ResumeLayout(false);
+            this.imageInfoPage.PerformLayout();
             this.ResumeLayout(false);
 
         }
