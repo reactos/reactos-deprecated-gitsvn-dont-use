@@ -115,9 +115,7 @@ namespace RosTEGUI
 
         public void DeleteVirtMach(int index)
         {
-            DataRow dr;
             DataTable dt = data.DataSet.Tables["MainConfig"];
-            //dt.Rows[index].Delete();
             dt.Rows.RemoveAt(index);
         }
 
@@ -154,32 +152,33 @@ namespace RosTEGUI
         private Data data = null;
 
         // default
-        public VMConfig(Data dataIn,
-                        string name)
+        public VMConfig(Data dataIn, string name) : 
+            this(dataIn, name, "Images\\" + name, 0.2f, null, 256)
         {
-            data = dataIn;
-            //DataRow dr = MainConfig.DataSet;
         }
 
         // existing
-        public VMConfig(Data dataIn,
-                        string name,
-                        string existImg,
-                        int memSize)
+        public VMConfig(Data dataIn, string name, string existImg, int memSize) :
+            this(dataIn, name, null, 0.0f, existImg, memSize)
         {
-            data = dataIn;
-            MessageBox.Show(existImg + " " + memSize);
         }
 
         // new
         public VMConfig(Data dataIn,
                         string name,
                         string dir,
-                        int diskSize,
+                        float diskSize,
                         string existImg,
                         int memSize)
         {
             data = dataIn;
+
+            if (existImg != null)
+            {
+                DirectoryInfo di = Directory.GetParent(existImg);
+                dir = di.FullName;
+            }
+
             MessageBox.Show(name + " " + dir + " " + diskSize + " " + existImg + " " + memSize);
         }
     }
