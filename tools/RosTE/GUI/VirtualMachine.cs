@@ -10,14 +10,13 @@ namespace RosTEGUI
     {
         private Data data;
         private DataRow dataRow;
-        private string machine;
-        private string cdrom;
-        private char boot;
-        private string snapshot;
-        private int memory;
-        private int processors;
-        private bool localTime;
-        private bool fullScreen;
+
+        #region Virtual machine properties
+
+        public int VirtMachID
+        {
+            get { return (int)dataRow["VirtMachID"]; }
+        }
 
         public string Name
         {
@@ -25,73 +24,85 @@ namespace RosTEGUI
             set { dataRow["Name"] = value; }
         }
 
+        public string MachType
+        {
+            get { return (string)dataRow["MachType"]; }
+            set { dataRow["MachType"] = value; }
+        }
+
         public string DefDir
         {
             get { return (string)dataRow["DefDir"]; }
+            set { dataRow["DefDir"] = value; }
         }
 
-        public string Machine
+        public int MemSize
         {
-            get { return machine; }
-            set { machine = value; }
+            get { return (int)dataRow["MemSize"]; }
+            set { dataRow["MemSize"] = value; }
         }
 
+        public bool CdRomEnable
+        {
+            get { return (bool)dataRow["CdRomEnable"]; }
+            set { dataRow["CdRomEnable"] = value; }
+        }
 
-        public string Cdrom
+        public bool CdRomUsePhys
         {
-            get { return cdrom; }
-            set { cdrom = value; }
+            get { return (bool)dataRow["CdRomUsePhys"]; }
+            set { dataRow["CdRomUsePhys"] = value; }
         }
-        public string Boot
+
+        public string CdRomPhysDrv
         {
-            get
-            {
-                switch (boot)
-                {
-                    case 'a': return "floppy";
-                    case 'c': return "harddisk";
-                    case 'd': return "cdrom";
-                    case 'n': return "network";
-                    default: throw new ArgumentException("Boot");
-                }
-            }
-            set
-            {
-                switch (value)
-                {
-                    case "floppy": boot = 'a'; break;
-                    case "harddisk": boot = 'c'; break;
-                    case "cdrom": boot = 'd'; break;
-                    case "network": boot = 'n'; break;
-                    default: throw new ArgumentException("Boot");
-                }
-            }
+            get { return (string)dataRow["CdRomPhysDrv"]; }
+            set { dataRow["CdRomPhysDrv"] = value; }
         }
-        public string SnapShot
+
+        public bool CdRomUseIso
         {
-            get { return snapshot; }
-            set { snapshot = value; }
+            get { return (bool)dataRow["CdRomUseIso"]; }
+            set { dataRow["CdRomUseIso"] = value; }
         }
-        public int Memory
+
+        public string CdRomIsoImg
         {
-            get { return memory; }
-            set { memory = value; }
+            get { return (string)dataRow["CdRomIsoImg"]; }
+            set { dataRow["CdRomIsoImg"] = value; }
         }
-        public int Processors
+
+        public bool FloppyEnable
         {
-            get { return processors; }
-            set { processors = value; }
+            get { return (bool)dataRow["FloppyEnable"]; }
+            set { dataRow["FloppyEnable"] = value; }
         }
-        public bool LocalTime
+
+        public bool FloppyUsePhys
         {
-            get { return localTime; }
-            set { localTime = value; }
+            get { return (bool)dataRow["FloppyUsePhys"]; }
+            set { dataRow["FloppyUsePhys"] = value; }
         }
-        public bool FullScreen
+
+        public string FloppyPhysDrv
         {
-            get { return fullScreen; }
-            set { fullScreen = value; }
+            get { return (string)dataRow["FloppyPhysDrv"]; }
+            set { dataRow["FloppyPhysDrv"] = value; }
         }
+
+        public bool FloppyUseIso
+        {
+            get { return (bool)dataRow["FloppyUseIso"]; }
+            set { dataRow["FloppyUseIso"] = value; }
+        }
+
+        public string FloppyIsoImg
+        {
+            get { return (string)dataRow["FloppyIsoImg"]; }
+            set { dataRow["FloppyIsoImg"] = value; }
+        }
+
+        #endregion
 
         public override string ToString()
         {

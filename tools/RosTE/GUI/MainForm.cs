@@ -139,6 +139,12 @@ namespace RosTEGUI
 
                 if (delFrm.ShowDialog() == DialogResult.OK)
                 {
+                    if (delFrm.DeleteFullVM)
+                    {
+                        VirtualMachine vm = (VirtualMachine)lvi.Tag;
+                        Directory.Delete(vm.DefDir, true);
+                    }
+
                     mainConf.DeleteVirtMach(lvi.Index/*lvi.Tag*/);
                     VirtMachListView.Items.Remove(lvi);
                     vmConfigs.Remove(lvi.Tag);
