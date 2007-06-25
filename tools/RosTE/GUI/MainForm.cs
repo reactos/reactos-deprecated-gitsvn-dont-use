@@ -47,9 +47,13 @@ namespace RosTEGUI
                 int num = mainConf.GetNumberOfVms();
                 for (int i = 0; i < num; i++)
                 {
-                    VirtualMachine vm = mainConf.GetExistingImage(i);
-                    ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
-                    lvi.Tag = vm;
+                    string image = mainConf.GetExistingImage(i);
+                    VirtualMachine vm = new VirtualMachine(vmData);
+                    if (vm.LoadVMConfig(image))
+                    {
+                        ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
+                        lvi.Tag = vm;
+                    }
                 }
             }
         }
@@ -145,6 +149,12 @@ namespace RosTEGUI
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             mainConf.SaveMainConfig();
+
+            for (int i = 0; i < vmConfigs.Count; i++)
+            {
+                VirtualMachine vm = (VirtualMachine)vmConfigs[i];
+                vm.SaveVMConfig();
+            }
         }
     }
 }

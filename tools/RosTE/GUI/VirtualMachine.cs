@@ -1,12 +1,8 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
+using System.Xml;
 
 namespace RosTEGUI
 {
@@ -15,8 +11,6 @@ namespace RosTEGUI
         private Data data;
         private DataRow dataRow;
         private string machine;
-        private StringCollection floppy;
-        private StringCollection hardDisk;
         private string cdrom;
         private char boot;
         private string snapshot;
@@ -27,14 +21,13 @@ namespace RosTEGUI
 
         public string Name
         {
-            get
-            {
-                return (string)dataRow["Name"];
-            }
-            set
-            {
-                dataRow["Name"] = value;
-            }
+            get { return (string)dataRow["Name"]; }
+            set { dataRow["Name"] = value; }
+        }
+
+        public string DefDir
+        {
+            get { return (string)dataRow["DefDir"]; }
         }
 
         public string Machine
@@ -42,16 +35,8 @@ namespace RosTEGUI
             get { return machine; }
             set { machine = value; }
         }
-        public StringCollection Floppy
-        {
-            get { return floppy; }
-            // no set, use Floppy.Add()
-        }
-        public StringCollection HardDisk
-        {
-            get { return hardDisk; }
-            // no set, use HardDisk.Add()
-        }
+
+
         public string Cdrom
         {
             get { return cdrom; }
@@ -116,9 +101,6 @@ namespace RosTEGUI
         public VirtualMachine(Data dataIn)
         {
             data = dataIn;
-
-            DataTable dt = data.DataSet.Tables["VMConfig"];
-            dataRow = dt.NewRow();
         }
 
         // default
@@ -148,21 +130,62 @@ namespace RosTEGUI
                 dir = di.FullName;
             }
 
+            DataTable dt = data.DataSet.Tables["VMConfig"];
+            int i = dt.Rows.Count + 1;
+            dataRow = dt.NewRow();
+            dataRow["VirtMachID"] = i;
+            dataRow["Name"] = name;
+            dataRow["MachType"] = "test";
+            dataRow["DefDir"] = dir;
+            dataRow["MemSize"] = memSize;
+            dataRow["CdRomEnable"] = true;
+            dataRow["CdRomUsePhys"] = false;
+            dataRow["CdRomPhyDrv"] = "R:";
+            dataRow["CdRomUseIso"] = true;
+            dataRow["CdRomIsoImg"] = "err";
+            dataRow["FloppyEnable"] = true;
+            dataRow["FloppyUsePhys"] = true;
+            dataRow["FloppyPhyDrive"] = "A:";
+            dataRow["FloppyUseImg"] = false;
+            dataRow["FloppyIsoImg"] = "err";
+
+            dt.Rows.Add(dataRow);
+            
             Name = name;
 
-            MessageBox.Show(name + " " + dir + " " + diskSize + " " + existImg + " " + memSize);
-
             return ret;
         }
 
-        public bool LoadVirtMach(string path)
+        public bool LoadVMConfig(string path)
         {
             bool ret = false;
+            string fileName = path + "\\Config.xml";
 
+            if (File.Exists(fileName))
+            {
+                FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                XmlTextReader xtr = new XmlTextReader(fs);
+                data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                xtr.Close();
+
+                DataTable dt = data.DataSet.Tables["VMConfig"];
+                dataRow = dt.Rows[0];
+
+                ret = true;
+            }
 
             return ret;
         }
 
+        public void SaveVMConfig()
+        {
+            string fileName = DefDir + "\\Config.xml";
+            Directory.CreateDirectory(DefDir);
+            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
+            data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+            xtw.Close();
+        }
     }
 }
 

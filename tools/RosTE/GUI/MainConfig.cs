@@ -27,20 +27,38 @@ namespace RosTEGUI
             // and remove the need for LoadExistingImages / AddVirtMach / DeleteVirtMach
         }
 
-        public int GetNumberOfVms()
+        public bool LoadMainConfig()
         {
-            DataTable dt = data.DataSet.Tables["MainConfig"];
-            return dt.Rows.Count;
+            bool ret = false;
+            string fileName = "Config.xml";
+
+            if (File.Exists(fileName))
+            {
+                FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                XmlTextReader xtr = new XmlTextReader(fs);
+                data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                xtr.Close();
+                ret = true;
+            }
+
+            return ret;
         }
 
-        public VirtualMachine GetExistingImage(int index)
+        public void SaveMainConfig()
+        {
+            string fileName = "Config.xml";
+            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+            XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
+            data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+            xtw.Close();
+        }
+
+        public string GetExistingImage(int index)
         {
             DataTable dt = data.DataSet.Tables["MainConfig"];
             DataRow dr = dt.Rows[index];
 
-            VirtualMachine vm = new VirtualMachine(data);
-            vm.LoadVirtMach((string)dr["Path"]);
-            return vm;
+            return (string)dr["Path"];
         }
 
         public int AddVirtMach(string Path)
@@ -62,30 +80,10 @@ namespace RosTEGUI
             dt.Rows.RemoveAt(index);
         }
 
-        public void SaveMainConfig()
+        public int GetNumberOfVms()
         {
-            string fileName = "Config.xml";
-            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-            XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-            data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
-            xtw.Close();
-        }
-
-        public bool LoadMainConfig()
-        {
-            bool ret = false;
-            string fileName = "Config.xml";
-
-            if (File.Exists(fileName))
-            {
-                FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                XmlTextReader xtr = new XmlTextReader(fs);
-                data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
-                xtr.Close();
-                ret = true;
-            }
-
-            return ret;
+            DataTable dt = data.DataSet.Tables["MainConfig"];
+            return dt.Rows.Count;
         }
     }
 }
