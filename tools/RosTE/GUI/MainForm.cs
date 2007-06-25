@@ -13,7 +13,6 @@ namespace RosTEGUI
 {
 	public partial class MainForm : Form
     {
-        //private ArrayList VirtualMachines;
         private MainConfig mainConf;
         private ArrayList vmConfigs;
         private Data mainData;
@@ -44,7 +43,15 @@ namespace RosTEGUI
             mainConf = new MainConfig(mainData);
 
             if (mainConf.LoadMainConfig())
-                mainConf.LoadExistingImages(VirtMachListView);
+            {
+                int num = mainConf.GetNumberOfVms();
+                for (int i = 0; i < num; i++)
+                {
+                    VirtualMachine vm = mainConf.GetExistingImage(i);
+                    ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
+                    lvi.Tag = vm;
+                }
+            }
         }
 
         private void MainMenuHelpAbout_Click(object sender, EventArgs e)
@@ -79,34 +86,41 @@ namespace RosTEGUI
                 if (wizFrm.Option == 1)
                 {
                     int i = mainConf.AddVirtMach(wizFrm.DefDir);
-                    VirtMachListView.Items.Add(i.ToString(), wizFrm.VMName, 0);
 
-                    vmConfigs.Add(new VMConfig(vmData,
-                                               wizFrm.VMName,
-                                               wizFrm.DefDir,
-                                               wizFrm.DiskSizeGB,
-                                               wizFrm.ExistImg,
-                                               wizFrm.MemSizeMB));
+                    VirtualMachine VirtMach = new VirtualMachine(vmData);
+                    VirtMach.CreateVMConfig(wizFrm.VMName,
+                                            wizFrm.DefDir,
+                                            wizFrm.DiskSizeGB,
+                                            wizFrm.ExistImg,
+                                            wizFrm.MemSizeMB);
+                    vmConfigs.Add(VirtMach);
+
+                    ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
+                    lvi.Tag = VirtMach;
                 }
                 else if (wizFrm.Option == 2)
                 {
 
                     DirectoryInfo di = Directory.GetParent(wizFrm.ExistImg);
                     int i = mainConf.AddVirtMach(di.FullName);
-                    VirtMachListView.Items.Add(i.ToString(), wizFrm.VMName, 0);
+                    VirtualMachine VirtMach = new VirtualMachine(vmData);
+                    VirtMach.CreateVMConfig(wizFrm.VMName,
+                                            wizFrm.ExistImg,
+                                            wizFrm.MemSizeMB);
+                    vmConfigs.Add(VirtMach);
 
-                    vmConfigs.Add(new VMConfig(vmData,
-                                               wizFrm.VMName,
-                                               wizFrm.ExistImg,
-                                               wizFrm.MemSizeMB));
+                    ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
+                    lvi.Tag = VirtMach;
                 }
                 else
                 {
                     int i = mainConf.AddVirtMach("Images\\" + wizFrm.VMName);
-                    VirtMachListView.Items.Add(i.ToString(), wizFrm.VMName, 0);
+                    VirtualMachine VirtMach = new VirtualMachine(vmData);
+                    VirtMach.CreateVMConfig(wizFrm.VMName);
+                    vmConfigs.Add(VirtMach);
 
-                    vmConfigs.Add(new VMConfig(vmData,
-                                               wizFrm.VMName));
+                    ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
+                    lvi.Tag = VirtMach;
                 }
             }
         }
