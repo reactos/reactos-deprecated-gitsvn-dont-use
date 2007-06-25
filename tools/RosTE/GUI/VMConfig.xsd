@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="MainDB" targetNamespace="http://tempuri.org/MainDB.xsd" elementFormDefault="qualified" xmlns="http://tempuri.org/MainDB.xsd" xmlns:mstns="http://tempuri.org/MainDB.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema id="VMDB" targetNamespace="http://tempuri.org/MainDB.xsd" elementFormDefault="qualified" xmlns="http://tempuri.org/MainDB.xsd" xmlns:mstns="http://tempuri.org/MainDB.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="VMConfig">
     <xs:complexType>
       <xs:sequence>
@@ -29,14 +29,14 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="DiskID" type="xs:int" />
-        <xs:element name="VMConfigID" type="xs:int" />
+        <xs:element name="VirtMachID" type="xs:int" />
         <xs:element name="Path" type="xs:string" />
         <xs:element name="Size" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
     <xs:keyref name="VMConfigHardDisks" refer="VMConfigKey">
       <xs:selector xpath="." />
-      <xs:field xpath="mstns:VMConfigID" />
+      <xs:field xpath="mstns:VirtMachID" />
     </xs:keyref>
     <xs:key name="HardDisksKey">
       <xs:selector xpath="." />
@@ -47,7 +47,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="CardID" type="xs:int" />
-        <xs:element name="VMConfigID" type="xs:int" />
+        <xs:element name="VirtMachID" type="xs:int" />
         <xs:element name="Option" type="xs:string" />
         <xs:element name="Vlan" type="xs:int" />
         <xs:element name="MacAddr" type="xs:string" />
@@ -57,7 +57,7 @@
     </xs:complexType>
     <xs:keyref name="VMConfigNetCards" refer="VMConfigKey">
       <xs:selector xpath="." />
-      <xs:field xpath="mstns:VMConfigID" />
+      <xs:field xpath="mstns:VirtMachID" />
     </xs:keyref>
     <xs:key name="NetCardsKey">
       <xs:selector xpath="." />

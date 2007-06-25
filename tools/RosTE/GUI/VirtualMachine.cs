@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -11,6 +12,8 @@ namespace RosTEGUI
 {
     public class VirtualMachine
     {
+        private Data data;
+        private DataRow dataRow;
         private string machine;
         private StringCollection floppy;
         private StringCollection hardDisk;
@@ -21,6 +24,18 @@ namespace RosTEGUI
         private int processors;
         private bool localTime;
         private bool fullScreen;
+
+        public string Name
+        {
+            get
+            {
+                return (string)dataRow["Name"];
+            }
+            set
+            {
+                dataRow["Name"] = value;
+            }
+        }
 
         public string Machine
         {
@@ -93,14 +108,51 @@ namespace RosTEGUI
             set { fullScreen = value; }
         }
 
+        public override string ToString()
+        {
+            return Name;
+        }
 
         public VirtualMachine(Data dataIn)
         {
-            floppy = new StringCollection();
-            hardDisk = new StringCollection();
+            data = dataIn;
 
-            Floppy.Add("test");
-            //MessageBox.Show(Floppy[0]);
+            DataTable dt = data.DataSet.Tables["VMConfig"];
+            dataRow = dt.NewRow();
+        }
+
+        // default
+        public bool CreateVMConfig(string name)
+        { 
+            return CreateVMConfig(name, "Images\\" + name, 0.2f, null, 256);
+        }
+
+        // existing
+        public bool CreateVMConfig(string name, string existImg, int memSize)
+        {
+            return CreateVMConfig(name, null, 0.0f, existImg, memSize);
+        }
+
+        // new
+        public bool CreateVMConfig(string name,
+                                   string dir,
+                                   float diskSize,
+                                   string existImg,
+                                   int memSize)
+        {
+            bool ret = false;
+
+            if (existImg != null)
+            {
+                DirectoryInfo di = Directory.GetParent(existImg);
+                dir = di.FullName;
+            }
+
+            Name = name;
+
+            MessageBox.Show(name + " " + dir + " " + diskSize + " " + existImg + " " + memSize);
+
+            return ret;
         }
 
         public bool LoadVirtMach(string path)
