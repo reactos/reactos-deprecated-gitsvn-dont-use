@@ -36,6 +36,8 @@ namespace RosTEGUI
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.memoryPanel = new System.Windows.Forms.Panel();
             this.memoryGrpBox = new System.Windows.Forms.GroupBox();
+            this.memoryHorizRuleLight = new System.Windows.Forms.Panel();
+            this.memoryHorizRuleDark = new System.Windows.Forms.Panel();
             this.memoryPhyRam = new System.Windows.Forms.Label();
             this.memoryLabel2 = new System.Windows.Forms.Label();
             this.memoryGrpBox1 = new System.Windows.Forms.GroupBox();
@@ -117,12 +119,14 @@ namespace RosTEGUI
             this.settingsHelpBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.TabControl();
             this.settingsHardwareTab = new System.Windows.Forms.TabPage();
+            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.settingsOptionsTab = new System.Windows.Forms.TabPage();
             this.optionsContainerPanel = new System.Windows.Forms.Panel();
             this.optionsTempDesignSheetTab = new System.Windows.Forms.TabControl();
             this.tabPage8 = new System.Windows.Forms.TabPage();
             this.generalPanel = new System.Windows.Forms.Panel();
             this.generalGrpBox = new System.Windows.Forms.GroupBox();
+            this.generalEditbutton = new System.Windows.Forms.Button();
             this.generalSetClockHost = new System.Windows.Forms.CheckBox();
             this.generalWorkDirBrows = new System.Windows.Forms.Button();
             this.generalWorkDir = new System.Windows.Forms.TextBox();
@@ -143,11 +147,8 @@ namespace RosTEGUI
             this.tabPage12 = new System.Windows.Forms.TabPage();
             this.debugPanel = new System.Windows.Forms.Panel();
             this.debugGrpBox = new System.Windows.Forms.GroupBox();
-            this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
-            this.memoryHorizRuleDark = new System.Windows.Forms.Panel();
-            this.memoryHorizRuleLight = new System.Windows.Forms.Panel();
-            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.optionsSelLstBox = new RosTEGUI.OptListBox();
+            this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
             this.hardwareContainerPanel.SuspendLayout();
             this.hardwareTempDesignSheetTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -278,6 +279,22 @@ namespace RosTEGUI
             this.memoryGrpBox.TabIndex = 0;
             this.memoryGrpBox.TabStop = false;
             this.memoryGrpBox.Text = "Memory";
+            // 
+            // memoryHorizRuleLight
+            // 
+            this.memoryHorizRuleLight.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.memoryHorizRuleLight.Location = new System.Drawing.Point(9, 185);
+            this.memoryHorizRuleLight.Name = "memoryHorizRuleLight";
+            this.memoryHorizRuleLight.Size = new System.Drawing.Size(265, 1);
+            this.memoryHorizRuleLight.TabIndex = 16;
+            // 
+            // memoryHorizRuleDark
+            // 
+            this.memoryHorizRuleDark.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.memoryHorizRuleDark.Location = new System.Drawing.Point(9, 184);
+            this.memoryHorizRuleDark.Name = "memoryHorizRuleDark";
+            this.memoryHorizRuleDark.Size = new System.Drawing.Size(265, 1);
+            this.memoryHorizRuleDark.TabIndex = 15;
             // 
             // memoryPhyRam
             // 
@@ -1075,6 +1092,20 @@ namespace RosTEGUI
             this.settingsHardwareTab.Text = "Hardware";
             this.settingsHardwareTab.UseVisualStyleBackColor = true;
             // 
+            // hardwareSelLstBox
+            // 
+            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.hardwareSelLstBox.FormattingEnabled = true;
+            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
+            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
+            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
+            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 340);
+            this.hardwareSelLstBox.TabIndex = 0;
+            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
+            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
+            // 
             // settingsOptionsTab
             // 
             this.settingsOptionsTab.Controls.Add(this.optionsContainerPanel);
@@ -1127,9 +1158,11 @@ namespace RosTEGUI
             this.generalPanel.Name = "generalPanel";
             this.generalPanel.Size = new System.Drawing.Size(280, 361);
             this.generalPanel.TabIndex = 0;
+            this.generalPanel.Layout += new System.Windows.Forms.LayoutEventHandler(this.generalPanel_Layout);
             // 
             // generalGrpBox
             // 
+            this.generalGrpBox.Controls.Add(this.generalEditbutton);
             this.generalGrpBox.Controls.Add(this.generalSetClockHost);
             this.generalGrpBox.Controls.Add(this.generalWorkDirBrows);
             this.generalGrpBox.Controls.Add(this.generalWorkDir);
@@ -1145,10 +1178,20 @@ namespace RosTEGUI
             this.generalGrpBox.TabStop = false;
             this.generalGrpBox.Text = "General";
             // 
+            // generalEditbutton
+            // 
+            this.generalEditbutton.Location = new System.Drawing.Point(6, 118);
+            this.generalEditbutton.Name = "generalEditbutton";
+            this.generalEditbutton.Size = new System.Drawing.Size(75, 23);
+            this.generalEditbutton.TabIndex = 8;
+            this.generalEditbutton.Text = "Edit";
+            this.generalEditbutton.UseVisualStyleBackColor = true;
+            this.generalEditbutton.Click += new System.EventHandler(this.generalEditbutton_Click);
+            // 
             // generalSetClockHost
             // 
             this.generalSetClockHost.AutoSize = true;
-            this.generalSetClockHost.Location = new System.Drawing.Point(17, 201);
+            this.generalSetClockHost.Location = new System.Drawing.Point(6, 203);
             this.generalSetClockHost.Name = "generalSetClockHost";
             this.generalSetClockHost.Size = new System.Drawing.Size(128, 17);
             this.generalSetClockHost.TabIndex = 7;
@@ -1157,7 +1200,8 @@ namespace RosTEGUI
             // 
             // generalWorkDirBrows
             // 
-            this.generalWorkDirBrows.Location = new System.Drawing.Point(199, 148);
+            this.generalWorkDirBrows.Enabled = false;
+            this.generalWorkDirBrows.Location = new System.Drawing.Point(199, 118);
             this.generalWorkDirBrows.Name = "generalWorkDirBrows";
             this.generalWorkDirBrows.Size = new System.Drawing.Size(75, 23);
             this.generalWorkDirBrows.TabIndex = 6;
@@ -1166,15 +1210,16 @@ namespace RosTEGUI
             // 
             // generalWorkDir
             // 
-            this.generalWorkDir.Location = new System.Drawing.Point(9, 150);
+            this.generalWorkDir.Location = new System.Drawing.Point(6, 92);
             this.generalWorkDir.Name = "generalWorkDir";
-            this.generalWorkDir.Size = new System.Drawing.Size(184, 20);
+            this.generalWorkDir.ReadOnly = true;
+            this.generalWorkDir.Size = new System.Drawing.Size(268, 20);
             this.generalWorkDir.TabIndex = 5;
             // 
             // generalLabel3
             // 
             this.generalLabel3.AutoSize = true;
-            this.generalLabel3.Location = new System.Drawing.Point(3, 134);
+            this.generalLabel3.Location = new System.Drawing.Point(3, 76);
             this.generalLabel3.Name = "generalLabel3";
             this.generalLabel3.Size = new System.Drawing.Size(90, 13);
             this.generalLabel3.TabIndex = 4;
@@ -1186,15 +1231,15 @@ namespace RosTEGUI
             this.generalMachine.Items.AddRange(new object[] {
             "Standard PC (default)",
             "ISA-only PC"});
-            this.generalMachine.Location = new System.Drawing.Point(6, 93);
+            this.generalMachine.Location = new System.Drawing.Point(6, 165);
             this.generalMachine.Name = "generalMachine";
-            this.generalMachine.Size = new System.Drawing.Size(268, 21);
+            this.generalMachine.Size = new System.Drawing.Size(265, 21);
             this.generalMachine.TabIndex = 3;
             // 
             // generalLabel2
             // 
             this.generalLabel2.AutoSize = true;
-            this.generalLabel2.Location = new System.Drawing.Point(3, 77);
+            this.generalLabel2.Location = new System.Drawing.Point(6, 149);
             this.generalLabel2.Name = "generalLabel2";
             this.generalLabel2.Size = new System.Drawing.Size(48, 13);
             this.generalLabel2.TabIndex = 2;
@@ -1213,6 +1258,7 @@ namespace RosTEGUI
             // 
             this.generalVMName.Location = new System.Drawing.Point(6, 42);
             this.generalVMName.Name = "generalVMName";
+            this.generalVMName.ReadOnly = true;
             this.generalVMName.Size = new System.Drawing.Size(268, 20);
             this.generalVMName.TabIndex = 0;
             // 
@@ -1331,36 +1377,6 @@ namespace RosTEGUI
             this.debugGrpBox.TabIndex = 0;
             this.debugGrpBox.TabStop = false;
             this.debugGrpBox.Text = "Debug";
-            // 
-            // memoryHorizRuleDark
-            // 
-            this.memoryHorizRuleDark.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.memoryHorizRuleDark.Location = new System.Drawing.Point(9, 184);
-            this.memoryHorizRuleDark.Name = "memoryHorizRuleDark";
-            this.memoryHorizRuleDark.Size = new System.Drawing.Size(265, 1);
-            this.memoryHorizRuleDark.TabIndex = 15;
-            // 
-            // memoryHorizRuleLight
-            // 
-            this.memoryHorizRuleLight.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.memoryHorizRuleLight.Location = new System.Drawing.Point(9, 185);
-            this.memoryHorizRuleLight.Name = "memoryHorizRuleLight";
-            this.memoryHorizRuleLight.Size = new System.Drawing.Size(265, 1);
-            this.memoryHorizRuleLight.TabIndex = 16;
-            // 
-            // hardwareSelLstBox
-            // 
-            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.hardwareSelLstBox.FormattingEnabled = true;
-            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
-            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
-            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
-            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 340);
-            this.hardwareSelLstBox.TabIndex = 0;
-            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
-            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
             // 
             // optionsSelLstBox
             // 
@@ -1570,5 +1586,6 @@ namespace RosTEGUI
         private System.Windows.Forms.GroupBox debugGrpBox;
         private System.Windows.Forms.Panel memoryHorizRuleDark;
         private System.Windows.Forms.Panel memoryHorizRuleLight;
+        private System.Windows.Forms.Button generalEditbutton;
     }
 }
