@@ -111,14 +111,25 @@ namespace RosTEGUI
 
         #endregion
 
+        private static void PrintRows(DataTable dt)
+        {
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string str = "row: " + i + ", Name: " + dt.Rows[i]["Name"] + ", DefDir " + dt.Rows[i]["DefDir"];
+                MessageBox.Show(str);
+            }
+        }
+
         public override string ToString()
         {
             return Name;
         }
 
-        public VirtualMachine(Data dataIn)
+        public VirtualMachine()
         {
-            data = dataIn;
+            data = new Data();
+            if (!data.LoadVirtMachData())
+                MessageBox.Show("Failed to load VM Schema");
         }
 
         // default
@@ -211,15 +222,19 @@ namespace RosTEGUI
 
         public void SaveVMConfig()
         {
-            string fileName = DefDir + "\\Config.xml";
-            Directory.CreateDirectory(DefDir);
-            FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-            XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-            data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
-            xtw.Close();
+            try
+            {
+                string fileName = DefDir + "\\Config.xml";
+                Directory.CreateDirectory(DefDir);
+                FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
+                data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+                xtw.Close();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("error loading VM Config.xml: " + e.Message);
+            }
         }
     }
 }
-
-
-

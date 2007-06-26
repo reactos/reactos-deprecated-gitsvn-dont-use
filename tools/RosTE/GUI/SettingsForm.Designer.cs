@@ -1158,7 +1158,7 @@ namespace RosTEGUI
             this.generalPanel.Name = "generalPanel";
             this.generalPanel.Size = new System.Drawing.Size(280, 361);
             this.generalPanel.TabIndex = 0;
-            this.generalPanel.Layout += new System.Windows.Forms.LayoutEventHandler(this.generalPanel_Layout);
+            this.generalPanel.VisibleChanged += new System.EventHandler(this.generalOnVisible);
             // 
             // generalGrpBox
             // 

@@ -176,25 +176,30 @@ namespace RosTEGUI
             floppyConnGrpBox.Enabled = bEnabled;
         }
 
-        private void generalPanel_Layout(object sender, LayoutEventArgs e)
-        {
-            generalVMName.Text = VirtMach.Name;
-            generalWorkDir.Text = VirtMach.DefDir;
-
-            if (VirtMach.MachType == "pc")
-                generalMachine.SelectedIndex = 0;
-            else
-                generalMachine.SelectedIndex = 1;
-
-            generalSetClockHost.Checked = VirtMach.SetClockToHost;
-        }
-
         private void generalEditbutton_Click(object sender, EventArgs e)
         {
             generalVMName.ReadOnly = false;
             generalWorkDir.ReadOnly = false;
             generalWorkDirBrows.Enabled = true;
             generalEditbutton.Enabled = false;
+        }
+
+        private void generalOnVisible(object sender, EventArgs e)
+        {
+            Panel panel = (Panel)sender;
+
+            if (panel.Visible)
+            {
+                generalVMName.Text = VirtMach.Name;
+                generalWorkDir.Text = VirtMach.DefDir;
+
+                if (VirtMach.MachType == "pc")
+                    generalMachine.SelectedIndex = 0;
+                else
+                    generalMachine.SelectedIndex = 1;
+
+                generalSetClockHost.Checked = VirtMach.SetClockToHost;
+            }
         }
     }
 }

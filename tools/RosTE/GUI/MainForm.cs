@@ -14,13 +14,20 @@ namespace RosTEGUI
 	public partial class MainForm : Form
     {
         private MainConfig mainConf;
-        private ArrayList vmConfigs;
         private Data mainData;
-        private Data vmData;
 
         public MainForm()
         {
             InitializeComponent();
+        }
+
+        private void LoadSettingsDialog()
+        {
+            ListViewItem lvi = VirtMachListView.FocusedItem;
+
+            SettingsForm setFrm = new SettingsForm(lvi.Tag);
+            setFrm.StartPosition = FormStartPosition.CenterScreen;
+            setFrm.Show();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -33,11 +40,6 @@ namespace RosTEGUI
             mainData = new Data();
             if (!mainData.LoadMainData())
                 MessageBox.Show("Failed to load Main Schema");
-            vmData = new Data();
-            if (!vmData.LoadVirtMachData())
-                MessageBox.Show("Failed to load VM Schema");
-
-            vmConfigs = new ArrayList();
 
             // read config and load any existing vm's
             mainConf = new MainConfig(mainData);
@@ -48,7 +50,7 @@ namespace RosTEGUI
                 for (int i = 0; i < num; i++)
                 {
                     string image = mainConf.GetExistingImage(i);
-                    VirtualMachine vm = new VirtualMachine(vmData);
+                    VirtualMachine vm = new VirtualMachine();
                     if (vm.LoadVMConfig(image))
                     {
                         ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
@@ -67,11 +69,7 @@ namespace RosTEGUI
 
         private void ImageListView_DoubleClick(object sender, EventArgs e)
         {
-            ListViewItem lvi = VirtMachListView.FocusedItem;
-
-            SettingsForm setFrm = new SettingsForm(lvi.Tag);
-            setFrm.StartPosition = FormStartPosition.CenterScreen;
-            setFrm.Show();
+            LoadSettingsDialog();
         }
 
         private void toolbarExit_Click(object sender, EventArgs e)
@@ -90,13 +88,12 @@ namespace RosTEGUI
                 {
                     int i = mainConf.AddVirtMach(wizFrm.DefDir);
 
-                    VirtualMachine VirtMach = new VirtualMachine(vmData);
+                    VirtualMachine VirtMach = new VirtualMachine();
                     VirtMach.CreateVMConfig(wizFrm.VMName,
                                             wizFrm.DefDir,
                                             wizFrm.DiskSizeGB,
                                             wizFrm.ExistImg,
                                             wizFrm.MemSizeMB);
-                    vmConfigs.Add(VirtMach);
 
                     ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
                     lvi.Tag = VirtMach;
@@ -106,11 +103,10 @@ namespace RosTEGUI
 
                     DirectoryInfo di = Directory.GetParent(wizFrm.ExistImg);
                     int i = mainConf.AddVirtMach(di.FullName);
-                    VirtualMachine VirtMach = new VirtualMachine(vmData);
+                    VirtualMachine VirtMach = new VirtualMachine();
                     VirtMach.CreateVMConfig(wizFrm.VMName,
                                             wizFrm.ExistImg,
                                             wizFrm.MemSizeMB);
-                    vmConfigs.Add(VirtMach);
 
                     ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
                     lvi.Tag = VirtMach;
@@ -118,9 +114,8 @@ namespace RosTEGUI
                 else
                 {
                     int i = mainConf.AddVirtMach("Images\\" + wizFrm.VMName);
-                    VirtualMachine VirtMach = new VirtualMachine(vmData);
+                    VirtualMachine VirtMach = new VirtualMachine();
                     VirtMach.CreateVMConfig(wizFrm.VMName);
-                    vmConfigs.Add(VirtMach);
 
                     ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
                     lvi.Tag = VirtMach;
@@ -146,7 +141,6 @@ namespace RosTEGUI
 
                     mainConf.DeleteVirtMach(lvi.Index/*lvi.Tag*/);
                     VirtMachListView.Items.Remove(lvi);
-                    vmConfigs.Remove(lvi.Tag);
                 }
             }
         }
@@ -155,11 +149,16 @@ namespace RosTEGUI
         {
             mainConf.SaveMainConfig();
 
-            for (int i = 0; i < vmConfigs.Count; i++)
+            foreach(ListViewItem lvi in VirtMachListView.Items)
             {
-                VirtualMachine vm = (VirtualMachine)vmConfigs[i];
+                VirtualMachine vm = (VirtualMachine)lvi.Tag;
                 vm.SaveVMConfig();
             }
+        }
+
+        private void changeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadSettingsDialog();
         }
     }
 }
