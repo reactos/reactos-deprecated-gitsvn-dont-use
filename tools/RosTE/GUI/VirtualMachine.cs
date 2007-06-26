@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Specialized;
 using System.Data;
 using System.Xml;
+using System.Windows.Forms;
 
 namespace RosTEGUI
 {
@@ -40,6 +41,12 @@ namespace RosTEGUI
         {
             get { return (int)dataRow["MemSize"]; }
             set { dataRow["MemSize"] = value; }
+        }
+
+        public bool SetClockToHost
+        {
+            get { return (bool)dataRow["SetClockToHost"]; }
+            set { dataRow["SetClockToHost"] = value; }
         }
 
         public bool CdRomEnable
@@ -117,13 +124,21 @@ namespace RosTEGUI
         // default
         public bool CreateVMConfig(string name)
         { 
-            return CreateVMConfig(name, "Images\\" + name, 0.2f, null, 256);
+            return CreateVMConfig(name,
+                                  Directory.GetCurrentDirectory() + "\\Images\\" + name,
+                                  0.2f,
+                                  "",
+                                  256);
         }
 
         // existing
         public bool CreateVMConfig(string name, string existImg, int memSize)
         {
-            return CreateVMConfig(name, null, 0.0f, existImg, memSize);
+            return CreateVMConfig(name,
+                                  null,
+                                  0.0f,
+                                  existImg,
+                                  memSize);
         }
 
         // new
@@ -135,7 +150,7 @@ namespace RosTEGUI
         {
             bool ret = false;
 
-            if (existImg != null)
+            if (existImg != "")
             {
                 DirectoryInfo di = Directory.GetParent(existImg);
                 dir = di.FullName;
@@ -146,9 +161,10 @@ namespace RosTEGUI
             dataRow = dt.NewRow();
             dataRow["VirtMachID"] = i;
             dataRow["Name"] = name;
-            dataRow["MachType"] = "test";
+            dataRow["MachType"] = "pc";
             dataRow["DefDir"] = dir;
             dataRow["MemSize"] = memSize;
+            dataRow["SetClockToHost"] = true;
             dataRow["CdRomEnable"] = true;
             dataRow["CdRomUsePhys"] = false;
             dataRow["CdRomPhyDrv"] = "R:";
@@ -161,8 +177,6 @@ namespace RosTEGUI
             dataRow["FloppyIsoImg"] = "err";
 
             dt.Rows.Add(dataRow);
-            
-            Name = name;
 
             return ret;
         }
@@ -174,15 +188,22 @@ namespace RosTEGUI
 
             if (File.Exists(fileName))
             {
-                FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                XmlTextReader xtr = new XmlTextReader(fs);
-                data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
-                xtr.Close();
+                try
+                {
+                    FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                    XmlTextReader xtr = new XmlTextReader(fs);
+                    data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                    xtr.Close();
 
-                DataTable dt = data.DataSet.Tables["VMConfig"];
-                dataRow = dt.Rows[0];
+                    DataTable dt = data.DataSet.Tables["VMConfig"];
+                    dataRow = dt.Rows[0];
 
-                ret = true;
+                    ret = true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("error loading VM Config.xml: " + e.Message);
+                }
             }
 
             return ret;

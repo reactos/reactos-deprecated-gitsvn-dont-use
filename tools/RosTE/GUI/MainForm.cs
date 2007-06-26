@@ -68,9 +68,8 @@ namespace RosTEGUI
         private void ImageListView_DoubleClick(object sender, EventArgs e)
         {
             ListViewItem lvi = VirtMachListView.FocusedItem;
-            //lvi.Tag
 
-            SettingsForm setFrm = new SettingsForm(lvi.Text);
+            SettingsForm setFrm = new SettingsForm(lvi.Tag);
             setFrm.StartPosition = FormStartPosition.CenterScreen;
             setFrm.Show();
         }

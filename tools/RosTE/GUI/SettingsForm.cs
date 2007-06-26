@@ -13,15 +13,18 @@ namespace RosTEGUI
 {
     public partial class SettingsForm : Form
     {
+        private VirtualMachine VirtMach;
         private Panel[] hardwarePanels;
         private Panel[] optionsPanels;
         private int hardwarePrevSel = 0;
         private int optionsPrevSel = 0;
 
-        public SettingsForm(string title)
+        public SettingsForm(object sender)
         {
             InitializeComponent();
-            Text = title + " " + Text;
+
+            VirtMach = (VirtualMachine)sender;
+            Text = VirtMach.Name + " " + Text;
         }
 
         private void LoadDynamicControlInfo()
@@ -171,6 +174,27 @@ namespace RosTEGUI
             bool bEnabled = floppyEnableChkBox.Checked;
 
             floppyConnGrpBox.Enabled = bEnabled;
+        }
+
+        private void generalPanel_Layout(object sender, LayoutEventArgs e)
+        {
+            generalVMName.Text = VirtMach.Name;
+            generalWorkDir.Text = VirtMach.DefDir;
+
+            if (VirtMach.MachType == "pc")
+                generalMachine.SelectedIndex = 0;
+            else
+                generalMachine.SelectedIndex = 1;
+
+            generalSetClockHost.Checked = VirtMach.SetClockToHost;
+        }
+
+        private void generalEditbutton_Click(object sender, EventArgs e)
+        {
+            generalVMName.ReadOnly = false;
+            generalWorkDir.ReadOnly = false;
+            generalWorkDirBrows.Enabled = true;
+            generalEditbutton.Enabled = false;
         }
     }
 }
