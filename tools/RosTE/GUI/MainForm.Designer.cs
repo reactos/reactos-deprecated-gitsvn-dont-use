@@ -58,6 +58,7 @@ namespace RosTEGUI
             this.mainmenuHelpContent = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.MainMenuHelpAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.changeSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolbar.SuspendLayout();
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
@@ -281,6 +282,8 @@ namespace RosTEGUI
             // 
             // mainmenuOptions
             // 
+            this.mainmenuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.changeSettingsToolStripMenuItem});
             this.mainmenuOptions.Name = "mainmenuOptions";
             this.mainmenuOptions.Size = new System.Drawing.Size(56, 20);
             this.mainmenuOptions.Text = "Options";
@@ -312,6 +315,13 @@ namespace RosTEGUI
             this.MainMenuHelpAbout.Size = new System.Drawing.Size(124, 22);
             this.MainMenuHelpAbout.Text = "About";
             this.MainMenuHelpAbout.Click += new System.EventHandler(this.MainMenuHelpAbout_Click);
+            // 
+            // changeSettingsToolStripMenuItem
+            // 
+            this.changeSettingsToolStripMenuItem.Name = "changeSettingsToolStripMenuItem";
+            this.changeSettingsToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.changeSettingsToolStripMenuItem.Text = "Change settings";
+            this.changeSettingsToolStripMenuItem.Click += new System.EventHandler(this.changeSettingsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -376,6 +386,7 @@ namespace RosTEGUI
         private System.Windows.Forms.ToolStripMenuItem mainmenuOptions;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem virtualMachineToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem changeSettingsToolStripMenuItem;
 
     }
 }

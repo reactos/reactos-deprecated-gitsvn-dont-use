@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using System.IO;
 using System.Xml;
@@ -26,11 +27,18 @@ namespace RosTEGUI
             data = new DataSet();
             if (File.Exists(filename))
             {
-                FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                XmlTextReader xtr = new XmlTextReader(fs);
-                data.ReadXmlSchema(xtr);
-                xtr.Close();
-                ret = true;
+                try
+                {
+                    FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                    XmlTextReader xtr = new XmlTextReader(fs);
+                    data.ReadXmlSchema(xtr);
+                    xtr.Close();
+                    ret = true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("error loading main config schema: " + e.Message);
+                }
             }
 
             return ret;
@@ -44,11 +52,18 @@ namespace RosTEGUI
             data = new DataSet();
             if (File.Exists(filename))
             {
-                FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                XmlTextReader xtr = new XmlTextReader(fs);
-                data.ReadXmlSchema(xtr);
-                xtr.Close();
-                ret = true;
+                try
+                {
+                    FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                    XmlTextReader xtr = new XmlTextReader(fs);
+                    data.ReadXmlSchema(xtr);
+                    xtr.Close();
+                    ret = true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("error loading VM config schema: " + e.Message);
+                }
             }
 
             return ret;
