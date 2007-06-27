@@ -126,6 +126,12 @@
     <Compile Include="DeleteVM.Designer.cs">
       <DependentUpon>DeleteVM.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErrorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ErrorForm.Designer.cs">
+      <DependentUpon>ErrorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainConfig.cs">
       <DependentUpon>MainConfig.xsd</DependentUpon>
     </Compile>
@@ -207,6 +213,10 @@
     <EmbeddedResource Include="DeleteVM.resx">
       <SubType>Designer</SubType>
       <DependentUpon>DeleteVM.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErrorForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ErrorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewVMWizard.resx">
       <SubType>Designer</SubType>

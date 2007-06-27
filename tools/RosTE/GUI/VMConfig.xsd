@@ -8,10 +8,10 @@
         <xs:element name="MachType" type="xs:string" />
         <xs:element name="DefDir" type="xs:string" />
         <xs:element name="MemSize" type="xs:int" />
-        <xs:element name="CdRomEnable" type="xs:boolean" />
         <xs:element name="SetClockToHost" type="xs:boolean" />
+        <xs:element name="CdRomEnable" type="xs:boolean" />
         <xs:element name="CdRomUsePhys" type="xs:boolean" />
-        <xs:element name="CdRomPhyDrv" type="xs:string" />
+        <xs:element name="CdRomPhysDrv" type="xs:string" />
         <xs:element name="CdRomUseIso" type="xs:boolean" />
         <xs:element name="CdRomIsoImg" type="xs:string" />
         <xs:element name="FloppyEnable" type="xs:boolean" />

@@ -119,7 +119,6 @@ namespace RosTEGUI
             this.settingsHelpBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.TabControl();
             this.settingsHardwareTab = new System.Windows.Forms.TabPage();
-            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
             this.settingsOptionsTab = new System.Windows.Forms.TabPage();
             this.optionsContainerPanel = new System.Windows.Forms.Panel();
             this.optionsTempDesignSheetTab = new System.Windows.Forms.TabControl();
@@ -147,8 +146,9 @@ namespace RosTEGUI
             this.tabPage12 = new System.Windows.Forms.TabPage();
             this.debugPanel = new System.Windows.Forms.Panel();
             this.debugGrpBox = new System.Windows.Forms.GroupBox();
-            this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.browseDlg = new System.Windows.Forms.FolderBrowserDialog();
+            this.hardwareSelLstBox = new RosTEGUI.OptListBox();
+            this.optionsSelLstBox = new RosTEGUI.OptListBox();
             this.hardwareContainerPanel.SuspendLayout();
             this.hardwareTempDesignSheetTab.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -433,7 +433,7 @@ namespace RosTEGUI
             this.memoryTrkBar.Name = "memoryTrkBar";
             this.memoryTrkBar.Size = new System.Drawing.Size(209, 45);
             this.memoryTrkBar.TabIndex = 0;
-            this.memoryTrkBar.Scroll += new System.EventHandler(this.memoryTrkBar_Scroll);
+            this.memoryTrkBar.ValueChanged += new System.EventHandler(this.memoryTrkBar_ValueChanged);
             // 
             // tabPage2
             // 
@@ -1092,20 +1092,6 @@ namespace RosTEGUI
             this.settingsHardwareTab.Text = "Hardware";
             this.settingsHardwareTab.UseVisualStyleBackColor = true;
             // 
-            // hardwareSelLstBox
-            // 
-            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.hardwareSelLstBox.FormattingEnabled = true;
-            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
-            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
-            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
-            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 340);
-            this.hardwareSelLstBox.TabIndex = 0;
-            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
-            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
-            // 
             // settingsOptionsTab
             // 
             this.settingsOptionsTab.Controls.Add(this.optionsContainerPanel);
@@ -1377,6 +1363,20 @@ namespace RosTEGUI
             this.debugGrpBox.TabIndex = 0;
             this.debugGrpBox.TabStop = false;
             this.debugGrpBox.Text = "Debug";
+            // 
+            // hardwareSelLstBox
+            // 
+            this.hardwareSelLstBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.hardwareSelLstBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.hardwareSelLstBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.hardwareSelLstBox.FormattingEnabled = true;
+            this.hardwareSelLstBox.ImageList = this.optListBoxImgLst;
+            this.hardwareSelLstBox.Location = new System.Drawing.Point(3, 6);
+            this.hardwareSelLstBox.Name = "hardwareSelLstBox";
+            this.hardwareSelLstBox.Size = new System.Drawing.Size(74, 340);
+            this.hardwareSelLstBox.TabIndex = 0;
+            this.hardwareSelLstBox.MouseEnter += new System.EventHandler(this.hardwareSelLstBox_MouseEnter);
+            this.hardwareSelLstBox.SelectedIndexChanged += new System.EventHandler(this.listboxSelection_SelectedIndexChanged);
             // 
             // optionsSelLstBox
             // 
