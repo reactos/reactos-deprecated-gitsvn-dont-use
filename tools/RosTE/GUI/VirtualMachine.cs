@@ -226,12 +226,12 @@ namespace RosTEGUI
                 dataRow["SetClockToHost"] = true;
                 dataRow["CdRomEnable"] = true;
                 dataRow["CdRomUsePhys"] = true;
-                dataRow["CdRomPhysDrv"] = "R:";
+                dataRow["CdRomPhysDrv"] = string.Empty;
                 dataRow["CdRomUseIso"] = false;
                 dataRow["CdRomIsoImg"] = string.Empty;
                 dataRow["FloppyEnable"] = true;
                 dataRow["FloppyUsePhys"] = true;
-                dataRow["FloppyPhyDrive"] = "A:";
+                dataRow["FloppyPhysDrv"] = string.Empty;
                 dataRow["FloppyUseImg"] = false;
                 dataRow["FloppyIsoImg"] = string.Empty;
 
@@ -241,7 +241,8 @@ namespace RosTEGUI
             }
             catch (Exception e)
             {
-                MessageBox.Show("error populating VM database: " + e.Message);
+                ErrorForm err = new ErrorForm(e.Message);
+                err.ShowDialog();
             }
 
             return ret;

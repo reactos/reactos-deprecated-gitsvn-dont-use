@@ -16,7 +16,7 @@
         <xs:element name="CdRomIsoImg" type="xs:string" />
         <xs:element name="FloppyEnable" type="xs:boolean" />
         <xs:element name="FloppyUsePhys" type="xs:boolean" />
-        <xs:element name="FloppyPhyDrive" type="xs:string" />
+        <xs:element name="FloppyPhysDrv" type="xs:string" />
         <xs:element name="FloppyUseImg" type="xs:boolean" />
         <xs:element name="FloppyIsoImg" type="xs:string" />
       </xs:sequence>
