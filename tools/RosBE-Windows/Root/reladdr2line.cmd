@@ -2,7 +2,7 @@
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
 :: LICENSE:     GPL - See COPYING in the top level directory
 :: FILE:        Root/reladdr2line.cmd
-:: PURPOSE:     Converts a value to hex and displays it
+:: PURPOSE:     Converts a value to hex and displays it.
 :: COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
 ::
 ::

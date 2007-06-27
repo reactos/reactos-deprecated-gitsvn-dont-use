@@ -50,7 +50,7 @@ ld -v
 mingw32-make -v | find "GNU Make"
 
 ::
-:: Tell how to display the available commands
+:: Tell how to display the available commands.
 ::
 echo.
 echo For a list of all included commands, type: "help"

@@ -2,7 +2,7 @@
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
 :: LICENSE:     GPL - See COPYING in the top level directory
 :: FILE:        Root/SVN.cmd
-:: PURPOSE:     Integrated SVN Client
+:: PURPOSE:     Integrated SVN Client.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::

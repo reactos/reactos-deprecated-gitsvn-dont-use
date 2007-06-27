@@ -2,7 +2,7 @@
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
 :: LICENSE:     GPL - See COPYING in the top level directory
 :: FILE:        Root/Build-Shared.cmd
-:: PURPOSE:     Shared actions for "Build.cmd" and "Build-Multi.cmd"
+:: PURPOSE:     Shared actions for "Build.cmd" and "Build-Multi.cmd".
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Colin Finck <mail@colinfinck.de>
 ::                             Peter Ward <dralnix@gmail.com>
@@ -53,7 +53,7 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 call "%ROSBEBASEDIR%\Tools\buildtime.exe" %MAKE_COMMAND% 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 
 ::
-:: highlight the fact that building has ended
+:: Highlight the fact that building has ended.
 ::
 call "%ROSBEBASEDIR%\Tools\flash.exe"
 
