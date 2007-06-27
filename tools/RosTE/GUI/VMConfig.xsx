@@ -4,6 +4,6 @@
     <VMConfig_XmlElement left="7091" top="-3148" width="7858" height="11721" selected="0" zOrder="0" index="0" expanded="1" />
     <HardDisks_XmlElement left="872" top="-3201" width="5292" height="2831" selected="0" zOrder="3" index="1" expanded="1" />
     <NetCards_XmlElement left="16033" top="-3176" width="5292" height="5371" selected="0" zOrder="1" index="2" expanded="1" />
-    <VMConfigNetCards_XmlKeyref left="14174" top="-4941" width="503" height="503" selected="0" zOrder="8" expanded="0" />
-    <VMConfigHardDisks_XmlKeyref left="5446" top="-5048" width="503" height="503" selected="0" zOrder="4" expanded="0" />
+    <VMConfigHardDisks_XmlKeyref left="5129" top="-5302" width="503" height="503" selected="0" zOrder="4" expanded="0" />
+    <VMConfigNetCards_XmlKeyref left="13857" top="-5195" width="503" height="503" selected="0" zOrder="8" expanded="0" />
 </XSDDesignerLayout>

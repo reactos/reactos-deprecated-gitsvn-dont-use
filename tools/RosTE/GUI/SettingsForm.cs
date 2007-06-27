@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.IO;
 
 
 namespace RosTEGUI
@@ -27,9 +28,10 @@ namespace RosTEGUI
             Text = VirtMach.Name + " " + Text;
         }
 
-        private void LoadDynamicControlInfo()
+        private bool LoadMemoryPage()
         {
-            // set the memory dialog info
+            bool ret = false;
+
             ulong totMem = Native.Memory.GetTotalMemory();
             if (totMem != 0)
             {
@@ -46,12 +48,48 @@ namespace RosTEGUI
                 memoryRecMin.Text = Convert.ToString(totMem / 8) + " MB";
                 memoryRec.Text = Convert.ToString(totMem / 4) + " MB";
                 memoryRecMax.Text = Convert.ToString(totMem / 1.4) + " MB";
+
+                memoryTrkBar.Value = VirtMach.MemSize;
+                memoryUpDwn.Value = VirtMach.MemSize;
+
+                ret = true;
+            }
+
+            return ret;
+        }
+
+        private void LoadCdRomPage()
+        {
+            DriveInfo[] drives = DriveInfo.GetDrives();
+
+            foreach(DriveInfo drive in drives)
+            {
+                if (drive.DriveType == DriveType.CDRom)
+                    cdromPhyDrvCombo.Items.Add(drive);
+            }
+
+            cdromEnableChkBox.Checked = VirtMach.CdRomEnable;
+
+            int id = cdromPhyDrvCombo.FindString(VirtMach.CdRomPhysDrv);
+            if (id == -1) id = 0;
+            cdromPhyDrvCombo.SelectedIndex = id;
+
+            if (VirtMach.CdRomUsePhys)
+            {
+                cdromPhyDrvRadio.Checked = true;
+            }
+            else
+            {
+                cdromIsoRadio.Checked = true;
+                cdromIsoTxtBox.Text = VirtMach.CdRomIsoImg;
             }
         }
 
-        private void GetHardwareInfo()
+        private void LoadFormData()
         {
-
+            if (!LoadMemoryPage())
+                MessageBox.Show("An error occured whilst loading memory page data");
+            LoadCdRomPage();
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
@@ -95,7 +133,9 @@ namespace RosTEGUI
             hardwareSelLstBox.SelectedItem = hardwareSelLstBox.Items[0];
             optionsSelLstBox.SelectedItem = optionsSelLstBox.Items[0];
 
-            LoadDynamicControlInfo();
+            //we load all form data when the form opens, not as each individual
+            //page is loaded. This is because we save all form data on close
+            LoadFormData();
         }
 
         private void listboxSelection_SelectedIndexChanged(object sender, EventArgs e)
@@ -152,9 +192,17 @@ namespace RosTEGUI
             ListBox listbox = (ListBox)sender;
         }
 
-        private void memoryTrkBar_Scroll(object sender, EventArgs e)
+        private void memoryTrkBar_ValueChanged(object sender, EventArgs e)
         {
-            memoryUpDwn.Value = memoryTrkBar.Value;
+            TrackBar tb = (TrackBar)sender;
+            memoryUpDwn.Value = tb.Value;
+            
+            char[] chars = { ' ', 'M', 'B' };
+            string str = memoryRecMax.Text.TrimEnd(chars);
+            if (tb.Value > Convert.ToInt32(str))
+                memoryTrkBar.BackColor = Color.MistyRose;
+            else 
+                memoryTrkBar.BackColor = SystemColors.Menu;
         }
 
         private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
