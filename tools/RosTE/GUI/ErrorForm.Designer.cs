@@ -70,7 +70,9 @@ namespace RosTEGUI
             this.Controls.Add(this.errorCopyBtn);
             this.Controls.Add(this.errorCloseBtn);
             this.Controls.Add(this.errorText);
+            this.MaximizeBox = false;
             this.Name = "ErrorForm";
+            this.ShowIcon = false;
             this.Text = "Error";
             this.ResumeLayout(false);
             this.PerformLayout();

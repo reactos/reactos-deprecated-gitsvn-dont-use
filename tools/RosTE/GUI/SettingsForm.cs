@@ -226,11 +226,23 @@ namespace RosTEGUI
             memoryUpDwn.Value = tb.Value;
             
             char[] chars = { ' ', 'M', 'B' };
-            string str = memoryRecMax.Text.TrimEnd(chars);
-            if (tb.Value > Convert.ToInt32(str))
-                memoryTrkBar.BackColor = Color.MistyRose;
-            else 
-                memoryTrkBar.BackColor = SystemColors.Menu;
+            string max = memoryRecMax.Text.TrimEnd(chars);
+            string min = memoryRecMin.Text.TrimEnd(chars);
+            if (tb.Value > Convert.ToInt32(max))
+            {
+                memoryRecMin.ForeColor = SystemColors.WindowText;
+                memoryRecMax.ForeColor = Color.Red;
+            }
+            else if (tb.Value < Convert.ToInt32(min))
+            {
+                memoryRecMin.ForeColor = Color.Red;
+                memoryRecMax.ForeColor = SystemColors.WindowText;
+            }
+            else
+            {
+                memoryRecMin.ForeColor = SystemColors.WindowText;
+                memoryRecMax.ForeColor = SystemColors.WindowText;
+            }
         }
 
         private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
