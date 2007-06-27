@@ -22,91 +22,91 @@ namespace RosTEGUI
         public string Name
         {
             get { return GetStringValue("Name"); }
-            set { dataRow["Name"] = value; }
+            set { SetStringValue("Name", value); }
         }
 
         public string MachType
         {
             get { return GetStringValue("MachType"); }
-            set { dataRow["MachType"] = value; }
+            set { SetStringValue("MachType", value); }
         }
 
         public string DefDir
         {
             get { return GetStringValue("DefDir"); }
-            set { dataRow["DefDir"] = value; }
+            set { SetStringValue("DefDir", value); }
         }
 
         public int MemSize
         {
             get { return GetIntValue("MemSize"); }
-            set { dataRow["MemSize"] = value; }
+            set { SetIntValue("MemSize", value); }
         }
 
         public bool SetClockToHost
         {
             get { return GetBoolValue("SetClockToHost"); }
-            set { dataRow["SetClockToHost"] = value; }
+            set { SetBoolValue("SetClockToHost", value); }
         }
 
         public bool CdRomEnable
         {
             get { return GetBoolValue("CdRomEnable"); }
-            set { dataRow["CdRomEnable"] = value; }
+            set { SetBoolValue("CdRomEnable", value); }
         }
 
         public bool CdRomUsePhys
         {
             get { return GetBoolValue("CdRomUsePhys"); }
-            set { dataRow["CdRomUsePhys"] = value; }
+            set { SetBoolValue("CdRomUsePhys", value); }
         }
 
         public string CdRomPhysDrv
         {
             get { return GetStringValue("CdRomPhysDrv"); }
-            set { dataRow["CdRomPhysDrv"] = value; }
+            set { SetStringValue("CdRomPhysDrv", value); }
         }
 
         public bool CdRomUseIso
         {
             get { return GetBoolValue("CdRomUseIso"); }
-            set { dataRow["CdRomUseIso"] = value; }
+            set { SetBoolValue("CdRomUseIso", value); }
         }
 
         public string CdRomIsoImg
         {
             get { return GetStringValue("CdRomIsoImg"); }
-            set { dataRow["CdRomIsoImg"] = value; }
+            set { SetStringValue("CdRomIsoImg", value); }
         }
 
         public bool FloppyEnable
         {
             get { return GetBoolValue("FloppyEnable"); }
-            set { dataRow["FloppyEnable"] = value; }
+            set { SetBoolValue("FloppyEnable", value); }
         }
 
         public bool FloppyUsePhys
         {
             get { return GetBoolValue("FloppyUsePhys"); }
-            set { dataRow["FloppyUsePhys"] = value; }
+            set { SetBoolValue("FloppyUsePhys", value); }
         }
 
         public string FloppyPhysDrv
         {
             get { return GetStringValue("FloppyPhysDrv"); }
-            set { dataRow["FloppyPhysDrv"] = value; }
+            set { SetStringValue("FloppyPhysDrv", value); }
         }
 
         public bool FloppyUseIso
         {
             get { return GetBoolValue("FloppyUseIso"); }
-            set { dataRow["FloppyUseIso"] = value; }
+            set { SetBoolValue("FloppyUseIso", value); }
         }
 
         public string FloppyIsoImg
         {
             get { return GetStringValue("FloppyIsoImg"); }
-            set { dataRow["FloppyIsoImg"] = value; }
+            set { SetStringValue("FloppyIsoImg", value); }
         }
 
         #endregion
@@ -152,6 +152,45 @@ namespace RosTEGUI
                 ErrorForm err = new ErrorForm(e.Message);
                 err.ShowDialog();
                 return string.Empty;
+            }
+        }
+
+        private void SetIntValue(string key, int value)
+        {
+            try
+            {
+                dataRow[key] = value;
+            }
+            catch (ArgumentException e)
+            {
+                ErrorForm err = new ErrorForm(e.Message);
+                err.ShowDialog();
+            }
+        }
+
+        private void SetBoolValue(string key, bool value)
+        {
+            try
+            {
+                dataRow[key] = value;
+            }
+            catch (ArgumentException e)
+            {
+                ErrorForm err = new ErrorForm(e.Message);
+                err.ShowDialog();
+            }
+        }
+
+        private void SetStringValue(string key, string value)
+        {
+            try
+            {
+                dataRow[key] = value;
+            }
+            catch (ArgumentException e)
+            {
+                ErrorForm err = new ErrorForm(e.Message);
+                err.ShowDialog();
             }
         }
 
