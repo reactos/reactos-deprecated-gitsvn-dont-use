@@ -17,7 +17,7 @@ if "%1" == "" (
     echo    make [OPTIONS]       - Without options it does a standard build of
     echo                           ReactOS. OPTIONS are the standard ReactOS build
     echo                           options ie. "bootcd" and "strip" as optional
-    echo                           second parameter sets striping to enabled.
+    echo                           second parameter sets stripping to enabled.
     echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
     echo                           number of CPU Cores in the system and uses -j
     echo                           with the appropriate number.
