@@ -85,11 +85,39 @@ namespace RosTEGUI
             }
         }
 
+        private void LoadFloppyPage()
+        {
+            DriveInfo[] drives = DriveInfo.GetDrives();
+
+            foreach (DriveInfo drive in drives)
+            {
+                if (drive.DriveType == DriveType.Removable)
+                    floppyPhyDrvCombo.Items.Add(drive);
+            }
+
+            floppyEnableChkBox.Checked = VirtMach.FloppyEnable;
+
+            int id = floppyPhyDrvCombo.FindString(VirtMach.FloppyPhysDrv);
+            if (id == -1) id = 0;
+            floppyPhyDrvCombo.SelectedIndex = id;
+
+            if (VirtMach.CdRomUsePhys)
+            {
+                floppyPhyDrvRadio.Checked = true;
+            }
+            else
+            {
+                floppyImgRadio.Checked = true;
+                floppyImgTxtBox.Text = VirtMach.FloppyIsoImg;
+            }
+        }
+
         private void LoadFormData()
         {
             if (!LoadMemoryPage())
                 MessageBox.Show("An error occured whilst loading memory page data");
             LoadCdRomPage();
+            LoadFloppyPage();
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
