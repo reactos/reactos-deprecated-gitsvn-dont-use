@@ -136,7 +136,18 @@ namespace RosTEGUI
                     if (delFrm.DeleteFullVM)
                     {
                         VirtualMachine vm = (VirtualMachine)lvi.Tag;
-                        Directory.Delete(vm.DefDir, true);
+
+                        try
+                        {
+                            Directory.Delete(vm.DefDir, true);
+                        }
+                        catch (DirectoryNotFoundException ex)
+                        {
+                            MessageBox.Show(vm.DefDir + " has was not found!",
+                                            "error",
+                                            MessageBoxButtons.OK,
+                                            MessageBoxIcon.Error);
+                        }
                     }
 
                     mainConf.DeleteVirtMach(lvi.Index/*lvi.Tag*/);

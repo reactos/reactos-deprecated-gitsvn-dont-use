@@ -4,13 +4,18 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Xml;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace RosTEGUI
 {
     public class VirtualMachine
     {
         private Data data;
-        private DataRow dataRow;
+        private DataRow vmDataRow;
+        private DataRow hdDataRow;
+        private DataRow netDataRow;
+        private ArrayList hardDrives;
+
 
         #region Virtual machine properties
 
@@ -117,11 +122,12 @@ namespace RosTEGUI
         {
             try
             {
-                return (int)dataRow[key];
+                return (int)vmDataRow[key];
             }
             catch (ArgumentException e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to get " + key + " value";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
                 return 0;
             }
@@ -131,11 +137,12 @@ namespace RosTEGUI
         {
             try
             {
-                return (bool)dataRow[key];
+                return (bool)vmDataRow[key];
             }
             catch (ArgumentException e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to get " + key + " value";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
                 return false;
             }
@@ -145,11 +152,12 @@ namespace RosTEGUI
         {
             try
             {
-                return (string)dataRow[key];
+                return (string)vmDataRow[key];
             }
             catch (ArgumentException e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to get " + key + " value";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
                 return string.Empty;
             }
@@ -159,11 +167,12 @@ namespace RosTEGUI
         {
             try
             {
-                dataRow[key] = value;
+                vmDataRow[key] = value;
             }
             catch (ArgumentException e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to set " + key + " value";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
             }
         }
@@ -172,11 +181,12 @@ namespace RosTEGUI
         {
             try
             {
-                dataRow[key] = value;
+                vmDataRow[key] = value;
             }
             catch (ArgumentException e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to set " + key + " value";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
             }
         }
@@ -185,25 +195,17 @@ namespace RosTEGUI
         {
             try
             {
-                dataRow[key] = value;
+                vmDataRow[key] = value;
             }
             catch (ArgumentException e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to set " + key + " value";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
             }
         }
 
         #endregion
-
-        private static void PrintRows(DataTable dt)
-        {
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                string str = "row: " + i + ", Name: " + dt.Rows[i]["Name"] + ", DefDir " + dt.Rows[i]["DefDir"];
-                MessageBox.Show(str);
-            }
-        }
 
         private bool PopulateVMDatabase(string name,
                                         string dir,
@@ -215,33 +217,52 @@ namespace RosTEGUI
 
             try
             {
-                DataTable dt = data.DataSet.Tables["VMConfig"];
-                int i = dt.Rows.Count + 1;
-                dataRow = dt.NewRow();
-                dataRow["VirtMachID"] = i;
-                dataRow["Name"] = name;
-                dataRow["MachType"] = "pc";
-                dataRow["DefDir"] = dir;
-                dataRow["MemSize"] = memSize;
-                dataRow["SetClockToHost"] = true;
-                dataRow["CdRomEnable"] = true;
-                dataRow["CdRomUsePhys"] = true;
-                dataRow["CdRomPhysDrv"] = string.Empty;
-                dataRow["CdRomUseIso"] = false;
-                dataRow["CdRomIsoImg"] = string.Empty;
-                dataRow["FloppyEnable"] = true;
-                dataRow["FloppyUsePhys"] = true;
-                dataRow["FloppyPhysDrv"] = string.Empty;
-                dataRow["FloppyUseImg"] = false;
-                dataRow["FloppyIsoImg"] = string.Empty;
+                DataTable vmdt = data.DataSet.Tables["VMConfig"];
+                vmDataRow = vmdt.NewRow();
+                vmDataRow["VirtMachID"] = vmdt.Rows.Count + 1;
+                vmDataRow["Name"] = name;
+                vmDataRow["MachType"] = "pc";
+                vmDataRow["DefDir"] = dir;
+                vmDataRow["MemSize"] = memSize;
+                vmDataRow["SetClockToHost"] = true;
+                vmDataRow["CdRomEnable"] = true;
+                vmDataRow["CdRomUsePhys"] = true;
+                vmDataRow["CdRomPhysDrv"] = string.Empty;
+                vmDataRow["CdRomUseIso"] = false;
+                vmDataRow["CdRomIsoImg"] = string.Empty;
+                vmDataRow["FloppyEnable"] = true;
+                vmDataRow["FloppyUsePhys"] = true;
+                vmDataRow["FloppyPhysDrv"] = string.Empty;
+                vmDataRow["FloppyUseImg"] = false;
+                vmDataRow["FloppyIsoImg"] = string.Empty;
+                vmdt.Rows.Add(vmDataRow);
 
-                dt.Rows.Add(dataRow);
+                DataTable hddt = data.DataSet.Tables["HardDisks"];
+                hdDataRow = hddt.NewRow();
+                hdDataRow["DiskID"] = hddt.Rows.Count + 1;
+                hdDataRow["VirtMachID"] = vmDataRow["VirtMachID"];
+                hdDataRow["Name"] = "hda";
+                hdDataRow["Path"] = string.Empty;
+                hdDataRow["Size"] = 0;
+                hddt.Rows.Add(hdDataRow);
+
+                DataTable netdt = data.DataSet.Tables["NetCards"];
+                netDataRow = netdt.NewRow();
+                netDataRow["CardID"] = netdt.Rows.Count + 1;
+                netDataRow["VirtMachID"] = vmDataRow["VirtMachID"];
+                netDataRow["Option"] = "hda";
+                netDataRow["Vlan"] = 0;
+                netDataRow["MacAddr"] = string.Empty;
+                netDataRow["Model"] = string.Empty;
+                netDataRow["Hostname"] = string.Empty;
+                netdt.Rows.Add(netDataRow);
 
                 ret = true;
             }
             catch (Exception e)
             {
-                ErrorForm err = new ErrorForm(e.Message);
+                string message = "Failed to populate database";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
                 err.ShowDialog();
             }
 
@@ -314,14 +335,17 @@ namespace RosTEGUI
                     data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
                     xtr.Close();
 
-                    DataTable dt = data.DataSet.Tables["VMConfig"];
-                    dataRow = dt.Rows[0];
+                    DataTable vmdt = data.DataSet.Tables["VMConfig"];
+                    vmDataRow = vmdt.Rows[0];
+
+                    DataTable hddt = data.DataSet.Tables["HardDisks"];
+                    hdDataRow = hddt.Rows[0];
 
                     ret = true;
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("error loading VM Config.xml: " + e.Message);
+                    MessageBox.Show("error loading the VM Config.xml: " + e.Message);
                 }
             }
 

@@ -10,11 +10,11 @@ namespace RosTEGUI
 {
     public partial class ErrorForm : Form
     {
-        public ErrorForm(string message)
+        public ErrorForm(string message, string exception, string trace)
         {
             InitializeComponent();
 
-            errorText.Text = message;
+            errorText.Text = message + " : " + exception + "\n\t" + trace;
         }
 
         private void errorCloseBtn_Click(object sender, EventArgs e)
