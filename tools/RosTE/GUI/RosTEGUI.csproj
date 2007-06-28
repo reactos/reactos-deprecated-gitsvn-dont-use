@@ -142,6 +142,12 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="native.cs" />
+    <Compile Include="NewHardDiskForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewHardDiskForm.Designer.cs">
+      <DependentUpon>NewHardDiskForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewVMWizard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -217,6 +223,10 @@
     <EmbeddedResource Include="ErrorForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ErrorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewHardDiskForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>NewHardDiskForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewVMWizard.resx">
       <SubType>Designer</SubType>
