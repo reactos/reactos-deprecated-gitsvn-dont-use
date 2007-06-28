@@ -321,10 +321,18 @@ namespace RosTEGUI
         {
             if (harddiskLstBox.Items.Count < 3)
             {
-                VMHardDrive vmhd = VirtMach.AddHardDisk("test", "hdc", "c:\\mypath", 512, false);
+                NewHardDiskForm hdf = new NewHardDiskForm();
+                if (hdf.ShowDialog() == DialogResult.OK)
+                {
+                    VMHardDrive vmhd = VirtMach.AddHardDisk(hdf.DiskName,
+                                                            hdf.QEmuDrive,
+                                                            hdf.Path,
+                                                            hdf.DiskSize,
+                                                            hdf.BootImage);
 
-                if (vmhd != null)
-                    harddiskLstBox.Items.Add(vmhd);
+                    if (vmhd != null)
+                        harddiskLstBox.Items.Add(vmhd);
+                }
             }
             else
             {
