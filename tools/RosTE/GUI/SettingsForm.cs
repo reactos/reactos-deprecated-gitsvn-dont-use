@@ -321,7 +321,15 @@ namespace RosTEGUI
         {
             if (harddiskLstBox.Items.Count < 3)
             {
-                NewHardDiskForm hdf = new NewHardDiskForm();
+                ArrayList curDrives = new ArrayList(3);
+                ArrayList hardDisks = VirtMach.GetHardDisks();
+                
+                foreach (VMHardDrive vmhd in hardDisks)
+                {
+                    curDrives.Add(vmhd.Drive);
+                }
+
+                NewHardDiskForm hdf = new NewHardDiskForm(curDrives);
                 if (hdf.ShowDialog() == DialogResult.OK)
                 {
                     VMHardDrive vmhd = VirtMach.AddHardDisk(hdf.DiskName,
