@@ -93,7 +93,8 @@ namespace RosTEGUI
                 harddiskLstBox.Items.Add(vmhd);
             }
 
-            harddiskLstBox.SelectedIndex = 0;
+            if (harddiskLstBox.Items.Count > 0)
+                harddiskLstBox.SelectedIndex = 0;
         }
 
         private void LoadFloppyPage()
@@ -305,12 +306,39 @@ namespace RosTEGUI
         private void harddiskLstBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ListBox lb = (ListBox)sender;
-            VMHardDrive vmhd = (VMHardDrive)lb.SelectedItem;
+            if (lb.SelectedItem != null)
+            {
+                VMHardDrive vmhd = (VMHardDrive)lb.SelectedItem;
 
-            harddiskDriveName.Text = vmhd.Drive;
-            harddiskFileNameTxtBox.Text = vmhd.Path;
-            harddiskSizeLbl.Text = vmhd.Size.ToString();
-            harddiskBootImageChk.Checked = vmhd.BootImg;
+                harddiskDriveName.Text = vmhd.Drive;
+                harddiskFileNameTxtBox.Text = vmhd.Path;
+                harddiskSizeLbl.Text = vmhd.Size.ToString();
+                harddiskBootImageChk.Checked = vmhd.BootImg;
+            }
+        }
+
+        private void harddiskAddBtn_Click(object sender, EventArgs e)
+        {
+            if (harddiskLstBox.Items.Count < 3)
+            {
+                VMHardDrive vmhd = VirtMach.AddHardDisk("test", "hdc", "c:\\mypath", 512, false);
+
+                if (vmhd != null)
+                    harddiskLstBox.Items.Add(vmhd);
+            }
+            else
+            {
+                MessageBox.Show("A maximum of 3 disk images is permittted");
+            }
+        }
+
+        private void harddiskRemoveBtn_Click(object sender, EventArgs e)
+        {
+            int oldSel = harddiskLstBox.SelectedIndex;
+            VMHardDrive vmhd = (VMHardDrive)harddiskLstBox.SelectedItem;
+            VirtMach.DeleteHardDisk(vmhd);
+            harddiskLstBox.Items.Remove(vmhd);
+            harddiskLstBox.SelectedIndex = oldSel - 1;
         }
     }
 }
