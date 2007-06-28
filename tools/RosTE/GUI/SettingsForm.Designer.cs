@@ -605,6 +605,7 @@ namespace RosTEGUI
             this.harddiskRemoveBtn.TabIndex = 7;
             this.harddiskRemoveBtn.Text = "Remove";
             this.harddiskRemoveBtn.UseVisualStyleBackColor = true;
+            this.harddiskRemoveBtn.Click += new System.EventHandler(this.harddiskRemoveBtn_Click);
             // 
             // harddiskFreeSpcLbl
             // 
@@ -729,6 +730,7 @@ namespace RosTEGUI
             this.harddiskAddBtn.TabIndex = 1;
             this.harddiskAddBtn.Text = "Add";
             this.harddiskAddBtn.UseVisualStyleBackColor = true;
+            this.harddiskAddBtn.Click += new System.EventHandler(this.harddiskAddBtn_Click);
             // 
             // harddiskLstBox
             // 

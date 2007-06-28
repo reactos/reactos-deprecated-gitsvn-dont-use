@@ -13,6 +13,11 @@ namespace RosTEGUI
         private Data data;
         private DataRow hdDataRow;
 
+        public int DiskID
+        {
+            get { return (int)hdDataRow["DiskID"]; }
+        }
+
         public string Name
         {
             get { return (string)hdDataRow["Name"]; }
@@ -63,7 +68,7 @@ namespace RosTEGUI
             {
                 DataTable hddt = data.DataSet.Tables["HardDisks"];
                 hdDataRow = hddt.NewRow();
-                hdDataRow["DiskID"] = hddt.Rows.Count + 1;
+                hdDataRow["DiskID"] = hddt.Rows.Count;
                 hdDataRow["Name"] = nameIn;
                 hdDataRow["Drive"] = driveIn;
                 hdDataRow["Path"] = pathIn;
@@ -81,6 +86,22 @@ namespace RosTEGUI
             }
 
             return ret;
+        }
+
+        public void DeleteHardDrive(int diskID)
+        {
+            DataTable dt = data.DataSet.Tables["HardDisks"];
+            //DataRow dr = dt.Rows.Find(diskID); <-- can't seem to apply a primary key??
+            // workaround for the above
+            foreach (DataRow dr in dt.Rows)
+            {
+                int id = (int)dr["DiskID"];
+                if (id == diskID)
+                {
+                    dt.Rows.Remove(dr);
+                    break;
+                }
+            }
         }
 
         public void LoadHardDrive(int index)
@@ -324,10 +345,6 @@ namespace RosTEGUI
                 vmhd.CreateHardDrive("Main Drive", "hda", dir, 768, true);
                 hardDrives.Add(vmhd);
 
-                // tester
-                vmhd.CreateHardDrive("Secondary Drive","hdb", dir, 512, false);
-                hardDrives.Add(vmhd);
-
                 DataTable netdt = data.DataSet.Tables["NetCards"];
                 netDataRow = netdt.NewRow();
                 netDataRow["CardID"] = netdt.Rows.Count + 1;
@@ -370,10 +387,10 @@ namespace RosTEGUI
                     vmDataRow = vmdt.Rows[0];
 
                     DataTable hddt = data.DataSet.Tables["HardDisks"];
-                    foreach (DataRow dr in hddt.Rows)
+                    for (int i = 0; i < hddt.Rows.Count; i++)
                     {
                         VMHardDrive vmhd = new VMHardDrive(data);
-                        vmhd.LoadHardDrive((int)dr["DiskID"] - 1);
+                        vmhd.LoadHardDrive(i);
                         hardDrives.Add(vmhd);
                     }
 
@@ -459,6 +476,10 @@ namespace RosTEGUI
                 DirectoryInfo di = Directory.GetParent(existImg);
                 dir = di.FullName;
             }
+            else
+            {
+                ;//FIXME: create a vm image 'qemu-img.exe create'
+            }
 
             return PopulateVMDatabase(name,
                                       dir,
@@ -467,11 +488,25 @@ namespace RosTEGUI
                                       memSize);
         }
 
-        public string GetHardDiskName(int i)
+        public VMHardDrive AddHardDisk(string nameIn,
+                                       string driveIn,
+                                       string pathIn,
+                                       int sizeIn,
+                                       bool bootImgIn)
         {
-            DataRow dr = (DataRow)hardDrives[i];
+            VMHardDrive vmhd = new VMHardDrive(data);
+            if (vmhd.CreateHardDrive(nameIn, driveIn, pathIn, sizeIn, bootImgIn))
+            {
+                hardDrives.Add(vmhd);
+                return vmhd;
+            }
 
-            return (string)dr["Name"];
+            return null;
+        }
+
+        public void DeleteHardDisk(VMHardDrive vmhd)
+        {
+            vmhd.DeleteHardDrive(vmhd.DiskID);
         }
 
         public ArrayList GetHardDisks()

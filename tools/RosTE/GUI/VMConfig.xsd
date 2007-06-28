@@ -37,10 +37,6 @@
         <xs:element name="BootImg" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
-    <xs:keyref name="VMConfigHardDisks" refer="VMConfigKey">
-      <xs:selector xpath="." />
-      <xs:field xpath="mstns:Name" />
-    </xs:keyref>
     <xs:key name="HardDisksKey">
       <xs:selector xpath="." />
       <xs:field xpath="mstns:DiskID" />
@@ -58,10 +54,6 @@
         <xs:element name="Hostname" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
-    <xs:keyref name="VMConfigNetCards" refer="VMConfigKey">
-      <xs:selector xpath="." />
-      <xs:field xpath="mstns:VirtMachID" />
-    </xs:keyref>
     <xs:key name="NetCardsKey">
       <xs:selector xpath="." />
       <xs:field xpath="mstns:CardID" />
