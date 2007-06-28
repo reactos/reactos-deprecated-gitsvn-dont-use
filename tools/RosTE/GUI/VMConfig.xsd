@@ -30,15 +30,16 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="DiskID" type="xs:int" />
-        <xs:element name="VirtMachID" type="xs:int" />
         <xs:element name="Name" type="xs:string" />
+        <xs:element name="Drive" type="xs:string" />
         <xs:element name="Path" type="xs:string" />
         <xs:element name="Size" type="xs:int" />
+        <xs:element name="BootImg" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
     <xs:keyref name="VMConfigHardDisks" refer="VMConfigKey">
       <xs:selector xpath="." />
-      <xs:field xpath="mstns:VirtMachID" />
+      <xs:field xpath="mstns:Name" />
     </xs:keyref>
     <xs:key name="HardDisksKey">
       <xs:selector xpath="." />
