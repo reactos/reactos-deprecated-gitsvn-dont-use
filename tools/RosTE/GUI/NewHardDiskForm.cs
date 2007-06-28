@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace RosTEGUI
 {
@@ -35,9 +32,29 @@ namespace RosTEGUI
             get { return newhdBoot.Checked; }
         }
 
-        public NewHardDiskForm()
+        public NewHardDiskForm(ArrayList curDrives)
         {
             InitializeComponent();
+
+            string[] allDrives = { "hda", "hdb", "hdd" };
+
+            foreach (string str in allDrives)
+            {
+                bool found = false;
+
+                foreach (string drive in curDrives)
+                {
+                    if (string.Compare(drive, str, true) == 0)
+                    {
+                        found = true;
+                    }
+                }
+                if (!found)
+                    newhdDrive.Items.Add(str);
+            }
+
+            if (newhdDrive.Items.Count > 0)
+                newhdDrive.SelectedIndex = 0;
         }
     }
 }
