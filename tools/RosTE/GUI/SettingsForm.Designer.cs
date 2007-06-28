@@ -1441,7 +1441,7 @@ namespace RosTEGUI
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.Name = "SettingsForm";
-            this.Text = "Virtual Machine Settings";
+            this.Text = "virtual machine settings";
             this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.hardwareContainerPanel.ResumeLayout(false);
             this.hardwareTempDesignSheetTab.ResumeLayout(false);

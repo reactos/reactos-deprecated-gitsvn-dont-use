@@ -352,6 +352,21 @@ namespace RosTEGUI
         {
             int oldSel = harddiskLstBox.SelectedIndex;
             VMHardDrive vmhd = (VMHardDrive)harddiskLstBox.SelectedItem;
+
+            DialogResult ret;
+            ret = MessageBox.Show("Do you want to delete the image file too?",
+                                  "Deleting harddisk",
+                                  MessageBoxButtons.YesNoCancel,
+                                  MessageBoxIcon.Warning);
+            if (ret == DialogResult.Cancel)
+            {
+                return;
+            }
+            else if (ret == DialogResult.Yes)
+            {
+                ;//FIXME: delete the image
+            }
+
             VirtMach.DeleteHardDisk(vmhd);
             harddiskLstBox.Items.Remove(vmhd);
             harddiskLstBox.SelectedIndex = oldSel - 1;

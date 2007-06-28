@@ -56,5 +56,31 @@ namespace RosTEGUI
             if (newhdDrive.Items.Count > 0)
                 newhdDrive.SelectedIndex = 0;
         }
+
+        private void newhdOK_Click(object sender, EventArgs e)
+        {
+            if (newhdNewImgRad.Checked)
+            {
+                //create the image 'qemu-img.exe create'
+            }
+            else
+            {
+                //check image exists
+            }
+        }
+
+        private void newhdNewImgRad_CheckedChanged(object sender, EventArgs e)
+        {
+            newhdOK.Text = "Create";
+            newhdSizeLbl.Enabled = true;
+            newhdSize.Enabled = true;
+        }
+
+        private void newhdExistImgRad_CheckedChanged(object sender, EventArgs e)
+        {
+            newhdOK.Text = "Add";
+            newhdSizeLbl.Enabled = false;
+            newhdSize.Enabled = false;
+        }
     }
 }
