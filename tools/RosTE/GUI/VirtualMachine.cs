@@ -8,14 +8,94 @@ using System.Collections;
 
 namespace RosTEGUI
 {
+    public class VMHardDrive
+    {
+        private Data data;
+        private DataRow hdDataRow;
+
+        public string Name
+        {
+            get { return (string)hdDataRow["Name"]; }
+            set { hdDataRow["Name"] = value; }
+        }
+
+        public string Drive
+        {
+            get { return (string)hdDataRow["Drive"]; }
+        }
+
+        public string Path
+        {
+            get { return (string)hdDataRow["Path"]; }
+            set { hdDataRow["Path"] = value; }
+        }
+
+        public int Size
+        {
+            get { return (int)hdDataRow["Size"]; }
+        }
+
+        public bool BootImg
+        {
+            get { return (bool)hdDataRow["BootImg"]; }
+            set { hdDataRow["BootImg"] = value; }
+        }
+
+        public VMHardDrive(Data dataIn)
+        {
+            data = dataIn;
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        public bool CreateHardDrive(string nameIn,
+                                    string driveIn,
+                                    string pathIn,
+                                    int sizeIn,
+                                    bool bootImgIn)
+        {
+            bool ret = false;
+
+            try
+            {
+                DataTable hddt = data.DataSet.Tables["HardDisks"];
+                hdDataRow = hddt.NewRow();
+                hdDataRow["DiskID"] = hddt.Rows.Count + 1;
+                hdDataRow["Name"] = nameIn;
+                hdDataRow["Drive"] = driveIn;
+                hdDataRow["Path"] = pathIn;
+                hdDataRow["Size"] = sizeIn;
+                hdDataRow["BootImg"] = bootImgIn;
+                hddt.Rows.Add(hdDataRow);
+
+                ret = true;
+            }
+            catch (Exception e)
+            {
+                string message = "Failed to populate hard disk database";
+                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
+                err.ShowDialog();
+            }
+
+            return ret;
+        }
+
+        public void LoadHardDrive(int index)
+        {
+            DataTable hddt = data.DataSet.Tables["HardDisks"];
+            hdDataRow = hddt.Rows[index];
+        }
+    }
+
     public class VirtualMachine
     {
         private Data data;
         private DataRow vmDataRow;
-        private DataRow hdDataRow;
-        private DataRow netDataRow;
         private ArrayList hardDrives;
-
+        private ArrayList netCards;
 
         #region Virtual machine properties
 
@@ -207,12 +287,15 @@ namespace RosTEGUI
 
         #endregion
 
+        #region database functions
+
         private bool PopulateVMDatabase(string name,
                                         string dir,
                                         float diskSize,
                                         string existImg,
                                         int memSize)
         {
+            DataRow netDataRow;
             bool ret = false;
 
             try
@@ -237,25 +320,25 @@ namespace RosTEGUI
                 vmDataRow["FloppyIsoImg"] = string.Empty;
                 vmdt.Rows.Add(vmDataRow);
 
-                DataTable hddt = data.DataSet.Tables["HardDisks"];
-                hdDataRow = hddt.NewRow();
-                hdDataRow["DiskID"] = hddt.Rows.Count + 1;
-                hdDataRow["VirtMachID"] = vmDataRow["VirtMachID"];
-                hdDataRow["Name"] = "hda";
-                hdDataRow["Path"] = string.Empty;
-                hdDataRow["Size"] = 0;
-                hddt.Rows.Add(hdDataRow);
+                VMHardDrive vmhd = new VMHardDrive(data);
+                vmhd.CreateHardDrive("Main Drive", "hda", dir, 768, true);
+                hardDrives.Add(vmhd);
+
+                // tester
+                vmhd.CreateHardDrive("Secondary Drive","hdb", dir, 512, false);
+                hardDrives.Add(vmhd);
 
                 DataTable netdt = data.DataSet.Tables["NetCards"];
                 netDataRow = netdt.NewRow();
                 netDataRow["CardID"] = netdt.Rows.Count + 1;
                 netDataRow["VirtMachID"] = vmDataRow["VirtMachID"];
-                netDataRow["Option"] = "hda";
+                netDataRow["Option"] = "user";
                 netDataRow["Vlan"] = 0;
                 netDataRow["MacAddr"] = string.Empty;
                 netDataRow["Model"] = string.Empty;
                 netDataRow["Hostname"] = string.Empty;
                 netdt.Rows.Add(netDataRow);
+                netCards.Add(netDataRow);
 
                 ret = true;
             }
@@ -269,16 +352,79 @@ namespace RosTEGUI
             return ret;
         }
 
-        public override string ToString()
+        public bool LoadVMConfig(string path)
         {
-            return Name;
+            bool ret = false;
+            string fileName = path + "\\Config.xml";
+
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                    XmlTextReader xtr = new XmlTextReader(fs);
+                    data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                    xtr.Close();
+
+                    DataTable vmdt = data.DataSet.Tables["VMConfig"];
+                    vmDataRow = vmdt.Rows[0];
+
+                    DataTable hddt = data.DataSet.Tables["HardDisks"];
+                    foreach (DataRow dr in hddt.Rows)
+                    {
+                        VMHardDrive vmhd = new VMHardDrive(data);
+                        vmhd.LoadHardDrive((int)dr["DiskID"] - 1);
+                        hardDrives.Add(vmhd);
+                    }
+
+                    DataTable netdt = data.DataSet.Tables["NetCards"];
+                    foreach (DataRow dr in netdt.Rows)
+                        netCards.Add(dr);
+
+                    ret = true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("error loading the VM Config.xml: " + e.Message);
+                }
+            }
+
+            return ret;
         }
+
+        public void SaveVMConfig()
+        {
+            try
+            {
+                string fileName = DefDir + "\\Config.xml";
+                Directory.CreateDirectory(DefDir);
+                FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
+                data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+                xtw.Close();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("error loading VM Config.xml: " + e.Message);
+            }
+        }
+
+
+        #endregion
 
         public VirtualMachine()
         {
             data = new Data();
             if (!data.LoadVirtMachData())
                 MessageBox.Show("Failed to load VM Schema");
+
+            hardDrives = new ArrayList(3);
+            netCards = new ArrayList();
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
 
         // default
@@ -321,52 +467,16 @@ namespace RosTEGUI
                                       memSize);
         }
 
-        public bool LoadVMConfig(string path)
+        public string GetHardDiskName(int i)
         {
-            bool ret = false;
-            string fileName = path + "\\Config.xml";
+            DataRow dr = (DataRow)hardDrives[i];
 
-            if (File.Exists(fileName))
-            {
-                try
-                {
-                    FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                    XmlTextReader xtr = new XmlTextReader(fs);
-                    data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
-                    xtr.Close();
-
-                    DataTable vmdt = data.DataSet.Tables["VMConfig"];
-                    vmDataRow = vmdt.Rows[0];
-
-                    DataTable hddt = data.DataSet.Tables["HardDisks"];
-                    hdDataRow = hddt.Rows[0];
-
-                    ret = true;
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show("error loading the VM Config.xml: " + e.Message);
-                }
-            }
-
-            return ret;
+            return (string)dr["Name"];
         }
 
-        public void SaveVMConfig()
+        public ArrayList GetHardDisks()
         {
-            try
-            {
-                string fileName = DefDir + "\\Config.xml";
-                Directory.CreateDirectory(DefDir);
-                FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-                XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-                data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
-                xtw.Close();
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("error loading VM Config.xml: " + e.Message);
-            }
+            return hardDrives;
         }
     }
 }

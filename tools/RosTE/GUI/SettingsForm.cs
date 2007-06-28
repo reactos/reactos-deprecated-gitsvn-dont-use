@@ -85,6 +85,17 @@ namespace RosTEGUI
             }
         }
 
+        private void LoadHardDiskPage()
+        {
+            ArrayList hardDrives = VirtMach.GetHardDisks();
+            foreach (VMHardDrive vmhd in hardDrives)
+            {
+                harddiskLstBox.Items.Add(vmhd);
+            }
+
+            harddiskLstBox.SelectedIndex = 0;
+        }
+
         private void LoadFloppyPage()
         {
             DriveInfo[] drives = DriveInfo.GetDrives();
@@ -117,6 +128,7 @@ namespace RosTEGUI
             if (!LoadMemoryPage())
                 MessageBox.Show("An error occured whilst loading memory page data");
             LoadCdRomPage();
+            LoadHardDiskPage();
             LoadFloppyPage();
         }
 
@@ -288,6 +300,17 @@ namespace RosTEGUI
 
                 generalSetClockHost.Checked = VirtMach.SetClockToHost;
             }
+        }
+
+        private void harddiskLstBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ListBox lb = (ListBox)sender;
+            VMHardDrive vmhd = (VMHardDrive)lb.SelectedItem;
+
+            harddiskDriveName.Text = vmhd.Drive;
+            harddiskFileNameTxtBox.Text = vmhd.Path;
+            harddiskSizeLbl.Text = vmhd.Size.ToString();
+            harddiskBootImageChk.Checked = vmhd.BootImg;
         }
     }
 }
