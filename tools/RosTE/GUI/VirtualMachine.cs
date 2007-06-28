@@ -506,6 +506,7 @@ namespace RosTEGUI
 
         public void DeleteHardDisk(VMHardDrive vmhd)
         {
+            hardDrives.Remove(vmhd);
             vmhd.DeleteHardDrive(vmhd.DiskID);
         }
 
