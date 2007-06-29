@@ -5,11 +5,37 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace RosTEGUI
 {
     public partial class ConsoleSettings : Form
     {
+        public string QemuPath
+        {
+            get { return conQemuLoc.Text; }
+        }
+
+        public string VdkPath
+        {
+            get { return conVdkLoc.Text; }
+        }
+
+        public string DefVmPath
+        {
+            get { return conDefVmLoc.Text; }
+        }
+
+        public int UpdateSched
+        {
+            get { return conUpdateCombo.SelectedIndex; }
+        }
+
+        public bool AppDebug
+        {
+            get { return conAppDebug.Checked; }
+        }
+
         private string GetFolderLocation()
         {
             folderBrowserDialog.ShowDialog();
@@ -46,5 +72,29 @@ namespace RosTEGUI
         {
             conDefVmLoc.Text = GetFolderLocation();
         }
+
+        private void conDialogOK_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists(conQemuLoc.Text + "\\qemu.exe"))
+            {
+                MessageBox.Show("Cannot find qemu.exe in " + conQemuLoc.Text);
+                return;
+            }
+
+            if (!File.Exists(conVdkLoc.Text + "\\vdk.exe"))
+            {
+                MessageBox.Show("Cannot find vdk.exe in " + conVdkLoc.Text);
+                return;
+            }
+
+            if (!Directory.Exists(conDefVmLoc.Text))
+            {
+                MessageBox.Show(conDefVmLoc.Text + " does not exist");
+                return;
+            }
+
+            this.DialogResult = DialogResult.OK;
+        }
+
     }
 }
