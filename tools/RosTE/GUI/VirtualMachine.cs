@@ -13,6 +13,8 @@ namespace RosTEGUI
         private Data data;
         private DataRow hdDataRow;
 
+        #region properties
+
         public int DiskID
         {
             get { return (int)hdDataRow["DiskID"]; }
@@ -50,6 +52,8 @@ namespace RosTEGUI
         {
             data = dataIn;
         }
+
+        #endregion
 
         public override string ToString()
         {

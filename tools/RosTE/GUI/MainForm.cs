@@ -190,7 +190,14 @@ namespace RosTEGUI
         {
             ConsoleSettings cs = new ConsoleSettings(mainConf);
             cs.StartPosition = FormStartPosition.CenterParent;
-            cs.ShowDialog();
+            if (cs.ShowDialog() == DialogResult.OK)
+            {
+                mainConf.UpdateSched = cs.UpdateSched;
+                mainConf.QemuPath = cs.QemuPath;
+                mainConf.VdkPath = cs.VdkPath;
+                mainConf.DefVmPath = cs.DefVmPath;
+                mainConf.AppDebug = cs.AppDebug;
+            }
         }
     }
 }
