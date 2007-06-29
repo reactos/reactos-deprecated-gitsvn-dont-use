@@ -36,12 +36,6 @@ namespace RosTEGUI
             get { return conAppDebug.Checked; }
         }
 
-        private string GetFolderLocation()
-        {
-            folderBrowserDialog.ShowDialog();
-            return folderBrowserDialog.SelectedPath;
-        }
-
         public ConsoleSettings(MainConfig mainConf)
         {
             InitializeComponent();
@@ -60,17 +54,20 @@ namespace RosTEGUI
 
         private void button3_Click(object sender, EventArgs e)
         {
-            conQemuLoc.Text = GetFolderLocation();
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                conQemuLoc.Text = folderBrowserDialog.SelectedPath;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            conVdkLoc.Text = GetFolderLocation();
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                conVdkLoc.Text = folderBrowserDialog.SelectedPath;
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            conDefVmLoc.Text = GetFolderLocation();
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                conDefVmLoc.Text = folderBrowserDialog.SelectedPath;
         }
 
         private void conDialogOK_Click(object sender, EventArgs e)
