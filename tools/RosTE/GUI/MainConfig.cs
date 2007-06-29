@@ -8,15 +8,101 @@ namespace RosTEGUI
     public class MainConfig
     {
         private Data data = null;
+        private DataRow drSettings;
 
-        private static void PrintRows(DataTable dt)
+        #region properties
+
+        public string QemuPath
         {
-            for (int i = 0; i < dt.Rows.Count; i++)
-            {
-                string str = "row: " + i + ", VMConfigID: " + dt.Rows[i]["VMConfigID"] + ", Path " + dt.Rows[i]["Path"];
-                MessageBox.Show(str);
-            }
+            get { return (string)drSettings["QemuPath"]; }
+            set { drSettings["QemuPath"] = value; }
         }
+
+        public string VdkPath
+        {
+            get { return (string)drSettings["VdkPath"]; }
+            set { drSettings["VdkPath"] = value; }
+        }
+
+        public string DefVmPath
+        {
+            get { return (string)drSettings["DefVmPath"]; }
+            set { drSettings["DefVmPath"] = value; }
+        }
+
+        public int UpdateSched
+        {
+            get { return (int)drSettings["UpdateSched"]; }
+            set { drSettings["UpdateSched"] = value; }
+        }
+
+        public bool AppDebug
+        {
+            get { return (bool)drSettings["AppDebug"]; }
+            set { drSettings["AppDebug"] = value; }
+        }
+
+        #endregion
+
+        #region VM Image functions
+
+        public string GetExistingImage(int index)
+        {
+            DataTable dt = data.DataSet.Tables["VirtMach"];
+            DataRow dr = dt.Rows[index];
+
+            return (string)dr["Path"];
+        }
+
+        public int AddVirtMach(string Path)
+        {
+            int i;
+            DataRow dr;
+            DataTable dt = data.DataSet.Tables["VirtMach"];
+            i = dt.Rows.Count + 1;
+            dr = dt.NewRow();
+            dr["VMConfigID"] = i;
+            dr["Path"] = Path;
+            dt.Rows.Add(dr);
+            return i;
+        }
+
+        public void DeleteVirtMach(int index)
+        {
+            DataTable dt = data.DataSet.Tables["VirtMach"];
+            dt.Rows.RemoveAt(index);
+        }
+
+        public int GetNumberOfVms()
+        {
+            DataTable dt = data.DataSet.Tables["VirtMach"];
+            return dt.Rows.Count;
+        }
+
+        #endregion
+
+        #region Settings functions
+
+        public void CreateSettings()
+        {
+            DataTable dt = data.DataSet.Tables["Settings"];
+            drSettings = dt.NewRow();
+            // FIXME: these should be assigned by the installer
+            drSettings["QemuPath"] = @"C:\Program Files\RosTE\QEmu";
+            drSettings["VdkPath"] = @"C:\Program Files\RosTE\VDK";
+            drSettings["DefVmPath"] = @"C:\Program Files\RosTE\Images";
+            drSettings["UpdateSched"] = 3;
+            drSettings["AppDebug"] = false;
+            dt.Rows.Add(drSettings);
+        }
+
+        public void LoadSettings()
+        {
+            DataTable dt = data.DataSet.Tables["Settings"];
+            drSettings = dt.Rows[0];
+        }
+
+        #endregion
 
         public MainConfig(Data dataIn)
         {
@@ -51,39 +137,6 @@ namespace RosTEGUI
             XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
             data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
             xtw.Close();
-        }
-
-        public string GetExistingImage(int index)
-        {
-            DataTable dt = data.DataSet.Tables["MainConfig"];
-            DataRow dr = dt.Rows[index];
-
-            return (string)dr["Path"];
-        }
-
-        public int AddVirtMach(string Path)
-        {
-            int i;
-            DataRow dr;
-            DataTable dt = data.DataSet.Tables["MainConfig"];
-            i = dt.Rows.Count + 1;
-            dr = dt.NewRow();
-            dr["VMConfigID"] = i;
-            dr["Path"] = Path;
-            dt.Rows.Add(dr);
-            return i;
-        }
-
-        public void DeleteVirtMach(int index)
-        {
-            DataTable dt = data.DataSet.Tables["MainConfig"];
-            dt.Rows.RemoveAt(index);
-        }
-
-        public int GetNumberOfVms()
-        {
-            DataTable dt = data.DataSet.Tables["MainConfig"];
-            return dt.Rows.Count;
         }
     }
 }

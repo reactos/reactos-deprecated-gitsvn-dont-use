@@ -35,29 +35,43 @@ namespace RosTEGUI
             Close();
         }
 
+        private void LoadVirtualMachines(MainConfig mainConf)
+        {
+            int num = mainConf.GetNumberOfVms();
+            for (int i = 0; i < num; i++)
+            {
+                string image = mainConf.GetExistingImage(i);
+                VirtualMachine vm = new VirtualMachine();
+                if (vm.LoadVMConfig(image))
+                {
+                    ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
+                    lvi.SubItems.Add(vm.MemSize.ToString() + " MB");
+                    lvi.Tag = vm;
+                }
+            }
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             mainData = new Data();
             if (!mainData.LoadMainData())
                 MessageBox.Show("Failed to load Main Schema");
 
-            // read config and load any existing vm's
             mainConf = new MainConfig(mainData);
 
+            // load config and load any existing vm's
             if (mainConf.LoadMainConfig())
             {
-                int num = mainConf.GetNumberOfVms();
-                for (int i = 0; i < num; i++)
-                {
-                    string image = mainConf.GetExistingImage(i);
-                    VirtualMachine vm = new VirtualMachine();
-                    if (vm.LoadVMConfig(image))
-                    {
-                        ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
-                        lvi.Tag = vm;
-                    }
-                }
+                mainConf.LoadSettings();
+                LoadVirtualMachines(mainConf);
             }
+            else // create settings for first run
+            {
+                mainConf.CreateSettings();
+            }
+
+            string str = mainConf.QemuPath;
+
         }
 
         private void MainMenuHelpAbout_Click(object sender, EventArgs e)
@@ -170,6 +184,13 @@ namespace RosTEGUI
         private void changeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadSettingsDialog();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ConsoleSettings cs = new ConsoleSettings(mainConf);
+            cs.StartPosition = FormStartPosition.CenterParent;
+            cs.ShowDialog();
         }
     }
 }

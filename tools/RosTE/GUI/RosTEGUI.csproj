@@ -120,6 +120,12 @@
     <Compile Include="AboutForm.Designer.cs">
       <DependentUpon>AboutForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ConsoleSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConsoleSettings.Designer.cs">
+      <DependentUpon>ConsoleSettings.cs</DependentUpon>
+    </Compile>
     <Compile Include="DeleteVM.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -162,6 +168,8 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="qemu.cs">
     </Compile>
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
@@ -215,6 +223,10 @@
     <EmbeddedResource Include="AboutForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConsoleSettings.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ConsoleSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DeleteVM.resx">
       <SubType>Designer</SubType>
