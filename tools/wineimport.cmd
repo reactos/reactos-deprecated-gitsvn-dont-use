@@ -1,6 +1,6 @@
 @ECHO OFF
 
-REM Copyright (C) 2006 Hervé Poussineau (hpoussin@reactos.org)
+REM Copyright (C) 2006-2007 Hervé Poussineau (hpoussin@reactos.org)
 
 SET WINE_TMPFILE1=tmpfile1.wine
 
@@ -58,9 +58,19 @@ IF NOT EXIST wine\dlls\%2\makefile.in (
 	GOTO :createrbuildnext
 )
 
+SET WINE_MODULE_NAME=%2
+IF "%WINE_MODULE_NAME:~-4%" == ".ocx" (
+	SET WINE_MODULE_NAME=%WINE_MODULE_NAME:~0,-4%
+	SET WINE_MODULE_TYPE=win32ocx
+	SET WINE_INSTALL_NAME=%2
+) ELSE (
+	SET WINE_MODULE_TYPE=win32dll
+	SET WINE_INSTALL_NAME=%2.dll
+)
+
 SET WINE_LOWER=abcdefghijklmnopqrstuvwxyz0123456789_.
 SET WINE_UPPER=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.
-SET WINE_LINE=%2
+SET WINE_LINE=%WINE_MODULE_NAME%
 SET WINE_UPPERCASE=
 FOR /L %%i IN (0, 1, 13) DO (
 	FOR /L %%j IN (0, 1, 37) DO (
@@ -79,7 +89,7 @@ FOR /F "usebackq tokens=3,4 delims= " %%l IN ("wine\dlls\%2\%2.spec") DO (
 
 >NUL COPY /Y wine\dlls\%2\makefile.in %WINE_TMPFILE1%
 
-ECHO ^<module name="%2" type="win32dll" baseaddress="${BASEADDRESS_!WINE_UPPERCASE!}" installbase="system32" installname="%2.dll" allowwarnings="true"^>
+ECHO ^<module name="%WINE_MODULE_NAME%" type="%WINE_MODULE_TYPE%" baseaddress="${BASEADDRESS_!WINE_UPPERCASE!}" installbase="system32" installname="%WINE_INSTALL_NAME%" allowwarnings="true"^>
 IF "%WINE_HAS_DLLINSTALL%" == "1" (
 	IF "%WINE_HAS_DLLREGISTERSERVER%" == "1" (
 		ECHO 	^<autoregister infsection="OleControlDlls" type="Both" /^>
@@ -92,7 +102,7 @@ IF "%WINE_HAS_DLLINSTALL%" == "1" (
 	)
 )
 ECHO 	^<importlibrary definition="%2.spec.def" /^>
-ECHO 	^<include base="%2"^>.^</include^>
+ECHO 	^<include base="%WINE_MODULE_NAME%"^>.^</include^>
 ECHO 	^<include base="ReactOS"^>include/reactos/wine^</include^>
 ECHO 	^<define name="__REACTOS__" /^>
 ECHO 	^<define name="__WINESRC__" /^>
@@ -105,8 +115,12 @@ SET WINE_FULL_LINE=
 SET WINE_END_PREC_LINE=
 SET WINE_VARTYPE=0
 SET WINE_HAS_NTDLL=
+SET WINE_HAS_IDL=
 FOR /F "eol=# delims=" %%l IN (%WINE_TMPFILE1%) DO (
 	CALL :internal_analyseline %%l
+)
+IF NOT "%WINE_HAS_IDL%" == "" (
+	ECHO 	^<include base="%WINE_MODULE_NAME%" root="intermediate"^>.^</include^>
 )
 ECHO 	^<file^>%2.spec^</file^>
 ECHO ^</module^>
@@ -158,23 +172,25 @@ COPY /Y "wine\dlls\%2\*.*" "%WINE_ROS_DIR%\dll\win32\%2" >NUL
 SET WINE_FILES_DELETED=
 FOR /F "delims=" %%f IN ('DIR /B "%WINE_ROS_DIR%\dll\win32\%2\*.*"') DO (
 	IF "%%f" == ".cvsignore" (
-		svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
-		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+		svn.exe delete --force "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
+		DEL /Q "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 	) ELSE IF "%%f" == "Makefile.in" (
-		svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
-		DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+		svn.exe delete --force "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
+		DEL /Q "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 	) ELSE IF NOT EXIST "wine\dlls\%2\%%f" (
 		SET WINE_FILE=%%f
 		IF NOT "!WINE_FILE:~-9!" == "_ros.diff" (
 			svn.exe delete "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 			IF ERRORLEVEL 2 GOTO :helpsvn
-			IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%%f" DEL "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+			IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%%f" DEL /Q "%WINE_ROS_DIR%\dll\win32\%2\%%f"
+			IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%%f" RD /S /Q "%WINE_ROS_DIR%\dll\win32\%2\%%f"
 			SET WINE_FILES_DELETED=!WINE_FILES_DELETED! %%f
 		)
 	) ELSE (
 		svn.exe add "%WINE_ROS_DIR%\dll\win32\%2\%%f" 2>NUL
 		IF ERRORLEVEL 2 GOTO :helpsvn
 		svn.exe propset svn:eol-style native "%WINE_ROS_DIR%\dll\win32\%2\%%f" >NUL 2>NUL
+		SET >NUL
 	)
 )
 IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" (
@@ -188,7 +204,7 @@ IF EXIST "%WINE_ROS_DIR%\dll\win32\%2\%2_ros.diff" (
 	POPD
 	IF ERRORLEVEL 1 (
 		ECHO Error when executing patch.exe. Try to download the lastest version at
-		ECHO http://unxutils.sourceforge.net/
+		ECHO http://gnuwin32.sourceforge.net/packages/patch.htm
 		GOTO :eof
 	)
 	FOR %%f IN (%WINE_FILES_DELETED%) DO (
@@ -208,6 +224,7 @@ GOTO :eof
 
 :make
 SETLOCAL ENABLEEXTENSIONS
+SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%3" == "" GOTO help
 IF NOT EXIST "%2\ReactOS.rbuild" (
 	ECHO %2\ReactOS.rbuild doesn't exit.
@@ -218,7 +235,11 @@ SET WINE_ROS_DIR=%2
 :make_filllist
 SHIFT
 IF "%2" == "" GOTO make_doit
-SET WINE_LIST=%WINE_LIST% %2
+SET WINE_MODULE_NAME=%2
+IF "%WINE_MODULE_NAME:~-4%" == ".ocx" (
+	SET WINE_MODULE_NAME=%WINE_MODULE_NAME:~0,-4%
+)
+SET WINE_LIST=%WINE_LIST% %WINE_MODULE_NAME%
 GOTO make_filllist
 :make_doit
 PUSHD "%WINE_ROS_DIR%"
@@ -241,12 +262,12 @@ CALL :download download%WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 FOR %%m IN (%WINE_LIST%) DO (
 	>wine\dlls\%%m\%%m.rbuild CALL :createrbuild createrbuild %%m
-	>NUL CALL :link link "%WINE_ROS_DIR%" %%m
+	>NUL CALL :link link %WINE_ROS_DIR% %%m
 )
-CALL :merge merge "%WINE_ROS_DIR%" %WINE_LIST%
+CALL :merge merge %WINE_ROS_DIR% %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
-IF EXIST "%WINE_ROS_DIR%\makefile.auto" DEL "%WINE_ROS_DIR%\makefile.auto"
-CALL :make make "%WINE_ROS_DIR%" %WINE_LIST%
+IF EXIST %WINE_ROS_DIR%\makefile.auto DEL %WINE_ROS_DIR%\makefile.auto
+CALL :make make %WINE_ROS_DIR% %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 ECHO Compilation successful. You should try to run ReactOS to see if
 ECHO no visible regressions appeared before committing the changes.
@@ -282,6 +303,9 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 		SET WINE_VARTYPE=1
 	) ELSE IF "%1" == "RC_SRCS" (
 		SET WINE_VARTYPE=1
+	) ELSE IF "%1" == "IDL_H_SRCS" (
+		SET WINE_VARTYPE=1
+		SET WINE_HAS_IDL=1
 	) ELSE IF "%1" == "IMPORTS" (
 		SET WINE_VARTYPE=2
 	) ELSE IF "%1" == "DELAYIMPORTS" (
