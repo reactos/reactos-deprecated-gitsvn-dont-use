@@ -21,6 +21,10 @@ if "%1" == "" (
     echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
     echo                           number of CPU Cores in the system and uses -j
     echo                           with the appropriate number.
+    echo    basedir              - Switch back to the ReactOS source directory.
+    echo.
+    echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
+    echo.
     echo    clean [logs]         - Fully clean the ReactOS source directory and/or
     echo                           the RosBE build logs.
     echo    help [COMMAND]       - Display the available commands or help on a
@@ -31,8 +35,7 @@ if "%1" == "" (
     echo    svn [OPTIONS]        - Create, Update or Clean-up your ReactOS Source
     echo                           Tree or show the Revision Number of the Offline
     echo                           Tree and Online HEAD Revision.
-    echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
-    echo    basedir              - Switch back to the ReactOS source directory.
+
     goto :EOF
 )
 if "%1" == "make" (
