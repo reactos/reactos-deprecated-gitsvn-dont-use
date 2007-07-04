@@ -30,6 +30,9 @@ if not "%1" == "" (
 :: Save our initial directory (should be the ReactOS source directory)
 ::
 set _ROSSOURCEDIR=%CD%
+if not exist "%_ROSSOURCEDIR%\." (
+    mkdir %_ROSSOURCEDIR%
+)
 
 ::
 :: Check if our log directory exists, if it doesn't, create it.

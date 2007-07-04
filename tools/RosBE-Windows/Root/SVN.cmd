@@ -29,12 +29,23 @@ if "%1" == "cleanup" (
     %ROSBEBASEDIR%\Tools\svn.exe cleanup %_ROSSOURCEDIR%
     goto :ExitSVN
 )
+::
+:: Check if the Folder is empty. If not, output an error.
+::
+
 if "%1" == "create" (
     title Creating...
-    if not exist "%_ROSSOURCEDIR%\." (
-        mkdir %_ROSSOURCEDIR%
+    if exist "%_ROSSOURCEDIR%\.svn\." (
+        echo Folder already cotains a Reposority. Exiting
+        goto :ExitSVN
+    )
+    if exist "%_ROSSOURCEDIR%\*" (
+        echo Folder is not empty. Continuing is dangerous and can cause errors.
+        echo Press Strg+C to abort.
+        pause
         goto :SVN
     )
+    goto :SVN
 )
 if "%1" == "status" (
     title Status
@@ -53,20 +64,6 @@ if "%1" == "status" (
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :ExitSVN
-)
-
-::
-:: Check if the Folder is empty. If not, output an error.
-::
-if exist "%_ROSSOURCEDIR%\.svn\." (
-    echo Folder already cotains a Reposority. Exiting
-    goto :ExitSVN
-)
-if exist "%_ROSSOURCEDIR%\*.*" (
-    echo Folder is not empty. Continuing is dangerous and can cause errors.
-    echo Press Strg+C to abort.
-    pause
-    goto :SVN
 )
 
 :SVN
