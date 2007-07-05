@@ -61,9 +61,5 @@ if not "%1" == "" (
     goto :ExitSVN
 )
 
-:SVN
-%ROSBEBASEDIR%\Tools\svn.exe checkout svn://svn.reactos.org/reactos/trunk/reactos %_ROSSOURCEDIR%
-goto :ExitSVN
-
 :ExitSVN
 title ReactOS Build Environment 0.3.7
