@@ -39,13 +39,8 @@ if "%1" == "create" (
         echo Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
-    if exist "%_ROSSOURCEDIR%\*" (
-        echo Folder is not empty. Continuing is dangerous and can cause errors.
-        echo Press Strg+C to abort.
-        pause
-        goto :SVN
-    )
-    goto :SVN
+    dir /b | find /v "0471391E-C911-11D9-8BDE-F66BFD1E3F3A" >nul && (echo Folder is not empty. Continuing is dangerous and can cause errors. ABORTED) || (%ROSBEBASEDIR%\Tools\svn.exe checkout svn://svn.reactos.org/reactos/trunk/reactos %_ROSSOURCEDIR%)
+    goto :ExitSVN
 )
 if "%1" == "status" (
     title Status
