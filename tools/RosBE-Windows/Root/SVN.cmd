@@ -39,7 +39,12 @@ if "%1" == "create" (
         echo Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
-    dir /b | find /v "0471391E-C911-11D9-8BDE-F66BFD1E3F3A" >nul && (echo Folder is not empty. Continuing is dangerous and can cause errors. ABORTED) || (%ROSBEBASEDIR%\Tools\svn.exe checkout svn://svn.reactos.org/reactos/trunk/reactos %_ROSSOURCEDIR%)
+    dir /b %_ROSSOURCEDIR% 2>nul|"%ROSBEBASEDIR%\Tools\grep.exe" -e ".*" >nul
+    if errorlevel 1 (
+        %ROSBEBASEDIR%\Tools\svn.exe checkout svn://svn.reactos.org/reactos/trunk/reactos %_ROSSOURCEDIR%
+    ) else (
+        echo Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+    )
     goto :ExitSVN
 )
 if "%1" == "status" (
