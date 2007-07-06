@@ -11,6 +11,8 @@ namespace RosTEGUI
 {
     public partial class NewVMWizard : Form
     {
+        private MainConfig mainConf;
+
         public string VMName
         {
             get { return nameTxtBox.Text; }
@@ -41,9 +43,11 @@ namespace RosTEGUI
             }
         }
 
-        public NewVMWizard()
+        public NewVMWizard(MainConfig mainConfIn)
         {
             InitializeComponent();
+
+            mainConf = mainConfIn;
         }
 
         private void wizard1_CloseFromCancel(object sender, CancelEventArgs e)
@@ -78,11 +82,6 @@ namespace RosTEGUI
             if (defaultDirTxtBox.Text == "")
             {
                 MessageBox.Show("You must enter a name", "Error");
-                e.Page = defaultDirInfoPage;
-            }
-            else if (Directory.Exists(defaultDirTxtBox.Text) == false)
-            {
-                MessageBox.Show("Directory does not exist", "Error");
                 e.Page = defaultDirInfoPage;
             }
         }
@@ -190,7 +189,6 @@ namespace RosTEGUI
         private void harddiskTrkBar_Scroll(object sender, EventArgs e)
         {
             harddiskUpDwn.Value = harddiskTrkBar.Value;
-            
         }
 
         private void harddiskUpdown_ValueChanged(object sender, EventArgs e)
@@ -221,6 +219,11 @@ namespace RosTEGUI
             {
                 imageLocTxtBox.Text = wizardOpenFile.FileName;
             }
+        }
+
+        private void defaultDirInfoPage_Enter(object sender, EventArgs e)
+        {
+            defaultDirTxtBox.Text = mainConf.DefVmPath + '\\' + VMName;
         }
     }
 }

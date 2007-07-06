@@ -32,18 +32,6 @@ namespace RosTEGUI
             this.wizardFolderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.wizardOpenFile = new System.Windows.Forms.OpenFileDialog();
             this.wizardNewVM = new Gui.Wizard.Wizard();
-            this.harddiskInfoPage = new Gui.Wizard.WizardPage();
-            this.label5 = new System.Windows.Forms.Label();
-            this.harddiskDiskLab = new System.Windows.Forms.Label();
-            this.harddiskLab2 = new System.Windows.Forms.Label();
-            this.harddiskLab1 = new System.Windows.Forms.Label();
-            this.harddiskDiskSizeLab = new System.Windows.Forms.Label();
-            this.harddiskLab3 = new System.Windows.Forms.Label();
-            this.harddiskRecMinLab = new System.Windows.Forms.Label();
-            this.harddiskLab4 = new System.Windows.Forms.Label();
-            this.harddiskUpDwn = new System.Windows.Forms.NumericUpDown();
-            this.harddiskTrkBar = new System.Windows.Forms.TrackBar();
-            this.harddiskHeader = new Gui.Wizard.Header();
             this.defaultDirInfoPage = new Gui.Wizard.WizardPage();
             this.defaultDirLab2 = new System.Windows.Forms.Label();
             this.defaultDirLab1 = new System.Windows.Forms.Label();
@@ -90,10 +78,19 @@ namespace RosTEGUI
             this.imageLab1 = new System.Windows.Forms.Label();
             this.imageFileBrowse = new System.Windows.Forms.Button();
             this.imageLocTxtBox = new System.Windows.Forms.TextBox();
+            this.harddiskInfoPage = new Gui.Wizard.WizardPage();
+            this.label5 = new System.Windows.Forms.Label();
+            this.harddiskDiskLab = new System.Windows.Forms.Label();
+            this.harddiskLab2 = new System.Windows.Forms.Label();
+            this.harddiskLab1 = new System.Windows.Forms.Label();
+            this.harddiskDiskSizeLab = new System.Windows.Forms.Label();
+            this.harddiskLab3 = new System.Windows.Forms.Label();
+            this.harddiskRecMinLab = new System.Windows.Forms.Label();
+            this.harddiskLab4 = new System.Windows.Forms.Label();
+            this.harddiskUpDwn = new System.Windows.Forms.NumericUpDown();
+            this.harddiskTrkBar = new System.Windows.Forms.TrackBar();
+            this.harddiskHeader = new Gui.Wizard.Header();
             this.wizardNewVM.SuspendLayout();
-            this.harddiskInfoPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.harddiskUpDwn)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.harddiskTrkBar)).BeginInit();
             this.defaultDirInfoPage.SuspendLayout();
             this.nameInfoPage.SuspendLayout();
             this.optionInfoPage.SuspendLayout();
@@ -103,6 +100,9 @@ namespace RosTEGUI
             ((System.ComponentModel.ISupportInitialize)(this.memoryUpDwn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).BeginInit();
             this.imageInfoPage.SuspendLayout();
+            this.harddiskInfoPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.harddiskUpDwn)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.harddiskTrkBar)).BeginInit();
             this.SuspendLayout();
             // 
             // wizardOpenFile
@@ -111,7 +111,6 @@ namespace RosTEGUI
             // 
             // wizardNewVM
             // 
-            this.wizardNewVM.Controls.Add(this.harddiskInfoPage);
             this.wizardNewVM.Controls.Add(this.defaultDirInfoPage);
             this.wizardNewVM.Controls.Add(this.nameInfoPage);
             this.wizardNewVM.Controls.Add(this.optionInfoPage);
@@ -119,6 +118,7 @@ namespace RosTEGUI
             this.wizardNewVM.Controls.Add(this.wizardFinishPage);
             this.wizardNewVM.Controls.Add(this.memoryInfoPage);
             this.wizardNewVM.Controls.Add(this.imageInfoPage);
+            this.wizardNewVM.Controls.Add(this.harddiskInfoPage);
             this.wizardNewVM.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardNewVM.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizardNewVM.Location = new System.Drawing.Point(0, 0);
@@ -136,132 +136,6 @@ namespace RosTEGUI
             this.wizardNewVM.TabIndex = 0;
             this.wizardNewVM.CloseFromCancel += new System.ComponentModel.CancelEventHandler(this.wizard1_CloseFromCancel);
             // 
-            // harddiskInfoPage
-            // 
-            this.harddiskInfoPage.Controls.Add(this.label5);
-            this.harddiskInfoPage.Controls.Add(this.harddiskDiskLab);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab2);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab1);
-            this.harddiskInfoPage.Controls.Add(this.harddiskDiskSizeLab);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab3);
-            this.harddiskInfoPage.Controls.Add(this.harddiskRecMinLab);
-            this.harddiskInfoPage.Controls.Add(this.harddiskLab4);
-            this.harddiskInfoPage.Controls.Add(this.harddiskUpDwn);
-            this.harddiskInfoPage.Controls.Add(this.harddiskTrkBar);
-            this.harddiskInfoPage.Controls.Add(this.harddiskHeader);
-            this.harddiskInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.harddiskInfoPage.IsFinishPage = false;
-            this.harddiskInfoPage.Location = new System.Drawing.Point(0, 0);
-            this.harddiskInfoPage.Name = "harddiskInfoPage";
-            this.harddiskInfoPage.Size = new System.Drawing.Size(453, 272);
-            this.harddiskInfoPage.TabIndex = 6;
-            this.harddiskInfoPage.Enter += new System.EventHandler(this.wizardHardDiskPage_Enter);
-            this.harddiskInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromNext);
-            this.harddiskInfoPage.CloseFromBack += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromBack);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(421, 142);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(21, 13);
-            this.label5.TabIndex = 37;
-            this.label5.Text = "MB";
-            // 
-            // harddiskDiskLab
-            // 
-            this.harddiskDiskLab.AutoSize = true;
-            this.harddiskDiskLab.Location = new System.Drawing.Point(197, 190);
-            this.harddiskDiskLab.Name = "harddiskDiskLab";
-            this.harddiskDiskLab.Size = new System.Drawing.Size(18, 13);
-            this.harddiskDiskLab.TabIndex = 36;
-            this.harddiskDiskLab.Text = "C:";
-            // 
-            // harddiskLab2
-            // 
-            this.harddiskLab2.AutoSize = true;
-            this.harddiskLab2.Location = new System.Drawing.Point(39, 190);
-            this.harddiskLab2.Name = "harddiskLab2";
-            this.harddiskLab2.Size = new System.Drawing.Size(66, 13);
-            this.harddiskLab2.TabIndex = 35;
-            this.harddiskLab2.Text = "Physical disk";
-            // 
-            // harddiskLab1
-            // 
-            this.harddiskLab1.AutoSize = true;
-            this.harddiskLab1.Location = new System.Drawing.Point(9, 83);
-            this.harddiskLab1.Name = "harddiskLab1";
-            this.harddiskLab1.Size = new System.Drawing.Size(352, 26);
-            this.harddiskLab1.TabIndex = 34;
-            this.harddiskLab1.Text = "Select a hard disk size for the virtual machine. The location of this image\r\ncorr" +
-                "esponds to the default directory previously chosen";
-            // 
-            // harddiskDiskSizeLab
-            // 
-            this.harddiskDiskSizeLab.AutoSize = true;
-            this.harddiskDiskSizeLab.Location = new System.Drawing.Point(197, 215);
-            this.harddiskDiskSizeLab.Name = "harddiskDiskSizeLab";
-            this.harddiskDiskSizeLab.Size = new System.Drawing.Size(25, 13);
-            this.harddiskDiskSizeLab.TabIndex = 33;
-            this.harddiskDiskSizeLab.Text = "size";
-            // 
-            // harddiskLab3
-            // 
-            this.harddiskLab3.AutoSize = true;
-            this.harddiskLab3.Location = new System.Drawing.Point(39, 215);
-            this.harddiskLab3.Name = "harddiskLab3";
-            this.harddiskLab3.Size = new System.Drawing.Size(104, 13);
-            this.harddiskLab3.TabIndex = 32;
-            this.harddiskLab3.Text = "Available free space";
-            // 
-            // harddiskRecMinLab
-            // 
-            this.harddiskRecMinLab.AutoSize = true;
-            this.harddiskRecMinLab.Location = new System.Drawing.Point(199, 238);
-            this.harddiskRecMinLab.Name = "harddiskRecMinLab";
-            this.harddiskRecMinLab.Size = new System.Drawing.Size(23, 13);
-            this.harddiskRecMinLab.TabIndex = 29;
-            this.harddiskRecMinLab.Text = "min";
-            // 
-            // harddiskLab4
-            // 
-            this.harddiskLab4.AutoSize = true;
-            this.harddiskLab4.Location = new System.Drawing.Point(39, 238);
-            this.harddiskLab4.Name = "harddiskLab4";
-            this.harddiskLab4.Size = new System.Drawing.Size(112, 13);
-            this.harddiskLab4.TabIndex = 26;
-            this.harddiskLab4.Text = "Recomended minimum";
-            // 
-            // harddiskUpDwn
-            // 
-            this.harddiskUpDwn.Location = new System.Drawing.Point(355, 140);
-            this.harddiskUpDwn.Name = "harddiskUpDwn";
-            this.harddiskUpDwn.Size = new System.Drawing.Size(60, 21);
-            this.harddiskUpDwn.TabIndex = 25;
-            this.harddiskUpDwn.ValueChanged += new System.EventHandler(this.harddiskUpdown_ValueChanged);
-            // 
-            // harddiskTrkBar
-            // 
-            this.harddiskTrkBar.Location = new System.Drawing.Point(12, 140);
-            this.harddiskTrkBar.Name = "harddiskTrkBar";
-            this.harddiskTrkBar.Size = new System.Drawing.Size(337, 45);
-            this.harddiskTrkBar.SmallChange = 100;
-            this.harddiskTrkBar.TabIndex = 24;
-            this.harddiskTrkBar.Scroll += new System.EventHandler(this.harddiskTrkBar_Scroll);
-            // 
-            // harddiskHeader
-            // 
-            this.harddiskHeader.BackColor = System.Drawing.SystemColors.Control;
-            this.harddiskHeader.CausesValidation = false;
-            this.harddiskHeader.Description = "Choose the size of hard diskfor your virtual machine";
-            this.harddiskHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.harddiskHeader.Image = ((System.Drawing.Image)(resources.GetObject("harddiskHeader.Image")));
-            this.harddiskHeader.Location = new System.Drawing.Point(0, 0);
-            this.harddiskHeader.Name = "harddiskHeader";
-            this.harddiskHeader.Size = new System.Drawing.Size(453, 64);
-            this.harddiskHeader.TabIndex = 0;
-            this.harddiskHeader.Title = "Hard Disk Size";
-            // 
             // defaultDirInfoPage
             // 
             this.defaultDirInfoPage.Controls.Add(this.defaultDirLab2);
@@ -275,6 +149,7 @@ namespace RosTEGUI
             this.defaultDirInfoPage.Name = "defaultDirInfoPage";
             this.defaultDirInfoPage.Size = new System.Drawing.Size(453, 272);
             this.defaultDirInfoPage.TabIndex = 7;
+            this.defaultDirInfoPage.Enter += new System.EventHandler(this.defaultDirInfoPage_Enter);
             this.defaultDirInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardDefaultDirPage_CloseFromNext);
             // 
             // defaultDirLab2
@@ -755,6 +630,132 @@ namespace RosTEGUI
             this.imageLocTxtBox.Size = new System.Drawing.Size(348, 21);
             this.imageLocTxtBox.TabIndex = 5;
             // 
+            // harddiskInfoPage
+            // 
+            this.harddiskInfoPage.Controls.Add(this.label5);
+            this.harddiskInfoPage.Controls.Add(this.harddiskDiskLab);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab2);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab1);
+            this.harddiskInfoPage.Controls.Add(this.harddiskDiskSizeLab);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab3);
+            this.harddiskInfoPage.Controls.Add(this.harddiskRecMinLab);
+            this.harddiskInfoPage.Controls.Add(this.harddiskLab4);
+            this.harddiskInfoPage.Controls.Add(this.harddiskUpDwn);
+            this.harddiskInfoPage.Controls.Add(this.harddiskTrkBar);
+            this.harddiskInfoPage.Controls.Add(this.harddiskHeader);
+            this.harddiskInfoPage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.harddiskInfoPage.IsFinishPage = false;
+            this.harddiskInfoPage.Location = new System.Drawing.Point(0, 0);
+            this.harddiskInfoPage.Name = "harddiskInfoPage";
+            this.harddiskInfoPage.Size = new System.Drawing.Size(453, 272);
+            this.harddiskInfoPage.TabIndex = 6;
+            this.harddiskInfoPage.Enter += new System.EventHandler(this.wizardHardDiskPage_Enter);
+            this.harddiskInfoPage.CloseFromNext += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromNext);
+            this.harddiskInfoPage.CloseFromBack += new Gui.Wizard.PageEventHandler(this.harddiskInfoPage_CloseFromBack);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(421, 142);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(21, 13);
+            this.label5.TabIndex = 37;
+            this.label5.Text = "MB";
+            // 
+            // harddiskDiskLab
+            // 
+            this.harddiskDiskLab.AutoSize = true;
+            this.harddiskDiskLab.Location = new System.Drawing.Point(197, 190);
+            this.harddiskDiskLab.Name = "harddiskDiskLab";
+            this.harddiskDiskLab.Size = new System.Drawing.Size(18, 13);
+            this.harddiskDiskLab.TabIndex = 36;
+            this.harddiskDiskLab.Text = "C:";
+            // 
+            // harddiskLab2
+            // 
+            this.harddiskLab2.AutoSize = true;
+            this.harddiskLab2.Location = new System.Drawing.Point(39, 190);
+            this.harddiskLab2.Name = "harddiskLab2";
+            this.harddiskLab2.Size = new System.Drawing.Size(66, 13);
+            this.harddiskLab2.TabIndex = 35;
+            this.harddiskLab2.Text = "Physical disk";
+            // 
+            // harddiskLab1
+            // 
+            this.harddiskLab1.AutoSize = true;
+            this.harddiskLab1.Location = new System.Drawing.Point(9, 83);
+            this.harddiskLab1.Name = "harddiskLab1";
+            this.harddiskLab1.Size = new System.Drawing.Size(352, 26);
+            this.harddiskLab1.TabIndex = 34;
+            this.harddiskLab1.Text = "Select a hard disk size for the virtual machine. The location of this image\r\ncorr" +
+                "esponds to the default directory previously chosen";
+            // 
+            // harddiskDiskSizeLab
+            // 
+            this.harddiskDiskSizeLab.AutoSize = true;
+            this.harddiskDiskSizeLab.Location = new System.Drawing.Point(197, 215);
+            this.harddiskDiskSizeLab.Name = "harddiskDiskSizeLab";
+            this.harddiskDiskSizeLab.Size = new System.Drawing.Size(25, 13);
+            this.harddiskDiskSizeLab.TabIndex = 33;
+            this.harddiskDiskSizeLab.Text = "size";
+            // 
+            // harddiskLab3
+            // 
+            this.harddiskLab3.AutoSize = true;
+            this.harddiskLab3.Location = new System.Drawing.Point(39, 215);
+            this.harddiskLab3.Name = "harddiskLab3";
+            this.harddiskLab3.Size = new System.Drawing.Size(104, 13);
+            this.harddiskLab3.TabIndex = 32;
+            this.harddiskLab3.Text = "Available free space";
+            // 
+            // harddiskRecMinLab
+            // 
+            this.harddiskRecMinLab.AutoSize = true;
+            this.harddiskRecMinLab.Location = new System.Drawing.Point(199, 238);
+            this.harddiskRecMinLab.Name = "harddiskRecMinLab";
+            this.harddiskRecMinLab.Size = new System.Drawing.Size(23, 13);
+            this.harddiskRecMinLab.TabIndex = 29;
+            this.harddiskRecMinLab.Text = "min";
+            // 
+            // harddiskLab4
+            // 
+            this.harddiskLab4.AutoSize = true;
+            this.harddiskLab4.Location = new System.Drawing.Point(39, 238);
+            this.harddiskLab4.Name = "harddiskLab4";
+            this.harddiskLab4.Size = new System.Drawing.Size(112, 13);
+            this.harddiskLab4.TabIndex = 26;
+            this.harddiskLab4.Text = "Recomended minimum";
+            // 
+            // harddiskUpDwn
+            // 
+            this.harddiskUpDwn.Location = new System.Drawing.Point(355, 140);
+            this.harddiskUpDwn.Name = "harddiskUpDwn";
+            this.harddiskUpDwn.Size = new System.Drawing.Size(60, 21);
+            this.harddiskUpDwn.TabIndex = 25;
+            this.harddiskUpDwn.ValueChanged += new System.EventHandler(this.harddiskUpdown_ValueChanged);
+            // 
+            // harddiskTrkBar
+            // 
+            this.harddiskTrkBar.Location = new System.Drawing.Point(12, 140);
+            this.harddiskTrkBar.Name = "harddiskTrkBar";
+            this.harddiskTrkBar.Size = new System.Drawing.Size(337, 45);
+            this.harddiskTrkBar.SmallChange = 100;
+            this.harddiskTrkBar.TabIndex = 24;
+            this.harddiskTrkBar.Scroll += new System.EventHandler(this.harddiskTrkBar_Scroll);
+            // 
+            // harddiskHeader
+            // 
+            this.harddiskHeader.BackColor = System.Drawing.SystemColors.Control;
+            this.harddiskHeader.CausesValidation = false;
+            this.harddiskHeader.Description = "Choose the size of hard diskfor your virtual machine";
+            this.harddiskHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.harddiskHeader.Image = ((System.Drawing.Image)(resources.GetObject("harddiskHeader.Image")));
+            this.harddiskHeader.Location = new System.Drawing.Point(0, 0);
+            this.harddiskHeader.Name = "harddiskHeader";
+            this.harddiskHeader.Size = new System.Drawing.Size(453, 64);
+            this.harddiskHeader.TabIndex = 0;
+            this.harddiskHeader.Title = "Hard Disk Size";
+            // 
             // NewVMWizard
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -765,10 +766,6 @@ namespace RosTEGUI
             this.Name = "NewVMWizard";
             this.Text = "New Virtual Machine Wizard";
             this.wizardNewVM.ResumeLayout(false);
-            this.harddiskInfoPage.ResumeLayout(false);
-            this.harddiskInfoPage.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.harddiskUpDwn)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.harddiskTrkBar)).EndInit();
             this.defaultDirInfoPage.ResumeLayout(false);
             this.defaultDirInfoPage.PerformLayout();
             this.nameInfoPage.ResumeLayout(false);
@@ -783,6 +780,10 @@ namespace RosTEGUI
             ((System.ComponentModel.ISupportInitialize)(this.memoryTrkBar)).EndInit();
             this.imageInfoPage.ResumeLayout(false);
             this.imageInfoPage.PerformLayout();
+            this.harddiskInfoPage.ResumeLayout(false);
+            this.harddiskInfoPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.harddiskUpDwn)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.harddiskTrkBar)).EndInit();
             this.ResumeLayout(false);
 
         }

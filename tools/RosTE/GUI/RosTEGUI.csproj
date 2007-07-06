@@ -154,6 +154,12 @@
     <Compile Include="NewHardDiskForm.Designer.cs">
       <DependentUpon>NewHardDiskForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewNetCardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewNetCardForm.Designer.cs">
+      <DependentUpon>NewNetCardForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewVMWizard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -239,6 +245,10 @@
     <EmbeddedResource Include="NewHardDiskForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>NewHardDiskForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewNetCardForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>NewNetCardForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewVMWizard.resx">
       <SubType>Designer</SubType>
