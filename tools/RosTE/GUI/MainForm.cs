@@ -102,7 +102,8 @@ namespace RosTEGUI
                 {
                     try
                     {
-                        Directory.CreateDirectory(wizFrm.DefDir);
+                        if (!Directory.Exists(wizFrm.DefDir))
+                            Directory.CreateDirectory(wizFrm.DefDir);
                     }
                     catch (Exception ex)
                     {
