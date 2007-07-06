@@ -29,7 +29,11 @@ if not "%1" == "" (
 ::
 :: Save our initial directory (should be the ReactOS source directory)
 ::
-set _ROSSOURCEDIR=%CD%
+echo If you want to use RosBE with another Tree than the Default one, please set the Path to it now:
+SET /P XY=
+
+if /I "%XY%"=="" set _ROSSOURCEDIR=%CD%
+if /I not "%XY%"=="" set _ROSSOURCEDIR=%XY%
 
 ::
 :: Display the current version of GCC, NASM, ld and make.
@@ -50,6 +54,17 @@ echo -------------------------------------------------
 :: Load the macros that serve as our commands.
 ::
 doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
+
+::
+:: Look if the Source Folder is empty. If so, ask for using "svn create".
+::
+dir /b %_ROSSOURCEDIR% 2>nul|"%ROSBEBASEDIR%\Tools\grep.exe" -e ".*" >nul
+if errorlevel 1 (
+    echo No ReactOS Source detected. Please use "svn create" to download it.
+    goto :ExitRosBE
+) else (
+    goto :ExitRosBE
+)
 
 goto :ExitRosBE
 
