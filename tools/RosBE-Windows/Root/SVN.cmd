@@ -17,7 +17,7 @@ if "%1" == "" (
 )
 if "%1" == "update" (
     title Updating...
-    if not "%2" == "" (    
+    if not "%2" == "" (
         %ROSBEBASEDIR%\Tools\svn.exe update %_ROSSOURCEDIR% -r %2
     ) else (
         %ROSBEBASEDIR%\Tools\svn.exe update %_ROSSOURCEDIR%

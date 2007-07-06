@@ -1,4 +1,4 @@
-ToDo: 
+ToDo:
 - Fix control size / positions
 - Load old settings
 - Disable Save button if there are no changes

@@ -189,6 +189,7 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
     Delete /REBOOTOK "$INSTDIR\LICENSE.txt"
     Delete /REBOOTOK "$INSTDIR\README.txt"
+    Delete /REBOOTOK "$INSTDIR\readme.pdf"
     Delete /REBOOTOK "$INSTDIR\reactos.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"

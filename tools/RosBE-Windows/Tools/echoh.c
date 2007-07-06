@@ -6,10 +6,10 @@
  * COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
  *
  */
- 
- 
+
+
 #include <stdio.h>
- 
+
 int main(int argc, char** argv) {
   if (argc == 2)
     printf("%x", atoi(argv[1]));
