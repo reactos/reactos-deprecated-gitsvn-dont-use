@@ -27,6 +27,16 @@ if "%1"  == "" (
 :Build
 
 ::
+:: Check if our log directory exists, if it doesn't, create it.
+::
+if not exist "%_ROSSOURCEDIR%\RosBE-Logs\." (
+    mkdir "%_ROSSOURCEDIR%\RosBE-Logs"
+    set _ROSBELOGDIR=%_ROSSOURCEDIR%\RosBE-Logs
+) else (
+    set _ROSBELOGDIR=%_ROSSOURCEDIR%\RosBE-Logs
+)
+
+::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::

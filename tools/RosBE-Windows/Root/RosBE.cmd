@@ -32,16 +32,6 @@ if not "%1" == "" (
 set _ROSSOURCEDIR=%CD%
 
 ::
-:: Check if our log directory exists, if it doesn't, create it.
-::
-if not exist "%_ROSSOURCEDIR%\RosBE-Logs\." (
-    mkdir "%_ROSSOURCEDIR%\RosBE-Logs"
-    set _ROSBELOGDIR=%_ROSSOURCEDIR%\RosBE-Logs
-) else (
-    set _ROSBELOGDIR=%_ROSSOURCEDIR%\RosBE-Logs
-)
-
-::
 :: Display the current version of GCC, NASM, ld and make.
 ::
 gcc -v 2>&1 | find "gcc version"
