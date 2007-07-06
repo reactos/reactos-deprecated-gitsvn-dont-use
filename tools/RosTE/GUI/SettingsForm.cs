@@ -330,6 +330,7 @@ namespace RosTEGUI
                 }
 
                 NewHardDiskForm hdf = new NewHardDiskForm(curDrives);
+                hdf.StartPosition = FormStartPosition.CenterParent;
                 if (hdf.ShowDialog() == DialogResult.OK)
                 {
                     VMHardDrive vmhd = VirtMach.AddHardDisk(hdf.DiskName,
@@ -370,6 +371,16 @@ namespace RosTEGUI
             VirtMach.DeleteHardDisk(vmhd);
             harddiskLstBox.Items.Remove(vmhd);
             harddiskLstBox.SelectedIndex = oldSel - 1;
+        }
+
+        private void ethAddBtn_Click(object sender, EventArgs e)
+        {
+            NewNetCardForm ncf = new NewNetCardForm();
+            ncf.StartPosition = FormStartPosition.CenterParent;
+            if (ncf.ShowDialog() == DialogResult.OK)
+            {
+
+            }
         }
     }
 }

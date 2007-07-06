@@ -93,13 +93,23 @@ namespace RosTEGUI
 
         private void CreateNewVirtMach(object sender, EventArgs e)
         {
-            NewVMWizard wizFrm = new NewVMWizard();
+            NewVMWizard wizFrm = new NewVMWizard(mainConf);
             wizFrm.StartPosition = FormStartPosition.CenterScreen;
 
             if (wizFrm.ShowDialog() == DialogResult.OK)
             {
                 if (wizFrm.Option == 1)
                 {
+                    try
+                    {
+                        Directory.CreateDirectory(wizFrm.DefDir);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Failed to create " + wizFrm.DefDir + '\n' + ex.Message);
+                        return;
+                    }
+
                     int i = mainConf.AddVirtMach(wizFrm.DefDir);
 
                     VirtualMachine VirtMach = new VirtualMachine();

@@ -994,6 +994,7 @@ namespace RosTEGUI
             this.ethAddBtn.TabIndex = 6;
             this.ethAddBtn.Text = "Add";
             this.ethAddBtn.UseVisualStyleBackColor = true;
+            this.ethAddBtn.Click += new System.EventHandler(this.ethAddBtn_Click);
             // 
             // ethLstBox
             // 
