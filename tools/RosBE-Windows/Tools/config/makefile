@@ -9,10 +9,10 @@ CFLAGS := -DWIN32 -DUNICODE -O3
 LFLAGS := -mwindows
 LIBS := 
 
-SRCS := options.c 
-RC := options.rc 
+SRCS := options.c
+RC := options.rc
 
-OBJS := $(SRCS:.c=.o) $(RC:.rc=.coff) 
+OBJS := $(SRCS:.c=.o) $(RC:.rc=.coff)
 
 $(TARGET): $(OBJS)
 	$(CPP) $(LFLAGS) -o $@ $(OBJS) $(LIBS)
