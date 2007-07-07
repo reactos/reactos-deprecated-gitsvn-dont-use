@@ -111,7 +111,7 @@
 				'</table>'	 +
 
 				'<div id="controlbox">' +
-					'<button type="button" onclick="showRev();"><?php echo $getbuilds_langres["showrev"]; ?></button>' +
+					'<input type="button" onclick="showRev();" value="<?php echo $getbuilds_langres["showrev"]; ?>" />' +
 					
 					'<span id="ajaxloadinginfo">' +
 						'<img src="images/ajax_loading.gif"> <?php echo $getbuilds_langres["gettinglist"]; ?>...' +

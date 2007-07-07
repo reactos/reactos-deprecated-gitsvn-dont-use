@@ -75,13 +75,17 @@ ul.web li {
 	margin-bottom: 2em;
 }
 
-#controlbox button {
+#controlbox input {
 	font-weight: bold;
 }
 
 #ajaxloadinginfo {
 	font-weight: bold;
 	margin-left: 20px;
+}
+
+#infotable {
+	width: 100%;
 }
 
 #pagesbox {

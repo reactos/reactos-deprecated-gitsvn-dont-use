@@ -36,11 +36,13 @@
 	
 	
 	// Entry point
+	header("Content-type: text/xml");
+	
 	if( !isset( $_GET["get"] ) || !isset( $_GET["startrev"] ) )
-		die("Necessary information not specified!");
+		die("<error><message>Necessary information not specified!</message></error>");
 	
 	if( $_GET["endrev"] - $_GET["startrev"] > $REV_RANGE_LIMIT )
-		die("Maximum revision range limit of $REV_RANGE_LIMIT exceeded!");
+		die( "<error><message>LIMIT</message><limit>$REV_RANGE_LIMIT</limit></error>" );
 	
 	switch( $_GET["get"] )
 	{
@@ -58,7 +60,7 @@
 			break;
 		
 		default:
-			die("Wrong input for parameter 'get'!");
+			die("<error><message>Wrong input for parameter 'get'!</message></error>");
 	}
 	
 	$file_patterns = array();
@@ -71,16 +73,15 @@
 	if( $_GET["livecd-rel"] == 1 )
 		$file_patterns[] = "#livecd-[0-9]+-rel#";
 	
-	header("Content-type: text/xml");
-	echo "<fileinformation>";
-	
 	$exitloop = false;
 	$filenum = 0;
 	$firstrev = 0;
 	$lastrev = 0;
 	$morefiles = 0;
-	$dir = opendir( $ISO_DIR ) or die("opendir failed!");
+	$dir = opendir( $ISO_DIR ) or die("<error><message>opendir failed!</message></error>");
 
+	echo "<fileinformation>";
+	
 	while( $fname = readdir($dir) )
 		if( preg_match( "#-([0-9]+)-#", $fname, $matches ) )
 			$fnames[ $matches[1] ][] = $fname;

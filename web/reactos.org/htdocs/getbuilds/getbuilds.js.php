@@ -10,6 +10,7 @@
 
 var currentpage;
 var endrev;
+var filenum;
 var fullrange;
 var inputbox_startrev;
 var inputbox_endrev;
@@ -85,20 +86,37 @@ function ajaxGet(action, parameters, data)
 
 function getfilesCallback(http_request, data)
 {
-	// "ajax-getfiles.php" always outputs text/xml data, so we have to check here if it's really XML or just an error message
-	if( http_request.responseText.substr(0, 1) != "<" )
+	// Check for an error
+	if( http_request.responseXML.getElementsByTagName("error").length > 0 )
 	{
-		alert( http_request.responseText );
+		// For some errors, we show a localized error message
+		if( http_request.responseXML.getElementsByTagName("message")[0].firstChild.data == "LIMIT" )
+			alert( '<?php printf( $getbuilds_langres["rangelimitexceeded"], "' + http_request.responseXML.getElementsByTagName(\"limit\")[0].firstChild.data + '" ); ?>' );
+		else
+			alert( http_request.responseXML.getElementsByTagName("message")[0].firstChild.data );
+		
 		loadingsplash(0);
 		return;
 	}
 	
 	var html = "";
-		
+	
 	if( data["requesttype"] == "FirstPageFullLoad" || data["requesttype"] == "PageSwitch" )
 	{
+		html += '<table id="infotable" cellspacing="0" cellpadding="0"><tr><td id="infobox">';
+		
+		if( data["requesttype"] == "FirstPageFullLoad" )
+		{
+			filenum = parseInt( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data );
+			html += '<?php printf( $getbuilds_langres["foundfiles"], "<span id=\"filenum\">' + filenum + '</span>" ); ?>';
+		}
+		else
+			html += document.getElementById("infobox").innerHTML;
+		
+		html += '</td>';
+		
 		// Page number boxes
-		html += '<div id="pagesbox">';
+		html += '<td id="pagesbox">';
 		
 		if( currentpage == 1 )
 		{
@@ -123,9 +141,7 @@ function getfilesCallback(http_request, data)
 				html += ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '</option>';
 		}
 		else
-		{
 			html += document.getElementById("pagesel").innerHTML;
-		}
 		
 		html += '</select> ';
 		
@@ -140,7 +156,7 @@ function getfilesCallback(http_request, data)
 			html += '<a href="javascript:lastPage()" title="<?php echo $getbuilds_langres["lastpage_title"]; ?>">&raquo;</a>';
 		}
 		
-		html += '</div>';
+		html += '</td></tr></table>';
 
 		// File table
 		html += '<table class="datatable" cellspacing="0" cellpadding="1">';
@@ -150,7 +166,7 @@ function getfilesCallback(http_request, data)
 		var files = http_request.responseXML.getElementsByTagName("file");
 	
 		if( files.length == 0 )
-			html += '<tr class="odd"><td><?php echo $getbuilds_langres["nofiles1"]; ?>' + fullrange + '<?php echo $getbuilds_langres["nofiles2"]; ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+			html += '<tr class="odd"><td><?php printf( $getbuilds_langres["nofiles"], "' + fullrange + '" ); ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
 		else
 		{
 			var oddeven = false;
@@ -192,6 +208,9 @@ function getfilesCallback(http_request, data)
 	else if( data["requesttype"] == "FirstPageAddPage" )
 	{
 		pagecount++;
+		filenum += parseInt( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data );
+		
+		document.getElementById("filenum").firstChild.data = filenum;
 		
 		// As always, we have to work around an IE bug
 		// If I use "innerHTML" here, the first <OPTION> start tag gets dropped in the IE...
