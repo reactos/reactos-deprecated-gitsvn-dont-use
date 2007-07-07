@@ -28,6 +28,8 @@
 	$getbuilds_langres["rangeinfo"] = "You can enter a revision number (e.g. <i>27154</i>) or a revision range (e.g. <i>27000-27154</i>).";
 	$getbuilds_langres["isotype"] = "Show CD Image types";
 	
+	$getbuilds_langres["foundfiles"] = "Found %s files!";
+	
 	$getbuilds_langres["firstpage_title"] = "Go to the first page";
 	$getbuilds_langres["prevpage_title"] = "Previous page";
 	$getbuilds_langres["prevpage"] = "Previous";
@@ -41,7 +43,8 @@
 	$getbuilds_langres["filedate"] = "Last changed";
 	$getbuilds_langres["pleasewait"] = "Please wait";
 	
-	$getbuilds_langres["nofiles1"] 	= "There are no prebuilt files for revision ";
-	$getbuilds_langres["nofiles2"] = "!";
+	$getbuilds_langres["nofiles"] 	 = "There are no prebuilt files for revision %s!";
 	$getbuilds_langres["invalidrev"] = "Invalid revision number!";
+	
+	$getbuilds_langres["rangelimitexceeded"] = "The revision range can only comprise a maximum of %s revisions!";
 ?>

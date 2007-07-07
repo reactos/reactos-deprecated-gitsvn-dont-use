@@ -28,6 +28,8 @@
 	$getbuilds_langres["rangeinfo"] = "Sie können eine Revisionsnummer (z.B. <i>27154</i>) oder einen Revisionsbereich (z.B. <i>27000-27154</i>) eingeben.";
 	$getbuilds_langres["isotype"] = "CD-Image-Typen anzeigen";
 	
+	$getbuilds_langres["foundfiles"] = "%s Dateien gefunden!";
+	
 	$getbuilds_langres["firstpage_title"] = "Gehe zur ersten Seite";
 	$getbuilds_langres["prevpage_title"] = "Vorherige Seite";
 	$getbuilds_langres["prevpage"] = "Zurück";
@@ -41,7 +43,8 @@
 	$getbuilds_langres["filedate"] = "Zuletzt geändert";
 	$getbuilds_langres["pleasewait"] = "Bitte warten";
 	
-	$getbuilds_langres["nofiles1"] 	= "Für Revision ";
-	$getbuilds_langres["nofiles2"] = "gibt es keine vorkompilierten Dateien!";
+	$getbuilds_langres["nofiles"] 	 = "Für Revision %s gibt es keine vorkompilierten Dateien!";
 	$getbuilds_langres["invalidrev"] = "Ungültige Revisionsnummer!";
+	
+	$getbuilds_langres["rangelimitexceeded"] = "Der Revisionsbereich darf maximal %s Revisionen umfassen!";
 ?>
