@@ -29,11 +29,8 @@ if not "%1" == "" (
 ::
 :: Save our initial directory (should be the ReactOS source directory)
 ::
-echo If you want to use RosBE with another Tree than the Default one, please set the Path to it now:
-SET /P XY=
-
-if /I "%XY%"=="" set _ROSSOURCEDIR=%CD%
-if /I not "%XY%"=="" set _ROSSOURCEDIR=%XY%
+set _ROSSOURCEDIR=%CD%
+set _ROSSRCDIRBCK=%CD%
 
 ::
 :: Display the current version of GCC, NASM, ld and make.
