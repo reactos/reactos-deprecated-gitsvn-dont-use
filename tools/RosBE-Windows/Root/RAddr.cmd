@@ -35,15 +35,15 @@ echo Set the Address you wanna analyze inside the Executable.
 SET /P ADDR=
 echo.
 echo.
-"%ROSBEBASEDIR%\Tools\raddr2line.exe" %EXE% %ADDR%
+raddr2line %EXE% %ADDR%
 goto :EOF
 
 :AUTO1
 echo Set the Address you wanna analyze inside the Executable.
 SET /P ADDR=
-"%ROSBEBASEDIR%\Tools\raddr2line.exe" %1 %ADDR%
+raddr2line %1 %ADDR%
 goto :EOF
 
 :AUTO2
-"%ROSBEBASEDIR%\Tools\raddr2line.exe" %1 %2
+raddr2line %1 %2
 goto :EOF
