@@ -1,6 +1,6 @@
 BASEDIR    = cd /d "%_ROSSOURCEDIR%"
 CLEAN      = "%ROSBEBASEDIR%\Clean.cmd" $*
-SVN        = "%ROSBEBASEDIR%\SVN.cmd" $*
+SSVN       = "%ROSBEBASEDIR%\sSVN.cmd" $*
 CONFIG     = "%ROSBEBASEDIR%\Config.cmd" $*
 HELP       = "%ROSBEBASEDIR%\Help.cmd" $*
 MAKE       = "%ROSBEBASEDIR%\Build.cmd" $*
