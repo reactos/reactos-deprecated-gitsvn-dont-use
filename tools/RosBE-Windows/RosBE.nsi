@@ -10,7 +10,7 @@
 ;;
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "RosBE-${PRODUCT_VERSION}.exe"
-InstallDir "C:\RosBE"
+InstallDir "$PROFILE\RosBE"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -251,8 +251,8 @@ Function CheckAdminOrCurrent
         Return
     IsNotAdmin:
         messageBox MB_OK|MB_ICONEXCLAMATION \
-                   "You do not have administrative privileges. Log on as Administrator and run the installer again."
-        Quit
+                   "You do not have administrative privileges. Installing on Default Account is more than BETA!!!"
+        Return
 FunctionEnd
 
 Function un.CheckAdminOrCurrent
@@ -263,6 +263,6 @@ Function un.CheckAdminOrCurrent
         Return
     IsNotAdmin:
         messageBox MB_OK|MB_ICONEXCLAMATION \
-                   "You do not have administrative privileges. Log on as Administrator and run the uninstaller again."
-        Quit
+                   "You do not have administrative privileges. Installing on Default Account is more than BETA!!!"
+        Return
 FunctionEnd
