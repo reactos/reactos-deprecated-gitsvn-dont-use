@@ -8,6 +8,8 @@
 ::
 @echo off
 
+title Change the Default Dir...
+
 if /I "%1"=="" (
     goto :DEF
 ) 
@@ -34,3 +36,4 @@ if /I "%XY%"=="default" (
 goto :END
 
 :END
+title ReactOS Build Environment %_VER%

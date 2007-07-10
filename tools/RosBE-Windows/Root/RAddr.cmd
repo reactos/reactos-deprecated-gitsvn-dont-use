@@ -36,14 +36,17 @@ SET /P ADDR=
 echo.
 echo.
 raddr2line %EXE% %ADDR%
-goto :EOF
+goto :EOC
 
 :AUTO1
 echo Set the Address you wanna analyze inside the Executable.
 SET /P ADDR=
 raddr2line %1 %ADDR%
-goto :EOF
+goto :EOC
 
 :AUTO2
 raddr2line %1 %2
-goto :EOF
+goto :EOC
+
+:EOC
+title ReactOS Build Environment %_VER%

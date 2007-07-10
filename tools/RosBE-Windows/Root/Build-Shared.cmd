@@ -70,4 +70,4 @@ call flash
 goto :EOB
 
 :EOB
-title ReactOS Build Environment 0.3.7
+title ReactOS Build Environment %_VER%
