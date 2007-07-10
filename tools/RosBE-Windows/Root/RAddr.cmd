@@ -35,17 +35,17 @@ echo Set the Address you wanna analyze inside the Executable.
 SET /P ADDR=
 echo.
 echo.
-raddr2line %EXE% %ADDR%
+raddr2line "%EXE%" "%ADDR%"
 goto :EOC
 
 :AUTO1
 echo Set the Address you wanna analyze inside the Executable.
 SET /P ADDR=
-raddr2line %1 %ADDR%
+raddr2line "%1" "%ADDR%"
 goto :EOC
 
 :AUTO2
-raddr2line %1 %2
+raddr2line "%1" "%2"
 goto :EOC
 
 :EOC

@@ -14,9 +14,9 @@ if /I "%1"=="" (
     goto :DEF
 ) 
 if /I "%1"=="default" ( 
-    set "%_ROSSOURCEDIR%" == "%_ROSSRCDIRBCK%"
+    set _ROSSOURCEDIR=%_ROSSRCDIRBCK%
 ) else (
-    set "%_ROSSOURCEDIR%" == "%1"
+    set _ROSSOURCEDIR=%1
 )
 goto :END
 
@@ -29,11 +29,12 @@ if /I "%XY%"=="" (
     goto :END
 ) 
 if /I "%XY%"=="default" ( 
-    set "%_ROSSOURCEDIR%" == "%_ROSSRCDIRBCK%"
+    set _ROSSOURCEDIR=%_ROSSRCDIRBCK%
 ) else (
-    set "%_ROSSOURCEDIR%" == "%XY%"
+    set _ROSSOURCEDIR=%XY%
 )
 goto :END
 
 :END
 title ReactOS Build Environment %_VER%
+cd "%_ROSSOURCEDIR%"

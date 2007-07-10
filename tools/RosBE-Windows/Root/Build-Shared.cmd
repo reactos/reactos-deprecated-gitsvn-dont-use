@@ -60,7 +60,7 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 ::
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
 ::
-call buildtime %MAKE_COMMAND% 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+call buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 
 ::
 :: Highlight the fact that building has ended.

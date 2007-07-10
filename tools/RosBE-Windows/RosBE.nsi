@@ -104,7 +104,7 @@ var ICONS_GROUP
 !include "RosBE.Files-Miscellaneous.nsh"
 
 Section -StartMenuShortcuts SEC03
-    SetShellVarContext all
+    SetShellVarContext current
 
     ;;
     ;; Add our start menu shortcuts.
@@ -122,7 +122,7 @@ Section -StartMenuShortcuts SEC03
 SectionEnd
 
 Section /o "Desktop Shortcuts" SEC04
-    SetShellVarContext all
+    SetShellVarContext current
 
     ;;
     ;; Add our desktop shortcuts.
@@ -132,7 +132,7 @@ Section /o "Desktop Shortcuts" SEC04
 SectionEnd
 
 Section /o "Quick Launch Shortcuts" SEC05
-    SetShellVarContext all
+    SetShellVarContext current
 
     ;;
     ;; Add our quick launch shortcuts.
@@ -171,7 +171,7 @@ FunctionEnd
 
 Section Uninstall
     !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
-    SetShellVarContext all
+    SetShellVarContext current
 
     ;;
     ;; Clean up installed files.
