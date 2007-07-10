@@ -91,7 +91,7 @@ if "%1" == "" (
     ) else (
         echo There is nothing to clean.
     )
-    title ReactOS Build Environment 0.3.7
+    title ReactOS Build Environment %_VER%
     goto :EOC
 )
 if "%1" == "logs" (
@@ -115,4 +115,4 @@ if not "%1" == "" (
 )
 
 :EOC
-title ReactOS Build Environment 0.3.7
+title ReactOS Build Environment %_VER%

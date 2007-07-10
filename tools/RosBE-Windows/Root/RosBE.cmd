@@ -10,7 +10,9 @@
 ::
 @echo off
 
-title ReactOS Build Environment 0.3.7
+set _VER=0.3.7
+
+title ReactOS Build Environment %_VER%
 
 if "%1" == "" (
     color 0A
@@ -24,6 +26,7 @@ if not "%1" == "" (
     echo Unknown parameter specified. Exiting.
     goto :ExitRosBE
 )
+
 :EndCommandParse
 
 ::

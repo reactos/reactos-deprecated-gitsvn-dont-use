@@ -169,4 +169,4 @@ copy %ROSBEBASEDIR%\config.rbuild %_ROSSOURCEDIR%\config.rbuild
 goto :NOK
 
 :NOK
-title ReactOS Build Environment 0.3.7
+title ReactOS Build Environment %_VER%
