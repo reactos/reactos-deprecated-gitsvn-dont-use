@@ -2,7 +2,7 @@
 !define PRODUCT_VERSION "0.3.7"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-!define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!define PRODUCT_UNINST_ROOT_KEY "HKCU"
 !define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
 
 ;;
@@ -11,7 +11,7 @@
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "RosBE-${PRODUCT_VERSION}.exe"
 InstallDir "$PROFILE\RosBE"
-InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
+InstallDirRegKey HKCU "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
@@ -33,7 +33,6 @@ SetCompressor /FINAL /SOLID lzma
 
 !include "MUI.nsh"
 !include "RosSourceDir.nsh"
-!define ALL_USERS
 !include "WriteEnvStr.nsh"
 
 ;; MUI begin.
@@ -150,7 +149,7 @@ SectionEnd
 
 Section -Post SEC07
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
-    WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
+    WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
@@ -214,15 +213,15 @@ Section Uninstall
     ;; Clean up the registry.
     ;;
     DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
-    DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
+    DeleteRegKey HKCU "${PRODUCT_DIR_REGKEY}"
     SetAutoClose true
 SectionEnd
 
 Function UninstallPrevious
-    ReadRegStr $R0 HKLM \
+    ReadRegStr $R0 HKCU \
                "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
                "UninstallString"
-    ReadRegStr $R1 HKLM \
+    ReadRegStr $R1 HKCU \
                "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
                "DisplayVersion"
     StrCmp $R1 "${PRODUCT_VERSION}" SameVersion
