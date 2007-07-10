@@ -8,7 +8,7 @@
 ::
 @echo off
 
-title RAddr2Line...
+title relAddr2Line...
 
 for /f "tokens=2" %%i in ('"objdump -p %1 2>NUL | findstr ImageBase"') do SET baseaddr=0x%%i
 set /a baseaddr += 0x%2
