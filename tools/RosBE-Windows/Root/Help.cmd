@@ -32,7 +32,7 @@ if "%1" == "" (
     echo    raddr2line [OPTIONS] - Translates program addresses into file names and
     echo                           line numbers to assist Developers to find
     echo                           specific Bugs in ReactOS.
-    echo    svn [OPTIONS]        - Create, Update or Clean-up your ReactOS Source
+    echo    ssvn [OPTIONS]       - Create, Update or Clean-up your ReactOS Source
     echo                           Tree or show the Revision Number of the Offline
     echo                           Tree and Online HEAD Revision.
 
@@ -66,8 +66,8 @@ if "%1" == "help" (
     echo Shows help for the specified command or lists all available commands.
     goto :EOF
 )
-if "%1" == "svn" (
-    echo Usage: svn [OPTIONS]
+if "%1" == "ssvn" (
+    echo Usage: ssvn [OPTIONS]
     echo Creates, Updates or cleans up your ReactOS Source Tree or shows the
     echo Revision Number of the Offline Tree and Online HEAD Revision.
     echo.
