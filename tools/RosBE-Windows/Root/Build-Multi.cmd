@@ -25,7 +25,7 @@ set CPUCOUNT=
 :: -x1       - Number of CPUs, Plus 1.
 :: -x2       - Number of CPUs, Doubled.
 ::
-for /f "usebackq" %%i in (`"%ROSBEBASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
+for /f "usebackq" %%i in (`cpucount -x1`) do set CPUCOUNT=%%i
 
 ::
 :: Set the build command

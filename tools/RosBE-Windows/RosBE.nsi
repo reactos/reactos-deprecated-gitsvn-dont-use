@@ -197,6 +197,7 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\readme.pdf"
     Delete /REBOOTOK "$INSTDIR\reactos.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
+    Delete /REBOOTOK "$INSTDIR\config.rbuild"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"

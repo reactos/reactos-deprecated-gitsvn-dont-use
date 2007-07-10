@@ -41,7 +41,7 @@ if not exist "%_ROSSOURCEDIR%\RosBE-Logs\." (
 :: abort the build and inform the user.
 ::
 if exist "%_ROSSOURCEDIR%\config.rbuild" (
-    "%ROSBEBASEDIR%\Tools\test.exe" "%_ROSSOURCEDIR%\config.template.rbuild" -nt "%_ROSSOURCEDIR%\config.rbuild"
+    test "%_ROSSOURCEDIR%\config.template.rbuild" -nt "%_ROSSOURCEDIR%\config.rbuild"
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
@@ -60,12 +60,12 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 ::
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
 ::
-call "%ROSBEBASEDIR%\Tools\buildtime.exe" %MAKE_COMMAND% 2>&1 | "%ROSBEBASEDIR%\Tools\tee.exe" "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+call buildtime %MAKE_COMMAND% 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
 
 ::
 :: Highlight the fact that building has ended.
 ::
-call "%ROSBEBASEDIR%\Tools\flash.exe"
+call flash
 
 goto :EOB
 

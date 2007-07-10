@@ -27,10 +27,12 @@ if not "%1" == "" (
 :EndCommandParse
 
 ::
-:: Save our initial directory (should be the ReactOS source directory)
+:: Save our initial directory (should be the ReactOS source directory) 
+:: and add PATH for Tools Folder.
 ::
 set _ROSSOURCEDIR=%CD%
 set _ROSSRCDIRBCK=%CD%
+set PATH=%ROSBEBASEDIR%\Tools;%PATH%
 
 ::
 :: Display the current version of GCC, NASM, ld and make.
@@ -55,7 +57,7 @@ doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
 ::
 :: Look if the Source Folder is empty. If so, ask for using "svn create".
 ::
-dir /b %_ROSSOURCEDIR% 2>nul|"%ROSBEBASEDIR%\Tools\grep.exe" -e ".*" >nul
+dir /b %_ROSSOURCEDIR% 2>nul|grep -e ".*" >nul
 if errorlevel 1 (
     echo No ReactOS Source detected. Please use "svn create" to download it.
     goto :ExitRosBE
