@@ -4,12 +4,7 @@
 !include "WinMessages.nsh"
 
 !ifndef WriteEnvStr_RegKey
-    !ifdef ALL_USERS
-        !define WriteEnvStr_RegKey \
-           'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
-    !else
-        !define WriteEnvStr_RegKey 'HKCU "Environment"'
-    !endif
+    !define WriteEnvStr_RegKey 'HKCU "Environment"'
 !endif
 
 #
@@ -126,7 +121,7 @@ FunctionEnd
 !macro IsNT UN
 Function ${UN}IsNT
     Push $0
-    ReadRegStr $0 HKCU \
+    ReadRegStr $0 HKLM \
       "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
     StrCmp $0 "" 0 IsNT_yes
     ; we are not NT.
