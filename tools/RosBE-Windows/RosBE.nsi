@@ -251,7 +251,7 @@ Function CheckAdminOrCurrent
         Return
     IsNotAdmin:
         messageBox MB_OK|MB_ICONEXCLAMATION \
-                   "You do not have administrative privileges. Installing on Default Account is more than BETA!!!"
+                   "You do not have administrative privileges. Installing on NonAdmin Account is working now, but it's not tested well yet. NO Vista Support possible!"
         Return
 FunctionEnd
 
@@ -262,7 +262,5 @@ Function un.CheckAdminOrCurrent
     IsAdmin:
         Return
     IsNotAdmin:
-        messageBox MB_OK|MB_ICONEXCLAMATION \
-                   "You do not have administrative privileges. Installing on Default Account is more than BETA!!!"
         Return
 FunctionEnd
