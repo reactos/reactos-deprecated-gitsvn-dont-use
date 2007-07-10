@@ -126,7 +126,7 @@ FunctionEnd
 !macro IsNT UN
 Function ${UN}IsNT
     Push $0
-    ReadRegStr $0 HKLM \
+    ReadRegStr $0 HKCU \
       "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
     StrCmp $0 "" 0 IsNT_yes
     ; we are not NT.
