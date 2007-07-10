@@ -41,7 +41,7 @@ if not exist "%_ROSSOURCEDIR%\RosBE-Logs\." (
 :: abort the build and inform the user.
 ::
 if exist "%_ROSSOURCEDIR%\config.rbuild" (
-    %ROSBEBASEDIR%\Tools\test.exe "%_ROSSOURCEDIR%\config.template.rbuild" -nt "%_ROSSOURCEDIR%\config.rbuild"
+    "%ROSBEBASEDIR%\Tools\test.exe" "%_ROSSOURCEDIR%\config.template.rbuild" -nt "%_ROSSOURCEDIR%\config.rbuild"
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
