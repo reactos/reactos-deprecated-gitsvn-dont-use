@@ -13,7 +13,7 @@
 - Readded makex. Sorry, bug in Vista still persists... its a GCC bug.
 - Changed Default Source Folder to \Source Subfolder. Helpful for letting RosBE load the Source.
 - Added a command to change the Default Folder for this session, nice for working with several ROS Trees or Branches.
-- Very ALPHA User Mode Support.
+- Very ALPHA NonAdmin Account Support (NOT for Vista).
 
 
 *** May 21th, 2007 - RosBE 0.3.6 Released

@@ -5,3 +5,4 @@ ID_OPTICON ICON "reactos.ico"
 
 #include "lang/en-US.rc"
 #include "lang/de-DE.rc"
+#include "lang/ru-RU.rc"
