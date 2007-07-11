@@ -180,7 +180,7 @@ function getfilesCallback(http_request, data)
 				oddeven = !oddeven;
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
-				html += '<td>' + flink + '<img src="images/cd.png" alt=""> ' + fname + '</a></td>';
+				html += '<td>' + flink + '<img src="images/cd.gif" alt=""> ' + fname + '</a></td>';
 				html += '<td>' + flink + fsize + '</a></td>';
 				html += '<td>' + flink + fdate + '</a></td>';
 				html += '</tr>';
@@ -356,7 +356,12 @@ function checkForReturn( keyevent )
 
 function checkRevNum(elem)
 {
-	elem.value = elem.value.replace( /[^[0-9-]/g, "");
+	var val = elem.value.replace( /[^[0-9-]/g, "");
+	
+	// First check if something was changed by the replace function.
+	// If not, don't set elem.value = val. Otherwise the cursor would always jump to the last character in IE, when you press any key.
+	if( elem.value != val )
+		elem.value = val;
 }
 
 function showLatestFiles()
