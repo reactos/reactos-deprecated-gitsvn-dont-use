@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
   PROJECT:    ReactOS Website
   LICENSE:    GPL v2 or any later version
