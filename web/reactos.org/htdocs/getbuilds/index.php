@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /*
   PROJECT:    ReactOS Website
   LICENSE:    GPL v2 or any later version
@@ -96,7 +96,7 @@
 								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextRev();"><br>' +
 							'</span>' +
 							
-							'<img src="images/info.png" alt="INFO:"> <?php echo $getbuilds_langres["rangeinfo"]; ?>' +
+							'<img src="images/info.gif" alt="INFO:"> <?php echo $getbuilds_langres["rangeinfo"]; ?>' +
 						'</td>' +
 					'</tr>' +
 					'<tr>' +
