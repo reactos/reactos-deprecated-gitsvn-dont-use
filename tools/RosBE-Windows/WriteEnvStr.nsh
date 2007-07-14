@@ -2,6 +2,7 @@
 !define _WriteEnvStr_nsh
 
 !include "WinMessages.nsh"
+!include "LogicLib.nsh"
 
 !ifndef WriteEnvStr_RegKey
     !define WriteEnvStr_RegKey 'HKCU "Environment"'
@@ -24,7 +25,9 @@ Function WriteEnvStr
 
     Call IsNT
     Pop $2
-    StrCmp $2 1 WriteEnvStr_NT
+    ${if} $2 == "1"
+        goto WriteEnvStr_NT
+    ${endif}
         ; Not on NT
         StrCpy $2 $WINDIR 2 ; Copy drive of windows (c:)
         FileOpen $2 "$2\autoexec.bat" a
@@ -63,7 +66,9 @@ Function un.DeleteEnvStr
 
     Call un.IsNT
     Pop $1
-    StrCmp $1 1 DeleteEnvStr_NT
+    ${if} $1 == "1"
+        goto DeleteEnvStr_NT
+    ${endif}
         ; Not on NT
         StrCpy $1 $WINDIR 2
         FileOpen $1 "$1\autoexec.bat" r
@@ -76,8 +81,12 @@ Function un.DeleteEnvStr
         FileRead $1 $3
         StrLen $5 $0
         StrCpy $5 $3 $5
-        StrCmp $5 $0 DeleteEnvStr_dosLoop
-        StrCmp $5 "" DeleteEnvStr_dosLoopEnd
+        ${if} $5 == "$0"
+            goto DeleteEnvStr_dosLoop
+        ${endif}
+        ${if} $5 == ""
+            goto DeleteEnvStr_dosLoopEnd
+        ${endif}
         FileWrite $2 $3
         Goto DeleteEnvStr_dosLoop
 
