@@ -4,6 +4,7 @@
 :: FILE:        Root/reladdr2line.cmd
 :: PURPOSE:     Converts a value to hex and displays it.
 :: COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
+::                             Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::
 @echo off
@@ -46,13 +47,11 @@ goto :EOC
 
 :EOC
 for /f "tokens=2" %%i in ('"objdump -p %1% 2>NUL | findstr ImageBase"') do SET baseaddr=0x%%i
-set /a baseaddr += 0x%2%
-for /f %%i in ('"echoh %baseaddr%"') do set relbase=%%i
-raddr2line "%1%" "%relbase%" 2>NUL
-
+if %%i < %2% (
+    raddr2line "%1%" "%2%" 2>NUL
+)else(
+    set /a baseaddr += 0x%2%
+    for /f %%i in ('"echoh %baseaddr%"') do set relbase=%%i
+    raddr2line "%1%" "%relbase%" 2>NUL
+)
 title ReactOS Build Environment %_VER%
-
-::%1 Dateiname
-::%2 Adresse
-::%%i das was objdump rausfindet
-::baseaddr = %%i + Adresse
