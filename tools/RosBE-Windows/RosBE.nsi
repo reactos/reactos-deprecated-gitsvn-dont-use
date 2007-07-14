@@ -34,6 +34,7 @@ SetCompressor /FINAL /SOLID lzma
 !include "MUI.nsh"
 !include "RosSourceDir.nsh"
 !include "WriteEnvStr.nsh"
+!include "LogicLib.nsh"
 
 ;; MUI begin.
 
@@ -225,8 +226,12 @@ Function UninstallPrevious
     ReadRegStr $R1 HKCU \
                "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
                "DisplayVersion"
-    StrCmp $R1 "${PRODUCT_VERSION}" SameVersion
-    StrCmp $R0 "" NoPreviousVersion
+    ${If} $R1 == "${PRODUCT_VERSION}"
+        goto SameVersion
+    ${EndIf}
+    ${If} $R0 == ""
+        goto NoPreviousVersion
+    ${EndIf}
     MessageBox MB_YESNO|MB_ICONQUESTION  \
                "A previous version of the ${PRODUCT_NAME} was found. You must uninstall it before installing this version.$\n$\nDo you want to do that now?" \
                IDNO UninstallPrevious_no \
@@ -246,7 +251,11 @@ FunctionEnd
 Function CheckAdminOrCurrent
     userInfo::getAccountType
     pop $R0
-    strCmp $R0 "Admin" IsAdmin IsNotAdmin
+    ${If} $R0 == "Admin"
+        goto IsAdmin
+    ${else}
+        goto IsNotAdmin
+    ${EndIf}
     IsAdmin:
         Return
     IsNotAdmin:
@@ -258,7 +267,11 @@ FunctionEnd
 Function un.CheckAdminOrCurrent
     userInfo::getAccountType
     pop $R0
-    strCmp $R0 "Admin" IsAdmin IsNotAdmin
+    ${If} $R0 == "Admin"
+        goto IsAdmin
+    ${else}
+        goto IsNotAdmin
+    ${EndIf}
     IsAdmin:
         Return
     IsNotAdmin:
