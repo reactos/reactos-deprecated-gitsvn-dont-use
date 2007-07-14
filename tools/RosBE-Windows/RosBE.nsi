@@ -227,53 +227,42 @@ Function UninstallPrevious
                "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
                "DisplayVersion"
     ${If} $R1 == "${PRODUCT_VERSION}"
-        goto SameVersion
+        messageBox MB_OK|MB_ICONEXCLAMATION \
+            "You already have the ${PRODUCT_NAME} v${PRODUCT_VERSION} installed. Please manually uninstall the ${PRODUCT_NAME} v${PRODUCT_VERSION} if you want to reinstall."
+        Quit
     ${EndIf}
     ${If} $R0 == ""
-        goto NoPreviousVersion
+        Return
     ${EndIf}
     MessageBox MB_YESNO|MB_ICONQUESTION  \
                "A previous version of the ${PRODUCT_NAME} was found. You must uninstall it before installing this version.$\n$\nDo you want to do that now?" \
                IDNO UninstallPrevious_no \
                IDYES UninstallPrevious_yes
     Abort
-    SameVersion:
-        messageBox MB_OK|MB_ICONEXCLAMATION \
-                   "You already have the ${PRODUCT_NAME} v${PRODUCT_VERSION} installed. Please manually uninstall the ${PRODUCT_NAME} v${PRODUCT_VERSION} if you want to reinstall."
-        Quit
     UninstallPrevious_no:
         Quit
     UninstallPrevious_yes:
         ExecWait '$R0 _?=$INSTDIR'
-    NoPreviousVersion:
 FunctionEnd
 
 Function CheckAdminOrCurrent
     userInfo::getAccountType
     pop $R0
     ${If} $R0 == "Admin"
-        goto IsAdmin
+        Return
     ${else}
-        goto IsNotAdmin
-    ${EndIf}
-    IsAdmin:
-        Return
-    IsNotAdmin:
         messageBox MB_OK|MB_ICONEXCLAMATION \
-                   "You do not have administrative privileges. Installing on NonAdmin Account is working now, but it's not tested well yet. NO Vista Support possible!"
+            "You do not have administrative privileges. Installing on NonAdmin Account is working now, but it's not tested well yet. NO Vista Support possible!"
         Return
+    ${EndIf}
 FunctionEnd
 
 Function un.CheckAdminOrCurrent
     userInfo::getAccountType
     pop $R0
     ${If} $R0 == "Admin"
-        goto IsAdmin
+        Return
     ${else}
-        goto IsNotAdmin
+        Return
     ${EndIf}
-    IsAdmin:
-        Return
-    IsNotAdmin:
-        Return
 FunctionEnd
