@@ -10,7 +10,7 @@
 ;;
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "RosBE-${PRODUCT_VERSION}.exe"
-InstallDir "$PROFILE\RosBE"
+InstallDir "C:\RosBE"
 InstallDirRegKey HKCU "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -252,7 +252,7 @@ Function CheckAdminOrCurrent
         Return
     ${else}
         messageBox MB_OK|MB_ICONEXCLAMATION \
-            "You do not have administrative privileges. Installing on NonAdmin Account is working now, but it's not tested well yet. NO Vista Support possible!"
+            "You do not have administrative privileges. You need to set a folder with writing rights to install your BE and Code to. NO Vista Support possible!"
         Return
     ${EndIf}
 FunctionEnd

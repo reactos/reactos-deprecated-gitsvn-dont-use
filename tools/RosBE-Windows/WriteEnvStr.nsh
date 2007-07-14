@@ -26,7 +26,13 @@ Function WriteEnvStr
     Call IsNT
     Pop $2
     ${if} $2 == "1"
-        goto WriteEnvStr_NT
+        WriteRegExpandStr ${WriteEnvStr_RegKey} $0 $1
+        SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} \
+                    0 "STR:Environment" /TIMEOUT=5000
+        Pop $2
+        Pop $0
+        Pop $1
+        Return
     ${endif}
         ; Not on NT
         StrCpy $2 $WINDIR 2 ; Copy drive of windows (c:)
@@ -35,14 +41,6 @@ Function WriteEnvStr
         FileWrite $2 "$\r$\nSET $0=$1$\r$\n"
         FileClose $2
         SetRebootFlag true
-        Goto WriteEnvStr_done
-
-    WriteEnvStr_NT:
-        WriteRegExpandStr ${WriteEnvStr_RegKey} $0 $1
-        SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} \
-                    0 "STR:Environment" /TIMEOUT=5000
-
-    WriteEnvStr_done:
         Pop $2
         Pop $0
         Pop $1
@@ -67,7 +65,16 @@ Function un.DeleteEnvStr
     Call un.IsNT
     Pop $1
     ${if} $1 == "1"
-        goto DeleteEnvStr_NT
+        DeleteRegValue ${WriteEnvStr_RegKey} $0
+        SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} \
+                    0 "STR:Environment" /TIMEOUT=5000
+        Pop $5
+        Pop $4
+        Pop $3
+        Pop $2
+        Pop $1
+        Pop $0
+        Return
     ${endif}
         ; Not on NT
         StrCpy $1 $WINDIR 2
@@ -97,14 +104,6 @@ Function un.DeleteEnvStr
         Delete "$1\autoexec.bat"
         CopyFiles /SILENT $4 "$1\autoexec.bat"
         Delete $4
-        Goto DeleteEnvStr_done
-
-    DeleteEnvStr_NT:
-        DeleteRegValue ${WriteEnvStr_RegKey} $0
-        SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} \
-                    0 "STR:Environment" /TIMEOUT=5000
-
-    DeleteEnvStr_done:
         Pop $5
         Pop $4
         Pop $3
