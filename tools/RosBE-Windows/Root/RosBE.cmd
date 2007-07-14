@@ -62,7 +62,7 @@ doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
 ::
 dir /b "%_ROSSOURCEDIR%" 2>nul|grep -e ".*" >nul
 if errorlevel 1 (
-    echo No ReactOS Source detected. Please use "svn create" to download it.
+    echo No ReactOS Source detected. Please use "ssvn create" to download it.
     goto :ExitRosBE
 ) else (
     goto :ExitRosBE

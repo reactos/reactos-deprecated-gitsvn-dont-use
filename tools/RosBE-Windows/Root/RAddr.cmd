@@ -11,17 +11,20 @@
 
 title RAddr2Line...
 
+set 1 = %1
+set 2 = %2
+
 ::
 :: Receive the Parameters and decide what to do.
 ::
-if "%1" == "" (
+if "%1%" == "" (
     goto :MAN
 )
-if not "%1" == "" (
-    if "%2" == "" (
+if not "%1%" == "" (
+    if "%2%" == "" (
         goto :AUTO1
     ) else (
-        goto :AUTO2
+        goto :EOC
     )
 )
 
@@ -30,23 +33,18 @@ if not "%1" == "" (
 ::
 :MAN
 echo Set the Path to the Executable to be examined.
-SET /P EXE=
+SET /P 1 =
 echo Set the Address you wanna analyze inside the Executable.
-SET /P ADDR=
+SET /P 2 =
 echo.
-echo.
-raddr2line "%EXE%" "%ADDR%"
 goto :EOC
 
 :AUTO1
 echo Set the Address you wanna analyze inside the Executable.
-SET /P ADDR=
-raddr2line "%1" "%ADDR%"
-goto :EOC
-
-:AUTO2
-raddr2line "%1" "%2"
+echo.
+SET /P 2 =
 goto :EOC
 
 :EOC
+raddr2line "%1%" "%2%"
 title ReactOS Build Environment %_VER%
