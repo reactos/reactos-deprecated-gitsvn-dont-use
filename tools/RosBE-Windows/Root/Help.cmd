@@ -15,7 +15,7 @@ if "%1" == "" (
     echo.
     echo Available Commands:
     echo    make [OPTIONS]       - Without options it does a standard build of
-    echo                           ReactOS. OPTIONS are the standard ReactOS build
+    echo                           ReactOS. OPTIONS1 are the standard ReactOS build
     echo                           options ie. "bootcd" and "strip" as optional
     echo                           second parameter sets stripping to enabled.
     echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
@@ -42,15 +42,15 @@ if "%1" == "" (
 )
 if "%1" == "make" (
     echo Usage: make [OPTIONS1] [OPTIONS2]
-    echo Without options it does a standard build of ReactOS. OPTIONS are the
+    echo Without options it does a standard build of ReactOS. OPTIONS1 are the
     echo standard ReactOS build options ie. "bootcd", "livecd", etc. "strip" as
     echo optional second parameter sets stripping to enabled.
     goto :EOF
 )
 if "%1" == "makex" (
-    echo Usage: makex [OPTIONS] [OPTIONS2]
+    echo Usage: makex [OPTIONS1] [OPTIONS2]
     echo Same as 'make' but automatically determines the number of CPU Cores in
-    echo the system and uses -j with the appropriate number.
+    echo the system and uses "make -j x" with the appropriate number.
     echo NOTE: The number makex uses can be modified by editing Build-Multi.cmd
     echo       located in the RosBE directory, instructions for doing so are
     echo       contained within the file.
@@ -83,10 +83,11 @@ if "%1" == "ssvn" (
 )
 if "%1" == "chdefdir" (
     echo Usage: chdefdir [OPTIONS]
-    echo Reconfigures the Default Source Folder for one Session. A Reset sets
-    echo back to the Default.
+    echo Reconfigures the Default Source Folder for one Session. Exiting
+    echo sets RosBE back to the Default.
     echo.
-    echo    default - Sets back to the Default Source Folder without a restart.
+    echo    default - Sets back to the Default Source Folder without a restart
+    ehco              of RosBE.
     goto :EOF
 )
 if "%1" == "config" (
@@ -94,7 +95,7 @@ if "%1" == "config" (
     echo Creates a Configuration File, which tells RosBE how to build the Tree.
     echo.
     echo    delete - Deletes the created configuration File and so sets back
-    echo             to default settings
+    echo             to default settings.
     goto :EOF
 )
 if "%1" == "raddr2line" (
