@@ -11,7 +11,7 @@
 	// Therefore it has an own configuration and doesn't use "config.inc.php".
 
 	// Configuration
-	$ISO_DIR = ".";
+	$ISO_DIR = "../iso";
 	$MAX_FILES_PER_PAGE = 100;			// The same value has to be set in "config.inc.php"
 	$REV_RANGE_LIMIT = 3000;
 
