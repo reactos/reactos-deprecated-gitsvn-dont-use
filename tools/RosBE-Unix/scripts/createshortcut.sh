@@ -77,7 +77,7 @@ echo "Type=Application" >> "$shortcut"
 echo "Version=$ROSBE_VERSION" >> "$shortcut"
 echo "Name=ReactOS Build Environment" >> "$shortcut"
 echo "Icon=$SCRIPTDIR/RosBE.png" >> "$shortcut"
-echo "Exec=bash \"$SCRIPTDIR/RosBE.sh\" \"$sourcedir\" 34" >> "$shortcut"		# 34 = Blue color
+echo "Exec=bash \"$SCRIPTDIR/RosBE.sh\" \"$sourcedir\"" >> "$shortcut"
 echo "Terminal=true" >> "$shortcut"
 
 greenmsg "OK"
