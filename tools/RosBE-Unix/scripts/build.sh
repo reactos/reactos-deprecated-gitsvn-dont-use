@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build with
+# Builds ReactOS with one thread
 # Part of RosBE for Unix-based Operating Systems
 # Copyright 2007 Colin Finck <mail@colinfinck.de>
 #

@@ -7,7 +7,7 @@
 # Released under GNU GPL v2 or any later version.
 
 # Constants
-ROSBE_VERSION="0.3.6"
+ROSBE_VERSION="0.3.7-SVN"
 DEFAULT_INSTALL_DIR="/usr/RosBE"
 NEEDED_TOOLS="bison flex gcc g++ grep makeinfo"		# GNU Make has a special check
 
@@ -87,6 +87,17 @@ if [ ! -w "$SCRIPTDIR" ]; then
 	redmsg "The script directory \"$SCRIPTDIR\" is not writeable, aborted!"
 	exit 1
 fi
+
+# Test if the script directory contains spaces
+case "$SCRIPTDIR" in
+*" "*)
+	redmsg "The script directory \"$SCRIPTDIR\" contains spaces!"
+	redmsg "Therefore some build tools cannot be compiled properly."
+	echo
+	redmsg "Please move \"$SCRIPTDIR\" to a directory, which does not contain spaces."
+
+	exit 1;;
+esac
 
 # Check if all necessary tools exist
 boldmsg "Checking for the needed tools..."
@@ -199,11 +210,18 @@ fi
 #
 boldmsg "Building..."
 PATH="$installdir/bin:$PATH"
+mkdir -p "$installdir/bin" >& /dev/null
 mkdir -p "$installdir/mingw32" >& /dev/null
-cd "$installdir/mingw32"
+
+# cpucount
+echo -n "Compiling cpucount... "
+gcc -o "$installdir/bin/cpucount" "$SCRIPTDIR/tools/cpucount.c"
+checkrun
+CPUCOUNT=`$installdir/bin/cpucount`
 
 # mingw-runtime
 echo -n "Extracting mingw-runtime... "
+cd "$installdir/mingw32"
 tar -xjf "$SOURCEDIR/mingw-runtime.tar.bz2" >& "$SCRIPTDIR/tar.log"
 checkrun "tar"
 
@@ -229,7 +247,7 @@ cd "binutils-build"
 checkrun "configure"
 
 echo -n "Building binutils... "
-$makecmd CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
+$makecmd -j $CPUCOUNT CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
 checkrun "make"
 
 echo -n "Installing binutils... "
@@ -261,7 +279,7 @@ cd "gcc-build"
 checkrun "configure"
 
 echo -n "Building gcc... "
-$makecmd CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
+$makecmd -j $CPUCOUNT CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
 checkrun "make"
 
 echo -n "Installing gcc... "
@@ -292,7 +310,7 @@ cd "make-build"
 checkrun "configure"
 
 echo -n "Building make... "
-$makecmd CFLAGS="-s -O2 -mms-bitfields" >& "$SCRIPTDIR/make.log"
+$makecmd -j $CPUCOUNT CFLAGS="-s -O2 -mms-bitfields" >& "$SCRIPTDIR/make.log"
 checkrun "make"
 
 echo -n "Installing make... "
@@ -320,7 +338,7 @@ cd "nasm-build"
 checkrun "configure"
 
 echo -n "Building nasm... "
-$makecmd >& "$SCRIPTDIR/make.log"
+$makecmd -j $CPUCOUNT >& "$SCRIPTDIR/make.log"
 checkrun "make"
 
 echo -n "Installing nasm... "
@@ -339,10 +357,6 @@ boldmsg "Final actions"
 
 echo -n "Compiling buildtime... "
 gcc -o "$installdir/bin/buildtime" "$SCRIPTDIR/tools/buildtime.c"
-checkrun
-
-echo -n "Compiling cpucount... "
-gcc -o "$installdir/bin/cpucount" "$SCRIPTDIR/tools/cpucount.c"
 checkrun
 
 echo -n "Removing unneeded files... "
@@ -379,7 +393,7 @@ echo
 echo "If you just want to start the Build Environment without using a shortcut, execute the"
 echo "following command:"
 echo
-echo "  $installdir/RosBE.sh <path/to/your/ReactOS/source/directory> [<optional color code>]"
+echo "  $installdir/RosBE.sh <path/to/your/ReactOS/source/directory> [optional color code]"
 echo
 
 exit 0

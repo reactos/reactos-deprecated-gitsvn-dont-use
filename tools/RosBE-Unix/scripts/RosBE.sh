@@ -15,6 +15,12 @@ export _ROSSCRIPTDIR
 _ROSSOURCEDIR="$1"
 export _ROSSOURCEDIR
 
+# Make sure that some important variables are clean
+export HOST=
+export CFLAGS=
+export CXXFLAGS=
+export LDFLAGS=
+
 # Read the RosBE version
 # The file "RosBE-Version" has been created by the RosBE-Builder.sh script
 ROSBE_VERSION=`cat "$_ROSSCRIPTDIR/RosBE-Version"`
