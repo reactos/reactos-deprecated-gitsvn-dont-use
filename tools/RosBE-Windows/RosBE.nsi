@@ -33,7 +33,6 @@ SetCompressor /FINAL /SOLID lzma
 
 !include "MUI.nsh"
 !include "RosSourceDir.nsh"
-!include "WriteEnvStr.nsh"
 !include "LogicLib.nsh"
 
 ;; MUI begin.
@@ -142,12 +141,6 @@ Section /o "Quick Launch Shortcuts" SEC05
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\reactos.ico"
 SectionEnd
 
-Section -AddEnvironmentVariable SEC06
-    Push "ROSBEBASEDIR"
-    Push "$INSTDIR"
-    Call WriteEnvStr
-SectionEnd
-
 Section -Post SEC07
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
@@ -204,12 +197,6 @@ Section Uninstall
         Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
     IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
-
-    ;;
-    ;; Remove the evironment variable.
-    ;;
-    Push "ROSBEBASEDIR"
-    Call un.DeleteEnvStr
 
     ;;
     ;; Clean up the registry.

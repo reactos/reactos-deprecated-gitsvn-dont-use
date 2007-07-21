@@ -11,6 +11,7 @@
 @echo off
 
 set _VER=0.3.7
+set ROSBEBASEDIR=%~dp0
 
 title ReactOS Build Environment %_VER%
 
