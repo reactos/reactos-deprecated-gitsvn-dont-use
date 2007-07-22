@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<rbuild xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<!--
+  Here you can add all your Source Tree Locations into and use the
+  fast switcher for them later.
+
+  name="" Is the Name of your Shortcut
+  value="" Is the Path to a Source Tree Location.
+  Example: <property name="my" value="D:\SVNTree\ReactOS" />
+-->
+
+<property name="main" value="C:\RosBE\Source" />
