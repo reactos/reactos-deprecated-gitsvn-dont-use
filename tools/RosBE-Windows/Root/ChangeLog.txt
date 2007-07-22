@@ -1,19 +1,21 @@
-*** June 21th, 2007 - RosBE 0.3.7 Released
+*** July 22nd, 2007 - RosBE 0.3.7 Released
 
-- Updated: GCC 4.1.3 Build 200707XX
+- Updated: GCC 4.1.3 Build 20070703 (Daniel Reimer)
   (Here is the reason why the installer got smaller between 0.3.6 and 0.3.7, my bins are stripped now)
-- Updated: binutils 2.17.50 Build 200707XX
-- Added a SVN Client.
-- Added a config.rbuild Configurator.
-- Added grep/cut/sed Tools for the new Configurator.
-- Added SVN 1.4.4 for the SVN Feature.
-- Added RAddr2Line Tool for the Devs out there.
-- Added use of ROS_LEAN_AND_MEAN by typeing "make/makex %command% strip".
-- Added GDB GNU-Debugger 6.6.
-- Readded makex. Sorry, bug in Vista still persists... its a GCC bug.
-- Changed Default Source Folder to \Source Subfolder. Helpful for letting RosBE load the Source.
-- Added a command to change the Default Folder for this session, nice for working with several ROS Trees or Branches.
-- Very ALPHA NonAdmin Account Support (NOT for Vista).
+- Updated: binutils 2.17.50 Build 20070522 WITH fixed windres! (Daniel Reimer)
+- Added a SVN Client. (Daniel Reimer)
+- Added a config.rbuild Configurator. (Daniel Reimer)
+- Added grep/cut/sed Tools for the new Configurator. (Daniel Reimer)
+- Added SVN 1.4.4 for the SVN Feature. (Daniel Reimer)
+- Added RAddr2Line Tool for the Devs out there. (Christoph von Wittich, Daniel Reimer)
+- Added use of ROS_LEAN_AND_MEAN by typeing "make/makex %command% strip". (Daniel Reimer)
+- Added GDB GNU-Debugger 6.6. (Daniel Reimer)
+- Readded makex. Sorry, bug in Vista still persists... its a GCC bug. (Daniel Reimer)
+- Changed Default Source Folder to \Source Subfolder. Helpful for letting RosBE load the Source. (Daniel Reimer)
+- Added a command to change the Default Folder for this session, nice for working with several ROS Trees or Branches. (Daniel Reimer)
+- Very ALPHA NonAdmin Account Support (NOT for Vista). (Daniel Reimer, Colin Finck)
+- Updated to NSIS 2.29.
+- Big NSIS Code cleanup, Don't add the global ROSBEBASEDIR variable anymore. (Colin Finck)
 
 
 *** May 21th, 2007 - RosBE 0.3.6 Released
