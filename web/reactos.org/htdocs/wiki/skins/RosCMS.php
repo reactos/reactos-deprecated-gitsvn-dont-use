@@ -137,7 +137,7 @@ class RosCMSTemplate extends QuickTemplate {
 			
 			<div class="navTitle">Wiki Toolbox</div>
 			<ol>
-				<?php if($this->data['notspecialpage']) { foreach( array( 'whatlinkshere', 'recentchangeslinked' ) as $special ) { ?>
+				<?php if($this->data['notspecialpage']) { foreach( array( 'whatlinkshere', 'recentchangeslinked', 'permalink' ) as $special ) { ?>
 					<li><a href="<?php echo htmlspecialchars($this->data['nav_urls'][$special]['href']) ?>"><?php echo $this->msg($special) ?></a></li>
 					<?php } } ?>
 					<?php if(/*$this->data['feeds'] Let's not do this now*/ 0) { ?>
