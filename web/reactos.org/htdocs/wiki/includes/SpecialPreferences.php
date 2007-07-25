@@ -297,7 +297,7 @@ class PreferencesForm {
 		$wgUser->saveSettings();
 
 		$error = false;
-		if( $wgEnableEmail ) {
+		/*if( $wgEnableEmail ) {
 			$newadr = $this->mUserEmail;
 			$oldadr = $wgUser->getEmail();
 			if( ($newadr != '') && ($newadr != $oldadr) ) {
@@ -319,12 +319,12 @@ class PreferencesForm {
 				} else {
 					$error = wfMsg( 'invalidemailaddress' );
 				}
-			} else {
+			} else {*/
 				$wgUser->setEmail( $this->mUserEmail );
 				$wgUser->setCookies();
 				$wgUser->saveSettings();
-			}
-		}
+		/*	}
+		}*/
 
 		if( $needRedirect && $error === false ) {
 			$title =& SpecialPage::getTitleFor( "Preferences" );
@@ -549,7 +549,7 @@ class PreferencesForm {
 		}
 
 
-		if ($wgAllowRealName) {
+		/*if ($wgAllowRealName) {
 			$wgOut->addHTML(
 				$this->addRow(
 					'<label for="wpRealName">' . wfMsg('yourrealname') . '</label>',
@@ -557,6 +557,7 @@ class PreferencesForm {
 				)
 			);
 		}
+		
 		if ($wgEnableEmail) {
 			$wgOut->addHTML(
 				$this->addRow(
@@ -564,7 +565,7 @@ class PreferencesForm {
 					"<input type='text' name='wpUserEmail' id='wpUserEmail' value=\"{$this->mUserEmail}\" size='25' />"
 				)
 			);
-		}
+		}*/
 
 		global $wgParser;
 		if( !empty( $this->mToggles['fancysig'] ) &&
