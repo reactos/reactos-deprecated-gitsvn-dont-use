@@ -29,6 +29,8 @@ WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red",
     L"cyan", L"light red", L"magenta", L"yellow", L"white"
 };
 
+HINSTANCE hInstance;
+
 int
 WriteSettings(HWND hwnd)
 {
@@ -61,6 +63,17 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
     {
         case WM_INITDIALOG:
         {
+            HICON hIcon;
+
+            hIcon = LoadImage( hInstance,
+                               MAKEINTRESOURCE(ID_OPTICON),
+                               IMAGE_ICON,
+                               GetSystemMetrics(SM_CXSMICON),
+                               GetSystemMetrics(SM_CYSMICON),
+                               0);
+            if(hIcon)
+                SendMessage(Dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+
             for(i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
                 SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
@@ -116,6 +129,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 int WINAPI
 WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdline, int cmdshow)
 {
+    hInstance = hInst;
+
     DialogBox(hInst, MAKEINTRESOURCE(ID_DIALOG), 0, DlgProc);
     return 0;
 }
