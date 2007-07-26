@@ -29,19 +29,24 @@ if "%1"  == "" (
 ::
 :: Check if our log directory exists, if it doesn't, create it.
 ::
-if not exist "%_ROSSOURCEDIR%\RosBE-Logs\." (
-    mkdir "%_ROSSOURCEDIR%\RosBE-Logs"
-    set _ROSBELOGDIR=%_ROSSOURCEDIR%\RosBE-Logs
+if not exist "%CD%\RosBE-Logs\." (
+    if not exist "%CD%\.svn\." (
+        echo Folder is empty. No Build can be performed.
+        goto :EOB
+    ) else (
+        mkdir "%CD%\RosBE-Logs"
+        set _ROSBELOGDIR=%CD%\RosBE-Logs
+    )
 ) else (
-    set _ROSBELOGDIR=%_ROSSOURCEDIR%\RosBE-Logs
+    set _ROSBELOGDIR=%CD%\RosBE-Logs
 )
 
 ::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::
-if exist "%_ROSSOURCEDIR%\config.rbuild" (
-    test "%_ROSSOURCEDIR%\config.template.rbuild" -nt "%_ROSSOURCEDIR%\config.rbuild"
+if exist "%CD%\config.rbuild" (
+    test "%CD%\config.template.rbuild" -nt "%CD%\config.rbuild"
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***

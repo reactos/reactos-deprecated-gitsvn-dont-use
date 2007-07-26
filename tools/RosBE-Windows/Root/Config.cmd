@@ -11,8 +11,8 @@
 title ReactOS Build Configurator
 
 if "%1" == "delete" (
-    if exist "%_ROSSOURCEDIR%\config.rbuild" (
-        del "%_ROSSOURCEDIR%\config.rbuild"
+    if exist "%CD%\config.rbuild" (
+        del "%CD%\config.rbuild"
         echo Main Configuration File was found and deleted.
     ) else (
         echo Main Configuration File was not found in ReactOS Source Tree.
@@ -31,7 +31,7 @@ if not "%1" == "" (
 )
 
 if not exist "%ROSBEBASEDIR%\config.rbuild" (
-    copy "%_ROSSOURCEDIR%\config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild"
+    copy "%CD%\config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild"
 )
 
 echo WARNING:
@@ -164,7 +164,7 @@ copy "%ROSBEBASEDIR%\config10.rbuild" "%ROSBEBASEDIR%\config.tmp"
 del "%ROSBEBASEDIR%\*.rbuild"
 copy "%ROSBEBASEDIR%\config.tmp" "%ROSBEBASEDIR%\config.rbuild"
 del "%ROSBEBASEDIR%\*.tmp"
-copy "%ROSBEBASEDIR%\config.rbuild" "%_ROSSOURCEDIR%\config.rbuild"
+copy "%ROSBEBASEDIR%\config.rbuild" "%CD%\config.rbuild"
 
 goto :NOK
 
