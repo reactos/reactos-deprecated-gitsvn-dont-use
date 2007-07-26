@@ -1,4 +1,8 @@
-*** July 26th, 2007 - RosBE 0.3.7 Released
+*** Oct XXth, 2007 - RosBE 0.3.8 Released
+
+- Added DrFred's Config Tool.
+
+*** July 26th, 2007 - RosBE 0.3.7.1 Released
 
 - Fixed: "No SVN Tree found" message in Vista.
 - All commands use the current dir now. SO you can use several SVN Source Trees now.
