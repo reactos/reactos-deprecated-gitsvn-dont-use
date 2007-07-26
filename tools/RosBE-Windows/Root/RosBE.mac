@@ -5,5 +5,4 @@ CONFIG     = "%ROSBEBASEDIR%\Config.cmd" $*
 HELP       = "%ROSBEBASEDIR%\Help.cmd" $*
 MAKE       = "%ROSBEBASEDIR%\Build.cmd" $*
 MAKEX      = "%ROSBEBASEDIR%\Build-Multi.cmd" $*
-CHDEFDIR   = "%ROSBEBASEDIR%\chdefdir.cmd" $*
 RADDR2LINE = "%ROSBEBASEDIR%\reladdr2line.cmd" $*

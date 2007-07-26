@@ -23,8 +23,6 @@ if "%1" == "" (
     echo                           with the appropriate number.
     echo    basedir              - Switch back to the ReactOS source directory.
     echo.
-    echo    chdefdir [OPTIONS]   - Reconfigures the Default Source Folder for one
-    echo                           Session.
     echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
     echo.
     echo    clean [logs]         - Fully clean the ReactOS source directory and/or
@@ -79,15 +77,6 @@ if "%1" == "ssvn" (
     echo    cleanup - Cleans up and fixes errors in the Source Tree.
     echo    status  - Shows Actual offline Revision Number and online HEAD
     echo              Revision Number.
-    goto :EOF
-)
-if "%1" == "chdefdir" (
-    echo Usage: chdefdir [OPTIONS]
-    echo Reconfigures the Default Source Folder for one Session. Exiting
-    echo sets RosBE back to the Default.
-    echo.
-    echo    default - Sets back to the Default Source Folder without a restart
-    ehco              of RosBE.
     goto :EOF
 )
 if "%1" == "config" (
