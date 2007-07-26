@@ -59,12 +59,12 @@ INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
     int i = 0;
+	static HICON hIcon;
+
     switch (Msg)
     {
         case WM_INITDIALOG:
         {
-            HICON hIcon;
-
             hIcon = LoadImage( hInstance,
                                MAKEINTRESOURCE(ID_OPTICON),
                                IMAGE_ICON,
@@ -116,6 +116,11 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             }
             return FALSE;
         }
+
+		case WM_DESTROY:
+		{
+			DestroyIcon(hIcon);
+		}
 
         case WM_CLOSE:
         {
