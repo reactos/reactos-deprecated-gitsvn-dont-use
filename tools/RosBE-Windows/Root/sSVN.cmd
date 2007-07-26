@@ -18,15 +18,15 @@ if "%1" == "" (
 if "%1" == "update" (
     title Updating...
     if not "%2" == "" (
-        svn update "%_ROSSOURCEDIR%" -r %2
+        svn update "%CD%" -r %2
     ) else (
-        svn update "%_ROSSOURCEDIR%"
+        svn update "%CD%"
     )
 goto :ExitSVN
 )
 if "%1" == "cleanup" (
     title Cleaning...
-    svn cleanup "%_ROSSOURCEDIR%"
+    svn cleanup "%CD%"
     goto :ExitSVN
 )
 ::
@@ -35,13 +35,13 @@ if "%1" == "cleanup" (
 
 if "%1" == "create" (
     title Creating...
-    if exist "%_ROSSOURCEDIR%\.svn\." (
+    if exist "%CD%\.svn\." (
         echo Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
-    dir /b "%_ROSSOURCEDIR%" 2>nul|findstr "." >nul
+    dir /b "%CD%" 2>nul|findstr "." >nul
     if errorlevel 1 (
-        svn checkout svn://svn.reactos.org/reactos/trunk/reactos "%_ROSSOURCEDIR%"
+        svn checkout svn://svn.reactos.org/reactos/trunk/reactos "%CD%"
     ) else (
         echo Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
@@ -49,7 +49,7 @@ if "%1" == "create" (
 )
 if "%1" == "status" (
     title Status
-    call svn info "%_ROSSOURCEDIR%" > "%ROSBEBASEDIR%\x.tmp"
+    call svn info "%CD%" > "%ROSBEBASEDIR%\x.tmp"
     echo Recent Offline Revision:
     call grep Revision: "%ROSBEBASEDIR%\x.tmp"|cut -d " " -f 2
     del "%ROSBEBASEDIR%\x.tmp"
