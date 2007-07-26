@@ -14,14 +14,30 @@
 :: Set Defaults to work with and override if needed.
 ::
 color 0A
-set _VER=0.3.7.1
+set _VER=0.3.8
 set ROSBEBASEDIR=%~dp0
 set ROSBE_SHOWTIME=1
 set ROSBE_WRITELOG=1
-set ROSBE_LOGPATH=%CD%\RosBE-Logs
+set _LOGDIR=%CD%\RosBE-Logs
 
+if exist %ROSBEBASEDIR%\options.cmd (
+    goto :PREV
+) else (
+    set logdiff=0
+    goto :NEXT
+
+)
+
+:PREV
 call %ROSBEBASEDIR%\options.cmd
+if %_LOGDIR% == %ROSBE_LOGPATH% (
+    set logdiff=0
+) else (
+    set logdiff=1
+)
 
+
+:NEXT
 title ReactOS Build Environment %_VER%
 
 if "%1" == "" (

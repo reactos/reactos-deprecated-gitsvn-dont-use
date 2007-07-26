@@ -29,8 +29,8 @@ if "%1"  == "" (
 ::
 :: Check if our log directory exists, if it doesn't, create it.
 ::
-if %ROSBE_LOGPATH% == %CD%\RosBE-Logs (
-echo 1
+set logdiff
+if %logdiff% == 0 (
 if not exist "%CD%\RosBE-Logs\." (
         if not exist "%CD%\.svn\." (
             echo Folder is empty. No Build can be performed.
@@ -42,9 +42,7 @@ if not exist "%CD%\RosBE-Logs\." (
     ) else (
         set _ROSBELOGDIR=%CD%\RosBE-Logs
     )
-    
 ) else (
-echo 2
    if not exist "%ROSBE_LOGPATH%\." (
         echo LogFolder does not exist.
     ) else (
