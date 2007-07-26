@@ -10,7 +10,7 @@
 ::
 @echo off
 
-set _VER=0.3.7
+set _VER=0.3.7.1
 set ROSBEBASEDIR=%~dp0
 
 title ReactOS Build Environment %_VER%
@@ -88,7 +88,7 @@ goto :ExitRosBE
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *        ReactOS Build Environment 0.3.7-4.1.3-20070703 (prerelease)          *
+    echo *        ReactOS Build Environment %_VER%-4.1.3-20070703 (prerelease)        *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
