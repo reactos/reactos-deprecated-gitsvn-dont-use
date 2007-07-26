@@ -10,8 +10,20 @@
 
 title Choose your Source Folder...
 
+if /I "%1"=="" (
+    goto :DEF
+) else (
+    set XY=%1
+    goto :RUN
+)
+goto :END
+
+:DEF
 echo Choose your Source Folder:
 SET /P XY=
+goto :RUN
+
+:RUN
 grep \"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz > "%ROSBEBASEDIR%\aaa.tmp"
 set /P dir=< "%ROSBEBASEDIR%\aaa.tmp"
 del "%ROSBEBASEDIR%\aaa.tmp"
