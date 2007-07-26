@@ -42,7 +42,8 @@ if not exist "%CD%\RosBE-Logs\." (
     ) else (
         set _ROSBELOGDIR=%CD%\RosBE-Logs
     )
-) else (
+)
+if %logdiff% == 1 (
    if not exist "%ROSBE_LOGPATH%\." (
         echo LogFolder does not exist.
     ) else (
