@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "0.3.7"
+!define PRODUCT_VERSION "0.3.7.1"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -18,7 +18,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "0.0.3.7"
+VIAddVersionKey /LANG=1033 "FileVersion" "0.3.7.1"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
@@ -26,7 +26,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "0.0.3.7"
+VIProductVersion "0.3.7.1"
 
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
@@ -181,7 +181,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\reladdr2line.cmd"
     Delete /REBOOTOK "$INSTDIR\Config.cmd"
     Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
-    Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\RAddr.cmd"
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
