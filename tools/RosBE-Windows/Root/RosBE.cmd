@@ -35,7 +35,6 @@ if not "%1" == "" (
 :: and add PATH for Tools Folder.
 ::
 set _ROSSOURCEDIR=%CD%
-set _ROSSRCDIRBCK=%CD%
 set PATH=%ROSBEBASEDIR%\Tools;%PATH%
 
 ::
