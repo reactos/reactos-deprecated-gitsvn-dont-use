@@ -29,16 +29,28 @@ if "%1"  == "" (
 ::
 :: Check if our log directory exists, if it doesn't, create it.
 ::
+if %ROSBE_LOGPATH% == %CD%\RosBE-Logs (
+echo 1
 if not exist "%CD%\RosBE-Logs\." (
-    if not exist "%CD%\.svn\." (
-        echo Folder is empty. No Build can be performed.
-        goto :EOB
+        if not exist "%CD%\.svn\." (
+            echo Folder is empty. No Build can be performed.
+            goto :EOB
+        ) else (
+            mkdir "%CD%\RosBE-Logs"
+            set _ROSBELOGDIR=%CD%\RosBE-Logs
+        )
     ) else (
-        mkdir "%CD%\RosBE-Logs"
         set _ROSBELOGDIR=%CD%\RosBE-Logs
     )
+    
 ) else (
-    set _ROSBELOGDIR=%CD%\RosBE-Logs
+echo 2
+   if not exist "%ROSBE_LOGPATH%\." (
+        echo LogFolder does not exist.
+    ) else (
+        set _ROSBELOGDIR=%ROSBE_LOGPATH%
+    ) 
+)
 )
 
 ::
@@ -65,7 +77,22 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 ::
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
 ::
-call buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+if %ROSBE_SHOWTIME% == 1 (
+    if %ROSBE_WRITELOG% == 1 (
+        call buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+    )
+    if %ROSBE_WRITELOG% == 0 (
+        call buildtime "%MAKE_COMMAND%" 2>&1
+    )
+)
+if %ROSBE_SHOWTIME% == 0 (
+    if %ROSBE_WRITELOG% == 1 (
+        call "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+    )
+    if %ROSBE_WRITELOG% == 0 (
+        call "%MAKE_COMMAND%" 2>&1
+    )
+)
 
 ::
 :: Highlight the fact that building has ended.

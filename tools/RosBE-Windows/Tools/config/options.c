@@ -79,8 +79,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
                 SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
             }
-            SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0, 0);
-            SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0xA, 0);
+            SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0xA, 0);
+            SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0, 0);
             EnableWindow(GetDlgItem(Dlg, ID_BROWSE), FALSE);
             EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), FALSE);
             return TRUE;

@@ -10,19 +10,26 @@
 ::
 @echo off
 
+::
+:: Set Defaults to work with and override if needed.
+::
+color 0A
 set _VER=0.3.7.1
 set ROSBEBASEDIR=%~dp0
+set ROSBE_SHOWTIME=1
+set ROSBE_WRITELOG=1
+set ROSBE_LOGPATH=%CD%\RosBE-Logs
+
+call %ROSBEBASEDIR%\options.cmd
 
 title ReactOS Build Environment %_VER%
 
 if "%1" == "" (
-    color 0A
     cls
     call :RosBE4
     goto :EndCommandParse
 )
 if not "%1" == "" (
-    color 0A
     cls
     echo Unknown parameter specified. Exiting.
     goto :ExitRosBE
