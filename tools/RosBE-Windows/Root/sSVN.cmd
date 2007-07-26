@@ -39,7 +39,7 @@ if "%1" == "create" (
         echo Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
-    dir /b "%_ROSSOURCEDIR%" 2>nul|grep -e ".*" >nul
+    dir /b "%_ROSSOURCEDIR%" 2>nul|findstr "." >nul
     if errorlevel 1 (
         svn checkout svn://svn.reactos.org/reactos/trunk/reactos "%_ROSSOURCEDIR%"
     ) else (
