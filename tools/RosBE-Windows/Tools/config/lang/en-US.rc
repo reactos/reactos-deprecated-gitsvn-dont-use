@@ -7,9 +7,9 @@ FONT 8, "MS Shell Dlg"
 {
   // x, pos_hight, width, hight
   LTEXT "Reactos Build Environment Settings", 0x0, 10, 10, 140, 13
-  LTEXT "Font Color", 0x0, 10, 35, 60, 12
+  LTEXT "Background Color", 0x0, 10, 35, 60, 12
   COMBOBOX IDC_FONT, 100, 35, 110, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
-  LTEXT "Background Color", 0x0, 10, 60, 60, 12
+  LTEXT "Font Color", 0x0, 10, 60, 60, 12
   COMBOBOX IDC_BACK, 100, 60, 110, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
   CONTROL "Show Build Time", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 90, 21
   CONTROL "Save Logs", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 115, 85, 60, 21
