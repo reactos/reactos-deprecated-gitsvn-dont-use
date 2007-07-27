@@ -25,7 +25,6 @@ if exist %ROSBEBASEDIR%\options.cmd (
 ) else (
     set logdiff=0
     goto :NEXT
-
 )
 
 :PREV
@@ -35,7 +34,6 @@ if %_LOGDIR% == %ROSBE_LOGPATH% (
 ) else (
     set logdiff=1
 )
-
 
 :NEXT
 title ReactOS Build Environment %_VER%
