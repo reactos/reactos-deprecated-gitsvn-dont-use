@@ -80,6 +80,7 @@ FOR /L %%i IN (0, 1, 13) DO (
 	)
 )
 
+SET WINE_HAS_DLLMAIN=0
 SET WINE_HAS_DLLINSTALL=0
 SET WINE_HAS_DLLREGISTERSERVER=0
 FOR /F "usebackq tokens=3,4 delims= " %%l IN ("wine\dlls\%2\%2.spec") DO (
@@ -89,7 +90,11 @@ FOR /F "usebackq tokens=3,4 delims= " %%l IN ("wine\dlls\%2\%2.spec") DO (
 
 >NUL COPY /Y wine\dlls\%2\makefile.in %WINE_TMPFILE1%
 
-ECHO ^<module name="%WINE_MODULE_NAME%" type="%WINE_MODULE_TYPE%" baseaddress="${BASEADDRESS_!WINE_UPPERCASE!}" installbase="system32" installname="%WINE_INSTALL_NAME%" allowwarnings="true"^>
+IF "%WINE_HAS_DLLMAIN%" == "0" (
+	ECHO ^<module name="%WINE_MODULE_NAME%" type="%WINE_MODULE_TYPE%" baseaddress="${BASEADDRESS_%WINE_UPPERCASE%}" installbase="system32" entrypoint="0" installname="%WINE_INSTALL_NAME%" allowwarnings="true"^>
+) ELSE (
+	ECHO ^<module name="%WINE_MODULE_NAME%" type="%WINE_MODULE_TYPE%" baseaddress="${BASEADDRESS_%WINE_UPPERCASE%}" installbase="system32" installname="%WINE_INSTALL_NAME%" allowwarnings="true"^>
+)
 IF "%WINE_HAS_DLLINSTALL%" == "1" (
 	IF "%WINE_HAS_DLLREGISTERSERVER%" == "1" (
 		ECHO 	^<autoregister infsection="OleControlDlls" type="Both" /^>
@@ -262,12 +267,12 @@ CALL :download download%WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 FOR %%m IN (%WINE_LIST%) DO (
 	>wine\dlls\%%m\%%m.rbuild CALL :createrbuild createrbuild %%m
-	>NUL CALL :link link %WINE_ROS_DIR% %%m
+	>NUL CALL :link link "%WINE_ROS_DIR%" %%m
 )
-CALL :merge merge %WINE_ROS_DIR% %WINE_LIST%
+CALL :merge merge "%WINE_ROS_DIR%" %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
-IF EXIST %WINE_ROS_DIR%\makefile.auto DEL %WINE_ROS_DIR%\makefile.auto
-CALL :make make %WINE_ROS_DIR% %WINE_LIST%
+IF EXIST "%WINE_ROS_DIR%\makefile.auto" DEL "%WINE_ROS_DIR%\makefile.auto"
+CALL :make make "%WINE_ROS_DIR%" %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 ECHO Compilation successful. You should try to run ReactOS to see if
 ECHO no visible regressions appeared before committing the changes.
@@ -326,5 +331,6 @@ GOTO :eof
 
 :internal_analysespec
 SET WINE_LINE=%*
+IF "%WINE_LINE:~0,7%" == "DllMain" SET WINE_HAS_DLLMAIN=1
 IF "%WINE_LINE:~0,10%" == "DllInstall" SET WINE_HAS_DLLINSTALL=1
 IF "%WINE_LINE:~0,17%" == "DllRegisterServer" SET WINE_HAS_DLLREGISTERSERVER=1
