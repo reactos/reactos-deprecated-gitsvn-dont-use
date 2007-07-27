@@ -29,7 +29,6 @@ if "%1"  == "" (
 ::
 :: Check if our log directory exists, if it doesn't, create it.
 ::
-set logdiff
 if %logdiff% == 0 (
 if not exist "%CD%\RosBE-Logs\." (
         if not exist "%CD%\.svn\." (
@@ -48,7 +47,7 @@ if %logdiff% == 1 (
         echo LogFolder does not exist.
     ) else (
         set _ROSBELOGDIR=%ROSBE_LOGPATH%
-    ) 
+    )
 )
 )
 
