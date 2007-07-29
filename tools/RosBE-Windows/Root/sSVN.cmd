@@ -49,26 +49,10 @@ if "%1" == "create" (
 )
 if "%1" == "status" (
     title Status
-    call svn info "%CD%" > "%ROSBEBASEDIR%\x.tmp"
-    call grep Revision: "%ROSBEBASEDIR%\x.tmp"|cutz svn > "%ROSBEBASEDIR%\offsvn.tmp"
-    set /P OFFSVN=< "%ROSBEBASEDIR%\offsvn.tmp"
-    call svn info svn://svn.reactos.org/reactos/trunk/reactos > "%ROSBEBASEDIR%\y.tmp"
-    call grep Revision: "%ROSBEBASEDIR%\y.tmp"|cutz svn > "%ROSBEBASEDIR%\onsvn.tmp"
+    for /f "usebackq" %%i IN (`svnversion .`) DO @set OFFSVN=%%i
+    svn info svn://svn.reactos.org/reactos/trunk/reactos|find "Revision:"|cutz svn > "%ROSBEBASEDIR%\onsvn.tmp"
     set /P ONSVN=< "%ROSBEBASEDIR%\onsvn.tmp"
-    echo Recent Offline Revision: %OFFSVN%
-    echo Online HEAD Revision: %ONSVN%
-    del "%ROSBEBASEDIR%\offsvn.tmp"
-    del "%ROSBEBASEDIR%\onsvn.tmp"
-    del "%ROSBEBASEDIR%\x.tmp"
-    del "%ROSBEBASEDIR%\y.tmp"
-    echo.
-    if %OFFSVN% LSS %ONSVN% (
-        echo Your Tree is not Up to date. Do you want to update it?
-        goto :UP
-    )
-    if %OFFSVN% EQU %ONSVN% (
-    echo Your Tree is Up to date.
-    )
+    call "%ROSBEBASEDIR%\sSVNs.cmd"
     goto :ExitSVN
 )
 
@@ -76,12 +60,6 @@ if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :ExitSVN
 )
-
-:UP
-SET /P XY=(yes), (no)
-
-if /I "%XY%"=="yes" call %ROSBEBASEDIR%\ssvn update
-if /I "%XY%"=="no" goto :ExitSVN
 
 :ExitSVN
 title ReactOS Build Environment %_VER%
