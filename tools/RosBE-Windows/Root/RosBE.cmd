@@ -21,7 +21,7 @@ set /P ROSBEBASEDIR=< "C:\aaa.tmp"
 del "C:\aaa.tmp"
 set ROSBE_SHOWTIME=1
 set ROSBE_WRITELOG=1
-set _LOGDIR=%CD%\RosBE-Logs
+set _LOGDIR=RosBE-Logs
 
 if exist %ROSBEBASEDIR%\options.cmd (
     goto :PREV

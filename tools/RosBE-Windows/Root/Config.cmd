@@ -11,8 +11,8 @@
 title ReactOS Build Configurator
 
 if "%1" == "delete" (
-    if exist "%CD%\config.rbuild" (
-        del "%CD%\config.rbuild"
+    if exist "config.rbuild" (
+        del "config.rbuild"
         echo Main Configuration File was found and deleted.
     ) else (
         echo Main Configuration File was not found in ReactOS Source Tree.
@@ -31,7 +31,7 @@ if not "%1" == "" (
 )
 
 if not exist "%ROSBEBASEDIR%\config.rbuild" (
-    copy "%CD%\config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild"
+    copy "config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild"
 )
 
 echo WARNING:
@@ -50,16 +50,16 @@ goto :NOK
 echo Architecture to build for. Not Editable.
 echo.
 echo Right now
-call grep \"ARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"ARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 echo.
 
 echo Sub-architecture to build for.
 echo Default is: none
 echo.
 echo Right now
-call grep \"SARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"SARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P X= (), (xbox)
-call sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" "%ROSBEBASEDIR%\config.rbuild" > "%ROSBEBASEDIR%\config2.rbuild"
+sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" "%ROSBEBASEDIR%\config.rbuild" > "%ROSBEBASEDIR%\config2.rbuild"
 cls
 
 echo Which CPU ReactOS should be optimized for.
@@ -70,9 +70,9 @@ echo See GCC manual for more CPU names and which CPUs GCC can optimize for.
 echo Default is: pentium
 echo.
 echo Right now
-call grep \"OARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"OARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P XX=
-call sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" "%ROSBEBASEDIR%\config2.rbuild" > "%ROSBEBASEDIR%\config21.rbuild"
+sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" "%ROSBEBASEDIR%\config2.rbuild" > "%ROSBEBASEDIR%\config21.rbuild"
 cls
 
 echo What level do you want ReactOS to be optimized at.
@@ -83,27 +83,27 @@ echo official release builds and debug builds.
 echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk.
 echo.
 echo Right now
-call grep \"OPTIMIZE\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"OPTIMIZE\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P Y= (0), (1), (2), (3), (4), (5)
-call sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%ROSBEBASEDIR%\config21.rbuild" > "%ROSBEBASEDIR%\config3.rbuild"
+sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%ROSBEBASEDIR%\config21.rbuild" > "%ROSBEBASEDIR%\config3.rbuild"
 cls
 
 echo Whether to compile for an uniprocessor or multiprocessor machine.
 echo Default is: 0
 echo.
 echo Right now
-call grep \"MP\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"MP\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P Z= (0), (1)
-call sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%ROSBEBASEDIR%\config3.rbuild" > "%ROSBEBASEDIR%\config4.rbuild"
+sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%ROSBEBASEDIR%\config3.rbuild" > "%ROSBEBASEDIR%\config4.rbuild"
 cls
 
 echo Whether to compile in the integrated kernel debugger.
 echo Default is: 0
 echo.
 echo Right now
-call grep \"KDBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"KDBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P A= (0), (1)
-call sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%ROSBEBASEDIR%\config4.rbuild" > "%ROSBEBASEDIR%\config5.rbuild"
+sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%ROSBEBASEDIR%\config4.rbuild" > "%ROSBEBASEDIR%\config5.rbuild"
 cls
 
 echo Whether to compile for debugging. No compiler optimizations will be
@@ -111,9 +111,9 @@ echo performed.
 echo Default is: 1
 echo.
 echo Right now
-call grep \"DBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"DBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P B= (0), (1)
-call sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%ROSBEBASEDIR%\config5.rbuild" > "%ROSBEBASEDIR%\config6.rbuild"
+sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%ROSBEBASEDIR%\config5.rbuild" > "%ROSBEBASEDIR%\config6.rbuild"
 cls
 
 echo Whether to compile for debugging with GDB. If you don't use GDB,
@@ -121,9 +121,9 @@ echo don't enable this.
 echo Default is: 0
 echo.
 echo Right now
-call grep \"GDB\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"GDB\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P C= (0), (1)
-call sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%ROSBEBASEDIR%\config6.rbuild" > "%ROSBEBASEDIR%\config7.rbuild"
+sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%ROSBEBASEDIR%\config6.rbuild" > "%ROSBEBASEDIR%\config7.rbuild"
 cls
 
 echo Whether to compile apps/libs with features covered software patents
@@ -133,18 +133,18 @@ echo from the patent owner).
 echo Default is: 0
 echo.
 echo Right now
-call grep \"NSWPAT\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"NSWPAT\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P D= (0), (1)
-call sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
+sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
 cls
 
 echo Whether to compile with NT-compatible LPC Semantics. This should
 echo always be 1.
 echo.
 echo Right now
-call grep \"NTLPC\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"NTLPC\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P E= (0), (1)
-call sed "s/\"NTLPC\" value=\"[0-1]\"/\"NTLPC\" value=\"%E%\"/g" "%ROSBEBASEDIR%\config8.rbuild" > "%ROSBEBASEDIR%\config9.rbuild"
+sed "s/\"NTLPC\" value=\"[0-1]\"/\"NTLPC\" value=\"%E%\"/g" "%ROSBEBASEDIR%\config8.rbuild" > "%ROSBEBASEDIR%\config9.rbuild"
 cls
 
 echo Whether to compile with the KD protocol. This will disable support for
@@ -156,15 +156,15 @@ echo unless you know what you're doing.
 echo Default is: 0
 echo.
 echo Right now
-call grep \"_WINKD_\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
+grep \"_WINKD_\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P F= (0), (1)
-call sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%ROSBEBASEDIR%\config9.rbuild" > "%ROSBEBASEDIR%\config10.rbuild"
+sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%ROSBEBASEDIR%\config9.rbuild" > "%ROSBEBASEDIR%\config10.rbuild"
 
 copy "%ROSBEBASEDIR%\config10.rbuild" "%ROSBEBASEDIR%\config.tmp"
 del "%ROSBEBASEDIR%\*.rbuild"
 copy "%ROSBEBASEDIR%\config.tmp" "%ROSBEBASEDIR%\config.rbuild"
 del "%ROSBEBASEDIR%\*.tmp"
-copy "%ROSBEBASEDIR%\config.rbuild" "%CD%\config.rbuild"
+copy "%ROSBEBASEDIR%\config.rbuild" "config.rbuild"
 
 goto :NOK
 

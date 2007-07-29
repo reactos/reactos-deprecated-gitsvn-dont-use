@@ -35,7 +35,7 @@ if "%1" == "cleanup" (
 
 if "%1" == "create" (
     title Creating...
-    if exist "%CD%\.svn\." (
+    if exist ".svn\." (
         echo Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
@@ -52,7 +52,7 @@ if "%1" == "status" (
     for /f "usebackq" %%i IN (`svnversion .`) DO @set OFFSVN=%%i
     svn info svn://svn.reactos.org/reactos/trunk/reactos|find "Revision:"|cutz svn > "%ROSBEBASEDIR%\onsvn.tmp"
     set /P ONSVN=< "%ROSBEBASEDIR%\onsvn.tmp"
-    call "%ROSBEBASEDIR%\sSVNs.cmd"
+    call :UP
     goto :ExitSVN
 )
 
@@ -60,6 +60,25 @@ if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :ExitSVN
 )
+
+:UP
+echo Recent Offline Revision: %OFFSVN%
+echo Online HEAD Revision: %ONSVN%
+del "%ROSBEBASEDIR%\onsvn.tmp"
+echo.
+if %OFFSVN% LSS %ONSVN% (
+    echo Your Tree is not Up to date. Do you want to update it?
+    goto :UP2
+)
+if %OFFSVN% EQU %ONSVN% (
+    echo Your Tree is Up to date.
+    goto :ExitSVN
+)
+
+:UP2
+SET /P XY=(yes), (no)
+if /I "%XY%"=="yes" %ROSBEBASEDIR%\ssvn update
+if /I "%XY%"=="no" goto :ExitSVN
 
 :ExitSVN
 title ReactOS Build Environment %_VER%

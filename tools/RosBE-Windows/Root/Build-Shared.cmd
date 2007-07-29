@@ -28,16 +28,16 @@ if "%1"  == "" (
 :: Check if our log directory exists, if it doesn't, create it.
 ::
 if %logdiff% == 0 (
-if not exist "%CD%\RosBE-Logs\." (
-        if not exist "%CD%\.svn\." (
+if not exist "RosBE-Logs\." (
+        if not exist ".svn\." (
             echo Folder is empty. No Build can be performed.
             goto :EOB
         ) else (
-            mkdir "%CD%\RosBE-Logs"
-            set _ROSBELOGDIR=%CD%\RosBE-Logs
+            mkdir "RosBE-Logs"
+            set _ROSBELOGDIR=RosBE-Logs
         )
     ) else (
-        set _ROSBELOGDIR=%CD%\RosBE-Logs
+        set _ROSBELOGDIR=RosBE-Logs
     )
 )
 if %logdiff% == 1 (
@@ -53,8 +53,8 @@ if %logdiff% == 1 (
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::
-if exist "%CD%\config.rbuild" (
-    test "%CD%\config.template.rbuild" -nt "%CD%\config.rbuild"
+if exist "config.rbuild" (
+    test "config.template.rbuild" -nt "config.rbuild"
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
@@ -77,25 +77,25 @@ title Started: %TIMERAW%, Building...
 
 if %ROSBE_SHOWTIME% == 1 (
     if %ROSBE_WRITELOG% == 1 (
-        call buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+        buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
     )
     if %ROSBE_WRITELOG% == 0 (
-        call buildtime "%MAKE_COMMAND%" 2>&1
+        buildtime "%MAKE_COMMAND%" 2>&1
     )
 )
 if %ROSBE_SHOWTIME% == 0 (
     if %ROSBE_WRITELOG% == 1 (
-        call "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
+        "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
     )
     if %ROSBE_WRITELOG% == 0 (
-        call "%MAKE_COMMAND%" 2>&1
+        "%MAKE_COMMAND%" 2>&1
     )
 )
 
 ::
 :: Highlight the fact that building has ended.
 ::
-call flash
+flash
 
 :EOB
 title ReactOS Build Environment %_VER%
