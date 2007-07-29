@@ -24,9 +24,9 @@ SET /P XY=
 goto :RUN
 
 :RUN
-grep \"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz > "%ROSBEBASEDIR%\aaa.tmp"
+grep \"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
 set /P dir=< "%ROSBEBASEDIR%\aaa.tmp"
 del "%ROSBEBASEDIR%\aaa.tmp"
-cd %dir%
+cd /D %dir%
 
 title ReactOS Build Environment %_VER%

@@ -1,11 +1,16 @@
 *** Oct XXth, 2007 - RosBE 0.3.8 Released
 
-- Added DrFred's Config Tool.
+- Added DrFred's Config Tool. (Daniel Reimer)
+
+*** Aug XXst, 2007 - RosBE 0.3.7.2 Released
+
+- Fixed the double \\ Bug introduced in 0.3.7. (Daniel Reimer)
+- Added Build Begin Time into Topic. (Daniel Reimer)
 
 *** July 26th, 2007 - RosBE 0.3.7.1 Released
 
-- Fixed: "No SVN Tree found" message in Vista.
-- All commands use the current dir now. SO you can use several SVN Source Trees now.
+- Fixed: "No SVN Tree found" message in Vista. (Daniel Reimer)
+- All commands use the current dir now. SO you can use several SVN Source Trees now. (Daniel Reimer)
 
 *** July 22nd, 2007 - RosBE 0.3.7 Released
 

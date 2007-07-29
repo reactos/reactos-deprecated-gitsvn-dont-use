@@ -10,8 +10,6 @@
 ::
 @echo off
 
-title Building...
-
 ::
 :: Take over the 2nd parameter of Build.cmd, which enables/disables stripping
 ::
@@ -75,23 +73,21 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 ::
 :: Now use mingw32-make to build ReactOS, passing along options, if any.
 ::
+title Started: %TIMERAW%, Building...
+
 if %ROSBE_SHOWTIME% == 1 (
     if %ROSBE_WRITELOG% == 1 (
-        title Started: %TIMERAW%, Building...
         call buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
     )
     if %ROSBE_WRITELOG% == 0 (
-        title Started: %TIMERAW%, Building...
         call buildtime "%MAKE_COMMAND%" 2>&1
     )
 )
 if %ROSBE_SHOWTIME% == 0 (
     if %ROSBE_WRITELOG% == 1 (
-        title Started: %TIMERAW%, Building...
         call "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
     )
     if %ROSBE_WRITELOG% == 0 (
-        title Started: %TIMERAW%, Building...
         call "%MAKE_COMMAND%" 2>&1
     )
 )
@@ -100,8 +96,6 @@ if %ROSBE_SHOWTIME% == 0 (
 :: Highlight the fact that building has ended.
 ::
 call flash
-
-goto :EOB
 
 :EOB
 title ReactOS Build Environment %_VER%
