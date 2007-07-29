@@ -16,6 +16,9 @@
 color 0A
 set _VER=0.3.8
 set ROSBEBASEDIR=%~dp0
+echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed "s/.$//g" > "C:\aaa.tmp"
+set /P ROSBEBASEDIR=< "C:\aaa.tmp"
+del "C:\aaa.tmp"
 set ROSBE_SHOWTIME=1
 set ROSBE_WRITELOG=1
 set _LOGDIR=%CD%\RosBE-Logs
