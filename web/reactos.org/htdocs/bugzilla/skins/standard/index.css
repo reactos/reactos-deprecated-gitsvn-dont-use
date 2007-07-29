@@ -48,8 +48,8 @@
         width: 250px;
         height: 200px;
 
-        margin-top: 2.3em;
-        margin-right: 2.3em;
+        margin-top: -15px;
+        margin-right: 5px;
         float: right;
         background: transparent no-repeat url(index/front.png);
     }

@@ -1,4 +1,4 @@
-# -*- Mode: perl; indent-tabs-mode: nil -*-
+﻿# -*- Mode: perl; indent-tabs-mode: nil -*-
 #
 # The contents of this file are subject to the Mozilla Public
 # License Version 1.1 (the "License"); you may not use this file
@@ -69,7 +69,7 @@ sub get_param_list {
   {
    name => 'user_info_class',
    type => 's',
-   choices => [ 'CGI', 'Env', 'Env,CGI' ],
+   choices => [ 'CGI', 'Env', 'Env,CGI', 'ROSCMS' ],
    default => 'CGI',
    checker => \&check_multi
   },
@@ -77,7 +77,7 @@ sub get_param_list {
   {
    name => 'user_verify_class',
    type => 's',
-   choices => [ 'DB', 'LDAP', 'DB,LDAP', 'LDAP,DB' ],
+   choices => [ 'DB', 'LDAP', 'DB,LDAP', 'LDAP,DB', 'ROSCMS' ],
    default => 'DB',
    checker => \&check_user_verify_class
   },

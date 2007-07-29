@@ -22,14 +22,6 @@
   *                 Marc Schumann <wurblzap@gmail.com>
   */
 
-/* global (begin) */
-    body {
-        font-family: sans-serif;
-        color: #000;
-        background: #fff url("global/body-back.gif") repeat-x;
-    }
-/* global (end) */
-
 /* header (begin) */
     #header {
         margin-bottom: 1em;
@@ -37,17 +29,15 @@
     }
 
     #header form {
-        font-size: 85%;
         display: inline;
     }
 
     #header .btn,
     #header .txt {
-        font-size: 80%;
+        font-size: 9pt;
     }
 
     #header .links {
-        font-size: 85%;
         border-left: 1px solid silver;
         border-right: 1px solid silver;
         border-bottom: 1px solid silver;
@@ -128,7 +118,7 @@
 
     #footer .btn,
     #footer .txt {
-        font-size: 80%;
+        font-size: 9pt;
     }
 
     #footer #useful-links {
@@ -284,7 +274,7 @@ dl dl > dt {
 /* Style of the attachment table */
 #attachment_table {
     border-collapse: collapse;
-    width: 40em;
+    width: 47em;
     border: 1px solid #333333;
 }
 

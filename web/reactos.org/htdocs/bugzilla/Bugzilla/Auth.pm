@@ -34,7 +34,7 @@ use Bugzilla::Constants;
 use Bugzilla::Error;
 use Bugzilla::Auth::Login::Stack;
 use Bugzilla::Auth::Verify::Stack;
-use Bugzilla::Auth::Persist::Cookie;
+use Bugzilla::Auth::Persist::ROSCMS;
 
 sub new {
     my ($class, $params) = @_;
@@ -48,7 +48,7 @@ sub new {
     $self->{_verifier} = new Bugzilla::Auth::Verify::Stack($params->{Verify});
     # If we ever have any other login persistence methods besides cookies,
     # this could become more configurable.
-    $self->{_persister} = new Bugzilla::Auth::Persist::Cookie();
+    $self->{_persister} = new Bugzilla::Auth::Persist::ROSCMS();
 
     return $self;
 }

@@ -1,4 +1,4 @@
-# -*- Mode: perl; indent-tabs-mode: nil -*-
+﻿# -*- Mode: perl; indent-tabs-mode: nil -*-
 #
 # The contents of this file are subject to the Mozilla Public
 # License Version 1.1 (the "License"); you may not use this file
@@ -268,6 +268,8 @@ sub check_user_verify_class {
             return "Error requiring Net::LDAP: '$@'" if $@;
             return "LDAP servername is missing" unless Bugzilla->params->{"LDAPserver"};
             return "LDAPBaseDN is empty" unless Bugzilla->params->{"LDAPBaseDN"};
+        } elsif ($class eq 'ROSCMS') {
+        	# No params
         } else {
                 return "Unknown user_verify_class '$class' in check_user_verify_class";
         }
