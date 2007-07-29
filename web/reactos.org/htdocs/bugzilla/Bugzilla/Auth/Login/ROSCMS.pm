@@ -127,9 +127,4 @@ sub fail_nodata {
 	exit;
 }
 
-sub requires_persistence {
-	# Persistence is handled by RosCMS
-	return 1;
-}
-
 1;
