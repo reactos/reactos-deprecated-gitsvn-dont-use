@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Install::Requirements</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Install::Requirements</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CONSTANTS'>CONSTANTS</a>
+  <li class='indexItem indexItem1'><a href='#SUBROUTINES'>SUBROUTINES</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Install::Requirements - Functions and variables dealing with Bugzilla&#39;s perl-module requirements.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module is used primarily by <code  class="code">checksetup.pl</code> to determine whether or not all of Bugzilla&#39;s prerequisites are installed.
+(That is,
+all the perl modules it requires.)</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CONSTANTS"
+>CONSTANTS</a></h1>
+
+<dl>
+<dt><a name="REQUIRED_MODULES"
+><code  class="code">REQUIRED_MODULES</code></a></dt>
+
+<dd>
+<p>An arrayref of hashrefs that describes the perl modules required by Bugzilla.
+The hashes have two keys,
+<code  class="code">name</code> and <code  class="code">version</code>,
+which represent the name of the module and the version that we require.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SUBROUTINES"
+>SUBROUTINES</a></h1>
+
+<dl>
+<dt><a name="check_requirements($output)"
+><code  class="code">check_requirements($output)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: This checks what optional or required perl modules
+              are installed, like C&#60;checksetup.pl&#62; does.
+
+ Params:      C&#60;$output&#62; - C&#60;true&#62; if you want the function to print
+                           out information about what it&#39;s doing,
+                           and the versions of everything installed.
+                           If you don&#39;t pass the minimum requirements,
+                           the will always print out something, 
+                           regardless of this parameter.
+
+ Returns:    A hashref containing three values:
+             C&#60;pass&#62; - Whether or not we have all the mandatory 
+                       requirements.
+             C&#60;missing&#62; - A hash showing which mandatory requirements
+                          are missing. The key is the module name,
+                          and the value is the version we require.
+             C&#60;optional&#62; - Which optional modules are installed and
+                           up-to-date enough for Bugzilla.</pre>
+
+<dt><a name="check_graphviz($output)"
+><code  class="code">check_graphviz($output)</code></a></dt>
+
+<dd>
+<p>Description: Checks if the graphviz binary specified in the <code  class="code">webdotbase</code> parameter is a valid binary, or a valid URL.</p>
+
+<p>Params: <code  class="code">$output</code> - <code  class="code">$true</code> if you want the function to print out information about what it&#39;s doing.</p>
+
+<p>Returns: <code  class="code">1</code> if the check was successful, <code  class="code">0</code> otherwise.</p>
+
+<dt><a name="vers_cmp($a,_$b)"
+><code  class="code">vers_cmp($a, $b)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: This is a comparison function, like you would use in
+              C&#60;sort&#62;, except that it compares two version numbers.
+              It&#39;s actually identical to versioncmp from 
+              L&#60;Sort::Versions&#62;.
+
+ Params:      c&#60;$a&#62; and C&#60;$b&#62; are versions you want to compare.
+
+ Returns:     -1 if $a is less than $b, 0 if they are equal, and
+              1 if $a is greater than $b.</pre>
+
+<dt><a name="have_vers($module,_$output)"
+><code  class="code">have_vers($module, $output)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Tells you whether or not you have the appropriate
+              version of the module requested. It also prints
+              out a message to the user explaining the check
+              and the result.
+
+ Params:      C&#60;$module&#62; - A hashref, in the format of an item from 
+                           L&#60;/REQUIRED_MODULES&#62;.
+              C&#60;$output&#62; - Set to true if you want this function to
+                           print information to STDOUT about what it&#39;s
+                           doing.
+
+ Returns:   C&#60;1&#62; if you have the module installed and you have the
+            appropriate version. C&#60;0&#62; otherwise.</pre>
+
+<dt><a name="install_command($module)"
+><code  class="code">install_command($module)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Prints out the appropriate command to install the
+              module specified, depending on whether you&#39;re
+              on Windows or Linux.
+
+ Params:      C&#60;$module&#62; - A hashref, in the format of an item from
+                           L&#60;/REQUIRED_MODULES&#62;.
+
+ Returns:     nothing</pre>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

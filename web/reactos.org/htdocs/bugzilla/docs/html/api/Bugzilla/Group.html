@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Group</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Group</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#SUBROUTINES'>SUBROUTINES</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Group - Bugzilla group class.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code">    use Bugzilla::Group;
+
+    my $group = new Bugzilla::Group(1);
+    my $group = new Bugzilla::Group({name =&#62; &#39;AcmeGroup&#39;});
+
+    my $id           = $group-&#62;id;
+    my $name         = $group-&#62;name;
+    my $description  = $group-&#62;description;
+    my $user_reg_exp = $group-&#62;user_reg_exp;
+    my $is_active    = $group-&#62;is_active;
+    my $is_active_bug_group = $group-&#62;is_active_bug_group;
+
+    my $group_id = Bugzilla::Group::ValidateGroupName(&#39;admin&#39;, @users);
+    my @groups   = Bugzilla::Group-&#62;get_all;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Group.pm represents a Bugzilla Group object. It is an implementation of <a href="../Bugzilla/Object.html" class="podlinkpod"
+>Bugzilla::Object</a>, and thus has all the methods that <a href="../Bugzilla/Object.html" class="podlinkpod"
+>Bugzilla::Object</a> provides, in addition to any methods documented below.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SUBROUTINES"
+>SUBROUTINES</a></h1>
+
+<dl>
+<dt><a name="create"
+><code  class="code">create</code></a></dt>
+
+<dd>
+<p>Note that in addition to what <a href="../Bugzilla/Object.html#create(%24params)" class="podlinkpod"
+>&#34;create($params)&#34; in Bugzilla::Object</a> normally does, this function also makes the new group be inherited by the <code  class="code">admin</code> group. That is, the <code  class="code">admin</code> group will automatically be a member of this group.</p>
+
+<dt><a name="ValidateGroupName($name,_@users)"
+><code  class="code">ValidateGroupName($name, @users)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: ValidateGroupName checks to see if ANY of the users
+              in the provided list of user objects can see the
+              named group.
+
+ Params:      $name - String with the group name.
+              @users - An array with Bugzilla::User objects.
+
+ Returns:     It returns the group id if successful
+              and undef otherwise.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<dl>
+<dt><a name="members_non_inherited"
+><code  class="code">members_non_inherited</code></a></dt>
+
+<dd>
+<p>Returns an arrayref of <a href="../Bugzilla/User.html" class="podlinkpod"
+>Bugzilla::User</a> objects representing people who are &#34;directly&#34; in this group, meaning that they&#39;re in it because they match the group regular expression, or they have been actually added to the group manually.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

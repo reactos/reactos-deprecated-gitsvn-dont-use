@@ -1,0 +1,20 @@
+/admin.html.tmpl/1.3/Mon Nov 27 18:09:14 2006//TBUGZILLA-3_0
+/attachment.html.tmpl/1.3/Mon Apr 17 20:19:36 2006//TBUGZILLA-3_0
+/auth.html.tmpl/1.1/Wed Oct 12 08:51:54 2005//TBUGZILLA-3_0
+/bugchange.html.tmpl/1.3/Thu Jul 20 23:32:09 2006//TBUGZILLA-3_0
+/bugfields.html.tmpl/1.3/Thu Jul 20 23:32:09 2006//TBUGZILLA-3_0
+/bugmove.html.tmpl/1.2/Thu Jul 20 23:32:09 2006//TBUGZILLA-3_0
+/common.html.tmpl/1.3/Mon Feb  6 09:16:16 2006//TBUGZILLA-3_0
+/core.html.tmpl/1.5.2.1/Wed Apr 18 00:15:14 2007//TBUGZILLA-3_0
+/dependencygraph.html.tmpl/1.1/Wed Oct 12 08:51:54 2005//TBUGZILLA-3_0
+/editparams.html.tmpl/1.4.2.1/Sun Mar 25 02:11:16 2007//TBUGZILLA-3_0
+/groupsecurity.html.tmpl/1.4/Thu Jul 13 20:08:00 2006//TBUGZILLA-3_0
+/index.html.tmpl/1.1/Thu Oct 13 09:18:24 2005//TBUGZILLA-3_0
+/l10n.html.tmpl/1.1/Wed Oct 12 08:51:54 2005//TBUGZILLA-3_0
+/ldap.html.tmpl/1.5/Tue Jul 11 00:42:58 2006//TBUGZILLA-3_0
+/mta.html.tmpl/1.9/Mon Nov 13 23:32:29 2006//TBUGZILLA-3_0
+/patchviewer.html.tmpl/1.2/Wed Jan  3 00:32:06 2007//TBUGZILLA-3_0
+/query.html.tmpl/1.1/Wed Oct 12 08:51:54 2005//TBUGZILLA-3_0
+/shadowdb.html.tmpl/1.1/Wed Oct 12 08:51:54 2005//TBUGZILLA-3_0
+/usermatch.html.tmpl/1.2/Sat Nov 12 10:09:44 2005//TBUGZILLA-3_0
+D

@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+recode.pl</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>recode.pl</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#OPTIONS'>OPTIONS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>recode.pl - Converts a database from one encoding (or multiple encodings) to UTF-8.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code"> contrib/recode.pl [--guess [--show-failures]] [--charset=iso-8859-2]
+                   [--overrides=file_name]
+
+  --dry-run        Don&#39;t modify the database.
+
+  --charset        Primary charset your data is currently in. This can be
+                   optionally omitted if you do --guess.
+
+  --guess          Try to guess the charset of the data.
+
+  --show-failures  If we fail to guess, show where we failed.
+
+  --overrides      Specify a file containing overrides. See --help
+                   for more info.
+
+  --help           Display detailed help.
+
+ If you aren&#39;t sure what to do, try:
+
+   contrib/recode.pl --guess --charset=cp1252</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="OPTIONS"
+>OPTIONS</a></h1>
+
+<dl>
+<dt><a name="--dry-run"
+>--dry-run</a></dt>
+
+<dd>
+<p>Don&#39;t modify the database, just print out what the conversions will be.</p>
+
+<p>recode.pl will print out a Key for each item. You can use this in the overrides file, described below.</p>
+
+<dt><a name="--guess"
+>--guess</a></dt>
+
+<dd>
+<p>If your database is in multiple different encodings, specify this switch and recode.pl will do its best to determine the original charset of the data. The detection is usually very reliable.</p>
+
+<p>If recode.pl cannot guess the charset, it will leave the data alone, unless you&#39;ve specified --charset.</p>
+
+<dt><a name="--charset=charset-name"
+>--charset=charset-name</a></dt>
+
+<dd>
+<p>If you do not specify --guess, then your database is converted from this character set into the UTF-8.</p>
+
+<p>If you have specified --guess, recode.pl will use this charset as a fallback--when it cannot guess the charset of a particular piece of data, it will guess that the data is in this charset and convert it from this charset to UTF-8.</p>
+
+<p>charset-name must be a charset that is known to perl&#39;s Encode module. To see a list of available charsets, do:</p>
+
+<p><code  class="code">perl -MEncode -e &#39;print join(&#34;\n&#34;, Encode-&#62;encodings(&#34;:all&#34;))&#39;</code></p>
+
+<dt><a name="--show-failures"
+>--show-failures</a></dt>
+
+<dd>
+<p>If --guess fails to guess a charset, print out the data it failed on.</p>
+
+<dt><a name="--overrides=file_name"
+>--overrides=file_name</a></dt>
+
+<dd>
+<p>This is a way of specifying certain encodings to override the encodings of --guess. The file is a series of lines. The line should start with the Key from --dry-run, and then a space, and then the encoding you&#39;d like to use.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

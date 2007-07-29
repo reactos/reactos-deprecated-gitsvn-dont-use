@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<!-- Module Versions -->
+<!ENTITY min-cgi-ver "2.93">
+<!ENTITY min-date-format-ver "2.21">
+<!ENTITY min-dbi-ver "1.41">
+<!ENTITY min-file-spec-ver "0.84">
+<!ENTITY min-template-ver "2.12">
+<!ENTITY min-email-send-ver "2.00">
+<!ENTITY min-email-mime-modifier-ver "any">
+<!ENTITY min-gd-ver "1.20">
+<!ENTITY min-template-plugin-gd-image-ver "any">
+<!ENTITY min-chart-base-ver "1.0">
+<!ENTITY min-gd-graph-ver "any">
+<!ENTITY min-gd-text-ver "any">
+<!ENTITY min-xml-twig-ver "any">
+<!ENTITY min-mime-parser-ver "5.406">
+<!ENTITY min-lwp-useragent-ver "any">
+<!ENTITY min-patchreader-ver "0.9.4">
+<!ENTITY min-image-magick-ver "any">
+<!ENTITY min-net-ldap-ver "any">
+<!ENTITY min-soap-lite-ver "any">
+<!ENTITY min-html-parser-ver "3.40">
+<!ENTITY min-html-scrubber-ver "any">
+<!ENTITY min-email-mime-attachment-stripper-ver "any">
+<!ENTITY min-email-reply-ver "any">
+<!ENTITY min-mod_perl2-ver "1.999022">
+<!ENTITY min-cgi-ver "3.11">
+<!ENTITY min-apache-dbi-ver "0.96">
+<!ENTITY min-mp-cgi-ver "3.11">
+
+ <!-- Database Versions --> 
+<!ENTITY min-dbd-pg-ver "1.45">
+<!ENTITY min-pg-ver "8.00.0000">
+<!ENTITY min-dbd-mysql-ver "2.9003">
+<!ENTITY min-mysql-ver "4.1.2">

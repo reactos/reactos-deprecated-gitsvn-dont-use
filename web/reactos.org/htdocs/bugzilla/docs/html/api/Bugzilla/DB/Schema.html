@@ -1,0 +1,676 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::DB::Schema</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::DB::Schema</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#NEW_TO_SCHEMA.PM%3F'>NEW TO SCHEMA.PM?</a>
+  <li class='indexItem indexItem1'><a href='#CONSTANTS'>CONSTANTS</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <li class='indexItem indexItem1'><a href='#SERIALIZATION%2FDESERIALIZATION'>SERIALIZATION/DESERIALIZATION</a>
+  <li class='indexItem indexItem1'><a href='#CLASS_METHODS'>CLASS METHODS</a>
+  <li class='indexItem indexItem1'><a href='#ABSTRACT_DATA_TYPES'>ABSTRACT DATA TYPES</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::DB::Schema - Abstract database schema for Bugzilla</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code">  # Obtain MySQL database schema.
+  # Do not do this. Use Bugzilla::DB instead.
+  use Bugzilla::DB::Schema;
+  my $mysql_schema = new Bugzilla::DB::Schema(&#39;Mysql&#39;);
+
+  # Recommended way to obtain database schema.
+  use Bugzilla::DB;
+  my $dbh = Bugzilla-&#62;dbh;
+  my $schema = $dbh-&#62;_bz_schema();
+
+  # Get the list of tables in the Bugzilla database.
+  my @tables = $schema-&#62;get_table_list();
+
+  # Get the SQL statements need to create the bugs table.
+  my @statements = $schema-&#62;get_table_ddl(&#39;bugs&#39;);
+
+  # Get the database-specific SQL data type used to implement
+  # the abstract data type INT1.
+  my $db_specific_type = $schema-&#62;sql_type(&#39;INT1&#39;);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This module implements an object-oriented, abstract database schema. It should be considered package-private to the Bugzilla::DB module. That means that CGI scripts should never call any function in this module directly, but should instead rely on methods provided by Bugzilla::DB.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NEW_TO_SCHEMA.PM?"
+>NEW TO SCHEMA.PM?</a></h1>
+
+<p>If this is your first time looking at Schema.pm, especially if you are making changes to the database, please take a look at <a href="http://www.bugzilla.org/docs/developer.html#sql-schema" class="podlinkurl"
+>http://www.bugzilla.org/docs/developer.html#sql-schema</a> to learn more about how this integrates into the rest of Bugzilla.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CONSTANTS"
+>CONSTANTS</a></h1>
+
+<dl>
+<dt><a name="SCHEMA_VERSION"
+><code  class="code">SCHEMA_VERSION</code></a></dt>
+
+<dd>
+<p>The &#39;version&#39; of the internal schema structure. This version number is incremented every time the the fundamental structure of Schema internals changes.</p>
+
+<p>This is NOT changed every time a table or a column is added. This number is incremented only if the internal structures of this Schema would be incompatible with the internal structures of a previous Schema version.</p>
+
+<p>In general, unless you are messing around with serialization and deserialization of the schema, you don&#39;t need to worry about this constant.</p>
+
+<dt><a name="ABSTRACT_SCHEMA"
+><code  class="code">ABSTRACT_SCHEMA</code></a></dt>
+
+<dd>
+<p>The abstract database schema structure consists of a hash reference in which each key is the name of a table in the Bugzilla database.</p>
+
+<p>The value for each key is a hash reference containing the keys <code  class="code">FIELDS</code> and <code  class="code">INDEXES</code> which in turn point to array references containing information on the table&#39;s fields and indexes.</p>
+
+<p>A field hash reference should must contain the key <code  class="code">TYPE</code>. Optional field keys include <code  class="code">PRIMARYKEY</code>, <code  class="code">NOTNULL</code>, and <code  class="code">DEFAULT</code>.</p>
+
+<p>The <code  class="code">INDEXES</code> array reference contains index names and information regarding the index. If the index name points to an array reference, then the index is a regular index and the array contains the indexed columns. If the index name points to a hash reference, then the hash must contain the key <code  class="code">FIELDS</code>. It may also contain the key <code  class="code">TYPE</code>, which can be used to specify the type of index such as UNIQUE or FULLTEXT.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<p>Note: Methods which can be implemented generically for all DBs are implemented in this module. If needed, they can be overridden with DB-specific code in a subclass. Methods which are prefixed with <code  class="code">_</code> are considered protected. Subclasses may override these methods, but other modules should not invoke these methods directly.</p>
+
+<dl>
+<dt><a name="new"
+><code  class="code">new</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Public constructor method used to instantiate objects of this
+              class. However, it also can be used as a factory method to
+              instantiate database-specific subclasses when an optional
+              driver argument is supplied.
+ Parameters:  $driver (optional) - Used to specify the type of database.
+              This routine C&#60;die&#62;s if no subclass is found for the specified
+              driver.
+              $schema (optional) - A reference to a hash. Callers external
+                  to this package should never use this parameter.
+ Returns:     new instance of the Schema class or a database-specific subclass</pre>
+
+<dt><a name="_initialize"
+><code  class="code">_initialize</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Protected method that initializes an object after
+              instantiation with the abstract schema. All subclasses should
+              override this method. The typical subclass implementation
+              should first call the C&#60;_initialize&#62; method of the superclass,
+              then do any database-specific initialization (especially
+              define the database-specific implementation of the all
+              abstract data types), and then call the C&#60;_adjust_schema&#62;
+              method.
+ Parameters:  $abstract_schema (optional) - A reference to a hash. If 
+                  provided, this hash will be used as the internal
+                  representation of the abstract schema instead of our
+                  default abstract schema. This is intended for internal 
+                  use only by deserialize_abstract.
+ Returns:     the instance of the Schema class</pre>
+
+<dt><a name="_adjust_schema"
+><code  class="code">_adjust_schema</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Protected method that alters the abstract schema at
+              instantiation-time to be database-specific. It is a generic
+              enough routine that it can be defined here in the base class.
+              It takes the abstract schema and replaces the abstract data
+              types with database-specific data types.
+ Parameters:  none
+ Returns:     the instance of the Schema class</pre>
+
+<dt><a name="get_type_ddl"
+><code  class="code">get_type_ddl</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Public method to convert abstract (database-generic) field
+              specifiers to database-specific data types suitable for use
+              in a C&#60;CREATE TABLE&#62; or C&#60;ALTER TABLE&#62; SQL statment. If no
+              database-specific field type has been defined for the given
+              field type, then it will just return the same field type.
+ Parameters:  a hash or a reference to a hash of a field containing the
+              following keys: C&#60;TYPE&#62; (required), C&#60;NOTNULL&#62; (optional),
+              C&#60;DEFAULT&#62; (optional), C&#60;PRIMARYKEY&#62; (optional), C&#60;REFERENCES&#62;
+              (optional)
+ Returns:     a DDL string suitable for describing a field in a
+              C&#60;CREATE TABLE&#62; or C&#60;ALTER TABLE&#62; SQL statement</pre>
+
+<dt><a name="convert_type"
+><code  class="code">convert_type</code></a></dt>
+
+<dd>
+<p>Converts a TYPE from the <a href="#ABSTRACT_SCHEMA" class="podlinkpod"
+>&#34;ABSTRACT_SCHEMA&#34;</a> format into the real SQL type.</p>
+
+<dt><a name="get_column($table,_$column)"
+><code  class="code">get_column($table, $column)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Public method to get the abstract definition of a column.
+ Parameters:  $table - the table name
+              $column - a column in the table
+ Returns:     a hashref containing information about the column, including its
+              type (C&#60;TYPE&#62;), whether or not it can be null (C&#60;NOTNULL&#62;),
+              its default value if it has one (C&#60;DEFAULT), etc.
+              Returns undef if the table or column does not exist.</pre>
+
+<dt><a name="get_table_list"
+><code  class="code">get_table_list</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Public method for discovering what tables should exist in the
+              Bugzilla database.
+ Parameters:  none
+ Returns:     an array of table names</pre>
+
+<dt><a name="get_table_columns"
+><code  class="code">get_table_columns</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Public method for discovering what columns are in a given
+              table in the Bugzilla database.
+ Parameters:  $table - the table name
+ Returns:     array of column names</pre>
+
+<dt><a name="get_table_ddl"
+><code  class="code">get_table_ddl</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Public method to generate the SQL statements needed to create
+              the a given table and its indexes in the Bugzilla database.
+              Subclasses may override or extend this method, if needed, but
+              subclasses probably should override C&#60;_get_create_table_ddl&#62;
+              or C&#60;_get_create_index_ddl&#62; instead.
+ Parameters:  $table - the table name
+ Returns:     an array of strings containing SQL statements</pre>
+
+<dt><a name="_get_create_table_ddl"
+><code  class="code">_get_create_table_ddl</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Protected method to generate the &#34;create table&#34; SQL statement
+              for a given table.
+ Parameters:  $table - the table name
+ Returns:     a string containing the DDL statement for the specified table</pre>
+
+<dt><a name="_get_create_index_ddl"
+><code  class="code">_get_create_index_ddl</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Protected method to generate a &#34;create index&#34; SQL statement
+              for a given table and index.
+ Parameters:  $table_name - the name of the table
+              $index_name - the name of the index
+              $index_fields - a reference to an array of field names
+              $index_type (optional) - specify type of index (e.g., UNIQUE)
+ Returns:     a string containing the DDL statement</pre>
+
+<dt><a name="get_add_column_ddl($table,_$column,_\%definition,_$init_value)"
+><code  class="code">get_add_column_ddl($table, $column, \%definition, $init_value)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Generate SQL to add a column to a table.
+ Params:      $table - The table containing the column.
+              $column - The name of the column being added.
+              \%definition - The new definition for the column,
+                  in standard C&#60;ABSTRACT_SCHEMA&#62; format.
+              $init_value - (optional) An initial value to set 
+                            the column to. Should already be SQL-quoted
+                            if necessary.
+ Returns:     An array of SQL statements.</pre>
+
+<dt><a name="get_add_index_ddl"
+><code  class="code">get_add_index_ddl</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Gets SQL for creating an index.
+              NOTE: Subclasses should not override this function. Instead,
+              if they need to specify a custom CREATE INDEX statement, 
+              they should override C&#60;_get_create_index_ddl&#62;
+ Params:      $table - The name of the table the index will be on.
+              $name  - The name of the new index.
+              $definition - An index definition. Either a hashref 
+                            with FIELDS and TYPE or an arrayref 
+                            containing a list of columns.
+ Returns:     An array of SQL statements that will create the 
+              requested index.</pre>
+
+<dt><a name="get_alter_column_ddl($table,_$column,_\%definition)"
+><code  class="code">get_alter_column_ddl($table, $column, \%definition)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Generate SQL to alter a column in a table.
+              The column that you are altering must exist,
+              and the table that it lives in must exist.
+ Params:      $table - The table containing the column.
+              $column - The name of the column being changed.
+              \%definition - The new definition for the column,
+                  in standard C&#60;ABSTRACT_SCHEMA&#62; format.
+              $set_nulls_to - A value to set NULL values to, if
+                  your new definition is NOT NULL and contains
+                  no DEFAULT, and when there is a possibility
+                  that the column could contain NULLs. $set_nulls_to
+                  should be already SQL-quoted if necessary.
+ Returns:     An array of SQL statements.</pre>
+
+<dt><a name="get_drop_index_ddl($table,_$name)"
+><code  class="code">get_drop_index_ddl($table, $name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Generates SQL statements to drop an index.
+ Params:      $table - The table the index is on.
+              $name  - The name of the index being dropped.
+ Returns:     An array of SQL statements.</pre>
+
+<dt><a name="get_drop_column_ddl($table,_$column)"
+><code  class="code">get_drop_column_ddl($table, $column)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Generate SQL to drop a column from a table.
+ Params:      $table - The table containing the column.
+              $column - The name of the column being dropped.
+ Returns:     An array of SQL statements.</pre>
+
+<dt><a name="get_drop_table_ddl($table)"
+><code  class="code">get_drop_table_ddl($table)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Generate SQL to drop a table from the database.
+ Params:      $table - The name of the table to drop.
+ Returns:     An array of SQL statements.</pre>
+
+<dt><a name="get_rename_column_ddl($table,_$old_name,_$new_name)"
+><code  class="code">get_rename_column_ddl($table, $old_name, $new_name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Generate SQL to change the name of a column in a table.
+              NOTE: ANSI SQL contains no simple way to rename a column,
+                    so this function is ABSTRACT and must be implemented
+                    by subclasses.
+ Params:      $table - The table containing the column to be renamed.
+              $old_name - The name of the column being renamed.
+              $new_name - The name the column is changing to.
+ Returns:     An array of SQL statements.</pre>
+
+<dt><a name="get_rename_table_sql"
+><code  class="code">get_rename_table_sql</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Gets SQL to rename a table in the database.</p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="$old_name_-_The_current_name_of_the_table."
+><code  class="code">$old_name</code> - The current name of the table.
+<dt><a name="$new_name_-_The_new_name_of_the_table."
+><code  class="code">$new_name</code> - The new name of the table.</a></dt>
+</dl>
+
+<dt><a name="Returns:_An_array_of_SQL_statements_to_rename_a_table."
+><b>Returns</b>: An array of SQL statements to rename a table.</a></dt>
+</dl>
+
+<dt><a name="delete_table($name)"
+><code  class="code">delete_table($name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Deletes a table from this Schema object.
+              Dies if you try to delete a table that doesn&#39;t exist.
+ Params:      $name - The name of the table to delete.
+ Returns:     nothing</pre>
+
+<dt><a name="get_column_abstract($table,_$column)"
+><code  class="code">get_column_abstract($table, $column)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: A column definition from the abstract internal schema.
+              cross-database format.
+ Params:      $table - The name of the table
+              $column - The name of the column that you want
+ Returns:     A hash reference. For the format, see the docs for
+              C&#60;ABSTRACT_SCHEMA&#62;.
+              Returns undef if the column or table does not exist.</pre>
+
+<dt><a name="get_indexes_on_column_abstract($table,_$column)"
+><code  class="code">get_indexes_on_column_abstract($table, $column)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Gets a list of indexes that are on a given column.
+ Params:      $table - The table the column is on.
+              $column - The name of the column.
+ Returns:     Indexes in the standard format of an INDEX
+              entry on a table. That is, key-value pairs
+              where the key is the index name and the value
+              is the index definition.
+              If there are no indexes on that column, we return
+              undef.</pre>
+
+<dt><a name="get_index_abstract($table,_$index)"
+><code  class="code">get_index_abstract($table, $index)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns an index definition from the internal abstract schema.
+ Params:      $table - The table the index is on.
+              $index - The name of the index.
+ Returns:     A hash reference representing an index definition.
+              See the C&#60;ABSTRACT_SCHEMA&#62; docs for details.
+              Returns undef if the index does not exist.</pre>
+
+<dt><a name="get_table_abstract($table)"
+><code  class="code">get_table_abstract($table)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Gets the abstract definition for a table in this Schema
+              object.
+ Params:      $table - The name of the table you want a definition for.
+ Returns:     An abstract table definition, or undef if the table doesn&#39;t
+              exist.</pre>
+
+<dt><a name="add_table($name,_\%definition)"
+><code  class="code">add_table($name, \%definition)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Creates a new table in this Schema object.
+              If you do not specify a definition, we will
+              simply create an empty table.
+ Params:      $name - The name for the new table.
+              \%definition (optional) - An abstract definition for
+                  the new table.
+ Returns:     nothing</pre>
+
+<dt><a name="rename_table"
+><code  class="code">rename_table</code></a></dt>
+
+<dd>
+<p>Renames a table from <code  class="code">$old_name</code> to <code  class="code">$new_name</code> in this Schema object.</p>
+
+<dt><a name="delete_column($table,_$column)"
+><code  class="code">delete_column($table, $column)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Deletes a column from this Schema object.
+ Params:      $table - Name of the table that the column is in.
+                       The table must exist, or we will fail.
+              $column  - Name of the column to delete.
+ Returns:     nothing</pre>
+
+<dt><a name="rename_column($table,_$old_name,_$new_name)"
+><code  class="code">rename_column($table, $old_name, $new_name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Renames a column on a table in the Schema object.
+              The column that you are renaming must exist.
+ Params:      $table - The table the column is on.
+              $old_name - The current name of the column.
+              $new_name - The new name of hte column.
+ Returns:     nothing</pre>
+
+<dt><a name="set_column($table,_$column,_\%new_def)"
+><code  class="code">set_column($table, $column, \%new_def)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Changes the definition of a column in this Schema object.
+              If the column doesn&#39;t exist, it will be added.
+              The table that you specify must already exist in the Schema.
+              NOTE: This does not affect the database on the disk.
+              Use the C&#60;Bugzilla::DB&#62; &#34;Schema Modification Methods&#34;
+              if you want to do that.
+ Params:      $table - The name of the table that the column is on.
+              $column - The name of the column.
+              \%new_def - The new definition for the column, in 
+                  C&#60;ABSTRACT_SCHEMA&#62; format.
+ Returns:     nothing</pre>
+
+<dt><a name="set_index($table,_$name,_$definition)"
+><code  class="code">set_index($table, $name, $definition)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Changes the definition of an index in this Schema object.
+              If the index doesn&#39;t exist, it will be added.
+              The table that you specify must already exist in the Schema.
+              NOTE: This does not affect the database on the disk.
+              Use the C&#60;Bugzilla::DB&#62; &#34;Schema Modification Methods&#34;
+              if you want to do that.
+ Params:      $table      - The table the index is on.
+              $name       - The name of the index.
+              $definition - A hashref or an arrayref. An index 
+                            definition in C&#60;ABSTRACT_SCHEMA&#62; format.
+ Returns:     nothing</pre>
+
+<dt><a name="delete_index($table,_$name)"
+><code  class="code">delete_index($table, $name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Removes an index definition from this Schema object.
+              If the index doesn&#39;t exist, we will fail.
+              The table that you specify must exist in the Schema.
+              NOTE: This does not affect the database on the disk.
+              Use the C&#60;Bugzilla::DB&#62; &#34;Schema Modification Methods&#34;
+              if you want to do that.
+ Params:      $table - The table the index is on.
+              $name  - The name of the index that we&#39;re removing.
+ Returns:     nothing</pre>
+
+<dt><a name="columns_equal($col_one,_$col_two)"
+><code  class="code">columns_equal($col_one, $col_two)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Tells you if two columns have entirely identical definitions.
+              The TYPE field&#39;s value will be compared case-insensitive.
+              However, all other fields will be case-sensitive.
+ Params:      $col_one, $col_two - The columns to compare. Hash 
+                  references, in C&#60;ABSTRACT_SCHEMA&#62; format.
+ Returns:     C&#60;1&#62; if the columns are identical, C&#60;0&#62; if they are not.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SERIALIZATION/DESERIALIZATION"
+>SERIALIZATION/DESERIALIZATION</a></h1>
+
+<dl>
+<dt><a name="serialize_abstract()"
+><code  class="code">serialize_abstract()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Serializes the &#34;abstract&#34; schema into a format
+              that deserialize_abstract() can read in. This is
+              a method, called on a Schema instance.
+ Parameters:  none
+ Returns:     A scalar containing the serialized, abstract schema.
+              Do not attempt to manipulate this data directly,
+              as the format may change at any time in the future.
+              The only thing you should do with the returned value
+              is either store it somewhere (coupled with appropriate 
+              SCHEMA_VERSION) or deserialize it.</pre>
+
+<dt><a name="deserialize_abstract($serialized,_$version)"
+><code  class="code">deserialize_abstract($serialized, $version)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Used for when you&#39;ve read a serialized Schema off the disk,
+              and you want a Schema object that represents that data.
+ Params:      $serialized - scalar. The serialized data.
+              $version - A number in the format X.YZ. The &#34;version&#34;
+                  of the Schema that did the serialization.
+                  See the docs for C&#60;SCHEMA_VERSION&#62; for more details.
+ Returns:     A Schema object. It will have the methods of (and work 
+              in the same fashion as) the current version of Schema. 
+              However, it will represent the serialized data instead of
+              ABSTRACT_SCHEMA.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_METHODS"
+>CLASS METHODS</a></h1>
+
+<p>These methods are generally called on the class instead of on a specific object.</p>
+
+<dl>
+<dt><a name="get_empty_schema()"
+><code  class="code">get_empty_schema()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns a Schema that has no tables. In effect, this
+              Schema is totally &#34;empty.&#34;
+ Params:      none
+ Returns:     A &#34;empty&#34; Schema object.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="ABSTRACT_DATA_TYPES"
+>ABSTRACT DATA TYPES</a></h1>
+
+<p>The size and range data provided here is only intended as a guide. See your database&#39;s Bugzilla module (in this directory) for the most up-to-date values for these data types. The following abstract data types are used:</p>
+
+<dl>
+<dt><a name="BOOLEAN"
+><code  class="code">BOOLEAN</code></a></dt>
+
+<dd>
+<p>Logical value 0 or 1 where 1 is true, 0 is false.</p>
+
+<dt><a name="INT1"
+><code  class="code">INT1</code></a></dt>
+
+<dd>
+<p>Integer values (-128 - 127 or 0 - 255 unsigned).</p>
+
+<dt><a name="INT2"
+><code  class="code">INT2</code></a></dt>
+
+<dd>
+<p>Integer values (-32,768 - 32767 or 0 - 65,535 unsigned).</p>
+
+<dt><a name="INT3"
+><code  class="code">INT3</code></a></dt>
+
+<dd>
+<p>Integer values (-8,388,608 - 8,388,607 or 0 - 16,777,215 unsigned)</p>
+
+<dt><a name="INT4"
+><code  class="code">INT4</code></a></dt>
+
+<dd>
+<p>Integer values (-2,147,483,648 - 2,147,483,647 or 0 - 4,294,967,295 unsigned)</p>
+
+<dt><a name="SMALLSERIAL"
+><code  class="code">SMALLSERIAL</code></a></dt>
+
+<dd>
+<p>An auto-increment <a href="#INT1" class="podlinkpod"
+>&#34;INT1&#34;</a></p>
+
+<dt><a name="MEDIUMSERIAL"
+><code  class="code">MEDIUMSERIAL</code></a></dt>
+
+<dd>
+<p>An auto-increment <a href="#INT3" class="podlinkpod"
+>&#34;INT3&#34;</a></p>
+
+<dt><a name="INTSERIAL"
+><code  class="code">INTSERIAL</code></a></dt>
+
+<dd>
+<p>An auto-increment <a href="#INT4" class="podlinkpod"
+>&#34;INT4&#34;</a></p>
+
+<dt><a name="TINYTEXT"
+><code  class="code">TINYTEXT</code></a></dt>
+
+<dd>
+<p>Variable length string of characters up to 255 (2^8 - 1) characters wide or more depending on the character set used.</p>
+
+<dt><a name="MEDIUMTEXT"
+><code  class="code">MEDIUMTEXT</code></a></dt>
+
+<dd>
+<p>Variable length string of characters up to 16M (2^24 - 1) characters wide or more depending on the character set used.</p>
+
+<dt><a name="TEXT"
+><code  class="code">TEXT</code></a></dt>
+
+<dd>
+<p>Variable length string of characters up to 64K (2^16 - 1) characters wide or more depending on the character set used.</p>
+
+<dt><a name="LONGBLOB"
+><code  class="code">LONGBLOB</code></a></dt>
+
+<dd>
+<p>Variable length string of binary data up to 4M (2^32 - 1) bytes wide</p>
+
+<dt><a name="DATETIME"
+><code  class="code">DATETIME</code></a></dt>
+
+<dd>
+<p>DATETIME support varies from database to database, however, it&#39;s generally safe to say that DATETIME entries support all date/time combinations greater than 1900-01-01 00:00:00. Note that the format used is <code  class="code">YYYY-MM-DD hh:mm:ss</code> to be safe, though it&#39;s possible that your database may not require leading zeros. For greatest compatibility, however, please make sure dates are formatted as above for queries to guarantee consistent results.</p>
+</dd>
+</dl>
+
+<p>Database-specific subclasses should define the implementation for these data types as a hash reference stored internally in the schema object as <code  class="code">db_specific</code>. This is typically done in overridden <a href="../../_initialize.html" class="podlinkpod"
+>_initialize</a> method.</p>
+
+<p>The following abstract boolean values should also be defined on a database-specific basis:</p>
+
+<dl>
+<dt><a name="TRUE"
+><code  class="code">TRUE</code>
+<dt><a name="FALSE"
+><code  class="code">FALSE</code></a></dt>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p><a href="../../Bugzilla/DB.html" class="podlinkpod"
+>Bugzilla::DB</a></p>
+
+<p><a href="http://www.bugzilla.org/docs/developer.html#sql-schema" class="podlinkurl"
+>http://www.bugzilla.org/docs/developer.html#sql-schema</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

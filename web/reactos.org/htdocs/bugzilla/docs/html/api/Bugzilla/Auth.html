@@ -1,0 +1,394 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Auth</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Auth</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#AUTHENTICATION_ERROR_CODES'>AUTHENTICATION ERROR CODES</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#AUTH_NODATA'>AUTH_NODATA</a>
+    <li class='indexItem indexItem2'><a href='#AUTH_ERROR'>AUTH_ERROR</a>
+    <li class='indexItem indexItem2'><a href='#AUTH_LOGINFAILED'>AUTH_LOGINFAILED</a>
+    <li class='indexItem indexItem2'><a href='#AUTH_NO_SUCH_USER'>AUTH_NO_SUCH_USER</a>
+    <li class='indexItem indexItem2'><a href='#AUTH_DISABLED'>AUTH_DISABLED</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#LOGIN_TYPES'>LOGIN TYPES</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#LOGIN_OPTIONAL'>LOGIN_OPTIONAL</a>
+    <li class='indexItem indexItem2'><a href='#LOGIN_NORMAL'>LOGIN_NORMAL</a>
+    <li class='indexItem indexItem2'><a href='#LOGIN_REQUIRED'>LOGIN_REQUIRED</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Login'>Login</a>
+    <li class='indexItem indexItem2'><a href='#Info_Methods'>Info Methods</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#STRUCTURE'>STRUCTURE</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#The_Info_Getter'>The Info Getter</a>
+    <li class='indexItem indexItem2'><a href='#The_Verifier'>The Verifier</a>
+    <li class='indexItem indexItem2'><a href='#The_Persistence_Mechanism'>The Persistence Mechanism</a>
+    <li class='indexItem indexItem2'><a href='#Other_Things_We_Do'>Other Things We Do</a>
+    <li class='indexItem indexItem2'><a href='#The_%24login_data_Hash'>The $login_data Hash</a>
+  </ul>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Auth - An object that authenticates the login credentials for a user.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Handles authentication for Bugzilla users.</p>
+
+<p>Authentication from Bugzilla involves two sets of modules.
+One set is used to obtain the username/password (from CGI,
+email,
+etc),
+and the other set uses this data to authenticate against the datasource (the Bugzilla DB,
+LDAP,
+PAM,
+etc.).</p>
+
+<p>Modules for obtaining the username/password are subclasses of <a href="../Bugzilla/Auth/Login.html" class="podlinkpod"
+>Bugzilla::Auth::Login</a>,
+and modules for authenticating are subclasses of <a href="../Bugzilla/Auth/Verify.html" class="podlinkpod"
+>Bugzilla::Auth::Verify</a>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="AUTHENTICATION_ERROR_CODES"
+>AUTHENTICATION ERROR CODES</a></h1>
+
+<p>Whenever a method in the <code  class="code">Bugzilla::Auth</code> family fails in some way,
+it will return a hashref containing at least a single key called <code  class="code">failure</code>.
+<code  class="code">failure</code> will point to an integer error code,
+and depending on the error code the hashref may contain more data.</p>
+
+<p>The error codes are explained here below.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="AUTH_NODATA"
+><code  class="code">AUTH_NODATA</code></a></h2>
+
+<p>Insufficient login data was provided by the user.
+This may happen in several cases,
+such as cookie authentication when the cookie is not present.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="AUTH_ERROR"
+><code  class="code">AUTH_ERROR</code></a></h2>
+
+<p>An error occurred when trying to use the login mechanism.</p>
+
+<p>The hashref will also contain an <code  class="code">error</code> element,
+which is the name of an error from <code  class="code">template/en/default/global/code-error.html</code> -- the same type of error that would be thrown by <a href="../Bugzilla/Error/ThrowCodeError.html" class="podlinkpod"
+>Bugzilla::Error::ThrowCodeError</a>.</p>
+
+<p>The hashref *may* contain an element called <code  class="code">details</code>,
+which is a hashref that should be passed to <a href="../Bugzilla/Error/ThrowCodeError.html" class="podlinkpod"
+>Bugzilla::Error::ThrowCodeError</a> as the various fields to be used in the error message.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="AUTH_LOGINFAILED"
+><code  class="code">AUTH_LOGINFAILED</code></a></h2>
+
+<p>An incorrect username or password was given.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="AUTH_NO_SUCH_USER"
+><code  class="code">AUTH_NO_SUCH_USER</code></a></h2>
+
+<p>This is an optional more-specific version of <code  class="code">AUTH_LOGINFAILED</code>.
+Modules should throw this error when they discover that the requested user account actually does not exist,
+according to them.</p>
+
+<p>That is,
+for example,
+<a href="../Bugzilla/Auth/Verify/LDAP.html" class="podlinkpod"
+>Bugzilla::Auth::Verify::LDAP</a> would throw this if the user didn&#39;t exist in LDAP.</p>
+
+<p>The difference between <code  class="code">AUTH_NO_SUCH_USER</code> and <code  class="code">AUTH_LOGINFAILED</code> should never be communicated to the user,
+for security reasons.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="AUTH_DISABLED"
+><code  class="code">AUTH_DISABLED</code></a></h2>
+
+<p>The user successfully logged in,
+but their account has been disabled.
+Usually this is throw only by <code  class="code">Bugzilla::Auth::login</code>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="LOGIN_TYPES"
+>LOGIN TYPES</a></h1>
+
+<p>The <code  class="code">login</code> function (below) can do different types of login,
+depending on what constant you pass into it:</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="LOGIN_OPTIONAL"
+><code  class="code">LOGIN_OPTIONAL</code></a></h2>
+
+<p>A login is never required to access this data.
+Attempting to login is still useful,
+because this allows the page to be personalised.
+Note that an incorrect login will still trigger an error,
+even though the lack of a login will be OK.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="LOGIN_NORMAL"
+><code  class="code">LOGIN_NORMAL</code></a></h2>
+
+<p>A login may or may not be required,
+depending on the setting of the <i>requirelogin</i> parameter.
+This is the default if you don&#39;t specify a type.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="LOGIN_REQUIRED"
+><code  class="code">LOGIN_REQUIRED</code></a></h2>
+
+<p>A login is always required to access this data.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<p>These are methods that can be called on a <code  class="code">Bugzilla::Auth</code> object itself.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Login"
+>Login</a></h2>
+
+<dl>
+<dt><a name="login($type)"
+><code  class="code">login($type)</code></a></dt>
+
+<dd>
+<p>Description: Logs a user in.
+For more details on how this works internally,
+see the section entitled &#34;STRUCTURE.&#34; Params: $type - One of the Login Types from above.
+Returns: An authenticated <code  class="code">Bugzilla::User</code>.
+Or,
+if the type was not <code  class="code">LOGIN_REQUIRED</code>,
+then we return an empty <code  class="code">Bugzilla::User</code> if no login data was passed in.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Info_Methods"
+>Info Methods</a></h2>
+
+<p>These are methods that give information about the Bugzilla::Auth object.</p>
+
+<dl>
+<dt><a name="can_change_password"
+><code  class="code">can_change_password</code></a></dt>
+
+<dd>
+<p>Description: Tells you whether or not the current login system allows changing passwords.
+Params: None Returns: <code  class="code">true</code> if users and administrators should be allowed to change passwords,
+<code  class="code">false</code> otherwise.</p>
+
+<dt><a name="can_login"
+><code  class="code">can_login</code></a></dt>
+
+<dd>
+<p>Description: Tells you whether or not the current login system allows users to log in through the web interface.
+Params: None Returns: <code  class="code">true</code> if users can log in through the web interface,
+<code  class="code">false</code> otherwise.</p>
+
+<dt><a name="can_logout"
+><code  class="code">can_logout</code></a></dt>
+
+<dd>
+<p>Description: Tells you whether or not the current login system allows users to log themselves out.
+Params: None Returns: <code  class="code">true</code> if users can log themselves out,
+<code  class="code">false</code> otherwise.
+If a user isn&#39;t logged in,
+we always return <code  class="code">false</code>.</p>
+
+<dt><a name="user_can_create_account"
+><code  class="code">user_can_create_account</code></a></dt>
+
+<dd>
+<p>Description: Tells you whether or not users are allowed to manually create their own accounts,
+based on the current login system in use.
+Note that this doesn&#39;t check the <code  class="code">createemailregexp</code> parameter--you have to do that by yourself in your code.
+Params: None Returns: <code  class="code">true</code> if users are allowed to create new Bugzilla accounts,
+<code  class="code">false</code> otherwise.</p>
+
+<dt><a name="can_change_email"
+><code  class="code">can_change_email</code></a></dt>
+
+<dd>
+<p>Description: Whether or not the current login system allows users to change their own email address.
+Params: None Returns: <code  class="code">true</code> if users can change their own email address,
+<code  class="code">false</code> otherwise.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="STRUCTURE"
+>STRUCTURE</a></h1>
+
+<p>This section is mostly interesting to developers who want to implement a new authentication type.
+It describes the general structure of the Bugzilla::Auth family,
+and how the <code  class="code">login</code> function works.</p>
+
+<p>A <code  class="code">Bugzilla::Auth</code> object is essentially a collection of a few other objects: the &#34;Info Getter,&#34; the &#34;Verifier,&#34; and the &#34;Persistence Mechanism.&#34;</p>
+
+<p>They are used inside the <code  class="code">login</code> function in the following order:</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_Info_Getter"
+>The Info Getter</a></h2>
+
+<p>This is a <code  class="code">Bugzilla::Auth::Login</code> object.
+Basically,
+it gets the username and password from the user,
+somehow.
+Or,
+it just gets enough information to uniquely identify a user,
+and passes that on down the line.
+(For example,
+a <code  class="code">user_id</code> is enough to uniquely identify a user,
+even without a username and password.)</p>
+
+<p>Some Info Getters don&#39;t require any verification.
+For example,
+if we got the <code  class="code">user_id</code> from a Cookie,
+we don&#39;t need to check the username and password.</p>
+
+<p>If an Info Getter returns only a <code  class="code">user_id</code> and no username/password,
+then it MUST NOT require verification.
+If an Info Getter requires verfication,
+then it MUST return at least a <code  class="code">username</code>.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_Verifier"
+>The Verifier</a></h2>
+
+<p>This verifies that the username and password are valid.</p>
+
+<p>It&#39;s possible that some methods of verification don&#39;t require a password.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_Persistence_Mechanism"
+>The Persistence Mechanism</a></h2>
+
+<p>This makes it so that the user doesn&#39;t have to log in on every page.
+Normally this object just sends a cookie to the user&#39;s web browser,
+as that&#39;s the most common method of &#34;login persistence.&#34;</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Other_Things_We_Do"
+>Other Things We Do</a></h2>
+
+<p>After we verify the username and password,
+sometimes we automatically create an account in the Bugzilla database,
+for certain authentication types.
+We use the &#34;Account Source&#34; to get data about the user,
+and create them in the database.
+(Or,
+if their data has changed since the last time they logged in,
+their data gets updated.)</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="The_$login_data_Hash"
+>The <code  class="code">$login_data</code> Hash</a></h2>
+
+<p>All of the <code  class="code">Bugzilla::Auth::Login</code> and <code  class="code">Bugzilla::Auth::Verify</code> methods take an argument called <code  class="code">$login_data</code>.
+This is basically a hash that becomes more and more populated as we go through the <code  class="code">login</code> function.</p>
+
+<p>All <code  class="code">Bugzilla::Auth::Login</code> and <code  class="code">Bugzilla::Auth::Verify</code> methods also *return* the <code  class="code">$login_data</code> structure,
+when they succeed.
+They may have added new data to it.</p>
+
+<p>For all <code  class="code">Bugzilla::Auth::Login</code> and <code  class="code">Bugzilla::Auth::Verify</code> methods,
+the rule is &#34;you must return the same hashref you were passed in.&#34; You can modify the hashref all you want,
+but you can&#39;t create a new one.
+The only time you can return a new one is if you&#39;re returning some error code instead of the <code  class="code">$login_data</code> structure.</p>
+
+<p>Each <code  class="code">Bugzilla::Auth::Login</code> or <code  class="code">Bugzilla::Auth::Verify</code> method explains in its documentation which <code  class="code">$login_data</code> elements are required by it,
+and which are set by it.</p>
+
+<p>Here are all of the elements that *may* be in <code  class="code">$login_data</code>:</p>
+
+<dl>
+<dt><a name="user_id"
+><code  class="code">user_id</code></a></dt>
+
+<dd>
+<p>A Bugzilla <code  class="code">user_id</code> that uniquely identifies a user.</p>
+
+<dt><a name="username"
+><code  class="code">username</code></a></dt>
+
+<dd>
+<p>The username that was provided by the user.</p>
+
+<dt><a name="bz_username"
+><code  class="code">bz_username</code></a></dt>
+
+<dd>
+<p>The username of this user inside of Bugzilla.
+Sometimes this differs from <code  class="code">username</code>.</p>
+
+<dt><a name="password"
+><code  class="code">password</code></a></dt>
+
+<dd>
+<p>The password provided by the user.</p>
+
+<dt><a name="realname"
+><code  class="code">realname</code></a></dt>
+
+<dd>
+<p>The real name of the user.</p>
+
+<dt><a name="extern_id"
+><code  class="code">extern_id</code></a></dt>
+
+<dd>
+<p>Some string that uniquely identifies the user in an external account source.
+If this <code  class="code">extern_id</code> already exists in the database with a different username,
+the username will be *changed* to be the username specified in this <code  class="code">$login_data</code>.</p>
+
+<p>That is,
+let&#39;s my extern_id is <code  class="code">mkanat</code>.
+I already have an account in Bugzilla with the username of <code  class="code">mkanat@foo.com</code>.
+But this time,
+when I log in,
+I have an extern_id of <code  class="code">mkanat</code> and a <code  class="code">username</code> of <code  class="code">mkanat@bar.org</code>.
+So now,
+Bugzilla will automatically change my username to <code  class="code">mkanat@bar.org</code> instead of <code  class="code">mkanat@foo.com</code>.</p>
+
+<dt><a name="user"
+><code  class="code">user</code></a></dt>
+
+<dd>
+<p>A <a href="../Bugzilla/User.html" class="podlinkpod"
+>Bugzilla::User</a> object representing the authenticated user.
+Note that <code  class="code">Bugzilla::Auth::login</code> may modify this object at various points.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

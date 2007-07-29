@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::CGI</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::CGI</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CHANGES_FROM_CGI.PM'>CHANGES FROM CGI.PM</a>
+  <li class='indexItem indexItem1'><a href='#ADDITIONAL_FUNCTIONS'>ADDITIONAL FUNCTIONS</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::CGI - CGI handling for Bugzilla</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code">  use Bugzilla::CGI;
+
+  my $cgi = new Bugzilla::CGI();</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This package inherits from the standard CGI module, to provide additional Bugzilla-specific functionality. In general, see <a href="../CGI.html" class="podlinkpod"
+>the CGI.pm docs</a> for documention.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CHANGES_FROM_CGI.PM"
+>CHANGES FROM <a href="../CGI.html" class="podlinkpod"
+>CGI.PM</a></a></h1>
+
+<p>Bugzilla::CGI has some differences from <a href="../CGI.html" class="podlinkpod"
+>CGI.pm</a>.</p>
+
+<dl>
+<dt><a name="cgi_error_is_automatically_checked"
+><code  class="code">cgi_error</code> is automatically checked</a></dt>
+
+<dd>
+<p>After creating the CGI object, <code  class="code">Bugzilla::CGI</code> automatically checks <i>cgi_error</i>, and throws a CodeError if a problem is detected.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="ADDITIONAL_FUNCTIONS"
+>ADDITIONAL FUNCTIONS</a></h1>
+
+<p><i>Bugzilla::CGI</i> also includes additional functions.</p>
+
+<dl>
+<dt><a name="canonicalise_query(@exclude)"
+><code  class="code">canonicalise_query(@exclude)</code></a></dt>
+
+<dd>
+<p>This returns a sorted string of the parameters, suitable for use in a url. Values in <code  class="code">@exclude</code> are not included in the result.</p>
+
+<dt><a name="send_cookie"
+><code  class="code">send_cookie</code></a></dt>
+
+<dd>
+<p>This routine is identical to the cookie generation part of CGI.pm&#39;s <code  class="code">cookie</code> routine, except that it knows about Bugzilla&#39;s cookie_path and cookie_domain parameters and takes them into account if necessary. This should be used by all Bugzilla code (instead of <code  class="code">cookie</code> or the <code  class="code">-cookie</code> argument to <code  class="code">header</code>), so that under mod_perl the headers can be sent correctly, using <code  class="code">print</code> or the mod_perl APIs as appropriate.</p>
+
+<p>To remove (expire) a cookie, use <code  class="code">remove_cookie</code>.</p>
+
+<dt><a name="remove_cookie"
+><code  class="code">remove_cookie</code></a></dt>
+
+<dd>
+<p>This is a wrapper around send_cookie, setting an expiry date in the past, effectively removing the cookie.</p>
+
+<p>As its only argument, it takes the name of the cookie to expire.</p>
+
+<dt><a name="require_https($baseurl)"
+><code  class="code">require_https($baseurl)</code></a></dt>
+
+<dd>
+<p>This routine checks if the current page is being served over https, and redirects to the https protocol if required, retaining QUERY_STRING.</p>
+
+<p>It takes an option argument which will be used as the base URL. If $baseurl is not provided, the current URL is used.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p><a href="../CGI.html" class="podlinkpod"
+>CGI</a>, <a href="../CGI/Cookie.html" class="podlinkpod"
+>CGI::Cookie</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

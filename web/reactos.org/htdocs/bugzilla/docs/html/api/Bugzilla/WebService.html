@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::WebService</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::WebService</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#STABLE%2C_EXPERIMENTAL%2C_and_UNSTABLE'>STABLE, EXPERIMENTAL, and UNSTABLE</a>
+  <li class='indexItem indexItem1'><a href='#ERRORS'>ERRORS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Transient_vs._Fatal_Errors'>Transient vs. Fatal Errors</a>
+    <li class='indexItem indexItem2'><a href='#Unknown_Errors'>Unknown Errors</a>
+  </ul>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::WebService - The Web Service interface to Bugzilla</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This is the standard API for external programs that want to interact with Bugzilla.
+It provides various methods in various modules.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="STABLE,_EXPERIMENTAL,_and_UNSTABLE"
+>STABLE,
+EXPERIMENTAL,
+and UNSTABLE</a></h1>
+
+<p>Methods are marked <b>STABLE</b> if you can expect their parameters and return values not to change between versions of Bugzilla.
+You are best off always using methods marked <b>STABLE</b>.
+We may add parameters and additional items to the return values,
+but your old code will always continue to work with any new changes we make.
+If we ever break a <b>STABLE</b> interface,
+we&#39;ll post a big notice in the Release Notes,
+and it will only happen during a major new release.</p>
+
+<p>Methods (or parts of methods) are marked <b>EXPERIMENTAL</b> if we <i>believe</i> they will be stable,
+but there&#39;s a slight chance that small parts will change in the future.</p>
+
+<p>Certain parts of a method&#39;s description may be marked as <b>UNSTABLE</b>,
+in which case those parts are not guaranteed to stay the same between Bugzilla versions.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="ERRORS"
+>ERRORS</a></h1>
+
+<p>If a particular webservice call fails,
+it will throw a standard XML-RPC error.
+There will be a numeric error code,
+and then the description field will contain descriptive text of the error.
+Each error that Bugzilla can throw has a specific code that will not change between versions of Bugzilla.</p>
+
+<p>The various errors that functions can throw are specified by the documentation of those functions.</p>
+
+<p>If your code needs to know what error Bugzilla threw,
+use the numeric code.
+Don&#39;t try to parse the description,
+because that may change from version to version of Bugzilla.</p>
+
+<p>Note that if you display the error to the user in an HTML program,
+make sure that you properly escape the error,
+as it will not be HTML-escaped.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Transient_vs._Fatal_Errors"
+>Transient vs.
+Fatal Errors</a></h2>
+
+<p>If the error code is a number greater than 0,
+the error is considered &#34;transient,&#34; which means that it was an error made by the user,
+not some problem with Bugzilla itself.</p>
+
+<p>If the error code is a number less than 0,
+the error is &#34;fatal,&#34; which means that it&#39;s some error in Bugzilla itself that probably requires administrative attention.</p>
+
+<p>Negative numbers and positive numbers don&#39;t overlap.
+That is,
+if there&#39;s an error 302,
+there won&#39;t be an error -302.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Unknown_Errors"
+>Unknown Errors</a></h2>
+
+<p>Sometimes a function will throw an error that doesn&#39;t have a specific error code.
+In this case,
+the code will be <code  class="code">-32000</code> if it&#39;s a &#34;fatal&#34; error,
+and <code  class="code">32000</code> if it&#39;s a &#34;transient&#34; error.</p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

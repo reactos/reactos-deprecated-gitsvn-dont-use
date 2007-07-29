@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Auth::Verify</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Auth::Verify</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#VERIFICATION_METHODS'>VERIFICATION METHODS</a>
+  <li class='indexItem indexItem1'><a href='#MODIFICATION_METHODS'>MODIFICATION METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INFO_METHODS'>INFO METHODS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Auth::Verify - An object that verifies usernames and passwords.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Bugzilla::Auth::Verify provides the &#34;Verifier&#34; part of the Bugzilla login process.
+(For details,
+see the &#34;STRUCTURE&#34; section of <a href="../../Bugzilla/Auth.html" class="podlinkpod"
+>Bugzilla::Auth</a>.)</p>
+
+<p>It is mostly an abstract class,
+requiring subclasses to implement most methods.</p>
+
+<p>Note that callers outside of the <code  class="code">Bugzilla::Auth</code> package should never create this object directly.
+Just create a <code  class="code">Bugzilla::Auth</code> object and call <code  class="code">login</code> on it.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="VERIFICATION_METHODS"
+>VERIFICATION METHODS</a></h1>
+
+<p>These are the methods that have to do with the actual verification.</p>
+
+<p>Subclasses MUST implement these methods.</p>
+
+<dl>
+<dt><a name="check_credentials($login_data)"
+><code  class="code">check_credentials($login_data)</code></a></dt>
+
+<dd>
+<p>Description: Checks whether or not a username is valid.
+Params: $login_data - A <code  class="code">$login_data</code> hashref,
+as described in <a href="../../Bugzilla/Auth.html" class="podlinkpod"
+>Bugzilla::Auth</a>.
+This <code  class="code">$login_data</code> hashref MUST contain <code  class="code">username</code>,
+and SHOULD also contain <code  class="code">password</code>.
+Returns: A <code  class="code">$login_data</code> hashref with <code  class="code">bz_username</code> set.
+This method may also set <code  class="code">realname</code>.
+It must avoid changing anything that is already set.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="MODIFICATION_METHODS"
+>MODIFICATION METHODS</a></h1>
+
+<p>These are methods that change data in the actual authentication backend.</p>
+
+<p>These methods are optional,
+they do not have to be implemented by subclasses.</p>
+
+<dl>
+<dt><a name="create_or_update_user($login_data)"
+><code  class="code">create_or_update_user($login_data)</code></a></dt>
+
+<dd>
+<p>Description: Automatically creates a user account in the database if it doesn&#39;t already exist,
+or updates the account data if <code  class="code">$login_data</code> contains newer information.</p>
+
+<p>Params: $login_data - A <code  class="code">$login_data</code> hashref,
+as described in <a href="../../Bugzilla/Auth.html" class="podlinkpod"
+>Bugzilla::Auth</a>.
+This <code  class="code">$login_data</code> hashref MUST contain either <code  class="code">user_id</code>,
+<code  class="code">bz_username</code>,
+or <code  class="code">username</code>.
+If both <code  class="code">username</code> and <code  class="code">bz_username</code> are specified,
+<code  class="code">bz_username</code> is used as the login name of the user to create in the database.
+It MAY also contain <code  class="code">extern_id</code>,
+in which case it still MUST contain <code  class="code">bz_username</code> or <code  class="code">username</code>.
+It MAY contain <code  class="code">password</code> and <code  class="code">realname</code>.</p>
+
+<p>Returns: A hashref with one element,
+<code  class="code">user</code>,
+which is a <a href="../../Bugzilla/User.html" class="podlinkpod"
+>Bugzilla::User</a> object.
+May also return a login error as described in <a href="../../Bugzilla/Auth.html" class="podlinkpod"
+>Bugzilla::Auth</a>.</p>
+
+<p>Note: This method is not abstract,
+it is actually implemented and creates accounts in the Bugzilla database.
+Subclasses should probably all call the <code  class="code">Bugzilla::Auth::Verify</code> version of this function at the end of their own <code  class="code">create_or_update_user</code>.</p>
+
+<dt><a name="change_password($user,_$password)"
+><code  class="code">change_password($user,
+$password)</code></a></dt>
+
+<dd>
+<p>Description: Modifies the user&#39;s password in the authentication backend.
+Params: $user - A <a href="../../Bugzilla/User.html" class="podlinkpod"
+>Bugzilla::User</a> object representing the user whose password we want to change.
+$password - The user&#39;s new password.
+Returns: Nothing.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INFO_METHODS"
+>INFO METHODS</a></h1>
+
+<p>These are methods that describe the capabilities of this object.
+These are all no-parameter methods that return either <code  class="code">true</code> or <code  class="code">false</code>.</p>
+
+<dl>
+<dt><a name="user_can_create_account"
+><code  class="code">user_can_create_account</code></a></dt>
+
+<dd>
+<p>Whether or not users can manually create accounts in this type of account source.
+Defaults to <code  class="code">true</code>.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Product</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Product</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <li class='indexItem indexItem1'><a href='#SUBROUTINES'>SUBROUTINES</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Product - Bugzilla product class.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code">    use Bugzilla::Product;
+
+    my $product = new Bugzilla::Product(1);
+    my $product = new Bugzilla::Product({ name =&#62; &#39;AcmeProduct&#39; });
+
+    my @components      = $product-&#62;components();
+    my $groups_controls = $product-&#62;group_controls();
+    my @milestones      = $product-&#62;milestones();
+    my @versions        = $product-&#62;versions();
+    my $bugcount        = $product-&#62;bug_count();
+    my $bug_ids         = $product-&#62;bug_ids();
+    my $has_access      = $product-&#62;user_has_access($user);
+    my $flag_types      = $product-&#62;flag_types();
+
+    my $id               = $product-&#62;id;
+    my $name             = $product-&#62;name;
+    my $description      = $product-&#62;description;
+    my $milestoneurl     = $product-&#62;milestone_url;
+    my disallownew       = $product-&#62;disallow_new;
+    my votesperuser      = $product-&#62;votes_per_user;
+    my maxvotesperbug    = $product-&#62;max_votes_per_bug;
+    my votestoconfirm    = $product-&#62;votes_to_confirm;
+    my $defaultmilestone = $product-&#62;default_milestone;
+    my $classificationid = $product-&#62;classification_id;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Product.pm represents a product object. It is an implementation of <a href="../Bugzilla/Object.html" class="podlinkpod"
+>Bugzilla::Object</a>, and thus provides all methods that <a href="../Bugzilla/Object.html" class="podlinkpod"
+>Bugzilla::Object</a> provides.</p>
+
+<p>The methods that are specific to <code  class="code">Bugzilla::Product</code> are listed below.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<dl>
+<dt><a name="components()"
+><code  class="code">components()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns an array of component objects belonging to
+              the product.
+
+ Params:      none.
+
+ Returns:     An array of Bugzilla::Component object.</pre>
+
+<dt><a name="group_controls()"
+><code  class="code">group_controls()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns a hash (group id as key) with all product
+              group controls.
+
+ Params:      none.
+
+ Returns:     A hash with group id as key and hash containing 
+              a Bugzilla::Group object and the properties of group
+              relative to the product.</pre>
+
+<dt><a name="versions()"
+><code  class="code">versions()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns all valid versions for that product.
+
+ Params:      none.
+
+ Returns:     An array of Bugzilla::Version objects.</pre>
+
+<dt><a name="milestones()"
+><code  class="code">milestones()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns all valid milestones for that product.
+
+ Params:      none.
+
+ Returns:     An array of Bugzilla::Milestone objects.</pre>
+
+<dt><a name="bug_count()"
+><code  class="code">bug_count()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns the total of bugs that belong to the product.
+
+ Params:      none.
+
+ Returns:     Integer with the number of bugs.</pre>
+
+<dt><a name="bug_ids()"
+><code  class="code">bug_ids()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns the IDs of bugs that belong to the product.
+
+ Params:      none.
+
+ Returns:     An array of integer.</pre>
+
+<dt><a name="user_has_access()"
+><code  class="code">user_has_access()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Tells you whether or not the user is allowed to enter
+              bugs into this product, based on the C&#60;entry&#62; group
+              control. To see whether or not a user can actually
+              enter a bug into a product, use C&#60;$user-&#38;gt;can_enter_product&#62;.
+
+ Params:      C&#60;$user&#62; - A Bugzilla::User object.
+
+ Returns      C&#60;1&#62; If this user&#39;s groups allow him C&#60;entry&#62; access to
+              this Product, C&#60;0&#62; otherwise.</pre>
+
+<dt><a name="flag_types()"
+><code  class="code">flag_types()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns flag types available for at least one of
+              its components.
+
+ Params:      none.
+
+ Returns:     Two references to an array of flagtype objects.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SUBROUTINES"
+>SUBROUTINES</a></h1>
+
+<dl>
+<dt><a name="check_product($product_name)"
+><code  class="code">check_product($product_name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Checks if the product name was passed in and if is a valid
+              product.
+
+ Params:      $product_name - String with a product name.
+
+ Returns:     Bugzilla::Product object.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<p><a href="../Bugzilla/Object.html" class="podlinkpod"
+>Bugzilla::Object</a></p>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

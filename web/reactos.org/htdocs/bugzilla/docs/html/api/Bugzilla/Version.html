@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Version</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Version</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <li class='indexItem indexItem1'><a href='#SUBROUTINES'>SUBROUTINES</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Version - Bugzilla product version class.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code">    use Bugzilla::Version;
+
+    my $version = new Bugzilla::Version(1, &#39;version_value&#39;);
+
+    my $product_id = $version-&#62;product_id;
+    my $value = $version-&#62;value;
+
+    $version-&#62;remove_from_db;
+
+    my $updated = $version-&#62;update($version_name, $product);
+
+    my $version = $hash_ref-&#62;{&#39;version_value&#39;};
+
+    my $version = Bugzilla::Version::check_version($product_obj,
+                                                   &#39;acme_version&#39;);
+
+    my $version = Bugzilla::Version::create($version_name, $product);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Version.pm represents a Product Version object.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<dl>
+<dt><a name="new($product_id,_$value)"
+><code  class="code">new($product_id, $value)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: The constructor is used to load an existing version
+              by passing a product id and a version value.
+
+ Params:      $product_id - Integer with a product id.
+              $value - String with a version value.
+
+ Returns:     A Bugzilla::Version object.</pre>
+
+<dt><a name="bug_count()"
+><code  class="code">bug_count()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns the total of bugs that belong to the version.
+
+ Params:      none.
+
+ Returns:     Integer with the number of bugs.</pre>
+
+<dt><a name="remove_from_db()"
+><code  class="code">remove_from_db()</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Removes the version from the database.
+
+ Params:      none.
+
+ Retruns:     none.</pre>
+
+<dt><a name="update($name,_$product)"
+><code  class="code">update($name, $product)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Update the value of the version.
+
+ Params:      $name - String with the new version value.
+              $product - Bugzilla::Product object the version belongs to.
+
+ Returns:     An integer - 1 if the version has been updated, else 0.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SUBROUTINES"
+>SUBROUTINES</a></h1>
+
+<dl>
+<dt><a name="check_version($product,_$version_name)"
+><code  class="code">check_version($product, $version_name)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Checks if the version name exists for the product name.
+
+ Params:      $product - A Bugzilla::Product object.
+              $version_name - String with a version name.
+
+ Returns:     Bugzilla::Version object.</pre>
+
+<dt><a name="create($version_name,_$product)"
+><code  class="code">create($version_name, $product)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Create a new version for the given product.
+
+ Params:      $version_name - String with a version value.
+              $product - A Bugzilla::Product object.
+
+ Returns:     A Bugzilla::Version object.</pre>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

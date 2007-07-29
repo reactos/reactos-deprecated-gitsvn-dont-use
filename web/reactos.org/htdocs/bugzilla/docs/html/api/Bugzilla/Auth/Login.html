@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Auth::Login</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Auth::Login</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#LOGIN_METHODS'>LOGIN METHODS</a>
+  <li class='indexItem indexItem1'><a href='#INFO_METHODS'>INFO METHODS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Auth::Login - Gets username/password data from the user.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Bugzilla::Auth::Login is used to get information that uniquely identifies a user and allows us to authorize their Bugzilla access.</p>
+
+<p>It is mostly an abstract class,
+requiring subclasses to implement most methods.</p>
+
+<p>Note that callers outside of the <code  class="code">Bugzilla::Auth</code> package should never create this object directly.
+Just create a <code  class="code">Bugzilla::Auth</code> object and call <code  class="code">login</code> on it.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="LOGIN_METHODS"
+>LOGIN METHODS</a></h1>
+
+<p>These are methods that have to do with getting the actual login data from the user or handling a login somehow.</p>
+
+<p>These methods are abstract -- they MUST be implemented by a subclass.</p>
+
+<dl>
+<dt><a name="get_login_info()"
+><code  class="code">get_login_info()</code></a></dt>
+
+<dd>
+<p>Description: Gets a username/password from the user,
+or some other information that uniquely identifies them.
+Params: None Returns: A <code  class="code">$login_data</code> hashref.
+(See <a href="../../Bugzilla/Auth.html" class="podlinkpod"
+>Bugzilla::Auth</a> for details.) The hashref MUST contain: <code  class="code">user_id</code> *or* <code  class="code">username</code> If this is a login method that requires verification,
+the hashref MUST contain <code  class="code">password</code>.
+The hashref MAY contain <code  class="code">realname</code> and <code  class="code">extern_id</code>.</p>
+
+<dt><a name="fail_nodata()"
+><code  class="code">fail_nodata()</code></a></dt>
+
+<dd>
+<p>Description: This function is called when Bugzilla doesn&#39;t get a username/password and the login type is <code  class="code">LOGIN_REQUIRED</code> (See <a href="../../Bugzilla/Auth.html" class="podlinkpod"
+>Bugzilla::Auth</a> for a description of <code  class="code">LOGIN_REQUIRED</code>).
+That is,
+this handles <code  class="code">AUTH_NODATA</code> in that situation.</p>
+
+<pre  class="code">             This function MUST stop CGI execution when it is complete.
+             That is, it must call C&#60;exit&#62; or C&#60;ThrowUserError&#62; or some
+             such thing.
+Params:      None
+Returns:     Never Returns.</pre>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="INFO_METHODS"
+>INFO METHODS</a></h1>
+
+<p>These are methods that describe the capabilities of this <code  class="code">Bugzilla::Auth::Login</code> object. These are all no-parameter methods that return either <code  class="code">true</code> or <code  class="code">false</code>.</p>
+
+<dl>
+<dt><a name="can_logout"
+><code  class="code">can_logout</code></a></dt>
+
+<dd>
+<p>Whether or not users can log out if they logged in using this object. Defaults to <code  class="code">true</code>.</p>
+
+<dt><a name="can_login"
+><code  class="code">can_login</code></a></dt>
+
+<dd>
+<p>Whether or not users can log in through the web interface using this object. Defaults to <code  class="code">true</code>.</p>
+
+<dt><a name="requires_persistence"
+><code  class="code">requires_persistence</code></a></dt>
+
+<dd>
+<p>Whether or not we should send the user a cookie if they logged in with this method. Defaults to <code  class="code">true</code>.</p>
+
+<dt><a name="requires_verification"
+><code  class="code">requires_verification</code></a></dt>
+
+<dd>
+<p>Whether or not we should check the username/password that we got from this login method. Defaults to <code  class="code">true</code>.</p>
+
+<dt><a name="user_can_create_account"
+><code  class="code">user_can_create_account</code></a></dt>
+
+<dd>
+<p>Whether or not users can create accounts, if this login method is currently being used by the system. Defaults to <code  class="code">false</code>.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>
