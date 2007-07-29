@@ -1,0 +1,421 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Util</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Util</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#FUNCTIONS'>FUNCTIONS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Tainting'>Tainting</a>
+    <li class='indexItem indexItem2'><a href='#Quoting'>Quoting</a>
+    <li class='indexItem indexItem2'><a href='#Environment_and_Location'>Environment and Location</a>
+    <li class='indexItem indexItem2'><a href='#Searching'>Searching</a>
+    <li class='indexItem indexItem2'><a href='#Data_Manipulation'>Data Manipulation</a>
+    <li class='indexItem indexItem2'><a href='#String_Manipulation'>String Manipulation</a>
+    <li class='indexItem indexItem2'><a href='#Formatting_Time'>Formatting Time</a>
+    <li class='indexItem indexItem2'><a href='#Files'>Files</a>
+    <li class='indexItem indexItem2'><a href='#Cryptography'>Cryptography</a>
+    <li class='indexItem indexItem2'><a href='#Validation'>Validation</a>
+  </ul>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Util - Generic utility functions for bugzilla</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code">  use Bugzilla::Util;
+
+  # Functions for dealing with variable tainting
+  $rv = is_tainted($var);
+  trick_taint($var);
+  detaint_natural($var);
+  detaint_signed($var);
+
+  # Functions for quoting
+  html_quote($var);
+  url_quote($var);
+  value_quote($var);
+  xml_quote($var);
+
+  # Functions for decoding
+  $rv = url_decode($var);
+
+  # Functions that tell you about your environment
+  my $is_cgi   = i_am_cgi();
+  my $net_addr = get_netaddr($ip_addr);
+  my $urlbase  = correct_urlbase();
+
+  # Functions for searching
+  $loc = lsearch(\@arr, $val);
+
+  # Data manipulation
+  ($removed, $added) = diff_arrays(\@old, \@new);
+
+  # Functions for manipulating strings
+  $val = trim(&#34; abc &#34;);
+  ($removed, $added) = diff_strings($old, $new);
+  $wrapped = wrap_comment($comment);
+  $msg = perform_substs($str, $substs);
+
+  # Functions for formatting time
+  format_time($time);
+
+  # Functions for dealing with files
+  $time = file_mod_time($filename);
+
+  # Cryptographic Functions
+  $crypted_password = bz_crypt($password);
+  $new_password = generate_random_password($password_length);
+
+  # Validation Functions
+  validate_email_syntax($email);
+  validate_date($date);</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This package contains various utility functions which do not belong anywhere else.</p>
+
+<p><b>It is not intended as a general dumping group for something which people feel might be useful somewhere, someday</b>. Do not add methods to this package unless it is intended to be used for a significant number of files, and it does not belong anywhere else.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="FUNCTIONS"
+>FUNCTIONS</a></h1>
+
+<p>This package provides several types of routines:</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Tainting"
+>Tainting</a></h2>
+
+<p>Several functions are available to deal with tainted variables. <b>Use these with care</b> to avoid security holes.</p>
+
+<dl>
+<dt><a name="is_tainted"
+><code  class="code">is_tainted</code></a></dt>
+
+<dd>
+<p>Determines whether a particular variable is tainted</p>
+
+<dt><a name="trick_taint($val)"
+><code  class="code">trick_taint($val)</code></a></dt>
+
+<dd>
+<p>Tricks perl into untainting a particular variable.</p>
+
+<p>Use trick_taint() when you know that there is no way that the data in a scalar can be tainted, but taint mode still bails on it.</p>
+
+<p><b>WARNING!! Using this routine on data that really could be tainted defeats the purpose of taint mode. It should only be used on variables that have been sanity checked in some way and have been determined to be OK.</b></p>
+
+<dt><a name="detaint_natural($num)"
+><code  class="code">detaint_natural($num)</code></a></dt>
+
+<dd>
+<p>This routine detaints a natural number. It returns a true value if the value passed in was a valid natural number, else it returns false. You <b>MUST</b> check the result of this routine to avoid security holes.</p>
+
+<dt><a name="detaint_signed($num)"
+><code  class="code">detaint_signed($num)</code></a></dt>
+
+<dd>
+<p>This routine detaints a signed integer. It returns a true value if the value passed in was a valid signed integer, else it returns false. You <b>MUST</b> check the result of this routine to avoid security holes.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Quoting"
+>Quoting</a></h2>
+
+<p>Some values may need to be quoted from perl. However, this should in general be done in the template where possible.</p>
+
+<dl>
+<dt><a name="html_quote($val)"
+><code  class="code">html_quote($val)</code></a></dt>
+
+<dd>
+<p>Returns a value quoted for use in HTML, with &#38;, &#60;, &#62;, and &#34; being replaced with their appropriate HTML entities.</p>
+
+<dt><a name="html_light_quote($val)"
+><code  class="code">html_light_quote($val)</code></a></dt>
+
+<dd>
+<p>Returns a string where only explicitly allowed HTML elements and attributes are kept. All HTML elements and attributes not being in the whitelist are either escaped (if HTML::Scrubber is not installed) or removed.</p>
+
+<dt><a name="url_quote($val)"
+><code  class="code">url_quote($val)</code></a></dt>
+
+<dd>
+<p>Quotes characters so that they may be included as part of a url.</p>
+
+<dt><a name="css_class_quote($val)"
+><code  class="code">css_class_quote($val)</code></a></dt>
+
+<dd>
+<p>Quotes characters so that they may be used as CSS class names. Spaces are replaced by underscores.</p>
+
+<dt><a name="value_quote($val)"
+><code  class="code">value_quote($val)</code></a></dt>
+
+<dd>
+<p>As well as escaping html like <code  class="code">html_quote</code>, this routine converts newlines into &#38;#013;, suitable for use in html attributes.</p>
+
+<dt><a name="xml_quote($val)"
+><code  class="code">xml_quote($val)</code></a></dt>
+
+<dd>
+<p>This is similar to <code  class="code">html_quote</code>, except that &#39; is escaped to &#38;apos;. This is kept separate from html_quote partly for compatibility with previous code (for &#38;apos;) and partly for future handling of non-ASCII characters.</p>
+
+<dt><a name="url_decode($val)"
+><code  class="code">url_decode($val)</code></a></dt>
+
+<dd>
+<p>Converts the %xx encoding from the given URL back to its original form.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Environment_and_Location"
+>Environment and Location</a></h2>
+
+<p>Functions returning information about your environment or location.</p>
+
+<dl>
+<dt><a name="i_am_cgi()"
+><code  class="code">i_am_cgi()</code></a></dt>
+
+<dd>
+<p>Tells you whether or not you are being run as a CGI script in a web server. For example, it would return false if the caller is running in a command-line script.</p>
+
+<dt><a name="get_netaddr($ipaddr)"
+><code  class="code">get_netaddr($ipaddr)</code></a></dt>
+
+<dd>
+<p>Given an IP address, this returns the associated network address, using <code  class="code">Bugzilla-</code>params-&#62;{&#39;loginnetmask&#39;}&#62; as the netmask. This can be used to obtain data in order to restrict weak authentication methods (such as cookies) to only some addresses.</p>
+
+<dt><a name="correct_urlbase()"
+><code  class="code">correct_urlbase()</code></a></dt>
+
+<dd>
+<p>Returns either the <code  class="code">sslbase</code> or <code  class="code">urlbase</code> parameter, depending on the current setting for the <code  class="code">ssl</code> parameter.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Searching"
+>Searching</a></h2>
+
+<p>Functions for searching within a set of values.</p>
+
+<dl>
+<dt><a name="lsearch($list,_$item)"
+><code  class="code">lsearch($list, $item)</code></a></dt>
+
+<dd>
+<p>Returns the position of <code  class="code">$item</code> in <code  class="code">$list</code>. <code  class="code">$list</code> must be a list reference.</p>
+
+<p>If the item is not in the list, returns -1.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Data_Manipulation"
+>Data Manipulation</a></h2>
+
+<dl>
+<dt><a name="diff_arrays(\@old,_\@new)"
+><code  class="code">diff_arrays(\@old, \@new)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Takes two arrayrefs, and will tell you what it takes to 
+              get from @old to @new.
+ Params:      @old = array that you are changing from
+              @new = array that you are changing to
+ Returns:     A list of two arrayrefs. The first is a reference to an 
+              array containing items that were removed from @old. The
+              second is a reference to an array containing items
+              that were added to @old. If both returned arrays are 
+              empty, @old and @new contain the same values.</pre>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="String_Manipulation"
+>String Manipulation</a></h2>
+
+<dl>
+<dt><a name="trim($str)"
+><code  class="code">trim($str)</code></a></dt>
+
+<dd>
+<p>Removes any leading or trailing whitespace from a string. This routine does not modify the existing string.</p>
+
+<dt><a name="diff_strings($oldstr,_$newstr)"
+><code  class="code">diff_strings($oldstr, $newstr)</code></a></dt>
+
+<dd>
+<p>Takes two strings containing a list of comma- or space-separated items and returns what items were removed from or added to the new one, compared to the old one. Returns a list, where the first entry is a scalar containing removed items, and the second entry is a scalar containing added items.</p>
+
+<dt><a name="wrap_comment($comment)"
+><code  class="code">wrap_comment($comment)</code></a></dt>
+
+<dd>
+<p>Takes a bug comment, and wraps it to the appropriate length. The length is currently specified in <code  class="code">Bugzilla::Constants::COMMENT_COLS</code>. Lines beginning with &#34;&#62;&#34; are assumed to be quotes, and they will not be wrapped.</p>
+
+<p>The intended use of this function is to wrap comments that are about to be displayed or emailed. Generally, wrapped text should not be stored in the database.</p>
+
+<dt><a name="find_wrap_point($string,_$maxpos)"
+><code  class="code">find_wrap_point($string, $maxpos)</code></a></dt>
+
+<dd>
+<p>Search for a comma, a whitespace or a hyphen to split $string, within the first $maxpos characters. If none of them is found, just split $string at $maxpos. The search starts at $maxpos and goes back to the beginning of the string.</p>
+
+<dt><a name="perform_substs($str,_$substs)"
+><code  class="code">perform_substs($str, $substs)</code></a></dt>
+
+<dd>
+<p>Performs substitutions for sending out email with variables in it, or for inserting a parameter into some other string.</p>
+
+<p>Takes a string and a reference to a hash containing substitution variables and their values.</p>
+
+<p>If the hash is not specified, or if we need to substitute something that&#39;s not in the hash, then we will use parameters to do the substitution instead.</p>
+
+<p>Substitutions are always enclosed with &#39;%&#39; symbols. So they look like: %some_variable_name%. If &#34;some_variable_name&#34; is a key in the hash, then its value will be placed into the string. If it&#39;s not a key in the hash, then the value of the parameter called &#34;some_variable_name&#34; will be placed into the string.</p>
+
+<dt><a name="is_7bit_clean($str)"
+><code  class="code">is_7bit_clean($str)</code></a></dt>
+
+<dd>
+<p>Returns true is the string contains only 7-bit characters (ASCII 32 through 126, ASCII 10 (LineFeed) and ASCII 13 (Carrage Return).</p>
+
+<dt><a 
+><code  class="code">clean_text($str)</code> Returns the parameter &#34;cleaned&#34; by exchanging non-printable characters with spaces. Specifically characters (ASCII 0 through 31) and (ASCII 127) will become ASCII 32 (Space).
+<dt><a name="get_text"
+><code  class="code">get_text</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>This is a method of getting localized strings within Bugzilla code. Use this when you don&#39;t want to display a whole template, you just want a particular string.</p>
+
+<p>It uses the <em  class="code">global/message.txt.tmpl</em> template to return a string.</p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="$message_-_The_identifier_for_the_message."
+><code  class="code">$message</code> - The identifier for the message.
+<dt><a name="$vars_-_A_hashref._Any_variables_you_want_to_pass_to_the_template."
+><code  class="code">$vars</code> - A hashref. Any variables you want to pass to the template.</a></dt>
+</dl>
+
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A string.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Formatting_Time"
+>Formatting Time</a></h2>
+
+<dl>
+<dt><a name="format_time($time)"
+><code  class="code">format_time($time)</code></a></dt>
+
+<dd>
+<p>Takes a time, converts it to the desired format and appends the timezone as defined in editparams.cgi, if desired. This routine will be expanded in the future to adjust for user preferences regarding what timezone to display times in.</p>
+
+<p>This routine is mainly called from templates to filter dates, see &#34;FILTER time&#34; in Templates.pm. In this case, $format is undefined and the routine has to &#34;guess&#34; the date format that was passed to $dbh-&#62;sql_date_format().</p>
+
+<dt><a name="format_time_decimal($time)"
+><code  class="code">format_time_decimal($time)</code></a></dt>
+
+<dd>
+<p>Returns a number with 2 digit precision, unless the last digit is a 0. Then it returns only 1 digit precision.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Files"
+>Files</a></h2>
+
+<dl>
+<dt><a name="file_mod_time($filename)"
+><code  class="code">file_mod_time($filename)</code></a></dt>
+
+<dd>
+<p>Takes a filename and returns the modification time. It returns it in the format of the &#34;mtime&#34; parameter of the perl &#34;stat&#34; function.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Cryptography"
+>Cryptography</a></h2>
+
+<dl>
+<dt><a name="bz_crypt($password)"
+><code  class="code">bz_crypt($password)</code></a></dt>
+
+<dd>
+<p>Takes a string and returns a <code  class="code">crypt</code>ed value for it, using a random salt.</p>
+
+<p>Please always use this function instead of the built-in perl &#34;crypt&#34; when initially encrypting a password.</p>
+
+<dt><a name="generate_random_password($password_length)"
+><code  class="code">generate_random_password($password_length)</code></a></dt>
+
+<dd>
+<p>Returns an alphanumeric string with the specified length (10 characters by default). Use this function to generate passwords and tokens.</p>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Validation"
+>Validation</a></h2>
+
+<dl>
+<dt><a name="validate_email_syntax($email)"
+><code  class="code">validate_email_syntax($email)</code></a></dt>
+
+<dd>
+<p>Do a syntax checking for a legal email address and returns 1 if the check is successful, else returns 0. Untaints <code  class="code">$email</code> if successful.</p>
+
+<dt><a name="validate_date($date)"
+><code  class="code">validate_date($date)</code></a></dt>
+
+<dd>
+<p>Make sure the date has the correct format and returns 1 if the check is successful, else returns 0.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

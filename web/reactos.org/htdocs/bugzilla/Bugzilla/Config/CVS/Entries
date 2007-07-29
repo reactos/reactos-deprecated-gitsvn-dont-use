@@ -1,0 +1,18 @@
+/Admin.pm/1.2/Thu Oct 13 09:04:04 2005//TBUGZILLA-3_0
+/Attachment.pm/1.3/Mon Apr 17 20:19:35 2006//TBUGZILLA-3_0
+/Auth.pm/1.2/Sat Nov 11 09:18:55 2006//TBUGZILLA-3_0
+/BugChange.pm/1.2/Fri Oct 14 17:54:56 2005//TBUGZILLA-3_0
+/BugFields.pm/1.4/Mon Jun 19 20:15:18 2006//TBUGZILLA-3_0
+/BugMove.pm/1.1/Wed Oct 12 08:51:53 2005//TBUGZILLA-3_0
+/Common.pm/1.14/Mon Nov 27 18:31:36 2006//TBUGZILLA-3_0
+/Core.pm/1.7.2.1/Wed Apr 18 00:15:14 2007//TBUGZILLA-3_0
+/DependencyGraph.pm/1.1/Wed Oct 12 08:51:53 2005//TBUGZILLA-3_0
+/GroupSecurity.pm/1.8/Mon Aug  7 23:05:00 2006//TBUGZILLA-3_0
+/L10n.pm/1.2/Mon Jun 19 20:15:18 2006//TBUGZILLA-3_0
+/LDAP.pm/1.2/Fri Jun  2 11:52:48 2006//TBUGZILLA-3_0
+/MTA.pm/1.14/Sat Dec  9 16:39:18 2006//TBUGZILLA-3_0
+/PatchViewer.pm/1.1/Wed Oct 12 08:51:53 2005//TBUGZILLA-3_0
+/Query.pm/1.3/Mon Feb 20 23:32:08 2006//TBUGZILLA-3_0
+/ShadowDB.pm/1.1/Wed Oct 12 08:51:53 2005//TBUGZILLA-3_0
+/UserMatch.pm/1.1/Wed Oct 12 08:51:53 2005//TBUGZILLA-3_0
+D

@@ -1,0 +1,370 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Object</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Object</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#CONSTANTS'>CONSTANTS</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#Constructors'>Constructors</a>
+    <li class='indexItem indexItem2'><a href='#Database_Manipulation'>Database Manipulation</a>
+    <li class='indexItem indexItem2'><a href='#Subclass_Helpers'>Subclass Helpers</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#CLASS_FUNCTIONS'>CLASS FUNCTIONS</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Object - A base class for objects in Bugzilla.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code"> my $object = new Bugzilla::Object(1);
+ my $object = new Bugzilla::Object({name =&#62; &#39;TestProduct&#39;});
+
+ my $id          = $object-&#62;id;
+ my $name        = $object-&#62;name;</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Bugzilla::Object is a base class for Bugzilla objects. You never actually create a Bugzilla::Object directly, you only make subclasses of it.</p>
+
+<p>Basically, Bugzilla::Object exists to allow developers to create objects more easily. All you have to do is define <code  class="code">DB_TABLE</code>, <code  class="code">DB_COLUMNS</code>, and sometimes <code  class="code">LIST_ORDER</code> and you have a whole new object.</p>
+
+<p>You should also define accessors for any columns other than <code  class="code">name</code> or <code  class="code">id</code>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CONSTANTS"
+>CONSTANTS</a></h1>
+
+<p>Frequently, these will be the only things you have to define in your subclass in order to have a fully-functioning object. <code  class="code">DB_TABLE</code> and <code  class="code">DB_COLUMNS</code> are required.</p>
+
+<dl>
+<dt><a name="DB_TABLE"
+><code  class="code">DB_TABLE</code></a></dt>
+
+<dd>
+<p>The name of the table that these objects are stored in. For example, for <code  class="code">Bugzilla::Keyword</code> this would be <code  class="code">keyworddefs</code>.</p>
+
+<dt><a name="DB_COLUMNS"
+><code  class="code">DB_COLUMNS</code></a></dt>
+
+<dd>
+<p>The names of the columns that you want to read out of the database and into this object. This should be an array.</p>
+
+<dt><a name="NAME_FIELD"
+><code  class="code">NAME_FIELD</code></a></dt>
+
+<dd>
+<p>The name of the column that should be considered to be the unique &#34;name&#34; of this object. The &#39;name&#39; is a <b>string</b> that uniquely identifies this Object in the database. Defaults to &#39;name&#39;. When you specify <code  class="code">{name =</code> $name}&#62; to <code  class="code">new()</code>, this is the column that will be matched against in the DB.</p>
+
+<dt><a name="ID_FIELD"
+><code  class="code">ID_FIELD</code></a></dt>
+
+<dd>
+<p>The name of the column that represents the unique <b>integer</b> ID of this object in the database. Defaults to &#39;id&#39;.</p>
+
+<dt><a name="LIST_ORDER"
+><code  class="code">LIST_ORDER</code></a></dt>
+
+<dd>
+<p>The order that <code  class="code">new_from_list</code> and <code  class="code">get_all</code> should return objects in. This should be the name of a database column. Defaults to <a href="#NAME_FIELD" class="podlinkpod"
+>&#34;NAME_FIELD&#34;</a>.</p>
+
+<dt><a name="REQUIRED_CREATE_FIELDS"
+><code  class="code">REQUIRED_CREATE_FIELDS</code></a></dt>
+
+<dd>
+<p>The list of fields that <b>must</b> be specified when the user calls <code  class="code">create()</code>. This should be an array.</p>
+
+<dt><a name="VALIDATORS"
+><code  class="code">VALIDATORS</code></a></dt>
+
+<dd>
+<p>A hashref that points to a function that will validate each param to <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</p>
+
+<p>Validators are called both by <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a> and <a href="#set" class="podlinkpod"
+>&#34;set&#34;</a>. When they are called by <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>, the first argument will be the name of the class (what we normally call <code  class="code">$class</code>).</p>
+
+<p>When they are called by <a href="#set" class="podlinkpod"
+>&#34;set&#34;</a>, the first argument will be a reference to the current object (what we normally call <code  class="code">$self</code>).</p>
+
+<p>The second argument will be the value passed to <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a> or <a href="#set" class="podlinkpod"
+>&#34;set&#34;</a>for that field.</p>
+
+<p>The third argument will be the name of the field being validated. This may be required by validators which validate several distinct fields.</p>
+
+<p>These functions should call <a href="../Bugzilla/Error.html#ThrowUserError" class="podlinkpod"
+>&#34;ThrowUserError&#34; in Bugzilla::Error</a> if they fail.</p>
+
+<p>The validator must return the validated value.</p>
+
+<dt><a name="UPDATE_COLUMNS"
+><code  class="code">UPDATE_COLUMNS</code></a></dt>
+
+<dd>
+<p>A list of columns to update when <a href="#update" class="podlinkpod"
+>&#34;update&#34;</a> is called. If a field can&#39;t be changed, it shouldn&#39;t be listed here. (For example, the <a href="#ID_FIELD" class="podlinkpod"
+>&#34;ID_FIELD&#34;</a> usually can&#39;t be updated.)</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Constructors"
+>Constructors</a></h2>
+
+<dl>
+<dt><a name="new($param)"
+><code  class="code">new($param)</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>The constructor is used to load an existing object from the database, by id or by name.</p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<p>If you pass an integer, the integer is the id of the object, from the database, that we want to read in. (id is defined as the value in the <a href="#ID_FIELD" class="podlinkpod"
+>&#34;ID_FIELD&#34;</a> column).</p>
+
+<p>If you pass in a hash, you can pass a <code  class="code">name</code> key. The value of the <code  class="code">name</code> key is the case-insensitive name of the object (from <a href="#NAME_FIELD" class="podlinkpod"
+>&#34;NAME_FIELD&#34;</a>) in the DB.</p>
+
+<p><b>Additional Parameters Available for Subclasses</b></p>
+
+<p>If you are a subclass of <code  class="code">Bugzilla::Object</code>, you can pass <code  class="code">condition</code> and <code  class="code">values</code> as hash keys, instead of the above.</p>
+
+<p><code  class="code">condition</code> is a set of SQL conditions for the WHERE clause, which contain placeholders.</p>
+
+<p><code  class="code">values</code> is a reference to an array. The array contains the values for each placeholder in <code  class="code">condition</code>, in order.</p>
+
+<p>This is to allow subclasses to have complex parameters, and then to translate those parameters into <code  class="code">condition</code> and <code  class="code">values</code> when they call <code  class="code">$self-</code>SUPER::new&#62; (which is this function, usually).</p>
+
+<p>If you try to call <code  class="code">new</code> outside of a subclass with the <code  class="code">condition</code> and <code  class="code">values</code> parameters, Bugzilla will throw an error. These parameters are intended <b>only</b> for use by subclasses.</p>
+
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A fully-initialized object.</p>
+</dd>
+</dl>
+
+<dt><a name="new_from_list(\@id_list)"
+><code  class="code">new_from_list(\@id_list)</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Creates an array of objects, given an array of ids.
+
+ Params:      \@id_list - A reference to an array of numbers, database ids.
+                          If any of these are not numeric, the function
+                          will throw an error. If any of these are not
+                          valid ids in the database, they will simply 
+                          be skipped.
+
+ Returns:     A reference to an array of objects.</pre>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Database_Manipulation"
+>Database Manipulation</a></h2>
+
+<dl>
+<dt><a name="create"
+><code  class="code">create</code></a></dt>
+
+<dd>
+<p>Description: Creates a new item in the database. Throws a User Error if any of the passed-in params are invalid.</p>
+
+<p>Params: <code  class="code">$params</code> - hashref - A value to put in each database field for this object. Certain values must be set (the ones specified in <a href="#REQUIRED_CREATE_FIELDS" class="podlinkpod"
+>&#34;REQUIRED_CREATE_FIELDS&#34;</a>), and the function will throw a Code Error if you don&#39;t set them.</p>
+
+<p>Returns: The Object just created in the database.</p>
+
+<p>Notes: In order for this function to work in your subclass, your subclass&#39;s <a href="#ID_FIELD" class="podlinkpod"
+>&#34;ID_FIELD&#34;</a> must be of <code  class="code">SERIAL</code> type in the database. Your subclass also must define <a href="#REQUIRED_CREATE_FIELDS" class="podlinkpod"
+>&#34;REQUIRED_CREATE_FIELDS&#34;</a> and <a href="#VALIDATORS" class="podlinkpod"
+>&#34;VALIDATORS&#34;</a>.</p>
+
+<pre  class="code">             Subclass Implementors: This function basically just
+             calls L&#60;/check_required_create_fields&#62;, then
+             L&#60;/run_create_validators&#62;, and then finally
+             L&#60;/insert_create_data&#62;. So if you have a complex system that
+             you need to implement, you can do it by calling these
+             three functions instead of C&#60;SUPER::create&#62;.</pre>
+
+<dt><a name="check_required_create_fields"
+><code  class="code">check_required_create_fields</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Part of <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>. Throws an error if any of the <a href="#REQUIRED_CREATE_FIELDS" class="podlinkpod"
+>&#34;REQUIRED_CREATE_FIELDS&#34;</a> have not been specified in <code  class="code">$params</code></p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="$params_-_The_same_as_$params_from_&#34;create&#34;."
+><code  class="code">$params</code> - The same as <code  class="code">$params</code> from <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</a></dt>
+</dl>
+
+<dt><a name="Returns_(nothing)"
+><b>Returns</b> (nothing)</a></dt>
+</dl>
+
+<dt><a name="run_create_validators"
+><code  class="code">run_create_validators</code></a></dt>
+
+<dd>
+<p>Description: Runs the validation of input parameters for <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>. This subroutine exists so that it can be overridden by subclasses who need to do special validations of their input parameters. This method is <b>only</b> called by <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</p>
+
+<p>Params: The same as <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</p>
+
+<p>Returns: A hash, in a similar format as <code  class="code">$params</code>, except that these are the values to be inserted into the database, not the values that were input to <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</p>
+
+<dt><a name="insert_create_data"
+><code  class="code">insert_create_data</code></a></dt>
+
+<dd>
+<p>Part of <a href="#create" class="podlinkpod"
+>&#34;create&#34;</a>.</p>
+
+<p>Takes the return value from <a href="#run_create_validators" class="podlinkpod"
+>&#34;run_create_validators&#34;</a> and inserts the data into the database. Returns a newly created object.</p>
+
+<dt><a name="update"
+><code  class="code">update</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Saves the values currently in this object to the database. Only the fields specified in <a href="#UPDATE_COLUMNS" class="podlinkpod"
+>&#34;UPDATE_COLUMNS&#34;</a> will be updated, and they will only be updated if their values have changed.</p>
+
+<dt><a name="Params_(none)"
+><b>Params</b> (none)
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A hashref showing what changed during the update. The keys are the column names from <a href="#UPDATE_COLUMNS" class="podlinkpod"
+>&#34;UPDATE_COLUMNS&#34;</a>. If a field was not changed, it will not be in the hash at all. If the field was changed, the key will point to an arrayref. The first item of the arrayref will be the old value, and the second item will be the new value.</p>
+
+<p>If there were no changes, we return a reference to an empty hash.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Subclass_Helpers"
+>Subclass Helpers</a></h2>
+
+<p>These functions are intended only for use by subclasses. If you call them from anywhere else, they will throw a <code  class="code">CodeError</code>.</p>
+
+<dl>
+<dt><a name="set"
+><code  class="code">set</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Sets a certain hash member of this class to a certain value. Used for updating fields. Calls the validator for this field, if it exists. Subclasses should use this function to implement the various <code  class="code">set_</code> mutators for their different fields.</p>
+
+<p>See <a href="#VALIDATORS" class="podlinkpod"
+>&#34;VALIDATORS&#34;</a> for more information.</p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<dl>
+<dt><a 
+><code  class="code">$field</code> - The name of the hash member to update. This should be the same as the name of the field in <a href="#VALIDATORS" class="podlinkpod"
+>&#34;VALIDATORS&#34;</a>, if it exists there.
+<dt><a name="$value_-_The_value_that_you&#39;re_setting_the_field_to."
+><code  class="code">$value</code> - The value that you&#39;re setting the field to.</a></dt>
+</dl>
+
+<dt><a name="Returns_(nothing)"
+><b>Returns</b> (nothing)</a></dt>
+</dl>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="CLASS_FUNCTIONS"
+>CLASS FUNCTIONS</a></h1>
+
+<dl>
+<dt><a name="get_all"
+><code  class="code">get_all</code></a></dt>
+
+<dd>
+<pre  class="code"> Description: Returns all objects in this table from the database.
+
+ Params:      none.
+
+ Returns:     A list of objects, or an empty list if there are none.
+
+ Notes:       Note that you must call this as C&#60;$class-&#62;get_all&#62;. For 
+              example, C&#60;Bugzilla::Keyword-&#62;get_all&#62;. 
+              C&#60;Bugzilla::Keyword::get_all&#62; will not work.</pre>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

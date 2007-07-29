@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Flag</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Flag</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#NOTES'>NOTES</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#METHODS'>METHODS</a>
+  </ul>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Flag - A module to deal with Bugzilla flag values.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<p>Flag.pm provides an interface to flags as stored in Bugzilla.
+See below for more information.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NOTES"
+>NOTES</a></h1>
+
+<ul>
+<li>Import relevant functions from that script.</li>
+
+<li>Use of private functions / variables outside this module may lead to unexpected results after an upgrade.
+Please avoid using private functions in other files/modules.
+Private functions are functions whose names start with _ or a re specifically noted as being private.</li>
+</ul>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h2>
+
+<dl>
+<dt><a name="id"
+><code  class="code">id</code></a></dt>
+
+<dd>
+<p>Returns the ID of the flag.</p>
+
+<dt><a name="name"
+><code  class="code">name</code></a></dt>
+
+<dd>
+<p>Returns the name of the flagtype the flag belongs to.</p>
+
+<dt><a name="bug_id"
+><code  class="code">bug_id</code></a></dt>
+
+<dd>
+<p>Returns the ID of the bug this flag belongs to.</p>
+
+<dt><a name="attach_id"
+><code  class="code">attach_id</code></a></dt>
+
+<dd>
+<p>Returns the ID of the attachment this flag belongs to,
+if any.</p>
+
+<dt><a name="status"
+><code  class="code">status</code></a></dt>
+
+<dd>
+<p>Returns the status &#39;+&#39;,
+&#39;-&#39;,
+&#39;?&#39; of the flag.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="type"
+><code  class="code">type</code></a></dt>
+
+<dd>
+<p>Returns the type of the flag,
+as a Bugzilla::FlagType object.</p>
+
+<dt><a name="setter"
+><code  class="code">setter</code></a></dt>
+
+<dd>
+<p>Returns the user who set the flag,
+as a Bugzilla::User object.</p>
+
+<dt><a name="requestee"
+><code  class="code">requestee</code></a></dt>
+
+<dd>
+<p>Returns the user who has been requested to set the flag,
+as a Bugzilla::User object.</p>
+
+<dt><a name="attachment"
+><code  class="code">attachment</code></a></dt>
+
+<dd>
+<p>Returns the attachment object the flag belongs to if the flag is an attachment flag,
+else undefined.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="match($criteria)"
+><code  class="code">match($criteria)</code></a></dt>
+
+<dd>
+<p>Queries the database for flags matching the given criteria (specified as a hash of field names and their matching values) and returns an array of matching records.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="count($criteria)"
+><code  class="code">count($criteria)</code></a></dt>
+
+<dd>
+<p>Queries the database for flags matching the given criteria (specified as a hash of field names and their matching values) and returns an array of matching records.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="validate($cgi,_$bug_id,_$attach_id,_$skip_requestee_on_error)"
+><code  class="code">validate($cgi,
+$bug_id,
+$attach_id,
+$skip_requestee_on_error)</code></a></dt>
+
+<dd>
+<p>Validates fields containing flag modifications.</p>
+
+<p>If the attachment is new,
+it has no ID yet and $attach_id is set to -1 to force its check anyway.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="process($bug,_$attachment,_$timestamp,_$cgi)"
+><code  class="code">process($bug,
+$attachment,
+$timestamp,
+$cgi)</code></a></dt>
+
+<dd>
+<p>Processes changes to flags.</p>
+
+<p>The bug and/or the attachment objects are the ones this flag is about,
+the timestamp is the date/time the bug was last touched (so that changes to the flag can be stamped with the same date/time),
+the cgi is the CGI object used to obtain the flag fields that the user submitted.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="create($flag,_$bug,_$attachment,_$timestamp)"
+><code  class="code">create($flag,
+$bug,
+$attachment,
+$timestamp)</code></a></dt>
+
+<dd>
+<p>Creates a flag record in the database.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="modify($bug,_$attachment,_$cgi,_$timestamp)"
+><code  class="code">modify($bug,
+$attachment,
+$cgi,
+$timestamp)</code></a></dt>
+
+<dd>
+<p>Modifies flags in the database when a user changes them.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="retarget($flag,_$bug)"
+><code  class="code">retarget($flag,
+$bug)</code></a></dt>
+
+<dd>
+<p>Change the type of the flag,
+if possible.
+The new flag type must have the same name as the current flag type,
+must exist in the product and component the bug is in,
+and the current settings of the flag must pass validation.
+If no such flag type can be found,
+the type remains unchanged.</p>
+
+<p>Retargetting flags is a good way to keep flags when moving bugs from one product where a flag type is available to another product where the flag type is unavailable,
+but another flag type having the same name exists.
+Most of the time,
+if they have the same name,
+this means that they have the same meaning,
+but with different settings.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="clear($flag,_$bug,_$attachment)"
+><code  class="code">clear($flag,
+$bug,
+$attachment)</code></a></dt>
+
+<dd>
+<p>Remove a flag from the DB.</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="FormToNewFlags($bug,_$attachment,_$cgi)"
+><code  class="code">FormToNewFlags($bug,
+$attachment,
+$cgi)</code></a></dt>
+
+<dd>
+<p>Checks whether or not there are new flags to create and returns an array of flag objects.
+This array is then passed to Flag::create().</p>
+</dd>
+</dl>
+
+<dl>
+<dt><a name="notify($flag,_$bug,_$attachment)"
+><code  class="code">notify($flag,
+$bug,
+$attachment)</code></a></dt>
+
+<dd>
+<p>Sends an email notification about a flag being created,
+fulfilled or deleted.</p>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

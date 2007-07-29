@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+checksetup.pl</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>checksetup.pl</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#OPTIONS'>OPTIONS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#MODIFYING_CHECKSETUP'>MODIFYING CHECKSETUP</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#How_Checksetup_Works'>How Checksetup Works</a>
+    <li class='indexItem indexItem2'><a href='#Modifying_the_Database'>Modifying the Database</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#RUNNING_CHECKSETUP_NON-INTERACTIVELY'>RUNNING CHECKSETUP NON-INTERACTIVELY</a>
+  <li class='indexItem indexItem1'><a href='#SEE_ALSO'>SEE ALSO</a>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>checksetup.pl - A do-it-all upgrade and installation script for Bugzilla.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code"> ./checksetup.pl [--help|--check-modules]
+ ./checksetup.pl [SCRIPT [--verbose]] [--no-templates|-t]
+                 [--make-admin=user@domain.com]</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="OPTIONS"
+>OPTIONS</a></h1>
+
+<dl>
+<dt><a name="SCRIPT"
+><em  class="code">SCRIPT</em></a></dt>
+
+<dd>
+<p>Name of script to drive non-interactive mode. This script should define an <code  class="code">%answer</code> hash whose keys are variable names and the values answers to all the questions checksetup.pl asks. For details on the format of this script, do <code  class="code">perldoc checksetup.pl</code> and look for the <a href="#RUNNING_CHECKSETUP_NON-INTERACTIVELY" class="podlinkpod"
+>&#34;RUNNING CHECKSETUP NON-INTERACTIVELY&#34;</a> section.</p>
+
+<dt><a name="--help"
+><b>--help</b></a></dt>
+
+<dd>
+<p>Display this help text</p>
+
+<dt><a name="--check-modules"
+><b>--check-modules</b></a></dt>
+
+<dd>
+<p>Only check for correct module dependencies and quit afterward.</p>
+
+<dt><a name="--make-admin=username@domain.com"
+><b>--make-admin</b>=username@domain.com</a></dt>
+
+<dd>
+<p>Makes the specified user into a Bugzilla administrator. This is in case you accidentally lock yourself out of the Bugzilla administrative interface.</p>
+
+<dt><a name="--no-templates_(-t)"
+><b>--no-templates</b> (<b>-t</b>)</a></dt>
+
+<dd>
+<p>Don&#39;t compile the templates at all. Existing compiled templates will remain; missing compiled templates will not be created. (Used primarily by developers to speed up checksetup.) Use this switch at your own risk.</p>
+
+<dt><a name="--verbose"
+><b>--verbose</b></a></dt>
+
+<dd>
+<p>Output results of SCRIPT being processed.</p>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Hey, what&#39;s this?</p>
+
+<p><em  class="code">checksetup.pl</em> is a script that is supposed to run during installation time and also after every upgrade.</p>
+
+<p>The goal of this script is to make the installation even easier. It does this by doing things for you as well as testing for problems in advance.</p>
+
+<p>You can run the script whenever you like. You MUST run it after you update Bugzilla, because it will then update your SQL table definitions to resync them with the code.</p>
+
+<p>You can see all the details of what the script does at <a href="#How_Checksetup_Works" class="podlinkpod"
+>&#34;How Checksetup Works&#34;</a>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="MODIFYING_CHECKSETUP"
+>MODIFYING CHECKSETUP</a></h1>
+
+<p>There should be no need for Bugzilla Administrators to modify this script; all user-configurable stuff has been moved into a local configuration file called <em  class="code">localconfig</em>. When that file in changed and <em  class="code">checksetup.pl</em> is run, then the user&#39;s changes will be reflected back into the database.</p>
+
+<p>However, developers often need to modify the installation process. This section explains how <em  class="code">checksetup.pl</em> works, so that you know the right part to modify.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="How_Checksetup_Works"
+>How Checksetup Works</a></h2>
+
+<p><em  class="code">checksetup.pl</em> runs through several stages during installation:</p>
+
+<ol>
+<li>Checks if the required and optional perl modules are installed, using <a href="./Bugzilla/Install/Requirements.html#check_requirements" class="podlinkpod"
+>&#34;check_requirements&#34; in Bugzilla::Install::Requirements</a>.</li>
+
+<li>Creates or updates the <em  class="code">localconfig</em> file, using <a href="./Bugzilla/Install/Localconfig.html#update_localconfig" class="podlinkpod"
+>&#34;update_localconfig&#34; in Bugzilla::Install::Localconfig</a>.</li>
+
+<li>Checks the DBD and database version, using <a href="./Bugzilla/DB.html#bz_check_requirements" class="podlinkpod"
+>&#34;bz_check_requirements&#34; in Bugzilla::DB</a>.</li>
+
+<li>Creates the Bugzilla database if it doesn&#39;t exist, using <a href="./Bugzilla/DB.html#bz_create_database" class="podlinkpod"
+>&#34;bz_create_database&#34; in Bugzilla::DB</a>.</li>
+
+<li>Creates all of the tables in the Bugzilla database, using <a href="./Bugzilla/DB.html#bz_setup_database" class="podlinkpod"
+>&#34;bz_setup_database&#34; in Bugzilla::DB</a>.
+<p>Note that all the table definitions are stored in <a href="./Bugzilla/DB/Schema.html#ABSTRACT_SCHEMA" class="podlinkpod"
+>&#34;ABSTRACT_SCHEMA&#34; in Bugzilla::DB::Schema</a>.</p>
+</li>
+
+<li>Puts the values into the enum tables (like <code  class="code">resolution</code>, <code  class="code">bug_status</code>, etc.) using <a href="./Bugzilla/DB.html#bz_populate_enum_tables" class="podlinkpod"
+>&#34;bz_populate_enum_tables&#34; in Bugzilla::DB</a>.</li>
+
+<li>Creates any files that Bugzilla needs but doesn&#39;t ship with, using <a href="./Bugzilla/Install/Filesystem.html#update_filesystem" class="podlinkpod"
+>&#34;update_filesystem&#34; in Bugzilla::Install::Filesystem</a>.</li>
+
+<li>Creates the <em  class="code">.htaccess</em> files if you haven&#39;t specified not to in <em  class="code">localconfig</em>. It does this with <a href="./Bugzilla/Install/Filesystem.html#create_htaccess" class="podlinkpod"
+>&#34;create_htaccess&#34; in Bugzilla::Install::Filesystem</a>.</li>
+
+<li>Updates the system parameters (stored in <em  class="code">data/params</em>), using <a href="./Bugzilla/Config.html#update_params" class="podlinkpod"
+>&#34;update_params&#34; in Bugzilla::Config</a>.</li>
+
+<li>Pre-compiles all templates, to improve the speed of Bugzilla. It uses <a href="./Bugzilla/Template.html#precompile_templates" class="podlinkpod"
+>&#34;precompile_templates&#34; in Bugzilla::Template</a> to do this.</li>
+
+<li>Fixes all file permissions to be secure. It does this differently depending on whether or not you&#39;ve specified <code  class="code">$webservergroup</code> in <em  class="code">localconfig</em>.
+<p>The function that does this is <a href="./Bugzilla/Install/Filesystem.html#fix_all_file_permissions" class="podlinkpod"
+>&#34;fix_all_file_permissions&#34; in Bugzilla::Install::Filesystem</a>.</p>
+</li>
+
+<li>Populates the <code  class="code">fielddefs</code> table, using <a href="./Bugzilla/Field.html#populate_field_definitions" class="podlinkpod"
+>&#34;populate_field_definitions&#34; in Bugzilla::Field</a>.</li>
+
+<li>This is the major part of checksetup--updating the table definitions from one version of Bugzilla to another.
+<p>The code for this is in <a href="./Bugzilla/Install/DB.html#update_table_definitions" class="podlinkpod"
+>&#34;update_table_definitions&#34; in Bugzilla::Install::DB</a>.</p>
+</li>
+
+<li>Creates the system groups--the ones like <code  class="code">editbugs</code>, <code  class="code">admin</code>, and so on. This is <a href="./Bugzilla/Install.html#update_system_groups" class="podlinkpod"
+>&#34;update_system_groups&#34; in Bugzilla::Install</a>.</li>
+
+<li>Creates all of the user-adjustable preferences that appear on the &#34;General Preferences&#34; screen. This is <a href="./Bugzilla/Install.html#update_settings" class="podlinkpod"
+>&#34;update_settings&#34; in Bugzilla::Install</a>.</li>
+
+<li>Creates an administrator, if one doesn&#39;t already exist, using <a href="./Bugzilla/Install.html#create_admin" class="podlinkpod"
+>&#34;create_admin&#34; in Bugzilla::Install</a>.
+<p>We also can make somebody an admin at this step, if the user specified the <code  class="code">--make-admin</code> switch.</p>
+</li>
+
+<li>Creates the default Classification, Product, and Component, using <a href="./Bugzilla/Install.html#create_default_product" class="podlinkpod"
+>&#34;create_default_product&#34; in Bugzilla::Install</a>.</li>
+</ol>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Modifying_the_Database"
+>Modifying the Database</a></h2>
+
+<p>Sometimes you&#39;ll want to modify the database. In fact, that&#39;s mostly what checksetup does, is upgrade old Bugzilla databases to the modern format.</p>
+
+<p>If you&#39;d like to know how to make changes to the datbase, see the information in the Bugzilla Developer&#39;s Guide, at: <a href="http://www.bugzilla.org/docs/developer.html#sql-schema" class="podlinkurl"
+>http://www.bugzilla.org/docs/developer.html#sql-schema</a></p>
+
+<p>Also see <a href="./Bugzilla/DB.html#Schema_Modification_Methods" class="podlinkpod"
+>&#34;Schema Modification Methods&#34; in Bugzilla::DB</a> and <a href="./Bugzilla/DB.html#Schema_Information_Methods" class="podlinkpod"
+>&#34;Schema Information Methods&#34; in Bugzilla::DB</a>.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="RUNNING_CHECKSETUP_NON-INTERACTIVELY"
+>RUNNING CHECKSETUP NON-INTERACTIVELY</a></h1>
+
+<p>To operate checksetup non-interactively, run it with a single argument specifying a filename that contains the information usually obtained by prompting the user or by editing localconfig.</p>
+
+<p>The format of that file is as follows:</p>
+
+<pre  class="code"> $answer{&#39;db_host&#39;}   = &#39;localhost&#39;;
+ $answer{&#39;db_driver&#39;} = &#39;mydbdriver&#39;;
+ $answer{&#39;db_port&#39;}   = 0;
+ $answer{&#39;db_name&#39;}   = &#39;mydbname&#39;;
+ $answer{&#39;db_user&#39;}   = &#39;mydbuser&#39;;
+ $answer{&#39;db_pass&#39;}   = &#39;mydbpass&#39;;
+
+ $answer{&#39;urlbase&#39;} = &#39;http://bugzilla.mydomain.com/&#39;;
+
+ (Any localconfig variable or parameter can be specified as above.)
+
+ $answer{&#39;ADMIN_EMAIL&#39;} = &#39;myadmin@mydomain.net&#39;;
+ $answer{&#39;ADMIN_PASSWORD&#39;} = &#39;fooey&#39;;
+ $answer{&#39;ADMIN_REALNAME&#39;} = &#39;Joel Peshkin&#39;;
+
+ $answer{&#39;SMTP_SERVER&#39;} = &#39;mail.mydomain.net&#39;;
+
+ $answer{&#39;NO_PAUSE&#39;} = 1</pre>
+
+<p><code  class="code">NO_PAUSE</code> means &#34;never stop and prompt the user to hit Enter to continue, just go ahead and do things, even if they are potentially dangerous.&#34; Don&#39;t set this to 1 unless you know what you are doing.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SEE_ALSO"
+>SEE ALSO</a></h1>
+
+<ul>
+<li><a href="./Bugzilla/Install/Requirements.html" class="podlinkpod"
+>Bugzilla::Install::Requirements</a></li>
+
+<li><a href="./Bugzilla/Install/Localconfig.html" class="podlinkpod"
+>Bugzilla::Install::Localconfig</a></li>
+
+<li><a href="./Bugzilla/Install/Filesystem.html" class="podlinkpod"
+>Bugzilla::Install::Filesystem</a></li>
+
+<li><a href="./Bugzilla/Install/DB.html" class="podlinkpod"
+>Bugzilla::Install::DB</a></li>
+
+<li><a href="./Bugzilla/Install.html" class="podlinkpod"
+>Bugzilla::Install</a></li>
+
+<li><a href="./Bugzilla/Config.html#update_params" class="podlinkpod"
+>&#34;update_params&#34; in Bugzilla::Config</a></li>
+
+<li><a href="./Bugzilla/DB.html#CONNECTION" class="podlinkpod"
+>&#34;CONNECTION&#34; in Bugzilla::DB</a></li>
+</ul>
+<p class="backlinkbottom"><b><a name="___bottom" href="index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

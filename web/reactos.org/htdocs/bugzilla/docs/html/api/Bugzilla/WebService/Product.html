@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Webservice::Product</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Webservice::Product</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <li class='indexItem indexItem1'><a href='#METHODS'>METHODS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#List_Products'>List Products</a>
+  </ul>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Webservice::Product - The Product API</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>This part of the Bugzilla API allows you to list the available Products and get information about them.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="METHODS"
+>METHODS</a></h1>
+
+<p>See <a href="../../Bugzilla/WebService.html" class="podlinkpod"
+>Bugzilla::WebService</a> for a description of what <b>STABLE</b>,
+<b>UNSTABLE</b>,
+and <b>EXPERIMENTAL</b> mean,
+and for more information about error codes.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="List_Products"
+>List Products</a></h2>
+
+<dl>
+<dt><a name="get_selectable_products_UNSTABLE"
+><code  class="code">get_selectable_products</code> <b>UNSTABLE</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Returns a list of the ids of the products the user can search on.</p>
+
+<dt><a name="Params_(none)"
+><b>Params</b> (none)
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A hash containing one item,
+<code  class="code">ids</code>,
+that contains an array of product ids.</p>
+
+<dt><a name="Errors_(none)"
+><b>Errors</b> (none)</a></dt>
+</dl>
+
+<dt><a name="get_enterable_products_UNSTABLE"
+><code  class="code">get_enterable_products</code> <b>UNSTABLE</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Returns a list of the ids of the products the user can enter bugs against.</p>
+
+<dt><a name="Params_(none)"
+><b>Params</b> (none)
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A hash containing one item,
+<code  class="code">ids</code>,
+that contains an array of product ids.</p>
+
+<dt><a name="Errors_(none)"
+><b>Errors</b> (none)</a></dt>
+</dl>
+
+<dt><a name="get_accessible_products_UNSTABLE"
+><code  class="code">get_accessible_products</code> <b>UNSTABLE</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Returns a list of the ids of the products the user can search or enter bugs against.</p>
+
+<dt><a name="Params_(none)"
+><b>Params</b> (none)
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A hash containing one item,
+<code  class="code">ids</code>,
+that contains an array of product ids.</p>
+
+<dt><a name="Errors_(none)"
+><b>Errors</b> (none)</a></dt>
+</dl>
+
+<dt><a name="get_products_UNSTABLE"
+><code  class="code">get_products</code> <b>UNSTABLE</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Returns a list of information about the products passed to it.</p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<p>A hash containing one item,
+<code  class="code">ids</code>,
+that is an array of product ids.</p>
+
+<dt><a name="Returns"
+><b>Returns</b></a></dt>
+
+<dd>
+<p>A hash containing one item,
+<code  class="code">products</code>,
+that is an array of hashes.
+Each hash describes a product,
+and has the following items: <code  class="code">id</code>,
+<code  class="code">name</code>,
+<code  class="code">description</code>,
+and <code  class="code">internals</code>.
+The <code  class="code">id</code> item is the id of the product.
+The <code  class="code">name</code> item is the name of the product.
+The <code  class="code">description</code> is the description of the product.
+Finally,
+the <code  class="code">internals</code> is an internal representation of the product.</p>
+
+<p>Note,
+that if the user tries to access a product that is not in the list of accessible products for the user,
+or a product that does not exist,
+that is silently ignored,
+and no information about that product is returned.</p>
+
+<dt><a name="Errors_(none)"
+><b>Errors</b> (none)</a></dt>
+</dl>
+</dd>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>

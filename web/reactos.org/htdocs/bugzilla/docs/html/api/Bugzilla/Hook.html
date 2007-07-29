@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>
+Bugzilla::Hook</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" title="style" type="text/css" href="../style.css" media="all" >
+
+</head>
+  <body id="pod">
+<p class="backlinktop"><b><a name="___top" href="../index.html" accesskey="1" title="All Documents">&lt;&lt;</a></b></p>
+<h1>Bugzilla::Hook</h1>
+<div class='indexgroup'>
+<ul   class='indexList indexList1'>
+  <li class='indexItem indexItem1'><a href='#NAME'>NAME</a>
+  <li class='indexItem indexItem1'><a href='#SYNOPSIS'>SYNOPSIS</a>
+  <li class='indexItem indexItem1'><a href='#DESCRIPTION'>DESCRIPTION</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#How_Hooks_Work'>How Hooks Work</a>
+    <li class='indexItem indexItem2'><a href='#Arguments_Passed_to_Hooks'>Arguments Passed to Hooks</a>
+  </ul>
+  <li class='indexItem indexItem1'><a href='#SUBROUTINES'>SUBROUTINES</a>
+  <li class='indexItem indexItem1'><a href='#HOOKS'>HOOKS</a>
+  <ul   class='indexList indexList2'>
+    <li class='indexItem indexItem2'><a href='#enter_bug-entrydefaultvars'>enter_bug-entrydefaultvars</a>
+    <li class='indexItem indexItem2'><a href='#install-requirements'>install-requirements</a>
+    <li class='indexItem indexItem2'><a href='#install-update_db'>install-update_db</a>
+    <li class='indexItem indexItem2'><a href='#db_schema-abstract_schema'>db_schema-abstract_schema</a>
+  </ul>
+</ul>
+</div>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="NAME"
+>NAME</a></h1>
+
+<p>Bugzilla::Hook - Extendible extension hooks for Bugzilla code</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SYNOPSIS"
+>SYNOPSIS</a></h1>
+
+<pre  class="code"> use Bugzilla::Hook;
+
+ Bugzilla::Hook::process(&#34;hookname&#34;, { arg =&#62; $value, arg2 =&#62; $value2 });</pre>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="DESCRIPTION"
+>DESCRIPTION</a></h1>
+
+<p>Bugzilla allows extension modules to drop in and add routines at arbitrary points in Bugzilla code. These points are refered to as hooks. When a piece of standard Bugzilla code wants to allow an extension to perform additional functions, it uses Bugzilla::Hook&#39;s <a href="#process" class="podlinkpod"
+>&#34;process&#34;</a> subroutine to invoke any extension code if installed.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="How_Hooks_Work"
+>How Hooks Work</a></h2>
+
+<p>When a hook named <code  class="code">HOOK_NAME</code> is run, Bugzilla will attempt to invoke any source files named <em  class="code">extensions/*/code/HOOK_NAME.pl</em>.</p>
+
+<p>So, for example, if your extension is called &#34;testopia&#34;, and you want to have code run during the <a href="#install-update_db" class="podlinkpod"
+>&#34;install-update_db&#34;</a> hook, you would have a file called <em  class="code">extensions/testopia/code/install-update_db.pl</em> that contained perl code to run during that hook.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Arguments_Passed_to_Hooks"
+>Arguments Passed to Hooks</a></h2>
+
+<p>Some <a href="#HOOKS" class="podlinkpod"
+>hooks</a> have params that are passed to them.</p>
+
+<p>These params are accessible through <a href="../Bugzilla.html#hook_args" class="podlinkpod"
+>&#34;hook_args&#34; in Bugzilla</a>. That returns a hashref. Very frequently, if you want your hook to do anything, you have to modify these variables.</p>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="SUBROUTINES"
+>SUBROUTINES</a></h1>
+
+<dl>
+<dt><a name="process"
+><code  class="code">process</code></a></dt>
+
+<dd>
+<dl>
+<dt><a name="Description"
+><b>Description</b></a></dt>
+
+<dd>
+<p>Invoke any code hooks with a matching name from any installed extensions.</p>
+
+<p>See <code  class="code">customization.xml</code> in the Bugzilla Guide for more information on Bugzilla&#39;s extension mechanism.</p>
+
+<dt><a name="Params"
+><b>Params</b></a></dt>
+
+<dd>
+<dl>
+<dt><a name="$name_-_The_name_of_the_hook_to_invoke."
+><code  class="code">$name</code> - The name of the hook to invoke.
+<dt><a name="$args_-_A_hashref._The_named_args_to_pass_to_the_hook._They_will_be_accessible_to_the_hook_via_&#34;hook_args&#34;_in_Bugzilla."
+><code  class="code">$args</code> - A hashref. The named args to pass to the hook. They will be accessible to the hook via <a href="../Bugzilla.html#hook_args" class="podlinkpod"
+>&#34;hook_args&#34; in Bugzilla</a>.</a></dt>
+</dl>
+
+<dt><a name="Returns_(nothing)"
+><b>Returns</b> (nothing)</a></dt>
+</dl>
+</dd>
+</dl>
+
+<h1><a class='u' href='#___top' title='click to go to top of document'
+name="HOOKS"
+>HOOKS</a></h1>
+
+<p>This describes what hooks exist in Bugzilla currently.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="enter_bug-entrydefaultvars"
+>enter_bug-entrydefaultvars</a></h2>
+
+<p>This happens right before the template is loaded on enter_bug.cgi.</p>
+
+<p>Params:</p>
+
+<dl>
+<dt><a name="vars_-_A_hashref._The_variables_that_will_be_passed_into_the_template."
+><code  class="code">vars</code> - A hashref. The variables that will be passed into the template.</a></dt>
+</dl>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="install-requirements"
+>install-requirements</a></h2>
+
+<p>Because of the way Bugzilla installation works, there can&#39;t be a normal hook during the time that <em  class="code">checksetup.pl</em> checks what modules are installed. (<code  class="code">Bugzilla::Hook</code> needs to have those modules installed--it&#39;s a chicken-and-egg problem.)</p>
+
+<p>So instead of the way hooks normally work, this hook just looks for two subroutines (or constants, since all constants are just subroutines) in your file, called <code  class="code">OPTIONAL_MODULES</code> and <code  class="code">REQUIRED_MODULES</code>, which should return arrayrefs in the same format as <code  class="code">OPTIONAL_MODULES</code> and <code  class="code">REQUIRED_MODULES</code> in <a href="../Bugzilla/Install/Requirements.html" class="podlinkpod"
+>Bugzilla::Install::Requirements</a>.</p>
+
+<p>These subroutines will be passed an arrayref that contains the current Bugzilla requirements of the same type, in case you want to modify Bugzilla&#39;s requirements somehow. (Probably the most common would be to alter a version number or the &#34;feature&#34; element of <code  class="code">OPTIONAL_MODULES</code>.)</p>
+
+<p><em  class="code">checksetup.pl</em> will add these requirements to its own.</p>
+
+<p>Please remember--if you put something in <code  class="code">REQUIRED_MODULES</code>, then <em  class="code">checksetup.pl</em> <b>cannot complete</b> unless the user has that module installed! So use <code  class="code">OPTIONAL_MODULES</code> whenever you can.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="install-update_db"
+>install-update_db</a></h2>
+
+<p>This happens at the very end of all the tables being updated during an installation or upgrade. If you need to modify your custom schema, do it here. No params are passed.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="db_schema-abstract_schema"
+>db_schema-abstract_schema</a></h2>
+
+<p>This allows you to add tables to Bugzilla. Note that we recommend that you prefix the names of your tables with some word, so that they don&#39;t conflict with any future Bugzilla tables.</p>
+
+<p>If you wish to add new <i>columns</i> to existing Bugzilla tables, do that in <a href="#install-update_db" class="podlinkpod"
+>&#34;install-update_db&#34;</a>.</p>
+
+<p>Params:</p>
+
+<dl>
+<dt><a 
+><code  class="code">schema</code> - A hashref, in the format of <a href="../Bugzilla/DB/Schema.html#ABSTRACT_SCHEMA" class="podlinkpod"
+>&#34;ABSTRACT_SCHEMA&#34; in Bugzilla::DB::Schema</a>. Add new hash keys to make new table definitions. <em  class="code">checksetup.pl</em> will automatically add these tables to the database when run.</a></dt>
+</dl>
+<p class="backlinkbottom"><b><a name="___bottom" href="../index.html" title="All Documents">&lt;&lt;</a></b></p>
+
+<!-- end doc -->
+
+</body></html>
