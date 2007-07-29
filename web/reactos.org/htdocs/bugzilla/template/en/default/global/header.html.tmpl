@@ -62,7 +62,7 @@
                       "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
-    <title>[% title %]</title>
+    <title>ReactOS Homepage - [% title %]</title>
 
 [%# Migration note: contents of the old Param 'headerhtml' would go here %]
 
@@ -84,6 +84,8 @@
 
     [%+ INCLUDE "global/help-header.html.tmpl" %]
 
+    <link href="/style.css" type="text/css" rel="stylesheet">
+    
     [%# Set up the skin CSS cascade:
       #  1. Standard Bugzilla stylesheet set (persistent)
       #  2. Standard Bugzilla stylesheet set (selectable)
@@ -229,31 +231,93 @@
   # 'bannerhtml'
   #%]
 
+<div id="top">
+  <div id="topMenu"> 
+    <!-- 
+       Use <p> to align things for links/lynx, then in the css make it
+	   margin: 0; and use text-align: left/right/etc;.
+   -->
+	<p align="center"> 
+		<a href="/?page=index">Home</a> <font color="#ffffff">|</font> 
+		<a href="/?page=about">Info</a> <font color="#ffffff">|</font> 
+		<a href="/?page=community">Community</a> <font color="#ffffff">|</font> 
+		<a href="/?page=dev">Development</a> <font color="#ffffff">|</font> 
+		<a href="/roscms/?page=user">myReactOS</a> </p>
+	 </div>
+	</div>
+
+<table style="border:0" width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+  <td style="width:147px" id="leftNav"> 
+  <div class="navTitle">Navigation</div>
+    <ol>
+      <li><a href="/?page=index">Home</a></li>
+      <li><a href="/?page=about">Info</a></li>
+      <li><a href="/?page=community">Community</a></li>
+      <li><a href="/?page=dev">Development</a></li>
+      <li><a href="/roscms/?page=user">myReactOS</a></li>
+    </ol>
+  <p></p>
+			
+<div class="navTitle">Bugzilla</div>
+      <ol>
+        <li><a href="/bugzilla">Main Page</a></li>
+        <li><a href="/bugzilla/enter_bug.cgi">New</a></li>
+        <li><a href="/bugzilla/query.cgi">Search</a></li>
+        <li><a href="/bugzilla/report.cgi">Reports</a></li>
+        <li><a href="/bugzilla/request.cgi">Requests</a></li>
+      </ol>
+      <p></p>
+
+[%# TODO we don't support switching languages yet
+<div class="navTitle">Language</div>   
+      <ol>
+        <li> 
+          <div align="center"> 
+            <select id="select" size="1" name="select" class="selectbox" onchange="window.open(this.options[this.selectedIndex].value,'_main')">
+              <optgroup label="current language"> 
+              <option value="#" selected="selected">English</option>
+              </optgroup>
+              <optgroup label="most popular"> 
+              <option value="http://www.reactos.org/./[#inc_path_lang]../en/developer.htm">English</option>
+              <option value="http://www.reactos.org/./[#inc_path_lang]../de/developer.htm">Deutsch</option>
+              <option value="http://www.reactos.org/./[#inc_path_lang]../fr/developer.htm">Français</option>
+              </optgroup>
+              <optgroup label="other languages"> 
+              <option value="#">&lt;placeholder&gt;</option>
+              </optgroup>
+            </select>
+          </div>
+        </li>
+      </ol>
+      <p></p>
+%]
+
+<div class="navTitle">Account</div>
+      <ol>
+[% IF user.id %]
+        <li><a href="/roscms/?page=logout">Logout [% user.name %]</a></li>
+[% ELSE %]
+        <li><a href="/roscms/?page=login&amp;target=%2Fbugzilla">Login</a></li>
+[% END %]
+        <li><a href="/roscms/?page=register&amp;target=%2Fbugzilla">Register</a></li>
+      </ol>
+      <p></p>
+</div>
+</td>
+
+<td id="bugzillaContent">
+<div class="contentSmall">
+[% INCLUDE global/banner.html.tmpl %]
+<span class="contentSmallTitle">ReactOS bug tracking and reporting - [% title %]</span>
+
+[%# Migration note: the following file corresponds to the old Param
+  # 'bannerhtml'
+  #%]
 
 <div id="header">
 
 [% INCLUDE global/banner.html.tmpl %]
-
-<table border="0" cellspacing="0" cellpadding="0" id="titles">
-<tr>
-    <td id="title">
-      <p>[% terms.Bugzilla %]
-      [% " &ndash; $header" IF header %]</p>
-    </td>
-
-  [% IF subheader %]
-    <td id="subtitle">
-      <p class="subheader">[% subheader %]</p>
-    </td>
-  [% END %]
-
-  [% IF header_addl_info %]
-    <td id="information">
-      <p class="header_addl_info">[% header_addl_info %]</p>
-    </td>
-  [% END %]
-</tr>
-</table>
 
 [% PROCESS "global/common-links.html.tmpl" btn_id = "find_top" %]
 

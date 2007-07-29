@@ -114,29 +114,15 @@ function addSidebar() {
     <li id="query"><a href="query.cgi">Search existing [% terms.bug %] reports</a></li>
     <li id="enter-bug"><a href="enter_bug.cgi">Enter a new [% terms.bug %] report</a></li>
     <li id="report"><a href="report.cgi">Summary reports and charts</a></li>
-[% IF user.id %]
-    <li id="userprefs"><a href="userprefs.cgi">Change password or user preferences</a></li>
-  [% IF user.authorizer.can_logout %]
-    <li id="logout"><a href="relogin.cgi">Log out [% user.login FILTER html %]</a></li>
-  [% END %]
-[% ELSIF user.authorizer.can_login %]
-  </ul>
-    [% PROCESS "account/auth/login-small.html.tmpl" %]
-  <ul>
-  [% IF Param('createemailregexp') && user.authorizer.user_can_create_account %]
-    <li id="account"><a href="createaccount.cgi">Open a new [% terms.Bugzilla %] account</a></li>
-  [% END %]
+[% IF NOT user.id %]
+    <li id="login"><a href="/roscms/?page=login&amp;target=%2Fbugzilla">Log in to an existing account</a></li>
+    <li id="register"><a href="/roscms/?page=register&amp;target=%2Fbugzilla">Register a new account</a></li>
 [% END %]
     <li id="sidebar"><a href="javascript:addSidebar()">Add to Sidebar</a> (requires a Mozilla browser like Mozilla Firefox)</li>
     <li id="quick_search_plugin">
       <a href="javascript:window.external.AddSearchProvider('[% Param('urlbase') %]search_plugin.cgi')">Install
       the Quick Search plugin</a> (requires Firefox 2 or Internet Explorer 7)
     </li>
-
-
-    [%# List items of links to more things users can do on this installation. %]
-    [% Hook.process("links") %]
-
   </ul>
 
   <form id="f" name="f" action="buglist.cgi" method="get"
