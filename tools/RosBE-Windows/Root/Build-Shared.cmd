@@ -77,17 +77,21 @@ call "%ROSBEBASEDIR%\TimeDate.cmd"
 ::
 if %ROSBE_SHOWTIME% == 1 (
     if %ROSBE_WRITELOG% == 1 (
+        title Started: %TIMERAW%, Building...
         call buildtime "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
     )
     if %ROSBE_WRITELOG% == 0 (
+        title Started: %TIMERAW%, Building...
         call buildtime "%MAKE_COMMAND%" 2>&1
     )
 )
 if %ROSBE_SHOWTIME% == 0 (
     if %ROSBE_WRITELOG% == 1 (
+        title Started: %TIMERAW%, Building...
         call "%MAKE_COMMAND%" 2>&1 | tee "%_ROSBELOGDIR%\BuildLog-%_MINGWVERSION%-%DATENAME%-%TIMENAME%.txt"
     )
     if %ROSBE_WRITELOG% == 0 (
+        title Started: %TIMERAW%, Building...
         call "%MAKE_COMMAND%" 2>&1
     )
 )
