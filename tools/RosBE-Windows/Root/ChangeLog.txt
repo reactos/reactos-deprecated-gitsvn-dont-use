@@ -7,6 +7,9 @@
 - Fixed the double \\ Bug introduced in 0.3.7. (Daniel Reimer)
 - Added Build Begin Time into Topic. (Daniel Reimer)
 - Added svnversion. (Daniel Reimer)
+- Updated Tools. (Daniel Reimer)
+- sSVN asks you if you wanna update if Offline Source Tree is old. (Daniel Reimer)
+- Fixed DOZENS of bugs/stupid coded parts/things you could get easier... (Daniel Reimer)
 
 *** July 26th, 2007 - RosBE 0.3.7.1 Released
 

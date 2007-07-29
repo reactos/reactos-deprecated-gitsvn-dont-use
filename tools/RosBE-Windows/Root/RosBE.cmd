@@ -14,7 +14,7 @@
 :: Set Defaults to work with and override if needed.
 ::
 color 0A
-set _VER=0.3.8
+set _VER=0.3.7.2
 set ROSBEBASEDIR=%~dp0
 echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed "s/.$//g" > "C:\aaa.tmp"
 set /P ROSBEBASEDIR=< "C:\aaa.tmp"

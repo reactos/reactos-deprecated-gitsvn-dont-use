@@ -18,15 +18,15 @@ if "%1" == "" (
 if "%1" == "update" (
     title Updating...
     if not "%2" == "" (
-        svn update "%CD%" -r %2
+        svn update -r %2
     ) else (
-        svn update "%CD%"
+        svn update
     )
 goto :ExitSVN
 )
 if "%1" == "cleanup" (
     title Cleaning...
-    svn cleanup "%CD%"
+    svn cleanup
     goto :ExitSVN
 )
 ::
@@ -39,9 +39,9 @@ if "%1" == "create" (
         echo Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
-    dir /b "%CD%" 2>nul|findstr "." >nul
+    dir /b 2>nul|findstr "." >nul
     if errorlevel 1 (
-        svn checkout svn://svn.reactos.org/reactos/trunk/reactos "%CD%"
+        svn checkout svn://svn.reactos.org/reactos/trunk/reactos
     ) else (
         echo Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
