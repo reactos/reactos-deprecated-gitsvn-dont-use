@@ -83,7 +83,7 @@ if %OFFSVN% EQU %ONSVN% (
 )
 
 :UP2
-SET /P XY=(yes), (no)
+SET /P XY="(yes), (no)"
 if /I "%XY%"=="yes" %ROSBEBASEDIR%\ssvn update
 if /I "%XY%"=="no" goto :ExitSVN
 
