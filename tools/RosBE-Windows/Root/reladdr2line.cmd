@@ -11,12 +11,12 @@
 
 title relAddr2Line...
 
-set _1=%1
-set _2=%2
-
 ::
 :: Receive the Parameters and decide what to do.
 ::
+set _1=%1
+set _2=%2
+
 if "%_1%" == "" (
     goto :MAN
 )
@@ -46,6 +46,12 @@ SET /P _2=
 goto :EOC
 
 :EOC
+::
+:: First get the ImageBase of the File. If its smaller than the given
+:: Parameter, everything is ok, because it was already added onto the
+:: adress and can be given directly to raddr2line. If not, add it and
+:: give the result to raddr2line.
+::
 for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do SET baseaddr=0x%%i
 if %%i LSS %_2% (
     raddr2line "%_1%" "%_2%" 2>NUL

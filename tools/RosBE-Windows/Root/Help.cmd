@@ -11,6 +11,9 @@
 
 title ReactOS Build Environment %_VER%
 
+::
+:: Receive the first Parameter and decide what to do.
+::
 if "%1" == "" (
     echo.
     echo Available Commands:
@@ -85,6 +88,8 @@ if "%1" == "config" (
     echo.
     echo    delete - Deletes the created configuration File and so sets back
     echo             to default settings.
+    echo    update - Deletes the old created configuration File and updats
+    echo             with a new, default one.
     goto :EOF
 )
 if "%1" == "raddr2line" (

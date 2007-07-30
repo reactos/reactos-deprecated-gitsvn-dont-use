@@ -15,6 +15,9 @@ if "%1" == "" (
     echo No parameter specified. Try 'help [COMMAND]'.
     goto :ExitSVN
 )
+::
+:: These two are directly parsed to svn.
+::
 if "%1" == "update" (
     title Updating...
     if not "%2" == "" (
@@ -47,6 +50,10 @@ if "%1" == "create" (
     )
     goto :ExitSVN
 )
+::
+:: Output the rev of your and the Online Tree and tell the User if
+:: its Up to Date or not.
+::
 if "%1" == "status" (
     title Status
     for /f "usebackq" %%i IN (`svnversion .`) DO @set OFFSVN=%%i
