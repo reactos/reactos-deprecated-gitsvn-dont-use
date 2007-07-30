@@ -407,13 +407,13 @@ sub bz_locations {
     my ($project, $localconfig, $datadir);
     if ($ENV{'PROJECT'} && $ENV{'PROJECT'} =~ /^(\w+)$/) {
         $project = $1;
-        $localconfig = "localconfig.$project";
         $datadir = "data/$project";
     } else {
-        $localconfig = "localconfig";
         $datadir = "data";
     }
 
+    $localconfig = "/web/reactos.org/config/bugzilla-config";
+    
     # We have to return absolute paths for mod_perl. 
     # That means that if you modify these paths, they must be absolute paths.
     return {
