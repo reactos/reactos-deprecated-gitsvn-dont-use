@@ -6,7 +6,7 @@
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::
-::@echo off
+@echo off
 
 title ReactOS Build Configurator
 
@@ -92,7 +92,7 @@ if exist "%ROSBEBASEDIR%\config.rbuild" (
         echo *** update to the most recent one? You need to reset all your  ***
         cho  *** previously made settings.                                  ***
         echo.
-        SET /P XY=(yes), (no)
+        SET /P XY="(yes), (no)"
         if /I "%XY%"=="yes" del "%ROSBEBASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild" | goto :OK
         if /I "%XY%"=="no" goto :NOK
         goto :NOK
@@ -113,7 +113,7 @@ echo Default is: none
 echo.
 echo Right now
 grep \"SARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P X= (), (xbox)
+SET /P X="(), (xbox)"
 sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" "%ROSBEBASEDIR%\config.rbuild" > "%ROSBEBASEDIR%\config2.rbuild"
 cls
 
@@ -139,7 +139,7 @@ echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk.
 echo.
 echo Right now
 grep \"OPTIMIZE\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P Y= (0), (1), (2), (3), (4), (5)
+SET /P Y="(0), (1), (2), (3), (4), (5)"
 sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%ROSBEBASEDIR%\config21.rbuild" > "%ROSBEBASEDIR%\config3.rbuild"
 cls
 
@@ -148,7 +148,7 @@ echo Default is: 0
 echo.
 echo Right now
 grep \"MP\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P Z= (0), (1)
+SET /P Z="(0), (1)"
 sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%ROSBEBASEDIR%\config3.rbuild" > "%ROSBEBASEDIR%\config4.rbuild"
 cls
 
@@ -157,7 +157,7 @@ echo Default is: 0
 echo.
 echo Right now
 grep \"KDBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P A= (0), (1)
+SET /P A="(0), (1)"
 sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%ROSBEBASEDIR%\config4.rbuild" > "%ROSBEBASEDIR%\config5.rbuild"
 cls
 
@@ -167,7 +167,7 @@ echo Default is: 1
 echo.
 echo Right now
 grep \"DBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P B= (0), (1)
+SET /P B="(0), (1)"
 sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%ROSBEBASEDIR%\config5.rbuild" > "%ROSBEBASEDIR%\config6.rbuild"
 cls
 
@@ -177,7 +177,7 @@ echo Default is: 0
 echo.
 echo Right now
 grep \"GDB\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P C= (0), (1)
+SET /P C="(0), (1)"
 sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%ROSBEBASEDIR%\config6.rbuild" > "%ROSBEBASEDIR%\config7.rbuild"
 cls
 
@@ -189,7 +189,7 @@ echo Default is: 0
 echo.
 echo Right now
 grep \"NSWPAT\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P D= (0), (1)
+SET /P D="(0), (1)"
 sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
 cls
 
@@ -198,7 +198,7 @@ echo always be 1.
 echo.
 echo Right now
 grep \"NTLPC\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P E= (0), (1)
+SET /P E="(0), (1)"
 sed "s/\"NTLPC\" value=\"[0-1]\"/\"NTLPC\" value=\"%E%\"/g" "%ROSBEBASEDIR%\config8.rbuild" > "%ROSBEBASEDIR%\config9.rbuild"
 cls
 
@@ -212,7 +212,7 @@ echo Default is: 0
 echo.
 echo Right now
 grep \"_WINKD_\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P F= (0), (1)
+SET /P F="(0), (1)"
 sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%ROSBEBASEDIR%\config9.rbuild" > "%ROSBEBASEDIR%\config10.rbuild"
 
 ::
