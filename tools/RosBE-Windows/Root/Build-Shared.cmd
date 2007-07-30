@@ -11,7 +11,7 @@
 @echo off
 
 ::
-:: Take over the 2nd parameter of Build.cmd, which enables/disables stripping
+:: Take over the 2nd parameter of Build.cmd, which enables/disables stripping.
 ::
 if "%1" == "strip" (
     set ROS_LEAN_AND_MEAN = yes
@@ -25,7 +25,9 @@ if "%1"  == "" (
 :Build
 
 ::
-:: Check if our log directory exists, if it doesn't, create it.
+:: Check if our log directory exists, if it doesn't, create it. Also check
+:: if the default Path was editied by Config Tool. If so, update the
+:: path.
 ::
 if %logdiff% == 0 (
 if not exist "RosBE-Logs\." (
@@ -43,10 +45,10 @@ if not exist "RosBE-Logs\." (
 if %logdiff% == 1 (
    if not exist "%ROSBE_LOGPATH%\." (
         echo LogFolder does not exist.
-    ) else (
+   ) else (
         set _ROSBELOGDIR=%ROSBE_LOGPATH%
-    )
-)
+   )
+   )
 )
 
 ::
@@ -58,8 +60,8 @@ if exist "config.rbuild" (
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
-        echo *** aborting build. Please check for changes and       ***
-        echo *** update your config.rbuild.                         ***
+        echo *** aborting build. Please update your config.rbuild   *** 
+        echo *** by typeing "config update".                        ***
         echo.
         goto :EOB
     )

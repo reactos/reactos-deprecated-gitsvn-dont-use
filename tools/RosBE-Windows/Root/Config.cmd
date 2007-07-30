@@ -6,11 +6,22 @@
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::
-@echo off
+::@echo off
 
 title ReactOS Build Configurator
 
+::
+:: Receive the first Parameter and decide what to do.
+::
 if "%1" == "delete" (
+    echo config.rbuild will be permanently deleted. All your settings will be gone.
+    echo Continue?
+::    SET /P XY=(yes), (no)
+::    if /I "%XY%"=="yes" goto :CONT
+::    if /I "%XY%"=="no" goto :NOK
+::    goto :NOK
+
+    :CONT
     if exist "config.rbuild" (
         del "config.rbuild"
         echo Main Configuration File was found and deleted.
@@ -25,15 +36,35 @@ if "%1" == "delete" (
     )
 goto :NOK
 )
+if "%1" == "update" (
+    echo old config.rbuild will be deleted and will be updated with a recent,
+    echo default one. You will need to reconfigure it to your wishes later.
+    echo Continue?
+::    SET /P XY=(yes), (no)
+::    if /I "%XY%"=="yes" goto :CONT2
+::    if /I "%XY%"=="no" goto :NOK
+    :CONT2
+    del "%ROSBEBASEDIR%\*.rbuild"
+    del "config.rbuild"
+    copy "config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild"
+    echo Updated.
+    goto :NOK
+)
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :NOK
 )
 
+::
+:: Check if config.rbuild already exists. If not, get a working copy.
+::
 if not exist "%ROSBEBASEDIR%\config.rbuild" (
     copy "config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild"
 )
 
+::
+:: N00b Blocker :-P
+::
 echo WARNING:
 echo Non-Default-Configurations are not useable for pasteing Bugs to
 echo Bugzilla or asking quesions about in Forum/Chat!
@@ -47,6 +78,30 @@ if /I "%XY%"=="no" goto :NOK
 goto :NOK
 
 :OK
+
+::
+:: Check if config.template.rbuild is newer than config.rbuild, if it is then
+:: inform the user and offer an update.
+::
+if exist "%ROSBEBASEDIR%\config.rbuild" (
+    test "config.template.rbuild" -nt "%ROSBEBASEDIR%\config.rbuild"
+    if not errorlevel 1 (
+        echo.
+        echo *** config.template.rbuild is newer than working config.rbuild ***
+        echo *** The Editor cannot continue with this file. Do you wanna    ***
+        echo *** update to the most recent one? You need to reset all your  ***
+        cho  *** previously made settings.                                  ***
+        echo.
+        SET /P XY=(yes), (no)
+        if /I "%XY%"=="yes" del "%ROSBEBASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild" | goto :OK
+        if /I "%XY%"=="no" goto :NOK
+        goto :NOK
+    )
+)
+
+::
+:: Start with reading settings from config.rbuild and let the user edit them.
+::
 echo Architecture to build for. Not Editable.
 echo.
 echo Right now
@@ -160,6 +215,9 @@ grep \"_WINKD_\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P F= (0), (1)
 sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%ROSBEBASEDIR%\config9.rbuild" > "%ROSBEBASEDIR%\config10.rbuild"
 
+::
+:: Generate a config.rbuild, copy it to the Source Tree and delete temp files.
+::
 copy "%ROSBEBASEDIR%\config10.rbuild" "%ROSBEBASEDIR%\config.tmp"
 del "%ROSBEBASEDIR%\*.rbuild"
 copy "%ROSBEBASEDIR%\config.tmp" "%ROSBEBASEDIR%\config.rbuild"
