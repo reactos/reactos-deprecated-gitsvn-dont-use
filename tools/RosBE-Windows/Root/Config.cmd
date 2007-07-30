@@ -16,10 +16,10 @@ title ReactOS Build Configurator
 if "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
     echo Continue?
-::    SET /P XY=(yes), (no)
-::    if /I "%XY%"=="yes" goto :CONT
-::    if /I "%XY%"=="no" goto :NOK
-::    goto :NOK
+    SET /P XY="(yes), (no)"
+    if /I "%XY%"=="yes" goto :CONT
+    if /I "%XY%"=="no" goto :NOK
+    goto :NOK
 
     :CONT
     if exist "config.rbuild" (
@@ -40,9 +40,9 @@ if "%1" == "update" (
     echo old config.rbuild will be deleted and will be updated with a recent,
     echo default one. You will need to reconfigure it to your wishes later.
     echo Continue?
-::    SET /P XY=(yes), (no)
-::    if /I "%XY%"=="yes" goto :CONT2
-::    if /I "%XY%"=="no" goto :NOK
+    SET /P XY="(yes), (no)"
+    if /I "%XY%"=="yes" goto :CONT2
+    if /I "%XY%"=="no" goto :NOK
     :CONT2
     del "%ROSBEBASEDIR%\*.rbuild"
     del "config.rbuild"
@@ -71,7 +71,7 @@ echo Bugzilla or asking quesions about in Forum/Chat!
 echo.
 echo DID YOU UNDERSTAND?
 
-SET /P XY=(yes), (no)
+SET /P XY="(yes), (no)"
 
 if /I "%XY%"=="yes" goto :OK
 if /I "%XY%"=="no" goto :NOK
