@@ -29,15 +29,33 @@
 		define ("ROSCMS_SYSTEM_ADMIN", "Admin Interface"); // to prevent hacking activity
 	}*/
 
+	global $roscms_security_level;
+
 	
 	$RosCMS_GET_branch = "";
+	$RosCMS_GET_debug = "";
+	$RosCMS_GET_d_arch = ""; // data archive flag, means that the data is stored in the archive tables
 
 	if (array_key_exists("branch", $_GET)) $RosCMS_GET_branch=htmlspecialchars($_GET["branch"]);
+	if (array_key_exists("debug", $_GET) && $roscms_security_level > 1) $RosCMS_GET_debug=htmlspecialchars($_GET["debug"]);
+	if (array_key_exists("d_arch", $_GET)) $RosCMS_GET_d_arch=htmlspecialchars($_GET["d_arch"]);
 
 
+	if ($RosCMS_GET_d_arch == "true") {
+		$h_a = "_a";
+		$h_a2 = "a";
+	}
+	else {
+		$h_a = "";
+		$h_a2 = "";
+	}
+
+	
+	require("inc/data_tools.php");
+	require("inc/data_log.php"); // event log functions
 
 
-	if ($roscms_intern_usrgrp_policy_view_basic == true) { // view_basic
+	if ($roscms_security_level >= 1) {
 		if ($rpm_site == "") {
 			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
 			//create_structure($rpm_page);
@@ -46,7 +64,17 @@
 		switch ($RosCMS_GET_branch) {
 			default:
 			case "website":
+				$RosCMS_GET_branch = "website";
 				include("inc/data_list.php");
+				break;
+			case "welcome":
+				include("inc/data_welcome.php");
+				break;
+			case "user":
+				include("inc/data_user.php");
+				break;
+			case "maintain":
+				include("inc/data_maintain.php");
 				break;
 			case "reactos":
 				require("inc/data_menu.php");

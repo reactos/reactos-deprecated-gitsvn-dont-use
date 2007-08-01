@@ -28,11 +28,24 @@
 	global $roscms_intern_login_check_username;
 	global $roscms_security_level;
 	global $roscms_security_memberships;
+	global $roscms_standard_language;
+	
+	global $RosCMS_GET_debug;
+	
+	$RosCMS_GET_cms_edit = "";
+	if (array_key_exists("edit", $_GET)) $RosCMS_GET_cms_edit=htmlspecialchars($_GET["edit"]);
 	
 	$roscms_intern_entry_per_pag = 25;
 	
+	if ($RosCMS_GET_debug) {
+		echo "<h1>DEBUG-Mode</h1>";
+	}
 	
 ?>
+<noscript>
+	<h3>RosCMS v3 requires Javascript, please activate/allow it.</h3>
+	<p>It does work fine in Internet Explorer 5.5+, Mozilla Firefox 1.5+, Opera 9.1+, Safari 3.2+ and probably every client with basic Javascript (+AJAX) support.</p>
+</noscript>
 <script type="text/javascript" language="javascript">
 <!--
 	/* Global Vars */
@@ -54,6 +67,11 @@
 	
 	var filtstring1 = '';
 	var filtstring2 = '';
+	
+	var roscms_page_load_finished = false;
+
+	
+
 	
 	
 	/* Users favorite language */
@@ -273,8 +291,16 @@
 				document.getElementById("tr"+i).getElementsByTagName('td')[2].onclick = function() {load_frameedit(roscms_current_page, this.className);}
 				document.getElementById("tr"+i).getElementsByTagName('td')[3].onclick = function() {load_frameedit(roscms_current_page, this.className);}
 				document.getElementById("tr"+i).getElementsByTagName('td')[4].onclick = function() {load_frameedit(roscms_current_page, this.className);}
-				document.getElementById("tr"+i).getElementsByTagName('td')[5].onclick = function() {load_frameedit(roscms_current_page, this.className);}
-				document.getElementById("tr"+i).getElementsByTagName('td')[6].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				
+				// check for optional columns
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[5]) document.getElementById("tr"+i).getElementsByTagName('td')[5].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[6]) document.getElementById("tr"+i).getElementsByTagName('td')[6].onclick = function() {load_frameedit(roscms_current_page, this.className);}				
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[7]) document.getElementById("tr"+i).getElementsByTagName('td')[7].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[8]) document.getElementById("tr"+i).getElementsByTagName('td')[8].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[9]) document.getElementById("tr"+i).getElementsByTagName('td')[9].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[10]) document.getElementById("tr"+i).getElementsByTagName('td')[10].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[11]) document.getElementById("tr"+i).getElementsByTagName('td')[11].onclick = function() {load_frameedit(roscms_current_page, this.className);}
+				if (document.getElementById("tr"+i).getElementsByTagName('td')[12]) document.getElementById("tr"+i).getElementsByTagName('td')[12].onclick = function() {load_frameedit(roscms_current_page, this.className);}
 			}
 		}
 	}
@@ -449,6 +475,7 @@
 			min-width: 350px;
 			width: 100%;
 			cursor: pointer;
+			table-layout: fixed; /* without this, IE's trident engine went nuts and forget about "overflow" and "white-space" !!! */
 		}
 		
 		.datatable tr.head th,
@@ -546,7 +573,13 @@
 		}
 	
 		.cCid {
-			width: 				200px;
+			width: 				180px;
+			overflow: 			hidden;
+			/* border: 1px dashed red; */
+		}
+	
+		.cExtraCol {
+			width: 				75px;
 			overflow: 			hidden;
 			/* border: 1px dashed red; */
 		}
@@ -574,12 +607,14 @@
 		}
 		
 		.cell-height {
-			overflow:hidden;
-			white-space:nowrap;
+			overflow: hidden;
+			white-space: nowrap;
 			/*height: 14px;*/
 			display: block;
-			vertical-align:middle;
-			float:left;
+			vertical-align: middle;
+			text-align: left;
+			width: 100%;
+			float: left;
 		}
 		
 		.cStarOn {
@@ -770,7 +805,45 @@
 			font-style: normal;
 			cursor: pointer;
 		}
+		
+		
+		/* data_edit */
 
+		.edittagbody {
+			border-bottom: 1px solid #bbb; 
+			border-bottom-width: 1px; 
+			border-right: 1px solid #bbb; 
+			border-right-width: 1px; 
+			background: #F2F2F2 none repeat scroll 0%;
+		}
+		.edittagbody2 {
+			margin:10px;
+		}
+
+		.detailbody {
+			background: #FAE7B2 none repeat scroll 0%; 
+			width: 100%; 
+			height: 30px; 
+			vertical-align: middle;
+		}
+		
+		.detailmenubody {
+			padding: 5px; 
+			font-size: 105%; 
+			text-decoration:none;
+		}
+		
+		.detailmenu {
+			color: #006090;
+			text-decoration: underline;
+			cursor: pointer;
+		}
+		
+		.frmeditbutton {
+			cursor:pointer;
+			color:#006090;
+		}
+		
 	-->
 	</style>
 	<!--[if IE]>
@@ -828,7 +901,7 @@
 	
 	<div class="roscms_container" style="border: 1px dashed white; z-index: 2;">
 		<div class="tabmenu" style="position: absolute; top: 0px; width: 150px; left: 0px; border: 0px; z-index:1;">
-			<div id="smenutab1" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
+			<div id="smenutab1" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1 || roscms_security_grp_member("transmaint")) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc1" class="subm2"><b>New Entry</b></div>
 				</div>
@@ -841,22 +914,22 @@
 					<div id="smenutabc2" class="subm2"><b>New</b></div>
 				</div>
 			</div>
-			<div id="smenutab3" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
+			<div id="smenutab3" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1 || roscms_security_grp_member("transmaint")) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc3" class="subm2">Page</div>
 				</div>
 			</div>
-			<div id="smenutab4" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
+			<div id="smenutab4" class="submb" onclick="smenutab_open(this.id)">
 				<div class="subm1">
 					<div id="smenutabc4" class="subm2">Content</div>
 				</div>
 			</div>
-			<div id="smenutab5" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
+			<div id="smenutab5" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1 || roscms_security_grp_member("transmaint")) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc5" class="subm2">Template</div>
 				</div>
 			</div>
-			<div id="smenutab6" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1) { echo " style=\"display:none;\""; } ?>>
+			<div id="smenutab6" class="submb" onclick="smenutab_open(this.id)"<?php if ($roscms_security_level == 1 || roscms_security_grp_member("transmaint")) { echo " style=\"display:none;\""; } ?>>
 				<div class="subm1">
 					<div id="smenutabc6" class="subm2">Script</div>
 				</div>
@@ -868,7 +941,7 @@
 			</div>
 			<div id="smenutab8" class="submb" onclick="smenutab_open(this.id)">
 				<div class="subm1">
-					<div id="smenutabc8" class="subm2">All Entry</div>
+					<div id="smenutabc8" class="subm2">All Entries</div>
 				</div>
 			</div>
 			<div style="background: #FFFFFF none repeat scroll 0%;">&nbsp;</div>
@@ -884,7 +957,7 @@
 			</div>
 			<div id="smenutab11" class="submb" onclick="smenutab_open(this.id)">
 				<div class="subm1">
-					<div id="smenutabc11" class="subm2">My Entry</div>
+					<div id="smenutabc11" class="subm2">My Entries</div>
 				</div>
 			</div>
 			<div id="smenutab12" class="submb" onclick="smenutab_open(this.id)">
@@ -948,6 +1021,30 @@
 		<script type="text/javascript" language="javascript">
 		<!--
 
+			function beautifystr (tmp_str) {
+				//var tmp2_str = tmp_str;
+				
+				// remove invalid characters
+				tmp_str = tmp_str.replace(/\|/g, '');
+				tmp_str = tmp_str.replace(/=/g, '');
+				tmp_str = tmp_str.replace(/&/g, '');
+				tmp_str = tmp_str.replace(/_/g, '');
+				
+				//alert(tmp2_str +'\n'+tmp_str);				
+				
+				return tmp_str;
+			}
+
+			function beautifystr2 (tmp_str) {
+				// remove invalid characters
+				tmp_str = tmp_str.replace(/\|/g, '');
+				tmp_str = tmp_str.replace(/=/g, '');
+				tmp_str = tmp_str.replace(/&/g, '');
+							
+				return tmp_str;
+			}
+						
+
 			function show_quickinfo(dataid_revid) {
 				if (document.getElementById('labtitel1c').style.display == 'block') { // only if the quick info box is 'visible'
 					window.clearTimeout(timerquickinfo); /* deactivate quickinfo-timer */
@@ -967,8 +1064,10 @@
 				
 				//document.getElementById('lablinks1').innerHTML = dataid_revid+'<br />loading ...';
 
-				usf_req = '?page=data_out&d_f=text&d_u=uqi&d_val=ptm&d_id='+encodeURI(qistr[0].substr(2))+'&d_r_id='+encodeURI(qistr[1]);
-				document.getElementById('txttabelle').value = usf_req;
+				usf_req = '?page=data_out&d_f=text&d_u=uqi&d_val=ptm&d_id='+encodeURIComponent(qistr[0].substr(2))+'&d_r_id='+encodeURIComponent(qistr[1]);
+				<?php if ($RosCMS_GET_debug) { ?>
+					debugLog(usf_req);
+				<?php } ?>
 				document.getElementById('qiload').style.display = 'block';
 				makeRequest(usf_req, 'uqi', 'lablinks1', 'html', 'GET', '');
 			}
@@ -992,15 +1091,19 @@
 				var uf_name = '';
 				var usf_req = '';
 				var uf_objid = '';
-				
+							
 				if (uf_type == 'label') {
-					uf_name = window.prompt("Input a new Label name:", "");
-					uf_str = 'a_is_'+uf_name;
-					uf_objid = 'lablinks3';
+					try {
+						uf_name = window.prompt("Input a new Label name:", "");
+						uf_str = 'a_is_'+ beautifystr(uf_name);
+						uf_objid = 'lablinks3';
+					} catch (e) {}
 				}
 				else {
-					uf_name = window.prompt("Input a new Smart Filter name:", "");
-					uf_objid = 'lablinks2';
+					try {
+						uf_name = window.prompt("Input a new Smart Filter name:", "");
+						uf_objid = 'lablinks2';
+					} catch (e) {}
 				}
 				
 				if (!uf_name) { // cancel button
@@ -1009,9 +1112,11 @@
 				
 				if (uf_name != '' && uf_name.length < 50) {
 					//alert('type: '+uf_type+', name: '+uf_name+', string: '+uf_str);
-
-					usf_req = '?page=data_out&d_f=text&d_u=ufs&d_val=add&d_val2='+encodeURI(uf_type)+'&d_val3='+encodeURI(uf_name)+'&d_val4='+encodeURI(uf_str);
-					document.getElementById('txttabelle').value = usf_req;
+					
+					usf_req = '?page=data_out&d_f=text&d_u=ufs&d_val=add&d_val2='+encodeURIComponent(uf_type)+'&d_val3='+encodeURIComponent(uf_name)+'&d_val4='+encodeURIComponent(uf_str);
+					<?php if ($RosCMS_GET_debug) { ?>
+						debugLog(usf_req);
+					<?php } ?>
 					makeRequest(usf_req, 'ufs', uf_objid, 'html', 'GET', '');
 				}
 			}
@@ -1030,8 +1135,10 @@
 				}
 
 				if (uf_check == true) {
-					usf_req = '?page=data_out&d_f=text&d_u=ufs&d_val=del&d_val2='+encodeURI(uf_type)+'&d_val3='+encodeURI(uf_id);
-					document.getElementById('txttabelle').value = usf_req;
+					usf_req = '?page=data_out&d_f=text&d_u=ufs&d_val=del&d_val2='+encodeURIComponent(uf_type)+'&d_val3='+encodeURIComponent(uf_id);
+					<?php if ($RosCMS_GET_debug) { ?>
+						debugLog(usf_req);
+					<?php } ?>
 					makeRequest(usf_req, 'ufs', uf_objid, 'html', 'GET', '');
 				}
 			}
@@ -1047,8 +1154,10 @@
 				}
 						
 				document.getElementById(uf_objid).innerHTML = '<div align="right"><img src="images/ajax_loading.gif" alt="loading ..." width="13" height="13" /></div>';
-				usf_req = '?page=data_out&d_f=text&d_u=ufs&d_val=load&d_val2='+encodeURI(uf_type);
-				document.getElementById('txttabelle').value = usf_req;
+				usf_req = '?page=data_out&d_f=text&d_u=ufs&d_val=load&d_val2='+encodeURIComponent(uf_type);
+				<?php if ($RosCMS_GET_debug) { ?>
+					debugLog(usf_req);
+				<?php } ?>
 				makeRequest(usf_req, 'ufs', uf_objid, 'html', 'GET', '');
 			}
 						
@@ -1072,12 +1181,12 @@
 				if (document.getElementById(objid +'c').style.display == 'none') {
 					document.getElementById(objid +'c').style.display = 'block';
 					document.getElementById(objid +'i').src = 'images/tab_open.gif';
-					createCookie(objid,'1',365);
+					createCookie(objid,'1',365); // 365 days
 				}
 				else {
 					document.getElementById(objid +'c').style.display = 'none';
 					document.getElementById(objid +'i').src = 'images/tab_closed.gif';
-					createCookie(objid,'0',365);
+					createCookie(objid,'0',365); // 365 days
 				}
 			}
 			
@@ -1116,24 +1225,37 @@
 		<script type="text/javascript" language="javascript">
 		<!--
 			
-			var smenutabs = 12;
+			var smenutabs = 12; // sync this value with the tab-menu entry-count !!!
 			
-			function tbl_user_filter(ufiltstr) {
-				smenutab_highlight('smenutab8');
+			function tbl_user_filter(ufiltstr, ufilttype, ufilttitel) {
+				var tentrs = selectedEntries().split("|");
 
-				filtstring2 = ufiltstr;
-
-				// reset search box:
-				filtstring1 = '';
-				document.getElementById('txtfind').value = '';
-				textbox_hint('txtfind', document.getElementById('txtfind').value, 'Search & Filters', 0);
-
-
-				chtabtext = null;
-				select_all(0); /* deselect all */
-
-				load_frametable('all');
-				filtpopulate(ufiltstr);
+				if (ufilttype == 2 && tentrs[0] > 0 && tentrs[0] != '') {
+					<?php
+						if ($RosCMS_GET_debug) {
+							echo "alert('tag it ;)');";
+						}
+					?>
+					
+					makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=changetags&d_val='+encodeURIComponent(tentrs[0])+'&d_val2='+encodeURIComponent(tentrs[1])+'&d_val3=tg&d_val4='+ufilttitel, 'mef', 'changetags', 'html', 'GET', '');
+				}
+				else {
+					smenutab_highlight('smenutab8');
+	
+					filtstring2 = ufiltstr;
+	
+					// reset search box:
+					filtstring1 = '';
+					document.getElementById('txtfind').value = '';
+					textbox_hint('txtfind', document.getElementById('txtfind').value, 'Search & Filters', 0);
+	
+	
+					chtabtext = null;
+					select_all(0); /* deselect all */
+	
+					load_frametable('all');
+					filtpopulate(ufiltstr);
+				}
 			}
 			
 			function smenutab_highlight(objid) {
@@ -1220,7 +1342,7 @@
 						break;
 					default:
 					case '2':
-						filtstring2 = 'k_is_new_0|l_is_'+getlang()+'_0|o_desc_revid';
+						filtstring2 = 'k_is_new_0|c_is_type_0|l_is_'+getlang()+'_0|o_desc_datetime';
 						load_frametable('new');
 						break;
 					case '3':
@@ -1240,29 +1362,29 @@
 						load_frametable('script');
 						break;
 					case '7':
-						filtstring2 = 'y_is_content_0|k_is_stable_0|c_is_user_0|l_is_<?php echo $roscms_standard_language; ?>_0|r_is_'+translang+'|o_asc_name';
+						filtstring2 = 'y_is_content_0|k_is_stable_0|i_is_default_0|c_is_user_0|l_is_<?php echo $roscms_standard_language; ?>_0|r_is_'+translang+'|o_asc_name';
 						load_frametable('translate');
 						break;
 					case '8':
-						filtstring2 = 'k_no_draft_0|l_is_'+getlang()+'|o_desc_revid';
+						filtstring2 = 'c_is_type_0|l_is_'+getlang()+'|o_desc_datetime';
 						load_frametable('all');
 						break;
 					case '9':
-						filtstring2 = 's_is_true_0|l_is_'+getlang()+'_0|o_desc_revid';
+						filtstring2 = 's_is_true_0|c_is_type_0|l_is_'+getlang()+'_0|o_desc_datetime';
 						load_frametable('starred');
 						break;
 					case '10':
-						filtstring2 = 'k_is_draft_0|u_is_<?php echo $roscms_intern_login_check_username; ?>_0|o_desc_revid';
-						load_frametable('draft|c_is_language');
+						filtstring2 = 'k_is_draft_0|u_is_<?php echo $roscms_intern_login_check_username; ?>_0|c_is_type_0|o_desc_datetime';
+						load_frametable('draft');
 						break;
 					case '11':
-						filtstring2 = 'u_is_<?php echo $roscms_intern_login_check_username; ?>_0|o_desc_revid';
+						filtstring2 = 'u_is_<?php echo $roscms_intern_login_check_username; ?>_0|c_is_type_0|o_desc_datetime';
 						load_frametable('my');
 						break;
 					case '12':
-						filtstring2 = 'k_is_archive_0|l_is_'+getlang()+'_0|o_asc_name';
+						filtstring2 = 'k_is_archive_0|c_is_type_0|l_is_'+getlang()+'_0|o_asc_name';
 						roscms_archive = 1; /* activate archive mode*/
-						load_frametable('my');
+						load_frametable('archive');
 						break;
 				}
 				
@@ -1274,6 +1396,8 @@
 					document.getElementById('frameedit').style.display = 'none';
 					
 					window.clearTimeout(alertactiv); /* deactivate alert-timer */
+					document.getElementById('alertb').style.visibility = 'hidden';
+					document.getElementById('alertbc').innerHTML = '&nbsp;';
 					select_all(0); /* deselect all table entries */
 	
 					//document.getElementById('tablist').innerHTML = '';
@@ -1282,20 +1406,78 @@
 				if (submenu_button == 'true') {
 					roscms_prev_page = roscms_current_page;
 					roscms_current_page = objevent;
+					//alert('1: '+filtstring2);
 					filtpopulate(filtstring2);
+					//alert('2: '+filtstring2);
 					submenu_button = '';
 				}
 				
-				document.getElementById('txttabelle').value = '?page=data_out&d_f=xml&d_u=ptm&d_fl='+objevent+'&d_filter='+filtstring1+'&d_filter2='+filtstring2+'&d_cp=0';
-								
+				// update table-cmdbar
+				switch (objevent) {
+					case 'new':
+						tblcmdbar('new');
+						break;
+					case 'page':
+					case 'content':
+						tblcmdbar('page');
+						break;
+					case 'script':
+					case 'template':
+						tblcmdbar('script');
+						break;
+					case 'translate':
+						tblcmdbar('trans');
+						break;
+					case 'archive':
+						tblcmdbar('archive');
+						break;
+					default:
+						tblcmdbar('all');
+						break;
+				}
+
+				// update table-selectbar
+				switch (objevent) {
+					case 'new':
+					case 'page':
+					case 'content':
+					case 'script':
+					case 'template':
+					case 'draft':
+						tblselectbar('basic');
+						break;
+					case 'translate':
+						tblselectbar('trans');
+						break;
+					case 'starred':
+						tblselectbar('bookmark');
+						break;
+					case 'archive':
+						tblselectbar('archive');
+						break;
+					default:
+						tblselectbar('common');
+						break;
+				}
+				
+				<?php if ($RosCMS_GET_debug) { ?>
+					debugLog('?page=data_out&d_f=xml&d_u=ptm&d_fl='+objevent+'&d_filter='+filtstring1+'&d_filter2='+filtstring2+'&d_cp=0');
+				<?php } ?>
+				//alert('3: '+filtstring2 + ' | '+objevent);
+				
 				makeRequest('?page=data_out&d_f=xml&d_u=ptm&d_fl='+objevent+'&d_filter='+filtstring1+'&d_filter2='+filtstring2+'&d_cp=0', 'ptm', 'tablist', 'xml', 'GET', '');
 			}
 			
 			function load_frametable_cp(tcp) {
 				window.clearTimeout(alertactiv); /* deactivate alert-timer */
+				document.getElementById('alertb').style.visibility = 'hidden';
+				document.getElementById('alertbc').innerHTML = '&nbsp;';
 				select_all(0); /* deselect all table entries */
 					
-				document.getElementById('txttabelle').value = '?page=data_out&d_f=xml&d_u=ptm&d_fl='+roscms_current_page+'&d_filter='+filtstring1+'&d_filter2='+filtstring2+'&d_cp='+tcp;
+				
+				<?php if ($RosCMS_GET_debug) { ?>
+					debugLog('?page=data_out&d_f=xml&d_u=ptm&d_fl='+roscms_current_page+'&d_filter='+filtstring1+'&d_filter2='+filtstring2+'&d_cp='+tcp);
+				<?php } ?>
 				makeRequest('?page=data_out&d_f=xml&d_u=ptm&d_fl='+roscms_current_page+'&d_filter='+filtstring1+'&d_filter2='+filtstring2+'&d_cp='+tcp, 'ptm', 'tablist', 'xml', 'GET', '');
 			}
 
@@ -1308,30 +1490,35 @@
 			}
 
 			
-			function load_frameedit(objevent, entryid) {
-				//alert(objevent+', '+entryid);
+			function load_frameedit_helper() {
 				if (document.getElementById('frameedit').style.display != 'block') {
 					document.getElementById('frametable').style.display = 'none';
 					document.getElementById('frameedit').style.display = 'block';
 				}
 				
 				window.clearTimeout(alertactiv); /* deactivate alert-timer */
+				document.getElementById('alertb').style.visibility = 'hidden';
+				document.getElementById('alertbc').innerHTML = '&nbsp;';
 				select_all(0); /* deselect all table entries */
-
-				
+			}
+			
+			function load_frameedit(objevent, entryid) {
+				<?php if ($RosCMS_GET_debug) echo "alert(objevent+', '+entryid);"; ?>
 				//alert(roscms_prev_page+" - "+objevent);
 
 				switch (objevent) {
 					case 'newentry':
+						load_frameedit_helper();
 						roscms_prev_page = roscms_current_page;
 						roscms_current_page = objevent;
 
 						document.getElementById('frmedithead').innerHTML = '<b>New Entry</b>';
 						
 						document.getElementById('editzone').innerHTML = '<p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>';
-						makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry&d_id=new', 'mef', 'addnew', 'html', 'GET', '');
+						makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry&d_id=new&d_val=0', 'mef', 'addnew', 'html', 'GET', '');
 						break;
 					case 'diffentry':
+						load_frameedit_helper();
 						//alert(objevent);
 						document.getElementById('frmedithead').innerHTML = '<span class="l" onclick="load_frametable_cp2(roscms_current_tbl_position)"><strong>&laquo; Back</strong></span> &nbsp; <b>Compare two Entries</b>';
 						break;
@@ -1345,12 +1532,21 @@
 							devideids3 = entryid.substr(devideids1+1);
 
 							if (devideids2.substr(0,2) == 'tr') {
-								/*uf_check = confirm("Do you want to translate this entry?");
+								uf_check = confirm("Do you want to translate this entry?");
 								if (uf_check != true) {
+									//load_frametable_cp2(0);
 									break;
-								}*/
-								alertbox('Translation functions is still partly unimplemented.');
+								}
+								//alertbox('Translation functions is still partly unimplemented.');
+								alertbox('Translation copy created.');
 							}
+							if (devideids2 == 'notrans') {
+								alertbox('You don\'t have enough rights to translate this entry.');
+								break;
+							}
+
+
+							load_frameedit_helper();
 
 							roscms_prev_page = roscms_current_page;
 							roscms_current_page = objevent;
@@ -1360,12 +1556,17 @@
 
 												
 							//alert(devideids2+', '+devideids3);
-							document.getElementById('txttabelle').value = '?page=data_out&d_f=text&d_u=mef&d_fl='+objevent+'&d_id='+devideids2+'&d_r_id='+devideids3;
+							
+							<?php if ($RosCMS_GET_debug) { ?>
+								debugLog('?page=data_out&d_f=text&d_u=mef&d_fl='+objevent+'&d_id='+devideids2+'&d_r_id='+devideids3);
+							<?php } ?>
 							
 							// loading screen:
 							document.getElementById('editzone').innerHTML = '<div style="background:#FFFFFF; border-bottom: 1px solid #bbb; border-bottom-width: 1px; border-right: 1px solid #bbb; border-right-width: 1px;"><div style="margin:10px;"><div style="width:95%;"><br /><br /><center><img src="images/ajax_loading.gif" alt="loading ..." width="13" height="13" />&nbsp;&nbsp;loading ...</center><br /><br /></div></div></div>';
 							
-							makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl='+objevent+'&d_id='+devideids2+'&d_r_id='+devideids3, 'mef', 'editzone', 'html', 'GET', '');
+							//alert('userlang: '+userlang);
+							
+							makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl='+objevent+'&d_id='+devideids2+'&d_r_id='+devideids3+'&d_r_lang='+userlang, 'mef', 'editzone', 'html', 'GET', '');
 						}
 						else {
 							alert('bad request: load_frameedit('+objevent+', '+entryid+')');
@@ -1398,7 +1599,16 @@
 											&nbsp;&nbsp;&nbsp;<span class="filterbutton" onclick="add_user_filter('filter', filtstring2)"><img src="images/save.gif" alt="" style="width:14px; height:14px; border:0px;" />&nbsp;Save</span>
 											&nbsp;&nbsp;&nbsp;<span class="filterbutton" onclick="filtsearch()"><img src="images/search.gif" alt="" style="width:14px; height:14px; border:0px;" />&nbsp;Search</span>										</div>
 									</div>
-								    <script type="text/javascript" language="javascript">
+									<?php
+										// disable combobox entries for novice user
+										if ($roscms_security_level > 1) {
+											$cbm_item_hide = "";
+										}
+										else {
+											$cbm_item_hide = " disabled=\"disabled\" style=\"color:#CCCCCC;\"";
+										}
+									?>
+									<script type="text/javascript" language="javascript">
 									<!--
 
 										function alertbox_close(zeroonetwo) {
@@ -1458,66 +1668,48 @@
 											
 											//alert('objidval: '+objidval);
 											
-											switch(objidval) {
-												//default:
-												case 'k': /* kind */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="stable">Stable</option><option value="new">New</option><option value="draft">Draft</option><option value="unknown">Unknown or no status</option><option value="archive">Archive</option></select>';
-													break;
-												case 'y': /* type */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="page">Page</option><option value="content">Content</option><option value="template">Template</option><option value="script">Script</option><option value="system">System</option></select>';
-													break;
-												case 's': /* starred */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="true">on</option><option value="false">off</option></select>';
-													break;
-												case 'd': /* date */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="sm">is smaller</option><option value="la">is larger</option></select>';
-													filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. 2007-02-22)';
-													break;
-												case 't': /* time */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="sm">is smaller</option><option value="la">is larger</option></select>';
-													filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. 15:30)';
-													break;
-												case 'l': /* language */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><?php
-																													$query_language = mysql_query("SELECT * 
-																																					FROM languages
-																																					WHERE lang_level > '0'
-																																					ORDER BY lang_name ASC ;");
-																													while($result_language=mysql_fetch_array($query_language)) {
-																														echo '<option value="';
-																														/*if ($result_language['lang_level'] == '10') {
-																															echo "all";
-																														}
-																														else {*/
-																															echo $result_language['lang_id'];
-																														//}
-																														echo '"';
-																														$query_account = @mysql_query("SELECT user_language FROM users WHERE user_id = '".mysql_real_escape_string($roscms_intern_account_id)."'");
-																														$result_account = @mysql_fetch_array($query_account);
-																														
-																														if ($result_language['lang_id'] == $result_account['user_language']) {
-																															echo ' selected="selected"';
-																														}
-																														echo '>'.$result_language['lang_name'].'</option>';
-																														
-																													}
-																												  ?></select>';
-													break;
-												case 'r': /* translate */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">to</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><?php
-																													$query_language = mysql_query("SELECT * 
-																																					FROM languages
-																																					WHERE lang_level > '0'
-																																					ORDER BY lang_name ASC ;");
-																													while($result_language=mysql_fetch_array($query_language)) {
-																														if ($result_language['lang_level'] != '10') {
+											if (objidval2 == 0 <?php if ($roscms_security_level > 1) { echo "&& 1 == 2"; } ?>) { // hidden filter entries don't need a combobox (only for SecLev = 1 user) 
+												filtentryselstrs1 = '<input type="hidden" name="sfb'+filterid+'" id="sfb'+filterid+'" value="" />';
+												filtentryselstrs2 = '<input type="hidden" name="sfc'+filterid+'" id="sfc'+filterid+'" value="" />';
+											}
+											else {
+												switch(objidval) {
+													//default:
+													case 'k': /* kind */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><?php if ($roscms_security_level > 1) { ?><option value="no"<?php echo $cbm_item_hide; ?>>is not</option><?php } ?></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="stable">Stable</option><option value="new">New</option><option value="draft">Draft</option><option value="unknown">Unknown or no status</option><?php if ($roscms_security_level > 1) { ?><option value="archive"<?php echo $cbm_item_hide; ?>>Archive</option><?php } ?></select>';
+														break;
+													case 'y': /* type */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><?php if ($roscms_security_level > 1) { ?><option value="no"<?php echo $cbm_item_hide; ?>>is not</option><?php } ?></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="page">Page</option><option value="content">Content</option><option value="template">Template</option><option value="script">Script</option><option value="system">System</option></select>';
+														break;
+													case 's': /* starred */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="true">on</option><option value="false">off</option></select>';
+														break;
+													case 'd': /* date */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="sm">is smaller</option><option value="la">is larger</option></select>';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. 2007-02-22)';
+														break;
+													case 't': /* time */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="sm">is smaller</option><option value="la">is larger</option></select>';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. 15:30)';
+														break;
+													case 'l': /* language */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><?php
+																														$query_language = mysql_query("SELECT * 
+																																						FROM languages
+																																						WHERE lang_level > '0'
+																																						ORDER BY lang_name ASC ;");
+																														while($result_language=mysql_fetch_array($query_language)) {
 																															echo '<option value="';
-																															echo $result_language['lang_id'];
+																															/*if ($result_language['lang_level'] == '10') {
+																																echo "all";
+																															}
+																															else {*/
+																																echo $result_language['lang_id'];
+																															//}
 																															echo '"';
 																															$query_account = @mysql_query("SELECT user_language FROM users WHERE user_id = '".mysql_real_escape_string($roscms_intern_account_id)."'");
 																															$result_account = @mysql_fetch_array($query_account);
@@ -1526,34 +1718,79 @@
 																																echo ' selected="selected"';
 																															}
 																															echo '>'.$result_language['lang_name'].'</option>';
-																														}																													
-																													}
-																												  ?></select>';
-													break;
-												case 'u': /* user */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
-													filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. John Doe)';
-													break;
-												case 'v': /* version */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="sm">is smaller</option><option value="la">is larger</option></select>';
-													filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="5" maxlength="10" />&nbsp;&nbsp;(e.g. 12)';
-													break;
-												case 'c': /* column */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="language">Language</option><option value="user">User</option></select>';
-													break;
-												case 'o': /* order by */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="asc">Ascending</option><option value="desc">Descending</option></select>';
-													filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="revid">Date &amp; Time</option><option value="name">Name</option><option value="lang">Language</option><option value="usr">User</option><option value="nbr">Number ("dynamic" entry)</option></select>';
-													break;
-												case 'n': /* name */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="likea">is like *...*</option><option value="likeb">is like ...*</option></select>';
-													filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. about)';
-													break;
-												case 'a': /* tag */
-													filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
-													filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="15" maxlength="30" />&nbsp;&nbsp;(e.g. todo)';
-													break;
+																															
+																														}
+																													  ?></select>';
+														break;
+													case 'r': /* translate */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">to</option></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><?php
+																														$query_language = mysql_query("SELECT * 
+																																						FROM languages
+																																						WHERE lang_level > '0'
+																																						ORDER BY lang_name ASC ;");
+																														while($result_language=mysql_fetch_array($query_language)) {
+																															if ($result_language['lang_level'] != '10') {
+																																echo '<option value="';
+																																echo $result_language['lang_id'];
+																																echo '"';
+																																$query_account = @mysql_query("SELECT user_language FROM users WHERE user_id = '".mysql_real_escape_string($roscms_intern_account_id)."'");
+																																$result_account = @mysql_fetch_array($query_account);
+																																
+																																if ($result_language['lang_id'] == $result_account['user_language']) {
+																																	echo ' selected="selected"';
+																																}
+																																echo '>'.$result_language['lang_name'].'</option>';
+																															}																													
+																														}
+																													  ?></select>';
+														break;
+													case 'u': /* user */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><?php if ($roscms_security_level > 1) { ?><option value="no"<?php echo $cbm_item_hide; ?>>is not</option><?php } ?></select>';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. John Doe)';
+														break;
+													case 'v': /* version */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option><option value="sm">is smaller</option><option value="la">is larger</option></select>';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="5" maxlength="10" />&nbsp;&nbsp;(e.g. 12)';
+														break;
+													case 'c': /* column */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="language">Language</option><option value="user">User</option><option value="type">Type</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="rights"<?php echo $cbm_item_hide; ?>>Rights</option><?php } ?></select>';
+														break;
+													case 'o': /* order by */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="asc">Ascending</option><option value="desc">Descending</option></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="datetime">Date &amp; Time</option><option value="name">Name</option><option value="lang">Language</option><option value="usr">User</option><option value="type">Type</option><option value="nbr">Number ("dynamic" entry)</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="revid"<?php echo $cbm_item_hide; ?>>RevID</option><option value="ext"<?php echo $cbm_item_hide; ?>>Extention</option><option value="status"<?php echo $cbm_item_hide; ?>>Status</option><option value="kind"<?php echo $cbm_item_hide; ?>>Kind</option><?php } ?></select>';
+														break;
+													case 'i': /* security (ACL) */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><?php
+																														$query_sec_acl = mysql_query("SELECT sec_name, sec_fullname   
+																																						FROM data_security
+																																						ORDER BY sec_fullname ASC ;");
+																														while($result_sec_acl=mysql_fetch_array($query_sec_acl)) {
+																															echo '<option value="'. $result_sec_acl['sec_name'] .'">'. $result_sec_acl['sec_fullname'] .'</option>';
+																														}
+																													  ?></select>';
+														break;
+													case 'm': /* metadata */
+														filtentryselstrs1 = '<input id="sfb'+filterid+'" type="text" value="" size="10" maxlength="50" />';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(entry: value)';
+														break;
+													case 'n': /* name */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><?php if ($roscms_security_level > 1) { ?><option value="no"<?php echo $cbm_item_hide; ?>>is not</option><option value="likea"<?php echo $cbm_item_hide; ?>>is like *...*</option><?php } ?><option value="likeb">is like ...*</option></select>';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="20" maxlength="50" />&nbsp;&nbsp;(e.g. about)';
+														break;
+													case 'a': /* tag */
+														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><?php if ($roscms_security_level > 1) { ?><option value="no"<?php echo $cbm_item_hide; ?>>is not</option><?php } ?></select>';
+														filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="15" maxlength="30" />&nbsp;&nbsp;(e.g. todo)';
+														break;
+													<?php if ($roscms_security_level == 3) { ?>
+														case 'e': /* system */
+															filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="dataid">Data-ID</option><option value="revid">Rev-ID</option><option value="usrid">User-ID</option><option value="langid">Lang-ID</option></select>';
+															filtentryselstrs2 = '<input id="sfc'+filterid+'" type="text" value="" size="15" maxlength="30" />';
+															break;
+													<?php } ?>
+												}
 											}
 												
 											filtentryselstr += '<span id="sfz'+filterid+'">';
@@ -1612,7 +1849,6 @@
 														<?php } else { ?>
 														lstfilterstr +=  '<span style="display: none">';
 														<?php } ?>
-
 													}
 													else {
 														filtvisibility = 1;
@@ -1623,27 +1859,51 @@
 													//alert(lstfilterstr2[0]);
 													
 													indexid = i + 1;
-													
-													
+
+
 													lstfilterstr +=  '<div id="filt'+indexid+'" class="filterbar2">and&nbsp;';
-													lstfilterstr +=  '<select id="sfa'+indexid+'" onchange="filtentryselect(this.id)">';
-															lstfilterstr += '<option value="k">Status</option>';
-															lstfilterstr += '<option value="y">Type</option>';
-															lstfilterstr += '<option value="n">Name</option>';
-															lstfilterstr += '<option value="v">Version</option>';
-															lstfilterstr += '<option value="s">Starred</option>';
-															lstfilterstr += '<option value="a">Tag</option>';
-															lstfilterstr += '<option value="l">Language</option>';
-															lstfilterstr += '<option value="r">Translate</option>';
-															lstfilterstr += '<option value="u">User</option>';
-															lstfilterstr += '<option value="d">Date</option>';
-															lstfilterstr += '<option value="t">Time</option>';
-															lstfilterstr += '<option value="c">Column</option>';
-															lstfilterstr += '<option value="o">Order</option>';
-													lstfilterstr += '</select>&nbsp;';
+
+													if (lstfilterstr2[3] == 0 <?php if ($roscms_security_level > 1) {echo "&& 1 == 2"; } ?>) { // hidden filter entries don't need a combobox (only for SecLev = 1 user) 
+														lstfilterstr +=  '<input type="hidden" name="sfa'+indexid+'" id="sfa'+indexid+'" value="" />';
+													}
+													else {
+														lstfilterstr +=  '<select id="sfa'+indexid+'" onchange="filtentryselect(this.id)">';
+																<?php if ($roscms_security_level > 1) { ?>
+																	lstfilterstr += '<option value="k"<?php echo $cbm_item_hide; ?>>Status</option>';
+																	lstfilterstr += '<option value="y"<?php echo $cbm_item_hide; ?>>Type</option>';
+																<?php } ?>
+																lstfilterstr += '<option value="n">Name</option>';
+																lstfilterstr += '<option value="v">Version</option>';
+																lstfilterstr += '<option value="s">Starred</option>';
+																lstfilterstr += '<option value="a">Tag</option>';
+																lstfilterstr += '<option value="l">Language</option>';
+																<?php if ($roscms_security_level > 1) { ?>
+																	lstfilterstr += '<option value="r"<?php echo $cbm_item_hide; ?>>Translate</option>';
+																	lstfilterstr += '<option value="i"<?php echo $cbm_item_hide; ?>>Security</option>';
+																	lstfilterstr += '<option value="m"<?php echo $cbm_item_hide; ?>>Metadata</option>';
+																	lstfilterstr += '<option value="u"<?php echo $cbm_item_hide; ?>>User</option>';
+																<?php } ?>
+																<?php if ($roscms_security_level == 3) { ?>
+																	lstfilterstr += '<option value="e"<?php echo $cbm_item_hide; ?>>System</option>';
+																<?php } ?>
+																lstfilterstr += '<option value="d">Date</option>';
+																lstfilterstr += '<option value="t">Time</option>';
+																lstfilterstr += '<option value="c">Column</option>';
+																lstfilterstr += '<option value="o">Order</option>';
+														lstfilterstr += '</select>&nbsp;';
+													}
+
 													lstfilterstr +=  filtpopulatehelper(lstfilterstr2[0], lstfilterstr2[3], indexid);
 													lstfilterstr +=  '&nbsp;&nbsp;&nbsp;<span id="fdel'+indexid+'" class="filterbutton" onclick="filtentrydel(this.id)"><img src="images/remove.gif" alt="" style="width:11px; height:11px; border:0px;" />&nbsp;Delete</span>';
 													lstfilterstr +=  '</div>';
+
+													
+													if (lstfilterstr2[3] == 0) {
+														lstfilterstr +=  '<span id="sfv'+indexid+'" class="filthidden"></span>'; // store visibility-status
+													}
+													else {
+														lstfilterstr +=  '<span id="sfv'+indexid+'" class="filtvisible"></span>'; // store visibility-status
+													}
 													lstfilterstr +=  '</span>';
 												}
 											
@@ -1672,21 +1932,28 @@
 											}
 										}
 										
-										function filtscanfilters() {
+										function filtscanfilters() {									
 												filtstring2 = '';
 												
 												//alert('start_filtscanfilters: '+filtercounter);
 
 												for (var i=1; i <= filtercounter; i++) {
+													
 													//alert('loop_filtscanfilters: '+i+' of '+filtercounter);
 													if (document.getElementById('sfa'+i)) {
 														//alert('loop22_filtscanfilters: '+i+' of '+filtercounter);
 														//alert(filtercounter+': '+document.getElementById('sfa'+i).value);
-														filtstring2 += document.getElementById('sfa'+i).value;
+														
+														filtstring2 += beautifystr(document.getElementById('sfa'+i).value);
 														filtstring2 += '_';
-														filtstring2 += document.getElementById('sfb'+i).value;
+														filtstring2 += beautifystr(document.getElementById('sfb'+i).value);
 														filtstring2 += '_';
-														filtstring2 += document.getElementById('sfc'+i).value;
+														filtstring2 += beautifystr(document.getElementById('sfc'+i).value);
+														if (document.getElementById('sfv'+i).id) { // care about visibility-status
+															if (document.getElementById('sfv'+i).className == "filthidden") {
+																filtstring2 += '_0';
+															}
+														}
 														filtstring2 += '|';
 													}
 													/*else {
@@ -1735,18 +2002,30 @@
 												filtstring1 = '';
 											}
 											
+											//alert(filtstring2);
 											filtscanfilters();
+											//alert(filtstring2);
+											//alert(roscms_current_page);
 											load_frametable(roscms_current_page);
 										}
 										
 										function filtadd() {
 											filtscanfilters();
 											
+											<?php
+												if ($roscms_security_level > 1) { 
+													$tmp_security_new_filter = "k_is_stable";
+												}
+												else {
+													$tmp_security_new_filter = "a_is_";
+												}
+											?>
+											
 											if (filtstring2 == '') {
-												filtpopulate('k_is_stable');
+												filtpopulate('<?php echo $tmp_security_new_filter; ?>');
 											}
 											else {
-												filtpopulate(filtstring2+'|k_is_stable');
+												filtpopulate(filtstring2+'|<?php echo $tmp_security_new_filter; ?>');
 											}
 										}
 										
@@ -1792,48 +2071,389 @@
 										
 										-->
 									</script>
-							  </div>
-							  <div style="padding-top: 5px;">
-									<button type="button" id="cmddiff" style="font-weight: bold;" onclick="diffentries()">Compare</button> 
-									<button type="button" id="cmdpreview" onclick="bpreview()">Preview</button> 
-									<button type="button" id="cmdstable" onclick="bchangetags('mn')">Ready</button> 
-									<?php 
-										if ($roscms_security_level >= 2) {
-									?>
-										<button type="button" id="cmdstable" onclick="bchangetags('ms')">Stable</button> 
-									<?php
+							</div>
+							<div id="tablecmdbar" style="padding-top: 5px;"></div>
+							<script type="text/javascript" language="javascript">
+								<!--
+								
+									function tblcmdbar(opt) {
+										cmdbarstr = '';
+										
+										cmdhtml_space = '&nbsp;';
+										cmdhtml_diff = '<button type="button" id="cmddiff" onclick="diffentries()">Compare</button>'+cmdhtml_space;
+										cmdhtml_preview = '<button type="button" id="cmdpreview" onclick="bpreview()">Preview</button>'+cmdhtml_space;
+										cmdhtml_ready = '<button type="button" id="cmdready" onclick="bchangetags(\'mn\')">Ready</button>'+cmdhtml_space;
+										<?php 
+											if ($roscms_security_level >= 2) {
+										?>
+											cmdhtml_stable = '<button type="button" id="cmdstable" onclick="bchangetags(\'ms\')">Stable</button>'+cmdhtml_space;
+										<?php
+											} else {
+										?>
+											cmdhtml_stable = '';
+										<?php
+											}
+										?>
+										cmdhtml_refresh = '<button type="button" id="cmdrefresh" onclick="load_frametable_cp2(roscms_current_tbl_position)">Refresh</button>'+cmdhtml_space;
+
+										cmdhtml_select1 = '<select name="extraopt" id="extraopt" style="vertical-align: top; width: 22ex;" onchange="bchangetags(this.value)">';
+										cmdhtml_select1 += '<option value="sel" style="color: rgb(119, 119, 119);">More actions...</option>';
+										cmdhtml_select_as = '<option value="as">&nbsp;&nbsp;&nbsp;Add star</option>';
+										cmdhtml_select_xs = '<option value="xs">&nbsp;&nbsp;&nbsp;Remove star</option>';
+										cmdhtml_select_no = '<option value="no" style="color: rgb(119, 119, 119);">&nbsp;&nbsp;&nbsp;-----</option>';
+										cmdhtml_select_mn = '<option value="mn">&nbsp;&nbsp;&nbsp;Mark as new</option>';
+										<?php 
+											if ($roscms_security_level >= 2) {
+										?>
+											cmdhtml_select_ms = '<option value="ms">&nbsp;&nbsp;&nbsp;Mark as stable</option>';
+											cmdhtml_select_ge = '<option value="va">&nbsp;&nbsp;&nbsp;Generate page</option>';
+										<?php
+											} else {
+										?>
+											cmdhtml_select_ms = '';
+										<?php
+											}
+										?>
+										<?php 
+											if ($roscms_security_level == 3) {
+										?>
+											cmdhtml_select_va = '<option value="va">&nbsp;&nbsp;&nbsp;Move to archive</option>';
+											cmdhtml_select_xe = '<option value="xe">&nbsp;&nbsp;&nbsp;Delete</option>';
+										<?php
+											} else {
+										?>
+											cmdhtml_select_va = '';
+											cmdhtml_select_xe = '';
+										<?php
+											}
+										?>
+										cmdhtml_select2 = '</select>';
+
+
+										switch (opt) {
+											case 'all':
+												cmdbarstr += cmdhtml_diff;
+												cmdbarstr += cmdhtml_preview;
+												cmdbarstr += cmdhtml_ready;
+												cmdbarstr += cmdhtml_stable;
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_mn;
+												cmdbarstr += cmdhtml_select_ms;
+												cmdbarstr += cmdhtml_select_va;
+												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select2;
+												break;
+											case 'trans':
+												cmdbarstr += cmdhtml_diff;
+												cmdbarstr += cmdhtml_preview;
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_mn;
+												cmdbarstr += cmdhtml_select_ms;
+												cmdbarstr += cmdhtml_select_va;
+												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select2;
+												break;
+											case 'new':
+												cmdbarstr += cmdhtml_diff;
+												cmdbarstr += cmdhtml_preview;
+												cmdbarstr += cmdhtml_stable;
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_mn;
+												cmdbarstr += cmdhtml_select_ms;
+												cmdbarstr += cmdhtml_select_va;
+												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select2;
+												break;
+											case 'page':
+												cmdbarstr += cmdhtml_preview;
+												cmdbarstr += cmdhtml_diff;
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_mn;
+												cmdbarstr += cmdhtml_select_ms;
+												cmdbarstr += cmdhtml_select_va;
+												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select2;
+												break;
+											case 'script':
+												cmdbarstr += cmdhtml_diff;
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_mn;
+												cmdbarstr += cmdhtml_select_ms;
+												cmdbarstr += cmdhtml_select_va;
+												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select2;
+												break;
+											case 'archive':
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select2;
+												break;
 										}
-									?>
-									<button type="button" id="cmdrefresh" onclick="load_frametable_cp2(roscms_current_tbl_position)">Refresh</button>&nbsp;
-									<select name="extraopt" id="extraopt" style="vertical-align: top; width: 22ex;" onchange="bchangetags(this.value)">
-                                      <option value="sel" style="color: rgb(119, 119, 119);">More actions...</option>
-                                      <option value="as">&nbsp;&nbsp;&nbsp;Add star</option>
-                                      <option value="xs">&nbsp;&nbsp;&nbsp;Remove star</option>
-                                      <option value="no" style="color: rgb(119, 119, 119);">&nbsp;&nbsp;&nbsp;-----</option>
-                                      <option value="mn">&nbsp;&nbsp;&nbsp;Mark as new</option>
-                                      <option value="va">&nbsp;&nbsp;&nbsp;Move to archive</option>
-                                      <option value="xe">&nbsp;&nbsp;&nbsp;Delete</option>
-                                      <?php 
-	/*
-										<option value="no" style="color: rgb(119, 119, 119);">&nbsp;&nbsp;&nbsp;-----</option>
-										<option value="cp">&nbsp;&nbsp;&nbsp;Change to page</option>
-										<option value="cc">&nbsp;&nbsp;&nbsp;Change to content</option>
-										<option value="ct">&nbsp;&nbsp;&nbsp;Change to template</option>
-										<option value="cs">&nbsp;&nbsp;&nbsp;Change to script</option>
-	*/
-?>
-                                    </select>
-							  </div>
+										
+										document.getElementById('tablecmdbar').innerHTML = cmdbarstr;
+										
+										switch (opt) {
+											case 'page':
+												document.getElementById('cmdpreview').style.fontWeight = 'bold';
+												break;
+											case 'archive':
+												document.getElementById('cmdrefresh').style.fontWeight = 'bold';
+												break;
+											default:
+												document.getElementById('cmddiff').style.fontWeight = 'bold';
+												break;
+										}
+									}		
+									
+									function tblselectbar(opt) {
+										selbarstr = '';
+										
+										selhtml_space = ', ';
+										selhtml_all = '<span class="l" onclick="select_all(1)">All</span>';
+										selhtml_none = '<span class="l" onclick="javascript:select_all(0)">None</span>';
+										selhtml_inv = '<span class="l" onclick="select_inverse()">Inverse</span>';
+										selhtml_star = '<span class="l" onclick="select_stars(1)">Starred</span>';
+										selhtml_nostar = '<span class="l" onclick="select_stars(0)">Unstarred</span>';
+										selhtml_stable = '<span class="l" onclick="select_nds(\'stable\')">Stable</span>';
+										selhtml_new = '<span class="l" onclick="select_nds(\'new\')">New</span>';
+										selhtml_draft = '<span class="l" onclick="select_nds(\'draft\')">Draft</span>';
+										selhtml_uptodate = '<span class="l" onclick="select_nds(\'transg\')">Current</span>';
+										selhtml_outdated = '<span class="l" onclick="select_nds(\'transr\')">Dated</span>';
+										selhtml_notrans = '<span class="l" onclick="select_nds(\'transb\')">Missing</span>';
+										selhtml_unknown = '<span class="l" onclick="select_nds(\'unknown\')">Unknown</span>';
+										selhtml_marked = '<span class="l" onclick="do_something()">Marked?</span>';
+
+										switch (opt) {
+											case 'common':
+												selbarstr += selhtml_all + selhtml_space;
+												selbarstr += selhtml_none + selhtml_space;
+												selbarstr += selhtml_inv + selhtml_space;
+												selbarstr += selhtml_star + selhtml_space;
+												selbarstr += selhtml_nostar + selhtml_space;
+												selbarstr += selhtml_stable + selhtml_space;
+												selbarstr += selhtml_new + selhtml_space;
+												<?php 
+													if ($RosCMS_GET_debug) {
+												?>
+														selbarstr += selhtml_draft + selhtml_space;
+														selbarstr += selhtml_unknown + selhtml_space;
+														selbarstr += selhtml_marked;
+												<?php 
+													}
+													else {
+												?>
+														selbarstr += selhtml_draft;
+												<?php
+													}
+												?>
+												break;
+											case 'trans':
+												selbarstr += selhtml_all + selhtml_space;
+												selbarstr += selhtml_none + selhtml_space;
+												selbarstr += selhtml_inv + selhtml_space;
+												selbarstr += selhtml_star + selhtml_space;
+												selbarstr += selhtml_nostar + selhtml_space;
+												selbarstr += selhtml_uptodate + selhtml_space;
+												selbarstr += selhtml_outdated + selhtml_space;
+												selbarstr += selhtml_notrans;
+												break;
+											case 'basic':
+												selbarstr += selhtml_all + selhtml_space;
+												selbarstr += selhtml_none + selhtml_space;
+												selbarstr += selhtml_inv + selhtml_space;
+												selbarstr += selhtml_star + selhtml_space;
+												selbarstr += selhtml_nostar;
+												break;
+											case 'bookmark':
+												selbarstr += selhtml_all + selhtml_space;
+												selbarstr += selhtml_none + selhtml_space;
+												selbarstr += selhtml_inv + selhtml_space;
+												selbarstr += selhtml_stable + selhtml_space;
+												selbarstr += selhtml_new + selhtml_space;
+												selbarstr += selhtml_draft;
+												break;
+											case 'archive':
+												selbarstr += selhtml_all + selhtml_space;
+												selbarstr += selhtml_none + selhtml_space;
+												selbarstr += selhtml_inv;
+												break;
+										}
+										
+										document.getElementById('tabselect1').innerHTML = selbarstr;
+										document.getElementById('tabselect2').innerHTML = selbarstr;
+									}
+								-->
+							</script>
 								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><strong><span id="mtblnav">&nbsp;</span></strong></div>
-								<div class="tabselect">Select: <span class="l" onclick="select_all(1)">All</span>, <span class="l" onclick="javascript:select_all(0)">None</span>, <span class="l" onclick="select_inverse()">Inverse</span>, <span class="l" onclick="select_stars(1)">Starred</span>, <span class="l" onclick="select_stars(0)">Unstarred</span>, <span class="l" onclick="select_nds('stable')">Stable</span>, <span class="l" onclick="select_nds('new')">New</span>, <span class="l" onclick="select_nds('draft')">Draft</span>, <span class="l" onclick="select_nds('unknown')">Unknown</span><?php /* &nbsp; <span class="l" onclick="do_something()">marked?</span> */ ?></div>
+								<div class="tabselect">Select: <span id="tabselect1"></span></div>
 								<div id="tablist">&nbsp;</div>
 								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><strong><span id="mtbl2nav">&nbsp;</span></strong></div>
-								<div class="tabselect">Select: <span class="l" onclick="select_all(1)">All</span>, <span class="l" onclick="javascript:select_all(0)">None</span>, <span class="l" onclick="select_inverse()">Inverse</span>, <span class="l" onclick="select_stars(1)">Starred</span>, <span class="l" onclick="select_stars(0)">Unstarred</span>, <span class="l" onclick="select_nds('stable')">Stable</span>, <span class="l" onclick="select_nds('new')">New</span>, <span class="l" onclick="select_nds('draft')">Draft</span>, <span class="l" onclick="select_nds('unknown')">Unknown</span></div>
+								<div class="tabselect">Select: <span id="tabselect2"></span></div>
 							</div>
 							<div id="frameedit" style="display: block; border: 0px dashed red; ">
 								<script type="text/javascript" language="javascript">
 								<!--
+								
+									function bshowentry(did, drid) {
+										alertbox('Change fields only if you know what you are doing.');
+										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=showentry&d_id='+did+'&d_r_id='+drid, 'mef', 'frmedittagsc2', 'html', 'GET', '');
+									}
+
+									function editsaveentrychanges(did, drid) {
+										var uf_check = '';
+										uf_check = confirm("Please double check your changes.\n\nDo you want to continue?");
+										
+										if (uf_check == true) {
+											var d_lang_str = document.getElementById('cbmentrylang').value;
+											var d_revnbr_str = document.getElementById('vernbr').value;
+											var d_usr_str = beautifystr2(document.getElementById('verusr').value);
+											var d_date_str = document.getElementById('verdate').value;
+											var d_time_str = document.getElementById('vertime').value;
+											var d_chgdataname_str = document.getElementById('chgdataname').value;
+											var d_chgdatatype_str = document.getElementById('cbmchgdatatype').value;
+	
+											if (d_usr_str.substr(0, 1) == ' ') {
+												d_usr_str = d_usr_str.substr(1, d_usr_str.length-1); // remove leading space character
+											}
+											
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=alterentry&d_id='+did+'&d_r_id='+drid+'&d_val='+d_lang_str+'&d_val2='+d_revnbr_str+'&d_val3='+d_usr_str+'&d_val4='+d_date_str+'&d_val5='+d_time_str+'&d_val6='+d_chgdataname_str+'&d_val7='+d_chgdatatype_str, 'mef', 'editalterentry', 'html', 'GET', '');
+										}
+									}
+
+									function bshowsecurity(did, drid) {
+										alertbox('Changes will affect all related entries (see \'History\').');
+										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=showsecurity&d_id='+did+'&d_r_id='+drid, 'mef', 'frmedittagsc2', 'html', 'GET', '');
+									}
+
+									function editsavesecuritychanges(did, drid) {
+										var uf_check = '';
+										uf_check = confirm("Please double check your changes. \n\nOnly a limited ASCII charset is allowed. \nYou will be on the save side, if you use only A-Z, 0-9, underscore, comma, dot, plus, minus. \n\nDo you want to continue?");
+										
+										if (uf_check == true) {
+											var d_name_str = beautifystr2(document.getElementById('secdataname').value);
+											var d_type_str = document.getElementById('cbmdatatype').value;
+											var d_acl_str = document.getElementById('cbmdataacl').value;
+											var d_name_update = document.getElementById('chdname').checked;
+	
+											if (d_name_str.substr(0, 1) == ' ') {
+												d_name_str = d_name_str.substr(1, d_name_str.length-1); // remove leading space character
+											}
+											
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=altersecurity&d_id='+did+'&d_r_id='+drid+'&d_val='+d_name_str+'&d_val2='+d_type_str+'&d_val3='+d_acl_str+'&d_val4='+d_name_update, 'mef', 'editaltersecurity', 'html', 'GET', '');
+										}
+									}
+
+									function editsavefieldchanges(did, drid) {
+										var uf_check = '';
+										uf_check = confirm("Please double check your changes. \n\nOnly a limited ASCII charset is allowed. \nYou will be on the save side, if you use only A-Z, 0-9, comma, dot, plus, minus. \n\nDo you want to continue?");
+										
+										if (uf_check == true) {
+											var stext_str = '';
+											var text_str = '';
+											
+											for (i=1; i <= document.getElementById('editaddstextcount').innerHTML; i++) {
+												var tmp_str = document.getElementById('editstext'+i).value;
+													
+												tmp_str = beautifystr(tmp_str);
+												
+												if (tmp_str.substr(0, 1) == ' ') {
+													tmp_str = tmp_str.substr(1, tmp_str.length-1); // remove leading space character
+												}
+												
+												if (document.getElementById('editstextorg'+i).value == 'new' && document.getElementById('editstextdel'+i).checked) {
+													// skip
+												}
+												else {
+													stext_str += document.getElementById('editstextorg'+i).value +'='+ tmp_str +'='+ document.getElementById('editstextdel'+i).checked +'|';
+												}
+											}
+											stext_str = stext_str.substr(0, stext_str.length-1);
+											//alert(stext_str);
+
+											for (i=1; i <= document.getElementById('editaddtextcount').innerHTML; i++) {	
+												var tmp_str = document.getElementById('edittext'+i).value;
+													
+												tmp_str = beautifystr(tmp_str);
+												
+												if (tmp_str.substr(0, 1) == ' ') {
+													tmp_str = tmp_str.substr(1, tmp_str.length-1); // remove leading space character
+												}
+
+												if (document.getElementById('edittextorg'+i).value == 'new' && document.getElementById('edittextdel'+i).checked) {
+													// skip
+												}
+												else {
+													text_str += document.getElementById('edittextorg'+i).value +'='+ tmp_str +'='+ document.getElementById('edittextdel'+i).checked +'|';											
+												}
+											}
+											text_str = text_str.substr(0, text_str.length-1);
+											//alert(text_str);
+											
+											//alert(stext_str + '\n\n' + text_str);
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=alterfields2&d_id='+did+'&d_r_id='+drid+'&d_val='+stext_str+'&d_val2='+text_str, 'mef', 'editalterfields', 'html', 'GET', '');
+										}
+									}
+
+									function editaddshorttext() {
+										var textcount = document.getElementById('editaddstextcount').innerHTML;
+										
+										textcount++;
+										
+										document.getElementById('editaddstext').innerHTML += '<input type="text" name="editstext'+textcount+'" id="editstext'+textcount+'" size="25" maxlength="100" value="" />&nbsp;';
+										document.getElementById('editaddstext').innerHTML += '<input type="checkbox" name="editstextdel'+textcount+'" id="editstextdel'+textcount+'" value="del" /><label for="editstextdel'+textcount+'">delete?</label>';
+										document.getElementById('editaddstext').innerHTML += '<input name="editstextorg'+textcount+'" id="editstextorg'+textcount+'" type="hidden" value="new" /><br /><br />';
+										
+										document.getElementById('editaddstextcount').innerHTML = textcount;
+									}
 									
+									function editaddtext() {
+										var textcount = document.getElementById('editaddtextcount').innerHTML;
+										
+										textcount++;
+
+										document.getElementById('editaddtext').innerHTML += '<input type="text" name="edittext'+textcount+'" id="edittext'+textcount+'" size="25" maxlength="100" value="" />&nbsp;';
+										document.getElementById('editaddtext').innerHTML += '<input type="checkbox" name="edittextdel'+textcount+'" id="edittextdel'+textcount+'" value="del" /><label for="edittextdel'+textcount+'">delete?</label>'
+										document.getElementById('editaddtext').innerHTML += '<input name="edittextorg'+textcount+'" id="edittextorg'+textcount+'" type="hidden" value="new" /><br /><br />';
+										
+										document.getElementById('editaddtextcount').innerHTML = textcount;
+									}
+
+									function bshowtag(did, drid) {
+										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=showtag&d_id='+did+'&d_r_id='+drid, 'mef', 'frmedittagsc2', 'html', 'GET', '');
+									}
+
+									function bshowhistory(did, drid) {
+										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=showhistory&d_id='+did+'&d_r_id='+drid, 'mef', 'frmedittagsc2', 'html', 'GET', '');
+									}
+
+									function balterfields(did, drid, dusr) {
+									alertbox('Change fields only if you know what you are doing.');
+										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=alterfields&d_id='+did+'&d_r_id='+drid+'&d_val3='+dusr, 'mef', 'frmedittagsc2', 'html', 'GET', '');
+									}
+
+								
 									function baddtag(did, drid, dtn, dtv, dusr) {
 										var dtna = '';
 										var dtva = '';
@@ -1848,8 +2468,11 @@
 										
 										if (dtna != '' && dtva != '') {
 											//alert(dtna+', '+dtva);
-											document.getElementById('txttabelle').value = '?page=data_out&d_f=text&d_u=mef&d_fl=addtag&d_id='+did+'&d_r_id='+drid+'&d_val='+dtna+'&d_val2='+dtva;
-											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=addtag&d_id='+did+'&d_r_id='+drid+'&d_val='+encodeURI(dtna)+'&d_val2='+encodeURI(dtva)+'&d_val3='+dusr, 'mef', 'frmedittagsc2', 'html', 'GET', '');
+											
+											<?php if ($RosCMS_GET_debug) { ?>
+												debugLog('?page=data_out&d_f=text&d_u=mef&d_fl=addtag&d_id='+did+'&d_r_id='+drid+'&d_val='+dtna+'&d_val2='+dtva);
+											<?php } ?>
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=addtag&d_id='+did+'&d_r_id='+drid+'&d_val='+encodeURIComponent(dtna)+'&d_val2='+encodeURIComponent(dtva)+'&d_val3='+dusr, 'mef', 'frmedittagsc2', 'html', 'GET', '');
 										}
 									}
 									
@@ -1863,13 +2486,21 @@
 									function bchangetag(did, drid, dtn, dtv, dusr, dtid, objid, dbflag) {	
 										if (dtn != '' && dtv != '') {
 											//alert(dtid);
-											document.getElementById('txttabelle').value = '?page=data_out&d_f=text&d_u=mef&d_fl=changetag'+dbflag+'&d_id='+did+'&d_r_id='+drid+'&d_val='+dtn+'&d_val2='+dtv+'&d_val3='+dusr+'&d_val4='+dtid;
-											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=changetag'+encodeURI(dbflag)+'&d_id='+did+'&d_r_id='+drid+'&d_val='+encodeURI(dtn)+'&d_val2='+encodeURI(dtv)+'&d_val3='+dusr+'&d_val4='+dtid, 'mef', objid, 'html', 'GET', '');
+											
+											<?php if ($RosCMS_GET_debug) { ?>
+												debugLog('?page=data_out&d_f=text&d_u=mef&d_fl=changetag'+dbflag+'&d_id='+did+'&d_r_id='+drid+'&d_val='+dtn+'&d_val2='+dtv+'&d_val3='+dusr+'&d_val4='+dtid);
+											<?php } ?>
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=changetag'+encodeURIComponent(dbflag)+'&d_id='+did+'&d_r_id='+drid+'&d_val='+encodeURIComponent(dtn)+'&d_val2='+encodeURIComponent(dtv)+'&d_val3='+dusr+'&d_val4='+dtid, 'mef', objid, 'html', 'GET', '');
 										}
 									}
 									
 									function bchangestar(did, drid, dtn, dtv, dusr, objid) {
+										alert(objid);
 										//alert('bchangestar(did: '+did+', drid: '+drid+', dtn: '+dtn+', dtv: '+dtv+', dusr: '+dusr+', objid: '+objid+')');
+										
+										return;
+										
+										alert('wow');
 										
 										if (did != '' && drid != '') {
 											if (document.getElementById(objid).src == '<?php echo $roscms_intern_webserver_roscms; ?>images/star_on_small.gif') {
@@ -1892,8 +2523,8 @@
 										/* short text */
 										poststr += "pstextsum="+document.getElementById("estextcount").className;
 										for (var i=1; i <= document.getElementById("estextcount").className; i++) {
-											poststr += "&pdstext"+i+"=" + encodeURI(document.getElementById("edstext"+i).innerHTML);
-											poststr += "&pstext"+i+"=" + encodeURI(document.getElementById("estext"+i).value);
+											poststr += "&pdstext"+i+"=" + encodeURIComponent(document.getElementById("edstext"+i).innerHTML);
+											poststr += "&pstext"+i+"=" + encodeURIComponent(document.getElementById("estext"+i).value);
 										}
 										
 										/* text */
@@ -1901,18 +2532,22 @@
 										//alert('textanzahl: '+document.getElementById("elmcount").className);
 										var instatinymce;
 										for (var i=1; i <= document.getElementById("elmcount").className; i++) {
-											poststr += "&pdtext"+i+"=" + encodeURI(document.getElementById("edtext"+i).innerHTML);
+											poststr += "&pdtext"+i+"=" + encodeURIComponent(document.getElementById("edtext"+i).innerHTML);
 											
 											instatinymce = ajaxsaveContent("elm"+i); // get the content from TinyMCE
 //											alert(instatinymce);
 											if (instatinymce != null) {
-//												alert('[TinMCE Text] i: '+i+'; mce-content: '+instatinymce);
-												poststr += "&plm"+i+"=" + encodeURI(instatinymce);
+												<?php if ($RosCMS_GET_debug) { ?>
+													alert('[TinMCE Text] i: '+i+'; mce-content: '+instatinymce);
+												<?php } ?>
+												poststr += "&plm"+i+"=" + encodeURIComponent(instatinymce);
 //												alert('[TinMCE Text - 2.] i: '+i+'; mce-content: '+poststr);
 											}
 											else {
-//												alert('[Plain Text] i: '+i+'; txt-content: '+document.getElementById("elm"+i).value);
-												poststr += "&plm"+i+"=" + encodeURI(document.getElementById("elm"+i).value);
+												<?php if ($RosCMS_GET_debug) { ?>
+													alert('[Plain Text] i: '+i+'; txt-content: '+document.getElementById("elm"+i).value);
+												<?php } ?>
+												poststr += "&plm"+i+"=" + encodeURIComponent(document.getElementById("elm"+i).value);
 											}
 										}
 										
@@ -1922,10 +2557,13 @@
 									}
 
 									function edit_form_submit_draft(did, drid) {
+										document.getElementById("bsavedraft").disabled = true;
+									
 										edit_form_submit_draft_autosave(did, drid);
 										
-										document.getElementById("bsavedraft").disabled = true;
 										//alert('a'+roscms_current_tbl_position);
+										
+										rtestop(); // destroy old rich text editor instances
 										
 										load_frametable_cp2(roscms_current_tbl_position);
 										window.clearTimeout(autosave_timer);
@@ -1940,24 +2578,31 @@
 										
 //										alert('save_draft::::::::\n\n '+poststr.substr(1));
 										
-										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURI(did)+'&d_r_id='+encodeURI(drid)+'&d_r_lang='+encodeURI(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURI(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURI(document.getElementById("estextcount").className)+'&d_val2='+encodeURI(document.getElementById("elmcount").className)+'&d_val3=draft';
-										document.getElementById('txttabelle').value = usf_req;
+										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURIComponent(did)+'&d_r_id='+encodeURIComponent(drid)+'&d_r_lang='+encodeURIComponent(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURIComponent(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURIComponent(document.getElementById("estextcount").className)+'&d_val2='+encodeURIComponent(document.getElementById("elmcount").className)+'&d_val3=draft';
+										<?php if ($RosCMS_GET_debug) { ?>
+											debugLog(usf_req);
+										<?php } ?>
 										makeRequest(usf_req, 'asi', 'mefasi', 'html', 'POST', poststr.substr(1));
 									}
 									
 									function edit_form_submit(did, drid) {
 										var usf_req = '';
 										var poststr = "";
-										poststr = prepair_edit_form_submit();
-						
 										document.getElementById("bsavenew").disabled = true;
 
-//										alert('??edit_form_submit: '+encodeURI(did)+' | '+encodeURI(drid));
+										poststr = prepair_edit_form_submit();				
+
+//										alert('??edit_form_submit: '+encodeURIComponent(did)+' | '+encodeURIComponent(drid));
 										//alert('lang: '+document.getElementById("mefrlang").innerHTML);
 
-										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURI(did)+'&d_r_id='+encodeURI(drid)+'&d_r_lang='+encodeURI(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURI(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURI(document.getElementById("estextcount").className)+'&d_val2='+encodeURI(document.getElementById("elmcount").className)+'&d_val3=submit';
-										document.getElementById('txttabelle').value = usf_req;
+										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURIComponent(did)+'&d_r_id='+encodeURIComponent(drid)+'&d_r_lang='+encodeURIComponent(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURIComponent(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURIComponent(document.getElementById("estextcount").className)+'&d_val2='+encodeURIComponent(document.getElementById("elmcount").className)+'&d_val3=submit';
+										<?php if ($RosCMS_GET_debug) { ?>
+											debugLog(usf_req);
+										<?php } ?>
 										makeRequest(usf_req, 'asi', 'alert', 'html', 'POST', poststr.substr(1));
+
+										rtestop(); // destroy old rich text editor instances
+
 										load_frametable_cp2(roscms_current_tbl_position);
 										window.clearTimeout(autosave_timer);
 										alertbox('Entry saved');
@@ -1965,6 +2610,18 @@
 									
 									function autosave_try(t_d_id, t_d_revid) {
 										window.clearTimeout(autosave_timer);
+										
+										try {
+											if (document.getElementById("editautosavemode").value == 'false') {
+												window.clearTimeout(autosave_timer);
+												//alert('autosave-end');
+												return;
+											}
+										} 
+										catch (e) {
+											window.clearTimeout(autosave_timer);
+											return;
+										}
 										
 										if (autosave_cache != prepair_edit_form_submit() && autosave_cache != '') {
 //											alert('auto-save: (txtbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
@@ -1976,50 +2633,34 @@
 										autosave_timer = window.setTimeout("autosave_try()", autosave_coundown); // 10000
 									}
 									
-									function changecreateinterface() {
-										if (document.getElementById('txtaddinterface').value == "advanced") {
-											document.getElementById('addwizard').style.display = "none";
-											document.getElementById('addadvanced').style.display = "block";
-										}
-										else {
-											document.getElementById('addwizard').style.display = "block";
-											document.getElementById('addadvanced').style.display = "none";
-										}
-									}
-
-									function changecreatekind() {
-										if (document.getElementById('txtaddkind').value == "static") {
-											document.getElementById('addwstatic').style.display = "block";
-											document.getElementById('addwdynamic').style.display = "none";
-										}
-										else {
-											document.getElementById('addwstatic').style.display = "none";
-											document.getElementById('addwdynamic').style.display = "block";
+									function changecreateinterface(menumode) {
+										if (menumode == 'single' || menumode == 'dynamic' || menumode == 'template') {
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry&d_id=new&d_val='+menumode, 'mef', 'addnew', 'html', 'GET', '');
 										}
 									}
 																		
-									function createentry() {
-										if (document.getElementById('txtaddinterface').value == "advanced") {
-//											alert('create_advanced');
-//											alert(document.getElementById('txtaddentryname').value);
-											
-											if (document.getElementById('txtaddentryname').value != "") {										
-												document.getElementById('txttabelle').value = '?page=data_out&d_f=text&d_u=mef&d_fl=newentry2&d_name='+encodeURI(document.getElementById('txtaddentryname').value)+'&d_type='+encodeURI(document.getElementById('txtaddentrytype').value)+'&d_r_lang='+encodeURI(document.getElementById('txtaddentrylang').value);
-												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry2&d_name='+encodeURI(document.getElementById('txtaddentryname').value)+'&d_type='+encodeURI(document.getElementById('txtaddentrytype').value)+'&d_r_lang='+encodeURI(document.getElementById('txtaddentrylang').value), 'mef', 'addnew2', 'html', 'GET', '');
+									function createentry(menumode) {
+										if (menumode == '0') {
+											//alert('single');
+											if (document.getElementById('txtaddentryname').value != "") {			
+												//alert('asasas');							
+												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry2&d_name='+encodeURIComponent(document.getElementById('txtaddentryname').value)+'&d_type='+encodeURIComponent(document.getElementById('txtaddentrytype').value)+'&d_r_lang='+encodeURIComponent(document.getElementById('txtaddentrylang').value), 'mef', 'addnew2', 'html', 'GET', '');
 											}
 											else {
-												alertbox('Entry name is requiered!');
-												//alert('as');
+												alertbox('Entry name is requiered');
 											}
 										}
-										else {
-											if (document.getElementById('txtaddkind').value == "static") {
-//												alert('create_normal_static');
-												document.getElementById('txttabelle').value = '?page=data_out&d_f=text&d_u=mef&d_fl=newentry3&d_name='+encodeURI(document.getElementById('txtaddentryname2').value)+'&d_type=content&d_r_lang=all&d_template='+encodeURI(document.getElementById('txtaddtemplate').value);
-												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry3&d_name='+encodeURI(document.getElementById('txtaddentryname2').value)+'&d_type=content&d_r_lang=all&d_template='+encodeURI(document.getElementById('txtaddtemplate').value), 'mef', 'addnew2', 'html', 'GET', '');
+										else if (menumode == '1') {
+											//alert('dynamic');
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry4&d_name='+encodeURIComponent(document.getElementById('txtadddynsource').value)+'&d_type=content&d_r_lang=<?php echo $roscms_standard_language; ?>', 'mef', 'addnew2', 'html', 'GET', '');
+										}
+										else if (menumode == '2') {
+											//alert('template');
+											if (document.getElementById('txtaddentryname3').value != "") {										
+												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=newentry3&d_name='+encodeURIComponent(document.getElementById('txtaddentryname3').value)+'&d_type=content&d_r_lang=<?php echo $roscms_standard_language; ?>&d_template='+encodeURIComponent(document.getElementById('txtaddtemplate').value), 'mef', 'addnew2', 'html', 'GET', '');
 											}
 											else {
-												alert('create_normal_dynamic ... currently not implemented');
+												alertbox('Entry name is requiered');
 											}
 										}
 									}
@@ -2045,13 +2686,32 @@
 												tentrs30 = tentrs21[1];
 												tentrs31 = tentrs20[1];
 											}
-											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=diff&d_val='+encodeURI(tentrs30)+'&d_val2='+encodeURI(tentrs31), 'mef', 'diff', 'html', 'GET', '');
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=diff&d_val='+encodeURIComponent(tentrs30)+'&d_val2='+encodeURIComponent(tentrs31), 'mef', 'diff', 'html', 'GET', '');
 										}
 										else {
 											alertbox("Select two entries to compare them!");
 										}
 									}
 
+									function diffentries2(revid1, revid2) { // called from diff area to update/change entries for diff-process
+										//alert('rev-ids: '+ revid1 +', '+ revid2);
+										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=diff&d_val='+encodeURIComponent(revid1)+'&d_val2='+encodeURIComponent(revid2), 'mef', 'diff2', 'html', 'GET', '');
+									}
+
+									function diffentries3(revid1, revid2) { // called from diff area to update/change entries for diff-process
+										document.getElementById('frmdiff').innerHTML = '';
+										
+										if (document.getElementById('frmdiff').style.display == 'none') {
+											document.getElementById('frmdiff').style.display = 'block';
+											document.getElementById('bshowdiffi').src = 'images/tab_open.gif';
+											diffentries2(revid1, revid2);
+										}
+										else {
+											document.getElementById('frmdiff').style.display = 'none';
+											document.getElementById('bshowdiffi').src = 'images/tab_closed.gif';
+										}
+									}
+									
 									function bpreview() {
 										var tentrs = selectedEntries().split("|");
 										var tentrs2 = tentrs[1].split("_");
@@ -2059,7 +2719,7 @@
 										if (tentrs[0] == 1) {
 											//secwind = window.open("<?php echo $roscms_intern_page_link; ?>data_out&d_f=page&d_u=show&d_val="+tentrs2[1]+"&d_val2=&d_val3=", "RosCMSPagePreview", "location=no,menubar=no,resizable=yes,status=yes,toolbar=no,scrollbars=yes,width=1000,height=800,left=20,top=20");
 											secwind = window.open("<?php echo $roscms_intern_page_link; ?>data_out&d_f=page&d_u=show&d_val="+tentrs2[1]+"&d_val2=&d_val3=", "RosCMSPagePreview");
-											secwind.focus();
+											//secwind.focus();
 										}
 										else {
 											alertbox("Select one entry to preview a page!");
@@ -2079,11 +2739,22 @@
 											}
 											else {
 //												alert('==> '+ctk);
-												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=changetags&d_val='+encodeURI(tentrs[0])+'&d_val2='+encodeURI(tentrs[1])+'&d_val3='+encodeURI(ctk), 'mef', 'changetags', 'html', 'GET', '');
+												var tmp_obj = 'changetags';
+												
+												if (ctk == 'ms') {
+													tmp_obj = 'changetags2';
+												}
+												
+												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=changetags&d_val='+encodeURIComponent(tentrs[0])+'&d_val2='+encodeURIComponent(tentrs[1])+'&d_val3='+encodeURIComponent(ctk), 'mef', tmp_obj, 'html', 'GET', '');
 											}
 										}
+										
 										document.getElementById('extraopt').value = 'sel';
-										document.getElementById('cmddiff').focus();
+										
+										try {
+											document.getElementById('cmddiff').focus();
+										}
+										catch (e) {}
 									}
 
 									
@@ -2119,47 +2790,72 @@
 			</div>
 			
 <p>&nbsp;</p>
-<p><strong>Table Legend      </strong></p>
-<table width="500" border="1" cellpadding="0" cellspacing="5" bordercolor="#000000">
-          <tr>
-            <td width="20" bgcolor="#dddddd">&nbsp;</td>
-            <td width="205" rowspan="2" bordercolor="#FFFFFF"><div align="left">Standard<br />
-              <span class="style2">(odd/even)</span></div></td>
-            <td width="50" rowspan="5" bordercolor="#FFFFFF">&nbsp;</td>
-            <td width="20" bgcolor="#ffcc99">&nbsp;</td>
-            <td width="205" bordercolor="#FFFFFF"><div align="left">Selected</div></td>
-          </tr>
-          <tr>
-            <td bgcolor="#eeeeee">&nbsp;</td>
-            <td bgcolor="#A3EDB4">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">Translation  up to date</div></td>
-          </tr>
-          <tr>
-            <td bgcolor="#B5EDA3">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">New</div></td>
-            <td bgcolor="#D6CAE4">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">Translation doesn't exist</div></td>
-          </tr>
-          <tr>
-            <td bgcolor="#FFE4C1">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">Draft</div></td>
-            <td bgcolor="#FAA5A5">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">Translation  outdated</div></td>
-          </tr>
-          <tr>
-            <td bgcolor="#ffffcc">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">Mouse hover </div></td>
-            <td bgcolor="#FFCCFF">&nbsp;</td>
-            <td bordercolor="#FFFFFF"><div align="left">Unknown</div></td>
-          </tr>
-        </table>
+<p><strong>Table Legend</strong></p>
+<style>
+<!--
+	body {
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+		font-size: 83%;
+	}
+	
+	table#legend {
+		display: block;
+		width: 500px;
+		border: solid 1px black;
+	}
+	
+	table#legend tr td.lbox {
+		border: solid 1px black;
+		width: 17px;
+	}
+-->
+</style>
+	<table id="legend" cellspacing="5">
+		<tr>
+			<td class="lbox" bgcolor="#dddddd">&nbsp;</td>
+			<td width="205" rowspan="2">
+				Standard<br />
+				<span class="style2">(odd/even)</span>
+			</td>
+			<td width="50" rowspan="5">&nbsp;</td>
+			<td class="lbox" bgcolor="#ffcc99">&nbsp;</td>
+			<td width="205">Selected</td>
+		</tr>
+		<tr>
+			<td class="lbox" bgcolor="#eeeeee">&nbsp;</td>
+			<td class="lbox" bgcolor="#A3EDB4">&nbsp;</td>
+			<td>Translation  up to date</td>
+		</tr>
+		<tr>
+			<td class="lbox" bgcolor="#B5EDA3">&nbsp;</td>
+			<td>New</td>
+			<td class="lbox" bgcolor="#D6CAE4">&nbsp;</td>
+			<td>Translation doesn't exist</td>
+		</tr>
+		<tr>
+			<td class="lbox" bgcolor="#FFE4C1">&nbsp;</td>
+			<td>Draft</td>
+			<td class="lbox" bgcolor="#FAA5A5">&nbsp;</td>
+			<td>Translation  outdated</td>
+		</tr>
+		<tr>
+			<td class="lbox" bgcolor="#ffffcc">&nbsp;</td>
+			<td>Mouse hover</td>
+			<td class="lbox" bgcolor="#FFCCFF">&nbsp;</td>
+			<td>Unknown</td>
+		</tr>
+	</table>
 
-		<p><strong>Ajax-Debug</strong></p>
-		<p>
-		<textarea name="txttabelle" cols="70" rows="3" id="txttabelle"></textarea>
+
+		<?php
+			if ($RosCMS_GET_debug) {
+		?>
+		<p><b>Ajax-Debug</b></p>
+		<p><textarea name="txttabelle" cols="75" rows="10" wrap="off" id="txttabelle"></textarea>
 		</p>
-
-
+		<?php
+			}
+		?>
       </div>
 	</div>
 </div>
@@ -2183,15 +2879,6 @@
 
 		if (window.XMLHttpRequest) { // Mozilla, Safari,...
 			http_request = new XMLHttpRequest();
-			if (http_request.overrideMimeType && format=='xml') {
-				http_request.overrideMimeType('text/xml');
-			}
-			else if (http_request.overrideMimeType && format=='text') {
-				http_request.overrideMimeType('text/plain');
-			}
-			else if (http_request.overrideMimeType && format=='html') {
-				http_request.overrideMimeType('text/html');
-			}
 		}
 		else if (window.ActiveXObject) { // IE
 			try {
@@ -2202,17 +2889,28 @@
 				} catch (e) {}
 			}
 		}
-
-		if (!http_request) {
-			alert('Giving up :( Cannot create an XMLHTTP instance');
+		
+		if (!http_request) { // stop if browser doesn't support AJAX
+			alert('Cannot create an XMLHTTP instance. \nMake sure that your browser does support AJAX. \nMake sure that your browser does support AJAX. \nTry out IE 5.5+ (with ActiveX enabled), IE7+, Mozilla, Opera 9+ or Safari 3+.');
 			return false;
 		}
-		
+
+		// override mime
+		if (http_request.overrideMimeType && format=='xml') {
+			http_request.overrideMimeType('text/xml');
+		}
+		else if (http_request.overrideMimeType && format=='text') {
+			http_request.overrideMimeType('text/plain');
+		}
+		else if (http_request.overrideMimeType && format=='html') {
+			http_request.overrideMimeType('text/html');
+		}
+
 		if (kind != 'GET' && kind != 'POST') {
 			kind = 'GET';
 		}
 		
-		if (roscms_archive == 1) {
+		if (roscms_archive == 1) { // enter archive mode
 			url = url + '&d_arch=true';
 		}
 		
@@ -2232,45 +2930,58 @@
 			http_request.setRequestHeader("Connection", "close");
 			http_request.send(parameters);
 		}
-
 	}
 
 	function alertContents(http_request, action, objid) {
-		if (http_request.readyState == 4) {
-			if (http_request.status == 200) {
-				loadingsplash(0); 
-				
-				switch (action) {
-					case 'ptm': /* page table main */
-						page_table_populate(http_request, objid);
-						break;
-					case 'mef': /* main edit frame */
-						main_edit_load(http_request, objid);
-						break;
-					case 'asi': /* auto save info */
-						autosave_info(http_request, objid);
-						break;
-					case 'ufs': /* user filter storage */
-						uf_storage(http_request, objid);
-						break;
-					case 'uqi': /* user quick info */
-						u_quickinfo(http_request, objid);
-						break;
-					default:
-						alert('Unknown-AJAX-LoadAction: '+ action);
-						break;
+		try {
+			if (http_request.readyState == 4) {
+				if (http_request.status == 200) {
+					loadingsplash(0); 
+					
+					switch (action) {
+						case 'ptm': /* page table main */
+							page_table_populate(http_request, objid);
+							break;
+						case 'mef': /* main edit frame */
+							if (objid == 'changetags2') {
+								alertbox('Entry tagged as stable, please be patient while generating related pages ...');
+							}
+							main_edit_load(http_request, objid);
+							break;
+						case 'asi': /* auto save info */
+							autosave_info(http_request, objid);
+							break;
+						case 'ufs': /* user filter storage */
+							uf_storage(http_request, objid);
+							break;
+						case 'uqi': /* user quick info */
+							u_quickinfo(http_request, objid);
+							break;
+						default:
+							alert('Unknown-AJAX-LoadAction: '+ action);
+							break;
+					}
+				}
+				else {
+					alert('There was a problem with the request ['+http_request.status+' / '+http_request.readyState+']. \n\nA client (browser) or server problem. Please check and try to update your browser. \n\nIf this error happens more than once or twice, contac the website admin.');
 				}
 			}
-			else {
-				alert('There was a problem with the request.');
-			}
 		}
+        catch( e ) {
+			if (roscms_page_load_finished == true) {
+				//alert(roscms_page_load_finished +' , '+ http_request.readyState +' , '+ http_request.status);
+				alert('Info\n\nCaught Exception: ' + e.description +'\n\nIf this error occur more than once or twice, please reload the page using the reload-link on the top-right of the page. And if you get this info-message on a usual base, please contact the website admin with the exact error message. \n\nIf you use the Safari or Firefox browser, please make sure you run the latest version (some versions have related bugs).');
+        	}
+		}
+		// to prevent memory leak
+		http_request = null;
 	}
 	
 	function page_table_populate(http_request, objid) {
 		var lstData = "";
 		var temp_counter_loop = 0;
 		
+	
 		var xmldoc = http_request.responseXML;
 		var root_node = xmldoc.getElementsByTagName('root').item(0);
 		//alert(objid);
@@ -2394,30 +3105,35 @@
 	}
 	
 	function page_table_header(xtrtblcol) {
-		//var xtrtblcols2 = xtrtblcols.split('|');
+		var xtrtblcols2 ='';
+		var lstHeader = '';
 
+		xtrtblcols2 = xtrtblcol.split('|');
 		
-		var lstHeader = "";
 		lstHeader += '<table class="datatable" id="rpmt" name="rpmt" cellpadding="1" cellspacing="0">';
 		lstHeader += '<thead><tr class="head">';
 		lstHeader += '<th scope="col" class="cMark">&nbsp;</th>';
 		lstHeader += '<th scope="col" class="cStar">&nbsp;</th>';
 		lstHeader += '<th scope="col" class="cCid">Name</th>';
+		/*lstHeader += '<th scope="col" class="cSpace">&nbsp;</th>';
+		lstHeader += '<th scope="col" class="cType">Type</th>';*/
 		lstHeader += '<th scope="col" class="cSpace">&nbsp;</th>';
-		lstHeader += '<th scope="col" class="cRev">Content</th>';
+		lstHeader += '<th scope="col" class="cRev">Title</th>';
 
+/*
 		if (xtrtblcol != '') {
 			lstHeader += '<th scope="col" class="cSpace">&nbsp;</th>';
 			lstHeader += '<th scope="col" class="cDate">'+xtrtblcol+'</th>';
 		}
-
-/*		
-		for (var i=0; i < xtrtblcols2.length; i++) {
-			lstHeader += '<th scope="col" class="cSpace">&nbsp;</th>';
-			lstHeader += '<th scope="col" class="cDate">'+xtrtblcols2[i]+'</th>';
-		}
 */
 		
+		if (xtrtblcol != '' && xtrtblcols2.length > 1) {
+			for (var i=1; i < xtrtblcols2.length-1; i++) {
+				lstHeader += '<th scope="col" class="cSpace">&nbsp;</th>';
+				lstHeader += '<th scope="col" class="cExtraCol">'+xtrtblcols2[i]+'</th>';
+			}
+		}
+
 		lstHeader += '<th scope="col" class="cSpace">&nbsp;</th>';
 		lstHeader += '<th scope="col" class="cDate">Date</th>';
 		lstHeader += '</tr></thead><tbody>\n';
@@ -2428,7 +3144,7 @@
 	}	
 	
 	function page_table_body( bnr, bclass, bid, bdname, btype, brid, brver, brlang, brdate, bstar, bstarid, brusrid, security, xtrtblcol, bdesc) {
-		//var xtrtblcols2 = xtrtblcols.split('|');
+		var xtrtblcols2 = '';
 		var lstBody = '';
 		
 		if (bstar == 1) {
@@ -2438,42 +3154,58 @@
 			bstar = 'cStarOff';
 		}
 
+		xtrtblcols2 = xtrtblcol.split('|');
 		
 		lstBody += '<tr class="'+bclass+'" id="tr'+(bnr+1)+'">';
 		lstBody += '<td align="right"><input id="cb'+(bnr+1)+'" type="checkbox" onclick="selcb(this.id)" /></td>';
 		lstBody += '<td class="tstar_'+bid+'|'+brid+'-'+bstarid+'"><div id="bstar_'+(bnr+1)+'" class="'+bstar+'">&nbsp;</div></td>';
 		/*lstBody += '<td class="rv'+bid+'|'+brid+'"><div id="bstar'+(bnr+1)+'" class="'+bstatus+'">&nbsp;</div></td>';*/
 		lstBody += '<td class="rv'+bid+'|'+brid+'">'+bdname+'</td>';
+		/*lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
+		lstBody += '<td class="rv'+bid+'|'+brid+'">'+btype+'</td>';*/
 		lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
 		lstBody += '<td class="rv'+bid+'|'+brid+'"><div class="cell-height">';
 		if (security.indexOf("write") < 0 ) { // not found -> readonly
 			lstBody += '<img src="images/locked.gif" alt="read-only" style="width:11px; height:12px; border:0px;" /> ';
 		}
-		lstBody += btype+' <span class="tcp">'+bdesc+'</span></div></td>';
+		lstBody += '<span class="tcp">'+bdesc+'</span></div></td>';
 
+/*
 		if (xtrtblcol != '') {
 			lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
 			lstBody += '<td class="rv'+bid+'|'+brid+'">'+xtrtblcol+'&nbsp;</td>';
 		}
-		
-		/*
-		for (var i=0; i < xtrtblcols2.length; i++) {
-			lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
-			lstBody += '<td class="rv'+bid+'|'+brid+'">'
-			switch (xtrtblcols2[i].toLowerCase()) {
-				default:
-					lstBody += '&nbsp;';
-					break;
-				case 'language':
-					lstBody += brlang;
-					break;
-				case 'user':
-					lstBody += brusrid;
-					break;
+*/	
+	
+	
+		if (xtrtblcol != '' && xtrtblcols2.length > 1) {
+			for (var i=1; i < xtrtblcols2.length-1; i++) {
+				lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
+				lstBody += '<td class="rv'+bid+'|'+brid+'">'+xtrtblcols2[i]+'</td>';
 			}
-			lstBody += '</td>';
 		}
-		*/
+
+		/*if (xtrtblcol != '' && xtrtblcols2.length > 0) {
+			for (var i=0; i < xtrtblcols2.length; i++) {
+				lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
+				lstBody += '<td class="rv'+bid+'|'+brid+'">'
+				switch (xtrtblcols2[i].toLowerCase()) {
+					default:
+						lstBody += '&nbsp;';
+						break;
+					case 'type':
+						lstBody += btype;
+						break;
+					case 'language':
+						lstBody += brlang;
+						break;
+					case 'user':
+						lstBody += brusrid;
+						break;
+				}
+				lstBody += '</td>';
+			}
+		}*/
 		
 		lstBody += '<td class="rv'+bid+'|'+brid+'">&nbsp;</td>';
 		lstBody += '<td class="rv'+bid+'|'+brid+'">'+brdate.substr(0, 10)+'</td>';
@@ -2527,14 +3259,48 @@
 				//alert('!!! diff !!!');
 				//alert(http_request.responseText);
 				//load_script('http://localhost/reactos.org/roscms/js/diffv3.js');
-				document.getElementById('editzone').innerHTML = http_request.responseText;
+				document.getElementById('editzone').innerHTML = '<div id="frmdiff">'+ http_request.responseText + '</div>';
 				load_frameedit('diffentry');
 				document.getElementById('frmeditdiff').innerHTML = CDiffString(document.getElementById('frmeditdiff1').innerHTML, document.getElementById('frmeditdiff2').innerHTML);
 				break;
+			case 'diff2': // update diff-area with new entries start diff-process; called from within diff-area
+				document.getElementById('frmdiff').innerHTML = http_request.responseText;
+				document.getElementById('frmeditdiff').innerHTML = CDiffString(document.getElementById('frmeditdiff1').innerHTML, document.getElementById('frmeditdiff2').innerHTML);
+				break;
 			case 'changetags':
-				//alert('!!! changetags !!!');
-				alertbox('!!! changetags: '+http_request.responseText);
+				//alert('!!! changetags !!!'+http_request.responseText);
+				<?php
+					if ($RosCMS_GET_debug) {
+						echo " alert('!!! changetags: '+http_request.responseText); ";
+					}
+				?>
 				load_frametable_cp(0);
+				alertbox('Metadata changed');
+				break;
+			case 'changetags2':
+				//alert('!!! changetags !!!'+http_request.responseText);
+				<?php
+					if ($RosCMS_GET_debug) {
+						echo " alert('!!! changetags(*ms*): '+http_request.responseText); ";
+					}
+				?>
+				load_frametable_cp(0);
+				alertbox('Page generation process finished');
+				break;
+			case 'editalterfields':
+				//alert('!!! saved?: '+http_request.responseText);
+				document.getElementById('editzone').innerHTML = http_request.responseText;
+				alertbox('Entry fields updated');
+				break;
+			case 'editaltersecurity':
+				//alert('!!! saved?: '+http_request.responseText);
+				document.getElementById('editzone').innerHTML = http_request.responseText;
+				alertbox('Data fields updated');
+				break;
+			case 'editalterentry':
+				//alert('!!! saved?: '+http_request.responseText);
+				document.getElementById('editzone').innerHTML = http_request.responseText;
+				alertbox('Entry updated');
 				break;
 			default:
 				document.getElementById(objid).innerHTML = http_request.responseText;
@@ -2549,12 +3315,16 @@
 		switch (objid) {
 			case 'mefasi':
 				//alert('test');
-				alertbox('<i>draft:</i> '+http_request.responseText);
+				<?php
+					if ($RosCMS_GET_debug) {
+						echo "alertbox('<i>draft:</i> '+http_request.responseText);";
+					}
+				?>
 				
 				var tempcache = prepair_edit_form_submit();
 				
 				if (autosave_cache != tempcache) {
-					autosave_cache = prepair_edit_form_submit();			
+					autosave_cache = tempcache;			
 				}
 				
 //				alert('fill cache: (textbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
@@ -2570,7 +3340,11 @@
 				break;
 			case 'alert':
 				window.clearTimeout(autosave_timer);
-				alertbox(http_request.responseText);
+				<?php
+					if ($RosCMS_GET_debug) {
+						echo "alertbox('<i>alert:</i> '+ http_request.responseText);";
+					}
+				?>
 				load_frametable(roscms_prev_page);
 				break;
 			default:
@@ -2608,16 +3382,52 @@
 			
 			//alert(devideids2+', '+devideids3+'; '+devide2[1]+', '+objid);
 			
-			if (dtv == 'cStarOff') {
-				dtv = 'on';
-				document.getElementById(objid).className = 'cStarOn';
+			//alert(entryid+'; '+dtv+'; '+dusr+'; '+objid+';;  '+devide2+';;  '+devideids2+';;  '+devideids2.substr(0,2));
+			
+			
+			if (devideids2.substr(0,2) == 'tr') {
+				alertbox('Cannot bookmark not translated entries.');
 			}
 			else {
-				dtv = 'off';
-				document.getElementById(objid).className = 'cStarOff';
+			
+				if (dtv == 'cStarOff') {
+					dtv = 'on';
+					document.getElementById(objid).className = 'cStarOn';
+				}
+				else {
+					dtv = 'off';
+					document.getElementById(objid).className = 'cStarOff';
+				}
+				bchangetag(devideids2, devideids3, 'star', dtv, dusr, devide2[1], objid, '3');
 			}
-			bchangetag(devideids2, devideids3, 'star', dtv, dusr, devide2[1], objid, '3');
 		}
+	}
+	
+	function debugLog (dbg_str) {
+		<?php
+			if ($RosCMS_GET_debug) {
+		?>
+				var currentTime = new Date();
+				var month = currentTime.getMonth() + 1;
+				var day = currentTime.getDate();
+				var year = currentTime.getFullYear();
+				var datetime = year+'-'+month+'-'+day;
+			
+			
+				var currentTime = new Date();
+				var hours = currentTime.getHours();
+				var minutes = currentTime.getMinutes();
+				if (minutes < 10) minutes = "0" + minutes;
+				var seconds = currentTime.getSeconds();
+				if (seconds < 10) seconds = "0" + seconds;
+				datetime += ' '+hours+':'+minutes+':'+seconds+' - ';
+				document.getElementById('txttabelle').value = datetime + dbg_str +'\n'+ document.getElementById('txttabelle').value;
+		<?php
+			}
+			else {
+				echo "/* ... */";
+			}
+		?>
 	}
 			
 -->
@@ -2627,9 +3437,30 @@
 	var nres=0;
 	var hlRows=true;
 	document.getElementById('tablist').style.display = 'block';
-	document.getElementById('frameedit').style.display = 'none';
+	
 	//makeRequest('?page=data_out&d_f=xml&d_u=ptm&d_fl=new&d_cp=0', 'ptm', 'tablist', 'xml', 'GET', '');
+	
+
+	document.getElementById('frametable').style.display = 'block';
+	document.getElementById('frameedit').style.display = 'none';
+
+
 	smenutab_open('smenutab8');
+	
+	
+	<?php
+		if ($RosCMS_GET_cms_edit != "") {
+	?>	
+		document.getElementById('frametable').style.display = 'none';
+		document.getElementById('frameedit').style.display = 'block';
+
+		//alert('<?php echo $RosCMS_GET_cms_edit; ?>');
+		load_frameedit('all', '<?php echo $RosCMS_GET_cms_edit; ?>');
+	<?php
+		}
+	?>	
+	
+	
 	load_user_filter('filter');
 	load_user_filter('label');
 	
@@ -2638,6 +3469,17 @@
 	if (readCookie('labtitel3') == 0) TabOpenCloseEx('labtitel3');
 
 
+	<?php
+		if ($roscms_security_level == 1) {
+	?>	
+		alertbox('Hint: Check out the "Welcome" page once a day!');
+	<?php
+		}
+	?>	
+	
+	roscms_page_load_finished = true;
+
+	// window unload blocker
 	window.onbeforeunload = unloadMessage;
 	function unloadMessage(){
 		if (exitmsg != '') {

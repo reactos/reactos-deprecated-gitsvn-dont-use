@@ -129,7 +129,7 @@ function create_structure($page )
 			  <optgroup label="most popular">
               <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=en">English</option>
               <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=de">Deutsch (German)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Français (French)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Franais (French)</option>
               <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Russian (Russian)</option>
               </optgroup>
             </select>
@@ -151,12 +151,7 @@ function create_structure($page )
 	  <td id="content">
 <?php
 	if ($page == "admin" || $page == "home" || $page == "dev" || $page == "team" || $page == "trans") { 
-?>
-		<div class="contentSmall"> <span class="contentSmallTitle">RosCMS</span> 
-			  <p>A powerful and easy to use CMS interface (for administrator, developer and translator) to manage the ReactOS 
-				homepage and its components.</p>
-	    </div>
-<?php
+		//
 	}
 	elseif ($page == "user") { 
 ?>
