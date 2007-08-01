@@ -1,7 +1,5 @@
 <?php
 
-	/* RosCMS v2 to v3 database convert script - part 2 */
-
 	error_reporting(E_ALL);
 	ini_set('error_reporting', E_ALL);
 	
@@ -18,8 +16,9 @@
 	require("inc/data_edit.php");
 	
 
-	echo "<h1>RosCMS Database Update - v2 to v3 - Part 2</h1>";
+	echo "<h1>RosCMS Database Update - v2 to v3 - DynContent</h1>";
 
+	set_time_limit(0); // unlimited script run time 
 
 	echo "<h3>Dynamic Contents</h3>";
 	echo "<ul>";
@@ -46,11 +45,12 @@
 		
 		
 		if ($result_import_content['data_id'] == "") {
-			$insert_page = mysql_query("INSERT INTO `data_` ( `data_id` , `data_name` , `data_type` ) 
+			$insert_page = mysql_query("INSERT INTO `data_` ( `data_id` , `data_name` , `data_type` , `data_acl` ) 
 											VALUES (
 												NULL , 
 												'".mysql_real_escape_string($result_i_content['dyn_content_name'])."', 
-												'content'
+												'content',
+												'default'
 											);");
 		}
 		

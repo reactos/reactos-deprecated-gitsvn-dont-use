@@ -18,35 +18,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 ?>
-<?php require("inc/data_menu.php"); ?>
+<?php /*require("inc/data_menu.php"); */ ?>
 <p>&nbsp;</p>
-<h2>Welcome</h2>
-<?php
-	if (strpos($roscms_security_memberships, "|translator|") === false) {
-		//
-	}
-	else {
-		?>
-		<h4>RosCMS v3 Information</h4>
-		<p>
-			We are currently testing a new version 3 of our Content Management System RosCMS on the ReactOS-Website.<br><br>
-			
-			If you want to edit something, please use the old interfaces until RosCMS v3 is fully ready:
-			<ul>
-				<?php 
-					if ($roscms_intern_usrgrp_trans == true) { ?><li><a href="?page=trans">Translator Interface</a></li><?php }
-					if ($roscms_intern_usrgrp_team == true) { ?><li><a href="?page=team">Team Interface</a></li><?php }
-					if ($roscms_intern_usrgrp_dev == true) { ?><li><a href="?page=dev">Developer Interface</a></li><?php }
-					if ($roscms_intern_usrgrp_admin == true) { ?><li><a href="?page=admin">Admin Interface</a></li><?php }
-				?>
-			</ul>
-		</p>
-		
-		<h4>Translator Information</h4>
-		<p>Language maintainer contact information [...]</p>
-		<?php
-	}
-?>
+<h2>RosCMS v2 to RosCMS v3 update</h2>
+<h4>RosCMS v2 will be replaced by RosCMS v3 in a few hours, come back later!</h4>
+<p>If you have any questions, please join #reactos-web IRC channel. See reactos.org website for more information about our IRC channels.<br  /><br  />
+Klemens Friedl, 2007-07-30 11:10 GMT+1</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 

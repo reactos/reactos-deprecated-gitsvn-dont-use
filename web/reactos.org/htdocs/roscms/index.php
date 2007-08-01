@@ -26,6 +26,7 @@ if (get_magic_quotes_gpc()) {
 	die("ERROR: Disable 'magic quotes' in php.ini (=Off)");
 }
 
+
 //global $HTTP_GET_VARS; // set the Get var global
 
 
@@ -138,8 +139,15 @@ if (get_magic_quotes_gpc()) {
 
 
 	switch ($rpm_page) {
-		case "home":
 		default: // Frontpage
+			require("inc/login.php");
+			$rpm_page_title = $roscms_extern_brand ." - Home";
+			include("inc/header.php");
+			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
+			include("inc/home.php"); // Content
+			include("inc/body.php"); // Body
+			break;
+		case "home":
 			require("inc/login.php");
 			$rpm_page_title = $roscms_extern_brand ." - Home";
 			include("inc/header.php");
@@ -151,20 +159,18 @@ if (get_magic_quotes_gpc()) {
 			require("inc/login.php");
 			$rpm_page_title = $roscms_extern_brand ." ".$roscms_extern_version;
 			include("inc/header.php");
-			require("inc/data_tools.php");
 			include("inc/data.php"); 
 			include("inc/footer.php");
 			break;
 		case "data_out": // data to client
 			require("inc/login.php");
-			require("inc/data_tools.php");
 			include("inc/tools.php"); 
 			include("inc/data_export.php"); 
 			break;
 		/*case "data_in": // data to server
 			require("inc/login.php");
 			include("inc/data_import.php"); 
-			break;*/
+			break;
 		case "admin": // Admin interface
 			require("inc/login.php");
 			if ($rpm_site == "") {
@@ -177,7 +183,7 @@ if (get_magic_quotes_gpc()) {
 			else {
 				include("inc/admin.php"); 
 			}
-			break;
+			break;*/
 		case "user": // myReactOS
 			require("inc/login.php");
 			$rpm_page_title="myReactOS";
@@ -187,7 +193,7 @@ if (get_magic_quotes_gpc()) {
 			include("inc/user.php"); 
 			include("inc/body.php");
 			break;
-		case "dev": // developer interface
+		/*case "dev": // developer interface
 			require("inc/login.php");
 			$rpm_page_title="Developer Inteface";
 			include("inc/head.php");
@@ -210,7 +216,7 @@ if (get_magic_quotes_gpc()) {
 			include("inc/structure.php");
 			include("inc/translator.php"); 
 			include("inc/body.php");
-			break;
+			break;*/
 		case "login": // Login Page
 			$rpm_page_title="Login";
 			$rpm_logo="normal";

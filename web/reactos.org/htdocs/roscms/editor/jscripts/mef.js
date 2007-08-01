@@ -1,5 +1,8 @@
 
 	var roscmseditorsavecache = '';
+	
+	roscms_richtexteditors = new Array();
+
 
 	function fileBrowserCallBack(field_name, url, type, win) {
 		// This is where you insert your custom filebrowser logic
@@ -18,14 +21,36 @@
 			tinyMCE.execCommand('mceAddControl', false, id);
 			butid.value = 'HTML Source';
 			wrapid.style.visibility = 'hidden';
+			//alert(roscms_richtexteditors.length +' , '+ id);
+			roscms_richtexteditors[roscms_richtexteditors.length] = id;
+			//alert(roscms_richtexteditors);
+			//alert(roscms_richtexteditors[0]);
 		}
 		else {
 			tinyMCE.execCommand('mceRemoveControl', false, id);
 			elm.style.backgroundColor = '#FFFFFF';
 			butid.value = 'Rich Text';
 			wrapid.style.visibility = 'visible';
+			
+			for (var i=0; i < roscms_richtexteditors.length; i++) {
+				if (roscms_richtexteditors[i] == id) {
+					//alert('no ['+i+']');
+					roscms_richtexteditors[i] = 'no';
+				}
+			}
 		}
 		elm = null;
+	}
+	
+	function rtestop() {
+		for (var i=0; i < roscms_richtexteditors.length; i++) {
+			if (roscms_richtexteditors[i] != 'no') {
+				//alert('stop ['+i+']:' + roscms_richtexteditors[i]);
+				tinyMCE.execCommand('mceRemoveControl', false, roscms_richtexteditors[i]);
+				roscms_richtexteditors[i] = 'no';
+			}
+		}
+		//alert('dle rte done');
 	}
 	
 	function ajaxsaveContent(id) {

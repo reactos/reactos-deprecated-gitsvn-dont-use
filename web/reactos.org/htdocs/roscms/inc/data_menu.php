@@ -112,28 +112,39 @@
 	global $roscms_intern_script_name;
 	global $RosCMS_GET_branch;
 	global $rpm_page;
+	
+	if (array_key_exists("branch", $_GET)) $RosCMS_GET_branch=htmlspecialchars($_GET["branch"]);
 
 	$curmenu = "";
 
 	switch ($rpm_page) {
 		default:
-		case "home";
+		/*case "home";
 			$curmenu = "welcome";
-			break;
+			break;*/
 		case "data";
 			switch ($RosCMS_GET_branch) {
 				default:
 				case "website";
 					$curmenu = "website";
 					break;
+				case "welcome";
+					$curmenu = "welcome";
+					break;
 				case "reactos";
 					$curmenu = "reactos";
 					break;
+				case "user";
+					$curmenu = "user";
+					break;
+				case "maintain";
+					$curmenu = "maintain";
+					break;
 			}
 			break;
-		case "user";
+		/*case "user";
 			$curmenu = "user";
-			break;	
+			break;	*/
 	}
 
 ?>
@@ -142,8 +153,7 @@
 
 	function pagerefresh() {
 		exitmsg = '';
-
-		window.location.href = '<?php echo $roscms_intern_script_name; ?>';
+		window.location.href = '<?php echo $roscms_intern_page_link."data&branch=".$RosCMS_GET_branch; ?>';
 	}
 
 	function roscms_mainmenu(temp_page) {
@@ -153,7 +163,7 @@
 		
 		switch (temp_page) {
 			case 'welcome':
-				temp_page2 = 'home';
+				temp_page2 = 'data&branch=welcome';
 				break;
 			case 'website':
 				temp_page2 = 'data&branch=website';
@@ -162,7 +172,10 @@
 				temp_page2 = 'data&branch=reactos';
 				break;
 			case 'user':
-				temp_page2 = 'admin&sec=users';
+				temp_page2 = 'data&branch=user';
+				break;
+			case 'maintain':
+				temp_page2 = 'data&branch=maintain';
 				break;
 		}
 		
@@ -174,10 +187,14 @@
 </script>
 <div id="myReactOS" style="padding-right: 10px;">
 	<b><?php echo $roscms_intern_login_check_username; ?></b>
-	<?php echo "| SecLev: ". $roscms_security_level ." (". str_replace("|", ", ", substr($roscms_security_memberships, 1, strlen($roscms_security_memberships)-2)) .")"; ?>
-	| <span onclick="pagerefresh()" style="color:#006090; text-decoration:underline; cursor:pointer;">Page reload</span>  
-	| <a href="<?php echo $roscms_intern_page_link; ?>logout">Sign out</a>  
-</div>
+	<?php
+	
+		if ($roscms_security_level > 1) {
+			echo "| SecLev: ". $roscms_security_level." (". str_replace("|", ", ", substr($roscms_security_memberships, 1, strlen($roscms_security_memberships)-2)) .")";
+		} 
+	?>
+	| <span onclick="pagerefresh()" style="color:#006090; cursor:pointer;"><img src="images/reload.gif" alt="reload page" width="16" height="16" /> <span style="text-decoration:underline;">reload</span></span>  
+	| <a href="<?php echo $roscms_intern_page_link; ?>logout">Sign out</a></div>
 <div class="roscms_page">
 	<table id="mt" border="0" cellpadding="0" cellspacing="0" width="100%">
 	  <tbody>
@@ -198,6 +215,7 @@
 			  <div class="tblbl">Website</div></th>
 		  <td>&nbsp;&nbsp;</td>
 
+		  <?php if ($roscms_security_level > 1) { ?>
 		  <th class="int<?php if ($curmenu == "reactos") { echo "2"; } else { echo "1"; } ?>" onclick="roscms_mainmenu('rost')"> <div class="tc1">
 			<div class="tc2">
 			  <div class="tc3"></div>
@@ -205,14 +223,25 @@
 		  </div>
 			  <div class="tblbl">ReactOS</div></th>
 		  <td>&nbsp;&nbsp;</td>
+		  <?php } ?>
 		  
-		  <?php if ($roscms_security_level >= 3) { ?>
+		  <?php if ((roscms_security_grp_member("transmaint") || roscms_security_grp_member("ros_admin") || roscms_security_grp_member("ros_sadmin"))) { ?>
 		  <th class="int<?php if ($curmenu == "user") { echo "2"; } else { echo "1"; } ?>" onclick="roscms_mainmenu('user')"> <div class="tc1">
 			<div class="tc2">
 			  <div class="tc3"></div>
 			</div>
 		  </div>
-			  <div class="tblbl">Users</div></th>
+			  <div class="tblbl">User</div></th>
+		  <td>&nbsp;&nbsp;</td>
+		  <?php } ?>
+
+		  <?php if (roscms_security_grp_member("ros_sadmin")) { ?>
+		  <th class="int<?php if ($curmenu == "maintain") { echo "2"; } else { echo "1"; } ?>" onclick="roscms_mainmenu('maintain')"> <div class="tc1">
+			<div class="tc2">
+			  <div class="tc3"></div>
+			</div>
+		  </div>
+			  <div class="tblbl">Maintain</div></th>
 		  <td>&nbsp;&nbsp;</td>
 		  <?php } ?>
 		  
@@ -223,7 +252,23 @@
 	
 	<div class="tc2" style="background-color:#C9DAF8;">
 		<div class="submenu" style="font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;">
-			Quick Links: <a href="#">Help</a>, <a href="#">Video Tutorials</a>, <a href="#">Website Forum</a>
+			<?php 
+				if ($curmenu == "welcome") { 
+					echo 'RosCMS v3 - Welcome page';
+				}
+				else if ($curmenu == "website") { 
+					echo 'Quick Links: <a href="'.$roscms_intern_page_link.'data&branch=welcome#web_news_langgroup">Translation Group News</a> | <a href="http://www.reactos.org/?page=tutorial_roscms" target="_blank">Text- &amp; Video-Tutorials</a> | <a href="http://www.reactos.org/forum/viewforum.php?f=18" target="_blank">Website Forum</a>';
+				}
+				else if ($curmenu == "reactos") { 
+					echo 'ReactOS Translation Interface';
+				}
+				else if ($curmenu == "user") { 
+					echo 'User Account Management Interface';
+				}
+				else if ($curmenu == "maintain") { 
+					echo 'RosCMS Maintainer Interface';
+				}
+			?>
 		</div>
 	</div>
 
