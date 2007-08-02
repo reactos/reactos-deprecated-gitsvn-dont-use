@@ -311,7 +311,7 @@
 		
 		$g_lang = $g_page_lang;		
 
-		$query_g_page = mysql_query("SELECT r.rev_id, r.rev_version, r.rev_usrid, r.rev_datetime, r.rev_date, r.rev_time  
+		$query_g_page = mysql_query("SELECT r.rev_id, r.rev_version, r.rev_usrid, r.rev_datetime, r.rev_date, r.rev_time, r.rev_language  
 									FROM data_ d, data_revision r 
 									WHERE data_name = '".mysql_real_escape_string($g_page_name)."' 
 									AND data_type = 'page'
@@ -320,8 +320,14 @@
 									AND (r.rev_language = '".mysql_real_escape_string($g_lang)."' 
 										OR r.rev_language = '".mysql_real_escape_string($roscms_standard_language)."')
 									ORDER BY r.rev_version DESC
-									LIMIT 1;");
-		$result_g_page = mysql_fetch_array($query_g_page);
+									LIMIT 2;");
+		
+		$result_g_page = mysql_fetch_assoc($query_g_page);
+		
+		// Try to get the dataset with r.rev_language == $g_lang
+		if( mysql_num_rows($query_g_page) == 2 )
+			if( $result_g_page['r.rev_language'] == $roscms_standard_language )
+				$result_g_page = mysql_fetch_assoc($query_g_page);
 		
 /*		
 		$g_log .= "generate_page(".$g_page_name.", ".$g_lang.", ".$g_page_dynid.")";
