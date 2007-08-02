@@ -220,8 +220,7 @@ sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%ROSBEBASEDIR%\
 ::
 copy "%ROSBEBASEDIR%\config10.rbuild" "%ROSBEBASEDIR%\config.tmp"
 del "%ROSBEBASEDIR%\*.rbuild"
-copy "%ROSBEBASEDIR%\config.tmp" "%ROSBEBASEDIR%\config.rbuild"
-del "%ROSBEBASEDIR%\*.tmp"
+ren "%ROSBEBASEDIR%\config.tmp" "config.rbuild"
 copy "%ROSBEBASEDIR%\config.rbuild" "config.rbuild"
 
 goto :NOK

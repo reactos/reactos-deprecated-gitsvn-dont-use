@@ -7,7 +7,7 @@
 
   name="" Is the Name of your Shortcut
   value="" Is the Path to a Source Tree Location.
-  Example: <property name="my" value="D:\SVNTree\ReactOS" />
+  Example: <property name="example" value="X:\Path\to\Tree" />
 -->
 
 <property name="main" value="C:\RosBE\Source" />
