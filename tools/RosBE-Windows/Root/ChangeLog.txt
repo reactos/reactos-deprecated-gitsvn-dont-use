@@ -2,8 +2,10 @@
 
 - Added DrFred's Config Tool. (Daniel Reimer)
 
-*** Aug XXst, 2007 - RosBE 0.3.7.2 Released
+*** Aug XXst, 2007 - RosBE 0.3.7.2 Released (Unsupported)
 
+- Updated NASM to 0.99.01 (Daniel Reimer, David Leon)
+- Updated Binutils 2.17.50 to Build 20070730 (David Leon, Daniel Reimer)
 - Fixed the double \\ Bug introduced in 0.3.7. (Daniel Reimer)
 - Added Build Begin Time into Topic. (Daniel Reimer)
 - Added svnversion. (Daniel Reimer)
