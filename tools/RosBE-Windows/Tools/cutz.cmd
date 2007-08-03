@@ -13,3 +13,6 @@ if "%1" == "dir" (
 if "%1" == "svn" (
     cut -d " " -f 2
 )
+if "%1" == "main" (
+    cut -d """ -f 2
+)

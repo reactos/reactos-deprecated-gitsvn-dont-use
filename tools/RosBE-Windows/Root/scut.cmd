@@ -16,9 +16,11 @@ if /I "%1"=="" (
 if /I "%1"=="add" (
     goto :ADD
 )
-if /I "%1"=="remove" (
+if /I "%1"=="rem" (
     goto :REM
 )
+if /I "%1"=="def" (
+    goto :DEF2
 ) else (
     set XY=%1
     goto :RUN
@@ -31,7 +33,7 @@ SET /P XY=
 goto :RUN
 
 :RUN
-for /f "usebackq" %%i in (`"grep \"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir"`) do @SET dir=%%i
+for /f "usebackq" %%i in (`"grep name=\"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir"`) do @SET dir=%%i
 cd /D %dir%
 goto :END
 
@@ -70,10 +72,22 @@ if not "%2" == "" (
 echo Choose your Shortcut:
 SET /P CUTREM=
 :REM1
-grep -v \"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
+grep -v name=\"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
 del "%ROSBEBASEDIR%\srclist.xml"
 ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
 goto :END
+
+:DEF2
+if not "%2" == "" (
+    set DEF=%2
+    goto :DEF1
+)
+echo Choose your new Default Shortcut:
+SET /P DEF=
+:DEF1
+sed "s/base=\".*\"/base=\"%DEF%\"/g" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
+del "%ROSBEBASEDIR%\srclist.xml"
+ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
 
 :END
 title ReactOS Build Environment %_VER%
