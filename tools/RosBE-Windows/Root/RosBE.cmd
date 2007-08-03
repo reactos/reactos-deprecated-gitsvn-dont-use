@@ -17,9 +17,7 @@
 color 0A
 set _VER=0.3.7.2
 set ROSBEBASEDIR=%~dp0
-echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed "s/.$//g" > "%Temp%\aaa.tmp"
-set /P ROSBEBASEDIR=< "%Temp%\aaa.tmp"
-del "%Temp%\aaa.tmp"
+for /f "usebackq" %%i in (`"echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed s/.$//g"`) do @SET ROSBEBASEDIR=%%i
 set ROSBE_SHOWTIME=1
 set ROSBE_WRITELOG=1
 set _LOGDIR=%CD%\RosBE-Logs

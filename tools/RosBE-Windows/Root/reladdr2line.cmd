@@ -14,16 +14,16 @@ title relAddr2Line...
 ::
 :: Receive the Parameters and decide what to do.
 ::
-set _1=%1
-set _2=%2
 
-if "%_1%" == "" (
+if "%1" == "" (
     goto :MAN
 )
-if not "%_1%" == "" (
-    if "%_2%" == "" (
+if not "%1" == "" (
+    set _1=%1
+    if "%2" == "" (
         goto :AUTO1
     ) else (
+        set _2=%2
         goto :EOC
     )
 )
@@ -34,16 +34,9 @@ if not "%_1%" == "" (
 :MAN
 echo Set the Path to the Executable to be examined.
 SET /P _1=
-echo Set the Address you wanna analyze inside the Executable.
-SET /P _2=
-echo.
-goto :EOC
-
 :AUTO1
 echo Set the Address you wanna analyze inside the Executable.
-echo.
 SET /P _2=
-goto :EOC
 
 :EOC
 ::

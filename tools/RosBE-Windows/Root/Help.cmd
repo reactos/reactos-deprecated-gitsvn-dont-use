@@ -26,6 +26,8 @@ if "%1" == "" (
     echo                           with the appropriate number.
     echo    basedir              - Switch back to the ReactOS source directory.
     echo.
+    echo    scut                 - Define, Remove and Switch to Shortcutted Source-
+    echo                           Directories.
     echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
     echo.
     echo    clean [logs]         - Fully clean the ReactOS source directory and/or
@@ -106,6 +108,16 @@ if "%1" == "raddr2line" (
 if "%1" == "basedir" (
     echo Usage: basedir
     echo Switches back to the ReactOS source directory.
+    goto :EOF
+)
+if "%1" == "scut" (
+    echo Usage: scut [OPTIONS]
+    echo Defines, Removes and Switches to Shortcutted Source Directories.
+    echo.
+    echo    add     - Adds a Shortcut.
+    echo              (Optional: "Shortcut" "Directory" as second and third parameter) 
+    echo    remove  - Removes a shortcut.
+    echo              (Optional: "Shortcut" as second parameter)
     goto :EOF
 )
 if not "%1" == "" (

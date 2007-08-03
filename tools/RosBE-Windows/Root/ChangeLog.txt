@@ -1,6 +1,7 @@
 *** Oct XXth, 2007 - RosBE 0.3.8 Released
 
 - Added DrFred's Config Tool. (Daniel Reimer)
+- Added ShortCut Tool (Daniel Reimer)
 
 *** Aug XXst, 2007 - RosBE 0.3.7.2 Released (Unsupported)
 
