@@ -30,18 +30,6 @@
 	$g_page_dynid = "";
 	
 	
-	/*function generate_pages($g_language) {
-		$query_lang = mysql_query("SELECT * 
-									FROM languages 
-									ORDER BY lang_level DESC ;");
-		while($result_lang = mysql_fetch_array($query_lang)) {
-			$g_log .= "\n<hr />\n<h2>".$RosCMS_result_update_per_lang['lang_name']."</h2>\n";
-			$g_log .= generate_page("file", "all", $RosCMS_result_update_per_lang['lang_id'], "", "0");
-		}
-		return $g_log;
-	}*/
-	
-	
 	function generate_page_output_update($g_data_id, $g_lang_id, $g_page_dynida) {
 		global $roscms_standard_language;
 	
@@ -324,11 +312,9 @@
 		
 		$result_g_page = mysql_fetch_assoc($query_g_page);
 		
-		// Try to get the dataset with r.rev_language == $g_lang
-		if( mysql_num_rows($query_g_page) == 2 )
-		{
-			if( $result_g_page['rev_language'] == $roscms_standard_language )
-			{
+		// Try to get the dataset with rev_language == $g_lang, to boost the translated content
+		if( mysql_num_rows($query_g_page) == 2 ) {
+			if( $result_g_page['rev_language'] == $roscms_standard_language ) {
 				$result_g_page = mysql_fetch_assoc($query_g_page);
 			}
 		}
@@ -492,11 +478,9 @@
 		$query_content = mysql_query($query_content_temp);
 		$result_content = mysql_fetch_assoc($query_content);
 	
-		// Try to get the dataset with r.rev_language == $g_lang
-		if( mysql_num_rows($query_content) == 2 )
-		{
-			if( $result_content['rev_language'] == $roscms_standard_language )
-			{
+		// Try to get the dataset with rev_language == $g_lang, to boost the translated content
+		if( mysql_num_rows($query_content) == 2 ) {
+			if( $result_content['rev_language'] == $roscms_standard_language ) {
 				$result_content = mysql_fetch_assoc($query_content);
 			}
 		}
@@ -559,33 +543,12 @@
 		$g_link_page_name2 = $g_link_page_name;
 		$g_link_page_number = "";
 		
-		/*$sql_page_link = "SELECT *
-										FROM data_revision r, data_ d
-										WHERE r.rev_version >= 0 
-										AND d.data_name = '".mysql_real_escape_string($g_link_page_name2)."'
-										AND d.data_type = 'content'
-										AND r.data_id = d.data_id
-										ORDER BY r.rev_version DESC
-										LIMIT 1;";
-
-		*/
 		if ( is_numeric(substr(strrchr($g_link_page_name,"_"), 1, strlen(strrchr($g_link_page_name,"_")-1))) ) { // dynamic
 			$g_link_page_name2 = substr($g_link_page_name, 0, strlen($g_link_page_name) - strlen(strrchr($g_link_page_name,"_")));
 			$g_link_page_number = substr(strrchr($g_link_page_name,"_"), 1, strlen(strrchr($g_link_page_name,"_")-1));
 		}
 	
 		if ($g_linkstyle == "show") { // dynamic preview
-			/*$query_data = mysql_query("SELECT * 
-										FROM data_ d, data_revision r 
-										WHERE d.data_name  = '".mysql_real_escape_string($g_link_page_name2)."' 
-										AND r.data_id = d.data_id 
-										AND r.rev_language = '".mysql_real_escape_string($g_lang)."' 
-										AND rev_version > 0 
-										LIMIT 1;");
-			$result_data = mysql_fetch_array($query_data);
-		
-			$tmp_dynamic = getTagValueG($result_data['data_id'], $result_data['rev_id'],  '-1', 'number'); // get dynamic content number*/
-
 			$RosCMS_current_page_link = $roscms_intern_webserver_roscms."?page=data_out&amp;d_f=page&amp;d_u=show&amp;d_val=".$g_link_page_name2."&amp;d_val2=".$g_lang."&amp;d_val3=".$g_link_page_number;
 			
 			if ($g_link_page_name == "") {
@@ -642,6 +605,7 @@
 		global $h_a2;
 
 		//echo "<p>=> getTagValueG(".$RosCMS_GET_d_id.", ".$RosCMS_GET_d_r_id.", ".$RosCMS_intern_current_usrid.", ".$RosCMS_intern_current_tag_name.")</p>";
+
 		// tag name
 		$query_edit_mef_tag_get_id = mysql_query("SELECT tn_id, tn_name 
 													FROM data_tag_name".$h_a." 
