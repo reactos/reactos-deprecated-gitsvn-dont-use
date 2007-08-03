@@ -326,8 +326,12 @@
 		
 		// Try to get the dataset with r.rev_language == $g_lang
 		if( mysql_num_rows($query_g_page) == 2 )
-			if( $result_g_page['r.rev_language'] == $roscms_standard_language )
+		{
+			if( $result_g_page['rev_language'] == $roscms_standard_language )
+			{
 				$result_g_page = mysql_fetch_assoc($query_g_page);
+			}
+		}
 		
 /*		
 		$g_log .= "generate_page(".$g_page_name.", ".$g_lang.", ".$g_page_dynid.")";
@@ -470,7 +474,7 @@
 		
 		global $g_page_dynid;
 				
-		$query_content_temp = "SELECT d.data_acl, t.text_content, r.rev_version, r.rev_usrid, r.rev_datetime , r.data_id, r.rev_id
+		$query_content_temp = "SELECT d.data_acl, t.text_content, r.rev_version, r.rev_usrid, r.rev_datetime , r.data_id, r.rev_id, r.rev_language
 									FROM data_ d, data_revision r, data_text t
 									WHERE data_name = '".mysql_real_escape_string($g_match_name)."' 
 									AND data_type = '".mysql_real_escape_string($g_insert_match_type)."'
@@ -481,13 +485,22 @@
 									AND t.data_rev_id = r.rev_id 
 									AND t.text_name = 'content'
 									ORDER BY r.rev_version DESC
-									LIMIT 1;";
-
+									LIMIT 2;";
+		
 //		echo $query_content_temp;
 
 		$query_content = mysql_query($query_content_temp);
-		$result_content = mysql_fetch_array($query_content);
+		$result_content = mysql_fetch_assoc($query_content);
 	
+		// Try to get the dataset with r.rev_language == $g_lang
+		if( mysql_num_rows($query_content) == 2 )
+		{
+			if( $result_content['rev_language'] == $roscms_standard_language )
+			{
+				$result_content = mysql_fetch_assoc($query_content);
+			}
+		}
+		
 		// preview-edit-mode
 		if ($RosCMS_GET_d_value4 == "edit" && $result_content['data_acl'] == "default" && $g_insert_match_type != "script") {
 			$RosCMS_result_content_temp = "<div style=\"border: 1px dashed red;\"><div style=\"padding: 2px;\"><a href=\"".$roscms_intern_page_link."data&amp;branch=".$RosCMS_GET_branch."&amp;edit=rv".$result_content['data_id']."|".$result_content['rev_id']."\" style=\"background-color:#E8E8E8;\"> <img src=\"".$roscms_intern_webserver_roscms."images/edit.gif\" style=\"width:19px; height:19px; border:none;\" /><i>".$g_match_name."</i> </a></div>";
