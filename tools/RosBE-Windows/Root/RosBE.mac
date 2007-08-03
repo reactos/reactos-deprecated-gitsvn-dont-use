@@ -6,3 +6,4 @@ HELP       = "%ROSBEBASEDIR%\Help.cmd" $*
 MAKE       = "%ROSBEBASEDIR%\Build.cmd" $*
 MAKEX      = "%ROSBEBASEDIR%\Build-Multi.cmd" $*
 RADDR2LINE = "%ROSBEBASEDIR%\reladdr2line.cmd" $*
+SCUT       = "%ROSBEBASEDIR%\scut.cmd" $*
