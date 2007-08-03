@@ -58,8 +58,8 @@ if not "%1" == "" (
 :EndCommandParse
 
 ::
-:: Save our initial directory (should be the ReactOS source directory) 
-:: and add PATH for Tools Folder.
+:: Load the Base Directory from the Shortcut-XML and set it as new
+:: Source Directory and add PATH for Tools Folder.
 ::
 set PATH=%ROSBEBASEDIR%\Tools;%PATH%
 for /f "usebackq" %%i in (`"grep base= "%ROSBEBASEDIR%\srclist.xml"|cutz main"`) do @SET scut=%%i
@@ -82,7 +82,8 @@ echo For a list of all included commands, type: "help"
 echo -------------------------------------------------
 
 ::
-:: Load the macros that serve as our commands.
+:: Load the macros that serve as our commands and set new Source
+:: Directory / Default Source Directory.
 ::
 doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
 if "%scut%" == "Default" (
