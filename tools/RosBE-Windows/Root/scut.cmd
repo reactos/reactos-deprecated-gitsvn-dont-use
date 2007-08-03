@@ -10,6 +10,9 @@
 
 title Choose your Source Folder...
 
+::
+:: Receive the first Parameter and decide what to do.
+::
 if /I "%1"=="" (
     goto :DEF
 )
@@ -32,6 +35,9 @@ echo Choose your Source Folder:
 SET /P XY=
 goto :RUN
 
+::
+:: Load Shortcut from XML and set it active.
+::
 :RUN
 for /f "usebackq" %%i in (`"grep name=\"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir"`) do @SET dir=%%i
 cd /D %dir%
@@ -51,6 +57,9 @@ if not "%2" == "" (
     goto :ADD1
 )
 
+::
+:: Add new Shortcut to XML.
+::
 :ADD1
 echo Choose your Shortcut:
 SET /P CUT=
@@ -64,6 +73,9 @@ del "%ROSBEBASEDIR%\srclist.xml"
 ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
 goto :END
 
+::
+:: Remove Shortcut from XML.
+::
 :REM
 if not "%2" == "" (
     set CUTREM=%2
@@ -77,6 +89,9 @@ del "%ROSBEBASEDIR%\srclist.xml"
 ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
 goto :END
 
+::
+:: Set Default Shortcut.
+::
 :DEF2
 if not "%2" == "" (
     set DEF=%2
@@ -88,6 +103,7 @@ SET /P DEF=
 sed "s/base=\".*\"/base=\"%DEF%\"/g" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
 del "%ROSBEBASEDIR%\srclist.xml"
 ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
+call "%ROSBEBASEDIR%\RosBE.cmd"
 
 :END
 title ReactOS Build Environment %_VER%
