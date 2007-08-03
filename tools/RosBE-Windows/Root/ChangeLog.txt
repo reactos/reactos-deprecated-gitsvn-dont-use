@@ -7,8 +7,8 @@
 
 - Updated NASM to 0.99.01 (Daniel Reimer, David Leon)
   (Small Fix by David Leon to bypass Bug in 0.99.01 which prevents our Bootsectors to build)
-- Updated Binutils 2.17.50 to Build 20070730 (Hervé Possineau, David Leon, Daniel Reimer)
-  (Small modification by Hervé Possineau in LD to fix Bug 1244)
+- Updated Binutils 2.17.50 to Build 20070730 (Hervé Poussineau, David Leon, Daniel Reimer)
+  (Small modification by Hervé Poussineau in LD to fix Bug 1244)
 - Fixed the double \\ Bug introduced in 0.3.7. (Daniel Reimer)
 - Added Build Begin Time into Topic. (Daniel Reimer)
 - Added svnversion. (Daniel Reimer)

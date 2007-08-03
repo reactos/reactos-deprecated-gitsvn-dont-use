@@ -18,6 +18,7 @@ color 0A
 set _VER=0.3.7.2
 set ROSBEBASEDIR=%~dp0
 for /f "usebackq" %%i in (`"echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed s/.$//g"`) do @SET ROSBEBASEDIR=%%i
+set _ROSSOURCEDIRBASE=%CD%
 set ROSBE_SHOWTIME=1
 set ROSBE_WRITELOG=1
 set _LOGDIR=%CD%\RosBE-Logs
@@ -60,8 +61,10 @@ if not "%1" == "" (
 :: Save our initial directory (should be the ReactOS source directory) 
 :: and add PATH for Tools Folder.
 ::
-set _ROSSOURCEDIR=%CD%
 set PATH=%ROSBEBASEDIR%\Tools;%PATH%
+for /f "usebackq" %%i in (`"grep base= "%ROSBEBASEDIR%\srclist.xml"|cutz main"`) do @SET scut=%%i
+echo Used Shortcut: %scut%
+echo.
 
 ::
 :: Display the current version of GCC, NASM, ld and make.
@@ -82,7 +85,11 @@ echo -------------------------------------------------
 :: Load the macros that serve as our commands.
 ::
 doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
-
+if "%scut%" == "Default" (
+    set _ROSSOURCEDIR=%_ROSSOURCEDIRBASE%
+) else (
+    call %ROSBEBASEDIR%\scut %scut%
+)
 ::
 :: Look if the Source Folder is empty. If so, ask for using "svn create".
 ::
@@ -93,7 +100,6 @@ if errorlevel 1 (
 ) else (
     goto :ExitRosBE
 )
-
 goto :ExitRosBE
 
 ::

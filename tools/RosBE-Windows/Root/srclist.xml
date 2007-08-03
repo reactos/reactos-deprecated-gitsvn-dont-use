@@ -9,5 +9,5 @@
   value="" Is the Path to a Source Tree Location.
   Example: <property name="example" value="X:\Path\to\Tree" />
 -->
-
+<property base="Default"
 <property name="main" value="C:\RosBE\Source" />
