@@ -10,53 +10,54 @@
         <li title="question">Q: How do I build ReactOS Source?</li>
         <li title="Answer">
                 A: Start RosBE and type "make bootcd" or "make livecd" to generate
-                ReactOS ISO Files from the Source.
+                ReactOS ISO files from the source.
         </li>
         <li>&nbsp;</li>
         
         
         
         <li title="question">
-                Q: I have a Multi Core CPU. Can I speed up the build process anyhow?
+                Q: I have a Multi CPU/Core system. Can I speed up the build process somehow?
         </li>
         <li title="Answer">
-                A: Yes, you can. Just use makex instead of make Command. makex checks
-                for the Number of Cores and optimizes the Processes to that number.
+                A: Yes, you can. Just use "makex" instead of the "make" Command. "makex"
+                checks for the number of processors/cores in your system and optimizes
+                the build according to that number.
         </li>
         <li>&nbsp;</li>
         
         
-        <li title="question">Q: How/Where can I get the Source Code?</li>
+        <li title="question">Q: How/Where can I get the ReactOS source code?</li>
         <li title="Answer">
-                A: You could load it via any SVN Client from: 
+                A: You can retrieve it with any SVN client from: 
                 <a href="svn://svn.reactos.org/reactos/trunk/reactos">
                         svn://svn.reactos.org/reactos/trunk/reactos</a>
                 
-                 &nbsp;RosBE itself has SVN Command Line Client and a lite Variant for newbies called
-                "ssvn" (SimpleSVN) included. If you want to get the Source Tree, type
-                "ssvn create" and it copies all Code to the Default Source Folder you
-                did set while the Setup.
+                &nbsp;RosBE itself has a SVN command line client and a lite variant for
+                new users called "ssvn" (SimpleSVN) included. If you want to get the
+                source tree, type "ssvn create" and it copies all code to the default
+                source folder you set during installation.
         </li>
         <li>&nbsp;</li>
         
         
-        <li title="question">Q: How can I update the Source Code?</li>
+        <li title="question">Q: How can I update the ReactOS source code?</li>
         <li title="Answer">A: Just type "ssvn update".</li>
         <li>&nbsp;</li>
         
         
         <li title="Question">
-                Q: Can I see somewhere if my Source Tree is up to date?
+                Q: Can I see somewhere if my source tree is up to date?
         </li>
         <li title="Answer">A: Yes, just type "ssvn status".</li>
         <li>&nbsp;</li>
         
         <li title="Question">
-                Q: My Source Tree seems corrupted / Updating was aborted etc. etc. and now
-                I cannot update it anymore... What to do?
+                Q: My source tree seems corrupted / updating was aborted etc... and now
+                I cannot update it anymore... What can I do?
         </li>
         <li title="Answer">
-                A: You need to cleanup it. Type "ssvn cleanup" and wait. After that type
+                A: You need to clean it up. Type "ssvn cleanup" and wait. After that type
                 "ssvn update" and it runs again.
         </li>
         <li>&nbsp;</li>
