@@ -39,10 +39,22 @@ goto :RUN
 :: Load Shortcut from XML and set it active.
 ::
 :RUN
-for /f "usebackq" %%i in (`"grep name=\"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir"`) do @SET dir=%%i
-cd /D %dir%
-goto :END
+grep name=\"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
+test -s "%ROSBEBASEDIR%\aaa.tmp"
+if errorlevel 1 (
+    echo Shortcut with that name does not exist.
+    del "%ROSBEBASEDIR%\aaa.tmp"
+    goto :END
+) else (
+    set /P dir=<"%ROSBEBASEDIR%\aaa.tmp"
+    cd /D %dir%
+    del "%ROSBEBASEDIR%\aaa.tmp"
+    goto :END
+)
 
+::
+:: Add new Shortcut to XML.
+::
 :ADD
 if not "%2" == "" (
     if not "%3" == "" (
@@ -57,9 +69,6 @@ if not "%2" == "" (
     goto :ADD1
 )
 
-::
-:: Add new Shortcut to XML.
-::
 :ADD1
 echo Choose your Shortcut:
 SET /P CUT=
@@ -71,6 +80,7 @@ echo ^<property name="%CUT%" value="%DIR%" /^> > "%ROSBEBASEDIR%\aaa.tmp"
 copy "%ROSBEBASEDIR%\srclist.xml" + "%ROSBEBASEDIR%\aaa.tmp" "%ROSBEBASEDIR%\srclist2.xml"
 del "%ROSBEBASEDIR%\srclist.xml"
 ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
+del "%ROSBEBASEDIR%\aaa.tmp"
 goto :END
 
 ::
@@ -84,10 +94,19 @@ if not "%2" == "" (
 echo Choose your Shortcut:
 SET /P CUTREM=
 :REM1
-grep -v name=\"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
-del "%ROSBEBASEDIR%\srclist.xml"
-ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
-goto :END
+grep name=\"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
+test -s "%ROSBEBASEDIR%\aaa.tmp"
+if errorlevel 1 (
+    echo Shortcut with that name does not exist.
+    del "%ROSBEBASEDIR%\aaa.tmp"
+    goto :END
+) else (
+    grep -v name=\"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
+    del "%ROSBEBASEDIR%\srclist.xml"
+    ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
+    del "%ROSBEBASEDIR%\aaa.tmp"
+    goto :END
+)
 
 ::
 :: Set Default Shortcut.
@@ -100,9 +119,21 @@ if not "%2" == "" (
 echo Choose your new Default Shortcut:
 SET /P DEF=
 :DEF1
-sed "s/base=\".*\"/base=\"%DEF%\"/g" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
-del "%ROSBEBASEDIR%\srclist.xml"
-ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
+grep name=\"%DEF%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
+test -s "%ROSBEBASEDIR%\aaa.tmp"
+if errorlevel 1 (
+    echo Shortcut with that name does not exist.
+    del "%ROSBEBASEDIR%\aaa.tmp"
+    goto :END
+) else (
+    sed "s/base=\".*\"/base=\"%DEF%\"/g" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
+    del "%ROSBEBASEDIR%\srclist.xml"
+    ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
+    del "%ROSBEBASEDIR%\aaa.tmp"
+    goto :PREEND
+)
+
+:PREEND
 call "%ROSBEBASEDIR%\RosBE.cmd"
 
 :END
