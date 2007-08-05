@@ -4,6 +4,7 @@
  * FILE:        Tools/cpucount.c
  * PURPOSE:     CPU Core Counter
  * COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
+ *              Copyright 2007 Peter Ward <dralnix@gmail.com>
  *
  */
 

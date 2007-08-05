@@ -4,6 +4,7 @@
  * FILE:        Tools/buildtime.c
  * PURPOSE:     Buildtime Counter
  * COPYRIGHT:   Copyright 2007 KJK::Hyperion
+ *              Copyright 2007 Peter Ward <dralnix@gmail.com>
  *
  */
 
@@ -57,7 +58,7 @@ int main()
     time_t StartTime, FinishTime;
     double TotalTime;
     int Hour, Minute, Second;
-	int ret;
+	int Status;
 
     //
     // Get the command line to pass on.
@@ -94,7 +95,7 @@ int main()
     //
     // Run the program (Status is 1 on failure).
     //
-    ret = system(CommandLineBuffer);
+    Status = system(CommandLineBuffer);
 
     //
     // Grab the finishing timestamp.
@@ -124,5 +125,5 @@ int main()
     //
     free(CommandLineBuffer);
 
-    return ret;
+    return Status;
 }
