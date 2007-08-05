@@ -30,14 +30,12 @@ if /I "%1"=="def" (
 )
 goto :END
 
-:DEF
-echo Choose your Source Folder:
-SET /P XY=
-goto :RUN
-
 ::
 :: Load Shortcut from XML and set it active.
 ::
+:DEF
+echo Choose your Source Folder:
+SET /P XY=
 :RUN
 grep name=\"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
 test -s "%ROSBEBASEDIR%\aaa.tmp"
@@ -47,7 +45,7 @@ if errorlevel 1 (
     goto :END
 ) else (
     set /P dir=<"%ROSBEBASEDIR%\aaa.tmp"
-    cd /D %dir%
+    call cd /D %dir%
     del "%ROSBEBASEDIR%\aaa.tmp"
     goto :END
 )
