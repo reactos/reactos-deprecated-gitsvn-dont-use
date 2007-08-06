@@ -28,7 +28,7 @@
 #                 Erik Stambaugh <erik@dasbistro.com>
 
 # Auth::Verify class for RosCMS
-# developed by Colin Finck based on the Auth::Verify::DB class (2007-07-29)
+# developed by Colin Finck based on the Auth::Verify::DB class (2007-08-06)
 
 package Bugzilla::Auth::Verify::ROSCMS;
 use strict;
@@ -40,6 +40,10 @@ use Bugzilla::Token;
 use Bugzilla::Util;
 use Bugzilla::User;
 
+use Digest::MD5 qw(md5_hex);
+
+my $roscms_db_name = "roscms";
+
 sub check_credentials {
 	my ($self, $login_data) = @_;
 	my $dbh = Bugzilla->dbh;
@@ -50,20 +54,24 @@ sub check_credentials {
 	return { failure => AUTH_NO_SUCH_USER } unless $user_id;
 	
 	$login_data->{bz_username} = $username;
-
-	my ($real_password_crypted) = $dbh->selectrow_array("SELECT cryptpassword FROM profiles WHERE userid = ?", undef, $user_id);
-	my $entered_password_crypted = $login_data->{crypted_password};
+	my $md5_password = $login_data->{md5_password};
 	
-	if( !defined $entered_password_crypted ) {
+	if( !defined $md5_password )
+	{
 		my $password = $login_data->{password};
-	
-		# Using the internal crypted password as the salt,
-		# crypt the password the user entered.
-		$entered_password_crypted = crypt($password, $real_password_crypted);
+		$md5_password = md5_hex($password);
 	}
 	
+	my $query = "SELECT u.user_roscms_password " .
+			"FROM $roscms_db_name.users u, " .
+			"   $roscms_db_name.subsys_mappings m " .
+			"WHERE u.user_id = m.map_roscms_userid " .
+			"   AND m.map_subsys_name = 'bugzilla' " .
+			"   AND m.map_subsys_userid = ?";
+	(my $valid_md5_password) = $dbh->selectrow_array($query, undef, $user_id);
+	
 	return { failure => AUTH_LOGINFAILED }
-		if $entered_password_crypted ne $real_password_crypted;
+		if $md5_password ne $valid_md5_password;
 	
 	# The user's credentials are okay, so delete any outstanding
 	# password tokens they may have generated.

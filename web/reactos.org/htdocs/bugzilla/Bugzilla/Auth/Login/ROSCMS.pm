@@ -30,7 +30,7 @@
 
 # Auth::Login class for RosCMS
 # based on the former class for Bugzilla 2.x by Gé van Geldorp and Michael Wirth and the Auth::Login::CGI class
-# improved and made compatible with Bugzilla 3.x and Deskzilla by Colin Finck (2007-07-29)
+# improved and made compatible with Bugzilla 3.x and Deskzilla by Colin Finck (2007-08-06)
 
 package Bugzilla::Auth::Login::ROSCMS;
 use strict;
@@ -66,7 +66,9 @@ sub get_login_info {
 	# No, then check for the RosCMS Login cookie
 	my $dbh = Bugzilla->dbh;
 	my $user_id;
+	my $roscms_user_id;
 	my $session_id = $cgi->cookie($session_cookie_name);
+	
 	if ( defined $session_id ) {
 		my $session_id_clean = $session_id;
 		trick_taint($session_id_clean);
@@ -78,7 +80,7 @@ sub get_login_info {
 		}
 		my $browser_agent_clean = $ENV{'HTTP_USER_AGENT'};
 		trick_taint($browser_agent_clean);
-		my $query = "SELECT m.map_subsys_userid " .
+		my $query = "SELECT m.map_subsys_userid, m.map_roscms_userid " .
 				"  FROM $roscms_db_name.user_sessions s, " .
 				"       $roscms_db_name.users u, " .
 				"       $roscms_db_name.subsys_mappings m " .
@@ -93,7 +95,8 @@ sub get_login_info {
 				"   AND m.map_roscms_userid = s.usersession_user_id " .
 				"   AND m.map_subsys_name = 'bugzilla'";
 		my @params = ($session_id_clean, $remote_addr_clean, $browser_agent_clean);
-		($user_id) = $dbh->selectrow_array($query, undef, @params);
+		($user_id, $roscms_user_id) = $dbh->selectrow_array($query, undef, @params);
+		
 		if ($user_id) {
 			# Update time of last session use
 			$query = "UPDATE $roscms_db_name.user_sessions " .
@@ -103,14 +106,16 @@ sub get_login_info {
 			@params = ($session_id_clean);
 			$dbh->do($query, undef, @params);
 			
-			# Get the user name and the crypted password from the database
+			# Get the user name and the MD5 password from the database
+			# We don't check the password explicitly here as we only deal with the session cookie.
+			# To show the Verify module that it should trust us, we pass the MD5 password hash to it. This should be secure as long as we're the only one who knows this MD5 hash.
 			my $username = user_id_to_login($user_id);
-			my $crypted_password = $dbh->selectrow_array("SELECT cryptpassword FROM profiles WHERE userid = ?",	undef, $user_id);
+			(my $md5_password) = $dbh->selectrow_array("SELECT user_roscms_password FROM $roscms_db_name.users WHERE user_id = ?", undef, $roscms_user_id);
 			
 			# We need to set a parameter for the Auth::Persist::ROSCMS module
 			$cgi->param('ROSCMS_login', 1);
 			
-			return { username => $username, crypted_password => $crypted_password };
+			return { username => $username, md5_password => $md5_password };
 		}
 	}
 	
