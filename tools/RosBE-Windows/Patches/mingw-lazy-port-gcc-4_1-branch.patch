@@ -1,0 +1,278 @@
+Index: gcc/config/i386/cygming.h
+===================================================================
+--- gcc/config/i386/cygming.h	(revision 125623)
++++ gcc/config/i386/cygming.h	(working copy)
+@@ -335,6 +335,7 @@
+ extern void i386_pe_file_end (void);
+ extern int i386_pe_dllexport_name_p (const char *);
+ extern int i386_pe_dllimport_name_p (const char *);
++extern void i386_pe_decorate_assembler_name (tree);
+ 
+ /* For Win32 ABI compatibility */
+ #undef DEFAULT_PCC_STRUCT_RETURN
+@@ -412,6 +413,7 @@
+ 
+ #define TARGET_VALID_DLLIMPORT_ATTRIBUTE_P i386_pe_valid_dllimport_attribute_p
+ #define TARGET_CXX_ADJUST_CLASS_AT_DEFINITION i386_pe_adjust_class_at_definition
++#define TARGET_ASM_CHANGE_EXTERN_NAME i386_pe_decorate_assembler_name
+ 
+ #undef TREE
+ 
+Index: gcc/config/i386/host-mingw32.c
+===================================================================
+--- gcc/config/i386/host-mingw32.c	(revision 125623)
++++ gcc/config/i386/host-mingw32.c	(working copy)
+@@ -28,6 +28,8 @@
+ 
+ 
+ #define WIN32_LEAN_AND_MEAN  /* Not so important if we have windows.h.gch.  */
++#include <tchar.h>
++#include <stdlib.h>
+ #include <windows.h>
+ 
+ static void * mingw32_gt_pch_get_address (size_t, int);
+@@ -47,7 +49,7 @@
+ static const size_t pch_VA_max_size  = 128 * 1024 * 1024;
+ 
+ /* Granularity for reserving address space.  */
+-static const size_t va_granularity = 0x10000;
++static size_t va_granularity = 0x10000;
+ 
+ /* Print out the GetLastError() translation.  */ 
+ static inline void
+@@ -70,7 +72,9 @@
+ /* Granularity for reserving address space.  */
+ static size_t mingw32_gt_pch_alloc_granularity (void)
+ {
+-  return va_granularity;
++  SYSTEM_INFO SysInfo;
++  GetSystemInfo(&SysInfo);
++  return (va_granularity = (size_t)SysInfo.dwAllocationGranularity);
+ }
+ 
+ /* Identify an address that's likely to be free in a subsequent invocation
+@@ -125,9 +129,23 @@
+   if ((offset & (va_granularity - 1)) != 0 || size > pch_VA_max_size)
+     return -1;
+ 
+-  mmap_handle = CreateFileMapping ((HANDLE) _get_osfhandle (fd),
+-				   NULL, PAGE_WRITECOPY | SEC_COMMIT,
+-				   0, 0,  NULL);
++  srand(1);
++  while (1)
++    {
++      TCHAR szMappingName[26];
++
++      /* Generate a unique mapping name. This is neccessary to avoid
++         needing the SeCreateGlobalPrivilege privilege in certain cases */
++      _stprintf(szMappingName, _T("Local\\MinGWGCCPCH%08X"), rand());
++      mmap_handle = CreateFileMapping ((HANDLE) _get_osfhandle (fd),
++					   NULL, PAGE_WRITECOPY | SEC_COMMIT,
++					   0, 0,  szMappingName);
++      if (mmap_handle != NULL && GetLastError() == ERROR_ALREADY_EXISTS)
++          CloseHandle(mmap_handle);
++      else
++          break;
++    }
++
+   if (mmap_handle == NULL)
+     {
+       w32_error (__FUNCTION__,  __FILE__, __LINE__, "CreateFileMapping");
+Index: gcc/config/i386/winnt.c
+===================================================================
+--- gcc/config/i386/winnt.c	(revision 125623)
++++ gcc/config/i386/winnt.c	(working copy)
+@@ -335,33 +335,38 @@
+ }
+ 
+ void
+-i386_pe_encode_section_info (tree decl, rtx rtl, int first)
++i386_pe_decorate_assembler_name (tree decl)
+ {
+-  default_encode_section_info (decl, rtl, first);
++  tree type_attributes = TYPE_ATTRIBUTES (TREE_TYPE (decl));
++  tree newid = NULL_TREE;
+ 
+-  if (first && TREE_CODE (decl) == FUNCTION_DECL)
+-    {
+-      tree type_attributes = TYPE_ATTRIBUTES (TREE_TYPE (decl));
+-      tree newid = NULL_TREE;
++  if (lookup_attribute ("stdcall", type_attributes))
++    newid = gen_stdcall_or_fastcall_suffix (decl, false);
++  else if (lookup_attribute ("fastcall", type_attributes))
++    newid = gen_stdcall_or_fastcall_suffix (decl, true);
++  if (newid != NULL_TREE)
++   {
++      rtx rtlname = XEXP (DECL_RTL (decl), 0);
++      if (GET_CODE (rtlname) == MEM)
++       rtlname = XEXP (rtlname, 0);
++      XSTR (rtlname, 0) = IDENTIFIER_POINTER (newid);
+ 
+-      if (lookup_attribute ("stdcall", type_attributes))
+-	newid = gen_stdcall_or_fastcall_suffix (decl, false);
+-      else if (lookup_attribute ("fastcall", type_attributes))
+-	newid = gen_stdcall_or_fastcall_suffix (decl, true);
+-      if (newid != NULL_TREE) 	
+-	{
+-	  rtx rtlname = XEXP (rtl, 0);
+-	  if (GET_CODE (rtlname) == MEM)
+-	    rtlname = XEXP (rtlname, 0);
+-	  XSTR (rtlname, 0) = IDENTIFIER_POINTER (newid);
+-	  /* These attributes must be present on first declaration,
++ 	  /* These attributes must be present on first declaration,
+ 	     change_decl_assembler_name will warn if they are added
+ 	     later and the decl has been referenced, but duplicate_decls
+ 	     should catch the mismatch before this is called.  */ 
+ 	  change_decl_assembler_name (decl, newid);
+-	}
+     }
++ }
+ 
++void
++i386_pe_encode_section_info (tree decl, rtx rtl, int first)
++{
++  default_encode_section_info (decl, rtl, first);
++
++  if (first && TREE_CODE (decl) == FUNCTION_DECL)
++    i386_pe_decorate_assembler_name (decl);
++  
+   /* Mark the decl so we can tell from the rtl whether the object is
+      dllexport'd or dllimport'd.  tree.c: merge_dllimport_decl_attributes
+      handles dllexport/dllimport override semantics.  */
+Index: gcc/cp/method.c
+===================================================================
+--- gcc/cp/method.c	(revision 125623)
++++ gcc/cp/method.c	(working copy)
+@@ -350,6 +350,8 @@
+      this translation unit.  */
+   TREE_ADDRESSABLE (function) = 1;
+   mark_used (function);
++  /* The DECL_ASSEMBLER_NAME of the thunked function may need modification. */
++  targetm.asm_out.change_extern_name (function);
+   if (!emit_p)
+     return;
+ 
+Index: gcc/target-def.h
+===================================================================
+--- gcc/target-def.h	(revision 125623)
++++ gcc/target-def.h	(working copy)
+@@ -205,6 +205,10 @@
+ #define TARGET_ASM_OUTPUT_DWARF_DTPREL NULL
+ #endif
+ 
++#ifndef TARGET_ASM_CHANGE_EXTERN_NAME
++#define TARGET_ASM_CHANGE_EXTERN_NAME hook_void_tree
++#endif
++
+ #define TARGET_ASM_ALIGNED_INT_OP				\
+ 		       {TARGET_ASM_ALIGNED_HI_OP,		\
+ 			TARGET_ASM_ALIGNED_SI_OP,		\
+@@ -248,7 +252,8 @@
+                         TARGET_ASM_FILE_END,			\
+ 			TARGET_ASM_EXTERNAL_LIBCALL,            \
+                         TARGET_ASM_MARK_DECL_PRESERVED,		\
+-			TARGET_ASM_OUTPUT_DWARF_DTPREL}
++            TARGET_ASM_OUTPUT_DWARF_DTPREL,         \
++            TARGET_ASM_CHANGE_EXTERN_NAME}
+ 
+ /* Scheduler hooks.  All of these default to null pointers, which
+    haifa-sched.c looks for and handles.  */
+Index: gcc/target.h
+===================================================================
+--- gcc/target.h	(revision 125623)
++++ gcc/target.h	(working copy)
+@@ -186,6 +186,13 @@
+     /* Output a DTP-relative reference to a TLS symbol.  */
+     void (*output_dwarf_dtprel) (FILE *file, int size, rtx x);
+ 
++/* This target hook allows the operating system to modify the extern
++    assembler name
++   of a DECL.  For example, windows targets use this to decorate stdcall and
++   fastcall functions
++   with a a trailing '@n'.  */
++    void (*change_extern_name) (tree decl);
++
+   } asm_out;
+ 
+   /* Functions relating to instruction scheduling.  */
+Index: libstdc++-v3/config/os/mingw32/os_defines.h
+===================================================================
+--- libstdc++-v3/config/os/mingw32/os_defines.h	(revision 125623)
++++ libstdc++-v3/config/os/mingw32/os_defines.h	(working copy)
+@@ -45,6 +45,13 @@
+ #undef NOMINMAX
+ #define NOMINMAX 1
+ 
++// mingw32 local hack: Override  _GLIBCXX_USE_WCHAR_T for wstring
++#define _GLIBCXX_USE_WSTRING 1
++
++// mingw32 local hack: Cast long double to doubles to workaround
++// printf bug.
++#define _GLIBCXX_NO_LONG_DOUBLE_IO 0
++
+ // See libstdc++/20806.
+ #define _GLIBCXX_HAVE_DOS_BASED_FILESYSTEM 1
+ 
+Index: libstdc++-v3/include/bits/char_traits.h
+===================================================================
+--- libstdc++-v3/include/bits/char_traits.h	(revision 125623)
++++ libstdc++-v3/include/bits/char_traits.h	(working copy)
+@@ -295,7 +295,7 @@
+   };
+ 
+ 
+-#ifdef _GLIBCXX_USE_WCHAR_T
++#if defined (_GLIBCXX_USE_WCHAR_T) || defined (_GLIBCXX_USE_WSTRING)
+   /// @brief  21.1.3.2  char_traits specializations
+   template<>
+     struct char_traits<wchar_t>
+@@ -303,8 +303,10 @@
+       typedef wchar_t           char_type;
+       typedef wint_t            int_type;
+       typedef streamoff         off_type;
++#if defined (_GLIBCXX_USE_WCHAR_T)
+       typedef wstreampos        pos_type;
+       typedef mbstate_t         state_type;
++#endif
+ 
+       static void
+       assign(char_type& __c1, const char_type& __c2)
+Index: libstdc++-v3/include/bits/stringfwd.h
+===================================================================
+--- libstdc++-v3/include/bits/stringfwd.h	(revision 125623)
++++ libstdc++-v3/include/bits/stringfwd.h	(working copy)
+@@ -59,7 +59,7 @@
+ 
+   typedef basic_string<char>    string;
+ 
+-#ifdef _GLIBCXX_USE_WCHAR_T
++#if defined (_GLIBCXX_USE_WCHAR_T) || defined (_GLIBCXX_USE_WSTRING)
+   template<> struct char_traits<wchar_t>;
+ 
+   typedef basic_string<wchar_t> wstring;
+Index: libstdc++-v3/include/c_std/std_cwchar.h
+===================================================================
+--- libstdc++-v3/include/c_std/std_cwchar.h	(revision 125623)
++++ libstdc++-v3/include/c_std/std_cwchar.h	(working copy)
+@@ -138,7 +138,7 @@
+ #undef wprintf
+ #undef wscanf
+ 
+-#if _GLIBCXX_USE_WCHAR_T
++#if _GLIBCXX_USE_WCHAR_T || _GLIBCXX_USE_WSTRING
+ namespace std
+ {
+   using ::wint_t;
+Index: libstdc++-v3/include/c_std/std_cwctype.h
+===================================================================
+--- libstdc++-v3/include/c_std/std_cwctype.h	(revision 125623)
++++ libstdc++-v3/include/c_std/std_cwctype.h	(working copy)
+@@ -75,7 +75,7 @@
+ #undef wctrans
+ #undef wctype
+ 
+-#if _GLIBCXX_USE_WCHAR_T
++#if _GLIBCXX_USE_WCHAR_T || _GLIBCXX_USE_WSTRING
+ namespace std
+ {
+   using ::wint_t;	  // cwchar
