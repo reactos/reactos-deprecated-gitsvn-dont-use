@@ -79,6 +79,21 @@ if "%1" == "" (
         del /f "dll\win32\comdlg32\pd32_portrait.ico" 1> NUL 2> NUL
         del /f "dll\win32\comdlg32\hdisk.ico" 1> NUL 2> NUL
 
+        del /f "dll\ntdll\napi.S" 1> NUL 2> NUL
+        del /f "dll\win32\gdi32\misc\win32k.S" 1> NUL 2> NUL
+        del /f "dll\win32\kernel32\errcodes.rc" 1> NUL 2> NUL
+        del /f "dll\win32\user32\misc\win32k.S" 1> NUL 2> NUL
+        del /f "include\reactos\bugcodes.h" 1> NUL 2> NUL
+        del /f "include\reactos\buildno.h" 1> NUL 2> NUL
+        del /f "include\reactos\errcodes.h" 1> NUL 2> NUL
+        del /f "ntoskrnl\bugcodes.rc" 1> NUL 2> NUL
+        del /f "ntoskrnl\ex\zw.S" 1> NUL 2> NUL
+        del /f "ntoskrnl\include\internal\napi.h" 1> NUL 2> NUL
+        del /f "subsystems\win32\win32k\dib\dib16gen.c" 1> NUL 2> NUL
+        del /f "subsystems\win32\win32k\dib\dib32gen.c" 1> NUL 2> NUL
+        del /f "subsystems\win32\win32k\dib\dib8gen.c" 1> NUL 2> NUL
+        del /f "subsystems\win32\win32k\include\napi.h" 1> NUL 2> NUL
+
         echo Done cleaning ReactOS source directory.
     ) else (
         echo There is nothing to clean.
