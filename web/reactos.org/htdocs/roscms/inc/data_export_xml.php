@@ -57,7 +57,7 @@
 		global $RosCMS_GET_d_filter2;
 		global $roscms_standard_language_full;
 		
-		$roscms_intern_entry_per_pag = 25;
+		$roscms_intern_entry_per_page = 25;
 		
 		$roscms_d_stext = false;
 		$roscms_d_tags = false;
@@ -186,10 +186,10 @@
 								case "revid": // revision-id
 									$roscms_mtbl_order .= "r.rev_id ".$roscms_d_f2_typeb.", ";
 									break;
-								case "ext": // page extention 
+								case "ext": // page extension 
 									$roscms_d_tags_counter++;
 									$roscms_mtbl_order .= " v".$roscms_d_tags_counter.".tv_value ".$roscms_d_f2_typeb.", ";
-									$roscms_mtbl_order_where .= " AND n".$roscms_d_tags_counter.".tn_name = 'extention' ";
+									$roscms_mtbl_order_where .= " AND n".$roscms_d_tags_counter.".tn_name = 'extension' ";
 									break;
 								case "status": // status 
 									$roscms_d_tags_counter++;
@@ -560,7 +560,7 @@
 											". $roscms_d_filter2 ."
 											". $roscms_mtbl_order_where;
 		//echo "<p>".$tzemp."</p>";
-		//echo "<p>".$tzemp." LIMIT ".mysql_real_escape_string($RosCMS_GET_d_curpos) ." , ".$roscms_intern_entry_per_pag.";</p>";
+		//echo "<p>".$tzemp." LIMIT ".mysql_real_escape_string($RosCMS_GET_d_curpos) ." , ".$roscms_intern_entry_per_page.";</p>";
 		$query_xml_ptm_count = mysql_query($tzemp);
 		$result_xml_ptm_count = mysql_fetch_row($query_xml_ptm_count);
 
@@ -595,7 +595,7 @@
 			
 
 			
-			$tdata .= "    <view curpos=\"".$RosCMS_GET_d_curpos."\" pagelimit=\"".$roscms_intern_entry_per_pag."\" pagemax=\"".$result_xml_ptm_count[0]."\" tblcols=\"".$roscms_mtbl_cols."\" /> \n";
+			$tdata .= "    <view curpos=\"".$RosCMS_GET_d_curpos."\" pagelimit=\"".$roscms_intern_entry_per_page."\" pagemax=\"".$result_xml_ptm_count[0]."\" tblcols=\"".$roscms_mtbl_cols."\" /> \n";
 			
 			
 			$sql_xml_ptm = "SELECT d.data_id, d.data_name, d.data_type, d.data_acl, r.rev_id, r.rev_version, r.rev_language, r.rev_datetime, r.rev_date, r.rev_usrid ".$roscms_sql_stext2." ".$roscms_sql_tags2." , y.sec_lev".mysql_real_escape_string($roscms_security_level)."_write  
@@ -611,7 +611,7 @@
 											". $roscms_d_filter2 ."
 											". $roscms_mtbl_order_where ." 
 											". $roscms_mtbl_order ." 
-											LIMIT ".mysql_real_escape_string($RosCMS_GET_d_curpos)." , ".$roscms_intern_entry_per_pag.";";
+											LIMIT ".mysql_real_escape_string($RosCMS_GET_d_curpos)." , ".$roscms_intern_entry_per_page.";";
 			
 			if ($RosCMS_GET_debug) {
 				echo "<p>".$sql_xml_ptm."</p>";
@@ -656,11 +656,6 @@
 					$tblentry_d_r_lang = $result_xml_ptm['rev_language'];
 					$tblentry_d_r_date = $result_xml_ptm['rev_datetime'];
 					$tblentry_d_r_usrid = $result_xml_ptm['rev_usrid'];
-					
-					$temp_dynamic = getTagValue($result_xml_ptm['data_id'], $result_xml_ptm['rev_id'],  '-1', 'number');
-					if ($result_xml_ptm['data_type'] == "content" && $temp_dynamic != "") {
-						$tblentry_d_name .= "_".$temp_dynamic;
-					}
 				}
 				else { // translation
 					$query_xml_ptm_trans = mysql_query("SELECT d.data_id, d.data_name, d.data_type, r.rev_id, r.rev_version, r.rev_language, r.rev_datetime, r.rev_date, r.rev_usrid 
@@ -675,7 +670,7 @@
 //					echo "<p>DATE: ".$result_xml_ptm_trans['rev_datetime']."</p>";
 					
 					if ($result_xml_ptm_trans['rev_datetime'] == "") { // translation doesn't exist, so enable "translate mode"
-							$temp_status = "transb";
+						$temp_status = "transb";
 
 						$tblentry_d_id2 = $result_xml_ptm['data_id'];
 						$tblentry_d_name = $result_xml_ptm['data_name'];
@@ -719,6 +714,11 @@
 						$tblentry_d_r_date = $result_xml_ptm_trans['rev_datetime'];
 						$tblentry_d_r_usrid = $result_xml_ptm_trans['rev_usrid'];
 					}
+				}
+			
+				$temp_dynamic = getTagValue($result_xml_ptm['data_id'], $result_xml_ptm['rev_id'],  '-1', 'number');
+				if ($result_xml_ptm['data_type'] == "content" && $temp_dynamic != "") {
+					$tblentry_d_name .= "_".$temp_dynamic;
 				}
 				
 				

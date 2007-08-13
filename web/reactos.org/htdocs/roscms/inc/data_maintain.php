@@ -24,7 +24,7 @@
 	
 	global $roscms_intern_page_link;
 
-	if (roscms_security_grp_member("ros_sadmin")) {
+	if ($roscms_security_level == 3) {
 ?>
 		<p>&nbsp;</p>
 		<h2>Maintain</h2>
@@ -32,9 +32,14 @@
 		<p>&nbsp;</p>
 <?php
 
-/*		require("inc/data_export_page.php");
+/*	
+		require("inc/data_export_page.php");
 
-		echo generate_page_output_update("210", "en", "");
+		echo generate_page_output_update("55", "en", "");
+		echo "<hr />";
+		echo generate_page_output_update("55", "de", "");
+
+		//echo generate_page_output("sitemap", "all", "", "single");
 		
 		echo "<hr />";
 		
@@ -62,12 +67,39 @@
 		<p><a href="javascript:analyzedb()">Analyze Database Tables</a></p>
 		<p>&nbsp;</p>
 		<p><a href="javascript:ppreview()">Page Preview</a></p>
+		<div><label for="textfield">Entry-Name:</label> <input name="textfield" type="text" id="textfield" size="20" maxlength="100" />
+		<select id="txtaddentrytype" name="txtaddentrytype">
+			<option value="page" selected="selected">Page</option>
+			<option value="content">Content</option>
+			<option value="template">Template</option>
+			<option value="script">Script</option>
+			<option value="system">System</option>
+		</select>
+		<select id="txtaddentrylang" name="txtaddentrylang">
+		<?php
+			$query_language = mysql_query("SELECT * 
+											FROM languages
+											WHERE lang_level > '0'
+											ORDER BY lang_name ASC ;");
+			while($result_language=mysql_fetch_array($query_language)) {
+				echo '<option value="';
+				echo $result_language['lang_id'];
+				echo '">'.$result_language['lang_name'].'</option>';
+				
+			}
+		?>
+		</select>						
+		<input name="dynnbr" type="text" id="dynnbr" size="3" maxlength="5" />
+		<input name="entryupdate" type="button" value="generate" onclick="pupdate()" /></div>
+
 		<p><a href="javascript:genpages()">Generate All Pages</a></p>
 		<div id="maintainarea" style="border: 1px dashed red;" style="display:none;"></div>
 		<img id="ajaxloading" style="display:none;" src="images/ajax_loading.gif" width="13" height="13" />
 		<p>&nbsp;</p>
 <?php
 	
+		if (roscms_security_grp_member("ros_sadmin")) {
+		
 			echo "<p>&nbsp;</p>";
 
 			echo "<h2>RosCMS Global Log</h2>";
@@ -107,6 +139,7 @@
 				echo "<p>&nbsp;</p>";
 			}
 
+		}
 ?>
 	<script type="text/javascript" language="javascript">
 		<!--
@@ -131,6 +164,11 @@
 			
 			function ppreview() {
 				secwind = window.open("<?php echo $roscms_intern_page_link; ?>data_out&d_f=page&d_u=show&d_val=index&d_val2=en", "RosCMSPagePreview");
+			}
+			
+			function pupdate() {
+				document.getElementById('maintainarea').style.display = 'block';
+				makeRequest('?page=data_out&d_f=maintain&d_u=pupdate&d_val='+encodeURIComponent(document.getElementById('textfield').value)+'&d_val2='+encodeURIComponent(document.getElementById('txtaddentrytype').value)+'&d_val3='+encodeURIComponent(document.getElementById('txtaddentrylang').value)+'&d_val4='+encodeURIComponent(document.getElementById('dynnbr').value), 'pupdate', 'maintainarea');
 			}
 
 					
