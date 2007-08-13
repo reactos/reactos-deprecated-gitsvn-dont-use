@@ -32,50 +32,63 @@
 	
 	function generate_page_output_update($g_data_id, $g_lang_id, $g_page_dynida) {
 		global $roscms_standard_language;
-	
+
 		$query_data = mysql_query("SELECT * 
 									FROM data_ d, data_revision r 
 									WHERE r.data_id = '".mysql_real_escape_string($g_data_id)."' 
 									AND r.data_id = d.data_id 
-									AND r.rev_language = '".mysql_real_escape_string($g_lang_id)."' 
+									AND (r.rev_language = '".mysql_real_escape_string($g_lang_id)."' 
+										OR r.rev_language = '".mysql_real_escape_string($roscms_standard_language)."')
 									AND rev_version > 0 
-									LIMIT 1;");
-		$result_data = mysql_fetch_array($query_data);
+									LIMIT 2;");
+		$result_data = mysql_fetch_assoc($query_data);
+		
+		// Try to get the dataset with rev_language == $g_lang, to boost the translated content
+		if( mysql_num_rows($query_data) == 2 ) {
+			if( $result_data['rev_language'] == $roscms_standard_language ) {
+				$result_data = mysql_fetch_assoc($query_data);
+			}
+		}
+			
 
-
-		if ($result_data['rev_language'] == $roscms_standard_language) {
+		if ($g_lang_id == $roscms_standard_language) {
 			$tmp_lang = "all";
 		}
 		else {
-			$tmp_lang = $result_data['rev_language'];
+			$tmp_lang = $g_lang_id;
 		}
+
+
+		log_event_generate_low("-=&gt; ".$result_data['data_name']." (".$tmp_lang.") type: ".$result_data['data_type']." [generate_page_output_update(".$g_data_id.", ".$g_lang_id.", ".$g_page_dynida.")]");
 
 
 		switch ($result_data['data_type']) {
 			case 'page':
 				echo "<p>generate_page_output(".$result_data['data_name'].", ".$tmp_lang.", ".$g_page_dynida.")</p>";
+				log_event_generate_low($result_data['data_name']." (".$tmp_lang.")  type: ".$result_data['data_type']." ".$g_page_dynida);
 				log_event_generate_medium($result_data['data_name']." (".$tmp_lang.") ".$g_page_dynida);
 				generate_page_output($result_data['data_name'], $tmp_lang, $g_page_dynida);
 				break;
 			case 'template':
-				echo "<p>generate_update_helper(".$result_data['rev_language'].", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
-				generate_update_helper($result_data['rev_language'], $result_data['data_type'], $result_data['data_name']);
+				echo "<p>generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
+				generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 				break;
 			case 'content':
 				$tmp_dynamic = getTagValueG($result_data['data_id'], $result_data['rev_id'],  '-1', 'number'); // get dynamic content number
 				if ($tmp_dynamic != "" && $result_data['data_type'] == "content") {
-					echo "<p>#==&gt; ".$result_data['data_name']."_".$g_page_dynida." (".$result_data['data_type']."; ".$result_data['rev_language'].")</p>";
+					echo "<p>#==&gt; ".$result_data['data_name']."_".$g_page_dynida." (".$result_data['data_type']."; ".$tmp_lang.")</p>";
+					log_event_generate_low($result_data['data_name']." (".$tmp_lang.")  type: ".$result_data['data_type']." ".$g_page_dynida);
 					log_event_generate_medium($result_data['data_name']." (".$tmp_lang.") ".$g_page_dynida);
 					generate_page_output($result_data['data_name'], $tmp_lang, $g_page_dynida);
 				}
 				else {
-					echo "<p>generate_update_helper(".$result_data['rev_language'].", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
-					generate_update_helper($result_data['rev_language'], $result_data['data_type'], $result_data['data_name']);
+					echo "<p>generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
+					generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 				}
 				break;
 			case 'script':
-				echo "<p>generate_update_helper(".$result_data['rev_language'].", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
-				generate_update_helper($result_data['rev_language'], $result_data['data_type'], $result_data['data_name']);
+				echo "<p>generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
+				generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 				break;
 			default:
 			case 'system':
@@ -105,7 +118,9 @@
 				break;
 		}
 			
+		log_event_generate_low("-=&copy; ".$h_lang." (".$h_like.") type: ".$h_data_type);
 	
+
 		$query_data = mysql_query("SELECT d.data_name, d.data_type, r.data_id, r.rev_id, r.rev_language 
 									FROM data_ d, data_revision r, data_text t 
 									WHERE (d.data_type = 'page' ".$tmp_type_sql." )
@@ -126,17 +141,19 @@
 
 			if ($result_data['data_type'] == "page") {
 				echo "<p>=&gt; ".$result_data['data_name']." (".$result_data['data_type']."; ".$tmp_lang.")</p>";
+				log_event_generate_low($result_data['data_name']." (".$tmp_lang.") type: ".$result_data['data_type']);
 				log_event_generate_medium($result_data['data_name']." (".$tmp_lang.") ");
 				generate_page_output($result_data['data_name'], $tmp_lang, "");
 			}
 			else {
 				if ($tmp_dynamic != "" && $result_data['data_type'] == "content") {
-					echo "<p>==&gt; ".$result_data['data_name']."_".$tmp_dynamic." (".$result_data['data_type']."; ".$result_data['rev_language'].")</p>";
+					echo "<p>==&gt; ".$result_data['data_name']."_".$tmp_dynamic." (".$result_data['data_type']."; ".$tmp_lang.")</p>";
+					log_event_generate_low($result_data['data_name']." (".$tmp_lang.") type: ".$result_data['data_type']." ".$tmp_dynamic);
 					log_event_generate_medium($result_data['data_name']." (".$tmp_lang.") ".$tmp_dynamic);
 					generate_page_output($result_data['data_name'], $tmp_lang, $tmp_dynamic);
 				}
-				echo "<p> ~ ".$result_data['data_name']." (".$result_data['data_type']."; ".$result_data['rev_language'].")</p>";
-				generate_update_helper($result_data['rev_language'], $result_data['data_type'], $result_data['data_name']);
+				echo "<p> ~ ".$result_data['data_name']." (".$result_data['data_type']."; ".$tmp_lang.")</p>";
+				generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 			}
 		}
 	}
@@ -232,21 +249,21 @@
 					
 					
 				
-					// file extention: 
-					$temp_extention = getTagValueG($result_g_page['data_id'], $result_g_page['rev_id'],  '-1', 'extention'); // get page extention
+					// file extension: 
+					$temp_extension = getTagValueG($result_g_page['data_id'], $result_g_page['rev_id'],  '-1', 'extension'); // get page extension
 					
-					if ($temp_extention == "") {
-						echo "<p><b>!! ".date("Y-m-d H:i:s")." - file extention missing: ".$result_g_page['data_name']."(".$result_g_page['data_id'].", ".$result_g_page['rev_id'].", ".$result_g_lang['lang_id'].")</b></p>";
+					if ($temp_extension == "") {
+						echo "<p><b>!! ".date("Y-m-d H:i:s")." - file extension missing: ".$result_g_page['data_name']."(".$result_g_page['data_id'].", ".$result_g_page['rev_id'].", ".$result_g_lang['lang_id'].")</b></p>";
 						continue;
 					}
 					
 					// file name:
 					if ($temp_dynamic == "dynamic") {
-						$RosCMS_current_page_out_file_pretty = $result_g_lang['lang_id']."/".$result_g_page['data_name']."_".$temp_dynamic_number.".".$temp_extention;
+						$RosCMS_current_page_out_file_pretty = $result_g_lang['lang_id']."/".$result_g_page['data_name']."_".$temp_dynamic_number.".".$temp_extension;
 						$RosCMS_current_page_out_file = "../".$RosCMS_current_page_out_file_pretty;
 					}
 					else {
-						$RosCMS_current_page_out_file_pretty = $result_g_lang['lang_id']."/".$result_g_page['data_name'].".".$temp_extention;
+						$RosCMS_current_page_out_file_pretty = $result_g_lang['lang_id']."/".$result_g_page['data_name'].".".$temp_extension;
 						$RosCMS_current_page_out_file = "../".$RosCMS_current_page_out_file_pretty;
 					}
 					
@@ -263,7 +280,7 @@
 					$fp = fopen($RosCMS_current_page_out_file, "w");
 					flock($fp,2);
 					fputs($fp,$RosCMS_current_page_content); // write content
-					fputs($fp,"\n\n<!-- Generated with ".$roscms_extern_brand." ".$roscms_extern_version." (".$roscms_extern_version_detail.") -->");
+					fputs($fp,"\n\n<!-- Generated with ".$roscms_extern_brand." ".$roscms_extern_version." (".$roscms_extern_version_detail.") [#RosCMS_v3] -->");
 					flock($fp,3);
 					fclose($fp);
 					
@@ -324,7 +341,7 @@
 		$g_log .= "<p>r.rev_id: ".$result_g_page['rev_id']."</p>";
 		$g_log .= "<p>Titel: ".get_stext($result_g_page['rev_id'], "title")."</p>";
 		$g_log .= "<p>Description: ".get_stext($result_g_page['rev_id'], "description")."</p>";
-		$g_log .= "<p>Extention: ".get_stext($result_g_page['rev_id'], "extention")."</p>";
+		$g_log .= "<p>extension: ".get_stext($result_g_page['rev_id'], "extension")."</p>";
 		$g_log .= "<p>Content: ".get_text($result_g_page['rev_id'], "content")."</p>";
 */
 		
@@ -424,6 +441,7 @@
 		
 		$RosCMS_result_template_temp = insert_match("template", $g_content_name, $g_lang);
 		$RosCMS_result_template_temp = str_replace("[#cont_%NAME%]", "[#cont_".$g_cur_page_name."]", $RosCMS_result_template_temp); 
+		$RosCMS_result_template_temp = str_replace("[#%NAME%]", $g_cur_page_name, $RosCMS_result_template_temp); 
 
 		return $RosCMS_result_template_temp;
 	}	
@@ -533,6 +551,8 @@
 		global $g_lang;
 		global $g_page_dynid;
 		global $g_linkstyle;
+		global $RosCMS_GET_d_value4;
+
 
 		$g_hyperlink_sql1 = "";
 		$g_hyperlink_sql2 = "";
@@ -554,6 +574,10 @@
 			if ($g_link_page_name == "") {
 				$RosCMS_current_page_link = $roscms_intern_webserver_roscms."?page=data_out&amp;d_f=page&amp;d_u=show&amp;d_val=index&amp;d_val2=".$g_lang."&amp;d_val3=";
 			}
+			
+			if ($RosCMS_GET_d_value4 == "edit") {
+				$RosCMS_current_page_link .= "&amp;d_val4=edit";
+			}
 		}
 		else { // static pages
 			$query_data = mysql_query("SELECT * 
@@ -564,13 +588,13 @@
 										AND rev_version > 0 
 										LIMIT 1;");
 			$result_data = mysql_fetch_array($query_data);
-			$RosCMS_current_page_link_extention = getTagValueG($result_data['data_id'], $result_data['rev_id'],  '-1', 'extention'); // get extention
+			$RosCMS_current_page_link_extension = getTagValueG($result_data['data_id'], $result_data['rev_id'],  '-1', 'extension'); // get extension
 			
-			if ($RosCMS_current_page_link_extention == "") {
-				$RosCMS_current_page_link_extention = "html";
+			if ($RosCMS_current_page_link_extension == "") {
+				$RosCMS_current_page_link_extension = "html";
 			}
 			
-			$RosCMS_current_page_link = $roscms_intern_webserver_pages.$g_lang."/".$g_link_page_name.".".$RosCMS_current_page_link_extention;
+			$RosCMS_current_page_link = $roscms_intern_webserver_pages.$g_lang."/".$g_link_page_name.".".$RosCMS_current_page_link_extension;
 			
 			if ($g_link_page_name == "") {
 				$RosCMS_current_page_link = $roscms_intern_webserver_pages.$g_lang."/404.html";

@@ -26,6 +26,9 @@
 	global $RosCMS_GET_d_use;
 	global $RosCMS_GET_d_flag;
 	global $RosCMS_GET_d_value;
+	global $RosCMS_GET_d_value2;
+	global $RosCMS_GET_d_value3;
+	global $RosCMS_GET_d_value4;
 	
 	require("inc/data_export_page.php");
 
@@ -58,5 +61,17 @@
 		$showtimef = number_format($totaltimef, 4, '.', ''); 
 		
 		log_event_generate_high("generate all pages - end: ".$showtimef." seconds");
+	}
+	else if ($RosCMS_GET_d_use == "pupdate") {
+		echo "<h4>Generate related pages of ".$RosCMS_GET_d_value." (".$RosCMS_GET_d_value2.", ".$RosCMS_GET_d_value3.", ".$RosCMS_GET_d_value4.")</h4>";
+		
+		$query_entry = mysql_query("SELECT data_id 
+									FROM data_ 
+									WHERE data_name = '".mysql_real_escape_string($RosCMS_GET_d_value)."'
+									AND data_type = '".mysql_real_escape_string($RosCMS_GET_d_value2)."'
+									LIMIT 1;");
+		$result_entry = mysql_fetch_array($query_entry);
+		
+		echo generate_page_output_update($result_entry['data_id'], $RosCMS_GET_d_value3, $RosCMS_GET_d_value4);
 	}
 ?>

@@ -35,14 +35,13 @@
 	$RosCMS_GET_cms_edit = "";
 	if (array_key_exists("edit", $_GET)) $RosCMS_GET_cms_edit=htmlspecialchars($_GET["edit"]);
 	
-	$roscms_intern_entry_per_pag = 25;
+	$roscms_intern_entry_per_page = 25;
 	
 	if ($RosCMS_GET_debug) {
 		echo "<h1>DEBUG-Mode</h1>";
 	}
 	
-?>
-<noscript>
+?><noscript>
 	<h3>RosCMS v3 requires Javascript, please activate/allow it.</h3>
 	<p>It does work fine in Internet Explorer 5.5+, Mozilla Firefox 1.5+, Opera 9.1+, Safari 3.2+ and probably every client with basic Javascript (+AJAX) support.</p>
 </noscript>
@@ -459,7 +458,8 @@
 -->
 </script>
 
-	<style type="text/css">
+	
+<style type="text/css">
 	<!--
 	
 		.roscms_container {
@@ -1362,7 +1362,7 @@
 						load_frametable('script');
 						break;
 					case '7':
-						filtstring2 = 'y_is_content_0|k_is_stable_0|i_is_default_0|c_is_user_0|l_is_<?php echo $roscms_standard_language; ?>_0|r_is_'+translang+'|o_asc_name';
+						filtstring2 = 'y_is_content_0|k_is_stable_0<?php if ($roscms_security_level == 1) { echo "|i_is_default_0"; } ?>|c_is_user_0|l_is_<?php echo $roscms_standard_language; ?>_0|r_is_'+translang+'|o_asc_name';
 						load_frametable('translate');
 						break;
 					case '8':
@@ -1424,6 +1424,9 @@
 					case 'script':
 					case 'template':
 						tblcmdbar('script');
+						break;
+					case 'draft':
+						tblcmdbar('draft');
 						break;
 					case 'translate':
 						tblcmdbar('trans');
@@ -1759,7 +1762,7 @@
 														break;
 													case 'o': /* order by */
 														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="asc">Ascending</option><option value="desc">Descending</option></select>';
-														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="datetime">Date &amp; Time</option><option value="name">Name</option><option value="lang">Language</option><option value="usr">User</option><option value="type">Type</option><option value="nbr">Number ("dynamic" entry)</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="revid"<?php echo $cbm_item_hide; ?>>RevID</option><option value="ext"<?php echo $cbm_item_hide; ?>>Extention</option><option value="status"<?php echo $cbm_item_hide; ?>>Status</option><option value="kind"<?php echo $cbm_item_hide; ?>>Kind</option><?php } ?></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="datetime">Date &amp; Time</option><option value="name">Name</option><option value="lang">Language</option><option value="usr">User</option><option value="type">Type</option><option value="nbr">Number ("dynamic" entry)</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="revid"<?php echo $cbm_item_hide; ?>>RevID</option><option value="ext"<?php echo $cbm_item_hide; ?>>Extension</option><option value="status"<?php echo $cbm_item_hide; ?>>Status</option><option value="kind"<?php echo $cbm_item_hide; ?>>Kind</option><?php } ?></select>';
 														break;
 													case 'i': /* security (ACL) */
 														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';
@@ -2060,8 +2063,30 @@
 										<!--
 											
 											function setlang(favlang) {
-												//alert('set: '+userlang+' => '+favlang);
+												var tmp_regstr;
+											
+												var transcheck = filtstring2.search(/r_is_/);
+												
+												if (transcheck != -1) { // translation view
+													tmp_regstr = new RegExp('r_is_'+userlang, "g");
+													filtstring2 = filtstring2.replace(tmp_regstr, 'r_is_'+favlang);
+													
+													tmp_regstr = new RegExp('r_is_<?php echo $roscms_standard_language_trans; ?>', "g");
+													filtstring2 = filtstring2.replace(tmp_regstr, 'r_is_'+favlang);
+												}
+												else {
+													tmp_regstr = new RegExp('l_is_'+userlang, "g");
+													//alert('set: '+userlang+' => '+favlang);
+													//alert(tmp_regstr);
+													//alert('filtstring2:'+filtstring2);
+													//alert(filtstring2.replace(tmp_regstr, 'l_is_'+favlang));
+													
+													filtstring2 = filtstring2.replace(tmp_regstr, 'l_is_'+favlang);
+												}
+												
 												userlang = favlang;
+												filtpopulate(filtstring2);
+												load_frametable_cp2(roscms_current_tbl_position);
 											}
 											
 											function getlang() {
@@ -2127,6 +2152,7 @@
 										<?php
 											}
 										?>
+										cmdhtml_select_xe2 = '<option value="xe">&nbsp;&nbsp;&nbsp;Delete</option>';
 										cmdhtml_select2 = '</select>';
 
 
@@ -2201,6 +2227,23 @@
 												cmdbarstr += cmdhtml_select_ms;
 												cmdbarstr += cmdhtml_select_va;
 												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select2;
+												break;
+											case 'draft':
+												cmdbarstr += cmdhtml_diff;
+												cmdbarstr += cmdhtml_preview;
+												cmdbarstr += cmdhtml_ready;
+												cmdbarstr += cmdhtml_stable;
+												cmdbarstr += cmdhtml_refresh;
+												cmdbarstr += cmdhtml_select1;
+												cmdbarstr += cmdhtml_select_as;
+												cmdbarstr += cmdhtml_select_xs;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_mn;
+												cmdbarstr += cmdhtml_select_ms;
+												cmdbarstr += cmdhtml_select_va;
+												cmdbarstr += cmdhtml_select_no;
+												cmdbarstr += cmdhtml_select_xe2;
 												cmdbarstr += cmdhtml_select2;
 												break;
 											case 'archive':
@@ -2306,10 +2349,10 @@
 									}
 								-->
 							</script>
-								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><strong><span id="mtblnav">&nbsp;</span></strong></div>
+								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><span id="mtblnav">&nbsp;</span></div>
 								<div class="tabselect">Select: <span id="tabselect1"></span></div>
 								<div id="tablist">&nbsp;</div>
-								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><strong><span id="mtbl2nav">&nbsp;</span></strong></div>
+								<div style="border: 0px dashed red; position: absolute; right: 10px; text-align:right; white-space: nowrap;"><span id="mtbl2nav">&nbsp;</span></div>
 								<div class="tabselect">Select: <span id="tabselect2"></span></div>
 							</div>
 							<div id="frameedit" style="display: block; border: 0px dashed red; ">
@@ -2495,12 +2538,8 @@
 									}
 									
 									function bchangestar(did, drid, dtn, dtv, dusr, objid) {
-										alert(objid);
+										//alert(objid);
 										//alert('bchangestar(did: '+did+', drid: '+drid+', dtn: '+dtn+', dtv: '+dtv+', dusr: '+dusr+', objid: '+objid+')');
-										
-										return;
-										
-										alert('wow');
 										
 										if (did != '' && drid != '') {
 											if (document.getElementById(objid).src == '<?php echo $roscms_intern_webserver_roscms; ?>images/star_on_small.gif') {
@@ -2515,45 +2554,53 @@
 									}
 									
 									function prepair_edit_form_submit() {
-										var poststr = "";
-									
-										//alert(document.getElementById("estextcount").className);
-										//alert(document.getElementById("elmcount").className);
+										try {
+											var poststr = "";
 										
-										/* short text */
-										poststr += "pstextsum="+document.getElementById("estextcount").className;
-										for (var i=1; i <= document.getElementById("estextcount").className; i++) {
-											poststr += "&pdstext"+i+"=" + encodeURIComponent(document.getElementById("edstext"+i).innerHTML);
-											poststr += "&pstext"+i+"=" + encodeURIComponent(document.getElementById("estext"+i).value);
-										}
-										
-										/* text */
-										poststr += "&plmsum="+document.getElementById("elmcount").className;
-										//alert('textanzahl: '+document.getElementById("elmcount").className);
-										var instatinymce;
-										for (var i=1; i <= document.getElementById("elmcount").className; i++) {
-											poststr += "&pdtext"+i+"=" + encodeURIComponent(document.getElementById("edtext"+i).innerHTML);
+											//alert(document.getElementById("estextcount").className);
+											//alert(document.getElementById("elmcount").className);
 											
-											instatinymce = ajaxsaveContent("elm"+i); // get the content from TinyMCE
-//											alert(instatinymce);
-											if (instatinymce != null) {
-												<?php if ($RosCMS_GET_debug) { ?>
-													alert('[TinMCE Text] i: '+i+'; mce-content: '+instatinymce);
-												<?php } ?>
-												poststr += "&plm"+i+"=" + encodeURIComponent(instatinymce);
-//												alert('[TinMCE Text - 2.] i: '+i+'; mce-content: '+poststr);
+											/* short text */
+											poststr += "pstextsum="+document.getElementById("estextcount").className;
+											for (var i=1; i <= document.getElementById("estextcount").className; i++) {
+												poststr += "&pdstext"+i+"=" + encodeURIComponent(document.getElementById("edstext"+i).innerHTML);
+												poststr += "&pstext"+i+"=" + encodeURIComponent(document.getElementById("estext"+i).value);
 											}
-											else {
-												<?php if ($RosCMS_GET_debug) { ?>
-													alert('[Plain Text] i: '+i+'; txt-content: '+document.getElementById("elm"+i).value);
-												<?php } ?>
-												poststr += "&plm"+i+"=" + encodeURIComponent(document.getElementById("elm"+i).value);
+											
+											/* text */
+											poststr += "&plmsum="+document.getElementById("elmcount").className;
+											//alert('textanzahl: '+document.getElementById("elmcount").className);
+											var instatinymce;
+											for (var i=1; i <= document.getElementById("elmcount").className; i++) {
+												poststr += "&pdtext"+i+"=" + encodeURIComponent(document.getElementById("edtext"+i).innerHTML);
+												
+												instatinymce = ajaxsaveContent("elm"+i); // get the content from TinyMCE
+	//											alert(instatinymce);
+												if (instatinymce != null) {
+													<?php if ($RosCMS_GET_debug) { ?>
+														alert('[TinMCE Text] i: '+i+'; mce-content: '+instatinymce);
+													<?php } ?>
+													poststr += "&plm"+i+"=" + encodeURIComponent(instatinymce);
+	//												alert('[TinMCE Text - 2.] i: '+i+'; mce-content: '+poststr);
+												}
+												else {
+													<?php if ($RosCMS_GET_debug) { ?>
+														alert('[Plain Text] i: '+i+'; txt-content: '+document.getElementById("elm"+i).value);
+													<?php } ?>
+													poststr += "&plm"+i+"=" + encodeURIComponent(document.getElementById("elm"+i).value);
+												}
 											}
+											
+	//										alert ('content_ready: '+poststr);
+											
+											return poststr;
 										}
-										
-//										alert ('content_ready: '+poststr);
-										
-										return poststr;
+										catch (e) {
+											rtestop(); // destroy old rich text editor instances
+											window.clearTimeout(autosave_timer);
+											autosave_cache = '';
+											//alert('autosave bug stopped');
+										}
 									}
 
 									function edit_form_submit_draft(did, drid) {
@@ -2567,6 +2614,7 @@
 										
 										load_frametable_cp2(roscms_current_tbl_position);
 										window.clearTimeout(autosave_timer);
+										autosave_cache = '';
 										alertbox('Draft saved');
 									}
 
@@ -2605,21 +2653,25 @@
 
 										load_frametable_cp2(roscms_current_tbl_position);
 										window.clearTimeout(autosave_timer);
+										autosave_cache = '';
 										alertbox('Entry saved');
 									}
 									
 									function autosave_try(t_d_id, t_d_revid) {
 										window.clearTimeout(autosave_timer);
+										autosave_cache = '';
 										
 										try {
 											if (document.getElementById("editautosavemode").value == 'false') {
 												window.clearTimeout(autosave_timer);
+												autosave_cache = '';
 												//alert('autosave-end');
 												return;
 											}
 										} 
 										catch (e) {
 											window.clearTimeout(autosave_timer);
+											autosave_cache = '';
 											return;
 										}
 										
@@ -2694,8 +2746,10 @@
 									}
 
 									function diffentries2(revid1, revid2) { // called from diff area to update/change entries for diff-process
-										//alert('rev-ids: '+ revid1 +', '+ revid2);
-										makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=diff&d_val='+encodeURIComponent(revid1)+'&d_val2='+encodeURIComponent(revid2), 'mef', 'diff2', 'html', 'GET', '');
+										if (revid1 != '' && revid2 != '') {
+											//alert('rev-ids: '+ revid1 +', '+ revid2);
+											makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=diff&d_val='+encodeURIComponent(revid1)+'&d_val2='+encodeURIComponent(revid2), 'mef', 'diff2', 'html', 'GET', '');
+										}
 									}
 
 									function diffentries3(revid1, revid2) { // called from diff area to update/change entries for diff-process
@@ -2718,7 +2772,7 @@
 										
 										if (tentrs[0] == 1) {
 											//secwind = window.open("<?php echo $roscms_intern_page_link; ?>data_out&d_f=page&d_u=show&d_val="+tentrs2[1]+"&d_val2=&d_val3=", "RosCMSPagePreview", "location=no,menubar=no,resizable=yes,status=yes,toolbar=no,scrollbars=yes,width=1000,height=800,left=20,top=20");
-											secwind = window.open("<?php echo $roscms_intern_page_link; ?>data_out&d_f=page&d_u=show&d_val="+tentrs2[1]+"&d_val2=&d_val3=", "RosCMSPagePreview");
+											secwind = window.open("<?php echo $roscms_intern_page_link; ?>data_out&d_f=page&d_u=show&d_val="+tentrs2[1]+"&d_val2="+userlang+"&d_val3=", "RosCMSPagePreview");
 											//secwind.focus();
 										}
 										else {
@@ -2743,6 +2797,7 @@
 												
 												if (ctk == 'ms') {
 													tmp_obj = 'changetags2';
+													alertbox('Please be patient, related pages get generated ...');
 												}
 												
 												makeRequest('?page=data_out&d_f=text&d_u=mef&d_fl=changetags&d_val='+encodeURIComponent(tentrs[0])+'&d_val2='+encodeURIComponent(tentrs[1])+'&d_val3='+encodeURIComponent(ctk), 'mef', tmp_obj, 'html', 'GET', '');
@@ -2943,9 +2998,9 @@
 							page_table_populate(http_request, objid);
 							break;
 						case 'mef': /* main edit frame */
-							if (objid == 'changetags2') {
-								alertbox('Entry tagged as stable, please be patient while generating related pages ...');
-							}
+							/*if (objid == 'changetags2') {
+								alertbox('Please be patient, related pages get generated ...');
+							}*/
 							main_edit_load(http_request, objid);
 							break;
 						case 'asi': /* auto save info */
@@ -2963,16 +3018,18 @@
 					}
 				}
 				else {
-					alert('There was a problem with the request ['+http_request.status+' / '+http_request.readyState+']. \n\nA client (browser) or server problem. Please check and try to update your browser. \n\nIf this error happens more than once or twice, contac the website admin.');
+					alert('There was a problem with the request ['+http_request.status+' / '+http_request.readyState+']. \n\nA client (browser) or server problem. Please make sure you use an up-to-date browser client. \n\nIf this error happens more than once or twice, contact the website admin.');
 				}
 			}
 		}
-        catch( e ) {
+		catch (e) {
 			if (roscms_page_load_finished == true) {
 				//alert(roscms_page_load_finished +' , '+ http_request.readyState +' , '+ http_request.status);
-				alert('Info\n\nCaught Exception: ' + e.description +'\n\nIf this error occur more than once or twice, please reload the page using the reload-link on the top-right of the page. And if you get this info-message on a usual base, please contact the website admin with the exact error message. \n\nIf you use the Safari or Firefox browser, please make sure you run the latest version (some versions have related bugs).');
+				//alert('Info\n\nCaught Exception: \nName: '+ e.name +'\nNumber: '+ e.number +'\nMessage: '+ e.message +'\nDescription: '+ e.description +'\n\nIf this error occur more than once or twice, please reload the page using the reload-link on the top-right of the page. And if you get this info-message on a usual base, please contact the website admin with the exact error message. \n\nIf you use the Safari or Firefox browser, please make sure you run the latest version (some versions have related bugs).');
+				alertbox('RosCMS caught an exception to prevent data loss. If you see this message several times, please make sure you use an up-to-date browser client. If the issue still occur, tell the website admin the following information:<br />Name: '+ e.name +'; Number: '+ e.number +'; Message: '+ e.message +'; Description: '+ e.description);
         	}
 		}
+		
 		// to prevent memory leak
 		http_request = null;
 	}
@@ -2981,11 +3038,28 @@
 		var lstData = "";
 		var temp_counter_loop = 0;
 		
-	
 		var xmldoc = http_request.responseXML;
 		var root_node = xmldoc.getElementsByTagName('root').item(0);
+		
 		//alert(objid);
 		//alert(root_node.firstChild.data);
+		
+		try {
+			if (root_node.firstChild.data) {
+				// temp
+			}
+		}
+		catch (e) {
+			nres = 0;
+			hlRows=false;
+			document.getElementById('mtblnav').innerHTML = '&nbsp;';
+			document.getElementById('mtbl2nav').innerHTML = '&nbsp;';
+			lstData = '<div class="tableswhitespace"><br /><br /><b>No results, due an error in the filter settings or the data metadata.</b><br /><br />If this happens more than a few times, please contact the website admin with the following information:<br />Name: '+ e.name +'<br />Number: '+ e.number +'<br />Message: '+ e.message +'<br />ObjID: '+ objid +'<br />Request: <pre>'+ http_request +'</pre>'+ page_table_space(8)+'</div>';
+			document.getElementById(objid).innerHTML = lstData;
+			return;
+		}
+		
+		
 		if ((root_node.firstChild.data.search(/#none#/)) == -1) {
 			lstData = "";
 			//alert(xmldoc.getElementsByTagName("row").length);
@@ -3002,30 +3076,36 @@
 
 			roscms_current_tbl_position = xview[0].getAttributeNode("curpos").value;
 
-			//alert(xview[0].getAttributeNode("curpos").value+' >= '+<?php echo $roscms_intern_entry_per_pag; ?>*2);
-			if (xview[0].getAttributeNode("curpos").value >= <?php echo $roscms_intern_entry_per_pag; ?>*2) {
-				mtblnavstr += '<span class="l" onclick="load_frametable_cp(0)">&laquo;</span>&nbsp;&nbsp;';
+			//alert(xview[0].getAttributeNode("curpos").value+' >= '+<?php echo $roscms_intern_entry_per_page; ?>*2);
+			if (xview[0].getAttributeNode("curpos").value >= <?php echo $roscms_intern_entry_per_page; ?>*2) {
+				mtblnavstr += '<span class="l" onclick="load_frametable_cp(0)"><b>&laquo;</b></span>&nbsp;&nbsp;';
 			}
 			
-			//alert(xview[0].getAttributeNode("curpos").value+' >= '+<?php echo $roscms_intern_entry_per_pag; ?>);
+			//alert(xview[0].getAttributeNode("curpos").value+' >= '+<?php echo $roscms_intern_entry_per_page; ?>);
 			if (xview[0].getAttributeNode("curpos").value > 0) {
 				mtblnavstr += '<span class="l" onclick="load_frametable_cp(';
-				if (xview[0].getAttributeNode("curpos").value-<?php echo $roscms_intern_entry_per_pag; ?>*1 >= 0) {
-					mtblnavstr += xview[0].getAttributeNode("curpos").value-<?php echo $roscms_intern_entry_per_pag; ?>*1;
+				if (xview[0].getAttributeNode("curpos").value-<?php echo $roscms_intern_entry_per_page; ?>*1 >= 0) {
+					mtblnavstr += xview[0].getAttributeNode("curpos").value-<?php echo $roscms_intern_entry_per_page; ?>*1;
 				}
 				else {
 					mtblnavstr += '0';
 				}
-				mtblnavstr += ')">&lsaquo; Previous</span>&nbsp;&nbsp;';
+				mtblnavstr += ')"><b>&lsaquo; Previous</b></span>&nbsp;&nbsp;';
 			}
 			
 			var mtblnavfrom = xview[0].getAttributeNode("curpos").value*1+1;
 			var mtblnavto = (xview[0].getAttributeNode("curpos").value*1) + (xview[0].getAttributeNode("pagelimit").value*1);
 			
+			
+			/*mtblnavstr += '<select name="cbocurpage" id="cbocurpage">';
+			mtblnavstr += '  <option>1 - 25</option>';
+			mtblnavstr += '  <option>26 - 50</option>';
+			mtblnavstr += '</select>';*/
+			
 			mtblnavstr += '<b>'+mtblnavfrom+'</b> - <b>';
 			
 			if (mtblnavto > xview[0].getAttributeNode("pagemax").value) {
-				mtblnavstr +=xview[0].getAttributeNode("pagemax").value;
+				mtblnavstr += xview[0].getAttributeNode("pagemax").value;
 			}
 			else {
 				mtblnavstr += mtblnavto;
@@ -3033,17 +3113,17 @@
 			
 			mtblnavstr += '</b> of <b>'+xview[0].getAttributeNode("pagemax").value+'</b>';
 			
-			if (xview[0].getAttributeNode("curpos").value < xview[0].getAttributeNode("pagemax").value-<?php echo $roscms_intern_entry_per_pag; ?>*1) {
+			if (xview[0].getAttributeNode("curpos").value < xview[0].getAttributeNode("pagemax").value-<?php echo $roscms_intern_entry_per_page; ?>*1) {
 				mtblnavstr += '&nbsp;&nbsp;<span class="l" onclick="load_frametable_cp(';
-				mtblnavstr += xview[0].getAttributeNode("curpos").value*1+<?php echo $roscms_intern_entry_per_pag; ?>*1;
-				mtblnavstr += ')">Next &rsaquo;</span>';
+				mtblnavstr += xview[0].getAttributeNode("curpos").value*1+<?php echo $roscms_intern_entry_per_page; ?>*1;
+				mtblnavstr += ')"><b>Next &rsaquo;</b></span>';
 			}
 			
-			//alert(xview[0].getAttributeNode("curpos").value+' < '+ (xview[0].getAttributeNode("pagemax").value*1-<?php echo $roscms_intern_entry_per_pag; ?>*2));
-			if (xview[0].getAttributeNode("curpos").value < (xview[0].getAttributeNode("pagemax").value*1-<?php echo $roscms_intern_entry_per_pag; ?>*2)) {
+			//alert(xview[0].getAttributeNode("curpos").value+' < '+ (xview[0].getAttributeNode("pagemax").value*1-<?php echo $roscms_intern_entry_per_page; ?>*2));
+			if (xview[0].getAttributeNode("curpos").value < (xview[0].getAttributeNode("pagemax").value*1-<?php echo $roscms_intern_entry_per_page; ?>*2)) {
 				mtblnavstr += '&nbsp;&nbsp;<span class="l" onclick="load_frametable_cp(';
-				mtblnavstr += xview[0].getAttributeNode("pagemax").value*1-<?php echo $roscms_intern_entry_per_pag; ?>*1;
-				mtblnavstr += ')">&raquo;</span>';
+				mtblnavstr += xview[0].getAttributeNode("pagemax").value*1-<?php echo $roscms_intern_entry_per_page; ?>*1;
+				mtblnavstr += ')"><b>&raquo;</b></span>';
 			}
 			mtblnavstr += '&nbsp;&nbsp;';
 		
@@ -3090,7 +3170,8 @@
 			//document.getElementById('txttabelle').value = lstData;
 			nres = (temp_counter_loop+1);
 			hlRows=true;
-			window.setTimeout("add_js_extras()", 100);		}
+			window.setTimeout("add_js_extras()", 100);
+		}
 		else {
 			nres = 0;
 			hlRows=false;
@@ -3275,7 +3356,7 @@
 					}
 				?>
 				load_frametable_cp(0);
-				alertbox('Metadata changed');
+				alertbox('Action performed');
 				break;
 			case 'changetags2':
 				//alert('!!! changetags !!!'+http_request.responseText);

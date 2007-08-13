@@ -235,7 +235,7 @@
 		  <td>&nbsp;&nbsp;</td>
 		  <?php } ?>
 
-		  <?php if (roscms_security_grp_member("ros_sadmin")) { ?>
+		  <?php if ($roscms_security_level == 3) { ?>
 		  <th class="int<?php if ($curmenu == "maintain") { echo "2"; } else { echo "1"; } ?>" onclick="roscms_mainmenu('maintain')"> <div class="tc1">
 			<div class="tc2">
 			  <div class="tc3"></div>
