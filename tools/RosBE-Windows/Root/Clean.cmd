@@ -81,14 +81,20 @@ if "%1" == "" (
 
         del /f "dll\ntdll\napi.S" 1> NUL 2> NUL
         del /f "dll\ntdll\i386\napi.S" 1> NUL 2> NUL
+        rmdir /q "dll\ntdll\i386" 1> NUL 2> NUL
         del /f "dll\win32\gdi32\misc\win32k.S" 1> NUL 2> NUL
         del /f "dll\win32\gdi32\misc\i386\win32k.S" 1> NUL 2> NUL
+        rmdir /q "dll\win32\gdi32\misc\i386" 1> NUL 2> NUL
         del /f "dll\win32\kernel32\errcodes.rc" 1> NUL 2> NUL
         del /f "dll\win32\user32\misc\win32k.S" 1> NUL 2> NUL
         del /f "dll\win32\user32\misc\i386\win32k.S" 1> NUL 2> NUL
+        rmdir /q "dll\win32\user32\misc\i386" 1> NUL 2> NUL
         del /f "include\reactos\bugcodes.h" 1> NUL 2> NUL
         del /f "include\reactos\buildno.h" 1> NUL 2> NUL
         del /f "include\reactos\errcodes.h" 1> NUL 2> NUL
+        del /f "lib\win32ksys\win32k.S" 1> NUL 2> NUL
+        del /f "lib\win32ksys\i386\win32k.S" 1> NUL 2> NUL
+        rmdir /q "lib\win32ksys\i386" 1> NUL 2> NUL
         del /f "ntoskrnl\bugcodes.rc" 1> NUL 2> NUL
         del /f "ntoskrnl\ex\zw.S" 1> NUL 2> NUL
         del /f "ntoskrnl\ex\i386\zw.S" 1> NUL 2> NUL
