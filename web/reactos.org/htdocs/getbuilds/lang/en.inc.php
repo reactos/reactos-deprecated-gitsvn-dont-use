@@ -8,7 +8,10 @@
 */
 	
 	/**** English resources (charset=utf-8) ****/
+	$getbuilds_langres["language"] = "Language";
+	
 	$getbuilds_langres["title"] = "Download trunk builds";
+	$getbuilds_langres["intro"] = 'Here you can download recent, but also older ReactOS Developer versions, which were created by our <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a>.';
 	
 	$getbuilds_langres["overview"] = "Overview";
 	$getbuilds_langres["latestrev"] = "Latest ReactOS Revision on the SVN Server";
