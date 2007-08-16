@@ -10,7 +10,8 @@
 	/**** German resources (charset=utf-8) ****/
 	$getbuilds_langres["language"] = "Sprache";
 	
-	$getbuilds_langres["title"] = "Entwicklerversionen herunterladen";
+	$getbuilds_langres["header"] = "<a href=\"http://www.reactos.org/\">Startseite</a> &gt; ReactOS SVN Nightly-Builds";
+	$getbuilds_langres["title"] = "ReactOS Nightly-Builds Herunterladen";
 	$getbuilds_langres["intro"] = 'Hier können Sie aktuelle aber auch ältere ReactOS-Entwicklerversionen herunterladen, die von unserem <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a> erstellt wurden.';
 	
 	$getbuilds_langres["overview"] = "Übersicht";
@@ -28,7 +29,8 @@
 	$getbuilds_langres["nextrev"] = "Nächste Revision";
 	$getbuilds_langres["showrev"] = "Anzeigen";
 	$getbuilds_langres["gettinglist"] = "Dateiliste wird geladen";
-	$getbuilds_langres["rangeinfo"] = "Sie können eine Revisionsnummer (z.B. <i>27154</i>) oder einen Revisionsbereich (z.B. <i>27000-27154</i>) eingeben.";
+	$getbuilds_langres["rangeinfo"] = "Sie können eine Revisionsnummer (z.B.";
+	$getbuilds_langres["rangeinfo2"] = ") oder einen Revisionsbereich eingeben (z.B.";
 	$getbuilds_langres["isotype"] = "CD-Image-Typen anzeigen";
 	
 	$getbuilds_langres["foundfiles"] = "%s Dateien gefunden!";
