@@ -22,7 +22,6 @@ a:hover {
 	color: #000000;
 }
 
-
 h1 {
 	display: block;
 	line-height: normal;
@@ -33,21 +32,22 @@ h1 {
 	padding: 0px 0px 1px 10px;
 	margin-top: 0;
 }
+
 h1 a {
 	font-size: 14px;
 	font-weight: bold;
 	color: #FFFFFF;
 	background-color: #5984C3;
-	text-decoration:none;
+	text-decoration: none;
 }
+
 h1 a:hover {
 	font-size: 14px;
 	font-weight: bold;
 	color: #FFFFFF;
 	background-color: #5984C3;
-	text-decoration:underline;
+	text-decoration: underline;
 }
-
 
 h2 {
 	font-size: 22px;
@@ -156,7 +156,7 @@ h3 {
 
 .bubble_bg {
 	background: #C9DAF8 none repeat scroll 0%;
-	margin-bottom: 5pt;
+	margin-bottom: 10px;
 }
 
 .bubble {

@@ -10,7 +10,7 @@
 	/**** English resources (charset=utf-8) ****/
 	$getbuilds_langres["language"] = "Language";
 	
-	$getbuilds_langres["header"] = "<a href=\"http://www.reactos.org/\">Home</a> &gt; ReactOS SVN Trunk Builds";
+	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Home</a> &gt; ReactOS SVN Trunk Builds';
 	$getbuilds_langres["title"] = "Download ReactOS Trunk Builds";
 	$getbuilds_langres["intro"] = 'Here you can download recent, but also older ReactOS Developer versions, which were created by our <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a>.';
 	
@@ -29,8 +29,7 @@
 	$getbuilds_langres["nextrev"] = "Next revision";
 	$getbuilds_langres["showrev"] = "Show";
 	$getbuilds_langres["gettinglist"] = "Getting file list";
-	$getbuilds_langres["rangeinfo"] = "You can enter a revision number (e.g.";
-	$getbuilds_langres["rangeinfo2"] = ") or a revision range (e.g.";
+	$getbuilds_langres["rangeinfo"] = "You can enter a revision number (e.g. %s) or a revision range (e.g. %s-%s)";
 	$getbuilds_langres["isotype"] = "Show CD Image types";
 	
 	$getbuilds_langres["foundfiles"] = "Found %s files!";
