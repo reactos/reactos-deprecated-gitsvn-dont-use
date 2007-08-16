@@ -99,6 +99,7 @@
 </td>
 <td id="content">
 
+<h1><?php echo $getbuilds_langres["header"]; ?></h1>
 <h2><?php echo $getbuilds_langres["title"]; ?></h2>
 
 <p><?php echo $getbuilds_langres["intro"]; ?></p>
@@ -130,7 +131,7 @@
 	</div>
 	</div>
 </div>
-
+<div style="margin:5px;">&nbsp;</div>
 <div class="bubble_bg">
 	<div class="rounded_ll">
 	<div class="rounded_lr">
@@ -156,7 +157,14 @@
 								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextRev();"><br>' +
 							'</span>' +
 							
-							'<img src="images/info.gif" alt="INFO:"> <?php echo $getbuilds_langres["rangeinfo"]; ?>' +
+							'<img src="images/info.gif" alt="INFO:"> <?php
+							
+								echo $getbuilds_langres["rangeinfo"];
+								echo " <i>".$rev."</i>";
+								echo $getbuilds_langres["rangeinfo2"];
+								echo " <i>".($rev-50)."-".$rev."</i>).";
+								
+							 ?>' +
 						'</td>' +
 					'</tr>' +
 					'<tr>' +
