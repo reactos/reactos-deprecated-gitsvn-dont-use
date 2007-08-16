@@ -8,7 +8,10 @@
 */
 	
 	/**** German resources (charset=utf-8) ****/
+	$getbuilds_langres["language"] = "Sprache";
+	
 	$getbuilds_langres["title"] = "Entwicklerversionen herunterladen";
+	$getbuilds_langres["intro"] = 'Hier können Sie aktuelle aber auch ältere ReactOS-Entwicklerversionen herunterladen, die von unserem <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a> erstellt wurden.';
 	
 	$getbuilds_langres["overview"] = "Übersicht";
 	$getbuilds_langres["latestrev"] = "Letzte ReactOS-Revision auf dem SVN-Server";
