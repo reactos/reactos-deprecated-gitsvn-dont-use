@@ -8,6 +8,7 @@
 */
 	
 	require_once("config.inc.php");
+	require_once("languages.inc.php");
 	
 	// Get the domain for the cookie (with a leading dot if possible). Borrowed from "utils.php" of RosCMS.
 	function cookie_domain()
@@ -29,17 +30,20 @@
 	else if( isset($_COOKIE["roscms_usrset_lang"]) )
 		$lang = $_COOKIE["roscms_usrset_lang"];
 	
-	// Use this switch statement to prevent users from entering invalid languages and fall back to english if no language has been set
-	switch($lang)
+	// Check if the language is valid
+	$lang_valid = false;
+	
+	foreach( $getbuilds_languages as $lang_key => $lang_name )
 	{
-		case "de":
-		case "en":
-			// Language is valid, nothing to be done
+		if( $lang == $lang_key )
+		{
+			$lang_valid = true;
 			break;
-			
-		default:
-			$lang = "en";
+		}
 	}
+	
+	if( !$lang_valid )
+		$lang = "en";
 	
 	setcookie( "roscms_usrset_lang", $lang, time() + 5 * 30 * 24 * 3600, "/", cookie_domain() );
 	require_once("lang/$lang.inc.php");
@@ -69,6 +73,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<title><?php echo $getbuilds_langres["title"]; ?></title>
 	<link rel="stylesheet" type="text/css" href="getbuilds.css">
+	<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="ie-lt7-fixes.css"><![endif]-->
 	<script type="text/javascript">
 	<?php require_once("getbuilds.js.php"); ?>
 	</script>
@@ -85,11 +90,6 @@
 		<li style="text-align: center;">
 			<select size="1" onchange="window.location.href = '<?php echo "http://" . $_SERVER["SERVER_NAME"] . $_SERVER["PHP_SELF"]; ?>?lang=' + this.options[this.selectedIndex].value;">
 				<?php
-					$getbuilds_languages = array(
-						"en" => "English",
-						"de" => "Deutsch (German)"
-					);
-					
 					foreach($getbuilds_languages as $lang_key => $lang_name)
 						printf('<option value="%s"%s>%s</option>', $lang_key, ($lang_key == $lang ? ' selected' : ''), $lang_name);
 				?>
@@ -131,7 +131,7 @@
 	</div>
 	</div>
 </div>
-<div style="margin:5px;">&nbsp;</div>
+
 <div class="bubble_bg">
 	<div class="rounded_ll">
 	<div class="rounded_lr">
@@ -157,14 +157,7 @@
 								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextRev();"><br>' +
 							'</span>' +
 							
-							'<img src="images/info.gif" alt="INFO:"> <?php
-							
-								echo $getbuilds_langres["rangeinfo"];
-								echo " <i>".$rev."</i>";
-								echo $getbuilds_langres["rangeinfo2"];
-								echo " <i>".($rev-50)."-".$rev."</i>).";
-								
-							 ?>' +
+							'<img src="images/info.gif" alt="INFO:"> <?php printf( $getbuilds_langres["rangeinfo"], $rev, ($rev - 50), $rev ); ?>' +
 						'</td>' +
 					'</tr>' +
 					'<tr>' +
