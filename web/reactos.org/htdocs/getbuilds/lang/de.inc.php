@@ -10,8 +10,8 @@
 	/**** German resources (charset=utf-8) ****/
 	$getbuilds_langres["language"] = "Sprache";
 	
-	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Startseite</a> &gt; ReactOS SVN Nightly-Builds';
-	$getbuilds_langres["title"] = "ReactOS Nightly-Builds Herunterladen";
+	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Startseite</a> &gt; ReactOS SVN Trunk-Builds';
+	$getbuilds_langres["title"] = "ReactOS Trunk-Builds Herunterladen";
 	$getbuilds_langres["intro"] = 'Hier können Sie aktuelle aber auch ältere ReactOS-Entwicklerversionen herunterladen, die von unserem <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a> erstellt wurden.';
 	
 	$getbuilds_langres["overview"] = "Übersicht";
