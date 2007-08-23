@@ -90,7 +90,7 @@ if exist "%ROSBEBASEDIR%\config.rbuild" (
         echo *** config.template.rbuild is newer than working config.rbuild ***
         echo *** The Editor cannot continue with this file. Do you wanna    ***
         echo *** update to the most recent one? You need to reset all your  ***
-        cho  *** previously made settings.                                  ***
+        echo *** previously made settings.                                  ***
         echo.
         SET /P XY="(yes), (no)"
         if /I "%XY%"=="yes" del "%ROSBEBASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%ROSBEBASEDIR%\config.rbuild" | goto :OK
