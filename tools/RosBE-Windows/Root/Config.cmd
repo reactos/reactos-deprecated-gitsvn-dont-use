@@ -102,12 +102,6 @@ if exist "%ROSBEBASEDIR%\config.rbuild" (
 ::
 :: Start with reading settings from config.rbuild and let the user edit them.
 ::
-echo Architecture to build for. Not Editable.
-echo.
-echo Right now
-grep \"ARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-echo.
-
 echo Sub-architecture to build for.
 echo Default is: none
 echo.
