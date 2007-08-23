@@ -129,8 +129,10 @@ function create_structure($page )
 			  <optgroup label="most popular">
               <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=en">English</option>
               <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=de">Deutsch (German)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Franais (French)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Russian (Russian)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Français (French)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=it">Italiano (Italian)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=no">Norsk (Norwegian)</option>
+              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Русский (Russian)</option>
               </optgroup>
             </select>
           </div>
