@@ -1,7 +1,9 @@
 *** Oct XXth, 2007 - RosBE 0.3.8 Released
 
 - Added DrFred's Config Tool. (Daniel Reimer)
-- Added ShortCut Tool (Daniel Reimer)
+- Added ShortCut Tool. (Daniel Reimer)
+- Updated w32api-3.9 to w32api-3.10. (except float.h which breaks build) (Daniel Reimer)
+- Updated mingw-runtime-3.12 to mingw-runtime-3.13. (Daniel Reimer)
 
 *** Aug XXst, 2007 - RosBE 0.3.7.2 Released (Unsupported)
 
