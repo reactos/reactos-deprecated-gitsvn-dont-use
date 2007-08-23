@@ -32,7 +32,7 @@ if "%1"  == "" (
 if %logdiff% == 0 (
 if not exist "RosBE-Logs\." (
         if not exist ".svn\." (
-            echo Folder is empty. No Build can be performed without a Source Code.
+            echo Der Ordner ist leer. Kompilieren ist ohne Source-Code nicht möglich.
             goto :EOB
         ) else (
             mkdir "RosBE-Logs"
@@ -59,9 +59,9 @@ if exist "config.rbuild" (
     test "config.template.rbuild" -nt "config.rbuild"
     if not errorlevel 1 (
         echo.
-        echo *** config.template.rbuild is newer than config.rbuild ***
-        echo *** aborting build. Please update your config.rbuild   *** 
-        echo *** by typeing "config update".                        ***
+        echo *** config.template.rbuild ist neuer als config.rbuild ***
+        echo *** aborting build. Bitte aktualisieren Sie ihre       *** 
+        echo *** config.rbuild, indem Sie "config update" eintippen.***
         echo.
         goto :EOB
     )
