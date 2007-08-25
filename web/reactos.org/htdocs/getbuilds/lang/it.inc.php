@@ -5,7 +5,7 @@
   FILE:       web/reactos.org/htdocs/getbuilds/lang/it.inc.php
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
-  TRANSLATION: gabriel ilardi <gabrielilardi@hotmail.it>
+  TRANSLATOR: Gabriel Ilardi <gabrielilardi@hotmail.it>
 */
 	
 	/**** Italian resources (charset=utf-8) ****/
