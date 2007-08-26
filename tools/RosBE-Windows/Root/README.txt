@@ -11,12 +11,12 @@ about their use) or you can build as you normally would using the standard MinGW
 
 The ReactOS Build Environment v0.3.8 contains the following packages:
 
-binutils-2.17.50-200706XX
-mingw-runtime-3.12
-w32api-3.9
+binutils-2.17.50-20070806
+mingw-runtime-3.13
+w32api-3.10
 mingw32-make-3.81-2
-nasm-0.98.39-win32
-mingw-4.1.3-200706XX-prerelease
+nasm-0.99.02-win32
+mingw-4.1.3-20070826-prerelease
     - Patched to fix a GCC bug concerning
       decorating virtual methods with stdcall
       in C++, see GCC issue:
