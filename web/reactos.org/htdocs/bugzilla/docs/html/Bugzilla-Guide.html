@@ -2,7 +2,7 @@
 <HTML
 ><HEAD
 ><TITLE
->The Bugzilla Guide - 3.0  Release</TITLE
+>The Bugzilla Guide - 3.0.1  Release</TITLE
 ><META
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><META
@@ -42,14 +42,14 @@ CLASS="TITLEPAGE"
 CLASS="title"
 ><A
 NAME="AEN2"
->The Bugzilla Guide - 3.0  Release</A
+>The Bugzilla Guide - 3.0.1  Release</A
 ></H1
 ><H3
 CLASS="corpauthor"
 >The Bugzilla Team</H3
 ><P
 CLASS="pubdate"
->2007-05-09<BR></P
+>2007-08-23<BR></P
 ><DIV
 ><DIV
 CLASS="abstract"
@@ -344,7 +344,7 @@ HREF="#whining"
 ><DT
 >6. <A
 HREF="#customization"
->Customising Bugzilla</A
+>Customizing Bugzilla</A
 ></DT
 ><DD
 ><DL
@@ -702,7 +702,7 @@ NAME="newversions"
 >1.3. New Versions</A
 ></H2
 ><P
->&#13;      This is the 3.0 version of The Bugzilla Guide. It is so named 
+>&#13;      This is the 3.0.1 version of The Bugzilla Guide. It is so named 
       to match the current version of Bugzilla. 
     </P
 ><P
@@ -746,7 +746,7 @@ TARGET="_top"
     </P
 ><P
 >  
-      In addition, there are Bugzilla template localisation projects in
+      In addition, there are Bugzilla template localization projects in
       the following languages. They may have translated documentation 
       available: 
       <A
@@ -780,7 +780,7 @@ TARGET="_top"
 >French</A
 >,
       <A
-HREF="http://germzilla.wurblzap.net/"
+HREF="http://germzilla.ganderbay.net/"
 TARGET="_top"
 >German</A
 >,
@@ -9108,12 +9108,21 @@ HREF="#parameters"
 CLASS="filename"
 >index.cgi</TT
 >
-        page, i.e. generally when logging in. Bugzilla will check once a
-        week for new releases, unless the parameter is set to
+        page, i.e. generally when logging in. Bugzilla will check once per
+        day for new releases, unless the parameter is set to
         <SPAN
 CLASS="QUOTE"
 >"disabled"</SPAN
->.
+>. If you are behind a proxy, you may have to set
+        the <VAR
+CLASS="literal"
+>proxy_url</VAR
+> parameter accordingly. If the proxy
+        requires authentication, use the
+        <VAR
+CLASS="literal"
+>http://user:pass@proxy_url/</VAR
+> syntax.
       </P
 ></DIV
 ><DIV
@@ -10538,9 +10547,9 @@ NAME="myaccount"
     Bugzilla for the URL you should use to access it. If you're
     test-driving Bugzilla, use this URL: 
     <A
-HREF="http://landfill.bugzilla.org/bugzilla-tip/"
+HREF="http://landfill.bugzilla.org/bugzilla-3.0-branch/"
 TARGET="_top"
->http://landfill.bugzilla.org/bugzilla-tip/</A
+>http://landfill.bugzilla.org/bugzilla-3.0-branch/</A
 >.
     </P
 ><P
@@ -10690,7 +10699,7 @@ NAME="bug_page"
 >The core of Bugzilla is the screen which displays a particular
     bug. It's a good place to explain some Bugzilla concepts. 
     <A
-HREF="http://landfill.bugzilla.org/bugzilla-tip/show_bug.cgi?id=1"
+HREF="http://landfill.bugzilla.org/bugzilla-3.0-branch/show_bug.cgi?id=1"
 TARGET="_top"
 >&#13;    Bug 1 on Landfill</A
 >
@@ -10880,7 +10889,7 @@ BORDER="0"
 >&#13;        <EM
 >Priority:</EM
 >
-        The bug assignee uses this field to prioritise his or her bugs.
+        The bug assignee uses this field to prioritize his or her bugs.
         It's a good idea not to change this on other people's bugs.</P
 ></LI
 ><LI
@@ -11108,9 +11117,9 @@ NAME="query"
     any bug report, comment, or patch currently in the Bugzilla system. You
     can play with it here: 
     <A
-HREF="http://landfill.bugzilla.org/bugzilla-tip/query.cgi"
+HREF="http://landfill.bugzilla.org/bugzilla-3.0-branch/query.cgi"
 TARGET="_top"
->http://landfill.bugzilla.org/bugzilla-tip/query.cgi</A
+>http://landfill.bugzilla.org/bugzilla-3.0-branch/query.cgi</A
 >.</P
 ><P
 >The Search page has controls for selecting different possible
@@ -11132,8 +11141,8 @@ TARGET="_top"
       <A
 HREF="#groups"
 >assign users to</A
->, it will show up in the
-      group's direct members' footers by default.
+>, the sharer may opt to have
+      the Search show up in the group's direct members' footers by default.
     </P
 ><DIV
 CLASS="section"
@@ -11231,7 +11240,7 @@ NAME="negation"
 >&#13;          At first glance, negation seems redundant. Rather than
           searching for
           <A
-NAME="AEN2222"
+NAME="AEN2224"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11242,7 +11251,7 @@ CLASS="BLOCKQUOTE"
 >
           one could search for 
           <A
-NAME="AEN2224"
+NAME="AEN2226"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11253,7 +11262,7 @@ CLASS="BLOCKQUOTE"
 >
           However, the search 
           <A
-NAME="AEN2226"
+NAME="AEN2228"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11265,7 +11274,7 @@ CLASS="BLOCKQUOTE"
           would find every bug where anyone on the CC list did not contain 
           "@mozilla.org" while
           <A
-NAME="AEN2228"
+NAME="AEN2230"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11279,7 +11288,7 @@ CLASS="BLOCKQUOTE"
           complex expressions to be built using terms OR'd together and then
           negated. Negation permits queries such as
           <A
-NAME="AEN2230"
+NAME="AEN2232"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11292,7 +11301,7 @@ CLASS="BLOCKQUOTE"
           to find bugs that are neither 
           in the update product or in the documentation component or
           <A
-NAME="AEN2232"
+NAME="AEN2234"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11320,7 +11329,7 @@ NAME="multiplecharts"
           a bug that has two different people cc'd on it, then you need 
           to use two boolean charts. A search for
           <A
-NAME="AEN2237"
+NAME="AEN2239"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11335,7 +11344,7 @@ CLASS="BLOCKQUOTE"
           containing "foo@" and someone else containing "@mozilla.org",
           then you would need two boolean charts.
           <A
-NAME="AEN2239"
+NAME="AEN2241"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -11587,7 +11596,7 @@ NAME="fillingbugs"
 >Years of bug writing experience has been distilled for your
       reading pleasure into the 
       <A
-HREF="http://landfill.bugzilla.org/bugzilla-tip/page.cgi?id=bug-writing.html"
+HREF="http://landfill.bugzilla.org/bugzilla-3.0-branch/page.cgi?id=bug-writing.html"
 TARGET="_top"
 >&#13;      Bug Writing Guidelines</A
 >. 
@@ -11639,7 +11648,7 @@ VALIGN="TOP"
 >&#13;              If you want to file a test bug to see how Bugzilla works,
               you can do it on one of our test installations on
               <A
-HREF="http://landfill.bugzilla.org/bugzilla-tip/"
+HREF="http://landfill.bugzilla.org/bugzilla-3.0-branch/"
 TARGET="_top"
 >Landfill</A
 >.
@@ -12026,7 +12035,7 @@ CLASS="section"
 ><HR><H3
 CLASS="section"
 ><A
-NAME="AEN2372"
+NAME="AEN2374"
 >5.8.1. Autolinkification</A
 ></H3
 ><P
@@ -12190,7 +12199,7 @@ NAME="userpreferences"
 >5.10. User Preferences</A
 ></H2
 ><P
->Once you have logged in, you can customise various aspects of
+>Once you have logged in, you can customize various aspects of
     Bugzilla via the "Edit prefs" link in the page footer.
     The preferences are split into three tabs:</P
 ><DIV
@@ -12719,7 +12728,7 @@ CLASS="section"
 ><HR><H4
 CLASS="section"
 ><A
-NAME="AEN2500"
+NAME="AEN2502"
 >5.11.2.1. Creating Charts</A
 ></H4
 ><P
@@ -12759,7 +12768,7 @@ CLASS="section"
 ><HR><H4
 CLASS="section"
 ><A
-NAME="AEN2507"
+NAME="AEN2509"
 >5.11.2.2. Creating New Data Sets</A
 ></H4
 ><P
@@ -13188,7 +13197,7 @@ CLASS="section"
 ><HR><H3
 CLASS="section"
 ><A
-NAME="AEN2560"
+NAME="AEN2562"
 >5.13.4. Saving Your Changes</A
 ></H3
 ><P
@@ -13235,7 +13244,7 @@ CLASS="chapter"
 ><A
 NAME="customization"
 ></A
->Chapter 6. Customising Bugzilla</H1
+>Chapter 6. Customizing Bugzilla</H1
 ><DIV
 CLASS="section"
 ><H2
@@ -14175,13 +14184,13 @@ CLASS="varname"
 >name</VAR
 >");</VAR
 >.
-      for instance, <TT
+      For instance, <TT
 CLASS="filename"
 >enter_bug.cgi</TT
 > may invoke the hook 
       "<VAR
 CLASS="varname"
->enter_bug-defaultvars</VAR
+>enter_bug-entrydefaultvars</VAR
 >". Thus, a source file at 
       <TT
 CLASS="filename"
@@ -15125,6 +15134,13 @@ HREF="#faq-admin-enable-unconfirmed"
 >A.3.5. <A
 HREF="#faq-admin-moving"
 >&#13;            How do I move a Bugzilla installation from one machine to another?
+          </A
+></DT
+><DT
+>A.3.6. <A
+HREF="#faq-admin-makeadmin"
+>&#13;            How do I make a new Bugzilla administrator?
+            The previous administrator is gone...
           </A
 ></DT
 ></DL
@@ -16951,6 +16967,43 @@ CLASS="command"
           </P
 ></DIV
 ></DIV
+><DIV
+CLASS="qandaentry"
+><DIV
+CLASS="question"
+><P
+><A
+NAME="faq-admin-makeadmin"
+></A
+><B
+>A.3.6. </B
+>
+            How do I make a new Bugzilla administrator?
+            The previous administrator is gone...
+          </P
+></DIV
+><DIV
+CLASS="answer"
+><P
+><B
+> </B
+>
+            Run <B
+CLASS="command"
+>checksetup.pl</B
+> with
+            <VAR
+CLASS="option"
+>--make-admin</VAR
+> option.
+            Its usage is <VAR
+CLASS="option"
+>--make-admin=user@example.org</VAR
+>.
+            The user account must be exist in the Bugzilla database.
+          </P
+></DIV
+></DIV
 ></DIV
 ><DIV
 CLASS="qandadiv"
@@ -17883,7 +17936,7 @@ CLASS="answer"
 ><P
 >&#13;            Microsoft has some advice on this matter, as well:
             <A
-NAME="AEN3284"
+NAME="AEN3294"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -18008,8 +18061,13 @@ CLASS="answer"
 ><B
 > </B
 >
-            New in 2.16 - go to the Account section of the Preferences. You
-            will be emailed at both addresses for confirmation.
+            New in 2.16 - you can change it from the Name and Password
+            section in Preferences. You will be emailed at both addresses for
+            confirmation. 'Administrative Policies' must have the
+            'allowemailchange' parameter set to <SPAN
+CLASS="QUOTE"
+>"On"</SPAN
+>.
           </P
 ></DIV
 ></DIV
@@ -18895,7 +18953,7 @@ NAME="trbl-relogin-everyone-share"
 >Example B-1. Examples of urlbase/cookiepath pairs for sharing login cookies</B
 ></P
 ><A
-NAME="AEN3478"
+NAME="AEN3489"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -18936,7 +18994,7 @@ NAME="trbl-relogin-everyone-restrict"
 >Example B-2. Examples of urlbase/cookiepath pairs to restrict the login cookie</B
 ></P
 ><A
-NAME="AEN3485"
+NAME="AEN3496"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -19142,7 +19200,7 @@ ALT="Warning"></TD
 ALIGN="LEFT"
 VALIGN="TOP"
 ><P
->&#13;        These files pre-date the templatisation work done as part of the
+>&#13;        These files pre-date the templatization work done as part of the
         2.16 release, and have not been updated.
       </P
 ></TD
@@ -19845,7 +19903,7 @@ NAME="gfdl"
 ><P
 >Version 1.1, March 2000</P
 ><A
-NAME="AEN3669"
+NAME="AEN3680"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -20308,7 +20366,7 @@ NAME="gfdl-howto"
     of the License in the document and put the following copyright and
     license notices just after the title page:</P
 ><A
-NAME="AEN3759"
+NAME="AEN3770"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -20345,7 +20403,7 @@ CLASS="glossdiv"
 ><H1
 CLASS="glossdiv"
 ><A
-NAME="AEN3764"
+NAME="AEN3775"
 >0-9, high ascii</A
 ></H1
 ><DL
@@ -21263,7 +21321,7 @@ NAME="gloss-zarro"
         Terry had the following to say:
         </P
 ><A
-NAME="AEN4011"
+NAME="AEN4022"
 ></A
 ><TABLE
 BORDER="0"

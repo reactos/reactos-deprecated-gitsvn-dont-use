@@ -40,7 +40,7 @@
 [% error_message = BLOCK %]
   [% IF    error == "action_unrecognized" %]
     [% docslinks = {'query.html' => "Searching for $terms.bugs",
-                    'list.html'  => "$terms.Bug lists"} %]
+                    'query.html#list' => "$terms.Bug lists"} %]
     I don't recognize the value (<em>[% action FILTER html %]</em>)
     of the <em>action</em> variable.
   
@@ -132,9 +132,9 @@
       This means that the '[% Param("auth_env_email") FILTER html %]'
       environment variable was empty or did not exist.
     [% ELSE %]
-      You need to set the "auth_env_email" environment variable to
-      the name of the environment variable that will contain the
-      user's email address.
+      You need to set the "auth_env_email" parameter to the name of
+      the environment variable that will contain the user's email
+      address.
     [% END %]
 
   [% ELSIF error == "extension_invalid" %]
@@ -429,12 +429,18 @@
     Invalid setting for post_bug_submit_action
 
   [% ELSE %]
-    [% title = "Internal error" %]
-    An internal error has occurred, but [% terms.Bugzilla %] doesn't know
-    what <code>[% error FILTER html %]</code> means.
+    [%# Try to find hooked error messages %]
+    [% error_message = Hook.process("errors") %]
+    [% IF NOT error_message %]
+      [% title = "Internal error" %]
+      An internal error has occurred, but [% terms.Bugzilla %] doesn't know
+      what <code>[% error FILTER html %]</code> means.
 
-    If you are a [% terms.Bugzilla %] end-user seeing this message, please save
-    this page and send it to [% Param('maintainer') %].
+      If you are a [% terms.Bugzilla %] end-user seeing this message, please save
+      this page and send it to [% Param('maintainer') %].
+    [% ELSE %]
+      [% error_message FILTER none %]
+    [% END %]
   [% END %]
 [% END %]
 

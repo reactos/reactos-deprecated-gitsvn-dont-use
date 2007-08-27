@@ -68,7 +68,7 @@ foreach my $file (@testitems) {
         my $lineno = scalar(@lineno) + 1;
     
         # "a bug", "bug", "bugs"
-        if (grep /(a?[\s>]bugs?[\s.:;])/i, $text) {
+        if (grep /(a?[\s>]bugs?[\s.:;,])/i, $text) {
             # Exclude variable assignment.
             unless (grep /bugs =/, $text) {
                 push(@errors, [$lineno, $text]);
@@ -79,7 +79,7 @@ foreach my $file (@testitems) {
         # "Bugzilla"
         if (grep /(?<!X\-)Bugzilla(?!_|::|-&gt|\.pm)/, $text) {
             # Exclude JS comments, hyperlinks, USE, and variable assignment.
-            unless (grep /(\/\/.*|(org|api).*>|USE |= )Bugzilla/, $text) {
+            unless (grep /(\/\/.*|org.*>|api\/|USE |= )Bugzilla/, $text) {
                 push(@errors, [$lineno, $text]);
                 next;
             }

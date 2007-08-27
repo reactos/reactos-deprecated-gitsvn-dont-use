@@ -32,6 +32,7 @@ use Bugzilla::Search;
 use Bugzilla::Util;
 use Bugzilla::Error;
 use Bugzilla::User;
+use Bugzilla::Token;
 
 my $template = Bugzilla->template;
 local our $vars = {};
@@ -51,6 +52,9 @@ sub DoAccount {
 
     if(Bugzilla->params->{'allowemailchange'} 
        && Bugzilla->user->authorizer->can_change_email) {
+       # First delete old tokens.
+       Bugzilla::Token::CleanTokenTable();
+
         my @token = $dbh->selectrow_array(
             "SELECT tokentype, issuedate + " .
                     $dbh->sql_interval(MAX_TOKEN_AGE, 'DAY') . ", eventdata
@@ -317,6 +321,7 @@ sub DoSavedSearches {
         $vars->{'queryshare_groups'} =
             Bugzilla::Group->new_from_list($user->queryshare_groups);
     }
+    $vars->{'bless_group_ids'} = [map {$_->{'id'}} @{$user->bless_groups}];
 }
 
 sub SaveSavedSearches {
@@ -376,10 +381,9 @@ sub SaveSavedSearches {
             }
 
             # If we're sharing our query with a group we can bless, we 
-            # subscribe direct group members to our search automatically.
-            # Otherwise, the group members need to opt in. This behaviour 
-            # is deemed most likely to fit users' needs.
-            if ($user->can_bless($group_id)) {
+            # have the ability to add link to our search to the footer of
+            # direct group members automatically.
+            if ($user->can_bless($group_id) && $cgi->param('force_' . $q->id)) {
                 my $group = new Bugzilla::Group($group_id);
                 my $members = $group->members_non_inherited;
                 foreach my $member (@$members) {

@@ -28,6 +28,7 @@ bz_webservice_demo.pl</title>
     <li class='indexItem indexItem2'><a href='#Retrieving_Bug_Information'>Retrieving Bug Information</a>
     <li class='indexItem indexItem2'><a href='#Retrieving_Product_Information'>Retrieving Product Information</a>
     <li class='indexItem indexItem2'><a href='#Creating_A_Bug'>Creating A Bug</a>
+    <li class='indexItem indexItem2'><a href='#Getting_Legal_Field_Values'>Getting Legal Field Values</a>
   </ul>
   <li class='indexItem indexItem1'><a href='#NOTES'>NOTES</a>
   <ul   class='indexList indexList2'>
@@ -115,6 +116,18 @@ Don&#39;t specify this option to do the same thing as unchecking the box.</p>
 
 <dd>
 <p>Specify a file that contains settings for the creating of a new bug.</p>
+
+<dt><a name="--field"
+>--field</a></dt>
+
+<dd>
+<p>Pass a field name to get legal values for this field.
+It must be either a global select field (such as bug_status,
+resolution,
+rep_platform,
+op_sys,
+priority,
+bug_severity) or a custom select field.</p>
 </dd>
 </dl>
 
@@ -191,6 +204,13 @@ name="Creating_A_Bug"
 <p>Call <code  class="code">Bug.create</code> with the settings read from the file indicated on the command line.
 The file must contain a valid anonymous hash to use as argument for the call to <code  class="code">Bug.create</code>.
 The call will return a hash with a bug id for the newly created bug.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="Getting_Legal_Field_Values"
+>Getting Legal Field Values</a></h2>
+
+<p>Call <code  class="code">Bug.legal_values</code> with the name of the field (including custom select fields).
+The call will return a reference to an array with the list of legal values for this field.</p>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
 name="NOTES"
