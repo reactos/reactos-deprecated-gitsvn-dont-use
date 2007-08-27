@@ -25,6 +25,8 @@ define('ROSCMS_LOGIN_REQUIRED', 2);
 
 function roscms_subsys_login($subsys, $login_type, $target)
 {
+  global $roscms_intern_webserver_roscms;	
+
   if (ROSCMS_LOGIN_OPTIONAL != $login_type &&
       ROSCMS_LOGIN_REQUIRED != $login_type)
     {
@@ -100,12 +102,9 @@ function roscms_subsys_login($subsys, $login_type, $target)
         $userid = $row[0];
 
 		// For the Wiki, we have to start a session
-		if( $subsys == "wiki" )
-		{
-			define('MEDIAWIKI', '');
-			require_once("../wiki/includes/GlobalFunctions.php");
-			wfSetupSession();
-		}
+		define('MEDIAWIKI', '');
+		require_once("../wiki/includes/GlobalFunctions.php");
+		wfSetupSession();
 		
         if (isset($row[1]))
           {
@@ -132,7 +131,7 @@ function roscms_subsys_login($subsys, $login_type, $target)
 
   if (0 == $userid && ROSCMS_LOGIN_REQUIRED == $login_type)
     {
-      $url = "/roscms/?page=login";
+      $url = $roscms_intern_webserver_roscms."?page=login";
       if ("" != $target)
         {
           $url .= "&target=" . urlencode($target);

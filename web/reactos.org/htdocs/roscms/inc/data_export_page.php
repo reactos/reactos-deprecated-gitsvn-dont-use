@@ -280,7 +280,7 @@
 					$fp = fopen($RosCMS_current_page_out_file, "w");
 					flock($fp,2);
 					fputs($fp,$RosCMS_current_page_content); // write content
-					fputs($fp,"\n\n<!-- Generated with ".$roscms_extern_brand." ".$roscms_extern_version." (".$roscms_extern_version_detail.") [#RosCMS_v3] -->");
+					fputs($fp,"\n\n<!-- Generated with ".$roscms_extern_brand." ".$roscms_extern_version." (".$roscms_extern_version_detail.") - ".date("Y-m-d H:i:s")." [#RosCMS_v3] -->");
 					flock($fp,3);
 					fclose($fp);
 					
@@ -295,10 +295,14 @@
 	
 	
 	function generate_page($g_page_name, $g_page_lang, $g_page_dynida, $g_output_type) {
+		//echo "generate_page(".$g_page_name.", ".$g_page_lang.", ".$g_page_dynida.", ".$g_output_type.")";
+
+
 		global $roscms_intern_account_id;
 		global $roscms_intern_webserver_pages;
 		global $roscms_standard_language;
 		global $roscms_intern_webserver_roscms;
+		global $roscms_standard_language_full;
 
 		global $g_lang;
 		global $g_cur_page_name;
@@ -308,6 +312,7 @@
 		$g_page_dynid = $g_page_dynida;
 		$g_linkstyle = $g_output_type;
 		
+		//echo "<p>g_page_dynid: ".$g_page_dynid."</p>";
 		
 		set_time_limit(0); // unlimited script run time 
 		
@@ -421,6 +426,14 @@
 				// current page edit link:
 				$g_content = str_replace("[#roscms_page_edit]", $roscms_intern_webserver_roscms."?page=data_out&amp;d_f=page&amp;d_u=show&amp;d_val=".$g_page_name."&amp;d_val2=".$g_lang."&amp;d_val3=".$g_page_dynid."&amp;d_val4=edit", $g_content); 
 
+
+				// translation info:
+				if ($g_lang == $roscms_standard_language) {
+					$g_content = str_replace("[#roscms_trans]", "<p><a href=\"".$roscms_intern_webserver_roscms."?page=data_out&amp;d_f=page&amp;d_u=show&amp;d_val=".$g_page_name."&amp;d_val2=".$g_lang."&amp;d_val3=".$g_page_dynid."&amp;d_val4=edit"."\" style=\"font-size:10px !important;\">Edit page content</a> (RosCMS translator account membership required, visit the <a href=\"".$roscms_intern_webserver_pages."forum/\" style=\"font-size:10px !important;\">website forum</a> for help)</i></p><br />", $g_content); 
+				}
+				else {
+					$g_content = str_replace("[#roscms_trans]", "<p><i>If the translation of the <a href=\"".$roscms_intern_webserver_pages."?page=".$g_page_name."&amp;lang=".$roscms_standard_language."\" style=\"font-size:10px !important;\">".$roscms_standard_language_full." language</a> of this page appears to be outdated or incorrect, please check-out the <a href=\"".$roscms_intern_webserver_pages."?page=".$g_page_name."&amp;lang=".$roscms_standard_language."\" style=\"font-size:10px !important;\">".$roscms_standard_language_full."</a> page and <a href=\"http://www.reactos.org/forum/viewforum.php?f=18\" style=\"font-size:10px !important;\">report</a> or <a href=\"".$roscms_intern_webserver_roscms."?page=data_out&amp;d_f=page&amp;d_u=show&amp;d_val=".$g_page_name."&amp;d_val2=".$g_lang."&amp;d_val3=".$g_page_dynid."&amp;d_val4=edit"."\" style=\"font-size:10px !important;\">update the content</a>.</i></p><br />", $g_content); 
+				}
 	
 			
 	//		$g_log .= "<hr />";
@@ -503,6 +516,7 @@
 			}
 		}
 		
+		$RosCMS_result_content_temp = "";
 		// preview-edit-mode
 		if ($RosCMS_GET_d_value4 == "edit" && $result_content['data_acl'] == "default" && $g_insert_match_type != "script") {
 			$RosCMS_result_content_temp = "<div style=\"border: 1px dashed red;\"><div style=\"padding: 2px;\"><a href=\"".$roscms_intern_page_link."data&amp;branch=".$RosCMS_GET_branch."&amp;edit=rv".$result_content['data_id']."|".$result_content['rev_id']."\" style=\"background-color:#E8E8E8;\"> <img src=\"".$roscms_intern_webserver_roscms."images/edit.gif\" style=\"width:19px; height:19px; border:none;\" /><i>".$g_match_name."</i> </a></div>";
@@ -517,6 +531,7 @@
 //			echo "<h3>!!".get_tag($result_content['data_id'], $result_content['rev_id'], "kind")."!! &lt;=&gt; get_tag(".$result_content['data_id'].", ".$result_content['rev_id'].", \"kind\")</h3>";
 			if (get_tag($result_content['data_id'], $result_content['rev_id'], "kind") == "php") {
 				$RosCMS_result_content_temp = eval_template($RosCMS_result_content_temp, $g_page_dynid, $g_match_lang);
+				//echo "<p>REV_ID: ".$result_content['rev_id']."</p>";
 			}
 		}
 //		echo "<p>".$g_match_name." - |".$g_insert_match_type."|</p>";
@@ -606,6 +621,8 @@
 
 
 	function eval_template($code, $dyncontid, $dyncontlang) { // function code idea from: http://www.zend.com/zend/art/buffering.php
+		//echo "<p>eval_template(code, ".$dyncontid.", ".$dyncontlang.")</p>";
+		
 		ob_start(); 
 		
 		$roscms_template_var_pageid = "";
