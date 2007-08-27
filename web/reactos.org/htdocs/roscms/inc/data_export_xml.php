@@ -175,7 +175,7 @@
 								case "nbr": // number ("dynamic" entry)
 									$roscms_d_tags_counter++;
 									$roscms_mtbl_order .= " v".$roscms_d_tags_counter.".tv_value ".$roscms_d_f2_typeb.", ";
-									$roscms_mtbl_order_where .= " AND n".$roscms_d_tags_counter.".tn_name = 'number' ";
+									$roscms_mtbl_order_where .= " AND n".$roscms_d_tags_counter.".tn_name = 'number_sort' ";
 									break;
 								case "type": // type
 									$roscms_mtbl_order .= "d.data_type ".$roscms_d_f2_typeb.", ";
@@ -624,8 +624,11 @@
 				$temp_status = "";
 				$temp_status2 = "";
 				
+				
 				$temp_status2 = getTagValue($result_xml_ptm['data_id'], $result_xml_ptm['rev_id'],  '-1', 'status');
-
+				$temp_dynamic = getTagValue($result_xml_ptm['data_id'], $result_xml_ptm['rev_id'],  '-1', 'number');
+				
+				
 				if ($roscms_mtbl_translate == "") {
 					if ($temp_status2 == "stable") {
 						if ($temp_counter%2) {
@@ -658,12 +661,27 @@
 					$tblentry_d_r_usrid = $result_xml_ptm['rev_usrid'];
 				}
 				else { // translation
+					if ($temp_dynamic != "") {
+						$tmp_trans_sql_1 = " , data_tag".$RosCMS_d_a." a, data_tag_name".$RosCMS_d_a." n, data_tag_value".$RosCMS_d_a." v  ";
+						$tmp_trans_sql_2 = " AND r.data_id = a.data_id 
+											AND r.rev_id = a.data_rev_id 
+											AND (a.tag_usrid = '-1') 
+											AND a.tag_name_id = n.tn_id  
+											AND a.tag_value_id  = v.tv_id 
+											AND v.tv_value = '".mysql_real_escape_string($temp_dynamic)."' ";
+					}
+					else {
+						$tmp_trans_sql_1 = "";
+						$tmp_trans_sql_2 = "";
+					}
+					
 					$query_xml_ptm_trans = mysql_query("SELECT d.data_id, d.data_name, d.data_type, r.rev_id, r.rev_version, r.rev_language, r.rev_datetime, r.rev_date, r.rev_usrid 
-													FROM data_revision".$RosCMS_d_a." r, data_".$RosCMS_d_a2." d
+													FROM data_".$RosCMS_d_a2." d, data_revision".$RosCMS_d_a." r ". $tmp_trans_sql_1 ."
 													WHERE d.data_id = '".mysql_real_escape_string($result_xml_ptm['data_id'])."'
 													AND r.rev_version > 0 
 													AND d.data_id = r.data_id 
 													AND r.rev_language = '".mysql_real_escape_string($roscms_mtbl_translate)."' 
+													". $tmp_trans_sql_2 ."
 													LIMIT 1;");
 					$result_xml_ptm_trans = mysql_fetch_array($query_xml_ptm_trans);
 					
@@ -716,7 +734,6 @@
 					}
 				}
 			
-				$temp_dynamic = getTagValue($result_xml_ptm['data_id'], $result_xml_ptm['rev_id'],  '-1', 'number');
 				if ($result_xml_ptm['data_type'] == "content" && $temp_dynamic != "") {
 					$tblentry_d_name .= "_".$temp_dynamic;
 				}

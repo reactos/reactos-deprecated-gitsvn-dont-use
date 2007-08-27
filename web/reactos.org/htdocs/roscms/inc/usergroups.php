@@ -110,7 +110,7 @@
 										WHERE data_id = ".mysql_real_escape_string($d_id)." 
 										AND y.sec_name = d.data_acl 
 										AND y.sec_branch = '".mysql_real_escape_string($roscms_branch)."' 
-										LIMIT 1;");
+										LIMIT 1;") or die("Data-Entry \"".$d_id."\"not found [usergroups].");
 		$result_data_sec_rights = mysql_fetch_array($query_data_sec_rights);
 		
 		$tmp_acl_allow = false;

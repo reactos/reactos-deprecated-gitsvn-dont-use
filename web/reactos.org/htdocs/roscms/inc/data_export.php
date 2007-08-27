@@ -122,6 +122,14 @@
 				default:
 				case "show":
 				
+					if (strpos($RosCMS_GET_d_r_id, "tr") === false) {
+						// normal (contains NO "tr")
+					}
+					else {
+						// translation mode (contains "tr")		
+						$RosCMS_GET_d_value2 = $RosCMS_GET_d_r_lang;
+					}			
+					
 					$RosCMS_GET_d_value = str_replace("tr", "", $RosCMS_GET_d_value); // remove "tr" so that it also work in translation view
 					
 					if ( is_numeric($RosCMS_GET_d_value) ) {
@@ -146,10 +154,14 @@
 					if ($RosCMS_GET_d_value3 == "") {
 						//echo "<p>!!!</p>";
 						$tmp_nbr = get_tag($result_show_revision['data_id'], $result_show_revision['rev_id'], "number");
+						//echo "<p>tmp_nbr: ".$tmp_nbr."</p>";
+					}
+					else {
+						$tmp_nbr = $RosCMS_GET_d_value3;
 					}
 					//echo "<h1>preview</h1>\n";
 					//echo "<p>generate_page(".$RosCMS_GET_d_value.", ".$RosCMS_GET_d_value2.", ".$RosCMS_GET_d_value3.", ".$RosCMS_GET_d_use.")</p>";
-					log_event_generate_low("preview page: generate_page(".$RosCMS_GET_d_value.", ".$RosCMS_GET_d_value2.", ".$RosCMS_GET_d_value3.", ".$RosCMS_GET_d_use.")"); 
+					log_event_generate_low("preview page: generate_page(".$tmp_name.", ".$tmp_lang.", ".$tmp_nbr.", ".$RosCMS_GET_d_use.")"); 
 					echo generate_page($tmp_name, $tmp_lang, $tmp_nbr, $RosCMS_GET_d_use);
 					//echo generate_page("sitemap", "en", "", "show");
 					break;

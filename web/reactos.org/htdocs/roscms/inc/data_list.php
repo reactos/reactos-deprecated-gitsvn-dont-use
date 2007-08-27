@@ -56,7 +56,7 @@
 	
 	var roscms_archive = 0;
 	
-	var autosave_coundown = 100000; // 10000
+	var autosave_coundown = 100000; // 10000; 100000
 	
 	var submenu_button = '';
 	
@@ -1362,7 +1362,7 @@
 						load_frametable('script');
 						break;
 					case '7':
-						filtstring2 = 'y_is_content_0|k_is_stable_0<?php if ($roscms_security_level == 1) { echo "|i_is_default_0"; } ?>|c_is_user_0|l_is_<?php echo $roscms_standard_language; ?>_0|r_is_'+translang+'|o_asc_name';
+						filtstring2 = 'y_is_content_0|k_is_stable_0|i_is_default_0|c_is_user_0|l_is_<?php echo $roscms_standard_language; ?>_0|r_is_'+translang+'|o_asc_name';
 						load_frametable('translate');
 						break;
 					case '8':
@@ -2597,8 +2597,8 @@
 										}
 										catch (e) {
 											rtestop(); // destroy old rich text editor instances
-											window.clearTimeout(autosave_timer);
-											autosave_cache = '';
+											//window.clearTimeout(autosave_timer);
+											//autosave_cache = '';
 											//alert('autosave bug stopped');
 										}
 									}
@@ -2614,7 +2614,7 @@
 										
 										load_frametable_cp2(roscms_current_tbl_position);
 										window.clearTimeout(autosave_timer);
-										autosave_cache = '';
+										//autosave_cache = '';
 										alertbox('Draft saved');
 									}
 
@@ -2653,32 +2653,34 @@
 
 										load_frametable_cp2(roscms_current_tbl_position);
 										window.clearTimeout(autosave_timer);
-										autosave_cache = '';
+										//autosave_cache = '';
 										alertbox('Entry saved');
 									}
 									
 									function autosave_try(t_d_id, t_d_revid) {
+										//alert('autosave-try');
 										window.clearTimeout(autosave_timer);
-										autosave_cache = '';
+										//autosave_cache = '';
 										
 										try {
 											if (document.getElementById("editautosavemode").value == 'false') {
 												window.clearTimeout(autosave_timer);
-												autosave_cache = '';
+												//autosave_cache = '';
 												//alert('autosave-end');
 												return;
 											}
 										} 
 										catch (e) {
 											window.clearTimeout(autosave_timer);
-											autosave_cache = '';
+											//autosave_cache = '';
+											//alert('autosave-end2');
 											return;
 										}
 										
 										if (autosave_cache != prepair_edit_form_submit() && autosave_cache != '') {
-//											alert('auto-save: (txtbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
+											//alert('auto-save: (txtbox - cache)\n'+prepair_edit_form_submit() +'\n'+ autosave_cache);
 											
-//											alert('!!!autosave_try: '+t_d_id+' vs. '+document.getElementById("entrydataid").className+' | '+t_d_revid+' vs. '+document.getElementById("entrydatarevid").className);
+											//alert('!!!autosave_try: '+t_d_id+' vs. '+document.getElementById("entrydataid").className+' | '+t_d_revid+' vs. '+document.getElementById("entrydatarevid").className);
 											edit_form_submit_draft_autosave(document.getElementById("entrydataid").className, document.getElementById("entrydatarevid").className);
 										}
 
@@ -3366,7 +3368,11 @@
 					}
 				?>
 				load_frametable_cp(0);
-				alertbox('Page generation process finished');
+				<?php
+					if (!$RosCMS_GET_debug) {
+						echo " alertbox('Page generation process finished'); ";
+					}
+				?>
 				break;
 			case 'editalterfields':
 				//alert('!!! saved?: '+http_request.responseText);
