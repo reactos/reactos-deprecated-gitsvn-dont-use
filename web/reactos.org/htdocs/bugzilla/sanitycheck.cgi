@@ -471,7 +471,8 @@ CrossCheck("profiles", "userid",
            ["tokens", "userid"],
            ["user_group_map", "user_id"],
            ["components", "initialowner", "name"],
-           ["components", "initialqacontact", "name"]);
+           ["components", "initialqacontact", "name"],
+           ["component_cc", "user_id"]);
 
 CrossCheck("products", "id",
            ["bugs", "product_id", "bug_id"],
@@ -481,6 +482,9 @@ CrossCheck("products", "id",
            ["group_control_map", "product_id"],
            ["flaginclusions", "product_id", "type_id"],
            ["flagexclusions", "product_id", "type_id"]);
+
+CrossCheck("components", "id",
+           ["component_cc", "component_id"]);
 
 # Check the former enum types -mkanat@bugzilla.org
 CrossCheck("bug_status", "value",
@@ -895,10 +899,10 @@ Status("Checking statuses/everconfirmed");
 
 BugCheck("bugs WHERE bug_status = 'UNCONFIRMED' AND everconfirmed = 1",
          "Bugs that are UNCONFIRMED but have everconfirmed set");
-# The below list of resolutions is hardcoded because we don't know if future
+# The below list of resolutions is hard-coded because we don't know if future
 # resolutions will be confirmed, unconfirmed or maybeconfirmed.  I suspect
 # they will be maybeconfirmed, e.g. ASLEEP and REMIND.  This hardcoding should
-# disappear when we have customised statuses.
+# disappear when we have customized statuses.
 BugCheck("bugs WHERE bug_status IN ('NEW', 'ASSIGNED', 'REOPENED') AND everconfirmed = 0",
          "Bugs with confirmed status but don't have everconfirmed set"); 
 

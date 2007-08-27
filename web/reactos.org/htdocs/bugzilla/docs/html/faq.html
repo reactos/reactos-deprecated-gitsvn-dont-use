@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 3.0  Release"
+TITLE="The Bugzilla Guide - 3.0.1  Release"
 HREF="index.html"><LINK
 REL="PREVIOUS"
 TITLE="Integrating Bugzilla with Third-Party Tools"
@@ -34,7 +34,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 3.0  Release</TH
+>The Bugzilla Guide - 3.0.1  Release</TH
 ></TR
 ><TR
 ><TD
@@ -334,6 +334,13 @@ HREF="faq.html#faq-admin-enable-unconfirmed"
 >A.3.5. <A
 HREF="faq.html#faq-admin-moving"
 >&#13;            How do I move a Bugzilla installation from one machine to another?
+          </A
+></DT
+><DT
+>A.3.6. <A
+HREF="faq.html#faq-admin-makeadmin"
+>&#13;            How do I make a new Bugzilla administrator?
+            The previous administrator is gone...
           </A
 ></DT
 ></DL
@@ -2160,6 +2167,43 @@ CLASS="command"
           </P
 ></DIV
 ></DIV
+><DIV
+CLASS="qandaentry"
+><DIV
+CLASS="question"
+><P
+><A
+NAME="faq-admin-makeadmin"
+></A
+><B
+>A.3.6. </B
+>
+            How do I make a new Bugzilla administrator?
+            The previous administrator is gone...
+          </P
+></DIV
+><DIV
+CLASS="answer"
+><P
+><B
+> </B
+>
+            Run <B
+CLASS="command"
+>checksetup.pl</B
+> with
+            <VAR
+CLASS="option"
+>--make-admin</VAR
+> option.
+            Its usage is <VAR
+CLASS="option"
+>--make-admin=user@example.org</VAR
+>.
+            The user account must be exist in the Bugzilla database.
+          </P
+></DIV
+></DIV
 ></DIV
 ><DIV
 CLASS="qandadiv"
@@ -3092,7 +3136,7 @@ CLASS="answer"
 ><P
 >&#13;            Microsoft has some advice on this matter, as well:
             <A
-NAME="AEN3284"
+NAME="AEN3294"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -3217,8 +3261,13 @@ CLASS="answer"
 ><B
 > </B
 >
-            New in 2.16 - go to the Account section of the Preferences. You
-            will be emailed at both addresses for confirmation.
+            New in 2.16 - you can change it from the Name and Password
+            section in Preferences. You will be emailed at both addresses for
+            confirmation. 'Administrative Policies' must have the
+            'allowemailchange' parameter set to <SPAN
+CLASS="QUOTE"
+>"On"</SPAN
+>.
           </P
 ></DIV
 ></DIV

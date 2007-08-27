@@ -49,6 +49,7 @@ my $Bugzilla_remember;
 my $bug_id;
 my $product_name;
 my $create_file_name;
+my $legal_field_values;
 
 GetOptions('help|h|?'       => \$help,
            'uri=s'          => \$Bugzilla_uri,
@@ -57,7 +58,8 @@ GetOptions('help|h|?'       => \$help,
            'rememberlogin!' => \$Bugzilla_remember,
            'bug_id:s'       => \$bug_id,
            'product_name:s' => \$product_name,
-           'create:s'       => \$create_file_name
+           'create:s'       => \$create_file_name,
+           'field:s'        => \$legal_field_values
           ) or pod2usage({'-verbose' => 0, '-exitval' => 1});
 
 =head1 OPTIONS
@@ -104,6 +106,12 @@ test calls.
 =item --create
 
 Specify a file that contains settings for the creating of a new bug.
+
+=item --field
+
+Pass a field name to get legal values for this field. It must be either a
+global select field (such as bug_status, resolution, rep_platform, op_sys,
+priority, bug_severity) or a custom select field.
 
 =back
 
@@ -216,8 +224,16 @@ if ($bug_id) {
     _die_on_fault($soapresult);
     $result = $soapresult->result;
     my $bug = $result->{bugs}->[0];
-    foreach (keys(%$bug)) {
-        print "$_: $$bug{$_}\n";
+    foreach my $field (keys(%$bug)) {
+        my $value = $bug->{$field};
+        if (ref($value) eq 'HASH') {
+            foreach (keys %$value) {
+                print "$_: " . $value->{$_} . "\n";
+            }
+        }
+        else {
+            print "$field: $value\n";
+        }
     }
 }
 
@@ -269,6 +285,21 @@ if ($create_file_name) {
 
 }
 
+=head2 Getting Legal Field Values
+
+Call C<Bug.legal_values> with the name of the field (including custom
+select fields). The call will return a reference to an array with the
+list of legal values for this field.
+
+=cut
+
+if ($legal_field_values) {
+    $soapresult = $proxy->call('Bug.legal_values', {field => $legal_field_values} );
+    _die_on_fault($soapresult);
+    $result = $soapresult->result;
+
+    print join("\n", @{$result->{values}}) . "\n";
+}
 
 
 =head1 NOTES

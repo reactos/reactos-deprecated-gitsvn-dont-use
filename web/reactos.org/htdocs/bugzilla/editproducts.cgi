@@ -317,7 +317,7 @@ if ($action eq 'new') {
             push(@series, [$resolution, "resolution=" .url_quote($resolution)]);
         }
 
-        # For localisation reasons, we get the name of the "global" subcategory
+        # For localization reasons, we get the name of the "global" subcategory
         # and the title of the "open" query from the submitted form.
         my @openedstatuses = BUG_STATE_OPEN;
         my $query = 
@@ -408,8 +408,15 @@ if ($action eq 'delete') {
 
     $dbh->bz_lock_tables('products WRITE', 'components WRITE',
                          'versions WRITE', 'milestones WRITE',
-                         'group_control_map WRITE',
+                         'group_control_map WRITE', 'component_cc WRITE',
                          'flaginclusions WRITE', 'flagexclusions WRITE');
+
+    my $comp_ids = $dbh->selectcol_arrayref('SELECT id FROM components
+                                             WHERE product_id = ?',
+                                             undef, $product->id);
+
+    $dbh->do('DELETE FROM component_cc WHERE component_id IN
+              (' . join(',', @$comp_ids) . ')') if scalar(@$comp_ids);
 
     $dbh->do("DELETE FROM components WHERE product_id = ?",
              undef, $product->id);

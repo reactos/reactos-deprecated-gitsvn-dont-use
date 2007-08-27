@@ -1142,16 +1142,26 @@ sub match_field {
                 # The field is a requestee field; in order for its name 
                 # to show up correctly on the confirmation page, we need 
                 # to find out the name of its flag type.
-                if ($field_name =~ /^requestee-(\d+)$/) {
-                    require Bugzilla::Flag;
-                    my $flag = new Bugzilla::Flag($1);
-                    $expanded_fields->{$field_name}->{'flag_type'} = 
-                      $flag->type;
-                }
-                elsif ($field_name =~ /^requestee_type-(\d+)$/) {
-                    require Bugzilla::FlagType;
-                    $expanded_fields->{$field_name}->{'flag_type'} = 
-                      new Bugzilla::FlagType($1);
+                if ($field_name =~ /^requestee(_type)?-(\d+)$/) {
+                    my $flag_type;
+                    if ($1) {
+                        require Bugzilla::FlagType;
+                        $flag_type = new Bugzilla::FlagType($2);
+                    }
+                    else {
+                        require Bugzilla::Flag;
+                        my $flag = new Bugzilla::Flag($2);
+                        $flag_type = $flag->type if $flag;
+                    }
+                    if ($flag_type) {
+                        $expanded_fields->{$field_name}->{'flag_type'} = $flag_type;
+                    }
+                    else {
+                        # No need to look for a valid requestee if the flag(type)
+                        # has been deleted (may occur in race conditions).
+                        delete $expanded_fields->{$field_name};
+                        $cgi->delete($field_name);
+                    }
                 }
             }
         }
@@ -1484,6 +1494,16 @@ sub is_insider {
             ($insider_group && $self->in_group($insider_group)) ? 1 : 0;
     }
     return $self->{'is_insider'};
+}
+
+sub is_global_watcher {
+    my $self = shift;
+
+    if (!defined $self->{'is_global_watcher'}) {
+        my @watchers = split(/[,\s]+/, Bugzilla->params->{'globalwatchers'});
+        $self->{'is_global_watcher'} = scalar(grep { $_ eq $self->login } @watchers) ? 1 : 0;
+    }
+    return  $self->{'is_global_watcher'};
 }
 
 sub get_userlist {
@@ -2027,6 +2047,11 @@ moving is enabled.
 
 Returns true if the user can access private comments and attachments,
 i.e. if the 'insidergroup' parameter is set and the user belongs to this group.
+
+=item C<is_global_watcher>
+
+Returns true if the user is a global watcher,
+i.e. if the 'globalwatchers' parameter contains the user.
 
 =back
 

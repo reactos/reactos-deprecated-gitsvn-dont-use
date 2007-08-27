@@ -92,16 +92,25 @@ sub BugInGroupId {
 # If so, then groups may have to be changed when bugs move from
 # one bug to another.
 sub AnyDefaultGroups {
+    my $product_id = shift;
     my $dbh = Bugzilla->dbh;
+    my $grouplist = Bugzilla->user->groups_as_string;
+
+    my $and_product = $product_id ? ' AND product_id = ? ' : '';
+    my @args = (CONTROLMAPDEFAULT);
+    unshift(@args, $product_id) if $product_id;
+
     my $any_default =
-        $dbh->selectrow_array('SELECT 1
+        $dbh->selectrow_array("SELECT 1
                                  FROM group_control_map
                            INNER JOIN groups
                                    ON groups.id = group_control_map.group_id
                                 WHERE isactive != 0
-                                  AND (membercontrol = ? OR othercontrol = ?) ' .
+                                 $and_product
+                                  AND membercontrol = ?
+                                  AND group_id IN ($grouplist) " .
                                  $dbh->sql_limit(1),
-                                 undef, (CONTROLMAPDEFAULT, CONTROLMAPDEFAULT));
+                                undef, @args);
     return $any_default;
 }
 
@@ -197,7 +206,7 @@ foreach my $field ("dependson", "blocked") {
             push @new, $id;
         }
         $cgi->param($field, join(",", @new));
-        my ($added, $removed) = Bugzilla::Util::diff_arrays(\@old, \@new);
+        my ($removed, $added) = diff_arrays(\@old, \@new);
         foreach my $id (@$added , @$removed) {
             # ValidateBugID is called without $field here so that it will
             # throw an error if any of the changed bugs are not visible.
@@ -385,8 +394,10 @@ if (((defined $cgi->param('id') && $cgi->param('product') ne $oldproduct)
     # shown. Also show the verification form if the product-specific fields
     # somehow still need to be verified, or if we need to verify whether or not
     # to add the bugs to their new product's group.
+    my $has_default_groups = AnyDefaultGroups($prod_obj->id);
+
     if (!$vok || !$cok || !$mok || !defined $cgi->param('confirm_product_change')
-        || (AnyDefaultGroups() && !defined $cgi->param('addtonewgroup'))) {
+        || ($has_default_groups && !defined $cgi->param('addtonewgroup'))) {
 
         if (Bugzilla->usage_mode == USAGE_MODE_EMAIL) {
             if (!$vok) {
@@ -449,10 +460,27 @@ if (((defined $cgi->param('id') && $cgi->param('product') ne $oldproduct)
         else {
             $vars->{'verify_fields'} = 0;
         }
-        
-        $vars->{'verify_bug_group'} = (AnyDefaultGroups() 
+
+        $vars->{'verify_bug_group'} = ($has_default_groups
                                        && !defined $cgi->param('addtonewgroup'));
-        
+
+        # Get the ID of groups which are no longer valid in the new product.
+        # If the bug was restricted to some group which still exists in the new
+        # product, leave it alone, independently of your privileges.
+        my $gids =
+          $dbh->selectcol_arrayref("SELECT bgm.group_id
+                                      FROM bug_group_map AS bgm
+                                     WHERE bgm.bug_id IN (" . join(', ', @idlist) . ")
+                                       AND bgm.group_id NOT IN
+                                           (SELECT gcm.group_id
+                                              FROM group_control_map AS gcm
+                                             WHERE gcm.product_id = ?
+                                               AND gcm.membercontrol IN (?, ?, ?))",
+                                     undef, ($prod_obj->id, CONTROLMAPSHOWN,
+                                             CONTROLMAPDEFAULT, CONTROLMAPMANDATORY));
+
+        $vars->{'old_groups'} = Bugzilla::Group->new_from_list($gids);
+
         $template->process("bug/process/verify-new-product.html.tmpl", $vars)
           || ThrowTemplateError($template->error());
         exit;
@@ -805,7 +833,16 @@ foreach my $group (@$groups) {
     # for single bug changes because non-checked checkboxes aren't present.
     # All the checkboxes should be shown in that case, though, so it isn't
     # an issue there
-    if (defined $cgi->param('id') || defined $cgi->param("bit-$b")) {
+    #
+    # For bug updates that come from email_in.pl there will not be any
+    # bit-X fields defined unless the user is explicitly changing the
+    # state of the specified group (by including lines such as @bit-XX = 1
+    # or @bit-XX = 0 in the body of the email).  Therefore if we are in
+    # USAGE_MODE_EMAIL we will only change the group setting if bit-XX
+    # is defined.
+     if ((defined $cgi->param('id') && Bugzilla->usage_mode != USAGE_MODE_EMAIL)
+         || defined $cgi->param("bit-$b"))
+     {
         if (!$cgi->param("bit-$b")) {
             push(@groupDel, $b);
         } elsif ($cgi->param("bit-$b") == 1 && $isactive) {
@@ -923,17 +960,17 @@ if (defined $cgi->param('id')) {
         q{SELECT group_id FROM bug_group_map WHERE bug_id = ?},
         undef, $cgi->param('id'));
     if ( $havegroup ) {
-        DoComma();
-        $cgi->param('reporter_accessible',
-                    $cgi->param('reporter_accessible') ? '1' : '0');
-        $::query .= "reporter_accessible = ?";
-        push(@values, $cgi->param('reporter_accessible'));
-
-        DoComma();
-        $cgi->param('cclist_accessible',
-                    $cgi->param('cclist_accessible') ? '1' : '0');
-        $::query .= "cclist_accessible = ?";
-        push(@values, $cgi->param('cclist_accessible'));
+        foreach my $field ('reporter_accessible', 'cclist_accessible') {
+            if ($bug->check_can_change_field($field, 0, 1, \$PrivilegesRequired)) {
+                DoComma();
+                $cgi->param($field, $cgi->param($field) ? '1' : '0');
+                $::query .= " $field = ?";
+                push(@values, $cgi->param($field));
+            }
+            else {
+                $cgi->delete($field);
+            }
+        }
     }
 }
 
@@ -1900,11 +1937,9 @@ foreach my $id (@idlist) {
             undef, $oldhash{'product_id'}, $product->id, $id);
         my @groupstoremove = ();
         my @groupstoadd = ();
-        my @defaultstoremove = ();
         my @defaultstoadd = ();
         my @allgroups = ();
         my $buginanydefault = 0;
-        my $buginanychangingdefault = 0;
         foreach my $group (@$groups) {
             my ($groupid, $isactive, $oldcontrol, $newcontrol,
                    $useringroup, $bugingroup) = @$group;
@@ -1916,12 +1951,6 @@ foreach my $id (@idlist) {
                 && ($oldcontrol == CONTROLMAPDEFAULT)) {
                 # Bug was in a default group.
                 $buginanydefault = 1;
-                if (($newcontrol != CONTROLMAPDEFAULT)
-                    && ($newcontrol != CONTROLMAPMANDATORY)) {
-                    # Bug was in a default group that no longer is.
-                    $buginanychangingdefault = 1;
-                    push (@defaultstoremove, $groupid);
-                }
             }
             if (($isactive) && (!$bugingroup)
                 && ($newcontrol == CONTROLMAPDEFAULT)
@@ -1938,14 +1967,11 @@ foreach my $id (@idlist) {
                 push(@groupstoadd, $groupid);
             }
         }
-        # If addtonewgroups = "yes", old default groups will be removed
-        # and new default groups will be added.
-        # If addtonewgroups = "yesifinold", old default groups will be removed
-        # and new default groups will be added only if the bug was in ANY
-        # of the old default groups.
-        # If addtonewgroups = "no", old default groups will be removed and not
-        # replaced.
-        push(@groupstoremove, @defaultstoremove);
+        # If addtonewgroups = "yes", new default groups will be added.
+        # If addtonewgroups = "yesifinold", new default groups will be
+        # added only if the bug was in ANY of the old default groups.
+        # If addtonewgroups = "no", old default groups are left alone
+        # and no new default group will be added.
         if (AnyDefaultGroups()
             && (($cgi->param('addtonewgroup') eq 'yes')
             || (($cgi->param('addtonewgroup') eq 'yesifinold')
@@ -2215,6 +2241,9 @@ elsif ($action eq 'next_bug') {
 
 # End the response page.
 unless (Bugzilla->usage_mode == USAGE_MODE_EMAIL) {
+    # The user pref is 'Do nothing', so all we need is the current bug ID.
+    $vars->{'bug'} = {bug_id => scalar $cgi->param('id')};
+
     $template->process("bug/navigate.html.tmpl", $vars)
         || ThrowTemplateError($template->error());
     $template->process("global/footer.html.tmpl", $vars)

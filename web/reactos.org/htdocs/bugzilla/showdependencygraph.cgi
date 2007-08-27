@@ -65,14 +65,12 @@ sub CreateImagemap {
             $default = qq{<area alt="" shape="default" href="$1">\n};
         }
 
-        if ($line =~ /^rectangle \((.*),(.*)\) \((.*),(.*)\) (http[^ ]*)(.*)?$/) {
-            my ($leftx, $rightx, $topy, $bottomy, $url) = ($1, $3, $2, $4, $5);
+        if ($line =~ /^rectangle \((.*),(.*)\) \((.*),(.*)\) (http[^ ]*) (\d+)(\\n.*)?$/) {
+            my ($leftx, $rightx, $topy, $bottomy, $url, $bugid) = ($1, $3, $2, $4, $5, $6);
 
             # Pick up bugid from the mapdata label field. Getting the title from
             # bugtitle hash instead of mapdata allows us to get the summary even
             # when showsummary is off, and also gives us status and resolution.
-
-            my ($bugid) = ($6 =~ /^\s*(\d+)/);
             my $bugtitle = value_quote($bugtitles{$bugid});
             $map .= qq{<area alt="bug $bugid" name="bug$bugid" shape="rect" } .
                     qq{title="$bugtitle" href="$url" } .
@@ -251,7 +249,7 @@ if ($webdotbase =~ /^https?:/) {
     # Under mod_perl, pngfilename will have an absolute path, and we
     # need to make that into a relative path.
     my $cgi_root = bz_locations()->{cgi_path};
-    $pngfilename =~ s/^\Q$cgi_root\E//;
+    $pngfilename =~ s#^\Q$cgi_root\E/?##;
     
     $vars->{'image_url'} = $pngfilename;
 

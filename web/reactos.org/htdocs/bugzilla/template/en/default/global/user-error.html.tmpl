@@ -225,7 +225,7 @@
   [% ELSIF error == "buglist_parameters_required" %]
     [% title = "Parameters Required" %]
     [% docslinks = {'query.html' => "Searching for $terms.bugs",
-                    'list.html'  => "$terms.Bug lists"} %]
+                    'query.html#list' => "$terms.Bug lists"} %]
     You may not search, or create saved searches, without any search terms.
 
   [% ELSIF error == "bugs_not_changed" %]
@@ -617,12 +617,12 @@
     You entered <tt>[% value FILTER html %]</tt>, which isn't.
     
   [% ELSIF error == "illegal_attachment_edit" %]
-    [% title = "Unauthorised Action" %]
-    You are not authorised to edit attachment [% attach_id FILTER html %].
+    [% title = "Unauthorized Action" %]
+    You are not authorized to edit attachment [% attach_id FILTER html %].
 
   [% ELSIF error == "illegal_attachment_edit_bug" %]
-    [% title = "Unauthorised Action" %]
-    You are not authorised to edit attachments on [% terms.bug %] 
+    [% title = "Unauthorized Action" %]
+    You are not authorized to edit attachments on [% terms.bug %] 
     [%+ bug_id FILTER html %].
          
   [% ELSIF error == "illegal_attachment_is_patch" %]
@@ -704,12 +704,12 @@
   [% ELSIF error == "illegal_series_creation" %]
     [% admindocslinks = {'groups.html' => 'Group security'} %]
     [% docslinks = {'reporting.html' => 'Reporting'} %]
-    You are not authorised to create series.
+    You are not authorized to create series.
         
   [% ELSIF error == "illegal_series_edit" %]
     [% admindocslinks = {'groups.html' => 'Group security'} %]
     [% docslinks = {'reporting.html' => 'Reporting'} %]
-    You are not authorised to edit this series. To do this, you must either
+    You are not authorized to edit this series. To do this, you must either
     be its creator, or an administrator.
         
   [% ELSIF error == "insufficient_data_points" %]
@@ -967,7 +967,7 @@
   [% ELSIF error == "missing_query" %]
     [% title = "Missing Search" %]
     [% docslinks = {'query.html' => "Searching for $terms.bugs",
-                    'list.html'  => "$terms.Bug lists"} %]
+                    'query.html#list' => "$terms.Bug lists"} %]
     The search named <em>[% queryname FILTER html %]</em>
     [% IF sharer_id && sharer_id != user.id %]
       has not been made visible to you.
@@ -1261,12 +1261,26 @@
 
   [% ELSIF error == "query_name_missing" %]
     [% title = "No Search Name Specified" %]
-    [% docslinks = {'list.html' => "About $terms.bug lists"} %]
+    [% docslinks = {'query.html#list' => "$terms.Bug lists"} %]
     You must enter a name for your search.
 
   [% ELSIF error == "query_name_too_long" %]
     [% title = "Query Name Too Long" %]
     The name of the query must be less than 64 characters long.
+
+  [% ELSIF error == "quicksearch_unknown_field" %]
+    [% title = "Unknown QuickSearch Field" %]
+    [% IF fields.unique.size == 1 %]
+      Field <code>[% fields.first FILTER html %]</code> is not a known field.
+    [% ELSE %]
+      Fields
+      [% FOREACH field = fields.unique.sort %]
+         <code>[% field FILTER html %]</code>
+         [% ', ' UNLESS loop.last() %]
+      [% END %]
+      are not known fields.
+    [% END %]
+    The legal field names are <a href="page.cgi?id=quicksearchhack.html">listed here</a>.
 
   [% ELSIF error == "reassign_to_empty" %]
     [% title = "Illegal Reassignment" %]
@@ -1479,7 +1493,8 @@
 
   [% ELSIF error == "zero_length_file" %]
     [% title = "File Is Empty" %]
-    The file you are trying to attach is empty!
+    The file you are trying to attach is empty, does not exist, or you don't
+    have permission to read it.
 
   [% ELSIF error == "illegal_user_id" %]
     [% title = "Illegal User ID" %]

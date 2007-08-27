@@ -1,9 +1,9 @@
 
-The Bugzilla Guide - 3.0 Release
+The Bugzilla Guide - 3.0.1 Release
 
 The Bugzilla Team
 
-   2007-05-09
+   2007-08-23
 
    This is the documentation for Bugzilla, a bug-tracking system from
    mozilla.org. Bugzilla is an enterprise-class piece of software that tracks
@@ -71,7 +71,7 @@ The Bugzilla Team
         5.12. Flags
         5.13. Whining
 
-   6. Customising Bugzilla
+   6. Customizing Bugzilla
 
         6.1. Custom Skins
         6.2. Template Customization
@@ -175,7 +175,7 @@ Chapter 1. About This Guide
 
 1.3. New Versions
 
-   This is the 3.0 version of The Bugzilla Guide. It is so named to match the
+   This is the 3.0.1 version of The Bugzilla Guide. It is so named to match the
    current version of Bugzilla.
 
    The latest version of this guide can always be found at
@@ -188,7 +188,7 @@ Chapter 1. About This Guide
    languages: French, German, Japanese. Note that these may be outdated or not
    up to date.
 
-   In addition, there are Bugzilla template localisation projects in the
+   In addition, there are Bugzilla template localization projects in the
    following languages. They may have translated documentation available:
    Arabic, Belarusian, Bulgarian, Brazilian Portuguese, Chinese, French,
    German, Italian, Japanese, Korean, Russian and Spanish.
@@ -2717,8 +2717,10 @@ Support: ENTRY, DEFAULT/MANDATORY, CANEDIT
    when new releases are available, based on the upgrade_notification
    parameter, see Section 3.1. Administrators will see these notifications when
    they access the index.cgi page, i.e. generally when logging in. Bugzilla
-   will check once a week for new releases, unless the parameter is set to
-   "disabled".
+   will check once per day for new releases, unless the parameter is set to
+   "disabled". If you are behind a proxy, you may have to set the proxy_url
+   parameter accordingly. If the proxy requires authentication, use the
+   http://user:pass@proxy_url/ syntax.
      _________________________________________________________________
 
 3.14.3. Upgrading - Methods and Procedure
@@ -3072,7 +3074,7 @@ Chapter 5. Using Bugzilla
    If you want to use Bugzilla, first you need to create an account. Consult
    with the administrator responsible for your installation of Bugzilla for the
    URL you should use to access it. If you're test-driving Bugzilla, use this
-   URL: http://landfill.bugzilla.org/bugzilla-tip/.
+   URL: http://landfill.bugzilla.org/bugzilla-3.0-branch/.
 
     1. On the home page index.cgi, click the "Open a new Bugzilla account"
        link, or the "New Account" link available in the footer of pages. Now
@@ -3159,7 +3161,7 @@ Chapter 5. Using Bugzilla
    10. Version: The "Version" field is usually used for versions of a product
        which have been released, and is set to indicate which versions of a
        Component have the particular problem the bug report is about.
-   11. Priority: The bug assignee uses this field to prioritise his or her
+   11. Priority: The bug assignee uses this field to prioritize his or her
        bugs. It's a good idea not to change this on other people's bugs.
    12. Severity: This indicates how severe the problem is - from blocker
        ("application unusable") to trivial ("minor cosmetic issue"). You can
@@ -3212,7 +3214,7 @@ Chapter 5. Using Bugzilla
 
    The Bugzilla Search page is the interface where you can find any bug report,
    comment, or patch currently in the Bugzilla system. You can play with it
-   here: http://landfill.bugzilla.org/bugzilla-tip/query.cgi.
+   here: http://landfill.bugzilla.org/bugzilla-3.0-branch/query.cgi.
 
    The Search page has controls for selecting different possible values for all
    of the fields in a bug, as described above. For some fields, multiple values
@@ -3227,8 +3229,8 @@ Chapter 5. Using Bugzilla
    that other users may use them. At the same place, you can see Saved Searches
    other users are sharing, and have them show up in your personal Bugzilla
    footer along with your own Saved Searches. If somebody is sharing a Search
-   with a group she or he is allowed to assign users to, it will show up in the
-   group's direct members' footers by default.
+   with a group she or he is allowed to assign users to, the sharer may opt to
+   have the Search show up in the group's direct members' footers by default.
      _________________________________________________________________
 
 5.5.1. Boolean Charts
@@ -3670,7 +3672,7 @@ Chapter 5. Using Bugzilla
 
 5.10. User Preferences
 
-   Once you have logged in, you can customise various aspects of Bugzilla via
+   Once you have logged in, you can customize various aspects of Bugzilla via
    the "Edit prefs" link in the page footer. The preferences are split into
    three tabs:
      _________________________________________________________________
@@ -4065,7 +4067,7 @@ Chapter 5. Using Bugzilla
       your modifications.
      _________________________________________________________________
 
-Chapter 6. Customising Bugzilla
+Chapter 6. Customizing Bugzilla
 
 6.1. Custom Skins
 
@@ -4377,8 +4379,8 @@ BuildID: 20020303
    template hook.
 
    Code hooks appear in Bugzilla source files as a single method call in the
-   format Bugzilla::Hook->process("name");. for instance, enter_bug.cgi may
-   invoke the hook "enter_bug-defaultvars". Thus, a source file at
+   format Bugzilla::Hook->process("name");. For instance, enter_bug.cgi may
+   invoke the hook "enter_bug-entrydefaultvars". Thus, a source file at
    BUGZILLA_ROOT/extensions/EXTENSION_NAME/code/enter_bug-entrydefaultvars.pl
    will be automatically invoked when the code hook is reached.
 
@@ -4730,6 +4732,9 @@ Appendix A. The Bugzilla FAQ
         A.3.4. How do I make it so that bugs can have an UNCONFIRMED status? 
         A.3.5. How do I move a Bugzilla installation from one machine to
                 another? 
+
+        A.3.6. How do I make a new Bugzilla administrator? The previous
+                administrator is gone... 
 
    4. Bugzilla Security
 
@@ -5219,6 +5224,13 @@ password=mypassword
    the backup you made in step 1, run checksetup.pl. This will upgrade your
    database (if necessary), rebuild your templates, etc.
 
+   A.3.6. How do I make a new Bugzilla administrator? The previous
+   administrator is gone...
+
+   Run checksetup.pl with --make-admin option. Its usage is
+   --make-admin=user@example.org. The user account must be exist in the
+   Bugzilla database.
+
 4. Bugzilla Security
 
    A.4.1. How do I completely disable MySQL security if it's giving me
@@ -5469,8 +5481,10 @@ shell> mysql
 
    A.8.1. How do I change my user name (email address) in Bugzilla?
 
-   New in 2.16 - go to the Account section of the Preferences. You will be
-   emailed at both addresses for confirmation.
+   New in 2.16 - you can change it from the Name and Password section in
+   Preferences. You will be emailed at both addresses for confirmation.
+   'Administrative Policies' must have the 'allowemailchange' parameter set to
+   "On".
 
    A.8.2. The query page is very confusing. Isn't there a simpler way to query?
 
@@ -5823,7 +5837,7 @@ C.1. Command-line Search Interface
    line. They live in the contrib/cmdline directory. There are three files -
    query.conf, buglist and bugs.
 
-   Warning These files pre-date the templatisation work done as part of the
+   Warning These files pre-date the templatization work done as part of the
       2.16 release, and have not been updated.
 
    query.conf contains the mapping from options to field names and comparison

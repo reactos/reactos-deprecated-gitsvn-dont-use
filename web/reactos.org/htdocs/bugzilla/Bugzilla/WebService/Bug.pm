@@ -70,6 +70,13 @@ sub get_bugs {
         ValidateBugID($bug_id);
         my $bug = new Bugzilla::Bug($bug_id);
 
+        # Timetracking fields are deleted if the user doesn't belong to
+        # the corresponding group.
+        unless (Bugzilla->user->in_group(Bugzilla->params->{'timetrackinggroup'})) {
+            delete $bug->{'estimated_time'};
+            delete $bug->{'remaining_time'};
+            delete $bug->{'deadline'};
+        }
         # This is done in this fashion in order to produce a stable API.
         # The internals of Bugzilla::Bug are not stable enough to just
         # return them directly.
@@ -130,6 +137,8 @@ sub legal_values {
 
     my @custom_select =
         Bugzilla->get_fields({ type => FIELD_TYPE_SINGLE_SELECT });
+    # We only want field names.
+    @custom_select = map {$_->name} @custom_select;
 
     my $values;
     if (grep($_ eq $field, GLOBAL_SELECT_FIELDS, @custom_select)) {
