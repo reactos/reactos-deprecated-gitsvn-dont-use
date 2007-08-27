@@ -7,14 +7,25 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#ifdef __APPLE__
+#include <sys/sysctl.h>
+#endif
 
 int
 main(int argc,
      char *argv[])
 {
-	printf( "%u\n", 
-           sysconf(_SC_NPROCESSORS_ONLN) );
+	int cpuCount = 0;
+
+#ifdef __APPLE__
+	size_t countSize = sizeof(cpuCount);
+
+	sysctlbyname("hw.logicalcpu", &cpuCount, &countSize, NULL, 0);
+#else
+	cpuCount = sysconf(_SC_NPROCESSORS_ONLN); 
+#endif
+
+	printf( "%u\n", cpuCount);
 
 	return 0;
 }
-
