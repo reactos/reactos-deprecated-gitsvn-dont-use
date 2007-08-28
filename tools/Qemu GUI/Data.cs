@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -256,7 +256,7 @@ namespace Qemu_GUI
 
             /* No vga output */
             if (this.VGA)
-                buffer += "-nographic ";
+                buffer += "-nographic "; //doesnt seem to work on windows
 
             /* Fullscreen */
             if (this.Fullscreen)
@@ -526,10 +526,6 @@ namespace Qemu_GUI
     {
         [XmlAttribute("Image")]
         public string Image;
-        [XmlAttribute("UseFromHost")]
-        public bool UseFromHost;
-        [XmlAttribute("HostDrive")]
-        public string HostDrive;
         [XmlAttribute("Enabled")]
         public bool Enabled;
 
@@ -538,10 +534,7 @@ namespace Qemu_GUI
             string buffer = "";
             if (this.Enabled)
             {
-                if (this.UseFromHost)
-                    buffer = "-cdrom //./PhysicalDrive1 ";// + this.HostDrive + " ";//-cdrom //./d:
-
-                else if (this.Image.Length > 0)
+                if (this.Image.Length > 0)
                     buffer = "-cdrom \"" + this.Image + "\" ";
             }
             return buffer;
@@ -566,60 +559,49 @@ namespace Qemu_GUI
 
     public class Network
     {
+
+
         [XmlAttribute("Enabled")]
         public bool Enabled;
+        [XmlAttribute("Count")]
+        public int Count;
 
-        [XmlAttribute("VNicString")]
-        public string VNicString;
+        [XmlArray("VNicStrings")]
+        [XmlArrayItem("VNicString")]
+        public string[] VNicStrings;
 
-        public string[] VNicStringReader()
+        public Network()
         {
-
-
-            string[] buffer = new string[1];
-            int j = 0;
-            char[] chararray;
-            bool start = false;
-
-            /* we have no adaptors */
-            if (this.VNicString == null)
-                return null;
-            else
-                chararray = this.VNicString.ToCharArray();
-
-            /* This is not a real adaptor, skip it */
-            if (this.VNicString == "-net none ")
-            {
-                buffer[j] = "ignore";
-                j++; //if we are here there should NOT be any other -net options, but just in case...
-            }
-            else
-
-            for (int i = 0; i < chararray.Length; i++)
-            {
-
-                if (chararray[i] == '-') //we found the start of a -net string
-                    start = true;
-                if (start == true)
-                {
-                    buffer[j] += chararray[i];
-                }
-                else
-                {
-                    start = false;
-                    j++;
-                }
-            }
-            return buffer;
+            VNicStrings = new string[1];
+            Count = 0;
         }
 
+        public void AddNetString(string lan)
+        {
+            Enabled = true;
+            Count++;
+            string[] temp = new string[Count];
+            for (int i = 0; i < Count; i++)
+            {
+                if (i == Count - 1)
+                    temp[i] = lan;
+                else
+                    temp[i] = VNicStrings[i];
+            }
+            
+            VNicStrings = temp;
+        }
+
+        public string[] GetNetStrings()
+        {
+            return VNicStrings;
+        }
 
         public override string ToString()
         {
             string buffer = "";
-            foreach(VLan lan in MainForm.VLanlist)
-                buffer += lan.ToString();
-
+            foreach(string lan in VNicStrings)
+                buffer += lan;
             return buffer;
         }
     }

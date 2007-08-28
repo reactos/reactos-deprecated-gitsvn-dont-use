@@ -4,6 +4,8 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Security.Permissions;
+using System.Security.Principal;
 
 namespace Qemu_GUI
 {
@@ -26,8 +28,12 @@ namespace Qemu_GUI
             p.EnableRaisingEvents = true;
             p.Exited += new EventHandler(ProcessStop);
 
-            //FIXME: remove when pipe client works
             temp_path = Application.StartupPath + "\\";
+        }
+
+        public void StopQemu()
+        {
+            p.CloseMainWindow();
         }
 
         public bool StartQemu(Platforms Platform)
@@ -58,10 +64,15 @@ namespace Qemu_GUI
                     break;
             }
 
+            if (!File.Exists(p.StartInfo.FileName))
+            {
+                MessageBox.Show("Required qemu executable does not exist in path", "Error - Qemu path");
+                return false;
+            }
+
             if (data.Debug.SerialPort.SRedirect)
             {
                 /* create a random name */
-                //FIXME: rewrite when pipe client works
                 string filename = "serial" + DateTime.UtcNow.Ticks.ToString() + ".txt";
                 data.Debug.SerialPort.FileName = temp_path + filename;
             }
@@ -75,18 +86,9 @@ namespace Qemu_GUI
                    
                     output = new DebugForm();
 
-                    /* create a random name */
-                    //FIXME: rewrite when pipe client works
+                    /* create a unic name */
                     string filename = "serial" + DateTime.UtcNow.Ticks.ToString() + ".txt";
                     data.Debug.SerialPort.FileName = temp_path + filename;
-                    if (File.Exists(data.Debug.SerialPort.FileName))
-                    {
-                        try
-                        {
-                            File.Delete(data.Debug.SerialPort.FileName);
-                        }
-                        catch { }
-                    }
                 }
                 p.StartInfo.Arguments = data.GetArgv();
             }
@@ -125,6 +127,12 @@ namespace Qemu_GUI
             string argv = " create -f " + Format + " \"" + FileName + "\" " + d.ToString();
 
             p.StartInfo.FileName = data.Paths.Qemu + "\\qemu-img.exe";
+
+            if (!File.Exists(p.StartInfo.FileName))
+            {
+                MessageBox.Show("qemu-img.exe does not existin path", "Error - Qemu path");
+                return false;
+            }
             p.StartInfo.WorkingDirectory = data.Paths.Qemu;
             p.StartInfo.Arguments = argv;
             try
@@ -150,6 +158,19 @@ namespace Qemu_GUI
 
         public bool MountImage()
         {
+            WindowsPrincipal prin = new WindowsPrincipal(WindowsIdentity.GetCurrent());
+            PrincipalPermission perm = new PrincipalPermission(prin.Identity.ToString(), WindowsBuiltInRole.Administrator.ToString());
+
+            try
+            {
+                perm.Demand();
+            }
+            catch
+            {
+                MessageBox.Show("Request for Administrator privilages failed.\n VDK may not function.","Info");
+                //return false;
+            }
+
             bool success = StartVdkService();
 
             if (success == true)
@@ -168,8 +189,7 @@ namespace Qemu_GUI
                     success = false;
                 }
             }
-            
-            if (success == false)
+            else
             {
                 ErrorForm error = new ErrorForm();
                 error.txtError.Text = ErrBuffer;
@@ -198,9 +218,10 @@ namespace Qemu_GUI
                 error.ShowDialog();
                 return false;
             }
+            StopVdkService();
             return true;
         }
-
+        
         private bool StartVdkService()
         {
             string buffer;
@@ -227,7 +248,21 @@ namespace Qemu_GUI
             }
             else
                 return true;
-
+        }
+        private void StopVdkService()
+        {
+            p.StartInfo.FileName = data.Paths.VDK + "\\vdk.exe";
+            p.StartInfo.WorkingDirectory = data.Paths.VDK;
+            p.StartInfo.Arguments = "stop";
+            try
+            {
+                p.Start();
+            }
+            catch
+            {
+                //if we cant execute vdk.exe, this doesnt matter.
+                //if we failed to stop the vdk for some other reason, we cant do anything about it.
+            }
         }
 
         public void ProcessStop(object sender, EventArgs e)
