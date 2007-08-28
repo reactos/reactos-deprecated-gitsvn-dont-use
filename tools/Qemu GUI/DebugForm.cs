@@ -3,8 +3,6 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
-
 
 namespace Qemu_GUI
 {
@@ -26,18 +24,21 @@ namespace Qemu_GUI
         }
         public void Listen(Process p, string Talker)
         {
+            if (p.HasExited)
+                return;
+
             proc = p;
             talker = Talker;
 
             start = new ThreadStart(ThreadProc);
             worker = new Thread(start);
-            worker.Priority = ThreadPriority.BelowNormal;//let other apps like qemu run before us.
+            worker.Priority = ThreadPriority.Normal;
             this.Show();//show the dialog
             worker.Start();
         }
         private void ThreadProc()
         {
-            FileStream log;
+            FileStream log = null;
             txtDebug.Text = "";
             string buffer = "";
             string temp = "";
@@ -48,30 +49,30 @@ namespace Qemu_GUI
                 log = new FileStream(talker, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
                 while (!proc.HasExited)
                 {
-
                     int data = log.ReadByte();
                     if (data != -1)
                     {
+                        worker.Priority = ThreadPriority.Normal;
                         buffer += Convert.ToChar(data);
+
+                        if (buffer.Contains("\n"))
+                        {
+                            temp = txtDebug.Text + buffer;
+                            txtDebug.Text = "";
+                            txtDebug.SelectedText = temp;
+                            buffer = "";
+                        }
                     }
                     else
-                        Thread.Sleep(250);//wait a 1/4 of a second for more data
-
-                    if (buffer.Contains("\n"))
-                    {
-                        temp = txtDebug.Text + buffer;
-                        txtDebug.Text = "";
-                        txtDebug.SelectedText = temp;
-                        buffer = "";
-                    }
+                        worker.Priority = ThreadPriority.Lowest;
+                        //Thread.Sleep(50);//wait a 1/4 of a second for more data
                 }
 
                 temp = txtDebug.Text + buffer;
                 txtDebug.Text = "";
                 txtDebug.SelectedText = temp;
-
-                DeleteTalker();
                 log.Close();
+                DeleteTalker();
                 //txtDebug.Text += "QEMU GUI: Exited listener!" + Environment.NewLine;
             }
             catch (Exception e)
@@ -79,36 +80,34 @@ namespace Qemu_GUI
                 /* fix me: writting to a form from a diferent thread, unsafe. */
                 try
                 {
+                    log.Close();
                     txtDebug.Text += "QEMU GUI: Exited listener on exception!" + Environment.NewLine;
                     txtDebug.Text += e.Message;
                 }
                 catch
                 {}
-                DeleteTalker();
             }
+            log.Close();
             DeleteTalker();
         }
          private void DeleteTalker()
          {
-             int attempts = 0;
              /* sometimes it takes a while for qemu to free the handle to the file */
-             
+
              while (File.Exists(talker))
              {
-                 try
+                 if (proc.HasExited)
                  {
-                     File.Delete(talker);
-                 }
-                 catch
-                 {
-                     // if (File.Exists(data.Debug.SerialPort.FileName))
-                     // MessageBox.Show("Warning temporary file still exists!");
-                 }
-                 attempts++;
-                 Thread.Sleep(150);
-                 if (attempts > 15)
-                 {
-                     break;//we've spent 2.25minutes here.. just give up.
+                     worker.Priority = ThreadPriority.Lowest;
+
+                     try
+                     {
+                         File.Delete(talker);
+                         if (!File.Exists(talker))
+                             break;
+                     }
+                     catch
+                     { }
                  }
              }
              //MessageBox.Show("Temp File deleted!");

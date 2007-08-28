@@ -174,10 +174,29 @@
       <SubType>Designer</SubType>
       <DependentUpon>AboutForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\audio.bmp" />
-    <Content Include="Resources\copy.bmp" />
+    <Content Include="Resources\add.png" />
+    <Content Include="Resources\audio.png" />
+    <Content Include="Resources\copy.png" />
+    <Content Include="Resources\del.png" />
+    <None Include="Resources\direct\advanced.ico" />
+    <None Include="Resources\direct\memory.ico" />
+    <None Include="Resources\direct\power.ico" />
+    <None Include="Resources\direct\harddisk.ico" />
+    <None Include="Resources\direct\cdrom.ico" />
+    <None Include="Resources\direct\debug.ico" />
+    <None Include="Resources\direct\network.ico" />
+    <Content Include="Resources\exit.png" />
+    <Content Include="Resources\help.png" />
+    <Content Include="Resources\machine.png" />
+    <Content Include="Resources\launch.png" />
+    <Content Include="Resources\MainSaveIcon.bmp" />
+    <Content Include="Resources\mount.png" />
+    <Content Include="Resources\preferences-system.png" />
+    <Content Include="Resources\save.png" />
+    <Content Include="Resources\screenshot.png" />
+    <Content Include="Resources\snapshot.png" />
+    <Content Include="Resources\stop.png" />
     <Content Include="ros.ico" />
-    <None Include="Resources\save.bmp" />
   </ItemGroup>
   <ItemGroup>
     <BaseApplicationManifest Include="Properties\app.manifest" />
