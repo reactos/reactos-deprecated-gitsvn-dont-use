@@ -31,6 +31,7 @@
 	
 	
 	function generate_page_output_update($g_data_id, $g_lang_id, $g_page_dynida) {
+		//echo "<p>!!generate_page_output_update(".$g_data_id.", ".$g_lang_id.", ".$g_page_dynida.")</p>";
 		global $roscms_standard_language;
 
 		$query_data = mysql_query("SELECT * 
@@ -70,7 +71,7 @@
 				generate_page_output($result_data['data_name'], $tmp_lang, $g_page_dynida);
 				break;
 			case 'template':
-				echo "<p>generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
+				echo "<p>(a) generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
 				generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 				break;
 			case 'content':
@@ -82,12 +83,12 @@
 					generate_page_output($result_data['data_name'], $tmp_lang, $g_page_dynida);
 				}
 				else {
-					echo "<p>generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
+					echo "<p>(b) generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
 					generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 				}
 				break;
 			case 'script':
-				echo "<p>generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
+				echo "<p>(c) generate_update_helper(".$tmp_lang.", ".$result_data['data_type'].", ".$result_data['data_name'].")</p>";
 				generate_update_helper($tmp_lang, $result_data['data_type'], $result_data['data_name']);
 				break;
 			default:

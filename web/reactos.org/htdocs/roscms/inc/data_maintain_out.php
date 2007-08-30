@@ -71,7 +71,8 @@
 									AND data_type = '".mysql_real_escape_string($RosCMS_GET_d_value2)."'
 									LIMIT 1;");
 		$result_entry = mysql_fetch_array($query_entry);
-		
+
+		//echo "<p>generate_page_output_update(".$result_entry['data_id'].", ".$RosCMS_GET_d_value3.", ".$RosCMS_GET_d_value4.")</p>";
 		echo generate_page_output_update($result_entry['data_id'], $RosCMS_GET_d_value3, $RosCMS_GET_d_value4);
 	}
 ?>

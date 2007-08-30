@@ -1214,6 +1214,7 @@
 	
 	function changetags($entr_count, $entr_revid, $entr_flag) {
 		global $roscms_intern_account_id;
+		global $roscms_standard_language;
 		global $RosCMS_GET_debug;
 		global $h_a;
 		global $h_a2;
@@ -1251,8 +1252,9 @@
 					if ($RosCMS_GET_debug) echo "<li>".$entry_ids2[0]." == ".$entry_ids2[1]."</li>";
 					
 					$query_rev_data = mysql_query("SELECT * 
-													FROM data_revision 
-													WHERE rev_id = '".mysql_real_escape_string($entry_ids2[1])."' 
+													FROM data_revision r, data_ d
+													WHERE r.rev_id = '".mysql_real_escape_string($entry_ids2[1])."' 
+													AND r.data_id = d.data_id 
 													LIMIT 1;");
 					$result_rev_data = mysql_fetch_array($query_rev_data);
 	
@@ -1343,8 +1345,24 @@
 							
 							// generate related pages
 							require("inc/data_export_page.php");
-							log_event_generate_low("+++++ [generate_page_output_update(".$result_rev_data['data_id'].", ".$result_revision_stable['rev_language'].", ".$temp_dynamic.")]");
-							generate_page_output_update($result_rev_data['data_id'], $result_revision_stable['rev_language'], $temp_dynamic);
+							
+							if ($result_revision_stable['rev_language'] == "") {
+								$tmp_lang = $roscms_standard_language;
+							}
+							else {
+								$tmp_lang = $result_revision_stable['rev_language'];
+							}
+							
+							$query_entry = mysql_query("SELECT data_id 
+														FROM data_ 
+														WHERE data_name = '".mysql_real_escape_string($result_rev_data['data_name'])."'
+														AND data_type = 'page'
+														LIMIT 1;");
+							$result_entry = mysql_fetch_array($query_entry);	
+													
+							log_event_generate_low("+++++ [generate_page_output_update(".$result_rev_data['data_id'].", ".$tmp_lang.", ".$temp_dynamic.")]");
+							if ($RosCMS_GET_debug) echo "<p>! generate_page_output_update(".$result_rev_data['data_id'].", ".$tmp_lang.", ".$temp_dynamic.")</p>";
+							echo generate_page_output_update($result_entry['data_id'], $tmp_lang, $temp_dynamic);
 						}
 						else {
 							echo "Only 'new' entries can be made stable";
