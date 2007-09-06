@@ -7,7 +7,7 @@
 - Other small Bugfixes (Daniel Reimer)
 - Updated to NSIS 2.30. (Daniel Reimer)
 - Updated Binutils 2.17.50 to Build 20070806 (Daniel Reimer)
-- Updated: GCC 4.1.3 Build 20070826 (Daniel Reimer)
+- Updated: GCC 4.1.3 Build 20070829 (Daniel Reimer)
 
 *** Aug XXst, 2007 - RosBE 0.3.7.2 Released (Unsupported)
 

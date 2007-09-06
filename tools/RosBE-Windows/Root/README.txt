@@ -16,7 +16,7 @@ mingw-runtime-3.13
 w32api-3.10
 mingw32-make-3.81-2
 nasm-0.99.02-win32
-mingw-4.1.3-20070826-prerelease
+mingw-4.1.3-20070829-prerelease
     - Patched to fix a GCC bug concerning
       decorating virtual methods with stdcall
       in C++, see GCC issue:
