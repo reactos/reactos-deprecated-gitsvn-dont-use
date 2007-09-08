@@ -187,15 +187,6 @@ SET /P D="(0), (1)"
 sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
 cls
 
-echo Whether to compile with NT-compatible LPC Semantics. This should
-echo always be 1.
-echo.
-echo Right now
-grep \"NTLPC\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
-SET /P E="(0), (1)"
-sed "s/\"NTLPC\" value=\"[0-1]\"/\"NTLPC\" value=\"%E%\"/g" "%ROSBEBASEDIR%\config8.rbuild" > "%ROSBEBASEDIR%\config9.rbuild"
-cls
-
 echo Whether to compile with the KD protocol. This will disable support for
 echo KDBG as well as rossym and symbol lookups, and allow WinDBG to connect
 echo to ReactOS. This is currently not fully working, and requires kdcom
