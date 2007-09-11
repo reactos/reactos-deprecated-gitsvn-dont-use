@@ -1,30 +1,22 @@
-*** Oct XXth, 2007 - RosBE 0.3.8 Released
+*** Sep 11th, 2007 - RosBE 0.3.8 Released
 
-- Added DrFred's Config Tool. (Daniel Reimer)
-- Added ShortCut Tool. (Daniel Reimer)
-- Updated w32api-3.9 to w32api-3.10. (except float.h which breaks build) (Daniel Reimer)
-- Updated mingw-runtime-3.12 to mingw-runtime-3.13. (Daniel Reimer)
-- Other small Bugfixes (Daniel Reimer)
-- Updated to NSIS 2.30. (Daniel Reimer)
-- Updated Binutils 2.17.50 to Build 20070806 (Daniel Reimer)
+- Updated: w32api-3.9 to w32api-3.10. (except float.h which breaks build) (Daniel Reimer)
+- Updated: mingw-runtime-3.12 to mingw-runtime-3.13. (Daniel Reimer)
+- Updated: to NSIS 2.30. (Daniel Reimer)
+- Updated: Binutils 2.17.50 to Build 20070806 (Daniel Reimer)
 - Updated: GCC 4.1.3 Build 20070829 (Daniel Reimer)
-
-*** Aug XXst, 2007 - RosBE 0.3.7.2 Released (Unsupported)
-
-- Updated NASM to 0.99.02 (Daniel Reimer, David Leon)
-- Updated Binutils 2.17.50 to Build 20070730 (Hervé Poussineau, David Leon, Daniel Reimer)
-  (Small modification by Hervé Poussineau in LD to fix Bug 1244)
-- Fixed the double \\ Bug introduced in 0.3.7. (Daniel Reimer)
-- Added Build Begin Time into Topic. (Daniel Reimer)
-- Added svnversion. (Daniel Reimer)
-- Updated Tools. (Daniel Reimer)
-- sSVN asks you if you wanna update if Offline Source Tree is old. (Daniel Reimer)
-- Fixed DOZENS of bugs/stupid coded parts/things you could get easier... (Daniel Reimer)
-- Add a new option called update to Config.cmd and add some security stuff. (Daniel Reimer)
-
-*** July 26th, 2007 - RosBE 0.3.7.1 Released
-
+- Updated: SVN 1.44 -> 1.45. (Daniel Reimer)
+- Updated: NASM to 0.99.02 (Daniel Reimer, David Leon)
+- Updated: Tools. (Daniel Reimer)
+- Added: DrFred's Config Tool. (Daniel Reimer)
+- Added: ShortCut Tool. (Daniel Reimer)
+- Added: Build Begin Time into Topic. (Daniel Reimer)
+- Added: svnversion. (Daniel Reimer)
+- Fixed: Double \\ Bug introduced in 0.3.7. (Daniel Reimer)
 - Fixed: "No SVN Tree found" message in Vista. (Daniel Reimer)
+- Fixed: DOZENS of bugs/stupid coded parts/things you could get easier... (Daniel Reimer)
+- sSVN asks you if you wanna update if Offline Source Tree is old. (Daniel Reimer)
+- Add a new option called update to Config.cmd and add some security stuff. (Daniel Reimer)
 - All commands use the current dir now. SO you can use several SVN Source Trees now. (Daniel Reimer)
 
 *** July 22nd, 2007 - RosBE 0.3.7 Released
