@@ -1216,6 +1216,7 @@
 		global $roscms_intern_account_id;
 		global $roscms_standard_language;
 		global $RosCMS_GET_debug;
+		global $roscms_security_level;
 		global $h_a;
 		global $h_a2;
 		
@@ -1302,26 +1303,44 @@
 						log_event_low("mark entry as stable: data-id ".$result_rev_data['data_id'].", rev-id ".$result_rev_data['rev_id'].log_prep_info($result_rev_data['data_id'], $result_rev_data['rev_id'])."{changetags}");
 					
 						if ($result_rev_data['rev_version'] == 0) {
+
+							$temp_dynamic = getTagValue($result_rev_data['data_id'], $result_rev_data['rev_id'],  '-1', 'number'); // get dynamic content number
+
+							if ($RosCMS_GET_debug) echo "<p>dyn-cont-number: ".$temp_dynamic."</p>";			
+
+							$roscms_sql_tags = "";
+							$roscms_sql_tags2 = "";
+							$roscms_sql_tags3 = "";
+
+							if ($temp_dynamic != "") {
+								$roscms_sql_tags .= ", data_tag a, data_tag_name n, data_tag_value v ";
+								$roscms_sql_tags2 .= ", n.tn_name, v.tv_value ";
+								$roscms_sql_tags3 .= " AND r.data_id = a.data_id 
+														AND r.rev_id = a.data_rev_id 
+														AND a.tag_usrid = '-1' 
+														AND a.tag_name_id = n.tn_id  
+														AND n.tn_name = 'number'  
+														AND a.tag_value_id  = v.tv_id
+														AND v.tv_value = '".mysql_real_escape_string($temp_dynamic)."' ";			
+							}
+
 							$query_revision_stable = mysql_query("SELECT * 
-																	FROM data_revision 
-																	WHERE data_id = '".mysql_real_escape_string($result_rev_data['data_id'])."'
-																	AND rev_version > 0
-																	AND rev_language = '".mysql_real_escape_string($result_rev_data['rev_language'])."'
-																	ORDER BY rev_version DESC, rev_id DESC 
+																	FROM data_revision r ".$roscms_sql_tags."
+																	WHERE r.data_id = '".mysql_real_escape_string($result_rev_data['data_id'])."'
+																	AND r.rev_version > 0
+																	AND r.rev_language = '".mysql_real_escape_string($result_rev_data['rev_language'])."'
+																	".$roscms_sql_tags3."
+																	ORDER BY r.rev_version DESC, r.rev_id DESC 
 																	LIMIT 1;");
 							$result_revision_stable = mysql_fetch_array($query_revision_stable);
-							
+
 							$temp_version = 1;
 							
-							$temp_dynamic = getTagValue($result_rev_data['data_id'], $result_rev_data['rev_id'],  '-1', 'number'); // get dynamic content number
-							
-							if ($RosCMS_GET_debug) echo "<p>dyn-cont-number: ".$temp_dynamic."</p>";			
-							
-							if ($result_revision_stable['rev_id'] != "" && $temp_dynamic == "") { // no stable entry exist, so skip move-process
+							if ($result_revision_stable['rev_id'] != "") { // no stable entry exist, so skip move-process
 								$temp_version = $result_revision_stable['rev_version'];
 								$temp_version++;
 								
-								if ($RosCMS_GET_debug) echo "<p>old v.: ".$result_revision_stable['rev_version']."; new v.: ".$temp_version."</p>";
+								if ($RosCMS_GET_debug) echo "<p>### old v.: ".$result_revision_stable['rev_version']."; new v.: ".$temp_version."</p>";
 								
 								// delete old tag(s)
 								$delete_old_tags = mysql_query("DELETE FROM data_tag WHERE data_rev_id = '".mysql_real_escape_string($result_rev_data['rev_id'])."' AND data_id = '".mysql_real_escape_string($result_rev_data['data_id'])."';");						
@@ -1361,7 +1380,9 @@
 							$result_entry = mysql_fetch_array($query_entry);	
 													
 							log_event_generate_low("+++++ [generate_page_output_update(".$result_rev_data['data_id'].", ".$tmp_lang.", ".$temp_dynamic.")]");
+							
 							if ($RosCMS_GET_debug) echo "<p>! generate_page_output_update(".$result_rev_data['data_id'].", ".$tmp_lang.", ".$temp_dynamic.")</p>";
+							
 							echo generate_page_output_update($result_entry['data_id'], $tmp_lang, $temp_dynamic);
 						}
 						else {
@@ -1717,6 +1738,10 @@
 			$temp_dynamic = getTagValue($RosCMS_GET_d_id, $RosCMS_GET_d_r_id,  '-1', 'number');
 			if ($result_edit_mef_data['data_type'] == "content" && $temp_dynamic != "") {
 				echo "_".$temp_dynamic;
+				echo "<div id=\"entryeditdynnbr\" style=\"display:none;\">".$temp_dynamic."</div>";
+			}
+			else {
+				echo "<div id=\"entryeditdynnbr\" style=\"display:none;\">no</div>";
 			}
 		?>
 		</span> &nbsp; <span style="white-space: nowrap;">type: <span class="frmeditheader"><?php echo $result_edit_mef_data['data_type']; ?></span></span> &nbsp; 

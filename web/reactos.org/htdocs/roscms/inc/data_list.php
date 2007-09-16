@@ -2199,7 +2199,7 @@
 												cmdbarstr += cmdhtml_select_mn;
 												cmdbarstr += cmdhtml_select_ms;
 												cmdbarstr += cmdhtml_select_va;
-												cmdbarstr += cmdhtml_select_xe;
+												cmdbarstr += cmdhtml_select_xe2;
 												cmdbarstr += cmdhtml_select2;
 												break;
 											case 'page':
@@ -2626,7 +2626,7 @@
 										
 //										alert('save_draft::::::::\n\n '+poststr.substr(1));
 										
-										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURIComponent(did)+'&d_r_id='+encodeURIComponent(drid)+'&d_r_lang='+encodeURIComponent(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURIComponent(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURIComponent(document.getElementById("estextcount").className)+'&d_val2='+encodeURIComponent(document.getElementById("elmcount").className)+'&d_val3=draft';
+										usf_req = '?page=data_out&d_f=text&d_u=asi&d_fl=new&d_id='+encodeURIComponent(did)+'&d_r_id='+encodeURIComponent(drid)+'&d_r_lang='+encodeURIComponent(document.getElementById("mefrlang").innerHTML)+'&d_r_ver='+encodeURIComponent(document.getElementById("mefrverid").innerHTML)+'&d_val='+encodeURIComponent(document.getElementById("estextcount").className)+'&d_val2='+encodeURIComponent(document.getElementById("elmcount").className)+'&d_val3=draft&d_val4='+encodeURIComponent(document.getElementById("entryeditdynnbr").innerHTML);
 										<?php if ($RosCMS_GET_debug) { ?>
 											debugLog(usf_req);
 										<?php } ?>
