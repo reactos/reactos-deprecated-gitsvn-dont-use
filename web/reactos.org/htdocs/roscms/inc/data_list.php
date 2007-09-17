@@ -3361,18 +3361,13 @@
 				alertbox('Action performed');
 				break;
 			case 'changetags2':
-				//alert('!!! changetags !!!'+http_request.responseText);
 				<?php
 					if ($RosCMS_GET_debug) {
 						echo " alert('!!! changetags(*ms*): '+http_request.responseText); ";
 					}
 				?>
 				load_frametable_cp(0);
-				<?php
-					if (!$RosCMS_GET_debug) {
-						echo " alertbox('Page generation process finished'); ";
-					}
-				?>
+				alertbox(http_request.responseText);
 				break;
 			case 'editalterfields':
 				//alert('!!! saved?: '+http_request.responseText);

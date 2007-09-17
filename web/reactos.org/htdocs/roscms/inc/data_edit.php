@@ -914,6 +914,7 @@
 														FROM data_revision r, data_tag a, data_tag_name n, data_tag_value v 
 														WHERE r.data_id  = '".mysql_real_escape_string($RosCMS_GET_d_id)."'
 														AND r.rev_language = '".mysql_real_escape_string($RosCMS_GET_d_r_lang)."'
+														AND r.rev_version > 0 
 														AND r.data_id = a.data_id 
 														AND r.rev_id = a.data_rev_id 
 														AND (a.tag_usrid = '-1') 
@@ -1247,6 +1248,7 @@
 			}
 			else {
 				if ($RosCMS_GET_debug) echo "<ul>";
+				
 				for ($i=0; $i < count($entry_ids); $i++) {
 				
 					$entry_ids2 = split("_", $entry_ids[$i]);
@@ -1258,6 +1260,22 @@
 													AND r.data_id = d.data_id 
 													LIMIT 1;");
 					$result_rev_data = mysql_fetch_array($query_rev_data);
+
+					if (($entr_flag == "ms" || $entr_flag == "mn") && $roscms_security_level > 1) {
+						if (roscms_security_grp_member("transmaint")) {
+	
+							$query_account_lang = @mysql_query("SELECT user_language FROM users WHERE user_id = '".mysql_real_escape_string($roscms_intern_account_id)."'");
+							$result_account_lang = @mysql_fetch_array($query_account_lang);
+							
+							if ($result_account_lang['user_language'] == "") {
+								die("Set a valid language in your myReactOS account settings!");
+							}
+							else if ($result_account_lang['user_language'] != $result_rev_data['data_id']) {
+								echo "As Language Maintainer you can only mark entries of '".$result_account_lang['user_language']."' language as new!";
+								continue;
+							}
+						}
+					}
 	
 	
 					$t_tagid = "";
@@ -1289,11 +1307,8 @@
 					}
 
 					
-					if ($entr_flag == "ms") {
-						// @todo: check that only one entry per name is stable, promt a decicion-box, if an entry should be moved to archive
-						tag_add($result_rev_data['data_id'], $result_rev_data['rev_id'], "status" /* name */, "stable" /* value */, "-1" /* usrid */);
-					}
-					else if ($entr_flag == "mn") {
+					// 'mn': mark as new
+					if ($entr_flag == "mn") {
 						tag_add($result_rev_data['data_id'], $result_rev_data['rev_id'], "status" /* name */, "new" /* value */, "-1" /* usrid */);
 					}
 					
@@ -1301,7 +1316,10 @@
 					// 'ms': mark as stable
 					if ($entr_flag == "ms") {
 						log_event_low("mark entry as stable: data-id ".$result_rev_data['data_id'].", rev-id ".$result_rev_data['rev_id'].log_prep_info($result_rev_data['data_id'], $result_rev_data['rev_id'])."{changetags}");
-					
+
+
+						tag_add($result_rev_data['data_id'], $result_rev_data['rev_id'], "status" /* name */, "stable" /* value */, "-1" /* usrid */);
+
 						if ($result_rev_data['rev_version'] == 0) {
 
 							$temp_dynamic = getTagValue($result_rev_data['data_id'], $result_rev_data['rev_id'],  '-1', 'number'); // get dynamic content number
@@ -1383,13 +1401,14 @@
 							
 							if ($RosCMS_GET_debug) echo "<p>! generate_page_output_update(".$result_rev_data['data_id'].", ".$tmp_lang.", ".$temp_dynamic.")</p>";
 							
-							echo generate_page_output_update($result_entry['data_id'], $tmp_lang, $temp_dynamic);
+							//echo generate_page_output_update($result_entry['data_id'], $tmp_lang, $temp_dynamic);
+							echo "Page generation process finished";
 						}
 						else {
 							echo "Only 'new' entries can be made stable";
 						}
 					}
-					
+
 					// 'mn': mark as new
 					if ($entr_flag == "mn") {
 						$update_rev_ver = mysql_query("UPDATE data_revision SET rev_version = '0' WHERE rev_id = '".mysql_real_escape_string($result_rev_data['rev_id'])."' LIMIT 1;");
