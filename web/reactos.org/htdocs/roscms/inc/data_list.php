@@ -1382,7 +1382,7 @@
 						load_frametable('my');
 						break;
 					case '12':
-						filtstring2 = 'k_is_archive_0|c_is_type_0|l_is_'+getlang()+'_0|o_asc_name';
+						filtstring2 = 'k_is_archive_0|c_is_version_0|c_is_type_0|l_is_'+getlang()+'_0|o_asc_name|o_desc_ver';
 						roscms_archive = 1; /* activate archive mode*/
 						load_frametable('archive');
 						break;
@@ -1758,11 +1758,11 @@
 														break;
 													case 'c': /* column */
 														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option></select>';
-														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="language">Language</option><option value="user">User</option><option value="type">Type</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="rights"<?php echo $cbm_item_hide; ?>>Rights</option><?php } ?></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="language">Language</option><option value="user">User</option><option value="type">Type</option><option value="version">Version</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="rights"<?php echo $cbm_item_hide; ?>>Rights</option><?php } ?></select>';
 														break;
 													case 'o': /* order by */
 														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="asc">Ascending</option><option value="desc">Descending</option></select>';
-														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="datetime">Date &amp; Time</option><option value="name">Name</option><option value="lang">Language</option><option value="usr">User</option><option value="type">Type</option><option value="nbr">Number ("dynamic" entry)</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="revid"<?php echo $cbm_item_hide; ?>>RevID</option><option value="ext"<?php echo $cbm_item_hide; ?>>Extension</option><option value="status"<?php echo $cbm_item_hide; ?>>Status</option><option value="kind"<?php echo $cbm_item_hide; ?>>Kind</option><?php } ?></select>';
+														filtentryselstrs2 = '<select id="sfc'+filterid+'"><option value="datetime">Date &amp; Time</option><option value="name">Name</option><option value="lang">Language</option><option value="usr">User</option><option value="type">Type</option><option value="ver">Version</option><option value="nbr">Number ("dynamic" entry)</option><?php if ($roscms_security_level > 1) { ?><option value="security"<?php echo $cbm_item_hide; ?>>Security</option><option value="revid"<?php echo $cbm_item_hide; ?>>RevID</option><option value="ext"<?php echo $cbm_item_hide; ?>>Extension</option><option value="status"<?php echo $cbm_item_hide; ?>>Status</option><option value="kind"<?php echo $cbm_item_hide; ?>>Kind</option><?php } ?></select>';
 														break;
 													case 'i': /* security (ACL) */
 														filtentryselstrs1 = '<select id="sfb'+filterid+'"><option value="is">is</option><option value="no">is not</option></select>';

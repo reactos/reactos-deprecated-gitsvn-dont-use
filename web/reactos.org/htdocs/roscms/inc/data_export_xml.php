@@ -172,6 +172,9 @@
 								case "usr": // user
 									$roscms_mtbl_order .= "r.rev_usrid ".$roscms_d_f2_typeb.", ";
 									break;
+								case "ver": // version
+									$roscms_mtbl_order .= "r.rev_version ".$roscms_d_f2_typeb.", ";
+									break;
 								case "nbr": // number ("dynamic" entry)
 									$roscms_d_tags_counter++;
 									$roscms_mtbl_order .= " v".$roscms_d_tags_counter.".tv_value ".$roscms_d_f2_typeb.", ";
@@ -808,6 +811,9 @@
 							break;
 						case "Rights":
 							$roscms_mtbl_cols2 .= roscms_security_explain($tblentry_d_id2) ."|";
+							break;
+						case "Version":
+							$roscms_mtbl_cols2 .= $tblentry_d_r_ver ."|";
 							break;
 					}
 				}
