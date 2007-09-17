@@ -1492,6 +1492,24 @@
 				load_frametable_cp(tcp);
 			}
 
+
+			function load_frametable_cp3(tcp) {
+				if (document.getElementById('frametable').style.display != 'block') {
+					document.getElementById('frametable').style.display = 'block';
+					document.getElementById('frameedit').style.display = 'none';
+				}
+
+				window.clearTimeout(alertactiv); /* deactivate alert-timer */
+				document.getElementById('alertb').style.visibility = 'hidden';
+				document.getElementById('alertbc').innerHTML = '&nbsp;';
+				select_all(0); /* deselect all table entries */
+					
+				
+				<?php if ($RosCMS_GET_debug) { ?>
+					debugLog('?page=data_out&d_f=xml&d_u=ptm&d_fl='+roscms_current_page+'&d_filter='+filtstring1+'&d_filter2='+filtstring2);
+				<?php } ?>
+				makeRequest('?page=data_out&d_f=xml&d_u=ptm&d_fl='+roscms_current_page+'&d_filter='+filtstring1+'&d_filter2='+filtstring2, 'ptm', 'tablist', 'xml', 'GET', '');
+			}
 			
 			function load_frameedit_helper() {
 				if (document.getElementById('frameedit').style.display != 'block') {
@@ -2086,7 +2104,7 @@
 												
 												userlang = favlang;
 												filtpopulate(filtstring2);
-												load_frametable_cp2(roscms_current_tbl_position);
+												load_frametable_cp3(roscms_current_tbl_position);
 											}
 											
 											function getlang() {
