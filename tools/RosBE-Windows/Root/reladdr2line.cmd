@@ -49,7 +49,7 @@ for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do SET 
 if %%i LSS %_2% (
     raddr2line "%_1%" "%_2%" 2>NUL
 ) else (
-    set /a baseaddr += 0x%_2%
+    set /a baseaddr+=0x%_2%
     for /f %%i in ('"echoh %baseaddr%"') do set relbase=%%i
     raddr2line "%_1%" "%relbase%" 2>NUL
 )
