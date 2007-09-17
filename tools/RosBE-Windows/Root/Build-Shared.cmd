@@ -13,12 +13,13 @@
 ::
 :: Take over the 2nd parameter of Build.cmd, which enables/disables stripping.
 ::
+
 if "%1" == "strip" (
-    set ROS_LEAN_AND_MEAN = yes
+    set ROS_LEAN_AND_MEAN=yes
     goto :Build
 )
 if "%1"  == "" (
-    set ROS_LEAN_AND_MEAN = no
+    set ROS_LEAN_AND_MEAN=no
     goto :Build
 )
 
