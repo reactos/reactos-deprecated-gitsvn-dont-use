@@ -1270,7 +1270,7 @@
 							if ($result_account_lang['user_language'] == "") {
 								die("Set a valid language in your myReactOS account settings!");
 							}
-							else if ($result_account_lang['user_language'] != $result_rev_data['data_id']) {
+							else if ($result_account_lang['user_language'] != $result_rev_data['rev_language']) {
 								echo "As Language Maintainer you can only mark entries of '".$result_account_lang['user_language']."' language as new!";
 								continue;
 							}
