@@ -121,7 +121,7 @@ echo.
 echo Right now
 grep \"OARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P XX=
-sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" "%ROSBEBASEDIR%\config2.rbuild" > "%ROSBEBASEDIR%\config21.rbuild"
+sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" "%ROSBEBASEDIR%\config2.rbuild" > "%ROSBEBASEDIR%\config3.rbuild"
 cls
 
 echo What level do you want ReactOS to be optimized at.
@@ -134,7 +134,7 @@ echo.
 echo Right now
 grep \"OPTIMIZE\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P Y="(0), (1), (2), (3), (4), (5)"
-sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%ROSBEBASEDIR%\config21.rbuild" > "%ROSBEBASEDIR%\config3.rbuild"
+sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%ROSBEBASEDIR%\config3.rbuild" > "%ROSBEBASEDIR%\config4.rbuild"
 cls
 
 echo Whether to compile for an uniprocessor or multiprocessor machine.
@@ -143,7 +143,7 @@ echo.
 echo Right now
 grep \"MP\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P Z="(0), (1)"
-sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%ROSBEBASEDIR%\config3.rbuild" > "%ROSBEBASEDIR%\config4.rbuild"
+sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%ROSBEBASEDIR%\config4.rbuild" > "%ROSBEBASEDIR%\config5.rbuild"
 cls
 
 echo Whether to compile in the integrated kernel debugger.
@@ -152,7 +152,7 @@ echo.
 echo Right now
 grep \"KDBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P A="(0), (1)"
-sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%ROSBEBASEDIR%\config4.rbuild" > "%ROSBEBASEDIR%\config5.rbuild"
+sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%ROSBEBASEDIR%\config5.rbuild" > "%ROSBEBASEDIR%\config6.rbuild"
 cls
 
 echo Whether to compile for debugging. No compiler optimizations will be
@@ -162,7 +162,7 @@ echo.
 echo Right now
 grep \"DBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P B="(0), (1)"
-sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%ROSBEBASEDIR%\config5.rbuild" > "%ROSBEBASEDIR%\config6.rbuild"
+sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%ROSBEBASEDIR%\config6.rbuild" > "%ROSBEBASEDIR%\config7.rbuild"
 cls
 
 echo Whether to compile for debugging with GDB. If you don't use GDB,
@@ -172,7 +172,7 @@ echo.
 echo Right now
 grep \"GDB\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P C="(0), (1)"
-sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%ROSBEBASEDIR%\config6.rbuild" > "%ROSBEBASEDIR%\config7.rbuild"
+sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
 cls
 
 echo Whether to compile apps/libs with features covered software patents
@@ -184,7 +184,7 @@ echo.
 echo Right now
 grep \"NSWPAT\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P D="(0), (1)"
-sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
+sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config8.rbuild" > "%ROSBEBASEDIR%\config9.rbuild"
 cls
 
 echo Whether to compile with the KD protocol. This will disable support for
