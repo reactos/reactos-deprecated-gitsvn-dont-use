@@ -19,11 +19,6 @@ if "%1" == "" (
         echo Cleaning ReactOS source directory...
 
         ::
-        : Run ReactOS's make clean.
-        ::
-        "%_MINGWMAKE%" clean 1> NUL 2> NUL
-
-        ::
         : Remove directories/makefile.auto created by the build.
         ::
         if exist "obj-i386\." (
