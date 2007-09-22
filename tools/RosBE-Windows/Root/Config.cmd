@@ -121,6 +121,9 @@ echo.
 echo Right now
 grep \"OARCH\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P XX=
+if "%XX%" == "" (
+    SET XX=pentium
+)
 sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" "%ROSBEBASEDIR%\config2.rbuild" > "%ROSBEBASEDIR%\config3.rbuild"
 cls
 
@@ -134,6 +137,9 @@ echo.
 echo Right now
 grep \"OPTIMIZE\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P Y="(0), (1), (2), (3), (4), (5)"
+if "%Y%" == "" (
+    SET Y=1
+)
 sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%ROSBEBASEDIR%\config3.rbuild" > "%ROSBEBASEDIR%\config4.rbuild"
 cls
 
@@ -143,6 +149,9 @@ echo.
 echo Right now
 grep \"MP\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P Z="(0), (1)"
+if "%Z%" == "" (
+    SET Z=0
+)
 sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%ROSBEBASEDIR%\config4.rbuild" > "%ROSBEBASEDIR%\config5.rbuild"
 cls
 
@@ -152,6 +161,9 @@ echo.
 echo Right now
 grep \"KDBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P A="(0), (1)"
+if "%A%" == "" (
+    SET A=0
+)
 sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%ROSBEBASEDIR%\config5.rbuild" > "%ROSBEBASEDIR%\config6.rbuild"
 cls
 
@@ -162,6 +174,9 @@ echo.
 echo Right now
 grep \"DBG\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P B="(0), (1)"
+if "%B%" == "" (
+    SET B=1
+)
 sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%ROSBEBASEDIR%\config6.rbuild" > "%ROSBEBASEDIR%\config7.rbuild"
 cls
 
@@ -172,6 +187,9 @@ echo.
 echo Right now
 grep \"GDB\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P C="(0), (1)"
+if "%C%" == "" (
+    SET C=0
+)
 sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%ROSBEBASEDIR%\config7.rbuild" > "%ROSBEBASEDIR%\config8.rbuild"
 cls
 
@@ -184,6 +202,9 @@ echo.
 echo Right now
 grep \"NSWPAT\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P D="(0), (1)"
+if "%D%" == "" (
+    SET D=0
+)
 sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%ROSBEBASEDIR%\config8.rbuild" > "%ROSBEBASEDIR%\config9.rbuild"
 cls
 
@@ -198,6 +219,9 @@ echo.
 echo Right now
 grep \"_WINKD_\" "%ROSBEBASEDIR%\config.rbuild"|cut -d "\"" -f 4
 SET /P F="(0), (1)"
+if "%F%" == "" (
+    SET F=0
+)
 sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%ROSBEBASEDIR%\config9.rbuild" > "%ROSBEBASEDIR%\config10.rbuild"
 
 ::
