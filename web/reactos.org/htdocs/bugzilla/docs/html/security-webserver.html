@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 3.0.1  Release"
+TITLE="The Bugzilla Guide - 3.0.2  Release"
 HREF="index.html"><LINK
 REL="UP"
 TITLE="Bugzilla Security"
@@ -37,7 +37,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 3.0.1  Release</TH
+>The Bugzilla Guide - 3.0.2  Release</TH
 ></TR
 ><TR
 ><TD
@@ -352,82 +352,6 @@ HREF="configuration.html#http"
 ></TR
 ></TABLE
 ></DIV
-></DIV
-><DIV
-CLASS="section"
-><H2
-CLASS="section"
-><A
-NAME="security-webserver-mod-throttle"
->4.3.2. Using <TT
-CLASS="filename"
->mod_throttle</TT
-> to Prevent a DOS</A
-></H2
-><DIV
-CLASS="note"
-><P
-></P
-><TABLE
-CLASS="note"
-WIDTH="100%"
-BORDER="0"
-><TR
-><TD
-WIDTH="25"
-ALIGN="CENTER"
-VALIGN="TOP"
-><IMG
-SRC="../images/note.gif"
-HSPACE="5"
-ALT="Note"></TD
-><TD
-ALIGN="LEFT"
-VALIGN="TOP"
-><P
->This section only applies to people who have chosen the Apache
-        webserver. It may be possible to do similar things with other
-        webservers. Consult the documentation that came with your webserver
-        to find out.
-        </P
-></TD
-></TR
-></TABLE
-></DIV
-><P
->It is possible for a user, by mistake or on purpose, to access
-      the database many times in a row which can result in very slow access
-      speeds for other users (effectively, a
-      <A
-HREF="glossary.html#gloss-dos"
-><I
-CLASS="glossterm"
->DOS</I
-></A
-> attack). If your
-      Bugzilla installation is experiencing this problem, you may install
-      the Apache module <TT
-CLASS="filename"
->mod_throttle</TT
-> which can limit
-      connections by IP address. You may download this module at 
-      <A
-HREF="http://www.snert.com/Software/mod_throttle/"
-TARGET="_top"
->http://www.snert.com/Software/mod_throttle/</A
->.
-      Follow the instructions to install into your Apache install. 
-      The command you need is 
-      <B
-CLASS="command"
->ThrottleClientIP</B
->. See the 
-      <A
-HREF="http://www.snert.com/Software/mod_throttle/"
-TARGET="_top"
->documentation</A
->
-      for more information.</P
 ></DIV
 ></DIV
 ><DIV

@@ -84,6 +84,7 @@ use constant WS_ERROR_CODE => {
     # User errors are 500-600.
     account_exists        => 500,
     illegal_email_address => 501,
+    account_creation_disabled   => 501,
     password_too_short    => 502,
     password_too_long     => 503,
     invalid_username      => 504,
@@ -105,7 +106,7 @@ use constant ERROR_GENERAL       => 999;
 use constant LOGIN_EXEMPT => {
     # Callers may have to know the Bugzilla version before logging in,
     # even on a requirelogin installation.
-    Bugzilla => ['version'],
+    Bugzilla => ['version', 'timezone'],
     User     => ['offer_account_by_email', 'login'],
 };
 

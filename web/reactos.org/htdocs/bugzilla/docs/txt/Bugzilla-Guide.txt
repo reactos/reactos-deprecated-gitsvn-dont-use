@@ -1,9 +1,9 @@
 
-The Bugzilla Guide - 3.0.1 Release
+The Bugzilla Guide - 3.0.2 Release
 
 The Bugzilla Team
 
-   2007-08-23
+   2007-09-18
 
    This is the documentation for Bugzilla, a bug-tracking system from
    mozilla.org. Bugzilla is an enterprise-class piece of software that tracks
@@ -175,7 +175,7 @@ Chapter 1. About This Guide
 
 1.3. New Versions
 
-   This is the 3.0.1 version of The Bugzilla Guide. It is so named to match the
+   This is the 3.0.2 version of The Bugzilla Guide. It is so named to match the
    current version of Bugzilla.
 
    The latest version of this guide can always be found at
@@ -3024,22 +3024,6 @@ skip-networking
       server you use.
      _________________________________________________________________
 
-4.3.2. Using mod_throttle to Prevent a DOS
-
-   Note This section only applies to people who have chosen the Apache
-   webserver. It may be possible to do similar things with other webservers.
-      Consult the documentation that came with your webserver to find out.
-
-   It is possible for a user, by mistake or on purpose, to access the database
-   many times in a row which can result in very slow access speeds for other
-   users (effectively, a DOS attack). If your Bugzilla installation is
-   experiencing this problem, you may install the Apache module mod_throttle
-   which can limit connections by IP address. You may download this module at
-   http://www.snert.com/Software/mod_throttle/. Follow the instructions to
-   install into your Apache install. The command you need is ThrottleClientIP.
-   See the documentation for more information.
-     _________________________________________________________________
-
 4.4. Bugzilla
 
 4.4.1. Prevent users injecting malicious Javascript
@@ -4659,17 +4643,13 @@ Appendix A. The Bugzilla FAQ
         A.1.7. Why doesn't Bugzilla offer this or that feature or compatibility
                 with this other tracking software? 
 
-        A.1.8. Why MySQL? I'm interested in seeing Bugzilla run on
-                PostgreSQL/Sybase/Oracle/Msql/MSSQL. 
+        A.1.8. What databases does Bugzilla run on? 
+        A.1.9. My perl is located at /usr/local/bin/perl and not /usr/bin/perl.
+                Is there an easy to change that in all the files that have this
+                hard-coded? 
 
-        A.1.9. What is /usr/bonsaitools/bin/perl? 
-        A.1.10. My perl is located at /usr/local/bin/perl and not
-                /usr/bin/perl. Is there an easy to change that in all the
-                files that have this hard-coded? 
-
-        A.1.11. Is there an easy way to change the Bugzilla cookie name? 
-        A.1.12. Does bugzilla run under mod_perl? 
-        A.1.13. How can Bugzilla be made to work under SELinux? 
+        A.1.10. Is there an easy way to change the Bugzilla cookie name? 
+        A.1.11. How can Bugzilla be made to work under SELinux? 
 
    2. Managerial Questions
 
@@ -4755,7 +4735,7 @@ Appendix A. The Bugzilla FAQ
         A.5.3. I want whineatnews.pl to whine at something other than new and
                 reopened bugs. How do I do it? 
 
-        A.5.4. How do I set up the email interface to submit/change bugs via
+        A.5.4. How do I set up the email interface to submit or change bugs via
                 email? 
 
         A.5.5. Email takes FOREVER to reach me from Bugzilla -- it's extremely
@@ -4775,7 +4755,7 @@ Appendix A. The Bugzilla FAQ
         A.6.4. How do I synchronize bug information among multiple different
                 Bugzilla databases? 
 
-   7. Bugzilla and Win32
+   7. Can Bugzilla run on a Windows server?
 
         A.7.1. What is the easiest way to run Bugzilla on Win32 (Win98+/NT/2K)?
                 
@@ -4891,50 +4871,28 @@ Appendix A. The Bugzilla FAQ
    never contributed anything to Bugzilla before, please be sure to read the
    Developers' Guide and Contributors' Guide before going ahead.
 
-   A.1.8. Why MySQL? I'm interested in seeing Bugzilla run on
-   PostgreSQL/Sybase/Oracle/Msql/MSSQL.
+   A.1.8. What databases does Bugzilla run on?
 
-   MySQL was originally chosen because it is free, easy to install, and was
-   available for the hardware Netscape intended to run it on.
+   MySQL is the default database for Bugzilla. It was originally chosen because
+   it is free, easy to install, and was available for the hardware Netscape
+   intended to run it on.
 
-   Bugzilla 2.20 contains experimental support for PostgreSQL. Bugzilla 2.22
-   contains complete, stable support for PostgreSQL. As of this release, using
-   PostgreSQL with Bugzilla should be as stable as using MySQL. If you
-   experience any problems with PostgreSQL compatibility, they will be taken as
-   seriously as if you were running MySQL.
+   As of Bugzilla 2.22, complete support for PostgreSQL is included. With this
+   release using PostgreSQL with Bugzilla should be as stable as using MySQL.
+   If you experience any problems with PostgreSQL compatibility, they will be
+   taken as seriously as if you were running MySQL.
 
-   Red Hat once ran a version of Bugzilla that worked on Oracle, but that was
-   long, long ago; that version (Bugzilla 2.8) is now obsolete, insecure, and
-   totally unsupported.
+   There are plans to include an Oracle driver for Bugzilla 3.1.2. Track
+   progress at Bug 189947.
 
-   In August of 2005, Wim Coekaerts (Director of Linux Engineering at Oracle
-   Corporation) wrote to Dave Miller confirming that Oracle intends to
-   implement and support Bugzilla. Since then, no further information has been
-   forthcoming. Track progress at Bug 189947.
-
-   Sybase support is no longer being worked on. Even if it eventually happens,
-   it's VERY unlikely to work without the end-user-company having to stick a
-   few developers on making several manual changes. Sybase is just NOT very
-   standards-compliant (despite all the hype), and it turned out that way too
-   much had to be changed to make it work -- like moving half of the
-   application logic into stored procedures to get any kind of decent
-   performance out of it. Bug 173130 is the relevant bug.
+   Sybase support was worked on for a time. However, several complicating
+   factors have prevented Sybase support from being realized. There are
+   currently no plans to revive it.
 
    Bug 237862 is a good bug to read through if you'd like to see what progress
    is being made on general database compatibility.
 
-   A.1.9. What is /usr/bonsaitools/bin/perl?
-
-   Bugzilla used to have the path to perl on the shebang line set to
-   /usr/bonsaitools/bin/perl because when Terry first started writing the code
-   for mozilla.org he needed a version of Perl and other tools that were
-   completely under his control. This location was abandoned for the 2.18
-   release in favor of the more sensible /usr/bin/perl. If you installed an
-   older version of Bugzilla and created the symlink we suggested, you can
-   remove it now (provided that you don't have anything else, such as Bonsai,
-   using it and you don't intend to reinstall an older version of Bugzilla).
-
-   A.1.10. My perl is located at /usr/local/bin/perl and not /usr/bin/perl. Is
+   A.1.9. My perl is located at /usr/local/bin/perl and not /usr/bin/perl. Is
    there an easy to change that in all the files that have this hard-coded?
 
    The easiest way to get around this is to create a link from one to the
@@ -4956,7 +4914,7 @@ C:\mysql\bin\replace "#!/usr/bin/perl" "#!C:\perl\bin\perl" -- *.cgi *.pl
    /usr/bin/perl. (For more information on the test suite, please check out the
    appropriate section in the Developers' Guide.) Having done this, run the
    test itself:
-perl runtests.pl 2 --verbose
+            perl runtests.pl 2 --verbose
 
    to ensure that you've modified all the relevant files.
 
@@ -4968,23 +4926,18 @@ perl runtests.pl 2 --verbose
    it with a default value of "<full path to perl> -T", e.g.
    "C:\Perl\bin\perl.exe -T".
 
-   A.1.11. Is there an easy way to change the Bugzilla cookie name?
+   A.1.10. Is there an easy way to change the Bugzilla cookie name?
 
    At present, no.
 
-   A.1.12. Does bugzilla run under mod_perl?
+   A.1.11. How can Bugzilla be made to work under SELinux?
 
-   At present, no. Work is slowly taking place to remove global variables, use
-   $cgi, and use DBI. These are all necessary for mod_perl (as well as being
-   good for other reasons). Visit bug 87406 to view the discussion and
-   progress.
-
-   A.1.13. How can Bugzilla be made to work under SELinux?
-
-   Unfortunately there are no step-by-step instructions, but the following URL
-   contains hints on how to do it:
-   http://fedora.redhat.com/docs/selinux-apache-fc3/sn-debugging-and-customizin
-   g.html
+   As a web application, Bugzilla simply requires its root directory to have
+   the httpd context applied for it to work properly under SELinux. This should
+   happen automatically on distributions that use SELinux and that package
+   Bugzilla (if it is installed with the native package management tools).
+   Information on how to view and change SELinux file contexts can be found at
+   the SELinux FAQ.
 
 2. Managerial Questions
 
@@ -5001,8 +4954,8 @@ perl runtests.pl 2 --verbose
    progression states, also require adjusting the program logic to compensate
    for the change.
 
-   There is no GUI for adding fields to Bugzilla at this time. You can follow
-   development of this feature in bug 91037
+   As of Bugzilla 3.0 custom fields can be created via the "Custom Fields"
+   admin page.
 
    A.2.3. Does Bugzilla provide any reporting features, metrics, graphs, etc?
    You know, the type of stuff that management likes to see. :)
@@ -5077,9 +5030,10 @@ perl runtests.pl 2 --verbose
 
    A.2.9. Are there any backup features provided?
 
-   MySQL, the database back-end for Bugzilla, allows hot-backup of data. You
-   can find strategies for dealing with backup considerations at
-   http://www.mysql.com/doc/B/a/Backup.html.
+   You should use the backup options supplied by your database platform. Vendor
+   documentation for backing up a MySQL database can be found at
+   http://www.mysql.com/doc/B/a/Backup.html. PostgreSQL backup documentation
+   can be found at http://www.postgresql.org/docs/8.0/static/backup.html.
 
    A.2.10. What type of human resources are needed to be on staff to install
    and maintain Bugzilla? Specifically, what type of skills does the person
@@ -5113,10 +5067,10 @@ perl runtests.pl 2 --verbose
    out-of-pocket cost other than the bodies needed as identified above?
 
    No. Bugzilla, Perl, the Template Toolkit, and all other support software
-   needed to make Bugzilla work can be downloaded for free. MySQL -- the
-   database used by Bugzilla -- is also open-source, but they ask that if you
-   find their product valuable, you purchase a support contract from them that
-   suits your needs.
+   needed to make Bugzilla work can be downloaded for free. MySQL and
+   PostgreSQL -- the databases supported by Bugzilla -- are also open-source.
+   MySQL asks that if you find their product valuable, you purchase a support
+   contract from them that suits your needs.
 
    A.2.13. We don't like referring to problems as 'bugs'. Can we change that?
 
@@ -5137,12 +5091,10 @@ perl runtests.pl 2 --verbose
 
    A.3.2. Can users be on the system while a backup is in progress?
 
-   Yes, but commits to the database must wait until the tables are unlocked.
-   Bugzilla databases are typically very small, and backups routinely take less
-   than a minute. If your database is larger, you may want to look into
-   alternate backup techniques, such as database replication, or backing up
-   from a read-only mirror. (Read up on these in the MySQL docs on the MySQL
-   site.)
+   Refer to your database platform documentation for details on how to do hot
+   backups. Vendor documentation for backing up a MySQL database can be found
+   at http://www.mysql.com/doc/B/a/Backup.html. PostgreSQL backup documentation
+   can be found at http://www.postgresql.org/docs/8.0/static/backup.html.
 
    A.3.3. How can I update the code and the database using CVS?
 
@@ -5187,24 +5139,12 @@ perl runtests.pl 2 --verbose
 
    A.3.5. How do I move a Bugzilla installation from one machine to another?
 
-   Use mysqldump to make a backup of the bugs database. For a typical Bugzilla
-   setup, such a command might look like this:
-/usr/bin/mysqldump -u(username) -p(password) --database bugs > bugzilla-backup.
-txt
-
-   See the mysqldump documentation for more information on using the tool,
-   including how to restore your copy onto the destination machine.
-
-   Warning Depending on the size of your database, and the power of your
-   machine, the mysqldump command could be running long enough that the
-   password would be visible to someone using the ps command. If you are on a
-   multi-user machine, and this is a concern to you, create an entry in the
-   file ~/.my.cnf that looks like this:
-[mysqldump]
-user=bugs
-password=mypassword
-
-   and then leave the 'user' and 'password' params out of the command line.
+   Reference your database vendor's documentation for information on backing up
+   and restoring your Bugzilla database on to a different server. Vendor
+   documentation for backing up a MySQL database can be found at
+   http://dev.mysql.com/doc/mysql/en/mysqldump.html. PostgreSQL backup
+   documentation can be found at
+   http://www.postgresql.org/docs/8.0/static/backup.html.
 
    On your new machine, follow the instructions found in Chapter 2 as far as
    setting up the physical environment of the new machine with perl, webserver,
@@ -5216,8 +5156,8 @@ password=mypassword
    directory from the old machine, as they contain configuration information
    that you probably won't want to re-create.
 
-   Note If the location or port number of your SQL server changed as part of
-   the move, you'll need to update the appropriate variables in localconfig
+   Note If the hostname or port number of your database server changed as part
+   of the move, you'll need to update the appropriate variables in localconfig
       before taking the next step.
 
    Once you have your code in place, and your database has been restored from
@@ -5237,13 +5177,9 @@ password=mypassword
    problems? (I've followed the instructions in the installation section of
    this guide...)
 
-   Run MySQL like this: mysqld --skip-grant-tables. Please remember that this
-   makes MySQL as secure as taping a $100 to the floor of a football stadium
-   bathroom for safekeeping.
-
-   Warning This can't be stressed enough. Doing this is a bad idea. Please
-   consult Section 4.2 of this guide and the MySQL documentation for better
-      solutions.
+   You can run MySQL like this: mysqld --skip-grant-tables. However, doing so
+   disables all MySQL security. This is a bad idea. Please consult Section 4.2
+   of this guide and the MySQL documentation for better solutions.
 
    A.4.2. Are there any security problems with Bugzilla?
 
@@ -5305,10 +5241,13 @@ password=mypassword
    released as part of Bugzilla 2.20; see bug 185090 for the discussion, and
    for more up-to-date patches if you just can't wait.
 
-   A.5.4. How do I set up the email interface to submit/change bugs via email?
+   A.5.4. How do I set up the email interface to submit or change bugs via
+   email?
 
-   You can find an updated README.mailif file in the contrib/ directory of your
-   Bugzilla distribution that walks you through the setup.
+   Bugzilla 3.0 and later offers the ability submit or change bugs via email,
+   using the email_in.pl script within the root directory of the Bugzilla
+   installation. More information on the script can be found in
+   docs/html/api/email_in.html.
 
    A.5.5. Email takes FOREVER to reach me from Bugzilla -- it's extremely slow.
    What gives?
@@ -5357,14 +5296,13 @@ password=mypassword
 
    There is no facility in Bugzilla itself to do this. It's also generally not
    a smart thing to do if you don't know exactly what you're doing. If you
-   understand SQL, though, you can use the mysql command line utility to
-   manually insert, delete and modify table information. There are also more
-   intuitive GUI clients available. Personal favorites of the Bugzilla team are
-   phpMyAdmin and MySQL Control Center.
+   understand SQL, though, you can use the mysql or psql command line utilities
+   to manually insert, delete and modify table information. There are also more
+   intuitive GUI clients available for both MySQL and PostgreSQL. For MySQL, we
+   recommend phpMyAdmin.
 
    Remember, backups are your friend. Everyone makes mistakes, and it's nice to
-   have a safety net in case you mess something up. Consider using mysqldump to
-   make a duplicate of your database before altering it manually.
+   have a safety net in case you mess something up.
 
    A.6.3. I think I've set up MySQL permissions correctly, but Bugzilla still
    can't connect.
@@ -5377,7 +5315,8 @@ password=mypassword
 
    Warning Running MySQL with this command line option is very insecure and
    should only be done when not connected to the external network as a
-      troubleshooting step.
+   troubleshooting step. Please do not run your production database in this
+      mode.
 
    You may also be suffering from a client version mismatch:
 
@@ -5418,19 +5357,16 @@ shell> mysql
    If you simply need to transfer bugs from one Bugzilla to another, checkout
    the "move.pl" script in the Bugzilla distribution.
 
-7. Bugzilla and Win32
+7. Can Bugzilla run on a Windows server?
 
    A.7.1. What is the easiest way to run Bugzilla on Win32 (Win98+/NT/2K)?
 
-   Remove Windows. Install Linux. Install Bugzilla. The boss will never know
-   the difference. B^)
-
-   Seriously though, making Bugzilla work easily with Windows was one of the
-   major goals of the 2.18 milestone. If the necessary components are in place
-   (perl, a webserver, an MTA, etc.) then installation of Bugzilla on a Windows
-   box should be no more difficult than on any other platform. As with any
-   installation, we recommend that you carefully and completely follow the
-   installation instructions in Section 2.5.1.
+   Making Bugzilla work easily with Windows was one of the major goals of the
+   2.18 milestone. If the necessary components are in place (perl, a webserver,
+   an MTA, etc.) then installation of Bugzilla on a Windows box should be no
+   more difficult than on any other platform. As with any installation, we
+   recommend that you carefully and completely follow the installation
+   instructions in Section 2.5.1.
 
    While doing so, don't forget to check out the very excellent guide to
    Installing Bugzilla on Microsoft Windows written by Byron Jones. Thanks,
@@ -5481,10 +5417,10 @@ shell> mysql
 
    A.8.1. How do I change my user name (email address) in Bugzilla?
 
-   New in 2.16 - you can change it from the Name and Password section in
-   Preferences. You will be emailed at both addresses for confirmation.
-   'Administrative Policies' must have the 'allowemailchange' parameter set to
-   "On".
+   You can change your email address from the Name and Password section in
+   Preferences. You will be emailed at both the old and new addresses for
+   confirmation. 'Administrative Policies' must have the 'allowemailchange'
+   parameter set to "On".
 
    A.8.2. The query page is very confusing. Isn't there a simpler way to query?
 
@@ -6481,11 +6417,10 @@ D
    DOS Attack
           A DOS, or Denial of Service attack, is when a user attempts to deny
           access to a web server by repeatedly accessing a page or sending
-          malformed requests to a webserver. This can be effectively prevented
-          by using mod_throttle as described in Section 4.3.2. A D-DOS, or
-          Distributed Denial of Service attack, is when these requests come
-          from multiple sources at the same time. Unfortunately, these are much
-          more difficult to defend against.
+          malformed requests to a webserver. A D-DOS, or Distributed Denial of
+          Service attack, is when these requests come from multiple sources at
+          the same time. Unfortunately, these are much more difficult to defend
+          against.
 
 G
 
