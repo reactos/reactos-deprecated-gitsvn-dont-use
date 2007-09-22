@@ -123,7 +123,9 @@ name="Errors"
 
 <p>If your request cannot be completed for any reason, Bugzilla will send an email back to you. If your request succeeds, Bugzilla will not send you anything.</p>
 
-<p>If any part of your request fails, all of it will fail. No partial changes will happen. The only exception is attachments--one attachment may succeed, and be inserted into the database, and a later attachment may fail.</p>
+<p>If any part of your request fails, all of it will fail. No partial changes will happen.</p>
+
+<p>There is no attachment support yet.</p>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
 name="CAUTION"
@@ -141,8 +143,6 @@ name="LIMITATIONS"
 
 <p>You cannot send an HTML mail along with attachments. If you do, Bugzilla will reject your email, saying that it doesn&#39;t contain any text. This is a bug in <a href="./Email/MIME/Attachment/Stripper.html" class="podlinkpod"
 >Email::MIME::Attachment::Stripper</a> that we can&#39;t work around.</p>
-
-<p>If you send multiple attachments in one email, they will all be attached, but Bugzilla may not send an email notice out for all of them.</p>
 
 <p>You cannot modify Flags through the email interface.</p>
 <p class="backlinkbottom"><b><a name="___bottom" href="index.html" title="All Documents">&lt;&lt;</a></b></p>

@@ -146,7 +146,7 @@ use File::Basename;
 # CONSTANTS
 #
 # Bugzilla version
-use constant BUGZILLA_VERSION => "3.0.1";
+use constant BUGZILLA_VERSION => "3.0.2";
 
 #
 # ControlMap constants for group_control_map.
@@ -208,7 +208,7 @@ use constant contenttypes =>
    "atom"=> "application/atom+xml" ,
    "xml" => "application/xml" , 
    "js"  => "application/x-javascript" , 
-   "csv" => "text/plain" ,
+   "csv" => "text/csv" ,
    "png" => "image/png" ,
    "ics" => "text/calendar" ,
   };

@@ -7,7 +7,7 @@
 NAME="GENERATOR"
 CONTENT="Modular DocBook HTML Stylesheet Version 1.7"><LINK
 REL="HOME"
-TITLE="The Bugzilla Guide - 3.0.1  Release"
+TITLE="The Bugzilla Guide - 3.0.2  Release"
 HREF="index.html"><LINK
 REL="PREVIOUS"
 TITLE="Integrating Bugzilla with Third-Party Tools"
@@ -34,7 +34,7 @@ CELLSPACING="0"
 ><TH
 COLSPAN="3"
 ALIGN="center"
->The Bugzilla Guide - 3.0.1  Release</TH
+>The Bugzilla Guide - 3.0.2  Release</TH
 ></TR
 ><TR
 ><TD
@@ -131,22 +131,12 @@ HREF="faq.html#faq-general-bzmissing"
 ></DT
 ><DT
 >A.1.8. <A
-HREF="faq.html#faq-general-mysql"
->&#13;            Why MySQL?  I'm interested in seeing Bugzilla run on
-            PostgreSQL/Sybase/Oracle/Msql/MSSQL.
+HREF="faq.html#faq-general-db"
+>&#13;            What databases does Bugzilla run on?
           </A
 ></DT
 ><DT
 >A.1.9. <A
-HREF="faq.html#faq-general-bonsaitools"
->&#13;            What is <TT
-CLASS="filename"
->/usr/bonsaitools/bin/perl</TT
->?
-          </A
-></DT
-><DT
->A.1.10. <A
 HREF="faq.html#faq-general-perlpath"
 >&#13;            My perl is located at <TT
 CLASS="filename"
@@ -160,22 +150,13 @@ CLASS="filename"
           </A
 ></DT
 ><DT
->A.1.11. <A
+>A.1.10. <A
 HREF="faq.html#faq-general-cookie"
 >&#13;            Is there an easy way to change the Bugzilla cookie name?
           </A
 ></DT
 ><DT
->A.1.12. <A
-HREF="faq.html#faq-mod-perl"
->&#13;            Does bugzilla run under <TT
-CLASS="filename"
->mod_perl</TT
->?
-          </A
-></DT
-><DT
->A.1.13. <A
+>A.1.11. <A
 HREF="faq.html#faq-general-selinux"
 >&#13;            How can Bugzilla be made to work under SELinux?
           </A
@@ -221,8 +202,7 @@ HREF="faq.html#faq-phb-email"
 ><DT
 >A.2.5. <A
 HREF="faq.html#faq-phb-emailapp"
->&#13;            Do users have to have any particular
-            type of email application?
+>&#13;            Do users have to have any particular type of email application?
           </A
 ></DT
 ><DT
@@ -398,8 +378,8 @@ HREF="faq.html#faq-email-whine"
 ></DT
 ><DT
 >A.5.4. <A
-HREF="faq.html#faq-email-mailif"
->&#13;            How do I set up the email interface to submit/change bugs via email?
+HREF="faq.html#faq-email-in"
+>&#13;            How do I set up the email interface to submit or change bugs via email?
           </A
 ></DT
 ><DT
@@ -456,7 +436,7 @@ HREF="faq.html#faq-db-synchronize"
 ><DT
 >7. <A
 HREF="faq.html#faq-nt"
->Bugzilla and Win32</A
+>Can Bugzilla run on a Windows server?</A
 ></DT
 ><DD
 ><DL
@@ -888,13 +868,12 @@ CLASS="qandaentry"
 CLASS="question"
 ><P
 ><A
-NAME="faq-general-mysql"
+NAME="faq-general-db"
 ></A
 ><B
 >A.1.8. </B
 >
-            Why MySQL?  I'm interested in seeing Bugzilla run on
-            PostgreSQL/Sybase/Oracle/Msql/MSSQL.
+            What databases does Bugzilla run on?
           </P
 ></DIV
 ><DIV
@@ -903,28 +882,20 @@ CLASS="answer"
 ><B
 > </B
 >
-            MySQL was originally chosen because it is free, easy to install,
-            and was available for the hardware Netscape intended to run it on.
+            MySQL is the default database for Bugzilla. It was originally chosen 
+            because it is free, easy to install, and was available for the hardware 
+            Netscape intended to run it on.
           </P
 ><P
->&#13;            Bugzilla 2.20 contains experimental support for PostgreSQL.
-            Bugzilla 2.22 contains complete, stable support for PostgreSQL.
-            As of this release, using PostgreSQL with Bugzilla should
-            be as stable as using MySQL. If you experience any problems
+>&#13;            As of Bugzilla 2.22, complete support for PostgreSQL 
+            is included. With this release using PostgreSQL with Bugzilla 
+            should be as stable as using MySQL. If you experience any problems
             with PostgreSQL compatibility, they will be taken as
             seriously as if you were running MySQL.
           </P
 ><P
->&#13;            Red Hat once ran a version of Bugzilla that worked on Oracle, 
-            but that was long, long ago; that version (Bugzilla 2.8) is
-            now obsolete, insecure, and totally unsupported.
-          </P
-><P
->&#13;            In August of 2005, Wim Coekaerts (Director of Linux
-            Engineering at Oracle Corporation) wrote to Dave Miller
-            confirming that Oracle intends to implement and support
-            Bugzilla. Since then, no further information has been
-            forthcoming. Track progress at
+>&#13;            There are plans to include an Oracle driver for Bugzilla 3.1.2. 
+            Track progress at
             <A
 HREF="https://bugzilla.mozilla.org/show_bug.cgi?id=189947"
 TARGET="_top"
@@ -932,19 +903,9 @@ TARGET="_top"
 >.
           </P
 ><P
->&#13;            Sybase support is no longer being worked on. Even if it
-            eventually happens, it's VERY unlikely to work without
-            the end-user-company having to stick a few developers on
-            making several manual changes. Sybase is just NOT very
-            standards-compliant (despite all the hype), and it turned
-            out that way too much had to be changed to make it work --
-            like moving half of the application logic into stored
-            procedures to get any kind of decent performance out of it.
-            <A
-HREF="https://bugzilla.mozilla.org/show_bug.cgi?id=173130"
-TARGET="_top"
->&#13;            Bug 173130</A
-> is the relevant bug.
+>&#13;            Sybase support was worked on for a time. However, several 
+            complicating factors have prevented Sybase support from 
+            being realized. There are currently no plans to revive it.
           </P
 ><P
 >&#13;            <A
@@ -963,52 +924,10 @@ CLASS="qandaentry"
 CLASS="question"
 ><P
 ><A
-NAME="faq-general-bonsaitools"
-></A
-><B
->A.1.9. </B
->
-            What is <TT
-CLASS="filename"
->/usr/bonsaitools/bin/perl</TT
->?
-          </P
-></DIV
-><DIV
-CLASS="answer"
-><P
-><B
-> </B
->
-            Bugzilla used to have the path to perl on the shebang line set
-            to <TT
-CLASS="filename"
->/usr/bonsaitools/bin/perl</TT
-> because when
-            Terry first started writing the code for mozilla.org he needed a
-            version of Perl and other tools that were completely under his
-            control. This location was abandoned for the 2.18 release in favor
-            of the more sensible <TT
-CLASS="filename"
->/usr/bin/perl</TT
->. If you
-            installed an older version of Bugzilla and created the symlink we
-            suggested, you can remove it now (provided that you don't have
-            anything else, such as Bonsai, using it and you don't intend to
-            reinstall an older version of Bugzilla).
-          </P
-></DIV
-></DIV
-><DIV
-CLASS="qandaentry"
-><DIV
-CLASS="question"
-><P
-><A
 NAME="faq-general-perlpath"
 ></A
 ><B
->A.1.10. </B
+>A.1.9. </B
 >
             My perl is located at <TT
 CLASS="filename"
@@ -1137,7 +1056,7 @@ WIDTH="100%"
 COLOR="#000000"
 ><PRE
 CLASS="programlisting"
->&#13;perl runtests.pl 2 --verbose
+>&#13;            perl runtests.pl 2 --verbose
             </PRE
 ></FONT
 ></TD
@@ -1181,7 +1100,7 @@ CLASS="question"
 NAME="faq-general-cookie"
 ></A
 ><B
->A.1.11. </B
+>A.1.10. </B
 >
             Is there an easy way to change the Bugzilla cookie name?
           </P
@@ -1202,44 +1121,10 @@ CLASS="qandaentry"
 CLASS="question"
 ><P
 ><A
-NAME="faq-mod-perl"
-></A
-><B
->A.1.12. </B
->
-            Does bugzilla run under <TT
-CLASS="filename"
->mod_perl</TT
->?
-          </P
-></DIV
-><DIV
-CLASS="answer"
-><P
-><B
-> </B
->
-            At present, no. Work is slowly taking place to remove global
-            variables, use $cgi, and use DBI. These are all necessary for
-            mod_perl (as well as being good for other reasons). Visit 
-            <A
-HREF="https://bugzilla.mozilla.org/show_bug.cgi?id=87406"
-TARGET="_top"
->&#13;            bug 87406</A
-> to view the discussion and progress.
-          </P
-></DIV
-></DIV
-><DIV
-CLASS="qandaentry"
-><DIV
-CLASS="question"
-><P
-><A
 NAME="faq-general-selinux"
 ></A
 ><B
->A.1.13. </B
+>A.1.11. </B
 >
             How can Bugzilla be made to work under SELinux?
           </P
@@ -1250,13 +1135,19 @@ CLASS="answer"
 ><B
 > </B
 >
-            Unfortunately there are no step-by-step instructions,
-            but the following URL contains hints on how to do it:
+            As a web application, Bugzilla simply requires its root
+            directory to have the httpd context applied for it to work
+            properly under SELinux. This should happen automatically
+            on distributions that use SELinux and that package Bugzilla
+            (if it is installed with the native package management tools).
+            Information on how to view and change SELinux file contexts
+            can be found at the 
             <A
-HREF="http://fedora.redhat.com/docs/selinux-apache-fc3/sn-debugging-and-customizing.html"
+HREF="http://docs.fedoraproject.org/selinux-faq-fc5/"
 TARGET="_top"
->http://fedora.redhat.com/docs/selinux-apache-fc3/sn-debugging-and-customizing.html</A
->
+>&#13;            SELinux FAQ</A
+>.
+
           </P
 ></DIV
 ></DIV
@@ -1320,13 +1211,8 @@ CLASS="answer"
             compensate for the change.
           </P
 ><P
->&#13;            There is no GUI for adding fields to Bugzilla at this
-            time. You can follow development of this feature in 
-            <A
-HREF="https://bugzilla.mozilla.org/show_bug.cgi?id=91037"
-TARGET="_top"
->bug 91037</A
->
+>&#13;            As of Bugzilla 3.0 custom fields can be created via the
+            "Custom Fields" admin page.
           </P
 ></DIV
 ></DIV
@@ -1410,8 +1296,7 @@ NAME="faq-phb-emailapp"
 ><B
 >A.2.5. </B
 >
-            Do users have to have any particular
-            type of email application?
+            Do users have to have any particular type of email application?
           </P
 ></DIV
 ><DIV
@@ -1611,12 +1496,18 @@ CLASS="answer"
 ><B
 > </B
 >
-            MySQL, the database back-end for Bugzilla, allows hot-backup
-            of data. You can find strategies for dealing with backup
-            considerations at <A
+            You should use the backup options supplied by your database platform.  
+            Vendor documentation for backing up a MySQL database can be found at 
+            <A
 HREF="http://www.mysql.com/doc/B/a/Backup.html"
 TARGET="_top"
 >http://www.mysql.com/doc/B/a/Backup.html</A
+>. 
+            PostgreSQL backup documentation can be found at
+            <A
+HREF="http://www.postgresql.org/docs/8.0/static/backup.html"
+TARGET="_top"
+>http://www.postgresql.org/docs/8.0/static/backup.html</A
 >.
           </P
 ></DIV
@@ -1719,9 +1610,9 @@ CLASS="answer"
 >
             No. Bugzilla, Perl, the Template Toolkit, and all other support
             software needed to make Bugzilla work can be downloaded for free.
-            MySQL -- the database used by Bugzilla -- is also open-source, but
-            they ask that if you find their product valuable, you purchase a
-            support contract from them that suits your needs.
+            MySQL and PostgreSQL -- the databases supported by Bugzilla -- 
+            are also open-source. MySQL asks that if you find their product 
+            valuable, you purchase a support contract from them that suits your needs.
           </P
 ></DIV
 ></DIV
@@ -1813,13 +1704,20 @@ CLASS="answer"
 ><B
 > </B
 >
-            Yes, but commits to the database must wait until the tables
-            are unlocked. Bugzilla databases are typically very small,
-            and backups routinely take less than a minute. If your database
-            is larger, you may want to look into alternate backup
-            techniques, such as database replication, or backing up from
-            a read-only mirror. (Read up on these in the MySQL docs
-            on the MySQL site.)
+            Refer to your database platform documentation for details on how to do hot
+            backups.  
+            Vendor documentation for backing up a MySQL database can be found at 
+            <A
+HREF="http://www.mysql.com/doc/B/a/Backup.html"
+TARGET="_top"
+>http://www.mysql.com/doc/B/a/Backup.html</A
+>. 
+            PostgreSQL backup documentation can be found at
+            <A
+HREF="http://www.postgresql.org/docs/8.0/static/backup.html"
+TARGET="_top"
+>http://www.postgresql.org/docs/8.0/static/backup.html</A
+>.
           </P
 ></DIV
 ></DIV
@@ -2019,92 +1917,21 @@ CLASS="answer"
 ><B
 > </B
 >
-            Use mysqldump to make a backup of the bugs database. For a
-            typical Bugzilla setup, such a command might look like this:
-            <TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="programlisting"
->&#13;/usr/bin/mysqldump -u(username) -p(password) --database bugs &#62; bugzilla-backup.txt
-            </PRE
-></FONT
-></TD
-></TR
-></TABLE
->
-            See the <A
+            Reference your database vendor's documentation for information on 
+            backing up and restoring your Bugzilla database on to a different server.
+            Vendor documentation for backing up a MySQL database can be found at 
+            <A
 HREF="http://dev.mysql.com/doc/mysql/en/mysqldump.html"
 TARGET="_top"
->&#13;            mysqldump documentation</A
-> for more information on using 
-            the tool, including how to restore your copy onto the destination
-            machine.
+>http://dev.mysql.com/doc/mysql/en/mysqldump.html</A
+>.
+            PostgreSQL backup documentation can be found at
+            <A
+HREF="http://www.postgresql.org/docs/8.0/static/backup.html"
+TARGET="_top"
+>http://www.postgresql.org/docs/8.0/static/backup.html</A
+>.
           </P
-><DIV
-CLASS="warning"
-><P
-></P
-><TABLE
-CLASS="warning"
-WIDTH="100%"
-BORDER="0"
-><TR
-><TD
-WIDTH="25"
-ALIGN="CENTER"
-VALIGN="TOP"
-><IMG
-SRC="../images/warning.gif"
-HSPACE="5"
-ALT="Warning"></TD
-><TD
-ALIGN="LEFT"
-VALIGN="TOP"
-><P
->&#13;              Depending on the size of your database, and the power of your
-              machine, the mysqldump command could be running long enough
-              that the password would be visible to someone using the
-              <B
-CLASS="command"
->ps</B
-> command. If you are on a multi-user
-              machine, and this is a concern to you, create an entry in
-              the file <TT
-CLASS="filename"
->~/.my.cnf</TT
-> that looks like this:
-              <TABLE
-BORDER="0"
-BGCOLOR="#E0E0E0"
-WIDTH="100%"
-><TR
-><TD
-><FONT
-COLOR="#000000"
-><PRE
-CLASS="programlisting"
->&#13;[mysqldump]
-user=bugs
-password=mypassword
-              </PRE
-></FONT
-></TD
-></TR
-></TABLE
->
-              and then leave the 'user' and 'password' params out of the
-              command line.
-            </P
-></TD
-></TR
-></TABLE
-></DIV
 ><P
 >&#13;            On your new machine, follow the instructions found in <A
 HREF="installing-bugzilla.html"
@@ -2148,7 +1975,7 @@ ALT="Note"></TD
 ALIGN="LEFT"
 VALIGN="TOP"
 ><P
->&#13;              If the location or port number of your SQL server changed
+>&#13;              If the hostname or port number of your database server changed
               as part of the move, you'll need to update the appropriate
               variables in localconfig before taking the next step.
             </P
@@ -2234,48 +2061,17 @@ CLASS="answer"
 ><B
 > </B
 >
-            Run MySQL like this: <B
+            You can run MySQL like this: <B
 CLASS="command"
 >mysqld --skip-grant-tables</B
 >.
-            Please remember that <EM
->this makes MySQL as secure as
-            taping a $100 to the floor of a football stadium bathroom for
-            safekeeping.</EM
->
-          </P
-><DIV
-CLASS="warning"
-><P
-></P
-><TABLE
-CLASS="warning"
-WIDTH="100%"
-BORDER="0"
-><TR
-><TD
-WIDTH="25"
-ALIGN="CENTER"
-VALIGN="TOP"
-><IMG
-SRC="../images/warning.gif"
-HSPACE="5"
-ALT="Warning"></TD
-><TD
-ALIGN="LEFT"
-VALIGN="TOP"
-><P
->&#13;              This can't be stressed enough. Doing this is a bad idea.
-              Please consult <A
+            However, doing so disables all MySQL security. This is a bad idea.
+            Please consult <A
 HREF="security-mysql.html"
 >Section 4.2</A
 > of this guide
-              and the MySQL documentation for better solutions.
+            and the MySQL documentation for better solutions.
             </P
-></TD
-></TR
-></TABLE
-></DIV
 ></DIV
 ></DIV
 ><DIV
@@ -2569,12 +2365,12 @@ CLASS="qandaentry"
 CLASS="question"
 ><P
 ><A
-NAME="faq-email-mailif"
+NAME="faq-email-in"
 ></A
 ><B
 >A.5.4. </B
 >
-            How do I set up the email interface to submit/change bugs via email?
+            How do I set up the email interface to submit or change bugs via email?
           </P
 ></DIV
 ><DIV
@@ -2583,8 +2379,18 @@ CLASS="answer"
 ><B
 > </B
 >
-            You can find an updated README.mailif file in the contrib/ directory
-            of your Bugzilla distribution that walks you through the setup.
+            Bugzilla 3.0 and later offers the ability submit or change
+            bugs via email, using the <TT
+CLASS="filename"
+>email_in.pl</TT
+>
+            script within the root directory of the Bugzilla installation.
+            More information on the script can be found in
+            <A
+HREF="api/email_in.html"
+TARGET="_top"
+>docs/html/api/email_in.html</A
+>.
           </P
 ></DIV
 ></DIV
@@ -2796,29 +2602,22 @@ CLASS="answer"
             <B
 CLASS="command"
 >mysql</B
-> command line utility to manually insert,
-            delete and modify table information. There are also more intuitive
-            GUI clients available. Personal favorites of the Bugzilla team
-            are <A
+> or <B
+CLASS="command"
+>psql</B
+> command line 
+            utilities to manually insert, delete and modify table information. 
+            There are also more intuitive GUI clients available for both MySQL 
+            and PostgreSQL. For MySQL, we recommend
+            <A
 HREF="http://www.phpmyadmin.net/"
 TARGET="_top"
 >phpMyAdmin</A
->
-            and <A
-HREF="http://www.mysql.com/products/mysqlcc/"
-TARGET="_top"
->MySQL
-            Control Center</A
 >.
           </P
 ><P
 >&#13;            Remember, backups are your friend. Everyone makes mistakes, and
             it's nice to have a safety net in case you mess something up.
-            Consider using <B
-CLASS="command"
->mysqldump</B
-> to make a duplicate
-            of your database before altering it manually.
           </P
 ></DIV
 ></DIV
@@ -2880,7 +2679,8 @@ VALIGN="TOP"
 ><P
 >&#13;              Running MySQL with this command line option is very insecure and
               should only be done when not connected to the external network
-              as a troubleshooting step.
+              as a troubleshooting step.  Please do not run your production
+              database in this mode.
             </P
 ></TD
 ></TR
@@ -3031,7 +2831,7 @@ CLASS="qandadiv"
 ><A
 NAME="faq-nt"
 ></A
->7. Bugzilla and Win32</H3
+>7. Can Bugzilla run on a Windows server?</H3
 ><DIV
 CLASS="qandaentry"
 ><DIV
@@ -3052,11 +2852,7 @@ CLASS="answer"
 ><B
 > </B
 >
-            Remove Windows. Install Linux. Install Bugzilla.
-            The boss will never know the difference. B^)
-          </P
-><P
->&#13;            Seriously though, making Bugzilla work easily with Windows
+            Making Bugzilla work easily with Windows
             was one of the major goals of the 2.18 milestone. If the
             necessary components are in place (perl, a webserver, an MTA, etc.)
             then installation of Bugzilla on a Windows box should be no more
@@ -3136,7 +2932,7 @@ CLASS="answer"
 ><P
 >&#13;            Microsoft has some advice on this matter, as well:
             <A
-NAME="AEN3294"
+NAME="AEN3260"
 ></A
 ><BLOCKQUOTE
 CLASS="BLOCKQUOTE"
@@ -3192,7 +2988,11 @@ CLASS="answer"
 TYPE="1"
 ><LI
 ><P
->&#13;                  Hitting http://www.activestate.com/ActivePerl
+>&#13;                  Hitting <A
+HREF="http://www.activestate.com/ActivePerl"
+TARGET="_top"
+>http://www.activestate.com/ActivePerl</A
+>
                 </P
 ></LI
 ><LI
@@ -3261,10 +3061,10 @@ CLASS="answer"
 ><B
 > </B
 >
-            New in 2.16 - you can change it from the Name and Password
-            section in Preferences. You will be emailed at both addresses for
-            confirmation. 'Administrative Policies' must have the
-            'allowemailchange' parameter set to <SPAN
+            You can change your email address from the Name and Password
+            section in Preferences. You will be emailed at both the old 
+            and new addresses for confirmation. 'Administrative Policies' 
+            must have the 'allowemailchange' parameter set to <SPAN
 CLASS="QUOTE"
 >"On"</SPAN
 >.
