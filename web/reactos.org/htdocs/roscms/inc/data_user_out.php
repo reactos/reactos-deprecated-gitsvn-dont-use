@@ -111,7 +111,7 @@
 							break;
 					}
 					
-					echo "<p>OPT: ".$RosCMS_GET_d_value2."</p>";
+					//echo "<p>OPT: ".$RosCMS_GET_d_value2."</p>";
 					
 					$query_user_list = mysql_query("SELECT u.user_id, u.user_name, u.user_fullname, u.user_language
 													FROM users u 
