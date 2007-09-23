@@ -52,14 +52,26 @@
 		}
 
 		if (roscms_security_grp_member("transmaint") ||roscms_security_grp_member("ros_admin") || roscms_security_grp_member("ros_sadmin")) {
-
-			echo '<div><label for="textfield">Username: </label><input type="text" name="textfield" id="textfield" onkeyup="getuser(this.value)" /> <img id="ajaxloading" style="display:none;" src="images/ajax_loading.gif" width="13" height="13" /></div>';
-			echo '<div id="userarea"></div>';
+?>
+<div><label for="textfield">Username: </label><input type="text" name="textfield" id="textfield" onkeyup="getuser()" /> <br />
+  <input name="searchopt" type="radio" id="searchopt1" value="accountname" checked="checked" onclick="getuser()" />
+  <label>account name</label>
+  <input name="searchopt" type="radio" id="searchopt2" value="fullname" onclick="getuser()" />
+  <label>full name </label>
+  <input name="searchopt" type="radio" id="searchopt3" value="email" onclick="getuser()" />
+  <label>email address</label>
+  <input name="searchopt" type="radio" id="searchopt4" value="website" onclick="getuser()" />
+  <label>website</label>
+  <input name="searchopt" type="radio" id="searchopt5" value="language" onclick="getuser()" />
+  <label>language</label>
+ <img id="ajaxloading" style="display:none;" src="images/ajax_loading.gif" width="13" height="13" /><br /><br />
+</div>
+<div id="userarea"></div>
 			
-			echo "<br />";
-			echo "<br />";
+<br />
+<br />
 			
-			
+<?php		
 			echo "<h4>Translators</h4>";
 
 			echo "<ul>";
@@ -80,16 +92,24 @@
 
 			echo "<br />";
 		
+/*
 			if (roscms_security_grp_member("transmaint")) {
 				echo get_content("log_website_en_2007-30", "system", "en", "content", "text", "archive");
 			}
+*/
 		}
 	?>
 	<script type="text/javascript" language="javascript">
 		<!--
 		
-			function getuser(username) {
-				makeRequest('?page=data_out&d_f=user&d_u=usrtbl&d_fl=list&d_val='+encodeURIComponent(username), 'usrtbl', 'userarea');
+			function getuser() {
+				var soptckd = '';
+				if (document.getElementById('searchopt1').checked) soptckd = 'accountname';
+				if (document.getElementById('searchopt2').checked) soptckd = 'fullname';
+				if (document.getElementById('searchopt3').checked) soptckd = 'email';
+				if (document.getElementById('searchopt4').checked) soptckd = 'website';
+				if (document.getElementById('searchopt5').checked) soptckd = 'language';
+				makeRequest('?page=data_out&d_f=user&d_u=usrtbl&d_fl=list&d_val='+encodeURIComponent(document.getElementById('textfield').value)+'&d_val2='+encodeURIComponent(soptckd), 'usrtbl', 'userarea');
 			}
 			
 			function getuserdetails(userid) {

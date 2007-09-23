@@ -64,7 +64,6 @@
 
 ?>
 		<p><a href="javascript:optimizedb()">Optimize Database Tables</a></p>
-		<p><a href="javascript:analyzedb()">Analyze Database Tables</a></p>
 		<p>&nbsp;</p>
 		<p><a href="javascript:ppreview()">Page Preview</a></p>
 		<div><label for="textfield">Entry-Name:</label> <input name="textfield" type="text" id="textfield" size="20" maxlength="100" />
@@ -174,7 +173,9 @@
 					
 			function makeRequest(url, action, objid) {
 				var http_request = false;
+
 				document.getElementById('ajaxloading').style.display = 'block';
+				document.getElementById(objid).innerHTML = '';
 
 		
 				if (window.XMLHttpRequest) { // Mozilla, Safari,...

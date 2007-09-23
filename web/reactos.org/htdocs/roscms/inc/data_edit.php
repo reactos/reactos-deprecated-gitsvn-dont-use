@@ -1401,7 +1401,7 @@
 							
 							if ($RosCMS_GET_debug) echo "<p>! generate_page_output_update(".$result_rev_data['data_id'].", ".$tmp_lang.", ".$temp_dynamic.")</p>";
 							
-							//echo generate_page_output_update($result_entry['data_id'], $tmp_lang, $temp_dynamic);
+							echo generate_page_output_update($result_entry['data_id'], $tmp_lang, $temp_dynamic);
 							echo "Page generation process finished";
 						}
 						else {

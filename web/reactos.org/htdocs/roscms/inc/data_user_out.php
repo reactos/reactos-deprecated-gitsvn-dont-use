@@ -86,14 +86,36 @@
 			}
 		
 			if ($RosCMS_GET_d_flag == "list") {
-				echo "<fieldset><legend>Results</legend>";
 				
 				if (strlen($RosCMS_GET_d_value) > 2) {
+					echo "<fieldset><legend>Results</legend>";
 					echo "<ul>";
 					$tmp_counter = 0;
+					
+					switch ($RosCMS_GET_d_value2) {
+						default:
+						case "accountname":
+							$tmp_sql_search_opt = "u.user_name";
+							break;
+						case "fullname":
+							$tmp_sql_search_opt = "u.user_fullname";
+							break;
+						case "email":
+							$tmp_sql_search_opt = "u.user_email";
+							break;
+						case "website":
+							$tmp_sql_search_opt = "u.user_website";
+							break;
+						case "language":
+							$tmp_sql_search_opt = "u.user_language";
+							break;
+					}
+					
+					echo "<p>OPT: ".$RosCMS_GET_d_value2."</p>";
+					
 					$query_user_list = mysql_query("SELECT u.user_id, u.user_name, u.user_fullname, u.user_language
 													FROM users u 
-													WHERE u.user_name LIKE '".mysql_real_escape_string($RosCMS_GET_d_value)."%' 
+													WHERE ". $tmp_sql_search_opt ." LIKE '".mysql_real_escape_string($RosCMS_GET_d_value)."%' 
 													ORDER BY u.user_name ASC 
 													LIMIT 25;");
 					while ($result_user_list = mysql_fetch_array($query_user_list)) {
@@ -106,11 +128,12 @@
 					if ($tmp_counter >= 25) {
 						echo "<p>... more than 25 users</p>";
 					}
+					
+					echo "</fieldset><br />";
 				}
 				else if (strlen($RosCMS_GET_d_value) > 0) {
 					echo "<p>more than 2 characters requiered</p>";
 				}
-				echo "</fieldset><br />";
 			}
 			else if ($RosCMS_GET_d_flag == "detail") {
 				$query_user_detail = mysql_query("SELECT user_id, user_name, user_timestamp_touch2 as 'visit', user_login_counter 'visitcount', user_register, user_fullname, user_email, user_language 
