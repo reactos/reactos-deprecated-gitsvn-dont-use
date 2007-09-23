@@ -281,7 +281,7 @@
 					$fp = fopen($RosCMS_current_page_out_file, "w");
 					flock($fp,2);
 					fputs($fp,$RosCMS_current_page_content); // write content
-					fputs($fp,"\n\n<!-- Generated with ".$roscms_extern_brand." ".$roscms_extern_version." (".$roscms_extern_version_detail.") - ".date("Y-m-d H:i:s")." [#RosCMS_v3] -->");
+					fputs($fp,"\n\n<!-- Generated with ".$roscms_extern_brand." ".$roscms_extern_version." (".$roscms_extern_version_detail.") - ".date("Y-m-d H:i:s")." [RosCMS_v3] -->");
 					flock($fp,3);
 					fclose($fp);
 					
