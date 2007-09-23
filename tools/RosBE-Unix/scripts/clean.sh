@@ -11,10 +11,6 @@ pushd "$_ROSSOURCEDIR" >& /dev/null
 if [ -d "obj-i386" ]; then
 	echo "Cleaning ReactOS source directory..."
 
-	if [ -f "makefile.auto" ]; then
-		make clean >& /dev/null
-	fi
-
 	rm -rf "obj-i386"
 	rm -rf "output-i386"
 	rm -rf "reactos."
