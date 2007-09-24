@@ -1,4 +1,4 @@
-Section "-MinGW, GCC v4.1.3 and NASM 0.99.02" SEC01
+Section "-MinGW, GCC v4.1.3 and NASM 0.99.03" SEC01
     SetOutPath "$INSTDIR\4.1.3\"
     SetOverwrite try
     File /r Components\4.1.3\*.*
