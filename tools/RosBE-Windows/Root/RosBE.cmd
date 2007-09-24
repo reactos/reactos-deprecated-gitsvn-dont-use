@@ -116,6 +116,7 @@ goto :ExitRosBE
     set _MINGWVERSION=4.1.3
     set HOST_CFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
     set HOST_CPPFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3\mingw32" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
+    set HOST_LFLAGS=-L"%ROSBEBASEDIR%\4.1.3\lib" -L"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3"
 
     echo *******************************************************************************
     echo *                                                                             *
