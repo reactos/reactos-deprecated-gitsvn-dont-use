@@ -115,9 +115,8 @@ goto :ExitRosBE
     set _MINGWMAKE=%ROSBEBASEDIR%\4.1.3\bin\mingw32-make.exe
     set _MINGWVERSION=4.1.3
     :: Set all paths (needed by Windows Vista)
-    set C_INCLUDE_PATH=%ROSBEBASEDIR%\4.1.3\include;%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include
-    set CPLUS_INCLUDE_PATH=%ROSBEBASEDIR%\4.1.3\include;%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3;%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3\mingw32;%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include
-    set LIBRARY_PATH=%ROSBEBASEDIR%\4.1.3\lib;%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3
+    set HOST_CFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
+    set HOST_CPPFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3\mingw32" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
 
     echo *******************************************************************************
     echo *                                                                             *
