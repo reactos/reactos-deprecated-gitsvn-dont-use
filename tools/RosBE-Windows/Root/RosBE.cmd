@@ -15,7 +15,7 @@
 :: Config Tool.
 ::
 color 0A
-set _VER=0.3.8  
+set _VER=0.3.8.1
 set ROSBEBASEDIR=%~dp0
 for /f "usebackq" %%i in (`"echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed s/.$//g"`) do @SET ROSBEBASEDIR=%%i
 set _ROSSOURCEDIRBASE=%CD%
@@ -114,7 +114,6 @@ goto :ExitRosBE
     set PATH=%ROSBEBASEDIR%\4.1.3\bin;%ROSBEBASEDIR%\4.1.3\libexec\gcc\mingw32\4.1.3;%PATH%
     set _MINGWMAKE=%ROSBEBASEDIR%\4.1.3\bin\mingw32-make.exe
     set _MINGWVERSION=4.1.3
-    :: Set all paths (needed by Windows Vista)
     set HOST_CFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
     set HOST_CPPFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3\mingw32" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
 
