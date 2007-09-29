@@ -21,6 +21,7 @@ for /f "usebackq" %%i in (`"echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed s/.$//g"
 set _ROSSOURCEDIRBASE=%CD%
 set ROSBE_SHOWTIME=1
 set ROSBE_WRITELOG=1
+set ROSBE_MINGWPATH=%ROSBEBASEDIR%\4.1.3
 set _LOGDIR=%CD%\RosBE-Logs
 
 if exist %ROSBEBASEDIR%\options.cmd (
@@ -46,10 +47,18 @@ title ReactOS Build Environment %_VER%
 ::
 if "%1" == "" (
     cls
+    set HOST_CFLAGS=-I"%ROSBE_MINGWPATH%\include" -I"%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
+    set HOST_CPPFLAGS=-I"%ROSBE_MINGWPATH%\include" -I"%ROSBE_MINGWPATH%\include\c++\4.1.3" -I"%ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32" -I"%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
     call :RosBE4
     goto :EndCommandParse
 )
-if not "%1" == "" (
+if "%1" == "oldmode" (
+    cls
+    set C_INCLUDE_PATH=%ROSBE_MINGWPATH%\include;%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
+    set CPLUS_INCLUDE_PATH=%ROSBE_MINGWPATH%\include;%ROSBE_MINGWPATH%\include\c++\4.1.3;%ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32;%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
+    call :RosBE4
+    goto :EndCommandParse
+) else (
     cls
     echo Unknown parameter specified. Exiting.
     goto :ExitRosBE
@@ -111,12 +120,10 @@ goto :ExitRosBE
     ::
     :: Set the correct path for the build tools and set the MinGW make.
     ::
-    set PATH=%ROSBEBASEDIR%\4.1.3\bin;%ROSBEBASEDIR%\4.1.3\libexec\gcc\mingw32\4.1.3;%PATH%
-    set _MINGWMAKE=%ROSBEBASEDIR%\4.1.3\bin\mingw32-make.exe
+    set PATH=%ROSBE_MINGWPATH%\bin;%ROSBE_MINGWPATH%\libexec\gcc\mingw32\4.1.3;%PATH%
+    set _MINGWMAKE=%ROSBE_MINGWPATH%\bin\mingw32-make.exe
     set _MINGWVERSION=4.1.3
-    set HOST_CFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
-    set HOST_CPPFLAGS=-I"%ROSBEBASEDIR%\4.1.3\include" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3" -I"%ROSBEBASEDIR%\4.1.3\include\c++\4.1.3\mingw32" -I"%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3\include"
-    set LIBRARY_PATH=%ROSBEBASEDIR%\4.1.3\lib;%ROSBEBASEDIR%\4.1.3\lib\gcc\mingw32\4.1.3
+    set LIBRARY_PATH=%ROSBE_MINGWPATH%\lib;%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3
 
     echo *******************************************************************************
     echo *                                                                             *
