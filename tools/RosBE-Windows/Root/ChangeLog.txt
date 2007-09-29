@@ -2,7 +2,7 @@
 
 - Updated the Variables for GCC. This is needed in r29185+ because of RBUILD Changes to
   seperate target and host headers by Hervé Poussineau. (Hervé Poussineau, Daniel Reimer)
-- Updated: NASM 0.99.02 to 0.99.03 (Daniel Reimer)
+- Updated: NASM 0.99.02 to 0.99.04 (Daniel Reimer)
 
 *** Sep 11th, 2007 - RosBE 0.3.8 Released
 

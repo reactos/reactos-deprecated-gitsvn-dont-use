@@ -15,7 +15,7 @@ binutils-2.17.50-20070806
 mingw-runtime-3.13
 w32api-3.10
 mingw32-make-3.81-2
-nasm-0.99.03-win32
+nasm-0.99.04-win32
 mingw-4.1.3-20070829-prerelease
     - Patched to fix a GCC bug concerning
       decorating virtual methods with stdcall
