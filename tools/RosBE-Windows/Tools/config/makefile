@@ -5,8 +5,8 @@ TARGET := options.exe
 all: $(TARGET)
 
 CPP=mingw32-gcc
-CFLAGS := -DWIN32 -DUNICODE -O3
-LFLAGS := -mwindows
+CFLAGS := -DWIN32 -DUNICODE -O2 -std=c99
+LFLAGS := -mwindows -s
 LIBS := 
 
 SRCS := options.c

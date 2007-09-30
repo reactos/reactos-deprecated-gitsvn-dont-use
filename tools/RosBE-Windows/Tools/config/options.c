@@ -2,6 +2,7 @@
  * RosBE Options Dialog (options.c)
  *
  * Copyright 2007 by Maarten Bosma
+ *                   Pierre Schweitzer
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,7 +22,10 @@
 #include <windows.h>
 #include <stdio.h>
 #include <shlobj.h>
+#include <wchar.h>
 #include "resources.h"
+
+#define MINGWVERSION L"\\4.1.3"
 
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
 WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"purple",
@@ -31,18 +35,19 @@ WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red",
 
 HINSTANCE hInstance;
 
-int
+VOID
 WriteSettings(HWND hwnd)
 {
     int foreground, background;
     BOOL showtime, writelog;
-    WCHAR logpath[MAX_PATH];
+    WCHAR logpath[MAX_PATH], mingwpath[MAX_PATH];
 
     showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
     writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
     foreground = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
     background = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
     GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
+    GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
 
     FILE *pFile = fopen("options.cmd", "w");
 
@@ -51,6 +56,7 @@ WriteSettings(HWND hwnd)
     fprintf(pFile, "set ROSBE_SHOWTIME=%d\n", showtime);
     fprintf(pFile, "set ROSBE_WRITELOG=%d\n", writelog);
     fprintf(pFile, "set ROSBE_LOGPATH=%S\n", logpath);
+    fprintf(pFile, "set ROSBE_MINGWPATH=%S\n", mingwpath);
 
     fclose(pFile);
 }
@@ -58,7 +64,7 @@ WriteSettings(HWND hwnd)
 INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-    int i = 0;
+    WCHAR defaultmingwpath[MAX_PATH];
 	static HICON hIcon;
 
     switch (Msg)
@@ -74,13 +80,16 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             if(hIcon)
                 SendMessage(Dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
-            for(i = 0; i < sizeof(Colors) / sizeof(char *); i++)
+            for(unsigned int i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
                 SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
                 SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
             }
             SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0xA, 0);
             SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0, 0);
+            GetCurrentDirectory(MAX_PATH, defaultmingwpath);
+            wcscat(defaultmingwpath, MINGWVERSION);
+            SetDlgItemText(Dlg, ID_MGWDIR, defaultmingwpath);
             EnableWindow(GetDlgItem(Dlg, ID_BROWSE), FALSE);
             EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), FALSE);
             return TRUE;
@@ -100,12 +109,34 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             else if (wParam == ID_BROWSE)
             {
                 WCHAR Path[MAX_PATH];
-                BROWSEINFO PathInfo = { 0 };
+                BROWSEINFO PathInfo;
+                ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
                 PathInfo.hwndOwner = Dlg;
                 PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
                 LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
                 if (pidl && SHGetPathFromIDList(pidl, Path))
                     SetDlgItemText(Dlg, ID_LOGDIR, Path);
+            }
+            else if (wParam == ID_BROWSEMGW)
+            {
+                WCHAR MGWPath[MAX_PATH];
+                BROWSEINFO PathInfo;
+                ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
+/* Fails with IShellFolder interface */
+#if 0
+                LPSHELLFOLDER psf = NULL;
+                HRESULT hr;
+                hr = SHGetDesktopFolder(&psf);
+                LPITEMIDLIST pidlRoot;
+                hr = psf->ParseDisplayName(NULL, NULL, defaultmingwpath, NULL, &pidlRoot, NULL);
+                psf->Release();
+                PathInfo.pidlRoot = pidlRoot;
+#endif
+                PathInfo.hwndOwner = Dlg;
+                PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
+                LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
+                if (pidl && SHGetPathFromIDList(pidl, MGWPath))
+                    SetDlgItemText(Dlg, ID_MGWDIR, MGWPath);
             }
             else if (wParam == ID_SAVELOGS)
             {

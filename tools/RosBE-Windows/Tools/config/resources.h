@@ -8,3 +8,5 @@
 #define ID_SHOWBUILDTIME 0x6
 #define ID_LOGDIR 0x7
 #define ID_BROWSE 0x7
+#define ID_MGWDIR 0x8
+#define ID_BROWSEMGW 0x9

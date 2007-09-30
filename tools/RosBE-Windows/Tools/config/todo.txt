@@ -2,6 +2,5 @@ ToDo:
 - Load old settings
 - Disable Save button if there are no changes
 - Check validity of log path before saving
-- Use styled controls (uxtheme) for dialog
 - Find out how to disable ... button
 - Font preview
