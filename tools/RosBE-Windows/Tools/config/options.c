@@ -65,7 +65,7 @@ INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
     WCHAR defaultmingwpath[MAX_PATH];
-	static HICON hIcon;
+    static HICON hIcon;
 
     switch (Msg)
     {
@@ -90,8 +90,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             GetCurrentDirectory(MAX_PATH, defaultmingwpath);
             wcscat(defaultmingwpath, MINGWVERSION);
             SetDlgItemText(Dlg, ID_MGWDIR, defaultmingwpath);
-            EnableWindow(GetDlgItem(Dlg, ID_BROWSE), FALSE);
-            EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), FALSE);
+
             return TRUE;
         }
 
@@ -122,7 +121,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 WCHAR MGWPath[MAX_PATH];
                 BROWSEINFO PathInfo;
                 ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
-/* Fails with IShellFolder interface */
+/* FIXME : Fails with IShellFolder interface */
 #if 0
                 LPSHELLFOLDER psf = NULL;
                 HRESULT hr;
@@ -148,10 +147,10 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             return FALSE;
         }
 
-		case WM_DESTROY:
-		{
-			DestroyIcon(hIcon);
-		}
+        case WM_DESTROY:
+        {
+            DestroyIcon(hIcon);
+        }
 
         case WM_CLOSE:
         {
