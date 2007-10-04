@@ -21,6 +21,8 @@ if "%1" == "" (
     echo                           ReactOS. OPTIONS1 are the standard ReactOS build
     echo                           options ie. "bootcd" and "strip" as optional
     echo                           second parameter sets stripping to enabled.
+    echo                           "ccache" as third enables Caching and a speedup
+    echo                           in build time.
     echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
     echo                           number of CPU Cores in the system and uses -j
     echo                           with the appropriate number.

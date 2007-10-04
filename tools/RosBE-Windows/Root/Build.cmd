@@ -20,6 +20,6 @@ set MAKE_COMMAND="%_MINGWMAKE%" %1
 ::
 :: Execute the shared build commands
 ::
-call "%ROSBEBASEDIR%\Build-Shared.cmd" %2
+call "%ROSBEBASEDIR%\Build-Shared.cmd" %2 %3
 
 title ReactOS Build Environment %_VER%

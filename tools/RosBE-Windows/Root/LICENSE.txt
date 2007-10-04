@@ -1,4 +1,4 @@
-ReactOS Build Environment v0.3.8.1
+ReactOS Build Environment v0.X.X.X
 
 Various parts of the ReactOS Build Environment are under different license's, the license's are as follows.
 (The complete text for each license is included in this document)

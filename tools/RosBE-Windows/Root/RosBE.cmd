@@ -15,7 +15,7 @@
 :: Config Tool.
 ::
 color 0A
-set _VER=0.3.8.1
+set _VER=0.X.X.X
 set ROSBEBASEDIR=%~dp0
 for /f "usebackq" %%i in (`"echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed s/.$//g"`) do @SET ROSBEBASEDIR=%%i
 set _ROSSOURCEDIRBASE=%CD%
