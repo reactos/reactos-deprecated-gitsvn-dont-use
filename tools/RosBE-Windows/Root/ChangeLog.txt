@@ -1,3 +1,15 @@
+*** XXX XXth, 200X - RosBE 0.X.X.X Released
+
+- Updated RosBE COnfiguration Tool. (Pierre Schweitzer)
+   - Added French translation.
+   - Added the possibility to choose MingW directory.
+   - Added support for WinXP style.
+   - Added the support of C99.
+   - Fixed warnings.
+   - Small Modification by me: added -s and went from -O3 to -O2 in Makefile.
+   - Correct Button States and Whitespace changes.
+- Added ccache 2.4 to RosBE. (Daniel Reimer)
+
 *** Sep 24th, 2007 - RosBE 0.3.8.1 Released
 
 - Updated the Variables for GCC. This is needed in r29185+ because of RBUILD Changes to

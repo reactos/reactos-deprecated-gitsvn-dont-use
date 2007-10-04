@@ -18,6 +18,25 @@ if "%1" == "strip" (
     set ROS_LEAN_AND_MEAN=yes
     goto :Build
 )
+if "%1" == "ccache" (
+    set ROS_LEAN_AND_MEAN=no
+    set HOST_CC=ccache gcc
+    set HOST_CPP=ccache g++
+    set TARGET_CC=ccache gcc
+    set TARGET_CPP=ccache g++
+    goto :Build
+)
+if "%2" == "strip" (
+    set ROS_LEAN_AND_MEAN=yes
+    goto :Build
+)
+if "%2" == "ccache" (
+    set HOST_CC=ccache gcc
+    set HOST_CPP=ccache g++
+    set TARGET_CC=ccache gcc
+    set TARGET_CPP=ccache g++
+    goto :Build
+)
 if "%1"  == "" (
     set ROS_LEAN_AND_MEAN=no
     goto :Build
