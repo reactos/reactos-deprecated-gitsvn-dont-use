@@ -5,7 +5,6 @@ STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMEN
 CAPTION "Paramètre du RosBE"
 FONT 8, "MS Shell Dlg"
 BEGIN
-  // x, pos_hight, width, hight
   LTEXT "Paramètres de l'Environnement de Compilation de ReactOS", 0x0, 10, 10, 240, 15
   LTEXT "Couleur d'arrière plan", 0x0, 10, 35, 60, 17
   COMBOBOX IDC_FONT, 100, 35, 110, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST

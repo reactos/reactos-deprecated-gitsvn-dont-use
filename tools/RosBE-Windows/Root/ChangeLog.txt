@@ -3,11 +3,17 @@
 - Updated RosBE COnfiguration Tool. (Pierre Schweitzer)
    - Added French translation.
    - Added the possibility to choose MingW directory.
+   - Added check to see if MingW dir is right (look up gcc)
    - Added support for WinXP style.
    - Added the support of C99.
    - Fixed warnings.
    - Small Modification by me: added -s and went from -O3 to -O2 in Makefile.
    - Correct Button States and Whitespace changes.
+   - Save button is disabled until a parameter is changed
+   - Definitively fixed resources IDs
+   - Added check to test if log dir exists and if it doesn't, it's created
+   - Added check to avoid writing in a non-existant file
+   - Updated todo list
 - Added ccache 2.4 to RosBE. (Daniel Reimer)
 
 *** Sep 24th, 2007 - RosBE 0.3.8.1 Released
