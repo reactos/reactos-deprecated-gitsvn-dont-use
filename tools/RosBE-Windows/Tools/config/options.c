@@ -35,12 +35,15 @@ WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red",
 
 HINSTANCE hInstance;
 
-VOID
+INT
 WriteSettings(HWND hwnd)
 {
     int foreground, background;
     BOOL showtime, writelog;
-    WCHAR logpath[MAX_PATH], mingwpath[MAX_PATH];
+    WCHAR logpath[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
+    WCHAR msgerror[256];
+    HANDLE hFile;
+    FILE *pFile;
 
     showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
     writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
@@ -49,16 +52,56 @@ WriteSettings(HWND hwnd)
     GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
     GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
 
-    FILE *pFile = fopen("options.cmd", "w");
+    if (writelog)
+    {
+        GetCurrentDirectory(MAX_PATH, checklog);
+        if (SetCurrentDirectory(logpath))
+        {
+            SetCurrentDirectory(checklog);
+        }
+        else
+        {
+            if (!CreateDirectory(logpath, NULL))
+            {
+                LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
+                MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
+                return FALSE;
+            }
+        }
+    }
 
-    fprintf(pFile, "REM This file has been automatically created by RosBE Options Dialog\n\n");
-    fprintf(pFile, "color %X%X\n", background, foreground);
-    fprintf(pFile, "set ROSBE_SHOWTIME=%d\n", showtime);
-    fprintf(pFile, "set ROSBE_WRITELOG=%d\n", writelog);
-    fprintf(pFile, "set ROSBE_LOGPATH=%S\n", logpath);
-    fprintf(pFile, "set ROSBE_MINGWPATH=%S\n", mingwpath);
+    wcscpy(checkmgw, mingwpath);
+    wcscat(checkmgw, L"\\bin\\gcc.exe");
+    hFile = CreateFile(checkmgw, (INT)NULL, (INT)NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        LoadString(hInstance, MSG_NOGCCFOUND, msgerror, 256);
+        MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
+        return FALSE;
+    }
+    else
+    {
+        CloseHandle(hFile);
+    }
 
-    fclose(pFile);
+    pFile = fopen("options.cmd", "w");
+    if (pFile)
+    {
+        fprintf(pFile, "REM This file has been automatically created by RosBE Options Dialog\n\n");
+        fprintf(pFile, "color %X%X\n", background, foreground);
+        fprintf(pFile, "set ROSBE_SHOWTIME=%d\n", showtime);
+        fprintf(pFile, "set ROSBE_WRITELOG=%d\n", writelog);
+        fprintf(pFile, "set ROSBE_LOGPATH=%S\n", logpath);
+        fprintf(pFile, "set ROSBE_MINGWPATH=%S\n", mingwpath);
+        fclose(pFile);
+        return TRUE;
+    }
+    else
+    {
+        LoadString(hInstance, MSG_FILEFAILED, msgerror, 256);
+        MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
+        return FALSE;
+    }
 }
 
 INT_PTR CALLBACK
@@ -102,7 +145,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             }
             else if (wParam == ID_OK)
             {
-                WriteSettings(Dlg);
+                if (WriteSettings(Dlg))
                 PostMessage(Dlg, WM_CLOSE, 0, 0);
             }
             else if (wParam == ID_BROWSE)
@@ -114,7 +157,10 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
                 LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
                 if (pidl && SHGetPathFromIDList(pidl, Path))
+                {
                     SetDlgItemText(Dlg, ID_LOGDIR, Path);
+                    EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+                }
             }
             else if (wParam == ID_BROWSEMGW)
             {
@@ -135,7 +181,10 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
                 LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
                 if (pidl && SHGetPathFromIDList(pidl, MGWPath))
+                {
                     SetDlgItemText(Dlg, ID_MGWDIR, MGWPath);
+                    EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+                }
             }
             else if (wParam == ID_SAVELOGS)
             {
@@ -143,6 +192,10 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                                0) == BST_CHECKED;
                 EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
                 EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
+            }
+            else if ((wParam == ID_SHOWBUILDTIME) || ((LOWORD(wParam) == IDC_FONT) && (HIWORD(wParam) == CBN_SELCHANGE)) || ((LOWORD(wParam) == IDC_BACK) && (HIWORD(wParam) == CBN_SELCHANGE)))
+            {
+                EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
             }
             return FALSE;
         }

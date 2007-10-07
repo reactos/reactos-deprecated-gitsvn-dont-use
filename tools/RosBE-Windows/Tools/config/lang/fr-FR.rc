@@ -4,19 +4,26 @@ ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 192
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Paramètre du RosBE"
 FONT 8, "MS Shell Dlg"
-{
+BEGIN
   // x, pos_hight, width, hight
-  LTEXT "Paramètres de l'Environnement de Compilation de ReactOS", 0x0, 10, 10, 140, 13
-  LTEXT "Couleur d'arrière plan", 0x0, 10, 35, 60, 12
+  LTEXT "Paramètres de l'Environnement de Compilation de ReactOS", 0x0, 10, 10, 240, 15
+  LTEXT "Couleur d'arrière plan", 0x0, 10, 35, 60, 17
   COMBOBOX IDC_FONT, 100, 35, 110, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
-  LTEXT "Couleur de la police", 0x0, 10, 60, 60, 12
+  LTEXT "Couleur de la police", 0x0, 10, 60, 60, 17
   COMBOBOX IDC_BACK, 100, 60, 110, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
-  CONTROL "Montrer le temps de compilation", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 90, 21
-  CONTROL "Sauvegarder le journal", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 115, 85, 60, 21
+  CONTROL "Montrer le temps de compilation", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 110, 21
+  CONTROL "Sauvegarder le journal", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 135, 85, 85, 21
   EDITTEXT ID_LOGDIR, 10, 110, 200, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "...", ID_BROWSE, 215, 110, 30, 13, WS_TABSTOP | WS_DISABLED
   EDITTEXT ID_MGWDIR, 10, 127, 200, 13, WS_TABSTOP
   PUSHBUTTON "...", ID_BROWSEMGW, 215, 127, 30, 13, WS_TABSTOP
-  PUSHBUTTON "Sauvegarder", ID_OK, 63, 155, 59, 26, WS_TABSTOP
+  PUSHBUTTON "Sauvegarder", ID_OK, 63, 155, 59, 26, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Annuler", ID_CANCEL, 133, 155, 59, 26, WS_TABSTOP
-}
+END
+
+STRINGTABLE
+BEGIN
+  MSG_NOGCCFOUND, "Impossible de trouver le compilateur GCC ! Veuillez vérifier votre répertoire."
+  MSG_FILEFAILED, "Impossible de créer options.cmd !"
+  MSG_DIREFAILED, "Impossible de créer le répertoire pour le journal !"
+END
