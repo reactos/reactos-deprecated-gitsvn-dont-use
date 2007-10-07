@@ -1,5 +1,5 @@
 ToDo:
 - Load old settings
-- Disable Save button if there are no changes
-- Check validity of log path before saving
+- Improve Save button status (disabled if no changes, even if user played with param)
 - Font preview
+- Fix FIXME

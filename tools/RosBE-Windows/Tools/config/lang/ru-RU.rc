@@ -4,7 +4,7 @@ ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 192
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Установки RosBE"
 FONT 8, "MS Shell Dlg"
-{
+BEGIN
   // x, pos_hight, width, hight
   LTEXT "Установки переменных компилятора РеактОС", 0x0, 10, 10, 140, 13
   LTEXT "Цвет Фона", 0x0, 10, 35, 60, 12
@@ -17,6 +17,13 @@ FONT 8, "MS Shell Dlg"
   PUSHBUTTON "...", ID_BROWSE, 215, 110, 30, 13, WS_TABSTOP | WS_DISABLED
   EDITTEXT ID_MGWDIR, 10, 127, 200, 13, WS_TABSTOP
   PUSHBUTTON "...", ID_BROWSEMGW, 215, 127, 30, 13, WS_TABSTOP
-  PUSHBUTTON "Сохранить", ID_OK, 63, 155, 59, 26, WS_TABSTOP
+  PUSHBUTTON "Сохранить", ID_OK, 63, 155, 59, 26, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Отменить", ID_CANCEL, 133, 155, 59, 26, WS_TABSTOP
-}
+END
+
+STRINGTABLE
+BEGIN
+  MSG_NOGCCFOUND, "No GCC compiler found ! Please check your directory."
+  MSG_FILEFAILED, "Failed to create options.cmd !"
+  MSG_DIREFAILED, "Failed to create log directory !"
+END

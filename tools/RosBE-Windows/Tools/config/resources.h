@@ -1,3 +1,4 @@
+/* Controls */
 #define ID_OK 0x1
 #define ID_CANCEL 0x2
 #define ID_OPTICON 0x3
@@ -7,7 +8,12 @@
 #define ID_BROWSE 0x7
 #define ID_MGWDIR 0x8
 #define ID_BROWSEMGW 0x9
-#define ID_DIALOG 0x10
-#define IDC_FONT 0x1
-#define IDC_BACK 0x2
+#define ID_DIALOG 0xa
+#define IDC_FONT 0xb
+#define IDC_BACK 0xc
+
+/* Strings */
+#define MSG_NOGCCFOUND 0x50
+#define MSG_FILEFAILED 0x51
+#define MSG_DIREFAILED 0x52
 
