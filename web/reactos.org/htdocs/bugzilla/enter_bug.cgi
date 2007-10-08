@@ -486,15 +486,7 @@ if ( Bugzilla->params->{'usetargetmilestone'} ) {
 #                             to let them mark bugs as ASSIGNED)
 
 my @status;
-if ($has_editbugs || $has_canconfirm) {
-    @status = ('NEW', 'ASSIGNED');
-}
-elsif (!$product->votes_to_confirm) {
-    @status = ('NEW');
-}
-if ($product->votes_to_confirm) {
-    push(@status, 'UNCONFIRMED');
-}
+@status = ('UNCONFIRMED');
 
 $vars->{'bug_status'} = \@status; 
 
