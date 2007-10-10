@@ -395,7 +395,8 @@ if( !function_exists( 'session_name' ) )
 
 # session.save_path doesn't *have* to be set, but if it is, and it's
 # not valid/writable/etc. then it can cause problems
-$sessionSavePath = ini_get( 'session.save_path' );
+$sessionSavePath = mw_get_session_save_path();
+$ssp = htmlspecialchars( $sessionSavePath );
 # Warn the user if it's not set, but let them proceed
 if( !$sessionSavePath ) {
 	print "<li><strong>Warning:</strong> A value for <tt>session.save_path</tt>
@@ -404,14 +405,12 @@ if( !$sessionSavePath ) {
 	for the user your web server is running under.</li>";
 } elseif ( is_dir( $sessionSavePath ) && is_writable( $sessionSavePath ) ) {
 	# All good? Let the user know
-	print "<li>Session save path appears to be valid.</li>";
+	print "<li>Session save path (<tt>{$ssp}</tt>) appears to be valid.</li>";
 } else {
-	# Something not right? Halt the installation so the user can fix it up
-	dieout( "Your session save path appears to be invalid or is not writable.
-		PHP needs to be able to save data to this location in order for correct
-		session operation. Please check that <tt>session.save_path</tt> in
-		<tt>PHP.ini</tt> points to a valid path, and is read/write/execute for
-		the user your web server is running under." );
+	# Something not right? Warn the user, but let them proceed
+	print "<li><strong>Warning:</strong> Your <tt>session.save_path</tt> value (<tt>{$ssp}</tt>)
+		appears to be invalid or is not writable. PHP needs to be able to save data to
+		this location for correct session operation.</li>";
 }
 
 # Check for PCRE support
@@ -839,45 +838,48 @@ if( $conf->posted && ( 0 == count( $errs ) ) ) {
 		if( $wgDatabase->tableExists( "cur" ) || $wgDatabase->tableExists( "revision" ) ) {
 			print "<li>There are already MediaWiki tables in this database. Checking if updates are needed...</li>\n";
 
-			# Determine existing default character set
-			if ( $wgDatabase->tableExists( "revision" ) ) {
-				$revision = $wgDatabase->escapeLike( $conf->DBprefix . 'revision' );
-				$res = $wgDatabase->query( "SHOW TABLE STATUS LIKE '$revision'" );
-				$row = $wgDatabase->fetchObject( $res );
-				if ( !$row ) {
-					echo "<li>SHOW TABLE STATUS query failed!</li>\n";
-					$existingSchema = false;
-				} elseif ( preg_match( '/^latin1/', $row->Collation ) ) {
-					$existingSchema = 'mysql4';
-				} elseif ( preg_match( '/^utf8/', $row->Collation ) ) {
-					$existingSchema = 'mysql5';
-				} elseif ( preg_match( '/^binary/', $row->Collation ) ) {
-					$existingSchema = 'mysql5-binary';
-				} else {
-					$existingSchema = false;
-					echo "<li><strong>Warning:</strong> Unrecognised existing collation</li>\n";
-				}
-				if ( $existingSchema && $existingSchema != $conf->DBschema ) {
-					print "<li><strong>Warning:</strong> you requested the {$conf->DBschema} schema, " .
-						"but the existing database has the $existingSchema schema. This upgrade script ". 
-						"can't convert it, so it will remain $existingSchema.</li>\n";
-					$conf->setSchema( $existingSchema );
-				}
-			}
+			if ( $conf->DBtype == 'mysql') {
 
-			# Create user if required (todo: other databases)
-			if ( $conf->Root && $conf->DBtype == 'mysql') {
-				$conn = $dbc->newFromParams( $wgDBserver, $wgDBuser, $wgDBpassword, $wgDBname, 1 );
-				if ( $conn->isOpen() ) {
-					print "<li>DB user account ok</li>\n";
-					$conn->close();
-				} else {
-					print "<li>Granting user permissions...";
-					if( $mysqlOldClient && $mysqlNewAuth ) {
-						print " <b class='error'>If the next step fails, see <a href='http://dev.mysql.com/doc/mysql/en/old-client.html'>http://dev.mysql.com/doc/mysql/en/old-client.html</a> for help.</b>";
+				# Determine existing default character set
+				if ( $wgDatabase->tableExists( "revision" ) ) {
+					$revision = $wgDatabase->escapeLike( $conf->DBprefix . 'revision' );
+					$res = $wgDatabase->query( "SHOW TABLE STATUS LIKE '$revision'" );
+					$row = $wgDatabase->fetchObject( $res );
+					if ( !$row ) {
+						echo "<li>SHOW TABLE STATUS query failed!</li>\n";
+						$existingSchema = false;
+					} elseif ( preg_match( '/^latin1/', $row->Collation ) ) {
+						$existingSchema = 'mysql4';
+					} elseif ( preg_match( '/^utf8/', $row->Collation ) ) {
+						$existingSchema = 'mysql5';
+					} elseif ( preg_match( '/^binary/', $row->Collation ) ) {
+						$existingSchema = 'mysql5-binary';
+					} else {
+						$existingSchema = false;
+						echo "<li><strong>Warning:</strong> Unrecognised existing collation</li>\n";
 					}
-					print "</li>\n";
-					dbsource( "../maintenance/users.sql", $wgDatabase );
+					if ( $existingSchema && $existingSchema != $conf->DBschema ) {
+						print "<li><strong>Warning:</strong> you requested the {$conf->DBschema} schema, " .
+							"but the existing database has the $existingSchema schema. This upgrade script ". 
+							"can't convert it, so it will remain $existingSchema.</li>\n";
+						$conf->setSchema( $existingSchema );
+					}
+				}
+
+				# Create user if required
+				if ( $conf->Root ) {
+					$conn = $dbc->newFromParams( $wgDBserver, $wgDBuser, $wgDBpassword, $wgDBname, 1 );
+					if ( $conn->isOpen() ) {
+						print "<li>DB user account ok</li>\n";
+						$conn->close();
+					} else {
+						print "<li>Granting user permissions...";
+						if( $mysqlOldClient && $mysqlNewAuth ) {
+							print " <b class='error'>If the next step fails, see <a href='http://dev.mysql.com/doc/mysql/en/old-client.html'>http://dev.mysql.com/doc/mysql/en/old-client.html</a> for help.</b>";
+						}
+						print "</li>\n";
+						dbsource( "../maintenance/users.sql", $wgDatabase );
+					}
 				}
 			}
 			print "</ul><pre>\n";
