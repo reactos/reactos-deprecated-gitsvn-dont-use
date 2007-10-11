@@ -95,35 +95,11 @@ class RosCMSTemplate extends QuickTemplate {
 <body <?php if($this->data['body_ondblclick']) { echo "ondblclick=\"". $this->text('body_ondblclick') ."\""; } ?>
 <?php if($this->data['body_onload']) { echo "onload=\"". $this->text('body_onload') ."\""; } ?>
  class="mediawiki <?php $this->text('nsclass') ?> <?php $this->text('dir') ?> <?php $this->text('pageclass') ?>">
- 
-<div id="top">
-	<div id="topMenu"> 
-		<!-- 
-			Use <p> to align things for links/lynx, then in the css make it
-			margin: 0; and use text-align: left/right/etc;.
-		-->
-		<p align="center"> 
-			<a href="/?page=index">Home</a> <font color="#ffffff">|</font> 
-			<a href="/?page=about">Info</a> <font color="#ffffff">|</font> 
-			<a href="/?page=community">Community</a> <font color="#ffffff">|</font> 
-			<a href="/?page=dev">Development</a> <font color="#ffffff">|</font> 
-			<a href="/roscms/?page=user">myReactOS</a>
-		</p>
-	</div>
-</div>
 
-<table border="0" width="100%" cellpadding="0" cellspacing="0">
-	<tr valign="top">
-		<td width="147" id="leftNav">
-			<div class="navTitle">Navigation</div>
-			<ol>
-				<li><a href="/?page=index">Home</a></li>
-				<li><a href="/?page=about">Info</a></li>
-				<li><a href="/?page=community">Community</a></li>
-				<li><a href="/?page=dev">Development</a></li>
-				<li><a href="/roscms/?page=user">myReactOS</a></li>
-			</ol>
-			<p></p>
+<?php
+	readfile("http://www.reactos.org/en/subsys_extern_menu_top.html");
+	readfile("http://www.reactos.org/en/subsys_extern_menu_left.html");
+?>
 
 			<div class="navTitle">Wiki</div>
 			<ol>
