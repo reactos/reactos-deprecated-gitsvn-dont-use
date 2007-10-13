@@ -9,11 +9,13 @@
 #define ID_MGWDIR 0x8
 #define ID_BROWSEMGW 0x9
 #define ID_DIALOG 0xa
-#define IDC_FONT 0xb
-#define IDC_BACK 0xc
+#define ID_EXAMPLE 0xb
+#define IDC_FONT 0xc
+#define IDC_BACK 0xd
 
 /* Strings */
 #define MSG_NOGCCFOUND 0x50
 #define MSG_FILEFAILED 0x51
 #define MSG_DIREFAILED 0x52
+
 

@@ -30,9 +30,15 @@
 typedef LPITEMIDLIST __stdcall (CALLBACK* ILCREATEFROMPATHW)(LPCWSTR path);
 
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
-WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"purple",
+WCHAR *Colors[] = { L"black", L"dark blue", L"dark green", L"turquoise", L"dark red", L"purple",
     L"ochar", L"light grey", L"dark grey", L"light blue", L"light green",
     L"cyan", L"light red", L"magenta", L"yellow", L"white"
+};
+
+// note: do not change the order - it matches to previous order
+COLORREF ColorsRGB[] = { 0x00000000, 0x00800000, 0x00008000, 0x00808000, 0x00000080, 0x00800080,
+    0x00008080, 0x00c0c0c0, 0x00808080, 0x00ff0000, 0x0000ff00,
+    0x00ffff00, 0x000000ff, 0x00ff00ff, 0x0000ffff, 0x00ffffff
 };
 
 HINSTANCE hInstance;
@@ -49,8 +55,8 @@ WriteSettings(HWND hwnd)
 
     showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
     writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
-    foreground = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
-    background = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
+    foreground = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
+    background = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
     GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
     GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
 
@@ -130,8 +136,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
                 SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
             }
-            SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0xA, 0);
-            SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0, 0);
+            SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0xA, 0);
+            SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0, 0);
             GetCurrentDirectory(MAX_PATH, defaultmingwpath);
             wcscat(defaultmingwpath, MINGWVERSION);
             SetDlgItemText(Dlg, ID_MGWDIR, defaultmingwpath);
@@ -200,9 +206,24 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             }
             else if ((wParam == ID_SHOWBUILDTIME) || ((LOWORD(wParam) == IDC_FONT) && (HIWORD(wParam) == CBN_SELCHANGE)) || ((LOWORD(wParam) == IDC_BACK) && (HIWORD(wParam) == CBN_SELCHANGE)))
             {
+                RECT rcWnd;
+                GetClientRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd);
+                InvalidateRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd, FALSE);
+                UpdateWindow(GetDlgItem(Dlg, ID_EXAMPLE));
                 EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
             }
             return FALSE;
+        }
+
+        case WM_CTLCOLORSTATIC :
+        {
+            if((HWND)lParam == GetDlgItem(Dlg, ID_EXAMPLE))
+            {
+                SetTextColor((HDC)wParam, ColorsRGB[SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_GETCURSEL, 0, 0)]);
+                SetBkColor((HDC)wParam, ColorsRGB[SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_GETCURSEL, 0, 0)]);
+                return (LONG)CreateSolidBrush(ColorsRGB[SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_GETCURSEL, 0, 0)]);
+            }
+            break;
         }
 
         case WM_DESTROY:
