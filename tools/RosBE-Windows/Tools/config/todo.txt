@@ -1,4 +1,4 @@
 ToDo:
 - Load old settings
 - Improve Save button status (disabled if no changes, even if user played with param)
-- Font preview
+- Improve font preview (having a bold could be better)
