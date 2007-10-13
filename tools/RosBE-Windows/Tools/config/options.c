@@ -27,6 +27,8 @@
 
 #define MINGWVERSION L"\\4.1.3"
 
+typedef LPITEMIDLIST __stdcall (CALLBACK* ILCREATEFROMPATHW)(LPCWSTR path);
+
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
 WCHAR *Colors[] = { L"black", L"dark blue", L"green", L"turquoise", L"dark red", L"purple",
     L"ochar", L"light grey", L"dark grey", L"light blue", L"light green",
@@ -166,17 +168,20 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             {
                 WCHAR MGWPath[MAX_PATH];
                 BROWSEINFO PathInfo;
+                HINSTANCE hDLL;
+                ILCREATEFROMPATHW ILCreateFromPathW;
                 ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
-/* FIXME : Fails with IShellFolder interface */
-#if 0
-                LPSHELLFOLDER psf = NULL;
-                HRESULT hr;
-                hr = SHGetDesktopFolder(&psf);
-                LPITEMIDLIST pidlRoot;
-                hr = psf->ParseDisplayName(NULL, NULL, defaultmingwpath, NULL, &pidlRoot, NULL);
-                psf->Release();
-                PathInfo.pidlRoot = pidlRoot;
-#endif
+                hDLL = LoadLibrary(L"shell32.dll");
+                if (hDLL)
+                {
+                    ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
+                    if (ILCreateFromPathW)
+                    {
+                        GetDlgItemText(Dlg, ID_MGWDIR, MGWPath, MAX_PATH);
+                        PathInfo.pidlRoot = ILCreateFromPathW(MGWPath);
+                    }
+                    FreeLibrary(hDLL);
+                }
                 PathInfo.hwndOwner = Dlg;
                 PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
                 LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
