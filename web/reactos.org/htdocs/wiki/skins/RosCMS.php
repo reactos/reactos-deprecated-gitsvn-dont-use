@@ -97,8 +97,12 @@ class RosCMSTemplate extends QuickTemplate {
  class="mediawiki <?php $this->text('nsclass') ?> <?php $this->text('dir') ?> <?php $this->text('pageclass') ?>">
 
 <?php
-	readfile("http://www.reactos.org/en/subsys_extern_menu_top.html");
-	readfile("http://www.reactos.org/en/subsys_extern_menu_left.html");
+	$userlang = $_COOKIE["roscms_usrset_lang"];
+	if(strlen($userlang) != 2)
+		$userlang = "en";
+	
+	readfile("http://www.reactos.org/$userlang/subsys_extern_menu_top.html");
+	readfile("http://www.reactos.org/$userlang/subsys_extern_menu_left.html");
 ?>
 
 			<div class="navTitle">Wiki</div>
