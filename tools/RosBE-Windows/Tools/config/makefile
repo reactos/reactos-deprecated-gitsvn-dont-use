@@ -5,7 +5,7 @@ TARGET := options.exe
 all: $(TARGET)
 
 CPP=mingw32-gcc
-CFLAGS := -DWIN32 -DUNICODE -O2 -std=c99
+CFLAGS := $(HOST_CFLAGS) -DWIN32 -DUNICODE -O2 -std=c99
 LFLAGS := -mwindows -s
 LIBS := 
 
@@ -21,7 +21,7 @@ $(TARGET): $(OBJS)
 	$(CPP) $(CFLAGS) -c $< -o $@
 
 $(RC:.rc=.coff):
-	windres $(RCFLAGS) -o $@ $(RC)
+	windres $(HOST_CFLAGS) $(RCFLAGS) -o $@ $(RC)
 
 .PHONY: clean
 clean:
