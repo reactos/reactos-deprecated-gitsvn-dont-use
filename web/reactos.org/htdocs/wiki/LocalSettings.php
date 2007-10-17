@@ -126,6 +126,19 @@ $wgCacheEpoch = max( $wgCacheEpoch, $configdate );
 # Entirely disable Anonymous Edits
 $wgGroupPermissions['*']['edit'] = false;
 
+# moderator group
+$wgGroupPermissions['mod']['protect'] = true;
+$wgGroupPermissions['mod']['move'] = true;
+
+# super moderator group
+$wgGroupPermissions['supermod']['protect'] = true;
+$wgGroupPermissions['supermod']['delete'] = true;
+$wgGroupPermissions['supermod']['move'] = true;
+
+# deactivate DB SQL queries
+$wgAllowSysopQueries = false;
+
+
 # Enable external image embedding
 $wgAllowExternalImages = true;
 
