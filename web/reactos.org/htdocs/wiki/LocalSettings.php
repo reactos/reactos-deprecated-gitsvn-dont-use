@@ -128,12 +128,14 @@ $wgGroupPermissions['*']['edit'] = false;
 
 # moderator group
 $wgGroupPermissions['mod']['protect'] = true;
-$wgGroupPermissions['mod']['move'] = true;
+$wgGroupPermissions['mod']['deletedhistory'] = true;
 
 # super moderator group
 $wgGroupPermissions['supermod']['protect'] = true;
 $wgGroupPermissions['supermod']['delete'] = true;
-$wgGroupPermissions['supermod']['move'] = true;
+$wgGroupPermissions['supermod']['deletedhistory'] = true;
+$wgGroupPermissions['supermod']['undelete'] = true;
+$wgGroupPermissions['supermod']['rollback'] = true;
 
 # deactivate DB SQL queries
 $wgAllowSysopQueries = false;
