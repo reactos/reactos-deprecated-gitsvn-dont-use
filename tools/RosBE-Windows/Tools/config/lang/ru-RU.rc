@@ -1,9 +1,11 @@
+// Russian language resource file (towerr, tumans@nm.ru 2007-10-17)
+
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 207
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Установки RosBE"
-FONT 8, "MS Shell Dlg"
+FONT 8,"MS Sans Serif",0,0
 BEGIN
   LTEXT "Установки переменных компилятора РеактОС", 0x0, 10, 10, 140, 13
   LTEXT "Цвет Фона", 0x0, 10, 35, 60, 12
