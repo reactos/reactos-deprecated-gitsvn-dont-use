@@ -115,7 +115,7 @@ function create_structure($page )
 			}
 
 		  ?>
-            <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="window.open(this.options[this.selectedIndex].value,'_main')">
+            <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="window.location.href = '<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=' + this.options[this.selectedIndex].value">
 			<optgroup label="current language"> 
 			  <?php 
 			$query_roscms_lang = mysql_query("SELECT * 
@@ -127,12 +127,13 @@ function create_structure($page )
               ?>
               </optgroup>
 			  <optgroup label="most popular">
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=en">English</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=de">Deutsch (German)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=fr">Français (French)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=it">Italiano (Italian)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=no">Norsk (Norwegian)</option>
-              <option value="<?php echo $roscms_intern_path_server.$roscms_intern_path_gererator; ?>?page=<?php echo $rpm_page; ?>&amp;lang=ru">Русский (Russian)</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch (German)</option>
+              <option value="fr">Français (French)</option>
+              <option value="it">Italiano (Italian)</option>
+              <option value="no">Norsk (Norwegian)</option>
+              <option value="pl">Polski (Polish)</option>
+              <option value="ru">Русский (Russian)</option>
               </optgroup>
             </select>
           </div>
