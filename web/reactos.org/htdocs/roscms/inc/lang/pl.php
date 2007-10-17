@@ -27,161 +27,161 @@
 // Language settings
 $roscms_langres['charset'] = 'utf-8';
 //$roscms_langres['charset'] = 'iso-8859-1';
-$roscms_langres['lang_code'] = 'EN';
+$roscms_langres['lang_code'] = 'PL';
 
 			   
 // main menu
-$roscms_langres['Navigation'] = 'Navigation';
-$roscms_langres['Home'] = 'Home';
-$roscms_langres['Dev'] = 'Development';
-$roscms_langres['Community'] = 'Community';
-$roscms_langres['Support'] = 'Support';
-$roscms_langres['myReactOS'] = 'myReactOS';
+$roscms_langres['Navigation'] = 'Nawigacja';
+$roscms_langres['Home'] = 'Domowa';
+$roscms_langres['Dev'] = 'Rozwój';
+$roscms_langres['Community'] = 'Społeczność';
+$roscms_langres['Support'] = 'Wsparcie';
+$roscms_langres['myReactOS'] = 'mójReactOS';
 
 // Login bar:
-$roscms_langres['Account'] = 'Account';
-$roscms_langres['Login'] = 'Login';
-$roscms_langres['Logout'] = 'Logout';
-$roscms_langres['Global_Login_System'] = 'Global Login System';
-$roscms_langres['Register_Account'] = 'Register Account';
+$roscms_langres['Account'] = 'Konto';
+$roscms_langres['Login'] = 'Zaloguj';
+$roscms_langres['Logout'] = 'Wyloguj';
+$roscms_langres['Global_Login_System'] = 'Globalne logowanie';
+$roscms_langres['Register_Account'] = 'Zarejestruj się';
 $roscms_langres['Login_Nick'] = '&nbsp;Nick:&nbsp;';
 $roscms_langres['LoginPwd'] = '&nbsp;Pwd:&nbsp;';
 
 
 // myReactOS menu
-$roscms_langres['User_Profil_Overview'] = 'User Profile Overview';
-$roscms_langres['User_Profil'] = 'User Profile';
-$roscms_langres['Overview'] = 'Overview';
-$roscms_langres['Login_System'] = 'Login System';
-$roscms_langres['Messages'] = 'Messages';
-$roscms_langres['Contacts'] = 'Contacts';
-$roscms_langres['Favorites'] = 'Favorites';
-$roscms_langres['Documentation'] = 'Documentation';
-$roscms_langres['Account_Edit'] = 'Settings';
-$roscms_langres['Accountlist'] = 'User List';
+$roscms_langres['User_Profil_Overview'] = 'Przegląd profilu użytkownika';
+$roscms_langres['User_Profil'] = 'Profil użytkownika';
+$roscms_langres['Overview'] = 'Przegląd';
+$roscms_langres['Login_System'] = 'System logowania';
+$roscms_langres['Messages'] = 'Wiadomości';
+$roscms_langres['Contacts'] = 'Kontakty';
+$roscms_langres['Favorites'] = 'Zakładki';
+$roscms_langres['Documentation'] = 'Dokumentacja';
+$roscms_langres['Account_Edit'] = 'Ustawienia';
+$roscms_langres['Accountlist'] = 'Lista użytkowników';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'A powerful and easy to use interface to manage your ReactOS homepage account.';
-$roscms_langres['Account_Information'] = 'Account Information';
-$roscms_langres['Account_Information_description'] = 'A sum up of the account data ... &lt;placeholder&gt;';
+$roscms_langres['myReactOS_description'] = 'Interfejs do szybkiego i sprawnego zarządzania Twoim kontem na stronie ReactOS.';
+$roscms_langres['Account_Information'] = 'Informacje o koncie';
+$roscms_langres['Account_Information_description'] = 'Podsumowanie danych konta ... &lt;placeholder&gt;';
 
 // Right side bar:
-$roscms_langres['Latest_Release'] = 'Latest Release';
-$roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
+$roscms_langres['Latest_Release'] = 'Najnowsze wydanie';
+$roscms_langres['myReactOS_Developer_Quotes'] = 'Cytaty twórców';
 
 // Error 404
-$roscms_langres['Page_not_found'] = 'Page not found';
+$roscms_langres['Page_not_found'] = 'Strona nie odnaleziona!';
 
 
 
 
 // Admin/Dev/Translator Interface
-$roscms_langres['Dev_Interface'] = 'Dev Interface';
-$roscms_langres['Dev_Overview'] = 'Overview';
-$roscms_langres['Dev_Pages'] = 'Pages';
-$roscms_langres['Dev_Contents'] = 'Contents';
-$roscms_langres['Dev_Help'] = 'Help';
+$roscms_langres['Dev_Interface'] = 'Interfejs programisty';
+$roscms_langres['Dev_Overview'] = 'Przegląd';
+$roscms_langres['Dev_Pages'] = 'Strony';
+$roscms_langres['Dev_Contents'] = 'Zawartość';
+$roscms_langres['Dev_Help'] = 'Pomoc';
 
-$roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Developer Interface - Overview';
+$roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Interfejs programisty - Przegląd';
 
 
 
-$roscms_langres['ContTrans_Interface_Content'] = 'Dev Interface - Content';
-$roscms_langres['ContTrans_Contents'] = 'Content';
-$roscms_langres['ContTrans_Interface_Pages'] = 'Dev Interface - Pages';
-$roscms_langres['ContTrans_Pages'] = 'Pages';
+$roscms_langres['ContTrans_Interface_Content'] = 'Interfejs programisty - Zawartość';
+$roscms_langres['ContTrans_Contents'] = 'Zawartość';
+$roscms_langres['ContTrans_Interface_Pages'] = 'Interfejs programisty - Strony';
+$roscms_langres['ContTrans_Pages'] = 'Strony';
 
-$roscms_langres['ContTrans_Profile'] = 'Profile';
+$roscms_langres['ContTrans_Profile'] = 'Profil';
 
-$roscms_langres['ContTrans_Action'] = 'Action';
-$roscms_langres['ContTrans_NewContent'] = 'New Content';
-$roscms_langres['ContTrans_NewPage'] = 'New Page';
+$roscms_langres['ContTrans_Action'] = 'Działanie';
+$roscms_langres['ContTrans_NewContent'] = 'Nowa zawartość';
+$roscms_langres['ContTrans_NewPage'] = 'Nowa strona';
 
-$roscms_langres['ContTrans_resetfilters'] = 'reset filters & sort';
+$roscms_langres['ContTrans_resetfilters'] = 'resetuj filtry i sortuj';
 $roscms_langres['ContTrans_Info'] = 'Info';
 $roscms_langres['ContTrans_ContentID'] = 'Content ID';
 $roscms_langres['ContTrans_PageID'] = 'Page ID';
-$roscms_langres['ContTrans_Content'] = 'Content';
+$roscms_langres['ContTrans_Content'] = 'Zawartość';
 $roscms_langres['ContTrans_Rev'] = 'Rev.';
-$roscms_langres['ContTrans_Date'] = 'Date';
-$roscms_langres['ContTrans_Time'] = 'Time';
-$roscms_langres['ContTrans_User'] = 'User';
-$roscms_langres['ContTrans_Language'] = 'Language';
-$roscms_langres['ContTrans_International'] = 'Original (English)';
-$roscms_langres['ContTrans_All'] = 'All';
-$roscms_langres['ContTrans_Filter'] = 'Filter';
-$roscms_langres['ContTrans_activecontent'] = 'active content';
-$roscms_langres['ContTrans_activepages'] = 'active pages';
-$roscms_langres['ContTrans_allcontent'] = 'all content';
-$roscms_langres['ContTrans_allpages'] = 'all pages';
-$roscms_langres['ContTrans_activeandvisiblecontent'] = 'active and visible content';
-$roscms_langres['ContTrans_currentuser'] = 'current user';
+$roscms_langres['ContTrans_Date'] = 'Data';
+$roscms_langres['ContTrans_Time'] = 'Czas';
+$roscms_langres['ContTrans_User'] = 'Użytkownik';
+$roscms_langres['ContTrans_Language'] = 'Język';
+$roscms_langres['ContTrans_International'] = 'Oryginalny (Angielski)';
+$roscms_langres['ContTrans_All'] = 'Wszystko';
+$roscms_langres['ContTrans_Filter'] = 'Filtr';
+$roscms_langres['ContTrans_activecontent'] = 'aktywna zawartość';
+$roscms_langres['ContTrans_activepages'] = 'aktywne strony';
+$roscms_langres['ContTrans_allcontent'] = 'cała zawartość';
+$roscms_langres['ContTrans_allpages'] = 'wszystkie strony';
+$roscms_langres['ContTrans_activeandvisiblecontent'] = 'aktywna i widzialna zawartość';
+$roscms_langres['ContTrans_currentuser'] = 'obecny użytkownik';
 
-$roscms_langres['ContTrans_normalpages'] = 'normal pages';
-$roscms_langres['ContTrans_dynamicpages'] = 'dynamic pages';
+$roscms_langres['ContTrans_normalpages'] = 'normalne strony';
+$roscms_langres['ContTrans_dynamicpages'] = 'strony dynamiczne';
 
-$roscms_langres['ContTrans_history'] = 'history';
-$roscms_langres['ContTrans_Sortedby'] = 'Sorted by';
+$roscms_langres['ContTrans_history'] = 'historia';
+$roscms_langres['ContTrans_Sortedby'] = 'Posortował';
 $roscms_langres['ContTrans_contentid'] = 'content id';
 $roscms_langres['ContTrans_pageid'] = 'page id';
-$roscms_langres['ContTrans_date'] = 'date';
-$roscms_langres['ContTrans_user'] = 'user';
-$roscms_langres['ContTrans_active'] = 'active';
-$roscms_langres['ContTrans_Active'] = 'Active';
-$roscms_langres['ContTrans_visible'] = 'visible';
-$roscms_langres['ContTrans_Visible'] = 'Visible';
-$roscms_langres['ContTrans_version'] = 'version';
+$roscms_langres['ContTrans_date'] = 'data';
+$roscms_langres['ContTrans_user'] = 'użytkownik';
+$roscms_langres['ContTrans_active'] = 'aktywne';
+$roscms_langres['ContTrans_Active'] = 'Aktywne';
+$roscms_langres['ContTrans_visible'] = 'widzialne';
+$roscms_langres['ContTrans_Visible'] = 'Widzialne';
+$roscms_langres['ContTrans_version'] = 'wersja';
 $roscms_langres['ContTrans_extra'] = 'extra';
 $roscms_langres['ContTrans_Extra'] = 'Extra';
-$roscms_langres['ContTrans_language'] = 'language';
-$roscms_langres['ContTrans_editor'] = 'editor';
-$roscms_langres['ContTrans_Editor'] = 'Editor';
-$roscms_langres['ContTrans_Translate'] = 'Translate';
-$roscms_langres['ContTrans_Edit'] = 'View / Edit';
-$roscms_langres['ContTrans_Delete'] = 'Delete';
-$roscms_langres['ContTrans_filter_history'] = 'Filter: history';
+$roscms_langres['ContTrans_language'] = 'język';
+$roscms_langres['ContTrans_editor'] = 'edytor';
+$roscms_langres['ContTrans_Editor'] = 'Edytor';
+$roscms_langres['ContTrans_Translate'] = 'Tłumacz';
+$roscms_langres['ContTrans_Edit'] = 'Pokaż / Edytuj';
+$roscms_langres['ContTrans_Delete'] = 'Usuń';
+$roscms_langres['ContTrans_filter_history'] = 'Filtr: historia';
 
-$roscms_langres['ContTrans_ViewEditContent'] = 'View / Edit content';
-$roscms_langres['ContTrans_ViewEditpage'] = 'View / Edit page';
-$roscms_langres['ContTrans_SaveContent'] = 'Save content';
-$roscms_langres['ContTrans_Type'] = 'Type';
-$roscms_langres['ContTrans_Description'] = 'Description';
-$roscms_langres['ContTrans_Username'] = 'Username';
-$roscms_langres['ContTrans_egAbout'] = 'e.g. &quot;about&quot;';
-$roscms_langres['ContTrans_checklang'] = 'Please check, if you have selected the right language, before you click "submit"!';
-$roscms_langres['ContTrans_SAVE'] = '<b>Save</b> (new version and new db entry)';
-$roscms_langres['ContTrans_UPDATE'] = '<b>Update</b>  (overwrite the current entry)';
-$roscms_langres['ContTrans_Save1'] = 'A new version of content';
-$roscms_langres['ContTrans_Save2'] = 'has been saved!';
-$roscms_langres['ContTrans_Save3'] = 'Go to the \'content edit\' page';
-$roscms_langres['ContTrans_Save4'] = 'Back to the \'content edit\' page';
-$roscms_langres['ContTrans_Save5'] = 'The page';
-$roscms_langres['ContTrans_Save6'] = 'View the page (dynamic version; new window)';
-$roscms_langres['ContTrans_Save7'] = 'Back to the \'page edit\' page';
+$roscms_langres['ContTrans_ViewEditContent'] = 'Pokaż / Edytuj zawartość';
+$roscms_langres['ContTrans_ViewEditpage'] = 'Pokaż / Edytuj stronę';
+$roscms_langres['ContTrans_SaveContent'] = 'Zapisz zawartość';
+$roscms_langres['ContTrans_Type'] = 'Typ';
+$roscms_langres['ContTrans_Description'] = 'Opis';
+$roscms_langres['ContTrans_Username'] = 'Użytkownik';
+$roscms_langres['ContTrans_egAbout'] = 'np. &quot;o czymś&quot;';
+$roscms_langres['ContTrans_checklang'] = 'Proszę sprawdzić czy wybrałeś poprawny język zanim zaakceptujesz zmiany!';
+$roscms_langres['ContTrans_SAVE'] = '<b>Zapisz</b> (nowa wersja i nowy wpis w bazie)';
+$roscms_langres['ContTrans_UPDATE'] = '<b>Aktualizacja</b>  (nadpisz obecną wersję)';
+$roscms_langres['ContTrans_Save1'] = 'Nowa wersja zawartości';
+$roscms_langres['ContTrans_Save2'] = 'została zapisana!';
+$roscms_langres['ContTrans_Save3'] = 'Przejdź do \'edycji\'';
+$roscms_langres['ContTrans_Save4'] = 'Powróć do \'edycji\'';
+$roscms_langres['ContTrans_Save5'] = 'Strona';
+$roscms_langres['ContTrans_Save6'] = 'Pokaż stronę (dynamiczna wersja; nowe okno)';
+$roscms_langres['ContTrans_Save7'] = 'Przejdź do \'edycji strony\'';
 
-$roscms_langres['ContTrans_Preview'] = 'Preview';
-$roscms_langres['ContTrans_PageTitle'] = 'Page Title';
-$roscms_langres['ContTrans_Extention'] = 'Extention';
+$roscms_langres['ContTrans_Preview'] = 'Podgląd';
+$roscms_langres['ContTrans_PageTitle'] = 'Tytuł strony';
+$roscms_langres['ContTrans_Extention'] = 'Rozszerzenie';
 
-$roscms_langres['ContTrans_DevPageGenerator'] = 'Developer Interface - Page Generator';
-$roscms_langres['Dev_PageGenerator'] = 'Page Generator';
-$roscms_langres['Dev_PageGeneratorOverview'] = 'Page Generator Overview';
-$roscms_langres['ContTrans_Change'] = 'Change';
-$roscms_langres['ContTrans_LatestGen'] = 'Latest Gen.';
-$roscms_langres['ContTrans_UserGen'] = 'User (Generator)';
+$roscms_langres['ContTrans_DevPageGenerator'] = 'Generator stron';
+$roscms_langres['Dev_PageGenerator'] = 'Generator stron';
+$roscms_langres['Dev_PageGeneratorOverview'] = 'Generator stron - Przegląd';
+$roscms_langres['ContTrans_Change'] = 'Zamiana';
+$roscms_langres['ContTrans_LatestGen'] = 'Ostatnio generowane.';
+$roscms_langres['ContTrans_UserGen'] = 'Użytkownik (Generator)';
 
-$roscms_langres['ContTrans_Gen_desc'] = 'The static page generator can output the pages to files or to the browser.';
-$roscms_langres['ContTrans_Gen_menu1'] = 'Generate  all UPDATED static pages';
-$roscms_langres['ContTrans_Gen_menu2'] = 'Generate all static pages';
-$roscms_langres['ContTrans_Gen_menu3'] = 'Generate/view a specific static page';
-$roscms_langres['ContTrans_Gen_menu4'] = 'View page (dynamic from database)';
-$roscms_langres['ContTrans_Gen_menu3_desc'] = 'Generate one static page; e.g. if you want to update one specific page';
-$roscms_langres['ContTrans_allactivepages'] = 'all (active) pages';
+$roscms_langres['ContTrans_Gen_desc'] = 'Generator statyczny może generować strony do pliku lub bezpośrednio do przeglądarki.';
+$roscms_langres['ContTrans_Gen_menu1'] = 'Generuj wszystkie UAKTUALNIONE strony statyczne';
+$roscms_langres['ContTrans_Gen_menu2'] = 'Generuj wszystkie strony statyczne';
+$roscms_langres['ContTrans_Gen_menu3'] = 'Generuj/pokaż konkretną stronę statyczną';
+$roscms_langres['ContTrans_Gen_menu4'] = 'Pokaż stronę (używając bazy danych)';
+$roscms_langres['ContTrans_Gen_menu3_desc'] = 'Generuj jedną stronę statyczną (kiedy tylko ją potrzeba wygenerować)';
+$roscms_langres['ContTrans_allactivepages'] = 'wszystkie (aktywne) strony';
 
 
-$roscms_langres['ContTrans_yes'] = 'yes';
-$roscms_langres['ContTrans_no'] = 'no';
+$roscms_langres['ContTrans_yes'] = 'tak';
+$roscms_langres['ContTrans_no'] = 'nie';
 
 
 ?>
