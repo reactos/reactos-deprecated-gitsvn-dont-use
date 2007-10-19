@@ -119,12 +119,12 @@ if "%1" == "scut" (
     echo parameter sets this Shortcut active.
     echo.
     echo    add     - Adds a Shortcut.
-    echo              (Optional: "Shortcut" "Directory" as second and third parameter) 
+    echo              (Optional: "Shortcut" "Directory" as second and third parameter)
     echo    remove  - Removes a shortcut.
     echo              (Optional: "Shortcut" as second parameter)
     echo    def     - Chooses Default Shortcut which is enabled on
     echo              every start of RosBE. "Default" is the Source
-    echo              Directory as you know it from previous Versions 
+    echo              Directory as you know it from previous Versions
     goto :EOF
 )
 if not "%1" == "" (
