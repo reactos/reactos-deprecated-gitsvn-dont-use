@@ -12,6 +12,8 @@
 #define ID_EXAMPLE 0xb
 #define IDC_FONT 0xc
 #define IDC_BACK 0xd
+#define ID_USECCACHE 0xe
+#define ID_STRIP 0xf
 
 /* Strings */
 #define MSG_NOGCCFOUND 0x50

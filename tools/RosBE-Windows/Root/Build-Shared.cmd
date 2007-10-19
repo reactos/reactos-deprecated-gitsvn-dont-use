@@ -11,36 +11,14 @@
 @echo off
 
 ::
-:: Take over the 2nd parameter of Build.cmd, which enables/disables stripping.
+:: Check the parameters.
 ::
 
-if "%1" == "strip" (
-    set ROS_LEAN_AND_MEAN=yes
-    goto :Build
-)
-if "%1" == "ccache" (
-    set ROS_LEAN_AND_MEAN=no
-    set HOST_CC=ccache gcc
-    set HOST_CPP=ccache g++
-    set TARGET_CC=ccache gcc
-    set TARGET_CPP=ccache g++
-    goto :Build
-)
-if "%2" == "strip" (
-    set ROS_LEAN_AND_MEAN=yes
-    goto :Build
-)
-if "%2" == "ccache" (
-    set HOST_CC=ccache gcc
-    set HOST_CPP=ccache g++
-    set TARGET_CC=ccache gcc
-    set TARGET_CPP=ccache g++
-    goto :Build
-)
 if "%1"  == "" (
-    set ROS_LEAN_AND_MEAN=no
     goto :Build
-)
+) else (
+    echo Unknown parameter specified.
+    goto :EOF
 
 :Build
 
@@ -85,6 +63,17 @@ if exist "config.rbuild" (
         echo.
         goto :EOB
     )
+)
+
+if %ROSBE_STRIP% == 1 (
+    set ROS_LEAN_AND_MEAN=yes
+)
+if %ROSBE_USECCACHE% == 1 (
+    set ROS_LEAN_AND_MEAN=no
+    set HOST_CC=ccache gcc
+    set HOST_CPP=ccache g++
+    set TARGET_CC=ccache gcc
+    set TARGET_CPP=ccache g++
 )
 
 ::

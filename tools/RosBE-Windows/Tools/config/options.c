@@ -47,7 +47,7 @@ INT
 WriteSettings(HWND hwnd)
 {
     int foreground, background;
-    BOOL showtime, writelog;
+    BOOL showtime, writelog, useccache, strip;
     WCHAR logpath[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
@@ -55,6 +55,8 @@ WriteSettings(HWND hwnd)
 
     showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
     writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
+    useccache = SendMessage(GetDlgItem(hwnd, ID_USECCACHE), BM_GETCHECK, 0, 0);
+    strip = SendMessage(GetDlgItem(hwnd, ID_STRIP), BM_GETCHECK, 0, 0);
     foreground = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
     background = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
     GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
@@ -98,6 +100,8 @@ WriteSettings(HWND hwnd)
         fprintf(pFile, "REM This file has been automatically created by RosBE Options Dialog\n\n");
         fprintf(pFile, "color %X%X\n", background, foreground);
         fprintf(pFile, "set ROSBE_SHOWTIME=%d\n", showtime);
+        fprintf(pFile, "set ROSBE_USECCACHE=%d\n", useccache);
+        fprintf(pFile, "set ROSBE_STRIP=%d\n", strip);
         fprintf(pFile, "set ROSBE_WRITELOG=%d\n", writelog);
         fprintf(pFile, "set ROSBE_LOGPATH=%S\n", logpath);
         fprintf(pFile, "set ROSBE_MINGWPATH=%S\n", mingwpath);
@@ -203,6 +207,14 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                                0) == BST_CHECKED;
                 EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
                 EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
+            }
+            else if (wParam == ID_STRIP)
+            {
+                EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+            }
+            else if (wParam == ID_USECCACHE)
+            {
+                EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
             }
             else if ((wParam == ID_SHOWBUILDTIME) || ((LOWORD(wParam) == IDC_FONT) && (HIWORD(wParam) == CBN_SELCHANGE)) || ((LOWORD(wParam) == IDC_BACK) && (HIWORD(wParam) == CBN_SELCHANGE)))
             {
