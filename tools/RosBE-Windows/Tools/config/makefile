@@ -7,7 +7,7 @@ all: $(TARGET)
 CPP=mingw32-gcc
 CFLAGS := $(HOST_CFLAGS) -DWIN32 -DUNICODE -O2 -std=c99
 LFLAGS := -mwindows -s
-LIBS := 
+LIBS :=
 
 SRCS := options.c
 RC := options.rc

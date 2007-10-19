@@ -25,7 +25,7 @@ END
 
 STRINGTABLE
 BEGIN
-  MSG_NOGCCFOUND, "No GCC compiler found ! Please check your directory."
-  MSG_FILEFAILED, "Failed to create options.cmd!"
-  MSG_DIREFAILED, "Failed to create log directory!"
+  MSG_NOGCCFOUND, "Компилятор GCC ненайден! Проверьте правильность установки."
+  MSG_FILEFAILED, "Невозможно создать файл options.cmd"
+  MSG_DIREFAILED, "Невозможно создать папку для логов!"
 END
