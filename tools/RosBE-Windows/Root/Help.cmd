@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See COPYING in the top level directory
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
 :: FILE:        Root/Help.cmd
 :: PURPOSE:     Display help for the commands included with the ReactOS Build Environment.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
@@ -9,7 +9,7 @@
 ::
 @echo off
 
-title ReactOS Build Environment %_VER%
+title ReactOS Build Environment %_ROSBE_VERSION%
 
 ::
 :: Receive the first Parameter and decide what to do.

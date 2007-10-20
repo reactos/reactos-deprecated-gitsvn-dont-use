@@ -99,12 +99,12 @@ WriteSettings(HWND hwnd)
     {
         fprintf(pFile, "REM This file has been automatically created by RosBE Options Dialog\n\n");
         fprintf(pFile, "color %X%X\n", background, foreground);
-        fprintf(pFile, "set ROSBE_SHOWTIME=%d\n", showtime);
-        fprintf(pFile, "set ROSBE_USECCACHE=%d\n", useccache);
-        fprintf(pFile, "set ROSBE_STRIP=%d\n", strip);
-        fprintf(pFile, "set ROSBE_WRITELOG=%d\n", writelog);
-        fprintf(pFile, "set ROSBE_LOGPATH=%S\n", logpath);
-        fprintf(pFile, "set ROSBE_MINGWPATH=%S\n", mingwpath);
+        fprintf(pFile, "set _ROSBE_SHOWTIME=%d\n", showtime);
+        fprintf(pFile, "set _ROSBE_USECCACHE=%d\n", useccache);
+        fprintf(pFile, "set _ROSBE_STRIP=%d\n", strip);
+        fprintf(pFile, "set _ROSBE_WRITELOG=%d\n", writelog);
+        fprintf(pFile, "set _ROSBE_LOGPATH=%S\n", logpath);
+        fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
         fclose(pFile);
         return TRUE;
     }

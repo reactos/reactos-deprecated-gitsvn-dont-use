@@ -1,9 +1,9 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See COPYING in the top level directory
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
 :: FILE:        Root/RosBE.cmd
 :: PURPOSE:     This script provides/sets up various build environments for
-::              ReactOS. Currently it provides GCC 4.1.3 build environments.
+::              ReactOS. Currently it provides a GCC 4.1.3 build environment.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Peter Ward <dralnix@gmail.com>
 ::
@@ -11,38 +11,37 @@
 @echo off
 
 ::
-:: Set Defaults to work with and override them if edited by
-:: Config Tool.
+:: Set defaults to work with and override them if edited by
+:: the options utility.
 ::
 color 0A
-set _VER=0.X.X.X
-set ROSBEBASEDIR=%~dp0
-for /f "usebackq" %%i in (`"echo %ROSBEBASEDIR%|%ROSBEBASEDIR%Tools\sed s/.$//g"`) do @SET ROSBEBASEDIR=%%i
-set _ROSSOURCEDIR=%CD%
-set ROSBE_SHOWTIME=1
-set ROSBE_WRITELOG=1
-set ROSBE_USECCACHE=0
-set ROSBE_STRIP=0
-set ROSBE_MINGWPATH=%ROSBEBASEDIR%\4.1.3
-set _ROSBELOGDIR=%CD%\RosBE-Logs
+set _ROSBE_VERSION=0.X.X.X
+set _ROSBE_BASEDIR=%~dp0
+for /f "usebackq" %%i in (`"echo %_ROSBE_BASEDIR%|%_ROSBE_BASEDIR%Tools\sed s/.$//g"`) do @SET _ROSBE_BASEDIR=%%i
+set _ROSBE_ROSSOURCEDIR=%CD%
+set _ROSBE_SHOWTIME=1
+set _ROSBE_WRITELOG=1
+set _ROSBE_USECCACHE=0
+set _ROSBE_STRIP=0
+set _ROSBE_MINGWPATH=%_ROSBE_BASEDIR%\4.1.3
+set _ROSBE_LOGDIR=%CD%\RosBE-Logs
 
 ::
 :: Check if the user has used the options utility and
 :: if so, load their options.
 ::
-if exist %ROSBEBASEDIR%\options.cmd (
-    call %ROSBEBASEDIR%\options.cmd
+if exist %_ROSBE_BASEDIR%\options.cmd (
+    call %_ROSBE_BASEDIR%\options.cmd
 )
 
-title ReactOS Build Environment %_VER%
+title ReactOS Build Environment %_ROSBE_VERSION%
 
 ::
 :: Make sure RosBE was initialized right.
 ::
 if "%1" == "oldmode" (
     cls
-    set C_INCLUDE_PATH=%ROSBE_MINGWPATH%\include;%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
-    set CPLUS_INCLUDE_PATH=%ROSBE_MINGWPATH%\include;%ROSBE_MINGWPATH%\include\c++\4.1.3;%ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32;%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
+    set _ROSBE_OLDMODE=
     call :RosBE4
     goto :EndCommandParse
 )
@@ -50,6 +49,10 @@ if not "%1" == "" (
     cls
     echo Unknown parameter specified. Exiting.
     goto :ExitRosBE
+) else (
+    cls
+    call :RosBE4
+    goto :EndCommandParse
 )
 
 :EndCommandParse
@@ -58,8 +61,8 @@ if not "%1" == "" (
 :: Load the Base Directory from the Shortcut-XML and set it as new
 :: Source Directory and add PATH for Tools Folder.
 ::
-set PATH=%ROSBEBASEDIR%\Tools;%PATH%
-for /f "usebackq" %%i in (`"grep base= "%ROSBEBASEDIR%\srclist.xml"|cutz main"`) do @SET scut=%%i
+set PATH=%_ROSBE_BASEDIR%\Tools;%PATH%
+for /f "usebackq" %%i in (`"grep base= "%_ROSBE_BASEDIR%\srclist.xml"|cutz main"`) do @SET scut=%%i
 echo Used Shortcut: %scut%
 echo.
 
@@ -81,19 +84,19 @@ echo -------------------------------------------------
 ::
 :: Load the doskey macros that serve as our commands.
 ::
-doskey /macrofile="%ROSBEBASEDIR%\RosBE.mac"
+doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
 
 ::
 :: Set new source directory, if needed.
 ::
 if not "%scut%" == "Default" (
-    call %ROSBEBASEDIR%\scut %scut%
+    call %_ROSBE_BASEDIR%\scut %scut%
 )
 
 ::
 :: Look if the Source Folder is empty. If so, ask for using "svn create".
 ::
-dir /b "%_ROSSOURCEDIR%" 2>nul|findstr "." >nul
+dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul|findstr "." >nul
 if errorlevel 1 (
     echo No ReactOS Source detected. Please use "ssvn create" to download it.
 )
@@ -108,16 +111,20 @@ goto :ExitRosBE
     ::
     :: Set the correct path for the build tools and set the MinGW make.
     ::
-    set PATH=%ROSBE_MINGWPATH%\bin;%ROSBE_MINGWPATH%\libexec\gcc\mingw32\4.1.3;%PATH%
-    set _MINGWMAKE=%ROSBE_MINGWPATH%\bin\mingw32-make.exe
-    set _MINGWVERSION=4.1.3
-    set HOST_CFLAGS=-I"%ROSBE_MINGWPATH%\include" -I"%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
-    set HOST_CPPFLAGS=-I"%ROSBE_MINGWPATH%\include" -I"%ROSBE_MINGWPATH%\include\c++\4.1.3" -I"%ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32" -I"%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
-    set LIBRARY_PATH=%ROSBE_MINGWPATH%\lib;%ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3
+    set _ROSBE_GCCVERSION=4.1.3
+    set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_MINGWPATH%\libexec\gcc\mingw32\4.1.3;%PATH%
+    set _ROSBE_MINGWMAKE=%_ROSBE_MINGWPATH%\bin\mingw32-make.exe
+    if defined _ROSBE_OLDEMODE (
+        set C_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
+        set CPLUS_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\include\c++\4.1.3;%_ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
+    )
+    set HOST_CFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
+    set HOST_CPPFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\include\c++\4.1.3" -I"%_ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
+    set LIBRARY_PATH=%_ROSBE_MINGWPATH%\lib;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *        ReactOS Build Environment %_VER%-4.1.3-20070703 (prerelease)        *
+    echo *        ReactOS Build Environment %_ROSBE_VERSION%-4.1.3-20070703 (prerelease)        *
     echo *                                                                             *
     echo *******************************************************************************
     echo.

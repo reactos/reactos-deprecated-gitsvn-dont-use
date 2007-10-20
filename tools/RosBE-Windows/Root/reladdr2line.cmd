@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See COPYING in the top level directory
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
 :: FILE:        Root/reladdr2line.cmd
 :: PURPOSE:     Converts a value to hex and displays it.
 :: COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
@@ -53,4 +53,4 @@ if %%i LSS %_2% (
     for /f %%i in ('"echoh %baseaddr%"') do set relbase=%%i
     raddr2line "%_1%" "%relbase%" 2>NUL
 )
-title ReactOS Build Environment %_VER%
+title ReactOS Build Environment %_ROSBE_VERSION%
