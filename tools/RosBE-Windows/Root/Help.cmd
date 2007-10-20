@@ -33,6 +33,8 @@ if "%1" == "" (
     echo                           the RosBE build logs.
     echo    help [COMMAND]       - Display the available commands or help on a
     echo                           specific command.
+    echo    options              - Starts options.exe and reboots to make the
+    echo                           changes effective at the end.
     echo    raddr2line [OPTIONS] - Translates program addresses into file names and
     echo                           line numbers to assist Developers to find
     echo                           specific Bugs in ReactOS.
@@ -106,6 +108,12 @@ if "%1" == "raddr2line" (
 if "%1" == "basedir" (
     echo Usage: basedir
     echo Switches back to the ReactOS source directory.
+    goto :EOF
+)
+if "%1" == "options" (
+    echo Usage: options
+    echo Starts RosBE Configurator and reboots RosBE afterwards to make the
+    echo changes effective at the end.
     goto :EOF
 )
 if "%1" == "scut" (
