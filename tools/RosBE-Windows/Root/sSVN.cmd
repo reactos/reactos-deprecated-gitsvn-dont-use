@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See COPYING in the top level directory
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
 :: FILE:        Root/SVN.cmd
 :: PURPOSE:     Integrated SVN Client.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
@@ -82,8 +82,8 @@ if %OFFSVN% EQU %ONSVN% (
 
 :UP2
 SET /P XY="(yes), (no)"
-if /I "%XY%"=="yes" %ROSBEBASEDIR%\ssvn update
+if /I "%XY%"=="yes" %_ROSBE_BASEDIR%\ssvn update
 if /I "%XY%"=="no" goto :ExitSVN
 
 :ExitSVN
-title ReactOS Build Environment %_VER%
+title ReactOS Build Environment %_ROSBE_VERSION%

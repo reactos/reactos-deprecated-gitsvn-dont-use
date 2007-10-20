@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See COPYING in the top level directory
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
 :: FILE:        Root/scut.cmd
 :: PURPOSE:     Shortcut Creator, Remover and Switcher.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
@@ -37,16 +37,16 @@ goto :END
 echo Choose your Source Folder:
 SET /P XY=
 :RUN
-grep name=\"%XY%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
-test -s "%ROSBEBASEDIR%\aaa.tmp"
+grep name=\"%XY%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
+test -s "%_ROSBE_BASEDIR%\aaa.tmp"
 if errorlevel 1 (
     echo Shortcut with that name does not exist.
-    del "%ROSBEBASEDIR%\aaa.tmp"
+    del "%_ROSBE_BASEDIR%\aaa.tmp"
     goto :END
 ) else (
-    set /P dir=<"%ROSBEBASEDIR%\aaa.tmp"
+    set /P dir=<"%_ROSBE_BASEDIR%\aaa.tmp"
     call cd /D %dir%
-    del "%ROSBEBASEDIR%\aaa.tmp"
+    del "%_ROSBE_BASEDIR%\aaa.tmp"
     goto :END
 )
 
@@ -74,11 +74,11 @@ SET /P CUT=
 echo Choose your Source Folder:
 SET /P DIR=
 :ADD23
-echo ^<property name="%CUT%" value="%DIR%" /^> > "%ROSBEBASEDIR%\aaa.tmp"
-copy "%ROSBEBASEDIR%\srclist.xml" + "%ROSBEBASEDIR%\aaa.tmp" "%ROSBEBASEDIR%\srclist2.xml"
-del "%ROSBEBASEDIR%\srclist.xml"
-ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
-del "%ROSBEBASEDIR%\aaa.tmp"
+echo ^<property name="%CUT%" value="%DIR%" /^> > "%_ROSBE_BASEDIR%\aaa.tmp"
+copy "%_ROSBE_BASEDIR%\srclist.xml" + "%_ROSBE_BASEDIR%\aaa.tmp" "%_ROSBE_BASEDIR%\srclist2.xml"
+del "%_ROSBE_BASEDIR%\srclist.xml"
+ren "%_ROSBE_BASEDIR%\srclist2.xml" srclist.xml
+del "%_ROSBE_BASEDIR%\aaa.tmp"
 goto :END
 
 ::
@@ -92,17 +92,17 @@ if not "%2" == "" (
 echo Choose your Shortcut:
 SET /P CUTREM=
 :REM1
-grep name=\"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
-test -s "%ROSBEBASEDIR%\aaa.tmp"
+grep name=\"%CUTREM%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
+test -s "%_ROSBE_BASEDIR%\aaa.tmp"
 if errorlevel 1 (
     echo Shortcut with that name does not exist.
-    del "%ROSBEBASEDIR%\aaa.tmp"
+    del "%_ROSBE_BASEDIR%\aaa.tmp"
     goto :END
 ) else (
-    grep -v name=\"%CUTREM%\" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
-    del "%ROSBEBASEDIR%\srclist.xml"
-    ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
-    del "%ROSBEBASEDIR%\aaa.tmp"
+    grep -v name=\"%CUTREM%\" "%_ROSBE_BASEDIR%\srclist.xml" > "%_ROSBE_BASEDIR%\srclist2.xml"
+    del "%_ROSBE_BASEDIR%\srclist.xml"
+    ren "%_ROSBE_BASEDIR%\srclist2.xml" srclist.xml
+    del "%_ROSBE_BASEDIR%\aaa.tmp"
     goto :END
 )
 
@@ -117,22 +117,22 @@ if not "%2" == "" (
 echo Choose your new Default Shortcut:
 SET /P DEF=
 :DEF1
-grep name=\"%DEF%\" "%ROSBEBASEDIR%\srclist.xml"|cutz dir > "%ROSBEBASEDIR%\aaa.tmp"
-test -s "%ROSBEBASEDIR%\aaa.tmp"
+grep name=\"%DEF%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
+test -s "%_ROSBE_BASEDIR%\aaa.tmp"
 if errorlevel 1 (
     echo Shortcut with that name does not exist.
-    del "%ROSBEBASEDIR%\aaa.tmp"
+    del "%_ROSBE_BASEDIR%\aaa.tmp"
     goto :END
 ) else (
-    sed "s/base=\".*\"/base=\"%DEF%\"/g" "%ROSBEBASEDIR%\srclist.xml" > "%ROSBEBASEDIR%\srclist2.xml"
-    del "%ROSBEBASEDIR%\srclist.xml"
-    ren "%ROSBEBASEDIR%\srclist2.xml" srclist.xml
-    del "%ROSBEBASEDIR%\aaa.tmp"
+    sed "s/base=\".*\"/base=\"%DEF%\"/g" "%_ROSBE_BASEDIR%\srclist.xml" > "%_ROSBE_BASEDIR%\srclist2.xml"
+    del "%_ROSBE_BASEDIR%\srclist.xml"
+    ren "%_ROSBE_BASEDIR%\srclist2.xml" srclist.xml
+    del "%_ROSBE_BASEDIR%\aaa.tmp"
     goto :PREEND
 )
 
 :PREEND
-call "%ROSBEBASEDIR%\RosBE.cmd"
+call "%_ROSBE_BASEDIR%\RosBE.cmd"
 
 :END
-title ReactOS Build Environment %_VER%
+title ReactOS Build Environment %_ROSBE_VERSION%

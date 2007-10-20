@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See COPYING in the top level directory
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
 :: FILE:        Root/Clean.cmd
 :: PURPOSE:     Clean the ReactOS source directory.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
@@ -103,17 +103,17 @@ if "%1" == "" (
     ) else (
         echo There is nothing to clean.
     )
-    title ReactOS Build Environment %_VER%
+    title ReactOS Build Environment %_ROSBE_VERSION%
     goto :EOC
 )
 if "%1" == "logs" (
     ::
     : Check if we have any logs to clean, if so, clean them.
     ::
-    if exist "%_ROSBELOGDIR%\*.txt" (
+    if exist "%_ROSBE_LOGDIR%\*.txt" (
         echo Cleaning build logs...
 
-        del /f "%_ROSBELOGDIR%\*.txt" 1> NUL 2> NUL
+        del /f "%_ROSBE_LOGDIR%\*.txt" 1> NUL 2> NUL
 
         echo Done cleaning build logs.
     ) else (
@@ -127,4 +127,4 @@ if not "%1" == "" (
 )
 
 :EOC
-title ReactOS Build Environment %_VER%
+title ReactOS Build Environment %_ROSBE_VERSION%
