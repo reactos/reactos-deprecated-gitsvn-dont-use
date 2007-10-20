@@ -27,6 +27,8 @@ if "%1" == "" (
     echo.
     echo    scut                 - Define, Remove, Switch and Default to Shortcutted
     echo                           Source-Directories.
+    echo    chdefdir [OPTIONS]   - Reconfigures the Default Source Folder for one
+    echo                           Session.
     echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
     echo.
     echo    clean [logs]         - Fully clean the ReactOS source directory and/or
@@ -64,6 +66,15 @@ if "%1" == "clean" (
     echo Fully clean the ReactOS source directory.
     echo.
     echo    logs - Removes all build logs in the RosBE-Logs directory.
+    goto :EOF
+)
+if "%1" == "chdefdir" (
+    echo Usage: chdefdir [OPTIONS]
+    echo Reconfigures the Default Source Folder for one Session. Exiting
+    echo sets RosBE back to the Default.
+    echo.
+    echo    default - Sets back to the Default Source Folder without a restart
+    echo              of RosBE.
     goto :EOF
 )
 if "%1" == "help" (
