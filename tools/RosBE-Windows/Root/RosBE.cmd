@@ -41,7 +41,7 @@ title ReactOS Build Environment %_ROSBE_VERSION%
 ::
 if "%1" == "oldmode" (
     cls
-    set _ROSBE_OLDMODE=
+    set _ROSBE_OLDMODE=""
     call :RosBE4
     goto :EndCommandParse
 )

@@ -18,7 +18,7 @@ if "%1" == "" (
     echo.
     echo Available Commands:
     echo    make [OPTIONS]       - Without options it does a standard build of
-    echo                           ReactOS. OPTIONS1 are the standard ReactOS build
+    echo                           ReactOS. OPTIONS are the standard ReactOS build
     echo                           options ie. "bootcd"
     echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
     echo                           number of CPU Cores in the system and uses -j
@@ -43,16 +43,16 @@ if "%1" == "" (
     goto :EOF
 )
 if "%1" == "make" (
-    echo Usage: make [OPTIONS1] [OPTIONS2]
-    echo Without options it does a standard build of ReactOS. OPTIONS1 are the
+    echo Usage: make [OPTIONS]
+    echo Without options it does a standard build of ReactOS. OPTIONS are the
     echo standard ReactOS build options ie. "bootcd", "livecd", etc.
     goto :EOF
 )
 if "%1" == "makex" (
-    echo Usage: makex [OPTIONS1] [OPTIONS2]
+    echo Usage: makex [OPTIONS]
     echo Same as 'make' but automatically determines the number of CPU Cores in
     echo the system and uses "make -j x" with the appropriate number.
-    echo NOTE: The number makex uses can be modified by editing Build-Multi.cmd
+    echo NOTE: The number makex uses can be modified by editing Build.cmd
     echo       located in the RosBE directory, instructions for doing so are
     echo       contained within the file.
     goto :EOF
