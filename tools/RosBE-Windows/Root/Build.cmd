@@ -16,8 +16,8 @@ title Building...
 :: Check if the user has used the options utility and
 :: if so, load their options.
 ::
-if exist %_ROSBE_BASEDIR%\options.cmd (
-    call %_ROSBE_BASEDIR%\options.cmd
+if exist %_ROSBE_BASEDIR%\rosbe-options.cmd (
+    call %_ROSBE_BASEDIR%\rosbe-options.cmd
 )
 
 ::
