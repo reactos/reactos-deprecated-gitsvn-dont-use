@@ -48,7 +48,7 @@ WriteSettings(HWND hwnd)
 {
     int foreground, background;
     BOOL showtime, writelog, useccache, strip;
-    WCHAR logpath[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
+    WCHAR logdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
     FILE *pFile;
@@ -59,19 +59,19 @@ WriteSettings(HWND hwnd)
     strip = SendMessage(GetDlgItem(hwnd, ID_STRIP), BM_GETCHECK, 0, 0);
     foreground = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
     background = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
-    GetDlgItemText(hwnd, ID_LOGDIR, logpath, MAX_PATH);
+    GetDlgItemText(hwnd, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
 
     if (writelog)
     {
         GetCurrentDirectory(MAX_PATH, checklog);
-        if (SetCurrentDirectory(logpath))
+        if (SetCurrentDirectory(logdir))
         {
             SetCurrentDirectory(checklog);
         }
         else
         {
-            if (!CreateDirectory(logpath, NULL))
+            if (!CreateDirectory(logdir, NULL))
             {
                 LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
                 MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
@@ -106,7 +106,7 @@ WriteSettings(HWND hwnd)
         fprintf(pFile, "set _ROSBE_USECCACHE=%d\n", useccache);
         fprintf(pFile, "set _ROSBE_STRIP=%d\n", strip);
         fprintf(pFile, "set _ROSBE_WRITELOG=%d\n", writelog);
-        fprintf(pFile, "set _ROSBE_LOGPATH=%S\n", logpath);
+        fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
         fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
         fclose(pFile);
         return TRUE;
