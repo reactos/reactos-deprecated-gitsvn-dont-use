@@ -97,11 +97,18 @@ var ICONS_GROUP
 
 ;; MUI end.
 
-;;
-;; Add sections 1, 2 and 3 which contain the file lists for GCC4 and Miscellaneous.
-;;
-!include "RosBE.Files-4.1.3.nsh"
-!include "RosBE.Files-Miscellaneous.nsh"
+Section "-MinGW, GCC v4.1.3 and NASM 0.99.04" SEC01
+    SetOutPath "$INSTDIR\4.1.3\"
+    SetOverwrite try
+    File /r Components\4.1.3\*.*
+SectionEnd
+
+Section "-Other miscellaneous files." SEC02
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\*.*
+    File /r Icons\*.*
+SectionEnd
 
 Section -StartMenuShortcuts SEC03
     SetShellVarContext current
