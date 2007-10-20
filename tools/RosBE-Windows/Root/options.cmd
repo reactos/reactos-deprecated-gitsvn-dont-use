@@ -11,4 +11,6 @@
 title Options
 
 "%_ROSBE_BASEDIR%\options.exe"
+ECHO Press any Button to reset RosBE with the new Settings.
+pause
 "%_ROSBE_BASEDIR%\RosBE.cmd"
