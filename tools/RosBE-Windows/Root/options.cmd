@@ -10,7 +10,15 @@
 
 title Options
 
-"%_ROSBE_BASEDIR%\options.exe"
-echo Press any Button to reset RosBE with the new Settings.
-pause
-"%_ROSBE_BASEDIR%\RosBE.cmd"
+::
+:: Run options.exe
+::
+if exist "%_ROSBE_BASEDIR%\options.exe" (
+    "%_ROSBE_BASEDIR%\options.exe"
+    echo Press any Button to reset RosBE with the new Settings.
+    pause
+    "%_ROSBE_BASEDIR%\RosBE.cmd"
+) else (
+    echo ERROR: options.exe was not found.
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
