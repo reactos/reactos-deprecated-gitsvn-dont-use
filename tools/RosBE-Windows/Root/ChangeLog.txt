@@ -1,6 +1,6 @@
 *** XXX XXth, 200X - RosBE 0.X.X.X Released
 
-- Updated RosBE COnfiguration Tool. (Pierre Schweitzer)
+- Updated RosBE Configuration Tool. (Pierre Schweitzer)
    - Added French translation.
    - Added the possibility to choose MingW directory.
    - Added check to see if MingW dir is right (look up gcc)
@@ -14,7 +14,32 @@
    - Added check to test if log dir exists and if it doesn't, it's created
    - Added check to avoid writing in a non-existant file
    - Updated todo list
+   - Reorganized resources
+   - Added a basic font preview
+   - Continue dralnix code cleanup.
+   - Added checks to avoid buffers overflow.
+
+- Added a very simple makefile for the RosBE tools. (Peter Ward)
+- Fix a warning in echoh.c. (Peter Ward)
+- Fix options.exe compile with RosBE 0.3.8.1 (Peter Ward)
+- Merge the three build.cmd files into one. (Peter Ward)
+- Heaviliy cleaning up the .cmd files. (Peter Ward)
+- remove typos. (Peter Ward)
+- Make variable names more consistent. (Peter Ward)
+- Merged the NSIS files back together. (Peter Ward)
+- Renamed options.cmd -> rosbe-options.cmd. (Peter Ward)
+- Completely rewrote scut to work without *nix tools
+  and added a edit function (Parter Ward, Daniel Reimer)
+- Updated to NASM 0.99.05 (Daniel Reimer)
+- Make helpfile entries dependant on the installed optional files. (Daniel Reimer)
+- Readd chdefdir due to popular Demand. (Daniel Reimer)
+- Make options.exe startable from cmd window. After exiting rosbe resets to use the new settings. (Daniel Reimer)
 - Added ccache 2.4 to RosBE. (Daniel Reimer)
+- Remove trailing Spaces. (Daniel Reimer)
+- Modify options.exe to enable and disable strpping and ccache. (Daniel Reimer)
+- Fixed German RC File of Options.exe (Daniel Reimer)
+
+- Fixed Russian RC File of options.exe (towerr)
 
 *** Sep 24th, 2007 - RosBE 0.3.8.1 Released
 

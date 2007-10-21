@@ -7,12 +7,6 @@
 ::
 ::
 @echo off
-if "%1" == "dir" (
-    cut -d "\"" -f 4
-)
 if "%1" == "svn" (
     cut -d " " -f 2
-)
-if "%1" == "main" (
-    cut -d """ -f 2
 )

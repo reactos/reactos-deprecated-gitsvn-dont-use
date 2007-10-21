@@ -30,8 +30,8 @@ set _ROSBE_LOGDIR=%CD%\RosBE-Logs
 :: Check if the user has used the options utility and
 :: if so, load their options.
 ::
-if exist %_ROSBE_BASEDIR%\rosbe-options.cmd (
-    call %_ROSBE_BASEDIR%\rosbe-options.cmd
+if exist "%_ROSBE_BASEDIR%\rosbe-options.cmd" (
+    call "%_ROSBE_BASEDIR%\rosbe-options.cmd"
 )
 
 title ReactOS Build Environment %_ROSBE_VERSION%
@@ -61,9 +61,7 @@ call :RosBE4
 :: Source Directory and add PATH for Tools Folder.
 ::
 set PATH=%_ROSBE_BASEDIR%\Tools;%PATH%
-for /f "usebackq" %%i in (`"grep base= "%_ROSBE_BASEDIR%\srclist.xml"|cutz main"`) do set scut=%%i
-echo Used Shortcut: %scut%
-echo.
+if exist "%_ROSBE_BASEDIR%\scut.cmd" (call "%_ROSBE_BASEDIR%\scut.cmd" run)
 
 ::
 :: Display the current version of GCC, NASM, ld and make.
@@ -85,13 +83,6 @@ echo.
 :: Load the doskey macros that serve as our commands.
 ::
 doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
-
-::
-:: Set new source directory, if needed.
-::
-if not "%scut%" == "Default" (
-    call %_ROSBE_BASEDIR%\scut %scut%
-)
 
 ::
 :: Look if the Source Folder is empty. If so, ask for using "svn create".

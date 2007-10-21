@@ -12,8 +12,8 @@ title Change the Default Dir...
 
 if /i "%1" == "" (
     goto :INTERACTIVE
-) 
-if /i "%1" == "default" ( 
+)
+if /i "%1" == "default" (
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
 ) else (
     set _ROSBE_ROSSOURCEDIR=%1
@@ -26,8 +26,8 @@ set /p XY=
 
 if /i "%XY%" == "" (
     goto :END
-) 
-if /i "%XY%"=="default" ( 
+)
+if /i "%XY%"=="default" (
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
 ) else (
     set _ROSBE_ROSSOURCEDIR=%XY%
