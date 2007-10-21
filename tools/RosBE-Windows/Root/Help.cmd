@@ -31,8 +31,8 @@ if "%1" == "" (
     echo.
 
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-        echo    scut                 - Define, Remove, Switch and Default to Shortcutted
-        echo                           Source-Directories.
+        echo    scut                 - Define, Edit, Remove, Switch and Default to
+        echo                           Shortcutted Source-Directories.
     )
 
     if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
@@ -155,14 +155,16 @@ if "%1" == "options" (
 )
 if "%1" == "scut" (
     echo Usage: scut [OPTIONS]
-    echo Defines, Removes, Switches and Defaults to Shortcutted Source Directories.
-    echo scut started without a parameter or with the name of a Shortcut as
-    echo parameter sets this Shortcut active.
+    echo Defines, Edits, Removes, Switches and Defaults to Shortcutted Source
+    echo Directories. scut started without a parameter or with the name of a
+    echo Shortcut as parameter sets this Shortcut active.
     echo.
     echo    add     - Adds a Shortcut.
     echo              (Optional: "Shortcut" "Directory" as second and third parameter)
-    echo    remove  - Removes a shortcut.
+    echo    rem     - Removes a shortcut.
     echo              (Optional: "Shortcut" as second parameter)
+    echo    edit    - Edits a shortcut.
+    echo              (Optional: "Shortcut" "Directory" as second and third parameter)
     echo    def     - Chooses Default Shortcut which is enabled on
     echo              every start of RosBE. "Default" is the Source
     echo              Directory as you know it from previous Versions

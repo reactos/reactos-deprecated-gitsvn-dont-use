@@ -22,8 +22,26 @@ if /I "%1"=="add" (
 if /I "%1"=="rem" (
     goto :REM
 )
+if /I "%1"=="edit" (
+    goto :EDIT
+)
 if /I "%1"=="def" (
     goto :DEF2
+)
+if /I "%1"=="run" (
+    for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
+        if %%i == Base (
+            echo Used Shortcut: %%j
+            echo.
+            ::
+            : Set new source directory, if needed.
+            ::
+            if not "%%j" == "Default" (
+                call "%_ROSBE_BASEDIR%\scut.cmd" %%j
+            )
+        )
+    )
+    goto :END
 ) else (
     set XY=%1
     goto :RUN
@@ -37,18 +55,14 @@ goto :END
 echo Choose your Source Folder:
 set /P XY=
 :RUN
-grep name=\"%XY%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
-test -s "%_ROSBE_BASEDIR%\aaa.tmp"
-if errorlevel 1 (
-    echo Shortcut with that name does not exist.
-    del "%_ROSBE_BASEDIR%\aaa.tmp"
-    goto :END
-) else (
-    set /P dir=<"%_ROSBE_BASEDIR%\aaa.tmp"
-    call cd /D %dir%
-    del "%_ROSBE_BASEDIR%\aaa.tmp"
-    goto :END
+for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
+    if %%i == %XY% (
+        cd /d %%j
+        goto :END
+    )
 )
+echo ERROR: This Shortcut (%XY%) does not exist.
+goto :END
 
 ::
 :: Add new Shortcut to XML.
@@ -74,11 +88,13 @@ set /P CUT=
 echo Choose your Source Folder:
 set /P DIR=
 :ADD23
-echo ^<property name="%CUT%" value="%DIR%" /^> > "%_ROSBE_BASEDIR%\aaa.tmp"
-copy "%_ROSBE_BASEDIR%\srclist.xml" + "%_ROSBE_BASEDIR%\aaa.tmp" "%_ROSBE_BASEDIR%\srclist2.xml"
-del "%_ROSBE_BASEDIR%\srclist.xml"
-ren "%_ROSBE_BASEDIR%\srclist2.xml" srclist.xml
-del "%_ROSBE_BASEDIR%\aaa.tmp"
+for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
+    if %%i == %CUT% (
+        echo ERROR: A Shortcut with the name %CUT% does already exists.
+        goto :END
+    )
+)
+echo %CUT%,%DIR%>> "%_ROSBE_BASEDIR%\srclist.txt"
 goto :END
 
 ::
@@ -92,47 +108,78 @@ if not "%2" == "" (
 echo Choose your Shortcut:
 set /P CUTREM=
 :REM1
-grep name=\"%CUTREM%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
-test -s "%_ROSBE_BASEDIR%\aaa.tmp"
-if errorlevel 1 (
-    echo Shortcut with that name does not exist.
-    del "%_ROSBE_BASEDIR%\aaa.tmp"
-    goto :END
-) else (
-    grep -v name=\"%CUTREM%\" "%_ROSBE_BASEDIR%\srclist.xml" > "%_ROSBE_BASEDIR%\srclist2.xml"
-    del "%_ROSBE_BASEDIR%\srclist.xml"
-    ren "%_ROSBE_BASEDIR%\srclist2.xml" srclist.xml
-    del "%_ROSBE_BASEDIR%\aaa.tmp"
-    goto :END
+set _ROSBE_REM=0
+for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
+    if not %%i == %CUTREM% (
+        echo %%i,%%j>> "%_ROSBE_BASEDIR%\srclist2.txt"
+    ) else (
+        set _ROSBE_REM=1
+    )
 )
+del "%_ROSBE_BASEDIR%\srclist.txt"
+ren "%_ROSBE_BASEDIR%\srclist2.txt" srclist.txt
+if %_ROSBE_REM% == 0 (
+    echo ERROR: The Shortcut %CUTREM% does not exist.
+)
+goto :END
+
 
 ::
 :: Set Default Shortcut.
 ::
 :DEF2
 if not "%2" == "" (
-    set DEF=%2
+    set DIR=%2
     goto :DEF1
 )
 echo Choose your new Default Shortcut:
-set /P DEF=
+set /P DIR=
 :DEF1
-grep name=\"%DEF%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
-test -s "%_ROSBE_BASEDIR%\aaa.tmp"
-if errorlevel 1 (
-    echo Shortcut with that name does not exist.
-    del "%_ROSBE_BASEDIR%\aaa.tmp"
-    goto :END
+call "%_ROSBE_BASEDIR%\scut.cmd" edit Base %DIR%
+
+:EDIT
+if not "%2" == "" (
+    if not "%3" == "" (
+        set CUT=%2
+        set DIR=%3
+        goto :EDIT23
+    ) else (
+        set CUT=%2
+        goto :EDIT2
+    )
 ) else (
-    sed "s/base=\".*\"/base=\"%DEF%\"/g" "%_ROSBE_BASEDIR%\srclist.xml" > "%_ROSBE_BASEDIR%\srclist2.xml"
-    del "%_ROSBE_BASEDIR%\srclist.xml"
-    ren "%_ROSBE_BASEDIR%\srclist2.xml" srclist.xml
-    del "%_ROSBE_BASEDIR%\aaa.tmp"
-    goto :PREEND
+    goto :EDIT1
 )
 
-:PREEND
-call "%_ROSBE_BASEDIR%\RosBE.cmd"
+:EDIT1
+echo Choose your Shortcut:
+set /P CUT=
+:EDIT2
+echo Choose your Source Folder:
+set /P DIR=
+:EDIT23
+set _ROSBE_EDIT=0
+for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
+    if %%i == %CUT% (
+        set _ROSBE_EDIT=1
+        if exist "%_ROSBE_BASEDIR%\temporaryfile.tmp" (
+            echo %%i,%DIR%>> "%_ROSBE_BASEDIR%\temporaryfile.tmp"
+        ) else (
+            echo %%i,%DIR%> "%_ROSBE_BASEDIR%\temporaryfile.tmp"
+        )
+    ) else (
+        if exist "%_ROSBE_BASEDIR%\temporaryfile.tmp" (
+            echo %%i,%%j>> "%_ROSBE_BASEDIR%\temporaryfile.tmp"
+        ) else (
+            echo %%i,%%j> "%_ROSBE_BASEDIR%\temporaryfile.tmp"
+        )
+    )
+)
+del "%_ROSBE_BASEDIR%\srclist.txt"
+ren "%_ROSBE_BASEDIR%\temporaryfile.tmp" srclist.txt
+if %_ROSBE_EDIT% == 0 (
+    echo ERROR: The Shortcut %CUT% does not exist.
+)
 
 :END
 title ReactOS Build Environment %_ROSBE_VERSION%
