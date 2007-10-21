@@ -45,7 +45,7 @@ SET /P _2=
 :: adress and can be given directly to raddr2line. If not, add it and
 :: give the result to raddr2line.
 ::
-for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do SET baseaddr=0x%%i
+for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do set baseaddr=0x%%i
 if %%i LSS %_2% (
     raddr2line "%_1%" "%_2%" 2>NUL
 ) else (

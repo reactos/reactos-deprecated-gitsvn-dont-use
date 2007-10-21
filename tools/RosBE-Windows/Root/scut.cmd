@@ -35,7 +35,7 @@ goto :END
 ::
 :DEF
 echo Choose your Source Folder:
-SET /P XY=
+set /P XY=
 :RUN
 grep name=\"%XY%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
 test -s "%_ROSBE_BASEDIR%\aaa.tmp"
@@ -69,10 +69,10 @@ if not "%2" == "" (
 
 :ADD1
 echo Choose your Shortcut:
-SET /P CUT=
+set /P CUT=
 :ADD2
 echo Choose your Source Folder:
-SET /P DIR=
+set /P DIR=
 :ADD23
 echo ^<property name="%CUT%" value="%DIR%" /^> > "%_ROSBE_BASEDIR%\aaa.tmp"
 copy "%_ROSBE_BASEDIR%\srclist.xml" + "%_ROSBE_BASEDIR%\aaa.tmp" "%_ROSBE_BASEDIR%\srclist2.xml"
@@ -90,7 +90,7 @@ if not "%2" == "" (
     goto :REM1
 )
 echo Choose your Shortcut:
-SET /P CUTREM=
+set /P CUTREM=
 :REM1
 grep name=\"%CUTREM%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
 test -s "%_ROSBE_BASEDIR%\aaa.tmp"
@@ -115,7 +115,7 @@ if not "%2" == "" (
     goto :DEF1
 )
 echo Choose your new Default Shortcut:
-SET /P DEF=
+set /P DEF=
 :DEF1
 grep name=\"%DEF%\" "%_ROSBE_BASEDIR%\srclist.xml"|cutz dir > "%_ROSBE_BASEDIR%\aaa.tmp"
 test -s "%_ROSBE_BASEDIR%\aaa.tmp"

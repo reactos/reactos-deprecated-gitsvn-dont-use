@@ -56,8 +56,8 @@ if "%1" == "create" (
 ::
 if "%1" == "status" (
     title Status
-    for /f "usebackq" %%i IN (`svnversion .`) DO @set OFFSVN=%%i
-    for /f "usebackq" %%j IN (`"svn info svn://svn.reactos.org/reactos/trunk/reactos|find "Revision:"|cutz svn"`) DO @set ONSVN=%%j
+    for /f "usebackq" %%i in (`svnversion .`) do set OFFSVN=%%i
+    for /f "usebackq" %%j in (`"svn info svn://svn.reactos.org/reactos/trunk/reactos|find "Revision:"|cutz svn"`) do set ONSVN=%%j
     call :UP
     goto :ExitSVN
 )
@@ -71,17 +71,17 @@ if not "%1" == "" (
 echo Recent Offline Revision: %OFFSVN%
 echo Online HEAD Revision: %ONSVN%
 echo.
-if %OFFSVN% LSS %ONSVN% (
+if %OFFSVN% lss %ONSVN% (
     echo Your Tree is not Up to date. Do you want to update it?
     goto :UP2
 )
-if %OFFSVN% EQU %ONSVN% (
+if %OFFSVN% equ %ONSVN% (
     echo Your Tree is Up to date.
     goto :ExitSVN
 )
 
 :UP2
-SET /P XY="(yes), (no)"
+set /P XY="(yes), (no)"
 if /I "%XY%"=="yes" %_ROSBE_BASEDIR%\ssvn update
 if /I "%XY%"=="no" goto :ExitSVN
 
