@@ -10,25 +10,24 @@
 
 title Change the Default Dir...
 
-if /I "%1"=="" (
-    goto :DEF
+if /i "%1" == "" (
+    goto :INTERACTIVE
 ) 
-if /I "%1"=="default" ( 
+if /i "%1" == "default" ( 
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
 ) else (
     set _ROSBE_ROSSOURCEDIR=%1
 )
 goto :END
 
-:DEF
-
+:INTERACTIVE
 echo Type in a Path to use RosBE in or "default" to revert to Default Dir:
-SET /P XY=
+set /p XY=
 
-if /I "%XY%"=="" (
+if /i "%XY%" == "" (
     goto :END
 ) 
-if /I "%XY%"=="default" ( 
+if /i "%XY%"=="default" ( 
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
 ) else (
     set _ROSBE_ROSSOURCEDIR=%XY%
@@ -36,5 +35,5 @@ if /I "%XY%"=="default" (
 goto :END
 
 :END
-title ReactOS Build Environment %_VER%
-cd /D "%_ROSBE_ROSSOURCEDIR%"
+title ReactOS Build Environment %_ROSBE_VERSION%
+cd /d "%_ROSBE_ROSSOURCEDIR%"
