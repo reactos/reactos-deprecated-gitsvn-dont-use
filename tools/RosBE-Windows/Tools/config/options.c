@@ -53,12 +53,12 @@ WriteSettings(HWND hwnd)
     HANDLE hFile;
     FILE *pFile;
 
-    showtime = SendMessage(GetDlgItem(hwnd, ID_SHOWBUILDTIME), BM_GETCHECK, 0, 0) == BST_CHECKED;
-    writelog = SendMessage(GetDlgItem(hwnd, ID_SAVELOGS), BM_GETCHECK, 0, 0) == BST_CHECKED;
-    useccache = SendMessage(GetDlgItem(hwnd, ID_USECCACHE), BM_GETCHECK, 0, 0);
-    strip = SendMessage(GetDlgItem(hwnd, ID_STRIP), BM_GETCHECK, 0, 0);
-    foreground = SendMessage(GetDlgItem(hwnd, IDC_FONT), CB_GETCURSEL, 0, 0);
-    background = SendMessage(GetDlgItem(hwnd, IDC_BACK), CB_GETCURSEL, 0, 0);
+    showtime = SendDlgItemMessage(hwnd, ID_SHOWBUILDTIME, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    writelog = SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    useccache = SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0);
+    strip = SendDlgItemMessage(hwnd, ID_STRIP, BM_GETCHECK, 0, 0);
+    foreground = SendDlgItemMessage(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = SendDlgItemMessage(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemText(hwnd, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
 
@@ -90,10 +90,7 @@ WriteSettings(HWND hwnd)
         MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
         return FALSE;
     }
-    else
-    {
-        CloseHandle(hFile);
-    }
+    CloseHandle(hFile);
 
     pFile = fopen("rosbe-options.cmd", "w");
     if (pFile)
@@ -112,18 +109,15 @@ WriteSettings(HWND hwnd)
         fclose(pFile);
         return TRUE;
     }
-    else
-    {
-        LoadString(hInstance, MSG_FILEFAILED, msgerror, 256);
-        MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
-        return FALSE;
-    }
+    LoadString(hInstance, MSG_FILEFAILED, msgerror, 256);
+    MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
+    return FALSE;
 }
 
 INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-    WCHAR defaultmingwpath[MAX_PATH];
+    WCHAR Path[MAX_PATH];
     static HICON hIcon;
 
     switch (Msg)
@@ -141,28 +135,26 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 
             for(unsigned int i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
-                SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
-                SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+                SendDlgItemMessage(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+                SendDlgItemMessage(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
             }
-            SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0xA, 0);
-            SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0, 0);
-            GetCurrentDirectory(MAX_PATH, defaultmingwpath);
-            if ((wcslen(defaultmingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
-                wcscat(defaultmingwpath, MINGWVERSION);
-            SetDlgItemText(Dlg, ID_MGWDIR, defaultmingwpath);
+            SendDlgItemMessage(Dlg, IDC_FONT, CB_SETCURSEL, 0xa, 0);
+            SendDlgItemMessage(Dlg, IDC_BACK, CB_SETCURSEL, 0, 0);
+            GetCurrentDirectory(MAX_PATH, Path);
+            if ((wcslen(Path) + wcslen(MINGWVERSION)) < MAX_PATH)
+                wcscat(Path, MINGWVERSION);
+            SetDlgItemText(Dlg, ID_MGWDIR, Path);
 
             return TRUE;
         }
 
         case WM_COMMAND:
         {
-            if (((LOWORD(wParam) == IDC_FONT) && (HIWORD(wParam) == CBN_SELCHANGE)) ||
-                ((LOWORD(wParam) == IDC_BACK) && (HIWORD(wParam) == CBN_SELCHANGE)))
+            if ((HIWORD(wParam) == CBN_SELCHANGE) && ((LOWORD(wParam) == IDC_FONT) || (LOWORD(wParam) == IDC_BACK)))
             {
                 RECT rcWnd;
                 GetClientRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd);
                 InvalidateRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd, FALSE);
-                UpdateWindow(GetDlgItem(Dlg, ID_EXAMPLE));
                 EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
             }
             else
@@ -182,7 +174,6 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                     case ID_BROWSE:
                     case ID_BROWSEMGW:
                     {
-                        WCHAR Path[MAX_PATH];
                         BROWSEINFO PathInfo;
                         LPITEMIDLIST pidl;
                         INT Control = ID_LOGDIR;
@@ -208,20 +199,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                             }
                         }
                         pidl = SHBrowseForFolder(&PathInfo);
-                        if (pidl && SHGetPathFromIDList(pidl, Path))
-                        {
-                            SetDlgItemText(Dlg, Control, Path);
-                            EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-                        }
-                        break;
-                    }
-                    case ID_SAVELOGS:
-                    {
-                        BOOL WriteLogSet = SendMessage(GetDlgItem(Dlg, ID_SAVELOGS), BM_GETCHECK, 0,
-                                                   0) == BST_CHECKED;
-                        EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
-                        EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
-                        break;
+                        if (!pidl && !SHGetPathFromIDList(pidl, Path))
+                            break;
+                        SetDlgItemText(Dlg, Control, Path);
                     }
                     case ID_STRIP:
                     case ID_USECCACHE:
@@ -230,19 +210,27 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
                         break;
                     }
+                    case ID_SAVELOGS:
+                    {
+                        BOOL WriteLogSet;
+                        WriteLogSet = SendDlgItemMessage(Dlg, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED;
+                        EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
+                        break;
+                    }
                 }
 
             }
             return FALSE;
         }
 
-        case WM_CTLCOLORSTATIC :
+        case WM_CTLCOLORSTATIC:
         {
             if((HWND)lParam == GetDlgItem(Dlg, ID_EXAMPLE))
             {
-                SetTextColor((HDC)wParam, ColorsRGB[SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_GETCURSEL, 0, 0)]);
-                SetBkColor((HDC)wParam, ColorsRGB[SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_GETCURSEL, 0, 0)]);
-                return (LONG)CreateSolidBrush(ColorsRGB[SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_GETCURSEL, 0, 0)]);
+                SetTextColor((HDC)wParam, ColorsRGB[SendDlgItemMessage(Dlg, IDC_FONT, CB_GETCURSEL, 0, 0)]);
+                SetBkColor((HDC)wParam, ColorsRGB[SendDlgItemMessage(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
+                return (LONG)CreateSolidBrush(ColorsRGB[SendDlgItemMessage(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
             }
             break;
         }
