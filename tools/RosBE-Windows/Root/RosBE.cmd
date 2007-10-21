@@ -49,11 +49,10 @@ if not "%1" == "" (
     cls
     echo Unknown parameter specified. Exiting.
     goto :ExitRosBE
-) else (
-    cls
-    call :RosBE4
-    goto :EndCommandParse
 )
+
+cls
+call :RosBE4
 
 :EndCommandParse
 
