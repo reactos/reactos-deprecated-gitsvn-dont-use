@@ -71,7 +71,7 @@ call "%_ROSBE_BASEDIR%\TimeDate.cmd"
 :: directory fails then fall back on the current directory.
 ::
 if %_ROSBE_WRITELOG% == 1 (
-    if not exist "_ROSBE_LOGDIR\." (
+    if not exist "%_ROSBE_LOGDIR%\." (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
         if errorlevel 1 (
             echo *** Error - Writing logs requested, but log directory doesn't ***
