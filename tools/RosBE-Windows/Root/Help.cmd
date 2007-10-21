@@ -30,19 +30,9 @@ if "%1" == "" (
     echo    basedir              - Switch back to the ReactOS source directory.
     echo.
 
-    if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-        echo    scut                 - Define, Edit, Remove, Switch and Default to
-        echo                           Shortcutted Source-Directories.
-    )
-
     if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
         echo    chdefdir [OPTIONS]   - Reconfigures the Default Source Folder for one
         echo                           Session.
-    )
-
-    if exist "%_ROSBE_BASEDIR%\config.cmd" (
-    echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
-    echo.
     )
 
     if exist "%_ROSBE_BASEDIR%\clean.cmd" (
@@ -50,18 +40,28 @@ if "%1" == "" (
     echo                           the RosBE build logs.
     )
 
+    if exist "%_ROSBE_BASEDIR%\config.cmd" (
+    echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
+    echo.
+    )
+
     echo    help [COMMAND]       - Display the available commands or help on a
     echo                           specific command.
 
     if exist "%_ROSBE_BASEDIR%\options.cmd" (
-    echo    options              - Starts options.exe and reboots to make the
-    echo                           changes effective at the end.
+    echo    options              - Starts options.exe and restarts RosBE to make
+    echo                           the changes effective at the end.
     )
 
     if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
     echo    raddr2line [OPTIONS] - Translates program addresses into file names and
     echo                           line numbers to assist Developers to find
     echo                           specific Bugs in ReactOS.
+    )
+
+    if exist "%_ROSBE_BASEDIR%\scut.cmd" (
+        echo    scut [OPTIONS]       - Define, Edit, Remove, Switch and Default to
+        echo                           Shortcutted Source-Directories.
     )
 
     if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
@@ -149,7 +149,7 @@ if "%1" == "basedir" (
 )
 if "%1" == "options" (
     echo Usage: options
-    echo Starts RosBE Configurator and reboots RosBE afterwards to make the
+    echo Starts RosBE Configurator and restarts RosBE afterwards to make the
     echo changes effective at the end.
     goto :EOF
 )

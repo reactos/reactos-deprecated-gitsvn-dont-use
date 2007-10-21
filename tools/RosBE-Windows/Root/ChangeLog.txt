@@ -1,4 +1,4 @@
-*** XXX XXth, 200X - RosBE 0.X.X.X Released
+*** XXX XXth, 200X - RosBE 1.0 Released
 
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
    - Added French translation.
@@ -7,7 +7,7 @@
    - Added support for WinXP style.
    - Added the support of C99.
    - Fixed warnings.
-   - Small Modification by me: added -s and went from -O3 to -O2 in Makefile.
+   - Small Modification by Daniel Reimer: added -s and went from -O3 to -O2 in Makefile.
    - Correct Button States and Whitespace changes.
    - Save button is disabled until a parameter is changed
    - Definitively fixed resources IDs
@@ -20,25 +20,30 @@
    - Added checks to avoid buffers overflow.
 
 - Added a very simple makefile for the RosBE tools. (Peter Ward)
+- Updated: GCC 4.1.3 Build 20071015 with recent patches
+  to get makex run under Vista. (Peter Ward, TODO: name of tamlin)
+- Updated: Binutils 2.18.50 Build 20071015.
 - Fix a warning in echoh.c. (Peter Ward)
 - Fix options.exe compile with RosBE 0.3.8.1 (Peter Ward)
 - Merge the three build.cmd files into one. (Peter Ward)
 - Heaviliy cleaning up the .cmd files. (Peter Ward)
-- remove typos. (Peter Ward)
+- Remove typos. (Peter Ward)
 - Make variable names more consistent. (Peter Ward)
 - Merged the NSIS files back together. (Peter Ward)
 - Renamed options.cmd -> rosbe-options.cmd. (Peter Ward)
 - Completely rewrote scut to work without *nix tools
   and added a edit function (Parter Ward, Daniel Reimer)
 - Updated to NASM 0.99.05 (Daniel Reimer)
+- Downgraded sed to prevent a EOL style destruction. (Daniel Reimer)
 - Make helpfile entries dependant on the installed optional files. (Daniel Reimer)
 - Readd chdefdir due to popular Demand. (Daniel Reimer)
 - Make options.exe startable from cmd window. After exiting rosbe resets to use the new settings. (Daniel Reimer)
 - Added ccache 2.4 to RosBE. (Daniel Reimer)
 - Remove trailing Spaces. (Daniel Reimer)
-- Modify options.exe to enable and disable strpping and ccache. (Daniel Reimer)
+- Modify options.exe to enable and disable stripping and ccache. This gives back the possibility to give more
+  than one command to make (Daniel Reimer)
 - Fixed German RC File of Options.exe (Daniel Reimer)
-
+- Added the command "oldmode" to still use the HOST headers, not the target ones in SVN Tree. (Daniel Reimer)
 - Fixed Russian RC File of options.exe (towerr)
 
 *** Sep 24th, 2007 - RosBE 0.3.8.1 Released
