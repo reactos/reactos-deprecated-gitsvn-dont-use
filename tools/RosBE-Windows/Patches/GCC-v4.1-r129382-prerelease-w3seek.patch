@@ -1,0 +1,81 @@
+Index: libstdc++-v3/config/os/mingw32/os_defines.h
+===================================================================
+--- libstdc++-v3/config/os/mingw32/os_defines.h	(revision 129382)
++++ libstdc++-v3/config/os/mingw32/os_defines.h	(working copy)
+@@ -45,6 +45,13 @@
+ #undef NOMINMAX
+ #define NOMINMAX 1
+ 
++// mingw32 local hack: Override  _GLIBCXX_USE_WCHAR_T for wstring
++#define _GLIBCXX_USE_WSTRING 1
++
++// mingw32 local hack: Cast long double to doubles to workaround
++// printf bug.
++#define _GLIBCXX_NO_LONG_DOUBLE_IO 0
++
+ // See libstdc++/20806.
+ #define _GLIBCXX_HAVE_DOS_BASED_FILESYSTEM 1
+ 
+Index: libstdc++-v3/include/bits/char_traits.h
+===================================================================
+--- libstdc++-v3/include/bits/char_traits.h	(revision 129382)
++++ libstdc++-v3/include/bits/char_traits.h	(working copy)
+@@ -295,7 +295,7 @@
+   };
+ 
+ 
+-#ifdef _GLIBCXX_USE_WCHAR_T
++#if defined (_GLIBCXX_USE_WCHAR_T) || defined (_GLIBCXX_USE_WSTRING)
+   /// @brief  21.1.3.2  char_traits specializations
+   template<>
+     struct char_traits<wchar_t>
+@@ -303,8 +303,10 @@
+       typedef wchar_t           char_type;
+       typedef wint_t            int_type;
+       typedef streamoff         off_type;
++#if defined (_GLIBCXX_USE_WCHAR_T)
+       typedef wstreampos        pos_type;
+       typedef mbstate_t         state_type;
++#endif
+ 
+       static void
+       assign(char_type& __c1, const char_type& __c2)
+Index: libstdc++-v3/include/bits/stringfwd.h
+===================================================================
+--- libstdc++-v3/include/bits/stringfwd.h	(revision 129382)
++++ libstdc++-v3/include/bits/stringfwd.h	(working copy)
+@@ -59,7 +59,7 @@
+ 
+   typedef basic_string<char>    string;
+ 
+-#ifdef _GLIBCXX_USE_WCHAR_T
++#if defined (_GLIBCXX_USE_WCHAR_T) || defined (_GLIBCXX_USE_WSTRING)
+   template<> struct char_traits<wchar_t>;
+ 
+   typedef basic_string<wchar_t> wstring;
+Index: libstdc++-v3/include/c_std/std_cwchar.h
+===================================================================
+--- libstdc++-v3/include/c_std/std_cwchar.h	(revision 129382)
++++ libstdc++-v3/include/c_std/std_cwchar.h	(working copy)
+@@ -138,7 +138,7 @@
+ #undef wprintf
+ #undef wscanf
+ 
+-#if _GLIBCXX_USE_WCHAR_T
++#if _GLIBCXX_USE_WCHAR_T || _GLIBCXX_USE_WSTRING
+ namespace std
+ {
+   using ::wint_t;
+Index: libstdc++-v3/include/c_std/std_cwctype.h
+===================================================================
+--- libstdc++-v3/include/c_std/std_cwctype.h	(revision 129382)
++++ libstdc++-v3/include/c_std/std_cwctype.h	(working copy)
+@@ -75,7 +75,7 @@
+ #undef wctrans
+ #undef wctype
+ 
+-#if _GLIBCXX_USE_WCHAR_T
++#if _GLIBCXX_USE_WCHAR_T || _GLIBCXX_USE_WSTRING
+ namespace std
+ {
+   using ::wint_t;	  // cwchar

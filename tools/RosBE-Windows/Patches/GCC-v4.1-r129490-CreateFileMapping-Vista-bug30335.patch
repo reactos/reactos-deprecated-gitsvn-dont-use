@@ -1,0 +1,98 @@
+Index: gcc/config/i386/host-mingw32.c
+===================================================================
+--- gcc/config/i386/host-mingw32.c	(revision 129490)
++++ gcc/config/i386/host-mingw32.c	(working copy)
+@@ -28,6 +28,8 @@
+ 
+ 
+ #define WIN32_LEAN_AND_MEAN  /* Not so important if we have windows.h.gch.  */
++#include <tchar.h>
++#include <stdlib.h>
+ #include <windows.h>
+ 
+ static void * mingw32_gt_pch_get_address (size_t, int);
+@@ -47,7 +49,7 @@
+ static const size_t pch_VA_max_size  = 128 * 1024 * 1024;
+ 
+ /* Granularity for reserving address space.  */
+-static const size_t va_granularity = 0x10000;
++static size_t va_granularity = 0x10000;
+ 
+ /* Print out the GetLastError() translation.  */ 
+ static inline void
+@@ -70,7 +72,9 @@
+ /* Granularity for reserving address space.  */
+ static size_t mingw32_gt_pch_alloc_granularity (void)
+ {
+-  return va_granularity;
++  SYSTEM_INFO SysInfo;
++  GetSystemInfo(&SysInfo);
++  return (va_granularity = (size_t)SysInfo.dwAllocationGranularity);
+ }
+ 
+ /* Identify an address that's likely to be free in a subsequent invocation
+@@ -116,6 +120,9 @@
+ {
+   void * mmap_addr;
+   static HANDLE mmap_handle;
++  TCHAR szMappingName[26];
++  OSVERSIONINFO version_info;
++  int i = 0;
+ 
+   if (size == 0)
+     return 0;
+@@ -125,16 +132,49 @@
+   if ((offset & (va_granularity - 1)) != 0 || size > pch_VA_max_size)
+     return -1;
+ 
+-  mmap_handle = CreateFileMapping ((HANDLE) _get_osfhandle (fd),
+-				   NULL, PAGE_WRITECOPY | SEC_COMMIT,
+-				   0, 0,  NULL);
++  /* Determine the version of Windows we are running on.  */
++  version_info.dwOSVersionInfoSize = sizeof (version_info);
++  GetVersionEx (&version_info);
++
++  srand(1);
++  while (1)
++    {
++      /* Generate a unique mapping name. This is neccessary to avoid
++         needing the SeCreateGlobalPrivilege privilege in certain cases.
++         However, the documentation for CreateFileMapping says that on NT4
++         and earlier, backslashes are invalid in object name.  So, we need
++         to check if we are on Windows2000 or higher.  */
++      _stprintf(szMappingName, _T("Local\\MinGWGCCPCH%08X"), rand());
++      mmap_handle = CreateFileMapping ((HANDLE) _get_osfhandle (fd),
++					   NULL, PAGE_WRITECOPY | SEC_COMMIT,
++					   0, 0,  (version_info.dwMajorVersion >
++					   4 ? szMappingName : NULL));
++      if (mmap_handle != NULL && GetLastError() == ERROR_ALREADY_EXISTS)
++          CloseHandle(mmap_handle);
++      else
++          break;
++    }
++
+   if (mmap_handle == NULL)
+     {
+       w32_error (__FUNCTION__,  __FILE__, __LINE__, "CreateFileMapping");
+       return -1; 
+     }
+-  mmap_addr = MapViewOfFileEx (mmap_handle, FILE_MAP_COPY, 0, offset,
+-			       size, addr);
++  /* wait/retry a couple of times if needed.
++     Fixes a race when running multiple gcc's (-j) */
++  for(i = 0; i < 5; i++)
++    {
++      mmap_addr = MapViewOfFileEx (mmap_handle, FILE_MAP_COPY, 0, offset,
++			         size, addr);
++	  if (mmap_addr != addr)
++	    {
++	      Sleep(500);
++	    }
++	  else
++	    {
++	      break;
++	    }
++	}
+   if (mmap_addr != addr)
+     {
+       w32_error (__FUNCTION__, __FILE__, __LINE__, "MapViewOfFileEx");
