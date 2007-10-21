@@ -16,8 +16,8 @@ title Building...
 :: Check if the user has used the options utility and
 :: if so, load their options.
 ::
-if exist %_ROSBE_BASEDIR%\rosbe-options.cmd (
-    call %_ROSBE_BASEDIR%\rosbe-options.cmd
+if exist "%_ROSBE_BASEDIR%\rosbe-options.cmd" (
+    call "%_ROSBE_BASEDIR%\rosbe-options.cmd"
 )
 
 ::
@@ -29,7 +29,7 @@ if exist "config.rbuild" (
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
-        echo *** aborting build. Please update your config.rbuild   *** 
+        echo *** aborting build. Please update your config.rbuild   ***
         echo *** by typeing "config update".                        ***
         echo.
         goto :EOB
