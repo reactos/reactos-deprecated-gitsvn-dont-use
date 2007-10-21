@@ -31,7 +31,7 @@ if /I "%1"=="def" (
 if /I "%1"=="run" (
     for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
         if %%i == Base (
-            echo Used Shortcut: %%j
+            echo Active Shortcut: %%j
             echo.
             ::
             : Set new source directory, if needed.
@@ -49,7 +49,7 @@ if /I "%1"=="run" (
 goto :END
 
 ::
-:: Load Shortcut from XML and set it active.
+:: Load Shortcut from txt and set it active.
 ::
 :DEF
 echo Choose your Source Folder:
@@ -61,11 +61,11 @@ for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\src
         goto :END
     )
 )
-echo ERROR: This Shortcut (%XY%) does not exist.
+echo ERROR: The Shortcut %XY% does not exist.
 goto :END
 
 ::
-:: Add new Shortcut to XML.
+:: Add new Shortcut to txt.
 ::
 :ADD
 if not "%2" == "" (
@@ -90,7 +90,7 @@ set /P DIR=
 :ADD23
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %CUT% (
-        echo ERROR: A Shortcut with the name %CUT% does already exists.
+        echo ERROR: A Shortcut with the name %CUT% does already exist.
         goto :END
     )
 )
@@ -98,7 +98,7 @@ echo %CUT%,%DIR%>> "%_ROSBE_BASEDIR%\srclist.txt"
 goto :END
 
 ::
-:: Remove Shortcut from XML.
+:: Remove Shortcut from txt.
 ::
 :REM
 if not "%2" == "" (
@@ -137,6 +137,9 @@ set /P DIR=
 :DEF1
 call "%_ROSBE_BASEDIR%\scut.cmd" edit Base %DIR%
 
+::
+:: Edit a existing Shortcut.
+::
 :EDIT
 if not "%2" == "" (
     if not "%3" == "" (

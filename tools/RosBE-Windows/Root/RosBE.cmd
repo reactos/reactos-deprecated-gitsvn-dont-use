@@ -57,7 +57,7 @@ call :RosBE4
 :EndCommandParse
 
 ::
-:: Load the Base Directory from the Shortcut-XML and set it as new
+:: Load the Base Directory from the Shortcut-txt and set it as new
 :: Source Directory and add PATH for Tools Folder.
 ::
 set PATH=%_ROSBE_BASEDIR%\Tools;%PATH%
@@ -85,7 +85,7 @@ echo.
 doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
 
 ::
-:: Look if the Source Folder is empty. If so, ask for using "svn create".
+:: Look if the Source Folder is empty. If so, ask for using "ssvn create".
 ::
 dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul|findstr "." >nul
 if errorlevel 1 (

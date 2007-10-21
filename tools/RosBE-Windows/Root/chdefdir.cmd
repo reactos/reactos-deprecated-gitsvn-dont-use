@@ -10,11 +10,13 @@
 
 title Change the Default Dir...
 
+set _ROSBE_ROSSOURCEDIRBCK=%_ROSBE_ROSSOURCEDIR%
+
 if /i "%1" == "" (
     goto :INTERACTIVE
 )
 if /i "%1" == "default" (
-    set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
+    set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIRBCK%
 ) else (
     set _ROSBE_ROSSOURCEDIR=%1
 )

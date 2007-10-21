@@ -101,7 +101,7 @@ if "%1" == "" (
 
         echo Done cleaning ReactOS source directory.
     ) else (
-        echo There is nothing to clean.
+        echo ERROR: There is nothing to clean.
     )
     title ReactOS Build Environment %_ROSBE_VERSION%
     goto :EOC
@@ -117,7 +117,7 @@ if "%1" == "logs" (
 
         echo Done cleaning build logs.
     ) else (
-        echo There are no logs to clean.
+        echo ERROR: There are no logs to clean.
     )
     goto :EOC
 )

@@ -39,14 +39,14 @@ if "%1" == "cleanup" (
 if "%1" == "create" (
     title Creating...
     if exist ".svn\." (
-        echo Folder already cotains a Reposority. Exiting
+        echo ERROR: Folder already cotains a Reposority. Exiting
         goto :ExitSVN
     )
     dir /b 2>nul|findstr "." >nul
     if errorlevel 1 (
         svn checkout svn://svn.reactos.org/reactos/trunk/reactos
     ) else (
-        echo Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+        echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
     goto :ExitSVN
 )
