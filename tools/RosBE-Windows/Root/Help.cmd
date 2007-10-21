@@ -17,32 +17,58 @@ title ReactOS Build Environment %_ROSBE_VERSION%
 if "%1" == "" (
     echo.
     echo Available Commands:
-    echo    make [OPTIONS]       - Without options it does a standard build of
-    echo                           ReactOS. OPTIONS are the standard ReactOS build
-    echo                           options ie. "bootcd"
-    echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
-    echo                           number of CPU Cores in the system and uses -j
-    echo                           with the appropriate number.
+
+    if exist "%_ROSBE_BASEDIR%\build.cmd" (
+        echo    make [OPTIONS]       - Without options it does a standard build of
+        echo                           ReactOS. OPTIONS are the standard ReactOS build
+        echo                           options ie. "bootcd"
+        echo    makex [OPTIONS]      - Same as 'make' but automatically determines the
+        echo                           number of CPU Cores in the system and uses -j
+        echo                           with the appropriate number.
+    )
+
     echo    basedir              - Switch back to the ReactOS source directory.
     echo.
-    echo    scut                 - Define, Remove, Switch and Default to Shortcutted
-    echo                           Source-Directories.
-    echo    chdefdir [OPTIONS]   - Reconfigures the Default Source Folder for one
-    echo                           Session.
+
+    if exist "%_ROSBE_BASEDIR%\scut.cmd" (
+        echo    scut                 - Define, Remove, Switch and Default to Shortcutted
+        echo                           Source-Directories.
+    )
+
+    if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
+        echo    chdefdir [OPTIONS]   - Reconfigures the Default Source Folder for one
+        echo                           Session.
+    )
+
+    if exist "%_ROSBE_BASEDIR%\config.cmd" (
     echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
     echo.
+    )
+
+    if exist "%_ROSBE_BASEDIR%\clean.cmd" (
     echo    clean [logs]         - Fully clean the ReactOS source directory and/or
     echo                           the RosBE build logs.
+    )
+
     echo    help [COMMAND]       - Display the available commands or help on a
     echo                           specific command.
+
+    if exist "%_ROSBE_BASEDIR%\options.cmd" (
     echo    options              - Starts options.exe and reboots to make the
     echo                           changes effective at the end.
+    )
+
+    if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
     echo    raddr2line [OPTIONS] - Translates program addresses into file names and
     echo                           line numbers to assist Developers to find
     echo                           specific Bugs in ReactOS.
+    )
+
+    if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
     echo    ssvn [OPTIONS]       - Create, Update or Clean-up your ReactOS Source
     echo                           Tree or show the Revision Number of the Offline
     echo                           Tree and Online HEAD Revision.
+    )
 
     goto :EOF
 )
