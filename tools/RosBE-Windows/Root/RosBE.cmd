@@ -17,7 +17,7 @@
 color 0A
 set _ROSBE_VERSION=0.X.X.X
 set _ROSBE_BASEDIR=%~dp0
-for /f "usebackq" %%i in (`"echo %_ROSBE_BASEDIR%|%_ROSBE_BASEDIR%Tools\sed s/.$//g"`) do @SET _ROSBE_BASEDIR=%%i
+for /f "usebackq" %%i in (`"echo %_ROSBE_BASEDIR%|%_ROSBE_BASEDIR%Tools\sed s/.$//g"`) do set _ROSBE_BASEDIR=%%i
 set _ROSBE_ROSSOURCEDIR=%CD%
 set _ROSBE_SHOWTIME=1
 set _ROSBE_WRITELOG=1
@@ -62,7 +62,7 @@ if not "%1" == "" (
 :: Source Directory and add PATH for Tools Folder.
 ::
 set PATH=%_ROSBE_BASEDIR%\Tools;%PATH%
-for /f "usebackq" %%i in (`"grep base= "%_ROSBE_BASEDIR%\srclist.xml"|cutz main"`) do @SET scut=%%i
+for /f "usebackq" %%i in (`"grep base= "%_ROSBE_BASEDIR%\srclist.xml"|cutz main"`) do set scut=%%i
 echo Used Shortcut: %scut%
 echo.
 
@@ -80,6 +80,7 @@ mingw32-make -v | find "GNU Make"
 echo.
 echo For a list of all included commands, type: "help"
 echo -------------------------------------------------
+echo.
 
 ::
 :: Load the doskey macros that serve as our commands.
