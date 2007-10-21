@@ -10,14 +10,12 @@
 #define ID_BROWSEMGW 0x9
 #define ID_DIALOG 0xa
 #define ID_EXAMPLE 0xb
-#define IDC_FONT 0xc
-#define IDC_BACK 0xd
-#define ID_USECCACHE 0xe
-#define ID_STRIP 0xf
+#define ID_USECCACHE 0xc
+#define ID_STRIP 0xd
+#define IDC_FONT 0xe
+#define IDC_BACK 0xf
 
 /* Strings */
 #define MSG_NOGCCFOUND 0x50
 #define MSG_FILEFAILED 0x51
 #define MSG_DIREFAILED 0x52
-
-

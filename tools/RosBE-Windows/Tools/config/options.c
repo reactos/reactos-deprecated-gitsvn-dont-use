@@ -81,7 +81,8 @@ WriteSettings(HWND hwnd)
     }
 
     wcscpy(checkmgw, mingwpath);
-    wcscat(checkmgw, L"\\bin\\gcc.exe");
+    if ((wcslen(checkmgw) + wcslen(L"\\bin\\gcc.exe")) < MAX_PATH)
+        wcscat(checkmgw, L"\\bin\\gcc.exe");
     hFile = CreateFile(checkmgw, (INT)NULL, (INT)NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
     {
@@ -146,7 +147,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             SendMessage(GetDlgItem(Dlg, IDC_FONT), CB_SETCURSEL, 0xA, 0);
             SendMessage(GetDlgItem(Dlg, IDC_BACK), CB_SETCURSEL, 0, 0);
             GetCurrentDirectory(MAX_PATH, defaultmingwpath);
-            wcscat(defaultmingwpath, MINGWVERSION);
+            if ((wcslen(defaultmingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
+                wcscat(defaultmingwpath, MINGWVERSION);
             SetDlgItemText(Dlg, ID_MGWDIR, defaultmingwpath);
 
             return TRUE;
@@ -154,78 +156,82 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 
         case WM_COMMAND:
         {
-            if (wParam == ID_CANCEL)
-            {
-                PostMessage(Dlg, WM_CLOSE, 0, 0);
-            }
-            else if (wParam == ID_OK)
-            {
-                if (WriteSettings(Dlg))
-                PostMessage(Dlg, WM_CLOSE, 0, 0);
-            }
-            else if (wParam == ID_BROWSE)
-            {
-                WCHAR Path[MAX_PATH];
-                BROWSEINFO PathInfo;
-                ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
-                PathInfo.hwndOwner = Dlg;
-                PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
-                LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
-                if (pidl && SHGetPathFromIDList(pidl, Path))
-                {
-                    SetDlgItemText(Dlg, ID_LOGDIR, Path);
-                    EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-                }
-            }
-            else if (wParam == ID_BROWSEMGW)
-            {
-                WCHAR MGWPath[MAX_PATH];
-                BROWSEINFO PathInfo;
-                HINSTANCE hDLL;
-                ILCREATEFROMPATHW ILCreateFromPathW;
-                ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
-                hDLL = LoadLibrary(L"shell32.dll");
-                if (hDLL)
-                {
-                    ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
-                    if (ILCreateFromPathW)
-                    {
-                        GetDlgItemText(Dlg, ID_MGWDIR, MGWPath, MAX_PATH);
-                        PathInfo.pidlRoot = ILCreateFromPathW(MGWPath);
-                    }
-                    FreeLibrary(hDLL);
-                }
-                PathInfo.hwndOwner = Dlg;
-                PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
-                LPITEMIDLIST pidl = SHBrowseForFolder(&PathInfo);
-                if (pidl && SHGetPathFromIDList(pidl, MGWPath))
-                {
-                    SetDlgItemText(Dlg, ID_MGWDIR, MGWPath);
-                    EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-                }
-            }
-            else if (wParam == ID_SAVELOGS)
-            {
-                BOOL WriteLogSet = SendMessage(GetDlgItem(Dlg, ID_SAVELOGS), BM_GETCHECK, 0,
-                                               0) == BST_CHECKED;
-                EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
-                EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
-            }
-            else if (wParam == ID_STRIP)
-            {
-                EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-            }
-            else if (wParam == ID_USECCACHE)
-            {
-                EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-            }
-            else if ((wParam == ID_SHOWBUILDTIME) || ((LOWORD(wParam) == IDC_FONT) && (HIWORD(wParam) == CBN_SELCHANGE)) || ((LOWORD(wParam) == IDC_BACK) && (HIWORD(wParam) == CBN_SELCHANGE)))
+            if (((LOWORD(wParam) == IDC_FONT) && (HIWORD(wParam) == CBN_SELCHANGE)) ||
+                ((LOWORD(wParam) == IDC_BACK) && (HIWORD(wParam) == CBN_SELCHANGE)))
             {
                 RECT rcWnd;
                 GetClientRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd);
                 InvalidateRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd, FALSE);
                 UpdateWindow(GetDlgItem(Dlg, ID_EXAMPLE));
                 EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+            }
+            else
+            {
+                switch (wParam)
+                {
+                    case ID_OK:
+                    {
+                       if (!WriteSettings(Dlg))
+                       break;
+                    }
+                    case ID_CANCEL:
+                    {
+                        PostMessage(Dlg, WM_CLOSE, 0, 0);
+                        break;
+                    }
+                    case ID_BROWSE:
+                    case ID_BROWSEMGW:
+                    {
+                        WCHAR Path[MAX_PATH];
+                        BROWSEINFO PathInfo;
+                        LPITEMIDLIST pidl;
+                        INT Control = ID_LOGDIR;
+                        ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
+                        PathInfo.hwndOwner = Dlg;
+                        PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
+                        if (wParam == ID_BROWSEMGW)
+                        {
+                            HINSTANCE hDLL;
+                            ILCREATEFROMPATHW ILCreateFromPathW;
+                            Control = ID_MGWDIR;
+                            PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
+                            hDLL = LoadLibrary(L"shell32.dll");
+                            if (hDLL)
+                            {
+                                ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
+                                if (ILCreateFromPathW)
+                                {
+                                    GetDlgItemText(Dlg, ID_MGWDIR, Path, MAX_PATH);
+                                    PathInfo.pidlRoot = ILCreateFromPathW(Path);
+                                }
+                                FreeLibrary(hDLL);
+                            }
+                        }
+                        pidl = SHBrowseForFolder(&PathInfo);
+                        if (pidl && SHGetPathFromIDList(pidl, Path))
+                        {
+                            SetDlgItemText(Dlg, Control, Path);
+                            EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+                        }
+                        break;
+                    }
+                    case ID_SAVELOGS:
+                    {
+                        BOOL WriteLogSet = SendMessage(GetDlgItem(Dlg, ID_SAVELOGS), BM_GETCHECK, 0,
+                                                   0) == BST_CHECKED;
+                        EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
+                        break;
+                    }
+                    case ID_STRIP:
+                    case ID_USECCACHE:
+                    case ID_SHOWBUILDTIME:
+                    {
+                        EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+                        break;
+                    }
+                }
+
             }
             return FALSE;
         }
