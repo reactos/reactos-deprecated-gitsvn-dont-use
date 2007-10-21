@@ -1,181 +1,138 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8">
-	<title>Basic Features</title>
-	<meta content="Daniel Reimer" name="author">
-	<meta content="Lists the Basic Features of RosBE" name="description">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>Basic Features</title>
+  <meta content="Daniel Reimer" name="author">
+  <meta content="Lists the Basic Features of RosBE" name="description">
 </head>
 <body>
-	<dl>
-		<dt>make</dt>
-		<dd>Usage: make [OPTIONS1] [OPTIONS2]</dd>
-		<dd>
-			The command to build the ReactOS Source Tree in the Default
-			directory.<br>
-			Without options it does a standard build of ReactOS. OPTIONS1 are
-			the standard ReactOS build options ie.
-		<dd>
-			<ul>
-				<li>bootcd</li>
-				<li>livecd</li>
-				<li>etc.</li>
-			</ul>
-			<br>
-			<ul>
-				<li><dfn>strip</dfn> as optional second parameter sets stripping to
-					enabled and thus reduces File Size by ~30% and Minimum
-					needed RAM to use ReactOS to ~24 MB. ISOs built with this
-					command are NOT usable to file bugs	in any way!
-				</li>
-			</ul>
-		</dd>
-	
-	
-		<dt>makex</dt>
-		<dd>Usage: makex [OPTIONS1] [OPTIONS2]</dd>
-		<dd>
-			Same as 'make' but automatically determines the number of CPU Cores
-			in your system and uses "make -j x" with the appropriate number to
-			threaden the build process for a massive speedup on Multi Core
-			Systems.<br>
-			NOTE: The number makex uses can be modified by editing
-			Build-Multi.cmd located in the RosBE directory, instructions for
-			doing so are contained within the file. This Command is incompatible
-			to Windows Vista right now due to a bug in GCC 4.X.X.
-		</dd>
-
-
-		<dt>clean</dt>
-		<dd>Usage: clean [logs]</dd>
-		<dd>
-			Fully cleans the ReactOS source directory and does a better job than
-			"make clean" does.<br>
-			It deletes files, which are being generated into the Source Tree
-			while compiling. After using this Command the tree is completely
-			cleaned up and 1:1 like a fresh loaded one.
-		</dd>
-		<dd>
-			<ul>
-				<li>
-					<dfn>logs</dfn> - Removes all build logs in the RosBE-Logs
-					directory.
-				</li>
-			</ul>
-		</dd>
-
-
-		<dt>help</dt>
-		<dd>Usage: help [COMMAND]</dd>
-		<dd>
-			Shows help for the specified command or lists all available
-			commands.
-		</dd>
-
-
-		<dt>ssvn</dt>
-		<dd>Usage: ssvn [OPTIONS]</dd>
-		<dd>
-			This is the simple to use sSVN, written for newbies. It only
-			Creates, Updates or cleans up your ReactOS Source Tree or shows the
-			Revision Number of the Offline Tree and Online HEAD Revision to see
-			if its up to date. No need for any additional parameters, just
-			"ssvn update" and your Tree is fully updated.
-		</dd>
-		<dd>
-			<ul>
-				<li>
-					<dfn>update</dfn>
-					- Updates to HEAD Revision or to a specific one when second
-					parameter specifies one.
-				</li>
-				<li>
-					<dfn>create</dfn>
-					- Creates a new ReactOS Source Tree and got some Security
-					Features. It checks if the folder is empty, contains a
-					Source Tree or any other files and Cancels if continuing is
-					unsecure.
-				</li>
-				<li>
-					<dfn>cleanup</dfn>
-					- Cleans up and fixes errors in the Source Tree. It is
-					mainly needed if the "ssvn update" or "ssvn create" command
-					got aborted in any way or show problems like error messages
-					etc.
-				</li>
-				<li>
-					<dfn>status</dfn>
-					- Shows Actual offline Revision Number and online HEAD
-					Revision Number to see if its up to date.
-				</li>
-			</ul>
-		</dd>
-
-
-		<dt>chdefdir</dt>
-		<dd>Usage: chdefdir [OPTIONS]</dd>
-		<dd>
-			Reconfigures the Default Source Folder for one Session. This is
-			useful for switching between branches or different ReactOS Source
-			Trees. Exiting RosBE sets back to the Default.
-		</dd>
-		<dd>
-			<ul>
-				<li>
-					<dfn>default</dfn>
-					- Sets back to the Default Source Folder without a restart
-					of RosBE.
-				</li>
-			</ul>
-		</dd>
-
-
-		<dt>config</dt>
-		<dd>Usage: config [OPTIONS]</dd>
-		<dd>
-			This Command creates a Configuration File, which tells RosBE how to
-			build the Tree. There are many things you can modify in the build
-			process and this tool can edit all for you. ISOs made with a non
-			default are NOT usable to file bugs in any way!
-		</dd>
-		<dd>
-			<ul>
-				<li>
-					<dfn>delete</dfn>
-					- Deletes the created configuration File and so sets back to
-					default settings.
-				</li>
-			</ul>
-		</dd>
-		
-		
-		<dt>raddr2line</dt>
-		<dd>Usage: raddr2line [OPTIONS]</dd>
-		<dd>
-			This Command translates program addresses of BSODs into file names
-			and line numbers of the Code it was built of to assist Developers to
-			find specific Bugs in ReactOS. This Tool is mainly a Dev Tool.
-			Newbies normally only need it if a devs wants them to try out
-			something.
-		</dd>
-		<dd>
-			<ul>
-				<li>
-					<dfn>first parameter</dfn>
-					- has to be the Executable to be analyzed.
-				</li>
-				<li>
-					<dfn>second parameter</dfn>
-					- has to be the address to be translated. If you don't set
-					the needed Parameters, you will be asked for them.
-				</li>
-			</ul>
-		</dd>
-		
-		
-		<dt>basedir</dt>
-		<dd>Usage: basedir</dd>
-		<dd>Switches back to the ReactOS source directory.</dd>
-	</dl>
+<dl>
+  <dt>make</dt>
+  <dd>Usage: make [OPTIONS]<br>
+  </dd>
+  <dd> The command to build the ReactOS Source Tree in the Default
+directory.<br>
+Without options it does a standard build of ReactOS. OPTIONS are the
+standard ReactOS build options ie. </dd>
+  <dd>
+    <ul>
+      <li>bootcd</li>
+      <li>livecd</li>
+      <li>etc.</li>
+    </ul>
+  </dd>
+  <dt>makex</dt>
+  <dd>Usage: makex [OPTIONS]<br>
+  </dd>
+  <dd> Same as 'make' but automatically determines the number of CPU
+Cores in your system and uses "make -j x" with the appropriate number
+to threaden the build process for a massive speedup on Multi Core
+Systems.<br>
+NOTE: The number makex uses can be modified by editing Build-Multi.cmd
+located in the RosBE directory, instructions for doing so are contained
+within the file.</dd>
+  <dt>basedir</dt>
+  <dd>Usage: basedir</dd>
+  <dd>Switches back to the ReactOS source directory.</dd>
+  <dt>chdefdir</dt>
+  <dd>Usage: chdefdir [OPTIONS]</dd>
+  <dd> Reconfigures the Default Source Folder for one Session. This is
+useful for switching between branches or different ReactOS Source
+Trees. Exiting RosBE sets back to the Default. </dd>
+  <dd>
+    <ul>
+      <li> <dfn>default</dfn> - Sets back to the Default Source Folder
+without a restart of RosBE.</li>
+    </ul>
+  </dd>
+  <dt>clean</dt>
+  <dd>Usage: clean [logs]</dd>
+  <dd> Fully cleans the ReactOS source directory and does a better job
+than "make clean" does.<br>
+It deletes files, which are being generated into the Source Tree while
+compiling. After using this Command the tree is completely cleaned up
+and 1:1 like a fresh loaded one. </dd>
+  <dd>
+    <ul>
+      <li> <dfn>logs</dfn> - Removes all build logs in the RosBE-Logs
+directory. </li>
+    </ul>
+  </dd>
+  <dt>config</dt>
+  <dd>Usage: config [OPTIONS]</dd>
+  <dd> This Command creates a Configuration File, which tells RosBE how
+to build the Tree. There are many things you can modify in the build
+process and this tool can edit all for you. ISOs made with a non
+default are NOT usable to file bugs in any way! </dd>
+  <dd>
+    <ul>
+      <li> <dfn>delete</dfn> - Deletes the created configuration File
+and so sets back to default settings. </li>
+    </ul>
+  </dd>
+  <dt>help</dt>
+  <dd>Usage: help [COMMAND]</dd>
+  <dd> Shows help for the specified command or lists all available
+commands.</dd>
+  <dt>options</dt>
+  <dd>Usage: options</dd>
+  <dd> Starts the RosBE Configuration Program.<br>
+  </dd>
+  <dt>raddr2line</dt>
+  <dd>Usage: raddr2line [OPTIONS]</dd>
+  <dd> This Command translates program addresses of BSODs into file
+names and line numbers of the Code it was built of to assist Developers
+to find specific Bugs in ReactOS. This Tool is mainly a Dev Tool.
+Newbies normally only need it if a devs wants them to try out
+something. </dd>
+  <dd>
+    <ul>
+      <li> <dfn>first parameter</dfn> - has to be the Executable to be
+analyzed. </li>
+      <li> <dfn>second parameter</dfn> - has to be the address to be
+translated. If you don't set the needed Parameters, you will be asked
+for them. </li>
+    </ul>
+  </dd>
+  <dt>scut</dt>
+  <dd>Usage: scut [OPTIONS]</dd>
+  <dd>Defines, Edits, Removes, Switches and Defaults to Shortcutted
+Source Directories. scut started without a parameter or with the name
+of a Shortcut as parameter sets this Shortcut active. </dd>
+  <dd>
+    <ul>
+      <li> <dfn>add</dfn> - Adds a Shortcut to a sourcecode. </li>
+      <li> <dfn>rem</dfn> - Deletes a specific shortcut. </li>
+      <li> <dfn>edit</dfn> - Lets you edit a specific shortcut. </li>
+      <li> <dfn>def</dfn> - Chooses Default Shortcut which is enabled
+one every start of RosBE. "Default" is the Source Directory as you know
+it from previous Versions. </li>
+    </ul>
+  </dd>
+  <dt>ssvn</dt>
+  <dd>Usage: ssvn [OPTIONS]</dd>
+  <dd> This is the simple to use sSVN, written for newbies. It only
+Creates, Updates or cleans up your ReactOS Source Tree or shows the
+Revision Number of the Offline Tree and Online HEAD Revision to see if
+its up to date. No need for any additional parameters, just "ssvn
+update" and your Tree is fully updated. </dd>
+  <dd>
+    <ul>
+      <li> <dfn>update</dfn> - Updates to HEAD Revision or to a
+specific one when second parameter specifies one. </li>
+      <li> <dfn>create</dfn> - Creates a new ReactOS Source Tree and
+got some Security Features. It checks if the folder is empty, contains
+a Source Tree or any other files and Cancels if continuing is unsecure.
+      </li>
+      <li> <dfn>cleanup</dfn> - Cleans up and fixes errors in the
+Source Tree. It is mainly needed if the "ssvn update" or "ssvn create"
+command got aborted in any way or show problems like error messages
+etc. </li>
+      <li> <dfn>status</dfn> - Shows Actual offline Revision Number
+and online HEAD Revision Number to see if its up to date. </li>
+    </ul>
+  </dd>
+</dl>
 </body>
 </html>

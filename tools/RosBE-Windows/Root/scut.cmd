@@ -90,11 +90,13 @@ set /P DIR=
 :ADD23
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %CUT% (
-        echo ERROR: A Shortcut with the name %CUT% does already exist.
+        echo A Shortcut with the name %CUT% does already exist. Editing the existing one.
+        call "%_ROSBE_BASEDIR%\scut.cmd" edit %CUT% %DIR%
         goto :END
     )
 )
 echo %CUT%,%DIR%>> "%_ROSBE_BASEDIR%\srclist.txt"
+echo Shortcut %CUT% successfully added.
 goto :END
 
 ::
@@ -120,6 +122,8 @@ del "%_ROSBE_BASEDIR%\srclist.txt"
 ren "%_ROSBE_BASEDIR%\srclist2.txt" srclist.txt
 if %_ROSBE_REM% == 0 (
     echo ERROR: The Shortcut %CUTREM% does not exist.
+) else (
+    echo Shortcut %CUTREM% successfully deleted.
 )
 goto :END
 
@@ -182,6 +186,8 @@ del "%_ROSBE_BASEDIR%\srclist.txt"
 ren "%_ROSBE_BASEDIR%\temporaryfile.tmp" srclist.txt
 if %_ROSBE_EDIT% == 0 (
     echo ERROR: The Shortcut %CUT% does not exist.
+) else (
+    echo Shortcut %CUT% successfully edited.
 )
 
 :END
