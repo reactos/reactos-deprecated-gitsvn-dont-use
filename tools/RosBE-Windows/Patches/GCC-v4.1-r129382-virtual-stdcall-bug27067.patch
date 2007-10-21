@@ -1,0 +1,137 @@
+Index: gcc/target.h
+===================================================================
+--- gcc/target.h	(revision 129382)
++++ gcc/target.h	(working copy)
+@@ -186,6 +186,13 @@
+     /* Output a DTP-relative reference to a TLS symbol.  */
+     void (*output_dwarf_dtprel) (FILE *file, int size, rtx x);
+ 
++/* This target hook allows the operating system to modify the extern
++    assembler name
++   of a DECL.  For example, windows targets use this to decorate stdcall and
++   fastcall functions
++   with a a trailing '@n'.  */
++    void (*change_extern_name) (tree decl);
++
+   } asm_out;
+ 
+   /* Functions relating to instruction scheduling.  */
+Index: gcc/cp/method.c
+===================================================================
+--- gcc/cp/method.c	(revision 129382)
++++ gcc/cp/method.c	(working copy)
+@@ -350,6 +350,8 @@
+      this translation unit.  */
+   TREE_ADDRESSABLE (function) = 1;
+   mark_used (function);
++  /* The DECL_ASSEMBLER_NAME of the thunked function may need modification. */
++  targetm.asm_out.change_extern_name (function);
+   if (!emit_p)
+     return;
+ 
+Index: gcc/target-def.h
+===================================================================
+--- gcc/target-def.h	(revision 129382)
++++ gcc/target-def.h	(working copy)
+@@ -205,6 +205,10 @@
+ #define TARGET_ASM_OUTPUT_DWARF_DTPREL NULL
+ #endif
+ 
++#ifndef TARGET_ASM_CHANGE_EXTERN_NAME
++#define TARGET_ASM_CHANGE_EXTERN_NAME hook_void_tree
++#endif
++
+ #define TARGET_ASM_ALIGNED_INT_OP				\
+ 		       {TARGET_ASM_ALIGNED_HI_OP,		\
+ 			TARGET_ASM_ALIGNED_SI_OP,		\
+@@ -248,7 +252,8 @@
+                         TARGET_ASM_FILE_END,			\
+ 			TARGET_ASM_EXTERNAL_LIBCALL,            \
+                         TARGET_ASM_MARK_DECL_PRESERVED,		\
+-			TARGET_ASM_OUTPUT_DWARF_DTPREL}
++            TARGET_ASM_OUTPUT_DWARF_DTPREL,         \
++            TARGET_ASM_CHANGE_EXTERN_NAME}
+ 
+ /* Scheduler hooks.  All of these default to null pointers, which
+    haifa-sched.c looks for and handles.  */
+Index: gcc/config/i386/cygming.h
+===================================================================
+--- gcc/config/i386/cygming.h	(revision 129382)
++++ gcc/config/i386/cygming.h	(working copy)
+@@ -335,6 +335,7 @@
+ extern void i386_pe_file_end (void);
+ extern int i386_pe_dllexport_name_p (const char *);
+ extern int i386_pe_dllimport_name_p (const char *);
++extern void i386_pe_decorate_assembler_name (tree);
+ 
+ /* For Win32 ABI compatibility */
+ #undef DEFAULT_PCC_STRUCT_RETURN
+@@ -412,6 +413,7 @@
+ 
+ #define TARGET_VALID_DLLIMPORT_ATTRIBUTE_P i386_pe_valid_dllimport_attribute_p
+ #define TARGET_CXX_ADJUST_CLASS_AT_DEFINITION i386_pe_adjust_class_at_definition
++#define TARGET_ASM_CHANGE_EXTERN_NAME i386_pe_decorate_assembler_name
+ 
+ #undef TREE
+ 
+Index: gcc/config/i386/winnt.c
+===================================================================
+--- gcc/config/i386/winnt.c	(revision 129382)
++++ gcc/config/i386/winnt.c	(working copy)
+@@ -335,33 +335,38 @@
+ }
+ 
+ void
+-i386_pe_encode_section_info (tree decl, rtx rtl, int first)
++i386_pe_decorate_assembler_name (tree decl)
+ {
+-  default_encode_section_info (decl, rtl, first);
++  tree type_attributes = TYPE_ATTRIBUTES (TREE_TYPE (decl));
++  tree newid = NULL_TREE;
+ 
+-  if (first && TREE_CODE (decl) == FUNCTION_DECL)
+-    {
+-      tree type_attributes = TYPE_ATTRIBUTES (TREE_TYPE (decl));
+-      tree newid = NULL_TREE;
++  if (lookup_attribute ("stdcall", type_attributes))
++    newid = gen_stdcall_or_fastcall_suffix (decl, false);
++  else if (lookup_attribute ("fastcall", type_attributes))
++    newid = gen_stdcall_or_fastcall_suffix (decl, true);
++  if (newid != NULL_TREE)
++   {
++      rtx rtlname = XEXP (DECL_RTL (decl), 0);
++      if (GET_CODE (rtlname) == MEM)
++       rtlname = XEXP (rtlname, 0);
++      XSTR (rtlname, 0) = IDENTIFIER_POINTER (newid);
+ 
+-      if (lookup_attribute ("stdcall", type_attributes))
+-	newid = gen_stdcall_or_fastcall_suffix (decl, false);
+-      else if (lookup_attribute ("fastcall", type_attributes))
+-	newid = gen_stdcall_or_fastcall_suffix (decl, true);
+-      if (newid != NULL_TREE) 	
+-	{
+-	  rtx rtlname = XEXP (rtl, 0);
+-	  if (GET_CODE (rtlname) == MEM)
+-	    rtlname = XEXP (rtlname, 0);
+-	  XSTR (rtlname, 0) = IDENTIFIER_POINTER (newid);
+-	  /* These attributes must be present on first declaration,
++ 	  /* These attributes must be present on first declaration,
+ 	     change_decl_assembler_name will warn if they are added
+ 	     later and the decl has been referenced, but duplicate_decls
+ 	     should catch the mismatch before this is called.  */ 
+ 	  change_decl_assembler_name (decl, newid);
+-	}
+     }
++ }
+ 
++void
++i386_pe_encode_section_info (tree decl, rtx rtl, int first)
++{
++  default_encode_section_info (decl, rtl, first);
++
++  if (first && TREE_CODE (decl) == FUNCTION_DECL)
++    i386_pe_decorate_assembler_name (decl);
++  
+   /* Mark the decl so we can tell from the rtl whether the object is
+      dllexport'd or dllimport'd.  tree.c: merge_dllimport_decl_attributes
+      handles dllexport/dllimport override semantics.  */
