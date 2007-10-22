@@ -17,7 +17,7 @@
 color 0A
 set _ROSBE_VERSION=1.0
 set _ROSBE_BASEDIR=%~dp0
-for /f "usebackq" %%i in (`"echo %_ROSBE_BASEDIR%|%_ROSBE_BASEDIR%Tools\sed s/.$//g"`) do set _ROSBE_BASEDIR=%%i
+set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
 set _ROSBE_ROSSOURCEDIR=%CD%
 set _ROSBE_PREVIOUSSOURCEDIR=""
 set _ROSBE_SHOWTIME=1
