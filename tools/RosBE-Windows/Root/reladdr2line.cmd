@@ -37,6 +37,18 @@ set /p _1="Please enter the path to the executable to be examined: "
 set /p _2="Please enter the address you would like to analyze: "
 
 :EOC
+if not exist "%_1%\." (
+    echo ERROR: The path specified doesn't seem to exist.
+    goto :END
+)
+if /i "%_1%" == "" (
+    echo ERROR: You must enter a valid directory.
+    goto :END
+)
+if /i "%_2%" == "" (
+    echo ERROR: You must enter a address to analyze.
+    goto :END
+)
 ::
 :: First get the ImageBase of the File. If its smaller than the given
 :: Parameter, everything is ok, because it was already added onto the
@@ -52,4 +64,5 @@ if %%i lss %_2% (
     raddr2line "%_1%" "%relbase%" 2>NUL
 )
 
+:END
 title ReactOS Build Environment %_ROSBE_VERSION%

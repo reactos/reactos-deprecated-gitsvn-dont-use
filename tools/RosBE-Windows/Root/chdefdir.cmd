@@ -25,7 +25,7 @@ if /i "%1" == "previous" (
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_PREVIOUSSOURCEDIR%
 ) else (
     if not exist "%1\." (
-        echo The path specified doesn't seem to exist.
+        echo ERROR: The path specified doesn't seem to exist.
         goto :EOC
     )
     set _ROSBE_ROSSOURCEDIR=%1
@@ -36,14 +36,14 @@ goto :EOC
 set /p XY="Please enter a ReactOS source directory, or 'previous': "
 
 if /i "%XY%" == "" (
-    echo You must either enter a directory or "previous".
+    echo ERROR: You must either enter a valid directory or "previous".
     goto :EOC
 )
 if /i "%XY%"=="previous" (
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_PREVIOUSSOURCEDIR%
 ) else (
     if not exist "%XY%\." (
-        echo The path specified doesn't seem to exist.
+        echo ERROR: The path specified doesn't seem to exist.
         goto :EOC
     )
     set _ROSBE_ROSSOURCEDIR=%XY%

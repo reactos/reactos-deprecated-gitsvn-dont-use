@@ -53,6 +53,14 @@ goto :END
 ::
 :DEF
 set /p XY="Choose your Source Folder: "
+if not exist "%XY%\." (
+    echo ERROR: The path specified doesn't seem to exist.
+    goto :END
+)
+if /i "%XY%" == "" (
+    echo ERROR: You must enter a valid directory.
+    goto :END
+)
 :RUN
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %XY% (
@@ -82,8 +90,20 @@ if not "%2" == "" (
 
 :ADD1
 set /p CUT="Choose your Shortcut: "
+if /i "%CUT%" == "" (
+    echo ERROR: You must enter a valid Shortcut.
+    goto :END
+)
 :ADD2
 set /p DIR="Choose your Source Folder: "
+if not exist "%DIR%\." (
+    echo ERROR: The path specified doesn't seem to exist.
+    goto :END
+)
+if /i "%DIR%" == "" (
+    echo ERROR: You must enter a valid directory.
+    goto :END
+)
 :ADD23
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %CUT% (
@@ -105,6 +125,10 @@ if not "%2" == "" (
     goto :REM1
 )
 set /p CUTREM="Choose your Shortcut: "
+if /i "%CUTREM%" == "" (
+    echo ERROR: You must enter a valid Shortcut.
+    goto :END
+)
 :REM1
 set _ROSBE_REM=0
 for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
@@ -133,6 +157,10 @@ if not "%2" == "" (
     goto :DEF1
 )
 set /p DIR="Choose your new Default Shortcut: "
+if /i "%DIR%" == "" (
+    echo ERROR: You must enter a valid Shortcut.
+    goto :END
+)
 :DEF1
 call "%_ROSBE_BASEDIR%\scut.cmd" edit Base %DIR%
 
@@ -155,8 +183,20 @@ if not "%2" == "" (
 
 :EDIT1
 set /p CUT="Choose your Shortcut: "
+if /i "%CUT%" == "" (
+    echo ERROR: You must enter a valid Shortcut.
+    goto :END
+)
 :EDIT2
 set /p DIR="Choose your Source Folder: "
+if not exist "%DIR%\." (
+    echo ERROR: The path specified doesn't seem to exist.
+    goto :END
+)
+if /i "%DIR%" == "" (
+    echo ERROR: You must enter a valid directory.
+    goto :END
+)
 :EDIT23
 set _ROSBE_EDIT=0
 for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
