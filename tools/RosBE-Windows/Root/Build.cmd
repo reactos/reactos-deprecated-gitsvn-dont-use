@@ -66,9 +66,11 @@ if %_ROSBE_WRITELOG% == 1 (
     if not exist "%_ROSBE_LOGDIR%\." (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
         if errorlevel 1 (
-            echo *** Error - Writing logs requested, but log directory doesn't ***
-            echo *** exist and can't be created. Logs will be created in the   ***
-            echo *** current directory as a fallback.                          ***
+            echo.
+            echo *** Writing logs requested, but log directory doesn't  ***
+            echo *** exist and can't be created. Logs will be created   ***
+            echo *** in the current directory as a fallback.            ***
+            echo.
             set _ROSBE_LOGDIR=%CD%
         )
     )
