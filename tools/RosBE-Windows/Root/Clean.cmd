@@ -103,7 +103,6 @@ if "%1" == "" (
     ) else (
         echo ERROR: There is nothing to clean.
     )
-    title ReactOS Build Environment %_ROSBE_VERSION%
     goto :EOC
 )
 if "%1" == "logs" (

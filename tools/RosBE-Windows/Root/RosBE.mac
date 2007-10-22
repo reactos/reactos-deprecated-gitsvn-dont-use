@@ -1,4 +1,5 @@
 BASEDIR    = cd /d "%_ROSBE_ROSSOURCEDIR%"
+CHDEFDIR   = "%_ROSBE_BASEDIR%\chdefdir.cmd" $*
 CLEAN      = "%_ROSBE_BASEDIR%\Clean.cmd" $*
 CONFIG     = "%_ROSBE_BASEDIR%\Config.cmd" $*
 HELP       = "%_ROSBE_BASEDIR%\Help.cmd" $*
@@ -8,4 +9,3 @@ RADDR2LINE = "%_ROSBE_BASEDIR%\reladdr2line.cmd" $*
 SCUT       = "%_ROSBE_BASEDIR%\scut.cmd" $*
 SSVN       = "%_ROSBE_BASEDIR%\sSVN.cmd" $*
 OPTIONS    = "%_ROSBE_BASEDIR%\options.cmd" $*
-CHDEFDIR   = "%_ROSBE_BASEDIR%\chdefdir.cmd" $*

@@ -16,9 +16,9 @@ title ReactOS Build Configurator
 if "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
     echo Continue?
-    set /P XY="(yes), (no)"
-    if /I "%XY%"=="yes" goto :CONT
-    if /I "%XY%"=="no" goto :NOK
+    set /p XY="(yes), (no)"
+    if /i "%XY%"=="yes" goto :CONT
+    if /i "%XY%"=="no" goto :NOK
     goto :NOK
 
     :CONT
@@ -40,9 +40,9 @@ if "%1" == "update" (
     echo old config.rbuild will be deleted and will be updated with a recent,
     echo default one. You will need to reconfigure it to your wishes later.
     echo Continue?
-    set /P XY="(yes), (no)"
-    if /I "%XY%"=="yes" goto :CONT2
-    if /I "%XY%"=="no" goto :NOK
+    set /p XY="(yes), (no)"
+    if /i "%XY%"=="yes" goto :CONT2
+    if /i "%XY%"=="no" goto :NOK
     :CONT2
     del "%_ROSBE_BASEDIR%\*.rbuild"
     del "config.rbuild"
@@ -71,10 +71,10 @@ echo Bugzilla or asking quesions about in Forum/Chat!
 echo.
 echo DID YOU UNDERSTAND?
 
-set /P XY="(yes), (no)"
+set /p XY="(yes), (no)"
 
-if /I "%XY%"=="yes" goto :OK
-if /I "%XY%"=="no" goto :NOK
+if /i "%XY%"=="yes" goto :OK
+if /i "%XY%"=="no" goto :NOK
 goto :NOK
 
 :OK
@@ -92,9 +92,9 @@ if exist "%_ROSBE_BASEDIR%\config.rbuild" (
         echo *** update to the most recent one? You need to reset all your  ***
         echo *** previously made settings.                                  ***
         echo.
-        set /P XY="(yes), (no)"
-        if /I "%XY%"=="yes" del "%_ROSBE_BASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild" | goto :OK
-        if /I "%XY%"=="no" goto :NOK
+        set /p XY="(yes), (no)"
+        if /i "%XY%"=="yes" del "%_ROSBE_BASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild" | goto :OK
+        if /i "%XY%"=="no" goto :NOK
         goto :NOK
     )
 )
@@ -107,7 +107,7 @@ echo Default is: none
 echo.
 echo Right now:
 grep \"SARCH\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P X="(), (xbox)"
+set /p X="(), (xbox)"
 sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" "%_ROSBE_BASEDIR%\config.rbuild" > "%_ROSBE_BASEDIR%\config2.rbuild"
 cls
 
@@ -120,7 +120,7 @@ echo Default is: pentium
 echo.
 echo Right now:
 grep \"OARCH\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P XX=
+set /p XX=
 if "%XX%" == "" (
     set XX=pentium
 )
@@ -136,7 +136,7 @@ echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk.
 echo.
 echo Right now:
 grep \"OPTIMIZE\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P Y="(0), (1), (2), (3), (4), (5)"
+set /p Y="(0), (1), (2), (3), (4), (5)"
 if "%Y%" == "" (
     set Y=1
 )
@@ -148,7 +148,7 @@ echo Default is: 0
 echo.
 echo Right now:
 grep \"MP\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P Z="(0), (1)"
+set /p Z="(0), (1)"
 if "%Z%" == "" (
     set Z=0
 )
@@ -160,7 +160,7 @@ echo Default is: 0
 echo.
 echo Right now:
 grep \"KDBG\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P A="(0), (1)"
+set /p A="(0), (1)"
 if "%A%" == "" (
     set A=0
 )
@@ -173,7 +173,7 @@ echo Default is: 1
 echo.
 echo Right now:
 grep \"DBG\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P B="(0), (1)"
+set /p B="(0), (1)"
 if "%B%" == "" (
     set B=1
 )
@@ -186,7 +186,7 @@ echo Default is: 0
 echo.
 echo Right now:
 grep \"GDB\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P C="(0), (1)"
+set /p C="(0), (1)"
 if "%C%" == "" (
     set C=0
 )
@@ -201,7 +201,7 @@ echo Default is: 0
 echo.
 echo Right now:
 grep \"NSWPAT\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P D="(0), (1)"
+set /p D="(0), (1)"
 if "%D%" == "" (
     set D=0
 )
@@ -218,7 +218,7 @@ echo Default is: 0
 echo.
 echo Right now:
 grep \"_WINKD_\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
-set /P F="(0), (1)"
+set /p F="(0), (1)"
 if "%F%" == "" (
     set F=0
 )

@@ -32,11 +32,9 @@ if not "%1" == "" (
 :: If Parameters were set, parse them, if not, ask the user to add them.
 ::
 :MAN
-echo Set the Path to the Executable to be examined.
-SET /P _1=
+set /p _1="Please enter the path to the executable to be examined: "
 :AUTO1
-echo Set the Address you wanna analyze inside the Executable.
-SET /P _2=
+set /p _2="Please enter the address you would like to analyze: "
 
 :EOC
 ::
@@ -46,11 +44,12 @@ SET /P _2=
 :: give the result to raddr2line.
 ::
 for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do set baseaddr=0x%%i
-if %%i LSS %_2% (
+if %%i lss %_2% (
     raddr2line "%_1%" "%_2%" 2>NUL
 ) else (
     set /a baseaddr+=0x%_2%
     for /f %%i in ('"echoh %baseaddr%"') do set relbase=%%i
     raddr2line "%_1%" "%relbase%" 2>NUL
 )
+
 title ReactOS Build Environment %_ROSBE_VERSION%
