@@ -15,7 +15,7 @@
 :: the options utility.
 ::
 color 0A
-set _ROSBE_VERSION=0.X.X.X
+set _ROSBE_VERSION=1.0
 set _ROSBE_BASEDIR=%~dp0
 for /f "usebackq" %%i in (`"echo %_ROSBE_BASEDIR%|%_ROSBE_BASEDIR%Tools\sed s/.$//g"`) do set _ROSBE_BASEDIR=%%i
 set _ROSBE_ROSSOURCEDIR=%CD%
@@ -115,7 +115,7 @@ goto :ExitRosBE
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *        ReactOS Build Environment %_ROSBE_VERSION%-4.1.3-20070703 (prerelease)        *
+    echo *        ReactOS Build Environment %_ROSBE_VERSION%-4.1.3-20070703 (prerelease)    *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
