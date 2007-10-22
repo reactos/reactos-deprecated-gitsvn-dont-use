@@ -2,48 +2,57 @@
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
 :: LICENSE:     GPL - See LICENSE.txt in the top level directory
 :: FILE:        Root/chdefdir.cmd
-:: PURPOSE:     Tool to change the Default Work Dir in RosBE.
+:: PURPOSE:     Tool to change the current working ReactOS source directory
+::              in RosBE.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::
 @echo off
 
-title Change the Default Dir...
+title Change the current working ReactOS source directory...
 
 ::
-:: Create a Backup Variable to revert to Default if wanted.
+:: Check if we already have a previous ReactOS source directory and
+:: if we don't, save it.
 ::
-if not defined _ROSBE_ROSSOURCEDIRBCK (
-    set _ROSBE_ROSSOURCEDIRBCK=%_ROSBE_ROSSOURCEDIR%
+if not %_ROSBE_PREVIOUSSOURCEDIR% == %_ROSBE_ROSSOURCEDIR% (
+    set _ROSBE_PREVIOUSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
 )
 
 ::
-:: Parse the commands.
+:: Parse the command line arguments.
 ::
 if /i "%1" == "" (
     goto :INTERACTIVE
 )
-if /i "%1" == "default" (
-    set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIRBCK%
+if /i "%1" == "previous" (
+    set _ROSBE_ROSSOURCEDIR=%_ROSBE_PREVIOUSSOURCEDIR%
 ) else (
+    if not exist "%1\." (
+        echo The path specified doesn't seem to exist.
+        goto :EOC
+    )
     set _ROSBE_ROSSOURCEDIR=%1
 )
-goto :END
+goto :EOC
 
 :INTERACTIVE
-echo Type in a Path to use RosBE in or "default" to revert to Default Dir:
-set /p XY=
+set /p XY="Please enter a ReactOS source directory, or 'previous': "
 
 if /i "%XY%" == "" (
-    goto :END
+    echo You must either enter a directory or "previous".
+    goto :EOC
 )
-if /i "%XY%"=="default" (
-    set _ROSBE_ROSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
+if /i "%XY%"=="previous" (
+    set _ROSBE_ROSSOURCEDIR=%_ROSBE_PREVIOUSSOURCEDIR%
 ) else (
+    if not exist "%XY%\." (
+        echo The path specified doesn't seem to exist.
+        goto :EOC
+    )
     set _ROSBE_ROSSOURCEDIR=%XY%
 )
-goto :END
 
-:END
+:EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
 cd /d "%_ROSBE_ROSSOURCEDIR%"

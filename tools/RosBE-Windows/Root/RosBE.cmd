@@ -19,6 +19,7 @@ set _ROSBE_VERSION=1.0
 set _ROSBE_BASEDIR=%~dp0
 for /f "usebackq" %%i in (`"echo %_ROSBE_BASEDIR%|%_ROSBE_BASEDIR%Tools\sed s/.$//g"`) do set _ROSBE_BASEDIR=%%i
 set _ROSBE_ROSSOURCEDIR=%CD%
+set _ROSBE_PREVIOUSSOURCEDIR=""
 set _ROSBE_SHOWTIME=1
 set _ROSBE_WRITELOG=1
 set _ROSBE_USECCACHE=0
@@ -87,7 +88,7 @@ doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
 ::
 :: Look if the Source Folder is empty. If so, ask for using "ssvn create".
 ::
-dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul|findstr "." >nul
+dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul | findstr "." >nul
 if errorlevel 1 (
     echo No ReactOS Source detected. Please use "ssvn create" to download it.
 )

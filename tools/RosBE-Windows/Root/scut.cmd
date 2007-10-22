@@ -52,8 +52,7 @@ goto :END
 :: Load Shortcut from txt and set it active.
 ::
 :DEF
-echo Choose your Source Folder:
-set /p XY=
+set /p XY="Choose your Source Folder: "
 :RUN
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %XY% (
@@ -82,11 +81,9 @@ if not "%2" == "" (
 )
 
 :ADD1
-echo Choose your Shortcut:
-set /p CUT=
+set /p CUT="Choose your Shortcut: "
 :ADD2
-echo Choose your Source Folder:
-set /p DIR=
+set /p DIR="Choose your Source Folder: "
 :ADD23
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %CUT% (
@@ -107,8 +104,7 @@ if not "%2" == "" (
     set CUTREM=%2
     goto :REM1
 )
-echo Choose your Shortcut:
-set /p CUTREM=
+set /p CUTREM="Choose your Shortcut: "
 :REM1
 set _ROSBE_REM=0
 for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
@@ -136,8 +132,7 @@ if not "%2" == "" (
     set DIR=%2
     goto :DEF1
 )
-echo Choose your new Default Shortcut:
-set /p DIR=
+set /p DIR="Choose your new Default Shortcut: "
 :DEF1
 call "%_ROSBE_BASEDIR%\scut.cmd" edit Base %DIR%
 
@@ -159,11 +154,9 @@ if not "%2" == "" (
 )
 
 :EDIT1
-echo Choose your Shortcut:
-set /p CUT=
+set /p CUT="Choose your Shortcut: "
 :EDIT2
-echo Choose your Source Folder:
-set /p DIR=
+set /p DIR="Choose your Source Folder: "
 :EDIT23
 set _ROSBE_EDIT=0
 for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
