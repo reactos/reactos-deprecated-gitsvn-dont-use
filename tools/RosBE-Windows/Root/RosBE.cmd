@@ -67,7 +67,7 @@ if exist "%_ROSBE_BASEDIR%\scut.cmd" (call "%_ROSBE_BASEDIR%\scut.cmd" run)
 ::
 :: Display the current version of GCC, NASM, ld and make.
 ::
-echo %_ROSBE_GCCVER%
+gcc -v 2>&1 | find "gcc version"
 nasm -v
 ld -v
 mingw32-make -v | find "GNU Make"
@@ -105,9 +105,6 @@ goto :ExitRosBE
     ::
     set _ROSBE_GCCVERSION=4.1.3
     set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_MINGWPATH%\libexec\gcc\mingw32\4.1.3;%PATH%
-    gcc -v 2>&1 | find "gcc version" > "%_ROSBE_BASEDIR%\bla.tmp"
-    set /p _ROSBE_GCCVER=<"%_ROSBE_BASEDIR%\bla.tmp"
-    del "%_ROSBE_BASEDIR%\bla.tmp"
     set _ROSBE_MINGWMAKE=%_ROSBE_MINGWPATH%\bin\mingw32-make.exe
     if defined _ROSBE_OLDMODE (
         set C_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
