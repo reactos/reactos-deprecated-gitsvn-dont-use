@@ -13,14 +13,6 @@
 title Building...
 
 ::
-:: Check if the user has used the options utility and
-:: if so, load their options.
-::
-if exist "%_ROSBE_BASEDIR%\rosbe-options.cmd" (
-    call "%_ROSBE_BASEDIR%\rosbe-options.cmd"
-)
-
-::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::
