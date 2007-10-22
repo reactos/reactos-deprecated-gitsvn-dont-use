@@ -105,7 +105,7 @@ goto :ExitRosBE
     set _ROSBE_GCCVERSION=4.1.3
     set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_MINGWPATH%\libexec\gcc\mingw32\4.1.3;%PATH%
     set _ROSBE_MINGWMAKE=%_ROSBE_MINGWPATH%\bin\mingw32-make.exe
-    if defined _ROSBE_OLDEMODE (
+    if defined _ROSBE_OLDMODE (
         set C_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
         set CPLUS_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\include\c++\4.1.3;%_ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
     )
