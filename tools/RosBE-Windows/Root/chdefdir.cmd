@@ -15,6 +15,9 @@ title Change the current working ReactOS source directory...
 :: Check if we already have a previous ReactOS source directory and
 :: if we don't, save it.
 ::
+if not exist _ROSBE_PREVIOUSSOURCEDIR (
+    set _ROSBE_PREVIOUSSOURCEDIR=""
+)
 if not %_ROSBE_PREVIOUSSOURCEDIR% == %_ROSBE_ROSSOURCEDIR% (
     set _ROSBE_PREVIOUSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
 )
