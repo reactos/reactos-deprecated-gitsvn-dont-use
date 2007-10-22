@@ -63,13 +63,14 @@ if not exist "%_ROSBE_BASEDIR%\config.rbuild" (
 )
 
 ::
-:: N00b Blocker :-P
+:: Help prevent non-useful bug reports/questions.
 ::
-echo WARNING:
-echo Non-Default-Configurations are not useable for pasteing Bugs to
-echo Bugzilla or asking quesions about in Forum/Chat!
 echo.
-echo DID YOU UNDERSTAND?
+echo *** Configurations other than release/debug are not useful for ***
+echo *** posting bug reports, and generally not very useful for     ***
+echo *** IRC/Forum discussion. Please refrain from doing so unless  ***
+echo *** you are sure about what you are doing.                     ***
+echo.
 
 set /p XY="(yes), (no)"
 
