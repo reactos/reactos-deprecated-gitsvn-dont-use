@@ -10,8 +10,16 @@
 
 title Change the Default Dir...
 
-set _ROSBE_ROSSOURCEDIRBCK=%_ROSBE_ROSSOURCEDIR%
+::
+:: Create a Backup Variable to revert to Default if wanted.
+::
+if not defined _ROSBE_ROSSOURCEDIRBCK (
+    set _ROSBE_ROSSOURCEDIRBCK=%_ROSBE_ROSSOURCEDIR%
+)
 
+::
+:: Parse the commands.
+::
 if /i "%1" == "" (
     goto :INTERACTIVE
 )
