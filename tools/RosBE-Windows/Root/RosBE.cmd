@@ -83,7 +83,7 @@ echo.
 ::
 :: Load the doskey macros that serve as our commands.
 ::
-doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
+call :LOADDOSKEYMACROS
 
 ::
 :: Look if the Source Folder is empty. If so, ask for using "ssvn create".
@@ -120,6 +120,21 @@ goto :ExitRosBE
     echo *                                                                             *
     echo *******************************************************************************
     echo.
+goto :EOF
+
+::
+:: Load the doskey macros and delete any macros for components
+:: that are not actually present.
+::
+:LOADDOSKEYMACROS
+    doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
+
+    if not exist "%_ROSBE_BASEDIR%\chdefdir.cmd" ( doskey CHDEFDIR= )
+    if not exist "%_ROSBE_BASEDIR%\Config.cmd" ( doskey CONFIG= )
+    if not exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" ( doskey RADDR2LINE= )
+    if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
+    if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SSVN= )
+    if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 goto :EOF
 
 :ExitRosBE
