@@ -57,7 +57,7 @@ if "%1" == "create" (
 if "%1" == "status" (
     title Status
     for /f "usebackq" %%i in (`svnversion .`) do set OFFSVN=%%i
-    for /f "usebackq" %%j in (`"svn info svn://svn.reactos.org/reactos/trunk/reactos|find "Revision:"|cutz svn"`) do set ONSVN=%%j
+    for /f "usebackq" %%j in (`"svn info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:" | cut -d " " -f 2"`) do set ONSVN=%%j
     call :UP
     goto :ExitSVN
 )
