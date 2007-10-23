@@ -24,5 +24,5 @@ flash:  flash.c
 getdate:  getdate.c
 	${CC} ${CFLAGS} getdate getdate.c
 
-clean:  getdate.c
+clean:
 	del buildtime.exe cpucount.exe echoh.exe flash.exe getdate.exe
