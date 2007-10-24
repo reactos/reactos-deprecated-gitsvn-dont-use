@@ -47,8 +47,8 @@ INT
 WriteSettings(HWND hwnd)
 {
     int foreground, background;
-    BOOL showtime, writelog, useccache, strip;
-    WCHAR logdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
+    BOOL showtime, writelog, useccache, strip, otherobj, otherout;
+    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
     FILE *pFile;
@@ -57,10 +57,14 @@ WriteSettings(HWND hwnd)
     writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
     useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
     strip = (SendDlgItemMessage(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    otherobj = (SendDlgItemMessage(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    otherout = (SendDlgItemMessage(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
     foreground = (UINT)SendDlgItemMessage(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
     background = (UINT)SendDlgItemMessage(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemText(hwnd, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
+    GetDlgItemText(hwnd, ID_OBJDIR, objdir, MAX_PATH);
+    GetDlgItemText(hwnd, ID_OUTDIR, outdir, MAX_PATH);
 
     if (writelog)
     {
@@ -106,6 +110,8 @@ WriteSettings(HWND hwnd)
         fprintf(pFile, "set _ROSBE_WRITELOG=%d\n", writelog);
         fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
         fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
+        fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
+        fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
         fclose(pFile);
         return TRUE;
     }
@@ -175,6 +181,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                     }
                     case ID_BROWSE:
                     case ID_BROWSEMGW:
+                    case ID_BROWSEOBJ:
+                    case ID_BROWSEOUT:
                     {
                         BROWSEINFO PathInfo;
                         LPITEMIDLIST pidl;
@@ -203,7 +211,42 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                 FreeLibrary(hDLL);
                             }
                         }
-
+                        if (wParam == ID_BROWSEOBJ)
+                        {
+                            HINSTANCE hDLL;
+                            ILCREATEFROMPATHW ILCreateFromPathW;
+                            Control = ID_OBJDIR;
+                            PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
+                            hDLL = LoadLibrary(L"shell32.dll");
+                            if (hDLL)
+                            {
+                                ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
+                                if (ILCreateFromPathW)
+                                {
+                                    GetDlgItemText(Dlg, ID_OBJDIR, path, MAX_PATH);
+                                    PathInfo.pidlRoot = ILCreateFromPathW(path);
+                                }
+                                FreeLibrary(hDLL);
+                            }
+                        }
+                        if (wParam == ID_BROWSEOUT)
+                        {
+                            HINSTANCE hDLL;
+                            ILCREATEFROMPATHW ILCreateFromPathW;
+                            Control = ID_OUTDIR;
+                            PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
+                            hDLL = LoadLibrary(L"shell32.dll");
+                            if (hDLL)
+                            {
+                                ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
+                                if (ILCreateFromPathW)
+                                {
+                                    GetDlgItemText(Dlg, ID_OUTDIR, path, MAX_PATH);
+                                    PathInfo.pidlRoot = ILCreateFromPathW(path);
+                                }
+                                FreeLibrary(hDLL);
+                            }
+                        }
                         pidl = SHBrowseForFolder(&PathInfo);
                         if (pidl)
                         {
@@ -226,6 +269,24 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         WriteLogSet = SendDlgItemMessage(Dlg, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED;
                         EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
                         EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
+                        break;
+                    }
+                    case ID_OTHEROBJ:
+                    {
+                        BOOL WriteLogSet;
+                        WriteLogSet = SendDlgItemMessage(Dlg, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED;
+                        EnableWindow(GetDlgItem(Dlg, ID_BROWSEOBJ), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, ID_OBJDIR), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+                        break;
+                    }
+                    case ID_OTHEROUT:
+                    {
+                        BOOL WriteLogSet;
+                        WriteLogSet = SendDlgItemMessage(Dlg, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED;
+                        EnableWindow(GetDlgItem(Dlg, ID_BROWSEOUT), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, ID_OUTDIR), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
                         break;
                     }
                 }
