@@ -1,13 +1,12 @@
 /*
- * PROJECT:     RosBE - ReactOS Build Environment for Windows
- * LICENSE:     GPL - See COPYING in the top level directory
+ * PROJECT:     RosBE - ReactOS Build Environment for Windows.
+ * LICENSE:     GPL - See LICENSE.txt in the top level directory.
  * FILE:        Tools/cpucount.c
  * PURPOSE:     CPU Core Counter
  * COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
  *              Copyright 2007 Peter Ward <dralnix@gmail.com>
  *
  */
-
 
 #include <windows.h>
 #include <stdio.h>
