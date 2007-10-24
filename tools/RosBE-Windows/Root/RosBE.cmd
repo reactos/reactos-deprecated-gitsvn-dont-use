@@ -26,7 +26,8 @@ set _ROSBE_USECCACHE=0
 set _ROSBE_STRIP=0
 set _ROSBE_MINGWPATH=%_ROSBE_BASEDIR%\4.1.3
 set _ROSBE_LOGDIR=%CD%\RosBE-Logs
-
+set _ROSBE_OBJPATH=
+set _ROSBE_OUTPATH=
 ::
 :: Check if the user has used the options utility and
 :: if so, load their options.
