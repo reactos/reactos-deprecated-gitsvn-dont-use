@@ -27,7 +27,7 @@
 
 #define MINGWVERSION L"\\4.1.3"
 
-typedef LPITEMIDLIST __stdcall (CALLBACK* ILCREATEFROMPATHW)(LPCWSTR path);
+typedef LPITEMIDLIST (CALLBACK* ILCREATEFROMPATHW)(LPCWSTR path);
 
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
 WCHAR *Colors[] = { L"black", L"dark blue", L"dark green", L"turquoise", L"dark red", L"purple",
@@ -53,12 +53,12 @@ WriteSettings(HWND hwnd)
     HANDLE hFile;
     FILE *pFile;
 
-    showtime = SendDlgItemMessage(hwnd, ID_SHOWBUILDTIME, BM_GETCHECK, 0, 0) == BST_CHECKED;
-    writelog = SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED;
-    useccache = SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0);
-    strip = SendDlgItemMessage(hwnd, ID_STRIP, BM_GETCHECK, 0, 0);
-    foreground = SendDlgItemMessage(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
-    background = SendDlgItemMessage(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
+    showtime = (SendDlgItemMessage(hwnd, ID_SHOWBUILDTIME, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    strip = (SendDlgItemMessage(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    foreground = (UINT)SendDlgItemMessage(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = (UINT)SendDlgItemMessage(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemText(hwnd, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
 
@@ -83,7 +83,7 @@ WriteSettings(HWND hwnd)
     wcscpy(checkmgw, mingwpath);
     if ((wcslen(checkmgw) + wcslen(L"\\bin\\gcc.exe")) < MAX_PATH)
         wcscat(checkmgw, L"\\bin\\gcc.exe");
-    hFile = CreateFile(checkmgw, (INT)NULL, (INT)NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    hFile = CreateFile(checkmgw, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
     {
         LoadString(hInstance, MSG_NOGCCFOUND, msgerror, 256);
@@ -117,13 +117,15 @@ WriteSettings(HWND hwnd)
 INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-    WCHAR Path[MAX_PATH];
     static HICON hIcon;
 
     switch (Msg)
     {
         case WM_INITDIALOG:
         {
+            WCHAR Path[MAX_PATH];
+            UINT i;
+
             hIcon = LoadImage( hInstance,
                                MAKEINTRESOURCE(ID_OPTICON),
                                IMAGE_ICON,
@@ -133,7 +135,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             if(hIcon)
                 SendMessage(Dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
-            for(unsigned int i = 0; i < sizeof(Colors) / sizeof(char *); i++)
+            for(i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
                 SendDlgItemMessage(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
                 SendDlgItemMessage(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
@@ -177,9 +179,12 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         BROWSEINFO PathInfo;
                         LPITEMIDLIST pidl;
                         INT Control = ID_LOGDIR;
+                        WCHAR path[MAX_PATH];
+
                         ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
                         PathInfo.hwndOwner = Dlg;
                         PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
+
                         if (wParam == ID_BROWSEMGW)
                         {
                             HINSTANCE hDLL;
@@ -192,16 +197,21 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                 ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
                                 if (ILCreateFromPathW)
                                 {
-                                    GetDlgItemText(Dlg, ID_MGWDIR, Path, MAX_PATH);
-                                    PathInfo.pidlRoot = ILCreateFromPathW(Path);
+                                    GetDlgItemText(Dlg, ID_MGWDIR, path, MAX_PATH);
+                                    PathInfo.pidlRoot = ILCreateFromPathW(path);
                                 }
                                 FreeLibrary(hDLL);
                             }
                         }
+
                         pidl = SHBrowseForFolder(&PathInfo);
-                        if (!pidl && !SHGetPathFromIDList(pidl, Path))
-                            break;
-                        SetDlgItemText(Dlg, Control, Path);
+                        if (pidl)
+                        {
+                            if (SHGetPathFromIDList(pidl, path))
+                            {
+                                SetDlgItemText(Dlg, Control, path);
+                            }
+                        }
                     }
                     case ID_STRIP:
                     case ID_USECCACHE:
@@ -237,7 +247,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 
         case WM_DESTROY:
         {
-            DestroyIcon(hIcon);
+            if (hIcon)
+                DestroyIcon(hIcon);
         }
 
         case WM_CLOSE:
