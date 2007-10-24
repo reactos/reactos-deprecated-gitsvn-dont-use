@@ -85,7 +85,7 @@ goto :NOK
 :: inform the user and offer an update.
 ::
 if exist "%_ROSBE_BASEDIR%\config.rbuild" (
-    test "config.template.rbuild" -nt "%_ROSBE_BASEDIR%\config.rbuild"
+    chknewer "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild"
     if not errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than working config.rbuild ***

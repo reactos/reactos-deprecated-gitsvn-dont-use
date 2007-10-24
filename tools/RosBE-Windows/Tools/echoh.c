@@ -1,12 +1,11 @@
 /*
- * PROJECT:     RosBE - ReactOS Build Environment for Windows
- * LICENSE:     GPL - See COPYING in the top level directory
+ * PROJECT:     RosBE - ReactOS Build Environment for Windows.
+ * LICENSE:     GPL - See LICENSE.txt in the top level directory.
  * FILE:        Tools/echoh.c
  * PURPOSE:     Converts a value to hex and displays it
  * COPYRIGHT:   Copyright 2007 Christoph von Wittich <Christoph_vW@reactos.org>
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
