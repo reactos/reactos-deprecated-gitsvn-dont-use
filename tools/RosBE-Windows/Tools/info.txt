@@ -1,5 +1,4 @@
 Additional Tools needed:
-tee:        http://gnuwin32.sourceforge.net/packages/coreutils.htm
 cut:        http://www.ltr-data.se/files/cut.zip
 sed:        http://gnuwin32.sourceforge.net/packages/sed.htm
 grep:       http://gnuwin32.sourceforge.net/packages/grep.htm
