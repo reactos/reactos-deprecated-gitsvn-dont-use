@@ -16,7 +16,7 @@ title Building...
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::
-if exist "config.rbuild" (
+if exist "%_ROSBE_BASEDIR%\config.rbuild" (
     chknewer "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild"
     if not errorlevel 1 (
         echo.
