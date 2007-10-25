@@ -3,24 +3,46 @@
 <head>
 </head>
 <body>
-RosBE has a small configuration application, which lets you control
-many aspects of RosBE's look and feel. Additionally you can change
-settings which affect the build process.<br>
-<br>
-<div style="text-align: center;"><img
- style="width: 389px; height: 425px;" alt="RosBE Configurator"
- src="options.jpg"><br>
-<div style="text-align: left;"><br>
+The RosBE Configurator is the Main app to change more advanced Settings
+for Look and Feel and in the Build Process.<br>
 As you can see, it is possible to edit the font and background color
 with RosBE Configurator. Additionally you can check the look in the
 Preview below.<br>
-Additionally you can Enable/Disable many Things with it. So you can
-switch on/off showing the time the build process needed. A new feature
-is the usage of ccache which can speed up the build process for ~5-10%
-for a cost of ~1,5 GB of Cache size. You can switch off/on the logging
-and stripping the Output Files, too. Stripping might help if you want
+<br>
+<div style="text-align: center;"><img
+ style="width: 389px; height: 471px;" alt="Configurator"
+ src="options.jpg"><br>
+<div style="text-align: left;"><br>
+<br>
+<span style="font-weight: bold; text-decoration: underline;">1.</span>
+You can
+switch on/off showing the time the build process needed.<br>
+<span style="font-weight: bold; text-decoration: underline;">2.</span>
+A new feature
+in Version 1.0 is the usage of CCache which can speed up the build
+process for ~5-10%
+for a cost of ~1,5 GB of Cache size (BEWARE: First Build Process is
+waay slower due to Cache building process. The first sped up build
+process will be the second one).<br>
+<span style="font-weight: bold; text-decoration: underline;">3.</span>
+Stripped Output might help if you want
 to use ReactOS on a PC with less than 48 MB RAM, because stripped apps
-use less RAM.<br>
+use less RAM and are smaller.<br>
+<span style="font-weight: bold; text-decoration: underline;">4.</span>
+Here you can set another GCC Compiler as the Active one in RosBE.<br>
+<span style="font-weight: bold; text-decoration: underline;">5.</span>
+You can switch off/on the logging and/or change te Path where the logs
+will be saved to.<br>
+<span style="font-weight: bold; text-decoration: underline;">6.</span>
+and <span style="font-weight: bold; text-decoration: underline;">7.</span>
+are mainly made for Speed up the Build Process. By Changing the Output
+to a RAMDisk you can Speed up the building for about 10-15%. But it
+will cost VERY MUCH RAM. The fastest way would be to save the Source
+(~300MB), the LOGs (some KB), the Object Files (!!!~2.3 GB!!!) and the
+Output (~200 MB) to RAM Additionally you need some MB as Temp File
+Buffer, too. So a maximum speedup would cost ~2.8 GB RAM. If you have
+so much RAM, be happy and install a RAMDisk on it for building.
+Otherwise you might need to keep OBJ on HDD.<br>
 </div>
 </div>
 </body>
