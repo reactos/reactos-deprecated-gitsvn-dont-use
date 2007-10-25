@@ -41,8 +41,8 @@ if "%1" == "" (
 
     if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
         echo    raddr2line [OPTIONS] - Translates program addresses into file names and
-        echo                           line numbers to assist Developers to find
-        echo                           specific Bugs in ReactOS.
+        echo                           line numbers to assist developers with finding
+        echo                           specific bugs in ReactOS.
     )
 
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
@@ -124,14 +124,18 @@ if "%1" == "help" (
 )
 if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
     if "%1" == "raddr2line" (
-        echo Usage: raddr2line [OPTIONS]
+        echo Usage: raddr2line [FILE] [ADDRESS]
         echo Translates program addresses into file names and line numbers to
-        echo assist Developers to find specific Bugs in ReactOS.
+        echo assist developers with finding specific bugs in ReactOS. If
+        echo either of the options is not given you will be prompted for it.
         echo.
-        echo USAGE: - The first parameter has to be the Executable to be analyzed.
-        echo        - The second one has to be the address to be translated.
+        echo FILE    - This can be either a fully specified path or just the
+        echo           file name [you can use partial name ie. ntdll*] of
+        echo           the executable to be analyzed. When using just a file
+        echo           the current directory and all sub-directories are
+        echo           searched.
+        echo ADDRESS - The address to be translated.
         echo.
-        echo If you don't set the needed Parameters, you will be asked for them.
         goto :EOC
     )
 )
