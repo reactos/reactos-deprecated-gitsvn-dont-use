@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     {
         printf("Usage: %s [OPTIONS]\n", argv[0]);
         printf("Running cpucount without options returns the number of\n");
-        printf("the number of processors in the system.\n");
+        printf("processors in the system.\n");
         printf("-x1    - Number of processors in the system, plus 1.\n");
         printf("-x2    - Number of processors in the system, doubled.\n");
     }
