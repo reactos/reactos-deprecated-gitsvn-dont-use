@@ -80,7 +80,7 @@ goto :EOF
 :CHECKPATH
     chkslash %_1%
     if errorlevel 2 (
-        for /f "usebackq" %%i in (`"dir /a:-d /s /b %1 | findstr "%_1%""`) do set _1=%%i
+        for /f "usebackq" %%i in (`"dir /a:-d /s /b %_1% | findstr "%_1%""`) do set _1=%%i
     )
 goto :EOF
 
