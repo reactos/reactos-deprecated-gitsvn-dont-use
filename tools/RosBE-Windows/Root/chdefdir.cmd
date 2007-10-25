@@ -20,7 +20,7 @@ if "%1" == "" (
 ) else (
     set _1=%1
 )
-if "%_1%" == "previous" (
+if /i "%_1%" == "previous" (
     set _ROSBE_ROSSOURCEDIR=%_ROSBE_PREVIOUSSOURCEDIR%
 ) else (
     if not exist "%_1%\." (

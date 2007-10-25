@@ -28,6 +28,17 @@ if /i "%1"=="edit" (
 if /i "%1"=="def" (
     goto :DEF2
 )
+if /i "%1"=="list" (
+    if /i "%2"=="" (
+        echo Shortcuts:
+        for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do echo %%i
+    )
+    if /i "%2"=="path" (
+        echo Shortcuts, Paths:
+        for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do echo %%i, %%j
+    )
+    goto :END
+)
 if /i "%1"=="run" (
     for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
         if %%i == Base (

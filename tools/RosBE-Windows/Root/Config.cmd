@@ -13,7 +13,7 @@ title ReactOS Build Configurator
 ::
 :: Receive the first Parameter and decide what to do.
 ::
-if "%1" == "delete" (
+if /i "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
     echo Continue?
     set /p XY="(yes), (no)"
@@ -36,7 +36,7 @@ if "%1" == "delete" (
     )
 goto :NOK
 )
-if "%1" == "update" (
+if /i "%1" == "update" (
     echo old config.rbuild will be deleted and will be updated with a recent,
     echo default one. You will need to reconfigure it to your wishes later.
     echo Continue?

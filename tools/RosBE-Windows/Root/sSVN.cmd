@@ -18,7 +18,7 @@ if "%1" == "" (
 ::
 :: These two are directly parsed to svn.
 ::
-if "%1" == "update" (
+if /i "%1" == "update" (
     title Updating...
     if not "%2" == "" (
         svn update -r %2
@@ -27,7 +27,7 @@ if "%1" == "update" (
     )
 goto :ExitSVN
 )
-if "%1" == "cleanup" (
+if /i "%1" == "cleanup" (
     title Cleaning...
     svn cleanup
     goto :ExitSVN
@@ -36,7 +36,7 @@ if "%1" == "cleanup" (
 :: Check if the Folder is empty. If not, output an error.
 ::
 
-if "%1" == "create" (
+if /i "%1" == "create" (
     title Creating...
     if exist ".svn\." (
         echo ERROR: Folder already cotains a Reposority. Exiting
@@ -54,7 +54,7 @@ if "%1" == "create" (
 :: Output the rev of your and the Online Tree and tell the User if
 :: its Up to Date or not.
 ::
-if "%1" == "status" (
+if /i "%1" == "status" (
     title Status
     for /f "usebackq tokens=2" %%i in (`"svn info | find "Revision:""`) do set OFFSVN=%%i
     for /f "usebackq tokens=2" %%j in (`"svn info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
