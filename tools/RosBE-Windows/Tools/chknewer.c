@@ -15,7 +15,7 @@
 
 time_t
 getfmodtime(
-    char* FileName
+    char* filename
 );
 
 int main(int argc, char* argv[])

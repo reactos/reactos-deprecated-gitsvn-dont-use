@@ -117,7 +117,7 @@ goto :ExitRosBE
 
     echo *******************************************************************************
     echo *                                                                             *
-    echo *        ReactOS Build Environment %_ROSBE_VERSION%-4.1.3-20071015 (prerelease)    *
+    echo *                      ReactOS Build Environment %_ROSBE_VERSION%                          *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
