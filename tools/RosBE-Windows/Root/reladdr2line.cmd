@@ -49,6 +49,7 @@ if not exist "%_1%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :EOC
 )
+echo %_1%
 for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do set baseaddr=0x%%i
 if %%i lss %_2% (
     raddr2line "%_1%" "%_2%"
@@ -80,7 +81,7 @@ goto :EOF
 :CHECKPATH
     chkslash %_1%
     if errorlevel 2 (
-        for /f "usebackq" %%i in (`"dir /a:-d /s /b %_1% | findstr "%_1%""`) do set _1=%%i
+        for /f "usebackq" %%i in (`"dir /a:-d /s /b %_1% 2>NUL | findstr "%_1%""`) do set _1=%%i
     )
 goto :EOF
 
