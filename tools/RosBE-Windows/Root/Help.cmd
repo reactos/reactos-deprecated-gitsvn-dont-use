@@ -143,11 +143,11 @@ if exist "%_ROSBE_BASEDIR%\scut.cmd" (
         echo Shortcut as parameter sets this Shortcut active.
         echo.
         echo    add     - Adds a Shortcut.
-        echo              (Optional: "Shortcut" "Directory" as second and third parameter)
+        echo              Optional: "Shortcut" "Directory" as second and third parameter
         echo    rem     - Removes a shortcut.
-        echo              (Optional: "Shortcut" as second parameter)
+        echo              Optional: "Shortcut" as second parameter
         echo    edit    - Edits a shortcut.
-        echo              (Optional: "Shortcut" "Directory" as second and third parameter)
+        echo              Optional: "Shortcut" "Directory" as second and third parameter
         echo    def     - Chooses Default Shortcut which is enabled on
         echo              every start of RosBE. "Default" is the Source
         echo              Directory as you know it from previous Versions
