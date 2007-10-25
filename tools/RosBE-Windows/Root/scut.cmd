@@ -52,16 +52,13 @@ goto :END
 :: Load Shortcut from txt and set it active.
 ::
 :DEF
-set /p XY="Choose your Source Folder: "
-if not exist "%XY%\." (
-    echo ERROR: The path specified doesn't seem to exist.
-    goto :END
-)
-if /i "%XY%" == "" (
-    echo ERROR: You must enter a valid directory.
-    goto :END
-)
+set /p XY="Choose your Shortcut: "
+
 :RUN
+if /i "%XY%" == "" (
+    echo ERROR: You must enter a valid Shortcut.
+    goto :END
+)
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %XY% (
         cd /d %%j
@@ -94,8 +91,11 @@ if /i "%CUT%" == "" (
     echo ERROR: You must enter a valid Shortcut.
     goto :END
 )
+
 :ADD2
 set /p DIR="Choose your Source Folder: "
+
+:ADD23
 if not exist "%DIR%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :END
@@ -104,7 +104,6 @@ if /i "%DIR%" == "" (
     echo ERROR: You must enter a valid directory.
     goto :END
 )
-:ADD23
 for /f "usebackq tokens=1-2 delims=, skip=1" %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %CUT% (
         echo A Shortcut with the name %CUT% does already exist. Editing the existing one.
@@ -129,6 +128,7 @@ if /i "%CUTREM%" == "" (
     echo ERROR: You must enter a valid Shortcut.
     goto :END
 )
+
 :REM1
 set _ROSBE_REM=0
 for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
@@ -161,6 +161,7 @@ if /i "%DIR%" == "" (
     echo ERROR: You must enter a valid Shortcut.
     goto :END
 )
+
 :DEF1
 call "%_ROSBE_BASEDIR%\scut.cmd" edit Base %DIR%
 
@@ -187,8 +188,11 @@ if /i "%CUT%" == "" (
     echo ERROR: You must enter a valid Shortcut.
     goto :END
 )
+
 :EDIT2
 set /p DIR="Choose your Source Folder: "
+
+:EDIT23
 if not exist "%DIR%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :END
@@ -197,7 +201,6 @@ if /i "%DIR%" == "" (
     echo ERROR: You must enter a valid directory.
     goto :END
 )
-:EDIT23
 set _ROSBE_EDIT=0
 for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
     if %%i == %CUT% (
