@@ -31,38 +31,25 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    FILE = fopen(argv[1], "r");
-    if (FILE)
+    FILE = fopen(argv[1], "w");
+    if (!FILE)
     {
-        fprintf(stderr, "%s: Error file \"%s\" already exists.\n", argv[0], argv[1]);
-        if (fclose(FILE))
-        {
-            fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
-        }
+        fprintf(stderr, "%s: Error cannot create/open file \"%s\".\n", argv[0], argv[1]);
         return -1;
     }
-    else
+    while (!feof(stdin))
     {
-        FILE = fopen(argv[1], "w");
-        if (!FILE)
+        charbuff = fgetc(stdin);
+        if (!feof(stdin))
         {
-            fprintf(stderr, "%s: Error cannot create file \"%s\".\n", argv[0], argv[1]);
-            return -1;
+            fputc(charbuff, stdout);
+            fputc(charbuff, FILE);
         }
-        while (!feof(stdin))
-        {
-            charbuff = fgetc(stdin);
-            if (!feof(stdin))
-            {
-                fputc(charbuff, stdout);
-                fputc(charbuff, FILE);
-            }
-        }
-        if (fclose(FILE))
-        {
-            fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
-            return -1;
-        }
+    }
+    if (fclose(FILE))
+    {
+        fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
+        return -1;
     }
 
     return 0;
