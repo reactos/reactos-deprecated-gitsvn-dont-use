@@ -41,7 +41,7 @@ call :INTERACTIVE
 :: adress and can be given directly to raddr2line. If not, add it and
 :: give the result to raddr2line.
 ::
-if %_1% == "" (
+if "%_1%" == "" (
     echo ERROR: You must specify a path/file to examine.
     goto :EOC
 )
@@ -70,6 +70,10 @@ if "%_1%" == "" (
 )
 if "%_2%" == "" (
     set /p _2="Please enter the address you would like to analyze: "
+    if "%_2%" == "" (
+        echo ERROR: You must specify a address to analyze.
+        goto :EOC
+    )
 )
 goto :EOF
 
