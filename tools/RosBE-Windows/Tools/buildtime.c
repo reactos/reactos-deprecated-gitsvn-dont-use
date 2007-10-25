@@ -82,9 +82,7 @@ int main()
     }
 
 	CommandLineBuffer[0] = 0;
-    //strcat(CommandLineBuffer, "\"");
     strcat(CommandLineBuffer, CommandLine);
-    //strcat(CommandLineBuffer, "\"");
 
     //
     // Grab the starting timestamp.

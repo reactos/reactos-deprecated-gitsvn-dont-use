@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
     if (argc > 3)
     {
-        printf("%s: Error too many parameters specified.\n", argv[0]);
+        fprintf(stderr, "%s: Error too many parameters specified.\n", argv[0]);
         return -1;
     }
     if ((argc == 1) ||
@@ -43,19 +43,20 @@ int main(int argc, char* argv[])
     FILE1 = fopen(argv[1], "r");
     if (!FILE1)
     {
-        printf("%s: Error file \"%s\" doesn't seem to exist.\n", argv[0], argv[1]);
+        fprintf(stderr, "%s: Error file \"%s\" doesn't seem to exist.\n", argv[0], argv[1]);
         return -1;
     }
     else
     {
         if (fclose(FILE1))
         {
-            printf("%s: Error closing file \"%s\"\n", argv[0], argv[1]);
+            fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
+            return -1;
         }
         file1time = getfmodtime(argv[1]); 
         if (!file1time)
         {
-            printf("%s: Error unable to aquire stats for file: %s\n", argv[0], argv[1]);
+            fprintf(stderr, "%s: Error unable to aquire stats for file: %s\n", argv[0], argv[1]);
             return -1;
         }
     }
@@ -63,19 +64,20 @@ int main(int argc, char* argv[])
     FILE2 = fopen(argv[2], "r");
     if (!FILE2)
     {
-        printf("%s: Error file \"%s\" doesn't seem to exist.\n", argv[0], argv[2]);
+        fprintf(stderr, "%s: Error file \"%s\" doesn't seem to exist.\n", argv[0], argv[2]);
         return -1;
     }
     else
     {
         if (fclose(FILE2))
         {
-            printf("%s: Error closing file \"%s\"\n", argv[0], argv[2]);
+            fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[2]);
+            return -1;
         }
         file2time = getfmodtime(argv[2]); 
         if (!file2time)
         {
-            printf("%s: Error unable to aquire stats for file: %s\n", argv[0], argv[2]);
+            fprintf(stderr, "%s: Error unable to aquire stats for file: %s\n", argv[0], argv[2]);
             return -1;
         }
     }
