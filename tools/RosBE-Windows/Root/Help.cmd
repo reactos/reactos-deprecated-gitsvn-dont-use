@@ -46,7 +46,7 @@ if "%1" == "" (
     )
 
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-        echo    scut [OPTIONS]       - Define, Edit, Remove, Switch and Default to
+        echo    scut [OPTIONS]       - List, Define, Edit, Remove, Switch and Default to
         echo                           Shortcutted Source-Directories.
     )
 
@@ -69,13 +69,13 @@ if "%1" == "" (
 :: Now check if we are displaying help on individual commands, if so,
 :: display the help for that command.
 ::
-if "%1" == "make" (
+if /i "%1" == "make" (
     echo Usage: make [OPTIONS]
     echo Without options it does a standard build of ReactOS. OPTIONS are the
     echo standard ReactOS build options ie. "bootcd", "livecd", etc.
     goto :EOC
 )
-if "%1" == "makex" (
+if /i "%1" == "makex" (
     echo Usage: makex [OPTIONS]
     echo Same as 'make' but automatically determines the number of CPU Cores in
     echo the system and uses "make -j x" with the appropriate number.
@@ -84,13 +84,13 @@ if "%1" == "makex" (
     echo       contained within the file.
     goto :EOC
 )
-if "%1" == "basedir" (
+if /i "%1" == "basedir" (
     echo Usage: basedir
     echo Switches back to the ReactOS source directory.
     goto :EOC
 )
 if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
-    if "%1" == "chdefdir" (
+    if /i "%1" == "chdefdir" (
         echo Usage: chdefdir [OPTIONS]
         echo Change the ReactOS source directory for the current RosBE session.
         echo.
@@ -98,7 +98,7 @@ if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
         goto :EOC
     )
 )
-if "%1" == "clean" (
+if /i "%1" == "clean" (
     echo Usage: clean [logs]
     echo Fully clean the ReactOS source directory.
     echo.
@@ -106,7 +106,7 @@ if "%1" == "clean" (
     goto :EOC
 )
 if exist "%_ROSBE_BASEDIR%\Config.cmd" (
-    if "%1" == "config" (
+    if /i "%1" == "config" (
         echo Usage: config [OPTIONS]
         echo Creates a Configuration File, which tells RosBE how to build the Tree.
         echo.
@@ -117,13 +117,13 @@ if exist "%_ROSBE_BASEDIR%\Config.cmd" (
         goto :EOC
     )
 )
-if "%1" == "help" (
+if /i "%1" == "help" (
     echo Usage: help [COMMAND]
     echo Shows help for the specified command or lists all available commands.
     goto :EOC
 )
 if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
-    if "%1" == "raddr2line" (
+    if /i "%1" == "raddr2line" (
         echo Usage: raddr2line [FILE] [ADDRESS]
         echo Translates program addresses into file names and line numbers to
         echo assist developers with finding specific bugs in ReactOS. If
@@ -140,12 +140,14 @@ if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
     )
 )
 if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-    if "%1" == "scut" (
+    if /i "%1" == "scut" (
         echo Usage: scut [OPTIONS]
         echo Defines, Edits, Removes, Switches and Defaults to Shortcutted Source
         echo Directories. scut started without a parameter or with the name of a
         echo Shortcut as parameter sets this Shortcut active.
         echo.
+        echo    list    - Lists all Shortcuts.
+        echo              Optional: "path" as second parameter lists the Paths, too.
         echo    add     - Adds a Shortcut.
         echo              Optional: "Shortcut" "Directory" as second and third parameter
         echo    rem     - Removes a shortcut.
@@ -159,7 +161,7 @@ if exist "%_ROSBE_BASEDIR%\scut.cmd" (
     )
 )
 if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
-    if "%1" == "ssvn" (
+    if /i "%1" == "ssvn" (
         echo Usage: ssvn [OPTIONS]
         echo Creates, Updates or cleans up your ReactOS Source Tree or shows the
         echo Revision Number of the Offline Tree and Online HEAD Revision.
@@ -174,7 +176,7 @@ if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
     )
 )
 if exist "%_ROSBE_BASEDIR%\options.cmd" (
-    if "%1" == "options" (
+    if /i "%1" == "options" (
         echo Usage: options
         echo Starts RosBE Configurator and restarts RosBE afterwards to make the
         echo changes effective at the end.

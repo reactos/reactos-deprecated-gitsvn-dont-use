@@ -105,7 +105,7 @@ if "%1" == "" (
     )
     goto :EOC
 )
-if "%1" == "logs" (
+if /i "%1" == "logs" (
     ::
     : Check if we have any logs to clean, if so, clean them.
     ::
