@@ -11,11 +11,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 time_t
-StatFile(
+getfmodtime(
     char* FileName
 );
 
@@ -53,7 +52,7 @@ int main(int argc, char* argv[])
         {
             printf("%s: Error closing file \"%s\"\n", argv[0], argv[1]);
         }
-        file1time = StatFile(argv[1]); 
+        file1time = getfmodtime(argv[1]); 
         if (!file1time)
         {
             printf("%s: Error unable to aquire stats for file: %s\n", argv[0], argv[1]);
@@ -73,7 +72,7 @@ int main(int argc, char* argv[])
         {
             printf("%s: Error closing file \"%s\"\n", argv[0], argv[2]);
         }
-        file2time = StatFile(argv[2]); 
+        file2time = getfmodtime(argv[2]); 
         if (!file2time)
         {
             printf("%s: Error unable to aquire stats for file: %s\n", argv[0], argv[2]);
@@ -91,11 +90,11 @@ int main(int argc, char* argv[])
     }
 }
 
-time_t StatFile(char* FileName)
+time_t getfmodtime(char* filename)
 {
     struct stat filestat;
 
-    if (!stat(FileName, &filestat))
+    if (!stat(filename, &filestat))
     {
         return mktime(localtime(&filestat.st_mtime));
     }
