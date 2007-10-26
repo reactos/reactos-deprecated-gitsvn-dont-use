@@ -28,6 +28,11 @@ if "%1" == "" (
         echo                           current RosBE session.
     )
 
+    if exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" (
+        echo    chdefgcc [PATH]      - Change the MinGW/GCC directory for the
+        echo                           current RosBE session.
+    )
+
     echo    clean [logs]         - Fully clean the ReactOS source directory and/or
     echo                           the RosBE build logs.
 
@@ -95,6 +100,14 @@ if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
         echo Change the ReactOS source directory for the current RosBE session.
         echo.
         echo    previous - Switch to the previous ReactOS source directory.
+        goto :EOC
+    )
+)
+if exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" (
+    if /i "%1" == "chdefgcc" (
+        echo Usage: chdefgcc [PATH]
+        echo Change the MinGW/GCC directory for the current RosBE session.
+        echo.
         goto :EOC
     )
 )

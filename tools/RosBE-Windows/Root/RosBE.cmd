@@ -19,7 +19,8 @@ set _ROSBE_VERSION=1.0
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
 set _ROSBE_ROSSOURCEDIR=%CD%
-set _ROSBE_PREVIOUSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
+set PATH=%_ROSBE_BASEDIR%\Tools;%PATH%
+set _ROSBE_ORIGINALPATH=%PATH%
 set _ROSBE_SHOWTIME=1
 set _ROSBE_WRITELOG=1
 set _ROSBE_USECCACHE=0
@@ -28,6 +29,7 @@ set _ROSBE_MINGWPATH=%_ROSBE_BASEDIR%\4.1.3
 set _ROSBE_LOGDIR=%CD%\RosBE-Logs
 set _ROSBE_OBJPATH=
 set _ROSBE_OUTPATH=
+
 ::
 :: Check if the user has used the options utility and
 :: if so, load their options.
@@ -62,16 +64,10 @@ call :RosBE4
 :: Load the Base Directory from the Shortcut-txt and set it as new
 :: Source Directory and add PATH for Tools Folder.
 ::
-set PATH=%_ROSBE_BASEDIR%\Tools;%PATH%
-if exist "%_ROSBE_BASEDIR%\scut.cmd" (call "%_ROSBE_BASEDIR%\scut.cmd" run)
-
-::
-:: Display the current version of GCC, NASM, ld and make.
-::
-gcc -v 2>&1 | find "gcc version"
-nasm -v
-ld -v
-mingw32-make -v | find "GNU Make"
+if exist "%_ROSBE_BASEDIR%\scut.cmd" (
+    echo.
+    call "%_ROSBE_BASEDIR%\scut.cmd" run
+)
 
 ::
 :: Tell how to display the available commands.
@@ -101,26 +97,18 @@ goto :ExitRosBE
 :: environment.
 ::
 :RosBE4
-    ::
-    :: Set the correct path for the build tools and set the MinGW make.
-    ::
-    set _ROSBE_GCCVERSION=4.1.3
-    set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_MINGWPATH%\libexec\gcc\mingw32\4.1.3;%PATH%
-    set _ROSBE_MINGWMAKE=%_ROSBE_MINGWPATH%\bin\mingw32-make.exe
-    if defined _ROSBE_OLDMODE (
-        set C_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
-        set CPLUS_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\include\c++\4.1.3;%_ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include
-    )
-    set HOST_CFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
-    set HOST_CPPFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\include\c++\4.1.3" -I"%_ROSBE_MINGWPATH%\include\c++\4.1.3\mingw32" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3\include"
-    set LIBRARY_PATH=%_ROSBE_MINGWPATH%\lib;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\4.1.3
-
     echo *******************************************************************************
     echo *                                                                             *
     echo *                      ReactOS Build Environment %_ROSBE_VERSION%                          *
     echo *                                                                             *
     echo *******************************************************************************
     echo.
+    echo.
+    ver
+    ::
+    :: Set the correct path for the build tools and set the MinGW make.
+    ::
+    call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOF
 
 ::

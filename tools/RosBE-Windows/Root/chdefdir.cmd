@@ -21,15 +21,15 @@ if "%1" == "" (
     set _1=%1
 )
 if /i "%_1%" == "previous" (
-    set _ROSBE_ROSSOURCEDIR=%_ROSBE_PREVIOUSSOURCEDIR%
+    popd
 ) else (
     if not exist "%_1%\." (
         echo ERROR: The path specified doesn't seem to exist.
         goto :EOC
     )
-    set _ROSBE_PREVIOUSSOURCEDIR=%_ROSBE_ROSSOURCEDIR%
-    set _ROSBE_ROSSOURCEDIR=%_1%
+    pushd %_1%
 )
+set _ROSBE_ROSSOURCEDIR=%CD%
 goto :EOC
 
 ::
@@ -37,8 +37,11 @@ goto :EOC
 ::
 :INTERACTIVE
 set /p _1="Please enter a ReactOS source directory, or 'previous': "
+if "%_1%" == "" (
+    echo ERROR: You must enter a ReactOS source directory, or 'previous'.
+    goto :EOC
+)
 goto :EOF
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
-cd /d "%_ROSBE_ROSSOURCEDIR%"

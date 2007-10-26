@@ -43,7 +43,6 @@ if /i "%1"=="run" (
     for /f "usebackq tokens=1-2 delims=," %%i in (`type "%_ROSBE_BASEDIR%\srclist.txt"`) do (
         if %%i == Base (
             echo Active Shortcut: %%j
-            echo.
             ::
             : Set new source directory, if needed.
             ::
