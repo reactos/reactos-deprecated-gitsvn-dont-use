@@ -1,0 +1,46 @@
+::
+:: PROJECT:     RosBE - ReactOS Build Environment for Windows
+:: LICENSE:     GPL - See LICENSE.txt in the top level directory
+:: FILE:        Root/chdefgcc.cmd
+:: PURPOSE:     Tool to change the current gcc in RosBE.
+:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+::                             Peter Ward <dralnix@gmail.com>
+::
+@echo off
+
+title Change the current MinGW/GCC directory...
+
+if not defined _ROSBE_PREVIOUSMINGWPATH (
+    set _ROSBE_PREVIOUSMINGWPATH=%_ROSBE_MINGWPATH%
+)
+
+::
+:: Parse the command line arguments.
+::
+if "%1" == "" (
+    call :INTERACTIVE
+) else (
+    set _1=%1
+)
+
+if not exist "%_1%\." (
+    echo ERROR: The path specified doesn't seem to exist.
+    goto :EOC
+)
+set _ROSBE_PREVIOUSMINGWPATH=%_ROSBE_MINGWPATH%
+set _ROSBE_MINGWPATH=%_1%
+echo Location: %_ROSBE_MINGWPATH%
+call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+
+goto :EOC
+
+:INTERACTIVE
+set /p XY="Please enter a MinGW/GCC directory: "
+if "%_1%" == "" (
+    echo ERROR: You must enter a MinGW/GCC directory.
+    goto :EOC
+)
+goto :EOF
+
+:EOC
+title ReactOS Build Environment %_ROSBE_VERSION%

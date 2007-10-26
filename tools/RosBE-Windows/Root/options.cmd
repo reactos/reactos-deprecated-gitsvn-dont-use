@@ -14,8 +14,12 @@ title Options
 :: Run options.exe
 ::
 if exist "%_ROSBE_BASEDIR%\options.exe" (
-    call "%_ROSBE_BASEDIR%\options.exe"
-    "%_ROSBE_BASEDIR%\RosBE.cmd"
+    pushd %_ROSBE_BASEDIR%
+    call options.exe
+    popd
+    if exist "%_ROSBE_BASEDIR%\rosbe-options.cmd" (
+        call "%_ROSBE_BASEDIR%\rosbe-options.cmd"
+    )
 ) else (
     echo ERROR: options.exe was not found.
     title ReactOS Build Environment %_ROSBE_VERSION%

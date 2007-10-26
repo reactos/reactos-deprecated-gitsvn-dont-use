@@ -108,10 +108,10 @@ WriteSettings(HWND hwnd)
         fprintf(pFile, "set _ROSBE_USECCACHE=%d\n", useccache);
         fprintf(pFile, "set _ROSBE_STRIP=%d\n", strip);
         fprintf(pFile, "set _ROSBE_WRITELOG=%d\n", writelog);
-        fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
-        fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
-        fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
-        fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
+        if (wcslen(logdir) > 0) fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
+        if (wcslen(mingwpath) > 0) fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
+        if (wcslen(objdir) > 0) fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
+        if (wcslen(outdir) > 0) fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
         fclose(pFile);
         return TRUE;
     }
