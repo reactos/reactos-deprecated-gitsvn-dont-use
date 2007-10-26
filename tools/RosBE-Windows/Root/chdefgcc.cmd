@@ -10,10 +10,6 @@
 
 title Change the current MinGW/GCC directory...
 
-if not defined _ROSBE_PREVIOUSMINGWPATH (
-    set _ROSBE_PREVIOUSMINGWPATH=%_ROSBE_MINGWPATH%
-)
-
 ::
 :: Parse the command line arguments.
 ::
@@ -27,7 +23,6 @@ if not exist "%_1%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :EOC
 )
-set _ROSBE_PREVIOUSMINGWPATH=%_ROSBE_MINGWPATH%
 set _ROSBE_MINGWPATH=%_1%
 echo Location: %_ROSBE_MINGWPATH%
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
