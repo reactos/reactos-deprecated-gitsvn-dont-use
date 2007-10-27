@@ -119,6 +119,7 @@ goto :EOF
     doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
 
     if not exist "%_ROSBE_BASEDIR%\chdefdir.cmd" ( doskey CHDEFDIR= )
+    if not exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" ( doskey CHDEFGCC= )
     if not exist "%_ROSBE_BASEDIR%\Config.cmd" ( doskey CONFIG= )
     if not exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" ( doskey RADDR2LINE= )
     if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )

@@ -16,13 +16,13 @@ title Building...
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::
-if exist "%_ROSBE_BASEDIR%\config.rbuild" (
-    chknewer "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild"
-    if not errorlevel 1 (
+if exist .\config.rbuild (
+    chknewer .\config.template.rbuild .\config.rbuild
+    if errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
-        echo *** aborting build. Please update your config.rbuild   ***
-        echo *** by typeing "config update".                        ***
+        echo *** aborting build. Please check for changes and       ***
+        echo *** update your config.rbuild.                         ***
         echo.
         goto :EOB
     )
@@ -83,9 +83,9 @@ if %_ROSBE_WRITELOG% == 1 (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
         if errorlevel 1 (
             echo.
-            echo *** Writing logs requested, but log directory doesn't  ***
-            echo *** exist and can't be created. Logs will be created   ***
-            echo *** in the current directory as a fallback.            ***
+            echo *** Writing logs requested, but the log directory      ***
+            echo *** doesn't exist and can't be created. Logs will be   ***
+            echo *** created in the current directory as a fallback.    ***
             echo.
             set _ROSBE_LOGDIR=%CD%
         )

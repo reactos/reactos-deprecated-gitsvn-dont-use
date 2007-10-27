@@ -22,5 +22,6 @@ if exist "%_ROSBE_BASEDIR%\options.exe" (
     )
 ) else (
     echo ERROR: options.exe was not found.
-    title ReactOS Build Environment %_ROSBE_VERSION%
 )
+
+title ReactOS Build Environment %_ROSBE_VERSION%
