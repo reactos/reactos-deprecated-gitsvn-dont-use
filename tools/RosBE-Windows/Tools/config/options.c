@@ -130,7 +130,6 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
         case WM_INITDIALOG:
         {
             WCHAR Path[MAX_PATH];
-            UINT i;
 
             hIcon = LoadImage( hInstance,
                                MAKEINTRESOURCE(ID_OPTICON),
@@ -141,7 +140,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             if(hIcon)
                 SendMessage(Dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 
-            for(i = 0; i < sizeof(Colors) / sizeof(char *); i++)
+            for(UINT i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
                 SendDlgItemMessage(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
                 SendDlgItemMessage(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
@@ -248,13 +247,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                             }
                         }
                         pidl = SHBrowseForFolder(&PathInfo);
-                        if (pidl)
-                        {
-                            if (SHGetPathFromIDList(pidl, path))
-                            {
-                                SetDlgItemText(Dlg, Control, path);
-                            }
-                        }
+                        if (!pidl || !SHGetPathFromIDList(pidl, path))
+                            break;
+                        SetDlgItemText(Dlg, Control, path);
                     }
                     case ID_STRIP:
                     case ID_USECCACHE:
