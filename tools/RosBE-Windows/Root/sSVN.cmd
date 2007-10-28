@@ -44,7 +44,7 @@ if /i "%1" == "create" (
     )
     dir /b 2>nul|findstr "." >nul
     if errorlevel 1 (
-        svn checkout svn://svn.reactos.org/reactos/trunk/reactos
+        svn checkout svn://svn.reactos.org/reactos/trunk/reactos .
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
