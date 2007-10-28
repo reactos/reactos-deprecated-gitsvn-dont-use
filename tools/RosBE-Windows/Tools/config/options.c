@@ -124,12 +124,14 @@ INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
     static HICON hIcon;
+    static HFONT hFont;
 
     switch (Msg)
     {
         case WM_INITDIALOG:
         {
             WCHAR Path[MAX_PATH];
+            LOGFONT lf;
 
             hIcon = LoadImage( hInstance,
                                MAKEINTRESOURCE(ID_OPTICON),
@@ -139,6 +141,12 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                0);
             if(hIcon)
                 SendMessage(Dlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+
+            GetObject(GetStockObject(ANSI_FIXED_FONT), sizeof(LOGFONT),  &lf);
+            lf.lfWeight = FW_BOLD;
+            hFont = CreateFont(lf.lfHeight, lf.lfWidth,  lf.lfEscapement, lf.lfOrientation, lf.lfWeight,
+            lf.lfItalic, lf.lfUnderline, lf.lfStrikeOut, lf.lfCharSet,  lf.lfOutPrecision,
+            lf.lfClipPrecision, lf.lfQuality,  lf.lfPitchAndFamily, lf.lfFaceName);
 
             for(UINT i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
@@ -192,55 +200,29 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         PathInfo.hwndOwner = Dlg;
                         PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
 
-                        if (wParam == ID_BROWSEMGW)
+                        if ((wParam == ID_BROWSEMGW) || (wParam == ID_BROWSEOBJ) || (wParam == ID_BROWSEOUT))
                         {
                             HINSTANCE hDLL;
                             ILCREATEFROMPATHW ILCreateFromPathW;
                             Control = ID_MGWDIR;
                             PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
-                            hDLL = LoadLibrary(L"shell32.dll");
-                            if (hDLL)
+                            if (wParam == ID_BROWSEOBJ)
                             {
-                                ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
-                                if (ILCreateFromPathW)
-                                {
-                                    GetDlgItemText(Dlg, ID_MGWDIR, path, MAX_PATH);
-                                    PathInfo.pidlRoot = ILCreateFromPathW(path);
-                                }
-                                FreeLibrary(hDLL);
+                                Control = ID_OBJDIR;
+                                PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
                             }
-                        }
-                        if (wParam == ID_BROWSEOBJ)
-                        {
-                            HINSTANCE hDLL;
-                            ILCREATEFROMPATHW ILCreateFromPathW;
-                            Control = ID_OBJDIR;
-                            PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
-                            hDLL = LoadLibrary(L"shell32.dll");
-                            if (hDLL)
+                            else if (wParam == ID_BROWSEOUT)
                             {
-                                ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
-                                if (ILCreateFromPathW)
-                                {
-                                    GetDlgItemText(Dlg, ID_OBJDIR, path, MAX_PATH);
-                                    PathInfo.pidlRoot = ILCreateFromPathW(path);
-                                }
-                                FreeLibrary(hDLL);
+                                Control = ID_OUTDIR;
+                                PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
                             }
-                        }
-                        if (wParam == ID_BROWSEOUT)
-                        {
-                            HINSTANCE hDLL;
-                            ILCREATEFROMPATHW ILCreateFromPathW;
-                            Control = ID_OUTDIR;
-                            PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
                             hDLL = LoadLibrary(L"shell32.dll");
                             if (hDLL)
                             {
                                 ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
                                 if (ILCreateFromPathW)
                                 {
-                                    GetDlgItemText(Dlg, ID_OUTDIR, path, MAX_PATH);
+                                    GetDlgItemText(Dlg, Control, path, MAX_PATH);
                                     PathInfo.pidlRoot = ILCreateFromPathW(path);
                                 }
                                 FreeLibrary(hDLL);
@@ -254,34 +236,32 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                     case ID_STRIP:
                     case ID_USECCACHE:
                     case ID_SHOWBUILDTIME:
+                    case ID_OTHEROBJ:
+                    case ID_OTHEROUT:
                     {
                         EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-                        break;
+                        if ((wParam != ID_OTHEROBJ) && (wParam != ID_OTHEROUT))
+                            break;
                     }
                     case ID_SAVELOGS:
                     {
                         BOOL WriteLogSet;
-                        WriteLogSet = SendDlgItemMessage(Dlg, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED;
-                        EnableWindow(GetDlgItem(Dlg, ID_BROWSE), WriteLogSet);
-                        EnableWindow(GetDlgItem(Dlg, ID_LOGDIR), WriteLogSet);
-                        break;
-                    }
-                    case ID_OTHEROBJ:
-                    {
-                        BOOL WriteLogSet;
-                        WriteLogSet = SendDlgItemMessage(Dlg, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED;
-                        EnableWindow(GetDlgItem(Dlg, ID_BROWSEOBJ), WriteLogSet);
-                        EnableWindow(GetDlgItem(Dlg, ID_OBJDIR), WriteLogSet);
-                        EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-                        break;
-                    }
-                    case ID_OTHEROUT:
-                    {
-                        BOOL WriteLogSet;
-                        WriteLogSet = SendDlgItemMessage(Dlg, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED;
-                        EnableWindow(GetDlgItem(Dlg, ID_BROWSEOUT), WriteLogSet);
-                        EnableWindow(GetDlgItem(Dlg, ID_OUTDIR), WriteLogSet);
-                        EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
+                        INT Dialog1, Dialog2;
+                        Dialog1 = ID_BROWSE;
+                        Dialog2 = ID_LOGDIR;
+                        WriteLogSet = SendDlgItemMessage(Dlg, wParam, BM_GETCHECK, 0, 0) == BST_CHECKED;
+                        if (wParam == ID_OTHEROBJ)
+                        {
+                            Dialog1 = ID_BROWSEOBJ;
+                            Dialog2 = ID_OBJDIR;
+                        }
+                        else if (wParam == ID_OTHEROUT)
+                        {
+                            Dialog1 = ID_BROWSEOUT;
+                            Dialog2 = ID_OUTDIR;
+                        }
+                        EnableWindow(GetDlgItem(Dlg, Dialog1), WriteLogSet);
+                        EnableWindow(GetDlgItem(Dlg, Dialog2), WriteLogSet);
                         break;
                     }
                 }
@@ -292,8 +272,10 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 
         case WM_CTLCOLORSTATIC:
         {
+            HFONT hFontOld;
             if((HWND)lParam == GetDlgItem(Dlg, ID_EXAMPLE))
             {
+                hFontOld = SelectObject((HDC)wParam, hFont);
                 SetTextColor((HDC)wParam, ColorsRGB[SendDlgItemMessage(Dlg, IDC_FONT, CB_GETCURSEL, 0, 0)]);
                 SetBkColor((HDC)wParam, ColorsRGB[SendDlgItemMessage(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
                 return (LONG)CreateSolidBrush(ColorsRGB[SendDlgItemMessage(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
