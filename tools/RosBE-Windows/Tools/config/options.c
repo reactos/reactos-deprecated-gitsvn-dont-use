@@ -75,7 +75,12 @@ WriteSettings(HWND hwnd)
         }
         else
         {
-            if (!CreateDirectory(logdir, NULL))
+            wcscpy(checklog, logdir);
+            if (wcslen(checklog) < 1)
+            {
+                SetCurrentDirectory(checklog);
+            }
+            else if (!CreateDirectory(logdir, NULL))
             {
                 LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
                 MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
