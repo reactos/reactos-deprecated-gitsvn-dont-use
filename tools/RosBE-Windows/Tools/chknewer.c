@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
             fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
             return -1;
         }
-        file1time = getfmodtime(argv[1]); 
+        file1time = getfmodtime(argv[1]);
         if (!file1time)
         {
             fprintf(stderr, "%s: Error unable to aquire stats for file: %s\n", argv[0], argv[1]);
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
             fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[2]);
             return -1;
         }
-        file2time = getfmodtime(argv[2]); 
+        file2time = getfmodtime(argv[2]);
         if (!file2time)
         {
             fprintf(stderr, "%s: Error unable to aquire stats for file: %s\n", argv[0], argv[2]);
