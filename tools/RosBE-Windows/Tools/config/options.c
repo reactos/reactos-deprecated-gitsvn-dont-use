@@ -56,15 +56,15 @@ WriteSettings(HWND hwnd)
     showtime = (SendDlgItemMessage(hwnd, ID_SHOWBUILDTIME, BM_GETCHECK, 0, 0) == BST_CHECKED);
     writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
     useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    strip = (SendDlgItemMessage(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    otherobj = (SendDlgItemMessage(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    otherout = (SendDlgItemMessage(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    foreground = (UINT)SendDlgItemMessage(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
-    background = (UINT)SendDlgItemMessage(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
-    GetDlgItemText(hwnd, ID_LOGDIR, logdir, MAX_PATH);
-    GetDlgItemText(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
-    GetDlgItemText(hwnd, ID_OBJDIR, objdir, MAX_PATH);
-    GetDlgItemText(hwnd, ID_OUTDIR, outdir, MAX_PATH);
+    strip = (SendDlgItemMessageW(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    otherobj = (SendDlgItemMessageW(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    otherout = (SendDlgItemMessageW(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    foreground = (UINT)SendDlgItemMessageW(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = (UINT)SendDlgItemMessageW(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
+    GetDlgItemTextW(hwnd, ID_LOGDIR, logdir, MAX_PATH);
+    GetDlgItemTextW(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
+    GetDlgItemTextW(hwnd, ID_OBJDIR, objdir, MAX_PATH);
+    GetDlgItemTextW(hwnd, ID_OUTDIR, outdir, MAX_PATH);
 
     if (writelog)
     {
@@ -150,11 +150,11 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 
             for(UINT i = 0; i < sizeof(Colors) / sizeof(char *); i++)
             {
-                SendDlgItemMessage(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
-                SendDlgItemMessage(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+                SendDlgItemMessageW(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+                SendDlgItemMessageW(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
             }
-            SendDlgItemMessage(Dlg, IDC_FONT, CB_SETCURSEL, 0xa, 0);
-            SendDlgItemMessage(Dlg, IDC_BACK, CB_SETCURSEL, 0, 0);
+            SendDlgItemMessageW(Dlg, IDC_FONT, CB_SETCURSEL, 0xa, 0);
+            SendDlgItemMessageW(Dlg, IDC_BACK, CB_SETCURSEL, 0, 0);
             GetCurrentDirectory(MAX_PATH, Path);
             if ((wcslen(Path) + wcslen(MINGWVERSION)) < MAX_PATH)
                 wcscat(Path, MINGWVERSION);
@@ -222,7 +222,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                 ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
                                 if (ILCreateFromPathW)
                                 {
-                                    GetDlgItemText(Dlg, Control, path, MAX_PATH);
+                                    GetDlgItemTextW(Dlg, Control, path, MAX_PATH);
                                     PathInfo.pidlRoot = ILCreateFromPathW(path);
                                 }
                                 FreeLibrary(hDLL);
@@ -249,7 +249,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         INT Dialog1, Dialog2;
                         Dialog1 = ID_BROWSE;
                         Dialog2 = ID_LOGDIR;
-                        WriteLogSet = SendDlgItemMessage(Dlg, wParam, BM_GETCHECK, 0, 0) == BST_CHECKED;
+                        WriteLogSet = SendDlgItemMessageW(Dlg, wParam, BM_GETCHECK, 0, 0) == BST_CHECKED;
                         if (wParam == ID_OTHEROBJ)
                         {
                             Dialog1 = ID_BROWSEOBJ;
@@ -276,9 +276,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             if((HWND)lParam == GetDlgItem(Dlg, ID_EXAMPLE))
             {
                 hFontOld = SelectObject((HDC)wParam, hFont);
-                SetTextColor((HDC)wParam, ColorsRGB[SendDlgItemMessage(Dlg, IDC_FONT, CB_GETCURSEL, 0, 0)]);
-                SetBkColor((HDC)wParam, ColorsRGB[SendDlgItemMessage(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
-                return (LONG)CreateSolidBrush(ColorsRGB[SendDlgItemMessage(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
+                SetTextColor((HDC)wParam, ColorsRGB[SendDlgItemMessageW(Dlg, IDC_FONT, CB_GETCURSEL, 0, 0)]);
+                SetBkColor((HDC)wParam, ColorsRGB[SendDlgItemMessageW(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
+                return (LONG)CreateSolidBrush(ColorsRGB[SendDlgItemMessageW(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
             }
             break;
         }
