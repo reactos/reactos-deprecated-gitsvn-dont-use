@@ -68,23 +68,18 @@ WriteSettings(HWND hwnd)
 
     if (writelog)
     {
-        GetCurrentDirectory(MAX_PATH, checklog);
-        if (SetCurrentDirectory(logdir))
+        if (logdir[0] != 0)
         {
-            SetCurrentDirectory(checklog);
-        }
-        else
-        {
-            wcscpy(checklog, logdir);
-            if (wcslen(checklog) < 1)
+            DWORD ret = GetCurrentDirectoryW(MAX_PATH, checklog);
+            if (ret != 0 && ret < MAX_PATH)
             {
-                SetCurrentDirectory(checklog);
-            }
-            else if (!CreateDirectory(logdir, NULL))
-            {
-                LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
-                MessageBox(NULL, msgerror, NULL, MB_ICONERROR);
-                return FALSE;
+                if (!SetCurrentDirectoryW(logdir))
+                {
+                    SetCurrentDirectoryW(checklog);
+                    if (LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256))
+                        MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
+                    return FALSE;
+                }
             }
         }
     }

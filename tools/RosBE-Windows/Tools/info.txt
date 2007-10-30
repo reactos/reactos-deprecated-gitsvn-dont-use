@@ -3,7 +3,6 @@ cut:        http://www.ltr-data.se/files/cut.zip
 sed:        http://gnuwin32.sourceforge.net/packages/sed.htm
 grep:       http://gnuwin32.sourceforge.net/packages/grep.htm
 svn:        http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91
-svnversion: http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91
 
 Additional Libs needed:
 LibIntl:  http://gnuwin32.sourceforge.net/packages/libintl.htm
