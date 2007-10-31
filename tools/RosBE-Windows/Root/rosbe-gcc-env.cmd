@@ -10,6 +10,18 @@
 @echo off
 
 ::
+:: Check if we are running within the RosBE, and if not
+:: initialize GCC for the current directory.
+::
+if not defined _ROSBE_MINGWPATH (
+    if /i "%1" == "oldmode" (
+        set _ROSBE_OLDMODE=""
+    )
+    set _ROSBE_MINGWPATH=%CD%
+    set _ROSBE_ORIGINALPATH=%PATH%
+)
+
+::
 :: Set up the GCC 4.x.x build environment.
 ::
 set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%

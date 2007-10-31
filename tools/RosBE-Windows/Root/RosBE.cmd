@@ -34,8 +34,8 @@ set _ROSBE_OUTPATH=
 :: Check if the user has used the options utility and
 :: if so, load their options.
 ::
-if exist "%_ROSBE_BASEDIR%\rosbe-options.cmd" (
-    call "%_ROSBE_BASEDIR%\rosbe-options.cmd"
+if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
+    call "%APPDATA%\RosBE\rosbe-options.cmd"
 )
 
 title ReactOS Build Environment %_ROSBE_VERSION%
@@ -52,7 +52,7 @@ if /i "%1" == "oldmode" (
 if not "%1" == "" (
     cls
     echo Unknown parameter specified. Exiting.
-    goto :ExitRosBE
+    goto :EOC
 )
 
 cls
@@ -61,12 +61,11 @@ call :RosBE4
 :EndCommandParse
 
 ::
-:: Load the Base Directory from the Shortcut-txt and set it as new
-:: Source Directory and add PATH for Tools Folder.
+:: Load the base directory from srclist.txt and set it as the
+:: new source directory.
 ::
 if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-    echo.
-    call "%_ROSBE_BASEDIR%\scut.cmd" run
+    call "%_ROSBE_BASEDIR%\scut.cmd"
 )
 
 ::
@@ -83,14 +82,17 @@ echo.
 call :LOADDOSKEYMACROS
 
 ::
-:: Look if the Source Folder is empty. If so, ask for using "ssvn create".
+:: Look if the ReactOS source directory is empty. If so,
+:: inform the user and mention 'ssvn create' (only if ssvn is installed).
 ::
-dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul | findstr "." >nul
-if errorlevel 1 (
-    echo No ReactOS Source detected. Please use "ssvn create" to download it.
+if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
+    dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul | findstr "." >nul
+    if errorlevel 1 (
+        echo No ReactOS source detected. Please use "ssvn create" to download it.
+    )
 )
 
-goto :ExitRosBE
+goto :EOC
 
 ::
 :: Display the banner and set up the environment for the GCC 4.x.x build
@@ -127,4 +129,4 @@ goto :EOF
     if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 goto :EOF
 
-:ExitRosBE
+:EOC

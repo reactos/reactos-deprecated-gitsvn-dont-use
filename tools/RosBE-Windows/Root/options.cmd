@@ -13,12 +13,10 @@ title Options
 ::
 :: Run options.exe
 ::
-if exist "%_ROSBE_BASEDIR%\options.exe" (
-    pushd %_ROSBE_BASEDIR%
-    call options.exe
-    popd
-    if exist "%_ROSBE_BASEDIR%\rosbe-options.cmd" (
-        call "%_ROSBE_BASEDIR%\rosbe-options.cmd"
+if exist "%_ROSBE_BASEDIR%\Tools\options.exe" (
+    call "%_ROSBE_BASEDIR%\Tools\options.exe"
+    if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
+        call "%APPDATA%\RosBE\rosbe-options.cmd"
     )
 ) else (
     echo ERROR: options.exe was not found.
