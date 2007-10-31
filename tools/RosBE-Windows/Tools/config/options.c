@@ -48,7 +48,7 @@ WriteSettings(HWND hwnd)
 {
     int foreground, background;
     BOOL showtime, writelog, useccache, strip, otherobj, otherout;
-    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH];
+    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH], optionsfile[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
     FILE *pFile;
@@ -96,7 +96,9 @@ WriteSettings(HWND hwnd)
     }
     CloseHandle(hFile);
 
-    pFile = fopen("rosbe-options.cmd", "w");
+    wcscpy(optionsfile, _wgetenv(L"APPDATA"));
+    wcscat(optionsfile, L"\\RosBE\\rosbe-options.cmd");
+    pFile = _wfopen(optionsfile, L"w");
     if (pFile)
     {
         fprintf(pFile, "::\n");

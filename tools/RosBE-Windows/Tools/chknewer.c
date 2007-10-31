@@ -30,8 +30,8 @@ int main(int argc, char* argv[])
     }
     if ((argc == 1) ||
         (!strncmp(argv[1], "/?", 2)) ||
-        (!strncmp(argv[1], "-h", 2)) ||
-        (!strncmp(argv[1], "--help", 6)))
+        (!_strnicmp(_strlwr(argv[1]), "-h", 2)) ||
+        (!_strnicmp(_strlwr(argv[1]), "--help", 6)))
     {
         printf("Usage: %s FILE1 FILE2\n", argv[0]);
         printf("Checks if FILE1 is newer than FILE2 by checking\n");

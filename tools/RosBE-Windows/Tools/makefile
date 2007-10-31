@@ -7,7 +7,7 @@ CFLAGS := ${HOST_CFLAGS} -Wall -O2 -o
 LFLAGS := -s
 WINVER := 0x502
 
-all: buildtime chknewer chkslash cpucount echoh flash getdate tee
+all: buildtime chknewer chkslash cpucount echoh flash getdate scut tee
 
 buildtime:  buildtime.c
 	${CC} ${CFLAGS} buildtime buildtime.c
@@ -30,8 +30,11 @@ flash:  flash.c
 getdate:  getdate.c
 	${CC} ${CFLAGS} getdate getdate.c
 
+scut:  scut.c
+	${CC} ${CFLAGS} scut scut.c
+
 tee:  tee.c
 	${CC} ${CFLAGS} tee tee.c
 
 clean:
-	del /f buildtime.exe chknewer.exe chkslash.exe cpucount.exe echoh.exe flash.exe getdate.exe tee.exe
+	del /f buildtime.exe chknewer.exe chkslash.exe cpucount.exe echoh.exe flash.exe getdate.exe scut.exe tee.exe

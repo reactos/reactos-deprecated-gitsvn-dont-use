@@ -51,19 +51,18 @@ if "%1" == "" (
     )
 
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-        echo    scut [OPTIONS]       - List, Define, Edit, Remove, Switch and Default to
-        echo                           Shortcutted Source-Directories.
+        echo    scut [OPTIONS]       - List, add, edit, remove, switch and default to
+        echo                           shortcutted ReactOS source directories.
     )
 
     if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
-        echo    ssvn [OPTIONS]       - Create, Update or Clean-up your ReactOS Source
-        echo                           Tree or show the Revision Number of the Offline
-        echo                           Tree and Online HEAD Revision.
+        echo    ssvn [OPTIONS]       - Create, update or clean-up your ReactOS source
+        echo                           tree or show the revision number of the local
+        echo                           and online trees.
     )
 
     if exist "%_ROSBE_BASEDIR%\options.cmd" (
-        echo    options              - Starts options.exe and restarts RosBE to make
-        echo                           the changes effective at the end.
+        echo    options              - Starts the RosBE configurator.
     )
 
     echo.
@@ -121,12 +120,12 @@ if /i "%1" == "clean" (
 if exist "%_ROSBE_BASEDIR%\Config.cmd" (
     if /i "%1" == "config" (
         echo Usage: config [OPTIONS]
-        echo Creates a Configuration File, which tells RosBE how to build the Tree.
+        echo Creates a configuration file, which tells RosBE how to build the tree.
         echo.
-        echo    delete - Deletes the created configuration File and so sets back
+        echo    delete - Deletes the created configuration file and so sets back
         echo             to default settings.
-        echo    update - Deletes the old created configuration File and updats
-        echo             with a new, default one.
+        echo    update - Deletes the old created configuration file and updates
+        echo             it with a new, default one.
         goto :EOC
     )
 )
@@ -154,45 +153,28 @@ if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
 )
 if exist "%_ROSBE_BASEDIR%\scut.cmd" (
     if /i "%1" == "scut" (
-        echo Usage: scut [OPTIONS]
-        echo Defines, Edits, Removes, Switches and Defaults to Shortcutted Source
-        echo Directories. scut started without a parameter or with the name of a
-        echo Shortcut as parameter sets this Shortcut active.
-        echo.
-        echo    list    - Lists all Shortcuts.
-        echo              Optional: "path" as second parameter lists the Paths, too.
-        echo    add     - Adds a Shortcut.
-        echo              Optional: "Shortcut" "Directory" as second and third parameter
-        echo    rem     - Removes a shortcut.
-        echo              Optional: "Shortcut" as second parameter
-        echo    edit    - Edits a shortcut.
-        echo              Optional: "Shortcut" "Directory" as second and third parameter
-        echo    def     - Chooses Default Shortcut which is enabled on
-        echo              every start of RosBE. "Default" is the Source
-        echo              Directory as you know it from previous Versions
+        "%_ROSBE_BASEDIR%\Tools\scut.exe" --help
         goto :EOC
     )
 )
 if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
     if /i "%1" == "ssvn" (
         echo Usage: ssvn [OPTIONS]
-        echo Creates, Updates or cleans up your ReactOS Source Tree or shows the
-        echo Revision Number of the Offline Tree and Online HEAD Revision.
+        echo Creates, updates or cleans up your ReactOS source tree or shows the
+        echo revision number of the local and online trees.
         echo.
-        echo    update  - Updates to HEAD Revision or to a specific one when
+        echo    update  - Updates to HEAD revision or to a specific one when
         echo              second parameter specifies one.
-        echo    create  - Creates a new ReactOS Source Tree.
-        echo    cleanup - Cleans up and fixes errors in the Source Tree.
-        echo    status  - Shows Actual offline Revision Number and online HEAD
-        echo              Revision Number.
+        echo    create  - Creates a new ReactOS source tree.
+        echo    cleanup - Cleans up and fixes errors in the source tree.
+        echo    status  - Show the current local and online revision numbers.
         goto :EOC
     )
 )
 if exist "%_ROSBE_BASEDIR%\options.cmd" (
     if /i "%1" == "options" (
         echo Usage: options
-        echo Starts RosBE Configurator and restarts RosBE afterwards to make the
-        echo changes effective at the end.
+        echo Starts the RosBE configurator.
         goto :EOC
     )
 )

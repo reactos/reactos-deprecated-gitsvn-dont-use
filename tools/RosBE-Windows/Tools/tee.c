@@ -22,8 +22,8 @@ int main(int argc, char* argv[])
     }
     if ((argc == 1) ||
         (!strncmp(argv[1], "/?", 2)) ||
-        (!strncmp(argv[1], "-h", 2)) ||
-        (!strncmp(argv[1], "--help", 6)))
+        (!_strnicmp(argv[1], "-h", 2)) ||
+        (!_strnicmp(argv[1], "--help", 6)))
     {
         printf("Usage: %s FILE\n", argv[0]);
         printf("Takes standard input and sends it to standard output\n");

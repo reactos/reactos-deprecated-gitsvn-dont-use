@@ -24,7 +24,7 @@ if exist .\config.rbuild (
         echo *** aborting build. Please check for changes and       ***
         echo *** update your config.rbuild.                         ***
         echo.
-        goto :EOB
+        goto :EOC
     )
 )
 
@@ -54,7 +54,7 @@ if defined _ROSBE_USECCACHE (
 if defined _ROSBE_OBJPATH (
     if not exist "%_ROSBE_OBJPATH%\." (
         echo ERROR: The path specified doesn't seem to exist.
-        goto :EOB
+        goto :EOC
     ) else (
         set ROS_INTERMEDIATE=%_ROSBE_OBJPATH%
     )
@@ -62,7 +62,7 @@ if defined _ROSBE_OBJPATH (
 if defined _ROSBE_OUTPATH (
     if not exist "%_ROSBE_OUTPATH%\." (
         echo ERROR: The path specified doesn't seem to exist.
-        goto :EOB
+        goto :EOC
     ) else (
         set ROS_OUTPUT=%_ROSBE_OUTPATH%
         set ROS_TEMPORARY=%_ROSBE_OUTPATH%
@@ -116,15 +116,15 @@ if %_ROSBE_SHOWTIME% == 1 (
         "%_ROSBE_MINGWMAKE%" %*
     )
 )
-goto :EOB
+goto :EOC
 
 :BUILDMULTI
 ::
 :: Get the number of CPUs in the system so we know how many jobs to execute.
 :: To modify the number used alter the options used with cpucount:
 :: No Option - Number of CPUs.
-:: -x1       - Number of CPUs, Plus 1.
-:: -x2       - Number of CPUs, Doubled.
+:: -x1       - Number of CPUs, plus 1.
+:: -x2       - Number of CPUs, doubled.
 ::
 set CPUCOUNT=
 for /f "usebackq" %%i in (`cpucount -x1`) do set CPUCOUNT=%%i
@@ -143,7 +143,7 @@ if %_ROSBE_SHOWTIME% == 1 (
     )
 )
 
-:EOB
+:EOC
 ::
 :: Highlight the fact that building has ended.
 ::
