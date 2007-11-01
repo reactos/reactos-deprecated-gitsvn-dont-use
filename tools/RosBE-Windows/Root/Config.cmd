@@ -106,8 +106,9 @@ if exist .\config.rbuild (
 echo Sub-Architecture to build for.
 echo Default is: none
 echo.
-echo Right now:
-grep \"SARCH\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "SARCH" | find "property name""`) do set SARCH=%%i
+set SARCH=%SARCH:~7,-1%
+echo Right now: %SARCH%
 set /p X="(), (xbox)"
 sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" "%_ROSBE_BASEDIR%\config.rbuild" > "%TEMP%\config2.rbuild"
 cls
@@ -119,8 +120,9 @@ echo athlon-xp, athlon-mp, k6-2
 echo See GCC manual for more CPU names and which CPUs GCC can optimize for.
 echo Default is: pentium
 echo.
-echo Right now:
-grep \"OARCH\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "OARCH" | find "property name""`) do set OARCH=%%i
+set OARCH=%OARCH:~7,-1%
+echo Right now: %OARCH%
 set /p XX=
 if "%XX%" == "" (
     set XX=pentium
@@ -135,8 +137,9 @@ echo 1 = Normal compiling. Recommended. It is the default setting in
 echo official release builds and debug builds.
 echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk.
 echo.
-echo Right now:
-grep \"OPTIMIZE\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "OPTIMIZE" | find "property name""`) do set OPTIMIZE=%%i
+set OPTIMIZE=%OPTIMIZE:~7,-1%
+echo Right now: %OPTIMIZE%
 set /p Y="(0), (1), (2), (3), (4), (5)"
 if "%Y%" == "" (
     set Y=1
@@ -147,8 +150,9 @@ cls
 echo Whether to compile for an uniprocessor or multiprocessor machine.
 echo Default is: 0
 echo.
-echo Right now:
-grep \"MP\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "MP" | find "property name""`) do set MP=%%i
+set MP=%MP:~7,-1%
+echo Right now: %MP%
 set /p Z="(0), (1)"
 if "%Z%" == "" (
     set Z=0
@@ -159,8 +163,9 @@ cls
 echo Whether to compile in the integrated kernel debugger.
 echo Default is: 0
 echo.
-echo Right now:
-grep \"KDBG\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "KDBG" | find "property name""`) do set KDBG=%%i
+set KDBG=%KDBG:~7,-1%
+echo Right now: %KDBG%
 set /p A="(0), (1)"
 if "%A%" == "" (
     set A=0
@@ -172,8 +177,9 @@ echo Whether to compile for debugging. No compiler optimizations will be
 echo performed.
 echo Default is: 1
 echo.
-echo Right now:
-grep \"DBG\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "DBG" | find "property name" | find /V "KDBG""`) do set DBG=%%i
+set DBG=%DBG:~7,-1%
+echo Right now: %DBG%
 set /p B="(0), (1)"
 if "%B%" == "" (
     set B=1
@@ -185,8 +191,9 @@ echo Whether to compile for debugging with GDB. If you don't use GDB,
 echo don't enable this.
 echo Default is: 0
 echo.
-echo Right now:
-grep \"GDB\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "GDB" | find "property name""`) do set GDB=%%i
+set GDB=%GDB:~7,-1%
+echo Right now: %GDB%
 set /p C="(0), (1)"
 if "%C%" == "" (
     set C=0
@@ -200,8 +207,9 @@ echo valid/apply, don't enable this (except they/you purchased a license
 echo from the patent owner).
 echo Default is: 0
 echo.
-echo Right now:
-grep \"NSWPAT\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "NSWPAT" | find "property name""`) do set NSWPAT=%%i
+set NSWPAT=%NSWPAT:~7,-1%
+echo Right now: %NSWPAT%
 set /p D="(0), (1)"
 if "%D%" == "" (
     set D=0
@@ -217,8 +225,9 @@ echo enabled will result in a failure to enter GUI mode. Do not enable
 echo unless you know what you're doing.
 echo Default is: 0
 echo.
-echo Right now:
-grep \"_WINKD_\" "%_ROSBE_BASEDIR%\config.rbuild"|cut -d "\"" -f 4
+for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "_WINKD_" | find "property name""`) do set WINKD=%%i
+set WINKD=%WINKD:~7,-1%
+echo Right now: %WINKD%
 set /p F="(0), (1)"
 if "%F%" == "" (
     set F=0
