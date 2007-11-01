@@ -150,3 +150,16 @@ if %_ROSBE_SHOWTIME% == 1 (
 flash
 
 title ReactOS Build Environment %_ROSBE_VERSION%
+
+::
+:: Unload all used Vars.
+::
+set ROS_LEAN_AND_MEAN=
+set HOST_CC=
+set HOST_CPP=
+set TARGET_CC=
+set TARGET_CPP=
+set ROS_INTERMEDIATE=
+set ROS_OUTPUT=
+set ROS_TEMPORARY=
+set CPUCOUNT=
