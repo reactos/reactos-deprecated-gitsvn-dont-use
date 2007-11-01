@@ -68,6 +68,7 @@
    - Get rid of svnversion.exe and its need in ssvn.cmd. (Daniel Reimer)
    - Modified reladdr2line so that you can now use 'raddr2line ntdll.dll 7c90e143' instead of 'raddr2line output-i386\dll\ntdll\ntdll.dll 7c90e143'. You can also use part of the file name ie. 'ntdll' instead of 'ntdll.dll' and it will match it. Searchs the current directory and all sub-directories. (Peter Ward)
    - Add a Shortcut Listing Feature to scut.cmd. (Daniel Reimer)
+   - Fully get rid of all *nix Tools (Daniel Reimer)
 
 - Started to Update the Documentation. (Daniel Reimer)
 
