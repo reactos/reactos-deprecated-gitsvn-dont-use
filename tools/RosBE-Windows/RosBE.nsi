@@ -110,7 +110,13 @@ Section "-Other miscellaneous files." SEC02
     File /r Icons\*.*
 SectionEnd
 
-Section -StartMenuShortcuts SEC03
+Section "-Files in Application Data." SEC03
+    SetOutPath "$APPDATA\RosBE\"
+    SetOverwrite try
+    File /r Appdata\*.*
+SectionEnd
+
+Section -StartMenuShortcuts SEC04
     SetShellVarContext current
 
     ;;
@@ -126,11 +132,11 @@ Section -StartMenuShortcuts SEC03
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Readme.lnk" \
                        "$INSTDIR\readme.pdf"
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
-                       "$INSTDIR\options.exe"
+                       "$INSTDIR\Tools\options.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC04
+Section /o "Desktop Shortcuts" SEC05
     SetShellVarContext current
 
     ;;
@@ -140,7 +146,7 @@ Section /o "Desktop Shortcuts" SEC04
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\reactos.ico"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC05
+Section /o "Quick Launch Shortcuts" SEC06
     SetShellVarContext current
 
     ;;
@@ -184,17 +190,18 @@ Section Uninstall
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
+    Delete /REBOOTOK "$INSTDIR\chdefgcc.cmd"
     Delete /REBOOTOK "$INSTDIR\Clean.cmd"
     Delete /REBOOTOK "$INSTDIR\Config.cmd"
     Delete /REBOOTOK "$INSTDIR\Help.cmd"
     Delete /REBOOTOK "$INSTDIR\options.cmd"
     Delete /REBOOTOK "$INSTDIR\reladdr2line.cmd"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"
-    Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
+    Delete /REBOOTOK "$INSTDIR\rosbe-gcc-env.cmd"
     Delete /REBOOTOK "$INSTDIR\scut.cmd"
+    Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
     Delete /REBOOTOK "$INSTDIR\readme.pdf"
-    Delete /REBOOTOK "$INSTDIR\options.exe"
     Delete /REBOOTOK "$INSTDIR\reactos.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
