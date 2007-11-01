@@ -11,4 +11,5 @@ RADDR2LINE = "%_ROSBE_BASEDIR%\reladdr2line.cmd" $*
 RENV       = for /f "usebackq" %i in (`set _ROSBE_`) do @echo %i
 SCUT       = "%_ROSBE_BASEDIR%\scut.cmd" $*
 SSVN       = "%_ROSBE_BASEDIR%\sSVN.cmd" $*
+SVN       = "%_ROSBE_BASEDIR%\Tools\svn.exe" $*
 OPTIONS    = "%_ROSBE_BASEDIR%\options.cmd" $*
