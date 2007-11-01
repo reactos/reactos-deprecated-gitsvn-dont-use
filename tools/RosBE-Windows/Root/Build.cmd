@@ -18,7 +18,7 @@ title Building...
 ::
 setlocal enabledelayedexpansion
 if exist .\config.rbuild (
-    chknewer .\config.template.rbuild .\config.rbuild
+    "%_ROSBE_BASEDIR%\Tools\chknewer.exe" .\config.template.rbuild .\config.rbuild
     if !errorlevel! == 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
@@ -107,13 +107,13 @@ if "%1" == "multi" (
 :BUILD
 if %_ROSBE_SHOWTIME% == 1 (
     if %_ROSBE_WRITELOG% == 1 (
-        buildtime "%_ROSBE_MINGWMAKE%" %* 2>&1 | tee "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
     ) else (
-        buildtime "%_ROSBE_MINGWMAKE%" %*
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" %*
     )
 ) else (
     if %_ROSBE_WRITELOG% == 1 (
-        "%_ROSBE_MINGWMAKE%" %* 2>&1 | tee "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
+        "%_ROSBE_MINGWMAKE%" %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
     ) else (
         "%_ROSBE_MINGWMAKE%" %*
     )
@@ -129,17 +129,17 @@ goto :EOC
 :: -x2       - Number of CPUs, doubled.
 ::
 set CPUCOUNT=
-for /f "usebackq" %%i in (`cpucount -x1`) do set CPUCOUNT=%%i
+for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
 
 if %_ROSBE_SHOWTIME% == 1 (
     if %_ROSBE_WRITELOG% == 1 (
-        buildtime "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | tee "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
     ) else (
-        buildtime "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
     )
 ) else (
     if %_ROSBE_WRITELOG% == 1 (
-        "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | tee "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
+        "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
     ) else (
         "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
     )
@@ -149,7 +149,7 @@ if %_ROSBE_SHOWTIME% == 1 (
 ::
 :: Highlight the fact that building has ended.
 ::
-flash
+"%_ROSBE_BASEDIR%\Tools\flash.exe"
 
 title ReactOS Build Environment %_ROSBE_VERSION%
 

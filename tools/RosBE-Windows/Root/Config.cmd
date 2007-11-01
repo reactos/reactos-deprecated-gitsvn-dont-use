@@ -28,8 +28,8 @@ if /i "%1" == "delete" (
     ) else (
         echo Main Configuration File was not found in ReactOS Source Tree.
     )
-    if exist "%_ROSBE_BASEDIR%\config.rbuild" (
-        del "%_ROSBE_BASEDIR%\config.rbuild"
+    if exist "%APPDATA%\RosBE\config.rbuild" (
+        del "%APPDATA%\RosBE\config.rbuild"
         echo Working Configuration File was found and deleted.
     ) else (
         echo Working Configuration File was not found in ReactOS Source Tree.
@@ -46,7 +46,7 @@ if /i "%1" == "update" (
     :CONT2
     del "%_ROSBE_BASEDIR%\*.rbuild"
     del "config.rbuild"
-    copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild"
+    copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
     echo Successfully Updated.
     goto :NOK
 )
@@ -58,8 +58,8 @@ if not "%1" == "" (
 ::
 :: Check if config.rbuild already exists. If not, get a working copy.
 ::
-if not exist "%_ROSBE_BASEDIR%\config.rbuild" (
-    copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild"
+if not exist "%APPDATA%\RosBE\config.rbuild" (
+    copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
 )
 
 ::
@@ -86,7 +86,7 @@ goto :NOK
 ::
 setlocal enabledelayedexpansion
 if exist ".\config.rbuild" (
-    chknewer ".\config.template.rbuild" ".\config.rbuild"
+    "%_ROSBE_BASEDIR%\Tools\chknewer.exe" ".\config.template.rbuild" ".\config.rbuild"
     if !errorlevel! == 1 (
         echo.
         echo *** config.template.rbuild is newer than working config.rbuild ***
@@ -95,7 +95,7 @@ if exist ".\config.rbuild" (
         echo *** previously made settings.                                  ***
         echo.
         set /p YESNO="(yes), (no)"
-        if /i "%YESNO%"=="yes" del "%_ROSBE_BASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild" | goto :OK
+        if /i "%YESNO%"=="yes" del "%APPDATA%\RosBE\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild" | goto :OK
         if /i "%YESNO%"=="no" goto :NOK
         goto :NOK
     )
@@ -108,7 +108,7 @@ endlocal
 echo Sub-Architecture to build for.
 echo Default is: none
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "SARCH" | find "property name""`) do set SARCH=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "SARCH" | find "property name""`) do set SARCH=%%i
 set SARCH=%SARCH:~7,-1%
 echo Right now: %SARCH%
 set /p SARCH_CH="(), (xbox)"
@@ -121,7 +121,7 @@ echo athlon-xp, athlon-mp, k6-2
 echo See GCC manual for more CPU names and which CPUs GCC can optimize for.
 echo Default is: pentium
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "OARCH" | find "property name""`) do set OARCH=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "OARCH" | find "property name""`) do set OARCH=%%i
 set OARCH=%OARCH:~7,-1%
 echo Right now: %OARCH%
 set /p OARCH_CH=
@@ -137,7 +137,7 @@ echo 1 = Normal compiling. Recommended. It is the default setting in
 echo official release builds and debug builds.
 echo warning : 2,3,4,5 is not tested on ReactOS. Change at own risk.
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "OPTIMIZE" | find "property name""`) do set OPTIMIZE=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "OPTIMIZE" | find "property name""`) do set OPTIMIZE=%%i
 set OPTIMIZE=%OPTIMIZE:~7,-1%
 echo Right now: %OPTIMIZE%
 set /p OPTIMIZE_CH="(0), (1), (2), (3), (4), (5)"
@@ -149,7 +149,7 @@ cls
 echo Whether to compile for an uniprocessor or multiprocessor machine.
 echo Default is: 0
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "MP" | find "property name""`) do set MP=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "MP" | find "property name""`) do set MP=%%i
 set MP=%MP:~7,-1%
 echo Right now: %MP%
 set /p MP_CH="(0), (1)"
@@ -161,7 +161,7 @@ cls
 echo Whether to compile in the integrated kernel debugger.
 echo Default is: 0
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "KDBG" | find "property name""`) do set KDBG=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "KDBG" | find "property name""`) do set KDBG=%%i
 set KDBG=%KDBG:~7,-1%
 echo Right now: %KDBG%
 set /p KDBG_CH="(0), (1)"
@@ -174,7 +174,7 @@ echo Whether to compile for debugging. No compiler optimizations will be
 echo performed.
 echo Default is: 1
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "DBG" | find "property name" | find /V "KDBG""`) do set DBG=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "DBG" | find "property name" | find /V "KDBG""`) do set DBG=%%i
 set DBG=%DBG:~7,-1%
 echo Right now: %DBG%
 set /p DBG_CH="(0), (1)"
@@ -187,7 +187,7 @@ echo Whether to compile for debugging with GDB. If you don't use GDB,
 echo don't enable this.
 echo Default is: 0
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "GDB" | find "property name""`) do set GDB=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "GDB" | find "property name""`) do set GDB=%%i
 set GDB=%GDB:~7,-1%
 echo Right now: %GDB%
 set /p GDB_CH="(0), (1)"
@@ -202,7 +202,7 @@ echo valid/apply, don't enable this (except they/you purchased a license
 echo from the patent owner).
 echo Default is: 0
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "NSWPAT" | find "property name""`) do set NSWPAT=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "NSWPAT" | find "property name""`) do set NSWPAT=%%i
 set NSWPAT=%NSWPAT:~7,-1%
 echo Right now: %NSWPAT%
 set /p NSWPAT_CH="(0), (1)"
@@ -219,7 +219,7 @@ echo enabled will result in a failure to enter GUI mode. Do not enable
 echo unless you know what you're doing.
 echo Default is: 0
 echo.
-for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "_WINKD_" | find "property name""`) do set WINKD=%%i
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "_WINKD_" | find "property name""`) do set WINKD=%%i
 set WINKD=%WINKD:~7,-1%
 echo Right now: %WINKD%
 set /p WINKD_CH="(0), (1)"
@@ -245,9 +245,9 @@ echo ^<property name="NSWPAT" value="%NSWPAT_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="_WINKD_" value="%WINKD_CH%" /^>>>%TEMP%\config.tmp
 echo ^</group^>>>%TEMP%\config.tmp
 
-copy "%TEMP%\config.tmp" "%_ROSBE_BASEDIR%\config.rbuild"
+copy "%TEMP%\config.tmp" "%APPDATA%\RosBE\config.rbuild" >NUL
 del %TEMP%\config.tmp
-copy "%_ROSBE_BASEDIR%\config.rbuild" "config.rbuild"
+copy "%APPDATA%\RosBE\config.rbuild" "config.rbuild" >NUL
 
 goto :NOK
 
