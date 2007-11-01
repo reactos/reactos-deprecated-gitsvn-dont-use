@@ -84,9 +84,10 @@ goto :NOK
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: inform the user and offer an update.
 ::
+setlocal enabledelayedexpansion
 if exist ".\config.rbuild" (
     chknewer ".\config.template.rbuild" ".\config.rbuild"
-    if errorlevel 1 (
+    if !errorlevel! == 1 (
         echo.
         echo *** config.template.rbuild is newer than working config.rbuild ***
         echo *** The Editor cannot continue with this file. Do you wanna    ***
@@ -99,6 +100,7 @@ if exist ".\config.rbuild" (
         goto :NOK
     )
 )
+endlocal
 
 ::
 :: Start with reading settings from config.rbuild and let the user edit them.

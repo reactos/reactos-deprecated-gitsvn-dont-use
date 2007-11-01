@@ -16,9 +16,10 @@ title Building...
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 ::
+setlocal enabledelayedexpansion
 if exist .\config.rbuild (
     chknewer .\config.template.rbuild .\config.rbuild
-    if errorlevel 1 (
+    if !errorlevel! == 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
         echo *** aborting build. Please check for changes and       ***
@@ -27,6 +28,7 @@ if exist .\config.rbuild (
         goto :EOC
     )
 )
+endlocal
 
 ::
 :: Check if strip or ccache are being used and set the appropriate options.
