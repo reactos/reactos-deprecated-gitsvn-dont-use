@@ -33,6 +33,10 @@ if /i "%1" == "def" (
     call "%_ROSBE_BASEDIR%\Tools\scut.exe" %*
     goto :EOC
 )
+if /i "%1" == "list" (
+    call "%_ROSBE_BASEDIR%\Tools\scut.exe" %*
+    goto :EOC
+)
 if not "%1" == "" (
     for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools Test\scut.exe" %*"`) do (
         if /i not "%%i" == "Default" (
