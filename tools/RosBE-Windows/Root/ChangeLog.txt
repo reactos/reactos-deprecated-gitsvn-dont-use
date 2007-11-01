@@ -20,7 +20,7 @@
    - Updated todo list. (Pierre Schweitzer)
    - Reorganized resources. (Pierre Schweitzer)
    - Added a basic font preview. (Pierre Schweitzer)
-   - Continue dralnix code cleanup. (Pierre Schweitzer)
+   - Code cleanup. (Pierre Schweitzer, Ged Murphy)
    - Added checks to avoid buffers overflow. (Pierre Schweitzer)
    - Fixed a small regression with save button state introduced in rev 29850. (Pierre Schweitzer)
    - Moved UINT i to loop as it was done previously. (Pierre Schweitzer)
@@ -30,6 +30,7 @@
    - Make options.exe startable from cmd window. After exiting rosbe resets to use the new settings. (Daniel Reimer)
    - Improve the GUI to be easier to understand and add two more settings. (Daniel Reimer)
    - Make options.exe only write path variables if there is something to write. (Peter Ward)
+   - Fix the Case where you enable Logging and want to keep the default Path for it. (Daniel Reimer)
 
 - Added a small utility (chknewer) to check if one file is newer than another. This removes the dependency on test from Config.cmd and Build.cmd. (Peter Ward)
 - Added a small utility (chkslash) to check if a string contains a backslash '\', it's needed for the reladdr2line.cmd changes.
@@ -39,11 +40,14 @@
 - Added the command "oldmode" to still use the HOST headers, not the target ones in SVN Tree. (Daniel Reimer)
 - Readd chdefdir due to popular Demand. (Daniel Reimer)
 - Downgraded sed to prevent a EOL style destruction. (Daniel Reimer)
+- Move Options cmd and srcdir.txt to Application Data Folder. (Peter Ward)
+- Move Temp Files to Temp Folder. (Daniel Reimer)
 
 - Added a makefile for the RosBE tools. (Peter Ward)
 - Fix a warning in echoh.c. (Peter Ward)
 - Fix options.exe compile with RosBE 0.3.8.1 (Peter Ward)
 - Merged the NSIS files back together. (Peter Ward)
+- Rewrote Scut in C. (Peter Ward) 
 
 - Heaviliy cleaning up the .cmd files. (Peter Ward, Daniel Reimer)
    - Remove typos. (Peter Ward, Daniel Reimer)
@@ -69,6 +73,8 @@
    - Modified reladdr2line so that you can now use 'raddr2line ntdll.dll 7c90e143' instead of 'raddr2line output-i386\dll\ntdll\ntdll.dll 7c90e143'. You can also use part of the file name ie. 'ntdll' instead of 'ntdll.dll' and it will match it. Searchs the current directory and all sub-directories. (Peter Ward)
    - Add a Shortcut Listing Feature to scut.cmd. (Daniel Reimer)
    - Fully get rid of all *nix Tools (Daniel Reimer)
+   - Unload all Vars at the Script's end. (Daniel Reimer)
+   - Remove Tools Folder From Path to prevent name Conflicts. (Daniel Reimer)
 
 - Started to Update the Documentation. (Daniel Reimer)
 
