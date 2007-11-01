@@ -125,6 +125,7 @@ goto :EOF
     if not exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" ( doskey RADDR2LINE= )
     if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
     if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SSVN= )
+    if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SVN= )
     if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 goto :EOF
 
