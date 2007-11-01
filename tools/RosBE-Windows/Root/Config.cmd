@@ -84,8 +84,8 @@ goto :NOK
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: inform the user and offer an update.
 ::
-if exist .\config.rbuild (
-    chknewer .\config.template.rbuild .\config.rbuild
+if exist ".\config.rbuild" (
+    chknewer ".\config.template.rbuild" ".\config.rbuild"
     if errorlevel 1 (
         echo.
         echo *** config.template.rbuild is newer than working config.rbuild ***
