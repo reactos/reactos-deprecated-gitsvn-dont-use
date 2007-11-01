@@ -81,9 +81,16 @@ if %OFFSVN% equ %ONSVN% (
 )
 
 :UP2
-set /p XY="Please enter 'yes' or 'no': "
-if /i "%XY%"=="yes" %_ROSBE_BASEDIR%\ssvn update
-if /i "%XY%"=="no" goto :EOC
+set /p UP="Please enter 'yes' or 'no': "
+if /i "%UP%"=="yes" %_ROSBE_BASEDIR%\ssvn update
+if /i "%UP%"=="no" goto :EOC
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
+
+::
+:: Unload all used Vars.
+::
+set OFFSVN=
+set ONSVN=
+set UP=

@@ -16,9 +16,9 @@ title ReactOS Build Configurator
 if /i "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
     echo Continue?
-    set /p XY="(yes), (no)"
-    if /i "%XY%"=="yes" goto :CONT
-    if /i "%XY%"=="no" goto :NOK
+    set /p YESNO="(yes), (no)"
+    if /i "%YESNO%"=="yes" goto :CONT
+    if /i "%YESNO%"=="no" goto :NOK
     goto :NOK
 
     :CONT
@@ -40,9 +40,9 @@ if /i "%1" == "update" (
     echo old config.rbuild will be deleted and will be updated with a recent,
     echo default one. You will need to reconfigure it to your wishes later.
     echo Continue?
-    set /p XY="(yes), (no)"
-    if /i "%XY%"=="yes" goto :CONT2
-    if /i "%XY%"=="no" goto :NOK
+    set /p YESNO="(yes), (no)"
+    if /i "%YESNO%"=="yes" goto :CONT2
+    if /i "%YESNO%"=="no" goto :NOK
     :CONT2
     del "%_ROSBE_BASEDIR%\*.rbuild"
     del "config.rbuild"
@@ -72,10 +72,10 @@ echo *** IRC/Forum discussion. Please refrain from doing so unless  ***
 echo *** you are sure about what you are doing.                     ***
 echo.
 
-set /p XY="(yes), (no)"
+set /p YESNO="(yes), (no)"
 
-if /i "%XY%"=="yes" goto :OK
-if /i "%XY%"=="no" goto :NOK
+if /i "%YESNO%"=="yes" goto :OK
+if /i "%YESNO%"=="no" goto :NOK
 goto :NOK
 
 :OK
@@ -93,9 +93,9 @@ if exist .\config.rbuild (
         echo *** update to the most recent one? You need to reset all your  ***
         echo *** previously made settings.                                  ***
         echo.
-        set /p XY="(yes), (no)"
-        if /i "%XY%"=="yes" del "%_ROSBE_BASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild" | goto :OK
-        if /i "%XY%"=="no" goto :NOK
+        set /p YESNO="(yes), (no)"
+        if /i "%YESNO%"=="yes" del "%_ROSBE_BASEDIR%\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%_ROSBE_BASEDIR%\config.rbuild" | goto :OK
+        if /i "%YESNO%"=="no" goto :NOK
         goto :NOK
     )
 )
@@ -109,8 +109,8 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "SARCH" | find "property name""`) do set SARCH=%%i
 set SARCH=%SARCH:~7,-1%
 echo Right now: %SARCH%
-set /p X="(), (xbox)"
-sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%X%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%X%\"/g" "%_ROSBE_BASEDIR%\config.rbuild" > "%TEMP%\config2.rbuild"
+set /p SARCH_CH="(), (xbox)"
+sed "s/\"SARCH\" value=\"\"/\"SARCH\" value=\"%SARCH_CH%\"/g;s/\"SARCH\" value=\"xbox\"/\"SARCH\" value=\"%SARCH_CH%\"/g" "%_ROSBE_BASEDIR%\config.rbuild" > "%TEMP%\config2.rbuild"
 cls
 
 echo Which CPU ReactOS should be optimized for.
@@ -123,11 +123,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "OARCH" | find "property name""`) do set OARCH=%%i
 set OARCH=%OARCH:~7,-1%
 echo Right now: %OARCH%
-set /p XX=
-if "%XX%" == "" (
-    set XX=pentium
+set /p OARCH_CH=
+if "%OARCH_CH%" == "" (
+    set OARCH_CH=pentium
 )
-sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%XX%\"/g" "%TEMP%\config2.rbuild" > "%TEMP%\config3.rbuild"
+sed "s/\"OARCH\" value=\".*\"/\"OARCH\" value=\"%OARCH_CH%\"/g" "%TEMP%\config2.rbuild" > "%TEMP%\config3.rbuild"
 cls
 
 echo What level do you want ReactOS to be optimized at.
@@ -140,11 +140,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "OPTIMIZE" | find "property name""`) do set OPTIMIZE=%%i
 set OPTIMIZE=%OPTIMIZE:~7,-1%
 echo Right now: %OPTIMIZE%
-set /p Y="(0), (1), (2), (3), (4), (5)"
-if "%Y%" == "" (
-    set Y=1
+set /p OPTIMIZE_CH="(0), (1), (2), (3), (4), (5)"
+if "%OPTIMIZE_CH%" == "" (
+    set OPTIMIZE_CH=1
 )
-sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%Y%\"/g" "%TEMP%\config3.rbuild" > "%TEMP%\config4.rbuild"
+sed "s/\"OPTIMIZE\" value=\"[0-5]\"/\"OPTIMIZE\" value=\"%OPTIMIZE_CH%\"/g" "%TEMP%\config3.rbuild" > "%TEMP%\config4.rbuild"
 cls
 
 echo Whether to compile for an uniprocessor or multiprocessor machine.
@@ -153,11 +153,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "MP" | find "property name""`) do set MP=%%i
 set MP=%MP:~7,-1%
 echo Right now: %MP%
-set /p Z="(0), (1)"
-if "%Z%" == "" (
-    set Z=0
+set /p MP_CH="(0), (1)"
+if "%MP_CH%" == "" (
+    set MP_CH=0
 )
-sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%Z%\"/g" "%TEMP%\config4.rbuild" > "%TEMP%\config5.rbuild"
+sed "s/\"MP\" value=\"[0-1]\"/\"MP\" value=\"%MP_CH%\"/g" "%TEMP%\config4.rbuild" > "%TEMP%\config5.rbuild"
 cls
 
 echo Whether to compile in the integrated kernel debugger.
@@ -166,11 +166,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "KDBG" | find "property name""`) do set KDBG=%%i
 set KDBG=%KDBG:~7,-1%
 echo Right now: %KDBG%
-set /p A="(0), (1)"
-if "%A%" == "" (
-    set A=0
+set /p KDBG_CH="(0), (1)"
+if "%KDBG_CH%" == "" (
+    set KDBG_CH=0
 )
-sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%A%\"/g" "%TEMP%\config5.rbuild" > "%TEMP%\config6.rbuild"
+sed "s/\"KDBG\" value=\"[0-1]\"/\"KDBG\" value=\"%KDBG_CH%\"/g" "%TEMP%\config5.rbuild" > "%TEMP%\config6.rbuild"
 cls
 
 echo Whether to compile for debugging. No compiler optimizations will be
@@ -180,11 +180,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "DBG" | find "property name" | find /V "KDBG""`) do set DBG=%%i
 set DBG=%DBG:~7,-1%
 echo Right now: %DBG%
-set /p B="(0), (1)"
-if "%B%" == "" (
-    set B=1
+set /p DBG_CH="(0), (1)"
+if "%DBG_CH%" == "" (
+    set DBG_CH=1
 )
-sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%B%\"/g" "%TEMP%\config6.rbuild" > "%TEMP%\config7.rbuild"
+sed "s/\"DBG\" value=\"[0-1]\"/\"DBG\" value=\"%DBG_CH%\"/g" "%TEMP%\config6.rbuild" > "%TEMP%\config7.rbuild"
 cls
 
 echo Whether to compile for debugging with GDB. If you don't use GDB,
@@ -194,11 +194,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "GDB" | find "property name""`) do set GDB=%%i
 set GDB=%GDB:~7,-1%
 echo Right now: %GDB%
-set /p C="(0), (1)"
-if "%C%" == "" (
-    set C=0
+set /p GDB_CH="(0), (1)"
+if "%GDB_CH%" == "" (
+    set GDB_CH=0
 )
-sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%C%\"/g" "%TEMP%\config7.rbuild" > "%TEMP%\config8.rbuild"
+sed "s/\"GDB\" value=\"[0-1]\"/\"GDB\" value=\"%GDB_CH%\"/g" "%TEMP%\config7.rbuild" > "%TEMP%\config8.rbuild"
 cls
 
 echo Whether to compile apps/libs with features covered software patents
@@ -210,11 +210,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "NSWPAT" | find "property name""`) do set NSWPAT=%%i
 set NSWPAT=%NSWPAT:~7,-1%
 echo Right now: %NSWPAT%
-set /p D="(0), (1)"
-if "%D%" == "" (
-    set D=0
+set /p NSWPAT_CH="(0), (1)"
+if "%NSWPAT_CH%" == "" (
+    set NSWPAT_CH=0
 )
-sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%D%\"/g" "%TEMP%\config8.rbuild" > "%TEMP%\config9.rbuild"
+sed "s/\"NSWPAT\" value=\"[0-1]\"/\"NSWPAT\" value=\"%NSWPAT_CH%\"/g" "%TEMP%\config8.rbuild" > "%TEMP%\config9.rbuild"
 cls
 
 echo Whether to compile with the KD protocol. This will disable support for
@@ -228,11 +228,11 @@ echo.
 for /f "usebackq tokens=3" %%i in (`"type "%_ROSBE_BASEDIR%\config.rbuild" | find "_WINKD_" | find "property name""`) do set WINKD=%%i
 set WINKD=%WINKD:~7,-1%
 echo Right now: %WINKD%
-set /p F="(0), (1)"
-if "%F%" == "" (
-    set F=0
+set /p WINKD_CH="(0), (1)"
+if "%WINKD_CH%" == "" (
+    set WINKD_CH=0
 )
-sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%F%\"/g" "%TEMP%\config9.rbuild" > "%TEMP%\config10.rbuild"
+sed "s/\"_WINKD_\" value=\"[0-1]\"/\"_WINKD_\" value=\"%WINKD_CH%\"/g" "%TEMP%\config9.rbuild" > "%TEMP%\config10.rbuild"
 
 ::
 :: Generate a config.rbuild, copy it to the Source Tree and delete temp files.
@@ -247,3 +247,26 @@ goto :NOK
 
 :NOK
 title ReactOS Build Environment %_ROSBE_VERSION%
+
+::
+:: Unload all used Vars.
+::
+set YESNO=
+set SARCH_CH=
+set OARCH_CH=
+set OPTIMIZE_CH=
+set MP_CH=
+set KDBG_CH=
+set DBG_CH=
+set GDB_CH=
+set NSWPAT_CH=
+set WINKD_CH=
+set SARCH=
+set OARCH=
+set OPTIMIZE=
+set MP=
+set KDBG=
+set DBG=
+set GDB=
+set NSWPAT=
+set WINKD=

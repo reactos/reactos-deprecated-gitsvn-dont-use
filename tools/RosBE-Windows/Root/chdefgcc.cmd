@@ -39,3 +39,8 @@ goto :EOF
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
+
+::
+:: Unload all used Vars.
+::
+set _1=
