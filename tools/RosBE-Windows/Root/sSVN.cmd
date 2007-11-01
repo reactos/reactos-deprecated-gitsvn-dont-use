@@ -21,15 +21,15 @@ if "%1" == "" (
 if /i "%1" == "update" (
     title Updating...
     if not "%2" == "" (
-        svn update -r %2
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
     ) else (
-        svn update
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" update
     )
 goto :EOC
 )
 if /i "%1" == "cleanup" (
     title Cleaning...
-    svn cleanup
+    "%_ROSBE_BASEDIR%\Tools\svn.exe" cleanup
     goto :EOC
 )
 ::
@@ -44,7 +44,7 @@ if /i "%1" == "create" (
     )
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
-        svn checkout svn://svn.reactos.org/reactos/trunk/reactos .
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/reactos .
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
@@ -56,8 +56,8 @@ if /i "%1" == "create" (
 ::
 if /i "%1" == "status" (
     title Status
-    for /f "usebackq tokens=2" %%i in (`"svn info | find "Revision:""`) do set OFFSVN=%%i
-    for /f "usebackq tokens=2" %%j in (`"svn info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
+    for /f "usebackq tokens=2" %%i in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info | find "Revision:""`) do set OFFSVN=%%i
+    for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
     call :UP
     goto :EOC
 )

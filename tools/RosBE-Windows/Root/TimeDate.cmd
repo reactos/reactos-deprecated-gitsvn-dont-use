@@ -20,7 +20,7 @@ set TIMENAME=
 ::
 :: Get the raw date and time.
 ::
-for /f "usebackq tokens=1" %%u in (`getdate`) do set DATERAW=%%u
+for /f "usebackq tokens=1" %%u in (`"%_ROSBE_BASEDIR%\Tools\getdate.exe"`) do set DATERAW=%%u
 for /f "usebackq tokens=1" %%u in (`time /t`) do set TIMERAW=%%u
 
 ::

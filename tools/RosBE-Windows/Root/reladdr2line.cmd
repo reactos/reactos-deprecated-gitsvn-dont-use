@@ -52,11 +52,11 @@ if not exist "%_1%\." (
 echo %_1%
 for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do set baseaddr=0x%%i
 if %%i lss %_2% (
-    raddr2line "%_1%" "%_2%"
+    "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%_1%" "%_2%"
 ) else (
     set /a baseaddr+=0x%_2%
-    for /f %%i in ('"echoh %baseaddr%"') do set relbase=%%i
-    raddr2line "%_1%" "%relbase%"
+    for /f %%i in ('""%_ROSBE_BASEDIR%\Tools\echoh.exe" %baseaddr%"') do set relbase=%%i
+    "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%_1%" "%relbase%"
 )
 goto :EOC
 
@@ -83,7 +83,7 @@ goto :EOF
 :: sub-directories.
 ::
 :CHECKPATH
-    chkslash %_1%
+    "%_ROSBE_BASEDIR%\Tools\chkslash.exe" %_1%
     if errorlevel 2 (
         for /f "usebackq" %%i in (`"dir /a:-d /s /b %_1% 2>NUL | findstr "%_1%""`) do set _1=%%i
     )

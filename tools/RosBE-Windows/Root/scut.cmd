@@ -38,7 +38,7 @@ if /i "%1" == "list" (
     goto :EOC
 )
 if not "%1" == "" (
-    for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools Test\scut.exe" %*"`) do (
+    for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\scut.exe" %*"`) do (
         if /i not "%%i" == "Default" (
             cd /d %%i
             set _ROSBE_ROSSOURCEDIR=%%i
