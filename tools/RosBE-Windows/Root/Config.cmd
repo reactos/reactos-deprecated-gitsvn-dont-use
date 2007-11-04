@@ -97,6 +97,7 @@ if exist ".\config.rbuild" (
         set /p YESNO="(yes), (no)"
         if /i "%YESNO%"=="yes" del "%APPDATA%\RosBE\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild" | goto :OK
         if /i "%YESNO%"=="no" goto :NOK
+        endlocal
         goto :NOK
     )
 )
