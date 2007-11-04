@@ -28,7 +28,7 @@ INT
 WriteSettings(HWND hwnd)
 {
     INT foreground, background;
-    BOOL showtime, writelog, useccache, strip;
+    BOOL showtime, writelog, useccache, strip, objstate, outstate;
     WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH], optionsfile[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
@@ -38,6 +38,8 @@ WriteSettings(HWND hwnd)
     writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
     useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
     strip = (SendDlgItemMessageW(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    objstate = (SendDlgItemMessage(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    outstate = (SendDlgItemMessageW(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
     foreground = SendDlgItemMessageW(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
     background = SendDlgItemMessageW(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(hwnd, ID_LOGDIR, logdir, MAX_PATH);
@@ -92,8 +94,8 @@ WriteSettings(HWND hwnd)
         fprintf(pFile, "set _ROSBE_WRITELOG=%d\n", writelog);
         if (wcslen(logdir) > 0) fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
         if (wcslen(mingwpath) > 0) fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
-        if (wcslen(objdir) > 0) fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
-        if (wcslen(outdir) > 0) fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
+        if ((wcslen(objdir) > 0) && objstate) fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
+        if ((wcslen(outdir) > 0) && outstate) fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
         fclose(pFile);
         return TRUE;
     }
@@ -127,7 +129,7 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
             {
                 ptr = wcstok(NULL, L" ");
                 LoadedSettings->background = strtoul((WCHAR*)&ptr[0], NULL, 16);
-                LoadedSettings->foreground = strtoul((WCHAR*)&ptr[1], NULL, 16);
+                LoadedSettings->foreground = wcstoul(&ptr[1], NULL, 16);
             }
             else if (wcscmp(ptr, L"set") == 0)
             {
