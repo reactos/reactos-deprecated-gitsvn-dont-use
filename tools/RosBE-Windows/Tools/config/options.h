@@ -30,5 +30,7 @@ typedef struct _SETTINGS
     BOOL useccache;
     BOOL strip;
     BOOL writelog;
+    BOOL objstate;
+    BOOL outstate;
 }
 SETTINGS, *PSETTINGS;

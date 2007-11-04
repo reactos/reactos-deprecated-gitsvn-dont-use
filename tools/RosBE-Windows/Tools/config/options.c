@@ -152,19 +152,19 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
                 }
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
                 {
-                    wcscpy(LoadedSettings->logdir, ptr2);
+                    wcsncpy(LoadedSettings->logdir, ptr2, wcslen(ptr2)-1);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_MINGWPATH") == 0)
                 {
-                    wcscpy(LoadedSettings->mingwpath, ptr2);
+                    wcsncpy(LoadedSettings->mingwpath, ptr2, wcslen(ptr2)-1);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_OBJPATH") == 0)
                 {
-                    wcscpy(LoadedSettings->objdir, ptr2);
+                    wcsncpy(LoadedSettings->objdir, ptr2, wcslen(ptr2)-1);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_OUTPATH") == 0)
                 {
-                    wcscpy(LoadedSettings->outdir, ptr2);
+                    wcsncpy(LoadedSettings->outdir, ptr2, wcslen(ptr2)-1);
                 }
             }
             free(TTempLine);
@@ -199,12 +199,16 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     SetDlgItemText(hwnd, ID_OBJDIR, LoadedSettings->objdir);
     if (wcslen(LoadedSettings->objdir) > 0)
     {
+        LoadedSettings->objstate = 1;
+        SendDlgItemMessage(hwnd, ID_OTHEROBJ, BM_SETCHECK, BST_CHECKED, 0);
         EnableWindow(GetDlgItem(hwnd, ID_BROWSEOBJ), TRUE);
         EnableWindow(GetDlgItem(hwnd, ID_OBJDIR), TRUE);
     }
     SetDlgItemText(hwnd, ID_OUTDIR, LoadedSettings->outdir);
     if (wcslen(LoadedSettings->outdir) > 0)
     {
+        LoadedSettings->outstate = 1;
+        SendDlgItemMessage(hwnd, ID_OTHEROUT, BM_SETCHECK, BST_CHECKED, 0);
         EnableWindow(GetDlgItem(hwnd, ID_BROWSEOUT), TRUE);
         EnableWindow(GetDlgItem(hwnd, ID_OUTDIR), TRUE);
     }
@@ -213,7 +217,7 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
 VOID SetSaveState(HWND hwnd, PSETTINGS DefaultSettings)
 {
     INT foreground, background;
-    BOOL showtime, writelog, useccache, strip;
+    BOOL showtime, writelog, useccache, strip, objstate, outstate;
     WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH];
     BOOL StateObj = TRUE, StateOut = TRUE, StateLog = TRUE, State = TRUE;
 
@@ -221,6 +225,8 @@ VOID SetSaveState(HWND hwnd, PSETTINGS DefaultSettings)
     writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
     useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
     strip = (SendDlgItemMessageW(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    objstate = (SendDlgItemMessageW(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    outstate = (SendDlgItemMessageW(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
     foreground = SendDlgItemMessageW(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
     background = SendDlgItemMessageW(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(hwnd, ID_LOGDIR, logdir, MAX_PATH);
@@ -228,25 +234,26 @@ VOID SetSaveState(HWND hwnd, PSETTINGS DefaultSettings)
     GetDlgItemTextW(hwnd, ID_OBJDIR, objdir, MAX_PATH);
     GetDlgItemTextW(hwnd, ID_OUTDIR, outdir, MAX_PATH);
 
-    if (SendDlgItemMessageW(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    if (objstate)
     {
-        if ((wcscmp(objdir, DefaultSettings->objdir) != 0) && wcslen(objdir) > 0)
+        if ((wcscmp(objdir, DefaultSettings->objdir) != 0) && (wcslen(objdir) > 0))
             StateObj = FALSE;
     }
-    if (SendDlgItemMessageW(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    if (outstate)
     {
-        if ((wcscmp(outdir, DefaultSettings->outdir) != 0) && wcslen(outdir) > 0)
+        if ((wcscmp(outdir, DefaultSettings->outdir) != 0) && (wcslen(outdir) > 0))
             StateOut = FALSE;
     }
     if (writelog)
     {
-        if ((wcscmp(logdir, DefaultSettings->logdir) != 0) && wcslen(logdir) > 0)
+        if ((wcscmp(logdir, DefaultSettings->logdir) != 0) && (wcslen(logdir) > 0))
             StateLog = FALSE;
     }
 
     State ^= ((foreground == DefaultSettings->foreground) && (background == DefaultSettings->background) &&
             (showtime == DefaultSettings->showtime) && (writelog == DefaultSettings->writelog) &&
             (useccache == DefaultSettings->useccache) && (strip == DefaultSettings->strip) &&
+            (objstate == DefaultSettings->objstate) && (outstate == DefaultSettings->outstate) &&
             (StateLog) && (wcscmp(mingwpath, DefaultSettings->mingwpath) == 0) &&
             (StateObj) && (StateOut));
 
