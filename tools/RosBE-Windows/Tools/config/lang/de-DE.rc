@@ -32,6 +32,6 @@ END
 STRINGTABLE
 BEGIN
   MSG_NOGCCFOUND, "Kein GCC Compiler gefunden ! Bitte überprüfen sie ihren Pfad."
-  MSG_FILEFAILED, "options.cmd konnte nicht erstellt werden!"
+  MSG_FILEFAILED, "rosbe-options.cmd konnte nicht erstellt werden!"
   MSG_DIREFAILED, "Log directory konnte nicht erstellt werden!"
 END
