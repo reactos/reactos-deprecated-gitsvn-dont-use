@@ -78,20 +78,11 @@ call "%_ROSBE_BASEDIR%\TimeDate.cmd"
 
 ::
 :: Check if writing logs is enabled, if so check if our log directory
-:: exists, if it doesn't, create it, finally if creating the
-:: directory fails then fall back on the current directory.
+:: exists, if it doesn't, create it.
 ::
 if %_ROSBE_WRITELOG% == 1 (
     if not exist "%_ROSBE_LOGDIR%\." (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
-        if errorlevel 1 (
-            echo.
-            echo *** Writing logs requested, but the log directory      ***
-            echo *** doesn't exist and can't be created. Logs will be   ***
-            echo *** created in the current directory as a fallback.    ***
-            echo.
-            set _ROSBE_LOGDIR=%CD%
-        )
     )
 )
 

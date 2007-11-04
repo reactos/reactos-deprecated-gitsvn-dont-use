@@ -30,6 +30,13 @@ set _ROSBE_OBJPATH=
 set _ROSBE_OUTPATH=
 
 ::
+:: Check if RosBE data directory exists, if not, create it.
+::
+if not exist "%APPDATA%\RosBE\." (
+    mkdir "%APPDATA%\RosBE"
+)
+
+::
 :: Check if the user has used the options utility and
 :: if so, load their options.
 ::
