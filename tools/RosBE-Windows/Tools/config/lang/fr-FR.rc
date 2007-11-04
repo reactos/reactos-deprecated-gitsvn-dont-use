@@ -32,6 +32,6 @@ END
 STRINGTABLE
 BEGIN
   MSG_NOGCCFOUND, "Impossible de trouver le compilateur GCC ! Veuillez vérifier votre répertoire."
-  MSG_FILEFAILED, "Impossible de créer options.cmd!"
+  MSG_FILEFAILED, "Impossible de créer rosbe-options.cmd!"
   MSG_DIREFAILED, "Impossible de créer le répertoire pour le journal!"
 END

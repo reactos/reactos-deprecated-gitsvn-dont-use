@@ -34,6 +34,6 @@ END
 STRINGTABLE
 BEGIN
   MSG_NOGCCFOUND, "Компилятор GCC ненайден! Проверьте правильность установки."
-  MSG_FILEFAILED, "Невозможно создать файл options.cmd"
+  MSG_FILEFAILED, "Невозможно создать файл rosbe-options.cmd"
   MSG_DIREFAILED, "Невозможно создать папку для логов!"
 END
