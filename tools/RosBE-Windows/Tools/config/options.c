@@ -1,33 +1,14 @@
 /*
- * RosBE Options Dialog (options.c)
+ * PROJECT:     RosBE Options Dialog
+ * LICENSE:     GPL - See LICENSE.txt in the top level directory.
+ * FILE:        Tools/config/options.c
+ * PURPOSE:     COnfiguring RosBE
+ * COPYRIGHT:   Copyright 2007 Maarten Bosma
+ *              Copyright 2007 Pierre Schweitzer
  *
- * Copyright 2007 by Maarten Bosma
- *                   Pierre Schweitzer
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
- *
- * You should have received a copy of the GNU General Public
- * License along with this program ; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <windows.h>
-#include <stdio.h>
-#include <shlobj.h>
-#include <wchar.h>
-#include "resources.h"
-
-#define MINGWVERSION L"\\4.1.3"
-
-typedef LPITEMIDLIST (CALLBACK* ILCREATEFROMPATHW)(LPCWSTR path);
+#include "options.h"
 
 // note: do not change the order - theses are the color under winxp they might differ in another OSes
 WCHAR *Colors[] = { L"black", L"dark blue", L"dark green", L"turquoise", L"dark red", L"purple",
@@ -46,8 +27,8 @@ HINSTANCE hInstance;
 INT
 WriteSettings(HWND hwnd)
 {
-    int foreground, background;
-    BOOL showtime, writelog, useccache, strip, otherobj, otherout;
+    INT foreground, background;
+    BOOL showtime, writelog, useccache, strip;
     WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH], optionsfile[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
@@ -57,10 +38,8 @@ WriteSettings(HWND hwnd)
     writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
     useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
     strip = (SendDlgItemMessageW(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    otherobj = (SendDlgItemMessageW(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    otherout = (SendDlgItemMessageW(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    foreground = (UINT)SendDlgItemMessageW(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
-    background = (UINT)SendDlgItemMessageW(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
+    foreground = SendDlgItemMessageW(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = SendDlgItemMessageW(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(hwnd, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemTextW(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
     GetDlgItemTextW(hwnd, ID_OBJDIR, objdir, MAX_PATH);
@@ -97,7 +76,8 @@ WriteSettings(HWND hwnd)
     CloseHandle(hFile);
 
     wcscpy(optionsfile, _wgetenv(L"APPDATA"));
-    wcscat(optionsfile, L"\\RosBE\\rosbe-options.cmd");
+    if ((wcslen(optionsfile) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
+        wcscat(optionsfile, L"\\RosBE\\rosbe-options.cmd");
     pFile = _wfopen(optionsfile, L"w");
     if (pFile)
     {
@@ -122,17 +102,93 @@ WriteSettings(HWND hwnd)
     return FALSE;
 }
 
+VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
+{
+    // Loading settings is not yet implemented. This function just apply default settings.
+#if 0
+    FILE *pFile;
+#endif
+    WCHAR optionsfile[MAX_PATH];
+
+    wcscpy(optionsfile, _wgetenv(L"APPDATA"));
+    if ((wcslen(optionsfile) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
+        wcscat(optionsfile, L"\\RosBE\\rosbe-options.cmd");
+#if 0
+    pFile = _wfopen(optionsfile, L"r");
+    if (pFile)
+    {
+        fclose(pFile);
+    }
+    else
+    {
+#endif
+        LoadedSettings->foreground = 0xa;
+        LoadedSettings->background = 0;
+        GetCurrentDirectory(MAX_PATH, LoadedSettings->mingwpath);
+        if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
+            wcscat(LoadedSettings->mingwpath, MINGWVERSION);
+#if 0
+    }
+#endif
+    SendDlgItemMessageW(hwnd, IDC_FONT, CB_SETCURSEL, LoadedSettings->foreground, 0);
+    SendDlgItemMessageW(hwnd, IDC_BACK, CB_SETCURSEL, LoadedSettings->background, 0);
+    SetDlgItemText(hwnd, ID_MGWDIR, LoadedSettings->mingwpath);
+}
+
+VOID SetSaveState(HWND hwnd, PSETTINGS DefaultSettings)
+{
+    INT foreground, background;
+    BOOL showtime, writelog, useccache, strip;
+    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH];
+    BOOL StateObj = TRUE, StateOut = TRUE, StateLog = TRUE, State = TRUE;
+
+    showtime = (SendDlgItemMessage(hwnd, ID_SHOWBUILDTIME, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    writelog = (SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    useccache = (SendDlgItemMessage(hwnd, ID_USECCACHE, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    strip = (SendDlgItemMessageW(hwnd, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    foreground = SendDlgItemMessageW(hwnd, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = SendDlgItemMessageW(hwnd, IDC_BACK, CB_GETCURSEL, 0, 0);
+    GetDlgItemTextW(hwnd, ID_LOGDIR, logdir, MAX_PATH);
+    GetDlgItemTextW(hwnd, ID_MGWDIR, mingwpath, MAX_PATH);
+    GetDlgItemTextW(hwnd, ID_OBJDIR, objdir, MAX_PATH);
+    GetDlgItemTextW(hwnd, ID_OUTDIR, outdir, MAX_PATH);
+
+    if (SendDlgItemMessageW(hwnd, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    {
+        if ((wcscmp(objdir, DefaultSettings->objdir) != 0) && wcslen(objdir) > 0)
+            StateObj = FALSE;
+    }
+    if (SendDlgItemMessageW(hwnd, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    {
+        if ((wcscmp(outdir, DefaultSettings->outdir) != 0) && wcslen(outdir) > 0)
+            StateOut = FALSE;
+    }
+    if (writelog)
+    {
+        if ((wcscmp(logdir, DefaultSettings->logdir) != 0) && wcslen(logdir) > 0)
+            StateLog = FALSE;
+    }
+
+    State ^= ((foreground == DefaultSettings->foreground) && (background == DefaultSettings->background) &&
+            (showtime == DefaultSettings->showtime) && (writelog == DefaultSettings->writelog) &&
+            (useccache == DefaultSettings->useccache) && (strip == DefaultSettings->strip) &&
+            (StateLog) && (wcscmp(mingwpath, DefaultSettings->mingwpath) == 0) &&
+            (StateObj) && (StateOut));
+
+    EnableWindow(GetDlgItem(hwnd, ID_OK), State);
+}
+
 INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
     static HICON hIcon;
     static HFONT hFont;
+    static SETTINGS Settings;
 
     switch (Msg)
     {
         case WM_INITDIALOG:
         {
-            WCHAR Path[MAX_PATH];
             LOGFONT lf;
 
             hIcon = LoadImage( hInstance,
@@ -155,13 +211,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 SendDlgItemMessageW(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
                 SendDlgItemMessageW(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
             }
-            SendDlgItemMessageW(Dlg, IDC_FONT, CB_SETCURSEL, 0xa, 0);
-            SendDlgItemMessageW(Dlg, IDC_BACK, CB_SETCURSEL, 0, 0);
-            GetCurrentDirectory(MAX_PATH, Path);
-            if ((wcslen(Path) + wcslen(MINGWVERSION)) < MAX_PATH)
-                wcscat(Path, MINGWVERSION);
-            SetDlgItemText(Dlg, ID_MGWDIR, Path);
-
+            LoadSettings(Dlg, &Settings);
             return TRUE;
         }
 
@@ -172,7 +222,6 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 RECT rcWnd;
                 GetClientRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd);
                 InvalidateRect(GetDlgItem(Dlg, ID_EXAMPLE), &rcWnd, FALSE);
-                EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
             }
             else
             {
@@ -231,20 +280,12 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                             }
                         }
                         pidl = SHBrowseForFolder(&PathInfo);
-                        if (!pidl || !SHGetPathFromIDList(pidl, path))
-                            break;
-                        SetDlgItemText(Dlg, Control, path);
+                        if (pidl && SHGetPathFromIDList(pidl, path))
+                            SetDlgItemText(Dlg, Control, path);
+                        break;
                     }
-                    case ID_STRIP:
-                    case ID_USECCACHE:
-                    case ID_SHOWBUILDTIME:
                     case ID_OTHEROBJ:
                     case ID_OTHEROUT:
-                    {
-                        EnableWindow(GetDlgItem(Dlg, ID_OK), TRUE);
-                        if ((wParam != ID_OTHEROBJ) && (wParam != ID_OTHEROUT))
-                            break;
-                    }
                     case ID_SAVELOGS:
                     {
                         BOOL WriteLogSet;
@@ -269,6 +310,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 }
 
             }
+            SetSaveState(Dlg, &Settings);
             return FALSE;
         }
 
