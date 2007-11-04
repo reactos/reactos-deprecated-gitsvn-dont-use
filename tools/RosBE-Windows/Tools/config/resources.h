@@ -1,3 +1,13 @@
+/*
+ * PROJECT:     RosBE Options Dialog
+ * LICENSE:     GPL - See LICENSE.txt in the top level directory.
+ * FILE:        Tools/config/resources.h
+ * PURPOSE:     COnfiguring RosBE
+ * COPYRIGHT:   Copyright 2007 Maarten Bosma
+ *              Copyright 2007 Pierre Schweitzer
+ *
+ */
+
 /* Controls */
 #define ID_OK 0x01
 #define ID_CANCEL 0x02
