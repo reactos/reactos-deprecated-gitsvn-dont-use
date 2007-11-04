@@ -121,7 +121,7 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
         res = (PVOID)fgets((char *)TTempLine, 24+MAX_PATH, pFile);
         while (res)
         {
-            MultiByteToWideChar(CP_ACP, 0, TTempLine, -1, WTempLine, (25+MAX_PATH)*sizeof(WCHAR));
+            MultiByteToWideChar(CP_ACP, 0, (char *)TTempLine, -1, WTempLine, sizeof(WTempLine)/sizeof(WTempLine[0]));
             ptr = wcstok(WTempLine, L" ");
             if (wcscmp(ptr, L"color") == 0)
             {
@@ -136,19 +136,19 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
                 ptr2 = wcstok(NULL, L"=");
                 if (wcscmp(ptr, L"_ROSBE_SHOWTIME") == 0)
                 {
-                    LoadedSettings->showtime = strtoul(ptr2, NULL, 2);
+                    LoadedSettings->showtime = wcstoul(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_USECCACHE") == 0)
                 {
-                    LoadedSettings->useccache = strtoul(ptr2, NULL, 2);
+                    LoadedSettings->useccache = wcstoul(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_STRIP") == 0)
                 {
-                    LoadedSettings->strip = strtoul(ptr2, NULL, 2);
+                    LoadedSettings->strip = wcstoul(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_WRITELOG") == 0)
                 {
-                    LoadedSettings->writelog = strtoul(ptr2, NULL, 2);
+                    LoadedSettings->writelog = wcstoul(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
                 {
@@ -167,11 +167,13 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
                     wcscpy(LoadedSettings->outdir, ptr2);
                 }
             }
+            free(TTempLine);
+            free(WTempLine);
             res = (PVOID)fgets((char *)TTempLine, 24+MAX_PATH, pFile);
             NbLines++;
         }
         fclose(pFile);
-        free(pFile);
+        free(TTempLine);
     }
     else
     {
@@ -185,12 +187,27 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     SendDlgItemMessageW(hwnd, IDC_BACK, CB_SETCURSEL, LoadedSettings->background, 0);
     SendDlgItemMessage(hwnd, ID_SHOWBUILDTIME, BM_SETCHECK, LoadedSettings->showtime, 0);
     SendDlgItemMessage(hwnd, ID_SAVELOGS, BM_SETCHECK, LoadedSettings->writelog, 0);
+    if (LoadedSettings->writelog)
+    {
+        EnableWindow(GetDlgItem(hwnd, ID_BROWSE), TRUE);
+        EnableWindow(GetDlgItem(hwnd, ID_LOGDIR), TRUE);
+    }
     SendDlgItemMessage(hwnd, ID_USECCACHE, BM_SETCHECK, LoadedSettings->useccache, 0);
     SendDlgItemMessageW(hwnd, ID_STRIP, BM_SETCHECK, LoadedSettings->strip, 0);
     SetDlgItemText(hwnd, ID_MGWDIR, LoadedSettings->mingwpath);
     SetDlgItemText(hwnd, ID_LOGDIR, LoadedSettings->logdir);
     SetDlgItemText(hwnd, ID_OBJDIR, LoadedSettings->objdir);
+    if (wcslen(LoadedSettings->objdir) > 0)
+    {
+        EnableWindow(GetDlgItem(hwnd, ID_BROWSEOBJ), TRUE);
+        EnableWindow(GetDlgItem(hwnd, ID_OBJDIR), TRUE);
+    }
     SetDlgItemText(hwnd, ID_OUTDIR, LoadedSettings->outdir);
+    if (wcslen(LoadedSettings->outdir) > 0)
+    {
+        EnableWindow(GetDlgItem(hwnd, ID_BROWSEOUT), TRUE);
+        EnableWindow(GetDlgItem(hwnd, ID_OUTDIR), TRUE);
+    }
 }
 
 VOID SetSaveState(HWND hwnd, PSETTINGS DefaultSettings)
