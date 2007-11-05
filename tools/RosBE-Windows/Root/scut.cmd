@@ -37,11 +37,25 @@ if /i "%1" == "list" (
     call "%_ROSBE_BASEDIR%\Tools\scut.exe" %*
     goto :EOC
 )
+if /i "%1" == "/?" (
+    "%_ROSBE_BASEDIR%\Tools\scut.exe" %*
+    goto :EOC
+)
+if /i "%1" == "-h" (
+    call "%_ROSBE_BASEDIR%\Tools\scut.exe" %*
+    goto :EOC
+)
+if /i "%1" == "--help" (
+    call "%_ROSBE_BASEDIR%\Tools\scut.exe" %*
+    goto :EOC
+)
 if not "%1" == "" (
     for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\scut.exe" %*"`) do (
         if /i not "%%i" == "Default" (
-            cd /d %%i
-            set _ROSBE_ROSSOURCEDIR=%%i
+            if exist "%%i\." (
+                cd /d %%i
+                set _ROSBE_ROSSOURCEDIR=%%i
+            )
         )
     )
     goto :EOC
