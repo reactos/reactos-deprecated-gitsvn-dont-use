@@ -48,8 +48,10 @@
 #define ID_EXAMPLE 0x23
 #define IDC_FONT 0x24
 #define IDC_BACK 0x25
+#define ID_STATUSBAR 0x26
 
 /* Strings */
-#define MSG_NOGCCFOUND 0x26
-#define MSG_FILEFAILED 0x27
-#define MSG_DIREFAILED 0x28
+#define MSG_NOGCCFOUND 0x27
+#define MSG_FILEFAILED 0x28
+#define MSG_DIREFAILED 0x29
+#define MSG_SETLOADSUC 0x2a

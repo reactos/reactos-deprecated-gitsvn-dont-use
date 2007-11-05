@@ -98,6 +98,7 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     WCHAR *ptr, *ptr2;
     TCHAR TTempLine[25+MAX_PATH];
     WCHAR WTempLine[25+MAX_PATH];
+    WCHAR SBTitle[256];
 
     wcscpy(optionsfile, _wgetenv(L"APPDATA"));
     if ((wcslen(optionsfile) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
@@ -161,6 +162,8 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
         }
         fclose(pFile);
         free(TTempLine);
+        LoadString(hInstance, MSG_SETLOADSUC, SBTitle, 256);
+        SetDlgItemText(hwnd, ID_STATUSBAR, SBTitle);
     }
     else
     {

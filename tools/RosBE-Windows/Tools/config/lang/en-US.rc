@@ -1,6 +1,6 @@
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
-ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 270
+ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 290
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "ReactOS Build Environment Settings"
 FONT 8, "MS Shell Dlg"
@@ -27,6 +27,7 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Save", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Cancel", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
+  CONTROL "Welcome !", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
@@ -50,4 +51,5 @@ BEGIN
   MSG_NOGCCFOUND, "No GCC compiler found ! Please check your directory."
   MSG_FILEFAILED, "Failed to create rosbe-options.cmd!"
   MSG_DIREFAILED, "Failed to create log directory!"
+  MSG_SETLOADSUC, "Previous settings loaded successfully"
 END

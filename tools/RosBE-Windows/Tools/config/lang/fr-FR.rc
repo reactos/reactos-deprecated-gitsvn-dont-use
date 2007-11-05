@@ -1,6 +1,6 @@
 LANGUAGE LANG_FRENCH, SUBLANG_NEUTRAL
 
-ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 270
+ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 290
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Paramètres de l'Environnement de Compilation de ReactOS"
 FONT 8, "MS Shell Dlg"
@@ -27,6 +27,7 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Sauvegarder", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Annuler", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
+  CONTROL "Bienvenue !", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
@@ -48,6 +49,7 @@ BEGIN
   CLR14, "Jaune Clair"
   CLR15, "Blanc Brillant"
   MSG_NOGCCFOUND, "Impossible de trouver le compilateur GCC ! Veuillez vérifier votre répertoire."
-  MSG_FILEFAILED, "Impossible de créer rosbe-options.cmd!"
-  MSG_DIREFAILED, "Impossible de créer le répertoire pour le journal!"
+  MSG_FILEFAILED, "Impossible de créer rosbe-options.cmd !"
+  MSG_DIREFAILED, "Impossible de créer le répertoire pour le journal !"
+  MSG_SETLOADSUC, "Paramètres précédents chargés avec succès"
 END

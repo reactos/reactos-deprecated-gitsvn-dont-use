@@ -2,7 +2,7 @@
 
 LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
-ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 270
+ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 290
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Установки переменных компилятора РеактОС"
 FONT 8,"MS Sans Serif",0,0
@@ -29,6 +29,7 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Сохранить", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Отменить", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
+  CONTROL "Welcome !", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
@@ -52,4 +53,5 @@ BEGIN
   MSG_NOGCCFOUND, "Компилятор GCC ненайден! Проверьте правильность установки."
   MSG_FILEFAILED, "Невозможно создать файл rosbe-options.cmd"
   MSG_DIREFAILED, "Невозможно создать папку для логов!"
+  MSG_SETLOADSUC, "Previous settings loaded successfully"
 END
