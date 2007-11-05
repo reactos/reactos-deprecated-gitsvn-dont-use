@@ -1,6 +1,6 @@
 LANGUAGE LANG_GERMAN, SUBLANG_NEUTRAL
 
-ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 270
+ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 290
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "RosBE Einstellungen"
 FONT 8, "MS Shell Dlg"
@@ -27,6 +27,7 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Speichern", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Abbrechen", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
+  CONTROL "Welcome !", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
@@ -50,4 +51,5 @@ BEGIN
   MSG_NOGCCFOUND, "Kein GCC Compiler gefunden ! Bitte überprüfen sie ihren Pfad."
   MSG_FILEFAILED, "rosbe-options.cmd konnte nicht erstellt werden!"
   MSG_DIREFAILED, "Log directory konnte nicht erstellt werden!"
+  MSG_SETLOADSUC, "Previous settings loaded successfully"
 END
