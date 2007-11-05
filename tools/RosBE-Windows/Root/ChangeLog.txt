@@ -29,6 +29,7 @@
    - Fixed various bugs (Pierre Schweitzer)
    - Moved colors names to RC files (Pierre Schweitzer)
    - Added a status bar to display status of previous settings (Pierre Schweitzer)
+   - Moved last hardcoded strings to RC files (Pierre Schweitzer)
    - Fixed German RC File of Options.exe. (Daniel Reimer)
    - Modify options.exe to enable and disable stripping and ccache. This gives back the possibility to give more than one command to make. (Daniel Reimer)
    - Fixed Russian RC File of options.exe (towerr)
