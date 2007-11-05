@@ -2,7 +2,7 @@
  * PROJECT:     RosBE Options Dialog
  * LICENSE:     GPL - See LICENSE.txt in the top level directory.
  * FILE:        Tools/config/resources.h
- * PURPOSE:     COnfiguring RosBE
+ * PURPOSE:     Configuring RosBE
  * COPYRIGHT:   Copyright 2007 Maarten Bosma
  *              Copyright 2007 Pierre Schweitzer
  *

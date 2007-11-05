@@ -2,25 +2,13 @@
  * PROJECT:     RosBE Options Dialog
  * LICENSE:     GPL - See LICENSE.txt in the top level directory.
  * FILE:        Tools/config/options.c
- * PURPOSE:     COnfiguring RosBE
+ * PURPOSE:     Configuring RosBE
  * COPYRIGHT:   Copyright 2007 Maarten Bosma
  *              Copyright 2007 Pierre Schweitzer
  *
  */
 
 #include "options.h"
-
-// note: do not change the order - theses are the color under winxp they might differ in another OSes
-WCHAR *Colors[] = { L"black", L"dark blue", L"dark green", L"turquoise", L"dark red", L"purple",
-    L"ochar", L"light grey", L"dark grey", L"light blue", L"light green",
-    L"cyan", L"light red", L"magenta", L"yellow", L"white"
-};
-
-// note: do not change the order - it matches to previous order
-COLORREF ColorsRGB[] = { 0x00000000, 0x00800000, 0x00008000, 0x00808000, 0x00000080, 0x00800080,
-    0x00008080, 0x00c0c0c0, 0x00808080, 0x00ff0000, 0x0000ff00,
-    0x00ffff00, 0x000000ff, 0x00ff00ff, 0x0000ffff, 0x00ffffff
-};
 
 HINSTANCE hInstance;
 
@@ -47,20 +35,17 @@ WriteSettings(HWND hwnd)
     GetDlgItemTextW(hwnd, ID_OBJDIR, objdir, MAX_PATH);
     GetDlgItemTextW(hwnd, ID_OUTDIR, outdir, MAX_PATH);
 
-    if (writelog)
+    if (writelog && (logdir[0] != 0))
     {
-        if (logdir[0] != 0)
+        DWORD ret = GetCurrentDirectoryW(MAX_PATH, checklog);
+        if (ret != 0 && ret < MAX_PATH)
         {
-            DWORD ret = GetCurrentDirectoryW(MAX_PATH, checklog);
-            if (ret != 0 && ret < MAX_PATH)
+            if (!SetCurrentDirectoryW(logdir))
             {
-                if (!SetCurrentDirectoryW(logdir))
-                {
-                    SetCurrentDirectoryW(checklog);
-                    if (LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256))
-                        MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
-                    return FALSE;
-                }
+                SetCurrentDirectoryW(checklog);
+                if (LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256))
+                    MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
+                return FALSE;
             }
         }
     }
@@ -92,10 +77,10 @@ WriteSettings(HWND hwnd)
         fprintf(pFile, "set _ROSBE_USECCACHE=%d\n", useccache);
         fprintf(pFile, "set _ROSBE_STRIP=%d\n", strip);
         fprintf(pFile, "set _ROSBE_WRITELOG=%d\n", writelog);
-        if (wcslen(logdir) > 0) fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
-        if (wcslen(mingwpath) > 0) fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
-        if ((wcslen(objdir) > 0) && objstate) fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
-        if ((wcslen(outdir) > 0) && outstate) fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
+        if (logdir[0] != 0) fprintf(pFile, "set _ROSBE_LOGDIR=%S\n", logdir);
+        if (mingwpath[0] != 0) fprintf(pFile, "set _ROSBE_MINGWPATH=%S\n", mingwpath);
+        if ((objdir[0] != 0) && objstate) fprintf(pFile, "set _ROSBE_OBJPATH=%S\n", objdir);
+        if ((outdir[0] != 0) && outstate) fprintf(pFile, "set _ROSBE_OUTPATH=%S\n", outdir);
         fclose(pFile);
         return TRUE;
     }
@@ -199,7 +184,7 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     SetDlgItemText(hwnd, ID_MGWDIR, LoadedSettings->mingwpath);
     SetDlgItemText(hwnd, ID_LOGDIR, LoadedSettings->logdir);
     SetDlgItemText(hwnd, ID_OBJDIR, LoadedSettings->objdir);
-    if (wcslen(LoadedSettings->objdir) > 0)
+    if (LoadedSettings->objdir[0] != 0)
     {
         LoadedSettings->objstate = 1;
         SendDlgItemMessage(hwnd, ID_OTHEROBJ, BM_SETCHECK, BST_CHECKED, 0);
@@ -207,7 +192,7 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
         EnableWindow(GetDlgItem(hwnd, ID_OBJDIR), TRUE);
     }
     SetDlgItemText(hwnd, ID_OUTDIR, LoadedSettings->outdir);
-    if (wcslen(LoadedSettings->outdir) > 0)
+    if (LoadedSettings->outdir[0] != 0)
     {
         LoadedSettings->outstate = 1;
         SendDlgItemMessage(hwnd, ID_OTHEROUT, BM_SETCHECK, BST_CHECKED, 0);
@@ -274,6 +259,11 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
         case WM_INITDIALOG:
         {
             LOGFONT lf;
+            // note: do not change the order - theses are the color under winxp they might differ in another OSes
+            WCHAR *Colors[] = { L"Black", L"Blue", L"Green", L"Aqua", L"Red", L"Purple",
+                L"Yellow", L"White", L"Gray", L"Light Blue", L"Light Green",
+                L"Light Aqua", L"Light Red", L"Light Purple", L"Light Yellow", L"Bright White"
+            };
 
             hIcon = LoadImage( hInstance,
                                MAKEINTRESOURCE(ID_OPTICON),
@@ -401,6 +391,12 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
         case WM_CTLCOLORSTATIC:
         {
             HFONT hFontOld;
+            // note: do not change the order - it matches to previous order
+            COLORREF ColorsRGB[] = { 0x00000000, 0x00800000, 0x00008000, 0x00808000, 0x00000080, 0x00800080,
+                0x00008080, 0x00c0c0c0, 0x00808080, 0x00ff0000, 0x0000ff00,
+                0x00ffff00, 0x000000ff, 0x00ff00ff, 0x0000ffff, 0x00ffffff
+            };
+
             if((HWND)lParam == GetDlgItem(Dlg, ID_EXAMPLE))
             {
                 hFontOld = SelectObject((HDC)wParam, hFont);
