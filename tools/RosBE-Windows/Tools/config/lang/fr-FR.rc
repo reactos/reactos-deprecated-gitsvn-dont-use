@@ -31,6 +31,22 @@ END
 
 STRINGTABLE
 BEGIN
+  CLR0, "Noir"
+  CLR1, "Bleu"
+  CLR2, "Vert"
+  CLR3, "Turquoise"
+  CLR4, "Rouge"
+  CLR5, "Violet"
+  CLR6, "Jaune"
+  CLR7, "Blanc"
+  CLR8, "Gris"
+  CLR9, "Bleu Clair"
+  CLR10, "Vert Clair"
+  CLR11, "Turquoise Clair"
+  CLR12, "Rouge Clair"
+  CLR13, "Violet Clair"
+  CLR14, "Jaune Clair"
+  CLR15, "Blanc Brillant"
   MSG_NOGCCFOUND, "Impossible de trouver le compilateur GCC ! Veuillez vérifier votre répertoire."
   MSG_FILEFAILED, "Impossible de créer rosbe-options.cmd!"
   MSG_DIREFAILED, "Impossible de créer le répertoire pour le journal!"

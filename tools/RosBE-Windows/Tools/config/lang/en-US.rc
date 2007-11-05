@@ -31,6 +31,22 @@ END
 
 STRINGTABLE
 BEGIN
+  CLR0, "Black"
+  CLR1, "Blue"
+  CLR2, "Green"
+  CLR3, "Aqua"
+  CLR4, "Red"
+  CLR5, "Purple"
+  CLR6, "Yellow"
+  CLR7, "White"
+  CLR8, "Gray"
+  CLR9, "Light Blue"
+  CLR10, "Light Green"
+  CLR11, "Light Aqua"
+  CLR12, "Light Red"
+  CLR13, "Light Purple"
+  CLR14, "Light Yellow"
+  CLR15, "Bright White"
   MSG_NOGCCFOUND, "No GCC compiler found ! Please check your directory."
   MSG_FILEFAILED, "Failed to create rosbe-options.cmd!"
   MSG_DIREFAILED, "Failed to create log directory!"

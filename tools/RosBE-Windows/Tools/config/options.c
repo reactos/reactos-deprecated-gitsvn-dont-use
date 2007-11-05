@@ -259,11 +259,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
         case WM_INITDIALOG:
         {
             LOGFONT lf;
-            // note: do not change the order - theses are the color under winxp they might differ in another OSes
-            WCHAR *Colors[] = { L"Black", L"Blue", L"Green", L"Aqua", L"Red", L"Purple",
-                L"Yellow", L"White", L"Gray", L"Light Blue", L"Light Green",
-                L"Light Aqua", L"Light Red", L"Light Purple", L"Light Yellow", L"Bright White"
-            };
+            WCHAR TempColor[256];
 
             hIcon = LoadImage( hInstance,
                                MAKEINTRESOURCE(ID_OPTICON),
@@ -280,10 +276,11 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             lf.lfItalic, lf.lfUnderline, lf.lfStrikeOut, lf.lfCharSet,  lf.lfOutPrecision,
             lf.lfClipPrecision, lf.lfQuality,  lf.lfPitchAndFamily, lf.lfFaceName);
 
-            for(UINT i = 0; i < sizeof(Colors) / sizeof(char *); i++)
+            for(UINT i = 0; i < 16; i++)
             {
-                SendDlgItemMessageW(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
-                SendDlgItemMessageW(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) (Colors[i]));
+                LoadString(hInstance, i, TempColor, 256);
+                SendDlgItemMessageW(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) TempColor);
+                SendDlgItemMessageW(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) TempColor);
             }
             LoadSettings(Dlg, &Settings);
             return TRUE;
