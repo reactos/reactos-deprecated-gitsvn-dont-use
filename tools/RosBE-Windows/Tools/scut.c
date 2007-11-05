@@ -25,6 +25,7 @@ char* programname;
 char shortcutfile[260];
 
 PSHORTCUT addshortcut(PSHORTCUT ptr, char* name, char* path);
+void checkfile(void);
 int checkname(PSHORTCUT head, char* name);
 int checkpath(char* path); // Alters path by fully expanding it.
 void defaultshortcut(char* name);
@@ -44,6 +45,7 @@ int main(int argc, char* argv[])
 
     strcpy(shortcutfile, getenv("APPDATA"));
     strcat(shortcutfile, "\\RosBE\\srclist.txt");
+    checkfile();
 
     if (argc > 4)
     {
@@ -322,6 +324,36 @@ PSHORTCUT addshortcut(PSHORTCUT ptr, char* name, char* path)
     }
 
     return ptr;
+}
+
+void checkfile(void)
+{
+    FILE *FILE;
+
+    FILE = fopen(shortcutfile, "r");
+    if (!FILE)
+    {
+        FILE = fopen(shortcutfile, "w");
+        if (!FILE)
+        {
+            fprintf(stderr, "%s: Error creating file.\n", programname);
+        }
+        else
+        {
+            fprintf(FILE, "Default,Default\n");
+            if (fclose(FILE))
+            {
+                fprintf(stderr, "%s: Error closing file.\n", programname);
+            }
+        }
+    }
+    else
+    {
+        if (fclose(FILE))
+        {
+            fprintf(stderr, "%s: Error closing file.\n", programname);
+        }
+    }
 }
 
 int checkname(PSHORTCUT head, char* name)
