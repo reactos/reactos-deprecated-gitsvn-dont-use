@@ -54,4 +54,8 @@ BEGIN
   MSG_FILEFAILED, "Невозможно создать файл rosbe-options.cmd"
   MSG_DIREFAILED, "Невозможно создать папку для логов!"
   MSG_SETLOADSUC, "Previous settings loaded successfully"
+  MSG_FINDLOGDIR, "Please choose a directory where the the logs should be stored:"
+  MSG_FINDMGWDIR, "Please choose the directory where MingW is located:"
+  MSG_FINDOBJDIR, "Please choose the directory where you want to save OBJ Files to:"
+  MSG_FINDOUTDIR, "Please choose the directory where you want to save OBJ Files to:"
 END

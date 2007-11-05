@@ -319,27 +319,28 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         BROWSEINFO PathInfo;
                         LPITEMIDLIST pidl;
                         INT Control = ID_LOGDIR;
+                        INT IDText = MSG_FINDLOGDIR;
                         WCHAR path[MAX_PATH];
+                        WCHAR Text[512];
 
                         ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
                         PathInfo.hwndOwner = Dlg;
-                        PathInfo.lpszTitle = L"Please choose a directory where the the logs should be stored:";
 
                         if ((wParam == ID_BROWSEMGW) || (wParam == ID_BROWSEOBJ) || (wParam == ID_BROWSEOUT))
                         {
                             HINSTANCE hDLL;
                             ILCREATEFROMPATHW ILCreateFromPathW;
                             Control = ID_MGWDIR;
-                            PathInfo.lpszTitle = L"Please choose the directory where MingW is located:";
+                            IDText = MSG_FINDMGWDIR;
                             if (wParam == ID_BROWSEOBJ)
                             {
                                 Control = ID_OBJDIR;
-                                PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
+                                IDText = MSG_FINDOBJDIR;
                             }
                             else if (wParam == ID_BROWSEOUT)
                             {
                                 Control = ID_OUTDIR;
-                                PathInfo.lpszTitle = L"Please choose the directory where you want to save OBJ Files to:";
+                                IDText = MSG_FINDOUTDIR;
                             }
                             hDLL = LoadLibrary(L"shell32.dll");
                             if (hDLL)
@@ -353,6 +354,8 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                 FreeLibrary(hDLL);
                             }
                         }
+                        LoadString(hInstance, IDText, Text, 512);
+                        PathInfo.lpszTitle = Text;
                         pidl = SHBrowseForFolder(&PathInfo);
                         if (pidl && SHGetPathFromIDList(pidl, path))
                             SetDlgItemText(Dlg, Control, path);
