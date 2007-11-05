@@ -147,18 +147,6 @@ if "%OPTIMIZE_CH%" == "" (
 )
 cls
 
-echo Whether to compile for an uniprocessor or multiprocessor machine.
-echo Default is: 0
-echo.
-for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "MP" | find "property name""`) do set MP=%%i
-set MP=%MP:~7,-1%
-echo Right now: %MP%
-set /p MP_CH="(0), (1)"
-if "%MP_CH%" == "" (
-    set MP_CH=0
-)
-cls
-
 echo Whether to compile in the integrated kernel debugger.
 echo Default is: 0
 echo.
@@ -238,7 +226,6 @@ echo ^<group^>>%TEMP%\config.tmp
 echo ^<property name="SARCH" value="%SARCH_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="OARCH" value="%OARCH_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="OPTIMIZE" value="%OPTIMIZE_CH%" /^>>>%TEMP%\config.tmp
-echo ^<property name="MP" value="%MP_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="KDBG" value="%KDBG_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="DBG" value="%DBG_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="GDB" value="%GDB_CH%" /^>>>%TEMP%\config.tmp
@@ -262,7 +249,6 @@ set YESNO=
 set SARCH_CH=
 set OARCH_CH=
 set OPTIMIZE_CH=
-set MP_CH=
 set KDBG_CH=
 set DBG_CH=
 set GDB_CH=
@@ -271,7 +257,6 @@ set WINKD_CH=
 set SARCH=
 set OARCH=
 set OPTIMIZE=
-set MP=
 set KDBG=
 set DBG=
 set GDB=
