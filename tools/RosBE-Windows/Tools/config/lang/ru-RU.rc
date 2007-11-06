@@ -29,27 +29,27 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Сохранить", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Отменить", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
-  CONTROL "Welcome !", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
+  CONTROL "Welcome!", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
 BEGIN
   CLR0, "Black"
   CLR1, "Blue"
-  CLR2, "Green"
-  CLR3, "Aqua"
-  CLR4, "Red"
+  CLR2, "Dark Green"
+  CLR3, "Turquoise"
+  CLR4, "Dark Red"
   CLR5, "Purple"
-  CLR6, "Yellow"
-  CLR7, "White"
-  CLR8, "Gray"
+  CLR6, "Ochar Yellow"
+  CLR7, "Light Gray"
+  CLR8, "Dark Gray"
   CLR9, "Light Blue"
-  CLR10, "Light Green"
-  CLR11, "Light Aqua"
-  CLR12, "Light Red"
-  CLR13, "Light Purple"
-  CLR14, "Light Yellow"
-  CLR15, "Bright White"
+  CLR10, "Green"
+  CLR11, "Cyan Blue"
+  CLR12, "Red"
+  CLR13, "Magenta"
+  CLR14, "Yellow"
+  CLR15, "White"
   MSG_NOGCCFOUND, "Компилятор GCC ненайден! Проверьте правильность установки."
   MSG_FILEFAILED, "Невозможно создать файл rosbe-options.cmd"
   MSG_DIREFAILED, "Невозможно создать папку для логов!"
@@ -57,5 +57,5 @@ BEGIN
   MSG_FINDLOGDIR, "Please choose a directory where the the logs should be stored:"
   MSG_FINDMGWDIR, "Please choose the directory where MingW is located:"
   MSG_FINDOBJDIR, "Please choose the directory where you want to save OBJ Files to:"
-  MSG_FINDOUTDIR, "Please choose the directory where you want to save OBJ Files to:"
+  MSG_FINDOUTDIR, "Please choose the directory where you want to save OUT Files to:"
 END
