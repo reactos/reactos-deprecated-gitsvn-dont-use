@@ -27,33 +27,33 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Speichern", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Abbrechen", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
-  CONTROL "Welcome !", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
+  CONTROL "Willkommen!", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
 BEGIN
-  CLR0, "Black"
-  CLR1, "Blue"
-  CLR2, "Green"
-  CLR3, "Aqua"
-  CLR4, "Red"
-  CLR5, "Purple"
-  CLR6, "Yellow"
-  CLR7, "White"
-  CLR8, "Gray"
-  CLR9, "Light Blue"
-  CLR10, "Light Green"
-  CLR11, "Light Aqua"
-  CLR12, "Light Red"
-  CLR13, "Light Purple"
-  CLR14, "Light Yellow"
-  CLR15, "Bright White"
+  CLR0, "Schwarz"
+  CLR1, "Blau"
+  CLR2, "Dunkelgrün"
+  CLR3, "Türkis"
+  CLR4, "Dunkelrot"
+  CLR5, "Lila"
+  CLR6, "Ockergelb"
+  CLR7, "Grau"
+  CLR8, "Dunkelgrau"
+  CLR9, "Hellblau"
+  CLR10, "Grün"
+  CLR11, "Cyanblau"
+  CLR12, "Rot"
+  CLR13, "Magenta"
+  CLR14, "Gelb"
+  CLR15, "Weiß"
   MSG_NOGCCFOUND, "Kein GCC Compiler gefunden ! Bitte überprüfen sie ihren Pfad."
   MSG_FILEFAILED, "rosbe-options.cmd konnte nicht erstellt werden!"
   MSG_DIREFAILED, "Log directory konnte nicht erstellt werden!"
-  MSG_SETLOADSUC, "Previous settings loaded successfully"
-  MSG_FINDLOGDIR, "Please choose a directory where the the logs should be stored:"
-  MSG_FINDMGWDIR, "Please choose the directory where MingW is located:"
-  MSG_FINDOBJDIR, "Please choose the directory where you want to save OBJ Files to:"
-  MSG_FINDOUTDIR, "Please choose the directory where you want to save OBJ Files to:"
+  MSG_SETLOADSUC, "Vorherige Einstellungen erfolgreich geladen"
+  MSG_FINDLOGDIR, "Bitte wählen Sie einen Ordner, in dem die Logs gespeichert werden sollen:"
+  MSG_FINDMGWDIR, "Bitte wählen Sie den Ordner, in dem MinGW liegt:"
+  MSG_FINDOBJDIR, "Bitte wählen Sie den Ordner, in den Sie die OBJ Daten speichern wollen:"
+  MSG_FINDOUTDIR, "Bitte wählen Sie den Ordner, in den Sie die OUT Daten speichern wollen:"
 END
