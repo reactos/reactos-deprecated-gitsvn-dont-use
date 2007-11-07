@@ -94,7 +94,6 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     FILE *pFile;
     INT NbLines = 0;
     WCHAR optionsfile[MAX_PATH];
-    PVOID *res;
     WCHAR *ptr, *ptr2;
     TCHAR TTempLine[25+MAX_PATH];
     WCHAR WTempLine[25+MAX_PATH];
@@ -106,16 +105,17 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     pFile = _wfopen(optionsfile, L"r");
     if (pFile)
     {
-        res = (PVOID)fgets((char *)TTempLine, 24+MAX_PATH, pFile);
-        while (res)
+        while (fgets((char *)TTempLine, 24+MAX_PATH, pFile))
         {
             MultiByteToWideChar(CP_ACP, 0, (char *)TTempLine, -1, WTempLine, sizeof(WTempLine)/sizeof(WTempLine[0]));
             ptr = wcstok(WTempLine, L" ");
             if (wcscmp(ptr, L"color") == 0)
             {
                 ptr = wcstok(NULL, L" ");
-                LoadedSettings->background = strtoul((WCHAR*)&ptr[0], NULL, 16);
-                LoadedSettings->foreground = wcstoul(&ptr[1], NULL, 16);
+                ptr[2] = ptr[1];
+                ptr[1] = 0;
+                LoadedSettings->background = wcstol(&ptr[0], NULL, 16);
+                LoadedSettings->foreground = wcstol(&ptr[2], NULL, 16);
             }
             else if (wcscmp(ptr, L"set") == 0)
             {
@@ -124,19 +124,19 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
                 ptr2 = wcstok(NULL, L"=");
                 if (wcscmp(ptr, L"_ROSBE_SHOWTIME") == 0)
                 {
-                    LoadedSettings->showtime = wcstoul(ptr2, NULL, 2);
+                    LoadedSettings->showtime = wcstol(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_USECCACHE") == 0)
                 {
-                    LoadedSettings->useccache = wcstoul(ptr2, NULL, 2);
+                    LoadedSettings->useccache = wcstol(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_STRIP") == 0)
                 {
-                    LoadedSettings->strip = wcstoul(ptr2, NULL, 2);
+                    LoadedSettings->strip = wcstol(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_WRITELOG") == 0)
                 {
-                    LoadedSettings->writelog = wcstoul(ptr2, NULL, 2);
+                    LoadedSettings->writelog = wcstol(ptr2, NULL, 2);
                 }
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
                 {
@@ -157,7 +157,6 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
             }
             free(TTempLine);
             free(WTempLine);
-            res = (PVOID)fgets((char *)TTempLine, 24+MAX_PATH, pFile);
             NbLines++;
         }
         fclose(pFile);
@@ -186,18 +185,18 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
     SendDlgItemMessageW(hwnd, ID_STRIP, BM_SETCHECK, LoadedSettings->strip, 0);
     SetDlgItemText(hwnd, ID_MGWDIR, LoadedSettings->mingwpath);
     SetDlgItemText(hwnd, ID_LOGDIR, LoadedSettings->logdir);
-    SetDlgItemText(hwnd, ID_OBJDIR, LoadedSettings->objdir);
     if (LoadedSettings->objdir[0] != 0)
     {
         LoadedSettings->objstate = 1;
+        SetDlgItemText(hwnd, ID_OBJDIR, LoadedSettings->objdir);
         SendDlgItemMessage(hwnd, ID_OTHEROBJ, BM_SETCHECK, BST_CHECKED, 0);
         EnableWindow(GetDlgItem(hwnd, ID_BROWSEOBJ), TRUE);
         EnableWindow(GetDlgItem(hwnd, ID_OBJDIR), TRUE);
     }
-    SetDlgItemText(hwnd, ID_OUTDIR, LoadedSettings->outdir);
     if (LoadedSettings->outdir[0] != 0)
     {
         LoadedSettings->outstate = 1;
+        SetDlgItemText(hwnd, ID_OUTDIR, LoadedSettings->outdir);
         SendDlgItemMessage(hwnd, ID_OTHEROUT, BM_SETCHECK, BST_CHECKED, 0);
         EnableWindow(GetDlgItem(hwnd, ID_BROWSEOUT), TRUE);
         EnableWindow(GetDlgItem(hwnd, ID_OUTDIR), TRUE);
@@ -304,7 +303,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                     case ID_OK:
                     {
                        if (!WriteSettings(Dlg))
-                       break;
+                            break;
                     }
                     case ID_CANCEL:
                     {
@@ -366,10 +365,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                     case ID_SAVELOGS:
                     {
                         BOOL WriteLogSet;
-                        INT Dialog1, Dialog2;
-                        Dialog1 = ID_BROWSE;
-                        Dialog2 = ID_LOGDIR;
-                        WriteLogSet = SendDlgItemMessageW(Dlg, wParam, BM_GETCHECK, 0, 0) == BST_CHECKED;
+                        INT Dialog1 = ID_BROWSE;
+                        INT Dialog2 = ID_LOGDIR;
+                        WriteLogSet = (SendDlgItemMessageW(Dlg, wParam, BM_GETCHECK, 0, 0) == BST_CHECKED);
                         if (wParam == ID_OTHEROBJ)
                         {
                             Dialog1 = ID_BROWSEOBJ;
