@@ -98,13 +98,7 @@ var ICONS_GROUP
 
 ;; MUI end.
 
-Section "MinGW, GCC v4.1.3 and NASM 0.99.05" SEC01
-    SetOutPath "$INSTDIR\4.1.3\"
-    SetOverwrite try
-    File /r Components\4.1.3\*.*
-SectionEnd
-
-Section "Base Files" SEC02
+Section -BaseFiles SEC02
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -130,11 +124,19 @@ Section "Base Files" SEC02
     File /r Root\Tools\tee.exe
 SectionEnd
 
+Section -MinGWGCCNASM SEC01
+    SetOutPath "$INSTDIR\4.1.3\"
+    SetOverwrite try
+    File /r Components\4.1.3\*.*
+SectionEnd
+
 Section /o "SVN Tools" SEC03
     SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\sSVN.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Root\Tools\sSVN.cmd
     File /r Root\Tools\svn.exe
     File /r Root\Tools\intl3_svn.dll
     File /r Root\Tools\libapr.dll
@@ -148,7 +150,7 @@ Section /o "SVN Tools" SEC03
     File /r Root\Tools\licenses\*.*
 SectionEnd
 
-Section /o "reladdr2line" SEC04
+Section /o "relAddr2Line Tool" SEC04
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
