@@ -56,6 +56,7 @@ FunctionEnd
 
 !define MUI_WELCOMEPAGE_TITLE_3LINES
 !insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "Root\License.txt"
 !insertmacro MUI_PAGE_DIRECTORY
 
 ;;
@@ -97,26 +98,98 @@ var ICONS_GROUP
 
 ;; MUI end.
 
-Section "-MinGW, GCC v4.1.3 and NASM 0.99.05" SEC01
+Section "MinGW, GCC v4.1.3 and NASM 0.99.05" SEC01
     SetOutPath "$INSTDIR\4.1.3\"
     SetOverwrite try
     File /r Components\4.1.3\*.*
 SectionEnd
 
-Section "-Other miscellaneous files." SEC02
+Section "Base Files" SEC02
+    SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\*.*
     File /r Icons\*.*
-SectionEnd
-
-Section "-Files in Application Data." SEC03
-    SetOutPath "$APPDATA\RosBE\"
+    File /r Root\readme.pdf
+    File /r Root\RosBE.mac
+    File /r Root\changelog.txt
+    File /r Root\LICENSE.txt
+    File /r Root\README.txt
+    File /r Root\Build.cmd
+    File /r Root\Clean.cmd
+    File /r Root\Help.cmd
+    File /r Root\RosBE.cmd
+    File /r Root\rosbe-gcc-env.cmd
+    File /r Root\TimeDate.cmd
+    SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Appdata\*.*
+    File /r Root\Tools\buildtime.exe
+    File /r Root\Tools\chknewer.exe
+    File /r Root\Tools\cpucount.exe
+    File /r Root\Tools\flash.exe
+    File /r Root\Tools\getdate.exe
+    File /r Root\Tools\tee.exe
 SectionEnd
 
-Section -StartMenuShortcuts SEC04
+Section /o "SVN Tools" SEC03
+    SetShellVarContext current
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Root\Tools\sSVN.cmd
+    File /r Root\Tools\svn.exe
+    File /r Root\Tools\intl3_svn.dll
+    File /r Root\Tools\libapr.dll
+    File /r Root\Tools\libeay32.dll
+    File /r Root\Tools\ssleay32.dll
+    File /r Root\Tools\libaprutil.dll
+    File /r Root\Tools\libapriconv.dll
+    File /r Root\Tools\libdb44.dll
+    SetOutPath "$INSTDIR\Tools\licenses"
+    SetOverwrite try
+    File /r Root\Tools\licenses\*.*
+SectionEnd
+
+Section /o "reladdr2line" SEC04
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\reladdr2line.cmd
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Root\Tools\echoh.exe
+    File /r Root\Tools\raddr2line.exe
+    File /r Root\Tools\chkslash.exe
+SectionEnd
+
+Section /o "RosBE Configurator" SEC05
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\options.cmd
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Root\Tools\options.exe
+SectionEnd
+
+Section /o "Shortcut Tool" SEC06
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\scut.cmd
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Root\Tools\scut.exe
+SectionEnd
+
+Section /o "Other Tools" SEC07
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\chdefdir.cmd
+    File /r Root\chdefgcc.cmd
+    File /r Root\Config.cmd
+SectionEnd
+
+Section -StartMenuShortcuts SEC08
     SetShellVarContext current
 
     ;;
@@ -136,7 +209,7 @@ Section -StartMenuShortcuts SEC04
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC05
+Section /o "Desktop Shortcuts" SEC09
     SetShellVarContext current
 
     ;;
@@ -146,7 +219,7 @@ Section /o "Desktop Shortcuts" SEC05
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\reactos.ico"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC06
+Section /o "Quick Launch Shortcuts" SEC10
     SetShellVarContext current
 
     ;;
@@ -156,7 +229,7 @@ Section /o "Quick Launch Shortcuts" SEC06
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\reactos.ico"
 SectionEnd
 
-Section -Post SEC07
+Section -Post SEC11
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
