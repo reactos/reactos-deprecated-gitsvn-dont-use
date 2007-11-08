@@ -98,7 +98,7 @@ var ICONS_GROUP
 
 ;; MUI end.
 
-Section -BaseFiles SEC02
+Section -BaseFiles SEC01
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -124,13 +124,29 @@ Section -BaseFiles SEC02
     File /r Root\Tools\tee.exe
 SectionEnd
 
-Section -MinGWGCCNASM SEC01
-    SetOutPath "$INSTDIR\4.1.3\"
+Section -MinGWGCCNASM SEC02
+    SetOutPath "$INSTDIR\4.1.3"
     SetOverwrite try
     File /r Components\4.1.3\*.*
 SectionEnd
 
-Section /o "SVN Tools" SEC03
+Section /o "RosBE Configurator" SEC03
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\options.cmd
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Root\Tools\options.exe
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+        SetOutPath $REACTOS_SOURCE_DIRECTORY
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
+                       "$INSTDIR\Tools\options.exe"
+    !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+Section /o "SVN Tools" SEC04
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -150,7 +166,24 @@ Section /o "SVN Tools" SEC03
     File /r Root\Tools\licenses\*.*
 SectionEnd
 
-Section /o "relAddr2Line Tool" SEC04
+Section /o "Shortcut Tool" SEC05
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\scut.cmd
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Root\Tools\scut.exe
+SectionEnd
+
+Section /o "CCache" SEC06
+    SetShellVarContext current
+    SetOutPath "$INSTDIR\4.1.3\bin"
+    SetOverwrite try
+    File /r Root\Tools\ccache.exe
+SectionEnd
+
+Section /o "relAddr2Line Tool" SEC07
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -162,34 +195,7 @@ Section /o "relAddr2Line Tool" SEC04
     File /r Root\Tools\chkslash.exe
 SectionEnd
 
-Section /o "RosBE Configurator" SEC05
-    SetShellVarContext current
-    SetOutPath "$INSTDIR"
-    SetOverwrite try
-    File /r Root\options.cmd
-    SetOutPath "$INSTDIR\Tools"
-    SetOverwrite try
-    File /r Root\Tools\options.exe
-    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-        SetOutPath $REACTOS_SOURCE_DIRECTORY
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
-                       "$INSTDIR\Tools\options.exe"
-    !insertmacro MUI_STARTMENU_WRITE_END
-
-SectionEnd
-
-Section /o "Shortcut Tool" SEC06
-    SetShellVarContext current
-    SetOutPath "$INSTDIR"
-    SetOverwrite try
-    File /r Root\scut.cmd
-    SetOutPath "$INSTDIR\Tools"
-    SetOverwrite try
-    File /r Root\Tools\scut.exe
-SectionEnd
-
-Section /o "Other Tools" SEC07
+Section /o "Other Tools" SEC08
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -198,7 +204,7 @@ Section /o "Other Tools" SEC07
     File /r Root\Config.cmd
 SectionEnd
 
-Section -StartMenuShortcuts SEC08
+Section -StartMenuShortcuts SEC09
     SetShellVarContext current
 
     ;;
@@ -216,7 +222,7 @@ Section -StartMenuShortcuts SEC08
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC09
+Section /o "Desktop Shortcuts" SEC10
     SetShellVarContext current
 
     ;;
@@ -226,7 +232,7 @@ Section /o "Desktop Shortcuts" SEC09
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\terminal.ico"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC10
+Section /o "Quick Launch Shortcuts" SEC11
     SetShellVarContext current
 
     ;;
@@ -236,7 +242,7 @@ Section /o "Quick Launch Shortcuts" SEC10
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\terminal.ico"
 SectionEnd
 
-Section -Post SEC11
+Section -Post SEC12
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
