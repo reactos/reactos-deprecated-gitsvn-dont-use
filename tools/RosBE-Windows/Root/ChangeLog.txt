@@ -2,7 +2,7 @@
 
 - Updated: GCC 4.1.3 Build 20071015 with recent patches to get makex run under Vista. (Peter Ward, TODO: name of tamlin)
 - Updated: Binutils 2.18.50 Build 20071015. (Peter Ward)
-- Updated: NASM to 0.99.05 (Daniel Reimer)
+- Updated: NASM to 0.99.06 (Daniel Reimer)
 
 - Updated RosBE Configuration Tool. (Pierre Schweitzer, Peter Ward, Daniel Reimer)
    - Added French translation. (Pierre Schweitzer)
