@@ -170,6 +170,13 @@ Section /o "RosBE Configurator" SEC05
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Root\Tools\options.exe
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+        SetOutPath $REACTOS_SOURCE_DIRECTORY
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
+                       "$INSTDIR\Tools\options.exe"
+    !insertmacro MUI_STARTMENU_WRITE_END
+
 SectionEnd
 
 Section /o "Shortcut Tool" SEC06
@@ -206,8 +213,6 @@ Section -StartMenuShortcuts SEC08
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Readme.lnk" \
                        "$INSTDIR\readme.pdf"
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
-                       "$INSTDIR\Tools\options.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
