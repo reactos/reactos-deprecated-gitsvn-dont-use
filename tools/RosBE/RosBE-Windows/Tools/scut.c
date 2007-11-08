@@ -22,6 +22,7 @@ typedef struct _SHORTCUT
 
 #define LINE_MAX 1024
 char* programname;
+char rosbeappdata[260];
 char shortcutfile[260];
 
 PSHORTCUT addshortcut(PSHORTCUT ptr, char* name, char* path);
@@ -43,8 +44,10 @@ int main(int argc, char* argv[])
     int removed = 0;
     programname = argv[0];
 
-    strcpy(shortcutfile, getenv("APPDATA"));
-    strcat(shortcutfile, "\\RosBE\\srclist.txt");
+    strcpy(rosbeappdata, getenv("APPDATA"));
+    strcat(rosbeappdata, "\\RosBE");
+    strcpy(shortcutfile, rosbeappdata);
+    strcat(shortcutfile, "\\srclist.txt");
     checkfile();
 
     if (argc > 4)
@@ -328,20 +331,29 @@ PSHORTCUT addshortcut(PSHORTCUT ptr, char* name, char* path)
 
 void checkfile(void)
 {
-    FILE *FILE;
+    FILE *fp;
 
-    FILE = fopen(shortcutfile, "r");
-    if (!FILE)
-    {
-        FILE = fopen(shortcutfile, "w");
-        if (!FILE)
+    fp = fopen(shortcutfile, "r");
+    if (!fp)
+    {   
+        if(access(rosbeappdata, F_OK) == -1)
+        {
+            // Directory does not exist, create it
+            if(mkdir(rosbeappdata) == -1)
+            {
+                fprintf(stderr, "%s: Error creating the directory for the RosBE files.\n", programname);
+            }
+        }
+        
+        fp = fopen(shortcutfile, "w");
+        if (!fp)
         {
             fprintf(stderr, "%s: Error creating file.\n", programname);
         }
         else
         {
-            fprintf(FILE, "Default,Default\n");
-            if (fclose(FILE))
+            fprintf(fp, "Default,Default\n");
+            if (fclose(fp))
             {
                 fprintf(stderr, "%s: Error closing file.\n", programname);
             }
@@ -349,7 +361,7 @@ void checkfile(void)
     }
     else
     {
-        if (fclose(FILE))
+        if (fclose(fp))
         {
             fprintf(stderr, "%s: Error closing file.\n", programname);
         }
@@ -510,22 +522,22 @@ PSHORTCUT previousshortcut(PSHORTCUT current, PSHORTCUT head)
 
 PSHORTCUT readshortcuts(void)
 {
-    FILE *FILE;
+    FILE *fp;
     PSHORTCUT head = NULL;
     char strbuff[LINE_MAX];
     char *name = NULL, *path = NULL;
 
-    FILE = fopen(shortcutfile, "r");
-    if (!FILE)
+    fp = fopen(shortcutfile, "r");
+    if (!fp)
     {
         fprintf(stderr, "%s: Error file doesn't seem to exist.\n", programname);
         return NULL;
     }
     else
     {
-        while(!feof(FILE))
+        while(!feof(fp))
         {
-            fgets(strbuff, LINE_MAX, FILE);
+            fgets(strbuff, LINE_MAX, fp);
             name = strtok(strbuff, ",");
             path = strtok(NULL, "\n");
             if (name && path)
@@ -533,7 +545,7 @@ PSHORTCUT readshortcuts(void)
                 head = addshortcut(head, name, path);
             }
         }
-        if (fclose(FILE))
+        if (fclose(fp))
         {
             fprintf(stderr, "%s: Error closing file.\n", programname);
             freeshortcuts(head);
@@ -546,10 +558,10 @@ PSHORTCUT readshortcuts(void)
 
 int writeshortcuts(PSHORTCUT head)
 {
-    FILE *FILE;
+    FILE *fp;
 
-    FILE = fopen(shortcutfile, "w");
-    if (!FILE)
+    fp = fopen(shortcutfile, "w");
+    if (!fp)
     {
         fprintf(stderr, "%s: Error file doesn't seem to exist.\n", programname);
         return -1;
@@ -558,10 +570,10 @@ int writeshortcuts(PSHORTCUT head)
     {
         while(head)
         {
-            fprintf(FILE, "%s,%s\n", head->name, head->path);
+            fprintf(fp, "%s,%s\n", head->name, head->path);
             head = head->next;
         }
-        if (fclose(FILE))
+        if (fclose(fp))
         {
             fprintf(stderr, "%s: Error closing file.\n", programname);
             return -1;
