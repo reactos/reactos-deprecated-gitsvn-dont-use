@@ -20,34 +20,30 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%s: Error too many parameters specified.\n", argv[0]);
         return -1;
     }
+
     GetSystemInfo(&SystemInformation);
-    if (argc == 1)
+
+    if(argc != 1)
     {
-        printf("%ld\n", SystemInformation.dwNumberOfProcessors);
-    }
-    else if ((!strncmp(argv[1], "/?", 2)) ||
-             (!strncmp(argv[1], "-h", 2)) ||
-             (!strncmp(argv[1], "--help", 6)))
-    {
-        printf("Usage: %s [OPTIONS]\n", argv[0]);
-        printf("Running cpucount without options returns the number of\n");
-        printf("processors in the system.\n");
-        printf("-x1    - Number of processors in the system, plus 1.\n");
-        printf("-x2    - Number of processors in the system, doubled.\n");
-    }
-    else if (!strncmp(argv[1], "-x1", 3))
-    {
-        printf("%ld\n", (SystemInformation.dwNumberOfProcessors + 1));
-    }
-    else if (!strncmp(argv[1], "-x2", 3))
-    {
-        printf("%ld\n", (SystemInformation.dwNumberOfProcessors + SystemInformation.dwNumberOfProcessors));
-    }
-    else
-    {
-        fprintf(stderr, "%s: Error unknown parameter '%s' specified.\n", argv[0], argv[1]);
-        return -1;
+        if(!strncmp(argv[1], "-x1", 3))
+        {
+            SystemInformation.dwNumberOfProcessors++;
+        }
+        else if(!strncmp(argv[1], "-x2", 3))
+        {
+            SystemInformation.dwNumberOfProcessors += SystemInformation.dwNumberOfProcessors;
+        }
+        else
+        {
+            printf("Usage: %s [OPTIONS]\n", argv[0]);
+            printf("Running cpucount without options returns the number of\n");
+            printf("processors in the system.\n");
+            printf("-x1    - Number of processors in the system, plus 1.\n");
+            printf("-x2    - Number of processors in the system, doubled.\n");
+            return 0;
+        }
     }
 
+    printf("%u\n", SystemInformation.dwNumberOfProcessors);
     return 0;
 }
