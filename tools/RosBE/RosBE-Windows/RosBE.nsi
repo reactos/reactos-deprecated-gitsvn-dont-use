@@ -50,8 +50,8 @@ FunctionEnd
 ;; MUI Settings
 ;;
 !define MUI_ABORTWARNING
-!define MUI_ICON "Icons\reactos.ico"
-!define MUI_UNICON "Icons\reactos.ico"
+!define MUI_ICON "Icons\rosbe.ico"
+!define MUI_UNICON "Icons\uninstall.ico"
 !define MUI_COMPONENTSPAGE_NODESC
 
 !define MUI_WELCOMEPAGE_TITLE_3LINES
@@ -288,8 +288,9 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
     Delete /REBOOTOK "$INSTDIR\readme.pdf"
-    Delete /REBOOTOK "$INSTDIR\reactos.ico"
+    Delete /REBOOTOK "$INSTDIR\rosbe.ico"
     Delete /REBOOTOK "$INSTDIR\terminal.ico"
+    Delete /REBOOTOK "$INSTDIR\uninstall.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
     Delete /REBOOTOK "$INSTDIR\LICENSE.txt"
