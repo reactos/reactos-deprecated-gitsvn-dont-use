@@ -9,23 +9,7 @@ Various parts of the ReactOS Build Environment are under different license's, th
 
 - NASM is licensed under the LGPLv2.1.
 
-- tee is licensed under the GPLv2.
-
-- test is licensed under the GPLv2 or later.
-
-- cut is licensed under the GPLv2 or later.
-
-- grep is licensed under the GPLv2 or later.
-
-- sed is licensed under the GPLv2 or later.
-
-- pcre is licensed under the GPLv2 or later.
-
 - svn is licensed under the Apache/BSD-style open source license.
-
-- libiconv is licensed under the LGPLv2.
-
-- libintl is licensed under the LGPLv2.1 and is part of the GNU gettext package.
 
 *** The complete text of the GNU GENERAL PUBLIC LICENSE v2
 
