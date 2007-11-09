@@ -142,7 +142,7 @@ if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
         echo either of the options is not given you will be prompted for it.
         echo.
         echo FILE    - This can be either a fully specified path or just the
-        echo           file name [you can use partial name ie. ntdll*] of
+        echo           file name [you can use a partial name ie. ntdll*] of
         echo           the executable to be analyzed. When using just a file
         echo           the current directory and all sub-directories are
         echo           searched.
