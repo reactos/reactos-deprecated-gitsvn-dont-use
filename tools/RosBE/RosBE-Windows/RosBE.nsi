@@ -213,7 +213,7 @@ Section -StartMenuShortcuts SEC09
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\terminal.ico"
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
@@ -229,7 +229,7 @@ Section /o "Desktop Shortcuts" SEC10
     ;; Add our desktop shortcuts.
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
-    CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\terminal.ico"
+    CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
 SectionEnd
 
 Section /o "Quick Launch Shortcuts" SEC11
@@ -239,7 +239,7 @@ Section /o "Quick Launch Shortcuts" SEC11
     ;; Add our quick launch shortcuts.
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
-    CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\terminal.ico"
+    CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
 SectionEnd
 
 Section -Post SEC12
@@ -289,7 +289,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
     Delete /REBOOTOK "$INSTDIR\readme.pdf"
     Delete /REBOOTOK "$INSTDIR\rosbe.ico"
-    Delete /REBOOTOK "$INSTDIR\terminal.ico"
     Delete /REBOOTOK "$INSTDIR\uninstall.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
