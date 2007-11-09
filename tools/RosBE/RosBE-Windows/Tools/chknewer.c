@@ -20,7 +20,7 @@ getfmodtime(
 
 int main(int argc, char* argv[])
 {
-    FILE *FILE1, *FILE2;
+    FILE *fp1, *fp2;
     time_t file1time = 0, file2time = 0;
 
     if (argc > 3)
@@ -40,15 +40,15 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    FILE1 = fopen(argv[1], "r");
-    if (!FILE1)
+    fp1 = fopen(argv[1], "r");
+    if (!fp1)
     {
         fprintf(stderr, "%s: Error file \"%s\" doesn't seem to exist.\n", argv[0], argv[1]);
         return -1;
     }
     else
     {
-        if (fclose(FILE1))
+        if (fclose(fp1))
         {
             fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
             return -1;
@@ -61,15 +61,15 @@ int main(int argc, char* argv[])
         }
     }
 
-    FILE2 = fopen(argv[2], "r");
-    if (!FILE2)
+    fp2 = fopen(argv[2], "r");
+    if (!fp2)
     {
         fprintf(stderr, "%s: Error file \"%s\" doesn't seem to exist.\n", argv[0], argv[2]);
         return -1;
     }
     else
     {
-        if (fclose(FILE2))
+        if (fclose(fp2))
         {
             fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[2]);
             return -1;

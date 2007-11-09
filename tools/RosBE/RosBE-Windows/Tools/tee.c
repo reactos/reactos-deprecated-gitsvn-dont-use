@@ -13,7 +13,7 @@
 int main(int argc, char* argv[])
 {
     unsigned char charbuff;
-    FILE *FILE;
+    FILE *fp;
 
     if (argc > 2)
     {
@@ -31,8 +31,8 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    FILE = fopen(argv[1], "w");
-    if (!FILE)
+    fp = fopen(argv[1], "w");
+    if (!fp)
     {
         fprintf(stderr, "%s: Error cannot create/open file \"%s\".\n", argv[0], argv[1]);
         return -1;
@@ -43,10 +43,10 @@ int main(int argc, char* argv[])
         if (!feof(stdin))
         {
             fputc(charbuff, stdout);
-            fputc(charbuff, FILE);
+            fputc(charbuff, fp);
         }
     }
-    if (fclose(FILE))
+    if (fclose(fp))
     {
         fprintf(stderr, "%s: Error closing file \"%s\"\n", argv[0], argv[1]);
         return -1;
