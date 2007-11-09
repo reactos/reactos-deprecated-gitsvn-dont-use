@@ -39,12 +39,6 @@ http://nasm.sourceforge.net
 NSIS (Nullsoft Scriptable Install System)
 http://nsis.sourceforge.net
 
-The GnuWin32 Project (tee/test/sed/grep and their dependencies were obtained here)
-http://gnuwin32.sourceforge.net
-
-Olof's Tools (cut)
-http://www.ltr-data.se
-
 Subversion Client
 http://subversion.tigris.org
 
