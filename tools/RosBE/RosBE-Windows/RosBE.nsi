@@ -102,7 +102,7 @@ Section -BaseFiles SEC01
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Icons\*.*
+    File /r Icons\rosbe.ico
     File /r Root\readme.pdf
     File /r Root\RosBE.mac
     File /r Root\changelog.txt
