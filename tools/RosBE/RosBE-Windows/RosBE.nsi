@@ -31,7 +31,8 @@ VIProductVersion "1.0.0.0"
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
 
-!include "MUI.nsh"
+!include "MUI2.nsh"
+!include "InstallOptions.nsh"
 !include "RosSourceDir.nsh"
 !include "LogicLib.nsh"
 
@@ -43,7 +44,7 @@ SetCompressor /FINAL /SOLID lzma
 Function .onInit
     Call CheckAdminOrCurrent
     Call UninstallPrevious
-    !insertmacro MUI_INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
+    !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
 FunctionEnd
 
 ;;
@@ -56,7 +57,7 @@ FunctionEnd
 
 !define MUI_WELCOMEPAGE_TITLE_3LINES
 !insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_LICENSE "Root\License.txt"
+;!insertmacro MUI_PAGE_LICENSE "Root\License.txt"
 !insertmacro MUI_PAGE_DIRECTORY
 
 ;;
@@ -93,7 +94,7 @@ var ICONS_GROUP
 ;;
 ;;  Language and reserve files
 ;;
-!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 !insertmacro MUI_LANGUAGE "English"
 
 ;; MUI end.
@@ -130,7 +131,7 @@ Section -MinGWGCCNASM SEC02
     File /r Components\4.1.3\*.*
 SectionEnd
 
-Section /o "RosBE Configurator" SEC03
+Section "RosBE Configurator (options)" SEC03
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -146,7 +147,7 @@ Section /o "RosBE Configurator" SEC03
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "SVN Tools" SEC04
+Section "SVN Tools (ssvn)" SEC04
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -166,7 +167,7 @@ Section /o "SVN Tools" SEC04
     File /r Root\Tools\licenses\*.*
 SectionEnd
 
-Section /o "Shortcut Tool" SEC05
+Section "Shortcut Tool (scut)" SEC05
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -176,14 +177,14 @@ Section /o "Shortcut Tool" SEC05
     File /r Root\Tools\scut.exe
 SectionEnd
 
-Section /o "CCache" SEC06
+Section "CCache" SEC06
     SetShellVarContext current
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
     File /r Root\Tools\ccache.exe
 SectionEnd
 
-Section /o "relAddr2Line Tool" SEC07
+Section "relAddr2Line Tool" SEC07
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -195,7 +196,7 @@ Section /o "relAddr2Line Tool" SEC07
     File /r Root\Tools\chkslash.exe
 SectionEnd
 
-Section /o "Other Tools" SEC08
+Section "Other Tools (chdefdir, chdefgcc and config)" SEC08
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
