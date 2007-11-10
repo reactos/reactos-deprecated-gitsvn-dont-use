@@ -8,7 +8,7 @@ HELP       = "%_ROSBE_BASEDIR%\Help.cmd" $*
 MAKE       = "%_ROSBE_BASEDIR%\Build.cmd" $*
 MAKEX      = "%_ROSBE_BASEDIR%\Build.cmd" multi $*
 RADDR2LINE = "%_ROSBE_BASEDIR%\reladdr2line.cmd" $*
-RENV       = for /f "usebackq" %i in (`set _ROSBE_`) do @echo %i
+RENV       = for /f "usebackq tokens=*" %i in (`set _ROSBE_`) do @echo %i
 SCUT       = "%_ROSBE_BASEDIR%\scut.cmd" $*
 SSVN       = "%_ROSBE_BASEDIR%\sSVN.cmd" $*
 SVN        = "%_ROSBE_BASEDIR%\Tools\svn.exe" $*
