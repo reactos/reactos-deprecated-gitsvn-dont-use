@@ -17,7 +17,7 @@ binutils-2.18.50-20071015
 mingw-runtime-3.13
 w32api-3.10
 mingw32-make-3.81-2
-nasm-0.99.05-win32
+nasm-0.99.06-win32
 mingw-4.1.3-20071015-prerelease
    patched with:
    - “GCC-v4.1-r129382-prerelease-w3seek.patch”
