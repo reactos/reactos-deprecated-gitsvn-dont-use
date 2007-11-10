@@ -34,7 +34,6 @@ SetCompressor /FINAL /SOLID lzma
 !include "MUI2.nsh"
 !include "InstallOptions.nsh"
 !include "RosSourceDir.nsh"
-!include "LogicLib.nsh"
 
 ;; MUI begin.
 
@@ -42,7 +41,6 @@ SetCompressor /FINAL /SOLID lzma
 ;; Read our custom page ini, remove previous version and check if the user has administrative privileges.
 ;;
 Function .onInit
-    Call CheckAdminOrCurrent
     Call UninstallPrevious
     !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
 FunctionEnd
@@ -258,7 +256,6 @@ Function un.onUninstSuccess
 FunctionEnd
 
 Function un.onInit
-    Call un.CheckAdminOrCurrent
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
                "Are you sure you want to completely remove ReactOS Build Environment and all of its components?" \
                IDYES +2
@@ -335,26 +332,4 @@ Function UninstallPrevious
         Quit
     UninstallPrevious_yes:
         ExecWait '$R0 _?=$INSTDIR'
-FunctionEnd
-
-Function CheckAdminOrCurrent
-    userInfo::getAccountType
-    pop $R0
-    ${If} $R0 == "Admin"
-        Return
-    ${else}
-        messageBox MB_OK|MB_ICONEXCLAMATION \
-            "You do not have administrative privileges. You need to set a folder with writing rights to install your BE and Code to. NO Vista Support possible!"
-        Return
-    ${EndIf}
-FunctionEnd
-
-Function un.CheckAdminOrCurrent
-    userInfo::getAccountType
-    pop $R0
-    ${If} $R0 == "Admin"
-        Return
-    ${else}
-        Return
-    ${EndIf}
 FunctionEnd
