@@ -38,7 +38,7 @@ SetCompressor /FINAL /SOLID lzma
 ;; MUI begin.
 
 ;;
-;; Read our custom page ini, remove previous version and check if the user has administrative privileges.
+;; Read our custom page ini, remove previous version.
 ;;
 Function .onInit
     Call UninstallPrevious
