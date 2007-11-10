@@ -34,6 +34,7 @@ SetCompressor /FINAL /SOLID lzma
 !include "MUI2.nsh"
 !include "InstallOptions.nsh"
 !include "RosSourceDir.nsh"
+!include "LogicLib.nsh"
 
 ;; MUI begin.
 
