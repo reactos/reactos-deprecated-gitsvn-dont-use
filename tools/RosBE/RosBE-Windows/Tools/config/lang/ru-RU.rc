@@ -4,21 +4,21 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 290
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Установки переменных компилятора РеактОС"
+CAPTION "Установки переменных компилятора ReactOS"
 FONT 8,"MS Sans Serif",0,0
 BEGIN
   LTEXT "Путь к компилятору GCC", 0x0, 10, 107, 100, 15
-  LTEXT "Цвет Фона", 0x0, 10, 10, 75, 12
+  LTEXT "Цвет фона", 0x0, 10, 10, 75, 12
   COMBOBOX IDC_BACK, 100, 10, 100, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
-  LTEXT "Цвет Шрифта", 0x0, 10, 35, 75, 12
+  LTEXT "Цвет шрифта", 0x0, 10, 35, 75, 12
   COMBOBOX IDC_FONT, 100, 35, 100, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
   CONTROL "\n\nПример текста", ID_EXAMPLE, "static", WS_CHILD | WS_VISIBLE | WS_TABSTOP | SS_CENTER, 113, 58, 125, 36
-  CONTROL "Показывать Время", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 55, 100, 12
-  CONTROL "Вести Логи", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 143, 100, 12
-  CONTROL "Использовать CCache", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 70, 100, 12
-  CONTROL "Сокращать Output", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 100, 12
-  CONTROL "Выбор каталога для OBJ", ID_OTHEROBJ, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 178, 100, 12
-  CONTROL "Выбор каталога для OUT", ID_OTHEROUT, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 215, 100, 12
+  CONTROL "Показывать время", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 55, 100, 12
+  CONTROL "Вести логи", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 143, 100, 12
+  CONTROL "Использовать кэширование", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 70, 100, 12
+  CONTROL "Вырезать пустой код при компил.", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 100, 12
+  CONTROL "Путь к каталогу объектов", ID_OTHEROBJ, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 178, 100, 12
+  CONTROL "Путь к каталогу вывода", ID_OTHEROUT, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 215, 100, 12
   EDITTEXT ID_LOGDIR, 10, 156, 200, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "...", ID_BROWSE, 215, 156, 30, 13, WS_TABSTOP | WS_DISABLED
   EDITTEXT ID_MGWDIR, 10, 120, 200, 13, WS_TABSTOP
@@ -29,7 +29,7 @@ BEGIN
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Сохранить", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Отменить", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
-  CONTROL "Приветствие!", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
+  CONTROL "Введение", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
 STRINGTABLE
@@ -40,7 +40,7 @@ BEGIN
   CLR3, "Аква"
   CLR4, "Красный"
   CLR5, "Пурпурный"
-  CLR6, "Жолтый"
+  CLR6, "Жёлтый"
   CLR7, "Белый"
   CLR8, "Серый"
   CLR9, "Светло-голубой"
@@ -48,14 +48,14 @@ BEGIN
   CLR11, "Светло-аква"
   CLR12, "Ярко-красный"
   CLR13, "Светло-пурпурный"
-  CLR14, "Ярко-желтый"
+  CLR14, "Ярко-жёлтый"
   CLR15, "Ярко-белый"
-  MSG_NOGCCFOUND, "Компилятор GCC ненайден! Проверьте правильность установки."
+  MSG_NOGCCFOUND, "Компилятор GCC не найден! Проверьте правильность установки."
   MSG_FILEFAILED, "Невозможно создать файл rosbe-options.cmd"
   MSG_DIREFAILED, "Невозможно создать папку для логов!"
   MSG_SETLOADSUC, "Ранее сохраненные настройки загружены."
-  MSG_FINDLOGDIR, "Выберите каталог сохранения лог-файлов:"
-  MSG_FINDMGWDIR, "Укажите каталог расположения Компилятора MingW:"
-  MSG_FINDOBJDIR, "Выберите каталог сохранения объектных файлов:"
-  MSG_FINDOUTDIR, "Выберите каталог сохранения откомпилированных файлов:"
+  MSG_FINDLOGDIR, "Укажите каталог сохранения лог-файлов:"
+  MSG_FINDMGWDIR, "Укажите каталог расположения компилятора MinGW:"
+  MSG_FINDOBJDIR, "Укажите каталог сохранения объектных файлов:"
+  MSG_FINDOUTDIR, "Укажите каталог сохранения компилированных файлов:"
 END
