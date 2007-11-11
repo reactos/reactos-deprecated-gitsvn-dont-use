@@ -11,9 +11,9 @@
 	$getbuilds_languages = array(
 		"en" => "English",
 		"de" => "Deutsch (German)",
+		"fr" => "Français (French)",
 		"es" => "Español (Spanish)",
 		"it" => "Italiano (Italian)",
 		"lt" => "Lietuvių (Lithuanian)",
-		"fr" => "Français (French)"
 	);
 ?>
