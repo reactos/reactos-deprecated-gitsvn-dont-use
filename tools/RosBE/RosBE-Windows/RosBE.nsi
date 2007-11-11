@@ -183,7 +183,6 @@ Section "CCache" SEC06
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
     File /r Root\Tools\ccache.exe
-    File /r Root\Tools\cygwin1.dll
 SectionEnd
 
 Section "relAddr2Line Tool" SEC07

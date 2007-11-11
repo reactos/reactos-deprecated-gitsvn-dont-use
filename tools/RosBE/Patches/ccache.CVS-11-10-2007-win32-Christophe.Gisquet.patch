@@ -1,0 +1,814 @@
+Index: args.c
+===================================================================
+RCS file: /cvsroot/ccache/args.c,v
+retrieving revision 1.8
+diff -u -r1.8 args.c
+--- args.c	6 Sep 2004 12:47:19 -0000	1.8
++++ args.c	11 Nov 2007 02:06:25 -0000
+@@ -38,7 +38,7 @@
+ void args_add(ARGS *args, const char *s)
+ {
+ 	args->argv = (char**)x_realloc(args->argv, (args->argc + 2) * sizeof(char *));
+-	args->argv[args->argc] = x_strdup(s);
++	args->argv[args->argc] = x_quote_strdup(s);
+ 	args->argc++;
+ 	args->argv[args->argc] = NULL;
+ }
+@@ -69,7 +69,7 @@
+ 	args->argv = (char**)x_realloc(args->argv, (args->argc + 2) * sizeof(char *));
+ 	memmove(&args->argv[1], &args->argv[0], 
+ 		(args->argc+1) * sizeof(args->argv[0]));
+-	args->argv[0] = x_strdup(s);
++	args->argv[0] = x_quote_strdup(s);
+ 	args->argc++;
+ }
+ 
+Index: ccache.c
+===================================================================
+RCS file: /cvsroot/ccache/ccache.c,v
+retrieving revision 1.100
+diff -u -r1.100 ccache.c
+--- ccache.c	28 Feb 2007 04:24:04 -0000	1.100
++++ ccache.c	11 Nov 2007 02:24:44 -0000
+@@ -149,17 +149,31 @@
+ 	return ret;
+ }
+ 
++static int first_is_meh(const char* first)
++{
++    const char*  exe = strrchr(first, PATH_SEP_CHAR);
++    const size_t len = strlen(MYNAME);
++
++    if (exe) exe++;
++    else     exe=first;
++    return (strlen(exe) >= len && strncmp(exe, MYNAME, len) == 0 &&
++            (exe[len]==0 || strcmp(exe+len, ".exe")==0) );
++}
++
+ 
+ /* run the real compiler and put the result in cache */
+ static void to_cache(ARGS *args)
+ {
+ 	char *path_stderr;
+ 	char *tmp_stdout, *tmp_stderr, *tmp_hashname;
+-	struct stat st1, st2;
++	struct stat st;
+ 	int status;
++	off_t size = 0;
+ 
++	/* No quoting, unique arguments */
+ 	x_asprintf(&tmp_stdout, "%s.tmp.stdout.%s", hashname, tmp_string());
+ 	x_asprintf(&tmp_stderr, "%s.tmp.stderr.%s", hashname, tmp_string());
++	/* Must be quoted as it will belong to a command-line */
+ 	x_asprintf(&tmp_hashname, "%s.tmp.%s", hashname, tmp_string());
+ 
+ 	args_add(args, "-o");
+@@ -181,7 +195,7 @@
+ 	status = execute(args->argv, tmp_stdout, tmp_stderr);
+ 	args_pop(args, 3);
+ 
+-	if (stat(tmp_stdout, &st1) != 0 || st1.st_size != 0) {
++	if (stat(tmp_stdout, &st) != 0 || st.st_size != 0) {
+ 		cc_log("compiler produced stdout for %s\n", output_file);
+ 		stats_update(STATS_STDOUT);
+ 		unlink(tmp_stdout);
+@@ -198,7 +212,7 @@
+ 
+ 		fd = open(tmp_stderr, O_RDONLY | O_BINARY);
+ 		if (fd != -1) {
+-			if (strcmp(output_file, "/dev/null") == 0 ||
++			if (strcmp(output_file, DEV_NULL) == 0 ||
+ 			    rename(tmp_hashname, output_file) == 0 || errno == ENOENT) {
+ 				if (cpp_stderr) {
+ 					/* we might have some stderr from cpp */
+@@ -211,8 +225,7 @@
+ 					}
+ 				}
+ 
+-				/* we can use a quick method of
+-                                   getting the failed output */
++				/* we can use a quick method of getting the failed output */
+ 				copy_fd(fd, 2);
+ 				close(fd);
+ 				unlink(tmp_stderr);
+@@ -228,19 +241,31 @@
+ 		failed();
+ 	}
+ 
+-	x_asprintf(&path_stderr, "%s.stderr", hashname);
++    if (stat(tmp_hashname, &st) != 0 || rename(tmp_hashname, hashname) != 0) {
++        cc_log("failed to rename output: %s\n"
++               "  '%s'\n"
++               "  -> '%s': \n",
++               strerror(errno), tmp_hashname, hashname);
++		stats_update(STATS_ERROR);
++		failed();
++	}
++    cc_log("Moved '%s' to '%s'\n", tmp_hashname, hashname);
++    size += file_size(&st);
+ 
+-	if (stat(tmp_stderr, &st1) != 0 ||
+-	    stat(tmp_hashname, &st2) != 0 ||
+-	    rename(tmp_hashname, hashname) != 0 ||
+-	    rename(tmp_stderr, path_stderr) != 0) {
+-		cc_log("failed to rename tmp files - %s\n", strerror(errno));
++	x_asprintf(&path_stderr, "%s.stderr", hashname);
++	if (stat(tmp_stderr, &st) != 0 || rename(tmp_stderr, path_stderr) != 0) {
++        cc_log("failed to rename stderr: %s\n"
++               "  '%s'\n"
++               "  -> '%s': \n",
++               strerror(errno), tmp_stderr, path_stderr);
+ 		stats_update(STATS_ERROR);
+ 		failed();
+ 	}
++    cc_log("Moved '%s' to '%s'\n", tmp_stderr, path_stderr);
++    size += file_size(&st);
+ 
+ 	cc_log("Placed %s into cache\n", output_file);
+-	stats_tocache(file_size(&st1) + file_size(&st2));
++	stats_tocache(size);
+ 
+ 	free(tmp_hashname);
+ 	free(tmp_stderr);
+@@ -360,11 +385,11 @@
+ 		input_base[10] = 0;
+ 	}
+ 
+-	/* now the run */
+-	x_asprintf(&path_stdout, "%s/%s.tmp.%s.%s", temp_dir,
+-		   input_base, tmp_string(), 
+-		   i_extension);
+-	x_asprintf(&path_stderr, "%s/tmp.cpp_stderr.%s", temp_dir, tmp_string());
++	/* now the run - path_std* are unique args => no quoting */
++	x_asprintf(&path_stdout, "%s"PATH_SEP"%s.tmp.%s.%s", temp_dir,
++ 		   input_base, tmp_string(), 
++ 		   i_extension);
++	x_asprintf(&path_stderr, "%s"PATH_SEP"tmp.cpp_stderr.%s", temp_dir, tmp_string());
+ 
+ 	if (!direct_i_file) {
+ 		/* run cpp on the input file to obtain the .i */
+@@ -426,18 +451,19 @@
+ 	}
+ 
+ 	/* we use a N level subdir for the cache path to reduce the impact
+-	   on filesystems which are slow for large directories
++	   on filesystems which are slow for large directories.
++       Quoting not necessary because unique argument, or not used yet.
+ 	*/
+ 	s = hash_result();
+-	x_asprintf(&hash_dir, "%s/%c", cache_dir, s[0]);
+-	x_asprintf(&stats_file, "%s/stats", hash_dir);
++	x_asprintf(&hash_dir, "%s"PATH_SEP"%c", cache_dir, s[0]);
++	x_asprintf(&stats_file, "%s"PATH_SEP"stats", hash_dir);
+ 	for (i=1; i<nlevels; i++) {
+ 		char *p;
+ 		if (create_dir(hash_dir) != 0) {
+ 			cc_log("failed to create %s\n", hash_dir);
+ 			failed();
+ 		}
+-		x_asprintf(&p, "%s/%c", hash_dir, s[i]);
++		x_asprintf(&p, "%s"PATH_SEP"%c", hash_dir, s[i]);
+ 		free(hash_dir);
+ 		hash_dir = p;
+ 	}
+@@ -445,7 +471,7 @@
+ 		cc_log("failed to create %s\n", hash_dir);
+ 		failed();
+ 	}
+-	x_asprintf(&hashname, "%s/%s", hash_dir, s+nlevels);
++	x_asprintf(&hashname, "%s"PATH_SEP"%s", hash_dir, s+nlevels);
+ 	free(hash_dir);
+ }
+ 
+@@ -487,15 +513,19 @@
+ 
+ 	utime(stderr_file, NULL);
+ 
+-	if (strcmp(output_file, "/dev/null") == 0) {
++	if (strcmp(output_file, DEV_NULL) == 0) {
+ 		ret = 0;
+ 	} else {
+ 		unlink(output_file);
++#ifdef _WIN32
++		ret = copy_file(hashname, output_file);
++#else
+ 		if (getenv("CCACHE_HARDLINK")) {
+ 			ret = link(hashname, output_file);
+ 		} else {
+ 			ret = copy_file(hashname, output_file);
+ 		}
++#endif
+ 	}
+ 
+ 	/* the hash file might have been deleted by some external process */
+@@ -566,10 +596,10 @@
+ 	base = str_basename(argv[0]);
+ 
+ 	/* we might be being invoked like "ccache gcc -c foo.c" */
+-	if (strcmp(base, MYNAME) == 0) {
++	if (first_is_meh(argv[0])) {
+ 		args_remove_first(orig_args);
+ 		free(base);
+-		if (strchr(argv[1],'/')) {
++		if (strchr(argv[1],PATH_SEP_CHAR)) {
+ 			/* a full path was given */
+ 			return;
+ 		}
+@@ -821,7 +851,7 @@
+ 	}
+ 
+ 	/* cope with -o /dev/null */
+-	if (strcmp(output_file,"/dev/null") != 0 && stat(output_file, &st) == 0 && !S_ISREG(st.st_mode)) {
++	if (strcmp(output_file, DEV_NULL) != 0 && stat(output_file, &st) == 0 && !S_ISREG(st.st_mode)) {
+ 		cc_log("Not a regular file %s\n", output_file);
+ 		stats_update(STATS_DEVICE);
+ 		failed();
+@@ -989,7 +1019,7 @@
+ 
+ 	cache_dir = getenv("CCACHE_DIR");
+ 	if (!cache_dir) {
+-		x_asprintf(&cache_dir, "%s/.ccache", get_home_directory());
++		x_asprintf(&cache_dir, "%s"PATH_SEP".ccache", get_home_directory());
+ 	}
+ 
+ 	temp_dir = getenv("CCACHE_TEMPDIR");
+@@ -1013,10 +1043,8 @@
+ 		}
+ 	}
+ 
+-
+-	/* check if we are being invoked as "ccache" */
+-	if (strlen(argv[0]) >= strlen(MYNAME) &&
+-	    strcmp(argv[0] + strlen(argv[0]) - strlen(MYNAME), MYNAME) == 0) {
++    if (first_is_meh(argv[0]))
++    {
+ 		if (argc < 2) {
+ 			usage();
+ 			exit(1);
+Index: ccache.h
+===================================================================
+RCS file: /cvsroot/ccache/ccache.h,v
+retrieving revision 1.54
+diff -u -r1.54 ccache.h
+--- ccache.h	25 Jul 2005 07:05:46 -0000	1.54
++++ ccache.h	11 Nov 2007 02:26:55 -0000
+@@ -1,6 +1,10 @@
+ #define CCACHE_VERSION "2.4"
+ 
+ #include "config.h"
++#define USUAL_PATH_SEP_CHAR '/'
++#define USUAL_PATH_SEP "/"
++#define WIN32_PATH_SEP_CHAR '\\'
++#define WIN32_PATH_SEP "\\"
+ 
+ #include <stdio.h>
+ #include <unistd.h>
+@@ -8,8 +12,20 @@
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#ifdef _WIN32
++#include <windows.h>
++#include <sys/locking.h>
++#define PATH_SEP WIN32_PATH_SEP
++#define PATH_SEP_CHAR WIN32_PATH_SEP_CHAR
++#define DEV_NULL "NUL"
++/* #define rename(a, b) !MoveFile(a, b) */
++#else
+ #include <sys/wait.h>
+ #include <sys/mman.h>
++#define PATH_SEP USUAL_PATH_SEP
++#define PATH_SEP_CHAR USUAL_PATH_SEP_CHAR
++#define DEV_NULL "/dev/null"
++#endif
+ #include <fcntl.h>
+ #include <time.h>
+ #include <string.h>
+@@ -83,6 +99,7 @@
+ int create_dir(const char *dir);
+ void x_asprintf(char **ptr, const char *format, ...);
+ char *x_strdup(const char *s);
++char *x_quote_strdup(const char* s);
+ void *x_realloc(void *ptr, size_t size);
+ void *x_malloc(size_t size);
+ void traverse(const char *dir, void (*fn)(const char *, struct stat *));
+Index: cleanup.c
+===================================================================
+RCS file: /cvsroot/ccache/cleanup.c,v
+retrieving revision 1.7
+diff -u -r1.7 cleanup.c
+--- cleanup.c	17 Jul 2006 01:09:56 -0000	1.7
++++ cleanup.c	11 Nov 2007 02:28:59 -0000
+@@ -154,8 +154,9 @@
+ 	int i;
+ 	
+ 	for (i=0;i<=0xF;i++) {
+-		x_asprintf(&dname, "%s/%1x", dir, i);
+-		x_asprintf(&sfile, "%s/%1x/stats", dir, i);
++        /* No need to quote, unique argument */
++		x_asprintf(&dname, "%s"PATH_SEP"%1x", dir, i);
++		x_asprintf(&sfile, "%s"PATH_SEP"%1x"PATH_SEP"stats", dir, i);
+ 
+ 		memset(counters, 0, sizeof(counters));
+ 		stats_read(sfile, counters);
+@@ -194,7 +195,7 @@
+ 	int i;
+ 	
+ 	for (i=0;i<=0xF;i++) {
+-		x_asprintf(&dname, "%s/%1x", dir, i);
++		x_asprintf(&dname, "%s"PATH_SEP"%1x", dir, i);
+ 		traverse(dir, wipe_fn);
+ 		free(dname);
+ 	}
+Index: execute.c
+===================================================================
+RCS file: /cvsroot/ccache/execute.c,v
+retrieving revision 1.10
+diff -u -r1.10 execute.c
+--- execute.c	6 Sep 2004 13:11:15 -0000	1.10
++++ execute.c	11 Nov 2007 02:31:01 -0000
+@@ -27,6 +27,7 @@
+ 	    const char *path_stdout,
+ 	    const char *path_stderr)
+ {
++#ifndef _WIN32
+ 	pid_t pid;
+ 	int status;
+ 
+@@ -64,8 +65,85 @@
+ 	}
+ 
+ 	return WEXITSTATUS(status);
++#else /* Should be portable */
++    int   status = -2;
++    int   fd, std_od = -1, std_ed = -1;
++
++    unlink(path_stdout);
++    std_od = _dup(1);
++    fd = _open(path_stdout, O_WRONLY|O_CREAT|O_TRUNC|O_EXCL|O_BINARY, 0666);
++    if (fd == -1) {
++        status = STATUS_NOCACHE;
++        cc_log("stdout error: failed to open %s\n", path_stdout);
++        goto out;
++    }
++    _dup2(fd, 1);
++    _close(fd);
++
++    unlink(path_stderr);
++    fd = _open(path_stderr, O_WRONLY|O_CREAT|O_TRUNC|O_EXCL|O_BINARY, 0666);
++    std_ed = _dup(2);
++    if (fd == -1) {
++        status = STATUS_NOCACHE;
++        cc_log("stderr error: failed to open %s\n", path_stderr);
++        goto out;
++    }
++    _dup2(fd, 2);
++    _close(fd);
++
++    /* Spawn process (_exec* familly doesn't return) */
++    status = _spawnv(_P_WAIT, argv[0], argv);
++
++ out:
++    cc_log("%s:\n  stdout -> %s\n  stderr -> %s\n  process status=%i\n",
++           argv[0], path_stdout, path_stderr, status);
++    if (status == -1) cc_log("Error %i: %s\n", errno, strerror(errno));
++
++    /* Restore descriptors */
++    if (std_od != -1) _dup2(std_od, 1);
++    if (std_ed != -1) _dup2(std_ed, 2);
++    _flushall();
++
++    return (status>0);
++#endif
+ }
+ 
++/*
++ Check that the executable existss
++*/
++char is_exec_file(const char *fname, const char *exclude_name)
++{
++	struct stat st1, st2;
++
++    if (access(fname, X_OK) == 0 &&
++#ifndef _WIN32 /* Symlinks not used under windows */
++        lstat(fname, &st1) == 0 &&
++#endif
++        stat(fname, &st2) == 0 &&
++        S_ISREG(st2.st_mode)) {
++#ifndef _WIN32 /* Symlinks not used under windows */
++        /* if its a symlink then ensure it doesn't
++           point at something called exclude_name */
++        if (S_ISLNK(st1.st_mode)) {
++            char *buf = x_realpath(fname);
++            if (buf) {
++                char *p = str_basename(buf);
++                if (strcmp(p, exclude_name) == 0) {
++                    /* its a link to "ccache" ! */
++                    free(p);
++                    free(buf);
++                    return -1;
++                }
++                free(buf);
++                free(p);
++            }
++        }
++#endif    
++        /* found it! */
++        return 1;
++    }
++    return -1;
++}
+ 
+ /*
+   find an executable by name in $PATH. Exclude any that are links to exclude_name 
+@@ -74,9 +152,9 @@
+ {
+ 	char *path;
+ 	char *tok;
+-	struct stat st1, st2;
++    const char *sep = ":";
+ 
+-	if (*name == '/') {
++	if (*name == PATH_SEP_CHAR) {
+ 		return x_strdup(name);
+ 	}
+ 
+@@ -91,39 +169,36 @@
+ 
+ 	path = x_strdup(path);
+ 	
++    /* Determine path separator */
++    if (strchr(path, ';')) sep = ";";
++	
+ 	/* search the path looking for the first compiler of the right name
+ 	   that isn't us */
+-	for (tok=strtok(path,":"); tok; tok = strtok(NULL, ":")) {
++	for (tok=strtok(path, sep); tok; tok = strtok(NULL, sep)) {
+ 		char *fname;
+-		x_asprintf(&fname, "%s/%s", tok, name);
++		x_asprintf(&fname, "%s"PATH_SEP"%s", tok, name);
++
+ 		/* look for a normal executable file */
+-		if (access(fname, X_OK) == 0 &&
+-		    lstat(fname, &st1) == 0 &&
+-		    stat(fname, &st2) == 0 &&
+-		    S_ISREG(st2.st_mode)) {
+-			/* if its a symlink then ensure it doesn't
+-                           point at something called exclude_name */
+-			if (S_ISLNK(st1.st_mode)) {
+-				char *buf = x_realpath(fname);
+-				if (buf) {
+-					char *p = str_basename(buf);
+-					if (strcmp(p, exclude_name) == 0) {
+-						/* its a link to "ccache" ! */
+-						free(p);
+-						free(buf);
+-						continue;
+-					}
+-					free(buf);
+-					free(p);
+-				}
++        if (is_exec_file(fname, exclude_name) > 0)
++        {
++			free(path);
++			return fname;
+ 			}
++		free(fname);
++
++#ifdef _WIN32 /* Add .exe under win32 */
++		x_asprintf(&fname, "%s"PATH_SEP"%s.exe", tok, name);
+ 
+-			/* found it! */
++		/* look for a normal executable file */
++        if (is_exec_file(fname, exclude_name) > 0)
++        {
+ 			free(path);
+ 			return fname;
+ 		}
+ 		free(fname);
++#endif
+ 	}
+ 
++    free(path);
+ 	return NULL;
+ }
+Index: stats.c
+===================================================================
+RCS file: /cvsroot/ccache/stats.c,v
+retrieving revision 1.15
+diff -u -r1.15 stats.c
+--- stats.c	6 Sep 2004 12:46:31 -0000	1.15
++++ stats.c	11 Nov 2007 02:31:01 -0000
+@@ -126,7 +126,7 @@
+ 
+ 	if (!stats_file) {
+ 		if (!cache_dir) return;
+-		x_asprintf(&stats_file, "%s/stats", cache_dir);
++		x_asprintf(&stats_file, "%s"PATH_SEP"stats", cache_dir);
+ 	}
+ 
+ 	/* open safely to try to prevent symlink races */
+@@ -215,9 +215,9 @@
+ 		char *fname;
+ 
+ 		if (dir == -1) {
+-			x_asprintf(&fname, "%s/stats", cache_dir);
++			x_asprintf(&fname, "%s"PATH_SEP"stats", cache_dir);
+ 		} else {
+-			x_asprintf(&fname, "%s/%1x/stats", cache_dir, dir);
++			x_asprintf(&fname, "%s"PATH_SEP"%1x"PATH_SEP"stats", cache_dir, dir);
+ 		}
+ 
+ 		stats_read(fname, counters);
+@@ -259,12 +259,12 @@
+ 	char *fname;
+ 	unsigned counters[STATS_END];
+ 
+-	x_asprintf(&fname, "%s/stats", cache_dir);
++	x_asprintf(&fname, "%s"PATH_SEP"stats", cache_dir);
+ 	unlink(fname);
+ 	free(fname);
+ 
+ 	for (dir=0;dir<=0xF;dir++) {
+-		x_asprintf(&fname, "%s/%1x/stats", cache_dir, dir);
++		x_asprintf(&fname, "%s"PATH_SEP"%1x"PATH_SEP"stats", cache_dir, dir);
+ 		fd = safe_open(fname);
+ 		if (fd == -1) {
+ 			free(fname);
+@@ -305,9 +305,9 @@
+ 		char *fname, *cdir;
+ 		int fd;
+ 
+-		x_asprintf(&cdir, "%s/%1x", cache_dir, dir);
++		x_asprintf(&cdir, "%s"PATH_SEP"%1x", cache_dir, dir);
+ 		create_dir(cdir);
+-		x_asprintf(&fname, "%s/stats", cdir);
++		x_asprintf(&fname, "%s"PATH_SEP"stats", cdir);
+ 		free(cdir);
+ 
+ 		memset(counters, 0, sizeof(counters));
+@@ -336,7 +336,7 @@
+ 	char *stats_file;
+ 
+ 	create_dir(dir);
+-	x_asprintf(&stats_file, "%s/stats", dir);
++	x_asprintf(&stats_file, "%s"PATH_SEP"stats", dir);
+ 
+ 	memset(counters, 0, sizeof(counters));
+ 
+Index: unify.c
+===================================================================
+RCS file: /cvsroot/ccache/unify.c,v
+retrieving revision 1.8
+diff -u -r1.8 unify.c
+--- unify.c	6 Sep 2004 12:24:05 -0000	1.8
++++ unify.c	11 Nov 2007 02:31:01 -0000
+@@ -249,6 +249,33 @@
+ 		return -1;
+ 	}
+ 
++#ifdef _WIN32
++    /* win32 equivalent of mmap is ViewMapOfFile, but malloc+read
++       may be better */
++    HANDLE view = CreateFileMapping((HANDLE)_get_osfhandle(fd), NULL,
++                                    PAGE_READONLY|SEC_COMMIT, 0,0 , NULL);
++    if (NULL == view) {
++        cc_log("Failed to create file mapping %s: %s\n",
++               fname, strerror(errno));
++		stats_update(STATS_PREPROCESSOR);
++		return -1;
++	}
++
++	map = MapViewOfFile(view, FILE_MAP_READ, 0, 0, st.st_size);
++    if (NULL == map) {
++        cc_log("Failed to map view of file %s: %s\n",
++               fname, strerror(errno));
++		stats_update(STATS_PREPROCESSOR);
++		return -1;
++	}
++
++	/* pass it through the unifier */
++	unify((unsigned char *)map, st.st_size);
++
++    UnmapViewOfFile(map);
++    CloseHandle(view);
++    close(fd);
++#else
+ 	/* we use mmap() to make it easy to handle arbitrarily long
+            lines in preprocessor output. I have seen lines of over
+            100k in length, so this is well worth it */
+@@ -263,7 +290,7 @@
+ 	unify((unsigned char *)map, st.st_size);
+ 
+ 	munmap(map, st.st_size);
+-
++#endif
+ 	return 0;
+ }
+ 
+Index: util.c
+===================================================================
+RCS file: /cvsroot/ccache/util.c,v
+retrieving revision 1.37
+diff -u -r1.37 util.c
+--- util.c	17 Jul 2006 03:41:12 -0000	1.37
++++ util.c	11 Nov 2007 02:31:02 -0000
+@@ -17,8 +17,28 @@
+ */
+ 
+ #include "ccache.h"
++#include <strings.h>
+ 
+ static FILE *logfile;
++#ifdef _WIN32
++int fchmod(int fildes, mode_t mode)
++{
++#   warning "fchmod not implemented"
++    return 0;
++}
++#  define mkdir(a,b) mkdir(a)
++#  define lstat(a,b) stat(a,b)
++#  define x_realpath(a) strdup(a)
++#endif
++
++#ifndef HAVE_MKSTEMP
++/* cheap and nasty mkstemp replacement */
++int mkstemp(char *template)
++{
++	mktemp(template);
++	return open(template, O_RDWR|O_CREAT|O_EXCL|O_BINARY, 0600);
++}
++#endif
+ 
+ /* log a message to the CCACHE_LOGFILE location */
+ void cc_log(const char *format, ...)
+@@ -168,6 +188,33 @@
+ }
+ 
+ /*
++  this is like strdup() but dies if the malloc fails and add quotes
++  around the argument if it contains spaces.
++*/
++char*
++x_quote_strdup(const char* s)
++{
++    /* Protect against args containing spaces in them - unicode-able ? */
++    if (strchr(s, ' ') != NULL) {
++        size_t len = strlen(s); /* at least 1 as it holds ' ' */
++        char  *new_arg = x_malloc(len+2*1+1); /* Make room for quoting */
++
++        /* Quote */
++        new_arg[0] = '"';
++        memcpy(new_arg+1, s, len);
++        new_arg[len+1] = '"';
++        new_arg[len+2] = 0;
++
++        /* Done */
++        cc_log("Quoted %s\n", new_arg);
++        return new_arg;
++    }
++    else
++        return x_strdup(s);
++}
++
++
++/*
+   this is like malloc() but dies if the malloc fails
+ */
+ void *x_malloc(size_t size)
+@@ -216,7 +263,8 @@
+ 
+ 		if (strlen(de->d_name) == 0) continue;
+ 
+-		x_asprintf(&fname, "%s/%s", dir, de->d_name);
++        /* No need to quote, unique argument */
++		x_asprintf(&fname, "%s"PATH_SEP"%s", dir, de->d_name);
+ 		if (lstat(fname, &st)) {
+ 			if (errno != ENOENT) {
+ 				perror(fname);
+@@ -240,7 +288,7 @@
+ /* return the base name of a file - caller frees */
+ char *str_basename(const char *s)
+ {
+-	char *p = strrchr(s, '/');
++	char *p = strrchr(s, PATH_SEP_CHAR);
+ 	if (p) {
+ 		return x_strdup(p+1);
+ 	} 
+@@ -253,15 +301,31 @@
+ {
+ 	char *p;
+ 	s = x_strdup(s);
+-	p = strrchr(s, '/');
++	p = strrchr(s, PATH_SEP_CHAR);
+ 	if (p) {
+ 		*p = 0;
+ 	} 
+ 	return s;
+ }
+ 
++/*
++  http://www.ecst.csuchico.edu/~beej/guide/ipc/flock.html
++  http://cvs.php.net/viewcvs.cgi/php-src/win32/flock.c?revision=1.2&view=markup
++  Should return 0 for success, >0 otherwise
++ */
+ int lock_fd(int fd)
+ {
++#ifdef _WIN32
++#  if 1
++    return _locking(fd, _LK_NBLCK, 1);
++#  else
++    HANDLE fl = (HANDLE)_get_osfhandle(fd);
++    OVERLAPPED o;
++    memset(&o, 0, sizeof(o));
++    return (LockFileEx(fl, LOCKFILE_EXCLUSIVE_LOCK, 0, 1,0 /*len*/, &o))
++        ? 0 : GetLastError();
++#  endif
++#else
+ 	struct flock fl;
+ 	int ret;
+ 
+@@ -277,17 +341,22 @@
+ 		ret = fcntl(fd, F_SETLKW, &fl);
+ 	} while (ret == -1 && errno == EINTR);
+ 	return ret;
++#endif
+ }
+ 
+ /* return size on disk of a file */
+ size_t file_size(struct stat *st)
+ {
++#ifdef _WIN32
++    return st->st_size;
++#else
+ 	size_t size = st->st_blocks * 512;
+ 	if ((size_t)st->st_size > size) {
+ 		/* probably a broken stat() call ... */
+ 		size = (st->st_size + 1023) & ~1023;
+ 	}
+ 	return size;
++#endif
+ }
+ 
+ 
+@@ -343,6 +412,7 @@
+ }
+ 
+ 
++#ifndef _WIN32
+ /*
+   a sane realpath() function, trying to cope with stupid path limits and 
+   a broken API
+@@ -385,6 +455,7 @@
+ 	free(ret);
+ 	return NULL;
+ }
++#endif
+ 
+ /* a getcwd that will returns an allocated buffer */
+ char *gnu_getcwd(void)
+@@ -404,16 +475,6 @@
+ 	}
+ }
+ 
+-#ifndef HAVE_MKSTEMP
+-/* cheap and nasty mkstemp replacement */
+-int mkstemp(char *template)
+-{
+-	mktemp(template);
+-	return open(template, O_RDWR | O_CREAT | O_EXCL | O_BINARY, 0600);
+-}
+-#endif
+-
+-
+ /* create an empty file */
+ int create_empty_file(const char *fname)
+ {
+@@ -430,9 +491,26 @@
+ /*
+   return current users home directory or die
+ */
++#ifdef _WIN32
++   // To get SHGetSpecialFolderPath
++#  define _WIN32_IE   0x500
++#  include <shlobj.h>
++#endif
+ const char *get_home_directory(void)
+ {
+-	const char *p = getenv("HOME");
++    const char *p = NULL;
++
++#ifdef _WIN32
++    static TCHAR szPath[MAX_PATH];
++
++    // "Documents and Settings\user\Application Data" is CSIDL_APPDATA
++    if(SHGetSpecialFolderPath(NULL, szPath, CSIDL_PROFILE, FALSE))
++    {
++        return szPath;
++    }
++#endif
++
++    p = getenv("HOME");
+ 	if (p) {
+ 		return p;
+ 	}
