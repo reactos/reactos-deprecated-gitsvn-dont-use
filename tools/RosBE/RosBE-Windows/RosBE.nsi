@@ -10,7 +10,6 @@
 ;;
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "RosBE-${PRODUCT_VERSION}.exe"
-InstallDir "$PROGRAMFILES\RosBE"
 InstallDirRegKey HKCU "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -42,6 +41,9 @@ SetCompressor /FINAL /SOLID lzma
 ;; Read our custom page ini, remove previous version.
 ;;
 Function .onInit
+    var /global SYSTEMDRIVE
+    StrCpy $SYSTEMDRIVE $WINDIR 2
+    StrCpy $INSTDIR "$SYSTEMDRIVE\RosBE"
     Call UninstallPrevious
     !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
 FunctionEnd
