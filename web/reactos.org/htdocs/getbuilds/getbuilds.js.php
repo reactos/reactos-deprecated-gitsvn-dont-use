@@ -91,7 +91,7 @@ function getfilesCallback(http_request, data)
 	{
 		// For some errors, we show a localized error message
 		if( http_request.responseXML.getElementsByTagName("message")[0].firstChild.data == "LIMIT" )
-			alert( '<?php printf( $getbuilds_langres["rangelimitexceeded"], "' + http_request.responseXML.getElementsByTagName(\"limit\")[0].firstChild.data + '" ); ?>' );
+			alert( '<?php printf( addslashes($getbuilds_langres["rangelimitexceeded"]), "' + http_request.responseXML.getElementsByTagName(\"limit\")[0].firstChild.data + '" ); ?>' );
 		else
 			alert( http_request.responseXML.getElementsByTagName("message")[0].firstChild.data );
 		
@@ -108,7 +108,7 @@ function getfilesCallback(http_request, data)
 		if( data["requesttype"] == "FirstPageFullLoad" )
 		{
 			filenum = parseInt( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data );
-			html += '<?php printf( $getbuilds_langres["foundfiles"], "<span id=\"filenum\">' + filenum + '</span>" ); ?>';
+			html += '<?php printf( addslashes($getbuilds_langres["foundfiles"]), "<span id=\"filenum\">' + filenum + '</span>" ); ?>';
 		}
 		else
 			html += document.getElementById("infobox").innerHTML;
@@ -121,12 +121,12 @@ function getfilesCallback(http_request, data)
 		if( currentpage == 1 )
 		{
 			html += '<strong>&laquo;</strong> ';
-			html += '<strong>&lsaquo; <?php echo $getbuilds_langres["prevpage"]; ?></strong> ';
+			html += '<strong>&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?></strong> ';
 		}
 		else
 		{
-			html += '<a href="javascript:firstPage()" title="<?php echo $getbuilds_langres["firstpage_title"]; ?>">&laquo;</a> ';
-			html += '<a href="javascript:prevPage()" title="<?php echo $getbuilds_langres["prevpage_title"]; ?>">&lsaquo; <?php echo $getbuilds_langres["prevpage"]; ?></a> ';
+			html += '<a href="javascript:firstPage()" title="<?php echo addslashes($getbuilds_langres["firstpage_title"]); ?>">&laquo;</a> ';
+			html += '<a href="javascript:prevPage()" title="<?php echo addslashes($getbuilds_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?></a> ';
 		}
 		
 		html += '<select id="pagesel" size="1" onchange="pageboxChange(this)">';
@@ -135,7 +135,7 @@ function getfilesCallback(http_request, data)
 		{
 			pagecount = 1;
 			
-			html += '<option selected="selected" value="' + currentpage + '-' + startrev + '"><?php echo $getbuilds_langres["page"]; ?> ' + currentpage;
+			html += '<option selected="selected" value="' + currentpage + '-' + startrev + '"><?php echo addslashes($getbuilds_langres["page"]); ?> ' + currentpage;
 			
 			if( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data > 0 )
 				html += ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '</option>';
@@ -147,26 +147,26 @@ function getfilesCallback(http_request, data)
 		
 		if( http_request.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 0 )
 		{
-			html += '<strong><?php echo $getbuilds_langres["nextpage"]; ?> &rsaquo;</strong> ';
+			html += '<strong><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;</strong> ';
 			html += '<strong>&raquo;</strong>';
 		}
 		else
 		{
-			html += '<a href="javascript:nextPage()" title="<?php echo $getbuilds_langres["nextpage_title"]; ?>"><?php echo $getbuilds_langres["nextpage"]; ?> &rsaquo;</a> ';
-			html += '<a href="javascript:lastPage()" title="<?php echo $getbuilds_langres["lastpage_title"]; ?>">&raquo;</a>';
+			html += '<a href="javascript:nextPage()" title="<?php echo addslashes($getbuilds_langres["nextpage_title"]); ?>"><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;</a> ';
+			html += '<a href="javascript:lastPage()" title="<?php echo addslashes($getbuilds_langres["lastpage_title"]); ?>">&raquo;</a>';
 		}
 		
 		html += '</td></tr></table>';
 
 		// File table
 		html += '<table class="datatable" cellspacing="0" cellpadding="1">';
-		html += '<thead><tr class="head"><th class="fname"><?php echo $getbuilds_langres["filename"]; ?></th><th class="fsize"><?php echo $getbuilds_langres["filesize"]; ?></th><th class="fdate"><?php echo $getbuilds_langres["filedate"]; ?></th></tr></thead>';
+		html += '<thead><tr class="head"><th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?></th><th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?></th><th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?></th></tr></thead>';
 		html += '<tbody>';
 		
 		var files = http_request.responseXML.getElementsByTagName("file");
 	
 		if( files.length == 0 )
-			html += '<tr class="odd"><td><?php printf( $getbuilds_langres["nofiles"], "' + fullrange + '" ); ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+			html += '<tr class="odd"><td><?php printf( addslashes($getbuilds_langres["nofiles"]), "' + fullrange + '" ); ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
 		else
 		{
 			var oddeven = false;
@@ -216,7 +216,7 @@ function getfilesCallback(http_request, data)
 		// If I use "innerHTML" here, the first <OPTION> start tag gets dropped in the IE...
 		// Therefore I have to use the DOM functions in this case.
 		var option_elem = document.createElement("option");
-		var option_text = document.createTextNode( '<?php echo $getbuilds_langres["page"]; ?> ' + pagecount + ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data );
+		var option_text = document.createTextNode( '<?php echo addslashes($getbuilds_langres["page"]); ?> ' + pagecount + ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data );
 		
 		option_elem.value = pagecount + "-" + data["new_startrev"];
 		option_elem.appendChild( option_text );
