@@ -29,7 +29,7 @@
 	$getbuilds_langres["prevrev"] = "Revisione precedente";
 	$getbuilds_langres["nextrev"] = "Revisione successiva";
 	$getbuilds_langres["showrev"] = "Mostrare";
-	$getbuilds_langres["gettinglist"] = "Ottentendo l\'elenco dei file";
+	$getbuilds_langres["gettinglist"] = "Ottentendo l'elenco dei file";
 	$getbuilds_langres["rangeinfo"] = "Puoi inserire un numero di revisione (ad es. %s) oppure un range di revisioni (ad es. %s-%s)";
 	$getbuilds_langres["isotype"] = "Mostrare imagini cd";
 	
@@ -41,7 +41,7 @@
 	$getbuilds_langres["page"] = "Pagina";
 	$getbuilds_langres["nextpage"] = "Successiva";
 	$getbuilds_langres["nextpage_title"] = "Pagina successiva";
-	$getbuilds_langres["lastpage_title"] = "Andare all\'ultima pagina";
+	$getbuilds_langres["lastpage_title"] = "Andare all'ultima pagina";
 	
 	$getbuilds_langres["filename"] = "Nome file";
 	$getbuilds_langres["filesize"] = "Dimensioni";

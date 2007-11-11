@@ -149,19 +149,19 @@
 			document.write(
 				'<table id="showrev" cellspacing="0" cellpadding="5">' +
 					'<tr>' +
-						'<td><?php echo $getbuilds_langres["showrevfiles"]; ?>: </td>' +
+						'<td><?php echo addslashes($getbuilds_langres["showrevfiles"]); ?>: </td>' +
 						'<td>' +
 							'<span id="revcontrols">' +
-								'<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="prevRev();"> ' +
+								'<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo addslashes($getbuilds_langres["prevrev"]); ?>" onclick="prevRev();"> ' +
 								'<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="checkRevNum(this);"> ' +
-								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="nextRev();"><br>' +
+								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo addslashes($getbuilds_langres["nextrev"]); ?>" onclick="nextRev();"><br>' +
 							'</span>' +
 							
-							'<img src="images/info.gif" alt="INFO:"> <?php printf( $getbuilds_langres["rangeinfo"], $rev, ($rev - 50), $rev ); ?>' +
+							'<img src="images/info.gif" alt="INFO:"> <?php printf( addslashes($getbuilds_langres["rangeinfo"]), $rev, ($rev - 50), $rev ); ?>' +
 						'</td>' +
 					'</tr>' +
 					'<tr>' +
-						'<td><?php echo $getbuilds_langres["isotype"]; ?>: </td>' +
+						'<td><?php echo addslashes($getbuilds_langres["isotype"]); ?>: </td>' +
 						'<td>' +
 							'<input type="checkbox" id="bootcd-dbg" checked="checked"> Debug Boot CDs ' +
 							'<input type="checkbox" id="livecd-dbg" checked="checked"> Debug Live CDs ' +
@@ -172,10 +172,10 @@
 				'</table>'	 +
 
 				'<div id="controlbox">' +
-					'<input type="button" onclick="showRev();" value="<?php echo $getbuilds_langres["showrev"]; ?>" />' +
+					'<input type="button" onclick="showRev();" value="<?php echo addslashes($getbuilds_langres["showrev"]); ?>" />' +
 					
 					'<span id="ajaxloadinginfo">' +
-						'<img src="images/ajax_loading.gif"> <?php echo $getbuilds_langres["gettinglist"]; ?>...' +
+						'<img src="images/ajax_loading.gif"> <?php echo addslashes($getbuilds_langres["gettinglist"]); ?>...' +
 					'</span>' +
 				'</div>' +
 
@@ -183,14 +183,14 @@
 					'<table class="datatable" cellspacing="0" cellpadding="1">' +
 						'<thead>' +
 							'<tr class="head">' +
-								'<th class="fname"><?php echo $getbuilds_langres["filename"]; ?></th>' +
-								'<th class="fsize"><?php echo $getbuilds_langres["filesize"]; ?></th>' +
-								'<th class="fdate"><?php echo $getbuilds_langres["filedate"]; ?></th>' +
+								'<th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?></th>' +
+								'<th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?></th>' +
+								'<th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?></th>' +
 							'</tr>' +
 						'</thead>' +
 						'<tbody>' +
 							'<tr class="odd">' +
-								'<td><?php echo $getbuilds_langres["pleasewait"]; ?>...</td>' +
+								'<td><?php echo addslashes($getbuilds_langres["pleasewait"]); ?>...</td>' +
 								'<td>&nbsp;</td>' +
 								'<td>&nbsp;</td>' +
 							'</tr>' +
