@@ -25,15 +25,15 @@
 	
 	$getbuilds_langres["downloadrev"] = "Télécharger les binaires d'une révision de ReactOS";
 	$getbuilds_langres["js_disclaimer"] = 'JavaScript a besoin d\'être activé dans votre navigateur pour utiliser la liste des fichiers de révision.<br>Autrement, vous pouvez télécharger tous les binaires des révisions <a href="http://svn.reactos.org/iso">ici</a>.';
-	$getbuilds_langres["showrevfiles"] = "Montrer les fichiers de la révision ";
+	$getbuilds_langres["showrevfiles"] = "Montrer les fichiers de la révision";
 	$getbuilds_langres["prevrev"] = "Révision précédente";
 	$getbuilds_langres["nextrev"] = "Révision suivante";
 	$getbuilds_langres["showrev"] = "Montrer";
 	$getbuilds_langres["gettinglist"] = "Récupération de la liste des fichiers";
 	$getbuilds_langres["rangeinfo"] = "Vous pouvez entrer un numéro de révision (p.e. %s) ou un intervalle de révisions (p.e. %s-%s)";
-	$getbuilds_langres["isotype"] = "Montrer les types d'images de CD ";
+	$getbuilds_langres["isotype"] = "Montrer les types d\'images de CD";
 	
-	$getbuilds_langres["foundfiles"] = "%s fichiers trouvés !";
+	$getbuilds_langres["foundfiles"] = "%s fichiers trouvés!";
 	
 	$getbuilds_langres["firstpage_title"] = "Aller à la première page";
 	$getbuilds_langres["prevpage_title"] = "Page précédente";
@@ -48,8 +48,8 @@
 	$getbuilds_langres["filedate"] = "Derniers changements";
 	$getbuilds_langres["pleasewait"] = "Veuillez patienter";
 	
-	$getbuilds_langres["nofiles"] 	 = "Il n'y a pas de fichiers disponibles pour la révision %s !";
-	$getbuilds_langres["invalidrev"] = "Numéro de révision invalide !";
+	$getbuilds_langres["nofiles"] 	 = "Il n\'y a pas de fichiers disponibles pour la révision %s!";
+	$getbuilds_langres["invalidrev"] = "Numéro de révision invalide!";
 	
-	$getbuilds_langres["rangelimitexceeded"] = "L'intervalle de révisions ne peut contenir qu'un maximum de %s révisions !";
+	$getbuilds_langres["rangelimitexceeded"] = "L\'intervalle de révisions ne peut contenir qu\'un maximum de %s révisions!";
 ?>
