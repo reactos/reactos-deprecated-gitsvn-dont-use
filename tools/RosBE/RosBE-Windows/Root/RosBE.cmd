@@ -92,12 +92,14 @@ call :LOADDOSKEYMACROS
 :: Look if the ReactOS source directory is empty. If so,
 :: inform the user and mention 'ssvn create' (only if ssvn is installed).
 ::
+setlocal enabledelayedexpansion
 if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
     dir /b "%_ROSBE_ROSSOURCEDIR%" 2>nul | findstr "." >nul
-    if errorlevel 1 (
+    if !errorlevel! == 1 (
         echo No ReactOS source detected. Please use "ssvn create" to download it.
     )
 )
+endlocal
 
 goto :EOC
 

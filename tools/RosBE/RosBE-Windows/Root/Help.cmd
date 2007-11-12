@@ -38,7 +38,6 @@ if "%1" == "" (
 
     if exist "%_ROSBE_BASEDIR%\Config.cmd" (
         echo    config [OPTIONS]     - Configures the way, ReactOS will be built.
-        echo.
     )
 
     echo    help [COMMAND]       - Display the available commands or help on a
