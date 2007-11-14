@@ -186,7 +186,15 @@ Section "CCache" SEC06
     File /r Root\Tools\cygwin1.dll
 SectionEnd
 
-Section "relAddr2Line Tool" SEC07
+Section "GDB" SEC07
+    SetShellVarContext current
+    SetOutPath "$INSTDIR\4.1.3\bin"
+    SetOverwrite try
+    File /r Root\Tools\gdb.exe
+    File /r Root\Tools\gdbserver.exe
+SectionEnd
+
+Section "relAddr2Line Tool" SEC08
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -198,7 +206,7 @@ Section "relAddr2Line Tool" SEC07
     File /r Root\Tools\chkslash.exe
 SectionEnd
 
-Section "Other Tools (chdefdir, chdefgcc and config)" SEC08
+Section "Other Tools (chdefdir, chdefgcc and config)" SEC09
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -207,7 +215,7 @@ Section "Other Tools (chdefdir, chdefgcc and config)" SEC08
     File /r Root\Config.cmd
 SectionEnd
 
-Section -StartMenuShortcuts SEC09
+Section -StartMenuShortcuts SEC10
     SetShellVarContext current
 
     ;;
@@ -225,7 +233,7 @@ Section -StartMenuShortcuts SEC09
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC10
+Section /o "Desktop Shortcuts" SEC11
     SetShellVarContext current
 
     ;;
@@ -235,7 +243,7 @@ Section /o "Desktop Shortcuts" SEC10
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC11
+Section /o "Quick Launch Shortcuts" SEC12
     SetShellVarContext current
 
     ;;
@@ -245,7 +253,7 @@ Section /o "Quick Launch Shortcuts" SEC11
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
 SectionEnd
 
-Section -Post SEC12
+Section -Post SEC13
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
