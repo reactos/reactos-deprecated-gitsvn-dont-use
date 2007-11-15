@@ -237,7 +237,7 @@ while [ "$installdir" = "" ]; do
 				echo "The directory \"$installdir\" is not empty. Do you really want to continue? (yes/no)"
 				read -p "[no] " answer
 				echo
-	
+
 				if [ "$answer" != "yes" ]; then
 					echo "Please enter another directory!"
 					installdir=""
@@ -358,26 +358,26 @@ cd "$SOURCEDIR"
 if $process_binutils; then
 	rm -rf "binutils"
 	rm -rf "binutils-build"
-	
+
 	echo -n "Extracting binutils... "
 	tar -xjf "binutils.tar.bz2" >& "$SCRIPTDIR/tar.log"
 	checkrun "tar"
-	
+
 	echo -n "Configuring binutils... "
 	mkdir "binutils-build"
 	cd "binutils-build"
 	../binutils/configure --prefix="$installdir" --target=mingw32 --disable-nls --with-gcc \
 			--with-gnu-as --with-gnu-ld --disable-shared >& "$SCRIPTDIR/configure.log"
 	checkrun "configure"
-	
+
 	echo -n "Building binutils... "
 	$makecmd -j $CPUCOUNT CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Installing binutils... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Cleaning up binutils... "
 	cd "$SOURCEDIR"
 	rm -rf "binutils-build"
@@ -389,11 +389,11 @@ fi
 if $process_gcc; then
 	rm -rf "gcc"
 	rm -rf "gcc-build"
-	
+
 	echo -n "Extracting gcc... "
 	tar -xjf "gcc.tar.bz2" >& "$SCRIPTDIR/tar.log"
 	checkrun "tar"
-	
+
 	echo -n "Configuring gcc... "
 	mkdir "gcc-build"
 	cd "gcc-build"
@@ -403,15 +403,15 @@ if $process_gcc; then
 			--enable-threads=win32 --disable-win32-registry --disable-nls  \
 			--disable-shared >& "$SCRIPTDIR/configure.log"
 	checkrun "configure"
-	
+
 	echo -n "Building gcc... "
 	$makecmd -j $CPUCOUNT CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Installing gcc... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Cleaning up gcc... "
 	cd "$SOURCEDIR"
 	rm -rf "gcc-build"
@@ -423,11 +423,11 @@ fi
 if $process_make; then
 	rm -rf "make"
 	rm -rf "make-build"
-	
+
 	echo -n "Extracting make... "
 	tar -xjf "make.tar.bz2" >& "$SCRIPTDIR/tar.log"
 	checkrun "tar"
-	
+
 	echo -n "Configuring make... "
 	mkdir "make-build"
 	cd "make-build"
@@ -436,15 +436,15 @@ if $process_make; then
 			--enable-case-insensitive-file-system --disable-job-server --disable-rpath \
 			--program-prefix=mingw32- >& "$SCRIPTDIR/configure.log"
 	checkrun "configure"
-	
+
 	echo -n "Building make... "
 	$makecmd -j $CPUCOUNT CFLAGS="-s -O2 -mms-bitfields" >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Installing make... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Cleaning up make... "
 	cd "$SOURCEDIR"
 	rm -rf "make-build"
@@ -456,25 +456,25 @@ fi
 if $process_nasm; then
 	rm -rf "nasm"
 	rm -rf "nasm-build"
-	
+
 	echo -n "Extracting nasm... "
 	tar -xjf "nasm.tar.bz2" >& "$SCRIPTDIR/tar.log"
 	checkrun "tar"
-	
+
 	echo -n "Configuring nasm... "
 	mkdir "nasm-build"
 	cd "nasm-build"
 	../nasm/configure --prefix="$installdir" --target=mingw32  >& "$SCRIPTDIR/configure.log"
 	checkrun "configure"
-	
+
 	echo -n "Building nasm... "
 	$makecmd -j $CPUCOUNT >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Installing nasm... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
 	checkrun "make"
-	
+
 	echo -n "Cleaning up nasm... "
 	cd "$SOURCEDIR"
 	rm -rf "nasm-build"

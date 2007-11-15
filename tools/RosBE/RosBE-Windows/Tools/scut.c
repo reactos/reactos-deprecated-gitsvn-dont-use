@@ -335,7 +335,7 @@ void checkfile(void)
 
     fp = fopen(shortcutfile, "r");
     if (!fp)
-    {   
+    {
         if(access(rosbeappdata, F_OK) == -1)
         {
             // Directory does not exist, create it
@@ -344,7 +344,7 @@ void checkfile(void)
                 fprintf(stderr, "%s: Error creating the directory for the RosBE files.\n", programname);
             }
         }
-        
+
         fp = fopen(shortcutfile, "w");
         if (!fp)
         {
