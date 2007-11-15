@@ -1,0 +1,210 @@
+diff -ur clean/gcc-4.1.0/Makefile.in gcc-4.1.0/Makefile.in
+--- clean/gcc-4.1.0/Makefile.in	2005-12-15 06:02:02.000000000 -0800
++++ gcc-4.1.0/Makefile.in	2007-09-23 20:11:22.000000000 -0700
+@@ -1,4 +1,4 @@
+-
++#
+ # Makefile.in is generated from Makefile.tpl by 'autogen Makefile.def'.
+ #
+ # Makefile for directory with subdirs to build.
+@@ -726,6 +726,7 @@
+     maybe-all-utils \
+     maybe-all-gnattools
+ .PHONY: all-target
++#    maybe-all-target-libiberty
+ all-target:  \
+     maybe-all-target-libstdc++-v3 \
+     maybe-all-target-libmudflap \
+@@ -2108,6 +2109,7 @@
+     maybe-install-gnattools
+ 
+ .PHONY: install-target
++#     maybe-install-target-libiberty
+ install-target:  \
+     maybe-install-target-libstdc++-v3 \
+     maybe-install-target-libmudflap \
+@@ -2118,7 +2120,6 @@
+     maybe-install-target-libtermcap \
+     maybe-install-target-winsup \
+     maybe-install-target-libgloss \
+-    maybe-install-target-libiberty \
+     maybe-install-target-gperf \
+     maybe-install-target-examples \
+     maybe-install-target-libffi \
+Only in gcc-4.1.0: Makefile.in~
+diff -ur clean/gcc-4.1.0/libssp/Makefile.in gcc-4.1.0/libssp/Makefile.in
+--- clean/gcc-4.1.0/libssp/Makefile.in	2006-02-27 16:29:00.000000000 -0800
++++ gcc-4.1.0/libssp/Makefile.in	2007-09-21 00:27:01.000000000 -0700
+@@ -71,10 +71,11 @@
+ 	"$(DESTDIR)$(libsubincludedir)"
+ toolexeclibLTLIBRARIES_INSTALL = $(INSTALL)
+ LTLIBRARIES = $(toolexeclib_LTLIBRARIES)
+-am_libssp_la_OBJECTS = ssp.lo gets-chk.lo memcpy-chk.lo memmove-chk.lo \
+-	mempcpy-chk.lo memset-chk.lo snprintf-chk.lo sprintf-chk.lo \
+-	stpcpy-chk.lo strcat-chk.lo strcpy-chk.lo strncat-chk.lo \
+-	strncpy-chk.lo vsnprintf-chk.lo vsprintf-chk.lo
++am_libssp_la_OBJECTS = 
++#am_libssp_la_OBJECTS = ssp.lo gets-chk.lo memcpy-chk.lo memmove-chk.lo \
++#	mempcpy-chk.lo memset-chk.lo snprintf-chk.lo sprintf-chk.lo \
++#	stpcpy-chk.lo strcat-chk.lo strcpy-chk.lo strncat-chk.lo \
++#	strncpy-chk.lo vsnprintf-chk.lo vsprintf-chk.lo
+ libssp_la_OBJECTS = $(am_libssp_la_OBJECTS)
+ am_libssp_nonshared_la_OBJECTS = libssp_nonshared_la-ssp-local.lo
+ libssp_nonshared_la_OBJECTS = $(am_libssp_nonshared_la_OBJECTS)
+Only in gcc-4.1.0/libssp: Makefile.in~
+diff -ur clean/gcc-4.1.0/libssp/gets-chk.c gcc-4.1.0/libssp/gets-chk.c
+--- clean/gcc-4.1.0/libssp/gets-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/gets-chk.c	2007-09-21 00:06:58.000000000 -0700
+@@ -52,6 +52,7 @@
+ # include <string.h>
+ #endif
+ 
++#if 0
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
+ char *
+@@ -86,3 +87,4 @@
+     free (buf);
+   return ret;
+ }
++#endif
+Only in gcc-4.1.0/libssp: gets-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/memcpy-chk.c gcc-4.1.0/libssp/memcpy-chk.c
+--- clean/gcc-4.1.0/libssp/memcpy-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/memcpy-chk.c	2007-09-21 00:09:45.000000000 -0700
+@@ -39,6 +39,7 @@
+ # include <string.h>
+ #endif
+ 
++#if 0
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
+ void *
+@@ -49,3 +50,4 @@
+     __chk_fail ();
+   return memcpy (dest, src, len);
+ }
++#endif
+Only in gcc-4.1.0/libssp: memcpy-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/memset-chk.c gcc-4.1.0/libssp/memset-chk.c
+--- clean/gcc-4.1.0/libssp/memset-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/memset-chk.c	2007-09-21 00:25:06.000000000 -0700
+@@ -41,6 +41,7 @@
+ 
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
++#if 0
+ void *
+ __memset_chk (void *dest, int val, size_t len, size_t slen)
+ {
+@@ -48,3 +49,4 @@
+     __chk_fail ();
+   return memset (dest, val, len);
+ }
++#endif
+Only in gcc-4.1.0/libssp: memset-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/ssp.c gcc-4.1.0/libssp/ssp.c
+--- clean/gcc-4.1.0/libssp/ssp.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/ssp.c	2007-09-21 00:04:15.000000000 -0700
+@@ -58,6 +58,8 @@
+ 
+ void *__stack_chk_guard = 0;
+ 
++#if 0
++
+ static void __attribute__ ((constructor))
+ __guard_setup (void)
+ {
+@@ -176,3 +178,4 @@
+   __stack_chk_fail ();
+ }
+ #endif
++#endif
+Only in gcc-4.1.0/libssp: ssp.c~
+diff -ur clean/gcc-4.1.0/libssp/stpcpy-chk.c gcc-4.1.0/libssp/stpcpy-chk.c
+--- clean/gcc-4.1.0/libssp/stpcpy-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/stpcpy-chk.c	2007-09-21 00:10:38.000000000 -0700
+@@ -41,6 +41,7 @@
+ 
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
++#if 0
+ char *
+ __stpcpy_chk (char *__restrict__ dest, const char *__restrict__ src,
+               size_t slen)
+@@ -50,3 +51,4 @@
+     __chk_fail ();
+   return memcpy (dest, src, len + 1) + len;
+ }
++#endif
+Only in gcc-4.1.0/libssp: stpcpy-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/strcat-chk.c gcc-4.1.0/libssp/strcat-chk.c
+--- clean/gcc-4.1.0/libssp/strcat-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/strcat-chk.c	2007-09-21 00:10:55.000000000 -0700
+@@ -41,6 +41,7 @@
+ 
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
++#if 0
+ char *
+ __strcat_chk (char *__restrict__ dest, const char *__restrict__ src,
+               size_t slen)
+@@ -71,3 +72,4 @@
+ 
+   return dest;
+ }
++#endif
+Only in gcc-4.1.0/libssp: strcat-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/strcpy-chk.c gcc-4.1.0/libssp/strcpy-chk.c
+--- clean/gcc-4.1.0/libssp/strcpy-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/strcpy-chk.c	2007-09-21 00:10:01.000000000 -0700
+@@ -39,6 +39,7 @@
+ # include <string.h>
+ #endif
+ 
++#if 0
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
+ char *
+@@ -50,3 +51,4 @@
+     __chk_fail ();
+   return memcpy (dest, src, len + 1);
+ }
++#endif
+Only in gcc-4.1.0/libssp: strcpy-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/strncat-chk.c gcc-4.1.0/libssp/strncat-chk.c
+--- clean/gcc-4.1.0/libssp/strncat-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/strncat-chk.c	2007-09-21 00:10:14.000000000 -0700
+@@ -41,6 +41,7 @@
+ 
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
++#if 0
+ char *
+ __strncat_chk (char *__restrict__ dest, const char *__restrict__ src,
+                size_t n, size_t slen)
+@@ -118,3 +119,4 @@
+ 
+   return s;
+ }
++#endif
+Only in gcc-4.1.0/libssp: strncat-chk.c~
+diff -ur clean/gcc-4.1.0/libssp/strncpy-chk.c gcc-4.1.0/libssp/strncpy-chk.c
+--- clean/gcc-4.1.0/libssp/strncpy-chk.c	2005-08-16 20:26:45.000000000 -0700
++++ gcc-4.1.0/libssp/strncpy-chk.c	2007-09-21 00:10:26.000000000 -0700
+@@ -41,6 +41,8 @@
+ 
+ extern void __chk_fail (void) __attribute__((__noreturn__));
+ 
++#if 0
++
+ #ifdef HAVE_STRNCPY
+ char *
+ __strncpy_chk (char *__restrict__ dest, const char *__restrict__ src,
+@@ -51,3 +53,5 @@
+   return strncpy (dest, src, len);
+ }
+ #endif
++
++#endif
+Only in gcc-4.1.0/libssp: strncpy-chk.c~

@@ -1,0 +1,683 @@
+Only in binutils-2.16.1/bfd: bfd.i
+Only in binutils-2.16.1/bfd: bfd_wrap.c
+Only in clean/binutils-2.16.1/bfd/doc: bfd.info-1
+Only in clean/binutils-2.16.1/bfd/doc: bfd.info-2
+diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/bfd/elf.c binutils-2.16.1/bfd/elf.c
+--- clean/binutils-2.16.1/bfd/elf.c	2005-05-29 15:00:10.000000000 -0700
++++ binutils-2.16.1/bfd/elf.c	2007-09-12 23:53:42.000000000 -0700
+@@ -4744,7 +4744,7 @@
+ 	  if (bfd_seek (abfd, i_shdrp[count]->sh_offset, SEEK_SET) != 0
+ 	      || bfd_bwrite (i_shdrp[count]->contents, amt, abfd) != amt)
+ 	    return FALSE;
+-	}
++	} 
+       if (count == SHN_LORESERVE - 1)
+ 	count += SHN_HIRESERVE + 1 - SHN_LORESERVE;
+     }
+@@ -6539,7 +6539,6 @@
+ _bfd_elf_validate_reloc (bfd *abfd, arelent *areloc)
+ {
+   /* Check whether we really have an ELF howto.  */
+-
+   if ((*areloc->sym_ptr_ptr)->the_bfd->xvec != abfd->xvec)
+     {
+       bfd_reloc_code_real_type code;
+diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/bfd/elf32-ppc.c binutils-2.16.1/bfd/elf32-ppc.c
+--- clean/binutils-2.16.1/bfd/elf32-ppc.c	2005-04-19 10:09:30.000000000 -0700
++++ binutils-2.16.1/bfd/elf32-ppc.c	2007-09-12 23:53:43.000000000 -0700
+@@ -2053,6 +2053,7 @@
+     case BFD_RELOC_LO16_PLTOFF:		r = R_PPC_PLT16_LO;		break;
+     case BFD_RELOC_HI16_PLTOFF:		r = R_PPC_PLT16_HI;		break;
+     case BFD_RELOC_HI16_S_PLTOFF:	r = R_PPC_PLT16_HA;		break;
++    case BFD_RELOC_RVA:                 r = R_PPC_UADDR32;              break;
+     case BFD_RELOC_GPREL16:		r = R_PPC_SDAREL16;		break;
+     case BFD_RELOC_16_BASEREL:		r = R_PPC_SECTOFF;		break;
+     case BFD_RELOC_LO16_BASEREL:	r = R_PPC_SECTOFF_LO;		break;
+Only in binutils-2.16.1/bfd: elf32-ppc.c~
+Only in binutils-2.16.1/binutils: dlltool
+diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-2.16.1/binutils/dlltool.c
+--- clean/binutils-2.16.1/binutils/dlltool.c	2005-02-23 04:25:57.000000000 -0800
++++ binutils-2.16.1/binutils/dlltool.c	2007-09-14 23:01:31.000000000 -0700
+@@ -382,7 +382,7 @@
+ extern char * program_name;
+ 
+ static int machine;
+-static int killat;
++static int killat = 1;
+ static int add_stdcall_alias;
+ static const char *ext_prefix_alias;
+ static int verbose;
+@@ -417,11 +417,12 @@
+ static const char * mname = "mcore-le";
+ #endif
+ 
++static char * elf_linker   = NULL;
++static char * elf_linker_flags = NULL;
++
+ #ifdef DLLTOOL_MCORE_ELF
+ static const char * mname = "mcore-elf";
+ static char * mcore_elf_out_file = NULL;
+-static char * mcore_elf_linker   = NULL;
+-static char * mcore_elf_linker_flags = NULL;
+ 
+ #define DRECTVE_SECTION_NAME ((machine == MMCORE_ELF || machine == MMCORE_ELF_LE) ? ".exports" : ".drectve")
+ #endif
+@@ -507,13 +508,23 @@
+    the glue.  */
+ static const unsigned char ppc_jtab[] =
+ {
+-  0x00, 0x00, 0x62, 0x81, /* lwz r11,0(r2)               */
+-                          /*   Reloc TOCREL16 __imp_xxx  */
+-  0x00, 0x00, 0x8B, 0x81, /* lwz r12,0(r11)              */
+-  0x04, 0x00, 0x41, 0x90, /* stw r2,4(r1)                */
+-  0xA6, 0x03, 0x89, 0x7D, /* mtctr r12                   */
+-  0x04, 0x00, 0x4B, 0x80, /* lwz r2,4(r11)               */
+-  0x20, 0x04, 0x80, 0x4E  /* bctr                        */
++    0x38, 0x21, 0xff, 0xf0, /* addi 1,1,-16 */
++    0x7c, 0x08, 0x02, 0xa6, /* mflr 0 */
++    0x90, 0x01, 0x00, 0x00, /* stw 0,0(1) */
++    0x90, 0x61, 0x00, 0x04, /* stw 3,4(1) */
++    0x48, 0x00, 0x00, 0x05, /* bl next */
++    0x7c, 0x68, 0x02, 0xa6, /* mflr 3 */
++    0x38, 0x63, 0x00, 0x2c, /* addi 3,3,44 */
++    0x80, 0x63, 0x00, 0x00, /* lwz 3,0(3) */
++    0x80, 0x03, 0x00, 0x00, /* lwz 0,0(3) */
++    0x80, 0x61, 0x00, 0x04, /* lwz 3,4(1) */
++    0x7c, 0x08, 0x03, 0xa6, /* mtlr 0 */
++    0x4e, 0x80, 0x00, 0x21, /* blrl */
++    0x80, 0x01, 0x00, 0x00, /* lwz 0,0,1 */
++    0x7c, 0x08, 0x03, 0xa6, /* mtlr 0 */
++    0x38, 0x21, 0x00, 0x10, /* addi 1,1,16 */
++    0x4e, 0x80, 0x00, 0x20, /* blr */
++    0x00, 0x00, 0x00, 0x00, /* ; receives address of table entry */
+ };
+ 
+ #ifdef DLLTOOL_PPC
+@@ -567,8 +578,8 @@
+ #define MPPC 2
+     "ppc", ".byte", ".short", ".long", ".asciz", "#",
+     "jmp *", ".global", ".space", ".align\t2",".align\t4", "",
+-    "pe-powerpcle",bfd_arch_powerpc,
+-    ppc_jtab, sizeof (ppc_jtab), 0
++    "powerpc-unknown-linux-gnu", bfd_arch_powerpc,
++    ppc_jtab, sizeof (ppc_jtab), 0x40
+   }
+   ,
+   {
+@@ -1351,6 +1362,7 @@
+ 	sprintf (new_exclude->string, "%s", exclude_string);
+       else
+ 	sprintf (new_exclude->string, "_%s", exclude_string);
++
+       new_exclude->next = excludes;
+       excludes = new_exclude;
+ 
+@@ -1538,7 +1550,7 @@
+   fprintf (f, "\n");
+   for (i = 0, exp = d_exports; exp; i++, exp = exp->next)
+     {
+-      fprintf (f, "%s  %d = %s %s @ %d %s%s%s%s\n",
++      fprintf (f, "%s - %d = %s %s @ %d %s%s%s%s\n",
+ 	       ASM_C,
+ 	       i,
+ 	       exp->name,
+@@ -1778,7 +1790,7 @@
+ 
+   if (d_exports)
+     {
+-      fprintf (f, "\t.section	.edata\n\n");
++      fprintf (f, "\t.section	.edata,\"ax\"\n\n");
+       fprintf (f, "\t%s	0	%s Allways 0\n", ASM_LONG, ASM_C);
+       fprintf (f, "\t%s	0x%lx	%s Time and date\n", ASM_LONG, (long) time(0),
+ 	       ASM_C);
+@@ -1821,13 +1833,31 @@
+ 
+ 	  if (exp->forward == 0)
+ 	    {
++	      int i, lead_at;
++	      char *function_name = xmalloc(strlen(exp->internal_name)+1);
++	      char *nameptr = function_name;
++	      char *last_at;
++	      
++	      lead_at = exp->internal_name[0] == '@';
++	      last_at = strrchr(exp->internal_name + lead_at, '@');
++
++	      if( !last_at || last_at == exp->internal_name ) 
++		last_at = exp->internal_name + strlen(exp->internal_name);
++
++	      for( i = 0; i + exp->internal_name < last_at; i++ ) 
++		if( exp->internal_name[i] != '@' )
++		    *nameptr++ = exp->internal_name[i];
++	      *nameptr = 0;
++
+ 	      if (exp->internal_name[0] == '@')
+ 		fprintf (f, "\t%s%s%s\t%s %d\n", ASM_RVA_BEFORE,
+-			 exp->internal_name, ASM_RVA_AFTER, ASM_C, exp->ordinal);
++			 function_name, ASM_RVA_AFTER, ASM_C, exp->ordinal);
+ 	      else
+ 		fprintf (f, "\t%s%s%s%s\t%s %d\n", ASM_RVA_BEFORE,
+ 			 ASM_PREFIX (exp->internal_name),
+-			 exp->internal_name, ASM_RVA_AFTER, ASM_C, exp->ordinal);
++			 function_name, ASM_RVA_AFTER, ASM_C, exp->ordinal);
++
++	      free(function_name);
+ 	    }
+ 	  else
+ 	    fprintf (f, "\t%sf%d%s\t%s %d\n", ASM_RVA_BEFORE,
+@@ -2002,7 +2032,7 @@
+ {
+   int lead_at = (*name == '@');
+ 
+-  if (add_underscore &&  !lead_at)
++  if (add_underscore && !lead_at)
+     {
+       char *copy = xmalloc (strlen (name) + 2);
+ 
+@@ -2036,8 +2066,6 @@
+   unsigned char *data;
+ } sinfo;
+ 
+-#ifndef DLLTOOL_PPC
+-
+ #define TEXT 0
+ #define DATA 1
+ #define BSS 2
+@@ -2045,8 +2073,16 @@
+ #define IDATA5 4
+ #define IDATA4 5
+ #define IDATA6 6
++#ifdef DLLTOOL_PPC
++#define RDATA 7
++#define PDATA 8
++#endif
+ 
++#ifdef DLLTOOL_PPC
++#define NSECS 9
++#else
+ #define NSECS 7
++#endif
+ 
+ #define TEXT_SEC_FLAGS   \
+         (SEC_ALLOC | SEC_LOAD | SEC_CODE | SEC_READONLY | SEC_HAS_CONTENTS)
+@@ -2057,45 +2093,18 @@
+         { id, name, flags, align, NULL, NULL, NULL, 0, NULL }
+ static sinfo secdata[NSECS] =
+ {
+-  INIT_SEC_DATA (TEXT,   ".text",    TEXT_SEC_FLAGS,   2),
++  INIT_SEC_DATA (TEXT,   ".text",    TEXT_SEC_FLAGS | SEC_RELOC,   2),
+   INIT_SEC_DATA (DATA,   ".data",    DATA_SEC_FLAGS,   2),
+   INIT_SEC_DATA (BSS,    ".bss",     BSS_SEC_FLAGS,    2),
+   INIT_SEC_DATA (IDATA7, ".idata$7", SEC_HAS_CONTENTS, 2),
+-  INIT_SEC_DATA (IDATA5, ".idata$5", SEC_HAS_CONTENTS, 2),
+-  INIT_SEC_DATA (IDATA4, ".idata$4", SEC_HAS_CONTENTS, 2),
+-  INIT_SEC_DATA (IDATA6, ".idata$6", SEC_HAS_CONTENTS, 1)
+-};
+-
+-#else
+-
+-/* Sections numbered to make the order the same as other PowerPC NT
+-   compilers. This also keeps funny alignment thingies from happening.  */
+-#define TEXT   0
+-#define PDATA  1
+-#define RDATA  2
+-#define IDATA5 3
+-#define IDATA4 4
+-#define IDATA6 5
+-#define IDATA7 6
+-#define DATA   7
+-#define BSS    8
+-
+-#define NSECS 9
+-
+-static sinfo secdata[NSECS] =
+-{
+-  { TEXT,   ".text",    SEC_CODE | SEC_HAS_CONTENTS, 3},
+-  { PDATA,  ".pdata",   SEC_HAS_CONTENTS,            2},
+-  { RDATA,  ".reldata", SEC_HAS_CONTENTS,            2},
+-  { IDATA5, ".idata$5", SEC_HAS_CONTENTS,            2},
+-  { IDATA4, ".idata$4", SEC_HAS_CONTENTS,            2},
+-  { IDATA6, ".idata$6", SEC_HAS_CONTENTS,            1},
+-  { IDATA7, ".idata$7", SEC_HAS_CONTENTS,            2},
+-  { DATA,   ".data",    SEC_DATA,                    2},
+-  { BSS,    ".bss",     0,                           2}
+-};
+-
++  INIT_SEC_DATA (IDATA5, ".idata$5", SEC_HAS_CONTENTS | SEC_RELOC, 2),
++  INIT_SEC_DATA (IDATA4, ".idata$4", SEC_HAS_CONTENTS | SEC_RELOC, 2),
++  INIT_SEC_DATA (IDATA6, ".idata$6", SEC_HAS_CONTENTS, 1),
++#ifdef DLLTOOL_PPC
++  INIT_SEC_DATA (RDATA,  ".rdata",   SEC_HAS_CONTENTS, 2),
++  INIT_SEC_DATA (PDATA,  ".pdata",   SEC_HAS_CONTENTS, 2),
+ #endif
++};
+ 
+ /* This is what we're trying to make.  We generate the imp symbols with
+    both single and double underscores, for compatibility.
+@@ -2143,6 +2152,7 @@
+   strcpy (copy, ASM_PREFIX (name));
+   strcat (copy, prefix);
+   strcat (copy, name);
++
+   return copy;
+ }
+ 
+@@ -2150,14 +2160,14 @@
+ make_imp_label (const char *prefix, const char *name)
+ {
+   int len;
+-  char *copy;
++  char *copy, *xname;
+ 
+   if (name[0] == '@')
+     {
+       len = strlen (prefix) + strlen (name);
+       copy = xmalloc (len + 1);
+       strcpy (copy, prefix);
+-      strcat (copy, name);
++      strcat (copy, name+1);
+     }
+   else
+     {
+@@ -2167,13 +2177,21 @@
+       strcat (copy, ASM_PREFIX (name));
+       strcat (copy, name);
+     }
++  
++  xname = strchr (copy+1,'@');
++  if (xname) 
++    {
++      *xname = 0;
++    }
++
+   return copy;
+ }
+ 
+-static bfd *
+-make_one_lib_file (export_type *exp, int i)
++static bfd *make_one_lib_file (export_type *exp, int i)
+ {
+   bfd *      abfd;
++  asymbol *  hint_name;  
++  asymbol *  oft_sym;
+   asymbol *  exp_label;
+   asymbol *  iname = 0;
+   asymbol *  iname2;
+@@ -2188,12 +2206,11 @@
+ #ifndef EXTRA
+ #define EXTRA    0
+ #endif
+-  asymbol *  ptrs[NSECS + 4 + EXTRA + 1];
++  asymbol *  ptrs[NSECS + 4 + EXTRA + 3];
+   flagword   applicable;
+   char *     outname = xmalloc (strlen (TMP_STUB) + 10);
+   int        oidx = 0;
+ 
+-
+   sprintf (outname, "%s%05d.o", TMP_STUB, i);
+ 
+   abfd = bfd_openw (outname, HOW_BFD_WRITE_TARGET);
+@@ -2245,19 +2262,8 @@
+   if (! exp->data)
+     {
+       exp_label = bfd_make_empty_symbol (abfd);
+-      exp_label->name = make_imp_label ("", exp->name);
+-
+-      /* On PowerPC, the function name points to a descriptor in
+-	 the rdata section, the first element of which is a
+-	 pointer to the code (..function_name), and the second
+-	 points to the .toc.  */
+-#ifdef DLLTOOL_PPC
+-      if (machine == MPPC)
+-	exp_label->section = secdata[RDATA].sec;
+-      else
+-#endif
+-	exp_label->section = secdata[TEXT].sec;
+-
++      exp_label->name = make_imp_label ("..", exp->name);
++      exp_label->section = secdata[TEXT].sec;
+       exp_label->flags = BSF_GLOBAL;
+       exp_label->value = 0;
+ 
+@@ -2289,6 +2295,7 @@
+   iname_lab = bfd_make_empty_symbol (abfd);
+ 
+   iname_lab->name = head_label;
++  
+   iname_lab->section = (asection *) &bfd_und_section;
+   iname_lab->flags = 0;
+   iname_lab->value = 0;
+@@ -2305,17 +2312,48 @@
+   /* The symbol referring to the code (.text).  */
+   {
+     asymbol *function_name;
++    char *at;
++    int lead_at;
++    char hint_name_buf[0x100];
+ 
+     function_name = bfd_make_empty_symbol(abfd);
+-    function_name->name = make_label ("..", exp->name);
++    lead_at = exp->name[0] == '@';
++    function_name->name = make_label ("", exp->name+lead_at);
++    at = strchr(function_name->name + lead_at, '@');
++    if(at) *at = 0;
+     function_name->section = secdata[TEXT].sec;
+     function_name->flags = BSF_GLOBAL;
+     function_name->value = 0;
+ 
+     fn_pp = ptrs + oidx;
+     ptrs[oidx++] = function_name;
++
++    sprintf( hint_name_buf, "_sym_%s_%s", head_label, function_name->name );
++    at = strchr(hint_name_buf, '@');
++    if (at) *at = 0;
++
++    hint_name = bfd_make_empty_symbol(abfd);
++    hint_name->name = make_label ("", hint_name_buf);
++    hint_name->section = secdata[IDATA6].sec;
++    hint_name->flags = BSF_GLOBAL;
++    hint_name->value = 0;
++
++    ptrs[oidx++] = hint_name;
++
++    sprintf( hint_name_buf, "_idata4_%s_%s", head_label, function_name->name );
++    at = strchr(hint_name_buf, '@');
++    if (at) *at = 0;
++
++    oft_sym = bfd_make_empty_symbol(abfd);
++    oft_sym->name = make_label ("", hint_name_buf);
++    oft_sym->section = secdata[IDATA5].sec;
++    oft_sym->flags = BSF_GLOBAL;
++    oft_sym->value = 0;
++
++    ptrs[oidx++] = oft_sym;
+   }
+ 
++#if 0
+   /* The .toc symbol.  */
+   {
+     asymbol *toc_symbol;
+@@ -2330,6 +2368,7 @@
+     ptrs[oidx++] = toc_symbol;
+   }
+ #endif
++#endif
+ 
+   ptrs[oidx] = 0;
+ 
+@@ -2358,18 +2397,8 @@
+ 
+ 	      rel->address = HOW_JTAB_ROFF;
+ 	      rel->addend = 0;
+-
+-	      if (machine == MPPC)
+-		{
+-		  rel->howto = bfd_reloc_type_lookup (abfd,
+-						      BFD_RELOC_16_GOTOFF);
+-		  rel->sym_ptr_ptr = iname_pp;
+-		}
+-	      else
+-		{
+-		  rel->howto = bfd_reloc_type_lookup (abfd, BFD_RELOC_32);
+-		  rel->sym_ptr_ptr = secdata[IDATA5].sympp;
+-		}
++	      rel->howto = bfd_reloc_type_lookup (abfd, BFD_RELOC_32);
++	      rel->sym_ptr_ptr = &oft_sym;
+ 	      sec->orelocation = rpp;
+ 	      sec->reloc_count = 1;
+ 	    }
+@@ -2400,7 +2429,7 @@
+ 	      rel->address = 0;
+ 	      rel->addend = 0;
+ 	      rel->howto = bfd_reloc_type_lookup (abfd, BFD_RELOC_RVA);
+-	      rel->sym_ptr_ptr = secdata[IDATA6].sympp;
++	      rel->sym_ptr_ptr = &hint_name;
+ 	      sec->orelocation = rpp;
+ 	    }
+ 
+@@ -2435,6 +2464,7 @@
+ 	  sec->reloc_count = 1;
+ 	  break;
+ 
++#if 0
+ #ifdef DLLTOOL_PPC
+ 	case PDATA:
+ 	  {
+@@ -2542,6 +2572,7 @@
+ 	  sec->reloc_count = 2;
+ 	  break;
+ #endif /* DLLTOOL_PPC */
++#endif
+ 	}
+     }
+ 
+@@ -2556,6 +2587,9 @@
+ 	bfd_set_section_vma (abfd, si->sec, vma);
+       }
+   }
++
++  bfd_set_symtab (abfd, ptrs, oidx);
++
+   /* Write them out.  */
+   for (i = 0; i < NSECS; i++)
+     {
+@@ -2572,7 +2606,6 @@
+ 				si->size);
+     }
+ 
+-  bfd_set_symtab (abfd, ptrs, oidx);
+   bfd_close (abfd);
+   abfd = bfd_openr (outname, HOW_BFD_READ_TARGET);
+   return abfd;
+@@ -2592,7 +2625,7 @@
+   fprintf (f, "%s IMAGE_IMPORT_DESCRIPTOR\n", ASM_C);
+   fprintf (f, "\t.section	.idata$2\n");
+ 
+-  fprintf(f,"\t%s\t%s\n", ASM_GLOBAL,head_label);
++  fprintf (f,"\t%s\t%s\n", ASM_GLOBAL,head_label);
+ 
+   fprintf (f, "%s:\n", head_label);
+ 
+@@ -2617,16 +2650,12 @@
+   if (!no_idata5)
+     {
+       fprintf (f, "\t.section\t.idata$5\n");
+-      fprintf (f, "\t%s\t0\n", ASM_LONG);
+       fprintf (f, "fthunk:\n");
+     }
+ 
+   if (!no_idata4)
+     {
+       fprintf (f, "\t.section\t.idata$4\n");
+-
+-      fprintf (f, "\t%s\t0\n", ASM_LONG);
+-      fprintf (f, "\t.section	.idata$4\n");
+       fprintf (f, "hname:\n");
+     }
+ 
+@@ -2729,9 +2758,11 @@
+   for (i = 0; (exp = d_exports_lexically[i]); i++)
+     {
+       bfd *n;
++
+       /* Don't add PRIVATE entries to import lib.  */
+       if (exp->private)
+ 	continue;
++
+       n = make_one_lib_file (exp, i);
+       n->next = head;
+       head = n;
+@@ -3091,10 +3122,10 @@
+   fprintf (file, _("   -v --verbose              Be verbose.\n"));
+   fprintf (file, _("   -V --version              Display the program version.\n"));
+   fprintf (file, _("   -h --help                 Display this information.\n"));
+-#ifdef DLLTOOL_MCORE_ELF
+-  fprintf (file, _("   -M --mcore-elf <outname>  Process mcore-elf object files into <outname>.\n"));
+   fprintf (file, _("   -L --linker <name>        Use <name> as the linker.\n"));
+   fprintf (file, _("   -F --linker-flags <flags> Pass <flags> to the linker.\n"));
++#ifdef DLLTOOL_MCORE_ELF
++  fprintf (file, _("   -M --mcore-elf <outname>  Process mcore-elf object files into <outname>.\n"));
+ #endif
+   exit (status);
+ }
+@@ -3131,6 +3162,7 @@
+   {"base-file", required_argument, NULL, 'b'},
+   {"as", required_argument, NULL, 'S'},
+   {"as-flags", required_argument, NULL, 'f'},
++  {"ld", required_argument, NULL, 'L'},
+   {"mcore-elf", required_argument, NULL, 'M'},
+   {"compat-implib", no_argument, NULL, 'C'},
+   {"temp-prefix", required_argument, NULL, 't'},
+@@ -3161,7 +3193,7 @@
+ #ifdef DLLTOOL_MCORE_ELF
+ 			   "m:e:l:aD:d:z:b:xp:cCuUkAS:f:nvVHhM:L:F:",
+ #else
+-			   "m:e:l:aD:d:z:b:xp:cCuUkAS:f:nvVHh",
++			   "m:e:l:aD:d:z:b:xp:cCuUkAS:f:nvVHhL:F:",
+ #endif
+ 			   long_options, 0))
+ 	 != EOF)
+@@ -3256,15 +3288,15 @@
+ 	    fatal (_("Unable to open base-file: %s"), optarg);
+ 
+ 	  break;
+-#ifdef DLLTOOL_MCORE_ELF
+-	case 'M':
+-	  mcore_elf_out_file = optarg;
+-	  break;
+ 	case 'L':
+-	  mcore_elf_linker = optarg;
++	  elf_linker = optarg;
+ 	  break;
+ 	case 'F':
+-	  mcore_elf_linker_flags = optarg;
++	  elf_linker_flags = optarg;
++	  break;
++#ifdef DLLTOOL_MCORE_ELF
++	case 'M':
++	  mcore_elf_out_file = optarg;
+ 	  break;
+ #endif
+ 	case 'C':
+@@ -3304,6 +3336,9 @@
+   if (as_name == NULL)
+     as_name = deduce_name ("as");
+ 
++  if (elf_linker == NULL)
++    elf_linker = deduce_name ("ld");
++
+   /* Don't use the default exclude list if we're reading only the
+      symbols in the .drectve section.  The default excludes are meant
+      to avoid exporting DLL entry point and Cygwin32 impure_ptr.  */
+@@ -3517,8 +3552,8 @@
+   ds = dyn_string_new (100);
+   dyn_string_append_cstr (ds, "-r ");
+ 
+-  if (mcore_elf_linker_flags != NULL)
+-    dyn_string_append_cstr (ds, mcore_elf_linker_flags);
++  if (elf_linker_flags != NULL)
++    dyn_string_append_cstr (ds, elf_linker_flags);
+ 
+   while (ptr->next != NULL)
+     {
+@@ -3531,10 +3566,7 @@
+   dyn_string_append_cstr (ds, "-o ");
+   dyn_string_append_cstr (ds, MCORE_ELF_TMP_OBJ);
+ 
+-  if (mcore_elf_linker == NULL)
+-    mcore_elf_linker = deduce_name ("ld");
+-
+-  run (mcore_elf_linker, ds->s);
++  run (elf_linker, ds->s);
+ 
+   dyn_string_delete (ds);
+ 
+@@ -3573,8 +3605,8 @@
+ 
+   dyn_string_append_cstr (ds, "-shared ");
+ 
+-  if (mcore_elf_linker_flags)
+-    dyn_string_append_cstr (ds, mcore_elf_linker_flags);
++  if (elf_linker_flags)
++    dyn_string_append_cstr (ds, elf_linker_flags);
+ 
+   dyn_string_append_cstr (ds, " ");
+   dyn_string_append_cstr (ds, MCORE_ELF_TMP_EXP);
+@@ -3583,7 +3615,7 @@
+   dyn_string_append_cstr (ds, " -o ");
+   dyn_string_append_cstr (ds, mcore_elf_out_file);
+ 
+-  run (mcore_elf_linker, ds->s);
++  run (elf_linker, ds->s);
+ 
+   dyn_string_delete (ds);
+ 
+Only in binutils-2.16.1/binutils: dlltool.c~
+Only in binutils-2.16.1/binutils/po: Makefile
+Files clean/binutils-2.16.1/binutils/po/ro.gmo and binutils-2.16.1/binutils/po/ro.gmo differ
+diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/rescoff.c binutils-2.16.1/binutils/rescoff.c
+--- clean/binutils-2.16.1/binutils/rescoff.c	2003-09-14 05:20:16.000000000 -0700
++++ binutils-2.16.1/binutils/rescoff.c	2007-09-12 23:53:33.000000000 -0700
+@@ -442,6 +442,9 @@
+ #elif defined DLLTOOL_ARM
+   if (! bfd_set_arch_mach (abfd, bfd_arch_arm, 0))
+     bfd_fatal ("bfd_set_arch_mach(arm)");
++#elif defined DLLTOOL_PPC
++  if (! bfd_set_arch_mach (abfd, bfd_arch_powerpc, 0))
++    bfd_fatal ("bfd_set_arch_mach(ppc)");
+ #else
+   /* FIXME: This is obviously i386 specific.  */
+   if (! bfd_set_arch_mach (abfd, bfd_arch_i386, 0))
+diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/resres.c binutils-2.16.1/binutils/resres.c
+--- clean/binutils-2.16.1/binutils/resres.c	2005-03-03 03:46:12.000000000 -0800
++++ binutils-2.16.1/binutils/resres.c	2007-10-30 13:07:31.000000000 -0700
+@@ -30,6 +30,13 @@
+ 
+ #include <assert.h>
+ #include <time.h>
++#include <endian.h>
++
++#if __BYTE_ORDER != __LITTLE_ENDIAN
++#define FLIP(x) (((x) << 24) | (((x) & 0xff00) << 8) | (((x) >> 8) & 0xff00) | (((x) >> 24) & 0xff))
++#else
++#define FLIP(x) (x)
++#endif
+ 
+ struct res_hdr
+   {
+@@ -157,6 +164,9 @@
+   if (fread (&reshdr, sizeof (reshdr), 1, fres) != 1)
+     return 0;
+ 
++  reshdr.data_size = FLIP(reshdr.data_size);
++  reshdr.header_size = FLIP(reshdr.header_size);
++
+   /* read resource type */
+   read_res_id (&type);
+   /* read resource id */
+@@ -531,6 +541,8 @@
+   struct res_hdr reshdr =
+   {0, 0};
+   read_res_data (&reshdr, sizeof (reshdr), 1);
++  reshdr.data_size = FLIP(reshdr.data_size);
++  reshdr.header_size = FLIP(reshdr.header_size);
+   if ((reshdr.data_size != 0) || (reshdr.header_size != 0x20))
+     goto skip_err;
+ 
+Only in binutils-2.16.1/binutils: windres
+Only in clean/binutils-2.16.1/gas/doc: as.info-1
+Only in clean/binutils-2.16.1/gas/doc: as.info-2
+Only in clean/binutils-2.16.1/gas/doc: as.info-3
+Only in binutils-2.16.1/gprof: Makefile
+Only in binutils-2.16.1/gprof: config.log
+Only in binutils-2.16.1/gprof: config.status
+Only in binutils-2.16.1/gprof: gconfig.h
+Only in binutils-2.16.1/gprof: libtool
+Only in binutils-2.16.1/gprof/po: Makefile
+Only in binutils-2.16.1/gprof/po: Makefile.in
+Only in binutils-2.16.1/gprof/po: POTFILES
+Only in binutils-2.16.1/gprof: stamp-h1
+Only in binutils-2.16.1/intl: config.cache
+Only in binutils-2.16.1/intl: config.h
+Only in binutils-2.16.1/intl: config.status
+Only in binutils-2.16.1/intl: stamp-h
+Only in binutils-2.16.1/ld/emulparams: .elf32mcore.sh.swp
