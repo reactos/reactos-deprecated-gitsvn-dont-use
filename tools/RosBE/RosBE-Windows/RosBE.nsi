@@ -148,7 +148,7 @@ Section "RosBE Configurator (options)" SEC03
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section "SVN Tools (ssvn)" SEC04
+Section "Subversion Tools (svn, ssvn)" SEC04
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -178,7 +178,7 @@ Section "Shortcut Tool (scut)" SEC05
     File /r Root\Tools\scut.exe
 SectionEnd
 
-Section "CCache" SEC06
+Section "ccache - Compiler Cache" SEC06
     SetShellVarContext current
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
@@ -186,7 +186,7 @@ Section "CCache" SEC06
     File /r Root\Tools\cygwin1.dll
 SectionEnd
 
-Section "GDB" SEC07
+Section "GDB - The GNU Project Debugger" SEC07
     SetShellVarContext current
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
