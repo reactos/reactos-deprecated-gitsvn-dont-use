@@ -43,9 +43,12 @@ WriteSettings(HWND hwnd)
             if (!SetCurrentDirectoryW(logdir))
             {
                 SetCurrentDirectoryW(checklog);
-                if (LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256))
-                    MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
-                return FALSE;
+                if (CreateDirectoryW(logdir, NULL) == 0)
+                {
+                    if (LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256))
+                        MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
+                    return FALSE;
+                }
             }
         }
     }
