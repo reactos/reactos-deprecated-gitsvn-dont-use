@@ -269,29 +269,29 @@
       </ol>
       <p></p>
 
-[%# TODO we don't support switching languages yet
-<div class="navTitle">Language</div>   
-      <ol>
-        <li> 
-          <div align="center"> 
-            <select id="select" size="1" name="select" class="selectbox" onchange="window.open(this.options[this.selectedIndex].value,'_main')">
-              <optgroup label="current language"> 
-              <option value="#" selected="selected">English</option>
-              </optgroup>
-              <optgroup label="most popular"> 
-              <option value="http://www.reactos.org/./[#inc_path_lang]../en/developer.htm">English</option>
-              <option value="http://www.reactos.org/./[#inc_path_lang]../de/developer.htm">Deutsch</option>
-              <option value="http://www.reactos.org/./[#inc_path_lang]../fr/developer.htm">Français</option>
-              </optgroup>
-              <optgroup label="other languages"> 
-              <option value="#">&lt;placeholder&gt;</option>
-              </optgroup>
-            </select>
-          </div>
-        </li>
-      </ol>
-      <p></p>
-%]
+[% IF user.login %]
+<div class="navTitle">Saved Searches</div>
+	<ol>
+	[% IF user.showmybugslink %]
+		[% filtered_username = user.login FILTER url_quote %]
+		<li><a href="[% Param('mybugstemplate').replace('%userid%', filtered_username) %]">My [% terms.Bugs %]</a></li>
+		[% print_pipe = 1 %]
+	[% END %]
+	
+	[% FOREACH q = user.queries %]
+		[% IF q.link_in_footer %]
+			<li><a href="buglist.cgi?cmdtype=runnamed&amp;namedcmd=[% q.name FILTER url_quote %]">[% q.name FILTER html %]</a></li>
+			[% print_pipe = 1 %]
+		[% END %]
+	[% END %]
+	
+	[% FOREACH q = user.queries_subscribed %]
+		<li><a href="buglist.cgi?cmdtype=dorem&amp;remaction=run&amp;namedcmd=[% q.name FILTER url_quote %]&amp;sharer_id=[% q.user.id FILTER url_quote %]" title="Shared by [% q.user.identity FILTER html %]">[% q.name FILTER html FILTER no_break %]</a></li>
+		[% print_pipe = 1 %]
+	[% END %]
+	</ol>
+	<p></p>
+[% END %]
 
 <div class="navTitle">Account</div>
       <ol>
