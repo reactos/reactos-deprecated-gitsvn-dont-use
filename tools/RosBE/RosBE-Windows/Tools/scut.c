@@ -8,7 +8,7 @@
  *
  */
 
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,9 +59,9 @@ int main(int argc, char* argv[])
     {
         defaultshortcut(NULL);
     }
-    else if ((!strncmp(argv[1], "/?", 2)) ||
-             (!_strnicmp(argv[1], "-h", 2)) ||
-             (!_strnicmp(argv[1], "--help", 6)))
+    else if ((!strcmp(argv[1], "/?")) ||
+             (!_stricmp(argv[1], "-h")) ||
+             (!_stricmp(argv[1], "--help")))
     {
         printf("Usage: %s [OPTIONS] [SHORTCUT] [PATH]\n", programname);
         printf("Manages named shortcuts to ReactOS source directories. scut started\n");
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
         printf("             directory as you know it from previous versions.\n\n");
         return 0;
     }
-    else if (!_strnicmp(argv[1], "list", 4))
+    else if (!_stricmp(argv[1], "list"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_strnicmp(argv[1], "add", 3))
+    else if (!_stricmp(argv[1], "add"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_strnicmp(argv[1], "rem", 3))
+    else if (!_stricmp(argv[1], "rem"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_strnicmp(argv[1], "edit", 4))
+    else if (!_stricmp(argv[1], "edit"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_strnicmp(argv[1], "def", 3))
+    else if (!_stricmp(argv[1], "def"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -336,14 +336,14 @@ void checkfile(void)
     fp = fopen(shortcutfile, "r");
     if (!fp)
     {
-        if(access(rosbeappdata, F_OK) == -1)
+/*        if(access(rosbeappdata, F_OK) == -1)
         {
             // Directory does not exist, create it
             if(mkdir(rosbeappdata) == -1)
             {
                 fprintf(stderr, "%s: Error creating the directory for the RosBE files.\n", programname);
             }
-        }
+        }*/
 
         fp = fopen(shortcutfile, "w");
         if (!fp)
