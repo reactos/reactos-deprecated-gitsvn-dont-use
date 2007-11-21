@@ -1,6 +1,6 @@
 *** XXX XXth, 200X - RosBE 1.0 Released
 
-- Updated: GCC 4.1.3 Build 20071015 with recent patches to get makex run under Vista. (Peter Ward, TODO: name of tamlin)
+- Updated: GCC 4.1.3 Build 20071015 with recent patches to get makex run under Vista. (Peter Ward, Mike Nordell)
 - Updated: Binutils 2.18.50 Build 20071015. (Peter Ward)
 - Updated: NASM to 0.99.06 (Daniel Reimer)
 - Updated: You can now select the components you want to install. (Daniel Reimer)
@@ -41,15 +41,15 @@
 
 - Added a small utility (chknewer) to check if one file is newer than another. This removes the dependency on test from Config.cmd and Build.cmd. (Peter Ward)
 - Added a small utility (chkslash) to check if a string contains a backslash '\', it's needed for the reladdr2line.cmd changes. (Peter Ward)
-- Modified reladdr2line.cmd so that you can now use 'raddr2line ntdll.dll 7c90e143' (Peter Ward)
+- Modified reladdr2line.cmd so that you can now use 'raddr2line ntdll.dll 7c90e143'
   instead of 'raddr2line output-i386\dll\ntdll\ntdll.dll 7c90e143'. You can
   also use part of the file name ie. 'ntdll*' instead of 'ntdll.dll' and
   it will match it. Searchs the current directory and all sub-directories.
   (does not match directories of course)
-  (yes you can still specify the full path if you like)
-- Move GCC environment setup to rosbe-gcc-env.cmd to support 'chdefgcc', this (Peter Ward)
+  (yes you can still specify the full path if you like) (Peter Ward)
+- Move GCC environment setup to rosbe-gcc-env.cmd to support 'chdefgcc', this
   file can also be used outside of the RosBE to initialize and GCC/MinGW
-  in the current directory.
+  in the current directory. (Peter Ward)
 - Added the command 'chdefgcc' to allow easy switching of the current toolset. (Peter Ward)
 - Added a minimal replacement for tee. (Peter Ward)
 - Added ccache 2.4 to RosBE. (Daniel Reimer)
