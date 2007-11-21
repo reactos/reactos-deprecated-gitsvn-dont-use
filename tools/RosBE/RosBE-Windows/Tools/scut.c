@@ -8,7 +8,8 @@
  *
  */
 
-//#include <unistd.h>
+#include <direct.h>
+#include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +23,7 @@ typedef struct _SHORTCUT
 
 #define LINE_MAX 1024
 char* programname;
-char rosbeappdata[260];
+char rosbeappdata[248];
 char shortcutfile[260];
 
 PSHORTCUT addshortcut(PSHORTCUT ptr, char* name, char* path);
@@ -44,10 +45,18 @@ int main(int argc, char* argv[])
     int removed = 0;
     programname = argv[0];
 
-    strcpy(rosbeappdata, getenv("APPDATA"));
+#if defined(WIN32)
+    strncpy(rosbeappdata, getenv("APPDATA"), 241);
     strcat(rosbeappdata, "\\RosBE");
     strcpy(shortcutfile, rosbeappdata);
     strcat(shortcutfile, "\\srclist.txt");
+#else
+    strncopy(rosbeappdata, getenv("HOME"), 240);
+    strcat(rosbeappdata, "/.RosBE");
+    strcpy(shortcutfile, rosbeappdata);
+    strcat(shortcutfile, "/srclist.txt");
+#endif
+
     checkfile();
 
     if (argc > 4)
@@ -336,14 +345,14 @@ void checkfile(void)
     fp = fopen(shortcutfile, "r");
     if (!fp)
     {
-/*        if(access(rosbeappdata, F_OK) == -1)
+        if(_access(rosbeappdata, 0) == -1)
         {
             // Directory does not exist, create it
-            if(mkdir(rosbeappdata) == -1)
+            if(_mkdir(rosbeappdata) == -1)
             {
                 fprintf(stderr, "%s: Error creating the directory for the RosBE files.\n", programname);
             }
-        }*/
+        }
 
         fp = fopen(shortcutfile, "w");
         if (!fp)
@@ -387,11 +396,11 @@ int checkname(PSHORTCUT head, char* name)
 int checkpath(char* path)
 {
     char currentdir[260];
-    getcwd(currentdir, 260);
-    if (!chdir(path))
+    _getcwd(currentdir, 260);
+    if (!_chdir(path))
     {
-        getcwd(path, 260);
-        chdir(currentdir);
+        _getcwd(path, 260);
+        _chdir(currentdir);
         return 1;
     }
 
