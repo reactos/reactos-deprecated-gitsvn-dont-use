@@ -13,12 +13,6 @@
 title reladdr2line...
 
 ::
-:: Clear variables before use.
-::
-set _1=
-set _2=
-
-::
 :: Receive the Parameters and decide what to do.
 ::
 if not "%3" == "" (
