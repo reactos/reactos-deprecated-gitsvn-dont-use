@@ -14,9 +14,7 @@
 :: initialize GCC for the current directory.
 ::
 if not defined _ROSBE_MINGWPATH (
-    if /i "%1" == "oldmode" (
-        set _ROSBE_OLDMODE=""
-    )
+    set _ROSBE_MODE=MinGW
     set _ROSBE_MINGWPATH=%CD%
     set _ROSBE_ORIGINALPATH=%PATH%
 )
@@ -29,12 +27,13 @@ set _ROSBE_GCCVERSION=
 for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
 set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_MINGWPATH%\libexec\gcc\mingw32\%_ROSBE_GCCVERSION%;%_ROSBE_ORIGINALPATH%
 set _ROSBE_MINGWMAKE=%_ROSBE_MINGWPATH%\bin\mingw32-make.exe
-if defined _ROSBE_OLDMODE (
+if "%_ROSBE_MODE%" == "MinGW" (
     set C_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%\include
     set CPLUS_INCLUDE_PATH=%_ROSBE_MINGWPATH%\include;%_ROSBE_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%;%_ROSBE_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%\mingw32;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%\include
+) else (
+    set HOST_CFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%\include"
+    set HOST_CPPFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%" -I"%_ROSBE_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%\mingw32" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%\include"
 )
-set HOST_CFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%\include"
-set HOST_CPPFLAGS=-I"%_ROSBE_MINGWPATH%\include" -I"%_ROSBE_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%" -I"%_ROSBE_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%\mingw32" -I"%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%\include"
 set LIBRARY_PATH=%_ROSBE_MINGWPATH%\lib;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%
 
 ::
