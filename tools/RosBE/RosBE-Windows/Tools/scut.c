@@ -117,8 +117,11 @@ int main(int argc, char* argv[])
             {
                 printf("Please enter a name for the shortcut: ");
                 fflush(stdin);
-                fgets(name, 260, stdin);
-            } while(strlen(name) == 1);
+
+                if(!fgets(name, 260, stdin))
+                    return 1;
+            } while(strlen(name) <= 1);
+
             strcpy(name, strtok(name, "\n"));
         }
         if (!checkname(shortcuts, name))
@@ -137,8 +140,11 @@ int main(int argc, char* argv[])
                 {
                     printf("Please enter the path for the shortcut: ");
                     fflush(stdin);
-                    fgets(path, 260, stdin);
-                } while(strlen(path) == 1);
+
+                    if(!fgets(path, 260, stdin))
+                        return 1;
+                } while(strlen(path) <= 1);
+
                 strcpy(path, strtok(path, "\n"));
             }
             if (!checkpath(path))
@@ -168,8 +174,11 @@ int main(int argc, char* argv[])
             {
                 printf("Please enter the name of the shortcut to remove: ");
                 fflush(stdin);
-                fgets(name, 260, stdin);
-            } while(strlen(name) == 1);
+
+                if(!fgets(name, 260, stdin))
+                    return 1;
+            } while(strlen(name) <= 1);
+
             strcpy(name, strtok(name, "\n"));
         }
         if (!_stricmp(name, "Default"))
@@ -215,8 +224,11 @@ int main(int argc, char* argv[])
             {
                 printf("Please enter the name of the shortcut to edit: ");
                 fflush(stdin);
-                fgets(name, 260, stdin);
-            } while(strlen(name) == 1);
+
+                if(!fgets(name, 260, stdin))
+                    return 1;
+            } while(strlen(name) <= 1);
+
             strcpy(name, strtok(name, "\n"));
         }
         if (!_stricmp(name, "Default") || checkname(shortcuts, name))
@@ -239,8 +251,11 @@ int main(int argc, char* argv[])
                         {
                             printf("Please enter a new path for the shortcut: ");
                             fflush(stdin);
-                            fgets(path, 260, stdin);
-                        } while(strlen(path) == 1);
+
+                            if(!fgets(path, 260, stdin))
+                                return 1;
+                        } while(strlen(path) <= 1);
+
                         strcpy(path, strtok(path, "\n"));
                     }
                     if (!checkpath(path))
@@ -276,8 +291,11 @@ int main(int argc, char* argv[])
             {
                 printf("Please enter the the name of the shortcut to set as default: ");
                 fflush(stdin);
-                fgets(name, 260, stdin);
-            } while(strlen(name) == 1);
+
+                if(!fgets(name, 260, stdin))
+                    return 1;
+            } while(strlen(name) <= 1);
+
             strcpy(name, strtok(name, "\n"));
         }
         if (!_stricmp(name, "Default") || checkname(shortcuts, name))
