@@ -45,8 +45,8 @@ if "%_1%" == "" (
     echo ERROR: You must specify a path/file to examine.
     goto :EOC
 )
-if not exist "%_1%\." (
-    echo ERROR: The path specified doesn't seem to exist.
+if "%_2%" == "" (
+    echo ERROR: You must specify a address to analyze.
     goto :EOC
 )
 echo %_1%
@@ -70,10 +70,6 @@ if "%_1%" == "" (
 )
 if "%_2%" == "" (
     set /p _2="Please enter the address you would like to analyze: "
-    if "%_2%" == "" (
-        echo ERROR: You must specify a address to analyze.
-        goto :EOC
-    )
 )
 goto :EOF
 
