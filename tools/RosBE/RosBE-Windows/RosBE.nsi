@@ -225,7 +225,7 @@ Section -StartMenuShortcuts SEC10
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-        SetOutPath $DOCUMENTS
+        SetOutPath $PROFILE
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
@@ -243,7 +243,7 @@ Section /o "Desktop Shortcuts" SEC11
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-    SetOutPath $DOCUMENTS
+    SetOutPath $PROFILE
     CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
@@ -255,7 +255,7 @@ Section /o "Quick Launch Shortcuts" SEC12
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-    SetOutPath $DOCUMENTS
+    SetOutPath $PROFILE
     CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
