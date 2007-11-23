@@ -31,7 +31,7 @@ for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\scut.exe" %*"`) do 
 goto :EOC
 
 :paramcall
-call "%_ROSBE_BASEDIR%\Tools\scut.exe" "%*"
+call "%_ROSBE_BASEDIR%\Tools\scut.exe" "%1" %2 %3
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
