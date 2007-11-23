@@ -10,15 +10,22 @@
 ::
 @echo off
 
+if not "%1" == "" (
+    cls
+    echo Unknown parameter specified. Exiting.
+    goto :EOC
+)
+
 ::
 :: Set defaults to work with and override them if edited by
 :: the options utility.
 ::
 color 0A
 set PATH=%SystemRoot%\system32;%SystemRoot%
-set _ROSBE_VERSION=1.0
+set _ROSBE_VERSION=1.1
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
+set _ROSBE_MODE=RosBE
 set _ROSBE_ROSSOURCEDIR=%CD%
 set _ROSBE_ORIGINALPATH=%PATH%
 set _ROSBE_SHOWTIME=1
@@ -46,21 +53,6 @@ if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
 )
 
 title ReactOS Build Environment %_ROSBE_VERSION%
-
-::
-:: Make sure RosBE was initialized right.
-::
-if /i "%1" == "oldmode" (
-    cls
-    set _ROSBE_OLDMODE=""
-    call :RosBE4
-    goto :EndCommandParse
-)
-if not "%1" == "" (
-    cls
-    echo Unknown parameter specified. Exiting.
-    goto :EOC
-)
 
 cls
 call :RosBE4

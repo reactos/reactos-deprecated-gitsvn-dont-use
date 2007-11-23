@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "1.0"
+!define PRODUCT_VERSION "1.1"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -10,6 +10,7 @@
 ;;
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "RosBE-${PRODUCT_VERSION}.exe"
+InstallDir "$PROGRAMFILES\RosBE"
 InstallDirRegKey HKCU "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -17,7 +18,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "1.0.0.0"
+VIAddVersionKey /LANG=1033 "FileVersion" "1.1.0.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
@@ -25,7 +26,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2007 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "1.0.0.0"
+VIProductVersion "1.1.0.0"
 
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
@@ -41,9 +42,6 @@ SetCompressor /FINAL /SOLID lzma
 ;; Read our custom page ini, remove previous version.
 ;;
 Function .onInit
-    var /global SYSTEMDRIVE
-    StrCpy $SYSTEMDRIVE $WINDIR 2
-    StrCpy $INSTDIR "$SYSTEMDRIVE\RosBE"
     Call UninstallPrevious
     !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
 FunctionEnd
@@ -104,11 +102,13 @@ Section -BaseFiles SEC01
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
+    File /r Icons\mingw.ico
     File /r Icons\rosbe.ico
     File /r Root\readme.pdf
     File /r Root\RosBE.mac
     File /r Root\changelog.txt
     File /r Root\LICENSE.txt
+    File /r Root\MinGW.cmd
     File /r Root\README.txt
     File /r Root\Build.cmd
     File /r Root\Clean.cmd
@@ -118,12 +118,12 @@ Section -BaseFiles SEC01
     File /r Root\TimeDate.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Root\Tools\buildtime.exe
-    File /r Root\Tools\chknewer.exe
-    File /r Root\Tools\cpucount.exe
-    File /r Root\Tools\flash.exe
-    File /r Root\Tools\getdate.exe
-    File /r Root\Tools\tee.exe
+    File /r Components\Tools\buildtime.exe
+    File /r Components\Tools\chknewer.exe
+    File /r Components\Tools\cpucount.exe
+    File /r Components\Tools\flash.exe
+    File /r Components\Tools\getdate.exe
+    File /r Components\Tools\tee.exe
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
@@ -139,7 +139,7 @@ Section "RosBE Configurator (options)" SEC03
     File /r Root\options.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Root\Tools\options.exe
+    File /r Components\Tools\options.exe
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
@@ -155,17 +155,17 @@ Section "Subversion Tools (svn, ssvn)" SEC04
     File /r Root\sSVN.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Root\Tools\svn.exe
-    File /r Root\Tools\intl3_svn.dll
-    File /r Root\Tools\libapr.dll
-    File /r Root\Tools\libeay32.dll
-    File /r Root\Tools\ssleay32.dll
-    File /r Root\Tools\libaprutil.dll
-    File /r Root\Tools\libapriconv.dll
-    File /r Root\Tools\libdb44.dll
+    File /r Components\Tools\svn.exe
+    File /r Components\Tools\intl3_svn.dll
+    File /r Components\Tools\libapr.dll
+    File /r Components\Tools\libeay32.dll
+    File /r Components\Tools\ssleay32.dll
+    File /r Components\Tools\libaprutil.dll
+    File /r Components\Tools\libapriconv.dll
+    File /r Components\Tools\libdb44.dll
     SetOutPath "$INSTDIR\Tools\licenses"
     SetOverwrite try
-    File /r Root\Tools\licenses\*.*
+    File /r Components\Tools\licenses\*.*
 SectionEnd
 
 Section "Shortcut Tool (scut)" SEC05
@@ -175,23 +175,23 @@ Section "Shortcut Tool (scut)" SEC05
     File /r Root\scut.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Root\Tools\scut.exe
+    File /r Components\Tools\scut.exe
 SectionEnd
 
 Section "ccache - Compiler Cache" SEC06
     SetShellVarContext current
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
-    File /r Root\Tools\ccache.exe
-    File /r Root\Tools\cygwin1.dll
+    File /r Components\Tools\ccache.exe
+    File /r Components\Tools\cygwin1.dll
 SectionEnd
 
 Section "GDB - The GNU Project Debugger" SEC07
     SetShellVarContext current
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
-    File /r Root\Tools\gdb.exe
-    File /r Root\Tools\gdbserver.exe
+    File /r Components\Tools\gdb.exe
+    File /r Components\Tools\gdbserver.exe
 SectionEnd
 
 Section "relAddr2Line Tool" SEC08
@@ -201,9 +201,9 @@ Section "relAddr2Line Tool" SEC08
     File /r Root\reladdr2line.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Root\Tools\echoh.exe
-    File /r Root\Tools\raddr2line.exe
-    File /r Root\Tools\chkslash.exe
+    File /r Components\Tools\echoh.exe
+    File /r Components\Tools\raddr2line.exe
+    File /r Components\Tools\chkslash.exe
 SectionEnd
 
 Section "Other Tools (chdefdir, chdefgcc and config)" SEC09
@@ -225,6 +225,8 @@ Section -StartMenuShortcuts SEC10
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+        SetOutPath $DOCUMENTS
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
@@ -241,6 +243,8 @@ Section /o "Desktop Shortcuts" SEC11
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+    SetOutPath $DOCUMENTS
+    CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
 Section /o "Quick Launch Shortcuts" SEC12
@@ -251,6 +255,8 @@ Section /o "Quick Launch Shortcuts" SEC12
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+    SetOutPath $DOCUMENTS
+    CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
 Section -Post SEC13
@@ -303,14 +309,21 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
     Delete /REBOOTOK "$INSTDIR\LICENSE.txt"
+    Delete /REBOOTOK "$INSTDIR\MinGW.cmd"
+    Delete /REBOOTOK "$INSTDIR\mingw.ico"
     Delete /REBOOTOK "$INSTDIR\README.txt"
     Delete /REBOOTOK "$INSTDIR\srclist.txt"
     Delete /REBOOTOK "$INSTDIR\config.rbuild"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
+    RMDir /r /REBOOTOK "$INSTDIR"
     IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
     IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
+    IfFileExists "$DESKTOP\Standard MinGW Build Environment.lnk" 0 +2
+        Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment.lnk"
+    IfFileExists "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" 0 +2
+        Delete /REBOOTOK "$QUICKLAUNCH\Standard MinGW Build Environment.lnk"
 
     ;;
     ;; Clean up the registry.
