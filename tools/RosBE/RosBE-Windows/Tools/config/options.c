@@ -258,79 +258,22 @@ BOOL CALLBACK EnumChildProc(HWND hwndChild, LPARAM lParam)
     {
         HWND hwndParent;
         LONG WindowID;
+        INT TextID = HLP_DEFAULTMSG;
         WCHAR HelpTxt[256];
         hwndParent = GetParent(hwndChild);
         WindowID = GetWindowLong(hwndChild, GWL_ID);
-        switch(WindowID)
-        {
-            case IDC_BACK:
-            {
-                LoadString(hInstance, HLP_BACKCOLORC, HelpTxt, 256);
-                break;
-            }
-            case IDC_FONT:
-            {
-                LoadString(hInstance, HLP_FONTCOLORC, HelpTxt, 256);
-                break;
-            }
-            case ID_SHOWBUILDTIME:
-            {
-                LoadString(hInstance, HLP_SBUILDTIME, HelpTxt, 256);
-                break;
-            }
-            case ID_USECCACHE:
-            {
-                LoadString(hInstance, HLP_CCACHEUSED, HelpTxt, 256);
-                break;
-            }
-            case ID_STRIP:
-            {
-                LoadString(hInstance, HLP_STRIPEDEXE, HelpTxt, 256);
-                break;
-            }
-            case ID_MGWDIR:
-            case ID_BROWSEMGW:
-            {
-                LoadString(hInstance, HLP_FINDMGWDIR, HelpTxt, 256);
-                break;
-            }
-            case ID_LOGDIR:
-            case ID_BROWSE:
-            case ID_SAVELOGS:
-            {
-                LoadString(hInstance, HLP_FINDLOGDIR, HelpTxt, 256);
-                break;
-            }
-            case ID_OBJDIR:
-            case ID_BROWSEOBJ:
-            case ID_OTHEROBJ:
-            {
-                LoadString(hInstance, HLP_FINDOBJDIR, HelpTxt, 256);
-                break;
-            }
-            case ID_OUTDIR:
-            case ID_BROWSEOUT:
-            case ID_OTHEROUT:
-            {
-                LoadString(hInstance, HLP_FINDOUTDIR, HelpTxt, 256);
-                break;
-            }
-            case ID_OK:
-            {
-                LoadString(hInstance, HLP_SAVEBUTTON, HelpTxt, 256);
-                break;
-            }
-            case ID_CANCEL:
-            {
-                LoadString(hInstance, HLP_QUITBUTTON, HelpTxt, 256);
-                break;
-            }
-            default:
-            {
-                LoadString(hInstance, HLP_DEFAULTMSG, HelpTxt, 256);
-                break;
-            }
-        }
+        if (WindowID == IDC_BACK) TextID = HLP_BACKCOLORC;
+        if (WindowID == IDC_FONT) TextID = HLP_FONTCOLORC;
+        if (WindowID == ID_SHOWBUILDTIME) TextID = HLP_SBUILDTIME;
+        if (WindowID == ID_USECCACHE) TextID = HLP_CCACHEUSED;
+        if (WindowID == ID_STRIP) TextID = HLP_STRIPEDEXE;
+        if ((WindowID == ID_MGWDIR) || (WindowID == ID_BROWSEMGW)) TextID = HLP_FINDMGWDIR;
+        if ((WindowID == ID_LOGDIR) || (WindowID == ID_BROWSE) || (WindowID == ID_SAVELOGS)) TextID = HLP_FINDLOGDIR;
+        if ((WindowID == ID_OBJDIR) || (WindowID == ID_BROWSEOBJ) || (WindowID == ID_OTHEROBJ)) TextID = HLP_FINDOBJDIR;
+        if ((WindowID == ID_OUTDIR) || (WindowID == ID_BROWSEOUT) || (WindowID == ID_OTHEROUT)) TextID = HLP_FINDOUTDIR;
+        if (WindowID == ID_OK) TextID = HLP_SAVEBUTTON;
+        if (WindowID == ID_CANCEL) TextID = HLP_QUITBUTTON;
+        LoadString(hInstance, TextID, HelpTxt, 256);
         SetDlgItemText(hwndParent, ID_STATUSBAR, HelpTxt);
         return FALSE;
     }
