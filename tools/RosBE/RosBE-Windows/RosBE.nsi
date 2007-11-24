@@ -142,7 +142,7 @@ Section "RosBE Configurator (options)" SEC03
     File /r Components\Tools\options.exe
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-        SetOutPath $REACTOS_SOURCE_DIRECTORY
+        SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
                        "$INSTDIR\Tools\options.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
