@@ -56,4 +56,17 @@ BEGIN
   MSG_FINDMGWDIR, "Veuillez sélectionner le répertoire où se situe MingW :"
   MSG_FINDOBJDIR, "Veuillez choisir le répertoire où vous désirez sauver les fichiers OBJ :"
   MSG_FINDOUTDIR, "Veuillez choisir le répertoire où vous désirez sauver les fichiers OUT :"
+  /* Help Strings */
+  HLP_BACKCOLORC, "Choisissez la couleur de fond pour les fenêtres DOS du RosBE"
+  HLP_FONTCOLORC, "Choisissez la couleur du texte pour les fenêtres DOS du RosBE"
+  HLP_SBUILDTIME, "Vous permet d'afficher à la fin de la compilation le temps qu'elle a pris"
+  HLP_CCACHEUSED, "Cochez si vous désirez utiliser le cache de compilation"
+  HLP_STRIPEDEXE, "Cochez si vous désirez produire des exécutables optimisés"
+  HLP_FINDMGWDIR, "Ce paramètre vous permet de définir le repertoire où se situe MingW"
+  HLP_FINDLOGDIR, "Ce paramètre vous permet de choisir où seront stockés les journaux de compilation"
+  HLP_FINDOBJDIR, "Ce paramètre vous permet de choisir où seront stockés les fichiers OBJ"
+  HLP_FINDOUTDIR, "Ce paramètre vous permet de choisir où seront stockés les fichiers OUT"
+  HLP_SAVEBUTTON, "Activé en cas de changement de paramètres, permet de quitter en sauvant"
+  HLP_QUITBUTTON, "Ce bouton vous permet de quitter la configuration sans sauvegarder"
+  HLP_DEFAULTMSG, "Passez sur un contrôle pour avoir de l'aide"
 END

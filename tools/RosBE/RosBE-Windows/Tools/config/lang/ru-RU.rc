@@ -58,4 +58,17 @@ BEGIN
   MSG_FINDMGWDIR, "Укажите каталог расположения компилятора MinGW:"
   MSG_FINDOBJDIR, "Укажите каталог сохранения объектных файлов:"
   MSG_FINDOUTDIR, "Укажите каталог сохранения компилированных файлов:"
+  /* Help Strings */
+  HLP_BACKCOLORC, "Choose background color for RosBE DOS windows"
+  HLP_FONTCOLORC, "Choose font color for RosBE DOS windows"
+  HLP_SBUILDTIME, "Lets you display time used for building at the end of process"
+  HLP_CCACHEUSED, "Check if you want to use compiler cache"
+  HLP_STRIPEDEXE, "Check if you want to produice stripped executables"
+  HLP_FINDMGWDIR, "This parameter lets you define where is MingW located"
+  HLP_FINDLOGDIR, "This parameter lets you define where will be build logs saved"
+  HLP_FINDOBJDIR, "This parameter lets you define where will be OBJ files saved"
+  HLP_FINDOUTDIR, "This parameter lets you define where will be OUT files saved"
+  HLP_SAVEBUTTON, "Activated when parameters changed, it quits with saving"
+  HLP_QUITBUTTON, "This button lets you quit configuration without saving"
+  HLP_DEFAULTMSG, "Go over a control to get help"
 END

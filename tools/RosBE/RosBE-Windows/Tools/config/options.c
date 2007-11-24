@@ -252,6 +252,91 @@ VOID SetSaveState(HWND hwnd, PSETTINGS DefaultSettings)
     EnableWindow(GetDlgItem(hwnd, ID_OK), State);
 }
 
+BOOL CALLBACK EnumChildProc(HWND hwndChild, LPARAM lParam)
+{
+    if (hwndChild == (HWND)lParam)
+    {
+        HWND hwndParent;
+        LONG WindowID;
+        WCHAR HelpTxt[256];
+        hwndParent = GetParent(hwndChild);
+        WindowID = GetWindowLong(hwndChild, GWL_ID);
+        switch(WindowID)
+        {
+            case IDC_BACK:
+            {
+                LoadString(hInstance, HLP_BACKCOLORC, HelpTxt, 256);
+                break;
+            }
+            case IDC_FONT:
+            {
+                LoadString(hInstance, HLP_FONTCOLORC, HelpTxt, 256);
+                break;
+            }
+            case ID_SHOWBUILDTIME:
+            {
+                LoadString(hInstance, HLP_SBUILDTIME, HelpTxt, 256);
+                break;
+            }
+            case ID_USECCACHE:
+            {
+                LoadString(hInstance, HLP_CCACHEUSED, HelpTxt, 256);
+                break;
+            }
+            case ID_STRIP:
+            {
+                LoadString(hInstance, HLP_STRIPEDEXE, HelpTxt, 256);
+                break;
+            }
+            case ID_MGWDIR:
+            case ID_BROWSEMGW:
+            {
+                LoadString(hInstance, HLP_FINDMGWDIR, HelpTxt, 256);
+                break;
+            }
+            case ID_LOGDIR:
+            case ID_BROWSE:
+            case ID_SAVELOGS:
+            {
+                LoadString(hInstance, HLP_FINDLOGDIR, HelpTxt, 256);
+                break;
+            }
+            case ID_OBJDIR:
+            case ID_BROWSEOBJ:
+            case ID_OTHEROBJ:
+            {
+                LoadString(hInstance, HLP_FINDOBJDIR, HelpTxt, 256);
+                break;
+            }
+            case ID_OUTDIR:
+            case ID_BROWSEOUT:
+            case ID_OTHEROUT:
+            {
+                LoadString(hInstance, HLP_FINDOUTDIR, HelpTxt, 256);
+                break;
+            }
+            case ID_OK:
+            {
+                LoadString(hInstance, HLP_SAVEBUTTON, HelpTxt, 256);
+                break;
+            }
+            case ID_CANCEL:
+            {
+                LoadString(hInstance, HLP_QUITBUTTON, HelpTxt, 256);
+                break;
+            }
+            default:
+            {
+                LoadString(hInstance, HLP_DEFAULTMSG, HelpTxt, 256);
+                break;
+            }
+        }
+        SetDlgItemText(hwndParent, ID_STATUSBAR, HelpTxt);
+        return FALSE;
+    }
+    return TRUE;
+}
+
 INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -409,6 +494,12 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 return (LONG)CreateSolidBrush(ColorsRGB[SendDlgItemMessageW(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
             }
             break;
+        }
+
+        case WM_SETCURSOR:
+        {
+            EnumChildWindows(Dlg, EnumChildProc, (LPARAM)wParam);
+            return FALSE;
         }
 
         case WM_DESTROY:
