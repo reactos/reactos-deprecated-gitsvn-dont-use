@@ -121,7 +121,6 @@ goto :EOC
 :: -x1       - Number of CPUs, plus 1.
 :: -x2       - Number of CPUs, doubled.
 ::
-set CPUCOUNT=
 for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
 
 if %_ROSBE_SHOWTIME% == 1 (

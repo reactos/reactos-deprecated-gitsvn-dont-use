@@ -1,4 +1,15 @@
-*** XXX XXth, 200X - RosBE 1.0 Released
+*** XXX XXth, 200X - RosBE 1.1 Released
+
+- Updated: NASM to 2.00rc1 (Peter Ward)
+- Updated: GDB to 6.7.5.20071121 (Peter Ward)
+- Fix a bug in reladdr2line.cmd. (Peter Ward)
+- Change the default ReactOS source directory from APPDATA\RosBE\Source to PROFILE\reactos. (Peter Ward)
+- Remove the installation and APPDATA\RosBE directories on uninstall which weren't being removed. (Peter Ward)
+- Set the ccache directory to APPDATA\RosBE\.ccache instead of PROFILE\.ccache. (Peter Ward)
+- Switch default install directory back to PROGRAMFILES\RosBE. (Peter Ward)
+- Add a "Standard MinGW Build Environment" and the associated MinGW.cmd + an icon. (Peter Ward)
+
+*** Nov 18th, 2007 - RosBE 1.0 Released
 
 - Updated: GCC 4.1.3 Build 20071015 with recent patches to get makex run under Vista. (Peter Ward, Mike Nordell)
 - Updated: Binutils 2.18.50 Build 20071015. (Peter Ward)
