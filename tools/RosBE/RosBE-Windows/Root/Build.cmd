@@ -43,6 +43,7 @@ if defined _ROSBE_STRIP (
 )
 if defined _ROSBE_USECCACHE (
     if %_ROSBE_USECCACHE% == 1 (
+        set CCACHE_DIR=%APPDATA%\RosBE\.ccache
         set HOST_CC=ccache gcc
         set HOST_CPP=ccache g++
         set TARGET_CC=ccache gcc
@@ -157,3 +158,4 @@ set ROS_INTERMEDIATE=
 set ROS_OUTPUT=
 set ROS_TEMPORARY=
 set CPUCOUNT=
+set CCACHE_DIR=
