@@ -6,7 +6,7 @@
 
     Function RosDir.show
         !insertmacro MUI_HEADER_TEXT "Select ReactOS Source Location" "Select the directory where the ReactOS sources are located or will be checked out to later."
-        !insertmacro INSTALLOPTIONS_WRITE "RosSourceDir.ini" "Field 2" "State" "$APPDATA\RosBE\Source"
+        !insertmacro INSTALLOPTIONS_WRITE "RosSourceDir.ini" "Field 2" "State" "$PROFILE\reactos"
         !insertmacro INSTALLOPTIONS_DISPLAY "RosSourceDir.ini"
     FunctionEnd
 
