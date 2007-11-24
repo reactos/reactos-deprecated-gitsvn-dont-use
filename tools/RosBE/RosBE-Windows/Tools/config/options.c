@@ -126,37 +126,21 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
                 ptr = wcstok(ptr, L"=");
                 ptr2 = wcstok(NULL, L"=");
                 if (wcscmp(ptr, L"_ROSBE_SHOWTIME") == 0)
-                {
                     LoadedSettings->showtime = wcstol(ptr2, NULL, 2);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_USECCACHE") == 0)
-                {
                     LoadedSettings->useccache = wcstol(ptr2, NULL, 2);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_STRIP") == 0)
-                {
                     LoadedSettings->strip = wcstol(ptr2, NULL, 2);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_WRITELOG") == 0)
-                {
                     LoadedSettings->writelog = wcstol(ptr2, NULL, 2);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
-                {
                     wcsncpy(LoadedSettings->logdir, ptr2, wcslen(ptr2)-1);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_MINGWPATH") == 0)
-                {
                     wcsncpy(LoadedSettings->mingwpath, ptr2, wcslen(ptr2)-1);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_OBJPATH") == 0)
-                {
                     wcsncpy(LoadedSettings->objdir, ptr2, wcslen(ptr2)-1);
-                }
                 else if (wcscmp(ptr, L"_ROSBE_OUTPATH") == 0)
-                {
                     wcsncpy(LoadedSettings->outdir, ptr2, wcslen(ptr2)-1);
-                }
             }
             free(TTempLine);
             free(WTempLine);
@@ -262,17 +246,27 @@ BOOL CALLBACK EnumChildProc(HWND hwndChild, LPARAM lParam)
         WCHAR HelpTxt[256];
         hwndParent = GetParent(hwndChild);
         WindowID = GetWindowLong(hwndChild, GWL_ID);
-        if (WindowID == IDC_BACK) TextID = HLP_BACKCOLORC;
-        if (WindowID == IDC_FONT) TextID = HLP_FONTCOLORC;
-        if (WindowID == ID_SHOWBUILDTIME) TextID = HLP_SBUILDTIME;
-        if (WindowID == ID_USECCACHE) TextID = HLP_CCACHEUSED;
-        if (WindowID == ID_STRIP) TextID = HLP_STRIPEDEXE;
-        if ((WindowID == ID_MGWDIR) || (WindowID == ID_BROWSEMGW)) TextID = HLP_FINDMGWDIR;
-        if ((WindowID == ID_LOGDIR) || (WindowID == ID_BROWSE) || (WindowID == ID_SAVELOGS)) TextID = HLP_FINDLOGDIR;
-        if ((WindowID == ID_OBJDIR) || (WindowID == ID_BROWSEOBJ) || (WindowID == ID_OTHEROBJ)) TextID = HLP_FINDOBJDIR;
-        if ((WindowID == ID_OUTDIR) || (WindowID == ID_BROWSEOUT) || (WindowID == ID_OTHEROUT)) TextID = HLP_FINDOUTDIR;
-        if (WindowID == ID_OK) TextID = HLP_SAVEBUTTON;
-        if (WindowID == ID_CANCEL) TextID = HLP_QUITBUTTON;
+        switch(WindowID)
+        {
+            case IDC_BACK: TextID = HLP_BACKCOLORC; break;
+            case IDC_FONT: TextID = HLP_FONTCOLORC; break;
+            case ID_SHOWBUILDTIME: TextID = HLP_SBUILDTIME; break;
+            case ID_USECCACHE: TextID = HLP_CCACHEUSED; break;
+            case ID_STRIP: TextID = HLP_STRIPEDEXE; break;
+            case ID_MGWDIR:
+            case ID_BROWSEMGW: TextID = HLP_FINDMGWDIR; break;
+            case ID_LOGDIR:
+            case ID_BROWSE:
+            case ID_SAVELOGS: TextID = HLP_FINDLOGDIR; break;
+            case ID_OBJDIR:
+            case ID_BROWSEOBJ:
+            case ID_OTHEROBJ: TextID = HLP_FINDOBJDIR; break;
+            case ID_OUTDIR:
+            case ID_BROWSEOUT:
+            case ID_OTHEROUT: TextID = HLP_FINDOUTDIR; break;
+            case ID_OK: TextID = HLP_SAVEBUTTON; break;
+            case ID_CANCEL: TextID = HLP_QUITBUTTON; break;
+        }
         LoadString(hInstance, TextID, HelpTxt, 256);
         SetDlgItemText(hwndParent, ID_STATUSBAR, HelpTxt);
         return FALSE;
