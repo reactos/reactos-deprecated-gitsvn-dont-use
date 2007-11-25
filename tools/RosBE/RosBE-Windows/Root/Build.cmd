@@ -92,9 +92,9 @@ if %_ROSBE_WRITELOG% == 1 (
 ::
 title Started: %TIMERAW%, Building...
 if "%1" == "multi" (
-    call :BUILDMULTI
+    call :BUILDMULTI %*
 ) else (
-    call :BUILD
+    call :BUILD %*
 )
 goto :EOC
 
