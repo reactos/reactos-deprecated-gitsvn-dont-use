@@ -290,6 +290,8 @@ Section Uninstall
     RMDir /r /REBOOTOK "$INSTDIR\4.1.3"
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
+    IfFileExists "$PROFILE\RosBE\." 0 +2
+        RMDir /r /REBOOTOK "$PROFILE\RosBE"
     IfFileExists "$APPDATA\RosBE\." 0 +2
         RMDir /r /REBOOTOK "$APPDATA\RosBE"
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
