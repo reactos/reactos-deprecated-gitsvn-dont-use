@@ -92,10 +92,11 @@ if %_ROSBE_WRITELOG% == 1 (
 ::
 title Started: %TIMERAW%, Building...
 if "%1" == "multi" (
-    goto :BUILDMULTI
+    call :BUILDMULTI
 ) else (
-    goto :BUILD
+    call :BUILD
 )
+goto :EOC
 
 :BUILD
 if %_ROSBE_SHOWTIME% == 1 (
@@ -111,7 +112,7 @@ if %_ROSBE_SHOWTIME% == 1 (
         "%_ROSBE_MINGWMAKE%" %*
     )
 )
-goto :EOC
+goto :EOF
 
 :BUILDMULTI
 ::
@@ -136,6 +137,7 @@ if %_ROSBE_SHOWTIME% == 1 (
         "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
     )
 )
+goto :EOF
 
 :EOC
 ::
