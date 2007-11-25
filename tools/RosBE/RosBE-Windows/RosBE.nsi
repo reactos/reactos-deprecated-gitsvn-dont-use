@@ -348,7 +348,15 @@ Function UninstallPrevious
         Quit
     ${EndIf}
     ${If} $R0 == ""
-        Return
+        ReadRegStr $R0 HKLM \
+                   "Software\Microsoft\Windows\CurrentVersion\Uninstall\ReactOS Build Environment" \
+                   "UninstallString"
+        ReadRegStr $R1 HKLM \
+                   "Software\Microsoft\Windows\CurrentVersion\Uninstall\ReactOS Build Environment" \
+                   "DisplayVersion"
+        ${If} $R0 == ""
+            Return
+        ${EndIf}
     ${EndIf}
     MessageBox MB_YESNO|MB_ICONQUESTION  \
                "A previous version of the ${PRODUCT_NAME} was found. You must uninstall it before installing this version.$\n$\nDo you want to do that now?" \
