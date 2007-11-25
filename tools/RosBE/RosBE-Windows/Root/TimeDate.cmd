@@ -24,10 +24,10 @@ for /f "usebackq tokens=1" %%u in (`"%_ROSBE_BASEDIR%\Tools\getdate.exe"`) do se
 for /f "usebackq tokens=1" %%u in (`time /t`) do set TIMERAW=%%u
 
 ::
-:: Check if we have an hour under 10, if so pad it with a zero.
+:: Check if we need to pad the time with a zero.
 ::
 if "%TIMERAW:~1,1%" == ":" (
-    set TIMERAW=0%t%
+    set TIMERAW=0%TIMERAW%
 )
 
 ::
