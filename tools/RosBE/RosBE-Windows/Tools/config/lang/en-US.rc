@@ -5,7 +5,7 @@ STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMEN
 CAPTION "ReactOS Build Environment Settings"
 FONT 8, "MS Shell Dlg"
 BEGIN
-  LTEXT "Path to gcc Compiler", 0x0, 10, 107, 100, 15
+  LTEXT "Path to MinGW/GCC", 0x0, 10, 107, 100, 15
   LTEXT "Background Color", 0x0, 10, 10, 75, 12
   COMBOBOX IDC_BACK, 100, 10, 100, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
   LTEXT "Font Color", 0x0, 10, 35, 75, 12
@@ -48,25 +48,25 @@ BEGIN
   CLR13, "Light Purple"
   CLR14, "Light Yellow"
   CLR15, "Bright White"
-  MSG_NOGCCFOUND, "No GCC compiler found ! Please check your directory."
+  MSG_NOGCCFOUND, "No MinGW/GCC found! Please check your directory."
   MSG_FILEFAILED, "Failed to create rosbe-options.cmd!"
   MSG_DIREFAILED, "Failed to create log directory!"
-  MSG_SETLOADSUC, "Previous settings loaded successfully"
+  MSG_SETLOADSUC, "Previous settings loaded successfully."
   MSG_FINDLOGDIR, "Please choose a directory where the the logs should be stored:"
-  MSG_FINDMGWDIR, "Please choose the directory where MingW is located:"
+  MSG_FINDMGWDIR, "Please choose the directory where MinGW/GCC is located:"
   MSG_FINDOBJDIR, "Please choose the directory where you want to save OBJ Files to:"
   MSG_FINDOUTDIR, "Please choose the directory where you want to save OUT Files to:"
   /* Help Strings */
-  HLP_BACKCOLORC, "Choose background color for RosBE DOS windows"
-  HLP_FONTCOLORC, "Choose font color for RosBE DOS windows"
-  HLP_SBUILDTIME, "Lets you display time used for building at the end of process"
-  HLP_CCACHEUSED, "Check if you want to use compiler cache"
-  HLP_STRIPEDEXE, "Check if you want to produice stripped executables"
-  HLP_FINDMGWDIR, "This parameter lets you define where is MingW located"
-  HLP_FINDLOGDIR, "This parameter lets you define where will be build logs saved"
-  HLP_FINDOBJDIR, "This parameter lets you define where will be OBJ files saved"
-  HLP_FINDOUTDIR, "This parameter lets you define where will be OUT files saved"
-  HLP_SAVEBUTTON, "Activated when parameters changed, it quits with saving"
-  HLP_QUITBUTTON, "This button lets you quit configuration without saving"
-  HLP_DEFAULTMSG, "Go over a control to get help"
+  HLP_BACKCOLORC, "Choose background color for RosBE DOS windows."
+  HLP_FONTCOLORC, "Choose font color for RosBE DOS windows."
+  HLP_SBUILDTIME, "Lets you display the total build time at the end of a build."
+  HLP_CCACHEUSED, "Check if you want to use ccache (compiler cache)."
+  HLP_STRIPEDEXE, "Check if you want to produce stripped executables."
+  HLP_FINDMGWDIR, "This setting lets you define where MinGW/GCC is located."
+  HLP_FINDLOGDIR, "This setting lets you define where build logs will be saved."
+  HLP_FINDOBJDIR, "This setting lets you define where OBJ files will be saved."
+  HLP_FINDOUTDIR, "This setting lets you define where OUT files will be saved."
+  HLP_SAVEBUTTON, "Activated when a setting is changed, it quits and saves settings."
+  HLP_QUITBUTTON, "This button lets you quit configuration without saving."
+  HLP_DEFAULTMSG, "Hover over a control to get help."
 END
