@@ -21,6 +21,7 @@ if not "%1" == "" (
 :: the options utility.
 ::
 color 0A
+if "%APPDATA%"== "" set APPDATA=%USERPROFILE%
 set PATH=%SystemRoot%\system32;%SystemRoot%
 set _ROSBE_VERSION=1.1
 set _ROSBE_BASEDIR=%~dp0
