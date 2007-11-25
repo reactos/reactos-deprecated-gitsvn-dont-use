@@ -17,7 +17,7 @@ WriteSettings(HWND hwnd)
 {
     INT foreground, background;
     BOOL showtime, writelog, useccache, strip, objstate, outstate;
-    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], checklog[MAX_PATH], optionsfile[MAX_PATH];
+    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], optionsfile[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
     FILE *pFile;
@@ -37,18 +37,13 @@ WriteSettings(HWND hwnd)
 
     if (writelog && (logdir[0] != 0))
     {
-        DWORD ret = GetCurrentDirectoryW(MAX_PATH, checklog);
-        if (ret != 0 && ret < MAX_PATH)
+        if (GetFileAttributes(logdir) == 0xFFFFFFFF)
         {
-            if (!SetCurrentDirectoryW(logdir))
+            if (CreateDirectoryW(logdir, NULL) == 0)
             {
-                SetCurrentDirectoryW(checklog);
-                if (CreateDirectoryW(logdir, NULL) == 0)
-                {
-                    if (LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256))
-                        MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
-                    return FALSE;
-                }
+                LoadStringW(hInstance, MSG_DIREFAILED, msgerror, 256);
+                MessageBoxW(NULL, msgerror, NULL, MB_ICONERROR);
+                return FALSE;
             }
         }
     }
