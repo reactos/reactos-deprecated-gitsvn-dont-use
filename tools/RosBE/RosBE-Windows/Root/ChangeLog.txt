@@ -5,6 +5,7 @@
 
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
    - Added help strings when mouse is over a control. (Pierre Schweitzer)
+   - Improved check for log directory (Pierre Schweitzer) 
 
 - Fix a bug in reladdr2line.cmd. (Peter Ward)
 - Change the default ReactOS source directory from APPDATA\RosBE\Source to PROFILE\reactos. (Peter Ward)
