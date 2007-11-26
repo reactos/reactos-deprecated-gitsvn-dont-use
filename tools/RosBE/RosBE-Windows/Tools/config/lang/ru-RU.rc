@@ -13,7 +13,7 @@ BEGIN
   LTEXT "Цвет шрифта", 0x0, 10, 35, 75, 12
   COMBOBOX IDC_FONT, 100, 35, 100, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
   CONTROL "\n\nПример текста", ID_EXAMPLE, "static", WS_CHILD | WS_VISIBLE | WS_TABSTOP | SS_CENTER, 113, 58, 125, 36
-  CONTROL "Показывать время", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 55, 100, 12
+  CONTROL "Отображать время компиляции", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 55, 100, 12
   CONTROL "Вести логи", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 143, 100, 12
   CONTROL "Использовать кэширование", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 70, 100, 12
   CONTROL "Вырезать пустой код при компил.", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 100, 12
@@ -59,16 +59,16 @@ BEGIN
   MSG_FINDOBJDIR, "Укажите каталог сохранения объектных файлов:"
   MSG_FINDOUTDIR, "Укажите каталог сохранения компилированных файлов:"
   /* Help Strings */
-  HLP_BACKCOLORC, "Choose background color for RosBE DOS windows"
-  HLP_FONTCOLORC, "Choose font color for RosBE DOS windows"
-  HLP_SBUILDTIME, "Lets you display time used for building at the end of process"
-  HLP_CCACHEUSED, "Check if you want to use compiler cache"
-  HLP_STRIPEDEXE, "Check if you want to produice stripped executables"
-  HLP_FINDMGWDIR, "This parameter lets you define where is MingW located"
-  HLP_FINDLOGDIR, "This parameter lets you define where will be build logs saved"
-  HLP_FINDOBJDIR, "This parameter lets you define where will be OBJ files saved"
-  HLP_FINDOUTDIR, "This parameter lets you define where will be OUT files saved"
-  HLP_SAVEBUTTON, "Activated when parameters changed, it quits with saving"
-  HLP_QUITBUTTON, "This button lets you quit configuration without saving"
-  HLP_DEFAULTMSG, "Go over a control to get help"
+  HLP_BACKCOLORC, "Выберите цвет фона в окне консоли RosBE"
+  HLP_FONTCOLORC, "Выберите цвет шрифта в окне консоли RosBE"
+  HLP_SBUILDTIME, "Позволяет видеть время затраченное от начала до конца процесса компиляции"
+  HLP_CCACHEUSED, "Отметьте тут если вы хотите использовать кэш компилятора"
+  HLP_STRIPEDEXE, "Отметьте тут если вы хотите удалить неиспользуемый код из исполняемых файлов"
+  HLP_FINDMGWDIR, "Этот параметр определяет расположение MingW"
+  HLP_FINDLOGDIR, "Этот параметр определяет место сохранения логов"
+  HLP_FINDOBJDIR, "Этот параметр определяет место для хранения файлов объектных модулей"
+  HLP_FINDOUTDIR, "Этот параметр определяет место для сохранения откомпилированных исполняемых файлов"
+  HLP_SAVEBUTTON, "Активное состояние кнопки указывает на возможность сохранения измененных настроек"
+  HLP_QUITBUTTON, "Это клавиша позволяет выйти без сохранения изменений"
+  HLP_DEFAULTMSG, "Подсказка по установкам по умолчанию"
 END
