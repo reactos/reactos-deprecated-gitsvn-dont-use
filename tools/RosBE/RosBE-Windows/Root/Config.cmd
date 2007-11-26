@@ -117,9 +117,11 @@ cls
 
 echo Which CPU ReactOS should be optimized for.
 echo.
-echo Examples: i486, i586, pentium, pentium2, pentium3, pentium4,
-echo athlon-xp, athlon-mp, k6-2
-echo See GCC manual for more CPU names and which CPUs GCC can optimize for.
+echo Examples:
+echo Intel: i486, i586 / pentium, i686 / pentiumpro, pentium2, pentium3 / pentium3m, pentium-m, pentium4 / pentium4m, prescott, nocona
+echo AMD: k6, k6-2 / k6-3, athlon / athlon-tbird, athlon-4 / athlon-xp / athlon-mp, k8 / opteron / athlon64 / athlon-fx
+echo IDT: winchip-c6, winchip2
+echo VIA: c3, c3-2
 echo Default is: pentium
 echo.
 for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "OARCH" | find "property name""`) do set OARCH=%%i
