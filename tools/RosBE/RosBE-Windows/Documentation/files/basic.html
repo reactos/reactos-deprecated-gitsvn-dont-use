@@ -33,7 +33,8 @@ NOTE: The number makex uses can be modified by editing Build-Multi.cmd
 located in the RosBE directory, instructions for doing so are contained
 within the file.</dd>
   <dt>basedir</dt>
-  <dd>Usage: basedir</dd>
+  <dd>Usage: basedir<br>
+  </dd>
   <dd>Switches back to the ReactOS source directory.</dd>
   <dt>chdefdir</dt>
   <dd>Usage: chdefdir [OPTIONS]</dd>
@@ -42,10 +43,12 @@ useful for switching between branches or different ReactOS Source
 Trees. Exiting RosBE sets back to the Default. </dd>
   <dd>
     <ul>
-      <li> <dfn>default</dfn> - Sets back to the Default Source Folder
-without a restart of RosBE.</li>
+      <li> <dfn>previous </dfn>- Switch to the previous ReactOS
+source directory.</li>
     </ul>
   </dd>
+  <dt>chdefgcc [PATH]</dt>
+  <dd>Change the MinGW/GCC directory for the current RosBE session.</dd>
   <dt>clean</dt>
   <dd>Usage: clean [logs]</dd>
   <dd> Fully cleans the ReactOS source directory and does a better job
@@ -68,7 +71,10 @@ default are NOT usable to file bugs in any way! </dd>
   <dd>
     <ul>
       <li> <dfn>delete</dfn> - Deletes the created configuration File
-and so sets back to default settings. </li>
+and so sets back to default settings.</li>
+      <li><span style="font-style: italic;">update</span> - Deletes the
+old created configuration file and updates it with a new, default one.<br>
+      </li>
     </ul>
   </dd>
   <dt>help</dt>
@@ -80,7 +86,7 @@ commands.</dd>
   <dd> Starts the RosBE Configuration Program.<br>
   </dd>
   <dt>raddr2line</dt>
-  <dd>Usage: raddr2line [OPTIONS]</dd>
+  <dd>Usage: raddr2line [FILE] [ADDRESS]</dd>
   <dd> This Command translates program addresses of BSODs into file
 names and line numbers of the Code it was built of to assist Developers
 to find specific Bugs in ReactOS. This Tool is mainly a Dev Tool.
@@ -88,21 +94,24 @@ Newbies normally only need it if a devs wants them to try out
 something. </dd>
   <dd>
     <ul>
-      <li> <dfn>first parameter</dfn> - has to be the Executable to be
-analyzed. </li>
-      <li> <dfn>second parameter</dfn> - has to be the address to be
-translated. If you don't set the needed Parameters, you will be asked
-for them. </li>
+      <li> <dfn>FILE</dfn> - This can be either a fully specified path
+or just the file name [you can use a partial name ie. ntdll*] of the
+executable to be analyzed. When using just a file the current directory
+and all sub-directories are searched.<dfn></dfn></li>
+      <li><dfn>ADDRESS</dfn> - The address to be translated.<br>
+        <dfn></dfn></li>
     </ul>
   </dd>
   <dt>scut</dt>
   <dd>Usage: scut [OPTIONS]</dd>
   <dd>Defines, Edits, Removes, Switches and Defaults to Shortcutted
 Source Directories. scut started without a parameter or with the name
-of a Shortcut as parameter sets this Shortcut active. </dd>
+of a Shortcut as parameter sets this Shortcut active.<br>
+  </dd>
   <dd>
     <ul>
-      <li> <dfn>add</dfn> - Adds a Shortcut to a sourcecode. </li>
+      <li> <dfn>list</dfn> - Lists all shortcuts and their paths. <dfn></dfn></li>
+      <li><dfn>add</dfn> - Adds a Shortcut to a sourcecode.</li>
       <li> <dfn>rem</dfn> - Deletes a specific shortcut. </li>
       <li> <dfn>edit</dfn> - Lets you edit a specific shortcut. </li>
       <li> <dfn>def</dfn> - Chooses Default Shortcut which is enabled
