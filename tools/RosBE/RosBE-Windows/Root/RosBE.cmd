@@ -10,12 +10,6 @@
 ::
 @echo off
 
-if not "%1" == "" (
-    cls
-    echo Unknown parameter specified. Exiting.
-    goto :EOC
-)
-
 ::
 :: Set defaults to work with and override them if edited by
 :: the options utility.
@@ -54,6 +48,22 @@ if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
 )
 
 title ReactOS Build Environment %_ROSBE_VERSION%
+
+::
+:: Check if we are using oldmode or if any unknown parameters
+:: were specified.
+::
+if /i "%1" == "oldmode" (
+    cls
+    set _ROSBE_MODE=MinGW
+    call :RosBE4
+    goto :EndCommandParse
+)
+if not "%1" == "" (
+    cls
+    echo Unknown parameter specified. Exiting.
+    goto :EOC
+)
 
 cls
 call :RosBE4
