@@ -29,7 +29,16 @@ call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 echo.
 echo.
 
+::
+:: Get the number of CPUs in the system so we know how many jobs to execute.
+:: To modify the number used alter the options used with cpucount:
+:: No Option - Number of CPUs.
+:: -x1       - Number of CPUs, plus 1.
+:: -x2       - Number of CPUs, doubled.
+::
+for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
+
 doskey MAKE = "%_ROSBE_MINGWMAKE%" $*
-doskey MAKEX = "%_ROSBE_MINGWMAKE%" -j %NUMBER_OF_PROCESSORS% $*
+doskey MAKEX = "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% $*
 
 :EOC
