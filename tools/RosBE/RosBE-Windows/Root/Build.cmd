@@ -55,6 +55,11 @@ if defined _ROSBE_USECCACHE (
         set TARGET_CPP=g++
     )
 )
+
+::
+:: Check if the user has chosen to use a different object or output path
+:: and set it accordingly.
+::
 if defined _ROSBE_OBJPATH (
     if not exist "%_ROSBE_OBJPATH%\." (
         echo ERROR: The path specified doesn't seem to exist.
@@ -72,6 +77,7 @@ if defined _ROSBE_OUTPATH (
         set ROS_TEMPORARY=%_ROSBE_OUTPATH%
     )
 )
+
 ::
 :: Get the current date and time for use in in our build log's file name.
 ::
