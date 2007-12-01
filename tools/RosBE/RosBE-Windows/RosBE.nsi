@@ -104,12 +104,11 @@ Section -BaseFiles SEC01
     SetOverwrite try
     File /r Icons\mingw.ico
     File /r Icons\rosbe.ico
-    File /r Root\readme.pdf
+    File /r Root\README.pdf
     File /r Root\RosBE.mac
     File /r Root\changelog.txt
     File /r Root\LICENSE.txt
     File /r Root\MinGW.cmd
-    File /r Root\README.txt
     File /r Root\Build.cmd
     File /r Root\Clean.cmd
     File /r Root\Help.cmd
@@ -231,7 +230,7 @@ Section -StartMenuShortcuts SEC10
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Readme.lnk" \
-                       "$INSTDIR\readme.pdf"
+                       "$INSTDIR\README.pdf"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
@@ -307,7 +306,7 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\scut.cmd"
     Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
-    Delete /REBOOTOK "$INSTDIR\readme.pdf"
+    Delete /REBOOTOK "$INSTDIR\README.pdf"
     Delete /REBOOTOK "$INSTDIR\rosbe.ico"
     Delete /REBOOTOK "$INSTDIR\uninstall.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
@@ -315,7 +314,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\LICENSE.txt"
     Delete /REBOOTOK "$INSTDIR\MinGW.cmd"
     Delete /REBOOTOK "$INSTDIR\mingw.ico"
-    Delete /REBOOTOK "$INSTDIR\README.txt"
     Delete /REBOOTOK "$INSTDIR\srclist.txt"
     Delete /REBOOTOK "$INSTDIR\config.rbuild"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
