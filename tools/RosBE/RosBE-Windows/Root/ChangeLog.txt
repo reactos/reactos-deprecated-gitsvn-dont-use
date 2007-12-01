@@ -1,6 +1,6 @@
 *** XXX XXth, 200X - RosBE 1.1 Released
 
-- Updated: NASM to 2.00rc1 (Peter Ward)
+- Updated: NASM to 2.00 (Peter Ward)
 - Updated: GDB to 6.7.5.20071121 (Peter Ward)
 
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
