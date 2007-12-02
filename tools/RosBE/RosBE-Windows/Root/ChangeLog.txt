@@ -6,6 +6,7 @@
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
    - Added help strings when mouse is over a control. (Pierre Schweitzer)
    - Improved check for log directory (Pierre Schweitzer)
+   - Updated French translation (Pierre Schweitzer)
 
 - Add a pushd/popd to options.cmd so that options.exe pulls up a better default path for MinGW/GCC. (Peter Ward)
 - Set the working directory for the "Options" shortcut correctly (see above bullet). (Colin Fink)
