@@ -11,7 +11,7 @@ typedef struct section_mapping_t {
     const ElfObjectFile::Section *section;
     uint32_t rva;
     int index;
-    
+
     section_mapping_t
     (const ElfObjectFile::Section *sect, uint32_t rva, int index) :
 	section(sect), rva(rva), index(index) { }
@@ -22,7 +22,7 @@ typedef struct section_mapping_t {
 class ElfPeHeader {
 public:
     ElfPeHeader
-	(uint32_t imagebase, 
+	(uint32_t imagebase,
 	 uint32_t imagealign,
 	 uint32_t filealign,
 	 const ElfObjectFile::Symbol *entry,
@@ -56,9 +56,9 @@ private:
     uint32_t saToRva(int section, uint32_t offset) const;
     uint32_t vaToRva(uint32_t source_addr) const;
 
-    uint32_t 
+    uint32_t
 	imagebase, filealign, sectionalign,
-	stackreserve, stackcommit, 
+	stackreserve, stackcommit,
 	heapreserve, heapcommit;
     bool dll;
     int subsysid;

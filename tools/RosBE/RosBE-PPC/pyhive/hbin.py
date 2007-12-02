@@ -124,7 +124,7 @@ class regkey:
         return result + \
                round_pad(self.name,4) + \
                round_pad(self.classname,4)
-            
+
     def size_header(self):
         return len(self.encode_header())
 
@@ -143,16 +143,16 @@ class regkey:
         data = struct.pack(">"+str(len(valuecells))+"I",*valuecells)
         regf.write(cellid, data)
         return cellid
-    
+
     def makecell(self,regf):
         valcells = []
         keycells = []
-        
+
         mycell = regf.claim(self.size_header())
-            
+
         for val in self.values:
             valcells.append(val.makecell(regf))
-                
+
         for key in self.subkeys:
             key.parentcell = mycell
             keycells.append((key.name,key.makecell(regf)))
@@ -160,7 +160,7 @@ class regkey:
         self.keylist = self.make_key_list_cell(regf, keycells)
         self.valuelist = self.make_value_list_cell(regf, valcells)
         regf.write(mycell,self.encode_header())
-        
+
         return mycell
 
 class hbin:
@@ -264,7 +264,7 @@ class regf:
         outf.write(pad(header,self.blocksize))
         for hbin in self.bins:
             hbin.export(outf)
-        
+
     def alloc_hbin(self):
         self.thebin = hbin(len(self.bins))
         self.bins.append(self.thebin)

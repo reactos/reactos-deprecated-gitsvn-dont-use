@@ -34,7 +34,7 @@ void le32pwrite_postinc(uint8_t *&dataptr, const u32pair_t &value)
     le32write_postinc(dataptr, value.second);
 }
 
-uint16_t be16read(uint8_t *dataptr) 
+uint16_t be16read(uint8_t *dataptr)
 {
     return dataptr[0] << 8 | dataptr[1];
 }
@@ -46,7 +46,7 @@ uint16_t be16read_postinc(uint8_t *&dataptr)
     return res;
 }
 
-uint32_t be32read(uint8_t *dataptr) 
+uint32_t be32read(uint8_t *dataptr)
 {
     return be16read(dataptr) << 16 | be16read(dataptr+2);
 }

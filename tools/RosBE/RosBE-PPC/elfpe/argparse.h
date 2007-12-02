@@ -5,7 +5,7 @@
 #include <string>
 
 bool getarg
-(const std::string &shortName, 
+(const std::string &shortName,
  const std::string &longName,
  bool remove,
  std::vector<std::string> &arguments,

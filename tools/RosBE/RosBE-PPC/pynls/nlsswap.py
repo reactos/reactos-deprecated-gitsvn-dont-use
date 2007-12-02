@@ -15,7 +15,7 @@ def swapnls(nlsbuf):
     for i in xrange(0,narrow_size):
         result = result + struct.pack(">H",*struct.unpack("<H",nlsbuf[start:start+2]))
         start = start + 2
-        
+
     # Optional OEM table
     nextlen = struct.unpack("<H",nlsbuf[start:start+2])[0]
     result = result + struct.pack(">H",nextlen)
@@ -27,13 +27,13 @@ def swapnls(nlsbuf):
             start = start + 2
     else:
         result = result + struct.pack(">H",nextlen)
-            
+
     dbcs_ranges = struct.unpack("<H",nlsbuf[start:start+2])[0]
     if (dbcs_ranges & 0x8000) != 0:
         for i in xrange(start/2,len(nlsbuf)/2):
             result = result + struct.pack(">H",*struct.unpack("<H",nlsbuf[start:start+2]))
             start = start + 2
-            
+
     result = result + nlsbuf[len(result):]
 
     return result
