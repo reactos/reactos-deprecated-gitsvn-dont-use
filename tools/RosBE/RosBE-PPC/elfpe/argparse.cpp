@@ -23,7 +23,7 @@ bool getarg
     for(size_t i = 0; i < arguments.size(); i++)
     {
         const std::string arg = arguments[i];
-        
+
         // Find -Wl and parse
         if (arg.size() > 3 && arg.substr(0,3) == "-Wl")
         {
@@ -68,7 +68,7 @@ bool getarg
                 return true;
             }
             // Catch --entry=foo@12
-            else if (arg.size() > longName.size() && 
+            else if (arg.size() > longName.size() &&
                      arg.substr(0,longName.size()) == longName &&
                      arg[longName.size()] == '=')
             {

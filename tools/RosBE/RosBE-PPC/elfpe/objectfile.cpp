@@ -79,7 +79,7 @@ uint32_t ElfObjectFile::getEntryPoint() const
 
 void ElfObjectFile::addSection(const std::string &name, const secdata_t &data, int type)
 {
-    Elf_Scn *newsect = elf_newscn(elfHeader), 
+    Elf_Scn *newsect = elf_newscn(elfHeader),
 	*strsect = elf_getscn(elfHeader, shstrndx);
     Elf32_Shdr *shdr = elf32_getshdr(newsect);
     /* Create data for the new section */

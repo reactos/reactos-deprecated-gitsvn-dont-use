@@ -3,7 +3,7 @@
 #include "header.h"
 
 ElfPeHeader::ElfPeHeader
-	(uint32_t imagebase, 
+	(uint32_t imagebase,
 	 uint32_t filealign,
 	 uint32_t sectionalign,
 	 const ElfObjectFile::Symbol *entry,
@@ -33,7 +33,7 @@ int ElfPeHeader::computeSize() const
     return sectionalign; /* We'll compute it for real later */
 }
 
-void ElfPeHeader::createHeaderSection() 
+void ElfPeHeader::createHeaderSection()
 {
     std::vector<section_mapping_t> sectionRvaSet;
     uint32_t imageSize = getSectionRvas(sectionRvaSet);
@@ -95,11 +95,11 @@ void ElfPeHeader::createHeaderSection()
     le32pwrite_postinc(dataptr, getTlsInfo());
     // Fixup size of optional header
     le16write
-	(&data[0] + optHeaderSizeMember, 
+	(&data[0] + optHeaderSizeMember,
 	 (dataptr - &data[0]) - coffHeaderSize);
     // Here, we store references to the sections, filling in the RVA and
     // size, but leaving out the other info.  We write the section name
-    // truncated into the name field and leave the section id in the 
+    // truncated into the name field and leave the section id in the
     // physical address bit
     for (int i = 0; i < sectionRvaSet.size(); i++)
     {
@@ -115,7 +115,7 @@ void ElfPeHeader::createHeaderSection()
 	le32write_postinc(dataptr, size);
 	le32write_postinc(dataptr, rva);
 	le32write_postinc(dataptr, size);
-	// Note: we put the index in the offset slot so we can find the 
+	// Note: we put the index in the offset slot so we can find the
 	// real offset later in the loader
 	le32write_postinc(dataptr, sectionRvaSet[i].index);
 	le32write_postinc(dataptr, 0);
@@ -133,7 +133,7 @@ uint32_t ElfPeHeader::getSectionRvas(std::vector<section_mapping_t> &rvas) const
     uint32_t start = computeSize();
     uint32_t limit = start;
     for(int i = 0; i < eof->getNumSections(); i++) {
-	{ 
+	{
 	    const ElfObjectFile::Section &sect = eof->getSection(i);
 	    if(sect.getFlags() & SHF_ALLOC) {
 		limit = roundup(start + sect.logicalSize(), sectionalign);
@@ -155,7 +155,7 @@ uint16_t ElfPeHeader::getPeArch() const
     return IMAGE_FILE_MACHINE_POWERPCBE; /* for now */
 }
 
-u32pair_t getNamedSectionInfo(ElfObjectFile *eof, const std::vector<section_mapping_t> &mapping, const std::string &name) 
+u32pair_t getNamedSectionInfo(ElfObjectFile *eof, const std::vector<section_mapping_t> &mapping, const std::string &name)
 {
     const ElfObjectFile::Section *sect = eof->getNamedSection(name);
     uint32_t sectaddr;
@@ -188,7 +188,7 @@ u32pair_t ElfPeHeader::getResourceInfo(const std::vector<section_mapping_t> &map
     return getNamedSectionInfo(eof, mapping, ".rsrc");
 }
 
-u32pair_t ElfPeHeader::getExceptionInfo() const 
+u32pair_t ElfPeHeader::getExceptionInfo() const
 {
     return std::make_pair(0,0);
 }
@@ -224,12 +224,12 @@ u32pair_t ElfPeHeader::getMachInfo() const
 }
 
 uint32_t ElfPeHeader::getEntryPoint
-(const std::vector<section_mapping_t> &secmap, 
+(const std::vector<section_mapping_t> &secmap,
  const ElfObjectFile::Symbol *entry) const
 {
     if(entry == NULL) return computeSize();
     for(int i = 0; i < secmap.size(); i++) {
-	if(secmap[i].index == entry->section) 
+	if(secmap[i].index == entry->section)
 	    return secmap[i].rva + entry->offset;
     }
     return computeSize();

@@ -38,7 +38,7 @@ int execute_command( bool verbose, const std::vector<std::string> &args )
 }
 
 void possibly_define
-(std::vector<std::string> &args, 
+(std::vector<std::string> &args,
  std::string label,
  std::string body = "1")
 {
@@ -58,12 +58,12 @@ void possibly_define
 }
 
 int main( int argc, char **argv ) {
-    bool verbose = false, nostdlib = false, 
+    bool verbose = false, nostdlib = false,
 	nostartfiles = false, compile_only = false, is_dll = false, entry,
 	mkheader = true;
     int status = 0;
-    std::string gcc_name, gcc_hash_output, gcc_line, 
-        mingw_lib_dir, output_file, entry_point = "", 
+    std::string gcc_name, gcc_hash_output, gcc_line,
+        mingw_lib_dir, output_file, entry_point = "",
         image_base = "0x400000",
         section_align = "0x1000", file_align = "0x1000", subsystem = "cui",
         result;
@@ -97,8 +97,8 @@ int main( int argc, char **argv ) {
 
     if( entry )
     {
-        if(entry_point.size() && entry_point[0] == '_') 
-        { 
+        if(entry_point.size() && entry_point[0] == '_')
+        {
             entry_point = entry_point.substr(1);
         }
         if( !compile_only )
@@ -140,7 +140,7 @@ int main( int argc, char **argv ) {
 
     // Stack on driver name and dump commands flag
     if( verbose ) gcc_args_str.insert(gcc_args_str.begin(),"-v");
-    if (!compile_only) 
+    if (!compile_only)
     {
     	if( is_dll ) gcc_args_str.insert(gcc_args_str.begin(), "-Wl,-r");
         gcc_args_str.insert(gcc_args_str.begin(), "-Wl,-q");
@@ -165,9 +165,9 @@ int main( int argc, char **argv ) {
         /* Ok fixup the elf object file */
         ElfObjectFile eof(output_file);
         const ElfObjectFile::Symbol *entry_sym;
-        
-        if(!eof) exit(1); 
-        
+
+        if(!eof) exit(1);
+
         entry_sym = eof.getNamedSymbol(entry_point);
 
         ElfPeHeader header
@@ -182,7 +182,7 @@ int main( int argc, char **argv ) {
 	 atoi(subsystem.c_str()),
 	 is_dll,
 	 &eof);
-    
+
         eof.addSection(".peheader", header.getData(), TYPE_PEHEADER);
     }
 

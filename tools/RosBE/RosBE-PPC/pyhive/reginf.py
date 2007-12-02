@@ -1,5 +1,5 @@
 import hbin
-import struct 
+import struct
 
 FLG_ADDREG_BINVALUETYPE = 1
 FLG_ADDREG_NOCLOBBER = 2
@@ -38,7 +38,7 @@ def nextline(linelist,curline):
                   (len(stripcomment(linelist[curline]).strip()) == 0 or \
                    linelist[curline] == '['):
                 curline = curline + 1
-        
+
         while not stop and curline < len(linelist):
                 theline = linelist[curline]
                 if len(theline) and theline[-1] == '\\':
@@ -138,7 +138,7 @@ class regelt:
                 else:
                         result = self.parsed[4:]
                 return result
-        
+
 class reginf:
         def __init__(self):
                 self.content = []

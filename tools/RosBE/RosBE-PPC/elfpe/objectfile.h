@@ -12,8 +12,8 @@ public:
 
     class Symbol {
     public:
-	Symbol(const std::string &name, uint32_t offset, 
-	       int section, int flags) : 
+	Symbol(const std::string &name, uint32_t offset,
+	       int section, int flags) :
 	    name(name), offset(offset), section(section), flags(flags) { }
 	std::string name;
 	uint32_t offset;
@@ -23,12 +23,12 @@ public:
 
     class Section {
     public:
-	Section(const Section &other) : 
-	    obj(other.obj), section(other.section), have_data(false), 
-	    number(other.number) { 
+	Section(const Section &other) :
+	    obj(other.obj), section(other.section), have_data(false),
+	    number(other.number) {
 	    e32shdr = elf32_getshdr(section);
 	}
-	Section(ElfObjectFile &obj, int number, Elf_Scn *sechdr) : 
+	Section(ElfObjectFile &obj, int number, Elf_Scn *sechdr) :
 	    obj(&obj), section(sechdr), have_data(false), number(number) {
 	    e32shdr = elf32_getshdr(section);
 	}
@@ -40,7 +40,7 @@ public:
 	    number = other.number;
 	}
 	operator bool () { return !!section; }
-	std::string getName() const { 
+	std::string getName() const {
 	    return obj->getString(e32shdr->sh_name);
 	}
 
@@ -100,7 +100,7 @@ public:
     bool operator ! () const { return fd == -1 ? true : false; }
     int getNumSections() const { return sections.size(); }
     uint32_t getEntryPoint() const;
-    std::string getString(int offset) const { 
+    std::string getString(int offset) const {
 	return elf_strptr(elfHeader, shstrndx, offset);
     }
     void addSection

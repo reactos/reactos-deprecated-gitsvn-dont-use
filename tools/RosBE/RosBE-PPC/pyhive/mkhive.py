@@ -21,7 +21,7 @@ if __name__ == '__main__':
     hivedir = sys.argv[2]
 
     ri = reginf.reginf()
-        
+
     for file in ["hivesys.inf","hivecls.inf","hivesft.inf","hivedef.inf"]:
         lines = open(os.path.join(infdir,file)).read().split('\n')
         curline = 0
@@ -53,4 +53,4 @@ if __name__ == '__main__':
         thehive.export(outf)
         outf.close()
 
-    
+
