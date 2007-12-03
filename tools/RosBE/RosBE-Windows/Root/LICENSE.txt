@@ -15,6 +15,10 @@ Various parts of the ReactOS Build Environment are under different license's, th
 
 - NASM is licensed under the LGPLv2.1.
 
+- ccache is licensed under the GPLv2.
+
+- cygwin is licensed under the GPLv2.
+
 - Subversion is licensed under various licenses.
   (installed to INSTALLDIR\Tools\licences\*)
 
