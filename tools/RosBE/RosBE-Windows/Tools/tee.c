@@ -12,7 +12,7 @@
 
 int main(int argc, char* argv[])
 {
-    unsigned char charbuff;
+    int charbuff;
     FILE *fp;
 
     if (argc > 2)
@@ -37,14 +37,10 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%s: Error cannot create/open file \"%s\".\n", argv[0], argv[1]);
         return -1;
     }
-    while (!feof(stdin))
+    while ((charbuff = fgetc(stdin)) != EOF)
     {
-        charbuff = fgetc(stdin);
-        if (!feof(stdin))
-        {
-            fputc(charbuff, stdout);
-            fputc(charbuff, fp);
-        }
+        fputc(charbuff, stdout);
+        fputc(charbuff, fp);
     }
     if (fclose(fp))
     {
