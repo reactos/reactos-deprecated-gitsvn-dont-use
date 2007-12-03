@@ -10,7 +10,6 @@
 ;;
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "RosBE-${PRODUCT_VERSION}.exe"
-InstallDir "$PROGRAMFILES64\RosBE"
 InstallDirRegKey HKCU "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -35,6 +34,7 @@ SetCompressor /FINAL /SOLID lzma
 !include "InstallOptions.nsh"
 !include "RosSourceDir.nsh"
 !include "LogicLib.nsh"
+!include "x64.nsh"
 
 ;; MUI begin.
 
@@ -42,6 +42,11 @@ SetCompressor /FINAL /SOLID lzma
 ;; Read our custom page ini, remove previous version.
 ;;
 Function .onInit
+    ${If} ${RunningX64}
+        StrCpy $INSTDIR "$PROGRAMFILES64\RosBE"
+    ${Else}
+        StrCpy $INSTDIR "$PROGRAMFILES\RosBE"
+    ${Endif}
     Call UninstallPrevious
     !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
 FunctionEnd
