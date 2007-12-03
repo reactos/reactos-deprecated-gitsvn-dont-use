@@ -1,7 +1,7 @@
 *** XXX XXth, 200X - RosBE 1.1 Released
 
 - Updated: NASM to 2.00 (Peter Ward)
-- Updated: GDB to 6.7.5.20071121 (Peter Ward)
+- Updated: GDB to 6.7.5.20071127 (Peter Ward)
 
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
    - Added help strings when mouse is over a control. (Pierre Schweitzer)
