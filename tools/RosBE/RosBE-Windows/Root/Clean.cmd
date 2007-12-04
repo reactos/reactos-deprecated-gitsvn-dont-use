@@ -43,21 +43,6 @@ if "%1" == "" (
         del /f "dll\win32\ole32\drag_move.cur" 1> NUL 2> NUL
         del /f "dll\win32\ole32\drag_copy.cur" 1> NUL 2> NUL
         del /f "dll\win32\ole32\drag_link.cur" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idc_divideropen.cur" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idc_copy.cur" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idc_divider.cur" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idb_view_small.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idb_std_large.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idb_view_large.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idi_tt_info_sm.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idc_movebutton.cur" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idi_tt_warn_sm.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idi_dragarrow.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idb_hist_small.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idb_hist_large.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idt_check.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idi_tt_error_sm.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comctl32\idb_std_small.bmp" 1> NUL 2> NUL
         del /f "dll\win32\msi\instabsent.bmp" 1> NUL 2> NUL
         del /f "dll\win32\msi\instlocal.bmp" 1> NUL 2> NUL
         del /f "dll\win32\msi\instadvert.bmp" 1> NUL 2> NUL
