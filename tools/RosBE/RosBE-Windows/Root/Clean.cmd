@@ -46,19 +46,6 @@ if "%1" == "" (
         del /f "dll\win32\msi\instabsent.bmp" 1> NUL 2> NUL
         del /f "dll\win32\msi\instlocal.bmp" 1> NUL 2> NUL
         del /f "dll\win32\msi\instadvert.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\network.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\fontpics.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\pd32_nocollate.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\pd32_collate.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\folder.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\cdrom.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\floppy.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\pd32_landscape.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\folder2.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\800.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\pd32_portrait.ico" 1> NUL 2> NUL
-        del /f "dll\win32\comdlg32\hdisk.ico" 1> NUL 2> NUL
-
         del /f "dll\ntdll\napi.S" 1> NUL 2> NUL
         del /f "dll\ntdll\i386\napi.S" 1> NUL 2> NUL
         rmdir /q "dll\ntdll\i386" 1> NUL 2> NUL
