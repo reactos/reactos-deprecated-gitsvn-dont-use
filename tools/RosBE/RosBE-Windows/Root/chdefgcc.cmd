@@ -18,7 +18,7 @@ if "%_ROSBE_MODE%" == "RosBE" (
 if %1 == "" (
     call :INTERACTIVE
 ) else (
-    set _1="%1"
+    for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\rquote.exe" %1"`) do set _1=%%i
 )
 
 if not exist "%_1%\." (
