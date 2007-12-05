@@ -40,6 +40,12 @@ set LIBRARY_PATH=%_ROSBE_MINGWPATH%\lib;%_ROSBE_MINGWPATH%\lib\gcc\mingw32\%_ROS
 :: Display the current version of GCC, NASM, ld and make.
 ::
 gcc -v 2>&1 | find "gcc version"
-nasm -v
+if exist "%_ROSBE_MINGWPATH%\bin\nasm.exe" (
+    nasm -v
+) else (
+    if "%_ROSBE_MODE%" == "RosBE" (
+        echo ERROR: NASM is required to build ReactOS, none found in the current MinGW/GCC.
+    )
+)
 ld -v
 mingw32-make -v | find "GNU Make"

@@ -8,7 +8,9 @@
 ::
 @echo off
 
-title Change the current MinGW/GCC directory...
+if "%_ROSBE_MODE%" == "RosBE" (
+    title Change the current MinGW/GCC directory...
+)
 
 ::
 :: Parse the command line arguments.
@@ -38,7 +40,9 @@ if "%_1%" == "" (
 goto :EOF
 
 :EOC
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
 
 ::
 :: Unload all used Vars.
