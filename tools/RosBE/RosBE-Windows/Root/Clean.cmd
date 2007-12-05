@@ -34,43 +34,6 @@ if "%1" == "" (
             del "makefile.auto" 1> NUL 2> NUL
         )
 
-        ::
-        : Now delete auto-generated/copied files not removed by make clean.
-        ::
-        del /f "media\inf\syssetup.inf" 1> NUL 2> NUL
-        del /f "include\roscfg.h" 1> NUL 2> NUL
-        del /f "dll\win32\ole32\nodrop.cur" 1> NUL 2> NUL
-        del /f "dll\win32\ole32\drag_move.cur" 1> NUL 2> NUL
-        del /f "dll\win32\ole32\drag_copy.cur" 1> NUL 2> NUL
-        del /f "dll\win32\ole32\drag_link.cur" 1> NUL 2> NUL
-        del /f "dll\win32\msi\instabsent.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\msi\instlocal.bmp" 1> NUL 2> NUL
-        del /f "dll\win32\msi\instadvert.bmp" 1> NUL 2> NUL
-        del /f "dll\ntdll\napi.S" 1> NUL 2> NUL
-        del /f "dll\ntdll\i386\napi.S" 1> NUL 2> NUL
-        rmdir /q "dll\ntdll\i386" 1> NUL 2> NUL
-        del /f "dll\win32\gdi32\misc\win32k.S" 1> NUL 2> NUL
-        del /f "dll\win32\gdi32\misc\i386\win32k.S" 1> NUL 2> NUL
-        rmdir /q "dll\win32\gdi32\misc\i386" 1> NUL 2> NUL
-        del /f "dll\win32\kernel32\errcodes.rc" 1> NUL 2> NUL
-        del /f "dll\win32\user32\misc\win32k.S" 1> NUL 2> NUL
-        del /f "dll\win32\user32\misc\i386\win32k.S" 1> NUL 2> NUL
-        rmdir /q "dll\win32\user32\misc\i386" 1> NUL 2> NUL
-        del /f "include\reactos\bugcodes.h" 1> NUL 2> NUL
-        del /f "include\reactos\buildno.h" 1> NUL 2> NUL
-        del /f "include\reactos\errcodes.h" 1> NUL 2> NUL
-        del /f "lib\win32ksys\win32k.S" 1> NUL 2> NUL
-        del /f "lib\win32ksys\i386\win32k.S" 1> NUL 2> NUL
-        rmdir /q "lib\win32ksys\i386" 1> NUL 2> NUL
-        del /f "ntoskrnl\bugcodes.rc" 1> NUL 2> NUL
-        del /f "ntoskrnl\ex\zw.S" 1> NUL 2> NUL
-        del /f "ntoskrnl\ex\i386\zw.S" 1> NUL 2> NUL
-        del /f "ntoskrnl\include\internal\napi.h" 1> NUL 2> NUL
-        del /f "subsystems\win32\win32k\dib\dib16gen.c" 1> NUL 2> NUL
-        del /f "subsystems\win32\win32k\dib\dib32gen.c" 1> NUL 2> NUL
-        del /f "subsystems\win32\win32k\dib\dib8gen.c" 1> NUL 2> NUL
-        del /f "subsystems\win32\win32k\include\napi.h" 1> NUL 2> NUL
-
         echo Done cleaning ReactOS source directory.
     ) else (
         echo ERROR: There is nothing to clean.
