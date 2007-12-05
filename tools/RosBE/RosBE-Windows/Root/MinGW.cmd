@@ -38,6 +38,7 @@ echo.
 ::
 for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
 
+doskey CHDEFGCC = "%_ROSBE_BASEDIR%\chdefgcc.cmd" $*
 doskey MAKE = "%_ROSBE_MINGWMAKE%" $*
 doskey MAKEX = "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% $*
 
