@@ -15,10 +15,10 @@ if "%_ROSBE_MODE%" == "RosBE" (
 ::
 :: Parse the command line arguments.
 ::
-if "%1" == "" (
+if %1 == "" (
     call :INTERACTIVE
 ) else (
-    set _1=%1
+    set _1="%1"
 )
 
 if not exist "%_1%\." (
@@ -26,7 +26,7 @@ if not exist "%_1%\." (
     goto :EOC
 )
 if not exist "%_1%\bin\gcc.exe" (
-    echo ERROR: The path specified doesn't seem to exist.
+    echo ERROR: No MinGW/GCC found in the specified path.
     goto :EOC
 )
 set _ROSBE_MINGWPATH=%_1%
