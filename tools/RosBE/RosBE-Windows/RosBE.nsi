@@ -115,6 +115,7 @@ Section -BaseFiles SEC01
     File /r Root\LICENSE.txt
     File /r Root\MinGW.cmd
     File /r Root\Build.cmd
+    File /r Root\chdefgcc.cmd
     File /r Root\Clean.cmd
     File /r Root\Help.cmd
     File /r Root\RosBE.cmd
@@ -127,6 +128,7 @@ Section -BaseFiles SEC01
     File /r Components\Tools\cpucount.exe
     File /r Components\Tools\flash.exe
     File /r Components\Tools\getdate.exe
+    File /r Components\Tools\rquote.exe
     File /r Components\Tools\tee.exe
 SectionEnd
 
@@ -210,12 +212,11 @@ Section "relAddr2Line Tool" SEC08
     File /r Components\Tools\chkslash.exe
 SectionEnd
 
-Section "Other Tools (chdefdir, chdefgcc and config)" SEC09
+Section "Other Tools (chdefdir and config)" SEC09
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
     File /r Root\chdefdir.cmd
-    File /r Root\chdefgcc.cmd
     File /r Root\Config.cmd
 SectionEnd
 

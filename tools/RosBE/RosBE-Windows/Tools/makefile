@@ -8,7 +8,7 @@ STRIP := strip
 SUFFIX := .exe
 WINVER := 0x500
 
-all: buildtime chknewer chkslash echoh flash getdate scut tee
+all: buildtime chknewer chkslash echoh flash getdate rquote scut tee
 
 buildtime:  buildtime.c
 	${CC} ${CFLAGS} buildtime$(SUFFIX) buildtime.c
@@ -33,6 +33,10 @@ flash:  flash.c
 getdate:  getdate.c
 	${CC} ${CFLAGS} getdate getdate.c
 	$(STRIP) getdate$(SUFFIX)
+
+rquote:  rquote.c
+	${CC} ${CFLAGS} rquote rquote.c
+	$(STRIP) rquote$(SUFFIX)
 
 scut:  scut.c
 	${CC} ${CFLAGS} scut scut.c
