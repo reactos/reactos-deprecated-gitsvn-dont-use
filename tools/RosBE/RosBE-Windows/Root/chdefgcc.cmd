@@ -25,6 +25,10 @@ if not exist "%_1%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :EOC
 )
+if not exist "%_1%\bin\gcc.exe" (
+    echo ERROR: The path specified doesn't seem to exist.
+    goto :EOC
+)
 set _ROSBE_MINGWPATH=%_1%
 echo Location: %_ROSBE_MINGWPATH%
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
