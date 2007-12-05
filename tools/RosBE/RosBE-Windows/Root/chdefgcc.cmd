@@ -16,7 +16,7 @@ if "%_ROSBE_MODE%" == "RosBE" (
 :: Parse the command line arguments.
 ::
 for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\rquote.exe" %1"`) do set _1=%%i
-if "%1" == "" (
+if "%_1%" == "" (
     call :INTERACTIVE
 )
 
@@ -35,8 +35,7 @@ call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOC
 
 :INTERACTIVE
-set /p _1="Please enter a MinGW/GCC directory: "
-for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\rquote.exe" %_1%"`) do set _1=%%i
+set /p _1="Please enter a MinGW/GCC directory (don't use quotes): "
 if "%_1%" == "" (
     echo ERROR: You must enter a MinGW/GCC directory.
     goto :EOC
