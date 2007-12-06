@@ -10,8 +10,6 @@
 ::
 @echo off
 
-title Building...
-
 ::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
@@ -96,10 +94,11 @@ if %_ROSBE_WRITELOG% == 1 (
 ::
 :: Check if we are using -j or not.
 ::
-title Started: %TIMERAW%, Building...
 if "%1" == "multi" (
+    title 'makex' parallel build started: %TIMERAW%
     call :BUILDMULTI %*
 ) else (
+    title 'make' build started: %TIMERAW%
     call :BUILD %*
 )
 goto :EOC
