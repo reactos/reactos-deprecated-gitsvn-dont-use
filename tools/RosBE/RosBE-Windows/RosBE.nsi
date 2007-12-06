@@ -42,6 +42,11 @@ SetCompressor /FINAL /SOLID lzma
 ;; Read our custom page ini, remove previous version.
 ;;
 Function .onInit
+    System::Call 'kernel32::CreateMutexA(i 0, i 0, t "RosBE-v${PRODUCT_VERSION}-Installer") i .r1 ?e'
+    Pop $R0
+    StrCmp $R0 0 +3
+        MessageBox MB_OK|MB_ICONEXCLAMATION "The ${PRODUCT_NAME} v${PRODUCT_VERSION} installer is already running."
+        Abort
     ${If} ${RunningX64}
         StrCpy $INSTDIR "$PROGRAMFILES64\RosBE"
     ${Else}
