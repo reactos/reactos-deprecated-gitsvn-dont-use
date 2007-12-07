@@ -28,43 +28,43 @@ if not "%2" == "" (
 )
 call :INTERACTIVE
 
-:RADD2RLINE
 ::
 :: First get the ImageBase of the File. If its smaller than the given
 :: Parameter, everything is ok, because it was already added onto the
 :: adress and can be given directly to raddr2line. If not, add it and
 :: give the result to raddr2line.
 ::
-if "%_1%" == "" (
-    echo ERROR: You must specify a path/file to examine.
-    goto :EOC
-)
-if "%_2%" == "" (
-    echo ERROR: You must specify a address to analyze.
-    goto :EOC
-)
-echo %_1%
-for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do set baseaddr=0x%%i
-if %%i lss %_2% (
-    "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%_1%" "%_2%"
-) else (
-    set /a baseaddr+=0x%_2%
-    for /f %%i in ('""%_ROSBE_BASEDIR%\Tools\echoh.exe" %baseaddr%"') do set relbase=%%i
-    "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%_1%" "%relbase%"
-)
+:RADD2RLINE
+    if "%_1%" == "" (
+        echo ERROR: You must specify a path/file to examine.
+        goto :EOC
+    )
+    if "%_2%" == "" (
+        echo ERROR: You must specify a address to analyze.
+        goto :EOC
+    )
+    echo %_1%
+    for /f "tokens=2" %%i in ('"objdump -p %_1% 2>NUL | findstr ImageBase"') do set baseaddr=0x%%i
+    if %%i lss %_2% (
+        "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%_1%" "%_2%"
+    ) else (
+        set /a baseaddr+=0x%_2%
+        for /f %%i in ('""%_ROSBE_BASEDIR%\Tools\echoh.exe" %baseaddr%"') do set relbase=%%i
+        "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%_1%" "%relbase%"
+    )
 goto :EOC
 
 ::
 :: If Parameters were set, parse them, if not, ask the user to add them.
 ::
 :INTERACTIVE
-if "%_1%" == "" (
-    set /p _1="Please enter the path/file to be examined: "
-    call :CHECKPATH
-)
-if "%_2%" == "" (
-    set /p _2="Please enter the address you would like to analyze: "
-)
+    if "%_1%" == "" (
+        set /p _1="Please enter the path/file to be examined: "
+        call :CHECKPATH
+    )
+    if "%_2%" == "" (
+        set /p _2="Please enter the address you would like to analyze: "
+    )
 goto :EOF
 
 ::

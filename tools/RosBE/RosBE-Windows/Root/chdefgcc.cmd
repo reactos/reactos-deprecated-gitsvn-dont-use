@@ -35,11 +35,11 @@ call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOC
 
 :INTERACTIVE
-set /p _1="Please enter a MinGW/GCC directory (don't use quotes): "
-if "%_1%" == "" (
-    echo ERROR: You must enter a MinGW/GCC directory.
-    goto :EOC
-)
+    set /p _1="Please enter a MinGW/GCC directory (don't use quotes): "
+    if "%_1%" == "" (
+        echo ERROR: You must enter a MinGW/GCC directory.
+        goto :EOC
+    )
 goto :EOF
 
 :EOC

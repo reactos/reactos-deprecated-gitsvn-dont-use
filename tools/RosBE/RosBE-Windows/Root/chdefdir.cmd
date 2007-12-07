@@ -36,11 +36,11 @@ goto :EOC
 :: If Parameters were set, parse them, if not, ask the user to add them.
 ::
 :INTERACTIVE
-set /p _1="Please enter a ReactOS source directory, or 'previous': "
-if "%_1%" == "" (
-    echo ERROR: You must enter a ReactOS source directory, or 'previous'.
-    goto :EOC
-)
+    set /p _1="Please enter a ReactOS source directory, or 'previous': "
+    if "%_1%" == "" (
+        echo ERROR: You must enter a ReactOS source directory, or 'previous'.
+        goto :EOC
+    )
 goto :EOF
 
 :EOC

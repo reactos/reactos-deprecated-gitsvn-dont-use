@@ -36,10 +36,9 @@ SetCompressor /FINAL /SOLID lzma
 !include "LogicLib.nsh"
 !include "x64.nsh"
 
-;; MUI begin.
-
 ;;
-;; Read our custom page ini, remove previous version.
+;; Read our custom page ini, remove previous version and make sure only
+;; one instance of the installer is running.
 ;;
 Function .onInit
     System::Call 'kernel32::CreateMutexA(i 0, i 0, t "RosBE-v${PRODUCT_VERSION}-Installer") i .r1 ?e'
@@ -91,7 +90,7 @@ var ICONS_GROUP
 !insertmacro MUI_PAGE_INSTFILES
 
 !define MUI_FINISHPAGE_TITLE_3LINES
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\readme.pdf"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.pdf"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !insertmacro MUI_PAGE_FINISH
 
@@ -105,8 +104,6 @@ var ICONS_GROUP
 ;;
 ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 !insertmacro MUI_LANGUAGE "English"
-
-;; MUI end.
 
 Section -BaseFiles SEC01
     SetShellVarContext current

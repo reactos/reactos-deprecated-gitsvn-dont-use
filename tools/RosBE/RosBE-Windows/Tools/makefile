@@ -47,4 +47,4 @@ tee:  tee.c
 	$(STRIP) tee$(SUFFIX)
 
 clean:
-	del /f buildtime.exe chknewer.exe chkslash.exe echoh.exe flash.exe getdate.exe scut.exe tee.exe
+	del /f buildtime.exe chknewer.exe chkslash.exe echoh.exe flash.exe getdate.exe rquote.exe scut.exe tee.exe
