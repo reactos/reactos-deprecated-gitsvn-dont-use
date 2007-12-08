@@ -25,6 +25,7 @@ typedef struct _SHORTCUT
 char* programname;
 char rosbeappdata[248];
 char shortcutfile[260];
+int hasshortcuts = 0;
 
 PSHORTCUT addshortcut(PSHORTCUT ptr, char* name, char* path);
 void checkfile(void);
@@ -93,12 +94,24 @@ int main(int argc, char* argv[])
         shortcuts = readshortcuts();
         current = shortcuts;
 
-        printf("All available shortcuts:\n\n");
-        while(current)
+        if (hasshortcuts)
         {
-            printf("Shortcut Name: %s\n", current->name);
-            printf("      -> Path: %s\n", current->path);
-            current = current->next;
+            printf("All available shortcuts:\n\n");
+            while(current)
+            {
+                if (!_stricmp(current->name, "Default"))
+                {
+                    current = current->next;
+                    continue;
+                }
+                printf("Shortcut Name: %s\n", current->name);
+                printf("      -> Path: %s\n", current->path);
+                current = current->next;
+            }
+        }
+        else
+        {
+            printf("No shortcuts found, use 'scut add' to create one.\n");
         }
         freeshortcuts(shortcuts);
     }
@@ -119,7 +132,10 @@ int main(int argc, char* argv[])
                 fflush(stdin);
 
                 if(!fgets(name, 260, stdin))
-                    return 1;
+                {
+                    freeshortcuts(shortcuts);
+                    return -1;
+                }
             } while(strlen(name) <= 1);
 
             strcpy(name, strtok(name, "\n"));
@@ -142,7 +158,10 @@ int main(int argc, char* argv[])
                     fflush(stdin);
 
                     if(!fgets(path, 260, stdin))
-                        return 1;
+                    {
+                        freeshortcuts(shortcuts);
+                        return -1;
+                    }
                 } while(strlen(path) <= 1);
 
                 strcpy(path, strtok(path, "\n"));
@@ -176,7 +195,10 @@ int main(int argc, char* argv[])
                 fflush(stdin);
 
                 if(!fgets(name, 260, stdin))
-                    return 1;
+                {
+                    freeshortcuts(shortcuts);
+                    return -1;
+                }
             } while(strlen(name) <= 1);
 
             strcpy(name, strtok(name, "\n"));
@@ -226,7 +248,10 @@ int main(int argc, char* argv[])
                 fflush(stdin);
 
                 if(!fgets(name, 260, stdin))
-                    return 1;
+                {
+                    freeshortcuts(shortcuts);
+                    return -1;
+                }
             } while(strlen(name) <= 1);
 
             strcpy(name, strtok(name, "\n"));
@@ -253,7 +278,10 @@ int main(int argc, char* argv[])
                             fflush(stdin);
 
                             if(!fgets(path, 260, stdin))
-                                return 1;
+                            {
+                                freeshortcuts(shortcuts);
+                                return -1;
+                            }
                         } while(strlen(path) <= 1);
 
                         strcpy(path, strtok(path, "\n"));
@@ -293,7 +321,10 @@ int main(int argc, char* argv[])
                 fflush(stdin);
 
                 if(!fgets(name, 260, stdin))
-                    return 1;
+                {
+                    freeshortcuts(shortcuts);
+                    return -1;
+                }
             } while(strlen(name) <= 1);
 
             strcpy(name, strtok(name, "\n"));
@@ -311,6 +342,11 @@ int main(int argc, char* argv[])
     }
     else
     {
+        if (argc > 2)
+        {
+            fprintf(stderr, "%s: Error too many parameters specified.\n", programname);
+            return -1;
+        }
         shortcuts = readshortcuts();
         current = shortcuts;
 
@@ -569,6 +605,11 @@ PSHORTCUT readshortcuts(void)
             path = strtok(NULL, "\n");
             if (name && path)
             {
+                if (_stricmp(name, "Default") &&
+                    !hasshortcuts)
+                {
+                    hasshortcuts = 1;
+                }
                 head = addshortcut(head, name, path);
             }
         }

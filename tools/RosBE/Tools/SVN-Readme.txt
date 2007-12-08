@@ -2,7 +2,7 @@ This directory contains tools shared between RosBE-Windows and RosBE-Unix.
 
 For RosBE-Windows
 ------------------
-  The built tools need to be copied to RosBE-Windows\Root\Tools
+  The built tools need to be copied to RosBE-Windows\Components\Tools
 
 For RosBE-Unix
 ---------------

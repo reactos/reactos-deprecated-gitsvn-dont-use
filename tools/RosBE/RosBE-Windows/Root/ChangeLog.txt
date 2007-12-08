@@ -27,6 +27,9 @@
 - Switch default install directory back to PROGRAMFILES\RosBE. (Peter Ward)
 - Detect if running on a x64 system and install to "Program Files" and not "Program Files (x86)" to avoid problems with (). (Peter Ward)
 - Add a "Standard MinGW Build Environment" and the associated MinGW.cmd + an icon. (Peter Ward)
+- Make tee read and write in blocks so it's much faster. (Peter Ward)
+- Stop scut from listing the default shortcut and inform the user there are no shortcuts if none are found. (Peter Ward)
+- Fix six memory leaks in scut (who added these? :P). (Peter Ward)
 
 *** Nov 18th, 2007 - RosBE 1.0 Released
 
