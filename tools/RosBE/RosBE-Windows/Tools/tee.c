@@ -10,9 +10,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#define LINE_MAX 1024
+
 int main(int argc, char* argv[])
 {
-    int charbuff;
+    char buff[LINE_MAX];
     FILE *fp;
 
     if (argc > 2)
@@ -31,16 +33,20 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    fp = fopen(argv[1], "w");
-    if (!fp)
+    if (!(fp = fopen(argv[1], "w")))
     {
         fprintf(stderr, "%s: Error cannot create/open file \"%s\".\n", argv[0], argv[1]);
         return -1;
     }
-    while ((charbuff = fgetc(stdin)) != EOF)
+    while (!feof(stdin))
     {
-        fputc(charbuff, stdout);
-        fputc(charbuff, fp);
+        fgets(buff, LINE_MAX, stdin);
+        if (strlen(buff) > 0)
+        {
+            fwrite(buff, 1, strlen(buff), stdout);
+            fwrite(buff, 1, strlen(buff), fp);
+        }
+        memset(&buff, '\0', LINE_MAX);
     }
     if (fclose(fp))
     {
