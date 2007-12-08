@@ -58,8 +58,8 @@ BEGIN
   MSG_FINDMGWDIR, "Укажите каталог расположения компилятора MinGW:"
   MSG_FINDOBJDIR, "Укажите каталог сохранения объектных файлов:"
   MSG_FINDOUTDIR, "Укажите каталог сохранения компилированных файлов:"
-  MSG_WARNINGBOX, "Warning"
-  MSG_EXITCHANGE, "Are you sure you want to exit without saving?"
+  MSG_WARNINGBOX, "Внимание!"
+  MSG_EXITCHANGE, "Вы закрываете программу не сохранив настройки?"
   /* Help Strings */
   HLP_BACKCOLORC, "Выберите цвет фона в окне консоли RosBE"
   HLP_FONTCOLORC, "Выберите цвет шрифта в окне консоли RosBE"
