@@ -1,4 +1,4 @@
-*** XXX XXth, 200X - RosBE 1.1 Released
+*** December 8th, 2007 - RosBE 1.1 Released
 
 - Updated: NASM to 2.00 (Peter Ward)
 - Updated: GDB to 6.7.5.20071127 (Peter Ward)
