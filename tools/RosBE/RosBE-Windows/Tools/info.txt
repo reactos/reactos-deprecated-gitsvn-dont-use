@@ -1,4 +1,4 @@
 Additional Tools needed:
 svn:        http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91
 
-Built Tools and Rest needs to be copied to /Root/Tools/
+Built Tools and Rest needs to be copied to /Components/Tools/
