@@ -7,6 +7,12 @@
    - Added help strings when mouse is over a control. (Pierre Schweitzer)
    - Improved check for log directory (Pierre Schweitzer)
    - Updated French translation (Pierre Schweitzer)
+   - Prompt on cancel button when there are changes (Pierre Schweitzer)
+   - Use Program Files instead of Desktop by default for browsing (Pierre Schweitzer)
+   - Free Pidl ressources (Pierre Schweitzer)
+   - Converted last parts of the program to Unicode (Pierre Schweitzer)
+   - Attached MessageBoxes to Window (Pierre Schweitzer)
+   - Code cleanup (Pierre Schweitzer)
 
 - Add a pushd/popd to options.cmd so that options.exe pulls up a better default path for MinGW/GCC. (Peter Ward)
 - Set the working directory for the "Options" shortcut correctly (see above bullet). (Colin Fink)

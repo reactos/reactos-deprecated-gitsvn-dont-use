@@ -56,6 +56,8 @@ BEGIN
   MSG_FINDMGWDIR, "Bitte wählen Sie den Ordner, in dem MinGW/GCC liegt:"
   MSG_FINDOBJDIR, "Bitte wählen Sie den Ordner, in den Sie die OBJ Daten speichern wollen:"
   MSG_FINDOUTDIR, "Bitte wählen Sie den Ordner, in den Sie die OUT Daten speichern wollen:"
+  MSG_WARNINGBOX, "Warning"
+  MSG_EXITCHANGE, "Are you sure you want to exit without saving?"
   /* Help Strings */
   HLP_BACKCOLORC, "Auswählen der Hintergrundfarbe des RosBE DOS Fensters."
   HLP_FONTCOLORC, "Auswählen der Schriftfarbe des RosBE DOS Fensters."

@@ -56,6 +56,8 @@ BEGIN
   MSG_FINDMGWDIR, "Veuillez sélectionner le répertoire où se situe MingW/GCC :"
   MSG_FINDOBJDIR, "Veuillez choisir le répertoire où vous désirez sauver les fichiers OBJ :"
   MSG_FINDOUTDIR, "Veuillez choisir le répertoire où vous désirez sauver les fichiers OUT :"
+  MSG_WARNINGBOX, "Attention"
+  MSG_EXITCHANGE, "Êtes-vous sûr de vouloir quitter sans sauvegarder ?"
   /* Help Strings */
   HLP_BACKCOLORC, "Choisissez la couleur de fond pour les fenêtres DOS du RosBE."
   HLP_FONTCOLORC, "Choisissez la couleur du texte pour les fenêtres DOS du RosBE."
