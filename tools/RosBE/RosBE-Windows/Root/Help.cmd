@@ -113,7 +113,7 @@ if /i "%1" == "clean" (
     echo Usage: clean [logs]
     echo Fully clean the ReactOS source directory.
     echo.
-    echo    all  - Removes build logs and Compiler Output in the RosBE-Logs directory.
+    echo    all  - Removes build logs and compiler output in the RosBE-Logs directory.
     echo    logs - Removes all build logs in the RosBE-Logs directory.
     goto :EOC
 )
