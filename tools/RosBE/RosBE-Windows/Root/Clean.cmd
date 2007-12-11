@@ -65,7 +65,7 @@ if exist "obj-i386\." (
     )
     echo Done cleaning ReactOS source directory.
 ) else (
-    echo ERROR: There is no Compiler Output to clean.
+    echo ERROR: There is no compiler output to clean.
 )
 goto :EOF
 
