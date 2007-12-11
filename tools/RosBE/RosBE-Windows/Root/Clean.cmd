@@ -9,13 +9,6 @@
 ::
 @echo off
 
-echo Do you REALLY want to continue?
-set /p YESNO="(yes), (no)"
-if /i "%YESNO%"=="yes" goto :CONT
-if /i "%YESNO%"=="no" goto :EOC
-goto :NOK
-
-:CONT
 title Cleaning...
 
 if "%1" == "" (
@@ -38,7 +31,7 @@ if not "%1" == "" (
 
 :LOG
 ::
-: Check if we have any logs to clean, if so, clean them.
+:: Check if we have any logs to clean, if so, clean them.
 ::
 if exist "%_ROSBE_LOGDIR%\*.txt" (
     echo Cleaning build logs...
@@ -47,15 +40,14 @@ if exist "%_ROSBE_LOGDIR%\*.txt" (
 ) else (
     echo ERROR: There are no logs to clean.
 )
-goto :EOC
+goto :EOF
 
 :DEL
 ::
-: Check if we have something to clean, if so, clean it.
+:: Check if we have something to clean, if so, clean it.
 ::
 if exist "obj-i386\." (
     echo Cleaning ReactOS source directory...
-
     ::
     : Remove directories/makefile.auto created by the build.
     ::
@@ -75,7 +67,7 @@ if exist "obj-i386\." (
 ) else (
     echo ERROR: There is no Compiler Output to clean.
 )
-goto :EOC
+goto :EOF
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
