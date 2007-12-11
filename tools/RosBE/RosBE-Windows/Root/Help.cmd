@@ -33,7 +33,7 @@ if "%1" == "" (
         echo                           current RosBE session.
     )
 
-    echo    clean [logs]         - Fully clean the ReactOS source directory and/or
+    echo    clean [OPTIONS]      - Fully clean the ReactOS source directory and/or
     echo                           the RosBE build logs.
 
     if exist "%_ROSBE_BASEDIR%\Config.cmd" (
@@ -113,6 +113,7 @@ if /i "%1" == "clean" (
     echo Usage: clean [logs]
     echo Fully clean the ReactOS source directory.
     echo.
+    echo    all  - Removes build logs and Compiler Output in the RosBE-Logs directory.
     echo    logs - Removes all build logs in the RosBE-Logs directory.
     goto :EOC
 )

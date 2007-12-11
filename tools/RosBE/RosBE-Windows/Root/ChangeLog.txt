@@ -1,3 +1,8 @@
+*** XXX XXth, 2008 - RosBE 1.2 Released
+
+- Added a "all" switch to clean.cmd to do both jobs, deleting Compiler Output AND Logs in one process. (Daniel Reimer)
+- Added a Security Prompt to clean.cmd to not accidentally delete all Built stuff. (Daniel Reimer)
+
 *** December 8th, 2007 - RosBE 1.1 Released
 
 - Updated: NASM to 2.00 (Peter Ward)
