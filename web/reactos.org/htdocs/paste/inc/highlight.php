@@ -496,7 +496,60 @@ function syntax_highlight_helper($text, $language)
     "varchar", "variable", "varying", "verbose",
     "version", "view", "volatile", "when",
     "whenever", "where", "with", "without",
-    "work", "write", "year", "zone")
+    "work", "write", "year", "zone"),
+	
+	
+	"Bash" => array(
+	"alias", "break", "case", "continue",
+	"do", "done", "elif", "else",
+	"esac", "exit", "export", "fi",
+	"for", "if", "in", "return",
+	"set", "then", "unalias", "unset",
+	"while", "halt", "ifconfig", "lsmod",
+	"modprobe", "reboot", "rmmod", "route",
+	"shutdown", "traceroute", "awk", "basename",
+	"cat", "cp", "echo", "egrep",
+	"fgrep", "gawk", "grep", "gzip",
+	"kill", "killall", "less", "md",
+	"mkdir", "mv", "nice", "pidof",
+	"ps", "rd", "read", "rm",
+	"rmdir", "sed", "sleep", "test",
+	"touch", "ulimit", "uname", "usleep",
+	"zcat", "zless"
+	),
+	
+	"Batch" => array(
+	"do", "else", "end", "errorlevel",
+	"exist", "exit", "for", "goto",
+	"if", "not", "pause", "return",
+	"say", "select", "then", "when",
+	"ansi", "append", "assign", "attrib",
+	"autofail", "backup", "basedev", "boot",
+	"break", "buffers", "cache", "call",
+	"cd", "chcp", "chdir", "chkdsk",
+	"choice", "cls", "cmd", "codepage",
+	"command", "comp", "copy", "country",
+	"date", "ddinstal", "debug", "del",
+	"detach", "device", "devicehigh", "devinfo",
+	"dir", "diskcoache", "diskcomp", "diskcopy",
+	"doskey", "dpath", "dumpprocess", "eautil",
+	"endlocal", "erase", "exit_vdm", "extproc",
+	"fcbs", "fdisk", "fdiskpm", "files",
+	"find", "format", "fsaccess", "fsfilter",
+	"graftabl",	"iopl",	"join",	"keyb", "keys",
+	"label", "lastdrive", "libpath", "lh", "loadhigh",
+	"makeini", "maxwait", "md", "mem", "memman", "mkdir", "mode", "move",
+	"net",	"patch", "path", "pauseonerror", "picview", "pmrexx", "print",
+	"printmonbufsize", "priority", "priority_disk_io", "prompt", "protectonly",
+	"protshell", "pstat", "rd", "recover", "reipl", "ren", "rename", "replace",
+	"restore", "rmdir", "rmsize", "run", "set", "setboot", "setlocal", "shell", 
+	"shift", "sort", "spool", "start", "subst", "suppresspopups", "swappath", 
+	"syslevel", "syslog", "threads", "time", "timeslice", "trace", "tracebuf", 
+	"tracefmt", "trapdump", "tree", "type",	"undelete", "unpack", "use",
+	"ver", "verify", "view", "vmdisk", "vol",
+	"xcopy", "xcopy32", "xdfcopy",
+	"echo", "off", "on"
+	)
 
     );
 
@@ -751,7 +804,7 @@ function syntax_highlight($text, $language)
 
     $mirc[line_comment]["\n"] = normal_text;
     $mirc[line_comment][0]   = line_comment;
-
+	
     $ruby = $perl;
 
     $python = $perl;
@@ -850,6 +903,9 @@ function syntax_highlight($text, $language)
     $xml[dq_escape][";"]       = dq_literal;                  
     $xml[dq_escape][0]         = dq_escape;                   
     
+	$bash = $perl;
+	$batch = $c89;;
+	
     //
     // Main state transition table
     //
@@ -869,7 +925,9 @@ function syntax_highlight($text, $language)
         "PL/I" => $pli,
         "SQL"  => $sql,
         "XML"  => $xml,
-        "Scheme" => $sch
+        "Scheme" => $sch,
+        "Bash" => $bash,
+        "Batch" => $batch
     );
 
 
@@ -949,6 +1007,10 @@ function syntax_highlight($text, $language)
     $process["XML"][xml_tag][dq_literal] = "rtrim1";
     $process["XML"][dq_literal][xml_tag] = "rtrim1";
     $process["XML"][dq_literal][dq_escape] = "rtrim1";
+	
+	$process["Bash"] = $process["Perl"];
+	$process["Batch"] = $process["C++"];
+
 
     $process_end["C89"] = "syntax_highlight_helper";
     $process_end["C++"] = $process_end["C89"];
@@ -965,7 +1027,8 @@ function syntax_highlight($text, $language)
     $process_end["PL/I"] = $process_end["C89"];
     $process_end["SQL"] = $process_end["C89"];
     $process_end["Scheme"] = "sch_syntax_helper";
-
+    $process_end["Bash"] = $process_end["C89"];
+    $process_end["Batch"] = $process_end["C89"];
 
     $edges["C89"][normal_text .",". dq_literal]   = '<span class="literal">"';
     $edges["C89"][normal_text .",". sq_literal]   = '<span class="literal">\'';
@@ -1049,6 +1112,10 @@ function syntax_highlight($text, $language)
     $edges["XML"][sq_literal . "," . xml_tag] = '\'</span>';
     $edges["XML"][sq_literal . "," . sq_escape] = '<span class="html_entity">&amp;'; 
     $edges["XML"][sq_escape . "," . sq_literal] = '</span>'; 
+
+    $edges["Bash"] = $edges["Perl"];
+    $edges["Batch"] = $edges["C89"];
+	
 
     //
     // The State Machine

@@ -28,5 +28,5 @@
 <h2>What's different about this one? </h2>
 <p> A lot of paste sites have appeared lately, and many of them are quite similar. The ReactOS &quot;Copy&amp;Paste&quot; paste service provide a unique list of features and a broad range of code highlight support. It uses <a href="http://rafb.net/paste/highlight.phps" target="_blank">rafb.net's code highlight php library</a> which is free available under BSD license. </p>
 <h2>How long is the paste accessable? </h2>
-<p> The paste is accessable for 7 days. </p>
+<p> The paste is accessable for 7 days (default setting). The timeframe can be set between 1 to 7 days as per paste setting. </p>
 <p></p>

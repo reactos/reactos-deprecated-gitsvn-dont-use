@@ -19,6 +19,11 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
+function create_header() {
+
+global $ros_paste_SET_path;
+global $ros_paste_SET_path_ex;
+
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -101,9 +106,30 @@
 		</ol>
 		</div>
 		<p></p>
-
+		
+<!-- Google AdSense - start -->
+<script type="text/javascript"><!--
+google_ad_client = "pub-8424466656027272";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text";
+google_ad_channel ="6475218909";
+google_color_border = "5984C3";
+google_color_bg = "EEEEEE";
+google_color_link = "000000";
+google_color_text = "000000";
+google_color_url = "006090";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<!-- Google AdSense - end -->
     </td>
 	  
 <!-- End of Navigation Bar -->
 	  
 	  <td id="content">
+<?php
+	}
+?>

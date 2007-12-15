@@ -24,7 +24,7 @@
 	require_once("/web/reactos.org/htdocs/roscms/inc/subsys_login.php");
 	$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . $RSDB_intern_path);
 */
-	$RSDB_intern_user_id=0;
+	$RSDB_intern_user_id=2;
 	$RSDB_USER_name="Anonymous";
 
 	if($RSDB_intern_user_id != 0) {
@@ -40,5 +40,6 @@
 	else {
 		$RSDB_USER_name = "Anonymous";
 	}
+	//echo "<h1>!!!".$RSDB_USER_name."</h1>";
 
 ?>

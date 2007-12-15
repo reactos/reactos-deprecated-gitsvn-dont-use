@@ -29,94 +29,109 @@
 	}
 	
 	if ($ros_paste_SET_pasteid) {
+		create_header();
+
 		$query_pasteid=mysql_query("SELECT * 
 									FROM `paste_service` 
-									WHERE `paste_id` = '".mysql_real_escape_string($ros_paste_SET_pasteid)."' 
+									WHERE `paste_id` = '".mysql_real_escape_string($ros_paste_SET_pasteid)."'  
 									LIMIT 1 ;");	
 		$result_pasteid = mysql_fetch_array($query_pasteid);
 		
-		echo '<link href="highlight.css" type="text/css" rel="stylesheet" />';
-		echo "<h1><a style=\"color:#FFFFFF ! important ;\" href=\"http://www.reactos.org/\">Home</a> &gt; <a style=\"color:#FFFFFF ! important ;\" href=\"".$ros_paste_SET_path."\">Paste Service</a> &gt; ".$ros_paste_SET_pasteid."</h1>";
-		echo "<h2>";
-		if ($result_pasteid['paste_desc']) {
-			echo $result_pasteid['paste_desc'];
-		}
-		else {
-			echo $result_pasteid['paste_id'];
-		}
-		echo "</h2>";
+		if ($result_pasteid['paste_lines'] == "" || $result_pasteid['paste_lines'] <= 0 || compareDate((date('Y')."-".date('m')."-".date('d')),stripDate($result_pasteid['paste_datetime'])) > 7) {
+			echo "<p><b>No related paste exists.</b></p>";
+		} else if (compareDate((date('Y')."-".date('m')."-".date('d')),stripDate($result_pasteid['paste_datetime'])) <= $result_pasteid['paste_days']) {
 		
-?>
-
-<p>Pasted by: <b><?php echo $result_pasteid['paste_nick']; ?></b><br />
-Language: <b><?php echo $result_pasteid['paste_lang']; ?></b><br />
-Description: <b><?php echo $result_pasteid['paste_desc']; ?></b><br />
-Pasted on: <b><?php echo $result_pasteid['paste_date']; ?></b><br />
-Expire after: <b><?php echo $result_pasteid['paste_days']; ?> days </b><br />
-Paste history: <b><?php 
-
-	if ($result_pasteid['paste_public'] == "1") {
-		echo "yes (public)";
-	}
-	else {
-		echo "no (private)";
-	}
-
-?></b></p>
-<p><?php 
-
-	if (@$ros_paste_SET_pasteflag == "nln") {
-		echo '<a href="'. $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/">Add line numbers</a>';
-	}
-	else {
-		echo '<a href="'. $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/nln/">Remove line numbers</a>';
-	}
-?> | 
-  <a href="<?php echo $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/text/'; ?>" target="_blank">Download as Text</a>  | 
-  <a href="<?php echo $ros_paste_SET_path_ex . 'recent/'; ?>">Other recent pastes</a>  | 
-  <a href="<?php echo $ros_paste_SET_path; ?>">Create new paste</a> </p>
-<?php 
-
-
-			$ros_paste_SET_textcontent = htmlspecialchars($result_pasteid['paste_content']);
-			if ($result_pasteid['paste_tabs'] != "0") {
-				$PASTE_var_tabs = "";
-				for($xxx=0; $xxx<$result_pasteid['paste_tabs']; $xxx++){
-					$PASTE_var_tabs .= "&nbsp;";
-				}
-				$ros_paste_SET_textcontent = str_replace("\t",$PASTE_var_tabs,$ros_paste_SET_textcontent);
+			echo '<link href="highlight.css" type="text/css" rel="stylesheet" />';
+			echo "<h1><a style=\"color:#FFFFFF ! important ;\" href=\"http://www.reactos.org/\">Home</a> &gt; <a style=\"color:#FFFFFF ! important ;\" href=\"".$ros_paste_SET_path."\">Paste Service</a> &gt; ".$ros_paste_SET_pasteid."</h1>";
+			echo "<h2>";
+			if ($result_pasteid['paste_desc']) {
+				echo $result_pasteid['paste_desc'];
 			}
-
-			
-			
-			// Content:
-			$ros_paste_SET_textcontent = syntax_highlight($ros_paste_SET_textcontent, $result_pasteid['paste_lang']);
-
-
-
-		if (@$ros_paste_SET_pasteflag == "nln") {
-			echo '<pre class="code" style="margin: 6px;">';
-			echo $ros_paste_SET_textcontent;
-			echo '</pre>';
+			else {
+				echo "Paste #".$result_pasteid['paste_id'];
+			}
+			echo "</h2>";
+		
+	?>
+	
+	<p>Pasted by: <b><?php echo $result_pasteid['paste_nick']; ?></b><br />
+	Language: <b><?php echo $result_pasteid['paste_lang']; ?></b><br />
+	Description: <b><?php echo $result_pasteid['paste_desc']; ?></b><br />
+	Pasted on: <b><?php echo $result_pasteid['paste_date']; ?></b><br />
+	Expire after: <b><?php echo $result_pasteid['paste_days']; ?> days </b><br />
+	Paste history: <b><?php 
+	
+		if ($result_pasteid['paste_public'] == "1") {
+			echo "yes (public)";
 		}
 		else {
-?>
-			<table cellspacing="5" cellpadding="1" border="0">
-			<tbody>
-			<tr>
-			
-				<td align="right" valign="top"><pre class="code"><?php 
+			echo "no (private)";
+		}
+	
+	?></b></p>
+	<p><?php 
+	
+		if (@$ros_paste_SET_pasteflag == "nln") {
+			echo '<a href="'. $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/">Add line numbers</a>';
+		}
+		else {
+			echo '<a href="'. $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/nln/">Remove line numbers</a>';
+		}
+	?> | 
+	  <a href="<?php echo $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/text/'; ?>" target="_blank">Download as Text</a> 
+	  <a href="<?php echo $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/textw/'; ?>" target="_blank">(word-warp)</a>  | 
+	  <a href="<?php echo $ros_paste_SET_path_ex . 'recent/'; ?>">Other recent pastes</a>  | 
+	  <a href="<?php echo $ros_paste_SET_path; ?>">Create new paste</a> </p>
+	<?php 
+	
+	
+				$filename = $ros_paste_SET_content."/".$result_pasteid['paste_id'].".txt";
+				$handle = @fopen($filename, "r");
+				$contents = @fread($handle, @filesize($filename));
+				@fclose($handle);
 				
-					for ($PASTE_linecount=1; $PASTE_linecount <= $result_pasteid['paste_lines']; $PASTE_linecount++) {
-						echo $PASTE_linecount."\n";
+				if ($contents == "") {
+					die("<b>paste expired</b>");
+				}
+	
+				$ros_paste_SET_textcontent = htmlspecialchars($contents);
+				if ($result_pasteid['paste_tabs'] != "0") {
+					$PASTE_var_tabs = "";
+					for($xxx=0; $xxx<$result_pasteid['paste_tabs']; $xxx++){
+						$PASTE_var_tabs .= "&nbsp;";
 					}
+					$ros_paste_SET_textcontent = str_replace("\t",$PASTE_var_tabs,$ros_paste_SET_textcontent);
+				}
 				
-					?></pre>
-				</td>
-			<td width="100%" valign="top"><pre class="code"><?php echo $ros_paste_SET_textcontent; ?></pre></td></tr></tbody></table>
+				
+				// Content:
+				$ros_paste_SET_textcontent = syntax_highlight($ros_paste_SET_textcontent, $result_pasteid['paste_lang']);
+	
+	
+	
+			if (@$ros_paste_SET_pasteflag == "nln") {
+				echo '<pre class="code" style="margin: 6px;">';
+				echo $ros_paste_SET_textcontent;
+				echo '</pre>';
+			}
+			else {
+	?>
+				<table cellspacing="5" cellpadding="1" border="0">
+				<tbody>
+				<tr>
+				
+					<td align="right" valign="top"><pre class="code"><?php 
+					
+						for ($PASTE_linecount=1; $PASTE_linecount <= $result_pasteid['paste_lines']; $PASTE_linecount++) {
+							echo $PASTE_linecount."\n";
+						}
+					
+						?></pre>
+					</td>
+				<td width="100%" valign="top"><pre class="code"><?php echo $ros_paste_SET_textcontent; ?></pre></td></tr></tbody></table>
 <?php
-		}	
-		
+			}
+		}
 	}
 	else {
 		if ($ros_paste_SET_cnp == "1") {
@@ -124,7 +139,8 @@ Paste history: <b><?php
 			$ros_paste_SET_lang = "";
 			$ros_paste_SET_usrname = "";
 				$ros_paste_SET_nick = "";
-				$ros_paste_SET_husrname = "";
+				//$ros_paste_SET_husrname = "";
+				//$ros_paste_SET_husrid = "";
 			$ros_paste_SET_desc = "";
 			$ros_paste_SET_cvt_tabs = "";
 			$ros_paste_SET_optday = "";
@@ -132,10 +148,12 @@ Paste history: <b><?php
 			$ros_paste_SET_textcontent = "";
 			$ros_paste_SET_public = "";
 			
+		
 			if (array_key_exists("lang", $_POST)) $ros_paste_SET_lang=htmlspecialchars($_POST["lang"]);
 			if (array_key_exists("usrname", $_POST)) $ros_paste_SET_usrname=htmlspecialchars($_POST["usrname"]);
 			if (array_key_exists("nick", $_POST)) $ros_paste_SET_nick=htmlspecialchars($_POST["nick"]);
-			if (array_key_exists("husrname", $_POST)) $ros_paste_SET_husrname=htmlspecialchars($_POST["husrname"]);
+			//if (array_key_exists("husrname", $_POST)) $ros_paste_SET_husrname=htmlspecialchars($_POST["husrname"]);
+			//if (array_key_exists("husrid", $_POST)) $ros_paste_SET_husrid=htmlspecialchars($_POST["husrid"]);
 			if (array_key_exists("desc", $_POST)) $ros_paste_SET_desc=htmlspecialchars($_POST["desc"]);
 			if (array_key_exists("cvt_tabs", $_POST)) $ros_paste_SET_cvt_tabs=htmlspecialchars($_POST["cvt_tabs"]);
 			if (array_key_exists("optday", $_POST)) $ros_paste_SET_optday=htmlspecialchars($_POST["optday"]);
@@ -144,11 +162,14 @@ Paste history: <b><?php
 			if (array_key_exists("optpub", $_POST)) $ros_paste_SET_public=htmlspecialchars($_POST["optpub"]);
 		
 			// Nick:
+			$ros_paste_SET_husrname = $RSDB_USER_name;
+			$ros_paste_SET_husrid = $RSDB_intern_user_id;
+			
 			if ($ros_paste_SET_usrname == "1") {
 				$PASTE_var_nick = $ros_paste_SET_nick;
 			}
 			elseif ($ros_paste_SET_usrname == "2") {
-				if ($PASTE_var_nick == "") {
+				if ($ros_paste_SET_husrname == "") {
 					$PASTE_var_nick = "Anonymous";
 				}
 				else {
@@ -174,7 +195,7 @@ Paste history: <b><?php
 			$PASTE_var_public = $ros_paste_SET_public;
 			
 			
-			// Paste ID:		
+			/*// Paste ID:		
 			$tmp_id_check = true;
 			while($tmp_id_check) {
 					mt_srand((double)microtime()*1000000);
@@ -189,7 +210,7 @@ Paste history: <b><?php
 					if ($result_pasteid[0] <= 0) {
 						$tmp_id_check = false;
 					}
-			}
+			}*/
 			
 			/*if ($ros_paste_SET_cvt_tabs != "0") {
 				$PASTE_var_tabs = "";
@@ -210,15 +231,74 @@ Paste history: <b><?php
 			$PASTE_var_lines = sizeof(explode("\n", $PASTE_var_content));
 			$PASTE_var_lang = $ros_paste_SET_lang;
 			
+			
+			$ip = @$_SERVER["HTTP_X_FORWARDED_FOR"]; 
+			$proxy = $_SERVER["REMOTE_ADDR"]; 
+			$host = @gethostbyaddr($_SERVER["HTTP_X_FORWARDED_FOR"]);
+			
+			if ($ip == "") {
+				$ip = $proxy;
+			}
+			
+			//echo "<p>$ip<br />$proxy<br />$host</p>";
+			
 			// SQL Statement:
-			$paste_sql="INSERT INTO `paste_service` ( `paste_id` , `paste_date` , `paste_days` , `paste_nick` , `paste_desc` , `paste_content` , `paste_lines` , `paste_tabs`, `paste_public` , `paste_lang` , `paste_datetime` ) 
-						VALUES ( '".mysql_real_escape_string($PASTE_var_pasteid)."' , CURDATE( ) , '".mysql_real_escape_string($PASTE_var_days)."', '".mysql_real_escape_string($PASTE_var_nick)."', '".mysql_real_escape_string($PASTE_var_desc)."', '".mysql_real_escape_string($PASTE_var_content)."', '".mysql_real_escape_string($PASTE_var_lines)."', '".mysql_real_escape_string($PASTE_var_tabs)."', '".mysql_real_escape_string($PASTE_var_public)."', '".mysql_real_escape_string($PASTE_var_lang)."', NOW( ) );";
+			$tmp_insert_date = date("Y-m-d H:i:s");
+			$paste_sql="INSERT INTO `paste_service` ( `paste_date` , `paste_days` , `paste_usrid` , `paste_nick` , `paste_desc` , `paste_lines` , `paste_tabs`, `paste_public` , `paste_lang` , `paste_datetime` , `paste_ip` , `paste_proxy` , `paste_host` ) 
+						VALUES ( CURDATE( ) , '".mysql_real_escape_string($PASTE_var_days)."', '".mysql_real_escape_string($ros_paste_SET_husrid)."', '".mysql_real_escape_string($PASTE_var_nick)."', '".mysql_real_escape_string($PASTE_var_desc)."', '".mysql_real_escape_string($PASTE_var_lines)."', '".mysql_real_escape_string($PASTE_var_tabs)."', '".mysql_real_escape_string($PASTE_var_public)."', '".mysql_real_escape_string($PASTE_var_lang)."', '".$tmp_insert_date."', '".mysql_real_escape_string($ip)."', '".mysql_real_escape_string($proxy)."', '".mysql_real_escape_string($host)."' );";
 			$paste_query=mysql_query($paste_sql);
+			
+			$sql_inserted_entry = "SELECT paste_id 
+									FROM paste_service 
+									WHERE paste_datetime = '".$tmp_insert_date."'
+									LIMIT 1;";
+			$query_inserted_entry = mysql_query($sql_inserted_entry);
+			$result_inserted_entry = mysql_fetch_array($query_inserted_entry);
+			
+			//echo $sql_inserted_entry;
+			//echo $result_inserted_entry['paste_id'];
+
+			if (!@is_dir($ros_paste_SET_content)) {
+				@mkdir($ros_paste_SET_content,"0493");
+			}
+			
+			if ($result_inserted_entry['paste_id'] == "") {
+				die("");
+			}
+			
+			$filename = $ros_paste_SET_content."/".$result_inserted_entry['paste_id'].".txt";
+			
+			// Let's make sure the file exists and is writable first.
+			if (!@is_writable($filename)) {
+			
+				// In our example we're opening $filename in append mode.
+				// The file pointer is at the bottom of the file hence
+				// that's where $somecontent will go when we fwrite() it.
+				if (!$handle = @fopen($filename, 'a')) {
+					 die("error: open file problem");
+				}
+			
+				// Write $somecontent to our opened file.
+				if (@fwrite($handle, $PASTE_var_content) === FALSE) {
+					die("error: file write problem");
+				}
+			
+				//echo "Success, wrote to file ($filename)";
+			
+				@fclose($handle);
+			
+			}
+			
+			$update_entry = mysql_query("UPDATE `paste_service` SET `paste_size` = '".mysql_real_escape_string(@filesize($filename))."' WHERE `paste_service`.`paste_id` = ".$result_inserted_entry['paste_id']." LIMIT 1 ;");
+
+			
 
 			// Redirect to paste result page:
-			header("Location: ". $ros_paste_SET_path_ex . $PASTE_var_pasteid. "/");
+			header("Location: ". $ros_paste_SET_path_ex . $result_inserted_entry['paste_id']. "/");
 		}
 		else {
+			create_header();
+
 	?>
 		<h1><a href="http://www.reactos.org/">Home</a> &gt; Paste Service</h1>
 		<h2>Copy &amp; Paste - paste service</h2>
@@ -229,6 +309,8 @@ Paste history: <b><?php
 		<td valign="top" bgcolor="#E2E2E2" style="padding-left: 0px; padding-right: 5px;"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Language:</font></b></td>
 		<td bgcolor="#E2E2E2"><select name="lang" id="lang">
 		<option value="Plain Text">Plain Text</option>
+		<option value="Bash">Bash *</option>
+		<option value="Batch">Batch *</option>
 		<option value="C89">C (C89)</option>
 		<option value="C" selected="selected">C (C99)</option>
 		<option value="C++">C++</option>
@@ -240,19 +322,18 @@ Paste history: <b><?php
 		<option value="PL/I">PL/I</option>
 		<option value="Python">Python</option>
 		<option value="Ruby">Ruby</option>
-		<option value="Scheme">Scheme (beta)</option>
+		<option value="Scheme">Scheme *</option>
 		<option value="SQL">SQL</option>
 		<option value="VB">Visual Basic</option>
-		<option value="XML">XML (beta)</option>
-		</select></td>
+		<option value="XML">XML *</option>
+		</select> 
+		&nbsp;&nbsp;&nbsp;<font size="1">(* experimental syntax highlighting)</font></td>
 	  </tr>
 	  <tr>
 		<td valign="top" bgcolor="#EEEEEE" style="padding-left: 0px; padding-right: 5px;"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Nickname:</font></b></td>
 		<td bgcolor="#EEEEEE"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 		  <input name="usrname" type="radio" id="usrname" value="2" checked="checked" />
-	    <?php echo $RSDB_USER_name; ?>
-		  <input name="husrname" type="hidden" id="husrname" value="<?php echo $RSDB_USER_name; ?>" />
-		  <br />
+	    <?php echo $RSDB_USER_name; ?><br />
 		  <input name="usrname" type="radio" id="usrname" value="1" />
 		  <input type="text" size="14" maxlength="9" name="nick" id="nick" value=""/>
 		</font></td>
