@@ -86,7 +86,6 @@ WriteSettings(HWND hwnd)
 VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
 {
     FILE *pFile;
-    INT NbLines = 0;
     WCHAR optionsfile[MAX_PATH];
     WCHAR *ptr, *ptr2;
     WCHAR WTempLine[25+MAX_PATH];
@@ -132,7 +131,6 @@ VOID LoadSettings(HWND hwnd, PSETTINGS LoadedSettings)
                     wcsncpy(LoadedSettings->outdir, ptr2, wcslen(ptr2)-1);
             }
             free(WTempLine);
-            NbLines++;
         }
         fclose(pFile);
         free(WTempLine);
