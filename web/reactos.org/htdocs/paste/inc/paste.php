@@ -79,7 +79,7 @@
 		}
 	?> | 
 	  <a href="<?php echo $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/text/'; ?>" target="_blank">Download as Text</a> 
-	  <a href="<?php echo $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/textw/'; ?>" target="_blank">(word-warp)</a>  | 
+	  <a href="<?php echo $ros_paste_SET_path_ex . $result_pasteid['paste_id'] .'/textw/'; ?>" target="_blank">(word-wrap)</a>  | 
 	  <a href="<?php echo $ros_paste_SET_path_ex . 'recent/'; ?>">Other recent pastes</a>  | 
 	  <a href="<?php echo $ros_paste_SET_path; ?>">Create new paste</a> </p>
 	<?php 
