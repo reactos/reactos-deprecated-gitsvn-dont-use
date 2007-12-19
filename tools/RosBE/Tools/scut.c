@@ -5,14 +5,38 @@
  * PURPOSE:     Manages named shortcuts to ReactOS source directories.
  * COPYRIGHT:   Copyright 2007 Peter Ward <dralnix@gmail.com>
  *                             Daniel Reimer <reimer.daniel@freenet.de>
+ *                             Colin Finck <mail@colinfinck.de>
  *
  */
 
-#include <direct.h>
-#include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(WIN32)
+#	include <direct.h>
+#	include <io.h>
+
+#	define paccess(path, mode)      _access(path, mode)
+#	define pchdir(path)             _chdir(path)
+#	define pgetcwd(buffer, maxlen)  _getcwd(buffer, maxlen)
+#	define pmkdir(path)             _mkdir(path)
+#	define pstricmp(str1, str2)     _stricmp(str1, str2)
+#else
+#	include <sys/stat.h>
+#	include <unistd.h>
+
+#	define paccess(path, mode)      access(path, mode)
+#	define pchdir(path)             chdir(path)
+#	define pgetcwd(buffer, maxlen)  getcwd(buffer, maxlen)
+#	define pmkdir(path)             mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)         // chmod rights: 0755
+#	define pstricmp(str1, str2)     strcasecmp(str1, str2)
+#endif
+
+
+
+#define LINE_MAX   1024
+#define READWRITE  6                   // R_OK | W_OK for access(), these constants don't exist in MSVC
 
 typedef struct _SHORTCUT
 {
@@ -21,7 +45,7 @@ typedef struct _SHORTCUT
     struct _SHORTCUT *next;
 } SHORTCUT, *PSHORTCUT;
 
-#define LINE_MAX 1024
+
 char* programname;
 char rosbeappdata[248];
 char shortcutfile[260];
@@ -52,10 +76,10 @@ int main(int argc, char* argv[])
     strcpy(shortcutfile, rosbeappdata);
     strcat(shortcutfile, "\\srclist.txt");
 #else
-    strncopy(rosbeappdata, getenv("HOME"), 240);
+    strncpy(rosbeappdata, getenv("HOME"), 244);
     strcat(rosbeappdata, "/.RosBE");
     strcpy(shortcutfile, rosbeappdata);
-    strcat(shortcutfile, "/srclist.txt");
+    strcat(shortcutfile, "/srclist");
 #endif
 
     checkfile();
@@ -70,8 +94,8 @@ int main(int argc, char* argv[])
         defaultshortcut(NULL);
     }
     else if ((!strcmp(argv[1], "/?")) ||
-             (!_stricmp(argv[1], "-h")) ||
-             (!_stricmp(argv[1], "--help")))
+             (!pstricmp(argv[1], "-h")) ||
+             (!pstricmp(argv[1], "--help")))
     {
         printf("Usage: %s [OPTIONS] [SHORTCUT] [PATH]\n", programname);
         printf("Manages named shortcuts to ReactOS source directories. scut started\n");
@@ -89,7 +113,7 @@ int main(int argc, char* argv[])
         printf("             directory as you know it from previous versions.\n\n");
         return 0;
     }
-    else if (!_stricmp(argv[1], "list"))
+    else if (!pstricmp(argv[1], "list"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -99,7 +123,7 @@ int main(int argc, char* argv[])
             printf("All available shortcuts:\n\n");
             while(current)
             {
-                if (!_stricmp(current->name, "Default"))
+                if (!pstricmp(current->name, "Default"))
                 {
                     current = current->next;
                     continue;
@@ -115,7 +139,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_stricmp(argv[1], "add"))
+    else if (!pstricmp(argv[1], "add"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -178,7 +202,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_stricmp(argv[1], "rem"))
+    else if (!pstricmp(argv[1], "rem"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -203,7 +227,7 @@ int main(int argc, char* argv[])
 
             strcpy(name, strtok(name, "\n"));
         }
-        if (!_stricmp(name, "Default"))
+        if (!pstricmp(name, "Default"))
         {
             fprintf(stderr, "%s: Unable to remove default shortcut.\n", programname);
         }
@@ -211,7 +235,7 @@ int main(int argc, char* argv[])
         {
             while(current)
             {
-                if (!_stricmp(current->name, name))
+                if (!pstricmp(current->name, name))
                 {
                     current = deleteshortcut(current, &shortcuts);
                     removed = 1;
@@ -231,7 +255,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_stricmp(argv[1], "edit"))
+    else if (!pstricmp(argv[1], "edit"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -256,7 +280,7 @@ int main(int argc, char* argv[])
 
             strcpy(name, strtok(name, "\n"));
         }
-        if (!_stricmp(name, "Default") || checkname(shortcuts, name))
+        if (!pstricmp(name, "Default") || checkname(shortcuts, name))
         {
             fprintf(stderr, "%s: Shortcut '%s' doesn't exist.\n", programname, name);
         }
@@ -264,7 +288,7 @@ int main(int argc, char* argv[])
         {
             while(current)
             {
-                if (!_stricmp(current->name, name))
+                if (!pstricmp(current->name, name))
                 {
                     if (argc == 4)
                     {
@@ -304,7 +328,7 @@ int main(int argc, char* argv[])
         }
         freeshortcuts(shortcuts);
     }
-    else if (!_stricmp(argv[1], "def"))
+    else if (!pstricmp(argv[1], "def"))
     {
         shortcuts = readshortcuts();
         current = shortcuts;
@@ -329,7 +353,7 @@ int main(int argc, char* argv[])
 
             strcpy(name, strtok(name, "\n"));
         }
-        if (!_stricmp(name, "Default") || checkname(shortcuts, name))
+        if (!pstricmp(name, "Default") || checkname(shortcuts, name))
         {
             fprintf(stderr, "%s: Shortcut '%s' doesn't exist.\n", programname, name);
             freeshortcuts(shortcuts);
@@ -351,7 +375,7 @@ int main(int argc, char* argv[])
         current = shortcuts;
 
         strcpy(name, argv[1]);
-        if (!_stricmp(name, "Default") || checkname(shortcuts, name))
+        if (!pstricmp(name, "Default") || checkname(shortcuts, name))
         {
             fprintf(stderr, "%s: Shortcut '%s' doesn't exist.\n", programname, name);
         }
@@ -359,9 +383,9 @@ int main(int argc, char* argv[])
         {
             while(current)
             {
-                if (!_stricmp(current->name, name))
+                if (!pstricmp(current->name, name))
                 {
-                    printf("%s", current->path);
+                    printf("%s\n", current->path);
                     break;
                 }
                 current = current->next;
@@ -399,10 +423,10 @@ void checkfile(void)
     fp = fopen(shortcutfile, "r");
     if (!fp)
     {
-        if(_access(rosbeappdata, 0) == -1)
+        if(paccess(rosbeappdata, READWRITE) == -1)
         {
             // Directory does not exist, create it
-            if(_mkdir(rosbeappdata) == -1)
+            if(pmkdir(rosbeappdata) == -1)
             {
                 fprintf(stderr, "%s: Error creating the directory for the RosBE files.\n", programname);
             }
@@ -437,7 +461,7 @@ int checkname(PSHORTCUT head, char* name)
 
     while(current)
     {
-        if (!_stricmp(current->name, name))
+        if (!pstricmp(current->name, name))
         {
             return 0;
         }
@@ -450,11 +474,11 @@ int checkname(PSHORTCUT head, char* name)
 int checkpath(char* path)
 {
     char currentdir[260];
-    _getcwd(currentdir, 260);
-    if (!_chdir(path))
+    pgetcwd(currentdir, 260);
+    if (!pchdir(path))
     {
-        _getcwd(path, 260);
-        _chdir(currentdir);
+        pgetcwd(path, 260);
+        pchdir(currentdir);
         return 1;
     }
 
@@ -473,9 +497,9 @@ void defaultshortcut(char* name)
     {
         while(current)
         {
-            if (!_stricmp(current->name, "Default"))
+            if (!pstricmp(current->name, "Default"))
             {
-                printf("%s", current->path);
+                printf("%s\n", current->path);
                 break;
             }
             current = current->next;
@@ -485,13 +509,13 @@ void defaultshortcut(char* name)
     {
         while(current)
         {
-            if (!_stricmp(current->name, name))
+            if (!pstricmp(current->name, name))
             {
                 strcpy(path, current->path);
                 current = shortcuts;
                 while(current)
                 {
-                    if (!_stricmp(current->name, "Default"))
+                    if (!pstricmp(current->name, "Default"))
                     {
                         editshortcut(current, "Default", path);
                         writeshortcuts(shortcuts);
@@ -605,7 +629,7 @@ PSHORTCUT readshortcuts(void)
             path = strtok(NULL, "\n");
             if (name && path)
             {
-                if (_stricmp(name, "Default") &&
+                if (pstricmp(name, "Default") &&
                     !hasshortcuts)
                 {
                     hasshortcuts = 1;
