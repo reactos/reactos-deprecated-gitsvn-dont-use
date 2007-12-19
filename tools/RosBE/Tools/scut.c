@@ -14,23 +14,23 @@
 #include <string.h>
 
 #if defined(WIN32)
-#	include <direct.h>
-#	include <io.h>
+#   include <direct.h>
+#   include <io.h>
 
-#	define paccess(path, mode)      _access(path, mode)
-#	define pchdir(path)             _chdir(path)
-#	define pgetcwd(buffer, maxlen)  _getcwd(buffer, maxlen)
-#	define pmkdir(path)             _mkdir(path)
-#	define pstricmp(str1, str2)     _stricmp(str1, str2)
+#   define paccess(path, mode)      _access(path, mode)
+#   define pchdir(path)             _chdir(path)
+#   define pgetcwd(buffer, maxlen)  _getcwd(buffer, maxlen)
+#   define pmkdir(path)             _mkdir(path)
+#   define pstricmp(str1, str2)     _stricmp(str1, str2)
 #else
-#	include <sys/stat.h>
-#	include <unistd.h>
+#   include <sys/stat.h>
+#   include <unistd.h>
 
-#	define paccess(path, mode)      access(path, mode)
-#	define pchdir(path)             chdir(path)
-#	define pgetcwd(buffer, maxlen)  getcwd(buffer, maxlen)
-#	define pmkdir(path)             mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)         // chmod rights: 0755
-#	define pstricmp(str1, str2)     strcasecmp(str1, str2)
+#   define paccess(path, mode)      access(path, mode)
+#   define pchdir(path)             chdir(path)
+#   define pgetcwd(buffer, maxlen)  getcwd(buffer, maxlen)
+#   define pmkdir(path)             mkdir(path, S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)         // chmod rights: 0755
+#   define pstricmp(str1, str2)     strcasecmp(str1, str2)
 #endif
 
 
