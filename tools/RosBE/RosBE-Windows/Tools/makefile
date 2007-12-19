@@ -8,7 +8,7 @@ STRIP := strip
 SUFFIX := .exe
 WINVER := 0x500
 
-all: buildtime chknewer chkslash echoh flash getdate rquote scut tee
+all: buildtime chknewer chkslash echoh flash getdate rquote tee
 
 buildtime:  buildtime.c
 	${CC} ${CFLAGS} buildtime$(SUFFIX) buildtime.c
@@ -38,13 +38,9 @@ rquote:  rquote.c
 	${CC} ${CFLAGS} rquote rquote.c
 	$(STRIP) rquote$(SUFFIX)
 
-scut:  scut.c
-	${CC} ${CFLAGS} scut scut.c
-	$(STRIP) scut$(SUFFIX)
-
 tee:  tee.c
 	${CC} ${CFLAGS} tee tee.c
 	$(STRIP) tee$(SUFFIX)
 
 clean:
-	del /f buildtime.exe chknewer.exe chkslash.exe echoh.exe flash.exe getdate.exe rquote.exe scut.exe tee.exe
+	del /f buildtime.exe chknewer.exe chkslash.exe echoh.exe flash.exe getdate.exe rquote.exe tee.exe

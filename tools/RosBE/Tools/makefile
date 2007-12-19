@@ -17,11 +17,16 @@ else
 endif
 
 
-all: cpucount
+all: cpucount scut
 
 cpucount:  cpucount.c
 	${CC} ${CFLAGS} cpucount$(SUFFIX) cpucount.c
 	$(STRIP) cpucount$(SUFFIX)
 
+scut:  scut.c
+	${CC} ${CFLAGS} scut$(SUFFIX) scut.c
+	$(STRIP) scut$(SUFFIX)
+
 clean:
 	$(RM) cpucount$(SUFFIX)
+	$(RM) scut$(SUFFIX)
