@@ -7,8 +7,8 @@
 # Released under GNU GPL v2 or any later version.
 
 # Constants
-ROSBE_VERSION="0.3.7-SVN"
-KNOWN_ROSBE_VERSIONS="0.3.6 0.3.7-SVN"
+ROSBE_VERSION="1.1-SVN"
+KNOWN_ROSBE_VERSIONS="0.3.6 1.1-SVN"
 DEFAULT_INSTALL_DIR="/usr/RosBE"
 NEEDED_TOOLS="bison flex gcc g++ grep makeinfo"		# GNU Make has a special check
 
@@ -274,6 +274,7 @@ if $update; then
 	process_make=false
 	process_nasm=false
 	process_buildtime=false
+	process_scut=false
 
 	# Logic behind this update part:
 	#   - KNOWN_ROSBE_VERSIONS contains all versions from the oldest to the newest one (in this order!)
@@ -289,8 +290,14 @@ if $update; then
 		if $setvalues; then
 			case "$known_version" in
 				"0.3.6")
-					# TODO: Define what has to be reprocessed, when updating from 0.3.6 to the next version
+					# Updated components from 0.3.6 to 1.1
 					process_cpucount=true
+					process_mingwruntime=true
+					process_w32api=true
+					process_binutils=true
+					process_gcc=true
+					process_nasm=true
+					process_scut=true
 					;;
 			esac
 		fi
@@ -304,6 +311,7 @@ else
 	process_make=true
 	process_nasm=true
 	process_buildtime=true
+	process_scut=true
 
 	# Create the directory if necessary
 	if $createdir; then
@@ -489,6 +497,12 @@ boldmsg "Final actions"
 if $process_buildtime; then
 	echo -n "Compiling buildtime... "
 	gcc -o "$installdir/bin/buildtime" "$SCRIPTDIR/tools/buildtime.c"
+	checkrun
+fi
+
+if $process_scut; then
+	echo -n "Compiling scut..."
+	gcc -o "$installdir/bin/scut" "$SCRIPTDIR/tools/scut.c"
 	checkrun
 fi
 
