@@ -3247,6 +3247,7 @@
 	function page_table_body( bnr, bclass, bid, bdname, btype, brid, brver, brlang, brdate, bstar, bstarid, brusrid, security, xtrtblcol, bdesc) {
 		var xtrtblcols2 = '';
 		var lstBody = '';
+		var tmpdesc = '';
 		
 		if (bstar == 1) {
 			bstar = 'cStarOn';
@@ -3269,7 +3270,15 @@
 		if (security.indexOf("write") < 0 ) { // not found -> readonly
 			lstBody += '<img src="images/locked.gif" alt="read-only" style="width:11px; height:12px; border:0px;" /> ';
 		}
-		lstBody += '<span class="tcp">'+bdesc+'</span></div></td>';
+		try {
+			tmpdesc = unescape(decodeURI(bdesc));
+			tmpdesc = tmpdesc.replace(/\+/g, ' ');
+		} catch (e) {
+			tmpdesc = '<i>check the title or description field, it contains non UTF-8 chars</i>';
+		}
+
+		lstBody += '<span class="tcp">'+tmpdesc+'</span></div></td>';
+		/*lstBody += '<span class="tcp">!!</span></div></td>';*/
 
 /*
 		if (xtrtblcol != '') {

@@ -840,7 +840,7 @@
 				$tdata .= " status=\"". $temp_status ."\""; /* status (odd/even (=stable), new, draft, etc.) */
 				$tdata .= " security=\"". $temp_security ."\""; /* security (read, write, add, pub, trans) */
 				$tdata .= " xtrcol=\"".$roscms_mtbl_cols2."\"";
-				$tdata .= "><![CDATA[".substr($result_xml_ptm_stext['content'], 0, 30)."]]></row>";	
+				$tdata .= "><![CDATA[".urlencode(substr($result_xml_ptm_stext['content'], 0, 30))."]]></row>";	
 				
 				$temp_counter++;		
 			}
