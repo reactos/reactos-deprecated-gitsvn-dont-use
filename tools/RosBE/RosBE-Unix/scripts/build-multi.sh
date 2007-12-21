@@ -8,5 +8,5 @@
 
 source "$_ROSSCRIPTDIR/build-shared.sh"
 
-CPUCOUNT=`cpucount`
+CPUCOUNT=`cpucount -x1`
 buildtime mingw32-make -j $CPUCOUNT $*
