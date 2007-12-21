@@ -252,6 +252,10 @@ while [ "$installdir" = "" ]; do
 	fi
 done
 
+# Make sure we have the absolute path to the installation directory
+cd "$installdir"
+installdir="$PWD"
+
 # Ready to start
 boldmsg "Ready to start"
 
@@ -343,7 +347,7 @@ if $process_cpucount; then
 	checkrun
 fi
 
-CPUCOUNT=`$installdir/bin/cpucount`
+CPUCOUNT=`$installdir/bin/cpucount -x1`
 cd "$installdir/mingw32"
 
 # mingw-runtime
