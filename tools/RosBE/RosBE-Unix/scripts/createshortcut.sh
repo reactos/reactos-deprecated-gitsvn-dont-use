@@ -38,6 +38,9 @@ sourcedir=""
 while [ "$sourcedir" = "" ]; do
 	read -p "Directory: " sourcedir
 
+	# Make sure we have the absolute path to the source directory
+	sourcedir=`eval echo $sourcedir`
+
 	if ! [ -d "$sourcedir" ]; then
 		echo "The entered path is no directory. Please enter the right path to the ReactOS sources."
 		sourcedir=""
