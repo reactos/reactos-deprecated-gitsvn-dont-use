@@ -4,7 +4,7 @@
    - Removed an used var. (Pierre Schweitzer)
 
 - Added a "all" switch to clean.cmd to do both jobs, deleting Compiler Output AND Logs in one process. (Daniel Reimer)
-- Added a Security Prompt to clean.cmd to not accidentally delete all Built stuff. (Daniel Reimer)
+- Add a macro file for the MinGW prompt and add SCUT to this macro file (Colin Finck)
 
 *** December 8th, 2007 - RosBE 1.1 Released
 
