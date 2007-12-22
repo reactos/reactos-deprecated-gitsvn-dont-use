@@ -102,7 +102,9 @@ echo
 if [ ! "`whoami`" = "root" ]; then
 	boldmsg "User is not \"root\""
 
-	echo "It is recommended to run this script as the \"root\" user. Otherwise you probably cannot create the necessary directories."
+	echo "The default installation path for the Build Environment is \"$DEFAULT_INSTALL_DIR\"."
+	echo "Therefore it is recommended to run this script as the \"root\" user. Otherwise you probably cannot create the necessary directories."
+	echo "An alternative is to specify another installation directory at the installation process."
 	echo "Do you really want to continue? (yes/no)"
 	read -p "[no] " answer
 

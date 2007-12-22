@@ -2,11 +2,12 @@
 PATH="$_ROSSCRIPTDIR/bin:$PATH"
 
 # Set aliases
-alias basedir="cd $_ROSSOURCEDIR"
+alias basedir="source $_ROSSCRIPTDIR/basedir.sh"
 alias clean="$_ROSSCRIPTDIR/clean.sh"
 alias help="$_ROSSCRIPTDIR/help.sh"
 alias make="$_ROSSCRIPTDIR/build.sh"
 alias makex="$_ROSSCRIPTDIR/build-multi.sh"
+alias scut="source $_ROSSCRIPTDIR/scut.sh"
 alias version="$_ROSSCRIPTDIR/version.sh"
 
 # Display the available commands
