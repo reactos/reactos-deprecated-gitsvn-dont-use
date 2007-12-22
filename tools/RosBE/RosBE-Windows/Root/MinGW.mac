@@ -1,0 +1,4 @@
+CHDEFGCC   = "%_ROSBE_BASEDIR%\chdefgcc.cmd" $*
+MAKE       = "%_ROSBE_MINGWMAKE%" $*
+MAKEX      = "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% $*
+SCUT       = "%_ROSBE_BASEDIR%\scut.cmd" $*
