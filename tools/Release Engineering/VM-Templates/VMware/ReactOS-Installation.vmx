@@ -1,0 +1,27 @@
+config.version = "7"
+virtualHW.version = "3"
+
+displayName = "ReactOS-Installation"
+guestOS = "winxppro"
+memsize = 128
+
+floppy0.present = "FALSE"
+ide0:0.present = "TRUE"
+ide0:0.fileName = "ReactOS.vmdk"
+ide1:0.present = "TRUE"
+ide1:0.fileName = "ReactOS.iso"
+ide1:0.deviceType = "cdrom-image"
+
+Ethernet0.present = "TRUE"
+Ethernet0.addressType = "generated"
+Ethernet0.generatedAddress = "00:0c:29:7c:4c:8b"
+Ethernet0.generatedAddressOffset = "0"
+uuid.action = "create"
+uuid.location = "56 4d 0e c2 bf 9a 5a bd-fa 1c 5e 1f d6 6e eb f7"
+uuid.bios = "56 4d 0e c2 bf 9a 5a bd-fa 1c 5e 1f d6 6e eb f7"
+
+usb.present = "FALSE"
+
+ide0:0.deviceType = "ata-hardDisk"
+priority.grabbed = "normal"
+priority.ungrabbed = "normal"
