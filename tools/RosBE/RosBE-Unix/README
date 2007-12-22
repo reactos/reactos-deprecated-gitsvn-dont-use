@@ -1,5 +1,5 @@
                            ReactOS Build Environment
-                 Version 0.3.6 for Unix-based operating systems
+                 Version 1.1 for Unix-based operating systems
                      by Colin Finck (mail@colinfinck.de)
 
 Introduction
@@ -79,22 +79,26 @@ Version Information
   This version of RosBE for Unix-based operating systems uses the following
 components:
 
-  * Binutils 20070422 (CVS version)
-    patched with "winres_64bit.diff"
-    (http://sourceware.org/bugzilla/attachment.cgi?id=1733&action=view)
+  * GNU Binutils v2.18.50-20071015 (snapshot)
+    patched with:
+      - binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch
+        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch?revision=30284&content-type=text/plain)
 
-  * GCC 4.1.3-prerelease (SVN version, r124026)
-    patched with "gcc-virtual-stdcall.patch"
-    (http://www.apiviewer.de/downloads/gcc-virtual-stdcall.patch)
+  * GCC, The GNU Compiler Collection v4.1.3-20071015 (snapshot)
+    patched with:
+      - GCC-v4.1-r129382-prerelease-w3seek.patch
+        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-prerelease-w3seek.patch?revision=30284&content-type=text/plain)
+      - GCC-v4.1-r129382-virtual-stdcall-bug27067.patch
+        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-virtual-stdcall-bug27067.patch?revision=30284&content-type=text/plain)
+      - GCC-v4.1-r129490-CreateFileMapping-Vista-bug30335.patch
+        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129490-CreateFileMapping-Vista-bug30335.patch?revision=30284&content-type=text/plain)
+
     NOTE: This GCC version only supports C and C++
 
-  * Make 20070422 (CVS version)
-    patched with "make-strcmpi-strcasecmp.patch"
-    (http://savannah.gnu.org/file/make-strcmpi-strcasecmp.patch?file_id=12544)
-
-  * Mingw-runtime 3.12
-  * Nasm 0.98.39
-  * w32api 3.9
+  * Make 20071219 (CVS version)
+  * MinGW-Runtime 3.13
+  * NASM, The Netwide assembler v2.00
+  * W32api 3.10
 
 
 Tested Operating Systems
@@ -112,7 +116,7 @@ x86_64 (64-bit) systems.
 
 Websites
 ---------
-MingW - Minimalist GNU for Windows
+MinGW - Minimalist GNU for Windows
 http://www.mingw.org
 
 Binutils, the Binary Tools Collection
@@ -130,7 +134,19 @@ http://nasm.sourceforge.net
 
 Credits
 --------
-  Credits go to blight, dralnix and EmuandCo, who created the original ReactOS
-Build Environment for Windows. My Unix version uses many ideas of it.
-  Special thanks also to ROSFan, who created the nice ReactOS Build
-Environment Logo.
+Colin Finck (mail@colinfinck.de)
+
+Thanks go also to the members of the RosBE-Windows team, namely:
+Daniel Reimer (reimer.daniel@freenet.de)
+Peter Ward (dralnix@gmail.com)
+Pierre Schweitzer (heis_spiter@hotmail.com)
+
+  Special thanks to ROSFan, who created the nice ReactOS Build Environment
+Logo.
+  Special thanks also goes out to all those who provide so much help by
+testing out new versions, you know who you are. Without them the RosBE
+would not be what it is.
+  Credits go to Gregor Anich who created the original ReactOS Build
+Environment v0.2-3.4.4.
+
+Inspired by Dazzle from TinyKRNL (http://tinykrnl.org/).
