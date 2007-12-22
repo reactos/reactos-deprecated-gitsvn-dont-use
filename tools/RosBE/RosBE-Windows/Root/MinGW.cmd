@@ -40,4 +40,6 @@ for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CP
 
 doskey /macrofile="%_ROSBE_BASEDIR%\MinGW.mac"
 
+if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
+
 :EOC
