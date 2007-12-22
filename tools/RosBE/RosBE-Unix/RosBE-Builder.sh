@@ -187,6 +187,9 @@ while [ "$installdir" = "" ]; do
 		installdir=$DEFAULT_INSTALL_DIR
 	fi
 
+	# Make sure we have the absolute path to the installation directory
+	installdir=`eval echo $installdir`
+
 	# Check if the installation directory already exists
 	if [ -f "$installdir" ]; then
 		echo "The directory \"$installdir\" is a file! Please enter another directory!"
@@ -254,10 +257,6 @@ while [ "$installdir" = "" ]; do
 	fi
 done
 
-# Make sure we have the absolute path to the installation directory
-cd "$installdir"
-installdir="$PWD"
-
 # Ready to start
 boldmsg "Ready to start"
 
@@ -302,6 +301,7 @@ if $update; then
 					process_w32api=true
 					process_binutils=true
 					process_gcc=true
+					process_make=true
 					process_nasm=true
 					process_scut=true
 					;;
@@ -469,16 +469,14 @@ fi
 # nasm
 if $process_nasm; then
 	rm -rf "nasm"
-	rm -rf "nasm-build"
 
 	echo -n "Extracting nasm... "
 	tar -xjf "nasm.tar.bz2" >& "$SCRIPTDIR/tar.log"
 	checkrun "tar"
 
 	echo -n "Configuring nasm... "
-	mkdir "nasm-build"
-	cd "nasm-build"
-	../nasm/configure --prefix="$installdir" --target=mingw32  >& "$SCRIPTDIR/configure.log"
+	cd "nasm"
+	./configure --prefix="$installdir" --target=mingw32  >& "$SCRIPTDIR/configure.log"
 	checkrun "configure"
 
 	echo -n "Building nasm... "
@@ -491,7 +489,6 @@ if $process_nasm; then
 
 	echo -n "Cleaning up nasm... "
 	cd "$SOURCEDIR"
-	rm -rf "nasm-build"
 	rm -rf "nasm"
 	checkrun
 fi

@@ -14,9 +14,12 @@ echo "                   options, i.e. bootcd."
 echo " makex [OPTIONS] - Same as 'make' but automatically determines the"
 echo "                   number of CPUs in the system and uses -j with"
 echo "                   the appropriate number."
+echo " basedir         - Switch back to the ReactOS source directory."
 echo " clean           - Fully clean the ReactOS source directory."
 echo " help            - Display the available commands."
+echo " scut [OPTIONS]  - List, add, edit, remove, switch and default to"
+echo "                   shortcutted ReactOS source directories."
 echo " version         - Show information about the tool versions."
-echo " basedir         - Switch back to the ReactOS source directory."
+
 echo
 
