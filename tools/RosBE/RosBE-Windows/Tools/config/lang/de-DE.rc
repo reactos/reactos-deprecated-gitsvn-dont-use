@@ -50,7 +50,7 @@ BEGIN
   CLR15, "Weiß"
   MSG_NOGCCFOUND, "Kein MinGW/GCC Compiler gefunden! Bitte überprüfen sie ihren Pfad."
   MSG_FILEFAILED, "rosbe-options.cmd konnte nicht erstellt werden!"
-  MSG_DIREFAILED, "Directory konnte nicht erstellt werden!"
+  MSG_DIREFAILED, "Ordner konnte nicht erstellt werden!"
   MSG_SETLOADSUC, "Vorherige Einstellungen erfolgreich geladen."
   MSG_FINDLOGDIR, "Bitte wählen Sie einen Ordner, in dem die Logs gespeichert werden sollen:"
   MSG_FINDMGWDIR, "Bitte wählen Sie den Ordner, in dem MinGW/GCC liegt:"
@@ -58,7 +58,7 @@ BEGIN
   MSG_FINDOUTDIR, "Bitte wählen Sie den Ordner, in den Sie die OUT Daten speichern wollen:"
   MSG_WARNINGBOX, "Warnung"
   MSG_EXITCHANGE, "Sind Sie sicher, dass das Programm beenden wollen ohne zu speichern?"
-  MSG_INVALIDDIR, "The directory you entered doesn't exist. Do you want to create it?"
+  MSG_INVALIDDIR, "Der Ordner, den Sie eingegeben haben, existiert nicht. Wollen Sie ihn erstellen?"
   /* Help Strings */
   HLP_BACKCOLORC, "Auswählen der Hintergrundfarbe des RosBE DOS Fensters."
   HLP_FONTCOLORC, "Auswählen der Schriftfarbe des RosBE DOS Fensters."
