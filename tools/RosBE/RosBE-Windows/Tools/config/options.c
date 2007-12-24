@@ -261,11 +261,15 @@ BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
     {
         WCHAR BoxMsg[256], BoxTitle[128];
         HWND hwndParent;
+        INT PathLen;
         hwndParent = GetWindow(Dlg, GW_OWNER);
         LoadString(hInstance, MSG_WARNINGBOX, BoxTitle, 128);
         LoadString(hInstance, MSG_INVALIDDIR, BoxMsg, 256);
         if (MessageBox(Dlg, BoxMsg, BoxTitle, MB_ICONWARNING | MB_YESNO) == IDYES)
         {
+            PathLen = wcslen((LPWSTR)wParam);
+            if (wcscmp((LPWSTR)wParam+PathLen, L"\\"))
+                wcsset((LPWSTR)wParam+(PathLen-1), '\0');
             if (CreateDirectory((LPWSTR)wParam, NULL) == 0)
             {
                 LoadString(hInstance, MSG_DIREFAILED, BoxMsg, 256);

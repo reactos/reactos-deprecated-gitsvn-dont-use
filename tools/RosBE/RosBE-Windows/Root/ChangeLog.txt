@@ -1,7 +1,11 @@
 *** XXX XXth, 2008 - RosBE 1.2 Released
 
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
-   - Removed an used var. (Pierre Schweitzer)
+   - Removed an used var (Pierre Schweitzer)
+   - Removed magic value use (Pierre Schweitzer)
+   - Deactivated temporarily pidl work because of unwanted effects (Pierre Schweitzer)
+   - Fixed the a bug : user can now enter the path in browse dialog, and it will be used (if correct) (Pierre Schweitzer)
+   - If there's a slash at the end of the entered path, it's removed (Pierre Schweitzer)
 
 - Added a "all" switch to clean.cmd to do both jobs, deleting Compiler Output AND Logs in one process. (Daniel Reimer)
 - Add a macro file for the MinGW prompt and add SCUT to this macro file (Colin Finck)
