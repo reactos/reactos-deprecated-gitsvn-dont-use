@@ -16,7 +16,9 @@
 
 #define MINGWVERSION L"\\4.1.3"
 
+#if 0
 typedef LPITEMIDLIST (CALLBACK* ILCREATEFROMPATHW)(LPCWSTR path);
+#endif
 
 typedef struct _SETTINGS
 {
