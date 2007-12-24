@@ -37,7 +37,7 @@ WriteSettings(HWND hwnd)
 
     if (writelog && (logdir[0] != 0))
         if (0 > (LONG)GetFileAttributes(logdir))
-            if (CreateDirectoryW(logdir, NULL) == 0)
+            if (CreateDirectory(logdir, NULL) == 0)
             {
                 LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
                 MessageBox(hwnd, msgerror, NULL, MB_ICONERROR);
@@ -257,6 +257,26 @@ BOOL CALLBACK EnumChildProc(HWND hwndChild, LPARAM lParam)
 INT CALLBACK
 BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
+    if ((Msg == BFFM_VALIDATEFAILED) && (lParam != ID_MGWDIR))
+    {
+        WCHAR BoxMsg[256], BoxTitle[128];
+        HWND hwndParent;
+        hwndParent = GetWindow(Dlg, GW_OWNER);
+        LoadString(hInstance, MSG_WARNINGBOX, BoxTitle, 128);
+        LoadString(hInstance, MSG_INVALIDDIR, BoxMsg, 256);
+        if (MessageBox(Dlg, BoxMsg, BoxTitle, MB_ICONWARNING | MB_YESNO) == IDYES)
+        {
+            if (CreateDirectory((LPWSTR)wParam, NULL) == 0)
+            {
+                LoadString(hInstance, MSG_DIREFAILED, BoxMsg, 256);
+                MessageBox(Dlg, BoxMsg, NULL, MB_ICONERROR);
+            }
+            else
+            {
+                SetDlgItemText(hwndParent, lParam, (LPWSTR)wParam);
+            }
+        }
+    }
     return FALSE;
 }
 
@@ -348,6 +368,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                             PathInfo.hwndOwner = Dlg;
                             PathInfo.ulFlags = BIF_EDITBOX | BIF_VALIDATE;
                             PathInfo.lpfn = (BFFCALLBACK)BrowseProc;
+                            PathInfo.lParam = ID_LOGDIR;
 #if 0
                             SHGetSpecialFolderLocation(NULL, CSIDL_PROGRAM_FILES, &pidl);
                             PathInfo.pidlRoot = pidl;
@@ -370,6 +391,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                     Control = ID_OUTDIR;
                                     IDText = MSG_FINDOUTDIR;
                                 }
+                                PathInfo.lParam = Control;
 #if 0
                                 hDLL = LoadLibrary(L"shell32.dll");
                                 if (hDLL)
