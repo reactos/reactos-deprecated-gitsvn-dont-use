@@ -36,7 +36,7 @@ WriteSettings(HWND hwnd)
     GetDlgItemTextW(hwnd, ID_OUTDIR, outdir, MAX_PATH);
 
     if (writelog && (logdir[0] != 0))
-        if (GetFileAttributes(logdir) == 0xFFFFFFFF)
+        if (0 > (LONG)GetFileAttributes(logdir))
             if (CreateDirectoryW(logdir, NULL) == 0)
             {
                 LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
@@ -254,6 +254,12 @@ BOOL CALLBACK EnumChildProc(HWND hwndChild, LPARAM lParam)
     return TRUE;
 }
 
+INT CALLBACK
+BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+    return FALSE;
+}
+
 INT_PTR CALLBACK
 DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -340,13 +346,18 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         {
                             ZeroMemory(&PathInfo, sizeof(BROWSEINFO));
                             PathInfo.hwndOwner = Dlg;
-                            PathInfo.ulFlags = BIF_EDITBOX;
+                            PathInfo.ulFlags = BIF_EDITBOX | BIF_VALIDATE;
+                            PathInfo.lpfn = (BFFCALLBACK)BrowseProc;
+#if 0
                             SHGetSpecialFolderLocation(NULL, CSIDL_PROGRAM_FILES, &pidl);
                             PathInfo.pidlRoot = pidl;
+#endif
                             if ((wParam == ID_BROWSEMGW) || (wParam == ID_BROWSEOBJ) || (wParam == ID_BROWSEOUT))
                             {
+#if 0
                                 HINSTANCE hDLL;
                                 ILCREATEFROMPATHW ILCreateFromPathW;
+#endif
                                 Control = ID_MGWDIR;
                                 IDText = MSG_FINDMGWDIR;
                                 if (wParam == ID_BROWSEOBJ)
@@ -359,6 +370,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                     Control = ID_OUTDIR;
                                     IDText = MSG_FINDOUTDIR;
                                 }
+#if 0
                                 hDLL = LoadLibrary(L"shell32.dll");
                                 if (hDLL)
                                 {
@@ -370,6 +382,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                     }
                                     FreeLibrary(hDLL);
                                 }
+#endif
                             }
                             LoadString(hInstance, IDText, Text, 512);
                             PathInfo.lpszTitle = Text;
