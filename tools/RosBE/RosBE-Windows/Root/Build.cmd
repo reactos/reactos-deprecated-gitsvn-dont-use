@@ -95,10 +95,18 @@ if %_ROSBE_WRITELOG% == 1 (
 :: Check if we are using -j or not.
 ::
 if "%1" == "multi" (
-    title 'makex' parallel build started: %TIMERAW%
+    if not "%2" == "" (
+        title 'makex %2' parallel build started: %TIMERAW%
+    ) else (
+        title 'makex' parallel build started: %TIMERAW%
+    )
     call :BUILDMULTI %*
 ) else (
-    title 'make' build started: %TIMERAW%
+    if not "%1" == "" (
+        title 'make %1' build started: %TIMERAW%
+    ) else (
+        title 'make' build started: %TIMERAW%
+    )
     call :BUILD %*
 )
 goto :EOC
