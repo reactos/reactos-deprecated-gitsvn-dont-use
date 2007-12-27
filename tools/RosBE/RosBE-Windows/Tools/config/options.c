@@ -257,28 +257,42 @@ BOOL CALLBACK EnumChildProc(HWND hwndChild, LPARAM lParam)
 INT CALLBACK
 BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-    if ((Msg == BFFM_VALIDATEFAILED) && (lParam != ID_MGWDIR))
+    HWND hwndParent;
+    hwndParent = GetWindow(Dlg, GW_OWNER);
+    switch (Msg)
     {
-        WCHAR BoxMsg[256], BoxTitle[128];
-        HWND hwndParent;
-        INT PathLen;
-        hwndParent = GetWindow(Dlg, GW_OWNER);
-        LoadString(hInstance, MSG_WARNINGBOX, BoxTitle, 128);
-        LoadString(hInstance, MSG_INVALIDDIR, BoxMsg, 256);
-        if (MessageBox(Dlg, BoxMsg, BoxTitle, MB_ICONWARNING | MB_YESNO) == IDYES)
+        case BFFM_INITIALIZED:
         {
-            PathLen = wcslen((LPWSTR)wParam);
-            if (wcscmp((LPWSTR)wParam+PathLen, L"\\"))
-                wcsset((LPWSTR)wParam+(PathLen-1), '\0');
-            if (CreateDirectory((LPWSTR)wParam, NULL) == 0)
+            WCHAR ActualPath[MAX_PATH];
+            GetDlgItemText(hwndParent, lParam, ActualPath, MAX_PATH);
+            SendMessage(Dlg, BFFM_SETSELECTION, TRUE, (LPARAM)ActualPath);
+            break;
+        }
+        case BFFM_VALIDATEFAILED:
+        {
+            if (lParam != ID_MGWDIR)
             {
-                LoadString(hInstance, MSG_DIREFAILED, BoxMsg, 256);
-                MessageBox(Dlg, BoxMsg, NULL, MB_ICONERROR);
+                WCHAR BoxMsg[256], BoxTitle[128];
+                INT PathLen;
+                LoadString(hInstance, MSG_WARNINGBOX, BoxTitle, 128);
+                LoadString(hInstance, MSG_INVALIDDIR, BoxMsg, 256);
+                if (MessageBox(Dlg, BoxMsg, BoxTitle, MB_ICONWARNING | MB_YESNO) == IDYES)
+                {
+                    PathLen = wcslen((LPWSTR)wParam);
+                    if (wcscmp((LPWSTR)wParam+PathLen, L"\\"))
+                        wcsset((LPWSTR)wParam+(PathLen-1), '\0');
+                    if (CreateDirectory((LPWSTR)wParam, NULL) == 0)
+                    {
+                        LoadString(hInstance, MSG_DIREFAILED, BoxMsg, 256);
+                        MessageBox(Dlg, BoxMsg, NULL, MB_ICONERROR);
+                    }
+                    else
+                    {
+                        SetDlgItemText(hwndParent, lParam, (LPWSTR)wParam);
+                    }
+                }
             }
-            else
-            {
-                SetDlgItemText(hwndParent, lParam, (LPWSTR)wParam);
-            }
+            break;
         }
     }
     return FALSE;
@@ -373,16 +387,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                             PathInfo.ulFlags = BIF_EDITBOX | BIF_VALIDATE;
                             PathInfo.lpfn = (BFFCALLBACK)BrowseProc;
                             PathInfo.lParam = ID_LOGDIR;
-#if 0
-                            SHGetSpecialFolderLocation(NULL, CSIDL_PROGRAM_FILES, &pidl);
-                            PathInfo.pidlRoot = pidl;
-#endif
+                            PathInfo.pidlRoot = NULL;
                             if ((wParam == ID_BROWSEMGW) || (wParam == ID_BROWSEOBJ) || (wParam == ID_BROWSEOUT))
                             {
-#if 0
-                                HINSTANCE hDLL;
-                                ILCREATEFROMPATHW ILCreateFromPathW;
-#endif
                                 Control = ID_MGWDIR;
                                 IDText = MSG_FINDMGWDIR;
                                 if (wParam == ID_BROWSEOBJ)
@@ -396,19 +403,6 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                                     IDText = MSG_FINDOUTDIR;
                                 }
                                 PathInfo.lParam = Control;
-#if 0
-                                hDLL = LoadLibrary(L"shell32.dll");
-                                if (hDLL)
-                                {
-                                    ILCreateFromPathW = (ILCREATEFROMPATHW)GetProcAddress(hDLL, "ILCreateFromPathW");
-                                    if (ILCreateFromPathW)
-                                    {
-                                        GetDlgItemTextW(Dlg, Control, path, MAX_PATH);
-                                        PathInfo.pidlRoot = ILCreateFromPathW(path);
-                                    }
-                                    FreeLibrary(hDLL);
-                                }
-#endif
                             }
                             LoadString(hInstance, IDText, Text, 512);
                             PathInfo.lpszTitle = Text;
