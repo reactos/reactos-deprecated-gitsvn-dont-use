@@ -370,12 +370,11 @@
 	  <tr>
 	    <td bgcolor="#EEEEEE"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Paste history: </font></b></td>
 	    <td bgcolor="#EEEEEE"><font face="Verdana, Arial, Helvetica, sans-serif">
-	      <label>
 	      <font size="2">
 <input name="optpub" type="radio" value="1" checked="checked" />
 Yes <font size="1">(list the paste on &quot;recent pastes&quot; page) </font><br />
 <input name="optpub" type="radio"  value="2" />
-	    No</font></label>
+	    No</font>
 	    </font></td>
 	  </tr>
 	  <tr>
