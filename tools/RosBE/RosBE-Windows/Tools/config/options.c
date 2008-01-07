@@ -12,6 +12,22 @@
 
 HINSTANCE hInstance;
 
+BOOL CreateDir(HWND hwnd, WCHAR* dir)
+{
+    WCHAR msgerror[256];
+
+    if (0 > (LONG)GetFileAttributes(dir))
+    {
+        if (CreateDirectory(dir, NULL) == 0)
+        {
+            LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
+            MessageBox(hwnd, msgerror, NULL, MB_ICONERROR);
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 INT
 WriteSettings(HWND hwnd)
 {
@@ -36,13 +52,16 @@ WriteSettings(HWND hwnd)
     GetDlgItemTextW(hwnd, ID_OUTDIR, outdir, MAX_PATH);
 
     if (writelog && (logdir[0] != 0))
-        if (0 > (LONG)GetFileAttributes(logdir))
-            if (CreateDirectory(logdir, NULL) == 0)
-            {
-                LoadString(hInstance, MSG_DIREFAILED, msgerror, 256);
-                MessageBox(hwnd, msgerror, NULL, MB_ICONERROR);
-                return FALSE;
-            }
+        if (!CreateDir(hwnd, logdir))
+            return FALSE;
+
+    if (objstate && (objdir[0] != 0))
+        if (!CreateDir(hwnd, objdir))
+            return FALSE;
+
+    if (outstate && (outdir[0] != 0))
+        if (!CreateDir(hwnd, outdir))
+            return FALSE;
 
     wcscpy(checkmgw, mingwpath);
     if ((wcslen(checkmgw) + wcslen(L"\\bin\\gcc.exe")) < MAX_PATH)
