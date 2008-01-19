@@ -152,14 +152,14 @@ if "%OPTIMIZE_CH%" == "" (
 cls
 
 echo Whether to compile in the integrated kernel debugger.
-echo Default is: 0
+echo Default is: 1
 echo.
 for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "KDBG" | find "property name""`) do set KDBG=%%i
 set KDBG=%KDBG:~7,-1%
 echo Right now: %KDBG%
 set /p KDBG_CH="(0), (1)"
 if "%KDBG_CH%" == "" (
-    set KDBG_CH=0
+    set KDBG_CH=1
 )
 cls
 
