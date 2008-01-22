@@ -134,6 +134,7 @@ goto :EOF
     :: No Option - Number of CPUs.
     :: -x1       - Number of CPUs, plus 1.
     :: -x2       - Number of CPUs, doubled.
+    :: -a        - Determine the cpu count based on the inherited process affinity mask.
     ::
     for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
 

@@ -1,5 +1,11 @@
 *** XXX XXth, 2008 - RosBE 1.2 Released
 
+- Updated: NASM to 2.01 (Peter Ward)
+- Updated: Subversion to 1.4.6 (Peter Ward)
+- Added: Flex 2.5.4a-1 from GnuWin32 (Peter Ward)
+- Added: Bison 2.1 from GnuWin32 (Peter Ward)
+- Added: Patch 2.5.9-7 from GnuWin32 (Peter Ward)
+
 - Updated RosBE Configuration Tool. (Pierre Schweitzer)
    - Removed an used var (Pierre Schweitzer)
    - Removed magic value use (Pierre Schweitzer)
@@ -7,9 +13,12 @@
    - If there's a slash at the end of the entered path, it's removed (Pierre Schweitzer)
    - Definitively get rid of pidl work (Pierre Schweitzer)
    - Now, previous path is just selected in browse window (Pierre Schweitzer)
+   - Stop abusing WM_SETCURSOR and use tooltips instead. (Thomas Weidenmueller)
 
 - Added a "all" switch to clean.cmd to do both jobs, deleting Compiler Output AND Logs in one process. (Daniel Reimer)
 - Add a macro file for the MinGW prompt and add SCUT to this macro file (Colin Finck)
+- Add the ability to determine the cpu count based on the inherited process affinity mask to cpucount (only for win32 hosts) (Thomas Weidenmueller)
+- KDBG is defaulted to 1 now in Config.cmd to reflect changes in svn. (Daniel Reimer)
 
 *** December 8th, 2007 - RosBE 1.1 Released
 

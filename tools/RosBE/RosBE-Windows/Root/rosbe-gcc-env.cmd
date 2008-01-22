@@ -47,5 +47,19 @@ if exist "%_ROSBE_MINGWPATH%\bin\nasm.exe" (
         echo ERROR: NASM is required to build ReactOS, none found in the current MinGW/GCC.
     )
 )
+if exist "%_ROSBE_MINGWPATH%\bin\bison.exe" (
+    bison --version | find "GNU Bison"
+) else (
+    if "%_ROSBE_MODE%" == "RosBE" (
+        echo ERROR: Bison is required to build ReactOS, none found in the current MinGW/GCC.
+    )
+)
+if exist "%_ROSBE_MINGWPATH%\bin\flex.exe" (
+    flex --version
+) else (
+    if "%_ROSBE_MODE%" == "RosBE" (
+        echo ERROR: Flex is required to build ReactOS, none found in the current MinGW/GCC.
+    )
+)
 ld -v
 mingw32-make -v | find "GNU Make"
