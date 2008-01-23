@@ -1,14 +1,14 @@
 #!/bin/bash
 #
 # RosBE-Builder
-# Copyright 2007 Colin Finck <mail@colinfinck.de>
+# Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
 # partially based on the BuildMingwCross script (http://www.mingw.org/MinGWiki/index.php/BuildMingwCross)
 #
 # Released under GNU GPL v2 or any later version.
 
 # Constants
-ROSBE_VERSION="1.1-SVN"
-KNOWN_ROSBE_VERSIONS="0.3.6 1.1-SVN"
+ROSBE_VERSION="1.1"
+KNOWN_ROSBE_VERSIONS="0.3.6 1.1"
 DEFAULT_INSTALL_DIR="/usr/RosBE"
 NEEDED_TOOLS="bison flex gcc g++ grep makeinfo"		# GNU Make has a special check
 
@@ -91,7 +91,7 @@ echo "*         ReactOS Build Environment for Unix-based Operating Systems      
 echo "*                                 Builder Tool                                *"
 echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
 echo "*                                                                             *"
-echo "*                                Version $ROSBE_VERSION                                *"
+echo "*                                Version $ROSBE_VERSION                                  *"
 echo "*******************************************************************************"
 
 echo
