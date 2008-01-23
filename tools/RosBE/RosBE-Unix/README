@@ -53,6 +53,19 @@ automatically checks for them:
     package called "texinfo".
 
 
+Preparing the installation
+---------------------------
+  Under some operating systems, you need to perform additional steps before
+you can install the Build Environment. This section lists them.
+
+  * FreeBSD
+      - You have to create a symbolic link "/bin/bash", because FreeBSD
+        installs Bash to "/usr/local/bin/bash". Simply execute the following
+        command for doing this:
+
+        ln -s /usr/local/bin/bash /bin/bash
+
+
 Installation
 -------------
   The Installation of RosBE is very simple, since there are scripts, which do
@@ -104,11 +117,14 @@ components:
 Tested Operating Systems
 -------------------------
   Although the Build Environment is designed to work on all Unix-based
-operating systems, I only tested it on the following systems:
+operating systems, it was only tested under the following systems:
 
   * Debian GNU/Linux 4.0
+  * Fedora 8
   * FreeBSD 6.2
-  * Ubuntu 7.04
+  * Mac OS X 10.5
+  * openSUSE 10.2
+  * Ubuntu 7.04 and 7.10
 
 You should be able to compile the build tools on both i386 (32-bit) and
 x86_64 (64-bit) systems.
