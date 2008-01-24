@@ -1,4 +1,4 @@
-*** XXX XXth, 2008 - RosBE 1.2 Released
+*** January 23rd, 2008 - RosBE 1.2 Released
 
 - Updated: NASM to 2.01 (Peter Ward)
 - Updated: Subversion to 1.4.6 (Peter Ward)
@@ -19,6 +19,7 @@
 - Add a macro file for the MinGW prompt and add SCUT to this macro file (Colin Finck)
 - Add the ability to determine the cpu count based on the inherited process affinity mask to cpucount (only for win32 hosts) (Thomas Weidenmueller)
 - KDBG is defaulted to 1 now in Config.cmd to reflect changes in svn. (Daniel Reimer)
+- Grab the GCC target dynamically as well as the version so chdefgcc will work with mingw64, etc... (Peter Ward)
 
 *** December 8th, 2007 - RosBE 1.1 Released
 
