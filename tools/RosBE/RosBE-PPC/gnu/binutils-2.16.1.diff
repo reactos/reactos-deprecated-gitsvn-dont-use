@@ -38,6 +38,8 @@ Only in binutils-2.16.1/binutils: dlltool
 diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-2.16.1/binutils/dlltool.c
 --- clean/binutils-2.16.1/binutils/dlltool.c	2005-02-23 04:25:57.000000000 -0800
 +++ binutils-2.16.1/binutils/dlltool.c	2007-09-14 23:01:31.000000000 -0700
+--- dlltool.c	2008-01-22 16:57:30.000000000 -0800
++++ binutils-2.16.1/binutils/dlltool.c	2008-01-23 20:39:38.000000000 -0800
 @@ -382,7 +382,7 @@
  extern char * program_name;
  
@@ -62,7 +64,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
  #define DRECTVE_SECTION_NAME ((machine == MMCORE_ELF || machine == MMCORE_ELF_LE) ? ".exports" : ".drectve")
  #endif
-@@ -507,13 +508,23 @@
+@@ -507,13 +508,16 @@
     the glue.  */
  static const unsigned char ppc_jtab[] =
  {
@@ -73,38 +75,31 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
 -  0xA6, 0x03, 0x89, 0x7D, /* mtctr r12                   */
 -  0x04, 0x00, 0x4B, 0x80, /* lwz r2,4(r11)               */
 -  0x20, 0x04, 0x80, 0x4E  /* bctr                        */
-+    0x38, 0x21, 0xff, 0xf0, /* addi 1,1,-16 */
-+    0x7c, 0x08, 0x02, 0xa6, /* mflr 0 */
-+    0x90, 0x01, 0x00, 0x00, /* stw 0,0(1) */
-+    0x90, 0x61, 0x00, 0x04, /* stw 3,4(1) */
++    0x7c, 0x08, 0x02, 0xa6, /* mflr r0 */
 +    0x48, 0x00, 0x00, 0x05, /* bl next */
-+    0x7c, 0x68, 0x02, 0xa6, /* mflr 3 */
-+    0x38, 0x63, 0x00, 0x2c, /* addi 3,3,44 */
-+    0x80, 0x63, 0x00, 0x00, /* lwz 3,0(3) */
-+    0x80, 0x03, 0x00, 0x00, /* lwz 0,0(3) */
-+    0x80, 0x61, 0x00, 0x04, /* lwz 3,4(1) */
-+    0x7c, 0x08, 0x03, 0xa6, /* mtlr 0 */
-+    0x4e, 0x80, 0x00, 0x21, /* blrl */
-+    0x80, 0x01, 0x00, 0x00, /* lwz 0,0,1 */
-+    0x7c, 0x08, 0x03, 0xa6, /* mtlr 0 */
-+    0x38, 0x21, 0x00, 0x10, /* addi 1,1,16 */
-+    0x4e, 0x80, 0x00, 0x20, /* blr */
++    0x7c, 0x48, 0x02, 0xa6, /* mflr r2 */
++    0x38, 0x42, 0x00, 0x1c, /* addi r2,r2,28 */
++    0x80, 0x42, 0x00, 0x00, /* lwz r2,0(r2) */
++    0x80, 0x42, 0x00, 0x00, /* lwz r2,0(r2) */
++    0x7c, 0x49, 0x03, 0xa6, /* mtctr r2 */
++    0x7c, 0x08, 0x03, 0xa6, /* mtlr r0 */
++    0x4e, 0x80, 0x04, 0x20, /* bctr */
 +    0x00, 0x00, 0x00, 0x00, /* ; receives address of table entry */
  };
  
  #ifdef DLLTOOL_PPC
-@@ -567,8 +578,8 @@
+@@ -567,8 +571,8 @@
  #define MPPC 2
      "ppc", ".byte", ".short", ".long", ".asciz", "#",
      "jmp *", ".global", ".space", ".align\t2",".align\t4", "",
 -    "pe-powerpcle",bfd_arch_powerpc,
 -    ppc_jtab, sizeof (ppc_jtab), 0
 +    "powerpc-unknown-linux-gnu", bfd_arch_powerpc,
-+    ppc_jtab, sizeof (ppc_jtab), 0x40
++    ppc_jtab, sizeof (ppc_jtab), 36
    }
    ,
    {
-@@ -1351,6 +1362,7 @@
+@@ -1351,6 +1355,7 @@
  	sprintf (new_exclude->string, "%s", exclude_string);
        else
  	sprintf (new_exclude->string, "_%s", exclude_string);
@@ -112,7 +107,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
        new_exclude->next = excludes;
        excludes = new_exclude;
  
-@@ -1538,7 +1550,7 @@
+@@ -1538,7 +1543,7 @@
    fprintf (f, "\n");
    for (i = 0, exp = d_exports; exp; i++, exp = exp->next)
      {
@@ -121,7 +116,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  	       ASM_C,
  	       i,
  	       exp->name,
-@@ -1778,7 +1790,7 @@
+@@ -1778,7 +1783,7 @@
  
    if (d_exports)
      {
@@ -130,7 +125,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
        fprintf (f, "\t%s	0	%s Allways 0\n", ASM_LONG, ASM_C);
        fprintf (f, "\t%s	0x%lx	%s Time and date\n", ASM_LONG, (long) time(0),
  	       ASM_C);
-@@ -1821,13 +1833,31 @@
+@@ -1821,13 +1826,31 @@
  
  	  if (exp->forward == 0)
  	    {
@@ -164,7 +159,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  	    }
  	  else
  	    fprintf (f, "\t%sf%d%s\t%s %d\n", ASM_RVA_BEFORE,
-@@ -2036,8 +2066,6 @@
+@@ -2036,8 +2059,6 @@
    unsigned char *data;
  } sinfo;
  
@@ -173,7 +168,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  #define TEXT 0
  #define DATA 1
  #define BSS 2
-@@ -2045,8 +2073,16 @@
+@@ -2045,8 +2066,16 @@
  #define IDATA5 4
  #define IDATA4 5
  #define IDATA6 6
@@ -190,7 +185,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
  #define TEXT_SEC_FLAGS   \
          (SEC_ALLOC | SEC_LOAD | SEC_CODE | SEC_READONLY | SEC_HAS_CONTENTS)
-@@ -2057,45 +2093,18 @@
+@@ -2057,45 +2086,18 @@
          { id, name, flags, align, NULL, NULL, NULL, 0, NULL }
  static sinfo secdata[NSECS] =
  {
@@ -244,7 +239,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
  /* This is what we're trying to make.  We generate the imp symbols with
     both single and double underscores, for compatibility.
-@@ -2143,6 +2152,7 @@
+@@ -2143,6 +2145,7 @@
    strcpy (copy, ASM_PREFIX (name));
    strcat (copy, prefix);
    strcat (copy, name);
@@ -252,7 +247,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    return copy;
  }
  
-@@ -2150,14 +2160,14 @@
+@@ -2150,14 +2153,14 @@
  make_imp_label (const char *prefix, const char *name)
  {
    int len;
@@ -269,7 +264,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
      }
    else
      {
-@@ -2167,13 +2177,21 @@
+@@ -2167,13 +2170,21 @@
        strcat (copy, ASM_PREFIX (name));
        strcat (copy, name);
      }
@@ -293,7 +288,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    asymbol *  exp_label;
    asymbol *  iname = 0;
    asymbol *  iname2;
-@@ -2188,12 +2206,11 @@
+@@ -2188,12 +2199,11 @@
  #ifndef EXTRA
  #define EXTRA    0
  #endif
@@ -307,7 +302,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    sprintf (outname, "%s%05d.o", TMP_STUB, i);
  
    abfd = bfd_openw (outname, HOW_BFD_WRITE_TARGET);
-@@ -2245,19 +2262,8 @@
+@@ -2245,19 +2255,8 @@
    if (! exp->data)
      {
        exp_label = bfd_make_empty_symbol (abfd);
@@ -328,7 +323,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
        exp_label->flags = BSF_GLOBAL;
        exp_label->value = 0;
  
-@@ -2267,6 +2273,15 @@
+@@ -2267,6 +2266,15 @@
  #endif
        ptrs[oidx++] = exp_label;
      }
@@ -344,7 +339,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
    /* Generate imp symbols with one underscore for Microsoft
       compatibility, and with two underscores for backward
-@@ -2289,6 +2304,7 @@
+@@ -2289,6 +2297,7 @@
    iname_lab = bfd_make_empty_symbol (abfd);
  
    iname_lab->name = head_label;
@@ -352,7 +347,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    iname_lab->section = (asection *) &bfd_und_section;
    iname_lab->flags = 0;
    iname_lab->value = 0;
-@@ -2305,17 +2321,48 @@
+@@ -2305,17 +2314,48 @@
    /* The symbol referring to the code (.text).  */
    {
      asymbol *function_name;
@@ -402,7 +397,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    /* The .toc symbol.  */
    {
      asymbol *toc_symbol;
-@@ -2330,6 +2377,7 @@
+@@ -2330,6 +2370,7 @@
      ptrs[oidx++] = toc_symbol;
    }
  #endif
@@ -410,7 +405,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
    ptrs[oidx] = 0;
  
-@@ -2358,18 +2406,8 @@
+@@ -2358,18 +2399,8 @@
  
  	      rel->address = HOW_JTAB_ROFF;
  	      rel->addend = 0;
@@ -430,7 +425,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  	      sec->orelocation = rpp;
  	      sec->reloc_count = 1;
  	    }
-@@ -2400,7 +2438,7 @@
+@@ -2400,7 +2431,7 @@
  	      rel->address = 0;
  	      rel->addend = 0;
  	      rel->howto = bfd_reloc_type_lookup (abfd, BFD_RELOC_RVA);
@@ -439,7 +434,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  	      sec->orelocation = rpp;
  	    }
  
-@@ -2435,6 +2473,7 @@
+@@ -2435,6 +2466,7 @@
  	  sec->reloc_count = 1;
  	  break;
  
@@ -447,7 +442,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  #ifdef DLLTOOL_PPC
  	case PDATA:
  	  {
-@@ -2542,6 +2581,7 @@
+@@ -2542,6 +2574,7 @@
  	  sec->reloc_count = 2;
  	  break;
  #endif /* DLLTOOL_PPC */
@@ -455,7 +450,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  	}
      }
  
-@@ -2556,6 +2596,9 @@
+@@ -2556,6 +2589,9 @@
  	bfd_set_section_vma (abfd, si->sec, vma);
        }
    }
@@ -465,7 +460,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    /* Write them out.  */
    for (i = 0; i < NSECS; i++)
      {
-@@ -2572,7 +2615,6 @@
+@@ -2572,7 +2608,6 @@
  				si->size);
      }
  
@@ -473,16 +468,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    bfd_close (abfd);
    abfd = bfd_openr (outname, HOW_BFD_READ_TARGET);
    return abfd;
-@@ -2592,7 +2634,7 @@
-   fprintf (f, "%s IMAGE_IMPORT_DESCRIPTOR\n", ASM_C);
-   fprintf (f, "\t.section	.idata$2\n");
- 
--  fprintf(f,"\t%s\t%s\n", ASM_GLOBAL,head_label);
-+  fprintf (f,"\t%s\t%s\n", ASM_GLOBAL,head_label);
- 
-   fprintf (f, "%s:\n", head_label);
- 
-@@ -2617,16 +2659,12 @@
+@@ -2617,16 +2652,12 @@
    if (!no_idata5)
      {
        fprintf (f, "\t.section\t.idata$5\n");
@@ -499,7 +485,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
        fprintf (f, "hname:\n");
      }
  
-@@ -2729,9 +2767,11 @@
+@@ -2729,9 +2760,11 @@
    for (i = 0; (exp = d_exports_lexically[i]); i++)
      {
        bfd *n;
@@ -511,7 +497,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
        n = make_one_lib_file (exp, i);
        n->next = head;
        head = n;
-@@ -3091,10 +3131,10 @@
+@@ -3091,10 +3124,10 @@
    fprintf (file, _("   -v --verbose              Be verbose.\n"));
    fprintf (file, _("   -V --version              Display the program version.\n"));
    fprintf (file, _("   -h --help                 Display this information.\n"));
@@ -524,7 +510,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  #endif
    exit (status);
  }
-@@ -3131,6 +3171,7 @@
+@@ -3131,6 +3164,7 @@
    {"base-file", required_argument, NULL, 'b'},
    {"as", required_argument, NULL, 'S'},
    {"as-flags", required_argument, NULL, 'f'},
@@ -532,7 +518,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    {"mcore-elf", required_argument, NULL, 'M'},
    {"compat-implib", no_argument, NULL, 'C'},
    {"temp-prefix", required_argument, NULL, 't'},
-@@ -3161,7 +3202,7 @@
+@@ -3161,7 +3195,7 @@
  #ifdef DLLTOOL_MCORE_ELF
  			   "m:e:l:aD:d:z:b:xp:cCuUkAS:f:nvVHhM:L:F:",
  #else
@@ -541,7 +527,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  #endif
  			   long_options, 0))
  	 != EOF)
-@@ -3256,15 +3297,15 @@
+@@ -3256,15 +3290,15 @@
  	    fatal (_("Unable to open base-file: %s"), optarg);
  
  	  break;
@@ -563,7 +549,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  	  break;
  #endif
  	case 'C':
-@@ -3304,6 +3345,9 @@
+@@ -3304,6 +3338,9 @@
    if (as_name == NULL)
      as_name = deduce_name ("as");
  
@@ -573,7 +559,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
    /* Don't use the default exclude list if we're reading only the
       symbols in the .drectve section.  The default excludes are meant
       to avoid exporting DLL entry point and Cygwin32 impure_ptr.  */
-@@ -3517,8 +3561,8 @@
+@@ -3517,8 +3554,8 @@
    ds = dyn_string_new (100);
    dyn_string_append_cstr (ds, "-r ");
  
@@ -584,7 +570,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
    while (ptr->next != NULL)
      {
-@@ -3531,10 +3575,7 @@
+@@ -3531,10 +3568,7 @@
    dyn_string_append_cstr (ds, "-o ");
    dyn_string_append_cstr (ds, MCORE_ELF_TMP_OBJ);
  
@@ -596,7 +582,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
    dyn_string_delete (ds);
  
-@@ -3573,8 +3614,8 @@
+@@ -3573,8 +3607,8 @@
  
    dyn_string_append_cstr (ds, "-shared ");
  
@@ -607,7 +593,7 @@ diff -x '*.1' -x '*.info' -ur clean/binutils-2.16.1/binutils/dlltool.c binutils-
  
    dyn_string_append_cstr (ds, " ");
    dyn_string_append_cstr (ds, MCORE_ELF_TMP_EXP);
-@@ -3583,7 +3624,7 @@
+@@ -3583,7 +3617,7 @@
    dyn_string_append_cstr (ds, " -o ");
    dyn_string_append_cstr (ds, mcore_elf_out_file);
  
