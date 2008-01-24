@@ -1,6 +1,6 @@
 /*
  * PROJECT:     RosBE Options Dialog
- * LICENSE:     GPL - See LICENSE.txt in the top level directory.
+ * LICENSE:     GNU General Public License v2. (see LICENSE.txt)
  * FILE:        Tools/config/options.h
  * PURPOSE:     Configuring RosBE
  * COPYRIGHT:   Copyright 2007 Maarten Bosma

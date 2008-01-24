@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See LICENSE.txt in the top level directory
+:: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/chdefdir.cmd
 :: PURPOSE:     Tool to change the current working ReactOS source directory
 ::              in RosBE.

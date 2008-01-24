@@ -1,6 +1,6 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
-:: LICENSE:     GPL - See LICENSE.txt in the top level directory.
+:: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/rosbe-gcc-env.cmd
 :: PURPOSE:     Set up the GCC 4.x.x build environment.
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>

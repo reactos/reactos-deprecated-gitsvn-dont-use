@@ -1,6 +1,6 @@
 /*
  * PROJECT:     RosBE - ReactOS Build Environment for Windows.
- * LICENSE:     GPL - See LICENSE.txt in the top level directory.
+ * LICENSE:     GNU General Public License v2. (see LICENSE.txt)
  * FILE:        Tools/flash.c
  * PURPOSE:     Taskbar Flasher
  * COPYRIGHT:   Copyright 2007 Ged Murphy <gedmurphy@reactos.org>
