@@ -10,7 +10,7 @@ namespace RosTEGUI
 {
     public class VMHardDrive
     {
-        private Data data;
+        private VMConfig vmConfig;
         private DataRow hdDataRow;
 
         #region properties
@@ -48,9 +48,9 @@ namespace RosTEGUI
             set { hdDataRow["BootImg"] = value; }
         }
 
-        public VMHardDrive(Data dataIn)
+        public VMHardDrive(VMConfig vmConfigIn)
         {
-            data = dataIn;
+            vmConfig = vmConfigIn;
         }
 
         #endregion
@@ -70,7 +70,7 @@ namespace RosTEGUI
 
             try
             {
-                DataTable hddt = data.DataSet.Tables["HardDisks"];
+                DataTable hddt = vmConfig.DataSet.Tables["HardDisks"];
                 hdDataRow = hddt.NewRow();
                 hdDataRow["DiskID"] = hddt.Rows.Count;
                 hdDataRow["Name"] = nameIn;
@@ -85,8 +85,7 @@ namespace RosTEGUI
             catch (Exception e)
             {
                 string message = "Failed to populate hard disk database";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
             }
 
             return ret;
@@ -94,7 +93,7 @@ namespace RosTEGUI
 
         public void DeleteHardDrive(int diskID)
         {
-            DataTable dt = data.DataSet.Tables["HardDisks"];
+            DataTable dt = vmConfig.DataSet.Tables["HardDisks"];
             //DataRow dr = dt.Rows.Find(diskID); <-- can't seem to apply a primary key??
             // workaround for the above
             foreach (DataRow dr in dt.Rows)
@@ -110,14 +109,14 @@ namespace RosTEGUI
 
         public void LoadHardDrive(int index)
         {
-            DataTable hddt = data.DataSet.Tables["HardDisks"];
+            DataTable hddt = vmConfig.DataSet.Tables["HardDisks"];
             hdDataRow = hddt.Rows[index];
         }
     }
 
     public class VirtualMachine
     {
-        private Data data;
+        private VMConfig vmConfig;
         private DataRow vmDataRow;
         private ArrayList hardDrives;
         private ArrayList netCards;
@@ -232,8 +231,7 @@ namespace RosTEGUI
             catch (ArgumentException e)
             {
                 string message = "Failed to get " + key + " value";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
                 return 0;
             }
         }
@@ -247,8 +245,7 @@ namespace RosTEGUI
             catch (ArgumentException e)
             {
                 string message = "Failed to get " + key + " value";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
                 return false;
             }
         }
@@ -262,8 +259,7 @@ namespace RosTEGUI
             catch (ArgumentException e)
             {
                 string message = "Failed to get " + key + " value";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
                 return string.Empty;
             }
         }
@@ -277,8 +273,7 @@ namespace RosTEGUI
             catch (ArgumentException e)
             {
                 string message = "Failed to set " + key + " value";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
             }
         }
 
@@ -291,8 +286,7 @@ namespace RosTEGUI
             catch (ArgumentException e)
             {
                 string message = "Failed to set " + key + " value";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
             }
         }
 
@@ -305,8 +299,7 @@ namespace RosTEGUI
             catch (ArgumentException e)
             {
                 string message = "Failed to set " + key + " value";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
             }
         }
 
@@ -325,7 +318,7 @@ namespace RosTEGUI
 
             try
             {
-                DataTable vmdt = data.DataSet.Tables["VMConfig"];
+                DataTable vmdt = vmConfig.DataSet.Tables["VMConfig"];
                 vmDataRow = vmdt.NewRow();
                 vmDataRow["VirtMachID"] = vmdt.Rows.Count + 1;
                 vmDataRow["Name"] = name;
@@ -345,11 +338,11 @@ namespace RosTEGUI
                 vmDataRow["FloppyIsoImg"] = string.Empty;
                 vmdt.Rows.Add(vmDataRow);
 
-                VMHardDrive vmhd = new VMHardDrive(data);
+                VMHardDrive vmhd = new VMHardDrive(vmConfig);
                 vmhd.CreateHardDrive("Main Drive", "hda", dir, 768, true);
                 hardDrives.Add(vmhd);
 
-                DataTable netdt = data.DataSet.Tables["NetCards"];
+                DataTable netdt = vmConfig.DataSet.Tables["NetCards"];
                 netDataRow = netdt.NewRow();
                 netDataRow["CardID"] = netdt.Rows.Count + 1;
                 netDataRow["VirtMachID"] = vmDataRow["VirtMachID"];
@@ -366,8 +359,7 @@ namespace RosTEGUI
             catch (Exception e)
             {
                 string message = "Failed to populate database";
-                ErrorForm err = new ErrorForm(message, e.Message, e.StackTrace);
-                err.ShowDialog();
+                Debug.LogMessage(message, e.Message, e.StackTrace, true);
             }
 
             return ret;
@@ -384,21 +376,21 @@ namespace RosTEGUI
                 {
                     FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
                     XmlTextReader xtr = new XmlTextReader(fs);
-                    data.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                    vmConfig.DataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
                     xtr.Close();
 
-                    DataTable vmdt = data.DataSet.Tables["VMConfig"];
+                    DataTable vmdt = vmConfig.DataSet.Tables["VMConfig"];
                     vmDataRow = vmdt.Rows[0];
 
-                    DataTable hddt = data.DataSet.Tables["HardDisks"];
+                    DataTable hddt = vmConfig.DataSet.Tables["HardDisks"];
                     for (int i = 0; i < hddt.Rows.Count; i++)
                     {
-                        VMHardDrive vmhd = new VMHardDrive(data);
+                        VMHardDrive vmhd = new VMHardDrive(vmConfig);
                         vmhd.LoadHardDrive(i);
                         hardDrives.Add(vmhd);
                     }
 
-                    DataTable netdt = data.DataSet.Tables["NetCards"];
+                    DataTable netdt = vmConfig.DataSet.Tables["NetCards"];
                     foreach (DataRow dr in netdt.Rows)
                         netCards.Add(dr);
 
@@ -421,7 +413,7 @@ namespace RosTEGUI
                 Directory.CreateDirectory(DefDir);
                 FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
                 XmlTextWriter xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-                data.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+                vmConfig.DataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
                 xtw.Close();
             }
             catch (Exception e)
@@ -435,8 +427,8 @@ namespace RosTEGUI
 
         public VirtualMachine()
         {
-            data = new Data();
-            if (!data.LoadVirtMachData())
+            vmConfig = new VMConfig();
+            if (!vmConfig.LoadVirtMachData())
                 MessageBox.Show("Failed to load VM Schema");
 
             hardDrives = new ArrayList(3);
@@ -498,7 +490,7 @@ namespace RosTEGUI
                                        int sizeIn,
                                        bool bootImgIn)
         {
-            VMHardDrive vmhd = new VMHardDrive(data);
+            VMHardDrive vmhd = new VMHardDrive(vmConfig);
             if (vmhd.CreateHardDrive(nameIn, driveIn, pathIn, sizeIn, bootImgIn))
             {
                 hardDrives.Add(vmhd);

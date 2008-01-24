@@ -110,8 +110,8 @@ namespace RosTEGUI
             floppyEnableChkBox.Checked = VirtMach.FloppyEnable;
 
             int id = floppyPhyDrvCombo.FindString(VirtMach.FloppyPhysDrv);
-            if (id == -1) id = 0;
-            floppyPhyDrvCombo.SelectedIndex = id;
+            if (id != -1)
+                floppyPhyDrvCombo.SelectedIndex = id;
 
             if (VirtMach.CdRomUsePhys)
             {
@@ -237,7 +237,7 @@ namespace RosTEGUI
         {
             TrackBar tb = (TrackBar)sender;
             memoryUpDwn.Value = tb.Value;
-            
+            /*
             char[] chars = { ' ', 'M', 'B' };
             string max = memoryRecMax.Text.TrimEnd(chars);
             string min = memoryRecMin.Text.TrimEnd(chars);
@@ -255,7 +255,7 @@ namespace RosTEGUI
             {
                 memoryRecMin.ForeColor = SystemColors.WindowText;
                 memoryRecMax.ForeColor = SystemColors.WindowText;
-            }
+            }*/
         }
 
         private void memoryUpDwn_ValueChanged(object sender, EventArgs e)
