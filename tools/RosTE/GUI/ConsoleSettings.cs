@@ -11,6 +11,7 @@ namespace RosTEGUI
 {
     public partial class ConsoleSettings : Form
     {
+        #region properties
         public string QemuPath
         {
             get { return conQemuLoc.Text; }
@@ -35,6 +36,7 @@ namespace RosTEGUI
         {
             get { return conAppDebug.Checked; }
         }
+        #endregion
 
         public ConsoleSettings(MainConfig mainConf)
         {
@@ -52,19 +54,19 @@ namespace RosTEGUI
             conAppDebug.Checked = mainConf.AppDebug;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void qemuloc_click(object sender, EventArgs e)
         {
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 conQemuLoc.Text = folderBrowserDialog.SelectedPath;
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void vdkloc_click(object sender, EventArgs e)
         {
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 conVdkLoc.Text = folderBrowserDialog.SelectedPath;
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void vmloc_click(object sender, EventArgs e)
         {
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 conDefVmLoc.Text = folderBrowserDialog.SelectedPath;
@@ -93,5 +95,19 @@ namespace RosTEGUI
             this.DialogResult = DialogResult.OK;
         }
 
+        private void conAppDebug_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox cb = (CheckBox)sender;
+
+            if (cb.Checked)
+                Debug.TurnDebuggingOn();
+            else
+                Debug.TurnDebuggingOff();
+        }
+
+        private void checkupdate_click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Updates are not yet implemented");
+        }
     }
 }

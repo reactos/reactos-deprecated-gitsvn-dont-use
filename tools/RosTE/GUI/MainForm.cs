@@ -14,7 +14,7 @@ namespace RosTEGUI
 	public partial class MainForm : Form
     {
         private MainConfig mainConf;
-        private Data mainData;
+        private VMConfig mainData;
 
         public MainForm()
         {
@@ -53,32 +53,24 @@ namespace RosTEGUI
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            mainData = new Data();
-            if (!mainData.LoadMainData())
-                MessageBox.Show("Failed to load Main Schema");
-
-            mainConf = new MainConfig(mainData);
-
-            // load config and load any existing vm's
+            mainConf = new MainConfig();
             if (mainConf.LoadMainConfig())
             {
                 mainConf.LoadSettings();
                 LoadVirtualMachines(mainConf);
             }
-            else // create settings for first run
+            else
             {
+                // create settings for first run
                 mainConf.CreateSettings();
             }
-
-            string str = mainConf.QemuPath;
-
         }
 
         private void MainMenuHelpAbout_Click(object sender, EventArgs e)
         {
             AboutForm dlg = new AboutForm();
             dlg.StartPosition = FormStartPosition.CenterScreen;
-            dlg.Show();
+            dlg.ShowDialog();
         }
 
         private void ImageListView_DoubleClick(object sender, EventArgs e)
@@ -166,7 +158,7 @@ namespace RosTEGUI
                         {
                             Directory.Delete(vm.DefDir, true);
                         }
-                        catch (DirectoryNotFoundException ex)
+                        catch (DirectoryNotFoundException)
                         {
                             MessageBox.Show(vm.DefDir + " has was not found!",
                                             "error",
@@ -183,13 +175,14 @@ namespace RosTEGUI
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            mainConf.SaveMainConfig();
-
             foreach(ListViewItem lvi in VirtMachListView.Items)
             {
                 VirtualMachine vm = (VirtualMachine)lvi.Tag;
                 vm.SaveVMConfig();
             }
+
+            mainConf.SaveSettings();
+            mainConf.SaveMainConfig();
         }
 
         private void changeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
