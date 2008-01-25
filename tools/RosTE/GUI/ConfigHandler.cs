@@ -7,12 +7,12 @@ using System.Collections.Generic;
 
 namespace RosTEGUI
 {
-    public struct VirtMach
+    public struct MainVmInfo
     {
         public int id;
         public string path;
 
-        public VirtMach(int idIn, string pathIn)
+        public MainVmInfo(int idIn, string pathIn)
         {
             id = idIn;
             path = pathIn;
@@ -29,7 +29,7 @@ namespace RosTEGUI
         private int updateSched;
         private bool appDebug;
 
-        List<VirtMach> virtMachs = null;
+        List<MainVmInfo> virtMachs = null;
 
         #region properties
         public string QemuPath
@@ -64,9 +64,9 @@ namespace RosTEGUI
         #endregion
 
         #region virtmach element
-        public string GetExistingImage(int index)
+        public string GetImagePath(int index)
         {
-            foreach (VirtMach vm in virtMachs)
+            foreach (MainVmInfo vm in virtMachs)
             {
                 if (vm.id == index)
                     return vm.path;
@@ -83,14 +83,14 @@ namespace RosTEGUI
             {
                 if (virtMachs == null)
                 {
-                    virtMachs = new List<VirtMach>();
+                    virtMachs = new List<MainVmInfo>();
                 }
 
                 try
                 {
                     foreach (DataRow dr in dataSet.Tables["VirtMach"].Rows)
                     {
-                        virtMachs.Add(new VirtMach((int)dr["VMConfigID"], (string)dr["Path"]));
+                        virtMachs.Add(new MainVmInfo((int)dr["VMConfigID"], (string)dr["Path"]));
                     }
 
                     bRet = true;
@@ -113,7 +113,7 @@ namespace RosTEGUI
                     DataTable virtMachTable = dataSet.Tables["VirtMach"];
                     virtMachTable.Clear();
 
-                    foreach (VirtMach vm in virtMachs)
+                    foreach (MainVmInfo vm in virtMachs)
                     {
                         DataRow dr = virtMachTable.NewRow();
                         dr["VMConfigID"] = vm.id;
@@ -134,7 +134,7 @@ namespace RosTEGUI
             if (dataSet != null && virtMachs != null)
             {
                 int id = virtMachs.Count;
-                virtMachs.Add(new VirtMach(id, pathIn));
+                virtMachs.Add(new MainVmInfo(id, pathIn));
             }
 
             return virtMachs.Count;
@@ -144,7 +144,7 @@ namespace RosTEGUI
         {
             bool bRet = false;
 
-            foreach (VirtMach vm in virtMachs)
+            foreach (MainVmInfo vm in virtMachs)
             {
                 if (vm.id == index)
                 {
@@ -340,5 +340,216 @@ namespace RosTEGUI
             return ret;
         }
         #endregion
+    }
+
+
+    public struct VirtMachInfo
+    {
+        public int virtMachID;
+        public string name;
+        public string machType;
+        public string defDir;
+        public int memSize;
+        public bool setClockToHost;
+        public bool cdRomEnable;
+        public bool cdRomUsePhys;
+        public string cdRomPhysDrv;
+        public bool cdRomUseIso;
+        public string cdRomIsoImg;
+        public bool floppyEnable;
+        public bool floppyUsePhys;
+        public string floppyPhysDrv;
+        public bool floppyUseImg;
+        public string floppyIsoImg;
+    }
+
+    public class VirtMachConfig
+    {
+        private DataSet dataSet = null;
+        private List<VirtMachInfo> virtMachInfo = null;
+
+        public List<VirtMachInfo> VMInfo
+        {
+            get { return virtMachInfo; }
+        }
+
+        public bool LoadVmSettings()
+        {
+            bool bRet = false;
+
+            if (dataSet != null)
+            {
+                if (virtMachInfo == null)
+                {
+                    virtMachInfo = new List<VirtMachInfo>();
+                }
+
+                try
+                {
+                    foreach (DataRow vmRow in dataSet.Tables["VMConfig"].Rows)
+                    {
+                        VirtMachInfo vmi = new VirtMachInfo();
+                        vmi.virtMachID = (int)vmRow["VirtMachID"];
+                        vmi.name = (string)vmRow["Name"];
+                        vmi.machType = (string)vmRow["MachType"];
+                        vmi.defDir = (string)vmRow["DefDir"];
+                        vmi.memSize = (int)vmRow["MemSize"];
+                        vmi.setClockToHost = (bool)vmRow["SetClockToHost"];
+                        vmi.cdRomEnable = (bool)vmRow["CdRomEnable"];
+                        vmi.cdRomUsePhys = (bool)vmRow["CdRomUsePhys"];
+                        vmi.cdRomPhysDrv = (string)vmRow["CdRomPhysDrv"];
+                        vmi.cdRomUseIso = (bool)vmRow["CdRomUseIso"];
+                        vmi.cdRomIsoImg = (string)vmRow["CdRomIsoImg"];
+                        vmi.floppyEnable = (bool)vmRow["FloppyEnable"];
+                        vmi.floppyUsePhys = (bool)vmRow["FloppyUsePhys"];
+                        vmi.floppyPhysDrv = (string)vmRow["FloppyPhysDrv"];
+                        vmi.floppyUseImg = (bool)vmRow["FloppyUseImg"];
+                        vmi.floppyIsoImg = (string)vmRow["FloppyIsoImg"];
+
+                        virtMachInfo.Add(vmi);
+                    }
+
+                    bRet = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogMessage("error loading VM config", ex.Message, ex.StackTrace, true);
+                }
+            }
+
+            return bRet;
+        }
+
+        public void SaveVmSettings()
+        {
+            if (dataSet != null)
+            {
+                dataSet.Tables["VirtMach"].Rows.Clear();
+
+                try
+                {
+                    foreach (VirtMachInfo vmi in virtMachInfo)
+                    {
+                        DataRow vmRow = dataSet.Tables["VirtMach"].NewRow();
+
+                        vmRow["VirtMachID"] = vmi.virtMachID;
+                        vmRow["Name"] = vmi.name;
+                        vmRow["MachType"] = vmi.machType;
+                        vmRow["DefDir"] = vmi.defDir;
+                        vmRow["MemSize"] = vmi.memSize;
+                        vmRow["SetClockToHost"] = vmi.setClockToHost;
+                        vmRow["CdRomEnable"] = vmi.cdRomEnable;
+                        vmRow["CdRomUsePhys"] = vmi.cdRomUsePhys;
+                        vmRow["CdRomPhysDrv"] = vmi.cdRomPhysDrv;
+                        vmRow["CdRomUseIso"] = vmi.cdRomUseIso;
+                        vmRow["CdRomIsoImg"] = vmi.cdRomIsoImg;
+                        vmRow["FloppyEnable"] = vmi.floppyEnable;
+                        vmRow["FloppyUsePhys"] = vmi.floppyUsePhys;
+                        vmRow["FloppyPhysDrv"] = vmi.floppyPhysDrv;
+                        vmRow["FloppyUseImg"] = vmi.floppyUseImg;
+                        vmRow["FloppyIsoImg"] = vmi.floppyIsoImg;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogMessage("error loading VM config", ex.Message, ex.StackTrace, true);
+                }
+            }
+        }
+
+
+        public bool LoadVMConfig(string path)
+        {
+            XmlTextReader xtr = null;
+            string fileName = path + "\\Config.xml";
+            bool ret = false;
+
+            if (LoadVirtMachSchema())
+            {
+                if (File.Exists(fileName))
+                {
+                    try
+                    {
+                        FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                        xtr = new XmlTextReader(fs);
+                        dataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
+                        xtr.Close();
+                        ret = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogMessage("error loading VM config", ex.Message, ex.StackTrace, true);
+                    }
+                    finally
+                    {
+                        if (xtr != null)
+                            xtr.Close();
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public void SaveVMConfig(string path)
+        {
+            XmlTextWriter xtw = null;
+            string fileName = path + "\\Config.xml";
+
+            if (!Directory.Exists(fileName))
+                Directory.CreateDirectory(fileName);
+
+            if (dataSet == null)
+            {
+                if (!LoadVirtMachSchema())
+                    return;
+            }
+
+            try
+            {
+                FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
+                dataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogMessage("error saving VM config", ex.Message, ex.StackTrace, true);
+            }
+            finally
+            {
+                if (xtw != null)
+                    xtw.Close();
+            }
+        }
+
+        private bool LoadVirtMachSchema()
+        {
+            XmlTextReader xtr = null;
+            string filename = "VMConfig.xsd";
+            bool ret = false;
+
+            dataSet = new DataSet();
+            if (File.Exists(filename))
+            {
+                try
+                {
+                    FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
+                    xtr = new XmlTextReader(fs);
+                    dataSet.ReadXmlSchema(xtr);
+                    ret = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogMessage("error loading VM config schema", ex.Message, ex.StackTrace, true);
+                }
+                finally
+                {
+                    if (xtr != null)
+                        xtr.Close();
+                }
+            }
+
+            return ret;
+        }
     }
 }

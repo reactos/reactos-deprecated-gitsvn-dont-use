@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Win32;
-
+using System.Collections.Generic;
 
 namespace RosTEGUI
 {
@@ -39,15 +39,21 @@ namespace RosTEGUI
             int num = mainConf.GetNumberOfVms();
             for (int i = 0; i < num; i++)
             {
-                string image = mainConf.GetExistingImage(i);
-                VirtualMachine vm = new VirtualMachine();
-                if (vm.LoadVMConfig(image))
+                string path = mainConf.GetImagePath(i);
+                VirtMachConfig vmConfig = new VirtMachConfig();
+                if (vmConfig.LoadVMConfig(path))
                 {
-                    vm.LoadVmSettings();
+                    if (vmConfig.LoadVmSettings())
+                    {
+                        foreach (VirtMachInfo vmInfo in vmConfig.VMInfo)
+                        {
+                            VirtualMachine vm = new VirtualMachine();
 
-                    ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
-                    lvi.SubItems.Add(vm.MemSize.ToString() + " MB");
-                    lvi.Tag = vm;
+                            ListViewItem lvi = VirtMachListView.Items.Add(vmConfig.ToString(), 0);
+                            lvi.SubItems.Add(vm.MemSize.ToString() + " MB");
+                            lvi.Tag = vm;
+                        }
+                    }
                 }
             }
         }
@@ -178,8 +184,8 @@ namespace RosTEGUI
         {
             foreach(ListViewItem lvi in VirtMachListView.Items)
             {
-                VirtualMachine vm = (VirtualMachine)lvi.Tag;
-                vm.SaveVMConfig();
+                VirtMachConfig vm = (VirtMachConfig)lvi.Tag;
+                vm.SaveVMConfig("err");
             }
 
             mainConf.SaveSettings();
