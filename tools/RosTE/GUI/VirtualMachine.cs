@@ -9,27 +9,6 @@ using System.Collections.Generic;
 
 namespace RosTEGUI
 {
-    public struct VirtMachInfo
-    {
-        public int virtMachID;
-        public string name;
-        public string machType;
-        public string defDir;
-        public int memSize;
-        public bool setClockToHost;
-        public bool cdRomEnable;
-        public bool cdRomUsePhys;
-        public string cdRomPhysDrv;
-        public bool cdRomUseIso;
-        public string cdRomIsoImg;
-        public bool floppyEnable;
-        public bool floppyUsePhys;
-        public string floppyPhysDrv;
-        public bool floppyUseImg;
-        public string floppyIsoImg;
-    }
-
-
     public class VMHardDrive
     {
         private DataRow hdDataRow;
@@ -133,15 +112,9 @@ namespace RosTEGUI
     public class VirtualMachine
     {
         private DataRow vmDataRow;
-        private List<VirtMachInfo> virtMachInfo = null;
+        
         private ArrayList hardDrives;
         private ArrayList netCards;
-        private DataSet dataSet = null;
-
-        public DataSet DataSet
-        {
-            get { return dataSet; }
-        }
 
         #region Virtual machine properties
 
@@ -335,54 +308,7 @@ namespace RosTEGUI
                                         string existImg,
                                         int memSize)
         {
-            DataRow netDataRow;
             bool ret = false;
-
-            try
-            {
-                DataTable vmdt = dataSet.Tables["VMConfig"];
-                vmDataRow = vmdt.NewRow();
-                vmDataRow["VirtMachID"] = vmdt.Rows.Count + 1;
-                vmDataRow["Name"] = name;
-                vmDataRow["MachType"] = "pc";
-                vmDataRow["DefDir"] = dir;
-                vmDataRow["MemSize"] = memSize;
-                vmDataRow["SetClockToHost"] = true;
-                vmDataRow["CdRomEnable"] = true;
-                vmDataRow["CdRomUsePhys"] = true;
-                vmDataRow["CdRomPhysDrv"] = string.Empty;
-                vmDataRow["CdRomUseIso"] = false;
-                vmDataRow["CdRomIsoImg"] = string.Empty;
-                vmDataRow["FloppyEnable"] = true;
-                vmDataRow["FloppyUsePhys"] = true;
-                vmDataRow["FloppyPhysDrv"] = string.Empty;
-                vmDataRow["FloppyUseImg"] = false;
-                vmDataRow["FloppyIsoImg"] = string.Empty;
-                vmdt.Rows.Add(vmDataRow);
-
-                VMHardDrive vmhd = new VMHardDrive();
-                vmhd.CreateHardDrive("Main Drive", "hda", dir, 768, true);
-                hardDrives.Add(vmhd);
-
-                DataTable netdt = dataSet.Tables["NetCards"];
-                netDataRow = netdt.NewRow();
-                netDataRow["CardID"] = netdt.Rows.Count + 1;
-                netDataRow["VirtMachID"] = vmDataRow["VirtMachID"];
-                netDataRow["Option"] = "user";
-                netDataRow["Vlan"] = 0;
-                netDataRow["MacAddr"] = string.Empty;
-                netDataRow["Model"] = string.Empty;
-                netDataRow["Hostname"] = string.Empty;
-                netdt.Rows.Add(netDataRow);
-                netCards.Add(netDataRow);
-
-                ret = true;
-            }
-            catch (Exception e)
-            {
-                string message = "Failed to populate database";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-            }
 
             return ret;
         }
@@ -475,186 +401,6 @@ namespace RosTEGUI
         public ArrayList GetHardDisks()
         {
             return hardDrives;
-        }
-
-
-        public bool LoadVmSettings()
-        {
-            bool bRet = false;
-
-            if (dataSet != null)
-            {
-                if (virtMachInfo == null)
-                {
-                    virtMachInfo = new List<VirtMachInfo>();
-                }
-
-                try
-                {
-                    foreach (DataRow vmRow in dataSet.Tables["VMConfig"].Rows)
-                    {
-                        VirtMachInfo vmi = new VirtMachInfo();
-                        vmi.virtMachID = (int)vmRow["VirtMachID"];
-                        vmi.name = (string)vmRow["Name"];
-                        vmi.machType = (string)vmRow["MachType"];
-                        vmi.defDir = (string)vmRow["DefDir"];
-                        vmi.memSize = (int)vmRow["MemSize"];
-                        vmi.setClockToHost = (bool)vmRow["SetClockToHost"];
-                        vmi.cdRomEnable = (bool)vmRow["CdRomEnable"];
-                        vmi.cdRomUsePhys = (bool)vmRow["CdRomUsePhys"];
-                        vmi.cdRomPhysDrv = (string)vmRow["CdRomPhysDrv"];
-                        vmi.cdRomUseIso = (bool)vmRow["CdRomUseIso"];
-                        vmi.cdRomIsoImg = (string)vmRow["CdRomIsoImg"];
-                        vmi.floppyEnable = (bool)vmRow["FloppyEnable"];
-                        vmi.floppyUsePhys = (bool)vmRow["FloppyUsePhys"];
-                        vmi.floppyPhysDrv = (string)vmRow["FloppyPhysDrv"];
-                        vmi.floppyUseImg = (bool)vmRow["FloppyUseImg"];
-                        vmi.floppyIsoImg = (string)vmRow["FloppyIsoImg"];
-
-                        virtMachInfo.Add(vmi);
-                    }
-
-                    bRet = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogMessage("error loading VM config", ex.Message, ex.StackTrace, true);
-                }
-            }
-
-            return bRet;
-        }
-
-        public void SaveVmSettings()
-        {
-            if (dataSet != null)
-            {
-                dataSet.Tables["VirtMach"].Rows.Clear();
-
-                try
-                {
-                    foreach (VirtMachInfo vmi in virtMachInfo)
-                    {
-                        DataRow vmRow = dataSet.Tables["VirtMach"].NewRow();
-
-                        vmRow["VirtMachID"] = vmi.virtMachID;
-                        vmRow["Name"] = vmi.name;
-                        vmRow["MachType"] = vmi.machType;
-                        vmRow["DefDir"] = vmi.defDir;
-                        vmRow["MemSize"] = vmi.memSize;
-                        vmRow["SetClockToHost"] = vmi.setClockToHost;
-                        vmRow["CdRomEnable"] = vmi.cdRomEnable;
-                        vmRow["CdRomUsePhys"] = vmi.cdRomUsePhys;
-                        vmRow["CdRomPhysDrv"] = vmi.cdRomPhysDrv;
-                        vmRow["CdRomUseIso"] = vmi.cdRomUseIso;
-                        vmRow["CdRomIsoImg"] = vmi.cdRomIsoImg;
-                        vmRow["FloppyEnable"] = vmi.floppyEnable;
-                        vmRow["FloppyUsePhys"] = vmi.floppyUsePhys;
-                        vmRow["FloppyPhysDrv"] = vmi.floppyPhysDrv;
-                        vmRow["FloppyUseImg"] = vmi.floppyUseImg;
-                        vmRow["FloppyIsoImg"] = vmi.floppyIsoImg;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogMessage("error loading VM config", ex.Message, ex.StackTrace, true);
-                }
-            }
-        }
-
-
-        public bool LoadVMConfig(string path)
-        {
-            XmlTextReader xtr = null;
-            string fileName = path + "\\Config.xml";
-            bool ret = false;
-
-            if (LoadVirtMachSchema())
-            {
-                if (File.Exists(fileName))
-                {
-                    try
-                    {
-                        FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
-                        xtr = new XmlTextReader(fs);
-                        dataSet.ReadXml(xtr, System.Data.XmlReadMode.ReadSchema);
-                        xtr.Close();
-                        ret = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogMessage("error loading VM config", ex.Message, ex.StackTrace, true);
-                    }
-                    finally
-                    {
-                        if (xtr != null)
-                            xtr.Close();
-                    }
-                }
-            }
-
-            return ret;
-        }
-
-        public void SaveVMConfig()
-        {
-            XmlTextWriter xtw = null;
-            string fileName = DefDir + "\\Config.xml";
-
-            if (!Directory.Exists(DefDir))
-                Directory.CreateDirectory(DefDir);
-
-            if (dataSet == null)
-            {
-                if (!LoadVirtMachSchema())
-                    return;
-            }
-
-            try
-            {
-                FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-                xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-                dataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogMessage("error saving VM config", ex.Message, ex.StackTrace, true);
-            }
-            finally
-            {
-                if (xtw != null)
-                    xtw.Close();
-            }
-        }
-
-        private bool LoadVirtMachSchema()
-        {
-            XmlTextReader xtr = null;
-            string filename = "VMConfig.xsd";
-            bool ret = false;
-
-            dataSet = new DataSet();
-            if (File.Exists(filename))
-            {
-                try
-                {
-                    FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                    xtr = new XmlTextReader(fs);
-                    dataSet.ReadXmlSchema(xtr);
-                    ret = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogMessage("error loading VM config schema", ex.Message, ex.StackTrace, true);
-                }
-                finally
-                {
-                    if (xtr != null)
-                        xtr.Close();
-                }
-            }
-
-            return ret;
         }
     }
 }
