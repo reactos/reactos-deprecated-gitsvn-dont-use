@@ -14,7 +14,6 @@ namespace RosTEGUI
 	public partial class MainForm : Form
     {
         private MainConfig mainConf;
-        private VMConfig mainData;
 
         public MainForm()
         {
@@ -44,6 +43,8 @@ namespace RosTEGUI
                 VirtualMachine vm = new VirtualMachine();
                 if (vm.LoadVMConfig(image))
                 {
+                    vm.LoadVmSettings();
+
                     ListViewItem lvi = VirtMachListView.Items.Add(vm.ToString(), 0);
                     lvi.SubItems.Add(vm.MemSize.ToString() + " MB");
                     lvi.Tag = vm;
