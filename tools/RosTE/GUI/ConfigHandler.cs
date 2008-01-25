@@ -21,7 +21,6 @@ namespace RosTEGUI
 
     public class MainConfig
     {
-        private VMConfig vmConfig = null;
         private DataSet dataSet = null;
 
         private string qemuPath;
@@ -134,14 +133,14 @@ namespace RosTEGUI
         {
             if (dataSet != null && virtMachs != null)
             {
-                int id = virtMachs.Count + 1;
+                int id = virtMachs.Count;
                 virtMachs.Add(new VirtMach(id, pathIn));
             }
 
             return virtMachs.Count;
         }
 
-        public void DeleteVirtMach(int index)
+        public bool DeleteVirtMach(int index)
         {
             bool bRet = false;
 
@@ -153,6 +152,8 @@ namespace RosTEGUI
                     bRet = true;
                 }
             }
+
+            return bRet;
         }
 
         public int GetNumberOfVms()
@@ -311,6 +312,7 @@ namespace RosTEGUI
         #region private methods
         private bool LoadMainSchema()
         {
+            XmlTextReader xtr = null;
             string filename = "MainConfig.xsd";
             bool ret = false;
 
@@ -320,56 +322,13 @@ namespace RosTEGUI
                 try
                 {
                     FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                    XmlTextReader xtr = new XmlTextReader(fs);
+                    xtr = new XmlTextReader(fs);
                     dataSet.ReadXmlSchema(xtr);
-                    xtr.Close();
                     ret = true;
                 }
                 catch (Exception ex)
                 {
                     Debug.LogMessage("error loading main config schema", ex.Message, ex.StackTrace, true);
-                }
-            }
-
-            return ret;
-        }
-        #endregion
-    }
-
-
-
-    public class VMConfig
-    {
-        private DataSet data = null;
-
-        public DataSet DataSet
-        {
-            get { return data; }
-        }
-
-        /// <summary>
-        /// Load the schema for the virtual machine configuration file
-        /// </summary>
-        /// <returns>True on success, false on failure</returns>
-        public bool LoadVirtMachData()
-        {
-            XmlTextReader xtr = null;
-            string filename = "VMConfig.xsd";
-            bool ret = false;
-
-            data = new DataSet();
-            if (File.Exists(filename))
-            {
-                try
-                {
-                    FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-                    xtr = new XmlTextReader(fs);
-                    data.ReadXmlSchema(xtr);
-                    ret = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogMessage("error loading VM config schema", ex.Message, ex.StackTrace, true);
                 }
                 finally
                 {
@@ -380,5 +339,6 @@ namespace RosTEGUI
 
             return ret;
         }
+        #endregion
     }
 }
