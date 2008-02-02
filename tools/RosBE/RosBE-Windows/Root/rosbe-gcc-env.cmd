@@ -7,7 +7,11 @@
 ::                             Peter Ward <dralnix@gmail.com>
 ::
 ::
-@echo off
+
+if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
+if %_ROSBE_DEBUG% == 0 (
+    @echo off
+)
 
 ::
 :: Check if we are running within the RosBE, and if not
