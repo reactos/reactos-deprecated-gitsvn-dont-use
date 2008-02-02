@@ -6,7 +6,11 @@
 :: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::
-@echo off
+
+if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
+if %_ROSBE_DEBUG% == 0 (
+    @echo off
+)
 
 title ReactOS Build Configurator
 

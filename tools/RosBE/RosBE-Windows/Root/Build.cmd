@@ -8,7 +8,11 @@
 ::                             Peter Ward <dralnix@gmail.com>
 ::
 ::
-@echo off
+
+if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
+if %_ROSBE_DEBUG% == 0 (
+    @echo off
+)
 
 ::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
