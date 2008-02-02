@@ -7,10 +7,10 @@
 ::                             Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Peter Ward <dralnix@gmail.com>
 ::
-
+@echo off
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
-if %_ROSBE_DEBUG% == 0 (
-    @echo off
+if %_ROSBE_DEBUG% == 1 (
+    @echo on
 )
 
 :: Check if the parameter is an scut parameter, which can just be forwarded to the EXE file
