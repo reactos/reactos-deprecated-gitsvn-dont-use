@@ -27,6 +27,11 @@ if "%1" == "" (
     echo                           with the appropriate number.
     echo    basedir              - Switch back to the ReactOS source directory.
 
+    if exist "%_ROSBE_BASEDIR%\charch.cmd" (
+        echo    chdefdir [OPTIONS]   - Change the Architecture to build for for the
+        echo                           current RosBE session.
+    )
+
     if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
         echo    chdefdir [OPTIONS]   - Change the ReactOS source directory for the
         echo                           current RosBE session.
@@ -95,6 +100,16 @@ if /i "%1" == "basedir" (
     echo Usage: basedir
     echo Switches back to the ReactOS source directory.
     goto :EOC
+)
+if exist "%_ROSBE_BASEDIR%\charch.cmd" (
+    if /i "%1" == "charch" (
+        echo Usage: charch [OPTIONS]
+        echo Change the ReactOS source directory for the current RosBE session.
+        echo Possible Architectures are: x86, ppc, arm.
+        echo.
+        echo    previous - Switch to the previous ReactOS source directory.
+        goto :EOC
+    )
 )
 if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
     if /i "%1" == "chdefdir" (
