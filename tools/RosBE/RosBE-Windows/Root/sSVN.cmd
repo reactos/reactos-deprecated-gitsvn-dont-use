@@ -90,7 +90,9 @@ if /i "%UP%"=="yes" %_ROSBE_BASEDIR%\ssvn update
 if /i "%UP%"=="no" goto :EOC
 
 :EOC
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
 
 ::
 :: Unload all used Vars.
