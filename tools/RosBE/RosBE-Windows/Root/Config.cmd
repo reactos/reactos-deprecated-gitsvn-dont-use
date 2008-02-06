@@ -248,7 +248,9 @@ copy "%APPDATA%\RosBE\config.rbuild" "config.rbuild" >NUL
 goto :NOK
 
 :NOK
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
 
 ::
 :: Unload all used Vars.

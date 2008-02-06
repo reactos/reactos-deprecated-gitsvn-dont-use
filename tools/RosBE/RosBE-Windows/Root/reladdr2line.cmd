@@ -84,7 +84,9 @@ goto :EOF
 goto :EOF
 
 :EOC
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
 
 ::
 :: Unload all used Vars.

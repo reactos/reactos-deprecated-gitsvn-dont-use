@@ -15,28 +15,28 @@ title Change the Architecture to build for...
 
 ::
 :: Parse the command line arguments.
+:: ROS_ARCH: Set to x86, ppc or arm.
+:: ROS_PREFIX: Default is mingw32. ppc could be mingw32-ppc, arm mingw32-arm.
 ::
+
 if "%1" == "" (
     call :INTERACTIVE
 ) else (
     set _1=%1
 )
-if /i "%_1%" == "previous" (
-    popd
-)
 if /i "%_1%" == "x86" (
-    set _ROSBE_ARCH%=x86
-    set _ROSBE_PREFIX=mingw32
+    set ROS_ARCH=
+    set ROS_PREFIX=
     goto :EOC
 )
 if /i "%_1%" == "arm" (
-    set _ROSBE_ARCH%=arm
-    set _ROSBE_PREFIX=mingwarm
+    set ROS_ARCH=arm
+    set ROS_PREFIX=mingw32-arm
     goto :EOC
 )
 if /i "%_1%" == "ppc" (
-    set _ROSBE_ARCH%=ppc
-    set _ROSBE_PREFIX=mingwppc
+    set ROS_ARCH==ppc
+    set ROS_PREFIX=mingw32-ppc
     goto :EOC
 )
 if not "%_1%" == "" (
@@ -57,27 +57,8 @@ goto :EOC
 goto :EOF
 
 :EOC
-pushd %_1%
-
-::
-:: Set to x86, ppc or arm.
-::
-set ROS_ARCH=%_ROSBE_ARCH%
-
-::
-:: Default is mingw32. ppc could be mingwppc, arm mingwarm.
-::
-set ROS_PREFIX=%_ROSBE_PREFIX%
-
 REM chdefgcc %PATH%
-REM Maybe another way to set the compiler...
 
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
-
-::
-:: Unload all used Vars.
-::
-set _ROSBE_ARCH=
-set _ROSBE_PREFIX=

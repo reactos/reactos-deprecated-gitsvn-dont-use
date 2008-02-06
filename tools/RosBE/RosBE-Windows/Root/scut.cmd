@@ -38,4 +38,6 @@ goto :EOC
 call "%_ROSBE_BASEDIR%\Tools\scut.exe" "%1" %2 %3
 
 :EOC
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)

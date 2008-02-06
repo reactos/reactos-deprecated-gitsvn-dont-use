@@ -107,7 +107,6 @@ if exist "%_ROSBE_BASEDIR%\charch.cmd" (
         echo Change the ReactOS source directory for the current RosBE session.
         echo Possible Architectures are: x86, ppc, arm.
         echo.
-        echo    previous - Switch to the previous ReactOS source directory.
         goto :EOC
     )
 )
@@ -203,4 +202,6 @@ if not "%1" == "" (
 )
 
 :EOC
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
