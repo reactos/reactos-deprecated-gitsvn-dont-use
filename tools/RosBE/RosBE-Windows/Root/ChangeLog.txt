@@ -1,3 +1,7 @@
+*** XXX xxrd, 2008 - RosBE 1.3 Released
+
+- Added: Tool to set the Architecture to build ROS for. (Daniel Reimer)
+
 *** January 23rd, 2008 - RosBE 1.2 Released
 
 - Updated: NASM to 2.01 (Peter Ward)

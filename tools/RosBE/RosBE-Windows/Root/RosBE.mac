@@ -1,6 +1,7 @@
 BASEDIR    = cd /d "%_ROSBE_ROSSOURCEDIR%"
 CHDEFDIR   = "%_ROSBE_BASEDIR%\chdefdir.cmd" $*
 CHDEFGCC   = "%_ROSBE_BASEDIR%\chdefgcc.cmd" $*
+CHARCH     = "%_ROSBE_BASEDIR%\charch.cmd" $*
 CLEAN      = "%_ROSBE_BASEDIR%\Clean.cmd" $*
 CONFIG     = "%_ROSBE_BASEDIR%\Config.cmd" $*
 ENV        = set
