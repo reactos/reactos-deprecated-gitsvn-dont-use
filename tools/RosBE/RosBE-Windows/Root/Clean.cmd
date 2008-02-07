@@ -73,6 +73,7 @@ if exist "obj-i386\." (
 )
 goto :EOF
 
-:EOCif defined _ROSBE_VERSION (
+:EOC
+if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
