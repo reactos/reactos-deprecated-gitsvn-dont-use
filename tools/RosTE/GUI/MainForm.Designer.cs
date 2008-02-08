@@ -39,32 +39,32 @@ namespace RosTEGUI
             this.toolbarSep2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolbarSep4 = new System.Windows.Forms.ToolStripSeparator();
             this.mainToolbar = new System.Windows.Forms.ToolStrip();
-            this.toolbarSep3 = new System.Windows.Forms.ToolStripSeparator();
-            this.mainMenu = new System.Windows.Forms.MenuStrip();
-            this.mainmenuFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.virtualMachineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mainmenuFileExit = new System.Windows.Forms.ToolStripMenuItem();
-            this.mainmenuOptions = new System.Windows.Forms.ToolStripMenuItem();
-            this.mainmenuHelp = new System.Windows.Forms.ToolStripMenuItem();
-            this.mainmenuHelpContent = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.MainMenuHelpAbout = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolbarLaunch = new System.Windows.Forms.ToolStripButton();
             this.toolbarStop = new System.Windows.Forms.ToolStripButton();
             this.toolbarImageAdd = new System.Windows.Forms.ToolStripButton();
             this.toolbarImageDel = new System.Windows.Forms.ToolStripButton();
             this.toolbarSnapShot = new System.Windows.Forms.ToolStripButton();
             this.toolbarScreenShot = new System.Windows.Forms.ToolStripButton();
+            this.toolbarSep3 = new System.Windows.Forms.ToolStripSeparator();
             this.toolbarHelpContents = new System.Windows.Forms.ToolStripButton();
             this.toolbarExit = new System.Windows.Forms.ToolStripButton();
+            this.mainMenu = new System.Windows.Forms.MenuStrip();
+            this.mainmenuFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.virtualMachineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mainmenuFileExit = new System.Windows.Forms.ToolStripMenuItem();
+            this.mainmenuOptions = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.snapshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.takeSnapshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadSnapshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.deleteSnapshotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mainmenuHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.mainmenuHelpContent = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.MainMenuHelpAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.mainToolbar.SuspendLayout();
             this.mainMenu.SuspendLayout();
             this.SuspendLayout();
@@ -162,109 +162,12 @@ namespace RosTEGUI
             this.mainToolbar.Size = new System.Drawing.Size(540, 25);
             this.mainToolbar.TabIndex = 10;
             // 
-            // toolbarSep3
-            // 
-            this.toolbarSep3.Name = "toolbarSep3";
-            this.toolbarSep3.Size = new System.Drawing.Size(6, 25);
-            // 
-            // mainMenu
-            // 
-            this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mainmenuFile,
-            this.mainmenuOptions,
-            this.snapshotToolStripMenuItem,
-            this.mainmenuHelp});
-            this.mainMenu.Location = new System.Drawing.Point(0, 0);
-            this.mainMenu.Name = "mainMenu";
-            this.mainMenu.Size = new System.Drawing.Size(540, 24);
-            this.mainMenu.TabIndex = 11;
-            // 
-            // mainmenuFile
-            // 
-            this.mainmenuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem,
-            this.mainmenuFileExit});
-            this.mainmenuFile.Name = "mainmenuFile";
-            this.mainmenuFile.Size = new System.Drawing.Size(35, 20);
-            this.mainmenuFile.Text = "File";
-            // 
-            // newToolStripMenuItem
-            // 
-            this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.virtualMachineToolStripMenuItem});
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(106, 22);
-            this.newToolStripMenuItem.Text = "New";
-            // 
-            // virtualMachineToolStripMenuItem
-            // 
-            this.virtualMachineToolStripMenuItem.Name = "virtualMachineToolStripMenuItem";
-            this.virtualMachineToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.virtualMachineToolStripMenuItem.Text = "Virtual Machine";
-            this.virtualMachineToolStripMenuItem.Click += new System.EventHandler(this.CreateNewVirtMach);
-            // 
-            // mainmenuFileExit
-            // 
-            this.mainmenuFileExit.Name = "mainmenuFileExit";
-            this.mainmenuFileExit.Size = new System.Drawing.Size(106, 22);
-            this.mainmenuFileExit.Text = "Exit";
-            this.mainmenuFileExit.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            // 
-            // mainmenuOptions
-            // 
-            this.mainmenuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripSeparator2,
-            this.settingsToolStripMenuItem});
-            this.mainmenuOptions.Name = "mainmenuOptions";
-            this.mainmenuOptions.Size = new System.Drawing.Size(56, 20);
-            this.mainmenuOptions.Text = "Options";
-            // 
-            // mainmenuHelp
-            // 
-            this.mainmenuHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mainmenuHelpContent,
-            this.toolStripSeparator1,
-            this.MainMenuHelpAbout});
-            this.mainmenuHelp.Name = "mainmenuHelp";
-            this.mainmenuHelp.Size = new System.Drawing.Size(40, 20);
-            this.mainmenuHelp.Text = "Help";
-            // 
-            // mainmenuHelpContent
-            // 
-            this.mainmenuHelpContent.Name = "mainmenuHelpContent";
-            this.mainmenuHelpContent.Size = new System.Drawing.Size(124, 22);
-            this.mainmenuHelpContent.Text = "Content";
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(121, 6);
-            // 
-            // MainMenuHelpAbout
-            // 
-            this.MainMenuHelpAbout.Name = "MainMenuHelpAbout";
-            this.MainMenuHelpAbout.Size = new System.Drawing.Size(124, 22);
-            this.MainMenuHelpAbout.Text = "About";
-            this.MainMenuHelpAbout.Click += new System.EventHandler(this.MainMenuHelpAbout_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
-            // 
-            // settingsToolStripMenuItem
-            // 
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
-            // 
             // toolbarLaunch
             // 
             this.toolbarLaunch.Image = ((System.Drawing.Image)(resources.GetObject("toolbarLaunch.Image")));
             this.toolbarLaunch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolbarLaunch.Name = "toolbarLaunch";
-            this.toolbarLaunch.Size = new System.Drawing.Size(61, 22);
+            this.toolbarLaunch.Size = new System.Drawing.Size(66, 22);
             this.toolbarLaunch.Text = "Launch";
             this.toolbarLaunch.ToolTipText = "Starts the virtual machine";
             // 
@@ -317,6 +220,11 @@ namespace RosTEGUI
             this.toolbarScreenShot.Text = "toolStripButton2";
             this.toolbarScreenShot.ToolTipText = "Grab a screenshot of the display";
             // 
+            // toolbarSep3
+            // 
+            this.toolbarSep3.Name = "toolbarSep3";
+            this.toolbarSep3.Size = new System.Drawing.Size(6, 25);
+            // 
             // toolbarHelpContents
             // 
             this.toolbarHelpContents.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -336,6 +244,70 @@ namespace RosTEGUI
             this.toolbarExit.ToolTipText = "Exits application";
             this.toolbarExit.Click += new System.EventHandler(this.toolbarExit_Click);
             // 
+            // mainMenu
+            // 
+            this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mainmenuFile,
+            this.mainmenuOptions,
+            this.snapshotToolStripMenuItem,
+            this.mainmenuHelp});
+            this.mainMenu.Location = new System.Drawing.Point(0, 0);
+            this.mainMenu.Name = "mainMenu";
+            this.mainMenu.Size = new System.Drawing.Size(540, 24);
+            this.mainMenu.TabIndex = 11;
+            // 
+            // mainmenuFile
+            // 
+            this.mainmenuFile.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newToolStripMenuItem,
+            this.mainmenuFileExit});
+            this.mainmenuFile.Name = "mainmenuFile";
+            this.mainmenuFile.Size = new System.Drawing.Size(37, 20);
+            this.mainmenuFile.Text = "File";
+            // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.virtualMachineToolStripMenuItem});
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.newToolStripMenuItem.Text = "New";
+            // 
+            // virtualMachineToolStripMenuItem
+            // 
+            this.virtualMachineToolStripMenuItem.Name = "virtualMachineToolStripMenuItem";
+            this.virtualMachineToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.virtualMachineToolStripMenuItem.Text = "Virtual Machine";
+            this.virtualMachineToolStripMenuItem.Click += new System.EventHandler(this.CreateNewVirtMach);
+            // 
+            // mainmenuFileExit
+            // 
+            this.mainmenuFileExit.Name = "mainmenuFileExit";
+            this.mainmenuFileExit.Size = new System.Drawing.Size(98, 22);
+            this.mainmenuFileExit.Text = "Exit";
+            this.mainmenuFileExit.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // mainmenuOptions
+            // 
+            this.mainmenuOptions.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripSeparator2,
+            this.settingsToolStripMenuItem});
+            this.mainmenuOptions.Name = "mainmenuOptions";
+            this.mainmenuOptions.Size = new System.Drawing.Size(61, 20);
+            this.mainmenuOptions.Text = "Options";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(113, 6);
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            // 
             // snapshotToolStripMenuItem
             // 
             this.snapshotToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -344,31 +316,59 @@ namespace RosTEGUI
             this.toolStripSeparator3,
             this.deleteSnapshotToolStripMenuItem});
             this.snapshotToolStripMenuItem.Name = "snapshotToolStripMenuItem";
-            this.snapshotToolStripMenuItem.Size = new System.Drawing.Size(64, 20);
+            this.snapshotToolStripMenuItem.Size = new System.Drawing.Size(68, 20);
             this.snapshotToolStripMenuItem.Text = "Snapshot";
             // 
             // takeSnapshotToolStripMenuItem
             // 
             this.takeSnapshotToolStripMenuItem.Name = "takeSnapshotToolStripMenuItem";
-            this.takeSnapshotToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.takeSnapshotToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.takeSnapshotToolStripMenuItem.Text = "Take snapshot";
             // 
             // loadSnapshotToolStripMenuItem
             // 
             this.loadSnapshotToolStripMenuItem.Name = "loadSnapshotToolStripMenuItem";
-            this.loadSnapshotToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.loadSnapshotToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.loadSnapshotToolStripMenuItem.Text = "Load snapshot";
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(160, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(155, 6);
             // 
             // deleteSnapshotToolStripMenuItem
             // 
             this.deleteSnapshotToolStripMenuItem.Name = "deleteSnapshotToolStripMenuItem";
-            this.deleteSnapshotToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.deleteSnapshotToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.deleteSnapshotToolStripMenuItem.Text = "Delete snapshot";
+            // 
+            // mainmenuHelp
+            // 
+            this.mainmenuHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mainmenuHelpContent,
+            this.toolStripSeparator1,
+            this.MainMenuHelpAbout});
+            this.mainmenuHelp.Name = "mainmenuHelp";
+            this.mainmenuHelp.Size = new System.Drawing.Size(44, 20);
+            this.mainmenuHelp.Text = "Help";
+            // 
+            // mainmenuHelpContent
+            // 
+            this.mainmenuHelpContent.Name = "mainmenuHelpContent";
+            this.mainmenuHelpContent.Size = new System.Drawing.Size(117, 22);
+            this.mainmenuHelpContent.Text = "Content";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(114, 6);
+            // 
+            // MainMenuHelpAbout
+            // 
+            this.MainMenuHelpAbout.Name = "MainMenuHelpAbout";
+            this.MainMenuHelpAbout.Size = new System.Drawing.Size(117, 22);
+            this.MainMenuHelpAbout.Text = "About";
+            this.MainMenuHelpAbout.Click += new System.EventHandler(this.MainMenuHelpAbout_Click);
             // 
             // MainForm
             // 

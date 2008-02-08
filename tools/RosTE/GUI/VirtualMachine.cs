@@ -9,6 +9,50 @@ using System.Collections.Generic;
 
 namespace RosTEGUI
 {
+    public struct VirtMachInfo
+    {
+        public int virtMachID;
+        public string name;
+        public string machType;
+        public string defDir;
+        public int memSize;
+        public bool setClockToHost;
+        public bool cdRomEnable;
+        public bool cdRomUsePhys;
+        public string cdRomPhysDrv;
+        public bool cdRomUseIso;
+        public string cdRomIsoImg;
+        public bool floppyEnable;
+        public bool floppyUsePhys;
+        public string floppyPhysDrv;
+        public bool floppyUseImg;
+        public string floppyIsoImg;
+
+        public List<HardDriveInfo> hardDrives;
+        public List<NetCardInfo> netCards;
+    }
+
+    public struct HardDriveInfo
+    {
+        public int diskID;
+        public string name;
+        public string drive;
+        public string path;
+        public int size;
+        public bool bootImg;
+    }
+
+    public struct NetCardInfo
+    {
+        public int cardID;
+        public int virtMachID;
+        public string option;
+        public int vlan;
+        public string macAddr;
+        public string model;
+        public string hostname;
+    }
+
     public class VMHardDrive
     {
         private DataRow hdDataRow;
@@ -109,222 +153,120 @@ namespace RosTEGUI
         }
     }
 
+    public class VMNetCard
+    {
+    }
+
     public class VirtualMachine
     {
-        private DataRow vmDataRow;
-        
-        private ArrayList hardDrives;
+        private VirtMachInfo vmInfo;
+
         private ArrayList netCards;
+        private ArrayList hardDrives;
 
         #region Virtual machine properties
-
         public int VirtMachID
         {
-            get { return GetIntValue("VirtMachID"); }
+            get { return vmInfo.virtMachID; }
         }
-
         public string Name
         {
-            get { return GetStringValue("Name"); }
-            set { SetStringValue("Name", value); }
+            get { return vmInfo.name; }
+            set { vmInfo.name = value; }
         }
-
         public string MachType
         {
-            get { return GetStringValue("MachType"); }
-            set { SetStringValue("MachType", value); }
+            get { return vmInfo.machType; }
+            set { vmInfo.machType = value; }
         }
-
         public string DefDir
         {
-            get { return GetStringValue("DefDir"); }
-            set { SetStringValue("DefDir", value); }
+            get { return vmInfo.defDir; }
+            set { vmInfo.defDir = value; }
         }
-
         public int MemSize
         {
-            get { return GetIntValue("MemSize"); }
-            set { SetIntValue("MemSize", value); }
+            get { return vmInfo.memSize; }
+            set { vmInfo.memSize = value; }
         }
-
         public bool SetClockToHost
         {
-            get { return GetBoolValue("SetClockToHost"); }
-            set { SetBoolValue("SetClockToHost", value); }
+            get { return vmInfo.setClockToHost; }
+            set { vmInfo.setClockToHost = value; }
         }
-
         public bool CdRomEnable
         {
-            get { return GetBoolValue("CdRomEnable"); }
-            set { SetBoolValue("CdRomEnable", value); }
+            get { return vmInfo.cdRomEnable; }
+            set { vmInfo.cdRomEnable = value; }
         }
-
         public bool CdRomUsePhys
         {
-            get { return GetBoolValue("CdRomUsePhys"); }
-            set { SetBoolValue("CdRomUsePhys", value); }
+            get { return vmInfo.cdRomUsePhys; }
+            set { vmInfo.cdRomUsePhys = value; }
         }
-
         public string CdRomPhysDrv
         {
-            get { return GetStringValue("CdRomPhysDrv"); }
-            set { SetStringValue("CdRomPhysDrv", value); }
+            get { return vmInfo.cdRomPhysDrv; }
+            set { vmInfo.cdRomPhysDrv = value; }
         }
-
         public bool CdRomUseIso
         {
-            get { return GetBoolValue("CdRomUseIso"); }
-            set { SetBoolValue("CdRomUseIso", value); }
+            get { return vmInfo.cdRomUseIso; }
+            set { vmInfo.cdRomUseIso = value; }
         }
-
         public string CdRomIsoImg
         {
-            get { return GetStringValue("CdRomIsoImg"); }
-            set { SetStringValue("CdRomIsoImg", value); }
+            get { return vmInfo.cdRomIsoImg; }
+            set { vmInfo.cdRomIsoImg = value; }
         }
-
         public bool FloppyEnable
         {
-            get { return GetBoolValue("FloppyEnable"); }
-            set { SetBoolValue("FloppyEnable", value); }
+            get { return vmInfo.floppyEnable; }
+            set { vmInfo.floppyEnable = value; }
         }
-
         public bool FloppyUsePhys
         {
-            get { return GetBoolValue("FloppyUsePhys"); }
-            set { SetBoolValue("FloppyUsePhys", value); }
+            get { return vmInfo.floppyUsePhys; }
+            set { vmInfo.floppyUsePhys = value; }
         }
-
         public string FloppyPhysDrv
         {
-            get { return GetStringValue("FloppyPhysDrv"); }
-            set { SetStringValue("FloppyPhysDrv", value); }
+            get { return vmInfo.floppyPhysDrv; }
+            set { vmInfo.floppyPhysDrv = value; }
         }
-
-        public bool FloppyUseIso
+        public bool FloppyUseImg
         {
-            get { return GetBoolValue("FloppyUseIso"); }
-            set { SetBoolValue("FloppyUseIso", value); }
+            get { return vmInfo.floppyUseImg; }
+            set { vmInfo.floppyUseImg = value; }
         }
-
         public string FloppyIsoImg
         {
-            get { return GetStringValue("FloppyIsoImg"); }
-            set { SetStringValue("FloppyIsoImg", value); }
+            get { return vmInfo.floppyIsoImg; }
+            set { vmInfo.floppyIsoImg = value; }
         }
-
-        #endregion
-
-        #region property helper functions
-
-        private int GetIntValue(string key)
+        public VirtMachInfo VMInfo
         {
-            try
-            {
-                return (int)vmDataRow[key];
-            }
-            catch (ArgumentException e)
-            {
-                string message = "Failed to get " + key + " value";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-                return 0;
-            }
+            get { return vmInfo; }
         }
-
-        private bool GetBoolValue(string key)
+        public List<HardDriveInfo> HardDrives
         {
-            try
-            {
-                return (bool)vmDataRow[key];
-            }
-            catch (ArgumentException e)
-            {
-                string message = "Failed to get " + key + " value";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-                return false;
-            }
+            get { return vmInfo.hardDrives; }
         }
-
-        private string GetStringValue(string key)
+        public List<NetCardInfo> NetCards
         {
-            try
-            {
-                return (string)vmDataRow[key];
-            }
-            catch (ArgumentException e)
-            {
-                string message = "Failed to get " + key + " value";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-                return string.Empty;
-            }
+            get { return vmInfo.netCards; }
         }
-
-        private void SetIntValue(string key, int value)
-        {
-            try
-            {
-                vmDataRow[key] = value;
-            }
-            catch (ArgumentException e)
-            {
-                string message = "Failed to set " + key + " value";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-            }
-        }
-
-        private void SetBoolValue(string key, bool value)
-        {
-            try
-            {
-                vmDataRow[key] = value;
-            }
-            catch (ArgumentException e)
-            {
-                string message = "Failed to set " + key + " value";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-            }
-        }
-
-        private void SetStringValue(string key, string value)
-        {
-            try
-            {
-                vmDataRow[key] = value;
-            }
-            catch (ArgumentException e)
-            {
-                string message = "Failed to set " + key + " value";
-                Debug.LogMessage(message, e.Message, e.StackTrace, true);
-            }
-        }
-
-        #endregion
-
-        #region database functions
-
-        private bool PopulateVMDatabase(string name,
-                                        string dir,
-                                        float diskSize,
-                                        string existImg,
-                                        int memSize)
-        {
-            bool ret = false;
-
-            return ret;
-        }
-
-
-
         #endregion
 
         public VirtualMachine()
-        {/*
-            vmConfig = new VMConfig();
-            if (!vmConfig.LoadVirtMachData())
-                MessageBox.Show("Failed to load VM Schema");
+        {
+            vmInfo = new VirtMachInfo();
+            CreateDefaultConfig();
+        }
 
-            hardDrives = new ArrayList(3);
-            netCards = new ArrayList();*/
+        public VirtualMachine(VirtMachInfo vmInfoIn)
+        {
+            vmInfo = vmInfoIn;
         }
 
         public override string ToString()
@@ -369,11 +311,7 @@ namespace RosTEGUI
                 ;//FIXME: create a vm image 'qemu-img.exe create'
             }
 
-            return PopulateVMDatabase(name,
-                                      dir,
-                                      diskSize,
-                                      existImg,
-                                      memSize);
+            return false;
         }
 
         public VMHardDrive AddHardDisk(string nameIn,
@@ -401,6 +339,49 @@ namespace RosTEGUI
         public ArrayList GetHardDisks()
         {
             return hardDrives;
+        }
+
+        private void CreateDefaultConfig()
+        {
+            vmInfo.virtMachID = 0;
+            vmInfo.name = "New VM " + vmInfo.virtMachID.ToString();
+            vmInfo.machType = string.Empty;
+            vmInfo.defDir = string.Empty;
+            vmInfo.memSize = 0;
+            vmInfo.setClockToHost = true;
+            vmInfo.cdRomEnable = true;
+            vmInfo.cdRomUsePhys = true;
+            vmInfo.cdRomPhysDrv = string.Empty;
+            vmInfo.cdRomUseIso = false;
+            vmInfo.cdRomIsoImg = string.Empty;
+            vmInfo.floppyEnable = false;
+            vmInfo.floppyUsePhys = false;
+            vmInfo.floppyPhysDrv = string.Empty;
+            vmInfo.floppyUseImg = false;
+            vmInfo.floppyIsoImg = string.Empty;
+
+            HardDriveInfo hdi = new HardDriveInfo();
+            hdi.bootImg = true;
+            hdi.diskID = 1;
+            hdi.drive = string.Empty;
+            hdi.name = "root";
+            hdi.path = string.Empty;
+            hdi.size = 0;
+
+            vmInfo.hardDrives = new List<HardDriveInfo>();
+            vmInfo.hardDrives.Add(hdi);
+
+            NetCardInfo nci = new NetCardInfo();
+            nci.cardID = 1;
+            nci.hostname = string.Empty;
+            nci.macAddr = string.Empty;
+            nci.model = string.Empty;
+            nci.option = string.Empty;
+            nci.virtMachID = 0;
+            nci.vlan = 0;
+
+            vmInfo.netCards = new List<NetCardInfo>();
+            vmInfo.netCards.Add(nci);
         }
     }
 }

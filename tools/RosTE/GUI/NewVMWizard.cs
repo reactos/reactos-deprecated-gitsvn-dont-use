@@ -13,6 +13,7 @@ namespace RosTEGUI
     {
         private MainConfig mainConf;
 
+        #region properties
         public string VMName
         {
             get { return nameTxtBox.Text; }
@@ -42,6 +43,7 @@ namespace RosTEGUI
                 else return 3;
             }
         }
+        #endregion
 
         public NewVMWizard(MainConfig mainConfIn)
         {

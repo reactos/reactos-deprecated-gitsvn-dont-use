@@ -75,87 +75,6 @@ namespace RosTEGUI
             return null;
         }
 
-        private bool LoadVirtMachs()
-        {
-            bool bRet = false;
-
-            if (dataSet != null)
-            {
-                if (virtMachs == null)
-                {
-                    virtMachs = new List<MainVmInfo>();
-                }
-
-                try
-                {
-                    foreach (DataRow dr in dataSet.Tables["VirtMach"].Rows)
-                    {
-                        virtMachs.Add(new MainVmInfo((int)dr["VMConfigID"], (string)dr["Path"]));
-                    }
-
-                    bRet = true;
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogMessage("Failed loading virtual machines", ex.Message, ex.StackTrace, true);
-                }
-            }
-
-            return bRet;
-        }
-
-        private void SaveVirtMachs()
-        {
-            if (dataSet != null && virtMachs != null)
-            {
-                try
-                {
-                    DataTable virtMachTable = dataSet.Tables["VirtMach"];
-                    virtMachTable.Clear();
-
-                    foreach (MainVmInfo vm in virtMachs)
-                    {
-                        DataRow dr = virtMachTable.NewRow();
-                        dr["VMConfigID"] = vm.id;
-                        dr["Path"] = vm.path;
-
-                        virtMachTable.Rows.Add(dr);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogMessage("Failed to save virtual machine table", ex.Message, ex.StackTrace, true);
-                }
-            }
-        }
-
-        public int AddVirtMach(string pathIn)
-        {
-            if (dataSet != null && virtMachs != null)
-            {
-                int id = virtMachs.Count;
-                virtMachs.Add(new MainVmInfo(id, pathIn));
-            }
-
-            return virtMachs.Count;
-        }
-
-        public bool DeleteVirtMach(int index)
-        {
-            bool bRet = false;
-
-            foreach (MainVmInfo vm in virtMachs)
-            {
-                if (vm.id == index)
-                {
-                    virtMachs.Remove(vm);
-                    bRet = true;
-                }
-            }
-
-            return bRet;
-        }
-
         public int GetNumberOfVms()
         {
             return virtMachs.Count;
@@ -238,10 +157,12 @@ namespace RosTEGUI
                     settingsRow["DefVmPath"] = defVmPath;
                     settingsRow["UpdateSched"] = updateSched;
                     settingsRow["AppDebug"] = appDebug;
+
+                    
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogMessage("Failed to read settings from mainConf dataset", ex.Message);
+                    Debug.LogMessage("Failed to write settings to mainConf dataset", ex.Message);
                 }
             }
         }
@@ -290,26 +211,87 @@ namespace RosTEGUI
                     return;
             }
 
-            SaveVirtMachs();
-
-            try
+            if (SaveVirtMachs())
             {
-                FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
-                xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
-                dataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogMessage("Failed to save main config file", ex.Message, ex.StackTrace, true);
-            }
-            finally
-            {
-                if (xtw != null)
-                    xtw.Close();
+                try
+                {
+                    FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                    xtw = new XmlTextWriter(fs, System.Text.Encoding.Unicode);
+                    dataSet.WriteXml(xtw, System.Data.XmlWriteMode.WriteSchema);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogMessage("Failed to save main config file", ex.Message, ex.StackTrace, true);
+                }
+                finally
+                {
+                    if (xtw != null)
+                        xtw.Close();
+                }
             }
         }
 
         #region private methods
+        private bool LoadVirtMachs()
+        {
+            bool bRet = false;
+
+            if (dataSet != null)
+            {
+                if (virtMachs == null)
+                {
+                    virtMachs = new List<MainVmInfo>();
+                }
+
+                try
+                {
+                    foreach (DataRow dr in dataSet.Tables["VirtMach"].Rows)
+                    {
+                        virtMachs.Add(new MainVmInfo((int)dr["VMConfigID"], (string)dr["Path"]));
+                    }
+
+                    bRet = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogMessage("Failed loading virtual machines", ex.Message, ex.StackTrace, true);
+                }
+            }
+
+            return bRet;
+        }
+
+        private bool SaveVirtMachs()
+        {
+            bool bRet = false;
+
+            if (dataSet != null && virtMachs != null)
+            {
+                try
+                {
+                    DataTable virtMachTable = dataSet.Tables["VirtMach"];
+                    virtMachTable.Clear();
+
+                    foreach (MainVmInfo vm in virtMachs)
+                    {
+                        DataRow dr = virtMachTable.NewRow();
+                        dr["VMConfigID"] = vm.id;
+                        dr["Path"] = vm.path;
+
+                        virtMachTable.Rows.Add(dr);
+                    }
+
+                    bRet = true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogMessage("Failed to save virtual machine table", ex.Message, ex.StackTrace, true);
+                }
+            }
+
+            return bRet;
+        }
+
         private bool LoadMainSchema()
         {
             XmlTextReader xtr = null;
@@ -342,26 +324,6 @@ namespace RosTEGUI
         #endregion
     }
 
-
-    public struct VirtMachInfo
-    {
-        public int virtMachID;
-        public string name;
-        public string machType;
-        public string defDir;
-        public int memSize;
-        public bool setClockToHost;
-        public bool cdRomEnable;
-        public bool cdRomUsePhys;
-        public string cdRomPhysDrv;
-        public bool cdRomUseIso;
-        public string cdRomIsoImg;
-        public bool floppyEnable;
-        public bool floppyUsePhys;
-        public string floppyPhysDrv;
-        public bool floppyUseImg;
-        public string floppyIsoImg;
-    }
 
     public class VirtMachConfig
     {
@@ -406,6 +368,35 @@ namespace RosTEGUI
                         vmi.floppyUseImg = (bool)vmRow["FloppyUseImg"];
                         vmi.floppyIsoImg = (string)vmRow["FloppyIsoImg"];
 
+                        vmi.hardDrives = new List<HardDriveInfo>();
+                        foreach (DataRow hdRow in dataSet.Tables["HardDisks"].Rows)
+                        {
+                            HardDriveInfo hdi = new HardDriveInfo();
+                            hdi.diskID = (int)hdRow["DiskID"];
+                            hdi.name = (string)hdRow["Name"];
+                            hdi.drive = (string)hdRow["Drive"];
+                            hdi.path = (string)hdRow["Path"];
+                            hdi.size = (int)hdRow["Size"];
+                            hdi.bootImg = (bool)hdRow["BootImg"];
+
+                            vmi.hardDrives.Add(hdi);
+                        }
+
+                        vmi.netCards = new List<NetCardInfo>();
+                        foreach (DataRow hdRow in dataSet.Tables["NetCards"].Rows)
+                        {
+                            NetCardInfo nci = new NetCardInfo();
+                            nci.cardID = (int)hdRow["CardID"];
+                            nci.virtMachID = (int)hdRow["VirtMachID"];
+                            nci.option = (string)hdRow["Option"];
+                            nci.vlan = (int)hdRow["Vlan"];
+                            nci.macAddr = (string)hdRow["MacAddr"];
+                            nci.model = (string)hdRow["Model"];
+                            nci.hostname = (string)hdRow["HostName"];
+
+                            vmi.netCards.Add(nci);
+                        }
+
                         virtMachInfo.Add(vmi);
                     }
 
@@ -420,34 +411,62 @@ namespace RosTEGUI
             return bRet;
         }
 
-        public void SaveVmSettings()
+        public void SaveVmSettings(VirtMachInfo vmi)
         {
             if (dataSet != null)
             {
-                dataSet.Tables["VirtMach"].Rows.Clear();
-
                 try
                 {
-                    foreach (VirtMachInfo vmi in virtMachInfo)
-                    {
-                        DataRow vmRow = dataSet.Tables["VirtMach"].NewRow();
+                    dataSet.Tables["VMConfig"].Rows.Clear();
 
-                        vmRow["VirtMachID"] = vmi.virtMachID;
-                        vmRow["Name"] = vmi.name;
-                        vmRow["MachType"] = vmi.machType;
-                        vmRow["DefDir"] = vmi.defDir;
-                        vmRow["MemSize"] = vmi.memSize;
-                        vmRow["SetClockToHost"] = vmi.setClockToHost;
-                        vmRow["CdRomEnable"] = vmi.cdRomEnable;
-                        vmRow["CdRomUsePhys"] = vmi.cdRomUsePhys;
-                        vmRow["CdRomPhysDrv"] = vmi.cdRomPhysDrv;
-                        vmRow["CdRomUseIso"] = vmi.cdRomUseIso;
-                        vmRow["CdRomIsoImg"] = vmi.cdRomIsoImg;
-                        vmRow["FloppyEnable"] = vmi.floppyEnable;
-                        vmRow["FloppyUsePhys"] = vmi.floppyUsePhys;
-                        vmRow["FloppyPhysDrv"] = vmi.floppyPhysDrv;
-                        vmRow["FloppyUseImg"] = vmi.floppyUseImg;
-                        vmRow["FloppyIsoImg"] = vmi.floppyIsoImg;
+                    DataRow vmRow = dataSet.Tables["VMConfig"].NewRow();
+
+                    vmRow["VirtMachID"] = vmi.virtMachID;
+                    vmRow["Name"] = vmi.name;
+                    vmRow["MachType"] = vmi.machType;
+                    vmRow["DefDir"] = vmi.defDir;
+                    vmRow["MemSize"] = vmi.memSize;
+                    vmRow["SetClockToHost"] = vmi.setClockToHost;
+                    vmRow["CdRomEnable"] = vmi.cdRomEnable;
+                    vmRow["CdRomUsePhys"] = vmi.cdRomUsePhys;
+                    vmRow["CdRomPhysDrv"] = vmi.cdRomPhysDrv;
+                    vmRow["CdRomUseIso"] = vmi.cdRomUseIso;
+                    vmRow["CdRomIsoImg"] = vmi.cdRomIsoImg;
+                    vmRow["FloppyEnable"] = vmi.floppyEnable;
+                    vmRow["FloppyUsePhys"] = vmi.floppyUsePhys;
+                    vmRow["FloppyPhysDrv"] = vmi.floppyPhysDrv;
+                    vmRow["FloppyUseImg"] = vmi.floppyUseImg;
+                    vmRow["FloppyIsoImg"] = vmi.floppyIsoImg;
+
+                    dataSet.Tables["VMConfig"].Rows.Add(vmRow);
+
+                    foreach (HardDriveInfo hdi in vmi.hardDrives)
+                    {
+                        DataRow hdRow = dataSet.Tables["HardDisks"].NewRow();
+
+                        hdRow["DiskID"] = hdi.diskID;
+                        hdRow["Name"] = hdi.name;
+                        hdRow["Drive"] = hdi.drive;
+                        hdRow["Path"] = hdi.path;
+                        hdRow["Size"] = hdi.size;
+                        hdRow["BootImg"] = hdi.bootImg;
+
+                        dataSet.Tables["HardDisks"].Rows.Add(hdRow);
+                    }
+
+                    foreach (NetCardInfo nci in vmi.netCards)
+                    {
+                        DataRow ncRow = dataSet.Tables["NetCards"].NewRow();
+
+                        ncRow["CardID"] = nci.cardID;
+                        ncRow["VirtMachID"] = nci.virtMachID;
+                        ncRow["Option"] = nci.option;
+                        ncRow["Vlan"] = nci.vlan;
+                        ncRow["MacAddr"] = nci.macAddr;
+                        ncRow["Model"] = nci.model;
+                        ncRow["HostName"] = nci.hostname;
+
+                        dataSet.Tables["NetCards"].Rows.Add(ncRow);
                     }
                 }
                 catch (Exception ex)
@@ -491,19 +510,21 @@ namespace RosTEGUI
             return ret;
         }
 
-        public void SaveVMConfig(string path)
+        public void SaveVMConfig(VirtualMachine vm)
         {
             XmlTextWriter xtw = null;
-            string fileName = path + "\\Config.xml";
+            string fileName = vm.VMInfo.defDir + "\\Config.xml";
 
-            if (!Directory.Exists(fileName))
-                Directory.CreateDirectory(fileName);
+            if (!Directory.Exists(vm.VMInfo.defDir))
+                Directory.CreateDirectory(vm.VMInfo.defDir);
 
             if (dataSet == null)
             {
                 if (!LoadVirtMachSchema())
                     return;
             }
+
+            SaveVmSettings(vm.VMInfo);
 
             try
             {

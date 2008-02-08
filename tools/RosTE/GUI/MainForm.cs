@@ -14,6 +14,7 @@ namespace RosTEGUI
 	public partial class MainForm : Form
     {
         private MainConfig mainConf;
+        private ArrayList virtualMachines;
 
         public MainForm()
         {
@@ -47,7 +48,7 @@ namespace RosTEGUI
                     {
                         foreach (VirtMachInfo vmInfo in vmConfig.VMInfo)
                         {
-                            VirtualMachine vm = new VirtualMachine();
+                            VirtualMachine vm = new VirtualMachine(vmInfo);
 
                             ListViewItem lvi = VirtMachListView.Items.Add(vmConfig.ToString(), 0);
                             lvi.SubItems.Add(vm.MemSize.ToString() + " MB");
@@ -97,53 +98,30 @@ namespace RosTEGUI
 
             if (wizFrm.ShowDialog() == DialogResult.OK)
             {
-                if (wizFrm.Option == 1)
+                VirtualMachine virtMach = new VirtualMachine();
+                virtMach.Name = wizFrm.VMName;
+
+                switch (wizFrm.Option)
                 {
-                    try
-                    {
+                    case 1:
                         if (!Directory.Exists(wizFrm.DefDir))
                             Directory.CreateDirectory(wizFrm.DefDir);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Failed to create " + wizFrm.DefDir + '\n' + ex.Message);
-                        return;
-                    }
 
-                    int i = mainConf.AddVirtMach(wizFrm.DefDir);
+                        virtMach.DefDir = wizFrm.DefDir;
+                        break;
 
-                    VirtualMachine VirtMach = new VirtualMachine();
-                    VirtMach.CreateVMConfig(wizFrm.VMName,
-                                            wizFrm.DefDir,
-                                            wizFrm.DiskSizeGB,
-                                            wizFrm.ExistImg,
-                                            wizFrm.MemSizeMB);
+                    case 2:
 
-                    ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
-                    lvi.Tag = VirtMach;
+                        break;
+
+                    case 3:
+                        virtMach.DefDir = "Images\\" + wizFrm.VMName;
+                        break;
                 }
-                else if (wizFrm.Option == 2)
-                {
 
-                    DirectoryInfo di = Directory.GetParent(wizFrm.ExistImg);
-                    int i = mainConf.AddVirtMach(di.FullName);
-                    VirtualMachine VirtMach = new VirtualMachine();
-                    VirtMach.CreateVMConfig(wizFrm.VMName,
-                                            wizFrm.ExistImg,
-                                            wizFrm.MemSizeMB);
-
-                    ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
-                    lvi.Tag = VirtMach;
-                }
-                else
-                {
-                    int i = mainConf.AddVirtMach("Images\\" + wizFrm.VMName);
-                    VirtualMachine VirtMach = new VirtualMachine();
-                    VirtMach.CreateVMConfig(wizFrm.VMName);
-
-                    ListViewItem lvi = VirtMachListView.Items.Add(VirtMach.ToString(), 0);
-                    lvi.Tag = VirtMach;
-                }
+                ListViewItem lvi = VirtMachListView.Items.Add(virtMach.Name, 0);
+                lvi.SubItems.Add(virtMach.MemSize.ToString() + " MB");
+                lvi.Tag = virtMach;
             }
         }
 
@@ -174,7 +152,7 @@ namespace RosTEGUI
                         }
                     }
 
-                    mainConf.DeleteVirtMach(lvi.Index/*lvi.Tag*/);
+                    //mainConf.DeleteVirtMach(lvi.Index/*lvi.Tag*/);
                     VirtMachListView.Items.Remove(lvi);
                 }
             }
@@ -182,10 +160,12 @@ namespace RosTEGUI
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            foreach(ListViewItem lvi in VirtMachListView.Items)
+            VirtMachConfig vmc = new VirtMachConfig();
+
+            foreach (ListViewItem lvi in VirtMachListView.Items)
             {
-                VirtMachConfig vm = (VirtMachConfig)lvi.Tag;
-                vm.SaveVMConfig("err");
+                VirtualMachine vm = (VirtualMachine)lvi.Tag;
+                vmc.SaveVMConfig(vm);
             }
 
             mainConf.SaveSettings();
