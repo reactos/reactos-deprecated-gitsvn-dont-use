@@ -87,10 +87,9 @@ namespace RosTEGUI
 
         private void LoadHardDiskPage()
         {
-            ArrayList hardDrives = VirtMach.GetHardDisks();
-            foreach (VMHardDrive vmhd in hardDrives)
+            foreach (HardDriveInfo hdi in VirtMach.HardDrives)
             {
-                harddiskLstBox.Items.Add(vmhd);
+                harddiskLstBox.Items.Add(hdi);
             }
 
             if (harddiskLstBox.Items.Count > 0)
@@ -308,12 +307,12 @@ namespace RosTEGUI
             ListBox lb = (ListBox)sender;
             if (lb.SelectedItem != null)
             {
-                VMHardDrive vmhd = (VMHardDrive)lb.SelectedItem;
+                HardDriveInfo hdi = (HardDriveInfo)lb.SelectedItem;
 
-                harddiskDriveName.Text = vmhd.Drive;
-                harddiskFileNameTxtBox.Text = vmhd.Path;
-                harddiskSizeLbl.Text = vmhd.Size.ToString();
-                harddiskBootImageChk.Checked = vmhd.BootImg;
+                harddiskDriveName.Text = hdi.name;
+                harddiskFileNameTxtBox.Text = hdi.path;
+                harddiskSizeLbl.Text = hdi.size.ToString();
+                harddiskBootImageChk.Checked = hdi.bootImg;
             }
         }
 
