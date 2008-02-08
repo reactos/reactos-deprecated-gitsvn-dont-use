@@ -1,6 +1,6 @@
 @ECHO OFF
 
-REM Copyright (C) 2006-2007 Hervé Poussineau (hpoussin@reactos.org)
+REM Copyright (C) 2006-2008 Hervé Poussineau (hpoussin@reactos.org)
 
 SET WINE_TMPFILE1=tmpfile1.wine
 
@@ -20,6 +20,7 @@ ECHO %0 link {path_to_reactos} {wine_lib}
 ECHO %0 merge {path_to_reactos} {wine_lib} [{wine_lib} ...]
 ECHO %0 make {path_to_reactos} {wine_lib} [{wine_lib} ...]
 ECHO %0 fullprocessing {path_to_reactos} {wine_lib} [{wine_lib} ...]
+COLOR 00
 GOTO :eof
 
 REM ****************************************************************************
@@ -109,10 +110,10 @@ IF EXIST "%WINE_RELATIVE_WINE%\%WINE_MODULE_NAME%.spec" (
 
 SET WINE_OPTION1=
 SET WINE_OPTION2=
-IF "%WINE_HAS_DLLMAIN%" == "0" (
-	IF "%WINE_IS_EXE%" == "0" (
-		SET WINE_OPTION1= entrypoint="0"
-	)
+IF "%WINE_IS_EXE%" == "0" (
+	SET WINE_OPTION1= entrypoint="0"
+) ELSE IF "%WINE_HAS_DLLMAIN%" == "0" (
+	SET WINE_OPTION1= entrypoint="0"
 )
 IF "%WINE_IS_EXE%" == "0" (
 	SET WINE_LOWER=abcdefghijklmnopqrstuvwxyz0123456789_.
@@ -128,6 +129,11 @@ IF "%WINE_IS_EXE%" == "0" (
 	)
 	SET WINE_OPTION2= baseaddress="${BASEADDRESS_!WINE_UPPERCASE!}"
 )
+SETLOCAL DISABLEDELAYEDEXPANSION
+ECHO ^<?xml version="1.0"?^>
+ECHO ^<!DOCTYPE module SYSTEM "../../../tools/rbuild/project.dtd"^>
+SETLOCAL ENABLEDELAYEDEXPANSION
+ECHO ^<group^>
 ECHO ^<module name="%WINE_SHORT_NAME%" type="%WINE_MODULE_TYPE%"%WINE_OPTION2% installbase="%WINE_INSTALL_BASE%" installname="%WINE_INSTALL_NAME%" allowwarnings="true"%WINE_OPTION1%^>
 IF "%WINE_HAS_DLLINSTALL%" == "1" (
 	IF "%WINE_HAS_DLLREGISTERSERVER%" == "1" (
@@ -146,19 +152,21 @@ IF EXIST "%WINE_RELATIVE_WINE%\%WINE_MODULE_NAME%.spec" (
 ECHO 	^<include base="%WINE_SHORT_NAME%"^>.^</include^>
 IF "%WINE_IS_EXE%" == "0" (
 	ECHO 	^<include base="ReactOS"^>include/reactos/wine^</include^>
-	ECHO 	^<define name="__REACTOS__" /^>
 	ECHO 	^<define name="__WINESRC__" /^>
 )
-ECHO 	^<define name="__USE_W32API" /^>
-ECHO 	^<define name="_WIN32_IE"^>0x600^</define^>
-ECHO 	^<define name="_WIN32_WINNT"^>0x501^</define^>
-ECHO 	^<define name="WINVER"^>0x501^</define^>
-ECHO 	^<library^>wine^</library^>
+ECHO 	^<define name="WINVER"^>0x600^</define^>
+ECHO 	^<define name="_WIN32_WINNT"^>0x600^</define^>
 SET WINE_FULL_LINE=
 SET WINE_END_PREC_LINE=
 SET WINE_VARTYPE=0
-SET WINE_HAS_NTDLL=
 SET WINE_HAS_IDL=
+SET WINE_LIBRARIES=wine
+SET WINE_DEPENDENCIES=
+SET WINE_IDL_GEN_I_SRCS=
+SET WINE_IDL_GEN_C_SRCS=
+SET WINE_IDL_GEN_S_SRCS=
+SET WINE_IDL_GEN_P_SRCS=
+SET WINE_IDL_GEN_TLB_SRCS=
 FOR /F "eol=# delims=" %%l IN (%WINE_TMPFILE1%) DO (
 	CALL :internal_analyseline %%l
 )
@@ -171,7 +179,50 @@ IF "%WINE_IS_EXE%" == "1" (
 IF EXIST "%WINE_RELATIVE_WINE%\%WINE_MODULE_NAME%.spec" (
 	ECHO 	^<file^>%WINE_MODULE_NAME%.spec^</file^>
 )
+FOR %%j IN (%WINE_LIBRARIES%) DO (
+	ECHO 	^<library^>%%j^</library^>
+)
+ECHO 	^<library^>ntdll^</library^>
+FOR %%j IN (%WINE_DEPENDENCIES%) DO (
+	ECHO 	^<dependency^>%%j^</dependency^>
+)
 ECHO ^</module^>
+FOR %%j IN (%WINE_IDL_GEN_I_SRCS%) DO (
+	SET WINE_SHORT_NAME=%%j
+	SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_header" type="idlheader" allowwarnings="true"^>
+	ECHO 	^<file^>%%j^</file^>
+	ECHO ^</module^>
+)
+FOR %%j IN (%WINE_IDL_GEN_C_SRCS%) DO (
+	SET WINE_SHORT_NAME=%%j
+	SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_client" type="rpcclient" allowwarnings="true"^>
+	ECHO 	^<file^>%%j^</file^>
+	ECHO ^</module^>
+)
+FOR %%j IN (%WINE_IDL_GEN_S_SRCS%) DO (
+	SET WINE_SHORT_NAME=%%j
+	SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_server" type="rpcserver" allowwarnings="true"^>
+	ECHO 	^<file^>%%j^</file^>
+	ECHO ^</module^>
+)
+FOR %%j IN (%WINE_IDL_GEN_P_SRCS%) DO (
+	SET WINE_SHORT_NAME=%%j
+	SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_proxy" type="rpcproxy" allowwarnings="true"^>
+	ECHO 	^<file^>%%j^</file^>
+	ECHO ^</module^>
+)
+FOR %%j IN (%WINE_IDL_GEN_TLB_SRCS%) DO (
+	SET WINE_SHORT_NAME=%%j
+	SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_typelib" type="embeddedtypelib" allowwarnings="true"^>
+	ECHO 	^<file^>%%j^</file^>
+	ECHO ^</module^>
+)
+ECHO ^</group^>
 DEL %WINE_TMPFILE1%
 GOTO :eof
 
@@ -183,16 +234,40 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 		FOR /F "tokens=2* delims= " %%h IN ("%WINE_FULL_LINE%") DO (
 			FOR %%j IN (%%i) DO (
 				IF "%WINE_VARTYPE%" == "1" (
-					IF "!WINE_HAS_NTDLL!" == "" (
-						ECHO 	^<library^>ntdll^</library^>
-						SET WINE_HAS_NTDLL=1
-					)
 					ECHO 	^<file^>%%j^</file^>
 				) ELSE IF "%WINE_VARTYPE%" == "2" (
-					ECHO 	^<library^>%%j^</library^>
-					IF "%%j" == "ntdll" SET WINE_HAS_NTDLL=1
-				) ELSE (
-					IF "%%j" == "-luuid" ECHO 	^<library^>uuid^</library^>
+					if NOT "%%j" == "ntdll" (
+						SET WINE_LIBRARIES=!WINE_LIBRARIES! %%j
+					)
+				) ELSE IF "%WINE_VARTYPE%" == "3" (
+					IF "%%j" == "-luuid" (
+						SET WINE_LIBRARIES=!WINE_LIBRARIES! uuid
+					)
+				) ELSE IF "%WINE_VARTYPE%" == "4" (
+					SET WINE_SHORT_NAME=%%j
+					SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+					SET WINE_LIBRARIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_header !WINE_LIBRARIES!
+					SET WINE_IDL_GEN_I_SRCS=!WINE_IDL_GEN_I_SRCS! %%j
+				) ELSE IF "%WINE_VARTYPE%" == "5" (
+					SET WINE_SHORT_NAME=%%j
+					SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+					SET WINE_LIBRARIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_client !WINE_LIBRARIES!
+					SET WINE_IDL_GEN_C_SRCS=!WINE_IDL_GEN_C_SRCS! %%j
+				) ELSE IF "%WINE_VARTYPE%" == "6" (
+					SET WINE_SHORT_NAME=%%j
+					SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+					SET WINE_LIBRARIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_server !WINE_LIBRARIES!
+					SET WINE_IDL_GEN_S_SRCS=!WINE_IDL_GEN_S_SRCS! %%j
+				) ELSE IF "%WINE_VARTYPE%" == "7" (
+					SET WINE_SHORT_NAME=%%j
+					SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+					SET WINE_LIBRARIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_proxy !WINE_LIBRARIES!
+					SET WINE_IDL_GEN_P_SRCS=!WINE_IDL_GEN_P_SRCS! %%j
+				) ELSE IF "%WINE_VARTYPE%" == "8" (
+					SET WINE_SHORT_NAME=%%j
+					SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
+					SET WINE_DEPENDENCIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_typelib !WINE_DEPENDENCIES!
+					SET WINE_IDL_GEN_TLB_SRCS=!WINE_IDL_GEN_TLB_SRCS! %%j
 				)
 			)
 		)
@@ -206,6 +281,18 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 		SET WINE_VARTYPE=1
 	) ELSE IF "%1" == "IDL_H_SRCS" (
 		SET WINE_VARTYPE=1
+		SET WINE_HAS_IDL=1
+	) ELSE IF "%1" == "IDL_C_SRCS" (
+		SET WINE_VARTYPE=5
+		SET WINE_HAS_IDL=1
+	) ELSE IF "%1" == "IDL_S_SRCS" (
+		SET WINE_VARTYPE=6
+		SET WINE_HAS_IDL=1
+	) ELSE IF "%1" == "IDL_P_SRCS" (
+		SET WINE_VARTYPE=7
+		SET WINE_HAS_IDL=1
+	) ELSE IF "%1" == "IDL_TLB_SRCS" (
+		SET WINE_VARTYPE=8
 		SET WINE_HAS_IDL=1
 	) ELSE IF "%1" == "IMPORTS" (
 		SET WINE_VARTYPE=2
@@ -238,8 +325,8 @@ REM ****************************************************************************
 :link
 IF "%3" == "" GOTO help
 IF NOT "%4" == "" GOTO help
-IF NOT EXIST "%2\ReactOS.rbuild" (
-	ECHO %2\ReactOS.rbuild doesn't exit.
+IF NOT EXIST "%2\ReactOS-generic.rbuild" (
+	ECHO %2\ReactOS-generic.rbuild doesn't exist.
 	GOTO :help
 )
 SET WINE_RELATIVE_WINE=wine\dlls\%3
@@ -265,8 +352,8 @@ REM ****************************************************************************
 
 :merge
 IF "%3" == "" GOTO help
-IF NOT EXIST "%2\ReactOS.rbuild" (
-	ECHO %2\ReactOS.rbuild doesn't exit.
+IF NOT EXIST "%2\ReactOS-generic.rbuild" (
+	ECHO %2\ReactOS-generic.rbuild doesn't exist.
 	GOTO :help
 )
 SET WINE_ROS_DIR=%2
@@ -276,12 +363,20 @@ IF "%2" == "" GOTO :eof
 SET WINE_RELATIVE_WINE=wine\dlls\%2
 SET WINE_RELATIVE_ROS=%WINE_ROS_DIR%\dll\win32\%2
 CALL :internal_merge %2
+IF ERRORLEVEL 1 (
+	COLOR 00
+	GOTO :eof
+)
 SET WINE_RELATIVE_WINE=wine\dlls\%2\tests
 SET WINE_RELATIVE_ROS=%WINE_ROS_DIR%\modules\rostests\winetests\%2
 IF EXIST "%WINE_RELATIVE_WINE%\." (
 	IF EXIST "%WINE_ROS_DIR%\modules\rostests\winetests\." (
 		CALL :internal_create_testlist
 		CALL :internal_merge %2
+		IF ERRORLEVEL 1 (
+			COLOR 00
+			GOTO :eof
+		)
 	) ELSE (
 		ECHO WARNING: tests for %2 will NOT be updated!
 	)
@@ -292,31 +387,10 @@ GOTO mergenext
 IF NOT EXIST "%WINE_RELATIVE_WINE%" GOTO :eof
 2>NUL MKDIR "%WINE_RELATIVE_ROS%"
 ATTRIB -R "%WINE_RELATIVE_ROS%\*" >NUL
-COPY /Y "%WINE_RELATIVE_WINE%\*.*" "%WINE_RELATIVE_ROS%" >NUL
+>NUL XCOPY /Y /S "%WINE_RELATIVE_WINE%\*.*" "%WINE_RELATIVE_ROS%"
+2>NUL RD /S /Q "%WINE_RELATIVE_ROS%\tests"
 SET WINE_FILES_DELETED=
-FOR /F "delims=" %%f IN ('DIR /B "%WINE_RELATIVE_ROS%\*.*"') DO (
-	IF "%%f" == ".cvsignore" (
-		svn.exe delete --force "%WINE_RELATIVE_ROS%\%%f" 2>NUL
-		DEL /Q "%WINE_RELATIVE_ROS%\%%f" 2>NUL
-	) ELSE IF "%%f" == "Makefile.in" (
-		svn.exe delete --force "%WINE_RELATIVE_ROS%\%%f" 2>NUL
-		DEL /Q "%WINE_RELATIVE_ROS%\%%f" 2>NUL
-	) ELSE IF NOT EXIST "%WINE_RELATIVE_WINE%\%%f" (
-		SET WINE_FILE=%%f
-		IF NOT "!WINE_FILE:~-9!" == "_ros.diff" (
-			svn.exe delete "%WINE_RELATIVE_ROS%\%%f" 2>NUL
-			IF ERRORLEVEL 2 GOTO :helpsvn
-			IF EXIST "%WINE_RELATIVE_ROS%\%%f" DEL /Q "%WINE_RELATIVE_ROS%\%%f"
-			IF EXIST "%WINE_RELATIVE_ROS%\%%f" RD /S /Q "%WINE_RELATIVE_ROS%\%%f"
-			SET WINE_FILES_DELETED=!WINE_FILES_DELETED! %%f
-		)
-	) ELSE (
-		svn.exe add "%WINE_RELATIVE_ROS%\%%f" 2>NUL
-		IF ERRORLEVEL 2 GOTO :helpsvn
-		svn.exe propset svn:eol-style native "%WINE_RELATIVE_ROS%\%%f" >NUL 2>NUL
-		SET >NUL
-	)
-)
+CALL :internal_merge_directory
 SET WINE_PATCH_FILE=%1_ros.diff
 IF EXIST "%WINE_RELATIVE_ROS%\%WINE_PATCH_FILE%" (
 	svn.exe add "%WINE_RELATIVE_ROS%\%WINE_PATCH_FILE%" 2>NUL
@@ -340,6 +414,41 @@ IF EXIST "%WINE_RELATIVE_ROS%\%WINE_PATCH_FILE%" (
 	)
 )
 GOTO :eof
+
+:internal_merge_directory
+SET WINE_RELATIVE_DIR=%1
+2>NUL RD /S /Q "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\CVS"
+FOR /F "delims=" %%f IN ('DIR /B /A-D "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\"') DO (
+	IF "%%f" == ".cvsignore" (
+		svn.exe delete --force "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+		DEL /Q "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+	) ELSE IF "%%f" == "Makefile.in" (
+		svn.exe delete --force "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+		DEL /Q "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+	) ELSE IF NOT EXIST "%WINE_RELATIVE_WINE%%WINE_RELATIVE_DIR%\%%f" (
+		SET WINE_FILE=%%f
+		IF NOT "!WINE_FILE:~-9!" == "_ros.diff" (
+			svn.exe delete "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+			IF ERRORLEVEL 2 GOTO :helpsvn
+			IF EXIST "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" DEL /Q "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f"
+			IF EXIST "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" RD /S /Q "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f"
+			SET WINE_FILES_DELETED=!WINE_FILES_DELETED! %%f
+		)
+	) ELSE (
+		svn.exe add "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+		IF ERRORLEVEL 2 GOTO :helpsvn
+		svn.exe propset svn:eol-style native "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" >NUL 2>NUL
+		SET >NUL
+	)
+)
+FOR /F "delims=" %%f IN ('DIR /B /AD "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\"') DO (
+	IF NOT "%%f" == ".svn" (
+		2>NUL MKDIR "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f"
+		svn.exe add "%WINE_RELATIVE_ROS%%WINE_RELATIVE_DIR%\%%f" 2>NUL
+		CALL :internal_merge_directory %WINE_RELATIVE_DIR%\%%f
+	)
+)
+goto :eof
 
 :internal_create_testlist
 SET WINE_TESTLIST=%WINE_RELATIVE_WINE%\testlist.c
@@ -413,8 +522,8 @@ REM ****************************************************************************
 SETLOCAL ENABLEEXTENSIONS
 SETLOCAL ENABLEDELAYEDEXPANSION
 IF "%3" == "" GOTO help
-IF NOT EXIST "%2\ReactOS.rbuild" (
-	ECHO %2\ReactOS.rbuild doesn't exit.
+IF NOT EXIST "%2\ReactOS-i386.rbuild" (
+	ECHO %2\ReactOS-i386.rbuild doesn't exist.
 	GOTO :help
 )
 SET WINE_LIST=
@@ -430,7 +539,7 @@ SET WINE_LIST=%WINE_LIST% %WINE_MODULE_NAME%
 GOTO make_filllist
 :make_doit
 PUSHD "%WINE_ROS_DIR%"
-make.exe %WINE_LIST%
+mingw32-make.exe %WINE_LIST%
 POPD
 GOTO :eof
 
@@ -466,7 +575,7 @@ FOR %%m IN (%WINE_LIST%) DO (
 	)
 	>NUL CALL :link link "%WINE_ROS_DIR%" %%m
 )
-CALL :merge merge "%WINE_ROS_DIR%" %WINE_LIST%
+CALL :merge merge %WINE_ROS_DIR% %WINE_LIST%
 IF ERRORLEVEL 1 GOTO :eof
 IF EXIST "%WINE_ROS_DIR%\makefile.auto" DEL "%WINE_ROS_DIR%\makefile.auto"
 CALL :make make "%WINE_ROS_DIR%" %WINE_NEW_LIST%
