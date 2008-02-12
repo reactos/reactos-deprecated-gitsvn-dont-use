@@ -130,7 +130,7 @@
 							
 							// We need a DB connection for getting the user groups and checking if the user is logged in
 							$db = mysql_connect($DB_HOST, $DB_USER, $DB_PASS) or die("Could not connect to the database!");
-							$query = "SELECT usrgroup_name_id, usrgroup_name FROM $DB_ROSCMS.usergroups";
+							$query = "SELECT usrgroup_name_id, usrgroup_name FROM $DB_ROSCMS.usergroups WHERE usrgroup_visible = 1;";
 							$result = mysql_query($query, $db) or die("Query failed #1!");
 							
 							echo "<table>";
