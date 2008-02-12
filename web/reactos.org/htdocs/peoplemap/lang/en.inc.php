@@ -11,7 +11,7 @@
 	/**** English resources (charset=utf-8) ****/
 	$peoplemap_langres["language"] = "Language";
 
-	$peoplemap_langres["header"] = '<a href="http://www.reactos.org/">Startseite</a> &gt; ReactOS People Map';
+	$peoplemap_langres["header"] = '<a href="http://www.reactos.org/">Home</a> &gt; ReactOS People Map';
 	$peoplemap_langres["title"] = "ReactOS People Map";
 	$peoplemap_langres["intro"] = "The following map shows the locations of ReactOS Developers and Users";
 	
