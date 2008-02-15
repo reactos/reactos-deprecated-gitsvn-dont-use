@@ -81,5 +81,6 @@
 		echo "</user>";
 	}
 	
+	mysql_close($db);
 	echo "</userinformation>";
 ?>

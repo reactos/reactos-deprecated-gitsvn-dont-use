@@ -10,6 +10,27 @@ var Map;
 var IconTable;
 var MarkerTable;
 var MyLocationMarker = null;
+var MarkerCount = 0;
+
+var CircleIcon;
+var CurrentIcon;
+var CurrentIconPrefix;
+var MarkerIcon;
+
+function UpdateCounts()
+{
+	document.getElementById("counttext").innerHTML = "<?php echo $peoplemap_langres["count1"]; ?>" + MarkerCount + "<?php echo $peoplemap_langres["count2"]; ?>" + LocationCount + "<?php echo $peoplemap_langres["count3"]; ?>" + UserCount + "<?php echo $peoplemap_langres["count4"]; ?>";
+}
+
+function GetIconPath(UserGroup)
+{
+	if(!UserGroup)
+		IconColor = "white";
+	else
+		IconColor = IconTable[UserGroup];
+	
+	return "images/" + CurrentIconPrefix + "_" + IconColor + ".png";
+}
 
 function AddUserToMap(UserId, UserName, FullName, Latitude, Longitude, UserGroup)
 {
@@ -20,15 +41,10 @@ function AddUserToMap(UserId, UserName, FullName, Latitude, Longitude, UserGroup
 	var IconColor;
 	
 	if(!UserGroup)
-	{
 		UserGroup = "";
-		IconColor = "white";
-	}
-	else
-		IconColor = IconTable[UserGroup];
-	
-	var Icon = new GIcon(G_DEFAULT_ICON, "images/marker_" + IconColor + ".png");
-	var Marker = new GMarker( new GLatLng(Latitude, Longitude), Icon );
+
+	CurrentIcon.image = GetIconPath(UserGroup);
+	var Marker = new GMarker( new GLatLng(Latitude, Longitude), CurrentIcon );
 	var html;
 	
 	html  = "<strong><a href=\"http://reactos.org/roscms/?page=user&sec=profil&sec2=" + UserId + "\" target=\"_blank\">" + UserName + "</a></strong><br>";
@@ -38,19 +54,21 @@ function AddUserToMap(UserId, UserName, FullName, Latitude, Longitude, UserGroup
 	html += "<?php echo $peoplemap_langres["latitude"]; ?>: " + parseFloat(Latitude) + "&deg;<br>";
 	html += "<?php echo $peoplemap_langres["longitude"]; ?>: " + parseFloat(Longitude) + "&deg;<br><br>";
 	
-	html += "<a href=\"javascript:RemoveUserFromMap(" + UserId + ")\"><?php echo $peoplemap_langres["removefrommap"]; ?></a>";
-	
-	GEvent.addListener( Marker, "click", function() {Marker.openInfoWindowHtml(html);} );
+	html += "<a href=\"javascript:RemoveUserFromMap(" + UserId + "); UpdateCounts();\"><?php echo $peoplemap_langres["removefrommap"]; ?></a>";
 	
 	MarkerTable[UserId] = new Object();
+	MarkerTable[UserId].click = GEvent.addListener( Marker, "click", function() {Marker.openInfoWindowHtml(html);} );
 	MarkerTable[UserId].group = UserGroup;
+	MarkerTable[UserId].html = html;
 	MarkerTable[UserId].marker = Marker;
 	
+	MarkerCount++;
 	Map.addOverlay(Marker);
 }
 
 function RemoveUserFromMap(UserId)
 {
+	MarkerCount--;
 	Map.removeOverlay(MarkerTable[UserId].marker);
 	delete MarkerTable[UserId];
 }
@@ -167,7 +185,7 @@ function GetUsersByNameCallback(HttpRequest)
 				var Longitude = users[i].getElementsByTagName("longitude")[0].firstChild.data;
 				
 				html += "<li>";
-				html += "<a href=\"javascript:AddUserToMap(" + UserId + ", '" + UserName + "', '" + FullName + "', " + Latitude + ", " + Longitude + ");\">";
+				html += "<a href=\"javascript:AddUserToMap(" + UserId + ", '" + UserName + "', '" + FullName + "', " + Latitude + ", " + Longitude + "); UpdateCounts();\">";
 				html += UserName;
 				html += "</a>";
 				
@@ -209,6 +227,8 @@ function GetUsersByGroupCallback(HttpRequest, UserGroup)
 			
 			AddUserToMap(UserId, UserName, FullName, Latitude, Longitude, UserGroup);
 		}
+		
+		UpdateCounts();
 	}
 	
 	SetLoading(UserGroup, false);
@@ -235,31 +255,46 @@ function GetUser()
 	}
 }
 
+// Cancel scrolling the window, when the mouse wheel is used while the mouse is in the map
+function OnMapMouseScroll(event)
+{
+	// First hack to get this to work with IE
+	if(!event)
+		event = window.event;
+	
+	if(event.preventDefault)
+	{
+		// The DOM Level 2 way
+		event.preventDefault();
+	}
+	else
+	{
+		// As always, IE also needs an extra handler here.. :-/
+		return false;
+	}
+}
+
 function OnWindowResize()
 {
 	var MinMapHeight = 300;
-	var MinWndScrollHeight = 800;
 	var MinMapWidth = 500;
 	var SubtractHeight = 300;
 	var SubtractWidth = 500;
 	
 	var MapBox = document.getElementById("map");
 	var MapHeight;
-	var WndHeight;
 	var MapWidth;
 	
 	// Set the height
 	if(window.innerHeight)
 	{
 		// All browsers except IE
-		WndHeight = window.innerHeight;
 		MapHeight = window.innerHeight - SubtractHeight;
 		MapWidth = window.innerWidth - SubtractWidth;
 	}
 	else
 	{
 		// IE in Strict Mode
-		WndHeight = document.documentElement.clientHeight;
 		MapHeight = document.documentElement.clientHeight - SubtractHeight;
 		MapWidth = document.documentElement.clientWidth - SubtractWidth;
 	}
@@ -270,20 +305,14 @@ function OnWindowResize()
 	if(MapWidth < MinMapWidth)
 		MapWidth = MinMapWidth;
 	
-	if(Map)
-	{
-		if(WndHeight < MinWndScrollHeight)
-			Map.disableScrollWheelZoom();
-		else
-			Map.enableScrollWheelZoom();
-	}
-	
 	MapBox.style.height = String(MapHeight) + "px";
 	MapBox.style.width = String(MapWidth) + "px";
 }
 
 function Load()
 {
+	var i;
+	
 	// Exclude IE 5.5 as well, because it has problems with the CSS cursor attribute and various other stuff
 	if( !GBrowserIsCompatible() || navigator.userAgent.indexOf("MSIE 5.5") >= 0)
 	{
@@ -301,11 +330,33 @@ function Load()
 	Map.addControl(new GMapTypeControl());
 	Map.addControl(new GOverviewMapControl(new GSize(150,150)));
 	Map.setCenter(new GLatLng(0, 0), 1);
+	Map.enableScrollWheelZoom();
 	
-	// Call it again for enabling/disabling scroll wheel zoom
-	OnWindowResize();
+	// There is no standard way for capturing mouse wheel events
+	//   - The "DOMMouseScroll" event is XUL-specific, so it only works with Gecko browsers
+	//   - onmousewheel works with Safari/WebKit, Opera and IE
+	if(Map.getContainer().addEventListener)
+		Map.getContainer().addEventListener("DOMMouseScroll", OnMapMouseScroll, false);
+	
+	Map.getContainer().onmousewheel = OnMapMouseScroll;
 	
 	MarkerTable = new Object();
+	
+	// Set up the icons
+	MarkerIcon = new GIcon(G_DEFAULT_ICON);
+	CircleIcon = new GIcon(G_DEFAULT_ICON);
+	CircleIcon.shadow = "";
+	CircleIcon.iconSize = new GSize(10, 10);
+	CircleIcon.shadowSize = null;
+	CircleIcon.iconAnchor = new GPoint(5, 5);
+	
+	// Firefox doesn't reset check marks on a reload, so do that manually here
+	document.getElementsByName("icon")[0].checked = "checked";
+	
+	for(i = 0; i < document.getElementsByName("usergroups").length; i++)
+		document.getElementsByName("usergroups")[i].checked = "";
+	
+	SwitchIcon("marker");
 }
 
 function Unload()
@@ -313,6 +364,41 @@ function Unload()
 	delete IconTable;
 	delete MarkerTable;
 	GUnload();
+}
+
+function SwitchIconCreateMarker(id)
+{
+	// For some reason, this needs to be done in a separate function. Otherwise all markers will always open the info window of the last marker.
+	var Marker = new GMarker(MarkerTable[id].marker.getLatLng(), CurrentIcon);
+	
+	MarkerTable[id].click = GEvent.addListener(Marker, "click", function() {Marker.openInfoWindowHtml(MarkerTable[id].html);} );
+	MarkerTable[id].marker = Marker;
+	Map.addOverlay(Marker);
+}
+
+function SwitchIcon(prefix)
+{
+	if(CurrentIconPrefix == prefix)
+		return;
+	
+	// Change the current icon and icon prefix
+	if(prefix == "circle")
+		CurrentIcon = CircleIcon;
+	else
+		CurrentIcon = MarkerIcon;
+	
+	CurrentIconPrefix = prefix;
+	
+	// Change the icons of all existing markers (we have to recreate them all :-/)
+	for(id in MarkerTable)
+	{
+		GEvent.removeListener(MarkerTable[id].click);
+		Map.removeOverlay(MarkerTable[id].marker);
+		
+		CurrentIcon.image = GetIconPath(MarkerTable[id].group);
+		SwitchIconCreateMarker(id);
+	}
+		
 }
 
 function ToggleToolbox(id)
@@ -372,6 +458,8 @@ function ToggleUserGroup(CheckBox, UserGroup)
 			if(MarkerTable[id].group == UserGroup)
 				RemoveUserFromMap(id);
 		}
+		
+		UpdateCounts();
 	}
 }
 

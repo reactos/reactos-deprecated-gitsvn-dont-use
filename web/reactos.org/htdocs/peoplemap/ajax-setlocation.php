@@ -43,6 +43,7 @@
 	$query = "SELECT user_name, user_fullname FROM $DB_ROSCMS.users WHERE user_id = $userid LIMIT 1;";
 	$result = mysql_query($query, $db) or die("<error>Query failed #3!</error>");
 	$row = mysql_fetch_row($result);
+	mysql_close($db);
 	
 	echo "<userinformation>";
 	echo "<user>";

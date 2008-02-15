@@ -30,6 +30,7 @@
 	// Delete the location entry
 	$query = "DELETE FROM $DB_PEOPLEMAP.user_locations WHERE roscms_user_id = $userid;";
 	mysql_query($query, $db) or die("<error>Query failed #2!</error>");
+	mysql_close($db);
 	
 	// Just return a success state
 	echo "<deleted />";

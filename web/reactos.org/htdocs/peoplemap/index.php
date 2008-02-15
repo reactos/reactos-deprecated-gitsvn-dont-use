@@ -88,7 +88,7 @@
 
 <table width="100%" cellspacing="0" cellpadding="0">
 	<tr>
-		<td>
+		<td id="map_td">
 			<div class="bubble_bg">
 				<div class="rounded_ll">
 				<div class="rounded_lr">
@@ -110,6 +110,51 @@
 			</div>
 		</td>
 		<td id="toolbox_td">
+			<div class="bubble_bg">
+				<div class="rounded_ll">
+				<div class="rounded_lr">
+				<div class="rounded_ul">
+				<div class="rounded_ur">
+			
+				<div class="bubble">
+					<div id="counttext">
+						<?php
+							$db = mysql_connect($DB_HOST, $DB_USER, $DB_PASS) or die("Could not connect to the database!");
+							
+							$query = "SELECT COUNT(*) FROM $DB_ROSCMS.users;";
+							$result = mysql_query($query, $db);
+							$user_count = mysql_result($result, 0);
+							
+							$query = "SELECT COUNT(*) FROM $DB_PEOPLEMAP.user_locations;";
+							$result = mysql_query($query, $db);
+							$location_count = mysql_result($result, 0);
+							
+							echo $peoplemap_langres["count1"] . "0" . $peoplemap_langres["count2"] . $location_count . $peoplemap_langres["count3"] . $user_count . $peoplemap_langres["count4"];
+							
+							echo "<script type=\"text/javascript\">";
+							echo "LocationCount = $location_count;";
+							echo "UserCount = $user_count;";
+							echo "</script>";
+						?>
+					</div><br>
+				
+					<table>
+						<tr>
+							<td><?php echo $peoplemap_langres["icons"]; ?>:</td>
+							<td><input type="radio" name="icon" value="marker" checked="checked" onclick="SwitchIcon(this.value);"></td>
+							<td id="icon_marker"></td>
+							<td><input type="radio" name="icon" value="circle" onclick="SwitchIcon(this.value);"></td>
+							<td><div id="icon_circle"></div></td>
+						</tr>
+					</table>
+				</div>
+				
+				</div>
+				</div>
+				</div>
+				</div>
+			</div>
+
 			<div class="bubble_bg" id="toolbox0_bubble">
 				<div class="rounded_ll">
 				<div class="rounded_lr">
@@ -128,8 +173,6 @@
 						<?php
 							echo $peoplemap_langres["filter_intro"] . "<br><br>";
 							
-							// We need a DB connection for getting the user groups and checking if the user is logged in
-							$db = mysql_connect($DB_HOST, $DB_USER, $DB_PASS) or die("Could not connect to the database!");
 							$query = "SELECT usrgroup_name_id, usrgroup_name FROM $DB_ROSCMS.usergroups WHERE usrgroup_visible = 1;";
 							$result = mysql_query($query, $db) or die("Query failed #1!");
 							
@@ -141,7 +184,7 @@
 							while($row = mysql_fetch_row($result))
 							{
 								echo "<tr>";
-								echo "<td><input type=\"checkbox\" onclick=\"ToggleUserGroup(this, '" . $row[0] . "');\"></td>";
+								echo "<td><input type=\"checkbox\" name=\"usergroups\" onclick=\"ToggleUserGroup(this, '" . $row[0] . "');\"></td>";
 								echo "<td><div class=\"colorbox\" style=\"background: " . current($MARKERS) . "\"></div></td>";
 								echo "<td>" . $row[1] . "</td>";
 								echo "<td><img id=\"ajaxloading_" . $row[0] . "\" style=\"visibility: hidden;\" src=\"images/ajax_loading.gif\" alt=\"\"></td>";
