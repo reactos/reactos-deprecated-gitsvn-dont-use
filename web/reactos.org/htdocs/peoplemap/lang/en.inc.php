@@ -13,7 +13,7 @@
 
 	$peoplemap_langres["header"] = '<a href="http://www.reactos.org/">Home</a> &gt; ReactOS People Map';
 	$peoplemap_langres["title"] = "ReactOS People Map";
-	$peoplemap_langres["intro"] = "The following map shows the locations of ReactOS Developers and Users";
+	$peoplemap_langres["intro"] = "The following map shows the locations of ReactOS Developers and Users.";
 	
 	$peoplemap_langres["filter"] = "Filter by User Groups";
 	$peoplemap_langres["filter_intro"] = "Click a Checkbox next to a User Group to add all Users of this Group to the Map or remove them.";
@@ -44,4 +44,10 @@
 	$peoplemap_langres["nousers"] = "No user with location data found!";
 	$peoplemap_langres["activatejs"] = "You have to activate JavaScript to use the People Map!";
 	$peoplemap_langres["unsupportedbrowser"] = "The People Map is not supported by your Browser.";
+	
+	$peoplemap_langres["count1"] = "Showing <strong>";
+	$peoplemap_langres["count2"] = " of ";
+	$peoplemap_langres["count3"] = "</strong> users with location data (of ";
+	$peoplemap_langres["count4"] = " users in total)";
+	$peoplemap_langres["icons"] = "Icon to use";
 ?>

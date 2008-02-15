@@ -44,4 +44,10 @@
 	$peoplemap_langres["nousers"] = "Keinen Benutzer mit Ortsdaten gefunden.";
 	$peoplemap_langres["activatejs"] = "Sie müssen JavaScript aktivieren, um die Personen-Karte zu benutzen!";
 	$peoplemap_langres["unsupportedbrowser"] = "Die Personen-Karte wird von Ihrem Browser nicht unterstützt.";
+	
+	$peoplemap_langres["count1"] = "<strong>";
+	$peoplemap_langres["count2"] = " von ";
+	$peoplemap_langres["count3"] = "</strong> Personen mit Positionsdaten werden angezeigt (von ";
+	$peoplemap_langres["count4"] = " Benutzern insgesamt)";
+	$peoplemap_langres["icons"] = "Symbol benutzen";
 ?>

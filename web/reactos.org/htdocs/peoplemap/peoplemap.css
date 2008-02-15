@@ -22,10 +22,6 @@ a:hover {
 	color: #000000;
 }
 
-tr, td {
-	vertical-align: top;
-}
-
 h1 {
 	display: block;
 	line-height: normal;
@@ -191,9 +187,25 @@ h3 {
 	background: transparent url(images/lr.gif) no-repeat scroll right bottom;
 }
 
+#map_td, #toolbox_td {
+	vertical-align: top;
+}
+
 #toolbox_td {
 	width: 300px;
 	padding-left: 7px;
+}
+
+#icon_marker {
+	height: 31px;
+	width: 19px;
+	background: url(images/marker_white.png) no-repeat;
+}
+
+#icon_circle {
+	height: 10px;
+	width: 10px;
+	background: url(images/circle_white.png) no-repeat center;
 }
 
 #toolbox0_image, #toolbox1_image, #toolbox2_image {

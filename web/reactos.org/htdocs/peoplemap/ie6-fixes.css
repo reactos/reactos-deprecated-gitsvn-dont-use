@@ -12,8 +12,16 @@
 }
 
 /* Show PNG's with alpha transparency through the AlphaImageLoader filter */
-#toolbox0_image, #toolbox1_image, #toolbox2_image {
+#icon_marker, #icon_circle, #toolbox0_image, #toolbox1_image, #toolbox2_image {
 	background: none;
+}
+
+#icon_marker {
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="images/marker_white.png");
+}
+
+#icon_circle {
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src="images/circle_white.png");
 }
 
 #toolbox0_image {
