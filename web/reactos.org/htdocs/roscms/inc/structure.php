@@ -127,9 +127,10 @@ function create_structure($page )
               ?>
               </optgroup>
 			  <optgroup label="most popular">
+              <option value="bg">Български (Bulgarian)</option>
               <option value="en">English</option>
-              <option value="de">Deutsch (German)</option>
               <option value="fr">Français (French)</option>
+              <option value="de">Deutsch (German)</option>
               <option value="it">Italiano (Italian)</option>
               <option value="no">Norsk (Norwegian)</option>
               <option value="pl">Polski (Polish)</option>
