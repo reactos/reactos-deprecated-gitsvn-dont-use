@@ -343,7 +343,7 @@
 		<td bgcolor="#E2E2E2"><input type="text" size="50" maxlength="50" name="desc" id="desc"/></td>
 	  </tr>
 	  <tr>
-		<td valign="top" bgcolor="#EEEEEE" style="paddiong-left: 0px; padding-right: 5px;"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Convert tabs:</font></b></td>
+		<td valign="top" bgcolor="#EEEEEE" style="padding-left: 0px; padding-right: 5px;"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Convert tabs:</font></b></td>
 		<td bgcolor="#EEEEEE">
 		  <select name="cvt_tabs" id="cvt_tabs">
 			<option value="0" selected="selected">No</option>
@@ -358,7 +358,7 @@
 		</td>
 	  </tr>
 	  <tr>
-		<td valign="top" bgcolor="#E2E2E2" style="paddiong-left: 0px; padding-right: 5px;"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Expire after: </font></b></td>
+		<td valign="top" bgcolor="#E2E2E2" style="padding-left: 0px; padding-right: 5px;"><b><font size="2" face="Verdana, Arial, Helvetica, sans-serif">Expire after: </font></b></td>
 		<td bgcolor="#E2E2E2"><font size="2" face="Verdana, Arial, Helvetica, sans-serif">
 		  <input name="optday" type="radio"  value="1" checked="checked" />
 		  7 days <br />
