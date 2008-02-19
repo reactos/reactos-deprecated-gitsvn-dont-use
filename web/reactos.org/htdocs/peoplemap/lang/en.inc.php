@@ -39,7 +39,7 @@
 	
 	$peoplemap_langres["latitude"] = "Latitude";
 	$peoplemap_langres["longitude"] = "Longitude";
-	$peoplemap_langres["removefrommap"] = "Remove this User from the Map";
+	$peoplemap_langres["removefrommap"] = "Remove the User from this Map";
 	$peoplemap_langres["minquerylength"] = "Please enter at least 3 characters.";
 	$peoplemap_langres["nousers"] = "No user with location data found!";
 	$peoplemap_langres["activatejs"] = "You have to activate JavaScript to use the People Map!";
