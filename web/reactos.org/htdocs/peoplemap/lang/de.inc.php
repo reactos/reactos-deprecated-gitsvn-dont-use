@@ -39,7 +39,7 @@
 
 	$peoplemap_langres["latitude"] = "Breite";
 	$peoplemap_langres["longitude"] = "Länge";
-	$peoplemap_langres["removefrommap"] = "Diese Person aus der Karte entfernen";
+	$peoplemap_langres["removefrommap"] = "Person aus dieser Karte entfernen";
 	$peoplemap_langres["minquerylength"] = "Bitte geben Sie mindestens 3 Zeichen ein.";
 	$peoplemap_langres["nousers"] = "Keinen Benutzer mit Ortsdaten gefunden.";
 	$peoplemap_langres["activatejs"] = "Sie müssen JavaScript aktivieren, um die Personen-Karte zu benutzen!";
