@@ -4,7 +4,16 @@
   FILE:       web/reactos.org/htdocs/peoplemap/peoplemap.js.php
   PURPOSE:    Main JavaScript file (parsed by PHP before)
   COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  
+  charset=utf-8
 */
+
+<?php
+	function AddJSSlashes($input)
+	{
+		return str_replace("</", "<\/", $input);
+	}
+?>
 
 var Map;
 var IconTable;
@@ -19,7 +28,7 @@ var MarkerIcon;
 
 function UpdateCounts()
 {
-	document.getElementById("counttext").innerHTML = "<?php echo $peoplemap_langres["count1"]; ?>" + MarkerCount + "<?php echo $peoplemap_langres["count2"]; ?>" + LocationCount + "<?php echo $peoplemap_langres["count3"]; ?>" + UserCount + "<?php echo $peoplemap_langres["count4"]; ?>";
+	document.getElementById("counttext").innerHTML = "<?php echo $peoplemap_langres["count1"]; ?>" + MarkerCount + "<?php echo $peoplemap_langres["count2"]; ?>" + LocationCount + "<?php echo AddJSSlashes($peoplemap_langres["count3"]); ?>" + UserCount + "<?php echo $peoplemap_langres["count4"]; ?>";
 }
 
 function GetIconPath(UserGroup)
@@ -47,14 +56,14 @@ function AddUserToMap(UserId, UserName, FullName, Latitude, Longitude, UserGroup
 	var Marker = new GMarker( new GLatLng(Latitude, Longitude), CurrentIcon );
 	var html;
 	
-	html  = "<strong><a href=\"http://reactos.org/roscms/?page=user&sec=profil&sec2=" + UserId + "\" target=\"_blank\">" + UserName + "</a></strong><br>";
+	html  = "<strong><a href=\"http://reactos.org/roscms/?page=user&sec=profil&sec2=" + UserId + "\" target=\"_blank\">" + UserName + "<\/a><\/strong><br>";
 	html += FullName + "<br><br>";
 	
 	// parseFloat strips off trailing zeros
 	html += "<?php echo $peoplemap_langres["latitude"]; ?>: " + parseFloat(Latitude) + "&deg;<br>";
 	html += "<?php echo $peoplemap_langres["longitude"]; ?>: " + parseFloat(Longitude) + "&deg;<br><br>";
 	
-	html += "<a href=\"javascript:RemoveUserFromMap(" + UserId + "); UpdateCounts();\"><?php echo $peoplemap_langres["removefrommap"]; ?></a>";
+	html += "<a href=\"javascript:RemoveUserFromMap(" + UserId + "); UpdateCounts();\"><?php echo $peoplemap_langres["removefrommap"]; ?><\/a>";
 	
 	MarkerTable[UserId] = new Object();
 	MarkerTable[UserId].click = GEvent.addListener( Marker, "click", function() {Marker.openInfoWindowHtml(html);} );
@@ -187,15 +196,15 @@ function GetUsersByNameCallback(HttpRequest)
 				html += "<li>";
 				html += "<a href=\"javascript:AddUserToMap(" + UserId + ", '" + UserName + "', '" + FullName + "', " + Latitude + ", " + Longitude + "); UpdateCounts();\">";
 				html += UserName;
-				html += "</a>";
+				html += "<\/a>";
 				
 				if(FullName != "")
 					html += " (" + FullName + ")";
 				
-				html += "</li>";
+				html += "<\/li>";
 			}
 			
-			html += "</ul>";
+			html += "<\/ul>";
 			
 			document.getElementById("add_user_result").innerHTML = html;
 		}
@@ -489,7 +498,7 @@ function SetLocationMarker_GetUserCallback(HttpRequest)
 	}
 	else
 	{
-		// We set the marker at 0° N, 0° E. To ensure that the user sees the marker, reset the viewport.
+		// We set the marker at 0Â° N, 0Â° E. To ensure that the user sees the marker, reset the viewport.
 		Map.setCenter(new GLatLng(0, 0), 1);
 	}
 	
