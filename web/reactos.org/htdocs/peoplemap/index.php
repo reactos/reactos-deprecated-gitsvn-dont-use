@@ -265,7 +265,7 @@
 							$logintext  = $peoplemap_langres["mylocation_login"];
 							$logintext .= "<br><br>";
 							$logintext .= "<div style=\"text-align: center;\">";
-							$logintext .= "<a href=\"/roscms/?page=login&target=" . urlencode($_SERVER["PHP_SELF"]) . "\">" . $peoplemap_langres["mylocation_login_page"] . "</a>";
+							$logintext .= "<a href=\"/roscms/?page=login&amp;target=" . urlencode($_SERVER["PHP_SELF"]) . "\">" . $peoplemap_langres["mylocation_login_page"] . "</a>";
 							$logintext .= "<script type=\"text/javascript\">MyUserId = -1;</script>";
 							$logintext .= "</div>";
 							
