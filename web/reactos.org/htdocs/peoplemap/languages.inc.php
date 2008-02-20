@@ -10,6 +10,7 @@
 	// The language names have to be saved in an UTF-8 file without the Byte-Order-Mark
 	$peoplemap_languages = array(
 		"en" => "English",
-		"de" => "Deutsch (German)"
+		"de" => "Deutsch (German)",
+		"es" => "Español (Spanish)",
 	);
 ?>
