@@ -412,6 +412,7 @@ sub bz_locations {
         $datadir = "data";
     }
 
+    # Set this to "localconfig" if you want to run the Bugzilla locally
     $localconfig = "/web/reactos.org/config/bugzilla-config";
     
     # We have to return absolute paths for mod_perl. 
