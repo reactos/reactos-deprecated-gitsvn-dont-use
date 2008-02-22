@@ -221,12 +221,6 @@ sub OPTIONAL_MODULES {
         version => '3.11',
         feature => 'mod_perl'
     },
-    {
-        package => 'Apache-DBI',
-        module  => 'Apache::DBI',
-        version => '0.96',
-        feature => 'mod_perl'
-    },
     );
 
     my $all_modules = _get_extension_requirements(
@@ -585,7 +579,7 @@ sub install_command {
         $package = $module->{package};
     }
     else {
-        $command = "$^X -MCPAN -e 'install \%s'";
+        $command = "$^X -MCPAN -e 'install \"\%s\"'";
         # Non-Windows installations need to use module names, because
         # CPAN doesn't understand package names.
         $package = $module->{module};
