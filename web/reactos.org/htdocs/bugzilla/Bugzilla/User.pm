@@ -562,21 +562,16 @@ sub can_see_user {
 sub can_edit_product {
     my ($self, $prod_id) = @_;
     my $dbh = Bugzilla->dbh;
-    my $sth = $self->{sthCanEditProductId};
-    my $userid = $self->{id};
-    my $query = q{SELECT group_id FROM group_control_map 
-                   WHERE product_id =? 
-                     AND canedit != 0 };
-    if (%{$self->groups}) {
-        my $groups = join(',', values(%{$self->groups}));
-        $query .= qq{AND group_id NOT IN($groups)};
-    }
-    unless ($sth) { $sth = $dbh->prepare($query); }
-    $sth->execute($prod_id);
-    $self->{sthCanEditProductId} = $sth;
-    my $result = $sth->fetchrow_array();
-    
-    return (!defined($result));
+
+    my $has_external_groups =
+      $dbh->selectrow_array('SELECT 1
+                               FROM group_control_map
+                              WHERE product_id = ?
+                                AND canedit != 0
+                                AND group_id NOT IN(' . $self->groups_as_string . ')',
+                             undef, $prod_id);
+
+    return !$has_external_groups;
 }
 
 sub can_see_bug {
@@ -771,7 +766,7 @@ sub check_can_admin_product {
 
     ($self->in_group('editcomponents', $product->id)
        && $self->can_see_product($product->name))
-         || ThrowUserError('product_access_denied', {product => $product->name});
+         || ThrowUserError('product_admin_denied', {product => $product->name});
 
     # Return the validated product object.
     return $product;
@@ -1375,8 +1370,8 @@ sub wants_bug_mail {
         
         if ($fieldName eq "CC") {
             my $login = $self->login;
-            my $inold = ($old =~ /^(.*,)?\Q$login\E(,.*)?$/);
-            my $innew = ($new =~ /^(.*,)?\Q$login\E(,.*)?$/);
+            my $inold = ($old =~ /^(.*,\s*)?\Q$login\E(,.*)?$/);
+            my $innew = ($new =~ /^(.*,\s*)?\Q$login\E(,.*)?$/);
             if ($inold != $innew)
             {
                 $events{+EVT_ADDED_REMOVED} = 1;

@@ -28,7 +28,6 @@ use strict;
 # startup, so we always specify () after using any module in this
 # file.
 
-use Apache::DBI ();
 use Apache2::ServerUtil;
 use Apache2::SizeLimit;
 use ModPerl::RegistryLoader ();
@@ -71,6 +70,9 @@ $server->add_config([split("\n", $conf)]);
 
 # Have ModPerl::RegistryLoader pre-compile all CGI scripts.
 my $rl = new ModPerl::RegistryLoader();
+# If we try to do this in "new" it fails because it looks for a 
+# Bugzilla/ModPerl/ResponseHandler.pm
+$rl->{package} = 'Bugzilla::ModPerl::ResponseHandler';
 # Note that $cgi_path will be wrong if somebody puts the libraries
 # in a different place than the CGIs.
 foreach my $file (glob "$cgi_path/*.cgi") {
