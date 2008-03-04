@@ -53,8 +53,8 @@ WriteSettings(POPTIONS_DLG infoPtr)
     strip = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
     objstate = (SendDlgItemMessage(infoPtr->hwndDlg, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
     outstate = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    foreground = SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_GETCURSEL, 0, 0);
-    background = SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_GETCURSEL, 0, 0);
+    foreground = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_MGWDIR, mingwpath, MAX_PATH);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_OBJDIR, objdir, MAX_PATH);
@@ -222,8 +222,8 @@ VOID SetSaveState(POPTIONS_DLG infoPtr)
     strip = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_STRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
     objstate = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
     outstate = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    foreground = SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_GETCURSEL, 0, 0);
-    background = SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_GETCURSEL, 0, 0);
+    foreground = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_GETCURSEL, 0, 0);
+    background = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_LOGDIR, logdir, MAX_PATH);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_MGWDIR, mingwpath, MAX_PATH);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_OBJDIR, objdir, MAX_PATH);
@@ -268,7 +268,7 @@ BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             if (lParam != ID_MGWDIR)
             {
                 WCHAR BoxMsg[256], BoxTitle[128];
-                INT PathLen;
+                size_t PathLen;
                 LoadString(hInstance, MSG_WARNINGBOX, BoxTitle, 128);
                 LoadString(hInstance, MSG_INVALIDDIR, BoxMsg, 256);
                 if (MessageBox(Dlg, BoxMsg, BoxTitle, MB_ICONWARNING | MB_YESNO) == IDYES)
@@ -354,6 +354,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 {ID_CANCEL, HLP_QUITBUTTON},
             };
             int i;
+            UINT j;
             LOGFONT lf;
             WCHAR TempColor[256];
 
@@ -393,9 +394,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
             lf.lfItalic, lf.lfUnderline, lf.lfStrikeOut, lf.lfCharSet,  lf.lfOutPrecision,
             lf.lfClipPrecision, lf.lfQuality,  lf.lfPitchAndFamily, lf.lfFaceName);
 
-            for(UINT i = 0; i < 16; i++)
+            for(j = 0; j < 16; i++)
             {
-                LoadString(hInstance, i, TempColor, 256);
+                LoadString(hInstance, j, TempColor, 256);
                 SendDlgItemMessageW(Dlg, IDC_BACK, CB_ADDSTRING, 0, (LPARAM) TempColor);
                 SendDlgItemMessageW(Dlg, IDC_FONT, CB_ADDSTRING, 0, (LPARAM) TempColor);
             }
@@ -523,7 +524,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 hFontOld = SelectObject((HDC)wParam, infoPtr->hFont);
                 SetTextColor((HDC)wParam, ColorsRGB[SendDlgItemMessageW(Dlg, IDC_FONT, CB_GETCURSEL, 0, 0)]);
                 SetBkColor((HDC)wParam, ColorsRGB[SendDlgItemMessageW(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
-                return (LONG)CreateSolidBrush(ColorsRGB[SendDlgItemMessageW(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
+                return (INT_PTR)CreateSolidBrush(ColorsRGB[SendDlgItemMessageW(Dlg, IDC_BACK, CB_GETCURSEL, 0, 0)]);
             }
             break;
         }
