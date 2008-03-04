@@ -159,10 +159,8 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
                 else if (wcscmp(ptr, L"_ROSBE_OUTPATH") == 0)
                     wcsncpy(LoadedSettings->outdir, ptr2, wcslen(ptr2)-1);
             }
-            free(WTempLine);
         }
         fclose(pFile);
-        free(WTempLine);
         LoadString(hInstance, MSG_SETLOADSUC, SBTitle, 256);
         SetDlgItemText(infoPtr->hwndDlg, ID_STATUSBAR, SBTitle);
     }
@@ -259,7 +257,7 @@ BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
         case BFFM_INITIALIZED:
         {
             WCHAR ActualPath[MAX_PATH];
-            GetDlgItemText(hwndParent, lParam, ActualPath, MAX_PATH);
+            GetDlgItemText(hwndParent, (INT) lParam, ActualPath, MAX_PATH);
             SendMessage(Dlg, BFFM_SETSELECTION, TRUE, (LPARAM)ActualPath);
             break;
         }
@@ -283,7 +281,7 @@ BrowseProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                     }
                     else
                     {
-                        SetDlgItemText(hwndParent, lParam, (LPWSTR)wParam);
+                        SetDlgItemText(hwndParent, (INT) lParam, (LPWSTR)wParam);
                     }
                 }
             }
@@ -488,7 +486,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                         BOOL WriteLogSet;
                         INT Dialog1 = ID_BROWSE;
                         INT Dialog2 = ID_LOGDIR;
-                        WriteLogSet = (SendDlgItemMessageW(Dlg, wParam, BM_GETCHECK, 0, 0) == BST_CHECKED);
+                        WriteLogSet = (SendDlgItemMessageW(Dlg, (INT)wParam, BM_GETCHECK, 0, 0) == BST_CHECKED);
                         if (wParam == ID_OTHEROBJ)
                         {
                             Dialog1 = ID_BROWSEOBJ;
@@ -533,6 +531,9 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
         {
             if (infoPtr->hIcon)
                 DestroyIcon(infoPtr->hIcon);
+            if (infoPtr->hFont)
+                DeleteObject(infoPtr->hFont);
+
         }
 
         case WM_CLOSE:
@@ -553,7 +554,7 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdline, int cmdshow)
     OptionsDlgInfo = HeapAlloc(GetProcessHeap(), 0, sizeof(*OptionsDlgInfo));
     if (OptionsDlgInfo != NULL)
     {
-        ZeroMemory(OptionsDlgInfo, sizeof(*OptionsDlgInfo));
+        ZeroMemory(OptionsDlgInfo, sizeof(OPTIONS_DLG));
         DialogBoxParam(hInst, MAKEINTRESOURCE(ID_DIALOG), 0, DlgProc, (LPARAM)OptionsDlgInfo);
         HeapFree(GetProcessHeap(), 0, OptionsDlgInfo);
     }
