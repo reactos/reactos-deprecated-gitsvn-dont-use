@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mkstemps.c"
+				>
+			</File>
+			<File
 				RelativePath=".\snprintf.c"
 				>
 			</File>
@@ -216,6 +220,10 @@
 			</File>
 			<File
 				RelativePath=".\util.c"
+				>
+			</File>
+			<File
+				RelativePath=".\win32-dirent.c"
 				>
 			</File>
 		</Filter>
@@ -238,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\mdfour.h"
+				>
+			</File>
+			<File
+				RelativePath=".\win32-dirent.h"
 				>
 			</File>
 		</Filter>
