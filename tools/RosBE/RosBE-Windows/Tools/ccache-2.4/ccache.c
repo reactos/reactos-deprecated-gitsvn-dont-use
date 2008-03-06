@@ -125,9 +125,11 @@ char *build_command(char **argv)
 static void failed(void)
 {
 	char *e;
+#ifdef _WIN32
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	char* merged = build_command(orig_args->argv);
+#endif
 
 	/* delete intermediate pre-processor file if needed */
 	if (i_tmpfile) {
@@ -157,6 +159,7 @@ static void failed(void)
 		args_add_prefix(orig_args, p);
 	}
 
+#ifdef _WIN32
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 
@@ -174,6 +177,12 @@ static void failed(void)
 	CloseHandle( pi.hThread );
 
 	exit(0);
+#else
+	execv(orig_args->argv[0], orig_args->argv);
+	cc_log("execv returned (%s)!\n", strerror(errno));
+	perror(orig_args->argv[0]);
+	exit(1);
+#endif
 }
 
 
