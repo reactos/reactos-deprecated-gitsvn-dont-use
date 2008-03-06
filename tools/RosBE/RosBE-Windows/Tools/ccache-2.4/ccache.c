@@ -87,6 +87,38 @@ static struct {
 	{"ii", "ii"},
 	{NULL, NULL}};
 
+static int first_is_meh(const char* first)
+{
+    const char*  exe = strrchr(first, PATH_SEP_CHAR);
+    const size_t len = strlen(MYNAME);
+
+    if (exe) exe++;
+    else     exe=first;
+    return (strlen(exe) >= len && strncmp(exe, MYNAME, len) == 0 &&
+            (exe[len]==0 || strcmp(exe+len, ".exe")==0) );
+}
+
+char *build_command(char **argv)
+{
+	char *cmd;
+	int i, length = 0;
+
+	for(i = 0; argv[i]; i++) {
+		length++;
+		length += (int)strlen(argv[i]);
+	}
+
+	cmd = (char *)malloc(length);
+	strcpy(cmd, argv[0]);
+
+	for(i = 1; argv[i]; i++) {
+		strcat(cmd, " ");
+		strcat(cmd, argv[i]);
+	}
+
+	return cmd;
+}
+
 /*
   something went badly wrong - just execute the real compiler
 */
@@ -155,12 +187,15 @@ static void to_cache(ARGS *args)
 {
 	char *path_stderr;
 	char *tmp_stdout, *tmp_stderr, *tmp_hashname;
-	struct stat st1, st2;
+	struct stat st;
 	int status;
+	off_t size = 0;
 
-	x_asprintf(&tmp_stdout, "%s/tmp.stdout.%s", temp_dir, tmp_string());
-	x_asprintf(&tmp_stderr, "%s/tmp.stderr.%s", temp_dir, tmp_string());
-	x_asprintf(&tmp_hashname, "%s/tmp.hash.%s.o", temp_dir, tmp_string());
+	/* No quoting, unique arguments */
+	x_asprintf(&tmp_stdout, "%s"PATH_SEP"tmp.stdout.%s", temp_dir, tmp_string());
+	x_asprintf(&tmp_stderr, "%s"PATH_SEP"tmp.stderr.%s", temp_dir, tmp_string());
+	/* Must be quoted as it will belong to a command-line */
+	x_asprintf(&tmp_hashname, "%s"PATH_SEP"tmp.hash.%s.o", temp_dir, tmp_string());
 
 	args_add(args, "-o");
 	args_add(args, tmp_hashname);
@@ -181,7 +216,7 @@ static void to_cache(ARGS *args)
 	status = execute(args->argv, tmp_stdout, tmp_stderr);
 	args_pop(args, 3);
 
-	if (stat(tmp_stdout, &st1) != 0 || st1.st_size != 0) {
+	if (stat(tmp_stdout, &st) != 0 || st.st_size != 0) {
 		cc_log("compiler produced stdout for %s\n", output_file);
 		stats_update(STATS_STDOUT);
 		unlink(tmp_stdout);
@@ -198,7 +233,7 @@ static void to_cache(ARGS *args)
 
 		fd = open(tmp_stderr, O_RDONLY | O_BINARY);
 		if (fd != -1) {
-			if (strcmp(output_file, "/dev/null") == 0 ||
+			if (strcmp(output_file, DEV_NULL) == 0 ||
 			    rename(tmp_hashname, output_file) == 0 || errno == ENOENT) {
 				if (cpp_stderr) {
 					/* we might have some stderr from cpp */
@@ -211,8 +246,7 @@ static void to_cache(ARGS *args)
 					}
 				}
 
-				/* we can use a quick method of
-                                   getting the failed output */
+				/* we can use a quick method of getting the failed output */
 				copy_fd(fd, 2);
 				close(fd);
 				unlink(tmp_stderr);
@@ -228,19 +262,32 @@ static void to_cache(ARGS *args)
 		failed();
 	}
 
-	x_asprintf(&path_stderr, "%s.stderr", hashname);
+    if (stat(tmp_hashname, &st) != 0 || rename(tmp_hashname, hashname) != 0) {
+        cc_log("failed to rename output: %s\n"
+               "  '%s'\n"
+               "  -> '%s': \n",
+               strerror(errno), tmp_hashname, hashname);
+		stats_update(STATS_ERROR);
+		failed();
+	}
+    cc_log("Moved '%s' to '%s'\n", tmp_hashname, hashname);
+    size += file_size(&st);
 
-	if (stat(tmp_stderr, &st1) != 0 ||
-	    stat(tmp_hashname, &st2) != 0 ||
-	    rename(tmp_hashname, hashname) != 0 ||
-	    rename(tmp_stderr, path_stderr) != 0) {
-		cc_log("failed to rename tmp files - %s\n", strerror(errno));
+	x_asprintf(&path_stderr, "%s.stderr", hashname);
+	if (stat(tmp_stderr, &st) != 0 || rename(tmp_stderr, path_stderr) != 0) {
+        cc_log("failed to rename stderr: %s\n"
+               "  '%s'\n"
+               "  -> '%s': \n",
+               strerror(errno), tmp_stderr, path_stderr);
 		stats_update(STATS_ERROR);
 		failed();
 	}
 
+	cc_log("Moved '%s' to '%s'\n", tmp_stderr, path_stderr);
+    size += file_size(&st);
+
 	cc_log("Placed %s into cache\n", output_file);
-	stats_tocache(file_size(&st1) + file_size(&st2));
+	stats_tocache(size);
 
 	free(tmp_hashname);
 	free(tmp_stderr);
@@ -331,8 +378,8 @@ static void find_hash(ARGS *args)
 		hash_string(str_basename(args->argv[0]));
 	}
 
-	hash_int(st.st_size);
-	hash_int(st.st_mtime);
+	hash_int((int)st.st_size);
+	hash_int((int)st.st_mtime);
 
 	/* possibly hash the current working directory */
 	if (getenv("CCACHE_HASHDIR")) {
@@ -356,11 +403,11 @@ static void find_hash(ARGS *args)
 		input_base[10] = 0;
 	}
 
-	/* now the run */
-	x_asprintf(&path_stdout, "%s/%s.tmp.%s.%s", temp_dir,
-		   input_base, tmp_string(), 
-		   i_extension);
-	x_asprintf(&path_stderr, "%s/tmp.cpp_stderr.%s", temp_dir, tmp_string());
+	/* now the run - path_std* are unique args => no quoting */
+	x_asprintf(&path_stdout, "%s"PATH_SEP"%s.tmp.%s.%s", temp_dir,
+ 		   input_base, tmp_string(), 
+ 		   i_extension);
+	x_asprintf(&path_stderr, "%s"PATH_SEP"tmp.cpp_stderr.%s", temp_dir, tmp_string());
 
 	if (!direct_i_file) {
 		/* run cpp on the input file to obtain the .i */
@@ -423,17 +470,18 @@ static void find_hash(ARGS *args)
 
 	/* we use a N level subdir for the cache path to reduce the impact
 	   on filesystems which are slow for large directories
+	   Quoting not necessary because unique argument, or not used yet.
 	*/
 	s = hash_result();
-	x_asprintf(&hash_dir, "%s/%c", cache_dir, s[0]);
-	x_asprintf(&stats_file, "%s/stats", hash_dir);
+	x_asprintf(&hash_dir, "%s"PATH_SEP"%c", cache_dir, s[0]);
+	x_asprintf(&stats_file, "%s"PATH_SEP"stats", hash_dir);
 	for (i=1; i<nlevels; i++) {
 		char *p;
 		if (create_dir(hash_dir) != 0) {
 			cc_log("failed to create %s\n", hash_dir);
 			failed();
 		}
-		x_asprintf(&p, "%s/%c", hash_dir, s[i]);
+		x_asprintf(&p, "%s"PATH_SEP"%c", hash_dir, s[i]);
 		free(hash_dir);
 		hash_dir = p;
 	}
@@ -441,7 +489,7 @@ static void find_hash(ARGS *args)
 		cc_log("failed to create %s\n", hash_dir);
 		failed();
 	}
-	x_asprintf(&hashname, "%s/%s", hash_dir, s+nlevels);
+	x_asprintf(&hashname, "%s"PATH_SEP"%s", hash_dir, s+nlevels);
 	free(hash_dir);
 }
 
@@ -483,7 +531,7 @@ static void from_cache(int first)
 
 	utime(stderr_file, NULL);
 
-	if (strcmp(output_file, "/dev/null") == 0) {
+	if (strcmp(output_file, DEV_NULL) == 0) {
 		ret = 0;
 	} else {
 		unlink(output_file);
@@ -562,10 +610,10 @@ static void find_compiler(int argc, char **argv)
 	base = str_basename(argv[0]);
 
 	/* we might be being invoked like "ccache gcc -c foo.c" */
-	if (strcmp(base, MYNAME) == 0) {
+	if (first_is_meh(argv[0])) {
 		args_remove_first(orig_args);
 		free(base);
-		if (strchr(argv[1],'/')) {
+		if (strchr(argv[1],PATH_SEP_CHAR)) {
 			/* a full path was given */
 			return;
 		}
@@ -801,7 +849,7 @@ static void process_args(int argc, char **argv)
 	if (!output_file) {
 		char *p;
 		output_file = x_strdup(input_file);
-		if ((p = strrchr(output_file, '/'))) {
+		if ((p = strrchr(output_file, PATH_SEP_CHAR))) {
 			output_file = p+1;
 		}
 		p = strrchr(output_file, '.');
@@ -815,7 +863,7 @@ static void process_args(int argc, char **argv)
 	}
 
 	/* cope with -o /dev/null */
-	if (strcmp(output_file,"/dev/null") != 0 && stat(output_file, &st) == 0 && !S_ISREG(st.st_mode)) {
+	if (strcmp(output_file, DEV_NULL) != 0 && stat(output_file, &st) == 0 && !S_ISREG(st.st_mode)) {
 		cc_log("Not a regular file %s\n", output_file);
 		stats_update(STATS_DEVICE);
 		failed();
@@ -934,14 +982,15 @@ static int ccache_main(int argc, char *argv[])
 
 		case 'F':
 			v = atoi(optarg);
-			stats_set_limits(v, -1);
+			stats_set_limits((long)v, -1);
 			printf("Set cache file limit to %u\n", (unsigned)v);
 			break;
 
 		case 'M':
 			v = value_units(optarg);
-			stats_set_limits(-1, v);
+			stats_set_limits(-1, (long) v);
 			printf("Set cache size limit to %uk\n", (unsigned)v);
+			printf("not implemented");
 			break;
 
 		default:
@@ -983,7 +1032,7 @@ int main(int argc, char *argv[])
 
 	cache_dir = getenv("CCACHE_DIR");
 	if (!cache_dir) {
-		x_asprintf(&cache_dir, "%s/.ccache", get_home_directory());
+		x_asprintf(&cache_dir, "%s"PATH_SEP".ccache", get_home_directory());
 	}
 
 	temp_dir = getenv("CCACHE_TEMPDIR");
@@ -1009,8 +1058,8 @@ int main(int argc, char *argv[])
 
 
 	/* check if we are being invoked as "ccache" */
-	if (strlen(argv[0]) >= strlen(MYNAME) &&
-	    strcmp(argv[0] + strlen(argv[0]) - strlen(MYNAME), MYNAME) == 0) {
+	if (first_is_meh(argv[0]))
+	{
 		if (argc < 2) {
 			usage();
 			exit(1);

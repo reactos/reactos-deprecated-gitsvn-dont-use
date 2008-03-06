@@ -209,7 +209,7 @@ static void unify(unsigned char *p, size_t size)
 			q = p[ofs];
 			for (i=0;i<tokens[q].num_toks;i++) {
 				unsigned char *s = (unsigned char *)tokens[q].toks[i];
-				int len = strlen((char *)s);
+				int len = (int) strlen((char *)s);
 				if (size >= ofs+len && memcmp(&p[ofs], s, len) == 0) {
 					int j;
 					for (j=0;s[j];j++) {
@@ -241,6 +241,7 @@ int unify_hash(const char *fname)
 	int fd;
 	struct stat st;	
 	char *map;
+	HANDLE view;
 
 	fd = open(fname, O_RDONLY|O_BINARY);
 	if (fd == -1 || fstat(fd, &st) != 0) {
@@ -249,6 +250,33 @@ int unify_hash(const char *fname)
 		return -1;
 	}
 
+#ifdef _WIN32
+    /* win32 equivalent of mmap is ViewMapOfFile, but malloc+read
+       may be better */
+    view = CreateFileMapping((HANDLE)_get_osfhandle(fd), NULL,
+                                    PAGE_READONLY|SEC_COMMIT, 0,0 , NULL);
+    if (NULL == view) {
+        cc_log("Failed to create file mapping %s: %s\n",
+               fname, strerror(errno));
+		stats_update(STATS_PREPROCESSOR);
+		return -1;
+	}
+
+	map = MapViewOfFile(view, FILE_MAP_READ, 0, 0, st.st_size);
+    if (NULL == map) {
+        cc_log("Failed to map view of file %s: %s\n",
+               fname, strerror(errno));
+		stats_update(STATS_PREPROCESSOR);
+		return -1;
+	}
+
+	/* pass it through the unifier */
+	unify((unsigned char *)map, st.st_size);
+
+    UnmapViewOfFile(map);
+    CloseHandle(view);
+    close(fd);
+#else
 	/* we use mmap() to make it easy to handle arbitrarily long
            lines in preprocessor output. I have seen lines of over
            100k in length, so this is well worth it */
@@ -263,7 +291,7 @@ int unify_hash(const char *fname)
 	unify((unsigned char *)map, st.st_size);
 
 	munmap(map, st.st_size);
-
+#endif
 	return 0;
 }
 

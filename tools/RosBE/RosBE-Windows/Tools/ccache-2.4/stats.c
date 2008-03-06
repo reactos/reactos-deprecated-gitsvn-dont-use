@@ -126,7 +126,7 @@ static void stats_update_size(enum stats stat, size_t size)
 
 	if (!stats_file) {
 		if (!cache_dir) return;
-		x_asprintf(&stats_file, "%s/stats", cache_dir);
+		x_asprintf(&stats_file, "%s"PATH_SEP"stats", cache_dir);
 	}
 
 	/* open safely to try to prevent symlink races */
@@ -215,9 +215,9 @@ void stats_summary(void)
 		char *fname;
 
 		if (dir == -1) {
-			x_asprintf(&fname, "%s/stats", cache_dir);
+			x_asprintf(&fname, "%s"PATH_SEP"stats", cache_dir);
 		} else {
-			x_asprintf(&fname, "%s/%1x/stats", cache_dir, dir);
+			x_asprintf(&fname, "%s"PATH_SEP"%1x"PATH_SEP"stats", cache_dir, dir);
 		}
 
 		stats_read(fname, counters);
@@ -259,12 +259,12 @@ void stats_zero(void)
 	char *fname;
 	unsigned counters[STATS_END];
 
-	x_asprintf(&fname, "%s/stats", cache_dir);
+	x_asprintf(&fname, "%s"PATH_SEP"stats", cache_dir);
 	unlink(fname);
 	free(fname);
 
 	for (dir=0;dir<=0xF;dir++) {
-		x_asprintf(&fname, "%s/%1x/stats", cache_dir, dir);
+		x_asprintf(&fname, "%s"PATH_SEP"%1x"PATH_SEP"stats", cache_dir, dir);
 		fd = safe_open(fname);
 		if (fd == -1) {
 			free(fname);
@@ -305,9 +305,9 @@ void stats_set_limits(long maxfiles, long maxsize)
 		char *fname, *cdir;
 		int fd;
 
-		x_asprintf(&cdir, "%s/%1x", cache_dir, dir);
+		x_asprintf(&cdir, "%s"PATH_SEP"%1x", cache_dir, dir);
 		create_dir(cdir);
-		x_asprintf(&fname, "%s/stats", cdir);
+		x_asprintf(&fname, "%s"PATH_SEP"stats", cdir);
 		free(cdir);
 
 		memset(counters, 0, sizeof(counters));
@@ -336,7 +336,7 @@ void stats_set_sizes(const char *dir, size_t num_files, size_t total_size)
 	char *stats_file;
 
 	create_dir(dir);
-	x_asprintf(&stats_file, "%s/stats", dir);
+	x_asprintf(&stats_file, "%s"PATH_SEP"stats", dir);
 
 	memset(counters, 0, sizeof(counters));
 

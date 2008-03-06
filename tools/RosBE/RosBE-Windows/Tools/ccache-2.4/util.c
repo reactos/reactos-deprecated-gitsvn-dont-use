@@ -20,6 +20,22 @@
 
 static FILE *logfile;
 
+#ifdef _WIN32
+int fchmod(int fildes, mode_t mode)
+{
+    return 0;
+}
+#endif
+
+#ifndef HAVE_MKSTEMP
+/* cheap and nasty mkstemp replacement */
+int mkstemp(char *template)
+{
+	_mktemp(template);
+	return open(template, O_RDWR|O_CREAT|O_EXCL|O_BINARY, 0600);
+}
+#endif
+
 /* log a message to the CCACHE_LOGFILE location */
 void cc_log(const char *format, ...)
 {
@@ -155,6 +171,34 @@ void x_asprintf(char **ptr, const char *format, ...)
 }
 
 /*
+  this is like strdup() but dies if the malloc fails and add quotes
+  around the argument if it contains spaces.
+*/
+char*
+x_quote_strdup(const char* s)
+{
+    /* Protect against args containing spaces in them - unicode-able ? */
+    if (strchr(s, ' ') != NULL) {
+        size_t len = strlen(s); /* at least 1 as it holds ' ' */
+        char  *new_arg = x_malloc(len+2*1+1); /* Make room for quoting */
+
+        /* Quote */
+        new_arg[0] = '"';
+        memcpy(new_arg+1, s, len);
+        new_arg[len+1] = '"';
+        new_arg[len+2] = 0;
+
+        /* Done */
+        cc_log("Quoted %s\n", new_arg);
+        return new_arg;
+    }
+    else
+        return x_strdup(s);
+}
+
+
+
+/*
   this is like strdup() but dies if the malloc fails
 */
 char *x_strdup(const char *s)
@@ -220,7 +264,7 @@ void traverse(const char *dir, void (*fn)(const char *, struct stat *))
 
 		if (strlen(de->d_name) == 0) continue;
 
-		x_asprintf(&fname, "%s/%s", dir, de->d_name);
+		x_asprintf(&fname, "%s"PATH_SEP"%s", dir, de->d_name);
 		if (lstat(fname, &st)) {
 			if (errno != ENOENT) {
 				perror(fname);
@@ -244,7 +288,7 @@ void traverse(const char *dir, void (*fn)(const char *, struct stat *))
 /* return the base name of a file - caller frees */
 char *str_basename(const char *s)
 {
-	char *p = strrchr(s, '/');
+	char *p = strrchr(s, PATH_SEP_CHAR);
 	if (p) {
 		return x_strdup(p+1);
 	} 
@@ -257,7 +301,7 @@ char *dirname(char *s)
 {
 	char *p;
 	s = x_strdup(s);
-	p = strrchr(s, '/');
+	p = strrchr(s, PATH_SEP_CHAR);
 	if (p) {
 		*p = 0;
 	} 
@@ -266,6 +310,9 @@ char *dirname(char *s)
 
 int lock_fd(int fd)
 {
+#ifdef _WIN32
+    return _locking(fd, _LK_NBLCK, 1);
+#else
 	struct flock fl;
 	int ret;
 
@@ -281,17 +328,23 @@ int lock_fd(int fd)
 		ret = fcntl(fd, F_SETLKW, &fl);
 	} while (ret == -1 && errno == EINTR);
 	return ret;
+#endif
 }
+
 
 /* return size on disk of a file */
 size_t file_size(struct stat *st)
 {
+#ifdef _WIN32
+    return st->st_size;
+#else
 	size_t size = st->st_blocks * 512;
 	if ((size_t)st->st_size > size) {
 		/* probably a broken stat() call ... */
 		size = (st->st_size + 1023) & ~1023;
 	}
 	return size;
+#endif
 }
 
 
@@ -351,6 +404,7 @@ size_t value_units(const char *s)
   a sane realpath() function, trying to cope with stupid path limits and 
   a broken API
 */
+#ifndef WIN32
 char *x_realpath(const char *path)
 {
 	int maxlen;
@@ -389,6 +443,7 @@ char *x_realpath(const char *path)
 	free(ret);
 	return NULL;
 }
+#endif
 
 /* a getcwd that will returns an allocated buffer */
 char *gnu_getcwd(void)
@@ -397,7 +452,7 @@ char *gnu_getcwd(void)
 
 	while (1) {
 		char *buffer = (char *)x_malloc(size);
-		if (getcwd(buffer, size) == buffer) {
+		if (_getcwd(buffer, size) == buffer) {
 			return buffer;
 		}
 		free(buffer);
@@ -407,16 +462,6 @@ char *gnu_getcwd(void)
 		size *= 2;
 	}
 }
-
-#ifndef HAVE_MKSTEMP
-/* cheap and nasty mkstemp replacement */
-int mkstemp(char *template)
-{
-	mktemp(template);
-	return open(template, O_RDWR | O_CREAT | O_EXCL | O_BINARY, 0600);
-}
-#endif
-
 
 /* create an empty file */
 int create_empty_file(const char *fname)
@@ -436,7 +481,18 @@ int create_empty_file(const char *fname)
 */
 const char *get_home_directory(void)
 {
-	const char *p = getenv("HOME");
+	const char *p = NULL;
+
+#ifdef _WIN32
+    static char szPath[MAX_PATH];
+
+    // "Documents and Settings\user\Application Data" is CSIDL_APPDATA
+    if(SHGetSpecialFolderPathA(NULL, szPath, CSIDL_PROFILE, FALSE))
+    {
+        return szPath;
+    }
+#endif
+    p = getenv("HOME");
 	if (p) {
 		return p;
 	}

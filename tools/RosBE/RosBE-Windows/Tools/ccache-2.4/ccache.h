@@ -1,23 +1,38 @@
 #define CCACHE_VERSION "2.4"
 
 #include "config.h"
+#define USUAL_PATH_SEP_CHAR '/'
+#define USUAL_PATH_SEP "/"
+#define WIN32_PATH_SEP_CHAR '\\'
+#define WIN32_PATH_SEP "\\"
 
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <sys/stat.h>
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <sys/file.h>
+#include <sys/stat.h>
+#ifdef _WIN32
+ #include <windows.h>
+ #include <sys/locking.h>
+ #define PATH_SEP WIN32_PATH_SEP
+ #define PATH_SEP_CHAR WIN32_PATH_SEP_CHAR
+ #define DEV_NULL "NUL"
+#else
+ #include <unistd.h>
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <sys/file.h>
+ #include <utime.h>
+ #include <dirent.h>
+ #define PATH_SEP USUAL_PATH_SEP
+ #define PATH_SEP_CHAR USUAL_PATH_SEP_CHAR
+ #define DEV_NULL "/dev/null"
+#endif
 #include <fcntl.h>
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
-#include <utime.h>
 #include <stdarg.h>
-#include <dirent.h>
 #include <limits.h>
 #ifdef HAVE_PWD_H
 #include <pwd.h>
@@ -83,6 +98,7 @@ int copy_file(const char *src, const char *dest);
 int create_dir(const char *dir);
 void x_asprintf(char **ptr, const char *format, ...);
 char *x_strdup(const char *s);
+char *x_quote_strdup(const char* s);
 void *x_realloc(void *ptr, size_t size);
 void *x_malloc(size_t size);
 void traverse(const char *dir, void (*fn)(const char *, struct stat *));
