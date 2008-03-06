@@ -125,6 +125,9 @@ char *build_command(char **argv)
 static void failed(void)
 {
 	char *e;
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	char* merged = build_command(orig_args->argv);
 
 	/* delete intermediate pre-processor file if needed */
 	if (i_tmpfile) {
@@ -154,10 +157,23 @@ static void failed(void)
 		args_add_prefix(orig_args, p);
 	}
 
-	execv(orig_args->argv[0], orig_args->argv);
-	cc_log("execv returned (%s)!\n", strerror(errno));
-	perror(orig_args->argv[0]);
-	exit(1);
+	ZeroMemory(&si, sizeof(STARTUPINFO));
+	ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+
+	si.cb = sizeof(STARTUPINFO);
+
+	if(!CreateProcessA(orig_args->argv[0], merged, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		perror(orig_args->argv[0]);
+		exit(1);
+	}
+
+	WaitForSingleObject( pi.hProcess, INFINITE );
+
+	CloseHandle( pi.hProcess );
+	CloseHandle( pi.hThread );
+
+	exit(0);
 }
 
 
