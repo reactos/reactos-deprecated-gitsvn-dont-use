@@ -35,7 +35,7 @@ void hash_start(void)
 
 void hash_string(const char *s)
 {
-	hash_buffer(s, strlen(s));
+	hash_buffer(s, (int)strlen(s));
 }
 
 void hash_int(int x)

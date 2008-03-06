@@ -50,7 +50,9 @@ static void traverse_fn(const char *fname, struct stat *st)
 {
 	char *p;
 
+#ifndef WIN32
 	if (!S_ISREG(st->st_mode)) return;
+#endif
 
 	p = str_basename(fname);
 	if (strcmp(p, "stats") == 0) {
@@ -107,8 +109,8 @@ void cleanup_dir(const char *dir, size_t maxfiles, size_t maxsize)
 {
 	unsigned i;
 
-	size_threshold = maxsize * LIMIT_MULTIPLE;
-	files_threshold = maxfiles * LIMIT_MULTIPLE;
+	size_threshold = maxsize * (size_t) LIMIT_MULTIPLE;
+	files_threshold = maxfiles * (size_t) LIMIT_MULTIPLE;
 
 	num_files = 0;
 	total_size = 0;
@@ -143,8 +145,9 @@ void cleanup_all(const char *dir)
 	int i;
 	
 	for (i=0;i<=0xF;i++) {
-		x_asprintf(&dname, "%s/%1x", dir, i);
-		x_asprintf(&sfile, "%s/%1x/stats", dir, i);
+		/* No need to quote, unique argument */
+		x_asprintf(&dname, "%s"PATH_SEP"%1x", dir, i);
+		x_asprintf(&sfile, "%s"PATH_SEP"%1x"PATH_SEP"stats", dir, i);
 
 		memset(counters, 0, sizeof(counters));
 		stats_read(sfile, counters);
@@ -183,7 +186,7 @@ void wipe_all(const char *dir)
 	int i;
 	
 	for (i=0;i<=0xF;i++) {
-		x_asprintf(&dname, "%s/%1x", dir, i);
+		x_asprintf(&dname, "%s"PATH_SEP"%1x", dir, i);
 		traverse(dir, wipe_fn);
 		free(dname);
 	}
