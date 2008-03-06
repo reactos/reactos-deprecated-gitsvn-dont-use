@@ -13,10 +13,45 @@
 #include <sys/stat.h>
 #ifdef _WIN32
  #include <windows.h>
+ #include <shlobj.h>
  #include <sys/locking.h>
+ #include <sys/utime.h>
+ #include <direct.h>
+ #include <io.h>
+ #include <process.h>
+ #include "getopt.h"
+ #include "win32-dirent.h"
  #define PATH_SEP WIN32_PATH_SEP
  #define PATH_SEP_CHAR WIN32_PATH_SEP_CHAR
  #define DEV_NULL "NUL"
+ #define read _read
+ #define open _open
+ #define close _close
+ #define access _access
+ #define unlink _unlink
+ #define umask _umask
+ #define strdup _strdup
+ #define putenv _putenv
+ #define lseek _lseek
+ #define write _write
+ #define getpid _getpid
+ #define execv _execv
+ #define dup _dup
+ #define utime _utime
+ #define unlink _unlink
+ #define mkdir(dirname, access) _mkdir(dirname)
+ #define x_realpath(a) strdup(a)
+ #define link(filename, linkname) CreateHardLinkA(linkname, filename, NULL)
+ #define PROT_READ 0x0001
+ #define MAP_PRIVATE 0x02
+ typedef int mode_t;
+ #ifndef S_ISREG
+  #define S_ISREG(m) ((m & _S_IFREG) == _S_IFREG)
+ #endif
+ #ifndef S_ISDIR
+  #define S_ISDIR(m) (((m) & _S_IFDIR) == _S_IFDIR)
+ #endif
+ #define lstat(x, y) stat(x, y)
 #else
  #include <unistd.h>
  #include <sys/wait.h>
