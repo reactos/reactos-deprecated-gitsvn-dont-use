@@ -16,6 +16,7 @@ ElfPeHeader::ElfPeHeader
 	 ElfObjectFile *eof) :
 	imagebase(imagebase),
 	sectionalign(sectionalign),
+        filealign(filealign),
 	stackreserve(stackreserve),
 	stackcommit(stackcommit),
 	heapreserve(heapreserve),
@@ -25,19 +26,15 @@ ElfPeHeader::ElfPeHeader
 	eof(eof)
 {
     data.resize(computeSize());
-    createHeaderSection();
 }
 
 int ElfPeHeader::computeSize() const
 {
-    return sectionalign; /* We'll compute it for real later */
+    return roundup(0x80 + 0x200, filealign); /* We'll compute it for real later */
 }
 
-void ElfPeHeader::createHeaderSection()
+void ElfPeHeader::createHeaderSection(const std::vector<section_mapping_t> &sectionRvaSet, uint32_t imageSize)
 {
-    std::vector<section_mapping_t> sectionRvaSet;
-    uint32_t imageSize = getSectionRvas(sectionRvaSet);
-
     data[0] = 'M'; data[1] = 'Z';
     uint8_t *dataptr = &data[0x3c];
     uint32_t coffHeaderSize, optHeaderSizeMember;
@@ -88,7 +85,7 @@ void ElfPeHeader::createHeaderSection()
     le32pwrite_postinc(dataptr, getResourceInfo(sectionRvaSet));
     le32pwrite_postinc(dataptr, getExceptionInfo());
     le32pwrite_postinc(dataptr, getSecurityInfo());
-    le32pwrite_postinc(dataptr, getRelocInfo());
+    le32pwrite_postinc(dataptr, getRelocInfo(sectionRvaSet));
     le32pwrite_postinc(dataptr, getDebugInfo());
     le32pwrite_postinc(dataptr, getDescrInfo());
     le32pwrite_postinc(dataptr, getMachInfo());
@@ -101,28 +98,37 @@ void ElfPeHeader::createHeaderSection()
     // size, but leaving out the other info.  We write the section name
     // truncated into the name field and leave the section id in the
     // physical address bit
+
+    uint32_t paddr = computeSize();
     for (int i = 0; i < sectionRvaSet.size(); i++)
     {
 	section_mapping_t mapping = sectionRvaSet[i];
 	const ElfObjectFile::Section *section = mapping.section;
 	std::string name = section->getName();
 	uint32_t size = section->logicalSize();
+        uint32_t psize = 
+	    section->getType() == SHT_NOBITS ? 0 : roundup(size, filealign);
 	uint32_t rva = mapping.rva;
 	for (int j = 0; j < 8; j++)
 	{
 	    *dataptr++ = j < name.size() ? name[j] : '\000';
 	}
+
+#if 0
+	printf("V %08x:%08x P %08x:%08x %s\n",
+	       rva, size, paddr, psize, name.c_str());
+#endif
+
 	le32write_postinc(dataptr, size);
 	le32write_postinc(dataptr, rva);
-	le32write_postinc(dataptr, size);
-	// Note: we put the index in the offset slot so we can find the
-	// real offset later in the loader
-	le32write_postinc(dataptr, sectionRvaSet[i].index);
+	le32write_postinc(dataptr, psize);
+	le32write_postinc(dataptr, paddr);
 	le32write_postinc(dataptr, 0);
 	le32write_postinc(dataptr, 0);
 	le32write_postinc(dataptr, 0);
         // XXX Figure out the real flags
 	le32write_postinc(dataptr, IMAGE_SCN_CNT_CODE);
+        paddr += psize;
     }
 }
 
@@ -132,14 +138,17 @@ uint32_t ElfPeHeader::getSectionRvas(std::vector<section_mapping_t> &rvas) const
 {
     uint32_t start = computeSize();
     uint32_t limit = start;
-    for(int i = 0; i < eof->getNumSections(); i++) {
+
+    rvas.clear();
+
+    for(int i = 1; i < eof->getNumSections(); i++) {
 	{
 	    const ElfObjectFile::Section &sect = eof->getSection(i);
 	    if(sect.getFlags() & SHF_ALLOC) {
 		limit = roundup(start + sect.logicalSize(), sectionalign);
 #if 0
-		fprintf(stderr, "rva[%02d:%s] = (%x %x %d)\n",
-			rvas.size(), sect.getName().c_str(), &sect, start, i);
+		fprintf(stderr, "rva[%02d:-%20s] = (%08x %08x %08x %d)\n",
+			rvas.size(), sect.getName().c_str(), start, sect.getStartRva(), sect.logicalSize(), i);
 #endif
 		rvas.push_back(section_mapping_t(&sect, start, i));
 	    }
@@ -198,9 +207,9 @@ u32pair_t ElfPeHeader::getSecurityInfo() const
     return std::make_pair(0,0);
 }
 
-u32pair_t ElfPeHeader::getRelocInfo() const
+u32pair_t ElfPeHeader::getRelocInfo(const std::vector<section_mapping_t> &mapping) const
 {
-    return std::make_pair(0,0);
+    return getNamedSectionInfo(eof, mapping, ".reloc");
 }
 
 u32pair_t ElfPeHeader::getDebugInfo() const

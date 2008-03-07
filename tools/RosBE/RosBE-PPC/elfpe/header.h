@@ -6,18 +6,7 @@
 #include "pedef.h"
 #include "util.h"
 #include "objectfile.h"
-
-typedef struct section_mapping_t {
-    const ElfObjectFile::Section *section;
-    uint32_t rva;
-    int index;
-
-    section_mapping_t
-    (const ElfObjectFile::Section *sect, uint32_t rva, int index) :
-	section(sect), rva(rva), index(index) { }
-    section_mapping_t(const section_mapping_t &other) :
-	section(other.section), rva(other.rva), index(other.index) { }
-} section_mapping_t;
+#include "section.h"
 
 class ElfPeHeader {
 public:
@@ -34,10 +23,10 @@ public:
 	 bool     dll,
 	 ElfObjectFile *eof);
     const ElfObjectFile::secdata_t &getData() const;
+    uint32_t getSectionRvas(std::vector<section_mapping_t> &rvas) const;
+    void createHeaderSection(const std::vector<section_mapping_t> &rvas, uint32_t imageSize);
 
 private:
-    void createHeaderSection();
-    uint32_t getSectionRvas(std::vector<section_mapping_t> &rvas) const;
     uint32_t getEntryPoint(const std::vector<section_mapping_t> &rvas, const ElfObjectFile::Symbol *entry) const;
     int computeSize() const;
     int getExeFlags() const { return 0; }
@@ -47,7 +36,7 @@ private:
     u32pair_t getResourceInfo(const std::vector<section_mapping_t> &rvas) const;
     u32pair_t getExceptionInfo() const;
     u32pair_t getSecurityInfo() const;
-    u32pair_t getRelocInfo() const;
+    u32pair_t getRelocInfo(const std::vector<section_mapping_t> &rvas) const;
     u32pair_t getDebugInfo() const;
     u32pair_t getDescrInfo() const;
     u32pair_t getMachInfo() const;

@@ -78,11 +78,15 @@ public:
 
 	uint8_t *getSectionData() const {
 	    if(!have_data) {
-		data = *elf_getdata(section, NULL);
+                data = *elf_getdata(section, NULL);
 		have_data = true;
 	    }
 	    return (uint8_t *)data.d_buf;
 	}
+
+        void setDirty() const {
+            elf_flagscn(section, ELF_C_SET, ELF_F_DIRTY);
+        }
 
     private:
 	const ElfObjectFile *obj;
@@ -109,18 +113,30 @@ public:
     const Section *getNamedSection(const std::string &name) const;
     const Symbol &getSymbol(int n) const { return *symbols[n]; }
     const Symbol *getNamedSymbol(const std::string &symname) const;
+    void update() 
+    { 
+        elf_flagelf(elfHeader, ELF_C_SET, ELF_F_DIRTY);
+        elf_update(elfHeader, ELF_C_WRITE); 
+        finalize();
+        init();
+    }
 
 private:
     int fd;
     int shnum, phnum;
     int shstrndx;
     Elf *elfHeader;
+    Elf_Data *lastStr;
+    std::string filename;
     std::vector<Section*> sections;
     std::map<std::string, const Section *> sections_by_name;
     std::vector<Symbol*> symbols;
     std::map<std::string, const Symbol *> symbols_by_name;
 
+    void init();
+    void finalize();
     void populateSymbolTable();
+    void populateSections();
 };
 
 #endif//COMPDVR_ELFOBJECT_H

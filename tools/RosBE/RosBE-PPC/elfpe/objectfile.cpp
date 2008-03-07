@@ -3,43 +3,71 @@
 #include "util.h"
 #include "objectfile.h"
 
-ElfObjectFile::ElfObjectFile(const std::string &filename) : fd(-1)
+ElfObjectFile::ElfObjectFile(const std::string &filename) : fd(-1), filename(filename)
 {
-    Elf_Scn *s = 0;
+    init();
+}
+
+void ElfObjectFile::init()
+{
     Elf32_Ehdr *ehdr;
-    Section *sect;
+
     elfHeader = NULL;
+    lastStr = NULL;
+
     fd = open(filename.c_str(), O_RDWR, 0);
     if(fd >= 0) {
-	if(elf_version(EV_CURRENT) == EV_NONE) {
-	    // Old version
-	    return;
-	}
-	elfHeader = elf_begin(fd, ELF_C_RDWR, (Elf*)0);
-	if(elf_kind(elfHeader) != ELF_K_ELF) {
-	    // Didn't get an elf object file
+        if(elf_version(EV_CURRENT) == EV_NONE) {
+            // Old version
+            return;
+        }
+        elfHeader = elf_begin(fd, ELF_C_RDWR, (Elf*)0);
+        if(elf_kind(elfHeader) != ELF_K_ELF) {
+            // Didn't get an elf object file
             elfHeader = NULL;
-	    return;
-	}
-	ehdr = elf32_getehdr(elfHeader);
-	shnum = ehdr->e_shnum;
-	phnum = ehdr->e_phnum;
-	shstrndx = ehdr->e_shstrndx;
-	/* Populate section table */
-	for(size_t i = 0; i < shnum; i++)
-	{
-	    s = elf_nextscn(elfHeader, s);
-	    if(!s) break;
-	    sect = new Section(*this, i, s);
-	    sections.push_back(sect);
-	    sections_by_name.insert(std::make_pair(sect->getName(), sect));
-	}
+            return;
+        }
 
-	populateSymbolTable();
+        ehdr = elf32_getehdr(elfHeader);
+        phnum = ehdr->e_phnum;
+        shstrndx = ehdr->e_shstrndx;
+
+        populateSections();
+        populateSymbolTable();
+    }
+}
+
+void ElfObjectFile::populateSections()
+{
+    Section *sect;
+    Elf32_Ehdr *ehdr;
+    Elf_Scn *s = 0;
+
+    ehdr = elf32_getehdr(elfHeader);
+    shnum = ehdr->e_shnum;
+    
+    /* ABS section */
+    sections.clear();
+    sections_by_name.clear();
+    sections.push_back(new Section(*this, 0, NULL));
+    
+    /* Populate section table */
+    for(size_t i = 1; i < shnum; i++)
+    {
+        s = elf_nextscn(elfHeader, s);
+        if(!s) break;
+        sect = new Section(*this, i, s);
+        sections.push_back(sect);
+        sections_by_name.insert(std::make_pair(sect->getName(), sect));
     }
 }
 
 ElfObjectFile::~ElfObjectFile()
+{
+    finalize();
+}
+
+void ElfObjectFile::finalize()
 {
     if(elfHeader) elf_end(elfHeader);
     if(fd >= 0) close(fd);
@@ -55,7 +83,10 @@ void ElfObjectFile::populateSymbolTable()
     Elf32_Sym *sym;
     Symbol *ourSym;
 
-    for( i = 0; i < getNumSections(); i++ ) {
+    symbols.clear();
+    symbols_by_name.clear();
+
+    for( i = 1; i < getNumSections(); i++ ) {
 	type = getSection(i).getType();
 	link = getSection(i).getLink();
 	if( (type == SHT_SYMTAB) || (type == SHT_DYNSYM) ) {
@@ -85,7 +116,7 @@ void ElfObjectFile::addSection(const std::string &name, const secdata_t &data, i
     /* Create data for the new section */
     Elf_Data *edata = elf_newdata(newsect), *strdata = elf_getdata(strsect, 0),
 	*newstrdata = elf_newdata(strsect);
-    edata->d_align = 0x1000;
+    edata->d_align = 1;
     edata->d_size = data.size();
     edata->d_off = 0;
     edata->d_type = ELF_T_BYTE;
@@ -93,10 +124,12 @@ void ElfObjectFile::addSection(const std::string &name, const secdata_t &data, i
     edata->d_buf = malloc(edata->d_size);
     memcpy(edata->d_buf, &data[0], edata->d_size);
     /* Add the name of the new section to the string table */
-    newstrdata->d_off = strdata->d_off + strdata->d_size;
+    if (!lastStr) lastStr = strdata;
+    newstrdata->d_off = lastStr->d_off + lastStr->d_size;
     newstrdata->d_size = name.size() + 1;
     newstrdata->d_align = 1;
     newstrdata->d_buf = (void *)name.c_str();
+    lastStr = newstrdata;
     /* Finish the section */
     shdr->sh_name = newstrdata->d_off;
     shdr->sh_type = type;
