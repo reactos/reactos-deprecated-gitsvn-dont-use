@@ -12,8 +12,13 @@
 #include "objectfile.h"
 #include "header.h"
 #include "argparse.h"
+#include "reloc.h"
+#include "coff.h"
+#include "exports.h"
+#include "imports.h"
 
 #define TYPE_PEHEADER (SHT_LOOS + 1)
+#define TYPE_PERELOC  (SHT_LOOS + 2)
 
 int execute_command( bool verbose, const std::vector<std::string> &args )
 {
@@ -55,6 +60,26 @@ void possibly_define
         }
     }
     args.insert(args.begin(), the_definition + "=" + body);
+}
+
+std::vector<uint8_t> 
+ProcessRelocSections
+(const ElfObjectFile &eof, 
+ uint32_t imageBase,
+ const std::vector<section_mapping_t> &rvas)
+{
+    std::vector<uint8_t> relocData;
+    uint32_t relocAddr = (uint32_t)-1;
+    int i, j;
+    for (i = 1; i < eof.getNumSections(); i++)
+    {
+        const ElfObjectFile::Section &section = eof.getSection(i);
+        if (section.getType() == SHT_REL ||
+            section.getType() == SHT_RELA)
+            SingleRelocSection(eof, section, rvas, relocData, imageBase, relocAddr);
+    }
+    AddReloc(relocData, 0, relocAddr, 0, 0);
+    return relocData;
 }
 
 int main( int argc, char **argv ) {
@@ -101,6 +126,11 @@ int main( int argc, char **argv ) {
         {
             entry_point = entry_point.substr(1);
         }
+        size_t at = entry_point.find('@');
+        if (at != std::string::npos)
+        {
+            entry_point = entry_point.substr(0, at);
+        }
         if( !compile_only )
         {
             gcc_args_str.push_back(std::string("-Wl,--entry=") + entry_point);
@@ -142,7 +172,7 @@ int main( int argc, char **argv ) {
     if( verbose ) gcc_args_str.insert(gcc_args_str.begin(),"-v");
     if (!compile_only)
     {
-    	if( is_dll ) gcc_args_str.insert(gcc_args_str.begin(), "-Wl,-r");
+    	//gcc_args_str.insert(gcc_args_str.begin(), "-Wl,-r");
         gcc_args_str.insert(gcc_args_str.begin(), "-Wl,-q");
         gcc_args_str.insert(gcc_args_str.begin(), "-Wl,-d");
         gcc_args_str.insert(gcc_args_str.begin(), "-Wl,--start-group");
@@ -160,30 +190,56 @@ int main( int argc, char **argv ) {
     }
     if (!compile_only) gcc_args_str.insert(gcc_args_str.end(), "-Wl,--end-group");
 
+    std::vector<section_mapping_t> sectionRvas;
     if ( !(status = execute_command( verbose, gcc_args_str )) && !compile_only && mkheader )
     {
         /* Ok fixup the elf object file */
         ElfObjectFile eof(output_file);
+        if(!eof) exit(1); 
+        
+        uint32_t imageSize;
         const ElfObjectFile::Symbol *entry_sym;
-
-        if(!eof) exit(1);
-
         entry_sym = eof.getNamedSymbol(entry_point);
-
+        
+        /* This computes the section RVAs */
         ElfPeHeader header
-	(strtoul(image_base.c_str(), 0, 0),
-	 strtoul(section_align.c_str(), 0, 0),
-	 strtoul(file_align.c_str(), 0, 0),
-	 entry_sym,
-	 0x10000,
-	 0x100000,
-	 0x10000,
-	 0x100000,
-	 atoi(subsystem.c_str()),
-	 is_dll,
-	 &eof);
+            (strtoul(image_base.c_str(), 0, 0),
+             strtoul(section_align.c_str(), 0, 0),
+             strtoul(file_align.c_str(), 0, 0),
+             entry_sym,
+             0x10000,
+             0x100000,
+             0x10000,
+             0x100000,
+             atoi(subsystem.c_str()),
+             is_dll,
+             &eof);
+        
+        // Get base section layout
+        imageSize = header.getSectionRvas(sectionRvas);
 
-        eof.addSection(".peheader", header.getData(), TYPE_PEHEADER);
+        // Add relocation info
+        std::vector<uint8_t> relocSection = 
+            ProcessRelocSections
+            (eof, strtoul(image_base.c_str(), 0, 0), sectionRvas);
+        eof.addSection(".reloc", relocSection, SHT_PROGBITS);
+        eof.update();
+
+        // Recompute RVAs after adding reloc section
+        imageSize = header.getSectionRvas(sectionRvas);
+        header.createHeaderSection(sectionRvas, imageSize);
+        eof.addSection(".peheader", header.getData(), SHT_PROGBITS);
+        eof.update();
+
+        // Fixup exports
+        ExportFixup(eof, sectionRvas);
+
+        // Fixup imports
+        ImportFixup(eof, sectionRvas);
+        eof.update();
+
+        PECoffExecutable cof(eof, output_file + ".tmp", strtoul(file_align.c_str(), 0, 0));
+        cof.Write(output_file);
     }
 
     return status;
