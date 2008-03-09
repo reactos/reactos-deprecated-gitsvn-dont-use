@@ -1,0 +1,19 @@
+#!/bin/bash
+for CD in boot live
+do
+   ls -l --size -r /home/rosbuild/isostorage/$CD*.7z | awk '{ print $10 }' | while read fname
+   do
+      FILECOUNT=`7za t $fname | grep -e 'Files:' | awk '{ print $2 }'`
+      if [ $FILECOUNT ]; then
+         if [ $FILECOUNT -eq 0 ]; then
+             echo $fname   [damaged] - deleting
+             rm -f $fname
+         fi
+     else
+         echo $fname [ok] - skipping
+         break
+     fi
+   done
+done
+
+
