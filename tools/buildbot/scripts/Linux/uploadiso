@@ -40,6 +40,7 @@ if [ $BOOTCD ]; then
 	ssh $SSHOPTS "7za a -bd -t7z $TEMPDIR/$BOOT.7z $TEMPDIR/$BOOT.iso -mx9" | tail -n +4
 	ssh $SSHOPTS "rm $TEMPDIR/$BOOT.iso"
 	ssh $SSHOPTS "mv $TEMPDIR/$BOOT.7z $ISOPATH/$BCDD/"
+	ssh $SSHOPTS "chmod 0744 $ISOPATH/$BCDD/$BOOT.7z"
 else
 	echo "* There is no $BOOT to compress."
 fi
@@ -50,6 +51,7 @@ if [ $LIVECD ]; then
 	ssh $SSHOPTS "7za a -bd -t7z $TEMPDIR/$LIVE.7z $TEMPDIR/$LIVE.iso -mx9" | tail -n +4
 	ssh $SSHOPTS "rm $TEMPDIR/$LIVE.iso"
 	ssh $SSHOPTS "mv $TEMPDIR/$LIVE.7z $ISOPATH/$LCDD/"
+	ssh $SSHOPTS "chmod 0744 $ISOPATH/$LCDD/$LIVE.7z"
 else
 	echo "* There is no $LIVE to compress."
 fi
