@@ -1,56 +1,56 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ -f reactos.iso  ]
-then
-    echo No ISO file found.
-    exit 2
+KEY=../../fezile.cute.se.key
+SSHUSER=rosbuild
+HOST=$SSHUSER@fezile.cute.se
+HOMEDIR=/home/$SSHUSER
+ISOPATH=$HOMEDIR/isostorage
+TEMPDIR=$HOMEDIR/temp
+SSHOPTS="-o StrictHostKeyChecking=no -l $SSHUSER -p 22 -i $KEY $HOST"
+LCDD=livecd
+BCDD=bootcd
+
+if [ -f ReactOS.iso  ]; then
+	BOOTCD=1
+fi
+if [ -f ReactOS-LiveCD.iso  ]; then
+	LIVECD=1
 fi
 
-echo Getting revision number...
-REV=`svnversion .`
-echo Revision $REV. 
-
-echo Compressing iso files...
-cp ReactOS.iso bootcd-$REV-$1.iso
-cp ReactOS-LiveCD.iso livecd-$REV-$1.iso
-
-7za a -bd -t7z bootcd-$REV-$1.7z bootcd-$REV-$1.iso -mx9
-7za a -bd -t7z livecd-$REV-$1.7z livecd-$REV-$1.iso -mx9
-
-if [ -f bootcd-$REV-$1.iso ]
-then
-    rm bootcd-$REV-$1.iso
+if [ ! $BOOTCD -eq 1 -a $LIVECD -eq 1 ]; then
+	# nothing to do
+	echo "* There are no ISO files to process."
+	exit 2
 fi
 
-if [ -f livecd-$REV-$1.iso ]
-then
-    rm livecd-$REV-$1.iso
+echo "* Getting revision number..."
+REV=$(svnversion .)
+echo -e "* Revision $REV.\n"
+
+BOOT=bootcd-$REV-$1
+LIVE=livecd-$REV-$1
+
+echo "* Rsyncing ISO files onto iso.reactos.org..."
+rsync --stats -e "ssh -o StrictHostKeyChecking=no -l $SSHUSER -p 22 -i $KEY" -avz --include=ReactOS.iso --include=ReactOS-LiveCD.iso --exclude=* ./ $HOST:$TEMPDIR
+echo -e "* Done.\n"
+
+if [ $BOOTCD ]; then
+	echo "* Remotely compressing $BOOT..."
+	ssh $SSHOPTS "ln $TEMPDIR/ReactOS.iso $TEMPDIR/$BOOT.iso"
+	ssh $SSHOPTS "7za a -bd -t7z $TEMPDIR/$BOOT.7z $TEMPDIR/$BOOT.iso -mx9" | tail -n +4
+	ssh $SSHOPTS "rm $TEMPDIR/$BOOT.iso"
+	ssh $SSHOPTS "mv $TEMPDIR/$BOOT.7z $ISOPATH/$BCDD/"
+else
+	echo "* There is no $BOOT to compress."
 fi
 
-echo done.
-echo Uploading rev $REV BootCD and LiveCD...
-
-ftp -n svn.reactos.org <<EOF
-user username password
-cd www
-cd iso
-binary
-put bootcd-$REV-$1.7z
-put livecd-$REV-$1.7z
-bye
-EOF
-
-if [ -f bootcd-$REV-$1.7z ]
-then
-    rm bootcd-$REV-$1.7z
-fi	
-
-if [ -f livecd-$REV-$1.7z ]
-then
-    rm livecd-$REV-$1.7z
+if [ $LIVECD ]; then
+	echo "* Remotely compressing $LIVE..."
+	ssh $SSHOPTS "ln $TEMPDIR/ReactOS-LiveCD.iso $TEMPDIR/$LIVE.iso"
+	ssh $SSHOPTS "7za a -bd -t7z $TEMPDIR/$LIVE.7z $TEMPDIR/$LIVE.iso -mx9" | tail -n +4
+	ssh $SSHOPTS "rm $TEMPDIR/$LIVE.iso"
+	ssh $SSHOPTS "mv $TEMPDIR/$LIVE.7z $ISOPATH/$LCDD/"
+else
+	echo "* There is no $LIVE to compress."
 fi
-
-echo done.
-exit 0
-
 
