@@ -4,7 +4,7 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/getbuilds/getbuilds.js.php
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
 */
 ?>
 
@@ -108,25 +108,25 @@ function getfilesCallback(http_request, data)
 		if( data["requesttype"] == "FirstPageFullLoad" )
 		{
 			filenum = parseInt( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data );
-			html += '<?php printf( addslashes($getbuilds_langres["foundfiles"]), "<span id=\"filenum\">' + filenum + '</span>" ); ?>';
+			html += '<?php printf( addslashes($getbuilds_langres["foundfiles"]), "<span id=\"filenum\">' + filenum + '<\/span>" ); ?>';
 		}
 		else
 			html += document.getElementById("infobox").innerHTML;
 		
-		html += '</td>';
+		html += '<\/td>';
 		
 		// Page number boxes
 		html += '<td id="pagesbox">';
 		
 		if( currentpage == 1 )
 		{
-			html += '<strong>&laquo;</strong> ';
-			html += '<strong>&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?></strong> ';
+			html += '<strong>&laquo;<\/strong> ';
+			html += '<strong>&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?><\/strong> ';
 		}
 		else
 		{
-			html += '<a href="javascript:firstPage()" title="<?php echo addslashes($getbuilds_langres["firstpage_title"]); ?>">&laquo;</a> ';
-			html += '<a href="javascript:prevPage()" title="<?php echo addslashes($getbuilds_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?></a> ';
+			html += '<a href="javascript:firstPage()" title="<?php echo addslashes($getbuilds_langres["firstpage_title"]); ?>">&laquo;<\/a> ';
+			html += '<a href="javascript:prevPage()" title="<?php echo addslashes($getbuilds_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?><\/a> ';
 		}
 		
 		html += '<select id="pagesel" size="1" onchange="pageboxChange(this)">';
@@ -138,35 +138,35 @@ function getfilesCallback(http_request, data)
 			html += '<option selected="selected" value="' + currentpage + '-' + startrev + '"><?php echo addslashes($getbuilds_langres["page"]); ?> ' + currentpage;
 			
 			if( http_request.responseXML.getElementsByTagName("filenum")[0].firstChild.data > 0 )
-				html += ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '</option>';
+				html += ' - ' + http_request.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + http_request.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
 		}
 		else
 			html += document.getElementById("pagesel").innerHTML;
 		
-		html += '</select> ';
+		html += '<\/select> ';
 		
 		if( http_request.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 0 )
 		{
-			html += '<strong><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;</strong> ';
-			html += '<strong>&raquo;</strong>';
+			html += '<strong><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;<\/strong> ';
+			html += '<strong>&raquo;<\/strong>';
 		}
 		else
 		{
-			html += '<a href="javascript:nextPage()" title="<?php echo addslashes($getbuilds_langres["nextpage_title"]); ?>"><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;</a> ';
-			html += '<a href="javascript:lastPage()" title="<?php echo addslashes($getbuilds_langres["lastpage_title"]); ?>">&raquo;</a>';
+			html += '<a href="javascript:nextPage()" title="<?php echo addslashes($getbuilds_langres["nextpage_title"]); ?>"><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;<\/a> ';
+			html += '<a href="javascript:lastPage()" title="<?php echo addslashes($getbuilds_langres["lastpage_title"]); ?>">&raquo;<\/a>';
 		}
 		
-		html += '</td></tr></table>';
+		html += '<\/td><\/tr><\/table>';
 
 		// File table
 		html += '<table class="datatable" cellspacing="0" cellpadding="1">';
-		html += '<thead><tr class="head"><th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?></th><th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?></th><th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?></th></tr></thead>';
+		html += '<thead><tr class="head"><th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?><\/th><th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?><\/th><th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?><\/th><\/tr><\/thead>';
 		html += '<tbody>';
 		
 		var files = http_request.responseXML.getElementsByTagName("file");
 	
 		if( files.length == 0 )
-			html += '<tr class="odd"><td><?php printf( addslashes($getbuilds_langres["nofiles"]), "' + fullrange + '" ); ?></td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+			html += '<tr class="odd"><td><?php printf( addslashes($getbuilds_langres["nofiles"]), "' + fullrange + '" ); ?><\/td><td>&nbsp;<\/td><td>&nbsp;<\/td><\/tr>';
 		else
 		{
 			var oddeven = false;
@@ -180,14 +180,14 @@ function getfilesCallback(http_request, data)
 				oddeven = !oddeven;
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
-				html += '<td>' + flink + '<img src="images/cd.gif" alt=""> ' + fname + '</a></td>';
-				html += '<td>' + flink + fsize + '</a></td>';
-				html += '<td>' + flink + fdate + '</a></td>';
-				html += '</tr>';
+				html += '<td>' + flink + '<img src="images/cd.gif" alt=""> ' + fname + '<\/a><\/td>';
+				html += '<td>' + flink + fsize + '<\/a><\/td>';
+				html += '<td>' + flink + fdate + '<\/a><\/td>';
+				html += '<\/tr>';
 			}
 		}
 		
-		html += '</tbody></table>';
+		html += '<\/tbody><\/table>';
 		
 		document.getElementById("filetable").innerHTML = html;
 		
@@ -364,8 +364,11 @@ function checkRevNum(elem)
 		elem.value = val;
 }
 
-function showLatestFiles()
+function load()
 {
+	document.getElementById("revnum").onkeypress = checkForReturn;
+	
+	// Show latest files
 	var data = new Array();
 	
 	currentpage = 1;
