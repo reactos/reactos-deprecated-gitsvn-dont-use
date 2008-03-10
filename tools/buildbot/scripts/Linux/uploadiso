@@ -5,7 +5,7 @@ SSHUSER=rosbuild
 HOST=$SSHUSER@fezile.cute.se
 HOMEDIR=/home/$SSHUSER
 ISOPATH=$HOMEDIR/isostorage
-TEMPDIR=$HOMEDIR/temp
+TEMPDIR=$HOMEDIR/temp/$1
 SSHOPTS="-o StrictHostKeyChecking=no -l $SSHUSER -p 22 -i $KEY $HOST"
 LCDD=livecd
 BCDD=bootcd
