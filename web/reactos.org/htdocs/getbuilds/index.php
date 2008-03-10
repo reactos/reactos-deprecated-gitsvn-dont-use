@@ -4,7 +4,7 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/getbuilds/index.php
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
 */
 	
 	require_once("config.inc.php");
@@ -75,10 +75,15 @@
 	<link rel="stylesheet" type="text/css" href="getbuilds.css">
 	<!--[if lt IE 7]><link rel="stylesheet" type="text/css" href="ie-lt7-fixes.css"><![endif]-->
 	<script type="text/javascript">
-	<?php require_once("getbuilds.js.php"); ?>
+		document.write('<style type="text/css">');
+		document.write('#js_stuff {display: block;}');
+		document.write('<\/style>');
+	</script>
+	<script type="text/javascript">
+		<?php require_once("getbuilds.js.php"); ?>
 	</script>
 </head>
-<body onload="showLatestFiles();">
+<body onload="load();">
 
 <?php
 	readfile("http://www.reactos.org/$lang/subsys_extern_menu_top.html");
@@ -122,7 +127,7 @@
 		<?php echo $getbuilds_langres["buildbot_status"]; ?>:
 		<ul class="web">
 			<li><a href="http://www.reactos.org:8010"><?php echo $getbuilds_langres["buildbot_web"]; ?></a></li>
-			<li><a href="http://svn.reactos.org/iso"><?php echo $getbuilds_langres["browsebuilds"]; ?></a></li>
+			<li><a href="<?php echo $ISO_DOWNLOAD_URL; ?>"><?php echo $getbuilds_langres["browsebuilds"]; ?></a></li>
 		</ul>
 	</div>
 
@@ -142,65 +147,61 @@
 		<h3><?php echo $getbuilds_langres["downloadrev"]; ?></h3>
 		
 		<noscript>
-			<?php echo $getbuilds_langres["js_disclaimer"]; ?>
+			<?php printf($getbuilds_langres["js_disclaimer"], $ISO_DOWNLOAD_URL); ?>
 		</noscript>
-		
-		<script type="text/javascript">
-			document.write(
-				'<table id="showrev" cellspacing="0" cellpadding="5">' +
-					'<tr>' +
-						'<td><?php echo addslashes($getbuilds_langres["showrevfiles"]); ?>: </td>' +
-						'<td>' +
-							'<span id="revcontrols">' +
-								'<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo addslashes($getbuilds_langres["prevrev"]); ?>" onclick="prevRev();"> ' +
-								'<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="checkRevNum(this);"> ' +
-								'<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo addslashes($getbuilds_langres["nextrev"]); ?>" onclick="nextRev();"><br>' +
-							'</span>' +
-							
-							'<img src="images/info.gif" alt="INFO:"> <?php printf( addslashes($getbuilds_langres["rangeinfo"]), $rev, ($rev - 50), $rev ); ?>' +
-						'</td>' +
-					'</tr>' +
-					'<tr>' +
-						'<td><?php echo addslashes($getbuilds_langres["isotype"]); ?>: </td>' +
-						'<td>' +
-							'<input type="checkbox" id="bootcd-dbg" checked="checked"> Debug Boot CDs ' +
-							'<input type="checkbox" id="livecd-dbg" checked="checked"> Debug Live CDs ' +
-							'<input type="checkbox" id="bootcd-rel" checked="checked"> Release Boot CDs ' +
-							'<input type="checkbox" id="livecd-rel" checked="checked"> Release Live CDs' +
-						'</td>' +
-					'</tr>' +
-				'</table>'	 +
 
-				'<div id="controlbox">' +
-					'<input type="button" onclick="showRev();" value="<?php echo addslashes($getbuilds_langres["showrev"]); ?>" />' +
-					
-					'<span id="ajaxloadinginfo">' +
-						'<img src="images/ajax_loading.gif"> <?php echo addslashes($getbuilds_langres["gettinglist"]); ?>...' +
-					'</span>' +
-				'</div>' +
-
-				'<div id="filetable">' +
-					'<table class="datatable" cellspacing="0" cellpadding="1">' +
-						'<thead>' +
-							'<tr class="head">' +
-								'<th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?></th>' +
-								'<th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?></th>' +
-								'<th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?></th>' +
-							'</tr>' +
-						'</thead>' +
-						'<tbody>' +
-							'<tr class="odd">' +
-								'<td><?php echo addslashes($getbuilds_langres["pleasewait"]); ?>...</td>' +
-								'<td>&nbsp;</td>' +
-								'<td>&nbsp;</td>' +
-							'</tr>' +
-						'</tbody>' +
-					'</table>' +
-				'</div>'
-			);
-
-			document.getElementById("revnum").onkeypress = checkForReturn;
-		</script>
+		<div id="js_stuff">
+			<table id="showrev" cellspacing="0" cellpadding="5">
+				<tr>
+					<td><?php echo addslashes($getbuilds_langres["showrevfiles"]); ?>: </td>
+					<td>
+						<span id="revcontrols">
+							<img src="images/leftarrow.gif" alt="&lt;" title="<?php echo addslashes($getbuilds_langres["prevrev"]); ?>" onclick="prevRev();"> 
+							<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="checkRevNum(this);"> 
+							<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo addslashes($getbuilds_langres["nextrev"]); ?>" onclick="nextRev();"><br>
+						</span>
+						
+						<img src="images/info.gif" alt="INFO:"> <?php printf( addslashes($getbuilds_langres["rangeinfo"]), $rev, ($rev - 50), $rev ); ?>
+					</td>
+				</tr>
+				<tr>
+					<td><?php echo addslashes($getbuilds_langres["isotype"]); ?>: </td>
+					<td>
+						<input type="checkbox" id="bootcd-dbg" checked="checked"> Debug Boot CDs 
+						<input type="checkbox" id="livecd-dbg" checked="checked"> Debug Live CDs 
+						<input type="checkbox" id="bootcd-rel" checked="checked"> Release Boot CDs 
+						<input type="checkbox" id="livecd-rel" checked="checked"> Release Live CDs
+					</td>
+				</tr>
+			</table>
+	
+			<div id="controlbox">
+				<input type="button" onclick="showRev();" value="<?php echo addslashes($getbuilds_langres["showrev"]); ?>" />
+				
+				<span id="ajaxloadinginfo">
+					<img src="images/ajax_loading.gif" alt=""> <?php echo addslashes($getbuilds_langres["gettinglist"]); ?>...
+				</span>
+			</div>
+	
+			<div id="filetable">
+				<table class="datatable" cellspacing="0" cellpadding="1">
+					<thead>
+						<tr class="head">
+							<th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?></th>
+							<th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?></th>
+							<th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="odd">
+							<td><?php echo addslashes($getbuilds_langres["pleasewait"]); ?>...</td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 	
 	</div>

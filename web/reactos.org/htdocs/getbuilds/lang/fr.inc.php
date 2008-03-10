@@ -4,7 +4,7 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/getbuilds/lang/fr.inc.php
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Pierre Schweitzer <heis_spiter@hotmail.com>
 */
 	
@@ -24,7 +24,7 @@
 	$getbuilds_langres["browsebuilds"] = "Parcourir toutes les binaires créées";
 	
 	$getbuilds_langres["downloadrev"] = "Télécharger les binaires d'une révision de ReactOS";
-	$getbuilds_langres["js_disclaimer"] = 'JavaScript a besoin d\'être activé dans votre navigateur pour utiliser la liste des fichiers de révision.<br>Autrement, vous pouvez télécharger tous les binaires des révisions <a href="http://svn.reactos.org/iso">ici</a>.';
+	$getbuilds_langres["js_disclaimer"] = 'JavaScript a besoin d\'être activé dans votre navigateur pour utiliser la liste des fichiers de révision.<br>Autrement, vous pouvez télécharger tous les binaires des révisions <a href="%s">ici</a>.';
 	$getbuilds_langres["showrevfiles"] = "Montrer les fichiers de la révision ";
 	$getbuilds_langres["prevrev"] = "Révision précédente";
 	$getbuilds_langres["nextrev"] = "Révision suivante";

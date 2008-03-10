@@ -3,7 +3,7 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/getbuilds/getbuilds.css
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
 */
 
 body {
@@ -184,6 +184,11 @@ ul.web {
 
 ul.web li {
 	vertical-align: top;
+}
+
+#js_stuff {
+	/* Will be shown by the JavaScript */
+	display: none;
 }
 
 #showrev td {

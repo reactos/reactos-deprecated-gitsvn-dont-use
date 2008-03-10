@@ -4,7 +4,7 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/getbuilds/lang/lt.inc.php
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Vytis Girdzijauskas <cman@cman.us>
 */
 	
@@ -24,7 +24,7 @@
 	$getbuilds_langres["browsebuilds"] = "Naršyti visas sukurtas laidas";
 	
 	$getbuilds_langres["downloadrev"] = "Parsisiųsti ReactOS SVN laidas";
-	$getbuilds_langres["js_disclaimer"] = 'JavaScript turi būti įjungtas Jūsų naršyklėje, kad galėtumėte naudotis SVN bylų sarašu.<br>Kitu atveju, Jūs galite parsisiųsti SVN laidas <a href="http://svn.reactos.org/iso">čia</a>.';
+	$getbuilds_langres["js_disclaimer"] = 'JavaScript turi būti įjungtas Jūsų naršyklėje, kad galėtumėte naudotis SVN bylų sarašu.<br>Kitu atveju, Jūs galite parsisiųsti SVN laidas <a href="%s">čia</a>.';
 	$getbuilds_langres["showrevfiles"] = "Rodyti bylas laidai";
 	$getbuilds_langres["prevrev"] = "Ankstesnė laida";
 	$getbuilds_langres["nextrev"] = "Sekanti laida";
