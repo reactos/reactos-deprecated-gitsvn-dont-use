@@ -176,7 +176,7 @@ function getfilesCallback(http_request, data)
 				var fname = files[i].getElementsByTagName("name")[0].firstChild.data;
 				var fsize = files[i].getElementsByTagName("size")[0].firstChild.data;
 				var fdate = files[i].getElementsByTagName("date")[0].firstChild.data;
-				var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname + '">';
+				var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname.substr(0, 6) + "/" + fname + '">';
 				oddeven = !oddeven;
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
