@@ -4,14 +4,14 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/getbuilds/ajax-getfiles-provider.php
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
 */
    
 	// This "ajax-getfiles.php" script has to be uploaded to the server, which contains the ISO files.
 	// Therefore it has an own configuration and doesn't use "config.inc.php".
 
 	// Configuration
-	$ISO_DIR = "../iso";
+	$ROOT_DIR = "../";
 	$MAX_FILES_PER_PAGE = 100;			// The same value has to be set in "config.inc.php"
 	$REV_RANGE_LIMIT = 3000;
 
@@ -63,7 +63,9 @@
 			die("<error><message>Wrong input for parameter 'get'!</message></error>");
 	}
 	
+	$directories = array("bootcd", "livecd");
 	$file_patterns = array();
+	
 	if( $_GET["bootcd-dbg"] == 1 )
 		$file_patterns[] = "#bootcd-[0-9]+-dbg#";
 	if( $_GET["livecd-dbg"] == 1 )
@@ -78,15 +80,19 @@
 	$firstrev = 0;
 	$lastrev = 0;
 	$morefiles = 0;
-	$dir = opendir( $ISO_DIR ) or die("<error><message>opendir failed!</message></error>");
-
+	
+	foreach($directories as $d)
+	{
+		$dir = opendir( $ROOT_DIR . $d ) or die("<error><message>opendir failed!</message></error>");
+	
+		while( $fname = readdir($dir) )
+			if( preg_match( "#-([0-9]+)-#", $fname, $matches ) )
+				$fnames[ $matches[1] ][] = $fname;
+		
+		closedir($dir);
+	}
+	
 	echo "<fileinformation>";
-	
-	while( $fname = readdir($dir) )
-		if( preg_match( "#-([0-9]+)-#", $fname, $matches ) )
-			$fnames[ $matches[1] ][] = $fname;
-	
-	closedir($dir);
 	
 	for( $i = $_GET["startrev"]; $i <= $_GET["endrev"]; $i++ )
 	{
@@ -104,10 +110,12 @@
 						// This is a file we are looking for
 						if( $get_filelist )
 						{
+							$dir = substr($fname, 0, 6);
+							
 							echo "<file>";
 							printf("<name>%s</name>", $fname );
-							printf("<size>%s</size>", fsize_str( filesize( "$ISO_DIR/$fname" ) ) );
-							printf("<date>%s</date>", date( "Y-m-d H:i", filemtime( "$ISO_DIR/$fname" ) ) );
+							printf("<size>%s</size>", fsize_str( filesize( "$ROOT_DIR/$dir/$fname" ) ) );
+							printf("<date>%s</date>", date( "Y-m-d H:i", filemtime( "$ROOT_DIR/$dir/$fname" ) ) );
 							echo "</file>";
 						}
 					
