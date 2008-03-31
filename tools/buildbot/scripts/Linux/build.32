@@ -3,6 +3,8 @@
 TIME="$(dirname $0)/time"
 
 $TIME bash -c "(
+	source "checkrev"
+	
 	export CCACHE_DIR=/opt/buildbot/ccache
 	export CCACHE_PATH=/usr/local/rosbe/bin:$PATH
 	export CCACHE_HARDLINK=1

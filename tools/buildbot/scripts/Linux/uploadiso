@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source "checkrev"
+
 KEY=../../fezile.cute.se.key
 SSHUSER=rosbuild
 HOST=$SSHUSER@fezile.cute.se
@@ -22,10 +24,6 @@ if [ ! $BOOTCD -eq 1 -a $LIVECD -eq 1 ]; then
 	echo "* There are no ISO files to process."
 	exit 2
 fi
-
-echo "* Getting revision number..."
-REV=$(svnversion .)
-echo -e "* Revision $REV.\n"
 
 BOOT=bootcd-$REV-$1
 LIVE=livecd-$REV-$1
