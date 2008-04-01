@@ -42,19 +42,115 @@ if ( !function_exists( '__autoload' ) ) {
  *
  */
 class WebRequest {
+	var $data = array();
+	
 	function __construct() {
+		/// @fixme This preemptive de-quoting can interfere with other web libraries
+		///        and increases our memory footprint. It would be cleaner to do on
+		///        demand; but currently we have no wrapper for $_SERVER etc.
 		$this->checkMagicQuotes();
+		
+		// POST overrides GET data
+		// We don't use $_REQUEST here to avoid interference from cookies...
+		$this->data = wfArrayMerge( $_GET, $_POST );
+	}
+	
+	/**
+	 * Check for title, action, and/or variant data in the URL
+	 * and interpolate it into the GET variables.
+	 * This should only be run after $wgContLang is available,
+	 * as we may need the list of language variants to determine
+	 * available variant URLs.
+	 */
+	function interpolateTitle() {
 		global $wgUsePathInfo;
 		if ( $wgUsePathInfo ) {
-			if ( isset( $_SERVER['ORIG_PATH_INFO'] ) && $_SERVER['ORIG_PATH_INFO'] != '' ) {
-				# Mangled PATH_INFO
-				# http://bugs.php.net/bug.php?id=31892
-				# Also reported when ini_get('cgi.fix_pathinfo')==false
-				$_GET['title'] = $_REQUEST['title'] = substr( $_SERVER['ORIG_PATH_INFO'], 1 );
-			} elseif ( isset( $_SERVER['PATH_INFO'] ) && ($_SERVER['PATH_INFO'] != '') && $wgUsePathInfo ) {
-				$_GET['title'] = $_REQUEST['title'] = substr( $_SERVER['PATH_INFO'], 1 );
+			// PATH_INFO is mangled due to http://bugs.php.net/bug.php?id=31892
+			// And also by Apache 2.x, double slashes are converted to single slashes.
+			// So we will use REQUEST_URI if possible.
+			$matches = array();
+			if ( !empty( $_SERVER['REQUEST_URI'] ) ) {
+				// Slurp out the path portion to examine...
+				$url = $_SERVER['REQUEST_URI'];
+				if ( !preg_match( '!^https?://!', $url ) ) {
+					$url = 'http://unused' . $url;
+				}
+				$a = parse_url( $url );
+				if( $a ) {
+					$path = $a['path'];
+					
+					global $wgScript;
+					if( $path == $wgScript ) {
+						// Script inside a rewrite path?
+						// Abort to keep from breaking...
+						return;
+					}
+					// Raw PATH_INFO style
+					$matches = $this->extractTitle( $path, "$wgScript/$1" );
+					
+					global $wgArticlePath;
+					if( !$matches && $wgArticlePath ) {
+						$matches = $this->extractTitle( $path, $wgArticlePath );
+					}
+					
+					global $wgActionPaths;
+					if( !$matches && $wgActionPaths ) {
+						$matches = $this->extractTitle( $path, $wgActionPaths, 'action' );
+					}
+					
+					global $wgVariantArticlePath, $wgContLang;
+					if( !$matches && $wgVariantArticlePath ) {
+						$variantPaths = array();
+						foreach( $wgContLang->getVariants() as $variant ) {
+							$variantPaths[$variant] =
+								str_replace( '$2', $variant, $wgVariantArticlePath );
+						}
+						$matches = $this->extractTitle( $path, $variantPaths, 'variant' );
+					}
+				}
+			} elseif ( isset( $_SERVER['ORIG_PATH_INFO'] ) && $_SERVER['ORIG_PATH_INFO'] != '' ) {
+				// Mangled PATH_INFO
+				// http://bugs.php.net/bug.php?id=31892
+				// Also reported when ini_get('cgi.fix_pathinfo')==false
+				$matches['title'] = substr( $_SERVER['ORIG_PATH_INFO'], 1 );
+				
+			} elseif ( isset( $_SERVER['PATH_INFO'] ) && ($_SERVER['PATH_INFO'] != '') ) {
+				// Regular old PATH_INFO yay
+				$matches['title'] = substr( $_SERVER['PATH_INFO'], 1 );
+			}
+			foreach( $matches as $key => $val) {
+				$this->data[$key] = $_GET[$key] = $_REQUEST[$key] = $val;
 			}
 		}
+	}
+	
+	/**
+	 * Internal URL rewriting function; tries to extract page title and,
+	 * optionally, one other fixed parameter value from a URL path.
+	 *
+	 * @param string $path the URL path given from the client
+	 * @param array $bases one or more URLs, optionally with $1 at the end
+	 * @param string $key if provided, the matching key in $bases will be
+	 *        passed on as the value of this URL parameter
+	 * @return array of URL variables to interpolate; empty if no match
+	 */
+	private function extractTitle( $path, $bases, $key=false ) {
+		foreach( (array)$bases as $keyValue => $base ) {
+			// Find the part after $wgArticlePath
+			$base = str_replace( '$1', '', $base );
+			$baseLen = strlen( $base );
+			if( substr( $path, 0, $baseLen ) == $base ) {
+				$raw = substr( $path, $baseLen );
+				if( $raw !== '' ) {
+					$matches = array( 'title' => rawurldecode( $raw ) );
+					if( $key ) {
+						$matches[$key] = $keyValue;
+					}
+					return $matches;
+				}
+			}
+		}
+		return array();
 	}
 	
 	private $_response;
@@ -149,7 +245,7 @@ class WebRequest {
 	 * @return string
 	 */
 	function getVal( $name, $default = NULL ) {
-		$val = $this->getGPCVal( $_REQUEST, $name, $default );
+		$val = $this->getGPCVal( $this->data, $name, $default );
 		if( is_array( $val ) ) {
 			$val = $default;
 		}
@@ -170,7 +266,7 @@ class WebRequest {
 	 * @return array
 	 */
 	function getArray( $name, $default = NULL ) {
-		$val = $this->getGPCVal( $_REQUEST, $name, $default );
+		$val = $this->getGPCVal( $this->data, $name, $default );
 		if( is_null( $val ) ) {
 			return null;
 		} else {
@@ -275,7 +371,7 @@ class WebRequest {
 	function getValues() {
 		$names = func_get_args();
 		if ( count( $names ) == 0 ) {
-			$names = array_keys( $_REQUEST );
+			$names = array_keys( $this->data );
 		}
 
 		$retVal = array();
@@ -500,9 +596,13 @@ class WebRequest {
  *
  */
 class FauxRequest extends WebRequest {
-	var $data = null;
 	var $wasPosted = false;
 
+	/**
+	 * @param array $data Array of *non*-urlencoded key => value pairs, the
+	 *   fake GET/POST values
+	 * @param bool $wasPosted Whether to treat the data as POST
+	 */
 	function FauxRequest( $data, $wasPosted = false ) {
 		if( is_array( $data ) ) {
 			$this->data = $data;
@@ -512,13 +612,9 @@ class FauxRequest extends WebRequest {
 		$this->wasPosted = $wasPosted;
 	}
 
-	function getVal( $name, $default = NULL ) {
-		return $this->getGPCVal( $this->data, $name, $default );
-	}
-
 	function getText( $name, $default = '' ) {
 		# Override; don't recode since we're using internal data
-		return $this->getVal( $name, $default );
+		return (string)$this->getVal( $name, $default );
 	}
 
 	function getValues() {
@@ -543,4 +639,4 @@ class FauxRequest extends WebRequest {
 
 }
 
-?>
+

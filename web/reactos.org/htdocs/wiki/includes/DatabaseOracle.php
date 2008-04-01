@@ -128,6 +128,9 @@ class DatabaseOracle extends Database {
 	function implicitGroupby() {
 		return false;
 	}
+	function implicitOrderby() {
+		return false;
+	}
 	function searchableIPs() {
 		return true;
 	}
@@ -659,7 +662,7 @@ echo "error!\n";
 
 		#if ( isset( $noKeyOptions['FOR UPDATE'] ) ) $tailOpts .= ' FOR UPDATE';
 		#if ( isset( $noKeyOptions['LOCK IN SHARE MODE'] ) ) $tailOpts .= ' LOCK IN SHARE MODE';
-		if ( isset( $noKeyOptions['DISTINCT'] ) && isset( $noKeyOptions['DISTINCTROW'] ) ) $startOpts .= 'DISTINCT';
+		if ( isset( $noKeyOptions['DISTINCT'] ) || isset( $noKeyOptions['DISTINCTROW'] ) ) $startOpts .= 'DISTINCT';
 
 		if ( isset( $options['USE INDEX'] ) && ! is_array( $options['USE INDEX'] ) ) {
 			$useIndex = $this->useIndexClause( $options['USE INDEX'] );
@@ -675,11 +678,20 @@ echo "error!\n";
 	}
 
 	function ping() {
-		wfDebug( "Function ping() not written for DatabasePostgres.php yet");
+		wfDebug( "Function ping() not written for DatabaseOracle.php yet");
 		return true;
 	}
 
+	/**
+	 * How lagged is this slave?
+	 *
+	 * @return int
+	 */
+	public function getLag() {
+		# Not implemented for Oracle
+		return 0;
+	}
 
 } // end DatabaseOracle class
 
-?>
+

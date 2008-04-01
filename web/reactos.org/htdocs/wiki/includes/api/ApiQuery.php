@@ -5,7 +5,7 @@
  *
  * API for MediaWiki 1.8+
  *
- * Copyright (C) 2006 Yuri Astrakhan <FirstnameLastname@gmail.com>
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,49 +29,73 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
+ * This is the main query class. It behaves similar to ApiMain: based on the parameters given,
+ * it will create a list of titles to work on (an instance of the ApiPageSet object)
+ * instantiate and execute various property/list/meta modules,
+ * and assemble all resulting data into a single ApiResult object.
+ * 
+ * In the generator mode, a generator will be first executed to populate a second ApiPageSet object,
+ * and that object will be used for all subsequent modules.
+ * 
  * @addtogroup API
  */
 class ApiQuery extends ApiBase {
 
 	private $mPropModuleNames, $mListModuleNames, $mMetaModuleNames;
 	private $mPageSet;
+	private $params, $redirect;
 
 	private $mQueryPropModules = array (
 		'info' => 'ApiQueryInfo',
-		'revisions' => 'ApiQueryRevisions'
+		'revisions' => 'ApiQueryRevisions',
+		'links' => 'ApiQueryLinks',
+		'langlinks' => 'ApiQueryLangLinks',
+		'images' => 'ApiQueryImages',
+		'imageinfo' => 'ApiQueryImageInfo',
+		'templates' => 'ApiQueryLinks',
+		'categories' => 'ApiQueryCategories',
+		'extlinks' => 'ApiQueryExternalLinks',
 	);
-	//	'categories' => 'ApiQueryCategories',
-	//	'imageinfo' => 'ApiQueryImageinfo',
-	//	'langlinks' => 'ApiQueryLanglinks',
-	//	'links' => 'ApiQueryLinks',
-	//	'templates' => 'ApiQueryTemplates',
 
 	private $mQueryListModules = array (
 		'allpages' => 'ApiQueryAllpages',
-		'logevents' => 'ApiQueryLogEvents',
-		'watchlist' => 'ApiQueryWatchlist',
-		'recentchanges' => 'ApiQueryRecentChanges',
+		'alllinks' => 'ApiQueryAllLinks',
+		'allcategories' => 'ApiQueryAllCategories',
+		'allusers' => 'ApiQueryAllUsers',
 		'backlinks' => 'ApiQueryBacklinks',
+		'blocks' => 'ApiQueryBlocks',
+		'categorymembers' => 'ApiQueryCategoryMembers',
+		'deletedrevs' => 'ApiQueryDeletedrevs',
 		'embeddedin' => 'ApiQueryBacklinks',
-		'imagelinks' => 'ApiQueryBacklinks',
-		'usercontribs' => 'ApiQueryContributions'
+		'imageusage' => 'ApiQueryBacklinks',
+		'logevents' => 'ApiQueryLogEvents',
+		'recentchanges' => 'ApiQueryRecentChanges',
+		'search' => 'ApiQuerySearch',
+		'usercontribs' => 'ApiQueryContributions',
+		'watchlist' => 'ApiQueryWatchlist',
+		'exturlusage' => 'ApiQueryExtLinksUsage',
+		'users' => 'ApiQueryUsers',
+		'random' => 'ApiQueryRandom',
 	);
-	//	'categorymembers' => 'ApiQueryCategorymembers',
-	//	'embeddedin' => 'ApiQueryEmbeddedin',
-	//	'imagelinks' => 'ApiQueryImagelinks',
-	//	'recentchanges' => 'ApiQueryRecentchanges',
-	//	'users' => 'ApiQueryUsers',
-	//	'watchlist' => 'ApiQueryWatchlist',
 
 	private $mQueryMetaModules = array (
-		'siteinfo' => 'ApiQuerySiteinfo'
+		'siteinfo' => 'ApiQuerySiteinfo',
+		'userinfo' => 'ApiQueryUserInfo',
+		'allmessages' => 'ApiQueryAllmessages',
 	);
-	//	'userinfo' => 'ApiQueryUserinfo',
 
 	private $mSlaveDB = null;
+	private $mNamedDB = array();
 
 	public function __construct($main, $action) {
 		parent :: __construct($main, $action);
+
+		// Allow custom modules to be added in LocalSettings.php		
+		global $wgApiQueryPropModules, $wgApiQueryListModules, $wgApiQueryMetaModules;
+		self :: appendUserModules($this->mQueryPropModules, $wgApiQueryPropModules);
+		self :: appendUserModules($this->mQueryListModules, $wgApiQueryListModules);
+		self :: appendUserModules($this->mQueryMetaModules, $wgApiQueryMetaModules);
+
 		$this->mPropModuleNames = array_keys($this->mQueryPropModules);
 		$this->mListModuleNames = array_keys($this->mQueryListModules);
 		$this->mMetaModuleNames = array_keys($this->mQueryMetaModules);
@@ -81,6 +105,20 @@ class ApiQuery extends ApiBase {
 		$this->mAllowedGenerators = array_merge($this->mListModuleNames, $this->mPropModuleNames);
 	}
 
+	/**
+	 * Helper function to append any add-in modules to the list
+	 */
+	private static function appendUserModules(&$modules, $newModules) {
+		if (is_array( $newModules )) {
+			foreach ( $newModules as $moduleName => $moduleClass) {
+				$modules[$moduleName] = $moduleClass;
+			}
+		}
+	}
+
+	/**
+	 * Gets a default slave database connection object
+	 */
 	public function getDB() {
 		if (!isset ($this->mSlaveDB)) {
 			$this->profileDBIn();
@@ -90,8 +128,33 @@ class ApiQuery extends ApiBase {
 		return $this->mSlaveDB;
 	}
 
+	/**
+	 * Get the query database connection with the given name.
+	 * If no such connection has been requested before, it will be created. 
+	 * Subsequent calls with the same $name will return the same connection 
+	 * as the first, regardless of $db or $groups new values. 
+	 */
+	public function getNamedDB($name, $db, $groups) {
+		if (!array_key_exists($name, $this->mNamedDB)) {
+			$this->profileDBIn();
+			$this->mNamedDB[$name] = wfGetDB($db, $groups);
+			$this->profileDBOut();
+		}
+		return $this->mNamedDB[$name];
+	}
+
+	/**
+	 * Gets the set of pages the user has requested (or generated)
+	 */
 	public function getPageSet() {
 		return $this->mPageSet;
+	}
+	
+	/**
+	 * Get the array mapping module names to class names
+	 */
+	function getModules() {
+		return array_merge($this->mQueryPropModules, $this->mQueryListModules, $this->mQueryMetaModules);
 	}
 
 	/**
@@ -105,42 +168,33 @@ class ApiQuery extends ApiBase {
 	 * #5 Execute all requested modules
 	 */
 	public function execute() {
-		$prop = $list = $meta = $generator = $redirects = null;
-		extract($this->extractRequestParams());
-
+		
+		$this->params = $this->extractRequestParams();
+		$this->redirects = $this->params['redirects'];
+		
 		//
 		// Create PageSet
 		//
-		$this->mPageSet = new ApiPageSet($this, $redirects);
+		$this->mPageSet = new ApiPageSet($this, $this->redirects);
 
-		// Instantiate required modules
+		//
+		// Instantiate requested modules
+		//
 		$modules = array ();
-		if (isset ($prop))
-			foreach ($prop as $moduleName)
-				$modules[] = new $this->mQueryPropModules[$moduleName] ($this, $moduleName);
-		if (isset ($list))
-			foreach ($list as $moduleName)
-				$modules[] = new $this->mQueryListModules[$moduleName] ($this, $moduleName);
-		if (isset ($meta))
-			foreach ($meta as $moduleName)
-				$modules[] = new $this->mQueryMetaModules[$moduleName] ($this, $moduleName);
-
-		// Modules may optimize data requests through the $this->getPageSet() object 
-		// Execute all requested modules.
-		foreach ($modules as $module) {
-			$module->requestExtraData();
-		}
+		$this->InstantiateModules($modules, 'prop', $this->mQueryPropModules);
+		$this->InstantiateModules($modules, 'list', $this->mQueryListModules);
+		$this->InstantiateModules($modules, 'meta', $this->mQueryMetaModules);
 
 		//
 		// If given, execute generator to substitute user supplied data with generated data.  
 		//
-		if (isset ($generator))
-			$this->executeGeneratorModule($generator, $redirects);
-
-		//
-		// Populate page information for the given pageSet
-		//
-		$this->mPageSet->execute();
+		if (isset ($this->params['generator'])) {
+			$this->executeGeneratorModule($this->params['generator'], $modules);
+		} else {
+			// Append custom fields and populate page/revision information
+			$this->addCustomFldsToPageSet($modules, $this->mPageSet);
+			$this->mPageSet->execute();
+		}
 
 		//
 		// Record page information (title, namespace, if exists, etc)
@@ -156,7 +210,33 @@ class ApiQuery extends ApiBase {
 			$module->profileOut();
 		}
 	}
+	
+	/**
+	 * Query modules may optimize data requests through the $this->getPageSet() object
+	 * by adding extra fields from the page table.
+	 * This function will gather all the extra request fields from the modules. 
+	 */
+	private function addCustomFldsToPageSet($modules, $pageSet) {
+		// Query all requested modules. 
+		foreach ($modules as $module) {
+			$module->requestExtraData($pageSet);
+		}
+	}
 
+	/**
+	 * Create instances of all modules requested by the client 
+	 */
+	private function InstantiateModules(&$modules, $param, $moduleList) {
+		$list = $this->params[$param];
+		if (isset ($list))
+			foreach ($list as $moduleName)
+				$modules[] = new $moduleList[$moduleName] ($this, $moduleName);
+	}
+
+	/**
+	 * Appends an element for each page in the current pageSet with the most general
+	 * information (id, title), plus any title normalizations and missing title/pageids/revids.
+	 */
 	private function outputGeneralPageInfo() {
 
 		$pageSet = $this->getPageSet();
@@ -175,7 +255,21 @@ class ApiQuery extends ApiBase {
 			$result->setIndexedTagName($normValues, 'n');
 			$result->addValue('query', 'normalized', $normValues);
 		}
+		
+		// Interwiki titles
+		$intrwValues = array ();
+		foreach ($pageSet->getInterwikiTitles() as $rawTitleStr => $interwikiStr) {
+			$intrwValues[] = array (
+				'title' => $rawTitleStr,
+				'iw' => $interwikiStr
+			);
+		}
 
+		if (!empty ($intrwValues)) {
+			$result->setIndexedTagName($intrwValues, 'i');
+			$result->addValue('query', 'interwiki', $intrwValues);
+		}
+		
 		// Show redirect information
 		$redirValues = array ();
 		foreach ($pageSet->getRedirectTitles() as $titleStrFrom => $titleStrTo) {
@@ -211,10 +305,11 @@ class ApiQuery extends ApiBase {
 		$pages = array ();
 
 		// Report any missing titles
-		$fakepageid = -1;
-		foreach ($pageSet->getMissingTitles() as $title) {
-			$pages[$fakepageid--] = array (
-			'ns' => $title->getNamespace(), 'title' => $title->getPrefixedText(), 'missing' => '');
+		foreach ($pageSet->getMissingTitles() as $fakeId => $title) {
+			$vals = array();
+			ApiQueryBase :: addTitleInfo($vals, $title);
+			$vals['missing'] = '';
+			$pages[$fakeId] = $vals;
 		}
 
 		// Report any missing page ids
@@ -227,32 +322,43 @@ class ApiQuery extends ApiBase {
 
 		// Output general page information for found titles
 		foreach ($pageSet->getGoodTitles() as $pageid => $title) {
-			$pages[$pageid] = array (
-				'pageid' => $pageid,
-			'ns' => $title->getNamespace(), 'title' => $title->getPrefixedText());
+			$vals = array();
+			$vals['pageid'] = $pageid;
+			ApiQueryBase :: addTitleInfo($vals, $title);
+			$pages[$pageid] = $vals;
 		}
 
 		if (!empty ($pages)) {
+			
+			if ($this->params['indexpageids']) {
+				$pageIDs = array_keys($pages);
+				// json treats all map keys as strings - converting to match
+				$pageIDs = array_map('strval', $pageIDs);
+				$result->setIndexedTagName($pageIDs, 'id');
+				$result->addValue('query', 'pageids', $pageIDs);
+			}
+						
 			$result->setIndexedTagName($pages, 'page');
 			$result->addValue('query', 'pages', $pages);
 		}
 	}
 
-	protected function executeGeneratorModule($generatorName, $redirects) {
+	/**
+	 * For generator mode, execute generator, and use its output as new pageSet 
+	 */
+	protected function executeGeneratorModule($generatorName, $modules) {
 
 		// Find class that implements requested generator
 		if (isset ($this->mQueryListModules[$generatorName])) {
 			$className = $this->mQueryListModules[$generatorName];
-		}
-		elseif (isset ($this->mQueryPropModules[$generatorName])) {
+		} elseif (isset ($this->mQueryPropModules[$generatorName])) {
 			$className = $this->mQueryPropModules[$generatorName];
 		} else {
 			ApiBase :: dieDebug(__METHOD__, "Unknown generator=$generatorName");
 		}
 
-		// Use current pageset as the result, and create a new one just for the generator 
-		$resultPageSet = $this->mPageSet;
-		$this->mPageSet = new ApiPageSet($this, $redirects);
+		// Generator results 
+		$resultPageSet = new ApiPageSet($this, $this->redirects);
 
 		// Create and execute the generator
 		$generator = new $className ($this, $generatorName);
@@ -260,9 +366,12 @@ class ApiQuery extends ApiBase {
 			$this->dieUsage("Module $generatorName cannot be used as a generator", "badgenerator");
 
 		$generator->setGeneratorMode();
-		$generator->requestExtraData();
 
-		// execute current pageSet to get the data for the generator module
+		// Add any additional fields modules may need
+		$generator->requestExtraData($this->mPageSet);
+		$this->addCustomFldsToPageSet($modules, $resultPageSet);
+
+		// Populate page information with the original user input
 		$this->mPageSet->execute();
 
 		// populate resultPageSet with the generator output
@@ -275,7 +384,11 @@ class ApiQuery extends ApiBase {
 		$this->mPageSet = $resultPageSet;
 	}
 
-	protected function getAllowedParams() {
+	/**
+	 * Returns the list of allowed parameters for this module.
+	 * Qurey module also lists all ApiPageSet parameters as its own. 
+	 */
+	public function getAllowedParams() {
 		return array (
 			'prop' => array (
 				ApiBase :: PARAM_ISMULTI => true,
@@ -292,7 +405,8 @@ class ApiQuery extends ApiBase {
 			'generator' => array (
 				ApiBase :: PARAM_TYPE => $this->mAllowedGenerators
 			),
-			'redirects' => false
+			'redirects' => false,
+			'indexpageids' => false,
 		);
 	}
 
@@ -301,12 +415,12 @@ class ApiQuery extends ApiBase {
 	 */
 	public function makeHelpMsg() {
 
-		// Use parent to make default message for the query module
-		$msg = parent :: makeHelpMsg();
+		$msg = '';
 
 		// Make sure the internal object is empty
 		// (just in case a sub-module decides to optimize during instantiation)
 		$this->mPageSet = null;
+		$this->mAllowedGenerators = array();	// Will be repopulated
 
 		$astriks = str_repeat('--- ', 8);
 		$msg .= "\n$astriks Query: Prop  $astriks\n\n";
@@ -316,21 +430,32 @@ class ApiQuery extends ApiBase {
 		$msg .= "\n$astriks Query: Meta  $astriks\n\n";
 		$msg .= $this->makeHelpMsgHelper($this->mQueryMetaModules, 'meta');
 
+		// Perform the base call last because the $this->mAllowedGenerators
+		// will be updated inside makeHelpMsgHelper()
+		// Use parent to make default message for the query module
+		$msg = parent :: makeHelpMsg() . $msg;
+
 		return $msg;
 	}
 
+	/**
+	 * For all modules in $moduleList, generate help messages and join them together
+	 */
 	private function makeHelpMsgHelper($moduleList, $paramName) {
 
 		$moduleDscriptions = array ();
 
 		foreach ($moduleList as $moduleName => $moduleClass) {
-			$msg = "* $paramName=$moduleName *";
 			$module = new $moduleClass ($this, $moduleName, null);
+
+			$msg = ApiMain::makeHelpMsgHeader($module, $paramName);
 			$msg2 = $module->makeHelpMsg();
 			if ($msg2 !== false)
 				$msg .= $msg2;
-			if ($module instanceof ApiQueryGeneratorBase)
+			if ($module instanceof ApiQueryGeneratorBase) {
+				$this->mAllowedGenerators[] = $moduleName;
 				$msg .= "Generator:\n  This module may be used as a generator\n";
+			}
 			$moduleDscriptions[] = $msg;
 		}
 
@@ -344,18 +469,24 @@ class ApiQuery extends ApiBase {
 		$psModule = new ApiPageSet($this);
 		return $psModule->makeHelpMsgParameters() . parent :: makeHelpMsgParameters();
 	}
+	
+	// @todo should work correctly
+	public function shouldCheckMaxlag() {
+		return true;
+	}
 
-	protected function getParamDescription() {
+	public function getParamDescription() {
 		return array (
 			'prop' => 'Which properties to get for the titles/revisions/pageids',
 			'list' => 'Which lists to get',
 			'meta' => 'Which meta data to get about the site',
 			'generator' => 'Use the output of a list as the input for other prop/list/meta items',
-			'redirects' => 'Automatically resolve redirects'
+			'redirects' => 'Automatically resolve redirects',
+			'indexpageids' => 'Include an additional pageids section listing all returned page IDs.'
 		);
 	}
 
-	protected function getDescription() {
+	public function getDescription() {
 		return array (
 			'Query API module allows applications to get needed pieces of data from the MediaWiki databases,',
 			'and is loosely based on the Query API interface currently available on all MediaWiki servers.',
@@ -372,9 +503,9 @@ class ApiQuery extends ApiBase {
 	public function getVersion() {
 		$psModule = new ApiPageSet($this);
 		$vers = array ();
-		$vers[] = __CLASS__ . ': $Id: ApiQuery.php 21402 2007-04-20 08:55:14Z nickj $';
+		$vers[] = __CLASS__ . ': $Id: ApiQuery.php 30222 2008-01-28 19:05:26Z catrope $';
 		$vers[] = $psModule->getVersion();
 		return $vers;
 	}
 }
-?>
+

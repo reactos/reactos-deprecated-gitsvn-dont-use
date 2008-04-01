@@ -60,11 +60,7 @@ class MediaWiki {
 		global $wgLoadBalancer;
 		list( $host, $lag ) = $wgLoadBalancer->getMaxLag();
 		if ( $lag > $maxLag ) {
-			header( 'HTTP/1.1 503 Service Unavailable' );
-			header( 'Retry-After: ' . max( intval( $maxLag ), 5 ) );
-			header( 'X-Database-Lag: ' . intval( $lag ) );
-			header( 'Content-Type: text/plain' );
-			echo "Waiting for $host: $lag seconds lagged\n";
+			wfMaxlagError( $host, $lag, $maxLag );
 			return false;
 		} else {
 			return true;
@@ -98,6 +94,14 @@ class MediaWiki {
 				$lang->findVariantLink( $title, $ret );
 
 		}
+		if ( ( $oldid = $request->getInt( 'oldid' ) )
+			&& ( is_null( $ret ) || $ret->getNamespace() != NS_SPECIAL ) ) {
+			// Allow oldid to override a changed or missing title.
+			$rev = Revision::newFromId( $oldid );
+			if( $rev ) {
+				$ret = $rev->getTitle();
+			}
+		}
 		return $ret ;
 	}
 
@@ -106,16 +110,14 @@ class MediaWiki {
 	 */
 	function preliminaryChecks ( &$title, &$output, $request ) {
 
-		# Debug statement for user levels
-		// print_r($wgUser);
-
-		$search = $request->getText( 'search' );
-		if( !is_null( $search ) && $search !== '' ) {
+		if( $request->getCheck( 'search' ) ) {
 			// Compatibility with old search URLs which didn't use Special:Search
+			// Just check for presence here, so blank requests still
+			// show the search page when using ugly URLs (bug 8054).
+			
 			// Do this above the read whitelist check for security...
 			$title = SpecialPage::getTitleFor( 'Search' );
 		}
-		$this->setVal( 'Search', $search );
 
 		# If the user is not logged in, the Namespace:title of the article must be in
 		# the Read array in order for the user to see it. (We have to check here to
@@ -135,13 +137,8 @@ class MediaWiki {
 		global $wgRequest;
 		wfProfileIn( 'MediaWiki::initializeSpecialCases' );
 
-		$search = $this->getVal('Search');
 		$action = $this->getVal('Action');
-		if( !$this->getVal('DisableInternalSearch') && !is_null( $search ) && $search !== '' ) {
-			require_once( 'includes/SpecialSearch.php' );
-			$title = SpecialPage::getTitleFor( 'Search' );
-			wfSpecialSearch();
-		} else if( !$title or $title->getDBkey() == '' ) {
+		if( !$title or $title->getDBkey() == '' ) {
 			$title = SpecialPage::getTitleFor( 'Badtitle' );
 			# Die now before we mess up $wgArticle and the skin stops working
 			throw new ErrorPageError( 'badtitle', 'badtitletext' );
@@ -158,7 +155,7 @@ class MediaWiki {
 				$title = SpecialPage::getTitleFor( 'Badtitle' );
 				throw new ErrorPageError( 'badtitle', 'badtitletext' );
 			}
-		} else if ( ( $action == 'view' ) &&
+		} else if ( ( $action == 'view' ) && !$wgRequest->wasPosted() && 
 			(!isset( $this->GET['title'] ) || $title->getPrefixedDBKey() != $this->GET['title'] ) &&
 			!count( array_diff( array_keys( $this->GET ), array( 'action', 'title' ) ) ) )
 		{
@@ -209,7 +206,7 @@ class MediaWiki {
 	 * @param Title $title
 	 * @return Article
 	 */
-	function articleFromTitle( $title ) {
+	static function articleFromTitle( $title ) {
 		$article = null;
 		wfRunHooks('ArticleFromTitle', array( &$title, &$article ) );
 		if ( $article ) {
@@ -223,6 +220,10 @@ class MediaWiki {
 
 		switch( $title->getNamespace() ) {
 		case NS_IMAGE:
+			$file = wfFindFile( $title );
+			if( $file && $file->getRedirected() ) {
+				return new Article( $title );
+			}
 			return new ImagePage( $title );
 		case NS_CATEGORY:
 			return new CategoryPage( $title );
@@ -247,8 +248,9 @@ class MediaWiki {
 		$article = $this->articleFromTitle( $title );
 
 		// Namespace might change when using redirects
-		if( $action == 'view' && !$request->getVal( 'oldid' ) &&
-						$request->getVal( 'redirect' ) != 'no' ) {
+		if( ( $action == 'view' || $action == 'render' ) && !$request->getVal( 'oldid' ) &&
+						$request->getVal( 'redirect' ) != 'no' &&
+						!( $wgTitle->getNamespace() == NS_IMAGE && wfFindFile( $wgTitle->getText() ) ) ) {
 
 			$dbr = wfGetDB(DB_SLAVE);
 			$article->loadPageData($article->pageDataFromTitle($dbr, $title));
@@ -292,7 +294,7 @@ class MediaWiki {
 		$this->doJobs();
 		$loadBalancer->saveMasterPos();
 		# Now commit any transactions, so that unreported errors after output() don't roll back the whole thing
-		$loadBalancer->commitAll();
+		$loadBalancer->commitMasterChanges();
 		$output->output();
 		wfProfileOut( 'MediaWiki::finalCleanup' );
 	}
@@ -304,6 +306,12 @@ class MediaWiki {
 	 */
 	function doUpdates ( &$updates ) {
 		wfProfileIn( 'MediaWiki::doUpdates' );
+		/* No need to get master connections in case of empty updates array */
+		if (!$updates) {
+			wfProfileOut('MediaWiki::doUpdates');
+			return;
+		}
+		
 		$dbw = wfGetDB( DB_MASTER );
 		foreach( $updates as $up ) {
 			$up->doUpdate();
@@ -355,7 +363,6 @@ class MediaWiki {
 	 */
 	function restInPeace ( &$loadBalancer ) {
 		wfLogProfilingData();
-		$loadBalancer->closeAll();
 		wfDebug( "Request ended normally\n" );
 	}
 
@@ -365,6 +372,11 @@ class MediaWiki {
 	function performAction( &$output, &$article, &$title, &$user, &$request ) {
 
 		wfProfileIn( 'MediaWiki::performAction' );
+
+		if ( !wfRunHooks('MediaWikiPerformAction', array($output, $article, $title, $user, $request)) ) {
+			wfProfileOut( 'MediaWiki::performAction' );
+			return;
+		}
 
 		$action = $this->getVal('Action');
 		if( in_array( $action, $this->getVal('DisabledActions',array()) ) ) {
@@ -460,4 +472,4 @@ class MediaWiki {
 
 }; /* End of class MediaWiki */
 
-?>
+

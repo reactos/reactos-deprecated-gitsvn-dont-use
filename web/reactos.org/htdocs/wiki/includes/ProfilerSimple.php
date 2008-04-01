@@ -72,10 +72,14 @@ class ProfilerSimple extends Profiler {
 				$message = "Profile section ended by close(): {$ofname}";
 				$functionname = $ofname;
 				$this->debug( "$message\n" );
+				$this->mCollated[$message] = array(
+					'real' => 0.0, 'count' => 1);
 			}
 			elseif ($ofname != $functionname) {
 				$message = "Profiling error: in({$ofname}), out($functionname)";
 				$this->debug( "$message\n" );
+				$this->mCollated[$message] = array(
+					'real' => 0.0, 'count' => 1);
 			}
 			$entry =& $this->mCollated[$functionname];
 			$elapsedcpu = $this->getCpuTime() - $octime;
@@ -122,4 +126,4 @@ class ProfilerSimple extends Profiler {
 		}
 	}
 }
-?>
+

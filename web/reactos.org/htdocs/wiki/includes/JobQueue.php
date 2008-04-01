@@ -37,6 +37,46 @@ abstract class Job {
 	 */
 
 	/**
+	 * Pop a job of a certain type.  This tries less hard than pop() to 
+	 * actually find a job; it may be adversely affected by concurrent job 
+	 * runners.
+	 */
+	static function pop_type($type) {
+		wfProfilein( __METHOD__ );
+
+		$dbw = wfGetDB( DB_MASTER );
+
+
+		$row = $dbw->selectRow( 'job', '*', array( 'job_cmd' => $type ), __METHOD__,
+				array( 'LIMIT' => 1 ));
+
+		if ($row === false) {
+			wfProfileOut( __METHOD__ );
+			return false;
+		}
+
+		/* Ensure we "own" this row */
+		$dbw->delete( 'job', array( 'job_id' => $row->job_id ), __METHOD__ );
+		$affected = $dbw->affectedRows();
+
+		if ($affected == 0) {
+			wfProfileOut( __METHOD__ );
+			return false;
+		}
+
+		$namespace = $row->job_namespace;
+		$dbkey = $row->job_title;
+		$title = Title::makeTitleSafe( $namespace, $dbkey );
+		$job = Job::factory( $row->job_cmd, $title, Job::extractBlob( $row->job_params ), $row->job_id );
+
+		$dbw->delete( 'job', $job->insertFields(), __METHOD__ );
+		$dbw->immediateCommit();
+
+		wfProfileOut( __METHOD__ );
+		return $job;
+	}
+
+	/**
 	 * Pop a job off the front of the queue
 	 * @static
 	 * @param $offset Number of jobs to skip
@@ -125,20 +165,23 @@ abstract class Job {
 	}
 
 	/**
-	 * Create an object of a subclass
+	 * Create the appropriate object to handle a specific job
+	 *
+	 * @param string $command Job command
+	 * @param Title $title Associated title
+	 * @param array $params Job parameters
+	 * @param int $id Job identifier
+	 * @return Job
 	 */
 	static function factory( $command, $title, $params = false, $id = 0 ) {
-		switch ( $command ) {
-			case 'refreshLinks':
-				return new RefreshLinksJob( $title, $params, $id );
-			case 'htmlCacheUpdate':
-			case 'html_cache_update': # BC
-				return new HTMLCacheUpdateJob( $title, $params['table'], $params['start'], $params['end'], $id );
-			default:
-				throw new MWException( "Invalid job command \"$command\"" );
+		global $wgJobClasses;
+		if( isset( $wgJobClasses[$command] ) ) {
+			$class = $wgJobClasses[$command];
+			return new $class( $title, $params, $id );
 		}
+		throw new MWException( "Invalid job command `{$command}`" );
 	}
-
+		
 	static function makeBlob( $params ) {
 		if ( $params !== false ) {
 			return serialize( $params );
@@ -246,49 +289,3 @@ abstract class Job {
 }
 
 
-/**
- * Background job to update links for a given title.
- */
-class RefreshLinksJob extends Job {
-	function __construct( $title, $params = '', $id = 0 ) {
-		parent::__construct( 'refreshLinks', $title, $params, $id );
-	}
-
-	/**
-	 * Run a refreshLinks job
-	 * @return boolean success
-	 */
-	function run() {
-		global $wgParser;
-		wfProfileIn( __METHOD__ );
-
-		$linkCache =& LinkCache::singleton();
-		$linkCache->clear();
-
-		if ( is_null( $this->title ) ) {
-			$this->error = "refreshLinks: Invalid title";
-			wfProfileOut( __METHOD__ );
-			return false;
-		}
-
-		$revision = Revision::newFromTitle( $this->title );
-		if ( !$revision ) {
-			$this->error = 'refreshLinks: Article not found "' . $this->title->getPrefixedDBkey() . '"';
-			wfProfileOut( __METHOD__ );
-			return false;
-		}
-
-		wfProfileIn( __METHOD__.'-parse' );
-		$options = new ParserOptions;
-		$parserOutput = $wgParser->parse( $revision->getText(), $this->title, $options, true, true, $revision->getId() );
-		wfProfileOut( __METHOD__.'-parse' );
-		wfProfileIn( __METHOD__.'-update' );
-		$update = new LinksUpdate( $this->title, $parserOutput, false );
-		$update->doUpdate();
-		wfProfileOut( __METHOD__.'-update' );
-		wfProfileOut( __METHOD__ );
-		return true;
-	}
-}
-
-?>

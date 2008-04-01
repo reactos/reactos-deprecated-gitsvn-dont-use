@@ -36,6 +36,12 @@ abstract class MediaHandler {
 		return self::$handlers[$class];
 	}
 
+	/**
+	 * Get an associative array mapping magic word IDs to parameter names.
+	 * Will be used by the parser to identify parameters.
+	 */
+	abstract function getParamMap();
+
 	/*
 	 * Validate a thumbnail parameter at parse time. 
 	 * Return true to accept the parameter, and false to reject it.
@@ -90,6 +96,19 @@ abstract class MediaHandler {
 	 */
 	function isMetadataValid( $image, $metadata ) { return true; }
 
+
+	/**
+	 * Get a MediaTransformOutput object representing an alternate of the transformed
+	 * output which will call an intermediary thumbnail assist script.
+	 *
+	 * Used when the repository has a thumbnailScriptUrl option configured.
+	 *
+	 * Return false to fall back to the regular getTransform().
+	 */
+	function getScriptedTransform( $image, $script, $params ) {
+		return false;
+	}
+
 	/**
 	 * Get a MediaTransformOutput object representing the transformed output. Does not 
 	 * actually do the transform.
@@ -126,20 +145,20 @@ abstract class MediaHandler {
 	/**
 	 * True if the handled types can be transformed
 	 */
-	function canRender() { return true; }
+	function canRender( $file ) { return true; }
 	/**
 	 * True if handled types cannot be displayed directly in a browser 
 	 * but can be rendered
 	 */
-	function mustRender() { return false; }
+	function mustRender( $file ) { return false; }
 	/**
 	 * True if the type has multi-page capabilities
 	 */
-	function isMultiPage() { return false; }
+	function isMultiPage( $file ) { return false; }
 	/**
 	 * Page count for a multi-page document, false if unsupported or unknown
 	 */
-	function pageCount() { return false; }
+	function pageCount( $file ) { return false; }
 	/**
 	 * False if the handler is disabled for all files
 	 */
@@ -152,11 +171,101 @@ abstract class MediaHandler {
 	 * Returns false if unknown or if the document is not multi-page.
 	 */
 	function getPageDimensions( $image, $page ) {
-		$gis = $this->getImageSize( $image, $image->getImagePath() );
+		$gis = $this->getImageSize( $image, $image->getPath() );
 		return array(
 			'width' => $gis[0],
 			'height' => $gis[1]
 		);
+	}
+
+	/**
+	 * Get an array structure that looks like this:
+	 *
+	 * array(
+	 *    'visible' => array(
+	 *       'Human-readable name' => 'Human readable value',
+	 *       ...
+	 *    ),
+	 *    'collapsed' => array(
+	 *       'Human-readable name' => 'Human readable value',
+	 *       ...
+	 *    )
+	 * )
+	 * The UI will format this into a table where the visible fields are always 
+	 * visible, and the collapsed fields are optionally visible.
+	 *
+	 * The function should return false if there is no metadata to display.
+	 */
+
+	/**
+	 * FIXME: I don't really like this interface, it's not very flexible
+	 * I think the media handler should generate HTML instead. It can do 
+	 * all the formatting according to some standard. That makes it possible
+	 * to do things like visual indication of grouped and chained streams
+	 * in ogg container files.
+	 */
+	function formatMetadata( $image ) {
+		return false;
+	}
+
+	/**
+	 * @fixme document this!
+	 * 'value' thingy goes into a wikitext table; it used to be escaped but
+	 * that was incompatible with previous practice of customized display
+	 * with wikitext formatting via messages such as 'exif-model-value'.
+	 * So the escaping is taken back out, but generally this seems a confusing
+	 * interface.
+	 */
+	protected static function addMeta( &$array, $visibility, $type, $id, $value, $param = false ) {
+		$array[$visibility][] = array(
+			'id' => "$type-$id",
+			'name' => wfMsg( "$type-$id", $param ),
+			'value' => $value
+		);
+	}
+
+	function getShortDesc( $file ) {
+		global $wgLang;
+		$nbytes = '(' . wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ),
+			$wgLang->formatNum( $file->getSize() ) ) . ')';
+		return "$nbytes";
+	}
+
+	function getLongDesc( $file ) {
+		global $wgUser;
+		$sk = $wgUser->getSkin();
+		return wfMsg( 'file-info', $sk->formatSize( $file->getSize() ), $file->getMimeType() );
+	}
+
+	function getDimensionsString( $file ) {
+		return '';
+	}
+
+	/**
+	 * Modify the parser object post-transform
+	 */
+	function parserTransformHook( $parser, $file ) {}
+
+	/**
+	 * Check for zero-sized thumbnails. These can be generated when
+	 * no disk space is available or some other error occurs
+	 *
+	 * @param $dstPath The location of the suspect file
+	 * @param $retval Return value of some shell process, file will be deleted if this is non-zero
+	 * @return true if removed, false otherwise
+	 */
+	function removeBadFile( $dstPath, $retval = 0 ) {
+		if( file_exists( $dstPath ) ) {
+			$thumbstat = stat( $dstPath );
+			if( $thumbstat['size'] == 0 || $retval != 0 ) {
+				wfDebugLog( 'thumbnail',
+					sprintf( 'Removing bad %d-byte thumbnail "%s"',
+						$thumbstat['size'], $dstPath ) );
+				unlink( $dstPath );
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
@@ -166,6 +275,18 @@ abstract class MediaHandler {
  * @addtogroup Media
  */
 abstract class ImageHandler extends MediaHandler {
+	function canRender( $file ) {
+		if ( $file->getWidth() && $file->getHeight() ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function getParamMap() {
+		return array( 'img_width' => 'width' );
+	}
+
 	function validateParam( $name, $value ) {
 		if ( in_array( $name, array( 'width', 'height' ) ) ) {
 			if ( $value <= 0 ) {
@@ -181,8 +302,10 @@ abstract class ImageHandler extends MediaHandler {
 	function makeParamString( $params ) {
 		if ( isset( $params['physicalWidth'] ) ) {
 			$width = $params['physicalWidth'];
-		} else {
+		} elseif ( isset( $params['width'] ) ) {
 			$width = $params['width'];
+		} else {
+			throw new MWException( 'No width specified to '.__METHOD__ );
 		}
 		# Removed for ProofreadPage
 		#$width = intval( $width );
@@ -218,7 +341,7 @@ abstract class ImageHandler extends MediaHandler {
 				$params['width'] = wfFitBoxWidth( $srcWidth, $srcHeight, $params['height'] );
 			}
 		}
-		$params['height'] = Image::scaleHeight( $srcWidth, $srcHeight, $params['width'] );
+		$params['height'] = File::scaleHeight( $srcWidth, $srcHeight, $params['width'] );
 		if ( !$this->validateThumbParams( $params['width'], $params['height'], $srcWidth, $srcHeight, $mimeType ) ) {
 			return false;
 		}
@@ -252,7 +375,7 @@ abstract class ImageHandler extends MediaHandler {
 			return false;
 		}
 
-		$height = Image::scaleHeight( $srcWidth, $srcHeight, $width );
+		$height = File::scaleHeight( $srcWidth, $srcHeight, $width );
 		return true;
 	}
 
@@ -261,30 +384,11 @@ abstract class ImageHandler extends MediaHandler {
 			return false;
 		}
 		$url = $script . '&' . wfArrayToCGI( $this->getScriptParams( $params ) );
-		return new ThumbnailImage( $url, $params['width'], $params['height'] );
-	}
-
-	/**
-	 * Check for zero-sized thumbnails. These can be generated when
-	 * no disk space is available or some other error occurs
-	 *
-	 * @param $dstPath The location of the suspect file
-	 * @param $retval Return value of some shell process, file will be deleted if this is non-zero
-	 * @return true if removed, false otherwise
-	 */
-	function removeBadFile( $dstPath, $retval = 0 ) {
-		$removed = false;
-		if( file_exists( $dstPath ) ) {
-			$thumbstat = stat( $dstPath );
-			if( $thumbstat['size'] == 0 || $retval != 0 ) {
-				wfDebugLog( 'thumbnail',
-					sprintf( 'Removing bad %d-byte thumbnail "%s"',
-						$thumbstat['size'], $dstPath ) );
-				unlink( $dstPath );
-				return true;
-			}
+		$page = isset( $params['page'] ) ? $params['page'] : false;
+		
+		if( $image->mustRender() || $params['width'] < $image->getWidth() ) {
+			return new ThumbnailImage( $image, $url, $params['width'], $params['height'], $page );
 		}
-		return false;
 	}
 
 	function getImageSize( $image, $path ) {
@@ -293,6 +397,29 @@ abstract class ImageHandler extends MediaHandler {
 		wfRestoreWarnings();
 		return $gis;
 	}
-}
 
-?>
+	function getShortDesc( $file ) {
+		global $wgLang;
+		$nbytes = '(' . wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ),
+			$wgLang->formatNum( $file->getSize() ) ) . ')';
+		$widthheight = wfMsgHtml( 'widthheight', $wgLang->formatNum( $file->getWidth() ) ,$wgLang->formatNum( $file->getHeight() ) );
+
+		return "$widthheight ($nbytes)";
+	}
+
+	function getLongDesc( $file ) {
+		global $wgLang;
+		return wfMsgHtml('file-info-size', $wgLang->formatNum( $file->getWidth() ), $wgLang->formatNum( $file->getHeight() ), 
+			$wgLang->formatSize( $file->getSize() ), $file->getMimeType() );
+	}
+
+	function getDimensionsString( $file ) {
+		global $wgLang;
+		$pages = $file->pageCount();
+		if ( $pages > 1 ) {
+			return wfMsg( 'widthheightpage', $wgLang->formatNum( $file->getWidth() ), $wgLang->formatNum( $file->getHeight() ), $wgLang->formatNum( $pages ) );
+		} else {
+			return wfMsg( 'widthheight', $wgLang->formatNum( $file->getWidth() ), $wgLang->formatNum( $file->getHeight() ) );
+		}
+	}
+}

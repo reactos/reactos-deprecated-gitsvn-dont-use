@@ -1,5 +1,5 @@
 <?php
-/* $Id: mctest.php 19364 2007-01-17 00:54:54Z brion $ */
+/* $Id: mctest.php 23531 2007-06-29 01:19:14Z simetrical $ */
 
 $optionsWithArgs = array( 'i' );
 
@@ -55,4 +55,4 @@ foreach ( $wgMemCachedServers as $server ) {
 }
 
 
-?>
+

@@ -10,15 +10,15 @@ attributes of the title. This is intended to be an
 immutable "value" class, so there are no mutator functions.
 
 To get a new instance, call one of the static factory
-methods WikiTitle::newFromURL(), WikiTitle::newFromDBKey(),
-or WikiTitle::newFromText(). Once instantiated, the
+methods Title::newFromURL(), Title::newFromDBKey(),
+or Title::newFromText(). Once instantiated, the
 other non-static accessor methods can be used, such as
 getText(), getDBKey(), getNamespace(), etc.
 
-The prefix rules: a title consists of an optional Interwiki
+The prefix rules: a title consists of an optional interwiki
 prefix (such as "m:" for meta or "de:" for German), followed
 by an optional namespace, followed by the remainder of the
-title. Both Interwiki prefixes and namespace prefixes have
+title. Both interwiki prefixes and namespace prefixes have
 the same rules: they contain only letters, digits, space, and
 underscore, must start with a letter, are case insensitive,
 and spaces and underscores are interchangeable.  Prefixes end
@@ -74,4 +74,3 @@ it returns 0. For all external articles it returns 0. All of
 the IDs for all instances of Title created during a request are
 cached, so they can be looked up quickly while rendering wiki
 text with lots of internal links.
-

@@ -1,9 +1,15 @@
 <?php
-/** Tyvan localization (Тыва дыл)
+/** Tuvinian (Тыва дыл)
+ *
  * @addtogroup Language
+ *
+ * @author Krice from Tyvanet.com
+ * @author Sborsody
+ * @author friends at tyvawiki.org
+ * @author Nike
+ * @author לערי ריינהארט
+ * @author Siebrand
  */
-
-# From friends at tyvawiki.org
 
 $namespaceNames = array(
 	NS_MEDIA            => 'Медиа', //Media
@@ -30,8 +36,6 @@ $skinNames = array(
 	'standard' => 'Classic', //Classic
 	'nostalgia' => 'Nostalgia', //Nostalgia
 	'cologneblue' => 'Cologne Blue', //Cologne Blue
-	'davinci' => 'ДаВинчи', //DaVinci
-	'mono' => 'Моно', //Mono
 	'monobook' => 'Моно-Ном', //MonoBook
 	'myskin' => 'MySkin', //MySkin
 	'chick' => 'Chick' //Chick
@@ -49,255 +53,677 @@ $bookstoreList = array(
 
 $fallback8bitEncoding = "windows-1251";
 
-
 $messages = array(
-
 # User preference toggles
-'tog-hideminor' => 'Сөөлгү өскерлиишкиннер арында бичии өскерлиишкиннер чажырар', //Hide minor edits in recent changes
-'tog-showtoolbar'		=> 'Редактолаар херекселтер көргүзер (JavaScript)', //Show edit toolbar (JavaScript)
-'tog-editondblclick' => 'Арынны өскертирде ийи катап базар (JavaScript)', //Edit pages on double click (JavaScript)
+'tog-highlightbroken'  => '<a href="" class="new">Бо ышкаш</a> бузук холбааларны форматтап ирги.  (азы: бо ышкаш<a href="" class="internal">?</a>).',
+'tog-hideminor'        => 'Сөөлгү өскерлиишкиннер арында бичии өскерлиишкиннерни чажырар',
+'tog-showtoolbar'      => 'Өскертир херекселдерни көргүзер (JavaScript)',
+'tog-editondblclick'   => 'Арынны өскертирде ийи катап базар (JavaScript)',
+'tog-rememberpassword' => 'Мени сактып алыр',
 
-'underline-always' => 'Кезээде', //Always
-'underline-never' => 'Кажан-даа', //Never
-'underline-default' => 'Browser default', //Browser default
+'underline-always'  => 'Кезээде',
+'underline-never'   => 'Кажан-даа',
+'underline-default' => 'Веб-браузерниң ниити үнези',
 
-# dates
-'sunday' => 'Чеди дугаар хүн', //Sunday
-'monday' => 'Бир дугаар хүн', //Monday
-'tuesday' => 'Ийи дугаар хүн', //Tuesday
-'wednesday' => 'Үш дугаар хүн', //Wednesday
-'thursday' => 'Дөрт дугаар хүн', //Thursday
-'friday' => 'Беш дугаар хүн', //Friday
-'saturday' => 'Алды дугаар хүн', //Saturday
-'january' => 'Бир ай', //January
-'february' => 'ийи ай', //February
-'march' => 'Үш ай', //March
-'april' => 'Дөрт ай', //April
-'may_long' => 'Беш ай', //May
-'june' => 'Алды ай', //June
-'july' => 'Чеди ай', //July
-'august' => 'Сес ай', //August
-'september' => 'Тос ай', //September
-'october' => 'Он ай', //October
-'november' => 'Он бир ай', //November
-'december' => 'Он ийи ай', //December
-'jan' => '1.ай', //Jan
-'feb' => '2.ай', //Feb
-'mar' => '3.ай', //Mar
-'apr' => '4.ай', //Apr
-'may' => '5.ай', //May
-'jun' => '6.ай', //Jun
-'jul' => '7.ай', //Jul
-'aug' => '8.ай', //Aug
-'sep' => '9.ай', //Sep
-'oct' => '10.ай', //Oct
-'nov' => '11.ай', //Nov
-'dec' => '12.ай', //Dec
+'skinpreview' => '(Чижеглей көөр)',
 
-# Bits of text used by many pages:
-#
-'categories' => 'Бөлүктер', //Categories
-'pagecategories' => 'Бөлүктер', //{{PLURAL:$1|Category|Categories}}
-'category_header' => '"$1" бөлүкте чүүлдер', //Articles in category $1
-'subcategories' => 'Бичии бөлүктер', //Subcategories
+# Dates
+'sunday'        => 'Улуг хүн',
+'monday'        => 'Бир дугаар хүн',
+'tuesday'       => 'Ийи дугаар хүн',
+'wednesday'     => 'Үш дугаар хүн',
+'thursday'      => 'Дөрт дугаар хүн',
+'friday'        => 'Беш дугаар хүн',
+'saturday'      => 'Чартык улуг хүн',
+'january'       => 'Бир ай',
+'february'      => 'ийи ай',
+'march'         => 'Үш ай',
+'april'         => 'Дөрт ай',
+'may_long'      => 'Беш ай',
+'june'          => 'Алды ай',
+'july'          => 'Чеди ай',
+'august'        => 'Сес ай',
+'september'     => 'Тос ай',
+'october'       => 'Он ай',
+'november'      => 'Он бир ай',
+'december'      => 'Он ийи ай',
+'january-gen'   => 'Бир ай',
+'february-gen'  => 'Ийи ай',
+'march-gen'     => 'Үш ай',
+'april-gen'     => 'Дөрт ай',
+'may-gen'       => 'Беш ай',
+'june-gen'      => 'Алды ай',
+'july-gen'      => 'Чеди ай',
+'august-gen'    => 'Сес ай',
+'september-gen' => 'Тос ай',
+'october-gen'   => 'Он ай',
+'november-gen'  => 'Он бир ай',
+'december-gen'  => 'Он ийи ай',
+'jan'           => '1.ай',
+'feb'           => '2.ай',
+'mar'           => '3.ай',
+'apr'           => '4.ай',
+'may'           => '5.ай',
+'jun'           => '6.ай',
+'jul'           => '7.ай',
+'aug'           => '8.ай',
+'sep'           => '9.ай',
+'oct'           => '10.ай',
+'nov'           => '11.ай',
+'dec'           => '12.ай',
 
-'mainpage'		=> 'Кол Арын', //Main Page
+# Bits of text used by many pages
+'categories'            => 'Бөлүктер',
+'pagecategories'        => '{{PLURAL:$1|Бөлүк|Бөлүктер}}',
+'category_header'       => '"$1" деп бөлүкте чүүлдер',
+'subcategories'         => 'Бичии бөлүктер',
+'category-media-header' => '"$1" деп бөлүкте медиа',
+'category-empty'        => "''Амгы бо бөлүкте медиа база арыннар чок.''",
 
-'about'			=> 'Дугайында', //About
-'aboutsite'		=> '{{SITENAME}} дугайында', //About {{SITENAME}}
-'aboutpage'		=> 'Project:Дугайында', //Project:About
-'article'		=> 'Азыраары арын', //Content page
-'help'			=> 'Дуза', //Help
-'helppage'		=> 'Дуза:Допчузу', //Help:Contents
-'sitesupport'   => 'Белектер', //Donations
-'newwindow'		=> '(чаа козенектен ажар)', //(opens in new window)
-'edithelppage'	=> 'Дуза:Өскертир', //Help:Editing
-'cancel'		=> 'Ап каар', //Cancel (Солуур)
-'qbfind'		=> 'Тывар', //Find
-'qbbrowse'		=> 'Көөр', //Browse
-'qbedit'		=> 'Редакторлаар', //Edit
-'qbpageoptions' => 'Бо арын', //This page
-'qbpageinfo'	=> 'Context', //Context
-'qbmyoptions'	=> 'Мээң арыннарым', //My pages
-'qbspecialpages'	=> 'Тускай арыннар', //Special pages
-'moredotdotdot'	=> 'Ам-даа...', //More...
-'mypage'		=> 'Мээң арыным', //My page
-'mytalk'		=> 'Мээң чугаалажырым', //My talk чугааm?
-'anontalk'		=> 'Бо ИП-адрестиң чугаа', //Talk for this IP
-'navigation' => 'Навигация', //Navigation
+'about'          => 'Дугайында',
+'article'        => 'Допчу арын',
+'newwindow'      => '(чаа козенекке ажыытынар)',
+'cancel'         => 'Соксаар',
+'qbfind'         => 'Тывар',
+'qbbrowse'       => 'Ажыдар',
+'qbedit'         => 'Өскертир',
+'qbpageoptions'  => 'Бо арын',
+'qbmyoptions'    => 'Мээң арыннарым',
+'qbspecialpages' => 'Тускай арыннар',
+'moredotdotdot'  => 'Ам-даа...',
+'mypage'         => 'Мээң арыным',
+'mytalk'         => 'Мээң чугаалажырым',
+'anontalk'       => 'Бо ИП-адрестиң чугаа',
+'navigation'     => 'Навигация',
 
+'errorpagetitle'    => 'Алдаг',
+'returnto'          => '$1 деп арынже эглир.',
+'tagline'           => '{{grammar:ablative|{{SITENAME}}}}',
+'help'              => 'Дуза',
+'search'            => 'Дилээр',
+'searchbutton'      => 'Дилээр',
+'go'                => 'Чоруур',
+'searcharticle'     => 'Чоруур',
+'history'           => 'Арынның Төөгүзү',
+'history_short'     => 'Төөгү',
+'info_short'        => 'Медеглел',
+'printableversion'  => 'Саазынга үндүрерин көөр',
+'permalink'         => 'Үргүлчү холбаа',
+'print'             => 'Саазынга үндүрер',
+'edit'              => 'Өскертир',
+'editthispage'      => 'Бо арынны өскертир',
+'delete'            => 'Ап каар',
+'deletethispage'    => 'Бо арынны ап каар',
+'protect'           => 'Камгалаар',
+'protectthispage'   => 'Бо арынны камгалаар',
+'unprotect'         => 'Камгалалды ап каар',
+'unprotectthispage' => 'Бо арынның камгалалын ап каар',
+'newpage'           => 'Чаа арын',
+'talkpage'          => 'Бо арын дугайында чугаалажыр',
+'talkpagelinktext'  => 'Чугаалажыр',
+'specialpage'       => 'Тускай Арын',
+'personaltools'     => 'Хууда херекселдер',
+'postcomment'       => 'Комментарийни чогаадыр',
+'articlepage'       => 'Допчу арынны көөр',
+'talk'              => 'Чугаалажыр',
+'views'             => 'Көрүштер',
+'toolbox'           => 'Херекселдер',
+'userpage'          => 'Ажыглакчының арынын көөр',
+'projectpage'       => 'Проект арынын көөр',
+'imagepage'         => 'Медиа арынын көөр',
+'mediawikipage'     => 'Чагаа арынын көөр',
+'templatepage'      => 'Хээ арынын көөр',
+'viewhelppage'      => 'Дуза арынын көөр',
+'categorypage'      => 'Бөлүк арынын көөр',
+'viewtalkpage'      => 'Чугаалажырыны көөр',
+'otherlanguages'    => 'Өске дылдарга',
+'lastmodifiedat'    => 'Бо арын сөөлгү каттап $2, $1 өскерилген.', # $1 date, $2 time
+'jumptonavigation'  => 'навигация',
+'jumptosearch'      => 'дилээр',
 
-'errorpagetitle' => "Частырыг", //Error
-'returnto'		=> "{{grammar:directive1|$1}} дедир.", //Return to $1.
-'tagline'      	=> "{{grammar:ablative|{{SITENAME}}}}", //From {{SITENAME}}
-'whatlinkshere'	=> 'Pages that link here', //Pages that link here
-'help'			=> 'Дуза', //Help
-'search'		=> 'Дилээр', //Search
-'searchbutton'	=> 'Дилээр', //Search
-'go'		=> 'Чоруур', //Go
-'searcharticle'		=> 'Чоруур', //Go
-'history'		=> 'Арынның Төөгүзү', //Page history
-'history_short' => 'Төөгү', //History
-'printableversion' => 'Саазынга үндүрерин көөр', //Printable version (Парлатынар арын)
-'permalink'     => 'Permanent link',
-'print' => 'Саазынга үндүрер', //Print
-'edit' => 'Өскертир', //Edit
-'editthispage'	=> 'Бо арынны өскертир', //Edit this page
-'delete' => 'Ап каар', //Delete
-'deletethispage' => 'Бо арынны ап каар', //Delete this page
-'protect' => 'Камгалал', //Protect
-'protectthispage' => 'Бо арынны камгалаар', //Protect this page
-'unprotect' => 'Камгалалды ап каар', //unprotect
-'unprotectthispage' => 'Бо арынның камгалалын ап каар', //Unprotect this page
-'newpage' => 'Чаа Арын', //New page
-'talkpage'		=> 'Бо арын дугайында чугаалажыр', //Discuss this page
-'specialpage' => 'Тускай Арын', //Special Page
-'personaltools' => 'Херекселдер',  //Personal tools
-'articlepage'	=> 'Допчу арынны көргүзер', //View content page
-'talk' => 'Чугаалажыр', //Discussion
-'userpage' => 'Ажыглакчыниң арынын көргүзер', //View user page
-'imagepage' => 	'Чурук арынын көргүзер', //View image page
-'viewtalkpage' => 'Чугаалажыры көргүзер', //View discussion
-'otherlanguages' => 'Өске дылдарга', //In other languages
-'lastmodifiedat'	=> 'Бо арын сөөлгү каттап $1 өскерилген.', //This page was last modified $2, $1.
-//'viewcount'		=> 'Бо арын $1 каттап ажыттынган.', //This page has been accesed $1 times.
-'retrievedfrom' => "\"$1\" арынында парлаттынган", //Retrieved from \"$1\"
-'newmessageslink' => 'чаа чагаалар', //new messages
-'editsection'=>'өскертир', //edit
-'editold'=>'өскертир', //edit
-'toc' => 'Допчу', //Contents
-'showtoc' => 'көргүзер', //show
-'hidetoc' => 'чажырар', //hide
-'restorelink' => "$1 балаттынган өскерилгелер", //$1 deleted edits
+# All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
+'aboutsite'         => '{{SITENAME}} дугайында',
+'aboutpage'         => 'Project:Дугайында',
+'bugreports'        => 'Сээк илеткелдер',
+'bugreportspage'    => 'Project:Сээк илеткелдер',
+'currentevents'     => 'Амгы үеде болуушкуннар',
+'currentevents-url' => 'Project:Амгы үеде болуушкуннар',
+'edithelp'          => 'Өскертиринге дуза',
+'edithelppage'      => 'Help:Өскертир',
+'helppage'          => 'Help:Допчузу',
+'mainpage'          => 'Кол Арын',
+'policy-url'        => 'Project:Политика',
+'portal'            => 'Ниитилелдиң хаалгазы',
+'portal-url'        => 'Project:Ниитилелдиң хаалгазы',
+'sitesupport'       => 'Белектер',
 
-# Short words for each namespace, by default used in the 'article' tab in monobook
-'nstab-main' => 'Чүүл', //Article
-'nstab-user' => 'Ажыглакчының арыны', //User page
-'nstab-media' => 'Медиа арыны', //Media page
-'nstab-special' => 'Тускай', //Special
-'nstab-project' => 'Проект арыны', //Project page
-'nstab-image' => 'Файл', //File
-'nstab-mediawiki' => 'Чагаа', //Message
-'nstab-template' => 'Хээ', //Template
-'nstab-help' => 'Дуза', //Help
-'nstab-category' => 'Бөлүк', //Category
+'retrievedfrom'       => '"$1" деп арынында парлаттынган',
+'newmessageslink'     => 'чаа чагаалар',
+'newmessagesdifflink' => 'бурунгу өскерлиишкин',
+'editsection'         => 'өскертир',
+'editold'             => 'өскертир',
+'editsectionhint'     => 'Бөгүмнү өскертир: $1',
+'toc'                 => 'Допчу',
+'showtoc'             => 'көргүзер',
+'hidetoc'             => 'чажырар',
+'viewdeleted'         => '{{grammar:accusative|$1}} көөр?',
+'restorelink'         => '$1 балаттынган өскерилгелер',
+'feedlinks'           => 'Агым:',
+'site-rss-feed'       => '$1 РСС Медээ Агымы',
+'site-atom-feed'      => '$1 Атом Медээ Агымы',
+'page-rss-feed'       => '"$1" РСС Медээ Агымы',
+'page-atom-feed'      => '"$1" Атом Медээ Агымы',
+
+# Short words for each namespace, by default used in the namespace tab in monobook
+'nstab-main'      => 'Чүүл',
+'nstab-user'      => 'Ажыглакчының арыны',
+'nstab-media'     => 'Медиа арыны',
+'nstab-special'   => 'Тускай',
+'nstab-project'   => 'Проект арыны',
+'nstab-image'     => 'Файл',
+'nstab-mediawiki' => 'Чагаа',
+'nstab-template'  => 'Хээ',
+'nstab-help'      => 'Дуза',
+'nstab-category'  => 'Бөлүк',
 
 # Main script and global functions
-#
-'nosuchspecialpage' => 'Ындыг арын чок', //No such special page
+'nosuchaction'      => 'Ындыг ажыл чок',
+'nosuchspecialpage' => 'Ындыг арын чок',
 
 # General errors
-#
-'noconnect'		=> 'Буруулуг болдувус! Викиде чамдык техниктиг бергедээшкиннер бар болганындан database серверинче коштунмаан. <br />
-$1', //Sorry! The wiki is experiencing some technical difficulties, and cannot contact the database server.
-'laggedslavemode'   => 'Оваарымчалыг: Бо арында чаартыышкыннар чок болуп болур', //Warning: Page may not contain recent updates.
+'error'              => 'Алдаг',
+'databaseerror'      => 'Медээ шыгжамыры алдаг',
+'noconnect'          => 'Буруулуг болдувус! Викиде чамдык техниктиг бергедээшкиннер бар болганындан database серверинче коштунмаан. <br />
+$1',
+'laggedslavemode'    => 'Оваарымчалыг: Бо арында чаартыышкыннар чок болуп болур',
+'readonly'           => 'шоочалаарынга медээ шыгжамыры',
+'internalerror'      => 'Иштики алдаг',
+'internalerror_info' => 'Иштики алдаг: $1',
+'badtitle'           => 'Багай ат',
+'viewsource'         => 'Бажы көөр',
 
 # Login and logout pages
-#
-'yourname'		=> 'Aжыглакчының ады', //Username
-'yourpassword'	=> 'Чажыт сөс', //Password
-'remembermypassword' => 'Мени сактып алыр', //Remember me
-'createaccountmail'	=> 'email-биле', //by e-mail
-'badretype'		=> 'Силернин парлаан чажыт созуңер таарышпас.', //The passwords you entered do not match.
-'userexists'	=> 'Силернин парлаан адыңар амгы уеде ажыглаттынып турар. өске аттан шилип алыңар.',  //Username entered is already in use.  Please choose a different name.
-'username'		=> 'Aжыглакчының ады:', //Username:
-'yourrealname'		=> 'Шын адыңар *', //Real name *
-'yourlanguage'	=> 'Дылыңар:', //Language:
-'yournick'		=> 'Шола ат:', //Nickname:
+'logouttitle'        => 'Ажыглакчы үнери',
+'loginpagetitle'     => 'Ажыглакчы кирери',
+'yourname'           => 'Aжыглакчының ады',
+'yourpassword'       => 'Чажыт сөс',
+'remembermypassword' => 'Мени сактып алыр',
+'login'              => 'Кирер',
+'userlogin'          => 'Кирер / кирерини чогаадып кылыр',
+'logout'             => 'Үнер',
+'userlogout'         => 'Үнер',
+'notloggedin'        => 'Кирери евес',
+'nologinlink'        => 'Кирерини чогаадып кылыр',
+'createaccount'      => 'Кирерини чогаадып кылыр',
+'gotaccountlink'     => 'Кирер',
+'createaccountmail'  => 'е-чагаа-биле',
+'badretype'          => 'Силерниң парлаан чажыт созуңер таарышпас.',
+'userexists'         => 'Силерниң парлаан адыңар амгы уеде ажыглаттынып турар. өске аттан шилип алыңар.',
+'youremail'          => 'Э-чагааңар:',
+'username'           => 'Aжыглакчының ады:',
+'yourrealname'       => 'Шын адыңар *',
+'yourlanguage'       => 'Дылыңар:',
+'yournick'           => 'Шола ат:',
+'email'              => 'Э-чагаа',
+'loginerror'         => 'Багай кирери',
+'loginsuccesstitle'  => 'Чедимчелиг кирери',
+'mailmypassword'     => 'Э-чагаа чажыт сөзүңер',
+'accountcreated'     => 'Кирерини бүдүрген',
+'accountcreatedtext' => '$1 ажыглакчының кирерин бүдүрген.',
+'loginlanguagelabel' => 'Дыл: $1',
+
+# Password reset dialog
+'resetpass_header'    => 'Чажыт сөстү катап чогаадып кылыр',
+'resetpass_submit'    => 'Чажыт сөстү чоогадып кылыр база кирер.',
+'resetpass_forbidden' => '{{grammar:locative|{{SITENAME}}}} чажыт сөстү өскертивейн болбас',
+'resetpass_missing'   => 'Бижиирии медээ чок.',
 
 # Edit page toolbar
-'bold_sample'=>'Карартыр',  //Bold text
-'italic_sample'=>'Ийлендирер', //Italic text
-'nowiki_sample'=>'Форматтаваан текстини бээр салыр', //Insert non-formatted text here
+'bold_sample'     => 'Карартыр',
+'italic_sample'   => 'Ийлендирер',
+'link_sample'     => 'Холбаа ады',
+'link_tip'        => 'Иштики холбаа',
+'extlink_sample'  => 'http://www.чижек.com холбаа ады',
+'extlink_tip'     => 'Даштыкы холбаа ("http://" чүве сактып алыр)',
+'headline_sample' => 'Кол сөс сөзүглел',
+'nowiki_sample'   => 'Форматтаваан сөзүглелини бээр салыр',
+'nowiki_tip'      => 'Вики форматтаарын херекке албас',
+'image_sample'    => 'Чижек.jpg',
+'media_sample'    => 'Чижек.ogg',
+'media_tip'       => 'Файл холбаазы',
 
 # Edit pages
-#
-'watchthis'		=> 'Бо арынны көөр', //Watch this page
-'accmailtitle' => 'Чажыт сөс чоргустунган.', //Password sent.
-'accmailtext' => '"{{grammar:genitive|$1}}" чажыт сөстү {{grammar:directive1|$2}} чоргузуптувус.', //The password for "$1" has been sent to $2.
-'newarticle'	=> '(Чаа)', //(New)
-'yourtext'		=> 'Силерниң сөзүглел', //Your text
+'summary'            => 'Түңнел',
+'subject'            => 'Кол сөс',
+'minoredit'          => 'Бо өскерлиишкин биче-дир',
+'watchthis'          => 'Бо арынны хайгаараар',
+'savearticle'        => 'Арынны шыгжаар',
+'preview'            => 'Чижеглей көөр',
+'showpreview'        => 'Чижеглей көөр',
+'showdiff'           => 'Өскерлиишкиннерни көргүзер',
+'missingcommenttext' => 'Комментарийни адаанда чогаадыңар.',
+'summary-preview'    => 'Түңнелдү чижеглей көөр',
+'subject-preview'    => 'Кол сөс чижеглей көөр',
+'nosuchsectiontitle' => 'Ындыг бөлгүм чок',
+'loginreqlink'       => 'кирер',
+'accmailtitle'       => 'Чажыт сөс чоргустунган.',
+'accmailtext'        => '"{{grammar:genitive|$1}}" чажыт сөстү {{grammar:directive1|$2}} чоргузуптувус.',
+'newarticle'         => '(Чаа)',
+'editing'            => '$1 деп арынны өскертип турар',
+'editinguser'        => '<b>$1</b> деп ажыглакчыны өскертип турар',
+'editingsection'     => '$1 деп арынның бөлгүмүн өскертип турар',
+'editingcomment'     => '$1 (комментарий) өскертип турар',
+'yourtext'           => 'Силерниң сөзүглелиңер',
+'yourdiff'           => 'Ылгалдар',
+'template-protected' => '(камгалаан)',
 
 # History pages
-#
-'next'			=> 'соонда', //next
+'nohistory'           => 'Бо арынның өскерлиишкин төөгүзү чок.',
+'currentrev'          => 'Амгы үе үндүрери',
+'previousrevision'    => '←Артык эрги үндүрери',
+'nextrevision'        => 'Артык чаа үндүрери→',
+'currentrevisionlink' => 'Амгы үе үндүрери',
+'cur'                 => 'амгы',
+'next'                => 'соонда',
+'last'                => 'бурунгу',
+'page_first'          => 'бирги',
+'page_last'           => 'сөөлгү',
+'deletedrev'          => '[ап каан]',
+'histfirst'           => 'Эң эрте',
+'histlast'            => 'Эң дээм чаагы',
+'historysize'         => '($1 байт)',
+'historyempty'        => '(куруг)',
+
+# Revision feed
+'history-feed-title' => 'Үндүрериниң төөгүзү',
+
+# Revision deletion
+'rev-deleted-comment'    => '(комментарийни ап каан)',
+'rev-deleted-user'       => '(ажыглакчының адын ап каан)',
+'rev-deleted-event'      => '(болуушкунну ап каан)',
+'rev-delundel'           => 'көргүзер/чажырар',
+'revisiondelete'         => 'Үндүрерилерни ап каар/диргисир',
+'revdelete-hide-comment' => 'Өскерлиишкинниң комментарийн чажырар',
+'revdelete-hide-user'    => 'Чогаалчының адын/ИП-адресин чажырар',
 
 # Diffs
-#
-'compareselectedversions' => 'Шилип алган хевирлери деңнээр', //Compare selected versions
+'history-title'           => '"$1" деп арынның үндүрери төөгүзү',
+'lineno'                  => '$1 одуруг:',
+'compareselectedversions' => 'Шилип алган хевирлери деңнээр',
+
+# Search results
+'searchresults' => 'Түңнелдер',
+'prevn'         => 'бүрүнгү $1',
+'nextn'         => 'соонда $1',
+'viewprevnext'  => '($1) ($2) ($3) көөр',
+'powersearch'   => 'Дилээр',
 
 # Preferences page
-#
-'preferences'	=> 'Дээре деп санаарылар', //Preferences
-'prefs-personal' => 'Ажыглакчының медээлери', //User profile
-'saveprefs'		=> 'Шыгжаар', //Save
-'oldpassword'	=> 'Эгри чажыт сөс:', //Old password:
-'newpassword'	=> 'Чаа чажыт сөс:', //New password:
-'searchresultshead' => 'Дилээр', //Search
-'files'			=> 'Файлдар', //Files
+'preferences'        => 'Дээре деп санаарылар',
+'changepassword'     => 'Чажыт сөстү өскертир',
+'skin'               => 'Кеш',
+'math_unknown_error' => 'билбес алдаг',
+'prefs-personal'     => 'Ажыглакчының медээлери',
+'prefs-rc'           => 'Дээм чаагы өскерлиишкиннер',
+'prefs-watchlist'    => 'Хайгаарылга даңзызы',
+'saveprefs'          => 'Шыгжаар',
+'oldpassword'        => 'Эгри чажыт сөс:',
+'newpassword'        => 'Чаа чажыт сөс:',
+'textboxsize'        => 'Өскертир',
+'rows'               => 'Одуруглар:',
+'columns'            => 'Баганалар:',
+'searchresultshead'  => 'Дилээр',
+'servertime'         => 'Сервер шакы',
+'default'            => 'ниити',
+'files'              => 'файлдар',
+
+# Groups
+'group'     => 'Бөлүк:',
+'group-bot' => 'Боттар',
+'group-all' => '(шупту)',
+
+'group-bot-member' => 'Бот',
+
+'grouppage-sysop' => '{{ns:project}}:Администраторлар',
 
 # Recent changes
-#
-'recentchanges' => 'Өскерлиишкиннер', //Recent changes
-'hide'			=> 'Чажырар', //Hide
-'show'			=> 'көргүзер', //show
+'nchanges'                          => '$1 өскерлиишкин',
+'recentchanges'                     => 'Өскерлиишкиннер',
+'rcshowhideminor'                   => 'Бичии өскерлиишкиннерни $1',
+'rcshowhidebots'                    => 'Боттарну $1',
+'rcshowhideliu'                     => 'Кирер ажыглакчыларны $1',
+'rcshowhideanons'                   => 'Ат эвес ажыглакчыларны $1',
+'rcshowhidemine'                    => 'Мээң өскерлиишкинимни $1',
+'diff'                              => 'ылгал',
+'hist'                              => 'төөгү',
+'hide'                              => 'Чажырар',
+'show'                              => 'көргүзер',
+'number_of_watching_users_pageview' => '[$1 хайгаараар ажыглакчы]',
+'newsectionsummary'                 => '/* $1 */ чаа бөлгүм',
 
 # Upload
-#
-'filename'		=> 'Файлдың ады', //Filename
-'filesource' => 'Эгези', //Source
+'upload'            => 'Файлды киирер',
+'uploadbtn'         => 'Файлды киирер',
+'reupload'          => 'Катап киирер',
+'uploadnologin'     => 'Кирбес',
+'uploaderror'       => 'Кииреринге алдаг',
+'filename'          => 'файлдың ады:',
+'filedesc'          => 'Түңнел',
+'fileuploadsummary' => 'Түңнел:',
+'filesource'        => 'Эгези:',
+'savefile'          => 'файлды шыгжаар',
+'watchthisupload'   => 'Бо арынны хайгаараар',
+
+'upload-file-error' => 'Иштики алдаг',
+'upload-misc-error' => 'Билбес кииреринге алдаг',
 
 # Image list
-#
-'ilsubmit'		=> 'Дилээр', //Search
+'imagelist'             => 'Файл даңзызы',
+'ilsubmit'              => 'Дилээр',
+'imgfile'               => 'файл',
+'filehist'              => 'Файлдың төөгүзү',
+'filehist-deleteall'    => 'шуптуну ап каар',
+'filehist-deleteone'    => 'мону ап каар',
+'filehist-current'      => 'амгы үе',
+'filehist-datetime'     => 'Үе/Шак',
+'filehist-user'         => 'Ажыглакчы',
+'filehist-filesize'     => 'Файл хемчээли',
+'filehist-comment'      => 'Комментарий',
+'imagelinks'            => 'Холбаалар',
+'noimage-linktext'      => 'Ону киирер',
+'imagelist_name'        => 'Ат',
+'imagelist_user'        => 'Ажыглакчы',
+'imagelist_size'        => 'Хемчээл',
+'imagelist_description' => 'Тодарадып бижээни',
+
+# File reversion
+'filerevert-comment' => 'Комментарий:',
+
+# File deletion
+'filedelete'         => '$1 деп файлды ап каар',
+'filedelete-legend'  => 'Файлды ап каар',
+'filedelete-comment' => 'Комментарий:',
+'filedelete-submit'  => 'Ап каар',
+
+# MIME search
+'download' => 'алыр',
+
+# Unwatched pages
+'unwatchedpages' => 'Хайгаарабас арыннар',
+
+# Unused templates
+'unusedtemplates'    => 'Ажыглаан эвес хээлер',
+'unusedtemplateswlh' => 'өске холбаалар',
+
+# Random page
+'randompage' => 'Даап арын',
+
+'brokenredirects-edit'   => '(өскертир)',
+'brokenredirects-delete' => '(ап каар)',
+
+'withoutinterwiki' => 'Дыл холбаалар эвес арыннар',
+
+'fewestrevisions' => 'Эң эвээш үндүрери арыннар',
 
 # Miscellaneous special pages
-#
-'randompage'	=> 'Даап арын', //Random page
-'specialpages'	=> 'Тускай арыннар', //Special pages
-'spheading'		=> 'Шупту ажыглакчыниң тускай арыннар', //Special pages for all users
-'newpages'		=> 'Чаа Арыннар', //New pages
+'nbytes'                  => '$1 байт',
+'ncategories'             => '$1 бөлүк',
+'nlinks'                  => '$1 холбаа',
+'nmembers'                => '$1 кежигүн',
+'nrevisions'              => '$1 үндүрери',
+'nviews'                  => '$1 көрүш',
+'specialpage-empty'       => 'Бо илеткелдиң түңнели чок.',
+'lonelypages'             => 'Чааскаан арыннар',
+'uncategorizedpages'      => 'Бөлүк эвес арыннар',
+'uncategorizedcategories' => 'Бөлүк эвес бөлүктер',
+'uncategorizedimages'     => 'Бөлүк эвес файлдар',
+'uncategorizedtemplates'  => 'Бөлүк эвес хээлер',
+'unusedcategories'        => 'Ажыглаваан бөлүктер',
+'unusedimages'            => 'Ажыглаваан файлдар',
+'popularpages'            => 'Чоннуң арыннар',
+'wantedcategories'        => 'Күзээринге бөлүктер',
+'wantedpages'             => 'Күзээрүнге арыннар',
+'mostlinked'              => 'Эң холбаалар арыннар',
+'mostlinkedcategories'    => 'Эң холбаалар бөлүктер',
+'mostlinkedtemplates'     => 'Эң холбаалар хээлер',
+'mostcategories'          => 'Эңне бөлүктер арыннар',
+'mostimages'              => 'Эң холбаалар файлдар',
+'allpages'                => 'Шупту арыннар',
+'shortpages'              => 'Чолдак арыннар',
+'longpages'               => 'Узун арыннар',
+'protectedpages'          => 'Камгалаган арыннар',
+'listusers'               => 'Ажыглакчы даңзызы',
+'specialpages'            => 'Тускай арыннар',
+'spheading'               => 'Шупту ажыглакчыларның тускай арыннары',
+'newpages'                => 'Чаа Арыннар',
+'newpages-username'       => 'Ажыглакчының ады:',
+'ancientpages'            => 'Эң эрги арыннар',
+'move'                    => 'Шимчээр',
+'movethispage'            => 'Бо арынны шимчээр',
 
+# Book sources
+'booksources-go' => 'Чоруур',
+
+'data'    => 'Медээ',
+'version' => 'Үндүрери',
+
+# Special:Log
+'specialloguserlabel'  => 'Ажыглакчы:',
+'speciallogtitlelabel' => 'Ат:',
+'log-search-submit'    => 'Чоруур',
 
 # Special:Allpages
-'allarticles'		=> 'Шупту чүүлдер', //All articles
-'allpagesprev'		=> 'Пертинде', //Previous
-'allpagesnext'		=> 'Соонда', //Next
-'allpagessubmit'	=> 'Чоруур', //Go
+'nextpage'       => 'Соонда арын ($1)',
+'prevpage'       => 'Бүрүнгү арын ($1)',
+'allarticles'    => 'Шупту чүүлдер',
+'allpagesprev'   => 'Пертинде',
+'allpagesnext'   => 'Соонда',
+'allpagessubmit' => 'Чоруур',
 
-# E this user
-#
-'emailmessage'	=> 'Дыңнадыры', //Message
+# Special:Listusers
+'listusers-submit' => 'Көргүзер',
+
+# E-mail user
+'emailuser'       => 'Бо ажыглакчыга э-чагааны чорудаар',
+'defemailsubject' => '{{grammar:ablative|{{SITENAME}}}} э-чагаа',
+'emailfrom'       => 'Кайыын',
+'emailto'         => 'Каяа',
+'emailsubject'    => 'Кол сөс',
+'emailmessage'    => 'Чагаа',
+'emailsend'       => 'Чорудар',
 
 # Watchlist
-#
-'enotif_newpagetext'=> 'Бо чаа арын-дыр.', //This is a new page.
+'watchlist'            => 'Мээң хайгаарылга даңзызым',
+'mywatchlist'          => 'Мээң хайгаарылга даңзызым',
+'nowatchlist'          => 'Чүү-даа силерниң хайгаарылга даңзызыда чок.',
+'watchnologin'         => 'Кирбес',
+'watch'                => 'Хайгаараар',
+'watchthispage'        => 'Бо арынны хайгаараар',
+'unwatch'              => 'Хайгааравас',
+'unwatchthispage'      => 'Бо арынны хайгаарабас',
+'watchlist-show-bots'  => 'Боттуң өскерлиишкиннерин көргүзер',
+'watchlist-hide-bots'  => 'Боттуң өскерлиишкиннерин чажырар',
+'watchlist-show-own'   => 'Мээң өскерлиишкиннеримни көргүзер',
+'watchlist-hide-own'   => 'Мээң өскерлиишкиннеримни чажырар',
+'watchlist-show-minor' => 'Бичии өскерлиишкиннерни көргүзер',
+'watchlist-hide-minor' => 'Бичии өскерлиишкиннерни чажырар',
+
+# Displayed when you click the "watch" button and it's in the process of watching
+'watching'   => 'Хайгаарап турар...',
+'unwatching' => 'Хайгааравайн турар...',
+
+'enotif_newpagetext'           => 'Бо чаа арын-дыр.',
+'enotif_impersonal_salutation' => '{{grammar:genitive|{{SITENAME}}}} ажыглакчызы',
+'enotif_anon_editor'           => 'ат эвес ажыглакчы $1',
 
 # Delete/protect/revert
-#
-'actioncomplete' => 'Ажыл доосту', //Action complete
+'deletepage'          => 'Арынны ап каар',
+'exblank'             => 'Арын куруг турган',
+'actioncomplete'      => 'Ажыл доосту',
+'deletedarticle'      => '"[[$1]]" деп арынны ап каан',
+'protectcomment'      => 'Комментарий:',
+'unprotectsub'        => '("$1" деп арынны истевейн турар)',
+'protect-default'     => '(ниити)',
+'protect-level-sysop' => 'Чүгле сисоплар',
+'pagesize'            => '(байттар)',
+
+# Restrictions (nouns)
+'restriction-edit' => 'Өскертир',
+'restriction-move' => 'Шимчээр',
+
+# Undelete
+'undeletebtn'            => 'Диргисир',
+'undeletecomment'        => 'Комментарий:',
+'undelete-search-submit' => 'Дилээр',
+
+# Namespace form on various pages
+'blanknamespace' => '(Кол)',
 
 # Contributions
-#
-'contributions' => 'Ажыглакчыниң деткимчемнер', //User contributions
-'mycontris'     => 'Мээң деткимчемнерим', //My contributions
+'contributions' => 'Ажыглакчыниң деткимчемнери',
+'mycontris'     => 'Мээң деткимчемнерим',
+'uctop'         => '(баш)',
 
-# Block/unblock IP
-#
-'ipaddress'		=> 'ИП-адрес', //IP Address
-'ipadressorusername' => 'ИП-адрес азы aжыглaкчының aды', //IP Address or username
-'badipaddress'	=> 'Багай ИП-адрес', //Invalid IP address
-'infiniteblock' => 'кезээ-мөңгеде', //infinite
+'sp-contributions-newbies'  => 'Чүгле чаа кирерилерниң деткимчемнерин көргүзер',
+'sp-contributions-username' => 'ИП-адрес азы ажыглачының ады:',
+'sp-contributions-submit'   => 'Дилээр',
+
+# What links here
+'whatlinkshere'       => 'Pages that link here',
+'linklistsub'         => '(Холбаалар даңзызы)',
+'whatlinkshere-links' => '← холбаалар',
+
+# Block/unblock
+'ipaddress'                => 'ИП-адрес',
+'ipadressorusername'       => 'ИП-адрес азы aжыглaкчының aды',
+'ipbreason'                => 'Чылдагаан:',
+'ipbreasonotherlist'       => 'Өске чылдагаан',
+'ipbother'                 => 'Өске шак:',
+'ipbotheroption'           => 'өске',
+'ipbotherreason'           => 'Өске/немелде чылдагаан:',
+'badipaddress'             => 'Багай ИП-адрес',
+'ipblocklist-username'     => 'Ажыглакчының ады азы ИП-адрес:',
+'ipblocklist-submit'       => 'Дилээр',
+'infiniteblock'            => 'кезээ-мөңгеде',
+'contribslink'             => 'деткимчемнер',
+'block-log-flags-anononly' => 'чүгле ат эвес ажыглакчылар',
+
+# Developer tools
+'lockdb'    => 'Медээ шыгжамырын шоочалаар',
+'unlockdb'  => 'Медээ шыгжамырын ажыттынар',
+'lockbtn'   => 'Медээ шыгжамырын шоочалаар',
+'unlockbtn' => 'Медээ шыгжамырын ажыттынар',
+
+# Move page
+'movepage'        => 'Арынны шимчээр',
+'movearticle'     => 'Арынны шимчээр:',
+'move-watch'      => 'Бо арынны хайгаараар',
+'movepagebtn'     => 'Арынны шимчээр',
+'movereason'      => 'Чылдагаан:',
+'delete_and_move' => 'Ап каар болгаш шимчээр',
 
 # Namespace 8 related
+'allmessages'        => 'Системниң дыңнадыглары',
+'allmessagesname'    => 'Ат',
+'allmessagesdefault' => 'Ниити сөзүглел',
+'allmessagescurrent' => 'Амгы сөзүглел',
 
-'allmessages'	=> 'Системниң дыңнадырылар', //System messages
-'allmessagesname' => 'Ат', //Name
-'allmessagesdefault' => 'Default сөзүглел', //Default text
-'allmessagescurrent' => 'Амгы сөзүглел', //Current text
+# Import log
+'import-logentry-upload-detail' => '$1 үндүрери(лер)',
 
-# labels for User: and Title: on Special:Log pages
-'specialloguserlabel' => 'Ажыглакчы:', //User:
+# Tooltip help for the actions
+'tooltip-pt-userpage'       => 'Мээң ажыглакчы арыным',
+'tooltip-pt-mytalk'         => 'Мээң чугаалажыр арыным',
+'tooltip-pt-mycontris'      => 'Мээң деткимчемнерим даңзызы',
+'tooltip-pt-logout'         => 'Үнер',
+'tooltip-ca-talk'           => 'Допчу арыны дугайында чыгаалажыры',
+'tooltip-ca-protect'        => 'Бо арынны камгалаар',
+'tooltip-ca-delete'         => 'Бо арынны ап каар',
+'tooltip-ca-move'           => 'Бо арынны шимчээр',
+'tooltip-search'            => '{{grammar:locative|{{SITENAME}}}} дилээр',
+'tooltip-p-logo'            => 'Кол Арын',
+'tooltip-n-mainpage'        => 'Кол Арынны баар',
+'tooltip-n-recentchanges'   => 'Викиниң дээм чагы өскерлиишкиннери',
+'tooltip-feed-rss'          => 'Бо арының РСС медээ агымы',
+'tooltip-feed-atom'         => 'Бо арының Атом медээ агымы',
+'tooltip-t-emailuser'       => 'Бо ажыглакчыга э-чагааны чорудаар',
+'tooltip-t-upload'          => 'Файлдар киирер',
+'tooltip-t-specialpages'    => 'Шупту тускай арыннар даңзызы',
+'tooltip-ca-nstab-main'     => 'Допчы арынын көөр',
+'tooltip-ca-nstab-user'     => 'Ажыглакчы арынын көөр',
+'tooltip-ca-nstab-media'    => 'Медиа арынын көөр',
+'tooltip-ca-nstab-project'  => 'Проект арынын көөр',
+'tooltip-ca-nstab-image'    => 'Файл арынын көөр',
+'tooltip-ca-nstab-template' => 'Хээни көөр',
+'tooltip-ca-nstab-help'     => 'Дуза арынын көөр',
+'tooltip-ca-nstab-category' => 'Бөлүк арынын көөр',
+'tooltip-save'              => 'Силерниң өскерлиишкиннериңерни шыгжаар',
+
+# Attribution
+'anonymous' => '{{grammar:genitive|{{SITENAME}}}} ат эвес ажыглакчызы(лары)',
+
+# Spam protection
+'subcategorycount'     => 'Бо бөлүкте $1 бичии бөлүк бар.',
+'categoryarticlecount' => 'Бо бөлүкте $1 арын бар.',
+'category-media-count' => 'Бо бөлүкте $1 файл бар.',
+
+# Image deletion
+'filedelete-missing' => '"$1" деп файл чок, ынчангаш ол ап калдынмас.',
+
+# Browsing diffs
+'previousdiff' => '← Бүрүнгү ылгал',
+'nextdiff'     => 'Соонда ылгал →',
+
+# Special:Newimages
+'showhidebots' => '(боцду $1)',
+'noimages'     => 'Чуруклар чок.',
+
+# EXIF tags
+'exif-imagewidth'       => 'Калбаа',
+'exif-imagelength'      => 'Бедик',
+'exif-imagedescription' => 'Чуруктуң ады',
+'exif-artist'           => 'Чогаадыкчы',
+'exif-usercomment'      => 'Ажыглакчы комментарийлери',
+
+'exif-subjectdistancerange-2' => 'Чоок көрүш',
+'exif-subjectdistancerange-3' => 'ырак көрүш',
+
+# 'all' in various places, this might be different for inflected languages
+'recentchangesall' => 'шупту',
+'imagelistall'     => 'шупту',
+'watchlistall2'    => 'шупту',
+'namespacesall'    => 'шупту',
+'monthsall'        => 'шупту',
+
+# AJAX search
+'hideresults' => 'Түңнелдерни чажырар',
+
+# Multipage image navigation
+'imgmultipageprev' => '← бүрүнгү арын',
+'imgmultipagenext' => 'соонда арын →',
+'imgmultigo'       => 'Чоруур',
+'imgmultigotopre'  => 'Арынже чоруур',
+
+# Table pager
+'table_pager_next'         => 'Соонда арын',
+'table_pager_prev'         => 'Бүрүнгү арын',
+'table_pager_first'        => 'Бирги арын',
+'table_pager_last'         => 'Сөөлгү арын',
+'table_pager_limit_submit' => 'Чоруур',
+'table_pager_empty'        => 'Түңнеллер чок',
+
+# Auto-summaries
+'autosumm-new' => 'Чаа арын: $1',
+
+# Watchlist editor
+'watchlistedit-normal-title'  => 'Хайгаарылга даңзын өскертир',
+'watchlistedit-normal-submit' => 'Адарны ап каар',
+'watchlistedit-raw-title'     => 'Чиг хайгаарылга даңзын өскертир',
+'watchlistedit-raw-legend'    => 'Чиг хайгаарылга даңзын өскертир',
+'watchlistedit-raw-titles'    => 'Адар:',
+
+# Watchlist editing tools
+'watchlisttools-edit' => 'Хайгаарылга даңзын көөр болгаш өскертир',
+'watchlisttools-raw'  => 'Чиг хайгаарылга даңзын өскертир',
 
 );
-?>

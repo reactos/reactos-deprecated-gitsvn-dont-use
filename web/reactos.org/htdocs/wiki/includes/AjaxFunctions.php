@@ -73,85 +73,115 @@ function code2utf($num){
    return '';
 }
 
+define( 'AJAX_SEARCH_VERSION', 2 );	//AJAX search cache version
+
 function wfSajaxSearch( $term ) {
-	global $wgContLang, $wgOut;
+	global $wgContLang, $wgOut, $wgUser, $wgCapitalLinks, $wgMemc;
 	$limit = 16;
+	$sk = $wgUser->getSkin();
+	$output = '';
 
-	$l = new Linker;
+	$term = trim( $term );
+	$term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) );
+	if ( $wgCapitalLinks )
+		$term = $wgContLang->ucfirst( $term ); 
+	$term_title = Title::newFromText( $term );
 
-	$term = str_replace( ' ', '_', $wgContLang->ucfirst( 
-			$wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) )
-		) );
-
-	if ( strlen( str_replace( '_', '', $term ) )<3 )
-		return;
-
-	$db = wfGetDB( DB_SLAVE );
-	$res = $db->select( 'page', 'page_title',
-			array(  'page_namespace' => 0,
-				"page_title LIKE '". $db->strencode( $term) ."%'" ),
-				"wfSajaxSearch",
-				array( 'LIMIT' => $limit+1 )
-			);
-
-	$r = "";
-
-	$i=0;
-	while ( ( $row = $db->fetchObject( $res ) ) && ( ++$i <= $limit ) ) {
-		$nt = Title::newFromDBkey( $row->page_title );
-		$r .= '<li>' . $l->makeKnownLinkObj( $nt ) . "</li>\n";
-	}
-	if ( $i > $limit ) {
-		$more = '<i>' .  $l->makeKnownLink( $wgContLang->specialPage( "Allpages" ),
-		                                wfMsg('moredotdotdot'),
-		                                "namespace=0&from=" . wfUrlEncode ( $term ) ) .
-			'</i>';
-	} else {
-		$more = '';
+	$memckey = $term_title ? wfMemcKey( 'ajaxsearch', md5( $term_title->getFullText() ) ) : wfMemcKey( 'ajaxsearch', md5( $term ) );
+	$cached = $wgMemc->get($memckey);
+	if( is_array( $cached ) && $cached['version'] == AJAX_SEARCH_VERSION ) {
+		$response = new AjaxResponse( $cached['html'] );
+		$response->setCacheDuration( 30*60 );
+		return $response;
 	}
 
-	$subtitlemsg = ( Title::newFromText($term) ? 'searchsubtitle' : 'searchsubtitleinvalid' );
-	$subtitle = $wgOut->parse( wfMsg( $subtitlemsg, wfEscapeWikiText($term) ) ); #FIXME: parser is missing mTitle !
+	$r = $more = '';
+	$canSearch = true;
+	
+	$results = PrefixSearch::titleSearch( $term, $limit + 1 );
+	foreach( array_slice( $results, 0, $limit ) as $titleText ) {
+		$r .= '<li>' . $sk->makeKnownLink( $titleText ) . "</li>\n";
+	}
+	
+	// Hack to check for specials
+	if( $results ) {
+		$t = Title::newFromText( $results[0] );
+		if( $t && $t->getNamespace() == NS_SPECIAL ) {
+			$canSearch = false;
+			if( count( $results ) > $limit ) {
+				$more = '<i>' .
+					$sk->makeKnownLinkObj(
+						SpecialPage::getTitleFor( 'Specialpages' ),
+						wfMsgHtml( 'moredotdotdot' ) ) .
+					'</i>';
+			}
+		} else {
+			if( count( $results ) > $limit ) {
+				$more = '<i>' .
+					$sk->makeKnownLinkObj(
+						SpecialPage::getTitleFor( "Allpages", $term ),
+						wfMsgHtml( 'moredotdotdot' ) ) .
+					'</i>';
+			}
+		}
+	}
 
-	$term = urlencode( $term );
-	$html = '<div style="float:right; border:solid 1px black;background:gainsboro;padding:2px;"><a onclick="Searching_Hide_Results();">'
-		. wfMsg( 'hideresults' ) . '</a></div>'
-		. '<h1 class="firstHeading">'.wfMsg('search')
-		. '</h1><div id="contentSub">'. $subtitle . '</div><ul><li>'
-		. $l->makeKnownLink( $wgContLang->specialPage( 'Search' ),
-					wfMsg( 'searchcontaining', $term ),
-					"search=$term&fulltext=Search" )
-		. '</li><li>' . $l->makeKnownLink( $wgContLang->specialPage( 'Search' ),
-					wfMsg( 'searchnamed', $term ) ,
-					"search=$term&go=Go" )
-		. "</li></ul><h2>" . wfMsg( 'articletitles', $term ) . "</h2>"
-		. '<ul>' .$r .'</ul>'.$more;
+	$valid = (bool) $term_title;
+	$term_url = urlencode( $term );
+	$term_diplay = htmlspecialchars( $valid ? $term_title->getFullText() : $term );
+	$subtitlemsg = ( $valid ? 'searchsubtitle' : 'searchsubtitleinvalid' );
+	$subtitle = wfMsgWikiHtml( $subtitlemsg, $term_diplay );
+	$html = '<div id="searchTargetHide"><a onclick="Searching_Hide_Results();">'
+		. wfMsgHtml( 'hideresults' ) . '</a></div>'
+		. '<h1 class="firstHeading">'.wfMsgHtml('search')
+		. '</h1><div id="contentSub">'. $subtitle . '</div>';
+	if( $canSearch ) {
+		$html .= '<ul><li>'
+			. $sk->makeKnownLink( $wgContLang->specialPage( 'Search' ),
+						wfMsgHtml( 'searchcontaining', $term_diplay ),
+						"search={$term_url}&fulltext=Search" )
+			. '</li><li>' . $sk->makeKnownLink( $wgContLang->specialPage( 'Search' ),
+						wfMsgHtml( 'searchnamed', $term_diplay ) ,
+						"search={$term_url}&go=Go" )
+			. "</li></ul>";
+	}
+	if( $r ) {
+		$html .= "<h2>" . wfMsgHtml( 'articletitles', $term_diplay ) . "</h2>"
+			. '<ul>' .$r .'</ul>' . $more;
+	}
+
+	$wgMemc->set( $memckey, array( 'version' => AJAX_SEARCH_VERSION, 'html' => $html ), 30 * 60 );
 
 	$response = new AjaxResponse( $html );
-
 	$response->setCacheDuration( 30*60 );
-
 	return $response;
 }
 
 /**
  * Called for AJAX watch/unwatch requests.
- * @param $pageID Integer ID of the page to be watched/unwatched
+ * @param $pagename Prefixed title string for page to watch/unwatch
  * @param $watch String 'w' to watch, 'u' to unwatch
- * @return String '<w#>' or '<u#>' on successful watch or unwatch, respectively, or '<err#>' on error (invalid XML in case we want to add HTML sometime)
+ * @return String '<w#>' or '<u#>' on successful watch or unwatch, 
+ *   respectively, followed by an HTML message to display in the alert box; or
+ *   '<err#>' on error
  */
-function wfAjaxWatch($pageID = "", $watch = "") {
-	if(wfReadOnly())
-		return '<err#>'; // redirect to action=(un)watch, which will display the database lock message
+function wfAjaxWatch($pagename = "", $watch = "") {
+	if(wfReadOnly()) {
+		// redirect to action=(un)watch, which will display the database lock
+		// message
+		return '<err#>'; 
+	}
 
-	if(('w' !== $watch && 'u' !== $watch) || !is_numeric($pageID))
+	if('w' !== $watch && 'u' !== $watch) {
 		return '<err#>';
+	}
 	$watch = 'w' === $watch;
-	$pageID = intval($pageID);
 
-	$title = Title::newFromID($pageID);
-	if(!$title)
+	$title = Title::newFromDBkey($pagename);
+	if(!$title) {
+		// Invalid title
 		return '<err#>';
+	}
 	$article = new Article($title);
 	$watching = $title->userIsWatching();
 
@@ -170,7 +200,10 @@ function wfAjaxWatch($pageID = "", $watch = "") {
 			$dbw->commit();
 		}
 	}
-
-	return $watch ? '<w#>' : '<u#>';
+	if( $watch ) {
+		return '<w#>'.wfMsgExt( 'addedwatchtext', array( 'parse' ), $title->getPrefixedText() );
+	} else {
+		return '<u#>'.wfMsgExt( 'removedwatchtext', array( 'parse' ), $title->getPrefixedText() );
+	}
 }
-?>
+

@@ -1,18 +1,19 @@
 <?php
-/**
-*
-* @addtogroup SpecialPage
-*/
 
 /**
-* constructor
-*/
-function wfSpecialStatistics() {
+ * Special page lists various statistics, including the contents of
+ * `site_stats`, plus page view details if enabled
+ *
+ * @addtogroup SpecialPage
+ */
+
+/**
+ * Show the special page
+ *
+ * @param mixed $par (not used)
+ */
+function wfSpecialStatistics( $par = '' ) {
 	global $wgOut, $wgLang, $wgRequest;
-	$fname = 'wfSpecialStatistics';
-
-	$action = $wgRequest->getVal( 'action' );
-
 	$dbr = wfGetDB( DB_SLAVE );
 
 	$views = SiteStats::views();
@@ -21,18 +22,18 @@ function wfSpecialStatistics() {
 	$images = SiteStats::images();
 	$total = SiteStats::pages();
 	$users = SiteStats::users();
+	$admins = SiteStats::admins();
+	$numJobs = SiteStats::jobs();
 
-	$admins = $dbr->selectField( 'user_groups', 'COUNT(*)', array( 'ug_group' => 'sysop' ), $fname );
-	$numJobs = $dbr->estimateRowCount('job');
-
-	if ($action == 'raw') {
+	if( $wgRequest->getVal( 'action' ) == 'raw' ) {
 		$wgOut->disable();
 		header( 'Pragma: nocache' );
 		echo "total=$total;good=$good;views=$views;edits=$edits;users=$users;admins=$admins;images=$images;jobs=$numJobs\n";
 		return;
 	} else {
-		$text = '==' . wfMsg( 'sitestats' ) . "==\n" ;
-		$text .= wfMsgExt( 'sitestatstext', array ( 'parsemag' ),
+		$text = "__NOTOC__\n";
+		$text .= '==' . wfMsgNoTrans( 'sitestats' ) . "==\n";
+		$text .= wfMsgExt( 'sitestatstext', array( 'parsemag' ),
 			$wgLang->formatNum( $total ),
 			$wgLang->formatNum( $good ),
 			$wgLang->formatNum( $views ),
@@ -41,44 +42,52 @@ function wfSpecialStatistics() {
 			$wgLang->formatNum( sprintf( '%.2f', $edits ? $views / $edits : 0 ) ),
 			$wgLang->formatNum( $numJobs ),
 			$wgLang->formatNum( $images )
-	   	);
+	   	)."\n";
 
-		$text .= "\n==" . wfMsg( 'userstats' ) . "==\n";
-
+		$text .= "==" . wfMsgNoTrans( 'userstats' ) . "==\n";
 		$text .= wfMsgExt( 'userstatstext', array ( 'parsemag' ),
 			$wgLang->formatNum( $users ),
 			$wgLang->formatNum( $admins ),
 			'[[' . wfMsgForContent( 'grouppage-sysop' ) . ']]', # TODO somehow remove, kept for backwards compatibility
 			$wgLang->formatNum( sprintf( '%.2f', $admins / $users * 100 ) ),
 			User::makeGroupLinkWiki( 'sysop' )
-		);
-
-		$wgOut->addWikiText( $text );
+		)."\n";
 
 		global $wgDisableCounters, $wgMiserMode, $wgUser, $wgLang, $wgContLang;
 		if( !$wgDisableCounters && !$wgMiserMode ) {
-			$page = $dbr->tableName( 'page' );
-			$sql = "SELECT page_namespace, page_title, page_counter FROM {$page} WHERE page_is_redirect = 0 AND page_counter > 0 ORDER BY page_counter DESC";
-			$sql = $dbr->limitResult($sql, 10, 0);
-			$res = $dbr->query( $sql, $fname );
-			if( $res ) {
-				$wgOut->addHtml( '<h2>' . wfMsgHtml( 'statistics-mostpopular' ) . '</h2>' );
-				$skin = $wgUser->getSkin();
-				$wgOut->addHtml( '<ol>' );
-				while( $row = $dbr->fetchObject( $res ) ) {
-					$link = $skin->makeKnownLinkObj( Title::makeTitleSafe( $row->page_namespace, $row->page_title ) );
-					$dirmark = $wgContLang->getDirMark();
-					$wgOut->addHtml( '<li>' . $link . $dirmark . ' [' . $wgLang->formatNum( $row->page_counter ) . ']</li>' );
+			$res = $dbr->select(
+				'page',
+				array(
+					'page_namespace',
+					'page_title',
+					'page_counter',
+				),
+				array(
+					'page_is_redirect' => 0,
+					'page_counter > 0',
+				),
+				__METHOD__,
+				array(
+					'ORDER BY' => 'page_counter DESC',
+					'LIMIT' => 10,
+				)
+			);
+			if( $res->numRows() > 0 ) {
+				$text .= "==" . wfMsgNoTrans( 'statistics-mostpopular' ) . "==\n";
+				while( $row = $res->fetchObject() ) {
+					$title = Title::makeTitleSafe( $row->page_namespace, $row->page_title );
+					if( $title instanceof Title )
+						$text .= '* [[:' . $title->getPrefixedText() . ']] (' . $wgLang->formatNum( $row->page_counter ) . ")\n";
 				}
-				$wgOut->addHtml( '</ol>' );
-				$dbr->freeResult( $res );
+				$res->free();
 			}
 		}
 		
-		$footer = wfMsg( 'statistics-footer' );
+		$footer = wfMsgNoTrans( 'statistics-footer' );
 		if( !wfEmptyMsg( 'statistics-footer', $footer ) && $footer != '' )
-			$wgOut->addWikiText( $footer );
-		
+			$text .= "\n" . $footer;
+			
+		$wgOut->addWikiText( $text );		
 	}
+	
 }
-?>

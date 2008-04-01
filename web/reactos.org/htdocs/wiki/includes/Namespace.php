@@ -41,57 +41,75 @@ if( is_array( $wgExtraNamespaces ) ) {
  * Users and translators should not change them
  *
  */
+
+/*
+WARNING: The statement below may fail on some versions of PHP: see bug 12294
+*/
+
 class Namespace {
 
 	/**
-	 * Check if the given namespace might be moved
+	 * Can pages in the given namespace be moved?
+	 *
+	 * @param int $index Namespace index
 	 * @return bool
 	 */
-	static function isMovable( $index ) {
+	public static function isMovable( $index ) {
 		return !( $index < NS_MAIN || $index == NS_IMAGE  || $index == NS_CATEGORY );
 	}
 
 	/**
-	 * Check if the given namespace is not a talk page
+	 * Is the given namespace is a subject (non-talk) namespace?
+	 *
+	 * @param int $index Namespace index
 	 * @return bool
 	 */
-	static function isMain( $index ) {
-		return ! Namespace::isTalk( $index );
+	public static function isMain( $index ) {
+		return !self::isTalk( $index );
 	}
 
 	/**
-	 * Check if the give namespace is a talk page
+	 * Is the given namespace a talk namespace?
+	 *
+	 * @param int $index Namespace index
 	 * @return bool
 	 */
-	static function isTalk( $index ) {
-		return ($index > NS_MAIN)  // Special namespaces are negative
-			&& ($index % 2); // Talk namespaces are odd-numbered
+	public static function isTalk( $index ) {
+		return $index > NS_MAIN
+			&& $index % 2;
 	}
 
 	/**
-	 * Get the talk namespace corresponding to the given index
+	 * Get the talk namespace index for a given namespace
+	 *
+	 * @param int $index Namespace index
+	 * @return int
 	 */
-	static function getTalk( $index ) {
-		if ( Namespace::isTalk( $index ) ) {
-			return $index;
-		} else {
-			# FIXME
-			return $index + 1;
-		}
+	public static function getTalk( $index ) {
+		return self::isTalk( $index )
+			? $index
+			: $index + 1;
 	}
 
-	static function getSubject( $index ) {
-		if ( Namespace::isTalk( $index ) ) {
-			return $index - 1;
-		} else {
-			return $index;
-		}
+	/**
+	 * Get the subject namespace index for a given namespace
+	 *
+	 * @param int $index Namespace index
+	 * @return int
+	 */
+	public static function getSubject( $index ) {
+		return self::isTalk( $index )
+			? $index - 1
+			: $index;
 	}
 
 	/**
 	 * Returns the canonical (English Wikipedia) name for a given index
+	 *
+	 * @param int $index Namespace index
+	 * @return string
 	 */
-	static function getCanonicalName( $index ) {
+	public static function getCanonicalName( $index ) {
 		global $wgCanonicalNamespaceNames;
 		return $wgCanonicalNamespaceNames[$index];
 	}
@@ -99,8 +117,11 @@ class Namespace {
 	/**
 	 * Returns the index for a given canonical name, or NULL
 	 * The input *must* be converted to lower case first
+	 *
+	 * @param string $name Namespace name
+	 * @return int
 	 */
-	static function getCanonicalIndex( $name ) {
+	public static function getCanonicalIndex( $name ) {
 		global $wgCanonicalNamespaceNames;
 		static $xNamespaces = false;
 		if ( $xNamespaces === false ) {
@@ -118,10 +139,12 @@ class Namespace {
 	
 	/**
 	 * Can this namespace ever have a talk namespace?
+	 *
 	 * @param $index Namespace index
+	 * @return bool
 	 */
-	 static function canTalk( $index ) {
-	 	return( $index >= NS_MAIN );
+	 public static function canTalk( $index ) {
+	 	return $index >= NS_MAIN;
 	 }
 	 
 	/**
@@ -134,8 +157,16 @@ class Namespace {
 	public static function isContent( $index ) {
 		global $wgContentNamespaces;
 		return $index == NS_MAIN || in_array( $index, $wgContentNamespaces );
-	}	 
+	}
+	
+	/**
+	 * Can pages in a namespace be watched?
+	 *
+	 * @param int $index
+	 * @return bool
+	 */
+	public static function isWatchable( $index ) {
+		return $index >= NS_MAIN;
+	}
 	 
 }
-
-?>

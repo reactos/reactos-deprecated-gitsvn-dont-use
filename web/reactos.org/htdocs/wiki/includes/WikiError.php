@@ -101,12 +101,12 @@ class WikiXmlError extends WikiError {
 
 	/** @return string */
 	function getMessage() {
-		return sprintf( '%s at line %d, col %d (byte %d%s): %s',
+		// '$1 at line $2, col $3 (byte $4): $5',
+		return wfMsgHtml( 'xml-error-string',
 			$this->mMessage,
 			$this->mLine,
 			$this->mColumn,
-			$this->mByte,
-			$this->mContext,
+			$this->mByte . $this->mContext,
 			xml_error_string( $this->mXmlError ) );
 	}
 
@@ -120,5 +120,3 @@ class WikiXmlError extends WikiError {
 		}
 	}
 }
-
-?>

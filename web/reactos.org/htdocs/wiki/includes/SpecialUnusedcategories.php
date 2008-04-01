@@ -15,7 +15,7 @@ class UnusedCategoriesPage extends QueryPage {
 	}
 
 	function getPageHeader() {
-		return '<p>' . wfMsg('unusedcategoriestext') . '</p>';
+		return wfMsgExt( 'unusedcategoriestext', array( 'parse' ) );
 	}
 
 	function getSQL() {
@@ -43,4 +43,4 @@ function wfSpecialUnusedCategories() {
 	$uc = new UnusedCategoriesPage();
 	return $uc->doQuery( $offset, $limit );
 }
-?>
+

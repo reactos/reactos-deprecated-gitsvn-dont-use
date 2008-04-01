@@ -7,8 +7,15 @@
 	float: none;
 }
 #column-content #content { 
-	margin-top: 3em;
+	margin-top: 3em; 
 	height: 1%;
+}
+#column-one {
+	position: absolute;
+	overflow: visible;
+	top: 0;
+	left: 0;
+	z-index: 3;
 }
 #footer {
 	margin: 0 0 0 0;

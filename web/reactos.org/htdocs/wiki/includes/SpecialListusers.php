@@ -103,7 +103,6 @@ class UsersPager extends AlphabeticPager {
 			$this->doQuery();
 		}
 		$batch = new LinkBatch;
-		$db = $this->mDb;
 
 		$this->mResult->rewind();
 
@@ -116,35 +115,30 @@ class UsersPager extends AlphabeticPager {
 	}
 
 	function getPageHeader( ) {
-		global $wgRequest;
+		global $wgScript, $wgRequest;
 		$self = $this->getTitle();
 
 		# Form tag
-		$out  = Xml::openElement( 'form', array( 'method' => 'get', 'action' => $self->getLocalUrl() ) ) .
+		$out  = Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) ) .
 			'<fieldset>' .
 			Xml::element( 'legend', array(), wfMsg( 'listusers' ) );
+		$out .= Xml::hidden( 'title', $self->getPrefixedDbKey() );
 
 		# Username field
 		$out .= Xml::label( wfMsg( 'listusersfrom' ), 'offset' ) . ' ' .
 			Xml::input( 'username', 20, $this->requestedUser, array( 'id' => 'offset' ) ) . ' ';
 
-		if( $this->mLimit )
-			$out .= Xml::hidden( 'limit', $this->mLimit );
-
 		# Group drop-down list
 		$out .= Xml::label( wfMsg( 'group' ), 'group' ) . ' ' .
 			Xml::openElement('select',  array( 'name' => 'group', 'id' => 'group' ) ) .
-			Xml::option( wfMsg( 'group-all' ), '' );  # Item for "all groups"
-
-		$groups = User::getAllGroups();
-		foreach( $groups as $group ) {
-			$attribs = array( 'value' => $group );
-			$attribs['selected'] = ( $group == $this->requestedGroup ) ? 'selected' : '';
-			$out .= Xml::option( User::getGroupName( $group ), $attribs['value'], $attribs['selected'] );
-		}
+			Xml::option( wfMsg( 'group-all' ), '' );
+		foreach( User::getAllGroups() as $group )
+			$out .= Xml::option( User::getGroupName( $group ), $group, $group == $this->requestedGroup );
 		$out .= Xml::closeElement( 'select' ) . ' ';
 
 		# Submit button and form bottom
+		if( $this->mLimit )
+			$out .= Xml::hidden( 'limit', $this->mLimit );
 		$out .= Xml::submitButton( wfMsg( 'allpagessubmit' ) ) .
 			'</fieldset>' .
 			Xml::closeElement( 'form' );
@@ -204,10 +198,6 @@ class UsersPager extends AlphabeticPager {
 function wfSpecialListusers( $par = null ) {
 	global $wgRequest, $wgOut;
 
-	list( $limit, $offset ) = wfCheckLimits();
-
-	$groupTarget = isset($par) ? $par : $wgRequest->getVal( 'group' );
-
 	$up = new UsersPager($par);
 
 	# getBody() first to check, if empty
@@ -224,4 +214,4 @@ function wfSpecialListusers( $par = null ) {
 	$wgOut->addHTML( $s );
 }
 
-?>
+

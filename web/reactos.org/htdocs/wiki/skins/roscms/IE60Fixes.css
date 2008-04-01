@@ -10,6 +10,12 @@
 	margin-top: 3em;
 	height: 1%;
 }
+#column-one {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 4;
+}
 #footer {
 	border-left: 1px solid #fabd23;
 }
@@ -71,5 +77,8 @@ div.tright,
 div.tleft {
 	position: relative;
 }
-/*{ border:1px solid Red !important;}*/
 
+/* bug 12846 */
+body.rtl #preftoc a, body.rtl #preftoc a:active {
+	float: left;
+}

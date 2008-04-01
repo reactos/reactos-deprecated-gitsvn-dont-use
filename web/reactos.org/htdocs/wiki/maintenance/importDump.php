@@ -24,7 +24,6 @@
 $optionsWithArgs = array( 'report' );
 
 require_once( 'commandLine.inc' );
-require_once( 'SpecialImport.php' );
 
 class BackupReader {
 	var $reportingInterval = 100;
@@ -139,4 +138,4 @@ if( WikiError::isError( $result ) ) {
 	echo "the recentchanges page.\n";
 }
 
-?>
+

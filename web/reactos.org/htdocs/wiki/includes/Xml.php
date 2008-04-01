@@ -19,9 +19,7 @@ class Xml {
 	public static function element( $element, $attribs = null, $contents = '') {
 		$out = '<' . $element;
 		if( !is_null( $attribs ) ) {
-			foreach( $attribs as $name => $val ) {
-				$out .= ' ' . $name . '="' . Sanitizer::encodeAttribute( $val ) . '"';
-			}
+			$out .=  self::expandAttributes( $attribs );
 		}
 		if( is_null( $contents ) ) {
 			$out .= '>';
@@ -33,6 +31,26 @@ class Xml {
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * Given an array of ('attributename' => 'value'), it generates the code
+	 * to set the XML attributes : attributename="value".
+	 * The values are passed to Sanitizer::encodeAttribute.
+	 * Return null if no attributes given.
+	 * @param $attribs Array of attributes for an XML element
+	 */
+	private static function expandAttributes( $attribs ) {
+		$out = '';
+		if( is_null( $attribs ) ) {
+			return null;
+		} elseif( is_array( $attribs ) ) {
+			foreach( $attribs as $name => $val )
+				$out .= " {$name}=\"" . Sanitizer::encodeAttribute( $val ) . '"';
+			return $out;
+		} else {
+			throw new MWException( 'Expected attribute array, got something else in ' . __METHOD__ );
+		}
 	}
 
 	/**
@@ -57,8 +75,12 @@ class Xml {
 		return self::element( $element, $attribs, $contents );
 	}
 
-	// Shortcuts
-	public static function openElement( $element, $attribs = null ) { return self::element( $element, $attribs, null ); }
+	/** This open an XML element */
+	public static function openElement( $element, $attribs = null ) {
+		return '<' . $element . self::expandAttributes( $attribs ) . '>';
+	}
+
+	// Shortcut
 	public static function closeElement( $element ) { return "</$element>"; }
 
 	/**
@@ -66,48 +88,107 @@ class Xml {
 	 * content you have is already valid xml.
 	 */
 	public static function tags( $element, $attribs = null, $contents ) {
-		return self::element( $element, $attribs, null ) . $contents . "</$element>";
+		return self::openElement( $element, $attribs ) . $contents . "</$element>";
 	}
 
 	/**
-	 * Create a namespace selector
+	 * Build a drop-down box for selecting a namespace
 	 *
-	 * @param $selected Mixed: the namespace which should be selected, default ''
-	 * @param $allnamespaces String: value of a special item denoting all namespaces. Null to not include (default)
-	 * @param $includehidden Bool: include hidden namespaces?
-	 * @return String: Html string containing the namespace selector
+	 * @param mixed $selected Namespace which should be pre-selected
+	 * @param mixed $all Value of an item denoting all namespaces, or null to omit
+	 * @param bool $hidden Include hidden namespaces? [WTF? --RC]
+	 * @return string
 	 */
-	public static function namespaceSelector($selected = '', $allnamespaces = null, $includehidden=false) {
+	public static function namespaceSelector( $selected = '', $all = null, $hidden = false, $element_name = 'namespace' ) {
 		global $wgContLang;
-		if( $selected !== '' ) {
-			if( is_null( $selected ) ) {
-				// No namespace selected; let exact match work without hitting Main
-				$selected = '';
-			} else {
-				// Let input be numeric strings without breaking the empty match.
-				$selected = intval( $selected );
-			}
+		$namespaces = $wgContLang->getFormattedNamespaces();
+		$options = array();
+		
+		// Godawful hack... we'll be frequently passed selected namespaces
+		// as strings since PHP is such a shithole.
+		// But we also don't want blanks and nulls and "all"s matching 0,
+		// so let's convert *just* string ints to clean ints.
+		if( preg_match( '/^\d+$/', $selected ) ) {
+			$selected = intval( $selected );
 		}
-		$s = "\n<select id='namespace' name='namespace' class='namespaceselector'>\n";
-		$arr = $wgContLang->getFormattedNamespaces();
-		if( !is_null($allnamespaces) ) {
-			$arr = array($allnamespaces => wfMsg('namespacesall')) + $arr;
+		
+		if( !is_null( $all ) )
+			$namespaces = array( $all => wfMsg( 'namespacesall' ) ) + $namespaces;
+		foreach( $namespaces as $index => $name ) {
+			if( $index < NS_MAIN )
+				continue;
+			if( $index === 0 )
+				$name = wfMsg( 'blanknamespace' );
+			$options[] = self::option( $name, $index, $index === $selected );
 		}
-		foreach ($arr as $index => $name) {
-			if ($index < NS_MAIN) continue;
+		
+		return Xml::openElement( 'select', array( 'id' => 'namespace', 'name' => $element_name,
+			'class' => 'namespaceselector' ) )
+			. "\n"
+			. implode( "\n", $options )
+			. "\n"
+			. Xml::closeElement( 'select' );
+	}
+		
+	/**
+	* Create a date selector 	 
+	* 	 
+	* @param $selected Mixed: the month which should be selected, default '' 	 
+	* @param $allmonths String: value of a special item denoting all month. Null to not include (default) 	 
+	* @param string $id Element identifier 	 
+	* @return String: Html string containing the month selector 	 
+	*/ 	 
+	public static function monthSelector( $selected = '', $allmonths = null, $id = 'month' ) { 	 
+		global $wgLang; 	 
+		$options = array(); 	 
+	    if( is_null( $selected ) ) 	 
+			$selected = ''; 	 
+	    if( !is_null( $allmonths ) ) 	 
+			$options[] = self::option( wfMsg( 'monthsall' ), $allmonths, $selected === $allmonths ); 	 
+		for( $i = 1; $i < 13; $i++ ) 	 
+				$options[] = self::option( $wgLang->getMonthName( $i ), $i, $selected === $i ); 	 
+		return self::openElement( 'select', array( 'id' => $id, 'name' => 'month' ) ) 	 
+			. implode( "\n", $options ) 	 
+			. self::closeElement( 'select' ); 	 
+	}
 
-			$name = $index !== 0 ? $name : wfMsg('blanknamespace');
-
-			if ($index === $selected) {
-				$s .= "\t" . self::element("option",
-						array("value" => $index, "selected" => "selected"),
-						$name) . "\n";
-			} else {
-				$s .= "\t" . self::element("option", array("value" => $index), $name) . "\n";
-			}
+	/**
+	 *
+	 * @param $language The language code of the selected language
+	 * @param $customisedOnly If true only languages which have some content are listed
+	 * @return array of label and select
+	 */
+	public static function languageSelector( $selected, $customisedOnly = true ) {
+		global $wgContLanguageCode;
+		/**
+		 * Make sure the site language is in the list; a custom language code
+		 * might not have a defined name...
+		 */
+		$languages = Language::getLanguageNames( $customisedOnly );
+		if( !array_key_exists( $wgContLanguageCode, $languages ) ) {
+			$languages[$wgContLanguageCode] = $wgContLanguageCode;
 		}
-		$s .= "</select>\n";
-		return $s;
+		ksort( $languages );
+
+		/**
+		 * If a bogus value is set, default to the content language.
+		 * Otherwise, no default is selected and the user ends up
+		 * with an Afrikaans interface since it's first in the list.
+		 */
+		$selected = isset( $languages[$selected] ) ? $selected : $wgContLanguageCode;
+		$options = "\n";
+		foreach( $languages as $code => $name ) {
+			$options .= Xml::option( "$code - $name", $code, ($code == $selected) ) . "\n";
+		}
+
+		return array(
+			Xml::label( wfMsg('yourlanguage'), 'wpUserLanguage' ),
+			Xml::tags( 'select',
+				array( 'id' => 'wpUserLanguage', 'name' => 'wpUserLanguage' ),
+				$options
+			)
+		);
+
 	}
 
 	public static function span( $text, $class, $attribs=array() ) {
@@ -123,6 +204,14 @@ class Xml {
 			'name' => $name,
 			'size' => $size,
 			'value' => $value ) + $attribs );
+	}
+
+	/**
+	 * Convenience function to build an HTML password input field
+	 * @return string HTML
+	 */
+	public static function password( $name, $size=false, $value=false, $attribs=array() ) {
+		return self::input( $name, $size, $value, array_merge($attribs, array('type' => 'password')));
 	}
 
 	/**
@@ -220,7 +309,7 @@ class Xml {
 			'type' => 'hidden',
 			'value' => $value ) + $attribs );
 	}
-	
+
 	/**
 	 * Convenience function to build an HTML drop-down list item.
 	 * @param $text String: text for this item
@@ -238,6 +327,63 @@ class Xml {
 			$attribs['selected'] = 'selected';
 		}
 		return self::element( 'option', $attribs, $text );
+	}
+
+	/**
+	 * Build a drop-down box from a textual list.
+	 * 
+	 * @param mixed $name Name and id for the drop-down
+	 * @param mixed $class CSS classes for the drop-down
+	 * @param mixed $other Text for the "Other reasons" option
+	 * @param mixed $list Correctly formatted text to be used to generate the options
+	 * @param mixed $selected Option which should be pre-selected
+	 * @return string
+	 */
+	public static function listDropDown( $name= '', $list = '', $other = '', $selected = '', $class = '', $tabindex = Null ) {
+		$options = '';
+		$optgroup = false;
+		
+		$options = self::option( $other, 'other', $selected === 'other' );
+		
+		foreach ( explode( "\n", $list ) as $option) {
+				$value = trim( $option );
+				if ( $value == '' ) {
+					continue;
+				} elseif ( substr( $value, 0, 1) == '*' && substr( $value, 1, 1) != '*' ) {
+					// A new group is starting ...
+					$value = trim( substr( $value, 1 ) );
+					if( $optgroup ) $options .= self::closeElement('optgroup');
+					$options .= self::openElement( 'optgroup', array( 'label' => $value ) );
+					$optgroup = true;
+				} elseif ( substr( $value, 0, 2) == '**' ) {
+					// groupmember
+					$value = trim( substr( $value, 2 ) );
+					$options .= self::option( $value, $value, $selected === $value );
+				} else {
+					// groupless reason list
+					if( $optgroup ) $options .= self::closeElement('optgroup');
+					$options .= self::option( $value, $value, $selected === $value );
+					$optgroup = false;
+				}
+			}
+			if( $optgroup ) $options .= self::closeElement('optgroup');
+		
+		$attribs = array();
+		if( $name ) {
+			$attribs['id'] = $name;
+			$attribs['name'] = $name;
+		}
+		if( $class ) {
+			$attribs['class'] = $class;
+		}
+		if( $tabindex ) {
+			$attribs['tabindex'] = $tabindex;
+		}
+		return Xml::openElement( 'select', $attribs )
+			. "\n"
+			. $options
+			. "\n"
+			. Xml::closeElement( 'select' );
 	}
 
 	/**
@@ -263,13 +409,22 @@ class Xml {
 
 			# To avoid any complaints about bad entity refs                        
 			"&" => "\\x26",
+			
+			# Work around https://bugzilla.mozilla.org/show_bug.cgi?id=274152
+			# Encode certain Unicode formatting chars so affected
+			# versions of Gecko don't misinterpret our strings;
+			# this is a common problem with Farsi text.
+			"\xe2\x80\x8c" => "\\u200c", // ZERO WIDTH NON-JOINER
+			"\xe2\x80\x8d" => "\\u200d", // ZERO WIDTH JOINER
 		);
 		return strtr( $string, $pairs );
 	}
 
 	/**
 	 * Encode a variable of unknown type to JavaScript.
-	 * Doesn't support hashtables just yet.
+	 * Arrays are converted to JS arrays, objects are converted to JS associative 
+	 * arrays (objects). So cast your PHP associative arrays to objects before 
+	 * passing them to here.
 	 */
 	public static function encodeJsVar( $value ) {
 		if ( is_bool( $value ) ) {
@@ -280,13 +435,23 @@ class Xml {
 			$s = $value;
 		} elseif ( is_array( $value ) ) {
 			$s = '[';
-			foreach ( $value as $name => $elt ) {
+			foreach ( $value as $elt ) {
 				if ( $s != '[' ) {
 					$s .= ', ';
 				}
 				$s .= self::encodeJsVar( $elt );
 			}
 			$s .= ']';
+		} elseif ( is_object( $value ) ) {
+			$s = '{';
+			foreach ( (array)$value as $name => $elt ) {
+				if ( $s != '{' ) {
+					$s .= ', ';
+				}
+				$s .= '"' . self::escapeJsString( $name ) . '": ' . 
+					self::encodeJsVar( $elt );
+			}
+			$s .= '}';
 		} else {
 			$s = '"' . self::escapeJsString( $value ) . '"';
 		}
@@ -352,4 +517,4 @@ class Xml {
 			$in );
 	}
 }
-?>
+

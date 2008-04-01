@@ -51,12 +51,20 @@ class CoreParserFunctions {
 
 	static function lc( $parser, $s = '' ) {
 		global $wgContLang;
-		return $wgContLang->lc( $s );
+		if ( is_callable( array( $parser, 'markerSkipCallback' ) ) ) {
+			return $parser->markerSkipCallback( $s, array( $wgContLang, 'lc' ) );
+		} else {
+			return $wgContLang->lc( $s );
+		}
 	}
 
 	static function uc( $parser, $s = '' ) {
 		global $wgContLang;
-		return $wgContLang->uc( $s );
+		if ( is_callable( array( $parser, 'markerSkipCallback' ) ) ) {
+			return $parser->markerSkipCallback( $s, array( $wgContLang, 'uc' ) );
+		} else {
+			return $wgContLang->uc( $s );
+		}
 	}
 
 	static function localurl( $parser, $s = '', $arg = null ) { return self::urlFunction( 'getLocalURL', $s, $arg ); }
@@ -92,20 +100,26 @@ class CoreParserFunctions {
 		return $parser->getFunctionLang()->convertGrammar( $word, $case );
 	}
 
-	static function plural( $parser, $text = '', $arg0 = null, $arg1 = null, $arg2 = null, $arg3 = null, $arg4 = null ) {
+	static function plural( $parser, $text = '') {
+		$forms = array_slice( func_get_args(), 2);
 		$text = $parser->getFunctionLang()->parseFormattedNumber( $text );
-		return $parser->getFunctionLang()->convertPlural( $text, $arg0, $arg1, $arg2, $arg3, $arg4 );
+		return $parser->getFunctionLang()->convertPlural( $text, $forms );
 	}
 
-	static function displaytitle( $parser, $param = '' ) {
-		$parserOptions = new ParserOptions;
-		$local_parser = clone $parser;
-		$t2 = $local_parser->parse ( $param, $parser->mTitle, $parserOptions, false );
-		$parser->mOutput->mHTMLtitle = $t2->GetText();
-
-		# Add subtitle
-		$t = $parser->mTitle->getPrefixedText();
-		$parser->mOutput->mSubtitle .= wfMsg('displaytitle', $t);
+	/**
+	 * Override the title of the page when viewed,
+	 * provided we've been given a title which
+	 * will normalise to the canonical title
+	 *
+	 * @param Parser $parser Parent parser
+	 * @param string $text Desired title text
+	 * @return string
+	 */
+	static function displaytitle( $parser, $text = '' ) {
+		$text = trim( Sanitizer::decodeCharReferences( $text ) );
+		$title = Title::newFromText( $text );
+		if( $title instanceof Title && $title->getFragment() == '' && $title->equals( $parser->mTitle ) )
+			$parser->mOutput->setDisplayTitle( $text );
 		return '';
 	}
 
@@ -156,7 +170,7 @@ class CoreParserFunctions {
 	static function pad( $string = '', $length = 0, $char = 0, $direction = STR_PAD_RIGHT ) {
 		$length = min( max( $length, 0 ), 500 );
 		$char = substr( $char, 0, 1 );
-		return ( $string && (int)$length > 0 && strlen( trim( (string)$char ) ) > 0 )
+		return ( $string !== '' && (int)$length > 0 && strlen( trim( (string)$char ) ) > 0 )
 				? str_pad( $string, $length, (string)$char, $direction )
 				: $string;
 	}
@@ -185,12 +199,70 @@ class CoreParserFunctions {
 			return wfMsgForContent( 'nosuchspecialpage' );
 		}
 	}
-
+	
 	public static function defaultsort( $parser, $text ) {
 		$text = trim( $text );
 		if( strlen( $text ) > 0 )
 			$parser->setDefaultSort( $text );
 		return '';
 	}
+	
+	public static function filepath( $parser, $name='', $option='' ) {
+		$file = wfFindFile( $name );
+		if( $file ) {
+			$url = $file->getFullUrl();
+			if( $option == 'nowiki' ) {
+				return "<nowiki>$url</nowiki>";
+			}
+			return $url;
+		} else {
+			return '';
+		}
+	}
+
+	/**
+	 * Parser function to extension tag adaptor
+	 */
+	public static function tagObj( $parser, $frame, $args ) {
+		$xpath = false;
+		if ( !count( $args ) ) {
+			return '';
+		}
+		$tagName = strtolower( trim( $frame->expand( array_shift( $args ) ) ) );
+
+		if ( count( $args ) ) {
+			$inner = $frame->expand( array_shift( $args ) );
+		} else {
+			$inner = null;
+		}
+
+		$stripList = $parser->getStripList();
+		if ( !in_array( $tagName, $stripList ) ) {
+			return '<span class="error">' . 
+				wfMsg( 'unknown_extension_tag', $tagName ) . 
+				'</span>';
+		}
+
+		$attributes = array();
+		foreach ( $args as $arg ) {
+			$bits = $arg->splitArg();
+			if ( strval( $bits['index'] ) === '' ) {
+				$name = $frame->expand( $bits['name'], PPFrame::STRIP_COMMENTS );
+				$value = trim( $frame->expand( $bits['value'] ) );
+				if ( preg_match( '/^(?:["\'](.+)["\']|""|\'\')$/s', $value, $m ) ) {
+					$value = isset( $m[1] ) ? $m[1] : '';
+				}
+				$attributes[$name] = $value;
+			}
+		}
+
+		$params = array(
+			'name' => $tagName,
+			'inner' => $inner,
+			'attributes' => $attributes,
+			'close' => "</$tagName>",
+		);
+		return $parser->extensionSubstitution( $params, $frame );
+	}
 }
-?>
+

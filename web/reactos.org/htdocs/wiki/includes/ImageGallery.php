@@ -17,11 +17,17 @@ class ImageGallery
 	var $mImages, $mShowBytes, $mShowFilename;
 	var $mCaption = false;
 	var $mSkin = false;
+	var $mRevisionId = 0;
 
 	/**
-	 * Is the gallery on a wiki page (i.e. not a special page)
+	 * Hide blacklisted images?
 	 */
-	var $mParsing;
+	var $mHideBadImages;
+
+	/**
+	 * Registered parser object for output callbacks
+	 */
+	var $mParser;
 
 	/**
 	 * Contextual title, used when images are being screened
@@ -31,6 +37,8 @@ class ImageGallery
 
 	private $mPerRow = 4; // How many images wide should the gallery be?
 	private $mWidths = 120, $mHeights = 120; // How wide/tall each thumbnail should be
+	
+	private $mAttribs = array();
 
 	/**
 	 * Create a new image gallery object.
@@ -39,14 +47,22 @@ class ImageGallery
 		$this->mImages = array();
 		$this->mShowBytes = true;
 		$this->mShowFilename = true;
-		$this->mParsing = false;
+		$this->mParser = false;
+		$this->mHideBadImages = false;
 	}
 
 	/**
-	 * Set the "parse" bit so we know to hide "bad" images
+	 * Register a parser object
 	 */
-	function setParsing( $val = true ) {
-		$this->mParsing = $val;
+	function setParser( $parser ) {
+		$this->mParser = $parser;
+	}
+
+	/**
+	 * Set bad image flag
+	 */
+	function setHideBadImages( $flag = true ) {
+		$this->mHideBadImages = $flag;
 	}
 
 	/**
@@ -127,22 +143,30 @@ class ImageGallery
 	/**
 	 * Add an image to the gallery.
 	 *
-	 * @param $image Image object that is added to the gallery
+	 * @param $title Title object of the image that is added to the gallery
 	 * @param $html  String: additional HTML text to be shown. The name and size of the image are always shown.
 	 */
-	function add( $image, $html='' ) {
-		$this->mImages[] = array( &$image, $html );
-		wfDebug( "ImageGallery::add " . $image->getName() . "\n" );
+	function add( $title, $html='' ) {
+		if ( $title instanceof File ) {
+			// Old calling convention
+			$title = $title->getTitle();
+		}
+		$this->mImages[] = array( $title, $html );
+		wfDebug( "ImageGallery::add " . $title->getText() . "\n" );
 	}
 
 	/**
  	* Add an image at the beginning of the gallery.
  	*
- 	* @param $image Image object that is added to the gallery
+ 	* @param $title Title object of the image that is added to the gallery
  	* @param $html  String:  Additional HTML text to be shown. The name and size of the image are always shown.
  	*/
-	function insert( $image, $html='' ) {
-		array_unshift( $this->mImages, array( &$image, $html ) );
+	function insert( $title, $html='' ) {
+		if ( $title instanceof File ) {
+			// Old calling convention
+			$title = $title->getTitle();
+		}
+		array_unshift( $this->mImages, array( &$title, $html ) );
 	}
 
 
@@ -172,6 +196,19 @@ class ImageGallery
 	function setShowFilename( $f ) {
 		$this->mShowFilename = ( $f == true);
 	}
+	
+	/**
+	 * Set arbitrary attributes to go on the HTML gallery output element.
+	 * Should be suitable for a &lt;table&gt; element.
+	 * 
+	 * Note -- if taking from user input, you should probably run through
+	 * Sanitizer::validateAttributes() first.
+	 *
+	 * @param array of HTML attribute pairs
+	 */
+	function setAttributes( $attribs ) {
+		$this->mAttribs = $attribs;
+	}
 
 	/**
 	 * Return a HTML representation of the image gallery
@@ -188,23 +225,33 @@ class ImageGallery
 
 		$sk = $this->getSkin();
 
-		$s = '<table class="gallery" cellspacing="0" cellpadding="0">';
+		$attribs = Sanitizer::mergeAttributes(
+			array(
+				'class' => 'gallery',
+				'cellspacing' => '0',
+				'cellpadding' => '0' ),
+			$this->mAttribs );
+		$s = Xml::openElement( 'table', $attribs );
 		if( $this->mCaption )
 			$s .= "\n\t<caption>{$this->mCaption}</caption>";
 
 		$params = array( 'width' => $this->mWidths, 'height' => $this->mHeights );
 		$i = 0;
 		foreach ( $this->mImages as $pair ) {
-			$img =& $pair[0];
+			$nt = $pair[0];
 			$text = $pair[1];
+			
+			# Give extensions a chance to select the file revision for us
+			$time = false;
+			wfRunHooks( 'BeforeGalleryFindFile', array( &$this, &$nt, &$time ) );
 
-			$nt = $img->getTitle();
+			$img = wfFindFile( $nt, $time );
 
-			if( $nt->getNamespace() != NS_IMAGE ) {
+			if( $nt->getNamespace() != NS_IMAGE || !$img ) {
 				# We're dealing with a non-image, spit out the name and be done with it.
 				$thumbhtml = "\n\t\t\t".'<div style="height: '.($this->mHeights*1.25+2).'px;">'
 					. htmlspecialchars( $nt->getText() ) . '</div>';
- 			} elseif( $this->mParsing && wfIsBadImage( $nt->getDBkey(), $this->getContextTitle() ) ) {
+			} elseif( $this->mHideBadImages && wfIsBadImage( $nt->getDBkey(), $this->getContextTitle() ) ) {
 				# The image is blacklisted, just show it as a text link.
 				$thumbhtml = "\n\t\t\t".'<div style="height: '.($this->mHeights*1.25+2).'px;">'
 					. $sk->makeKnownLinkObj( $nt, htmlspecialchars( $nt->getText() ) ) . '</div>';
@@ -214,15 +261,26 @@ class ImageGallery
 					. htmlspecialchars( $img->getLastError() ) . '</div>';
 			} else {
 				$vpad = floor( ( 1.25*$this->mHeights - $thumb->height ) /2 ) - 2;
-				$thumbhtml = "\n\t\t\t".'<div class="thumb" style="padding: ' . $vpad . 'px 0; width: '.($this->mWidths+30).'px;">'
-					. $sk->makeKnownLinkObj( $nt, $thumb->toHtml() ) . '</div>';
+					
+				$thumbhtml = "\n\t\t\t".
+					'<div class="thumb" style="padding: ' . $vpad . 'px 0; width: ' .($this->mWidths+30).'px;">'
+					# Auto-margin centering for block-level elements. Needed now that we have video
+					# handlers since they may emit block-level elements as opposed to simple <img> tags.
+					# ref http://css-discuss.incutio.com/?page=CenteringBlockElement
+					. '<div style="margin-left: auto; margin-right: auto; width: ' .$this->mWidths.'px;">'
+					. $thumb->toHtml( array( 'desc-link' => true ) ) . '</div></div>';
+
+				// Call parser transform hook
+				if ( $this->mParser && $img->getHandler() ) {
+					$img->getHandler()->parserTransformHook( $this->mParser, $img );
+				}
 			}
 
 			//TODO
 			//$ul = $sk->makeLink( $wgContLang->getNsText( Namespace::getUser() ) . ":{$ut}", $ut );
 
 			if( $this->mShowBytes ) {
-				if( $img->exists() ) {
+				if( $img ) {
 					$nb = wfMsgExt( 'nbytes', array( 'parsemag', 'escape'),
 						$wgLang->formatNum( $img->getSize() ) );
 				} else {
@@ -245,7 +303,7 @@ class ImageGallery
 				$s .= "\n\t<tr>";
 			}
 			$s .=
-				"\n\t\t" . '<td><div class="gallerybox" style="width: '.($this->mWidths*1.25).'px;">'
+				"\n\t\t" . '<td><div class="gallerybox" style="width: '.($this->mWidths+35).'px;">'
 					. $thumbhtml
 					. "\n\t\t\t" . '<div class="gallerytext">' . "\n"
 						. $textlink . $text . $nb
@@ -292,4 +350,5 @@ class ImageGallery
 	}
 
 } //class
-?>
+
+

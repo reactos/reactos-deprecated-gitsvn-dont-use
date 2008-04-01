@@ -24,8 +24,7 @@
 $originalDir = getcwd();
 
 require_once( 'commandLine.inc' );
-require_once( 'SpecialExport.php' );
-require_once( 'maintenance/backup.inc' );
+require_once( 'backup.inc' );
 
 /**
  * Stream wrapper around 7za filter program.
@@ -105,6 +104,13 @@ class TextPassDumper extends BackupDumper {
 	var $failures = 0;
 	var $maxFailures = 200;
 	var $failureTimeout = 5; // Seconds to sleep after db failure
+	
+	var $php = "php";
+	var $spawn = false;
+	var $spawnProc = false;
+	var $spawnWrite = false;
+	var $spawnRead = false;
+	var $spawnErr = false;
 
 	function dump() {
 		# This shouldn't happen if on console... ;)
@@ -112,7 +118,8 @@ class TextPassDumper extends BackupDumper {
 
 		# Notice messages will foul up your XML output even if they're
 		# relatively harmless.
-//		ini_set( 'display_errors', false );
+		if( ini_get( 'display_errors' ) )
+			ini_set( 'display_errors', 'stderr' );
 
 		$this->initProgress( $this->history );
 
@@ -126,6 +133,10 @@ class TextPassDumper extends BackupDumper {
 		if( WikiError::isError( $result ) ) {
 			wfDie( $result->getMessage() );
 		}
+		
+		if( $this->spawnProc ) {
+			$this->closeSpawn();
+		}
 
 		$this->report( true );
 	}
@@ -135,7 +146,8 @@ class TextPassDumper extends BackupDumper {
 		
 		switch( $opt ) {
 		case 'prefetch':
-			require_once 'maintenance/backupPrefetch.inc';
+			global $IP;
+			require_once "$IP/maintenance/backupPrefetch.inc";
 			$this->prefetch = new BaseDump( $url );
 			break;
 		case 'stub':
@@ -146,6 +158,12 @@ class TextPassDumper extends BackupDumper {
 			break;
 		case 'full':
 			$this->history = WikiExporter::FULL;
+			break;
+		case 'spawn':
+			$this->spawn = true;
+			if( $val ) {
+				$this->php = $val;
+			}
 			break;
 		}
 	}
@@ -238,19 +256,42 @@ class TextPassDumper extends BackupDumper {
 				return $text;
 			}
 		}
+		return $this->doGetText( $id );
+	}
+	
+	private function doGetText( $id ) {
+		if( $this->spawn ) {
+			return $this->getTextSpawned( $id );
+		} else {
+			return $this->getTextDbSafe( $id );
+		}
+	}
+	
+	/**
+	 * Fetch a text revision from the database, retrying in case of failure.
+	 * This may survive some transitory errors by reconnecting, but
+	 * may not survive a long-term server outage.
+	 */
+	private function getTextDbSafe( $id ) {
 		while( true ) {
 			try {
-				return $this->doGetText( $id );
+				$text = $this->getTextDb( $id );
+				$ex = new MWException("Graceful storage failure");
 			} catch (DBQueryError $ex) {
+				$text = false;
+			}
+			if( $text === false ) {
 				$this->failures++;
 				if( $this->failures > $this->maxFailures ) {
 					throw $ex;
 				} else {
 					$this->progress( "Database failure $this->failures " .
-						"of allowed $this->maxFailures! " .
+						"of allowed $this->maxFailures for revision $id! " .
 						"Pausing $this->failureTimeout seconds..." );
 					sleep( $this->failureTimeout );
 				}
+			} else {
+				return $text;
 			}
 		}
 	}
@@ -258,13 +299,121 @@ class TextPassDumper extends BackupDumper {
 	/**
 	 * May throw a database error if, say, the server dies during query.
 	 */
-	private function doGetText( $id ) {
+	private function getTextDb( $id ) {
 		$id = intval( $id );
 		$row = $this->db->selectRow( 'text',
 			array( 'old_text', 'old_flags' ),
 			array( 'old_id' => $id ),
 			'TextPassDumper::getText' );
 		$text = Revision::getRevisionText( $row );
+		if( $text === false ) {
+			return false;
+		}
+		$stripped = str_replace( "\r", "", $text );
+		$normalized = UtfNormal::cleanUp( $stripped );
+		return $normalized;
+	}
+	
+	private function getTextSpawned( $id ) {
+		wfSuppressWarnings();
+		if( !$this->spawnProc ) {
+			// First time?
+			$this->openSpawn();
+		}
+		while( true ) {
+			
+			$text = $this->getTextSpawnedOnce( $id );
+			if( !is_string( $text ) ) {
+				$this->progress("Database subprocess failed. Respawning...");
+				
+				$this->closeSpawn();
+				sleep( $this->failureTimeout );
+				$this->openSpawn();
+				
+				continue;
+			}
+			wfRestoreWarnings();
+			return $text;
+		}
+	}
+	
+	function openSpawn() {
+		global $IP, $wgDBname;
+		
+		$cmd = implode( " ",
+			array_map( 'wfEscapeShellArg',
+				array(
+					$this->php,
+					"$IP/maintenance/fetchText.php",
+					$wgDBname ) ) );
+		$spec = array(
+			0 => array( "pipe", "r" ),
+			1 => array( "pipe", "w" ),
+			2 => array( "file", "/dev/null", "a" ) );
+		$pipes = array();
+		
+		$this->progress( "Spawning database subprocess: $cmd" );
+		$this->spawnProc = proc_open( $cmd, $spec, $pipes );
+		if( !$this->spawnProc ) {
+			// shit
+			$this->progress( "Subprocess spawn failed." );
+			return false;
+		}
+		list(
+			$this->spawnWrite, // -> stdin
+			$this->spawnRead,  // <- stdout
+		) = $pipes;
+		
+		return true;
+	}
+	
+	private function closeSpawn() {
+		wfSuppressWarnings();
+		if( $this->spawnRead )
+			fclose( $this->spawnRead );
+		$this->spawnRead = false;
+		if( $this->spawnWrite )
+			fclose( $this->spawnWrite );
+		$this->spawnWrite = false;
+		if( $this->spawnErr )
+			fclose( $this->spawnErr );
+		$this->spawnErr = false;
+		if( $this->spawnProc )
+			pclose( $this->spawnProc );
+		$this->spawnProc = false;
+		wfRestoreWarnings();
+	}
+	
+	private function getTextSpawnedOnce( $id ) {
+		$ok = fwrite( $this->spawnWrite, "$id\n" );
+		//$this->progress( ">> $id" );
+		if( !$ok ) return false;
+		
+		$ok = fflush( $this->spawnWrite );
+		//$this->progress( ">> [flush]" );
+		if( !$ok ) return false;
+		
+		$len = fgets( $this->spawnRead );
+		//$this->progress( "<< " . trim( $len ) );
+		if( $len === false ) return false;
+		
+		$nbytes = intval( $len );
+		$text = "";
+		
+		// Subprocess may not send everything at once, we have to loop.
+		while( $nbytes > strlen( $text ) ) {
+			$buffer = fread( $this->spawnRead, $nbytes - strlen( $text ) );
+			if( $text === false ) break;
+			$text .= $buffer;
+		}
+		
+		$gotbytes = strlen( $text );
+		if( $gotbytes != $nbytes ) {
+			$this->progress( "Expected $nbytes bytes from database subprocess, got $gotbytes ");
+			return false;
+		}
+		
+		// Do normalization in the dump thread...
 		$stripped = str_replace( "\r", "", $text );
 		$normalized = UtfNormal::cleanUp( $stripped );
 		return $normalized;
@@ -363,8 +512,9 @@ Options:
               (Default: 100)
   --server=h  Force reading from MySQL server h
   --current   Base ETA on number of pages in database instead of all revisions
+  --spawn     Spawn a subprocess for loading text records
 END
 );
 }
 
-?>
+

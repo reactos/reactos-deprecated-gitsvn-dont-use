@@ -21,7 +21,12 @@ class ParserOptions
 	var $mTidy;                      # Ask for tidy cleanup
 	var $mInterfaceMessage;          # Which lang to call for PLURAL and GRAMMAR
 	var $mMaxIncludeSize;            # Maximum size of template expansions, in bytes
+	var $mMaxPPNodeCount;            # Maximum number of nodes touched by PPFrame::expand()
+	var $mMaxTemplateDepth;          # Maximum recursion depth for templates within templates
 	var $mRemoveComments;            # Remove HTML comments. ONLY APPLIES TO PREPROCESS OPERATIONS
+	var $mTemplateCallback;          # Callback for template fetching
+	var $mEnableLimitReport;         # Enable limit report in an HTML comment on output
+	var $mTimestamp;                 # Timestamp used for {{CURRENTDAY}} etc.
 
 	var $mUser;                      # Stored user object, just used to initialise the skin
 
@@ -36,7 +41,11 @@ class ParserOptions
 	function getTidy()                          { return $this->mTidy; }
 	function getInterfaceMessage()              { return $this->mInterfaceMessage; }
 	function getMaxIncludeSize()                { return $this->mMaxIncludeSize; }
+	function getMaxPPNodeCount()                { return $this->mMaxPPNodeCount; }
+	function getMaxTemplateDepth()              { return $this->mMaxTemplateDepth; }
 	function getRemoveComments()                { return $this->mRemoveComments; }
+	function getTemplateCallback()              { return $this->mTemplateCallback; }
+	function getEnableLimitReport()             { return $this->mEnableLimitReport; }
 
 	function getSkin() {
 		if ( !isset( $this->mSkin ) ) {
@@ -52,6 +61,13 @@ class ParserOptions
 		return $this->mDateFormat;
 	}
 
+	function getTimestamp() { 
+		if ( !isset( $this->mTimestamp ) ) {
+			$this->mTimestamp = wfTimestampNow();
+		}
+		return $this->mTimestamp; 
+	}
+
 	function setUseTeX( $x )                    { return wfSetVar( $this->mUseTeX, $x ); }
 	function setUseDynamicDates( $x )           { return wfSetVar( $this->mUseDynamicDates, $x ); }
 	function setInterwikiMagic( $x )            { return wfSetVar( $this->mInterwikiMagic, $x ); }
@@ -65,7 +81,12 @@ class ParserOptions
 	function setSkin( $x )                      { $this->mSkin = $x; }
 	function setInterfaceMessage( $x )          { return wfSetVar( $this->mInterfaceMessage, $x); }
 	function setMaxIncludeSize( $x )            { return wfSetVar( $this->mMaxIncludeSize, $x ); }
+	function setMaxPPNodeCount( $x )            { return wfSetVar( $this->mMaxPPNodeCount, $x ); }
+	function setMaxTemplateDepth( $x )          { return wfSetVar( $this->mMaxTemplateDepth, $x ); }
 	function setRemoveComments( $x )            { return wfSetVar( $this->mRemoveComments, $x ); }
+	function setTemplateCallback( $x )          { return wfSetVar( $this->mTemplateCallback, $x ); }
+	function enableLimitReport( $x = true )     { return wfSetVar( $this->mEnableLimitReport, $x ); }
+	function setTimestamp( $x )                 { return wfSetVar( $this->mTimestamp, $x ); }
 
 	function __construct( $user = null ) {
 		$this->initialiseFromUser( $user );
@@ -83,6 +104,7 @@ class ParserOptions
 	function initialiseFromUser( $userInput ) {
 		global $wgUseTeX, $wgUseDynamicDates, $wgInterwikiMagic, $wgAllowExternalImages;
 		global $wgAllowExternalImagesFrom, $wgAllowSpecialInclusion, $wgMaxArticleSize;
+		global $wgMaxPPNodeCount, $wgMaxTemplateDepth;
 		$fname = 'ParserOptions::initialiseFromUser';
 		wfProfileIn( $fname );
 		if ( !$userInput ) {
@@ -111,9 +133,13 @@ class ParserOptions
 		$this->mTidy = false;
 		$this->mInterfaceMessage = false;
 		$this->mMaxIncludeSize = $wgMaxArticleSize * 1024;
+		$this->mMaxPPNodeCount = $wgMaxPPNodeCount;
+		$this->mMaxTemplateDepth = $wgMaxTemplateDepth;
 		$this->mRemoveComments = true;
+		$this->mTemplateCallback = array( 'Parser', 'statelessFetchTemplate' );
+		$this->mEnableLimitReport = false;
 		wfProfileOut( $fname );
 	}
 }
 
-?>
+

@@ -8,16 +8,8 @@
  * constructor
  */
 function wfSpecialUserlogout() {
-	global $wgUser, $wgOut;
+	global $wgUser
 
-	if (wfRunHooks('UserLogout', array(&$wgUser))) {
-
-		$wgUser->logout();
-
-		wfRunHooks('UserLogoutComplete', array(&$wgUser));
-
-		header("Location: /roscms/?page=logout");
-	}
+	$wgUser->logout();
+	header("Location: /roscms/?page=logout");
 }
-
-?>

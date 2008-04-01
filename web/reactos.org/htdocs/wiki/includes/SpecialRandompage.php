@@ -9,56 +9,56 @@
  */
 
 /**
- * Main execution point
- * @param $par Namespace to select the page from
- */
-function wfSpecialRandompage( $par = null ) {
-	global $wgOut, $wgContLang;
-
-	$rnd = new RandomPage();
-	$rnd->setNamespace( $wgContLang->getNsIndex( $par ) );
-	$rnd->setRedirect( false );
-
-	$title = $rnd->getRandomTitle();
-
-	if( is_null( $title ) ) {
-		$wgOut->addWikiText( wfMsg( 'randompage-nopages' ) );
-		return;
-	}
-
-	$wgOut->reportTime();
-	$wgOut->redirect( $title->getFullUrl() );
-}
-
-
-/**
  * Special page to direct the user to a random page
  *
  * @addtogroup SpecialPage
  */
-class RandomPage {
+class RandomPage extends SpecialPage {
 	private $namespace = NS_MAIN;  // namespace to select pages from
-	private $redirect = false;     // select redirects instead of normal pages?
 
-	public function getNamespace ( ) {
+	function __construct( $name = 'Randompage' ){
+		parent::__construct( $name );	
+	}
+
+	public function getNamespace() {
 		return $this->namespace;
 	}
+	
 	public function setNamespace ( $ns ) {
 		if( $ns < NS_MAIN ) $ns = NS_MAIN;
 		$this->namespace = $ns;
 	}
-	public function getRedirect ( ) {
-		return $this->redirect;
+	
+	// select redirects instead of normal pages?
+	// Overriden by SpecialRandomredirect
+	public function isRedirect(){
+		return false;
 	}
-	public function setRedirect ( $redirect ) {
-		$this->redirect = $redirect;
+	
+	public function execute( $par ) {
+		global $wgOut, $wgContLang;
+
+		if ($par)
+			$this->setNamespace( $wgContLang->getNsIndex( $par ) );
+
+		$title = $this->getRandomTitle();
+
+		if( is_null( $title ) ) {
+			$this->setHeaders();
+			$wgOut->addWikiMsg( strtolower( $this->mName ) . '-nopages' );
+			return;
+		}
+
+		$query = $this->isRedirect() ? 'redirect=no' : '';
+		$wgOut->redirect( $title->getFullUrl( $query ) );
 	}
+
 
 	/**
 	 * Choose a random title.
 	 * @return Title object (or null if nothing to choose from)
 	 */
-	public function getRandomTitle ( ) {
+	public function getRandomTitle() {
 		$randstr = wfRandom();
 		$row = $this->selectRandomPageFromDB( $randstr );
 
@@ -78,7 +78,7 @@ class RandomPage {
 			return null;
 	}
 
-	private function selectRandomPageFromDB ( $randstr ) {
+	private function selectRandomPageFromDB( $randstr ) {
 		global $wgExtraRandompageSQL;
 		$fname = 'RandomPage::selectRandomPageFromDB';
 
@@ -88,7 +88,7 @@ class RandomPage {
 		$page = $dbr->tableName( 'page' );
 
 		$ns = (int) $this->namespace;
-		$redirect = $this->redirect ? 1 : 0;
+		$redirect = $this->isRedirect() ? 1 : 0;
 
 		$extra = $wgExtraRandompageSQL ? "AND ($wgExtraRandompageSQL)" : "";
 		$sql = "SELECT page_title
@@ -105,4 +105,4 @@ class RandomPage {
 	}
 }
 
-?>
+

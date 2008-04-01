@@ -36,6 +36,22 @@ class DBObject {
 };
 
 /**
+ * Utility class
+ * @addtogroup Database
+ *
+ * This allows us to distinguish a blob from a normal string and an array of strings
+ */
+class Blob {
+	private $mData;
+	function __construct($data) {
+		$this->mData = $data;
+	}
+	function fetch() {
+		return $this->mData;
+	}
+};
+
+/**
  * Utility class.
  * @addtogroup Database
  */
@@ -214,7 +230,7 @@ border=\"0\" ALT=\"Google\"></A>
 
 			$cache = new HTMLFileCache( $t );
 			if( $cache->isFileCached() ) {
-				// FIXME: $msg is not defined on the next line.
+				// @todo, FIXME: $msg is not defined on the next line.
 				$msg = '<p style="color: red"><b>'.$msg."<br />\n" .
 					$cachederror . "</b></p>\n";
 
@@ -441,10 +457,25 @@ class Database {
 	}
 
 	/**
+	 * Returns true if this database does an implicit order by when the column has an index
+	 * For example: SELECT page_title FROM page LIMIT 1
+	 */
+	function implicitOrderby() {
+		return true;
+	}
+
+	/**
 	 * Returns true if this database can do a native search on IP columns
 	 * e.g. this works as expected: .. WHERE rc_ip = '127.42.12.102/32';
 	 */
 	function searchableIPs() {
+		return false;
+	}
+
+	/**
+	 * Returns true if this database can use functional indexes
+	 */
+	function functionalIndexes() {
 		return false;
 	}
 
@@ -582,7 +613,7 @@ class Database {
 				@/**/$this->mConn = mysql_connect( $server, $user, $password, true );
 			}
 			if ($this->mConn === false) {
-				$iplus = $i + 1;
+				#$iplus = $i + 1;
 				#wfLogDBError("Connect loop error $iplus of $max ($server): " . mysql_errno() . " - " . mysql_error()."\n"); 
 			}
 		}
@@ -678,9 +709,12 @@ class Database {
 	 * Usually aborts on failure.  If errors are explicitly ignored, returns success.
 	 *
 	 * @param  $sql        String: SQL query
-	 * @param  $fname      String: Name of the calling function, for profiling/SHOW PROCESSLIST comment (you can use __METHOD__ or add some extra info)
-	 * @param  $tempIgnore Bool:   Whether to avoid throwing an exception on errors... maybe best to catch the exception instead?
-	 * @return Result object to feed to fetchObject, fetchRow, ...; or false on failure if $tempIgnore set
+	 * @param  $fname      String: Name of the calling function, for profiling/SHOW PROCESSLIST 
+	 *     comment (you can use __METHOD__ or add some extra info)
+	 * @param  $tempIgnore Bool:   Whether to avoid throwing an exception on errors... 
+	 *     maybe best to catch the exception instead?
+	 * @return true for a successful write query, ResultWrapper object for a successful read query, 
+	 *     or false on failure if $tempIgnore set
 	 * @throws DBQueryError Thrown when the database returns an error of any kind
 	 */
 	public function query( $sql, $fname = '', $tempIgnore = false ) {
@@ -711,8 +745,8 @@ class Database {
 			global $wgUser;
 			if ( is_object( $wgUser ) && !($wgUser instanceof StubObject) ) {
 				$userName = $wgUser->getName();
-				if ( strlen( $userName ) > 15 ) {
-					$userName = substr( $userName, 0, 15 ) . '...';
+				if ( mb_strlen( $userName ) > 15 ) {
+					$userName = mb_substr( $userName, 0, 15 ) . '...';
 				}
 				$userName = str_replace( '/', '', $userName );
 			} else {
@@ -725,9 +759,13 @@ class Database {
 
 		# If DBO_TRX is set, start a transaction
 		if ( ( $this->mFlags & DBO_TRX ) && !$this->trxLevel() && 
-			$sql != 'BEGIN' && $sql != 'COMMIT' && $sql != 'ROLLBACK' 
-		) {
-			$this->begin();
+			$sql != 'BEGIN' && $sql != 'COMMIT' && $sql != 'ROLLBACK') {
+			// avoid establishing transactions for SHOW and SET statements too -
+			// that would delay transaction initializations to once connection 
+			// is really used by application
+			$sqlstart = substr($sql,0,10); // very much worth it, benchmark certified(tm)
+			if (strpos($sqlstart,"SHOW ")!==0 and strpos($sqlstart,"SET ")!==0) 
+				$this->begin(); 
 		}
 
 		if ( $this->debug() ) {
@@ -765,7 +803,7 @@ class Database {
 			wfProfileOut( $queryProf );
 			wfProfileOut( $totalProf );
 		}
-		return $ret;
+		return $this->resultObject( $ret );
 	}
 
 	/**
@@ -909,6 +947,9 @@ class Database {
 	 * Free a result object
 	 */
 	function freeResult( $res ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
 		if ( !@/**/mysql_free_result( $res ) ) {
 			throw new DBUnexpectedError( $this, "Unable to free MySQL result" );
 		}
@@ -924,6 +965,9 @@ class Database {
 	 * @throws DBUnexpectedError Thrown if the database returns an error
 	 */
 	function fetchObject( $res ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
 		@/**/$row = mysql_fetch_object( $res );
 		if( $this->lastErrno() ) {
 			throw new DBUnexpectedError( $this, 'Error in fetchObject(): ' . htmlspecialchars( $this->lastError() ) );
@@ -940,6 +984,9 @@ class Database {
 	 * @throws DBUnexpectedError Thrown if the database returns an error
 	 */
  	function fetchRow( $res ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
 		@/**/$row = mysql_fetch_array( $res );
 		if ( $this->lastErrno() ) {
 			throw new DBUnexpectedError( $this, 'Error in fetchRow(): ' . htmlspecialchars( $this->lastError() ) );
@@ -951,6 +998,9 @@ class Database {
 	 * Get the number of rows in a result object
 	 */
 	function numRows( $res ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
 		@/**/$n = mysql_num_rows( $res );
 		if( $this->lastErrno() ) {
 			throw new DBUnexpectedError( $this, 'Error in numRows(): ' . htmlspecialchars( $this->lastError() ) );
@@ -962,14 +1012,24 @@ class Database {
 	 * Get the number of fields in a result object
 	 * See documentation for mysql_num_fields()
 	 */
-	function numFields( $res ) { return mysql_num_fields( $res ); }
+	function numFields( $res ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
+		return mysql_num_fields( $res );
+	}
 
 	/**
 	 * Get a field name in a result object
 	 * See documentation for mysql_field_name():
 	 * http://www.php.net/mysql_field_name
 	 */
-	function fieldName( $res, $n ) { return mysql_field_name( $res, $n ); }
+	function fieldName( $res, $n ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
+		return mysql_field_name( $res, $n );
+	}
 
 	/**
 	 * Get the inserted value of an auto-increment row
@@ -987,7 +1047,12 @@ class Database {
 	 * Change the position of the cursor in a result object
 	 * See mysql_data_seek()
 	 */
-	function dataSeek( $res, $row ) { return mysql_data_seek( $res, $row ); }
+	function dataSeek( $res, $row ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
+		return mysql_data_seek( $res, $row );
+	}
 
 	/**
 	 * Get the last error number
@@ -1091,6 +1156,7 @@ class Database {
 		}
 
 		if ( isset( $options['GROUP BY'] ) ) $preLimitTail .= " GROUP BY {$options['GROUP BY']}";
+		if ( isset( $options['HAVING'] ) ) $preLimitTail .= " HAVING {$options['HAVING']}";
 		if ( isset( $options['ORDER BY'] ) ) $preLimitTail .= " ORDER BY {$options['ORDER BY']}";
 		
 		//if (isset($options['LIMIT'])) {
@@ -1101,7 +1167,7 @@ class Database {
 
 		if ( isset( $noKeyOptions['FOR UPDATE'] ) ) $postLimitTail .= ' FOR UPDATE';
 		if ( isset( $noKeyOptions['LOCK IN SHARE MODE'] ) ) $postLimitTail .= ' LOCK IN SHARE MODE';
-		if ( isset( $noKeyOptions['DISTINCT'] ) && isset( $noKeyOptions['DISTINCTROW'] ) ) $startOpts .= 'DISTINCT';
+		if ( isset( $noKeyOptions['DISTINCT'] ) || isset( $noKeyOptions['DISTINCTROW'] ) ) $startOpts .= 'DISTINCT';
 
 		# Various MySQL extensions
 		if ( isset( $noKeyOptions['STRAIGHT_JOIN'] ) ) $startOpts .= ' /*! STRAIGHT_JOIN */';
@@ -1175,7 +1241,6 @@ class Database {
 		if (isset($options['EXPLAIN'])) {
 			$sql = 'EXPLAIN ' . $sql;
 		}
-
 		return $this->query( $sql, $fname );
 	}
 
@@ -1352,9 +1417,9 @@ class Database {
 	function fieldInfo( $table, $field ) {
 		$table = $this->tableName( $table );
 		$res = $this->query( "SELECT * FROM $table LIMIT 1" );
-		$n = mysql_num_fields( $res );
+		$n = mysql_num_fields( $res->result );
 		for( $i = 0; $i < $n; $i++ ) {
-			$meta = mysql_fetch_field( $res, $i );
+			$meta = mysql_fetch_field( $res->result, $i );
 			if( $field == $meta->name ) {
 				return new MySQLField($meta);
 			}
@@ -1366,6 +1431,9 @@ class Database {
 	 * mysql_field_type() wrapper
 	 */
 	function fieldType( $res, $index ) {
+		if ( $res instanceof ResultWrapper ) {
+			$res = $res->result;
+		}
 		return mysql_field_type( $res, $index );
 	}
 
@@ -1455,6 +1523,7 @@ class Database {
 	 *                       (for the log)
 	 * @param array  $options An array of UPDATE options, can be one or
 	 *                        more of IGNORE, LOW_PRIORITY
+	 * @return bool
 	 */
 	function update( $table, $values, $conds, $fname = 'Database::update', $options = array() ) {
 		$table = $this->tableName( $table );
@@ -1463,7 +1532,7 @@ class Database {
 		if ( $conds != '*' ) {
 			$sql .= " WHERE " . $this->makeList( $conds, LIST_AND );
 		}
-		$this->query( $sql, $fname );
+		return $this->query( $sql, $fname );
 	}
 
 	/**
@@ -1498,8 +1567,23 @@ class Database {
 				$list .= "($value)";
 			} elseif ( ($mode == LIST_SET) && is_numeric( $field ) ) {
 				$list .= "$value";
-			} elseif ( ($mode == LIST_AND || $mode == LIST_OR) && is_array ($value) ) {
-				$list .= $field." IN (".$this->makeList($value).") ";
+			} elseif ( ($mode == LIST_AND || $mode == LIST_OR) && is_array($value) ) {
+				if( count( $value ) == 0 ) {
+					// Empty input... or should this throw an error?
+					$list .= '0';
+				} elseif( count( $value ) == 1 ) {
+					// Special-case single values, as IN isn't terribly efficient
+					$list .= $field." = ".$this->addQuotes( $value[0] );
+				} else {
+					$list .= $field." IN (".$this->makeList($value).") ";
+				}
+			} elseif( is_null($value) ) {
+				if ( $mode == LIST_AND || $mode == LIST_OR ) {
+					$list .= "$field IS ";
+				} elseif ( $mode == LIST_SET ) {
+					$list .= "$field = ";
+				}
+				$list .= 'NULL';
 			} else {
 				if ( $mode == LIST_AND || $mode == LIST_OR || $mode == LIST_SET ) {
 					$list .= "$field = ";
@@ -1534,7 +1618,7 @@ class Database {
 		global $wgSharedDB;
 		# Skip quoted literals
 		if ( $name{0} != '`' ) {
-			if ( $this->mTablePrefix !== '' &&  strpos( '.', $name ) === false ) {
+			if ( $this->mTablePrefix !== '' &&  strpos( $name, '.' ) === false ) {
 				$name = "{$this->mTablePrefix}$name";
 			}
 			if ( isset( $wgSharedDB ) && "{$this->mTablePrefix}user" == $name ) {
@@ -1570,7 +1654,7 @@ class Database {
 	 * This is handy when you need to construct SQL for joins
 	 *
 	 * Example:
-	 * list( $user, $watchlist ) = $dbr->tableNames('user','watchlist');
+	 * list( $user, $watchlist ) = $dbr->tableNamesN('user','watchlist');
 	 * $sql = "SELECT wl_namespace,wl_title FROM $watchlist,$user
 	 *         WHERE wl_user=user_id AND wl_user=$nameWithQuotes";
 	 */
@@ -1955,10 +2039,11 @@ class Database {
 	}
 
 	/**
-	 * Rollback a transaction
+	 * Rollback a transaction.
+	 * No-op on non-transactional databases.
 	 */
 	function rollback( $fname = 'Database::rollback' ) {
-		$this->query( 'ROLLBACK', $fname );
+		$this->query( 'ROLLBACK', $fname, true );
 		$this->mTrxLevel = 0;
 	}
 
@@ -2001,7 +2086,12 @@ class Database {
 	 */
 	function resultObject( $result ) {
 		if( empty( $result ) ) {
-			return NULL;
+			return false;
+		} elseif ( $result instanceof ResultWrapper ) {
+			return $result;
+		} elseif ( $result === true ) {
+			// Successful write query
+			return $result;
 		} else {
 			return new ResultWrapper( $this, $result );
 		}
@@ -2046,8 +2136,7 @@ class Database {
 	 */
 	function getLag() {
 		$res = $this->query( 'SHOW PROCESSLIST' );
-		# Find slave SQL thread. Assumed to be the second one running, which is a bit
-		# dubious, but unfortunately there's no easy rigorous way
+		# Find slave SQL thread
 		while ( $row = $this->fetchObject( $res ) ) {
 			/* This should work for most situations - when default db 
 			 * for thread is not specified, it had no events executed, 
@@ -2176,7 +2265,7 @@ class Database {
 				$cmd = $this->replaceVars( $cmd );
 				$res = $this->query( $cmd, __METHOD__, true );
 				if ( $resultCallback ) {
-					call_user_func( $resultCallback, $this->resultObject( $res ) );
+					call_user_func( $resultCallback, $res );
 				}
 
 				if ( false === $res ) {
@@ -2226,6 +2315,13 @@ class Database {
 		return $this->tableName( $matches[1] );
 	}
 
+	/*
+	 * Build a concatenation list to feed into a SQL query
+	*/
+	function buildConcat( $stringList ) {
+		return 'CONCAT(' . implode( ',', $stringList ) . ')';
+	}
+
 }
 
 /**
@@ -2244,40 +2340,55 @@ class DatabaseMysql extends Database {
  * Result wrapper for grabbing data queried by someone else
  * @addtogroup Database
  */
-class ResultWrapper {
-	var $db, $result;
+class ResultWrapper implements Iterator {
+	var $db, $result, $pos = 0, $currentRow = null;
 
 	/**
-	 * @todo document
+	 * Create a new result object from a result resource and a Database object
 	 */
-	function ResultWrapper( &$database, $result ) {
-		$this->db =& $database;
-		$this->result =& $result;
+	function ResultWrapper( $database, $result ) {
+		$this->db = $database;
+		if ( $result instanceof ResultWrapper ) {
+			$this->result = $result->result;
+		} else {
+			$this->result = $result;
+		}
 	}
 
 	/**
-	 * @todo document
+	 * Get the number of rows in a result object
 	 */
 	function numRows() {
 		return $this->db->numRows( $this->result );
 	}
 
 	/**
-	 * @todo document
+	 * Fetch the next row from the given result object, in object form.
+	 * Fields can be retrieved with $row->fieldname, with fields acting like
+	 * member variables.
+	 *
+	 * @param $res SQL result object as returned from Database::query(), etc.
+	 * @return MySQL row object
+	 * @throws DBUnexpectedError Thrown if the database returns an error
 	 */
 	function fetchObject() {
 		return $this->db->fetchObject( $this->result );
 	}
 
 	/**
-	 * @todo document
+	 * Fetch the next row from the given result object, in associative array
+	 * form.  Fields are retrieved with $row['fieldname'].
+	 *
+	 * @param $res SQL result object as returned from Database::query(), etc.
+	 * @return MySQL row object
+	 * @throws DBUnexpectedError Thrown if the database returns an error
 	 */
 	function fetchRow() {
 		return $this->db->fetchRow( $this->result );
 	}
 
 	/**
-	 * @todo document
+	 * Free a result object
 	 */
 	function free() {
 		$this->db->freeResult( $this->result );
@@ -2285,16 +2396,48 @@ class ResultWrapper {
 		unset( $this->db );
 	}
 
+	/**
+	 * Change the position of the cursor in a result object
+	 * See mysql_data_seek()
+	 */
 	function seek( $row ) {
 		$this->db->dataSeek( $this->result, $row );
 	}
-	
+
+	/*********************
+	 * Iterator functions
+	 * Note that using these in combination with the non-iterator functions
+	 * above may cause rows to be skipped or repeated.
+	 */
+
 	function rewind() {
 		if ($this->numRows()) {
 			$this->db->dataSeek($this->result, 0);
 		}
+		$this->pos = 0;
+		$this->currentRow = null;
 	}
 
+	function current() {
+		if ( is_null( $this->currentRow ) ) {
+			$this->next();
+		}
+		return $this->currentRow;
+	}
+
+	function key() {
+		return $this->pos;
+	}
+
+	function next() {
+		$this->pos++;
+		$this->currentRow = $this->fetchObject();
+		return $this->currentRow;
+	}
+
+	function valid() {
+		return $this->current() !== false;
+	}
 }
 
-?>
+

@@ -34,6 +34,7 @@ if ( !isset( $optionsWithArgs ) ) {
 	$optionsWithArgs = array();
 }
 $optionsWithArgs[] = 'conf'; # For specifying the location of LocalSettings.php
+$optionsWithArgs[] = 'aconf'; # As above for AdminSettings.php
 
 $self = array_shift( $argv );
 $IP = realpath( dirname( __FILE__ ) . '/..' );
@@ -179,11 +180,14 @@ if ( file_exists( '/home/wikipedia/common/langlist' ) ) {
 	#require_once( $IP.'/includes/ProfilerStub.php' );
 	require_once( $IP.'/includes/Defines.php' );
 	require_once( $settingsFile );
-	ini_set( 'include_path', ".$sep$IP$sep$IP/includes$sep$IP/languages$sep$IP/maintenance" );
+	/* ini_set( 'include_path', ".$sep$IP$sep$IP/includes$sep$IP/languages$sep$IP/maintenance" ); */
 
-	if ( is_readable( $IP.'/AdminSettings.php' ) ) {
-		require_once( $IP.'/AdminSettings.php' );
-	}
+	$adminSettings = isset( $options['aconf'] )
+		? $options['aconf']
+		: "{$IP}/AdminSettings.php";
+	if( is_readable( $adminSettings ) )
+		require_once( $adminSettings );
+
 }
 
 # Turn off output buffering again, it might have been turned on in the settings files
@@ -212,10 +216,24 @@ if ( defined( 'MW_CMDLINE_CALLBACK' ) ) {
 
 ini_set( 'memory_limit', -1 );
 
+if( version_compare( phpversion(), '5.2.4' ) >= 0 ) {
+	// Send PHP warnings and errors to stderr instead of stdout.
+	// This aids in diagnosing problems, while keeping messages
+	// out of redirected output.
+	if( ini_get( 'display_errors' ) ) {
+		ini_set( 'display_errors', 'stderr' );
+	}
+	
+	// Don't touch the setting on earlier versions of PHP,
+	// as setting it would disable output if you'd wanted it.
+	
+	// Note that exceptions are also sent to stderr when
+	// command-line mode is on, regardless of PHP version.
+}
 $wgShowSQLErrors = true;
 
-require_once( 'Setup.php' );
-require_once( 'install-utils.inc' );
+require_once( "$IP/includes/Setup.php" );
+require_once( "$IP/install-utils.inc" );
 $wgTitle = null; # Much much faster startup than creating a title object
 set_time_limit(0);
 

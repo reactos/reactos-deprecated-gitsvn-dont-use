@@ -8,9 +8,11 @@
  *
  */
 function wfSpecialSpecialpages() {
-	global $wgOut, $wgUser;
+	global $wgOut, $wgUser, $wgMessageCache;
 
-	$wgOut->setRobotpolicy( 'index,nofollow' );
+	$wgMessageCache->loadAllMessages();
+
+	$wgOut->setRobotpolicy( 'noindex,nofollow' );  # Is this really needed?
 	$sk = $wgUser->getSkin();
 
 	/** Pages available to all */
@@ -56,4 +58,4 @@ function wfSpecialSpecialpages_gen($pages,$heading,$sk) {
 	$wgOut->addHTML( "</ul>\n" );
 }
 
-?>
+

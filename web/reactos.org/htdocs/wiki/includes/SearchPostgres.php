@@ -37,11 +37,24 @@ class SearchPostgres extends SearchEngine {
 	 * @access public
 	 */
 	function searchTitle( $term ) {
-		$resultSet = $this->db->resultObject( $this->db->query( $this->searchQuery( $term , 'titlevector', 'page_title' )));
+		$q = $this->searchQuery( $term , 'titlevector', 'page_title' );
+		$olderror = error_reporting(E_ERROR);
+		$resultSet = $this->db->resultObject( $this->db->query( $q, 'SearchPostgres', true ) );
+		error_reporting($olderror);
+		if (!$resultSet) {
+			// Needed for "Query requires full scan, GIN doesn't support it"
+			return new SearchResultTooMany();
+		}
 		return new PostgresSearchResultSet( $resultSet, $this->searchTerms );
 	}
 	function searchText( $term ) {
-		$resultSet = $this->db->resultObject( $this->db->query( $this->searchQuery( $term, 'textvector', 'old_text' )));
+		$q = $this->searchQuery( $term, 'textvector', 'old_text' );
+		$olderror = error_reporting(E_ERROR);
+		$resultSet = $this->db->resultObject( $this->db->query( $q, 'SearchPostgres', true ) );
+		error_reporting($olderror);
+		if (!$resultSet) {
+			return new SearchResultTooMany();
+		}
 		return new PostgresSearchResultSet( $resultSet, $this->searchTerms );
 	}
 
@@ -64,6 +77,7 @@ class SearchPostgres extends SearchEngine {
 		$term = preg_replace('/:/', ' ', $term);
 
 		$searchstring = '';
+		$m = array();
 		if( preg_match_all('/([-!]?)(\S+)\s*/', $term, $m, PREG_SET_ORDER ) ) {
 			foreach( $m as $terms ) {
 				if (strlen($terms[1])) {
@@ -121,11 +135,12 @@ class SearchPostgres extends SearchEngine {
 			$this->db->getServerVersion();
 			$wgDBversion = $this->db->numeric_version;
 		}
+		$prefix = $wgDBversion < 8.3 ? "'default'," : '';
 
 		$searchstring = $this->parseQuery( $term );
 
 		## We need a separate query here so gin does not complain about empty searches
-		$SQL = "SELECT to_tsquery('default',$searchstring)";
+		$SQL = "SELECT to_tsquery($prefix $searchstring)";
 		$res = $this->db->doQuery($SQL);
 		if (!$res) {
 			## TODO: Better output (example to catch: one 'two)
@@ -147,15 +162,16 @@ class SearchPostgres extends SearchEngine {
 			}
 
 			$rankscore = $wgDBversion > 8.2 ? 5 : 1;
+			$rank = $wgDBversion < 8.3 ? 'rank' : 'ts_rank';
 			$query = "SELECT page_id, page_namespace, page_title, ".
-			"rank($fulltext, to_tsquery('default',$searchstring), $rankscore) AS score ".
+			"$rank($fulltext, to_tsquery($prefix $searchstring), $rankscore) AS score ".
 			"FROM page p, revision r, pagecontent c WHERE p.page_latest = r.rev_id " .
-			"AND r.rev_text_id = c.old_id AND $fulltext @@ to_tsquery('default',$searchstring)";
+			"AND r.rev_text_id = c.old_id AND $fulltext @@ to_tsquery($prefix $searchstring)";
 		}
 
 		## Redirects
 		if (! $this->showRedirects)
-			$query .= ' AND page_is_redirect = 0'; ## IS FALSE
+			$query .= ' AND page_is_redirect = 0';
 
 		## Namespaces - defaults to 0
 		if ( count($this->namespaces) < 1)
@@ -232,4 +248,4 @@ class PostgresSearchResultSet extends SearchResultSet {
 }
 
 
-?>
+

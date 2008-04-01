@@ -41,6 +41,7 @@ class FeedItem {
 
 	/**#@+
 	 * @todo document
+	 * @param $Url URL uniquely designating the item.
 	 */
 	function __construct( $Title, $Description, $Url, $Date = '', $Author = '', $Comments = '' ) {
 		$this->Title = $Title;
@@ -145,12 +146,13 @@ class ChannelFeed extends FeedItem {
 	 * @private
 	 */
 	function outXmlHeader() {
-		global $wgServer, $wgStylePath, $wgStyleVersion;
+		global $wgStylePath, $wgStyleVersion;
 
 		$this->httpHeaders();
 		echo '<?xml version="1.0" encoding="utf-8"?>' . "\n";
 		echo '<?xml-stylesheet type="text/css" href="' .
-			htmlspecialchars( "$wgServer$wgStylePath/common/feed.css?$wgStyleVersion" ) . '"?' . ">\n";
+			htmlspecialchars( wfExpandUrl( "$wgStylePath/common/feed.css?$wgStyleVersion" ) ) .
+			'"?' . ">\n";
 	}
 }
 

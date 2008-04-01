@@ -95,6 +95,7 @@ class ParserTest {
 		} else {
 			$this->recorder = new TestRecorder( $this->term );
 		}
+		$this->keepUploads = isset( $options['keep-uploads'] );
 
 		$this->hooks = array();
 		$this->functionHooks = array();
@@ -256,6 +257,7 @@ class ParserTest {
 	 * @return bool
 	 */
 	private function runTest( $desc, $input, $result, $opts ) {
+		global $wgParserConf;
 		if( $this->showProgress ) {
 			$this->showTesting( $desc );
 		}
@@ -280,12 +282,14 @@ class ParserTest {
 
 		$noxml = (bool)preg_match( '~\\b noxml \\b~x', $opts );
 
-		$parser = new Parser();
+		$class = $wgParserConf['class'];
+		$parser = new $class( $wgParserConf );
 		foreach( $this->hooks as $tag => $callback ) {
 			$parser->setHook( $tag, $callback );
 		}
-		foreach( $this->functionHooks as $tag => $callback ) {
-			$parser->setFunctionHook( $tag, $callback );
+		foreach( $this->functionHooks as $tag => $bits ) {
+			list( $callback, $flags ) = $bits;
+			$parser->setFunctionHook( $tag, $callback, $flags );
 		}
 		wfRunHooks( 'ParserTestParser', array( &$parser ) );
 
@@ -296,11 +300,11 @@ class ParserTest {
 			$out = $parser->preSaveTransform( $input, $title, $user, $options );
 		} elseif (preg_match('/\\bmsg\\b/i', $opts)) {
 			$out = $parser->transformMsg( $input, $options );
-		} elseif( preg_match( '/\\bsection=(\d+)\b/i', $opts, $matches ) ) {
-			$section = intval( $matches[1] );
+		} elseif( preg_match( '/\\bsection=([\w-]+)\b/i', $opts, $matches ) ) {
+			$section = $matches[1];
 			$out = $parser->getSection( $input, $section );
-		} elseif( preg_match( '/\\breplace=(\d+),"(.*?)"/i', $opts, $matches ) ) {
-			$section = intval( $matches[1] );
+		} elseif( preg_match( '/\\breplace=([\w-]+),"(.*?)"/i', $opts, $matches ) ) {
+			$section = $matches[1];
 			$replace = $matches[2];
 			$out = $parser->replaceSection( $input, $section, $replace );
 		} else {
@@ -327,6 +331,22 @@ class ParserTest {
 		}
 	}
 
+
+	/**
+	 * Use a regex to find out the value of an option
+	 * @param $regex A regex, the first group will be the value returned
+	 * @param $opts Options line to look in
+	 * @param $defaults Default value returned if the regex does not match
+	 */
+	private static function getOptionValue( $regex, $opts, $default ) {
+		$m = array();
+		if( preg_match( $regex, $opts, $m ) ) {
+			return $m[1];
+		} else {
+			return $default;
+		}
+	}
+
 	/**
 	 * Set up the global variables for a consistent environment for each test.
 	 * Ideally this should replace the global configuration entirely.
@@ -342,19 +362,13 @@ class ParserTest {
 			$this->uploadDir = $this->setupUploadDir();
 		}
 
-		$m = array();
-		if( preg_match( '/language=([a-z]+(?:_[a-z]+)?)/', $opts, $m ) ) {
-			$lang = $m[1];
-		} else {
-			$lang = 'en';
-		}
-
-		if( preg_match( '/variant=([a-z]+(?:-[a-z]+)?)/', $opts, $m ) ) {
-			$variant = $m[1];
-		} else {
-			$variant = false;
-		}
-
+		# Find out values for some special options.
+		$lang =
+			self::getOptionValue( '/language=([a-z]+(?:_[a-z]+)?)/', $opts, 'en' );
+		$variant =
+			self::getOptionValue( '/variant=([a-z]+(?:-[a-z]+)?)/', $opts, false );
+		$maxtoclevel =
+			self::getOptionValue( '/wgMaxTocLevel=(\d+)/', $opts, 999 );
 
 		$settings = array(
 			'wgServer' => 'http://localhost',
@@ -362,8 +376,15 @@ class ParserTest {
 			'wgScriptPath' => '/',
 			'wgArticlePath' => '/wiki/$1',
 			'wgActionPaths' => array(),
-			'wgUploadPath' => 'http://example.com/images',
-			'wgUploadDirectory' => $this->uploadDir,
+			'wgLocalFileRepo' => array(
+				'class' => 'LocalRepo',
+				'name' => 'local',
+				'directory' => $this->uploadDir,
+				'url' => 'http://example.com/images',
+				'hashLevels' => 2,
+				'transformVia404' => false,
+			),
+			'wgEnableUploads' => true,
 			'wgStyleSheetPath' => '/skins',
 			'wgSitename' => 'MediaWiki',
 			'wgServerName' => 'Britney Spears',
@@ -374,7 +395,7 @@ class ParserTest {
 			'wgLang' => null,
 			'wgContLang' => null,
 			'wgNamespacesWithSubpages' => array( 0 => preg_match('/\\bsubpage\\b/i', $opts)),
-			'wgMaxTocLevel' => 999,
+			'wgMaxTocLevel' => $maxtoclevel,
 			'wgCapitalLinks' => true,
 			'wgNoFollowLinks' => true,
 			'wgThumbnailScriptPath' => false,
@@ -407,17 +428,18 @@ class ParserTest {
 	 * Some of these probably aren't necessary.
 	 */
 	private function listTables() {
-		$tables = array('user', 'page', 'page_restrictions', 'revision', 'text',
-			'pagelinks', 'imagelinks', 'categorylinks',
-			'templatelinks', 'externallinks', 'langlinks',
-			'site_stats', 'hitcounter',
-			'ipblocks', 'image', 'oldimage',
-			'recentchanges',
-			'watchlist', 'math', 'searchindex',
-			'interwiki', 'querycache',
-			'objectcache', 'job', 'redirect',
-			'querycachetwo'
+		global $wgDBtype;
+		$tables = array('user', 'page', 'page_restrictions',
+			'protected_titles', 'revision', 'text', 'pagelinks', 'imagelinks',
+			'categorylinks', 'templatelinks', 'externallinks', 'langlinks',
+			'site_stats', 'hitcounter',	'ipblocks', 'image', 'oldimage',
+			'recentchanges', 'watchlist', 'math', 'interwiki',
+			'querycache', 'objectcache', 'job', 'redirect', 'querycachetwo',
+			'archive', 'user_groups'
 		);
+
+		if ($wgDBtype === 'mysql') 
+			array_push( $tables, 'searchindex' );
 		
 		// Allow extensions to add to the list of tables to duplicate;
 		// may be necessary if they hook into page save or other code
@@ -531,20 +553,20 @@ class ParserTest {
 	 */
 	private function setupUploadDir() {
 		global $IP;
+		if ( $this->keepUploads ) {
+			$dir = wfTempDir() . '/mwParser-images';
+			if ( is_dir( $dir ) ) {
+				return $dir;
+			}
+		} else {
+			$dir = wfTempDir() . "/mwParser-" . mt_rand() . "-images";
+		}
 
-		$dir = wfTempDir() . "/mwParser-" . mt_rand() . "-images";
+		wfDebug( "Creating upload directory $dir\n" );
 		mkdir( $dir );
 		mkdir( $dir . '/3' );
 		mkdir( $dir . '/3/3a' );
-
-		$img = "$IP/skins/monobook/headbg.jpg";
-		$h = fopen($img, 'r');
-		$c = fread($h, filesize($img));
-		fclose($h);
-
-		$f = fopen( $dir . '/3/3a/Foobar.jpg', 'wb' );
-		fwrite( $f, $c );
-		fclose( $f );
+		copy( "$IP/skins/monobook/headbg.jpg", "$dir/3/3a/Foobar.jpg" );
 		return $dir;
 	}
 
@@ -553,6 +575,7 @@ class ParserTest {
 	 * after each test runs.
 	 */
 	private function teardownGlobals() {
+		RepoGroup::destroySingleton();
 		foreach( $this->savedGlobals as $var => $val ) {
 			$GLOBALS[$var] = $val;
 		}
@@ -566,6 +589,10 @@ class ParserTest {
 	 * Remove the dummy uploads directory
 	 */
 	private function teardownUploadDir( $dir ) {
+		if ( $this->keepUploads ) {
+			return;
+		}
+
 		// delete the files first, then the dirs.
 		self::deleteFiles(
 			array (
@@ -593,7 +620,7 @@ class ParserTest {
 	}
 
 	/**
-	 * @desc delete the specified files, if they exist.
+	 * Delete the specified files, if they exist.
 	 * @param array $files full paths to files to delete.
 	 */
 	private static function deleteFiles( $files ) {
@@ -605,7 +632,7 @@ class ParserTest {
 	}
 
 	/**
-	 * @desc delete the specified directories, if they exist. Must be empty.
+	 * Delete the specified directories, if they exist. Must be empty.
 	 * @param array $dirs full paths to directories to delete.
 	 */
 	private static function deleteDirs( $dirs ) {
@@ -930,13 +957,17 @@ class DbTestRecorder extends TestRecorder  {
 	 * and all that fun stuff
 	 */
 	function start() {
+		global $wgDBtype;
 		parent::start();
 
 		$this->db->begin();
 
 		if( ! $this->db->tableExists( 'testrun' ) or ! $this->db->tableExists( 'testitem') ) {
 			print "WARNING> `testrun` table not found in database. Trying to create table.\n";
-			dbsource( 'testRunner.sql',  $this->db );
+            if ($wgDBtype === 'postgres')
+				dbsource( dirname(__FILE__) . '/testRunner.postgres.sql',  $this->db );
+			else
+				dbsource( dirname(__FILE__) . '/testRunner.sql',  $this->db );
 			echo "OK, resuming.\n";
 		}
 
@@ -952,7 +983,10 @@ class DbTestRecorder extends TestRecorder  {
 				'tr_uname'       => php_uname()
 			),
 			__METHOD__ );
-		$this->curRun = $this->db->insertId();
+			if ($wgDBtype === 'postgres')
+				$this->curRun = $this->db->currentSequenceValue('testrun_id_seq');
+			else
+				$this->curRun = $this->db->insertId();
 	}
 
 	/**

@@ -25,6 +25,7 @@ $wgQueryPages = array(
 	array( 'MostcategoriesPage',            'Mostcategories'                ),
 	array( 'MostimagesPage',                'Mostimages'                    ),
 	array( 'MostlinkedCategoriesPage',      'Mostlinkedcategories'          ),
+	array( 'SpecialMostlinkedtemplates',	'Mostlinkedtemplates'			),
 	array( 'MostlinkedPage',                'Mostlinked'                    ),
 	array( 'MostrevisionsPage',             'Mostrevisions'                 ),
 	array( 'FewestrevisionsPage',           'Fewestrevisions'               ),
@@ -33,6 +34,7 @@ $wgQueryPages = array(
 	array( 'UncategorizedCategoriesPage',   'Uncategorizedcategories'       ),
 	array( 'UncategorizedPagesPage',        'Uncategorizedpages'            ),
 	array( 'UncategorizedImagesPage',       'Uncategorizedimages' 			),
+	array( 'UncategorizedTemplatesPage',	'Uncategorizedtemplates'		),
 	array( 'UnusedCategoriesPage',          'Unusedcategories'              ),
 	array( 'UnusedimagesPage',              'Unusedimages'                  ),
 	array( 'WantedCategoriesPage',          'Wantedcategories'              ),
@@ -306,20 +308,18 @@ class QueryPage {
 				
 				if( $tRow ) {
 					$updated = $wgLang->timeAndDate( $tRow->qci_timestamp, true, true );
-					$cacheNotice = wfMsg( 'perfcachedts', $updated );
 					$wgOut->addMeta( 'Data-Cache-Time', $tRow->qci_timestamp );
 					$wgOut->addInlineScript( "var dataCacheTime = '{$tRow->qci_timestamp}';" );
+					$wgOut->addWikiMsg( 'perfcachedts', $updated );
 				} else {
-					$cacheNotice = wfMsg( 'perfcached' );
+					$wgOut->addWikiMsg( 'perfcached' );
 				}
-	
-				$wgOut->addWikiText( $cacheNotice );
 				
 				# If updates on this page have been disabled, let the user know
 				# that the data set won't be refreshed for now
 				global $wgDisableQueryPageUpdate;
 				if( is_array( $wgDisableQueryPageUpdate ) && in_array( $this->getName(), $wgDisableQueryPageUpdate ) ) {
-					$wgOut->addWikiText( wfMsg( 'querypage-no-updates' ) );
+					$wgOut->addWikiMsg( 'querypage-no-updates' );
 				}
 				
 			}
@@ -332,7 +332,8 @@ class QueryPage {
 		$num = $dbr->numRows($res);
 
 		$this->preprocessResults( $dbr, $res );
-		$sk = $wgUser->getSkin();
+
+		$wgOut->addHtml( XML::openElement( 'div', array('class' => 'mw-spcontent') ) );
 		
 		# Top header and navigation
 		if( $shownavigation ) {
@@ -347,6 +348,7 @@ class QueryPage {
 				# No results to show, so don't bother with "showing X of Y" etc.
 				# -- just let the user know and give up now
 				$wgOut->addHtml( '<p>' . wfMsgHtml( 'specialpage-empty' ) . '</p>' );
+				$wgOut->addHtml( XML::closeElement( 'div' ) );
 				return;
 			}
 		}
@@ -365,6 +367,8 @@ class QueryPage {
 		if( $shownavigation ) {
 			$wgOut->addHtml( '<p>' . $paging . '</p>' );
 		}
+
+		$wgOut->addHtml( XML::closeElement( 'div' ) );
 		
 		return $num;
 	}
@@ -397,7 +401,7 @@ class QueryPage {
 						? ' class="not-patrolled"'
 						: '';
 					$html[] = $this->listoutput
-						? $format
+						? $line
 						: "<li{$attr}>{$line}</li>\n";
 				}
 			}
@@ -411,7 +415,7 @@ class QueryPage {
 						? ' class="not-patrolled"'
 						: '';
 					$html[] = $this->listoutput
-						? $format
+						? $line
 						: "<li{$attr}>{$line}</li>\n";
 				}
 			}
@@ -428,18 +432,17 @@ class QueryPage {
 	}
 	
 	function openList( $offset ) {
-		return "<ol start='" . ( $offset + 1 ) . "' class='special'>";
+		return "\n<ol start='" . ( $offset + 1 ) . "' class='special'>\n";
 	}
 	
 	function closeList() {
-		return '</ol>';
+		return "</ol>\n";
 	}
 
 	/**
 	 * Do any necessary preprocessing of the result object.
-	 * You should pass this by reference: &$db , &$res  [although probably no longer necessary in PHP5]
 	 */
-	function preprocessResults( &$db, &$res ) {}
+	function preprocessResults( $db, $res ) {}
 
 	/**
 	 * Similar to above, but packaging in a syndicated feed instead of a web page
@@ -525,4 +528,4 @@ class QueryPage {
 	}
 }
 
-?>
+

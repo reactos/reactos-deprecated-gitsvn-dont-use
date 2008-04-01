@@ -61,17 +61,17 @@ class PageHistory {
 		/*
 		 * Setup page variables.
 		 */
-		$wgOut->setPageTitle( $this->mTitle->getPrefixedText() );
+		$wgOut->setPageTitle( wfMsg( 'history-title', $this->mTitle->getPrefixedText() ) );
+		$wgOut->setPageTitleActionText( wfMsg( 'history_short' ) );
 		$wgOut->setArticleFlag( false );
 		$wgOut->setArticleRelated( true );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 		$wgOut->setSyndicated( true );
+		$wgOut->setFeedAppendQuery( 'action=history' );
 
 		$logPage = SpecialPage::getTitleFor( 'Log' );
 		$logLink = $this->mSkin->makeKnownLinkObj( $logPage, wfMsgHtml( 'viewpagelogs' ), 'page=' . $this->mTitle->getPrefixedUrl() );
-
-		$subtitle = wfMsgHtml( 'revhistory' ) . '<br />' . $logLink;
-		$wgOut->setSubtitle( $subtitle );
+		$wgOut->setSubtitle( $logLink );
 
 		$feedType = $wgRequest->getVal( 'feed' );
 		if( $feedType ) {
@@ -83,12 +83,11 @@ class PageHistory {
 		 * Fail if article doesn't exist.
 		 */
 		if( !$this->mTitle->exists() ) {
-			$wgOut->addWikiText( wfMsg( 'nohistory' ) );
+			$wgOut->addWikiMsg( 'nohistory' );
 			wfProfileOut( $fname );
 			return;
 		}
 
-		
 		/*
 		 * "go=first" means to jump to the last (earliest) history page.
 		 * This is deprecated, it no longer appears in the user interface
@@ -98,7 +97,7 @@ class PageHistory {
 			$wgOut->redirect( $wgTitle->getLocalURL( "action=history&limit={$limit}&dir=prev" ) );
 			return;
 		}
-		
+
 		wfRunHooks( 'PageHistoryBeforeList', array( &$this->mArticle ) );
 
 		/** 
@@ -116,7 +115,11 @@ class PageHistory {
 		wfProfileOut( $fname );
 	}
 
-	/** @todo document */
+	/**
+	 * Creates begin of history list with a submit button
+	 *
+	 * @return string HTML output
+	 */
 	function beginHistoryList() {
 		global $wgTitle;
 		$this->lastdate = '';
@@ -142,7 +145,11 @@ class PageHistory {
 		return $s;
 	}
 
-	/** @todo document */
+	/**
+	 * Creates end of history list with a submit button
+	 *
+	 * @return string HTML output
+	 */
 	function endHistoryList() {
 		$s = '</ul>';
 		$s .= $this->submitButton( array( 'id' => 'historysubmit' ) );
@@ -150,18 +157,25 @@ class PageHistory {
 		return $s;
 	}
 
-	/** @todo document */
+	/**
+	 * Creates a submit button
+	 *
+	 * @param array $bits optional CSS ID
+	 * @return string HTML output for the submit button
+	 */
 	function submitButton( $bits = array() ) {
-		return ( $this->linesonpage > 0 )
-			? wfElement( 'input', array_merge( $bits,
-				array(
+		# Disable submit button if history has 1 revision only
+		if ( $this->linesonpage > 1 ) {
+			return Xml::submitButton( wfMsg( 'compareselectedversions' ),
+				$bits + array(
 					'class'     => 'historysubmit',
-					'type'      => 'submit',
 					'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
-					'title'     => wfMsg( 'tooltip-compareselectedversions' ).' ['.wfMsg( 'accesskey-compareselectedversions' ).']',
-					'value'     => wfMsg( 'compareselectedversions' ),
-				) ) )
-			: '';
+					'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+					)
+				);
+		} else {
+			return '';
+		}
 	}
 
 	/**
@@ -221,11 +235,11 @@ class PageHistory {
 			$s .= ' ' . wfElement( 'span', array( 'class' => 'minor' ), wfMsg( 'minoreditletter') );
 		}
 
-		if (!is_null($size = $rev->getSize())) {
-			if ($size == 0)
-				$stxt = wfMsgHtml('historyempty');
+		if ( !is_null( $size = $rev->getSize() ) ) {
+			if ( $size == 0 )
+				$stxt = wfMsgHtml( 'historyempty' );
 			else
-				$stxt = wfMsgHtml('historysize', $wgLang->formatNum( $size ) );
+				$stxt = wfMsgExt( 'historysize', array( 'parsemag' ), $wgLang->formatNum( $size ) );
 			$s .= " <span class=\"history-size\">$stxt</span>";
 		}
 
@@ -244,8 +258,30 @@ class PageHistory {
 		if( $row->rev_deleted & Revision::DELETED_TEXT ) {
 			$s .= ' ' . wfMsgHtml( 'deletedrev' );
 		}
-		if( $wgUser->isAllowed( 'rollback' ) && $latest ) {
-			$s .= ' '.$this->mSkin->generateRollback( $rev );
+		
+		$tools = array();
+		
+		if ( !is_null( $next ) && is_object( $next ) ) {
+			if( !$this->mTitle->getUserPermissionsErrors( 'rollback', $wgUser )
+			&& !$this->mTitle->getUserPermissionsErrors( 'edit', $wgUser )
+			&& $latest ) {
+				$tools[] = '<span class="mw-rollback-link">'
+					. $this->mSkin->buildRollbackLink( $rev )
+					. '</span>';
+			}
+
+			if( $this->mTitle->quickUserCan( 'edit' ) ) {
+				$undolink = $this->mSkin->makeKnownLinkObj(
+					$this->mTitle,
+					wfMsgHtml( 'editundo' ),
+					'action=edit&undoafter=' . $next->rev_id . '&undo=' . $rev->getId()
+				);
+				$tools[] = "<span class=\"mw-history-undo\">{$undolink}</span>";
+			}
+		}
+		
+		if( $tools ) {
+			$s .= ' (' . implode( ' | ', $tools ) . ')';
 		}
 		
 		wfRunHooks( 'PageHistoryLineEnding', array( &$row , &$s ) );
@@ -310,14 +346,19 @@ class PageHistory {
 		}
 	}
 
-	/** @todo document */
+	/**
+	 * Create radio buttons for page history
+	 *
+	 * @param object $rev Revision
+	 * @param bool $firstInList Is this version the first one?
+	 * @param int $counter A counter of what row number we're at, counted from the top row = 1.
+	 * @return string HTML output for the radio buttons
+	 */
 	function diffButtons( $rev, $firstInList, $counter ) {
 		if( $this->linesonpage > 1) {
 			$radio = array(
 				'type'  => 'radio',
 				'value' => $rev->getId(),
-# do we really need to flood this on every item?
-#				'title' => wfMsgHtml( 'selectolderversionfordiff' )
 			);
 
 			if( !$rev->userCan( Revision::DELETED_TEXT ) ) {
@@ -326,7 +367,7 @@ class PageHistory {
 
 			/** @todo: move title texts to javascript */
 			if ( $firstInList ) {
-				$first = wfElement( 'input', array_merge(
+				$first = Xml::element( 'input', array_merge(
 					$radio,
 					array(
 						'style' => 'visibility:hidden',
@@ -338,13 +379,13 @@ class PageHistory {
 				} else {
 					$checkmark = array();
 				}
-				$first = wfElement( 'input', array_merge(
+				$first = Xml::element( 'input', array_merge(
 					$radio,
 					$checkmark,
 					array( 'name'  => 'oldid' ) ) );
 				$checkmark = array();
 			}
-			$second = wfElement( 'input', array_merge(
+			$second = Xml::element( 'input', array_merge(
 				$radio,
 				$checkmark,
 				array( 'name'  => 'diff' ) ) );
@@ -445,7 +486,7 @@ class PageHistory {
 		global $wgFeedClasses;
 		if( !isset( $wgFeedClasses[$type] ) ) {
 			global $wgOut;
-			$wgOut->addWikiText( wfMsg( 'feed-invalid' ) );
+			$wgOut->addWikiMsg( 'feed-invalid' );
 			return;
 		}
 		
@@ -588,5 +629,3 @@ class PageHistoryPager extends ReverseChronologicalPager {
 		return $s;
 	}
 }
-
-?>

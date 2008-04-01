@@ -119,6 +119,20 @@ function wfRunHooks($event, $args = null) {
 			global $wgOut;
 			$wgOut->showFatalError($retval);
 			return false;
+		} elseif( $retval === null ) {
+			if( is_array( $callback ) ) {
+				if( is_object( $callback[0] ) ) {
+					$prettyClass = get_class( $callback[0] );
+				} else {
+					$prettyClass = strval( $callback[0] );
+				}
+				$prettyFunc = $prettyClass . '::' . strval( $callback[1] );
+			} else {
+				$prettyFunc = strval( $callback );
+			}
+			throw new MWException( "Detected bug in an extension! " .
+				"Hook $prettyFunc failed to return a value; " .
+				"should return true to continue hook processing or false to abort." );
 		} else if (!$retval) {
 			return false;
 		}
@@ -126,4 +140,4 @@ function wfRunHooks($event, $args = null) {
 
 	return true;
 }
-?>
+

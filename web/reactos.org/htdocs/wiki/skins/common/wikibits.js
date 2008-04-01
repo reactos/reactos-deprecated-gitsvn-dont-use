@@ -12,6 +12,7 @@ if (clientPC.indexOf('opera') != -1) {
 	var is_opera = true;
 	var is_opera_preseven = (window.opera && !document.childNodes);
 	var is_opera_seven = (window.opera && document.childNodes);
+	var is_opera_95 = (clientPC.search(/opera\/(9.[5-9]|[1-9][0-9])/)!=-1);
 }
 
 // Global external objects used by this script.
@@ -46,7 +47,7 @@ if (typeof stylepath != 'undefined' && typeof skin != 'undefined') {
 	
 	if (is_opera_preseven) {
 		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera6Fixes.css">');
-	} else if (is_opera_seven) {
+	} else if (is_opera_seven && !is_opera_95) {
 		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera7Fixes.css">');
 	} else if (is_khtml) {
 		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/KHTMLFixes.css">');
@@ -378,7 +379,8 @@ function mwSetupToolbar() {
 
 	// Don't generate buttons for browsers which don't fully
 	// support it.
-	if (!document.selection && textbox.selectionStart === null) {
+	if (!(document.selection && document.selection.createRange)
+		&& textbox.selectionStart === null) {
 		return false;
 	}
 
@@ -413,7 +415,6 @@ function escapeQuotesHTML(text) {
 
 // apply tagOpen/tagClose to selection in textarea,
 // use sampleText instead of selection if there is none
-// copied and adapted from phpBB
 function insertTags(tagOpen, tagClose, sampleText) {
 	var txtarea;
 	if (document.editform) {
@@ -423,62 +424,72 @@ function insertTags(tagOpen, tagClose, sampleText) {
 		var areas = document.getElementsByTagName('textarea');
 		txtarea = areas[0];
 	}
+	var selText, isSample = false;
 
-	// IE
-	if (document.selection  && !is_gecko) {
-		var theSelection = document.selection.createRange().text;
-		if (!theSelection) {
-			theSelection=sampleText;
-		}
+	if (document.selection  && document.selection.createRange) { // IE/Opera
+
+		//save window scroll position
+		if (document.documentElement && document.documentElement.scrollTop)
+			var winScroll = document.documentElement.scrollTop
+		else if (document.body)
+			var winScroll = document.body.scrollTop;
+		//get current selection  
 		txtarea.focus();
-		if (theSelection.charAt(theSelection.length - 1) == " ") { // exclude ending space char, if any
-			theSelection = theSelection.substring(0, theSelection.length - 1);
-			document.selection.createRange().text = tagOpen + theSelection + tagClose + " ";
-		} else {
-			document.selection.createRange().text = tagOpen + theSelection + tagClose;
+		var range = document.selection.createRange();
+		selText = range.text;
+		//insert tags
+		checkSelectedText();
+		range.text = tagOpen + selText + tagClose;
+		//mark sample text as selected
+		if (isSample && range.moveStart) {
+			if (window.opera)
+				tagClose = tagClose.replace(/\n/g,'');
+			range.moveStart('character', - tagClose.length - selText.length); 
+			range.moveEnd('character', - tagClose.length); 
 		}
+		range.select();   
+		//restore window scroll position
+		if (document.documentElement && document.documentElement.scrollTop)
+			document.documentElement.scrollTop = winScroll
+		else if (document.body)
+			document.body.scrollTop = winScroll;
 
-	// Mozilla
-	} else if(txtarea.selectionStart || txtarea.selectionStart == '0') {
-		var replaced = false;
+	} else if (txtarea.selectionStart || txtarea.selectionStart == '0') { // Mozilla
+
+		//save textarea scroll position
+		var textScroll = txtarea.scrollTop;
+		//get current selection
+		txtarea.focus();
 		var startPos = txtarea.selectionStart;
 		var endPos = txtarea.selectionEnd;
-		if (endPos-startPos) {
-			replaced = true;
-		}
-		var scrollTop = txtarea.scrollTop;
-		var myText = (txtarea.value).substring(startPos, endPos);
-		if (!myText) {
-			myText=sampleText;
-		}
-		var subst;
-		if (myText.charAt(myText.length - 1) == " ") { // exclude ending space char, if any
-			subst = tagOpen + myText.substring(0, (myText.length - 1)) + tagClose + " ";
-		} else {
-			subst = tagOpen + myText + tagClose;
-		}
-		txtarea.value = txtarea.value.substring(0, startPos) + subst +
-			txtarea.value.substring(endPos, txtarea.value.length);
-		txtarea.focus();
+		selText = txtarea.value.substring(startPos, endPos);
+		//insert tags
+		checkSelectedText();
+		txtarea.value = txtarea.value.substring(0, startPos)
+			+ tagOpen + selText + tagClose
+			+ txtarea.value.substring(endPos, txtarea.value.length);
 		//set new selection
-		if (replaced) {
-			var cPos = startPos+(tagOpen.length+myText.length+tagClose.length);
-			txtarea.selectionStart = cPos;
-			txtarea.selectionEnd = cPos;
+		if (isSample) {
+			txtarea.selectionStart = startPos + tagOpen.length;
+			txtarea.selectionEnd = startPos + tagOpen.length + selText.length;
 		} else {
-			txtarea.selectionStart = startPos+tagOpen.length;
-			txtarea.selectionEnd = startPos+tagOpen.length+myText.length;
+			txtarea.selectionStart = startPos + tagOpen.length + selText.length + tagClose.length;
+			txtarea.selectionEnd = txtarea.selectionStart;
 		}
-		txtarea.scrollTop = scrollTop;
+		//restore textarea scroll position
+		txtarea.scrollTop = textScroll;
+	} 
 
-	// All other browsers get no toolbar.
-	// There was previously support for a crippled "help"
-	// bar, but that caused more problems than it solved.
+	function checkSelectedText(){
+		if (!selText) {
+			selText = sampleText;
+			isSample = true;
+		} else if (selText.charAt(selText.length - 1) == ' ') { //exclude ending space char
+			selText = selText.substring(0, selText.length - 1);
+			tagClose += ' '
+		} 
 	}
-	// reposition cursor if possible
-	if (txtarea.createTextRange) {
-		txtarea.caretPos = document.selection.createRange().duplicate();
-	}
+
 }
 
 
@@ -609,8 +620,7 @@ function akeytt( doId ) {
 	// the original.
 	var ta;
 	if ( doId ) {
-		ta = new Array;
-		ta[doId] = window.ta[doId];
+		ta = [doId];
 	} else {
 		ta = window.ta;
 	}
@@ -718,8 +728,10 @@ function addCheckboxClickHandlers(inputs, start) {
 		var cb = inputs[i];
 		if ( !cb.type || cb.type.toLowerCase() != 'checkbox' )
 			continue;
-		cb.index = checkboxes.push(cb) - 1;
-		cb.onmouseup = checkboxMouseupHandler;
+		var end = checkboxes.length;
+		checkboxes[end] = cb;
+		cb.index = end;
+		cb.onclick = checkboxClickHandler;
 	}
 
 	if ( finish < inputs.length ) {
@@ -729,7 +741,7 @@ function addCheckboxClickHandlers(inputs, start) {
 	}
 }
 
-function checkboxMouseupHandler(e) {
+function checkboxClickHandler(e) {
 	if (typeof e == 'undefined') {
 		e = window.event;
 	}
@@ -737,10 +749,7 @@ function checkboxMouseupHandler(e) {
 		lastCheckbox = this.index;
 		return true;
 	}
-	var endState = !this.checked;
-	if ( is_opera ) { // opera has already toggled the checkbox by this point
-		endState = !endState;
-	}
+	var endState = this.checked;
 	var start, finish;
 	if ( this.index < lastCheckbox ) {
 		start = this.index + 1;
@@ -772,47 +781,23 @@ function toggle_element_check(ida,idb) {
 	document.getElementById(idb).checked=false;
 }
 
-function fillDestFilename(id) {
-	if (!document.getElementById) {
-		return;
-	}
-	var path = document.getElementById(id).value;
-	// Find trailing part
-	var slash = path.lastIndexOf('/');
-	var backslash = path.lastIndexOf('\\');
-	var fname;
-	if (slash == -1 && backslash == -1) {
-		fname = path;
-	} else if (slash > backslash) {
-		fname = path.substring(slash+1, 10000);
-	} else {
-		fname = path.substring(backslash+1, 10000);
-	}
-
-	// Capitalise first letter and replace spaces by underscores
-	fname = fname.charAt(0).toUpperCase().concat(fname.substring(1,10000)).replace(/ /g, '_');
-
-	// Output result
-	var destFile = document.getElementById('wpDestFile');
-	if (destFile) {
-		destFile.value = fname;
-	}
-}
-
+/**
+ * Restore the edit box scroll state following a preview operation,
+ * and set up a form submission handler to remember this state
+ */
 function scrollEditBox() {
-	var editBoxEl = document.getElementById("wpTextbox1");
-	var scrollTopEl = document.getElementById("wpScrolltop");
-	var editFormEl = document.getElementById("editform");
-
-	if (editBoxEl && scrollTopEl) {
-		if (scrollTopEl.value) { editBoxEl.scrollTop = scrollTopEl.value; }
-		editFormEl.onsubmit = function() {
-			document.getElementById("wpScrolltop").value = document.getElementById("wpTextbox1").scrollTop;
-		};
+	var editBox = document.getElementById( 'wpTextbox1' );
+	var scrollTop = document.getElementById( 'wpScrolltop' );
+	var editForm = document.getElementById( 'editform' );
+	if( editBox && scrollTop ) {
+		if( scrollTop.value )
+			editBox.scrollTop = scrollTop.value;
+		addHandler( editForm, 'submit', function() {
+			document.getElementById( 'wpScrolltop' ).value = document.getElementById( 'wpTextbox1' ).scrollTop; 
+		} );
 	}
 }
-
-hookEvent("load", scrollEditBox);
+hookEvent( 'load', scrollEditBox );
 
 var allmessages_nodelist = false;
 var allmessages_modified = false;
@@ -910,11 +895,13 @@ function getElementsByClassName(oElm, strTagName, oClassNames){
 	var arrRegExpClassNames = new Array();
 	if(typeof oClassNames == "object"){
 		for(var i=0; i<oClassNames.length; i++){
-			arrRegExpClassNames.push(new RegExp("(^|\\s)" + oClassNames[i].replace(/\-/g, "\\-") + "(\\s|$)"));
+			arrRegExpClassNames[arrRegExpClassNames.length] =
+				new RegExp("(^|\\s)" + oClassNames[i].replace(/\-/g, "\\-") + "(\\s|$)");
 		}
 	}
 	else{
-		arrRegExpClassNames.push(new RegExp("(^|\\s)" + oClassNames.replace(/\-/g, "\\-") + "(\\s|$)"));
+		arrRegExpClassNames[arrRegExpClassNames.length] =
+			new RegExp("(^|\\s)" + oClassNames.replace(/\-/g, "\\-") + "(\\s|$)");
 	}
 	var oElement;
 	var bMatchesAll;
@@ -928,7 +915,7 @@ function getElementsByClassName(oElm, strTagName, oClassNames){
 			}
 		}
 		if(bMatchesAll){
-			arrReturnElements.push(oElement);
+			arrReturnElements[arrReturnElements.length] = oElement;
 		}
 	}
 	return (arrReturnElements)
@@ -1015,7 +1002,8 @@ function ts_makeSortable(table) {
 function ts_getInnerText(el) {
 	if (typeof el == "string") return el;
 	if (typeof el == "undefined") { return el };
-	if (el.innerText) return el.innerText;	// Not needed but it is faster
+	if (el.textContent) return el.textContent; // not needed but it is faster
+	if (el.innerText) return el.innerText;     // IE doesn't have textContent
 	var str = "";
 
 	var cs = el.childNodes;
@@ -1161,7 +1149,7 @@ function ts_dateToSortKey(date) {
 
 function ts_parseFloat(num) {
 	if (!num) return 0;
-	num = parseFloat(num.replace(/,/, ""));
+	num = parseFloat(num.replace(/,/g, ""));
 	return (isNaN(num) ? 0 : num);
 }
 
@@ -1218,6 +1206,83 @@ function ts_alternate(table) {
 /*
  * End of table sorting code
  */
+ 
+ 
+/**
+ * Add a cute little box at the top of the screen to inform the user of
+ * something, replacing any preexisting message.
+ *
+ * @param String message HTML to be put inside the right div
+ * @param String className   Used in adding a class; should be different for each
+ *   call to allow CSS/JS to hide different boxes.  null = no class used.
+ * @return Boolean       True on success, false on failure
+ */
+function jsMsg( message, className ) {
+	if ( !document.getElementById ) {
+		return false;
+	}
+	// We special-case skin structures provided by the software.  Skins that
+	// choose to abandon or significantly modify our formatting can just define
+	// an mw-js-message div to start with.
+	var messageDiv = document.getElementById( 'mw-js-message' );
+	if ( !messageDiv ) {
+		messageDiv = document.createElement( 'div' );
+		if ( document.getElementById( 'column-content' )
+		&& document.getElementById( 'content' ) ) {
+			// MonoBook, presumably
+			document.getElementById( 'content' ).insertBefore(
+				messageDiv,
+				document.getElementById( 'content' ).firstChild
+			);
+		} else if ( document.getElementById('content')
+		&& document.getElementById( 'article' ) ) {
+			// Non-Monobook but still recognizable (old-style)
+			document.getElementById( 'article').insertBefore(
+				messageDiv,
+				document.getElementById( 'article' ).firstChild
+			);
+		} else {
+			return false;
+		}
+	}
+
+	messageDiv.setAttribute( 'id', 'mw-js-message' );
+	if( className ) {
+		messageDiv.setAttribute( 'class', 'mw-js-message-'+className );
+	}
+	messageDiv.innerHTML = message;
+	return true;
+}
+
+/**
+ * Inject a cute little progress spinner after the specified element
+ *
+ * @param element Element to inject after
+ * @param id Identifier string (for use with removeSpinner(), below)
+ */
+function injectSpinner( element, id ) {
+	var spinner = document.createElement( "img" );
+	spinner.id = "mw-spinner-" + id;
+	spinner.src = stylepath + "/common/images/spinner.gif";
+	spinner.alt = spinner.title = "...";
+	if( element.nextSibling ) {
+		element.parentNode.insertBefore( spinner, element.nextSibling );
+	} else {
+		element.parentNode.appendChild( spinner );
+	}
+}
+
+/**
+ * Remove a progress spinner added with injectSpinner()
+ *
+ * @param id Identifier string
+ */
+function removeSpinner( id ) {
+	var spinner = document.getElementById( "mw-spinner-" + id );
+	if( spinner ) {
+		spinner.parentNode.removeChild( spinner );
+	}
+}
 
 function runOnloadHook() {
 	// don't run anything below this for non-dom browsers
@@ -1244,8 +1309,31 @@ function runOnloadHook() {
 	}
 }
 
+/**
+ * Add an event handler to an element
+ *
+ * @param Element element Element to add handler to
+ * @param String attach Event to attach to
+ * @param callable handler Event handler callback
+ */
+function addHandler( element, attach, handler ) {
+	if( window.addEventListener ) {
+		element.addEventListener( attach, handler, false );
+	} else if( window.attachEvent ) {
+		element.attachEvent( 'on' + attach, handler );
+	}
+}
+
+/**
+ * Add a click event handler to an element
+ *
+ * @param Element element Element to add handler to
+ * @param callable handler Event handler callback
+ */
+function addClickHandler( element, handler ) {
+	addHandler( element, 'click', handler );
+}
 //note: all skins should call runOnloadHook() at the end of html output,
 //      so the below should be redundant. It's there just in case.
 hookEvent("load", runOnloadHook);
-
 hookEvent("load", mwSetupToolbar);

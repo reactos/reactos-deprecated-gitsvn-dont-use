@@ -20,8 +20,9 @@ class MathRenderer {
 	var $mathml = '';
 	var $conservativeness = 0;
 
-	function __construct( $tex ) {
+	function __construct( $tex, $params=array() ) {
 		$this->tex = $tex;
+		$this->params = $params;
  	}
 
 	function setOutputMode( $mode ) {
@@ -110,10 +111,17 @@ class MathRenderer {
 			} else {
 				$errbit = htmlspecialchars( substr($contents, 1) );
 				switch( $retval ) {
-					case 'E': $errmsg = $this->_error( 'math_lexing_error', $errbit );
-					case 'S': $errmsg = $this->_error( 'math_syntax_error', $errbit );
-					case 'F': $errmsg = $this->_error( 'math_unknown_function', $errbit );
-					default:  $errmsg = $this->_error( 'math_unknown_error', $errbit );
+					case 'E':
+						$errmsg = $this->_error( 'math_lexing_error', $errbit );
+						break;
+					case 'S':
+						$errmsg = $this->_error( 'math_syntax_error', $errbit );
+						break;
+					case 'F':
+						$errmsg = $this->_error( 'math_unknown_function', $errbit );
+						break;
+					default:
+						$errmsg = $this->_error( 'math_unknown_error', $errbit );
 				}
 			}
 
@@ -157,8 +165,8 @@ class MathRenderer {
 				$dbw = wfGetDB( DB_MASTER );
 				$dbw->replace( 'math', array( 'math_inputhash' ),
 				  array(
-					'math_inputhash' => $md5_sql,
-					'math_outputhash' => $outmd5_sql,
+					'math_inputhash' => $dbw->encodeBlob($md5_sql),
+					'math_outputhash' => $dbw->encodeBlob($outmd5_sql),
 					'math_html_conservativeness' => $this->conservativeness,
 					'math_html' => $this->html,
 					'math_mathml' => $this->mathml,
@@ -186,13 +194,13 @@ class MathRenderer {
 		$dbr = wfGetDB( DB_SLAVE );
 		$rpage = $dbr->selectRow( 'math',
 			array( 'math_outputhash','math_html_conservativeness','math_html','math_mathml' ),
-			array( 'math_inputhash' => pack("H32", $this->md5)), # Binary packed, not hex
+			array( 'math_inputhash' => $dbr->encodeBlob(pack("H32", $this->md5))), # Binary packed, not hex
 			$fname
 		);
 
 		if( $rpage !== false ) {
 			# Tailing 0x20s can get dropped by the database, add it back on if necessary:
-			$xhash = unpack( 'H32md5', $rpage->math_outputhash . "                " );
+			$xhash = unpack( 'H32md5', $dbr->decodeBlob($rpage->math_outputhash) . "                " );
 			$this->hash = $xhash ['md5'];
 
 			$this->conservativeness = $rpage->math_html_conservativeness;
@@ -233,24 +241,44 @@ class MathRenderer {
 	 */
 	function _doRender() {
 		if( $this->mode == MW_MATH_MATHML && $this->mathml != '' ) {
-			return "<math xmlns='http://www.w3.org/1998/Math/MathML'>{$this->mathml}</math>";
+			return Xml::tags( 'math',
+				$this->_attribs( 'math',
+					array( 'xmlns' => 'http://www.w3.org/1998/Math/MathML' ) ),
+				$this->mathml );
 		}
 		if (($this->mode == MW_MATH_PNG) || ($this->html == '') ||
 		   (($this->mode == MW_MATH_SIMPLE) && ($this->conservativeness != 2)) ||
 		   (($this->mode == MW_MATH_MODERN || $this->mode == MW_MATH_MATHML) && ($this->conservativeness == 0))) {
 			return $this->_linkToMathImage();
 		} else {
-			return '<span class="texhtml">'.$this->html.'</span>';
+			return Xml::tags( 'span',
+				$this->_attribs( 'span',
+					array( 'class' => 'texhtml' ) ),
+				$this->html );
 		}
+	}
+	
+	function _attribs( $tag, $defaults=array(), $overrides=array() ) {
+		$attribs = Sanitizer::validateTagAttributes( $this->params, $tag );
+		$attribs = Sanitizer::mergeAttributes( $defaults, $attribs );
+		$attribs = Sanitizer::mergeAttributes( $attribs, $overrides );
+		return $attribs;
 	}
 
 	function _linkToMathImage() {
 		global $wgMathPath;
-		$url = htmlspecialchars( "$wgMathPath/" . substr($this->hash, 0, 1)
+		$url = "$wgMathPath/" . substr($this->hash, 0, 1)
 					.'/'. substr($this->hash, 1, 1) .'/'. substr($this->hash, 2, 1)
-					. "/{$this->hash}.png" );
-		$alt = trim(str_replace("\n", ' ', htmlspecialchars( $this->tex )));
-		return "<img class='tex' src=\"$url\" alt=\"$alt\" />";
+					. "/{$this->hash}.png";
+
+		return Xml::element( 'img',
+			$this->_attribs(
+				'img',
+				array(
+					'class' => 'tex',
+					'alt' => $this->tex ),
+				array(
+					'src' => $url ) ) );
 	}
 
 	function _getHashPath() {
@@ -262,11 +290,11 @@ class MathRenderer {
 		return $path;
 	}
 
-	public static function renderMath( $tex ) {
+	public static function renderMath( $tex, $params=array() ) {
 		global $wgUser;
-		$math = new MathRenderer( $tex );
+		$math = new MathRenderer( $tex, $params );
 		$math->setOutputMode( $wgUser->getOption('math'));
 		return $math->render();
 	}
 }
-?>
+

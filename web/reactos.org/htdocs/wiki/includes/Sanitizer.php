@@ -330,6 +330,9 @@ $wgHtmlEntityAliases = array(
  * @addtogroup Parser
  */
 class Sanitizer {
+	const NONE = 0;
+	const INITIAL_NONLETTER = 1;
+
 	/**
 	 * Cleans up HTML, removes dangerous tags and attributes, and
 	 * removes HTML comments
@@ -339,7 +342,7 @@ class Sanitizer {
 	 * @param array $args for the processing callback
 	 * @return string
 	 */
-	static function removeHTMLtags( $text, $processCallback = null, $args = array() ) {
+	static function removeHTMLtags( $text, $processCallback = null, $args = array(), $extratags = array() ) {
 		global $wgUseTidy;
 
 		static $htmlpairs, $htmlsingle, $htmlsingleonly, $htmlnest, $tabletags,
@@ -349,13 +352,13 @@ class Sanitizer {
 
 		if ( !$staticInitialised ) {
 
-			$htmlpairs = array( # Tags that must be closed
+			$htmlpairs = array_merge( $extratags, array( # Tags that must be closed
 				'b', 'del', 'i', 'ins', 'u', 'font', 'big', 'small', 'sub', 'sup', 'h1',
 				'h2', 'h3', 'h4', 'h5', 'h6', 'cite', 'code', 'em', 's',
 				'strike', 'strong', 'tt', 'var', 'div', 'center',
 				'blockquote', 'ol', 'ul', 'dl', 'table', 'caption', 'pre',
 				'ruby', 'rt' , 'rb' , 'rp', 'p', 'span', 'u'
-			);
+			) );
 			$htmlsingle = array(
 				'br', 'hr', 'li', 'dt', 'dd'
 			);
@@ -566,6 +569,7 @@ class Sanitizer {
 	 *
 	 * - Discards attributes not on a whitelist for the given element
 	 * - Unsafe style attributes are discarded
+	 * - Invalid id attributes are reencoded
 	 *
 	 * @param array $attribs
 	 * @param string $element
@@ -575,7 +579,27 @@ class Sanitizer {
 	 * @todo Check for unique id attribute :P
 	 */
 	static function validateTagAttributes( $attribs, $element ) {
-		$whitelist = array_flip( Sanitizer::attributeWhitelist( $element ) );
+		return Sanitizer::validateAttributes( $attribs,
+			Sanitizer::attributeWhitelist( $element ) );
+	}
+	
+	/**
+	 * Take an array of attribute names and values and normalize or discard
+	 * illegal values for the given whitelist.
+	 *
+	 * - Discards attributes not the given whitelist
+	 * - Unsafe style attributes are discarded
+	 * - Invalid id attributes are reencoded
+	 *
+	 * @param array $attribs
+	 * @param array $whitelist list of allowed attribute names
+	 * @return array
+	 *
+	 * @todo Check for legal values where the DTD limits things.
+	 * @todo Check for unique id attribute :P
+	 */
+	static function validateAttributes( $attribs, $whitelist ) {
+		$whitelist = array_flip( $whitelist );
 		$out = array();
 		foreach( $attribs as $attribute => $value ) {
 			if( !isset( $whitelist[$attribute] ) ) {
@@ -597,6 +621,33 @@ class Sanitizer {
 			// If this attribute was previously set, override it.
 			// Output should only have one attribute of each name.
 			$out[$attribute] = $value;
+		}
+		return $out;
+	}
+	
+	/**
+	 * Merge two sets of HTML attributes.
+	 * Conflicting items in the second set will override those
+	 * in the first, except for 'class' attributes which will be
+	 * combined.
+	 *
+	 * @todo implement merging for other attributes such as style
+	 * @param array $a
+	 * @param array $b
+	 * @return array
+	 */
+	static function mergeAttributes( $a, $b ) {
+		$out = array_merge( $a, $b );
+		if( isset( $a['class'] )
+			&& isset( $b['class'] )
+			&& $a['class'] !== $b['class'] ) {
+			
+			$out['class'] = implode( ' ',
+				array_unique(
+					preg_split( '/\s+/',
+						$a['class'] . ' ' . $b['class'],
+						-1,
+						PREG_SPLIT_NO_EMPTY ) ) );
 		}
 		return $out;
 	}
@@ -674,7 +725,7 @@ class Sanitizer {
 	 * @return HTML-encoded text fragment
 	 */
 	static function encodeAttribute( $text ) {
-		$encValue = htmlspecialchars( $text );
+		$encValue = htmlspecialchars( $text, ENT_QUOTES );
 
 		// Whitespace is normalized during attribute decoding,
 		// so if we've been passed non-spaces we must encode them
@@ -730,20 +781,29 @@ class Sanitizer {
 	 *                                                          name attributes
 	 * @see http://www.w3.org/TR/html401/struct/links.html#h-12.2.3 Anchors with the id attribute
 	 *
-	 * @static
-	 *
-	 * @param string $id
+	 * @param string $id    Id to validate
+	 * @param int    $flags Currently only two values: Sanitizer::INITIAL_NONLETTER
+	 *                      (default) permits initial non-letter characters,
+	 *                      such as if you're adding a prefix to them.
+	 *                      Sanitizer::NONE will prepend an 'x' if the id
+	 *                      would otherwise start with a nonletter.
 	 * @return string
 	 */
-	static function escapeId( $id ) {
+	static function escapeId( $id, $flags = Sanitizer::INITIAL_NONLETTER ) {
 		static $replace = array(
 			'%3A' => ':',
 			'%' => '.'
 		);
 
 		$id = urlencode( Sanitizer::decodeCharReferences( strtr( $id, ' ', '_' ) ) );
-
-		return str_replace( array_keys( $replace ), array_values( $replace ), $id );
+		$id = str_replace( array_keys( $replace ), array_values( $replace ), $id );
+		
+		if( ~$flags & Sanitizer::INITIAL_NONLETTER
+		&& !preg_match( '/[a-zA-Z]/', $id[0] ) ) {
+			// Initial character must be a letter!
+			$id = "x$id";
+		}
+		return $id;
 	}
 
 	/**
@@ -1159,6 +1219,11 @@ class Sanitizer {
 			# 11.2.6
 			'td'         => array_merge( $common, $tablecell, $tablealign ),
 			'th'         => array_merge( $common, $tablecell, $tablealign ),
+			
+			# 13.2
+			# Not usually allowed, but may be used for extension-style hooks
+			# such as <math> when it is rasterized
+			'img'        => array_merge( $common, array( 'alt' ) ),
 
 			# 15.2.1
 			'tt'         => $common,
@@ -1185,6 +1250,11 @@ class Sanitizer {
 			'rb'         => $common,
 			'rt'         => $common, #array_merge( $common, array( 'rbspan' ) ),
 			'rp'         => $common,
+			
+			# MathML root element, where used for extensions
+			# 'title' may not be 100% valid here; it's XHTML
+			# http://www.w3.org/TR/REC-MathML/
+			'math'       => array( 'class', 'style', 'id', 'title' ),
 			);
 		return $whitelist;
 	}
@@ -1274,4 +1344,4 @@ class Sanitizer {
 
 }
 
-?>
+

@@ -22,7 +22,7 @@ class SquidUpdate {
 		$this->urlArr = $urlArr;
 	}
 
-	/* static */ function newFromLinksTo( &$title ) {
+	static function newFromLinksTo( &$title ) {
 		$fname = 'SquidUpdate::newFromLinksTo';
 		wfProfileIn( $fname );
 
@@ -32,7 +32,7 @@ class SquidUpdate {
 			array( 'page_namespace', 'page_title' ),
 			array(
 				'pl_namespace' => $title->getNamespace(),
-				'pl_title'     => $title->getDbKey(),
+				'pl_title'     => $title->getDBkey(),
 				'pl_from=page_id' ),
 			$fname );
 		$blurlArr = $title->getSquidURLs();
@@ -49,7 +49,7 @@ class SquidUpdate {
 		return new SquidUpdate( $blurlArr );
 	}
 
-	/* static */ function newFromTitles( &$titles, $urlArr = array() ) {
+	static function newFromTitles( &$titles, $urlArr = array() ) {
 		global $wgMaxSquidPurgeTitles;
 		if ( count( $titles ) > $wgMaxSquidPurgeTitles ) {
 			$titles = array_slice( $titles, 0, $wgMaxSquidPurgeTitles );
@@ -60,7 +60,7 @@ class SquidUpdate {
 		return new SquidUpdate( $urlArr );
 	}
 
-	/* static */ function newSimplePurge( &$title ) {
+	static function newSimplePurge( &$title ) {
 		$urlArr = $title->getSquidURLs();
 		return new SquidUpdate( $urlArr );
 	}
@@ -74,16 +74,21 @@ class SquidUpdate {
 	(example: $urlArr[] = 'http://my.host/something')
 	XXX report broken Squids per mail or log */
 
-	/* static */ function purge( $urlArr ) {
+	static function purge( $urlArr ) {
 		global $wgSquidServers, $wgHTCPMulticastAddress, $wgHTCPPort;
 
 		/*if ( (@$wgSquidServers[0]) == 'echo' ) {
 			echo implode("<br />\n", $urlArr) . "<br />\n";
 			return;
 		}*/
+		
+		if( empty( $urlArr ) ) {
+			return;
+		}
 
-		if ( $wgHTCPMulticastAddress && $wgHTCPPort )
-			SquidUpdate::HTCPPurge( $urlArr );
+		if ( $wgHTCPMulticastAddress && $wgHTCPPort ) {
+			return SquidUpdate::HTCPPurge( $urlArr );
+		}
 
 		$fname = 'SquidUpdate::purge';
 		wfProfileIn( $fname );
@@ -189,7 +194,7 @@ class SquidUpdate {
 		wfProfileOut( $fname );
 	}
 
-	/* static */ function HTCPPurge( $urlArr ) {
+	static function HTCPPurge( $urlArr ) {
 		global $wgHTCPMulticastAddress, $wgHTCPMulticastTTL, $wgHTCPPort;
 		$fname = 'SquidUpdate::HTCPPurge';
 		wfProfileIn( $fname );
@@ -277,4 +282,4 @@ class SquidUpdate {
 		return $url;
 	}
 }
-?>
+

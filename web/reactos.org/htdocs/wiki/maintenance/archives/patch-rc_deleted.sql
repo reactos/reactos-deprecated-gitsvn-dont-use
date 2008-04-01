@@ -5,4 +5,4 @@ ALTER TABLE /*$wgDBprefix*/recentchanges
   ADD rc_logid int unsigned NOT NULL default '0',
   ADD rc_log_type varbinary(255) NULL default NULL,
   ADD rc_log_action varbinary(255) NULL default NULL,
-  ADD rc_params blob NOT NULL default '';
+  ADD rc_params BLOB NULL;

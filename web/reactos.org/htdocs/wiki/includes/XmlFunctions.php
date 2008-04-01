@@ -60,6 +60,3 @@ function wfIsWellFormedXml( $text ) {
 function wfIsWellFormedXmlFragment( $text ) {
 	return Xml::isWellFormedXmlFragment( $text );
 }
-
-
-?>

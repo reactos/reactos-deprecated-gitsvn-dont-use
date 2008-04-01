@@ -6,7 +6,6 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	$optionsWithArgs = array( 'm' );
 
 	require_once( dirname(__FILE__) . '/../commandLine.inc' );
-	require_once( 'includes/ExternalStoreDB.php' );
 
 	resolveStubs();
 }
@@ -94,4 +93,4 @@ function resolveStub( $id, $stubText, $flags ) {
 		), $fname
 	);
 }
-?>
+

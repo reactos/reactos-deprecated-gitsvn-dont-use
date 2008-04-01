@@ -11,30 +11,35 @@ SED = LANG=zh_CN.UTF8 sed
 DIFF = LANG=zh_CN.UTF8 diff
 CC ?= gcc
 
-#installation directory
+SF_MIRROR = easynews
+SCIM_TABLES_VER = 0.5.7
+SCIM_PINYIN_VER = 0.5.91
+LIBTABE_VER = 0.2.3
+
+# Installation directory
 INSTDIR = /usr/local/share/zhdaemons/
 
-all: ZhConversion.php tradphrases.notsure simpphrases.notsure wordlist toCN.dict toTW.dict toHK.dict toSG.dict
+all: ZhConversion.php tradphrases.notsure simpphrases.notsure wordlist toHans.dict toHant.dict toCN.dict toTW.dict toHK.dict toSG.dict
 
 Unihan.txt:
 	wget -nc ftp://ftp.unicode.org/Public/UNIDATA/Unihan.zip
 	unzip -q Unihan.zip
 
 EZ.txt.in:
-	wget -nc http://easynews.dl.sourceforge.net/sourceforge/scim/scim-tables-0.5.1.tar.gz
-	tar -xzf scim-tables-0.5.1.tar.gz -O scim-tables-0.5.1/zh/EZ.txt.in > EZ.txt.in
+	wget -nc http://$(SF_MIRROR).dl.sourceforge.net/sourceforge/scim/scim-tables-$(SCIM_TABLES_VER).tar.gz
+	tar -xzf scim-tables-$(SCIM_TABLES_VER).tar.gz -O scim-tables-$(SCIM_TABLES_VER)/tables/zh/EZ-Big.txt.in > EZ.txt.in
 
 phrase_lib.txt:
-	wget -nc http://easynews.dl.sourceforge.net/sourceforge/scim/scim-pinyin-0.5.0.tar.gz
-	tar -xzf scim-pinyin-0.5.0.tar.gz -O scim-pinyin-0.5.0/data/phrase_lib.txt > phrase_lib.txt
+	wget -nc http://$(SF_MIRROR).dl.sourceforge.net/sourceforge/scim/scim-pinyin-$(SCIM_PINYIN_VER).tar.gz
+	tar -xzf scim-pinyin-$(SCIM_PINYIN_VER).tar.gz -O scim-pinyin-$(SCIM_PINYIN_VER)/data/phrase_lib.txt > phrase_lib.txt
 
 tsi.src:
-	wget -nc http://unc.dl.sourceforge.net/sourceforge/libtabe/libtabe-0.2.3.tgz	
-	tar -xzf libtabe-0.2.3.tgz -O libtabe/tsi-src/tsi.src > tsi.src
+	wget -nc http://$(SF_MIRROR).dl.sourceforge.net/sourceforge/libtabe/libtabe-$(LIBTABE_VER).tgz	
+	tar -xzf libtabe-$(LIBTABE_VER).tgz -O libtabe/tsi-src/tsi.src > tsi.src
 
 wordlist: phrase_lib.txt EZ.txt.in tsi.src
 	iconv -c -f big5 -t utf8 tsi.src | $(SED) 's/# //g' | $(SED) 's/[ ][0-9].*//' > wordlist
-	$(SED) 's/\(.*\)\t[0-9][0-9]*.*/\1/' phrase_lib.txt | $(SED) '1,5d' >>wordlist
+	$(SED) 's/\(.*\)\t[0-9][0-9]*.*/\1/' phrase_lib.txt | $(SED) '1,5d' >> wordlist
 	$(SED) '1,/BEGIN_TABLE/d' EZ.txt.in | colrm 1 8 | $(SED) 's/\t.*//' | $(GREP) "^...*" >> wordlist
 	sort wordlist | uniq | $(SED) 's/ //g' > t
 	mv t wordlist
@@ -184,67 +189,68 @@ simp2trad.php: simp2trad1to1.t simpphrases.t
 	cat simpphrases.t >> simp2trad.php
 	printf '";\n$$t=strtr($$str, $$simp2trad);\necho $$t;\n?>' >> simp2trad.php
 
-simp2trad.phrases.t: trad2simp.php tradphrases.t toTW.manual
+simp2trad.phrases.t: trad2simp.php tradphrases.t
 	php -f trad2simp.php | $(SED)  's/\(.*\)/"\1" => /' > tmp1
 	cat tradphrases.t | $(SED)  's/\(.*\)/"\1",/' > tmp2
 	paste tmp1 tmp2 > simp2trad.phrases.t
-	$(SED) 's/\(.*\)\t\(.*\)/"\1"=>"\2",/' toTW.manual >> simp2trad.phrases.t
 
-trad2simp.phrases.t: simp2trad.php simpphrases.t toCN.manual
+trad2simp.phrases.t: simp2trad.php simpphrases.t
 	php -f simp2trad.php | $(SED)  's/\(.*\)/"\1" => /' > tmp1
 	cat simpphrases.t | $(SED)  's/\(.*\)/"\1",/' > tmp2
 	paste tmp1 tmp2 > trad2simp.phrases.t
-	$(SED) 's/\(.*\)\t\(.*\)/"\1"=>"\2",/' toCN.manual >> trad2simp.phrases.t
 
-toCN.dict: trad2simp1to1.t trad2simp.phrases.t
-	cat trad2simp1to1.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' > toCN.dict
-	cat trad2simp.phrases.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' >> toCN.dict
+toHans.dict: trad2simp1to1.t trad2simp.phrases.t
+	cat trad2simp1to1.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' > toHans.dict
+	cat trad2simp.phrases.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' >> toHans.dict
 
-toTW.dict: simp2trad1to1.t simp2trad.phrases.t
-	cat simp2trad1to1.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' > toTW.dict
-	cat simp2trad.phrases.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' >> toTW.dict
+toHant.dict: simp2trad1to1.t simp2trad.phrases.t
+	cat simp2trad1to1.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' > toHant.dict
+	cat simp2trad.phrases.t | $(SED) 's/[, \t]//g' | $(SED) 's/=>/\t/' >> toHant.dict
+
+toTW.dict: toTW.manual
+	cat toTW.manual | $(SED) 's/ //g' | $(SED) 's/\(^.*\)\t\(.*\)/"\1"\t"\2"/' > toTW.dict
 
 toHK.dict: toHK.manual
 	cat toHK.manual | $(SED) 's/ //g' | $(SED) 's/\(^.*\)\t\(.*\)/"\1"\t"\2"/' > toHK.dict
 
+toCN.dict: toCN.manual
+	cat toCN.manual | $(SED) 's/ //g' | $(SED) 's/\(^.*\)\t\(.*\)/"\1"\t"\2"/' > toCN.dict
+
 toSG.dict: toSG.manual
 	cat toSG.manual | $(SED) 's/ //g' | $(SED) 's/\(^.*\)\t\(.*\)/"\1"\t"\2"/' > toSG.dict
 
-
-
-ZhConversion.php: simp2trad1to1.t simp2trad.phrases.t trad2simp1to1.t trad2simp.phrases.t toHK.manual toSG.manual
-	printf '<?php\n/**\n * Simplified/Traditional Chinese conversion tables\n' > ZhConversion.php
+ZhConversion.php: simp2trad1to1.t simp2trad.phrases.t trad2simp1to1.t trad2simp.phrases.t toCN.manual toHK.manual toSG.manual toTW.manual
+	printf '<?php\n/**\n * Simplified / Traditional Chinese conversion tables\n' > ZhConversion.php
 	printf ' *\n * Automatically generated using code and data in includes/zhtable/\n' >> ZhConversion.php
-	printf ' * Do not modify directly! \n *\n * @package MediaWiki\n*/\n\n' >> ZhConversion.php
-	printf '$$zh2TW=array(\n' >> ZhConversion.php
+	printf ' * Do not modify directly!\n */\n\n' >> ZhConversion.php
+	printf '$$zh2Hant = array(\n' >> ZhConversion.php
 	cat simp2trad1to1.t >> ZhConversion.php
 	echo >> ZhConversion.php
 	cat simp2trad.phrases.t >> ZhConversion.php
-	echo >> ZhConversion.php
 	echo ');' >> ZhConversion.php
 	echo >> ZhConversion.php
-	echo >> ZhConversion.php
-	printf '$$zh2CN=array(\n' >> ZhConversion.php
+	printf '$$zh2Hans = array(\n' >> ZhConversion.php
 	cat trad2simp1to1.t >> ZhConversion.php
 	echo >> ZhConversion.php
 	cat trad2simp.phrases.t >> ZhConversion.php
+	echo ');' >> ZhConversion.php
 	echo >> ZhConversion.php
-	printf ');' >> ZhConversion.php
+	printf '$$zh2TW = array(\n' >> ZhConversion.php
+	$(SED) 's/\(.*\)\t\(.*\)/"\1" => "\2",/' toTW.manual >> ZhConversion.php
+	echo ');' >> ZhConversion.php
 	echo >> ZhConversion.php
-	echo >> ZhConversion.php
-	printf '$$zh2HK=array(\n' >> ZhConversion.php
+	printf '$$zh2HK = array(\n' >> ZhConversion.php
 	$(SED) 's/\(.*\)\t\(.*\)/"\1" => "\2",/' toHK.manual >> ZhConversion.php
+	echo ');' >> ZhConversion.php
 	echo >> ZhConversion.php
-	printf ');' >> ZhConversion.php
+	printf '$$zh2CN = array(\n' >> ZhConversion.php
+	$(SED) 's/\(.*\)\t\(.*\)/"\1" => "\2",/' toCN.manual >> ZhConversion.php
+	echo ');' >> ZhConversion.php
 	echo >> ZhConversion.php
-	echo >> ZhConversion.php
-	printf '$$zh2SG=array(\n' >> ZhConversion.php
+	printf '$$zh2SG = array(\n' >> ZhConversion.php
 	$(SED) 's/\(.*\)\t\(.*\)/"\1" => "\2",/' toSG.manual >> ZhConversion.php
 	echo >> ZhConversion.php
 	printf ');' >> ZhConversion.php
-	echo >> ZhConversion.php
-	printf '?>' >> ZhConversion.php
-
 
 clean: cleantmp cleandl
 
@@ -262,7 +268,7 @@ cleantmp:
 cleandl:
 	rm -f \
 		Unihan.zip \
-		scim-tables-0.5.1.tar.gz \
-		scim-pinyin-0.5.0.tar.gz \
-		libtabe-0.2.3.tgz
+		scim-tables-$(SCIM_TABLES_VER).tar.gz \
+		scim-pinyin-$(SCIM_PINYIN_VER).tar.gz \
+		libtabe-$(LIBTABE_VER).tgz
 

@@ -80,6 +80,31 @@ class RecentChange
 			return NULL;
 		}
 	}
+	
+	/**
+	 * Find the first recent change matching some specific conditions
+	 *
+	 * @param array $conds Array of conditions
+	 * @param mixed $fname Override the method name in profiling/logs
+	 * @return RecentChange
+	 */
+	public static function newFromConds( $conds, $fname = false ) {
+		if( $fname === false )
+			$fname = __METHOD__;
+		$dbr = wfGetDB( DB_SLAVE );
+		$res = $dbr->select(
+			'recentchanges',
+			'*',
+			$conds,
+			$fname
+		);
+		if( $res instanceof ResultWrapper && $res->numRows() > 0 ) {
+			$row = $res->fetchObject();
+			$res->free();
+			return self::newFromRow( $row );
+		}
+		return null;
+	}
 
 	# Accessors
 
@@ -195,10 +220,10 @@ class RecentChange
 		global $wgUseEnotif;
 		if( $wgUseEnotif ) {
 			# this would be better as an extension hook
-			include_once( "UserMailer.php" );
-			$enotif = new EmailNotification();
+			global $wgUser;
+			$enotif = new EmailNotification;
 			$title = Title::makeTitle( $this->mAttribs['rc_namespace'], $this->mAttribs['rc_title'] );
-			$enotif->notifyOnPageChange( $title,
+			$enotif->notifyOnPageChange( $wgUser, $title,
 				$this->mAttribs['rc_timestamp'],
 				$this->mAttribs['rc_comment'],
 				$this->mAttribs['rc_minor'],
@@ -209,32 +234,33 @@ class RecentChange
 		wfRunHooks( 'RecentChange_save', array( &$this ) );
 	}
 
-	# Marks a certain row as patrolled
-	function markPatrolled( $rcid )
-	{
-		$fname = 'RecentChange::markPatrolled';
-
+	/**
+	 * Mark a given change as patrolled
+	 *
+	 * @param mixed $change RecentChange or corresponding rc_id
+	 */
+	public static function markPatrolled( $change ) {
+		$rcid = $change instanceof RecentChange
+			? $change->mAttribs['rc_id']
+			: $change;
 		$dbw = wfGetDB( DB_MASTER );
-
-		$dbw->update( 'recentchanges',
-			array( /* SET */
+		$dbw->update(
+			'recentchanges',
+			array(
 				'rc_patrolled' => 1
-			), array( /* WHERE */
+			),
+			array(
 				'rc_id' => $rcid
-			), $fname
+			),
+			__METHOD__
 		);
 	}
 
 	# Makes an entry in the database corresponding to an edit
-	/*static*/ function notifyEdit( $timestamp, &$title, $minor, &$user, $comment,
-		$oldId, $lastTimestamp, $bot = "default", $ip = '', $oldSize = 0, $newSize = 0,
+	public static function notifyEdit( $timestamp, &$title, $minor, &$user, $comment,
+		$oldId, $lastTimestamp, $bot, $ip = '', $oldSize = 0, $newSize = 0,
 		$newId = 0)
 	{
-
-		if ( $bot === 'default' ) {
-			$bot = $user->isAllowed( 'bot' );
-		}
-
 		if ( !$ip ) {
 			$ip = wfGetIP();
 			if ( !$ip ) {
@@ -280,10 +306,8 @@ class RecentChange
 	 * Makes an entry in the database corresponding to page creation
 	 * Note: the title object must be loaded with the new id using resetArticleID()
 	 * @todo Document parameters and return
-	 * @public
-	 * @static
 	 */
-	public static function notifyNew( $timestamp, &$title, $minor, &$user, $comment, $bot = "default",
+	public static function notifyNew( $timestamp, &$title, $minor, &$user, $comment, $bot,
 	  $ip='', $size = 0, $newId = 0 )
 	{
 		if ( !$ip ) {
@@ -291,9 +315,6 @@ class RecentChange
 			if ( !$ip ) {
 				$ip = '';
 			}
-		}
-		if ( $bot == 'default' ) {
-			$bot = $user->isAllowed( 'bot' );
 		}
 
 		$rc = new RecentChange;
@@ -331,8 +352,10 @@ class RecentChange
 	}
 
 	# Makes an entry in the database corresponding to a rename
-	/*static*/ function notifyMove( $timestamp, &$oldTitle, &$newTitle, &$user, $comment, $ip='', $overRedir = false )
+	public static function notifyMove( $timestamp, &$oldTitle, &$newTitle, &$user, $comment, $ip='', $overRedir = false )
 	{
+		global $wgRequest;
+
 		if ( !$ip ) {
 			$ip = wfGetIP();
 			if ( !$ip ) {
@@ -354,7 +377,7 @@ class RecentChange
 			'rc_comment'	=> $comment,
 			'rc_this_oldid'	=> 0,
 			'rc_last_oldid'	=> 0,
-			'rc_bot'	=> $user->isAllowed( 'bot' ) ? 1 : 0,
+			'rc_bot'	=> $user->isAllowed( 'bot' ) ? $wgRequest->getBool( 'bot' , true ) : 0,
 			'rc_moved_to_ns'	=> $newTitle->getNamespace(),
 			'rc_moved_to_title'	=> $newTitle->getDBkey(),
 			'rc_ip'		=> $ip,
@@ -372,19 +395,21 @@ class RecentChange
 		$rc->save();
 	}
 
-	/* static */ function notifyMoveToNew( $timestamp, &$oldTitle, &$newTitle, &$user, $comment, $ip='' ) {
+	public static function notifyMoveToNew( $timestamp, &$oldTitle, &$newTitle, &$user, $comment, $ip='' ) {
 		RecentChange::notifyMove( $timestamp, $oldTitle, $newTitle, $user, $comment, $ip, false );
 	}
 
-	/* static */ function notifyMoveOverRedirect( $timestamp, &$oldTitle, &$newTitle, &$user, $comment, $ip='' ) {
+	public static function notifyMoveOverRedirect( $timestamp, &$oldTitle, &$newTitle, &$user, $comment, $ip='' ) {
 		RecentChange::notifyMove( $timestamp, $oldTitle, $newTitle, $user, $comment, $ip, true );
 	}
 
 	# A log entry is different to an edit in that previous revisions are
 	# not kept
-	/*static*/ function notifyLog( $timestamp, &$title, &$user, $comment, $ip='',
+	public static function notifyLog( $timestamp, &$title, &$user, $comment, $ip='',
 	   $type, $action, $target, $logComment, $params )
 	{
+		global $wgRequest;
+
 		if ( !$ip ) {
 			$ip = wfGetIP();
 			if ( !$ip ) {
@@ -406,7 +431,7 @@ class RecentChange
 			'rc_comment'	=> $comment,
 			'rc_this_oldid'	=> 0,
 			'rc_last_oldid'	=> 0,
-			'rc_bot'	=> $user->isAllowed( 'bot' ) ? 1 : 0,
+			'rc_bot'	=> $user->isAllowed( 'bot' ) ? $wgRequest->getBool( 'bot' , true ) : 0,
 			'rc_moved_to_ns'	=> 0,
 			'rc_moved_to_title'	=> '',
 			'rc_ip'	=> $ip,
@@ -595,4 +620,5 @@ class RecentChange
 		}
 	}
 }
-?>
+
+
