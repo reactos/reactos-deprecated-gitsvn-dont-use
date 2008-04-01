@@ -19,8 +19,7 @@ class DoubleRedirectsPage extends PageQueryPage {
 	function isSyndicated() { return false; }
 
 	function getPageHeader( ) {
-		#FIXME : probably need to add a backlink to the maintenance page.
-		return '<p>'.wfMsg("doubleredirectstext")."</p><br />\n";
+		return wfMsgExt( 'doubleredirectstext', array( 'parse' ) );
 	}
 
 	function getSQLText( &$dbr, $namespace = null, $title = null ) {
@@ -75,13 +74,13 @@ class DoubleRedirectsPage extends PageQueryPage {
 			}
 		}
 		if ( !$result ) {
-			return '';
+			return '<s>' . $skin->makeLinkObj( $titleA, '', 'redirect=no' ) . '</s>';
 		}
 
 		$titleB = Title::makeTitle( $result->nsb, $result->tb );
 		$titleC = Title::makeTitle( $result->nsc, $result->tc );
 
-		$linkA = $skin->makeKnownLinkObj( $titleA,'', 'redirect=no' );
+		$linkA = $skin->makeKnownLinkObj( $titleA, '', 'redirect=no' );
 		$edit = $skin->makeBrokenLinkObj( $titleA, "(".wfMsg("qbedit").")" , 'redirect=no');
 		$linkB = $skin->makeKnownLinkObj( $titleB, '', 'redirect=no' );
 		$linkC = $skin->makeKnownLinkObj( $titleC );
@@ -102,4 +101,4 @@ function wfSpecialDoubleRedirects() {
 	return $sdr->doQuery( $offset, $limit );
 
 }
-?>
+

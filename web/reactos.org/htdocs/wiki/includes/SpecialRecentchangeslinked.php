@@ -14,7 +14,7 @@ require_once( 'SpecialRecentchanges.php' );
  * @param string $par parent page we will look at
  */
 function wfSpecialRecentchangeslinked( $par = NULL ) {
-	global $wgUser, $wgOut, $wgLang, $wgContLang, $wgRequest;
+	global $wgUser, $wgOut, $wgLang, $wgContLang, $wgRequest, $wgTitle;
 	$fname = 'wfSpecialRecentchangeslinked';
 
 	$days = $wgRequest->getInt( 'days' );
@@ -35,7 +35,9 @@ function wfSpecialRecentchangeslinked( $par = NULL ) {
 	}
 	$id = $nt->getArticleId();
 
-	$wgOut->setSubtitle( htmlspecialchars( wfMsg( 'rclsub', $nt->getPrefixedText() ) ) );
+	$wgOut->setPageTitle( wfMsg( 'recentchangeslinked-title', $nt->getPrefixedText() ) );
+	$wgOut->setSyndicated();
+	$wgOut->setFeedAppendQuery( "target=" . urlencode( $target ) );
 
 	if ( ! $days ) {
 		$days = (int)$wgUser->getOption( 'rcdays', 7 );
@@ -74,7 +76,7 @@ function wfSpecialRecentchangeslinked( $par = NULL ) {
 
 	// If target is a Category, use categorylinks and invert from and to
 	if( $nt->getNamespace() == NS_CATEGORY ) {
-		$catkey = $dbr->addQuotes( $nt->getDBKey() );
+		$catkey = $dbr->addQuotes( $nt->getDBkey() );
 		$sql = "SELECT /* wfSpecialRecentchangeslinked */
 				rc_id,
 				rc_cur_id,
@@ -151,6 +153,7 @@ $GROUPBY
 	$s = $list->beginRecentChangesList();
 	$count = $dbr->numRows( $res );
 
+	$rchanges = array();
 	if ( $count ) {
 		$counter = 1;
 		while ( $limit ) {
@@ -161,14 +164,27 @@ $GROUPBY
 			$rc->counter = $counter++;
 			$s .= $list->recentChangesLine( $rc , !empty( $obj->wl_user) );
 			--$limit;
+			$rchanges[] = $obj;
 		}
 	} else {
-		$wgOut->addWikiText( wfMsg('recentchangeslinked-noresult') );
+		$wgOut->addWikiMsg('recentchangeslinked-noresult');
 	}
 	$s .= $list->endRecentChangesList();
 
 	$dbr->freeResult( $res );
 	$wgOut->addHTML( $s );
+
+	global $wgSitename, $wgFeedClasses, $wgContLanguageCode;
+	$feedFormat = $wgRequest->getVal( 'feed' );
+	if( $feedFormat && isset( $wgFeedClasses[$feedFormat] ) ) {
+		$feedTitle = $wgSitename . ' - ' . wfMsgForContent( 'recentchangeslinked-title', $nt->getPrefixedText() ) . ' [' . $wgContLanguageCode . ']';
+		$feed = new $wgFeedClasses[$feedFormat]( $feedTitle,
+			htmlspecialchars( wfMsgForContent('recentchangeslinked') ), $wgTitle->getFullUrl() );
+		
+		require_once( "SpecialRecentchanges.php" );
+		$wgOut->disable();
+		rcDoOutputFeed( $rchanges, $feed );
+	}
 }
 
-?>
+

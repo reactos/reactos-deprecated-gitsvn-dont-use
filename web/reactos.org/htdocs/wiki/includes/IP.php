@@ -22,7 +22,12 @@ define( 'RE_IPV6_PREFIX', '(12[0-8]|1[01][0-9]|[1-9]?\d)');
 define( 'RE_IPV6_ADD', '(:(:' . RE_IPV6_WORD . '){1,7}|' . RE_IPV6_WORD . '(:{1,2}' . RE_IPV6_WORD . '|::$){1,7})' );
 define( 'RE_IPV6_BLOCK', RE_IPV6_ADD . '\/' . RE_IPV6_PREFIX );
 // This might be useful for regexps used elsewhere, matches any IPv6 or IPv6 address or network
-define( 'IP_ADDRESS_STRING', RE_IP_ADD . '(\/' . RE_IP_PREFIX . '|)|' . RE_IPV6_ADD . '(\/' . RE_IPV6_PREFIX . '|)');
+define( 'IP_ADDRESS_STRING',
+	'(?:' .
+		RE_IP_ADD . '(\/' . RE_IP_PREFIX . '|)' .
+	'|' .
+		RE_IPV6_ADD . '(\/' . RE_IPV6_PREFIX . '|)' .
+	')' );
 
 /**
  * A collection of public static functions to play with IP address
@@ -109,13 +114,14 @@ class IP {
 	 * @return string 
 	 */	
 	public static function sanitizeIP( $ip ) {
-		if ( !$ip ) return null;
+		$ip = trim( $ip );
+		if ( $ip === '' ) return null;
 		// Trim and return IPv4 addresses
-		if ( self::isIPv4($ip) ) return trim($ip);
+		if ( self::isIPv4($ip) ) return $ip;
 		// Only IPv6 addresses can be expanded
 		if ( !self::isIPv6($ip) ) return $ip;
 		// Remove any whitespaces, convert to upper case
-		$ip = strtoupper( trim($ip) );
+		$ip = strtoupper( $ip );
 		// Expand zero abbreviations
 		if ( strpos( $ip, '::' ) !== false ) {
     		$ip = str_replace('::', str_repeat(':0', 8 - substr_count($ip, ':')) . ':', $ip);
@@ -462,22 +468,29 @@ class IP {
      * @return valid dotted quad IPv4 address or null
      */
     public static function canonicalize( $addr ) {
-	if ( self::isValid( $addr ) )
-	    return $addr;
+		if ( self::isValid( $addr ) )
+			return $addr;
 
-	// IPv6 loopback address
-	$m = array();
-	if ( preg_match( '/^0*' . RE_IPV6_GAP . '1$/', $addr, $m ) )
-	    return '127.0.0.1';
+		// Annoying IPv6 representations like ::ffff:1.2.3.4
+		if ( strpos($addr,':') !==false && strpos($addr,'.') !==false ) {
+			$addr = str_replace( '.', ':', $addr );
+			if( IP::isIPv6( $addr ) )
+				return $addr;
+		}
 
-	// IPv4-mapped and IPv4-compatible IPv6 addresses
-	if ( preg_match( '/^' . RE_IPV6_V4_PREFIX . '(' . RE_IP_ADD . ')$/i', $addr, $m ) )
-	    return $m[1];
-	if ( preg_match( '/^' . RE_IPV6_V4_PREFIX . RE_IPV6_WORD . ':' . RE_IPV6_WORD . '$/i', $addr, $m ) )
-	    return long2ip( ( hexdec( $m[1] ) << 16 ) + hexdec( $m[2] ) );
+		// IPv6 loopback address
+		$m = array();
+		if ( preg_match( '/^0*' . RE_IPV6_GAP . '1$/', $addr, $m ) )
+	   		return '127.0.0.1';
 
-	return null;  // give up
+		// IPv4-mapped and IPv4-compatible IPv6 addresses
+		if ( preg_match( '/^' . RE_IPV6_V4_PREFIX . '(' . RE_IP_ADD . ')$/i', $addr, $m ) )
+		    return $m[1];
+		if ( preg_match( '/^' . RE_IPV6_V4_PREFIX . RE_IPV6_WORD . ':' . RE_IPV6_WORD . '$/i', $addr, $m ) )
+		    return long2ip( ( hexdec( $m[1] ) << 16 ) + hexdec( $m[2] ) );
+
+		return null;  // give up
     }
 }
 
-?>
+

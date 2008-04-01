@@ -11,7 +11,9 @@ function install_version_checks() {
 		die( -1 );
 	}
 	if( version_compare( phpversion(), '5.0.0' ) < 0 ) {
-		echo "PHP 5.0.0 or higher is required. ABORTING.\n";
+		echo "PHP 5.0.0 or higher is required. If PHP 5 is available only when \n".
+   "PHP files have a .php5 extension, please navigate to <a href=\"index.php5\">index.php5</a> \n".
+   "to continue installation. ABORTING.\n";
 		die( -1 );
 	}
 	
@@ -122,4 +124,17 @@ function mw_get_session_save_path() {
 	return $path;
 }
 
-?>
+/**
+ * Is dl() available to us?
+ *
+ * According to http://uk.php.net/manual/en/function.dl.php, dl()
+ * is *not* available when `enable_dl` is off, or under `safe_mode`
+ *
+ * @return bool
+ */
+function mw_have_dl() {
+	return function_exists( 'dl' )
+		&& is_callable( 'dl' )
+		&& wfIniGetBool( 'enable_dl' )
+		&& !wfIniGetBool( 'safe_mode' );
+}

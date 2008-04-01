@@ -4,14 +4,26 @@
  * Pick a database that has pending jobs
  */
 
+$options = array( 'type'  );
+
 require_once( 'commandLine.inc' );
 
-$pendingDBs = $wgMemc->get( 'jobqueue:dbs' );
+$type = isset($options['type'])
+		? $options['type']
+		: false;
+
+$mckey = $type === false
+            ? "jobqueue:dbs"
+            : "jobqueue:dbs:$type";
+
+$pendingDBs = $wgMemc->get( $mckey );
 if ( !$pendingDBs ) {
 	$pendingDBs = array();
 	# Cross-reference DBs by master DB server
 	$dbsByMaster = array();
-	$defaultMaster = $wgAlternateMaster['DEFAULT'];
+	$defaultMaster = isset( $wgAlternateMaster['DEFAULT'] )
+		? $wgAlternateMaster['DEFAULT']
+		: $wgDBserver;
 	foreach ( $wgLocalDatabases as $db ) {
 		if ( isset( $wgAlternateMaster[$db] ) ) {
 			$dbsByMaster[$wgAlternateMaster[$db]][] = $db;
@@ -21,7 +33,8 @@ if ( !$pendingDBs ) {
 	}
 
 	foreach ( $dbsByMaster as $master => $dbs ) {
-		$dbConn = new Database( $master, $wgDBuser, $wgDBpassword );
+		$dbConn = new Database( $master, $wgDBuser, $wgDBpassword, $dbs[0] );
+		$stype = $dbConn->addQuotes($type);
 
 		# Padding row for MySQL bug
 		$sql = "(SELECT '-------------------------------------------')";
@@ -29,7 +42,10 @@ if ( !$pendingDBs ) {
 			if ( $sql != '' ) {
 				$sql .= ' UNION ';
 			}
-			$sql .= "(SELECT '$dbName' FROM `$dbName`.job LIMIT 1)";
+			if ($type === false)
+				$sql .= "(SELECT '$dbName' FROM `$dbName`.job LIMIT 1)";
+			else
+				$sql .= "(SELECT '$dbName' FROM `$dbName`.job WHERE job_cmd=$stype LIMIT 1)";
 		}
 		$res = $dbConn->query( $sql, 'nextJobDB.php' );
 		$row = $dbConn->fetchRow( $res ); // discard padding row
@@ -38,11 +54,11 @@ if ( !$pendingDBs ) {
 		}
 	}
 
-	$wgMemc->set( 'jobqueue:dbs', $pendingDBs, 300 );
+	$wgMemc->set( $mckey, $pendingDBs, 300 );
 }
 
 if ( $pendingDBs ) {
 	echo $pendingDBs[mt_rand(0, count( $pendingDBs ) - 1)];
 }
 
-?>
+

@@ -1,7 +1,10 @@
 <?php
-/**
- * Chuvash stub localization; default to Russian instead of English.
+/** Chuvash (Чăвашла)
+ *
+ * @addtogroup Language
+ *
  */
+
 $fallback = 'ru';
 $linkPrefixExtension = true;
 
@@ -63,21 +66,10 @@ $messages = array(
 'categories'     => 'Категорисем',
 'pagecategories' => 'Категорисем',
 
-'linkprefix' => '/^(.*?)([a-zA-Z\x80-\xff«"]+)$/sD',
-'mainpage'   => 'Тĕп страницă',
-
-'aboutsite'      => '{{SITENAME}} çинчен',
-'aboutpage'      => '{{ns:project}}:çинчен',
-'help'           => 'Пулăшу',
-'helppage'       => '{{ns:project}}:Пулăшу',
-'sitesupport'    => 'Пожертвованисем',
-'edithelp'       => 'Улшăнусене кĕртме пулăшакан пулăшу',
-'edithelppage'   => '{{ns:project}}:Улшăнусене кĕртме пулăшакан пулăшу',
 'qbspecialpages' => 'Ятарлӑ страницӑсем',
+'and'            => 'тата',
 
-'currentevents'     => 'Хыпарсем',
-'currentevents-url' => 'Хыпарсем',
-
+'help'             => 'Пулăшу',
 'search'           => 'Шырасси',
 'searchbutton'     => 'Шырасси',
 'go'               => 'Куç',
@@ -99,10 +91,21 @@ $messages = array(
 'jumptonavigation' => 'навигаци',
 'jumptosearch'     => 'Шырав',
 
+# All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
+'aboutsite'         => '{{SITENAME}} çинчен',
+'aboutpage'         => 'Project:çинчен',
+'currentevents'     => 'Хыпарсем',
+'currentevents-url' => 'Project:Хыпарсем',
+'edithelp'          => 'Улшăнусене кĕртме пулăшакан пулăшу',
+'edithelppage'      => 'Help:Улшăнусене кĕртме пулăшакан пулăшу',
+'helppage'          => 'Help:Пулăшу',
+'mainpage'          => 'Тĕп страницă',
+'sitesupport'       => 'Пожертвованисем',
+
 'toc'     => 'Тупмалли',
 'hidetoc' => 'кӑтартмалла мар',
 
-# Short words for each namespace, by default used in the 'article' tab in monobook
+# Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-user'    => 'Хутшăнакан страници',
 'nstab-special' => 'Ятарлă',
 'nstab-help'    => 'пулăшу',
@@ -152,6 +155,9 @@ $messages = array(
 'show'          => 'кăтартмалла',
 'newpageletter' => 'Ç',
 
+# Recent changes linked
+'recentchangeslinked' => 'Çыхăннă улшăнусем',
+
 # Upload
 'upload'         => 'Файла кĕртесси',
 'uploadlog'      => 'Файлсене кĕртнин логĕ',
@@ -163,19 +169,21 @@ $messages = array(
 'imagelist' => 'Ӳкерчěксен списокě',
 'ilsubmit'  => 'Шырамалла',
 
+# Random page
+'randompage' => 'Ăнсăртран илнě страницă',
+
 # Miscellaneous special pages
 'nviews'                  => '$1 хут пăхнă',
 'uncategorizedpages'      => 'Каталогсăр страницăсем',
 'uncategorizedcategories' => 'Каталога кĕртмен категорисем',
 'allpages'                => 'Пěтěм страницăсем',
-'randompage'              => 'Ăнсăртран илнě страницă',
 'deadendpages'            => 'Ниăçта та урăх ертмен страницăсем',
 'listusers'               => 'Хутшăнакансен списокĕ',
 'specialpages'            => 'Ятарлă страницăсем',
 'spheading'               => 'Пěтěм пользовательсем валли ятарлă страницăсем',
-'recentchangeslinked'     => 'Çыхăннă улшăнусем',
 'newpages'                => 'Çěнě страницăсем',
 'ancientpages'            => 'Чи кивĕ статьясем',
+'notargettitle'           => 'Тĕллевне кăтартман',
 
 'data' => 'Кун',
 
@@ -191,7 +199,6 @@ $messages = array(
 
 # Undelete
 'undelete'           => 'Кăларса пăрахнă страницăсене пăх',
-'undeletearticle'    => 'Кăларса парахнă страницăна каялла тавăр',
 'undeleterevisions'  => 'Архивра пурĕ $1 верси',
 'undeletebtn'        => 'Каялла тавăр!',
 'undeletedarticle'   => '«[[$1]]» каялла тавăрнă',
@@ -203,7 +210,6 @@ $messages = array(
 
 # What links here
 'whatlinkshere' => 'Кунта килекен ссылкăсем',
-'notargettitle' => 'Тĕллевне кăтартман',
 'linklistsub'   => '(ссылкăсен списокĕ)',
 
 # Block/unblock
@@ -241,7 +247,6 @@ $messages = array(
 'tooltip-watch'          => 'Çак страницăна пăхса тăмаллисем шутне хуш',
 
 # Attribution
-'and'    => 'тата',
 'others' => 'ыттисем',
 
 # Spam protection
@@ -250,12 +255,7 @@ $messages = array(
 # Info page
 'numedits' => 'Улшăнусен шучĕ (статьясем): $1',
 
-# Inputbox extension, may be useful in other contexts as well
-'createarticle' => 'Çĕнĕ статья çыр',
-
 # Trackbacks
 'trackbackremove' => ' ([$1 кăларса пăрах])',
 
 );
-
-?>

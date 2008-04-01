@@ -24,11 +24,13 @@ class SpecialVersion {
 	 * main()
 	 */
 	function execute() {
-		global $wgOut;
+		global $wgOut, $wgMessageCache;
+		$wgMessageCache->loadAllMessages();
 
 		$wgOut->addHTML( '<div dir="ltr">' );
 		$wgOut->addWikiText(
 			$this->MediaWikiCredits() .
+			$this->softwareInformation() .
 			$this->extensionCredits() .
 			$this->wgHooks()
 		);
@@ -41,18 +43,13 @@ class SpecialVersion {
 	 */
 
 	/**
-	 * Return wiki text showing the licence information and third party
-	 * software versions (apache, php, mysql).
-	 * @static
+	 * @return wiki text showing the license information
 	 */
-	function MediaWikiCredits() {
-		$version = self::getVersion();
-		$dbr = wfGetDB( DB_SLAVE );
-
-		$ret =
+	static function MediaWikiCredits() {
+		$ret = Xml::element( 'h2', array( 'id' => 'mw-version-license' ), wfMsg( 'version-license' ) ) .
 		"__NOTOC__
 		This wiki is powered by '''[http://www.mediawiki.org/ MediaWiki]''',
-		copyright (C) 2001-2007 Magnus Manske, Brion Vibber, Lee Daniel Crocker,
+		copyright (C) 2001-2008 Magnus Manske, Brion Vibber, Lee Daniel Crocker,
 		Tim Starling, Erik Möller, Gabriel Wicke, Ævar Arnfjörð Bjarmason,
 		Niklas Laxström, Domas Mituzas, Rob Church and others.
 
@@ -68,40 +65,68 @@ class SpecialVersion {
 
 		You should have received [{{SERVER}}{{SCRIPTPATH}}/COPYING a copy of the GNU General Public License]
 		along with this program; if not, write to the Free Software
-		Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-		or [http://www.gnu.org/copyleft/gpl.html read it online]
-
-		* [http://www.mediawiki.org/ MediaWiki]: $version
-		* [http://www.php.net/ PHP]: " . phpversion() . " (" . php_sapi_name() . ")
-		* " . $dbr->getSoftwareLink() . ": " . $dbr->getServerVersion();
+		Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+		or [http://www.gnu.org/copyleft/gpl.html read it online].
+		";
 
 		return str_replace( "\t\t", '', $ret ) . "\n";
+	}
+
+	/**
+	 * @return wiki text showing the third party software versions (apache, php, mysql).
+	 */
+	static function softwareInformation() {
+		$dbr = wfGetDB( DB_SLAVE );
+
+		return Xml::element( 'h2', array( 'id' => 'mw-version-software' ), wfMsg( 'version-software' ) ) .
+			Xml::openElement( 'table', array( 'id' => 'sv-software' ) ) .
+				"<tr>
+					<th>" . wfMsg( 'version-software-product' ) . "</th>
+					<th>" . wfMsg( 'version-software-version' ) . "</th>
+				</tr>\n
+				<tr>
+					<td>[http://www.mediawiki.org/ MediaWiki]</td>
+					<td>" . self::getVersion() . "</td>
+				</tr>\n
+				<tr>
+					<td>[http://www.php.net/ PHP]</td>
+					<td>" . phpversion() . " (" . php_sapi_name() . ")</td>
+				</tr>\n
+				<tr>
+					<td>" . $dbr->getSoftwareLink() . "</td>
+					<td>" . $dbr->getServerVersion() . "</td>
+				</tr>\n" .
+			Xml::closeElement( 'table' );
 	}
 
 	/** Return a string of the MediaWiki version with SVN revision if available */
 	public static function getVersion() {
 		global $wgVersion, $IP;
+		wfProfileIn( __METHOD__ );
 		$svn = self::getSvnRevision( $IP );
-		return $svn ? "$wgVersion (r$svn)" : $wgVersion;
+		$version = $svn ? "$wgVersion (r$svn)" : $wgVersion;
+		wfProfileOut( __METHOD__ );
+		return $version;
 	}
 
 	/** Generate wikitext showing extensions name, URL, author and description */
 	function extensionCredits() {
-		global $wgExtensionCredits, $wgExtensionFunctions, $wgParser, $wgSkinExtensionFunction;
+		global $wgExtensionCredits, $wgExtensionFunctions, $wgParser, $wgSkinExtensionFunctions;
 
-		if ( ! count( $wgExtensionCredits ) && ! count( $wgExtensionFunctions ) && ! count( $wgSkinExtensionFunction ) )
+		if ( ! count( $wgExtensionCredits ) && ! count( $wgExtensionFunctions ) && ! count( $wgSkinExtensionFunctions ) )
 			return '';
 
 		$extensionTypes = array(
-			'specialpage' => 'Special pages',
-			'parserhook' => 'Parser hooks',
-			'variable' => 'Variables',
-			'other' => 'Other',
+			'specialpage' => wfMsg( 'version-specialpages' ),
+			'parserhook' => wfMsg( 'version-parserhooks' ),
+			'variable' => wfMsg( 'version-variables' ),
+			'media' => wfMsg( 'version-mediahandlers' ),
+			'other' => wfMsg( 'version-other' ),
 		);
 		wfRunHooks( 'SpecialVersionExtensionTypes', array( &$this, &$extensionTypes ) );
 
-		$out = "<h2>Extensions</h2>\n";
-		$out .= wfOpenElement('table', array('id' => 'sv-ext') );
+		$out = Xml::element( 'h2', array( 'id' => 'mw-version-ext' ), wfMsg( 'version-extensions' ) ) .
+			Xml::openElement( 'table', array( 'id' => 'sv-ext' ) );
 
 		foreach ( $extensionTypes as $type => $text ) {
 			if ( isset ( $wgExtensionCredits[$type] ) && count ( $wgExtensionCredits[$type] ) ) {
@@ -111,64 +136,71 @@ class SpecialVersion {
 
 				foreach ( $wgExtensionCredits[$type] as $extension ) {
 					$out .= $this->formatCredits(
-						isset ( $extension['name'] )        ? $extension['name']        : '',
-						isset ( $extension['version'] )     ? $extension['version']     : null,
-						isset ( $extension['author'] )      ? $extension['author']      : '',
-						isset ( $extension['url'] )         ? $extension['url']         : null,
-						isset ( $extension['description'] ) ? $extension['description'] : ''
+						isset ( $extension['name'] )           ? $extension['name']        : '',
+						isset ( $extension['version'] )        ? $extension['version']     : null,
+						isset ( $extension['author'] )         ? $extension['author']      : '',
+						isset ( $extension['url'] )            ? $extension['url']         : null,
+						isset ( $extension['description'] )    ? $extension['description'] : '',
+						isset ( $extension['descriptionmsg'] ) ? $extension['descriptionmsg'] : ''
 					);
 				}
 			}
 		}
 
 		if ( count( $wgExtensionFunctions ) ) {
-			$out .= $this->openExtType('Extension functions');
+			$out .= $this->openExtType( wfMsg( 'version-extension-functions' ) );
 			$out .= '<tr><td colspan="3">' . $this->listToText( $wgExtensionFunctions ) . "</td></tr>\n";
 		}
 
 		if ( $cnt = count( $tags = $wgParser->getTags() ) ) {
 			for ( $i = 0; $i < $cnt; ++$i )
 				$tags[$i] = "&lt;{$tags[$i]}&gt;";
-			$out .= $this->openExtType('Parser extension tags');
+			$out .= $this->openExtType( wfMsg( 'version-parser-extensiontags' ) );
 			$out .= '<tr><td colspan="3">' . $this->listToText( $tags ). "</td></tr>\n";
 		}
 
 		if( $cnt = count( $fhooks = $wgParser->getFunctionHooks() ) ) {
-			$out .= $this->openExtType('Parser function hooks');
+			$out .= $this->openExtType( wfMsg( 'version-parser-function-hooks' ) );
 			$out .= '<tr><td colspan="3">' . $this->listToText( $fhooks ) . "</td></tr>\n";
 		}
 
-		if ( count( $wgSkinExtensionFunction ) ) {
-			$out .= $this->openExtType('Skin extension functions');
-			$out .= '<tr><td colspan="3">' . $this->listToText( $wgSkinExtensionFunction ) . "</td></tr>\n";
+		if ( count( $wgSkinExtensionFunctions ) ) {
+			$out .= $this->openExtType( wfMsg( 'version-skin-extension-functions' ) );
+			$out .= '<tr><td colspan="3">' . $this->listToText( $wgSkinExtensionFunctions ) . "</td></tr>\n";
 		}
-		$out .= wfCloseElement( 'table' );
+		$out .= Xml::closeElement( 'table' );
 		return $out;
 	}
 
 	/** Callback to sort extensions by type */
 	function compare( $a, $b ) {
-		if ( $a['name'] === $b['name'] )
+		global $wgLang;
+		if( $a['name'] === $b['name'] ) {
 			return 0;
-		else
-			return Language::lc( $a['name'] ) > Language::lc( $b['name'] ) ? 1 : -1;
+		} else {
+			return $wgLang->lc( $a['name'] ) > $wgLang->lc( $b['name'] )
+				? 1
+				: -1;
+		}
 	}
 
-	function formatCredits( $name, $version = null, $author = null, $url = null, $description = null) {
-		$ret = '<tr><td>';
-		if ( isset( $url ) )
-			$ret .= "[$url ";
-		$ret .= "''$name";
-		if ( isset( $version ) )
-			$ret .= " (version $version)";
-		$ret .= "''";
-		if ( isset( $url ) )
-			$ret .= ']';
-		$ret .= '</td>';
-		$ret .= "<td>$description</td>";
-		$ret .= "<td>" . $this->listToText( (array)$author ) . "</td>";
-		$ret .= '</tr>';
-		return "$ret\n";
+	function formatCredits( $name, $version = null, $author = null, $url = null, $description = null, $descriptionMsg = null ) {
+		$extension = isset( $url ) ? "[$url $name]" : $name;
+		$version = isset( $version ) ? "(" . wfMsg( 'version-version' ) . " $version)" : '';
+
+		# Look for a localized description
+		if( isset( $descriptionMsg ) ) {
+			$msg = wfMsg( $descriptionMsg );
+			if ( !wfEmptyMsg( $descriptionMsg, $msg ) && $msg != '' ) {
+				$description = $msg;
+			}
+		}
+
+		return "<tr>
+				<td><em>$extension $version</em></td>
+				<td>$description</td>
+				<td>" . $this->listToText( (array)$author ) . "</td>
+			</tr>\n";
 	}
 
 	/**
@@ -181,14 +213,20 @@ class SpecialVersion {
 			$myWgHooks = $wgHooks;
 			ksort( $myWgHooks );
 
-			$ret = "<h2>Hooks</h2>\n"
-				. wfOpenElement('table', array('id' => 'sv-hooks') )
-				. "<tr><th>Hook name</th><th>Subscribed by</th></tr>\n";
+			$ret = Xml::element( 'h2', array( 'id' => 'mw-version-hooks' ), wfMsg( 'version-hooks' ) ) .
+				Xml::openElement( 'table', array( 'id' => 'sv-hooks' ) ) .
+				"<tr>
+					<th>" . wfMsg( 'version-hook-name' ) . "</th>
+					<th>" . wfMsg( 'version-hook-subscribedby' ) . "</th>
+				</tr>\n";
 
-			foreach ($myWgHooks as $hook => $hooks)
-				$ret .= "<tr><td>$hook</td><td>" . $this->listToText( $hooks ) . "</td></tr>\n";
+			foreach ( $myWgHooks as $hook => $hooks )
+				$ret .= "<tr>
+						<td>$hook</td>
+						<td>" . $this->listToText( $hooks ) . "</td>
+					</tr>\n";
 
-			$ret .= '</table>';
+			$ret .= Xml::closeElement( 'table' );
 			return $ret;
 		} else
 			return '';
@@ -200,13 +238,13 @@ class SpecialVersion {
 
 		if(!$this->firstExtOpened) {
 			// Insert a spacing line
-			$out .= '<tr class="sv-space">' . wfElement( 'td', $opt ) . "</tr>\n";
+			$out .= '<tr class="sv-space">' . Xml::element( 'td', $opt ) . "</tr>\n";
 		}
 		$this->firstExtOpened = false;
 
 		if($name) { $opt['id'] = "sv-$name"; }
 
-		$out .= "<tr>" . wfElement( 'th', $opt, $text) . "</tr>\n";
+		$out .= "<tr>" . Xml::element( 'th', $opt, $text) . "</tr>\n";
 		return $out;
 	}
 
@@ -228,18 +266,20 @@ class SpecialVersion {
 	function listToText( $list ) {
 		$cnt = count( $list );
 
-	    if ( $cnt == 1 ) {
+		if ( $cnt == 1 ) {
 			// Enforce always returning a string
 			return (string)$this->arrayToString( $list[0] );
-	    } elseif ( $cnt == 0 ) {
+		} elseif ( $cnt == 0 ) {
 			return '';
 		} else {
+			sort( $list );
 			$t = array_slice( $list, 0, $cnt - 1 );
 			$one = array_map( array( &$this, 'arrayToString' ), $t );
 			$two = $this->arrayToString( $list[$cnt - 1] );
+			$and = wfMsg( 'and' );
 
-			return implode( ', ', $one ) . " and $two";
-	    }
+			return implode( ', ', $one ) . " $and $two";
+		}
 	}
 
 	/**
@@ -250,7 +290,10 @@ class SpecialVersion {
 	 * @return mixed
 	 */
 	function arrayToString( $list ) {
-		if ( ! is_array( $list ) ) {
+		if( is_object( $list ) ) {
+			$class = get_class( $list );
+			return "($class)";
+		} elseif ( ! is_array( $list ) ) {
 			return $list;
 		} else {
 			$class = get_class( $list[0] );
@@ -308,4 +351,5 @@ class SpecialVersion {
 }
 
 /**#@-*/
-?>
+
+

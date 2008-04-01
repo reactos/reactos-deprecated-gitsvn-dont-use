@@ -39,16 +39,21 @@ function sajax_init_object() {
 	sajax_debug("sajax_init_object() called..")
 	var A;
 	try {
-		A=new ActiveXObject("Msxml2.XMLHTTP");
+		// Try the new style before ActiveX so we don't
+		// unnecessarily trigger warnings in IE 7 when
+		// set to prompt about ActiveX usage
+		A = new XMLHttpRequest();
 	} catch (e) {
 		try {
-			A=new ActiveXObject("Microsoft.XMLHTTP");
-		} catch (oc) {
-			A=null;
+			A=new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				A=new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (oc) {
+				A=null;
+			}
 		}
 	}
-	if(!A && typeof XMLHttpRequest != "undefined")
-		A = new XMLHttpRequest();
 	if (!A)
 		sajax_debug("Could not create connection object.");
 
@@ -75,7 +80,9 @@ function sajax_do_call(func_name, args, target) {
 	var i, x, n;
 	var uri;
 	var post_data;
-	uri = wgServer + wgScriptPath + "/index.php?action=ajax";
+	uri = wgServer +
+		((wgScript == null) ? (wgScriptPath + "/index.php") : wgScript) +
+		"?action=ajax";
 	if (sajax_request_type == "GET") {
 		if (uri.indexOf("?") == -1)
 			uri = uri + "?rs=" + encodeURIComponent(func_name);

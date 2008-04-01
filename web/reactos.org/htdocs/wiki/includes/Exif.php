@@ -405,7 +405,7 @@ class Exif {
 	 *
 	 * @return int
 	 */
-	function version() {
+	public static function version() {
 		return 1; // We don't need no bloddy constants!
 	}
 
@@ -1131,4 +1131,4 @@ define( 'MW_EXIF_UNDEFINED', Exif::UNDEFINED );
 define( 'MW_EXIF_SLONG', Exif::SLONG );
 define( 'MW_EXIF_SRATIONAL', Exif::SRATIONAL );
 
-?>
+

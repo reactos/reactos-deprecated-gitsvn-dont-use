@@ -15,7 +15,7 @@ class DeadendPagesPage extends PageQueryPage {
 	}
 
 	function getPageHeader() {
-		return '<p>' . wfMsg('deadendpagestext') . '</p>';
+		return wfMsgExt( 'deadendpagestext', array( 'parse' ) );
 	}
 
 	/**
@@ -62,4 +62,4 @@ function wfSpecialDeadendpages() {
 	return $depp->doQuery( $offset, $limit );
 }
 
-?>
+

@@ -219,3 +219,20 @@ input#wpSave, input#wpDiff {
 p.mw-ipb-conveniencelinks {
 	float: left;
 }
+
+.toggle {
+	margin-left: 0em;
+	margin-right: 2em;
+}
+table.filehistory th {
+	text-align: right;
+}
+
+/**
+ * Lists:
+ * The following lines don't have a visible effect on non-Gecko browsers
+ * They fix a problem ith Gecko browsers rendering lists to the right of
+ * left-floated objects in an RTL layout.
+ */
+html>body.rtl #bodyContent ul { display:table; }
+html>body.rtl #bodyContent ol { display:table; }

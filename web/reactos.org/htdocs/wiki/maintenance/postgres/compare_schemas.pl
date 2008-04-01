@@ -35,7 +35,7 @@ while (<DATA>) {
 my $datatype = join '|' => qw(
 bool
 tinyint int bigint real float
-tinytext mediumtext text char varchar varbinary
+tinytext mediumtext text char varchar varbinary binary
 timestamp datetime
 tinyblob mediumblob blob
 );
@@ -112,6 +112,8 @@ sub parse_sql {
 		}
 		elsif (/^  (\w+) $datatype$typeval$typeval2{0,3},?$/) {
 			$info{$table}{column}{$1} = $2;
+			my $extra = $3 || '';
+			$info{$table}{columnfull}{$1} = "$2$extra";
 		}
 		elsif (/^  ($indextype)(?: (\w+))? \(([\w, \(\)]+)\),?$/) {
 			$info{$table}{lc $1.'_name'} = $2 ? $2 : '';
@@ -127,6 +129,46 @@ sub parse_sql {
 	return \%info;
 
 } ## end of parse_sql
+
+## Read in the parser test information
+my $parsefile = '../parserTests.inc';
+open my $pfh, '<', $parsefile or die qq{Could not open "$parsefile": $!\n};
+my $stat = 0;
+my %ptable;
+while (<$pfh>) {
+	if (!$stat) {
+		if (/function listTables/) {
+			$stat = 1;
+		}
+		next;
+	}
+	$ptable{$1}=2 while /'(\w+)'/g;
+	last if /\);/;
+}
+close $pfh;
+
+my $OK_NOT_IN_PTABLE = '
+filearchive
+logging
+profiling
+querycache_info
+searchindex
+trackbacks
+transcache
+user_newtalk
+';
+
+## Make sure all tables in main tables.sql are accounted for int the parsertest.
+for my $table (sort keys %{$old{'../tables.sql'}}) {
+	$ptable{$table}++;
+	next if $ptable{$table} > 2;
+	next if $OK_NOT_IN_PTABLE =~ /\b$table\b/;
+	print qq{Table "$table" is in the schema, but not used inside of parserTest.inc\n};
+}
+## Any that are used in ptables but no longer exist in the schema?
+for my $table (sort grep { $ptable{$_} == 2 } keys %ptable) {
+	print qq{Table "$table" ($ptable{$table}) used in parserTest.inc, but not found in schema\n};
+}
 
 for my $oldfile (@old) {
 
@@ -155,7 +197,7 @@ CIDR
 );
 $dtype = qr{($dtype)};
 my %new;
-my ($infunction,$inview,$inrule) = (0,0,0);
+my ($infunction,$inview,$inrule,$lastcomma) = (0,0,0,0);
 seek $newfh, 0, 0;
 while (<$newfh>) {
 	next if /^\s*\-\-/ or /^\s*$/;
@@ -190,15 +232,188 @@ while (<$newfh>) {
 	if (/^CREATE TABLE "?(\w+)"? \($/) {
 		$table = $1;
 		$new{$table}{name}=$table;
+		$lastcomma = 1;
 	}
 	elsif (/^\);$/) {
+		if ($lastcomma) {
+			warn "Stray comma before line $.\n";
+		}
 	}
-	elsif (/^  (\w+) +$dtype/) {
+	elsif (/^  (\w+) +$dtype.*?(,?)(?: --.*)?$/) {
 		$new{$table}{column}{$1} = $2;
+		if (!$lastcomma) {
+			print "Missing comma before line $. of $new\n";
+		}
+		$lastcomma = $3 ? 1 : 0;
 	}
 	else {
 		die "Cannot parse line $. of $new:\n$_\n";
 	}
+}
+
+## Which column types are okay to map from mysql to postgres?
+my $COLMAP = q{
+## INTS:
+tinyint SMALLINT
+int INTEGER SERIAL
+bigint BIGINT
+real NUMERIC
+float NUMERIC
+
+## TEXT:
+varchar(32) TEXT
+varchar(70) TEXT
+varchar(255) TEXT
+varchar TEXT
+text TEXT
+tinytext TEXT
+ENUM TEXT
+
+## TIMESTAMPS:
+varbinary(14) TIMESTAMPTZ
+binary(14) TIMESTAMPTZ
+datetime TIMESTAMPTZ
+timestamp TIMESTAMPTZ
+
+## BYTEA:
+mediumblob BYTEA
+
+## OTHER:
+bool CHAR # Sigh
+
+};
+## Allow specific exceptions to the above
+my $COLMAPOK = q{
+## User inputted text strings:
+ar_comment      tinyblob       TEXT
+fa_description  tinyblob       TEXT
+img_description tinyblob       TEXT
+ipb_reason      tinyblob       TEXT
+log_action      varbinary(10)  TEXT
+oi_description  tinyblob       TEXT
+rev_comment     tinyblob       TEXT
+rc_log_action   varbinary(255) TEXT
+rc_log_type     varbinary(255) TEXT
+
+## Simple text-only strings:
+ar_flags          tinyblob       TEXT
+fa_minor_mime     varbinary(32)  TEXT
+fa_storage_group  varbinary(16)  TEXT # Just 'deleted' for now, should stay plain text
+fa_storage_key    varbinary(64)  TEXT # sha1 plus text extension
+ipb_address       tinyblob       TEXT # IP address or username
+ipb_range_end     tinyblob       TEXT # hexadecimal
+ipb_range_start   tinyblob       TEXT # hexadecimal
+img_minor_mime    varbinary(32)  TEXT
+img_sha1          varbinary(32)  TEXT
+job_cmd           varbinary(60)  TEXT # Should we limit to 60 as well?
+keyname           varbinary(255) TEXT # No tablename prefix (objectcache)
+ll_lang           varbinary(20)  TEXT # Language code
+log_params        blob           TEXT # LF separated list of args
+log_type          varbinary(10)  TEXT
+oi_minor_mime     varbinary(32)  TEXT
+oi_sha1           varbinary(32)  TEXT
+old_flags         tinyblob       TEXT
+old_text          mediumblob     TEXT
+page_restrictions tinyblob       TEXT # CSV string
+pf_server         varchar(30)    TEXT
+pr_level          varbinary(60)  TEXT
+pr_type           varbinary(60)  TEXT
+pt_create_perm    varbinary(60)  TEXT
+pt_reason         tinyblob       TEXT
+qc_type           varbinary(32)  TEXT
+qcc_type          varbinary(32)  TEXT
+qci_type          varbinary(32)  TEXT
+rc_params         blob           TEXT
+ug_group          varbinary(16)  TEXT
+user_email_token  binary(32)     TEXT
+user_ip           varbinary(40)  TEXT
+user_newpassword  tinyblob       TEXT
+user_options      blob           TEXT
+user_password     tinyblob       TEXT
+user_token        binary(32)     TEXT
+
+## Text URLs:
+el_index blob           TEXT
+el_to    blob           TEXT
+iw_url   blob           TEXT
+tb_url   blob           TEXT
+tc_url   varbinary(255) TEXT
+
+## Deprecated or not yet used:
+ar_text     mediumblob TEXT
+job_params  blob       TEXT
+log_deleted tinyint    INTEGER # Not used yet, but keep it INTEGER for safety
+rc_type     tinyint    CHAR
+
+## Number tweaking:
+fa_bits   int SMALLINT # bits per pixel
+fa_height int SMALLINT
+fa_width  int SMALLINT # Hope we don't see an image this wide...
+hc_id     int BIGINT   # Odd that site_stats is all bigint...
+img_bits  int SMALLINT # bits per image should stay sane
+oi_bits   int SMALLINT
+
+## True binary fields, usually due to gzdeflate and/or serialize:
+math_inputhash  varbinary(16) BYTEA
+math_outputhash varbinary(16) BYTEA
+
+## Namespaces: not need for such a high range
+ar_namespace   int SMALLINT
+job_namespace  int SMALLINT
+log_namespace  int SMALLINT
+page_namespace int SMALLINT
+pl_namespace   int SMALLINT
+pt_namespace   int SMALLINT
+qc_namespace   int SMALLINT
+rc_namespace   int SMALLINT
+rd_namespace   int SMALLINT
+tl_namespace   int SMALLINT
+wl_namespace   int SMALLINT
+
+## "Bools"
+ar_minor_edit    tinyint CHAR
+iw_trans         tinyint CHAR
+page_is_new      tinyint CHAR
+page_is_redirect tinyint CHAR
+rc_bot           tinyint CHAR
+rc_deleted       tinyint CHAR
+rc_minor         tinyint CHAR
+rc_new           tinyint CHAR
+rc_patrolled     tinyint CHAR
+rev_deleted      tinyint CHAR
+rev_minor_edit   tinyint CHAR
+
+## Easy enough to change if a wiki ever does grow this big:
+ss_good_articles bigint INTEGER
+ss_total_edits   bigint INTEGER
+ss_total_pages   bigint INTEGER
+ss_total_views   bigint INTEGER
+ss_users         bigint INTEGER
+
+## True IP - keep an eye on these, coders tend to make textual assumptions
+rc_ip varbinary(40) CIDR # Want to keep an eye on this
+
+## Others:
+tc_time int TIMESTAMPTZ
+
+
+};
+
+my %colmap;
+for (split /\n/ => $COLMAP) {
+	next unless /^\w/;
+	s/(.*?)#.*/$1/;
+	my ($col,@maps) = split / +/, $_;
+	for (@maps) {
+		$colmap{$col}{$_} = 1;
+	}
+}
+
+my %colmapok;
+for (split /\n/ => $COLMAPOK) {
+	next unless /^\w/;
+	my ($col,$old,$new) = split / +/, $_;
+	$colmapok{$col}{$old}{$new} = 1;
 }
 
 ## Old but not new
@@ -210,6 +425,7 @@ for my $t (sort keys %{$old{$oldfile}}) {
 	next if exists $ok{OLD}{$t} and !$ok{OLD}{$t};
 	my $newt = exists $ok{OLD}{$t} ? $ok{OLD}{$t} : $t;
 	my $oldcol = $old{$oldfile}{$t}{column};
+	my $oldcolfull = $old{$oldfile}{$t}{columnfull};
 	my $newcol = $new{$newt}{column};
 	for my $c (keys %$oldcol) {
 		if (!exists $newcol->{$c}) {
@@ -217,10 +433,21 @@ for my $t (sort keys %{$old{$oldfile}}) {
 			next;
 		}
 	}
-	for my $c (keys %$newcol) {
+	for my $c (sort keys %$newcol) {
 		if (!exists $oldcol->{$c}) {
 			print "Column $t.$c not in $oldfile\n";
 			next;
+		}
+		## Column types (roughly) match up?
+		my $new = $newcol->{$c};
+		my $old = $oldcolfull->{$c};
+
+		## Known exceptions:
+		next if exists $colmapok{$c}{$old}{$new};
+
+		$old =~ s/ENUM.*/ENUM/;
+		if (! exists $colmap{$old}{$new}) {
+			print "Column types for $t.$c do not match: $old does not map to $new\n";
 		}
 	}
 }

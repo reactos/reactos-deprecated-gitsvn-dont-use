@@ -20,8 +20,7 @@ class BrokenRedirectsPage extends PageQueryPage {
 	function isSyndicated() { return false; }
 
 	function getPageHeader( ) {
-		global $wgOut;
-		return $wgOut->parse( wfMsg( 'brokenredirectstext' ) );
+		return wfMsgExt( 'brokenredirectstext', array( 'parse' ) );
 	}
 
 	function getSQL() {
@@ -36,7 +35,8 @@ class BrokenRedirectsPage extends PageQueryPage {
 		           FROM $redirect AS rd
                    JOIN $page p1 ON (rd.rd_from=p1.page_id)
 		      LEFT JOIN $page AS p2 ON (rd_namespace=p2.page_namespace AND rd_title=p2.page_title )
-    		                WHERE p2.page_namespace IS NULL";
+			  	  WHERE rd_namespace >= 0
+				    AND p2.page_namespace IS NULL";
 		return $sql;
 	}
 
@@ -51,7 +51,7 @@ class BrokenRedirectsPage extends PageQueryPage {
 		if ( isset( $result->rd_title ) ) {
 			$toObj = Title::makeTitle( $result->rd_namespace, $result->rd_title );
 		} else {
-			$blinks = $fromObj->getBrokenLinksFrom();
+			$blinks = $fromObj->getBrokenLinksFrom(); # TODO: check for redirect, not for links
 			if ( $blinks ) {
 				$toObj = $blinks[0];
 			} else {
@@ -92,4 +92,4 @@ function wfSpecialBrokenRedirects() {
 	return $sbr->doQuery( $offset, $limit );
 
 }
-?>
+

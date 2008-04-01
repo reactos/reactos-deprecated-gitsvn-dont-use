@@ -105,7 +105,7 @@ class StubUserLang extends StubObject {
 			$code = $wgContLanguageCode;
 		}
 
-		if( $code == $wgContLanguageCode ) {
+		if( $code === $wgContLanguageCode || !Language::localisationExist( $code ) ) {
 			return $wgContLang;
 		} else {
 			$obj = Language::factory( $code );
@@ -134,4 +134,5 @@ class StubUser extends StubObject {
 	}
 }
 
-?>
+
+

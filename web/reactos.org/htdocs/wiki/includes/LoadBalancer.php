@@ -16,12 +16,6 @@ class LoadBalancer {
 	/* private */ var $mWaitForFile, $mWaitForPos, $mWaitTimeout;
 	/* private */ var $mLaggedSlaveMode, $mLastError = 'Unknown error';
 
-	/**
-	 * Scale polling time so that under overload conditions, the database server
-	 * receives a SHOW STATUS query at an average interval of this many microseconds
-	 */
-	const AVG_STATUS_POLL = 2000;
-
 	function __construct( $servers, $failFunction = false, $waitTimeout = 10, $waitForMasterNow = false )
 	{
 		$this->mServers = $servers;
@@ -133,7 +127,7 @@ class LoadBalancer {
 	 * Side effect: opens connections to databases
 	 */
 	function getReaderIndex() {
-		global $wgReadOnly, $wgDBClusterTimeout;
+		global $wgReadOnly, $wgDBClusterTimeout, $wgDBAvgStatusPoll;
 
 		$fname = 'LoadBalancer::getReaderIndex';
 		wfProfileIn( $fname );
@@ -180,7 +174,7 @@ class LoadBalancer {
 								# Too much load, back off and wait for a while.
 								# The sleep time is scaled by the number of threads connected,
 								# to produce a roughly constant global poll rate.
-								$sleepTime = self::AVG_STATUS_POLL * $status['Threads_connected'];
+								$sleepTime = $wgDBAvgStatusPoll * $status['Threads_connected'];
 
 								# If we reach the timeout and exit the loop, don't use it
 								$i = false;
@@ -324,13 +318,13 @@ class LoadBalancer {
 
 		# Query groups
 		if ( !is_array( $groups ) ) {
-			$groupIndex = $this->getGroupIndex( $groups, $i );
+			$groupIndex = $this->getGroupIndex( $groups );
 			if ( $groupIndex !== false ) {
 				$i = $groupIndex;
 			}
 		} else {
 			foreach ( $groups as $group ) {
-				$groupIndex = $this->getGroupIndex( $group, $i );
+				$groupIndex = $this->getGroupIndex( $group );
 				if ( $groupIndex !== false ) {
 					$i = $groupIndex;
 					break;
@@ -432,8 +426,7 @@ class LoadBalancer {
 		return $db;
 	}
 
-	function reportConnectionError( &$conn )
-	{
+	function reportConnectionError( &$conn ) {
 		$fname = 'LoadBalancer::reportConnectionError';
 		wfProfileIn( $fname );
 		# Prevent infinite recursion
@@ -552,6 +545,17 @@ class LoadBalancer {
 			}
 		}
 	}
+	
+	/* Issue COMMIT only on master, only if queries were done on connection */
+	function commitMasterChanges() {
+		// Always 0, but who knows.. :)
+		$i = $this->getWriterIndex();
+		if (array_key_exists($i,$this->mConnections)) {
+			if ($this->mConnections[$i]->lastQuery() != '') {
+				$this->mConnections[$i]->immediateCommit();
+			}
+		}
+	}
 
 	function waitTimeout( $value = NULL ) {
 		return wfSetVar( $this->mWaitTimeout, $value );
@@ -646,4 +650,4 @@ class LoadBalancer {
 	}
 }
 
-?>
+

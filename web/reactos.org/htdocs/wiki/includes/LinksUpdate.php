@@ -9,7 +9,7 @@ class LinksUpdate {
 	/**@{{
 	 * @private
 	 */
-	var 	$mId,            //!< Page ID of the article linked from
+	var $mId,            //!< Page ID of the article linked from
 		$mTitle,         //!< Title object of the article linked from
 		$mLinks,         //!< Map of title strings to IDs for the links in the document
 		$mImages,        //!< DB keys of the images used, in the array key only
@@ -24,10 +24,10 @@ class LinksUpdate {
 
 	/**
 	 * Constructor
-	 * Initialize private variables
-	 * @param $title Integer: FIXME
-	 * @param $parserOutput FIXME
-	 * @param $recursive Boolean: FIXME, default 'true'.
+	 *
+	 * @param Title $title Title of the page we're updating
+	 * @param ParserOutput $parserOutput Output from a full parse of this page
+	 * @param bool $recursive Queue jobs for recursive updates?
 	 */
 	function LinksUpdate( $title, $parserOutput, $recursive = true ) {
 		global $wgAntiLockFlags;
@@ -64,6 +64,8 @@ class LinksUpdate {
 		}
 
 		$this->mRecursive = $recursive;
+		
+		wfRunHooks( 'LinksUpdateConstructed', array( &$this ) );
 	}
 
 	/**
@@ -71,11 +73,15 @@ class LinksUpdate {
 	 */
 	function doUpdate() {
 		global $wgUseDumbLinkUpdate;
+		
+		wfRunHooks( 'LinksUpdate', array( &$this ) );
 		if ( $wgUseDumbLinkUpdate ) {
 			$this->doDumbUpdate();
 		} else {
 			$this->doIncrementalUpdate();
 		}
+		wfRunHooks( 'LinksUpdateComplete', array( &$this ) );
+
 	}
 
 	function doIncrementalUpdate() {
@@ -188,7 +194,7 @@ class LinksUpdate {
 					break;
 				}
 				$title = Title::makeTitle( $row->page_namespace, $row->page_title );
-				$jobs[] = Job::factory( 'refreshLinks', $title );
+				$jobs[] = new RefreshLinksJob( $title, '' );
 			}
 			Job::batchInsert( $jobs );
 		}
@@ -593,5 +599,12 @@ class LinksUpdate {
 		}
 		return $arr;
 	}
+	
+	/**
+	 * Return the title object of the page being updated
+	 */	
+	function getTitle() {
+		return $this->mTitle;
+	}
 }
-?>
+

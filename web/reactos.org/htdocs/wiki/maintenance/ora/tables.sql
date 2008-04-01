@@ -226,7 +226,7 @@ CREATE TABLE image (
   img_media_type   CLOB,
   img_major_mime   CLOB                DEFAULT 'unknown',
   img_minor_mime   CLOB                DEFAULT 'unknown',
-  img_description  CLOB      NOT NULL,
+  img_description  CLOB,
   img_user         INTEGER       NULL  REFERENCES mwuser(user_id) ON DELETE SET NULL,
   img_user_text    CLOB      NOT NULL,
   img_timestamp    TIMESTAMP WITH TIME ZONE
@@ -236,7 +236,7 @@ CREATE INDEX img_timestamp_idx ON image (img_timestamp);
 
 CREATE TABLE oldimage (
   oi_name          VARCHAR(255)         NOT NULL  REFERENCES image(img_name),
-  oi_archive_name  VARCHAR(255)         NOT NULL,
+  oi_archive_name  VARCHAR(255),
   oi_size          INTEGER      NOT NULL,
   oi_width         INTEGER      NOT NULL,
   oi_height        INTEGER      NOT NULL,
@@ -244,9 +244,15 @@ CREATE TABLE oldimage (
   oi_description   CLOB,
   oi_user          INTEGER          NULL  REFERENCES mwuser(user_id) ON DELETE SET NULL,
   oi_user_text     CLOB         NOT NULL,
-  oi_timestamp     TIMESTAMP WITH TIME ZONE  NOT NULL
+  oi_timestamp     TIMESTAMP WITH TIME ZONE  NOT NULL,
+  oi_metadata      CLOB, 	 
+  oi_media_type    VARCHAR(10) DEFAULT NULL,
+  oi_major_mime    VARCHAR(11) DEFAULT 'unknown',
+  oi_minor_mime    VARCHAR(32) DEFAULT 'unknown',
+  oi_deleted       INTEGER DEFAULT 0 NOT NULL
 );
-CREATE INDEX oi_name ON oldimage (oi_name);
+CREATE INDEX oi_name_timestamp ON oldimage (oi_name,oi_timestamp);
+CREATE INDEX oi_name_archive_name ON oldimage (oi_name,oi_archive_name);
 
 CREATE SEQUENCE filearchive_fa_id_seq;
 CREATE TABLE filearchive (

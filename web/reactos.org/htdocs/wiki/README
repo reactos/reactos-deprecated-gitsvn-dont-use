@@ -1,4 +1,4 @@
-2006-04-05
+2007-09-15
 
 For system requirements, installation and upgrade details, see the files RELEASE-NOTES, 
 INSTALL, and UPGRADE.
@@ -8,8 +8,8 @@ INSTALL, and UPGRADE.
 MediaWiki is the software used for Wikipedia [http://www.wikipedia.org/] and the
 other Wikimedia Foundation websites. Compared to other wikis, it has an
 excellent range of features and support for high-traffic websites using
-multiple servers (Wikimedia sites peak in the 5000+ requests per second range
-as of November 2005).
+multiple servers (Wikimedia sites peak in the 50000+ requests per second range
+as of January 2008).
 
 While quite usable on smaller sites, you may find you have to "roll your own"
 local documentation, and some aspects of configuration may seem overcomplicated
@@ -61,7 +61,7 @@ users under the GPL for use of the whole code or other sections thereof.
 
 Many thanks to the Wikimedia regulars for testing and suggestions.
 
-The official website for mediawiki is located at:
+The official website for MediaWiki is located at:
 
   http://www.mediawiki.org/
 
@@ -75,29 +75,29 @@ Please report bugs and make feature requests in our Bugzilla system:
 
 Documentation and discussion on new features may be found at:
 
-  http://www.mediawiki.org/wiki/Help:FAQ
+  http://www.mediawiki.org/wiki/Manual:FAQ
   http://www.mediawiki.org/wiki/Documentation
   http://www.mediawiki.org/wiki/Development
 
 Extensions are listed at:
 
-  http://meta.wikimedia.org/wiki/Category:MediaWiki_extensions
+  http://www.mediawiki.org/wiki/Category:Extensions
 
 If you are setting up your own wiki based on this software, it is highly
 recommended that you subscribe to mediawiki-announce:
 
-  http://mail.wikimedia.org/mailman/listinfo/mediawiki-announce
+  http://lists.wikimedia.org/mailman/listinfo/mediawiki-announce
 
 The mailing list is very low volume, and is intended primarily for
 announcements of new versions, bug fixes, and security issues.
 
 A higher volume support mailing list can be found at:
 
-  http://mail.wikimedia.org/mailman/listinfo/mediawiki-l
+  http://lists.wikimedia.org/mailman/listinfo/mediawiki-l
 
 Developer discussion takes place at:
 
-  http://mail.wikimedia.org/mailman/listinfo/wikitech-l
+  http://lists.wikimedia.org/mailman/listinfo/wikitech-l
 
 There is also a development and support channel #mediawiki on
 irc.freenode.net, and an unoffical support forum at www.mwusers.com.

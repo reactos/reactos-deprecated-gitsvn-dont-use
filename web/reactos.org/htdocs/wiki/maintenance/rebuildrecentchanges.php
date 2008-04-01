@@ -15,10 +15,9 @@ $wgTitle = Title::newFromText( "Rebuild recent changes script" );
 $wgDBuser			= $wgDBadminuser;
 $wgDBpassword		= $wgDBadminpassword;
 
-rebuildRecentChangesTablePass1();
-rebuildRecentChangesTablePass2();
+rebuildRecentChangesTable();
 
 print "Done.\n";
 exit();
 
-?>
+

@@ -5,7 +5,7 @@
  *
  * API for MediaWiki 1.8+
  *
- * Copyright (C) 2006 Yuri Astrakhan <FirstnameLastname@gmail.com>
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,15 +29,19 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
+ * This is a base class for all Query modules.
+ * It provides some common functionality such as constructing various SQL queries.
+ * 
  * @addtogroup API
  */
 abstract class ApiQueryBase extends ApiBase {
 
-	private $mQueryModule, $tables, $where, $fields, $options;
+	private $mQueryModule, $mDb, $tables, $where, $fields, $options;
 
 	public function __construct($query, $moduleName, $paramPrefix = '') {
 		parent :: __construct($query->getMain(), $moduleName, $paramPrefix);
 		$this->mQueryModule = $query;
+		$this->mDb = null;
 		$this->resetQueryParams();
 	}
 
@@ -48,11 +52,16 @@ abstract class ApiQueryBase extends ApiBase {
 		$this->options = array ();
 	}
 
-	protected function addTables($value) {
-		if (is_array($value))
-			$this->tables = array_merge($this->tables, $value);
-		else
-			$this->tables[] = $value;
+	protected function addTables($tables, $alias = null) {
+		if (is_array($tables)) {
+			if (!is_null($alias))
+				ApiBase :: dieDebug(__METHOD__, 'Multiple table aliases not supported');
+			$this->tables = array_merge($this->tables, $tables);
+		} else {
+			if (!is_null($alias))
+				$tables = $this->getDB()->tableName($tables) . ' ' . $alias;
+			$this->tables[] = $tables;
+		}
 	}
 
 	protected function addFields($value) {
@@ -101,8 +110,9 @@ abstract class ApiQueryBase extends ApiBase {
 
 		if (!is_null($end))
 			$this->addWhere($field . $before . $db->addQuotes($end));
-
-		$this->addOption('ORDER BY', $field . ($isDirNewer ? '' : ' DESC'));
+		
+		if (!isset($this->options['ORDER BY']))
+			$this->addOption('ORDER BY', $field . ($isDirNewer ? '' : ' DESC'));
 	}
 
 	protected function addOption($name, $value = null) {
@@ -124,176 +134,16 @@ abstract class ApiQueryBase extends ApiBase {
 		return $res;
 	}
 
-	protected function addRowInfo($prefix, $row) {
-
-		$vals = array ();
-
-		// ID
-		if ( isset( $row-> { $prefix . '_id' } ) )
-			$vals[$prefix . 'id'] = intval( $row-> { $prefix . '_id' } );
-
-		// Title
-		$title = ApiQueryBase :: addRowInfo_title($row, $prefix . '_namespace', $prefix . '_title');
-		if ($title) {
-			if (!$title->userCanRead())
-				return false;
-			$vals['ns'] = $title->getNamespace();
-			$vals['title'] = $title->getPrefixedText();
-		}
-
-		switch ($prefix) {
-
-			case 'page' :
-				// page_is_redirect
-				@ $tmp = $row->page_is_redirect;
-				if ($tmp)
-					$vals['redirect'] = '';
-
-				break;
-
-			case 'rc' :
-				// PageId
-				@ $tmp = $row->rc_cur_id;
-				if (!is_null($tmp))
-					$vals['pageid'] = intval($tmp);
-
-				@ $tmp = $row->rc_this_oldid;
-				if (!is_null($tmp))
-					$vals['revid'] = intval($tmp);
-
-				if ( isset( $row->rc_last_oldid ) )
-					$vals['old_revid'] = intval( $row->rc_last_oldid );
-
-				$title = ApiQueryBase :: addRowInfo_title($row, 'rc_moved_to_ns', 'rc_moved_to_title');
-				if ($title) {
-					if (!$title->userCanRead())
-						return false;
-					$vals['new_ns'] = $title->getNamespace();
-					$vals['new_title'] = $title->getPrefixedText();
-				}
-
-				if ( isset( $row->rc_patrolled ) )
-					$vals['patrolled'] = '';
-
-				break;
-
-			case 'log' :
-				// PageId
-				@ $tmp = $row->page_id;
-				if (!is_null($tmp))
-					$vals['pageid'] = intval($tmp);
-
-				if ($row->log_params !== '') {
-					$params = explode("\n", $row->log_params);
-					if ($row->log_type == 'move' && isset ($params[0])) {
-						$newTitle = Title :: newFromText($params[0]);
-						if ($newTitle) {
-							$vals['new_ns'] = $newTitle->getNamespace();
-							$vals['new_title'] = $newTitle->getPrefixedText();
-							$params = null;
-						}
-					}
-
-					if (!empty ($params)) {
-						$this->getResult()->setIndexedTagName($params, 'param');
-						$vals = array_merge($vals, $params);
-					}
-				}
-
-				break;
-
-			case 'rev' :
-				// PageID
-				@ $tmp = $row->rev_page;
-				if (!is_null($tmp))
-					$vals['pageid'] = intval($tmp);
-		}
-
-		// Type
-		@ $tmp = $row-> {
-			$prefix . '_type' };
-		if (!is_null($tmp))
-			$vals['type'] = $tmp;
-
-		// Action
-		@ $tmp = $row-> {
-			$prefix . '_action' };
-		if (!is_null($tmp))
-			$vals['action'] = $tmp;
-
-		// Old ID
-		@ $tmp = $row-> {
-			$prefix . '_text_id' };
-		if (!is_null($tmp))
-			$vals['oldid'] = intval($tmp);
-
-		// User Name / Anon IP
-		@ $tmp = $row-> {
-			$prefix . '_user_text' };
-		if (is_null($tmp))
-			@ $tmp = $row->user_name;
-		if (!is_null($tmp)) {
-			$vals['user'] = $tmp;
-			@ $tmp = !$row-> {
-				$prefix . '_user' };
-			if (!is_null($tmp) && $tmp)
-				$vals['anon'] = '';
-		}
-
-		// Bot Edit
-		@ $tmp = $row-> {
-			$prefix . '_bot' };
-		if (!is_null($tmp) && $tmp)
-			$vals['bot'] = '';
-
-		// New Edit
-		@ $tmp = $row-> {
-			$prefix . '_new' };
-		if (is_null($tmp))
-			@ $tmp = $row-> {
-			$prefix . '_is_new' };
-		if (!is_null($tmp) && $tmp)
-			$vals['new'] = '';
-
-		// Minor Edit
-		@ $tmp = $row-> {
-			$prefix . '_minor_edit' };
-		if (is_null($tmp))
-			@ $tmp = $row-> {
-			$prefix . '_minor' };
-		if (!is_null($tmp) && $tmp)
-			$vals['minor'] = '';
-
-		// Timestamp
-		@ $tmp = $row-> {
-			$prefix . '_timestamp' };
-		if (!is_null($tmp))
-			$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $tmp);
-
-		// Comment
-		@ $tmp = $row-> {
-			$prefix . '_comment' };
-		if (!empty ($tmp)) // optimize bandwidth
-			$vals['comment'] = $tmp;
-
-		return $vals;
+	public static function addTitleInfo(&$arr, $title, $prefix='') {
+		$arr[$prefix . 'ns'] = intval($title->getNamespace());
+		$arr[$prefix . 'title'] = $title->getPrefixedText();
 	}
-
-	private static function addRowInfo_title($row, $nsfld, $titlefld) {
-		if ( isset( $row-> $nsfld ) ) {
-			$ns = $row-> $nsfld;
-			@ $title = $row-> $titlefld;
-			if (!empty ($title))
-				return Title :: makeTitle($ns, $title);
-		}
-		return false;
-	}
-
+	
 	/**
 	 * Override this method to request extra fields from the pageSet
-	 * using $this->getPageSet()->requestField('fieldName')
+	 * using $pageSet->requestField('fieldName')
 	 */
-	public function requestExtraData() {
+	public function requestExtraData($pageSet) {
 	}
 
 	/**
@@ -303,10 +153,25 @@ abstract class ApiQueryBase extends ApiBase {
 		return $this->mQueryModule;
 	}
 
+	/**
+	 * Add sub-element under the page element with the given pageId. 
+	 */
+	protected function addPageSubItems($pageId, $data) {
+		$result = $this->getResult();
+		$result->setIndexedTagName($data, $this->getModulePrefix());
+		$result->addValue(array ('query', 'pages', intval($pageId)),
+			$this->getModuleName(),
+			$data);
+	}
+
 	protected function setContinueEnumParameter($paramName, $paramValue) {
-		$msg = array (
-			$this->encodeParamName($paramName
-		) => $paramValue);
+		
+		$paramName = $this->encodeParamName($paramName);
+		$msg = array( $paramName => $paramValue );
+
+//		This is an alternative continue format as a part of the URL string
+//		ApiResult :: setContent($msg, $paramName . '=' . urlencode($paramValue));
+		
 		$this->getResult()->addValue('query-continue', $this->getModuleName(), $msg);
 	}
 
@@ -314,7 +179,19 @@ abstract class ApiQueryBase extends ApiBase {
 	 * Get the Query database connection (readonly)
 	 */
 	protected function getDB() {
-		return $this->getQuery()->getDB();
+		if (is_null($this->mDb))
+			$this->mDb = $this->getQuery()->getDB();
+		return $this->mDb;
+	}
+
+	/**
+	 * Selects the query database connection with the given name.
+	 * If no such connection has been requested before, it will be created. 
+	 * Subsequent calls with the same $name will return the same connection 
+	 * as the first, regardless of $db or $groups new values. 
+	 */
+	public function selectNamedDB($name, $db, $groups) {
+		$this->mDb = $this->getQuery()->getNamedDB($name, $db, $groups);	
 	}
 
 	/**
@@ -322,7 +199,7 @@ abstract class ApiQueryBase extends ApiBase {
 	 * @return ApiPageSet data
 	 */
 	protected function getPageSet() {
-		return $this->mQueryModule->getPageSet();
+		return $this->getQuery()->getPageSet();
 	}
 
 	/**
@@ -338,8 +215,23 @@ abstract class ApiQueryBase extends ApiBase {
 		return str_replace('_', ' ', $key);
 	}
 
+	public function getTokenFlag($tokenArr, $action) {
+		if ($this->getMain()->getRequest()->getVal('callback') !== null) {
+			// Don't do any session-specific data.
+			return false;
+		}
+		if (in_array($action, $tokenArr)) {
+			global $wgUser;
+			if ($wgUser->isAllowed($action))
+				return true;
+			else
+				$this->dieUsage("Action '$action' is not allowed for the current user", 'permissiondenied');
+		}
+		return false;
+	}
+	
 	public static function getBaseVersion() {
-		return __CLASS__ . ': $Id: ApiQueryBase.php 21402 2007-04-20 08:55:14Z nickj $';
+		return __CLASS__ . ': $Id: ApiQueryBase.php 31484 2008-03-03 05:46:20Z brion $';
 	}
 }
 
@@ -375,4 +267,4 @@ abstract class ApiQueryGeneratorBase extends ApiQueryBase {
 	 */
 	public abstract function executeGenerator($resultPageSet);
 }
-?>
+

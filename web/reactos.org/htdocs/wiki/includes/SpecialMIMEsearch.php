@@ -66,7 +66,7 @@ class MIMEsearchPage extends QueryPage {
 		$text = $wgContLang->convert( $nt->getText() );
 		$plink = $skin->makeLink( $nt->getPrefixedText(), $text );
 
-		$download = $skin->makeMediaLink( $nt->getText(), 'fuck me!', wfMsgHtml( 'download' ) );
+		$download = $skin->makeMediaLinkObj( $nt, wfMsgHtml( 'download' ) );
 		$bytes = wfMsgExt( 'nbytes', array( 'parsemag', 'escape'),
 			$wgLang->formatNum( $result->img_size ) );
 		$dimensions = wfMsgHtml( 'widthheight', $wgLang->formatNum( $result->img_width ),
@@ -87,33 +87,16 @@ function wfSpecialMIMEsearch( $par = null ) {
 	$mime = isset( $par ) ? $par : $wgRequest->getText( 'mime' );
 
 	$wgOut->addHTML(
-		wfElement( 'form',
+		Xml::openElement( 'form',
 			array(
 				'id' => 'specialmimesearch',
 				'method' => 'get',
-				'action' => $wgTitle->escapeLocalUrl()
-			),
-			null
+				'action' => $wgTitle->getLocalUrl()
+			)
 		) .
-			wfOpenElement( 'label' ) .
-				wfMsgHtml( 'mimetype' ) .
-				wfElement( 'input', array(
-						'type' => 'text',
-						'size' => 20,
-						'name' => 'mime',
-						'value' => $mime
-					),
-					''
-				) .
-				' ' .
-				wfElement( 'input', array(
-						'type' => 'submit',
-						'value' => wfMsg( 'ilsubmit' )
-					),
-					''
-				) .
-			wfCloseElement( 'label' ) .
-		wfCloseElement( 'form' )
+			Xml::inputLabel( wfMsg( 'mimetype' ), 'mime', 'mime', 20, $mime ) .
+			Xml::submitButton( wfMsg( 'ilsubmit' ) ) .
+		Xml::closeElement( 'form' )
 	);
 
 	list( $major, $minor ) = wfSpecialMIMEsearchParse( $mime );
@@ -155,4 +138,4 @@ function wfSpecialMIMEsearchValidType( $type ) {
 
 	return in_array( $type, $types );
 }
-?>
+

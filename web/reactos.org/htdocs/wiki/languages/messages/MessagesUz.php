@@ -1,12 +1,10 @@
 <?php
-/**
- * Uzbek (O'zbek)
- * Translated by: Behzod Saidov <behzodsaidov@gmail.com>
- * 
- * **********************************************************
- * Iltimos, MediaWiki tarjimalari bilan bo'g'liq taklif va
- * mulohazalaringiz bo'lsa men bilan e-mail orqali bo'g'laning
- * **********************************************************
+/** Uzbek (O'zbek)
+ *
+ * @addtogroup Language
+ *
+ * @author Behzod Saidov <behzodsaidov@gmail.com>
+ * @author Abdulla
  */
 
 $fallback8bitEncoding = 'windows-1252';
@@ -16,7 +14,7 @@ $linkPrefixExtension = true;
 $namespaceNames = array(
 	NS_MEDIA            => 'Media',
 	NS_SPECIAL          => 'Maxsus',
-	NS_MAIN             => 'Asosiy',
+	NS_MAIN             => '',
 	NS_TALK             => 'Munozara',
 	NS_USER             => 'Foydalanuvchi',
 	NS_USER_TALK        => 'Foydalanuvchi_munozarasi',
@@ -100,16 +98,17 @@ $messages = array(
 'pagecategories'  => '{{PLURAL:$1|Kategoriya|Kategoriyalar}}',
 'category_header' => '"$1" kategoriyadagi maqolalar.',
 'subcategories'   => 'Podkategoriyalar',
+'category-empty'  => "''Ushbu kategoriyada hozircha sahifa yoki fayllar yoʻq.''",
 
-'linkprefix'        => '/^(.*?)([a-zA-Z\x80-\xffʻʼ«„]+)$/sDu',
+'linkprefix'        => '/^(.*?)([a-zA-Z\\x80-\\xffʻʼ«„]+)$/sDu',
 'mainpagetext'      => "<big>'''MediaWiki muvaffaqiyatli o'rnatildi.'''</big>",
 'mainpagedocfooter' => "Wiki dasturini ishlatish haqida ma'lumot olish uchun  [http://meta.wikimedia.org/wiki/Help:Contents Foydalanuvchi qo'llanmasi] sahifasiga murojaat qiling.
 
 == Dastlabki qadamlar ==
 
-* [http://www.mediawiki.org/wiki/Help:Configuration_settings Moslamalar ro'yxati]
-* [http://www.mediawiki.org/wiki/Help:FAQ MediaWiki haqida ko'p so'raladigan savollar]
-* [http://mail.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki yangi versiyasi chiqqanda xabar berish ro'yxati]",
+* [http://www.mediawiki.org/wiki/Manual:Configuration_settings Moslamalar ro'yxati]
+* [http://www.mediawiki.org/wiki/Manual:FAQ MediaWiki haqida ko'p so'raladigan savollar]
+* [http://lists.wikimedia.org/mailman/listinfo/mediawiki-announce MediaWiki yangi versiyasi chiqqanda xabar berish ro'yxati]",
 
 'about'          => 'Haqida',
 'newwindow'      => '(yangi oyanada ochiladi)',
@@ -119,8 +118,11 @@ $messages = array(
 'mytalk'         => 'Mening suhbatim',
 'anontalk'       => 'Bu IP uchun suhbat',
 'navigation'     => 'Saytda harakatlanish',
+'and'            => 'va',
 
+'errorpagetitle'   => 'Xato',
 'returnto'         => '$1 sahifasiga qaytish.',
+'tagline'          => '{{SITENAME}} dan',
 'help'             => 'Yordam',
 'search'           => 'Qidirish',
 'searchbutton'     => 'Qidirish',
@@ -131,17 +133,26 @@ $messages = array(
 'printableversion' => 'Bosma uchun versiya',
 'permalink'        => "Doimiy bog'",
 'edit'             => 'Tahrirlash',
+'editthispage'     => 'Sahifani tahrirla',
 'delete'           => "O'chirish",
 'protect'          => 'Himoyalash',
 'protectthispage'  => 'Bu sahifani himoyala',
 'unprotect'        => 'Himoyadan chiqarish',
+'newpage'          => 'Yangi sahifa',
+'talkpage'         => 'Bu sahifa haqida munozara',
+'talkpagelinktext' => 'Munozara',
 'specialpage'      => 'Maxsus sahifa',
+'personaltools'    => 'Shaxsiy uskunalar',
 'talk'             => 'Munozara',
 'views'            => "Ko'rinishlar",
 'toolbox'          => 'Asboblar',
 'otherlanguages'   => 'Boshqa tillarda',
+'redirectedfrom'   => '($1 dan yoʻnaltirildi)',
+'redirectpagesub'  => 'Yoʻnaltiruvchi sahifa',
 'lastmodifiedat'   => 'Bu sahifa oxirgi marta $2, $1 sanasida tahrirlangan.', # $1 date, $2 time
 'viewcount'        => 'Bu sahifaga {{plural:$1|bir marta|$1 marta}} murojaat qilingan.',
+'jumpto'           => 'Oʻtish:',
+'jumptonavigation' => 'foydalanish',
 'jumptosearch'     => 'Qidir',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
@@ -149,6 +160,8 @@ $messages = array(
 'aboutpage'         => 'Project:Haqida',
 'currentevents'     => 'Joriy hodisalar',
 'currentevents-url' => 'Project:Joriy hodisalar',
+'disclaimers'       => 'Ogohlantirishlar',
+'disclaimerpage'    => 'Project:Umumiy ogohlatirish',
 'edithelp'          => 'Tahrirlash yordami',
 'edithelppage'      => 'Help:Tahrirlash',
 'helppage'          => 'Help:Mundarija',
@@ -160,12 +173,18 @@ $messages = array(
 'sitesupport'       => "Loyihaga ko'mak",
 'sitesupport-url'   => "Project:Loyihaga ko'mak",
 
-'editsection' => 'tahrirlash',
-'toc'         => 'Mundarija',
-'showtoc'     => "Ko'rsatish",
-'hidetoc'     => 'yashirish',
+'retrievedfrom'       => ' "$1" dan olindi',
+'youhavenewmessages'  => 'Sizga $1 keldi ($2).',
+'newmessageslink'     => 'yangi xabarlar',
+'newmessagesdifflink' => 'soʻnggi oʻzgarish',
+'editsection'         => 'tahrirlash',
+'editold'             => 'tahrir',
+'editsectionhint'     => 'Boʻlimni tahrirlash: $1',
+'toc'                 => 'Mundarija',
+'showtoc'             => "Ko'rsatish",
+'hidetoc'             => 'yashirish',
 
-# Short words for each namespace, by default used in the 'article' tab in monobook
+# Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'     => 'Maqola',
 'nstab-user'     => 'Foydalanuvchi sahifasi',
 'nstab-special'  => 'Maxsus',
@@ -176,7 +195,9 @@ $messages = array(
 'nstab-category' => 'Kategoriya',
 
 # General errors
+'badtitle'          => 'Notoʻgʻri sarlavha',
 'viewsource'        => "Ko'rib chiqish",
+'viewsourcefor'     => '$1 uchun',
 'protectedpagetext' => 'Bu sahifa tahrirlashdan saqlanish maqsadida qulflangan.',
 'viewsourcetext'    => "Siz bu sahifaning manbasini ko'rishingiz va uni nusxasini olishingiz mumkin:",
 
@@ -190,6 +211,7 @@ $messages = array(
 'login'              => 'Kirish',
 'loginprompt'        => "{{SITENAME}}ga kirish uchun kukilar yoqilgan bo'lishi kerak.",
 'userlogin'          => 'Kirish / Hisob yaratish',
+'logout'             => 'Chiqish',
 'userlogout'         => 'Chiqish',
 'nologin'            => "Hisobingiz yo'q-mi? $1.",
 'nologinlink'        => 'Hisob yaratish',
@@ -200,30 +222,85 @@ $messages = array(
 'loginsuccesstitle'  => 'Kirish muvaffaqiyatli amalga oshdi',
 'loginsuccess'       => "'''{{SITENAME}}ga \"\$1\" foydalanuvchi nomi bilan kirdingiz.'''",
 
+# Edit page toolbar
+'bold_sample'     => 'Qalin matn',
+'bold_tip'        => 'Qalin matn',
+'italic_sample'   => 'Kursiv',
+'italic_tip'      => 'Kursiv',
+'link_sample'     => 'Ishorat nomi',
+'link_tip'        => 'Ichki ishorat',
+'extlink_sample'  => 'http://www.example.com ishorat nomi',
+'extlink_tip'     => 'Tashqi ishorat (http:// prefiksini unutmang)',
+'headline_sample' => 'Sarlavha',
+'math_sample'     => 'Formula qoʻying',
+'math_tip'        => 'Matematik formula (LaTeX)',
+'image_tip'       => 'Qoʻshilgan tasvir',
+'media_tip'       => 'Media faylga ishorat',
+'sig_tip'         => 'Imzoingiz va sana',
+
 # Edit pages
-'summary'           => 'Qisqa izoh',
-'minoredit'         => 'Bu kichik tahrir',
-'watchthis'         => 'Sahifani kuzatish',
-'savearticle'       => 'Saqlash',
-'preview'           => "Ko'rib chiqish",
-'showpreview'       => "Ko'rib chiqish",
-'showdiff'          => "O'zgarishlarni ko'rsatish",
-'newarticletext'    => "Bu sahifa hali mavjud emas. Sahifani yaratish uchun quyida matn kiritishingiz mumkin (qo'shimcha axborot uchun [[Help:Mundarija|yordam sahifasini]] ko'ring). Agar bu sahifaga xatolik sabab kelgan bo'lsangiz brauzeringizning '''orqaga''' tugmasini bosing.",
-'noarticletext'     => "Bu sahifada hozircha hech qanday matn yo'q. Siz bu sarlavhani boshqa sahifalardan [[Special:Search/{{PAGENAME}}|qidirishingiz]] yoki bu sahifani [{{fullurl:{{FULLPAGENAME}}|action=edit}} tahrirlashingiz] mumkin.",
-'clearyourcache'    => "'''Etibor bering:''' O'zgartirishlaringiz ko'rish uchun, yangi moslamalaringizning saqlashdan keyin, brauser keshini tozalash kerak:<br />
+'summary'                => 'Qisqa izoh',
+'minoredit'              => 'Bu kichik tahrir',
+'watchthis'              => 'Sahifani kuzatish',
+'savearticle'            => 'Saqlash',
+'preview'                => "Ko'rib chiqish",
+'showpreview'            => "Ko'rib chiqish",
+'showdiff'               => "O'zgarishlarni ko'rsatish",
+'anoneditwarning'        => "'''Diqqat:''' Siz tizimga kirmagansiz. Ushbu sahifa tarixida Sizning IP manzilingiz yozib qolinadi.",
+'blockedtext'            => "<big>'''Siz (foydalanuvchi ismingiz yoki IP manzilingiz) tahrir qilishdan chetlashtirildingiz.'''</big>
+
+Sizni $1 chetlashtirdi. Bunga sabab: ''$2''.
+
+* Chetlashtirish muddati boshi: $8
+* Chetlashtirish muddati yakuni: $6
+
+Siz $1 yoki boshqa [[{{MediaWiki:Grouppage-sysop}}|administrator]] bilan bogʻlanib, arz qilishingiz mumkin.
+Sizning hozirgi IP manzilingiz - $3, chetlashtirish raqamingiz - #$5. Arizaga bularni ilova qilishingiz mumkin.",
+'newarticle'             => '(Yangi)',
+'newarticletext'         => "Bu sahifa hali mavjud emas. Sahifani yaratish uchun quyida matn kiritishingiz mumkin (qo'shimcha axborot uchun [[Help:Mundarija|yordam sahifasini]] ko'ring). Agar bu sahifaga xatolik sabab kelgan bo'lsangiz brauzeringizning '''orqaga''' tugmasini bosing.",
+'noarticletext'          => "Bu sahifada hozircha hech qanday matn yo'q. Siz bu sarlavhani boshqa sahifalardan [[Special:Search/{{PAGENAME}}|qidirishingiz]] yoki bu sahifani [{{fullurl:{{FULLPAGENAME}}|action=edit}} tahrirlashingiz] mumkin.",
+'clearyourcache'         => "'''Etibor bering:''' O'zgartirishlaringiz ko'rish uchun, yangi moslamalaringizning saqlashdan keyin, brauser keshini tozalash kerak:<br />
 '''Mozilla / Firefox:''' ''Ctrl+Shift+R'', '''IE:''' ''Ctrl+F5'', '''Safari:''' ''Cmd+Shift+R'', '''Konqueror:''' ''F5'', '''Opera:''' ''Tools → Preferences'' orqali keshni tozalang.",
-'previewnote'       => "<strong>Bu shunchaki ko'rib chiqish. O'zgarishlar hali saqlangani yo'q!</strong>",
-'editing'           => '$1 tahrirlanmoqda',
-'copyrightwarning2' => "Iltimos, shuni esda tutingki, {{SITENAME}} sahifalaridagi barcha matnlar boshqa foydalanuvchilar tomonidan tahrirlanishi, almashtirilishi yoki o'chirilishi mumkin. Agar siz yozgan ma'lumotlaringizni bunday tartibda tahrirlanishiga rozi bo'lmasangiz, unda uni bu yerga joylashtirmang.<br />
+'previewnote'            => "<strong>Bu shunchaki ko'rib chiqish. O'zgarishlar hali saqlangani yo'q!</strong>",
+'editing'                => '$1 tahrirlanmoqda',
+'editingsection'         => '$1 (boʻlim) tahrirlanmoqda',
+'copyrightwarning2'      => "Iltimos, shuni esda tutingki, {{SITENAME}} sahifalaridagi barcha matnlar boshqa foydalanuvchilar tomonidan tahrirlanishi, almashtirilishi yoki o'chirilishi mumkin. Agar siz yozgan ma'lumotlaringizni bunday tartibda tahrirlanishiga rozi bo'lmasangiz, unda uni bu yerga joylashtirmang.<br />
 Bundan tashqari, siz ushbu ma'lumotlarni o'zingiz yozgan bo'lishingiz yoki ruxsat berilgan internet manzilidan yoki shu kabi erkin resursdan nusxa olgan bo'lishingiz lozim (Qo'shimcha ma'lumotlar ushun $1 sahifasiga murojaat qiling).
 <strong>MUALLIFLIK HUQUQI QO'YILGAN ISHLARNI RUXSATSIZ BU YERGA JOYLASHTIRMANG!</strong>",
+'longpagewarning'        => "<strong>DIQQAT: Ushbu sahifa hajmi $1 kilobaytdir; ayrim browser'lar 32kb dan oshiq hajmli sahifalarni tahrirlashda muammolarga duch kelishi mumkin.
+Agar sizda shunday muammolar yuzaga kelsa, iltimos, sahifani butunlay emas, qismlab tahrirlang.</strong>",
+'templatesused'          => 'Ushbu sahifada ishlatilgan shablonlar:',
+'template-protected'     => '(himoyalangan)',
+'template-semiprotected' => '(yarim-himoyalangan)',
+'nocreatetext'           => 'Ushbu sayt yangi sahifa yaratishni taqiqlagan.
+Ortga qaytib, mavjud sahifani tahrirlashingiz yoki [[Special:Userlogin|tizimga kirishingiz]] mumkin.',
 
 # History pages
-'next' => 'keyingi',
+'viewpagelogs'        => 'Ushbu sahifaga doir qaydlarni koʻrsat',
+'currentrev'          => 'Hozirgi koʻrinishi',
+'revisionasof'        => '$1 paytdagi koʻrinishi',
+'previousrevision'    => '←Avvalgi koʻrinishi',
+'nextrevision'        => 'Yangiroq koʻrinishi→',
+'currentrevisionlink' => 'Hozirgi koʻrinishi',
+'cur'                 => 'joriy',
+'next'                => 'keyingi',
+'last'                => 'oxirgi',
+'histlegend'          => 'Farqlar: solishtirish uchun kerakli radiobokslarni belgilang va pastdagi tugmani yoki Enterni bosing.<br />
+Bu yerda: (joriy) = hozirgi koʻrinish bilan farq,
+(oxirgi) = avvalgi koʻrinish bilan farq, k = kichkina tahrir.',
+'histfirst'           => 'Eng avvalgi',
+'histlast'            => 'Eng soʻnggi',
+
+# Diffs
+'history-title'           => '"$1" ning tarixi',
+'difference'              => '(Koʻrinishlar orasidagi farq)',
+'lineno'                  => 'Qator $1:',
+'compareselectedversions' => 'Tanlangan versiyalarni solishtir',
+'editundo'                => 'qaytar',
 
 # Search results
 'searchresults'    => 'Qidiruv natijalari',
-'searchresulttext' => "{{SITENAME}}da qidirish haqida qo'shimcha ma'lumotga ega bo'lishini xoxlasangiz, [[{{ns:project}}:Qidiruv|{{SITENAME}}da qidiruv]] sahifasini o'qing.",
+'searchresulttext' => "{{SITENAME}}da qidirish haqida qo'shimcha ma'lumotga ega bo'lishini xoxlasangiz, [[{{MediaWiki:Helppage}}|{{SITENAME}}da qidiruv]] sahifasini o'qing.",
 'noexactmatch'     => "'''\"\$1\" nomli birorta ham sahifa yo'q.''' Bu sahifani [[:\$1|yaratishingiz]] mumkin.",
 'prevn'            => 'oldingi $1',
 'nextn'            => 'keyingi $1',
@@ -265,62 +342,117 @@ Bundan tashqari, siz ushbu ma'lumotlarni o'zingiz yozgan bo'lishingiz yoki ruxsa
 'show'              => "ko'rsat",
 'minoreditletter'   => 'k',
 'newpageletter'     => 'Y',
-'boteditletter'     => 'b',
-'sectionlink'       => '→',
 
 # Recent changes linked
-'recentchangeslinked' => "Bog'langan o'zgarishlar",
+'recentchangeslinked'          => "Bog'langan o'zgarishlar",
+'recentchangeslinked-title'    => '$1 ga aloqador oʻzgarishlar',
+'recentchangeslinked-noresult' => 'Berilgan davrda bogʻlangan sahifalarda oʻzgarishlar boʻlmagan.',
+'recentchangeslinked-summary'  => "Ushbu maxsus sahifa unga bogʻlangan sahifalardagi soʻnggi oʻzgarishlarni koʻrsatadi. Kuzatuv roʻyxatingizdagi sahifalar '''qalin''' qilib koʻrsatilgan.",
 
 # Upload
-'upload' => 'Fayl yuklash',
+'upload'        => 'Fayl yuklash',
+'uploadbtn'     => 'Fayl yukla',
+'uploadlogpage' => 'Yuklash qaydlari',
+'uploadedimage' => '"[[$1]]" yuklandi',
 
 # Image list
-'ilsubmit' => 'Qidirish',
+'imagelist'                 => 'Fayllar roʻyxati',
+'ilsubmit'                  => 'Qidirish',
+'filehist'                  => 'Fayl tarixi',
+'filehist-help'             => 'Faylning biror paytdagi holatini koʻrish uchun tegishli sana/vaqtga bosingiz.',
+'filehist-current'          => 'joriy',
+'filehist-datetime'         => 'Sana/Vaqt',
+'filehist-user'             => 'Foydalanuvchi',
+'filehist-dimensions'       => 'Oʻlchamlari',
+'filehist-filesize'         => 'Fayl hajmi',
+'filehist-comment'          => 'Izoh',
+'imagelinks'                => 'Ishoratlar',
+'linkstoimage'              => 'Bu faylga quyidagi sahifalar bogʻlangan:',
+'nolinkstoimage'            => 'Bu faylga bogʻlangan sahifalar yoʻq.',
+'sharedupload'              => 'Ushbu fayl umumiy joyga yuklangandir va boshqa loyihalarda ishlatilishi mumkin.',
+'uploadnewversion-linktext' => 'Bu faylning yangi versiyasini yukla',
+
+# Unused templates
+'unusedtemplates' => 'Ishlatilinmagan shablonlar',
+
+# Random page
+'randompage' => 'Tasodifiy sahifa',
+
+# Statistics
+'statistics' => 'Statistika',
 
 'disambiguationspage' => '{{ns:template}}:Disambig',
 
 # Miscellaneous special pages
-'ncategories'      => '$1 {{PLURAL:$1|kategoriya|kategoriyalar}}',
-'wantedcategories' => 'Talab qilinayotgan kategoriyalar',
-'mostcategories'   => "Eng ko'p kategoriyalarli sahifalar",
-'allpages'         => 'Barcha sahifalar',
-'randompage'       => 'Tasodifiy sahifa',
-'specialpages'     => 'Maxsus sahifalar',
-'move'             => "Ko'chirish",
+'ncategories'             => '$1 {{PLURAL:$1|kategoriya|kategoriyalar}}',
+'lonelypages'             => 'Yetim sahifalar',
+'uncategorizedpages'      => 'Kategoriyasiz sahifalar',
+'uncategorizedcategories' => 'Kategoriyasiz kategoriyalar',
+'uncategorizedimages'     => 'Kategoriyasiz tasvirlar',
+'uncategorizedtemplates'  => 'Kategoriyasiz shablonlar',
+'unusedcategories'        => 'Ishlatilinmagan kategoriyalar',
+'unusedimages'            => 'Ishlatilinmagan fayllar',
+'wantedcategories'        => 'Talab qilinayotgan kategoriyalar',
+'mostcategories'          => "Eng ko'p kategoriyalarli sahifalar",
+'allpages'                => 'Barcha sahifalar',
+'protectedpages'          => 'Himoyalangan sahifalar',
+'listusers'               => 'Foydalanuvchilar roʻyxati',
+'specialpages'            => 'Maxsus sahifalar',
+'newpages'                => 'Yangi sahifalar',
+'move'                    => "Ko'chirish",
+'movethispage'            => 'Bu sahifani koʻchir',
 
 'categoriespagetext' => 'Ushbu kategoriyalar vikida bor.',
+'alphaindexline'     => '$1 dan $2 ga',
 
 # Special:Log
+'log'               => 'Qaydlar',
+'all-logs-page'     => 'Barcha qaydlar',
 'log-search-submit' => "O'tish",
 
 # Special:Allpages
+'nextpage'       => 'Keyingi sahifa ($1)',
+'prevpage'       => 'Avvalgi sahifa ($1)',
+'allpagesfrom'   => 'Sahifalarni koʻrsat:',
 'allarticles'    => 'Barcha sahifalar',
 'allpagesnext'   => 'Keyingi',
 'allpagessubmit' => "O'tish",
 
+# E-mail user
+'emailuser' => 'Bu foydalanuvchiga e-maktub joʻnat',
+
 # Watchlist
-'watchlist'        => "Mening kuzatuv ro'yxatim",
-'mywatchlist'      => "Mening kuzatuv ro'yxatim",
-'watchlistfor'     => "('''$1''' uchun)",
-'nowatchlist'      => "Kuzatuv ro'yxatingizda hech narsa yo'q.",
-'addedwatch'       => "Kuzatuv ro'yxatiga qo'shildi",
-'addedwatchtext'   => "\"[[:\$1]]\" sahifasi sizning [[Special:Watchlist|kuzatuv ro'yxatingizga]] qo'shildi. Bu sahifada va unga mos munozara sahifasida bo'ladigan kelajakdagi o'zgarishlar bu yerda ro'yxatga olinadi, hamda bu sahifa topish qulay bo'lishi uchun [[Special:Recentchanges|yangi o'zgarishlar ro'yxati]]da '''qalin''' harflar bilan ko'rsatiladi.
+'watchlist'            => "Mening kuzatuv ro'yxatim",
+'mywatchlist'          => "Mening kuzatuv ro'yxatim",
+'watchlistfor'         => "('''$1''' uchun)",
+'nowatchlist'          => "Kuzatuv ro'yxatingizda hech narsa yo'q.",
+'addedwatch'           => "Kuzatuv ro'yxatiga qo'shildi",
+'addedwatchtext'       => "\"[[:\$1]]\" sahifasi sizning [[Special:Watchlist|kuzatuv ro'yxatingizga]] qo'shildi. Bu sahifada va unga mos munozara sahifasida bo'ladigan kelajakdagi o'zgarishlar bu yerda ro'yxatga olinadi, hamda bu sahifa topish qulay bo'lishi uchun [[Special:Recentchanges|yangi o'zgarishlar ro'yxati]]da '''qalin''' harflar bilan ko'rsatiladi.
 
 Agar siz bu sahifani kuzatuv ro'yxatingizdan o'chirmoqchi bo'lsangiz \"Kuzatmaslik\" yozuvini bosing.",
-'removedwatch'     => "Kuzatuv ro'yxatidan o'chirildi",
-'removedwatchtext' => '"[[:$1]]" sahifasi kuzatuv ro\'yxatingizdan o\'chirildi.',
-'watch'            => 'kuzatish',
-'watchthispage'    => 'Sahifani kuzatish',
-'unwatch'          => 'kuzatmaslik',
-'wlnote'           => "Pastda oxirgi '''$2''' soatda sodir bo'lgan $1 o'zgartirishlar ko'rsatilgan.",
-'wlshowlast'       => "Oxirgi $1 soatdagi $2 kundagi tahrirlarni ko'rsatish. $3 tahrirlarni ko'rsatish",
+'removedwatch'         => "Kuzatuv ro'yxatidan o'chirildi",
+'removedwatchtext'     => '"[[:$1]]" sahifasi kuzatuv ro\'yxatingizdan o\'chirildi.',
+'watch'                => 'kuzatish',
+'watchthispage'        => 'Sahifani kuzatish',
+'unwatch'              => 'kuzatmaslik',
+'wlnote'               => "Pastda oxirgi '''$2''' soatda sodir bo'lgan $1 o'zgartirishlar ko'rsatilgan.",
+'wlshowlast'           => "Oxirgi $1 soatdagi $2 kundagi tahrirlarni ko'rsatish. $3 tahrirlarni ko'rsatish",
+'watchlist-hide-bots'  => 'Bot tahrirlarini yashir',
+'watchlist-hide-own'   => 'Tahrirlarimni yashir',
+'watchlist-hide-minor' => 'Kichkina tahrirlarni yashir',
 
 # Delete/protect/revert
-'deletecomment'   => "O'chirish sababi",
-'protectmoveonly' => "Faqat ko'chirishdan himoyala",
+'deletedarticle' => '"[[$1]]" yoʻqotildi',
+'dellogpage'     => 'Yoʻqotish qaydlari',
+'deletecomment'  => "O'chirish sababi",
+'rollbacklink'   => 'eski holiga keltir',
+'protectlogpage' => 'Himoyalash qaydlari',
 
 # Restrictions (nouns)
 'restriction-edit' => 'Tahrirlash',
+
+# Undelete
+'undeletebtn' => 'Qayta tikla',
 
 # Namespace form on various pages
 'namespace' => 'Soha:',
@@ -329,16 +461,39 @@ Agar siz bu sahifani kuzatuv ro'yxatingizdan o'chirmoqchi bo'lsangiz \"Kuzatmasl
 # Contributions
 'contributions' => 'Foydalanuvchining hissasi',
 'mycontris'     => 'mening hissam',
+'contribsub2'   => '$1 uchun ($2)',
+
+'sp-contributions-newbies'  => 'Faqatgina yangi foydalanuvchilarning hissalarini koʻrsat',
+'sp-contributions-blocklog' => 'Chetlashtirish qaydlari',
+'sp-contributions-search'   => 'Hissalarni qidir',
+'sp-contributions-username' => 'IP manzil yoki foydalanuvchi ismi:',
+'sp-contributions-submit'   => 'Qidir',
 
 # What links here
-'whatlinkshere' => "Bu sahifaga bog'langan sahifalar",
-'linklistsub'   => "(Bog'lanishlar ro'yxati)",
-'linkshere'     => "Quyidagi sahifalar '''[[:$1]]''' sahifasiga bog'langan:",
-'nolinkshere'   => "'''[[:$1]]''' sahifasiga hech qaysi sahifa bog'lanmagan.",
+'whatlinkshere'       => "Bu sahifaga bog'langan sahifalar",
+'whatlinkshere-title' => '$1 ga bogʻlangan sahifalar',
+'linklistsub'         => "(Bog'lanishlar ro'yxati)",
+'linkshere'           => "Quyidagi sahifalar '''[[:$1]]''' sahifasiga bog'langan:",
+'nolinkshere'         => "'''[[:$1]]''' sahifasiga hech qaysi sahifa bog'lanmagan.",
+'isredirect'          => 'yoʻnaltiruvchi sahifa',
+'istemplate'          => 'qoʻshimcha',
+'whatlinkshere-links' => '← ishoratlar',
+
+# Block/unblock
+'blockip'      => 'Foydalanuvchini chetlashtir',
+'ipboptions'   => '2 soat:2 hours,1 kun:1 day,3 kun:3 days,1 hafta:1 week,2 hafta:2 weeks,1 oy:1 month,3 oy:3 months,6 oy:6 months,1 yil:1 year,cheksiz:infinite', # display1:time1,display2:time2,...
+'ipblocklist'  => 'Chetlashtirilgan IP manzillari va foydalanuvchilar roʻyxati',
+'blocklink'    => 'chetlashtir',
+'contribslink' => 'hissasi',
+'blocklogpage' => 'Chetlashtirish qaydlari',
 
 # Move page
 'movearticle' => "Sahifani ko'chirish",
 '1movedto2'   => "[[$1]] [[$2]]ga ko'chirildi",
+'movelogpage' => 'Koʻchirish qaydlari',
+
+# Thumbnails
+'thumbnail-more' => 'Kattalashtir',
 
 # Tooltip help for the actions
 'tooltip-pt-userpage'             => 'Mening foydalanuvchi sahifam',
@@ -346,7 +501,7 @@ Agar siz bu sahifani kuzatuv ro'yxatingizdan o'chirmoqchi bo'lsangiz \"Kuzatmasl
 'tooltip-pt-mytalk'               => 'Mening suhbat sahifam',
 'tooltip-pt-anontalk'             => 'Bu ip manzildan amalga oshirilgan tahrirlar munozarasi',
 'tooltip-pt-preferences'          => 'Mening moslamalarim',
-'tooltip-pt-watchlist'            => "Siz kuzatib borayotgan sahifalar ro\'yxati.",
+'tooltip-pt-watchlist'            => "Siz kuzatib borayotgan sahifalar ro\\'yxati.",
 'tooltip-pt-mycontris'            => "Mening hissa qo'shgan sahifalarim ro'yxati",
 'tooltip-pt-login'                => "Bu majburiyat bo'lmasada, kirishingiz taklif qilinadi.",
 'tooltip-pt-anonlogin'            => "Bu majburiyat bo'lmasada, kirishingiz taklif qilinadi.",
@@ -397,29 +552,35 @@ Agar siz bu sahifani kuzatuv ro'yxatingizdan o'chirmoqchi bo'lsangiz \"Kuzatmasl
 'tooltip-watch'                   => "Bu sahifani kuzatuv ro'yxatingizga qo'shish",
 'tooltip-recreate'                => "Bu sahifani u o'chirilgan bo'lishiga qaramasdan qayta yaratish",
 
-# Attribution
-'and' => 'va',
-
 # Spam protection
-'subcategorycount'     => 'Bu kategoriya {{PLURAL:$1|bir|$1}} podkategoriyadan iborat.',
-'categoryarticlecount' => 'Bu kategoriyada {{PLURAL:$1|bitta|$1}} sahifa bor.',
+'subcategorycount'       => 'Bu kategoriya {{PLURAL:$1|bir|$1}} podkategoriyadan iborat.',
+'categoryarticlecount'   => 'Bu kategoriyada {{PLURAL:$1|bitta|$1}} sahifa bor.',
+'category-media-count'   => 'Ushbu kategoriyada {{PLURAL:$1|is one file|are $1 files}} dona fayl bor.',
+'listingcontinuesabbrev' => 'davomi',
+
+# Browsing diffs
+'previousdiff' => '← Avvalgi farq',
+'nextdiff'     => 'Keyingi farq →',
 
 # Media information
-'imagemaxsize' => "Tasvir ta'rifi sahifasidagi tasvirning kattaligi:",
-'thumbsize'    => 'Tasvirning kichiklashtirilgan versiyasining kattaligi:',
+'imagemaxsize'         => "Tasvir ta'rifi sahifasidagi tasvirning kattaligi:",
+'thumbsize'            => 'Tasvirning kichiklashtirilgan versiyasining kattaligi:',
+'file-info-size'       => '($1 × $2 piksel, fayl hajmi: $3, MIME tipi: $4)',
+'file-nohires'         => '<small>Bundan kattaroq tasvir yoʻq.</small>',
+'svg-long-desc'        => '(SVG fayl, asl oʻlchamlari $1 × $2 piksel, fayl hajmi: $3)',
+'show-big-image'       => 'Asl hajmdagi tasvir',
+'show-big-image-thumb' => '<small>Ushbu koʻrinish oʻlchamlari: $1 × $2 piksel</small>',
+
+# Metadata
+'metadata-expand'   => 'Batafsil axborot koʻrsat',
+'metadata-collapse' => 'Batafsil axborotni yashir',
 
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'Barchasi',
 'imagelistall'     => 'Barchasi',
-'watchlistall1'    => 'Barcha',
 'watchlistall2'    => 'Barcha',
 'namespacesall'    => 'Barchasi',
-
-# Inputbox extension, may be useful in other contexts as well
-'createarticle' => 'Maqola kiritish',
 
 'unit-pixel' => 'piksel',
 
 );
-
-?>

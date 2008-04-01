@@ -8,7 +8,7 @@
 define( "REPORTING_INTERVAL", 100 );
 #define( "REPORTING_INTERVAL", 1 );
 
-function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0 ) {
+function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0, $redirectsOnly = false ) {
 	global $wgUser, $wgParser, $wgUseImageResize, $wgUseTidy;
 
 	$fname = 'refreshLinks';
@@ -19,14 +19,16 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0 ) {
 	$wgUser->setOption('math', MW_MATH_SOURCE);
 
 	# Don't generate extension images (e.g. Timeline)
-	$wgParser->mTagHooks = array();
+	$wgParser->clearTagHooks();
 
 	# Don't generate thumbnail images
 	$wgUseImageResize = false;
 	$wgUseTidy = false;
 
+	$what = ($redirectsOnly)? "redirects" : "links";
+
 	if ( $newOnly ) {
-		print "Refreshing links from ";
+		print "Refreshing $what from ";
 		$res = $dbr->select( 'page',
 			array( 'page_id' ),
 			array(
@@ -43,11 +45,13 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0 ) {
 				print "$i\n";
 				wfWaitForSlaves( $maxLag );
 			}
-
-			fixLinksFromArticle( $row->page_id );
+			if($redirectsOnly)
+				fixRedirect( $row->page_id );
+			else
+				fixLinksFromArticle( $row->page_id );
 		}
 	} else {
-		print "Refreshing link table.\n";
+		print "Refreshing $what table.\n";
 		if ( !$end ) {
 			$end = $dbr->selectField( 'page', 'max(page_id)', false );
 		}
@@ -59,9 +63,31 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0 ) {
 				print "$id\n";
 				wfWaitForSlaves( $maxLag );
 			}
-			fixLinksFromArticle( $id );
+			if($redirectsOnly)
+				fixRedirect( $id );
+			else
+				fixLinksFromArticle( $id );
 		}
 	}
+}
+
+function fixRedirect( $id ){
+	global $wgTitle, $wgArticle;
+
+	$wgTitle = Title::newFromID( $id );
+	$dbw = wfGetDB( DB_MASTER );
+
+	if ( is_null( $wgTitle ) ) {
+		return;
+	}
+	$wgArticle = new Article($wgTitle);
+
+	$rt = $wgArticle->followRedirect();
+
+	if($rt == false || !is_object($rt))
+		return;
+
+	$wgArticle->updateRedirectOn($dbw,$rt);
 }
 
 function fixLinksFromArticle( $id ) {

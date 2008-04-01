@@ -46,14 +46,19 @@ class PatrolLog {
 		# these conditions would have gone into recentchanges, which we aren't
 		# supposed to be updating
 		if( is_object( $skin ) ) {
-			list( $cur, $prev, $auto ) = $params;
+			list( $cur, /* $prev */, $auto ) = $params;
 			# Standard link to the page in question
 			$link = $skin->makeLinkObj( $title );
-			# Generate a diff link
-			$bits[] = 'oldid=' . urlencode( $cur );
-			$bits[] = 'diff=prev';
-			$bits = implode( '&', $bits );
-			$diff = $skin->makeLinkObj( $title, htmlspecialchars( wfMsg( 'patrol-log-diff', $cur ) ), $bits );
+			if( $title->exists() ) {
+				# Generate a diff link
+				$bits[] = 'oldid=' . urlencode( $cur );
+				$bits[] = 'diff=prev';
+				$bits = implode( '&', $bits );
+				$diff = $skin->makeKnownLinkObj( $title, htmlspecialchars( wfMsg( 'patrol-log-diff', $cur ) ), $bits );
+			} else {
+				# Don't bother with a diff link, it's useless
+				$diff = htmlspecialchars( wfMsg( 'patrol-log-diff', $cur ) );
+			}
 			# Indicate whether or not the patrolling was automatic
 			$auto = $auto ? wfMsgHtml( 'patrol-log-auto' ) : '';
 			# Put it all together
@@ -80,4 +85,3 @@ class PatrolLog {
 
 }
 
-?>

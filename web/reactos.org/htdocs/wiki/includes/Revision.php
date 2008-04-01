@@ -47,7 +47,7 @@ class Revision {
 			array( "rev_id=$matchId",
 			       'page_id=rev_page',
 			       'page_namespace' => $title->getNamespace(),
-			       'page_title'     => $title->getDbkey() ) );
+			       'page_title'     => $title->getDBkey() ) );
 	}
 
 	/**
@@ -110,7 +110,7 @@ class Revision {
 			array( "rev_id=$matchId",
 			       'page_id=rev_page',
 			       'page_namespace' => $title->getNamespace(),
-			       'page_title'     => $title->getDbkey() ) );
+			       'page_title'     => $title->getDBkey() ) );
 	}
 
 	/**
@@ -131,7 +131,7 @@ class Revision {
 			array( 'rev_timestamp'  => $db->timestamp( $timestamp ),
 			       'page_id=rev_page',
 			       'page_namespace' => $title->getNamespace(),
-			       'page_title'     => $title->getDbkey() ) );
+			       'page_title'     => $title->getDBkey() ) );
 	}
 
 	/**
@@ -190,7 +190,7 @@ class Revision {
 		return Revision::fetchFromConds(
 			wfGetDB( DB_SLAVE ),
 			array( 'page_namespace' => $title->getNamespace(),
-			       'page_title'     => $title->getDbkey(),
+			       'page_title'     => $title->getDBkey(),
 			       'page_id=rev_page' ) );
 	}
 
@@ -209,7 +209,7 @@ class Revision {
 			wfGetDB( DB_SLAVE ),
 			array( 'rev_id=page_latest',
 			       'page_namespace' => $title->getNamespace(),
-			       'page_title'     => $title->getDbkey(),
+			       'page_title'     => $title->getDBkey(),
 			       'page_id=rev_page' ) );
 	}
 
@@ -794,9 +794,8 @@ class Revision {
 	 * @param bool     $minor
 	 * @return Revision
 	 */
-	function newNullRevision( &$dbw, $pageId, $summary, $minor ) {
-		$fname = 'Revision::newNullRevision';
-		wfProfileIn( $fname );
+	public static function newNullRevision( &$dbw, $pageId, $summary, $minor ) {
+		wfProfileIn( __METHOD__ );
 
 		$current = $dbw->selectRow(
 			array( 'page', 'revision' ),
@@ -805,7 +804,7 @@ class Revision {
 				'page_id' => $pageId,
 				'page_latest=rev_id',
 				),
-			$fname );
+			__METHOD__ );
 
 		if( $current ) {
 			$revision = new Revision( array(
@@ -818,7 +817,7 @@ class Revision {
 			$revision = null;
 		}
 
-		wfProfileOut( $fname );
+		wfProfileOut( __METHOD__ );
 		return $revision;
 	}
 	
@@ -888,4 +887,4 @@ define( 'MW_REV_DELETED_USER', Revision::DELETED_USER );
 define( 'MW_REV_DELETED_RESTRICTED', Revision::DELETED_RESTRICTED );
 
 
-?>
+

@@ -15,12 +15,12 @@
  */
 class RawPage {
 	var $mArticle, $mTitle, $mRequest;
-	var $mOldId, $mGen, $mCharset;
+	var $mOldId, $mGen, $mCharset, $mSection;
 	var $mSmaxage, $mMaxage;
 	var $mContentType, $mExpandTemplates;
 
 	function __construct( &$article, $request = false ) {
-		global $wgRequest, $wgInputEncoding, $wgSquidMaxage, $wgJsMimeType;
+		global $wgRequest, $wgInputEncoding, $wgSquidMaxage, $wgJsMimeType, $wgForcedRawSMaxage, $wgGroupPermissions;
 
 		$allowedCTypes = array('text/x-wiki', $wgJsMimeType, 'text/css', 'application/x-zope-edit');
 		$this->mArticle =& $article;
@@ -35,10 +35,14 @@ class RawPage {
 		$ctype = $this->mRequest->getVal( 'ctype' );
 		$smaxage = $this->mRequest->getIntOrNull( 'smaxage', $wgSquidMaxage );
 		$maxage = $this->mRequest->getInt( 'maxage', $wgSquidMaxage );
+		
 		$this->mExpandTemplates = $this->mRequest->getVal( 'templates' ) === 'expand';
 		$this->mUseMessageCache = $this->mRequest->getBool( 'usemsgcache' );
 
+		$this->mSection = $this->mRequest->getIntOrNull( 'section' );
+
 		$oldid = $this->mRequest->getInt( 'oldid' );
+
 		switch ( $wgRequest->getText( 'direction' ) ) {
 			case 'next':
 				# output next revision, or nothing if there isn't one
@@ -78,12 +82,23 @@ class RawPage {
 			$this->mGen = false;
 		}
 		$this->mCharset = $wgInputEncoding;
-		$this->mSmaxage = intval( $smaxage );
+		
+		# Force caching for CSS and JS raw content, default: 5 minutes
+		if (is_null($smaxage) and ($ctype=='text/css' or $ctype==$wgJsMimeType)) {
+			$this->mSmaxage = intval($wgForcedRawSMaxage);
+		} else {
+			$this->mSmaxage = intval( $smaxage );
+		}
 		$this->mMaxage = $maxage;
 		
-		// Output may contain user-specific data; vary for open sessions
-		$this->mPrivateCache = ( $this->mSmaxage == 0 ) ||
-			( session_id() != '' );
+		# Output may contain user-specific data; 
+		# vary generated content for open sessions and private wikis
+		if ($this->mGen or !$wgGroupPermissions['*']['read']) {
+			$this->mPrivateCache = ( $this->mSmaxage == 0 ) ||
+				( session_id() != '' );
+		} else {
+			$this->mPrivateCache = false;
+		}
 		
 		if ( $ctype == '' or ! in_array( $ctype, $allowedCTypes ) ) {
 			$this->mContentType = 'text/x-wiki';
@@ -111,8 +126,7 @@ class RawPage {
 			$url = $_SERVER['PHP_SELF'];
 		}
 		
-		$ua = @$_SERVER['HTTP_USER_AGENT'];
-		if( strcmp( $wgScript, $url ) && strpos( $ua, 'MSIE' ) !== false ) {
+		if( strcmp( $wgScript, $url ) ) {
 			# Internet Explorer will ignore the Content-Type header if it
 			# thinks it sees a file extension it recognizes. Make sure that
 			# all raw requests are done through the script node, which will
@@ -177,7 +191,12 @@ class RawPage {
 				if ( $rev ) {
 					$lastmod = wfTimestamp( TS_RFC2822, $rev->getTimestamp() );
 					header( "Last-modified: $lastmod" );
-					$text = $rev->getText();
+
+					if ( !is_null($this->mSection ) ) {
+						global $wgParser;
+						$text = $wgParser->getSection ( $rev->getText(), $this->mSection );
+					} else
+						$text = $rev->getText();
 					$found = true;
 				}
 			}
@@ -220,4 +239,4 @@ class RawPage {
 				return $text;
 	}
 }
-?>
+

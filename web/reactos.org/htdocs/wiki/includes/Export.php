@@ -111,7 +111,7 @@ class WikiExporter {
 	function pageByTitle( $title ) {
 		return $this->dumpFrom(
 			'page_namespace=' . $title->getNamespace() .
-			' AND page_title=' . $this->db->addQuotes( $title->getDbKey() ) );
+			' AND page_title=' . $this->db->addQuotes( $title->getDBkey() ) );
 	}
 
 	function pageByName( $name ) {
@@ -558,7 +558,7 @@ class Dump7ZipOutput extends DumpPipeOutput {
 		$command = "7za a -bd -si " . wfEscapeShellArg( $file );
 		// Suppress annoying useless crap from p7zip
 		// Unfortunately this could suppress real error messages too
-		$command .= " >/dev/null 2>&1";
+		$command .= ' >' . wfGetNull() . ' 2>&1';
 		parent::DumpPipeOutput( $command );
 	}
 }
@@ -767,4 +767,4 @@ function xmlsafe( $string ) {
 	return $string;
 }
 
-?>
+

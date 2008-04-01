@@ -20,7 +20,7 @@ function rebuildLanguage( $code, $write, $listUnknown ) {
 	global $wgLanguages;
 	$messages = $wgLanguages->getMessages( $code );
 	$messages = $messages['all'];
-	writeMessagesToFile( $messages, $code, $write, $listUnknown );
+	MessageWriter::writeMessagesToFile( $messages, $code, $write, $listUnknown );
 }
 
 # Show help
@@ -61,4 +61,4 @@ if ( $wgCode == 'all' ) {
 	rebuildLanguage( $wgCode, $wgWriteToFile, $wgListUnknownMessages );
 }
 
-?>
+

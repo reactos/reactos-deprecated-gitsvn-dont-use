@@ -51,7 +51,7 @@ class WantedPagesPage extends QueryPage {
 	/**
 	 * Cache page existence for performance
 	 */
-	function preprocessResults( &$db, &$res ) {
+	function preprocessResults( $db, $res ) {
 		$batch = new LinkBatch;
 		while ( $row = $db->fetchObject( $res ) )
 			$batch->addObj( Title::makeTitleSafe( $row->namespace, $row->title ) );
@@ -63,46 +63,48 @@ class WantedPagesPage extends QueryPage {
 			$db->dataSeek( $res, 0 );
 	}
 
-
-	function formatResult( $skin, $result ) {
-		global $wgLang;
-
+	/**
+	 * Format an individual result
+	 *
+	 * @param Skin $skin Skin to use for UI elements
+	 * @param object $result Result row
+	 * @return string
+	 */
+	public function formatResult( $skin, $result ) {
 		$title = Title::makeTitleSafe( $result->namespace, $result->title );
-
-		if( $this->isCached() ) {
-			# Check existence; which is stored in the link cache
-			if( !$title->exists() ) {
-				# Make a redlink
-				$pageLink = $skin->makeBrokenLinkObj( $title );
+		if( $title instanceof Title ) {
+			if( $this->isCached() ) {
+				$pageLink = $title->exists()
+					? '<s>' . $skin->makeLinkObj( $title ) . '</s>'
+					: $skin->makeBrokenLinkObj( $title );
 			} else {
-				# Make a a struck-out normal link
-				$pageLink = "<s>" . $skin->makeLinkObj( $title ) . "</s>";
-			}		
+				$pageLink = $skin->makeBrokenLinkObj( $title );
+			}
+			return wfSpecialList( $pageLink, $this->makeWlhLink( $title, $skin, $result ) );
 		} else {
-			# Not cached? Don't bother checking existence; it can't
-			$pageLink = $skin->makeBrokenLinkObj( $title );
+			$tsafe = htmlspecialchars( $result->title );
+			return "Invalid title in result set; {$tsafe}";
 		}
-		
-		# Make a link to "what links here" if it's required
-		$wlhLink = $this->nlinks
-					? $this->makeWlhLink( $title, $skin,
-							wfMsgExt( 'nlinks', array( 'parsemag', 'escape'),
-								$wgLang->formatNum( $result->value ) ) )
-					: null;
-					
-		return wfSpecialList($pageLink, $wlhLink);
 	}
 	
 	/**
-	 * Make a "what links here" link for a specified title
-	 * @param $title Title to make the link for
-	 * @param $skin Skin to use
-	 * @param $text Link text
+	 * Make a "what links here" link for a specified result if required
+	 *
+	 * @param Title $title Title to make the link for
+	 * @param Skin $skin Skin to use
+	 * @param object $result Result row
 	 * @return string
 	 */
-	function makeWlhLink( &$title, &$skin, $text ) {
-		$wlhTitle = SpecialPage::getTitleFor( 'Whatlinkshere' );
-		return $skin->makeKnownLinkObj( $wlhTitle, $text, 'target=' . $title->getPrefixedUrl() );
+	private function makeWlhLink( $title, $skin, $result ) {
+		global $wgLang;
+		if( $this->nlinks ) {
+			$wlh = SpecialPage::getTitleFor( 'Whatlinkshere' );
+			$label = wfMsgExt( 'nlinks', array( 'parsemag', 'escape' ),
+				$wgLang->formatNum( $result->value ) );
+			return $skin->makeKnownLinkObj( $wlh, $label, 'target=' . $title->getPrefixedUrl() );
+		} else {
+			return null;
+		}
 	}
 	
 }
@@ -128,4 +130,4 @@ function wfSpecialWantedpages( $par = null, $specialPage ) {
 	$wpp->doQuery( $offset, $limit, !$inc );
 }
 
-?>
+

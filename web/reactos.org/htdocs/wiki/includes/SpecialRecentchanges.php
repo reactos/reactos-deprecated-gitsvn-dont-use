@@ -172,13 +172,9 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 	while( $row = $dbr->fetchObject( $res ) ){
 		$rows[] = $row;
 		if ( !$feedFormat ) {
-			// User page link
-			$title = Title::makeTitleSafe( NS_USER, $row->rc_user_text );
-			$batch->addObj( $title );
-
-			// User talk
-			$title = Title::makeTitleSafe( NS_USER_TALK, $row->rc_user_text );
-			$batch->addObj( $title );
+			// User page and talk links
+			$batch->add( NS_USER, $row->rc_user_text  );
+			$batch->add( NS_USER_TALK, $row->rc_user_text  );
 		}
 
 	}
@@ -221,7 +217,7 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 
 		// And now for the content
 		$wgOut->setSyndicated( true );
-
+		
 		$list = ChangesList::newFromUser( $wgUser );
 		
 		if ( $wgAllowCategorizedRecentChanges ) {
@@ -233,6 +229,10 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 
 		$s = $list->beginRecentChangesList();
 		$counter = 1;
+
+		$showWatcherCount = $wgRCShowWatchingUsers && $wgUser->getOption( 'shownumberswatching' );
+		$watcherCache = array();
+
 		foreach( $rows as $obj ){
 			if( $limit == 0) {
 				break;
@@ -251,13 +251,19 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 					$rc->notificationtimestamp = false;
 				}
 
-				if ($wgRCShowWatchingUsers && $wgUser->getOption( 'shownumberswatching' )) {
-					$sql3 = "SELECT COUNT(*) AS n FROM $watchlist WHERE wl_title='" . $dbr->strencode($obj->rc_title) ."' AND wl_namespace=$obj->rc_namespace" ;
-					$res3 = $dbr->query( $sql3, 'wfSpecialRecentChanges');
-					$x = $dbr->fetchObject( $res3 );
-					$rc->numberofWatchingusers = $x->n;
-				} else {
-					$rc->numberofWatchingusers = 0;
+				$rc->numberofWatchingusers = 0; // Default
+				if ($showWatcherCount && $obj->rc_namespace >= 0) {
+					if (!isset($watcherCache[$obj->rc_namespace][$obj->rc_title])) {
+						$watcherCache[$obj->rc_namespace][$obj->rc_title] =
+						 	$dbr->selectField( 'watchlist',
+								'COUNT(*)',
+								array(
+									'wl_namespace' => $obj->rc_namespace,
+									'wl_title' => $obj->rc_title,
+								),
+								__METHOD__ . '-watchers' );
+					}
+					$rc->numberofWatchingusers = $watcherCache[$obj->rc_namespace][$obj->rc_title];
 				}
 				$s .= $list->recentChangesLine( $rc, !empty( $obj->wl_user ) );
 				--$limit;
@@ -269,7 +275,9 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 }
 
 function rcFilterByCategories ( &$rows , $categories , $any ) {
-	require_once ( 'Categoryfinder.php' ) ;
+	if( empty( $categories ) ) {
+		return;
+	}
 	
 	# Filter categories
 	$cats = array () ;
@@ -283,7 +291,7 @@ function rcFilterByCategories ( &$rows , $categories , $any ) {
 	$articles = array () ;
 	$a2r = array () ;
 	foreach ( $rows AS $k => $r ) {
-		$nt = Title::newFromText ( $r->rc_title , $r->rc_namespace ) ;
+		$nt = Title::makeTitle( $r->rc_title , $r->rc_namespace );
 		$id = $nt->getArticleID() ;
 		if ( $id == 0 ) continue ; # Page might have been deleted...
 		if ( !in_array ( $id , $articles ) ) {
@@ -334,6 +342,14 @@ function rcOutputFeed( $rows, $feedFormat, $limit, $hideminor, $lastmod ) {
 		htmlspecialchars( wfMsgForContent( 'recentchanges-feed-description' ) ),
 		$wgTitle->getFullUrl() );
 
+	//purge cache if requested
+	global $wgRequest, $wgUser;
+	$purge = $wgRequest->getVal( 'action' ) == 'purge';
+	if ( $purge && $wgUser->isAllowed('purge') ) {
+		$messageMemc->delete( $timekey );
+		$messageMemc->delete( $key );
+	}
+
 	/**
 	 * Bumping around loading up diffs can be pretty slow, so where
 	 * possible we want to cache the feed output so the next visitor
@@ -375,9 +391,12 @@ function rcOutputFeed( $rows, $feedFormat, $limit, $hideminor, $lastmod ) {
 	return true;
 }
 
+/**
+ * @todo document
+ * @param $rows Database resource with recentchanges rows
+ */
 function rcDoOutputFeed( $rows, &$feed ) {
-	$fname = 'rcDoOutputFeed';
-	wfProfileIn( $fname );
+	wfProfileIn( __METHOD__ );
 
 	$feed->outHeader();
 
@@ -402,7 +421,7 @@ function rcDoOutputFeed( $rows, &$feed ) {
 		$item = new FeedItem(
 			$title->getPrefixedText(),
 			rcFormatDiff( $obj ),
-			$title->getFullURL(),
+			$title->getFullURL( 'diff=' . $obj->rc_this_oldid . '&oldid=prev' ),
 			$obj->rc_timestamp,
 			$obj->rc_user_text,
 			$talkpage->getFullURL()
@@ -410,7 +429,7 @@ function rcDoOutputFeed( $rows, &$feed ) {
 		$feed->outItem( $item );
 	}
 	$feed->outFooter();
-	wfProfileOut( $fname );
+	wfProfileOut( __METHOD__ );
 }
 
 /**
@@ -624,7 +643,13 @@ function rcFormatDiffRow( $title, $oldid, $newid, $timestamp, $comment ) {
 	$skin = $wgUser->getSkin();
 	$completeText = '<p>' . $skin->formatComment( $comment ) . "</p>\n";
 
-	if( $title->getNamespace() >= 0 && $title->userCan( 'read' ) ) {
+	//NOTE: Check permissions for anonymous users, not current user.
+	//      No "privileged" version should end up in the cache.
+	//      Most feed readers will not log in anway.
+	$anon = new User();
+	$accErrors = $title->getUserPermissionsErrors( 'read', $anon, true );
+
+	if( $title->getNamespace() >= 0 && !$accErrors ) {
 		if( $oldid ) {
 			wfProfileIn( "$fname-dodiff" );
 
@@ -685,12 +710,12 @@ function rcFormatDiffRow( $title, $oldid, $newid, $timestamp, $comment ) {
  */
 function rcApplyDiffStyle( $text ) {
 	$styles = array(
-		'diff'             => 'background-color: white;',
-		'diff-otitle'      => 'background-color: white;',
-		'diff-ntitle'      => 'background-color: white;',
-		'diff-addedline'   => 'background: #cfc; font-size: smaller;',
-		'diff-deletedline' => 'background: #ffa; font-size: smaller;',
-		'diff-context'     => 'background: #eee; font-size: smaller;',
+		'diff'             => 'background-color: white; color:black;',
+		'diff-otitle'      => 'background-color: white; color:black;',
+		'diff-ntitle'      => 'background-color: white; color:black;',
+		'diff-addedline'   => 'background: #cfc; color:black; font-size: smaller;',
+		'diff-deletedline' => 'background: #ffa; color:black; font-size: smaller;',
+		'diff-context'     => 'background: #eee; color:black; font-size: smaller;',
 		'diffchange'       => 'color: red; font-weight: bold; text-decoration: none;',
 	);
 	
@@ -702,4 +727,4 @@ function rcApplyDiffStyle( $text ) {
 	return $text;
 }
 
-?>
+

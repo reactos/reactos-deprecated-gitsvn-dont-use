@@ -9,7 +9,7 @@ function wfSpecialCategories() {
 
 	$cap = new CategoryPager();
 	$wgOut->addHTML( 
-		wfMsgWikiHtml( 'categoriespagetext' ) .
+		wfMsgExt( 'categoriespagetext', array( 'parse' ) ) .
 		$cap->getNavigationBar()
 		. '<ul>' . $cap->getBody() . '</ul>' .
 		$cap->getNavigationBar()
@@ -53,14 +53,11 @@ class CategoryPager extends AlphabeticPager {
 	function formatRow($result) {
 		global $wgLang;
 		$title = Title::makeTitle( NS_CATEGORY, $result->cl_to );
-		return ( 
-			'<li>' .
-			$this->getSkin()->makeLinkObj( $title, $title->getText() )
-			. ' ' .
-			wfMsgExt( 'nmembers', array( 'parsemag', 'escape'),
-				$wgLang->formatNum( $result->count ) )
-			. "</li>\n" );
+		$titleText = $this->getSkin()->makeLinkObj( $title, htmlspecialchars( $title->getText() ) );
+		$count = wfMsgExt( 'nmembers', array( 'parsemag', 'escape' ),
+				$wgLang->formatNum( $result->count ) );
+		return Xml::tags('li', null, "$titleText ($count)" ) . "\n";
 	}
 }
 
-?>
+

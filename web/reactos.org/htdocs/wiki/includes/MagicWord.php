@@ -86,7 +86,6 @@ class MagicWord {
 		'subjectpagename',
 		'subjectpagenamee',
 		'numberofusers',
-		'rawsuffix',
 		'newsectionlink',
 		'numberofpages',
 		'currentversion',
@@ -102,6 +101,44 @@ class MagicWord {
 		'numberofadmins',
 		'defaultsort',
 	);
+	
+	/* Array of caching hints for ParserCache */
+	static public $mCacheTTLs = array (
+		'currentmonth' => 86400,
+		'currentmonthname' => 86400,
+		'currentmonthnamegen' => 86400,
+		'currentmonthabbrev' => 86400,
+		'currentday' => 3600,
+		'currentday2' => 3600,
+		'currentdayname' => 3600,
+		'currentyear' => 86400,
+		'currenttime' => 3600,
+		'currenthour' => 3600,
+		'localmonth' => 86400,
+		'localmonthname' => 86400,
+		'localmonthnamegen' => 86400,
+		'localmonthabbrev' => 86400,
+		'localday' => 3600,
+		'localday2' => 3600,
+		'localdayname' => 3600,
+		'localyear' => 86400,
+		'localtime' => 3600,
+		'localhour' => 3600,
+		'numberofarticles' => 3600,
+		'numberoffiles' => 3600,
+		'numberofedits' => 3600,
+		'currentweek' => 3600,
+		'currentdow' => 3600,
+		'localweek' => 3600,
+		'localdow' => 3600,
+		'numberofusers' => 3600,
+		'numberofpages' => 3600,
+		'currentversion' => 86400,
+		'currenttimestamp' => 3600,
+		'localtimestamp' => 3600,
+		'pagesinnamespace' => 3600,
+		'numberofadmins' => 3600,
+		);
 
 	static public $mObjects = array();
 
@@ -123,11 +160,13 @@ class MagicWord {
 	 * @static
 	 */
 	static function &get( $id ) {
+		wfProfileIn( __METHOD__ );
 		if (!array_key_exists( $id, self::$mObjects ) ) {
 			$mw = new MagicWord();
 			$mw->load( $id );
 			self::$mObjects[$id] = $mw;
 		}
+		wfProfileOut( __METHOD__ );
 		return self::$mObjects[$id];
 	}
 
@@ -149,7 +188,17 @@ class MagicWord {
 		}
 		return self::$mVariableIDs;
 	}
-
+	
+	/* Allow external reads of TTL array */
+	static function getCacheTTL($id) {
+		if (array_key_exists($id,self::$mCacheTTLs)) {
+			return self::$mCacheTTLs[$id];
+		} else {
+			return -1;
+		}
+	}
+	
+	
 	# Initialises this object with an ID
 	function load( $id ) {
 		global $wgContLang;
@@ -387,6 +436,181 @@ class MagicWord {
 	function isCaseSensitive() {
 		return $this->mCaseSensitive;
 	}
+
+	function getId() {
+		return $this->mId;
+	}
 }
 
-?>
+/**
+ * Class for handling an array of magic words
+ */
+class MagicWordArray {
+	var $names = array();
+	var $hash;
+	var $baseRegex, $regex;
+
+	function __construct( $names = array() ) {
+		$this->names = $names;
+	}
+
+	/**
+	 * Add a magic word by name
+	 */
+	public function add( $name ) {
+		global $wgContLang;
+		$this->names[] = $name;
+		$this->hash = $this->baseRegex = $this->regex = null;
+	}
+
+	/**
+	 * Add a number of magic words by name
+	 */
+	public function addArray( $names ) {
+		$this->names = array_merge( $this->names, array_values( $names ) );
+		$this->hash = $this->baseRegex = $this->regex = null;
+	}
+
+	/**
+	 * Get a 2-d hashtable for this array
+	 */
+	function getHash() {
+		if ( is_null( $this->hash ) ) {
+			global $wgContLang;
+			$this->hash = array( 0 => array(), 1 => array() );
+			foreach ( $this->names as $name ) {
+				$magic = MagicWord::get( $name );
+				$case = intval( $magic->isCaseSensitive() );
+				foreach ( $magic->getSynonyms() as $syn ) {
+					if ( !$case ) {
+						$syn = $wgContLang->lc( $syn );
+					}
+					$this->hash[$case][$syn] = $name;
+				}
+			}
+		}
+		return $this->hash;
+	}
+
+	/**
+	 * Get the base regex
+	 */
+	function getBaseRegex() {
+		if ( is_null( $this->baseRegex ) ) {
+			$this->baseRegex = array( 0 => '', 1 => '' );
+			foreach ( $this->names as $name ) {
+				$magic = MagicWord::get( $name );
+				$case = intval( $magic->isCaseSensitive() );
+				foreach ( $magic->getSynonyms() as $i => $syn ) {
+					$group = "(?P<{$i}_{$name}>" . preg_quote( $syn, '/' ) . ')';
+					if ( $this->baseRegex[$case] === '' ) {
+						$this->baseRegex[$case] = $group;
+					} else {
+						$this->baseRegex[$case] .= '|' . $group;
+					}
+				}
+			}
+		}
+		return $this->baseRegex;
+	}
+
+	/**
+	 * Get an unanchored regex
+	 */
+	function getRegex() {
+		if ( is_null( $this->regex ) ) {
+			$base = $this->getBaseRegex();
+			$this->regex = array( '', '' );
+			if ( $this->baseRegex[0] !== '' ) {
+				$this->regex[0] = "/{$base[0]}/iuS";
+			}
+			if ( $this->baseRegex[1] !== '' ) {
+				$this->regex[1] = "/{$base[1]}/S";
+			}
+		}
+		return $this->regex;
+	}
+
+	/**
+	 * Get a regex for matching variables
+	 */
+	function getVariableRegex() {
+		return str_replace( "\\$1", "(.*?)", $this->getRegex() );
+	}
+
+	/**
+	 * Get an anchored regex for matching variables
+	 */
+	function getVariableStartToEndRegex() {
+		$base = $this->getBaseRegex();
+		$newRegex = array( '', '' );
+		if ( $base[0] !== '' ) {
+			$newRegex[0] = str_replace( "\\$1", "(.*?)", "/^(?:{$base[0]})$/iuS" );
+		}
+		if ( $base[1] !== '' ) {
+			$newRegex[1] = str_replace( "\\$1", "(.*?)", "/^(?:{$base[1]})$/S" );
+		}
+		return $newRegex;
+	}
+
+	/**
+	 * Parse a match array from preg_match
+	 */
+	function parseMatch( $m ) {
+		reset( $m );
+		while ( list( $key, $value ) = each( $m ) ) {
+			if ( $key === 0 || $value === '' ) {
+				continue;
+			}
+			$parts = explode( '_', $key, 2 );
+			if ( count( $parts ) != 2 ) {
+				// This shouldn't happen
+				// continue;
+				throw new MWException( __METHOD__ . ': bad parameter name' );
+			}
+			list( /* $synIndex */, $magicName ) = $parts;
+			$paramValue = next( $m );
+			return array( $magicName, $paramValue );
+		}
+		// This shouldn't happen either
+		throw new MWException( __METHOD__.': parameter not found' );
+		return array( false, false );
+	}
+
+	/**
+	 * Match some text, with parameter capture
+	 * Returns an array with the magic word name in the first element and the 
+	 * parameter in the second element.
+	 * Both elements are false if there was no match.
+	 */
+	public function matchVariableStartToEnd( $text ) {
+		global $wgContLang;
+		$regexes = $this->getVariableStartToEndRegex();
+		foreach ( $regexes as $regex ) {
+			if ( $regex !== '' ) {
+				$m = false;
+				if ( preg_match( $regex, $text, $m ) ) {
+					return $this->parseMatch( $m );
+				}
+			}
+		}
+		return array( false, false );
+	}
+
+	/**
+	 * Match some text, without parameter capture
+	 * Returns the magic word name, or false if there was no capture
+	 */
+	public function matchStartToEnd( $text ) {
+		$hash = $this->getHash();
+		if ( isset( $hash[1][$text] ) ) {
+			return $hash[1][$text];
+		}
+		global $wgContLang;
+		$lc = $wgContLang->lc( $text );
+		if ( isset( $hash[0][$lc] ) ) {
+			return $hash[0][$lc];
+		}
+		return false;
+	}
+}

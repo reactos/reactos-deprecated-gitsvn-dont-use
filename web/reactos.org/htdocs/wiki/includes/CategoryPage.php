@@ -37,6 +37,19 @@ class CategoryPage extends Article {
 		}
 	}
 
+	/**
+	 * This page should not be cached if 'from' or 'until' has been used
+	 * @return bool
+	 */
+	function isFileCacheable() {
+		global $wgRequest;
+
+		return ( ! Article::isFileCacheable()
+				|| $wgRequest->getVal( 'from' )
+				|| $wgRequest->getVal( 'until' )
+		) ? false : true;
+	}
+
 	function openShowCategory() {
 		# For overloading
 	}
@@ -90,6 +103,11 @@ class CategoryViewer {
 			$this->getImageSection() .
 			$this->getCategoryBottom();
 
+		// Give a proper message if category is empty
+		if ( $r == '' ) {
+			$r = wfMsgExt( 'category-empty', array( 'parse' ) );
+		}
+
 		wfProfileOut( __METHOD__ );
 		return $r;
 	}
@@ -101,7 +119,7 @@ class CategoryViewer {
 		$this->children_start_char = array();
 		if( $this->showGallery ) {
 			$this->gallery = new ImageGallery();
-			$this->gallery->setParsing();
+			$this->gallery->setHideBadImages();
 		}
 	}
 
@@ -147,7 +165,7 @@ class CategoryViewer {
 	/**
 	 * Add a page in the image namespace
 	 */
-	function addImage( $title, $sortkey, $pageLength ) {
+	function addImage( Title $title, $sortkey, $pageLength, $isRedirect = false ) {
 		if ( $this->showGallery ) {
 			$image = new Image( $title );
 			if( $this->flip ) {
@@ -156,18 +174,18 @@ class CategoryViewer {
 				$this->gallery->add( $image );
 			}
 		} else {
-			$this->addPage( $title, $sortkey, $pageLength );
+			$this->addPage( $title, $sortkey, $pageLength, $isRedirect );
 		}
 	}
 
 	/**
 	 * Add a miscellaneous page
 	 */
-	function addPage( $title, $sortkey, $pageLength ) {
+	function addPage( $title, $sortkey, $pageLength, $isRedirect = false ) {
 		global $wgContLang;
-		$this->articles[] = $this->getSkin()->makeSizeLinkObj( 
-			$pageLength, $title, $wgContLang->convert( $title->getPrefixedText() ) 
-		);
+		$this->articles[] = $isRedirect
+			? '<span class="redirect-in-category">' . $this->getSkin()->makeKnownLinkObj( $title ) . '</span>'
+			: $this->getSkin()->makeSizeLinkObj( $pageLength, $title );
 		$this->articles_start_char[] = $wgContLang->convert( $wgContLang->firstChar( $sortkey ) );
 	}
 
@@ -194,10 +212,10 @@ class CategoryViewer {
 		}
 		$res = $dbr->select(
 			array( 'page', 'categorylinks' ),
-			array( 'page_title', 'page_namespace', 'page_len', 'cl_sortkey' ),
+			array( 'page_title', 'page_namespace', 'page_len', 'page_is_redirect', 'cl_sortkey' ),
 			array( $pageCondition,
 			       'cl_from          =  page_id',
-			       'cl_to'           => $this->title->getDBKey()),
+			       'cl_to'           => $this->title->getDBkey()),
 			       #'page_is_redirect' => 0),
 			#+ $pageCondition,
 			__METHOD__,
@@ -219,23 +237,25 @@ class CategoryViewer {
 
 			if( $title->getNamespace() == NS_CATEGORY ) {
 				$this->addSubcategory( $title, $x->cl_sortkey, $x->page_len );
-			} elseif( $title->getNamespace() == NS_IMAGE ) {
-				$this->addImage( $title, $x->cl_sortkey, $x->page_len );
+			} elseif( $this->showGallery && $title->getNamespace() == NS_IMAGE ) {
+				$this->addImage( $title, $x->cl_sortkey, $x->page_len, $x->page_is_redirect );
 			} else {
-				$this->addPage( $title, $x->cl_sortkey, $x->page_len );
+				$this->addPage( $title, $x->cl_sortkey, $x->page_len, $x->page_is_redirect );
 			}
 		}
 		$dbr->freeResult( $res );
 	}
 
 	function getCategoryTop() {
-		$r = "<br style=\"clear:both;\"/>\n";
+		$r = '';
 		if( $this->until != '' ) {
 			$r .= $this->pagingLinks( $this->title, $this->nextPage, $this->until, $this->limit );
 		} elseif( $this->nextPage != '' || $this->from != '' ) {
 			$r .= $this->pagingLinks( $this->title, $this->from, $this->nextPage, $this->limit );
 		}
-		return $r;
+		return $r == ''
+			? $r
+			: "<br style=\"clear:both;\"/>\n" . $r;
 	}
 
 	function getSubcategorySection() {
@@ -352,7 +372,7 @@ class CategoryViewer {
 					}
 					$cont_msg = "";
 					if ( $articles_start_char[$index] == $prev_start_char )
-						$cont_msg = wfMsgHtml('listingcontinuesabbrev');
+						$cont_msg = ' ' . wfMsgHtml( 'listingcontinuesabbrev' );
 					$r .= "<h3>" . htmlspecialchars( $articles_start_char[$index] ) . "$cont_msg</h3>\n<ul>";
 					$prev_start_char = $articles_start_char[$index];
 				}
@@ -403,7 +423,7 @@ class CategoryViewer {
 	 * @private
 	 */
 	function pagingLinks( $title, $first, $last, $limit, $query = array() ) {
-		global $wgUser, $wgLang;
+		global $wgLang;
 		$sk = $this->getSkin();
 		$limitText = $wgLang->formatNum( $limit );
 
@@ -423,4 +443,4 @@ class CategoryViewer {
 }
 
 
-?>
+

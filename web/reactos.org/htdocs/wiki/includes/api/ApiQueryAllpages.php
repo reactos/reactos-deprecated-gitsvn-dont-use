@@ -5,7 +5,7 @@
  *
  * API for MediaWiki 1.8+
  *
- * Copyright (C) 2006 Yuri Astrakhan <FirstnameLastname@gmail.com>
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
+ * Query module to enumerate all available pages.
+ * 
  * @addtogroup API
  */
 class ApiQueryAllpages extends ApiQueryGeneratorBase {
@@ -50,22 +52,65 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 
 	private function run($resultPageSet = null) {
 
-		wfProfileIn($this->getModuleProfileName() . '-getDB');
 		$db = $this->getDB();
-		wfProfileOut($this->getModuleProfileName() . '-getDB');
 
-		wfProfileIn($this->getModuleProfileName() . '-parseParams');
-		$limit = $from = $namespace = $filterredir = $prefix = null;
-		extract($this->extractRequestParams());
+		$params = $this->extractRequestParams();
+		
+		// Page filters
+		if (!$this->addWhereIf('page_is_redirect = 1', $params['filterredir'] === 'redirects'))
+			$this->addWhereIf('page_is_redirect = 0', $params['filterredir'] === 'nonredirects');
+		$this->addWhereFld('page_namespace', $params['namespace']);
+		if (!is_null($params['from']))
+			$this->addWhere('page_title>=' . $db->addQuotes(ApiQueryBase :: titleToKey($params['from'])));
+		if (isset ($params['prefix']))
+			$this->addWhere("page_title LIKE '" . $db->escapeLike(ApiQueryBase :: titleToKey($params['prefix'])) . "%'");
 
-		$this->addTables('page');
-		if (!$this->addWhereIf('page_is_redirect = 1', $filterredir === 'redirects'))
-			$this->addWhereIf('page_is_redirect = 0', $filterredir === 'nonredirects');
-		$this->addWhereFld('page_namespace', $namespace);
-		if (isset ($from))
-			$this->addWhere('page_title>=' . $db->addQuotes(ApiQueryBase :: titleToKey($from)));
-		if (isset ($prefix))
-			$this->addWhere("page_title LIKE '{$db->strencode(ApiQueryBase :: titleToKey($prefix))}%'");
+		$forceNameTitleIndex = true;
+		if (isset ($params['minsize'])) {
+			$this->addWhere('page_len>=' . intval($params['minsize']));
+			$forceNameTitleIndex = false;
+		}
+		
+		if (isset ($params['maxsize'])) {
+			$this->addWhere('page_len<=' . intval($params['maxsize']));
+			$forceNameTitleIndex = false;
+		}
+	
+		// Page protection filtering
+		if (isset ($params['prtype'])) {
+			$this->addTables('page_restrictions');
+			$this->addWhere('page_id=pr_page');
+			$this->addWhere('pr_expiry>' . $db->addQuotes($db->timestamp()));
+			$this->addWhereFld('pr_type', $params['prtype']);
+
+			$prlevel = $params['prlevel'];
+			if (!is_null($prlevel) && $prlevel != '' && $prlevel != '*')
+				$this->addWhereFld('pr_level', $prlevel);
+				
+			$this->addOption('DISTINCT');
+
+			$forceNameTitleIndex = false;
+
+		} else if (isset ($params['prlevel'])) {
+			$this->dieUsage('prlevel may not be used without prtype', 'params');
+		}
+		
+		if($params['filterlanglinks'] == 'withoutlanglinks') {
+			$pageName = $this->getDB()->tableName('page');
+			$llName = $this->getDB()->tableName('langlinks');
+			$tables = "$pageName LEFT JOIN $llName ON page_id=ll_from";
+			$this->addWhere('ll_from IS NULL');
+			$this->addTables($tables);
+			$forceNameTitleIndex = false;
+		} else if($params['filterlanglinks'] == 'withlanglinks') {
+			$this->addTables(array('page', 'langlinks'));
+			$this->addWhere('page_id=ll_from');
+			$forceNameTitleIndex = false;		
+		} else {
+			$this->addTables('page');
+		}
+		if ($forceNameTitleIndex)
+			$this->addOption('USE INDEX', 'name_title');
 
 		if (is_null($resultPageSet)) {
 			$this->addFields(array (
@@ -77,29 +122,29 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			$this->addFields($resultPageSet->getPageTableFields());
 		}
 
-		$this->addOption('USE INDEX', 'name_title');
-		$this->addOption('LIMIT', $limit +1);
-		$this->addOption('ORDER BY', 'page_namespace, page_title');
-
-		wfProfileOut($this->getModuleProfileName() . '-parseParams');
+		$limit = $params['limit'];
+		$this->addOption('LIMIT', $limit+1);
+		$this->addOption('ORDER BY', 'page_namespace, page_title' .
+						($params['dir'] == 'descending' ? ' DESC' : ''));
 
 		$res = $this->select(__METHOD__);
-
-		wfProfileIn($this->getModuleProfileName() . '-saveResults');
 
 		$data = array ();
 		$count = 0;
 		while ($row = $db->fetchObject($res)) {
 			if (++ $count > $limit) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
+				// TODO: Security issue - if the user has no right to view next title, it will still be shown
 				$this->setContinueEnumParameter('from', ApiQueryBase :: keyToTitle($row->page_title));
 				break;
 			}
 
 			if (is_null($resultPageSet)) {
-				$vals = $this->addRowInfo('page', $row);
-				if ($vals)
-					$data[intval($row->page_id)] = $vals;
+				$title = Title :: makeTitle($row->page_namespace, $row->page_title);
+				$data[] = array(
+					'pageid' => intval($row->page_id),
+					'ns' => intval($title->getNamespace()),
+					'title' => $title->getPrefixedText());
 			} else {
 				$resultPageSet->processDbRow($row);
 			}
@@ -111,17 +156,17 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			$result->setIndexedTagName($data, 'p');
 			$result->addValue('query', $this->getModuleName(), $data);
 		}
-
-		wfProfileOut($this->getModuleProfileName() . '-saveResults');
 	}
 
-	protected function getAllowedParams() {
+	public function getAllowedParams() {
+		global $wgRestrictionTypes, $wgRestrictionLevels;
+		
 		return array (
 			'from' => null,
 			'prefix' => null,
 			'namespace' => array (
 				ApiBase :: PARAM_DFLT => 0,
-				ApiBase :: PARAM_TYPE => 'namespace'
+				ApiBase :: PARAM_TYPE => 'namespace',
 			),
 			'filterredir' => array (
 				ApiBase :: PARAM_DFLT => 'all',
@@ -131,27 +176,62 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 					'nonredirects'
 				)
 			),
+			'minsize' => array (
+				ApiBase :: PARAM_TYPE => 'integer',
+			), 
+			'maxsize' => array (
+				ApiBase :: PARAM_TYPE => 'integer',
+			), 
+			'prtype' => array (
+				ApiBase :: PARAM_TYPE => $wgRestrictionTypes,
+				ApiBase :: PARAM_ISMULTI => true
+			),
+			'prlevel' => array (
+				ApiBase :: PARAM_TYPE => $wgRestrictionLevels,
+				ApiBase :: PARAM_ISMULTI => true
+			),
 			'limit' => array (
 				ApiBase :: PARAM_DFLT => 10,
 				ApiBase :: PARAM_TYPE => 'limit',
 				ApiBase :: PARAM_MIN => 1,
-				ApiBase :: PARAM_MAX1 => ApiBase :: LIMIT_BIG1,
+				ApiBase :: PARAM_MAX => ApiBase :: LIMIT_BIG1,
 				ApiBase :: PARAM_MAX2 => ApiBase :: LIMIT_BIG2
+			),
+			'dir' => array (
+				ApiBase :: PARAM_DFLT => 'ascending',
+				ApiBase :: PARAM_TYPE => array (
+					'ascending',
+					'descending'
+				)
+			),
+			'filterlanglinks' => array(
+				ApiBase :: PARAM_TYPE => array(
+					'withlanglinks',
+					'withoutlanglinks',
+					'all'
+				),
+				ApiBase :: PARAM_DFLT => 'all'
 			)
 		);
 	}
 
-	protected function getParamDescription() {
+	public function getParamDescription() {
 		return array (
 			'from' => 'The page title to start enumerating from.',
 			'prefix' => 'Search for all page titles that begin with this value.',
 			'namespace' => 'The namespace to enumerate.',
 			'filterredir' => 'Which pages to list.',
+			'dir' => 'The direction in which to list',
+			'minsize' => 'Limit to pages with at least this many bytes',
+			'maxsize' => 'Limit to pages with at most this many bytes',
+			'prtype' => 'Limit to protected pages only',
+			'prlevel' => 'The protection level (must be used with apprtype= parameter)',
+			'filterlanglinks' => 'Filter based on whether a page has langlinks',
 			'limit' => 'How many total pages to return.'
 		);
 	}
 
-	protected function getDescription() {
+	public function getDescription() {
 		return 'Enumerate all pages sequentially in a given namespace';
 	}
 
@@ -169,7 +249,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllpages.php 21402 2007-04-20 08:55:14Z nickj $';
+		return __CLASS__ . ': $Id: ApiQueryAllpages.php 30222 2008-01-28 19:05:26Z catrope $';
 	}
 }
-?>
+

@@ -14,7 +14,7 @@ class SvgHandler extends ImageHandler {
 		}
 	}
 
-	function mustRender() {
+	function mustRender( $file ) {
 		return true;
 	}
 
@@ -31,7 +31,7 @@ class SvgHandler extends ImageHandler {
 			$srcWidth = $image->getWidth( $params['page'] );
 			$srcHeight = $image->getHeight( $params['page'] );
 			$params['physicalWidth'] = $wgSVGMaxSize;
-			$params['physicalHeight'] = Image::scaleHeight( $srcWidth, $srcHeight, $wgSVGMaxSize );
+			$params['physicalHeight'] = File::scaleHeight( $srcWidth, $srcHeight, $wgSVGMaxSize );
 		}
 		return true;
 	}
@@ -46,12 +46,10 @@ class SvgHandler extends ImageHandler {
 		$clientHeight = $params['height'];
 		$physicalWidth = $params['physicalWidth'];
 		$physicalHeight = $params['physicalHeight'];
-		$srcWidth = $image->getWidth();
-		$srcHeight = $image->getHeight();
-		$srcPath = $image->getImagePath();
+		$srcPath = $image->getPath();
 
 		if ( $flags & self::TRANSFORM_LATER ) {
-			return new ThumbnailImage( $dstUrl, $clientWidth, $clientHeight, $dstPath );
+			return new ThumbnailImage( $image, $dstUrl, $clientWidth, $clientHeight, $dstPath );
 		}
 
 		if ( !wfMkdirParents( dirname( $dstPath ) ) ) {
@@ -82,7 +80,7 @@ class SvgHandler extends ImageHandler {
 					wfHostname(), $retval, trim($err), $cmd ) );
 			return new MediaTransformError( 'thumbnail_error', $clientWidth, $clientHeight, $err );
 		} else {
-			return new ThumbnailImage( $dstUrl, $clientWidth, $clientHeight, $dstPath );
+			return new ThumbnailImage( $image, $dstUrl, $clientWidth, $clientHeight, $dstPath );
 		}
 	}
 
@@ -93,5 +91,12 @@ class SvgHandler extends ImageHandler {
 	function getThumbType( $ext, $mime ) {
 		return array( 'png', 'image/png' );
 	}
+
+	function getLongDesc( $file ) {
+		global $wgLang;
+		return wfMsg( 'svg-long-desc', $file->getWidth(), $file->getHeight(), 
+			$wgLang->formatSize( $file->getSize() ) );
+	}
 }
-?>
+
+

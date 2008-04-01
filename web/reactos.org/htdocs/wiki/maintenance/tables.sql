@@ -376,8 +376,16 @@ CREATE TABLE /*$wgDBprefix*/archive (
 
   -- Length of this revision in bytes
   ar_len int unsigned,
+
+  -- Reference to page_id. Useful for sysadmin fixing of large pages 
+  -- merged together in the archives, or for cleanly restoring a page
+  -- at its original ID number if possible.
+  --
+  -- Will be NULL for pages deleted prior to 1.11.
+  ar_page_id int unsigned,
   
-  KEY name_title_timestamp (ar_namespace,ar_title,ar_timestamp)
+  KEY name_title_timestamp (ar_namespace,ar_title,ar_timestamp),
+  KEY usertext_timestamp (ar_user_text,ar_timestamp)
 
 ) /*$wgDBTableOptions*/;
 
@@ -471,7 +479,7 @@ CREATE TABLE /*$wgDBprefix*/categorylinks (
   UNIQUE KEY cl_from (cl_from,cl_to),
   
   -- We always sort within a given category...
-  KEY cl_sortkey (cl_to,cl_sortkey),
+  KEY cl_sortkey (cl_to,cl_sortkey,cl_from),
   
   -- Not really used?
   KEY cl_timestamp (cl_to,cl_timestamp)
@@ -621,6 +629,9 @@ CREATE TABLE /*$wgDBprefix*/ipblocks (
 
   -- Flag for entries hidden from users and Sysops
   ipb_deleted bool NOT NULL default 0,
+
+  -- Block prevents user from accessing Special:Emailuser
+  ipb_block_email bool NOT NULL default 0,
   
   PRIMARY KEY ipb_id (ipb_id),
 
@@ -682,13 +693,20 @@ CREATE TABLE /*$wgDBprefix*/image (
   -- Time of the upload.
   img_timestamp varbinary(14) NOT NULL default '',
   
+  -- SHA-1 content hash in base-36
+  img_sha1 varbinary(32) NOT NULL default '',
+
   PRIMARY KEY img_name (img_name),
   
+  INDEX img_usertext_timestamp (img_user_text,img_timestamp),
   -- Used by Special:Imagelist for sort-by-size
   INDEX img_size (img_size),
-
   -- Used by Special:Newimages and Special:Imagelist
-  INDEX img_timestamp (img_timestamp)
+  INDEX img_timestamp (img_timestamp),
+
+  -- For future use
+  INDEX img_sha1 (img_sha1)
+
 
 ) /*$wgDBTableOptions*/;
 
@@ -715,7 +733,18 @@ CREATE TABLE /*$wgDBprefix*/oldimage (
   oi_user_text varchar(255) binary NOT NULL,
   oi_timestamp binary(14) NOT NULL default '',
 
-  INDEX oi_name (oi_name(10))
+  oi_metadata mediumblob NOT NULL,
+  oi_media_type ENUM("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "TEXT", "EXECUTABLE", "ARCHIVE") default NULL,
+  oi_major_mime ENUM("unknown", "application", "audio", "image", "text", "video", "message", "model", "multipart") NOT NULL default "unknown",
+  oi_minor_mime varbinary(32) NOT NULL default "unknown",
+  oi_deleted tinyint unsigned NOT NULL default '0',
+  oi_sha1 varbinary(32) NOT NULL default '',
+  
+  INDEX oi_usertext_timestamp (oi_user_text,oi_timestamp),
+  INDEX oi_name_timestamp (oi_name,oi_timestamp),
+  -- oi_archive_name truncated to 14 to avoid key length overflow
+  INDEX oi_name_archive_name (oi_name,oi_archive_name(14)),
+  INDEX oi_sha1 (oi_sha1)
 
 ) /*$wgDBTableOptions*/;
 
@@ -844,7 +873,7 @@ CREATE TABLE /*$wgDBprefix*/recentchanges (
   -- Store log action or null
   rc_log_action varbinary(255) NULL default NULL,
   -- Log params
-  rc_params blob NOT NULL default '',
+  rc_params blob NULL,
   
   PRIMARY KEY rc_id (rc_id),
   INDEX rc_timestamp (rc_timestamp),
@@ -961,7 +990,7 @@ CREATE TABLE /*$wgDBprefix*/querycache (
   
   -- Target namespace+title
   qc_namespace int NOT NULL default '0',
-  qc_title char(255) binary NOT NULL default '',
+  qc_title varchar(255) binary NOT NULL default '',
   
   KEY (qc_type,qc_value)
 
@@ -1102,11 +1131,11 @@ CREATE TABLE /*$wgDBprefix*/querycachetwo (
   
   -- Target namespace+title
   qcc_namespace int NOT NULL default '0',
-  qcc_title char(255) binary NOT NULL default '',
+  qcc_title varchar(255) binary NOT NULL default '',
   
   -- Target namespace+title2
   qcc_namespacetwo int NOT NULL default '0',
-  qcc_titletwo char(255) binary NOT NULL default '',
+  qcc_titletwo varchar(255) binary NOT NULL default '',
 
   KEY qcc_type (qcc_type,qcc_value),
   KEY qcc_title (qcc_type,qcc_namespace,qcc_title),
@@ -1114,7 +1143,7 @@ CREATE TABLE /*$wgDBprefix*/querycachetwo (
 
 ) /*$wgDBTableOptions*/;
 
---- Used for storing page restrictions (i.e. protection levels)
+-- Used for storing page restrictions (i.e. protection levels)
 CREATE TABLE /*$wgDBprefix*/page_restrictions (
   -- Page to apply restrictions to (Foreign Key to page).
   pr_page int NOT NULL,
@@ -1134,10 +1163,22 @@ CREATE TABLE /*$wgDBprefix*/page_restrictions (
   PRIMARY KEY pr_pagetype (pr_page,pr_type),
 
   UNIQUE KEY pr_id (pr_id),
-  KEY pr_page (pr_page),
   KEY pr_typelevel (pr_type,pr_level),
   KEY pr_level (pr_level),
   KEY pr_cascade (pr_cascade)
+) /*$wgDBTableOptions*/;
+
+-- Protected titles - nonexistent pages that have been protected
+CREATE TABLE /*$wgDBprefix*/protected_titles (
+  pt_namespace int NOT NULL,
+  pt_title varchar(255) NOT NULL,
+  pt_user int unsigned NOT NULL,
+  pt_reason tinyblob,
+  pt_timestamp binary(14) NOT NULL,
+  pt_expiry varbinary(14) NOT NULL default '',
+  pt_create_perm varbinary(60) NOT NULL,
+  PRIMARY KEY (pt_namespace,pt_title),
+  KEY pt_timestamp (pt_timestamp)
 ) /*$wgDBTableOptions*/;
 
 -- vim: sw=2 sts=2 et

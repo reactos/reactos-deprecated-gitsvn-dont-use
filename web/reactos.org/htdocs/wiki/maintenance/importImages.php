@@ -8,21 +8,26 @@
  * @author Rob Church <robchur@gmail.com>
  */
 
+$optionsWithArguments = array( 'extensions', 'overwrite' );
 require_once( 'commandLine.inc' );
 require_once( 'importImages.inc.php' );
+$added = $skipped = $overwritten = 0;
+
 echo( "Import Images\n\n" );
 
-# Need a directory and at least one extension
-if( count( $args ) > 1 ) {
+# Need a path
+if( count( $args ) > 0 ) {
 
-	$dir = array_shift( $args );
+	$dir = $args[0];
 
-	# Check the allowed extensions
-	while( $ext = array_shift( $args ) )
-		$exts[] = ltrim( $ext, '.' );
-		
-	# Search the directory given and pull out suitable candidates
-	$files = findFiles( $dir, $exts );
+	# Prepare the list of allowed extensions
+	global $wgFileExtensions;
+	$extensions = isset( $options['extensions'] )
+		? explode( ',', strtolower( $options['extensions'] ) )
+		: $wgFileExtensions;
+
+	# Search the path provided for candidates for import
+	$files = findFiles( $dir, $extensions );
 
 	# Initialise the user for this operation
 	$user = isset( $options['user'] )
@@ -31,68 +36,72 @@ if( count( $args ) > 1 ) {
 	if( !$user instanceof User )
 		$user = User::newFromName( 'Maintenance script' );
 	$wgUser = $user;
-	
+
 	# Get the upload comment
 	$comment = isset( $options['comment'] )
 		? $options['comment']
 		: 'Importing image file';
-	
+
 	# Get the license specifier
 	$license = isset( $options['license'] ) ? $options['license'] : '';
-	
+
 	# Batch "upload" operation
-	foreach( $files as $file ) {
+	if( ( $count = count( $files ) ) > 0 ) {
 	
-		$base = wfBaseName( $file );
-		
-		# Validate a title
-		$title = Title::makeTitleSafe( NS_IMAGE, $base );
-		if( is_object( $title ) ) {
-			
-			# Check existence
-			$image = new Image( $title );
-			if( !$image->exists() ) {
-			
-				global $wgUploadDirectory;
-				
-				# copy() doesn't create paths so if the hash path doesn't exist, we
-				# have to create it
-				makeHashPath( wfGetHashPath( $image->name ) );
-				
-				# Stash the file
-				echo( "Saving {$base}..." );
-				
-				if( copy( $file, $image->getFullPath() ) ) {
-				
-					echo( "importing..." );
-				
-					# Grab the metadata
-					$image->loadFromFile();
-					
-					# Record the upload
-					if( $image->recordUpload( '', $comment, $license ) ) {
-					
-						# We're done!
-						echo( "done.\n" );
-						
-					} else {
-						echo( "failed.\n" );
-					}
-				
-				} else {
-					echo( "failed.\n" );
-				}
-			
-			} else {
-				echo( "{$base} could not be imported; a file with this name exists in the wiki\n" );
+		foreach( $files as $file ) {
+			$base = wfBaseName( $file );
+	
+			# Validate a title
+			$title = Title::makeTitleSafe( NS_IMAGE, $base );
+			if( !is_object( $title ) ) {
+				echo( "{$base} could not be imported; a valid title cannot be produced\n" );
+				continue;
 			}
-		
-		} else {
-			echo( "{$base} could not be imported; a valid title cannot be produced\n" );
+	
+			# Check existence
+			$image = wfLocalFile( $title );
+			if( $image->exists() ) {
+				if( isset( $options['overwrite'] ) ) {
+					echo( "{$base} exists, overwriting..." );
+					$svar = 'overwritten';
+				} else {
+					echo( "{$base} exists, skipping\n" );
+					$skipped++;
+					continue;
+				}
+			} else {
+				echo( "Importing {$base}..." );
+				$svar = 'added';
+			}
+
+			# Import the file	
+			$archive = $image->publish( $file );
+			if( WikiError::isError( $archive ) || !$archive->isGood() ) {
+				echo( "failed.\n" );
+				continue;
+			}
+
+			$$svar++;
+			if ( $image->recordUpload( $archive->value, $comment, $license ) ) {
+				# We're done!
+				echo( "done.\n" );
+			} else {
+				echo( "failed.\n" );
+			}
+			
 		}
 		
+		# Print out some statistics
+		echo( "\n" );
+		foreach( array( 'count' => 'Found', 'added' => 'Added',
+			'skipped' => 'Skipped', 'overwritten' => 'Overwritten' ) as $var => $desc ) {
+			if( $$var > 0 )
+				echo( "{$desc}: {$$var}\n" );
+		}
+		
+	} else {
+		echo( "No suitable files could be found for import.\n" );
 	}
-	
 
 } else {
 	showUsage();
@@ -101,21 +110,23 @@ if( count( $args ) > 1 ) {
 exit();
 
 function showUsage( $reason = false ) {
-	if( $reason )
+	if( $reason ) {
 		echo( $reason . "\n" );
+	}
+
 	echo <<<END
-USAGE: php importImages.php [options] <dir> <ext1> ...
+Imports images and other media files into the wiki
+USAGE: php importImages.php [options] <dir>
 
 <dir> : Path to the directory containing images to be imported
-<ext1+> File extensions to import
 
 Options:
---user=<username> Set username of uploader, default 'Image import script'
---comment=<text>  Set upload summary comment, default 'Importing image file'
---license=<code>  Use an optional license template
+--extensions=<exts>	Comma-separated list of allowable extensions, defaults to \$wgFileExtensions
+--overwrite			Overwrite existing images if a conflicting-named image is found
+--user=<username> 	Set username of uploader, default 'Maintenance script'
+--comment=<text>  	Set upload summary comment, default 'Importing image file'
+--license=<code>  	Use an optional license template
 
 END;
 	exit();
 }
-
-?>

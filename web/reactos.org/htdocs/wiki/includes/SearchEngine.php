@@ -40,12 +40,10 @@ class SearchEngine {
 	 * If an exact title match can be find, or a very slightly close match,
 	 * return the title. If no match, returns NULL.
 	 *
-	 * @static
 	 * @param string $term
 	 * @return Title
-	 * @private
 	 */
-	function getNearMatch( $searchterm ) {
+	public static function getNearMatch( $searchterm ) {
 		global $wgContLang;
 
 		$allSearchTerms = array($searchterm);
@@ -53,7 +51,7 @@ class SearchEngine {
 		if($wgContLang->hasVariants()){
 			$allSearchTerms = array_merge($allSearchTerms,$wgContLang->convertLinkToAllVariants($searchterm));
 		}
-
+		
 		foreach($allSearchTerms as $term){
 
 			# Exact match? No need to look further.
@@ -104,6 +102,12 @@ class SearchEngine {
 					return $title;
 				}
 			}
+
+			// Give hooks a chance at better match variants
+			$title = null;
+			if( !wfRunHooks( 'SearchGetNearMatch', array( $term, &$title ) ) ) {
+				return $title;
+			}
 		}
 
 		$title = Title::newFromText( $searchterm );
@@ -111,7 +115,7 @@ class SearchEngine {
 		# Entering an IP address goes to the contributions page
 		if ( ( $title->getNamespace() == NS_USER && User::isIP($title->getText() ) )
 			|| User::isIP( trim( $searchterm ) ) ) {
-			return SpecialPage::getTitleFor( 'Contributions', $title->getDbkey() );
+			return SpecialPage::getTitleFor( 'Contributions', $title->getDBkey() );
 		}
 
 
@@ -124,8 +128,8 @@ class SearchEngine {
 		# There may have been a funny upload, or it may be on a shared
 		# file repository such as Wikimedia Commons.
 		if( $title->getNamespace() == NS_IMAGE ) {
-			$image = new Image( $title );
-			if( $image->exists() ) {
+			$image = wfFindFile( $title );
+			if( $image ) {
 				return $title;
 			}
 		}
@@ -176,9 +180,8 @@ class SearchEngine {
 	/**
 	 * Make a list of searchable namespaces and their canonical names.
 	 * @return array
-	 * @access public
 	 */
-	function searchableNamespaces() {
+	public static function searchableNamespaces() {
 		global $wgContLang;
 		$arr = array();
 		foreach( $wgContLang->getNamespaces() as $ns => $name ) {
@@ -325,6 +328,22 @@ class SearchResultSet {
 	function next() {
 		return false;
 	}
+	
+	/**
+	 * Frees the result set, if applicable.
+	 * @ access public
+	 */
+	function free() {
+		// ...
+	}
+}
+
+
+/**
+ * @addtogroup Search
+ */
+class SearchResultTooMany {
+	## Some search engines may bail out if too many matches are found
 }
 
 
@@ -332,6 +351,7 @@ class SearchResultSet {
  * @addtogroup Search
  */
 class SearchResult {
+
 	function SearchResult( $row ) {
 		$this->mTitle = Title::makeTitle( $row->page_namespace, $row->page_title );
 	}
@@ -366,4 +386,4 @@ class SearchEngineDummy {
 	function searchtitle() {}
 	function searchtext() {}
 }
-?>
+
