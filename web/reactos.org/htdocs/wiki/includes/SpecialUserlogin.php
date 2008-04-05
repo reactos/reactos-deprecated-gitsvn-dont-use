@@ -4,7 +4,7 @@
  * @addtogroup SpecialPage
  */
 
-require_once( '../roscms/inc/subsys_login.php' );
+require_once("$IP/../roscms/inc/subsys_login.php");
 
 /**
  * constructor
