@@ -67,14 +67,17 @@ $wgEnotifUserTalk = true; # UPO
 $wgEnotifWatchlist = true; # UPO
 $wgEmailAuthentication = false;
 
-//require_once("/web/reactos.org/config/wiki-connect.php");
-$wgDBserver         = "localhost";
+// For the server
+require_once("/web/reactos.org/config/wiki-connect.php");
+
+// For local testing
+/*$wgDBserver         = "localhost";
 $wgDBname           = "roswiki";
 $wgDBuser           = "rosuser";
 $wgDBpassword       = "roscms";
 $wgDBprefix         = "";
 $wgDBtype           = "mysql";
-$wgDBport           = "5432";
+$wgDBport           = "5432";*/
 
 # Experimental charset support for MySQL 4.1/5.0.
 $wgDBmysql5 = false;

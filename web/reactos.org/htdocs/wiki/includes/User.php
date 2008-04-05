@@ -4,7 +4,7 @@
  *
  */
 
-require_once( "../roscms/inc/subsys_login.php" );
+require_once("$IP/../roscms/inc/subsys_login.php");
 
 # Number of characters in user_token field
 define( 'USER_TOKEN_LENGTH', 32 );
