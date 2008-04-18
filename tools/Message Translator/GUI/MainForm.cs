@@ -12,7 +12,7 @@ namespace MsgTranslator
     {
         MessageTranslator msgTrans;
         private Panel[] panels;
-        private static string regPath = @"Software\AppSense Technologies\MsgTrans";
+        private static string regPath = @"Software\ReactOS\MsgTrans";
 
         private string[] msgTypes = { "error", "wm", "bug" };
 
