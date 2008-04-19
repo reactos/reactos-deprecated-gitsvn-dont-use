@@ -47,14 +47,15 @@ namespace MsgTranslator
             this.errorMessageLabel = new System.Windows.Forms.Label();
             this.errorNumberLabel = new System.Windows.Forms.Label();
             this.wndmsgTab = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.wndmsgHexTxtBox = new System.Windows.Forms.TextBox();
+            this.wndmsgDecimalTxtBox = new System.Windows.Forms.TextBox();
             this.wndmsgCodeTxtBox = new System.Windows.Forms.TextBox();
-            this.wndmsgNumberTxtBox = new System.Windows.Forms.TextBox();
             this.wndmsgCodeLabel = new System.Windows.Forms.Label();
             this.wndmsgNumberLabel = new System.Windows.Forms.Label();
             this.bugurlTab = new System.Windows.Forms.TabPage();
             this.bugLinkLabel = new System.Windows.Forms.LinkLabel();
             this.optionsTab = new System.Windows.Forms.TabPage();
-            this.optionsOKButton = new System.Windows.Forms.Button();
             this.optionsRunStartChkBox = new System.Windows.Forms.CheckBox();
             this.optionsMinimizeChkBox = new System.Windows.Forms.CheckBox();
             this.mainErrLabel = new System.Windows.Forms.Label();
@@ -232,8 +233,10 @@ namespace MsgTranslator
             // 
             // wndmsgTab
             // 
+            this.wndmsgTab.Controls.Add(this.label2);
+            this.wndmsgTab.Controls.Add(this.wndmsgHexTxtBox);
+            this.wndmsgTab.Controls.Add(this.wndmsgDecimalTxtBox);
             this.wndmsgTab.Controls.Add(this.wndmsgCodeTxtBox);
-            this.wndmsgTab.Controls.Add(this.wndmsgNumberTxtBox);
             this.wndmsgTab.Controls.Add(this.wndmsgCodeLabel);
             this.wndmsgTab.Controls.Add(this.wndmsgNumberLabel);
             this.wndmsgTab.Location = new System.Drawing.Point(4, 22);
@@ -243,6 +246,31 @@ namespace MsgTranslator
             this.wndmsgTab.Text = "Window Msg";
             this.wndmsgTab.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(162, 15);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(12, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "/";
+            // 
+            // wndmsgHexTxtBox
+            // 
+            this.wndmsgHexTxtBox.Location = new System.Drawing.Point(176, 12);
+            this.wndmsgHexTxtBox.Name = "wndmsgHexTxtBox";
+            this.wndmsgHexTxtBox.ReadOnly = true;
+            this.wndmsgHexTxtBox.Size = new System.Drawing.Size(104, 20);
+            this.wndmsgHexTxtBox.TabIndex = 12;
+            // 
+            // wndmsgDecimalTxtBox
+            // 
+            this.wndmsgDecimalTxtBox.Location = new System.Drawing.Point(63, 12);
+            this.wndmsgDecimalTxtBox.Name = "wndmsgDecimalTxtBox";
+            this.wndmsgDecimalTxtBox.ReadOnly = true;
+            this.wndmsgDecimalTxtBox.Size = new System.Drawing.Size(98, 20);
+            this.wndmsgDecimalTxtBox.TabIndex = 11;
+            // 
             // wndmsgCodeTxtBox
             // 
             this.wndmsgCodeTxtBox.Location = new System.Drawing.Point(63, 38);
@@ -250,14 +278,6 @@ namespace MsgTranslator
             this.wndmsgCodeTxtBox.ReadOnly = true;
             this.wndmsgCodeTxtBox.Size = new System.Drawing.Size(217, 20);
             this.wndmsgCodeTxtBox.TabIndex = 6;
-            // 
-            // wndmsgNumberTxtBox
-            // 
-            this.wndmsgNumberTxtBox.Location = new System.Drawing.Point(63, 12);
-            this.wndmsgNumberTxtBox.Name = "wndmsgNumberTxtBox";
-            this.wndmsgNumberTxtBox.ReadOnly = true;
-            this.wndmsgNumberTxtBox.Size = new System.Drawing.Size(217, 20);
-            this.wndmsgNumberTxtBox.TabIndex = 5;
             // 
             // wndmsgCodeLabel
             // 
@@ -301,7 +321,6 @@ namespace MsgTranslator
             // 
             // optionsTab
             // 
-            this.optionsTab.Controls.Add(this.optionsOKButton);
             this.optionsTab.Controls.Add(this.optionsRunStartChkBox);
             this.optionsTab.Controls.Add(this.optionsMinimizeChkBox);
             this.optionsTab.Location = new System.Drawing.Point(4, 22);
@@ -310,16 +329,6 @@ namespace MsgTranslator
             this.optionsTab.TabIndex = 4;
             this.optionsTab.Text = "Options";
             this.optionsTab.UseVisualStyleBackColor = true;
-            // 
-            // optionsOKButton
-            // 
-            this.optionsOKButton.Location = new System.Drawing.Point(220, 160);
-            this.optionsOKButton.Name = "optionsOKButton";
-            this.optionsOKButton.Size = new System.Drawing.Size(69, 22);
-            this.optionsOKButton.TabIndex = 0;
-            this.optionsOKButton.Text = "OK";
-            this.optionsOKButton.UseVisualStyleBackColor = true;
-            this.optionsOKButton.Click += new System.EventHandler(this.optionsOKButton_Click);
             // 
             // optionsRunStartChkBox
             // 
@@ -434,7 +443,6 @@ namespace MsgTranslator
 
         private System.Windows.Forms.Button mainLookupButton;
         private System.Windows.Forms.TextBox mainErrTxtBox;
-        private System.Windows.Forms.Button optionsOKButton;
         private System.Windows.Forms.Label mainErrLabel;
         private System.Windows.Forms.CheckBox optionsMinimizeChkBox;
         private System.Windows.Forms.TextBox errorMessageTxtBox;
@@ -443,7 +451,6 @@ namespace MsgTranslator
         private System.Windows.Forms.Label errorNumberLabel;
         private System.Windows.Forms.Label errorTypeLabel;
         private System.Windows.Forms.TextBox wndmsgCodeTxtBox;
-        private System.Windows.Forms.TextBox wndmsgNumberTxtBox;
         private System.Windows.Forms.Label wndmsgCodeLabel;
         private System.Windows.Forms.Label wndmsgNumberLabel;
         private System.Windows.Forms.LinkLabel bugLinkLabel;
@@ -467,6 +474,9 @@ namespace MsgTranslator
         private System.Windows.Forms.Button errorForwardButton;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox errorHexTxtBox;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox wndmsgHexTxtBox;
+        private System.Windows.Forms.TextBox wndmsgDecimalTxtBox;
     }
 }
 

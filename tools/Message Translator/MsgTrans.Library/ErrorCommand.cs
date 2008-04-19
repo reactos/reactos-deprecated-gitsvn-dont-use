@@ -6,7 +6,6 @@ namespace MsgTrans.Library
 {
     public class ErrorCommand : Command
     {
-        MessageTranslator msgTrans;
         private NtStatusCommand ntStatus;
         private WinerrorCommand winerror;
         private HResultCommand hresult;
@@ -17,7 +16,6 @@ namespace MsgTrans.Library
                             string hresultXml)
             : base(msgTrans)
         {
-            this.msgTrans = msgTrans;
             this.ntStatus = new NtStatusCommand(msgTrans, ntstatusXml);
             this.winerror = new WinerrorCommand(msgTrans, winerrorXml);
             this.hresult = new HResultCommand(msgTrans, hresultXml);

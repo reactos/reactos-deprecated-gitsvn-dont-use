@@ -10,10 +10,7 @@ namespace MsgTranslator
 {
     public partial class MainForm : Form
     {
-        MessageTranslator msgTrans;
-        private Panel[] panels;
         private static string regPath = @"Software\ReactOS\MsgTrans";
-
         private string[] msgTypes = { "error", "wm", "bug" };
 
         #region properties
@@ -125,6 +122,32 @@ namespace MsgTranslator
         }
         #endregion
 
+        private void SetAutoStart(bool bStart)
+        {
+            string path = @"Software\Microsoft\Windows\CurrentVersion\Run";
+            string keyName = "MsgTrans";
+
+            try
+            {
+                if (bStart)
+                {
+                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(path);
+                    string dir = Assembly.GetEntryAssembly().Location;
+                    rk.SetValue(keyName, dir);
+                }
+                else
+                {
+                    RegistryKey rk = Registry.CurrentUser.CreateSubKey(path);
+                    rk.DeleteValue(keyName);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageOutput mo = new MessageOutput();
+                mo.MsgOut(null, ex.Message);
+            }
+        }
+
         private string GetMessageType()
         {
             try
@@ -169,7 +192,8 @@ namespace MsgTranslator
                     }
                     else if (msgType == msgTypes[1]) // wm
                     {
-                        wndmsgNumberTxtBox.Text = msgTran.Number.ToString();
+                        wndmsgDecimalTxtBox.Text = msgTran.Number.ToString();
+                        wndmsgHexTxtBox.Text = "0x" + msgTran.Hex;
                         wndmsgCodeTxtBox.Text = msgTran.Code;
                     }
                     else if (msgType == msgTypes[2]) // bug
@@ -189,11 +213,6 @@ namespace MsgTranslator
             InitializeComponent();
         }
 
-        public void MsgOut(string message)
-        {
-            MessageBox.Show(message);
-        }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
             // setup error page
@@ -207,8 +226,6 @@ namespace MsgTranslator
             // setup options page
             optionsMinimizeChkBox.Checked = HideOnMin;
             optionsRunStartChkBox.Checked = RunOnStart;
-            optionsOKButton.Enabled = false;
-            optionsOKButton.Text = "Done";
             notifyIcon.Visible = false;
 
             toolTip.SetToolTip(mainErrTxtBox, Properties.Resources.tooltipErrMsg);
@@ -222,17 +239,6 @@ namespace MsgTranslator
             bugLinkLabel.Links[bugLinkLabel.Links.IndexOf(e.Link)].Visited = true;
 
             System.Diagnostics.Process.Start(e.Link.LinkData.ToString());
-        }
-
-        private void optionsOKButton_Click(object sender, EventArgs e)
-        {
-            Button btn = (Button)sender;
-
-            HideOnMin = optionsMinimizeChkBox.Checked;
-            RunOnStart = optionsRunStartChkBox.Checked;
-
-            btn.Text = "Done";
-            btn.Enabled = false;
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
@@ -275,8 +281,17 @@ namespace MsgTranslator
 
         private void OptionsHaveChanged(object sender, EventArgs e)
         {
-            optionsOKButton.Text = "OK";
-            optionsOKButton.Enabled = true;
+            CheckBox cb = (CheckBox)sender;
+
+            if (cb.Name == optionsMinimizeChkBox.Name)
+            {
+                HideOnMin = optionsMinimizeChkBox.Checked;
+            }
+            else if (cb.Name == optionsRunStartChkBox.Name)
+            {
+                SetAutoStart(cb.Checked);
+                RunOnStart = optionsRunStartChkBox.Checked;
+            }
         }
 
         private void mainTabControl_SelectedIndexChanged(object sender, EventArgs e)

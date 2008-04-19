@@ -56,7 +56,7 @@ namespace MsgTrans.Library
         
         public override string Help()
         {
-            return "!hresult <value>";
+            return "hresult <value>";
         }
         
         public string GetHresultDescription(long hresult)

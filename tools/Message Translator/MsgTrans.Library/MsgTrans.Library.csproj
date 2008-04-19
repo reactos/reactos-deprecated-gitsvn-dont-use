@@ -44,7 +44,7 @@
   </Target>
   -->
   <ItemGroup>
-    <Compile Include="AppSenseBugUrl.cs" />
+    <Compile Include="BugUrlCommandl.cs" />
     <Compile Include="BugCommand.cs" />
     <Compile Include="XmlCommand.cs" />
     <Compile Include="ErrorCommand.cs" />
