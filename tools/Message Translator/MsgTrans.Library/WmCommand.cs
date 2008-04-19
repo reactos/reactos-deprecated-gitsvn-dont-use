@@ -48,6 +48,7 @@ namespace MsgTrans.Library
             if (code != null)
             {
                 MsgTrans.Number = num;
+                MsgTrans.Hex = num.ToString("X");
                 MsgTrans.Code = code;
                 return true;
             }
@@ -62,7 +63,7 @@ namespace MsgTrans.Library
 
         public override string Help()
         {
-            return "!wm <value> or !wm <name>";
+            return "wm <value> or wm <name>";
         }
         
         private string GetWmDescription(long wm)

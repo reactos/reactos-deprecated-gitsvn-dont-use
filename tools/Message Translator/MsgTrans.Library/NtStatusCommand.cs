@@ -56,7 +56,7 @@ namespace MsgTrans.Library
 
         public override string Help()
         {
-            return "!ntstatus <value>";
+            return "ntstatus <value>";
         }
         
         public string GetNtstatusDescription(long ntstatus)

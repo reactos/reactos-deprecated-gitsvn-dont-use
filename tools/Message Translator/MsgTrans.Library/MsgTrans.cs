@@ -10,12 +10,8 @@ namespace MsgTrans.Library
     public class MessageTranslator
     {
         private IMsgOutput msgOutput;
-        private string ntstatusXml;
-        private string winerrorXml;
-        private string hresultXml;
-        private string wmXml;
-        private string bugUrl;
         private List<Command> commands = new List<Command>();
+        private string bugUrl;
         private string type;
         private long number;
         private string hex;
@@ -53,6 +49,14 @@ namespace MsgTrans.Library
             get { return bugUrl; }
             set { bugUrl = value; }
         }
+        public IMsgOutput MsgOutput
+        {
+            get { return msgOutput; }
+        }
+        public IList<Command> Commands
+        {
+            get { return commands; }
+        }
         #endregion
 
         public MessageTranslator(IMsgOutput msgOutput,
@@ -63,11 +67,6 @@ namespace MsgTrans.Library
                                  string bugUrl)
         {
             this.msgOutput = msgOutput;
-            this.ntstatusXml = ntstatusXml;
-            this.winerrorXml = winerrorXml;
-            this.hresultXml = hresultXml;
-            this.wmXml = wmXml;
-            this.bugUrl = bugUrl;
 
             commands.Add(new ErrorCommand(this,
                                           ntstatusXml,
@@ -75,16 +74,6 @@ namespace MsgTrans.Library
                                           hresultXml));
             commands.Add(new WMCommand(this, wmXml));
             commands.Add(new BugUrl(this, bugUrl));
-        }
-
-        public IMsgOutput MsgOutput
-        {
-            get { return msgOutput; }
-        }
-
-        public IList<Command> Commands
-        {
-            get { return commands; }
         }
 
         public bool ParseCommandMessage(MessageContext context,
