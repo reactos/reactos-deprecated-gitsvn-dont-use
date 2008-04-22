@@ -2,7 +2,7 @@ using System;
 
 namespace MsgTrans.Library
 {
-    public abstract class BugCommand : Command//, ICommand
+    public class BugCommand : Command
     {
         string bugUrl;
 
@@ -11,6 +11,11 @@ namespace MsgTrans.Library
             : base(msgTrans)
         {
             this.bugUrl = bugUrl;
+        }
+
+        public override string[] AvailableCommands
+        {
+            get { return new string[] { "bug" }; }
         }
 
         public override bool Handle(MessageContext context,

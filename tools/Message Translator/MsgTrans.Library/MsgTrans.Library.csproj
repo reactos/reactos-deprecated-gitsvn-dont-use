@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="BugUrlCommandl.cs" />
     <Compile Include="BugCommand.cs" />
+    <Compile Include="CustomCommand.cs" />
     <Compile Include="XmlCommand.cs" />
     <Compile Include="ErrorCommand.cs" />
     <Compile Include="HresultCommand.cs" />
