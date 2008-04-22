@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace MsgTranslator
 {
@@ -33,6 +34,13 @@ namespace MsgTranslator
         {
             // create the notify icon and it's associated context menu
             InitializeContext();
+
+            string regPath = @"Software\ReactOS\MsgTrans";
+            string keyName = "HideOnMin";
+            RegistryKey rk = Registry.CurrentUser.CreateSubKey(regPath);
+            string hideOnMin = rk.GetValue(keyName).ToString();
+            if (Convert.ToBoolean(hideOnMin) == false)
+                ShowForm();
         }
 
         private void InitializeContext()
