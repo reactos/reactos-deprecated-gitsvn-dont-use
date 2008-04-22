@@ -21,6 +21,17 @@ namespace MsgTrans.Library
                                     string commandName,
                                     string parameters)
         {
+            /*
+                         string hresultDescription = hresult.GetHresultDescription(np.Decimal);
+            if (hresultDescription != null)
+            {
+                AddErrorCommand(MessageType.HResult,
+                                np.Decimal,
+                                np.Hex,
+                                hresultDescription,
+                                null);
+            }
+             */
             string hresultText = parameters;
             if (hresultText.Equals(String.Empty))
             {
@@ -44,14 +55,16 @@ namespace MsgTrans.Library
                 Number = np.Decimal;
                 Code = description;
                 return true;
-            }
+            }/*
             else
             {
                 MsgTrans.MsgOutput.MsgOut(context,
                                           String.Format("I don't know about HRESULT {0}.",
                                                         hresultText));
                 return false;
-            }
+            }*/
+
+            return false;
         }
         
         public override string Help()

@@ -51,6 +51,20 @@ namespace MsgTrans.Library
             this.msgTrans = msgTrans;
         }
 
+        protected void AddMessage(MessageType msgType,
+                                long dec,
+                                string hex,
+                                string code,
+                                string msg)
+        {
+            MsgType = msgType;
+            Number = dec;
+            Hex = hex;
+            Code = code;
+            Message = msg;
+            MsgTrans.Messages.Add(this);
+        }
+
         public abstract bool Handle(MessageContext context,
                                     string commandName,
                                     string parameters);

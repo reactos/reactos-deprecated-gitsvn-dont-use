@@ -58,7 +58,7 @@ namespace MsgTrans.Library
         {
             get { return msgOutput; }
         }
-        public IList<Command> Messages
+        public List<Command> Messages
         {
             get { return messages; }
         }
@@ -78,7 +78,7 @@ namespace MsgTrans.Library
                                           winerrorXml,
                                           hresultXml));
             commands.Add(new WMCommand(this, wmXml));
-            commands.Add(new BugUrl(this, bugUrl));
+            commands.Add(new BugCommand(this, bugUrl));
         }
 
         public bool ParseCommandMessage(MessageContext context,

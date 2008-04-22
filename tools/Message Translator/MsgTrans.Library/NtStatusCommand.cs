@@ -40,10 +40,14 @@ namespace MsgTrans.Library
             string description = GetNtstatusDescription(np.Decimal);
             if (description != null)
             {
-                Number = np.Decimal;
-                Code = description;
+                AddMessage(MessageType.NTStatus,
+                           np.Decimal,
+                           np.Hex,
+                           description,
+                           null);
+
                 return true;
-            }
+            }/*
             else
             {
                 MsgTrans.MsgOutput.MsgOut(context,
@@ -51,7 +55,9 @@ namespace MsgTrans.Library
                                                         ntstatusText));
 
                 return false;
-            }
+            }*/
+
+            return false;
         }
 
         public override string Help()

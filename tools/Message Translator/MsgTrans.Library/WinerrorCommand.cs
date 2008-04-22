@@ -20,6 +20,7 @@ namespace MsgTrans.Library
                                     string commandName,
                                     string parameters)
         {
+
             string winerrorText = parameters;
             if (winerrorText.Equals(String.Empty))
             {
@@ -40,17 +41,25 @@ namespace MsgTrans.Library
             string description = GetWinerrorDescription(np.Decimal);
             if (description != null)
             {
-                Number = np.Decimal;
-                Code = description;
+                string message = new System.ComponentModel.Win32Exception(Convert.ToInt32(np.Decimal)).Message;
+
+                AddMessage(MessageType.WinError,
+                           np.Decimal,
+                           np.Hex,
+                           description,
+                           message);
+
                 return true;
-            }
+            }/*
             else
             {
                 MsgTrans.MsgOutput.MsgOut(context,
                                           String.Format("I don't know about System Error Code {0}.",
                                                         winerrorText));
                 return false;
-            }
+            }*/
+
+            return false;
         }
 
         public override string Help()
