@@ -7,10 +7,6 @@ namespace MsgTrans.Library
 {
     public class ErrorCommand : Command
     {
-        private NtStatusCommand ntStatus;
-        private WinerrorCommand winerror;
-        private HResultCommand hresult;
-        private CustomCommand custom;
         private List<Command> errorCommands = new List<Command>();
 
         public ErrorCommand(MessageTranslator msgTrans,
@@ -19,8 +15,8 @@ namespace MsgTrans.Library
                             string hresultXml)
             : base(msgTrans)
         {
-            errorCommands.Add(new NtStatusCommand(msgTrans, ntstatusXml));
             errorCommands.Add(new WinerrorCommand(msgTrans, winerrorXml));
+            errorCommands.Add(new NtStatusCommand(msgTrans, ntstatusXml));
             errorCommands.Add(new HResultCommand(msgTrans, hresultXml));
             errorCommands.Add(new CustomCommand(msgTrans));
         }
@@ -55,7 +51,7 @@ namespace MsgTrans.Library
                 }
 
                 MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("I don't know about Error Code {0}.",
+                                          String.Format("[{0}] is not a valid error code",
                                                         parameters.Trim()));
                 return false;
             }

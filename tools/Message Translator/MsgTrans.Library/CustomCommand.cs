@@ -71,8 +71,6 @@ namespace MsgTrans.Library
             string originalErrorText = parameters.Trim();
             if (originalErrorText.Equals(String.Empty))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          "Please provide an Error Code.");
                 return false;
             }
 
@@ -81,13 +79,8 @@ namespace MsgTrans.Library
             NumberParser np = new NumberParser();
             if (!np.Parse(errorText))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("{0} is not a valid Error Code.",
-                                                        originalErrorText));
                 return false;
             }
-
-            //ArrayList descriptions = new ArrayList();
 
             // Error is out of bounds
             if ((ulong)np.Decimal > uint.MaxValue)

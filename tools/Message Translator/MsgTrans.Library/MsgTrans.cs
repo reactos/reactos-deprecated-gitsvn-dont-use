@@ -17,11 +17,11 @@ namespace MsgTrans.Library
         //
         // Summary:
         //     A HRESULT status code.
-        HResult = 1,
+        HRESULT = 1,
         //
         // Summary:
         //     An NTSTATUS status code
-        NTStatus = 2,
+        NTSTATUS = 2,
         //
         // Summary:
         //     a STOP/Bug Check code
