@@ -387,6 +387,7 @@ namespace MsgTranslator
             this.Controls.Add(this.mainErrLabel);
             this.Controls.Add(this.mainErrTxtBox);
             this.Controls.Add(this.mainLookupButton);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainForm";
