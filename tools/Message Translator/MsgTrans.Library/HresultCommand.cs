@@ -21,39 +21,27 @@ namespace MsgTrans.Library
                                     string commandName,
                                     string parameters)
         {
-            /*
-                         string hresultDescription = hresult.GetHresultDescription(np.Decimal);
-            if (hresultDescription != null)
-            {
-                AddErrorCommand(MessageType.HResult,
-                                np.Decimal,
-                                np.Hex,
-                                hresultDescription,
-                                null);
-            }
-             */
             string hresultText = parameters;
             if (hresultText.Equals(String.Empty))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          "Please provide a valid HRESULT value.");
                 return false;
             }
 
             NumberParser np = new NumberParser();
             if (!np.Parse(hresultText))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("{0} is not a valid HRESULT value.",
-                                                        hresultText));
                 return false;
             }
             
             string description = GetHresultDescription(np.Decimal);
             if (description != null)
             {
-                Number = np.Decimal;
-                Code = description;
+                AddMessage(MessageType.HRESULT,
+                           np.Decimal,
+                           np.Hex,
+                           description,
+                           null);
+
                 return true;
             }/*
             else

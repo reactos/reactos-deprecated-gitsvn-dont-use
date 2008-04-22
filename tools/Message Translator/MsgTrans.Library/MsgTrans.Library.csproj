@@ -44,7 +44,6 @@
   </Target>
   -->
   <ItemGroup>
-    <Compile Include="BugUrlCommandl.cs" />
     <Compile Include="BugCommand.cs" />
     <Compile Include="CustomCommand.cs" />
     <Compile Include="XmlCommand.cs" />

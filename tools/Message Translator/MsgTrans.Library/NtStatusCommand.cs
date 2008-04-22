@@ -23,24 +23,19 @@ namespace MsgTrans.Library
             string ntstatusText = parameters;
             if (ntstatusText.Equals(String.Empty))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          "Please provide a valid NTSTATUS value.");
                 return false;
             }
 
             NumberParser np = new NumberParser();
             if (!np.Parse(ntstatusText))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("{0} is not a valid NTSTATUS value.",
-                                                        ntstatusText));
                 return false;
             }
             
             string description = GetNtstatusDescription(np.Decimal);
             if (description != null)
             {
-                AddMessage(MessageType.NTStatus,
+                AddMessage(MessageType.NTSTATUS,
                            np.Decimal,
                            np.Hex,
                            description,

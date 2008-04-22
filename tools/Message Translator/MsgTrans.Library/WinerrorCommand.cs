@@ -24,17 +24,12 @@ namespace MsgTrans.Library
             string winerrorText = parameters;
             if (winerrorText.Equals(String.Empty))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          "Please provide a valid System Error Code value.");
                 return false;
             }
 
             NumberParser np = new NumberParser();
             if (!np.Parse(winerrorText))
             {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("{0} is not a valid System Error Code value.",
-                                                        winerrorText));
                 return false;
             }
             

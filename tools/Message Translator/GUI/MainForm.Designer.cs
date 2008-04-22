@@ -152,6 +152,7 @@ namespace MsgTranslator
             this.errorBackButton.TabIndex = 8;
             this.errorBackButton.Text = "<";
             this.errorBackButton.UseVisualStyleBackColor = true;
+            this.errorBackButton.Click += new System.EventHandler(this.NavigateErrorPage);
             // 
             // errorForwardButton
             // 
@@ -161,6 +162,7 @@ namespace MsgTranslator
             this.errorForwardButton.TabIndex = 7;
             this.errorForwardButton.Text = ">";
             this.errorForwardButton.UseVisualStyleBackColor = true;
+            this.errorForwardButton.Click += new System.EventHandler(this.NavigateErrorPage);
             // 
             // errorTypeValueLabel
             // 

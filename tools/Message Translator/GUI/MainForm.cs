@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using System.Configuration;
+using System.Collections.Generic;
 using MsgTrans.Library;
 using System.Resources;
 using System.Reflection;
@@ -12,6 +13,8 @@ namespace MsgTranslator
     {
         private static string regPath = @"Software\ReactOS\MsgTrans";
         private string[] msgTypes = { "error", "wm", "bug" };
+        private List<Command> errMessages;
+        private int curErrorPage;
 
         #region properties
         private static bool HideOnMin
@@ -173,6 +176,30 @@ namespace MsgTranslator
             bugLinkLabel.Location = new System.Drawing.Point(wCenter, hCenter);
         }
 
+        private void UpdateErrorPage(int pageNum)
+        {
+            if (errMessages != null && errMessages.Count > 1)
+            {
+                if (pageNum > errMessages.Count || pageNum < 0)
+                    return;
+
+                errorTypeValueLabel.Text = errMessages[pageNum - 1].MsgType.ToString();
+                errorDecimalTxtBox.Text = errMessages[pageNum - 1].Number.ToString();
+                errorHexTxtBox.Text = "0x" + errMessages[pageNum - 1].Hex;
+                errorCodeTxtBox.Text = errMessages[pageNum - 1].Code;
+                errorMessageTxtBox.Text = errMessages[pageNum - 1].Message;
+
+                curErrorPage = pageNum;
+
+                // set navigation buttons
+                errorBackButton.Enabled = errorForwardButton.Enabled = false;
+                if (curErrorPage < errMessages.Count)
+                    errorForwardButton.Enabled = true;
+                if (curErrorPage > 1)
+                    errorBackButton.Enabled = true;
+            }
+        }
+
         private void GetMessage()
         {
             string msgType = GetMessageType();
@@ -188,11 +215,22 @@ namespace MsgTranslator
                 string message = msgType + " " + mainErrTxtBox.Text;
                 if (msgTran.ParseCommandMessage(null, message))
                 {
-                    foreach (Command cmd in msgTran.Messages)
+                    if (msgTran.Messages.Count > 1)
                     {
+                        // if we have more than one, they must be error messages
+                        errMessages = msgTran.Messages;
+                        UpdateErrorPage(1);
+                    }
+                    else
+                    {
+                        if (errMessages != null)
+                            errMessages.Clear();
+
+                        Command cmd = msgTran.Messages[0];
+
                         if (cmd.MsgType == MessageType.WinError ||
-                            cmd.MsgType == MessageType.HResult ||
-                            cmd.MsgType == MessageType.NTStatus ||
+                            cmd.MsgType == MessageType.HRESULT ||
+                            cmd.MsgType == MessageType.NTSTATUS ||
                             cmd.MsgType == MessageType.Custom)
                         {
                             errorTypeValueLabel.Text = cmd.MsgType.ToString();
@@ -228,6 +266,7 @@ namespace MsgTranslator
         private void MainForm_Load(object sender, EventArgs e)
         {
             // setup error page
+            curErrorPage = 1;
             errorBackButton.Enabled = false;
             errorForwardButton.Enabled = false;
 
@@ -333,6 +372,20 @@ namespace MsgTranslator
                 {
                     mainErrLabel.Text = "Message:";
                 }
+            }
+        }
+
+        private void NavigateErrorPage(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+
+            if (btn.Name == "errorForwardButton")
+            {
+                UpdateErrorPage(curErrorPage + 1);
+            }
+            else if (btn.Name == "errorBackButton")
+            {
+                UpdateErrorPage(curErrorPage - 1);
             }
         }
     }
