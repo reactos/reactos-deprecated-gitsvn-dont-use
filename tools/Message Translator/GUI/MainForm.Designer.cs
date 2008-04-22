@@ -59,10 +59,6 @@ namespace MsgTranslator
             this.optionsRunStartChkBox = new System.Windows.Forms.CheckBox();
             this.optionsMinimizeChkBox = new System.Windows.Forms.CheckBox();
             this.mainErrLabel = new System.Windows.Forms.Label();
-            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.closeApplicationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -71,7 +67,6 @@ namespace MsgTranslator
             this.wndmsgTab.SuspendLayout();
             this.bugurlTab.SuspendLayout();
             this.optionsTab.SuspendLayout();
-            this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainLookupButton
@@ -363,34 +358,6 @@ namespace MsgTranslator
             this.mainErrLabel.TabIndex = 0;
             this.mainErrLabel.Text = "Message:";
             // 
-            // notifyIcon
-            // 
-            this.notifyIcon.ContextMenuStrip = this.contextMenu;
-            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-            this.notifyIcon.Text = "Message Translator";
-            this.notifyIcon.Visible = true;
-            this.notifyIcon.DoubleClick += new System.EventHandler(this.notifyIcon_DoubleClick);
-            // 
-            // contextMenu
-            // 
-            this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.restoreToolStripMenuItem,
-            this.closeApplicationToolStripMenuItem});
-            this.contextMenu.Name = "contextMenu";
-            this.contextMenu.Size = new System.Drawing.Size(168, 48);
-            // 
-            // restoreToolStripMenuItem
-            // 
-            this.restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
-            this.restoreToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.restoreToolStripMenuItem.Text = "Restore";
-            // 
-            // closeApplicationToolStripMenuItem
-            // 
-            this.closeApplicationToolStripMenuItem.Name = "closeApplicationToolStripMenuItem";
-            this.closeApplicationToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
-            this.closeApplicationToolStripMenuItem.Text = "Close Application";
-            // 
             // tabPage1
             // 
             this.tabPage1.Location = new System.Drawing.Point(0, 0);
@@ -435,7 +402,6 @@ namespace MsgTranslator
             this.bugurlTab.PerformLayout();
             this.optionsTab.ResumeLayout(false);
             this.optionsTab.PerformLayout();
-            this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -456,10 +422,6 @@ namespace MsgTranslator
         private System.Windows.Forms.Label wndmsgCodeLabel;
         private System.Windows.Forms.Label wndmsgNumberLabel;
         private System.Windows.Forms.LinkLabel bugLinkLabel;
-        private System.Windows.Forms.NotifyIcon notifyIcon;
-        private System.Windows.Forms.ContextMenuStrip contextMenu;
-        private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem closeApplicationToolStripMenuItem;
         private System.Windows.Forms.TabControl mainTabControl;
         private System.Windows.Forms.TabPage errorMsgTab;
         private System.Windows.Forms.TabPage wndmsgTab;

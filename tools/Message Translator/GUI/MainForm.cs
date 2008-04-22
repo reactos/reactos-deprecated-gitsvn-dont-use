@@ -151,12 +151,6 @@ namespace MsgTranslator
             }
         }
 
-        private void SendToTray()
-        {
-            Hide();
-            notifyIcon.Visible = true;
-        }
-
         private string GetMessageType()
         {
             try
@@ -277,14 +271,7 @@ namespace MsgTranslator
             // setup options page
             optionsMinimizeChkBox.Checked = HideOnMin;
             optionsRunStartChkBox.Checked = RunOnStart;
-            notifyIcon.Visible = false;
-            /*
-            if (HideOnMin)
-            {
-                // FIXME: hide correctly
-                this.WindowState = FormWindowState.Minimized;
-                SendToTray();
-            }*/
+
 
           //toolTip.SetToolTip(mainErrTxtBox, Properties.Resources.tooltipErrMsg);
           //toolTip.SetToolTip(mainWndMsgRadio, Properties.Resources.tooltipWndMsg);
@@ -303,15 +290,8 @@ namespace MsgTranslator
         {
             if (FormWindowState.Minimized == WindowState && HideOnMin)
             {
-                SendToTray();
+                this.Close();
             }
-        }
-
-        private void notifyIcon_DoubleClick(object sender, EventArgs e)
-        {
-            Show();
-            WindowState = FormWindowState.Normal;
-            notifyIcon.Visible = false;
         }
 
         private void mainLookupButton_Click(object sender, EventArgs e)
