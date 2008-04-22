@@ -35,12 +35,19 @@ namespace MsgTranslator
             // create the notify icon and it's associated context menu
             InitializeContext();
 
+            if (!HideOnMinimize())
+                ShowForm();
+        }
+
+        private bool HideOnMinimize()
+        {
             string regPath = @"Software\ReactOS\MsgTrans";
             string keyName = "HideOnMin";
+
             RegistryKey rk = Registry.CurrentUser.CreateSubKey(regPath);
             string hideOnMin = rk.GetValue(keyName).ToString();
-            if (Convert.ToBoolean(hideOnMin) == false)
-                ShowForm();
+
+            return Convert.ToBoolean(hideOnMin);
         }
 
         private void InitializeContext()
@@ -133,6 +140,9 @@ namespace MsgTranslator
         {
             // null out the main form so we know to create a new one.
             this.mainForm = null;
+
+            if (!HideOnMinimize())
+                ExitThread();
         }
 
         protected override void ExitThreadCore()
