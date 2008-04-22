@@ -217,9 +217,6 @@ namespace MsgTranslator
                     }
                     else
                     {
-                        if (errMessages != null)
-                            errMessages.Clear();
-
                         Command cmd = msgTran.Messages[0];
 
                         if (cmd.MsgType == MessageType.WinError ||
@@ -227,6 +224,9 @@ namespace MsgTranslator
                             cmd.MsgType == MessageType.NTSTATUS ||
                             cmd.MsgType == MessageType.Custom)
                         {
+                            if (errMessages != null)
+                                errMessages.Clear();
+
                             errorTypeValueLabel.Text = cmd.MsgType.ToString();
                             errorDecimalTxtBox.Text = cmd.Number.ToString();
                             errorHexTxtBox.Text = "0x" + cmd.Hex;
