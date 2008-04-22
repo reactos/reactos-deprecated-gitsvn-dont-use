@@ -44,10 +44,17 @@ namespace MsgTranslator
             string regPath = @"Software\ReactOS\MsgTrans";
             string keyName = "HideOnMin";
 
-            RegistryKey rk = Registry.CurrentUser.CreateSubKey(regPath);
-            string hideOnMin = rk.GetValue(keyName).ToString();
+            try
+            {
+                RegistryKey rk = Registry.CurrentUser.CreateSubKey(regPath);
+                string hideOnMin = rk.GetValue(keyName).ToString();
 
-            return Convert.ToBoolean(hideOnMin);
+                return Convert.ToBoolean(hideOnMin);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         private void InitializeContext()
