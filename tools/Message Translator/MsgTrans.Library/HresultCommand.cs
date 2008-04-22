@@ -41,8 +41,8 @@ namespace MsgTrans.Library
             string description = GetHresultDescription(np.Decimal);
             if (description != null)
             {
-                MsgTrans.Number = np.Decimal;
-                MsgTrans.Code = description;
+                Number = np.Decimal;
+                Code = description;
                 return true;
             }
             else

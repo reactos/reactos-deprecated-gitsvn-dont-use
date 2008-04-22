@@ -30,32 +30,31 @@ namespace MsgTrans.Library
             }
 
             NumberParser np = new NumberParser();
-
-            string code;
-            long num;
             if (np.Parse(wmText))
             {
-                num = np.Decimal;
-                code = GetWmDescription(np.Decimal);
+                Number = np.Decimal;
+                Hex = np.Hex;
+                Code = GetWmDescription(np.Decimal);
             }
-            else
+            else if ((Number = GetWmNumber(wmText)) != -1)
             {
                 // Possibly in "wm <name>" form.
-                num = GetWmNumber(wmText);
-                code = wmText;
+                Hex = Number.ToString("X");
+                Code = wmText;
             }
 
-            if (code != null)
+            if (Code != null)
             {
-                MsgTrans.Number = num;
-                MsgTrans.Hex = num.ToString("X");
-                MsgTrans.Code = code;
+                MsgType = MessageType.WinMsg;
+                Message = null;
+                MsgTrans.Messages.Add(this);
+
                 return true;
             }
             else
             {
                 MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("I don't know about window message {0}.",
+                                          String.Format("I don't know about window message: {0}.",
                                                         wmText));
                 return false;
             }

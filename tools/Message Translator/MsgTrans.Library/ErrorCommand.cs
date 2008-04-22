@@ -1,6 +1,7 @@
 using System;
 using System.Xml;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace MsgTrans.Library
 {
@@ -9,6 +10,7 @@ namespace MsgTrans.Library
         private NtStatusCommand ntStatus;
         private WinerrorCommand winerror;
         private HResultCommand hresult;
+        private List<Command> errorCommands = new List<Command>();
 
         public ErrorCommand(MessageTranslator msgTrans,
                             string ntstatusXml,
@@ -16,9 +18,9 @@ namespace MsgTrans.Library
                             string hresultXml)
             : base(msgTrans)
         {
-            this.ntStatus = new NtStatusCommand(msgTrans, ntstatusXml);
-            this.winerror = new WinerrorCommand(msgTrans, winerrorXml);
-            this.hresult = new HResultCommand(msgTrans, hresultXml);
+            ntStatus = new NtStatusCommand(msgTrans, ntstatusXml);
+            winerror = new WinerrorCommand(msgTrans, winerrorXml);
+            hresult = new HResultCommand(msgTrans, hresultXml);
         }
 
         public override string[] AvailableCommands
@@ -76,6 +78,20 @@ namespace MsgTrans.Library
             return code.ToString();
         }
 
+        private void AddErrorCommand(MessageType msgType,
+                                     long dec,
+                                     string hex,
+                                     string code,
+                                     string msg)
+        {
+            MsgType = msgType;
+            Number = dec;
+            Hex = hex;
+            Code = code;
+            Message = msg;
+            MsgTrans.Messages.Add(this);
+        }
+
         public override  bool Handle(MessageContext context,
                                      string commandName,
                                      string parameters)
@@ -117,7 +133,11 @@ namespace MsgTrans.Library
                                                        FormatSeverity(np.Decimal),
                                                        FormatFacility(np.Decimal),
                                                        FormatCode(np.Decimal));
-                    descriptions.Add(description);
+                    AddErrorCommand(MessageType.Custom,
+                                    np.Decimal,
+                                    np.Hex,
+                                    description,
+                                    null);
                 }
                 // Reserved bit is set: HRESULT_FROM_NT(ntstatus)
                 else if (IsReserved(np.Decimal))
@@ -127,9 +147,14 @@ namespace MsgTrans.Library
                     
                     if (description == null)
                         description = status.ToString("X");
-                    
+
                     description = String.Format("HRESULT_FROM_NT({0})", description);
-                    descriptions.Add(description);
+
+                    AddErrorCommand(MessageType.Custom,
+                                    np.Decimal,
+                                    np.Hex,
+                                    description,
+                                    null);
                 }
                 // Win32 facility: HRESULT_FROM_WIN32(winerror)
                 else if (GetFacility(np.Decimal) == 7)
@@ -144,33 +169,49 @@ namespace MsgTrans.Library
                             description = err.ToString("D");
                         
                         description = String.Format("HRESULT_FROM_WIN32({0})", description);
-                        descriptions.Add(description);
+
+                        AddErrorCommand(MessageType.Custom,
+                                        np.Decimal,
+                                        np.Hex,
+                                        description,
+                                        null);
                     }
                 }
             }
 
             string winerrorDescription = winerror.GetWinerrorDescription(np.Decimal);
-            string ntstatusDescription = ntStatus.GetNtstatusDescription(np.Decimal);
-            string hresultDescription = hresult.GetHresultDescription(np.Decimal);
-
-            //FIXME: don't hardcode names here
             if (winerrorDescription != null)
             {
-                descriptions.Add(winerrorDescription);
-                MsgTrans.Type = "WinError";
-            }
-            else if (ntstatusDescription != null)
-            {
-                descriptions.Add(ntstatusDescription);
-                MsgTrans.Type = "NTSTATUS";
-            }
-            else if (hresultDescription != null)
-            {
-                descriptions.Add(hresultDescription);
-                MsgTrans.Type = "HRESULT";
+                string message = new System.ComponentModel.Win32Exception(Convert.ToInt32(np.Decimal)).Message;
+
+                AddErrorCommand(MessageType.WinError,
+                                np.Decimal,
+                                np.Hex,
+                                winerrorDescription,
+                                message);
             }
 
-            if (descriptions.Count == 0)
+            string ntstatusDescription = ntStatus.GetNtstatusDescription(np.Decimal);
+            if (ntstatusDescription != null)
+            {
+                AddErrorCommand(MessageType.NTStatus,
+                                np.Decimal,
+                                np.Hex,
+                                ntstatusDescription,
+                                null);
+            }
+
+            string hresultDescription = hresult.GetHresultDescription(np.Decimal);
+            if (hresultDescription != null)
+            {
+                AddErrorCommand(MessageType.HResult,
+                                np.Decimal,
+                                np.Hex,
+                                hresultDescription,
+                                null);
+            }
+
+            if (MsgTrans.Messages.Count == 0)
             {
                 // Last chance heuristics: attempt to parse a 8-digit decimal as hexadecimal
                 if (errorText.Length == 8)
@@ -180,37 +221,12 @@ namespace MsgTrans.Library
                 }
 
                 MsgTrans.MsgOutput.MsgOut(context,
-                                        String.Format("I don't know about Error Code {0}.",
-                                                      originalErrorText));
+                                          String.Format("I don't know about Error Code {0}.",
+                                                        originalErrorText));
                 return false;
             }
-            else //if (descriptions.Count == 1) -- FIXME: implement multiple values
-            {
-                string description = (string)descriptions[0];
-                MsgTrans.Code = description;
-                MsgTrans.Number = np.Decimal;
-                MsgTrans.Hex = np.Hex;
 
-                MsgTrans.Message = string.Empty;
-                if (winerrorDescription != null)
-                {
-                    string message = new System.ComponentModel.Win32Exception(Convert.ToInt32(np.Decimal)).Message;
-                    MsgTrans.Message = message;
-                }
-
-                return true;
-            }/*
-            else
-            {
-                MsgTrans.MsgOutput.MsgOut(context,
-                                          String.Format("{0} could be:",
-                                                        originalErrorText));
-
-                foreach(string description in descriptions)
-                    MsgTrans.MsgOutput.MsgOut(context, String.Format("\t{0}", description));
-
-                return true;
-            }*/
+            return true;
         }
 
         public override string Help()
