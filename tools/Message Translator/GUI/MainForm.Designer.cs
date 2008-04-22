@@ -142,14 +142,14 @@ namespace MsgTranslator
             this.errorHexTxtBox.Name = "errorHexTxtBox";
             this.errorHexTxtBox.ReadOnly = true;
             this.errorHexTxtBox.Size = new System.Drawing.Size(104, 20);
-            this.errorHexTxtBox.TabIndex = 9;
+            this.errorHexTxtBox.TabIndex = 6;
             // 
             // errorBackButton
             // 
             this.errorBackButton.Location = new System.Drawing.Point(236, 6);
             this.errorBackButton.Name = "errorBackButton";
             this.errorBackButton.Size = new System.Drawing.Size(22, 22);
-            this.errorBackButton.TabIndex = 8;
+            this.errorBackButton.TabIndex = 3;
             this.errorBackButton.Text = "<";
             this.errorBackButton.UseVisualStyleBackColor = true;
             this.errorBackButton.Click += new System.EventHandler(this.NavigateErrorPage);
@@ -159,7 +159,7 @@ namespace MsgTranslator
             this.errorForwardButton.Location = new System.Drawing.Point(258, 6);
             this.errorForwardButton.Name = "errorForwardButton";
             this.errorForwardButton.Size = new System.Drawing.Size(22, 22);
-            this.errorForwardButton.TabIndex = 7;
+            this.errorForwardButton.TabIndex = 4;
             this.errorForwardButton.Text = ">";
             this.errorForwardButton.UseVisualStyleBackColor = true;
             this.errorForwardButton.Click += new System.EventHandler(this.NavigateErrorPage);
@@ -170,7 +170,7 @@ namespace MsgTranslator
             this.errorTypeValueLabel.Location = new System.Drawing.Point(64, 15);
             this.errorTypeValueLabel.Name = "errorTypeValueLabel";
             this.errorTypeValueLabel.Size = new System.Drawing.Size(0, 13);
-            this.errorTypeValueLabel.TabIndex = 6;
+            this.errorTypeValueLabel.TabIndex = 0;
             // 
             // errorCodeTxtBox
             // 
@@ -178,7 +178,7 @@ namespace MsgTranslator
             this.errorCodeTxtBox.Name = "errorCodeTxtBox";
             this.errorCodeTxtBox.ReadOnly = true;
             this.errorCodeTxtBox.Size = new System.Drawing.Size(217, 20);
-            this.errorCodeTxtBox.TabIndex = 5;
+            this.errorCodeTxtBox.TabIndex = 7;
             // 
             // errorCodeLabel
             // 
@@ -186,7 +186,7 @@ namespace MsgTranslator
             this.errorCodeLabel.Location = new System.Drawing.Point(10, 67);
             this.errorCodeLabel.Name = "errorCodeLabel";
             this.errorCodeLabel.Size = new System.Drawing.Size(35, 13);
-            this.errorCodeLabel.TabIndex = 4;
+            this.errorCodeLabel.TabIndex = 0;
             this.errorCodeLabel.Text = "Code:";
             // 
             // errorMessageTxtBox
@@ -196,7 +196,7 @@ namespace MsgTranslator
             this.errorMessageTxtBox.Name = "errorMessageTxtBox";
             this.errorMessageTxtBox.ReadOnly = true;
             this.errorMessageTxtBox.Size = new System.Drawing.Size(267, 59);
-            this.errorMessageTxtBox.TabIndex = 3;
+            this.errorMessageTxtBox.TabIndex = 8;
             // 
             // errorDecimalTxtBox
             // 
@@ -204,7 +204,7 @@ namespace MsgTranslator
             this.errorDecimalTxtBox.Name = "errorDecimalTxtBox";
             this.errorDecimalTxtBox.ReadOnly = true;
             this.errorDecimalTxtBox.Size = new System.Drawing.Size(98, 20);
-            this.errorDecimalTxtBox.TabIndex = 2;
+            this.errorDecimalTxtBox.TabIndex = 5;
             // 
             // errorTypeLabel
             // 
@@ -263,7 +263,7 @@ namespace MsgTranslator
             this.wndmsgHexTxtBox.Name = "wndmsgHexTxtBox";
             this.wndmsgHexTxtBox.ReadOnly = true;
             this.wndmsgHexTxtBox.Size = new System.Drawing.Size(104, 20);
-            this.wndmsgHexTxtBox.TabIndex = 12;
+            this.wndmsgHexTxtBox.TabIndex = 4;
             // 
             // wndmsgDecimalTxtBox
             // 
@@ -271,7 +271,7 @@ namespace MsgTranslator
             this.wndmsgDecimalTxtBox.Name = "wndmsgDecimalTxtBox";
             this.wndmsgDecimalTxtBox.ReadOnly = true;
             this.wndmsgDecimalTxtBox.Size = new System.Drawing.Size(98, 20);
-            this.wndmsgDecimalTxtBox.TabIndex = 11;
+            this.wndmsgDecimalTxtBox.TabIndex = 3;
             // 
             // wndmsgCodeTxtBox
             // 
@@ -279,7 +279,7 @@ namespace MsgTranslator
             this.wndmsgCodeTxtBox.Name = "wndmsgCodeTxtBox";
             this.wndmsgCodeTxtBox.ReadOnly = true;
             this.wndmsgCodeTxtBox.Size = new System.Drawing.Size(217, 20);
-            this.wndmsgCodeTxtBox.TabIndex = 6;
+            this.wndmsgCodeTxtBox.TabIndex = 5;
             // 
             // wndmsgCodeLabel
             // 
@@ -287,7 +287,7 @@ namespace MsgTranslator
             this.wndmsgCodeLabel.Location = new System.Drawing.Point(10, 41);
             this.wndmsgCodeLabel.Name = "wndmsgCodeLabel";
             this.wndmsgCodeLabel.Size = new System.Drawing.Size(35, 13);
-            this.wndmsgCodeLabel.TabIndex = 3;
+            this.wndmsgCodeLabel.TabIndex = 0;
             this.wndmsgCodeLabel.Text = "Code:";
             // 
             // wndmsgNumberLabel
@@ -296,7 +296,7 @@ namespace MsgTranslator
             this.wndmsgNumberLabel.Location = new System.Drawing.Point(10, 15);
             this.wndmsgNumberLabel.Name = "wndmsgNumberLabel";
             this.wndmsgNumberLabel.Size = new System.Drawing.Size(47, 13);
-            this.wndmsgNumberLabel.TabIndex = 4;
+            this.wndmsgNumberLabel.TabIndex = 0;
             this.wndmsgNumberLabel.Text = "Number:";
             // 
             // bugurlTab
@@ -315,7 +315,7 @@ namespace MsgTranslator
             this.bugLinkLabel.Location = new System.Drawing.Point(60, 87);
             this.bugLinkLabel.Name = "bugLinkLabel";
             this.bugLinkLabel.Size = new System.Drawing.Size(145, 13);
-            this.bugLinkLabel.TabIndex = 0;
+            this.bugLinkLabel.TabIndex = 3;
             this.bugLinkLabel.TabStop = true;
             this.bugLinkLabel.Text = "ReactOS Bugzilla Homepage";
             this.bugLinkLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -338,7 +338,7 @@ namespace MsgTranslator
             this.optionsRunStartChkBox.Location = new System.Drawing.Point(5, 32);
             this.optionsRunStartChkBox.Name = "optionsRunStartChkBox";
             this.optionsRunStartChkBox.Size = new System.Drawing.Size(150, 17);
-            this.optionsRunStartChkBox.TabIndex = 2;
+            this.optionsRunStartChkBox.TabIndex = 4;
             this.optionsRunStartChkBox.Text = "Run when Windows starts";
             this.optionsRunStartChkBox.UseVisualStyleBackColor = true;
             this.optionsRunStartChkBox.CheckedChanged += new System.EventHandler(this.OptionsHaveChanged);
@@ -349,7 +349,7 @@ namespace MsgTranslator
             this.optionsMinimizeChkBox.Location = new System.Drawing.Point(5, 9);
             this.optionsMinimizeChkBox.Name = "optionsMinimizeChkBox";
             this.optionsMinimizeChkBox.Size = new System.Drawing.Size(125, 17);
-            this.optionsMinimizeChkBox.TabIndex = 1;
+            this.optionsMinimizeChkBox.TabIndex = 3;
             this.optionsMinimizeChkBox.Text = "Hide when minimized";
             this.optionsMinimizeChkBox.UseVisualStyleBackColor = true;
             this.optionsMinimizeChkBox.CheckedChanged += new System.EventHandler(this.OptionsHaveChanged);
@@ -360,7 +360,7 @@ namespace MsgTranslator
             this.mainErrLabel.Location = new System.Drawing.Point(16, 17);
             this.mainErrLabel.Name = "mainErrLabel";
             this.mainErrLabel.Size = new System.Drawing.Size(53, 13);
-            this.mainErrLabel.TabIndex = 7;
+            this.mainErrLabel.TabIndex = 0;
             this.mainErrLabel.Text = "Message:";
             // 
             // notifyIcon
