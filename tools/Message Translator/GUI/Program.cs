@@ -43,7 +43,6 @@ namespace MsgTranslator
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeApplicationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenu.SuspendLayout();
 
             // 
             // notifyIcon
@@ -67,12 +66,14 @@ namespace MsgTranslator
             this.restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
             this.restoreToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.restoreToolStripMenuItem.Text = "Restore";
+            this.restoreToolStripMenuItem.Click += new System.EventHandler(this.restoreContextMenuItem_Click);
             // 
             // closeApplicationToolStripMenuItem
             // 
             this.closeApplicationToolStripMenuItem.Name = "closeApplicationToolStripMenuItem";
             this.closeApplicationToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.closeApplicationToolStripMenuItem.Text = "Close Application";
+            this.closeApplicationToolStripMenuItem.Click += new EventHandler(exitContextMenuItem_Click);
         }
 
         protected override void Dispose(bool disposing)
@@ -110,15 +111,20 @@ namespace MsgTranslator
             ShowForm();
         }
 
-        private void mainForm_Closed(object sender, EventArgs e)
+        private void restoreContextMenuItem_Click(object sender, EventArgs e)
         {
-            // null out the main form so we know to create a new one.
-            this.mainForm = null;
+            ShowForm();
         }
 
         private void exitContextMenuItem_Click(object sender, EventArgs e)
         {
             ExitThread();
+        }
+
+        private void mainForm_Closed(object sender, EventArgs e)
+        {
+            // null out the main form so we know to create a new one.
+            this.mainForm = null;
         }
 
         protected override void ExitThreadCore()
