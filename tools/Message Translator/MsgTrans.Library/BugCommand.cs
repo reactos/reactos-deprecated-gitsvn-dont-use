@@ -13,11 +13,6 @@ namespace MsgTrans.Library
             this.bugUrl = bugUrl;
         }
 
-        public string BugUrl
-        {
-            get { return bugUrl; }
-        }
-
         public override bool Handle(MessageContext context,
                                     string commandName,
                                     string parameters)
@@ -39,8 +34,14 @@ namespace MsgTrans.Library
                 return false;
             }
 
-            MsgTrans.Number = np.Decimal;
-            MsgTrans.BugUrl = String.Format(BugUrl, np.Decimal);
+            string url = String.Format(bugUrl, np.Decimal);
+
+            MsgType = MessageType.BugUrl;
+            Number = np.Decimal;
+            Hex = np.Hex;
+            Code = url;
+            Message = null;
+            MsgTrans.Messages.Add(this);
 
             return true;
         }

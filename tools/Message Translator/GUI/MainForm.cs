@@ -148,6 +148,12 @@ namespace MsgTranslator
             }
         }
 
+        private void SendToTray()
+        {
+            Hide();
+            notifyIcon.Visible = true;
+        }
+
         private string GetMessageType()
         {
             try
@@ -182,27 +188,33 @@ namespace MsgTranslator
                 string message = msgType + " " + mainErrTxtBox.Text;
                 if (msgTran.ParseCommandMessage(null, message))
                 {
-                    if (msgType == msgTypes[0]) // error
+                    foreach (Command cmd in msgTran.Messages)
                     {
-                        errorTypeValueLabel.Text = msgTran.Type;
-                        errorDecimalTxtBox.Text = msgTran.Number.ToString();
-                        errorHexTxtBox.Text = "0x" + msgTran.Hex;
-                        errorCodeTxtBox.Text = msgTran.Code;
-                        errorMessageTxtBox.Text = msgTran.Message;
-                    }
-                    else if (msgType == msgTypes[1]) // wm
-                    {
-                        wndmsgDecimalTxtBox.Text = msgTran.Number.ToString();
-                        wndmsgHexTxtBox.Text = "0x" + msgTran.Hex;
-                        wndmsgCodeTxtBox.Text = msgTran.Code;
-                    }
-                    else if (msgType == msgTypes[2]) // bug
-                    {
-                        bugLinkLabel.Text = "Click here for bug " + msgTran.Number;
-                        bugLinkLabel.Links[0].LinkData = msgTran.BugUrl;
-                        bugLinkLabel.Links[0].Visited = false;
+                        if (cmd.MsgType == MessageType.WinError ||
+                            cmd.MsgType == MessageType.HResult ||
+                            cmd.MsgType == MessageType.NTStatus ||
+                            cmd.MsgType == MessageType.Custom)
+                        {
+                            errorTypeValueLabel.Text = cmd.MsgType.ToString();
+                            errorDecimalTxtBox.Text = cmd.Number.ToString();
+                            errorHexTxtBox.Text = "0x" + cmd.Hex;
+                            errorCodeTxtBox.Text = cmd.Code;
+                            errorMessageTxtBox.Text = cmd.Message;
+                        }
+                        else if (cmd.MsgType == MessageType.WinMsg)
+                        {
+                            wndmsgDecimalTxtBox.Text = cmd.Number.ToString();
+                            wndmsgHexTxtBox.Text = "0x" + cmd.Hex;
+                            wndmsgCodeTxtBox.Text = cmd.Code;
+                        }
+                        else if (cmd.MsgType == MessageType.BugUrl)
+                        {
+                            bugLinkLabel.Text = "Click here for bug " + cmd.Number;
+                            bugLinkLabel.Links[0].LinkData = cmd.Code;
+                            bugLinkLabel.Links[0].Visited = false;
 
-                        SetBugurlPosition();
+                            SetBugurlPosition();
+                        }
                     }
                 }
             }
@@ -227,8 +239,15 @@ namespace MsgTranslator
             optionsMinimizeChkBox.Checked = HideOnMin;
             optionsRunStartChkBox.Checked = RunOnStart;
             notifyIcon.Visible = false;
+            /*
+            if (HideOnMin)
+            {
+                // FIXME: hide correctly
+                this.WindowState = FormWindowState.Minimized;
+                SendToTray();
+            }*/
 
-            toolTip.SetToolTip(mainErrTxtBox, Properties.Resources.tooltipErrMsg);
+          //toolTip.SetToolTip(mainErrTxtBox, Properties.Resources.tooltipErrMsg);
           //toolTip.SetToolTip(mainWndMsgRadio, Properties.Resources.tooltipWndMsg);
           //toolTip.SetToolTip(mainBugMsgRadio, Properties.Resources.tooltipBug);
           //toolTip.SetToolTip(mainOptionsRadio, Properties.Resources.tooltipOpt);
@@ -243,13 +262,9 @@ namespace MsgTranslator
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
-            if (FormWindowState.Minimized == WindowState)
+            if (FormWindowState.Minimized == WindowState && HideOnMin)
             {
-                if (HideOnMin)
-                {
-                    Hide();
-                    notifyIcon.Visible = true;
-                }
+                SendToTray();
             }
         }
 

@@ -7,16 +7,46 @@ using System.Threading;
 
 namespace MsgTrans.Library
 {
+    // Summary:
+    //     Specifies the type of message returned
+    public enum MessageType
+    {
+        // Summary:
+        //     A Win32 error
+        WinError = 0,
+        //
+        // Summary:
+        //     A HRESULT status code.
+        HResult = 1,
+        //
+        // Summary:
+        //     An NTSTATUS status code
+        NTStatus = 2,
+        //
+        // Summary:
+        //     a STOP/Bug Check code
+        BugCheck = 3,
+        //
+        // Summary:
+        //     a Windows Message code
+        WinMsg = 4,
+        //
+        // Summary:
+        //     a Bug Url
+        BugUrl = 5,
+        //
+        // Summary:
+        //     a custom Check code
+        Custom = 6
+    }
+
     public class MessageTranslator
     {
         private IMsgOutput msgOutput;
         private List<Command> commands = new List<Command>();
-        private string bugUrl;
+        private List<Command> messages = new List<Command>();
         private string type;
-        private long number;
-        private string hex;
-        private string code;
-        private string message;
+
 
         #region properties
         public string Type
@@ -24,38 +54,13 @@ namespace MsgTrans.Library
             get { return type; }
             set { type = value; }
         }
-        public long Number
-        {
-            get { return number; }
-            set { number = value; }
-        }
-        public string Hex
-        {
-            get { return hex; }
-            set { hex = value; }
-        }
-        public string Code
-        {
-            get { return code; }
-            set { code = value; }
-        }
-        public string Message
-        {
-            get { return message; }
-            set { message = value; }
-        }
-        public string BugUrl
-        {
-            get { return bugUrl; }
-            set { bugUrl = value; }
-        }
         public IMsgOutput MsgOutput
         {
             get { return msgOutput; }
         }
-        public IList<Command> Commands
+        public IList<Command> Messages
         {
-            get { return commands; }
+            get { return messages; }
         }
         #endregion
 
