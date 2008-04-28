@@ -9,7 +9,6 @@
 ::
 ::
 @echo off
-mode con cols=95 lines=44
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
     @echo on
@@ -116,11 +115,11 @@ goto :EOC
 :: environment.
 ::
 :RosBE4
-    echo **********************************************************************************************
-    echo *                                                                                            *
-    echo *                                 ReactOS Build Environment %_ROSBE_VERSION%                              *
-    echo *                                                                                            *
-    echo **********************************************************************************************
+    echo *******************************************************************************
+    echo *                                                                             *
+    echo *                        ReactOS Build Environment %_ROSBE_VERSION%                        *
+    echo *                                                                             *
+    echo *******************************************************************************
     echo.
     echo.
     ver
