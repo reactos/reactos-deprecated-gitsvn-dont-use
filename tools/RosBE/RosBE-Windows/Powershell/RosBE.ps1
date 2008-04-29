@@ -97,10 +97,6 @@ set-alias SVN "& $_ROSBE_BASEDIR\Tools\svn.exe"
 if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
 set-alias OPTIONS "& $_ROSBE_BASEDIR\options.ps1"
 }
-
-set-alias test "ddd"
-
-test
 }
 
 #
@@ -126,11 +122,12 @@ if ($args.count -gt 0) {
 if ($args[0] = "oldmode") {
 #    cls
     $_ROSBE_MODE = "MinGW"
-}
+
 } else {
 #    cls
     "Unknown parameter specified. Exiting."
 exit
+}
 }
 RosBE4
 #cls
