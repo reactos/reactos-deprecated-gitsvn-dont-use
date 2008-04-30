@@ -4,8 +4,7 @@
 # FILE:        Root/RosBE.ps1
 # PURPOSE:     This script provides/sets up various build environments for
 #              ReactOS. Currently it provides a GCC 4.1.3 build environment.
-# COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
-#                             Peter Ward <dralnix@gmail.com>
+# COPYRIGHT:   Copyright 2008 Daniel Reimer <reimer.daniel@freenet.de>
 #
 #
 
@@ -60,42 +59,42 @@ function RosBE4
 function LOADDOSKEYMACROS
 {
 if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
-set-alias CHDEFDIR "& $_ROSBE_BASEDIR\chdefdir.ps1"
+set-alias CHDEFDIR "$_ROSBE_BASEDIR\chdefdir.ps1" -scope Global
 }
 
 if (Test-Path "$_ROSBE_BASEDIR\chdefgcc.ps1") {
-set-alias CHDEFGCC "& $_ROSBE_BASEDIR\chdefgcc.ps1"
+set-alias CHDEFGCC "$_ROSBE_BASEDIR\chdefgcc.ps1" -scope Global
 }
 
 if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
-set-alias CHARCH "& $_ROSBE_BASEDIR\charch.ps1"
+set-alias CHARCH "$_ROSBE_BASEDIR\charch.ps1" -scope Global
 }
 
-set-alias CLEAN "& $_ROSBE_BASEDIR\Clean.ps1"
+set-alias CLEAN "$_ROSBE_BASEDIR\Clean.ps1" -scope Global
 
 if (Test-Path "$_ROSBE_BASEDIR\Config.ps1") {
-set-alias CONFIG "& $_ROSBE_BASEDIR\Config.ps1"
+set-alias CONFIG "$_ROSBE_BASEDIR\Config.ps1" -scope Global
 }
 
-set-alias HELP "& $_ROSBE_BASEDIR\Help.ps1"
-set-alias MAKE "& $_ROSBE_BASEDIR\Build.ps1"
-set-alias MAKEX "& $_ROSBE_BASEDIR\Build.ps1 multi"
+set-alias HELP "$_ROSBE_BASEDIR\Help.ps1" -scope Global
+set-alias MAKE "$_ROSBE_BASEDIR\Build.ps1" -scope Global
+set-alias MAKEX "$_ROSBE_BASEDIR\Build.ps1 multi" -scope Global
 
 if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
-set-alias RADDR2LINE "& $_ROSBE_BASEDIR\reladdr2line.ps1"
+set-alias RADDR2LINE "$_ROSBE_BASEDIR\reladdr2line.ps1" -scope Global
 }
 
 if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
-set-alias SCUT "& $_ROSBE_BASEDIR\scut.ps1"
+set-alias SCUT "$_ROSBE_BASEDIR\scut.ps1" -scope Global
 }
 
 if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
-set-alias SSVN "& $_ROSBE_BASEDIR\sSVN.ps1"
-set-alias SVN "& $_ROSBE_BASEDIR\Tools\svn.exe"
+set-alias SSVN "$_ROSBE_BASEDIR\sSVN.ps1" -scope Global
+set-alias SVN "$_ROSBE_BASEDIR\Tools\svn.exe" -scope Global
 }
 
 if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
-set-alias OPTIONS "& $_ROSBE_BASEDIR\options.ps1"
+set-alias OPTIONS "$_ROSBE_BASEDIR\options.ps1" -scope Global
 }
 }
 
