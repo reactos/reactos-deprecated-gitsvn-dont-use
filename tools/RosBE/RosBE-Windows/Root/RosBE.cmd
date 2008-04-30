@@ -66,7 +66,7 @@ if /i "%1" == "oldmode" (
 if not "%1" == "" (
     cls
     echo Unknown parameter specified. Exiting.
-    goto :EOC
+    goto :EOF
 )
 
 cls
@@ -108,7 +108,7 @@ if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
 )
 endlocal
 
-goto :EOC
+goto :EOF
 
 ::
 :: Display the banner and set up the environment for the GCC 4.x.x build
@@ -146,5 +146,3 @@ goto :EOF
     if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SVN= )
     if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 goto :EOF
-
-:EOC

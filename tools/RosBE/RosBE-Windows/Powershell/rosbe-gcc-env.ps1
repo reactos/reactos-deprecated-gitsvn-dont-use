@@ -22,12 +22,12 @@ if ($ENV:_ROSBE_MINGWPATH = $null) {
 # Set up the GCC 4.x.x build environment.
 #
 $ENV:PATH = "$_ROSBE_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
-$_ROSBE_GCCVERSION = $null
-$_ROSBE_GCCTARGET = $null
+$global:_ROSBE_GCCVERSION = $null
+$global:_ROSBE_GCCTARGET = $null
 #for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
 #for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
 $ENV:PATH = "$_ROSBE_MINGWPATH\bin;$_ROSBE_MINGWPATH\libexec\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION;$_ROSBE_ORIGINALPATH"
-$_ROSBE_MINGWMAKE = "$_ROSBE_MINGWPATH\bin\mingw32-make.exe"
+$global:_ROSBE_MINGWMAKE = "$_ROSBE_MINGWPATH\bin\mingw32-make.exe"
 if ($_ROSBE_MODE = "MinGW") {
     $ENV:C_INCLUDE_PATH = "$_ROSBE_MINGWPATH\include;$_ROSBE_MINGWPATH\lib\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION\include"
     $ENV:CPLUS_INCLUDE_PATH = "$_ROSBE_MINGWPATH\include;$_ROSBE_MINGWPATH\include\c++\$_ROSBE_GCCVERSION;$_ROSBE_MINGWPATH\include\c++\$_ROSBE_GCCVERSION\$_ROSBE_GCCTARGET;$_ROSBE_MINGWPATH\lib\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION\include"
