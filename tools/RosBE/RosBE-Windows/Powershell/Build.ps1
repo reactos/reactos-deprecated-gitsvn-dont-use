@@ -73,8 +73,8 @@ if ($_ROSBE_OUTPATH -ne $null) {
 #
 # Get the current date and time for use in in our build log's file name.
 #
-$DATENAME = get-date -f d
-$TIMENAME = get-date -f t
+$DATENAME = get-date -f dyMMyyyy
+$TIMENAME = get-date -f HHmm
 
 
 #
@@ -82,23 +82,25 @@ $TIMENAME = get-date -f t
 # exists, if it doesn't, create it.
 #
 if ($_ROSBE_WRITELOG -eq 1) {
-    if (Test-Path "$_ROSBE_LOGDIR\.") {
-        mkdir "$_ROSBE_LOGDIR" 1> NUL 2> NUL
+    if (!(Test-Path "$_ROSBE_LOGDIR")) {
+        New-Item -path "$_ROSBE_ROSSOURCEDIR" -name "RosBE-Logs" -type directory
     }
 }
 
 function BUILD {
     if ($_ROSBE_SHOWTIME -eq 1) {
         if ($_ROSBE_WRITELOG -eq 1) {
-            """$_ROSBE_BASEDIR\Tools\buildtime.exe"" ""$_ROSBE_MINGWMAKE"" $args[0..5] 2>&1 | ""$_ROSBE_BASEDIR\Tools\tee.exe"" ""$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"""
+            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
+            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-            """$_ROSBE_BASEDIR\Tools\buildtime.exe"" ""$_ROSBE_MINGWMAKE"" $args[0..5]"
+            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args)
         }
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
-            """$_ROSBE_MINGWMAKE"" $args[0..5] 2>&1 | ""$_ROSBE_BASEDIR\Tools\tee.exe"" ""$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"""
+            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
+            & "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-            """$_ROSBE_MINGWMAKE"" $args[0..5]"
+            & "$_ROSBE_MINGWMAKE" $($args)
         }
     }
 }
@@ -116,15 +118,17 @@ function BUILDMULTI {
 
     if ($_ROSBE_SHOWTIME -eq 1) {
         if ($_ROSBE_WRITELOG -eq 1) {
-#            "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "$_ROSBE_BASEDIR\Tools\tee.exe" "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+#            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
+#            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-#            "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT %2 %3 %4 %5 %6 %7 %8 %9
+#            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
         }
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
-#            "$_ROSBE_MINGWMAKE" -j $CPUCOUNT %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "$_ROSBE_BASEDIR\Tools\tee.exe" "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+#            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
+#            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-#            "$_ROSBE_MINGWMAKE" -j $CPUCOUNT %2 %3 %4 %5 %6 %7 %8 %9
+#            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
         }
     }
 }
