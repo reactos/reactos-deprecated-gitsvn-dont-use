@@ -11,7 +11,7 @@
 # Check if we are running within the RosBE, and if not
 # initialize GCC for the current directory.
 #
-if ($ENV:_ROSBE_MINGWPATH = $null) {
+if ($ENV:_ROSBE_MINGWPATH -eq $null) {
     $ENV:_ROSBE_MODE = "MinGW"
     $ENV:_ROSBE_MINGWPATH = "$pwd"
     $ENV:_ROSBE_ORIGINALPATH = "$PATH"
@@ -23,11 +23,11 @@ if ($ENV:_ROSBE_MINGWPATH = $null) {
 $ENV:PATH = "$_ROSBE_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
 $global:_ROSBE_GCCVERSION = $null
 $global:_ROSBE_GCCTARGET = $null
-#for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
-#for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
+$global:_ROSBE_GCCVERSION = (& gcc -v 2>&1 | select-string "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
+$global:_ROSBE_GCCTARGET = (& gcc -v 2>&1 | select-string  "target=") -replace ".*--target=(.+?)\b.*",'$1'
 $ENV:PATH = "$_ROSBE_MINGWPATH\bin;$_ROSBE_MINGWPATH\libexec\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION;$_ROSBE_ORIGINALPATH"
 $global:_ROSBE_MINGWMAKE = "$_ROSBE_MINGWPATH\bin\mingw32-make.exe"
-if ($_ROSBE_MODE = "MinGW") {
+if ($_ROSBE_MODE -eq "MinGW") {
     $ENV:C_INCLUDE_PATH = "$_ROSBE_MINGWPATH\include;$_ROSBE_MINGWPATH\lib\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION\include"
     $ENV:CPLUS_INCLUDE_PATH = "$_ROSBE_MINGWPATH\include;$_ROSBE_MINGWPATH\include\c++\$_ROSBE_GCCVERSION;$_ROSBE_MINGWPATH\include\c++\$_ROSBE_GCCVERSION\$_ROSBE_GCCTARGET;$_ROSBE_MINGWPATH\lib\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION\include"
 } else {
@@ -39,28 +39,29 @@ $ENV:LIBRARY_PATH = "$_ROSBE_MINGWPATH\lib;$_ROSBE_MINGWPATH\lib\gcc\$_ROSBE_GCC
 #
 # Display the current version of GCC, NASM, ld and make.
 #
-gcc -v 2>&1 | find "gcc version"
+& gcc -v 2>&1 | select-string  "gcc version"
 "gcc target - $_ROSBE_GCCTARGET"
-ld -v
+& ld -v
 if (Test-Path "$_ROSBE_MINGWPATH\bin\nasm.exe") {
-    nasm -v
+    & nasm -v
 } else {
-    if ($_ROSBE_MODE = "RosBE") {
+    if ($_ROSBE_MODE -eq "RosBE") {
         "ERROR: NASM is required to build ReactOS, none found in the current MinGW/GCC."
     }
 }
 if (Test-Path "$_ROSBE_MINGWPATH\bin\bison.exe") {
-    bison --version | find "GNU Bison"
+    & bison --version | find "GNU Bison"
 } else {
-    if ($_ROSBE_MODE = "RosBE") {
+    if ($_ROSBE_MODE -eq "RosBE") {
         "WARNING: Bison will soon be required to build ReactOS, none found in the current MinGW/GCC."
     }
 }
 if (Test-Path "$_ROSBE_MINGWPATH\bin\flex.exe") {
-    flex --version
+$fver = (& flex --version) -replace ".*version ((\d|\.)+).*",'$1'
+    "flex $fver"
 } else {
-    if ($_ROSBE_MODE = "RosBE") {
+    if ($_ROSBE_MODE -eq "RosBE") {
         "WARNING: Flex will soon be required to build ReactOS, none found in the current MinGW/GCC."
     }
 }
-mingw32-make -v | find "GNU Make"
+& mingw32-make -v | & find "GNU Make"
