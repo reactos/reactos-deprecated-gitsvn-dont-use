@@ -73,6 +73,7 @@ if ($_ROSBE_OUTPATH -ne $null) {
 #
 # Get the current date and time for use in in our build log's file name.
 #
+$TIMERAW = get-date -f t
 $DATENAME = get-date -f dyMMyyyy
 $TIMENAME = get-date -f HHmm
 
@@ -146,22 +147,14 @@ $CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
 #
 if ($args.count -gt 1) {
 if ($args[0] -eq "multi") {
-    if ($args[1] -ne "") {
-        $host.ui.RawUI.WindowTitle = "makex $args parallel build started: $TIMERAW"
-    } else {
-        $host.ui.RawUI.WindowTitle = "makex parallel build started: $TIMERAW"
-    }
-BUILDMULTI
+        $host.ui.RawUI.WindowTitle = "makex $($args) parallel build started: $TIMERAW"
 }
+BUILDMULTI
 } else {
 if ($args.count -gt 0) {
-    if ($args[0] -ne "") {
-        $host.ui.RawUI.WindowTitle = "make $args build started: $TIMERAW"
-    } else {
-        $host.ui.RawUI.WindowTitle = "make build started: $TIMERAW"
-    }
-BUILD
+        $host.ui.RawUI.WindowTitle = "make $($args) build started: $TIMERAW"
 }
+BUILD
 }
 
 #
