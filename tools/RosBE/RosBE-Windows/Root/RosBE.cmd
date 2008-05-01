@@ -40,7 +40,7 @@ set _ROSBE_OUTPATH=
 :: Check if RosBE data directory exists, if not, create it.
 ::
 if not exist "%APPDATA%\RosBE\." (
-    mkdir "%APPDATA%\RosBE"
+    mkdir "%APPDATA%\RosBE" 1> NUL 2> NUL
 )
 
 ::

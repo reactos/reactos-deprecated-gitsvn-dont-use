@@ -18,7 +18,8 @@ cls
 if ($APPDATA.Length -lt 1) {$APPDATA = $ENV:USERPROFILE}
 $global:PATH = "$ENV:SystemRoot\system32;$ENV:SystemRoot"
 $global:_ROSBE_VERSION = 1.2
-$global:_ROSBE_BASEDIR = "C:\Programme\RosBE" #NOCH FALSCH
+$global:0 = $myInvocation.MyCommand.Definition
+$global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_MODE = "RosBE"
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $global:_ROSBE_ORIGINALPATH = "$PATH"
@@ -101,7 +102,7 @@ set-alias OPTIONS "$_ROSBE_BASEDIR\options.ps1" -scope Global
 #
 # Check if RosBE data directory exists, if not, create it.
 #
-if (!(Test-Path "$APPDATA\RosBE")) {mkdir $APPDATA\RosBE}
+if (!(Test-Path "$APPDATA\RosBE")) {New-Item -path "$APPDATA" -name "RosBE" -type directory}
 
 #
 # Check if the user has used the options utility and
@@ -119,17 +120,16 @@ $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 #
 if ($args.count -gt 0) {
 if ($args[0] = "oldmode") {
-#    cls
+    cls
     $_ROSBE_MODE = "MinGW"
 
 } else {
-#    cls
+    cls
     "Unknown parameter specified. Exiting."
 exit
 }
 }
 RosBE4
-#cls
 
 #
 # Load the base directory from srclist.txt and set it as the
@@ -157,8 +157,7 @@ LOADDOSKEYMACROS
 # inform the user and mention 'ssvn create' (only if ssvn is installed).
 #
 if (!(Test-Path "$_ROSBE_BASEDIR\sSVN.ps1")) {
-#    dir /b $_ROSBE_ROSSOURCEDIR 2>nul | findstr "." >nul
-    if ($errorlevel = 1) {
+    if ((get-childitem $_ROSBE_ROSSOURCEDIR).Count -le 0) {
         "No ReactOS source detected. Please use ""ssvn create"" to download it."
     }
 }

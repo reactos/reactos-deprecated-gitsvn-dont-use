@@ -83,21 +83,25 @@ $TIMENAME = get-date -f HHmm
 #
 if ($_ROSBE_WRITELOG -eq 1) {
     if (!(Test-Path "$_ROSBE_LOGDIR")) {
-        New-Item -path "$_ROSBE_ROSSOURCEDIR" -name "RosBE-Logs" -type directory
+        $null = (New-Item -path "$_ROSBE_ROSSOURCEDIR" -name "RosBE-Logs" -type directory)
     }
 }
 
 function BUILD {
     if ($_ROSBE_SHOWTIME -eq 1) {
         if ($_ROSBE_WRITELOG -eq 1) {
-            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
+            if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
+            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+            }
             & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
             & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args)
         }
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
-            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
+            if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
+            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+            }
             & "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
             & "$_ROSBE_MINGWMAKE" $($args)
@@ -114,21 +118,25 @@ function BUILDMULTI {
     # -x2       - Number of CPUs, doubled.
     # -a        - Determine the cpu count based on the inherited process affinity mask.
     #
-#    for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
+$CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
 
     if ($_ROSBE_SHOWTIME -eq 1) {
         if ($_ROSBE_WRITELOG -eq 1) {
-#            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
-#            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
+            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+            }
+            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-#            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
+            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
         }
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
-#            New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file
-#            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
+            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+            }
+            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-#            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
+            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
         }
     }
 }
@@ -139,7 +147,7 @@ function BUILDMULTI {
 if ($args.count -gt 1) {
 if ($args[0] -eq "multi") {
     if ($args[1] -ne "") {
-        $host.ui.RawUI.WindowTitle = "makex $args[1] parallel build started: $TIMERAW"
+        $host.ui.RawUI.WindowTitle = "makex $args parallel build started: $TIMERAW"
     } else {
         $host.ui.RawUI.WindowTitle = "makex parallel build started: $TIMERAW"
     }
@@ -148,7 +156,7 @@ BUILDMULTI
 } else {
 if ($args.count -gt 0) {
     if ($args[0] -ne "") {
-        $host.ui.RawUI.WindowTitle = "make $args[1] build started: $TIMERAW"
+        $host.ui.RawUI.WindowTitle = "make $args build started: $TIMERAW"
     } else {
         $host.ui.RawUI.WindowTitle = "make build started: $TIMERAW"
     }
