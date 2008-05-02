@@ -87,6 +87,7 @@ if ($_ROSBE_WRITELOG -eq 1) {
 }
 
 function BUILD {
+    $ErrorActionPreference = "SilentlyContinue"
     if ($_ROSBE_SHOWTIME -eq 1) {
         [System.Diagnostics.Stopwatch] $sw;
         $sw = New-Object System.Diagnostics.StopWatch
