@@ -95,12 +95,12 @@ function BUILD {
                 $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
             $sw.Start()
-            & "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            IEX "&'$_ROSBE_MINGWMAKE' $($args)" 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
             $sw.Stop()
             write-host "Total Build Time:" $sw.Elapsed.ToString()
         } else {
             $sw.Start()
-            & "$_ROSBE_MINGWMAKE" $($args)
+            IEX "&'$_ROSBE_MINGWMAKE' $($args)"
             $sw.Stop()
             write-host "Total Build Time:" $sw.Elapsed.ToString()
         }
@@ -109,9 +109,9 @@ function BUILD {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
                 $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
-            & "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            IEX "&'$_ROSBE_MINGWMAKE' $($args)" 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-            & "$_ROSBE_MINGWMAKE" $($args)
+            IEX "&'$_ROSBE_MINGWMAKE' $($args)"
         }
     }
 }
@@ -135,12 +135,12 @@ function BUILDMULTI {
                 $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
             $sw.Start()
-            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            IEX "&'$_ROSBE_MINGWMAKE' -j $CPUCOUNT $($args)" 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
             $sw.Stop()
             write-host "Total Build Time:" $sw.Elapsed.ToString()
         } else {
             $sw.Start()
-            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
+            IEX "&'$_ROSBE_MINGWMAKE' -j $CPUCOUNT $($args)"
             $sw.Stop()
             write-host "Total Build Time:" $sw.Elapsed.ToString()
         }
@@ -149,9 +149,9 @@ function BUILDMULTI {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
                 $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
-            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            IEX "&'$_ROSBE_MINGWMAKE' -j $CPUCOUNT $($args)" 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
-            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
+            IEX "&'$_ROSBE_MINGWMAKE' -j $CPUCOUNT $($args)"
         }
     }
 }
