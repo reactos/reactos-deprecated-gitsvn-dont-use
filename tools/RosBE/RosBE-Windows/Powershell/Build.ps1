@@ -12,8 +12,7 @@
 # abort the build and inform the user.
 #
 if (Test-Path ".\config.rbuild") {
-    "$_ROSBE_BASEDIR\Tools\chknewer.exe .\config.template.rbuild .\config.rbuild"
-    if (errorlevel -eq 1) {
+    if ((gi .\config.template.rbuild).LastWriteTime -gt (gi .\config.rbuild).LastWriteTime) {
         ""
         "*** config.template.rbuild is newer than config.rbuild ***"
         "*** aborting build. Please check for changes and       ***"
@@ -126,7 +125,7 @@ function BUILDMULTI {
     # -x2       - Number of CPUs, doubled.
     # -a        - Determine the cpu count based on the inherited process affinity mask.
     #
-    $CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
+    $CPUCOUNT= (gwmi win32_processor).numberofcores + 1
 
     if ($_ROSBE_SHOWTIME -eq 1) {
         [System.Diagnostics.Stopwatch] $sw;
