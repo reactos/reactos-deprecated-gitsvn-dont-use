@@ -89,13 +89,21 @@ if ($_ROSBE_WRITELOG -eq 1) {
 
 function BUILD {
     if ($_ROSBE_SHOWTIME -eq 1) {
+        [System.Diagnostics.Stopwatch] $sw;
+        $sw = New-Object System.Diagnostics.StopWatch
         if ($_ROSBE_WRITELOG -eq 1) {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
                 $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
-            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            $sw.Start()
+            & "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            $sw.Stop()
+            write-host "Total Build Time:" $sw.Elapsed.ToString()
         } else {
-            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args)
+            $sw.Start()
+            & "$_ROSBE_MINGWMAKE" $($args)
+            $sw.Stop()
+            write-host "Total Build Time:" $sw.Elapsed.ToString()
         }
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
@@ -121,13 +129,21 @@ function BUILDMULTI {
     $CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
 
     if ($_ROSBE_SHOWTIME -eq 1) {
+        [System.Diagnostics.Stopwatch] $sw;
+        $sw = New-Object System.Diagnostics.StopWatch
         if ($_ROSBE_WRITELOG -eq 1) {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
                 $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
-            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            $sw.Start()
+            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
+            $sw.Stop()
+            write-host "Total Build Time:" $sw.Elapsed.ToString()
         } else {
-            & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
+            $sw.Start()
+            & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args)
+            $sw.Stop()
+            write-host "Total Build Time:" $sw.Elapsed.ToString()
         }
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
