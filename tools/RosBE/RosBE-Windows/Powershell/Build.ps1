@@ -49,8 +49,8 @@ if ($_ROSBE_USECCACHE -ne $null) {
 }
 
 #
-# Check if the user has chosen to use a different object or output path
-# and set it accordingly.
+# Check if the user has chosen to use a different object or output path and set
+# it accordingly.
 #
 if ($_ROSBE_OBJPATH -ne $null) {
     if ( Test-Path "$_ROSBE_OBJPATH\.") {
@@ -77,10 +77,9 @@ $TIMERAW = get-date -f t
 $DATENAME = get-date -f dyMMyyyy
 $TIMENAME = get-date -f HHmm
 
-
 #
-# Check if writing logs is enabled, if so check if our log directory
-# exists, if it doesn't, create it.
+# Check if writing logs is enabled, if so check if our log directory exists, if
+# it doesn't, create it.
 #
 if ($_ROSBE_WRITELOG -eq 1) {
     if (!(Test-Path "$_ROSBE_LOGDIR")) {
@@ -92,7 +91,7 @@ function BUILD {
     if ($_ROSBE_SHOWTIME -eq 1) {
         if ($_ROSBE_WRITELOG -eq 1) {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
-            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+                $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
             & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
@@ -101,7 +100,7 @@ function BUILD {
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
-            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+                $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
             & "$_ROSBE_MINGWMAKE" $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
@@ -119,12 +118,12 @@ function BUILDMULTI {
     # -x2       - Number of CPUs, doubled.
     # -a        - Determine the cpu count based on the inherited process affinity mask.
     #
-$CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
+    $CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
 
     if ($_ROSBE_SHOWTIME -eq 1) {
         if ($_ROSBE_WRITELOG -eq 1) {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
-            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+                $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
             & "$_ROSBE_BASEDIR\Tools\buildtime.exe" "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
@@ -133,7 +132,7 @@ $CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
     } else {
         if ($_ROSBE_WRITELOG -eq 1) {
             if (!(Test-Path "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt")) {
-            $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
+                $null = (New-Item -path "$_ROSBE_LOGDIR" -name "BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt" -type file)
             }
             & "$_ROSBE_MINGWMAKE" -j $CPUCOUNT $($args) 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_GCCVERSION-$DATENAME-$TIMENAME.txt"
         } else {
@@ -146,15 +145,15 @@ $CPUCOUNT= &"$_ROSBE_BASEDIR\Tools\cpucount.exe" -x1
 # Check if we are using -j or not.
 #
 if ($args.count -gt 1) {
-if ($args[0] -eq "multi") {
+    if ($args[0] -eq "multi") {
         $host.ui.RawUI.WindowTitle = "makex $($args) parallel build started: $TIMERAW"
-}
-BUILDMULTI
+    }
+    BUILDMULTI
 } else {
-if ($args.count -gt 0) {
+    if ($args.count -gt 0) {
         $host.ui.RawUI.WindowTitle = "make $($args) build started: $TIMERAW"
-}
-BUILD
+    }
+    BUILD
 }
 
 #
@@ -163,19 +162,19 @@ BUILD
 "$_ROSBE_BASEDIR\Tools\flash.exe"
 
 if ($_ROSBE_VERSION -ne $null) {
-$host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
+    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 }
 
 #
 # Unload all used Vars.
 #
-$ENV:ROS_LEAN_AND_MEAN = ""
-$ENV:HOST_CC = ""
-$ENV:HOST_CPP = ""
-$ENV:TARGET_CC = ""
-$ENV:TARGET_CPP = ""
-$ENV:ROS_INTERMEDIATE = ""
-$ENV:ROS_OUTPUT = ""
-$ENV:ROS_TEMPORARY = ""
-$ENV:CPUCOUNT = ""
-$ENV:CCACHE_DIR = ""
+$ENV:ROS_LEAN_AND_MEAN = $null
+$ENV:HOST_CC = $null
+$ENV:HOST_CPP = $null
+$ENV:TARGET_CC = $null
+$ENV:TARGET_CPP = $null
+$ENV:ROS_INTERMEDIATE = $null
+$ENV:ROS_OUTPUT = $null
+$ENV:ROS_TEMPORARY = $null
+$ENV:CPUCOUNT = $null
+$ENV:CCACHE_DIR = $null
