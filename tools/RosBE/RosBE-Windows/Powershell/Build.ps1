@@ -26,7 +26,7 @@ if (Test-Path ".\config.rbuild") {
 # Check if strip or ccache are being used and set the appropriate options.
 #
 if ($_ROSBE_STRIP -ne $null) {
-    if ($_ROSBE_STRIP -ne 1) {
+    if ($_ROSBE_STRIP -eq 1) {
         $ENV:ROS_LEAN_AND_MEAN = "yes"
     } else {
         $ENV:ROS_LEAN_AND_MEAN = "no"
