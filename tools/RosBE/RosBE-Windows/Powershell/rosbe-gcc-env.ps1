@@ -8,8 +8,8 @@
 #
 
 #
-# Check if we are running within the RosBE, and if not
-# initialize GCC for the current directory.
+# Check if we are running within the RosBE, and if not initialize GCC for the
+# current directory.
 #
 if ($ENV:_ROSBE_MINGWPATH -eq $null) {
     $ENV:_ROSBE_MODE = "MinGW"
@@ -57,7 +57,7 @@ if (Test-Path "$_ROSBE_MINGWPATH\bin\bison.exe") {
     }
 }
 if (Test-Path "$_ROSBE_MINGWPATH\bin\flex.exe") {
-$fver = (& flex --version) -replace ".*version ((\d|\.)+).*",'$1'
+    $fver = (& flex --version) -replace ".*version ((\d|\.)+).*",'$1'
     "flex $fver"
 } else {
     if ($_ROSBE_MODE -eq "RosBE") {
