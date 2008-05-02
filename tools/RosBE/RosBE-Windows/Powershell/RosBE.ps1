@@ -38,7 +38,7 @@ $global:_ROSBE_OUTPATH = $null
 # Display the banner and set up the environment for the GCC 4.x.x build
 # environment.
 #
-function RosBE4 {
+function RosBE {
     "*******************************************************************************"
     "*                                                                             *"
     "*                        ReactOS Build Environment $_ROSBE_VERSION                        *"
@@ -58,7 +58,10 @@ function RosBE4 {
 # that are not actually present.
 #
 
-function LOADDOSKEYMACROS {
+function LoadAliases {
+    function global:BASEDIR {
+        cd "$_ROSBE_ROSSOURCEDIR"
+    }
     if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
         set-alias CHDEFDIR "$_ROSBE_BASEDIR\chdefdir.ps1" -scope Global
     }
@@ -119,7 +122,7 @@ $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 # Check if we are using oldmode or if any unknown parameters were specified.
 #
 if ($args.count -gt 0) {
-    if ($args[0] = "oldmode") {
+    if ($args -eq "oldmode") {
         cls
         $_ROSBE_MODE = "MinGW"
 
@@ -129,7 +132,7 @@ if ($args.count -gt 0) {
         exit
     }
 }
-RosBE4
+RosBE
 
 #
 # Load the base directory from srclist.txt and set it as the new source
@@ -150,7 +153,7 @@ if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
 #
 # Load the doskey macros that serve as our commands.
 #
-LOADDOSKEYMACROS
+LoadAliases
 
 #
 # Look if the ReactOS source directory is empty. If so, inform the user and

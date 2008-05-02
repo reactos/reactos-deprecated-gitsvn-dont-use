@@ -52,7 +52,7 @@ if ($_ROSBE_USECCACHE -ne $null) {
 # it accordingly.
 #
 if ($_ROSBE_OBJPATH -ne $null) {
-    if ( Test-Path "$_ROSBE_OBJPATH\.") {
+    if ( Test-Path "$_ROSBE_OBJPATH") {
         "ERROR: The path specified doesn't seem to exist."
         exit
     } else {
@@ -60,7 +60,7 @@ if ($_ROSBE_OBJPATH -ne $null) {
     }
 }
 if ($_ROSBE_OUTPATH -ne $null) {
-    if (Test-Path "$_ROSBE_OUTPATH\.") {
+    if (Test-Path "$_ROSBE_OUTPATH") {
         "ERROR: The path specified doesn't seem to exist."
         exit
     } else {
@@ -120,12 +120,6 @@ function BUILD {
 function BUILDMULTI {
     #
     # Get the number of CPUs in the system so we know how many jobs to execute.
-    # To modify the number used alter the options used with cpucount:
-    # No Option - Number of CPUs.
-    # -x1       - Number of CPUs, plus 1.
-    # -x2       - Number of CPUs, doubled.
-    # -a        - Determine the cpu count based on the inherited process affinity mask.
-    #
     $CPUCOUNT= (gwmi win32_processor).numberofcores + 1
 
     if ($_ROSBE_SHOWTIME -eq 1) {
