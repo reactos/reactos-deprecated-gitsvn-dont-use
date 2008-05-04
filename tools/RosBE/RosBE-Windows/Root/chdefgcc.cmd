@@ -24,14 +24,18 @@ if "%_1%" == "" (
     call :INTERACTIVE
 )
 
-if not exist "%_1%\." (
+if exist "%_ROSBE_BASEDIR%\%_1%\." (
+    set _1="%_ROSBE_BASEDIR%\%_1%"
+) else if not exist "%_1%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :EOC
 )
+
 if not exist "%_1%\bin\gcc.exe" (
     echo ERROR: No MinGW/GCC found in the specified path.
     goto :EOC
 )
+
 set _ROSBE_MINGWPATH=%_1%
 echo Location: %_ROSBE_MINGWPATH%
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
