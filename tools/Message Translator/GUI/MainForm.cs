@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using MsgTrans.Library;
 using System.Resources;
 using System.Reflection;
+using System.IO;
 using Microsoft.Win32;
 
 namespace MsgTranslator
@@ -47,7 +48,22 @@ namespace MsgTranslator
                 rk.SetValue(keyName, value);
             }
         }
+        private static string PrependWorkingDirectory(string file)
+        {
+            string full;
+            string workDir;
 
+            try
+            {
+                workDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                full = workDir + '\\' + file;
+                return full;
+            }
+            catch (Exception)
+            {
+                return file;
+            }
+        }
         private static void VerifyRequiredOption(string optionName,
                                  string optionValue)
         {
@@ -65,6 +81,7 @@ namespace MsgTranslator
                 string s = ConfigurationSettings.AppSettings[optionName];
                 VerifyRequiredOption(optionName,
                                      s);
+                s = PrependWorkingDirectory(s);
                 return s;
             }
         }
@@ -76,6 +93,7 @@ namespace MsgTranslator
                 string s = ConfigurationSettings.AppSettings[optionName];
                 VerifyRequiredOption(optionName,
                                      s);
+                s = PrependWorkingDirectory(s);
                 return s;
             }
         }
@@ -87,6 +105,7 @@ namespace MsgTranslator
                 string s = ConfigurationSettings.AppSettings[optionName];
                 VerifyRequiredOption(optionName,
                                      s);
+                s = PrependWorkingDirectory(s);
                 return s;
             }
         }
@@ -98,6 +117,7 @@ namespace MsgTranslator
                 string s = ConfigurationSettings.AppSettings[optionName];
                 VerifyRequiredOption(optionName,
                                      s);
+                s = PrependWorkingDirectory(s);
                 return s;
             }
         }
