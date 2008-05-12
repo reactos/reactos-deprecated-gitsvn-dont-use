@@ -27,11 +27,11 @@ $TIME bash -c "(
     rm -rf "reactos."
     echo '  * CD images'
     rm -f *.iso
-
+    
     if [ $# -eq 1 ]; then
-        echo -e '\n* Recreating config.rbuild...'
         if [ "${1}" = "rel" ]; then
-            cat config.template.rbuild | sed 's/"DBG" value="1"/"DBG" value="0"/' > config.rbuild
+            echo -e '\n* Recreating config.rbuild...'
+            cat config.template.rbuild | sed 's/\"DBG\" value=\"1\"/\"DBG\" value=\"0\"/' > config.rbuild
         fi
     fi
 
