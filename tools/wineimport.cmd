@@ -190,7 +190,7 @@ ECHO ^</module^>
 FOR %%j IN (%WINE_IDL_GEN_I_SRCS%) DO (
 	SET WINE_SHORT_NAME=%%j
 	SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
-	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_header" type="idlheader" allowwarnings="true"^>
+	ECHO ^<module name="%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_header" type="idlheader"^>
 	ECHO 	^<file^>%%j^</file^>
 	ECHO ^</module^>
 )
@@ -246,7 +246,7 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 				) ELSE IF "%WINE_VARTYPE%" == "4" (
 					SET WINE_SHORT_NAME=%%j
 					SET WINE_SHORT_NAME=!WINE_SHORT_NAME:~0,-4!
-					SET WINE_LIBRARIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_header !WINE_LIBRARIES!
+					SET WINE_DEPENDENCIES=%WINE_MODULE_NAME%_!WINE_SHORT_NAME!_header !WINE_DEPENDENCIES!
 					SET WINE_IDL_GEN_I_SRCS=!WINE_IDL_GEN_I_SRCS! %%j
 				) ELSE IF "%WINE_VARTYPE%" == "5" (
 					SET WINE_SHORT_NAME=%%j
@@ -280,7 +280,7 @@ IF NOT "%WINE_END_PREC_LINE%" == "\" (
 	) ELSE IF "%1" == "CTESTS" (
 		SET WINE_VARTYPE=1
 	) ELSE IF "%1" == "IDL_H_SRCS" (
-		SET WINE_VARTYPE=1
+		SET WINE_VARTYPE=4
 		SET WINE_HAS_IDL=1
 	) ELSE IF "%1" == "IDL_C_SRCS" (
 		SET WINE_VARTYPE=5
