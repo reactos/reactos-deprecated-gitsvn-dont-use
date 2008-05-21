@@ -74,6 +74,84 @@ sub DoAccount {
     }
 }
 
+sub SaveAccount {
+    my $cgi = Bugzilla->cgi;
+    my $dbh = Bugzilla->dbh;
+    my $user = Bugzilla->user;
+
+    my $pwd1 = $cgi->param('new_password1');
+    my $pwd2 = $cgi->param('new_password2');
+
+    if ($user->authorizer->can_change_password
+        && ($cgi->param('Bugzilla_password') ne "" || $pwd1 ne "" || $pwd2 ne ""))
+    {
+        my ($oldcryptedpwd) = $dbh->selectrow_array(
+                        q{SELECT cryptpassword FROM profiles WHERE userid = ?},
+                        undef, $user->id);
+        $oldcryptedpwd || ThrowCodeError("unable_to_retrieve_password");
+
+        if (crypt(scalar($cgi->param('Bugzilla_password')), $oldcryptedpwd) ne 
+                  $oldcryptedpwd) 
+        {
+            ThrowUserError("old_password_incorrect");
+        }
+
+        if ($pwd1 ne "" || $pwd2 ne "")
+        {
+            $cgi->param('new_password1')
+              || ThrowUserError("new_password_missing");
+            validate_password($pwd1, $pwd2);
+
+            if ($cgi->param('Bugzilla_password') ne $pwd1) {
+                my $cryptedpassword = bz_crypt($pwd1);
+                $dbh->do(q{UPDATE profiles
+                              SET cryptpassword = ?
+                            WHERE userid = ?},
+                         undef, ($cryptedpassword, $user->id));
+
+                # Invalidate all logins except for the current one
+                Bugzilla->logout(LOGOUT_KEEP_CURRENT);
+            }
+        }
+    }
+
+    if ($user->authorizer->can_change_email
+        && Bugzilla->params->{"allowemailchange"}
+        && $cgi->param('new_login_name'))
+    {
+        my $old_login_name = $cgi->param('Bugzilla_login');
+        my $new_login_name = trim($cgi->param('new_login_name'));
+
+        if($old_login_name ne $new_login_name) {
+            $cgi->param('Bugzilla_password') 
+              || ThrowUserError("old_password_required");
+
+            use Bugzilla::Token;
+            # Block multiple email changes for the same user.
+            if (Bugzilla::Token::HasEmailChangeToken($user->id)) {
+                ThrowUserError("email_change_in_progress");
+            }
+
+            # Before changing an email address, confirm one does not exist.
+            validate_email_syntax($new_login_name)
+              || ThrowUserError('illegal_email_address', {addr => $new_login_name});
+            is_available_username($new_login_name)
+              || ThrowUserError("account_exists", {email => $new_login_name});
+
+            Bugzilla::Token::IssueEmailChangeToken($user, $old_login_name,
+                                                   $new_login_name);
+
+            $vars->{'email_changes_saved'} = 1;
+        }
+    }
+
+    my $realname = trim($cgi->param('realname'));
+    trick_taint($realname); # Only used in a placeholder
+    $dbh->do("UPDATE profiles SET realname = ? WHERE userid = ?",
+             undef, ($realname, $user->id));
+}
+
+
 sub DoSettings {
     my $user = Bugzilla->user;
 
@@ -445,7 +523,7 @@ $vars->{'current_tab_name'} = $current_tab_name;
 # Do any saving, and then display the current tab.
 SWITCH: for ($current_tab_name) {
     /^account$/ && do {
-        #SaveAccount() if $cgi->param('dosave');
+        SaveAccount() if $cgi->param('dosave');
         DoAccount();
         last SWITCH;
     };

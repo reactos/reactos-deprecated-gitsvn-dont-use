@@ -877,6 +877,8 @@ foreach my $field (Bugzilla->get_fields({custom => 1, obsolete => 0})) {
         $::query .= "$fname = ?";
         my $value = $cgi->param($fname);
         check_field($fname, $value) if ($field->type == FIELD_TYPE_SINGLE_SELECT);
+        $value = Bugzilla::Bug->_check_freetext_field($value)
+          if ($field->type == FIELD_TYPE_FREETEXT);
         trick_taint($value);
         push(@values, $value);
     }
@@ -1096,6 +1098,24 @@ if (defined $cgi->param('qa_contact')
     }
 }
 
+# By default, makes sure that all bugs are in a closed state.
+# If $all_open is true, makes sure that all bugs are open.
+sub check_bugs_resolution {
+    my ($idlist, $all_open) = @_;
+    my $dbh = Bugzilla->dbh;
+
+    my $open_states = join(',', map {$dbh->quote($_)} BUG_STATE_OPEN);
+    # The list has already been validated.
+    $idlist = join(',', @$idlist);
+    my $sql_cond = $all_open ? 'NOT' : '';
+    my $has_unwanted_bugs =
+      $dbh->selectrow_array("SELECT 1 FROM bugs WHERE bug_id IN ($idlist)
+                             AND bug_status $sql_cond IN ($open_states)");
+
+    # If there are unwanted bugs, then the test fails.
+    return !$has_unwanted_bugs;
+}
+
 SWITCH: for ($cgi->param('knob')) {
     /^none$/ && do {
         last SWITCH;
@@ -1116,6 +1136,9 @@ SWITCH: for ($cgi->param('knob')) {
         last SWITCH;
     };
     /^clearresolution$/ && CheckonComment( "clearresolution" ) && do {
+        # All bugs must already be open.
+        check_bugs_resolution(\@idlist, 'all_open')
+          || ThrowUserError('resolution_deletion_not_allowed');
         ChangeResolution($bug, '');
         last SWITCH;
     };
@@ -1146,13 +1169,7 @@ SWITCH: for ($cgi->param('knob')) {
         else {
             # You cannot use change_resolution if there is at least
             # one open bug.
-            my $open_states = join(',', map {$dbh->quote($_)} BUG_STATE_OPEN);
-            my $idlist = join(',', @idlist);
-            my $is_open =
-              $dbh->selectrow_array("SELECT 1 FROM bugs WHERE bug_id IN ($idlist)
-                                     AND bug_status IN ($open_states)");
-
-            ThrowUserError('resolution_not_allowed') if $is_open;
+            check_bugs_resolution(\@idlist) || ThrowUserError('resolution_not_allowed');
         }
 
         ChangeResolution($bug, $cgi->param('resolution'));
@@ -1203,10 +1220,16 @@ SWITCH: for ($cgi->param('knob')) {
         last SWITCH;
     };
     /^verify$/ && CheckonComment( "verify" ) && do {
+        check_bugs_resolution(\@idlist)
+          || ThrowUserError('bug_status_not_allowed', {status => 'VERIFIED'});
+
         ChangeStatus('VERIFIED');
         last SWITCH;
     };
     /^close$/ && CheckonComment( "close" ) && do {
+        check_bugs_resolution(\@idlist)
+          || ThrowUserError('bug_status_not_allowed', {status => 'CLOSED'});
+
         # CLOSED bugs should have no time remaining.
         _remove_remaining_time();
 
@@ -1505,7 +1528,8 @@ foreach my $id (@idlist) {
             "keyworddefs READ", "groups READ", "attachments READ",
             "group_control_map AS oldcontrolmap READ",
             "group_control_map AS newcontrolmap READ",
-            "group_control_map READ", "email_setting READ", "classifications READ");
+            "group_control_map READ", "email_setting READ", "classifications READ",
+            "setting READ", "profile_setting READ");
 
     # It may sound crazy to set %formhash for each bug as $cgi->param()
     # will not change, but %formhash is modified below and we prefer
@@ -2082,9 +2106,7 @@ foreach my $id (@idlist) {
                 # If some votes have been removed, RemoveVotes() returns
                 # a list of messages to send to voters.
                 # We delay the sending of these messages till tables are unlocked.
-                $msgs = RemoveVotes($id, 0,
-                          "This bug has been moved to a different product");
-
+                $msgs = RemoveVotes($id, 0, 'votes_bug_moved');
                 CheckIfVotedConfirmed($id, $whoid);
             }
 

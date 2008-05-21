@@ -99,13 +99,8 @@ sub DB_COLUMNS {
 }
 
 use constant REQUIRED_CREATE_FIELDS => qw(
-    bug_severity
-    comment
     component
-    op_sys
-    priority
     product
-    rep_platform
     short_desc
     version
 );
@@ -130,11 +125,17 @@ sub VALIDATORS {
         status_whiteboard => \&_check_status_whiteboard,
     };
 
-    my @select_fields = Bugzilla->get_fields({custom => 1, obsolete => 0,
-                                              type => FIELD_TYPE_SINGLE_SELECT});
+    my @custom_fields = Bugzilla->get_fields({custom => 1, obsolete => 0});
 
-    foreach my $field (@select_fields) {
-        $validators->{$field->name} = \&_check_select_field;
+    foreach my $field (@custom_fields) {
+        my $validator;
+        if ($field->type == FIELD_TYPE_SINGLE_SELECT) {
+            $validator = \&_check_select_field;
+        }
+        elsif ($field->type == FIELD_TYPE_FREETEXT) {
+            $validator = \&_check_freetext_field;
+        }
+        $validators->{$field->name} = $validator if $validator;
     }
     return $validators;
 };
@@ -239,11 +240,23 @@ sub new {
 # C<deadline>       - For time-tracking. Will be ignored for the same
 #                     reasons as C<estimated_time>.
 sub create {
-    my $class  = shift;
+    my ($class, $params) = @_;
     my $dbh = Bugzilla->dbh;
 
-    $class->check_required_create_fields(@_);
-    my $params = $class->run_create_validators(@_);
+    # These fields have default values which we can use if they are undefined.
+    $params->{bug_severity} = Bugzilla->params->{defaultseverity}
+      unless defined $params->{bug_severity};
+    $params->{priority} = Bugzilla->params->{defaultpriority}
+      unless defined $params->{priority};
+    $params->{op_sys} = Bugzilla->params->{defaultopsys}
+      unless defined $params->{op_sys};
+    $params->{rep_platform} = Bugzilla->params->{defaultplatform}
+      unless defined $params->{rep_platform};
+    # Make sure a comment is always defined.
+    $params->{comment} = '' unless defined $params->{comment};
+
+    $class->check_required_create_fields($params);
+    $params = $class->run_create_validators($params);
 
     # These are not a fields in the bugs table, so we don't pass them to
     # insert_create_data.
@@ -823,6 +836,18 @@ sub _check_version {
     $version = trim($version);
     check_field('version', $version, [map($_->name, @{$product->versions})]);
     return $version;
+}
+
+# Custom Field Validators
+
+sub _check_freetext_field {
+    my ($invocant, $text) = @_;
+
+    $text = (defined $text) ? trim($text) : '';
+    if (length($text) > MAX_FREETEXT_LENGTH) {
+        ThrowUserError('freetext_too_long', { text => $text });
+    }
+    return $text;
 }
 
 sub _check_select_field {
@@ -1591,7 +1616,7 @@ sub GetBugActivity {
 
         if ($activity_visible) {
             # This gets replaced with a hyperlink in the template.
-            $field =~ s/^Attachment// if $attachid;
+            $field =~ s/^Attachment\s*// if $attachid;
 
             # Check for the results of an old Bugzilla data corruption bug
             $incomplete_data = 1 if ($added =~ /^\?/ || $removed =~ /^\?/);
@@ -1731,7 +1756,6 @@ sub RemoveVotes {
     if (scalar(@list)) {
         foreach my $ref (@list) {
             my ($name, $userid, $oldvotes, $votesperuser, $maxvotesperbug) = (@$ref);
-            my $s;
 
             $maxvotesperbug = min($votesperuser, $maxvotesperbug);
 
@@ -1745,23 +1769,13 @@ sub RemoveVotes {
 
             my $removedvotes = $oldvotes - $newvotes;
 
-            $s = ($oldvotes == 1) ? "" : "s";
-            my $oldvotestext = "You had $oldvotes vote$s on this bug.";
-
-            $s = ($removedvotes == 1) ? "" : "s";
-            my $removedvotestext = "You had $removedvotes vote$s removed from this bug.";
-
-            my $newvotestext;
             if ($newvotes) {
                 $dbh->do("UPDATE votes SET vote_count = ? " .
                          "WHERE bug_id = ? AND who = ?",
                          undef, ($newvotes, $id, $userid));
-                $s = $newvotes == 1 ? "" : "s";
-                $newvotestext = "You still have $newvotes vote$s on this bug."
             } else {
                 $dbh->do("DELETE FROM votes WHERE bug_id = ? AND who = ?",
                          undef, ($id, $userid));
-                $newvotestext = "You have no more votes remaining on this bug.";
             }
 
             # Notice that we did not make sure that the user fit within the $votesperuser
@@ -1772,7 +1786,6 @@ sub RemoveVotes {
             # Now lets send the e-mail to alert the user to the fact that their votes have
             # been reduced or removed.
             my $vars = {
-
                 'to' => $name . Bugzilla->params->{'emailsuffix'},
                 'bugid' => $id,
                 'reason' => $reason,
@@ -1780,19 +1793,17 @@ sub RemoveVotes {
                 'votesremoved' => $removedvotes,
                 'votesold' => $oldvotes,
                 'votesnew' => $newvotes,
-
-                'votesremovedtext' => $removedvotestext,
-                'votesoldtext' => $oldvotestext,
-                'votesnewtext' => $newvotestext,
-
-                'count' => $removedvotes . "\n    " . $newvotestext
             };
 
+            my $voter = new Bugzilla::User($userid);
+            my $template = Bugzilla->template_inner($voter->settings->{'lang'}->{'value'});
+
             my $msg;
-            my $template = Bugzilla->template;
             $template->process("email/votes-removed.txt.tmpl", $vars, \$msg);
             push(@messages, $msg);
         }
+        Bugzilla->template_inner("");
+
         my $votes = $dbh->selectrow_array("SELECT SUM(vote_count) " .
                                           "FROM votes WHERE bug_id = ?",
                                           undef, $id) || 0;

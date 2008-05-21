@@ -26,10 +26,7 @@
 #               Frédéric Buclin <LpSolit@gmail.com>
 #               Greg Hendricks <ghendricks@novell.com>
 #               Lance Larsh <lance.larsh@oracle.com>
-#
-# Direct any questions on this source code to
-#
-# Holger Schurig <holgerschurig@nikocity.de>
+#               Elliotte Martin <elliotte.martin@yahoo.com>
 
 use strict;
 use lib ".";
@@ -537,20 +534,28 @@ if ($action eq 'updategroupcontrols') {
                    {'Slice' => {}}, $product->id);
         }
 
+#
+# return the mandatory groups which need to have bug entries added to the bug_group_map
+# and the corresponding bug count
+#
         my $mandatory_groups;
         if (@now_mandatory) {
             $mandatory_groups = $dbh->selectall_arrayref(
-                    'SELECT groups.name, COUNT(bugs.bug_id) AS count
-                       FROM bugs
-                  LEFT JOIN bug_group_map
-                         ON bug_group_map.bug_id = bugs.bug_id
-                 INNER JOIN groups
-                         ON bug_group_map.group_id = groups.id
-                      WHERE groups.id IN (' . join(', ', @now_mandatory) . ')
-                        AND bugs.product_id = ?
-                        AND bug_group_map.bug_id IS NULL ' .
-                       $dbh->sql_group_by('groups.name'),
+                    'SELECT groups.name,
+                           (SELECT COUNT(bugs.bug_id)
+                              FROM bugs
+                             WHERE bugs.product_id = ?
+                               AND bugs.bug_id NOT IN
+                                (SELECT bug_group_map.bug_id FROM bug_group_map
+                                  WHERE bug_group_map.group_id = groups.id))
+                           AS count
+                      FROM groups
+                     WHERE groups.id IN (' . join(', ', @now_mandatory) . ')
+                     ORDER BY groups.name',
                    {'Slice' => {}}, $product->id);
+            # remove zero counts
+            @$mandatory_groups = grep { $_->{count} } @$mandatory_groups;
+
         }
         if (($na_groups && scalar(@$na_groups))
             || ($mandatory_groups && scalar(@$mandatory_groups)))
@@ -939,10 +944,7 @@ if ($action eq 'update') {
                 my ($who, $id) = (@$vote);
                 # If some votes are removed, RemoveVotes() returns a list
                 # of messages to send to voters.
-                my $msgs =
-                    RemoveVotes($id, $who, "The rules for voting on this product " .
-                                           "has changed;\nyou had too many votes " .
-                                           "for a single bug.");
+                my $msgs = RemoveVotes($id, $who, 'votes_too_many_per_bug');
                 foreach my $msg (@$msgs) {
                     MessageToMTA($msg);
                 }
@@ -991,11 +993,7 @@ if ($action eq 'update') {
                 foreach my $bug_id (@$bug_ids) {
                     # RemoveVotes() returns a list of messages to send
                     # in case some voters had too many votes.
-                    my $msgs =
-                        RemoveVotes($bug_id, $who, "The rules for voting on this " .
-                                                   "product has changed; you had " .
-                                                   "too many\ntotal votes, so all " .
-                                                   "votes have been removed.");
+                    my $msgs = RemoveVotes($bug_id, $who, 'votes_too_many_per_user');
                     foreach my $msg (@$msgs) {
                         MessageToMTA($msg);
                     }
