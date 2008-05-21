@@ -139,6 +139,7 @@ use File::Basename;
     SAFE_PROTOCOLS
 
     MAX_LEN_QUERY_NAME
+    MAX_FREETEXT_LENGTH
 );
 
 @Bugzilla::Constants::EXPORT_OK = qw(contenttypes);
@@ -146,7 +147,7 @@ use File::Basename;
 # CONSTANTS
 #
 # Bugzilla version
-use constant BUGZILLA_VERSION => "3.0.3";
+use constant BUGZILLA_VERSION => "3.0.4";
 
 #
 # ControlMap constants for group_control_map.
@@ -387,6 +388,9 @@ use constant ON_WINDOWS => ($^O =~ /MSWin32/i);
 # The longest that a saved search name can be.
 use constant MAX_LEN_QUERY_NAME => 64;
 
+# Maximum length allowed for free text fields.
+use constant MAX_FREETEXT_LENGTH => 255;
+
 sub bz_locations {
     # We know that Bugzilla/Constants.pm must be in %INC at this point.
     # So the only question is, what's the name of the directory
@@ -412,7 +416,7 @@ sub bz_locations {
         $datadir = "data";
     }
 
-    # Set this to "localconfig" if you want to run the Bugzilla locally
+    # The "localconfig" file has another path on the ReactOS Web Server
     $localconfig = "../../config/bugzilla-config";
     
     # We have to return absolute paths for mod_perl. 

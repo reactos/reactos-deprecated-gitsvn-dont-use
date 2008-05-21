@@ -54,25 +54,6 @@ use Bugzilla::Util;
 # in a message. RFC-compliant mailers use this.
 use constant SIGNATURE_DELIMITER => '-- ';
 
-# These fields must all be defined or post_bug complains. They don't have
-# to have values--they just have to be defined. There's not yet any
-# way to require custom fields have values, for enter_bug, so we don't
-# have to worry about those yet.
-use constant REQUIRED_ENTRY_FIELDS => qw(
-    reporter
-    short_desc
-    product
-    component
-    version
-
-    assigned_to
-    rep_platform
-    op_sys
-    priority
-    bug_severity
-    bug_file_loc
-);
-
 # Fields that must be defined during process_bug. They *do* have to
 # have values. The script will grab their values from the current
 # bug object, if they're not specified.
@@ -91,6 +72,7 @@ use constant REQUIRED_PROCESS_FIELDS => qw(
     short_desc
     reporter_accessible
     cclist_accessible
+    qa_contact
 );
 
 # $input_email is a global so that it can be used in die_handler.
@@ -143,6 +125,16 @@ sub parse_mail {
             
             if ($line =~ /^@(\S+)\s*=\s*(.*)\s*/) {
                 $current_field = lc($1);
+                # It's illegal to pass the reporter field as you could
+                # override the "From:" field of the message and bypass
+                # authentication checks, such as PGP.
+                if ($current_field eq 'reporter') {
+                    # We reset the $current_field variable to something
+                    # post_bug and process_bug will ignore, in case the
+                    # attacker splits the reporter field on several lines.
+                    $current_field = 'illegal_field';
+                    next;
+                }
                 $fields{$current_field} = $2;
             }
             else {
@@ -178,15 +170,6 @@ sub post_bug {
 
     debug_print('Posting a new bug...');
 
-    $fields{'rep_platform'} ||= Bugzilla->params->{'defaultplatform'};
-    $fields{'op_sys'}   ||= Bugzilla->params->{'defaultopsys'};
-    $fields{'priority'} ||= Bugzilla->params->{'defaultpriority'};
-    $fields{'bug_severity'} ||= Bugzilla->params->{'defaultseverity'};
-
-    foreach my $field (REQUIRED_ENTRY_FIELDS) {
-        $fields{$field} ||= '';
-    }
-
     my $cgi = Bugzilla->cgi;
     foreach my $field (keys %fields) {
         $cgi->param(-name => $field, -value => $fields{$field});
@@ -217,25 +200,34 @@ sub process_bug {
     if (my $status = $fields{'bug_status'}) {
         $fields{'knob'} = 'confirm' if $status =~ /NEW/i;
         $fields{'knob'} = 'accept'  if $status =~ /ASSIGNED/i;
-        $fields{'knob'} = 'clearresolution' if $status =~ /REOPENED/i;
+        $fields{'knob'} = 'reopen' if $status =~ /REOPENED/i;
+        $fields{'knob'} = 'resolve' if $status =~ /RESOLVED/i;
         $fields{'knob'} = 'verify'  if $status =~ /VERIFIED/i;
         $fields{'knob'} = 'close'   if $status =~ /CLOSED/i;
+        # Only @bug_status = RESOLVED can have a @resolution.
+        delete $fields{'resolution'} if $status !~ /RESOLVED/i;
     }
     if ($fields{'dup_id'}) {
         $fields{'knob'} = 'duplicate';
     }
     if ($fields{'resolution'}) {
-        $fields{'knob'} = 'resolve';
+        # If @bug_status is defined and we come here, then we know
+        # @bug_status = RESOLVED as the resolution would be ignored otherwise.
+        # If bug_status is undefined, then all we want to do is to change
+        # the resolution of the bug, leaving its status alone.
+        $fields{'knob'} = 'change_resolution' unless $fields{'bug_status'};
     }
 
     # Make sure we don't get prompted if we have to change the default
-    # groups.
+    # groups and if all other fields are already correctly set.
     if ($fields{'product'}) {
         $fields{'addtonewgroup'} = 0;
+        $fields{'confirm_product_change'} = 1;
     }
 
     foreach my $field (REQUIRED_PROCESS_FIELDS) {
         my $value = $bug->$field;
+        $value = $value->login if ($field eq 'qa_contact' && $value);
         if (ref $value) {
             $value = join(',', @$value);
         }
@@ -297,7 +289,8 @@ sub get_text_alternative {
     foreach my $part (@parts) {
         my $ct = $part->content_type || 'text/plain';
         my $charset = 'iso-8859-1';
-        if ($ct =~ /charset=([^;]+)/) {
+        # The charset may be quoted.
+        if ($ct =~ /charset="?([^;"]+)/) {
             $charset= $1;
         }
         debug_print("Part Content-Type: $ct", 2);
@@ -388,6 +381,11 @@ my $mail_text = join("", @mail_lines);
 my $mail_fields = parse_mail($mail_text);
 
 my $username = $mail_fields->{'reporter'};
+# If emailsuffix is in use, we have to remove it from the email address.
+if (my $suffix = Bugzilla->params->{'emailsuffix'}) {
+    $username =~ s/\Q$suffix\E$//i;
+}
+
 my $user = Bugzilla::User->new({ name => $username })
     || ThrowUserError('invalid_username', { name => $username });
 

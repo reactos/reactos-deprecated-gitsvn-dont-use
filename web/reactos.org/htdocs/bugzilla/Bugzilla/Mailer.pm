@@ -44,6 +44,7 @@ use Bugzilla::Util;
 use Date::Format qw(time2str);
 
 use Encode qw(encode);
+use Encode::MIME::Header;
 use Email::Address;
 use Email::MIME;
 # Loading this gives us encoding_set.
@@ -68,9 +69,11 @@ sub MessageToMTA {
     foreach my $header qw(From To Cc Reply-To Sender Errors-To Subject) {
         if (my $value = $email->header($header)) {
             $value = Encode::decode("UTF-8", $value) if Bugzilla->params->{'utf8'};
+
+            # avoid excessive line wrapping done by Encode.
+            local $Encode::Encoding{'MIME-Q'}->{'bpl'} = 998;
+
             my $encoded = encode('MIME-Q', $value);
-            # Encode adds unnecessary line breaks, with two spaces after each.
-            $encoded =~ s/\n  / /g;
             $email->header_set($header, $encoded);
         }
     }
@@ -118,7 +121,8 @@ sub MessageToMTA {
     if ($method eq "Test") {
         my $filename = bz_locations()->{'datadir'} . '/mailer.testfile';
         open TESTFILE, '>>', $filename;
-        print TESTFILE "\n\n---\n\n" . $email->as_string;
+        # From - <date> is required to be a valid mbox file.
+        print TESTFILE "\n\nFrom - " . $email->header('Date') . "\n" . $email->as_string;
         close TESTFILE;
     }
     else {

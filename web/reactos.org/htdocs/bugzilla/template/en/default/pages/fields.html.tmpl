@@ -90,7 +90,7 @@ cycle of [% terms.abug %].
         </dt>
         <dd>
           This [% terms.bug %] was once resolved, but the resolution was 
-          deemed incorrect. For example, a <b>[% status_descs.WORKSFORME FILTER html %]</b> [% terms.bug %] is
+          deemed incorrect. For example, a <b>[% get_resolution("WORKSFORME") FILTER html %]</b> [% terms.bug %] is
           <b>[% status_descs.REOPENED FILTER html %]</b> when more information shows up and
           the [% terms.bug %] is now reproducible. From here [% terms.bugs %] are
           either marked <b>[% status_descs.ASSIGNED FILTER html %]</b> or <b>[% status_descs.RESOLVED FILTER html %]</b>.
@@ -211,43 +211,46 @@ This field describes the impact of [% terms.abug %].
   <tr>
     <th>Blocker</th>
 
-    <td>Only allowed for releases or mega regressions. Do not set a bug to blocker unless you are the Testing Coordinator.</td>
+    <td>Blocks development and/or testing work</td>
   </tr>
 
   <tr>
     <th>Critical</th>
 
-    <td>Equivalent of <i>blocker</i> when a release isn't being done. High visibility regressions only.</td>
+    <td>crashes, loss of data, severe memory leak</td>
   </tr>
 
   <tr>
     <th>Major</th>
 
-    <td>Normal level for any regressions or bugs which cause a kernel mode crash (BSOD). Also, patches receive "major" for developer visibility.</td>
+    <td>major loss of function</td>
   </tr>
 
   <tr>
     <th>Normal</th>
-    
-    <td>This is the bugzilla default</td>
+
+    <td>regular issue, some loss of functionality under specific circumstances</td>
   </tr>
-  
+
+
   <tr>
     <th>Minor</th>
 
-    <td>Bugs which cause a major loss in functionality or cause a user mode (application) crash.</td>
+    <td>minor loss of function, or other problem where easy
+    workaround is present</td>
   </tr>
 
   <tr>
     <th>Trivial</th>
 
-    <td>Minor graphic bugs or missing funcionality that isn't usually commonly used in the program.</td>
+    <td>cosmetic problem like misspelled words or misaligned
+    text</td>
   </tr>
 
   <tr>
     <th>Enhancement</th>
 
-    <td>Missing APIs or any other features.</td>
+    <td>Request for enhancement</td>
 </table>
 
 <h2><a name="priority">Priority</a></h2>
@@ -264,10 +267,10 @@ reported. Legal platforms include:
 
 <ul>
   <li>All (happens on all platforms; cross-platform [% terms.bug %])</li>
-  <li>x86</li>
-  <li>QEmu</li>
-  <li>VMware</li>
-  <li>Virtual PC</li>
+
+  <li>Macintosh</li>
+
+  <li>PC</li>
 </ul>
 <b>Note:</b> When searching, selecting the option "All" does not 
 select [% terms.bugs %]
@@ -281,9 +284,12 @@ reported. Legal operating systems include:
 <ul>
   <li>All (happens on all operating systems; cross-platform
   [% terms.bug %])</li>
-  <li>ReactOS</li>
-  <li>Windows NT 4.0, 2000, XP, 2003, Vista</li>
-  <li>Windows 95, 98, ME</li>
+
+  <li>Windows</li>
+
+  <li>Mac OS</li>
+
+  <li>Linux</li>
 </ul>
 Sometimes the operating system implies the platform, but not
 always. For example, Linux can run on PC and Macintosh and
