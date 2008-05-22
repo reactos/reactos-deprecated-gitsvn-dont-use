@@ -37,7 +37,7 @@ INSERT INTO phpbb_config (config_name, config_value) VALUES ('attachment_quota',
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('auth_bbcode_pm', '1');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('auth_flash_pm', '0');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('auth_img_pm', '1');
-INSERT INTO phpbb_config (config_name, config_value) VALUES ('auth_method', 'db');
+INSERT INTO phpbb_config (config_name, config_value) VALUES ('auth_method', 'roscms');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('auth_smilies_pm', '1');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('avatar_filesize', '6144');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('avatar_gallery_path', 'images/avatars/gallery');

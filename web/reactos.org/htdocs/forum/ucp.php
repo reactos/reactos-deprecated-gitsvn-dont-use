@@ -41,35 +41,20 @@ $module = new p_master();
 switch ($mode)
 {
 	case 'activate':
-		$module->load('ucp', 'activate');
-		$module->display($user->lang['UCP_ACTIVATE']);
-
-		redirect(append_sid("{$phpbb_root_path}index.$phpEx"));
-	break;
-
+	case 'confirm':
+	case 'delete_cookies':
 	case 'resend_act':
-		$module->load('ucp', 'resend');
-		$module->display($user->lang['UCP_RESEND']);
-	break;
-
 	case 'sendpassword':
-		$module->load('ucp', 'remind');
-		$module->display($user->lang['UCP_REMIND']);
-	break;
+		die("Please go to RosCMS to do this!");
 
 	case 'register':
 		if ($user->data['is_registered'] || isset($_REQUEST['not_agreed']))
 		{
 			redirect(append_sid("{$phpbb_root_path}index.$phpEx"));
 		}
-
-		$module->load('ucp', 'register');
-		$module->display($user->lang['REGISTER']);
-	break;
-
-	case 'confirm':
-		$module->load('ucp', 'confirm');
-		exit_handler();
+		
+		header("Location: /roscms/?page=register&amp;target=/forum");
+		exit;
 	break;
 
 	case 'login':
@@ -86,7 +71,8 @@ switch ($mode)
 		{
 			$user->session_kill();
 			$user->session_begin();
-			$message = $user->lang['LOGOUT_REDIRECT'];
+			header("Location: /roscms/?page=logout");
+			exit;
 		}
 		else
 		{
@@ -131,47 +117,6 @@ switch ($mode)
 		);
 
 		page_footer();
-
-	break;
-
-	case 'delete_cookies':
-		
-		// Delete Cookies with dynamic names (do NOT delete poll cookies)
-		if (confirm_box(true))
-		{
-			$set_time = time() - 31536000;
-
-			foreach ($_COOKIE as $cookie_name => $cookie_data)
-			{
-				$cookie_name = str_replace($config['cookie_name'] . '_', '', $cookie_name);
-
-				// Polls are stored as {cookie_name}_poll_{topic_id}, cookie_name_ got removed, therefore checking for poll_
-				if (strpos($cookie_name, 'poll_') !== 0)
-				{
-					$user->set_cookie($cookie_name, '', $set_time);
-				}
-			}
-
-			$user->set_cookie('track', '', $set_time);
-			$user->set_cookie('u', '', $set_time);
-			$user->set_cookie('k', '', $set_time);
-			$user->set_cookie('sid', '', $set_time);
-
-			// We destroy the session here, the user will be logged out nevertheless
-			$user->session_kill();
-			$user->session_begin();
-
-			meta_refresh(3, append_sid("{$phpbb_root_path}index.$phpEx"));
-
-			$message = $user->lang['COOKIES_DELETED'] . '<br /><br />' . sprintf($user->lang['RETURN_INDEX'], '<a href="' . append_sid("{$phpbb_root_path}index.$phpEx") . '">', '</a>');
-			trigger_error($message);
-		}
-		else
-		{
-			confirm_box(false, 'DELETE_COOKIES', '');
-		}
-
-		redirect(append_sid("{$phpbb_root_path}index.$phpEx"));
 
 	break;
 
