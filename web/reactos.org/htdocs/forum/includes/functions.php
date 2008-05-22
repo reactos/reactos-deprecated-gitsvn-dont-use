@@ -16,6 +16,8 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
+require_once("$phpbb_root_path/../roscms/inc/subsys_login.php");
+
 // Common global functions
 
 /**
@@ -2256,211 +2258,49 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 		trigger_error('NO_AUTH_ADMIN');
 	}
 
-	if (isset($_POST['login']))
+	// Login using RosCMS
+	// The function will return the phpBB user ID if we're already logged in.
+	// Otherwise this function will be automatically called again through validate_session_roscms, when we will be redirected to the forum.
+	$userid = roscms_subsys_login("phpbb", ROSCMS_LOGIN_REQUIRED, "/forum");
+	
+	// If authentication is successful we redirect user to previous page
+	$result = $auth->login($userid, '', true, true, $admin);
+
+	// If admin authentication and login, we will log if it was a success or not...
+	// We also break the operation on the first non-success login - it could be argued that the user already knows
+	if ($admin)
 	{
-		// Get credential
-		if ($admin)
+		if ($result['status'] == LOGIN_SUCCESS)
 		{
-			$credential = request_var('credential', '');
-
-			if (strspn($credential, 'abcdef0123456789') !== strlen($credential) || strlen($credential) != 32)
-			{
-				if ($user->data['is_registered'])
-				{
-					add_log('admin', 'LOG_ADMIN_AUTH_FAIL');
-				}
-				trigger_error('NO_AUTH_ADMIN');
-			}
-
-			$password	= request_var('password_' . $credential, '', true);
+			add_log('admin', 'LOG_ADMIN_AUTH_SUCCESS');
 		}
 		else
 		{
-			$password	= request_var('password', '', true);
-		}
-
-		$username	= request_var('username', '', true);
-		$autologin	= (!empty($_POST['autologin'])) ? true : false;
-		$viewonline = (!empty($_POST['viewonline'])) ? 0 : 1;
-		$admin 		= ($admin) ? 1 : 0;
-		$viewonline = ($admin) ? $user->data['session_viewonline'] : $viewonline;
-
-		// Check if the supplied username is equal to the one stored within the database if re-authenticating
-		if ($admin && utf8_clean_string($username) != utf8_clean_string($user->data['username']))
-		{
-			// We log the attempt to use a different username...
-			add_log('admin', 'LOG_ADMIN_AUTH_FAIL');
-			trigger_error('NO_AUTH_ADMIN_USER_DIFFER');
-		}
-
-		// If authentication is successful we redirect user to previous page
-		$result = $auth->login($username, $password, $autologin, $viewonline, $admin);
-
-		// If admin authentication and login, we will log if it was a success or not...
-		// We also break the operation on the first non-success login - it could be argued that the user already knows
-		if ($admin)
-		{
-			if ($result['status'] == LOGIN_SUCCESS)
+			// Only log the failed attempt if a real user tried to.
+			// anonymous/inactive users are never able to go to the ACP even if they have the relevant permissions
+			if ($user->data['is_registered'])
 			{
-				add_log('admin', 'LOG_ADMIN_AUTH_SUCCESS');
+				add_log('admin', 'LOG_ADMIN_AUTH_FAIL');
 			}
-			else
-			{
-				// Only log the failed attempt if a real user tried to.
-				// anonymous/inactive users are never able to go to the ACP even if they have the relevant permissions
-				if ($user->data['is_registered'])
-				{
-					add_log('admin', 'LOG_ADMIN_AUTH_FAIL');
-				}
-			}
-		}
-
-		// The result parameter is always an array, holding the relevant information...
-		if ($result['status'] == LOGIN_SUCCESS)
-		{
-			$redirect = request_var('redirect', "{$phpbb_root_path}index.$phpEx");
-			$message = ($l_success) ? $l_success : $user->lang['LOGIN_REDIRECT'];
-			$l_redirect = ($admin) ? $user->lang['PROCEED_TO_ACP'] : (($redirect === "{$phpbb_root_path}index.$phpEx" || $redirect === "index.$phpEx") ? $user->lang['RETURN_INDEX'] : $user->lang['RETURN_PAGE']);
-
-			// append/replace SID (may change during the session for AOL users)
-			$redirect = reapply_sid($redirect);
-
-			// Special case... the user is effectively banned, but we allow founders to login
-			if (defined('IN_CHECK_BAN') && $result['user_row']['user_type'] != USER_FOUNDER)
-			{
-				return;
-			}
-
-			meta_refresh(3, $redirect);
-			trigger_error($message . '<br /><br />' . sprintf($l_redirect, '<a href="' . $redirect . '">', '</a>'));
-		}
-
-		// Something failed, determine what...
-		if ($result['status'] == LOGIN_BREAK)
-		{
-			trigger_error($result['error_msg']);
-		}
-
-		// Special cases... determine
-		switch ($result['status'])
-		{
-			case LOGIN_ERROR_ATTEMPTS:
-
-				// Show confirm image
-				$sql = 'DELETE FROM ' . CONFIRM_TABLE . "
-					WHERE session_id = '" . $db->sql_escape($user->session_id) . "'
-						AND confirm_type = " . CONFIRM_LOGIN;
-				$db->sql_query($sql);
-
-				// Generate code
-				$code = gen_rand_string(mt_rand(5, 8));
-				$confirm_id = md5(unique_id($user->ip));
-				$seed = hexdec(substr(unique_id(), 4, 10));
-
-				// compute $seed % 0x7fffffff
-				$seed -= 0x7fffffff * floor($seed / 0x7fffffff);
-
-				$sql = 'INSERT INTO ' . CONFIRM_TABLE . ' ' . $db->sql_build_array('INSERT', array(
-					'confirm_id'	=> (string) $confirm_id,
-					'session_id'	=> (string) $user->session_id,
-					'confirm_type'	=> (int) CONFIRM_LOGIN,
-					'code'			=> (string) $code,
-					'seed'			=> (int) $seed)
-				);
-				$db->sql_query($sql);
-
-				$template->assign_vars(array(
-					'S_CONFIRM_CODE'			=> true,
-					'CONFIRM_ID'				=> $confirm_id,
-					'CONFIRM_IMAGE'				=> '<img src="' . append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=confirm&amp;id=' . $confirm_id . '&amp;type=' . CONFIRM_LOGIN) . '" alt="" title="" />',
-					'L_LOGIN_CONFIRM_EXPLAIN'	=> sprintf($user->lang['LOGIN_CONFIRM_EXPLAIN'], '<a href="mailto:' . htmlspecialchars($config['board_contact']) . '">', '</a>'),
-				));
-
-				$err = $user->lang[$result['error_msg']];
-
-			break;
-
-			case LOGIN_ERROR_PASSWORD_CONVERT:
-				$err = sprintf(
-					$user->lang[$result['error_msg']],
-					($config['email_enable']) ? '<a href="' . append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=sendpassword') . '">' : '',
-					($config['email_enable']) ? '</a>' : '',
-					($config['board_contact']) ? '<a href="mailto:' . htmlspecialchars($config['board_contact']) . '">' : '',
-					($config['board_contact']) ? '</a>' : ''
-				);
-			break;
-
-			// Username, password, etc...
-			default:
-				$err = $user->lang[$result['error_msg']];
-
-				// Assign admin contact to some error messages
-				if ($result['error_msg'] == 'LOGIN_ERROR_USERNAME' || $result['error_msg'] == 'LOGIN_ERROR_PASSWORD')
-				{
-					$err = (!$config['board_contact']) ? sprintf($user->lang[$result['error_msg']], '', '') : sprintf($user->lang[$result['error_msg']], '<a href="mailto:' . htmlspecialchars($config['board_contact']) . '">', '</a>');
-				}
-
-			break;
 		}
 	}
 
-	if (!$redirect)
+	// The result parameter is always an array, holding the relevant information...
+	if ($result['status'] == LOGIN_SUCCESS)
 	{
-		// We just use what the session code determined...
-		// If we are not within the admin directory we use the page dir...
-		$redirect = '';
+		$redirect = $admin ? "{$phpbb_root_path}adm/index.$phpEx" : "{$phpbb_root_path}index.$phpEx";
+		
+		// append/replace SID (may change during the session for AOL users)
+		$redirect = reapply_sid($redirect);
 
-		if (!$admin)
+		// Special case... the user is effectively banned, but we allow founders to login
+		if (defined('IN_CHECK_BAN') && $result['user_row']['user_type'] != USER_FOUNDER)
 		{
-			$redirect .= ($user->page['page_dir']) ? $user->page['page_dir'] . '/' : '';
+			return;
 		}
 
-		$redirect .= $user->page['page_name'] . (($user->page['query_string']) ? '?' . htmlspecialchars($user->page['query_string']) : '');
+		header("Location: $redirect");
 	}
-
-	// Assign credential for username/password pair
-	$credential = ($admin) ? md5(unique_id()) : false;
-
-	$s_hidden_fields = array(
-		'redirect'	=> $redirect,
-		'sid'		=> $user->session_id,
-	);
-
-	if ($admin)
-	{
-		$s_hidden_fields['credential'] = $credential;
-	}
-
-	$s_hidden_fields = build_hidden_fields($s_hidden_fields);
-
-	$template->assign_vars(array(
-		'LOGIN_ERROR'		=> $err,
-		'LOGIN_EXPLAIN'		=> $l_explain,
-
-		'U_SEND_PASSWORD' 		=> ($config['email_enable']) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=sendpassword') : '',
-		'U_RESEND_ACTIVATION'	=> ($config['require_activation'] != USER_ACTIVATION_NONE && $config['email_enable']) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=resend_act') : '',
-		'U_TERMS_USE'			=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=terms'),
-		'U_PRIVACY'				=> append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=privacy'),
-
-		'S_DISPLAY_FULL_LOGIN'	=> ($s_display) ? true : false,
-		'S_LOGIN_ACTION'		=> (!$admin) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login') : append_sid("index.$phpEx", false, true, $user->session_id), // Needs to stay index.$phpEx because we are within the admin directory
-		'S_HIDDEN_FIELDS' 		=> $s_hidden_fields,
-
-		'S_ADMIN_AUTH'			=> $admin,
-		'USERNAME'				=> ($admin) ? $user->data['username'] : '',
-
-		'USERNAME_CREDENTIAL'	=> 'username',
-		'PASSWORD_CREDENTIAL'	=> ($admin) ? 'password_' . $credential : 'password',
-	));
-
-	page_header($user->lang['LOGIN'], false);
-
-	$template->set_filenames(array(
-		'body' => 'login_body.html')
-	);
-	make_jumpbox(append_sid("{$phpbb_root_path}viewforum.$phpEx"));
-
-	page_footer();
 }
 
 /**
