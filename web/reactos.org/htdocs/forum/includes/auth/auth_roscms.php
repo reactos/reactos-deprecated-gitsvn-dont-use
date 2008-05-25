@@ -91,10 +91,24 @@ function login_roscms(&$userid, &$password)
 
 function validate_session_roscms(&$user)
 {
-	if($user["user_id"] == ANONYMOUS && $_COOKIE["roscmsusrkey"] != "")
+	global $db;
+	
+	if($_COOKIE["roscmsusrkey"])
 	{
-		// The user is logged in in RosCMS, but not yet in phpBB. Do that now
-		login_box();
+		if($user["user_id"] == ANONYMOUS)
+		{
+			// The user is logged in in RosCMS, but not yet in phpBB. Do that now
+			login_box();
+		}
+		else
+		{
+			// Update the session expiration time
+			$sql = "UPDATE " . ROSCMS_DB_NAME . ".user_sessions " .
+			       "SET usersession_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE) " .
+			       "WHERE usersession_id = '" . $db->sql_escape($_COOKIE["roscmsusrkey"]) . "' " .
+			       "AND usersession_expires IS NOT NULL";
+			$db->sql_query($sql);
+		}
 	}
 	
 	return true;

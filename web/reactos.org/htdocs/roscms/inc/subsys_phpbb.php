@@ -34,7 +34,7 @@ if ( !defined('ROSCMS_SYSTEM'))
 
 require_once("subsys_utils.php");
 
-define('SUBSYS_PHPBB_DBNAME', "publish");
+define('SUBSYS_PHPBB_DBNAME', "forum");
 
 function subsys_phpbb_info_check()
 {
