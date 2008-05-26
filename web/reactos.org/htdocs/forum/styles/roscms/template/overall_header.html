@@ -88,6 +88,8 @@
 
 <body id="phpbb" class="section-{SCRIPT_NAME} {S_CONTENT_DIRECTION}">
 
+<div><a name="top" accesskey="t"></a></div>
+
 <!-- PHP -->
 	readfile("http://www.reactos.org/en/subsys_extern_menu_top.html");
 	readfile("http://www.reactos.org/en/subsys_extern_menu_left.html");
@@ -114,31 +116,27 @@
 		</form>
 		<p></p>
 	<!-- ENDIF -->
-			
-	<div class="navTitle">Account</div>
-	<ol>
-		<!-- IF not S_IS_BOT and S_USER_LOGGED_IN -->
-			<li><a href="{U_PROFILE}" title="{L_PROFILE}" accesskey="u">{L_PROFILE}</a></li>
-			<!-- IF S_DISPLAY_PM --> <li><a href="{U_PRIVATEMSGS}">{PRIVATE_MESSAGE_INFO}</a></li><!-- ENDIF -->
-			<li><a href="{U_SEARCH_SELF}">{L_SEARCH_SELF}</a></li>
-			
-			<!-- IF U_RESTORE_PERMISSIONS -->
-			<li><a href="{U_RESTORE_PERMISSIONS}">{L_RESTORE_PERMISSIONS}</a></li>
+	
+	<!-- IF not S_IS_BOT -->
+		<div class="navTitle">Account</div>
+		<ol>
+			<!-- IF S_USER_LOGGED_IN -->
+				<li><a href="{U_PROFILE}" title="{L_PROFILE}" accesskey="u">{L_PROFILE}</a></li>
+				<!-- IF S_DISPLAY_PM --><li><a href="{U_PRIVATEMSGS}">{PRIVATE_MESSAGE_INFO}</a></li><!-- ENDIF -->
+				<li><a href="{U_SEARCH_SELF}">{L_SEARCH_SELF}</a></li>
+				<!-- IF U_RESTORE_PERMISSIONS --><li><a href="{U_RESTORE_PERMISSIONS}">{L_RESTORE_PERMISSIONS}</a></li><!-- ENDIF -->
 			<!-- ENDIF -->
-		<!-- ENDIF -->
-		
-		<!-- IF not S_IS_BOT -->
+			
 			<!-- IF not S_USER_LOGGED_IN and S_REGISTER_ENABLED --><li><a href="{U_REGISTER}">{L_REGISTER}</a></li><!-- ENDIF -->
 			<li><a href="{U_LOGIN_LOGOUT}" title="{L_LOGIN_LOGOUT}" accesskey="l">{L_LOGIN_LOGOUT}</a></li>
-		<!-- ENDIF -->
-	</ol>
+		</ol>
+	<!-- ENDIF -->
 </td>
 <td>
 
 <div class="contentSmallTitle"><a href="http://www.reactos.org/en/community.html">ReactOS Community</a> &gt; ReactOS Forum</div>
 
 <div id="wrap">
-	<a id="top" name="top" accesskey="t"></a>
 	<div id="page-header">
 		<div class="navbar">
 			<div class="inner"><span class="corners-top"><span></span></span>
