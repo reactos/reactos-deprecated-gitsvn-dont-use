@@ -191,16 +191,17 @@ function subsys_phpbb_add_phpbb_user($roscms_user_id,
            "        $roscms_user_register)";
   mysql_query($query) or die("DB error (subsys_phpbb #10)");
 
-  /* Create a group for the user */
-  $query = "INSERT INTO " . SUBSYS_PHPBB_DBNAME . ".phpbb_groups " .
-           "       (group_type, group_name, group_description) " .
-           "VALUES (1, '', 'Personal User')";
-  mysql_query($query) or die("DB error (subsys_phpbb #18)");
-
-  /* Put the user in her own group */
+  /* Put the user in the REGISTERED group */
+  $query = "SELECT group_id FROM " . SUBSYS_PHPBB_DBNAME . ".phpbb_groups WHERE group_name = 'REGISTERED'";
+  $result = mysql_query($query) or die("DB error (subsys_phpbb #18)");
+  $group_id = (int)mysql_result($result, 0);
+  
+  if(!$group_id)
+  	die("DB error (subsys_phpbb #20)");
+  
   $query = "INSERT INTO " . SUBSYS_PHPBB_DBNAME . ".phpbb_user_group " .
            "       (group_id, user_id, user_pending) " .
-           "VALUES (LAST_INSERT_ID(), $phpbb_user_id, 0)";
+           "VALUES ($group_id, $phpbb_user_id, 0)";
   mysql_query($query) or die("DB error (subsys_phpbb #19)");
 
   /* Finally, insert a row in the mapping table */
