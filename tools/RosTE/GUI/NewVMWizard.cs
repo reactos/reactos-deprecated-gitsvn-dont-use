@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.IO;
 
@@ -81,9 +82,9 @@ namespace RosTEGUI
 
         private void wizardDefaultDirPage_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
-            if (defaultDirTxtBox.Text == "")
+            if (!Directory.Exists(defaultDirTxtBox.Text))
             {
-                MessageBox.Show("You must enter a name", "Error");
+                MessageBox.Show("You must enter a valid path", "Error");
                 e.Page = defaultDirInfoPage;
             }
         }
@@ -147,22 +148,22 @@ namespace RosTEGUI
 
         private void wizardHardDiskPage_Enter(object sender, EventArgs e)
         {
-            DriveInfo di = new DriveInfo(defaultDirTxtBox.Text);
-            long AvailInMB = di.AvailableFreeSpace / (long)Math.Pow(1024, 2);
+			DriveInfo di = new DriveInfo(defaultDirTxtBox.Text);
+			long AvailInMB = di.AvailableFreeSpace / (long)Math.Pow(1024, 2);
 
-            if (AvailInMB > 20480) AvailInMB = 20480;
+			if (AvailInMB > 20480) AvailInMB = 20480;
 
-            harddiskTrkBar.Minimum = 100;
-            harddiskTrkBar.Maximum = Convert.ToInt32(AvailInMB);
-            harddiskTrkBar.SmallChange = 100;
-            harddiskTrkBar.TickFrequency = 50;
-            harddiskUpDwn.Minimum = 100;
-            harddiskUpDwn.Maximum = harddiskTrkBar.Maximum;
-            harddiskUpDwn.Increment = 100;
+			harddiskTrkBar.Minimum = 100;
+			harddiskTrkBar.Maximum = Convert.ToInt32(AvailInMB);
+			harddiskTrkBar.SmallChange = 100;
+			harddiskTrkBar.TickFrequency = 50;
+			harddiskUpDwn.Minimum = 100;
+			harddiskUpDwn.Maximum = harddiskTrkBar.Maximum;
+			harddiskUpDwn.Increment = 100;
 
-            harddiskDiskLab.Text = di.Name;
-            harddiskDiskSizeLab.Text = Convert.ToString(AvailInMB) + " MB";
-            harddiskRecMinLab.Text = "100 MB";
+			harddiskDiskLab.Text = di.Name;
+			harddiskDiskSizeLab.Text = Convert.ToString(AvailInMB) + " MB";
+			harddiskRecMinLab.Text = "100 MB";
         }
 
         private void wizardMemoryPage_Enter(object sender, EventArgs e)
@@ -225,7 +226,8 @@ namespace RosTEGUI
 
         private void defaultDirInfoPage_Enter(object sender, EventArgs e)
         {
-            defaultDirTxtBox.Text = mainConf.DefVmPath + '\\' + VMName;
+			if(mainConf.DefVmPath != null && mainConf.DefVmPath != "")
+				defaultDirTxtBox.Text = mainConf.DefVmPath + '\\' + VMName;
         }
     }
 }
