@@ -183,9 +183,10 @@ function subsys_phpbb_add_phpbb_user($roscms_user_id,
   $phpbb_user_id = $user_id_row['last_user_id'] + 1;
   
   $query = "INSERT INTO " . SUBSYS_PHPBB_DBNAME . ".phpbb_users " .
-           "       (user_id, username, user_password, user_email, user_regdate) " .
+           "       (user_id, username, username_clean, user_password, user_email, user_regdate) " .
            "VALUES ($phpbb_user_id, " .
            "        '" . mysql_real_escape_string($roscms_user_name) .  "', " .
+           "        '" . mysql_real_escape_string(strtolower($roscms_user_name)) .  "', " .
            "        '" . mysql_real_escape_string($roscms_user_password) . "', " .
            "        '" . mysql_real_escape_string($roscms_user_email) . "', " .
            "        $roscms_user_register)";
