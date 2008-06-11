@@ -16,8 +16,6 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-require_once("$phpbb_root_path/../roscms/inc/subsys_login.php");
-
 // Common global functions
 
 /**
@@ -2257,14 +2255,9 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 		}
 		trigger_error('NO_AUTH_ADMIN');
 	}
-
-	// Login using RosCMS
-	// The function will return the phpBB user ID if we're already logged in.
-	// Otherwise this function will be automatically called again through validate_session_roscms, when we will be redirected to the forum.
-	$userid = roscms_subsys_login("phpbb", ROSCMS_LOGIN_REQUIRED, "/forum");
 	
-	// If authentication is successful we redirect user to previous page
-	$result = $auth->login($userid, '', true, true, $admin);
+	// Don't pass anything here, login_roscms will call roscms_subsys_login on its own.
+	$result = $auth->login('', '', false, true, $admin);
 
 	// If admin authentication and login, we will log if it was a success or not...
 	// We also break the operation on the first non-success login - it could be argued that the user already knows
