@@ -3,7 +3,7 @@
 # LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 # FILE:        Root/MinGW.ps1
 # PURPOSE:     This script provides/sets up a standard MinGW build environment.
-# COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+# COPYRIGHT:   Copyright 2008 Daniel Reimer <reimer.daniel@freenet.de>
 #
 #
 

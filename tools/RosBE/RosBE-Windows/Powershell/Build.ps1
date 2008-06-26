@@ -52,7 +52,7 @@ if ($_ROSBE_USECCACHE -ne $null) {
 # it accordingly.
 #
 if ($_ROSBE_OBJPATH -ne $null) {
-    if ( Test-Path "$_ROSBE_OBJPATH") {
+    if (Test-Path "$_ROSBE_OBJPATH") {
         "ERROR: The path specified doesn't seem to exist."
         exit
     } else {
