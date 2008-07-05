@@ -21,10 +21,7 @@
 static FILE *logfile;
 
 #ifdef _WIN32
-int fchmod(int fildes, mode_t mode)
-{
-    return 0;
-}
+#define fchmod(a, b)
 #endif
 
 #ifndef HAVE_MKSTEMP
@@ -255,7 +252,7 @@ void traverse(const char *dir, void (*fn)(const char *, struct stat *))
 	d = opendir(dir);
 	if (!d) return;
 
-	while ((de = readdir(d))) {
+	while ((de = readdir(d)) != 0) {
 		char *fname;
 		struct stat st;
 
@@ -450,7 +447,7 @@ char *gnu_getcwd(void)
 {
 	unsigned size = 128;
 
-	while (1) {
+	for(;;) {
 		char *buffer = (char *)x_malloc(size);
 		if (_getcwd(buffer, size) == buffer) {
 			return buffer;
@@ -486,7 +483,7 @@ const char *get_home_directory(void)
 #ifdef _WIN32
     static char szPath[MAX_PATH];
 
-    // "Documents and Settings\user\Application Data" is CSIDL_APPDATA
+    /* "Documents and Settings\user\Application Data" is CSIDL_APPDATA */
     if(SHGetSpecialFolderPathA(NULL, szPath, CSIDL_PROFILE, FALSE))
     {
         return szPath;

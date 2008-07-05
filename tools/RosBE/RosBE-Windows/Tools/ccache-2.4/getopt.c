@@ -74,7 +74,7 @@ getopt(int nargc, char * const *nargv, const char *ostr)
 		}
 	}					/* option letter okay? */
 	if ((optopt = (int)*place++) == (int)':' ||
-	    !(oli = strchr(ostr, optopt))) {
+	    (oli = strchr(ostr, optopt)) == NULL) {
 		/*
 		 * if the user didn't specify '-' as an option,
 		 * assume it means EOF.
@@ -84,7 +84,7 @@ getopt(int nargc, char * const *nargv, const char *ostr)
 		if (!*place)
 			++optind;
 		if (opterr) {
-			if (!(p = strrchr(*nargv, '/')))
+			if ((p = strrchr(*nargv, '/')) == NULL)
 				p = *nargv;
 			else
 				++p;
@@ -103,7 +103,7 @@ getopt(int nargc, char * const *nargv, const char *ostr)
 			optarg = place;
 		else if (nargc <= ++optind) {	/* no arg */
 			place = EMSG;
-			if (!(p = strrchr(*nargv, '/')))
+			if ((p = strrchr(*nargv, '/')) == NULL)
 				p = *nargv;
 			else
 				++p;

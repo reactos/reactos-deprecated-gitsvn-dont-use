@@ -73,7 +73,7 @@ readdir (DIR * dir)
 
   entry.d_off = dir->filepos;
   strncpy (entry.d_name, find->cFileName, sizeof (entry.d_name));
-  entry.d_reclen = strlen (find->cFileName);
+  entry.d_reclen = (unsigned short)strlen (find->cFileName);
   dir->filepos++;
   return &entry;
 }

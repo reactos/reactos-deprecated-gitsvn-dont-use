@@ -92,7 +92,7 @@ int execute(char **argv,
     _close(fd);
 
     /* Spawn process (_exec* familly doesn't return) */
-    status = _spawnv(_P_WAIT, argv[0], argv);
+    status = _spawnv(_P_WAIT, argv[0], (const char* const*)argv);
 
  out:
     cc_log("%s:\n  stdout -> %s\n  stderr -> %s\n  process status=%i\n",
@@ -115,7 +115,13 @@ int execute(char **argv,
 */
 char is_exec_file(const char *fname, const char *exclude_name)
 {
-	struct stat st1, st2;
+    struct stat st2;
+
+#ifdef _WIN32
+    UNREFERENCED_PARAMETER(exclude_name);
+#else
+    struct stat st1;
+#endif
 
     if (access(fname, 0) == 0 &&
 #ifndef _WIN32 /* Symlinks not used under windows */
