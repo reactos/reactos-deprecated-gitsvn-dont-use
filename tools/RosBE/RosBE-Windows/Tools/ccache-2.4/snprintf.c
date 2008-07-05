@@ -329,7 +329,7 @@ static size_t dopr(char *buffer, size_t maxlen, const char *format, va_list args
 					fvalue = va_arg (args, double);
 				break;
 			case 'c':
-				dopr_outch (buffer, &currlen, maxlen, va_arg (args, int));
+				dopr_outch (buffer, &currlen, maxlen, (char)va_arg (args, int));
 				break;
 			case 's':
 				strvalue = va_arg (args, char *);
@@ -348,7 +348,7 @@ static size_t dopr(char *buffer, size_t maxlen, const char *format, va_list args
 				if (cflags == DP_C_SHORT) {
 					short int *num;
 					num = va_arg (args, short int *);
-					*num = currlen;
+					*num = (short)currlen;
 				} else if (cflags == DP_C_LONG) {
 					long int *num;
 					num = va_arg (args, long int *);
@@ -437,7 +437,7 @@ static void fmtstr(char *buffer, size_t *currlen, size_t maxlen,
 static void fmtint(char *buffer, size_t *currlen, size_t maxlen,
 		    long value, int base, int min, int max, int flags)
 {
-	int signvalue = 0;
+	char signvalue = 0;
 	unsigned long uvalue;
 	char convert[20];
 	int place = 0;
@@ -496,7 +496,7 @@ static void fmtint(char *buffer, size_t *currlen, size_t maxlen,
 	}
 
 	/* Sign */
-	if (signvalue) 
+	if (signvalue)
 		dopr_outch (buffer, currlen, maxlen, signvalue);
 
 	/* Zeros */
@@ -556,7 +556,7 @@ static LLONG ROUND(LDOUBLE value)
 static double my_modf(double x0, double *iptr)
 {
 	int i;
-	long l;
+	long l = 0;
 	double x = x0;
 	double f = 1.0;
 
@@ -590,7 +590,7 @@ static double my_modf(double x0, double *iptr)
 static void fmtfp (char *buffer, size_t *currlen, size_t maxlen,
 		   LDOUBLE fvalue, int min, int max, int flags)
 {
-	int signvalue = 0;
+	char signvalue = 0;
 	double ufvalue;
 	char iconvert[311];
 	char fconvert[311];

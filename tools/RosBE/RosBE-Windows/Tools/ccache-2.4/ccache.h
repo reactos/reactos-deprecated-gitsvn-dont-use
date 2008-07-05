@@ -44,7 +44,11 @@
  #define link(filename, linkname) CreateHardLinkA(linkname, filename, NULL)
  #define PROT_READ 0x0001
  #define MAP_PRIVATE 0x02
- typedef int mode_t;
+
+ #ifdef _MSC_VER
+  typedef unsigned int mode_t;
+ #endif
+
  #ifndef S_ISREG
   #define S_ISREG(m) ((m & _S_IFREG) == _S_IFREG)
  #endif
@@ -62,7 +66,10 @@
  #define PATH_SEP USUAL_PATH_SEP
  #define PATH_SEP_CHAR USUAL_PATH_SEP_CHAR
  #define DEV_NULL "/dev/null"
+
+ char *x_realpath(const char *path);
 #endif
+
 #include <fcntl.h>
 #include <time.h>
 #include <string.h>
@@ -142,7 +149,6 @@ char *dirname(char *s);
 int lock_fd(int fd);
 size_t file_size(struct stat *st);
 int safe_open(const char *fname);
-char *x_realpath(const char *path);
 char *gnu_getcwd(void);
 int create_empty_file(const char *fname);
 const char *get_home_directory(void);

@@ -126,7 +126,7 @@ static void failed(void)
 {
 	char *e;
 #ifdef _WIN32
-	STARTUPINFO si;
+	STARTUPINFOA si;
 	PROCESS_INFORMATION pi;
 	char* merged = build_command(orig_args->argv);
 #endif
@@ -150,7 +150,7 @@ static void failed(void)
 	/* strip any local args */
 	args_strip(orig_args, "--ccache-");
 
-	if ((e=getenv("CCACHE_PREFIX"))) {
+	if ((e=getenv("CCACHE_PREFIX")) != NULL) {
 		char *p = find_executable(e, MYNAME);
 		if (!p) {
 			perror(e);
@@ -160,10 +160,10 @@ static void failed(void)
 	}
 
 #ifdef _WIN32
-	ZeroMemory(&si, sizeof(STARTUPINFO));
+	ZeroMemory(&si, sizeof(STARTUPINFOA));
 	ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
 
-	si.cb = sizeof(STARTUPINFO);
+	si.cb = sizeof(STARTUPINFOA);
 
 	if(!CreateProcessA(orig_args->argv[0], merged, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
 	{
@@ -334,7 +334,7 @@ static void find_hash(ARGS *args)
 	char *input_base;
 	char *tmp;
 	
-	if ((s = getenv("CCACHE_NLEVELS"))) {
+	if ((s = getenv("CCACHE_NLEVELS")) != NULL) {
 		nlevels = atoi(s);
 		if (nlevels < 1) nlevels = 1;
 		if (nlevels > 8) nlevels = 8;
@@ -646,7 +646,7 @@ static void find_compiler(int argc, char **argv)
 	}
 
 	/* support user override of the compiler */
-	if ((path=getenv("CCACHE_CC"))) {
+	if ((path=getenv("CCACHE_CC")) != NULL) {
 		base = strdup(path);
 	}
 
@@ -874,7 +874,7 @@ static void process_args(int argc, char **argv)
 	if (!output_file) {
 		char *p;
 		output_file = x_strdup(input_file);
-		if ((p = strrchr(output_file, PATH_SEP_CHAR))) {
+		if ((p = strrchr(output_file, PATH_SEP_CHAR)) != NULL) {
 			output_file = p+1;
 		}
 		p = strrchr(output_file, '.');
@@ -894,7 +894,7 @@ static void process_args(int argc, char **argv)
 		failed();
 	}
 
-	if ((e=getenv("CCACHE_PREFIX"))) {
+	if ((e=getenv("CCACHE_PREFIX")) != NULL) {
 		char *p = find_executable(e, MYNAME);
 		if (!p) {
 			perror(e);
