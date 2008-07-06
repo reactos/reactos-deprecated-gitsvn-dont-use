@@ -238,10 +238,40 @@ static void unify(unsigned char *p, size_t size)
 */
 int unify_hash(const char *fname)
 {
+#ifdef _WIN32
+    HANDLE file;
+    HANDLE section;
+    MEMORY_BASIC_INFORMATION minfo;
+    char *map;
+
+    file = CreateFileA(fname, GENERIC_READ, FILE_SHARE_READ, NULL,
+                      OPEN_EXISTING, 0, NULL);
+    if (file == INVALID_HANDLE_VALUE)
+           return -1;
+
+    section = CreateFileMappingA(file, NULL, PAGE_READONLY, 0, 0, NULL);
+    CloseHandle(file);
+    if (section == NULL)
+           return -1;
+
+    map = MapViewOfFile(section, FILE_MAP_READ, 0, 0, 0);
+    CloseHandle(section);
+    if (map == NULL)
+           return -1;
+
+    if (VirtualQuery(map, &minfo, sizeof(minfo)) != sizeof(minfo)) {
+           UnmapViewOfFile(map);
+           return -1;
+    }
+
+    /* pass it through the unifier */
+    unify((unsigned char *)map, minfo.RegionSize);
+
+    UnmapViewOfFile(map);
+#else
 	int fd;
 	struct stat st;	
 	char *map;
-	HANDLE view;
 
 	fd = open(fname, O_RDONLY|O_BINARY);
 	if (fd == -1 || fstat(fd, &st) != 0) {
@@ -250,33 +280,6 @@ int unify_hash(const char *fname)
 		return -1;
 	}
 
-#ifdef _WIN32
-    /* win32 equivalent of mmap is ViewMapOfFile, but malloc+read
-       may be better */
-    view = CreateFileMapping((HANDLE)_get_osfhandle(fd), NULL,
-                                    PAGE_READONLY|SEC_COMMIT, 0,0 , NULL);
-    if (NULL == view) {
-        cc_log("Failed to create file mapping %s: %s\n",
-               fname, strerror(errno));
-		stats_update(STATS_PREPROCESSOR);
-		return -1;
-	}
-
-	map = MapViewOfFile(view, FILE_MAP_READ, 0, 0, st.st_size);
-    if (NULL == map) {
-        cc_log("Failed to map view of file %s: %s\n",
-               fname, strerror(errno));
-		stats_update(STATS_PREPROCESSOR);
-		return -1;
-	}
-
-	/* pass it through the unifier */
-	unify((unsigned char *)map, st.st_size);
-
-    UnmapViewOfFile(map);
-    CloseHandle(view);
-    close(fd);
-#else
 	/* we use mmap() to make it easy to handle arbitrarily long
            lines in preprocessor output. I have seen lines of over
            100k in length, so this is well worth it */
@@ -292,6 +295,7 @@ int unify_hash(const char *fname)
 
 	munmap(map, st.st_size);
 #endif
+
 	return 0;
 }
 

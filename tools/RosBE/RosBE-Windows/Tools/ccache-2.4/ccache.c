@@ -165,7 +165,7 @@ static void failed(void)
 
 	si.cb = sizeof(STARTUPINFOA);
 
-	if(!CreateProcessA(orig_args->argv[0], merged, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	if(!CreateProcessA(orig_args->argv[0], merged, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
 	{
 		perror(orig_args->argv[0]);
 		exit(1);

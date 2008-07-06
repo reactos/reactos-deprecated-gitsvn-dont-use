@@ -18,16 +18,90 @@
 
 #include "ccache.h"
 
+#ifdef _WIN32
+static char *argvtos(char **argv)
+{
+       int i, len;
+       char *ptr, *str;
+
+       for (i = 0, len = 0; argv[i]; i++) {
+               len += strlen(argv[i]) + 3;
+       }
+
+       str = ptr = (char *)malloc(len + 1);
+       if (str == NULL)
+               return NULL;
+
+       for (i = 0; argv[i]; i++) {
+               len = strlen(argv[i]);
+               *ptr++ = '"';
+               memcpy(ptr, argv[i], len);
+               ptr += len;
+               *ptr++ = '"';
+               *ptr++ = ' ';
+       }
+       *ptr = 0;
+
+       return str;
+}
+#endif
 
 /*
   execute a compiler backend, capturing all output to the given paths
   the full path to the compiler to run is in argv[0]
 */
-int execute(char **argv, 
+int execute(char **argv,
 	    const char *path_stdout,
 	    const char *path_stderr)
 {
-#ifndef _WIN32
+#ifdef _WIN32
+    PROCESS_INFORMATION pinfo;
+    STARTUPINFOA sinfo;
+    BOOL ret;
+    DWORD exitcode;
+    char *args;
+    HANDLE fd_out, fd_err;
+    SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
+
+    fd_out = CreateFileA(path_stdout, GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (fd_out == INVALID_HANDLE_VALUE) {
+           return STATUS_NOCACHE;
+    }
+
+    fd_err = CreateFileA(path_stderr, GENERIC_WRITE, 0, &sa, CREATE_ALWAYS,
+                        FILE_ATTRIBUTE_NORMAL, NULL);
+    if (fd_err == INVALID_HANDLE_VALUE) {
+           return STATUS_NOCACHE;
+    }
+
+    ZeroMemory(&pinfo, sizeof(PROCESS_INFORMATION));
+    ZeroMemory(&sinfo, sizeof(STARTUPINFOA));
+
+    sinfo.cb = sizeof(STARTUPINFOA);
+    sinfo.hStdError = fd_err;
+    sinfo.hStdOutput = fd_out;
+    sinfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    sinfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    args = argvtos(argv);
+
+    ret = CreateProcessA(argv[0], args, NULL, NULL, TRUE, 0, NULL, NULL,
+                        &sinfo, &pinfo);
+
+    free(args);
+    CloseHandle(fd_out);
+    CloseHandle(fd_err);
+
+    if (ret == 0)
+           return -1;
+
+    WaitForSingleObject(pinfo.hProcess, INFINITE);
+    GetExitCodeProcess(pinfo.hProcess, &exitcode);
+    CloseHandle(pinfo.hProcess);
+    CloseHandle(pinfo.hThread);
+
+    return exitcode;
+#else
 	pid_t pid;
 	int status;
 
@@ -65,46 +139,6 @@ int execute(char **argv,
 	}
 
 	return WEXITSTATUS(status);
-#else /* Should be portable */
-    int   status = -2;
-    int   fd, std_od = -1, std_ed = -1;
-
-    unlink(path_stdout);
-    std_od = _dup(1);
-    fd = _open(path_stdout, O_WRONLY|O_CREAT|O_TRUNC|O_EXCL|O_BINARY, 0666);
-    if (fd == -1) {
-        status = STATUS_NOCACHE;
-        cc_log("stdout error: failed to open %s\n", path_stdout);
-        goto out;
-    }
-    /*std_od = */ _dup2(fd, 1);
-    _close(fd);
-
-    unlink(path_stderr);
-    fd = _open(path_stderr, O_WRONLY|O_CREAT|O_TRUNC|O_EXCL|O_BINARY, 0666);
-    std_ed = _dup(2); 
-    if (fd == -1) {
-        status = STATUS_NOCACHE;
-        cc_log("stderr error: failed to open %s\n", path_stderr);
-        goto out;
-    }
-    /*std_ed =*/ _dup2(fd, 2);
-    _close(fd);
-
-    /* Spawn process (_exec* familly doesn't return) */
-    status = _spawnv(_P_WAIT, argv[0], (const char* const*)argv);
-
- out:
-    cc_log("%s:\n  stdout -> %s\n  stderr -> %s\n  process status=%i\n",
-           argv[0], path_stdout, path_stderr, status);
-    if (status == -1) cc_log("Error %i: %s\n", errno, strerror(errno));
-
-    /* Restore descriptors */
-    if (std_od != -1) _dup2(std_od, 1);
-    if (std_ed != -1) _dup2(std_ed, 2); 
-    _flushall();
-
-    return (status>0);
 #endif
 }
 
@@ -158,11 +192,24 @@ char is_exec_file(const char *fname, const char *exclude_name)
 */
 char *find_executable(const char *name, const char *exclude_name)
 {
+#ifdef _WIN32
+    DWORD ret;
+    char namebuf[MAX_PATH];
+
+    UNREFERENCED_PARAMETER(exclude_name);
+
+    ret = SearchPathA(getenv("CCACHE_PATH"), name, ".exe", sizeof(namebuf), namebuf, NULL);
+    if (ret != 0) {
+           return x_strdup(namebuf);
+    }
+
+    return NULL;
+#else
 	char *path;
 	char *tok;
-	const char *sep = ":";
+	struct stat st1, st2;
 
-	if (*name == PATH_SEP_CHAR) {
+	if (*name == '/') {
 		return x_strdup(name);
 	}
 
@@ -177,37 +224,40 @@ char *find_executable(const char *name, const char *exclude_name)
 
 	path = x_strdup(path);
 	
-	/* Determine path separator */
-    if (strchr(path, ';')) sep = ";";
-
 	/* search the path looking for the first compiler of the right name
 	   that isn't us */
-	for (tok=strtok(path, sep); tok; tok = strtok(NULL, sep)) {
+	for (tok=strtok(path,":"); tok; tok = strtok(NULL, ":")) {
 		char *fname;
-		x_asprintf(&fname, "%s"PATH_SEP"%s", tok, name);
+		x_asprintf(&fname, "%s/%s", tok, name);
 		/* look for a normal executable file */
-		
-
-		if (is_exec_file(fname, exclude_name) > 0)
-        {
-			free(path);
-			return fname;
-		}
-		free(fname);
+		if (access(fname, X_OK) == 0 &&
+		    lstat(fname, &st1) == 0 &&
+		    stat(fname, &st2) == 0 &&
+		    S_ISREG(st2.st_mode)) {
+			/* if its a symlink then ensure it doesn't
+                           point at something called exclude_name */
+			if (S_ISLNK(st1.st_mode)) {
+				char *buf = x_realpath(fname);
+				if (buf) {
+					char *p = str_basename(buf);
+					if (strcmp(p, exclude_name) == 0) {
+						/* its a link to "ccache" ! */
+						free(p);
+						free(buf);
+						continue;
+					}
+					free(buf);
+					free(p);
+				}
+			}
 
 			/* found it! */
-#ifdef _WIN32 /* Add .exe under win32 */
-		x_asprintf(&fname, "%s"PATH_SEP"%s.exe", tok, name);
-
-		/* look for a normal executable file */
-        if (is_exec_file(fname, exclude_name) > 0)
-        {
 			free(path);
 			return fname;
 		}
 		free(fname);
-#endif
 	}
-free(path);
+
 	return NULL;
+#endif
 }
