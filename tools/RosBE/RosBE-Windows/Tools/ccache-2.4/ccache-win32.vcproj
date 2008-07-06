@@ -112,7 +112,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
@@ -194,6 +194,10 @@
 			</File>
 			<File
 				RelativePath=".\mdfour.c"
+				>
+			</File>
+			<File
+				RelativePath=".\mkstemp.c"
 				>
 			</File>
 			<File

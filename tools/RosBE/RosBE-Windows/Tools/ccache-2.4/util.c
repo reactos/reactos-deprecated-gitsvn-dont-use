@@ -20,19 +20,6 @@
 
 static FILE *logfile;
 
-#ifdef _WIN32
-#define fchmod(a, b)
-#endif
-
-#ifndef HAVE_MKSTEMP
-/* cheap and nasty mkstemp replacement */
-int mkstemp(char *template)
-{
-	_mktemp(template);
-	return open(template, O_RDWR|O_CREAT|O_EXCL|O_BINARY, 0600);
-}
-#endif
-
 /* log a message to the CCACHE_LOGFILE location */
 void cc_log(const char *format, ...)
 {
@@ -79,7 +66,10 @@ int copy_file(const char *src, const char *dest)
 	char buf[10240];
 	int n;
 	char *tmp_name;
+
+#ifndef _WIN32
 	mode_t mask;
+#endif
 
 	x_asprintf(&tmp_name, "%s.XXXXXX", dest);
 
@@ -109,9 +99,11 @@ int copy_file(const char *src, const char *dest)
 	close(fd1);
 
 	/* get perms right on the tmp file */
+#ifndef _WIN32
 	mask = umask(0);
 	fchmod(fd2, 0666 & ~mask);
 	umask(mask);
+#endif
 
 	/* the close can fail on NFS if out of space */
 	if (close(fd2) == -1) {
@@ -483,8 +475,8 @@ const char *get_home_directory(void)
 #ifdef _WIN32
     static char szPath[MAX_PATH];
 
-    /* "Documents and Settings\user\Application Data" is CSIDL_APPDATA */
-    if(SHGetSpecialFolderPathA(NULL, szPath, CSIDL_PROFILE, FALSE))
+    /* "Documents and Settings\user\Application Data" is CSIDL_LOCAL_APPDATA */
+    if(SHGetSpecialFolderPathA(NULL, szPath, CSIDL_LOCAL_APPDATA, FALSE))
     {
         return szPath;
     }

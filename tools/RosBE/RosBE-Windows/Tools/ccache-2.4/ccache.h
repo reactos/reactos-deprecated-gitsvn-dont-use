@@ -42,8 +42,7 @@
  #define mkdir(dirname, access) _mkdir(dirname)
  #define x_realpath(a) strdup(a)
  #define link(filename, linkname) CreateHardLinkA(linkname, filename, NULL)
- #define PROT_READ 0x0001
- #define MAP_PRIVATE 0x02
+ #define lstat(x, y) stat(x, y)
 
  #ifdef _MSC_VER
   typedef unsigned int mode_t;
@@ -55,7 +54,8 @@
  #ifndef S_ISDIR
   #define S_ISDIR(m) (((m) & _S_IFDIR) == _S_IFDIR)
  #endif
- #define lstat(x, y) stat(x, y)
+
+ int mkstemp (char *template);
 #else
  #include <unistd.h>
  #include <sys/wait.h>
