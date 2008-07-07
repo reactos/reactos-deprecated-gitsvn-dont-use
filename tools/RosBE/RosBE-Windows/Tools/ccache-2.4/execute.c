@@ -21,28 +21,34 @@
 #ifdef _WIN32
 static char *argvtos(char **argv)
 {
-       int i, len;
-       char *ptr, *str;
+    int i, len;
+    char *ptr, *str;
 
-       for (i = 0, len = 0; argv[i]; i++) {
-               len += strlen(argv[i]) + 3;
-       }
+    for (i = 0, len = 0; argv[i]; i++)
+        len += strlen(argv[i]) + 3;
 
-       str = ptr = (char *)malloc(len + 1);
-       if (str == NULL)
-               return NULL;
+    str = ptr = (char *)malloc(len + 1);
+    if (str == NULL)
+        return NULL;
 
-       for (i = 0; argv[i]; i++) {
-               len = strlen(argv[i]);
-               *ptr++ = '"';
-               memcpy(ptr, argv[i], len);
-               ptr += len;
-               *ptr++ = '"';
-               *ptr++ = ' ';
-       }
-       *ptr = 0;
+    for (i = 0; argv[i]; i++)
+    {
+        len = strlen(argv[i]);
 
-       return str;
+        if(argv[i][0] != '"')
+            *ptr++ = '"';
+
+        memcpy(ptr, argv[i], len);
+        ptr += len;
+
+        if(argv[i][len - 1] != '"')
+            *ptr++ = '"';
+
+        *ptr++ = ' ';
+    }
+    *ptr = 0;
+
+    return str;
 }
 #endif
 
