@@ -41,7 +41,7 @@
  #define unlink _unlink
  #define mkdir(dirname, access) _mkdir(dirname)
  #define x_realpath(a) strdup(a)
- #define link(filename, linkname) CreateHardLinkA(linkname, filename, NULL)
+ #define link(filename, linkname) CreateHardLinkA(linkname, filename, NULL) ? 0 : -1
  #define lstat(x, y) stat(x, y)
 
  #ifdef _MSC_VER
