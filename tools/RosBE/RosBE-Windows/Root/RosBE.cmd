@@ -21,7 +21,7 @@ if %_ROSBE_DEBUG% == 1 (
 color 0A
 if not defined APPDATA set APPDATA=%USERPROFILE%
 set PATH=%SystemRoot%\system32;%SystemRoot%
-set _ROSBE_VERSION=1.2
+set _ROSBE_VERSION=1.3
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
 set _ROSBE_MODE=RosBE

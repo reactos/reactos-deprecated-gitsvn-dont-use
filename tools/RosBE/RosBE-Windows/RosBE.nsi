@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "1.2"
+!define PRODUCT_VERSION "1.3"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -17,13 +17,13 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "1.2.0.0"
+VIAddVersionKey /LANG=1033 "FileVersion" "1.3.0.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
 VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
-VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2007 ReactOS Team"
-VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2007 ReactOS Team"
+VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2008 ReactOS Team"
+VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2008 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
 VIProductVersion "1.2.0.0"
 
@@ -192,7 +192,6 @@ Section "ccache - Compiler Cache" SEC06
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
     File /r Components\Tools\ccache.exe
-    File /r Components\Tools\cygwin1.dll
 SectionEnd
 
 Section "GDB - The GNU Project Debugger" SEC07
