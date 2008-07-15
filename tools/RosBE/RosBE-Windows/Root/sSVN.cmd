@@ -23,7 +23,9 @@ if "%1" == "" (
 :: These two are directly parsed to svn.
 ::
 if /i "%1" == "update" (
-    title Updating...
+    title SVN Updating...
+    echo This might take a while, so please be patient.
+    echo.
     if not "%2" == "" (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
     ) else (
@@ -32,7 +34,9 @@ if /i "%1" == "update" (
 goto :EOC
 )
 if /i "%1" == "cleanup" (
-    title Cleaning...
+    title SVN Cleaning...
+    echo This might take a while, so please be patient.
+    echo.
     "%_ROSBE_BASEDIR%\Tools\svn.exe" cleanup
     goto :EOC
 )
@@ -41,7 +45,7 @@ if /i "%1" == "cleanup" (
 ::
 
 if /i "%1" == "create" (
-    title Creating...
+    title SVN Creating...
     if exist ".svn\." (
         echo ERROR: Folder already cotains a reposority.
         goto :EOC
@@ -59,7 +63,9 @@ if /i "%1" == "create" (
 :: its up to date or not.
 ::
 if /i "%1" == "status" (
-    title Status
+    title SVN Status
+    echo This might take a while, so please be patient.
+    echo.
     for /f "usebackq tokens=2" %%i in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info | find "Revision:""`) do set OFFSVN=%%i
     for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
     call :UP
