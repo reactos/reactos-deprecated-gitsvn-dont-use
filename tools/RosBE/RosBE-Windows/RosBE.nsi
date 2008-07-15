@@ -170,8 +170,16 @@ Section "Subversion Tools (svn, ssvn)" SEC04
     File /r Components\Tools\libeay32.dll
     File /r Components\Tools\ssleay32.dll
     File /r Components\Tools\libaprutil.dll
-    File /r Components\Tools\libapriconv.dll
     File /r Components\Tools\libdb44.dll
+    File /r Components\Tools\libapriconv.dll
+    File /r Components\Tools\libsvn_client-1.dll
+    File /r Components\Tools\libsvn_delta-1.dll
+    File /r Components\Tools\libsvn_diff-1.dll
+    File /r Components\Tools\libsvn_fs-1.dll
+    File /r Components\Tools\libsvn_ra-1.dll
+    File /r Components\Tools\libsvn_repos-1.dll
+    File /r Components\Tools\libsvn_subr-1.dll
+    File /r Components\Tools\libsvn_wc-1.dll
     SetOutPath "$INSTDIR\Tools\licenses"
     SetOverwrite try
     File /r Components\Tools\licenses\*.*
@@ -222,7 +230,20 @@ Section "Other Tools (chdefdir and config)" SEC09
     File /r Root\Config.cmd
 SectionEnd
 
-Section -StartMenuShortcuts SEC10
+Section "PowerShell RosBE Version" SEC10
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\sSVN.cmd
+    File /r Components\Powershell\Build.ps1
+    File /r Components\Powershell\Clean.ps1
+    File /r Components\Powershell\Help.ps1
+    File /r Components\Powershell\MinGW.ps1
+    File /r Components\Powershell\RosBE.ps1
+    File /r Components\Powershell\rosbe-gcc-env.ps1
+SectionEnd
+
+Section -StartMenuShortcuts SEC11
     SetShellVarContext current
 
     ;;
@@ -242,7 +263,7 @@ Section -StartMenuShortcuts SEC10
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC11
+Section /o "Desktop Shortcuts" SEC12
     SetShellVarContext current
 
     ;;
@@ -254,7 +275,7 @@ Section /o "Desktop Shortcuts" SEC11
     CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC12
+Section /o "Quick Launch Shortcuts" SEC13
     SetShellVarContext current
 
     ;;
@@ -266,7 +287,7 @@ Section /o "Quick Launch Shortcuts" SEC12
     CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
-Section -Post SEC13
+Section -Post SEC14
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
