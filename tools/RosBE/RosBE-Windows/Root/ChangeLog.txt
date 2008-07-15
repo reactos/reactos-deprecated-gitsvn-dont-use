@@ -2,6 +2,7 @@
 
 - Added: Tool to set the Architecture to build ROS for. (Daniel Reimer)
 - Updated: NASM to 2.03.01 (Daniel Reimer)
+- Updated: NSIS to 2.38 (Daniel Reimer)
 - Updated: Subversion to 1.5 (Daniel Reimer)
 - Updated: GDB to 6.8-3 (Daniel Reimer)
 - Updated: Binutils 2.18.50 Build 20080109. (Daniel Reimer)
