@@ -16,4 +16,3 @@ if [ -f "$_ROSSOURCEDIR/config.rbuild" ]; then
 		exit 1
 	fi
 fi
-

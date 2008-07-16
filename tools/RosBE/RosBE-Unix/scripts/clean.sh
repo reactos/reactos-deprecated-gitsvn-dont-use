@@ -14,7 +14,7 @@ if [ -d "obj-i386" ]; then
 	rm -rf "obj-i386"
 	rm -rf "output-i386"
 	rm -rf "reactos."
-	rm -f "makefile.auto"
+	rm -f "makefile*.auto"
 
 	echo "Done cleaning ReactOS source directory."
 else
