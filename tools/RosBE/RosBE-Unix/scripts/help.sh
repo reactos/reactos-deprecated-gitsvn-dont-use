@@ -22,4 +22,3 @@ echo "                   shortcutted ReactOS source directories."
 echo " version         - Show information about the tool versions."
 
 echo
-
