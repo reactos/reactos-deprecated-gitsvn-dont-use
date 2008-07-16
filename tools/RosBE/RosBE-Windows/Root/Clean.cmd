@@ -64,8 +64,8 @@ if exist "obj-i386\." (
     if exist "reactos\." (
         rd /s /q "reactos" 1> NUL 2> NUL
     )
-    if exist "makefile.auto" (
-        del "makefile.auto" 1> NUL 2> NUL
+    if exist "makefile*.auto" (
+        del "makefile*.auto" 1> NUL 2> NUL
     )
     echo Done cleaning ReactOS source directory.
 ) else (
