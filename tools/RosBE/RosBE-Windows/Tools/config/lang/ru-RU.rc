@@ -15,7 +15,7 @@ BEGIN
   CONTROL "\n\nПример текста", ID_EXAMPLE, "static", WS_CHILD | WS_VISIBLE | WS_TABSTOP | SS_CENTER, 113, 58, 125, 36
   CONTROL "Отображать время компиляции", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 55, 100, 12
   CONTROL "Вести логи", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 143, 100, 12
-  CONTROL "Использовать кэширование", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 70, 100, 12
+  CONTROL "Использовать кеширование", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 70, 100, 12
   CONTROL "Вырезать пустой код при компил.", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 85, 100, 12
   CONTROL "Путь к каталогу объектов", ID_OTHEROBJ, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 178, 100, 12
   CONTROL "Путь к каталогу вывода", ID_OTHEROUT, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 215, 100, 12
@@ -28,7 +28,7 @@ BEGIN
   EDITTEXT ID_OUTDIR, 10, 228, 200, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "...", ID_BROWSEOUT, 215, 228, 30, 13, WS_TABSTOP | WS_DISABLED
   PUSHBUTTON "Сохранить", ID_OK, 63, 250, 59, 16, WS_TABSTOP | WS_DISABLED
-  PUSHBUTTON "Отменить", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
+  PUSHBUTTON "Отмена", ID_CANCEL, 133, 250, 59, 16, WS_TABSTOP
   CONTROL "Введение", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 275, 255, 15
 END
 
@@ -52,7 +52,7 @@ BEGIN
   CLR15, "Ярко-белый"
   MSG_NOGCCFOUND, "Компилятор GCC не найден! Проверьте правильность установки."
   MSG_FILEFAILED, "Невозможно создать файл rosbe-options.cmd"
-  MSG_DIREFAILED, "Failed to create directory!"
+  MSG_DIREFAILED, "Не удалось создать директорию!"
   MSG_SETLOADSUC, "Ранее сохраненные настройки загружены."
   MSG_FINDLOGDIR, "Укажите каталог сохранения лог-файлов:"
   MSG_FINDMGWDIR, "Укажите каталог расположения компилятора MinGW:"
@@ -60,18 +60,18 @@ BEGIN
   MSG_FINDOUTDIR, "Укажите каталог сохранения компилированных файлов:"
   MSG_WARNINGBOX, "Внимание!"
   MSG_EXITCHANGE, "Вы закрываете программу не сохранив настройки?"
-  MSG_INVALIDDIR, "The directory you entered doesn't exist. Do you want to create it?"
+  MSG_INVALIDDIR, "Указанная директория не существует. Создать ее?"
   /* Help Strings */
   HLP_BACKCOLORC, "Выберите цвет фона в окне консоли RosBE"
   HLP_FONTCOLORC, "Выберите цвет шрифта в окне консоли RosBE"
   HLP_SBUILDTIME, "Позволяет видеть время затраченное от начала до конца процесса компиляции"
-  HLP_CCACHEUSED, "Отметьте тут если вы хотите использовать кэш компилятора"
-  HLP_STRIPEDEXE, "Отметьте тут если вы хотите удалить неиспользуемый код из исполняемых файлов"
-  HLP_FINDMGWDIR, "Этот параметр определяет расположение MingW"
+  HLP_CCACHEUSED, "Отметьте если вы хотите использовать кеш компилятора"
+  HLP_STRIPEDEXE, "Отметьте если вы хотите удалить неиспользуемый код из исполняемых файлов"
+  HLP_FINDMGWDIR, "Этот параметр определяет расположение MinGW"
   HLP_FINDLOGDIR, "Этот параметр определяет место сохранения логов"
   HLP_FINDOBJDIR, "Этот параметр определяет место для хранения файлов объектных модулей"
   HLP_FINDOUTDIR, "Этот параметр определяет место для сохранения откомпилированных исполняемых файлов"
   HLP_SAVEBUTTON, "Активное состояние кнопки указывает на возможность сохранения измененных настроек"
   HLP_QUITBUTTON, "Это клавиша позволяет выйти без сохранения изменений"
-  HLP_DEFAULTMSG, "Подсказка по установкам по умолчанию"
+  HLP_DEFAULTMSG, "Помощь по изначальным параметрам"
 END
