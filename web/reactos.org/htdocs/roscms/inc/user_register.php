@@ -366,8 +366,7 @@ $array = array(
       <?php
 		$securityergges="";
 	for($x=0;$x<7;$x++){
-		echo '<td width="12.5%"> 
-        <p><font face="Courier New, Courier, mono">';
+		echo '<td width="12.5%" style="font-family: monospace; font-size: 12pt;">';
 		
 		mt_srand((double)microtime()*1000000);
 		mt_srand((double)microtime()*65000*mt_rand(1,10000));
@@ -388,7 +387,7 @@ $array = array(
 		$securityerg = str_replace("#",$array[$radom3][4],$securityerg);
 		$securityerg = str_replace("+","<br>",$securityerg);
 		echo $securityerg;
-		echo '</font></p></td>';
+		echo '</td>';
 	}
 	?>
     </tr>
