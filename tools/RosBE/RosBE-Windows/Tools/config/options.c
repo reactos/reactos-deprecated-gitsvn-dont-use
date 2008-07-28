@@ -37,12 +37,31 @@ BOOL CreateDir(HWND hwnd, WCHAR* dir)
     return TRUE;
 }
 
+static
+const
+WCHAR*
+getConfigFile() 
+{
+    static WCHAR filename[MAX_PATH];
+    if (SHGetSpecialFolderPathW(NULL, filename, CSIDL_APPDATA, FALSE))
+    {
+        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
+            wcscat(filename, L"\\RosBE\\rosbe-options.cmd");
+    }
+    else
+    {
+        wcscpy(filename, L"rosbe-options.cmd");
+    }
+    return filename;
+}
+
+
 INT
 WriteSettings(POPTIONS_DLG infoPtr)
 {
     INT foreground, background;
     BOOL showtime, writelog, useccache, strip, objstate, outstate;
-    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH], optionsfile[MAX_PATH];
+    WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
     FILE *pFile;
@@ -84,10 +103,7 @@ WriteSettings(POPTIONS_DLG infoPtr)
     }
     CloseHandle(hFile);
 
-    wcscpy(optionsfile, _wgetenv(L"APPDATA"));
-    if ((wcslen(optionsfile) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
-        wcscat(optionsfile, L"\\RosBE\\rosbe-options.cmd");
-    pFile = _wfopen(optionsfile, L"w");
+    pFile = _wfopen(getConfigFile(), L"w");
     if (pFile)
     {
         fwprintf(pFile, L"::\n");
@@ -114,16 +130,12 @@ WriteSettings(POPTIONS_DLG infoPtr)
 VOID LoadSettings(POPTIONS_DLG infoPtr)
 {
     FILE *pFile;
-    WCHAR optionsfile[MAX_PATH];
     WCHAR *ptr, *ptr2;
     WCHAR WTempLine[25+MAX_PATH];
     WCHAR SBTitle[256];
     PSETTINGS LoadedSettings = &infoPtr->Settings;
 
-    wcscpy(optionsfile, _wgetenv(L"APPDATA"));
-    if ((wcslen(optionsfile) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
-        wcscat(optionsfile, L"\\RosBE\\rosbe-options.cmd");
-    pFile = _wfopen(optionsfile, L"r");
+    pFile = _wfopen(getConfigFile(), L"r");
     if (pFile)
     {
         while (fgetws(WTempLine, 24+MAX_PATH, pFile))
