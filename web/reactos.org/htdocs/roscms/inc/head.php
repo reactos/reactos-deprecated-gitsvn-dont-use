@@ -44,18 +44,17 @@ function create_head($page_title, $logo, $roscms_langres)
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
-
-<html lang="de">
+<html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $roscms_langres['charset']; ?>" />
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $roscms_langres['charset']; ?>">
 	<title>ReactOS Homepage - <?php echo $page_title ; ?></title>
-	<meta http-equiv="Pragma" content="no-cache" >
-	<meta name="Copyright" content="ReactOS Foundation" >
-	<meta name="generator" content="RosCMS" >
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta name="Copyright" content="ReactOS Foundation">
+	<meta name="generator" content="RosCMS">
 	<meta name="Content-language" content="<?php echo $roscms_langres['lang_code']; ?>">
-	<meta name="Robots" content="noindex,nofollow" >
-	<link rel="SHORTCUT ICON" href="../favicon.ico" >
-	<link href="<?php echo $roscms_intern_path_server."roscms/"; ?>style.css" type="text/css" rel="stylesheet" />
+	<meta name="Robots" content="noindex,nofollow">
+	<link rel="SHORTCUT ICON" href="../favicon.ico">
+	<link href="<?php echo $roscms_intern_path_server."roscms/"; ?>style.css" type="text/css" rel="stylesheet">
 	
 <?php 
 	if ($logo == "normal") {
