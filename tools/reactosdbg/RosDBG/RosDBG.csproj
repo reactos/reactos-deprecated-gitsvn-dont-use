@@ -73,6 +73,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DebugInfoFile.cs" />
+    <Compile Include="DirectoryChooser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DirectoryChooser.Designer.cs">
+      <DependentUpon>DirectoryChooser.cs</DependentUpon>
+    </Compile>
     <Compile Include="HighLevelInteraction.cs" />
     <Compile Include="HostWindow.cs">
       <SubType>Form</SubType>
@@ -115,6 +121,10 @@
       <DependentUpon>BackTrace.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="DirectoryChooser.resx">
+      <DependentUpon>DirectoryChooser.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="HostWindow.resx">
       <DependentUpon>HostWindow.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -150,6 +160,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="RegisterView.resx">
       <DependentUpon>RegisterView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="SourceView.resx">
@@ -191,6 +205,12 @@
     </Compile>
     <Compile Include="RegisterView.Designer.cs">
       <DependentUpon>RegisterView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="SourceView.cs">
       <SubType>UserControl</SubType>

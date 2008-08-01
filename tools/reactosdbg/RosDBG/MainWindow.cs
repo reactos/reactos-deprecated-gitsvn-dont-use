@@ -21,7 +21,7 @@ namespace RosDBG
         bool mRunning;
         DebugConnection.Mode mConnectionMode;
         ulong mCurrentEip;
-        string mSourceRoot = ".", mCurrentFile;
+        string mSourceRoot = Settings.SourceDirectory, mCurrentFile;
         int mCurrentLine;
         DebugConnection mConnection = new DebugConnection();
         SymbolContext mSymbolContext;
@@ -90,7 +90,7 @@ namespace RosDBG
             mConnection.DebugRegisterChangeEvent += DebugRegisterChangeEvent;
             mConnection.DebugModuleChangedEvent += DebugModuleChangedEvent;
             ComposeTitleString();
-            mSymbolContext.ReactosOutputPath = ".\\output-i386";
+            mSymbolContext.ReactosOutputPath = Settings.OutputDirectory;
         }
 
         void DebugModuleChangedEvent(object sender, DebugModuleChangedEventArgs args)
@@ -243,6 +243,13 @@ namespace RosDBG
         private void continueToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mConnection.Go();
+        }
+
+        private void symbolDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings.ShowSettings();
+            mSourceRoot = Settings.SourceDirectory;
+            mSymbolContext.ReactosOutputPath = Settings.OutputDirectory;
         }
     }
 
