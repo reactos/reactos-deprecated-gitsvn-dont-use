@@ -32,7 +32,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openSourceFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addSymbolFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.symbolDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectSerialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectPipeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,7 +104,6 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openSourceFileToolStripMenuItem,
-            this.addSymbolFileToolStripMenuItem,
             this.symbolDirectoryToolStripMenuItem,
             this.connectSerialToolStripMenuItem,
             this.connectPipeToolStripMenuItem,
@@ -121,17 +119,12 @@
             this.openSourceFileToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.openSourceFileToolStripMenuItem.Text = "Open Source File ...";
             // 
-            // addSymbolFileToolStripMenuItem
-            // 
-            this.addSymbolFileToolStripMenuItem.Name = "addSymbolFileToolStripMenuItem";
-            this.addSymbolFileToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-            this.addSymbolFileToolStripMenuItem.Text = "Add Symbol File ...";
-            // 
             // symbolDirectoryToolStripMenuItem
             // 
             this.symbolDirectoryToolStripMenuItem.Name = "symbolDirectoryToolStripMenuItem";
             this.symbolDirectoryToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-            this.symbolDirectoryToolStripMenuItem.Text = "Symbol Path ...";
+            this.symbolDirectoryToolStripMenuItem.Text = "Settings ...";
+            this.symbolDirectoryToolStripMenuItem.Click += new System.EventHandler(this.symbolDirectoryToolStripMenuItem_Click);
             // 
             // connectSerialToolStripMenuItem
             // 
@@ -360,7 +353,6 @@
         private System.Windows.Forms.ToolStripMenuItem continueToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bugcheckToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openSourceFileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addSymbolFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem symbolDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectSerialToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectPipeToolStripMenuItem;
