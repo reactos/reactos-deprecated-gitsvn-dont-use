@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.IO.Ports;
 using AbstractPipe;
 using DebugProtocol;
 using KDBGProtocol;
@@ -68,7 +69,7 @@ namespace DebugProtocol
     public class DebugConnection
     {
         #region Primary State
-        public enum Mode { ClosedMode, SocketMode }
+        public enum Mode { ClosedMode, SocketMode, SerialMode }
         public Mode ConnectionMode
         {
             get { return mConnectionMode; }
@@ -104,6 +105,10 @@ namespace DebugProtocol
         SocketAsyncEventArgs mAsyncConnect;
         AsyncCallback mDnsLookup;
         IAsyncResult mDnsAsyncResult;
+        #endregion
+
+        #region Serial Mode Members
+        SerialPort mSerialPort;
         #endregion
 
         public event DebugRegisterChangeEventHandler DebugRegisterChangeEvent;
@@ -154,6 +159,33 @@ namespace DebugProtocol
             mDnsAsyncResult = Dns.BeginGetHostEntry(host, mDnsLookup, this);
         }
 
+        public void Start(int baudrate, string port)
+        {
+            Close();
+            ConnectionMode = Mode.SerialMode;
+            mSerialPort = new SerialPort(port, baudrate, Parity.None, 8, StopBits.One);
+            mSerialPort.Handshake = Handshake.None;
+            try
+            {
+                //opening could fail for occupied, not existing or misconfigured ports
+                mSerialPort.Open();
+                //create pipe and kdb instances, connect internal receive pipe 
+                mMedium = new SerialPipe(mSerialPort);
+                mMedium.PipeReceiveEvent += PipeReceiveEvent;
+                mKdb = new KDBG(mMedium);
+                //set up tab handlers
+                mKdb.RegisterChangeEvent += RegisterChangeEvent;
+                mKdb.ModuleListEvent += ModuleListEvent;
+                mKdb.MemoryUpdateEvent += MemoryUpdateEvent;
+                Running = true;
+            }
+            catch (Exception)
+            {
+                ConnectionMode = Mode.ClosedMode;
+                //error signal?
+            }
+        }
+
         public void Close()
         {
             switch (ConnectionMode)
@@ -161,6 +193,11 @@ namespace DebugProtocol
                 case Mode.SocketMode:
                     mSocket.Close();
                     mSocket = null;
+                    break;
+                case Mode.SerialMode:
+                    mSerialPort.Close();
+                    mSerialPort = null;
+                    Running = false;
                     break;
             }
 
@@ -231,7 +268,7 @@ namespace DebugProtocol
                 DebugModuleChangedEvent(this, new DebugModuleChangedEventArgs((uint)args.Address, args.Module));
         }
 
-        void  RegisterChangeEvent(object sender, RegisterChangeEventArgs args)
+        void RegisterChangeEvent(object sender, RegisterChangeEventArgs args)
         {
             args.Registers.CopyTo(mRegisters.RegisterSet);
             Running = false;

@@ -251,6 +251,16 @@ namespace RosDBG
             mSourceRoot = Settings.SourceDirectory;
             mSymbolContext.ReactosOutputPath = Settings.OutputDirectory;
         }
+
+        private void connectSerialToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SerialTargetSelect targetSelect = new SerialTargetSelect();
+            if (targetSelect.ShowDialog() == DialogResult.OK)
+            {
+                mConnection.Close();
+                mConnection.Start(targetSelect.Baudrate, targetSelect.Port);
+            }
+        }
     }
 
     public class InteractiveInputEventArgs : EventArgs

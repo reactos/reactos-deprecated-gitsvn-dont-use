@@ -131,6 +131,7 @@
             this.connectSerialToolStripMenuItem.Name = "connectSerialToolStripMenuItem";
             this.connectSerialToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.connectSerialToolStripMenuItem.Text = "Connect Serial ...";
+            this.connectSerialToolStripMenuItem.Click += new System.EventHandler(this.connectSerialToolStripMenuItem_Click);
             // 
             // connectPipeToolStripMenuItem
             // 
