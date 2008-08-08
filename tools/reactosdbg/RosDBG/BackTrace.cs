@@ -135,8 +135,11 @@ namespace RosDBG
 
         private void StackFrames_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string []parsedEntry = ((string)StackFrames.SelectedItem).Split(new char [] {' '});
-            mSelectedAddr = ulong.Parse(parsedEntry[0], NumberStyles.HexNumber);
+            if (StackFrames.SelectedItem != null) //crashed with argumentnullexception
+            {
+                string[] parsedEntry = ((string)StackFrames.SelectedItem).Split(new char[] { ' ' });
+                mSelectedAddr = ulong.Parse(parsedEntry[0], NumberStyles.HexNumber);
+            }
         }
 
         private void StackFrames_MouseDoubleClick(object sender, MouseEventArgs e)

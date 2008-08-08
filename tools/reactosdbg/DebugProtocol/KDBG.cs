@@ -287,7 +287,10 @@ namespace KDBGProtocol
             {
                 mCommandBuffer.Add(command);
                 if (mCommandBuffer.Count == 1)
+                {
                     mConnection.Write(command + "\r");
+                    mCommandBuffer.RemoveAt(0); //useful???
+                }
             }
         }
 
