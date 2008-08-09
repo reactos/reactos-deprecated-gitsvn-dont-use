@@ -273,7 +273,10 @@ namespace RosDBG
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "Sourcefiles (*.c;*.cpp)|*.c;*.cpp";
             if (fileDialog.ShowDialog() == DialogResult.OK)
-                OpenSourceFile(fileDialog.FileName);  
+            {
+                OpenSourceFile(fileDialog.FileName);
+                WorkTabs.SelectTab(WorkTabs.TabCount - 1);   
+            }
         }
 
         private void WorkTabs_MouseClick(object sender, MouseEventArgs e)
@@ -311,6 +314,13 @@ namespace RosDBG
             SelectTabFromPosition(mMousePosition);
             closeCurrentTabToolStripMenuItem_Click(this, null);
     }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ReactOSWeb Help = new ReactOSWeb("Help", "http://www.reactos.org/wiki/index.php/Debugging");
+            AddTab(Help);
+            WorkTabs.SelectTab(WorkTabs.TabCount - 1);   
+        }
    
     }
 
