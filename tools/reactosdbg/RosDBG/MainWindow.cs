@@ -18,6 +18,7 @@ namespace RosDBG
 
     public partial class MainWindow : Form, IShell
     {
+        Point mMousePosition;
         bool mRunning;
         DebugConnection.Mode mConnectionMode;
         ulong mCurrentEip;
@@ -50,18 +51,22 @@ namespace RosDBG
         void TryToDisplaySource()
         {
             if (mCurrentFile == null || mCurrentFile == "unknown") return;
-            string finalFileName = Path.Combine(mSourceRoot, mCurrentFile);
+            OpenSourceFile(Path.Combine(mSourceRoot, mCurrentFile));
+        }
+
+        private void OpenSourceFile(string FileName)
+        {
             SourceView theSourceView;
-            if (File.Exists(finalFileName))
+            if (File.Exists(FileName))
             {
-                if (mSourceFiles.TryGetValue(finalFileName, out theSourceView))
+                if (mSourceFiles.TryGetValue(FileName, out theSourceView))
                     Rehighlight(theSourceView);
                 else
                 {
-                    theSourceView = new SourceView();
-                    mSourceFiles[finalFileName] = theSourceView;
+                    theSourceView = new SourceView(Path.GetFileName(FileName));
+                    mSourceFiles[FileName] = theSourceView;
                     AddTab(theSourceView);
-                    theSourceView.SourceFile = finalFileName;
+                    theSourceView.SourceFile = FileName;
                     Rehighlight(theSourceView);
                 }
             }
@@ -268,10 +273,44 @@ namespace RosDBG
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "Sourcefiles (*.c;*.cpp)|*.c;*.cpp";
             if (fileDialog.ShowDialog() == DialogResult.OK)
+                OpenSourceFile(fileDialog.FileName);  
+        }
+
+        private void WorkTabs_MouseClick(object sender, MouseEventArgs e)
+        {
+            switch (e.Button) 
             {
-                Console.WriteLine("open sourcefile"); 
+                case MouseButtons.Right:
+                    contextMenuTabStrip.Show(WorkTabs.PointToScreen(e.Location));
+                    mMousePosition = e.Location;
+                    break;
+                case MouseButtons.Middle:
+                    SelectTabFromPosition(e.Location);
+                    closeCurrentTabToolStripMenuItem_Click(this, null);
+                    break;
+                default:
+                    break;
             }
         }
+
+        private void SelectTabFromPosition(Point Position)
+        {
+            for (int i = 0; i < WorkTabs.TabCount; i++)
+            {
+                if (WorkTabs.GetTabRect(i).Contains(Position))
+                {
+                    if (WorkTabs.SelectedIndex != i)
+                        WorkTabs.SelectTab(i);
+                    break;
+                }
+            }
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SelectTabFromPosition(mMousePosition);
+            closeCurrentTabToolStripMenuItem_Click(this, null);
+    }
    
     }
 

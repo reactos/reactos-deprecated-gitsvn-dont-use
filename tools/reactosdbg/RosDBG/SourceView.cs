@@ -59,6 +59,12 @@ namespace RosDBG
             InitializeComponent();
         }
 
+        public SourceView(string FileName)
+        {
+            InitializeComponent();
+            this.Tag = FileName;
+        }
+
         public void UpdateSourceCode()
         {
             SourceCode.Clear();
@@ -73,6 +79,16 @@ namespace RosDBG
             {
                 SourceCode.Text = "Could not load " + mSourceFile + ": " + ex.Message + "\n";
             }
+        }
+
+        private void SourceCode_SelectionChanged(object sender, EventArgs e)
+        {
+            btnCopy.Enabled = (SourceCode.SelectionLength > 0);
+         }
+
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(SourceCode.SelectedText);   
         }
     }
 }
