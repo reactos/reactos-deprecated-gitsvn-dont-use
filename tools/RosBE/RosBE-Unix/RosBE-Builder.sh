@@ -261,12 +261,8 @@ done
 boldmsg "Ready to start"
 
 echo "Ready to build and install the ReactOS Build Environment."
-echo "Press ENTER to continue or any other key to exit."
-read answer
-
-if [ "$answer" != "" ]; then
-	exit 1
-fi
+echo "Press any key to continue or Ctrl+C to exit."
+read
 
 if $update; then
 	setvalues=false
