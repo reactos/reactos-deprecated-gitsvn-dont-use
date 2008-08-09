@@ -52,7 +52,7 @@ namespace DbgHelpAPI
                         Scan(dir);
                     directoriesScanned.Add(dir);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                 }
 
@@ -87,7 +87,7 @@ namespace DbgHelpAPI
                 {
                     Scan(dir);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                 }
             }
