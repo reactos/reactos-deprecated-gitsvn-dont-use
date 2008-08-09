@@ -146,7 +146,8 @@ namespace RosDBG
                                 useshell.SetShell(this);
                             AddTab(ctrl);
                         };
-                    NewWindowItem.DropDownItems.Add(t.Name, null, create);
+                    Control c = (Control)x.GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
+                    NewWindowItem.DropDownItems.Add( c.Tag != null ? c.Tag.ToString() : t.Name, null, create);
 
                     object[] buildNow = t.GetCustomAttributes(typeof(BuildAtStartupAttribute), false);
                     if (buildNow.Length > 0)
@@ -160,7 +161,7 @@ namespace RosDBG
             SuspendLayout();
             TabPage tp = new TabPage(ctrl.Text);
             tp.Controls.Add(ctrl);
-            tp.Text = ctrl.GetType().Name;
+            tp.Text = ctrl.Tag != null ? ctrl.Tag.ToString() : ctrl.GetType().Name;
             ctrl.Dock = DockStyle.Fill;
             WorkTabs.Controls.Add(tp);
             ResumeLayout();
