@@ -40,7 +40,7 @@
             this.navPaste = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
+            this.BugzillaInput = new System.Windows.Forms.ToolStripTextBox();
             this.BrowserView = new System.Windows.Forms.WebBrowser();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -80,13 +80,12 @@
             this.navPaste,
             this.toolStripSeparator1,
             this.toolStripLabel1,
-            this.toolStripTextBox1});
+            this.BugzillaInput});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(443, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
-            this.toolStrip1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.toolStrip1_KeyUp);
             // 
             // navBack
             // 
@@ -96,7 +95,7 @@
             this.navBack.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.navBack.Name = "navBack";
             this.navBack.Size = new System.Drawing.Size(23, 22);
-            this.navBack.Text = "toolStripButton3";
+            this.navBack.ToolTipText = "Back";
             this.navBack.Click += new System.EventHandler(this.navBack_Click);
             // 
             // navForward
@@ -108,6 +107,7 @@
             this.navForward.Name = "navForward";
             this.navForward.Size = new System.Drawing.Size(23, 22);
             this.navForward.Text = "toolStripButton2";
+            this.navForward.ToolTipText = "Forward";
             this.navForward.Click += new System.EventHandler(this.navForward_Click);
             // 
             // navReload
@@ -118,6 +118,7 @@
             this.navReload.Name = "navReload";
             this.navReload.Size = new System.Drawing.Size(23, 22);
             this.navReload.Text = "toolStripButton1";
+            this.navReload.ToolTipText = "Reload";
             this.navReload.Click += new System.EventHandler(this.navReload_Click);
             // 
             // navHome
@@ -128,6 +129,7 @@
             this.navHome.Name = "navHome";
             this.navHome.Size = new System.Drawing.Size(23, 22);
             this.navHome.Text = "toolStripButton6";
+            this.navHome.ToolTipText = "Home";
             this.navHome.Click += new System.EventHandler(this.navHome_Click);
             // 
             // AddressInput
@@ -152,6 +154,7 @@
             this.navPaste.Name = "navPaste";
             this.navPaste.Size = new System.Drawing.Size(23, 22);
             this.navPaste.Text = "toolStripButton4";
+            this.navPaste.ToolTipText = "Paste";
             this.navPaste.Click += new System.EventHandler(this.navPaste_Click);
             // 
             // toolStripSeparator1
@@ -165,10 +168,11 @@
             this.toolStripLabel1.Size = new System.Drawing.Size(48, 22);
             this.toolStripLabel1.Text = "Bugzilla";
             // 
-            // toolStripTextBox1
+            // BugzillaInput
             // 
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.Size = new System.Drawing.Size(50, 23);
+            this.BugzillaInput.Name = "BugzillaInput";
+            this.BugzillaInput.Size = new System.Drawing.Size(50, 23);
+            this.BugzillaInput.KeyUp += new System.Windows.Forms.KeyEventHandler(this.BugzillaInput_KeyUp);
             // 
             // BrowserView
             // 
@@ -209,7 +213,7 @@
         private System.Windows.Forms.ToolStripButton navPaste;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
-        private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
+        private System.Windows.Forms.ToolStripTextBox BugzillaInput;
         private System.Windows.Forms.ToolStripButton navReload;
         private System.Windows.Forms.ToolStripButton navHome;
     }
