@@ -16,13 +16,20 @@ namespace RosDBG
         {
             InitializeComponent();
             this.Tag = "Web";
-
             BrowserView.CanGoBackChanged += BrowserView_CanGoBackChanged;
             BrowserView.CanGoForwardChanged += BrowserView_CanGoForwardChanged;
-            
             BrowserView.GoHome(); 
         }
-      
+
+        public ReactOSWeb(string Title, string URL)
+        {
+            InitializeComponent();
+            this.Tag = Title;
+            BrowserView.CanGoBackChanged += BrowserView_CanGoBackChanged;
+            BrowserView.CanGoForwardChanged += BrowserView_CanGoForwardChanged;
+            BrowserView.Navigate(URL);              
+        }
+
         private void BrowserView_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
             AddressInput.Text = e.Url.ToString();
