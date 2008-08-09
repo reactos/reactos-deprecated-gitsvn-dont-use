@@ -119,7 +119,9 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.HostChoice);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "TCPTargetSelect";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "TCPTargetSelect";
             ((System.ComponentModel.ISupportInitialize)(this.PortNumber)).EndInit();
             this.ResumeLayout(false);
