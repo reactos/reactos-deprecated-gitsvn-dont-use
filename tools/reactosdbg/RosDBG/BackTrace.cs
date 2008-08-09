@@ -28,6 +28,7 @@ namespace RosDBG
         public BackTrace()
         {
             InitializeComponent();
+            this.Tag = "Backtrace";
         }
 
         public void SetShell(IShell shell)

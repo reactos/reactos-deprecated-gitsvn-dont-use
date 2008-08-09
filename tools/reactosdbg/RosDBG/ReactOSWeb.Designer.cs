@@ -28,16 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ReactOSWeb));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.Paste = new System.Windows.Forms.LinkLabel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.BugzillaNumber = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.AddressInput = new System.Windows.Forms.TextBox();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.navBack = new System.Windows.Forms.ToolStripButton();
+            this.navForward = new System.Windows.Forms.ToolStripButton();
+            this.navReload = new System.Windows.Forms.ToolStripButton();
+            this.navHome = new System.Windows.Forms.ToolStripButton();
+            this.AddressInput = new System.Windows.Forms.ToolStripComboBox();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.navPaste = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
             this.BrowserView = new System.Windows.Forms.WebBrowser();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -51,11 +59,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.Paste);
-            this.splitContainer1.Panel1.Controls.Add(this.label2);
-            this.splitContainer1.Panel1.Controls.Add(this.BugzillaNumber);
-            this.splitContainer1.Panel1.Controls.Add(this.label1);
-            this.splitContainer1.Panel1.Controls.Add(this.AddressInput);
+            this.splitContainer1.Panel1.Controls.Add(this.toolStrip1);
             // 
             // splitContainer1.Panel2
             // 
@@ -64,50 +68,107 @@
             this.splitContainer1.SplitterDistance = 27;
             this.splitContainer1.TabIndex = 0;
             // 
-            // Paste
+            // toolStrip1
             // 
-            this.Paste.AutoSize = true;
-            this.Paste.Location = new System.Drawing.Point(223, 6);
-            this.Paste.Name = "Paste";
-            this.Paste.Size = new System.Drawing.Size(34, 13);
-            this.Paste.TabIndex = 4;
-            this.Paste.TabStop = true;
-            this.Paste.Text = "Paste";
-            this.Paste.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.Paste_LinkClicked);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.navBack,
+            this.navForward,
+            this.navReload,
+            this.navHome,
+            this.AddressInput,
+            this.toolStripSeparator2,
+            this.navPaste,
+            this.toolStripSeparator1,
+            this.toolStripLabel1,
+            this.toolStripTextBox1});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(443, 25);
+            this.toolStrip1.TabIndex = 0;
+            this.toolStrip1.Text = "toolStrip1";
+            this.toolStrip1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.toolStrip1_KeyUp);
             // 
-            // label2
+            // navBack
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(291, 6);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(43, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Bugzilla";
+            this.navBack.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.navBack.Enabled = false;
+            this.navBack.Image = ((System.Drawing.Image)(resources.GetObject("navBack.Image")));
+            this.navBack.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.navBack.Name = "navBack";
+            this.navBack.Size = new System.Drawing.Size(23, 22);
+            this.navBack.Text = "toolStripButton3";
+            this.navBack.Click += new System.EventHandler(this.navBack_Click);
             // 
-            // BugzillaNumber
+            // navForward
             // 
-            this.BugzillaNumber.Location = new System.Drawing.Point(340, 3);
-            this.BugzillaNumber.Name = "BugzillaNumber";
-            this.BugzillaNumber.Size = new System.Drawing.Size(100, 20);
-            this.BugzillaNumber.TabIndex = 2;
-            this.BugzillaNumber.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.BugzillaNumber_KeyPress);
+            this.navForward.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.navForward.Enabled = false;
+            this.navForward.Image = ((System.Drawing.Image)(resources.GetObject("navForward.Image")));
+            this.navForward.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.navForward.Name = "navForward";
+            this.navForward.Size = new System.Drawing.Size(23, 22);
+            this.navForward.Text = "toolStripButton2";
+            this.navForward.Click += new System.EventHandler(this.navForward_Click);
             // 
-            // label1
+            // navReload
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(5, 6);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(45, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Address";
+            this.navReload.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.navReload.Image = ((System.Drawing.Image)(resources.GetObject("navReload.Image")));
+            this.navReload.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.navReload.Name = "navReload";
+            this.navReload.Size = new System.Drawing.Size(23, 22);
+            this.navReload.Text = "toolStripButton1";
+            this.navReload.Click += new System.EventHandler(this.navReload_Click);
+            // 
+            // navHome
+            // 
+            this.navHome.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.navHome.Image = ((System.Drawing.Image)(resources.GetObject("navHome.Image")));
+            this.navHome.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.navHome.Name = "navHome";
+            this.navHome.Size = new System.Drawing.Size(23, 22);
+            this.navHome.Text = "toolStripButton6";
+            this.navHome.Click += new System.EventHandler(this.navHome_Click);
             // 
             // AddressInput
             // 
-            this.AddressInput.Location = new System.Drawing.Point(56, 3);
+            this.AddressInput.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.AddressInput.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.AllUrl;
             this.AddressInput.Name = "AddressInput";
-            this.AddressInput.Size = new System.Drawing.Size(161, 20);
-            this.AddressInput.TabIndex = 0;
-            this.AddressInput.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.AddressInput_KeyPress);
+            this.AddressInput.Size = new System.Drawing.Size(200, 25);
+            this.AddressInput.Sorted = true;
+            this.AddressInput.KeyUp += new System.Windows.Forms.KeyEventHandler(this.AddressInput_KeyUp);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // navPaste
+            // 
+            this.navPaste.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.navPaste.Image = ((System.Drawing.Image)(resources.GetObject("navPaste.Image")));
+            this.navPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.navPaste.Name = "navPaste";
+            this.navPaste.Size = new System.Drawing.Size(23, 22);
+            this.navPaste.Text = "toolStripButton4";
+            this.navPaste.Click += new System.EventHandler(this.navPaste_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(48, 22);
+            this.toolStripLabel1.Text = "Bugzilla";
+            // 
+            // toolStripTextBox1
+            // 
+            this.toolStripTextBox1.Name = "toolStripTextBox1";
+            this.toolStripTextBox1.Size = new System.Drawing.Size(50, 23);
             // 
             // BrowserView
             // 
@@ -130,6 +191,8 @@
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.ResumeLayout(false);
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -137,11 +200,17 @@
         #endregion
 
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox AddressInput;
-        private System.Windows.Forms.LinkLabel Paste;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox BugzillaNumber;
         private System.Windows.Forms.WebBrowser BrowserView;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton navBack;
+        private System.Windows.Forms.ToolStripButton navForward;
+        private System.Windows.Forms.ToolStripComboBox AddressInput;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripButton navPaste;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
+        private System.Windows.Forms.ToolStripButton navReload;
+        private System.Windows.Forms.ToolStripButton navHome;
     }
 }

@@ -46,6 +46,7 @@ namespace RosDBG
         public RawTraffic()
         {
             InitializeComponent();
+            this.Tag = "Raw Traffic";
         }
 
         private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
