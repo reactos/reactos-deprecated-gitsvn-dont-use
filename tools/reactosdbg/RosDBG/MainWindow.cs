@@ -261,6 +261,16 @@ namespace RosDBG
                 mConnection.Start(targetSelect.Baudrate, targetSelect.Port);
             }
         }
+
+        private void openSourceFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Sourcefiles (*.c;*.cpp)|*.c;*.cpp";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                Console.WriteLine("open sourcefile"); 
+            }
+        }
    
     }
 
