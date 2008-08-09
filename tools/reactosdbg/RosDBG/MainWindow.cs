@@ -261,6 +261,7 @@ namespace RosDBG
                 mConnection.Start(targetSelect.Baudrate, targetSelect.Port);
             }
         }
+   
     }
 
     public class InteractiveInputEventArgs : EventArgs
