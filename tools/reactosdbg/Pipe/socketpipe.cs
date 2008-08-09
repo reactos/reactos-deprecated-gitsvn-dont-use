@@ -15,28 +15,31 @@ namespace AbstractPipe
 
         public bool Write(string output)
         {
-            if (mSocket == null) return false;
-            try
+            lock (this)
             {
-                byte[] outbuf = UTF8Encoding.UTF8.GetBytes(output);
-                int off = 0, res;
-                do
+                if (mSocket == null) return false;
+                try
                 {
-                    res = mSocket.Send(outbuf, off, outbuf.Length - off, SocketFlags.None);
-                    if (res > 0)
-                        off += res;
+                    byte[] outbuf = UTF8Encoding.UTF8.GetBytes(output);
+                    int off = 0, res;
+                    do
+                    {
+                        res = mSocket.Send(outbuf, off, outbuf.Length - off, SocketFlags.None);
+                        if (res > 0)
+                            off += res;
+                    }
+                    while (off < outbuf.Length && res != -1);
+                    return off == outbuf.Length;
                 }
-                while (off < outbuf.Length && res != -1);
-                return off == outbuf.Length;
+                catch (System.Net.Sockets.SocketException se)
+                {
+                    mSocket.Close();
+                    if (PipeErrorEvent != null)
+                        PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(se.Message));
+                    return false;
+                }
+                catch (Exception) { return false; }
             }
-            catch (System.Net.Sockets.SocketException se)
-            {
-                mSocket.Close();
-                if (PipeErrorEvent != null)
-                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(se.Message));
-                return false;
-            }
-            catch (Exception) { return false; }
         }
 
         public void TriggerReadable(IAsyncResult result)
