@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -36,6 +37,7 @@
             this.connectSerialToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectPipeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectTCPIPToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.symbolDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,7 +61,8 @@
             this.WorkTabs = new System.Windows.Forms.TabControl();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.RunStatus = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.contextMenuTabStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -68,6 +71,7 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.contextMenuTabStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -121,7 +125,6 @@
             // 
             // openSourceFileToolStripMenuItem
             // 
-            this.openSourceFileToolStripMenuItem.Enabled = false;
             this.openSourceFileToolStripMenuItem.Name = "openSourceFileToolStripMenuItem";
             this.openSourceFileToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.openSourceFileToolStripMenuItem.Text = "Open Source File ...";
@@ -152,6 +155,11 @@
             this.connectTCPIPToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.connectTCPIPToolStripMenuItem.Text = "Connect TCP/IP ...";
             this.connectTCPIPToolStripMenuItem.Click += new System.EventHandler(this.connectTCPIPToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(172, 6);
             // 
             // symbolDirectoryToolStripMenuItem
             // 
@@ -324,6 +332,7 @@
             this.WorkTabs.SelectedIndex = 0;
             this.WorkTabs.Size = new System.Drawing.Size(529, 357);
             this.WorkTabs.TabIndex = 1;
+            this.WorkTabs.MouseClick += new System.Windows.Forms.MouseEventHandler(this.WorkTabs_MouseClick);
             // 
             // statusStrip1
             // 
@@ -340,10 +349,19 @@
             this.RunStatus.Name = "RunStatus";
             this.RunStatus.Size = new System.Drawing.Size(0, 17);
             // 
-            // toolStripMenuItem1
+            // contextMenuTabStrip
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(172, 6);
+            this.contextMenuTabStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.closeToolStripMenuItem});
+            this.contextMenuTabStrip.Name = "contextMenuTabStrip";
+            this.contextMenuTabStrip.Size = new System.Drawing.Size(153, 48);
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.closeToolStripMenuItem.Text = "&Close";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // MainWindow
             // 
@@ -366,6 +384,7 @@
             this.splitContainer2.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.contextMenuTabStrip.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -404,6 +423,8 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuTabStrip;
+        private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
 
     }
 }
