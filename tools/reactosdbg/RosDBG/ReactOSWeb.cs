@@ -70,10 +70,10 @@ namespace RosDBG
                 BrowserView.Navigate(((ToolStripComboBox)sender).Text);
         }
 
-        private void toolStrip1_KeyUp(object sender, KeyEventArgs e)
+        private void BugzillaInput_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
-                BrowserView.Navigate("http://www.reactos.org/bugzilla/show_bug.cgi?id=" + ((TextBox)sender).Text);
+                BrowserView.Navigate("http://www.reactos.org/bugzilla/show_bug.cgi?id=" + ((ToolStripTextBox)sender).Text);
         }
                 
     }
