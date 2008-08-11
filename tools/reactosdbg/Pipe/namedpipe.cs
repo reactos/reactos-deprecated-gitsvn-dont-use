@@ -94,7 +94,7 @@ namespace AbstractPipe
         private const string pipeName = @"\\.\Pipe\RosDbg";
         private const Int32 INVALID_HANDLE_VALUE = -1;
 
-        IntPtr handle;
+        private IntPtr handle;
         //FileAccess mode;
 
         protected NamedPipe()
@@ -109,8 +109,6 @@ namespace AbstractPipe
 
         public IntPtr Create(string name)
         {
-            IntPtr handle;
-
             handle = Kernel32.CreateNamedPipe(name,
                                               OpenMode.PIPE_ACCESS_DUPLEX | OpenMode.FILE_FLAG_OVERLAPPED,
                                               0,
