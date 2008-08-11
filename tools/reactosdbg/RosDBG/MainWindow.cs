@@ -321,7 +321,15 @@ namespace RosDBG
             AddTab(Help);
             WorkTabs.SelectTab(WorkTabs.TabCount - 1);   
         }
-   
+
+        private void connectPipeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PipeTargetSelect targetSelect = new PipeTargetSelect();
+            if (targetSelect.ShowDialog() == DialogResult.OK)
+            {
+
+            }
+        }
     }
 
     public class InteractiveInputEventArgs : EventArgs

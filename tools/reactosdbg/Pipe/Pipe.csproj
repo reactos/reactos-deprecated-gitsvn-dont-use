@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="namedpipe.cs" />
     <Compile Include="serialpipe.cs" />
     <Compile Include="pipe.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -115,6 +115,12 @@
     <Compile Include="Modules.Designer.cs">
       <DependentUpon>Modules.cs</DependentUpon>
     </Compile>
+    <Compile Include="PipeTargetSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PipeTargetSelect.Designer.cs">
+      <DependentUpon>PipeTargetSelect.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="BackTrace.resx">
@@ -143,6 +149,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Modules.resx">
       <DependentUpon>Modules.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PipeTargetSelect.resx">
+      <DependentUpon>PipeTargetSelect.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
