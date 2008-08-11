@@ -23,7 +23,7 @@ namespace AbstractPipe
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ConnectNamedPipe(
             IntPtr hHandle,
-            Overlapped lpOverlapped
+            IntPtr lpOverlapped
             );
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -91,20 +91,15 @@ namespace AbstractPipe
 
     public class NamedPipe// : Pipe
     {
-        private const string pipeName = @"\\.\Pipe\RosDbg";
         private const Int32 INVALID_HANDLE_VALUE = -1;
+        private const ulong ERROR_PIPE_CONNECTED = 535;
 
         private IntPtr handle;
         //FileAccess mode;
 
-        protected NamedPipe()
+        public NamedPipe()
         {
             handle = IntPtr.Zero;
-        }
-
-        public IntPtr Create()
-        {
-            return Create(pipeName);
         }
 
         public IntPtr Create(string name)
@@ -141,6 +136,19 @@ namespace AbstractPipe
             if (handle == IntPtr.Zero)
                 throw new ObjectDisposedException("NamedPipeStream", "The stream has already been closed");
             Kernel32.FlushFileBuffers(handle);
+        }
+
+        public bool Listen()
+        {
+            Disconnect();
+            if (Kernel32.ConnectNamedPipe(handle, IntPtr.Zero) != true)
+            {
+                uint lastErr = (uint)Marshal.GetLastWin32Error();
+                if (lastErr == ERROR_PIPE_CONNECTED)
+                    return true;
+                return false;
+            }
+            return true;
         }
 
         public int Read(byte[] buffer, int offset, int count)

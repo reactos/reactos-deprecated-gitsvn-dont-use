@@ -327,7 +327,8 @@ namespace RosDBG
             PipeTargetSelect targetSelect = new PipeTargetSelect();
             if (targetSelect.ShowDialog() == DialogResult.OK)
             {
-
+                mConnection.Close();
+                mConnection.Start(targetSelect.PipeName);
             }
         }
     }

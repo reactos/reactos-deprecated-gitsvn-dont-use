@@ -101,7 +101,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "PipeTargetSelect";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "PipeTargetSelect";
+            this.Text = "Named Pipe";
             this.ResumeLayout(false);
             this.PerformLayout();
 
