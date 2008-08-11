@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace RosDBG
 {
     public partial class PipeTargetSelect : Form
     {
+        private const string defaultPipeName = @"\\.\Pipe\RosDbg";
+        private string pipeName;
+
         public string PipeName
         {
-            get { return PipeNameTextBox.Text; }
-            set { PipeNameTextBox.Text = value; }
+            get { return pipeName; }
+        }
+
+        public bool UseDefault
+        {
+            get { return DefaultRadioBtn.Checked; }
         }
 
         public PipeTargetSelect()
@@ -24,6 +25,15 @@ namespace RosDBG
 
         private void bOK_Click(object sender, EventArgs e)
         {
+            if (DefaultRadioBtn.Checked)
+            {
+                pipeName = defaultPipeName;
+            }
+            else
+            {
+                pipeName = PipeNameTextBox.Text;
+            }
+
             DialogResult = DialogResult.OK;
             Close();
         }

@@ -69,7 +69,7 @@ namespace DebugProtocol
     public class DebugConnection
     {
         #region Primary State
-        public enum Mode { ClosedMode, SocketMode, SerialMode }
+        public enum Mode { ClosedMode, SocketMode, SerialMode, PipeMode }
         public Mode ConnectionMode
         {
             get { return mConnectionMode; }
@@ -109,6 +109,10 @@ namespace DebugProtocol
 
         #region Serial Mode Members
         SerialPort mSerialPort;
+        #endregion
+
+        #region Named Pipe Members
+        NamedPipe mNamedPipe;
         #endregion
 
         public event DebugRegisterChangeEventHandler DebugRegisterChangeEvent;
@@ -159,6 +163,14 @@ namespace DebugProtocol
             mDnsAsyncResult = Dns.BeginGetHostEntry(host, mDnsLookup, this);
         }
 
+        public void Start(string pipeName)
+        {
+            Close();
+            mNamedPipe = new NamedPipe();
+            mNamedPipe.Create(pipeName);
+            mNamedPipe.Listen();
+        }
+
         public void Start(int baudrate, string port)
         {
             Close();
@@ -197,6 +209,11 @@ namespace DebugProtocol
                 case Mode.SerialMode:
                     mSerialPort.Close();
                     mSerialPort = null;
+                    Running = false;
+                    break;
+                case Mode.PipeMode:
+                    mNamedPipe.Close();
+                    mNamedPipe = null;
                     Running = false;
                     break;
             }
