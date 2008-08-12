@@ -69,6 +69,28 @@ namespace DebugProtocol
         }
     }
     public delegate void ModuleListEventHandler(object sender, ModuleListEventArgs args);
+
+    public class ProcessListEventArgs : EventArgs
+    {
+        public readonly bool Reset, Current, End;
+        public readonly ulong Pid;
+        public ProcessListEventArgs() { Reset = true; }
+        public ProcessListEventArgs(bool end) { End = true; }
+        public ProcessListEventArgs(ulong pid, bool current) { Current = current; Pid = pid; }
+    }
+
+    public delegate void ProcessListEventHandler(object sender, ProcessListEventArgs args);
+
+    public class ThreadListEventArgs : EventArgs
+    {
+        public readonly bool Reset, Current, End;
+        public readonly ulong Tid;
+        public ThreadListEventArgs() { Reset = true; }
+        public ThreadListEventArgs(bool end) { End = true; }
+        public ThreadListEventArgs(ulong tid, bool current) { Current = current; Tid = tid; }
+    }
+
+    public delegate void ThreadListEventHandler(object sender, ThreadListEventArgs args);
     #endregion
 
     public interface IDebugProtocol
@@ -82,15 +104,22 @@ namespace DebugProtocol
         event RemoteGDBErrorHandler RemoteGDBError;
         event MemoryUpdateEventHandler MemoryUpdateEvent;
         event ModuleListEventHandler ModuleListEvent;
+        event ProcessListEventHandler ProcessListEvent;
+        event ThreadListEventHandler ThreadListEvent;
 
         void GetRegisterUpdate();
         void GetModuleUpdate();
         void GetMemoryUpdate(ulong address, int len);
+        void GetProcesses();
+        void GetThreads(ulong pid);
         void WriteMemory(ulong address, byte[] buf);
         void Step();
         void Next();
         void Break();
         void Go(ulong address);
+
+        void SetProcess(ulong pid);
+        void SetThread(ulong tid);
 
         void Write(string wr);
 

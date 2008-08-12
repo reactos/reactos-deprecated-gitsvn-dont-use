@@ -38,10 +38,16 @@ namespace KDBGProtocol
         static Regex mRegLineEBP = new Regex("EBP  0x(?<ebp>[0-9a-fA-F]+).*");
         static Regex mRegLineEFLAGS = new Regex("EFLAGS  0x(?<eflags>[0-9a-fA-F]+).*");
         static Regex mSregLine = new Regex("[CDEFGS]S  0x(?<seg>[0-9a-fA-F]+).*");
+        static Regex mProcListHeading = new Regex("PID[ \\t]+State[ \\t]+Filename.*");
+        static Regex mThreadListHeading = new Regex("TID[ \\t]+State[ \\t]+Prio.*");
+        static Regex mProcListEntry = new Regex("^(?<cur>([*]|))0x(?<pid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)");
+        static Regex mThreadListEntry = new Regex("^(?<cur>([*]|))0x(?<tid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)");
 
         bool mFirstModuleUpdate = false;
+        bool mReceivingProcs = false;
+        bool mReceivingThreads = false;
         StringBuilder mInputBuffer = new StringBuilder();
-        int usedInput;
+        int mUsedInput;
 
         void PipeReceiveEvent(object sender, PipeReceiveEventArgs args)
         {
@@ -51,10 +57,10 @@ namespace KDBGProtocol
 
             mInputBuffer.Append(args.Received);
 
-            if (mInputBuffer.ToString().Substring(usedInput).Contains("key to continue"))
+            if (mInputBuffer.ToString().Substring(mUsedInput).Contains("key to continue"))
             {
                 mConnection.Write("\r");
-                usedInput = mInputBuffer.Length;
+                mUsedInput = mInputBuffer.Length;
             }
 
             while ((promptIdx = (inbufStr = mInputBuffer.ToString()).IndexOf("kdb:> ")) != -1)
@@ -64,7 +70,7 @@ namespace KDBGProtocol
                 int remove = pretext.Length + "kdb:> ".Length;
 
                 mInputBuffer.Remove(0, remove);
-                usedInput = Math.Max(0, usedInput - remove);
+                mUsedInput = Math.Max(0, mUsedInput - remove);
 
                 if (!tookText)
                 {
@@ -72,6 +78,7 @@ namespace KDBGProtocol
                     {
                         mRunning = false;
                         GetRegisterUpdate();
+                        GetProcesses();
                     }
                     tookText = true;
                 }
@@ -83,7 +90,10 @@ namespace KDBGProtocol
                     {
                         if (cleanedLine.StartsWith("Entered debugger on "))
                         {
+                            mReceivingProcs = false;
+                            mReceivingThreads = false;
                             GetRegisterUpdate();
+                            GetProcesses();
                             continue;
                         }
 
@@ -149,7 +159,6 @@ namespace KDBGProtocol
                             mModuleList[moduleName.ToUpper()] = baseAddress;
                             if (ModuleListEvent != null)
                                 ModuleListEvent(this, new ModuleListEventArgs(moduleName, baseAddress));
-
                             continue;
                         }
 
@@ -170,6 +179,7 @@ namespace KDBGProtocol
                             ulong esp = ulong.Parse(ssEspMatch.Groups["esp"].ToString(), NumberStyles.HexNumber);
                             mRegisters[4] = esp;
                             mRegisters[15] = ss;
+                            continue;
                         }
 
                         Match eaxEbxMatch = mRegLineEAX_EBX.Match(cleanedLine);
@@ -228,7 +238,56 @@ namespace KDBGProtocol
                             }
                             continue;
                         }
-                    } catch (Exception) { /* Error line ... we'll ignore it for now */ }
+
+                        Match pidHeadMatch = mProcListHeading.Match(cleanedLine);
+                        if (pidHeadMatch.Success)
+                        {
+                            mReceivingThreads = false;
+                            mReceivingProcs = true;
+                            if (ProcessListEvent != null)
+                                ProcessListEvent(this, new ProcessListEventArgs());
+                            continue;
+                        }
+                        else
+                        {
+                            Match pidEntryMatch = mProcListEntry.Match(cleanedLine);
+                            if (pidEntryMatch.Success)
+                            {
+                                if (ProcessListEvent != null)
+                                    ProcessListEvent(this, new ProcessListEventArgs(ulong.Parse(pidEntryMatch.Groups["pid"].ToString(), NumberStyles.HexNumber), pidEntryMatch.Groups["cur"].Length > 0));
+                            }
+                            else
+                            {
+                                if ((mReceivingProcs || cleanedLine.Contains("No processes")) && ProcessListEvent != null)
+                                    ProcessListEvent(this, new ProcessListEventArgs(true));
+                            }
+                        }
+
+                        Match tidHeadMatch = mThreadListHeading.Match(cleanedLine);
+                        if (tidHeadMatch.Success)
+                        {
+                            mReceivingThreads = true;
+                            mReceivingProcs = false;
+                            if (ThreadListEvent != null)
+                                ThreadListEvent(this, new ThreadListEventArgs());
+                            continue;
+                        }
+                        else
+                        {
+                            Match tidEntryMatch = mThreadListEntry.Match(cleanedLine);
+                            if (tidEntryMatch.Success)
+                            {
+                                if (ThreadListEvent != null)
+                                    ThreadListEvent(this, new ThreadListEventArgs(ulong.Parse(tidEntryMatch.Groups["tid"].ToString(), NumberStyles.HexNumber), tidEntryMatch.Groups["cur"].Length > 0));
+                            }
+                            else
+                            {
+                                if (mReceivingThreads && ThreadListEvent != null)
+                                    ThreadListEvent(this, new ThreadListEventArgs(true));
+                            }
+                        }
+                    }
+                    catch (Exception) { /* Error line ... we'll ignore it for now */ }
                 }
             }
 
@@ -260,6 +319,8 @@ namespace KDBGProtocol
         public event RemoteGDBErrorHandler RemoteGDBError;
         public event MemoryUpdateEventHandler MemoryUpdateEvent;
         public event ModuleListEventHandler ModuleListEvent;
+        public event ProcessListEventHandler ProcessListEvent;
+        public event ThreadListEventHandler ThreadListEvent;
 
         public void GetRegisterUpdate()
         {
@@ -299,6 +360,7 @@ namespace KDBGProtocol
             QueueCommand("step");
             GetRegisterUpdate();
             GetModuleUpdate();
+            GetProcesses();
         }
 
         public void Next()
@@ -306,6 +368,7 @@ namespace KDBGProtocol
             QueueCommand("next");
             GetRegisterUpdate();
             GetModuleUpdate();
+            GetProcesses();
         }
 
         public void Break()
@@ -320,6 +383,28 @@ namespace KDBGProtocol
             mRunning = true;
             mFirstModuleUpdate = false;
             QueueCommand("cont");
+        }
+
+        public void GetProcesses()
+        {
+            QueueCommand("proc list");
+        }
+
+        public void GetThreads(ulong pid)
+        {
+            QueueCommand(string.Format("thread list 0x{0:X8}", pid));
+        }
+
+        public void SetProcess(ulong pid)
+        {
+            QueueCommand(string.Format("proc attach 0x{0:X8}", pid));
+            GetRegisterUpdate();
+        }
+
+        public void SetThread(ulong tid)
+        {
+            QueueCommand(string.Format("thread attach 0x{0:X8}", tid));
+            GetRegisterUpdate();
         }
 
         public void Write(string wr) { mConnection.Write(wr); }
