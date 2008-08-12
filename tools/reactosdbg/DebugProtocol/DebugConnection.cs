@@ -66,6 +66,35 @@ namespace DebugProtocol
     }
     public delegate void DebugRawTrafficEventHandler(object sender, DebugRawTrafficEventArgs args);
 
+    public class ThreadElement
+    {
+        bool mCurrent;
+        public bool Current { get { return mCurrent; } set { mCurrent = value; } }
+        ulong mTid;
+        public ulong ThreadId { get { return mTid; } set { mTid = value; } }
+        public ThreadElement(ulong tid, bool current) { mTid = tid; mCurrent = current; }
+    }
+
+    public class ProcessElement
+    {
+        bool mCurrent;
+        public bool Current { get { return mCurrent; } set { mCurrent = value; } }
+        ulong mPid;
+        public ulong ProcessId { get { return mPid; } set { mPid = value; } }
+        public Dictionary<ulong, ThreadElement> Threads = new Dictionary<ulong,ThreadElement>();
+        public ProcessElement(ulong pid, bool current) { mPid = pid; mCurrent = current; }
+    }
+
+    public class DebugProcessThreadChangeEventArgs : EventArgs
+    {
+        public readonly Dictionary<ulong, ProcessElement> Processes;
+        public DebugProcessThreadChangeEventArgs(Dictionary<ulong, ProcessElement> processes)
+        {
+            Processes = processes;
+        }
+    }
+    public delegate void DebugProcessThreadChangeEventHandler(object sender, DebugProcessThreadChangeEventArgs args);
+
     public class DebugConnection
     {
         #region Primary State
@@ -80,7 +109,8 @@ namespace DebugProtocol
                     DebugConnectionModeChangedEvent(this, new DebugConnectionModeChangedEventArgs(value));
             }
         }
-        public bool mRunning = true;
+
+        bool mRunning = true;
         public bool Running
         {
             get { return mRunning; }
@@ -91,12 +121,30 @@ namespace DebugProtocol
                     DebugRunningChangeEvent(this, new DebugRunningChangeEventArgs(value));
             }
         }
+
+        ulong mCurrentProcess;
+        public ulong CurrentProcess
+        {
+            get { return mCurrentProcess; }
+            set { mKdb.SetProcess(value); }
+        }
+
+        ulong mCurrentThread;
+        public ulong CurrentThread
+        {
+            get { return mCurrentThread; }
+            set { mKdb.SetThread(value); }
+        }
+
         KDBG mKdb;
         Registers mRegisters = new Registers();
+        ulong mNewCurrentThread, mNewCurrentProcess;
         public IDebugProtocol Debugger { get { return mKdb; } }
         Pipe mMedium;
         Mode mConnectionMode;
         List<WeakReference> mMemoryReaders = new List<WeakReference>();
+        Dictionary<ulong, ProcessElement> mProcesses = new Dictionary<ulong, ProcessElement>();
+        Dictionary<ulong, ProcessElement> mAccumulateProcesses = new Dictionary<ulong, ProcessElement>();
         #endregion
 
         #region Socket Mode State
@@ -120,6 +168,7 @@ namespace DebugProtocol
         public event DebugConnectionModeChangedEventHandler DebugConnectionModeChangedEvent;
         public event DebugRunningChangeEventHandler DebugRunningChangeEvent;
         public event DebugModuleChangedEventHandler DebugModuleChangedEvent;
+        public event DebugProcessThreadChangeEventHandler DebugProcessThreadChangeEvent;
         public event DebugRawTrafficEventHandler DebugRawTrafficEvent;
 
         public DebugConnection()
@@ -150,6 +199,16 @@ namespace DebugProtocol
             }
         }
 
+        void ConnectEventHandlers()
+        {
+            //set up tab handlers
+            mKdb.RegisterChangeEvent += RegisterChangeEvent;
+            mKdb.ModuleListEvent += ModuleListEvent;
+            mKdb.MemoryUpdateEvent += MemoryUpdateEvent;
+            mKdb.ProcessListEvent += ProcessListEvent;
+            mKdb.ThreadListEvent += ThreadListEvent;
+        }
+
         public void Start(string host, int port)
         {
             Close();
@@ -166,6 +225,7 @@ namespace DebugProtocol
         public void Start(string pipeName)
         {
             Close();
+            ConnectionMode = Mode.PipeMode;
             mNamedPipe = new NamedPipe();
             mNamedPipe.Create(pipeName);
             mNamedPipe.Listen();
@@ -185,10 +245,7 @@ namespace DebugProtocol
                 mMedium = new SerialPipe(mSerialPort);
                 mMedium.PipeReceiveEvent += PipeReceiveEvent;
                 mKdb = new KDBG(mMedium);
-                //set up tab handlers
-                mKdb.RegisterChangeEvent += RegisterChangeEvent;
-                mKdb.ModuleListEvent += ModuleListEvent;
-                mKdb.MemoryUpdateEvent += MemoryUpdateEvent;
+                ConnectEventHandlers();
                 Running = true;
             }
             catch (Exception)
@@ -196,6 +253,46 @@ namespace DebugProtocol
                 ConnectionMode = Mode.ClosedMode;
                 //error signal?
             }
+        }
+
+        void ProcessListEvent(object sender, ProcessListEventArgs args)
+        {
+            if (args.Reset)
+            {
+                mAccumulateProcesses.Clear();
+            }
+            else if (args.End)
+            {
+                mKdb.GetThreads(mNewCurrentProcess);
+            }
+            else
+                mAccumulateProcesses[args.Pid] = new ProcessElement(args.Pid, args.Current);
+
+            if (args.Current)
+                mNewCurrentProcess = args.Pid;
+        }
+
+        void ThreadListEvent(object sender, ThreadListEventArgs args)
+        {
+            if (args.Reset)
+            {
+                mAccumulateProcesses[mNewCurrentProcess].Threads.Clear();
+            }
+            else if (args.End)
+            {
+                mCurrentProcess = mNewCurrentProcess;
+                mCurrentThread = mNewCurrentThread;
+                mProcesses = mAccumulateProcesses;
+                if (DebugProcessThreadChangeEvent != null)
+                    DebugProcessThreadChangeEvent(this, new DebugProcessThreadChangeEventArgs(mProcesses));
+            }
+            else
+            {
+                mAccumulateProcesses[mNewCurrentProcess].Threads[args.Tid] = new ThreadElement(args.Tid, args.Current);
+            }
+
+            if (args.Current)
+                mNewCurrentThread = args.Tid;
         }
 
         public void Close()
@@ -238,9 +335,7 @@ namespace DebugProtocol
                 mMedium.PipeErrorEvent += MediumError;
                 mMedium.PipeReceiveEvent += PipeReceiveEvent;
                 mKdb = new KDBG(mMedium);
-                mKdb.RegisterChangeEvent += RegisterChangeEvent;
-                mKdb.ModuleListEvent += ModuleListEvent;
-                mKdb.MemoryUpdateEvent += MemoryUpdateEvent;
+                ConnectEventHandlers();
                 Running = true;
                 if (DebugConnectionConnectedEvent != null)
                     DebugConnectionConnectedEvent(this, new DebugConnectedEventArgs());
@@ -313,6 +408,16 @@ namespace DebugProtocol
                 mKdb.Go(0);
                 Running = true;
             }
+        }
+
+        public void SetProcess(ulong pid)
+        {
+            mKdb.SetProcess(pid);
+        }
+
+        public void SetThread(ulong tid)
+        {
+            mKdb.SetThread(tid);
         }
 
         public DebugMemoryStream NewMemoryStream()

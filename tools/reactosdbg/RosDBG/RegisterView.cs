@@ -30,7 +30,10 @@ namespace RosDBG
             mConnection.DebugRegisterChangeEvent += DebugRegisterChangeEvent;
             mConnection.DebugRunningChangeEvent += DebugRunningChangeEvent;
             if (!mConnection.Running)
+            {
                 mConnection.Debugger.GetRegisterUpdate();
+                mConnection.Debugger.GetProcesses();
+            }
         }
 
         void UpdateGridEnabled()
