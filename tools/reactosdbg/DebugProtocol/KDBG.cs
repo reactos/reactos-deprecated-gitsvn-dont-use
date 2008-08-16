@@ -251,7 +251,7 @@ namespace KDBGProtocol
                         else
                         {
                             Match pidEntryMatch = mProcListEntry.Match(cleanedLine);
-                            if (pidEntryMatch.Success)
+                            if (pidEntryMatch.Success && mReceivingProcs)
                             {
                                 if (ProcessListEvent != null)
                                     ProcessListEvent(this, new ProcessListEventArgs(ulong.Parse(pidEntryMatch.Groups["pid"].ToString(), NumberStyles.HexNumber), pidEntryMatch.Groups["cur"].Length > 0));
@@ -275,7 +275,7 @@ namespace KDBGProtocol
                         else
                         {
                             Match tidEntryMatch = mThreadListEntry.Match(cleanedLine);
-                            if (tidEntryMatch.Success)
+                            if (tidEntryMatch.Success && mReceivingThreads)
                             {
                                 if (ThreadListEvent != null)
                                     ThreadListEvent(this, new ThreadListEventArgs(ulong.Parse(tidEntryMatch.Groups["tid"].ToString(), NumberStyles.HexNumber), tidEntryMatch.Groups["cur"].Length > 0));
