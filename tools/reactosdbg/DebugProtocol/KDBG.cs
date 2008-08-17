@@ -41,7 +41,7 @@ namespace KDBGProtocol
         static Regex mProcListHeading = new Regex("PID[ \\t]+State[ \\t]+Filename.*");
         static Regex mThreadListHeading = new Regex("TID[ \\t]+State[ \\t]+Prio.*");
         static Regex mProcListEntry = new Regex("^(?<cur>([*]|))0x(?<pid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)");
-        static Regex mThreadListEntry = new Regex("^(?<cur>([*]|))0x(?<tid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)");
+        static Regex mThreadListEntry = new Regex("^(?<cur>([*]|))0x(?<tid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)0x(?<eip>[0-9a-fA-F]*)");
 
         bool mFirstModuleUpdate = false;
         bool mReceivingProcs = false;
@@ -278,7 +278,7 @@ namespace KDBGProtocol
                             if (tidEntryMatch.Success && mReceivingThreads)
                             {
                                 if (ThreadListEvent != null)
-                                    ThreadListEvent(this, new ThreadListEventArgs(ulong.Parse(tidEntryMatch.Groups["tid"].ToString(), NumberStyles.HexNumber), tidEntryMatch.Groups["cur"].Length > 0));
+                                    ThreadListEvent(this, new ThreadListEventArgs(ulong.Parse(tidEntryMatch.Groups["tid"].ToString(), NumberStyles.HexNumber), tidEntryMatch.Groups["cur"].Length > 0, ulong.Parse(tidEntryMatch.Groups["eip"].ToString(), NumberStyles.HexNumber)));
                             }
                             else
                             {

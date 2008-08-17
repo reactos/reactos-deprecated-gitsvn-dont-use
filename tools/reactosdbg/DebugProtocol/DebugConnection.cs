@@ -72,7 +72,11 @@ namespace DebugProtocol
         public bool Current { get { return mCurrent; } set { mCurrent = value; } }
         ulong mTid;
         public ulong ThreadId { get { return mTid; } set { mTid = value; } }
-        public ThreadElement(ulong tid, bool current) { mTid = tid; mCurrent = current; }
+        ulong mEip;
+        public ulong Eip { get { return mEip; } set { mEip = value; } }
+        string mDescription;
+        public string Description { get { return mDescription; } set { mDescription = value; } }
+        public ThreadElement(ulong tid, bool current, ulong eip) { mTid = tid; mCurrent = current; mEip = eip; }
     }
 
     public class ProcessElement
@@ -288,7 +292,7 @@ namespace DebugProtocol
             }
             else
             {
-                mAccumulateProcesses[mNewCurrentProcess].Threads[args.Tid] = new ThreadElement(args.Tid, args.Current);
+                mAccumulateProcesses[mNewCurrentProcess].Threads[args.Tid] = new ThreadElement(args.Tid, args.Current, args.Eip);
             }
 
             if (args.Current)
