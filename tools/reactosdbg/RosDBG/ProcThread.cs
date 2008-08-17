@@ -7,13 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using DebugProtocol;
+using DbgHelpAPI;
 
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class ProcThread : UserControl, IUseDebugConnection
+    public partial class ProcThread : UserControl, IUseDebugConnection, IUseSymbols
     {
         DebugConnection mConnection;
+        SymbolContext mSymcon;
         Dictionary<ulong, ProcessElement> mProcesses = new Dictionary<ulong,ProcessElement>();
 
         public ProcThread()
@@ -25,6 +27,11 @@ namespace RosDBG
         {
             mConnection = conn;
             mConnection.DebugProcessThreadChangeEvent += DebugProcessThreadChangeEvent;
+        }
+
+        public void SetSymbolProvider(SymbolContext symcon)
+        {
+            mSymcon = symcon;
         }
 
         void DebugProcessThreadChangeEvent(object sender, DebugProcessThreadChangeEventArgs args)
@@ -40,7 +47,13 @@ namespace RosDBG
             {
                 if (pe.Current)
                 {
-                    Threads.DataSource = new List<ThreadElement>(mProcesses[pe.ProcessId].Threads.Values);
+                    List<ThreadElement> telist = new List<ThreadElement>(mProcesses[pe.ProcessId].Threads.Values);
+                    foreach (ThreadElement te in telist)
+                    {
+                        KeyValuePair<string, int> fileLine = mSymcon.GetFileAndLine(te.Eip);
+                        te.Description = fileLine.Key + ":" + fileLine.Value;
+                    }
+                    Threads.DataSource = telist;
                 }
             }
         }

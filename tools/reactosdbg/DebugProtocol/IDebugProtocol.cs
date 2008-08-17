@@ -84,10 +84,10 @@ namespace DebugProtocol
     public class ThreadListEventArgs : EventArgs
     {
         public readonly bool Reset, Current, End;
-        public readonly ulong Tid;
+        public readonly ulong Tid, Eip;
         public ThreadListEventArgs() { Reset = true; }
         public ThreadListEventArgs(bool end) { End = true; }
-        public ThreadListEventArgs(ulong tid, bool current) { Current = current; Tid = tid; }
+        public ThreadListEventArgs(ulong tid, bool current, ulong eip) { Current = current; Tid = tid; Eip = eip; }
     }
 
     public delegate void ThreadListEventHandler(object sender, ThreadListEventArgs args);
