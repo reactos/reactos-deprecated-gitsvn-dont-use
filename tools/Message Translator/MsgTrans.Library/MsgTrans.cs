@@ -68,6 +68,7 @@ namespace MsgTrans.Library
                                  string ntstatusXml,
                                  string winerrorXml,
                                  string hresultXml,
+                                 string bugcheckXml,
                                  string wmXml,
                                  string bugUrl)
         {
@@ -76,7 +77,8 @@ namespace MsgTrans.Library
             commands.Add(new ErrorCommand(this,
                                           ntstatusXml,
                                           winerrorXml,
-                                          hresultXml));
+                                          hresultXml,
+                                          bugcheckXml));
             commands.Add(new WMCommand(this, wmXml));
             commands.Add(new BugCommand(this, bugUrl));
         }

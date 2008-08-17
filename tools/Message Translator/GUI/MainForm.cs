@@ -121,6 +121,18 @@ namespace MsgTranslator
                 return s;
             }
         }
+        private static string BugCheckXml
+        {
+            get
+            {
+                string optionName = "BugcheckXml";
+                string s = ConfigurationSettings.AppSettings[optionName];
+                VerifyRequiredOption(optionName,
+                                     s);
+                s = PrependWorkingDirectory(s);
+                return s;
+            }
+        }
         private static string BugUrl
         {
             get
@@ -224,6 +236,7 @@ namespace MsgTranslator
                                                                   NtstatusXml,
                                                                   WinerrorXml,
                                                                   HresultXml,
+                                                                  BugCheckXml,
                                                                   WmXml,
                                                                   BugUrl);
                 string message = msgType + " " + mainErrTxtBox.Text;
@@ -242,6 +255,7 @@ namespace MsgTranslator
                         if (cmd.MsgType == MessageType.WinError ||
                             cmd.MsgType == MessageType.HRESULT ||
                             cmd.MsgType == MessageType.NTSTATUS ||
+                            cmd.MsgType == MessageType.BugCheck ||
                             cmd.MsgType == MessageType.Custom)
                         {
                             if (errMessages != null)

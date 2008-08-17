@@ -12,12 +12,14 @@ namespace MsgTrans.Library
         public ErrorCommand(MessageTranslator msgTrans,
                             string ntstatusXml,
                             string winerrorXml,
-                            string hresultXml)
+                            string hresultXml,
+                            string bugcheckXml)
             : base(msgTrans)
         {
             errorCommands.Add(new WinerrorCommand(msgTrans, winerrorXml));
             errorCommands.Add(new NtStatusCommand(msgTrans, ntstatusXml));
             errorCommands.Add(new HResultCommand(msgTrans, hresultXml));
+            errorCommands.Add(new BugCheckCommand(msgTrans, bugcheckXml));
             errorCommands.Add(new CustomCommand(msgTrans));
         }
 
