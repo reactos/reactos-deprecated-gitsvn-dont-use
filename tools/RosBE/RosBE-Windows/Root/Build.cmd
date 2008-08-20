@@ -36,6 +36,13 @@ endlocal
 ::
 :: Check if strip or ccache are being used and set the appropriate options.
 ::
+if defined _ROSBE_NOSTRIP (
+    if %_ROSBE_NOSTRIP% == 1 (
+        set ROS_BUILDNOSTRIP=yes
+    ) else (
+        set ROS_BUILDNOSTRIP=no
+    )
+)
 if defined _ROSBE_STRIP (
     if %_ROSBE_STRIP% == 1 (
         set ROS_LEAN_AND_MEAN=yes
@@ -170,6 +177,7 @@ if defined _ROSBE_VERSION (
 ::
 :: Unload all used Vars.
 ::
+set ROS_BUILDNOSTRIP=
 set ROS_LEAN_AND_MEAN=
 set HOST_CC=
 set HOST_CPP=

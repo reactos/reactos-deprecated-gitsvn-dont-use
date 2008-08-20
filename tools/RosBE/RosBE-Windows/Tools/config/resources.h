@@ -49,6 +49,7 @@
 #define IDC_FONT 0x24
 #define IDC_BACK 0x25
 #define ID_STATUSBAR 0x26
+#define ID_NOSTRIP 0x27
 
 /* Strings */
 #define MSG_NOGCCFOUND 0x27
@@ -76,4 +77,5 @@
 #define HLP_SAVEBUTTON 0x3b
 #define HLP_QUITBUTTON 0x3c
 #define HLP_DEFAULTMSG 0x3d
+#define HLP_NOSTRIP    0x3e
 
