@@ -43,6 +43,7 @@
             this.RawTrafficText.Size = new System.Drawing.Size(150, 150);
             this.RawTrafficText.TabIndex = 0;
             this.RawTrafficText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.RawTrafficText_KeyPress);
+            this.RawTrafficText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.RawTrafficText_MouseUp);
             // 
             // RawTraffic
             // 

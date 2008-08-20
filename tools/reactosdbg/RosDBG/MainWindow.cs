@@ -28,7 +28,8 @@ namespace RosDBG
         SymbolContext mSymbolContext;
         Dictionary<uint, Module> mModules = new Dictionary<uint, Module>();
         Dictionary<string, SourceView> mSourceFiles = new Dictionary<string, SourceView>();
-
+        public event CopyEventHandler CopyEvent;
+        
         public DebugConnection DebugConnection
         {
             get { return mConnection; }
@@ -96,6 +97,11 @@ namespace RosDBG
             mConnection.DebugModuleChangedEvent += DebugModuleChangedEvent;
             ComposeTitleString();
             mSymbolContext.ReactosOutputPath = Settings.OutputDirectory;
+        }
+
+        void CanCopyChanged(object sender, CanCopyChangedEventArgs args)
+        {
+            copyToolStripMenuItem.Enabled = args.Enabled;   
         }
 
         void DebugModuleChangedEvent(object sender, DebugModuleChangedEventArgs args)
@@ -169,6 +175,12 @@ namespace RosDBG
             tp.Text = ctrl.Tag != null ? ctrl.Tag.ToString() : ctrl.GetType().Name;
             ctrl.Dock = DockStyle.Fill;
             WorkTabs.Controls.Add(tp);
+
+            if (ctrl.GetType() == typeof(SourceView))
+                ((SourceView)ctrl).CanCopyChangedEvent += CanCopyChanged;
+            else if (ctrl.GetType() == typeof(RawTraffic))
+                ((RawTraffic)ctrl).CanCopyChangedEvent += CanCopyChanged;
+
             ResumeLayout();
         }
 
@@ -331,6 +343,13 @@ namespace RosDBG
                 mConnection.Start(targetSelect.PipeName);
             }
         }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (CopyEvent != null)
+                CopyEvent(this, new CopyEventArgs(WorkTabs.SelectedTab.Controls[0]));
+        }
+
     }
 
     public class InteractiveInputEventArgs : EventArgs
@@ -339,4 +358,25 @@ namespace RosDBG
         public string Command { get { return mCommand; } }
         public InteractiveInputEventArgs(object sender, string cmd) { mCommand = cmd; }
     }
+
+    public class CanCopyChangedEventArgs : EventArgs
+    {
+        public readonly bool Enabled;
+        public CanCopyChangedEventArgs(bool enabled)
+        {
+            Enabled = enabled;
+        }
+    }
+
+    public class CopyEventArgs : EventArgs
+    {
+        public readonly object Obj;
+        public CopyEventArgs(object obj)
+        {
+            Obj = obj;
+        }
+    }
+
+    public delegate void CanCopyChangedEventHandler(object sender, CanCopyChangedEventArgs args);
+    public delegate void CopyEventHandler(object sender, CopyEventArgs args);
 }

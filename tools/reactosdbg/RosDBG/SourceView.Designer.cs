@@ -30,10 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SourceView));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.SourceCode = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.btnCopy = new System.Windows.Forms.ToolStripButton();
             this.btnBreakpoint = new System.Windows.Forms.ToolStripButton();
+            this.SourceCode = new System.Windows.Forms.RichTextBox();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -58,17 +58,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(497, 308);
             this.splitContainer1.SplitterDistance = 25;
             this.splitContainer1.TabIndex = 2;
-            // 
-            // SourceCode
-            // 
-            this.SourceCode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.SourceCode.Location = new System.Drawing.Point(0, 0);
-            this.SourceCode.Name = "SourceCode";
-            this.SourceCode.ReadOnly = true;
-            this.SourceCode.Size = new System.Drawing.Size(497, 279);
-            this.SourceCode.TabIndex = 3;
-            this.SourceCode.Text = "";
-            this.SourceCode.SelectionChanged += new System.EventHandler(this.SourceCode_SelectionChanged);
             // 
             // toolStrip1
             // 
@@ -102,6 +91,17 @@
             this.btnBreakpoint.Size = new System.Drawing.Size(23, 22);
             this.btnBreakpoint.ToolTipText = "Set Breakpoint";
             // 
+            // SourceCode
+            // 
+            this.SourceCode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SourceCode.Location = new System.Drawing.Point(0, 0);
+            this.SourceCode.Name = "SourceCode";
+            this.SourceCode.ReadOnly = true;
+            this.SourceCode.Size = new System.Drawing.Size(497, 279);
+            this.SourceCode.TabIndex = 3;
+            this.SourceCode.Text = "";
+            this.SourceCode.SelectionChanged += new System.EventHandler(this.SourceCode_SelectionChanged);
+            // 
             // SourceView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -123,9 +123,9 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.RichTextBox SourceCode;
         private System.Windows.Forms.ToolStripButton btnCopy;
         private System.Windows.Forms.ToolStripButton btnBreakpoint;
+        private System.Windows.Forms.RichTextBox SourceCode;
 
     }
 }

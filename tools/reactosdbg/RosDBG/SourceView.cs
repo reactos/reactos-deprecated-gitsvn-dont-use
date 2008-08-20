@@ -10,9 +10,12 @@ using System.Windows.Forms;
 
 namespace RosDBG
 {
+  
     public partial class SourceView : UserControl
     {
         string mSourceFile;
+        public event CanCopyChangedEventHandler CanCopyChangedEvent;
+        
         public string SourceFile
         {
             get { return mSourceFile; }
@@ -27,6 +30,7 @@ namespace RosDBG
         {
             base.OnLoad(e);
             SourceCode.BackColor = Color.FromKnownColor(KnownColor.Window);
+            ((MainWindow)this.ParentForm).CopyEvent += CopyEvent;
         }
 
         public void ScrollTo(int line)
@@ -81,14 +85,25 @@ namespace RosDBG
             }
         }
 
+        void CopyEvent(object sender, CopyEventArgs args)
+        {
+            if (args.Obj == this)  
+                Clipboard.SetText(SourceCode.SelectedText);  
+        }
+
         private void SourceCode_SelectionChanged(object sender, EventArgs e)
         {
             btnCopy.Enabled = (SourceCode.SelectionLength > 0);
-         }
+
+            if (CanCopyChangedEvent != null)
+                CanCopyChangedEvent(this, new CanCopyChangedEventArgs(btnCopy.Enabled));
+        }
 
         private void btnCopy_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(SourceCode.SelectedText);   
+            CopyEvent(this, new CopyEventArgs(this));
         }
+
     }
+
 }
