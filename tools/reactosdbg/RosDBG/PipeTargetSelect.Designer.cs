@@ -33,11 +33,13 @@
             this.PipeNameTextBox = new System.Windows.Forms.TextBox();
             this.DefaultRadioBtn = new System.Windows.Forms.RadioButton();
             this.CustomRadioBtn = new System.Windows.Forms.RadioButton();
+            this.DefaultNameLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // bOK
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Location = new System.Drawing.Point(69, 86);
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size(75, 23);
@@ -49,6 +51,7 @@
             // bCancel
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Location = new System.Drawing.Point(150, 86);
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size(75, 23);
@@ -88,11 +91,22 @@
             this.CustomRadioBtn.UseVisualStyleBackColor = true;
             this.CustomRadioBtn.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
+            // DefaultNameLabel
+            // 
+            this.DefaultNameLabel.AutoSize = true;
+            this.DefaultNameLabel.Location = new System.Drawing.Point(118, 14);
+            this.DefaultNameLabel.Name = "DefaultNameLabel";
+            this.DefaultNameLabel.Size = new System.Drawing.Size(0, 13);
+            this.DefaultNameLabel.TabIndex = 11;
+            // 
             // PipeTargetSelect
             // 
+            this.AcceptButton = this.bOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.bCancel;
             this.ClientSize = new System.Drawing.Size(237, 121);
+            this.Controls.Add(this.DefaultNameLabel);
             this.Controls.Add(this.CustomRadioBtn);
             this.Controls.Add(this.DefaultRadioBtn);
             this.Controls.Add(this.PipeNameTextBox);
@@ -102,6 +116,7 @@
             this.Name = "PipeTargetSelect";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Named Pipe";
+            this.Load += new System.EventHandler(this.PipeTargetSelect_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -114,5 +129,6 @@
         private System.Windows.Forms.TextBox PipeNameTextBox;
         private System.Windows.Forms.RadioButton DefaultRadioBtn;
         private System.Windows.Forms.RadioButton CustomRadioBtn;
+        private System.Windows.Forms.Label DefaultNameLabel;
     }
 }
