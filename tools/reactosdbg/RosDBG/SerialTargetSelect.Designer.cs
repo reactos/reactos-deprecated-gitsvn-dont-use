@@ -38,6 +38,7 @@
             // 
             // cPort
             // 
+            this.cPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPort.FormattingEnabled = true;
             this.cPort.Location = new System.Drawing.Point(77, 9);
             this.cPort.Name = "cPort";
@@ -46,6 +47,7 @@
             // 
             // cBaud
             // 
+            this.cBaud.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBaud.FormattingEnabled = true;
             this.cBaud.Items.AddRange(new object[] {
             "9600",
