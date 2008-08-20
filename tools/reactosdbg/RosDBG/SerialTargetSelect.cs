@@ -31,8 +31,21 @@ namespace RosDBG
             {
                 cPort.Items.Add(s);
             }
-            cPort.SelectedIndex = 0;
-            cBaud.SelectedIndex = 0;
+            SelectComboItem(cPort, Settings.ComPort);
+            SelectComboItem(cBaud, Settings.Baudrate);
+        }
+
+        private void SelectComboItem(ComboBox obj, string text)
+        {
+            obj.SelectedIndex = 0;
+            foreach (object item in obj.Items)
+            {
+                if (item.ToString() == text)
+                {
+                    obj.SelectedItem = item;
+                    break;
+                }
+            }
         }
 
         private void bOK_Click(object sender, EventArgs e)
