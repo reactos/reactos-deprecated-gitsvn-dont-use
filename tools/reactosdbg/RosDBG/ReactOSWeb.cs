@@ -69,8 +69,7 @@ namespace RosDBG
         {
             navForward.Enabled = BrowserView.CanGoForward;
         }
-
-
+        
         private void AddressInput_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Return)
