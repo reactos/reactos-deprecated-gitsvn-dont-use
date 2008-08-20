@@ -27,6 +27,7 @@ typedef struct _SETTINGS
     BOOL showtime;
     BOOL useccache;
     BOOL strip;
+    BOOL nostrip;
     BOOL writelog;
     BOOL objstate;
     BOOL outstate;
