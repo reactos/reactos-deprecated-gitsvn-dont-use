@@ -317,7 +317,7 @@ namespace RosDBG
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ReactOSWeb Help = new ReactOSWeb("Help", "http://www.reactos.org/wiki/index.php/Debugging");
+            ReactOSWeb Help = new ReactOSWeb("Help", "http://www.reactos.org/wiki/index.php/ReactOSDbg");
             AddTab(Help);
             WorkTabs.SelectTab(WorkTabs.TabCount - 1);   
         }
