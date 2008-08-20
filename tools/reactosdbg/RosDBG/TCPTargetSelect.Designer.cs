@@ -42,7 +42,7 @@
             this.HostChoice.FormattingEnabled = true;
             this.HostChoice.Location = new System.Drawing.Point(47, 9);
             this.HostChoice.Name = "HostChoice";
-            this.HostChoice.Size = new System.Drawing.Size(121, 21);
+            this.HostChoice.Size = new System.Drawing.Size(164, 21);
             this.HostChoice.TabIndex = 0;
             this.HostChoice.Text = "localhost";
             // 
@@ -78,7 +78,7 @@
             0,
             0});
             this.PortNumber.Name = "PortNumber";
-            this.PortNumber.Size = new System.Drawing.Size(120, 20);
+            this.PortNumber.Size = new System.Drawing.Size(80, 20);
             this.PortNumber.TabIndex = 3;
             this.PortNumber.Value = new decimal(new int[] {
             1235,
@@ -100,6 +100,7 @@
             // OKBtn
             // 
             this.OKBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.OKBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.OKBtn.Location = new System.Drawing.Point(69, 90);
             this.OKBtn.Name = "OKBtn";
             this.OKBtn.Size = new System.Drawing.Size(75, 23);
@@ -110,8 +111,10 @@
             // 
             // TCPTargetSelect
             // 
+            this.AcceptButton = this.OKBtn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.CancelBtn;
             this.ClientSize = new System.Drawing.Size(237, 125);
             this.Controls.Add(this.OKBtn);
             this.Controls.Add(this.CancelBtn);
@@ -122,7 +125,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "TCPTargetSelect";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "TCPTargetSelect";
+            this.Text = "TCP/IP";
             ((System.ComponentModel.ISupportInitialize)(this.PortNumber)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -313,7 +313,7 @@ namespace RosDBG
         {
             SelectTabFromPosition(mMousePosition);
             closeCurrentTabToolStripMenuItem_Click(this, null);
-    }
+        }
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {

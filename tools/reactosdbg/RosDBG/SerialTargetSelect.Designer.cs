@@ -39,7 +39,7 @@
             // cPort
             // 
             this.cPort.FormattingEnabled = true;
-            this.cPort.Location = new System.Drawing.Point(50, 9);
+            this.cPort.Location = new System.Drawing.Point(77, 9);
             this.cPort.Name = "cPort";
             this.cPort.Size = new System.Drawing.Size(121, 21);
             this.cPort.TabIndex = 0;
@@ -53,7 +53,7 @@
             "38400",
             "57600",
             "115200"});
-            this.cBaud.Location = new System.Drawing.Point(50, 48);
+            this.cBaud.Location = new System.Drawing.Point(77, 48);
             this.cBaud.Name = "cBaud";
             this.cBaud.Size = new System.Drawing.Size(121, 21);
             this.cBaud.TabIndex = 1;
@@ -61,7 +61,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 12);
+            this.label1.Location = new System.Drawing.Point(39, 12);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(26, 13);
             this.label1.TabIndex = 5;
@@ -70,7 +70,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 51);
+            this.label2.Location = new System.Drawing.Point(39, 51);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 13);
             this.label2.TabIndex = 6;
@@ -79,6 +79,7 @@
             // bCancel
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Location = new System.Drawing.Point(150, 90);
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size(75, 23);
@@ -90,6 +91,7 @@
             // bOK
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.bOK.Location = new System.Drawing.Point(69, 90);
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size(75, 23);
@@ -100,8 +102,10 @@
             // 
             // SerialTargetSelect
             // 
+            this.AcceptButton = this.bOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.bCancel;
             this.ClientSize = new System.Drawing.Size(237, 125);
             this.Controls.Add(this.bOK);
             this.Controls.Add(this.bCancel);
@@ -112,7 +116,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "SerialTargetSelect";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "SerialTargetSelect";
+            this.Text = "Serial";
             this.ResumeLayout(false);
             this.PerformLayout();
 

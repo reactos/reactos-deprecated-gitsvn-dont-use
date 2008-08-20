@@ -15,6 +15,7 @@ namespace RosDBG
     {
         public class SettingsPropertyValues : ApplicationSettingsBase
         {
+            [CategoryAttribute("Directories"), DescriptionAttribute("Directory settings")]
             [UserScopedSetting, DefaultSettingValue("."), Editor(typeof(DirectoryEditor), typeof(UITypeEditor))]
             public string SourceDirectory
             {
@@ -22,11 +23,20 @@ namespace RosDBG
                 set { this["SourceDirectory"] = value; }
             }
 
+            [CategoryAttribute("Directories"), DescriptionAttribute("Directory settings")]
             [UserScopedSetting,DefaultSettingValue(".\\output-i386"),Editor(typeof(DirectoryEditor), typeof(UITypeEditor))]
             public string OutputDirectory
             {
                 get { return this["OutputDirectory"].ToString(); }
                 set { this["OutputDirectory"] = value; }
+            }
+
+            [CategoryAttribute("Connection"), DescriptionAttribute("Connection settings")]
+            [UserScopedSetting, DefaultSettingValue(@"\\.\Pipe\RosDbg")]
+            public string Pipe
+            {
+                get { return this["Pipe"].ToString(); }
+                set { this["Pipe"] = value; }
             }
 
             public SettingsPropertyValues()
@@ -39,6 +49,7 @@ namespace RosDBG
 
         public static string SourceDirectory { get { return mProperties.SourceDirectory; } }
         public static string OutputDirectory { get { return mProperties.OutputDirectory; } }
+        public static string Pipe { get { return mProperties.Pipe; } }
 
         Settings()
         {

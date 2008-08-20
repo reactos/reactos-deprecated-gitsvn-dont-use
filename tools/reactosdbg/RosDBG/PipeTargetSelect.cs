@@ -5,7 +5,7 @@ namespace RosDBG
 {
     public partial class PipeTargetSelect : Form
     {
-        private const string defaultPipeName = @"\\.\Pipe\RosDbg";
+        private string defaultPipeName = Settings.Pipe;
         private string pipeName;
 
         public string PipeName
@@ -49,6 +49,11 @@ namespace RosDBG
             RadioButton rb = (RadioButton)sender;
 
             PipeNameTextBox.Enabled = rb.Checked;
+        }
+
+        private void PipeTargetSelect_Load(object sender, EventArgs e)
+        {
+            DefaultNameLabel.Text = "[" + defaultPipeName + "]";
         }
     }
 }
