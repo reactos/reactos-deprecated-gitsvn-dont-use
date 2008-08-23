@@ -73,6 +73,10 @@ if "%1" == "" (
         echo    options              - Starts the RosBE configurator.
     )
 
+    if exist "%_ROSBE_BASEDIR%\update.cmd" (
+        echo    update               - Updates RosBE to the most recent files.
+    )
+
     echo.
     goto :EOC
 )
@@ -193,6 +197,14 @@ if exist "%_ROSBE_BASEDIR%\options.cmd" (
     if /i "%1" == "options" (
         echo Usage: options
         echo Starts the RosBE configurator.
+        goto :EOC
+    )
+)
+if exist "%_ROSBE_BASEDIR%\update.cmd" (
+    if /i "%1" == "update" (
+        echo Usage: update
+        echo Updates all files of RosBE to the most recent files.
+        echo.
         goto :EOC
     )
 )
