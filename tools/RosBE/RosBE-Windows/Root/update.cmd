@@ -11,14 +11,18 @@
 :: The Update Server
 set url=www.foo.bar
 
+:: First check for a new Updater
+"%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/update.cmd
+"%_ROSBE_BASEDIR%\update.cmd"
+
 :: PS1 Files
-if exist "%_ROSBE_BASEDIR%\"%_ROSBE_BASEDIR%\Build.ps1" (
+if exist "%_ROSBE_BASEDIR%\Build.ps1" (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/Build.ps1
 )
-if exist "%_ROSBE_BASEDIR%\"%_ROSBE_BASEDIR%\Clean.ps1" (
+if exist "%_ROSBE_BASEDIR%\Clean.ps1" (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/Clean.ps1
 )
-if exist "%_ROSBE_BASEDIR%\"%_ROSBE_BASEDIR%\Help.ps1" (
+if exist "%_ROSBE_BASEDIR%\Help.ps1" (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/Help.ps1
 )
 if exist "%_ROSBE_BASEDIR%\MinGW.ps1" (
@@ -74,4 +78,18 @@ if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
 "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/RosBE.mac
 "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/rosbe-gcc-env.cmd
 "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/TimeDate.cmd
-"%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/update.cmd
+
+:: Load GCC and Tool SRC packages
+"%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/GCC.7z
+"%_ROSBE_BASEDIR%\Tools\wget.exe" -N %url%/Tools.7z
+
+:: Extract GCC
+"%_ROSBE_BASEDIR%\Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
+"%_ROSBE_BASEDIR%\Tools\7z.exe" x Tools.7z "%TEMP%"
+
+:: Build the tools
+make -f %TEMP%\makefile
+copy %TEMP%\*.exe "%_ROSBE_BASEDIR%\Tools"
+
+:: Unload Vars
+set url=
