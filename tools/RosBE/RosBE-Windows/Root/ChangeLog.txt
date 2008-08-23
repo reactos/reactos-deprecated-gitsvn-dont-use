@@ -10,6 +10,7 @@
 - Updated: ccache 2.4 is now a native Version Without Cygwin (Colin Finck)
 - Other small Fixes here and there (Daniel Reimer)
 - Added: Basic PowerShell Version of RosBE (Daniel Reimer)
+- Added: Update command (Daniel Reimer)
 
 *** January 23rd, 2008 - RosBE 1.2 Released
 

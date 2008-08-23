@@ -13,4 +13,5 @@ RENV       = for /f "usebackq tokens=*" %i in (`set _ROSBE_`) do @echo %i
 SCUT       = "%_ROSBE_BASEDIR%\scut.cmd" $*
 SSVN       = "%_ROSBE_BASEDIR%\sSVN.cmd" $*
 SVN        = "%_ROSBE_BASEDIR%\Tools\svn.exe" $*
+UPDATE     = "%_ROSBE_BASEDIR%\update.cmd" $*
 OPTIONS    = "%_ROSBE_BASEDIR%\options.cmd" $*
