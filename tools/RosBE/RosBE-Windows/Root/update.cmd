@@ -7,34 +7,61 @@
 ::
 ::
 @echo off
-
+if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
+if %_ROSBE_DEBUG% == 1 (
+    @echo on
+)
+::
 :: Set Title
+::
 title Updating...
 
+::
 :: The Update Server.
+::
 set _ROSBE_URL=www.foo.bar
 
+::
 :: Default Variables.
+::
 set _ROSBE_CMDS=yes
-set _ROSBE_ZIPS=yes
+set _ROSBE_GCC=yes
+set _ROSBE_TOOLS=yes
+set _ROSBE_PARAM=no
 
+::
 :: Update the Vars if the params say so.
+::
 if "%1" == "nocmds" (
     set _ROSBE_CMDS=no
-) else if "%1" == "nozips" (
-    set _ROSBE_ZIPS=no
-) else if not "%1" == "" (
-    cls
-    echo Unknown parameter specified. Exiting.
-    goto :EOU
+    set _ROSBE_PARAM=yes
+)
+if "%1" == "nogcc" (
+    set _ROSBE_GCC=no
+    set _ROSBE_PARAM=yes
+)
+if "%1" == "notools" (
+    set _ROSBE_TOOLS=no
+    set _ROSBE_PARAM=yes
+)
+if not "%1" == "" (
+    if _ROSBE_PARAM == no (
+        cls
+        echo Unknown parameter specified. Exiting.
+        goto :EOU
+    )
 )
 
 if _ROSBE_CMDS == yes (
+    ::
     :: First check for a new Updater
+    ::
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/update.cmd
     "%_ROSBE_BASEDIR%\update.cmd"
 
+    ::
     :: PS1 Files.
+    ::
     if exist "%_ROSBE_BASEDIR%\Build.ps1" (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Build.ps1
     )
@@ -54,27 +81,37 @@ if _ROSBE_CMDS == yes (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/rosbe-gcc-env.ps1
     )
 
+    ::
     :: Options Files.
+    ::
     if exist "%_ROSBE_BASEDIR%\options.cmd" (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/options.cmd
     )
 
+    ::
     :: SVN Files.
+    ::
     if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/sSVN.cmd
     )
 
+    ::
     :: SCut Files.
+    ::
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/scut.cmd
     )
 
+    ::
     :: RelAddr2Line Files.
+    ::
     if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/reladdr2line.cmd
     )
 
+    ::
     :: Other Tools Files.
+    ::
     if exist "%_ROSBE_BASEDIR%\Config.cmd" (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Config.cmd
     )
@@ -82,7 +119,9 @@ if _ROSBE_CMDS == yes (
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/chdefdir.cmd
     )
 
+    ::
     :: Default Files.
+    ::
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Build.cmd
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/ChangeLog.txt
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/chdefgcc.cmd
@@ -100,42 +139,67 @@ if _ROSBE_CMDS == yes (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/TimeDate.cmd
 )
 
-if _ROSBE_CMDS == yes (
-    :: Add Dates into Vars and load GCC and Tool SRC packages if needed.
+if _ROSBE_GCC == yes (
+    ::
+    :: Add Dates into Vars and load GCC packages if needed.
+    ::
     if exist GCC.7z (
         for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE=%%i
     )
+
+    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/GCC.7z
+
+    ::
+    :: Add the maybe Updated Dates to another Var.
+    ::
+    for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE2=%%i
+
+    ::
+    :: Extract GCC.
+    ::
+    if %_ROSBE_GCCDATE% NEQ %_ROSBE_GCCDATE2% (
+        "%_ROSBE_BASEDIR%\Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
+    )
+)
+if _ROSBE_TOOLS == yes (
+    ::
+    :: Add Dates into Vars and load Tool SRC packages if needed.
+    ::
     if exist Tools.7z (
         for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE=%%i
     )
 
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/GCC.7z
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Tools.7z
 
+    ::
     :: Add the maybe Updated Dates to another Var.
-    for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE2=%%i
+    ::
     for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE2=%%i
 
-    :: Extract GCC.
-    if %_ROSBE_GCCDATE% NEQ %_ROSBE_GCCDATE2% (
-        "%_ROSBE_BASEDIR%\Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
-    )
     if %_ROSBE_TOOLSDATE% NEQ %_ROSBE_TOOLSDATE2% (
         "%_ROSBE_BASEDIR%\Tools\7z.exe" x Tools.7z "%TEMP%"
+        ::
         :: Build the tools
+        ::
         make -f %TEMP%\makefile
         copy %TEMP%\*.exe "%_ROSBE_BASEDIR%\Tools"
     )
 )
 
 :EOU
+::
 :: Unload Vars.
+::
 set _ROSBE_URL=
 set _ROSBE_GCCDATE=
 set _ROSBE_TOOLSDATE=
 set _ROSBE_GCCDATE2=
 set _ROSBE_TOOLSDATE2=
 set _ROSBE_CMDS=
-set _ROSBE_ZIPS=
+set _ROSBE_GCC=
+set _ROSBE_TOOLS=
+set _ROSBE_PARAM=
 
-title ReactOS Build Environment %_ROSBE_VERSION%
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
