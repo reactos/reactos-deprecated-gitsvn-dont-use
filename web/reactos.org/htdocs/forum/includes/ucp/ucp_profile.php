@@ -42,7 +42,7 @@ class ucp_profile
 		switch ($mode)
 		{
 			case 'reg_details':
-				die('You can modify your account settings using the <a href="/roscms/?page=user&amp;sec=account&amp;sec2=edit">myReactOS Settings</a> page.<br /><br />Please tell an Administrator to disable this page in the phpBB Administration Panel.');
+				die('You can modify your account settings using the <a href="/roscms/index.php/my/edit">myReactOS Settings</a> page.<br /><br />Please tell an Administrator to disable this page in the phpBB Administration Panel.');
 
 			case 'profile_info':
 
