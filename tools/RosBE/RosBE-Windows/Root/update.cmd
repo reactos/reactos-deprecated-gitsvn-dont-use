@@ -19,12 +19,13 @@ title Updating...
 ::
 :: The Update Server.
 ::
-set _ROSBE_URL=www.foo.bar
+set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
 
 ::
 :: Default Variables.
 ::
 set _ROSBE_OPATH=%~dp0
+set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
 set _ROSBE_CMDS=yes
 set _ROSBE_GCC=yes
 set _ROSBE_TOOLS=yes
@@ -59,9 +60,15 @@ if _ROSBE_CMDS == yes (
     ::
     :: First check for a new Updater
     ::
+    for /f "usebackq" %%i in (`"forfiles /M update.cmd /C "cmd /c echo @fdate""`) do set _ROSBE_UPDDATE=%%i
     "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/update.cmd
-    "%_ROSBE_BASEDIR%\update.cmd"
+    for /f "usebackq" %%i in (`"forfiles /M update.cmd /C "cmd /c echo @fdate""`) do set _ROSBE_UPDDATE2=%%i
 
+    if %_ROSBE_UPDDATE% NEQ %_ROSBE_UPDDATE2% (
+        cls
+        echo Updater got updated and needs to be restarted.
+        goto :EOU
+    )
     ::
     :: PS1 Files.
     ::
@@ -148,6 +155,8 @@ if _ROSBE_GCC == yes (
     ::
     if exist GCC.7z (
         for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE=%%i
+    ) else (
+        set _ROSBE_GCCDATE=0
     )
 
     "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/GCC.7z
@@ -170,6 +179,8 @@ if _ROSBE_TOOLS == yes (
     ::
     if exist Tools.7z (
         for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE=%%i
+    ) else (
+        set _ROSBE_TOOOLSDATE=0
     )
 
     "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Tools.7z
@@ -206,6 +217,8 @@ set _ROSBE_GCC=
 set _ROSBE_TOOLS=
 set _ROSBE_PARAM=
 set _ROSBE_OPATH=
+set _ROSBE_UPDDATE=
+set _ROSBE_UPDDATE2=
 
 
 if defined _ROSBE_VERSION (
