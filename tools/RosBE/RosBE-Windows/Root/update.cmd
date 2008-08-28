@@ -24,6 +24,7 @@ set _ROSBE_URL=www.foo.bar
 ::
 :: Default Variables.
 ::
+set _ROSBE_OPATH=%~dp0
 set _ROSBE_CMDS=yes
 set _ROSBE_GCC=yes
 set _ROSBE_TOOLS=yes
@@ -52,91 +53,93 @@ if not "%1" == "" (
     )
 )
 
+cd /d "%_ROSBE_BASEDIR%"
+
 if _ROSBE_CMDS == yes (
     ::
     :: First check for a new Updater
     ::
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/update.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/update.cmd
     "%_ROSBE_BASEDIR%\update.cmd"
 
     ::
     :: PS1 Files.
     ::
-    if exist "%_ROSBE_BASEDIR%\Build.ps1" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Build.ps1
+    if exist "Build.ps1" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Build.ps1
     )
-    if exist "%_ROSBE_BASEDIR%\Clean.ps1" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Clean.ps1
+    if exist "Clean.ps1" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Clean.ps1
     )
-    if exist "%_ROSBE_BASEDIR%\Help.ps1" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Help.ps1
+    if exist "Help.ps1" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Help.ps1
     )
-    if exist "%_ROSBE_BASEDIR%\MinGW.ps1" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/MinGW.ps1
+    if exist "MinGW.ps1" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/MinGW.ps1
     )
-    if exist "%_ROSBE_BASEDIR%\RosBE.ps1" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/RosBE.ps1
+    if exist "RosBE.ps1" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/RosBE.ps1
     )
-    if exist "%_ROSBE_BASEDIR%\rosbe-gcc-env.ps1" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/rosbe-gcc-env.ps1
+    if exist "rosbe-gcc-env.ps1" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/rosbe-gcc-env.ps1
     )
 
     ::
     :: Options Files.
     ::
-    if exist "%_ROSBE_BASEDIR%\options.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/options.cmd
+    if exist "options.cmd" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/options.cmd
     )
 
     ::
     :: SVN Files.
     ::
-    if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/sSVN.cmd
+    if exist "sSVN.cmd" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/sSVN.cmd
     )
 
     ::
     :: SCut Files.
     ::
-    if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/scut.cmd
+    if exist "scut.cmd" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/scut.cmd
     )
 
     ::
     :: RelAddr2Line Files.
     ::
-    if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/reladdr2line.cmd
+    if exist "reladdr2line.cmd" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/reladdr2line.cmd
     )
 
     ::
     :: Other Tools Files.
     ::
-    if exist "%_ROSBE_BASEDIR%\Config.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Config.cmd
+    if exist "Config.cmd" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Config.cmd
     )
-    if exist "%_ROSBE_BASEDIR%\chdefdir.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/chdefdir.cmd
+    if exist "chdefdir.cmd" (
+        "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/chdefdir.cmd
     )
 
     ::
     :: Default Files.
     ::
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Build.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/ChangeLog.txt
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/chdefgcc.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Clean.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Help.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/LICENSE.TXT
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/MinGW.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/mingw.ico
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/MinGW.mac
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/README.pdf
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/RosBE.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/rosbe.ico
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/RosBE.mac
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/rosbe-gcc-env.cmd
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/TimeDate.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Build.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/ChangeLog.txt
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/chdefgcc.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Clean.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Help.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/LICENSE.TXT
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/MinGW.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/mingw.ico
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/MinGW.mac
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/README.pdf
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/RosBE.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/rosbe.ico
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/RosBE.mac
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/rosbe-gcc-env.cmd
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/TimeDate.cmd
 )
 
 if _ROSBE_GCC == yes (
@@ -147,7 +150,7 @@ if _ROSBE_GCC == yes (
         for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE=%%i
     )
 
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/GCC.7z
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/GCC.7z
 
     ::
     :: Add the maybe Updated Dates to another Var.
@@ -158,7 +161,7 @@ if _ROSBE_GCC == yes (
     :: Extract GCC.
     ::
     if %_ROSBE_GCCDATE% NEQ %_ROSBE_GCCDATE2% (
-        "%_ROSBE_BASEDIR%\Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
+        "Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
     )
 )
 if _ROSBE_TOOLS == yes (
@@ -169,7 +172,7 @@ if _ROSBE_TOOLS == yes (
         for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE=%%i
     )
 
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N %_ROSBE_URL%/Tools.7z
+    "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/Tools.7z
 
     ::
     :: Add the maybe Updated Dates to another Var.
@@ -177,7 +180,7 @@ if _ROSBE_TOOLS == yes (
     for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE2=%%i
 
     if %_ROSBE_TOOLSDATE% NEQ %_ROSBE_TOOLSDATE2% (
-        "%_ROSBE_BASEDIR%\Tools\7z.exe" x Tools.7z "%TEMP%"
+        "Tools\7z.exe" x Tools.7z "%TEMP%"
         ::
         :: Build the tools
         ::
@@ -187,6 +190,9 @@ if _ROSBE_TOOLS == yes (
 )
 
 :EOU
+
+cd /d "%_ROSBE_OPATH%"
+
 ::
 :: Unload Vars.
 ::
@@ -199,6 +205,8 @@ set _ROSBE_CMDS=
 set _ROSBE_GCC=
 set _ROSBE_TOOLS=
 set _ROSBE_PARAM=
+set _ROSBE_OPATH=
+
 
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
