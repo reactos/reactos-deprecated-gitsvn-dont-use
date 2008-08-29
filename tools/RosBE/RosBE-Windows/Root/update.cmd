@@ -34,30 +34,78 @@ set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
 set _ROSBE_CMDS=yes
 set _ROSBE_GCC=yes
 set _ROSBE_TOOLS=yes
-set _ROSBE_PARAM=no
 
 ::
 :: Update the Vars if the params say so.
 ::
+if "%1" == "" (
+    goto :next
+)
+
 if "%1" == "nocmds" (
     set _ROSBE_CMDS=no
-    set _ROSBE_PARAM=yes
+    goto :p1
 )
 if "%1" == "nogcc" (
     set _ROSBE_GCC=no
-    set _ROSBE_PARAM=yes
+    goto :p1
 )
 if "%1" == "notools" (
     set _ROSBE_TOOLS=no
-    set _ROSBE_PARAM=yes
+    goto :p1
 )
-if not "%1" == "" (
-    if %_ROSBE_PARAM% == no (
-        cls
-        echo Unknown parameter specified. Exiting.
-        goto :EOU
-    )
+
+cls
+echo Unknown first parameter specified. Exiting.
+goto :EOU
+
+:p1
+
+if "%2" == "" (
+    goto :next
 )
+
+if "%2" == "nocmds" (
+    set _ROSBE_CMDS=no
+    goto :p2
+)
+if "%2" == "nogcc" (
+    set _ROSBE_GCC=no
+    goto :p2
+)
+if "%2" == "notools" (
+    set _ROSBE_TOOLS=no
+    goto :p2
+)
+
+cls
+echo Unknown second parameter specified. Exiting.
+goto :EOU
+
+:p2
+
+if "%3" == "" (
+    goto :next
+)
+
+if "%3" == "nocmds" (
+    set _ROSBE_CMDS=no
+    goto :next
+)
+if "%3" == "nogcc" (
+    set _ROSBE_GCC=no
+    goto :next
+)
+if "%3" == "notools" (
+    set _ROSBE_TOOLS=no
+    goto :next
+)
+
+cls
+echo Unknown third parameter specified. Exiting.
+goto :EOU
+
+:next
 
 cd /d "%_ROSBE_BASEDIR%"
 
@@ -220,7 +268,6 @@ set _ROSBE_TOOLSDATE2=
 set _ROSBE_CMDS=
 set _ROSBE_GCC=
 set _ROSBE_TOOLS=
-set _ROSBE_PARAM=
 set _ROSBE_OPATH=
 set _ROSBE_UPDDATE=
 set _ROSBE_UPDDATE2=
