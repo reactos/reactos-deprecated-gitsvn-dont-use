@@ -77,6 +77,7 @@ shortcut="$shortcutdir/ReactOS Build Environment.desktop"
 
 echo "[Desktop Entry]" > "$shortcut"
 echo "Type=Application" >> "$shortcut"
+echo "Categories=Development" >> "$shortcut"
 echo "Version=$ROSBE_VERSION" >> "$shortcut"
 echo "Name=ReactOS Build Environment" >> "$shortcut"
 echo "Icon=$SCRIPTDIR/RosBE.png" >> "$shortcut"
