@@ -7,6 +7,11 @@
 ::
 ::
 @echo off
+
+setlocal
+setlocal enableextensions
+setlocal enabledelayedexpansion
+
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
     @echo on
@@ -47,7 +52,7 @@ if "%1" == "notools" (
     set _ROSBE_PARAM=yes
 )
 if not "%1" == "" (
-    if _ROSBE_PARAM == no (
+    if %_ROSBE_PARAM% == no (
         cls
         echo Unknown parameter specified. Exiting.
         goto :EOU
@@ -56,15 +61,15 @@ if not "%1" == "" (
 
 cd /d "%_ROSBE_BASEDIR%"
 
-if _ROSBE_CMDS == yes (
+if %_ROSBE_CMDS% == yes (
     ::
     :: First check for a new Updater
     ::
-    for /f "usebackq" %%i in (`"forfiles /M update.cmd /C "cmd /c echo @fdate""`) do set _ROSBE_UPDDATE=%%i
+    for %%F in (update.cmd) do set _ROSBE_UPDDATE=%%~tF
     "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/update.cmd
-    for /f "usebackq" %%i in (`"forfiles /M update.cmd /C "cmd /c echo @fdate""`) do set _ROSBE_UPDDATE2=%%i
+    for %%F in (update.cmd) do set _ROSBE_UPDDATE2=%%~tF
 
-    if %_ROSBE_UPDDATE% NEQ %_ROSBE_UPDDATE2% (
+    if !_ROSBE_UPDDATE! NEQ !_ROSBE_UPDDATE2! (
         cls
         echo Updater got updated and needs to be restarted.
         goto :EOU
@@ -149,12 +154,12 @@ if _ROSBE_CMDS == yes (
     "Tools\wget.exe" -N --ignore-length %_ROSBE_URL%/TimeDate.cmd
 )
 
-if _ROSBE_GCC == yes (
+if %_ROSBE_GCC% == yes (
     ::
     :: Add Dates into Vars and load GCC packages if needed.
     ::
     if exist GCC.7z (
-        for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE=%%i
+        for %%F in (GCC.7z) do set _ROSBE_GCCDATE=%%~tF
     ) else (
         set _ROSBE_GCCDATE=0
     )
@@ -164,21 +169,21 @@ if _ROSBE_GCC == yes (
     ::
     :: Add the maybe Updated Dates to another Var.
     ::
-    for /f "usebackq" %%i in (`"forfiles /M GCC.7z /C "cmd /c echo @fdate""`) do set _ROSBE_GCCDATE2=%%i
+    for %%F in (GCC.7z) do set _ROSBE_GCCDATE2=%%~tF
 
     ::
     :: Extract GCC.
     ::
-    if %_ROSBE_GCCDATE% NEQ %_ROSBE_GCCDATE2% (
+    if !_ROSBE_GCCDATE! NEQ !_ROSBE_GCCDATE2! (
         "Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
     )
 )
-if _ROSBE_TOOLS == yes (
+if %_ROSBE_TOOLS% == yes (
     ::
     :: Add Dates into Vars and load Tool SRC packages if needed.
     ::
     if exist Tools.7z (
-        for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE=%%i
+        for %%F in (Tools.7z) do set _ROSBE_TOOLSDATE=%%~tF
     ) else (
         set _ROSBE_TOOOLSDATE=0
     )
@@ -188,9 +193,9 @@ if _ROSBE_TOOLS == yes (
     ::
     :: Add the maybe Updated Dates to another Var.
     ::
-    for /f "usebackq" %%i in (`"forfiles /M Tools.7z /C "cmd /c echo @fdate""`) do set _ROSBE_TOOLSDATE2=%%i
+    for %%F in (Tools.7z) do set _ROSBE_TOOLSDATE2=%%~tF
 
-    if %_ROSBE_TOOLSDATE% NEQ %_ROSBE_TOOLSDATE2% (
+    if !_ROSBE_TOOLSDATE! NEQ !_ROSBE_TOOLSDATE2! (
         "Tools\7z.exe" x Tools.7z "%TEMP%"
         ::
         :: Build the tools
