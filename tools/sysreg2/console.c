@@ -1,4 +1,4 @@
-oh,#include "sysreg.h"
+#include "sysreg.h"
 #include <termios.h>
 #include <poll.h>
 
