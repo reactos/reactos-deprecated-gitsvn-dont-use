@@ -1,0 +1,47 @@
+<domain type='kvm' id='1'>
+  <name>ReactOS</name>
+  <uuid>0ab69219-58c2-1e5c-6beb-fb29db74b0ae</uuid>
+  <memory>262144</memory>
+  <currentMemory>262144</currentMemory>
+  <vcpu>1</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+  </features>
+  <clock offset='localtime'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>destroy</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm</emulator>
+    <disk type='file' device='disk'>
+      <source file='/opt/buildbot/kvmtest/ros.img'/>
+      <target dev='hda' bus='ide'/>
+    </disk>
+    <disk type='file' device='cdrom'>
+		<source file='/opt/buildbot/kvmtest/ReactOS.iso'/>
+      <target dev='hdc' bus='ide'/>
+      <readonly/>
+    </disk>
+    <interface type='bridge'>
+      <mac address='00:16:3e:2e:dd:df'/>
+      <source bridge='virbr0'/>
+	  <target dev='vnet0'/>
+	  <model type='pcnet'/>
+    </interface>
+    <serial type='pty'>
+      <source path='/dev/pts/4'/>
+      <target port='1'/>
+    </serial>
+    <console type='pty' tty='/dev/pts/4'>
+      <source path='/dev/pts/4'/>
+      <target port='1'/>
+    </console>
+    <input type='tablet' bus='usb'/>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='5900' listen='0.0.0.0'/>
+  </devices>
+</domain>
+
