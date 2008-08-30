@@ -1,4 +1,4 @@
-#include "sysreg.h"
+oh,#include "sysreg.h"
 #include <termios.h>
 #include <poll.h>
 
@@ -77,8 +77,6 @@ void ProcessDebugData(const char* tty, int timeout)
                         sent += done;
                     }
                 }
-                if (buf)
-                    free(buf);
             }
         }
 
