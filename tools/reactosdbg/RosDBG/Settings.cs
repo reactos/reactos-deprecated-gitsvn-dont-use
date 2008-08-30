@@ -137,7 +137,7 @@ namespace RosDBG
         public static string ComPort { get { return mProperties.Port; } }
         public static string Baudrate { get { return mProperties.Baudrate; } }
 
-        Settings()
+        public Settings()
         {
             InitializeComponent();
             mProperties.Reload();
