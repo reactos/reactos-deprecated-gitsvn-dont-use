@@ -10,7 +10,7 @@ LFLAGS := -s -L/usr/lib64
 LIBS := -lgcc -lm -lvirt -ltasn1 -lz -lxml2 -lgnutls
 INC := -I/usr/include/libvirt/ -I/usr/include/libxml2/
 
-SRCS := virt.c utils.c console.c
+SRCS := virt.c utils.c console.c options.c
 
 OBJS := $(SRCS:.c=.o) 
 

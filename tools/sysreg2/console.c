@@ -2,7 +2,7 @@
 #include <termios.h>
 #include <poll.h>
 
-void ProcessDebugData(const char* tty, int timeout)
+void ProcessDebugData(const char* tty, int timeout, int stage )
 {
     int ttyfd, i;
     struct termios ttyattr, rawattr;
