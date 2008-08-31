@@ -51,7 +51,7 @@ bool IsVirtualMachineRunning(virConnectPtr vConn, const char* name)
         int i;
         for(i=0; i<iDomains; i++)
         {
-            if (strcmp(name, names[i]) == 0)
+            if (strcasecmp(name, names[i]) == 0)
                 return true;
         }
     }
@@ -111,7 +111,6 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char*  XmlFileName,
             name = virDomainGetName(vDomPtr);
             domname = strdup(name);
             virDomainFree(vDomPtr);
-            vDomPtr = virDomainLookupByName(vConn, domname);
             free(domname);
         }
     }
@@ -121,32 +120,42 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char*  XmlFileName,
 
 int main()
 {
-
     virConnectPtr vConn;
     virDomainPtr vDom;
+    int Stage;
+    int Stages = 1; /* 1 for testing, should be set to 3 later */ 
+
+    if (!LoadSettings("sysreg.xml"))
+    {
+        printf("Can not load configuration file\n");
+        return EXIT_FAILURE;
+    }
 
     vConn = virConnectOpen("qemu:///session");
 
-    if (IsVirtualMachineRunning(vConn, "reactos"))
-        printf("Virtual Machine is already running\n");
-    else
+    for (Stage=0;Stage<Stages; Stage++)
     {
-        vDom = LaunchVirtualMachine(vConn, "/opt/buildbot/kvmtest/reactos.xml", "cdrom");
+        if (IsVirtualMachineRunning(vConn, AppSettings.Name))
+            printf("Virtual Machine is already running\n");
+        else
         {
-            if (vDom)
+            vDom = LaunchVirtualMachine(vConn, AppSettings.Filename,
+                    AppSettings.Stage[Stage].BootDevice);
             {
-                printf("Domain %s started.\n", virDomainGetName(vDom));
-                printf("%s\n", GetConsole(vDom));
-                ProcessDebugData(GetConsole(vDom), 10000 /*10 sec */);
-
-                virDomainDestroy(vDom);
-                virDomainUndefine(vDom);
-                virDomainFree(vDom);
-            }
+                if (vDom)
+                {
+                    printf("Domain %s started.\n", virDomainGetName(vDom));
+                    ProcessDebugData(GetConsole(vDom), 
+                                     AppSettings.Timeout, Stage);
+                    virDomainDestroy(vDom);
+                    virDomainUndefine(vDom);
+                    virDomainFree(vDom);
+                }
+            }	
         }
     }
 
     virConnectClose(vConn);
-    return 1;
+    return EXIT_SUCCESS;
 }
 

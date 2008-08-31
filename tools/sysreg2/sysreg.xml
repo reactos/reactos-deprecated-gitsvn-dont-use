@@ -1,0 +1,13 @@
+<settings vm="ReactOS" file="/opt/buildbot/kvmtest/reactos.xml">
+	<general>
+		<!-- kill the VM after n milliseconds without debug msg -->
+		<timeout ms="20000"/>
+	</general2
+	<firststage bootdevice="cdrom">
+		<success on="SYSREG_CHECKPOINT:USETUP_COMPLETE"/>
+	</firststage>
+	<secondstage bootdevice="hd">
+	</secondstage>
+	<thirdstage bootdevice="hd">
+	</thirdstage>
+</settings>
