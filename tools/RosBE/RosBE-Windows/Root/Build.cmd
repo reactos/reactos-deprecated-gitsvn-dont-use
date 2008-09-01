@@ -63,7 +63,7 @@ if defined _ROSBE_USECCACHE (
             set TARGET_CC=ccache gcc
             set TARGET_CPP=ccache g++
         )
-        if %ROS_ARCH% == x64 (
+        if %ROS_ARCH% == amd64 (
             set TARGET_CC=ccache x86_64-pc-mingw32-gcc
             set TARGET_CPP=ccache x86_64-pc-mingw32-g++
         )
@@ -82,7 +82,7 @@ if defined _ROSBE_USECCACHE (
             set TARGET_CC=gcc
             set TARGET_CPP=g++
         )
-        if %ROS_ARCH% == x64 (
+        if %ROS_ARCH% == amd64 (
             set TARGET_CC=x86_64-pc-mingw32-gcc
             set TARGET_CPP=x86_64-pc-mingw32-g++
         )

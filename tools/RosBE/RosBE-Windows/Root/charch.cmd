@@ -40,7 +40,7 @@ if /i "%_1%" == "ppc" (
     goto :EOC
 )
 if /i "%_1%" == "x64" (
-    set ROS_ARCH==x64
+    set ROS_ARCH==amd64
     set ROS_PREFIX=mingw32-x86_64
     goto :EOC
 )
