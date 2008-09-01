@@ -135,7 +135,7 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char* XmlFileName, 
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     virConnectPtr vConn;
     virDomainPtr vDom;
@@ -143,13 +143,18 @@ int main()
     int Stages = 1; /* 1 for testing, should be set to 3 later */ 
     char qemu_img_cmdline[300];
     FILE* file;
+	char config[255];
 
-    if (!LoadSettings("sysreg.xml"))
+	if (argc == 2)
+		strcpy(config, argv[1]);
+	else
+		strcpy(config, "sysreg.xml");
+
+    if (!LoadSettings(config))
     {
         printf("Can not load configuration file\n");
         return EXIT_FAILURE;
     }
-
     vConn = virConnectOpen("qemu:///session");
 
     if (IsVirtualMachineRunning(vConn, AppSettings.Name))
