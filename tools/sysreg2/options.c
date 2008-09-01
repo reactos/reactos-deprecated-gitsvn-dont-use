@@ -48,9 +48,9 @@ bool LoadSettings(const char* XmlConfig)
     obj = xmlXPathEval(BAD_CAST"number(/settings/general/hdd/@size)",ctxt);
     if ((obj != NULL) && (obj->type == XPATH_NUMBER))
     {
-		if (obj->floatval <= 0)
-			AppSettings.ImageSize = 512;
-		else
+        if (obj->floatval <= 0)
+            AppSettings.ImageSize = 512;
+        else
             AppSettings.ImageSize = (int)obj->floatval;
     }
 
@@ -75,7 +75,7 @@ bool LoadSettings(const char* XmlConfig)
     ctxt = xmlXPathNewContext(xml);
     if (!ctxt)
     {
-	    xmlFreeDoc(xml);
+        xmlFreeDoc(xml);
         return false;
     }
 
@@ -86,7 +86,7 @@ bool LoadSettings(const char* XmlConfig)
         strncpy(AppSettings.HardDiskImage, obj->stringval, 254);
     }
 
-	xmlFreeDoc(xml);
+    xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
     return true;
 }
