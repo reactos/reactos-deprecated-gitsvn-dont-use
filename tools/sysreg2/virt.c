@@ -42,18 +42,18 @@ const char* GetConsole(virDomainPtr vDomPtr)
 bool IsVirtualMachineRunning(virConnectPtr vConn, const char* name)
 {
     int* ids = NULL;
-	int numids;
+    int numids;
     int maxids = 0;
-	const char* domname;
-	virDomainPtr vDomPtr = NULL;
+    const char* domname;
+    virDomainPtr vDomPtr = NULL;
 
     maxids = virConnectNumOfDomains(vConn);
-	if (maxids < 0)
-		return false;
+    if (maxids < 0)
+        return false;
 
     ids = malloc(sizeof(int) * maxids);
-	if (!ids)
-		return false;
+    if (!ids)
+        return false;
     
     numids = virConnectListDomains(vConn, &ids[0], maxids);
     if (numids > -1)	
@@ -61,14 +61,14 @@ bool IsVirtualMachineRunning(virConnectPtr vConn, const char* name)
         int i;
         for(i=0; i<numids; i++)
         {
-			vDomPtr = virDomainLookupByID(vConn, ids[i]);
-			domname = virDomainGetName(vDomPtr);
+            vDomPtr = virDomainLookupByID(vConn, ids[i]);
+            domname = virDomainGetName(vDomPtr);
             if (strcasecmp(name, domname) == 0)
-			{
-				virDomainFree(vDomPtr);
+            {
+                virDomainFree(vDomPtr);
                 return true; 
-			}
-			virDomainFree(vDomPtr);
+            }
+            virDomainFree(vDomPtr);
         }
     }
     return false;
@@ -128,7 +128,7 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char* XmlFileName, 
             domname = strdup(name);
             virDomainFree(vDomPtr);
             vDomPtr = virDomainLookupByName(vConn, domname);
-			free(domname);
+            free(domname);
         }
     }
     return vDomPtr;
@@ -141,8 +141,8 @@ int main()
     virDomainPtr vDom;
     int Stage;
     int Stages = 1; /* 1 for testing, should be set to 3 later */ 
-	char qemu_img_cmdline[300];
-	FILE* file;
+    char qemu_img_cmdline[300];
+    FILE* file;
 
     if (!LoadSettings("sysreg.xml"))
     {
@@ -153,26 +153,26 @@ int main()
     vConn = virConnectOpen("qemu:///session");
 
     if (IsVirtualMachineRunning(vConn, AppSettings.Name))
-	{
-		printf("Error: Virtual Machine is already running.\n");
-		return EXIT_FAILURE;
-	}
+    {
+        printf("Error: Virtual Machine is already running.\n");
+        return EXIT_FAILURE;
+    }
 
-	if (file = fopen(AppSettings.HardDiskImage, "r"))
-	{
+    if (file = fopen(AppSettings.HardDiskImage, "r"))
+    {
         fclose(file);
-	    remove(AppSettings.HardDiskImage);
-	}
+        remove(AppSettings.HardDiskImage);
+    }
 
-	sprintf(qemu_img_cmdline, "qemu-img create -f qcow2 %s %dM", 
-			AppSettings.HardDiskImage, AppSettings.ImageSize);
-	FILE* p = popen(qemu_img_cmdline, "r");
+    sprintf(qemu_img_cmdline, "qemu-img create -f qcow2 %s %dM", 
+            AppSettings.HardDiskImage, AppSettings.ImageSize);
+    FILE* p = popen(qemu_img_cmdline, "r");
     char buf[100];
     while(feof(p)==0)
-	{
-	    memset(buf,0,strlen(buf));
-		fgets(buf,100,p);
-		printf("%s\n",buf);
+    {
+        memset(buf,0,strlen(buf));
+        fgets(buf,100,p);
+        printf("%s\n",buf);
     }
     pclose(p); 
 
