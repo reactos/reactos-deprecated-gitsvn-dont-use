@@ -21,7 +21,7 @@
       <target dev='hda' bus='ide'/>
     </disk>
     <disk type='file' device='cdrom'>
-		<source file='/opt/buildbot/kvmtest/ReactOS.iso'/>
+		<source file='/opt/buildbot/kvmtest/ReactOS-RegTest.iso'/>
       <target dev='hdc' bus='ide'/>
       <readonly/>
     </disk>

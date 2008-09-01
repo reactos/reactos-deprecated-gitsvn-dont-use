@@ -2,7 +2,9 @@
 	<general>
 		<!-- kill the VM after n milliseconds without debug msg -->
 		<timeout ms="20000"/>
-	</general2
+		<!-- size of the hdd image in MB -->
+		<hdd size="512"/>
+	</general>
 	<firststage bootdevice="cdrom">
 		<success on="SYSREG_CHECKPOINT:USETUP_COMPLETE"/>
 	</firststage>
