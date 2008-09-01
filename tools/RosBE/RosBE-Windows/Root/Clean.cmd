@@ -47,30 +47,95 @@ if exist "%_ROSBE_LOGDIR%\*.txt" (
 goto :EOF
 
 :DEL
-::
-:: Check if we have something to clean, if so, clean it.
-::
-if exist "obj-i386\." (
-    echo Cleaning ReactOS source directory...
+
+if %ROS_ARCH% == arm (
     ::
-    : Remove directories/makefile.auto created by the build.
+    :: Check if we have something to clean, if so, clean it.
+    ::
+    if exist "obj-arm\." (
+        echo Cleaning ReactOS source directory...
+        ::
+        : Remove directories created by the build.
+        ::
+        if exist "obj-arm\." (
+            rd /s /q "obj-arm" 1> NUL 2> NUL
+        )
+        if exist "output-arm\." (
+            rd /s /q "output-arm" 1> NUL 2> NUL
+        )
+        echo Done cleaning ReactOS source directory.
+    ) else (
+        echo ERROR: There is no compiler output to clean.
+    )
+)
+if %ROS_ARCH% == x86 (
+    ::
+    :: Check if we have something to clean, if so, clean it.
     ::
     if exist "obj-i386\." (
-        rd /s /q "obj-i386" 1> NUL 2> NUL
+        echo Cleaning ReactOS source directory...
+        ::
+        : Remove directories created by the build.
+        ::
+        if exist "obj-i386\." (
+            rd /s /q "obj-i386" 1> NUL 2> NUL
+        )
+        if exist "output-i386\." (
+            rd /s /q "output-i386" 1> NUL 2> NUL
+        )
+        echo Done cleaning ReactOS source directory.
+    ) else (
+        echo ERROR: There is no compiler output to clean.
     )
-    if exist "output-i386\." (
-        rd /s /q "output-i386" 1> NUL 2> NUL
-    )
-    if exist "reactos\." (
-        rd /s /q "reactos" 1> NUL 2> NUL
-    )
-    if exist "makefile.auto" (
-        del "makefile.auto" 1> NUL 2> NUL
-    )
-    echo Done cleaning ReactOS source directory.
-) else (
-    echo ERROR: There is no compiler output to clean.
 )
+if %ROS_ARCH% == ppc (
+    ::
+    :: Check if we have something to clean, if so, clean it.
+    ::
+    if exist "obj-ppc\." (
+        echo Cleaning ReactOS source directory...
+        ::
+        : Remove directories created by the build.
+        ::
+        if exist "obj-ppc\." (
+            rd /s /q "obj-ppc" 1> NUL 2> NUL
+        )
+        if exist "output-ppc\." (
+            rd /s /q "output-ppc" 1> NUL 2> NUL
+        )
+        echo Done cleaning ReactOS source directory.
+    ) else (
+        echo ERROR: There is no compiler output to clean.
+    )
+)
+if %ROS_ARCH% == x64 (
+    ::
+    :: Check if we have something to clean, if so, clean it.
+    ::
+    if exist "obj-x86_64\." (
+        echo Cleaning ReactOS source directory...
+        ::
+        : Remove directories created by the build.
+        ::
+        if exist "obj-x86_64\." (
+            rd /s /q "obj-x86_64" 1> NUL 2> NUL
+        )
+        if exist "output-x86_64\." (
+            rd /s /q "output-x86_64" 1> NUL 2> NUL
+        )
+        echo Done cleaning ReactOS source directory.
+    ) else (
+        echo ERROR: There is no compiler output to clean.
+    )
+)
+
+if exist "reactos\." (
+    rd /s /q "reactos" 1> NUL 2> NUL
+)
+if exist "makefile.auto" (
+    del "makefile.auto" 1> NUL 2> NUL
+)
+
 goto :EOF
 
 :EOC
