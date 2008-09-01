@@ -15,8 +15,8 @@ title Change the Architecture to build for...
 
 ::
 :: Parse the command line arguments.
-:: ROS_ARCH: Set to x86, ppc or arm.
-:: ROS_PREFIX: Default is mingw32. ppc could be mingw32-ppc, arm mingw32-arm.
+:: ROS_ARCH: Set to x86, x64, ppc or arm.
+:: ROS_PREFIX: Default is mingw32. ppc could be mingw32-ppc, arm mingw32-arm, x64 mingw32-x86_64.
 ::
 
 if "%1" == "" (
@@ -37,6 +37,11 @@ if /i "%_1%" == "arm" (
 if /i "%_1%" == "ppc" (
     set ROS_ARCH==ppc
     set ROS_PREFIX=mingw32-ppc
+    goto :EOC
+)
+if /i "%_1%" == "x64" (
+    set ROS_ARCH==x64
+    set ROS_PREFIX=mingw32-x86_64
     goto :EOC
 )
 if not "%_1%" == "" (

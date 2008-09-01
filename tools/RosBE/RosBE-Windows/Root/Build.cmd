@@ -55,13 +55,41 @@ if defined _ROSBE_USECCACHE (
         set CCACHE_DIR=%APPDATA%\RosBE\.ccache
         set HOST_CC=ccache gcc
         set HOST_CPP=ccache g++
-        set TARGET_CC=ccache gcc
-        set TARGET_CPP=ccache g++
+        if %ROS_ARCH% == arm (
+            set TARGET_CC=ccache arm-pc-mingw32-gcc
+            set TARGET_CPP=ccache arm-pc-mingw32-g++
+        )
+        if %ROS_ARCH% == x86 (
+            set TARGET_CC=ccache gcc
+            set TARGET_CPP=ccache g++
+        )
+        if %ROS_ARCH% == x64 (
+            set TARGET_CC=ccache x86_64-pc-mingw32-gcc
+            set TARGET_CPP=ccache x86_64-pc-mingw32-g++
+        )
+        if %ROS_ARCH% == ppc (
+            set TARGET_CC=ccache ppc-pc-mingw32-gcc
+            set TARGET_CPP=ccache ppc-pc-mingw32-g++
+        )
     ) else (
         set HOST_CC=gcc
         set HOST_CPP=g++
-        set TARGET_CC=gcc
-        set TARGET_CPP=g++
+        if %ROS_ARCH% == arm (
+            set TARGET_CC=arm-pc-mingw32-gcc
+            set TARGET_CPP=arm-pc-mingw32-g++
+        )
+        if %ROS_ARCH% == x86 (
+            set TARGET_CC=gcc
+            set TARGET_CPP=g++
+        )
+        if %ROS_ARCH% == x64 (
+            set TARGET_CC=x86_64-pc-mingw32-gcc
+            set TARGET_CPP=x86_64-pc-mingw32-g++
+        )
+        if %ROS_ARCH% == ppc (
+            set TARGET_CC=ppc-pc-mingw32-gcc
+            set TARGET_CPP=ppc-pc-mingw32-g++
+        )
     )
 )
 
