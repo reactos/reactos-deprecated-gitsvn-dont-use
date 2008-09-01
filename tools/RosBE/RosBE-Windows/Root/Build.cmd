@@ -50,6 +50,15 @@ if defined _ROSBE_STRIP (
         set ROS_LEAN_AND_MEAN=no
     )
 )
+
+if %ROS_LEAN_AND_MEAN% == yes (
+    if %ROS_BUILDNOSTRIP% == yes (
+        cls
+        echo Selecting Stripping and removing Debug Symbols together will most likely cause useless apps. Please deselect one of them.
+        goto :EOC
+    )
+)
+
 if defined _ROSBE_USECCACHE (
     if %_ROSBE_USECCACHE% == 1 (
         set CCACHE_DIR=%APPDATA%\RosBE\.ccache
