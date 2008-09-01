@@ -18,6 +18,8 @@ typedef struct {
 	int Timeout;
 	char Filename[255];
 	char Name[80];
+	char HardDiskImage[255];
+	int ImageSize;
 	stage Stage[3];
 } Settings;
 

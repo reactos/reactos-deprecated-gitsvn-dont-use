@@ -30,7 +30,7 @@ bool LoadSettings(const char* XmlConfig)
         strncpy(AppSettings.Filename, obj->stringval, 254);
     }
 
-    obj = xmlXPathEval(BAD_CAST"string(/settings/@name)",ctxt);
+    obj = xmlXPathEval(BAD_CAST"string(/settings/@vm)",ctxt);
     if ((obj != NULL) && ((obj->type == XPATH_STRING) &&
                      (obj->stringval != NULL) && (obj->stringval[0] != 0)))
     {
@@ -43,6 +43,15 @@ bool LoadSettings(const char* XmlConfig)
         /* when no value is set - return value is negative
          * which means infinite */
         AppSettings.Timeout = (int)obj->floatval;
+    }
+
+    obj = xmlXPathEval(BAD_CAST"number(/settings/general/hdd/@size)",ctxt);
+    if ((obj != NULL) && (obj->type == XPATH_NUMBER))
+    {
+		if (obj->floatval <= 0)
+			AppSettings.ImageSize = 512;
+		else
+            AppSettings.ImageSize = (int)obj->floatval;
     }
 
     for (Stage=0;Stage<3;Stage++)
@@ -59,6 +68,27 @@ bool LoadSettings(const char* XmlConfig)
     }
     xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
+
+    xml = xmlReadFile(AppSettings.Filename, NULL, 0);
+    if (!xml)
+        return false;
+    ctxt = xmlXPathNewContext(xml);
+    if (!ctxt)
+    {
+	    xmlFreeDoc(xml);
+        return false;
+    }
+
+    obj = xmlXPathEval(BAD_CAST"string(/domain/devices/disk[@device='disk']/source/@file)",ctxt);
+    if ((obj != NULL) && ((obj->type == XPATH_STRING) &&
+                     (obj->stringval != NULL) && (obj->stringval[0] != 0)))
+    {
+        strncpy(AppSettings.HardDiskImage, obj->stringval, 254);
+    }
+
+	xmlFreeDoc(xml);
+    xmlXPathFreeContext(ctxt);
     return true;
 }
+
 
