@@ -68,7 +68,7 @@ if .%ROS_ARCH%. == .arm. (
         echo ERROR: There is no compiler output to clean.
     )
 )
-if .%ROS_ARCH%. == .x86. (
+if .%ROS_ARCH%. == .i386. (
     ::
     :: Check if we have something to clean, if so, clean it.
     ::
