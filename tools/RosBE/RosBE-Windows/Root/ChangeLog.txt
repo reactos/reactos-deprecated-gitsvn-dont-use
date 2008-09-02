@@ -13,6 +13,7 @@
 - Added: Update command (Daniel Reimer)
 - Fixed: Dependant on the Arch variable a crosscompiler will be used now. (Daniel Reimer)
 - Fixed: Clean only cleans the arch which is active right now. (Daniel Reimer)
+- Fixed: "if defined xxx" with a nested "if %xxx% == foobar" does not work in batch. (Daniel Reimer)
 - Fixed: Stripped apps and removed Debug Symbols at once may not be possible. (Daniel Reimer)
 
 *** January 23rd, 2008 - RosBE 1.2 Released

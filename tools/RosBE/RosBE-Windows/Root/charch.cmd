@@ -35,12 +35,12 @@ if /i "%_1%" == "arm" (
     goto :EOC
 )
 if /i "%_1%" == "ppc" (
-    set ROS_ARCH==ppc
+    set ROS_ARCH=ppc
     set ROS_PREFIX=mingw32-ppc
     goto :EOC
 )
 if /i "%_1%" == "x64" (
-    set ROS_ARCH==amd64
+    set ROS_ARCH=amd64
     set ROS_PREFIX=mingw32-x86_64
     goto :EOC
 )

@@ -208,8 +208,6 @@ if %_ROSBE_GCC% == yes (
     ::
     if exist GCC.7z (
         for %%F in (GCC.7z) do set _ROSBE_GCCDATE=%%~tF
-    ) else (
-        set _ROSBE_GCCDATE=0
     )
 
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/GCC.7z
@@ -232,8 +230,6 @@ if %_ROSBE_TOOLS% == yes (
     ::
     if exist Tools.7z (
         for %%F in (Tools.7z) do set _ROSBE_TOOLSDATE=%%~tF
-    ) else (
-        set _ROSBE_TOOOLSDATE=0
     )
 
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Tools.7z

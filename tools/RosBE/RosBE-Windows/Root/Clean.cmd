@@ -48,7 +48,7 @@ goto :EOF
 
 :DEL
 
-if %ROS_ARCH% == arm (
+if .%ROS_ARCH%. == .arm. (
     ::
     :: Check if we have something to clean, if so, clean it.
     ::
@@ -68,7 +68,7 @@ if %ROS_ARCH% == arm (
         echo ERROR: There is no compiler output to clean.
     )
 )
-if %ROS_ARCH% == x86 (
+if .%ROS_ARCH%. == .x86. (
     ::
     :: Check if we have something to clean, if so, clean it.
     ::
@@ -88,7 +88,7 @@ if %ROS_ARCH% == x86 (
         echo ERROR: There is no compiler output to clean.
     )
 )
-if %ROS_ARCH% == ppc (
+if .%ROS_ARCH%. == .ppc. (
     ::
     :: Check if we have something to clean, if so, clean it.
     ::
@@ -108,20 +108,40 @@ if %ROS_ARCH% == ppc (
         echo ERROR: There is no compiler output to clean.
     )
 )
-if %ROS_ARCH% == amd64 (
+if .%ROS_ARCH%. == .amd64. (
     ::
     :: Check if we have something to clean, if so, clean it.
     ::
-    if exist "obj-x86_64\." (
+    if exist "obj-amd64\." (
         echo Cleaning ReactOS source directory...
         ::
         : Remove directories created by the build.
         ::
-        if exist "obj-x86_64\." (
-            rd /s /q "obj-x86_64" 1> NUL 2> NUL
+        if exist "obj-amd64\." (
+            rd /s /q "obj-amd64" 1> NUL 2> NUL
         )
-        if exist "output-x86_64\." (
-            rd /s /q "output-x86_64" 1> NUL 2> NUL
+        if exist "output-amd64\." (
+            rd /s /q "output-amd64" 1> NUL 2> NUL
+        )
+        echo Done cleaning ReactOS source directory.
+    ) else (
+        echo ERROR: There is no compiler output to clean.
+    )
+)
+if .%ROS_ARCH%. == .. (
+    ::
+    :: Check if we have something to clean, if so, clean it.
+    ::
+    if exist "obj-i386\." (
+        echo Cleaning ReactOS source directory...
+        ::
+        : Remove directories created by the build.
+        ::
+        if exist "obj-i386\." (
+            rd /s /q "obj-i386" 1> NUL 2> NUL
+        )
+        if exist "output-i386\." (
+            rd /s /q "output-i386" 1> NUL 2> NUL
         )
         echo Done cleaning ReactOS source directory.
     ) else (
