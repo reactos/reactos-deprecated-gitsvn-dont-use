@@ -26,23 +26,25 @@ if not defined _ROSBE_MINGWPATH (
 ::
 :: Set the Arch Variables
 ::
-if defined _ROSBE_ARCH (
-    if %_ROSBE_ARCH% == 0 (
-        set ROS_ARCH=
-        set ROS_PREFIX=
-    )
-    if %_ROSBE_ARCH% == 1 (
-        set ROS_ARCH=arm
-        set ROS_PREFIX=mingw32-arm
-    )
-    if %_ROSBE_ARCH% == 2 (
-        set ROS_ARCH=ppc
-        set ROS_PREFIX=mingw32-ppc
-    )
-    if %_ROSBE_ARCH% == 3 (
-        set ROS_ARCH=amd64
-        set ROS_PREFIX=mingw32-x86_64
-    )
+if .%_ROSBE_ARCH%. == .0. (
+    set ROS_ARCH=
+    set ROS_PREFIX=
+)
+if .%_ROSBE_ARCH%. == .1. (
+    set ROS_ARCH=arm
+    set ROS_PREFIX=mingw32-arm
+)
+if .%_ROSBE_ARCH%. == .2. (
+    set ROS_ARCH=ppc
+    set ROS_PREFIX=mingw32-ppc
+)
+if .%_ROSBE_ARCH%. == .3. (
+    set ROS_ARCH=amd64
+    set ROS_PREFIX=mingw32-x86_64
+)
+if .%_ROSBE_ARCH%. == .. (
+    set ROS_ARCH=
+    set ROS_PREFIX=
 )
 
 ::

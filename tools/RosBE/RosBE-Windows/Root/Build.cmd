@@ -36,69 +36,64 @@ endlocal
 ::
 :: Check if strip or ccache are being used and set the appropriate options.
 ::
-if defined _ROSBE_NOSTRIP (
-    if %_ROSBE_NOSTRIP% == 1 (
-        set ROS_BUILDNOSTRIP=yes
-    ) else (
-        set ROS_BUILDNOSTRIP=no
-    )
-)
-if defined _ROSBE_STRIP (
-    if %_ROSBE_STRIP% == 1 (
-        set ROS_LEAN_AND_MEAN=yes
-    ) else (
-        set ROS_LEAN_AND_MEAN=no
-    )
+if .%_ROSBE_NOSTRIP%. == .1. (
+    set ROS_BUILDNOSTRIP=yes
+) else (
+    set ROS_BUILDNOSTRIP=no
 )
 
-if %ROS_LEAN_AND_MEAN% == yes (
-    if %ROS_BUILDNOSTRIP% == yes (
+if .%_ROSBE_STRIP%. == .1. (
+    set ROS_LEAN_AND_MEAN=yes
+) else (
+    set ROS_LEAN_AND_MEAN=no
+)
+
+if .%ROS_LEAN_AND_MEAN%. == .yes. (
+    if .%ROS_BUILDNOSTRIP%. == .yes. (
         cls
         echo Selecting Stripping and removing Debug Symbols together will most likely cause useless apps. Please deselect one of them.
         goto :EOC
     )
 )
 
-if defined _ROSBE_USECCACHE (
-    if %_ROSBE_USECCACHE% == 1 (
-        set CCACHE_DIR=%APPDATA%\RosBE\.ccache
-        set HOST_CC=ccache gcc
-        set HOST_CPP=ccache g++
-        if %ROS_ARCH% == arm (
-            set TARGET_CC=ccache arm-pc-mingw32-gcc
-            set TARGET_CPP=ccache arm-pc-mingw32-g++
-        )
-        if %ROS_ARCH% == x86 (
-            set TARGET_CC=ccache gcc
-            set TARGET_CPP=ccache g++
-        )
-        if %ROS_ARCH% == amd64 (
-            set TARGET_CC=ccache x86_64-pc-mingw32-gcc
-            set TARGET_CPP=ccache x86_64-pc-mingw32-g++
-        )
-        if %ROS_ARCH% == ppc (
-            set TARGET_CC=ccache ppc-pc-mingw32-gcc
-            set TARGET_CPP=ccache ppc-pc-mingw32-g++
-        )
-    ) else (
-        set HOST_CC=gcc
-        set HOST_CPP=g++
-        if %ROS_ARCH% == arm (
-            set TARGET_CC=arm-pc-mingw32-gcc
-            set TARGET_CPP=arm-pc-mingw32-g++
-        )
-        if %ROS_ARCH% == x86 (
-            set TARGET_CC=gcc
-            set TARGET_CPP=g++
-        )
-        if %ROS_ARCH% == amd64 (
-            set TARGET_CC=x86_64-pc-mingw32-gcc
-            set TARGET_CPP=x86_64-pc-mingw32-g++
-        )
-        if %ROS_ARCH% == ppc (
-            set TARGET_CC=ppc-pc-mingw32-gcc
-            set TARGET_CPP=ppc-pc-mingw32-g++
-        )
+if .%_ROSBE_USECCACHE%. == .1. (
+    set CCACHE_DIR=%APPDATA%\RosBE\.ccache
+    set HOST_CC=ccache gcc
+    set HOST_CPP=ccache g++
+    if .%ROS_ARCH%. == .arm. (
+        set TARGET_CC=ccache arm-pc-mingw32-gcc
+        set TARGET_CPP=ccache arm-pc-mingw32-g++
+    )
+    if .%ROS_ARCH%. == .x86. (
+        set TARGET_CC=ccache gcc
+        set TARGET_CPP=ccache g++
+    )
+    if .%ROS_ARCH%. == .amd64. (
+        set TARGET_CC=ccache x86_64-pc-mingw32-gcc
+        set TARGET_CPP=ccache x86_64-pc-mingw32-g++
+    )
+    if .%ROS_ARCH%. == .ppc. (
+        set TARGET_CC=ccache ppc-pc-mingw32-gcc
+        set TARGET_CPP=ccache ppc-pc-mingw32-g++
+    )
+) else (
+    set HOST_CC=gcc
+    set HOST_CPP=g++
+    if .%ROS_ARCH%. == .arm. (
+        set TARGET_CC=arm-pc-mingw32-gcc
+        set TARGET_CPP=arm-pc-mingw32-g++
+    )
+    if .%ROS_ARCH%. == .x86. (
+        set TARGET_CC=gcc
+        set TARGET_CPP=g++
+    )
+    if .%ROS_ARCH%. == .amd64. (
+        set TARGET_CC=x86_64-pc-mingw32-gcc
+        set TARGET_CPP=x86_64-pc-mingw32-g++
+    )
+    if .%ROS_ARCH%. == .ppc. (
+        set TARGET_CC=ppc-pc-mingw32-gcc
+        set TARGET_CPP=ppc-pc-mingw32-g++
     )
 )
 
