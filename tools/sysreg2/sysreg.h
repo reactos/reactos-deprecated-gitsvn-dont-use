@@ -33,4 +33,4 @@ ssize_t safewrite(int fd, const void *buf, size_t count);
 bool LoadSettings(const char* XmlConfig);
 
 /* console.c */	
-void  ProcessDebugData(const char* tty, int timeout, int stage);  
+bool  ProcessDebugData(const char* tty, int timeout, int stage);  

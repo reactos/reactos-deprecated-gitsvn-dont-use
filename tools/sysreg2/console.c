@@ -2,19 +2,20 @@
 #include <termios.h>
 #include <poll.h>
 
-void ProcessDebugData(const char* tty, int timeout, int stage )
+bool ProcessDebugData(const char* tty, int timeout, int stage )
 {
     int ttyfd, i;
     struct termios ttyattr, rawattr;
+    bool Ret = true;
 
     if ((ttyfd = open(tty, O_NOCTTY | O_RDWR)) < 0)
     {
         printf("error opening tty\n");
-        return;
+        return false;
     }
 
     if (tcgetattr(STDIN_FILENO, &ttyattr) < 0)
-       return;
+       return false;
 
     rawattr = ttyattr;
     rawattr.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
@@ -25,7 +26,7 @@ void ProcessDebugData(const char* tty, int timeout, int stage )
     rawattr.c_cflag |= CS8;
 
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &rawattr) < 0)
-        return;
+        return false;
 
     while (1)
     { 
@@ -46,6 +47,7 @@ void ProcessDebugData(const char* tty, int timeout, int stage )
         {
             /* timeout */
             printf("timeout\n");
+            Ret = false;
             goto cleanup;
         }
 
@@ -59,10 +61,13 @@ void ProcessDebugData(const char* tty, int timeout, int stage )
                 int got, sent = 0;
 
                 got = read(fds[i].fd, buf, sizeof(buf));
-                if (got < 0)
+                if (got < 0) {
                     goto cleanup;
+                }
                 if (!got || got == 1 && buf[0] == '\33')
+                {
                     goto cleanup;
+                }
 
                 if (fds[i].fd != STDIN_FILENO)
                 {
@@ -72,6 +77,7 @@ void ProcessDebugData(const char* tty, int timeout, int stage )
                         if ((done = safewrite(STDOUT_FILENO, 
                                         buf + sent, got -sent)) <= 0)
                         {
+                            Ret = false;
                             goto cleanup;
                         }
                         sent += done;
@@ -86,7 +92,6 @@ void ProcessDebugData(const char* tty, int timeout, int stage )
 cleanup:
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &ttyattr);
     close(ttyfd);
-
-
+    return Ret;
 }
 
