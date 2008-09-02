@@ -32,15 +32,15 @@ if .%_ROSBE_ARCH%. == .0. (
 )
 if .%_ROSBE_ARCH%. == .1. (
     set ROS_ARCH=arm
-    set ROS_PREFIX=mingw32-arm
+    set ROS_PREFIX=arm-pc-mingw32
 )
 if .%_ROSBE_ARCH%. == .2. (
     set ROS_ARCH=ppc
-    set ROS_PREFIX=mingw32-ppc
+    set ROS_PREFIX=ppc-pc-mingw32
 )
 if .%_ROSBE_ARCH%. == .3. (
     set ROS_ARCH=amd64
-    set ROS_PREFIX=mingw32-x86_64
+    set ROS_PREFIX=x86_64-pc-mingw32
 )
 if .%_ROSBE_ARCH%. == .. (
     set ROS_ARCH=
