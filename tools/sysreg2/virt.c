@@ -139,6 +139,7 @@ int main(int argc, char **argv)
 {
     virConnectPtr vConn;
     virDomainPtr vDom;
+	virDomainInfo info;
     int Stage;
     int Stages = 1; /* 1 for testing, should be set to 3 later */ 
     char qemu_img_cmdline[300];
@@ -191,7 +192,10 @@ int main(int argc, char **argv)
                 printf("Domain %s started.\n", virDomainGetName(vDom));
                 ProcessDebugData(GetConsole(vDom), 
                                  AppSettings.Timeout, Stage);
-                virDomainDestroy(vDom);
+
+				virDomainGetInfo(vDom, &info);
+				if (info.state != VIR_DOMAIN_SHUTOFF)
+                    virDomainDestroy(vDom);
                 virDomainUndefine(vDom);
                 virDomainFree(vDom);
             }
