@@ -24,7 +24,7 @@ if "%1" == "" (
 ) else (
     set _1=%1
 )
-if /i "%_1%" == "x86" (
+if /i "%_1%" == "i386" (
     set ROS_ARCH=
     set ROS_PREFIX=
     goto :EOC
@@ -39,7 +39,7 @@ if /i "%_1%" == "ppc" (
     set ROS_PREFIX=mingw32-ppc
     goto :EOC
 )
-if /i "%_1%" == "x64" (
+if /i "%_1%" == "amd64" (
     set ROS_ARCH=amd64
     set ROS_PREFIX=mingw32-x86_64
     goto :EOC

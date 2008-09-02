@@ -64,7 +64,7 @@ if .%_ROSBE_USECCACHE%. == .1. (
         set TARGET_CC=ccache arm-pc-mingw32-gcc
         set TARGET_CPP=ccache arm-pc-mingw32-g++
     )
-    if .%ROS_ARCH%. == .x86. (
+    if .%ROS_ARCH%. == .i386. (
         set TARGET_CC=ccache gcc
         set TARGET_CPP=ccache g++
     )
@@ -83,7 +83,7 @@ if .%_ROSBE_USECCACHE%. == .1. (
         set TARGET_CC=arm-pc-mingw32-gcc
         set TARGET_CPP=arm-pc-mingw32-g++
     )
-    if .%ROS_ARCH%. == .x86. (
+    if .%ROS_ARCH%. == .i386. (
         set TARGET_CC=gcc
         set TARGET_CPP=g++
     )
