@@ -56,7 +56,7 @@ bool IsVirtualMachineRunning(virConnectPtr vConn, const char* name)
         return false;
     
     numids = virConnectListDomains(vConn, &ids[0], maxids);
-    if (numids > -1)	
+    if (numids > -1)    
     {
         int i;
         for(i=0; i<numids; i++)
@@ -139,17 +139,18 @@ int main(int argc, char **argv)
 {
     virConnectPtr vConn;
     virDomainPtr vDom;
-	virDomainInfo info;
+    virDomainInfo info;
     int Stage;
-    int Stages = 1; /* 1 for testing, should be set to 3 later */ 
+    int Stages = 3;
     char qemu_img_cmdline[300];
     FILE* file;
-	char config[255];
+    char config[255];
+    int Ret = EXIT_SUCCESS;
 
-	if (argc == 2)
-		strcpy(config, argv[1]);
-	else
-		strcpy(config, "sysreg.xml");
+    if (argc == 2)
+        strcpy(config, argv[1]);
+    else
+        strcpy(config, "sysreg.xml");
 
     if (!LoadSettings(config))
     {
@@ -189,20 +190,31 @@ int main(int argc, char **argv)
         {
             if (vDom)
             {
+                if (Stage > 0)
+                    printf("\n\n\n\n\n");
+                printf("Running stage %d...\n", Stage + 1);
                 printf("Domain %s started.\n", virDomainGetName(vDom));
-                ProcessDebugData(GetConsole(vDom), 
-                                 AppSettings.Timeout, Stage);
-
-				virDomainGetInfo(vDom, &info);
-				if (info.state != VIR_DOMAIN_SHUTOFF)
+                if (!ProcessDebugData(GetConsole(vDom), 
+                                 AppSettings.Timeout, Stage))
+                {
+                    Ret = EXIT_FAILURE;
+                }
+                virDomainGetInfo(vDom, &info);
+                if (info.state != VIR_DOMAIN_SHUTOFF)
                     virDomainDestroy(vDom);
                 virDomainUndefine(vDom);
                 virDomainFree(vDom);
+                if (Ret == EXIT_FAILURE)
+                    break;
             }
-        }	
+        }   
     }
 
     virConnectClose(vConn);
-    return EXIT_SUCCESS;
+    if (Ret == EXIT_SUCCESS)
+        printf("Test succeeded!\n");
+    else
+        printf("Test failed!\n");
+    return Ret;
 }
 
