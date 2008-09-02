@@ -63,6 +63,9 @@ if .%ROS_ARCH%. == .arm. (
         if exist "output-arm\." (
             rd /s /q "output-arm" 1> NUL 2> NUL
         )
+        if exist "makefile-arm.auto" (
+            del "makefile-arm.auto" 1> NUL 2> NUL
+        )
         echo Done cleaning ReactOS source directory.
     ) else (
         echo ERROR: There is no compiler output to clean.
@@ -82,6 +85,9 @@ if .%ROS_ARCH%. == .i386. (
         )
         if exist "output-i386\." (
             rd /s /q "output-i386" 1> NUL 2> NUL
+        )
+        if exist "makefile.auto" (
+            del "makefile.auto" 1> NUL 2> NUL
         )
         echo Done cleaning ReactOS source directory.
     ) else (
@@ -103,6 +109,9 @@ if .%ROS_ARCH%. == .ppc. (
         if exist "output-ppc\." (
             rd /s /q "output-ppc" 1> NUL 2> NUL
         )
+        if exist "makefile-ppc.auto" (
+            del "makefile-ppc.auto" 1> NUL 2> NUL
+        )
         echo Done cleaning ReactOS source directory.
     ) else (
         echo ERROR: There is no compiler output to clean.
@@ -122,6 +131,9 @@ if .%ROS_ARCH%. == .amd64. (
         )
         if exist "output-amd64\." (
             rd /s /q "output-amd64" 1> NUL 2> NUL
+        )
+        if exist "makefile-amd64.auto" (
+            del "makefile-amd64.auto" 1> NUL 2> NUL
         )
         echo Done cleaning ReactOS source directory.
     ) else (
@@ -143,6 +155,9 @@ if .%ROS_ARCH%. == .. (
         if exist "output-i386\." (
             rd /s /q "output-i386" 1> NUL 2> NUL
         )
+        if exist "makefile.auto" (
+            del "makefile.auto" 1> NUL 2> NUL
+        )
         echo Done cleaning ReactOS source directory.
     ) else (
         echo ERROR: There is no compiler output to clean.
@@ -151,9 +166,6 @@ if .%ROS_ARCH%. == .. (
 
 if exist "reactos\." (
     rd /s /q "reactos" 1> NUL 2> NUL
-)
-if exist "makefile.auto" (
-    del "makefile.auto" 1> NUL 2> NUL
 )
 
 goto :EOF
