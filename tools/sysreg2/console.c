@@ -59,8 +59,9 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
             {
                 char buf[4096];
                 int got, sent = 0;
-
-                got = read(fds[i].fd, buf, sizeof(buf));
+        
+                memset(buf, 0, sizeof(buf));
+                got = readln(fds[i].fd, buf, sizeof(buf));
                 if (got < 0) {
                     goto cleanup;
                 }
@@ -71,18 +72,30 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
 
                 if (fds[i].fd != STDIN_FILENO)
                 {
+                    if ((AppSettings.Stage[stage].Checkpoint[0] != '\0') &&
+                      (strstr(buf,AppSettings.Stage[stage].Checkpoint) != NULL))
+                    { 
+                        /* Checkpoint reached,
+                         * kill the vm and return success */
+                        goto cleanup;
+                    } 
+
+                    printf("%s", buf);
+                    /*
                     while (sent < got)
                     {
                         int done;
                         if ((done = safewrite(STDOUT_FILENO, 
-                                        buf + sent, got -sent)) <= 0)
+                                        buf + sent, got - sent)) <= 0)
                         {
                             Ret = false;
                             goto cleanup;
                         }
                         sent += done;
                     }
+                    */
                 }
+                
             }
         }
 

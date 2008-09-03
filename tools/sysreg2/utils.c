@@ -1,5 +1,24 @@
 #include "sysreg.h"
 
+int readln(int fd, char* buffer, int size)
+{
+    char* bp = buffer, ch;
+    int got;
+
+    while ((bp - buffer < size) && (got = read(fd, bp, 1)))
+    {
+        if (*bp == '\33')
+            return 1;
+        if (*bp++ == '\n')
+            return (bp - buffer);
+    }
+    if (got < 0)
+        return -1;
+    if (bp - buffer == size)
+        while (read(fd, &ch, 1))
+    return (bp - buffer);
+}
+
 ssize_t safewrite(int fd, const void *buf, size_t count)
 {
     size_t nwritten = 0;

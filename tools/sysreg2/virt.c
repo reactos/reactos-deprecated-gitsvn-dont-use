@@ -191,7 +191,7 @@ int main(int argc, char **argv)
             if (vDom)
             {
                 if (Stage > 0)
-                    printf("\n\n\n\n\n");
+                    printf("\n\n\n");
                 printf("Running stage %d...\n", Stage + 1);
                 printf("Domain %s started.\n", virDomainGetName(vDom));
                 if (!ProcessDebugData(GetConsole(vDom), 

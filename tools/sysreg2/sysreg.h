@@ -12,6 +12,7 @@
 
 typedef struct {
 	char BootDevice[8];
+	char Checkpoint[80];
 } stage;
 
 typedef struct {
@@ -27,6 +28,7 @@ Settings AppSettings;
 
 /* utils.c */
 char* ReadFile (const char* filename);
+int readln(int fd, char* buffer, int size);
 ssize_t safewrite(int fd, const void *buf, size_t count);
 
 /* options.c */
