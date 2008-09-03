@@ -63,6 +63,21 @@ if /i "%1" == "oldmode" (
     call :RosBE4
     goto :EndCommandParse
 )
+if /i "%1" == "arm" (
+    set _ROSBE_ARCH=1
+    call :RosBE4
+    goto :EndCommandParse
+)
+if /i "%1" == "ppc" (
+    set _ROSBE_ARCH=2
+    call :RosBE4
+    goto :EndCommandParse
+)
+if /i "%1" == "amd64" (
+    set _ROSBE_ARCH=3
+    call :RosBE4
+    goto :EndCommandParse
+)
 if not "%1" == "" (
     cls
     echo Unknown parameter specified. Exiting.

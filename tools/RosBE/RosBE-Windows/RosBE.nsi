@@ -116,6 +116,7 @@ Section -BaseFiles SEC01
     File /r Root\changelog.txt
     File /r Root\LICENSE.txt
     File /r Root\MinGW.cmd
+    File /r Root\charch.cmd
     File /r Root\MinGW.mac
     File /r Root\Build.cmd
     File /r Root\chdefgcc.cmd
@@ -244,7 +245,21 @@ Section "PowerShell RosBE Version" SEC10
     File /r Components\Powershell\rosbe-gcc-env.ps1
 SectionEnd
 
-Section -StartMenuShortcuts SEC11
+Section "Update Script" SEC11
+    SetShellVarContext current
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Components\Tools\wget.exe
+    File /r Components\Tools\libintl3.dll
+    File /r Components\Tools\libeay32.dll
+    File /r Components\Tools\ssleay32.dll
+    File /r Components\Tools\libiconv2.dll
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\update.cmd
+SectionEnd
+
+Section -StartMenuShortcuts SEC12
     SetShellVarContext current
 
     ;;
@@ -255,6 +270,8 @@ Section -StartMenuShortcuts SEC11
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
         SetOutPath $PROFILE
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
+        SetOutPath $PROFILE
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
@@ -264,7 +281,7 @@ Section -StartMenuShortcuts SEC11
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
-Section /o "Desktop Shortcuts" SEC12
+Section /o "Desktop Shortcuts" SEC13
     SetShellVarContext current
 
     ;;
@@ -273,10 +290,12 @@ Section /o "Desktop Shortcuts" SEC12
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
+    CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
+    SetOutPath $PROFILE
     CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
-Section /o "Quick Launch Shortcuts" SEC13
+Section /o "Quick Launch Shortcuts" SEC14
     SetShellVarContext current
 
     ;;
@@ -285,10 +304,12 @@ Section /o "Quick Launch Shortcuts" SEC13
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
+    CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
+    SetOutPath $PROFILE
     CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
 
-Section -Post SEC14
+Section -Post SEC15
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
@@ -350,8 +371,12 @@ Section Uninstall
     RMDir /r /REBOOTOK "$INSTDIR"
     IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
+    IfFileExists "$DESKTOP\ReactOS Build Environment 64-bit.lnk" 0 +2
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment 64-bit.lnk"
     IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment 64-bit.lnk" 0 +2
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment 64-bit.lnk"
     IfFileExists "$DESKTOP\Standard MinGW Build Environment.lnk" 0 +2
         Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment.lnk"
     IfFileExists "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" 0 +2
