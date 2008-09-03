@@ -6,10 +6,10 @@
 		<hdd size="512"/>
 	</general>
 	<firststage bootdevice="cdrom">
-		<success on="SYSREG_CHECKPOINT:USETUP_COMPLETE"/>
 	</firststage>
-	<secondstage bootdevice="hd">
+	<secondstage bootdevice="cdrom">
 	</secondstage>
-	<thirdstage bootdevice="hd">
+	<thirdstage bootdevice="cdrom">
+		<success on="SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE"/>
 	</thirdstage>
 </settings>

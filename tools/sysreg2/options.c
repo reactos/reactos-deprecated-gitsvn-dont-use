@@ -65,6 +65,15 @@ bool LoadSettings(const char* XmlConfig)
         {
             strncpy(AppSettings.Stage[Stage].BootDevice, obj->stringval, 7);
         }
+        strcpy(TempStr, "string(/settings/");
+        strcat(TempStr, StageNames[Stage]);
+        strcat(TempStr, "/success/@on)");
+        obj = xmlXPathEval((xmlChar*) TempStr,ctxt);
+        if ((obj != NULL) && ((obj->type == XPATH_STRING) &&
+            (obj->stringval != NULL) && (obj->stringval[0] != 0)))
+        {
+            strncpy(AppSettings.Stage[Stage].Checkpoint, obj->stringval, 79);
+        }
     }
     xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
