@@ -69,7 +69,7 @@ goto :EOC
     if "%_2%" == "" (
         set /p _2="Please enter the address you would like to analyze: "
     )
-goto :EOC
+goto :EOF
 
 ::
 :: Check if the user supplied a path, if they didn't look for
@@ -81,7 +81,7 @@ goto :EOC
     if errorlevel 2 (
         for /f "usebackq" %%i in (`"dir /a:-d /s /b %_1% 2>NUL | findstr "%_1%""`) do set _1=%%i
     )
-goto :EOC
+goto :EOF
 
 :EOC
 if defined _ROSBE_VERSION (

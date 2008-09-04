@@ -48,6 +48,7 @@ goto :EOC
         echo ERROR: You must enter a MinGW/GCC directory.
         goto :EOC
     )
+goto :EOF
 
 :EOC
 if defined _ROSBE_VERSION (
