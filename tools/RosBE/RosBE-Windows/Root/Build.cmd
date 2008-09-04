@@ -139,16 +139,16 @@ if %_ROSBE_WRITELOG% == 1 (
 ::
 if "%1" == "multi" (
     if not "%2" == "" (
-        title 'makex %2' parallel build started: %TIMERAW%
+        title 'makex %2' parallel build started: %TIMERAW% %ROS_ARCH%
     ) else (
-        title 'makex' parallel build started: %TIMERAW%
+        title 'makex' parallel build started: %TIMERAW% %ROS_ARCH%
     )
     call :BUILDMULTI %*
 ) else (
     if not "%1" == "" (
-        title 'make %1' build started: %TIMERAW%
+        title 'make %1' build started: %TIMERAW% %ROS_ARCH%
     ) else (
-        title 'make' build started: %TIMERAW%
+        title 'make' build started: %TIMERAW% %ROS_ARCH%
     )
     call :BUILD %*
 )
