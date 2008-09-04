@@ -44,7 +44,7 @@ if exist "%_ROSBE_LOGDIR%\*.txt" (
 ) else (
     echo ERROR: There are no logs to clean.
 )
-goto :EOC
+goto :EOF
 
 :DEL
 
@@ -173,6 +173,8 @@ if .%ROS_ARCH%. == .. (
 if exist "reactos\." (
     rd /s /q "reactos" 1> NUL 2> NUL
 )
+
+goto :EOF
 
 :EOC
 if defined _ROSBE_VERSION (

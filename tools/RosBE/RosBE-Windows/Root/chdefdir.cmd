@@ -45,6 +45,7 @@ goto :EOC
         echo ERROR: You must enter a ReactOS source directory, or 'previous'.
         goto :EOC
     )
+goto :EOF
 
 :EOC
 if defined _ROSBE_VERSION (
