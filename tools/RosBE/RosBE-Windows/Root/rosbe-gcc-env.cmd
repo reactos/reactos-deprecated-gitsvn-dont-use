@@ -75,8 +75,12 @@ ld -v
 if exist "%_ROSBE_MINGWPATH%\bin\nasm.exe" (
     nasm -v
 ) else (
-    if "%_ROSBE_MODE%" == "RosBE" (
-        echo ERROR: NASM is required to build ReactOS, none found in the current MinGW/GCC.
+    if exist "%_ROSBE_MINGWPATH%\bin\yasm.exe" (
+        yasm --version | find "yasm 0"
+    ) else (
+        if "%_ROSBE_MODE%" == "RosBE" (
+            echo ERROR: NASM or YASM is required to build ReactOS, none found in the current MinGW/GCC.
+        )
     )
 )
 if exist "%_ROSBE_MINGWPATH%\bin\bison.exe" (

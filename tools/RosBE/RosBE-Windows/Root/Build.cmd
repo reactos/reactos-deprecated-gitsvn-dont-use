@@ -34,7 +34,7 @@ if exist .\config.rbuild (
 endlocal
 
 ::
-:: Check if strip or ccache are being used and set the appropriate options.
+:: Check if strip, no Debug Symbols or ccache are being used and set the appropriate options.
 ::
 if .%_ROSBE_NOSTRIP%. == .1. (
     set ROS_BUILDNOSTRIP=yes
@@ -48,6 +48,7 @@ if .%_ROSBE_STRIP%. == .1. (
     set ROS_LEAN_AND_MEAN=no
 )
 
+:: Small Security Check to prevent useless apps.
 if .%ROS_LEAN_AND_MEAN%. == .yes. (
     if .%ROS_BUILDNOSTRIP%. == .yes. (
         cls

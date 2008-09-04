@@ -25,12 +25,12 @@ if /i "%1" == "--help" goto paramcall
 
 :: It's a shortcut name, so change the directory
 for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\scut.exe" %*"`) do (
-	if /i not "%%i" == "Default" (
-		if exist "%%i\." (
-  		cd /d %%i
-  		set _ROSBE_ROSSOURCEDIR=%%i
-  	)
-  )
+    if /i not "%%i" == "Default" (
+        if exist "%%i\." (
+            cd /d %%i
+            set _ROSBE_ROSSOURCEDIR=%%i
+        )
+    )
 )
 goto :EOC
 
