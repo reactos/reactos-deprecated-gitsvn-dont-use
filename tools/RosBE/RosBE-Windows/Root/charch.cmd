@@ -16,7 +16,8 @@ title Change the Architecture to build for...
 ::
 :: Parse the command line arguments.
 :: ROS_ARCH: Set to x86, x64, ppc or arm.
-:: ROS_PREFIX: Default is mingw32. ppc could be ppc-pc-mingw32, arm arm-pc-mingw32, x64 x86_64-pc-mingw32.
+:: ROS_PREFIX: Default is mingw32. ppc could be ppc-pc-mingw32,
+::             arm arm-pc-mingw32, x64 x86_64-pc-mingw32.
 ::
 
 if "%1" == "" (
@@ -59,11 +60,8 @@ goto :EOC
         echo ERROR: You must enter a Architecture.
         goto :EOC
     )
-goto :EOF
 
 :EOC
-REM chdefgcc %PATH%
-
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )

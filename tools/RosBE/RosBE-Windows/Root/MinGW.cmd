@@ -16,7 +16,7 @@ if %_ROSBE_DEBUG% == 1 (
 if not "%1" == "" (
     cls
     echo Unknown parameter specified. Exiting.
-    goto :EOC
+    goto :EOF
 )
 
 color 0A
@@ -46,5 +46,3 @@ for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CP
 doskey /macrofile="%_ROSBE_BASEDIR%\MinGW.mac"
 
 if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
-
-:EOC

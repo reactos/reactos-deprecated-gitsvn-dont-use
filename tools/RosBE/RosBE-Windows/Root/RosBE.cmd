@@ -31,6 +31,7 @@ set _ROSBE_SHOWTIME=1
 set _ROSBE_WRITELOG=1
 set _ROSBE_USECCACHE=0
 set _ROSBE_STRIP=0
+set _ROSBE_NOSTRIP=0
 set _ROSBE_MINGWPATH=%_ROSBE_BASEDIR%\4.1.3
 set _ROSBE_LOGDIR=%CD%\RosBE-Logs
 set _ROSBE_OBJPATH=
@@ -64,16 +65,19 @@ if /i "%1" == "oldmode" (
     goto :EndCommandParse
 )
 if /i "%1" == "arm" (
+    cls
     set _ROSBE_ARCH=1
     call :RosBE4
     goto :EndCommandParse
 )
 if /i "%1" == "ppc" (
+    cls
     set _ROSBE_ARCH=2
     call :RosBE4
     goto :EndCommandParse
 )
 if /i "%1" == "amd64" (
+    cls
     set _ROSBE_ARCH=3
     call :RosBE4
     goto :EndCommandParse
@@ -159,5 +163,6 @@ goto :EOF
     if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
     if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SSVN= )
     if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SVN= )
+    if not exist "%_ROSBE_BASEDIR%\update.cmd" ( doskey UPDATE= )
     if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 goto :EOF

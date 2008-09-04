@@ -44,7 +44,7 @@ if exist "%_ROSBE_LOGDIR%\*.txt" (
 ) else (
     echo ERROR: There are no logs to clean.
 )
-goto :EOF
+goto :EOC
 
 :DEL
 
@@ -70,6 +70,7 @@ if .%ROS_ARCH%. == .arm. (
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
+    goto :ROS
 )
 if .%ROS_ARCH%. == .i386. (
     ::
@@ -93,6 +94,7 @@ if .%ROS_ARCH%. == .i386. (
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
+    goto :ROS
 )
 if .%ROS_ARCH%. == .ppc. (
     ::
@@ -116,6 +118,7 @@ if .%ROS_ARCH%. == .ppc. (
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
+    goto :ROS
 )
 if .%ROS_ARCH%. == .amd64. (
     ::
@@ -139,6 +142,7 @@ if .%ROS_ARCH%. == .amd64. (
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
+    goto :ROS
 )
 if .%ROS_ARCH%. == .. (
     ::
@@ -162,13 +166,13 @@ if .%ROS_ARCH%. == .. (
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
+    goto :ROS
 )
 
+:ROS
 if exist "reactos\." (
     rd /s /q "reactos" 1> NUL 2> NUL
 )
-
-goto :EOF
 
 :EOC
 if defined _ROSBE_VERSION (
