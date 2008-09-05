@@ -15,5 +15,6 @@
 		"fr" => "Français (French)",
 		"it" => "Italiano (Italian)",
 		"lt" => "Lietuvių (Lithuanian)",
+		"ru" => "Русский (Russian)",
 	);
 ?>
