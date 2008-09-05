@@ -53,8 +53,13 @@ if .%_ROSBE_ARCH%. == .. (
 set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
 set _ROSBE_GCCVERSION=
 set _ROSBE_GCCTARGET=
-for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
-for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
+if not .%ROS_ARCH%. == .. (
+    for /f "usebackq tokens=3" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
+    for /f "usebackq tokens=2" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
+) else (
+    for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
+    for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
+)
 set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_MINGWPATH%\libexec\gcc\%_ROSBE_GCCTARGET%\%_ROSBE_GCCVERSION%;%_ROSBE_ORIGINALPATH%
 set _ROSBE_MINGWMAKE=%_ROSBE_MINGWPATH%\bin\mingw32-make.exe
 if "%_ROSBE_MODE%" == "MinGW" (
@@ -69,9 +74,15 @@ set LIBRARY_PATH=%_ROSBE_MINGWPATH%\lib;%_ROSBE_MINGWPATH%\lib\gcc\%_ROSBE_GCCTA
 ::
 :: Display the current version of GCC, NASM, ld and make.
 ::
-gcc -v 2>&1 | find "gcc version"
-echo gcc target^: %_ROSBE_GCCTARGET%
-ld -v
+if not .%ROS_ARCH%. == .. (
+    %ROS_PREFIX%-gcc -v 2>&1 | find "gcc version"
+    echo gcc target^: %_ROSBE_GCCTARGET%
+    %ROS_PREFIX%-ld -v
+) else (
+    gcc -v 2>&1 | find "gcc version"
+    echo gcc target^: %_ROSBE_GCCTARGET%
+    ld -v
+)
 if exist "%_ROSBE_MINGWPATH%\bin\nasm.exe" (
     nasm -v
 ) else (
