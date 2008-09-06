@@ -50,8 +50,10 @@ set PATH=%_ROSBE_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
 set _ROSBE_GCCVERSION=
 set _ROSBE_GCCTARGET=
 if not .%ROS_ARCH%. == .. (
-    for /f "usebackq tokens=3" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
-    for /f "usebackq tokens=2" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
+    for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
+    for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
+REM    for /f "usebackq tokens=3" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
+REM    for /f "usebackq tokens=2" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
 ) else (
     for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
     for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_GCCTARGET=%%i
