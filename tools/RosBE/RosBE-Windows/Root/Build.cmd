@@ -61,13 +61,11 @@ if .%_ROSBE_USECCACHE%. == .1. (
     set CCACHE_DIR=%APPDATA%\RosBE\.ccache
     set HOST_CC=ccache gcc
     set HOST_CPP=ccache g++
+    set TARGET_CC=ccache gcc
+    set TARGET_CPP=ccache g++
     if .%ROS_ARCH%. == .arm. (
         set TARGET_CC=ccache arm-pc-mingw32-gcc
         set TARGET_CPP=ccache arm-pc-mingw32-g++
-    )
-    if .%ROS_ARCH%. == .i386. (
-        set TARGET_CC=ccache gcc
-        set TARGET_CPP=ccache g++
     )
     if .%ROS_ARCH%. == .amd64. (
         set TARGET_CC=ccache x86_64-pc-mingw32-gcc
@@ -80,13 +78,11 @@ if .%_ROSBE_USECCACHE%. == .1. (
 ) else (
     set HOST_CC=gcc
     set HOST_CPP=g++
+    set TARGET_CC=gcc
+    set TARGET_CPP=g++
     if .%ROS_ARCH%. == .arm. (
         set TARGET_CC=arm-pc-mingw32-gcc
         set TARGET_CPP=arm-pc-mingw32-g++
-    )
-    if .%ROS_ARCH%. == .i386. (
-        set TARGET_CC=gcc
-        set TARGET_CPP=g++
     )
     if .%ROS_ARCH%. == .amd64. (
         set TARGET_CC=x86_64-pc-mingw32-gcc
@@ -140,16 +136,16 @@ if %_ROSBE_WRITELOG% == 1 (
 ::
 if "%1" == "multi" (
     if not "%2" == "" (
-        title 'makex %2' parallel build started: %TIMERAW% %ROS_ARCH%
+        title 'makex %2' parallel build started: %TIMERAW%   %ROS_ARCH%
     ) else (
-        title 'makex' parallel build started: %TIMERAW% %ROS_ARCH%
+        title 'makex' parallel build started: %TIMERAW%   %ROS_ARCH%
     )
     call :BUILDMULTI %*
 ) else (
     if not "%1" == "" (
-        title 'make %1' build started: %TIMERAW% %ROS_ARCH%
+        title 'make %1' build started: %TIMERAW%   %ROS_ARCH%
     ) else (
-        title 'make' build started: %TIMERAW% %ROS_ARCH%
+        title 'make' build started: %TIMERAW%   %ROS_ARCH%
     )
     call :BUILD %*
 )

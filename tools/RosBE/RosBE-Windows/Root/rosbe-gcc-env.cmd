@@ -26,10 +26,6 @@ if not defined _ROSBE_MINGWPATH (
 ::
 :: Set the Arch Variables
 ::
-if .%_ROSBE_ARCH%. == .0. (
-    set ROS_ARCH=
-    set ROS_PREFIX=
-)
 if .%_ROSBE_ARCH%. == .1. (
     set ROS_ARCH=arm
     set ROS_PREFIX=arm-pc-mingw32
