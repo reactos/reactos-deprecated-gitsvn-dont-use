@@ -109,7 +109,7 @@ if exist "%_ROSBE_BASEDIR%\charch.cmd" (
     if /i "%1" == "charch" (
         echo Usage: charch [OPTIONS]
         echo Change the ReactOS source directory for the current RosBE session.
-        echo Possible Architectures are: x86, ppc, arm.
+        echo Possible Architectures are: i386, ppc, arm, amd64.
         echo.
         goto :EOC
     )
