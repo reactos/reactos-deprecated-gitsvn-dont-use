@@ -120,29 +120,27 @@ if .%ROS_ARCH%. == .amd64. (
     )
     goto :ROS
 )
-if .%ROS_ARCH%. == .. (
+
+::
+:: Check if we have something to clean, if so, clean it.
+::
+if exist "obj-i386\." (
+    echo Cleaning ReactOS source directory...
     ::
-    :: Check if we have something to clean, if so, clean it.
+    : Remove directories created by the build.
     ::
     if exist "obj-i386\." (
-        echo Cleaning ReactOS source directory...
-        ::
-        : Remove directories created by the build.
-        ::
-        if exist "obj-i386\." (
-            rd /s /q "obj-i386" 1> NUL 2> NUL
-        )
-        if exist "output-i386\." (
-            rd /s /q "output-i386" 1> NUL 2> NUL
-        )
-        if exist "makefile.auto" (
-            del "makefile.auto" 1> NUL 2> NUL
-        )
-        echo Done cleaning ReactOS source directory.
-    ) else (
-        echo ERROR: There is no compiler output to clean.
+        rd /s /q "obj-i386" 1> NUL 2> NUL
     )
-    goto :ROS
+    if exist "output-i386\." (
+        rd /s /q "output-i386" 1> NUL 2> NUL
+    )
+    if exist "makefile.auto" (
+        del "makefile.auto" 1> NUL 2> NUL
+    )
+    echo Done cleaning ReactOS source directory.
+) else (
+    echo ERROR: There is no compiler output to clean.
 )
 
 :ROS
