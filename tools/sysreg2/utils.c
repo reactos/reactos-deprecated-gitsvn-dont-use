@@ -1,4 +1,5 @@
 #include "sysreg.h"
+#include <sys/sysinfo.h>
 
 int readln(int fd, char* buffer, int size)
 {
@@ -7,8 +8,16 @@ int readln(int fd, char* buffer, int size)
 
     while ((bp - buffer < size) && (got = read(fd, bp, 1)))
     {
-        if (*bp == '\33')
-            return 1;
+        if (fd == STDIN_FILENO)  
+        {
+            if (*bp == '\33')
+                return 1;
+        }
+        else
+        {
+             if (strstr(buffer, "kdb:>"))
+                 return -2;
+        }
         if (*bp++ == '\n')
             return (bp - buffer);
     }
