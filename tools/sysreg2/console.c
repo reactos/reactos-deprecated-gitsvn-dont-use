@@ -62,10 +62,15 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
         
                 memset(buf, 0, sizeof(buf));
                 got = readln(fds[i].fd, buf, sizeof(buf));
+                if (got == -2) /* kernel debugger */
+                {
+                    Ret = false;                    
+                    goto cleanup;
+                }
                 if (got < 0) {
                     goto cleanup;
                 }
-                if (!got || got == 1 && buf[0] == '\33')
+                if (!got)
                 {
                     goto cleanup;
                 }
@@ -94,6 +99,11 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                         sent += done;
                     }
                     */
+                }
+                else
+                {
+                    if (got == 1 && buf[0] == '\33')
+                        goto cleanup;
                 }
                 
             }
