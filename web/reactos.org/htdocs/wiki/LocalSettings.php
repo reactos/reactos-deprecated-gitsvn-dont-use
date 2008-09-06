@@ -67,17 +67,9 @@ $wgEnotifUserTalk = true; # UPO
 $wgEnotifWatchlist = true; # UPO
 $wgEmailAuthentication = false;
 
-// For the server
+# Uncomment one of the following lines based on whether the Wiki runs on the ReactOS Server or locally
 require_once("/web/reactos.org/config/wiki-connect.php");
-
-// For local testing
-/*$wgDBserver         = "localhost";
-$wgDBname           = "roswiki";
-$wgDBuser           = "rosuser";
-$wgDBpassword       = "roscms";
-$wgDBprefix         = "";
-$wgDBtype           = "mysql";
-$wgDBport           = "5432";*/
+//require_once("$IP/wiki-connect.php");
 
 # Experimental charset support for MySQL 4.1/5.0.
 $wgDBmysql5 = false;
@@ -150,8 +142,10 @@ $wgGroupPermissions['supermod']['rollback'] = true;
 # deactivate DB SQL queries
 $wgAllowSysopQueries = false;
 
-
 # Enable external image embedding
 $wgAllowExternalImages = true;
+
+# Extensions
+require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
 
 ?>
