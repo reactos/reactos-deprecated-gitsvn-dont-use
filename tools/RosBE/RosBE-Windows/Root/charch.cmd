@@ -15,7 +15,7 @@ title Change the Architecture to build for...
 
 ::
 :: Parse the command line arguments.
-:: ROS_ARCH: Set to x86, x64, ppc or arm.
+:: ROS_ARCH: Default is i386, can be set to amd64, ppc or arm.
 :: ROS_PREFIX: Default is mingw32. ppc could be ppc-pc-mingw32,
 ::             arm arm-pc-mingw32, x64 x86_64-pc-mingw32.
 ::
