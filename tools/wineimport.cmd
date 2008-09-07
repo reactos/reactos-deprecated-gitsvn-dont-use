@@ -43,7 +43,7 @@ ECHO Error when downloading %2. Are you sure it does exist?
 COLOR 00
 GOTO :eof
 :download_update
->NUL 2>NUL cvs.exe -z 3 update -PA wine/dlls/%2
+>NUL 2>NUL cvs.exe -z 3 update -dPA wine/dlls/%2
 :download_next
 SHIFT
 IF NOT "%2" == "" GOTO startdownload
