@@ -24,6 +24,7 @@ typedef struct _SETTINGS
     WCHAR mingwpath[MAX_PATH];
     INT foreground;
     INT background;
+    BOOL modules;
     BOOL showtime;
     BOOL useccache;
     BOOL strip;

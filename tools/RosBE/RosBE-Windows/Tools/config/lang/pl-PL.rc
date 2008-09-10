@@ -1,0 +1,79 @@
+LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
+
+ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 305
+STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Ustawienia ReactOS Build Environment"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  LTEXT "Kolor t³a", -1, 10, 10, 75, 12
+  LTEXT "Kolor czcionki", 0x0, 10, 27, 75, 12
+  COMBOBOX IDC_BACK, 135, 10, 100, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
+  COMBOBOX IDC_FONT, 135, 25, 100, 100, WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_DROPDOWNLIST
+  CONTROL "\n\nPrzyk³adowy tekst", ID_EXAMPLE, "static", WS_CHILD | WS_VISIBLE | WS_TABSTOP | SS_CENTER, 113, 50, 125, 36
+  CONTROL "Poka¿ czas budowania", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 45, 100, 12
+  CONTROL "U¿yj CCache", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 60, 100, 12
+  CONTROL "Usuñ dane debugowania", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 75, 100, 12
+  CONTROL "Utwórz pliki nostrip dla debugowania", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 150, 12
+ CONTROL "Pobierz i skompiluj rosapps oraz rostests", ID_MODULES, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 105, 150, 12
+  LTEXT "Œcie¿ka do MinGW/GCC", -1, 10, 122, 100, 15
+  EDITTEXT ID_MGWDIR, 10, 135, 200, 13, WS_TABSTOP
+  PUSHBUTTON "...", ID_BROWSEMGW, 215, 135, 30, 13, WS_TABSTOP
+  CONTROL "Zapisuj logi", ID_SAVELOGS, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 158, 100, 12
+  EDITTEXT ID_LOGDIR, 10, 171, 200, 13, WS_TABSTOP | WS_DISABLED
+  PUSHBUTTON "...", ID_BROWSE, 215, 171, 30, 13, WS_TABSTOP | WS_DISABLED
+  CONTROL "Zmieñ folder plików OBJ", ID_OTHEROBJ, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 193, 100, 12
+  EDITTEXT ID_OBJDIR, 10, 207, 200, 13, WS_TABSTOP | WS_DISABLED
+  PUSHBUTTON "...", ID_BROWSEOBJ, 215, 207, 30, 13, WS_TABSTOP | WS_DISABLED
+  CONTROL "Zmieñ folder plików OUT", ID_OTHEROUT, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 230, 100, 12
+  EDITTEXT ID_OUTDIR, 10, 243, 200, 13, WS_TABSTOP | WS_DISABLED
+  PUSHBUTTON "...", ID_BROWSEOUT, 215, 243, 30, 13, WS_TABSTOP | WS_DISABLED
+  PUSHBUTTON "Zapisz", ID_OK, 63, 265, 59, 16, WS_TABSTOP | WS_DISABLED
+  PUSHBUTTON "Anuluj", ID_CANCEL, 133, 265, 59, 16, WS_TABSTOP
+  CONTROL "Witamy!", ID_STATUSBAR, "msctls_statusbar32", WS_CHILD | WS_VISIBLE | WS_TABSTOP, 0, 290, 255, 15
+END
+
+STRINGTABLE
+BEGIN
+  CLR0, "Czarny"
+  CLR1, "Niebieski"
+  CLR2, "Zielony"
+  CLR3, "Morski"
+  CLR4, "Czerwony"
+  CLR5, "Fioletowy"
+  CLR6, "¯ó³ty"
+  CLR7, "Jasnoszary"
+  CLR8, "Szary"
+  CLR9, "Jasnoniebieski"
+  CLR10, "Jasnozielony"
+  CLR11, "Jasny morski"
+  CLR12, "Jasnoczerwony"
+  CLR13, "Jasnofioletowy"
+  CLR14, "Jasno¿ó³ty"
+  CLR15, "Bia³y"
+  MSG_NOGCCFOUND, "Nie znaleziono MinGW/GCC! SprawdŸ nazwê folderu."
+  MSG_FILEFAILED, "Nie uda³o siê stworzyæ pliku rosbe-options.cmd!"
+  MSG_DIREFAILED, "Nie powiod³o siê stworzenie folderu!"
+  MSG_SETLOADSUC, "Za³adowano ostatnio zapisane ustawienia."
+  MSG_FINDLOGDIR, "Proszê wybraæ folder, gdzie zostan¹ zapisane dzienniki budowania:"
+  MSG_FINDMGWDIR, "Proszê wskazaæ folder, w którym znajduje siê MinGW/GCC:"
+  MSG_FINDOBJDIR, "Proszê wybraæ folder, gdzie zostan¹ zapisane pliki OBJ:"
+  MSG_FINDOUTDIR, "Proszê wybraæ folder, gdzie zostan¹ zapisane pliki OUT:"
+  MSG_WARNINGBOX, "Ostrze¿enie"
+  MSG_EXITCHANGE, "Czy chcesz opuœciæ program bez zapisania zmian?"
+  MSG_INVALIDDIR, "Podany folder nie istnieje. Czy chcesz go utworzyæ?"
+  /* Help Strings */
+  HLP_BACKCOLORC, "Wybierz kolor t³a dla RosBE DOS windows."
+  HLP_FONTCOLORC, "Wybierz kolor czcionki dla RosBE DOS windows."
+  HLP_SBUILDTIME, "Wyœwietla ca³kowity czas budowania po jego zakoñczeniu."
+  HLP_CCACHEUSED, "Zaznacz jeœli chcesz u¿ywaæ ccache (compiler cache)."
+  HLP_STRIPEDEXE, "Zaznacz jeœli chcesz uzyskaæ mniejsze pliki wynikowe."
+  HLP_FINDMGWDIR, "Tutaj mo¿esz okreœliæ po³o¿enie MinGW/GCC."
+  HLP_FINDLOGDIR, "Tutaj mo¿esz okreœliæ miejsce, gdzie zostan¹ zapisane dzienniki budowania."
+  HLP_FINDOBJDIR, "Tutaj mo¿esz okreœliæ miejsce, gdzie zostan¹ zapisane pliki OBJ."
+  HLP_FINDOUTDIR, "Tutaj mo¿esz okreœliæ miejsce, gdzie zostan¹ zapisane pliki OUT (wynikowe)."
+  HLP_SAVEBUTTON, "Przycisk aktywowany po zmianie ustawieñ, koñczy dzia³anie programu i zapisuje nowe ustawienia."
+  HLP_QUITBUTTON, "Przycisk pozwala na wyjœcie bez zapisania ustawieñ."
+  HLP_DEFAULTMSG, "NajedŸ na element, aby uzyskaæ pomoc."
+  HLP_NOSTRIP,    "Utwórz informacje debugowania dla Debuggera ReactOS."
+  HLP_MODULES,    "Zaznacz jeœli chcesz, by ROSBE pobra³o i skompilowa³o pliki z rosapps i rostests."
+END
