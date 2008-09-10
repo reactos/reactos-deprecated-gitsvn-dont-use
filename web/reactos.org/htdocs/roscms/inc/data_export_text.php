@@ -49,7 +49,7 @@
 	function main_edit_frame() {
 		global $RosCMS_GET_d_flag;
 
-		require("inc/data_edit.php");
+		require_once("inc/data_edit.php");
 	}
 	
 	
@@ -225,8 +225,8 @@
 
 		//echo "<h3>POST: ".$_POST["plm1"]."</h3>";
 
-		require("inc/data_edit.php");
-		require("inc/data_edit_tag.php");
+		require_once("inc/data_edit.php");
+		require_once("inc/data_edit_tag.php");
 		
 		
 		global $roscms_intern_account_id;
