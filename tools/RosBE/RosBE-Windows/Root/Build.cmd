@@ -14,20 +14,21 @@ if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
-:: temporary arch definition
+:: Temporary arch definition
 if "%ROS_ARCH%" == "" (
     set _TMP_ARCH=i386
 ) else (
     set _TMP_ARCH=%ROS_ARCH%
 )
 
-if %_ROSBE_MODULES% neq 1 (
+if "%_ROSBE_MODULES%" neq "1" (
     if exist "modules\rosapps" (
         if exist "modules\rosapps.bak"   (
             call :DELA            
         )
         echo Renaming rosapps to rosapps.bak...
         ren "modules\rosapps" "rosapps.bak"
+        if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto 
     )
     if exist "modules\rostests" (
         if exist "modules\rostests.bak"   (
@@ -35,53 +36,16 @@ if %_ROSBE_MODULES% neq 1 (
         )
         echo Renaming rostests to rostests.bak...
         ren "modules\rostests" "rostests.bak"   
+        if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto 
     )
-::
-:: if there are dirs in obj and output for rosapps and rostests, remove them 
-:: to not have them included in iso images   
-    if exist "%_ROSBE_OBJPATH%\modules\rostests" (
-        echo Removing rostests obj and output files from %_ROSBE_OBJPATH%
-        rd /s /q "%_ROSBE_OBJPATH%\modules\rostests"
-        rd /s /q "%_ROSBE_OUTPATH%\modules\rostests"
-        if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto (
-            echo removing makefile.auto
-            del %_ROSBE_ROSSOURCEDIR%\makefile.auto
-        )       
-    ) else (
-        if exist "%_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%\modules\rostests" (
-            echo Removing rostests obj and output files from %_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%
-            rd /q /s %_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%\modules\rostests
-            rd /q /s %_ROSBE_ROSSOURCEDIR%\output-%_TMP_ARCH%\modules\rostests
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto (
-                echo Removing makefile.auto
-                del %_ROSBE_ROSSOURCEDIR%\makefile.auto
-            )  
-        )
-    )
-    if exist %_ROSBE_OBJPATH%\modules\rosapps (
-        echo Removing rosapps obj and output files
-        rd /q /s %_ROSBE_OBJPATH%\modules\rosapps
-        rd /q /s %_ROSBE_OUTPATH%\modules\rosapps
-        if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto (
-	    echo removing makefile.auto
-            del %_ROSBE_ROSSOURCEDIR%\makefile.auto
-        )  
-    ) else (
-        if exist %_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%\modules\rosapps (
-            echo Removing rosapps obj and output files
-            rd /q /s %_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%\modules\rosapps
-            rd /q /s %_ROSBE_ROSSOURCEDIR%\output-%_TMP_ARCH%\modules\rosapps
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto (
-                echo Removing makefile.auto
-                del %_ROSBE_ROSSOURCEDIR%\makefile.auto
-            )  
-        )
-    )
+
 ) else (
+
     if exist "modules\rosapps.bak" (
         if not exist "modules\rosapps" (
       	    echo Renaming rosapps.bak to rosapps...
             ren "modules\rosapps.bak" "rosapps"
+            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto        
         )
     ) else (
         if not exist "modules\rosapps" set _ROSAPP=1
@@ -90,30 +54,12 @@ if %_ROSBE_MODULES% neq 1 (
  	      if not exist "modules\rostests" (
             echo Renaming rostests.bak to rostests...
             ren "modules\rostests.bak" "rostests"
+            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
         )
     ) else (
         if not exist "modules\rosapps" set _ROSTEST=1
     )
-    if not exist "%_ROSBE_OBJPATH%\modules\rostests" (
-        if not exist "%_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%\modules\rostests" (
-            if not defined _ROSTEST (
-	              if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto (
-                    echo Removing makefile.auto
-                    del %_ROSBE_ROSSOURCEDIR%\makefile.auto
-                )
-            )       
-        )
-    )
-    if not exist %_ROSBE_OBJPATH%\modules\rosapps (
-        if not exist %_ROSBE_ROSSOURCEDIR%\obj-%_TMP_ARCH%\modules\rosapps (
-            if not defined _ROSAPP (	
-                if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto (
-                    echo Removing makefile.auto
-                    del %_ROSBE_ROSSOURCEDIR%\makefile.auto
-                )
-            )
-        )
-    )
+  
 )
 
 ::
