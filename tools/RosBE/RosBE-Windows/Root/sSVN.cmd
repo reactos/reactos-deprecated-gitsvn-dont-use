@@ -31,6 +31,43 @@ if /i "%1" == "update" (
     ) else (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" update
     )
+
+:: check if we should update modules dir (rosapps and rostests)
+if "%_ROSBE_MODULES%" == "1" ( 
+:: Check if we have .bak dir instead of rosapps - if so, rename it
+    if exist "modules\rostests.bak" (
+        if not exist "modules\rostests" (
+            echo Renaming rostests.bak to rostests...
+            ren "modules\rostests.bak" "rostests"
+        )
+    )
+    if exist "modules\rostests" (
+	cd modules\rostests
+	"%_ROSBE_BASEDIR%\Tools\svn.exe" update
+	cd ..\..
+    )  else (
+        cd modules
+	"%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rostests rostests
+	cd ..
+    )
+:: Check if we have .bak dir instead of rosapps - if so, rename it
+    if exist "modules\rosapps.bak" (
+	if not exist "modules\rosapps" (
+            echo Renaming rosapps.bak to rosapps...
+	    ren "modules\rosapps.bak" "rosapps"
+        )
+    )
+    if exist "modules\rosapps" (
+	cd modules\rosapps
+	"%_ROSBE_BASEDIR%\Tools\svn.exe" update
+	cd ..\..
+    )  else (
+        cd modules
+	"%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rosapps rosapps
+	cd ..
+    )
+
+)
 goto :EOC
 )
 if /i "%1" == "cleanup" (
@@ -53,6 +90,15 @@ if /i "%1" == "create" (
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/reactos .
+	:: check if we should download additional modules 
+        if "%_ROSBE_MODULES%" == "1"  (
+        cd modules
+        echo Adding rostests...
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rostests rostests
+         echo Adding rosapps...
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rosapps rosapps
+        )
+        
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
