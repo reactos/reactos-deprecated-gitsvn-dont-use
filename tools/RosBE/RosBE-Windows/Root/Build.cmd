@@ -14,13 +14,6 @@ if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
-:: Temporary arch definition
-if "%ROS_ARCH%" == "" (
-    set _TMP_ARCH=i386
-) else (
-    set _TMP_ARCH=%ROS_ARCH%
-)
-
 if "%_ROSBE_MODULES%" neq "1" (
     if exist "modules\rosapps" (
         if exist "modules\rosapps.bak"   (
@@ -28,7 +21,11 @@ if "%_ROSBE_MODULES%" neq "1" (
         )
         echo Renaming rosapps to rosapps.bak...
         ren "modules\rosapps" "rosapps.bak"
-        if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto 
+        if "%ROS_ARCH%" == "" (
+            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
+        ) else (
+            if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
+        )
     )
     if exist "modules\rostests" (
         if exist "modules\rostests.bak"   (
@@ -36,30 +33,35 @@ if "%_ROSBE_MODULES%" neq "1" (
         )
         echo Renaming rostests to rostests.bak...
         ren "modules\rostests" "rostests.bak"   
-        if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto 
+        if "%ROS_ARCH%" == "" (
+            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
+        ) else (
+            if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
+        )
     )
-
 ) else (
-
     if exist "modules\rosapps.bak" (
         if not exist "modules\rosapps" (
       	    echo Renaming rosapps.bak to rosapps...
             ren "modules\rosapps.bak" "rosapps"
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto        
+            if "%ROS_ARCH%" == "" (
+                if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
+            ) else (
+                if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
+            )
         )
-    ) else (
-        if not exist "modules\rosapps" set _ROSAPP=1
     )
     if exist "modules\rostests.bak" (
- 	      if not exist "modules\rostests" (
+        if not exist "modules\rostests" (
             echo Renaming rostests.bak to rostests...
             ren "modules\rostests.bak" "rostests"
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
+            if "%ROS_ARCH%" == "" (
+                if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
+            ) else (
+                if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
+            )
         )
-    ) else (
-        if not exist "modules\rosapps" set _ROSTEST=1
     )
-  
 )
 
 ::
@@ -280,6 +282,3 @@ set CPUCOUNT=
 set CCACHE_DIR=
 set ROSA_DEL=
 set ROSB_DEL=
-set _TMP_ARCH=
-set _ROS_TEST=
-set _ROS_APP=
