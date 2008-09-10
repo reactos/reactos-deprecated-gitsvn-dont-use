@@ -1233,7 +1233,7 @@
 				$entry_ids2 = split("_", $entry_ids[0]);
 				if ($RosCMS_GET_debug) echo "===>".$entry_ids2[1];
 			
-				require("inc/data_export_page.php");
+				require_once("inc/data_export_page.php");
 				$query_preview_page = mysql_query("SELECT d.data_name, d.data_id, r.rev_id, r.rev_language
 													FROM data_revision r, data_ d
 													WHERE r.rev_id = '".mysql_real_escape_string($entry_ids2[1])."'
@@ -1381,7 +1381,7 @@
 							$update_rev_ver = mysql_query("UPDATE data_revision SET rev_version = '".mysql_real_escape_string($temp_version)."' WHERE rev_id = '".mysql_real_escape_string($result_rev_data['rev_id'])."' LIMIT 1;");						
 							
 							// generate related pages
-							require("inc/data_export_page.php");
+							require_once("inc/data_export_page.php");
 							
 							if ($result_revision_stable['rev_language'] == "") {
 								$tmp_lang = $roscms_standard_language;
