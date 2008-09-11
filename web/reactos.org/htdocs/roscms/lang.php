@@ -6,24 +6,37 @@ function check_lang($lang)
 	if (preg_match('/^([a-zA-Z]+)(-[a-zA-Z]+)?$/', $lang, $matches)) {
 		$checked_lang = strtolower($matches[1]);
 		switch($checked_lang) {
-		case 'de':
-		case 'en':
-		case 'fr':
-		case 'ru':
-		case 'es':
-		case 'it':
-		case 'hu':
-		case 'sv':
-		case 'lt':
-		case 'nl':
-		case 'pl':
-		case 'no':
-		case 'da':
-		case 'id':
-		case 'zh':
-			break;
-		default:
-			$checked_lang = '';
+			case 'ar':
+			case 'bg':
+			case 'ca':
+			case 'cz':
+			case 'da':
+			case 'de':
+			case 'el':
+			case 'en':
+			case 'es':
+			case 'fr':
+			case 'he':
+			case 'hu':
+			case 'id':
+			case 'it':
+			case 'ja':
+			case 'ko':
+			case 'lt':
+			case 'nl':
+			case 'no':
+			case 'pl':
+			case 'pt':
+			case 'ru':
+			case 'sv':
+			case 'uk':
+			case 'zh':
+			case 'ro':
+			case 'tw':
+			case 'sk':
+				break;
+			default:
+				$checked_lang = '';
 		}
 	}
 	else if ($lang == '*') {
@@ -48,7 +61,12 @@ if ($rpm_lang == '') {
 	/* After parameter and cookie processing, we still don't have a valid
            language. So check whether the HTTP Accept-language header can
            help us. */
-	$accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+		$accept_language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	}
+	else {
+		$accept_language = "en";
+	}
 	$best_q = 0;
 	while (preg_match('/^\s*([^,]+)((,(.*))|$)/',
 	                  $accept_language, $matches)) {
@@ -81,7 +99,6 @@ if ($rpm_lang == '') {
 $roscms_page_lang = $rpm_lang . '/';
 $rpm_lang_session = $rpm_lang . '/';
 
-
 if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 	/* Delete an existing cookie (if any) which uses the full hostname */
 	setcookie('roscms_usrset_lang', '', -3600);
@@ -91,6 +108,7 @@ if (isset($_COOKIE['roscms_usrset_lang']) || isset($_REQUEST['lang'])) {
 	          '/', cookie_domain());
 }
 
+	//echo "<h1>".$rpm_lang."</h1>";
 
 	require("inc/lang/en.php"); // preload the english language text
 	require("inc/lang/".$rpm_lang.".php"); // load the and overwrite the language text

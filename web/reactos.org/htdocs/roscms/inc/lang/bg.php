@@ -26,163 +26,163 @@
 
 // Language settings
 $roscms_langres['charset'] = 'utf-8';
-//$roscms_langres['charset'] = 'cp1251';
-$roscms_langres['lang_code'] = 'BG';
+//$roscms_langres['charset'] = 'iso-8859-1';
+$roscms_langres['lang_code'] = 'EN';
 
 			   
 // main menu
-$roscms_langres['Navigation'] = 'Насока';
-$roscms_langres['Home'] = 'Начало';
-$roscms_langres['Dev'] = 'Разработка';
-$roscms_langres['Community'] = 'Общество';
-$roscms_langres['Support'] = 'Подръжка';
-$roscms_langres['myReactOS'] = 'Моят РеактОС';
-$roscms_langres['Info'] = 'Сведения';
+$roscms_langres['Navigation'] = 'Navigation';
+$roscms_langres['Home'] = 'Home';
+$roscms_langres['Dev'] = 'Development';
+$roscms_langres['Community'] = 'Community';
+$roscms_langres['Support'] = 'Support';
+$roscms_langres['myReactOS'] = 'myReactOS';
+$roscms_langres['Info'] = 'Info';
 
 // Login bar:
-$roscms_langres['Account'] = 'Сметка';
-$roscms_langres['Login'] = 'Вход';
-$roscms_langres['Logout'] = 'Изход';
-$roscms_langres['Global_Login_System'] = 'Всеобща входна уредба';
-$roscms_langres['Register_Account'] = 'Създаване на сметка';
-$roscms_langres['Login_Nick'] = '&nbsp;Прозвище:&nbsp;';
-$roscms_langres['LoginPwd'] = '&nbsp;Парола:&nbsp;';
+$roscms_langres['Account'] = 'Account';
+$roscms_langres['Login'] = 'Login';
+$roscms_langres['Logout'] = 'Logout';
+$roscms_langres['Global_Login_System'] = 'Global Login System';
+$roscms_langres['Register_Account'] = 'Register Account';
+$roscms_langres['Login_Nick'] = '&nbsp;Nick:&nbsp;';
+$roscms_langres['LoginPwd'] = '&nbsp;Pwd:&nbsp;';
 
 
 // myReactOS menu
-$roscms_langres['User_Profil_Overview'] = 'Обзор на очерка на потребителя';
-$roscms_langres['User_Profil'] = 'Очерк на потребителя';
-$roscms_langres['Overview'] = 'Обзор';
-$roscms_langres['Login_System'] = 'Входна уредба';
-$roscms_langres['Messages'] = 'Съобщения';
-$roscms_langres['Contacts'] = 'Указател';
-$roscms_langres['Favorites'] = 'Любимки';
-$roscms_langres['Documentation'] = 'Документация';
-$roscms_langres['Account_Edit'] = 'Настройки';
-$roscms_langres['Accountlist'] = 'Списък на потребителите';
+$roscms_langres['User_Profil_Overview'] = 'User Profile Overview';
+$roscms_langres['User_Profil'] = 'User Profile';
+$roscms_langres['Overview'] = 'Overview';
+$roscms_langres['Login_System'] = 'Login System';
+$roscms_langres['Messages'] = 'Messages';
+$roscms_langres['Contacts'] = 'Contacts';
+$roscms_langres['Favorites'] = 'Favorites';
+$roscms_langres['Documentation'] = 'Documentation';
+$roscms_langres['Account_Edit'] = 'Settings';
+$roscms_langres['Accountlist'] = 'User List';
 
 
 // myReactOS Content
-$roscms_langres['myReactOS_description'] = 'Мощен и удобен интерфейс за управление на сметката ви за мястото на РеактОС.';
-$roscms_langres['Account_Information'] = 'Сведения за сметката';
-$roscms_langres['Account_Information_description'] = 'Обобщение на данните за потребителя... &lt;placeholder&gt;';
+$roscms_langres['myReactOS_description'] = 'A powerful and easy to use interface to manage your ReactOS homepage account.';
+$roscms_langres['Account_Information'] = 'Account Information';
+$roscms_langres['Account_Information_description'] = 'A sum up of the account data ... &lt;placeholder&gt;';
 
 // Right side bar:
-$roscms_langres['Latest_Release'] = 'Последно издание';
-$roscms_langres['myReactOS_Developer_Quotes'] = 'Думи на разработчиците';
+$roscms_langres['Latest_Release'] = 'Latest Release';
+$roscms_langres['myReactOS_Developer_Quotes'] = 'Developer Quotes';
 
 // Error 404
-$roscms_langres['Page_not_found'] = 'Страницата не е открита';
+$roscms_langres['Page_not_found'] = 'Page not found';
 
 
 
 
 // Admin/Dev/Translator Interface
-$roscms_langres['Dev_Interface'] = 'Интерфейс за разработчици';
-$roscms_langres['Dev_Overview'] = 'Обзор';
-$roscms_langres['Dev_Pages'] = 'Страници';
-$roscms_langres['Dev_Contents'] = 'Съдържание';
-$roscms_langres['Dev_Help'] = 'Помощ';
+$roscms_langres['Dev_Interface'] = 'Dev Interface';
+$roscms_langres['Dev_Overview'] = 'Overview';
+$roscms_langres['Dev_Pages'] = 'Pages';
+$roscms_langres['Dev_Contents'] = 'Contents';
+$roscms_langres['Dev_Help'] = 'Help';
 
-$roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Интерфейс за разработчици- обзор';
+$roscms_langres['Dev_DeveloperInterfaceOverview'] = 'Developer Interface - Overview';
 
-$roscms_langres['ContTrans_generalinfo'] = 'Основните страници на РеактОС се обновяват веднъж дневно. Можете да видите преглед на промените, които сте направили, след като натиснете "Запис".';
+$roscms_langres['ContTrans_generalinfo'] = 'The ReactOS main website pages get updated once a day. You will see a preview of your changes after clicking on "Save".';
 
-$roscms_langres['ContTrans_Interface_Content'] = 'Интерфейс за разработчици- съдържание';
-$roscms_langres['ContTrans_Contents'] = 'Съдържание';
-$roscms_langres['ContTrans_Interface_Pages'] = 'Интерфейс за разработчици- страници';
-$roscms_langres['ContTrans_Pages'] = 'Страници';
+$roscms_langres['ContTrans_Interface_Content'] = 'Dev Interface - Content';
+$roscms_langres['ContTrans_Contents'] = 'Content';
+$roscms_langres['ContTrans_Interface_Pages'] = 'Dev Interface - Pages';
+$roscms_langres['ContTrans_Pages'] = 'Pages';
 
-$roscms_langres['ContTrans_Profile'] = 'Очерк';
+$roscms_langres['ContTrans_Profile'] = 'Profile';
 
-$roscms_langres['ContTrans_Action'] = 'Действие';
-$roscms_langres['ContTrans_NewContent'] = 'Ново съдържание';
-$roscms_langres['ContTrans_NewPage'] = 'Нова страница';
+$roscms_langres['ContTrans_Action'] = 'Action';
+$roscms_langres['ContTrans_NewContent'] = 'New Content';
+$roscms_langres['ContTrans_NewPage'] = 'New Page';
 
-$roscms_langres['ContTrans_resetfilters'] = 'преустановяване на пресяванието и подреждането';
-$roscms_langres['ContTrans_Info'] = 'Сведения';
-$roscms_langres['ContTrans_ContentID'] = 'Опознавател (id) на съдържанието';
-$roscms_langres['ContTrans_PageID'] = 'Опознавател (id) на страницата';
-$roscms_langres['ContTrans_Content'] = 'Съдържание';
-$roscms_langres['ContTrans_Rev'] = 'Изд.';
-$roscms_langres['ContTrans_Date'] = 'Дата';
-$roscms_langres['ContTrans_Time'] = 'Време';
-$roscms_langres['ContTrans_User'] = 'Потребител';
-$roscms_langres['ContTrans_Language'] = 'Език';
-$roscms_langres['ContTrans_International'] = 'Изходен (Английски)';
-$roscms_langres['ContTrans_All'] = 'Всичко';
-$roscms_langres['ContTrans_Filter'] = 'Пресяване';
+$roscms_langres['ContTrans_resetfilters'] = 'reset filters & sort';
+$roscms_langres['ContTrans_Info'] = 'Info';
+$roscms_langres['ContTrans_ContentID'] = 'Content ID';
+$roscms_langres['ContTrans_PageID'] = 'Page ID';
+$roscms_langres['ContTrans_Content'] = 'Content';
+$roscms_langres['ContTrans_Rev'] = 'Rev.';
+$roscms_langres['ContTrans_Date'] = 'Date';
+$roscms_langres['ContTrans_Time'] = 'Time';
+$roscms_langres['ContTrans_User'] = 'User';
+$roscms_langres['ContTrans_Language'] = 'Language';
+$roscms_langres['ContTrans_International'] = 'Original (English)';
+$roscms_langres['ContTrans_All'] = 'All';
+$roscms_langres['ContTrans_Filter'] = 'Filter';
 $roscms_langres['ContTrans_activecontent'] = 'active content';
 $roscms_langres['ContTrans_activepages'] = 'active pages';
-$roscms_langres['ContTrans_allcontent'] = 'пълно съдържание';
-$roscms_langres['ContTrans_allpages'] = 'Всички страници';
-$roscms_langres['ContTrans_activeandvisiblecontent'] = 'дейно и видимо съдържание';
-$roscms_langres['ContTrans_currentuser'] = 'текущ потребител';
+$roscms_langres['ContTrans_allcontent'] = 'all content';
+$roscms_langres['ContTrans_allpages'] = 'all pages';
+$roscms_langres['ContTrans_activeandvisiblecontent'] = 'active and visible content';
+$roscms_langres['ContTrans_currentuser'] = 'current user';
 
-$roscms_langres['ContTrans_normalpages'] = 'обикновени страници';
-$roscms_langres['ContTrans_dynamicpages'] = 'динамични страници';
+$roscms_langres['ContTrans_normalpages'] = 'normal pages';
+$roscms_langres['ContTrans_dynamicpages'] = 'dynamic pages';
 
-$roscms_langres['ContTrans_history'] = 'дневник';
-$roscms_langres['ContTrans_Sortedby'] = 'Подреждане по';
-$roscms_langres['ContTrans_contentid'] = 'опознавател (id) на съдържанието';
-$roscms_langres['ContTrans_pageid'] = 'опознавател (id) на страницата';
-$roscms_langres['ContTrans_date'] = 'дата';
-$roscms_langres['ContTrans_user'] = 'потребител';
-$roscms_langres['ContTrans_active'] = 'деен';
-$roscms_langres['ContTrans_Active'] = 'Деен';
-$roscms_langres['ContTrans_visible'] = 'видим';
-$roscms_langres['ContTrans_Visible'] = 'Видим';
-$roscms_langres['ContTrans_version'] = 'версия';
-$roscms_langres['ContTrans_extra'] = 'още';
-$roscms_langres['ContTrans_Extra'] = 'Още';
-$roscms_langres['ContTrans_language'] = 'език';
-$roscms_langres['ContTrans_editor'] = 'обработил';
-$roscms_langres['ContTrans_Editor'] = 'Обработил';
-$roscms_langres['ContTrans_Translate'] = 'Превод';
-$roscms_langres['ContTrans_Edit'] = 'Преглед/ Обработка';
-$roscms_langres['ContTrans_Delete'] = 'Изтриване';
-$roscms_langres['ContTrans_filter_history'] = 'Пресяване: дневник';
+$roscms_langres['ContTrans_history'] = 'history';
+$roscms_langres['ContTrans_Sortedby'] = 'Sorted by';
+$roscms_langres['ContTrans_contentid'] = 'content id';
+$roscms_langres['ContTrans_pageid'] = 'page id';
+$roscms_langres['ContTrans_date'] = 'date';
+$roscms_langres['ContTrans_user'] = 'user';
+$roscms_langres['ContTrans_active'] = 'active';
+$roscms_langres['ContTrans_Active'] = 'Active';
+$roscms_langres['ContTrans_visible'] = 'visible';
+$roscms_langres['ContTrans_Visible'] = 'Visible';
+$roscms_langres['ContTrans_version'] = 'version';
+$roscms_langres['ContTrans_extra'] = 'extra';
+$roscms_langres['ContTrans_Extra'] = 'Extra';
+$roscms_langres['ContTrans_language'] = 'language';
+$roscms_langres['ContTrans_editor'] = 'editor';
+$roscms_langres['ContTrans_Editor'] = 'Editor';
+$roscms_langres['ContTrans_Translate'] = 'Translate';
+$roscms_langres['ContTrans_Edit'] = 'View / Edit';
+$roscms_langres['ContTrans_Delete'] = 'Delete';
+$roscms_langres['ContTrans_filter_history'] = 'Filter: history';
 
-$roscms_langres['ContTrans_ViewEditContent'] = 'Преглед/ Обработка на съдържанието';
-$roscms_langres['ContTrans_ViewEditpage'] = 'Преглед/ Обработка на страницата';
-$roscms_langres['ContTrans_SaveContent'] = 'Запис на съдържанието';
-$roscms_langres['ContTrans_Type'] = 'Вид';
-$roscms_langres['ContTrans_Description'] = 'Описание';
-$roscms_langres['ContTrans_Username'] = 'Потребителско име';
-$roscms_langres['ContTrans_egAbout'] = 'например &quot;за&quot;';
-$roscms_langres['ContTrans_checklang'] = 'Моля, проверете дали сте избрали правилния език, преди да натиснете "Подаване"!';
-$roscms_langres['ContTrans_SAVE'] = '<b>Запис</b> (ново съдържание и ново попълнение в базата от данни)';
-$roscms_langres['ContTrans_UPDATE'] = '<b>Обновяване</b>  (заместване на сегашното попълнение)';
-$roscms_langres['ContTrans_Save1'] = 'Записана е нова версия';
-$roscms_langres['ContTrans_Save2'] = 'на съдържанието!';
-$roscms_langres['ContTrans_Save3'] = 'Отиване на страница  \'content edit\' ';
-$roscms_langres['ContTrans_Save4'] = 'Обратно до страница \'content edit\' ';
-$roscms_langres['ContTrans_Save5'] = 'Страницата';
-$roscms_langres['ContTrans_Save6'] = 'Преглед на страницата (динамична версия; нов прозорец)';
-$roscms_langres['ContTrans_Save7'] = 'Обратно до страница \'page edit\' ';
+$roscms_langres['ContTrans_ViewEditContent'] = 'View / Edit content';
+$roscms_langres['ContTrans_ViewEditpage'] = 'View / Edit page';
+$roscms_langres['ContTrans_SaveContent'] = 'Save content';
+$roscms_langres['ContTrans_Type'] = 'Type';
+$roscms_langres['ContTrans_Description'] = 'Description';
+$roscms_langres['ContTrans_Username'] = 'Username';
+$roscms_langres['ContTrans_egAbout'] = 'e.g. &quot;about&quot;';
+$roscms_langres['ContTrans_checklang'] = 'Please check, if you have selected the right language, before you click "submit"!';
+$roscms_langres['ContTrans_SAVE'] = '<b>Save</b> (new version and new db entry)';
+$roscms_langres['ContTrans_UPDATE'] = '<b>Update</b>  (overwrite the current entry)';
+$roscms_langres['ContTrans_Save1'] = 'A new version of content';
+$roscms_langres['ContTrans_Save2'] = 'has been saved!';
+$roscms_langres['ContTrans_Save3'] = 'Go to the \'content edit\' page';
+$roscms_langres['ContTrans_Save4'] = 'Back to the \'content edit\' page';
+$roscms_langres['ContTrans_Save5'] = 'The page';
+$roscms_langres['ContTrans_Save6'] = 'View the page (dynamic version; new window)';
+$roscms_langres['ContTrans_Save7'] = 'Back to the \'page edit\' page';
 
-$roscms_langres['ContTrans_Preview'] = 'Преглед';
-$roscms_langres['ContTrans_PageTitle'] = 'Заглавие на страницата';
-$roscms_langres['ContTrans_Extention'] = 'Разширение';
+$roscms_langres['ContTrans_Preview'] = 'Preview';
+$roscms_langres['ContTrans_PageTitle'] = 'Page Title';
+$roscms_langres['ContTrans_Extention'] = 'Extention';
 
-$roscms_langres['ContTrans_DevPageGenerator'] = 'Развоен интерфейс - Създател на страници';
-$roscms_langres['Dev_PageGenerator'] = 'Създател на страници';
-$roscms_langres['Dev_PageGeneratorOverview'] = 'Обзор на създателя на страници';
-$roscms_langres['ContTrans_Change'] = 'Промяна';
-$roscms_langres['ContTrans_LatestGen'] = 'Последно създаване';
-$roscms_langres['ContTrans_UserGen'] = 'Потребител (създател)';
+$roscms_langres['ContTrans_DevPageGenerator'] = 'Developer Interface - Page Generator';
+$roscms_langres['Dev_PageGenerator'] = 'Page Generator';
+$roscms_langres['Dev_PageGeneratorOverview'] = 'Page Generator Overview';
+$roscms_langres['ContTrans_Change'] = 'Change';
+$roscms_langres['ContTrans_LatestGen'] = 'Latest Gen.';
+$roscms_langres['ContTrans_UserGen'] = 'User (Generator)';
 
-$roscms_langres['ContTrans_Gen_desc'] = 'Създателят на статични страници може да изведе страниците във файлове или в обзорника.';
-$roscms_langres['ContTrans_Gen_menu1'] = 'Създаване на всички ОБНОВЕНИ статични страници';
-$roscms_langres['ContTrans_Gen_menu2'] = 'Създаване на всички статични страници';
-$roscms_langres['ContTrans_Gen_menu3'] = 'Създаване/ преглед на определена статична страница';
-$roscms_langres['ContTrans_Gen_menu4'] = 'Преглед (динамично от базата от данни)';
-$roscms_langres['ContTrans_Gen_menu3_desc'] = 'Създаване на една статична страница; например, ако искате да обновете определена страница';
-$roscms_langres['ContTrans_allactivepages'] = 'всички (дейни) страници';
+$roscms_langres['ContTrans_Gen_desc'] = 'The static page generator can output the pages to files or to the browser.';
+$roscms_langres['ContTrans_Gen_menu1'] = 'Generate  all UPDATED static pages';
+$roscms_langres['ContTrans_Gen_menu2'] = 'Generate all static pages';
+$roscms_langres['ContTrans_Gen_menu3'] = 'Generate/view a specific static page';
+$roscms_langres['ContTrans_Gen_menu4'] = 'View page (dynamic from database)';
+$roscms_langres['ContTrans_Gen_menu3_desc'] = 'Generate one static page; e.g. if you want to update one specific page';
+$roscms_langres['ContTrans_allactivepages'] = 'all (active) pages';
 
 
-$roscms_langres['ContTrans_yes'] = 'да';
-$roscms_langres['ContTrans_no'] = 'не';
+$roscms_langres['ContTrans_yes'] = 'yes';
+$roscms_langres['ContTrans_no'] = 'no';
 
 
 ?>
