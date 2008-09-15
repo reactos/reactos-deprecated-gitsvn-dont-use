@@ -177,7 +177,6 @@ int main(int argc, char **argv)
     char buf[100];
     while(feof(p)==0)
     {
-        memset(buf,0,strlen(buf));
         fgets(buf,100,p);
         printf("%s\n",buf);
     }
