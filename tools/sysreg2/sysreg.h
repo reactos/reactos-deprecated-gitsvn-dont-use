@@ -10,6 +10,9 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+#define KDBG_CONFIRM -3
+#define KDBG_READY -2
+
 typedef struct {
 	char BootDevice[8];
 	char Checkpoint[80];
@@ -36,3 +39,7 @@ bool LoadSettings(const char* XmlConfig);
 
 /* console.c */	
 bool  ProcessDebugData(const char* tty, int timeout, int stage);  
+
+/* raddr2line.c */
+bool GetPackagePath(char* Buffer, int BuffSize, char* Module);
+bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data);

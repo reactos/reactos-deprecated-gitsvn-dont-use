@@ -7,7 +7,7 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
     int ttyfd, i;
     struct termios ttyattr, rawattr;
     bool Ret = true;
-    bool KdbgHit = false;
+    int KdbgHit = 0;
 
     if ((ttyfd = open(tty, O_NOCTTY | O_RDWR)) < 0)
     {
@@ -58,38 +58,36 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                 continue;
             if (fds[i].revents & POLLIN)
             {
-                char buf[4096];
+                char buf[512];
+                char rbuf[512];
                 int got, sent = 0;
         
                 memset(buf, 0, sizeof(buf));
                 got = readln(fds[i].fd, buf, sizeof(buf));
-                if (got == -2) /* kernel debugger */
+                if (got == KDBG_READY) 
                 {
-                    if (KdbgHit)
+                    KdbgHit++;
+                    switch (KdbgHit)
                     {
-                        Ret = false;                    
-                        goto cleanup;
-                    }
-                    else
-                    {
-                        KdbgHit = true;
-                        safewrite(ttyfd, "bt\r", 3);
-                        continue;
+                        case 1:
+                            safewrite(ttyfd, "bt\r", 3);
+                            continue;
+                        default:
+                            Ret = false;
+                            goto cleanup;
+
                     }
                 }
-                else if (got == -3) /* kernel debugger */
+                else if (got == KDBG_CONFIRM) 
                 {
+                    /* send <Return>
+                     * to get more data */
                     safewrite(ttyfd, "\r", 1);
                     continue;
                 }
-                if (got < 0) {
+                else if (got <= 0) {
                     goto cleanup;
                 }
-                if (!got)
-                {
-                    goto cleanup;
-                }
-
                 if (fds[i].fd != STDIN_FILENO)
                 {
                     if ((AppSettings.Stage[stage].Checkpoint[0] != '\0') &&
@@ -99,21 +97,11 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                          * kill the vm and return success */
                         goto cleanup;
                     } 
-
-                    printf("%s", buf);
-                    /*
-                    while (sent < got)
-                    {
-                        int done;
-                        if ((done = safewrite(STDOUT_FILENO, 
-                                        buf + sent, got - sent)) <= 0)
-                        {
-                            Ret = false;
-                            goto cleanup;
-                        }
-                        sent += done;
-                    }
-                    */
+                    
+                    if (ResolveAddressFromFile(rbuf, sizeof(rbuf), buf))
+                        printf("%s", rbuf);
+                    else
+                        printf("%s", buf);
                 }
                 else
                 {
