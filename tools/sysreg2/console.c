@@ -7,6 +7,7 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
     int ttyfd, i;
     struct termios ttyattr, rawattr;
     bool Ret = true;
+    bool KdbgHit = false;
 
     if ((ttyfd = open(tty, O_NOCTTY | O_RDWR)) < 0)
     {
@@ -64,8 +65,22 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                 got = readln(fds[i].fd, buf, sizeof(buf));
                 if (got == -2) /* kernel debugger */
                 {
-                    Ret = false;                    
-                    goto cleanup;
+                    if (KdbgHit)
+                    {
+                        Ret = false;                    
+                        goto cleanup;
+                    }
+                    else
+                    {
+                        KdbgHit = true;
+                        safewrite(ttyfd, "bt\r", 3);
+                        continue;
+                    }
+                }
+                else if (got == -3) /* kernel debugger */
+                {
+                    safewrite(ttyfd, "\r", 1);
+                    continue;
                 }
                 if (got < 0) {
                     goto cleanup;

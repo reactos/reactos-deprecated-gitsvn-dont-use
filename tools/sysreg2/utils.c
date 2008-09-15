@@ -17,6 +17,8 @@ int readln(int fd, char* buffer, int size)
         {
              if (strstr(buffer, "kdb:>"))
                  return -2;
+             if (strstr(buffer, "--- Press q"))
+                 return -3;
         }
         if (*bp++ == '\n')
             return (bp - buffer);
