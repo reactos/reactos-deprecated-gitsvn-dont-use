@@ -34,6 +34,7 @@ function check_lang($lang)
 			case 'ro':
 			case 'tw':
 			case 'sk':
+			case 'vi':
 				break;
 			default:
 				$checked_lang = '';
