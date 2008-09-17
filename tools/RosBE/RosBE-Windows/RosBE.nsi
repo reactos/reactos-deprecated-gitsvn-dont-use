@@ -33,6 +33,7 @@ SetCompressor /FINAL /SOLID lzma
 !include "MUI2.nsh"
 !include "InstallOptions.nsh"
 !include "RosSourceDir.nsh"
+!include "RosSourceDir64.nsh"
 !include "LogicLib.nsh"
 !include "x64.nsh"
 
@@ -53,6 +54,7 @@ Function .onInit
     ${Endif}
     Call UninstallPrevious
     !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
+    !insertmacro INSTALLOPTIONS_EXTRACT64 "RosSourceDir64.ini"
 FunctionEnd
 
 ;;
@@ -69,10 +71,12 @@ FunctionEnd
 !insertmacro MUI_PAGE_DIRECTORY
 
 ;;
-;; ReactOS source directory page
+;; ReactOS Source Directory Pages
 ;;
 var REACTOS_SOURCE_DIRECTORY
 !insertmacro CUSTOM_PAGE_ROSDIRECTORY
+var REACTOS_SOURCE_DIRECTORY64
+!insertmacro CUSTOM_PAGE_ROSDIRECTORY64
 
 ;;
 ;; Start menu page
@@ -269,7 +273,7 @@ Section -StartMenuShortcuts SEC12
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-        SetOutPath $PROFILE
+        SetOutPath $REACTOS_SOURCE_DIRECTORY64
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
         SetOutPath $PROFILE
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
@@ -289,7 +293,7 @@ Section /o "Desktop Shortcuts" SEC13
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-    SetOutPath $PROFILE
+    SetOutPath $REACTOS_SOURCE_DIRECTORY64
     CreateShortCut "$DESKTOP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
     CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
@@ -303,7 +307,7 @@ Section /o "Quick Launch Shortcuts" SEC14
     ;;
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-    SetOutPath $PROFILE
+    SetOutPath $REACTOS_SOURCE_DIRECTORY64
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
     CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
