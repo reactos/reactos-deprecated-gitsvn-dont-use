@@ -54,7 +54,7 @@ Function .onInit
     ${Endif}
     Call UninstallPrevious
     !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir.ini"
-    !insertmacro INSTALLOPTIONS_EXTRACT64 "RosSourceDir64.ini"
+    !insertmacro INSTALLOPTIONS_EXTRACT "RosSourceDir64.ini"
 FunctionEnd
 
 ;;
