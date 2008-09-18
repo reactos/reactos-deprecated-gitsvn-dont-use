@@ -1,7 +1,7 @@
 <?php
     /*
     RosCMS - ReactOS Content Management System
-    Copyright (C) 2005-2007  Klemens Friedl <frik85@reactos.org>
+    Copyright (C) 2005-2008  Klemens Friedl <frik85@reactos.org>
 	              2005       Ge van Geldorp <gvg@reactos.org>
 
     This program is free software; you can redistribute it and/or modify
@@ -19,43 +19,35 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-error_reporting(E_ALL);
-ini_set('error_reporting', E_ALL);
 
-if (get_magic_quotes_gpc()) {
-	die("ERROR: Disable 'magic quotes' in php.ini (=Off)");
-}
+	//error_reporting(0);
+	error_reporting(E_ALL);
+	ini_set('error_reporting', E_ALL);
 
 
-//global $HTTP_GET_VARS; // set the Get var global
-
-
-	//include("./inc/db/connect_db.inc.php");
-	require("connect.db.php");
-
-
-	// stop MySQL bug (http://dev.mysql.com/doc/refman/4.1/en/news-4-1-20.html):
-	$SQLinjectionprevention ="SET GLOBAL sql_mode='NO_BACKSLASH_ESCAPES';";
-	$SQLinjectionprevention_query=mysql_query($SQLinjectionprevention);
-
-
-
-
-/*
- *	ReactOS CMS System - Version 2006-05-22
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- */
-
-	if ( !defined('ROSCMS_SYSTEM') ) {
-		define ("ROSCMS_SYSTEM", "Version 0.1"); // to prevent hacking activity
+	if (get_magic_quotes_gpc()) {
+		die("ERROR: Disable 'magic quotes' in php.ini (=Off)");
 	}
 
-	$roscms_branch = "website";
+	// database connect data
+	require("connect.db.php");
+		
+	// config data
+	require("roscms_conf.php");
+	
+	// logon system
+	require_once('inc/utils.php');
+	require("logon/timezone.php");
+	define('ROSCMS_LOGIN', '3');
+
+
+	if ( !defined('ROSCMS_SYSTEM') ) {
+		define ("ROSCMS_SYSTEM", "Version 0.3"); // to prevent hacking activity
+	}
+
 
 	// Global Vars:
-	$rpm_page="user";
+	$rpm_page="";
 	$rpm_sec="";
 	$rpm_sec2="";
 	$rpm_sec3="";
@@ -84,14 +76,12 @@ if (get_magic_quotes_gpc()) {
 	$roscms_intern_login_check="false";
 	
 	// Central Color Settings:
-	include("colors.php");
+	//include("colors.php");
 	
 	$roscms_infotable="";
 	
 	// this vars will be removed soon
 	$roscms_intern_login_check_username="";
-
-	session_start();
 
 	//if (array_key_exists("page", $HTTP_GET_VARS)) $rpm_page=$HTTP_GET_VARS["page"];
 	if (array_key_exists("page", $_GET)) $rpm_page=htmlspecialchars($_GET["page"]);
@@ -127,183 +117,150 @@ if (get_magic_quotes_gpc()) {
 	$roscms_intern_dynamic="true";
 	
 
+	//echo "<h1>:".$rpm_lang."; ".$roscms_usrsetting_lang."</h1>";
+	//die();
 
 
-
+	//$rpm_lang = "en";
+	//require("inc/lang/en.php"); // preload the english language text
 	require("lang.php"); // lang code outsourced
 	require("custom.php"); // custom on-screen information
 	
 	
+	$rdf_URI_tree = $_SERVER['REQUEST_URI'];
+	//echo $rdf_URI_tree . "<br>";
+	
+	
+	$rdf_URI_tree = str_replace($roscms_SET_path."index.php/","",$rdf_URI_tree);
+	$rdf_URI_tree = str_replace($roscms_SET_path,"",$rdf_URI_tree);
+	//echo $rdf_URI_tree . "<br>";
+	
+	
+	$rdf_URI_tree_split = explode("/", $rdf_URI_tree);
+	
+	
+	$rdf_URI_tree_array = array();
 
-	ini_set ('session.name', 'roscms');
+	foreach($rdf_URI_tree_split as $value) {
+		//echo "<br>".$value;
+		$rdf_URI_tree_array[$rdf_URI_tree_counter] = $value;
+		$rdf_URI_tree_counter++;
+	}
+	
+	$rdf_uri_1 = @$rdf_URI_tree_array[0];
+	$rdf_uri_2 = @$rdf_URI_tree_array[1];
+	$rdf_uri_3 = @$rdf_URI_tree_array[2];
+	$rdf_uri_4 = @$rdf_URI_tree_array[3];
+	$rdf_uri_5 = @$rdf_URI_tree_array[4];
+	$rdf_uri_6 = @$rdf_URI_tree_array[5];
+	$rdf_uri_7 = @$rdf_URI_tree_array[6];
+	$rdf_uri_8 = @$rdf_URI_tree_array[7];
 
+	if ($rpm_page != "") {
+		$rdf_uri_1 = $rpm_page;
+	}
+	//echo $rpm_page;
+	
+	$rdf_uri_str = $rdf_uri_1."/";
+	/*if ($rdf_uri_2 != "") {
+		$rdf_uri_str .= $rdf_uri_2;
+	}*/
+	
 
-	switch ($rpm_page) {
-		default: // Frontpage
-			require("inc/login.php");
-			$rpm_page_title = $roscms_extern_brand ." - Home";
-			include("inc/header.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/home.php"); // Content
-			include("inc/body.php"); // Body
-			break;
-		case "home":
-			require("inc/login.php");
-			$rpm_page_title = $roscms_extern_brand ." - Home";
-			include("inc/header.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/home.php"); // Content
-			include("inc/body.php"); // Body
-			break;
+	switch ($rdf_uri_1) {
 		case "data": // RosCMS v3 Interface
-			require("inc/login.php");
+			require("logon/login.php");
+			require("inc/usergroups.php");
 			$rpm_page_title = $roscms_extern_brand ." ".$roscms_extern_version;
 			include("inc/header.php");
+			$rpm_page = "data";
 			include("inc/data.php"); 
 			include("inc/footer.php");
 			break;
 		case "data_out": // data to client
-			require("inc/login.php");
+			require("logon/login.php");
+			require("inc/usergroups.php");
+			$rpm_page = "data_out";
 			include("inc/tools.php"); 
 			include("inc/data_export.php"); 
 			break;
-		/*case "data_in": // data to server
-			require("inc/login.php");
-			include("inc/data_import.php"); 
+		case "my":		
+		default:
+			//die("test2");
+			require("logon/login.php");
+			require("inc/header.php");
+			switch ($rdf_uri_2) {
+				default:
+					create_header("", "logon");
+					require("logon/user_profil_menubar.php");
+					require("logon/user_profil.php");
+					break;
+				case "edit":
+				case "activate":
+					include("logon/language_detection.php");
+					require("logon/user_profil_edit.php");
+					break;
+			}
+			require("inc/footer_closetable.php");
+			require("inc/footer.php");
 			break;
-		case "admin": // Admin interface
-			require("inc/login.php");
-			if ($rpm_site == "") {
-				$rpm_page_title="RosCMS - Admin Interface";
-				include("inc/head.php");
-				include("inc/structure.php");
-				include("inc/admin.php"); 
-				include("inc/body.php");
+		case "user":
+			require("logon/login.php");
+			require("inc/header.php");
+			create_header("", "logon");
+			require("logon/user_profil_menubar.php");
+			include("logon/language_detection.php");
+			require("logon/user_profil_public.php");
+			require("inc/footer_closetable.php");
+			require("inc/footer.php");
+			break;
+		case "login":		
+			require("inc/header.php");
+			switch ($rdf_uri_2) {
+				default:
+					require("logon/user_login.php");
+					break;
+				case "lost":
+					require("logon/user_login_lost.php");
+					break;
+				case "activate":
+					require("logon/user_login_activate.php");
+					break;
+			}
+			require("inc/footer_closetable.php");
+			require("inc/footer.php");
+			break;
+		case "logout":
+			include("logon/logout.php");
+			break;
+		case "register":
+			if ($rdf_uri_2 == "captcha") {
+				require("logon/captcha/fonts.php");
+				require("logon/captcha/captcha_image.php");
+				//die();
 			}
 			else {
-				include("inc/admin.php"); 
-			}
-			break;*/
-		case "user": // myReactOS
-			require("inc/login.php");
-			$rpm_page_title="myReactOS";
-			$rpm_logo="myreactos";
-			include("inc/head.php");
-			include("inc/structure.php");
-			include("inc/user.php"); 
-			include("inc/body.php");
-			break;
-		/*case "dev": // developer interface
-			require("inc/login.php");
-			$rpm_page_title="Developer Inteface";
-			include("inc/head.php");
-			include("inc/structure.php");
-			include("inc/dev.php"); 
-			include("inc/body.php");
-			break;
-		case "team": // team interface (UI-Team, etc.)
-			require("inc/login.php");
-			$rpm_page_title="Team Inteface";
-			include("inc/head.php");
-			include("inc/structure.php");
-			include("inc/team.php"); 
-			include("inc/body.php");
-			break;
-		case "trans": // translator interface (UI-Team, etc.)
-			require("inc/login.php");
-			$rpm_page_title="Translator Inteface";
-			include("inc/head.php");
-			include("inc/structure.php");
-			include("inc/translator.php"); 
-			include("inc/body.php");
-			break;*/
-		case "login": // Login Page
-			$rpm_page_title="Login";
-			$rpm_logo="normal";
-			include("inc/head.php");
-			include("inc/structure.php");
-			include("inc/user_login.php"); 
-			include("inc/body.php");
-			break;
-		case "register": // Register Account Page
-			$rpm_page_title="Register Account";
-			$rpm_logo="normal";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/user_register.php"); 
-			include("inc/body.php");
-			break;
-		case "getpwd": // Did you forget your password? -> request -> email
-			$rpm_page_title="Did you forget your password?";
-			$rpm_logo="normal";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/user_getpwd.php"); 
-			include("inc/body.php");
-			break;
-		case "getpwd2": // -> link (email) -> new password
-			$rpm_page_title="Activate new Password";
-			$rpm_logo="normal";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/user_getpwd2.php"); 
-			include("inc/body.php");
-			break;
-		case "logout": // Logout function
-			include("inc/logout.php");
-			break;
-		case "noaccess":
-			$rpm_page_title="No Access";
-			$rpm_logo="normal";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/noaccess.php"); 
-			include("inc/body.php");
-			break;
-		case "nopermission":
-			require("inc/login.php");
-			$rpm_page_title="No Permission";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/nopermission.php"); 
-			include("inc/body.php");
-			break;
-
-			
-		case "webstatus": // Website Status
-			$rpm_page_title="Website Status";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/website_status.php"); 
-			include("inc/body.php");
-			break;
-
-		case "404":
-			$rpm_page_title="Page not found";
-			include("inc/head.php");
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			include("inc/structure.php");
-			create_structure($rpm_page);
-			include("inc/404.php"); 
-			include("inc/body.php");
-			break;
-			
-		case "export":
-			if ($rpm_export == "diff_content") {
-				include("inc/export/diff_content.php"); 
+				require("inc/header.php");
+				include("logon/language_detection.php");
+				require("logon/user_register.php");
+				require("inc/footer.php");
 			}
 			break;
 	}
+
+	/*if ($rdf_uri_1 != "data_out") {
+		echo "<hr />";
+		echo "<p>";
+		echo "1) ".$rdf_uri_1."<br />";
+		echo "2) ".$rdf_uri_2."<br />";
+		echo "3) ".$rdf_uri_3."<br />";
+		echo "4) ".$rdf_uri_4."<br />";
+		echo "5) ".$rdf_uri_5."<br />";
+		echo "6) ".$rdf_uri_6."<br />";
+		echo "7) ".$rdf_uri_7."<br />";
+		echo "8) ".$rdf_uri_8;
+		echo "</p>";
+
+	}*/
+	
 ?>
