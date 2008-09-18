@@ -30,46 +30,40 @@
 	$roscms_gentime = $roscms_gentime[1] + $roscms_gentime[0]; 
 	$roscms_pg_start = $roscms_gentime; 
 
-function create_head($page_title, $logo, $roscms_langres)
+
+function create_head($page_title = "", $page_css = "roscms") {
+	create_header();
+}
+
+
+function create_header($page_title = "", $page_css = "roscms")
 {
-	require_once('roscms_config.php');
+	global $roscms_intern_path_server;
+	global $roscms_langres;
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
-<html>
+
+<html lang="<?php echo $roscms_langres['lang_code']; ?>">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $roscms_langres['charset']; ?>">
-	<title>ReactOS - <?php echo $page_title ; ?></title>
-	<meta http-equiv="Pragma" content="no-cache">
-	<meta name="Copyright" content="ReactOS Foundation">
-	<meta name="generator" content="RosCMS">
-	<meta name="Content-language" content="<?php echo $roscms_langres['lang_code']; ?>">
-	<meta name="Robots" content="noindex,nofollow">
-	<link rel="SHORTCUT ICON" href="../favicon.ico">
-	<link href="<?php echo $roscms_intern_path_server."roscms/"; ?>style_v3.css" type="text/css" rel="stylesheet">
-	
-<?php 
-	if ($logo == "normal") {
-?>
-	<style type="text/css">
-		#top {
-			background: url('images/logo.jpg') no-repeat scroll 35px 0;
-		}
-	</style>
+	<title>ReactOS  <?php if ($page_title != "") { echo "- ".$page_title; } ?></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $roscms_langres['charset']; ?>" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta name="Copyright" content="ReactOS Foundation" />
+	<meta name="generator" content="RosCMS" />
+	<meta name="Content-language" content="<?php echo $roscms_langres['lang_code']; ?>" />
+	<meta name="Robots" content="noindex,nofollow" />
+	<link rel="SHORTCUT ICON" href="../favicon.ico" />
 <?php
+	if ($page_css == "roscms") {
+		echo '<link href="'.$roscms_intern_path_server.'roscms/style_v3.css" type="text/css" rel="stylesheet" />';
 	}
-	if ($logo == "myreactos") {
-?>
-	<style type="text/css">
-		#top {
-			background: url('images/logo_myreactos.jpg') no-repeat scroll 35px 0;
-		}
-	</style>
-<?php
+	else {
+		echo '<link href="'.$roscms_intern_path_server.'roscms/style.css" type="text/css" rel="stylesheet" />';
+		echo '<link href="'.$roscms_intern_path_server.'roscms/logon/logon.css" type="text/css" rel="stylesheet" />';
 	}
-
-
 ?>
+
 </head>
 <body>
 <div id="top">
@@ -90,7 +84,7 @@ function create_head($page_title, $logo, $roscms_langres)
 
 <?php 
 
-require("./inc/inc_account_check.php");
+//require("./inc/inc_account_check.php");
 
 ?>
 
