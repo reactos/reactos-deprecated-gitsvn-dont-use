@@ -71,6 +71,9 @@ $wgEmailAuthentication = false;
 require_once("/web/reactos.org/config/wiki-connect.php");
 //require_once("$IP/wiki-connect.php");
 
+# Use the hash preprocessor for our server
+$wgParserConf["preprocessorClass"] = "Preprocessor_Hash";
+
 # Experimental charset support for MySQL 4.1/5.0.
 $wgDBmysql5 = false;
 
