@@ -1,38 +1,41 @@
 #include "sysreg.h"
 #include <libvirt.h>
 
-const char* GetConsole(virDomainPtr vDomPtr)
+bool GetConsole(virDomainPtr vDomPtr, char* console)
 {
     xmlDocPtr xml = NULL;
     xmlXPathObjectPtr obj = NULL;
     xmlXPathContextPtr ctxt = NULL;
     char* XmlDoc;
-    const char* RetVal = NULL;
+    bool RetVal = false;
 
     XmlDoc = virDomainGetXMLDesc(vDomPtr, 0);
     if (!XmlDoc)
-        return NULL;
+        return false;
 
     xml = xmlReadDoc((const xmlChar *) XmlDoc, "domain.xml", NULL,
             XML_PARSE_NOENT | XML_PARSE_NONET |
             XML_PARSE_NOWARNING);
     free(XmlDoc);
     if (!xml)
-        return NULL;
+        return false;
 
     ctxt = xmlXPathNewContext(xml);
     if (!ctxt)
     {
         xmlFreeDoc(xml);
-        return NULL;
+        return false;
     }
 
     obj = xmlXPathEval(BAD_CAST "string(/domain/devices/console/@tty)", ctxt);
     if ((obj != NULL) && ((obj->type == XPATH_STRING) &&
                          (obj->stringval != NULL) && (obj->stringval[0] != 0)))
     {
-        RetVal = (const char*)obj->stringval;
+        strcpy(console, obj->stringval);
+        RetVal = true;
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
@@ -66,11 +69,13 @@ bool IsVirtualMachineRunning(virConnectPtr vConn, const char* name)
             if (strcasecmp(name, domname) == 0)
             {
                 virDomainFree(vDomPtr);
+                free(ids);
                 return true; 
             }
             virDomainFree(vDomPtr);
         }
     }
+    free(ids);
     return false;
 }
 
@@ -105,12 +110,13 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char* XmlFileName, 
     {
         xmlSetProp(obj->nodesetval->nodeTab[0], "dev", BootDevice);
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     free(buffer);
     xmlDocDumpMemory(xml, (xmlChar**) &buffer, &len);
     xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
-    xmlXPathFreeObject(obj);
 
     virDomainPtr vDomPtr = virDomainDefineXML(vConn, buffer);
     xmlFree((xmlChar*)buffer);
@@ -146,6 +152,7 @@ int main(int argc, char **argv)
     FILE* file;
     char config[255];
     int Ret = EXIT_SUCCESS;
+    char console[50];
 
     if (argc == 2)
         strcpy(config, argv[1]);
@@ -193,7 +200,8 @@ int main(int argc, char **argv)
                     printf("\n\n\n");
                 printf("Running stage %d...\n", Stage + 1);
                 printf("Domain %s started.\n", virDomainGetName(vDom));
-                if (!ProcessDebugData(GetConsole(vDom), 
+                GetConsole(vDom, console);
+                if (!ProcessDebugData(console,
                                  AppSettings.Timeout, Stage))
                 {
                     Ret = EXIT_FAILURE;

@@ -29,6 +29,8 @@ bool LoadSettings(const char* XmlConfig)
     {
         strncpy(AppSettings.Filename, obj->stringval, 254);
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     obj = xmlXPathEval(BAD_CAST"string(/settings/@vm)",ctxt);
     if ((obj != NULL) && ((obj->type == XPATH_STRING) &&
@@ -36,6 +38,8 @@ bool LoadSettings(const char* XmlConfig)
     {
         strncpy(AppSettings.Name, obj->stringval, 79);
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     obj = xmlXPathEval(BAD_CAST"number(/settings/general/timeout/@ms)",ctxt);
     if ((obj != NULL) && (obj->type == XPATH_NUMBER))
@@ -44,6 +48,8 @@ bool LoadSettings(const char* XmlConfig)
          * which means infinite */
         AppSettings.Timeout = (int)obj->floatval;
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     obj = xmlXPathEval(BAD_CAST"number(/settings/general/hdd/@size)",ctxt);
     if ((obj != NULL) && (obj->type == XPATH_NUMBER))
@@ -53,6 +59,8 @@ bool LoadSettings(const char* XmlConfig)
         else
             AppSettings.ImageSize = (int)obj->floatval;
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     for (Stage=0;Stage<3;Stage++)
     {
@@ -65,6 +73,8 @@ bool LoadSettings(const char* XmlConfig)
         {
             strncpy(AppSettings.Stage[Stage].BootDevice, obj->stringval, 7);
         }
+        if (obj)
+            xmlXPathFreeObject(obj);
         strcpy(TempStr, "string(/settings/");
         strcat(TempStr, StageNames[Stage]);
         strcat(TempStr, "/success/@on)");
@@ -74,6 +84,8 @@ bool LoadSettings(const char* XmlConfig)
         {
             strncpy(AppSettings.Stage[Stage].Checkpoint, obj->stringval, 79);
         }
+        if (obj)
+            xmlXPathFreeObject(obj);
     }
     xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
@@ -94,6 +106,8 @@ bool LoadSettings(const char* XmlConfig)
     {
         strncpy(AppSettings.HardDiskImage, obj->stringval, 254);
     }
+    if (obj)
+        xmlXPathFreeObject(obj);
 
     xmlFreeDoc(xml);
     xmlXPathFreeContext(ctxt);
