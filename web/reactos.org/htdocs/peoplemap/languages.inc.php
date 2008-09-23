@@ -12,5 +12,6 @@
 		"en" => "English",
 		"de" => "Deutsch (German)",
 		"es" => "Español (Spanish)",
+		"pl" => "Polski (Polish)",
 	);
 ?>
