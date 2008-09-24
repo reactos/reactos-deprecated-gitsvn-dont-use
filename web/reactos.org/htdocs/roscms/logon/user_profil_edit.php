@@ -77,7 +77,7 @@ else {
 										preg_match($rdf_register_valid_email_regex, $_POST['useremail']) && /* check if it's a valid email address */
 										$result_user_profil['user_email_activation'] == ($_POST['useremail'].$rdf_uri_3) &&
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && $_SESSION['rdf_security_code'] == $_POST['usercaptcha'])
+										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']))
 									{
 										$sql_change_email = "UPDATE users 
 																SET user_timestamp_touch2 = NOW( ) ,
@@ -151,7 +151,7 @@ else {
 										isset($_POST['country']) && $_POST['country'] != "" &&
 										isset($_POST['tzone']) && $_POST['tzone'] != "" &&
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && $_SESSION['rdf_security_code'] == $_POST['usercaptcha'] && 
+										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && 
 										!$existemail)
 									{										
 										// user language (browser settings)
@@ -503,7 +503,7 @@ else {
 										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
 										<?php 
 											if (isset($_POST['registerpost'])) { 
-												echo "<br /><i>Captcha code is case sensitive. <br />If you can't read it, try another one.</i>";
+												echo "<br /><i>Captcha code is case insensitive. <br />If you can't read it, try another one.</i>";
 											}
 										?>
 									</div>

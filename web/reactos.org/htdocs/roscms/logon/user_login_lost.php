@@ -108,7 +108,7 @@ else {
 										strlen($_POST['userpwd1']) >= $rdf_register_user_pwd_min && strlen($_POST['userpwd1']) < $rdf_register_user_pwd_max &&
 										$_POST['userpwd1'] == $_POST['userpwd2'] &&
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && $_SESSION['rdf_security_code'] == $_POST['usercaptcha'] &&										
+										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) &&										
 										$existpwdid == "true")
 									{
 										$sql_exist_pwdid2 = "SELECT user_id 
@@ -135,7 +135,7 @@ else {
 										isset($_POST['useremail']) && $_POST['useremail'] != "" && 
 										preg_match($rdf_register_valid_email_regex, $_POST['useremail']) && /* check if it's a valid email address */
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && $_SESSION['rdf_security_code'] == $_POST['usercaptcha'] && 
+										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && 
 										$existemail)
 									{										
 										// password activation code
@@ -271,7 +271,7 @@ else {
 										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
 										<?php 
 											if (isset($_POST['registerpost'])) { 
-												echo "<br /><i>Captcha code is case sensitive. <br />If you can't read it, try another one.</i>";
+												echo "<br /><i>Captcha code is case insensitive. <br />If you can't read it, try another one.</i>";
 											}
 										?>
 									</div>
