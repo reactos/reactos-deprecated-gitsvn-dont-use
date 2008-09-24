@@ -162,7 +162,7 @@
 										isset($_POST['country']) && $_POST['country'] != "" &&
 										isset($_POST['tzone']) && $_POST['tzone'] != "" &&
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && $_SESSION['rdf_security_code'] == $_POST['usercaptcha'] && 
+										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && 
 										$safename == "true" && $safepwd == "true" && !$existname && !$existemail)
 									{										
 										// user language (browser settings)
@@ -170,10 +170,10 @@
 										$userlang2 = "en";
 										if (strlen($userlang[0][0]) > 0 && strlen($userlang[0][0]) <= 5) {
 											$userlang2 = $userlang[0][0];
-											echo "<h3>!!! ".$userlang[0][0]."</h3>";
+											//echo "<h3>!!! ".$userlang[0][0]."</h3>";
 										}
 										else {
-											echo "<h3>??? ".$userlang[0][0]."</h3>";
+											//echo "<h3>??? ".$userlang[0][0]."</h3>";
 										}
 										
 										
@@ -388,7 +388,7 @@
 										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
 										<?php 
 											if (isset($_POST['registerpost'])) { 
-												echo "<br /><i>Captcha code is case sensitive. <br />If you can't read it, try another one.</i>";
+												echo "<br /><i>Captcha code is case insensitive. <br />If you can't read it, try another one.</i>";
 											}
 										?>
 									</div>

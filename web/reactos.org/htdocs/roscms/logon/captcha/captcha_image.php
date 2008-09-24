@@ -22,7 +22,7 @@ class CaptchaSecurityImages {
 		$s = base64_encode($s);   // base64-set, but filter out unwanted chars
 		$s = preg_replace("/[+\/=IG0ODQRtl]/i", "", $s);  // strips hard to discern letters, depends on used font type
 		//$s = substr($s, 0, $characters);
-		$s = substr($s, 0, rand(6, $characters));
+		$s = substr($s, 0, rand(4, $characters));
 		return $s;
 	}
 	
@@ -33,7 +33,7 @@ class CaptchaSecurityImages {
 		$width = 240;
 		$height = 80;
 	
-		$cur_random = mt_rand(0,10);
+		$cur_random = mt_rand(0, count($font_data));
 		
 		$font = $font_data[$cur_random][0];
 		$font_size_mult = $font_data[$cur_random][1];

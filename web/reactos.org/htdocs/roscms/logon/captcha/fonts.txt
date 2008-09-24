@@ -1,0 +1,5 @@
+More GPL compatible fonts:
+
+* http://www.gnome.org/fonts/
+* https://fedorahosted.org/liberation-fonts
+* http://olegueret.googlepages.com/stixfonts-ttf
