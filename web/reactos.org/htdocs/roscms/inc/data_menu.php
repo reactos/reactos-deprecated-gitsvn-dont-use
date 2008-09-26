@@ -140,6 +140,9 @@
 				case "maintain";
 					$curmenu = "maintain";
 					break;
+				case "stats";
+					$curmenu = "stats";
+					break;
 			}
 			break;
 		/*case "user";
@@ -176,6 +179,9 @@
 				break;
 			case 'maintain':
 				temp_page2 = 'data&branch=maintain';
+				break;
+			case 'stats':
+				temp_page2 = 'data&branch=stats';
 				break;
 		}
 		
@@ -243,6 +249,13 @@
 		  </div>
 			  <div class="tblbl">Maintain</div></th>
 		  <td>&nbsp;&nbsp;</td>
+		  <th class="int<?php if ($curmenu == "stats") { echo "2"; } else { echo "1"; } ?>" onclick="roscms_mainmenu('stats')"> <div class="tc1">
+			<div class="tc2">
+			  <div class="tc3"></div>
+			</div>
+		  </div>
+			  <div class="tblbl">Statistics</div></th>
+		  <td>&nbsp;&nbsp;</td>
 		  <?php } ?>
 		  
 		  <td width="100%"><div align="right" id="ajaxloadinginfo" style="visibility:hidden;"><img src="images/ajax_loading.gif" alt="loading ..." width="13" height="13" /></div></td>
@@ -267,6 +280,9 @@
 				}
 				else if ($curmenu == "maintain") { 
 					echo 'RosCMS Maintainer Interface';
+				}
+				else if ($curmenu == "stats") { 
+					echo 'RosCMS Website Statistics';
 				}
 			?>
 		</div>
