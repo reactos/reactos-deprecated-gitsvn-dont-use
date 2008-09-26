@@ -81,6 +81,11 @@
 				echo "<br />";
 				echo "<p>Currently not implemented!</p>";
 				break;
+			case "stats":
+				require("inc/data_menu.php");
+				echo "<br />";
+				require("../stats/admin/view_stats.php");
+				break;
 		}
 
 	}

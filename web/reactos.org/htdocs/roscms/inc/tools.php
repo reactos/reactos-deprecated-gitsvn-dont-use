@@ -33,8 +33,6 @@
 		$intSecondMonth = $arrSecondDate[1];
 		$intSecondDay = $arrSecondDate[2];
 		
-		//echo "<p>ooo: ".$intFirstMonth.", ".$intFirstDay.", ".$intFirstYear."</p>";
-		
 		
 		// Calculate the diference of the two dates and return the number of days
 		$intDate1Jul = gregoriantojd($intFirstMonth, $intFirstDay, $intFirstYear);
