@@ -5,7 +5,7 @@
 	$roscms_intern_path_html=""; // subfolder
 	$roscms_intern_path_xhtml="xhtml/"; // subfolder
 	$roscms_intern_path_gererator="roscms/"; // subfolder
-	$roscms_intern_path_server="http://localhost/reactos.org/"; // complete server path
+	$roscms_intern_path_server="http://www.reactos.org/"; // complete server path
 	
 	$roscms_intern_fileformat_html="html"; // htm
 	$roscms_intern_w3cformat_html="html"; // html
@@ -23,17 +23,17 @@
 
 	// System Paths
 	$roscms_SET_dirname = "reactos.org/roscms";
-	$roscms_SET_path = "http://localhost/".$roscms_SET_dirname."/";
+	$roscms_SET_path = "http://www.".$roscms_SET_dirname."/";
 	$roscms_SET_path_ex = $roscms_SET_path."index.php/";
-	$roscms_SET_path_full = "/<path-to-web-dir>/reactos.org/htdocs/roscms/";
+	$roscms_SET_path_full = "/web/reactos.org/htdocs/roscms/";
 
 	// URI
-	$rdf_URI_tree_counter = -4;
+	$rdf_URI_tree_counter = -3;
 
 
 
 	// Server Timezone
-	$rdf_server_timezone = 2; // for CET
+	$rdf_server_timezone = -1; // for CET
 	
 	// Database Name
 	$rdf_dbname = "roscms";
@@ -77,7 +77,9 @@
 	$rdf_user_id = 0;
 	$rdf_user_name = "Guest";
 	$rdf_user_level = 0; // 0 = guest, 1 = registered user, 2 = membership, 3 = moderator, 4 = author, 5 = admin
-	$rdf_user_timezone = 0;
+	$rdf_user_timezone = 1;
 	$rdf_user_timezone_name = "UTC";
+	//$rdf_user_id = 2;
+	//$rdf_user_name = "Klemens Friedl";
 
 ?>
