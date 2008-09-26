@@ -76,6 +76,27 @@ h3 {
 	font-weight: bold;
 }
  
+h4 {
+	font-size: 16px;
+	color: #5984C3;
+	font-weight: bold;
+	margin-top: 5px;
+}
+
+h5 {
+	font-size: 14px;
+	color: #5984C3;
+	font-weight: bold;
+	margin-top: 5px;
+}
+
+h6 {
+	font-size: 12px;
+	color: #5984C3;
+	font-weight: bold;
+}
+
+ 
 a {
 	font-size: 12px;
 	color: #006090;
@@ -166,7 +187,7 @@ a.extern {
  
 #leftNav ol li a {
 	display: block;
-	width: 137px;
+	width: 145px;
 	padding: 2px 4px 2px 4px;
  
 	color: #3F3849;
@@ -204,3 +225,16 @@ a.extern {
 #bugzillaContent table {
 	font-size: 12px;
 }
+
+/* icon-pics */
+p.icon_p {
+	clear: left;
+}
+img.icon, p.icon_p img {
+	height: 48px;
+	width: 48px;
+	float: left;
+	margin: 5px 10px 5px 10px;
+	border: 0;
+}
+

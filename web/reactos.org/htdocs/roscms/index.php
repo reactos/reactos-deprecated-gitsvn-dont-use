@@ -248,7 +248,8 @@
 			break;
 	}
 
-	/*if ($rdf_uri_1 != "data_out") {
+/*
+	if ($rdf_uri_1 != "data_out") {
 		echo "<hr />";
 		echo "<p>";
 		echo "1) ".$rdf_uri_1."<br />";
@@ -261,6 +262,6 @@
 		echo "8) ".$rdf_uri_8;
 		echo "</p>";
 
-	}*/
-	
+	}
+*/
 ?>
