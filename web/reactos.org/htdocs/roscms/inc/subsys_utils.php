@@ -100,11 +100,9 @@ function subsys_get_roscms_info($roscms_user_id,
                                 &$roscms_user_name,
                                 &$roscms_user_email,
                                 &$roscms_user_fullname,
-                                &$roscms_user_password,
                                 &$roscms_user_register)
 {
   $query = "SELECT user_name, user_email, user_fullname, " .
-           "       user_roscms_password, " .
            "       UNIX_TIMESTAMP(user_register) AS user_reg " .
            "  FROM users " .
            " WHERE user_id = $roscms_user_id";
@@ -118,7 +116,6 @@ function subsys_get_roscms_info($roscms_user_id,
   $roscms_user_name = $roscms_users_row['user_name'];
   $roscms_user_email = $roscms_users_row['user_email'];
   $roscms_user_fullname = $roscms_users_row['user_fullname'];
-  $roscms_user_password = $roscms_users_row['user_roscms_password'];
   $roscms_user_register = $roscms_users_row['user_reg'];
 
   /* We need a valid username and email address in roscms */

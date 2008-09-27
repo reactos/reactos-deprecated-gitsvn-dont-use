@@ -263,7 +263,6 @@ function subsys_bugzilla_add_mapping($roscms_user_id)
                                $roscms_user_name,
                                $roscms_user_email,
                                $roscms_user_fullname,
-                               $roscms_user_password,
                                $roscms_user_register))
     {
       return FALSE;
@@ -331,7 +330,6 @@ function subsys_bugzilla_update_existing($roscms_user_id, $bz_user_id)
                                $roscms_user_name,
                                $roscms_user_email,
                                $roscms_user_fullname,
-                               $roscms_user_password,
                                $roscms_user_register))
     {
       return FALSE;

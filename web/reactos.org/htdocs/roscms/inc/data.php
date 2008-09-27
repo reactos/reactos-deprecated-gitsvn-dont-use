@@ -57,8 +57,7 @@
 
 	if ($roscms_security_level >= 1) {
 		if ($rpm_site == "") {
-			create_head($rpm_page_title, $rpm_logo, $roscms_langres);
-			//create_structure($rpm_page);
+			create_header("RosCMS v3");
 		}
 	
 		switch ($RosCMS_GET_branch) {

@@ -130,12 +130,6 @@ $roscms_security_memberships = "|";
 
 
 $rdf_user_id = $roscms_currentuser_id;
-$rdf_user_name = "FOO BAR";
-$rdf_user_level = 4;
-$rdf_user_timezone = 1;
-$rdf_user_timezone_name = "CET";
-
-
 
 // check usergroup membership
 $query = "SELECT * " .

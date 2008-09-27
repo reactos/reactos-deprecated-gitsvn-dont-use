@@ -74,10 +74,6 @@ else {
 										
 										if ($result_exist_email['user_email'] != "") {
 											$existemail = true;
-											//echo "email fine".$result_exist_email['user_email'];
-										}
-										else {
-											//echo "email error".$sql_exist_email;
 										}
 									}
 									if ($rdf_uri_3 != "" && strlen($rdf_uri_3) > 6)
@@ -92,13 +88,11 @@ else {
 										
 										if ($result_exist_pwdid['user_id'] != "") {
 											$existpwdid = "true";
-											//echo "pwd-id fine".$result_exist_pwdid['user_id'];
 										}
 										else {
 											$existpwdid = "false";
 											echo '<div class="login-title">Invalid Code</div>';
 											$message = "Nothing for you to see here. <br />Please move along.";
-											//echo "pwd-id error";//.$sql_exist_pwdid;
 										}
 									}
 									
@@ -137,7 +131,7 @@ else {
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
 										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && 
 										$existemail)
-									{										
+									{
 										// password activation code
 										$s = "";
 										for ($n=0; $n<20; $n++) {
@@ -250,17 +244,12 @@ else {
 										else {
 									?>
 										<div class="login-form">
-											<label for="useremail"<?php if (isset($_POST['registerpost']) && ($_POST['useremail'] == "" || $existemail || !preg_match($rdf_register_valid_email_regex, $_POST['useremail']))) { echo ' style="color:#FF0000;"'; } ?>>E-Mail</label>
+											<label for="useremail"<?php if (isset($_POST['registerpost']) && ($_POST['useremail'] == "" || !preg_match($rdf_register_valid_email_regex, $_POST['useremail']))) { echo ' style="color:#FF0000;"'; } ?>>E-Mail</label>
 											<input name="useremail" type="text" class="input" tabindex="4" id="useremail" <?php 
 												if (isset($_POST['useremail'])) {
 													echo 'value="' . $_POST['useremail'] .  '"';
 												}
 											?> size="50" maxlength="50" />
-											<?php
-												if (isset($_POST['registerpost']) && $existemail) {
-													echo '<br /><i>That email address is already with an account. Please <a href="'.$roscms_SET_path_ex.'login/" style="color:#FF0000 !important; text-decoration:underline;"><b>login</b></a>!</i>';
-												}
-											?>
 										</div>
 									<?php
 										}
@@ -268,20 +257,28 @@ else {
 									<div class="login-form">
 										<label for="usercaptcha"<?php if (isset($_POST['registerpost'])) { echo ' style="color:#FF0000;"'; } ?>>Type the code shown</label>
 										<input name="usercaptcha" type="text" class="input" tabindex="7" id="usercaptcha" size="50" maxlength="50" />
-										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
+										
+										<script type="text/javascript">
+											var BypassCacheNumber = 0;
+											
+											function CaptchaReload()
+											{
+												++BypassCacheNumber;
+												document.getElementById("captcha").src = "<?php echo $roscms_SET_path_ex; ?>register/captcha/?" + BypassCacheNumber;
+											}
+											
+											document.write('<br /><span style="color:#817A71;">If you can\'t read this, try <a href="javascript:CaptchaReload()">another one</a>.</span>');
+										</script>
+										
+										<img id="captcha" src="<?php echo $roscms_SET_path_ex; ?>register/captcha/" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
 										<?php 
 											if (isset($_POST['registerpost'])) { 
 												echo "<br /><i>Captcha code is case insensitive. <br />If you can't read it, try another one.</i>";
 											}
 										?>
 									</div>
-									<div class="register-accept">
-										<label for="submit">Clicking <strong>I accept</strong> means that you agree <br />
-										to the <a href="#"><?php $rdf_logon_system_name; ?> Service Agreement</a> <br />
-										and <a href="#">Privacy Statement</a>.</label>
-									</div>
 									<div class="login-button">
-										<input type="submit" name="submit" value="I accept" tabindex="8" /><br />
+										<input type="submit" name="submit" value="Send" tabindex="8" />
 										<input type="button" onclick="window.location='<?php echo $roscms_SET_path_ex; ?>'" tabindex="9" value="Cancel" name="cancel" style="color:#777777;" />
 										<input name="registerpost" type="hidden" id="registerpost" value="reg" />
 									</div>

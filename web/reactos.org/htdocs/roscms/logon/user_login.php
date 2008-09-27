@@ -257,11 +257,6 @@ else { // login process
 	}
 	
 	if ($apassword != $pwdtemp) {
-		// ano pwd
-		$sql_unsafe_pwd2 = "INSERT INTO user_unsafepwds2 ( usp_pwd , usp_date ) 
-							VALUES ('".mysql_real_escape_string(htmlentities($_POST[$rdf_login_cookie_usrpwd], ENT_NOQUOTES, "UTF-8"))."', CURDATE( ) );";
-		$insert_unsafe_pwd2 = mysql_query($sql_unsafe_pwd2);
-
 		create_login_page("You have specified an incorrect or inactive username, or an invalid password.");
 		exit;
 	}

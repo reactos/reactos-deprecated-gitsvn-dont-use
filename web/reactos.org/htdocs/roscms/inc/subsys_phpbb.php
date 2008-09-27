@@ -112,7 +112,6 @@ function subsys_phpbb_check()
 function subsys_phpbb_update_phpbb($roscms_user_id,
                                    $roscms_user_name,
                                    $roscms_user_email,
-                                   $roscms_user_password,
                                    $roscms_user_register,
                                    $phpbb_user_id)
 {
@@ -145,34 +144,12 @@ function subsys_phpbb_update_phpbb($roscms_user_id,
            " WHERE user_id = $phpbb_user_id";
   mysql_query($query) or die("DB error (subsys_phpbb #8)");
 
-  /* Check if maybe phpbb has password info not present in roscms and update
-     roscms with that */
-  if ($roscms_user_password == '*UNKNOWN*')
-    {
-      $query = "SELECT user_password " .
-               "  FROM " . SUBSYS_PHPBB_DBNAME .  ".phpbb_users " .
-               " WHERE user_id  = $phpbb_user_id";
-      $phpbb_password_set = mysql_query($query)
-                            or die("DB error (subsys_phpbb #16)");
-      $phpbb_password_result = mysql_fetch_array($phpbb_password_set);
-      $phpbb_password = $phpbb_password_result['user_password'];
-      if ($phpbb_password != '*UNKNOWN*')
-        {
-          $query = "UPDATE users " .
-                   "   SET user_roscms_password = '" .
-                           mysql_real_escape_string($phpbb_password) . "' " .
-                   " WHERE user_id = $roscms_user_id";
-          mysql_query($query) or die("DB error (subsys_phpbb #17)");
-        }
-    }
-
   return TRUE;
 }
 
 function subsys_phpbb_add_phpbb_user($roscms_user_id,
                                      $roscms_user_name,
                                      $roscms_user_email,
-                                     $roscms_user_password,
                                      $roscms_user_register)
 {
   /* Determine the next available userid */
@@ -187,7 +164,7 @@ function subsys_phpbb_add_phpbb_user($roscms_user_id,
            "VALUES ($phpbb_user_id, " .
            "        '" . mysql_real_escape_string($roscms_user_name) .  "', " .
            "        '" . mysql_real_escape_string(strtolower($roscms_user_name)) .  "', " .
-           "        '" . mysql_real_escape_string($roscms_user_password) . "', " .
+           "        '*', " .
            "        '" . mysql_real_escape_string($roscms_user_email) . "', " .
            "        $roscms_user_register)";
   mysql_query($query) or die("DB error (subsys_phpbb #10)");
@@ -220,7 +197,6 @@ function subsys_phpbb_add_mapping($roscms_user_id)
                                $roscms_user_name,
                                $roscms_user_email,
                                $roscms_user_fullname,
-                               $roscms_user_password,
                                $roscms_user_register))
     {
       return FALSE;
@@ -258,7 +234,6 @@ function subsys_phpbb_add_mapping($roscms_user_id)
       $fixed = subsys_phpbb_add_phpbb_user($roscms_user_id,
                                            $roscms_user_name,
                                            $roscms_user_email,
-                                           $roscms_user_password,
                                            $roscms_user_register);
     }
   else
@@ -267,7 +242,6 @@ function subsys_phpbb_add_mapping($roscms_user_id)
       if (! subsys_phpbb_update_phpbb($roscms_user_id,
                                       $roscms_user_name,
                                       $roscms_user_email,
-                                      $roscms_user_password,
                                       $roscms_user_register,
                                       $phpbb_user_id))
         {
@@ -292,7 +266,6 @@ function subsys_phpbb_update_existing($roscms_user_id, $phpbb_user_id)
                                $roscms_user_name,
                                $roscms_user_email,
                                $roscms_user_fullname,
-                               $roscms_user_password,
                                $roscms_user_register))
     {
       return FALSE;
@@ -301,7 +274,6 @@ function subsys_phpbb_update_existing($roscms_user_id, $phpbb_user_id)
   if (! subsys_phpbb_update_phpbb($roscms_user_id,
                                   $roscms_user_name,
                                   $roscms_user_email,
-                                  $roscms_user_password,
                                   $roscms_user_register,
                                   $phpbb_user_id))
     {

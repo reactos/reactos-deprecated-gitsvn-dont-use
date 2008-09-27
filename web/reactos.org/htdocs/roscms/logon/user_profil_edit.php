@@ -75,9 +75,7 @@ else {
 										isset($_POST['registerpost']) && 
 										isset($_POST['useremail']) && $_POST['useremail'] != "" && 
 										preg_match($rdf_register_valid_email_regex, $_POST['useremail']) && /* check if it's a valid email address */
-										$result_user_profil['user_email_activation'] == ($_POST['useremail'].$rdf_uri_3) &&
-										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']))
+										$result_user_profil['user_email_activation'] == ($_POST['useremail'].$rdf_uri_3))
 									{
 										$sql_change_email = "UPDATE users 
 																SET user_timestamp_touch2 = NOW( ) ,
@@ -88,7 +86,7 @@ else {
 										$update_change_email = mysql_query($sql_change_email);
 										
 										echo '<div class="login-title">E-Mail Address Changed</div>';
-										echo '<div><a href="'.$roscms_SET_path_ex.'my/" style="color:#FF0000 !important; text-decoration:underline;">My Profil</a></div>';
+										echo '<div><a href="'.$roscms_SET_path_ex.'my/" style="color:#FF0000 !important; text-decoration:underline;">My Profile</a></div>';
 										return;
 									}
 									else {									
@@ -107,12 +105,10 @@ else {
 											$result_unsafe_pwd = mysql_fetch_array($query_unsafe_pwd);
 											
 											if ($result_unsafe_pwd['pwd_name'] == "") {
-												$safepwd = "true"; 
-												//echo "pwd fine";
+												$safepwd = "true";
 											}
 											else {
-												$safepwd = "false"; 
-												//echo "pwd problem";
+												$safepwd = "false";
 											}
 											
 											$newpwd = true;
@@ -133,27 +129,18 @@ else {
 												if ($result_user_profil['user_email'] != $_POST['useremail']) {
 													$existemail = true;
 												}
-												//echo "email error".$result_exist_email['user_email'];
-											}
-											else {
-												//echo "email fine".$sql_exist_email;
 											}
 										}
 									}
-																		
+									
 									if (($rdf_uri_3 == "" || strlen($rdf_uri_3) < 6) &&
 										isset($_POST['registerpost']) && 
 										($safepwd == "true" || $safepwd == "") &&
 										(isset($_POST['userpwd1']) && ($_POST['userpwd1'] == "" || (strlen($_POST['userpwd1']) >= $rdf_register_user_pwd_min && strlen($_POST['userpwd1']) < $rdf_register_user_pwd_max))) &&
 										isset($_POST['useremail']) && $_POST['useremail'] != "" && 
 										preg_match($rdf_register_valid_email_regex, $_POST['useremail']) && /* check if it's a valid email address */
-										isset($_POST['userfullname']) && $_POST['userfullname'] != "" && 
-										isset($_POST['country']) && $_POST['country'] != "" &&
-										isset($_POST['tzone']) && $_POST['tzone'] != "" &&
-										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
-										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && 
 										!$existemail)
-									{										
+									{
 										// user language (browser settings)
 										$userlang = get_languages();
 										$userlang2 = "en";
@@ -179,12 +166,10 @@ else {
 										
 										if ($safepwd == "true") {
 											$updatepwd = " user_roscms_password = MD5( '".mysql_real_escape_string($_POST['userpwd1'])."' ) , ";
-											//echo "<p>pwd updated: ".$updatepwd."</p>";
 										}
 										
 										if ($result_user_profil['user_email'] != $_POST['useremail']) {
-											$updatemail = " user_email_activation = '".mysql_real_escape_string(htmlentities($_POST['useremail'], ENT_NOQUOTES, "UTF-8")).$account_act_code."' , ";
-											//echo "<p>email-act: ".$updatemail."</p>";
+											$updatemail = " user_email_activation = '".mysql_real_escape_string(htmlspecialchars($_POST['useremail'])).$account_act_code."' , ";
 										}
 										
 										
@@ -205,7 +190,7 @@ else {
 										$sql_profil = "UPDATE users 
 														SET ".$updatepwd."
 														user_timestamp_touch2 = NOW( ) ,
-														user_fullname = '".mysql_real_escape_string(htmlentities($_POST['userfullname'], ENT_NOQUOTES, "UTF-8"))."',
+														user_fullname = '".mysql_real_escape_string($_POST['userfullname'])."',
 														".$updatemail."
 														user_website = '".mysql_real_escape_string($_POST['userwebsite'])."',
 														user_language = '".mysql_real_escape_string($userlang2)."',
@@ -220,8 +205,8 @@ else {
 														LIMIT 1;";
 										$insert_profil = mysql_query($sql_profil);
 
-										echo '<div class="login-title">Profil Changes Saved</div>';
-									
+										echo '<div class="login-title">Profile Changes Saved</div>';
+										
 										if ($result_user_profil['user_email'] != $_POST['useremail']) {
 											// send the email to the users email address
 											
@@ -274,9 +259,9 @@ else {
 											echo "<div>Password changed.</div>";
 										}
 
-										echo '<div><a href="'.$roscms_SET_path_ex.'my/" style="color:#FF0000 !important; text-decoration:underline;">My Profil</a></div>';
-									
-									
+										echo '<div><a href="'.$roscms_SET_path_ex.'my/" style="color:#FF0000 !important; text-decoration:underline;">My Profile</a></div>';
+										
+										
 										require("inc/subsys_utils.php");
 										subsys_update_user($result_user_profil['user_id']);
 										
@@ -291,25 +276,6 @@ else {
 										<label for="useremail"<?php if (isset($_POST['registerpost'])) { echo ' style="color:#FF0000;"'; } ?>>New E-Mail Address</label>
 										<input name="useremail" type="text" class="input" tabindex="4" id="useremail" value="" size="50" maxlength="50" />
 									</div>
-									<div class="login-form">
-										<label for="usercaptcha"<?php if (isset($_POST['registerpost'])) { echo ' style="color:#FF0000;"'; } ?>>Type the code shown</label>
-										<input name="usercaptcha" type="text" class="input" tabindex="15" id="usercaptcha" size="50" maxlength="50" />
-										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
-										<?php 
-											if (isset($_POST['registerpost'])) { 
-												echo "<br /><i>Captcha code is case sensitive. <br />If you can't read it, try another one.</i>";
-											}
-										?>
-									</div>
-									<?php
-										/*
-										<div class="register-accept">
-											<label for="submit">Clicking <strong>I accept</strong> means that you agree <br />
-											to the <a href="#"><?php $rdf_logon_system_name; ?> Service Agreement</a> <br />
-											and <a href="#">Privacy Statement</a>.</label>
-										</div>
-										*/
-									?>
 									<div class="login-button">
 										<input type="submit" name="submit" value="Save" tabindex="16" />
 										<br />
@@ -319,7 +285,6 @@ else {
 								<?php
 									}
 									else {
-								
 								?>
 									<div class="login-title">Edit My Profile</div>
 									<div><i>* not required</i></div>
@@ -367,9 +332,9 @@ else {
 										?>
 									</div>
 									<div class="login-form">
-										<label for="userfullname"<?php if (isset($_POST['registerpost']) && $_POST['userfullname'] == "") { echo ' style="color:#FF0000;"'; } ?>>First and Last Name</label>
+										<label for="userfullname">First and Last Name *</label>
 										<input name="userfullname" type="text" class="input" tabindex="5" id="userfullname" value="<?php 
-											if (isset($_POST['userfullname']) && $_POST['userfullname'] != "") {
+											if (isset($_POST['userfullname'])) {
 												echo $_POST['userfullname'];
 											}
 											else {
@@ -442,28 +407,9 @@ else {
 											}
 										?>" size="50" maxlength="50" />
 									</div>
-								  <?php /*<div class="login-form">
-									<label for="userwebsite">Gender *</label>
-										<select name="usergender">
-                                          <option value=""></option>
-                                          <option value="male">Male</option>
-                                          <option value="female">Female</option>
-                                          <option value="trans">Transgender</option>
-                                          <option value="else">None of the above</option>
-                                        </select>
-									</div>
-									<div class="login-form">
-										<label for="userwebsite">Birthday *</label>
-										<input name="userwebsite" type="text" class="input" tabindex="5" id="userwebsite" <?php 
-											if (isset($_POST['userfullname'])) {
-												echo 'value="' . $_POST['userfullname'] .  '"';
-											}
-										?> size="50" maxlength="50" />
-										<br /><span style="color:#817A71;">YYYY-MM-DD (e.g. 1975-03-21)</span>
-									</div>*/ ?>
 							 		<div class="login-form">
 										<label for="useroccupation">Location *</label>
-										<a href="http://www.reactos.org/peoplemap/" target="_blank" style="color:#333333 !important; text-decoration:underline; font-weight:bold;">My Location on the Map</a>
+										<a href="<?php echo $roscms_intern_path_server; ?>peoplemap/" target="_blank" style="color:#333333 !important; text-decoration:underline; font-weight:bold;">My Location on the Map</a>
 									</div> 
 									<div class="login-options">
 										<fieldset>
@@ -497,28 +443,8 @@ else {
 											<label for="loginoption4">Log me on automatically</label>
 										</fieldset>
 									</div>
-									<div class="login-form">
-										<label for="usercaptcha"<?php if (isset($_POST['registerpost'])) { echo ' style="color:#FF0000;"'; } ?>>Type the code shown</label>
-										<input name="usercaptcha" type="text" class="input" tabindex="15" id="usercaptcha" size="50" maxlength="50" />
-										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
-										<?php 
-											if (isset($_POST['registerpost'])) { 
-												echo "<br /><i>Captcha code is case insensitive. <br />If you can't read it, try another one.</i>";
-											}
-										?>
-									</div>
-									<?php
-										/*
-										<div class="register-accept">
-											<label for="submit">Clicking <strong>I accept</strong> means that you agree <br />
-											to the <a href="<?php echo $roscms_SET_path_ex; ?>register/"><?php echo $rdf_name_long; ?> Service Agreement</a> <br />
-											and <a href="<?php echo $roscms_SET_path_ex; ?>register/">Privacy Statement</a>.</label>
-										</div>
-										*/
-									?>
 									<div class="login-button">
 										<input type="submit" name="submit" value="Save" tabindex="16" />
-										<br />
 										<input type="button" onclick="window.location='<?php echo $roscms_SET_path_ex; ?>'" tabindex="17" value="Cancel" name="cancel" style="color:#777777;" />
 										<input name="registerpost" type="hidden" id="registerpost" value="reg" />
 									</div>
