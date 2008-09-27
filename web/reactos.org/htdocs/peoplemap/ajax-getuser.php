@@ -75,7 +75,7 @@
 		echo "<user>";
 		printf("<id>%u</id>", $row[0]);
 		printf("<username>%s</username>", $row[1]);
-		printf("<fullname>%s</fullname>", $row[2]);
+		printf("<fullname>%s</fullname>", htmlspecialchars($row[2]));
 		printf("<latitude>%s</latitude>", $row[3]);
 		printf("<longitude>%s</longitude>", $row[4]);
 		echo "</user>";
