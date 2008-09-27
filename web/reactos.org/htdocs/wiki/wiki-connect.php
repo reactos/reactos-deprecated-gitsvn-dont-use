@@ -1,7 +1,7 @@
 <?php
 	// Settings for a local MediaWiki installation
 	$wgDBserver   = "localhost";
-	$wgDBname     = "roswiki";
+	$wgDBname     = "wiki";
 	$wgDBuser     = "rosuser";
 	$wgDBpassword = "roscms";
 	$wgDBprefix   = "";
