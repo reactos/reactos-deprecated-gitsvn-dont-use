@@ -168,6 +168,13 @@
 	
 
 	switch ($rdf_uri_1) {
+		case "404":
+			require("inc/header.php");
+			create_header("Page not found");
+			require("inc/404.php");
+			require("inc/footer.php");
+			break;
+			
 		case "data": // RosCMS v3 Interface
 			require("logon/login.php");
 			require("inc/usergroups.php");
@@ -184,9 +191,9 @@
 			include("inc/tools.php"); 
 			include("inc/data_export.php"); 
 			break;
-		case "my":		
+		case "my":
+		case "user":
 		default:
-			//die("test2");
 			require("logon/login.php");
 			require("inc/header.php");
 			switch ($rdf_uri_2) {
@@ -204,7 +211,14 @@
 			require("inc/footer_closetable.php");
 			require("inc/footer.php");
 			break;
-		case "user":
+		case "nopermission":
+			require("inc/header.php");
+			create_header("No Permission!");
+			require("inc/nopermission.php");
+			require("inc/footer.php");
+			break;
+			
+		case "search":
 			require("logon/login.php");
 			require("inc/header.php");
 			create_header("", "logon");
@@ -235,9 +249,7 @@
 			break;
 		case "register":
 			if ($rdf_uri_2 == "captcha") {
-				require("logon/captcha/fonts.php");
 				require("logon/captcha/captcha_image.php");
-				//die();
 			}
 			else {
 				require("inc/header.php");
@@ -247,21 +259,4 @@
 			}
 			break;
 	}
-
-/*
-	if ($rdf_uri_1 != "data_out") {
-		echo "<hr />";
-		echo "<p>";
-		echo "1) ".$rdf_uri_1."<br />";
-		echo "2) ".$rdf_uri_2."<br />";
-		echo "3) ".$rdf_uri_3."<br />";
-		echo "4) ".$rdf_uri_4."<br />";
-		echo "5) ".$rdf_uri_5."<br />";
-		echo "6) ".$rdf_uri_6."<br />";
-		echo "7) ".$rdf_uri_7."<br />";
-		echo "8) ".$rdf_uri_8;
-		echo "</p>";
-
-	}
-*/
 ?>

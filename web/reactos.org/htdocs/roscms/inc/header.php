@@ -30,12 +30,6 @@
 	$roscms_gentime = $roscms_gentime[1] + $roscms_gentime[0]; 
 	$roscms_pg_start = $roscms_gentime; 
 
-
-function create_head($page_title = "", $page_css = "roscms") {
-	create_header();
-}
-
-
 function create_header($page_title = "", $page_css = "roscms")
 {
 	global $roscms_intern_path_server;

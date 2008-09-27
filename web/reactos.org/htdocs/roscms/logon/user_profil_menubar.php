@@ -23,9 +23,13 @@
 			&nbsp;Nick:&nbsp;<?php echo substr($roscms_intern_login_check_username, 0, 9); ?> 
 		</li>
 		<li><a href="<?php echo $roscms_SET_path_ex; ?>my/">My Profile</a></li>
-		<li><a href="<?php echo $roscms_SET_path_ex; ?>user/">User Search</a></li>
-		<li><a href="http://www.reactos.org/peoplemap/" target="_blank">User Map</a></li>
-		<li><a href="http://www.reactos.org/roscms/?page=data" target="_blank">RosCMS Interface</a></li>
+		<li><a href="<?php echo $roscms_SET_path_ex; ?>search/">User Search</a></li>
+		<li><a href="<?php echo $roscms_intern_path_server; ?>peoplemap/" target="_blank">User Map</a></li>
+		
+		<?php if($roscms_security_level >= 1) { ?>
+		<li><a href="<?php echo $roscms_SET_path; ?>?page=data" target="_blank">RosCMS Interface</a></li>
+		<?php } ?>
+		
 		<li><a href="<?php echo $roscms_SET_path_ex; ?>logout/"><?php echo $roscms_langres['Logout']; ?></a></li>
 	</ol>
 	<p></p>

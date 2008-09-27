@@ -25,7 +25,6 @@
 	$roscms_SET_dirname = "reactos.org/roscms";
 	$roscms_SET_path = "http://www.".$roscms_SET_dirname."/";
 	$roscms_SET_path_ex = $roscms_SET_path."index.php/";
-	$roscms_SET_path_full = "/web/reactos.org/htdocs/roscms/";
 
 	// URI
 	$rdf_URI_tree_counter = -3;
@@ -75,11 +74,7 @@
 	
 	// User Account
 	$rdf_user_id = 0;
-	$rdf_user_name = "Guest";
-	$rdf_user_level = 0; // 0 = guest, 1 = registered user, 2 = membership, 3 = moderator, 4 = author, 5 = admin
 	$rdf_user_timezone = 1;
 	$rdf_user_timezone_name = "UTC";
-	//$rdf_user_id = 2;
-	//$rdf_user_name = "Klemens Friedl";
 
 ?>

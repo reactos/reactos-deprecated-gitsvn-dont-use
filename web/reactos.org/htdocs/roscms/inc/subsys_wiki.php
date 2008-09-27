@@ -139,50 +139,11 @@ function subsys_wiki_update_wiki($roscms_user_id,
            "   SET user_name = '" .
                    mysql_real_escape_string($roscms_user_name) . "', " .
            "       user_email = '" .
-                   mysql_real_escape_string($roscms_user_email) . "' " .
+                   mysql_real_escape_string($roscms_user_email) . "', " .
+           "       user_real_name = '" .
+                   mysql_real_escape_string($roscms_user_fullname) . "' " .
            " WHERE user_id = $wiki_user_id";
   mysql_query($query) or die("DB error (subsys_wiki #8)");
-
-  /* If roscms has fullname info, set that in wiki too. Otherwise, check if
-     maybe wiki has fullname info and update roscms with that */
-  if ($roscms_user_fullname != $roscms_user_name &&
-      $roscms_user_fullname != '')
-    {
-      $roscms_is_master = TRUE;
-    }
-  else
-    {
-      $query = "SELECT user_real_name " .
-               "  FROM " . SUBSYS_WIKI_DBNAME .  ".user " .
-               " WHERE user_id  = $wiki_user_id";
-      $wiki_fullname_set = mysql_query($query)
-                           or die("DB error (subsys_wiki #16)");
-      $wiki_fullname_result = mysql_fetch_array($wiki_fullname_set);
-      $wiki_fullname = $wiki_fullname_result['user_real_name'];
-      if ($wiki_fullname != $roscms_user_name &&
-          $wiki_fullname != '')
-        {
-          $query = "UPDATE users " .
-                   "   SET user_fullname = '" .
-                           mysql_real_escape_string($wiki_fullname) . "' " .
-                   " WHERE user_id = $roscms_user_id";
-          mysql_query($query) or die("DB error (subsys_wiki #17)");
-          $roscms_is_master = FALSE;
-        }
-      else
-        {
-          $roscms_is_master = TRUE;
-        }
-    }
-
-  if ($roscms_is_master)
-    {
-      $query = "UPDATE " . SUBSYS_WIKI_DBNAME .  ".user " .
-               "   SET user_real_name = '" .
-                       mysql_real_escape_string($roscms_user_fullname) . "' " .
-               " WHERE user_id = $wiki_user_id";
-      mysql_query($query) or die("DB error (subsys_wiki #15)");
-    }
 
   return TRUE;
 }
@@ -241,12 +202,6 @@ function subsys_wiki_add_wiki_user($roscms_user_id,
            "        '********************************')";
   mysql_query($query) or die("DB error (subsys_wiki #10)");
 
-  /* Set rights for the user */
-  $query = "INSERT INTO " . SUBSYS_WIKI_DBNAME . ".user_rights " .
-           "       (ur_user, ur_rights) " .
-           "VALUES (LAST_INSERT_ID(), '')";
-  mysql_query($query) or die("DB error (subsys_wiki #18)");
-
   /* Finally, insert a row in the mapping table */
   $query = "INSERT INTO subsys_mappings " .
            "       (map_roscms_userid, map_subsys_name, map_subsys_userid) " .
@@ -262,7 +217,6 @@ function subsys_wiki_add_mapping($roscms_user_id)
                                $roscms_user_name,
                                $roscms_user_email,
                                $roscms_user_fullname,
-                               $roscms_user_password,
                                $roscms_user_register))
     {
       return FALSE;
@@ -332,7 +286,6 @@ function subsys_wiki_update_existing($roscms_user_id, $wiki_user_id)
                                $roscms_user_name,
                                $roscms_user_email,
                                $roscms_user_fullname,
-                               $roscms_user_password,
                                $roscms_user_register))
     {
       return FALSE;

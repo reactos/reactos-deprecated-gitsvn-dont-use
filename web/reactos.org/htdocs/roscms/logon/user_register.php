@@ -89,22 +89,17 @@
 												
 												// Note our use of ===.  Simply == would not work as expected
 												// because the position of 'a' was the 0th (first) character.
-												if ($pos === false) {
-													// do nothing
-												} else {
-													$safename = "false"; 
-													//echo "name problem2";
+												if ($pos !== false) {
+													$safename = "false";
 													break;
 												}
 											}
 											if ($safename == "") {
 												$safename = "true";
-												//echo "name fine";
 											}
 										}
 										else {
-											$safename = "false"; 
-											//echo "name problem";
+											$safename = "false";
 										}
 									}
 								
@@ -121,12 +116,10 @@
 										$result_unsafe_pwd = mysql_fetch_array($query_unsafe_pwd);
 										
 										if ($result_unsafe_pwd['pwd_name'] == "") {
-											$safepwd = "true"; 
-											//echo "pwd fine";
+											$safepwd = "true";
 										}
 										else {
-											$safepwd = "false"; 
-											//echo "pwd problem";
+											$safepwd = "false";
 										}
 									}
 									
@@ -143,10 +136,6 @@
 										
 										if ($result_exist_email['user_email'] != "") {
 											$existemail = true;
-											//echo "email error".$result_exist_email['user_email'];
-										}
-										else {
-											//echo "email fine".$sql_exist_email;
 										}
 									}
 																		
@@ -158,9 +147,6 @@
 										$_POST['userpwd1'] == $_POST['userpwd2'] &&
 										isset($_POST['useremail']) && $_POST['useremail'] != "" && 
 										preg_match($rdf_register_valid_email_regex, $_POST['useremail']) && /* check if it's a valid email address */
-										isset($_POST['userfullname']) && $_POST['userfullname'] != "" && 
-										isset($_POST['country']) && $_POST['country'] != "" &&
-										isset($_POST['tzone']) && $_POST['tzone'] != "" &&
 										isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != "" &&
 										!empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && 
 										$safename == "true" && $safepwd == "true" && !$existname && !$existemail)
@@ -170,10 +156,6 @@
 										$userlang2 = "en";
 										if (strlen($userlang[0][0]) > 0 && strlen($userlang[0][0]) <= 5) {
 											$userlang2 = $userlang[0][0];
-											//echo "<h3>!!! ".$userlang[0][0]."</h3>";
-										}
-										else {
-											//echo "<h3>??? ".$userlang[0][0]."</h3>";
 										}
 										
 										
@@ -193,23 +175,16 @@
 																				user_roscms_password ,
 																				user_register ,
 																				user_register_activation ,
-																				user_fullname , 
 																				user_email , 
-																				user_language , 
-																				user_country , 
-																				user_timezone 
+																				user_language
 															) 
 															VALUES (
 																'".mysql_real_escape_string($_POST['username'])."', 
 																MD5( '".mysql_real_escape_string($_POST['userpwd1'])."' ) , 
 																NOW( ) , 
 																'".mysql_real_escape_string($account_act_code)."', 
-																'".mysql_real_escape_string($_POST['userfullname'])."', 
 																'".mysql_real_escape_string($_POST['useremail'])."', 
-																'".mysql_real_escape_string($userlang2)."', 
-																'".mysql_real_escape_string($_POST['country'])."', 
-																'".mysql_real_escape_string($_POST['tzone'])."'
-															);";
+																'".mysql_real_escape_string($userlang2)."');";
 										$insert_new_account = mysql_query($sql_new_account);
 
 
@@ -335,57 +310,21 @@
 										?>
 									</div>
 									<div class="login-form">
-										<label for="userfullname"<?php if (isset($_POST['registerpost']) && $_POST['userfullname'] == "") { echo ' style="color:#FF0000;"'; } ?>>First and Last Name</label>
-										<input name="userfullname" type="text" class="input" tabindex="5" id="userfullname" <?php 
-											if (isset($_POST['userfullname'])) {
-												echo 'value="' . $_POST['userfullname'] .  '"';
-											}
-										?> size="50" maxlength="50" />
-									</div>
-									<div class="login-form">
-										<label for="country"<?php if (isset($_POST['registerpost']) && $_POST['country'] == "") { echo ' style="color:#FF0000;"'; } ?>>Country</label>
-										<select id="country" name="country" tabindex="6">
-											<option value="">Select One</option>
-											<?php
-												$sql_country = "SELECT coun_id, coun_name  
-																FROM user_countries 
-																ORDER BY coun_name ASC;";
-												$query_country = mysql_query($sql_country);
-												while ($result_country = mysql_fetch_array($query_country)) {
-													echo '<option value="'.$result_country['coun_id'].'"';
-													if (isset($_POST['country']) && $_POST['country'] == $result_country['coun_id']) {
-														echo ' selected="selected"'; 
-													}
-													echo '>'.$result_country['coun_name'].'</option>';
-												}
-											?>
-										</select>
-									</div>
-									<div class="login-form">
-										<label for="tzone"<?php if (isset($_POST['registerpost']) && $_POST['tzone'] == "") { echo ' style="color:#FF0000;"'; } ?>>Timezone</label>
-										<select name="tzone" id="tzone">
-											<?php
-												$sql_timezone = "SELECT tz_code, tz_name, tz_value2   
-																	FROM user_timezone 
-																	ORDER BY tz_value ASC;";
-												$query_timezone = mysql_query($sql_timezone);
-												while ($result_timezone = mysql_fetch_array($query_timezone)) {
-													echo '<option value="'.$result_timezone['tz_code'].'"';
-													if (isset($_POST['tzone']) && $_POST['tzone'] != "" && $_POST['tzone'] == $result_timezone['tz_code']) {
-														echo ' selected="selected"'; 
-													}
-													if ((!isset($_POST['tzone']) || (isset($_POST['tzone']) && $_POST['tzone'] == "")) && $result_timezone['tz_code'] == "UTC") {
-														echo ' selected="selected"'; 
-													}
-													echo '>'.$result_timezone['tz_value2'].' '.$result_timezone['tz_name'].'</option>';
-												}
-											?>
-										</select>									
-									</div>
-									<div class="login-form">
 										<label for="usercaptcha"<?php if (isset($_POST['registerpost'])) { echo ' style="color:#FF0000;"'; } ?>>Type the code shown</label>
 										<input name="usercaptcha" type="text" class="input" tabindex="7" id="usercaptcha" size="50" maxlength="50" />
-										<img src="<?php echo $roscms_SET_path_ex."register/captcha/"; ?>" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
+										<script type="text/javascript">
+											var BypassCacheNumber = 0;
+											
+											function CaptchaReload()
+											{
+												++BypassCacheNumber;
+												document.getElementById("captcha").src = "<?php echo $roscms_SET_path_ex; ?>register/captcha/?" + BypassCacheNumber;
+											}
+											
+											document.write('<br /><span style="color:#817A71;">If you can\'t read this, try <a href="javascript:CaptchaReload()">another one</a>.</span>');
+										</script>
+										
+										<img id="captcha" src="<?php echo $roscms_SET_path_ex; ?>register/captcha/" style="padding-top:10px;" alt="If you can't read this, try another one or email <?php echo $rdf_support_email_str; ?> for help." title="Are you human?" /><br />
 										<?php 
 											if (isset($_POST['registerpost'])) { 
 												echo "<br /><i>Captcha code is case insensitive. <br />If you can't read it, try another one.</i>";
@@ -401,7 +340,7 @@
 											</div>
 										*/ ?>
 									<div class="login-button">
-										<input type="submit" name="submit" value="Register" tabindex="8" /><br />
+										<input type="submit" name="submit" value="Register" tabindex="8" />
 										<input type="button" onclick="window.location='<?php echo $roscms_SET_path_ex; ?>'" tabindex="9" value="Cancel" name="cancel" style="color:#777777;" />
 										<input name="registerpost" type="hidden" id="registerpost" value="reg" />
 									</div>

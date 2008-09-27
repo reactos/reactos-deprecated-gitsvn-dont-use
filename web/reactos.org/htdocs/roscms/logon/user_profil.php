@@ -8,7 +8,6 @@
 						LIMIT 1;";
 	$query_user_profil = mysql_query($sql_user_profil);
 	$result_user_profil = mysql_fetch_array($query_user_profil);
-	
 ?>
 	<h1>myReactOS &gt; Profile</h1>
 	<div class="u-h1"><?php 
@@ -43,11 +42,11 @@
 
                 <div class="login-form">
                   <div class="u-desc">Username</div>
-                  <div class="u-title"><?php echo htmlentities($result_user_profil['user_name'], ENT_NOQUOTES, "UTF-8"); ?></div>
+                  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_name']); ?></div>
 				</div>
                 <div class="login-form">
                   <div class="u-desc">E-Mail Address </div>
-                  <div class="u-title"><?php echo htmlentities($result_user_profil['user_email'], ENT_NOQUOTES, "UTF-8"); ?></div>
+                  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_email']); ?></div>
 				</div>
 
 				<?php
@@ -55,7 +54,7 @@
 				?>
                 <div class="login-form">
                    <div class="u-desc">First and Last Name</div>
-                  <div class="u-title"><?php echo htmlentities($result_user_profil['user_fullname'], ENT_NOQUOTES, "UTF-8");	?></div>
+                  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_fullname']); ?></div>
 				</div>
 				<?php
 					}
@@ -93,7 +92,7 @@
 						echo $result_language['lang_name'];
 					}
 					else if ($result_user_profil['user_language'] != "") {
-						echo htmlentities($result_user_profil['user_language'], ENT_NOQUOTES, "UTF-8");
+						echo htmlspecialchars($result_user_profil['user_language']);
 					}
 					else {
 						echo "<span style=\"color: red;\">not set</span>";
@@ -129,7 +128,7 @@
 				?>
                 <div class="login-form">
                    <div class="u-desc">Private Website</div>
-                  <div class="u-title"><a href="<?php echo $result_user_profil['user_website']; ?>" target="_blank" rel="nofollow"><?php echo htmlentities($result_user_profil['user_website'], ENT_NOQUOTES, "UTF-8"); ?></a></div>
+                  <div class="u-title"><a href="<?php echo $result_user_profil['user_website']; ?>" target="_blank" rel="nofollow"><?php echo htmlspecialchars($result_user_profil['user_website']); ?></a></div>
 				</div>
 				<?php
 					}
@@ -137,7 +136,7 @@
 				?>
                 <div class="login-form">
                    <div class="u-desc">Occupation</div>
-                  <div class="u-title"><?php echo htmlentities($result_user_profil['user_occupation'], ENT_NOQUOTES, "UTF-8"); ?></div>
+                  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_occupation']); ?></div>
 				</div>
 				<?php
 					}
@@ -162,7 +161,7 @@
 
 				<div class="login-form">
 				<label for="useroccupation">Location</label>
-				<a href="http://www.reactos.org/peoplemap/" target="_blank" style="color:#333333 !important; text-decoration:underline; font-weight:bold;">My Location on the Map</a> </div>
+				<a href="<?php echo $roscms_intern_path_server; ?>peoplemap/" target="_blank" style="color:#333333 !important; text-decoration:underline; font-weight:bold;">My Location on the Map</a> </div>
 			  </div>
 				<div>&nbsp;</div>
 				<div class="u-link"><a href="<?php echo $roscms_SET_path_ex; ?>my/edit/">Edit My Profile</a></div>

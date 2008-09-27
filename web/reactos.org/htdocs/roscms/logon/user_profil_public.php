@@ -27,7 +27,7 @@
 ?>
 	<h1><a href="<?php echo $roscms_SET_path_ex; ?>my/">myReactOS</a> &gt; Profile Search</h1>
 	<div class="u-h1">Profile Search</div>
-	<form id="form1" name="form1" method="get" action="<?php echo $roscms_SET_path_ex."user/"; ?>">
+	<form id="form1" name="form1" method="get" action="<?php echo $roscms_SET_path_ex."search/"; ?>">
 	  <input name="search" type="text" id="search" value="<?php echo $profilesearch; ?>" />
       <input name="cmdsearch" type="submit" id="cmdsearch" value="Search" />
 	</form>
@@ -44,7 +44,7 @@
 								LIMIT 100;";
 			$query_user_search = mysql_query($sql_user_search);
 			while ($result_user_search = mysql_fetch_array($query_user_search)) {
-					echo "<li><b><a href=\"".$roscms_SET_path_ex."user/".$result_user_search["user_name"]."\">".$result_user_search["user_name"]."</a></b>";
+					echo "<li><b><a href=\"".$roscms_SET_path_ex."search/".$result_user_search["user_name"]."\">".$result_user_search["user_name"]."</a></b>";
 					if ($result_user_search["user_fullname"]) {
 						echo "<br />".$result_user_search["user_fullname"];
 					}
@@ -56,27 +56,29 @@
 	}
 	else {
 	
-	
 		$sql_user_profil = "SELECT user_id, user_name, user_register, user_fullname, user_email, user_email_activation, user_website, 
 								user_country, user_timezone, user_occupation, user_setting_multisession, 
 								user_setting_browseragent, user_setting_ipaddress, user_setting_timeout  
 							FROM users 
-							WHERE user_name = '".mysql_real_escape_string($rdf_uri_2)."'
+							WHERE user_name = '".mysql_real_escape_string(rawurldecode($rdf_uri_2))."'
 							LIMIT 1;";
 		$query_user_profil = mysql_query($sql_user_profil);
 		$result_user_profil = mysql_fetch_array($query_user_profil);
-	
-	
-	
 ?>
 		<h1><a href="<?php echo $roscms_SET_path_ex; ?>my/">myReactOS</a> &gt; Public Profile</h1>
 		<div class="u-h1"><?php 
-			if ($result_user_profil['user_fullname'] != "") {
-				echo $result_user_profil['user_fullname'].' ('.$result_user_profil['user_name'].')';
+			if(!$result_user_profil)
+			{
+				echo 'This Profile does not exist!';
 			}
-			else {
-				echo $result_user_profil['user_name'];
-			}		
+			else
+			{
+				if ($result_user_profil['user_fullname'] != "") {
+					echo $result_user_profil['user_fullname'].' ('.$result_user_profil['user_name'].')';
+				}
+				else {
+					echo $result_user_profil['user_name'];
+				}
 		?></div>
 		<div class="u-h2">A person who joined <?php echo $rdf_name; ?> on <?php echo tz($result_user_profil['user_register']); ?>.</div>
 		<br />
@@ -101,7 +103,7 @@
 	
 					<div class="login-form">
 					  <div class="u-desc">Username</div>
-					  <div class="u-title"><?php echo htmlentities($result_user_profil['user_name'], ENT_NOQUOTES, "UTF-8"); ?></div>
+					  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_name']); ?></div>
 					</div>
 	
 					<?php
@@ -109,7 +111,7 @@
 					?>
 					<div class="login-form">
 					   <div class="u-desc">First and Last Name</div>
-					  <div class="u-title"><?php echo htmlentities($result_user_profil['user_fullname'], ENT_NOQUOTES, "UTF-8");	?></div>
+					  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_fullname']); ?></div>
 					</div>
 					<?php
 						}
@@ -147,7 +149,7 @@
 							echo $result_language['lang_name'];
 						}
 						else if ($result_user_profil['user_language'] != "") {
-							echo htmlentities($result_user_profil['user_language'], ENT_NOQUOTES, "UTF-8");
+							echo htmlspecialchars($result_user_profil['user_language']);
 						}
 						else {
 							echo "<span style=\"color: red;\">not set</span>";
@@ -183,7 +185,7 @@
 					?>
 					<div class="login-form">
 					   <div class="u-desc">Private Website</div>
-					  <div class="u-title"><a href="<?php echo $result_user_profil['user_website']; ?>" target="_blank" rel="nofollow"><?php echo htmlentities($result_user_profil['user_website'], ENT_NOQUOTES, "UTF-8"); ?></a></div>
+					  <div class="u-title"><a href="<?php echo $result_user_profil['user_website']; ?>" target="_blank" rel="nofollow"><?php echo htmlspecialchars($result_user_profil['user_website']); ?></a></div>
 					</div>
 					<?php
 						}
@@ -191,7 +193,7 @@
 					?>
 					<div class="login-form">
 					   <div class="u-desc">Occupation</div>
-					  <div class="u-title"><?php echo htmlentities($result_user_profil['user_occupation'], ENT_NOQUOTES, "UTF-8"); ?></div>
+					  <div class="u-title"><?php echo htmlspecialchars($result_user_profil['user_occupation']); ?></div>
 					</div>
 					<?php
 						}
@@ -199,10 +201,10 @@
 					
 					<div class="login-form">
 					<label for="useroccupation">Location</label>
-					<a href="http://www.reactos.org/peoplemap/" target="_blank" style="color:#333333 !important; text-decoration:underline; font-weight:bold;">Location on the Map</a> </div>
+					<a href="<?php echo $roscms_intern_path_server; ?>peoplemap/" target="_blank" style="color:#333333 !important; text-decoration:underline; font-weight:bold;">Location on the Map</a> </div>
 				  </div>
 					<div>&nbsp;</div>
-					<div><a href="<?php echo $roscms_SET_path_ex."user/"; ?>" style="color:#333333 !important; text-decoration:underline; font-weight:bold;"><strong>&raquo; Profile Search</strong></a></div>
+					<div><a href="<?php echo $roscms_SET_path_ex."search/"; ?>" style="color:#333333 !important; text-decoration:underline; font-weight:bold;"><strong>&raquo; Profile Search</strong></a></div>
 					<div>&nbsp;</div>
 				</div>
 			  </div>
@@ -212,5 +214,6 @@
 	</div>
 	
     <?php
+  	}
 	}
 ?>
