@@ -56,7 +56,7 @@ function AddUserToMap(UserId, UserName, FullName, Latitude, Longitude, UserGroup
 	var Marker = new GMarker( new GLatLng(Latitude, Longitude), CurrentIcon );
 	var html;
 	
-	html  = "<strong><a href=\"http://reactos.org/roscms/?page=user&sec=profil&sec2=" + UserId + "\" target=\"_blank\">" + UserName + "<\/a><\/strong><br>";
+	html  = "<strong><a href=\"http://reactos.org/roscms/index.php/user/" + UserId + "\" target=\"_blank\">" + UserName + "<\/a><\/strong><br>";
 	html += FullName + "<br><br>";
 	
 	// parseFloat strips off trailing zeros
