@@ -55,12 +55,13 @@
 	
 	}
 	else {
-	
+		$rdf_uri_2 = rawurldecode($rdf_uri_2);
+		
 		$sql_user_profil = "SELECT user_id, user_name, user_register, user_fullname, user_email, user_email_activation, user_website, 
 								user_country, user_timezone, user_occupation, user_setting_multisession, 
 								user_setting_browseragent, user_setting_ipaddress, user_setting_timeout  
 							FROM users 
-							WHERE user_name = '".mysql_real_escape_string(rawurldecode($rdf_uri_2))."'
+							WHERE user_name = '".mysql_real_escape_string($rdf_uri_2)."'
 							LIMIT 1;";
 		$query_user_profil = mysql_query($sql_user_profil);
 		$result_user_profil = mysql_fetch_array($query_user_profil);
