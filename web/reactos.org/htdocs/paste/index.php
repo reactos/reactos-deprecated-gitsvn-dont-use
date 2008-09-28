@@ -27,10 +27,10 @@ if (get_magic_quotes_gpc()) {
 }
 
 
-	$ros_paste_SET_path = "http://localhost/reactos.org/paste/";
-	$ros_paste_SET_path_ex = "http://localhost/reactos.org/paste/index.php/";
+	$ros_paste_SET_path = "http://www.reactos.org/paste/";
+	$ros_paste_SET_path_ex = "http://www.reactos.org/paste/index.php/";
 	$ros_paste_SET_dirs = "reactos.org/paste/";
-	$ros_paste_SET_content = "content";
+	$ros_paste_SET_content = "storage";
 
 
 
@@ -66,22 +66,23 @@ if (get_magic_quotes_gpc()) {
 	
 	if (!strchr($RSDB_URI_tree,"?page=")) {
 		//echo "<p>###</p>";
-		$ros_paste_SET_page = @$RSDB_URI_tree_array[1];
+		$ros_paste_SET_page = @$RSDB_URI_tree_array[3];
 		if ($ros_paste_SET_page == "id") {
 			$ros_paste_SET_page = "paste";
 			$ros_paste_SET_pasteid = "";
-			$ros_paste_SET_pasteid = @$RSDB_URI_tree_array[2];
+			$ros_paste_SET_pasteid = @$RSDB_URI_tree_array[3];
 			$ros_paste_SET_pasteflag = "";
-			$ros_paste_SET_pasteflag = @$RSDB_URI_tree_array[3];
+			$ros_paste_SET_pasteflag = @$RSDB_URI_tree_array[4];
 		}
 		else if ($ros_paste_SET_page != "conditions" && $ros_paste_SET_page != "help" && $ros_paste_SET_page != "recent") {
 			$ros_paste_SET_page = "paste";
 			$ros_paste_SET_pasteid = "";
-			$ros_paste_SET_pasteid = @$RSDB_URI_tree_array[1];
+			$ros_paste_SET_pasteid = @$RSDB_URI_tree_array[3];
 			$ros_paste_SET_pasteflag = "";
-			$ros_paste_SET_pasteflag = @$RSDB_URI_tree_array[2];
+			$ros_paste_SET_pasteflag = @$RSDB_URI_tree_array[4];
 		}
 	}
+
 	
 	include("inc/tools.php");
 

@@ -20,12 +20,10 @@
 
 	include("connect.db.php");
 
-/*
-	require_once("/web/reactos.org/htdocs/roscms/inc/subsys_login.php");
-	$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . $RSDB_intern_path);
-*/
-	$RSDB_intern_user_id=2;
-	$RSDB_USER_name="Anonymous";
+
+	define("ROSCMS_PATH", "../roscms/");
+	require_once(ROSCMS_PATH . "logon/subsys_login.php");
+	$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . "http://localhost/reactos.org/");
 
 	if($RSDB_intern_user_id != 0) {
 		$query_roscms_user = mysql_query("SELECT * 
@@ -40,6 +38,5 @@
 	else {
 		$RSDB_USER_name = "Anonymous";
 	}
-	//echo "<h1>!!!".$RSDB_USER_name."</h1>";
 
 ?>
