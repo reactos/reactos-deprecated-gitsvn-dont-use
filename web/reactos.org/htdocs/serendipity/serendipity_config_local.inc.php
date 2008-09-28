@@ -13,5 +13,5 @@
 	// You can place your own special variables after here:
 
 	require_once("blogs-connect.php");
-	@define('ROSCMS_INC_PATH', '/web/reactos.org/htdocs/roscms/inc');
+	define('ROSCMS_PATH', '../roscms/');
 ?>
