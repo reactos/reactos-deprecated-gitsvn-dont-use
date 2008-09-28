@@ -53,18 +53,13 @@
 		// Items per Page
 		$RSDB_intern_items_per_page = 25;
 		
-		
+		@define("ROSCMS_PATH", "../roscms/");
+		require_once(ROSCMS_PATH . "logon/subsys_login.php");
 
 		// User ID
-		//$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . $RSDB_intern_path);
-		$RSDB_intern_user_id = 2;
+		$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . $RSDB_intern_path);
 		
 		require_once('inc/user_settings.php');
-		
-		// search for a valid RSDB user setting db entry
-		if (check_user_settings($RSDB_intern_user_id) == false) {
-			$RSDB_intern_user_id = 0;
-		}
 		
 		if($RSDB_intern_user_id != 0) {
 			$query_roscms_user = mysql_query("SELECT * 
@@ -86,6 +81,4 @@
 		else {
 			$RSDB_USER_name = "Anonymous";
 		}
-		$RSDB_intern_user_id = 2;
-		$RSDB_USER_name="TEST";
 ?>
