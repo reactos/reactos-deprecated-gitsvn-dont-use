@@ -40,7 +40,7 @@
 	
 		// Config: (please sync this with the database)
 		$RSDB_intern_version = "RSDB 0.1 - http://www.reactos.org/"; // RSDB version info
-		$RSDB_intern_path_server = "http://localhost/reactos.org/"; // complete server path
+		$RSDB_intern_path_server = "http://www.reactos.org/"; // complete server path
 		$RSDB_intern_path = "support/"; // the dirs after http://www.reactos.org
 		
 		// script file fix (for Safari browser)
@@ -63,7 +63,7 @@
 		
 		if($RSDB_intern_user_id != 0) {
 			$query_roscms_user = mysql_query("SELECT * 
-					FROM `roscms.users` 
+					FROM roscms.users 
 					WHERE `user_id` = '".mysql_escape_string($RSDB_intern_user_id)."' LIMIT 1;") ;
 			$result_roscms_user = mysql_fetch_array($query_roscms_user);
 			
