@@ -123,6 +123,7 @@
 
 	//$rpm_lang = "en";
 	//require("inc/lang/en.php"); // preload the english language text
+	require_once("inc/language_detection.php");
 	require("lang.php"); // lang code outsourced
 	require("custom.php"); // custom on-screen information
 	
@@ -204,7 +205,6 @@
 					break;
 				case "edit":
 				case "activate":
-					include("logon/language_detection.php");
 					require("logon/user_profil_edit.php");
 					break;
 			}
@@ -223,7 +223,6 @@
 			require("inc/header.php");
 			create_header("", "logon");
 			require("logon/user_profil_menubar.php");
-			include("logon/language_detection.php");
 			require("logon/user_profil_public.php");
 			require("inc/footer_closetable.php");
 			require("inc/footer.php");
@@ -253,7 +252,6 @@
 			}
 			else {
 				require("inc/header.php");
-				include("logon/language_detection.php");
 				require("logon/user_register.php");
 				require("inc/footer.php");
 			}
