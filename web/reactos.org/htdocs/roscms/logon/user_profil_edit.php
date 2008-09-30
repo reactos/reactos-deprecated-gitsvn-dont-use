@@ -142,12 +142,10 @@ else {
 										!$existemail)
 									{
 										// user language (browser settings)
-										$userlang = get_languages();
-										$userlang2 = "en";
-										if (strlen($userlang[0][0]) > 0 || strlen($userlang[0][0]) <= 5) {
-											$userlang2 = $userlang[0][0];
-										}
+										$userlang = check_lang($_SERVER["HTTP_ACCEPT_LANGUAGE"]);
 										
+										if(!$userlang)
+											$userlang = "en";
 										
 										// email address activation code
 										$s = "";
@@ -193,7 +191,7 @@ else {
 														user_fullname = '".mysql_real_escape_string($_POST['userfullname'])."',
 														".$updatemail."
 														user_website = '".mysql_real_escape_string($_POST['userwebsite'])."',
-														user_language = '".mysql_real_escape_string($userlang2)."',
+														user_language = '".mysql_real_escape_string($userlang)."',
 														user_country = '".mysql_real_escape_string($_POST['country'])."',
 														user_timezone = '".mysql_real_escape_string($_POST['tzone'])."',
 														user_occupation = '".mysql_real_escape_string($_POST['useroccupation'])."',

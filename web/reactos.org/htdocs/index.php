@@ -20,54 +20,7 @@
 	$roscms_page_format = ".html";
 	 
 	// Language detection
-	function check_lang($lang)
-	{
-		if (preg_match('/^([a-zA-Z]+)(-[a-zA-Z]+)?$/', $lang, $matches)) {
-			$checked_lang = strtolower($matches[1]);
-			switch($checked_lang) {
-				case 'ar':
-				case 'bg':
-				case 'ca':
-				case 'cz':
-				case 'da':
-				case 'de':
-				case 'el':
-				case 'en':
-				case 'es':
-				case 'fr':
-				case 'he':
-				case 'hu':
-				case 'id':
-				case 'it':
-				case 'ja':
-				case 'ko':
-				case 'lt':
-				case 'nl':
-				case 'no':
-				case 'pl':
-				case 'pt':
-				case 'ru':
-				case 'sv':
-				case 'uk':
-				case 'zh':
-				case 'ro':
-				case 'tw':
-				case 'sk':
-				case 'vi':
-					break;
-				default:
-					$checked_lang = '';
-			}
-		}
-		else if ($lang == '*') {
-			$checked_lang = 'en';
-		}
-		else {
-			$checked_lang = '';
-		}
-	
-		return $checked_lang;
-	}
+	require_once("roscms/inc/language_detection.php");
 	
 	if (array_key_exists("page", $_GET)) $rpm_page=htmlspecialchars($_GET["page"]);
 	$rpm_lang = check_lang($_REQUEST['lang']);
