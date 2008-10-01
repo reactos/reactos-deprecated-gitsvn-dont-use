@@ -398,8 +398,7 @@ Function UninstallPrevious
                "DisplayVersion"
     ${If} $R1 == "${PRODUCT_VERSION}"
         messageBox MB_OK|MB_ICONEXCLAMATION \
-            "You already have the ${PRODUCT_NAME} v${PRODUCT_VERSION} installed. Please manually uninstall the ${PRODUCT_NAME} v${PRODUCT_VERSION} if you want to reinstall."
-        Quit
+            "You already have the ${PRODUCT_NAME} v${PRODUCT_VERSION} installed. You should uninstall the ${PRODUCT_NAME} v${PRODUCT_VERSION} if you want to reinstall."
     ${EndIf}
     ${If} $R0 == ""
         ReadRegStr $R0 HKLM \
@@ -413,18 +412,17 @@ Function UninstallPrevious
         ${EndIf}
     ${EndIf}
     MessageBox MB_YESNO|MB_ICONQUESTION  \
-               "A previous version of the ${PRODUCT_NAME} was found. You must uninstall it before installing this version.$\n$\nDo you want to do that now?" \
+               "A previous version of the ${PRODUCT_NAME} was found. You should uninstall it before installing this version.$\n$\nDo you want to do that now?" \
                IDNO UninstallPrevious_no \
                IDYES UninstallPrevious_yes
     Abort
-    UninstallPrevious_no:
-        Quit
     UninstallPrevious_yes:
         Var /global PREVIOUSINSTDIR
         Push $R0
         Call GetParent
         Pop $PREVIOUSINSTDIR
         ExecWait '$R0 _?=$PREVIOUSINSTDIR'
+    UninstallPrevious_no:
 FunctionEnd
 
 Function GetParent
