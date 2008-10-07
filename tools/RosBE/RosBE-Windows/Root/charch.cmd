@@ -15,9 +15,7 @@ title Change the Architecture to build for...
 
 ::
 :: Parse the command line arguments.
-:: ROS_ARCH: Default is i386, can be set to amd64, ppc or arm.
-:: ROS_PREFIX: Default is mingw32. ppc could be ppc-pc-mingw32,
-::             arm arm-pc-mingw32, x64 x86_64-pc-mingw32.
+:: ROSBE_ARCH: Default is i386, can be set to amd64, ppc or arm.
 ::
 
 if "%1" == "" (
@@ -26,29 +24,32 @@ if "%1" == "" (
     set _1=%1
 )
 if /i "%_1%" == "i386" (
-    set ROS_ARCH=
-    set ROS_PREFIX=
-    goto :EOC
+    set _ROSBE_ARCH=
+    goto :EOA
 )
 if /i "%_1%" == "arm" (
-    set ROS_ARCH=arm
-    set ROS_PREFIX=arm-pc-mingw32
-    goto :EOC
+    set _ROSBE_ARCH=1
+    goto :EOA
 )
 if /i "%_1%" == "ppc" (
-    set ROS_ARCH=ppc
-    set ROS_PREFIX=ppc-pc-mingw32
-    goto :EOC
+    set _ROSBE_ARCH=2
+    goto :EOA
 )
 if /i "%_1%" == "amd64" (
-    set ROS_ARCH=amd64
-    set ROS_PREFIX=x86_64-pc-mingw32
-    goto :EOC
+    set _ROSBE_ARCH=3
+    goto :EOA
 )
 if not "%_1%" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :EOC
 )
+
+:EOA
+
+::
+:: Refresh all needed Params by recalling the main Path setting CMD File.
+::
+call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOC
 
 ::
