@@ -111,6 +111,11 @@ if .%_ROSBE_USECCACHE%. == .1. (
     set CCACHE_DIR=%APPDATA%\RosBE\.ccache
     set HOST_CC=ccache gcc
     set HOST_CPP=ccache g++
+
+    ::
+    ::Target defaults to host(i386)
+    ::
+
     set TARGET_CC=ccache gcc
     set TARGET_CPP=ccache g++
     if .%ROS_ARCH%. == .arm. (
@@ -128,6 +133,11 @@ if .%_ROSBE_USECCACHE%. == .1. (
 ) else (
     set HOST_CC=gcc
     set HOST_CPP=g++
+
+    ::
+    ::Target defaults to host(i386)
+    ::
+
     set TARGET_CC=gcc
     set TARGET_CPP=g++
     if .%ROS_ARCH%. == .arm. (

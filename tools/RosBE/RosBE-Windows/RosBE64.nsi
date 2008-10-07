@@ -116,7 +116,7 @@ Section -BaseFiles SEC01
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
-    SetOutPath "$INSTDIR\4.1.3"
+    SetOutPath "$INSTDIR\4.4.0"
     SetOverwrite try
     File /r Components\4.4.0\*.*
 SectionEnd
@@ -185,7 +185,7 @@ Section Uninstall
     ;;
     ;; Clean up installed files.
     ;;
-    RMDir /r /REBOOTOK "$INSTDIR\4.1.3"
+    RMDir /r /REBOOTOK "$INSTDIR\4.4.0"
     Delete /REBOOTOK "$INSTDIR\charch.cmd"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
