@@ -59,9 +59,9 @@
 								<?php
 									if (isset($_POST['registerpost']) && $_POST['username'] != "" && strlen($_POST['username']) >= $rdf_register_user_name_min) {
 										// check if another account with the same username already exists
-										$sql_exist_name = "SELECT user_name  
+										$sql_exist_name = "SELECT user_name 
 															FROM users 
-															WHERE user_name = '".mysql_real_escape_string(strtolower($_POST['username']))."'
+															WHERE REPLACE(user_name, '_', ' ') = LOWER(REPLACE('" . mysql_real_escape_string($_POST['username'])."', '_', ' '))
 															LIMIT 1;";
 										$query_exist_name = mysql_query($sql_exist_name);
 										$result_exist_name = mysql_fetch_array($query_exist_name);
