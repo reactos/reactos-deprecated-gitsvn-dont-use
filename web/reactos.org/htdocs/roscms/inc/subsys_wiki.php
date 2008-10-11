@@ -49,7 +49,7 @@ function subsys_wiki_info_check()
            " WHERE m.map_roscms_userid = u.user_id " .
            "   AND m.map_subsys_name = 'wiki' " .
            "   AND p.user_id = m.map_subsys_userid " .
-           "   AND (u.user_name != p.user_name OR " .
+           "   AND (REPLACE(u.user_name, '_', ' ') != p.user_name OR " .
            "        u.user_email != p.user_email OR " .
            "        u.user_fullname != p.user_real_name) ";
   $query_set = mysql_query($query) or die("DB error (subsys_wiki #1)");
@@ -115,12 +115,13 @@ function subsys_wiki_update_wiki($roscms_user_id,
                                  $roscms_user_fullname,
                                  $wiki_user_id)
 {
+	$wiki_sql_user_name = mysql_real_escape_string(str_replace("_", " ", $roscms_user_name));
+	
   /* Make sure that the email address and/or user name are not already in
      use in wiki */
   $query = "SELECT COUNT(*) AS inuse " .
            "  FROM " . SUBSYS_WIKI_DBNAME .  ".user " .
-           " WHERE (LOWER(user_name) = LOWER('" .
-           mysql_real_escape_string($roscms_user_name) . "') OR " .
+           " WHERE (LOWER(user_name) = LOWER('" . $wiki_sql_user_name . "') OR " .
            "        LOWER(user_email) = LOWER('" .
            mysql_real_escape_string($roscms_user_email) . "')) " .
            "   AND user_id <> $wiki_user_id ";
@@ -137,7 +138,7 @@ function subsys_wiki_update_wiki($roscms_user_id,
   /* Now, make sure that info in wiki matches info in roscms */
   $query = "UPDATE " . SUBSYS_WIKI_DBNAME .  ".user " .
            "   SET user_name = '" .
-                   mysql_real_escape_string($roscms_user_name) . "', " .
+                   $wiki_sql_user_name . "', " .
            "       user_email = '" .
                    mysql_real_escape_string($roscms_user_email) . "', " .
            "       user_real_name = '" .
@@ -153,53 +154,17 @@ function subsys_wiki_add_wiki_user($roscms_user_id,
                                    $roscms_user_email,
                                    $roscms_user_fullname)
 {
-  $default_options = "quickbar=1\n" .
-                     "underline=1\n" .
-                     "hover=1\n" .
-                     "cols=80\n" .
-                     "rows=25\n" .
-                     "searchlimit=20\n" .
-                     "contextlines=5\n" .
-                     "contextchars=50\n" .
-                     "skin=roscms\n" .
-                     "math=1\n" .
-                     "rcdays=7\n" .
-                     "rclimit=50\n" .
-                     "highlightbroken=1\n" .
-                     "stubthreshold=0\n" .
-                     "previewontop=1\n" .
-                     "editsection=1\n" .
-                     "editsectiononrightclick=0\n" .
-                     "showtoc=1\n" .
-                     "showtoolbar=1\n" .
-                     "date=0\n" .
-                     "searchNs-1=0\n" .
-                     "searchNs0=1\n" .
-                     "searchNs1=0\n" .
-                     "searchNs2=0\n" .
-                     "searchNs3=0\n" .
-                     "searchNs4=0\n" .
-                     "searchNs5=0\n" .
-                     "searchNs6=0\n" .
-                     "searchNs7=0\n" .
-                     "searchNs8=0\n" .
-                     "searchNs9=1\n" .
-                     "searchNs10=0\n" .
-                     "searchNs11=1\n" .
-                     "rememberpassword=0\n";
-
   $query = "INSERT INTO " . SUBSYS_WIKI_DBNAME . ".user " .
            "       (user_name, user_real_name, user_password, " .
            "        user_newpassword, user_email, user_options, " .
-           "        user_touched, user_token)" .
-           "VALUES ('" . mysql_real_escape_string($roscms_user_name) .  "', " .
+           "        user_touched)" .
+           "VALUES (REPLACE('" . mysql_real_escape_string($roscms_user_name) .  "', '_', ' '), " .
            "        '" . mysql_real_escape_string($roscms_user_fullname) . "', " .
-           "        '*', " .
-           "        '*', " .
+           "        '', " .
+           "        '', " .
            "        '" . mysql_real_escape_string($roscms_user_email) . "', " .
-           "        '$default_options', " .
-           "        DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'), " .
-           "        '********************************')";
+           "        '', " .
+           "        DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'));";
   mysql_query($query) or die("DB error (subsys_wiki #10)");
 
   /* Finally, insert a row in the mapping table */
@@ -238,8 +203,8 @@ function subsys_wiki_add_mapping($roscms_user_id)
       /* That failed. Let's try to match on user name then */
       $query = "SELECT user_id " .
                "  FROM " . SUBSYS_WIKI_DBNAME .  ".user " .
-               " WHERE LOWER(user_name) = LOWER('" .
-               mysql_real_escape_string($roscms_user_name) . "')";
+               " WHERE LOWER(user_name) = LOWER(REPLACE('" .
+               mysql_real_escape_string($roscms_user_name) . "', '_', ' '))";
       $wiki_name_set = mysql_query($query)
                      or die("DB error (subsys_wiki #6)");
       if ($wiki_name_row = mysql_fetch_array($wiki_name_set))
@@ -362,7 +327,7 @@ function subsys_wiki_fix_info()
            " WHERE m.map_roscms_userid = u.user_id " .
            "   AND m.map_subsys_name = 'wiki' " .
            "   AND w.user_id = m.map_subsys_userid " .
-           "   AND (u.user_name != w.user_name OR " .
+           "   AND (REPLACE(u.user_name, '_', ' ') != w.user_name OR " .
            "        u.user_email != w.user_email OR " .
            "        u.user_fullname != w.user_real_name) ";
   $query_set = mysql_query($query) or die("DB error (subsys_wiki #12)");
