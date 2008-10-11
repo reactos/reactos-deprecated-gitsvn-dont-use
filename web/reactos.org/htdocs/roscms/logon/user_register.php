@@ -61,7 +61,7 @@
 										// check if another account with the same username already exists
 										$sql_exist_name = "SELECT user_name 
 															FROM users 
-															WHERE REPLACE(user_name, '_', ' ') = LOWER(REPLACE('" . mysql_real_escape_string($_POST['username'])."', '_', ' '))
+															WHERE REPLACE(user_name, '_', ' ') = REPLACE('" . mysql_real_escape_string($_POST['username'])."', '_', ' ')
 															LIMIT 1;";
 										$query_exist_name = mysql_query($sql_exist_name);
 										$result_exist_name = mysql_fetch_array($query_exist_name);
@@ -73,7 +73,7 @@
 										// check if the username is equal to a protected name
 										$sql_unsafe_name = "SELECT unsafe_name 
 															FROM user_unsafenames 
-															WHERE unsafe_name = '".mysql_real_escape_string(strtolower($_POST['username']))."'
+															WHERE unsafe_name = '".mysql_real_escape_string($_POST['username'])."'
 															LIMIT 1;";
 										$query_unsafe_name = mysql_query($sql_unsafe_name);
 										$result_unsafe_name = mysql_fetch_array($query_unsafe_name);
