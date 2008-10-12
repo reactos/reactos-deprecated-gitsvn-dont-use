@@ -136,7 +136,7 @@ namespace RosDBG
 
         private void StackFrames_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (StackFrames.SelectedItem != null) //crashed with argumentnullexception
+            if (StackFrames.SelectedItem != null)
             {
                 string[] parsedEntry = ((string)StackFrames.SelectedItem).Split(new char[] { ' ' });
                 mSelectedAddr = ulong.Parse(parsedEntry[0], NumberStyles.HexNumber);

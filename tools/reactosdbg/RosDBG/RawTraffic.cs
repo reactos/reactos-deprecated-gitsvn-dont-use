@@ -37,6 +37,7 @@ namespace RosDBG
                 foreach (string s in textToAdd)
                     toAdd.Append(s);
                 textToAdd.Clear();
+                //TODO: skip backspace signs
             }
             RawTrafficText.AppendText(toAdd.ToString());
         }
@@ -52,7 +53,7 @@ namespace RosDBG
 
         void CopyEvent(object sender, CopyEventArgs args)
         {
-            if (args.Obj == this)
+            if (args.Obj == this && RawTrafficText.SelectedText != null)
                 Clipboard.SetText(RawTrafficText.SelectedText);
         }
 

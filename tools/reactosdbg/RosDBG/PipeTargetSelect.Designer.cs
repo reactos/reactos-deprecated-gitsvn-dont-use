@@ -33,17 +33,18 @@
             this.PipeNameTextBox = new System.Windows.Forms.TextBox();
             this.DefaultRadioBtn = new System.Windows.Forms.RadioButton();
             this.CustomRadioBtn = new System.Windows.Forms.RadioButton();
-            this.DefaultNameLabel = new System.Windows.Forms.Label();
+            this.cType = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // bOK
             // 
             this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.bOK.Location = new System.Drawing.Point(69, 86);
+            this.bOK.Location = new System.Drawing.Point(69, 121);
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size(75, 23);
-            this.bOK.TabIndex = 5;
+            this.bOK.TabIndex = 6;
             this.bOK.Text = "OK";
             this.bOK.UseVisualStyleBackColor = true;
             this.bOK.Click += new System.EventHandler(this.bOK_Click);
@@ -52,10 +53,10 @@
             // 
             this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Location = new System.Drawing.Point(150, 86);
+            this.bCancel.Location = new System.Drawing.Point(150, 121);
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size(75, 23);
-            this.bCancel.TabIndex = 6;
+            this.bCancel.TabIndex = 7;
             this.bCancel.Text = "Cancel";
             this.bCancel.UseVisualStyleBackColor = true;
             this.bCancel.Click += new System.EventHandler(this.bCancel_Click);
@@ -63,19 +64,19 @@
             // PipeNameTextBox
             // 
             this.PipeNameTextBox.Enabled = false;
-            this.PipeNameTextBox.Location = new System.Drawing.Point(15, 60);
+            this.PipeNameTextBox.Location = new System.Drawing.Point(12, 86);
             this.PipeNameTextBox.Name = "PipeNameTextBox";
             this.PipeNameTextBox.Size = new System.Drawing.Size(213, 20);
-            this.PipeNameTextBox.TabIndex = 8;
+            this.PipeNameTextBox.TabIndex = 5;
             // 
             // DefaultRadioBtn
             // 
             this.DefaultRadioBtn.AutoSize = true;
             this.DefaultRadioBtn.Checked = true;
-            this.DefaultRadioBtn.Location = new System.Drawing.Point(15, 12);
+            this.DefaultRadioBtn.Location = new System.Drawing.Point(12, 38);
             this.DefaultRadioBtn.Name = "DefaultRadioBtn";
             this.DefaultRadioBtn.Size = new System.Drawing.Size(81, 17);
-            this.DefaultRadioBtn.TabIndex = 9;
+            this.DefaultRadioBtn.TabIndex = 3;
             this.DefaultRadioBtn.TabStop = true;
             this.DefaultRadioBtn.Text = "Use Default";
             this.DefaultRadioBtn.UseVisualStyleBackColor = true;
@@ -83,21 +84,33 @@
             // CustomRadioBtn
             // 
             this.CustomRadioBtn.AutoSize = true;
-            this.CustomRadioBtn.Location = new System.Drawing.Point(15, 37);
+            this.CustomRadioBtn.Location = new System.Drawing.Point(12, 61);
             this.CustomRadioBtn.Name = "CustomRadioBtn";
             this.CustomRadioBtn.Size = new System.Drawing.Size(91, 17);
-            this.CustomRadioBtn.TabIndex = 10;
+            this.CustomRadioBtn.TabIndex = 4;
             this.CustomRadioBtn.Text = "Custom Name";
             this.CustomRadioBtn.UseVisualStyleBackColor = true;
             this.CustomRadioBtn.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
             // 
-            // DefaultNameLabel
+            // cType
             // 
-            this.DefaultNameLabel.AutoSize = true;
-            this.DefaultNameLabel.Location = new System.Drawing.Point(118, 14);
-            this.DefaultNameLabel.Name = "DefaultNameLabel";
-            this.DefaultNameLabel.Size = new System.Drawing.Size(0, 13);
-            this.DefaultNameLabel.TabIndex = 11;
+            this.cType.FormattingEnabled = true;
+            this.cType.Items.AddRange(new object[] {
+            "Client",
+            "Server"});
+            this.cType.Location = new System.Drawing.Point(69, 6);
+            this.cType.Name = "cType";
+            this.cType.Size = new System.Drawing.Size(156, 21);
+            this.cType.TabIndex = 2;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(31, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Type";
             // 
             // PipeTargetSelect
             // 
@@ -105,8 +118,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
-            this.ClientSize = new System.Drawing.Size(237, 121);
-            this.Controls.Add(this.DefaultNameLabel);
+            this.ClientSize = new System.Drawing.Size(237, 156);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cType);
             this.Controls.Add(this.CustomRadioBtn);
             this.Controls.Add(this.DefaultRadioBtn);
             this.Controls.Add(this.PipeNameTextBox);
@@ -129,6 +143,7 @@
         private System.Windows.Forms.TextBox PipeNameTextBox;
         private System.Windows.Forms.RadioButton DefaultRadioBtn;
         private System.Windows.Forms.RadioButton CustomRadioBtn;
-        private System.Windows.Forms.Label DefaultNameLabel;
+        private System.Windows.Forms.ComboBox cType;
+        private System.Windows.Forms.Label label1;
     }
 }

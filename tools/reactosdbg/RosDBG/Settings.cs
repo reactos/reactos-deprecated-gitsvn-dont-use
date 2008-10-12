@@ -56,7 +56,7 @@ namespace RosDBG
             }
 
             [CategoryAttribute("Connection"), DescriptionAttribute("Connection settings")]
-            [UserScopedSetting, DefaultSettingValue(@"\\.\Pipe\RosDbg")]
+            [UserScopedSetting, DefaultSettingValue(@"RosDbg")]
             public string Pipe
             {
                 get { return this["Pipe"].ToString(); }
