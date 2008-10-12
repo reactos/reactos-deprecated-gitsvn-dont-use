@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.IO.Ports;
+using System.Threading;
 using AbstractPipe;
 using DebugProtocol;
 using KDBGProtocol;
@@ -85,8 +86,12 @@ namespace DebugProtocol
         public bool Current { get { return mCurrent; } set { mCurrent = value; } }
         ulong mPid;
         public ulong ProcessId { get { return mPid; } set { mPid = value; } }
+        string mState;
+        public string State { get { return mState; } set { mState = value; } }
+        string mName;
+        public string Name { get { return mName; } set { mName = value; } }
         public Dictionary<ulong, ThreadElement> Threads = new Dictionary<ulong,ThreadElement>();
-        public ProcessElement(ulong pid, bool current) { mPid = pid; mCurrent = current; }
+        public ProcessElement(ulong pid, bool current, string state, string name) { mPid = pid; mCurrent = current; mState = state; mName = name; }
     }
 
     public class DebugProcessThreadChangeEventArgs : EventArgs
@@ -165,6 +170,8 @@ namespace DebugProtocol
 
         #region Named Pipe Members
         NamedPipe mNamedPipe;
+        Thread ReadThread;
+        Thread WriteThread;
         #endregion
 
         public event DebugRegisterChangeEventHandler DebugRegisterChangeEvent;
@@ -213,7 +220,7 @@ namespace DebugProtocol
             mKdb.ThreadListEvent += ThreadListEvent;
         }
 
-        public void Start(string host, int port)
+        public void StartTCP(string host, int port)
         {
             Close();
             mRemotePort = port;
@@ -226,16 +233,31 @@ namespace DebugProtocol
             mDnsAsyncResult = Dns.BeginGetHostEntry(host, mDnsLookup, this);
         }
 
-        public void Start(string pipeName)
+        public void StartPipe(string pipeName, ConnectionMode mode)
         {
             Close();
             ConnectionMode = Mode.PipeMode;
             mNamedPipe = new NamedPipe();
-            mNamedPipe.Create(pipeName);
-            mNamedPipe.Listen();
+            if (mNamedPipe.CreatePipe(pipeName, mode))
+            {
+                mKdb = new KDBG(mNamedPipe);
+                mNamedPipe.PipeReceiveEvent += PipeReceiveEvent;
+                mNamedPipe.PipeErrorEvent += MediumError;
+                Running = true;
+                ConnectEventHandlers();
+                /* retrieve input seperate thread */
+                ReadThread = new Thread(mNamedPipe.ReadLoop);
+                ReadThread.Start();
+                WriteThread = new Thread(mNamedPipe.WriteLoop);
+                WriteThread.Start();
+            }
+            else 
+            {
+                ConnectionMode = Mode.ClosedMode;
+            }
         }
 
-        public void Start(int baudrate, string port)
+        public void StartSerial(string port, int baudrate)
         {
             Close();
             ConnectionMode = Mode.SerialMode;
@@ -248,6 +270,7 @@ namespace DebugProtocol
                 //create pipe and kdb instances, connect internal receive pipe 
                 mMedium = new SerialPipe(mSerialPort);
                 mMedium.PipeReceiveEvent += PipeReceiveEvent;
+                mMedium.PipeErrorEvent += MediumError;
                 mKdb = new KDBG(mMedium);
                 ConnectEventHandlers();
                 Running = true;
@@ -270,7 +293,7 @@ namespace DebugProtocol
                 mKdb.GetThreads(mNewCurrentProcess);
             }
             else
-                mAccumulateProcesses[args.Pid] = new ProcessElement(args.Pid, args.Current);
+                mAccumulateProcesses[args.Pid] = new ProcessElement(args.Pid, args.Current, args.State, args.Name);
 
             if (args.Current)
                 mNewCurrentProcess = args.Pid;
@@ -313,9 +336,14 @@ namespace DebugProtocol
                     Running = false;
                     break;
                 case Mode.PipeMode:
-                    mNamedPipe.Close();
-                    mNamedPipe = null;
+                    if (mNamedPipe != null)
+                    {
+                        mNamedPipe.Close();
+                        mNamedPipe = null;
+                    }
                     Running = false;
+                    ReadThread.Abort();
+                    WriteThread.Abort();
                     break;
             }
 
@@ -402,6 +430,13 @@ namespace DebugProtocol
         {
             Running = true;
             if (mKdb != null) mKdb.Step();
+            Running = false;
+        }
+
+        public void Next()
+        {
+            Running = true;
+            if (mKdb != null) mKdb.Next();
             Running = false;
         }
 
