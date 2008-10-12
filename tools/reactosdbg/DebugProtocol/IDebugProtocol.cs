@@ -74,9 +74,10 @@ namespace DebugProtocol
     {
         public readonly bool Reset, Current, End;
         public readonly ulong Pid;
+        public readonly string Name, State;
         public ProcessListEventArgs() { Reset = true; }
         public ProcessListEventArgs(bool end) { End = true; }
-        public ProcessListEventArgs(ulong pid, bool current) { Current = current; Pid = pid; }
+        public ProcessListEventArgs(ulong pid, bool current, string state, string name) { Current = current; Pid = pid; State = state; Name = name; }
     }
 
     public delegate void ProcessListEventHandler(object sender, ProcessListEventArgs args);

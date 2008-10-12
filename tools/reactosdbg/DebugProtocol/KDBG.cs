@@ -40,7 +40,7 @@ namespace KDBGProtocol
         static Regex mSregLine = new Regex("[CDEFGS]S  0x(?<seg>[0-9a-fA-F]+).*");
         static Regex mProcListHeading = new Regex("PID[ \\t]+State[ \\t]+Filename.*");
         static Regex mThreadListHeading = new Regex("TID[ \\t]+State[ \\t]+Prio.*");
-        static Regex mProcListEntry = new Regex("^(?<cur>([*]|))0x(?<pid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)");
+        static Regex mProcListEntry = new Regex("^(?<cur>([*]|))0x(?<pid>[0-9a-fA-F]+)[ \\t](?<state>[a-zA-Z ]+)[ \\t](?<name>[a-zA-Z. ]+).*");
         static Regex mThreadListEntry = new Regex("^(?<cur>([*]|))0x(?<tid>[0-9a-fA-F]+)[ \\t]+(?<state>.*)0x(?<eip>[0-9a-fA-F]*)");
 
         bool mFirstModuleUpdate = false;
@@ -254,10 +254,12 @@ namespace KDBGProtocol
                             if (pidEntryMatch.Success && mReceivingProcs)
                             {
                                 if (ProcessListEvent != null)
-                                    ProcessListEvent(this, new ProcessListEventArgs(ulong.Parse(pidEntryMatch.Groups["pid"].ToString(), NumberStyles.HexNumber), pidEntryMatch.Groups["cur"].Length > 0));
+                                    ProcessListEvent(this, new ProcessListEventArgs(ulong.Parse(pidEntryMatch.Groups["pid"].ToString(), NumberStyles.HexNumber), pidEntryMatch.Groups["cur"].Length > 0, 
+                                        pidEntryMatch.Groups["state"].ToString(), pidEntryMatch.Groups["name"].ToString()));
                             }
                             else
                             {
+                                /* TODO: this is called by far too often, results in several "thread list xx" commands */
                                 if ((mReceivingProcs || cleanedLine.Contains("No processes")) && ProcessListEvent != null)
                                     ProcessListEvent(this, new ProcessListEventArgs(true));
                             }
@@ -350,7 +352,8 @@ namespace KDBGProtocol
                 if (mCommandBuffer.Count == 1)
                 {
                     mConnection.Write(command + "\r");
-                    mCommandBuffer.RemoveAt(0); //useful???
+                    /* remove the command after sending */
+                    mCommandBuffer.RemoveAt(0);
                 }
             }
         }
