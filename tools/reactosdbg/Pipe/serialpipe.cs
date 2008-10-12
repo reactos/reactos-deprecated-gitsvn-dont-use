@@ -80,7 +80,7 @@ namespace AbstractPipe
 
         public void SerialPortErrorReceived(object sender, SerialErrorReceivedEventArgs args)
         {
-            mSerialPort.Close();
+            /* port will be closed by debug connection */
             if (PipeErrorEvent != null)
                 PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(args.EventType.ToString()));
         }
