@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AbstractPipe;
+using System;
 using System.Windows.Forms;
 
 namespace RosDBG
@@ -7,10 +8,16 @@ namespace RosDBG
     {
         private string defaultPipeName = Settings.Pipe;
         private string pipeName;
+        public ConnectionMode pipeMode;
 
         public string PipeName
         {
             get { return pipeName; }
+        }
+
+        public ConnectionMode PipeMode
+        {
+            get { return (ConnectionMode)pipeMode; }
         }
 
         public bool UseDefault
@@ -34,6 +41,19 @@ namespace RosDBG
                 pipeName = PipeNameTextBox.Text;
             }
 
+            if (cType.SelectedItem.ToString().CompareTo("Client") == 0)
+            {
+                pipeMode = ConnectionMode.MODE_CLIENT;
+            }
+            else if (cType.SelectedItem.ToString().CompareTo("Server") == 0)
+            {
+                pipeMode = ConnectionMode.MODE_SERVER;
+            }
+            else if (cType.SelectedItem.ToString().CompareTo("Automatic") == 0)
+            {
+                pipeMode = ConnectionMode.MODE_AUTO;
+            }
+
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -53,7 +73,8 @@ namespace RosDBG
 
         private void PipeTargetSelect_Load(object sender, EventArgs e)
         {
-            DefaultNameLabel.Text = "[" + defaultPipeName + "]";
+            DefaultRadioBtn.Text += " [" + defaultPipeName + "]";
+            cType.SelectedIndex = 0;
         }
     }
 }

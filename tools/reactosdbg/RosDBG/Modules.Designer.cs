@@ -39,6 +39,9 @@
             this.MListAddress,
             this.MListShortName});
             this.ModulesList.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ModulesList.FullRowSelect = true;
+            this.ModulesList.GridLines = true;
+            this.ModulesList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.ModulesList.Location = new System.Drawing.Point(0, 0);
             this.ModulesList.Name = "ModulesList";
             this.ModulesList.Size = new System.Drawing.Size(244, 218);
@@ -51,6 +54,7 @@
             // MListAddress
             // 
             this.MListAddress.Text = "Address";
+            this.MListAddress.Width = 80;
             // 
             // MListShortName
             // 

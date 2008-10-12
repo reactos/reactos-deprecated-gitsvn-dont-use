@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
+using AbstractPipe;
 using DebugProtocol;
 using KDBGProtocol;
 using DbgHelpAPI;
@@ -244,7 +245,7 @@ namespace RosDBG
             if (targetSelect.ShowDialog() == DialogResult.OK)
             {
                 mConnection.Close();
-                mConnection.Start(targetSelect.Host, targetSelect.Port);
+                mConnection.StartTCP(targetSelect.Host, targetSelect.Port);
             }
         }
 
@@ -256,6 +257,11 @@ namespace RosDBG
         private void stepToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mConnection.Step();
+        }
+
+        private void nextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mConnection.Next();
         }
 
         private void continueToolStripMenuItem_Click(object sender, EventArgs e)
@@ -276,7 +282,7 @@ namespace RosDBG
             if (targetSelect.ShowDialog() == DialogResult.OK)
             {
                 mConnection.Close();
-                mConnection.Start(targetSelect.Baudrate, targetSelect.Port);
+                mConnection.StartSerial(targetSelect.Port, targetSelect.Baudrate);
             }
         }
 
@@ -340,7 +346,7 @@ namespace RosDBG
             if (targetSelect.ShowDialog() == DialogResult.OK)
             {
                 mConnection.Close();
-                mConnection.Start(targetSelect.PipeName);
+                mConnection.StartPipe(targetSelect.PipeName, targetSelect.PipeMode);
             }
         }
 
