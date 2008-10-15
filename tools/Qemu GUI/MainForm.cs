@@ -2,7 +2,6 @@ using System;
 using System.Drawing;
 using System.Collections;
 using System.Windows.Forms;
-using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Serialization;
@@ -614,7 +613,7 @@ namespace Qemu_GUI
             runner = new Runner(data);
             if (runner.MountImage() == true)
             {
-                Thread.Sleep(500);
+                System.Threading.Thread.Sleep(500);
                 Process p = new Process();
 
                 p.StartInfo.FileName = "explorer";

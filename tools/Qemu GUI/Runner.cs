@@ -1,7 +1,5 @@
 using System;
 using System.IO;
-using System.Text;
-using System.Threading;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Security.Permissions;
@@ -70,26 +68,9 @@ namespace Qemu_GUI
                 return false;
             }
 
-            if (data.Debug.SerialPort.SRedirect)
-            {
-                /* create a random name */
-                string filename = "serial" + DateTime.UtcNow.Ticks.ToString() + ".txt";
-                data.Debug.SerialPort.FileName = temp_path + filename;
-            }
-
             try
             {
                 p.StartInfo.WorkingDirectory = data.Paths.Qemu;
-                
-                if (data.Debug.SerialPort.SRedirect)
-                {
-                   
-                    output = new DebugForm();
-
-                    /* create a unic name */
-                    string filename = "serial" + DateTime.UtcNow.Ticks.ToString() + ".txt";
-                    data.Debug.SerialPort.FileName = temp_path + filename;
-                }
                 p.StartInfo.Arguments = data.GetArgv();
             }
             catch (Exception e)
@@ -104,10 +85,11 @@ namespace Qemu_GUI
             try
             {
                 p.Start();
+                
                 if (data.Debug.SerialPort.SRedirect)
                 {
                     output = new DebugForm();
-                    output.Listen(p, data.Debug.SerialPort.FileName);
+                    output.Listen();
                 }
             }
             catch (Exception e)
