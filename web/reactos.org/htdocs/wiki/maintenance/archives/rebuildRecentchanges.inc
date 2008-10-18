@@ -2,8 +2,10 @@
 /**
  * Rebuild recent changes table
  *
+ * @file
  * @deprecated
- * @addtogroup MaintenanceArchive
+ * @ingroup MaintenanceArchive
+ * @defgroup MaintenanceArchive MaintenanceArchive
  */
 
 /** */
@@ -30,7 +32,7 @@ function rebuildRecentChangesTable()
   INDEX rc_timestamp (rc_timestamp),
   INDEX rc_namespace (rc_namespace),
   INDEX rc_title (rc_title)
-) TYPE=MyISAM PACK_KEYS=1;";
+) ENGINE=MyISAM PACK_KEYS=1;";
 	wfQuery( $sql );
 
 	print( "Loading from CUR table...\n" );

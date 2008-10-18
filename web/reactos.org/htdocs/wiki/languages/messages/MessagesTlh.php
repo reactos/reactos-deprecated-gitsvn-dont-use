@@ -1,8 +1,9 @@
 <?php
 /** Klingon (tlhIngan-Hol)
-  *
-  * @addtogroup Language
-  */
+ *
+ * @ingroup Language
+ * @file
+ */
 
 $namespaceNames = array(
 	NS_MEDIA            => "Doch",
@@ -24,6 +25,3 @@ $namespaceNames = array(
 	NS_CATEGORY         => "Segh",
 	NS_CATEGORY_TALK    => "Segh_ja'chuq"
 );
-
-
-

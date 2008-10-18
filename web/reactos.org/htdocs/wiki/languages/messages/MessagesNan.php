@@ -1,7 +1,8 @@
 <?php
 /** Min Nan Chinese (Bân-lâm-gú)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  */
 
@@ -107,11 +108,11 @@ $messages = array(
 'nov'           => '11g',
 'dec'           => '12g',
 
-# Bits of text used by many pages
-'categories'      => 'Lūi-pia̍t',
-'pagecategories'  => '{{PLURAL:$1|Lūi-pia̍t|Lūi-pia̍t}}',
-'category_header' => 'Tī "$1" chit ê lūi-pia̍t ê bûn-chiuⁿ',
-'subcategories'   => 'Ē-lūi-pia̍t',
+# Categories related messages
+'pagecategories'         => '{{PLURAL:$1|Lūi-pia̍t|Lūi-pia̍t}}',
+'category_header'        => 'Tī "$1" chit ê lūi-pia̍t ê bûn-chiuⁿ',
+'subcategories'          => 'Ē-lūi-pia̍t',
+'listingcontinuesabbrev' => '(chiap-sòa thâu-chêng)',
 
 'about'      => 'Koan-hē',
 'newwindow'  => '(ē khui sin thang-á hián-sī)',
@@ -161,20 +162,19 @@ $messages = array(
 'protectedpage'     => 'Siū pó-hō͘ ê ia̍h',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => 'hían-sī',
-'bugreports'        => 'Saⁿ-pò bug',
-'currentevents'     => 'Sin-bûn sū-kiāⁿ',
-'currentevents-url' => 'Project:Sin-bûn sū-kiāⁿ',
-'disclaimers'       => 'Bô-hū-chek seng-bêng',
-'edithelp'          => 'Án-choáⁿ siu-kái',
-'edithelppage'      => 'Help:Pian-chi̍p',
-'helppage'          => 'Help:Bo̍k-lio̍k',
-'mainpage'          => 'Thâu-ia̍h',
-'portal'            => 'Siā-lí mn̂g-chhùi-kháu',
-'portal-url'        => 'Project:Siā-lí mn̂g-chhùi-kháu',
-'privacy'           => 'Ín-su chèng-chhek',
-'sitesupport'       => 'Kià-hù',
-'sitesupport-url'   => 'Project:Kià-hù',
+'aboutsite'            => 'hían-sī',
+'bugreports'           => 'Saⁿ-pò bug',
+'currentevents'        => 'Sin-bûn sū-kiāⁿ',
+'currentevents-url'    => 'Project:Sin-bûn sū-kiāⁿ',
+'disclaimers'          => 'Bô-hū-chek seng-bêng',
+'edithelp'             => 'Án-choáⁿ siu-kái',
+'edithelppage'         => 'Help:Pian-chi̍p',
+'helppage'             => 'Help:Bo̍k-lio̍k',
+'mainpage'             => 'Thâu-ia̍h',
+'mainpage-description' => 'Thâu-ia̍h',
+'portal'               => 'Siā-lí mn̂g-chhùi-kháu',
+'portal-url'           => 'Project:Siā-lí mn̂g-chhùi-kháu',
+'privacy'              => 'Ín-su chèng-chhek',
 
 'retrievedfrom'       => 'Lâi-goân: "$1"',
 'youhavenewmessages'  => 'Lí ū $1 ($2).',
@@ -301,17 +301,13 @@ $messages = array(
 'subject-preview'        => 'Ū-lám tê-bo̍k/piau-tê',
 'whitelistedittitle'     => 'Su-iàu teng-ji̍p chiah ē-sái siu-kái',
 'whitelistedittext'      => 'Lí ài $1 chiah ē-sái siu-kái.',
-'whitelistreadtitle'     => 'Su-iàu teng-ji̍p chiah ē-iong-tit tha̍k',
-'whitelistreadtext'      => 'Lí ài [[Special:Userlogin|teng-ji̍p]] chiah ē-sái tha̍k.',
-'whitelistacctitle'      => 'Bô ún-chún lí khui kháu-chō',
-'whitelistacctext'       => 'eh ē-tàng tiàm chit ê Wiki khui kháu-chō, lí su-iàu [[Special:Userlogin|teng-ji̍p]] jī-chhiáⁿ ū sek-tong ê hí-khó.',
 'confirmedittitle'       => 'Su-iàu khak-jīn e-mail chū-chí chiah ē-tit pian-chi̍p',
 'loginreqtitle'          => 'Su-iàu Teng-ji̍p',
 'accmailtitle'           => 'Bi̍t-bé kià chhut khì ah.',
 'accmailtext'            => '$1 ê bi̍t-bé í-keng kìa khì $2.',
 'newarticle'             => '(Sin)',
 'newarticletext'         => "Lí tòe 1 ê liân-kiat lâi kàu 1 bīn iáu-bōe chûn-chāi ê ia̍h. Beh khai-sí pian-chi̍p chit ia̍h, chhiáⁿ tī ē-kha ê bûn-jī keh-á lāi-té phah-jī. ([[{{MediaWiki:Helppage}}|Bo̍k-lio̍k]] kà lí án-choáⁿ chìn-hêng.) Ká-sú lí bô-tiuⁿ-tî lâi kàu chia, ē-sai chhi̍h liû-lám-khì ê '''téng-1-ia̍h''' tńg--khì.",
-'anontalkpagetext'       => "----''Pún thó-lūn-ia̍h bô kò·-tēng ê kháu-chō/hō·-thâu, kan-na ū 1 ê IP chū-chí (chhin-chhiūⁿ 123.456.789.123). In-ūi bô kāng lâng tī bô kāng sî-chūn ū khó-lêng tú-hó kong-ke kāng-ê IP, lâu tī chia ê oē ū khó-lêng hō· bô kāng lâng ê! Beh pī-bián chit khoán būn-tê, ē-sái khì [[Special:Userlogin|khui 1 ê hō·-thâu a̍h-sī teng-ji̍p]].''",
+'anontalkpagetext'       => "----''Pún thó-lūn-ia̍h bô kò·-tēng ê kháu-chō/hō·-thâu, kan-na ū 1 ê IP chū-chí (chhin-chhiūⁿ 123.456.789.123). In-ūi bô kāng lâng tī bô kāng sî-chūn ū khó-lêng tú-hó kong-ke kāng-ê IP, lâu tī chia ê oē ū khó-lêng hō· bô kāng lâng ê! Beh pī-bián chit khoán būn-tê, ē-sái khì [[Special:UserLogin|khui 1 ê hō·-thâu a̍h-sī teng-ji̍p]].''",
 'clearyourcache'         => "'''Chù-ì:''' Pó-chûn liáu-āu, tio̍h ē-kì leh kā liû-lám-khì ê cache piàⁿ tiāu chiah khoàⁿ-ē-tio̍h kái-piàn: '''Mozilla:''' chhi̍h ''reload/têng-sin chài-ji̍p'' (a̍h-sī ''Ctrl-R''), '''Internet Explorer kap Opera:''' ''Ctrl-F5'', '''Safari:''' ''Cmd-R'', '''Konqueror''' ''Ctrl-R''.",
 'usercssjsyoucanpreview' => "<strong>Phiat-pō·</strong>: Pó-chûn chìn-chêng ē-sái chhi̍h 'Seng khoàⁿ-māi' kiám-cha sin ê CSS a̍h-sī JavaScript.",
 'usercsspreview'         => "'''Sè-jī! Lí hiān-chú-sî khoàⁿ--ê sī lí ê su-jîn css ê preview; che iáu-bōe pó-chûn--khí-lâi!'''",
@@ -379,13 +375,12 @@ $messages = array(
 'showingresults'    => 'Ē-kha tùi #<b>$2</b> khai-sí hián-sī <b>$1</b> hāng kiat-kó.',
 'showingresultsnum' => 'Ē-kha tùi #<b>$2</b> khai-sí hián-sī <b>$3</b> hāng kiat-kó.',
 'powersearch'       => 'Kiám-sek',
-'powersearchtext'   => 'Chhiau-chhōe chiah ê miâ-khong-kan:<br /> $1<br /> $2 Lia̍t chhut choán-ia̍h &nbsp; Chhōe $3 $9',
 
 # Preferences page
 'preferences'           => 'Siat-tēng',
 'mypreferences'         => 'Góa ê siat-tēng',
 'prefsnologin'          => 'Bô teng-ji̍p',
-'prefsnologintext'      => 'Lí it-tēng ài [[Special:Userlogin|teng-ji̍p]] chiah ē-tàng chhiâu iōng-chiá ê siat-tēng.',
+'prefsnologintext'      => 'Lí it-tēng ài [[Special:UserLogin|teng-ji̍p]] chiah ē-tàng chhiâu iōng-chiá ê siat-tēng.',
 'prefsreset'            => 'Iōng-chiá siat-tēng í-keng chiàu goân siat-tēng têng-siat.',
 'qbsettings'            => 'Quickbar ê siat-tēng',
 'changepassword'        => 'Oāⁿ bi̍t-bé',
@@ -455,7 +450,7 @@ $messages = array(
 'reupload'          => 'Têng sàng-chiūⁿ-bāng',
 'reuploaddesc'      => 'Tò khì sàng-chiūⁿ-bāng ê pió.',
 'uploadnologin'     => 'Bô teng-ji̍p',
-'uploadnologintext' => 'Bô [[Special:Userlogin|teng-ji̍p]] bē-sái-tit kā tóng-àn sàng-chiūⁿ-bāng.',
+'uploadnologintext' => 'Bô [[Special:UserLogin|teng-ji̍p]] bē-sái-tit kā tóng-àn sàng-chiūⁿ-bāng.',
 'uploaderror'       => 'Upload chhò-gō·',
 'uploadlogpagetext' => 'Í-hā sī chòe-kīn sàng-chiūⁿ-bāng ê tóng-àn ê lia̍t-toaⁿ.',
 'filename'          => 'Tóng-àn',
@@ -471,30 +466,24 @@ $messages = array(
 'uploadedimage'     => 'thoân "[[$1]]" chiūⁿ-bāng',
 'uploaddisabled'    => 'Pháiⁿ-sè, sàng chiūⁿ-bāng ê kong-lêng bô khui.',
 'uploadcorrupt'     => 'Tóng-àn nōa--khì he̍k-chiá tóng-àn miâ ê bóe-liu tàu m̄-tio̍h khoán. Chhiáⁿ kiám-cha--chi̍t-ē, liáu-āu têng thoân chiūⁿ-bāng.',
-'sourcefilename'    => 'Tóng-àn goân miâ',
-'destfilename'      => 'Tóng-àn sin miâ',
+'sourcefilename'    => 'Tóng-àn goân miâ:',
+'destfilename'      => 'Tóng-àn sin miâ:',
 'watchthisupload'   => 'Kàm-sī chit ia̍h',
 
-# Image list
+# Special:ImageList
 'imagelist'             => 'Iáⁿ-siōng lia̍t-toaⁿ',
-'imagelisttext'         => "Í-hā sī '''$1''' tiuⁿ iáⁿ-siōng ê lia̍t-toaⁿ, $2 pâi-lia̍t.",
-'getimagelist'          => 'teh chhoân iáⁿ-siōng lia̍t-toaⁿ',
-'ilsubmit'              => 'Kiám-sek',
-'showlast'              => 'Hián-sī chêng $1 tiuⁿ iáⁿ-siōng ($2 pâi).',
-'byname'                => 'chiàu miâ',
-'bydate'                => 'chiàu ji̍t-kî',
-'bysize'                => 'chiàu tōa-sè',
-'imgdesc'               => 'biô-su̍t',
-'imagelinks'            => 'Iáⁿ-siōng liân-kiat',
-'linkstoimage'          => 'Í-hā ê ia̍h liân kàu chit ê iáⁿ-siōng:',
-'nolinkstoimage'        => 'Bô poàⁿ ia̍h liân kàu chit tiuⁿ iáⁿ-siōng.',
-'noimage'               => 'Hō chit ê miâ ê tóng-àn bô tè chhoē. Lí ē-sái $1.',
-'noimage-linktext'      => 'kā thoân chiūⁿ bāng',
 'imagelist_date'        => 'Ji̍t-kî',
 'imagelist_name'        => 'Miâ',
 'imagelist_user'        => 'Iōng-chiá',
 'imagelist_size'        => 'Toā-sè',
 'imagelist_description' => 'Soat-bêng',
+
+# Image description page
+'imagelinks'       => 'Iáⁿ-siōng liân-kiat',
+'linkstoimage'     => 'Í-hā ê ia̍h liân kàu chit ê iáⁿ-siōng:',
+'nolinkstoimage'   => 'Bô poàⁿ ia̍h liân kàu chit tiuⁿ iáⁿ-siōng.',
+'noimage'          => 'Hō chit ê miâ ê tóng-àn bô tè chhoē. Lí ē-sái $1.',
+'noimage-linktext' => 'kā thoân chiūⁿ bāng',
 
 # MIME search
 'mimesearch' => 'MIME chhiau-chhoē',
@@ -531,8 +520,8 @@ Template:Khu-pia̍t-ia̍h',
 'brokenredirects'     => 'Choán-ia̍h kò·-chiòng',
 'brokenredirectstext' => 'Í-hā ê choán-ia̍h liân kàu bô chûn-chāi ê ia̍h:',
 
-'withoutinterwiki'        => 'Bô gí-giân liân-kiat ê ia̍h',
-'withoutinterwiki-header' => 'Ē-kha ê ia̍h bô kî-thaⁿ gí-giân pán-pún ê liân-kiat:',
+'withoutinterwiki'         => 'Bô gí-giân liân-kiat ê ia̍h',
+'withoutinterwiki-summary' => 'Ē-kha ê ia̍h bô kî-thaⁿ gí-giân pán-pún ê liân-kiat:',
 
 'fewestrevisions' => 'Siōng bô siu-tēng ê bûn-chiuⁿ',
 
@@ -557,7 +546,6 @@ Template:Khu-pia̍t-ia̍h',
 'mostcategories'          => 'Siōng chē lūi-pia̍t ê ia̍h',
 'mostimages'              => 'Siōng chia̍p liân-kiat ê iáⁿ-siōng',
 'mostrevisions'           => 'Siōng chia̍p siu-kái ê ia̍h',
-'allpages'                => 'Só·-ū ê ia̍h',
 'prefixindex'             => 'Sû-thâu sek-ín',
 'shortpages'              => 'Té-ia̍h',
 'deadendpages'            => 'Khu̍t-thâu-ia̍h',
@@ -565,9 +553,6 @@ Template:Khu-pia̍t-ia̍h',
 'protectedpages'          => 'Siū pó-hō͘ ê ia̍h',
 'protectedpagestext'      => 'Ē-kha ê ia̍h siū pó-hō͘, bē-tit soá-ūi ia̍h pian-chi̍p',
 'listusers'               => 'Iōng-chiá lia̍t-toaⁿ',
-'specialpages'            => 'Te̍k-sû-ia̍h',
-'spheading'               => 'Só·-ū iōng-chiá ê te̍k-sû-ia̍h',
-'restrictedpheading'      => 'Hān-chè sú-iōng ê te̍k-sû-ia̍h',
 'newpages'                => 'Sin ia̍h',
 'newpages-username'       => 'Iōng-chiá miâ-chheng:',
 'ancientpages'            => 'Kó·-ia̍h',
@@ -579,16 +564,14 @@ Template:Khu-pia̍t-ia̍h',
 # Book sources
 'booksources' => 'Tô͘-su chu-liāu',
 
-'categoriespagetext' => 'Chit ê wiki ū ē-kha chia ê lūi-pia̍t.',
-'alphaindexline'     => '$1 kàu $2',
-'version'            => 'Pán-pún',
-
 # Special:Log
 'specialloguserlabel'  => 'Iōng-chiá:',
 'speciallogtitlelabel' => 'Sû-tiâu:',
 'logempty'             => 'Log lāi-bīn bô sio-tùi ê hāng-bo̍k.',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'          => 'Só·-ū ê ia̍h',
+'alphaindexline'    => '$1 kàu $2',
 'nextpage'          => 'Āu 1 ia̍h ($1)',
 'allpagesfrom'      => 'Tùi chit ia̍h khai-sí hián-sī:',
 'allarticles'       => 'Só·-ū ê bûn-chiuⁿ',
@@ -598,9 +581,13 @@ Template:Khu-pia̍t-ia̍h',
 'allpagesnext'      => 'ē 1 ê',
 'allpagessubmit'    => 'Lâi-khì',
 
+# Special:Categories
+'categories'         => 'Lūi-pia̍t',
+'categoriespagetext' => 'Chit ê wiki ū ē-kha chia ê lūi-pia̍t.',
+
 # E-mail user
 'mailnologin'     => 'Bô siu-phoe ê chū-chí',
-'mailnologintext' => 'Lí it-tēng ài [[Special:Userlogin|teng-ji̍p]] jī-chhiáⁿ ū 1 ê ū-hāu ê e-mail chū-chí tī lí ê [[Special:Preferences|iōng-chiá siat-tēng]] chiah ē-tàng kià e-mail hō· pa̍t-ūi iōng-chiá.',
+'mailnologintext' => 'Lí it-tēng ài [[Special:UserLogin|teng-ji̍p]] jī-chhiáⁿ ū 1 ê ū-hāu ê e-mail chū-chí tī lí ê [[Special:Preferences|iōng-chiá siat-tēng]] chiah ē-tàng kià e-mail hō· pa̍t-ūi iōng-chiá.',
 'emailuser'       => 'Kià e-mail hō· iōng-chiá',
 'emailpage'       => 'E-mail iōng-chiá',
 'emailpagetext'   => 'Ká-sú chit ê iōng-chiá ū siat-tēng 1 ê ū-hāu ê e-mail chū-chí, lí tō ē-tàng ēng ē-kha chit tiuⁿ FORM hoat sìn-sek hō· i. Lí siat-tēng ê e-mail chū-chí ē chhut-hiān tī e-mail ê "Kià-phoe-jîn" (From) hit ūi. Án-ne siu-phoe-jîn chiah ū hoat-tō· kā lí hôe-phoe.',
@@ -620,9 +607,9 @@ Template:Khu-pia̍t-ia̍h',
 'watchlistfor'         => "('''$1''' ê)",
 'nowatchlist'          => 'Lí ê kàm-sī-toaⁿ bô pòaⁿ hāng.',
 'watchnologin'         => 'Bô teng-ji̍p',
-'watchnologintext'     => 'Lí it-tēng ài [[Special:Userlogin|teng-ji̍p]] chiah ē-tàng siu-kái lí ê kàm-sī-toaⁿ.',
+'watchnologintext'     => 'Lí it-tēng ài [[Special:UserLogin|teng-ji̍p]] chiah ē-tàng siu-kái lí ê kàm-sī-toaⁿ.',
 'addedwatch'           => 'Í-keng ka-ji̍p kàm-sī-toaⁿ',
-'addedwatchtext'       => "\"[[:\$1]]\" chit ia̍h í-keng ka-ji̍p lí ê [[Special:Watchlist|kàm-sī-toaⁿ]]. Bī-lâi chit ia̍h a̍h-sī siong-koan ê thó-lūn-ia̍h nā ū kái-piàn, ē lia̍t tī hia. Tông-sî tī [[Special:Recentchanges|Chòe-kīn ê kái-piàn]] ē iōng '''chho·-thé''' hián-sī ia̍h ê piau-tê, án-ne khah bêng-hián. Ká-sú lí beh chiōng chit ia̍h tùi lí ê kàm-sī-toaⁿ tû tiāu, khì khòng-chè-tiâu chhi̍h \"Mài kàm-sī\" chiū ē-sái-tit.",
+'addedwatchtext'       => "\"[[:\$1]]\" chit ia̍h í-keng ka-ji̍p lí ê [[Special:Watchlist|kàm-sī-toaⁿ]]. Bī-lâi chit ia̍h a̍h-sī siong-koan ê thó-lūn-ia̍h nā ū kái-piàn, ē lia̍t tī hia. Tông-sî tī [[Special:RecentChanges|Chòe-kīn ê kái-piàn]] ē iōng '''chho·-thé''' hián-sī ia̍h ê piau-tê, án-ne khah bêng-hián. Ká-sú lí beh chiōng chit ia̍h tùi lí ê kàm-sī-toaⁿ tû tiāu, khì khòng-chè-tiâu chhi̍h \"Mài kàm-sī\" chiū ē-sái-tit.",
 'removedwatch'         => 'Í-keng tùi kàm-sī-toaⁿ tû tiāu',
 'removedwatchtext'     => '"[[:$1]]" chit ia̍h í-keng tùi lí ê kàm-sī-toaⁿ tû tiāu.',
 'watch'                => 'kàm-sī',
@@ -665,8 +652,8 @@ Template:Khu-pia̍t-ia̍h',
 'alreadyrolled'     => 'Bô-hoat-tō· kā [[User:$2|$2]] ([[User talk:$2|Thó-lūn]]) tùi [[:$1]] ê siu-kái ká-tńg-khì; í-keng ū lâng siu-kái a̍h-sī ká-tńg chit ia̍h. Téng 1 ūi siu-kái-chiá sī [[User:$3|$3]] ([[User talk:$3|Thó-lūn]]).',
 'editcomment'       => 'Siu-kái phêng-lūn sī: "<i>$1</i>".', # only shown if there is an edit comment
 'protectedarticle'  => 'pó-hō͘ "[[$1]]"',
-'protectsub'        => '(Pó-hō· "$1")',
-'confirmprotect'    => 'Khak-tēng beh pó-hō·',
+'protect-title'     => 'Pó-hō· "$1"',
+'protect-legend'    => 'Khak-tēng beh pó-hō·',
 'protectcomment'    => 'Pó-hō· ê lí-iû:',
 'protect-cascade'   => 'Cascading protection - pó-hō͘ jīm-hô pau-hâm tī chit ia̍h ê ia̍h.',
 
@@ -713,36 +700,41 @@ Template:Khu-pia̍t-ia̍h',
 'ipbsubmit'          => 'Hong-só chit ūi iōng-chiá',
 'badipaddress'       => 'Bô-hāu ê IP chū-chí',
 'blockipsuccesssub'  => 'Hong-só sêng-kong',
-'blockipsuccesstext' => '[[Special:Contributions/$1|$1]] í-keng pī hong-só. <br />Khì [[Special:Ipblocklist|IP hong-só lia̍t-toaⁿ]] review hong-só ê IP.',
+'blockipsuccesstext' => '[[Special:Contributions/$1|$1]] í-keng pī hong-só. <br />Khì [[Special:IPBlockList|IP hong-só lia̍t-toaⁿ]] review hong-só ê IP.',
 'ipusubmit'          => 'Chhú-siau hong-só chit ê chū-chí',
 'ipblocklist'        => 'Siū hong-só ê IP chū-chí kap iōng-chiá miâ-chheng',
 'blocklink'          => 'hong-só',
 'contribslink'       => 'kòng-hiàn',
 'autoblocker'        => 'Chū-tōng kìm-chí lí sú-iōng, in-ūi lí kap "$1" kong-ke kāng 1 ê IP chū-chí (kìm-chí lí-iû "$2").',
 'blocklogentry'      => 'hong-só [[$1]], siat kî-hān chì $2 $3',
-'blocklogtext'       => 'Chit-ê log lia̍t-chhut block/unblock ê tōng-chok. Chū-tōng block ê IP chū-chí bô lia̍t--chhut-lâi ([[Special:Ipblocklist]] ū hiān-chú-sî ū-hāu ê block/ban o·-miâ-toaⁿ).',
+'blocklogtext'       => 'Chit-ê log lia̍t-chhut block/unblock ê tōng-chok. Chū-tōng block ê IP chū-chí bô lia̍t--chhut-lâi ([[Special:IPBlockList]] ū hiān-chú-sî ū-hāu ê block/ban o·-miâ-toaⁿ).',
 
 # Developer tools
 'locknoconfirm' => 'Lí bô kau "khak-tēng" ê keh-á.',
 
 # Move page
-'movepage'         => 'Sóa ia̍h',
-'movepagetext'     => 'Ē-kha chit ê form> iōng lâi kái 1 ê ia̍h ê piau-tê (miâ-chheng); só·-ū siong-koan ê le̍k-sú ē tòe leh sóa khì sin piau-tê. Kū piau-tê ē chiâⁿ-chò 1 ia̍h choán khì sin piau-tê ê choán-ia̍h. Liân khì kū piau-tê ê liân-kiat (link) bē khì tāng--tio̍h; ē-kì-tit [[Special:Maintenance|chhiau-chhōe]] siang-thâu (double) ê a̍h-sī kò·-chiòng ê choán-ia̍h. Lí ū chek-jīm khak-tēng liân-kiat kè-sio̍k liân tio̍h ūi. Sin piau-tê nā í-keng tī leh (bô phian-chi̍p koè ê khang ia̍h, choán-ia̍h bô chún-sǹg), tō bô-hoat-tō· soá khì hia. Che piaú-sī nā ū têng-tâⁿ, ē-sái kā sin ia̍h soà tńg-khì goân-lâi ê kū ia̍h. <strong>SÈ-JĪ!</strong> Tùi chē lâng tha̍k ê ia̍h lâi kóng, soá-ūi sī toā tiâu tāi-chì. Liâu--lo̍h-khì chìn-chêng, chhiáⁿ seng khak-tēng lí ū liáu-kái chiah-ê hiō-kó.',
+'move-page-legend' => 'Sóa ia̍h',
+'movepagetext'     => "Ē-kha chit ê form> iōng lâi kái 1 ê ia̍h ê piau-tê (miâ-chheng); só·-ū siong-koan ê le̍k-sú ē tòe leh sóa khì sin piau-tê.
+Kū piau-tê ē chiâⁿ-chò 1 ia̍h choán khì sin piau-tê ê choán-ia̍h.
+Liân khì kū piau-tê ê liân-kiat (link) bē khì tāng--tio̍h; ē-kì-tit chhiau-chhōe siang-thâu (double) ê a̍h-sī kò·-chiòng ê choán-ia̍h.
+Lí ū chek-jīm khak-tēng liân-kiat kè-sio̍k liân tio̍h ūi.
+
+Sin piau-tê nā í-keng tī leh (bô phian-chi̍p koè ê khang ia̍h, choán-ia̍h bô chún-sǹg), tō bô-hoat-tō· soá khì hia.
+Che piaú-sī nā ū têng-tâⁿ, ē-sái kā sin ia̍h soà tńg-khì goân-lâi ê kū ia̍h.
+
+'''SÈ-JĪ!'''
+Tùi chē lâng tha̍k ê ia̍h lâi kóng, soá-ūi sī toā tiâu tāi-chì.
+Liâu--lo̍h-khì chìn-chêng, chhiáⁿ seng khak-tēng lí ū liáu-kái chiah-ê hiō-kó.",
 'movepagetalktext' => "Siong-koan ê thó-lūn-ia̍h (chún ū) oân-nâ ē chū-tōng tòe leh sóa-ūi. Í-hā ê chêng-hêng '''bô chún-sǹg''': *Beh kā chit ia̍h tùi 1 ê miâ-khong-kan (namespace) soá khì lēng-gōa 1 ê miâ-khong-kan, *Sin piau-tê í-keng ū iōng--kòe ê thó-lūn-ia̍h, he̍k-chiá *Ē-kha ê sió-keh-á bô phah-kau. Í-siōng ê chêng-hêng nā-chún tī leh, lí chí-hó iōng jîn-kang ê hong-sek sóa ia̍h a̍h-sī kā ha̍p-pèng (nā ū su-iàu).",
 'movearticle'      => 'Sóa ia̍h:',
-'movenologin'      => 'Bô teng-ji̍p',
-'movenologintext'  => 'Lí it-tēng ài sī chù-chheh ê iōng-chiá jī-chhiáⁿ ū [[Special:Userlogin|teng-ji̍p]] chiah ē-tàng sóa ia̍h.',
 'newtitle'         => 'Khì sin piau-tê:',
 'move-watch'       => 'Kàm-sī chit ia̍h',
 'movepagebtn'      => 'Sóa ia̍h',
 'pagemovedsub'     => 'Sóa-ūi sêng-kong',
-'movepage-moved'   => '<big>\'\'\'"$1" í-keng sóa khì tī "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'    => 'Kāng miâ ê ia̍h í-keng tī leh, a̍h-sī lí kéng ê miâ bô-hāu. Chhiáⁿ kéng pa̍t ê miâ.',
 'talkexists'       => "'''Ia̍h ê loē-bûn ū soá cháu, m̄-koh siong-koan ê thó-lūn-ia̍h bô toè leh soá, in-ūi sin piau-tê pun-té tō ū hit ia̍h. Chhiáⁿ iōng jîn-kang ê hoat-tō· kā ha̍p-pèng.'''",
 'movedto'          => 'sóa khì tī',
 'movetalk'         => 'Sūn-sòa sóa thó-lūn-ia̍h',
-'talkpagemoved'    => 'Siong-koan ê thó-lūn-ia̍h oân-nâ ū sóa.',
-'talkpagenotmoved' => '<strong>Bô</strong> sóa siong-koan ê thó-lūn-ia̍h.',
 '1movedto2'        => '[[$1]] sóa khì tī [[$2]]',
 '1movedto2_redir'  => '[[$1]] sóa khì [[$2]] (choán-ia̍h thiàu kòe)',
 'movelogpagetext'  => 'Ē-kha lia̍t-chhut hông soá-ūi ê ia̍h.',
@@ -775,11 +767,6 @@ Template:Khu-pia̍t-ia̍h',
 'othercontribs' => 'Kin-kù $1 ê kòng-hiàn.',
 'siteusers'     => '{{SITENAME}} iōng-chiá $1',
 
-# Spam protection
-'subcategorycount'       => 'Chit ê lūi-pia̍t ū $1 ê ē-lūi-pia̍t.',
-'categoryarticlecount'   => 'Chit ê lūi-pia̍t ū $1 phiⁿ bûn-chiuⁿ.',
-'listingcontinuesabbrev' => '(chiap-sòa thâu-chêng)',
-
 # Math options
 'mw_math_png'    => 'Tiāⁿ-tio̍h iōng PNG render',
 'mw_math_simple' => 'Tân-sûn ê chêng-hêng iōng HTML; kî-thaⁿ iōng PNG',
@@ -805,8 +792,11 @@ Template:Khu-pia̍t-ia̍h',
 'file-nohires'         => '<small>Bô khah koân ê kái-sek-tō͘.</small>',
 'show-big-image-thumb' => '<small>Chit tiuⁿ ū-lám tô͘ (preview) ê toā-sè: $1 × $2 pixel</small>',
 
-# Special:Newimages
-'newimages' => 'Sin iáⁿ-siōng oē-lóng',
+# Special:NewImages
+'newimages'     => 'Sin iáⁿ-siōng oē-lóng',
+'imagelisttext' => "Í-hā sī '''$1''' tiuⁿ iáⁿ-siōng ê lia̍t-toaⁿ, $2 pâi-lia̍t.",
+'ilsubmit'      => 'Kiám-sek',
+'bydate'        => 'chiàu ji̍t-kî',
 
 # Metadata
 'metadata-expand'   => 'Hián-sī iù-chiat',
@@ -814,7 +804,7 @@ Template:Khu-pia̍t-ia̍h',
 
 # External editor support
 'edit-externally'      => 'Iōng gōa-pō· èng-iōng nńg-thé pian-chi̍p chit-ê tóng-àn',
-'edit-externally-help' => 'Chham-khó [http://meta.wikimedia.org/wiki/Help:External_editors Help:External_editors] ê soat-bêng.',
+'edit-externally-help' => 'Chham-khó [http://www.mediawiki.org/wiki/Manual:External_editors Help:External_editors] ê soat-bêng.',
 
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'choân-pō·',
@@ -861,7 +851,13 @@ Nā-chún *m̄-sī* lí, chhiáⁿ mài tòe liân-kiat khì.  Chit tiuⁿ phoe 
 'watchlistedit-normal-submit' => 'Mài kàm-sī',
 'watchlistedit-normal-done'   => 'Í-keng ū $1 ia̍h ùi lí ê kám-sī-toaⁿ soá cháu:',
 
-# Special:Filepath
+# Special:Version
+'version' => 'Pán-pún', # Not used as normal message but as header for the special page itself
+
+# Special:FilePath
 'filepath' => 'Tóng-àn ê soàⁿ-lō·',
+
+# Special:SpecialPages
+'specialpages' => 'Te̍k-sû-ia̍h',
 
 );

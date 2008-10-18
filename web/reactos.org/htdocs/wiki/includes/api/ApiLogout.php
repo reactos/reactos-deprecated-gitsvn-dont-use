@@ -29,10 +29,10 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
- * API module to allow users to log out of the wiki. API equivalent of 
+ * API module to allow users to log out of the wiki. API equivalent of
  * Special:Userlogout.
  *
- * @addtogroup API
+ * @ingroup API
  */
 class ApiLogout extends ApiBase {
 
@@ -43,6 +43,10 @@ class ApiLogout extends ApiBase {
 	public function execute() {
 		global $wgUser;
 		$wgUser->logout();
+		
+		// Give extensions to do something after user logout
+		$injected_html = '';
+		wfRunHooks( 'UserLogoutComplete', array(&$wgUser, &$injected_html) );
 	}
 
 	public function getAllowedParams() {
@@ -66,6 +70,6 @@ class ApiLogout extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id$';
+		return __CLASS__ . ': $Id: ApiLogout.php 35294 2008-05-24 20:44:49Z btongminh $';
 	}
 }

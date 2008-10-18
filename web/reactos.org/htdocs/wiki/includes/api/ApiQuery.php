@@ -33,11 +33,11 @@ if (!defined('MEDIAWIKI')) {
  * it will create a list of titles to work on (an instance of the ApiPageSet object)
  * instantiate and execute various property/list/meta modules,
  * and assemble all resulting data into a single ApiResult object.
- * 
+ *
  * In the generator mode, a generator will be first executed to populate a second ApiPageSet object,
  * and that object will be used for all subsequent modules.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQuery extends ApiBase {
 
@@ -55,9 +55,11 @@ class ApiQuery extends ApiBase {
 		'templates' => 'ApiQueryLinks',
 		'categories' => 'ApiQueryCategories',
 		'extlinks' => 'ApiQueryExternalLinks',
+		'categoryinfo' => 'ApiQueryCategoryInfo',
 	);
 
 	private $mQueryListModules = array (
+		'allimages' => 'ApiQueryAllimages',
 		'allpages' => 'ApiQueryAllpages',
 		'alllinks' => 'ApiQueryAllLinks',
 		'allcategories' => 'ApiQueryAllCategories',
@@ -90,7 +92,7 @@ class ApiQuery extends ApiBase {
 	public function __construct($main, $action) {
 		parent :: __construct($main, $action);
 
-		// Allow custom modules to be added in LocalSettings.php		
+		// Allow custom modules to be added in LocalSettings.php
 		global $wgApiQueryPropModules, $wgApiQueryListModules, $wgApiQueryMetaModules;
 		self :: appendUserModules($this->mQueryPropModules, $wgApiQueryPropModules);
 		self :: appendUserModules($this->mQueryListModules, $wgApiQueryListModules);
@@ -122,7 +124,7 @@ class ApiQuery extends ApiBase {
 	public function getDB() {
 		if (!isset ($this->mSlaveDB)) {
 			$this->profileDBIn();
-			$this->mSlaveDB = wfGetDB(DB_SLAVE);
+			$this->mSlaveDB = wfGetDB(DB_SLAVE,'api');
 			$this->profileDBOut();
 		}
 		return $this->mSlaveDB;
@@ -130,9 +132,9 @@ class ApiQuery extends ApiBase {
 
 	/**
 	 * Get the query database connection with the given name.
-	 * If no such connection has been requested before, it will be created. 
-	 * Subsequent calls with the same $name will return the same connection 
-	 * as the first, regardless of $db or $groups new values. 
+	 * If no such connection has been requested before, it will be created.
+	 * Subsequent calls with the same $name will return the same connection
+	 * as the first, regardless of $db or $groups new values.
 	 */
 	public function getNamedDB($name, $db, $groups) {
 		if (!array_key_exists($name, $this->mNamedDB)) {
@@ -149,7 +151,7 @@ class ApiQuery extends ApiBase {
 	public function getPageSet() {
 		return $this->mPageSet;
 	}
-	
+
 	/**
 	 * Get the array mapping module names to class names
 	 */
@@ -161,17 +163,17 @@ class ApiQuery extends ApiBase {
 	 * Query execution happens in the following steps:
 	 * #1 Create a PageSet object with any pages requested by the user
 	 * #2 If using generator, execute it to get a new PageSet object
-	 * #3 Instantiate all requested modules. 
+	 * #3 Instantiate all requested modules.
 	 *    This way the PageSet object will know what shared data is required,
-	 *    and minimize DB calls. 
+	 *    and minimize DB calls.
 	 * #4 Output all normalization and redirect resolution information
 	 * #5 Execute all requested modules
 	 */
 	public function execute() {
-		
+
 		$this->params = $this->extractRequestParams();
 		$this->redirects = $this->params['redirects'];
-		
+
 		//
 		// Create PageSet
 		//
@@ -186,7 +188,7 @@ class ApiQuery extends ApiBase {
 		$this->InstantiateModules($modules, 'meta', $this->mQueryMetaModules);
 
 		//
-		// If given, execute generator to substitute user supplied data with generated data.  
+		// If given, execute generator to substitute user supplied data with generated data.
 		//
 		if (isset ($this->params['generator'])) {
 			$this->executeGeneratorModule($this->params['generator'], $modules);
@@ -210,21 +212,21 @@ class ApiQuery extends ApiBase {
 			$module->profileOut();
 		}
 	}
-	
+
 	/**
 	 * Query modules may optimize data requests through the $this->getPageSet() object
 	 * by adding extra fields from the page table.
-	 * This function will gather all the extra request fields from the modules. 
+	 * This function will gather all the extra request fields from the modules.
 	 */
 	private function addCustomFldsToPageSet($modules, $pageSet) {
-		// Query all requested modules. 
+		// Query all requested modules.
 		foreach ($modules as $module) {
 			$module->requestExtraData($pageSet);
 		}
 	}
 
 	/**
-	 * Create instances of all modules requested by the client 
+	 * Create instances of all modules requested by the client
 	 */
 	private function InstantiateModules(&$modules, $param, $moduleList) {
 		$list = $this->params[$param];
@@ -235,7 +237,7 @@ class ApiQuery extends ApiBase {
 
 	/**
 	 * Appends an element for each page in the current pageSet with the most general
-	 * information (id, title), plus any title normalizations and missing title/pageids/revids.
+	 * information (id, title), plus any title normalizations and missing or invalid title/pageids/revids.
 	 */
 	private function outputGeneralPageInfo() {
 
@@ -255,7 +257,7 @@ class ApiQuery extends ApiBase {
 			$result->setIndexedTagName($normValues, 'n');
 			$result->addValue('query', 'normalized', $normValues);
 		}
-		
+
 		// Interwiki titles
 		$intrwValues = array ();
 		foreach ($pageSet->getInterwikiTitles() as $rawTitleStr => $interwikiStr) {
@@ -269,12 +271,12 @@ class ApiQuery extends ApiBase {
 			$result->setIndexedTagName($intrwValues, 'i');
 			$result->addValue('query', 'interwiki', $intrwValues);
 		}
-		
+
 		// Show redirect information
 		$redirValues = array ();
 		foreach ($pageSet->getRedirectTitles() as $titleStrFrom => $titleStrTo) {
 			$redirValues[] = array (
-				'from' => $titleStrFrom,
+				'from' => strval($titleStrFrom),
 				'to' => $titleStrTo
 			);
 		}
@@ -311,7 +313,9 @@ class ApiQuery extends ApiBase {
 			$vals['missing'] = '';
 			$pages[$fakeId] = $vals;
 		}
-
+		// Report any invalid titles
+		foreach ($pageSet->getInvalidTitles() as $fakeId => $title)
+			$pages[$fakeId] = array('title' => $title, 'invalid' => '');
 		// Report any missing page ids
 		foreach ($pageSet->getMissingPageIDs() as $pageid) {
 			$pages[$pageid] = array (
@@ -329,7 +333,7 @@ class ApiQuery extends ApiBase {
 		}
 
 		if (!empty ($pages)) {
-			
+
 			if ($this->params['indexpageids']) {
 				$pageIDs = array_keys($pages);
 				// json treats all map keys as strings - converting to match
@@ -337,14 +341,14 @@ class ApiQuery extends ApiBase {
 				$result->setIndexedTagName($pageIDs, 'id');
 				$result->addValue('query', 'pageids', $pageIDs);
 			}
-						
+
 			$result->setIndexedTagName($pages, 'page');
 			$result->addValue('query', 'pages', $pages);
 		}
 	}
 
 	/**
-	 * For generator mode, execute generator, and use its output as new pageSet 
+	 * For generator mode, execute generator, and use its output as new pageSet
 	 */
 	protected function executeGeneratorModule($generatorName, $modules) {
 
@@ -357,7 +361,7 @@ class ApiQuery extends ApiBase {
 			ApiBase :: dieDebug(__METHOD__, "Unknown generator=$generatorName");
 		}
 
-		// Generator results 
+		// Generator results
 		$resultPageSet = new ApiPageSet($this, $this->redirects);
 
 		// Create and execute the generator
@@ -386,7 +390,7 @@ class ApiQuery extends ApiBase {
 
 	/**
 	 * Returns the list of allowed parameters for this module.
-	 * Qurey module also lists all ApiPageSet parameters as its own. 
+	 * Qurey module also lists all ApiPageSet parameters as its own.
 	 */
 	public function getAllowedParams() {
 		return array (
@@ -423,12 +427,14 @@ class ApiQuery extends ApiBase {
 		$this->mAllowedGenerators = array();	// Will be repopulated
 
 		$astriks = str_repeat('--- ', 8);
+		$astriks2 = str_repeat('*** ', 10);
 		$msg .= "\n$astriks Query: Prop  $astriks\n\n";
 		$msg .= $this->makeHelpMsgHelper($this->mQueryPropModules, 'prop');
 		$msg .= "\n$astriks Query: List  $astriks\n\n";
 		$msg .= $this->makeHelpMsgHelper($this->mQueryListModules, 'list');
 		$msg .= "\n$astriks Query: Meta  $astriks\n\n";
 		$msg .= $this->makeHelpMsgHelper($this->mQueryMetaModules, 'meta');
+		$msg .= "\n\n$astriks2 Modules: continuation  $astriks2\n\n";
 
 		// Perform the base call last because the $this->mAllowedGenerators
 		// will be updated inside makeHelpMsgHelper()
@@ -469,7 +475,7 @@ class ApiQuery extends ApiBase {
 		$psModule = new ApiPageSet($this);
 		return $psModule->makeHelpMsgParameters() . parent :: makeHelpMsgParameters();
 	}
-	
+
 	// @todo should work correctly
 	public function shouldCheckMaxlag() {
 		return true;
@@ -503,9 +509,8 @@ class ApiQuery extends ApiBase {
 	public function getVersion() {
 		$psModule = new ApiPageSet($this);
 		$vers = array ();
-		$vers[] = __CLASS__ . ': $Id: ApiQuery.php 30222 2008-01-28 19:05:26Z catrope $';
+		$vers[] = __CLASS__ . ': $Id: ApiQuery.php 35098 2008-05-20 17:13:28Z ialex $';
 		$vers[] = $psModule->getVersion();
 		return $vers;
 	}
 }
-

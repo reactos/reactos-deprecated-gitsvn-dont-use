@@ -1,9 +1,9 @@
 <?php
 /** Corsican (Corsu)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SPQRobin
  */
 
 $messages = array(
@@ -62,8 +62,7 @@ $messages = array(
 'nov'           => 'nuv',
 'dec'           => 'dic',
 
-# Bits of text used by many pages
-'categories'      => 'Categurie',
+# Categories related messages
 'pagecategories'  => '{{PLURAL:$1|Categuria|Categurie}}',
 'category_header' => 'Articuli in a categuria "$1"',
 'subcategories'   => 'Sottucategurie',
@@ -93,6 +92,7 @@ $messages = array(
 'permalink'        => 'Ligame permanente',
 'print'            => 'Stampà',
 'edit'             => 'Mudificà',
+'create'           => 'Creà',
 'delete'           => 'Supprimà',
 'deletethispage'   => 'Cancellà issa pagina',
 'protect'          => 'Pruteghje',
@@ -111,22 +111,24 @@ $messages = array(
 'jumptosearch'     => 'ricerca',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => 'À prupositu di {{SITENAME}}',
-'aboutpage'         => 'Project:À prupositu',
-'currentevents'     => 'Ultimi evenimenti',
-'currentevents-url' => 'Project:Ultimi evenimenti',
-'disclaimers'       => 'Avertimenti',
-'disclaimerpage'    => 'Project:Avertimenti generali',
-'mainpage'          => 'Pagina maestra',
-'portal'            => 'Purtone di a cumunità',
-'portal-url'        => 'Project:Purtone di a cumunità',
-'privacy'           => 'Pulitica pè a riservatezza',
-'privacypage'       => 'Project:Pulitica pè a riservatezza',
-'sitesupport'       => 'Dunazione',
+'aboutsite'            => 'À prupositu di {{SITENAME}}',
+'aboutpage'            => 'Project:À prupositu',
+'currentevents'        => 'Ultimi evenimenti',
+'currentevents-url'    => 'Project:Ultimi evenimenti',
+'disclaimers'          => 'Avertimenti',
+'disclaimerpage'       => 'Project:Avertimenti generali',
+'mainpage'             => 'Pagina maestra',
+'mainpage-description' => 'Pagina maestra',
+'portal'               => 'Purtone di a cumunità',
+'portal-url'           => 'Project:Purtone di a cumunità',
+'privacy'              => 'Pulitica pè a riservatezza',
+'privacypage'          => 'Project:Pulitica pè a riservatezza',
 
 'versionrequired' => 'A version $1 di MediaWiki hè necessaria',
 
 'newmessagesdifflink' => 'ultima mudifica',
+'editsection'         => 'mudificà',
+'editold'             => 'mudificà',
 'toc'                 => 'Cuntenutu',
 'showtoc'             => 'mustrà',
 'hidetoc'             => 'piattà',
@@ -163,6 +165,7 @@ $messages = array(
 'yourlanguage'               => "Lingua di l'interfaccia:",
 'yourvariant'                => 'Variante',
 'yournick'                   => 'Signatura pè e discussioni:',
+'loginsuccesstitle'          => 'Cunnessione fatta',
 'acct_creation_throttle_hit' => "Desulatu, ai digià fattu $1 registramenti. Ùn ne poi micca fà d'altri.",
 'accountcreated'             => 'Registramentu fattu',
 'accountcreatedtext'         => "U registramentu di l'utilizatore $1 hè statu fattu.",
@@ -172,14 +175,15 @@ $messages = array(
 'image_sample' => 'Esempiu.jpg',
 
 # Edit pages
+'minoredit'              => 'Mudifica minore',
 'savearticle'            => 'Arrighjistrà a pagina',
 'showdiff'               => 'Mustrà i cambiamenti',
-'anoneditwarning'        => "'''Attenzione''': ùn sè micca un utilizatore registratu, oppuru ùn ai fattu a [[Special:Userlogin|cunnessione]]. U to indirizzu IP serà registratu indu a cronolugia di ista pagina.",
+'anoneditwarning'        => "'''Attenzione''': ùn sè micca un utilizatore registratu, oppuru ùn ai fattu a cunnessione.
+U to indirizzu IP serà registratu indu a cronolugia di ista pagina.",
 'loginreqlink'           => 'cunnessione',
 'accmailtitle'           => 'Parulla secreta inviata.',
 'accmailtext'            => 'A parulla secreta per "$1" hè stata inviata à l\'indirizzu $2.',
 'editing'                => 'Mudifica di $1',
-'editinguser'            => 'Mudifica di $1',
 'editingsection'         => 'Mudifica di $1 (sezzione)',
 'editingcomment'         => 'Mudifica di $1 (cummentu)',
 'editconflict'           => 'Cunflittu di mudificazione: $1',
@@ -197,6 +201,9 @@ $messages = array(
 'currentrev'  => 'Ultima revisione',
 'page_first'  => 'prima',
 'deletedrev'  => '[supprimatu]',
+'histfirst'   => 'Prima',
+'histlast'    => 'Ultima',
+'historysize' => '({{PLURAL:$1|1 ottettu|$1 ottetti}})',
 
 # Revision feed
 'history-feed-title' => 'Cronolugia di e revisione',
@@ -223,6 +230,7 @@ $messages = array(
 'files'             => 'Schedarii',
 
 # User rights
+'editinguser'             => "Mudifica di '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])",
 'userrights-groupsmember' => 'Membru di:',
 
 # Groups
@@ -261,20 +269,21 @@ $messages = array(
 'upload'     => 'Incaricà un schedariu',
 'uploadbtn'  => 'Incaricà un schedariu',
 'filename'   => 'Nome di u schedariu',
-'filestatus' => "Statu di u dirittu d'autore",
+'filestatus' => "Statu di u dirittu d'autore:",
 
 'upload-file-error' => 'Errore internu',
 
-# Image list
-'ilsubmit'         => 'Ricerca',
-'byname'           => 'per nome',
-'bydate'           => 'per data',
-'bysize'           => 'per taglia',
-'imgfile'          => 'schedariu',
+# Special:ImageList
+'imgfile'        => 'schedariu',
+'imagelist_date' => 'Data',
+'imagelist_name' => 'Nome',
+'imagelist_user' => 'Utilizatore',
+
+# Image description page
+'filehist'         => "Cronolugia di l'imagine",
+'filehist-user'    => 'Utilizatore',
 'imagelinks'       => 'Ligami',
 'noimage-linktext' => 'incaricà lu',
-'imagelist_date'   => 'Data',
-'imagelist_name'   => 'Nome',
 
 # Unused templates
 'unusedtemplateswlh' => 'altri ligami',
@@ -293,25 +302,21 @@ $messages = array(
 'ncategories'       => '$1 {{PLURAL:$1|categuria|categurie}}',
 'specialpage-empty' => 'Issa pagina hè biota.',
 'popularpages'      => 'Pagine populare',
-'allpages'          => 'Tutte e pagine',
 'shortpages'        => 'Pagine corte',
 'longpages'         => 'Pagine longhe',
 'protectedpages'    => 'Pagine prutette',
 'listusers'         => 'Listinu di i cuntributori',
-'specialpages'      => 'Pagine spiciale',
-'spheading'         => 'Pagine spiciale per tutti i cuntributori',
 'newpages'          => 'Pagine nove',
 'ancientpages'      => 'Pagine vechje',
 
-'groups'         => 'Gruppi di utilizatori',
-'alphaindexline' => 'da $1 à $2',
-'version'        => 'Versione',
-
 # Special:Log
+'specialloguserlabel'  => 'Utilizatore:',
 'speciallogtitlelabel' => 'Titulu:',
 'all-logs-page'        => "Tutte l'azzioni",
 
-# Special:Allpages
+# Special:AllPages
+'allpages'          => 'Tutte e pagine',
+'alphaindexline'    => 'da $1 à $2',
 'allpagesfrom'      => 'Mustrà e pagine à parte da:',
 'allarticles'       => "Tutti l'articuli",
 'allinnamespace'    => 'Tutte e pagine di u spaziu $1',
@@ -322,7 +327,10 @@ $messages = array(
 'allpagesprefix'    => 'Mustrà e pagine chì cumincianu cù:',
 'allpages-bad-ns'   => 'U spaziu "$1" ùn esiste micca nant\'à {{SITENAME}}',
 
-# Special:Listusers
+# Special:Categories
+'categories' => 'Categurie',
+
+# Special:ListUsers
 'listusers-submit' => 'Mustrà',
 
 # E-mail user
@@ -355,8 +363,11 @@ $messages = array(
 'exblank'                     => 'a pagina era biota',
 'actioncomplete'              => 'Azzione compia',
 'protectedarticle'            => 'prutettu "[[$1]]"',
-'confirmprotect'              => 'Cunfirmà a prutezzione',
+'protect-legend'              => 'Cunfirmà a prutezzione',
 'protect-level-autoconfirmed' => 'Bluccà i cuntributori micca arrighjistrati',
+
+# Restrictions (nouns)
+'restriction-create' => 'Creà',
 
 # Restriction levels
 'restriction-level-autoconfirmed' => 'mezu prutettu',
@@ -368,35 +379,40 @@ $messages = array(
 'undelete-search-submit' => 'Ricerca',
 
 # Namespace form on various pages
-'namespace' => 'Spaziu:',
+'namespace'      => 'Spaziu:',
+'blanknamespace' => '(Principale)',
 
 # Contributions
 'contributions' => "Cuntribuzioni di l'utilizatore",
 'mycontris'     => 'E mo cuntribuzioni',
 'contribsub2'   => 'Per $1 ($2)',
+'month'         => 'Da u mese (è nanzu):',
 
 # What links here
 'istemplate' => 'inclusione',
 
 # Block/unblock
-'ipaddress'          => 'Adrizzu IP',
-'ipadressorusername' => 'Adrizzu IP o nome di cuntributore',
-'ipblocklist-submit' => 'Ricerca',
-'blocklistline'      => '$1, $2 bluccati $3 ($4)',
-'anononlyblock'      => 'solu i cuntributori anonimi',
-'blocklink'          => 'bluccà',
-'unblocklink'        => 'sbluccà',
-'contribslink'       => 'cuntribuzioni',
-'proxyblocksuccess'  => 'Hè fattu.',
+'ipaddress'                => 'Adrizzu IP',
+'ipadressorusername'       => 'Adrizzu IP o nome di cuntributore',
+'ipblocklist-submit'       => 'Ricerca',
+'blocklistline'            => '$1, $2 bluccati $3 ($4)',
+'anononlyblock'            => 'solu i cuntributori anonimi',
+'blocklink'                => 'bluccà',
+'unblocklink'              => 'sbluccà',
+'contribslink'             => 'cuntribuzioni',
+'block-log-flags-anononly' => 'solu cuntributori anonimi',
+'block-log-flags-nocreate' => 'registramentu pruibitu',
+'proxyblocksuccess'        => 'Hè fattu.',
 
 # Move page
-'movepage'                => 'Move a pagina',
+'move-page-legend'        => 'Move a pagina',
 'movearticle'             => 'Move a pagina',
 'move-watch'              => 'Fighjulà issa pagina',
 'movepagebtn'             => 'Move a pagina',
 'movedto'                 => 'mossu à',
 '1movedto2'               => 'hà mossu [[$1]] à [[$2]]',
 '1movedto2_redir'         => 'hà reindirizzatu [[$1]] à [[$2]]',
+'movelogpagetext'         => 'Elencu di e pagine mosse.',
 'movereason'              => 'Mutivu',
 'delete_and_move_confirm' => 'Iè, supprimà issa pagina',
 
@@ -443,15 +459,14 @@ $messages = array(
 'anonymous' => 'Utilizatore(/i) anonimu(/i) di {{SITENAME}}',
 'others'    => 'altri',
 
-# Spam protection
-'categoryarticlecount' => 'Ista categuria cuntene {{PLURAL:$1|un articulu|$1 articuli}}.',
-
 # Media information
 'show-big-image' => 'Imagine in alta resoluzione',
 
-# Special:Newimages
+# Special:NewImages
 'showhidebots' => '($1 boti)',
 'noimages'     => 'Nulla da vede.',
+'ilsubmit'     => 'Ricerca',
+'bydate'       => 'per data',
 
 # EXIF tags
 'exif-orientation'      => 'Orientazione',
@@ -474,6 +489,7 @@ $messages = array(
 # 'all' in various places, this might be different for inflected languages
 'imagelistall'  => 'tutte',
 'watchlistall2' => 'tutti',
+'monthsall'     => 'tutti',
 
 # action=purge
 'confirm_purge_button' => "D'accordu",
@@ -495,7 +511,13 @@ $messages = array(
 # Watchlist editor
 'watchlistedit-raw-titles' => 'Pagine:',
 
-# Special:Filepath
+# Special:Version
+'version' => 'Versione', # Not used as normal message but as header for the special page itself
+
+# Special:FilePath
 'filepath-page' => 'Schedariu:',
+
+# Special:SpecialPages
+'specialpages' => 'Pagine spiciale',
 
 );

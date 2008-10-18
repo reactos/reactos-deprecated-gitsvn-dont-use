@@ -10,12 +10,6 @@
 	margin-top: 3em;
 	height: 1%;
 }
-#column-one {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 4;
-}
 #footer {
 	border-left: 1px solid #fabd23;
 }
@@ -23,9 +17,6 @@
 /* the tabs */
 
 #p-cactions {
-	position: absolute;
-	left: 157px;
-	top: 178px;
 	z-index: 3;
 }
 

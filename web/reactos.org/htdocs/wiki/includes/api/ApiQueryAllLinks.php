@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query module to enumerate links from all pages together.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryAllLinks extends ApiQueryGeneratorBase {
 
@@ -67,26 +67,37 @@ class ApiQueryAllLinks extends ApiQueryGeneratorBase {
 		$this->addTables('pagelinks');
 		$this->addWhereFld('pl_namespace', $params['namespace']);
 		
-		if (!is_null($params['from']))
-			$this->addWhere('pl_title>=' . $db->addQuotes(ApiQueryBase :: titleToKey($params['from'])));
-		if (isset ($params['prefix']))
-			$this->addWhere("pl_title LIKE '" . $db->escapeLike(ApiQueryBase :: titleToKey($params['prefix'])) . "%'");
+		if (!is_null($params['from']) && !is_null($params['continue']))
+			$this->dieUsage('alcontinue and alfrom cannot be used together', 'params');
+		if (!is_null($params['continue']))
+		{
+			$arr = explode('|', $params['continue']);
+			if(count($arr) != 2)
+				$this->dieUsage("Invalid continue parameter", 'badcontinue');
+			$params['from'] = $arr[0]; // Handled later
+			$id = intval($arr[1]);
+			$this->addWhere("pl_from >= $id");
+		}		
 
-		if (is_null($resultPageSet)) {
-			$this->addFields(array (
-				'pl_namespace',
-				'pl_title'
-			));
-			$this->addFieldsIf('pl_from', $fld_ids);
-		} else {
-			$this->addFields('pl_from');
-			$pageids = array();
-		}
+		if (!is_null($params['from']))
+			$this->addWhere('pl_title>=' . $db->addQuotes($this->titleToKey($params['from'])));
+		if (isset ($params['prefix']))
+			$this->addWhere("pl_title LIKE '" . $db->escapeLike($this->titleToKey($params['prefix'])) . "%'");
+
+		$this->addFields(array (
+			'pl_namespace',
+			'pl_title',
+			'pl_from'
+		));
 
 		$this->addOption('USE INDEX', 'pl_namespace');
 		$limit = $params['limit'];
 		$this->addOption('LIMIT', $limit+1);
-		$this->addOption('ORDER BY', 'pl_namespace, pl_title');
+		# Only order by pl_namespace if it isn't constant in the WHERE clause
+		if(count($params['namespace']) != 1)
+			$this->addOption('ORDER BY', 'pl_namespace, pl_title');
+		else
+			$this->addOption('ORDER BY', 'pl_title');
 
 		$res = $this->select(__METHOD__);
 
@@ -96,7 +107,7 @@ class ApiQueryAllLinks extends ApiQueryGeneratorBase {
 			if (++ $count > $limit) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
 				// TODO: Security issue - if the user has no right to view next title, it will still be shown
-				$this->setContinueEnumParameter('from', ApiQueryBase :: keyToTitle($row->pl_title));
+				$this->setContinueEnumParameter('continue', $this->keyToTitle($row->pl_title) . "|" . $row->pl_from);
 				break;
 			}
 
@@ -127,6 +138,7 @@ class ApiQueryAllLinks extends ApiQueryGeneratorBase {
 
 	public function getAllowedParams() {
 		return array (
+			'continue' => null,
 			'from' => null,
 			'prefix' => null,
 			'unique' => false,
@@ -159,7 +171,8 @@ class ApiQueryAllLinks extends ApiQueryGeneratorBase {
 			'unique' => 'Only show unique links. Cannot be used with generator or prop=ids',
 			'prop' => 'What pieces of information to include',
 			'namespace' => 'The namespace to enumerate.',
-			'limit' => 'How many total links to return.'
+			'limit' => 'How many total links to return.',
+			'continue' => 'When more results are available, use this to continue.',
 		);
 	}
 
@@ -174,6 +187,6 @@ class ApiQueryAllLinks extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllLinks.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryAllLinks.php 37258 2008-07-07 14:48:40Z catrope $';
 	}
 }

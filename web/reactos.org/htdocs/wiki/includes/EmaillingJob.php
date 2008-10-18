@@ -3,6 +3,8 @@
 /**
  * Old job used for sending single notification emails;
  * kept for backwards-compatibility
+ *
+ * @ingroup JobQueue
  */
 class EmaillingJob extends Job {
 
@@ -20,6 +22,5 @@ class EmaillingJob extends Job {
 		);
 		return true;
 	}
-	
-}
 
+}

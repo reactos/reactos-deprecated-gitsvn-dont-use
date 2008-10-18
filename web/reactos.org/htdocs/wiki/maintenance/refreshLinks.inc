@@ -1,16 +1,14 @@
 <?php
 /**
  * @todo document
- * @addtogroup Maintenance
+ * @file
+ * @ingroup Maintenance
  */
 
-/** */
-define( "REPORTING_INTERVAL", 100 );
-#define( "REPORTING_INTERVAL", 1 );
+function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0, $redirectsOnly = false, $oldRedirectsOnly = false ) {
+	global $wgUser, $wgParser, $wgUseTidy;
 
-function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0, $redirectsOnly = false ) {
-	global $wgUser, $wgParser, $wgUseImageResize, $wgUseTidy;
-
+	$reportingInterval = 100;
 	$fname = 'refreshLinks';
 	$dbr = wfGetDB( DB_SLAVE );
 	$start = intval( $start );
@@ -21,19 +19,39 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0, $red
 	# Don't generate extension images (e.g. Timeline)
 	$wgParser->clearTagHooks();
 
-	# Don't generate thumbnail images
-	$wgUseImageResize = false;
+	# Don't use HTML tidy
 	$wgUseTidy = false;
 
-	$what = ($redirectsOnly)? "redirects" : "links";
+	$what = $redirectsOnly ? "redirects" : "links";
 
-	if ( $newOnly ) {
+	if( $oldRedirectsOnly ) {
+		# This entire code path is cut-and-pasted from below.  Hurrah.
+		$res = $dbr->query(
+			"SELECT page_id ".
+			"FROM page ".
+			"LEFT JOIN redirect ON page_id=rd_from ".
+			"WHERE page_is_redirect=1 AND rd_from IS NULL AND ".
+			($end == 0 ? "page_id >= $start"
+			           : "page_id BETWEEN $start AND $end"),
+			$fname
+		);
+		$num = $dbr->numRows( $res );
+		print "Refreshing $num old redirects from $start...\n";
+
+		while( $row = $dbr->fetchObject( $res ) ) {
+			if ( !( ++$i % $reportingInterval ) ) {
+				print "$i\n";
+				wfWaitForSlaves( $maxLag );
+			}
+			fixRedirect( $row->page_id );
+		}
+	} elseif( $newOnly ) {
 		print "Refreshing $what from ";
 		$res = $dbr->select( 'page',
 			array( 'page_id' ),
 			array(
 				'page_is_new' => 1,
-				"page_id > $start" ),
+				"page_id >= $start" ),
 			$fname
 		);
 		$num = $dbr->numRows( $res );
@@ -41,7 +59,7 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0, $red
 
 		$i = 0;
 		while ( $row = $dbr->fetchObject( $res ) ) {
-			if ( !( ++$i % REPORTING_INTERVAL ) ) {
+			if ( !( ++$i % $reportingInterval ) ) {
 				print "$i\n";
 				wfWaitForSlaves( $maxLag );
 			}
@@ -59,7 +77,7 @@ function refreshLinks( $start, $newOnly = false, $maxLag = false, $end = 0, $red
 
 		for ($id = $start; $id <= $end; $id++) {
 
-			if ( !($id % REPORTING_INTERVAL) ) {
+			if ( !($id % $reportingInterval) ) {
 				print "$id\n";
 				wfWaitForSlaves( $maxLag );
 			}
@@ -121,7 +139,7 @@ function deleteLinksFromNonexistent( $maxLag = 0 ) {
 
 	wfWaitForSlaves( $maxLag );
 
-	$dbw = wfGetDB( DB_WRITE );
+	$dbw = wfGetDB( DB_MASTER );
 
 	$linksTables = array(
 		'pagelinks' => 'pl_from',

@@ -12,7 +12,7 @@ class UserRightsProxy {
 		$this->name = $name;
 		$this->id = intval( $id );
 	}
-	
+
 	/**
 	 * Confirm the selected database name is a valid local interwiki database name.
 	 * @return bool
@@ -21,7 +21,7 @@ class UserRightsProxy {
 		global $wgLocalDatabases;
 		return in_array( $database, $wgLocalDatabases );
 	}
-	
+
 	public static function whoIs( $database, $id ) {
 		$user = self::newFromId( $database, $id );
 		if( $user ) {
@@ -30,7 +30,7 @@ class UserRightsProxy {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Factory function; get a remote user entry by ID number.
 	 * @return UserRightsProxy or null if doesn't exist
@@ -42,7 +42,7 @@ class UserRightsProxy {
 	public static function newFromName( $database, $name ) {
 		return self::newFromLookup( $database, 'user_name', $name );
 	}
-	
+
 	private static function newFromLookup( $database, $field, $value ) {
 		$db = self::getDB( $database );
 		if( $db ) {
@@ -62,51 +62,38 @@ class UserRightsProxy {
 	/**
 	 * Open a database connection to work on for the requested user.
 	 * This may be a new connection to another database for remote users.
-	 * @param string $database
+	 * @param $database string
 	 * @return Database or null if invalid selection
 	 */
-	private static function getDB( $database ) {
+	public static function getDB( $database ) {
 		global $wgLocalDatabases, $wgDBname;
 		if( self::validDatabase( $database ) ) {
 			if( $database == $wgDBname ) {
 				// Hmm... this shouldn't happen though. :)
 				return wfGetDB( DB_MASTER );
 			} else {
-				global $wgDBuser, $wgDBpassword;
-				$server = self::getMaster( $database );
-				return new Database( $server, $wgDBuser, $wgDBpassword, $database );
+				return wfGetDB( DB_MASTER, array(), $database );
 			}
 		}
 		return null;
 	}
-	
-	/**
-	 * Return the master server to connect to for the requested database.
-	 */
-	private static function getMaster( $database ) {
-		global $wgDBserver, $wgAlternateMaster;
-		if( isset( $wgAlternateMaster[$database] ) ) {
-			return $wgAlternateMaster[$database];
-		}
-		return $wgDBserver;
-	}
-	
+
 	public function getId() {
 		return $this->id;
 	}
-	
+
 	public function isAnon() {
 		return $this->getId() == 0;
 	}
-	
+
 	public function getName() {
 		return $this->name . '@' . $this->database;
 	}
-	
+
 	public function getUserPage() {
 		return Title::makeTitle( NS_USER, $this->getName() );
 	}
-	
+
 	// Replaces getUserGroups()
 	function getGroups() {
 		$res = $this->db->select( 'user_groups',
@@ -119,7 +106,7 @@ class UserRightsProxy {
 		}
 		return $groups;
 	}
-	
+
 	// replaces addUserGroup
 	function addGroup( $group ) {
 		$this->db->insert( 'user_groups',
@@ -130,7 +117,7 @@ class UserRightsProxy {
 			__METHOD__,
 			array( 'IGNORE' ) );
 	}
-	
+
 	// replaces removeUserGroup
 	function removeGroup( $group ) {
 		$this->db->delete( 'user_groups',
@@ -140,7 +127,7 @@ class UserRightsProxy {
 			),
 			__METHOD__ );
 	}
-	
+
 	// replaces touchUser
 	function invalidateCache() {
 		$this->db->update( 'user',
@@ -157,5 +144,3 @@ class UserRightsProxy {
 		$wgMemc->delete( $key );
 	}
 }
-
-?>

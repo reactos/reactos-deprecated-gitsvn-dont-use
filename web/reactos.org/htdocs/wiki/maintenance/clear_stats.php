@@ -1,4 +1,11 @@
 <?php
+/**
+ * This script remove all statistics tracking from memcached
+ * 
+ * @file
+ * @ingroup Maintenance
+ */
+
 require_once('commandLine.inc');
 
 foreach ( $wgLocalDatabases as $db ) {

@@ -29,6 +29,10 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
+ * @defgroup API API
+ */
+
+/**
  * This is the main API class, used for both external and internal processing.
  * When executed, it will create the requested formatter object,
  * instantiate and execute an object associated with the needed action,
@@ -37,9 +41,9 @@ if (!defined('MEDIAWIKI')) {
  *
  * To use API from another application, run it using FauxRequest object, in which
  * case any internal exceptions will not be handled but passed up to the caller.
- * After successful execution, use getResult() for the resulting data.   
- *  
- * @addtogroup API
+ * After successful execution, use getResult() for the resulting data.
+ *
+ * @ingroup API
  */
 class ApiMain extends ApiBase {
 
@@ -62,7 +66,7 @@ class ApiMain extends ApiBase {
 		'help' => 'ApiHelp',
 		'paraminfo' => 'ApiParamInfo',
 	);
-	
+
 	private static $WriteModules = array (
 		'rollback' => 'ApiRollback',
 		'delete' => 'ApiDelete',
@@ -71,8 +75,8 @@ class ApiMain extends ApiBase {
 		'block' => 'ApiBlock',
 		'unblock' => 'ApiUnblock',
 		'move' => 'ApiMove',
-		#'changerights' => 'ApiChangeRights'
-		# Disabled for now
+		'edit' => 'ApiEditPage',
+		'emailuser' => 'ApiEmailUser',
 	);
 
 	/**
@@ -113,25 +117,25 @@ class ApiMain extends ApiBase {
 		parent :: __construct($this, $this->mInternalMode ? 'main_int' : 'main');
 
 		if (!$this->mInternalMode) {
-			
+
 			// Impose module restrictions.
-			// If the current user cannot read, 
+			// If the current user cannot read,
 			// Remove all modules other than login
 			global $wgUser;
-			
+
 			if( $request->getVal( 'callback' ) !== null ) {
 				// JSON callback allows cross-site reads.
 				// For safety, strip user credentials.
 				wfDebug( "API: stripping user credentials for JSON callback\n" );
 				$wgUser = new User();
 			}
-			
+
 			if (!$wgUser->isAllowed('read')) {
 				self::$Modules = array(
 					'login'  => self::$Modules['login'],
 					'logout' => self::$Modules['logout'],
 					'help'   => self::$Modules['help'],
-					); 
+					);
 			}
 		}
 
@@ -150,7 +154,8 @@ class ApiMain extends ApiBase {
 
 		$this->mRequest = & $request;
 
-		$this->mSquidMaxage = 0;
+		$this->mSquidMaxage = -1; // flag for executeActionWithErrorHandling()
+		$this->mCommit = false;
 	}
 
 	/**
@@ -175,12 +180,19 @@ class ApiMain extends ApiBase {
 	}
 
 	/**
-	 * This method will simply cause an error if the write mode was disabled for this api.
+	 * This method will simply cause an error if the write mode was disabled
+	 * or if the current user doesn't have the right to use it
 	 */
 	public function requestWriteMode() {
+		global $wgUser;
 		if (!$this->mEnableWrite)
-			$this->dieUsage('Editing of this site is disabled. Make sure the $wgEnableWriteAPI=true; ' .
-			'statement is included in the site\'s LocalSettings.php file', 'noapiwrite');
+			$this->dieUsage('Editing of this wiki through the API' .
+			' is disabled. Make sure the $wgEnableWriteAPI=true; ' .
+			'statement is included in the wiki\'s ' .
+			'LocalSettings.php file', 'noapiwrite');
+		if (!$wgUser->isAllowed('writeapi'))
+			$this->dieUsage('You\'re not allowed to edit this ' .
+			'wiki through the API', 'writeapidenied');
 	}
 
 	/**
@@ -198,7 +210,7 @@ class ApiMain extends ApiBase {
 	}
 
 	/**
-	 * Execute api request. Any errors will be handled if the API was called by the remote client. 
+	 * Execute api request. Any errors will be handled if the API was called by the remote client.
 	 */
 	public function execute() {
 		$this->profileIn();
@@ -206,6 +218,7 @@ class ApiMain extends ApiBase {
 			$this->executeAction();
 		else
 			$this->executeActionWithErrorHandling();
+	
 		$this->profileOut();
 	}
 
@@ -247,11 +260,22 @@ class ApiMain extends ApiBase {
 			$this->printResult(true);
 		}
 
+		global $wgRequest;
+		if($this->mSquidMaxage == -1)
+		{
+			# Nobody called setCacheMaxAge(), use the (s)maxage parameters
+			$smaxage = $wgRequest->getVal('smaxage', 0);
+			$maxage = $wgRequest->getVal('maxage', 0);
+		}
+		else
+			$smaxage = $maxage = $this->mSquidMaxage;
+
 		// Set the cache expiration at the last moment, as any errors may change the expiration.
 		// if $this->mSquidMaxage == 0, the expiry time is set to the first second of unix epoch
-		$expires = $this->mSquidMaxage == 0 ? 1 : time() + $this->mSquidMaxage;
+		$exp = min($smaxage, $maxage);
+		$expires = ($exp == 0 ? 1 : time() + $exp);
 		header('Expires: ' . wfTimestamp(TS_RFC2822, $expires));
-		header('Cache-Control: s-maxage=' . $this->mSquidMaxage . ', must-revalidate, max-age=0');
+		header('Cache-Control: s-maxage=' . $smaxage . ', must-revalidate, max-age=' . $maxage);
 
 		if($this->mPrinter->getIsHtml())
 			echo wfReportTime();
@@ -261,10 +285,10 @@ class ApiMain extends ApiBase {
 
 	/**
 	 * Replace the result data with the information about an exception.
-	 * Returns the error code 
+	 * Returns the error code
 	 */
 	protected function substituteResultWithError($e) {
-	
+
 			// Printer may not be initialized if the extractRequestParams() fails for the main module
 			if (!isset ($this->mPrinter)) {
 				// The printer has not been created yet. Try to manually get formatter value.
@@ -284,20 +308,27 @@ class ApiMain extends ApiBase {
 				$errMessage = array (
 				'code' => $e->getCodeString(),
 				'info' => $e->getMessage());
-				
+
 				// Only print the help message when this is for the developer, not runtime
 				if ($this->mPrinter->getIsHtml() || $this->mAction == 'help')
 					ApiResult :: setContent($errMessage, $this->makeHelpMsg());
 
 			} else {
+				global $wgShowSQLErrors, $wgShowExceptionDetails;
 				//
 				// Something is seriously wrong
 				//
+				if ( ( $e instanceof DBQueryError ) && !$wgShowSQLErrors ) {
+					$info = "Database query error";
+				} else {
+					$info = "Exception Caught: {$e->getMessage()}";
+				}
+
 				$errMessage = array (
 					'code' => 'internal_api_error_'. get_class($e),
-					'info' => "Exception Caught: {$e->getMessage()}"
+					'info' => $info,
 				);
-				ApiResult :: setContent($errMessage, "\n\n{$e->getTraceAsString()}\n\n");
+				ApiResult :: setContent($errMessage, $wgShowExceptionDetails ? "\n\n{$e->getTraceAsString()}\n\n" : "" );				
 			}
 
 			$this->getResult()->reset();
@@ -318,12 +349,12 @@ class ApiMain extends ApiBase {
 
 		// Instantiate the module requested by the user
 		$module = new $this->mModules[$this->mAction] ($this, $this->mAction);
-		
+
 		if( $module->shouldCheckMaxlag() && isset( $params['maxlag'] ) ) {
 			// Check for maxlag
-			global $wgLoadBalancer, $wgShowHostnames;
+			global $wgShowHostnames;
 			$maxLag = $params['maxlag'];
-			list( $host, $lag ) = $wgLoadBalancer->getMaxLag();
+			list( $host, $lag ) = wfGetLB()->getMaxLag();
 			if ( $lag > $maxLag ) {
 				if( $wgShowHostnames ) {
 					ApiBase :: dieUsage( "Waiting for $host: $lag seconds lagged", 'maxlag' );
@@ -333,7 +364,7 @@ class ApiMain extends ApiBase {
 				return;
 			}
 		}
-		
+
 		if (!$this->mInternalMode) {
 			// Ignore mustBePosted() for internal calls
 			if($module->mustBePosted() && !$this->mRequest->wasPosted())
@@ -367,13 +398,12 @@ class ApiMain extends ApiBase {
 	protected function printResult($isError) {
 		$printer = $this->mPrinter;
 		$printer->profileIn();
-	
+
 		/* If the help message is requested in the default (xmlfm) format,
 		 * tell the printer not to escape ampersands so that our links do
 		 * not break. */
-		$params = $this->extractRequestParams();
-		$printer->setUnescapeAmps ( ( $this->mAction == 'help' || $isError ) 
-				&& $params['format'] == ApiMain::API_DEFAULT_FORMAT );
+		$printer->setUnescapeAmps ( ( $this->mAction == 'help' || $isError )
+				&& $this->getParameter('format') == ApiMain::API_DEFAULT_FORMAT );
 
 		$printer->initPrinter($isError);
 
@@ -399,6 +429,14 @@ class ApiMain extends ApiBase {
 			'maxlag'  => array (
 				ApiBase :: PARAM_TYPE => 'integer'
 			),
+			'smaxage' => array (
+				ApiBase :: PARAM_TYPE => 'integer',
+				ApiBase :: PARAM_DFLT => 0
+			),
+			'maxage' => array (
+				ApiBase :: PARAM_TYPE => 'integer',
+				ApiBase :: PARAM_DFLT => 0
+			),
 		);
 	}
 
@@ -410,7 +448,9 @@ class ApiMain extends ApiBase {
 			'format' => 'The format of the output',
 			'action' => 'What action you would like to perform',
 			'version' => 'When showing help, include version for each module',
-			'maxlag' => 'Maximum lag'
+			'maxlag' => 'Maximum lag',
+			'smaxage' => 'Set the s-maxage header to this many seconds. Errors are never cached',
+			'maxage' => 'Set the max-age header to this many seconds. Errors are never cached',
 		);
 	}
 
@@ -444,13 +484,17 @@ class ApiMain extends ApiBase {
 			'',
 		);
 	}
-	
+
 	/**
 	 * Returns an array of strings with credits for the API
 	 */
 	protected function getCredits() {
 		return array(
-			'This API is being implemented by Roan Kattouw <Firstname>.<Lastname>@home.nl',
+			'API developers:',
+			'    Roan Kattouw <Firstname>.<Lastname>@home.nl (lead developer Sep 2007-present)',
+			'    Victor Vasiliev - vasilvv at gee mail dot com',
+			'    Yuri Astrakhan <Firstname><Lastname>@gmail.com (creator, lead developer Sep 2006-Sep 2007)',
+			'',
 			'Please send your comments, suggestions and questions to mediawiki-api@lists.wikimedia.org',
 			'or file a bug report at http://bugzilla.wikimedia.org/'
 		);
@@ -460,7 +504,7 @@ class ApiMain extends ApiBase {
 	 * Override the parent to generate help messages for all available modules.
 	 */
 	public function makeHelpMsg() {
-		
+
 		$this->mPrinter->setHelp();
 
 		// Use parent to make default message for the main module
@@ -486,9 +530,9 @@ class ApiMain extends ApiBase {
 				$msg .= $msg2;
 			$msg .= "\n";
 		}
-		
+
 		$msg .= "\n*** Credits: ***\n   " . implode("\n   ", $this->getCredits()) . "\n";
-		
+
 
 		return $msg;
 	}
@@ -496,15 +540,15 @@ class ApiMain extends ApiBase {
 	public static function makeHelpMsgHeader($module, $paramName) {
 		$modulePrefix = $module->getModulePrefix();
 		if (!empty($modulePrefix))
-			$modulePrefix = "($modulePrefix) "; 
-		
+			$modulePrefix = "($modulePrefix) ";
+
 		return "* $paramName={$module->getModuleName()} $modulePrefix*";
-	} 
+	}
 
 	private $mIsBot = null;
 	private $mIsSysop = null;
 	private $mCanApiHighLimits = null;
-	
+
 	/**
 	 * Returns true if the currently logged in user is a bot, false otherwise
 	 * OBSOLETE, use canApiHighLimits() instead
@@ -516,7 +560,7 @@ class ApiMain extends ApiBase {
 		}
 		return $this->mIsBot;
 	}
-	
+
 	/**
 	 * Similar to isBot(), this method returns true if the logged in user is
 	 * a sysop, and false if not.
@@ -530,7 +574,11 @@ class ApiMain extends ApiBase {
 
 		return $this->mIsSysop;
 	}
-	
+
+	/**
+	 * Check whether the current user is allowed to use high limits
+	 * @return bool
+	 */
 	public function canApiHighLimits() {
 		if (!isset($this->mCanApiHighLimits)) {
 			global $wgUser;
@@ -540,6 +588,10 @@ class ApiMain extends ApiBase {
 		return $this->mCanApiHighLimits;
 	}
 
+	/**
+	 * Check whether the user wants us to show version information in the API help
+	 * @return bool
+	 */
 	public function getShowVersions() {
 		return $this->mShowVersions;
 	}
@@ -551,7 +603,7 @@ class ApiMain extends ApiBase {
 	public function getVersion() {
 		$vers = array ();
 		$vers[] = 'MediaWiki ' . SpecialVersion::getVersion();
-		$vers[] = __CLASS__ . ': $Id: ApiMain.php 31484 2008-03-03 05:46:20Z brion $';
+		$vers[] = __CLASS__ . ': $Id: ApiMain.php 37349 2008-07-08 20:53:41Z catrope $';
 		$vers[] = ApiBase :: getBaseVersion();
 		$vers[] = ApiFormatBase :: getBaseVersion();
 		$vers[] = ApiQueryBase :: getBaseVersion();
@@ -561,7 +613,7 @@ class ApiMain extends ApiBase {
 
 	/**
 	 * Add or overwrite a module in this ApiMain instance. Intended for use by extending
-	 * classes who wish to add their own modules to their lexicon or override the 
+	 * classes who wish to add their own modules to their lexicon or override the
 	 * behavior of inherent ones.
 	 *
 	 * @access protected
@@ -583,7 +635,7 @@ class ApiMain extends ApiBase {
 	protected function addFormat( $fmtName, $fmtClass ) {
 		$this->mFormats[$fmtName] = $fmtClass;
 	}
-	
+
 	/**
 	 * Get the array mapping module names to class names
 	 */
@@ -595,8 +647,8 @@ class ApiMain extends ApiBase {
 /**
  * This exception will be thrown when dieUsage is called to stop module execution.
  * The exception handling code will print a help screen explaining how this API may be used.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class UsageException extends Exception {
 
@@ -613,5 +665,3 @@ class UsageException extends Exception {
 		return "{$this->getCodeString()}: {$this->getMessage()}";
 	}
 }
-
-

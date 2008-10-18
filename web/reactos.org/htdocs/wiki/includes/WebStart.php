@@ -1,7 +1,7 @@
 <?php
 
-# This does the initial setup for a web request. It does some security checks, 
-# starts the profiler and loads the configuration, and optionally loads 
+# This does the initial setup for a web request. It does some security checks,
+# starts the profiler and loads the configuration, and optionally loads
 # Setup.php depending on whether MW_NO_SETUP is defined.
 
 # Test for PHP bug which breaks PHP 5.0.x on 64-bit...
@@ -65,40 +65,49 @@ unset( $IP );
 # its purpose.
 define( 'MEDIAWIKI', true );
 
+# Full path to working directory.
+# Makes it possible to for example to have effective exclude path in apc.
+# Also doesn't break installations using symlinked includes, like
+# dirname( __FILE__ ) would do.
+$IP = getenv( 'MW_INSTALL_PATH' );
+if ( $IP === false ) {
+	$IP = realpath( '.' );
+}
+
 # Start profiler
-require_once( './StartProfiler.php' );
+require_once( "$IP/StartProfiler.php" );
 wfProfileIn( 'WebStart.php-conf' );
 
 # Load up some global defines.
-require_once( './includes/Defines.php' );
+require_once( "$IP/includes/Defines.php" );
 
 # LocalSettings.php is the per site customization file. If it does not exit
 # the wiki installer need to be launched or the generated file moved from
 # ./config/ to ./
-if( !file_exists( './LocalSettings.php' ) ) {
-	$IP = '.';
-	require_once( './includes/DefaultSettings.php' ); # used for printing the version
-	require_once( './includes/templates/NoLocalSettings.php' );
+if( !file_exists( "$IP/LocalSettings.php" ) ) {
+	require_once( "$IP/includes/DefaultSettings.php" ); # used for printing the version
+	require_once( "$IP/includes/templates/NoLocalSettings.php" );
 	die();
 }
 
-# Include this site setttings
-require_once( './LocalSettings.php' );
-wfProfileOut( 'WebStart.php-conf' );
-wfProfileIn( 'WebStart.php-ob_start' );
+# Start the autoloader, so that extensions can derive classes from core files
+require_once( "$IP/includes/AutoLoader.php" );
 
+# Include site settings. $IP may be changed (hopefully before the AutoLoader is invoked)
+require_once( "$IP/LocalSettings.php" );
+wfProfileOut( 'WebStart.php-conf' );
+
+wfProfileIn( 'WebStart.php-ob_start' );
 # Initialise output buffering
 if ( ob_get_level() ) {
 	# Someone's been mixing configuration data with code!
 	# How annoying.
 } elseif ( !defined( 'MW_NO_OUTPUT_BUFFER' ) ) {
-	require_once( './includes/OutputHandler.php' );
+	require_once( "$IP/includes/OutputHandler.php" );
 	ob_start( 'wfOutputHandler' );
 }
-
 wfProfileOut( 'WebStart.php-ob_start' );
 
 if ( !defined( 'MW_NO_SETUP' ) ) {
-	require_once( './includes/Setup.php' );
+	require_once( "$IP/includes/Setup.php" );
 }
-

@@ -20,7 +20,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @addtogroup Parser
+ * @file
+ * @ingroup Parser
  */
 
 /**
@@ -327,7 +328,7 @@ $wgHtmlEntityAliases = array(
 
 /**
  * XHTML sanitizer for MediaWiki
- * @addtogroup Parser
+ * @ingroup Parser
  */
 class Sanitizer {
 	const NONE = 0;
@@ -383,7 +384,7 @@ class Sanitizer {
 			$htmlelements = array_merge( $htmlsingle, $htmlpairs, $htmlnest );
 
 			# Convert them all to hashtables for faster lookup
-			$vars = array( 'htmlpairs', 'htmlsingle', 'htmlsingleonly', 'htmlnest', 'tabletags', 
+			$vars = array( 'htmlpairs', 'htmlsingle', 'htmlsingleonly', 'htmlnest', 'tabletags',
 				'htmllist', 'listtags', 'htmlsingleallowed', 'htmlelements' );
 			foreach ( $vars as $var ) {
 				$$var = array_flip( $$var );
@@ -419,7 +420,7 @@ class Sanitizer {
 								$optstack = array();
 								array_push ($optstack, $ot);
 								while ( ( ( $ot = @array_pop( $tagstack ) ) != $t ) &&
-										isset( $htmlsingleallowed[$ot] ) ) 
+										isset( $htmlsingleallowed[$ot] ) )
 								{
 									array_push ($optstack, $ot);
 								}
@@ -582,7 +583,7 @@ class Sanitizer {
 		return Sanitizer::validateAttributes( $attribs,
 			Sanitizer::attributeWhitelist( $element ) );
 	}
-	
+
 	/**
 	 * Take an array of attribute names and values and normalize or discard
 	 * illegal values for the given whitelist.
@@ -624,7 +625,7 @@ class Sanitizer {
 		}
 		return $out;
 	}
-	
+
 	/**
 	 * Merge two sets of HTML attributes.
 	 * Conflicting items in the second set will override those
@@ -641,7 +642,7 @@ class Sanitizer {
 		if( isset( $a['class'] )
 			&& isset( $b['class'] )
 			&& $a['class'] !== $b['class'] ) {
-			
+
 			$out['class'] = implode( ' ',
 				array_unique(
 					preg_split( '/\s+/',
@@ -651,7 +652,7 @@ class Sanitizer {
 		}
 		return $out;
 	}
-	
+
 	/**
 	 * Pick apart some CSS and check it for forbidden or unsafe structures.
 	 * Returns a sanitized string, or false if it was just too evil.
@@ -666,7 +667,7 @@ class Sanitizer {
 
 		// Remove any comments; IE gets token splitting wrong
 		$stripped = StringUtils::delimiterReplace( '/*', '*/', ' ', $stripped );
-		
+
 		$value = $stripped;
 
 		// ... and continue checks
@@ -678,7 +679,7 @@ class Sanitizer {
 			# haxx0r
 			return false;
 		}
-		
+
 		return $value;
 	}
 
@@ -797,7 +798,7 @@ class Sanitizer {
 
 		$id = urlencode( Sanitizer::decodeCharReferences( strtr( $id, ' ', '_' ) ) );
 		$id = str_replace( array_keys( $replace ), array_values( $replace ), $id );
-		
+
 		if( ~$flags & Sanitizer::INITIAL_NONLETTER
 		&& !preg_match( '/[a-zA-Z]/', $id[0] ) ) {
 			// Initial character must be a letter!
@@ -920,7 +921,7 @@ class Sanitizer {
 			self::normalizeWhitespace(
 				Sanitizer::normalizeCharReferences( $text ) ) );
 	}
-	
+
 	private static function normalizeWhitespace( $text ) {
 		return preg_replace(
 			'/\r\n|[\x20\x0d\x0a\x09]/',
@@ -972,8 +973,8 @@ class Sanitizer {
 
 	/**
 	 * If the named entity is defined in the HTML 4.0/XHTML 1.0 DTD,
-	 * return the named entity reference as is. If the entity is a 
-	 * MediaWiki-specific alias, returns the HTML equivalent. Otherwise, 
+	 * return the named entity reference as is. If the entity is a
+	 * MediaWiki-specific alias, returns the HTML equivalent. Otherwise,
 	 * returns HTML-escaped text of pseudo-entity source (eg &amp;foo;)
 	 *
 	 * @param string $name
@@ -1219,7 +1220,7 @@ class Sanitizer {
 			# 11.2.6
 			'td'         => array_merge( $common, $tablecell, $tablealign ),
 			'th'         => array_merge( $common, $tablecell, $tablealign ),
-			
+
 			# 13.2
 			# Not usually allowed, but may be used for extension-style hooks
 			# such as <math> when it is rasterized
@@ -1250,7 +1251,7 @@ class Sanitizer {
 			'rb'         => $common,
 			'rt'         => $common, #array_merge( $common, array( 'rbspan' ) ),
 			'rp'         => $common,
-			
+
 			# MathML root element, where used for extensions
 			# 'title' may not be 100% valid here; it's XHTML
 			# http://www.w3.org/TR/REC-MathML/
@@ -1343,5 +1344,3 @@ class Sanitizer {
 	}
 
 }
-
-

@@ -1,9 +1,15 @@
 <?php
+/**
+ * Move revision's text to external storage
+ *
+ * @file
+ * @ingroup Maintenance ExternalStorage
+ */
 
 define( 'REPORTING_INTERVAL', 1 );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-	$optionsWithArgs = array( 'm', 's' );
+	$optionsWithArgs = array( 'e', 's' );
 
 	require_once( dirname(__FILE__) . '/../commandLine.inc' );
 	require_once( 'ExternalStoreDB.php' );

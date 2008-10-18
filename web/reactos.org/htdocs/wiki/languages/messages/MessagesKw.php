@@ -1,9 +1,11 @@
 <?php
 /** Cornish (Kernewek)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author MF-Warburg
+ * @author Malafaya
  */
 
 $messages = array(
@@ -54,11 +56,12 @@ $messages = array(
 'otherlanguages'   => 'Tavosow erell',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'currentevents' => 'Darvosow a-lemmyn',
-'helppage'      => 'Help:Gweres',
-'mainpage'      => 'Pennfolenn/Penfolen',
-'portal'        => 'Porth kemmynieth',
-'sitesupport'   => 'Riansow',
+'currentevents'        => 'Darvosow a-lemmyn',
+'helppage'             => 'Help:Gweres',
+'mainpage'             => 'Pennfolenn/Penfolen',
+'mainpage-description' => 'Pennfolenn/Penfolen',
+'portal'               => 'Porth kemmynieth',
+'portal-url'           => 'Project:Porth Kemmynieth',
 
 'ok'          => 'Sur',
 'editsection' => 'chanjya',
@@ -90,15 +93,11 @@ $messages = array(
 # Upload
 'upload' => 'Keworra restrenn',
 
-# Image list
-'ilsubmit' => 'Hwilas',
-
 # Random page
 'randompage' => 'Folenn war amkan',
 
 # Miscellaneous special pages
-'specialpages' => 'Folennow arbennik',
-'move'         => 'Movya',
+'move' => 'Movya',
 
 # Watchlist
 'watchlist'   => 'Ow rol goelyas',
@@ -114,5 +113,11 @@ $messages = array(
 
 # Tooltip help for the actions
 'tooltip-pt-preferences' => 'Teythi ow akont',
+
+# Special:NewImages
+'ilsubmit' => 'Hwilas',
+
+# Special:SpecialPages
+'specialpages' => 'Folennow arbennik',
 
 );

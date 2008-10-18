@@ -1,7 +1,7 @@
 <?php
 /** Upper Sorbian (Hornjoserbsce)
  *
- * @addtogroup Language
+ * @ingroup Language
  */
 
 class LanguageHsb extends Language {
@@ -96,7 +96,7 @@ class LanguageHsb extends Language {
 				}
 				break;
 			}
-		
+
 		return $word; # this will return the original value for 'nominatiw' (nominativ) and all undefined case values
 	}
 

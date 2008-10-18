@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query module to enumerate all available pages.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryDeletedrevs extends ApiQueryBase {
 
@@ -87,11 +87,16 @@ class ApiQueryDeletedrevs extends ApiQueryBase {
 		// Check limits
 		$userMax = $fld_content ? ApiBase :: LIMIT_SML1 : ApiBase :: LIMIT_BIG1;
 		$botMax  = $fld_content ? ApiBase :: LIMIT_SML2 : ApiBase :: LIMIT_BIG2;
+
+		$limit = $params['limit'];
+
 		if( $limit == 'max' ) {
 			$limit = $this->getMain()->canApiHighLimits() ? $botMax : $userMax;
-			$this->getResult()->addValue( 'limits', 'limit', $limit );
+			$this->getResult()->addValue( 'limits', $this->getModuleName(), $limit );
 		}
-		$this->validateLimit('limit', $params['limit'], 1, $userMax, $botMax);
+
+		$this->validateLimit('limit', $limit, 1, $userMax, $botMax);
+
 		if($fld_token)
 			// Undelete tokens are identical for all pages, so we cache one here
 			$token = $wgUser->editToken();
@@ -104,17 +109,15 @@ class ApiQueryDeletedrevs extends ApiQueryBase {
 			$this->addWhere($where);
 		}
 
-		$this->addOption('LIMIT', $params['limit'] + 1);
+		$this->addOption('LIMIT', $limit + 1);
 		$this->addWhereRange('ar_timestamp', $params['dir'], $params['start'], $params['end']);
-		if(isset($params['namespace']))
-			$this->addWhereFld('ar_namespace', $params['namespace']);
 		$res = $this->select(__METHOD__);
 		$pages = array();
 		$count = 0;
 		// First populate the $pages array
 		while($row = $db->fetchObject($res))
 		{
-			if($count++ == $params['limit'])
+			if(++$count > $limit)
 			{
 				// We've had enough
 				$this->setContinueEnumParameter('start', wfTimestamp(TS_ISO_8601, $row->ar_timestamp));
@@ -178,10 +181,6 @@ class ApiQueryDeletedrevs extends ApiQueryBase {
 				),
 				ApiBase :: PARAM_DFLT => 'older'
 			),
-			'namespace' => array(
-				ApiBase :: PARAM_ISMULTI => true,
-				ApiBase :: PARAM_TYPE => 'namespace'
-			),
 			'limit' => array(
 				ApiBase :: PARAM_DFLT => 10,
 				ApiBase :: PARAM_TYPE => 'limit',
@@ -210,7 +209,6 @@ class ApiQueryDeletedrevs extends ApiQueryBase {
 			'start' => 'The timestamp to start enumerating from',
 			'end' => 'The timestamp to stop enumerating at',
 			'dir' => 'The direction in which to enumerate',
-			'namespace' => 'The namespaces to search in',
 			'limit' => 'The maximum amount of revisions to list',
 			'prop' => 'Which properties to get'
 		);
@@ -222,14 +220,14 @@ class ApiQueryDeletedrevs extends ApiQueryBase {
 
 	protected function getExamples() {
 		return array (
-			'List the first 50 deleted revisions in the Category and Category talk namespaces',
-			'  api.php?action=query&list=deletedrevs&drdir=newer&drlimit=50&drnamespace=14|15',
+			'List the first 50 deleted revisions',
+			'  api.php?action=query&list=deletedrevs&drdir=newer&drlimit=50',
 			'List the last deleted revisions of Main Page and Talk:Main Page, with content:',
 			'  api.php?action=query&list=deletedrevs&titles=Main%20Page|Talk:Main%20Page&drprop=user|comment|content'
 		);
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryDeletedrevs.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryDeletedrevs.php 37502 2008-07-10 14:13:11Z catrope $';
 	}
 }

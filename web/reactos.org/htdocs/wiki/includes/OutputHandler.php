@@ -48,7 +48,7 @@ function wfRequestExtension() {
 		// Can't get the path from the server? :(
 		return '';
 	}
-	
+
 	$period = strrpos( $path, '.' );
 	if( $period !== false ) {
 		return strtolower( substr( $path, $period ) );
@@ -64,7 +64,7 @@ function wfGzipHandler( $s ) {
 	if( !function_exists( 'gzencode' ) || headers_sent() ) {
 		return $s;
 	}
-	
+
 	$ext = wfRequestExtension();
 	if( $ext == '.gz' || $ext == '.tgz' ) {
 		// Don't do gzip compression if the URL path ends in .gz or .tgz
@@ -73,7 +73,7 @@ function wfGzipHandler( $s ) {
 		// Bad Safari! Bad!
 		return $s;
 	}
-	
+
 	if( isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ) {
 		$tokens = preg_split( '/[,; ]/', $_SERVER['HTTP_ACCEPT_ENCODING'] );
 		if ( in_array( 'gzip', $tokens ) ) {
@@ -81,7 +81,7 @@ function wfGzipHandler( $s ) {
 			$s = gzencode( $s, 3 );
 		}
 	}
-	
+
 	// Set vary header if it hasn't been set already
 	$headers = headers_list();
 	$foundVary = false;
@@ -102,7 +102,12 @@ function wfGzipHandler( $s ) {
  * Mangle flash policy tags which open up the site to XSS attacks.
  */
 function wfMangleFlashPolicy( $s ) {
-	return preg_replace( '/\<\s*cross-domain-policy\s*\>/i', '<NOT-cross-domain-policy>', $s );
+	# Avoid weird excessive memory usage in PCRE on big articles
+	if ( preg_match( '/\<\s*cross-domain-policy\s*\>/i', $s ) ) {
+		return preg_replace( '/\<\s*cross-domain-policy\s*\>/i', '<NOT-cross-domain-policy>', $s );
+	} else {
+		return $s;
+	}
 }
 
 /**
@@ -170,4 +175,3 @@ EOT;
 	$out .= '</ol></body></html>';
 	return $out;
 }
-

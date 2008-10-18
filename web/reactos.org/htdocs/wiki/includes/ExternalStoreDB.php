@@ -1,12 +1,4 @@
 <?php
-/**
- *
- *
- * DB accessable external objects
- *
- */
-
-
 
 /**
  * External database storage will use one (or more) separate connection pools
@@ -28,16 +20,15 @@ $wgExternalLoadBalancers = array();
 global $wgExternalBlobCache;
 $wgExternalBlobCache = array();
 
+/**
+ * DB accessable external objects
+ * @ingroup ExternalStorage
+ */
 class ExternalStoreDB {
 
 	/** @todo Document.*/
 	function &getLoadBalancer( $cluster ) {
-		global $wgExternalServers, $wgExternalLoadBalancers;
-		if ( !array_key_exists( $cluster, $wgExternalLoadBalancers ) ) {
-			$wgExternalLoadBalancers[$cluster] = LoadBalancer::newFromParams( $wgExternalServers[$cluster] );
-		}
-		$wgExternalLoadBalancers[$cluster]->allowLagged(true);
-		return $wgExternalLoadBalancers[$cluster];
+		return wfGetLBFactory()->getExternalLB( $cluster );
 	}
 
 	/** @todo Document.*/
@@ -144,4 +135,3 @@ class ExternalStoreDB {
 		return "DB://$cluster/$id";
 	}
 }
-

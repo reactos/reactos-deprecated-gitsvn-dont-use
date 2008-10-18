@@ -1,9 +1,13 @@
 <?php
+/**
+ * @file
+ * @ingroup Media
+ */
 
 /**
  * Base class for the output of MediaHandler::doTransform() and File::transform().
  *
- * @addtogroup Media
+ * @ingroup Media
  */
 abstract class MediaTransformOutput {
 	var $file, $width, $height, $url, $page, $path;
@@ -13,7 +17,7 @@ abstract class MediaTransformOutput {
 	 */
 	function getWidth() {
 		return $this->width;
-	} 
+	}
 
 	/**
 	 * Get the height of the output box
@@ -39,8 +43,8 @@ abstract class MediaTransformOutput {
 	/**
 	 * Fetch HTML for this transform output
 	 *
-	 * @param array $options Associative array of options. Boolean options 
-	 *     should be indicated with a value of true for true, and false or 
+	 * @param array $options Associative array of options. Boolean options
+	 *     should be indicated with a value of true for true, and false or
 	 *     absent for false.
 	 *
 	 *     alt          Alternate text or caption
@@ -49,8 +53,8 @@ abstract class MediaTransformOutput {
 	 *     valign       vertical-align property, if the output is an inline element
 	 *     img-class    Class applied to the <img> tag, if there is such a tag
 	 *
-	 * For images, desc-link and file-link are implemented as a click-through. For 
-	 * sounds and videos, they may be displayed in other ways. 
+	 * For images, desc-link and file-link are implemented as a click-through. For
+	 * sounds and videos, they may be displayed in other ways.
 	 *
 	 * @return string
 	 */
@@ -74,13 +78,16 @@ abstract class MediaTransformOutput {
 		}
 	}
 
-	function getDescLinkAttribs( $alt = false ) {
+	function getDescLinkAttribs( $alt = false, $params = '' ) {
 		$query = $this->page ? ( 'page=' . urlencode( $this->page ) ) : '';
+		if( $params ) {
+			$query .= $query ? '&'.$params : $params;
+		}
 		$title = $this->file->getTitle();
 		if ( strval( $alt ) === '' ) {
 			$alt = $title->getText();
 		}
-		return array( 
+		return array(
 			'href' => $this->file->getTitle()->getLocalURL( $query ),
 			'class' => 'image',
 			'title' => $alt
@@ -92,7 +99,7 @@ abstract class MediaTransformOutput {
 /**
  * Media transform output for images
  *
- * @addtogroup Media
+ * @ingroup Media
  */
 class ThumbnailImage extends MediaTransformOutput {
 	/**
@@ -115,9 +122,9 @@ class ThumbnailImage extends MediaTransformOutput {
 	/**
 	 * Return HTML <img ... /> tag for the thumbnail, will include
 	 * width and height attributes and a blank alt text (as required).
-	 * 
-	 * @param array $options Associative array of options. Boolean options 
-	 *     should be indicated with a value of true for true, and false or 
+	 *
+	 * @param array $options Associative array of options. Boolean options
+	 *     should be indicated with a value of true for true, and false or
 	 *     absent for false.
 	 *
 	 *     alt          Alternate text or caption
@@ -125,9 +132,10 @@ class ThumbnailImage extends MediaTransformOutput {
 	 *     file-link    Boolean, show a file download link
 	 *     valign       vertical-align property, if the output is an inline element
 	 *     img-class    Class applied to the <img> tag, if there is such a tag
+	 *     desc-query   String, description link query params
 	 *
-	 * For images, desc-link and file-link are implemented as a click-through. For 
-	 * sounds and videos, they may be displayed in other ways. 
+	 * For images, desc-link and file-link are implemented as a click-through. For
+	 * sounds and videos, they may be displayed in other ways.
 	 *
 	 * @return string
 	 * @public
@@ -138,8 +146,9 @@ class ThumbnailImage extends MediaTransformOutput {
 		}
 
 		$alt = empty( $options['alt'] ) ? '' : $options['alt'];
+		$query = empty($options['desc-query'])  ? '' : $options['desc-query'];
 		if ( !empty( $options['desc-link'] ) ) {
-			$linkAttribs = $this->getDescLinkAttribs( $alt );
+			$linkAttribs = $this->getDescLinkAttribs( $alt, $query );
 		} elseif ( !empty( $options['file-link'] ) ) {
 			$linkAttribs = array( 'href' => $this->file->getURL() );
 		} else {
@@ -167,7 +176,7 @@ class ThumbnailImage extends MediaTransformOutput {
 /**
  * Basic media transform error class
  *
- * @addtogroup Media
+ * @ingroup Media
  */
 class MediaTransformError extends MediaTransformOutput {
 	var $htmlMsg, $textMsg, $width, $height, $url, $path;
@@ -208,15 +217,13 @@ class MediaTransformError extends MediaTransformOutput {
 /**
  * Shortcut class for parameter validation errors
  *
- * @addtogroup Media
+ * @ingroup Media
  */
 class TransformParameterError extends MediaTransformError {
 	function __construct( $params ) {
-		parent::__construct( 'thumbnail_error', 
-			max( isset( $params['width']  ) ? $params['width']  : 0, 180 ), 
-			max( isset( $params['height'] ) ? $params['height'] : 0, 180 ), 
+		parent::__construct( 'thumbnail_error',
+			max( isset( $params['width']  ) ? $params['width']  : 0, 180 ),
+			max( isset( $params['height'] ) ? $params['height'] : 0, 180 ),
 			wfMsg( 'thumbnail_invalid_params' ) );
 	}
 }
-
-

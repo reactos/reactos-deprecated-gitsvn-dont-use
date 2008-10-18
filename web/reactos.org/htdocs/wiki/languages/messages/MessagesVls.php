@@ -1,12 +1,11 @@
 <?php
 /** West-Vlams (West-Vlams)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SPQRobin
- * @author Siebrand
- * @author לערי ריינהארט
  * @author Tbc
+ * @author לערי ריינהארט
  */
 
 $fallback = 'nl';
@@ -75,7 +74,7 @@ $messages = array(
 'watch'       => 'Volgn',
 'unwatch'     => 'Nie volgn',
 
-# Displayed when you click the "watch" button and it's in the process of watching
+# Displayed when you click the "watch" button and it is in the process of watching
 'unwatching' => 'Stoppn me volgn...',
 
 # Undelete
@@ -96,7 +95,7 @@ $messages = array(
 # Tooltip help for the actions
 'tooltip-n-mainpage' => "Noar 't voorblad goane",
 
-# Special:Newimages
+# Special:NewImages
 'newimages' => 'Nieuwe ofbeeldiengn',
 
 );

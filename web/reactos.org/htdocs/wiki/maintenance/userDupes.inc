@@ -18,7 +18,13 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 /**
+ * @file
+ * @ingroup Maintenance
+ */
+
+/**
  * Look for duplicate user table entries and optionally prune them.
+ * @ingroup Maintenance
  */
 class UserDupes {
 	var $db;
@@ -74,8 +80,8 @@ class UserDupes {
 	 * not requested. (If doing resolution, edits may be reassigned.)
 	 * Status information will be echo'd to stdout.
 	 *
-	 * @param bool $doDelete pass true to actually remove things
-	 *                       from the database; false to just check.
+	 * @param $doDelete bool: pass true to actually remove things
+	 *                  from the database; false to just check.
 	 * @return bool
 	 */
 	function checkDupes( $doDelete = false ) {
@@ -196,8 +202,8 @@ class UserDupes {
 	 * Examine user records for the given name. Try to see which record
 	 * will be the one that actually gets used, then check remaining records
 	 * for edits. If the dupes have no edits, we can safely remove them.
-	 * @param string $name
-	 * @param bool $doDelete
+	 * @param $name string
+	 * @param $doDelete bool
 	 * @access private
 	 */
 	function examine( $name, $doDelete ) {
@@ -247,7 +253,7 @@ class UserDupes {
 	 * Count the number of edits attributed to this user.
 	 * Does not currently check log table or other things
 	 * where it might show up...
-	 * @param int $userid
+	 * @param $userid int
 	 * @return int
 	 * @access private
 	 */
@@ -262,9 +268,9 @@ class UserDupes {
 
 	/**
 	 * Count the number of hits on a given table for this account.
-	 * @param string $table
-	 * @param string $field
-	 * @param int $userid
+	 * @param $table string
+	 * @param $field string
+	 * @param $userid int
 	 * @return int
 	 * @access private
 	 */
@@ -278,8 +284,8 @@ class UserDupes {
 	}
 
 	/**
-	 * @param int $from
-	 * @param int $to
+	 * @param $from int
+	 * @param $to int
 	 * @access private
 	 */
 	function reassignEdits( $from, $to ) {
@@ -292,10 +298,10 @@ class UserDupes {
 	}
 
 	/**
-	 * @param string $table
-	 * @param string $field
-	 * @param int $from
-	 * @param int $to
+	 * @param $table string
+	 * @param $field string
+	 * @param $from int
+	 * @param $to int
 	 * @access private
 	 */
 	function reassignEditsOn( $table, $field, $from, $to ) {
@@ -310,7 +316,7 @@ class UserDupes {
 
 	/**
 	 * Remove a user account line.
-	 * @param int $userid
+	 * @param $userid int
 	 * @access private
 	 */
 	function trimAccount( $userid ) {
@@ -321,6 +327,3 @@ class UserDupes {
 	}
 
 }
-
-
-?>

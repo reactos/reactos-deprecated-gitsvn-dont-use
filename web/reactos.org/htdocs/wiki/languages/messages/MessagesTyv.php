@@ -1,14 +1,13 @@
 <?php
 /** Tuvinian (Тыва дыл)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Krice from Tyvanet.com
  * @author Sborsody
  * @author friends at tyvawiki.org
- * @author Nike
  * @author לערי ריינהארט
- * @author Siebrand
  */
 
 $namespaceNames = array(
@@ -112,8 +111,7 @@ $messages = array(
 'nov'           => '11.ай',
 'dec'           => '12.ай',
 
-# Bits of text used by many pages
-'categories'            => 'Бөлүктер',
+# Categories related messages
 'pagecategories'        => '{{PLURAL:$1|Бөлүк|Бөлүктер}}',
 'category_header'       => '"$1" деп бөлүкте чүүлдер',
 'subcategories'         => 'Бичии бөлүктер',
@@ -182,20 +180,20 @@ $messages = array(
 'jumptosearch'      => 'дилээр',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => '{{SITENAME}} дугайында',
-'aboutpage'         => 'Project:Дугайында',
-'bugreports'        => 'Сээк илеткелдер',
-'bugreportspage'    => 'Project:Сээк илеткелдер',
-'currentevents'     => 'Амгы үеде болуушкуннар',
-'currentevents-url' => 'Project:Амгы үеде болуушкуннар',
-'edithelp'          => 'Өскертиринге дуза',
-'edithelppage'      => 'Help:Өскертир',
-'helppage'          => 'Help:Допчузу',
-'mainpage'          => 'Кол Арын',
-'policy-url'        => 'Project:Политика',
-'portal'            => 'Ниитилелдиң хаалгазы',
-'portal-url'        => 'Project:Ниитилелдиң хаалгазы',
-'sitesupport'       => 'Белектер',
+'aboutsite'            => '{{SITENAME}} дугайында',
+'aboutpage'            => 'Project:Дугайында',
+'bugreports'           => 'Сээк илеткелдер',
+'bugreportspage'       => 'Project:Сээк илеткелдер',
+'currentevents'        => 'Амгы үеде болуушкуннар',
+'currentevents-url'    => 'Project:Амгы үеде болуушкуннар',
+'edithelp'             => 'Өскертиринге дуза',
+'edithelppage'         => 'Help:Өскертир',
+'helppage'             => 'Help:Допчузу',
+'mainpage'             => 'Кол Арын',
+'mainpage-description' => 'Кол Арын',
+'policy-url'           => 'Project:Политика',
+'portal'               => 'Ниитилелдиң хаалгазы',
+'portal-url'           => 'Project:Ниитилелдиң хаалгазы',
 
 'retrievedfrom'       => '"$1" деп арынында парлаттынган',
 'newmessageslink'     => 'чаа чагаалар',
@@ -283,7 +281,7 @@ $1',
 'italic_sample'   => 'Ийлендирер',
 'link_sample'     => 'Холбаа ады',
 'link_tip'        => 'Иштики холбаа',
-'extlink_sample'  => 'http://www.чижек.com холбаа ады',
+'extlink_sample'  => 'http://www.example.com холбаа ады',
 'extlink_tip'     => 'Даштыкы холбаа ("http://" чүве сактып алыр)',
 'headline_sample' => 'Кол сөс сөзүглел',
 'nowiki_sample'   => 'Форматтаваан сөзүглелини бээр салыр',
@@ -310,7 +308,6 @@ $1',
 'accmailtext'        => '"{{grammar:genitive|$1}}" чажыт сөстү {{grammar:directive1|$2}} чоргузуптувус.',
 'newarticle'         => '(Чаа)',
 'editing'            => '$1 деп арынны өскертип турар',
-'editinguser'        => '<b>$1</b> деп ажыглакчыны өскертип турар',
 'editingsection'     => '$1 деп арынның бөлгүмүн өскертип турар',
 'editingcomment'     => '$1 (комментарий) өскертип турар',
 'yourtext'           => 'Силерниң сөзүглелиңер',
@@ -377,6 +374,9 @@ $1',
 'default'            => 'ниити',
 'files'              => 'файлдар',
 
+# User rights
+'editinguser' => '<b>$1</b> деп ажыглакчыны өскертип турар ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])',
+
 # Groups
 'group'     => 'Бөлүк:',
 'group-bot' => 'Боттар',
@@ -417,24 +417,25 @@ $1',
 'upload-file-error' => 'Иштики алдаг',
 'upload-misc-error' => 'Билбес кииреринге алдаг',
 
-# Image list
-'imagelist'             => 'Файл даңзызы',
-'ilsubmit'              => 'Дилээр',
+# Special:ImageList
 'imgfile'               => 'файл',
-'filehist'              => 'Файлдың төөгүзү',
-'filehist-deleteall'    => 'шуптуну ап каар',
-'filehist-deleteone'    => 'мону ап каар',
-'filehist-current'      => 'амгы үе',
-'filehist-datetime'     => 'Үе/Шак',
-'filehist-user'         => 'Ажыглакчы',
-'filehist-filesize'     => 'Файл хемчээли',
-'filehist-comment'      => 'Комментарий',
-'imagelinks'            => 'Холбаалар',
-'noimage-linktext'      => 'Ону киирер',
+'imagelist'             => 'Файл даңзызы',
 'imagelist_name'        => 'Ат',
 'imagelist_user'        => 'Ажыглакчы',
 'imagelist_size'        => 'Хемчээл',
 'imagelist_description' => 'Тодарадып бижээни',
+
+# Image description page
+'filehist'           => 'Файлдың төөгүзү',
+'filehist-deleteall' => 'шуптуну ап каар',
+'filehist-deleteone' => 'мону ап каар',
+'filehist-current'   => 'амгы үе',
+'filehist-datetime'  => 'Үе/Шак',
+'filehist-user'      => 'Ажыглакчы',
+'filehist-filesize'  => 'Файл хемчээли',
+'filehist-comment'   => 'Комментарий',
+'imagelinks'         => 'Холбаалар',
+'noimage-linktext'   => 'Ону киирер',
 
 # File reversion
 'filerevert-comment' => 'Комментарий:',
@@ -488,13 +489,10 @@ $1',
 'mostlinkedtemplates'     => 'Эң холбаалар хээлер',
 'mostcategories'          => 'Эңне бөлүктер арыннар',
 'mostimages'              => 'Эң холбаалар файлдар',
-'allpages'                => 'Шупту арыннар',
 'shortpages'              => 'Чолдак арыннар',
 'longpages'               => 'Узун арыннар',
 'protectedpages'          => 'Камгалаган арыннар',
 'listusers'               => 'Ажыглакчы даңзызы',
-'specialpages'            => 'Тускай арыннар',
-'spheading'               => 'Шупту ажыглакчыларның тускай арыннары',
 'newpages'                => 'Чаа Арыннар',
 'newpages-username'       => 'Ажыглакчының ады:',
 'ancientpages'            => 'Эң эрги арыннар',
@@ -504,15 +502,13 @@ $1',
 # Book sources
 'booksources-go' => 'Чоруур',
 
-'data'    => 'Медээ',
-'version' => 'Үндүрери',
-
 # Special:Log
 'specialloguserlabel'  => 'Ажыглакчы:',
 'speciallogtitlelabel' => 'Ат:',
 'log-search-submit'    => 'Чоруур',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'       => 'Шупту арыннар',
 'nextpage'       => 'Соонда арын ($1)',
 'prevpage'       => 'Бүрүнгү арын ($1)',
 'allarticles'    => 'Шупту чүүлдер',
@@ -520,7 +516,10 @@ $1',
 'allpagesnext'   => 'Соонда',
 'allpagessubmit' => 'Чоруур',
 
-# Special:Listusers
+# Special:Categories
+'categories' => 'Бөлүктер',
+
+# Special:ListUsers
 'listusers-submit' => 'Көргүзер',
 
 # E-mail user
@@ -548,7 +547,7 @@ $1',
 'watchlist-show-minor' => 'Бичии өскерлиишкиннерни көргүзер',
 'watchlist-hide-minor' => 'Бичии өскерлиишкиннерни чажырар',
 
-# Displayed when you click the "watch" button and it's in the process of watching
+# Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'Хайгаарап турар...',
 'unwatching' => 'Хайгааравайн турар...',
 
@@ -562,7 +561,6 @@ $1',
 'actioncomplete'      => 'Ажыл доосту',
 'deletedarticle'      => '"[[$1]]" деп арынны ап каан',
 'protectcomment'      => 'Комментарий:',
-'unprotectsub'        => '("$1" деп арынны истевейн турар)',
 'protect-default'     => '(ниити)',
 'protect-level-sysop' => 'Чүгле сисоплар',
 'pagesize'            => '(байттар)',
@@ -615,12 +613,12 @@ $1',
 'unlockbtn' => 'Медээ шыгжамырын ажыттынар',
 
 # Move page
-'movepage'        => 'Арынны шимчээр',
-'movearticle'     => 'Арынны шимчээр:',
-'move-watch'      => 'Бо арынны хайгаараар',
-'movepagebtn'     => 'Арынны шимчээр',
-'movereason'      => 'Чылдагаан:',
-'delete_and_move' => 'Ап каар болгаш шимчээр',
+'move-page-legend' => 'Арынны шимчээр',
+'movearticle'      => 'Арынны шимчээр:',
+'move-watch'       => 'Бо арынны хайгаараар',
+'movepagebtn'      => 'Арынны шимчээр',
+'movereason'       => 'Чылдагаан:',
+'delete_and_move'  => 'Ап каар болгаш шимчээр',
 
 # Namespace 8 related
 'allmessages'        => 'Системниң дыңнадыглары',
@@ -662,11 +660,6 @@ $1',
 # Attribution
 'anonymous' => '{{grammar:genitive|{{SITENAME}}}} ат эвес ажыглакчызы(лары)',
 
-# Spam protection
-'subcategorycount'     => 'Бо бөлүкте $1 бичии бөлүк бар.',
-'categoryarticlecount' => 'Бо бөлүкте $1 арын бар.',
-'category-media-count' => 'Бо бөлүкте $1 файл бар.',
-
 # Image deletion
 'filedelete-missing' => '"$1" деп файл чок, ынчангаш ол ап калдынмас.',
 
@@ -674,9 +667,10 @@ $1',
 'previousdiff' => '← Бүрүнгү ылгал',
 'nextdiff'     => 'Соонда ылгал →',
 
-# Special:Newimages
+# Special:NewImages
 'showhidebots' => '(боцду $1)',
 'noimages'     => 'Чуруклар чок.',
+'ilsubmit'     => 'Дилээр',
 
 # EXIF tags
 'exif-imagewidth'       => 'Калбаа',
@@ -702,7 +696,6 @@ $1',
 'imgmultipageprev' => '← бүрүнгү арын',
 'imgmultipagenext' => 'соонда арын →',
 'imgmultigo'       => 'Чоруур',
-'imgmultigotopre'  => 'Арынже чоруур',
 
 # Table pager
 'table_pager_next'         => 'Соонда арын',
@@ -725,5 +718,11 @@ $1',
 # Watchlist editing tools
 'watchlisttools-edit' => 'Хайгаарылга даңзын көөр болгаш өскертир',
 'watchlisttools-raw'  => 'Чиг хайгаарылга даңзын өскертир',
+
+# Special:Version
+'version' => 'Үндүрери', # Not used as normal message but as header for the special page itself
+
+# Special:SpecialPages
+'specialpages' => 'Тускай арыннар',
 
 );

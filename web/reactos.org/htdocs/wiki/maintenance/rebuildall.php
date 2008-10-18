@@ -2,8 +2,10 @@
 /**
  * Rebuild link tracking tables from scratch.  This takes several
  * hours, depending on the database size and server configuration.
+ *
+ * @file
  * @todo document
- * @addtogroup Maintenance
+ * @ingroup Maintenance
  */
 
 /** */
@@ -14,12 +16,15 @@ require_once( "refreshLinks.inc" );
 require_once( "rebuildtextindex.inc" );
 require_once( "rebuildrecentchanges.inc" );
 
-$database = Database::newFromParams( $wgDBserver, $wgDBadminuser, $wgDBadminpassword, $wgDBname );
+$dbclass = 'Database' . ucfirst( $wgDBtype ) ;
+$database = new $dbclass( $wgDBserver, $wgDBadminuser, $wgDBadminpassword, $wgDBname );
 
-print "** Rebuilding fulltext search index (if you abort this will break searching; run this script again to fix):\n";
-dropTextIndex( $database );
-rebuildTextIndex( $database );
-createTextIndex( $database );
+if ($wgDBtype == 'mysql') {
+	print "** Rebuilding fulltext search index (if you abort this will break searching; run this script again to fix):\n";
+	dropTextIndex( $database );
+	rebuildTextIndex( $database );
+	createTextIndex( $database );
+}
 
 print "\n\n** Rebuilding recentchanges table:\n";
 rebuildRecentChangesTable();

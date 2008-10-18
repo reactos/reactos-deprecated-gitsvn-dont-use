@@ -17,22 +17,25 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 # http://www.gnu.org/copyleft/gpl.html
+
 /**
+ * @defgroup Cache Cache
  *
+ * @file
+ * @ingroup Cache
  */
 
 /**
- * Simple generic object store
- *
  * interface is intended to be more or less compatible with
  * the PHP memcached client.
  *
  * backends for local hash array and SQL table included:
  * <code>
  *   $bag = new HashBagOStuff();
- *   $bag = new MysqlBagOStuff($tablename); # connect to db first
+ *   $bag = new MediaWikiBagOStuff($tablename); # connect to db first
  * </code>
  *
+ * @ingroup Cache
  */
 class BagOStuff {
 	var $debugmode;
@@ -167,14 +170,12 @@ class BagOStuff {
 
 /**
  * Functional versions!
- * @todo document
+ * This is a test of the interface, mainly. It stores things in an associative
+ * array, which is not going to persist between program runs.
+ *
+ * @ingroup Cache
  */
 class HashBagOStuff extends BagOStuff {
-	/*
-	   This is a test of the interface, mainly. It stores
-	   things in an associative array, which is not going to
-	   persist between program runs.
-	*/
 	var $bag;
 
 	function __construct() {
@@ -213,24 +214,20 @@ class HashBagOStuff extends BagOStuff {
 	}
 }
 
-/*
-CREATE TABLE objectcache (
-  keyname char(255) binary not null default '',
-  value mediumblob,
-  exptime datetime,
-  unique key (keyname),
-  key (exptime)
-);
-*/
-
 /**
- * @todo document
- * @abstract
+ * Generic class to store objects in a database
+ *
+ * @ingroup Cache
  */
 abstract class SqlBagOStuff extends BagOStuff {
 	var $table;
 	var $lastexpireall = 0;
 
+	/**
+	 * Constructor
+	 *
+	 * @param $tablename String: name of the table to use
+	 */
 	function __construct($tablename = 'objectcache') {
 		$this->table = $tablename;
 	}
@@ -247,8 +244,8 @@ abstract class SqlBagOStuff extends BagOStuff {
 		}
 		if($row=$this->_fetchobject($res)) {
 			$this->_debug("get: retrieved data; exp time is " . $row->exptime);
-			if ( $row->exptime != $this->_maxdatetime() && 
-			  wfTimestamp( TS_UNIX, $row->exptime ) < time() ) 
+			if ( $row->exptime != $this->_maxdatetime() &&
+			  wfTimestamp( TS_UNIX, $row->exptime ) < time() )
 			{
 				$this->_debug("get: key has expired, deleting");
 				$this->delete($key);
@@ -262,7 +259,7 @@ abstract class SqlBagOStuff extends BagOStuff {
 	}
 
 	function set($key,$value,$exptime=0) {
-		if ( wfReadOnly() ) {
+		if ( $this->_readonly() ) {
 			return false;
 		}
 		$exptime = intval($exptime);
@@ -274,21 +271,26 @@ abstract class SqlBagOStuff extends BagOStuff {
 				$exptime += time();
 			$exp = $this->_fromunixtime($exptime);
 		}
-		$this->delete( $key );
+		$this->_begin();
+		$this->_query(
+			"DELETE FROM $0 WHERE keyname='$1'", $key );
 		$this->_doinsert($this->getTableName(), array(
 					'keyname' => $key,
 					'value' => $this->_blobencode($this->_serialize($value)),
 					'exptime' => $exp
 				));
+		$this->_commit();
 		return true; /* ? */
 	}
 
 	function delete($key,$time=0) {
-		if ( wfReadOnly() ) {
+		if ( $this->_readonly() ) {
 			return false;
 		}
+		$this->_begin();
 		$this->_query(
 			"DELETE FROM $0 WHERE keyname='$1'", $key );
+		$this->_commit();
 		return true; /* ? */
 	}
 
@@ -340,6 +342,11 @@ abstract class SqlBagOStuff extends BagOStuff {
 	abstract function _doinsert($table, $vals);
 	abstract function _doquery($sql);
 
+	abstract function _readonly();
+
+	function _begin() {}
+	function _commit() {}
+
 	function _freeresult($result) {
 		/* stub */
 		return false;
@@ -367,19 +374,23 @@ abstract class SqlBagOStuff extends BagOStuff {
 
 	function expireall() {
 		/* Remove any items that have expired */
-		if ( wfReadOnly() ) {
+		if ( $this->_readonly() ) {
 			return false;
 		}
 		$now = $this->_fromunixtime( time() );
+		$this->_begin();
 		$this->_query( "DELETE FROM $0 WHERE exptime < '$now'" );
+		$this->_commit();
 	}
 
 	function deleteall() {
 		/* Clear *all* items from cache table */
-		if ( wfReadOnly() ) {
+		if ( $this->_readonly() ) {
 			return false;
 		}
+		$this->_begin();
 		$this->_query( "DELETE FROM $0" );
+		$this->_commit();
 	}
 
 	/**
@@ -387,7 +398,7 @@ abstract class SqlBagOStuff extends BagOStuff {
 	 * On typical message and page data, this can provide a 3X decrease
 	 * in storage requirements.
 	 *
-	 * @param mixed $data
+	 * @param $data mixed
 	 * @return string
 	 */
 	function _serialize( &$data ) {
@@ -401,7 +412,7 @@ abstract class SqlBagOStuff extends BagOStuff {
 
 	/**
 	 * Unserialize and, if necessary, decompress an object.
-	 * @param string $serial
+	 * @param $serial string
 	 * @return mixed
 	 */
 	function _unserialize( $serial ) {
@@ -417,31 +428,42 @@ abstract class SqlBagOStuff extends BagOStuff {
 }
 
 /**
- * @todo document
+ * Stores objects in the main database of the wiki
+ *
+ * @ingroup Cache
  */
 class MediaWikiBagOStuff extends SqlBagOStuff {
 	var $tableInitialised = false;
+	var $lb, $db;
 
+	function _getDB(){
+		if ( !isset( $this->lb ) ) {
+			$this->lb = wfGetLBFactory()->newMainLB();
+			$this->db = $this->lb->getConnection( DB_MASTER );
+			$this->db->clearFlag( DBO_TRX );
+		}
+		return $this->db;
+	}
+	function _begin() {
+		$this->_getDB()->begin();
+	}
+	function _commit() {
+		$this->_getDB()->commit();
+	}
 	function _doquery($sql) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->query($sql, 'MediaWikiBagOStuff::_doquery');
+		return $this->_getDB()->query( $sql, __METHOD__ );
 	}
 	function _doinsert($t, $v) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->insert($t, $v, 'MediaWikiBagOStuff::_doinsert',
-			array( 'IGNORE' ) );
+		return $this->_getDB()->insert($t, $v, __METHOD__, array( 'IGNORE' ) );
 	}
 	function _fetchobject($result) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->fetchObject($result);
+		return $this->_getDB()->fetchObject($result);
 	}
 	function _freeresult($result) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->freeResult($result);
+		return $this->_getDB()->freeResult($result);
 	}
 	function _dberror($result) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->lastError();
+		return $this->_getDB()->lastError();
 	}
 	function _maxdatetime() {
 		if ( time() > 0x7fffffff ) {
@@ -451,24 +473,23 @@ class MediaWikiBagOStuff extends SqlBagOStuff {
 		}
 	}
 	function _fromunixtime($ts) {
-		$dbw = wfGetDB(DB_MASTER);
-		return $dbw->timestamp($ts);
+		return $this->_getDB()->timestamp($ts);
+	}
+	function _readonly(){
+		return wfReadOnly();
 	}
 	function _strencode($s) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->strencode($s);
+		return $this->_getDB()->strencode($s);
 	}
 	function _blobencode($s) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->encodeBlob($s);
+		return $this->_getDB()->encodeBlob($s);
 	}
 	function _blobdecode($s) {
-		$dbw = wfGetDB( DB_MASTER );
-		return $dbw->decodeBlob($s);
+		return $this->_getDB()->decodeBlob($s);
 	}
 	function getTableName() {
 		if ( !$this->tableInitialised ) {
-			$dbw = wfGetDB( DB_MASTER );
+			$dbw = $this->_getDB();
 			/* This is actually a hack, we should be able
 			   to use Language classes here... or not */
 			if (!$dbw)
@@ -493,6 +514,7 @@ class MediaWikiBagOStuff extends SqlBagOStuff {
  * that Turck's serializer is faster, so a possible future extension would be
  * to use it for arrays but not for objects.
  *
+ * @ingroup Cache
  */
 class TurckBagOStuff extends BagOStuff {
 	function get($key) {
@@ -527,6 +549,7 @@ class TurckBagOStuff extends BagOStuff {
 /**
  * This is a wrapper for APC's shared memory functions
  *
+ * @ingroup Cache
  */
 class APCBagOStuff extends BagOStuff {
 	function get($key) {
@@ -536,12 +559,12 @@ class APCBagOStuff extends BagOStuff {
 		}
 		return $val;
 	}
-	
+
 	function set($key, $value, $exptime=0) {
 		apc_store($key, serialize($value), $exptime);
 		return true;
 	}
-	
+
 	function delete($key, $time=0) {
 		apc_delete($key);
 		return true;
@@ -555,6 +578,7 @@ class APCBagOStuff extends BagOStuff {
  * This is basically identical to the Turck MMCache version,
  * mostly because eAccelerator is based on Turck MMCache.
  *
+ * @ingroup Cache
  */
 class eAccelBagOStuff extends BagOStuff {
 	function get($key) {
@@ -589,13 +613,15 @@ class eAccelBagOStuff extends BagOStuff {
 /**
  * Wrapper for XCache object caching functions; identical interface
  * to the APC wrapper
+ *
+ * @ingroup Cache
  */
 class XCacheBagOStuff extends BagOStuff {
 
 	/**
 	 * Get a value from the XCache object cache
 	 *
-	 * @param string $key Cache key
+	 * @param $key String: cache key
 	 * @return mixed
 	 */
 	public function get( $key ) {
@@ -604,40 +630,41 @@ class XCacheBagOStuff extends BagOStuff {
 			$val = unserialize( $val );
 		return $val;
 	}
-	
+
 	/**
 	 * Store a value in the XCache object cache
 	 *
-	 * @param string $key Cache key
-	 * @param mixed $value Object to store
-	 * @param int $expire Expiration time
+	 * @param $key String: cache key
+	 * @param $value Mixed: object to store
+	 * @param $expire Int: expiration time
 	 * @return bool
 	 */
 	public function set( $key, $value, $expire = 0 ) {
 		xcache_set( $key, serialize( $value ), $expire );
 		return true;
 	}
-	
+
 	/**
 	 * Remove a value from the XCache object cache
 	 *
-	 * @param string $key Cache key
-	 * @param int $time Not used in this implementation
+	 * @param $key String: cache key
+	 * @param $time Int: not used in this implementation
 	 * @return bool
 	 */
 	public function delete( $key, $time = 0 ) {
 		xcache_unset( $key );
 		return true;
 	}
-	
+
 }
 
 /**
  * @todo document
+ * @ingroup Cache
  */
 class DBABagOStuff extends BagOStuff {
 	var $mHandler, $mFile, $mReader, $mWriter, $mDisabled;
-	
+
 	function __construct( $handler = 'db3', $dir = false ) {
 		if ( $dir === false ) {
 			global $wgTmpDirectory;
@@ -645,6 +672,7 @@ class DBABagOStuff extends BagOStuff {
 		}
 		$this->mFile = "$dir/mw-cache-" . wfWikiID();
 		$this->mFile .= '.db';
+		wfDebug( __CLASS__.": using cache file {$this->mFile}\n" );
 		$this->mHandler = $handler;
 	}
 
@@ -664,7 +692,7 @@ class DBABagOStuff extends BagOStuff {
 		if ( !is_string( $blob ) ) {
 			return array( null, 0 );
 		} else {
-			return array( 
+			return array(
 				unserialize( substr( $blob, 11 ) ),
 				intval( substr( $blob, 0, 10 ) )
 		   	);
@@ -779,5 +807,3 @@ class DBABagOStuff extends BagOStuff {
 		return $result;
 	}
 }
-	
-

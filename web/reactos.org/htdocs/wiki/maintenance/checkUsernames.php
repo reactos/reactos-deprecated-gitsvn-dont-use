@@ -1,4 +1,12 @@
 <?php
+/**
+ * This script verifies that database usernames are actually valid.
+ * An existing usernames can become invalid if User::isValidUserName()
+ * is altered or if we change the $wgMaxNameChars
+ * @file
+ * @ingroup Maintenance
+ */
+
 error_reporting(E_ALL ^ E_NOTICE);
 require_once 'commandLine.inc';
 

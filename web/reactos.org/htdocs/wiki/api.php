@@ -76,7 +76,13 @@ $processor = new ApiMain($wgRequest, $wgEnableWriteAPI);
 // Process data & print results
 $processor->execute();
 
+// Execute any deferred updates
+wfDoUpdates();
+
 // Log what the user did, for book-keeping purposes.
 wfProfileOut('api.php');
 wfLogProfilingData();
+
+// Shut down the database
+wfGetLBFactory()->shutdown();
 

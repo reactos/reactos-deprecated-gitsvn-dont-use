@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query module to enumerate all available pages.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryAllpages extends ApiQueryGeneratorBase {
 
@@ -55,27 +55,29 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		$db = $this->getDB();
 
 		$params = $this->extractRequestParams();
-		
+
 		// Page filters
+		$this->addTables('page');
 		if (!$this->addWhereIf('page_is_redirect = 1', $params['filterredir'] === 'redirects'))
 			$this->addWhereIf('page_is_redirect = 0', $params['filterredir'] === 'nonredirects');
 		$this->addWhereFld('page_namespace', $params['namespace']);
-		if (!is_null($params['from']))
-			$this->addWhere('page_title>=' . $db->addQuotes(ApiQueryBase :: titleToKey($params['from'])));
+		$dir = ($params['dir'] == 'descending' ? 'older' : 'newer');
+		$from = (is_null($params['from']) ? null : $this->titleToKey($params['from']));
+		$this->addWhereRange('page_title', $dir, $from, null);
 		if (isset ($params['prefix']))
-			$this->addWhere("page_title LIKE '" . $db->escapeLike(ApiQueryBase :: titleToKey($params['prefix'])) . "%'");
+			$this->addWhere("page_title LIKE '" . $db->escapeLike($this->titleToKey($params['prefix'])) . "%'");
 
 		$forceNameTitleIndex = true;
 		if (isset ($params['minsize'])) {
 			$this->addWhere('page_len>=' . intval($params['minsize']));
 			$forceNameTitleIndex = false;
 		}
-		
+
 		if (isset ($params['maxsize'])) {
 			$this->addWhere('page_len<=' . intval($params['maxsize']));
 			$forceNameTitleIndex = false;
 		}
-	
+
 		// Page protection filtering
 		if (isset ($params['prtype'])) {
 			$this->addTables('page_restrictions');
@@ -86,7 +88,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			$prlevel = $params['prlevel'];
 			if (!is_null($prlevel) && $prlevel != '' && $prlevel != '*')
 				$this->addWhereFld('pr_level', $prlevel);
-				
+
 			$this->addOption('DISTINCT');
 
 			$forceNameTitleIndex = false;
@@ -94,20 +96,16 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		} else if (isset ($params['prlevel'])) {
 			$this->dieUsage('prlevel may not be used without prtype', 'params');
 		}
-		
+
 		if($params['filterlanglinks'] == 'withoutlanglinks') {
-			$pageName = $this->getDB()->tableName('page');
-			$llName = $this->getDB()->tableName('langlinks');
-			$tables = "$pageName LEFT JOIN $llName ON page_id=ll_from";
+			$this->addTables('langlinks');
+			$this->addJoinConds(array('langlinks' => array('LEFT JOIN', 'page_id=ll_from')));
 			$this->addWhere('ll_from IS NULL');
-			$this->addTables($tables);
 			$forceNameTitleIndex = false;
 		} else if($params['filterlanglinks'] == 'withlanglinks') {
-			$this->addTables(array('page', 'langlinks'));
+			$this->addTables('langlinks');
 			$this->addWhere('page_id=ll_from');
-			$forceNameTitleIndex = false;		
-		} else {
-			$this->addTables('page');
+			$forceNameTitleIndex = false;
 		}
 		if ($forceNameTitleIndex)
 			$this->addOption('USE INDEX', 'name_title');
@@ -124,9 +122,6 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 
 		$limit = $params['limit'];
 		$this->addOption('LIMIT', $limit+1);
-		$this->addOption('ORDER BY', 'page_namespace, page_title' .
-						($params['dir'] == 'descending' ? ' DESC' : ''));
-
 		$res = $this->select(__METHOD__);
 
 		$data = array ();
@@ -135,7 +130,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			if (++ $count > $limit) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
 				// TODO: Security issue - if the user has no right to view next title, it will still be shown
-				$this->setContinueEnumParameter('from', ApiQueryBase :: keyToTitle($row->page_title));
+				$this->setContinueEnumParameter('from', $this->keyToTitle($row->page_title));
 				break;
 			}
 
@@ -160,7 +155,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 
 	public function getAllowedParams() {
 		global $wgRestrictionTypes, $wgRestrictionLevels;
-		
+
 		return array (
 			'from' => null,
 			'prefix' => null,
@@ -178,10 +173,10 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			),
 			'minsize' => array (
 				ApiBase :: PARAM_TYPE => 'integer',
-			), 
+			),
 			'maxsize' => array (
 				ApiBase :: PARAM_TYPE => 'integer',
-			), 
+			),
 			'prtype' => array (
 				ApiBase :: PARAM_TYPE => $wgRestrictionTypes,
 				ApiBase :: PARAM_ISMULTI => true
@@ -249,7 +244,6 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllpages.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryAllpages.php 37775 2008-07-17 09:26:01Z brion $';
 	}
 }
-

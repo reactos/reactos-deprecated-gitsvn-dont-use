@@ -1,7 +1,8 @@
 <?php
 /** Oriya (ଓଡ଼ିଆ)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  */
@@ -19,3 +20,9 @@ $digitTransformTable = array(
 	'9' => '୯', # &#x0b6f;
 );
 
+$messages = array(
+# All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
+'mainpage'             => 'ପ୍ରଧାନ ପୃଷ୍ଠା',
+'mainpage-description' => 'ପ୍ରଧାନ ପୃଷ୍ଠା',
+
+);

@@ -16,9 +16,6 @@ $wgExtensionCredits['parserhook'][] = array(
 
 $wgExtensionMessagesFiles['ParserFunctions'] = dirname(__FILE__) . '/ParserFunctions.i18n.php';
 $wgHooks['LanguageGetMagic'][]       = 'wfParserFunctionsLanguageGetMagic';
-$wgHooks['ParserLimitReport'][]      = 'wfParserFunctionsLimitReport';
-
-$wgMaxIfExistCount = 100;
 
 class ExtParserFunctions {
 	var $mExprParser;
@@ -55,13 +52,12 @@ class ExtParserFunctions {
 
 	function clearState(&$parser) {
 		$this->mTimeChars = 0;
-		$parser->pf_ifexist_count = 0;
 		$parser->pf_ifexist_breakdown = array();
 		return true;
 	}
 
 	function &getExprParser() {
-		if ( !isset( $this->mExpr ) ) {
+		if ( !isset( $this->mExprParser ) ) {
 			if ( !class_exists( 'ExprParser' ) ) {
 				require( dirname( __FILE__ ) . '/Expr.php' );
 			}
@@ -137,7 +133,7 @@ class ExtParserFunctions {
 	}
 
 	function iferror( &$parser, $test = '', $then = '', $else = false ) {
-		if ( preg_match( '/<(strong|span) class="error"/', $test ) ) {
+		if ( preg_match( '/<(strong|span|p|div)\s[^>]*?class="error"/', $test ) ) {
 			return $then;
 		} elseif ( $else === false ) {
 			return $test;
@@ -315,8 +311,8 @@ class ExtParserFunctions {
 
 	function incrementIfexistCount( $parser, $frame ) {
 		// Don't let this be called more than a certain number of times. It tends to make the database explode.
-		global $wgMaxIfExistCount;
-		$parser->pf_ifexist_count++;
+		global $wgExpensiveParserFunctionLimit;
+		$parser->mExpensiveFunctionCount++;
 		if ( $frame ) {
 			$pdbk = $frame->getPDBK( 1 );
 			if ( !isset( $parser->pf_ifexist_breakdown[$pdbk] ) ) {
@@ -324,7 +320,7 @@ class ExtParserFunctions {
 			}
 			$parser->pf_ifexist_breakdown[$pdbk] ++;
 		}
-		return $parser->pf_ifexist_count <= $wgMaxIfExistCount;
+		return $parser->mExpensiveFunctionCount <= $wgExpensiveParserFunctionLimit;
 	}
 
 	function ifexist( &$parser, $title = '', $then = '', $else = '' ) {
@@ -334,10 +330,10 @@ class ExtParserFunctions {
 	function ifexistCommon( &$parser, $frame, $title = '', $then = '', $else = '' ) {
 		$title = Title::newFromText( $title );
 		if ( $title ) {
-			/* If namespace is specified as NS_MEDIA, then we want to check the physical file,
-			 * not the "description" page.
-			 */
 			if( $title->getNamespace() == NS_MEDIA ) {
+				/* If namespace is specified as NS_MEDIA, then we want to
+				 * check the physical file, not the "description" page.
+				 */
 				if ( !$this->incrementIfexistCount( $parser, $frame ) ) {
 					return $else;
 				}
@@ -347,25 +343,29 @@ class ExtParserFunctions {
 				}
 				$parser->mOutput->addImage($file->getName());
 				return $file->exists() ? $then : $else;
-			} elseif( $title->getNamespace() == NS_SPECIAL || $title->isExternal() ) {
-				// Specials and interwikis...
-				// Currently these always return false, though perhaps
-				// they should be able to do some checks?
-				//
-				// In any case, don't register them in local link tables as below...
+			} elseif( $title->getNamespace() == NS_SPECIAL ) {
+				/* Don't bother with the count for special pages,
+				 * since their existence can be checked without
+				 * accessing the database.
+				 */
+				return SpecialPage::exists( $title->getDBkey() ) ? $then : $else;
+			} elseif( $title->isExternal() ) {
+				/* Can't check the existence of pages on other sites,
+				 * so just return $else.  Makes a sort of sense, since
+				 * they don't exist _locally_.
+				 */
 				return $else;
 			} else {
 				$pdbk = $title->getPrefixedDBkey();
 				$lc = LinkCache::singleton();
+				if ( !$this->incrementIfexistCount( $parser, $frame ) ) {
+					return $else;
+				}
 				if ( $lc->getGoodLinkID( $pdbk ) ) {
 					return $then;
 				} elseif ( $lc->isBadLink( $pdbk ) ) {
 					return $else;
 				}
-				if ( !$this->incrementIfexistCount( $parser, $frame ) ) {
-					return $else;
-				}
-
 				$id = $title->getArticleID();
 				$parser->mOutput->addLink( $title, $id );
 				if ( $id ) {
@@ -476,22 +476,6 @@ class ExtParserFunctions {
 			return $title;
 		}
 	}
-
-	function afterTidy( &$parser, &$text ) {
-		global $wgMaxIfExistCount;
-		if ( $parser->pf_ifexist_count > $wgMaxIfExistCount ) {
-			if ( is_callable( array( $parser->mOutput, 'addWarning' ) ) ) {
-				wfLoadExtensionMessages( 'ParserFunctions' );
-				$warning = wfMsg( 'pfunc_ifexist_warning', $parser->pf_ifexist_count, $wgMaxIfExistCount );
-				$parser->mOutput->addWarning( $warning );
-				$cat = Title::makeTitleSafe( NS_CATEGORY, wfMsgForContent( 'pfunc_max_ifexist_category' ) );
-				if ( $cat ) {
-					$parser->mOutput->addCategory( $cat->getDBkey(), $parser->getDefaultSort() );
-				}
-			}
-		}
-		return true;
-	}
 }
 
 function wfSetupParserFunctions() {
@@ -510,21 +494,12 @@ function wfSetupParserFunctions() {
 	}
 
 	$wgHooks['ParserClearState'][] = array( &$wgExtParserFunctions, 'clearState' );
-	$wgHooks['ParserAfterTidy'][] = array( &$wgExtParserFunctions, 'afterTidy' );
 }
 
 function wfParserFunctionsLanguageGetMagic( &$magicWords, $langCode ) {
 	require_once( dirname( __FILE__ ) . '/ParserFunctions.i18n.magic.php' );
 	foreach( efParserFunctionsWords( $langCode ) as $word => $trans )
 		$magicWords[$word] = $trans;
-	return true;
-}
-
-function wfParserFunctionsLimitReport( $parser, &$report ) {
-	global $wgMaxIfExistCount;
-	if ( isset( $parser->pf_ifexist_count ) ) {
-		$report .= "#ifexist count: {$parser->pf_ifexist_count}/$wgMaxIfExistCount\n";
-	}
 	return true;
 }
 

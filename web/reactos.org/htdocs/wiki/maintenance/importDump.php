@@ -18,19 +18,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @addtogroup Maintenance
+ * @file
+ * @ingroup Maintenance
  */
 
 $optionsWithArgs = array( 'report' );
 
 require_once( 'commandLine.inc' );
 
+/**
+ * @ingroup Maintenance
+ */
 class BackupReader {
 	var $reportingInterval = 100;
 	var $reporting = true;
 	var $pageCount = 0;
 	var $revCount  = 0;
 	var $dryRun    = false;
+	var $debug     = false;
+	var $uploads   = false;
 
 	function BackupReader() {
 		$this->stderr = fopen( "php://stderr", "wt" );
@@ -57,6 +63,21 @@ class BackupReader {
 			call_user_func( $this->importCallback, $rev );
 		}
 	}
+	
+	function handleUpload( $revision ) {
+		if( $this->uploads ) {
+			$this->uploadCount++;
+			//$this->report();
+			$this->progress( "upload: " . $revision->getFilename() );
+			
+			if( !$this->dryRun ) {
+				// bluuuh hack
+				//call_user_func( $this->uploadCallback, $revision );
+				$dbw = wfGetDB( DB_MASTER );
+				return $dbw->deadlockLoop( array( $revision, 'importUpload' ) );
+			}
+		}
+	}
 
 	function report( $final = false ) {
 		if( $final xor ( $this->pageCount % $this->reportingInterval == 0 ) ) {
@@ -76,6 +97,7 @@ class BackupReader {
 			}
 			$this->progress( "$this->pageCount ($rate pages/sec $revrate revs/sec)" );
 		}
+		wfWaitForSlaves(5);
 	}
 
 	function progress( $string ) {
@@ -101,9 +123,12 @@ class BackupReader {
 		$source = new ImportStreamSource( $handle );
 		$importer = new WikiImporter( $source );
 
+		$importer->setDebug( $this->debug );
 		$importer->setPageCallback( array( &$this, 'reportPage' ) );
 		$this->importCallback =  $importer->setRevisionCallback(
 			array( &$this, 'handleRevision' ) );
+		$this->uploadCallback = $importer->setUploadCallback(
+			array( &$this, 'handleUpload' ) );
 
 		return $importer->doImport();
 	}
@@ -122,6 +147,12 @@ if( isset( $options['report'] ) ) {
 }
 if( isset( $options['dry-run'] ) ) {
 	$reader->dryRun = true;
+}
+if( isset( $options['debug'] ) ) {
+	$reader->debug = true;
+}
+if( isset( $options['uploads'] ) ) {
+	$reader->uploads = true; // experimental!
 }
 
 if( isset( $args[0] ) ) {

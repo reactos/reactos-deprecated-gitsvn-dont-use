@@ -54,7 +54,7 @@ class SiteConfiguration {
 		}
 		return $retval;
 	}
-	
+
 	/** Type-safe string replace; won't do replacements on non-strings */
 	function doReplace( $from, $to, $in ) {
 		if( is_string( $in ) ) {
@@ -126,7 +126,11 @@ class SiteConfiguration {
 		$site = NULL;
 		$lang = NULL;
 		foreach ( $this->suffixes as $suffix ) {
-			if ( substr( $db, -strlen( $suffix ) ) == $suffix ) {
+			if ( $suffix === '' ) {
+				$site = '';
+				$lang = $db;
+				break;
+			} elseif ( substr( $db, -strlen( $suffix ) ) == $suffix ) {
 				$site = $suffix == 'wiki' ? 'wikipedia' : $suffix;
 				$lang = substr( $db, 0, strlen( $db ) - strlen( $suffix ) );
 				break;
@@ -142,5 +146,3 @@ class SiteConfiguration {
 	}
 }
 }
-
-

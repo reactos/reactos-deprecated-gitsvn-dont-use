@@ -1,18 +1,27 @@
 // MediaWiki JavaScript support functions
 
 var clientPC = navigator.userAgent.toLowerCase(); // Get client info
-var is_gecko = ((clientPC.indexOf('gecko')!=-1) && (clientPC.indexOf('spoofer')==-1)
-                && (clientPC.indexOf('khtml') == -1) && (clientPC.indexOf('netscape/7.0')==-1));
-var is_safari = ((clientPC.indexOf('applewebkit')!=-1) && (clientPC.indexOf('spoofer')==-1));
-var is_khtml = (navigator.vendor == 'KDE' || ( document.childNodes && !document.all && !navigator.taintEnabled ));
-// For accesskeys
-var is_ff2_win = (clientPC.indexOf('firefox/2')!=-1 || clientPC.indexOf('minefield/3')!=-1) && clientPC.indexOf('windows')!=-1;
-var is_ff2_x11 = (clientPC.indexOf('firefox/2')!=-1 || clientPC.indexOf('minefield/3')!=-1) && clientPC.indexOf('x11')!=-1;
+var is_gecko = /gecko/.test( clientPC ) &&
+	!/khtml|spoofer|netscape\/7\.0/.test(clientPC);
+var webkit_match = clientPC.match(/applewebkit\/(\d+)/);
+if (webkit_match) {
+	var is_safari = clientPC.indexOf('applewebkit') != -1 &&
+		clientPC.indexOf('spoofer') == -1;
+	var is_safari_win = is_safari && clientPC.indexOf('windows') != -1;
+	var webkit_version = parseInt(webkit_match[1]);
+}
+var is_khtml = navigator.vendor == 'KDE' ||
+	( document.childNodes && !document.all && !navigator.taintEnabled );
+// For accesskeys; note that FF3+ is included here!
+var is_ff2 = /firefox\/[2-9]|minefield\/3/.test( clientPC );
+// These aren't used here, but some custom scripts rely on them
+var is_ff2_win = is_ff2 && clientPC.indexOf('windows') != -1;
+var is_ff2_x11 = is_ff2 && clientPC.indexOf('x11') != -1;
 if (clientPC.indexOf('opera') != -1) {
 	var is_opera = true;
-	var is_opera_preseven = (window.opera && !document.childNodes);
-	var is_opera_seven = (window.opera && document.childNodes);
-	var is_opera_95 = (clientPC.search(/opera\/(9.[5-9]|[1-9][0-9])/)!=-1);
+	var is_opera_preseven = window.opera && !document.childNodes;
+	var is_opera_seven = window.opera && document.childNodes;
+	var is_opera_95 = /opera\/(9.[5-9]|[1-9][0-9])/.test( clientPC );
 }
 
 // Global external objects used by this script.
@@ -27,7 +36,11 @@ if (!window.onloadFuncts) {
 
 function addOnloadHook(hookFunct) {
 	// Allows add-on scripts to add onload functions
-	onloadFuncts[onloadFuncts.length] = hookFunct;
+	if(!doneOnloadHook) {
+		onloadFuncts[onloadFuncts.length] = hookFunct;
+	} else {
+		hookFunct();  // bug in MSIE script loading
+	}
 }
 
 function hookEvent(hookName, hookFunct) {
@@ -38,19 +51,54 @@ function hookEvent(hookName, hookFunct) {
 	}
 }
 
-// document.write special stylesheet links
+function importScript(page) {
+	return importScriptURI(wgScript + '?action=raw&ctype=text/javascript&title=' + encodeURIComponent(page.replace(/ /g,'_')));
+}
+ 
+var loadedScripts = {}; // included-scripts tracker
+function importScriptURI(url) {
+	if (loadedScripts[url]) {
+		return null;
+	}
+	loadedScripts[url] = true;
+	var s = document.createElement('script');
+	s.setAttribute('src',url);
+	s.setAttribute('type','text/javascript');
+	document.getElementsByTagName('head')[0].appendChild(s);
+	return s;
+}
+ 
+function importStylesheet(page) {
+	return importStylesheetURI(wgScript + '?action=raw&ctype=text/css&title=' + encodeURIComponent(page.replace(/ /g,'_')));
+}
+ 
+function importStylesheetURI(url) {
+	return document.createStyleSheet ? document.createStyleSheet(url) : appendCSS('@import "' + url + '";');
+}
+ 
+function appendCSS(text) {
+	var s = document.createElement('style');
+	s.type = 'text/css';
+	s.rel = 'stylesheet';
+	if (s.styleSheet) s.styleSheet.cssText = text //IE
+	else s.appendChild(document.createTextNode(text + '')) //Safari sometimes borks on null
+	document.getElementsByTagName('head')[0].appendChild(s);
+	return s;
+}
+
+// special stylesheet links
 if (typeof stylepath != 'undefined' && typeof skin != 'undefined') {
 	// Added for RosCMS
 	if (is_opera) {
-		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/OperaFixes.css">');
+		importStylesheetURI(stylepath+'/'+skin+'/OperaFixes.css');
 	}
 	
 	if (is_opera_preseven) {
-		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera6Fixes.css">');
+		importStylesheetURI(stylepath+'/'+skin+'/Opera6Fixes.css');
 	} else if (is_opera_seven && !is_opera_95) {
-		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/Opera7Fixes.css">');
+		importStylesheetURI(stylepath+'/'+skin+'/Opera7Fixes.css');
 	} else if (is_khtml) {
-		document.write('<link rel="stylesheet" type="text/css" href="'+stylepath+'/'+skin+'/KHTMLFixes.css">');
+		importStylesheetURI(stylepath+'/'+skin+'/KHTMLFixes.css');
 	}
 }
 
@@ -75,204 +123,6 @@ function toggleVisibility(_levelId, _otherId, _linkId) {
 		otherLevel.style.display = 'inline';
 		linkLevel.style.display = 'none';
 	}
-}
-
-function historyRadios(parent) {
-	var inputs = parent.getElementsByTagName('input');
-	var radios = [];
-	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].name == "diff" || inputs[i].name == "oldid") {
-			radios[radios.length] = inputs[i];
-		}
-	}
-	return radios;
-}
-
-// check selection and tweak visibility/class onclick
-function diffcheck() {
-	var dli = false; // the li where the diff radio is checked
-	var oli = false; // the li where the oldid radio is checked
-	var hf = document.getElementById('pagehistory');
-	if (!hf) {
-		return true;
-	}
-	var lis = hf.getElementsByTagName('li');
-	for (var i=0;i<lis.length;i++) {
-		var inputs = historyRadios(lis[i]);
-		if (inputs[1] && inputs[0]) {
-			if (inputs[1].checked || inputs[0].checked) { // this row has a checked radio button
-				if (inputs[1].checked && inputs[0].checked && inputs[0].value == inputs[1].value) {
-					return false;
-				}
-				if (oli) { // it's the second checked radio
-					if (inputs[1].checked) {
-						oli.className = "selected";
-						return false;
-					}
-				} else if (inputs[0].checked) {
-					return false;
-				}
-				if (inputs[0].checked) {
-					dli = lis[i];
-				}
-				if (!oli) {
-					inputs[0].style.visibility = 'hidden';
-				}
-				if (dli) {
-					inputs[1].style.visibility = 'hidden';
-				}
-				lis[i].className = "selected";
-				oli = lis[i];
-			}  else { // no radio is checked in this row
-				if (!oli) {
-					inputs[0].style.visibility = 'hidden';
-				} else {
-					inputs[0].style.visibility = 'visible';
-				}
-				if (dli) {
-					inputs[1].style.visibility = 'hidden';
-				} else {
-					inputs[1].style.visibility = 'visible';
-				}
-				lis[i].className = "";
-			}
-		}
-	}
-	return true;
-}
-
-// page history stuff
-// attach event handlers to the input elements on history page
-function histrowinit() {
-	var hf = document.getElementById('pagehistory');
-	if (!hf) {
-		return;
-	}
-	var lis = hf.getElementsByTagName('li');
-	for (var i = 0; i < lis.length; i++) {
-		var inputs = historyRadios(lis[i]);
-		if (inputs[0] && inputs[1]) {
-			inputs[0].onclick = diffcheck;
-			inputs[1].onclick = diffcheck;
-		}
-	}
-	diffcheck();
-}
-
-// generate toc from prefs form, fold sections
-// XXX: needs testing on IE/Mac and safari
-// more comments to follow
-function tabbedprefs() {
-	var prefform = document.getElementById('preferences');
-	if (!prefform || !document.createElement) {
-		return;
-	}
-	if (prefform.nodeName.toLowerCase() == 'a') {
-		return; // Occasional IE problem
-	}
-	prefform.className = prefform.className + 'jsprefs';
-	var sections = [];
-	var children = prefform.childNodes;
-	var seci = 0;
-	for (var i = 0; i < children.length; i++) {
-		if (children[i].nodeName.toLowerCase() == 'fieldset') {
-			children[i].id = 'prefsection-' + seci;
-			children[i].className = 'prefsection';
-			if (is_opera || is_khtml) {
-				children[i].className = 'prefsection operaprefsection';
-			}
-			var legends = children[i].getElementsByTagName('legend');
-			sections[seci] = {};
-			legends[0].className = 'mainLegend';
-			if (legends[0] && legends[0].firstChild.nodeValue) {
-				sections[seci].text = legends[0].firstChild.nodeValue;
-			} else {
-				sections[seci].text = '# ' + seci;
-			}
-			sections[seci].secid = children[i].id;
-			seci++;
-			if (sections.length != 1) {
-				children[i].style.display = 'none';
-			} else {
-				var selectedid = children[i].id;
-			}
-		}
-	}
-	var toc = document.createElement('ul');
-	toc.id = 'preftoc';
-	toc.selectedid = selectedid;
-	for (i = 0; i < sections.length; i++) {
-		var li = document.createElement('li');
-		if (i === 0) {
-			li.className = 'selected';
-		}
-		var a = document.createElement('a');
-		a.href = '#' + sections[i].secid;
-		a.onmousedown = a.onclick = uncoversection;
-		a.appendChild(document.createTextNode(sections[i].text));
-		a.secid = sections[i].secid;
-		li.appendChild(a);
-		toc.appendChild(li);
-	}
-	prefform.parentNode.insertBefore(toc, prefform.parentNode.childNodes[0]);
-	document.getElementById('prefsubmit').id = 'prefcontrol';
-}
-
-function uncoversection() {
-	var oldsecid = this.parentNode.parentNode.selectedid;
-	var newsec = document.getElementById(this.secid);
-	if (oldsecid != this.secid) {
-		var ul = document.getElementById('preftoc');
-		document.getElementById(oldsecid).style.display = 'none';
-		newsec.style.display = 'block';
-		ul.selectedid = this.secid;
-		var lis = ul.getElementsByTagName('li');
-		for (var i = 0; i< lis.length; i++) {
-			lis[i].className = '';
-		}
-		this.parentNode.className = 'selected';
-	}
-	return false;
-}
-
-// Timezone stuff
-// tz in format [+-]HHMM
-function checkTimezone(tz, msg) {
-	var localclock = new Date();
-	// returns negative offset from GMT in minutes
-	var tzRaw = localclock.getTimezoneOffset();
-	var tzHour = Math.floor( Math.abs(tzRaw) / 60);
-	var tzMin = Math.abs(tzRaw) % 60;
-	var tzString = ((tzRaw >= 0) ? "-" : "+") + ((tzHour < 10) ? "0" : "") + tzHour + ((tzMin < 10) ? "0" : "") + tzMin;
-	if (tz != tzString) {
-		var junk = msg.split('$1');
-		document.write(junk[0] + "UTC" + tzString + junk[1]);
-	}
-}
-
-function unhidetzbutton() {
-	var tzb = document.getElementById('guesstimezonebutton');
-	if (tzb) {
-		tzb.style.display = 'inline';
-	}
-}
-
-// in [-]HH:MM format...
-// won't yet work with non-even tzs
-function fetchTimezone() {
-	// FIXME: work around Safari bug
-	var localclock = new Date();
-	// returns negative offset from GMT in minutes
-	var tzRaw = localclock.getTimezoneOffset();
-	var tzHour = Math.floor( Math.abs(tzRaw) / 60);
-	var tzMin = Math.abs(tzRaw) % 60;
-	var tzString = ((tzRaw >= 0) ? "-" : "") + ((tzHour < 10) ? "0" : "") + tzHour +
-		":" + ((tzMin < 10) ? "0" : "") + tzMin;
-	return tzString;
-}
-
-function guessTimezone(box) {
-	document.getElementsByName("wpHourDiff")[0].value = fetchTimezone();
 }
 
 function showTocToggle() {
@@ -334,65 +184,6 @@ function toggleToc() {
 var mwEditButtons = [];
 var mwCustomEditButtons = []; // eg to add in MediaWiki:Common.js
 
-// this function generates the actual toolbar buttons with localized text
-// we use it to avoid creating the toolbar where javascript is not enabled
-function addButton(imageFile, speedTip, tagOpen, tagClose, sampleText, imageId) {
-	// Don't generate buttons for browsers which don't fully
-	// support it.
-	mwEditButtons[mwEditButtons.length] =
-		{"imageId": imageId,
-		 "imageFile": imageFile,
-		 "speedTip": speedTip,
-		 "tagOpen": tagOpen,
-		 "tagClose": tagClose,
-		 "sampleText": sampleText};
-}
-
-// this function generates the actual toolbar buttons with localized text
-// we use it to avoid creating the toolbar where javascript is not enabled
-function mwInsertEditButton(parent, item) {
-	var image = document.createElement("img");
-	image.width = 23;
-	image.height = 22;
-	image.className = "mw-toolbar-editbutton";
-	if (item.imageId) image.id = item.imageId;
-	image.src = item.imageFile;
-	image.border = 0;
-	image.alt = item.speedTip;
-	image.title = item.speedTip;
-	image.style.cursor = "pointer";
-	image.onclick = function() {
-		insertTags(item.tagOpen, item.tagClose, item.sampleText);
-		return false;
-	};
-
-	parent.appendChild(image);
-	return true;
-}
-
-function mwSetupToolbar() {
-	var toolbar = document.getElementById('toolbar');
-	if (!toolbar) { return false; }
-
-	var textbox = document.getElementById('wpTextbox1');
-	if (!textbox) { return false; }
-
-	// Don't generate buttons for browsers which don't fully
-	// support it.
-	if (!(document.selection && document.selection.createRange)
-		&& textbox.selectionStart === null) {
-		return false;
-	}
-
-	for (var i = 0; i < mwEditButtons.length; i++) {
-		mwInsertEditButton(toolbar, mwEditButtons[i]);
-	}
-	for (var i = 0; i < mwCustomEditButtons.length; i++) {
-		mwInsertEditButton(toolbar, mwCustomEditButtons[i]);
-	}
-	return true;
-}
-
 function escapeQuotes(text) {
 	var re = new RegExp("'","g");
 	text = text.replace(re,"\\'");
@@ -413,85 +204,6 @@ function escapeQuotesHTML(text) {
 	return text;
 }
 
-// apply tagOpen/tagClose to selection in textarea,
-// use sampleText instead of selection if there is none
-function insertTags(tagOpen, tagClose, sampleText) {
-	var txtarea;
-	if (document.editform) {
-		txtarea = document.editform.wpTextbox1;
-	} else {
-		// some alternate form? take the first one we can find
-		var areas = document.getElementsByTagName('textarea');
-		txtarea = areas[0];
-	}
-	var selText, isSample = false;
-
-	if (document.selection  && document.selection.createRange) { // IE/Opera
-
-		//save window scroll position
-		if (document.documentElement && document.documentElement.scrollTop)
-			var winScroll = document.documentElement.scrollTop
-		else if (document.body)
-			var winScroll = document.body.scrollTop;
-		//get current selection  
-		txtarea.focus();
-		var range = document.selection.createRange();
-		selText = range.text;
-		//insert tags
-		checkSelectedText();
-		range.text = tagOpen + selText + tagClose;
-		//mark sample text as selected
-		if (isSample && range.moveStart) {
-			if (window.opera)
-				tagClose = tagClose.replace(/\n/g,'');
-			range.moveStart('character', - tagClose.length - selText.length); 
-			range.moveEnd('character', - tagClose.length); 
-		}
-		range.select();   
-		//restore window scroll position
-		if (document.documentElement && document.documentElement.scrollTop)
-			document.documentElement.scrollTop = winScroll
-		else if (document.body)
-			document.body.scrollTop = winScroll;
-
-	} else if (txtarea.selectionStart || txtarea.selectionStart == '0') { // Mozilla
-
-		//save textarea scroll position
-		var textScroll = txtarea.scrollTop;
-		//get current selection
-		txtarea.focus();
-		var startPos = txtarea.selectionStart;
-		var endPos = txtarea.selectionEnd;
-		selText = txtarea.value.substring(startPos, endPos);
-		//insert tags
-		checkSelectedText();
-		txtarea.value = txtarea.value.substring(0, startPos)
-			+ tagOpen + selText + tagClose
-			+ txtarea.value.substring(endPos, txtarea.value.length);
-		//set new selection
-		if (isSample) {
-			txtarea.selectionStart = startPos + tagOpen.length;
-			txtarea.selectionEnd = startPos + tagOpen.length + selText.length;
-		} else {
-			txtarea.selectionStart = startPos + tagOpen.length + selText.length + tagClose.length;
-			txtarea.selectionEnd = txtarea.selectionStart;
-		}
-		//restore textarea scroll position
-		txtarea.scrollTop = textScroll;
-	} 
-
-	function checkSelectedText(){
-		if (!selText) {
-			selText = sampleText;
-			isSample = true;
-		} else if (selText.charAt(selText.length - 1) == ' ') { //exclude ending space char
-			selText = selText.substring(0, selText.length - 1);
-			tagClose += ' '
-		} 
-	}
-
-}
-
 
 /**
  * Set the accesskey prefix based on browser detection.
@@ -499,14 +211,16 @@ function insertTags(tagOpen, tagClose, sampleText) {
 var tooltipAccessKeyPrefix = 'alt-';
 if (is_opera) {
 	tooltipAccessKeyPrefix = 'shift-esc-';
-} else if (is_safari
-	   || navigator.userAgent.toLowerCase().indexOf('mac') != -1
-	   || navigator.userAgent.toLowerCase().indexOf('konqueror') != -1 ) {
+} else if (!is_safari_win && is_safari && webkit_version > 526) {
+	tooltipAccessKeyPrefix = 'ctrl-alt-';
+} else if (!is_safari_win && (is_safari
+		|| clientPC.indexOf('mac') != -1
+		|| clientPC.indexOf('konqueror') != -1 )) {
 	tooltipAccessKeyPrefix = 'ctrl-';
-} else if (is_ff2_x11 || is_ff2_win) {
+} else if (is_ff2) {
 	tooltipAccessKeyPrefix = 'alt-shift-';
 }
-var tooltipAccessKeyRegexp = /\[(ctrl-)?(alt-)?(shift-)?(esc-)?.\]$/;
+var tooltipAccessKeyRegexp = /\[(ctrl-)?(alt-)?(shift-)?(esc-)?(.)\]$/;
 
 /**
  * Add the appropriate prefix to the accesskey shown in the tooltip.
@@ -531,10 +245,9 @@ function updateTooltipAccessKeys( nodeList ) {
 	for ( var i = 0; i < nodeList.length; i++ ) {
 		var element = nodeList[i];
 		var tip = element.getAttribute("title");
-		var key = element.getAttribute("accesskey");
-		if ( key && tooltipAccessKeyRegexp.exec(tip) ) {
+		if ( tip && tooltipAccessKeyRegexp.exec(tip) ) {
 			tip = tip.replace(tooltipAccessKeyRegexp,
-					  "["+tooltipAccessKeyPrefix+key+"]");
+					  "["+tooltipAccessKeyPrefix+"$5]");
 			element.setAttribute("title", tip );
 		}
 	}
@@ -660,53 +373,6 @@ function akeytt( doId ) {
 	}
 }
 
-function setupRightClickEdit() {
-	if (document.getElementsByTagName) {
-		var spans = document.getElementsByTagName('span');
-		for (var i = 0; i < spans.length; i++) {
-			var el = spans[i];
-			if(el.className == 'editsection') {
-				addRightClickEditHandler(el);
-			}
-		}
-	}
-}
-
-function addRightClickEditHandler(el) {
-	for (var i = 0; i < el.childNodes.length; i++) {
-		var link = el.childNodes[i];
-		if (link.nodeType == 1 && link.nodeName.toLowerCase() == 'a') {
-			var editHref = link.getAttribute('href');
-			// find the enclosing (parent) header
-			var prev = el.parentNode;
-			if (prev && prev.nodeType == 1 &&
-			prev.nodeName.match(/^[Hh][1-6]$/)) {
-				prev.oncontextmenu = function(e) {
-					if (!e) { e = window.event; }
-					// e is now the event in all browsers
-					var targ;
-					if (e.target) { targ = e.target; }
-					else if (e.srcElement) { targ = e.srcElement; }
-					if (targ.nodeType == 3) { // defeat Safari bug
-						targ = targ.parentNode;
-					}
-					// targ is now the target element
-
-					// We don't want to deprive the noble reader of a context menu
-					// for the section edit link, do we?  (Might want to extend this
-					// to all <a>'s?)
-					if (targ.nodeName.toLowerCase() != 'a'
-					|| targ.parentNode.className != 'editsection') {
-						document.location = editHref;
-						return false;
-					}
-					return true;
-				};
-			}
-		}
-	}
-}
-
 var checkboxes;
 var lastCheckbox;
 
@@ -781,108 +447,6 @@ function toggle_element_check(ida,idb) {
 	document.getElementById(idb).checked=false;
 }
 
-/**
- * Restore the edit box scroll state following a preview operation,
- * and set up a form submission handler to remember this state
- */
-function scrollEditBox() {
-	var editBox = document.getElementById( 'wpTextbox1' );
-	var scrollTop = document.getElementById( 'wpScrolltop' );
-	var editForm = document.getElementById( 'editform' );
-	if( editBox && scrollTop ) {
-		if( scrollTop.value )
-			editBox.scrollTop = scrollTop.value;
-		addHandler( editForm, 'submit', function() {
-			document.getElementById( 'wpScrolltop' ).value = document.getElementById( 'wpTextbox1' ).scrollTop; 
-		} );
-	}
-}
-hookEvent( 'load', scrollEditBox );
-
-var allmessages_nodelist = false;
-var allmessages_modified = false;
-var allmessages_timeout = false;
-var allmessages_running = false;
-
-function allmessagesmodified() {
-	allmessages_modified = !allmessages_modified;
-	allmessagesfilter();
-}
-
-function allmessagesfilter() {
-	if ( allmessages_timeout )
-		window.clearTimeout( allmessages_timeout );
-
-	if ( !allmessages_running )
-		allmessages_timeout = window.setTimeout( 'allmessagesfilter_do();', 500 );
-}
-
-function allmessagesfilter_do() {
-	if ( !allmessages_nodelist )
-		return;
-
-	var text = document.getElementById('allmessagesinput').value;
-	var nodef = allmessages_modified;
-
-	allmessages_running = true;
-
-	for ( var name in allmessages_nodelist ) {
-		var nodes = allmessages_nodelist[name];
-		var display = ( name.indexOf( text ) == -1 ? 'none' : '' );
-
-		for ( var i = 0; i < nodes.length; i++)
-			nodes[i].style.display =
-				( nodes[i].className == "def" && nodef
-				  ? 'none' : display );
-	}
-
-	if ( text != document.getElementById('allmessagesinput').value ||
-	     nodef != allmessages_modified )
-		allmessagesfilter_do();  // repeat
-
-	allmessages_running = false;
-}
-
-function allmessagesfilter_init() {
-	if ( allmessages_nodelist )
-		return;
-
-	var nodelist = new Array();
-	var templist = new Array();
-
-	var table = document.getElementById('allmessagestable');
-	if ( !table ) return;
-
-	var rows = document.getElementsByTagName('tr');
-	for ( var i = 0; i < rows.length; i++ ) {
-		var id = rows[i].getAttribute('id')
-		if ( id && id.substring(0,16) != 'sp-allmessages-r' ) continue;
-		templist[ id ] = rows[i];
-	}
-
-	var spans = table.getElementsByTagName('span');
-	for ( var i = 0; i < spans.length; i++ ) {
-		var id = spans[i].getAttribute('id')
-		if ( id && id.substring(0,17) != 'sp-allmessages-i-' ) continue;
-		if ( !spans[i].firstChild || spans[i].firstChild.nodeType != 3 ) continue;
-
-		var nodes = new Array();
-		var row1 = templist[ id.replace('i', 'r1') ];
-		var row2 = templist[ id.replace('i', 'r2') ];
-
-		if ( row1 ) nodes[nodes.length] = row1;
-		if ( row2 ) nodes[nodes.length] = row2;
-		nodelist[ spans[i].firstChild.nodeValue ] = nodes;
-	}
-
-	var k = document.getElementById('allmessagesfilter');
-	if (k) { k.style.display = ''; }
-
-	allmessages_nodelist = nodelist;
-}
-
-hookEvent( "load", allmessagesfilter_init );
-
 /*
 	Written by Jonathan Snook, http://www.snook.ca/jonathan
 	Add-ons by Robert Nyman, http://www.robertnyman.com
@@ -944,11 +508,10 @@ function redirectToFragment(fragment) {
 }
 
 /*
- * Table sorting script  by Joost de Valk, check it out at http://www.joostdevalk.nl/code/sortable-table/.
- * Based on a script from http://www.kryogenix.org/code/browser/sorttable/.
- * Distributed under the MIT license: http://www.kryogenix.org/code/browser/licence.html .
- *
- * Copyright (c) 1997-2006 Stuart Langridge, Joost de Valk.
+ * Table sorting script based on one (c) 1997-2006 Stuart Langridge and Joost
+ * de Valk:
+ * http://www.joostdevalk.nl/code/sortable-table/
+ * http://www.kryogenix.org/code/browser/sorttable/
  *
  * @todo don't break on colspans/rowspans (bug 8028)
  * @todo language-specific digit grouping/decimals (bug 8063)
@@ -1212,7 +775,7 @@ function ts_alternate(table) {
  * Add a cute little box at the top of the screen to inform the user of
  * something, replacing any preexisting message.
  *
- * @param String message HTML to be put inside the right div
+ * @param String -or- Dom Object message HTML to be put inside the right div
  * @param String className   Used in adding a class; should be different for each
  *   call to allow CSS/JS to hide different boxes.  null = no class used.
  * @return Boolean       True on success, false on failure
@@ -1250,7 +813,15 @@ function jsMsg( message, className ) {
 	if( className ) {
 		messageDiv.setAttribute( 'class', 'mw-js-message-'+className );
 	}
-	messageDiv.innerHTML = message;
+	
+	if (typeof message === 'object') {
+		while (messageDiv.hasChildNodes()) // Remove old content
+			messageDiv.removeChild(messageDiv.firstChild);
+		messageDiv.appendChild (message); // Append new content
+	}
+	else {
+		messageDiv.innerHTML = message;
+	}
 	return true;
 }
 
@@ -1294,12 +865,8 @@ function runOnloadHook() {
 	// might cause the function to terminate prematurely
 	doneOnloadHook = true;
 
-	histrowinit();
-	unhidetzbutton();
-	tabbedprefs();
 	updateTooltipAccessKeys( null );
 	akeytt( null );
-	scrollEditBox();
 	setupCheckboxShiftClick();
 	sortables_init();
 
@@ -1336,4 +903,3 @@ function addClickHandler( element, handler ) {
 //note: all skins should call runOnloadHook() at the end of html output,
 //      so the below should be redundant. It's there just in case.
 hookEvent("load", runOnloadHook);
-hookEvent("load", mwSetupToolbar);

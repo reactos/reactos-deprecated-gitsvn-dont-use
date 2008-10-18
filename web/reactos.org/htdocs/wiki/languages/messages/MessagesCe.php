@@ -1,12 +1,12 @@
 <?php
 /** Chechen (Нохчийн)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
+ * @author Chechenka
  * @author Girdi
  * @author Mega programmer
- * @author Chechenka
- * @author SPQRobin
  */
 
 $fallback = 'ru';
@@ -54,8 +54,7 @@ $messages = array(
 'fri'       => 'П1e',
 'sat'       => 'Шот',
 
-# Bits of text used by many pages
-'categories'            => 'Тобаш',
+# Categories related messages
 'pagecategories'        => '{{PLURAL:$1|Тоба|Тобаш}}',
 'category-media-header' => 'Файлош тобашахь «$1»',
 
@@ -94,19 +93,19 @@ $messages = array(
 'jumptosearch'      => 'Лахар',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => '{{grammar:genitive|{{SITENAME}}}}х лаьцна',
-'aboutpage'         => 'Project:Цунах лаьцна',
-'currentevents'     => 'Гулам',
-'currentevents-url' => 'Project:Гулам',
-'disclaimers'       => 'Бехк ТIицалацар',
-'edithelp'          => 'Справка',
-'edithelppage'      => 'Help:Справка (керл кор)',
-'helppage'          => 'Help:ГIo',
-'mainpage'          => 'Коьртан АгIо',
-'portal'            => 'Джамаат',
-'portal-url'        => 'Project:Джамаат',
-'privacy'           => 'Конфиденциальнийн политика',
-'sitesupport'       => 'Сайтан сагIа',
+'aboutsite'            => '{{grammar:genitive|{{SITENAME}}}}х лаьцна',
+'aboutpage'            => 'Project:Цунах лаьцна',
+'currentevents'        => 'Гулам',
+'currentevents-url'    => 'Project:Гулам',
+'disclaimers'          => 'Бехк ТIицалацар',
+'edithelp'             => 'Справка',
+'edithelppage'         => 'Help:Справка (керл кор)',
+'helppage'             => 'Help:ГIo',
+'mainpage'             => 'Коьртан АгIо',
+'mainpage-description' => 'Коьртан АгIо',
+'portal'               => 'Джамаат',
+'portal-url'           => 'Project:Джамаат',
+'privacy'              => 'Конфиденциальнийн политика',
 
 'youhavenewmessages'      => 'Хьуна кхечи $1 ($2).',
 'newmessageslink'         => 'Керла кехаташ',
@@ -167,9 +166,10 @@ $messages = array(
 'accmailtitle'    => 'Тешаман дош дахьийтина.',
 'accmailtext'     => '$1ий тешаман дош дахьийтина $2ан.',
 'newarticle'      => '(Kерла)',
-'newarticletext'  => "ХІар тептар хІинца а кхоьллина дац. Керл тептар кхолла лаахь, дІаязде текст лахара кор чохь (см. [[{{MediaWiki:helppage}}|гІо тептар]] еша кхин информацинаш хаар хьам). Хьо кхуза гІалат вал кхаьчнехь, '''тІехьа воьрзу''' кнопку таІ йе хьан браузера тІехь.",
+'newarticletext'  => "ХІар тептар хІинца а кхоьллина дац.
+Керл тептар кхолла лаахь, дІаязде текст лахара кор чохь (см. [[{{MediaWiki:Helppage}}|гІо тептар]] еша кхин информацинаш хаар хьам).
+Хьо кхуза гІалат вал кхаьчнехь, '''тІехьа воьрзу''' кнопку таІ йе хьан браузера тІехь.",
 'editing'         => 'Хийца $1',
-'editinguser'     => 'Хийца юзер <b>$1</b>',
 'editingsection'  => 'Хийца $1 (секция)',
 'editingcomment'  => 'Хийца $1 (комментарий)',
 'editconflict'    => 'Хийца Конфликт: $1',
@@ -185,6 +185,9 @@ $messages = array(
 'newpassword'     => 'Керла тешаман дош:',
 'textboxsize'     => 'Xийца',
 
+# User rights
+'editinguser' => "Хийца юзер '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])",
+
 # Recent changes
 'recentchanges' => 'Керла хийцамаш',
 'diff'          => 'хийцам',
@@ -197,7 +200,7 @@ $messages = array(
 'upload'   => 'Чуоза Файл',
 'filename' => 'файл цIе',
 
-# Image list
+# Special:ImageList
 'imagelist_name' => 'Файли цІе',
 'imagelist_user' => 'юзер',
 
@@ -209,8 +212,6 @@ $messages = array(
 # Miscellaneous special pages
 'nbytes'            => '$1 {{PLURAL:$1|байт|байтош|байтош}}',
 'ncategories'       => '$1 {{PLURAL:$1|тоба|тобаш|тоба}}',
-'allpages'          => 'Массо таптараш',
-'specialpages'      => 'Спецтаптарш',
 'newpages'          => 'Керла таптараш',
 'newpages-username' => 'Юзер:',
 'move'              => 'цIe хийца',
@@ -218,9 +219,13 @@ $messages = array(
 # Special:Log
 'specialloguserlabel' => 'Юзер:',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'       => 'Массо таптараш',
 'allarticles'    => 'Массо таптараш',
 'allpagessubmit' => 'кхочушде',
+
+# Special:Categories
+'categories' => 'Тобаш',
 
 # E-mail user
 'emailuser'       => 'Кехат Язде Юзеран',
@@ -278,12 +283,15 @@ $messages = array(
 # Media information
 'show-big-image' => 'Доккха де сурт',
 
-# Special:Newimages
+# Special:NewImages
 'newimages' => 'Керла файлаш галерей',
 
 'exif-scenetype-1' => 'Сурт сфотографировано напрямую',
 
 # Auto-summaries
 'autosumm-new' => 'Керла: $1',
+
+# Special:SpecialPages
+'specialpages' => 'Спецтаптарш',
 
 );

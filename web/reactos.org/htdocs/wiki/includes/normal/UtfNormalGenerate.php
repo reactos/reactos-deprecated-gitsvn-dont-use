@@ -21,7 +21,7 @@
  * This script generates UniNormalData.inc from the Unicode Character Database
  * and supplementary files.
  *
- * @addtogroup UtfNormal
+ * @ingroup UtfNormal
  * @access private
  */
 
@@ -230,5 +230,3 @@ function callbackCompat( $matches ) {
 	}
 	return $matches[1];
 }
-
-

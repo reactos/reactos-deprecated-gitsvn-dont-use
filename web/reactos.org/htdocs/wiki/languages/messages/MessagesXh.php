@@ -1,7 +1,8 @@
 <?php
 /** Xhosa (isiXhosa)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Jose77
  */
@@ -57,10 +58,10 @@ $messages = array(
 'otherlanguages' => 'Kwezinye Ilwimi',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'currentevents' => 'Imisebenzi Eyenzekayo',
-'edithelp'      => 'Uncedo ngoTshintsho',
-'mainpage'      => 'Iphepha Elingundoqo',
-'sitesupport'   => 'Amalizo',
+'currentevents'        => 'Imisebenzi Eyenzekayo',
+'edithelp'             => 'Uncedo ngoTshintsho',
+'mainpage'             => 'Iphepha Elingundoqo',
+'mainpage-description' => 'Iphepha Elingundoqo',
 
 'newmessageslink'         => 'imiyalezo emitsha',
 'youhavenewmessagesmulti' => 'Unemiyalezo emitsha ku $1',
@@ -111,15 +112,11 @@ I Account yakhgo ivuliwe, ungalibali ukutshitsha izinto ozithandayo ngo {{SITENA
 'filedesc'        => 'Isishwankathelo',
 'watchthisupload' => 'Bukela le Page',
 
-# Image list
-'ilsubmit' => 'Khangela',
-
 # Miscellaneous special pages
-'specialpages' => 'Amaphepha Abalulekileyo',
 'move'         => 'Dlulisa',
 'movethispage' => 'Dlulisa eliphepha',
 
-# Special:Allpages
+# Special:AllPages
 'allinnamespace' => 'Amanqaku onke ($1 namespace)',
 
 # Watchlist
@@ -138,10 +135,16 @@ I Account yakhgo ivuliwe, ungalibali ukutshitsha izinto ozithandayo ngo {{SITENA
 'ipblocklist-submit' => 'Khangela',
 
 # Move page
-'movepage'    => 'Dlulisa eliphepha',
-'movepagebtn' => 'DLulisa eliphepha',
-'movedto'     => 'Lidluliselwe',
-'1movedto2'   => '[[$1]] lidluliselwe [[$2]]',
-'movereason'  => 'Isizathu',
+'move-page-legend' => 'Dlulisa eliphepha',
+'movepagebtn'      => 'DLulisa eliphepha',
+'movedto'          => 'Lidluliselwe',
+'1movedto2'        => '[[$1]] lidluliselwe [[$2]]',
+'movereason'       => 'Isizathu',
+
+# Special:NewImages
+'ilsubmit' => 'Khangela',
+
+# Special:SpecialPages
+'specialpages' => 'Amaphepha Abalulekileyo',
 
 );

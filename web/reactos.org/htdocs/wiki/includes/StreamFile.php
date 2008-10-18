@@ -12,7 +12,7 @@ function wfStreamFile( $fname, $headers = array() ) {
 		$encScript = htmlspecialchars( $_SERVER['SCRIPT_NAME'] );
 		echo "<html><body>
 <h1>File not found</h1>
-<p>Although this PHP script ($encScript) exists, the file requested for output 
+<p>Although this PHP script ($encScript) exists, the file requested for output
 ($encFile) does not.</p>
 </body></html>
 ";
@@ -23,7 +23,7 @@ function wfStreamFile( $fname, $headers = array() ) {
 
 	// Cancel output buffering and gzipping if set
 	wfResetOutputBuffers();
-	
+
 	$type = wfGetType( $fname );
 	if ( $type and $type!="unknown/unknown") {
 		header("Content-type: $type");
@@ -71,9 +71,7 @@ function wfGetType( $filename ) {
 		return 'unknown/unknown';
 	}
 	else {
-		$magic=& MimeMagic::singleton();
+		$magic = MimeMagic::singleton();
 		return $magic->guessMimeType($filename); //full fancy mime detection
 	}
 }
-
-

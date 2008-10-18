@@ -3,8 +3,8 @@
 /**
  * A repository for files accessible via the local filesystem. Does not support
  * database access or registration.
+ * @ingroup FileRepo
  */
-
 class FSRepo extends FileRepo {
 	var $directory, $deletedDir, $url, $hashLevels, $deletedHashLevels;
 	var $fileFactory = array( 'UnregisteredLocalFile', 'newFromTitle' );
@@ -20,7 +20,7 @@ class FSRepo extends FileRepo {
 
 		// Optional settings
 		$this->hashLevels = isset( $info['hashLevels'] ) ? $info['hashLevels'] : 2;
-		$this->deletedHashLevels = isset( $info['deletedHashLevels'] ) ? 
+		$this->deletedHashLevels = isset( $info['deletedHashLevels'] ) ?
 			$info['deletedHashLevels'] : $this->hashLevels;
 		$this->deletedDir = isset( $info['deletedDir'] ) ? $info['deletedDir'] : false;
 	}
@@ -80,7 +80,7 @@ class FSRepo extends FileRepo {
 
 	/**
 	 * Get a URL referring to this repository, with the private mwrepo protocol.
-	 * The suffix, if supplied, is considered to be unencoded, and will be 
+	 * The suffix, if supplied, is considered to be unencoded, and will be
 	 * URL-encoded before being returned.
 	 */
 	function getVirtualUrl( $suffix = false ) {
@@ -121,10 +121,13 @@ class FSRepo extends FileRepo {
 	 * @param integer $flags Bitwise combination of the following flags:
 	 *     self::DELETE_SOURCE     Delete the source file after upload
 	 *     self::OVERWRITE         Overwrite an existing destination file instead of failing
-	 *     self::OVERWRITE_SAME    Overwrite the file if the destination exists and has the 
+	 *     self::OVERWRITE_SAME    Overwrite the file if the destination exists and has the
 	 *                             same contents as the source
 	 */
 	function storeBatch( $triplets, $flags = 0 ) {
+		if ( !wfMkdirParents( $this->directory ) ) {
+			return $this->newFatal( 'upload_directory_missing', $this->directory );
+		}
 		if ( !is_writable( $this->directory ) ) {
 			return $this->newFatal( 'upload_directory_read_only', $this->directory );
 		}
@@ -146,13 +149,13 @@ class FSRepo extends FileRepo {
 				if ( !wfMkdirParents( $dstDir ) ) {
 					return $this->newFatal( 'directorycreateerror', $dstDir );
 				}
-				// In the deleted zone, seed new directories with a blank 
+				// In the deleted zone, seed new directories with a blank
 				// index.html, to prevent crawling
 				if ( $dstZone == 'deleted' ) {
 					file_put_contents( "$dstDir/index.html", '' );
 				}
 			}
-			
+
 			if ( self::isVirtualUrl( $srcPath ) ) {
 				$srcPath = $triplets[$i][0] = $this->resolveVirtualUrl( $srcPath );
 			}
@@ -213,7 +216,7 @@ class FSRepo extends FileRepo {
 
 	/**
 	 * Pick a random name in the temp zone and store a file to it.
-	 * @param string $originalName The base name of the file as specified 
+	 * @param string $originalName The base name of the file as specified
 	 *     by the user. The file extension will be maintained.
 	 * @param string $srcPath The current location of the file.
 	 * @return FileRepoStatus object with the URL in the value.
@@ -255,6 +258,9 @@ class FSRepo extends FileRepo {
 	 */
 	function publishBatch( $triplets, $flags = 0 ) {
 		// Perform initial checks
+		if ( !wfMkdirParents( $this->directory ) ) {
+			return $this->newFatal( 'upload_directory_missing', $this->directory );
+		}
 		if ( !is_writable( $this->directory ) ) {
 			return $this->newFatal( 'upload_directory_read_only', $this->directory );
 		}
@@ -273,7 +279,7 @@ class FSRepo extends FileRepo {
 			}
 			$dstPath = "{$this->directory}/$dstRel";
 			$archivePath = "{$this->directory}/$archiveRel";
-			
+
 			$dstDir = dirname( $dstPath );
 			$archiveDir = dirname( $archivePath );
 			// Abort immediately on directory creation errors since they're likely to be repetitive
@@ -292,7 +298,7 @@ class FSRepo extends FileRepo {
 		if ( !$status->ok ) {
 			return $status;
 		}
-		
+
 		foreach ( $triplets as $i => $triplet ) {
 			list( $srcPath, $dstRel, $archiveRel ) = $triplet;
 			$dstPath = "{$this->directory}/$dstRel";
@@ -302,8 +308,8 @@ class FSRepo extends FileRepo {
 			if( is_file( $dstPath ) ) {
 				// Check if the archive file exists
 				// This is a sanity check to avoid data loss. In UNIX, the rename primitive
-				// unlinks the destination file if it exists. DB-based synchronisation in 
-				// publishBatch's caller should prevent races. In Windows there's no 
+				// unlinks the destination file if it exists. DB-based synchronisation in
+				// publishBatch's caller should prevent races. In Windows there's no
 				// problem because the rename primitive fails if the destination exists.
 				if ( is_file( $archivePath ) ) {
 					$success = false;
@@ -354,12 +360,12 @@ class FSRepo extends FileRepo {
 
 	/**
 	 * Move a group of files to the deletion archive.
-	 * If no valid deletion archive is configured, this may either delete the 
+	 * If no valid deletion archive is configured, this may either delete the
 	 * file or throw an exception, depending on the preference of the repository.
 	 *
-	 * @param array $sourceDestPairs Array of source/destination pairs. Each element 
+	 * @param array $sourceDestPairs Array of source/destination pairs. Each element
 	 *        is a two-element array containing the source file path relative to the
-	 *        public root in the first element, and the archive file path relative 
+	 *        public root in the first element, and the archive file path relative
 	 *        to the deleted zone root in the second element.
 	 * @return FileRepoStatus
 	 */
@@ -403,7 +409,7 @@ class FSRepo extends FileRepo {
 
 		/**
 		 * Move the files
-		 * We're now committed to returning an OK result, which will lead to 
+		 * We're now committed to returning an OK result, which will lead to
 		 * the files being moved in the DB also.
 		 */
 		foreach ( $sourceDestPairs as $pair ) {
@@ -433,7 +439,7 @@ class FSRepo extends FileRepo {
 		}
 		return $status;
 	}
-	
+
 	/**
 	 * Get a relative path including trailing slash, e.g. f/fa/
 	 * If the repo is not hashed, returns an empty string
@@ -443,7 +449,7 @@ class FSRepo extends FileRepo {
 	}
 
 	/**
-	 * Get a relative path for a deletion archive key, 
+	 * Get a relative path for a deletion archive key,
 	 * e.g. s/z/a/ for sza251lrxrc1jad41h5mgilp8nysje52.jpg
 	 */
 	function getDeletedHashPath( $key ) {
@@ -453,7 +459,7 @@ class FSRepo extends FileRepo {
 		}
 		return $path;
 	}
-	
+
 	/**
 	 * Call a callback function for every file in the repository.
 	 * Uses the filesystem even in child classes.
@@ -526,5 +532,3 @@ class FSRepo extends FileRepo {
 	}
 
 }
-
-

@@ -2,7 +2,8 @@
 /**
  * Change the password of a given user
  *
- * @addtogroup Maintenance
+ * @file
+ * @ingroup Maintenance
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
@@ -25,6 +26,9 @@ if( in_array( '--help', $argv ) )
 $cp = new ChangePassword( @$options['user'], @$options['password'] );
 $cp->main();
 
+/**
+ * @ingroup Maintenance
+ */
 class ChangePassword {
 	var $dbw;
 	var $user, $password;
@@ -36,7 +40,7 @@ class ChangePassword {
 		}
 
 		$this->user = User::newFromName( $user );
-		if ( !$this->user->getID() ) {
+		if ( !$this->user->getId() ) {
 			die ( "No such user: $user\n" );
 		}
 
@@ -48,16 +52,7 @@ class ChangePassword {
 	function main() {
 		$fname = 'ChangePassword::main';
 
-		$this->dbw->update( 'user',
-			array(
-				'user_password' => wfEncryptPassword( $this->user->getID(), $this->password )
-			),
-			array(
-				'user_id' => $this->user->getID()
-			),
-			$fname
-		);
+		$this->user->setPassword( $this->password );
+		$this->user->saveSettings();
 	}
 }
-
-

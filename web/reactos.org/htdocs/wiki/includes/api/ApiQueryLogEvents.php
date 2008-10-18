@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query action to List the log events, with optional filtering by various parameters.
- *  
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryLogEvents extends ApiQueryBase {
 
@@ -40,7 +40,7 @@ class ApiQueryLogEvents extends ApiQueryBase {
 	}
 
 	public function execute() {
-		$params = $this->extractRequestParams();		
+		$params = $this->extractRequestParams();
 		$db = $this->getDB();
 
 		$prop = $params['prop'];
@@ -54,19 +54,26 @@ class ApiQueryLogEvents extends ApiQueryBase {
 
 		list($tbl_logging, $tbl_page, $tbl_user) = $db->tableNamesN('logging', 'page', 'user');
 
-		$this->addOption('STRAIGHT_JOIN');
-		$this->addTables("$tbl_logging LEFT OUTER JOIN $tbl_page ON " .
-		"log_namespace=page_namespace AND log_title=page_title " .
-		"INNER JOIN $tbl_user ON user_id=log_user");
+		$hideLogs = LogEventsList::getExcludeClause($db);
+		if($hideLogs !== false)
+			$this->addWhere($hideLogs);
+
+		// Order is significant here
+		$this->addTables(array('user', 'page', 'logging'));
+		$this->addJoinConds(array(
+			'page' => array('LEFT JOIN',
+				array(	'log_namespace=page_namespace',
+					'log_title=page_title'))));
+		$this->addWhere('user_id=log_user');
+		$this->addOption('USE INDEX', array('logging' => 'times')); // default, may change
 
 		$this->addFields(array (
 			'log_type',
 			'log_action',
 			'log_timestamp',
 		));
-		
-		// FIXME: Fake out log_id for now until the column is live on Wikimedia
-		// $this->addFieldsIf('log_id', $this->fld_ids);
+
+		$this->addFieldsIf('log_id', $this->fld_ids);
 		$this->addFieldsIf('page_id', $this->fld_ids);
 		$this->addFieldsIf('log_user', $this->fld_user);
 		$this->addFieldsIf('user_name', $this->fld_user);
@@ -74,10 +81,14 @@ class ApiQueryLogEvents extends ApiQueryBase {
 		$this->addFieldsIf('log_title', $this->fld_title);
 		$this->addFieldsIf('log_comment', $this->fld_comment);
 		$this->addFieldsIf('log_params', $this->fld_details);
-		
 
 		$this->addWhereFld('log_deleted', 0);
-		$this->addWhereFld('log_type', $params['type']);
+		
+		if( !is_null($params['type']) ) {
+			$this->addWhereFld('log_type', $params['type']);
+			$this->addOption('USE INDEX', array('logging' => array('type_time')));
+		}
+		
 		$this->addWhereRange('log_timestamp', $params['dir'], $params['start'], $params['end']);
 
 		$limit = $params['limit'];
@@ -91,6 +102,7 @@ class ApiQueryLogEvents extends ApiQueryBase {
 			if (!$userid)
 				$this->dieUsage("User name $user not found", 'param_user');
 			$this->addWhereFld('log_user', $userid);
+			$this->addOption('USE INDEX', array('logging' => array('user_time','page_time')));
 		}
 
 		$title = $params['title'];
@@ -100,6 +112,7 @@ class ApiQueryLogEvents extends ApiQueryBase {
 				$this->dieUsage("Bad title value '$title'", 'param_title');
 			$this->addWhereFld('log_namespace', $titleObj->getNamespace());
 			$this->addWhereFld('log_title', $titleObj->getDBkey());
+			$this->addOption('USE INDEX', array('logging' => array('user_time','page_time')));
 		}
 
 		$data = array ();
@@ -126,26 +139,24 @@ class ApiQueryLogEvents extends ApiQueryBase {
 		$vals = array();
 
 		if ($this->fld_ids) {
-			// FIXME: Fake out log_id for now until the column is live on Wikimedia
-			// $vals['logid'] = intval($row->log_id);
-			$vals['logid'] = 0;
+			$vals['logid'] = intval($row->log_id);
 			$vals['pageid'] = intval($row->page_id);
 		}
-		
+
 		if ($this->fld_title) {
 			$title = Title :: makeTitle($row->log_namespace, $row->log_title);
 			ApiQueryBase :: addTitleInfo($vals, $title);
 		}
-		
+
 		if ($this->fld_type) {
 			$vals['type'] = $row->log_type;
 			$vals['action'] = $row->log_action;
 		}
-		
+
 		if ($this->fld_details && $row->log_params !== '') {
 			$params = explode("\n", $row->log_params);
 			switch ($row->log_type) {
-				case 'move': 
+				case 'move':
 					if (isset ($params[0])) {
 						$title = Title :: newFromText($params[0]);
 						if ($title) {
@@ -175,7 +186,7 @@ class ApiQueryLogEvents extends ApiQueryBase {
 					$params = null;
 					break;
 			}
-			
+
 			if (isset($params)) {
 				$this->getResult()->setIndexedTagName($params, 'param');
 				$vals = array_merge($vals, $params);
@@ -193,7 +204,7 @@ class ApiQueryLogEvents extends ApiQueryBase {
 		if ($this->fld_comment && !empty ($row->log_comment)) {
 			$vals['comment'] = $row->log_comment;
 		}
-			
+
 		return $vals;
 	}
 
@@ -215,7 +226,6 @@ class ApiQueryLogEvents extends ApiQueryBase {
 				)
 			),
 			'type' => array (
-				ApiBase :: PARAM_ISMULTI => true,
 				ApiBase :: PARAM_TYPE => $wgLogTypes
 			),
 			'start' => array (
@@ -267,7 +277,6 @@ class ApiQueryLogEvents extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryLogEvents.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryLogEvents.php 35098 2008-05-20 17:13:28Z ialex $';
 	}
 }
-

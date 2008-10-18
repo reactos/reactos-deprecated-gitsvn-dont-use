@@ -1,12 +1,11 @@
 <?php
-require_once( "commandLine.inc" );
+/**
+ * @see wfWaitForSlaves()
+ * @file
+ * @ingroup Maintenance
+ */
 
-# Don't wait for benet
-foreach ( $wgLoadBalancer->mServers as $i => $server ) {
-	if ( $server['host'] == '10.0.0.29' ) {
-		unset($wgLoadBalancer->mServers[$i]);
-	}
-}
+require_once( "commandLine.inc" );
 if ( isset( $args[0] ) ) {
 	wfWaitForSlaves($args[0]);
 } else {

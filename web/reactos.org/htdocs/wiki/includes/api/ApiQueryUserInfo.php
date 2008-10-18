@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query module to get information about the currently logged-in user
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryUserInfo extends ApiQueryBase {
 
@@ -52,7 +52,7 @@ class ApiQueryUserInfo extends ApiQueryBase {
 		$r = $this->getCurrentUserInfo();
 		$result->addValue("query", $this->getModuleName(), $r);
 	}
-	
+
 	protected function getCurrentUserInfo() {
 		global $wgUser;
 		$result = $this->getResult();
@@ -67,7 +67,7 @@ class ApiQueryUserInfo extends ApiQueryBase {
 				$vals['blockedby'] = User::whoIs($wgUser->blockedBy());
 				$vals['blockreason'] = $wgUser->blockedFor();
 			}
-		}		
+		}
 		if (isset($this->prop['hasmsg']) && $wgUser->getNewtalk()) {
 			$vals['messages'] = '';
 		}
@@ -90,13 +90,13 @@ class ApiQueryUserInfo extends ApiQueryBase {
 		}
 		return $vals;
 	}
-	
+
 	protected function getRateLimits()
 	{
 		global $wgUser, $wgRateLimits;
 		if(!$wgUser->isPingLimitable())
 			return array(); // No limits
-		
+
 		// Find out which categories we belong to
 		$categories = array();
 		if($wgUser->isAnon())
@@ -110,7 +110,7 @@ class ApiQueryUserInfo extends ApiQueryBase {
 			if(!$wgUser->isAnon())
 				$categories[] = 'newbie';
 		}
-		
+
 		// Now get the actual limits
 		$retval = array();
 		foreach($wgRateLimits as $action => $limits)
@@ -121,7 +121,7 @@ class ApiQueryUserInfo extends ApiQueryBase {
 					$retval[$action][$cat]['seconds'] = $limits[$cat][1];
 				}
 		return $retval;
-	}			
+	}
 
 	public function getAllowedParams() {
 		return array (
@@ -168,6 +168,6 @@ class ApiQueryUserInfo extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryUserInfo.php 30395 2008-02-01 14:46:46Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryUserInfo.php 35186 2008-05-22 16:39:43Z brion $';
 	}
 }

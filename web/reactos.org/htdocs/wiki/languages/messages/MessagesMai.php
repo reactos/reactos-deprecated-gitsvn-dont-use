@@ -1,18 +1,36 @@
 <?php
 /** Maithili (मैथिली)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Ggajendra
- * @author SPQRobin
- * @author GerardM
  */
 
 $fallback = 'hi';
 
 $messages = array(
 # User preference toggles
-'tog-underline' => 'लिंककेँ रेखांकित करू:',
+'tog-underline'           => 'लिंककेँ रेखांकित करू:',
+'tog-highlightbroken'     => 'टूटल श्रृंखला <a href="" class="new">एना देखाऊ</a> (आकि फेर: एना देखाऊ<a href="" class="internal">?</a>).',
+'tog-justify'             => 'सुगढ़ बनाऊ',
+'tog-hideminor'           => 'सन्निकट परिवर्त्तनमे छोट परिवर्त्तन नुकाऊ',
+'tog-extendwatchlist'     => 'ध्यानसूचीमे सभ परिवर्तन देखाऊ',
+'tog-usenewrc'            => 'बढ़ल सन्निकट परिवर्त्तन (जावास्क्रीप्ट)',
+'tog-numberheadings'      => 'शीर्षक स्वयं-क्रमांकित करू',
+'tog-showtoolbar'         => 'संपादन ओजारपेटी देखाऊ (जावास्क्रीप्ट)',
+'tog-editondblclick'      => 'दू बेर क्लीक कए पन्ना संपादित करू (जावास्क्रीप्ट)',
+'tog-editsection'         => '[संपादित करू] श्रृंखला द्वारा विभाग संपादनक आज्ञा दिअ',
+'tog-showtoc'             => 'अनुक्रम देखाऊ (जाहि पृष्ठ पर तीनसँ बेशी विभाग होए)',
+'tog-editwidth'           => 'सँपादन पेटी पूर्ण चौरस देखाऊ',
+'tog-watchdefault'        => 'हमर संपादित पृष्ठ हमर साकांक्ष सूचीमे देखाऊ',
+'tog-watchdeletion'       => 'हमरा द्वारा हटाओल पृष्ठ हमर साकांक्ष सूचीमे राखू',
+'tog-previewontop'        => 'संपादन पेटीक ऊपर दृश्य देखाऊ',
+'tog-nocache'             => 'पन्ना प्रतीक्षा गह्वरमे नहि राखू',
+'tog-enotifusertalkpages' => 'हमर सदस्य वार्ता पृष्ठ पर भेल परिवर्त्तनक हेतु हमरा ई-मेल करथि',
+'tog-enotifminoredits'    => 'छोट परिवर्त्तनक हेतु सेहो हमरा ई-मेल पठाऊ',
+'tog-fancysig'            => 'अपरिपक्व हस्ताक्षर (स्वचालित श्रृंखलाक बिना)',
+'tog-externaldiff'        => 'पुरान संस्करणमे अंतर देखेबाक हेतु बाहरक प्रणालीक प्रयोग करू',
 
 # Dates
 'sun'           => 'रवि',
@@ -86,16 +104,17 @@ $messages = array(
 'jumptosearch'     => 'ताकू',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'      => 'विषयमे {{वेब्साइटक नाम}}',
-'aboutpage'      => 'Project:विवरण',
-'copyrightpage'  => '{{ns:project}}:सर्वाधिकार',
-'disclaimers'    => 'अनाधिकार घोषणा',
-'disclaimerpage' => 'Project:अनाधिकार घोषणा',
-'edithelp'       => 'संपादन सहयोग',
-'edithelppage'   => 'सहायता:संपादन',
-'mainpage'       => 'सम्मुख पन्ना',
-'privacy'        => 'गोपनीयताक नियम',
-'privacypage'    => 'प्रोजेक्ट:गोपनीयता नियम',
+'aboutsite'            => 'विषयमे {{वेब्साइटक नाम}}',
+'aboutpage'            => 'Project:विवरण',
+'copyrightpage'        => '{{ns:project}}:सर्वाधिकार',
+'disclaimers'          => 'अनाधिकार घोषणा',
+'disclaimerpage'       => 'Project:अनाधिकार घोषणा',
+'edithelp'             => 'संपादन सहयोग',
+'edithelppage'         => 'Help:संपादन',
+'mainpage'             => 'सम्मुख पन्ना',
+'mainpage-description' => 'सम्मुख पन्ना',
+'privacy'              => 'गोपनीयताक नियम',
+'privacypage'          => 'Project:गोपनीयता नियम',
 
 'retrievedfrom'   => 'प्राप्ति स्थल "$1"',
 'editsection'     => 'संपादन करू',
@@ -107,8 +126,9 @@ $messages = array(
 'site-atom-feed'  => '$1 अणु फीड',
 
 # Login and logout pages
-'userlogin'  => 'लॉग इन / खेसरा बनाऊ',
-'userlogout' => 'फेर आयब',
+'nav-login-createaccount' => 'सदस्य लॉग इन',
+'userlogin'               => 'लॉग इन / खेसरा बनाऊ',
+'userlogout'              => 'फेर आयब',
 
 # Edit page toolbar
 'bold_sample'     => 'गँहीर लेखन',
@@ -117,7 +137,7 @@ $messages = array(
 'italic_tip'      => 'क़टि लेखन',
 'link_sample'     => 'लिंक उपाधि',
 'link_tip'        => 'अंतरंग इशारा',
-'extlink_sample'  => 'http://www.उदाहरण.com लिंक उपाधि',
+'extlink_sample'  => 'http://www.example.com लिंक उपाधि',
 'extlink_tip'     => 'बहरी लिंक (यादि राखू http:// उपसर्ग)',
 'headline_sample' => 'मुख्यपंक्ति लेखन',
 'headline_tip'    => 'स्तर 2 मुख्यपंक्ति',
@@ -141,6 +161,7 @@ $messages = array(
 एतय अहाँ ईहो सप्पत खाइत छी जी ई अहाँक अपन रचना छी आकि अहाँ एकरा कोनो सार्वजनिक डोमेन किंवा ओह्ने कोनो मँगनीक संदर्भ-स्थलसँ कॉपी कएने छी। 
 < दृढ़> सर्वाधिकार सुरक्षित कार्य एतय नहि दी।!</दृढ़>',
 'templatesusedpreview' => 'एहि पूर्वप्रदर्शनमे प्रयुक्त मास्टरफाइल:',
+'template-protected'   => '(सुरक्षित)',
 
 # History pages
 'revisionasof'     => 'अंतिम परिवर्त्तन  $1',
@@ -153,15 +174,16 @@ $messages = array(
 'editundo' => 'असंपादन',
 
 # Search results
-'powersearch' => 'त्वरित खोज',
+'noexactmatch' => "'''\"\$1\" नामसँ कोनो लेख नहि अछि।''' अहाँ ई लेख [[:\$1|बना सकैत छी]]।",
+'powersearch'  => 'त्वरित खोज',
 
 # Preferences page
 'preferences'   => 'विकल्प',
 'mypreferences' => 'हमर नीकगर',
 
 # Recent changes
-'nchanges'        => '$1 {{बहुवचन:$1|परिवर्त्तन|परिवर्त्तन}}',
-'rcnote'          => "नीचाँ {{बहुवचन:$1|अछि '''1''' परिवर्त्तन|अंतिम अछि '''$1''' परिवर्त्तन}} अंतमे {{बहुवचन:$2|दिन|'''$2''' दिन}}, केँ $3.",
+'nchanges'        => '$1 {{PLURAL:$1|परिवर्त्तन|परिवर्त्तन}}',
+'rcnote'          => "नीचाँ $3 तक पहिलुका {{PLURAL:$2|'''१''' दिनमे भेल|'''$2''' दिनमे भेल}} अंतिम $1 बदलाव {{PLURAL:$1|देल अछि|देल अछि}}।",
 'rcshowhideminor' => '$1 अल्प संपादन',
 'rclinks'         => 'देखाऊ अंतिम $1 परिवर्त्तन अंतिम $2 दिनमे<br />$3',
 'diff'            => 'अंतर',
@@ -172,14 +194,15 @@ $messages = array(
 'boteditletter'   => 'ब',
 
 # Recent changes linked
-'recentchangeslinked' => 'संबंधित परिवर्त्तन',
+'recentchangeslinked'       => 'संबंधित परिवर्त्तन',
+'recentchangeslinked-title' => '"$1" मे भेल परिवर्तन',
 
 # Upload
 'upload'        => 'फाइल अपलोड करू',
 'uploadbtn'     => 'फाइल अपलोड',
 'uploadedimage' => 'अपलोड भेल "[[$1]]"',
 
-# Image list
+# Image description page
 'filehist'   => 'फाइल इतिहास',
 'imagelinks' => 'लिंक्स',
 
@@ -187,14 +210,14 @@ $messages = array(
 'randompage' => 'अव्यवस्थित पृष्ठ',
 
 # Miscellaneous special pages
-'nbytes'       => '$1 {{बहुवचन:$1|बाइट|बाइट्स}}',
-'prefixindex'  => 'लगाऊ सूची',
-'specialpages' => 'विशेष पन्ना',
-
-'alphaindexline' => '$1 to $2',
+'nbytes'      => '$1 {{PLURAL:$1|बाइट|बाइट्स}}',
+'prefixindex' => 'लगाऊ सूची',
 
 # Special:Log
 'all-logs-page' => 'सभटा लॉग',
+
+# Special:AllPages
+'alphaindexline' => '$1 to $2',
 
 # Watchlist
 'mywatchlist'         => 'हमर साकांक्ष-सूची',
@@ -202,7 +225,7 @@ $messages = array(
 'unwatch'             => 'छोड़ू',
 'watchlist-hide-bots' => 'नुकाऊ संपादित बॉट-नमगर',
 
-# Displayed when you click the "watch" button and it's in the process of watching
+# Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'ताकिमे...',
 'unwatching' => 'छोड़ल ...',
 
@@ -249,7 +272,6 @@ $messages = array(
 'tooltip-n-recentchanges' => 'विकीमे लगक परिवर्त्तनक सूची.',
 'tooltip-n-randompage'    => 'कोनो अनिर्धारित पन्ना लोड करू',
 'tooltip-n-help'          => 'प्राप्त करबाक स्थान.',
-'tooltip-n-sitesupport'   => 'हमरा सभकेँ सहयोग करू',
 'tooltip-t-whatlinkshere' => 'सभटा विकी-पन्नाक सूची जकर एतय लिंक अछि',
 'tooltip-t-upload'        => 'चित्र आकि मीडिया फाइलकेँ अपलोड करू',
 'tooltip-t-specialpages'  => 'सभटा विशेष पन्नाक सूची',
@@ -263,5 +285,8 @@ $messages = array(
 मात्र सूचीबद्ध सामग्री (* सँ प्रारम्भ होय बला पंक्त्ति) विचारनीय अछि। पंक्त्तिक प्रथम लिंक आवश्यक रूपसँ खराब चित्रक लिंक होयबाक चाही। 
 
 ओही पंक्त्तिक कोनो आर लिंक अपवाद स्वरूप अछि, उदाहरणस्वरूप पन्ना जतय चित्र पंक्त्तिअहि पर होय।',
+
+# Special:SpecialPages
+'specialpages' => 'विशेष पन्ना',
 
 );

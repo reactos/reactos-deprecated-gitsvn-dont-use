@@ -1,7 +1,10 @@
 <?php
 /**
  * File for magic words
- * @addtogroup Parser
+ * See docs/magicword.txt
+ *
+ * @file
+ * @ingroup Parser
  */
 
 /**
@@ -16,10 +19,11 @@
  * Please avoid reading the data out of one of these objects and then writing
  * special case code. If possible, add another match()-like function here.
  *
- * To add magic words in an extension, use the LanguageGetMagic hook. For 
+ * To add magic words in an extension, use the LanguageGetMagic hook. For
  * magic words which are also Parser variables, add a MagicWordwgVariableIDs
  * hook. Use string keys.
  *
+ * @ingroup Parser
  */
 class MagicWord {
 	/**#@+
@@ -100,8 +104,9 @@ class MagicWord {
 		'pagesinnamespace',
 		'numberofadmins',
 		'defaultsort',
+		'pagesincategory',
 	);
-	
+
 	/* Array of caching hints for ParserCache */
 	static public $mCacheTTLs = array (
 		'currentmonth' => 86400,
@@ -140,7 +145,20 @@ class MagicWord {
 		'numberofadmins' => 3600,
 		);
 
+	static public $mDoubleUnderscoreIDs = array(
+		'notoc',
+		'nogallery',
+		'forcetoc',
+		'toc',
+		'noeditsection',
+		'newsectionlink',
+		'hiddencat',
+		'staticredirect',
+	);
+
+
 	static public $mObjects = array();
+	static public $mDoubleUnderscoreArray = null;
 
 	/**#@-*/
 
@@ -188,7 +206,7 @@ class MagicWord {
 		}
 		return self::$mVariableIDs;
 	}
-	
+
 	/* Allow external reads of TTL array */
 	static function getCacheTTL($id) {
 		if (array_key_exists($id,self::$mCacheTTLs)) {
@@ -197,8 +215,15 @@ class MagicWord {
 			return -1;
 		}
 	}
-	
-	
+
+	/** Get a MagicWordArray of double-underscore entities */
+	static function getDoubleUnderscoreArray() {
+		if ( is_null( self::$mDoubleUnderscoreArray ) ) {
+			self::$mDoubleUnderscoreArray = new MagicWordArray( self::$mDoubleUnderscoreIDs );
+		}
+		return self::$mDoubleUnderscoreArray;
+	}
+
 	# Initialises this object with an ID
 	function load( $id ) {
 		global $wgContLang;
@@ -220,13 +245,13 @@ class MagicWord {
 		# This was used for matching "$1" variables, but different uses of the feature will have
 		# different restrictions, which should be checked *after* the MagicWord has been matched,
 		# not here. - IMSoP
-		
+
 		$escSyn = array();
 		foreach ( $this->mSynonyms as $synonym )
 			// In case a magic word contains /, like that's going to happen;)
 			$escSyn[] = preg_quote( $synonym, '/' );
 		$this->mBaseRegex = implode( '|', $escSyn );
-		
+
 		$case = $this->mCaseSensitive ? '' : 'iu';
 		$this->mRegex = "/{$this->mBaseRegex}/{$case}";
 		$this->mRegexStart = "/^(?:{$this->mBaseRegex})/{$case}";
@@ -444,11 +469,13 @@ class MagicWord {
 
 /**
  * Class for handling an array of magic words
+ * @ingroup Parser
  */
 class MagicWordArray {
 	var $names = array();
 	var $hash;
 	var $baseRegex, $regex;
+	var $matches;
 
 	function __construct( $names = array() ) {
 		$this->names = $names;
@@ -555,6 +582,8 @@ class MagicWordArray {
 
 	/**
 	 * Parse a match array from preg_match
+	 * Returns array(magic word ID, parameter value)
+	 * If there is no parameter value, that element will be false.
 	 */
 	function parseMatch( $m ) {
 		reset( $m );
@@ -579,7 +608,7 @@ class MagicWordArray {
 
 	/**
 	 * Match some text, with parameter capture
-	 * Returns an array with the magic word name in the first element and the 
+	 * Returns an array with the magic word name in the first element and the
 	 * parameter in the second element.
 	 * Both elements are false if there was no match.
 	 */
@@ -612,5 +641,26 @@ class MagicWordArray {
 			return $hash[0][$lc];
 		}
 		return false;
+	}
+
+	/**
+	 * Returns an associative array, ID => param value, for all items that match
+	 * Removes the matched items from the input string (passed by reference)
+	 */
+	public function matchAndRemove( &$text ) {
+		$found = array();
+		$regexes = $this->getRegex();
+		foreach ( $regexes as $regex ) {
+			if ( $regex === '' ) {
+				continue;
+			}
+			preg_match_all( $regex, $text, $matches, PREG_SET_ORDER );
+			foreach ( $matches as $m ) {
+				list( $name, $param ) = $this->parseMatch( $m );
+				$found[$name] = $param;
+			}
+			$text = preg_replace( $regex, '', $text );
+		}
+		return $found;
 	}
 }

@@ -17,6 +17,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 # http://www.gnu.org/copyleft/gpl.html
 
+/**
+ * @defgroup UtfNormal UtfNormal
+ */
+
 /** */
 require_once dirname(__FILE__).'/UtfNormalUtil.php';
 
@@ -54,7 +58,7 @@ define( 'NORMALIZE_ICU', function_exists( 'utf8_normalize' ) );
  *
  * See description of forms at http://www.unicode.org/reports/tr15/
  *
- * @addtogroup UtfNormal
+ * @ingroup UtfNormal
  */
 class UtfNormal {
 	/**
@@ -64,9 +68,8 @@ class UtfNormal {
 	 * Fast return for pure ASCII strings; some lesser optimizations for
 	 * strings containing only known-good characters. Not as fast as toNFC().
 	 *
-	 * @param string $string a UTF-8 string
+	 * @param $string String: a UTF-8 string
 	 * @return string a clean, shiny, normalized UTF-8 string
-	 * @static
 	 */
 	static function cleanUp( $string ) {
 		if( NORMALIZE_ICU ) {
@@ -94,9 +97,8 @@ class UtfNormal {
 	 * Fast return for pure ASCII strings; some lesser optimizations for
 	 * strings containing only known-good characters.
 	 *
-	 * @param string $string a valid UTF-8 string. Input is not validated.
+	 * @param $string String: a valid UTF-8 string. Input is not validated.
 	 * @return string a UTF-8 string in normal form C
-	 * @static
 	 */
 	static function toNFC( $string ) {
 		if( NORMALIZE_ICU )
@@ -111,9 +113,8 @@ class UtfNormal {
 	 * Convert a UTF-8 string to normal form D, canonical decomposition.
 	 * Fast return for pure ASCII strings.
 	 *
-	 * @param string $string a valid UTF-8 string. Input is not validated.
+	 * @param $string String: a valid UTF-8 string. Input is not validated.
 	 * @return string a UTF-8 string in normal form D
-	 * @static
 	 */
 	static function toNFD( $string ) {
 		if( NORMALIZE_ICU )
@@ -129,9 +130,8 @@ class UtfNormal {
 	 * This may cause irreversible information loss, use judiciously.
 	 * Fast return for pure ASCII strings.
 	 *
-	 * @param string $string a valid UTF-8 string. Input is not validated.
+	 * @param $string String: a valid UTF-8 string. Input is not validated.
 	 * @return string a UTF-8 string in normal form KC
-	 * @static
 	 */
 	static function toNFKC( $string ) {
 		if( NORMALIZE_ICU )
@@ -147,9 +147,8 @@ class UtfNormal {
 	 * This may cause irreversible information loss, use judiciously.
 	 * Fast return for pure ASCII strings.
 	 *
-	 * @param string $string a valid UTF-8 string. Input is not validated.
+	 * @param $string String: a valid UTF-8 string. Input is not validated.
 	 * @return string a UTF-8 string in normal form KD
-	 * @static
 	 */
 	static function toNFKD( $string ) {
 		if( NORMALIZE_ICU )
@@ -163,7 +162,6 @@ class UtfNormal {
 	/**
 	 * Load the basic composition data if necessary
 	 * @private
-	 * @static
 	 */
 	static function loadData() {
 		global $utfCombiningClass;
@@ -175,9 +173,8 @@ class UtfNormal {
 	/**
 	 * Returns true if the string is _definitely_ in NFC.
 	 * Returns false if not or uncertain.
-	 * @param string $string a valid UTF-8 string. Input is not validated.
+	 * @param $string String: a valid UTF-8 string. Input is not validated.
 	 * @return bool
-	 * @static
 	 */
 	static function quickIsNFC( $string ) {
 		# ASCII is always valid NFC!
@@ -217,8 +214,7 @@ class UtfNormal {
 	/**
 	 * Returns true if the string is _definitely_ in NFC.
 	 * Returns false if not or uncertain.
-	 * @param string $string a UTF-8 string, altered on output to be valid UTF-8 safe for XML.
-	 * @static
+	 * @param $string String: a UTF-8 string, altered on output to be valid UTF-8 safe for XML.
 	 */
 	static function quickIsNFCVerify( &$string ) {
 		# Screen out some characters that eg won't be allowed in XML
@@ -435,20 +431,18 @@ class UtfNormal {
 	# checking for validity or any optimization etc. Input must be
 	# VALID UTF-8!
 	/**
-	 * @param string $string
+	 * @param $string string
 	 * @return string
 	 * @private
-	 * @static
 	 */
 	static function NFC( $string ) {
 		return UtfNormal::fastCompose( UtfNormal::NFD( $string ) );
 	}
 
 	/**
-	 * @param string $string
+	 * @param $string string
 	 * @return string
 	 * @private
-	 * @static
 	 */
 	static function NFD( $string ) {
 		UtfNormal::loadData();
@@ -458,20 +452,18 @@ class UtfNormal {
 	}
 
 	/**
-	 * @param string $string
+	 * @param $string string
 	 * @return string
 	 * @private
-	 * @static
 	 */
 	static function NFKC( $string ) {
 		return UtfNormal::fastCompose( UtfNormal::NFKD( $string ) );
 	}
 
 	/**
-	 * @param string $string
+	 * @param $string string
 	 * @return string
 	 * @private
-	 * @static
 	 */
 	static function NFKD( $string ) {
 		global $utfCompatibilityDecomp;
@@ -488,10 +480,9 @@ class UtfNormal {
 	 * (depending on which decomposition map is passed to us).
 	 * Input is assumed to be *valid* UTF-8. Invalid code will break.
 	 * @private
-	 * @param string $string Valid UTF-8 string
-	 * @param array $map hash of expanded decomposition map
+	 * @param $string String: valid UTF-8 string
+	 * @param $map Array: hash of expanded decomposition map
 	 * @return string a UTF-8 string decomposed, not yet normalized (needs sorting)
-	 * @static
 	 */
 	static function fastDecompose( $string, $map ) {
 		UtfNormal::loadData();
@@ -550,9 +541,8 @@ class UtfNormal {
 	 * Sorts combining characters into canonical order. This is the
 	 * final step in creating decomposed normal forms D and KD.
 	 * @private
-	 * @param string $string a valid, decomposed UTF-8 string. Input is not validated.
+	 * @param $string String: a valid, decomposed UTF-8 string. Input is not validated.
 	 * @return string a UTF-8 string with combining characters sorted in canonical order
-	 * @static
 	 */
 	static function fastCombiningSort( $string ) {
 		UtfNormal::loadData();
@@ -604,9 +594,8 @@ class UtfNormal {
 	 * Produces canonically composed sequences, i.e. normal form C or KC.
 	 *
 	 * @private
-	 * @param string $string a valid UTF-8 string in sorted normal form D or KD. Input is not validated.
+	 * @param $string String: a valid UTF-8 string in sorted normal form D or KD. Input is not validated.
 	 * @return string a UTF-8 string with canonical precomposed characters used where possible
-	 * @static
 	 */
 	static function fastCompose( $string ) {
 		UtfNormal::loadData();
@@ -737,9 +726,8 @@ class UtfNormal {
 	/**
 	 * This is just used for the benchmark, comparing how long it takes to
 	 * interate through a string without really doing anything of substance.
-	 * @param string $string
+	 * @param $string string
 	 * @return string
-	 * @static
 	 */
 	static function placebo( $string ) {
 		$len = strlen( $string );
@@ -750,5 +738,3 @@ class UtfNormal {
 		return $out;
 	}
 }
-
-

@@ -30,12 +30,12 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * This is the abstract base class for API formatters.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 abstract class ApiFormatBase extends ApiBase {
 
-	private $mIsHtml, $mFormat, $mUnescapeAmps, $mHelp;
+	private $mIsHtml, $mFormat, $mUnescapeAmps, $mHelp, $mCleared;
 
 	/**
 	* Create a new instance of the formatter.
@@ -50,6 +50,7 @@ abstract class ApiFormatBase extends ApiBase {
 		else
 			$this->mFormat = $format;
 		$this->mFormat = strtoupper($this->mFormat);
+		$this->mCleared = false;
 	}
 
 	/**
@@ -62,7 +63,7 @@ abstract class ApiFormatBase extends ApiBase {
 	/**
 	 * If formatter outputs data results as is, the results must first be sanitized.
 	 * An XML formatter on the other hand uses special tags, such as "_element" for special handling,
-	 * and thus needs to override this function to return true.  
+	 * and thus needs to override this function to return true.
 	 */
 	public function getNeedsRawData() {
 		return false;
@@ -82,8 +83,8 @@ abstract class ApiFormatBase extends ApiBase {
 
 	/**
 	 * Returns true when an HTML filtering printer should be used.
-	 * The default implementation assumes that formats ending with 'fm' 
-	 * should be formatted in HTML. 
+	 * The default implementation assumes that formats ending with 'fm'
+	 * should be formatted in HTML.
 	 */
 	public function getIsHtml() {
 		return $this->mIsHtml;
@@ -111,7 +112,7 @@ abstract class ApiFormatBase extends ApiBase {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<?php if ($this->mUnescapeAmps) { 
+<?php if ($this->mUnescapeAmps) {
 ?>	<title>MediaWiki API</title>
 <?php } else {
 ?>	<title>MediaWiki API Result</title>
@@ -127,7 +128,7 @@ abstract class ApiFormatBase extends ApiBase {
 <small>
 You are looking at the HTML representation of the <?php echo( $this->mFormat ); ?> format.<br/>
 HTML is good for debugging, but probably is not suitable for your application.<br/>
-See <a href='http://www.mediawiki.org/wiki/API'>complete documentation</a>, or 
+See <a href='http://www.mediawiki.org/wiki/API'>complete documentation</a>, or
 <a href='<?php echo( $script ); ?>'>API help</a> for more information.
 </small>
 <?php
@@ -166,7 +167,17 @@ See <a href='http://www.mediawiki.org/wiki/API'>complete documentation</a>, or
 		if ($this->getIsHtml())
 			echo $this->formatHTML($text);
 		else
+		{
+			// For non-HTML output, clear all errors that might have been
+			// displayed if display_errors=On
+			// Do this only once, of course
+			if(!$this->mCleared)
+			{
+				ob_clean();
+				$this->mCleared = true;
+			}
 			echo $text;
+		}
 	}
 
 	/**
@@ -175,7 +186,7 @@ See <a href='http://www.mediawiki.org/wiki/API'>complete documentation</a>, or
 	public function setHelp( $help = true ) {
 		$this->mHelp = true;
 	}
-	
+
 	/**
 	* Prety-print various elements in HTML format, such as xml tags and URLs.
 	* This method also replaces any '<' with &lt;
@@ -188,16 +199,17 @@ See <a href='http://www.mediawiki.org/wiki/API'>complete documentation</a>, or
 		$text = preg_replace('/\&lt;(!--.*?--|.*?)\&gt;/', '<span style="color:blue;">&lt;\1&gt;</span>', $text);
 		// identify URLs
 		$protos = "http|https|ftp|gopher";
-		$text = ereg_replace("($protos)://[^ \\'\"()<\n]+", '<a href="\\0">\\0</a>', $text);
+		# This regex hacks around bug 13218 (&quot; included in the URL)
+		$text = preg_replace("#(($protos)://.*?)(&quot;)?([ \\'\"()<\n])#", '<a href="\\1">\\1</a>\\3\\4', $text);
 		// identify requests to api.php
-		$text = ereg_replace("api\\.php\\?[^ \\()<\n\t]+", '<a href="\\0">\\0</a>', $text);
+		$text = preg_replace("#api\\.php\\?[^ \\()<\n\t]+#", '<a href="\\0">\\0</a>', $text);
 		if( $this->mHelp ) {
 			// make strings inside * bold
 			$text = ereg_replace("\\*[^<>\n]+\\*", '<b>\\0</b>', $text);
 			// make strings inside $ italic
 			$text = ereg_replace("\\$[^<>\n]+\\$", '<b><i>\\0</i></b>', $text);
 		}
-		
+
 		/* Temporary fix for bad links in help messages. As a special case,
 		 * XML-escaped metachars are de-escaped one level in the help message
 		 * for legibility. Should be removed once we have completed a fully-html
@@ -220,13 +232,13 @@ See <a href='http://www.mediawiki.org/wiki/API'>complete documentation</a>, or
 	}
 
 	public static function getBaseVersion() {
-		return __CLASS__ . ': $Id: ApiFormatBase.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiFormatBase.php 36153 2008-06-10 15:20:22Z tstarling $';
 	}
 }
 
 /**
- * This printer is used to wrap an instance of the Feed class 
- * @addtogroup API
+ * This printer is used to wrap an instance of the Feed class
+ * @ingroup API
  */
 class ApiFormatFeedWrapper extends ApiFormatBase {
 
@@ -275,13 +287,12 @@ class ApiFormatFeedWrapper extends ApiFormatBase {
 				$feed->outItem($item);
 			$feed->outFooter();
 		} else {
-			// Error has occured, print something usefull
-			// TODO: make this error more informative using ApiBase :: dieDebug() or similar
-			wfHttpError(500, 'Internal Server Error', '');
+			// Error has occured, print something useful
+			ApiBase::dieDebug( __METHOD__, 'Invalid feed class/item' );
 		}
 	}
-	
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFormatBase.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiFormatBase.php 36153 2008-06-10 15:20:22Z tstarling $';
 	}
 }

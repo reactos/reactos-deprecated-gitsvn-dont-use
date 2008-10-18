@@ -461,7 +461,7 @@ Definition list with wikilink containing colon
 !! input
 ; [[Help:FAQ]]: The least-read page on Wikipedia
 !! result
-<dl><dt> <a href="/index.php?title=Help:FAQ&amp;action=edit" class="new" title="Help:FAQ">Help:FAQ</a></dt><dd> The least-read page on Wikipedia
+<dl><dt> <a href="/index.php?title=Help:FAQ&amp;action=edit&amp;redlink=1" class="new" title="Help:FAQ (not yet written)">Help:FAQ</a></dt><dd> The least-read page on Wikipedia
 </dd></dl>
 
 !! end
@@ -536,11 +536,11 @@ External links: numbered
 !! input
 Numbered: [http://example.com]
 Numbered: [http://example.net]
-Numbered: [http://example.org]
+Numbered: [http://example.com]
 !! result
 <p>Numbered: <a href="http://example.com" class="external autonumber" title="http://example.com" rel="nofollow">[1]</a>
 Numbered: <a href="http://example.net" class="external autonumber" title="http://example.net" rel="nofollow">[2]</a>
-Numbered: <a href="http://example.org" class="external autonumber" title="http://example.org" rel="nofollow">[3]</a>
+Numbered: <a href="http://example.com" class="external autonumber" title="http://example.com" rel="nofollow">[3]</a>
 </p>
 !!end
 
@@ -887,7 +887,7 @@ External links: wiki links within external link (Bug 3695)
 !! input
 [http://example.com [[wikilink]] embedded in ext link]
 !! result
-<p><a href="http://example.com" class="external text" title="http://example.com" rel="nofollow"></a><a href="/index.php?title=Wikilink&amp;action=edit" class="new" title="Wikilink">wikilink</a><a href="http://example.com" class="external text" title="http://example.com" rel="nofollow"> embedded in ext link</a>
+<p><a href="http://example.com" class="external text" title="http://example.com" rel="nofollow"></a><a href="/index.php?title=Wikilink&amp;action=edit&amp;redlink=1" class="new" title="Wikilink (not yet written)">wikilink</a><a href="http://example.com" class="external text" title="http://example.com" rel="nofollow"> embedded in ext link</a>
 </p>
 !! end
 
@@ -1316,7 +1316,7 @@ Broken link
 !! input
 [[Zigzagzogzagzig]]
 !! result
-<p><a href="/index.php?title=Zigzagzogzagzig&amp;action=edit" class="new" title="Zigzagzogzagzig">Zigzagzogzagzig</a>
+<p><a href="/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1" class="new" title="Zigzagzogzagzig (not yet written)">Zigzagzogzagzig</a>
 </p>
 !! end
 
@@ -1332,9 +1332,9 @@ xxx[[main Page]], xxx[[Main Page]], Xxx[[main Page]] XXX[[main Page]], XXX[[Main
 !! test
 Link with suffix
 !! input
-[[Main Page]]xxx, [[Main Page]]XXX
+[[Main Page]]xxx, [[Main Page]]XXX, [[Main Page]]!!!
 !! result
-<p><a href="/wiki/Main_Page" title="Main Page">Main Pagexxx</a>, <a href="/wiki/Main_Page" title="Main Page">Main Page</a>XXX
+<p><a href="/wiki/Main_Page" title="Main Page">Main Pagexxx</a>, <a href="/wiki/Main_Page" title="Main Page">Main PageXXX</a>, <a href="/wiki/Main_Page" title="Main Page">Main Page</a>!!!
 </p>
 !! end
 
@@ -1370,7 +1370,7 @@ Link to namespaces
 !! input
 [[Talk:Parser testing]], [[Meta:Disclaimers]]
 !! result
-<p><a href="/index.php?title=Talk:Parser_testing&amp;action=edit" class="new" title="Talk:Parser testing">Talk:Parser testing</a>, <a href="/index.php?title=Meta:Disclaimers&amp;action=edit" class="new" title="Meta:Disclaimers">Meta:Disclaimers</a>
+<p><a href="/index.php?title=Talk:Parser_testing&amp;action=edit&amp;redlink=1" class="new" title="Talk:Parser testing (not yet written)">Talk:Parser testing</a>, <a href="/index.php?title=Meta:Disclaimers&amp;action=edit&amp;redlink=1" class="new" title="Meta:Disclaimers (not yet written)">Meta:Disclaimers</a>
 </p>
 !! end
 
@@ -1379,7 +1379,7 @@ Piped link to namespace
 !! input
 [[Meta:Disclaimers|The disclaimers]]
 !! result
-<p><a href="/index.php?title=Meta:Disclaimers&amp;action=edit" class="new" title="Meta:Disclaimers">The disclaimers</a>
+<p><a href="/index.php?title=Meta:Disclaimers&amp;action=edit&amp;redlink=1" class="new" title="Meta:Disclaimers (not yet written)">The disclaimers</a>
 </p>
 !! end
 
@@ -1397,7 +1397,7 @@ Link containing % (not as a hex sequence)
 !! input
 [[7% Solution]]
 !! result
-<p><a href="/index.php?title=7%25_Solution&amp;action=edit" class="new" title="7% Solution">7% Solution</a>
+<p><a href="/index.php?title=7%25_Solution&amp;action=edit&amp;redlink=1" class="new" title="7% Solution (not yet written)">7% Solution</a>
 </p>
 !! end
 
@@ -1406,7 +1406,7 @@ Link containing % as a single hex sequence interpreted to char
 !! input
 [[7%25 Solution]]
 !! result
-<p><a href="/index.php?title=7%25_Solution&amp;action=edit" class="new" title="7% Solution">7% Solution</a>
+<p><a href="/index.php?title=7%25_Solution&amp;action=edit&amp;redlink=1" class="new" title="7% Solution (not yet written)">7% Solution</a>
 </p>
 !!end
 
@@ -1452,7 +1452,7 @@ Link containing double-single-quotes '' in text (bug 4598 sanity check)
 !! input
 Some [[Link|pretty ''italics'' and stuff]]!
 !! result
-<p>Some <a href="/index.php?title=Link&amp;action=edit" class="new" title="Link">pretty <i>italics</i> and stuff</a>!
+<p>Some <a href="/index.php?title=Link&amp;action=edit&amp;redlink=1" class="new" title="Link (not yet written)">pretty <i>italics</i> and stuff</a>!
 </p>
 !! end
 
@@ -1461,16 +1461,16 @@ Link containing double-single-quotes '' in text embedded in italics (bug 4598 sa
 !! input
 ''Some [[Link|pretty ''italics'' and stuff]]!
 !! result
-<p><i>Some </i><a href="/index.php?title=Link&amp;action=edit" class="new" title="Link"><i>pretty </i>italics<i> and stuff</i></a><i>!</i>
+<p><i>Some </i><a href="/index.php?title=Link&amp;action=edit&amp;redlink=1" class="new" title="Link (not yet written)"><i>pretty </i>italics<i> and stuff</i></a><i>!</i>
 </p>
 !! end
 
 !! test
 Plain link to URL
 !! input
-[[http://www.example.org]]
+[[http://www.example.com]]
 !! result
-<p>[<a href="http://www.example.org" class="external autonumber" title="http://www.example.org" rel="nofollow">[1]</a>]
+<p>[<a href="http://www.example.com" class="external autonumber" title="http://www.example.com" rel="nofollow">[1]</a>]
 </p>
 !! end
 
@@ -1481,16 +1481,16 @@ Plain link to URL
 # ----
 # I'm changing it to match the current output--it arguably makes more
 # sense in the light of the test above. Old expected result was:
-#<p>Piped link to URL: <a href="/index.php?title=Http://www.example.org&amp;action=edit" class="new" title="Http://www.example.org">an example URL</a>
+#<p>Piped link to URL: <a href="/index.php?title=Http://www.example.com&amp;action=edit" class="new" title="Http://www.example.com">an example URL</a>
 #</p>
 # But I think this test is bordering on "garbage in, garbage out" anyway.
 # -- wtm
 !! test
 Piped link to URL
 !! input
-Piped link to URL: [[http://www.example.org|an example URL]]
+Piped link to URL: [[http://www.example.com|an example URL]]
 !! result
-<p>Piped link to URL: [<a href="http://www.example.org|an" class="external text" title="http://www.example.org|an" rel="nofollow">example URL</a>]
+<p>Piped link to URL: [<a href="http://www.example.com|an" class="external text" title="http://www.example.com|an" rel="nofollow">example URL</a>]
 </p>
 !! end
 
@@ -2084,7 +2084,7 @@ Magic links: internal link to RFC (bug 479)
 !! input
 [[RFC 123]]
 !! result
-<p><a href="/index.php?title=RFC_123&amp;action=edit" class="new" title="RFC 123">RFC 123</a>
+<p><a href="/index.php?title=RFC_123&amp;action=edit&amp;redlink=1" class="new" title="RFC 123 (not yet written)">RFC 123</a>
 </p>
 !! end
 
@@ -2102,7 +2102,7 @@ Magic links: ISBN (bug 1937)
 !! input
 ISBN 0-306-40615-2
 !! result
-<p><a href="/index.php?title=Special:Booksources&amp;isbn=0306406152" class="internal">ISBN 0-306-40615-2</a>
+<p><a href="/wiki/Special:BookSources/0306406152" class="internal">ISBN 0-306-40615-2</a>
 </p>
 !! end
 
@@ -2124,7 +2124,7 @@ Nonexistant template
 !! input
 {{thistemplatedoesnotexist}}
 !! result
-<p><a href="/index.php?title=Template:Thistemplatedoesnotexist&amp;action=edit" class="new" title="Template:Thistemplatedoesnotexist">Template:Thistemplatedoesnotexist</a>
+<p><a href="/index.php?title=Template:Thistemplatedoesnotexist&amp;action=edit&amp;redlink=1" class="new" title="Template:Thistemplatedoesnotexist (not yet written)">Template:Thistemplatedoesnotexist</a>
 </p>
 !! end
 
@@ -2306,7 +2306,7 @@ Template with thumb image (with link in description)
 {{paramtest|
   param =[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
 !! result
-This is a test template with parameter <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="Image:Noimage.png">Image:Noimage.png</a>  <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit" class="new" title="No link">link</a> <a href="/index.php?title=No_link&amp;action=edit" class="new" title="No link">caption</a></div></div></div>
+This is a test template with parameter <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="Image:Noimage.png">Image:Noimage.png</a>  <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (not yet written)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (not yet written)">caption</a></div></div></div>
 
 !! end
 
@@ -3022,7 +3022,7 @@ msg
 !! input
 {{#special:Recentchanges}}
 !! result
-Special:Recentchanges
+Special:RecentChanges
 !! end
 
 !! test
@@ -3081,7 +3081,7 @@ Add test with existing image page
 !! input
 [[:Image:test]]
 !! result
-<p><a href="/index.php?title=Image:Test&amp;action=edit" class="new" title="Image:Test">Image:test</a>
+<p><a href="/index.php?title=Image:Test&amp;action=edit&amp;redlink=1" class="new" title="Image:Test (not yet written)">Image:test</a>
 </p>
 !! end
 
@@ -3108,7 +3108,7 @@ BUG 1887: A ISBN with a thumbnail
 !! input
 [[Image:foobar.jpg|thumb|ISBN 1235467890]]
 !! result
-<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="image" title="ISBN 1235467890"><img alt="ISBN 1235467890" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" border="0" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div><a href="/index.php?title=Special:Booksources&amp;isbn=1235467890" class="internal">ISBN 1235467890</a></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/Image:Foobar.jpg" class="image" title="ISBN 1235467890"><img alt="ISBN 1235467890" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" width="180" height="20" border="0" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/Image:Foobar.jpg" class="internal" title="Enlarge"><img src="/skins/common/images/magnify-clip.png" width="15" height="11" alt="" /></a></div><a href="/wiki/Special:BookSources/1235467890" class="internal">ISBN 1235467890</a></div></div></div>
 
 !! end
 
@@ -3281,7 +3281,7 @@ Disabled subpages
 !! input
 [[/subpage]]
 !! result
-<p><a href="/index.php?title=/subpage&amp;action=edit" class="new" title="/subpage">/subpage</a>
+<p><a href="/index.php?title=/subpage&amp;action=edit&amp;redlink=1" class="new" title="/subpage (not yet written)">/subpage</a>
 </p>
 !! end
 
@@ -3292,7 +3292,7 @@ subpage title=[[Page]]
 !! input
 {{/Subpage}}
 !! result
-<p><a href="/index.php?title=Page/Subpage&amp;action=edit" class="new" title="Page/Subpage">Page/Subpage</a>
+<p><a href="/index.php?title=Page/Subpage&amp;action=edit&amp;redlink=1" class="new" title="Page/Subpage (not yet written)">Page/Subpage</a>
 </p>
 !! end
 
@@ -3322,6 +3322,15 @@ cat
 [[Category:MediaWiki User's Guide]]
 !! result
 <a href="/wiki/Category:MediaWiki_User%27s_Guide" title="Category:MediaWiki User's Guide">MediaWiki User's Guide</a>
+!! end
+
+!! test
+PAGESINCATEGORY invalid title fatal (r33546 fix)
+!! input
+{{PAGESINCATEGORY:<bogus>}}
+!! result
+<p>0
+</p>
 !! end
 
 ###
@@ -3551,6 +3560,17 @@ Resolving duplicate section names
 
 !! end
 
+!! test
+Resolving duplicate section names with differing case (bug 10721)
+!! input
+== Foo bar ==
+== Foo Bar ==
+!! result
+<a name="Foo_bar"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Foo bar">edit</a>]</span> <span class="mw-headline"> Foo bar </span></h2>
+<a name="Foo_Bar_2"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: Foo Bar">edit</a>]</span> <span class="mw-headline"> Foo Bar </span></h2>
+
+!! end
+
 !! article
 Template:sections
 !! text
@@ -3594,6 +3614,29 @@ Link inside a section heading
 
 !! end
 
+!! test
+TOC regression (bug 12077)
+!! input
+__TOC__
+== title 1 ==
+=== title 1.1 ===
+== title 2 ==
+!! result
+<table id="toc" class="toc" summary="Contents"><tr><td><div id="toctitle"><h2>Contents</h2></div>
+<ul>
+<li class="toclevel-1"><a href="#title_1"><span class="tocnumber">1</span> <span class="toctext">title 1</span></a>
+<ul>
+<li class="toclevel-2"><a href="#title_1.1"><span class="tocnumber">1.1</span> <span class="toctext">title 1.1</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#title_2"><span class="tocnumber">2</span> <span class="toctext">title 2</span></a></li>
+</ul>
+</td></tr></table><script type="text/javascript"> if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
+<a name="title_1"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: title 1">edit</a>]</span> <span class="mw-headline"> title 1 </span></h2>
+<a name="title_1.1"></a><h3><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: title 1.1">edit</a>]</span> <span class="mw-headline"> title 1.1 </span></h3>
+<a name="title_2"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: title 2">edit</a>]</span> <span class="mw-headline"> title 2 </span></h2>
+
+!! end
 
 !! test
 BUG 1219 URL next to image (good)
@@ -3804,7 +3847,7 @@ Image link to nonexistent file (bug 1850 - good)
 !! input
 [[:Image:No such.jpg]]
 !! result
-<p><a href="/index.php?title=Image:No_such.jpg&amp;action=edit" class="new" title="Image:No such.jpg">Image:No such.jpg</a>
+<p><a href="/index.php?title=Image:No_such.jpg&amp;action=edit&amp;redlink=1" class="new" title="Image:No such.jpg (not yet written)">Image:No such.jpg</a>
 </p>
 !! end
 
@@ -4519,6 +4562,34 @@ Self closed html pairs (bug 5487)
 #
 
 !! test
+Punctuation: nbsp before exclamation
+!! input
+C'est grave !
+!! result
+<p>C'est grave&nbsp;!
+</p>
+!! end
+
+!! test
+Punctuation: CSS !important (bug 11874)
+!! input
+<div style="width:50% !important">important</div>
+!! result
+<div style="width:50% !important">important</div>
+
+!!end
+
+!! test
+Punctuation: CSS ! important (bug 11874; with space after)
+!! input
+<div style="width:50% ! important">important</div>
+!! result
+<div style="width:50% ! important">important</div>
+
+!!end
+
+
+!! test
 HTML bullet list, closed tags (bug 5497)
 !! input
 <ul>
@@ -5037,7 +5108,7 @@ Transclusion of nonexistent MediaWiki message
 !! input
 {{MediaWiki:Mainpagexxx}}
 !!result
-<p><a href="/index.php?title=MediaWiki:Mainpagexxx&amp;action=edit" class="new" title="MediaWiki:Mainpagexxx">MediaWiki:Mainpagexxx</a>
+<p><a href="/index.php?title=MediaWiki:Mainpagexxx&amp;action=edit&amp;redlink=1" class="new" title="MediaWiki:Mainpagexxx (not yet written)">MediaWiki:Mainpagexxx</a>
 </p>
 !! end
 
@@ -5795,6 +5866,20 @@ start
 xxx
 !! end
 
+!! test
+Section replacement test with initial whitespace (bug 13728)
+!! options
+replace=2,"xxx"
+!! input
+ Preformatted initial line
+==a==
+===a===
+!! result
+ Preformatted initial line
+==a==
+xxx
+!! end
+
 
 !! test
 Section extraction, heading followed by pre with 20 spaces (bug 6398)
@@ -5925,7 +6010,7 @@ Say the magic word
 </li><li> Talk
 </li><li> 
 </li><li> 
-</li><li> <a href="/index.php?title=Template:Dynamic&amp;action=edit" class="new" title="Template:Dynamic">Template:Dynamic</a>
+</li><li> <a href="/index.php?title=Template:Dynamic&amp;action=edit&amp;redlink=1" class="new" title="Template:Dynamic (not yet written)">Template:Dynamic</a>
 </li></ul>
 
 !! end
@@ -6014,7 +6099,7 @@ ISBN code coverage
 !! input
 ISBN  978-0-1234-56&#x20;789
 !! result
-<p><a href="/index.php?title=Special:Booksources&amp;isbn=9780123456" class="internal">ISBN 978-0-1234-56</a>&#x20;789
+<p><a href="/wiki/Special:BookSources/9780123456" class="internal">ISBN 978-0-1234-56</a>&#x20;789
 </p>
 !! end
 
@@ -6032,7 +6117,7 @@ Double ISBN
 !! input
 ISBN ISBN 1234567890
 !! result
-<p>ISBN <a href="/index.php?title=Special:Booksources&amp;isbn=1234567890" class="internal">ISBN 1234567890</a>
+<p>ISBN <a href="/wiki/Special:BookSources/1234567890" class="internal">ISBN 1234567890</a>
 </p>
 !! end
 
@@ -6050,7 +6135,7 @@ Double RFC with a wiki link
 !! input
 RFC [[RFC 1234]]
 !! result
-<p>RFC <a href="/index.php?title=RFC_1234&amp;action=edit" class="new" title="RFC 1234">RFC 1234</a>
+<p>RFC <a href="/index.php?title=RFC_1234&amp;action=edit&amp;redlink=1" class="new" title="RFC 1234 (not yet written)">RFC 1234</a>
 </p>
 !! end
 
@@ -6155,7 +6240,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 !! input
 [[../|L2]]
 !! result
-<p><a href="/index.php?title=Subpage_test/L1/L2&amp;action=edit" class="new" title="Subpage test/L1/L2">L2</a>
+<p><a href="/index.php?title=Subpage_test/L1/L2&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1/L2 (not yet written)">L2</a>
 </p>
 !! end
 
@@ -6167,7 +6252,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 !! input
 [[../]]
 !! result
-<p><a href="/index.php?title=Subpage_test/L1/L2&amp;action=edit" class="new" title="Subpage test/L1/L2">Subpage test/L1/L2</a>
+<p><a href="/index.php?title=Subpage_test/L1/L2&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1/L2 (not yet written)">Subpage test/L1/L2</a>
 </p>
 !! end
 
@@ -6181,7 +6266,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 !! input
 [[../../|L1]]2
 !! result
-<p><a href="/index.php?title=Subpage_test/L1&amp;action=edit" class="new" title="Subpage test/L1">L1</a>
+<p><a href="/index.php?title=Subpage_test/L1&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1 (not yet written)">L1</a>
 </p>
 !! end
 
@@ -6194,7 +6279,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 !! input
 [[../..]]
 !! result
-<p><a href="/index.php?title=Subpage_test/L1/L2/..&amp;action=edit" class="new" title="Subpage test/L1">../..</a>
+<p><a href="/index.php?title=Subpage_test/L1/L2/..&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1 (not yet written)">../..</a>
 </p>
 !! end
 
@@ -6207,7 +6292,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 !! input
 [[../../////]]
 !! result
-<p><a href="/index.php?title=Subpage_test/L1&amp;action=edit" class="new" title="Subpage test/L1">Subpage test/L1</a>
+<p><a href="/index.php?title=Subpage_test/L1&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1 (not yet written)">Subpage test/L1</a>
 </p>
 !! end
 
@@ -6248,7 +6333,7 @@ RAW magic word
 !! input
 {{RAW:QUERTY}}
 !! result
-<p><a href="/index.php?title=Template:QUERTY&amp;action=edit" class="new" title="Template:QUERTY">Template:QUERTY</a>
+<p><a href="/index.php?title=Template:QUERTY&amp;action=edit&amp;redlink=1" class="new" title="Template:QUERTY (not yet written)">Template:QUERTY</a>
 </p>
 !! end
 
@@ -6308,10 +6393,10 @@ Out-of-order TOC heading levels
 <li class="toclevel-2"><a href="#3"><span class="tocnumber">1.2</span> <span class="toctext">3</span></a></li>
 </ul>
 </li>
-<li class="toclevel-1"><a href="#1_7"><span class="tocnumber">2</span> <span class="toctext">1</span></a>
+<li class="toclevel-1"><a href="#1"><span class="tocnumber">2</span> <span class="toctext">1</span></a>
 <ul>
 <li class="toclevel-2"><a href="#5"><span class="tocnumber">2.1</span> <span class="toctext">5</span></a></li>
-<li class="toclevel-2"><a href="#2_4"><span class="tocnumber">2.2</span> <span class="toctext">2</span></a></li>
+<li class="toclevel-2"><a href="#2_2"><span class="tocnumber">2.2</span> <span class="toctext">2</span></a></li>
 </ul>
 </li>
 </ul>
@@ -6319,9 +6404,9 @@ Out-of-order TOC heading levels
 <a name="2"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 2">edit</a>]</span> <span class="mw-headline">2</span></h2>
 <a name="6"></a><h6><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 6">edit</a>]</span> <span class="mw-headline">6</span></h6>
 <a name="3"></a><h3><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 3">edit</a>]</span> <span class="mw-headline">3</span></h3>
-<a name="1_7"></a><h1><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 1">edit</a>]</span> <span class="mw-headline">1</span></h1>
+<a name="1"></a><h1><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 1">edit</a>]</span> <span class="mw-headline">1</span></h1>
 <a name="5"></a><h5><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 5">edit</a>]</span> <span class="mw-headline">5</span></h5>
-<a name="2_4"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Edit section: 2">edit</a>]</span> <span class="mw-headline">2</span></h2>
+<a name="2_2"></a><h2><span class="editsection">[<a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Edit section: 2">edit</a>]</span> <span class="mw-headline">2</span></h2>
 
 !! end
 
@@ -6341,7 +6426,7 @@ ISBN with space-delimited number
 !! input
 ISBN 92 9017 032 8
 !! result
-<p><a href="/index.php?title=Special:Booksources&amp;isbn=9290170328" class="internal">ISBN 92 9017 032 8</a>
+<p><a href="/wiki/Special:BookSources/9290170328" class="internal">ISBN 92 9017 032 8</a>
 </p>
 !! end
 
@@ -6366,7 +6451,7 @@ ISBN 1234567890
 ISBN 12345678901
 !! result
 <p>ISBN 123456789
-</p><p><a href="/index.php?title=Special:Booksources&amp;isbn=1234567890" class="internal">ISBN 1234567890</a>
+</p><p><a href="/wiki/Special:BookSources/1234567890" class="internal">ISBN 1234567890</a>
 </p><p>ISBN 12345678901
 </p>
 !! end
@@ -6379,8 +6464,8 @@ ISBN 1-234-56789-0 - 2006
 
 ISBN 1 234 56789 0 - 2006
 !! result
-<p><a href="/index.php?title=Special:Booksources&amp;isbn=1234567890" class="internal">ISBN 1-234-56789-0</a> - 2006
-</p><p><a href="/index.php?title=Special:Booksources&amp;isbn=1234567890" class="internal">ISBN 1 234 56789 0</a> - 2006
+<p><a href="/wiki/Special:BookSources/1234567890" class="internal">ISBN 1-234-56789-0</a> - 2006
+</p><p><a href="/wiki/Special:BookSources/1234567890" class="internal">ISBN 1 234 56789 0</a> - 2006
 </p>
 !! end
 

@@ -1,10 +1,10 @@
 <?php
 /** Serbian (Српски / Srpski)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  */
 
 $fallback = 'sr-ec';
 $linkTrail = '/^([abvgdđežzijklljmnnjoprstćufhcčdžšабвгдђежзијклљмнњопрстћуфхцчџш]+)(.*)$/usD';
-

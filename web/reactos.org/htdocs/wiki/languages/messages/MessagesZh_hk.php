@@ -1,7 +1,8 @@
 <?php
-/** Hong Kong Chinese‬ (‪中文(香港)‬)
+/** Chinese (Hong Kong) (‪中文(香港)‬)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  */
 
@@ -35,7 +36,7 @@ $messages = array(
 # Tooltip help for the actions
 'tooltip-t-print' => '這個頁面的可打印版本',
 
-# Special:Newimages
+# Special:NewImages
 'showhidebots' => '($1機械人)',
 
 );

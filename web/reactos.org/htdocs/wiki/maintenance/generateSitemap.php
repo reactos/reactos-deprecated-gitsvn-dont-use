@@ -2,16 +2,16 @@
 define( 'GS_MAIN', -2 );
 define( 'GS_TALK', -1 );
 /**
- * Creates a Google sitemap for the site
+ * Creates a sitemap for the site
  *
- * @addtogroup Maintenance
+ * @ingroup Maintenance
  *
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
  * @copyright Copyright © 2005, Jens Frank <jeluf@gmx.de>
  * @copyright Copyright © 2005, Brion Vibber <brion@pobox.com>
  *
- * @see http://www.google.com/webmasters/sitemaps/docs/en/about.html
- * @see http://www.google.com/schemas/sitemap/0.84/sitemap.xsd
+ * @see http://www.sitemaps.org/
+ * @see http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
  *
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
@@ -20,7 +20,7 @@ class GenerateSitemap {
 	/**
 	 * The maximum amount of urls in a sitemap file
 	 *
-	 * @link http://www.google.com/schemas/sitemap/0.84/sitemap.xsd
+	 * @link http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
 	 *
 	 * @var int
 	 */
@@ -29,7 +29,7 @@ class GenerateSitemap {
 	/**
 	 * The maximum size of a sitemap file
 	 *
-	 * @link http://www.google.com/webmasters/sitemaps/docs/en/protocol.html#faq_sitemap_size
+	 * @link http://www.sitemaps.org/faq.php#faq_sitemap_size
 	 *
 	 * @var int
 	 */
@@ -148,14 +148,32 @@ class GenerateSitemap {
 
 		$this->url_limit = 50000;
 		$this->size_limit = pow( 2, 20 ) * 10;
-		$this->fspath = isset( $fspath ) ? $fspath : '';
+		$this->fspath = self::init_path( $fspath );
+
 		$this->compress = $compress;
 
 		$this->stderr = fopen( 'php://stderr', 'wt' );
 		$this->dbr = wfGetDB( DB_SLAVE );
 		$this->generateNamespaces();
 		$this->timestamp = wfTimestamp( TS_ISO_8601, wfTimestampNow() );
+
+
 		$this->findex = fopen( "{$this->fspath}sitemap-index-" . wfWikiID() . ".xml", 'wb' );
+	}
+
+	/**
+	 * Create directory if it does not exist and return pathname with a trailing slash
+	 */
+	private static function init_path( $fspath ) {
+		if( !isset( $fspath ) ) {
+			return null;
+		}
+		# Create directory if needed
+		if( $fspath && !is_dir( $fspath ) ) {
+			mkdir( $fspath, 0755 ) or die("Can not create directory $fspath.\n");
+		}
+
+		return realpath( $fspath ). DIRECTORY_SEPARATOR ;
 	}
 
 	/**
@@ -163,6 +181,13 @@ class GenerateSitemap {
 	 */
 	function generateNamespaces() {
 		$fname = 'GenerateSitemap::generateNamespaces';
+
+		// Only generate for specific namespaces if $wgSitemapNamespaces is an array.
+		global $wgSitemapNamespaces;
+		if( is_array( $wgSitemapNamespaces ) ) {
+			$this->namespaces = $wgSitemapNamespaces;
+			return;
+		}
 
 		$res = $this->dbr->select( 'page',
 			array( 'page_namespace' ),
@@ -200,7 +225,7 @@ class GenerateSitemap {
 	 * @return string
 	 */
 	function guessPriority( $namespace ) {
-		return Namespace::isMain( $namespace ) ? $this->priorities[GS_MAIN] : $this->priorities[GS_TALK];
+		return MWNamespace::isMain( $namespace ) ? $this->priorities[GS_MAIN] : $this->priorities[GS_TALK];
 	}
 
 	/**
@@ -253,7 +278,7 @@ class GenerateSitemap {
 					$this->file = $this->open( $this->fspath . $filename, 'wb' );
 					$this->write( $this->file, $this->openFile() );
 					fwrite( $this->findex, $this->indexEntry( $filename ) );
-					$this->debug( "\t$filename" );
+					$this->debug( "\t$this->fspath$filename" );
 					$length = $this->limit[0];
 					$i = 1;
 				}
@@ -345,7 +370,7 @@ class GenerateSitemap {
 	 * @returns string
 	 */
 	function xmlSchema() {
-		return 'http://www.google.com/schemas/sitemap/0.84';
+		return 'http://www.sitemaps.org/schemas/sitemap/0.9';
 	}
 
 	/**
@@ -450,7 +475,7 @@ if ( in_array( '--help', $argv ) ) {
 Usage: php generateSitemap.php [options]
 	--help			show this message
 
-	--fspath=<path>		The file system path to save to, e.g /tmp/sitemap/
+	--fspath=<path>		The file system path to save to, e.g /tmp/sitemap
 
 	--server=<server>	The protocol and server name to use in URLs, e.g.
 		http://en.wikipedia.org. This is sometimes necessary because

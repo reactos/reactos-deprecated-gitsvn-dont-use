@@ -1,9 +1,10 @@
 <?php
 /**
- * See skin.txt
+ * See docs/skin.txt
  *
  * @todo document
- * @addtogroup Skins
+ * @file
+ * @ingroup Skins
  */
 
 if( !defined( 'MEDIAWIKI' ) )
@@ -11,7 +12,7 @@ if( !defined( 'MEDIAWIKI' ) )
 
 /**
  * @todo document
- * @addtogroup Skins
+ * @ingroup Skins
  */
 class SkinStandard extends Skin {
 
@@ -152,6 +153,9 @@ class SkinStandard extends Skin {
 
 		# Use the first heading from the Monobook sidebar as the "browse" section
 		$bar = $this->buildSidebar();
+		unset( $bar['SEARCH'] );
+		unset( $bar['LANGUAGES'] );
+		unset( $bar['TOOLBOX'] );
 		$browseLinks = reset( $bar );
 
 		foreach ( $browseLinks as $link ) {

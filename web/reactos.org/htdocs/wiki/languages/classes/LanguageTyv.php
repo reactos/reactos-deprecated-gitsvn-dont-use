@@ -1,21 +1,17 @@
 <?php
+
 /** Tyvan localization (Тыва дыл)
- * @addtogroup Language
+ * From friends at tyvawiki.org
+ *
+ * @ingroup Language
  */
-
-# From friends at tyvawiki.org
-
-#--------------------------------------------------------------------------
-# Internationalisation code
-#--------------------------------------------------------------------------
-
 class LanguageTyv extends Language {
 	/**
 	 * Grammatical transformations, needed for inflected languages
 	 * Invoked by putting {{grammar:case|word}} in a message
 	 *
-	 * @param string $word
-	 * @param string $case
+	 * @param $word string
+	 * @param $case string
 	 * @return string
 	 */
 	function convertGrammar( $word, $case ) {
@@ -23,7 +19,6 @@ class LanguageTyv extends Language {
 		if ( isset($wgGrammarForms['tyv'][$case][$word]) ) {
 			return $wgGrammarForms['tyv'][$case][$word];
 		}
-
 
 	// Set up some constants...
 		$allVowels = array("е", "и", "э", "ө", "ү", "а", "ё", "о", "у", "ы", "ю", "я", "a", "e", "i", "o", "ö", "u", "ü", "y");
@@ -229,4 +224,3 @@ class LanguageTyv extends Language {
 		return $word;
 	}
 }
-

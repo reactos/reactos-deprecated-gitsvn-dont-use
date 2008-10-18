@@ -1,8 +1,7 @@
 <?php
-
-/** 
- * @package MediaWiki
- * @addtogroup Ajax
+/**
+ * @file
+ * @ingroup Ajax
  */
 
 if( !defined( 'MEDIAWIKI' ) ) {
@@ -56,7 +55,7 @@ function js_unescape($source, $iconv_to = 'UTF-8') {
 
 /**
  * Function coverts number of utf char into that character.
- * Function taken from: http://sk2.php.net/manual/en/function.utf8-encode.php#49336
+ * Function taken from: http://www.php.net/manual/en/function.utf8-encode.php#49336
  *
  * @param $num Integer
  * @return utf8char
@@ -76,7 +75,7 @@ function code2utf($num){
 define( 'AJAX_SEARCH_VERSION', 2 );	//AJAX search cache version
 
 function wfSajaxSearch( $term ) {
-	global $wgContLang, $wgOut, $wgUser, $wgCapitalLinks, $wgMemc;
+	global $wgContLang, $wgUser, $wgCapitalLinks, $wgMemc;
 	$limit = 16;
 	$sk = $wgUser->getSkin();
 	$output = '';
@@ -84,7 +83,7 @@ function wfSajaxSearch( $term ) {
 	$term = trim( $term );
 	$term = $wgContLang->checkTitleEncoding( $wgContLang->recodeInput( js_unescape( $term ) ) );
 	if ( $wgCapitalLinks )
-		$term = $wgContLang->ucfirst( $term ); 
+		$term = $wgContLang->ucfirst( $term );
 	$term_title = Title::newFromText( $term );
 
 	$memckey = $term_title ? wfMemcKey( 'ajaxsearch', md5( $term_title->getFullText() ) ) : wfMemcKey( 'ajaxsearch', md5( $term ) );
@@ -97,12 +96,12 @@ function wfSajaxSearch( $term ) {
 
 	$r = $more = '';
 	$canSearch = true;
-	
+
 	$results = PrefixSearch::titleSearch( $term, $limit + 1 );
 	foreach( array_slice( $results, 0, $limit ) as $titleText ) {
 		$r .= '<li>' . $sk->makeKnownLink( $titleText ) . "</li>\n";
 	}
-	
+
 	// Hack to check for specials
 	if( $results ) {
 		$t = Title::newFromText( $results[0] );
@@ -128,9 +127,10 @@ function wfSajaxSearch( $term ) {
 
 	$valid = (bool) $term_title;
 	$term_url = urlencode( $term );
-	$term_diplay = htmlspecialchars( $valid ? $term_title->getFullText() : $term );
+	$term_normalized = $valid ? $term_title->getFullText() : $term;
+	$term_display = htmlspecialchars( $term );
 	$subtitlemsg = ( $valid ? 'searchsubtitle' : 'searchsubtitleinvalid' );
-	$subtitle = wfMsgWikiHtml( $subtitlemsg, $term_diplay );
+	$subtitle = wfMsgExt( $subtitlemsg, array( 'parse' ), wfEscapeWikiText( $term_normalized ) );
 	$html = '<div id="searchTargetHide"><a onclick="Searching_Hide_Results();">'
 		. wfMsgHtml( 'hideresults' ) . '</a></div>'
 		. '<h1 class="firstHeading">'.wfMsgHtml('search')
@@ -138,15 +138,15 @@ function wfSajaxSearch( $term ) {
 	if( $canSearch ) {
 		$html .= '<ul><li>'
 			. $sk->makeKnownLink( $wgContLang->specialPage( 'Search' ),
-						wfMsgHtml( 'searchcontaining', $term_diplay ),
+						wfMsgHtml( 'searchcontaining', $term_display ),
 						"search={$term_url}&fulltext=Search" )
 			. '</li><li>' . $sk->makeKnownLink( $wgContLang->specialPage( 'Search' ),
-						wfMsgHtml( 'searchnamed', $term_diplay ) ,
+						wfMsgHtml( 'searchnamed', $term_display ) ,
 						"search={$term_url}&go=Go" )
 			. "</li></ul>";
 	}
 	if( $r ) {
-		$html .= "<h2>" . wfMsgHtml( 'articletitles', $term_diplay ) . "</h2>"
+		$html .= "<h2>" . wfMsgHtml( 'articletitles', $term_display ) . "</h2>"
 			. '<ul>' .$r .'</ul>' . $more;
 	}
 
@@ -161,7 +161,7 @@ function wfSajaxSearch( $term ) {
  * Called for AJAX watch/unwatch requests.
  * @param $pagename Prefixed title string for page to watch/unwatch
  * @param $watch String 'w' to watch, 'u' to unwatch
- * @return String '<w#>' or '<u#>' on successful watch or unwatch, 
+ * @return String '<w#>' or '<u#>' on successful watch or unwatch,
  *   respectively, followed by an HTML message to display in the alert box; or
  *   '<err#>' on error
  */
@@ -169,7 +169,7 @@ function wfAjaxWatch($pagename = "", $watch = "") {
 	if(wfReadOnly()) {
 		// redirect to action=(un)watch, which will display the database lock
 		// message
-		return '<err#>'; 
+		return '<err#>';
 	}
 
 	if('w' !== $watch && 'u' !== $watch) {
@@ -206,4 +206,3 @@ function wfAjaxWatch($pagename = "", $watch = "") {
 		return '<u#>'.wfMsgExt( 'removedwatchtext', array( 'parse' ), $title->getPrefixedText() );
 	}
 }
-

@@ -1,7 +1,7 @@
 <?php
 /** Azerbaijani (Azərbaycan)
   *
-  * @addtogroup Language
+  * @ingroup Language
   */
 class LanguageAz extends Language {
 	function ucfirst ( $string ) {
@@ -11,6 +11,4 @@ class LanguageAz extends Language {
 			return parent::ucfirst( $string );
 		}
 	}
-
 }
-

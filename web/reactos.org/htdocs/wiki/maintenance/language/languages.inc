@@ -2,9 +2,13 @@
 /**
  * Handle messages in the language files.
  *
- * @addtogroup Maintenance
+ * @file
+ * @ingroup MaintenanceLanguage
  */
 
+/**
+ * @ingroup MaintenanceLanguage
+ */
 class languages {
 	protected $mLanguages; # List of languages
 	protected $mRawMessages; # Raw list of the messages in each language
@@ -322,6 +326,8 @@ class languages {
 			'<br *\\?>',
 			'<hr/>',
 			'<br/>',
+			'<hr>',
+			'<br>',
 		);
 		$wrongPhrases = '~(' . implode( '|', $wrongPhrases ) . ')~sDu';
 		$nonXHTMLMessages = array();
@@ -418,4 +424,41 @@ class languages {
 
 }
 
-?>
+class extensionLanguages extends languages {
+	private $mMessageGroup; # The message group
+
+	/**
+	 * Load the messages group.
+	 * @param $group The messages group.
+	 */
+	function __construct( MessageGroup $group ) {
+		$this->mMessageGroup = $group;
+
+		$bools = $this->mMessageGroup->getBools();
+		$this->mIgnoredMessages = $bools['ignored'];
+		$this->mOptionalMessages = $bools['optional'];
+	}
+
+	/**
+	 * Get the extension name.
+	 *
+	 * @return The extension name.
+	 */
+	public function name() {
+		return $this->mMessageGroup->getLabel();
+	}
+
+	/**
+	 * Load the raw messages for a specific language.
+	 *
+	 * @param $code The language code.
+	 */
+	protected function loadRawMessages( $code ) {
+		if( !isset( $this->mRawMessages[$code] ) ) {
+			$this->mRawMessages[$code] = $this->mMessageGroup->load( $code );
+			if( empty( $this->mRawMessages[$code] ) ) {
+				$this->mRawMessages[$code] = array();
+			}
+		}
+	}
+}

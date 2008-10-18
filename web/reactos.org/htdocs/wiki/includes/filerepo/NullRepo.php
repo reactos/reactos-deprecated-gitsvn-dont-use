@@ -2,15 +2,15 @@
 
 /**
  * File repository with no files, for performance testing
+ * @ingroup FileRepo
  */
-
 class NullRepo extends FileRepo {
 	function __construct( $info ) {}
-	
+
 	function storeBatch( $triplets, $flags = 0 ) {
 		return false;
 	}
-	
+
 	function storeTemp( $originalName, $srcPath ) {
 		return false;
 	}
@@ -30,5 +30,3 @@ class NullRepo extends FileRepo {
 		return false;
 	}
 }
-
-?>

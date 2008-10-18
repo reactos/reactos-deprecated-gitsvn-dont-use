@@ -1,7 +1,8 @@
 <?php
 /**
+ * @file
  * @deprecated
- * @addtogroup MaintenanceArchive
+ * @ingroup MaintenanceArchive
  */
 
 /** */
@@ -29,7 +30,7 @@ $sql = "CREATE TABLE watchlist (
   wl_user int(5) unsigned NOT NULL,
   wl_page int(8) unsigned NOT NULL,
   UNIQUE KEY (wl_user, wl_page)
-) TYPE=MyISAM PACK_KEYS=1";
+) ENGINE=MyISAM PACK_KEYS=1";
 wfQuery( $sql, DB_MASTER );
 
 $lc = new LinkCache;

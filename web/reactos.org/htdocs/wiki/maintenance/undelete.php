@@ -1,4 +1,10 @@
 <?php
+/**
+ * Undelete a page by fetching it from the archive table
+ *
+ * @file
+ * @ingroup Maintenance
+ */
 
 $usage = <<<EOT
 Undelete a page

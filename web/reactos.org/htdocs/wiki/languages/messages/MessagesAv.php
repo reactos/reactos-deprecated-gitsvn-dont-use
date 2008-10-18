@@ -1,11 +1,11 @@
 <?php
 /** Avaric (Авар)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author MONARCH79
  * @author Phoebe
- * @author Siebrand
  */
 
 $fallback = 'ru';
@@ -34,11 +34,11 @@ $messages = array(
 'otherlanguages' => 'Цойги мацIазда',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'currentevents' => 'Жакъасел лъугьа-бахъинал',
-'mainpage'      => 'БетIераб гьумер',
-'portal'        => 'Майдан',
-'portal-url'    => 'Project:Майдан',
-'sitesupport'   => 'Садакъа',
+'currentevents'        => 'Жакъасел лъугьа-бахъинал',
+'mainpage'             => 'БетIераб гьумер',
+'mainpage-description' => 'БетIераб гьумер',
+'portal'               => 'Майдан',
+'portal-url'           => 'Project:Майдан',
 
 'editsection' => 'хисизабизе',
 
@@ -86,15 +86,14 @@ $messages = array(
 'randompage' => 'Цебе ккараб гьумер',
 
 # Miscellaneous special pages
-'shortpages'   => 'Къокъал макъалаби',
-'longpages'    => 'Кlудиял гьумерал',
-'listusers'    => 'Гlахьалчагlазул сияхl',
-'specialpages' => 'Хассал гьумерал',
+'shortpages' => 'Къокъал макъалаби',
+'longpages'  => 'Кlудиял гьумерал',
+'listusers'  => 'Гlахьалчагlазул сияхl',
 
 # Special:Log
 'specialloguserlabel' => 'ГIахьалчи:',
 
-# Special:Allpages
+# Special:AllPages
 'allarticles' => 'Киналго макъалаби',
 
 # Watchlist
@@ -106,8 +105,11 @@ $messages = array(
 'mycontris'     => 'Дур гlахьаллъи',
 
 # Move page
-'movepage'    => 'Гьумералъул цlар хисизе',
-'movearticle' => 'Гьумералъул цIар хисизе',
-'movepagebtn' => 'Гьумералъул цlар хисизе',
+'move-page-legend' => 'Гьумералъул цlар хисизе',
+'movearticle'      => 'Гьумералъул цIар хисизе',
+'movepagebtn'      => 'Гьумералъул цlар хисизе',
+
+# Special:SpecialPages
+'specialpages' => 'Хассал гьумерал',
 
 );

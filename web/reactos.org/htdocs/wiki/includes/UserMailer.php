@@ -29,8 +29,8 @@
  */
 class MailAddress {
 	/**
-	 * @param mixed $address String with an email address, or a User object
-	 * @param string $name Human-readable name if a string address is given
+	 * @param $address Mixed: string with an email address, or a User object
+	 * @param $name String: human-readable name if a string address is given
 	 */
 	function __construct( $address, $name=null ) {
 		if( is_object( $address ) && $address instanceof User ) {
@@ -126,10 +126,12 @@ class UserMailer {
 
 			$headers['From'] = $from->toString();
 
-			if ($wgEnotifImpersonal)
+			if ($wgEnotifImpersonal) {
 				$headers['To'] = 'undisclosed-recipients:;';
-			else
-				$headers['To'] = $to->toString();
+			}
+			else {
+				$headers['To'] = implode( ", ", (array )$dest );
+			}
 
 			if ( $replyto ) {
 				$headers['Reply-To'] = $replyto->toString();
@@ -160,7 +162,7 @@ class UserMailer {
 			# In the following $headers = expression we removed "Reply-To: {$from}\r\n" , because it is treated differently
 			# (fifth parameter of the PHP mail function, see some lines below)
 
-			# Line endings need to be different on Unix and Windows due to 
+			# Line endings need to be different on Unix and Windows due to
 			# the bug described at http://trac.wordpress.org/ticket/2603
 			if ( wfIsWindows() ) {
 				$body = str_replace( "\n", "\r\n", $body );
@@ -257,13 +259,13 @@ class EmailNotification {
 	 * @private
 	 */
 	var $to, $subject, $body, $replyto, $from;
-	var $user, $title, $timestamp, $summary, $minorEdit, $oldid;
+	var $user, $title, $timestamp, $summary, $minorEdit, $oldid, $composed_common, $editor;
 	var $mailTargets = array();
 
 	/**@}}*/
 
 	/**
-	 * Send emails corresponding to the user $editor editing the page $title. 
+	 * Send emails corresponding to the user $editor editing the page $title.
 	 * Also updates wl_notificationtimestamp.
 	 *
 	 * May be deferred via the job queue.
@@ -277,13 +279,14 @@ class EmailNotification {
 	 */
 	function notifyOnPageChange($editor, $title, $timestamp, $summary, $minorEdit, $oldid = false) {
 		global $wgEnotifUseJobQ;
-	
+
 		if( $title->getNamespace() < 0 )
 			return;
 
 		if ($wgEnotifUseJobQ) {
 			$params = array(
 				"editor" => $editor->getName(),
+				"editorID" => $editor->getID(),
 				"timestamp" => $timestamp,
 				"summary" => $summary,
 				"minorEdit" => $minorEdit,
@@ -297,9 +300,9 @@ class EmailNotification {
 	}
 
 	/*
-	 * Immediate version of notifyOnPageChange(). 
+	 * Immediate version of notifyOnPageChange().
 	 *
-	 * Send emails corresponding to the user $editor editing the page $title. 
+	 * Send emails corresponding to the user $editor editing the page $title.
 	 * Also updates wl_notificationtimestamp.
 	 *
 	 * @param $editor User object
@@ -311,7 +314,7 @@ class EmailNotification {
 	 */
 	function actuallyNotifyOnPageChange($editor, $title, $timestamp, $summary, $minorEdit, $oldid=false) {
 
-		# we use $wgEmergencyContact as sender's address
+		# we use $wgPasswordSender as sender's address
 		global $wgEnotifWatchlist;
 		global $wgEnotifMinorEdits, $wgEnotifUserTalk, $wgShowUpdatedMarker;
 		global $wgEnotifImpersonal;
@@ -331,7 +334,8 @@ class EmailNotification {
 		$this->summary = $summary;
 		$this->minorEdit = $minorEdit;
 		$this->oldid = $oldid;
-		$this->composeCommonMailtext($editor);
+		$this->editor = $editor;
+		$this->composed_common = false;
 
 		$userTalkId = false;
 
@@ -351,29 +355,32 @@ class EmailNotification {
 				}
 			}
 
-
 			if ( $wgEnotifWatchlist ) {
 				// Send updates to watchers other than the current editor
-				$userCondition = 'wl_user <> ' . intval( $editor->getId() );
+				$userCondition = 'wl_user != ' . $editor->getID();
 				if ( $userTalkId !== false ) {
-					// Already sent an email to this person 
-					$userCondition .= ' AND wl_user <> ' . intval( $userTalkId );
+					// Already sent an email to this person
+					$userCondition .= ' AND wl_user != ' . intval( $userTalkId );
 				}
 				$dbr = wfGetDB( DB_SLAVE );
 
-				$res = $dbr->select( 'watchlist', array( 'wl_user' ),
+				list( $user ) = $dbr->tableNamesN( 'user' );
+
+				$res = $dbr->select( array( 'watchlist', 'user' ),
+					array( "$user.*" ),
 					array(
+						'wl_user=user_id',
 						'wl_title' => $title->getDBkey(),
 						'wl_namespace' => $title->getNamespace(),
 						$userCondition,
 						'wl_notificationtimestamp IS NULL',
 					), __METHOD__ );
+				$userArray = UserArray::newFromResult( $res );
 
-				foreach ( $res as $row ) {
-					$watchingUser = User::newFromId( $row->wl_user );
-					if ( $watchingUser->getOption( 'enotifwatchlistpages' ) && 
-						( !$minorEdit || $watchingUser->getOption('enotifminoredits') ) && 
-						$watchingUser->isEmailConfirmed() ) 
+				foreach ( $userArray as $watchingUser ) {
+					if ( $watchingUser->getOption( 'enotifwatchlistpages' ) &&
+						( !$minorEdit || $watchingUser->getOption('enotifminoredits') ) &&
+						$watchingUser->isEmailConfirmed() )
 					{
 						$this->compose( $watchingUser );
 					}
@@ -381,8 +388,8 @@ class EmailNotification {
 			}
 		}
 
-		global $wgUsersNotifedOnAllChanges;
-		foreach ( $wgUsersNotifedOnAllChanges as $name ) {
+		global $wgUsersNotifiedOnAllChanges;
+		foreach ( $wgUsersNotifiedOnAllChanges as $name ) {
 			$user = User::newFromName( $name );
 			$this->compose( $user );
 		}
@@ -390,8 +397,9 @@ class EmailNotification {
 		$this->sendMails();
 
 		if ( $wgShowUpdatedMarker || $wgEnotifWatchlist ) {
-			# mark the changed watch-listed page with a timestamp, so that the page is
-			# listed with an "updated since your last visit" icon in the watch list, ...
+			# Mark the changed watch-listed page with a timestamp, so that the page is
+			# listed with an "updated since your last visit" icon in the watch list. Do
+			# not do this to users for their own edits.
 			$dbw = wfGetDB( DB_MASTER );
 			$dbw->update( 'watchlist',
 				array( /* SET */
@@ -399,7 +407,8 @@ class EmailNotification {
 				), array( /* WHERE */
 					'wl_title' => $title->getDBkey(),
 					'wl_namespace' => $title->getNamespace(),
-					'wl_notificationtimestamp IS NULL'
+					'wl_notificationtimestamp IS NULL',
+					'wl_user != ' . $editor->getID()
 				), __METHOD__
 			);
 		}
@@ -410,10 +419,12 @@ class EmailNotification {
 	/**
 	 * @private
 	 */
-	function composeCommonMailtext($editor) {
-		global $wgEmergencyContact, $wgNoReplyAddress;
+	function composeCommonMailtext() {
+		global $wgPasswordSender, $wgNoReplyAddress;
 		global $wgEnotifFromEditor, $wgEnotifRevealEditorAddress;
 		global $wgEnotifImpersonal;
+
+		$this->composed_common = true;
 
 		$summary = ($this->summary == '') ? ' - ' : $this->summary;
 		$medit   = ($this->minorEdit) ? wfMsg( 'minoredit' ) : '';
@@ -445,7 +456,7 @@ class EmailNotification {
 
 		if ($wgEnotifImpersonal && $this->oldid)
 			/*
-			 * For impersonal mail, show a diff link to the last 
+			 * For impersonal mail, show a diff link to the last
 			 * revision.
 			 */
 			$keys['$NEWPAGE'] = wfMsgForContent('enotif_lastdiff',
@@ -464,8 +475,9 @@ class EmailNotification {
 		# Reveal the page editor's address as REPLY-TO address only if
 		# the user has not opted-out and the option is enabled at the
 		# global configuration level.
+		$editor = $this->editor;
 		$name    = $editor->getName();
-		$adminAddress = new MailAddress( $wgEmergencyContact, 'WikiAdmin' );
+		$adminAddress = new MailAddress( $wgPasswordSender, 'WikiAdmin' );
 		$editorAddress = new MailAddress( $editor );
 		if( $wgEnotifRevealEditorAddress
 		    && ( $editor->getEmail() != '' )
@@ -513,6 +525,10 @@ class EmailNotification {
 	 */
 	function compose( $user ) {
 		global $wgEnotifImpersonal;
+
+		if ( !$this->composed_common )
+			$this->composeCommonMailtext();
+
 		if ( $wgEnotifImpersonal ) {
 			$this->mailTargets[] = new MailAddress( $user );
 		} else {
@@ -561,7 +577,7 @@ class EmailNotification {
 	}
 
 	/**
-	 * Same as sendPersonalised but does impersonal mail suitable for bulk 
+	 * Same as sendPersonalised but does impersonal mail suitable for bulk
 	 * mailing.  Takes an array of MailAddress objects.
 	 */
 	function sendImpersonal( $addresses ) {
@@ -576,7 +592,7 @@ class EmailNotification {
 				array(	wfMsgForContent('enotif_impersonal_salutation'),
 					$wgLang->timeanddate($this->timestamp, true, false, false)),
 				$this->body);
-		
+
 		return UserMailer::send($addresses, $this->from, $this->subject, $body, $this->replyto);
 	}
 
@@ -588,6 +604,7 @@ class EmailNotification {
 function wfRFC822Phrase( $s ) {
 	return UserMailer::rfc822Phrase( $s );
 }
+
 function userMailer( $to, $from, $subject, $body, $replyto=null ) {
 	return UserMailer::send( $to, $from, $subject, $body, $replyto );
 }
