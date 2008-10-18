@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * A query action to return messages from site message cache
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryAllmessages extends ApiQueryBase {
 
@@ -42,13 +42,13 @@ class ApiQueryAllmessages extends ApiQueryBase {
 	public function execute() {
 		global $wgMessageCache;
 		$params = $this->extractRequestParams();
-		
+
 		if(!is_null($params['lang']))
 		{
 			global $wgLang;
 			$wgLang = Language::factory($params['lang']);
 		}
-			
+
 
 		//Determine which messages should we print
 		$messages_target = array();
@@ -60,7 +60,7 @@ class ApiQueryAllmessages extends ApiQueryBase {
 		} else {
 			$messages_target = explode( '|', $params['messages'] );
 		}
-		
+
 		//Filter messages
 		if( isset( $params['filter'] ) ) {
 			$messages_filtered = array();
@@ -72,12 +72,9 @@ class ApiQueryAllmessages extends ApiQueryBase {
 			$messages_target = $messages_filtered;
 		}
 
-		$wgMessageCache->disableTransform();
-
 		//Get all requested messages
 		$messages = array();
 		foreach( $messages_target as $message ) {
-			$message = trim( $message );	//Message list can be formatted like "msg1 | msg2 | msg3", so let's trim() it
 			$messages[$message] = wfMsg( $message );
 		}
 
@@ -87,7 +84,11 @@ class ApiQueryAllmessages extends ApiQueryBase {
 		foreach( $messages as $name => $value ) {
 			$message = array();
 			$message['name'] = $name;
-			$result->setContent( $message, $value );
+			if( wfEmptyMsg( $name, $value ) ) {
+				$message['missing'] = '';
+			} else {
+				$result->setContent( $message, $value );
+			}
 			$messages_out[] = $message;
 		}
 		$result->setIndexedTagName( $messages_out, 'message' );
@@ -107,8 +108,8 @@ class ApiQueryAllmessages extends ApiQueryBase {
 	public function getParamDescription() {
 		return array (
 			'messages' => 'Which messages to output. "*" means all messages',
-			'filter' => 'Return only messages that contains specified string',
-			'lang' => 'Language code',
+			'filter' => 'Return only messages that contain this string',
+			'lang' => 'Return messages in this language',
 		);
 	}
 
@@ -124,6 +125,6 @@ class ApiQueryAllmessages extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllmessages.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryAllmessages.php 37504 2008-07-10 14:28:09Z catrope $';
 	}
 }

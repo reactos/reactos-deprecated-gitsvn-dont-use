@@ -1,7 +1,4 @@
 <?php
-/**
- *
- */
 
 /**
  * Utility class for creating new RC entries
@@ -25,6 +22,11 @@
  * 	rc_patrolled    boolean whether or not someone has marked this edit as patrolled
  * 	rc_old_len	integer byte length of the text before the edit
  * 	rc_new_len	the same after the edit
+  *	rc_deleted		partial deletion
+ *	rc_logid		the log_id value for this log entry (or zero)
+ *  rc_log_type		the log type (or null)
+ *	rc_log_action	the log action (or null)
+ *  rc_params		log params
  *
  * mExtra:
  * 	prefixedDBkey   prefixed db key, used by external app via msg queue
@@ -54,15 +56,15 @@ class RecentChange
 		return $rc;
 	}
 
-	public static function newFromCurRow( $row, $rc_this_oldid = 0 )
+	public static function newFromCurRow( $row )
 	{
 		$rc = new RecentChange;
-		$rc->loadFromCurRow( $row, $rc_this_oldid );
+		$rc->loadFromCurRow( $row );
 		$rc->notificationtimestamp = false;
 		$rc->numberofWatchingusers = false;
 		return $rc;
 	}
-	
+
 	/**
 	 * Obtain the recent change with a given rc_id value
 	 *
@@ -80,7 +82,7 @@ class RecentChange
 			return NULL;
 		}
 	}
-	
+
 	/**
 	 * Find the first recent change matching some specific conditions
 	 *
@@ -138,7 +140,8 @@ class RecentChange
 	# Writes the data in this object to the database
 	function save()
 	{
-		global $wgLocalInterwiki, $wgPutIPinRC, $wgRC2UDPAddress, $wgRC2UDPPort, $wgRC2UDPPrefix;
+		global $wgLocalInterwiki, $wgPutIPinRC, $wgRC2UDPAddress, 
+		$wgRC2UDPPort, $wgRC2UDPPrefix, $wgRC2UDPOmitBots;
 		$fname = 'RecentChange::save';
 
 		$dbw = wfGetDB( DB_MASTER );
@@ -207,7 +210,7 @@ class RecentChange
 		}
 
 		# Notify external application via UDP
-		if ( $wgRC2UDPAddress ) {
+		if ( $wgRC2UDPAddress && ( !$this->mAttribs['rc_bot'] || !$wgRC2UDPOmitBots ) ) {
 			$conn = socket_create( AF_INET, SOCK_DGRAM, SOL_UDP );
 			if ( $conn ) {
 				$line = $wgRC2UDPPrefix . $this->getIRCLine();
@@ -217,13 +220,21 @@ class RecentChange
 		}
 
 		# E-mail notifications
-		global $wgUseEnotif;
-		if( $wgUseEnotif ) {
-			# this would be better as an extension hook
-			global $wgUser;
-			$enotif = new EmailNotification;
+		global $wgUseEnotif, $wgShowUpdatedMarker, $wgUser;
+		if( $wgUseEnotif || $wgShowUpdatedMarker ) {
+			// Users
+			if( $this->mAttribs['rc_user'] ) {
+				$editor = ($wgUser->getId() == $this->mAttribs['rc_user']) ? 
+					$wgUser : User::newFromID( $this->mAttribs['rc_user'] );
+			// Anons
+			} else {
+				$editor = ($wgUser->getName() == $this->mAttribs['rc_user_text']) ? 
+					$wgUser : User::newFromName( $this->mAttribs['rc_user_text'], false );
+			}
+			# FIXME: this would be better as an extension hook
+			$enotif = new EmailNotification();
 			$title = Title::makeTitle( $this->mAttribs['rc_namespace'], $this->mAttribs['rc_title'] );
-			$enotif->notifyOnPageChange( $wgUser, $title,
+			$enotif->notifyOnPageChange( $editor, $title,
 				$this->mAttribs['rc_timestamp'],
 				$this->mAttribs['rc_comment'],
 				$this->mAttribs['rc_minor'],
@@ -238,6 +249,7 @@ class RecentChange
 	 * Mark a given change as patrolled
 	 *
 	 * @param mixed $change RecentChange or corresponding rc_id
+	 * @returns integer number of affected rows
 	 */
 	public static function markPatrolled( $change ) {
 		$rcid = $change instanceof RecentChange
@@ -254,6 +266,7 @@ class RecentChange
 			),
 			__METHOD__
 		);
+		return $dbw->affectedRows();
 	}
 
 	# Makes an entry in the database corresponding to an edit
@@ -277,7 +290,7 @@ class RecentChange
 			'rc_type'	=> RC_EDIT,
 			'rc_minor'	=> $minor ? 1 : 0,
 			'rc_cur_id'	=> $title->getArticleID(),
-			'rc_user'	=> $user->getID(),
+			'rc_user'	=> $user->getId(),
 			'rc_user_text'	=> $user->getName(),
 			'rc_comment'	=> $comment,
 			'rc_this_oldid'	=> $newId,
@@ -289,7 +302,12 @@ class RecentChange
 			'rc_patrolled'	=> 0,
 			'rc_new'	=> 0,  # obsolete
 			'rc_old_len'	=> $oldSize,
-			'rc_new_len'	=> $newSize
+			'rc_new_len'	=> $newSize,
+			'rc_deleted'	=> 0,
+			'rc_logid'		=> 0,
+			'rc_log_type'	=> null,
+			'rc_log_action'	=> '',
+			'rc_params'		=> ''
 		);
 
 		$rc->mExtra =  array(
@@ -326,7 +344,7 @@ class RecentChange
 			'rc_type'           => RC_NEW,
 			'rc_minor'          => $minor ? 1 : 0,
 			'rc_cur_id'         => $title->getArticleID(),
-			'rc_user'           => $user->getID(),
+			'rc_user'           => $user->getId(),
 			'rc_user_text'      => $user->getName(),
 			'rc_comment'        => $comment,
 			'rc_this_oldid'     => $newId,
@@ -336,9 +354,14 @@ class RecentChange
 			'rc_moved_to_title' => '',
 			'rc_ip'             => $ip,
 			'rc_patrolled'      => 0,
-			'rc_new'	    => 1, # obsolete
+			'rc_new'	    	=> 1, # obsolete
 			'rc_old_len'        => 0,
-			'rc_new_len'	    => $size
+			'rc_new_len'	    => $size,
+			'rc_deleted'		=> 0,
+			'rc_logid'			=> 0,
+			'rc_log_type'		=> null,
+			'rc_log_action'		=> '',
+			'rc_params'			=> ''
 		);
 
 		$rc->mExtra =  array(
@@ -372,7 +395,7 @@ class RecentChange
 			'rc_type'	=> $overRedir ? RC_MOVE_OVER_REDIRECT : RC_MOVE,
 			'rc_minor'	=> 0,
 			'rc_cur_id'	=> $oldTitle->getArticleID(),
-			'rc_user'	=> $user->getID(),
+			'rc_user'	=> $user->getId(),
 			'rc_user_text'	=> $user->getName(),
 			'rc_comment'	=> $comment,
 			'rc_this_oldid'	=> 0,
@@ -385,6 +408,11 @@ class RecentChange
 			'rc_patrolled'	=> 1,
 			'rc_old_len'	=> NULL,
 			'rc_new_len'	=> NULL,
+			'rc_deleted'	=> 0,
+			'rc_logid'		=> 0, # notifyMove not used anymore
+			'rc_log_type'	=> null,
+			'rc_log_action'	=> '',
+			'rc_params'		=> ''
 		);
 
 		$rc->mExtra = array(
@@ -403,10 +431,9 @@ class RecentChange
 		RecentChange::notifyMove( $timestamp, $oldTitle, $newTitle, $user, $comment, $ip, true );
 	}
 
-	# A log entry is different to an edit in that previous revisions are
-	# not kept
-	public static function notifyLog( $timestamp, &$title, &$user, $comment, $ip='',
-	   $type, $action, $target, $logComment, $params )
+	# A log entry is different to an edit in that previous revisions are not kept
+	public static function notifyLog( $timestamp, &$title, &$user, $actionComment, $ip='',
+	   $type, $action, $target, $logComment, $params, $newId=0 )
 	{
 		global $wgRequest;
 
@@ -421,14 +448,14 @@ class RecentChange
 		$rc->mAttribs = array(
 			'rc_timestamp'	=> $timestamp,
 			'rc_cur_time'	=> $timestamp,
-			'rc_namespace'	=> $title->getNamespace(),
-			'rc_title'	=> $title->getDBkey(),
+			'rc_namespace'	=> $target->getNamespace(),
+			'rc_title'	=> $target->getDBkey(),
 			'rc_type'	=> RC_LOG,
 			'rc_minor'	=> 0,
-			'rc_cur_id'	=> $title->getArticleID(),
-			'rc_user'	=> $user->getID(),
+			'rc_cur_id'	=> $target->getArticleID(),
+			'rc_user'	=> $user->getId(),
 			'rc_user_text'	=> $user->getName(),
-			'rc_comment'	=> $comment,
+			'rc_comment'	=> $logComment,
 			'rc_this_oldid'	=> 0,
 			'rc_last_oldid'	=> 0,
 			'rc_bot'	=> $user->isAllowed( 'bot' ) ? $wgRequest->getBool( 'bot' , true ) : 0,
@@ -439,15 +466,16 @@ class RecentChange
 			'rc_new'	=> 0, # obsolete
 			'rc_old_len'	=> NULL,
 			'rc_new_len'	=> NULL,
+			'rc_deleted'	=> 0,
+			'rc_logid'		=> $newId,
+			'rc_log_type'	=> $type,
+			'rc_log_action'	=> $action,
+			'rc_params'		=> $params
 		);
 		$rc->mExtra =  array(
 			'prefixedDBkey'	=> $title->getPrefixedDBkey(),
 			'lastTimestamp' => 0,
-			'logType' => $type,
-			'logAction' => $action,
-			'logComment' => $logComment,
-			'logTarget' => $target,
-			'logParams' => $params
+			'actionComment' => $actionComment, // the comment appended to the action, passed from LogPage
 		);
 		$rc->save();
 	}
@@ -485,6 +513,12 @@ class RecentChange
 			'rc_new' => $row->page_is_new, # obsolete
 			'rc_old_len' => $row->rc_old_len,
 			'rc_new_len' => $row->rc_new_len,
+			'rc_params' => isset($row->rc_params) ? $row->rc_params : '',
+			'rc_log_type' => isset($row->rc_log_type) ? $row->rc_log_type : null,
+			'rc_log_action' => isset($row->rc_log_action) ? $row->rc_log_action : null,
+			'rc_log_id' => isset($row->rc_log_id) ? $row->rc_log_id: 0,
+			// this one REALLY should be set...
+			'rc_deleted' => isset($row->rc_deleted) ? $row->rc_deleted: 0,
 		);
 
 		$this->mExtra = array();
@@ -532,18 +566,13 @@ class RecentChange
 		extract($this->mAttribs);
 		extract($this->mExtra);
 
-		$titleObj =& $this->getTitle();
 		if ( $rc_type == RC_LOG ) {
-			$title = Namespace::getCanonicalName( $titleObj->getNamespace() ) . $titleObj->getText();
+			$titleObj = Title::newFromText( "Log/$rc_log_type", NS_SPECIAL );
 		} else {
-			$title = $titleObj->getPrefixedText();
+			$titleObj =& $this->getTitle();
 		}
-		$title = $this->cleanupForIRC( $title );
-
-		$bad = array("\n", "\r");
-		$empty = array("", "");
 		$title = $titleObj->getPrefixedText();
-		$title = str_replace($bad, $empty, $title);
+		$title = $this->cleanupForIRC( $title );
 
 		// FIXME: *HACK* these should be getFullURL(), hacked for SSL madness --brion 2005-12-26
 		if ( $rc_type == RC_LOG ) {
@@ -573,12 +602,12 @@ class RecentChange
 		$user = $this->cleanupForIRC( $rc_user_text );
 
 		if ( $rc_type == RC_LOG ) {
-			$logTargetText = $logTarget->getPrefixedText();
-			$comment = $this->cleanupForIRC( str_replace( $logTargetText, "\00302$logTargetText\00310", $rc_comment ) );
-			$flag = $logAction;
+			$logTargetText = $this->getTitle()->getPrefixedText();
+			$comment = $this->cleanupForIRC( str_replace($logTargetText,"\00302$logTargetText\00310",$actionComment) );
+			$flag = $rc_log_action;
 		} else {
 			$comment = $this->cleanupForIRC( $rc_comment );
-			$flag = ($rc_minor ? "M" : "") . ($rc_new ? "N" : "");
+			$flag = ($rc_new ? "N" : "") . ($rc_minor ? "M" : "") . ($rc_bot ? "B" : "");
 		}
 		# see http://www.irssi.org/documentation/formats for some colour codes. prefix is \003,
 		# no colour (\003) switches back to the term default
@@ -620,5 +649,3 @@ class RecentChange
 		}
 	}
 }
-
-

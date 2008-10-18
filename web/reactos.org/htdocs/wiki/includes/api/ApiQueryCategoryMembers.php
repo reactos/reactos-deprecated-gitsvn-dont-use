@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * A query module to enumerate pages that belong to a category.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 
@@ -51,19 +51,13 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 
 		$params = $this->extractRequestParams();
 
-		if (is_null($params['category'])) {
-			if (is_null($params['title']))
-				$this->dieUsage("Either the cmcategory or the cmtitle parameter is required", 'notitle');
-			else
-				$categoryTitle = Title::newFromText($params['title']);
-		} else if(is_null($params['title']))
-			$categoryTitle = Title::makeTitleSafe(NS_CATEGORY, $params['category']);
-		else
-			$this->dieUsage("The cmcategory and cmtitle parameters can't be used together", 'titleandcategory');
+		if ( !isset($params['title']) || is_null($params['title']) )
+			$this->dieUsage("The cmtitle parameter is required", 'notitle');
+		$categoryTitle = Title::newFromText($params['title']);
 
 		if ( is_null( $categoryTitle ) || $categoryTitle->getNamespace() != NS_CATEGORY )
 			$this->dieUsage("The category name you entered is not valid", 'invalidcategory');
-		
+
 		$prop = array_flip($params['prop']);
 		$fld_ids = isset($prop['ids']);
 		$fld_title = isset($prop['title']);
@@ -78,26 +72,29 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			$this->addFields(array('cl_from', 'cl_sortkey'));
 		}
 
-		$this->addFieldsIf('cl_timestamp', $fld_timestamp);
-		$this->addTables(array('page','categorylinks'));	// must be in this order for 'USE INDEX' 
+		$this->addFieldsIf('cl_timestamp', $fld_timestamp || $params['sort'] == 'timestamp');
+		$this->addTables(array('page','categorylinks'));	// must be in this order for 'USE INDEX'
 									// Not needed after bug 10280 is applied to servers
 		if($params['sort'] == 'timestamp')
 		{
 			$this->addOption('USE INDEX', 'cl_timestamp');
-			$this->addOption('ORDER BY', 'cl_to, cl_timestamp' . ($params['dir'] == 'desc' ? ' DESC' : ''));
+			// cl_timestamp will be added by addWhereRange() later
+			$this->addOption('ORDER BY', 'cl_to');
 		}
 		else
 		{
+			$dir = ($params['dir'] == 'desc' ? ' DESC' : '');
 			$this->addOption('USE INDEX', 'cl_sortkey');
-			$this->addOption('ORDER BY', 'cl_to, cl_sortkey' . ($params['dir'] == 'desc' ? ' DESC' : '') . ', cl_from');
+			$this->addOption('ORDER BY', 'cl_to, cl_sortkey' . $dir . ', cl_from' . $dir);
 		}
 
 		$this->addWhere('cl_from=page_id');
-		$this->setContinuation($params['continue']);		
+		$this->setContinuation($params['continue'], $params['dir']);
 		$this->addWhereFld('cl_to', $categoryTitle->getDBkey());
 		$this->addWhereFld('page_namespace', $params['namespace']);
-		$this->addWhereRange('cl_timestamp', ($params['dir'] == 'asc' ? 'newer' : 'older'), $params['start'], $params['end']);
-		
+		if($params['sort'] == 'timestamp')
+			$this->addWhereRange('cl_timestamp', ($params['dir'] == 'asc' ? 'newer' : 'older'), $params['start'], $params['end']);
+
 		$limit = $params['limit'];
 		$this->addOption('LIMIT', $limit +1);
 
@@ -111,16 +108,19 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			if (++ $count > $limit) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
 				// TODO: Security issue - if the user has no right to view next title, it will still be shown
-				$this->setContinueEnumParameter('continue', $this->getContinueStr($row, $lastSortKey));
+				if ($params['sort'] == 'timestamp')
+					$this->setContinueEnumParameter('start', wfTimestamp(TS_ISO_8601, $row->cl_timestamp));
+				else
+					$this->setContinueEnumParameter('continue', $this->getContinueStr($row, $lastSortKey));
 				break;
 			}
 
-			$lastSortKey = $row->cl_sortkey;	// detect duplicate sortkeys 
-			
+			$lastSortKey = $row->cl_sortkey;	// detect duplicate sortkeys
+
 			if (is_null($resultPageSet)) {
 				$vals = array();
 				if ($fld_ids)
-					$vals['pageid'] = intval($row->page_id); 
+					$vals['pageid'] = intval($row->page_id);
 				if ($fld_title) {
 					$title = Title :: makeTitle($row->page_namespace, $row->page_title);
 					$vals['ns'] = intval($title->getNamespace());
@@ -142,47 +142,48 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			$this->getResult()->addValue('query', $this->getModuleName(), $data);
 		}
 	}
-	
+
 	private function getContinueStr($row, $lastSortKey) {
 		$ret = $row->cl_sortkey . '|';
 		if ($row->cl_sortkey == $lastSortKey)	// duplicate sort key, add cl_from
 			$ret .= $row->cl_from;
 		return $ret;
 	}
-	
+
 	/**
-	 * Add DB WHERE clause to continue previous query based on 'continue' parameter 
+	 * Add DB WHERE clause to continue previous query based on 'continue' parameter
 	 */
-	private function setContinuation($continue) {
+	private function setContinuation($continue, $dir) {
 		if (is_null($continue))
 			return;	// This is not a continuation request
-			
+
 		$continueList = explode('|', $continue);
 		$hasError = count($continueList) != 2;
 		$from = 0;
 		if (!$hasError && strlen($continueList[1]) > 0) {
 			$from = intval($continueList[1]);
-			$hasError = ($from == 0); 
+			$hasError = ($from == 0);
 		}
-		
+
 		if ($hasError)
 			$this->dieUsage("Invalid continue param. You should pass the original value returned by the previous query", "badcontinue");
 
 		$encSortKey = $this->getDB()->addQuotes($continueList[0]);
 		$encFrom = $this->getDB()->addQuotes($from);
+		
+		$op = ($dir == 'desc' ? '<' : '>');
 
 		if ($from != 0) {
 			// Duplicate sort key continue
-			$this->addWhere( "cl_sortkey>$encSortKey OR (cl_sortkey=$encSortKey AND cl_from>=$encFrom)" );
+			$this->addWhere( "cl_sortkey$op$encSortKey OR (cl_sortkey=$encSortKey AND cl_from$op=$encFrom)" );
 		} else {
-			$this->addWhere( "cl_sortkey>=$encSortKey" );
+			$this->addWhere( "cl_sortkey$op=$encSortKey" );
 		}
 	}
 
 	public function getAllowedParams() {
 		return array (
 			'title' => null,
-			'category' => null, // DEPRECATED, will be removed in early March
 			'prop' => array (
 				ApiBase :: PARAM_DFLT => 'ids|title',
 				ApiBase :: PARAM_ISMULTI => true,
@@ -235,11 +236,10 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			'namespace' => 'Only include pages in these namespaces',
 			'sort' => 'Property to sort by',
 			'dir' => 'In which direction to sort',
-			'start' => 'Timestamp to start listing from',
-			'end' => 'Timestamp to end listing at',
+			'start' => 'Timestamp to start listing from. Can only be used with cmsort=timestamp',
+			'end' => 'Timestamp to end listing at. Can only be used with cmsort=timestamp',
 			'continue' => 'For large categories, give the value retured from previous query',
 			'limit' => 'The maximum number of pages to return.',
-			'category' => 'DEPRECATED. Like title, but without the Category: prefix.',
 		);
 	}
 
@@ -257,7 +257,6 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryCategoryMembers.php 30670 2008-02-07 15:17:42Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryCategoryMembers.php 35098 2008-05-20 17:13:28Z ialex $';
 	}
 }
-

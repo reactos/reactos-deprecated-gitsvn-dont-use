@@ -30,10 +30,10 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query module to get information about a list of users
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
- 
+
  class ApiQueryUsers extends ApiQueryBase {
 
 	public function __construct($query, $moduleName) {
@@ -50,7 +50,7 @@ if (!defined('MEDIAWIKI')) {
 		} else {
 			$this->prop = array();
 		}
-	
+
 		if(is_array($params['users'])) {
 			$r = $this->getOtherUsersInfo($params['users']);
 			$result->setIndexedTagName($r, 'user');
@@ -63,38 +63,44 @@ if (!defined('MEDIAWIKI')) {
 		// Canonicalize user names
 		foreach($users as $u) {
 			$n = User::getCanonicalName($u);
-			if($n === false) 
+			if($n === false || $n === '')
 				$retval[] = array('name' => $u, 'invalid' => '');
 			 else
 				$goodNames[] = $n;
 		}
+		if(empty($goodNames))
+			return $retval;
 
 		$db = $this->getDb();
-		$userTable = $db->tableName('user');
-		$tables = "$userTable AS u1";
+		$this->addTables('user', 'u1');
 		$this->addFields('u1.user_name');
 		$this->addWhereFld('u1.user_name', $goodNames);
 		$this->addFieldsIf('u1.user_editcount', isset($this->prop['editcount']));
-		
+		$this->addFieldsIf('u1.user_registration', isset($this->prop['registration']));
+
 		if(isset($this->prop['groups'])) {
-			$ug = $db->tableName('user_groups');
-			$tables = "$tables LEFT JOIN $ug ON ug_user=u1.user_id";
+			$this->addTables('user_groups');
+			$this->addJoinConds(array('user_groups' => array('LEFT JOIN', 'ug_user=u1.user_id')));
 			$this->addFields('ug_group');
 		}
 		if(isset($this->prop['blockinfo'])) {
-			$ipb = $db->tableName('ipblocks');
-			$tables = "$tables LEFT JOIN $ipb ON ipb_user=u1.user_id";
-			$tables = "$tables LEFT JOIN $userTable AS u2 ON ipb_by=u2.user_id";
-			$this->addFields(array('ipb_reason', 'u2.user_name AS blocker_name'));
+			$this->addTables('ipblocks');
+			$this->addTables('user', 'u2');
+			$u2 = $this->getAliasedName('user', 'u2');
+			$this->addJoinConds(array(
+				'ipblocks' => array('LEFT JOIN', 'ipb_user=u1.user_id'),
+				$u2 => array('LEFT JOIN', 'ipb_by=u2.user_id')));
+			$this->addFields(array('ipb_reason', 'u2.user_name blocker_name'));
 		}
-		$this->addTables($tables);
-		
+
 		$data = array();
 		$res = $this->select(__METHOD__);
 		while(($r = $db->fetchObject($res))) {
 			$data[$r->user_name]['name'] = $r->user_name;
 			if(isset($this->prop['editcount']))
 				$data[$r->user_name]['editcount'] = $r->user_editcount;
+			if(isset($this->prop['registration']))
+				$data[$r->user_name]['registration'] = wfTimestampOrNull(TS_ISO_8601, $r->user_registration);
 			if(isset($this->prop['groups']))
 				// This row contains only one group, others will be added from other rows
 				if(!is_null($r->ug_group))
@@ -105,7 +111,7 @@ if (!defined('MEDIAWIKI')) {
 					$data[$r->user_name]['blockreason'] = $r->ipb_reason;
 				}
 		}
-		
+
 		// Second pass: add result data to $retval
 		foreach($goodNames as $u) {
 			if(!isset($data[$u]))
@@ -116,7 +122,7 @@ if (!defined('MEDIAWIKI')) {
 				$retval[] = $data[$u];
 			}
 		}
-		return $retval;		
+		return $retval;
 	}
 
 	public function getAllowedParams() {
@@ -127,7 +133,8 @@ if (!defined('MEDIAWIKI')) {
 				ApiBase :: PARAM_TYPE => array (
 					'blockinfo',
 					'groups',
-					'editcount'
+					'editcount',
+					'registration'
 				)
 			),
 			'users' => array(
@@ -157,6 +164,6 @@ if (!defined('MEDIAWIKI')) {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryUserInfo.php 30128 2008-01-24 17:59:07Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryUsers.php 38183 2008-07-29 12:58:04Z rotem $';
 	}
 }

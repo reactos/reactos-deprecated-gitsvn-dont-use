@@ -1,8 +1,10 @@
 <?php
-/** Mazandarani (مَزِروني)
+/** Mazandarani
  *
- * @addtogroup Language
+ * Minimalistic setup, needed to switch to right-to-left writing.
  *
+ * @ingroup Language
+ * @file
  */
 
 $linkPrefixExtension = true;

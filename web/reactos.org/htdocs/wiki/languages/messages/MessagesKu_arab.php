@@ -1,9 +1,11 @@
 <?php
-/** Kurdish (Arab) (كوردي (عەرەبی))
+/** ‫كوردي (عەرەبی)‬ (‫كوردي (عەرەبی)‬)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Aras Noori
+ * @author Asoxor
  */
 
 $fallback = 'ku-latn';
@@ -82,12 +84,12 @@ $messages = array(
 'thursday'      => 'پێنجشه‌ممه‌',
 'friday'        => 'هه‌ینی',
 'saturday'      => 'شه‌ممه‌',
-'sun'           => 'یه‌كش',
-'mon'           => 'دووش',
-'tue'           => 'سێش',
-'wed'           => 'چوارش',
-'thu'           => 'پێنجش',
-'fri'           => 'هه‌ین',
+'sun'           => 'یەکشەممە',
+'mon'           => 'دووشەممە',
+'tue'           => 'سێشەممە',
+'wed'           => 'چوارشەممە',
+'thu'           => 'پێنجشەممە',
+'fri'           => 'ھەینی',
 'sat'           => 'شه‌ممه‌',
 'january'       => 'كانونی دووه‌م',
 'february'      => 'شوبات',
@@ -126,8 +128,7 @@ $messages = array(
 'nov'           => 'ت٢',
 'dec'           => 'كا١',
 
-# Bits of text used by many pages
-'categories'            => '{{PLURAL:$1|هاوپۆل|هاوپۆله‌كان}}',
+# Categories related messages
 'pagecategories'        => '$1 هاوپۆله‌كان',
 'category_header'       => 'په‌ڕه‌ی هاوپۆلی "$1" de',
 'subcategories'         => 'به‌شه‌هاوپۆله‌كان',
@@ -146,10 +147,10 @@ $messages = array(
 'about'          => 'سه‌باره‌ت',
 'article'        => 'بابه‌ت',
 'newwindow'      => '(له‌ په‌ڕه‌یه‌كی نوێدا بیكه‌ره‌وه‌)',
-'cancel'         => 'په‌شیمانیی',
+'cancel'         => 'ھەڵوەشاندن',
 'qbfind'         => 'دۆزه‌ر',
 'qbbrowse'       => 'بگه‌ڕێ',
-'qbedit'         => 'ده‌ستكاریی',
+'qbedit'         => 'دەستكاری',
 'qbpageoptions'  => 'ئه‌م په‌ڕه‌یه‌',
 'qbpageinfo'     => 'زانیاریی په‌ڕه‌',
 'qbmyoptions'    => 'په‌ڕه‌كانی من',
@@ -166,36 +167,38 @@ $messages = array(
 'errorpagetitle'    => 'هه‌ڵه‌',
 'returnto'          => 'بگه‌ڕێوه‌ بۆ $1.',
 'tagline'           => 'له‌ {{SITENAME}}',
-'help'              => 'یارمه‌تیی',
+'help'              => 'یارمەتی',
 'search'            => 'گه‌ڕان',
 'searchbutton'      => 'گه‌ڕان',
 'go'                => 'ده‌ی',
-'searcharticle'     => 'ده‌ی',
+'searcharticle'     => 'بڕۆ',
 'history'           => 'مێژووی په‌ڕه‌',
 'history_short'     => 'مێژووی نووسین',
 'updatedmarker'     => 'گۆڕانكارییه‌كان پاش دوا سه‌ردانی من',
-'info_short'        => 'زانیاریی',
-'printableversion'  => 'وه‌شانێك بۆ چاپكردن',
-'permalink'         => 'به‌سته‌ری نه‌بڕاو',
+'info_short'        => 'زانیاری',
+'printableversion'  => 'وەشانی ئامادەی چاپ',
+'permalink'         => 'بەسته‌ری ھەمیشەیی',
 'print'             => 'چاپ',
-'edit'              => 'ده‌ستكاریی',
+'edit'              => 'دەستكاری',
+'create'            => 'دروست کردن',
 'editthispage'      => 'ده‌ستكاری ئه‌م په‌ڕه‌یه‌ بكه‌',
+'create-this-page'  => 'ئەم پەڕە دروست بکە',
 'delete'            => 'سڕینه‌وه‌',
 'deletethispage'    => 'سڕینه‌وه‌ی ئه‌م په‌ڕه‌یه‌',
 'undelete_short'    => 'به‌جێ بهێنه‌ {{PLURAL:$1|سڕاوه‌|$1 سڕاوه‌كان}}هێنانه‌وه‌ی',
 'protect'           => 'پاراستن',
-'protect_change'    => 'گۆڕانكارییه‌كان_بپارێزه‌',
+'protect_change'    => ' پاراستنەکە بگۆڕە',
 'protectthispage'   => 'ئه‌م په‌ڕه‌یه‌ بپارێزه‌',
 'unprotect'         => 'مه‌پارێزه‌',
 'unprotectthispage' => 'ئه‌م په‌ڕه‌یه‌ مه‌پارێزه‌',
 'newpage'           => 'په‌ڕه‌یه‌كی نوێ',
 'talkpage'          => 'گفتوگۆ له‌سه‌ر ئه‌م په‌ڕه‌یه بكه‌',
-'talkpagelinktext'  => 'گفتوگۆ',
+'talkpagelinktext'  => 'وتووێژ',
 'specialpage'       => 'په‌ڕه‌ی تایبه‌ت',
 'personaltools'     => 'ئامرازی تایبه‌تی',
 'postcomment'       => 'لێدوان بنێره‌',
 'articlepage'       => 'ناوه‌ڕۆكی بابه‌ت ببینه‌',
-'talk'              => 'گفتوگۆ',
+'talk'              => 'قسەوباس',
 'views'             => 'بینین',
 'toolbox'           => 'تووڵی كه‌ره‌سه‌كان',
 'userpage'          => 'په‌ڕه‌ی به‌كارهێنه‌ر نیشانبده‌',
@@ -217,20 +220,24 @@ $messages = array(
 'jumptosearch'      => 'گه‌ڕان',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'faq'      => 'پرسیاری هه‌میشه‌ دووباره‌(پهد(',
-'mainpage' => 'ده‌ستپێك',
+'aboutsite'            => 'دەربارەی {{SITENAME}}',
+'copyrightpage'        => '{{ns:project}}:مافەکانی لەبەرگرتنەوە',
+'faq'                  => 'پرسیاری هه‌میشه‌ دووباره‌(پهد(',
+'mainpage'             => 'ده‌ستپێک',
+'mainpage-description' => 'ده‌ستپێک',
 
 'versionrequired'     => 'پێویستیت به‌ وه‌شانی $1 ـی‌ ویكیمیدیایه‌',
-'versionrequiredtext' => 'پێویستیت به‌ وه‌شانی $1 ـێ ویكیمیدیا هه‌یه‌ بۆ به‌كاربردنی ئه‌م په‌ڕه‌یه‌. ته‌ماشای [[Special:version|وه‌شانی]] بكه‌.',
+'versionrequiredtext' => 'پێویستیت به‌ وه‌شانی $1 ـێ ویكیمیدیا هه‌یه‌ بۆ به‌كاربردنی ئه‌م په‌ڕه‌یه‌
+. ته‌ماشای [[Special:Version|وه‌شانی]] بكه‌.',
 
 'ok'                      => 'باشه‌',
 'retrievedfrom'           => 'له‌ لایه‌ن "$1" گه‌ڕاوه‌ته‌وه‌.',
 'newmessageslink'         => 'په‌یامێكی نوێ',
 'newmessagesdifflink'     => 'دوا گۆڕانكارییه‌كان',
 'youhavenewmessagesmulti' => 'په‌یامێكی نوێت هه‌یه‌ له‌ $1.',
-'editsection'             => 'ده‌ستكاریی',
+'editsection'             => 'ده‌ستكاری',
 'editsectionhint'         => 'ده‌ستكاریی به‌شی: $1',
-'toc'                     => 'ناوه‌ڕۆك',
+'toc'                     => 'ناوەڕۆک',
 'showtoc'                 => 'نیشاندان',
 'hidetoc'                 => 'شاردنه‌وه‌',
 'thisisdeleted'           => '؟$1 نیشانی بده‌ یا بیگه‌ڕێنه‌ره‌وه‌',
@@ -255,7 +262,7 @@ $messages = array(
 'nosuchspecialpage' => 'په‌ڕه‌ی تایبه‌تی له‌و شێوه‌یه‌ نییه‌',
 'nospecialpagetext' => "<big>''په‌ڕه‌یكی تایبه‌ت ده‌خوازیت كه‌ بوونی نییه‌'''</big>
 
-لیستی په‌ڕه‌ تایبه‌تییه‌كان له‌ [[{{ns:special}}:Specialpages|لیسته‌ی په‌ڕه‌ تایبه‌ته‌كان]] ده‌توانرێت ببینرێت.",
+لیستی په‌ڕه‌ تایبه‌تییه‌كان له‌ [[Special:SpecialPages|لیسته‌ی په‌ڕه‌ تایبه‌ته‌كان]] ده‌توانرێت ببینرێت.",
 
 # General errors
 'error'              => 'هه‌ڵه‌',
@@ -281,6 +288,7 @@ $messages = array(
 'yourpasswordagain'  => 'تێپه‌ڕه‌وشه‌ دووباره‌',
 'remembermypassword' => 'زانیاریی چوونه‌ ژووره‌وه‌م له‌سه‌ر ئه‌م كۆمپیوته‌ره‌ پاشه‌كه‌وت بكه‌',
 'yourdomainname'     => 'ناوی دۆمه‌ینی خۆت',
+'userlogin'          => '  / دروست کردنی ھەژمار چوونە ژورەوە',
 'logout'             => 'ده‌رچوون',
 'userlogout'         => 'بڕۆ ده‌ره‌وه‌',
 'notloggedin'        => 'له‌ ژووره‌وه‌ نیت',
@@ -322,20 +330,42 @@ $messages = array(
 # Edit pages
 'summary'         => 'پوخته‌',
 'subject'         => 'بابه‌ت / سه‌روتار',
-'minoredit'       => 'ئه‌مه‌ وتارێكی بچووكه‌',
-'watchthis'       => 'ته‌ماشای ئه‌م په‌ڕه‌یه‌ بكه‌',
+'minoredit'       => 'ئەم گۆڕانکاری‌یە بچووکە',
+'watchthis'       => 'چاودێڕی ئه‌م په‌ڕه‌یه‌ بكه‌',
 'savearticle'     => 'په‌ڕه‌كه‌ پاشه‌كه‌وت بكه‌',
 'preview'         => 'پێشبینین',
 'showpreview'     => 'په‌ڕه‌ی پێشبینین',
 'showlivepreview' => 'پێشبینینی ڕاسته‌وخۆ',
 'showdiff'        => 'گۆڕانكارییه‌كان نیشانبده‌',
 
+# Preferences page
+'mypreferences' => 'ھەڵبژاردەکانی من',
+
+# Upload
+'upload' => 'وێنەیەک بار بکە',
+
+# Random page
+'randompage' => 'پەڕەیەک بە ھەرەمەکی',
+
+# Miscellaneous special pages
+'move' => 'ناوی ئەم پەڕە بگۆڕە',
+
+# Special:Categories
+'categories' => 'هاوپۆله‌كان',
+
+# Watchlist
+'mywatchlist' => 'لیستی چاودێڕی‌یەکانم',
+'watch'       => 'چاودێڕی بکە',
+
+# Contributions
+'mycontris' => 'بەشدارییەکانی من',
+
 # Tooltip help for the actions
 'tooltip-pt-userpage' => 'په‌ڕه‌ی تایبه‌تی خۆم',
 
-# Separators for various lists
+# Separators for various lists, etc.
 'semicolon-separator' => '؛',
-'comma-separator'     => '،',
+'comma-separator'     => '،&#32;',
 
 # Live preview
 'livepreview-loading' => 'له‌باركردنایه‌ ...',
@@ -343,5 +373,8 @@ $messages = array(
 
 # Watchlist editor
 'watchlistedit-noitems' => 'لیستی ته‌ماشاكردنی خۆت به‌تاڵه‌',
+
+# Special:SpecialPages
+'specialpages' => 'لاپەڕە تایبەتەکان',
 
 );

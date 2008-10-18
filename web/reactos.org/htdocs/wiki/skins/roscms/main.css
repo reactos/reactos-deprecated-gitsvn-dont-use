@@ -25,7 +25,6 @@
 	padding-top: 160px;
 }
 #content {
-	font-size: 12px;
 	background: white;
 	color: black;
 	border: 1px solid #aaa;
@@ -41,7 +40,6 @@
 */
 
 #wikiContent {
-	font-size: 13px;
 	font: x-small sans-serif;
 	color: black;
 	margin: 0;
@@ -50,7 +48,7 @@
 
 /* scale back up to a sane default */
 #globalWrapper {
-	font-size: 13px;
+	font-size: 127%;
 	width: 100%;
 	margin: 0;
 	padding: 0;
@@ -68,11 +66,14 @@
 	   floated tables */
 	background-color: white;
 }
+#wikiContent fieldset table {
+	/* but keep table layouts in forms clean... */
+	background: none;
+}
 #wikiContent a {
 	text-decoration: none;
 	color: #002bb8;
 	background: none;
-	font-size: 100%;
 }
 #wikiContent a:visited {
 	color: #5a3696;
@@ -100,7 +101,6 @@
 #wikiContent p {
 	margin: .4em 0 .5em 0;
 	line-height: 1.5em;
-	font-size: 100%;
 }
 #wikiContent p img {
 	margin: 0;
@@ -178,13 +178,17 @@
 	margin-bottom: .1em;
 }
 
-fieldset {
+#wikiContent fieldset {
 	border: 1px solid #2f6fab;
 	margin: 1em 0 1em 0;
 	padding: 0 1em 1em;
 	line-height: 1.5em;
 }
-legend {
+#wikiContent fieldset.nested {
+	margin: 0 0 0.5em 0;
+	padding: 0 0.5em 0.5em;
+}
+#wikiContent legend {
 	padding: .5em;
 	font-size: 95%;
 }
@@ -198,7 +202,7 @@ legend {
 	padding: .1em;
 }
 
-input.historysubmit {
+#wikiContent input.historysubmit {
 	padding: 0 .3em .3em .3em !important;
 	font-size: 94%;
 	cursor: pointer;
@@ -208,13 +212,13 @@ input.historysubmit {
 #wikiContent select {
 	vertical-align: top;
 }
-abbr, acronym, .explain {
+#wikiContent abbr, #wikiContent acronym, #wikiContent .explain {
 	border-bottom: 1px dotted black;
 	color: black;
 	background: none;
 	cursor: help;
 }
-q {
+#wikiContent q {
 	font-family: Times, "Times New Roman", serif;
 	font-style: italic;
 }
@@ -265,6 +269,10 @@ span.subpages {
 }
 .firstHeading {
 	margin-bottom: .1em;
+	/* These two rules hack around bug 2013 (fix for more limited bug 11325).
+	   When bug 2013 is fixed properly, they should be removed. */
+	line-height: 1.2em;
+	padding-bottom: 0;
 }
 
 /* user notification thing */
@@ -285,6 +293,10 @@ span.subpages {
 #siteNotice p {
 	margin: 0;
 	padding: 0;
+}
+.success {
+	color: green;
+	font-size: larger;
 }
 .error {
 	color: red;
@@ -314,7 +326,7 @@ span.subpages {
 	border: none;
 }
 
-#catlinks {
+.catlinks {
 	border: 1px solid #aaa;
 	background-color: #f9f9f9;
 	padding: 5px;
@@ -505,30 +517,6 @@ table.rimage {
 	padding: 5px;
 	font-size: 95%;
 }
-div.townBox {
-	position: relative;
-	float: right;
-	background: white;
-	margin-left: 1em;
-	border: 1px solid gray;
-	padding: .3em;
-	width: 200px;
-	overflow: hidden;
-	clear: right;
-}
-div.townBox dl {
-	padding: 0;
-	margin: 0 0 .3em;
-	font-size: 96%;
-}
-div.townBox dl dt {
-	background: none;
-	margin: .4em 0 0;
-}
-div.townBox dl dd {
-	margin: .1em 0 0 1.1em;
-	background-color: #f3f3f3;
-}
 
 /*
 ** edit views etc
@@ -537,26 +525,6 @@ div.townBox dl dd {
 	line-height: 1.4em;
 	margin: 0;
 	padding: 0;
-}
-
-/* Page history styling */
-/* the auto-generated edit comments */
-.autocomment {
-	color: gray;
-}
-#pagehistory span.user {
-	margin-left: 1.4em;
-	margin-right: .4em;
-}
-#pagehistory span.minor {
-	font-weight: bold;
-}
-#pagehistory li {
-	border: 1px solid white;
-}
-#pagehistory li.selected {
-	background-color: #f9f9f9;
-	border: 1px dashed #aaa;
 }
 
 /*
@@ -588,6 +556,7 @@ div.townBox dl dd {
 	padding-right: 18px;
 }
 #bodyContent a[href ^="irc://"],
+#bodyContent a.extiw[href ^="irc://"],
 .link-irc {
 	background: url(discussionitem_icon.gif) center right no-repeat;
 	padding-right: 18px;
@@ -643,10 +612,9 @@ special external link styling */
 */
 .portlet {
 	border: none;
-	margin: 0 0 .5em;
+	margin: 0 0 1em;
 	padding: 0;
 	float: none;
-	width: 11.6em;
 	overflow: hidden;
 }
 .portlet h4 {
@@ -694,11 +662,6 @@ special external link styling */
 	margin: 0;
 }
 
-#p-navigation li.active a, #p-navigation li.active a:hover {
-	text-decoration: none;
-	font-weight: bold;
-}
-
 /*
 ** Search portlet
 */
@@ -721,16 +684,19 @@ input.searchButton {
 ** the page-related actions- page/talk, edit etc
 */
 #p-cactions {
-	position: relative;
-	top: 16px;
+	position: absolute;
+	top: 180px;
+	left: 157px;
 	margin: 0;
 	white-space: nowrap;
 	width: 76%;
+	line-height: 1.1em;
 	overflow: visible;
 	background: none;
 	border-collapse: collapse;
 	padding-left: 1em;
 	list-style: none;
+	font-size: 10pt;
 }
 #p-cactions ul {
 	list-style: none;
@@ -961,6 +927,10 @@ div#userlogin form#userlogin2 {
 	background-color: #f9f9f9;
 	float: left;
 }
+.rtl div#userloginForm form,
+.rtl div#userlogin form#userlogin2 {
+	float: right;
+}
 
 div#userloginForm table,
 div#userlogin form#userlogin2 table {
@@ -979,6 +949,9 @@ div#userloginForm .captcha {
 	background-color: white;
 }
 
+#loginend, #signupend {
+	clear: both;
+}
 
 #userloginprompt, #languagelinks {
 	font-size: 85%;
@@ -1059,7 +1032,7 @@ div.patrollink {
 	font-size: 75%;
 	text-align: right;
 }
-span.newpage, span.minor, span.searchmatch, span.bot {
+span.newpage, span.minor, span.bot {
 	font-weight: bold;
 }
 span.unpatrolled {
@@ -1067,9 +1040,6 @@ span.unpatrolled {
 	color: red;
 }
 
-span.searchmatch {
-	color: red;
-}
 .sharedUploadNotice {
 	font-style: italic;
 }
@@ -1232,10 +1202,6 @@ input#wpSave, input#wpDiff {
 	margin-right: 0.33em;
 }
 
-#editform .editOptions {
-	display: inline;
-}
-
 #wpSave {
 	font-weight: bold;
 }
@@ -1324,7 +1290,7 @@ div#searchTarget ul li:before {
 div#searchTargetHide {
 	float:right;
 	border:solid 1px black;
-	background:gainsboro;
+	background:#DCDCDC;
 	padding:2px;
 }
 
@@ -1332,7 +1298,6 @@ div.multipageimagenavbox {
    border: solid 1px silver;
    padding: 4px;
    margin: 1em;
-   -moz-border-radius: 6px;
    background: #f0f0f0;
 }
 
@@ -1402,12 +1367,6 @@ tr.sv-space td { display: none; }
 	margin: 0.1em 0;
 }
 
-/* Convenience links on Special:Ipblocklist */
-p.mw-ipb-conveniencelinks {
-	font-size: 90%;
-	float: right;
-}
-
 /* Friendlier slave lag warnings */
 div.mw-lag-warn-normal,
 div.mw-lag-warn-high {
@@ -1446,7 +1405,32 @@ div#mw-recreate-deleted-warn ul li {
 	font-size: 90%;
 }
 
+/** Special:Search stuff */
+div#mw-search-interwiki-caption {
+	text-align: center;
+	font-weight: bold;
+	font-size: 95%;
+}
 
+.mw-search-interwiki-project {
+	font-size: 97%;
+	text-align: left;
+	padding-left: 0.2em;
+	padding-right: 0.15em;
+	padding-bottom: 0.2em;
+	padding-top: 0.15em;
+	background: #cae8ff;
+}
+
+span.searchmatch {
+	font-weight: bold;
+	color: red;
+}
+
+/* God-damned hack for the crappy layout */
+.os-suggest {
+	font-size: 127%;
+}
 
 /* disable ReactOS Website alike list-bullet */
 #content li {

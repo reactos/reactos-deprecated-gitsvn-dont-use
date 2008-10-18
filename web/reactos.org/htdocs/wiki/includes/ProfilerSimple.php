@@ -1,18 +1,22 @@
 <?php
+/**
+ * @file
+ * @ingroup Profiler
+ */
 
 require_once(dirname(__FILE__).'/Profiler.php');
 
 /**
  * Simple profiler base class.
  * @todo document methods (?)
- * @addtogroup Profiler
+ * @ingroup Profiler
  */
 class ProfilerSimple extends Profiler {
 	var $mMinimumTime = 0;
 	var $mProfileID = false;
 
 	function __construct() {
-		global $wgRequestTime,$wgRUstart;
+		global $wgRequestTime, $wgRUstart;
 		if (!empty($wgRequestTime) && !empty($wgRUstart)) {
 			$this->mWorkStack[] = array( '-total', 0, $wgRequestTime,$this->getCpuTime($wgRUstart));
 
@@ -105,7 +109,7 @@ class ProfilerSimple extends Profiler {
 		if ( function_exists( 'getrusage' ) ) {
 			if ( $ru == null )
 				$ru = getrusage();
-			return ($ru['ru_utime.tv_sec'] + $ru['ru_stime.tv_sec'] + ($ru['ru_utime.tv_usec'] + 
+			return ($ru['ru_utime.tv_sec'] + $ru['ru_stime.tv_sec'] + ($ru['ru_utime.tv_usec'] +
 				$ru['ru_stime.tv_usec']) * 1e-6);
 		} else {
 			return 0;
@@ -119,11 +123,4 @@ class ProfilerSimple extends Profiler {
 		list($a,$b)=explode(" ",$time);
 		return (float)($a+$b);
 	}
-
-	function debug( $s ) {
-		if (function_exists( 'wfDebug' ) ) {
-			wfDebug( $s );
-		}
-	}
 }
-

@@ -1,12 +1,12 @@
 <?php
 /** Emiliano-Romagnolo (Emiliàn e rumagnòl)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author Timichal
  * @author Ottaviano II
+ * @author Timichal
  * @author Tèstaquêdra
- * @author SPQRobin
  */
 
 $fallback = 'it';
@@ -54,7 +54,6 @@ $messages = array(
 'helppage'          => 'Help:Introduzione',
 'portal'            => 'Discóter e quistiunêr',
 'portal-url'        => 'Project:Bar',
-'sitesupport'       => 'Donaziòun',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'     => 'Artéccol',
@@ -82,7 +81,7 @@ Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp c
 'showpreview'      => 'Anteprémma',
 'showdiff'         => 'Guèrda al differèinzi',
 'anoneditwarning'  => "'''Attenziòun:''' An sîv ménga vgnû dèinter. Al vòster indirézz IP al vrà signê in d'la stòria d'i cambiamèint ed sta pagina chè..",
-'anontalkpagetext' => "----''Sta chè l'éla pàgina ed discussiòun d'un utèint anònim c'al n'à brisa criê un sô account o c'an l'usa ménga. Bsògna quindi usêr al sô indirézz IP par identifichèrel. L'istèss indirézz IP al pôl èsser usê da di mòndi utèint. Se sèt un utèint anònim e pèinset c'a-t in sun stèdi fâti di cummèint irrilevànt, per piasér [[Special:Userlogin|criêt un account o fê al log-in]] par evitèr confusiòuni futuri cun di èter utèint anònim.''",
+'anontalkpagetext' => "----''Sta chè l'éla pàgina ed discussiòun d'un utèint anònim c'al n'à brisa criê un sô account o c'an l'usa ménga. Bsògna quindi usêr al sô indirézz IP par identifichèrel. L'istèss indirézz IP al pôl èsser usê da di mòndi utèint. Se sèt un utèint anònim e pèinset c'a-t in sun stèdi fâti di cummèint irrilevànt, per piasér [[Special:UserLogin|criêt un account o fê al log-in]] par evitèr confusiòuni futuri cun di èter utèint anònim.''",
 'editing'          => 'Cambiamèint ed $1',
 'yourdiff'         => 'Differèinzi',
 'templatesused'    => 'Modêl usèdi in sta pàgina:',
@@ -103,20 +102,20 @@ Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp c
 'filedesc'          => "Ugêt d'al cambiamèint",
 'fileuploadsummary' => "Ugêt d'al cambiamèint:",
 
-# Image list
-'ilsubmit'       => 'Zerca',
+# Special:ImageList
 'imagelist_size' => 'Dimensiòun (bytes)',
 
 # Random page
 'randompage' => 'Una pàgina a chès',
 
 # Miscellaneous special pages
-'allpages'     => 'Tôt al pàgin',
-'specialpages' => 'Pàgin specièli',
-'move'         => 'Môv',
+'move' => 'Môv',
 
 # Special:Log
 'specialloguserlabel' => 'Utèint:',
+
+# Special:AllPages
+'allpages' => 'Tôt al pàgin',
 
 # Watchlist
 'watchlist'     => 'Al còsi ca guèrd',
@@ -147,5 +146,11 @@ Guèrda $2 par vèdder la lésta d\'al pàgin ch\'i sun stèdi scanzlèdi di rec
 # Move page
 '1movedto2'   => "[[$1]] l'è stê mòs a [[$2]]",
 'movelogpage' => 'Regestér di muvimèint',
+
+# Special:NewImages
+'ilsubmit' => 'Zerca',
+
+# Special:SpecialPages
+'specialpages' => 'Pàgin specièli',
 
 );

@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Implements some public methods and some protected utility functions which 
- * are required by multiple child classes. Contains stub functionality for 
+ * Implements some public methods and some protected utility functions which
+ * are required by multiple child classes. Contains stub functionality for
  * unimplemented public methods.
  *
- * Stub functions which should be overridden are marked with STUB. Some more 
+ * Stub functions which should be overridden are marked with STUB. Some more
  * concrete functions are also typically overridden by child classes.
  *
  * Note that only the repo object knows what its file class is called. You should
- * never name a file class explictly outside of the repo class. Instead use the 
+ * never name a file class explictly outside of the repo class. Instead use the
  * repo's factory functions to generate file objects, for example:
  *
  * RepoGroup::singleton()->getLocalRepo()->newFile($title);
@@ -17,7 +17,7 @@
  * The convenience functions wfLocalFile() and wfFindFile() should be sufficient
  * in most cases.
  *
- * @addtogroup FileRepo
+ * @ingroup FileRepo
  */
 abstract class File {
 	const DELETED_FILE = 1;
@@ -28,17 +28,17 @@ abstract class File {
 
 	const DELETE_SOURCE = 1;
 
-	/** 
-	 * Some member variables can be lazy-initialised using __get(). The 
+	/**
+	 * Some member variables can be lazy-initialised using __get(). The
 	 * initialisation function for these variables is always a function named
-	 * like getVar(), where Var is the variable name with upper-case first 
+	 * like getVar(), where Var is the variable name with upper-case first
 	 * letter.
 	 *
 	 * The following variables are initialised in this way in this base class:
-	 *    name, extension, handler, path, canRender, isSafeFile, 
+	 *    name, extension, handler, path, canRender, isSafeFile,
 	 *    transformScript, hashPath, pageCount, url
 	 *
-	 * Code within this class should generally use the accessor function 
+	 * Code within this class should generally use the accessor function
 	 * directly, since __get() isn't re-entrant and therefore causes bugs that
 	 * depend on initialisation order.
 	 */
@@ -46,7 +46,7 @@ abstract class File {
 	/**
 	 * The following member variables are not lazy-initialised
 	 */
-	var $repo, $title, $lastError, $redirected;
+	var $repo, $title, $lastError, $redirected, $redirectedTitle;
 
 	/**
 	 * Call this constructor from child classes
@@ -79,7 +79,8 @@ abstract class File {
 			'htm' => 'html',
 			'jpeg' => 'jpg',
 			'mpeg' => 'mpg',
-			'tiff' => 'tif' );
+			'tiff' => 'tif',
+			'ogv' => 'ogg' );
 		if( isset( $squish[$lower] ) ) {
 			return $squish[$lower];
 		} elseif( preg_match( '/^[0-9a-z]+$/', $lower ) ) {
@@ -87,6 +88,21 @@ abstract class File {
 		} else {
 			return '';
 		}
+	}
+
+	/**
+	 * Checks if file extensions are compatible
+	 *
+	 * @param $old File Old file
+	 * @param $new string New name
+	 */
+	static function checkExtensionCompatibility( File $old, $new ) {
+		$oldMime = $old->getMimeType();
+		$n = strrpos( $new, '.' );
+		$newExt = self::normalizeExtension(
+			$n ? substr( $new, $n + 1 ) : '' );
+		$mimeMagic = MimeMagic::singleton();
+		return $mimeMagic->isMatchingExtension( $newExt, $oldMime );
 	}
 
 	/**
@@ -110,7 +126,7 @@ abstract class File {
 			return array( $mime, 'unknown' );
 		}
 	}
-	
+
 	/**
 	 * Return the name of this file
 	 */
@@ -118,7 +134,7 @@ abstract class File {
 		if ( !isset( $this->name ) ) {
 			$this->name = $this->repo->getNameFromTitle( $this->title );
 		}
-		return $this->name; 
+		return $this->name;
 	}
 
 	/**
@@ -127,7 +143,7 @@ abstract class File {
 	function getExtension() {
 		if ( !isset( $this->extension ) ) {
 			$n = strrpos( $this->getName(), '.' );
-			$this->extension = self::normalizeExtension( 
+			$this->extension = self::normalizeExtension(
 				$n ? substr( $this->getName(), $n + 1 ) : '' );
 		}
 		return $this->extension;
@@ -137,17 +153,26 @@ abstract class File {
 	 * Return the associated title object
 	 */
 	public function getTitle() { return $this->title; }
+	
+	/**
+	 * Return the title used to find this file
+	 */
+	public function getOriginalTitle() {
+		if ( $this->redirected )
+			return $this->getRedirectedTitle();
+		return $this->title;
+	}
 
 	/**
 	 * Return the URL of the file
 	 */
-	public function getUrl() { 
+	public function getUrl() {
 		if ( !isset( $this->url ) ) {
 			$this->url = $this->repo->getZoneUrl( 'public' ) . '/' . $this->getUrlRel();
 		}
-		return $this->url; 
+		return $this->url;
 	}
-	
+
 	/**
 	 * Return a fully-qualified URL to the file.
 	 * Upload URL paths _may or may not_ be fully qualified, so
@@ -197,7 +222,7 @@ abstract class File {
 	}
 
 	/**
-	 * Return the width of the image. Returns false if the width is unknown 
+	 * Return the width of the image. Returns false if the width is unknown
 	 * or undefined.
 	 *
 	 * STUB
@@ -206,7 +231,7 @@ abstract class File {
 	public function getWidth( $page = 1 ) { return false; }
 
 	/**
-	 * Return the height of the image. Returns false if the height is unknown 
+	 * Return the height of the image. Returns false if the height is unknown
 	 * or undefined
 	 *
 	 * STUB
@@ -264,8 +289,8 @@ abstract class File {
 	function getMediaType() { return MEDIATYPE_UNKNOWN; }
 
 	/**
-	 * Checks if the output of transform() for this file is likely 
-	 * to be valid. If this is false, various user elements will 
+	 * Checks if the output of transform() for this file is likely
+	 * to be valid. If this is false, various user elements will
 	 * display a placeholder instead.
 	 *
 	 * Currently, this checks if the file is an image format
@@ -325,7 +350,7 @@ abstract class File {
 		}
 		return $this->isSafeFile;
 	}
-	
+
 	/** Accessor for __get() */
 	protected function getIsSafeFile() {
 		return $this->isSafeFile();
@@ -371,11 +396,22 @@ abstract class File {
 	 * Returns true if file exists in the repository.
 	 *
 	 * Overridden by LocalFile to avoid unnecessary stat calls.
-	 * 
+	 *
 	 * @return boolean Whether file exists in the repository.
 	 */
 	public function exists() {
 		return $this->getPath() && file_exists( $this->path );
+	}
+
+	/**
+	 * Returns true if file exists in the repository and can be included in a page.
+	 * It would be unsafe to include private images, making public thumbnails inadvertently
+	 *
+	 * @return boolean Whether file exists in the repository and is includable.
+	 * @public
+	 */
+	function isVisible() {
+		return $this->exists();
 	}
 
 	function getTransformScript() {
@@ -482,7 +518,7 @@ abstract class File {
 	/**
 	 * Transform a media file
 	 *
-	 * @param array $params An associative array of handler-specific parameters. Typical 
+	 * @param array $params An associative array of handler-specific parameters. Typical
 	 *                      keys are width, height and page.
 	 * @param integer $flags A bitfield, may contain self::RENDER_NOW to force rendering
 	 * @return MediaTransformOutput
@@ -509,10 +545,10 @@ abstract class File {
 
 			$normalisedParams = $params;
 			$this->handler->normaliseParams( $this, $normalisedParams );
-			$thumbName = $this->thumbName( $normalisedParams );	
+			$thumbName = $this->thumbName( $normalisedParams );
 			$thumbPath = $this->getThumbPath( $thumbName );
 			$thumbUrl = $this->getThumbUrl( $thumbName );
-			
+
 			if ( $this->repo->canTransformVia404() && !($flags & self::RENDER_NOW ) ) {
 				$thumb = $this->handler->getTransform( $this, $thumbPath, $thumbUrl, $params );
 				break;
@@ -536,8 +572,11 @@ abstract class File {
 				}
 			}
 			
-			if ( $wgUseSquid ) {
-				wfPurgeSquidServers( array( $thumbUrl ) );
+			// Purge. Useful in the event of Core -> Squid connection failure or squid 
+			// purge collisions from elsewhere during failure. Don't keep triggering for 
+			// "thumbs" which have the main image URL though (bug 13776)
+			if ( $wgUseSquid && ($thumb->isError() || $thumb->getUrl() != $this->getURL()) ) {
+				SquidUpdate::purge( array( $thumbUrl ) );
 			}
 		} while (false);
 
@@ -545,7 +584,7 @@ abstract class File {
 		return $thumb;
 	}
 
-	/** 
+	/**
 	 * Hook into transform() to allow migration of thumbnail files
 	 * STUB
 	 * Overridden by LocalFile
@@ -555,7 +594,7 @@ abstract class File {
 	/**
 	 * Get a MediaHandler instance for this file
 	 */
-	function getHandler() { 
+	function getHandler() {
 		if ( !isset( $this->handler ) ) {
 			$this->handler = MediaHandler::getHandler( $this->getMimeType() );
 		}
@@ -614,7 +653,7 @@ abstract class File {
 			$title->purgeSquid();
 		}
 	}
-	
+
 	/**
 	 * Purge metadata and all affected pages when the file is created,
 	 * deleted, or majorly updated.
@@ -641,12 +680,12 @@ abstract class File {
 	 * @param $end timestamp Only revisions newer than $end will be returned
 	 */
 	function getHistory($limit = null, $start = null, $end = null) {
-		return false;
+		return array();
 	}
 
 	/**
-	 * Return the history of this file, line by line. Starts with current version, 
-	 * then old versions. Should return an object similar to an image/oldimage 
+	 * Return the history of this file, line by line. Starts with current version,
+	 * then old versions. Should return an object similar to an image/oldimage
 	 * database row.
 	 *
 	 * STUB
@@ -712,7 +751,7 @@ abstract class File {
 
 	/** Get the path of the archive directory, or a particular file if $suffix is specified */
 	function getArchivePath( $suffix = false ) {
-		return $this->repo->getZonePath('public') . '/' . $this->getArchiveRel();
+		return $this->repo->getZonePath('public') . '/' . $this->getArchiveRel( $suffix );
 	}
 
 	/** Get the path of the thumbnail directory, or a particular file if $suffix is specified */
@@ -767,7 +806,7 @@ abstract class File {
 			$path .= '/' . rawurlencode( $suffix );
 		}
 		return $path;
-	}	
+	}
 
 	/**
 	 * @return bool
@@ -785,25 +824,25 @@ abstract class File {
 	 * STUB
 	 * Overridden by LocalFile
 	 */
-	function recordUpload( $oldver, $desc, $license = '', $copyStatus = '', $source = '', $watch = false ) { 
-		$this->readOnlyError(); 
+	function recordUpload( $oldver, $desc, $license = '', $copyStatus = '', $source = '', $watch = false ) {
+		$this->readOnlyError();
 	}
 
 	/**
-	 * Move or copy a file to its public location. If a file exists at the  
-	 * destination, move it to an archive. Returns the archive name on success 
-	 * or an empty string if it was a new file, and a wikitext-formatted 
-	 * WikiError object on failure. 
+	 * Move or copy a file to its public location. If a file exists at the
+	 * destination, move it to an archive. Returns the archive name on success
+	 * or an empty string if it was a new file, and a wikitext-formatted
+	 * WikiError object on failure.
 	 *
 	 * The archive name should be passed through to recordUpload for database
 	 * registration.
 	 *
 	 * @param string $sourcePath Local filesystem path to the source image
 	 * @param integer $flags A bitwise combination of:
-	 *     File::DELETE_SOURCE    Delete the source file, i.e. move 
+	 *     File::DELETE_SOURCE    Delete the source file, i.e. move
 	 *         rather than copy
-	 * @return The archive name on success or an empty string if it was a new 
-	 *     file, and a wikitext-formatted WikiError object on failure. 
+	 * @return The archive name on success or an empty string if it was a new
+	 *     file, and a wikitext-formatted WikiError object on failure.
 	 *
 	 * STUB
 	 * Overridden by LocalFile
@@ -829,18 +868,19 @@ abstract class File {
 		} else {
 			$db = wfGetDB( DB_SLAVE );
 		}
-		$linkCache =& LinkCache::singleton();
+		$linkCache = LinkCache::singleton();
 
 		list( $page, $imagelinks ) = $db->tableNamesN( 'page', 'imagelinks' );
 		$encName = $db->addQuotes( $this->getName() );
-		$sql = "SELECT page_namespace,page_title,page_id FROM $page,$imagelinks WHERE page_id=il_from AND il_to=$encName $options";
+		$sql = "SELECT page_namespace,page_title,page_id,page_len,page_is_redirect,
+			FROM $page,$imagelinks WHERE page_id=il_from AND il_to=$encName $options";
 		$res = $db->query( $sql, __METHOD__ );
 
 		$retVal = array();
 		if ( $db->numRows( $res ) ) {
 			while ( $row = $db->fetchObject( $res ) ) {
-				if ( $titleObj = Title::makeTitle( $row->page_namespace, $row->page_title ) ) {
-					$linkCache->addGoodLinkObj( $row->page_id, $titleObj );
+				if ( $titleObj = Title::newFromRow( $row ) ) {
+					$linkCache->addGoodLinkObj( $row->page_id, $titleObj, $row->page_len, $row->page_is_redirect );
 					$retVal[] = $titleObj;
 				}
 			}
@@ -862,8 +902,8 @@ abstract class File {
 	 *
 	 * @return bool
 	 */
-	function isLocal() { 
-		return $this->getRepoName() == 'local'; 
+	function isLocal() {
+		return $this->getRepoName() == 'local';
 	}
 
 	/**
@@ -871,8 +911,14 @@ abstract class File {
 	 *
 	 * @return string
 	 */
-	function getRepoName() { 
-		return $this->repo ? $this->repo->getName() : 'unknown'; 
+	function getRepoName() {
+		return $this->repo ? $this->repo->getName() : 'unknown';
+	}
+	/*
+	 * Returns the repository
+	 */
+	function getRepo() {
+		return $this->repo;
 	}
 
 	/**
@@ -902,6 +948,22 @@ abstract class File {
 	}
 
 	/**
+	 * Move file to the new title
+	 *
+	 * Move current, old version and all thumbnails
+	 * to the new filename. Old file is deleted.
+	 *
+	 * Cache purging is done; checks for validity
+	 * and logging are caller's responsibility
+	 *
+	 * @param $target Title New file name
+	 * @return FileRepoStatus object.
+	 */
+	 function move( $target ) {
+		$this->readOnlyError();
+	 }
+
+	/**
 	 * Delete all versions of the file.
 	 *
 	 * Moves the files into an archive directory (or deletes them)
@@ -910,11 +972,12 @@ abstract class File {
 	 * Cache purging is done; logging is caller's responsibility.
 	 *
 	 * @param $reason
+	 * @param $suppress, hide content from sysops?
 	 * @return true on success, false on some kind of failure
 	 * STUB
 	 * Overridden by LocalFile
 	 */
-	function delete( $reason ) {
+	function delete( $reason, $suppress = false ) {
 		$this->readOnlyError();
 	}
 
@@ -926,12 +989,13 @@ abstract class File {
 	 *
 	 * @param $versions set of record ids of deleted items to restore,
 	 *                    or empty to restore all revisions.
+	 * @param $unsuppress, remove restrictions on content upon restoration?
 	 * @return the number of file revisions restored if successful,
 	 *         or false on failure
 	 * STUB
 	 * Overridden by LocalFile
 	 */
-	function restore( $versions=array(), $Unsuppress=false ) {
+	function restore( $versions=array(), $unsuppress=false ) {
 		$this->readOnlyError();
 	}
 
@@ -971,9 +1035,9 @@ abstract class File {
 			return round( $srcHeight * $dstWidth / $srcWidth );
 		}
 	}
-	
+
 	/**
-	 * Get an image size array like that returned by getimagesize(), or false if it 
+	 * Get an image size array like that returned by getimagesize(), or false if it
 	 * can't be determined.
 	 *
 	 * @param string $fileName The filename
@@ -998,13 +1062,26 @@ abstract class File {
 	 * Get the HTML text of the description page, if available
 	 */
 	function getDescriptionText() {
+		global $wgMemc;
 		if ( !$this->repo->fetchDescription ) {
 			return false;
 		}
 		$renderUrl = $this->repo->getDescriptionRenderUrl( $this->getName() );
 		if ( $renderUrl ) {
+			if ( $this->repo->descriptionCacheExpiry > 0 ) {
+				wfDebug("Attempting to get the description from cache...");
+				$key = wfMemcKey( 'RemoteFileDescription', 'url', md5($renderUrl) );
+				$obj = $wgMemc->get($key);
+				if ($obj) {
+					wfDebug("success!\n");
+					return $obj;
+				}
+				wfDebug("miss\n");
+			}
 			wfDebug( "Fetching shared description from $renderUrl\n" );
-			return Http::get( $renderUrl );
+			$res = Http::get( $renderUrl );
+			if ( $res && $this->repo->descriptionCacheExpiry > 0 ) $wgMemc->set( $key, $res, $this->repo->descriptionCacheExpiry );
+			return $res;
 		} else {
 			return false;
 		}
@@ -1020,14 +1097,14 @@ abstract class File {
 
 	/**
 	 * Get the 14-character timestamp of the file upload, or false if
-	 * it doesn't exist 
+	 * it doesn't exist
 	 */
 	function getTimestamp() {
 		$path = $this->getPath();
 		if ( !file_exists( $path ) ) {
 			return false;
 		}
-		return wfTimestamp( filemtime( $path ) );
+		return wfTimestamp( TS_MW, filemtime( $path ) );
 	}
 
 	/**
@@ -1036,12 +1113,12 @@ abstract class File {
 	function getSha1() {
 		return self::sha1Base36( $this->getPath() );
 	}
-	
+
 	/**
 	 * Determine if the current user is allowed to view a particular
 	 * field of this file, if it's marked as deleted.
 	 * STUB
-	 * @param int $field					
+	 * @param int $field
 	 * @return bool
 	 */
 	function userCan( $field ) {
@@ -1052,13 +1129,13 @@ abstract class File {
 	 * Get an associative array containing information about a file in the local filesystem.
 	 *
 	 * @param string $path Absolute local filesystem path
-	 * @param mixed $ext The file extension, or true to extract it from the filename. 
+	 * @param mixed $ext The file extension, or true to extract it from the filename.
 	 *                   Set it to false to ignore the extension.
 	 */
 	static function getPropsFromPath( $path, $ext = true ) {
 		wfProfileIn( __METHOD__ );
 		wfDebug( __METHOD__.": Getting file info for $path\n" );
-		$info = array( 
+		$info = array(
 			'fileExists' => file_exists( $path ) && !is_dir( $path )
 		);
 		$gis = false;
@@ -1111,8 +1188,8 @@ abstract class File {
 	}
 
 	/**
-	 * Get a SHA-1 hash of a file in the local filesystem, in base-36 lower case 
-	 * encoding, zero padded to 31 digits. 
+	 * Get a SHA-1 hash of a file in the local filesystem, in base-36 lower case
+	 * encoding, zero padded to 31 digits.
 	 *
 	 * 160 log 2 / log 36 = 30.95, so the 160-bit hash fills 31 digits in base 36
 	 * fairly neatly.
@@ -1160,6 +1237,14 @@ abstract class File {
 	function getRedirected() {
 		return $this->redirected;
 	}
+	
+	function getRedirectedTitle() {
+		if ( $this->redirected ) {
+			if ( !$this->redirectTitle )
+				$this->redirectTitle = Title::makeTitle( NS_IMAGE, $this->redirected );
+			return $this->redirectTitle;
+		}
+	}
 
 	function redirectedFrom( $from ) {
 		$this->redirected = $from;
@@ -1172,5 +1257,3 @@ define( 'MW_IMG_DELETED_FILE', File::DELETED_FILE );
 define( 'MW_IMG_DELETED_COMMENT', File::DELETED_COMMENT );
 define( 'MW_IMG_DELETED_USER', File::DELETED_USER );
 define( 'MW_IMG_DELETED_RESTRICTED', File::DELETED_RESTRICTED );
-
-

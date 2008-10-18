@@ -1,9 +1,9 @@
 <?php
 /** Chavacano de Zamboanga (Chavacano de Zamboanga)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SPQRobin
  */
 
 $fallback = "es";
@@ -18,8 +18,9 @@ $messages = array(
 'otherlanguages' => 'na otro maga lenguaje',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'mainpage' => 'El Primero Pagina',
-'portal'   => 'Portal del Comunidad',
+'mainpage'             => 'El Primero Pagina',
+'mainpage-description' => 'El Primero Pagina',
+'portal'               => 'Portal del Comunidad',
 
 # Login and logout pages
 'acct_creation_throttle_hit' => 'Pasencia. Ya crea ya tu $1 maga cuenta. No puede mas tu rehistra pa otra vez.',
@@ -40,7 +41,7 @@ $messages = array(
 # Random page
 'randompage' => 'Pagina Escujido Automatico',
 
-# Special:Allpages
+# Special:AllPages
 'allarticles' => 'Todo maga articulo',
 
 # Watchlist

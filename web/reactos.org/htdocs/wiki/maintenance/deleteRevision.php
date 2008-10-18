@@ -1,4 +1,11 @@
 <?php
+/**
+ * Delete one or more revisions by moving them to the archive table.
+ *
+ * @file
+ * @ingroup Maintenance
+ */
+
 require_once( 'commandLine.inc' );
 
 $dbw = wfGetDB( DB_MASTER );

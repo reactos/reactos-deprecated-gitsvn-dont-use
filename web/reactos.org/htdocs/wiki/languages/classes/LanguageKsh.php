@@ -1,11 +1,11 @@
 <?php
+
 /** Ripuarian (Ripoarėsh)
  *
- * @addtogroup Language
+ * @ingroup Language
  *
  * @author Purodha Blissenbach
  */
-
 class LanguageKsh extends Language {
 	/**
 	 * Avoid grouping whole numbers between 0 to 9999
@@ -34,4 +34,3 @@ class LanguageKsh extends Language {
 		}
 	}
 }
-

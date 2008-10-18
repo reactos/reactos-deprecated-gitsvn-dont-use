@@ -1,11 +1,9 @@
 <?php
+
 /** Kurdish
-  *
-  *
-  * @addtogroup Language
-  */
-
-
+ *
+ * @ingroup Language
+ */
 class LanguageKu_ku extends Language {
 
 /**  	# Convert from the nominative form of a noun to some other case
@@ -31,5 +29,3 @@ class LanguageKu_ku extends Language {
 		}
 	}
 }
-
-

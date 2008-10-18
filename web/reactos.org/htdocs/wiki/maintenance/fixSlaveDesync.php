@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * @ingroup Maintenance
+ */
 
 $wgUseRootUser = true;
 require_once( 'commandLine.inc' );
@@ -7,13 +11,13 @@ require_once( 'commandLine.inc' );
 
 $slaveIndexes = array();
 for ( $i = 1; $i < count( $wgDBservers ); $i++ ) {
-	if ( $wgLoadBalancer->isNonZeroLoad( $i ) ) {
+	if ( wfGetLB()->isNonZeroLoad( $i ) ) {
 		$slaveIndexes[] = $i;
 	}
 }
 /*
-foreach ( $wgLoadBalancer->mServers as $i => $server ) {
-	$wgLoadBalancer->mServers[$i]['flags'] |= DBO_DEBUG;
+foreach ( wfGetLB()->mServers as $i => $server ) {
+	wfGetLB()->mServers[$i]['flags'] |= DBO_DEBUG;
 }*/
 $reportingInterval = 1000;
 

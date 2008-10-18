@@ -24,11 +24,11 @@
 /**
  * Since PHP4 doesn't have exceptions, here's some error objects
  * loosely modeled on the standard PEAR_Error model...
- * @addtogroup Exception
+ * @ingroup Exception
  */
 class WikiError {
 	/**
-	 * @param string $message
+	 * @param $message string
 	 */
 	function __construct( $message ) {
 		$this->mMessage = $message;
@@ -54,9 +54,8 @@ class WikiError {
 	 * Returns true if the given object is a WikiError-descended
 	 * error object, false otherwise.
 	 *
-	 * @param mixed $object
+	 * @param $object mixed
 	 * @return bool
-	 * @static
 	 */
 	public static function isError( $object ) {
 		return $object instanceof WikiError;
@@ -65,11 +64,11 @@ class WikiError {
 
 /**
  * Localized error message object
- * @addtogroup Exception
+ * @ingroup Exception
  */
 class WikiErrorMsg extends WikiError {
 	/**
-	 * @param string $message Wiki message name
+	 * @param $message String: wiki message name
 	 * @param ... parameters to pass to wfMsg()
 	 */
 	function WikiErrorMsg( $message/*, ... */ ) {
@@ -81,12 +80,14 @@ class WikiErrorMsg extends WikiError {
 
 /**
  * @todo document
- * @addtogroup Exception
+ * @ingroup Exception
  */
 class WikiXmlError extends WikiError {
 	/**
-	 * @param resource $parser
-	 * @param string $message
+	 * @param $parser resource
+	 * @param $message string
+	 * @param $context
+	 * @param $offset Int
 	 */
 	function WikiXmlError( $parser, $message = 'XML parsing error', $context = null, $offset = 0 ) {
 		$this->mXmlError = xml_get_error_code( $parser );

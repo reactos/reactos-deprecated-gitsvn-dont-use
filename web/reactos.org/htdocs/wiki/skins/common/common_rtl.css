@@ -14,7 +14,7 @@ fieldset.operaprefsection {
     margin-right: 18em;
 }
 /* page history */
-#pagehistory span.user { 
+#pagehistory .history-user { 
     margin-right: 1.4em;
     margin-left: 0.4em;
 }
@@ -28,10 +28,20 @@ div.tright, div.floatright {
 div.tleft, div.floatleft {
 	clear: left;
 }
-/* Unblock and Ipblocklist links of Special:Blockip */
-p.mw-ipb-conveniencelinks {
+/* Convenience links to edit block and delete reasons */
+p.mw-ipb-conveniencelinks, p.mw-filedelete-editreasons, p.mw-delete-editreasons {
 	float: left;
 }
 table.filehistory th {
 	text-align: right;
+}
+
+/**
+ * Lists:
+ * The following lines don't have a visible effect on non-Gecko browsers
+ * They fix a problem ith Gecko browsers rendering lists to the right of
+ * left-floated objects in an RTL layout.
+ */
+html > body div#article ul {
+	display: table;
 }

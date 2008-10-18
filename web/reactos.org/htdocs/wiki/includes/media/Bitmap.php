@@ -1,7 +1,11 @@
 <?php
+/**
+ * @file
+ * @ingroup Media
+ */
 
 /**
- * @addtogroup Media
+ * @ingroup Media
  */
 class BitmapHandler extends ImageHandler {
 	function normaliseParams( $image, &$params ) {
@@ -26,7 +30,7 @@ class BitmapHandler extends ImageHandler {
 		# Don't make an image bigger than the source
 		$params['physicalWidth'] = $params['width'];
 		$params['physicalHeight'] = $params['height'];
-		
+
 		if ( $params['physicalWidth'] >= $srcWidth ) {
 			$params['physicalWidth'] = $srcWidth;
 			$params['physicalHeight'] = $srcHeight;
@@ -35,7 +39,7 @@ class BitmapHandler extends ImageHandler {
 
 		return true;
 	}
-	
+
 	function doTransform( $image, $dstPath, $dstUrl, $params, $flags = 0 ) {
 		global $wgUseImageMagick, $wgImageMagickConvertCommand;
 		global $wgCustomConvertCommand;
@@ -85,8 +89,8 @@ class BitmapHandler extends ImageHandler {
 		}
 
 		if ( !wfMkdirParents( dirname( $dstPath ) ) ) {
-			return new MediaTransformError( 'thumbnail_error', $clientWidth, $clientHeight, 
-				wfMsg( 'thumbnail_dest_directory' ) );
+			wfDebug( "Unable to create thumbnail destination directory, falling back to client scaling\n" );
+			return new ThumbnailImage( $image, $image->getURL(), $clientWidth, $clientHeight, $srcPath );
 		}
 
 		if ( $scaler == 'im' ) {
@@ -167,12 +171,12 @@ class BitmapHandler extends ImageHandler {
 
 			$src_image = call_user_func( $loader, $srcPath );
 			$dst_image = imagecreatetruecolor( $physicalWidth, $physicalHeight );
-			
+
 			// Initialise the destination image to transparent instead of
 			// the default solid black, to support PNG and GIF transparency nicely
 			$background = imagecolorallocate( $dst_image, 0, 0, 0 );
 			imagecolortransparent( $dst_image, $background );
-			imagealphablending( $dst_image, false ); 
+			imagealphablending( $dst_image, false );
 
 			if( $colorStyle == 'palette' ) {
 				// Don't resample for paletted GIF images.
@@ -187,7 +191,7 @@ class BitmapHandler extends ImageHandler {
 			}
 
 			imagesavealpha( $dst_image, true );
-			
+
 			call_user_func( $saveType, $dst_image, $dstPath );
 			imagedestroy( $dst_image );
 			imagedestroy( $src_image );
@@ -303,5 +307,3 @@ class BitmapHandler extends ImageHandler {
 		return $result;
 	}
 }
-
-

@@ -1,7 +1,8 @@
 <?php
 /** Moldavian (Молдовеняскэ)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Node ue
  * @author לערי ריינהארט
@@ -57,21 +58,24 @@ $messages = array(
 'jumptosearch'     => 'кэутаре',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'      => 'Деспре {{SITENAME}}',
-'aboutpage'      => 'Project:Деспре',
-'disclaimers'    => 'Деклараций',
-'disclaimerpage' => 'Project:Декларацие ӂенералэ',
-'mainpage'       => 'Прима паӂина',
-'privacy'        => 'Политика де интимитате',
-'privacypage'    => 'Project:Политика де интимитате',
+'aboutsite'            => 'Деспре {{SITENAME}}',
+'aboutpage'            => 'Project:Деспре',
+'disclaimers'          => 'Деклараций',
+'disclaimerpage'       => 'Project:Декларацие ӂенералэ',
+'mainpage'             => 'Прима паӂина',
+'mainpage-description' => 'Прима паӂина',
+'privacy'              => 'Политика де интимитате',
+'privacypage'          => 'Project:Политика де интимитате',
 
 'retrievedfrom'   => 'Адус де ла "$1"',
 'editsection'     => 'едитязэ',
 'editsectionhint' => 'Едитязэ секциуня: $1',
+'toc'             => 'Таблэ де материй',
 'site-rss-feed'   => '$1 Агрегат RSS',
 'site-atom-feed'  => '$1 Агрегат Atom',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
+'nstab-user'  => 'Паӂина утилизаторулуй',
 'nstab-image' => 'Фишиер',
 
 # Login and logout pages
@@ -79,7 +83,9 @@ $messages = array(
 'userlogout' => 'Ынкиде сесиуня',
 
 # Edit pages
-'summary' => 'Резумат',
+'summary'     => 'Резумат',
+'watchthis'   => 'Привеште ачастэ паӂинэ',
+'showpreview' => 'Аратэ превизуализаре',
 
 # History pages
 'cur'  => 'акт',
@@ -98,6 +104,7 @@ $messages = array(
 # Recent changes
 'hist'            => 'ист',
 'minoreditletter' => 'м',
+'newpageletter'   => 'Н',
 
 # Recent changes linked
 'recentchangeslinked' => 'Скимбарь корелате',
@@ -105,14 +112,20 @@ $messages = array(
 # Upload
 'upload' => 'Тримите фишиер',
 
-# Image list
+# Image description page
+'filehist'      => 'Историкул фишиерулуй',
 'filehist-user' => 'Утилизатор',
+'imagelinks'    => 'Легэтурь',
 
 # Miscellaneous special pages
-'nbytes'       => '{{PLURAL:$1|ун октет|$1 октець}}',
-'specialpages' => 'Сервичий',
+'nbytes' => '{{PLURAL:$1|ун октет|$1 октець}}',
 
+# Special:AllPages
 'alphaindexline' => '$1 пынэ ла $2',
+
+# Watchlist
+'watchlist' => 'Паӂинь привите',
+'watch'     => 'Привеште',
 
 # Namespace form on various pages
 'blanknamespace' => '(Принчиал)',
@@ -141,10 +154,12 @@ $messages = array(
 'tooltip-n-recentchanges' => 'Листа ултимелор скимбэрь реализате ын ачест вики.',
 'tooltip-n-randompage'    => 'Мерӂе спре о паӂинэ алятоаре',
 'tooltip-n-help'          => 'Локул ын каре гэсешть ажутор.',
-'tooltip-n-sitesupport'   => 'Сприжиниць-не',
 'tooltip-t-whatlinkshere' => 'Листа тутурор паӂинилор вики каре кондук спре ачастэ паӂинэ',
 'tooltip-t-upload'        => 'Тримите имаӂинь сау фишиере медия',
 'tooltip-t-specialpages'  => 'Листа тутурор паӂинилор де сервичиу',
 'tooltip-save'            => 'Салвязэ скимбэриле тале',
+
+# Special:SpecialPages
+'specialpages' => 'Сервичий',
 
 );

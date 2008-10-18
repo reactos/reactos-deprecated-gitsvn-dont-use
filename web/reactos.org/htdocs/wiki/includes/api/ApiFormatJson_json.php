@@ -45,12 +45,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 * DAMAGE.
 *
-* @addtogroup  API
+* @ingroup     API
 * @author      Michal Migurski <mike-json@teczno.com>
 * @author      Matt Knapp <mdknapp[at]gmail[dot]com>
 * @author      Brett Stimmerman <brettstimmerman[at]gmail[dot]com>
 * @copyright   2005 Michal Migurski
-* @version     CVS: $Id: JSON.php,v 1.30 2006/03/08 16:10:20 migurski Exp $
+* @version     CVS: $Id: ApiFormatJson_json.php 35098 2008-05-20 17:13:28Z ialex $
 * @license     http://www.opensource.org/licenses/bsd-license.php
 * @see         http://pear.php.net/pepr/pepr-proposal-show.php?id=198
 */
@@ -111,7 +111,7 @@ define('SERVICES_JSON_SUPPRESS_ERRORS', 32);
  * $value = $json->decode($input);
  * </code>
  *
- * @addtogroup API
+ * @ingroup API
  */
 class Services_JSON
 {
@@ -257,7 +257,7 @@ class Services_JSON
     */
     function encode2($var)
     {
-        if ($this->pretty) { 
+        if ($this->pretty) {
             $close = "\n" . str_repeat("\t", $this->indent);
             $open = $close . "\t";
             $mid = ',' . $open;
@@ -426,7 +426,7 @@ class Services_JSON
                 $this->indent++;
                 $elements = array_map(array($this, 'encode2'), $var);
                 $this->indent--;
-                
+
                 foreach($elements as $element) {
                     if(Services_JSON::isError($element)) {
                         return $element;
@@ -703,7 +703,7 @@ class Services_JSON
                                 // element in an associative array,
                                 // for now
                                 $parts = array();
-                                
+
                                 if (preg_match('/^\s*(["\'].*[^\\\]["\'])\s*:\s*(\S.*),?$/Uis', $slice, $parts)) {
                                     // "name":value pair
                                     $key = $this->decode($parts[1]);
@@ -815,7 +815,7 @@ class Services_JSON
 if (class_exists('PEAR_Error')) {
 
     /**
-     * @addtogroup API
+     * @ingroup API
      */
     class Services_JSON_Error extends PEAR_Error
     {
@@ -830,7 +830,7 @@ if (class_exists('PEAR_Error')) {
 
     /**
      * @todo Ultimately, this class shall be descended from PEAR_Error
-     * @addtogroup API
+     * @ingroup API
      */
     class Services_JSON_Error
     {
@@ -840,7 +840,4 @@ if (class_exists('PEAR_Error')) {
 
         }
     }
-
 }
-    
-

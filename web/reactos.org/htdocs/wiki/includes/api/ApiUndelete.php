@@ -28,7 +28,7 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
- * @addtogroup API
+ * @ingroup API
  */
 class ApiUndelete extends ApiBase {
 
@@ -40,7 +40,7 @@ class ApiUndelete extends ApiBase {
 		global $wgUser;
 		$this->getMain()->requestWriteMode();
 		$params = $this->extractRequestParams();
-		
+
 		$titleObj = NULL;
 		if(!isset($params['title']))
 			$this->dieUsageMsg(array('missingparam', 'title'));
@@ -61,6 +61,8 @@ class ApiUndelete extends ApiBase {
 			$this->dieUsageMsg(array('invalidtitle', $params['title']));
 
 		// Convert timestamps
+		if(!isset($params['timestamps']))
+			$params['timestamps'] = array();
 		if(!is_array($params['timestamps']))
 			$params['timestamps'] = array($params['timestamps']);
 		foreach($params['timestamps'] as $i => $ts)
@@ -73,16 +75,19 @@ class ApiUndelete extends ApiBase {
 		if(!is_array($retval))
 			$this->dieUsageMsg(array('cannotundelete'));
 
-		$dbw->commit();
+		if($retval[1])
+			wfRunHooks( 'FileUndeleteComplete', 
+				array($titleObj, array(), $wgUser, $params['reason']) );
+
 		$info['title'] = $titleObj->getPrefixedText();
 		$info['revisions'] = $retval[0];
 		$info['fileversions'] = $retval[1];
 		$info['reason'] = $retval[2];
 		$this->getResult()->addValue(null, $this->getModuleName(), $info);
 	}
-	
+
 	public function mustBePosted() { return true; }
-	
+
 	public function getAllowedParams() {
 		return array (
 			'title' => null,
@@ -118,6 +123,6 @@ class ApiUndelete extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiUndelete.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiUndelete.php 35348 2008-05-26 10:51:31Z catrope $';
 	}
 }

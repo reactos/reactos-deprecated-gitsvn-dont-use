@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * This query action adds a list of a specified user's contributions to the output.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryContributions extends ApiQueryBase {
 
@@ -48,7 +48,7 @@ class ApiQueryContributions extends ApiQueryBase {
 		// Parse some parameters
 		$this->params = $this->extractRequestParams();
 
-		$prop = array_flip($this->params['prop']);		
+		$prop = array_flip($this->params['prop']);
 		$this->fld_ids = isset($prop['ids']);
 		$this->fld_title = isset($prop['title']);
 		$this->fld_comment = isset($prop['comment']);
@@ -59,12 +59,20 @@ class ApiQueryContributions extends ApiQueryBase {
 		$this->selectNamedDB('contributions', DB_SLAVE, 'contributions');
 		$db = $this->getDB();
 
-		// Prepare query
-		$this->usernames = array();
-		if(!is_array($this->params['user']))
-			$this->params['user'] = array($this->params['user']);
-		foreach($this->params['user'] as $u)
-			$this->prepareUsername($u);
+		if(isset($this->params['userprefix']))
+		{
+			$this->prefixMode = true;
+			$this->userprefix = $this->params['userprefix'];
+		}
+		else
+		{
+			$this->usernames = array();
+			if(!is_array($this->params['user']))
+				$this->params['user'] = array($this->params['user']);
+			foreach($this->params['user'] as $u)
+				$this->prepareUsername($u);
+			$this->prefixMode = false;
+		}
 		$this->prepareQuery();
 
 		//Do the actual query.
@@ -114,7 +122,7 @@ class ApiQueryContributions extends ApiQueryBase {
 			$this->dieUsage( 'User parameter may not be empty', 'param_user' );
 		}
 	}
-	
+
 	/**
 	 * Prepares the query and returns the limit of rows requested
 	 */
@@ -122,14 +130,20 @@ class ApiQueryContributions extends ApiQueryBase {
 
 		//We're after the revision table, and the corresponding page row for
 		//anything we retrieve.
-		list ($tbl_page, $tbl_revision) = $this->getDB()->tableNamesN('page', 'revision');
-		$this->addTables("$tbl_revision LEFT OUTER JOIN $tbl_page ON page_id=rev_page");
-		
+		$this->addTables(array('revision', 'page'));
+		$this->addWhere('page_id=rev_page');
+
 		$this->addWhereFld('rev_deleted', 0);
 		// We only want pages by the specified users.
-		$this->addWhereFld( 'rev_user_text', $this->usernames );
+		if($this->prefixMode)
+			$this->addWhere("rev_user_text LIKE '" . $this->getDb()->escapeLike($this->userprefix) . "%'");
+		else
+			$this->addWhereFld( 'rev_user_text', $this->usernames );
 		// ... and in the specified timeframe.
-		$this->addWhereRange('rev_timestamp', 
+		// Ensure the same sort order for rev_user_text and rev_timestamp
+		// so our query is indexed
+		$this->addWhereRange('rev_user_text', $this->params['dir'], null, null);
+		$this->addWhereRange('rev_timestamp',
 			$this->params['dir'], $this->params['start'], $this->params['end'] );
 		$this->addWhereFld('page_namespace', $this->params['namespace']);
 
@@ -146,22 +160,23 @@ class ApiQueryContributions extends ApiQueryBase {
 
 		// Mandatory fields: timestamp allows request continuation
 		// ns+title checks if the user has access rights for this page
-		// user_text is necessary if multiple users were specified  
+		// user_text is necessary if multiple users were specified
 		$this->addFields(array(
 			'rev_timestamp',
 			'page_namespace',
 			'page_title',
 			'rev_user_text',
 			));
-				
+
 		$this->addFieldsIf('rev_page', $this->fld_ids);
-		$this->addFieldsIf('rev_id', $this->fld_ids);
+		$this->addFieldsIf('rev_id', $this->fld_ids || $this->fld_flags);
+		$this->addFieldsIf('page_latest', $this->fld_flags);
 		// $this->addFieldsIf('rev_text_id', $this->fld_ids); // Should this field be exposed?
 		$this->addFieldsIf('rev_comment', $this->fld_comment);
 		$this->addFieldsIf('rev_minor_edit', $this->fld_flags);
 		$this->addFieldsIf('page_is_new', $this->fld_flags);
 	}
-	
+
 	/**
 	 * Extract fields from the database row and append them to a result array
 	 */
@@ -172,12 +187,12 @@ class ApiQueryContributions extends ApiQueryBase {
 		$vals['user'] = $row->rev_user_text;
 		if ($this->fld_ids) {
 			$vals['pageid'] = intval($row->rev_page);
-			$vals['revid'] = intval($row->rev_id); 
+			$vals['revid'] = intval($row->rev_id);
 			// $vals['textid'] = intval($row->rev_text_id);	// todo: Should this field be exposed?
 		}
-		
+
 		if ($this->fld_title)
-			ApiQueryBase :: addTitleInfo($vals, 
+			ApiQueryBase :: addTitleInfo($vals,
 				Title :: makeTitle($row->page_namespace, $row->page_title));
 
 		if ($this->fld_timestamp)
@@ -188,6 +203,8 @@ class ApiQueryContributions extends ApiQueryBase {
 				$vals['new'] = '';
 			if ($row->rev_minor_edit)
 				$vals['minor'] = '';
+			if ($row->page_latest == $row->rev_id)
+				$vals['top'] = '';
 		}
 
 		if ($this->fld_comment && !empty ($row->rev_comment))
@@ -214,6 +231,7 @@ class ApiQueryContributions extends ApiQueryBase {
 			'user' => array (
 				ApiBase :: PARAM_ISMULTI => true
 			),
+			'userprefix' => null,
 			'dir' => array (
 				ApiBase :: PARAM_DFLT => 'older',
 				ApiBase :: PARAM_TYPE => array (
@@ -252,6 +270,7 @@ class ApiQueryContributions extends ApiQueryBase {
 			'start' => 'The start timestamp to return from.',
 			'end' => 'The end timestamp to return to.',
 			'user' => 'The user to retrieve contributions for.',
+			'userprefix' => 'Retrieve contibutions for all users whose names begin with this value. Overrides ucuser.',
 			'dir' => 'The direction to search (older or newer).',
 			'namespace' => 'Only list contributions in these namespaces',
 			'prop' => 'Include additional pieces of information',
@@ -265,12 +284,12 @@ class ApiQueryContributions extends ApiQueryBase {
 
 	protected function getExamples() {
 		return array (
-			'api.php?action=query&list=usercontribs&ucuser=YurikBot'
+			'api.php?action=query&list=usercontribs&ucuser=YurikBot',
+			'api.php?action=query&list=usercontribs&ucuserprefix=217.121.114.',
 		);
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryUserContributions.php 30578 2008-02-05 15:40:58Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryUserContributions.php 37383 2008-07-09 11:44:49Z btongminh $';
 	}
 }
-

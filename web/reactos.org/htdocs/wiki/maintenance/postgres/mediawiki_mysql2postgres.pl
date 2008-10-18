@@ -1,14 +1,13 @@
 #!/usr/bin/perl
 
 ## Convert data from a MySQL mediawiki database into a Postgres mediawiki database
-## svn: $Id: mediawiki_mysql2postgres.pl 26564 2007-10-10 01:24:18Z greg $
+## svn: $Id: mediawiki_mysql2postgres.pl 33556 2008-04-18 16:27:57Z greg $
 
 ## NOTE: It is probably easier to dump your wiki using maintenance/dumpBackup.php
 ## and then import it with maintenance/importDump.php
 
 ## If having UTF-8 problems, there are reports that adding --compatible=postgresql
 ## may help.
-
 
 use strict;
 use warnings;
@@ -182,7 +181,7 @@ $MYSQLSOCKET and $conninfo .= "\n--   socket    $MYSQLSOCKET";
 print qq{
 -- Dump of MySQL Mediawiki tables for import into a Postgres Mediawiki schema
 -- Performed by the program: $0
--- Version: $VERSION (subversion }.q{$LastChangedRevision: 26564 $}.qq{)
+-- Version: $VERSION (subversion }.q{$LastChangedRevision: 33556 $}.qq{)
 -- Author: Greg Sabino Mullane <greg\@turnstep.com> Comments welcome
 --
 -- This file was created: $now
@@ -203,6 +202,7 @@ print q{
 BEGIN;
 SET client_min_messages = 'WARNING';
 SET timezone = 'GMT';
+SET DateStyle = 'ISO, YMD';
 };
 
 warn qq{Reading in the Postgres schema information\n} if $verbose;
@@ -275,7 +275,7 @@ $verbose and warn qq{Writing truncates to empty existing tables\n};
 for my $t (@torder, 'objectcache', 'querycache') {
 	next if $t eq '---';
 	my $tname = $special{$t}||$t;
-	printf qq{TRUNCATE TABLE %-20s CASCADE;\n}, qq{"$tname"};
+	printf qq{TRUNCATE TABLE %-20s;\n}, qq{"$tname"};
 }
 print "\n\n";
 

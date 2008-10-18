@@ -1,11 +1,11 @@
 <?php
 /** Aromanian (Armãneashce)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author Niklas Laxström
- * @author Hakka (with the help of a native speaker Dumitrachi T. Fundu)
  * @author Hakka
+ * @author Hakka (with the help of a native speaker Dumitrachi T. Fundu)
  */
 
 $messages = array(
@@ -67,12 +67,12 @@ $messages = array(
 'jumptosearch'     => 'Caftã',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'currentevents' => 'Evenimente di tora',
-'disclaimers'   => 'Nipricunuschire',
-'edithelp'      => 'Agiutor ti alãxire',
-'mainpage'      => 'Prota frãndzã',
-'portal'        => 'Portal-a comunitatiljei',
-'sitesupport'   => 'Donatsiur',
+'currentevents'        => 'Evenimente di tora',
+'disclaimers'          => 'Nipricunuschire',
+'edithelp'             => 'Agiutor ti alãxire',
+'mainpage'             => 'Prota frãndzã',
+'mainpage-description' => 'Prota frãndzã',
+'portal'               => 'Portal-a comunitatiljei',
 
 'newmessageslink'         => 'dimãndare nao',
 'youhavenewmessagesmulti' => 'Avets nãi dimãndãri pi $1',
@@ -137,9 +137,6 @@ Isape a vostrã ira adratã. Nu agãrshits s-le alãxits alidzerle-a vostre ti {
 'filedesc'        => 'Rezime',
 'watchthisupload' => 'Mutrits-u frãndzã aistã',
 
-# Image list
-'ilsubmit' => 'Caftã',
-
 # Random page
 'randompage' => 'Frãndzã di nipandicã',
 
@@ -147,7 +144,6 @@ Isape a vostrã ira adratã. Nu agãrshits s-le alãxits alidzerle-a vostre ti {
 'brokenredirects-delete' => '(Ashcirdzire)',
 
 # Miscellaneous special pages
-'specialpages'      => 'Frãndzã spetsiale',
 'newpages-username' => 'Numa di ufilizitor:',
 'move'              => 'Tradzets',
 'movethispage'      => 'Tradzets-u frãndza aistã',
@@ -158,7 +154,7 @@ Isape a vostrã ira adratã. Nu agãrshits s-le alãxits alidzerle-a vostre ti {
 # Special:Log
 'log-search-submit' => 'Du-vã',
 
-# Special:Allpages
+# Special:AllPages
 'allpagessubmit' => 'Du-vã',
 
 # Watchlist
@@ -190,13 +186,13 @@ Isape a vostrã ira adratã. Nu agãrshits s-le alãxits alidzerle-a vostre ti {
 'ipblocklist-submit' => 'Caftã',
 
 # Move page
-'movepage'    => 'Tradzets-u frãndzã',
-'movearticle' => 'Tradzets-u frãndzã:',
-'move-watch'  => 'Mutrits-u frãndzã aistã',
-'movepagebtn' => 'Tradzets-u frãndzã',
-'movedto'     => 'tradzitã tu',
-'1movedto2'   => '[[$1]] s-trãdzi tu [[$2]]',
-'movereason'  => 'Itia:',
+'move-page-legend' => 'Tradzets-u frãndzã',
+'movearticle'      => 'Tradzets-u frãndzã:',
+'move-watch'       => 'Mutrits-u frãndzã aistã',
+'movepagebtn'      => 'Tradzets-u frãndzã',
+'movedto'          => 'tradzitã tu',
+'1movedto2'        => '[[$1]] s-trãdzi tu [[$2]]',
+'movereason'       => 'Itia:',
 
 # Namespace 8 related
 'allmessages' => 'Dimãndãri systemitse',
@@ -206,10 +202,16 @@ Isape a vostrã ira adratã. Nu agãrshits s-le alãxits alidzerle-a vostre ti {
 'tooltip-pt-logout'      => 'Disligats-vã',
 'tooltip-p-logo'         => 'Prota frãndzã',
 
+# Special:NewImages
+'ilsubmit' => 'Caftã',
+
 # Multipage image navigation
 'imgmultigo' => 'Du-vã!',
 
 # Table pager
 'table_pager_limit_submit' => 'Du-vã',
+
+# Special:SpecialPages
+'specialpages' => 'Frãndzã spetsiale',
 
 );

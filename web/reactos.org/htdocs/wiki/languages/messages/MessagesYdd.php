@@ -1,10 +1,9 @@
 <?php
 /** Eastern Yiddish (מיזרח־ייִדיש)
  *
- * @addtogroup Language
- *
+ * @ingroup Language
+ * @file
  */
 
 $rtl = true;
 $fallback = 'yi';
-

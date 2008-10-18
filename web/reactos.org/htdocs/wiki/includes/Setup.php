@@ -10,7 +10,7 @@
 if( !defined( 'MEDIAWIKI' ) ) {
 	echo "This file is part of MediaWiki, it is not a valid entry point.\n";
 	exit( 1 );
-}	
+}
 
 # The main wiki script and things like database
 # conversion and maintenance scripts all share a
@@ -58,12 +58,11 @@ if ( empty( $wgFileStore['deleted']['directory'] ) ) {
 	$wgFileStore['deleted']['directory'] = "{$wgUploadDirectory}/deleted";
 }
 
-
 /**
  * Initialise $wgLocalFileRepo from backwards-compatible settings
  */
 if ( !$wgLocalFileRepo ) {
-	$wgLocalFileRepo = array( 
+	$wgLocalFileRepo = array(
 		'class' => 'LocalRepo',
 		'name' => 'local',
 		'directory' => $wgUploadDirectory,
@@ -101,7 +100,7 @@ if ( $wgUseSharedUploads ) {
 			'fetchDescription' => $wgFetchCommonsDescriptions,
 		);
 	} else {
-		$wgForeignFileRepos[] = array( 
+		$wgForeignFileRepos[] = array(
 			'class' => 'FSRepo',
 			'name' => 'shared',
 			'directory' => $wgSharedUploadDirectory,
@@ -114,8 +113,9 @@ if ( $wgUseSharedUploads ) {
 		);
 	}
 }
-
-require_once( "$IP/includes/AutoLoader.php" );
+if ( !class_exists( 'AutoLoader' ) ) {
+	require_once( "$IP/includes/AutoLoader.php" );
+}
 
 wfProfileIn( $fname.'-exception' );
 require_once( "$IP/includes/Exception.php" );
@@ -159,6 +159,19 @@ if ( $wgCommandLineMode ) {
 	wfDebug( $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'] . "\n" );
 }
 
+if( $wgRCFilterByAge ) {
+	## Trim down $wgRCLinkDays so that it only lists links which are valid
+	## as determined by $wgRCMaxAge.
+	## Note that we allow 1 link higher than the max for things like 56 days but a 60 day link.
+	sort($wgRCLinkDays);
+	for( $i = 0; $i < count($wgRCLinkDays); $i++ ) {
+		if( $wgRCLinkDays[$i] >= $wgRCMaxAge / ( 3600 * 24 ) ) {
+			$wgRCLinkDays = array_slice( $wgRCLinkDays, 0, $i+1, false );
+			break;
+		}
+	}
+}
+
 if ( $wgSkipSkin ) {
 	$wgSkipSkins[] = $wgSkipSkin;
 }
@@ -181,18 +194,25 @@ $messageMemc =& wfGetMessageCacheStorage();
 $parserMemc =& wfGetParserCacheStorage();
 
 wfDebug( 'Main cache: ' . get_class( $wgMemc ) .
-       "\nMessage cache: " . get_class( $messageMemc ) .
-	   "\nParser cache: " . get_class( $parserMemc ) . "\n" );
+	"\nMessage cache: " . get_class( $messageMemc ) .
+	"\nParser cache: " . get_class( $parserMemc ) . "\n" );
 
 wfProfileOut( $fname.'-memcached' );
 wfProfileIn( $fname.'-SetupSession' );
 
-if ( $wgDBprefix ) {
-	$wgCookiePrefix = $wgDBname . '_' . $wgDBprefix;
-} elseif ( $wgSharedDB ) {
-	$wgCookiePrefix = $wgSharedDB;
-} else {
-	$wgCookiePrefix = $wgDBname;
+# Set default shared prefix
+if( $wgSharedPrefix === false ) $wgSharedPrefix = $wgDBprefix;
+
+if( !$wgCookiePrefix ) {
+	if ( in_array('user', $wgSharedTables) && $wgSharedDB && $wgSharedPrefix ) {
+		$wgCookiePrefix = $wgSharedDB . '_' . $wgSharedPrefix;
+	} elseif ( in_array('user', $wgSharedTables) && $wgSharedDB ) {
+		$wgCookiePrefix = $wgSharedDB;
+	} elseif ( $wgDBprefix ) {
+		$wgCookiePrefix = $wgDBname . '_' . $wgDBprefix;
+	} else {
+		$wgCookiePrefix = $wgDBname;
+	}
 }
 $wgCookiePrefix = strtr($wgCookiePrefix, "=,; +.\"'\\[", "__________");
 
@@ -213,20 +233,6 @@ if( !$wgCommandLineMode && ( $wgRequest->checkSessionCookie() || isset( $_COOKIE
 wfProfileOut( $fname.'-SetupSession' );
 wfProfileIn( $fname.'-globals' );
 
-if ( !$wgDBservers ) {
-	$wgDBservers = array(array(
-		'host' => $wgDBserver,
-		'user' => $wgDBuser,
-		'password' => $wgDBpassword,
-		'dbname' => $wgDBname,
-		'type' => $wgDBtype,
-		'load' => 1,
-		'flags' => ($wgDebugDumpSql ? DBO_DEBUG : 0) | DBO_DEFAULT
-	));
-}
-
-$wgLoadBalancer = new StubObject( 'wgLoadBalancer', 'LoadBalancer', 
-	array( $wgDBservers, false, $wgMasterWaitTimeout, true ) );
 $wgContLang = new StubContLang;
 
 // Now that variant lists may be available...
@@ -237,8 +243,8 @@ $wgLang = new StubUserLang;
 $wgOut = new StubObject( 'wgOut', 'OutputPage' );
 $wgParser = new StubObject( 'wgParser', $wgParserConf['class'], array( $wgParserConf ) );
 
-$wgMessageCache = new StubObject( 'wgMessageCache', 'MessageCache', 
-	array( $parserMemc, $wgUseDatabaseMessages, $wgMsgCacheExpiry, wfWikiID() ) );
+$wgMessageCache = new StubObject( 'wgMessageCache', 'MessageCache',
+	array( $messageMemc, $wgUseDatabaseMessages, $wgMsgCacheExpiry, wfWikiID() ) );
 
 wfProfileOut( $fname.'-globals' );
 wfProfileIn( $fname.'-User' );
@@ -246,7 +252,7 @@ wfProfileIn( $fname.'-User' );
 # Skin setup functions
 # Entries can be added to this variable during the inclusion
 # of the extension file. Skins can then perform any necessary initialisation.
-# 
+#
 foreach ( $wgSkinExtensionFunctions as $func ) {
 	call_user_func( $func );
 }
@@ -268,8 +274,6 @@ if ( $wgAjaxWatch ) $wgAjaxExportList[] = 'wfAjaxWatch';
 if ( $wgAjaxUploadDestCheck ) $wgAjaxExportList[] = 'UploadForm::ajaxGetExistsWarning';
 if( $wgAjaxLicensePreview )
 	$wgAjaxExportList[] = 'UploadForm::ajaxGetLicensePreview';
-
-wfSeedRandom();
 
 # Placeholders in case of DB error
 $wgTitle = null;
@@ -300,5 +304,3 @@ wfDebug( "Fully initialised\n" );
 $wgFullyInitialised = true;
 wfProfileOut( $fname.'-extensions' );
 wfProfileOut( $fname );
-
-

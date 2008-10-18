@@ -1,7 +1,6 @@
 <?php
 /**
- * @addtogroup Media
- *
+ * @ingroup Media
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
@@ -26,7 +25,7 @@
 
 /**
  * @todo document (e.g. one-sentence class-overview description)
- * @addtogroup Media
+ * @ingroup Media
  */
 class Exif {
 	//@{
@@ -431,7 +430,7 @@ class Exif {
 		if ( is_array( $in ) ) {
 			return false;
 		}
-		
+
 		if ( preg_match( "/[^\x0a\x20-\x7e]/", $in ) ) {
 			$this->debug( $in, __FUNCTION__, 'found a character not in our whitelist' );
 			return false;
@@ -557,8 +556,8 @@ class Exif {
 	 *
 	 * @private
 	 *
-	 * @param $in Mixed: 
-	 * @param $fname String: 
+	 * @param $in Mixed:
+	 * @param $fname String:
 	 * @param $action Mixed: , default NULL.
 	 */
 	function debug( $in, $fname, $action = NULL ) {
@@ -604,7 +603,7 @@ class Exif {
 
 /**
  * @todo document (e.g. one-sentence class-overview description)
- * @addtogroup Media
+ * @ingroup Media
  */
 class FormatExif {
 	/**
@@ -1130,5 +1129,3 @@ define( 'MW_EXIF_RATIONAL', Exif::RATIONAL );
 define( 'MW_EXIF_UNDEFINED', Exif::UNDEFINED );
 define( 'MW_EXIF_SLONG', Exif::SLONG );
 define( 'MW_EXIF_SRATIONAL', Exif::SRATIONAL );
-
-

@@ -1,5 +1,12 @@
 <?php
-/* $Id: mctest.php 23531 2007-06-29 01:19:14Z simetrical $ */
+/**
+ * This script makes several 'set', 'incr' and 'get' requests on every
+ * memcached server and shows a report.
+ *
+ * $Id: mctest.php 37886 2008-07-21 17:06:35Z greg $
+ * @file
+ * @ingroup Maintenance
+ */
 
 $optionsWithArgs = array( 'i' );
 

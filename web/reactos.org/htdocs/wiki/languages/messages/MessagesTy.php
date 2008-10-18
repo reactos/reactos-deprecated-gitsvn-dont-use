@@ -1,9 +1,9 @@
 <?php
 /** Tahitian (Reo Mā`ohi)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SPQRobin
  * @author Sab
  */
 
@@ -62,9 +62,6 @@ $messages = array(
 'nov'           => 'nō novema',
 'dec'           => 'nō tītema',
 
-# Bits of text used by many pages
-'categories' => 'Te mau huru o te ’api',
-
 'about'          => 'Nō',
 'article'        => 'Parau pāpa’i',
 'qbedit'         => 'Fa’ahuru ’ē',
@@ -86,12 +83,12 @@ $messages = array(
 'jumptosearch'     => 'haere',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'   => 'Nō {{SITENAME}}',
-'aboutpage'   => 'Project:Nō',
-'edithelp'    => 'Tauturu',
-'mainpage'    => 'Fa’ari’ira’a',
-'portal'      => 'Fare auhoa',
-'sitesupport' => 'Pūpū i te ō',
+'aboutsite'            => 'Nō {{SITENAME}}',
+'aboutpage'            => 'Project:Nō',
+'edithelp'             => 'Tauturu',
+'mainpage'             => 'Fa’ari’ira’a',
+'mainpage-description' => 'Fa’ari’ira’a',
+'portal'               => 'Fare auhoa',
 
 'newmessageslink'     => 'Te mau poro’i ’āpī',
 'newmessagesdifflink' => 'fa’ahuru-’ē-ra’a hope’a',
@@ -126,22 +123,23 @@ $messages = array(
 # Recent changes
 'recentchanges' => 'Te mau fa’ahuru-’ē-ra’a ’āpī',
 
-# Image list
-'filehist-user'  => 'Ta’ata',
+# Special:ImageList
 'imagelist_user' => 'Ta’ata fa’a’ohipa',
+
+# Image description page
+'filehist-user' => 'Ta’ata',
 
 # Random page
 'randompage' => '’Api mā’iti-haere-noa',
 
-# Miscellaneous special pages
-'specialpages' => 'Te mau ’api ta’a ’ē',
-'spheading'    => 'Te mau ’api ta’a ’ē',
-
 # Special:Log
 'specialloguserlabel' => 'Ta’ata fa’a’ohipa :',
 
-# Special:Allpages
+# Special:AllPages
 'allpagessubmit' => 'Haere',
+
+# Special:Categories
+'categories' => 'Te mau huru o te ’api',
 
 # Watchlist
 'watch' => 'Ha’apa’o',
@@ -159,7 +157,10 @@ $messages = array(
 # Tooltip help for the actions
 'tooltip-search' => 'Roromā’imi {{SITENAME}}',
 
-# Special:Filepath
+# Special:FilePath
 'filepath-page' => 'Putu’ite:',
+
+# Special:SpecialPages
+'specialpages' => 'Te mau ’api ta’a ’ē',
 
 );

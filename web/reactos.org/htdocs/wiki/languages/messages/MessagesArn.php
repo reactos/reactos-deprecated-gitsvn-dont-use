@@ -1,8 +1,10 @@
 <?php
 /** Araucanian (Mapudungun)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
+ * @author Clerc
  * @author Lin linao
  * @author Poquil
  */
@@ -10,6 +12,9 @@
 $fallback = 'es';
 
 $messages = array(
+# User preference toggles
+'tog-editondblclick' => 'Wirin pakina epu klik mew (JavaScript)',
+
 'underline-always' => 'Rumel',
 'underline-never'  => 'Turpu',
 
@@ -65,14 +70,19 @@ $messages = array(
 'nov'           => 'konlu nofiempüre küyeṉ mew',
 'dec'           => 'konlu disiempüre küyeṉ mew',
 
-'qbfind'      => 'Kintun',
-'qbedit'      => 'Wirin',
-'qbmyoptions' => 'tañi nütramkawe',
-'mypage'      => 'tañi nütramkawe',
-'mytalk'      => 'Tañi nütramkawe',
-'and'         => 'ka',
+# Categories related messages
+'listingcontinuesabbrev' => 'ramt.',
 
-'returnto'         => 'Wüñonge $1 püle.',
+'qbfind'        => 'Kintun',
+'qbedit'        => 'Wirin',
+'qbmyoptions'   => 'tañi nütramkawe',
+'moredotdotdot' => 'Doy...',
+'mypage'        => 'tañi nütramkawe',
+'mytalk'        => 'Tañi nütramkawe',
+'anontalk'      => 'Tüfachi IP ñi nütramkawe',
+'and'           => 'ka',
+
+'returnto'         => 'Amutun $1 püle.',
 'tagline'          => '{{SITENAME}} mew',
 'help'             => 'Kellu',
 'search'           => 'Kintun',
@@ -82,16 +92,23 @@ $messages = array(
 'history'          => 'Pünon',
 'history_short'    => 'Pünon',
 'edit'             => 'Wirin',
+'create'           => 'Llitun',
+'editthispage'     => 'Wirin tüfachi página',
+'create-this-page' => 'Llitun tüfachi pakina',
 'delete'           => 'Ñamümün',
+'deletethispage'   => 'Ñamümün tüfachi pakina',
 'protect'          => 'Elulan ñi wiriael',
 'unprotect'        => 'Elun ñi wiriael',
+'newpage'          => 'We Pakina',
+'talkpage'         => 'Nütramkafinge tüfachi pakina',
 'talkpagelinktext' => 'Nütramkawe',
 'articlepage'      => 'adkintun artículo',
 'talk'             => 'Nütramkawe',
+'views'            => 'Pen',
 'toolbox'          => 'Küdawpeyüm',
 'userpage'         => 'adkintun página de usuario',
 'projectpage'      => 'adkintun página meta',
-'imagepage'        => 'adkintun página de imagen',
+'imagepage'        => 'Adkintun ad pakina',
 'mediawikipage'    => 'adkintun página de mensaje',
 'templatepage'     => 'adkintun página de plantilla',
 'viewhelppage'     => 'adkintun página de ayuda',
@@ -102,7 +119,13 @@ $messages = array(
 'jumptosearch'     => 'kintu',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'helppage' => 'Help:Kellu',
+'edithelp'             => 'Kellü wirin',
+'edithelppage'         => 'Help:Chum wiringekey pakina',
+'faq'                  => 'FAQ',
+'faqpage'              => 'Project:FAQ',
+'helppage'             => 'Help:Kellu',
+'mainpage'             => 'Wüne pakina',
+'mainpage-description' => 'Wüne pakina',
 
 'ok'                      => 'Feley may',
 'youhavenewmessages'      => 'Elungeymi $1 ($2).',
@@ -113,8 +136,10 @@ $messages = array(
 'showtoc'                 => 'pengelün',
 'hidetoc'                 => 'ellkan',
 'viewdeleted'             => 'Küpaadkintuymi $1 am?',
+'restorelink'             => '{{PLURAL:$1|kiñe wirin ñamümgün|$1 wirin ñamümün}}',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
+'nstab-main'      => 'pakina',
 'nstab-user'      => 'Lludüchi',
 'nstab-special'   => 'Kangelu',
 'nstab-mediawiki' => 'Dungu',
@@ -126,62 +151,115 @@ $messages = array(
 'badtitle'        => 'Nornongey ta üy',
 
 # Login and logout pages
-'yourname'           => 'Tami lludüchi üy',
-'yourpassword'       => 'Tami konün dungu',
-'login'              => 'Konün',
-'logout'             => 'Tripan',
-'userlogout'         => 'Tripan',
-'notloggedin'        => 'Petu konlaymi.',
-'nologin'            => 'Nielaymi kiñe lludüwe? $1.',
-'nologinlink'        => 'Dewmafinge',
-'gotaccountlink'     => 'Konün',
-'yourrealname'       => 'Tami mupiñ üy *',
-'yourlanguage'       => 'Dungun:',
-'loginlanguagelabel' => 'Dungun: $1',
+'loginpagetitle'          => 'Konün',
+'yourname'                => 'Tami lludüchi üy',
+'yourpassword'            => 'Tami kondungu',
+'login'                   => 'Konün',
+'nav-login-createaccount' => 'Konün',
+'userlogin'               => 'Konün',
+'logout'                  => 'Tripan',
+'userlogout'              => 'Tripan',
+'notloggedin'             => 'Petu konlaymi.',
+'nologin'                 => 'Nielaymi kiñe lludüwe? $1.',
+'nologinlink'             => 'Dewmafinge',
+'gotaccountlink'          => 'Konün',
+'yourrealname'            => 'Tami mupiñ üy *',
+'yourlanguage'            => 'Dungun:',
+'loginlanguagelabel'      => 'Dungun: $1',
 
 # Edit pages
-'subject'    => 'Dungu/üy',
-'newarticle' => '(We)',
+'subject'            => 'Dungu/üy',
+'minoredit'          => 'Tüfachi ta kiñe pichi wirin',
+'watchthis'          => 'Llaytun tüfachi pakina',
+'preview'            => 'Pen chum müley',
+'showpreview'        => 'Pen chum müley',
+'loginreqlink'       => 'Koni',
+'newarticle'         => '(We)',
+'editing'            => 'Wirimekey $1',
+'editingcomment'     => 'Wirin $1 (Dungu)',
+'yourtext'           => 'Tami wirin',
+'template-protected' => '(Ngünaytun)',
 
 # History pages
 'page_first'   => 'wünen',
+'deletedrev'   => '[ñamümüngelu]',
 'historyempty' => '(welli)',
 
 # Revision feed
 'history-feed-item-nocomment' => '$1 $2 mew', # user at time
 
 # Revision deletion
-'rev-delundel' => 'pengelün/ellkan',
+'rev-delundel'  => 'pengelün/ellkan',
+'pagehist'      => 'pünon pakina',
+'deletedhist'   => 'Ñamümüngelu pünon',
+'revdelete-hid' => 'Ellkan $1',
 
 # Diffs
 'lineno'   => 'Wirin $1:',
 'editundo' => 'wüñoeltun',
 
 # Search results
-'viewprevnext' => 'Pen ($1) ($2) ($3).',
-'powersearch'  => 'Kintu',
+'viewprevnext'          => 'Pen ($1) ($2) ($3).',
+'search-interwiki-more' => '(Doy)',
+'searchall'             => 'Fill',
+'powersearch'           => 'Kintun',
+'powersearch-field'     => 'Kintun',
+
+# Preferences page
+'prefs-edits'       => 'Rakin Wirin:',
+'prefsnologin'      => 'Mülelay Konün',
+'textboxsize'       => 'Wirin',
+'searchresultshead' => 'Kintun',
 
 # Groups
 'group'       => 'Kisuwen:',
+'group-user'  => 'Lludüchi',
 'group-sysop' => 'Pu ngünefe',
 'group-all'   => '(kom pu che)',
+
+'group-user-member' => 'Lludüchi',
+
+'grouppage-user' => '{{ns:project}}: Lludüchi',
+
+# Rights
+'right-edit'          => 'Wirin pakina',
+'right-createpage'    => 'Llitun pakina (nütramkayam pakinanongelu)',
+'right-createtalk'    => 'Llitun nütramkayam pakina',
+'right-move'          => 'Nengümün pakina',
+'right-delete'        => 'Ñamümün pakina',
+'right-browsearchive' => 'kintun pakina ñamümüngelu',
+'right-undelete'      => 'Wüñoñamümün kiñe pakina',
 
 # User rights log
 'rightsnone' => 'chemnorume',
 
 # Recent changes
-'hide'            => 'Ellkan',
-'minoreditletter' => 'p',
-'newpageletter'   => 'W',
+'rcshowhideminor'                   => '$1 wirin pichi',
+'rcshowhidemine'                    => '$1 tañi wirin',
+'hist'                              => 'Püno',
+'hide'                              => 'Ellkan',
+'show'                              => 'pengelün',
+'minoreditletter'                   => 'p',
+'newpageletter'                     => 'W',
+'number_of_watching_users_pageview' => '[$1 {{PLURAL:$1|Lludüchi|Lludüchi}} wiñamüy]',
+
+# Recent changes linked
+'recentchangeslinked-page' => 'Güy pakina:',
+
+# Upload
+'uploadnologin'   => 'Petu konlaymi',
+'watchthisupload' => 'Llaytun tüfachi pakina',
 
 'nolicense' => 'Chemnorume dullinnongey',
 
-# Image list
-'ilsubmit'           => 'Kintu',
-'imgdelete'          => 'ñam',
+# Special:ImageList
+'imagelist_name' => 'Üy',
+'imagelist_user' => 'Lludüchi',
+
+# Image description page
 'filehist-deleteall' => 'kom ñamümün',
-'filehist-deleteone' => 'tüfa ñamümün',
-'imagelist_name'     => 'Üy',
+'filehist-deleteone' => 'ñamümün tüfa',
+'filehist-user'      => 'Lludüchi',
 
 # File deletion
 'filedelete'         => '$1 ñamümün',
@@ -189,47 +267,82 @@ $messages = array(
 'filedelete-submit'  => 'Ñamümün',
 'filedelete-success' => "'''$1''' ñamümngey.",
 
+# Unused templates
+'unusedtemplateswlh' => "Kake ''enlase''",
+
 'brokenredirects-edit'   => '(wirin)',
 'brokenredirects-delete' => '(ñamümün)',
 
 'withoutinterwiki-submit' => 'Pengelün',
 
 # Miscellaneous special pages
-'move' => 'Wiñamün',
+'nbytes'            => '$1 {{PLURAL:$1|byte|bytes}}',
+'nviews'            => '$1 {{PLURAL:$1|pen|pen}}',
+'shortpages'        => 'Pichi pakina',
+'newpages'          => 'We pakina',
+'newpages-username' => 'Güy lludüchi',
+'move'              => 'Wiñamün',
+'movethispage'      => 'Nengümün tüfachi pakina',
 
 # Book sources
 'booksources-go' => 'Amun',
 
 # Special:Log
+'specialloguserlabel'  => 'Lludüchi:',
 'speciallogtitlelabel' => 'Üy:',
 'log-search-submit'    => 'Amun',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'       => 'Kakelu pakina',
+'allarticles'    => 'Fill pakina',
 'allpagesnext'   => 'Inan',
 'allpagessubmit' => 'Pengelün',
 
-# Special:Listusers
+# Special:ListUsers
 'listusers-submit' => 'Pengelün',
 
 # E-mail user
 'emailsubject' => 'Dungu',
+'emailmessage' => 'Dungu',
 'emailsend'    => 'Werkün',
 
 # Watchlist
-'watch'           => 'Llaytun',
-'unwatch'         => 'Llaytuwelan',
-'unwatchthispage' => 'Llaytuwelan',
+'watchnologin'         => 'Petu konlaymi',
+'watch'                => 'Llaytun',
+'watchthispage'        => 'Llaytun tüfachi pakina',
+'unwatch'              => 'Llaytuwelan',
+'unwatchthispage'      => 'Llaytuwelan',
+'notanarticle'         => 'Ngelay kiñe pakina',
+'watchlist-show-own'   => 'Nülan ñi wirin',
+'watchlist-hide-own'   => 'Ellkan ñi wirin',
+'watchlist-show-minor' => 'Nülan pichi wirin',
+'watchlist-hide-minor' => 'Ellkan wirin pichi',
+
+'enotif_newpagetext'           => 'Tüfachi ta we pakina',
+'enotif_impersonal_salutation' => '{{SITENAME}} lludüchi',
+'created'                      => 'Llituy',
 
 # Delete/protect/revert
-'protectexpiry'       => 'Afi:',
-'protect-level-sysop' => 'Pu ngünefe müṯen',
+'deletepage'              => 'Ñamümün tüfachi pakina',
+'delete-confirm'          => 'Ñamümüngelu "$1"',
+'delete-legend'           => 'Ñamümün',
+'deletedarticle'          => '«[[$1]]» Ñamümün',
+'protectexpiry'           => 'Afi:',
+'protect-level-sysop'     => 'Pu ngünefe müṯen',
+'protect-summary-cascade' => 'Trayengko',
 
 # Restrictions (nouns)
-'restriction-edit' => 'Pepiwelukay',
-'restriction-move' => 'Pepiwiñami',
+'restriction-edit'   => 'Pepiwelukay',
+'restriction-move'   => 'Pepiwiñami',
+'restriction-create' => 'Llitun',
 
 # Undelete
+'viewdeletedpage'        => 'Pen pakina ñamümüngelu',
+'undelete-search-box'    => 'Kintun ñamümüngelu pakina',
 'undelete-search-submit' => 'Kintun',
+
+# Namespace form on various pages
+'blanknamespace' => '(Wüne pakina)',
 
 # Contributions
 'month' => 'Küyeṉ:',
@@ -237,27 +350,55 @@ $messages = array(
 
 'sp-contributions-submit' => 'Kintun',
 
+# What links here
+'whatlinkshere-page' => 'Pakina:',
+'whatlinkshere-prev' => '{{PLURAL:$1|Pen chum müley|Pen chum müluey $1}}',
+
 # Block/unblock
 'ipbexpiry'          => 'Afi',
+'ipbotheroption'     => 'Kakelu',
 'ipblocklist-submit' => 'Kintun',
 'expiringblock'      => 'afi $1',
 
 # Move page
-'newtitle'  => 'We üy püle',
-'1movedto2' => '[[$1]] wiñamngey [[$2]] püle',
+'move-page'               => 'Nengümün $1',
+'move-page-legend'        => 'Nengümün pakina',
+'movearticle'             => 'Nengümün pakina',
+'newtitle'                => 'We üy püle',
+'move-watch'              => 'Llaytun tüfachi pakina',
+'movepagebtn'             => 'Nengümün pakina',
+'movedto'                 => 'Nengümün',
+'1movedto2'               => '[[$1]] wiñamngey [[$2]] püle',
+'delete_and_move'         => 'Ñamümün ka nengümün',
+'delete_and_move_confirm' => 'May, ñamümün pakina',
 
 # Namespace 8 related
 'allmessagesname' => 'Üy',
 
 # Tooltip help for the actions
-'tooltip-pt-mytalk' => 'Tañi nütramkawe',
-'tooltip-pt-logout' => 'Tripan',
+'tooltip-pt-userpage'   => 'Ñi pakina lludüchi',
+'tooltip-pt-mytalk'     => 'Tañi nütramkawe',
+'tooltip-pt-logout'     => 'Tripan',
+'tooltip-ca-delete'     => 'Ñamümün tüfachi pakina',
+'tooltip-ca-move'       => 'Nengümün tüfachi pakina',
+'tooltip-search'        => 'Kintun tüfachi wiki mew',
+'tooltip-p-logo'        => 'Wüne pakina',
+'tooltip-ca-nstab-user' => 'Pen lludüchi pakina',
+'tooltip-ca-nstab-help' => 'Pen kellupakina',
 
-# Spam protection
-'listingcontinuesabbrev' => 'ramt.',
+# Attribution
+'siteuser' => 'Lludüchi $1 {{SITENAME}}',
+'others'   => 'fill',
+
+# Info page
+'numedits'     => 'Rakin wirin (pakina): $1',
+'numtalkedits' => 'Rakin wirin (pakina nütramkawe): $1',
 
 # Patrol log
 'patrol-log-diff' => 'ng$1',
+
+# Special:NewImages
+'ilsubmit' => 'Kintu',
 
 # Video information, used by Language::formatTimePeriod() to format lengths in the above messages
 'hours-abbrev' => 'o',
@@ -265,19 +406,30 @@ $messages = array(
 # EXIF tags
 'exif-exposuretime-format' => '$1 sek ($2)',
 
-'exif-meteringmode-0' => 'Kimnoelchi',
+'exif-exposureprogram-1' => 'Chillka kellu',
+
+'exif-meteringmode-0'   => 'Kimnoelchi',
+'exif-meteringmode-255' => 'Kakelu',
 
 'exif-lightsource-0' => 'Kimnoelchi',
 
 'exif-gaincontrol-0' => 'Chemnorume',
+
+'exif-contrast-2' => 'Yafü',
+
+'exif-sharpness-2' => 'Yafü',
 
 'exif-subjectdistancerange-0' => 'Kimnoelchi',
 
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'kom',
 'imagelistall'     => 'kom',
+'watchlistall2'    => 'Fill',
 'namespacesall'    => 'kom',
 'monthsall'        => '(kom)',
+
+# Trackbacks
+'trackbackremove' => ' ([$1 Ñamümün])',
 
 # action=purge
 'confirm_purge_button' => 'Feley may',
@@ -293,5 +445,17 @@ $messages = array(
 'size-kilobytes' => '$1 Kb',
 'size-megabytes' => '$1 Mb',
 'size-gigabytes' => '$1 Gb',
+
+# Special:Version
+'version-other' => 'Kakelu',
+
+# Special:FileDuplicateSearch
+'fileduplicatesearch-submit' => 'Kintun',
+
+# Special:SpecialPages
+'specialpages-group-login' => 'Konün',
+
+# Special:BlankPage
+'blankpage' => 'welli pakina',
 
 );

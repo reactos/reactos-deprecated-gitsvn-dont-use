@@ -1,8 +1,10 @@
 <?php
 /** Navajo (Diné bizaad)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
+ * @author לערי ריינהארט
  */
 
 $skinNames = array(

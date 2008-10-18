@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * This is a simple class to handle action=help
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiHelp extends ApiBase {
 
@@ -57,7 +57,6 @@ class ApiHelp extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiHelp.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiHelp.php 35098 2008-05-20 17:13:28Z ialex $';
 	}
 }
-

@@ -31,8 +31,8 @@ if (!defined('MEDIAWIKI')) {
 /**
  * Query module to enumerate all categories, even the ones that don't have
  * category pages.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 
@@ -53,44 +53,58 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 		$db = $this->getDB();
 		$params = $this->extractRequestParams();
 
-		$this->addTables('categorylinks');
-		$this->addFields('cl_to');
-		
+		$this->addTables('category');
+		$this->addFields('cat_title');
+
 		if (!is_null($params['from']))
-			$this->addWhere('cl_to>=' . $db->addQuotes(ApiQueryBase :: titleToKey($params['from'])));
+			$this->addWhere('cat_title>=' . $db->addQuotes($this->titleToKey($params['from'])));
 		if (isset ($params['prefix']))
-			$this->addWhere("cl_to LIKE '" . $db->escapeLike(ApiQueryBase :: titleToKey($params['prefix'])) . "%'");
+			$this->addWhere("cat_title LIKE '" . $db->escapeLike($this->titleToKey($params['prefix'])) . "%'");
 
 		$this->addOption('LIMIT', $params['limit']+1);
-		$this->addOption('ORDER BY', 'cl_to' . ($params['dir'] == 'descending' ? ' DESC' : ''));
-		$this->addOption('DISTINCT');
+		$this->addOption('ORDER BY', 'cat_title' . ($params['dir'] == 'descending' ? ' DESC' : ''));
+
+		$prop = array_flip($params['prop']);
+		$this->addFieldsIf( array( 'cat_pages', 'cat_subcats', 'cat_files' ), isset($prop['size']) );
+		$this->addFieldsIf( 'cat_hidden', isset($prop['hidden']) );
 
 		$res = $this->select(__METHOD__);
 
 		$pages = array();
+		$categories = array();
+		$result = $this->getResult();
 		$count = 0;
 		while ($row = $db->fetchObject($res)) {
 			if (++ $count > $params['limit']) {
 				// We've reached the one extra which shows that there are additional cats to be had. Stop here...
 				// TODO: Security issue - if the user has no right to view next title, it will still be shown
-				$this->setContinueEnumParameter('from', ApiQueryBase :: keyToTitle($row->cl_to));
+				$this->setContinueEnumParameter('from', $this->keyToTitle($row->cat_title));
 				break;
 			}
-			
+
 			// Normalize titles
-			$titleObj = Title::makeTitle(NS_CATEGORY, $row->cl_to);
+			$titleObj = Title::makeTitle(NS_CATEGORY, $row->cat_title);
 			if(!is_null($resultPageSet))
 				$pages[] = $titleObj->getPrefixedText();
-			else
-				// Don't show "Category:" everywhere in non-generator mode
-				$pages[] = $titleObj->getText();
+			else {
+				$item = array();
+				$result->setContent( $item, $titleObj->getText() );
+				if( isset( $prop['size'] ) ) {
+					$item['size'] = $row->cat_pages;
+					$item['pages'] = $row->cat_pages - $row->cat_subcats - $row->cat_files;
+					$item['files'] = $row->cat_files;
+					$item['subcats'] = $row->cat_subcats;
+				}
+				if( isset( $prop['hidden'] ) && $row->cat_hidden )
+					$item['hidden'] = '';
+				$categories[] = $item;
+			}
 		}
 		$db->freeResult($res);
 
 		if (is_null($resultPageSet)) {
-			$result = $this->getResult();
-			$result->setIndexedTagName($pages, 'c');
-			$result->addValue('query', $this->getModuleName(), $pages);
+			$result->setIndexedTagName($categories, 'c');
+			$result->addValue('query', $this->getModuleName(), $categories);
 		} else {
 			$resultPageSet->populateFromTitles($pages);
 		}
@@ -113,7 +127,12 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 				ApiBase :: PARAM_MIN => 1,
 				ApiBase :: PARAM_MAX => ApiBase :: LIMIT_BIG1,
 				ApiBase :: PARAM_MAX2 => ApiBase :: LIMIT_BIG2
-			)
+			),
+			'prop' => array (
+				ApiBase :: PARAM_TYPE => array( 'size', 'hidden' ),
+				ApiBase :: PARAM_DFLT => '',
+				ApiBase :: PARAM_ISMULTI => true
+			),
 		);
 	}
 
@@ -122,7 +141,8 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 			'from' => 'The category to start enumerating from.',
 			'prefix' => 'Search for all category titles that begin with this value.',
 			'dir' => 'Direction to sort in.',
-			'limit' => 'How many categories to return.'
+			'limit' => 'How many categories to return.',
+			'prop' => 'Which properties to get',
 		);
 	}
 
@@ -132,11 +152,12 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 
 	protected function getExamples() {
 		return array (
+			'api.php?action=query&list=allcategories&acprop=size',
 			'api.php?action=query&generator=allcategories&gacprefix=List&prop=info',
 		);
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllLinks.php 28216 2007-12-06 18:33:18Z vasilievvv $';
+		return __CLASS__ . ': $Id: ApiQueryAllCategories.php 36790 2008-06-29 22:26:23Z catrope $';
 	}
 }

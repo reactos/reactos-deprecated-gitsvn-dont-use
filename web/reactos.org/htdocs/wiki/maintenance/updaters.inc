@@ -1,9 +1,8 @@
 <?php
 /**
- * @addtogroup Maintenance
+ * @file
+ * @ingroup Maintenance
  */
-
- /** */
 
 if ( !defined( 'MEDIAWIKI' ) ) {
 	echo "This file is not a valid entry point\n";
@@ -57,7 +56,7 @@ $wgMysqlUpdates = array(
 	// 1.5
 	array( 'do_schema_restructuring' ),
 	array( 'add_field', 'logging',       'log_params',       'patch-log_params.sql' ),
-	array( 'do_logging_encoding' ),
+	array( 'check_bin', 'logging',       'log_title',        'patch-logging-title.sql', ),
 	array( 'add_field', 'archive',       'ar_rev_id',        'patch-archive-rev_id.sql' ),
 	array( 'add_field', 'page',          'page_len',         'patch-page_len.sql' ),
 	array( 'do_inverse_timestamp' ),
@@ -127,7 +126,23 @@ $wgMysqlUpdates = array(
 	array( 'do_oldimage_user_index' ),
 	array( 'add_field', 'archive',       'ar_page_id',       'patch-archive-page_id.sql'),
 	array( 'add_field', 'image',         'img_sha1',         'patch-img_sha1.sql' ),
+
+	// 1.12
 	array( 'add_table', 'protected_titles',                  'patch-protected_titles.sql' ),
+	
+	// 1.13
+	array( 'add_field', 'ipblocks',      'ipb_by_text',      'patch-ipb_by_text.sql' ),
+	array( 'add_table', 'page_props',                        'patch-page_props.sql' ),
+	array( 'add_table', 'updatelog',                         'patch-updatelog.sql' ),
+	array( 'add_table', 'category',                          'patch-category.sql' ),
+	array( 'do_category_population' ),
+	array( 'add_field', 'archive',       'ar_parent_id',     'patch-ar_parent_id.sql'),
+	array( 'add_field', 'user_newtalk',  'user_last_timestamp', 'patch-user_last_timestamp.sql'),
+	array( 'do_populate_parent_id' ),
+	array( 'check_bin', 'protected_titles', 'pt_title',      'patch-pt_title-encoding.sql', ),
+	array( 'maybe_do_profiling_memory_update' ),
+	array( 'do_filearchive_indices_update' ),
+	array( 'update_password_format' ),
 );
 
 
@@ -137,6 +152,20 @@ $wgExtNewTables = array(); // table, dir
 $wgExtNewFields = array(); // table, column, dir
 $wgExtPGNewFields = array(); // table, column attributes; for PostgreSQL
 $wgExtNewIndexes = array(); // table, index, dir
+
+# Helper function: check if the given key is present in the updatelog table.
+# Obviously, only use this for updates that occur after the updatelog table was
+# created!
+function update_row_exists( $key ) {
+	$dbr = wfGetDB( DB_SLAVE );
+	$row = $dbr->selectRow(
+		'updatelog',
+		'1',
+		array( 'ul_key' => $key ),
+		__FUNCTION__
+	);
+	return (bool)$row;
+}
 
 function rename_table( $from, $to, $patch ) {
 	global $wgDatabase;
@@ -420,20 +449,20 @@ function do_user_update() {
  * 1.4 betas were missing the 'binary' marker from logging.log_title,
  * which causes a collation mismatch error on joins in MySQL 4.1.
  */
-function do_logging_encoding() {
+function check_bin( $table, $field, $patchFile ) {
 	global $wgDatabase, $wgDBtype;
 	if ($wgDBtype != 'mysql')
 		return;
-	$logging = $wgDatabase->tableName( 'logging' );
-	$res = $wgDatabase->query( "SELECT log_title FROM $logging LIMIT 0" );
+	$tableName = $wgDatabase->tableName( $table );
+	$res = $wgDatabase->query( "SELECT $field FROM $tableName LIMIT 0" );
 	$flags = explode( ' ', mysql_field_flags( $res->result, 0 ) );
 	$wgDatabase->freeResult( $res );
 
 	if( in_array( 'binary', $flags ) ) {
-		echo "Logging table has correct title encoding.\n";
+		echo "$table table has correct $field encoding.\n";
 	} else {
-		echo "Fixing title encoding on logging table... ";
-		dbsource( archive( 'patch-logging-title.sql' ), $wgDatabase );
+		echo "Fixing $field encoding on $table table... ";
+		dbsource( archive( $patchFile ), $wgDatabase );
 		echo "ok\n";
 	}
 }
@@ -526,7 +555,7 @@ function do_schema_restructuring() {
   			UNIQUE INDEX name_title (page_namespace,page_title),
   			INDEX (page_random),
   			INDEX (page_len)
-			) TYPE=InnoDB", $fname );
+			) ENGINE=InnoDB", $fname );
 		$wgDatabase->query("CREATE TABLE $revision (
   			rev_id int(8) unsigned NOT NULL auto_increment,
   			rev_page int(8) unsigned NOT NULL,
@@ -544,7 +573,7 @@ function do_schema_restructuring() {
   			INDEX page_timestamp (rev_page,rev_timestamp),
   			INDEX user_timestamp (rev_user,rev_timestamp),
   			INDEX usertext_timestamp (rev_user_text,rev_timestamp)
-			) TYPE=InnoDB", $fname );
+			) ENGINE=InnoDB", $fname );
 
 		echo wfTimestamp( TS_DB );
 		echo "......Locking tables.\n";
@@ -942,6 +971,7 @@ function do_backlinking_indices_update() {
 		!index_has_field('imagelinks', 'il_to', 'il_from'))
 	{	
 		dbsource( archive( 'patch-backlinkindexes.sql' ) );
+		echo( "...backlinking indices updated\n" );
 	}
 }
 
@@ -950,6 +980,31 @@ function do_categorylinks_indices_update() {
 	if (!index_has_field('categorylinks', 'cl_sortkey', 'cl_from'))
 	{	
 		dbsource( archive( 'patch-categorylinksindex.sql' ) );
+		echo( "...categorylinks indices updated\n" );
+	}
+}
+
+function do_filearchive_indices_update() {
+	global $wgDatabase;
+	echo( "Checking filearchive indices...\n" );
+	$info = $wgDatabase->indexInfo( 'filearchive', 'fa_user_timestamp', __METHOD__ );
+	if ( !$info )
+	{	
+		dbsource( archive( 'patch-filearhive-user-index.sql' ) );
+		echo( "...filearchive indices updated\n" );
+	}
+}
+
+function maybe_do_profiling_memory_update() {
+	global $wgDatabase;
+	if ( !$wgDatabase->tableExists( 'profiling' ) ) {
+		// Simply ignore
+	} elseif ( $wgDatabase->fieldExists( 'profiling', 'pf_memory' ) ) {
+		echo "profiling table has pf_memory field.\n";
+	} else {
+		echo "Adding pf_memory field to table profiling...";
+		dbsource( archive( 'patch-profiling-memory.sql' ), $wgDatabase );
+		echo "ok\n";
 	}
 }
 
@@ -979,11 +1034,11 @@ function purge_cache() {
 }
 
 function do_all_updates( $shared = false, $purge = true ) {
-	global $wgNewTables, $wgNewFields, $wgRenamedTables, $wgSharedDB, $wgDatabase, $wgDBtype, $IP;
+	global $wgNewTables, $wgNewFields, $wgRenamedTables, $wgSharedDB, $wgSharedTables, $wgDatabase, $wgDBtype, $IP;
 
 	wfRunHooks('LoadExtensionSchemaUpdates');
 
-	$doUser = !$wgSharedDB || $shared;
+	$doUser = $shared ? $wgSharedDB && in_array('user', $wgSharedTables) : !$wgSharedDB || !in_array('user', $wgSharedTables);
 
 	if ($wgDBtype === 'postgres') {
 		do_postgres_updates();
@@ -1114,7 +1169,54 @@ function do_restrictions_update() {
 		}
 		print "ok\n";
 	}
+}
+
+function do_category_population() {
+	if( update_row_exists( 'populate category' ) ) {
+		echo "...category table already populated.\n";
+		return;
+	}
+	require_once( 'populateCategory.inc' );
+	echo "Populating category table, printing progress markers.  ".
+"For large databases, you\n".
+"may want to hit Ctrl-C and do this manually with maintenance/\n".
+"populateCategory.php.\n";
+	populateCategory( '', 10, 0, true );
+	echo "Done populating category table.\n";
+}
+
+function do_populate_parent_id() {
+	if( update_row_exists( 'populate rev_parent_id' ) ) {
+		echo "...rev_parent_id column already populated.\n";
+		return;
+	}
+	require_once( 'populateParentId.inc' );
 	
+	global $wgDatabase;
+	populate_rev_parent_id( $wgDatabase );
+}
+
+function update_password_format() {
+	if ( update_row_exists( 'password format' ) ) {
+		echo "...password hash format already changed\n";
+		return;
+	}
+
+	echo "Updating password hash format...";
+
+	global $wgDatabase, $wgPasswordSalt;
+	$user = $wgDatabase->tableName( 'user' );
+	if ( $wgPasswordSalt ) {
+		$sql = "UPDATE $user SET user_password=CONCAT(':B:', user_id, ':', user_password) " .
+			"WHERE user_password NOT LIKE ':%'";
+	} else {
+		$sql = "UPDATE $user SET user_password=CONCAT(':A:', user_password) " .
+			"WHERE user_password NOT LIKE ':%'";
+	}
+	$wgDatabase->query( $sql, __METHOD__ );
+	$wgDatabase->insert( 'updatelog', array( 'ul_key' => 'password format' ), __METHOD__ );
+
+	echo "done\n";
 }
 
 function
@@ -1267,21 +1369,23 @@ function do_postgres_updates() {
 		list( $x,$y ) = explode( '=', $c );
 		$conf[$x] = $y;
 	}
-	$newpath = array();
-	if( $wgDBmwschema === 'mediawiki' ) {
-		if (!array_key_exists( 'search_path', $conf ) or strpos( $conf['search_path'],$wgDBmwschema ) === false ) {
-			echo "Adding in schema \"$wgDBmwschema\" to search_path for user \"$wgDBuser\"\n";
-			$newpath[$wgDBmwschema] = 1;
-		}
+	if( !array_key_exists( 'search_path', $conf ) ) {
+		$search_path = '';
 	}
-	if( !array_key_exists( 'search_path', $conf ) or strpos( $conf['search_path'],$wgDBts2schema ) === false ) {
+	else {
+		$search_path = $conf['search_path'];
+	}
+	if( strpos( $search_path, $wgDBmwschema ) === false ) {
+		echo "Adding in schema \"$wgDBmwschema\" to search_path for user \"$wgDBuser\"\n";
+		$search_path = "$wgDBmwschema, $search_path";
+	}
+	if( strpos( $search_path, $wgDBts2schema ) === false ) {
 		echo "Adding in schema \"$wgDBts2schema\" to search_path for user \"$wgDBuser\"\n";
-		$newpath[$wgDBts2schema] = 1;
+		$search_path = "$search_path, $wgDBts2schema";
 	}
-	$searchpath = implode( ',', array_keys( $newpath ) );
-	if( strlen( $searchpath ) ) {
-		$wgDatabase->doQuery( "ALTER USER $wgDBuser SET search_path = $searchpath" );
-		$wgDatabase->doQuery( "SET search_path = $searchpath" );
+	if( array_key_exists( 'search_path', $conf ) === false || $search_path != $conf['search_path'] ) {
+		$wgDatabase->doQuery( "ALTER USER $wgDBuser SET search_path = $search_path" );
+		$wgDatabase->doQuery( "SET search_path = $search_path" );
 	}
 	else {
 		$path = $conf['search_path'];
@@ -1310,22 +1414,27 @@ function do_postgres_updates() {
 	);
 
 	$newtables = array(
+		array("category",          "patch-category.sql"),
 		array("mediawiki_version", "patch-mediawiki_version.sql"),
 		array("mwuser",            "patch-mwuser.sql"),
 		array("pagecontent",       "patch-pagecontent.sql"),
 		array("querycachetwo",     "patch-querycachetwo.sql"),
+		array("page_props",        "patch-page_props.sql"),
 		array("page_restrictions", "patch-page_restrictions.sql"),
 		array("profiling",         "patch-profiling.sql"),
 		array("protected_titles",  "patch-protected_titles.sql"),
 		array("redirect",          "patch-redirect.sql"),
+		array("updatelog",         "patch-updatelog.sql"),
 	);
 
 	$newcols = array(
 		array("archive",       "ar_deleted",           "SMALLINT NOT NULL DEFAULT 0"),
 		array("archive",       "ar_len",               "INTEGER"),
 		array("archive",       "ar_page_id",           "INTEGER"),
+		array("archive",       "ar_parent_id",         "INTEGER"),
 		array("image",         "img_sha1",             "TEXT NOT NULL DEFAULT ''"),
 		array("ipblocks",      "ipb_anon_only",        "CHAR NOT NULL DEFAULT '0'"),
+		array("ipblocks",      "ipb_by_text",          "TEXT NOT NULL DEFAULT ''"),
 		array("ipblocks",      "ipb_block_email",      "CHAR NOT NULL DEFAULT '0'"),
 		array("ipblocks",      "ipb_create_account",   "CHAR NOT NULL DEFAULT '1'"),
 		array("ipblocks",      "ipb_deleted",          "SMALLINT NOT NULL DEFAULT 0"),
@@ -1343,6 +1452,7 @@ function do_postgres_updates() {
 		array("oldimage",      "oi_minor_mime",        "TEXT NOT NULL DEFAULT 'unknown'"),
 		array("oldimage",      "oi_sha1",              "TEXT NOT NULL DEFAULT ''"),
 		array("page_restrictions", "pr_id",            "INTEGER NOT NULL UNIQUE DEFAULT nextval('pr_id_val')"),
+		array("profiling",     "pf_memory",            "NUMERIC(18,10) NOT NULL DEFAULT 0"),
 		array("recentchanges", "rc_deleted",           "SMALLINT NOT NULL DEFAULT 0"),
 		array("recentchanges", "rc_log_action",        "TEXT"),
         array("recentchanges", "rc_log_type",          "TEXT"),
@@ -1352,6 +1462,7 @@ function do_postgres_updates() {
 		array("recentchanges", "rc_params",            "TEXT"),
 		array("revision",      "rev_len",              "INTEGER"),
 		array("revision",      "rev_deleted",          "SMALLINT NOT NULL DEFAULT 0"),
+		array("user_newtalk",  "user_last_timestamp",  "TIMESTAMPTZ"),
 	);
 
 
@@ -1373,12 +1484,12 @@ function do_postgres_updates() {
 		array("interwiki",    "iw_local",        "smallint", "iw_local::smallint DEFAULT 0"),
 		array("interwiki",    "iw_trans",        "smallint", "iw_trans::smallint DEFAULT 0"),
 		array("ipblocks",     "ipb_auto",        "smallint", "ipb_auto::smallint DEFAULT 0"),
-		array("ipblocks",     "ipb_anon_only",        "smallint", "ipb_anon_only::smallint DEFAULT 0"),
-		array("ipblocks",     "ipb_create_account",        "smallint", "ipb_create_account::smallint DEFAULT 1"),
-		array("ipblocks",     "ipb_enable_autoblock",        "smallint", "ipb_enable_autoblock::smallint DEFAULT 1"),
-		array("ipblocks",     "ipb_block_email",        "smallint", "ipb_block_email::smallint DEFAULT 0"),
+		array("ipblocks",     "ipb_anon_only",   "smallint", "CASE WHEN ipb_anon_only=' ' THEN 0 ELSE ipb_anon_only::smallint END DEFAULT 0"),
+		array("ipblocks",     "ipb_create_account", "smallint", "CASE WHEN ipb_create_account=' ' THEN 0 ELSE ipb_create_account::smallint END DEFAULT 1"),
+		array("ipblocks",     "ipb_enable_autoblock", "smallint", "CASE WHEN ipb_enable_autoblock=' ' THEN 0 ELSE ipb_enable_autoblock::smallint END DEFAULT 1"),
+		array("ipblocks",     "ipb_block_email", "smallint", "CASE WHEN ipb_block_email=' ' THEN 0 ELSE ipb_block_email::smallint END DEFAULT 0"),
 		array("ipblocks",     "ipb_address",     "text",     "ipb_address::text"),
-		array("ipblocks",     "ipb_deleted",     "smallint", ""),
+		array("ipblocks",     "ipb_deleted",     "smallint", "ipb_deleted::smallint"),
 		array("math",         "math_inputhash",  "bytea",    "decode(math_inputhash,'escape')"),
 		array("math",         "math_outputhash", "bytea",    "decode(math_outputhash,'escape')"),
 		array("mwuser",       "user_token",      "text",     ""),
@@ -1397,6 +1508,7 @@ function do_postgres_updates() {
 		array("recentchanges","rc_new",          "smallint", "rc_new::smallint DEFAULT 0"),
 		array("recentchanges","rc_type",         "smallint", "rc_type::smallint DEFAULT 0"),
 		array("recentchanges","rc_patrolled",    "smallint", "rc_patrolled::smallint DEFAULT 0"),
+		array("revision",     "rev_deleted",     "smallint", "rev_deleted::smallint DEFAULT 0"),
 		array("revision",     "rev_minor_edit",  "smallint", "rev_minor_edit::smallint DEFAULT 0"),
 		array("templatelinks","tl_namespace",    "smallint", "tl_namespace::smallint"),
 		array("user_newtalk", "user_ip",         "text",     "host(user_ip)"),
@@ -1551,7 +1663,7 @@ function do_postgres_updates() {
 		$wgDatabase->query("CREATE UNIQUE INDEX pagelink_unique ON pagelinks (pl_from,pl_namespace,pl_title)");
 	}
 	else
-		echo "... index \"pagelink_unique_index\" aready exists\n";
+		echo "... index \"pagelink_unique_index\" already exists\n";
 
 	if (pg_fkey_deltype("revision_rev_user_fkey") == 'r') {
 		echo "... constraint \"revision_rev_user_fkey\" is ON DELETE RESTRICT\n";
@@ -1559,6 +1671,14 @@ function do_postgres_updates() {
 	else {
 		echo "Changing constraint \"revision_rev_user_fkey\" to ON DELETE RESTRICT\n";
 		dbsource(archive('patch-revision_rev_user_fkey.sql'));
+	}
+
+	# Fix ipb_address index
+	if (pg_index_exists('ipblocks', 'ipb_address_unique' )) {
+		echo "... have ipb_address_unique\n";
+	} else {
+		echo "Adding ipb_address_unique index\n";
+		dbsource(archive('patch-ipb_address_unique.sql'));
 	}
 
 	global $wgExtNewTables, $wgExtPGNewFields, $wgExtNewIndexes;
@@ -1602,3 +1722,4 @@ function do_postgres_updates() {
 
 	return;
 }
+

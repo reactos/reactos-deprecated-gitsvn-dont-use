@@ -30,10 +30,12 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * Query module to enumerate all available pages.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryBlocks extends ApiQueryBase {
+	
+	var $users;
 
 	public function __construct($query, $moduleName) {
 		parent :: __construct($query, $moduleName, 'bk');
@@ -47,6 +49,9 @@ class ApiQueryBlocks extends ApiQueryBase {
 		global $wgUser;
 
 		$params = $this->extractRequestParams();
+		if(isset($params['users']) && isset($params['ip']))
+			$this->dieUsage('bkusers and bkip cannot be used together', 'usersandip');
+
 		$prop = array_flip($params['prop']);
 		$fld_id = isset($prop['id']);
 		$fld_user = isset($prop['user']);
@@ -66,7 +71,7 @@ class ApiQueryBlocks extends ApiQueryBase {
 		if($fld_id)
 			$this->addFields('ipb_id');
 		if($fld_user)
-			$this->addFields(array('ipb_address', 'ipb_user'));
+			$this->addFields(array('ipb_address', 'ipb_user', 'ipb_auto'));
 		if($fld_by)
 		{
 			$this->addTables('user');
@@ -89,8 +94,32 @@ class ApiQueryBlocks extends ApiQueryBase {
 		if(isset($params['ids']))
 			$this->addWhere(array('ipb_id' => $params['ids']));
 		if(isset($params['users']))
-			$this->addWhere(array('ipb_address' => $params['users']));
-		if(!$wgUser->isAllowed('oversight'))
+		{
+			foreach((array)$params['users'] as $u)
+				$this->prepareUsername($u);
+			$this->addWhere(array('ipb_address' => $this->usernames));
+		}
+		if(isset($params['ip']))
+		{
+			list($ip, $range) = IP::parseCIDR($params['ip']);
+			if($ip && $range)
+			{
+				# We got a CIDR range
+				if($range < 16)
+					$this->dieUsage('CIDR ranges broader than /16 are not accepted', 'cidrtoobroad');
+				$lower = wfBaseConvert($ip, 10, 16, 8, false);
+				$upper = wfBaseConvert($ip + pow(2, 32 - $range) - 1, 10, 16, 8, false);
+			}
+			else
+				$lower = $upper = IP::toHex($params['ip']);
+			$prefix = substr($lower, 0, 4);
+			$this->addWhere(array(
+				"ipb_range_start LIKE '$prefix%'",
+				"ipb_range_start <= '$lower'",
+				"ipb_range_end >= '$upper'"
+			));
+		}
+		if(!$wgUser->isAllowed('suppress'))
 			$this->addWhere(array('ipb_deleted' => 0));
 
 		// Purge expired entries on one in every 10 queries
@@ -152,6 +181,18 @@ class ApiQueryBlocks extends ApiQueryBase {
 		$result->setIndexedTagName($data, 'block');
 		$result->addValue('query', $this->getModuleName(), $data);
 	}
+	
+	protected function prepareUsername($user)
+	{
+		if(!$user)
+			$this->dieUsage('User parameter may not be empty', 'param_user');
+		$name = User::isIP($user)
+			? $user
+			: User::getCanonicalName($user, 'valid');
+		if($name === false)
+			$this->dieUsage("User name {$user} is not valid", 'param_user');
+		$this->usernames[] = $name;
+	}
 
 	protected function convertHexIP($ip)
 	{
@@ -188,6 +229,7 @@ class ApiQueryBlocks extends ApiQueryBase {
 			'users' => array(
 				ApiBase :: PARAM_ISMULTI => true
 			),
+			'ip' => null,
 			'limit' => array(
 				ApiBase :: PARAM_DFLT => 10,
 				ApiBase :: PARAM_TYPE => 'limit',
@@ -219,6 +261,8 @@ class ApiQueryBlocks extends ApiQueryBase {
 			'dir' => 'The direction in which to enumerate',
 			'ids' => 'Pipe-separated list of block IDs to list (optional)',
 			'users' => 'Pipe-separated list of users to search for (optional)',
+			'ip' => array(	'Get all blocks applying to this IP or CIDR range, including range blocks.',
+					'Cannot be used together with bkusers. CIDR ranges broader than /16 are not accepted.'),
 			'limit' => 'The maximum amount of blocks to list',
 			'prop' => 'Which properties to get',
 		);
@@ -229,11 +273,12 @@ class ApiQueryBlocks extends ApiQueryBase {
 	}
 
 	protected function getExamples() {
-		return array (
+		return array (	'api.php?action=query&list=blocks',
+				'api.php?action=query&list=blocks&bkusers=Alice|Bob'
 		);
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryBlocks.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryBlocks.php 37892 2008-07-21 21:37:11Z catrope $';
 	}
 }

@@ -1,8 +1,8 @@
 <?php
 /**
  * A License class for use on Special:Upload
- * 
- * @addtogroup SpecialPage
+ *
+ * @ingroup SpecialPage
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
@@ -172,4 +172,3 @@ class License {
 		$this->text = strrev( $text );
 	}
 }
-

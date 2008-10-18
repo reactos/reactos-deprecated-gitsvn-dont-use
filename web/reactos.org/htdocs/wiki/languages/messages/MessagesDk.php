@@ -1,8 +1,9 @@
 <?php
-/** Danish (Dansk)
-  *
-  * @addtogroup Language
-  * @comment Deprecated code. Falls back to 'dk'.
-  */
+/** Danish
+ *
+ * @ingroup Language
+ * @file
+ * @comment Deprecated code. Falls back to 'dk'.
+ */
 
 $fallback = 'da';

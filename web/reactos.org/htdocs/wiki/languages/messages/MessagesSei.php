@@ -1,16 +1,13 @@
 <?php
 /** Cmique Itom (Cmique Itom)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SeriCtam
  * @author Ccaxjoj Iteja Z Iti Poop
+ * @author SeriCtam
  * @author Teak
- * @author Siebrand
- * @author SPQRobin
  */
-
-
 
 $messages = array(
 # User preference toggles
@@ -112,13 +109,13 @@ $messages = array(
 'nov'           => 'T11',
 'dec'           => 'T12',
 
-# Bits of text used by many pages
-'categories'            => 'Cayliibám',
-'pagecategories'        => '{{PLURAL:$1|Cajliib|Cajliibám}}',
-'category_header'       => 'Páhinám cayliibám zo iti "$1"',
-'subcategories'         => 'Subcayliibám',
-'category-media-header' => 'Mediám cayliibám zo iti "$1"',
-'category-empty'        => "''Cayliib danjobam nihíl''",
+# Categories related messages
+'pagecategories'         => '{{PLURAL:$1|Cajliib|Cajliibám}}',
+'category_header'        => 'Páhinám cayliibám zo iti "$1"',
+'subcategories'          => 'Subcayliibám',
+'category-media-header'  => 'Mediám cayliibám zo iti "$1"',
+'category-empty'         => "''Cayliib danjobam nihíl''",
+'listingcontinuesabbrev' => 'korb.',
 
 'mainpagetext' => "<big>'''MediaWiki coccebj installöx successua zo mii.'''</big>",
 
@@ -197,30 +194,29 @@ $messages = array(
 'jumptosearch'      => 'Yahöx',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => '{{SITENAME}} mii',
-'aboutpage'         => 'Project:Miilà',
-'bugreports'        => 'Iitómde bug',
-'bugreportspage'    => 'Project:Iitómde bug',
-'copyright'         => 'Contentua coitáamb $1 tan.',
-'copyrightpagename' => 'Copyright {{SITENAME}}',
-'copyrightpage'     => '{{ns:project}}:Copyrightám',
-'currentevents'     => 'Hualtezxes',
-'currentevents-url' => 'Project:Hualtezxes',
-'disclaimers'       => 'Isój cacóomx',
-'disclaimerpage'    => 'Project:Isoj cacóomx geniiraloj',
-'edithelp'          => 'Help ticpatlöx',
-'edithelppage'      => 'Help:Ticpatlöx',
-'faq'               => 'Cocmíiit cmaa',
-'faqpage'           => 'Project:Cocmíiit cmaa',
-'helppage'          => 'Help:Caálixötöj',
-'mainpage'          => 'Caálixötöj',
-'policy-url'        => 'Project:Cáyun',
-'portal'            => 'Portalde ctám',
-'portal-url'        => 'Project:Portalde ctám',
-'privacy'           => 'Cáyunde privacy',
-'privacypage'       => 'Project:Cáyunde privacy',
-'sitesupport'       => 'Donación',
-'sitesupport-url'   => 'Project:Donación',
+'aboutsite'            => '{{SITENAME}} mii',
+'aboutpage'            => 'Project:Miilà',
+'bugreports'           => 'Iitómde bug',
+'bugreportspage'       => 'Project:Iitómde bug',
+'copyright'            => 'Contentua coitáamb $1 tan.',
+'copyrightpagename'    => 'Copyright {{SITENAME}}',
+'copyrightpage'        => '{{ns:project}}:Copyrightám',
+'currentevents'        => 'Hualtezxes',
+'currentevents-url'    => 'Project:Hualtezxes',
+'disclaimers'          => 'Isój cacóomx',
+'disclaimerpage'       => 'Project:Isoj cacóomx geniiraloj',
+'edithelp'             => 'Help ticpatlöx',
+'edithelppage'         => 'Help:Ticpatlöx',
+'faq'                  => 'Cocmíiit cmaa',
+'faqpage'              => 'Project:Cocmíiit cmaa',
+'helppage'             => 'Help:Caálixötöj',
+'mainpage'             => 'Caálixötöj',
+'mainpage-description' => 'Caálixötöj',
+'policy-url'           => 'Project:Cáyun',
+'portal'               => 'Portalde ctám',
+'portal-url'           => 'Project:Portalde ctám',
+'privacy'              => 'Cáyunde privacy',
+'privacypage'          => 'Project:Cáyunde privacy',
 
 'badaccess'        => 'Römjde permicion',
 'badaccess-group0' => 'Menepermicion executan accion z hecocmíiit.',
@@ -271,7 +267,7 @@ $messages = array(
 'nosuchspecialpage' => "Ne'dáár páhina extrava",
 'nospecialpagetext' => "<big>'''Meccan páhina extrava invalida.'''</big>
 
-Meccan páhina extrava valide pac [[Special:Specialpages]] iti.",
+Meccan páhina extrava valide pac [[Special:SpecialPages]] iti.",
 
 # General errors
 'error'                => 'Römj',
@@ -297,12 +293,6 @@ $1',
 'readonlytext'         => "Database zo coccebj locköx cmaade hunticpatlöx, posde maintenancede database, normal returnöx 'depre.
 
 Sysop zo locköx zo xuniim jan rae': $1",
-'missingarticle'       => 'Database zo neyahöx textua zo jöx páhina zo Necesde yahöx, "$1".
-
-Jan coccebj rae\'de nenupdatenom diff jöx linkámde históriade páhina delatom pac.
-
-Jan necoccebj zo poop, me pos-coccebj yahöx bug zode software zo iti.
-Reportom jande sysop ö xuniim URL zo.',
 'readonly_lag'         => "Database coccebj locköx auto jan 'slave database serverám' zo ifanomde 'master' zo",
 'internalerror'        => 'Römj internal',
 'internalerror_info'   => 'Römj internal: $1',
@@ -317,7 +307,8 @@ Reportom jande sysop ö xuniim URL zo.',
 'badarticleerror'      => 'Jan accion neperformon jan páhina iti.',
 'cannotdelete'         => 'Nedelatom páhina zo jöx ciúchan zo fillöx. (Jömdectam coccebj delatom jan pos-poop.)',
 'badtitle'             => 'Ahisharliit',
-'badtitletext'         => 'Zo páhina coccebj [[ahisharliit]] zo. Jan pos-coccebj plusöxde 1 jöx 1 characterám jan nepos-coccebj usadas titlenám iti.',
+'badtitletext'         => 'Zo páhina coccebj ahisharliit zo.
+Jan pos-coccebj plusöxde 1 jöx 1 characterám jan nepos-coccebj usadas titlenám iti.',
 'perfdisabled'         => 'Sorry! Jan part coccebj disablenöxde temp. Zo minöxde cáipyde database ponit zo iti nectám pos-usadad wiki zo.',
 'perfcached'           => 'Jan data coccebj cache ö necoccebj updatenom.',
 'perfcachedts'         => "Jan data coccebj cache ö coccebjöx updatenom $1 'de.",
@@ -354,6 +345,7 @@ Mecaitom coccebj creatöx. Quiix hequáatlaácde {{SITENAME}} pos-poop.",
 'externaldberror'            => 'Pos-römjde authenticacionde database extername jöx me necoccebj permiccionde updatan mecaitom externom.',
 'loginproblem'               => '<b>Problemam mecaápo miimisoj.</b><br />Vancaápo!',
 'login'                      => 'Caápo',
+'nav-login-createaccount'    => 'Caápo / xuatl',
 'loginprompt'                => 'Henáabliicookám caápo {{SITENAME}}.',
 'userlogin'                  => 'Caápo / xuatl',
 'logout'                     => 'Cuípo',
@@ -494,10 +486,6 @@ Me IDde block coccebj $5. Includam 1 jöx 2 pac querinám iti.",
 'blockededitsource'         => "Textua zode '''meticpatlöxde''' '''$1''' coccebj cohuatlöx:",
 'whitelistedittitle'        => 'Caápo Neces ticpatlöx',
 'whitelistedittext'         => 'Mecoccebj $1 ticpatlöx páhinám.',
-'whitelistreadtitle'        => 'Caápo Neces caitom',
-'whitelistreadtext'         => 'Mecoccebj [[Special:Userlogin|caápo]] caitom páhinám.',
-'whitelistacctitle'         => 'Me necoccebj permiccion de creacionde IDde caitom',
-'whitelistacctext'          => 'Coccebj permiccionde creacionde accountám coccebj [[Special:Userlogin|caápo]] ö coccebj permicción appropriatenón.',
 'confirmedittitle'          => 'Confirmacionde e-iitom coccebj Neces ticpatlöx',
 'confirmedittext'           => "Me confirmöx menadressade de e-iitom ticpatlöx 'depre. Set' ö validatenan menadressade IP [[Special:Preferences|hequáatlaác]] mii.",
 'nosuchsectiontitle'        => "Ne'dáár partam",
@@ -512,7 +500,7 @@ Me IDde block coccebj $5. Includam 1 jöx 2 pac querinám iti.",
 Huants createnom jan páhina, startom type mii box !-cmaa iti
 ([[{{MediaWiki:Helppage}}|páhinade helpom]] zo viside plus informacion).
 Me coccebj römjasi poop, clickom meback-buttonde browser coccebj perfectua.',
-'anontalkpagetext'          => "----''Jan coccebj czaxö zode caitomde IDde adressade IP. Isój necoccebj caápo. Jan coccebj rae'de usadadde adressade IP numerical identificacion 'prenisój. Plusöxde caitom pos-coccebj jan adressade IP. Me pos-coccebj anonimo ö commentua irrevelantua coccebj directomde me poop, [[Special:Userlogin|caápo-jande]] exitom confucion diijömde IP-caitóm mii.''",
+'anontalkpagetext'          => "----''Jan coccebj czaxö zode caitomde IDde adressade IP. Isój necoccebj caápo. Jan coccebj rae'de usadadde adressade IP numerical identificacion 'prenisój. Plusöxde caitom pos-coccebj jan adressade IP. Me pos-coccebj anonimo ö commentua irrevelantua coccebj directomde me poop, [[Special:UserLogin|caápo-jande]] exitom confucion diijömde IP-caitóm mii.''",
 'noarticletext'             => 'Jan páhina necoccebj textua zo, me pos-coccebj [[Special:Search/{{PAGENAME}}|yahöx jan páhina]] diijömde páhinám iti jöx [{{fullurl:{{FULLPAGENAME}}|action=edit}} ticpatlöx jan páhina].',
 'clearyourcache'            => "'''Notificacion:''' Xuniim 'depre, me pos-coccebj bypassöx mecachede browser caitomi quiíx. '''Mozilla / Firefox / Safari:''' quan ti caitomde ''Shift'' zoxepe clickom ''Reload'', jöx cuápook zo ti ''Ctrl-Shift-R'' (''Cmd-Shift-R'' Apple Mac iti); '''IE:''' quan ti ''Ctrl'' zoxepe clickom ''Refresh'', jöx cuápook zo ti ''Ctrl-F5''; '''Konqueror:''': clickom buttonde ''Reload'' zo, jöx cuápook zo iti ''F5''; '''Opera''' caitóm pos-coccebj clairomde cache completementua ''Tools→Preferences'' iti.",
 'usercssjsyoucanpreview'    => "<strong>Tip:</strong> Usadad 'Cohuatlöx cuáxiit' testom me hun CSS/JS xuniim 'depre.",
@@ -533,7 +521,6 @@ Nexajvon. Jan necoccebj naxajvon poop, cuípo ö caápo.</strong>',
 'token_suffix_mismatch'     => '<strong>Meticpatlöx coccebj rejectöx meclient cahöx characteromde punctacion zo ticpatlöx zo iti. TicpatlÖx zo coccebj rejectöxde preventua corrupcionde textuade páhina zo. 
 Jan lajxepe occuram me usadad proxy service anon web-based buggy.</strong>',
 'editing'                   => 'Ticpatlöx $1',
-'editinguser'               => 'Ticpatlöx caitom <b>$1</b>',
 'editingsection'            => 'Ticpatlöx $1 (seccion)',
 'editingcomment'            => 'Ticpatlöx $1 (commentua)',
 'editconflict'              => 'Römjde ticpatlöxde conflictua: $1',
@@ -556,7 +543,7 @@ Cahöx ticpatlöx jan páhina minöx seccion iti.</strong>',
 'template-semiprotected'    => '(semi-protectöx)',
 'nocreatetitle'             => 'Limiitde creacionde páhinám',
 'nocreatetext'              => 'Jan site coccebj avlutuatl altede creatöx hun páhinám.
-Me pos-coccebj revertöx ö ticpatlöx janpáhinám jöx [[Special:Userlogin|caápo]].',
+Me pos-coccebj revertöx ö ticpatlöx janpáhinám jöx [[Special:UserLogin|caápo]].',
 'nocreate-loggedin'         => 'Me necoccebj permiccionde creatöx hunpáhinám jan wiki iti.',
 'permissionserrors'         => 'Römjde permicción',
 'permissionserrorstext'     => "Me necoccebj permiccionde zo, pre'zo {{PLURAL:$1|rae|rae'}}:",
@@ -568,7 +555,7 @@ Me pos-coccebj revertöx ö ticpatlöx janpáhinám jöx [[Special:Userlogin|ca�
 
 # Account creation failure
 'cantcreateaccounttitle' => 'Nexuatláminop',
-'cantcreateaccount-text' => "Creacionde caitomde jan adressade IP (<b>$1</b>) coccebj blockom [[User:$3|$3]] mii.
+'cantcreateaccount-text' => "Creacionde caitomde jan adressade IP ('''$1''') coccebj blockom [[User:$3|$3]] mii.
 
 Rae' zo xuniim $3 mii coccebj ''$2''",
 
@@ -577,7 +564,6 @@ Rae' zo xuniim $3 mii coccebj ''$2''",
 'nohistory'           => 'Jan páhina necoccebj históriade ticpatlöx.',
 'revnotfound'         => 'Revicion neyahöx',
 'revnotfoundtext'     => 'Janrevicion zode páhina zo me yahöx necoccebj yahöxom. Controlar URL zo me usadadde accesom jan páhina.',
-'loadhist'            => 'Históriade páhina dexuniim...',
 'currentrev'          => 'Revicion cmaa',
 'revisionasof'        => 'Revicionde $1',
 'revision-info'       => "Revicionde $1 'de $2",
@@ -587,7 +573,6 @@ Rae' zo xuniim $3 mii coccebj ''$2''",
 'cur'                 => 'curt',
 'next'                => 'hunn',
 'last'                => 'hunl',
-'orig'                => 'origi',
 'page_first'          => 'jann',
 'page_last'           => 'janl',
 'histlegend'          => "Seleccionde quiíx: xuniim cui radio zode vercion zode comparar ö click 'enter' jöx click bazoniiniitöxamde vyu !-cmaa uisan.<br />
@@ -612,7 +597,7 @@ Informacion: (curt) = quiíxde vercion currentua,
 'revisiondelete'          => 'Delatom/diidelatom revición',
 'revdelete-nooldid-title' => 'Necoccebj aimde revicion',
 'revdelete-selected'      => "{{PLURAL:$2|Revicion selectonde|Revición selectónde}} '''$1:'''",
-'revdelete-legend'        => 'Xuniim restricción:',
+'revdelete-legend'        => 'Xuniim restricción',
 'revdelete-hide-text'     => 'Camaát textuade revicion',
 'revdelete-hide-name'     => 'Camaát accion öjaim',
 'revdelete-hide-comment'  => 'Camaát commentuade ticpatlöx',
@@ -621,11 +606,6 @@ Informacion: (curt) = quiíxde vercion currentua,
 'revdelete-log'           => 'Commentuade log:',
 'revdelete-logentry'      => 'quiixöx revicion visibilitiitde [[$1]]',
 'logdelete-logentry'      => 'quiixöx eventua visibilitiitde [[$1]]',
-'revdelete-logaction'     => "$1 {{PLURAL:$1|revicion|revición}} set'de mode $2",
-'logdelete-logaction'     => "$1 {{PLURAL:$1|eventuade|eventuámde}} [[$3]] set'de mode $2",
-
-# Oversight log
-'oversightlog' => 'Logamde oversight',
 
 # Diffs
 'history-title'           => 'Históriade revicionde "$1"',
@@ -644,14 +624,13 @@ Informacion: (curt) = quiíxde vercion currentua,
 'nextn'                 => 'hun $1',
 'viewprevnext'          => 'Cohuatlöx ($1) ($2) ($3)',
 'powersearch'           => 'Yahöx',
-'powersearchtext'       => 'Yahöx ipartuatl iti:<br />$1<br />$2 List redirects<br />Search for $3 $9',
 
 # Preferences page
 'preferences'           => 'Quáatlaác',
 'mypreferences'         => 'Hequáatlaác',
 'prefs-edits'           => 'Ticpatlöx jöxualtec ID-cort:',
 'prefsnologin'          => 'Necaápo',
-'prefsnologintext'      => 'Zo coccebj Neces [[Special:Userlogin|caápo]] quiixom hequáatlaác.',
+'prefsnologintext'      => 'Zo coccebj Neces [[Special:UserLogin|caápo]] quiixom hequáatlaác.',
 'qbsettings'            => 'Zuónaát',
 'qbsettings-none'       => 'Nepartám',
 'changepassword'        => "Reset'quimx canj",
@@ -679,7 +658,7 @@ Informacion: (curt) = quiíxde vercion currentua,
 'searchresultshead'     => 'Yahöx',
 'savedprefs'            => 'Hequáatlaác coccebj xuniimöx.',
 'timezonelegend'        => 'Zonede xepe',
-'timezonetext'          => 'Xepede zaah quij iitax mexepe locale quiixomde xepede servere (UTC).',
+'timezonetext'          => '¹Xepede zaah quij iitax mexepe locale quiixomde xepede servere (UTC).',
 'localtime'             => 'Xepe locale',
 'timezoneoffset'        => "Minus'set¹",
 'servertime'            => 'Xepede server',
@@ -690,14 +669,14 @@ Informacion: (curt) = quiíxde vercion currentua,
 'files'                 => 'Ciúchán',
 
 # User rights
-'userrights-lookup-user'     => "Yoc' polámde caitom",
-'userrights-user-editname'   => 'Caitom ID ra:',
-'editusergroup'              => 'Ticpatlöx Polám Caitóm',
-'userrights-editusergroup'   => 'Ticpatlöx polám caitóm',
-'saveusergroups'             => 'Xuniim Polámde Caitom',
-'userrights-groupsmember'    => 'Ctamde:',
-'userrights-groupsavailable' => 'Polám avaylbul:',
-'userrights-reason'          => "Rade'reset:",
+'userrights-lookup-user'   => "Yoc' polámde caitom",
+'userrights-user-editname' => 'Caitom ID ra:',
+'editusergroup'            => 'Ticpatlöx Polám Caitóm',
+'editinguser'              => "Ticpatlöx caitom '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])",
+'userrights-editusergroup' => 'Ticpatlöx polám caitóm',
+'saveusergroups'           => 'Xuniim Polámde Caitom',
+'userrights-groupsmember'  => 'Ctamde:',
+'userrights-reason'        => "Rade'reset:",
 
 # Groups
 'group'               => 'Polám:',
@@ -726,7 +705,7 @@ Informacion: (curt) = quiíxde vercion currentua,
 'recentchangestext'                 => 'Caitom camjöx cmaa quiíx zode Wiki zo jan páhina iti.',
 'recentchanges-feed-description'    => 'Caitom camjöx cmaa quiíx zode Wiki zo jan fiiyt iti.',
 'rcnote'                            => "!-cmaa coccebj {{PLURAL:$1|'''1''' quiixde|'''$1''' hunquiíxde}} {{PLURAL:$2|'''1''' hunzaah|'''$2''' hunixaáp}} zo iti, $3 'de.",
-'rcnotefrom'                        => '!-cmaa coccebj quiíx zode <b>$2</b> (plusöxiti <b>$1</b> visi).',
+'rcnotefrom'                        => "!-cmaa coccebj quiíx zode '''$2''' (plusöxiti '''$1''' visi).",
 'rclistfrom'                        => "Cohuatlöx hunquiix startom $1 'de",
 'rcshowhideminor'                   => '$1 editám bajlöxám',
 'rcshowhidebots'                    => '$1 cibotám',
@@ -749,21 +728,21 @@ Informacion: (curt) = quiíxde vercion currentua,
 
 # Recent changes linked
 'recentchangeslinked'       => 'Quiix hámíigonix',
-'recentchangeslinked-title' => 'Quiix hámíigonixde $1',
+'recentchangeslinked-title' => 'Quiix hámíigonixde "$1"',
 
 # Upload
 'upload'            => 'Ciúchan uploadan',
 'uploadbtn'         => 'Ciúchan uploadan',
 'reupload'          => 'Re-uploadan',
 'uploadnologin'     => 'Necaápo',
-'uploadnologintext' => 'Zo coccebj Neces [[Special:Userlogin|caápo]] (re-)uploadande ciúchán.',
+'uploadnologintext' => 'Zo coccebj Neces [[Special:UserLogin|caápo]] (re-)uploadande ciúchán.',
 'uploaderror'       => 'Römjde uploadan',
 'uploadlog'         => 'logde uploadan',
 'uploadlogpage'     => 'Logde uploadan',
 'filename'          => 'IDde ciúchan',
 'filedesc'          => 'Abvuatl',
 'fileuploadsummary' => 'Abvuatl:',
-'filesource'        => 'Sourcenam',
+'filesource'        => 'Sourcenam:',
 'uploadedfiles'     => 'Ciúchán uploadöxán',
 'filetype-missing'  => 'Ciúchan zo necoccebj extencion (pac\' ".jpg").',
 'uploadwarning'     => 'Attencionde uploadan',
@@ -771,8 +750,8 @@ Informacion: (curt) = quiíxde vercion currentua,
 'uploadedimage'     => 'uploadöx "[[$1]]"',
 'overwroteimage'    => 'uploadöx hunvercion zode "[[$1]]"',
 'uploadvirus'       => 'Jan ciúchan coccebj virusde PC zo! Detailám: $1',
-'sourcefilename'    => 'Sourcenam IDde ciúchan',
-'destfilename'      => 'Destinacion IDde ciúchan',
+'sourcefilename'    => 'Sourcenam IDde ciúchan:',
+'destfilename'      => 'Destinacion IDde ciúchan:',
 'watchthisupload'   => 'Cáminot jan páhina',
 
 'upload-proto-error' => 'Protocolam incorrectam',
@@ -782,19 +761,21 @@ Informacion: (curt) = quiíxde vercion currentua,
 # Some likely curl errors. More could be added from <http://curl.haxx.se/libcurl/c/libcurl-errors.html>
 'upload-curl-error28' => 'Time-outde uploadan',
 
-'license'           => 'Licenciónom',
+'license'           => 'Licenciónom:',
 'nolicense'         => 'Seleccion coccebj hun',
 'license-nopreview' => '(Necuáxiit)',
 
-# Image list
-'imagelist'                 => 'Listade ciúchán',
-'ilsubmit'                  => 'Yahöx',
-'showlast'                  => 'Cohuatlöx $1 hunciúchán sortöx $2.',
-'byname'                    => 'de nom-ID',
-'bydate'                    => 'de datum',
-'bysize'                    => 'de bajlip',
-'imgdelete'                 => 'delat',
-'imgfile'                   => 'ciúchan',
+# Special:ImageList
+'imagelist_search_for'  => 'Yahöxde IDde ciúchan:',
+'imgfile'               => 'ciúchan',
+'imagelist'             => 'Listade ciúchán',
+'imagelist_date'        => 'Datum',
+'imagelist_name'        => 'Nom',
+'imagelist_user'        => 'Caitom',
+'imagelist_size'        => 'Bajlip',
+'imagelist_description' => 'Discripcion',
+
+# Image description page
 'filehist'                  => 'Historiade ciúchan',
 'filehist-deleteall'        => 'delatom jömde man',
 'filehist-deleteone'        => 'delatom jande man',
@@ -809,12 +790,6 @@ Informacion: (curt) = quiíxde vercion currentua,
 'shareduploadwiki-linktext' => 'discripcionde ciúchan páhina',
 'noimage-linktext'          => 'z(o) uploadan',
 'uploadnewversion-linktext' => 'Uploadan hunvercion zode jan ciúchan',
-'imagelist_date'            => 'Datum',
-'imagelist_name'            => 'Nom',
-'imagelist_user'            => 'Caitom',
-'imagelist_size'            => 'Bajlip',
-'imagelist_description'     => 'Discripcion',
-'imagelist_search_for'      => 'Yahöxde IDde ciúchan:',
 
 # File reversion
 'filerevert'                => 'Iixponintöx $1',
@@ -868,7 +843,6 @@ Informacion: (curt) = quiíxde vercion currentua,
 'nmembers'            => '$1 {{PLURAL:$1|diipolam|diipolám}}',
 'nrevisions'          => '$1 {{PLURAL:$1|revicion|revición}}',
 'nviews'              => '$1 {{PLURAL:$1|cohuatl|cohuátl}}',
-'allpages'            => 'Jöxde páhinám',
 'prefixindex'         => 'Indexde prefix',
 'shortpages'          => 'Páhinám diibajlipám',
 'longpages'           => 'Páhinám bajlipám',
@@ -878,22 +852,14 @@ Informacion: (curt) = quiíxde vercion currentua,
 'protectedpagestext'  => 'Jan páhinám coccebj protectöxde yacom jöx ticpatlöx',
 'protectedpagesempty' => '0 páhinám currentua coccebj protectöx jan parameterám mii.',
 'listusers'           => 'Listade caitóm',
-'specialpages'        => 'Páhinám extravám',
-'spheading'           => 'Páhinám extravám jömde caitom',
-'restrictedpheading'  => 'Páhinám extravám restrictám',
 'newpages'            => 'Jan páhinám',
 'newpages-username'   => 'Caitom ID:',
 'ancientpages'        => 'Xeperesistant páhinám',
-'intl'                => 'Linkám interitom',
 'move'                => 'Yacom',
 'movethispage'        => 'Yacom jan páhina',
 
 # Book sources
 'booksources-go' => 'Caátemöx',
-
-'data'    => 'Datám',
-'groups'  => 'Polám caitóm',
-'version' => 'Vercion',
 
 # Special:Log
 'specialloguserlabel'  => 'Caitom:',
@@ -903,7 +869,8 @@ Informacion: (curt) = quiíxde vercion currentua,
 'log-search-legend'    => 'Yahöxde logám',
 'log-search-submit'    => 'Caátemöx',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'          => 'Jöxde páhinám',
 'nextpage'          => 'Hunpáhina ($1)',
 'prevpage'          => 'Janpáhina ($1)',
 'allpagesfrom'      => 'Xuniim páhinám startomde:',
@@ -916,14 +883,17 @@ Informacion: (curt) = quiíxde vercion currentua,
 'allpagesprefix'    => 'Xuniim páhinám jan prefix mii:',
 'allpages-bad-ns'   => '{{SITENAME}} necoccebj ipartuatl "$1".',
 
-# Special:Listusers
+# Special:Categories
+'categories' => 'Cayliibám',
+
+# Special:ListUsers
 'listusersfrom'      => 'Xuniim caitóm startomde:',
 'listusers-submit'   => 'Cohuatlöx',
 'listusers-noresult' => 'Necoccebj caitóm.',
 
 # E-mail user
 'mailnologin'     => 'Nenadressade iitom',
-'mailnologintext' => 'Zo coccebj Neces [[Special:Userlogin|caápo]]
+'mailnologintext' => 'Zo coccebj Neces [[Special:UserLogin|caápo]]
 ö coccebjöx adressade e-iitom validom [[Special:Preferences|mequáatlaác]]
 iitom e-iitomde diijömde caitóm.',
 'emailuser'       => 'E-iitom  jan caitom',
@@ -944,7 +914,7 @@ iitom e-iitomde diijömde caitóm.',
 'watchlistfor'         => "('''$1''' mii)",
 'nowatchlist'          => 'Hecoccebj 0 itémii helistade cáminot iti.',
 'watchnologin'         => 'Necaápo',
-'watchnologintext'     => 'Zo coccebj Neces [[Special:Userlogin|caápo]] ticpatlöx helistade cáminot.',
+'watchnologintext'     => 'Zo coccebj Neces [[Special:UserLogin|caápo]] ticpatlöx helistade cáminot.',
 'addedwatch'           => 'Plusöxaj listade cáminot',
 'removedwatch'         => 'Delatajde he listade cáminot',
 'removedwatchtext'     => 'Páhina zo "[[:$1]]" coccebj delataj me listade cáminot.',
@@ -960,7 +930,7 @@ iitom e-iitomde diijömde caitóm.',
 'watchlist-show-minor' => 'Cohuatlöx editám bajlöxám',
 'watchlist-hide-minor' => 'Cíiitám editám bajlöxám',
 
-# Displayed when you click the "watch" button and it's in the process of watching
+# Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'Cáminot...',
 'unwatching' => 'Necáminot...',
 
@@ -1038,15 +1008,12 @@ iitom e-iitomde diijömde caitóm.',
 'databasenotlocked' => 'Database zo necoccebj lockomöx.',
 
 # Move page
-'movepage'         => 'Yacom páhina',
+'move-page-legend' => 'Yacom páhina',
 'movearticle'      => 'Yacom páhina:',
-'movenologin'      => 'Necaápo',
 'move-watch'       => 'Cáminot jan páhina',
 'movepagebtn'      => 'Yacom páhina',
 'movedto'          => 'yacomöxde',
 'movetalk'         => 'Yacom czaxö páhina yodina ipríi',
-'talkpagemoved'    => 'Czaxö páhina yodina ipríi yacomöx.',
-'talkpagenotmoved' => 'Czaxö páhina yodina ipríi <strong>neyacomöx</strong>.',
 '1movedto2'        => '[[$1]] yacomöxde [[$2]]',
 'movereason'       => 'Ra:',
 'delete_and_move'  => 'Delatom ö yacom',
@@ -1079,7 +1046,6 @@ iitom e-iitomde diijömde caitóm.',
 'tooltip-p-logo'             => 'Caálixötöj',
 'tooltip-n-mainpage'         => 'Yahöx caálixötöj zo',
 'tooltip-n-help'             => 'Áahuiitl hant zo iti.',
-'tooltip-n-sitesupport'      => 'Donacíonhuíiitl',
 'tooltip-t-emailuser'        => 'E-iitom jan caitom',
 'tooltip-t-specialpages'     => 'Lista jömde páhinám extravám',
 'tooltip-ca-nstab-main'      => 'Cohuatlöx contentua páhina zo',
@@ -1098,8 +1064,7 @@ iitom e-iitomde diijömde caitóm.',
 'siteusers'     => '{{SITENAME}} cait(o/ó)m $1',
 
 # Spam protection
-'listingcontinuesabbrev' => 'korb.',
-'spambot_username'       => 'MediaWiki nespam',
+'spambot_username' => 'MediaWiki nespam',
 
 # Info page
 'infosubtitle' => 'Informacionde páhina',
@@ -1107,8 +1072,10 @@ iitom e-iitomde diijömde caitóm.',
 # Media information
 'widthheightpage' => '$1×$2, $3 páhinám',
 
-# Special:Newimages
+# Special:NewImages
 'showhidebots' => '($1 botám)',
+'ilsubmit'     => 'Yahöx',
+'bydate'       => 'de datum',
 
 # EXIF tags
 'exif-fnumber'      => 'F Numberam',
@@ -1131,13 +1098,18 @@ iitom e-iitomde diijömde caitóm.',
 'confirm_purge_button' => 'ton',
 
 # Multipage image navigation
-'imgmultigo'      => 'Caátemöx!',
-'imgmultigotopre' => 'Caátemöx páhina',
+'imgmultigo' => 'Caátemöx!',
 
 # Table pager
 'table_pager_limit_submit' => 'Caátemöx',
 
 # Auto-summaries
 'autosumm-new' => 'Hunpáhina: $1',
+
+# Special:Version
+'version' => 'Vercion', # Not used as normal message but as header for the special page itself
+
+# Special:SpecialPages
+'specialpages' => 'Páhinám extravám',
 
 );

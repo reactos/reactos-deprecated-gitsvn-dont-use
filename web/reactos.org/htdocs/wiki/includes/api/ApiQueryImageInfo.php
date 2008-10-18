@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * A query action to get image information and upload history.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryImageInfo extends ApiQueryBase {
 
@@ -42,65 +42,63 @@ class ApiQueryImageInfo extends ApiQueryBase {
 	public function execute() {
 		$params = $this->extractRequestParams();
 
-		$prop = array_flip($params['prop']);		
-		$this->fld_timestamp = isset($prop['timestamp']);
-		$this->fld_user = isset($prop['user']);
-		$this->fld_comment = isset($prop['comment']);
-		$this->fld_url = isset($prop['url']);
-		$this->fld_size = isset($prop['size']);
-		$this->fld_sha1 = isset($prop['sha1']);
-		$this->fld_metadata = isset($prop['metadata']);
-		
+		$prop = array_flip($params['prop']);
+
 		if($params['urlheight'] != -1 && $params['urlwidth'] == -1)
 			$this->dieUsage("iiurlheight cannot be used without iiurlwidth", 'iiurlwidth');
-		$this->scale = ($params['urlwidth'] != -1);
-		$this->urlwidth = $params['urlwidth'];
-		$this->urlheight = $params['urlheight'];
+		
+		if ( $params['urlwidth'] != -1 ) {
+			$scale = array();
+			$scale['width'] = $params['urlwidth'];
+			$scale['height'] = $params['urlheight'];
+		} else {
+			$scale = null;
+		}
 
 		$pageIds = $this->getPageSet()->getAllTitlesByNamespace();
 		if (!empty($pageIds[NS_IMAGE])) {
-			foreach ($pageIds[NS_IMAGE] as $dbKey => $pageId) {
-								
-				$title = Title :: makeTitle(NS_IMAGE, $dbKey);
-				$img = wfFindFile($title);
-
+			
+			$result = $this->getResult();
+			$images = RepoGroup::singleton()->findFiles( array_keys( $pageIds[NS_IMAGE] ) );
+			foreach ( $images as $img ) {
 				$data = array();
-				if ( !$img ) {
-					$repository = '';
-				} else {
-
-					$repository = $img->getRepoName();
-					
-					// Get information about the current version first
-					// Check that the current version is within the start-end boundaries
-					if((is_null($params['start']) || $img->getTimestamp() <= $params['start']) &&
-							(is_null($params['end']) || $img->getTimestamp() >= $params['end'])) {
-						$data[] = $this->getInfo($img);
-					}
-					
-					// Now get the old revisions
-					// Get one more to facilitate query-continue functionality
-					$count = count($data);
-					$oldies = $img->getHistory($params['limit'] - $count + 1, $params['start'], $params['end']);
-					foreach($oldies as $oldie) {
-						if(++$count > $params['limit']) {
-							// We've reached the extra one which shows that there are additional pages to be had. Stop here...
-							// Only set a query-continue if there was only one title
-							if(count($pageIds[NS_IMAGE]) == 1)
-								$this->setContinueEnumParameter('start', $oldie->getTimestamp());
-							break;
-						}
-						$data[] = $this->getInfo($oldie);	
-					}
+				
+				// Get information about the current version first
+				// Check that the current version is within the start-end boundaries
+				if((is_null($params['start']) || $img->getTimestamp() <= $params['start']) &&
+						(is_null($params['end']) || $img->getTimestamp() >= $params['end'])) {
+					$data[] = self::getInfo( $img, $prop, $result, $scale );
 				}
 
-				$this->getResult()->addValue(array(
-						'query', 'pages', intval($pageId)),
-						'imagerepository', $repository
+				// Now get the old revisions
+				// Get one more to facilitate query-continue functionality
+				$count = count($data);
+				$oldies = $img->getHistory($params['limit'] - $count + 1, $params['start'], $params['end']);
+				foreach($oldies as $oldie) {
+					if(++$count > $params['limit']) {
+						// We've reached the extra one which shows that there are additional pages to be had. Stop here...
+						// Only set a query-continue if there was only one title
+						if(count($pageIds[NS_IMAGE]) == 1)
+							$this->setContinueEnumParameter('start', $oldie->getTimestamp());
+						break;
+					}
+					$data[] = self::getInfo( $oldie, $prop, $result );
+				}
+
+				$pageId = $pageIds[NS_IMAGE][ $img->getOriginalTitle()->getDBkey() ];
+				$result->addValue(
+					array( 'query', 'pages', intval( $pageId ) ),
+					'imagerepository', $img->getRepoName()
 				);
-				if (!empty($data))
-					$this->addPageSubItems($pageId, $data);
+				$this->addPageSubItems($pageId, $data);
 			}
+			
+			$missing = array_diff( array_keys( $pageIds[NS_IMAGE] ), array_keys( $images ) );
+			foreach ( $missing as $title )
+				$result->addValue(
+					array( 'query', 'pages', intval( $pageIds[NS_IMAGE][$title] ) ),
+					'imagerepository', ''
+				);
 		}
 	}
 
@@ -109,41 +107,48 @@ class ApiQueryImageInfo extends ApiQueryBase {
 	 * @param File f The image
 	 * @return array Result array
 	 */
-	protected function getInfo($f) {
+	static function getInfo($file, $prop, $result, $scale = null) {
 		$vals = array();
-		if($this->fld_timestamp)
-			$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $f->getTimestamp());
-		if($this->fld_user) {
-			$vals['user'] = $f->getUser();
-			if(!$f->getUser('id'))
+		if( isset( $prop['timestamp'] ) )
+			$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $file->getTimestamp());
+		if( isset( $prop['user'] ) ) {
+			$vals['user'] = $file->getUser();
+			if( !$file->getUser( 'id' ) )
 				$vals['anon'] = '';
 		}
-		if($this->fld_size) {
-			$vals['size'] = intval($f->getSize());
-			$vals['width'] = intval($f->getWidth());
-			$vals['height'] = intval($f->getHeight());
+		if( isset( $prop['size'] ) || isset( $prop['dimensions'] ) ) {
+			$vals['size'] = intval( $file->getSize() );
+			$vals['width'] = intval( $file->getWidth() );
+			$vals['height'] = intval( $file->getHeight() );
 		}
-		if($this->fld_url) {
-			if($this->scale && !$f->isOld()) {
-				$thumb = $f->getThumbnail($this->urlwidth, $this->urlheight);
-				if($thumb)
+		if( isset( $prop['url'] ) ) {
+			if( !is_null( $scale ) && !$file->isOld() ) {
+				$thumb = $file->getThumbnail( $scale['width'], $scale['height'] );
+				if( $thumb )
 				{
-					$vals['thumburl'] = $thumb->getURL();
+					$vals['thumburl'] = wfExpandUrl( $thumb->getURL() );
 					$vals['thumbwidth'] = $thumb->getWidth();
 					$vals['thumbheight'] = $thumb->getHeight();
 				}
 			}
-			$vals['url'] = $f->getURL();
+			$vals['url'] = $file->getFullURL();
+			$vals['descriptionurl'] = wfExpandUrl( $file->getDescriptionUrl() );
 		}
-		if($this->fld_comment) 
-			$vals['comment'] = $f->getDescription();
-		if($this->fld_sha1) 
-			$vals['sha1'] = wfBaseConvert($f->getSha1(), 36, 16, 40);
-		if($this->fld_metadata) {
-			$metadata = unserialize($f->getMetadata());
-			$vals['metadata'] = $metadata ? $metadata : null;
-			$this->getResult()->setIndexedTagName_recursive($vals['metadata'], 'meta');
+		if( isset( $prop['comment'] ) )
+			$vals['comment'] = $file->getDescription();
+		if( isset( $prop['sha1'] ) )
+			$vals['sha1'] = wfBaseConvert( $file->getSha1(), 36, 16, 40 );
+		if( isset( $prop['metadata'] ) ) {
+			$metadata = $file->getMetadata();
+			$vals['metadata'] = $metadata ? unserialize( $metadata ) : null;
+			$result->setIndexedTagName_recursive( $vals['metadata'], 'meta' );
 		}
+		if( isset( $prop['mime'] ) ) 
+			$vals['mime'] = $file->getMimeType();
+		
+		if( isset( $prop['archivename'] ) && $file->isOld() )
+			$vals['archivename'] = $file->getArchiveName();
+
 		return $vals;
 	}
 
@@ -159,7 +164,9 @@ class ApiQueryImageInfo extends ApiQueryBase {
 					'url',
 					'size',
 					'sha1',
-					'metadata'
+					'mime',
+					'metadata',
+					'archivename'
 				)
 			),
 			'limit' => array(
@@ -192,7 +199,8 @@ class ApiQueryImageInfo extends ApiQueryBase {
 			'limit' => 'How many image revisions to return',
 			'start' => 'Timestamp to start listing from',
 			'end' => 'Timestamp to stop listing at',
-			'urlwidth' => 'If iiprop=url is set, a URL to an image scaled to this width will be returned. Only the current version of the image can be scaled.',
+			'urlwidth' => array('If iiprop=url is set, a URL to an image scaled to this width will be returned.',
+					    'Only the current version of the image can be scaled.'),
 			'urlheight' => 'Similar to iiurlwidth. Cannot be used without iiurlwidth',
 		);
 	}
@@ -211,6 +219,6 @@ class ApiQueryImageInfo extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryImageInfo.php 30665 2008-02-07 12:21:48Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryImageInfo.php 37504 2008-07-10 14:28:09Z catrope $';
 	}
 }

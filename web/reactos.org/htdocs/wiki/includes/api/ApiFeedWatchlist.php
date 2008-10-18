@@ -32,8 +32,8 @@ if (!defined('MEDIAWIKI')) {
  * This action allows users to get their watchlist items in RSS/Atom formats.
  * When executed, it performs a nested call to the API to get the needed data,
  * and formats it in a proper format.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiFeedWatchlist extends ApiBase {
 
@@ -53,15 +53,15 @@ class ApiFeedWatchlist extends ApiBase {
 	 * Wrap the result as an RSS/Atom feed.
 	 */
 	public function execute() {
-		
-		global $wgFeedClasses, $wgSitename, $wgContLanguageCode;
+
+		global $wgFeedClasses, $wgFeedLimit, $wgSitename, $wgContLanguageCode;
 
 		try {
 			$params = $this->extractRequestParams();
-			
+
 			// limit to the number of hours going from now back
 			$endTime = wfTimestamp(TS_MW, time() - intval($params['hours'] * 60 * 60));
-	
+
 			$dbr = wfGetDB( DB_SLAVE );
 			// Prepare parameters for nested request
 			$fauxReqArr = array (
@@ -72,7 +72,7 @@ class ApiFeedWatchlist extends ApiBase {
 				'wlprop' => 'title|user|comment|timestamp',
 				'wldir' => 'older',		// reverse order - from newest to oldest
 				'wlend' => $dbr->timestamp($endTime),	// stop at this time
-				'wllimit' => 50
+				'wllimit' => (50 > $wgFeedLimit) ? $wgFeedLimit : 50
 			);
 
 			// Check for 'allrev' parameter, and if found, show all revisions to each page on wl.
@@ -80,35 +80,35 @@ class ApiFeedWatchlist extends ApiBase {
 
 			// Create the request
 			$fauxReq = new FauxRequest ( $fauxReqArr );
-	
+
 			// Execute
 			$module = new ApiMain($fauxReq);
 			$module->execute();
 
 			// Get data array
 			$data = $module->getResultData();
-	
+
 			$feedItems = array ();
 			foreach ($data['query']['watchlist'] as $info) {
 				$feedItems[] = $this->createFeedItem($info);
 			}
-	
+
 			$feedTitle = $wgSitename . ' - ' . wfMsgForContent('watchlist') . ' [' . $wgContLanguageCode . ']';
 			$feedUrl = SpecialPage::getTitleFor( 'Watchlist' )->getFullUrl();
-	
+
 			$feed = new $wgFeedClasses[$params['feedformat']] ($feedTitle, htmlspecialchars(wfMsgForContent('watchlist')), $feedUrl);
-	
+
 			ApiFormatFeedWrapper :: setResult($this->getResult(), $feed, $feedItems);
 
 		} catch (Exception $e) {
 
 			// Error results should not be cached
 			$this->getMain()->setCacheMaxAge(0);
-	
+
 			$feedTitle = $wgSitename . ' - Error - ' . wfMsgForContent('watchlist') . ' [' . $wgContLanguageCode . ']';
 			$feedUrl = SpecialPage::getTitleFor( 'Watchlist' )->getFullUrl();
-	
-			$feedFormat = isset($params['feedformat']) ? $params['feedformat'] : 'rss'; 
+
+			$feedFormat = isset($params['feedformat']) ? $params['feedformat'] : 'rss';
 			$feed = new $wgFeedClasses[$feedFormat] ($feedTitle, htmlspecialchars(wfMsgForContent('watchlist')), $feedUrl);
 
 
@@ -175,7 +175,6 @@ class ApiFeedWatchlist extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFeedWatchlist.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiFeedWatchlist.php 35098 2008-05-20 17:13:28Z ialex $';
 	}
 }
-

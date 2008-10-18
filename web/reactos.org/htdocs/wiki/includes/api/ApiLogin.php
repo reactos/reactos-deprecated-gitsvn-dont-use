@@ -32,10 +32,10 @@ if (!defined('MEDIAWIKI')) {
 /**
  * Unit to authenticate log-in attempts to the current wiki.
  *
- * @addtogroup API
+ * @ingroup API
  */
 class ApiLogin extends ApiBase {
-	
+
 	/**
 	 * Time (in seconds) a user must wait after submitting
 	 * a bad login (will be multiplied by the THROTTLE_FACTOR for each bad attempt)
@@ -47,12 +47,12 @@ class ApiLogin extends ApiBase {
 	 * attempts is increased every failed attempt.
 	 */
 	const THROTTLE_FACTOR = 2;
-	
+
 	/**
-	 * The maximum number of failed logins after which the wait increase stops. 
+	 * The maximum number of failed logins after which the wait increase stops.
 	 */
 	const THOTTLE_MAX_COUNT = 10;
-	
+
 	public function __construct($main, $action) {
 		parent :: __construct($main, $action, 'lg');
 	}
@@ -104,10 +104,15 @@ class ApiLogin extends ApiBase {
 				$wgUser->setOption('rememberpassword', 1);
 				$wgUser->setCookies();
 
+				// Run hooks. FIXME: split back and frontend from this hook.
+				// FIXME: This hook should be placed in the backend
+				$injected_html = '';
+				wfRunHooks('UserLoginComplete', array(&$wgUser, &$injected_html));
+
 				$result['result'] = 'Success';
-				$result['lguserid'] = $_SESSION['wsUserID'];
-				$result['lgusername'] = $_SESSION['wsUserName'];
-				$result['lgtoken'] = $_SESSION['wsToken'];
+				$result['lguserid'] = $wgUser->getId();
+				$result['lgusername'] = $wgUser->getName();
+				$result['lgtoken'] = $wgUser->getToken();
 				$result['cookieprefix'] = $wgCookiePrefix;
 				$result['sessionid'] = session_id();
 				break;
@@ -130,34 +135,39 @@ class ApiLogin extends ApiBase {
 			case LoginForm :: EMPTY_PASS :
 				$result['result'] = 'EmptyPass';
 				break;
+			case LoginForm :: CREATE_BLOCKED :
+				$result['result'] = 'CreateBlocked';
+				$result['details'] = 'Your IP address is blocked from account creation';
+				break;
 			default :
 				ApiBase :: dieDebug(__METHOD__, 'Unhandled case value');
 		}
 
-		if ($result['result'] != 'Success') {
-			$result['wait'] = $this->cacheBadLogin();
-			$result['details'] = "Please wait " . self::THROTTLE_TIME . " seconds before next log-in attempt";
+		if ($result['result'] != 'Success' && !isset( $result['details'] ) ) {
+			$delay = $this->cacheBadLogin();
+			$result['wait'] = $delay;
+			$result['details'] = "Please wait " . $delay . " seconds before next log-in attempt";
 		}
 		// if we were allowed to try to login, memcache is fine
-		
+
 		$this->getResult()->addValue(null, 'login', $result);
 	}
 
-	
+
 	/**
-	 * Caches a bad-login attempt associated with the host and with an 
-	 * expiry of $this->mLoginThrottle. These are cached by a key 
+	 * Caches a bad-login attempt associated with the host and with an
+	 * expiry of $this->mLoginThrottle. These are cached by a key
 	 * separate from that used by the captcha system--as such, logging
 	 * in through the standard interface will get you a legal session
 	 * and cookies to prove it, but will not remove this entry.
 	 *
-	 * Returns the number of seconds until next login attempt will be allowed. 
+	 * Returns the number of seconds until next login attempt will be allowed.
 	 *
 	 * @access private
 	 */
 	private function cacheBadLogin() {
 		global $wgMemc;
-		
+
 		$key = $this->getMemCacheKey();
 		$val = $wgMemc->get( $key );
 
@@ -167,24 +177,24 @@ class ApiLogin extends ApiBase {
 		} else {
 			$val['count'] = 1 + $val['count'];
 		}
-		
+
 		$delay = ApiLogin::calculateDelay($val['count']);
-		
+
 		$wgMemc->delete($key);
 		// Cache expiration should be the maximum timeout - to prevent a "try and wait" attack
-		$wgMemc->add( $key, $val, ApiLogin::calculateDelay(ApiLogin::THOTTLE_MAX_COUNT) );	
-		
+		$wgMemc->add( $key, $val, ApiLogin::calculateDelay(ApiLogin::THOTTLE_MAX_COUNT) );
+
 		return $delay;
 	}
-	
+
 	/**
-	 * How much time the client must wait before it will be 
+	 * How much time the client must wait before it will be
 	 * allowed to try to log-in next.
 	 * The return value is 0 if no wait is required.
 	 */
 	private function getNextLoginTimeout() {
 		global $wgMemc;
-		
+
 		$val = $wgMemc->get($this->getMemCacheKey());
 
 		$elapse = (time() - $val['lastReqTime']);  // in seconds
@@ -192,7 +202,7 @@ class ApiLogin extends ApiBase {
 
 		return $canRetryIn < 0 ? 0 : $canRetryIn;
 	}
-	
+
 	/**
 	 * Based on the number of previously attempted logins, returns
 	 * the delay (in seconds) when the next login attempt will be allowed.
@@ -204,10 +214,10 @@ class ApiLogin extends ApiBase {
 		$count = $count > self::THOTTLE_MAX_COUNT ? self::THOTTLE_MAX_COUNT : $count;
 
 		return self::THROTTLE_TIME + self::THROTTLE_TIME * ($count - 1) * self::THROTTLE_FACTOR;
-	} 
+	}
 
 	/**
-	* Internal cache key for badlogin checks. Robbed from the 
+	* Internal cache key for badlogin checks. Robbed from the
 	* ConfirmEdit extension and modified to use a key unique to the
 	* API login.3
 	*
@@ -217,7 +227,7 @@ class ApiLogin extends ApiBase {
 	private function getMemCacheKey() {
 		return wfMemcKey( 'apilogin', 'badlogin', 'ip', wfGetIP() );
 	}
-	
+
 	public function mustBePosted() { return true; }
 
 	public function getAllowedParams() {
@@ -241,11 +251,11 @@ class ApiLogin extends ApiBase {
 			'This module is used to login and get the authentication tokens. ',
 			'In the event of a successful log-in, a cookie will be attached',
 			'to your session. In the event of a failed log-in, you will not ',
-			'be able to attempt another log-in through this method for 60 seconds.',
+			'be able to attempt another log-in through this method for 5 seconds.',
 			'This is to prevent password guessing by automated password crackers.'
 		);
 	}
-	
+
 	protected function getExamples() {
 		return array(
 			'api.php?action=login&lgname=user&lgpassword=password'
@@ -253,7 +263,6 @@ class ApiLogin extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiLogin.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiLogin.php 35565 2008-05-29 19:23:37Z btongminh $';
 	}
 }
-

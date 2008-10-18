@@ -1,24 +1,43 @@
 <?php
+/**
+ * @defgroup Exception Exception
+ */
 
 /**
  * MediaWiki exception
- * @addtogroup Exception
+ * @ingroup Exception
  */
-class MWException extends Exception
-{
+class MWException extends Exception {
+
+	/**
+	 * Should the exception use $wgOut to output the error ?
+	 * @return bool
+	 */
 	function useOutputPage() {
-		return !empty( $GLOBALS['wgFullyInitialised'] ) && 
-			!empty( $GLOBALS['wgArticle'] ) && !empty( $GLOBALS['wgTitle'] );
+		return !empty( $GLOBALS['wgFullyInitialised'] ) &&
+			( !empty( $GLOBALS['wgArticle'] ) || ( !empty( $GLOBALS['wgOut'] ) && !$GLOBALS['wgOut']->isArticle() ) ) &&
+			!empty( $GLOBALS['wgTitle'] );
 	}
 
+	/**
+	 * Can the extension use wfMsg() to get i18n messages ?
+	 * @return bool
+	 */
 	function useMessageCache() {
 		global $wgLang;
 		return is_object( $wgLang );
 	}
 
+	/**
+	 * Run hook to allow extensions to modify the text of the exception
+	 *
+	 * @param String $name class name of the exception
+	 * @param Array $args arguments to pass to the callback functions
+	 * @return mixed string to output or null if any hook has been called
+	 */
 	function runHooks( $name, $args = array() ) {
 		global $wgExceptionHooks;
-		if( !isset( $wgExceptionHooks ) || !is_array( $wgExceptionHooks ) ) 
+		if( !isset( $wgExceptionHooks ) || !is_array( $wgExceptionHooks ) )
 			return;	// Just silently ignore
 		if( !array_key_exists( $name, $wgExceptionHooks ) || !is_array( $wgExceptionHooks[ $name ] ) )
 			return;
@@ -36,7 +55,15 @@ class MWException extends Exception
 		}
 	}
 
-	/** Get a message from i18n */
+	/**
+	 * Get a message from i18n
+	 *
+	 * @param String $key message name
+	 * @param String $fallback default message if the message cache can't be
+	 *                         called by the exception
+	 * The function also has other parameters that are arguments for the message
+	 * @return String message with arguments replaced
+	 */
 	function msg( $key, $fallback /*[, params...] */ ) {
 		$args = array_slice( func_get_args(), 2 );
 		if ( $this->useMessageCache() ) {
@@ -46,11 +73,17 @@ class MWException extends Exception
 		}
 	}
 
-	/* If wgShowExceptionDetails, return a HTML message with a backtrace to the error. */
+	/**
+	 * If $wgShowExceptionDetails is true, return a HTML message with a
+	 * backtrace to the error, otherwise show a message to ask to set it to true
+	 * to show that information.
+	 *
+	 * @return String html to output
+	 */
 	function getHTML() {
 		global $wgShowExceptionDetails;
 		if( $wgShowExceptionDetails ) {
-			return '<p>' . htmlspecialchars( $this->getMessage() ) . 
+			return '<p>' . htmlspecialchars( $this->getMessage() ) .
 				'</p><p>Backtrace:</p><p>' . nl2br( htmlspecialchars( $this->getTraceAsString() ) ) .
 				"</p>\n";
 		} else {
@@ -60,15 +93,18 @@ class MWException extends Exception
 		}
 	}
 
-	/* If wgShowExceptionDetails, return a text message with a backtrace to the error */
+	/**
+	 * If $wgShowExceptionDetails is true, return a text message with a
+	 * backtrace to the error.
+	 */
 	function getText() {
 		global $wgShowExceptionDetails;
 		if( $wgShowExceptionDetails ) {
 			return $this->getMessage() .
 				"\nBacktrace:\n" . $this->getTraceAsString() . "\n";
 		} else {
-			return "<p>Set <tt>\$wgShowExceptionDetails = true;</tt> " .
-				"in LocalSettings.php to show detailed debugging information.</p>";
+			return "Set \$wgShowExceptionDetails = true; " .
+				"in LocalSettings.php to show detailed debugging information.\n";
 		}
 	}
 
@@ -82,8 +118,11 @@ class MWException extends Exception
 		}
 	}
 
-	/** Return the requested URL and point to file and line number from which the
+	/**
+	 * Return the requested URL and point to file and line number from which the
 	 * exception occured
+	 *
+	 * @return string
 	 */
 	function getLogMessage() {
 		global $wgRequest;
@@ -119,22 +158,27 @@ class MWException extends Exception
 		}
 	}
 
-	/* Output a report about the exception and takes care of formatting.
+	/**
+	 * Output a report about the exception and takes care of formatting.
 	 * It will be either HTML or plain text based on $wgCommandLineMode.
 	 */
 	function report() {
 		global $wgCommandLineMode;
+		$log = $this->getLogMessage();
+		if ( $log ) {
+			wfDebugLog( 'exception', $log );
+		}
 		if ( $wgCommandLineMode ) {
 			fwrite( STDERR, $this->getText() );
 		} else {
-			$log = $this->getLogMessage();
-			if ( $log ) {
-				wfDebugLog( 'exception', $log );
-			}
 			$this->reportHTML();
 		}
 	}
 
+	/**
+	 * Send headers and output the beginning of the html page if not using
+	 * $wgOut to output the exception.
+	 */
 	function htmlHeader() {
 		global $wgLogo, $wgSitename, $wgOutputEncoding;
 
@@ -155,6 +199,9 @@ class MWException extends Exception
 		";
 	}
 
+	/**
+	 * print the end of the html page if not using $wgOut.
+	 */
 	function htmlFooter() {
 		echo "</body></html>";
 	}
@@ -163,7 +210,7 @@ class MWException extends Exception
 /**
  * Exception class which takes an HTML error message, and does not
  * produce a backtrace. Replacement for OutputPage::fatalError().
- * @addtogroup Exception
+ * @ingroup Exception
  */
 class FatalError extends MWException {
 	function getHTML() {
@@ -176,11 +223,11 @@ class FatalError extends MWException {
 }
 
 /**
- * @addtogroup Exception
+ * @ingroup Exception
  */
 class ErrorPageError extends MWException {
 	public $title, $msg;
-	
+
 	/**
 	 * Note: these arguments are keys into wfMsg(), not text!
 	 */
@@ -256,5 +303,3 @@ function wfExceptionHandler( $e ) {
 	// Exit value should be nonzero for the benefit of shell jobs
 	exit( 1 );
 }
-
-

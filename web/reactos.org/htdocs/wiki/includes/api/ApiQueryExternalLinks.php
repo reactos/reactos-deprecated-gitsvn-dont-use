@@ -30,8 +30,8 @@ if (!defined('MEDIAWIKI')) {
 
 /**
  * A query module to list all external URLs found on a given set of pages.
- * 
- * @addtogroup API
+ *
+ * @ingroup API
  */
 class ApiQueryExternalLinks extends ApiQueryBase {
 
@@ -40,21 +40,37 @@ class ApiQueryExternalLinks extends ApiQueryBase {
 	}
 
 	public function execute() {
+		if ( $this->getPageSet()->getGoodTitleCount() == 0 )
+			return;
 
+		$params = $this->extractRequestParams();
 		$this->addFields(array (
 			'el_from',
 			'el_to'
 		));
-		
+
 		$this->addTables('externallinks');
 		$this->addWhereFld('el_from', array_keys($this->getPageSet()->getGoodTitles()));
+		# Don't order by el_from if it's constant in the WHERE clause
+		if(count($this->getPageSet()->getGoodTitles()) != 1)
+			$this->addOption('ORDER BY', 'el_from');
+		$this->addOption('LIMIT', $params['limit'] + 1);
+		if(!is_null($params['offset']))
+			$this->addOption('OFFSET', $params['offset']);
 
 		$db = $this->getDB();
 		$res = $this->select(__METHOD__);
-			
+
 		$data = array();
-		$lastId = 0;	// database has no ID 0	
+		$lastId = 0;	// database has no ID 0
+		$count = 0;
 		while ($row = $db->fetchObject($res)) {
+			if (++$count > $params['limit']) {
+				// We've reached the one extra which shows that
+				// there are additional pages to be had. Stop here...
+				$this->setContinueEnumParameter('offset', @$params['offset'] + $params['limit']);
+				break;
+			}
 			if ($lastId != $row->el_from) {
 				if($lastId != 0) {
 					$this->addPageSubItems($lastId, $data);
@@ -62,7 +78,7 @@ class ApiQueryExternalLinks extends ApiQueryBase {
 				}
 				$lastId = $row->el_from;
 			}
-			
+
 			$entry = array();
 			ApiResult :: setContent($entry, $row->el_to);
 			$data[] = $entry;
@@ -73,6 +89,26 @@ class ApiQueryExternalLinks extends ApiQueryBase {
 		}
 
 		$db->freeResult($res);
+	}
+
+	public function getAllowedParams() {
+		return array(
+				'limit' => array(
+					ApiBase :: PARAM_DFLT => 10,
+					ApiBase :: PARAM_TYPE => 'limit',
+					ApiBase :: PARAM_MIN => 1,
+					ApiBase :: PARAM_MAX => ApiBase :: LIMIT_BIG1,
+					ApiBase :: PARAM_MAX2 => ApiBase :: LIMIT_BIG2
+				),
+				'offset' => null,
+		);
+	}
+
+	public function getParamDescription () {
+		return array(
+			'limit' => 'How many links to return',
+			'offset' => 'When more results are available, use this to continue',
+		);
 	}
 
 	public function getDescription() {
@@ -87,7 +123,6 @@ class ApiQueryExternalLinks extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryExternalLinks.php 30222 2008-01-28 19:05:26Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryExternalLinks.php 37270 2008-07-07 17:32:22Z catrope $';
 	}
 }
-

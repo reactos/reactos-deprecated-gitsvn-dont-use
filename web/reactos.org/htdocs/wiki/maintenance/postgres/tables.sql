@@ -4,8 +4,7 @@
 -- This is the PostgreSQL version.
 -- For information about each table, please see the notes in maintenance/tables.sql
 -- Please make sure all dollar-quoting uses $mw$ at the start of the line
--- We can't use SERIAL everywhere: the sequence names are hard-coded into the PHP
--- TODO: Change CHAR/SMALLINT to BOOL (still needed as CHAR due to some PHP code)
+-- TODO: Change CHAR/SMALLINT to BOOL (still used in a non-bool fashion in PHP code)
 
 BEGIN;
 SET client_min_messages = 'ERROR';
@@ -41,8 +40,9 @@ CREATE TABLE user_groups (
 CREATE UNIQUE INDEX user_groups_unique ON user_groups (ug_user, ug_group);
 
 CREATE TABLE user_newtalk (
-  user_id  INTEGER NOT NULL  REFERENCES mwuser(user_id) ON DELETE CASCADE,
-  user_ip  TEXT        NULL
+  user_id              INTEGER      NOT NULL  REFERENCES mwuser(user_id) ON DELETE CASCADE,
+  user_ip              TEXT             NULL,
+  user_last_timestamp  TIMESTAMPTZ
 );
 CREATE INDEX user_newtalk_id_idx ON user_newtalk (user_id);
 CREATE INDEX user_newtalk_ip_idx ON user_newtalk (user_ip);
@@ -123,12 +123,20 @@ CREATE TABLE page_restrictions (
 );
 ALTER TABLE page_restrictions ADD CONSTRAINT page_restrictions_pk PRIMARY KEY (pr_page,pr_type);
 
+CREATE TABLE page_props (
+  pp_page      INTEGER  NOT NULL  REFERENCES page (page_id) ON DELETE CASCADE,
+  pp_propname  TEXT     NOT NULL,
+  pp_value     TEXT     NOT NULL
+);
+ALTER TABLE page_props ADD CONSTRAINT page_props_pk PRIMARY KEY (pp_page,pp_propname);
+CREATE INDEX page_props_propname ON page_props (pp_propname);
 
 CREATE TABLE archive (
   ar_namespace   SMALLINT     NOT NULL,
   ar_title       TEXT         NOT NULL,
   ar_text        TEXT, -- technically should be bytea, but not used anymore
   ar_page_id     INTEGER          NULL,
+  ar_parent_id   INTEGER          NULL,
   ar_comment     TEXT,
   ar_user        INTEGER          NULL  REFERENCES mwuser(user_id) ON DELETE SET NULL,
   ar_user_text   TEXT         NOT NULL,
@@ -220,6 +228,7 @@ CREATE TABLE ipblocks (
   ipb_address           TEXT             NULL,
   ipb_user              INTEGER          NULL  REFERENCES mwuser(user_id) ON DELETE SET NULL,
   ipb_by                INTEGER      NOT NULL  REFERENCES mwuser(user_id) ON DELETE CASCADE,
+  ipb_by_text           TEXT         NOT NULL  DEFAULT '',
   ipb_reason            TEXT         NOT NULL,
   ipb_timestamp         TIMESTAMPTZ  NOT NULL,
   ipb_auto              SMALLINT     NOT NULL  DEFAULT 0,
@@ -231,9 +240,8 @@ CREATE TABLE ipblocks (
   ipb_range_end         TEXT,
   ipb_deleted           SMALLINT     NOT NULL  DEFAULT 0,
   ipb_block_email       SMALLINT     NOT NULL  DEFAULT 0
-
 );
-CREATE INDEX ipb_address ON ipblocks (ipb_address);
+CREATE UNIQUE INDEX ipb_address_unique ON ipblocks (ipb_address,ipb_user,ipb_auto,ipb_anon_only);
 CREATE INDEX ipb_user    ON ipblocks (ipb_user);
 CREATE INDEX ipb_range   ON ipblocks (ipb_range_start,ipb_range_end);
 
@@ -282,8 +290,9 @@ CREATE INDEX oi_name_archive_name ON oldimage (oi_name,oi_archive_name);
 CREATE INDEX oi_sha1              ON oldimage (oi_sha1);
 
 
+CREATE SEQUENCE filearchive_fa_id_seq;
 CREATE TABLE filearchive (
-  fa_id                 SERIAL       NOT NULL  PRIMARY KEY,
+  fa_id                 INTEGER      NOT NULL  PRIMARY KEY DEFAULT nextval('filearchive_fa_id_seq'),
   fa_name               TEXT         NOT NULL,
   fa_archive_name       TEXT,
   fa_storage_group      TEXT,
@@ -430,8 +439,9 @@ CREATE INDEX logging_user_time ON logging (log_timestamp, log_user);
 CREATE INDEX logging_page_time ON logging (log_namespace, log_title, log_timestamp);
 
 
+CREATE SEQUENCE trackbacks_tb_id_seq;
 CREATE TABLE trackbacks (
-  tb_id     SERIAL   NOT NULL  PRIMARY KEY,
+  tb_id     INTEGER  NOT NULL  PRIMARY KEY DEFAULT nextval('trackbacks_tb_id_seq'),
   tb_page   INTEGER            REFERENCES page(page_id) ON DELETE CASCADE,
   tb_title  TEXT     NOT NULL,
   tb_url    TEXT     NOT NULL,
@@ -453,6 +463,7 @@ CREATE INDEX job_cmd_namespace_title ON job (job_cmd, job_namespace, job_title);
 
 -- Tsearch2 2 stuff. Will fail if we don't have proper access to the tsearch2 tables
 -- Note: if version 8.3 or higher, we remove the 'default' arg
+-- Make sure you also change patch-tsearch2funcs.sql if the funcs below change.
 
 ALTER TABLE page ADD titlevector tsvector;
 CREATE FUNCTION ts2_page_title() RETURNS TRIGGER LANGUAGE plpgsql AS
@@ -503,6 +514,7 @@ $mw$;
 CREATE TABLE profiling (
   pf_count   INTEGER         NOT NULL DEFAULT 0,
   pf_time    NUMERIC(18,10)  NOT NULL DEFAULT 0,
+  pf_memory  NUMERIC(18,10)  NOT NULL DEFAULT 0,
   pf_name    TEXT            NOT NULL,
   pf_server  TEXT            NULL
 );
@@ -518,6 +530,24 @@ CREATE TABLE protected_titles (
   pt_create_perm TEXT        NOT NULL DEFAULT ''
 );
 CREATE UNIQUE INDEX protected_titles_unique ON protected_titles(pt_namespace, pt_title);
+
+
+CREATE TABLE updatelog (
+  ul_key TEXT NOT NULL PRIMARY KEY
+);
+
+
+CREATE SEQUENCE category_id_seq;
+CREATE TABLE category (
+  cat_id       INTEGER  NOT NULL  PRIMARY KEY DEFAULT nextval('category_id_seq'),
+  cat_title    TEXT     NOT NULL,
+  cat_pages    INTEGER  NOT NULL  DEFAULT 0,
+  cat_subcats  INTEGER  NOT NULL  DEFAULT 0,
+  cat_files    INTEGER  NOT NULL  DEFAULT 0,
+  cat_hidden   SMALLINT NOT NULL  DEFAULT 0
+);
+CREATE UNIQUE INDEX category_title ON category(cat_title);
+CREATE INDEX category_pages ON category(cat_pages);
 
 CREATE TABLE mediawiki_version (
   type         TEXT         NOT NULL,
@@ -538,5 +568,5 @@ CREATE TABLE mediawiki_version (
 );
 
 INSERT INTO mediawiki_version (type,mw_version,sql_version,sql_date)
-  VALUES ('Creation','??','$LastChangedRevision: 30800 $','$LastChangedDate: 2008-02-10 08:50:38 -0800 (Sun, 10 Feb 2008) $');
+  VALUES ('Creation','??','$LastChangedRevision: 40517 $','$LastChangedDate: 2008-09-06 07:14:20 +0000 (Sat, 06 Sep 2008) $');
 

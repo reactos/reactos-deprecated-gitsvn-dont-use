@@ -1,7 +1,7 @@
 <?php
 /**
  * See docs/deferred.txt
- * 
+ *
  * @todo document (e.g. one-sentence top-level class description).
  */
 class LinksUpdate {
@@ -17,6 +17,7 @@ class LinksUpdate {
 		$mExternals,     //!< URLs of external links, array key only
 		$mCategories,    //!< Map of category names to sort keys
 		$mInterlangs,    //!< Map of language codes to titles
+		$mProperties,    //!< Map of arbitrary name to value
 		$mDb,            //!< Database connection reference
 		$mOptions,       //!< SELECT options to be used (array)
 		$mRecursive;     //!< Whether to queue jobs for recursive updates
@@ -46,15 +47,17 @@ class LinksUpdate {
 		$this->mTitle = $title;
 		$this->mId = $title->getArticleID();
 
+		$this->mParserOutput = $parserOutput;
 		$this->mLinks = $parserOutput->getLinks();
 		$this->mImages = $parserOutput->getImages();
 		$this->mTemplates = $parserOutput->getTemplates();
 		$this->mExternals = $parserOutput->getExternalLinks();
 		$this->mCategories = $parserOutput->getCategories();
+		$this->mProperties = $parserOutput->getProperties();
 
 		# Convert the format of the interlanguage links
-		# I didn't want to change it in the ParserOutput, because that array is passed all 
-		# the way back to the skin, so either a skin API break would be required, or an 
+		# I didn't want to change it in the ParserOutput, because that array is passed all
+		# the way back to the skin, so either a skin API break would be required, or an
 		# inefficient back-conversion.
 		$ill = $parserOutput->getLanguageLinks();
 		$this->mInterlangs = array();
@@ -64,7 +67,7 @@ class LinksUpdate {
 		}
 
 		$this->mRecursive = $recursive;
-		
+
 		wfRunHooks( 'LinksUpdateConstructed', array( &$this ) );
 	}
 
@@ -73,7 +76,7 @@ class LinksUpdate {
 	 */
 	function doUpdate() {
 		global $wgUseDumbLinkUpdate;
-		
+
 		wfRunHooks( 'LinksUpdate', array( &$this ) );
 		if ( $wgUseDumbLinkUpdate ) {
 			$this->doDumbUpdate();
@@ -85,9 +88,8 @@ class LinksUpdate {
 	}
 
 	function doIncrementalUpdate() {
-		$fname = 'LinksUpdate::doIncrementalUpdate';
-		wfProfileIn( $fname );
-		
+		wfProfileIn( __METHOD__ );
+
 		# Page links
 		$existing = $this->getExistingLinks();
 		$this->incrTableUpdate( 'pagelinks', 'pl', $this->getLinkDeletions( $existing ),
@@ -95,11 +97,12 @@ class LinksUpdate {
 
 		# Image links
 		$existing = $this->getExistingImages();
-		$this->incrTableUpdate( 'imagelinks', 'il', $this->getImageDeletions( $existing ),
-			$this->getImageInsertions( $existing ) );
+
+		$imageDeletes = $this->getImageDeletions( $existing );
+		$this->incrTableUpdate( 'imagelinks', 'il', $imageDeletes, $this->getImageInsertions( $existing ) );
 
 		# Invalidate all image description pages which had links added or removed
-		$imageUpdates = array_diff_key( $existing, $this->mImages ) + array_diff_key( $this->mImages, $existing );
+		$imageUpdates = $imageDeletes + array_diff_key( $this->mImages, $existing );
 		$this->invalidateImageDescriptions( $imageUpdates );
 
 		# External links
@@ -119,20 +122,35 @@ class LinksUpdate {
 
 		# Category links
 		$existing = $this->getExistingCategories();
-		$this->incrTableUpdate( 'categorylinks', 'cl', $this->getCategoryDeletions( $existing ),
-			$this->getCategoryInsertions( $existing ) );
+
+		$categoryDeletes = $this->getCategoryDeletions( $existing );
+
+		$this->incrTableUpdate( 'categorylinks', 'cl', $categoryDeletes, $this->getCategoryInsertions( $existing ) );
 
 		# Invalidate all categories which were added, deleted or changed (set symmetric difference)
-		$categoryUpdates = array_diff_assoc( $existing, $this->mCategories ) + array_diff_assoc( $this->mCategories, $existing );
+		$categoryInserts = array_diff_assoc( $this->mCategories, $existing );
+		$categoryUpdates = $categoryInserts + $categoryDeletes;
 		$this->invalidateCategories( $categoryUpdates );
+		$this->updateCategoryCounts( $categoryInserts, $categoryDeletes );
+
+		# Page properties
+		$existing = $this->getExistingProperties();
+
+		$propertiesDeletes = $this->getPropertyDeletions( $existing );
+
+		$this->incrTableUpdate( 'page_props', 'pp', $propertiesDeletes, $this->getPropertyInsertions( $existing ) );
+
+		# Invalidate the necessary pages
+		$changed = $propertiesDeletes + array_diff_assoc( $this->mProperties, $existing );
+		$this->invalidateProperties( $changed );
 
 		# Refresh links of all pages including this page
 		# This will be in a separate transaction
 		if ( $this->mRecursive ) {
 			$this->queueRecursiveJobs();
 		}
-		
-		wfProfileOut( $fname );
+
+		wfProfileOut( __METHOD__ );
 	}
 
 	/**
@@ -141,12 +159,13 @@ class LinksUpdate {
 	 * Also useful where link table corruption needs to be repaired, e.g. in refreshLinks.php
 	 */
 	function doDumbUpdate() {
-		$fname = 'LinksUpdate::doDumbUpdate';
-		wfProfileIn( $fname );
+		wfProfileIn( __METHOD__ );
 
 		# Refresh category pages and image description pages
 		$existing = $this->getExistingCategories();
-		$categoryUpdates = array_diff_assoc( $existing, $this->mCategories ) + array_diff_assoc( $this->mCategories, $existing );
+		$categoryInserts = array_diff_assoc( $this->mCategories, $existing );
+		$categoryDeletes = array_diff_assoc( $existing, $this->mCategories );
+		$categoryUpdates = $categoryInserts + $categoryDeletes;
 		$existing = $this->getExistingImages();
 		$imageUpdates = array_diff_key( $existing, $this->mImages ) + array_diff_key( $this->mImages, $existing );
 
@@ -155,10 +174,13 @@ class LinksUpdate {
 		$this->dumbTableUpdate( 'categorylinks', $this->getCategoryInsertions(), 'cl_from' );
 		$this->dumbTableUpdate( 'templatelinks', $this->getTemplateInsertions(), 'tl_from' );
 		$this->dumbTableUpdate( 'externallinks', $this->getExternalInsertions(), 'el_from' );
-		$this->dumbTableUpdate( 'langlinks',     $this->getInterlangInsertions(), 'll_from' );
+		$this->dumbTableUpdate( 'langlinks',     $this->getInterlangInsertions(),'ll_from' );
+		$this->dumbTableUpdate( 'page_props',    $this->getPropertyInsertions(), 'pp_page' );
 
-		# Update the cache of all the category pages and image description pages which were changed
+		# Update the cache of all the category pages and image description
+		# pages which were changed, and fix the category table count
 		$this->invalidateCategories( $categoryUpdates );
+		$this->updateCategoryCounts( $categoryInserts, $categoryDeletes );
 		$this->invalidateImageDescriptions( $imageUpdates );
 
 		# Refresh links of all pages including this page
@@ -167,18 +189,18 @@ class LinksUpdate {
 			$this->queueRecursiveJobs();
 		}
 
-		wfProfileOut( $fname );
+		wfProfileOut( __METHOD__ );
 	}
 
 	function queueRecursiveJobs() {
 		wfProfileIn( __METHOD__ );
-		
+
 		$batchSize = 100;
 		$dbr = wfGetDB( DB_SLAVE );
-		$res = $dbr->select( array( 'templatelinks', 'page' ), 
+		$res = $dbr->select( array( 'templatelinks', 'page' ),
 			array( 'page_namespace', 'page_title' ),
-			array( 
-				'page_id=tl_from', 
+			array(
+				'page_id=tl_from',
 				'tl_namespace' => $this->mTitle->getNamespace(),
 				'tl_title' => $this->mTitle->getDBkey()
 			), __METHOD__
@@ -201,7 +223,7 @@ class LinksUpdate {
 		$dbr->freeResult( $res );
 		wfProfileOut( __METHOD__ );
 	}
-	
+
 	/**
 	 * Invalidate the cache of a list of pages from a single namespace
 	 *
@@ -209,12 +231,10 @@ class LinksUpdate {
 	 * @param array $dbkeys
 	 */
 	function invalidatePages( $namespace, $dbkeys ) {
-		$fname = 'LinksUpdate::invalidatePages';
-		
 		if ( !count( $dbkeys ) ) {
 			return;
 		}
-		
+
 		/**
 		 * Determine which pages need to be updated
 		 * This is necessary to prevent the job queue from smashing the DB with
@@ -222,12 +242,12 @@ class LinksUpdate {
 		 */
 		$now = $this->mDb->timestamp();
 		$ids = array();
-		$res = $this->mDb->select( 'page', array( 'page_id' ), 
-			array( 
+		$res = $this->mDb->select( 'page', array( 'page_id' ),
+			array(
 				'page_namespace' => $namespace,
 				'page_title IN (' . $this->mDb->makeList( $dbkeys ) . ')',
 				'page_touched < ' . $this->mDb->addQuotes( $now )
-			), $fname
+			), __METHOD__
 		);
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$ids[] = $row->page_id;
@@ -235,17 +255,17 @@ class LinksUpdate {
 		if ( !count( $ids ) ) {
 			return;
 		}
-		
+
 		/**
 		 * Do the update
-		 * We still need the page_touched condition, in case the row has changed since 
+		 * We still need the page_touched condition, in case the row has changed since
 		 * the non-locking select above.
 		 */
-		$this->mDb->update( 'page', array( 'page_touched' => $now ), 
-			array( 
+		$this->mDb->update( 'page', array( 'page_touched' => $now ),
+			array(
 				'page_id IN (' . $this->mDb->makeList( $ids ) . ')',
 				'page_touched < ' . $this->mDb->addQuotes( $now )
-			), $fname
+			), __METHOD__
 		);
 	}
 
@@ -253,18 +273,29 @@ class LinksUpdate {
 		$this->invalidatePages( NS_CATEGORY, array_keys( $cats ) );
 	}
 
+	/**
+	 * Update all the appropriate counts in the category table.
+	 * @param $added associative array of category name => sort key
+	 * @param $deleted associative array of category name => sort key
+	 */
+	function updateCategoryCounts( $added, $deleted ) {
+		$a = new Article($this->mTitle);
+		$a->updateCategoryCounts(
+			array_keys( $added ), array_keys( $deleted )
+		);
+	}
+
 	function invalidateImageDescriptions( $images ) {
 		$this->invalidatePages( NS_IMAGE, array_keys( $images ) );
 	}
 
 	function dumbTableUpdate( $table, $insertions, $fromField ) {
-		$fname = 'LinksUpdate::dumbTableUpdate';
-		$this->mDb->delete( $table, array( $fromField => $this->mId ), $fname );
+		$this->mDb->delete( $table, array( $fromField => $this->mId ), __METHOD__ );
 		if ( count( $insertions ) ) {
-			# The link array was constructed without FOR UPDATE, so there may be collisions
-			# This may cause minor link table inconsistencies, which is better than
-			# crippling the site with lock contention.
-			$this->mDb->insert( $table, $insertions, $fname, array( 'IGNORE' ) );
+			# The link array was constructed without FOR UPDATE, so there may
+			# be collisions.  This may cause minor link table inconsistencies,
+			# which is better than crippling the site with lock contention.
+			$this->mDb->insert( $table, $insertions, __METHOD__, array( 'IGNORE' ) );
 		}
 	}
 
@@ -285,8 +316,12 @@ class LinksUpdate {
 	 * @private
 	 */
 	function incrTableUpdate( $table, $prefix, $deletions, $insertions ) {
-		$fname = 'LinksUpdate::incrTableUpdate';
-		$where = array( "{$prefix}_from" => $this->mId );
+		if ( $table == 'page_props' ) {
+			$fromField = 'pp_page';
+		} else {
+			$fromField = "{$prefix}_from";
+		}
+		$where = array( $fromField => $this->mId );
 		if ( $table == 'pagelinks' || $table == 'templatelinks' ) {
 			$clause = $this->makeWhereFrom2d( $deletions, $prefix );
 			if ( $clause ) {
@@ -297,6 +332,8 @@ class LinksUpdate {
 		} else {
 			if ( $table == 'langlinks' ) {
 				$toField = 'll_lang';
+			} elseif ( $table == 'page_props' ) {
+				$toField = 'pp_propname';
 			} else {
 				$toField = $prefix . '_to';
 			}
@@ -307,10 +344,10 @@ class LinksUpdate {
 			}
 		}
 		if ( $where ) {
-			$this->mDb->delete( $table, $where, $fname );
+			$this->mDb->delete( $table, $where, __METHOD__ );
 		}
 		if ( count( $insertions ) ) {
-			$this->mDb->insert( $table, $insertions, $fname, 'IGNORE' );
+			$this->mDb->insert( $table, $insertions, __METHOD__, 'IGNORE' );
 		}
 	}
 
@@ -412,7 +449,7 @@ class LinksUpdate {
 
 	/**
 	 * Get an array of interlanguage link insertions
-	 * @param array $existing Array mapping existing language codes to titles	 
+	 * @param array $existing Array mapping existing language codes to titles
 	 * @private
 	 */
 	function getInterlangInsertions( $existing = array() ) {
@@ -427,6 +464,23 @@ class LinksUpdate {
 	    }
 	    return $arr;
 	}
+
+	/**
+	 * Get an array of page property insertions
+	 */
+	function getPropertyInsertions( $existing = array() ) {
+		$diffs = array_diff_assoc( $this->mProperties, $existing );
+		$arr = array();
+		foreach ( $diffs as $name => $value ) {
+			$arr[] = array(
+				'pp_page'      => $this->mId,
+				'pp_propname'  => $name,
+				'pp_value'     => $value,
+			);
+		}
+		return $arr;
+	}
+
 
 	/**
 	 * Given an array of existing links, returns those links which are not in $this
@@ -471,7 +525,7 @@ class LinksUpdate {
 		return array_diff_key( $existing, $this->mImages );
 	}
 
-	/** 
+	/**
 	 * Given an array of existing external links, returns those links which are not
 	 * in $this and thus should be deleted.
 	 * @private
@@ -489,7 +543,7 @@ class LinksUpdate {
 		return array_diff_assoc( $existing, $this->mCategories );
 	}
 
-	/** 
+	/**
 	 * Given an array of existing interlanguage links, returns those links which are not
 	 * in $this and thus should be deleted.
 	 * @private
@@ -499,13 +553,20 @@ class LinksUpdate {
 	}
 
 	/**
+	 * Get array of properties which should be deleted.
+	 * @private
+	 */
+	function getPropertyDeletions( $existing ) {
+		return array_diff_assoc( $existing, $this->mProperties );
+	}
+
+	/**
 	 * Get an array of existing links, as a 2-D array
 	 * @private
 	 */
 	function getExistingLinks() {
-		$fname = 'LinksUpdate::getExistingLinks';
 		$res = $this->mDb->select( 'pagelinks', array( 'pl_namespace', 'pl_title' ),
-			array( 'pl_from' => $this->mId ), $fname, $this->mOptions );
+			array( 'pl_from' => $this->mId ), __METHOD__, $this->mOptions );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			if ( !isset( $arr[$row->pl_namespace] ) ) {
@@ -522,9 +583,8 @@ class LinksUpdate {
 	 * @private
 	 */
 	function getExistingTemplates() {
-		$fname = 'LinksUpdate::getExistingTemplates';
 		$res = $this->mDb->select( 'templatelinks', array( 'tl_namespace', 'tl_title' ),
-			array( 'tl_from' => $this->mId ), $fname, $this->mOptions );
+			array( 'tl_from' => $this->mId ), __METHOD__, $this->mOptions );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			if ( !isset( $arr[$row->tl_namespace] ) ) {
@@ -541,9 +601,8 @@ class LinksUpdate {
 	 * @private
 	 */
 	function getExistingImages() {
-		$fname = 'LinksUpdate::getExistingImages';
 		$res = $this->mDb->select( 'imagelinks', array( 'il_to' ),
-			array( 'il_from' => $this->mId ), $fname, $this->mOptions );
+			array( 'il_from' => $this->mId ), __METHOD__, $this->mOptions );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$arr[$row->il_to] = 1;
@@ -557,9 +616,8 @@ class LinksUpdate {
 	 * @private
 	 */
 	function getExistingExternals() {
-		$fname = 'LinksUpdate::getExistingExternals';
 		$res = $this->mDb->select( 'externallinks', array( 'el_to' ),
-			array( 'el_from' => $this->mId ), $fname, $this->mOptions );
+			array( 'el_from' => $this->mId ), __METHOD__, $this->mOptions );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$arr[$row->el_to] = 1;
@@ -573,9 +631,8 @@ class LinksUpdate {
 	 * @private
 	 */
 	function getExistingCategories() {
-		$fname = 'LinksUpdate::getExistingCategories';
 		$res = $this->mDb->select( 'categorylinks', array( 'cl_to', 'cl_sortkey' ),
-			array( 'cl_from' => $this->mId ), $fname, $this->mOptions );
+			array( 'cl_from' => $this->mId ), __METHOD__, $this->mOptions );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$arr[$row->cl_to] = $row->cl_sortkey;
@@ -585,26 +642,60 @@ class LinksUpdate {
 	}
 
 	/**
-	 * Get an array of existing interlanguage links, with the language code in the key and the 
+	 * Get an array of existing interlanguage links, with the language code in the key and the
 	 * title in the value.
 	 * @private
 	 */
 	function getExistingInterlangs() {
-		$fname = 'LinksUpdate::getExistingInterlangs';
-		$res = $this->mDb->select( 'langlinks', array( 'll_lang', 'll_title' ), 
-			array( 'll_from' => $this->mId ), $fname, $this->mOptions );
+		$res = $this->mDb->select( 'langlinks', array( 'll_lang', 'll_title' ),
+			array( 'll_from' => $this->mId ), __METHOD__, $this->mOptions );
 		$arr = array();
 		while ( $row = $this->mDb->fetchObject( $res ) ) {
 			$arr[$row->ll_lang] = $row->ll_title;
 		}
 		return $arr;
 	}
-	
+
+	/**
+	 * Get an array of existing categories, with the name in the key and sort key in the value.
+	 * @private
+	 */
+	function getExistingProperties() {
+		$res = $this->mDb->select( 'page_props', array( 'pp_propname', 'pp_value' ),
+			array( 'pp_page' => $this->mId ), __METHOD__, $this->mOptions );
+		$arr = array();
+		while ( $row = $this->mDb->fetchObject( $res ) ) {
+			$arr[$row->pp_propname] = $row->pp_value;
+		}
+		$this->mDb->freeResult( $res );
+		return $arr;
+	}
+
+
 	/**
 	 * Return the title object of the page being updated
-	 */	
+	 */
 	function getTitle() {
 		return $this->mTitle;
 	}
-}
 
+	/**
+	 * Invalidate any necessary link lists related to page property changes
+	 */
+	function invalidateProperties( $changed ) {
+		global $wgPagePropLinkInvalidations;
+
+		foreach ( $changed as $name => $value ) {
+			if ( isset( $wgPagePropLinkInvalidations[$name] ) ) {
+				$inv = $wgPagePropLinkInvalidations[$name];
+				if ( !is_array( $inv ) ) {
+					$inv = array( $inv );
+				}
+				foreach ( $inv as $table ) {
+					$update = new HTMLCacheUpdate( $this->mTitle, $table );
+					$update->doUpdate();
+				}
+			}
+		}
+	}
+}

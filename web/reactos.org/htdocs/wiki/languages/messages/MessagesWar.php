@@ -1,7 +1,8 @@
 <?php
 /** Waray (Winaray)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author Harvzsf
  * @author לערי ריינהארט
@@ -9,17 +10,19 @@
 
 $messages = array(
 # User preference toggles
-'tog-underline'          => 'Bagisa ha ilarom an mga sumpay:',
-'tog-hideminor'          => 'Tago-a an mga gagmay nga pagliwat ha mga bag-o pa la nga mga kabag-ohan',
-'tog-extendwatchlist'    => 'Igpadako an angay timan-an nga makita an ngatanan nga mga nahanunungod nga mga kabag-ohan',
-'tog-watchcreations'     => 'Igdugang in mga pakli nga akon ginhimo ngadto han akon angay timan-an',
-'tog-watchdefault'       => 'Igdugang in mga pakli nga akon ginliwat ngadto han akon angay timan-an',
-'tog-watchmoves'         => 'Igdugang in mga pakli nga akon ginpamalhin ngadto han akon angay timan-an',
-'tog-watchdeletion'      => 'Igdugang in mga pakli nga akon ginpamara ngadto han akon angay timan-an',
-'tog-watchlisthideown'   => 'Tago-a an akon mga ginliwat tikang han angay timan-an',
-'tog-watchlisthidebots'  => 'Tago-a an ginliwat hin bot tikang han angay timan-an',
-'tog-watchlisthideminor' => 'Tago-a an mga gagmay nga pagliwat tikang han angay timan-an',
-'tog-ccmeonemails'       => 'Padad-i ak hin mga kopya hin mga email nga akon ginpapadara ha iba nga mga nágámit',
+'tog-underline'           => 'Bagisa ha ilarom an mga sumpay:',
+'tog-hideminor'           => 'Tago-a an mga gagmay nga pagliwat ha mga bag-o pa la nga mga kabag-ohan',
+'tog-extendwatchlist'     => 'Igpadako an angay timan-an nga makita an ngatanan nga mga nahanunungod nga mga kabag-ohan',
+'tog-watchcreations'      => 'Igdugang in mga pakli nga akon ginhimo ngadto han akon angay timan-an',
+'tog-watchdefault'        => 'Igdugang in mga pakli nga akon ginliwat ngadto han akon angay timan-an',
+'tog-watchmoves'          => 'Igdugang in mga pakli nga akon ginpamalhin ngadto han akon angay timan-an',
+'tog-watchdeletion'       => 'Igdugang in mga pakli nga akon ginpamara ngadto han akon angay timan-an',
+'tog-shownumberswatching' => 'Igpakita an ihap han mga nangingita nga mga nagamit',
+'tog-watchlisthideown'    => 'Tago-a an akon mga ginliwat tikang han angay timan-an',
+'tog-watchlisthidebots'   => 'Tago-a an ginliwat hin bot tikang han angay timan-an',
+'tog-watchlisthideminor'  => 'Tago-a an mga gagmay nga pagliwat tikang han angay timan-an',
+'tog-ccmeonemails'        => 'Padad-i ak hin mga kopya hin mga email nga akon ginpapadara ha iba nga mga nágámit',
+'tog-showhiddencats'      => 'Igpakita an mga tinago nga mga kategorya',
 
 # Dates
 'sunday'        => 'Dominggo',
@@ -73,13 +76,14 @@ $messages = array(
 'nov'           => 'Nob',
 'dec'           => 'Dis',
 
-# Bits of text used by many pages
-'categories'            => '{{PLURAL:$1|Kategorya|Mga Kategorya}}',
-'pagecategories'        => '{{PLURAL:$1|Kategorya|Mga Kategorya}}',
-'category_header'       => 'Mga pakli ha kategorya "$1"',
-'subcategories'         => 'Mga ilarom nga kategorya',
-'category-media-header' => 'Media ha kategorya "$1"',
-'category-empty'        => "''Ini nga kategorya ha yana waray mga pakli o media.''",
+# Categories related messages
+'pagecategories'           => '{{PLURAL:$1|Kategorya|Mga Kategorya}}',
+'category_header'          => 'Mga pakli ha kategorya "$1"',
+'subcategories'            => 'Mga ilarom nga kategorya',
+'category-media-header'    => 'Media ha kategorya "$1"',
+'category-empty'           => "''Ini nga kategorya ha yana waray mga pakli o media.''",
+'hidden-categories'        => '{{PLURAL:$1|Tinago nga kategorya|Tinago nga mga kategorya}}',
+'hidden-category-category' => 'Tinago nga mga kategorya', # Name of the category where hidden categories will be listed
 
 'qbfind'         => 'Bilnga',
 'qbbrowse'       => 'Igdalikyat',
@@ -91,6 +95,7 @@ $messages = array(
 'mytalk'         => 'Akon paghingay',
 'anontalk'       => 'Paghingay para hini nga IP',
 'navigation'     => 'Paglayag',
+'and'            => 'ngan',
 
 'errorpagetitle'   => 'Sayop',
 'returnto'         => 'Balik ngadto ha $1.',
@@ -112,6 +117,7 @@ $messages = array(
 'newpage'          => 'Bag-o nga pakli',
 'talkpagelinktext' => 'Hiruhimangraw',
 'specialpage'      => 'Ispisyal nga Pakli',
+'personaltools'    => 'Kalugaringon nga mga garamiton',
 'talk'             => 'Hiruhimangraw',
 'views'            => 'Mga paglantaw',
 'toolbox'          => 'Garamiton',
@@ -121,16 +127,18 @@ $messages = array(
 'jumptosearch'     => 'bilnga',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => 'Mahitungod han {{SITENAME}}',
-'currentevents'     => 'Mga panhitabo',
-'currentevents-url' => 'Project:Mga panhitabo',
-'disclaimers'       => 'Mga Disclaimer',
-'helppage'          => 'Help:Sulod',
-'mainpage'          => 'Syahan nga Pakli',
-'portal'            => 'Ganghaan han Komunidad',
-'portal-url'        => 'Project:Ganghaan han Komunidad',
-'sitesupport'       => 'Mga Donasyon',
-'sitesupport-url'   => 'Project:Mga Donasyon',
+'aboutsite'            => 'Mahitungod han {{SITENAME}}',
+'currentevents'        => 'Mga panhitabo',
+'currentevents-url'    => 'Project:Mga panhitabo',
+'disclaimers'          => 'Mga Disclaimer',
+'helppage'             => 'Help:Sulod',
+'mainpage'             => 'Syahan nga Pakli',
+'mainpage-description' => 'Syahan nga Pakli',
+'policy-url'           => 'Project:Polisiya',
+'portal'               => 'Ganghaan han Komunidad',
+'portal-url'           => 'Project:Ganghaan han Komunidad',
+
+'badaccess-group0' => 'Diri ka gintutugutan pagbuhat han buruhaton nga imo ginhangyo.',
 
 'versionrequired'     => 'Kinahanglan an Bersion $1 han MediaWiki',
 'versionrequiredtext' => 'Kinahanglan an Bersyon $1 han MediaWiki ha paggamit hini nga pakli.  Kitaa an [[Special:Version|bersyon nga pakli]].',
@@ -143,7 +151,12 @@ $messages = array(
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'      => 'Artikulo',
+'nstab-special'   => 'Ispisyal',
+'nstab-project'   => 'Pakli han proyekto',
 'nstab-mediawiki' => 'Mensahe',
+'nstab-template'  => 'Plantilya',
+'nstab-help'      => 'Pakli hin bulig',
+'nstab-category'  => 'Kategorya',
 
 # Login and logout pages
 'login'              => 'Sakob',
@@ -186,16 +199,17 @@ $messages = array(
 'upload'    => 'Pagkarga hin file',
 'uploadbtn' => 'Igkarga an file',
 
-# Image list
-'ilsubmit'          => 'Bilnga',
+# Special:ImageList
+'imagelist_date' => 'Pitsa',
+'imagelist_name' => 'Ngaran',
+
+# Image description page
 'filehist-datetime' => 'Pitsa/Oras',
 'imagelinks'        => 'Mga sumpay',
 'linkstoimage'      => 'Nasumpay hini nga fayl an mga nasunod nga mga pakli:',
 'nolinkstoimage'    => 'Waray mga pakli nga nasumpay hini nga fayl.',
 'sharedupload'      => 'Ini nga fayl ginsaro nga pagkarga ngan puyde gamiton hin iba nga mga proyekto.',
 'shareduploadwiki'  => 'Alayon pagkita han $1 para hin dugang nga impormasyon.',
-'imagelist_date'    => 'Pitsa',
-'imagelist_name'    => 'Ngaran',
 
 # Unused templates
 'unusedtemplateswlh' => 'iba nga mga sumpay',
@@ -208,10 +222,8 @@ $messages = array(
 'sitestats'  => '{{SITENAME}} nga mga estadistika',
 
 # Miscellaneous special pages
-'allpages'     => 'Ngatanan nga mga pakli',
-'longpages'    => 'Haglaba nga mga pakli',
-'specialpages' => 'Mga Ispisyal nga Pakli',
-'move'         => 'Balhina',
+'longpages' => 'Haglaba nga mga pakli',
+'move'      => 'Balhina',
 
 # Book sources
 'booksources-go' => 'Kadto-a',
@@ -219,11 +231,15 @@ $messages = array(
 # Special:Log
 'log-search-submit' => 'Kadto-a',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'       => 'Ngatanan nga mga pakli',
 'allarticles'    => 'Ngatanan nga mga artikulo',
 'allpagesprev'   => 'Naha-una',
 'allpagesnext'   => 'Sunod',
 'allpagessubmit' => 'Kadto-a',
+
+# Special:Categories
+'categories' => 'Mga Kategorya',
 
 # Watchlist
 'watchlist'     => 'Akon barantayan',
@@ -244,6 +260,9 @@ Kitaa an $2 para hin talaan han mga gibag-ohi nga mga ginpamara.',
 # Block/unblock
 'ipblocklist-submit' => 'Bilnga',
 
+# Special:NewImages
+'ilsubmit' => 'Bilnga',
+
 # Multipage image navigation
 'imgmultipageprev' => '← naha-una nga pakli',
 'imgmultipagenext' => 'sunod nga pakli →',
@@ -261,5 +280,8 @@ Kitaa an $2 para hin talaan han mga gibag-ohi nga mga ginpamara.',
 'size-kilobytes' => '$1 nga KB',
 'size-megabytes' => '$1 nga MB',
 'size-gigabytes' => '$1 nga GB',
+
+# Special:SpecialPages
+'specialpages' => 'Mga Ispisyal nga Pakli',
 
 );

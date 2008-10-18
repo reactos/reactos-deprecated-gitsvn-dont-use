@@ -1,11 +1,11 @@
 <?php
 /** Novial (Novial)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author nov.wikipedia.org sysops
  * @author Malafaya
- * @author SPQRobin
+ * @author nov.wikipedia.org sysops
  */
 
 $messages = array(
@@ -35,10 +35,20 @@ $messages = array(
 'august-gen'   => 'auguste',
 'october-gen'  => 'oktobre',
 'december-gen' => 'desembre',
+'jan'          => 'jan',
+'feb'          => 'feb',
+'mar'          => 'mar',
+'apr'          => 'apr',
 'may'          => 'maye',
+'jun'          => 'jun',
+'jul'          => 'jul',
+'aug'          => 'aug',
+'sep'          => 'sep',
+'oct'          => 'okt',
+'nov'          => 'nov',
+'dec'          => 'des',
 
-# Bits of text used by many pages
-'categories'      => 'Kategories',
+# Categories related messages
 'pagecategories'  => '{{PLURAL:$1|Kategorie|Kategories}}',
 'category_header' => 'Artikles in kategorie "$1"',
 
@@ -46,6 +56,7 @@ $messages = array(
 'article'        => 'Pagine de kontenaje',
 'newwindow'      => '(aperta in novi fenestre)',
 'cancel'         => 'Nihilisa',
+'qbedit'         => 'Modifika',
 'qbspecialpages' => 'Spesial pagines',
 'moredotdotdot'  => 'Plu...',
 'mypage'         => 'Men pagine',
@@ -84,16 +95,20 @@ $messages = array(
 'categorypage'     => 'Regarda kategorial pagine',
 'otherlanguages'   => 'Altri lingues',
 'lastmodifiedat'   => 'Disi pagine blid lastim modifika: $2 ye $1.', # $1 date, $2 time
+'jumptonavigation' => 'navigatione',
+'jumptosearch'     => 'sercha',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'     => 'Pri {{SITENAME}}',
-'aboutpage'     => 'Project:Pri',
-'currentevents' => 'Nuni eventes',
-'edithelp'      => 'Help pri modifiko de pagines',
-'helppage'      => 'Help:Kontenaje',
-'mainpage'      => 'Chefi pagine',
-'portal'        => 'Li komun chambre',
-'sitesupport'   => 'Donationes',
+'aboutsite'            => 'Pri {{SITENAME}}',
+'aboutpage'            => 'Project:Pri',
+'currentevents'        => 'Nuni eventes',
+'currentevents-url'    => 'Project:Nuni eventes',
+'edithelp'             => 'Helpo pri modifiko de pagines',
+'helppage'             => 'Help:Kontenaje',
+'mainpage'             => 'Chefi pagine',
+'mainpage-description' => 'Chefi pagine',
+'portal'               => 'Li komun chambre',
+'portal-url'           => 'Project:Li komun chambre',
 
 'badaccess' => 'Permisione erore',
 
@@ -101,6 +116,9 @@ $messages = array(
 'newmessageslink'         => 'novi mesajes',
 'newmessagesdifflink'     => 'lasti chanjo',
 'youhavenewmessagesmulti' => 'Vu have novi mesajes pri $1',
+'editsection'             => 'modifika',
+'editold'                 => 'modifika',
+'restorelink'             => '{{PLURAL:$1|unu ekartati modifiko|$1 ekartati modifikos}}',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'      => 'Artikle',
@@ -179,27 +197,32 @@ Proba [[Special:Search|sercho sur li wiki]] por relatet pagines.',
 
 # Search results
 'searchresults'         => 'Resultes de sercho',
+'searchresulttext'      => 'Por plu multi informatione pri sercho {{SITENAME}}, vida [[{{MediaWiki:Helppage}}|{{int:help}}]].',
 'searchsubtitle'        => "Vu serchad '''[[:$1]]'''",
 'searchsubtitleinvalid' => "Vu serchad '''$1'''",
 'prevn'                 => 'lasti $1',
 'nextn'                 => 'sekuenti $1',
 'viewprevnext'          => 'Vida ($1) ($2) ($3).',
+'showingresults'        => "Montrant subu {{PLURAL:$1|'''1''' resulte|'''$1''' resultes}} amaxim komensant fro #'''$2'''.",
+'showingresultsnum'     => "Montrant subu {{PLURAL:$3|'''1''' result|'''$3''' results}} komensant fro #'''$2'''.",
 'powersearch'           => 'Sercha',
 
 # Preferences page
 'preferences'       => 'Preferos',
 'mypreferences'     => 'Men preferos',
 'prefsnologin'      => 'Non ensignatat',
-'prefsnologintext'  => 'Vu mus es [[Special:Userlogin|ensignatat]] por determina useren preferos.',
+'prefsnologintext'  => 'Vu mus es [[Special:UserLogin|ensignatat]] por determina useren preferos.',
 'prefs-rc'          => 'Resenti chanjos',
 'searchresultshead' => 'Sercha',
 
 # Recent changes
 'recentchanges'   => 'Resenti chanjos',
+'rcnote'          => "Subu es {{PLURAL:$1| '''1''' chanje|li lasti '''$1''' chanjes}} in li lasti {{PLURAL:$2|die|'''$2''' dies}}, fro $3.",
 'rcshowhideminor' => '$1 minori modifikos',
 'rcshowhideanons' => '$1 anonimi useres',
 'rcshowhidemine'  => '$1 men modifikos',
 'rclinks'         => 'Montra lasti $1 chanjes in lasti $2 dies<br />$3',
+'hist'            => 'hist',
 'hide'            => 'Kasha',
 'show'            => 'Montra',
 
@@ -213,16 +236,16 @@ Proba [[Special:Search|sercho sur li wiki]] por relatet pagines.',
 'fileuploadsummary' => 'Resume:',
 'watchthisupload'   => 'Observa disi pagine',
 
-# Image list
-'ilsubmit'              => 'Sercha',
-'byname'                => 'segun nome',
-'bydate'                => 'segun date',
-'imagelinks'            => 'Linkes',
+# Special:ImageList
+'imagelist_search_for'  => 'Sercha imaje nome:',
 'imagelist_name'        => 'Nome',
 'imagelist_user'        => 'Usere',
 'imagelist_size'        => 'Grandeso (bites)',
 'imagelist_description' => 'Deskriptione',
-'imagelist_search_for'  => 'Sercha imaje nome:',
+
+# Image description page
+'filehist-user' => 'Usere',
+'imagelinks'    => 'Linkes',
 
 # Random page
 'randompage' => 'Arbitriari pagine',
@@ -242,12 +265,10 @@ Proba [[Special:Search|sercho sur li wiki]] por relatet pagines.',
 'popularpages'            => 'Popular pagines',
 'mostcategories'          => 'Artikles kun maxim multi kategories',
 'mostrevisions'           => 'Artikles kun maxim multi revisiones',
-'allpages'                => 'Omni pagines',
 'shortpages'              => 'Kurti pagines',
 'longpages'               => 'Longi pagines',
 'deadendpages'            => 'Pagines sin kuplures',
 'listusers'               => 'Liste de useres',
-'specialpages'            => 'Spesial pagines',
 'newpages'                => 'Novi pagines',
 'ancientpages'            => 'Maxim ansieni pagines',
 'move'                    => 'Mova',
@@ -258,21 +279,22 @@ Proba [[Special:Search|sercho sur li wiki]] por relatet pagines.',
 'booksources-search-legend' => 'Sercha libral fontes',
 'booksources-go'            => 'Vada',
 
-'categoriespagetext' => 'Li sekuenti kategories exista in li wiki.',
-'groups'             => 'Usere grupes',
-'alphaindexline'     => '$1 a $2',
-'version'            => 'Versione',
-
 # Special:Log
 'specialloguserlabel' => 'Usere:',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'          => 'Omni pagines',
+'alphaindexline'    => '$1 a $2',
 'allarticles'       => 'Omni artikles',
 'allinnamespace'    => 'Omni pagines ($1 nome-spatie)',
 'allnotinnamespace' => 'Omni pagines (non in $1 nome-spatie)',
 'allpagesprev'      => 'Antei',
 'allpagesnext'      => 'Sekuenti',
 'allpagessubmit'    => 'Vada',
+
+# Special:Categories
+'categories'         => 'Kategories',
+'categoriespagetext' => 'Li sekuenti kategories exista in li wiki.',
 
 # Watchlist
 'watchlist'       => 'Men liste de observos',
@@ -281,7 +303,7 @@ Proba [[Special:Search|sercho sur li wiki]] por relatet pagines.',
 'watchnologin'    => 'Non ensignatat',
 'addedwatch'      => 'Adit a observa-liste',
 'addedwatchtext'  => "Li pagine \"[[:\$1]]\" ha bli adi a vun [[Special:Watchlist|observa-liste]].
-Futuri chanjos a disi pagine e lun asosiati Parla-pagine sal bli lista tilok, e li pagine sal apari '''diki''' in li [[Special:Recentchanges|liste de resenti chanjos]] por ke on trova lu plu fasilim.
+Futuri chanjos a disi pagine e lun asosiati Parla-pagine sal bli lista tilok, e li pagine sal apari '''diki''' in li [[Special:RecentChanges|liste de resenti chanjos]] por ke on trova lu plu fasilim.
 
 Si vu voli plu tardim ekarta li pagine fro vun observa-liste, klikta \"Desobserva\" in li lateral kolumne.",
 'watch'           => 'Observa',
@@ -304,7 +326,7 @@ Si vu voli plu tardim ekarta li pagine fro vun observa-liste, klikta \"Desobserv
 'deletionlog'         => 'registre de ekartos',
 'deletecomment'       => 'Resone de ekarto',
 'revertpage'          => 'Riverted modifikos da [[Special:Contributions/$2|$2]] ([[User talk:$2|Talk]]); restaurad lasti versione da [[User:$1|$1]]', # Additional available: $3: revid of the revision reverted to, $4: timestamp of the revision reverted to, $5: revid of the revision reverted from, $6: timestamp of the revision reverted from
-'confirmprotect'      => 'Konfirma protektione',
+'protect-legend'      => 'Konfirma protektione',
 'protect-level-sysop' => 'Sisopes nur',
 
 # Namespace form on various pages
@@ -319,14 +341,15 @@ Si vu voli plu tardim ekarta li pagine fro vun observa-liste, klikta \"Desobserv
 'sp-contributions-submit'  => 'Sercha',
 
 # What links here
-'whatlinkshere' => 'Tum kel kupla hir',
+'whatlinkshere'      => 'Tum kel kupla hir',
+'whatlinkshere-page' => 'Pagine:',
 
 # Block/unblock
+'badipaddress' => 'Non-valid IP adrese',
 'contribslink' => 'Kontributiones',
 
 # Move page
 'movearticle'             => 'Mova pagine',
-'movenologin'             => 'Non ensignatat',
 'move-watch'              => 'Observa disi pagine',
 'movedto'                 => 'movat a',
 '1movedto2'               => '[[$1]] movat a [[$2]]',
@@ -344,10 +367,17 @@ Si vu voli plu tardim ekarta li pagine fro vun observa-liste, klikta \"Desobserv
 'allmessagesmodified' => 'Montra nur modifikates',
 
 # Tooltip help for the actions
-'tooltip-pt-logout' => 'Eksignata',
+'tooltip-pt-mytalk'      => 'Men parla-pagine',
+'tooltip-pt-preferences' => 'Men preferos',
+'tooltip-pt-logout'      => 'Eksignata',
+'tooltip-p-logo'         => 'Chefi pagine',
 
 # Info page
 'infosubtitle' => 'Informatione pri pagine',
+
+# Special:NewImages
+'ilsubmit' => 'Sercha',
+'bydate'   => 'segun date',
 
 # EXIF tags
 'exif-imagewidth'       => 'Larjeso',
@@ -367,5 +397,13 @@ Si vu voli plu tardim ekarta li pagine fro vun observa-liste, klikta \"Desobserv
 'autosumm-replace' => "Remplasant pagine kun '$1'",
 'autoredircomment' => 'Ri-adresant a [[$1]]',
 'autosumm-new'     => 'Novi pagine: $1',
+
+# Special:Version
+'version'                  => 'Versione', # Not used as normal message but as header for the special page itself
+'version-specialpages'     => 'Spesial pagines',
+'version-software-version' => 'Versione',
+
+# Special:SpecialPages
+'specialpages' => 'Spesial pagines',
 
 );

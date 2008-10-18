@@ -1,9 +1,9 @@
 <?php
 /** Igbo (Igbo)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SPQRobin
  */
 
 $messages = array(
@@ -14,10 +14,10 @@ $messages = array(
 'otherlanguages' => "Edemede nke n'olu ndị ọzọ",
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'mainpage'        => 'Page mbu',
-'portal'          => 'Lounge',
-'portal-url'      => 'Project:Lounge',
-'sitesupport-url' => 'Project:Enemaka ego',
+'mainpage'             => 'Page mbu',
+'mainpage-description' => 'Page mbu',
+'portal'               => 'Lounge',
+'portal-url'           => 'Project:Lounge',
 
 'youhavenewmessagesmulti' => 'Inwere eziohu na $1',
 

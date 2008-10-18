@@ -20,7 +20,7 @@
 /**
  * Approximate benchmark for some basic operations.
  *
- * @addtogroup UtfNormal
+ * @ingroup UtfNormal
  * @access private
  */
 
@@ -107,5 +107,3 @@ function benchmarkForm( &$u, &$data, $form ) {
 		($same ? 'no change' : 'changed' ) );
 	return $out;
 }
-
-

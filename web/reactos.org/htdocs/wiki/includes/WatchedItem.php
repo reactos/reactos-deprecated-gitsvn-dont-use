@@ -1,10 +1,11 @@
 <?php
 /**
- *
+ * @file
+ * @ingroup Watchlist
  */
 
 /**
- *
+ * @ingroup Watchlist
  */
 class WatchedItem {
 	var $mTitle, $mUser;
@@ -114,8 +115,8 @@ class WatchedItem {
 	 * Check if the given title already is watched by the user, and if so
 	 * add watches on a new title. To be used for page renames and such.
 	 *
-	 * @param Title $ot Page title to duplicate entries from, if present
-	 * @param Title $nt Page title to add watches on
+	 * @param $ot Title: page title to duplicate entries from, if present
+	 * @param $nt Title: page title to add watches on
 	 */
 	static function duplicateEntries( $ot, $nt ) {
 		WatchedItem::doDuplicateEntries( $ot->getSubjectPage(), $nt->getSubjectPage() );
@@ -156,8 +157,4 @@ class WatchedItem {
 		$dbw->replace( 'watchlist', array(array( 'wl_user', 'wl_namespace', 'wl_title')), $values, $fname );
 		return true;
 	}
-
-
 }
-
-

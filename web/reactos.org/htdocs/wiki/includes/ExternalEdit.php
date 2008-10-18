@@ -6,8 +6,6 @@
  */
 
 /**
- *
- *
  * Support for external editors to modify both text and files
  * in external applications. It works as follows: MediaWiki
  * sends a meta-file with the MIME type 'application/x-external-editor'
@@ -68,4 +66,3 @@ CONTROL;
 		echo $control;
 	}
 }
-

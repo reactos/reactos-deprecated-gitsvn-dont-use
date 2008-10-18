@@ -1,7 +1,8 @@
 <?php
 /** Toki Pona (Toki Pona)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author http://tokipona.wikia.com sysops
  */
@@ -21,10 +22,10 @@ $messages = array(
 'november'  => 'tenpo mun pi nanpa luka luka wan',
 'december'  => 'tenpo mun pi nanpa luka luka tu',
 
-# Bits of text used by many pages
-'categories'      => 'kulupu lipu',
-'category_header' => 'lipu lon kulupu lipu "$1"',
-'subcategories'   => 'kulupu lipu lili',
+# Categories related messages
+'category_header'        => 'lipu lon kulupu lipu "$1"',
+'subcategories'          => 'kulupu lipu lili',
+'listingcontinuesabbrev' => ' li awen',
 
 'article'    => 'lipu sona',
 'newwindow'  => '(ona li open e lupa sin)',
@@ -55,16 +56,16 @@ $messages = array(
 'redirectedfrom'    => '(tan $1)',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'     => 'lipu sona pi toki pona li seme?',
-'aboutpage'     => 'lipu sona pi toki pona li seme?',
-'copyright'     => 'lipu ken $1 li lawa e lipu ni.',
-'currentevents' => 'seme li sin lon ma?',
-'disclaimers'   => 'wile ala',
-'edithelp'      => 'mi sona ala e ante',
-'mainpage'      => 'lipu lawa',
-'portal'        => 'lipu pi kulupu ni',
-'privacy'       => 'ken pi awen weka',
-'sitesupport'   => 'o pana e mani',
+'aboutsite'            => 'lipu sona pi toki pona li seme?',
+'aboutpage'            => 'Project:lipu sona pi toki pona li seme?',
+'copyright'            => 'lipu ken $1 li lawa e lipu ni.',
+'currentevents'        => 'seme li sin lon ma?',
+'disclaimers'          => 'wile ala',
+'edithelp'             => 'mi sona ala e ante',
+'mainpage'             => 'lipu lawa',
+'mainpage-description' => 'lipu lawa',
+'portal'               => 'lipu pi kulupu ni',
+'privacy'              => 'ken pi awen weka',
 
 'ok'            => 'pona',
 'retrievedfrom' => 'tan $1',
@@ -131,10 +132,14 @@ kin la sina toki e ni: toki sina ni li tan sina taso anu lipu pi ken ali.
 
 # Miscellaneous special pages
 'lonelypages'  => 'lipu ni li jo ala e lipu sama',
-'allpages'     => 'lipu ale',
-'specialpages' => 'lipu suli',
 'move'         => 'o tawa',
 'movethispage' => 'o pana e nimi sin',
+
+# Special:AllPages
+'allpages' => 'lipu ale',
+
+# Special:Categories
+'categories' => 'kulupu lipu',
 
 # Watchlist
 'watchlist'       => 'mi sona e ante pi lipu seme',
@@ -149,7 +154,7 @@ kin la sina toki e ni: toki sina ni li tan sina taso anu lipu pi ken ali.
 # What links here
 'whatlinkshere' => 'lipu seme li tawa ni?',
 
-# Spam protection
-'listingcontinuesabbrev' => ' li awen',
+# Special:SpecialPages
+'specialpages' => 'lipu suli',
 
 );

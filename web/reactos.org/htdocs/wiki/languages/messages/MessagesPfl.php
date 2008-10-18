@@ -1,7 +1,8 @@
 <?php
 /** Pfälzisch (Pfälzisch)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author SPS
  */
@@ -29,18 +30,18 @@ $messages = array(
 'personaltools'  => 'Perseenliche Werkzeische',
 'talk'           => 'Gebabbel',
 'toolbox'        => 'Werkzeiche',
-'viewcount'      => 'Die Seid isch bis jetzerd $1 mol uffgerufe worre.',
+'viewcount'      => 'Die Seid isch bis jetzerd {{PLURAL:$1|$1|$1}} mol uffgerufe worre.',
 'jumptosearch'   => 'Suche',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'     => 'Iwwer {{SITENAME}}',
-'copyright'     => 'Was do drin schdeht isch unner $1 verfiechbar.',
-'currentevents' => 'Was grad so bassiert isch',
-'disclaimers'   => 'Hafdungsausschluß',
-'mainpage'      => 'Startseid',
-'portal'        => '{{SITENAME}}-Pordal',
-'privacy'       => 'Dadeschutz',
-'sitesupport'   => 'Spende',
+'aboutsite'            => 'Iwwer {{SITENAME}}',
+'copyright'            => 'Was do drin schdeht isch unner $1 verfiechbar.',
+'currentevents'        => 'Was grad so bassiert isch',
+'disclaimers'          => 'Hafdungsausschluß',
+'mainpage'             => 'Startseid',
+'mainpage-description' => 'Startseid',
+'portal'               => '{{SITENAME}}-Pordal',
+'privacy'              => 'Dadeschutz',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'      => 'Adiggel',
@@ -105,19 +106,13 @@ $messages = array(
 'reupload'  => 'Widder hochlade',
 'savefile'  => 'Datei schbeichere',
 
-# Image list
-'ilsubmit' => 'Such',
-
 # Random page
 'randompage' => 'Irnd en Adiggel',
 
 # Miscellaneous special pages
-'specialpages' => 'Schbezialseide',
-'move'         => 'Verschiewe',
+'move' => 'Verschiewe',
 
-'groups' => 'Benutzergrubbe',
-
-# Special:Allpages
+# Special:AllPages
 'allpagessubmit' => 'Zeiche',
 
 # E-mail user
@@ -170,10 +165,16 @@ $messages = array(
 # Special:Import
 'import-interwiki-submit' => 'Impordiere',
 
+# Special:NewImages
+'ilsubmit' => 'Such',
+
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'alle',
 'imagelistall'     => 'alle',
 'watchlistall2'    => 'alle',
 'namespacesall'    => 'alle',
+
+# Special:SpecialPages
+'specialpages' => 'Schbezialseide',
 
 );

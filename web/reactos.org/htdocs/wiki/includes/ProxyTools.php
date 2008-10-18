@@ -1,6 +1,7 @@
 <?php
 /**
  * Functions for dealing with proxies
+ * @file
  */
 
 /**
@@ -12,15 +13,19 @@
 function wfGetForwardedFor() {
 	if( function_exists( 'apache_request_headers' ) ) {
 		// More reliable than $_SERVER due to case and -/_ folding
-		$set = apache_request_headers();
-		$index = 'X-Forwarded-For';
-		$index2 = 'Client-ip';
+		$set = array ();
+		foreach ( apache_request_headers() as $tempName => $tempValue ) {
+			$set[ strtoupper( $tempName ) ] = $tempValue;
+		}
+		$index = strtoupper ( 'X-Forwarded-For' );
+		$index2 = strtoupper ( 'Client-ip' );
 	} else {
 		// Subject to spoofing with headers like X_Forwarded_For
 		$set = $_SERVER;
 		$index = 'HTTP_X_FORWARDED_FOR';
 		$index2 = 'CLIENT-IP';
 	}
+
 	#Try a couple of headers
 	if( isset( $set[$index] ) ) {
 		return $set[$index];
@@ -39,8 +44,11 @@ function wfGetForwardedFor() {
 function wfGetAgent() {
 	if( function_exists( 'apache_request_headers' ) ) {
 		// More reliable than $_SERVER due to case and -/_ folding
-		$set = apache_request_headers();
-		$index = 'User-Agent';
+		$set = array ();
+		foreach ( apache_request_headers() as $tempName => $tempValue ) {
+			$set[ strtoupper( $tempName ) ] = $tempValue;
+		}
+		$index = strtoupper ( 'User-Agent' );
 	} else {
 		// Subject to spoofing with headers like X_Forwarded_For
 		$set = $_SERVER;
@@ -83,7 +91,7 @@ function wfGetIP() {
 		$xff = array_reverse( $xff );
 		$ipchain = array_merge( $ipchain, $xff );
 	}
-	
+
 	# Step through XFF list and find the last address in the list which is a trusted server
 	# Set $ip to the IP address given by that trusted server, unless the address is not sensible (e.g. private)
 	foreach ( $ipchain as $i => $curIP ) {
@@ -112,9 +120,9 @@ function wfGetIP() {
 function wfIsTrustedProxy( $ip ) {
 	global $wgSquidServers, $wgSquidServersNoPurge;
 
-	if ( in_array( $ip, $wgSquidServers ) || 
-		in_array( $ip, $wgSquidServersNoPurge ) || 
-		wfIsAOLProxy( $ip ) 
+	if ( in_array( $ip, $wgSquidServers ) ||
+		in_array( $ip, $wgSquidServersNoPurge ) ||
+		wfIsAOLProxy( $ip )
 	) {
 		$trusted = true;
 	} else {
@@ -130,7 +138,7 @@ function wfIsTrustedProxy( $ip ) {
  */
 function wfProxyCheck() {
 	global $wgBlockOpenProxies, $wgProxyPorts, $wgProxyScriptPath;
-	global $wgUseMemCached, $wgMemc, $wgProxyMemcExpiry;
+	global $wgMemc, $wgProxyMemcExpiry;
 	global $wgProxyKey;
 
 	if ( !$wgBlockOpenProxies ) {
@@ -140,14 +148,9 @@ function wfProxyCheck() {
 	$ip = wfGetIP();
 
 	# Get MemCached key
-	$skip = false;
-	if ( $wgUseMemCached ) {
-		$mcKey = wfMemcKey( 'proxy', 'ip', $ip );
-		$mcValue = $wgMemc->get( $mcKey );
-		if ( $mcValue ) {
-			$skip = true;
-		}
-	}
+	$mcKey = wfMemcKey( 'proxy', 'ip', $ip );
+	$mcValue = $wgMemc->get( $mcKey );
+	$skip = (bool)$mcValue;
 
 	# Fork the processes
 	if ( !$skip ) {
@@ -165,9 +168,7 @@ function wfProxyCheck() {
 			exec( "php $params &>/dev/null &" );
 		}
 		# Set MemCached key
-		if ( $wgUseMemCached ) {
-			$wgMemc->set( $mcKey, 1, $wgProxyMemcExpiry );
-		}
+		$wgMemc->set( $mcKey, 1, $wgProxyMemcExpiry );
 	}
 }
 
@@ -217,6 +218,7 @@ function wfIsLocallyBlockedProxy( $ip ) {
  * @return bool
  */
 function wfIsAOLProxy( $ip ) {
+	# From http://webmaster.info.aol.com/proxyinfo.html
 	$ranges = array(
 		'64.12.96.0/19',
 		'149.174.160.0/20',
@@ -257,7 +259,3 @@ function wfIsAOLProxy( $ip ) {
 	}
 	return false;
 }
-
-
-
-

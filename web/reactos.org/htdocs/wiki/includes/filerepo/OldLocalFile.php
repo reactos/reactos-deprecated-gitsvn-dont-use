@@ -3,7 +3,7 @@
 /**
  * Class to represent a file in the oldimage table
  *
- * @addtogroup FileRepo
+ * @ingroup FileRepo
  */
 class OldLocalFile extends LocalFile {
 	var $requestedTime, $archive_name;
@@ -11,7 +11,10 @@ class OldLocalFile extends LocalFile {
 	const CACHE_VERSION = 1;
 	const MAX_CACHE_ROWS = 20;
 
-	static function newFromTitle( $title, $repo, $time ) {
+	static function newFromTitle( $title, $repo, $time = null ) {
+		# The null default value is only here to avoid an E_STRICT
+		if( $time === null )
+			throw new MWException( __METHOD__.' got null for $time parameter' );
 		return new self( $title, $repo, $time, null );
 	}
 
@@ -24,6 +27,45 @@ class OldLocalFile extends LocalFile {
 		$file = new self( $title, $repo, null, $row->oi_archive_name );
 		$file->loadFromRow( $row, 'oi_' );
 		return $file;
+	}
+	
+	static function newFromKey( $sha1, $repo, $timestamp = false ) {
+		# Polymorphic function name to distinguish foreign and local fetches
+		$fname = get_class( $this ) . '::' . __FUNCTION__;
+
+		$conds = array( 'oi_sha1' => $sha1 );
+		if( $timestamp ) {
+			$conds['oi_timestamp'] = $timestamp;
+		}
+		$row = $dbr->selectRow( 'oldimage', $this->getCacheFields( 'oi_' ), $conds, $fname );
+		if( $row ) {
+			return self::newFromRow( $row, $repo );
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Fields in the oldimage table
+	 */
+	static function selectFields() {
+		return array(
+			'oi_name',
+			'oi_archive_name',
+			'oi_size',
+			'oi_width',
+			'oi_height',
+			'oi_metadata',
+			'oi_bits',
+			'oi_media_type',
+			'oi_major_mime',
+			'oi_minor_mime',
+			'oi_description',
+			'oi_user',
+			'oi_user_text',
+			'oi_timestamp',
+			'oi_sha1',
+		);
 	}
 
 	/**
@@ -42,8 +84,7 @@ class OldLocalFile extends LocalFile {
 	}
 
 	function getCacheKey() {
-		$hashedName = md5($this->getName());
-		return wfMemcKey( 'oldfile', $hashedName );
+		return false;
 	}
 
 	function getArchiveName() {
@@ -57,103 +98,8 @@ class OldLocalFile extends LocalFile {
 		return true;
 	}
 
-	/**
-	 * Try to load file metadata from memcached. Returns true on success.
-	 */
-	function loadFromCache() {
-		global $wgMemc;
-		wfProfileIn( __METHOD__ );
-		$this->dataLoaded = false;
-		$key = $this->getCacheKey();
-		if ( !$key ) {
-			return false;
-		}
-		$oldImages = $wgMemc->get( $key );
-
-		if ( isset( $oldImages['version'] ) && $oldImages['version'] == self::CACHE_VERSION ) {
-			unset( $oldImages['version'] );
-			$more = isset( $oldImages['more'] );
-			unset( $oldImages['more'] );
-			$found = false;
-			if ( is_null( $this->requestedTime ) ) {
-				foreach ( $oldImages as $timestamp => $info ) {
-					if ( $info['archive_name'] == $this->archive_name ) {
-						$found = true;
-						break;
-					}
-				}
-			} else {
-				krsort( $oldImages );
-				foreach ( $oldImages as $timestamp => $info ) {
-					if ( $timestamp <= $this->requestedTime ) {
-						$found = true;
-						break;
-					}
-				}
-			}
-			if ( $found ) {
-				wfDebug( "Pulling file metadata from cache key {$key}[{$timestamp}]\n" );
-				$this->dataLoaded = true;
-				$this->fileExists = true;
-				foreach ( $info as $name => $value ) {
-					$this->$name = $value;
-				}
-			} elseif ( $more ) {
-				wfDebug( "Cache key was truncated, oldimage row might be found in the database\n" );
-			} else {
-				wfDebug( "Image did not exist at the specified time.\n" );
-				$this->fileExists = false;
-				$this->dataLoaded = true;
-			}
-		}
-
-		if ( $this->dataLoaded ) {
-			wfIncrStats( 'image_cache_hit' );
-		} else {
-			wfIncrStats( 'image_cache_miss' );
-		}
-
-		wfProfileOut( __METHOD__ );
-		return $this->dataLoaded;
-	}
-
-	function saveToCache() {
-		// If a timestamp was specified, cache the entire history of the image (up to MAX_CACHE_ROWS).
-		if ( is_null( $this->requestedTime ) ) {
-			return;
-		}
-		// This is expensive, so we only do it if $wgMemc is real
-		global $wgMemc;
-		if ( $wgMemc instanceof FakeMemcachedClient ) {
-			return;
-		}
-		$key = $this->getCacheKey();
-		if ( !$key ) { 
-			return;
-		}
-		wfProfileIn( __METHOD__ );
-
-		$dbr = $this->repo->getSlaveDB();
-		$res = $dbr->select( 'oldimage', $this->getCacheFields( 'oi_' ),
-			array( 'oi_name' => $this->getName() ), __METHOD__, 
-			array( 
-				'LIMIT' => self::MAX_CACHE_ROWS + 1,
-				'ORDER BY' => 'oi_timestamp DESC',
-			));
-		$cache = array( 'version' => self::CACHE_VERSION );
-		$numRows = $dbr->numRows( $res );
-		if ( $numRows > self::MAX_CACHE_ROWS ) {
-			$cache['more'] = true;
-			$numRows--;
-		}
-		for ( $i = 0; $i < $numRows; $i++ ) {
-			$row = $dbr->fetchObject( $res );
-			$decoded = $this->decodeRow( $row, 'oi_' );
-			$cache[$row->oi_timestamp] = $decoded;
-		}
-		$dbr->freeResult( $res );
-		$wgMemc->set( $key, $cache, 7*86400 /* 1 week */ );
-		wfProfileOut( __METHOD__ );
+	function isVisible() {
+		return $this->exists() && !$this->isDeleted(File::DELETED_FILE);
 	}
 
 	function loadFromDB() {
@@ -164,7 +110,7 @@ class OldLocalFile extends LocalFile {
 		if ( is_null( $this->requestedTime ) ) {
 			$conds['oi_archive_name'] = $this->archive_name;
 		} else {
-			$conds[] = 'oi_timestamp <= ' . $dbr->addQuotes( $this->requestedTime );
+			$conds[] = 'oi_timestamp = ' . $dbr->addQuotes( $dbr->timestamp( $this->requestedTime ) );
 		}
 		$row = $dbr->selectRow( 'oldimage', $this->getCacheFields( 'oi_' ),
 			$conds, __METHOD__, array( 'ORDER BY' => 'oi_timestamp DESC' ) );
@@ -179,10 +125,7 @@ class OldLocalFile extends LocalFile {
 	function getCacheFields( $prefix = 'img_' ) {
 		$fields = parent::getCacheFields( $prefix );
 		$fields[] = $prefix . 'archive_name';
-
-		// XXX: Temporary hack before schema update
-		//$fields = array_diff( $fields, array( 
-		//	'oi_media_type', 'oi_major_mime', 'oi_minor_mime', 'oi_metadata' ) );
+		$fields[] = $prefix . 'deleted';
 		return $fields;
 	}
 
@@ -193,11 +136,11 @@ class OldLocalFile extends LocalFile {
 	function getUrlRel() {
 		return 'archive/' . $this->getHashPath() . urlencode( $this->getArchiveName() );
 	}
-	
+
 	function upgradeRow() {
 		wfProfileIn( __METHOD__ );
 		$this->loadFromFile();
-		
+
 		# Don't destroy file info of missing files
 		if ( !$this->fileExists ) {
 			wfDebug( __METHOD__.": file does not exist, aborting\n" );
@@ -219,14 +162,39 @@ class OldLocalFile extends LocalFile {
 				'oi_minor_mime' => $minor,
 				'oi_metadata' => $this->metadata,
 				'oi_sha1' => $this->sha1,
-			), array( 
-				'oi_name' => $this->getName(), 
+			), array(
+				'oi_name' => $this->getName(),
 				'oi_archive_name' => $this->archive_name ),
 			__METHOD__
 		);
 		wfProfileOut( __METHOD__ );
 	}
+
+	/**
+	 * int $field one of DELETED_* bitfield constants
+	 * for file or revision rows
+	 * @return bool
+	 */
+	function isDeleted( $field ) {
+		return ($this->deleted & $field) == $field;
+	}
+
+	/**
+	 * Determine if the current user is allowed to view a particular
+	 * field of this FileStore image file, if it's marked as deleted.
+	 * @param int $field
+	 * @return bool
+	 */
+	function userCan( $field ) {
+		if( isset($this->deleted) && ($this->deleted & $field) == $field ) {
+			global $wgUser;
+			$permission = ( $this->deleted & File::DELETED_RESTRICTED ) == File::DELETED_RESTRICTED
+				? 'suppressrevision'
+				: 'deleterevision';
+			wfDebug( "Checking for $permission due to $field match on $this->mDeleted\n" );
+			return $wgUser->isAllowed( $permission );
+		} else {
+			return true;
+		}
+	}
 }
-
-
-

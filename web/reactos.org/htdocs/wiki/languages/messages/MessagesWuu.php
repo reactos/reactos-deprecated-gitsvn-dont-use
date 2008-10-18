@@ -1,7 +1,8 @@
 <?php
 /** Wu (吴语)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
  * @author O
  */
@@ -32,6 +33,7 @@ $messages = array(
 'tog-watchlisthideown'        => '勒拉监控列表里向囥脱我个编辑',
 'tog-watchlisthidebots'       => '勒拉监控列表里向囥脱机器人个编辑',
 'tog-watchlisthideminor'      => '在监控列表中隐藏微小更改',
+'tog-showhiddencats'          => '显示囥脱分类',
 
 'underline-always'  => '总归',
 'underline-never'   => '从来弗',
@@ -91,13 +93,15 @@ $messages = array(
 'nov'           => '11月',
 'dec'           => '12月',
 
-# Bits of text used by many pages
-'categories'            => '页面分类',
-'pagecategories'        => '$1个分类',
-'category_header'       => '“$1”分类中个页面',
-'subcategories'         => '亚类',
-'category-media-header' => '"$1"分类中个媒体',
-'category-empty'        => "''该个分类中尚未包含任何文章或媒体。''",
+# Categories related messages
+'pagecategories'                => '个分类',
+'category_header'               => '“$1”分类中个页面',
+'subcategories'                 => '亚类',
+'category-media-header'         => '"$1"分类中个媒体',
+'category-empty'                => "''该个分类中尚未包含任何文章或媒体。''",
+'hidden-categories'             => '个囥脱分类',
+'hidden-category-category'      => '囥脱分类', # Name of the category where hidden categories will be listed
+'category-subcat-count-limited' => '该个分类中有个亚类。',
 
 'mainpagetext'      => "<big>'''已成功安装MediaWiki！'''</big>",
 'mainpagedocfooter' => '请访问[http://meta.wikimedia.org/wiki/Help:Contents 用户手册]以获得使用此维基软件的信息！
@@ -141,7 +145,7 @@ $messages = array(
 'editthispage'      => '编辑此页',
 'delete'            => '删除',
 'deletethispage'    => '删除此页',
-'undelete_short'    => '反删除$1项修订',
+'undelete_short'    => '反删除项修订',
 'protect'           => '保护',
 'protect_change'    => '更改保护',
 'protectthispage'   => '保护此页',
@@ -174,24 +178,23 @@ $messages = array(
 'jumptosearch'      => '搜寻',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'         => '关于{{SITENAME}}',
-'aboutpage'         => 'Project:关于',
-'copyright'         => '内容侪拉$1下底发布。',
-'copyrightpage'     => '{{ns:project}}:版权',
-'currentevents'     => '近段辰光个事体',
-'currentevents-url' => 'Project:近段辰光个事体',
-'disclaimers'       => '免责声明',
-'disclaimerpage'    => 'Project:免责声明',
-'edithelp'          => '编辑帮助',
-'edithelppage'      => 'Help:如何编辑页面',
-'helppage'          => 'Help:目录',
-'mainpage'          => '封面',
-'portal'            => '社区门荡',
-'portal-url'        => 'Project:社区门荡',
-'privacy'           => '隐私政策',
-'privacypage'       => 'Project:隐私政策',
-'sitesupport'       => '捐款',
-'sitesupport-url'   => 'Project:捐款',
+'aboutsite'            => '关于{{SITENAME}}',
+'aboutpage'            => 'Project:关于',
+'copyright'            => '内容侪拉$1下底发布。',
+'copyrightpage'        => '{{ns:project}}:版权',
+'currentevents'        => '近段辰光个事体',
+'currentevents-url'    => 'Project:近段辰光个事体',
+'disclaimers'          => '免责声明',
+'disclaimerpage'       => 'Project:免责声明',
+'edithelp'             => '编辑帮助',
+'edithelppage'         => 'Help:如何编辑页面',
+'helppage'             => 'Help:目录',
+'mainpage'             => '封面',
+'mainpage-description' => '封面',
+'portal'               => '社区门荡',
+'portal-url'           => 'Project:社区门荡',
+'privacy'              => '隐私政策',
+'privacypage'          => 'Project:隐私政策',
 
 'ok'                      => '确定',
 'retrievedfrom'           => '取自“$1”',
@@ -204,10 +207,10 @@ $messages = array(
 'editsectionhint'         => '编辑段落: $1',
 'toc'                     => '目录',
 'showtoc'                 => '显示',
-'hidetoc'                 => '隐藏',
+'hidetoc'                 => '囥脱',
 'thisisdeleted'           => '查看或者恢复$1？',
 'viewdeleted'             => '望望$1看？',
-'restorelink'             => '$1个被删除个版本',
+'restorelink'             => '个被删除个版本',
 'site-rss-feed'           => '$1的RSS订阅',
 'site-atom-feed'          => '$1的Atom订阅',
 
@@ -333,7 +336,6 @@ $messages = array(
 'nextrevision' => '新点个版本→',
 'cur'          => '当前',
 'last'         => '上个',
-'orig'         => '原版',
 'histlegend'   => '选择比较版本：标记要比较个两只版本，回车或者揿页面底里个揿钮。<br /> 图例：(当前) = 搭当前版本有啥两样， (上个) = 搭上个版本有啥两样，小 = 小改动。',
 'deletedrev'   => '[已删]',
 'histfirst'    => '顶早',
@@ -439,9 +441,9 @@ $messages = array(
 'uploadbtn'         => '上载文件',
 'reupload'          => '重新上载',
 'uploadnologin'     => '朆登录',
-'uploadnologintext' => '倷板定要[[Special:Userlogin|登录]]仔再好上载文件。',
+'uploadnologintext' => '倷板定要[[Special:UserLogin|登录]]仔再好上载文件。',
 'uploaderror'       => '上载出错',
-'uploadtext'        => "拿下头只表格来上载文件。要查看或者搜寻之前上载个图片个说法，请到[[Special:Imagelist|已上载文件列表]]，上载搭仔删脱也记录勒拉[[Special:Log/upload|上载日志]]里向。
+'uploadtext'        => "拿下头只表格来上载文件。要查看或者搜寻之前上载个图片个说法，请到[[Special:ImageList|已上载文件列表]]，上载搭仔删脱也记录勒拉[[Special:Log/upload|上载日志]]里向。
 
 要勒拉页面里向摆进图片个说法，用下头该种形式个链接
 '''<nowiki>[[{{ns:image}}:文件.jpg]]</nowiki>'''，
@@ -453,25 +455,29 @@ $messages = array(
 'filename'          => '文件名',
 'filedesc'          => '小结',
 'fileuploadsummary' => '小结:',
-'filestatus'        => '版权状态',
-'filesource'        => '来源',
+'filestatus'        => '版权状态:',
+'filesource'        => '来源:',
 'uploadedfiles'     => '已经上载个文件',
 'ignorewarning'     => '弗管警告，随便哪亨要保存文件。',
 'successfulupload'  => '上载成功哉',
 'uploadwarning'     => '上载警告',
 'savefile'          => '保存文件',
 'uploadedimage'     => '上载 "[[$1]]"',
-'sourcefilename'    => '源文件',
-'destfilename'      => '目标文件名',
+'sourcefilename'    => '源文件:',
+'destfilename'      => '目标文件名:',
 'watchthisupload'   => '监控该只页面',
 
-# Image list
-'imagelist'                 => '文件列表',
-'getimagelist'              => '获取文件列表',
-'ilsubmit'                  => '搜寻',
-'imgdelete'                 => '删',
-'imgdesc'                   => '描述页',
-'imgfile'                   => '源文件',
+# Special:ImageList
+'imagelist_search_for'  => '寻图片名字:',
+'imgfile'               => '源文件',
+'imagelist'             => '文件列表',
+'imagelist_date'        => '日脚',
+'imagelist_name'        => '名字',
+'imagelist_user'        => '用户',
+'imagelist_size'        => '尺寸 (bytes)',
+'imagelist_description' => '描述',
+
+# Image description page
 'filehist'                  => '文物历史',
 'filehist-deleteall'        => '全删',
 'filehist-deleteone'        => '删',
@@ -483,12 +489,6 @@ $messages = array(
 'noimage'                   => '呒拨叫该个名字个文件，倷可以$1。',
 'noimage-linktext'          => '上载俚',
 'uploadnewversion-linktext' => '上载该文件个新版',
-'imagelist_date'            => '日脚',
-'imagelist_name'            => '名字',
-'imagelist_user'            => '用户',
-'imagelist_size'            => '尺寸 (bytes)',
-'imagelist_description'     => '描述',
-'imagelist_search_for'      => '寻图片名字:',
 
 # File reversion
 'filerevert'        => '恢复$1',
@@ -529,13 +529,11 @@ $messages = array(
 'mostcategories'       => '分类顶多个页面',
 'mostimages'           => '链进去顶多个图片',
 'mostrevisions'        => '修订过顶顶多趟数个页面',
-'allpages'             => '全部页面',
 'shortpages'           => '短页面',
 'longpages'            => '长页面',
 'protectedpages'       => '已保护页面',
 'protectedtitles'      => '已保护个标题',
 'listusers'            => '用户列表',
-'specialpages'         => '特殊页面',
 'newpages'             => '新页面',
 'newpages-username'    => '用户名:',
 'ancientpages'         => '顶顶老个页面',
@@ -545,16 +543,14 @@ $messages = array(
 # Book sources
 'booksources-go' => '转到',
 
-'groups'         => '用户组',
-'alphaindexline' => '$1到$2',
-'version'        => '版本',
-
 # Special:Log
 'specialloguserlabel'  => '用户:',
 'speciallogtitlelabel' => '标题:',
 'log'                  => '记录',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'          => '全部页面',
+'alphaindexline'    => '$1到$2',
 'nextpage'          => '下页 ($1)',
 'prevpage'          => '上一页（$1）',
 'allpagesfrom'      => '显示个页面开始于:',
@@ -566,7 +562,10 @@ $messages = array(
 'allpagesprefix'    => '显示个页面有下底个前缀:',
 'allpages-bad-ns'   => '{{SITENAME}}没有叫做"$1"个名字空间.',
 
-# Special:Listusers
+# Special:Categories
+'categories' => '页面分类',
+
+# Special:ListUsers
 'listusers-submit' => '显示',
 
 # E-mail user
@@ -587,7 +586,7 @@ $messages = array(
 'watchnologin'         => '朆登录',
 'addedwatch'           => '加到监控列表哉',
 'addedwatchtext'       => "该个页面 \"[[:\$1]]\" 已经加到侬个[[Special:Watchlist|监控列表]]哉。
-将来对该页面个改动搭仔搭界个讲张页个改动会列表垃该面，并且页面会垃拉[[Special:Recentchanges|近段辰光个改变列表]]里向显示成功'''黑体'''，实梗好外加便当拿渠拣出来。假使侬歇仔两日又想拿箇个页面登侬个监控列表里向拿脱个说法，垃侧条里向点击“弗要监控。",
+将来对该页面个改动搭仔搭界个讲张页个改动会列表垃该面，并且页面会垃拉[[Special:RecentChanges|近段辰光个改变列表]]里向显示成功'''黑体'''，实梗好外加便当拿渠拣出来。假使侬歇仔两日又想拿箇个页面登侬个监控列表里向拿脱个说法，垃侧条里向点击“弗要监控。",
 'removedwatch'         => '登监控列表里向拿脱哉',
 'removedwatchtext'     => '"[[:$1]]"已经从侬个监控列表移除。',
 'watch'                => '监控',
@@ -603,7 +602,7 @@ $messages = array(
 'watchlist-show-minor' => '显示小编辑',
 'watchlist-hide-minor' => '隐藏小编辑',
 
-# Displayed when you click the "watch" button and it's in the process of watching
+# Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => '监控……',
 'unwatching' => '解除监控……',
 
@@ -624,9 +623,8 @@ $messages = array(
 'rollback_short'  => '恢复',
 'rollbacklink'    => '恢复',
 'rollbackfailed'  => '恢复失败',
-'revertpage'      => '恢复[[Special:Contributions/$2|$2]] ([[User_talk:$2|讲张]])个改动；恢复到[[User:$1|$1]]个上一版本', # Additional available: $3: revid of the revision reverted to, $4: timestamp of the revision reverted to, $5: revid of the revision reverted from, $6: timestamp of the revision reverted from
+'revertpage'      => '恢复[[Special:Contributions/$2|$2]] ([[User talk:$2|讲张]])个改动；恢复到[[User:$1|$1]]个上一版本', # Additional available: $3: revid of the revision reverted to, $4: timestamp of the revision reverted to, $5: revid of the revision reverted from, $6: timestamp of the revision reverted from
 'protectlogpage'  => '保护日志',
-'confirmprotect'  => '确认保护',
 'protectcomment'  => '保护理由:',
 'protect-default' => '(默认)',
 
@@ -670,11 +668,11 @@ $messages = array(
 'blocklink'          => '封禁',
 'contribslink'       => '贡献',
 'blocklogpage'       => '封禁日志',
-'blocklogtext'       => '该个是用户封禁搭仔解禁操作个记录。自动封禁个IP地址弗会列勒该答。到[[Special:Ipblocklist|IP 封禁列表]]去看当前生效个封禁列表。',
+'blocklogtext'       => '该个是用户封禁搭仔解禁操作个记录。自动封禁个IP地址弗会列勒该答。到[[Special:IPBlockList|IP 封禁列表]]去看当前生效个封禁列表。',
 'proxyblocksuccess'  => '好哉。',
 
 # Move page
-'movepage'                => '页面捅荡',
+'move-page-legend'        => '页面捅荡',
 'movepagetext'            => "下底只表格会重新命名一只页面，拿俚所有个历史也侪捅到新名字下头。
 旧个名字会变成到新名字个重定向页面。
 到旧页面个连接弗会改变；注意检查双重定向或者坏脱个重定向。
@@ -686,8 +684,6 @@ $messages = array(
 个作兴会引起对一只热门页面剧烈个、想弗着个改变。
 来操作前头请倷确定倷已经充分了解个能做法个后果。",
 'movearticle'             => '页面捅荡:',
-'movenologin'             => '朆登录',
-'movenologintext'         => '倷板定要是已登记用户且勒拉[[Special:Userlogin|登录]]状态下头再好拿页面捅荡。',
 'newtitle'                => '新个题目:',
 'movepagebtn'             => '页面捅荡',
 'pagemovedsub'            => '捅荡成功哉',
@@ -739,7 +735,6 @@ $messages = array(
 'tooltip-n-portal'           => '关于本计划，可以做什么，应该如何做',
 'tooltip-n-recentchanges'    => '列出近段辰光个改动',
 'tooltip-n-help'             => '寻求帮助',
-'tooltip-n-sitesupport'      => '支持倪',
 'tooltip-t-whatlinkshere'    => '列出所有与此页相链个页面',
 'tooltip-t-emailuser'        => '发封信拨该个用户',
 'tooltip-t-upload'           => '上载图像或媒体文物',
@@ -769,9 +764,10 @@ $messages = array(
 # Image deletion
 'deletedrevision' => '拨删脱个旧修订 $1',
 
-# Special:Newimages
+# Special:NewImages
 'newimages'    => '新文件陈列室',
 'showhidebots' => '（$1机器人）',
+'ilsubmit'     => '搜寻',
 
 /*
 Short names for language variants used for language conversion links.
@@ -847,9 +843,15 @@ Variants for Chinese language
 # Watchlist editor
 'watchlistedit-normal-title' => '编辑监控列表',
 
-# Special:Filepath
+# Special:Version
+'version' => '版本', # Not used as normal message but as header for the special page itself
+
+# Special:FilePath
 'filepath'        => '文件路径',
 'filepath-page'   => '文件：',
 'filepath-submit' => '路径',
+
+# Special:SpecialPages
+'specialpages' => '特殊页面',
 
 );

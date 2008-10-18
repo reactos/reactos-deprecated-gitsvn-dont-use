@@ -1,10 +1,10 @@
 <?php
 /** Bavarian (Boarisch)
  *
- * @addtogroup Language
+ * @ingroup Language
+ * @file
  *
- * @author SPQRobin
- * @author Siebrand
+ * @author Malafaya
  */
 
 $fallback = 'de';
@@ -22,9 +22,10 @@ $messages = array(
 'talk'              => 'bschprecha',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite' => 'Üba {{SITENAME}}',
-'aboutpage' => 'Project:Üba_{{SITENAME}}',
-'mainpage'  => 'Hauptsaitn',
+'aboutsite'            => 'Üba {{SITENAME}}',
+'aboutpage'            => 'Project:Üba_{{SITENAME}}',
+'mainpage'             => 'Hauptsaitn',
+'mainpage-description' => 'Hauptsaitn',
 
 'youhavenewmessagesmulti' => 'Sie ham neie Nachrichten: $1',
 
@@ -47,9 +48,6 @@ $messages = array(
 'watchthis'          => 'De Seitn beobachtn',
 'whitelistedittitle' => 'Zum Bearbatn miaßn Sie si oomeidn',
 'whitelistedittext'  => 'Sie miaßn si $1, um Seiten bearbatn zum kinna.',
-'whitelistreadtitle' => 'Zum Lesn is erforderlich, ogmeldt zum sei',
-'whitelistreadtext'  => 'Sie miaßn si [[Special:Userlogin|da oomeidn]], um de Seitn lesen zum kinna.',
-'whitelistacctitle'  => 'Sie san net berechtigt, a Benutzerkonto ozumlegn.',
 'accmailtitle'       => 'Passwort is vaschickt worn',
 'newarticle'         => '(Nei)',
 'yourtext'           => 'Eana Text',
@@ -64,7 +62,6 @@ $messages = array(
 'watchthisupload' => 'De Seitn beobachtn',
 
 # Miscellaneous special pages
-'allpages'     => 'Alle Seitn',
 'newpages'     => 'Neie Seitn',
 'ancientpages' => 'Scho länger nimma bearbate Artikel',
 'move'         => 'vaschiam',
@@ -72,7 +69,8 @@ $messages = array(
 # Special:Log
 'all-logs-page' => 'Alle Logbiacha',
 
-# Special:Allpages
+# Special:AllPages
+'allpages'          => 'Alle Seitn',
 'allarticles'       => 'Alle Seitn',
 'allinnamespace'    => 'Alle Seitn (Namensraum: $1)',
 'allnotinnamespace' => 'Alle Seitn (net im $1 Namensraum)',
@@ -88,24 +86,26 @@ $messages = array(
 'unwatch'           => 'nimma beobachten',
 
 # Contributions
-'mycontris' => 'Eigene Beiträg',
+'contributions' => 'Benutzerbeiträg',
+'mycontris'     => 'Eigene Beiträg',
 
 # What links here
 'whatlinkshere' => 'Links auf de Seitn',
 
 # Move page
-'movepage'        => 'Seitn vaschiam',
-'move-watch'      => 'De Seitn beobachten',
-'1movedto2'       => 'håt [[$1]] nåch [[$2]] verschom',
-'1movedto2_redir' => 'håt [[$1]] nåch [[$2]] verschom und dabei a Weiterleitung überschriem',
+'move-page-legend' => 'Seitn vaschiam',
+'move-watch'       => 'De Seitn beobachten',
+'1movedto2'        => 'håt [[$1]] nåch [[$2]] verschom',
+'1movedto2_redir'  => 'håt [[$1]] nåch [[$2]] verschom und dabei a Weiterleitung überschriem',
 
 # Namespace 8 related
 'allmessagesname'     => 'Nam',
 'allmessagescurrent'  => 'Aktuella Text',
-'allmessagestext'     => 'Des is a Listn vo de MediaWiki-Systemtexte.',
+'allmessagestext'     => 'Des is a Listn vo de MediaWiki-Systemtexte.
+Please visit [http://www.mediawiki.org/wiki/Localisation MediaWiki Localisation] and [http://translatewiki.net Betawiki] if you wish to contribute to the generic MediaWiki localisation.',
 'allmessagesmodified' => 'Nur geänderte zoagn',
 
-# Special:Newimages
+# Special:NewImages
 'newimages' => 'Neie Dateien',
 
 );
