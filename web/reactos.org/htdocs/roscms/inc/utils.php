@@ -25,23 +25,16 @@
  */
 function cookie_domain()
 {
-  if (isset($_SERVER['SERVER_NAME']))
-    {
-      if (preg_match('/(\.[^.]+\.[^.]+$)/', $_SERVER['SERVER_NAME'], $matches))
-        {
-          $domain = $matches[1];
-        }
-      else
-        {
-          $domain = '';
-        }
-    }
-  else
-    {
-      $domain = '';
-    }
-
-  return $domain;
+	/* Server name might be just an IP address */
+	if(preg_match("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#", $_SERVER["SERVER_NAME"]))
+		return $_SERVER["SERVER_NAME"];
+	
+	/* If it' a DNS address, return the domain name along with the suffix */
+	if(preg_match("#(\.[^.]+\.[^.]+$)#", $_SERVER["SERVER_NAME"], $matches))
+		return $matches[1];
+	
+	/* Otherwise return nothing */
+	return "";
 }
 
 function row_exists($table_name, $where)
