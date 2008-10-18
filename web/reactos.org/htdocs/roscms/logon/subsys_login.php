@@ -101,14 +101,6 @@ function roscms_subsys_login($subsys, $login_type, $target)
         {
         /* Login session found */
         $userid = $row[0];
-
-		// For the Wiki, we have to start a session
-		if( $subsys == "wiki" )
-		{
-		define('MEDIAWIKI', '');
-		require_once(ROSCMS_PATH . "../wiki/includes/GlobalFunctions.php");
-		wfSetupSession();
-		}
 		
         if (isset($row[1]))
           {

@@ -40,6 +40,10 @@ if (isset($_COOKIE[$rdf_login_cookie_usrkey]))
 	                               "'";
 	$logout_usr_key_post_list = mysql_query($logout_usr_key_post)
 	                              or die("DB error (logout)!");
+	
+	// Set the Logout cookie for the Wiki, so the user won't see cached pages
+	// 5 = $wgClockSkewFudge in the Wiki
+	setcookie("wikiLoggedOut", gmdate("YmdHis", time() + 5), time() + 86400, "/", cookie_domain());
 }
 
 
