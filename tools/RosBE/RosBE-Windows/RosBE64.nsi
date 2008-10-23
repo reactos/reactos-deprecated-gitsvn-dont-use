@@ -90,8 +90,6 @@ var ICONS_GROUP
 !insertmacro MUI_PAGE_INSTFILES
 
 !define MUI_FINISHPAGE_TITLE_3LINES
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\README.pdf"
-!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !insertmacro MUI_PAGE_FINISH
 
 ;;
@@ -109,9 +107,6 @@ Section -BaseFiles SEC01
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Icons\mingw.ico
-    File /r Icons\rosbe.ico
-    File /r Root\LICENSE.txt
     File /r Root\charch.cmd
 SectionEnd
 
