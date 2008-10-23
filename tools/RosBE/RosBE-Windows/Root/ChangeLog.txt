@@ -19,6 +19,8 @@
          _ROSBE_DEBUG=1 (Daniel Reimer)
 - Added: Mingw-64 GCC 4.4.0 for the 64 bit Branch. It will be installed with a
          Optional installer (Daniel Reimer)
+- Fixed: Fixed the Header Mess in the different GCC Versions. Now the need for 
+         LIBRARY_PATH is no more and all Arches use THEIR Headers. (Samuel Serapion)
 - Fixed: Dependant on the Arch variable a crosscompiler will be used now. (Daniel Reimer)
 - Fixed: Clean only cleans the arch which is active right now. (Daniel Reimer)
 - Fixed: "if defined xxx" with a nested "if %xxx% == foobar" does not work in batch.
@@ -26,7 +28,7 @@
 - Fixed: Bug 3043: Polish translation update (olaf_siejka@o2.pl)
 - Fixed: Bug 3044: Ukrainian translation update (temarez@yandex.ru)
 - Fixed: Bug 3035: Patch for RosBE that solves improper handling of a path with
-         spaces by roelmessiant@gmail.com
+         spaces (roelmessiant@gmail.com)
 - Fixed: Stripped apps and removed Debug Symbols at once may not be possible.
          (Daniel Reimer)
 - Fixed: Warnings, Resource Leaks, Problems with non-allocated Memory, RC MSVC
