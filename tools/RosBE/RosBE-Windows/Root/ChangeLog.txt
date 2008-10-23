@@ -1,4 +1,4 @@
-*** July 17th, 2008 - RosBE 1.3 Released
+*** October 26th, 2008 - RosBE 1.3 Released
 
 - Added: Tool to set the Architecture to build ROS for. (Daniel Reimer)
 - Updated: NASM to 2.04 (Daniel Reimer)
@@ -7,16 +7,35 @@
 - Updated: GDB to 6.8-3 (Daniel Reimer)
 - Updated: Binutils 2.18.50 Build 20080109. (Daniel Reimer)
 - Updated: MingW32 Make 3.81-3 (Daniel Reimer)
-- Updated: ccache 2.4 is now a native Version Without Cygwin (Colin Finck) X
+- Updated: MingW32 Runtime DLL 3.15.1 (Daniel Reimer)
 - Other small Fixes here and there (Daniel Reimer)
 - Added: Basic PowerShell Version of RosBE (Daniel Reimer)
 - Added: YASM 0.72, which supports 64 bit asm too. (Daniel Reimer)
 - Added: Update command (Daniel Reimer)
-- Added: Mingw-64 GCC 4.4.0 for the 64 bit Branch. (Daniel Reimer)
+- Added: A way to include rosapps and rostests into the build and ssvn script by modifying
+         one var. Add this var to options.exe (Maciej Bialas and slight changes by me)
+- Added: nostrip function (Christoph von Wittich)
+- Added: RosBE Debugging Feature which disables the @echo off. just set 
+         _ROSBE_DEBUG=1 (Daniel Reimer)
+- Added: Mingw-64 GCC 4.4.0 for the 64 bit Branch. It will be installed with a
+         Optional installer (Daniel Reimer)
 - Fixed: Dependant on the Arch variable a crosscompiler will be used now. (Daniel Reimer)
 - Fixed: Clean only cleans the arch which is active right now. (Daniel Reimer)
-- Fixed: "if defined xxx" with a nested "if %xxx% == foobar" does not work in batch. (Daniel Reimer)
-- Fixed: Stripped apps and removed Debug Symbols at once may not be possible. (Daniel Reimer)
+- Fixed: "if defined xxx" with a nested "if %xxx% == foobar" does not work in batch.
+         (Daniel Reimer)
+- Fixed: Bug 3043: Polish translation update (olaf_siejka@o2.pl)
+- Fixed: Bug 3044: Ukrainian translation update (temarez@yandex.ru)
+- Fixed: Bug 3035: Patch for RosBE that solves improper handling of a path with
+         spaces by roelmessiant@gmail.com
+- Fixed: Stripped apps and removed Debug Symbols at once may not be possible.
+         (Daniel Reimer)
+- Fixed: Warnings, Resource Leaks, Problems with non-allocated Memory, RC MSVC
+         Comptibility (Christoph von Wittich)
+- Fixed: First look into %_ROSBE_BASEDIR% for the specified directory and use it if it
+         exists. his makes it possible to just call "chdefgcc 3.4.5" instead of
+         "chdefgcc full\path\to\the\3.4.5\directory" if there is a "3.4.5" directory
+         in the RosBE installation directory. (Colin Finck)
+
 
 *** January 23rd, 2008 - RosBE 1.2 Released
 

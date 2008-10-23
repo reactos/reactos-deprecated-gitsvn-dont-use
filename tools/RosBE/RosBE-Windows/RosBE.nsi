@@ -339,7 +339,6 @@ Section Uninstall
         RMDir /r /REBOOTOK "$APPDATA\RosBE"
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
-    Delete /REBOOTOK "$INSTDIR\charch.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefgcc.cmd"
     Delete /REBOOTOK "$INSTDIR\Clean.cmd"
