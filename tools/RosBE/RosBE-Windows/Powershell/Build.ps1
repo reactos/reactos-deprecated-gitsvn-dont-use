@@ -7,68 +7,6 @@
 #
 #
 
-function DELA {
-!    set /p ROSA_DEL="rosapps.bak exists! Delete it? [yes/no] "
-    if ($ROSA_DEL -eq "no") exit
-!    if ($ROSA_DEL -eq "yes") rd /q /s ".\modules\rosapps.bak"
-}
-
-function DELB {
-!    set /p ROSB_DEL="rostests.bak exists! Delete it? [yes/no] "
-    if ($ROSB_DEL -eq "no") exit
-!    if ($ROSB_DEL -eq "yes") rd /q /s ".\modules\rostests.bak"
-}
-
-if ($_ROSBE_MODULES -ne 1) {
-    if (Test-Path ".\modules\rosapps") {
-        if (Test-Path ".\modules\rosapps.bak")   {
-            DELA            
-        }
-        "Renaming rosapps to rosapps.bak..."
-!        ren ".\modules\rosapps" "rosapps.bak"
-!        if ($ENV:ROS_ARCH -eq $null) {
-!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
-        } else {
-!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
-        }
-    }
-    if (Test-Path ".\modules\rostests") {
-        if (Test-Path ".\modules\rostests.bak")   {
-            DELB
-        }
-        "Renaming rostests to rostests.bak..."
-!        ren ".\modules\rostests" "rostests.bak"   
-!        if ($ENV:ROS_ARCH -eq $null) {
-!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
-        } else {
-!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
-        }
-    }
-} else {
-    if (Test-Path ".\modules\rosapps.bak") {
-        if !(Test-Path ".\modules\rosapps") {
-      	    "Renaming rosapps.bak to rosapps..."
-!            ren ".\modules\rosapps.bak" "rosapps"
-!            if ($ENV:ROS_ARCH -eq $null) {
-!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
-            } else {
-!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
-            }
-        }
-    }
-    if (Test-Path ".\modules\rostests.bak") {
-        if !(Test-Path ".\modules\rostests") {
-            "Renaming rostests.bak to rostests..."
-!            ren ".\modules\rostests.bak" "rostests"
-!            if ($ENV:ROS_ARCH -eq $null) {
-!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
-            } else {
-!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
-            }
-        }
-    }
-}
-
 #
 # Check if config.template.rbuild is newer than config.rbuild, if it is then
 # abort the build and inform the user.
