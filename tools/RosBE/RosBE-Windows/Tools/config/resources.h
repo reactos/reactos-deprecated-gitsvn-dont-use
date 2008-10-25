@@ -50,7 +50,6 @@
 #define IDC_BACK 0x25
 #define ID_STATUSBAR 0x26
 #define ID_NOSTRIP 0x27
-#define ID_MODULES 0x28
 
 /* Strings */
 #define MSG_NOGCCFOUND 0x27
@@ -79,5 +78,4 @@
 #define HLP_QUITBUTTON 0x3c
 #define HLP_DEFAULTMSG 0x3d
 #define HLP_NOSTRIP    0x3e
-#define HLP_MODULES    0x3f
 

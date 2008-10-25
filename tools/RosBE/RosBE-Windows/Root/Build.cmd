@@ -14,56 +14,6 @@ if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
-if "%_ROSBE_MODULES%" neq "1" (
-    if exist "modules\rosapps" (
-        if exist "modules\rosapps.bak"   (
-            call :DELA            
-        )
-        echo Renaming rosapps to rosapps.bak...
-        ren "modules\rosapps" "rosapps.bak"
-        if "%ROS_ARCH%" == "" (
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
-        ) else (
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
-        )
-    )
-    if exist "modules\rostests" (
-        if exist "modules\rostests.bak"   (
-            call :DELB
-        )
-        echo Renaming rostests to rostests.bak...
-        ren "modules\rostests" "rostests.bak"   
-        if "%ROS_ARCH%" == "" (
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
-        ) else (
-            if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
-        )
-    )
-) else (
-    if exist "modules\rosapps.bak" (
-        if not exist "modules\rosapps" (
-      	    echo Renaming rosapps.bak to rosapps...
-            ren "modules\rosapps.bak" "rosapps"
-            if "%ROS_ARCH%" == "" (
-                if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
-            ) else (
-                if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
-            )
-        )
-    )
-    if exist "modules\rostests.bak" (
-        if not exist "modules\rostests" (
-            echo Renaming rostests.bak to rostests...
-            ren "modules\rostests.bak" "rostests"
-            if "%ROS_ARCH%" == "" (
-                if exist %_ROSBE_ROSSOURCEDIR%\makefile.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile.auto
-            ) else (
-                if exist %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto del /F %_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
-            )
-        )
-    )
-)
-
 ::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
@@ -251,19 +201,6 @@ goto :EOF
             "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
         )
     )
-goto :EOF
-
-
-:DELA
-set /p ROSA_DEL="rosapps.bak exists! Delete it? [yes/no] "
-      if /i "%ROSA_DEL%"=="no" goto :EOC
-      if /i "%ROSA_DEL%"=="yes" rd /q /s "modules\rosapps.bak" > rm1.txt
-goto :EOF
-
-:DELB
-set /p ROSB_DEL="rostests.bak exists! Delete it? [yes/no] "
-      if /i "%ROSB_DEL%"=="no" goto :EOC
-      if /i "%ROSB_DEL%"=="yes" rd /q /s "modules\rostests.bak" > rm2.txt
 goto :EOF
 
 :EOC
