@@ -201,6 +201,7 @@ Section "ccache - Compiler Cache" SEC06
     SetOutPath "$INSTDIR\4.1.3\bin"
     SetOverwrite try
     File /r Components\Tools\ccache.exe
+    File /r Components\Tools\cygwin1.dll
 SectionEnd
 
 Section "GDB - The GNU Project Debugger" SEC07
