@@ -5,15 +5,12 @@
 - Updated: NSIS to 2.40 (Daniel Reimer)
 - Updated: Subversion to 1.5.3 (Daniel Reimer)
 - Updated: GDB to 6.8-3 (Daniel Reimer)
-- Updated: Binutils 2.18.50 Build 20080109. (Daniel Reimer)
 - Updated: MingW32 Make 3.81-3 (Daniel Reimer)
 - Updated: MingW32 Runtime DLL 3.15.1 (Daniel Reimer)
 - Other small Fixes here and there (Daniel Reimer)
 - Added: Basic PowerShell Version of RosBE (Daniel Reimer)
 - Added: YASM 0.72, which supports 64 bit asm too. (Daniel Reimer)
 - Added: Update command (Daniel Reimer)
-- Added: A way to include rosapps and rostests into the build and ssvn script by modifying
-         one var. Add this var to options.exe (Maciej Bialas and slight changes by me)
 - Added: nostrip function (Christoph von Wittich)
 - Added: RosBE Debugging Feature which disables the @echo off. just set 
          _ROSBE_DEBUG=1 (Daniel Reimer)
