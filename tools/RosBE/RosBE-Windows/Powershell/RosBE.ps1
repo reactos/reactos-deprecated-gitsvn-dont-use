@@ -19,7 +19,7 @@ if ($APPDATA.Length -lt 1) {
     $APPDATA = $ENV:USERPROFILE
 }
 $ENV:PATH = "$ENV:SystemRoot\system32;$ENV:SystemRoot"
-$global:_ROSBE_VERSION = 1.2
+$global:_ROSBE_VERSION = 1.3
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_MODE = "RosBE"
@@ -29,7 +29,10 @@ $global:_ROSBE_SHOWTIME = 1
 $global:_ROSBE_WRITELOG = 1
 $global:_ROSBE_USECCACHE = 0
 $global:_ROSBE_STRIP = 0
-$global:_ROSBE_MINGWPATH = "$_ROSBE_BASEDIR\4.1.3"
+$global:_ROSBE_NOSTRIP = 0
+$global:_ROSBE_MODULES = 1
+$global:_ROSBE_HOST_MINGWPATH = "$_ROSBE_BASEDIR\4.1.3"
+$global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\4.1.3"
 $global:_ROSBE_LOGDIR = "$_ROSBE_ROSSOURCEDIR\RosBE-Logs"
 $global:_ROSBE_OBJPATH = $null
 $global:_ROSBE_OUTPATH = $null
@@ -95,6 +98,10 @@ function LoadAliases {
     if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
         set-alias SSVN "$_ROSBE_BASEDIR\sSVN.ps1" -scope Global
         set-alias SVN "$_ROSBE_BASEDIR\Tools\svn.exe" -scope Global
+    }
+
+    if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
+        set-alias UPDATE "$_ROSBE_BASEDIR\update.ps1" -scope Global
     }
 
     if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {

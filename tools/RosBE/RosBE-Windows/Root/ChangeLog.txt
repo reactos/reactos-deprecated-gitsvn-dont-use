@@ -1,7 +1,7 @@
 *** October 26th, 2008 - RosBE 1.3 Released
 
 - Added: Tool to set the Architecture to build ROS for. (Daniel Reimer)
-- Updated: NASM to 2.05 RC8 (Daniel Reimer)
+- Updated: NASM to 2.03 (Daniel Reimer)
 - Updated: NSIS to 2.40 (Daniel Reimer)
 - Updated: Subversion to 1.5.3 (Daniel Reimer)
 - Updated: GDB to 6.8-3 (Daniel Reimer)

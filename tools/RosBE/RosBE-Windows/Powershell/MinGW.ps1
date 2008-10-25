@@ -21,7 +21,8 @@ $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_MODE = "MinGW"
 $global:_ROSBE_ORIGINALPATH = "$ENV:PATH"
-$global:_ROSBE_MINGWPATH = "$_ROSBE_BASEDIR\4.1.3"
+$global:_ROSBE_HOST_MINGWPATH = "$_ROSBE_BASEDIR\4.1.3"
+$global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\4.1.3"
 
 ""
 ""

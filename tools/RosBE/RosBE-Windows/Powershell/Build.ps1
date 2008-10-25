@@ -7,6 +7,68 @@
 #
 #
 
+function DELA {
+!    set /p ROSA_DEL="rosapps.bak exists! Delete it? [yes/no] "
+    if ($ROSA_DEL -eq "no") exit
+!    if ($ROSA_DEL -eq "yes") rd /q /s ".\modules\rosapps.bak"
+}
+
+function DELB {
+!    set /p ROSB_DEL="rostests.bak exists! Delete it? [yes/no] "
+    if ($ROSB_DEL -eq "no") exit
+!    if ($ROSB_DEL -eq "yes") rd /q /s ".\modules\rostests.bak"
+}
+
+if ($_ROSBE_MODULES -ne 1) {
+    if (Test-Path ".\modules\rosapps") {
+        if (Test-Path ".\modules\rosapps.bak")   {
+            DELA            
+        }
+        "Renaming rosapps to rosapps.bak..."
+!        ren ".\modules\rosapps" "rosapps.bak"
+!        if ($ENV:ROS_ARCH -eq $null) {
+!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
+        } else {
+!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
+        }
+    }
+    if (Test-Path ".\modules\rostests") {
+        if (Test-Path ".\modules\rostests.bak")   {
+            DELB
+        }
+        "Renaming rostests to rostests.bak..."
+!        ren ".\modules\rostests" "rostests.bak"   
+!        if ($ENV:ROS_ARCH -eq $null) {
+!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
+        } else {
+!            if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
+        }
+    }
+} else {
+    if (Test-Path ".\modules\rosapps.bak") {
+        if !(Test-Path ".\modules\rosapps") {
+      	    "Renaming rosapps.bak to rosapps..."
+!            ren ".\modules\rosapps.bak" "rosapps"
+!            if ($ENV:ROS_ARCH -eq $null) {
+!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
+            } else {
+!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
+            }
+        }
+    }
+    if (Test-Path ".\modules\rostests.bak") {
+        if !(Test-Path ".\modules\rostests") {
+            "Renaming rostests.bak to rostests..."
+!            ren ".\modules\rostests.bak" "rostests"
+!            if ($ENV:ROS_ARCH -eq $null) {
+!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile.auto
+            } else {
+!                if (Test-Path $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto) del /F $_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto
+            }
+        }
+    }
+}
+
 #
 # Check if config.template.rbuild is newer than config.rbuild, if it is then
 # abort the build and inform the user.
@@ -23,8 +85,15 @@ if (Test-Path ".\config.rbuild") {
 }
 
 #
-# Check if strip or ccache are being used and set the appropriate options.
+# Check if strip, no Debug Symbols or ccache are being used and set the appropriate options.
 #
+if ($_ROSBE_NOSTRIP -ne $null) {
+    if ($_ROSBE_NOSTRIP -eq 1) {
+        $ENV:ROS_BUILDNOSTRIP = "yes"
+    } else {
+        $ENV:ROS_BUILDNOSTRIP = "no"
+    }
+}
 if ($_ROSBE_STRIP -ne $null) {
     if ($_ROSBE_STRIP -eq 1) {
         $ENV:ROS_LEAN_AND_MEAN = "yes"
@@ -32,18 +101,61 @@ if ($_ROSBE_STRIP -ne $null) {
         $ENV:ROS_LEAN_AND_MEAN = "no"
     }
 }
+# Small Security Check to prevent useless apps.
+if ($ENV:ROS_LEAN_AND_MEAN -eq "yes") {
+    if ($ENV:ROS_BUILDNOSTRIP -eq "yes") {
+!        cls
+        "Selecting Stripping and removing Debug Symbols together will most likely cause useless apps. Please deselect one of them."
+        exit
+    }
+}
+
 if ($_ROSBE_USECCACHE -ne $null) {
     if ($_ROSBE_USECCACHE -eq 1) {
         $ENV:CCACHE_DIR = "$APPDATA\RosBE\.ccache"
         $ENV:HOST_CC = "ccache gcc"
         $ENV:HOST_CPP = "ccache g++"
+
+        #
+        #Target defaults to host(i386)
+        #
+
         $ENV:TARGET_CC = "ccache gcc"
         $ENV:TARGET_CPP = "ccache g++"
+        if ($ENV:ROS_ARCH -eq "arm") {
+            $ENV:TARGET_CC = "ccache arm-pc-mingw32-gcc"
+            $ENV:TARGET_CPP = "ccache arm-pc-mingw32-g++"
+        }
+        if ($ENV:ROS_ARCH -eq "amd64") {
+            $ENV:TARGET_CC = "ccache x86_64-pc-mingw32-gcc"
+            $ENV:TARGET_CPP = "ccache x86_64-pc-mingw32-g++"
+        }
+        if $ENV:ROS_ARCH -eq "ppc") {
+            $ENV:TARGET_CC = "ccache ppc-pc-mingw32-gcc"
+            $ENV:TARGET_CPP = "ccache ppc-pc-mingw32-g++"
+        }
     } else {
         $ENV:HOST_CC = "gcc"
         $ENV:HOST_CPP = "g++"
+
+        #
+        #Target defaults to host(i386)
+        #
+
         $ENV:TARGET_CC = "gcc"
         $ENV:TARGET_CPP = "g++"
+        if ($ENV:ROS_ARCH -eq "arm") {
+            $ENV:TARGET_CC = "arm-pc-mingw32-gcc"
+            $ENV:TARGET_CPP = "arm-pc-mingw32-g++"
+        }
+        if ($ENV:ROS_ARCH -eq "amd64") {
+            $ENV:TARGET_CC = "x86_64-pc-mingw32-gcc"
+            $ENV:TARGET_CPP = "x86_64-pc-mingw32-g++"
+        }
+        if $ENV:ROS_ARCH -eq "ppc") {
+            $ENV:TARGET_CC = "ppc-pc-mingw32-gcc"
+            $ENV:TARGET_CPP = "ppc-pc-mingw32-g++"
+        }
     }
 }
 
@@ -178,6 +290,7 @@ if ($_ROSBE_VERSION -ne $null) {
 #
 # Unload all used Vars.
 #
+$ENV:ROS_BUILDNOSTRIP = $null
 $ENV:ROS_LEAN_AND_MEAN = $null
 $ENV:HOST_CC = $null
 $ENV:HOST_CPP = $null
@@ -188,3 +301,5 @@ $ENV:ROS_OUTPUT = $null
 $ENV:ROS_TEMPORARY = $null
 $ENV:CPUCOUNT = $null
 $ENV:CCACHE_DIR = $null
+$ENV:ROSA_DEL = $null
+$ENV:ROSB_DEL = $null

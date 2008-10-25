@@ -67,6 +67,10 @@ if ("$args" -eq "") {
         "    options              - Starts the RosBE configurator."
     }
 
+    if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
+        "    update [OPTIONS]     - Updates RosBE to the most recent files.
+    }
+
     ""
     exit
 }
@@ -99,7 +103,7 @@ if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
     if ("$args" -eq "charch") {
         " Usage: charch [OPTIONS]"
         " Change the ReactOS source directory for the current RosBE session."
-        " Possible Architectures are: x86, ppc, arm."
+        " Possible Architectures are: i386, ppc, arm, amd64."
         ""
         exit
     }
@@ -187,6 +191,17 @@ if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
     if ("$args" -eq "options") {
         " Usage: options"
         " Starts the RosBE configurator."
+        exit
+    }
+}
+if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
+    if ("$args" -eq "update") {
+        " Usage: update [OPTIONS]"
+        " Updates all files of RosBE to the most recent files."
+        ""
+        "    nocmds  - Skips the Updating of the Script Files."
+        "    nogcc   - Skips the Updating of GCC."
+        "    notools - Skips the Updating of the Tools."
         exit
     }
 }
