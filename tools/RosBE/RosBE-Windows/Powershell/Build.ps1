@@ -42,7 +42,7 @@ if ($_ROSBE_STRIP -ne $null) {
 # Small Security Check to prevent useless apps.
 if ($ENV:ROS_LEAN_AND_MEAN -eq "yes") {
     if ($ENV:ROS_BUILDNOSTRIP -eq "yes") {
-!        cls
+        cls
         "Selecting Stripping and removing Debug Symbols together will most likely cause useless apps. Please deselect one of them."
         exit
     }
@@ -68,7 +68,7 @@ if ($_ROSBE_USECCACHE -ne $null) {
             $ENV:TARGET_CC = "ccache x86_64-pc-mingw32-gcc"
             $ENV:TARGET_CPP = "ccache x86_64-pc-mingw32-g++"
         }
-        if $ENV:ROS_ARCH -eq "ppc") {
+        if ($ENV:ROS_ARCH -eq "ppc") {
             $ENV:TARGET_CC = "ccache ppc-pc-mingw32-gcc"
             $ENV:TARGET_CPP = "ccache ppc-pc-mingw32-g++"
         }
@@ -90,7 +90,7 @@ if ($_ROSBE_USECCACHE -ne $null) {
             $ENV:TARGET_CC = "x86_64-pc-mingw32-gcc"
             $ENV:TARGET_CPP = "x86_64-pc-mingw32-g++"
         }
-        if $ENV:ROS_ARCH -eq "ppc") {
+        if ($ENV:ROS_ARCH -eq "ppc") {
             $ENV:TARGET_CC = "ppc-pc-mingw32-gcc"
             $ENV:TARGET_CPP = "ppc-pc-mingw32-g++"
         }

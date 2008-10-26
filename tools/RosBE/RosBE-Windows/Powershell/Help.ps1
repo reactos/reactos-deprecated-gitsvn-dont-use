@@ -68,7 +68,7 @@ if ("$args" -eq "") {
     }
 
     if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
-        "    update [OPTIONS]     - Updates RosBE to the most recent files.
+        "    update [OPTIONS]     - Updates RosBE to the most recent files."
     }
 
     ""

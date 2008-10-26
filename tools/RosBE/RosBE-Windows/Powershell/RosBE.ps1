@@ -131,8 +131,20 @@ if ($args.count -gt 0) {
     if ($args -eq "oldmode") {
         cls
         $_ROSBE_MODE = "MinGW"
-
-    } else {
+    }
+    elseif ($args -eq "arm") {
+        cls
+        $_ROSBE_ARCH = 1
+    }
+    elseif ($args -eq "ppc") {
+        cls
+        $_ROSBE_ARCH = 2
+    }
+    elseif ($args -eq "amd64") {
+        cls
+        $_ROSBE_ARCH = 3
+    }
+    elseif ($args -ne $null) {
         cls
         "Unknown parameter specified. Exiting."
         exit
