@@ -15,7 +15,7 @@ BEGIN
   CONTROL "Отображать время компиляции", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 45, 100, 12
   CONTROL "Использовать кеширование", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 60, 100, 12
   CONTROL "Вырезать пустой код при компил.", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 75, 100, 12
-  CONTROL "Create nostrip files for debugging", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 150, 12
+  CONTROL "Оставлять в файлах информацию для возможности работы дебагера", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 150, 12
   LTEXT "Путь к компилятору GCC", -1, 10, 107, 100, 15
   EDITTEXT ID_MGWDIR, 10, 120, 200, 13, WS_TABSTOP
   PUSHBUTTON "...", ID_BROWSEMGW, 215, 120, 30, 13, WS_TABSTOP
@@ -75,5 +75,5 @@ BEGIN
   HLP_SAVEBUTTON, "Активное состояние кнопки указывает на возможность сохранения измененных настроек"
   HLP_QUITBUTTON, "Это клавиша позволяет выйти без сохранения изменений"
   HLP_DEFAULTMSG, "Помощь по изначальным параметрам"
-  HLP_NOSTRIP,    "Creates debug information for the ReactOS Debugger."
+  HLP_NOSTRIP,    "Компиляция файлов ReactOS'а с созданием информации для дебагера."
 END

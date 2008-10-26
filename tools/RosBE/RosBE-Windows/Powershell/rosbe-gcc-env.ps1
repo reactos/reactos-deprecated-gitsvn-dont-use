@@ -46,17 +46,21 @@ if ($_ROSBE_ARCH -eq 3) {
 #
 $ENV:PATH = "$_ROSBE_HOST_MINGWPATH\bin;$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
 $global:_ROSBE_MINGWMAKE = "$_ROSBE_HOST_MINGWPATH\bin\mingw32-make.exe"
-#$global:_ROSBE_GCCVERSION = $null
-#$global:_ROSBE_GCCTARGET = $null
 if ($ENV:ROS_ARCH -ne $null) {
-    $global:_ROSBE_GCCVERSION = (& $ENV:ROS_PREFIX-gcc -v 2>&1 | select-string "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-    $global:_ROSBE_GCCTARGET = (& $ENV:ROS_PREFIX-gcc -v 2>&1 | select-string  "target=") -replace ".*--target=(.+?)\b.*",'$1'
+    & "$ENV:ROS_PREFIX-gcc" -v 2> v.txt
+    $global:_ROSBE_GCCVERSION = (select-string -path .\v.txt "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
+    $global:_ROSBE_GCCTARGET = (select-string -path .\v.txt "target=") -replace ".*--target=(.+?)\b.*",'$1'
+    rm v.txt
 } else {
-    $global:_ROSBE_GCCVERSION = (& gcc -v 2>&1 | select-string "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-    $global:_ROSBE_GCCTARGET = (& gcc -v 2>&1 | select-string  "target=") -replace ".*--target=(.+?)\b.*",'$1'
+    gcc -v 2> v.txt
+    $global:_ROSBE_GCCVERSION = (select-string -path .\v.txt "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
+    $global:_ROSBE_GCCTARGET = (select-string -path .\v.txt "target=") -replace ".*--target=(.+?)\b.*",'$1'
+    rm v.txt
 }
-$global:_ROSBE_HOST_GCCVERSION = (& gcc -v 2>&1 | select-string "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-$global:_ROSBE_HOST_GCCTARGET = (& gcc -v 2>&1 | select-string  "target=") -replace ".*--target=(.+?)\b.*",'$1'
+gcc -v 2> v.txt
+$global:_ROSBE_HOST_GCCVERSION = (select-string -path .\v.txt "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
+$global:_ROSBE_HOST_GCCTARGET = (select-string -path .\v.txt "target=") -replace ".*--target=(.+?)\b.*",'$1'
+rm v.txt
 
 if ($_ROSBE_MODE -eq "MinGW") {
     $ENV:C_INCLUDE_PATH = "$_ROSBE_HOST_MINGWPATH\include;$_ROSBE_HOST_MINGWPATH\lib\gcc\$_ROSBE_GCCTARGET\$_ROSBE_GCCVERSION\include"
@@ -72,11 +76,15 @@ if ($_ROSBE_MODE -eq "MinGW") {
 # Display the current version of GCC, NASM, ld and make.
 #
 if ($ENV:ROS_ARCH -ne $null) {
-& "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-gcc" -v 2>&1 | select-string  "gcc version"
+& "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-gcc" -v 2> v.txt
+(select-string -path .\v.txt "gcc version") -replace ".*: (.+?)\b",'$1'
+rm v.txt
 "gcc target - $_ROSBE_GCCTARGET"
 & "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-ld" -v
 } else {
-& gcc -v 2>&1 | select-string  "gcc version"
+gcc -v 2> v.txt
+(select-string -path .\v.txt "gcc version" ) -replace ".*: (.+?)\b",'$1'
+rm v.txt
 "gcc target - $_ROSBE_GCCTARGET"
 & ld -v
 }
