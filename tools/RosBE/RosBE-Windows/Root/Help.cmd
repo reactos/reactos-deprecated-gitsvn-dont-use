@@ -28,7 +28,7 @@ if "%1" == "" (
     echo    basedir              - Switch back to the ReactOS source directory.
 
     if exist "%_ROSBE_BASEDIR%\charch.cmd" (
-        echo    charch [OPTIONS]     - Change the Architecture to build for for the
+        echo    charch [OPTIONS]     - Change the Architecture to build for the
         echo                           current RosBE session.
     )
 

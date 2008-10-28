@@ -37,12 +37,12 @@ if "%1" == "chdefgcc" (
 if .%_ROSBE_ARCH%. == .1. (
     set ROS_ARCH=arm
     set ROS_PREFIX=arm-pc-mingw32
-    REM set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\4.4.0
+    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\4.4.0
 )
 if .%_ROSBE_ARCH%. == .2. (
     set ROS_ARCH=ppc
     set ROS_PREFIX=ppc-pc-mingw32
-    REM set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\4.4.0
+    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\4.4.0
 )
 if .%_ROSBE_ARCH%. == .3. (
     set ROS_ARCH=amd64
