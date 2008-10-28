@@ -53,7 +53,7 @@ if .%ROS_ARCH%. == .arm. (
     :: Check if we have something to clean, if so, clean it.
     ::
     if exist "obj-arm\." (
-        echo Cleaning ReactOS source directory...
+        echo Cleaning ReactOS ARM source directory...
         ::
         : Remove directories created by the build.
         ::
@@ -66,7 +66,7 @@ if .%ROS_ARCH%. == .arm. (
         if exist "makefile-arm.auto" (
             del "makefile-arm.auto" 1> NUL 2> NUL
         )
-        echo Done cleaning ReactOS source directory.
+        echo Done cleaning ReactOS ARM source directory.
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
@@ -77,7 +77,7 @@ if .%ROS_ARCH%. == .ppc. (
     :: Check if we have something to clean, if so, clean it.
     ::
     if exist "obj-ppc\." (
-        echo Cleaning ReactOS source directory...
+        echo Cleaning ReactOS PPC source directory...
         ::
         : Remove directories created by the build.
         ::
@@ -90,7 +90,7 @@ if .%ROS_ARCH%. == .ppc. (
         if exist "makefile-ppc.auto" (
             del "makefile-ppc.auto" 1> NUL 2> NUL
         )
-        echo Done cleaning ReactOS source directory.
+        echo Done cleaning ReactOS PPC source directory.
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
@@ -101,7 +101,7 @@ if .%ROS_ARCH%. == .amd64. (
     :: Check if we have something to clean, if so, clean it.
     ::
     if exist "obj-amd64\." (
-        echo Cleaning ReactOS source directory...
+        echo Cleaning ReactOS X86_64 source directory...
         ::
         : Remove directories created by the build.
         ::
@@ -114,7 +114,7 @@ if .%ROS_ARCH%. == .amd64. (
         if exist "makefile-amd64.auto" (
             del "makefile-amd64.auto" 1> NUL 2> NUL
         )
-        echo Done cleaning ReactOS source directory.
+        echo Done cleaning ReactOS X86_64 source directory.
     ) else (
         echo ERROR: There is no compiler output to clean.
     )
@@ -125,7 +125,7 @@ if .%ROS_ARCH%. == .amd64. (
 :: Check if we have something to clean, if so, clean it.
 ::
 if exist "obj-i386\." (
-    echo Cleaning ReactOS source directory...
+    echo Cleaning ReactOS i386 source directory...
     ::
     : Remove directories created by the build.
     ::
@@ -138,7 +138,7 @@ if exist "obj-i386\." (
     if exist "makefile.auto" (
         del "makefile.auto" 1> NUL 2> NUL
     )
-    echo Done cleaning ReactOS source directory.
+    echo Done cleaning ReactOS i386 source directory.
 ) else (
     echo ERROR: There is no compiler output to clean.
 )

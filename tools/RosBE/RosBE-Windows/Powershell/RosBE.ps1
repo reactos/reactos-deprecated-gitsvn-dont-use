@@ -15,8 +15,8 @@
 (Get-Host).UI.RawUI.BackgroundColor = "Black"
 cls
 
-if ($APPDATA.Length -lt 1) {
-    $APPDATA = $ENV:USERPROFILE
+if ($ENV:APPDATA.Length -lt 1) {
+    $ENV:APPDATA = $ENV:USERPROFILE
 }
 $ENV:PATH = "$ENV:SystemRoot\system32;$ENV:SystemRoot"
 $global:_ROSBE_VERSION = 1.3
@@ -111,15 +111,15 @@ function LoadAliases {
 #
 # Check if RosBE data directory exists, if not, create it.
 #
-if (!(Test-Path "$APPDATA\RosBE")) {
-    New-Item -path "$APPDATA" -name "RosBE" -type directory
+if (!(Test-Path "$ENV:APPDATA\RosBE")) {
+    New-Item -path "$ENV:APPDATA" -name "RosBE" -type directory
 }
 
 #
 # Check if the user has used the options utility and if so, load their options.
 #
-if (Test-Path "$APPDATA\RosBE\rosbe-options.ps1") {
-    & "$APPDATA\RosBE\rosbe-options.ps1"
+if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
+    & "$ENV:APPDATA\RosBE\rosbe-options.ps1"
 }
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"

@@ -22,7 +22,7 @@ if ("$args" -eq "") {
     "    basedir              - Switch back to the ReactOS source directory."
 
     if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
-        "    charch [OPTIONS]     - Change the Architecture to build for for the"
+        "    charch [OPTIONS]     - Change the Architecture to build for the"
         "                           current RosBE session."
     }
 

@@ -76,17 +76,17 @@ if ($_ROSBE_MODE -eq "MinGW") {
 # Display the current version of GCC, NASM, ld and make.
 #
 if ($ENV:ROS_ARCH -ne $null) {
-& "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-gcc" -v 2> v.txt
-(select-string -path .\v.txt "gcc version") -replace ".*: (.+?)\b",'$1'
-rm v.txt
-"gcc target - $_ROSBE_GCCTARGET"
-& "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-ld" -v
+    & "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-gcc" -v 2> v.txt
+    (select-string -path .\v.txt "gcc version") -replace ".*: (.+?)\b",'$1'
+    rm v.txt
+    "gcc target - $_ROSBE_GCCTARGET"
+    & "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX-ld" -v
 } else {
-gcc -v 2> v.txt
-(select-string -path .\v.txt "gcc version" ) -replace ".*: (.+?)\b",'$1'
-rm v.txt
-"gcc target - $_ROSBE_GCCTARGET"
-& ld -v
+    gcc -v 2> v.txt
+    (select-string -path .\v.txt "gcc version" ) -replace ".*: (.+?)\b",'$1'
+    rm v.txt
+    "gcc target - $_ROSBE_GCCTARGET"
+    & ld -v
 }
 if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\nasm.exe") {
     & nasm -v
@@ -95,7 +95,7 @@ if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\nasm.exe") {
         & yasm --version | select-string "yasm 0"
     } else {
         if ($_ROSBE_MODE -eq "RosBE") {
-            "ERROR: NASM is required to build ReactOS, none found in the current MinGW/GCC."
+            "ERROR: NASM or YASM is required to build ReactOS, none found in the current MinGW/GCC."
         }
     }
 }

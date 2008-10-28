@@ -28,81 +28,81 @@ function rembin {
     #
 
     if ($ENV:ROS_ARCH -eq "arm") {
-        if (Test-Path "obj-arm") {
-            "Cleaning ReactOS source directory..."
+        if (Test-Path ".\obj-arm") {
+            "Cleaning ReactOS ARM source directory..."
             #
             # Remove directories/makefile.auto created by the build.
             #
-            if (Test-Path "obj-arm") {
-                $null = (Remove-Item "obj-arm" -recurse -force)
+            if (Test-Path ".\obj-arm") {
+                $null = (Remove-Item ".\obj-arm" -recurse -force)
             }
-            if (Test-Path "output-arm") {
-                $null = (Remove-Item "output-arm" -recurse -force)
+            if (Test-Path ".\output-arm") {
+                $null = (Remove-Item ".\output-arm" -recurse -force)
             }
-            if (Test-Path "makefile-arm.auto") {
-                $null = (Remove-Item "makefile-arm.auto" -force)
+            if (Test-Path ".\makefile-arm.auto") {
+                $null = (Remove-Item ".\makefile-arm.auto" -force)
             }
-            "Done cleaning ReactOS source directory."
+            "Done cleaning ReactOS ARM source directory."
         } else {
             "ERROR: There is no compiler output to clean."
         }
     }
     if ($ENV:ROS_ARCH -eq "ppc") {
-        if (Test-Path "obj-ppc") {
-            "Cleaning ReactOS source directory..."
+        if (Test-Path ".\obj-ppc") {
+            "Cleaning ReactOS PPC source directory..."
             #
             # Remove directories/makefile.auto created by the build.
             #
-            if (Test-Path "obj-ppc") {
-                $null = (Remove-Item "obj-ppc" -recurse -force)
+            if (Test-Path ".\obj-ppc") {
+                $null = (Remove-Item ".\obj-ppc" -recurse -force)
             }
-            if (Test-Path "output-ppc") {
-                $null = (Remove-Item "output-ppc" -recurse -force)
+            if (Test-Path ".\output-ppc") {
+                $null = (Remove-Item ".\output-ppc" -recurse -force)
             }
-            if (Test-Path "makefile-ppc.auto") {
-                $null = (Remove-Item "makefile-ppc.auto" -force)
+            if (Test-Path ".\makefile-ppc.auto") {
+                $null = (Remove-Item ".\makefile-ppc.auto" -force)
             }
-            "Done cleaning ReactOS source directory."
+            "Done cleaning ReactOS PPC source directory."
         } else {
             "ERROR: There is no compiler output to clean."
         }
     }
     if ($ENV:ROS_ARCH -eq "amd64") {
-        if (Test-Path "obj-amd64") {
-            "Cleaning ReactOS source directory..."
+        if (Test-Path ".\obj-amd64") {
+            "Cleaning ReactOS x86_64 source directory..."
             #
             # Remove directories/makefile.auto created by the build.
             #
-            if (Test-Path "obj-amd64") {
-                $null = (Remove-Item "obj-amd64" -recurse -force)
+            if (Test-Path ".\obj-amd64") {
+                $null = (Remove-Item ".\obj-amd64" -recurse -force)
             }
-            if (Test-Path "output-amd64") {
-                $null = (Remove-Item "output-amd64" -recurse -force)
+            if (Test-Path ".\output-amd64") {
+                $null = (Remove-Item ".\output-amd64" -recurse -force)
             }
-            if (Test-Path "makefile-amd64.auto") {
-                $null = (Remove-Item "makefile-amd64.auto" -force)
+            if (Test-Path ".\makefile-amd64.auto") {
+                $null = (Remove-Item ".\makefile-amd64.auto" -force)
             }
-            "Done cleaning ReactOS source directory."
+            "Done cleaning ReactOS x86_64 source directory."
         } else {
             "ERROR: There is no compiler output to clean."
         }
     }
     if ($ENV:ROS_ARCH -eq $null) {
-        if (Test-Path "obj-i386") {
-            "Cleaning ReactOS source directory..."
+        if (Test-Path ".\obj-i386") {
+            "Cleaning ReactOS i386 source directory..."
             #
             # Remove directories/makefile.auto created by the build.
             #
-            if (Test-Path "obj-i386") {
-                $null = (Remove-Item "obj-i386" -recurse -force)
+            if (Test-Path ".\obj-i386") {
+                $null = (Remove-Item ".\obj-i386" -recurse -force)
             }
-            if (Test-Path "output-i386") {
-                $null = (Remove-Item "output-i386" -recurse -force)
+            if (Test-Path ".\output-i386") {
+                $null = (Remove-Item ".\output-i386" -recurse -force)
             }
-            if (Test-Path "makefile.auto") {
-                $null = (Remove-Item "makefile.auto" -force)
+            if (Test-Path ".\makefile.auto") {
+                $null = (Remove-Item ".\makefile.auto" -force)
             }
-            "Done cleaning ReactOS source directory."
+            "Done cleaning ReactOS i386 source directory."
         } else {
             "ERROR: There is no compiler output to clean."
         }

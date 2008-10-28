@@ -206,12 +206,12 @@ function BUILDMULTI {
 #
 if ($args.count -gt 1) {
     if ($args[0] -eq "multi") {
-        $host.ui.RawUI.WindowTitle = "makex $($args) parallel build started: $TIMERAW"
+        $host.ui.RawUI.WindowTitle = "makex $($args) parallel build started: $TIMERAW   $ENV:ROS_ARCH"
     }
     BUILDMULTI $args
 } else {
     if ($args.count -gt 0) {
-        $host.ui.RawUI.WindowTitle = "make $($args) build started: $TIMERAW"
+        $host.ui.RawUI.WindowTitle = "make $($args) build started: $TIMERAW   $ENV:ROS_ARCH"
     }
     BUILD $args
 }
