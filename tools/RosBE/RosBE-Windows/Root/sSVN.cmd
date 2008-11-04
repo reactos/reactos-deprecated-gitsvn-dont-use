@@ -31,8 +31,7 @@ if /i "%1" == "update" (
     ) else (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" update
     )
-)
-goto :EOC
+    goto :EOC
 )
 if /i "%1" == "cleanup" (
     title SVN Cleaning...
