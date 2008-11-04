@@ -30,6 +30,7 @@
 
 	create_header("", "logon");
 	require("logon/user_profil_menubar.php");
+	require("inc/subsys_utils.php");
 	
 	$message = ""; // error message box text
 	$existname = false; // username already exists in the database (true = username exists)
@@ -84,7 +85,8 @@ else {
 																WHERE user_id = ".mysql_real_escape_string($result_user_profil['user_id'])." 
 																LIMIT 1;";
 										$update_change_email = mysql_query($sql_change_email);
-										
+										subsys_update_user($result_user_profil['user_id']);
+
 										echo '<div class="login-title">E-Mail Address Changed</div>';
 										echo '<div><a href="'.$roscms_SET_path_ex.'my/" style="color:#FF0000 !important; text-decoration:underline;">My Profile</a></div>';
 										return;
@@ -259,11 +261,8 @@ else {
 
 										echo '<div><a href="'.$roscms_SET_path_ex.'my/" style="color:#FF0000 !important; text-decoration:underline;">My Profile</a></div>';
 										
-										
-										require("inc/subsys_utils.php");
 										subsys_update_user($result_user_profil['user_id']);
 										
-
 										$message = "";
 										unset($_SESSION['rdf_security_code']);
 									}
