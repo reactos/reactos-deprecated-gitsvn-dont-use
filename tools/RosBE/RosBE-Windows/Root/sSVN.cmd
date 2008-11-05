@@ -47,7 +47,7 @@ if /i "%1" == "cleanup" (
 if /i "%1" == "create" (
     title SVN Creating...
     if exist ".svn\." (
-        echo ERROR: Folder already cotains a repository.
+        echo ERROR: Folder already contains a repository.
         goto :EOC
     )
     dir /b 2>nul | findstr "." >nul
