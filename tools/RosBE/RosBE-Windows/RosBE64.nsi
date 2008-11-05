@@ -111,9 +111,9 @@ Section -BaseFiles SEC01
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
-    SetOutPath "$INSTDIR\4.4.0"
+    SetOutPath "$INSTDIR\x86_64"
     SetOverwrite try
-    File /r Components\4.4.0\*.*
+    File /r Components\x86_64\*.*
 SectionEnd
 
 Section -StartMenuShortcuts SEC03
@@ -180,7 +180,7 @@ Section Uninstall
     ;;
     ;; Clean up installed files.
     ;;
-    RMDir /r /REBOOTOK "$INSTDIR\4.4.0"
+    RMDir /r /REBOOTOK "$INSTDIR\x86_64"
     Delete /REBOOTOK "$INSTDIR\charch.cmd"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
