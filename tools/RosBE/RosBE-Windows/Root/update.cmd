@@ -221,7 +221,7 @@ if %_ROSBE_GCC% == yes (
     :: Extract GCC.
     ::
     if !_ROSBE_GCCDATE! NEQ !_ROSBE_GCCDATE2! (
-        "Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\4.1.3"
+        "Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\i386"
     )
 )
 if %_ROSBE_TOOLS% == yes (

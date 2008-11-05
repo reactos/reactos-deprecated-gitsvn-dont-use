@@ -136,9 +136,9 @@ Section -BaseFiles SEC01
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
-    SetOutPath "$INSTDIR\4.1.3"
+    SetOutPath "$INSTDIR\i386"
     SetOverwrite try
-    File /r Components\4.1.3\*.*
+    File /r Components\i386\*.*
 SectionEnd
 
 Section "RosBE Configurator (options)" SEC03
@@ -198,7 +198,7 @@ SectionEnd
 
 Section "ccache - Compiler Cache" SEC06
     SetShellVarContext current
-    SetOutPath "$INSTDIR\4.1.3\bin"
+    SetOutPath "$INSTDIR\i386\bin"
     SetOverwrite try
     File /r Components\Tools\ccache.exe
     File /r Components\Tools\cygwin1.dll
@@ -206,7 +206,7 @@ SectionEnd
 
 Section "GDB - The GNU Project Debugger" SEC07
     SetShellVarContext current
-    SetOutPath "$INSTDIR\4.1.3\bin"
+    SetOutPath "$INSTDIR\i386\bin"
     SetOverwrite try
     File /r Components\Tools\gdb.exe
     File /r Components\Tools\gdbserver.exe
@@ -331,7 +331,7 @@ Section Uninstall
     ;;
     ;; Clean up installed files.
     ;;
-    RMDir /r /REBOOTOK "$INSTDIR\4.1.3"
+    RMDir /r /REBOOTOK "$INSTDIR\i386"
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
     IfFileExists "$PROFILE\RosBE\." 0 +2
