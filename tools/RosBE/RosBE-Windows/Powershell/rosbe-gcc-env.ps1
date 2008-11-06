@@ -28,17 +28,17 @@ $ENV:ROS_PREFIX = $null
 if ($_ROSBE_ARCH -eq 1) {
     $ENV:ROS_ARCH = "arm"
     $ENV:ROS_PREFIX = "arm-pc-mingw32"
-    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\4.4.0"
+    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\arm"
 }
 if ($_ROSBE_ARCH -eq 2) {
     $ENV:ROS_ARCH = "ppc"
     $ENV:ROS_PREFIX = "ppc-pc-mingw32"
-    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\4.4.0"
+    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\ppc"
 }
 if ($_ROSBE_ARCH -eq 3) {
     $ENV:ROS_ARCH = "amd64"
     $ENV:ROS_PREFIX = "x86_64-pc-mingw32"
-    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\4.4.0"
+    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\x86_64"
 }
 
 #
