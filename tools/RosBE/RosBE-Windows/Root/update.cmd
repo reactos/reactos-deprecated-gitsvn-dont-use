@@ -16,6 +16,7 @@ if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
+
 ::
 :: Set Title
 ::
@@ -110,9 +111,9 @@ goto :EOU
 cd /d "%_ROSBE_BASEDIR%"
 
 if %_ROSBE_CMDS% == yes (
-    ::
-    :: First check for a new Updater
-    ::
+
+    REM First check for a new Updater
+
     for %%F in (update.cmd) do set _ROSBE_UPDDATE=%%~tF
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd
     for %%F in (update.cmd) do set _ROSBE_UPDDATE2=%%~tF
@@ -122,9 +123,9 @@ if %_ROSBE_CMDS% == yes (
         echo Updater got updated and needs to be restarted.
         goto :EOU
     )
-    ::
-    :: PS1 Files.
-    ::
+
+    REM PS1 Files.
+
     if exist "Build.ps1" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Build.ps1
     )
@@ -144,37 +145,32 @@ if %_ROSBE_CMDS% == yes (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/rosbe-gcc-env.ps1
     )
 
-    ::
-    :: Options Files.
-    ::
+    REM Options Files.
+
     if exist "options.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/options.cmd
     )
 
-    ::
-    :: SVN Files.
-    ::
+    REM SVN Files.
+
     if exist "sSVN.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/sSVN.cmd
     )
 
-    ::
-    :: SCut Files.
-    ::
+    REM SCut Files.
+
     if exist "scut.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/scut.cmd
     )
 
-    ::
-    :: RelAddr2Line Files.
-    ::
+    REM RelAddr2Line Files.
+
     if exist "reladdr2line.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/reladdr2line.cmd
     )
 
-    ::
-    :: Other Tools Files.
-    ::
+    REM Other Tools Files.
+
     if exist "Config.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Config.cmd
     )
@@ -182,9 +178,8 @@ if %_ROSBE_CMDS% == yes (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/chdefdir.cmd
     )
 
-    ::
-    :: Default Files.
-    ::
+    REM Default Files.
+
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Build.cmd
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/ChangeLog.txt
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/chdefgcc.cmd
@@ -203,47 +198,44 @@ if %_ROSBE_CMDS% == yes (
 )
 
 if %_ROSBE_GCC% == yes (
-    ::
-    :: Add Dates into Vars and load GCC packages if needed.
-    ::
+
+    REM Add Dates into Vars and load GCC packages if needed.
+
     if exist GCC.7z (
         for %%F in (GCC.7z) do set _ROSBE_GCCDATE=%%~tF
     )
 
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/GCC.7z
 
-    ::
-    :: Add the maybe Updated Dates to another Var.
-    ::
+    REM Add the maybe Updated Dates to another Var.
+
     for %%F in (GCC.7z) do set _ROSBE_GCCDATE2=%%~tF
 
-    ::
-    :: Extract GCC.
-    ::
+    REM Extract GCC.
+
     if !_ROSBE_GCCDATE! NEQ !_ROSBE_GCCDATE2! (
         "Tools\7z.exe" x GCC.7z "%_ROSBE_BASEDIR%\i386"
     )
 )
 if %_ROSBE_TOOLS% == yes (
-    ::
-    :: Add Dates into Vars and load Tool SRC packages if needed.
-    ::
+
+    REM Add Dates into Vars and load Tool SRC packages if needed.
+
     if exist Tools.7z (
         for %%F in (Tools.7z) do set _ROSBE_TOOLSDATE=%%~tF
     )
 
     "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Tools.7z
 
-    ::
-    :: Add the maybe Updated Dates to another Var.
-    ::
+    REM Add the maybe Updated Dates to another Var.
+
     for %%F in (Tools.7z) do set _ROSBE_TOOLSDATE2=%%~tF
 
     if !_ROSBE_TOOLSDATE! NEQ !_ROSBE_TOOLSDATE2! (
         "Tools\7z.exe" x Tools.7z "%TEMP%"
-        ::
-        :: Build the tools
-        ::
+
+        REM Build the tools
+
         make -f %TEMP%\makefile
         copy %TEMP%\*.exe "%_ROSBE_BASEDIR%\Tools"
     )
@@ -252,6 +244,10 @@ if %_ROSBE_TOOLS% == yes (
 :EOU
 
 cd /d "%_ROSBE_OPATH%"
+
+if defined _ROSBE_VERSION (
+    title ReactOS Build Environment %_ROSBE_VERSION%
+)
 
 ::
 :: Unload Vars.
@@ -267,8 +263,3 @@ set _ROSBE_TOOLS=
 set _ROSBE_OPATH=
 set _ROSBE_UPDDATE=
 set _ROSBE_UPDDATE2=
-
-
-if defined _ROSBE_VERSION (
-    title ReactOS Build Environment %_ROSBE_VERSION%
-)

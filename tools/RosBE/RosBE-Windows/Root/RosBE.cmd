@@ -92,12 +92,13 @@ if not "%1" == "" (
 cls
 call :RosBE4
 
-:EndCommandParse
-
 ::
 :: Load the base directory from srclist.txt and set it as the
 :: new source directory.
 ::
+
+:EndCommandParse
+
 if exist "%_ROSBE_BASEDIR%\scut.cmd" (
     call "%_ROSBE_BASEDIR%\scut.cmd"
 )
@@ -134,36 +135,41 @@ goto :EOF
 :: Display the banner and set up the environment for the GCC 4.x.x build
 :: environment.
 ::
+
 :RosBE4
-    echo *******************************************************************************
-    echo *                                                                             *
-    echo *                        ReactOS Build Environment %_ROSBE_VERSION%                        *
-    echo *                                                                             *
-    echo *******************************************************************************
-    echo.
-    echo.
-    ver
-    ::
-    :: Set the correct path for the build tools and set the MinGW make.
-    ::
-    call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+
+echo *******************************************************************************
+echo *                                                                             *
+echo *                        ReactOS Build Environment %_ROSBE_VERSION%                        *
+echo *                                                                             *
+echo *******************************************************************************
+echo.
+echo.
+ver
+
+::
+:: Set the correct path for the build tools and set the MinGW make.
+::
+call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOF
 
 ::
 :: Load the doskey macros and delete any macros for components
 :: that are not actually present.
 ::
-:LOADDOSKEYMACROS
-    doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
 
-    if not exist "%_ROSBE_BASEDIR%\chdefdir.cmd" ( doskey CHDEFDIR= )
-    if not exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" ( doskey CHDEFGCC= )
-    if not exist "%_ROSBE_BASEDIR%\charch.cmd" ( doskey CHARCH= )
-    if not exist "%_ROSBE_BASEDIR%\Config.cmd" ( doskey CONFIG= )
-    if not exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" ( doskey RADDR2LINE= )
-    if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
-    if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SSVN= )
-    if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SVN= )
-    if not exist "%_ROSBE_BASEDIR%\update.cmd" ( doskey UPDATE= )
-    if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
+:LOADDOSKEYMACROS
+
+doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
+
+if not exist "%_ROSBE_BASEDIR%\chdefdir.cmd" ( doskey CHDEFDIR= )
+if not exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" ( doskey CHDEFGCC= )
+if not exist "%_ROSBE_BASEDIR%\charch.cmd" ( doskey CHARCH= )
+if not exist "%_ROSBE_BASEDIR%\Config.cmd" ( doskey CONFIG= )
+if not exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" ( doskey RADDR2LINE= )
+if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
+if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SSVN= )
+if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SVN= )
+if not exist "%_ROSBE_BASEDIR%\update.cmd" ( doskey UPDATE= )
+if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 goto :EOF

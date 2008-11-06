@@ -44,26 +44,31 @@ if not "%_1%" == "" (
     goto :EOC
 )
 
-:EOA
-
 ::
 :: Refresh all needed Params by recalling the main Path setting CMD File.
 ::
+
+:EOA
+
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOC
+
 
 ::
 :: If Parameters were set, parse them, if not, ask the user to add them.
 ::
+
 :INTERACTIVE
-    set /p _1="Please enter a Architecture you want to build ReactOS for: "
-    if "%_1%" == "" (
-        echo ERROR: You must enter a Architecture.
-        goto :EOC
-    )
+
+set /p _1="Please enter a Architecture you want to build ReactOS for: "
+if "%_1%" == "" (
+    echo ERROR: You must enter a Architecture.
+    goto :EOC
+)
 goto :EOF
 
 :EOC
+
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )

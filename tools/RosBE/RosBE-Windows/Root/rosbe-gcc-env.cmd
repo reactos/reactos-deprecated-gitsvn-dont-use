@@ -26,7 +26,6 @@ if not defined _ROSBE_HOST_MINGWPATH (
 ::
 :: Set the Arch Variables
 ::
-
 set ROS_ARCH=
 set ROS_PREFIX=
 
@@ -50,11 +49,12 @@ if .%_ROSBE_ARCH%. == .3. (
     set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\x86_64
 )
 
-:main
-
 ::
 :: Set up the GCC 4.x.x build environment.
 ::
+
+:main
+
 set PATH=%_ROSBE_HOST_MINGWPATH%\bin;%_ROSBE_TARGET_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
 set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
 

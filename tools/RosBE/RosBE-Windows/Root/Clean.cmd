@@ -33,10 +33,12 @@ if not "%1" == "" (
     goto :EOC
 )
 
-:LOG
 ::
 :: Check if we have any logs to clean, if so, clean them.
 ::
+
+:LOG
+
 if exist "%_ROSBE_LOGDIR%\*.txt" (
     echo Cleaning build logs...
     del /f "%_ROSBE_LOGDIR%\*.txt" 1> NUL 2> NUL
@@ -46,17 +48,15 @@ if exist "%_ROSBE_LOGDIR%\*.txt" (
 )
 goto :EOF
 
+::
+:: Check if we have something to clean, if so, clean it.
+::
+
 :DEL
 
 if .%ROS_ARCH%. == .arm. (
-    ::
-    :: Check if we have something to clean, if so, clean it.
-    ::
     if exist "obj-arm\." (
         echo Cleaning ReactOS ARM source directory...
-        ::
-        : Remove directories created by the build.
-        ::
         if exist "obj-arm\." (
             rd /s /q "obj-arm" 1> NUL 2> NUL
         )
@@ -73,14 +73,8 @@ if .%ROS_ARCH%. == .arm. (
     goto :ROS
 )
 if .%ROS_ARCH%. == .ppc. (
-    ::
-    :: Check if we have something to clean, if so, clean it.
-    ::
     if exist "obj-ppc\." (
         echo Cleaning ReactOS PPC source directory...
-        ::
-        : Remove directories created by the build.
-        ::
         if exist "obj-ppc\." (
             rd /s /q "obj-ppc" 1> NUL 2> NUL
         )
@@ -97,14 +91,8 @@ if .%ROS_ARCH%. == .ppc. (
     goto :ROS
 )
 if .%ROS_ARCH%. == .amd64. (
-    ::
-    :: Check if we have something to clean, if so, clean it.
-    ::
     if exist "obj-amd64\." (
         echo Cleaning ReactOS X86_64 source directory...
-        ::
-        : Remove directories created by the build.
-        ::
         if exist "obj-amd64\." (
             rd /s /q "obj-amd64" 1> NUL 2> NUL
         )
@@ -121,14 +109,8 @@ if .%ROS_ARCH%. == .amd64. (
     goto :ROS
 )
 
-::
-:: Check if we have something to clean, if so, clean it.
-::
 if exist "obj-i386\." (
     echo Cleaning ReactOS i386 source directory...
-    ::
-    : Remove directories created by the build.
-    ::
     if exist "obj-i386\." (
         rd /s /q "obj-i386" 1> NUL 2> NUL
     )
@@ -144,13 +126,14 @@ if exist "obj-i386\." (
 )
 
 :ROS
+
 if exist "reactos\." (
     rd /s /q "reactos" 1> NUL 2> NUL
 )
-
 goto :EOF
 
 :EOC
+
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
