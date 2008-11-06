@@ -19,6 +19,7 @@ if "%1" == "" (
     echo No parameter specified. Try 'help [COMMAND]'.
     goto :EOC
 )
+
 ::
 :: These two are directly parsed to svn.
 ::
@@ -40,10 +41,10 @@ if /i "%1" == "cleanup" (
     "%_ROSBE_BASEDIR%\Tools\svn.exe" cleanup
     goto :EOC
 )
+
 ::
 :: Check if the folder is empty. If not, output an error.
 ::
-
 if /i "%1" == "create" (
     title SVN Creating...
     if exist ".svn\." (
@@ -58,6 +59,7 @@ if /i "%1" == "create" (
     )
     goto :EOC
 )
+
 ::
 :: Output the revision of the local and online trees and tell the user if
 :: its up to date or not.
@@ -78,6 +80,7 @@ if not "%1" == "" (
 )
 
 :UP
+
 echo Local Revision: %OFFSVN%
 echo Online HEAD Revision: %ONSVN%
 echo.
@@ -91,11 +94,13 @@ if %OFFSVN% equ %ONSVN% (
 )
 
 :UP2
+
 set /p UP="Please enter 'yes' or 'no': "
 if /i "%UP%"=="yes" "%_ROSBE_BASEDIR%\ssvn" update
 if /i "%UP%"=="no" goto :EOC
 
 :EOC
+
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )

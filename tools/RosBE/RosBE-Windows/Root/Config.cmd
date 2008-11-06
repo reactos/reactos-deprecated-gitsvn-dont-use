@@ -26,6 +26,7 @@ if /i "%1" == "delete" (
     goto :NOK
 
     :CONT
+
     if exist "config.rbuild" (
         del "config.rbuild"
         echo Main Configuration File was found and deleted.
@@ -47,7 +48,9 @@ if /i "%1" == "update" (
     set /p YESNO="(yes), (no)"
     if /i "%YESNO%"=="yes" goto :CONT2
     if /i "%YESNO%"=="no" goto :NOK
+
     :CONT2
+
     del "%_ROSBE_BASEDIR%\*.rbuild"
     del "config.rbuild"
     copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
@@ -248,6 +251,7 @@ copy "%APPDATA%\RosBE\config.rbuild" "config.rbuild" >NUL
 goto :NOK
 
 :NOK
+
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )

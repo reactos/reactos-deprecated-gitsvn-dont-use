@@ -55,23 +55,26 @@ if /i "%_2%" == "host" (
 )
 
 :EOA
+
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd" chdefgcc
 goto :EOC
 
 :INTERACTIVE
-    set /p _1="Please enter a MinGW/GCC directory (don't use quotes): "
-    if "%_1%" == "" (
-        echo ERROR: You must enter a MinGW/GCC directory.
-        goto :EOC
-    )
-    set /p _2="Please specify, if this will be the Target or Host GCC: "
-    if "%_2%" == "" (
-        echo ERROR: You must enter "target" or "host".
-        goto :EOC
-    )
+
+set /p _1="Please enter a MinGW/GCC directory (don't use quotes): "
+if "%_1%" == "" (
+    echo ERROR: You must enter a MinGW/GCC directory.
+    goto :EOC
+)
+set /p _2="Please specify, if this will be the Target or Host GCC: "
+if "%_2%" == "" (
+    echo ERROR: You must enter "target" or "host".
+    goto :EOC
+)
 goto :EOF
 
 :EOC
+
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )

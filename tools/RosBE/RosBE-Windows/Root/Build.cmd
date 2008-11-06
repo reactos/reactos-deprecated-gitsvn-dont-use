@@ -62,9 +62,7 @@ if .%_ROSBE_USECCACHE%. == .1. (
     set HOST_CC=ccache gcc
     set HOST_CPP=ccache g++
 
-    ::
-    ::Target defaults to host(i386)
-    ::
+    REM Target defaults to host(i386)
 
     set TARGET_CC=ccache gcc
     set TARGET_CPP=ccache g++
@@ -84,9 +82,7 @@ if .%_ROSBE_USECCACHE%. == .1. (
     set HOST_CC=gcc
     set HOST_CPP=g++
 
-    ::
-    ::Target defaults to host(i386)
-    ::
+    REM Target defaults to host(i386)
 
     set TARGET_CC=gcc
     set TARGET_CPP=g++
@@ -162,51 +158,56 @@ if "%1" == "multi" (
 goto :EOC
 
 :BUILD
-    if %_ROSBE_SHOWTIME% == 1 (
-        if %_ROSBE_WRITELOG% == 1 (
-            "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
-        ) else (
-            "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" %*
-        )
+
+if %_ROSBE_SHOWTIME% == 1 (
+    if %_ROSBE_WRITELOG% == 1 (
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
     ) else (
-        if %_ROSBE_WRITELOG% == 1 (
-            "%_ROSBE_MINGWMAKE%" %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
-        ) else (
-            "%_ROSBE_MINGWMAKE%" %*
-        )
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" %*
     )
+) else (
+    if %_ROSBE_WRITELOG% == 1 (
+        "%_ROSBE_MINGWMAKE%" %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
+    ) else (
+        "%_ROSBE_MINGWMAKE%" %*
+    )
+)
 goto :EOF
+
+::
+:: Get the number of CPUs in the system so we know how many jobs to execute.
+:: To modify the number used alter the options used with cpucount:
+:: No Option - Number of CPUs.
+:: -x1       - Number of CPUs, plus 1.
+:: -x2       - Number of CPUs, doubled.
+:: -a        - Determine the cpu count based on the inherited process affinity mask.
+::
 
 :BUILDMULTI
-    ::
-    :: Get the number of CPUs in the system so we know how many jobs to execute.
-    :: To modify the number used alter the options used with cpucount:
-    :: No Option - Number of CPUs.
-    :: -x1       - Number of CPUs, plus 1.
-    :: -x2       - Number of CPUs, doubled.
-    :: -a        - Determine the cpu count based on the inherited process affinity mask.
-    ::
-    for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
 
-    if %_ROSBE_SHOWTIME% == 1 (
-        if %_ROSBE_WRITELOG% == 1 (
-            "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
-        ) else (
-            "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
-        )
+for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set CPUCOUNT=%%i
+
+if %_ROSBE_SHOWTIME% == 1 (
+    if %_ROSBE_WRITELOG% == 1 (
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
     ) else (
-        if %_ROSBE_WRITELOG% == 1 (
-            "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
-        ) else (
-            "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
-        )
+        "%_ROSBE_BASEDIR%\Tools\buildtime.exe" "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
     )
+) else (
+    if %_ROSBE_WRITELOG% == 1 (
+        "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_GCCVERSION%-%DATENAME%-%TIMENAME%.txt"
+    ) else (
+        "%_ROSBE_MINGWMAKE%" -j %CPUCOUNT% %2 %3 %4 %5 %6 %7 %8 %9
+    )
+)
 goto :EOF
 
-:EOC
 ::
 :: Highlight the fact that building has ended.
 ::
+
+:EOC
+
 "%_ROSBE_BASEDIR%\Tools\flash.exe"
 
 if defined _ROSBE_VERSION (

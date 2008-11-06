@@ -254,6 +254,7 @@ if not "%1" == "" (
 )
 
 :EOC
+
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
