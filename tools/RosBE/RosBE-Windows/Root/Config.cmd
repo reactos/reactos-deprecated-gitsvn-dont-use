@@ -26,7 +26,6 @@ if /i "%1" == "delete" (
     goto :NOK
 
     :CONT
-
     if exist "config.rbuild" (
         del "config.rbuild"
         echo Main Configuration File was found and deleted.
@@ -50,7 +49,6 @@ if /i "%1" == "update" (
     if /i "%YESNO%"=="no" goto :NOK
 
     :CONT2
-
     del "%_ROSBE_BASEDIR%\*.rbuild"
     del "config.rbuild"
     copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
