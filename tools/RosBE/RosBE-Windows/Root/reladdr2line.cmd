@@ -39,8 +39,6 @@ call :INTERACTIVE
 :: give the result to raddr2line.
 ::
 
-:RADD2RLINE
-
 if "%_1%" == "" (
     echo ERROR: You must specify a path/file to examine.
     goto :EOC
