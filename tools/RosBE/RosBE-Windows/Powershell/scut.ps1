@@ -8,9 +8,12 @@
 #                             Peter Ward <dralnix@gmail.com>
 #
 
-function paramcall {
-    $OUT = IEX "'$_ROSBE_BASEDIR\Tools\scut.exe' $args"
+function paramcall($arg) {
+    IEX "&'$_ROSBE_BASEDIR\Tools\scut.exe' $arg"
+}
 
+function parse($arg) {
+    $OUT = paramcall($arg)
     # It's a shortcut name, so change the directory
 
     if ($OUT -ne "Default") {
@@ -22,14 +25,15 @@ function paramcall {
 }
 
 # Check if the parameter is an scut parameter, which can just be forwarded to the EXE file
-if ($args[0] -eq "add")    {paramcall}
-if ($args[0] -eq "rem")    {paramcall}
-if ($args[0] -eq "edit")   {paramcall}
-if ($args[0] -eq "def")    {paramcall}
-if ($args[0] -eq "list")   {paramcall}
-if ($args[0] -eq "/?")     {paramcall}
-if ($args[0] -eq "-h")     {paramcall}
-if ($args[0] -eq "--help") {paramcall}
+if ($args[0] -eq "add")    {paramcall($args)}
+elseif ($args[0] -eq "rem")    {paramcall($args)}
+elseif ($args[0] -eq "edit")   {paramcall($args)}
+elseif ($args[0] -eq "def")    {paramcall($args)}
+elseif ($args[0] -eq "list")   {paramcall($args)}
+elseif ($args[0] -eq "/?")     {paramcall($args)}
+elseif ($args[0] -eq "-h")     {paramcall($args)}
+elseif ($args[0] -eq "--help") {paramcall($args)}
+else {parse($args)}
 
 if ($_ROSBE_VERSION -ne $null) {
     $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"

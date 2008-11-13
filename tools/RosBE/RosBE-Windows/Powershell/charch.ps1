@@ -24,7 +24,7 @@ if ($args.count -eq 0) {
     # If Parameters were set, parse them, if not, ask the user to add them.
     #
     $_1 = Read-Host "Please enter a Architecture you want to build ReactOS for: "
-    if ($_1 -eq $null) {
+    if ($_1.length -eq 0) {
         "ERROR: You must enter a Architecture."
     }
 } else {
@@ -46,7 +46,7 @@ elseif ($_1 -eq "amd64") {
     $_ROSBE_ARCH = 3
     SYSPARAM
 }
-elseif ($_1 -eq $null) {
+else {
     "Unknown parameter specified. Try 'help [COMMAND]'."
 }
 

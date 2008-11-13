@@ -15,7 +15,7 @@ function UP {
         "Your tree is not up to date. Do you want to update it?"
         $UP = Read-Host "Please enter 'yes' or 'no': "
         if ($UP -eq "yes") {
-            IEX "'$_ROSBE_BASEDIR\ssvn' update"
+            IEX "&'$_ROSBE_BASEDIR\ssvn' update"
         }
     }
     if ($OFFSVN -eq $ONSVN) {
@@ -38,16 +38,17 @@ elseif ($args[0] -eq "update") {
     "This might take a while, so please be patient."
     ""
     if ($args[1] -ne $null) {
-        IEX "'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $args[1]"
+        $temparg = $args[1]
+        IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
     } else {
-        IEX "'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+        IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
     }
 }
 elseif ($args[0] -eq "cleanup") {
     $host.ui.RawUI.WindowTitle = "SVN Cleaning..."
     "This might take a while, so please be patient."
     ""
-    IEX "'$_ROSBE_BASEDIR\Tools\svn.exe' cleanup"
+    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' cleanup"
 }
 
 #
@@ -58,9 +59,9 @@ elseif ($args[0] -eq "create") {
     if (Test-Path ".svn\.") {
         "ERROR: Folder already contains a repository."
     } else {
-        dir /b 2>nul | findstr "." >nul
-        if (errorlevel -eq 1) {
-            IEX "'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
+        $dir = dir
+        if ($dir -eq $null) {
+            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
         }
@@ -75,8 +76,8 @@ elseif ($args[0] -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
     "This might take a while, so please be patient."
     ""
-    $OFFSVN = IEX "'$_ROSBE_BASEDIR\Tools\svn.exe' info" | find "Revision:"
-    $ONSVN = IEX "'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | find "Revision:"
+    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | find "Revision:"
+    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | find "Revision:"
     UP
 }
 
@@ -94,3 +95,5 @@ if ($_ROSBE_VERSION -ne $null) {
 $OFFSVN = $null
 $ONSVN = $null
 $UP = $null
+$dir = dir
+$temparg = $null
