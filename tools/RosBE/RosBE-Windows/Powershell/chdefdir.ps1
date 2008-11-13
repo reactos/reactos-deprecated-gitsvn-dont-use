@@ -19,7 +19,7 @@ if ($args.count -eq 0) {
     # If Parameters were set, parse them, if not, ask the user to add them.
     #
     $_1 = Read-Host "Please enter a ReactOS source directory, or 'previous': "
-    if ($_1 -eq $null) {
+    if ($_1.length -eq 0) {
         "ERROR: You must enter a ReactOS source directory, or 'previous'."
     }
 } else {
