@@ -37,6 +37,7 @@ if ($args[0] -eq "delete") {
             "Working Configuration File was not found in ReactOS Source Tree."
         }
     }
+    settitle
 }
 elseif ($args[0] -eq "update") {
     "old config.rbuild will be deleted and will be updated with a recent,"
@@ -49,9 +50,11 @@ elseif ($args[0] -eq "update") {
         copy ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
        "Successfully Updated."
     }
+    settitle
 }
 elseif ($args[0] -ne $null) {
     "Unknown parameter specified. Try 'help [COMMAND]'."
+    settitle
 }
 
 #
@@ -89,8 +92,14 @@ if (Test-Path ".\config.rbuild") {
         ""
         $YESNO = Read-Host "(yes), (no)"
         if ($YESNO -eq "yes") {del "$ENV:APPDATA\RosBE\*.rbuild" | del ".\config.rbuild" | copy ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"}
+        if ($YESNO -eq "no") {settitle}
     }
 }
+
+#
+# Prepare XML Parser.
+#
+[xml] $XML = type "$ENV:APPDATA\RosBE\config.rbuild"
 
 #
 # Start with reading settings from config.rbuild and let the user edit them.
@@ -98,8 +107,7 @@ if (Test-Path ".\config.rbuild") {
 "Sub-Architecture to build for."
 "Default is: none"
 ""
-$SARCH = type "$ENV:APPDATA\RosBE\config.rbuild" | find "SARCH" | find "property name"
-"$SARCH = $SARCH:~7,-1"
+$SARCH = $xml.group.property | ? { $_.Name -eq "SARCH" } | % { $_.Value}
 "Right now: $SARCH"
 $SARCH_CH = Read-Host "(), (xbox)"
 cls
@@ -115,12 +123,11 @@ cls
 " VIA:   c3, c3-2"
 " Default is: pentium"
 ""
-$OARCH = type "$ENV:APPDATA\RosBE\config.rbuild" | find "OARCH" | find "property name"
-"$OARCH = $OARCH:~7,-1"
+$OARCH = $xml.group.property | ? { $_.Name -eq "OARCH" } | % { $_.Value}
 "Right now: $OARCH"
 $OARCH_CH = Read-Host
 if ($OARCH_CH -eq $null) {
-    $OARCH_CH = "pentium"
+    $OARCH_CH = $OARCH
 }
 cls
 
@@ -131,24 +138,22 @@ cls
 "official release builds and debug builds."
 "warning : 2,3,4,5 is not tested on ReactOS. Change at own risk."
 ""
-$OPTIMIZE = type "$ENV:APPDATA\RosBE\config.rbuild" | find "OPTIMIZE" | find "property name"
-"$OPTIMIZE = $OPTIMIZE:~7,-1"
+$OPTIMIZE = $xml.group.property | ? { $_.Name -eq "OPTIMIZE" } | % { $_.Value}
 "Right now: $OPTIMIZE"
-OPTIMIZE_CH = Read-Host "(0), (1), (2), (3), (4), (5)"
+$OPTIMIZE_CH = Read-Host "(0), (1), (2), (3), (4), (5)"
 if ($OPTIMIZE_CH -eq $null) {
-    $OPTIMIZE_CH = 1
+    $OPTIMIZE_CH = $OPTIMIZE
 }
 cls
 
 "Whether to compile in the integrated kernel debugger."
 "Default is: 1"
 ""
-$KDBG = type "$ENV:APPDATA\RosBE\config.rbuild" | find "KDBG" | find "property name"
-"$KDBG = $KDBG:~7,-1"
+$KDBG = $xml.group.property | ? { $_.Name -eq "KDBG" } | % { $_.Value}
 "Right now: $KDBG"
 $KDBG_CH = Read-Host "(0), (1)"
 if ($KDBG_CH -eq $null) {
-    $KDBG_CH = 1
+    $KDBG_CH = $KDBG
 }
 cls
 
@@ -156,12 +161,11 @@ cls
 "performed."
 "Default is: 1"
 ""
-$DBG = type "$ENV:APPDATA\RosBE\config.rbuild" | find "DBG" | find "property name" | find /V "KDBG"
-"$DBG = $DBG:~7,-1"
+$DBG = $xml.group.property | ? { $_.Name -eq "DBG" } | % { $_.Value}
 "Right now: $DBG"
 $DBG_CH = Read-Host "(0), (1)"
 if ($KDBG_CH -eq $null) {
-    $DBG_CH = 1
+    $DBG_CH = $DBG
 }
 cls
 
@@ -169,12 +173,11 @@ cls
 "don't enable this."
 "Default is: 0"
 ""
-$GDB = type "$ENV:APPDATA\RosBE\config.rbuild" | find "GDB" | find "property name"
-"$GDB = $GDB:~7,-1"
+$GDB = $xml.group.property | ? { $_.Name -eq "GDB" } | % { $_.Value}
 "Right now: $GDB"
 $GDB_CH = Read-Host "(0), (1)"
 if ($GDB_CH -eq $null) {
-    $GDB_CH = 0
+    $GDB_CH = $GDB
 }
 cls
 
@@ -184,12 +187,11 @@ cls
 "from the patent owner)."
 "Default is: 0"
 ""
-$NSWPAT = type "$ENV:APPDATA\RosBE\config.rbuild" | find "NSWPAT" | find "property name"
-"$NSWPAT = $NSWPAT:~7,-1"
+$NSWPAT = $xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value}
 "Right now: $NSWPAT"
 $NSWPAT_CH = Read-Host "(0), (1)"
 if ($NSWPAT_CH -eq $null) {
-    $NSWPAT_CH = 0
+    $NSWPAT_CH = $NSWPAT
 }
 cls
 
@@ -201,33 +203,26 @@ cls
 "unless you know what you're doing."
 "Default is: 0"
 ""
-$WINKD = type "$ENV:APPDATA\RosBE\config.rbuild" | find "_WINKD_" | find "property name"
-"$WINKD = $WINKD:~7,-1"
+$WINKD = $xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value}
 "Right now: $WINKD"
 $WINKD_CH = Read-Host "(0), (1)"
 if ($WINKD_CH -eq $null) {
-    $WINKD_CH = 0
+    $WINKD_CH = $WINKD
 }
 cls
 
 #
 # Generate a config.rbuild, copy it to the Source Tree and delete temp files.
 #
-'<?xml version="1.0"?>' | out-file "$ENV:TEMP\config.tmp"
-'<!DOCTYPE group SYSTEM "tools/rbuild/project.dtd">' | out-file -append "$ENV:TEMP\config.tmp"
-'<group>' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="SARCH" value="' + $SARCH_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="OARCH" value="' + $OARCH_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="OPTIMIZE" value="' + $OPTIMIZE_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="KDBG" value="' + $KDBG_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="DBG" value="' + $DBG_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="GDB" value="' + $GDB_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="NSWPAT" value="' + $NSWPAT_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'<property name="_WINKD_" value="' + $WINKD_CH + '" />' | out-file -append "$ENV:TEMP\config.tmp"
-'</group^>' | out-file -append "'$ENV:TEMP\config.tmp"
-
-copy "$ENV:TEMP\config.tmp" "$ENV:APPDATA\RosBE\config.rbuild"
-del $ENV:TEMP\config.tmp
+$xml.group.property | ? { $_.Name -eq "SARCH" } | % { $_.Value = "$SARCH_CH"}
+$xml.group.property | ? { $_.Name -eq "OARCH" } | % { $_.Value = "$OARCH_CH"}
+$xml.group.property | ? { $_.Name -eq "OPTIMIZE" } | % { $_.Value = "$OPTIMIZE_CH"}
+$xml.group.property | ? { $_.Name -eq "KDBG" } | % { $_.Value = "$KDBG_CH"}
+$xml.group.property | ? { $_.Name -eq "DBG" } | % { $_.Value = "$DBG_CH"}
+$xml.group.property | ? { $_.Name -eq "GDB" } | % { $_.Value = "$GDB_CH"}
+$xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value = "$NSWPAT_CH"}
+$xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value = "$WINKD_CH"}
+$xml.save("$ENV:APPDATA\RosBE\config.rbuild")
 copy "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
 
 if ($_ROSBE_VERSION -ne $null) {
@@ -254,5 +249,6 @@ $DBG = $null
 $GDB = $null
 $NSWPAT = $null
 $WINKD = $null
+$XML = $null
 
 settitle
