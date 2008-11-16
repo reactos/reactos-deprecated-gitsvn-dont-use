@@ -8,8 +8,8 @@
 #
 
 function UP {
-    "Local Revision: $OFFSVN"
-    "Online HEAD Revision: $ONSVN"
+    "Local $OFFSVN"
+    "Online HEAD $ONSVN"
     ""
     if ($OFFSVN -lt $ONSVN) {
         "Your tree is not up to date. Do you want to update it?"
@@ -76,8 +76,8 @@ elseif ($args[0] -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
     "This might take a while, so please be patient."
     ""
-    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | find "Revision:"
-    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | find "Revision:"
+    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | findstr "Revision:"
+    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | findstr "Revision:"
     UP
 }
 

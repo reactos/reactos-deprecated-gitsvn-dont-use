@@ -136,7 +136,7 @@ set OARCH=%OARCH:~7,-1%
 echo Right now: %OARCH%
 set /p OARCH_CH=
 if "%OARCH_CH%" == "" (
-    set OARCH_CH=pentium
+    set OARCH_CH=%OARCH%
 )
 cls
 
@@ -152,7 +152,7 @@ set OPTIMIZE=%OPTIMIZE:~7,-1%
 echo Right now: %OPTIMIZE%
 set /p OPTIMIZE_CH="(0), (1), (2), (3), (4), (5)"
 if "%OPTIMIZE_CH%" == "" (
-    set OPTIMIZE_CH=1
+    set OPTIMIZE_CH=%OPTIMIZE%
 )
 cls
 
@@ -164,7 +164,7 @@ set KDBG=%KDBG:~7,-1%
 echo Right now: %KDBG%
 set /p KDBG_CH="(0), (1)"
 if "%KDBG_CH%" == "" (
-    set KDBG_CH=1
+    set KDBG_CH=%KDBG%
 )
 cls
 
@@ -177,7 +177,7 @@ set DBG=%DBG:~7,-1%
 echo Right now: %DBG%
 set /p DBG_CH="(0), (1)"
 if "%DBG_CH%" == "" (
-    set DBG_CH=1
+    set DBG_CH=%DBG%
 )
 cls
 
@@ -190,7 +190,7 @@ set GDB=%GDB:~7,-1%
 echo Right now: %GDB%
 set /p GDB_CH="(0), (1)"
 if "%GDB_CH%" == "" (
-    set GDB_CH=0
+    set GDB_CH=%GDB%
 )
 cls
 
@@ -205,7 +205,7 @@ set NSWPAT=%NSWPAT:~7,-1%
 echo Right now: %NSWPAT%
 set /p NSWPAT_CH="(0), (1)"
 if "%NSWPAT_CH%" == "" (
-    set NSWPAT_CH=0
+    set NSWPAT_CH=%NSWPAT%
 )
 cls
 
@@ -222,7 +222,7 @@ set WINKD=%WINKD:~7,-1%
 echo Right now: %WINKD%
 set /p WINKD_CH="(0), (1)"
 if "%WINKD_CH%" == "" (
-    set WINKD_CH=0
+    set WINKD_CH=%WINKD%
 )
 cls
 
