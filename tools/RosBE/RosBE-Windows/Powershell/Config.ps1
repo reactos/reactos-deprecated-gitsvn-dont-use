@@ -211,6 +211,18 @@ if ($WINKD_CH -eq $null) {
 }
 cls
 
+"Whether to compile support for ELF files. Do not enable unless you know what"
+"you're doing."
+"Default is: 0"
+""
+$ELF = $xml.group.property | ? { $_.Name -eq "_ELF_" } | % { $_.Value}
+"Right now: $ELF"
+$ELF_CH = Read-Host "(0), (1)"
+if ($ELF_CH -eq $null) {
+    $ELF_CH = $ELF
+}
+cls
+
 #
 # Generate a config.rbuild, copy it to the Source Tree and delete temp files.
 #
@@ -222,6 +234,7 @@ $xml.group.property | ? { $_.Name -eq "DBG" } | % { $_.Value = "$DBG_CH"}
 $xml.group.property | ? { $_.Name -eq "GDB" } | % { $_.Value = "$GDB_CH"}
 $xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value = "$NSWPAT_CH"}
 $xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value = "$WINKD_CH"}
+$xml.group.property | ? { $_.Name -eq "_ELF_" } | % { $_.Value = "$ELF_CH"}
 $xml.save("$ENV:APPDATA\RosBE\config.rbuild")
 copy "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
 
@@ -241,6 +254,7 @@ $DBG_CH = $null
 $GDB_CH = $null
 $NSWPAT_CH = $null
 $WINKD_CH = $null
+$ELF_CH = $null
 $SARCH = $null
 $OARCH = $null
 $OPTIMIZE = $null
@@ -249,6 +263,7 @@ $DBG = $null
 $GDB = $null
 $NSWPAT = $null
 $WINKD = $null
+$ELF = $null
 $XML = $null
 
 settitle
