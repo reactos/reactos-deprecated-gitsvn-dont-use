@@ -226,6 +226,19 @@ if "%WINKD_CH%" == "" (
 )
 cls
 
+echo Whether to compile support for ELF files. Do not enable unless you know what
+echo you're doing.
+echo Default is: 0
+echo.
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "_ELF_" | find "property name""`) do set ELF=%%i
+set ELF=%ELF:~7,-1%
+echo Right now: %ELF%
+set /p ELF_CH="(0), (1)"
+if "%ELF_CH%" == "" (
+    set ELF_CH=%ELF%
+)
+cls
+
 ::
 :: Generate a config.rbuild, copy it to the Source Tree and delete temp files.
 ::
@@ -240,6 +253,7 @@ echo ^<property name="DBG" value="%DBG_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="GDB" value="%GDB_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="NSWPAT" value="%NSWPAT_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="_WINKD_" value="%WINKD_CH%" /^>>>%TEMP%\config.tmp
+echo ^<property name="_ELF_" value="%ELF_CH%" /^>>>%TEMP%\config.tmp
 echo ^</group^>>>%TEMP%\config.tmp
 
 copy "%TEMP%\config.tmp" "%APPDATA%\RosBE\config.rbuild" >NUL
@@ -266,6 +280,7 @@ set DBG_CH=
 set GDB_CH=
 set NSWPAT_CH=
 set WINKD_CH=
+set ELF_CH=
 set SARCH=
 set OARCH=
 set OPTIMIZE=
@@ -274,3 +289,4 @@ set DBG=
 set GDB=
 set NSWPAT=
 set WINKD=
+set ELF=
