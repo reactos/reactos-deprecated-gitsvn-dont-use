@@ -47,7 +47,7 @@ function rembin {
             "ERROR: There is no compiler output to clean."
         }
     }
-    if ($ENV:ROS_ARCH -eq "ppc") {
+    elseif ($ENV:ROS_ARCH -eq "ppc") {
         if (Test-Path ".\obj-ppc") {
             "Cleaning ReactOS PPC source directory..."
             #
@@ -67,7 +67,7 @@ function rembin {
             "ERROR: There is no compiler output to clean."
         }
     }
-    if ($ENV:ROS_ARCH -eq "amd64") {
+    elseif ($ENV:ROS_ARCH -eq "amd64") {
         if (Test-Path ".\obj-amd64") {
             "Cleaning ReactOS x86_64 source directory..."
             #
@@ -87,7 +87,7 @@ function rembin {
             "ERROR: There is no compiler output to clean."
         }
     }
-    if ($ENV:ROS_ARCH -eq $null) {
+    elseif ($ENV:ROS_ARCH -eq $null) {
         if (Test-Path ".\obj-i386") {
             "Cleaning ReactOS i386 source directory..."
             #
@@ -121,16 +121,16 @@ if ("$args" -eq "") {
     rembin
     end
 }
-if ("$args" -eq "logs") {
+elseif ("$args" -eq "logs") {
     remlog
     end
 }
-if ("$args" -eq "all") {
+elseif ("$args" -eq "all") {
     rembin
     remlog
     end
 }
-if ("$args" -ne "") {
+elseif ("$args" -ne "") {
     "Unknown parameter specified. Try ''help [COMMAND]''."
     end
 }

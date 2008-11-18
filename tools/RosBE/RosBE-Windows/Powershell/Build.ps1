@@ -42,7 +42,7 @@ if ($_ROSBE_STRIP -ne $null) {
 # Small Security Check to prevent useless apps.
 if ($ENV:ROS_LEAN_AND_MEAN -eq "yes") {
     if ($ENV:ROS_BUILDNOSTRIP -eq "yes") {
-        cls
+        clear-host
         "Selecting Stripping and removing Debug Symbols together will most likely cause useless apps. Please deselect one of them."
         exit
     }
@@ -170,7 +170,7 @@ function BUILD {
 function BUILDMULTI {
     #
     # Get the number of CPUs in the system so we know how many jobs to execute.
-    $CPUCOUNT= (gwmi win32_processor).numberofcores + 1
+    $CPUCOUNT = (gwmi win32_processor).numberofcores + 1
 
     if ($_ROSBE_SHOWTIME -eq 1) {
         [System.Diagnostics.Stopwatch] $sw;
@@ -204,15 +204,12 @@ function BUILDMULTI {
 #
 # Check if we are using -j or not.
 #
-if ($args.count -gt 1) {
-    if ($args[0] -eq "multi") {
-        $host.ui.RawUI.WindowTitle = "makex $($args) parallel build started: $TIMERAW   $ENV:ROS_ARCH"
-    }
+if ($args[0] -eq "multi") {
+    $args.setvalue($null, 0)
+    $host.ui.RawUI.WindowTitle = "''makex $($args)'' parallel build started: $TIMERAW   $ENV:ROS_ARCH"
     BUILDMULTI $args
 } else {
-    if ($args.count -gt 0) {
-        $host.ui.RawUI.WindowTitle = "make $($args) build started: $TIMERAW   $ENV:ROS_ARCH"
-    }
+    $host.ui.RawUI.WindowTitle = "''make $($args)'' build started: $TIMERAW   $ENV:ROS_ARCH"
     BUILD $args
 }
 
@@ -230,6 +227,7 @@ if ($_ROSBE_VERSION -ne $null) {
 #
 $ENV:ROS_BUILDNOSTRIP = $null
 $ENV:ROS_LEAN_AND_MEAN = $null
+$ENV:CCACHE_DIR = $null
 $ENV:HOST_CC = $null
 $ENV:HOST_CPP = $null
 $ENV:TARGET_CC = $null
@@ -237,7 +235,8 @@ $ENV:TARGET_CPP = $null
 $ENV:ROS_INTERMEDIATE = $null
 $ENV:ROS_OUTPUT = $null
 $ENV:ROS_TEMPORARY = $null
-$ENV:CPUCOUNT = $null
-$ENV:CCACHE_DIR = $null
-$ENV:ROSA_DEL = $null
-$ENV:ROSB_DEL = $null
+$TIMERAW = $null
+$DATENAME = $null
+$TIMENAME = $null
+$CPUCOUNT = $null
+$sw = $null

@@ -15,7 +15,7 @@ if ($args -ne "") {
 
 (Get-Host).UI.RawUI.ForegroundColor = "Green"
 (Get-Host).UI.RawUI.BackgroundColor = "Black"
-cls
+clear-host
 $ENV:PATH = "$ENV:SystemRoot\system32;$ENV:SystemRoot"
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
@@ -32,13 +32,13 @@ $global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\i386"
 
 #
 # Get the number of CPUs in the system so we know how many jobs to execute.
-$CPUCOUNT= (gwmi win32_processor).numberofcores + 1
+$CPUCOUNT = (gwmi win32_processor).numberofcores + 1
 
 if (Test-Path "$_ROSBE_BASEDIR\chdefgcc.ps1") {
     set-alias CHDEFGCC "$_ROSBE_BASEDIR\chdefgcc.ps1" -scope Global
 }
 set-alias MAKE "$_ROSBE_BASEDIR\Build.ps1" -scope Global
-set-alias MAKEX "$_ROSBE_BASEDIR\Build.ps1 multi" -scope Global
+function global:MAKEX {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi"}
 if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
     set-alias SCUT "$_ROSBE_BASEDIR\scut.ps1" -scope Global
 }

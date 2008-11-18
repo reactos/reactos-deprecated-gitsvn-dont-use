@@ -17,39 +17,30 @@ $host.ui.RawUI.WindowTitle = "reladdr2line..."
 # sub-directories.
 #
 function CHECKPATH {
-    IEX "$ '&_ROSBE_BASEDIR\Tools\chkslash.exe' $_1"
-    if (errorlevel -eq 2) {
-        $_1 = dir /a:-d /s /b $_1 2>NUL | findstr "$_1"
-    }
-}
-
-#
-# If Parameters were set, parse them, if not, ask the user to add them.
-#
-function INTERACTIVE {
-    if ($_1 -eq $null) {
-        $_1 = Read-Host "Please enter the path/file to be examined: "
-        CHECKPATH
-    }
-    if ($_2 -eq $null) {
-        $_2 = Read-Host "Please enter the address you would like to analyze: "
+    if ($_1.Contains("\")) {
+        $_1 = get-childitem "$_1\*" -name -recurse 2>NUL | select-string "$_1"
     }
 }
 
 #
 # Receive the Parameters and decide what to do.
 #
-if ($args[2] -ne $null) {
+$_1 = $args[0]
+$_2 = $args[1]
+if ($args.length -bt 2) {
     "ERROR: Too many parameters specified."
 }
-elseif ($args[0] -ne $null) {
-    $_1 = $args[0]
-    CHECKPATH
+elseif ($args.length -lt 1) {
+    if ($_1 -eq $null) {
+        $_1 = Read-Host "Please enter the path/file to be examined: "
+        CHECKPATH
+    }
 }
-elseif ($args[1] -ne $null) {
-    $_2 = $args[1]
+elseif ($args.length -lt 2) {
+    if ($_2 -eq $null) {
+        $_2 = Read-Host "Please enter the address you would like to analyze: "
+    }
 }
-INTERACTIVE
 
 #
 # First get the ImageBase of the File. If its smaller than the given
@@ -63,12 +54,12 @@ if ($_1 -eq $null) {
 if ($_2 -eq $null) {
     "ERROR: You must specify a address to analyze."
 }
-$baseaddr = objdump -p $_1 2>NUL | findstr ImageBase
-if ($i -lt $_2) {
+$baseaddr = (objdump -p $_1 2>NUL | select-string "ImageBase")
+if ($baseaddr -lt $_2) {
     IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$_1' '$_2'"
 } else {
-    set /a baseaddr+=0x$_2
-    $relbase = IEX "'$_ROSBE_BASEDIR\Tools\echoh.exe' $baseaddr"
+    $baseaddr = $baseaddr + 0x$_2
+    $relbase = "{0:X}" -f $baseaddr
     IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$_1' '$relbase'"
 }
 

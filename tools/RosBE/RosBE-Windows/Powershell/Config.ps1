@@ -25,13 +25,13 @@ if ($args[0] -eq "delete") {
     $YESNO = Read-Host "(yes), (no)"
     if ($YESNO -eq "yes") {
         if (Test-Path ".\config.rbuild") {
-            del ".\config.rbuild"
+            remove-item ".\config.rbuild"
             "Main Configuration File was found and deleted."
         } else {
             "Main Configuration File was not found in ReactOS Source Tree."
         }
         if (Test-Path "$ENV:APPDATA\RosBE\config.rbuild") {
-            del "$ENV:APPDATA\RosBE\config.rbuild"
+            remove-item "$ENV:APPDATA\RosBE\config.rbuild"
             "Working Configuration File was found and deleted."
         } else {
             "Working Configuration File was not found in ReactOS Source Tree."
@@ -45,9 +45,9 @@ elseif ($args[0] -eq "update") {
     "Continue?"
     $YESNO = Read-Host "(yes), (no)"
     if ($YESNO -eq "yes") {
-        del "$_ROSBE_BASEDIR\*.rbuild"
-        del ".\config.rbuild"
-        copy ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
+        remove-item "$_ROSBE_BASEDIR\*.rbuild"
+        remove-item ".\config.rbuild"
+        copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
        "Successfully Updated."
     }
     settitle
@@ -61,7 +61,7 @@ elseif ($args[0] -ne $null) {
 # Check if config.rbuild already exists. If not, get a working copy.
 #
 if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
-    copy ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
+    copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
 }
 
 #
@@ -76,7 +76,7 @@ if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
 
 $YESNO = Read-Host "(yes), (no)"
 
-if ($YESNO -eq "no") {settitle}
+if ($YESNO -ne "yes") {settitle}
 
 #
 # Check if config.template.rbuild is newer than config.rbuild, if it is then
@@ -91,15 +91,15 @@ if (Test-Path ".\config.rbuild") {
         "*** previously made settings.                                  ***"
         ""
         $YESNO = Read-Host "(yes), (no)"
-        if ($YESNO -eq "yes") {del "$ENV:APPDATA\RosBE\*.rbuild" | del ".\config.rbuild" | copy ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"}
-        if ($YESNO -eq "no") {settitle}
+        if ($YESNO -eq "yes") {remove-item "$ENV:APPDATA\RosBE\*.rbuild" | remove-item ".\config.rbuild" | copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"}
+        else {settitle}
     }
 }
 
 #
 # Prepare XML Parser.
 #
-[xml] $XML = type "$ENV:APPDATA\RosBE\config.rbuild"
+[xml] $XML = get-content "$ENV:APPDATA\RosBE\config.rbuild"
 
 #
 # Start with reading settings from config.rbuild and let the user edit them.
@@ -110,7 +110,7 @@ if (Test-Path ".\config.rbuild") {
 $SARCH = $xml.group.property | ? { $_.Name -eq "SARCH" } | % { $_.Value}
 "Right now: $SARCH"
 $SARCH_CH = Read-Host "(), (xbox)"
-cls
+clear-host
 
 "Which CPU ReactOS should be optimized for."
 ""
@@ -129,7 +129,7 @@ $OARCH_CH = Read-Host
 if ($OARCH_CH -eq $null) {
     $OARCH_CH = $OARCH
 }
-cls
+clear-host
 
 "What level do you want ReactOS to be optimized at."
 "This setting does not work if GDB is set."
@@ -144,7 +144,7 @@ $OPTIMIZE_CH = Read-Host "(0), (1), (2), (3), (4), (5)"
 if ($OPTIMIZE_CH -eq $null) {
     $OPTIMIZE_CH = $OPTIMIZE
 }
-cls
+clear-host
 
 "Whether to compile in the integrated kernel debugger."
 "Default is: 1"
@@ -155,7 +155,7 @@ $KDBG_CH = Read-Host "(0), (1)"
 if ($KDBG_CH -eq $null) {
     $KDBG_CH = $KDBG
 }
-cls
+clear-host
 
 "Whether to compile for debugging. No compiler optimizations will be"
 "performed."
@@ -167,7 +167,7 @@ $DBG_CH = Read-Host "(0), (1)"
 if ($KDBG_CH -eq $null) {
     $DBG_CH = $DBG
 }
-cls
+clear-host
 
 "Whether to compile for debugging with GDB. If you don't use GDB,"
 "don't enable this."
@@ -179,7 +179,7 @@ $GDB_CH = Read-Host "(0), (1)"
 if ($GDB_CH -eq $null) {
     $GDB_CH = $GDB
 }
-cls
+clear-host
 
 "Whether to compile apps/libs with features covered software patents"
 "or not. If you live in a country where software patents are"
@@ -193,7 +193,7 @@ $NSWPAT_CH = Read-Host "(0), (1)"
 if ($NSWPAT_CH -eq $null) {
     $NSWPAT_CH = $NSWPAT
 }
-cls
+clear-host
 
 "Whether to compile with the KD protocol. This will disable support for"
 "KDBG as well as rossym and symbol lookups, and allow WinDBG to connect"
@@ -209,7 +209,7 @@ $WINKD_CH = Read-Host "(0), (1)"
 if ($WINKD_CH -eq $null) {
     $WINKD_CH = $WINKD
 }
-cls
+clear-host
 
 "Whether to compile support for ELF files. Do not enable unless you know what"
 "you're doing."
@@ -221,7 +221,7 @@ $ELF_CH = Read-Host "(0), (1)"
 if ($ELF_CH -eq $null) {
     $ELF_CH = $ELF
 }
-cls
+clear-host
 
 #
 # Generate a config.rbuild, copy it to the Source Tree and delete temp files.
@@ -236,7 +236,7 @@ $xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value = "$NSWPAT_CH"}
 $xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value = "$WINKD_CH"}
 $xml.group.property | ? { $_.Name -eq "_ELF_" } | % { $_.Value = "$ELF_CH"}
 $xml.save("$ENV:APPDATA\RosBE\config.rbuild")
-copy "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
+copy-item "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
 
 if ($_ROSBE_VERSION -ne $null) {
     $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"

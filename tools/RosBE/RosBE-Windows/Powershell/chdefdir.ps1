@@ -26,13 +26,13 @@ if ($args.count -eq 0) {
     $_1 = $args
 }
 if ($_1 -eq "previous") {
-    popd
+    pop-location
 } else {
     if (!(Test-Path "$_1\.")) {
         "ERROR: The path specified doesn't seem to exist."
         
     }
-    pushd "$_1"
+    push-location "$_1"
 }
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 
