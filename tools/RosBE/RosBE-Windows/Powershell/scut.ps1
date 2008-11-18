@@ -18,7 +18,7 @@ function parse($arg) {
 
     if ($OUT -ne "Default") {
         if (Test-Path "$OUT\.") {
-           cd $OUT
+           set-location $OUT
             $_ROSBE_ROSSOURCEDIR = $OUT
         }
     }

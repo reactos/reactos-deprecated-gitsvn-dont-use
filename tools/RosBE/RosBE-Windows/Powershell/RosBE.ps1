@@ -13,7 +13,7 @@
 #
 (Get-Host).UI.RawUI.ForegroundColor = "Green"
 (Get-Host).UI.RawUI.BackgroundColor = "Black"
-cls
+clear-host
 
 if ($ENV:APPDATA.Length -lt 1) {
     $ENV:APPDATA = $ENV:USERPROFILE
@@ -62,7 +62,7 @@ function RosBE {
 
 function LoadAliases {
     function global:BASEDIR {
-        cd "$_ROSBE_ROSSOURCEDIR"
+        set-location "$_ROSBE_ROSSOURCEDIR"
     }
     if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
         set-alias CHDEFDIR "$_ROSBE_BASEDIR\chdefdir.ps1" -scope Global
@@ -84,7 +84,7 @@ function LoadAliases {
 
     set-alias HELP "$_ROSBE_BASEDIR\Help.ps1" -scope Global
     set-alias MAKE "$_ROSBE_BASEDIR\Build.ps1" -scope Global
-    set-alias MAKEX "$_ROSBE_BASEDIR\Build.ps1 multi" -scope Global
+    function global:MAKEX($xargs) {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $($xargs)"}
 
     if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         set-alias RADDR2LINE "$_ROSBE_BASEDIR\reladdr2line.ps1" -scope Global
@@ -129,23 +129,23 @@ $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 #
 if ($args.count -gt 0) {
     if ($args -eq "oldmode") {
-        cls
+        clear-host
         $_ROSBE_MODE = "MinGW"
     }
     elseif ($args -eq "arm") {
-        cls
+        clear-host
         $_ROSBE_ARCH = 1
     }
     elseif ($args -eq "ppc") {
-        cls
+        clear-host
         $_ROSBE_ARCH = 2
     }
     elseif ($args -eq "amd64") {
-        cls
+        clear-host
         $_ROSBE_ARCH = 3
     }
     elseif ($args -ne $null) {
-        cls
+        clear-host
         "Unknown parameter specified. Exiting."
         exit
     }

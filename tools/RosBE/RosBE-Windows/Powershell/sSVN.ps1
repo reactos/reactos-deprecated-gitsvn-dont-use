@@ -59,7 +59,7 @@ elseif ($args[0] -eq "create") {
     if (Test-Path ".svn\.") {
         "ERROR: Folder already contains a repository."
     } else {
-        $dir = dir
+        $dir = get-childitem
         if ($dir -eq $null) {
             IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
         } else {
@@ -76,8 +76,8 @@ elseif ($args[0] -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
     "This might take a while, so please be patient."
     ""
-    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | findstr "Revision:"
-    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | findstr "Revision:"
+    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"
+    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
     UP
 }
 
