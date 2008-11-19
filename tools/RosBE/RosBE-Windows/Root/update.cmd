@@ -42,69 +42,53 @@ set _ROSBE_TOOLS=yes
 if "%1" == "" (
     goto :next
 )
-
-if "%1" == "nocmds" (
+elseif "%1" == "nocmds" (
     set _ROSBE_CMDS=no
-    goto :p1
 )
-if "%1" == "nogcc" (
+elseif "%1" == "nogcc" (
     set _ROSBE_GCC=no
-    goto :p1
 )
-if "%1" == "notools" (
+elseif "%1" == "notools" (
     set _ROSBE_TOOLS=no
-    goto :p1
+) else (
+    cls
+    echo Unknown first parameter specified. Exiting.
+    goto :EOU
 )
-
-cls
-echo Unknown first parameter specified. Exiting.
-goto :EOU
-
-:p1
 
 if "%2" == "" (
     goto :next
 )
-
-if "%2" == "nocmds" (
+elseif "%2" == "nocmds" (
     set _ROSBE_CMDS=no
-    goto :p2
 )
-if "%2" == "nogcc" (
+elseif "%2" == "nogcc" (
     set _ROSBE_GCC=no
-    goto :p2
 )
-if "%2" == "notools" (
+elseif "%2" == "notools" (
     set _ROSBE_TOOLS=no
-    goto :p2
+) else (
+    cls
+    echo Unknown second parameter specified. Exiting.
+    goto :EOU
 )
-
-cls
-echo Unknown second parameter specified. Exiting.
-goto :EOU
-
-:p2
 
 if "%3" == "" (
     goto :next
 )
-
-if "%3" == "nocmds" (
+elseif "%3" == "nocmds" (
     set _ROSBE_CMDS=no
-    goto :next
 )
-if "%3" == "nogcc" (
+elseif "%3" == "nogcc" (
     set _ROSBE_GCC=no
-    goto :next
 )
-if "%3" == "notools" (
+elseif "%3" == "notools" (
     set _ROSBE_TOOLS=no
-    goto :next
+) else (
+    cls
+    echo Unknown third parameter specified. Exiting.
+    goto :EOU
 )
-
-cls
-echo Unknown third parameter specified. Exiting.
-goto :EOU
 
 :next
 
@@ -129,6 +113,9 @@ if %_ROSBE_CMDS% == yes (
     if exist "Build.ps1" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Build.ps1
     )
+    if exist "chdefgcc.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/chdefgcc.ps1
+    )
     if exist "Clean.ps1" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Clean.ps1
     )
@@ -145,10 +132,22 @@ if %_ROSBE_CMDS% == yes (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/rosbe-gcc-env.ps1
     )
 
+    REM Arch Changer Files.
+
+    if exist "charch.cmd" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/charch.cmd
+    )
+    if exist "charch.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/charch.ps1
+    )
+
     REM Options Files.
 
     if exist "options.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/options.cmd
+    )
+    if exist "options.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/options.ps1
     )
 
     REM SVN Files.
@@ -156,11 +155,17 @@ if %_ROSBE_CMDS% == yes (
     if exist "sSVN.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/sSVN.cmd
     )
+    if exist "sSVN.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/sSVN.ps1
+    )
 
     REM SCut Files.
 
     if exist "scut.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/scut.cmd
+    )
+    if exist "scut.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/scut.ps1
     )
 
     REM RelAddr2Line Files.
@@ -168,14 +173,23 @@ if %_ROSBE_CMDS% == yes (
     if exist "reladdr2line.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/reladdr2line.cmd
     )
+    if exist "reladdr2line.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/reladdr2line.ps1
+    )
 
     REM Other Tools Files.
 
     if exist "Config.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Config.cmd
     )
+    if exist "Config.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/Config.ps1
+    )
     if exist "chdefdir.cmd" (
         "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/chdefdir.cmd
+    )
+    if exist "chdefdir.ps1" (
+        "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/chdefdir.ps1
     )
 
     REM Default Files.
