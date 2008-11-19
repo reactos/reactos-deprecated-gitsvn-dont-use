@@ -27,7 +27,7 @@ function CHECKPATH {
 #
 $_1 = $args[0]
 $_2 = $args[1]
-if ($args.length -bt 2) {
+if ($args.length -gt 2) {
     "ERROR: Too many parameters specified."
 }
 elseif ($args.length -lt 1) {
@@ -54,12 +54,15 @@ if ($_1 -eq $null) {
 if ($_2 -eq $null) {
     "ERROR: You must specify a address to analyze."
 }
-$baseaddr = (objdump -p $_1 2>NUL | select-string "ImageBase")
+
+$baseaddr = (objdump -p $_1 | select-string "ImageBase").tostring().split()
+$baseaddr = "0x" + ($baseaddr.get($baseaddr.length - 1))
+
 if ($baseaddr -lt $_2) {
     IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$_1' '$_2'"
 } else {
-    $baseaddr = $baseaddr + 0x$_2
-    $relbase = "{0:X}" -f $baseaddr
+    $baseaddr = ($baseaddr | % {[Convert]::ToInt32($_,16)}) + ($_2 | % {[Convert]::ToInt32($_,16)})
+    $relbase = "0x" + ("{0:X}" -f $baseaddr)
     IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$_1' '$relbase'"
 }
 
