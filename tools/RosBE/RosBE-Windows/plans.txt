@@ -1,0 +1,23 @@
+updater ideen:
+Erweiterte Update Pakete für einzelne Komponenten.
+
+Die Dateien werden durchnummeriert. %_ROSBE_VERSION%-1.7z, %_ROSBE_VERSION%-2.7z, %_ROSBE_VERSION%-3.7z und die dazugehörigen Changelogs mit der selben Benennung. Gespeichert werden sie in %_ROSBE_BASEDIR%\Updates
+
+Die klassische Methode, wie schon bei den anderen 7z Dateien wird angewendet, um zu erfahren, ob die Dateien aktualisiert oder erstellt wurden.
+
+Wenn ja, gebe die heruntergeladene changelog + Größenangabe über type aus und frage nach ob man das Paket laden will. Wenn nein wird wegen der Struktur an sich später nicht mehr nachgefragt, ob das Paket installiert werden soll. Deswegen löschen wir die changelog, um dies zu forcieren.
+
+Wenn es installiert werden soll, entpacke in \. und starte die %_ROSBE_VERSION%-1.cmd, %_ROSBE_VERSION%-2.cmd, %_ROSBE_VERSION%-3.cmd... der aktualisierten Pakete als update skript.
+
+Die abfrage kann entweder statisch geschehn, also z.b. fest codiert von %_ROSBE_VERSION%-1.7z bis %_ROSBE_VERSION%-9.7z, oder uU variabel über %_ROSBE_VERSION%-%_ROSBE_UPDATE%.7z und dann set /a %_ROSBE_UPDATE% += 1, bis eine Datei nicht vorhanden und deswegen der Updatevorgang fertig ist. Ab aus der schleife und gut ist.
+
+Die einzelnen Skripts haben folgende Grundelemente:
+- Befehle zum Kopieren der Dateien.
+- u.U integrierte Abfragen und Entscheidungen möglich.
+
+Einzelne Commands:
+reset - Löscht alle changelogs, also werden alle updates wieder ausgeführt, ob installiert oder nicht.
+
+nr X - Installiert nur Paket Nummer X, egal ob schon installiert oder nicht und beendet.
+
+status - Prüft nach neuen Updates und gibt das Resultat als Einzeiler aus. Kopiere die changelogs in einen temp Ordner. Jedes noch nicht vorhandene Update wird mit seiner Nummer an eine variable angehängt und diese am Ende ausgegeben, also z.B. "Update Packs 3,4,5,6 are available" Diese updates werden zu der Zeit noch nicht heruntergeladen und die zur Überprüfung verwendeten changelogs sind deswegen in einem Temp Ordner angesiedelt, um die Aussagekräftigen changelogs nicht zu verändern. Sinnvoll für den Start von RosBE.
