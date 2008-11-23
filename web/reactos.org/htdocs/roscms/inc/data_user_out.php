@@ -50,15 +50,22 @@
 			}
 		
 			if ($RosCMS_GET_d_flag == "addmembership") {
-				$query_insert_membership = mysql_query("INSERT INTO `usergroup_members` ( `usergroupmember_userid` , `usergroupmember_usergroupid` ) 
-														VALUES (
-															".mysql_real_escape_string($RosCMS_GET_d_value).", 
-															'".mysql_real_escape_string($RosCMS_GET_d_value2)."'
-														);");
-				if ($tmp_transmaintlang) {
-					log_event_lang_medium("add user account membership: user-id=".$RosCMS_GET_d_value.", group-id=".$RosCMS_GET_d_value2." done by ".$roscms_intern_account_id." {data_user_out}", $tmp_transmaintlang);
+				// check if user is already member, so we don't add him twice
+				// also check that you don't give accounts a higher seclevel
+				$query_has_membership = mysql_query("SELECT usergroupmember_userid FROM usergroup_members m JOIN usergroups g ON m.usergroupmember_usergroupid = g.usrgroup_name_id WHERE usergroupmember_userid = ".mysql_real_escape_string($RosCMS_GET_d_value)." AND usergroupmember_usergroupid = '".mysql_real_escape_string($RosCMS_GET_d_value2)."' AND usrgroup_seclev <= ".mysql_real_escape_string($roscms_security_level)." LIMIT 1");
+				$result_has_membership = mysql_fetch_array($query_has_membership);
+				
+				if (!$result_has_membership) {
+					$query_insert_membership = mysql_query("INSERT INTO `usergroup_members` ( `usergroupmember_userid` , `usergroupmember_usergroupid` ) 
+															VALUES (
+																".mysql_real_escape_string($RosCMS_GET_d_value).", 
+																'".mysql_real_escape_string($RosCMS_GET_d_value2)."'
+															);");
+					if ($tmp_transmaintlang) {
+						log_event_lang_medium("add user account membership: user-id=".$RosCMS_GET_d_value.", group-id=".$RosCMS_GET_d_value2." done by ".$roscms_intern_account_id." {data_user_out}", $tmp_transmaintlang);
+					}
+					log_event_medium("add user account membership: user-id=".$RosCMS_GET_d_value.", group-id=".$RosCMS_GET_d_value2." done by ".$roscms_intern_account_id." {data_user_out}");
 				}
-				log_event_medium("add user account membership: user-id=".$RosCMS_GET_d_value.", group-id=".$RosCMS_GET_d_value2." done by ".$roscms_intern_account_id." {data_user_out}");
 				$RosCMS_GET_d_flag = "detail";
 			}
 			else if ($RosCMS_GET_d_flag == "delmembership") {
