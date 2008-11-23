@@ -8,21 +8,10 @@
 ::
 @echo off
 
-setlocal
-setlocal enableextensions
-setlocal enabledelayedexpansion
-
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
-set _ROSBE_UPDFINISH=0
-set _ROSBE_OPATH=0
-set _ROSBE_UPDDATE=0
-set _ROSBE_UPDDATE2=0
-set _ROSBE_UPDATES=0
-set _ROSBE_OPATH=%~dp0
-set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
 
 ::
 :: Set Title
@@ -39,6 +28,7 @@ set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
 ::
 ::First check for a new Updater
 ::
+setlocal enabledelayedexpansion
 for %%F in (update.cmd) do set _ROSBE_UPDDATE=%%~tF
 "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd 1> NUL 2> NUL
 for %%F in (update.cmd) do set _ROSBE_UPDDATE2=%%~tF
@@ -55,6 +45,10 @@ if !_ROSBE_UPDDATE! NEQ !_ROSBE_UPDDATE2! (
     echo Updater got updated and needs to be restarted.
     goto :EOC
 )
+endlocal
+
+set _ROSBE_OPATH=%~dp0
+set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
 
 if not exist "Updates" mkdir Updates 1> NUL 2> NUL
 cd Updates
@@ -63,58 +57,117 @@ cd Updates
 :: Parse the args.
 ::
 if "%1" == "" (
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 1 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 2 next
-	if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 3 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 4 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 5 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 6 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 7 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 8 next
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :EOC)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 9 next
-	goto :EOC
+    set _ROSBE_MULTIUPD=1
+    set _ROSBE_STATCOUNT=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    set /a _ROSBE_STATCOUNT+=1
+    call :UPDCHECK
+    goto :EOC
 )
 if /i "%1" == "reset" (
     del /F /Q "%_ROSBE_BASEDIR%\Updates\*.*" 1> NUL 2> NUL
     goto :EOC
 )
 if /i "%1" == "nr" (
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" %2
-	goto :EOC
+    set _ROSBE_STATCOUNT=%2
+    call :UPDCHECK
+    goto :EOC
 )
 if /i "%1" == "status" (
     mkdir tmp 1> NUL 2> NUL
     copy *.txt .\tmp\. 1> NUL 2> NUL
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 1 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 2 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 3 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 4 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 5 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 6 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 7 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 8 status
-    if "!_ROSBE_UPDFINISH!" == "1" (goto :UPDFIN)
-    call "%_ROSBE_BASEDIR%\updcheckproc.cmd" 9 status
+    set _ROSBE_STATCOUNT=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    set /a _ROSBE_STATCOUNT+=1
+    call :STATUS
+    goto :UPDFIN
 )
 
+:STATUS
+
+cd tmp
+if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
+    if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+        set _ROSBE_UPDATES=%_ROSBE_UPDATES% %_ROSBE_STATCOUNT% 
+    )
+)
+cd..
+goto :EOF
+
 :UPDFIN
+
 del /F /Q tmp\*.*
-echo Following Updates available: %_ROSBE_UPDATES%
+if not "%_ROSBE_UPDATES%" == "" (
+    echo Following Updates available: %_ROSBE_UPDATES%
+) else (
+    echo RosBE is up to Date.
+)
+goto :EOC
+
+:UPDCHECK
+
+if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
+)
+if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+    type "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt"
+    echo.
+    echo Install?
+    setlocal enabledelayedexpansion
+    set /p YESNO="(yes), (no)"
+    if /i "!YESNO!"=="yes" (
+        if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z" (
+            "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z 1> NUL 2> NUL
+        )
+        if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z" (
+            "%_ROSBE_BASEDIR%\Tools\7z.exe" x "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z"
+            cd "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%"
+            call "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.cmd"
+        ) else (
+            echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
+            goto :EOF
+        )
+    ) else if /i "!YESNO!"=="no" (
+        del "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" 1> NUL 2> NUL
+        goto :EOF
+    )
+    endlocal
+) else (
+    if not "_ROSBE_MULTIUPD" == "1" (
+        echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
+        goto :EOF
+    )
+)
+goto :EOF
 
 :EOC
 
@@ -128,3 +181,5 @@ set _ROSBE_OPATH=
 set _ROSBE_UPDDATE=
 set _ROSBE_UPDATES=
 set _ROSBE_UPDDATE2=
+set _ROSBE_MULTIUPD=
+set _ROSBE_STATCOUNT=
