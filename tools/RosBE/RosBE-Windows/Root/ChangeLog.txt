@@ -1,3 +1,14 @@
+*** XXX xxth, 200x - RosBE 1.3.1 Released
+
+- Updated: The Update Utility now does not blindly sync the script files. It loads
+  complete Update Packs and installs them. (Daniel Reimer)
+- Updated: The Powershell Port is now complete. (Daniel Reimer)
+- Fixed: Now config adds the ELF Parameter to the config file to and lets you modify
+  it. Without this param, build is broken. (Daniel Reimer)
+- Modified: Changed the default values of config to the previous setting instead of
+  the real default one if you don't type in anything for a setting. (Daniel Reimer)
+
+
 *** October 26th, 2008 - RosBE 1.3 Released
 
 - Added: Tool to set the Architecture to build ROS for. (Daniel Reimer)

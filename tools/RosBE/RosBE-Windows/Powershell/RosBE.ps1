@@ -167,6 +167,8 @@ if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
 "For a list of all included commands, type: ""help"""
 "-------------------------------------------------"
 ""
+# IEX "'$_ROSBE_BASEDIR\sSVN.ps1' status"
+# ""
 
 #
 # Load the doskey macros that serve as our commands.

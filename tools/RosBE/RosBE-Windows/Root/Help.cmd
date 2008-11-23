@@ -242,9 +242,9 @@ if exist "%_ROSBE_BASEDIR%\update.cmd" (
         echo Usage: update [OPTIONS]
         echo Updates all files of RosBE to the most recent files.
         echo.
-        echo    nocmds  - Skips the Updating of the Script Files.
-        echo    nogcc   - Skips the Updating of GCC.
-        echo    notools - Skips the Updating of the Tools.
+        echo    reset  - Removes the Updates Cache. Not recommended.
+        echo    nr X   - Re/Installs Update Nr X.
+        echo    status - Shows the recent status of available, non installed updates.
         goto :EOC
     )
 )

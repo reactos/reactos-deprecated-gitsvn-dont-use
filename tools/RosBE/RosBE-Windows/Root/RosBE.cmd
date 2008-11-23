@@ -110,6 +110,8 @@ echo.
 echo For a list of all included commands, type: "help"
 echo -------------------------------------------------
 echo.
+REM "%_ROSBE_BASEDIR%\sSVN.cmd" status
+REM echo.
 
 ::
 :: Load the doskey macros that serve as our commands.
