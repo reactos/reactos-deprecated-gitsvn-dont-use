@@ -18,6 +18,12 @@ if %_ROSBE_DEBUG% == 1 (
 ::
 title Updating...
 
+::
+:: Save the recent dir to cd back there at the end.
+::
+set _ROSBE_OPATH=%~dp0
+set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
+
 cd /d %_ROSBE_BASEDIR%
 
 ::
@@ -26,7 +32,7 @@ cd /d %_ROSBE_BASEDIR%
 set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
 
 ::
-::First check for a new Updater
+:: First check for a new Updater
 ::
 setlocal enabledelayedexpansion
 for %%F in (update.cmd) do set _ROSBE_UPDDATE=%%~tF
@@ -37,19 +43,11 @@ if !_ROSBE_UPDDATE! NEQ !_ROSBE_UPDDATE2! (
     echo Updater got updated and needs to be restarted.
     goto :EOC
 )
-for %%F in (updcheckproc.cmd) do set _ROSBE_UPDDATE=%%~tF
-"Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd 1> NUL 2> NUL
-for %%F in (updcheckproc.cmd) do set _ROSBE_UPDDATE2=%%~tF
-if !_ROSBE_UPDDATE! NEQ !_ROSBE_UPDDATE2! (
-    cls
-    echo Updater got updated and needs to be restarted.
-    goto :EOC
-)
 endlocal
 
-set _ROSBE_OPATH=%~dp0
-set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
-
+::
+:: Get to the Updates Subfolder.
+::
 if not exist "Updates" mkdir Updates 1> NUL 2> NUL
 cd Updates
 
@@ -85,6 +83,11 @@ if /i "%1" == "reset" (
 if /i "%1" == "nr" (
     set _ROSBE_STATCOUNT=%2
     call :UPDCHECK
+    goto :EOC
+)
+if /i "%1" == "info" (
+    set _ROSBE_STATCOUNT=%2
+    call :UPDINFO
     goto :EOC
 )
 if /i "%1" == "status" (
@@ -123,9 +126,25 @@ if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
 cd..
 goto :EOF
 
+:UPDINFO
+
+cd tmp
+if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
+    if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+        type "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt"
+    ) else (
+        echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
+        goto :EOF
+    )
+)
+cd..
+del /F /Q tmp\*.* 1> NUL 2> NUL
+goto :EOF
+
 :UPDFIN
 
-del /F /Q tmp\*.*
+del /F /Q tmp\*.* 1> NUL 2> NUL
 if not "%_ROSBE_UPDATES%" == "" (
     echo Following Updates available: %_ROSBE_UPDATES%
 ) else (
@@ -157,12 +176,16 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
             goto :EOF
         )
     ) else if /i "!YESNO!"=="no" (
-        del "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" 1> NUL 2> NUL
+        echo Do you want to be asked again to install this update?
+        set /p YESNO="(yes), (no)"
+        if /i "!YESNO!"=="yes" (
+            del "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" 1> NUL 2> NUL
+        )
         goto :EOF
     )
     endlocal
 ) else (
-    if not "_ROSBE_MULTIUPD" == "1" (
+    if not "%_ROSBE_MULTIUPD%" == "1" (
         echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
         goto :EOF
     )
