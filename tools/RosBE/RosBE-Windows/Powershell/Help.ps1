@@ -238,6 +238,7 @@ if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
         ""
         "    reset  - Removes the Updates Cache. Not recommended."
         "    nr X   - Re/Installs Update Nr X."
+        "    info X - Shows info about Update Nr X."
         "    status - Shows the recent status of available, non installed updates."
         exit
     }

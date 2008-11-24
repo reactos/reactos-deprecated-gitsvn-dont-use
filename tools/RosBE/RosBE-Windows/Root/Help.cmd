@@ -244,6 +244,7 @@ if exist "%_ROSBE_BASEDIR%\update.cmd" (
         echo.
         echo    reset  - Removes the Updates Cache. Not recommended.
         echo    nr X   - Re/Installs Update Nr X.
+        echo    info X - Shows info about Update Nr X.
         echo    status - Shows the recent status of available, non installed updates.
         goto :EOC
     )
