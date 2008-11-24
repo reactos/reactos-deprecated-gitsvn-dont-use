@@ -154,6 +154,9 @@ goto :EOC
 
 :UPDCHECK
 
+if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+    goto :EOF
+)
 if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
 )
@@ -171,6 +174,7 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
             "%_ROSBE_BASEDIR%\Tools\7z.exe" x "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z"
             cd "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%"
             call "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.cmd"
+            goto :EOF
         ) else (
             echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
             goto :EOF
