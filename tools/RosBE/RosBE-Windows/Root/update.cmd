@@ -131,7 +131,7 @@ cd tmp
 if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
     if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-        set _ROSBE_UPDATES=%_ROSBE_UPDATES% %_ROSBE_STATCOUNT%
+        set _ROSBE_UPDATES=%_ROSBE_UPDATES% %_ROSBE_STATCOUNT% 
     )
 )
 cd..
@@ -164,6 +164,8 @@ if not "%_ROSBE_UPDATES%" == "" (
 goto :EOC
 
 :UPDCHECK
+
+cd /d "%APPDATA%\RosBE\Updates"
 
 if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
     goto :EOF
