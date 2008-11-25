@@ -89,9 +89,9 @@ $_ROSBE_UPDDATE = get-content update.ps1
 &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/update.ps1 2>&1> $null
 $_ROSBE_UPDDATE = get-content update.ps1
 if ($_ROSBE_UPDDATE -ne $_ROSBE_UPDDATE2) {
-    # clear-host
+    clear-host
     "Updater got updated and needs to be restarted."
-    # EOC
+    EOC
 }
 
 #
