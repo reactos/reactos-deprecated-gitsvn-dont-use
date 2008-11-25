@@ -19,17 +19,23 @@ if %_ROSBE_DEBUG% == 1 (
 title Updating...
 
 ::
+:: The Update Server.
+::
+set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
+
+::
 :: Save the recent dir to cd back there at the end.
 ::
 set _ROSBE_OPATH=%~dp0
 set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
 
-cd /d %_ROSBE_BASEDIR%
+if not exist "%_ROSBE_BASEDIR%\Tools\7z.exe" (
+    cd /d "%_ROSBE_BASEDIR%\Tools"
+    wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/7z.exe 1> NUL 2> NUL
+    cd /d %_ROSBE_OPATH%
+)
 
-::
-:: The Update Server.
-::
-set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
+cd /d %_ROSBE_BASEDIR%
 
 ::
 :: First check for a new Updater
@@ -48,8 +54,8 @@ endlocal
 ::
 :: Get to the Updates Subfolder.
 ::
-if not exist "Updates" mkdir Updates 1> NUL 2> NUL
-cd Updates
+if not exist "%APPDATA%\RosBE\Updates" mkdir "%APPDATA%\RosBE\Updates" 1> NUL 2> NUL
+cd /d "%APPDATA%\RosBE\Updates"
 
 ::
 :: Parse the args.
@@ -77,7 +83,8 @@ if "%1" == "" (
     goto :EOC
 )
 if /i "%1" == "reset" (
-    del /F /Q "%_ROSBE_BASEDIR%\Updates\*.*" 1> NUL 2> NUL
+    del /F /Q "%APPDATA%\RosBE\Updates\*.*" 1> NUL 2> NUL
+    del /F /Q "%APPDATA%\RosBE\Updates\tmp\*.*" 1> NUL 2> NUL
     goto :EOC
 )
 if /i "%1" == "nr" (
@@ -91,7 +98,7 @@ if /i "%1" == "info" (
     goto :EOC
 )
 if /i "%1" == "status" (
-    mkdir tmp 1> NUL 2> NUL
+    if not exist "tmp" mkdir tmp 1> NUL 2> NUL
     copy *.txt .\tmp\. 1> NUL 2> NUL
     set _ROSBE_STATCOUNT=1
     call :STATUS
@@ -113,6 +120,10 @@ if /i "%1" == "status" (
     call :STATUS
     goto :UPDFIN
 )
+if not "%1" == "" (
+    echo Unknown parameter specified. Try 'help update'.
+    goto :EOC
+)
 
 :STATUS
 
@@ -120,7 +131,7 @@ cd tmp
 if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
     "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
     if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-        set _ROSBE_UPDATES=%_ROSBE_UPDATES% %_ROSBE_STATCOUNT% 
+        set _ROSBE_UPDATES=%_ROSBE_UPDATES% %_ROSBE_STATCOUNT%
     )
 )
 cd..
@@ -171,6 +182,7 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
             "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z 1> NUL 2> NUL
         )
         if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z" (
+            del /F /Q "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%\*.*" 1>NUL 2>NUL
             "%_ROSBE_BASEDIR%\Tools\7z.exe" x "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z"
             cd "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%"
             call "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.cmd"
@@ -198,7 +210,7 @@ goto :EOF
 
 :EOC
 
-cd /d %_ROSBE_OPATH%
+cd /d "%_ROSBE_OPATH%"
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
