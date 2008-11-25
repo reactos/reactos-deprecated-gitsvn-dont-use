@@ -21,11 +21,13 @@ function EOC {
 }
 
 function UPDCHECK {
+    set-location "$ENV:APPDATA\RosBE\Updates"
+
     if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
-        break
+        return
     }
     if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
-        IEX "'$_ROSBE_BASEDIR\Tools\wget.exe' -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
+        &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt 2>&1> $null
     }
     if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
         get-Content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
@@ -34,67 +36,32 @@ function UPDCHECK {
         $YESNO = Read-Host "(yes), (no)"
         if ($YESNO -eq "yes") {
             if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z")) {
-                IEX "&'$_ROSBE_BASEDIR\Tools\wget.exe' -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z"
+                &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z 2>&1> $null
             }
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z") {
-                remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT\*.*" -force
+                remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT\*.*" -force -EA SilentlyContinue
                 IEX "&'$_ROSBE_BASEDIR\Tools\7z.exe' x '$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z'"
                 set-location "$_ROSBE_VERSION-$_ROSBE_STATCOUNT"
-                "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.ps1"
-                break
+                IEX "& .\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.ps1"
+                return
             } else {
                 "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
-                break
+                return
             }
         } elseif ($YESNO -eq "no") {
             "Do you want to be asked again to install this update?"
             $YESNO = Read-Host "(yes), (no)"
             if ($YESNO -eq "yes") {
-                remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt" -force
+                remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt" -force -EA SilentlyContinue
             }
-            break
+            return
         }
     } else {
         if ($_ROSBE_MULTIUPD -ne "1") {
             "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
-            break
+            return
         }
     }
-}
-
-function STATUS {
-    set-location tmp
-    if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
-        IEX "&'$_ROSBE_BASEDIR\Tools\wget.exe' -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
-        if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
-             $_ROSBE_UPDATES = "$_ROSBE_UPDATES $_ROSBE_STATCOUNT"
-        }
-    }
-    set-loaction ..
-}
-
-function UPDINFO {
-    set-location tmp
-    if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
-        IEX "&'$_ROSBE_BASEDIR\Tools\wget.exe' -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
-        if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
-            get-content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
-        } else {
-            "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
-        }
-    }
-    set-location ..
-    remove-item "tmp\*.*" -force
-}
-
-function UPDFIN {
-    remove-item "tmp\*.*" -force
-    if ($_ROSBE_UPDATES -ne $null) {
-        "Following Updates available: $_ROSBE_UPDATES"
-    } else {
-    "RosBE is up to Date."
-    }
-    EOC
 }
 
 #
@@ -107,24 +74,24 @@ $_ROSBE_URL = "http://mitglied.lycos.de/reimerdaniel/rosbe"
 #
 $_ROSBE_OPATH = "$pwd"
 
-if (Test-Path "$_ROSBE_BASEDIR\Tools\7z.exe") {
+if (!(Test-Path "$_ROSBE_BASEDIR\Tools\7z.exe")) {
     set-location "$_ROSBE_BASEDIR\Tools"
-    IEX "& wget.exe -N --ignore-length --no-verbose $_ROSBE_URL/7z.exe"
+    &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/7z.exe 2>&1> $null
     set-location $_ROSBE_OPATH
 }
 
 set-location $_ROSBE_BASEDIR
 
 #
-# First check for a new Updater
+# First check for a new Updater.
 #
 $_ROSBE_UPDDATE = get-content update.ps1
-IEX "$'Tools\wget.exe' -N --ignore-length --no-verbose $_ROSBE_URL/update.ps1"
+&"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/update.ps1 2>&1> $null
 $_ROSBE_UPDDATE = get-content update.ps1
 if ($_ROSBE_UPDDATE -ne $_ROSBE_UPDDATE2) {
     # clear-host
     "Updater got updated and needs to be restarted."
-    EOC
+    # EOC
 }
 
 #
@@ -139,62 +106,63 @@ set-location "$ENV:APPDATA\RosBE\Updates"
 if ("$args" -eq "") {
     $_ROSBE_MULTIUPD = 1
     $_ROSBE_STATCOUNT = 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
-    $_ROSBE_STATCOUNT += 1
-    UPDCHECK
+    while ($_ROSBE_STATCOUNT -lt 10) {
+        UPDCHECK
+        $_ROSBE_STATCOUNT += 1
+    }
     EOC
 }
 if ("$args" -eq "reset") {
-    remove-item "$ENV:APPDATA\RosBE\Updates\*.*" -force
-    remove-item "$ENV:APPDATA\RosBE\Updates\tmp\*.*" -force
+    remove-item "$ENV:APPDATA\RosBE\Updates\*.*" -force -recurse -EA SilentlyContinue
+    remove-item "$ENV:APPDATA\RosBE\Updates\tmp\*.*" -force -recurse -EA SilentlyContinue
     EOC
 }
-if ("$args[0]" -eq "nr") {
-    $_ROSBE_STATCOUNT = $args[1]
+$arg1 = $args[0]
+$arg2 = $args[1]
+if ("$arg1" -eq "nr") {
+    $_ROSBE_STATCOUNT = $arg2
     UPDCHECK
     EOC
 }
-if ("$args[0]" -eq "info") {
-    $_ROSBE_STATCOUNT = $args[1]
-    UPDINFO
+if ("$arg1" -eq "info") {
+    $_ROSBE_STATCOUNT = $arg2
+    set-location tmp
+    if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
+        &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt 2>&1> $null
+        if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
+            get-content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
+        } else {
+            "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
+        }
+    }
+    set-location ..
+    remove-item "tmp\*.*" -force -EA SilentlyContinue
     EOC
 }
+$arg1 = $null
+$arg2 = $null
 if ("$args" -eq "status") {
-    if (!(test-path "tmp")) {New-Item -name "Updates" -type directory}
-    copy-item *.txt .\tmp\.
     $_ROSBE_STATCOUNT = 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    $_ROSBE_STATCOUNT += 1
-    STATUS
-    UPDFIN
+    if (!(test-path "tmp")) {New-Item -name "tmp" -type directory}
+    copy-item *.txt .\tmp\.
+    set-location tmp
+    while($_ROSBE_STATCOUNT -lt 10) {
+        if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
+            &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt 2>&1> $null
+            if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
+                 $_ROSBE_UPDATES += "$_ROSBE_STATCOUNT "
+            }
+        }
+        $_ROSBE_STATCOUNT += 1
+    }
+    set-location ..
+    remove-item "tmp\*.*" -force -EA SilentlyContinue
+    if ($_ROSBE_UPDATES -ne $null) {
+        "Following Updates available: $_ROSBE_UPDATES"
+    } else {
+        "RosBE is up to Date."
+    }
+    EOC
 }
 if ("$args" -ne "") {
     "Unknown parameter specified. Try 'help update'."
