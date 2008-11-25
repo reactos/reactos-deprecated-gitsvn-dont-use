@@ -85,15 +85,17 @@ set-location $_ROSBE_BASEDIR
 #
 # First check for a new Updater.
 #
-$_ROSBE_UPDDATE = get-content update.ps1
+rename-item update.ps1 update2.ps1
 &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/update.ps1 2>&1> $null
-$_ROSBE_UPDDATE = get-content update.ps1
-if ($_ROSBE_UPDDATE -ne $_ROSBE_UPDDATE2) {
+if ((gi .\update.ps1).LastWriteTime -gt (gi .\update2.ps1).LastWriteTime) {
     clear-host
     "Updater got updated and needs to be restarted."
+    remove-item update2.ps1 -force
     EOC
+} else {
+    remove-item update.ps1 -force
+    rename-item update2.ps1 update.ps1
 }
-
 #
 # Get to the Updates Subfolder.
 #
