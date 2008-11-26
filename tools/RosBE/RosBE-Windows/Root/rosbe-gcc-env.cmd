@@ -78,7 +78,18 @@ if "%_ROSBE_MODE%" == "MinGW" (
     set TARGET_CFLAGS=-I"%_ROSBE_TARGET_MINGWPATH%\include" -I"%_ROSBE_TARGET_MINGWPATH%\lib\gcc\%_ROSBE_GCCTARGET%\%_ROSBE_GCCVERSION%\include"
     set TARGET_CPPFLAGS=-I"%_ROSBE_TARGET_MINGWPATH%\include" -I"%_ROSBE_TARGET_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%" -I"%_ROSBE_TARGET_MINGWPATH%\include\c++\%_ROSBE_GCCVERSION%\%_ROSBE_GCCTARGET%" -I"%_ROSBE_TARGET_MINGWPATH%\lib\gcc\%_ROSBE_GCCTARGET%\%_ROSBE_GCCVERSION%\include"
 )
-
+if "%_ROSBE_HOST_GCCVERSION%" == "3.4.5" (
+    set PATH=%_ROSBE_BASEDIR%\3.4.5\bin;%_ROSBE_BASEDIR%\3.4.5\libexec\gcc\mingw32\3.4.5;%PATH%
+    set _ROSBE_MINGWMAKE=%_ROSBE_BASEDIR%\3.4.5\bin\mingw32-make.exe
+    :: Set all paths (needed by Windows Vista)
+    set C_INCLUDE_PATH=%_ROSBE_BASEDIR%\3.4.5\include;%_ROSBE_BASEDIR%\3.4.5\lib\gcc\mingw32\3.4.5\include
+    set CPLUS_INCLUDE_PATH=%_ROSBE_BASEDIR%\3.4.5\include;%_ROSBE_BASEDIR%\3.4.5\include\c++\3.4.5;%_ROSBE_BASEDIR%\3.4.5\include\c++\3.4.5\mingw32;%_ROSBE_BASEDIR%\3.4.5\lib\gcc\mingw32\3.4.5\include
+    set LIBRARY_PATH=%_ROSBE_BASEDIR%\3.4.5\lib;%_ROSBE_BASEDIR%\3.4.5\lib\gcc\mingw32\3.4.5
+    set HOST_CFLAGS=
+    set HOST_CPPFLAGS=
+    set TARGET_CFLAGS=
+    set TARGET_CPPFLAGS=
+)
 ::
 :: Display the current version of GCC, NASM, ld and make.
 ::
@@ -125,4 +136,5 @@ if exist "%_ROSBE_HOST_MINGWPATH%\bin\flex.exe" (
         echo WARNING: Flex will soon be required to build ReactOS, none found in the current MinGW/GCC.
     )
 )
+set PATH=%_ROSBE_ORIGINALPATH%
 mingw32-make -v | find "GNU Make"

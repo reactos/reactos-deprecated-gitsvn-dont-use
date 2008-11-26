@@ -236,10 +236,11 @@ if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
         " Usage: update [OPTIONS]"
         " Updates all files of RosBE to the most recent files."
         ""
-        "    reset  - Removes the Updates Cache. Not recommended."
-        "    nr X   - Re/Installs Update Nr X."
-        "    info X - Shows info about Update Nr X."
-        "    status - Shows the recent status of available, non installed updates."
+        "    delete X - Deletes Update Nr X."
+        "    info X   - Shows info about Update Nr X."
+        "    nr X     - Re/Installs Update Nr X."
+        "    reset    - Removes the Updates Cache. Not recommended."
+        "    status   - Shows the recent status of available, non installed updates."
         exit
     }
 }

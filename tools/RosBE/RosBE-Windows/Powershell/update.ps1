@@ -126,6 +126,12 @@ if ("$arg1" -eq "nr") {
     UPDCHECK
     EOC
 }
+if ("$arg1" -eq "delete") {
+    $_ROSBE_STATCOUNT = $arg2
+    remove-item "$ENV:APPDATA\RosBE\Updates\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
+    remove-item "$ENV:APPDATA\RosBE\Updates\tmp\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
+    EOC
+}
 if ("$arg1" -eq "info") {
     $_ROSBE_STATCOUNT = $arg2
     set-location tmp
