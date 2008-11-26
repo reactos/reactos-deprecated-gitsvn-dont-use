@@ -92,6 +92,12 @@ if /i "%1" == "nr" (
     call :UPDCHECK
     goto :EOC
 )
+if /i "%1" == "delete" (
+    set _ROSBE_STATCOUNT=%2
+    del /F /Q "%APPDATA%\RosBE\Updates\%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.*" 1> NUL 2> NUL
+    del /F /Q "%APPDATA%\RosBE\Updates\tmp\%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.*" 1> NUL 2> NUL
+    goto :EOC
+)
 if /i "%1" == "info" (
     set _ROSBE_STATCOUNT=%2
     call :UPDINFO

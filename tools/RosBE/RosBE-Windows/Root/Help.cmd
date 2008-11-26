@@ -242,10 +242,11 @@ if exist "%_ROSBE_BASEDIR%\update.cmd" (
         echo Usage: update [OPTIONS]
         echo Updates all files of RosBE to the most recent files.
         echo.
-        echo    reset  - Removes the Updates Cache. Not recommended.
-        echo    nr X   - Re/Installs Update Nr X.
-        echo    info X - Shows info about Update Nr X.
-        echo    status - Shows the recent status of available, non installed updates.
+        echo    delete X - Deletes Update Nr X.
+        echo    info X   - Shows info about Update Nr X.
+        echo    nr X     - Re/Installs Update Nr X.
+        echo    reset    - Removes the Updates Cache. Not recommended.
+        echo    status   - Shows the recent status of available, non installed updates.
         goto :EOC
     )
 )
