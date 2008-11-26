@@ -26,8 +26,7 @@ set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
 ::
 :: Save the recent dir to cd back there at the end.
 ::
-set _ROSBE_OPATH=%~dp0
-set _ROSBE_OPATH=%_ROSBE_OPATH:~0,-1%
+set _ROSBE_OPATH=%CD%
 
 if not exist "%_ROSBE_BASEDIR%\Tools\7z.exe" (
     cd /d "%_ROSBE_BASEDIR%\Tools"
