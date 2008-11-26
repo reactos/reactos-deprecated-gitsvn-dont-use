@@ -136,5 +136,4 @@ if exist "%_ROSBE_HOST_MINGWPATH%\bin\flex.exe" (
         echo WARNING: Flex will soon be required to build ReactOS, none found in the current MinGW/GCC.
     )
 )
-set PATH=%_ROSBE_ORIGINALPATH%
 mingw32-make -v | find "GNU Make"

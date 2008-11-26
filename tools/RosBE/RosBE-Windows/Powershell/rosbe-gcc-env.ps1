@@ -120,5 +120,4 @@ if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\flex.exe") {
         "WARNING: Flex will soon be required to build ReactOS, none found in the current MinGW/GCC."
     }
 }
-$ENV:PATH = $_ROSBE_ORIGINALPATH
 & mingw32-make -v | & find "GNU Make"
