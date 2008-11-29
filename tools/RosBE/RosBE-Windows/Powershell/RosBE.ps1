@@ -36,6 +36,17 @@ $global:_ROSBE_LOGDIR = "$_ROSBE_ROSSOURCEDIR\RosBE-Logs"
 $global:_ROSBE_OBJPATH = $null
 $global:_ROSBE_OUTPATH = $null
 
+function global:Get-WebFile {
+    param(
+        $url = $null,
+        $file = $null
+    )
+    $local:ErrorActionPreference = "SilentlyContinue"
+    $clnt = new-object System.Net.WebClient
+    $clnt.DownloadFile($url,$file)
+    $local:ErrorActionPreference = "Continue"
+} 
+
 #
 # Display the banner and set up the environment for the GCC 4.x.x build
 # environment.
