@@ -27,7 +27,7 @@ function UPDCHECK {
         return
     }
     if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
-        &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt 2>&1> $null
+        get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
     }
     if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
         get-Content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
@@ -36,7 +36,7 @@ function UPDCHECK {
         $YESNO = Read-Host "(yes), (no)"
         if ($YESNO -eq "yes") {
             if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z")) {
-                &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z 2>&1> $null
+                get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
             }
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z") {
                 remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT\*.*" -force -EA SilentlyContinue
@@ -76,7 +76,7 @@ $_ROSBE_OPATH = "$pwd"
 
 if (!(Test-Path "$_ROSBE_BASEDIR\Tools\7z.exe")) {
     set-location "$_ROSBE_BASEDIR\Tools"
-    &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/7z.exe 2>&1> $null
+    get-webfile $_ROSBE_URL/7z.exe $PWD\7z.exe
     set-location $_ROSBE_OPATH
 }
 
@@ -86,7 +86,7 @@ set-location $_ROSBE_BASEDIR
 # First check for a new Updater.
 #
 rename-item update.ps1 update2.ps1
-&"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/update.ps1 2>&1> $null
+get-webfile $_ROSBE_URL/update.ps1 $PWD\update.ps1
 if ((gi .\update.ps1).LastWriteTime -gt (gi .\update2.ps1).LastWriteTime) {
     clear-host
     "Updater got updated and needs to be restarted."
@@ -136,7 +136,7 @@ if ("$arg1" -eq "info") {
     $_ROSBE_STATCOUNT = $arg2
     set-location tmp
     if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
-        &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt 2>&1> $null
+        get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
         if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
             get-content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
         } else {
@@ -156,7 +156,7 @@ if ("$args" -eq "status") {
     set-location tmp
     while($_ROSBE_STATCOUNT -lt 10) {
         if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
-            &"$_ROSBE_BASEDIR\Tools\wget.exe" -N --ignore-length --no-verbose $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt 2>&1> $null
+            get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
                  $_ROSBE_UPDATES += "$_ROSBE_STATCOUNT "
             }
