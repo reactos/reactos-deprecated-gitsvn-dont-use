@@ -168,7 +168,7 @@ if ("$args" -eq "clean") {
     ""
     "    all  - Removes build logs and compiler output in the RosBE-Logs directory."
     "    logs - Removes all build logs in the RosBE-Logs directory."
-    "    All other commands will be parsed as "make COMMAND_clean" and cleans the"
+    "    All other commands will be parsed as ""make COMMAND_clean"" and cleans the"
     "    specific command."
     exit
 }
