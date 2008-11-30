@@ -29,7 +29,7 @@ if /i "%1" == "all" (
     goto :EOC
 )
 if not "%1" == "" (
-    echo Unknown parameter specified. Try 'help [COMMAND]'.
+    "%_ROSBE_BASEDIR%\Build.cmd" %1_clean
     goto :EOC
 )
 

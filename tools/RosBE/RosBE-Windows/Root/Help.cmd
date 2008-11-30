@@ -174,6 +174,8 @@ if /i "%1" == "clean" (
     echo.
     echo    all  - Removes build logs and compiler output in the RosBE-Logs directory.
     echo    logs - Removes all build logs in the RosBE-Logs directory.
+    echo    All other commands will be parsed as "make COMMAND_clean" and cleans the
+    echo    specific command.
     goto :EOC
 )
 if exist "%_ROSBE_BASEDIR%\Config.cmd" (

@@ -131,6 +131,8 @@ elseif ("$args" -eq "all") {
     end
 }
 elseif ("$args" -ne "") {
-    "Unknown parameter specified. Try ''help [COMMAND]''."
+    $cl = "$args" + "_clean"
+    make $cl
+    $cl = $null
     end
 }
