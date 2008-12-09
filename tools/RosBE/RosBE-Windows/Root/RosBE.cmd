@@ -64,34 +64,11 @@ if /i "%1" == "oldmode" (
     set _ROSBE_MODE=MinGW
     call :RosBE4
     goto :EndCommandParse
-)
-if /i "%1" == "arm" (
+) else (
     cls
-    set _ROSBE_ARCH=1
+    set _ROSBE_ARCH=%1
     call :RosBE4
-    goto :EndCommandParse
 )
-if /i "%1" == "ppc" (
-    cls
-    set _ROSBE_ARCH=2
-    call :RosBE4
-    goto :EndCommandParse
-)
-if /i "%1" == "amd64" (
-    cls
-    set _ROSBE_ARCH=3
-    call :RosBE4
-    goto :EndCommandParse
-)
-if not "%1" == "" (
-    cls
-    echo Unknown parameter specified. Exiting.
-    goto :EOF
-)
-
-cls
-call :RosBE4
-
 ::
 :: Load the base directory from srclist.txt and set it as the
 :: new source directory.

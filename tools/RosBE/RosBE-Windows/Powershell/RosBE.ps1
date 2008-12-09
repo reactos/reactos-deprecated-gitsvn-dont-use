@@ -142,23 +142,9 @@ if ($args.count -gt 0) {
     if ($args -eq "oldmode") {
         clear-host
         $_ROSBE_MODE = "MinGW"
-    }
-    elseif ($args -eq "arm") {
+    } else {
         clear-host
-        $_ROSBE_ARCH = 1
-    }
-    elseif ($args -eq "ppc") {
-        clear-host
-        $_ROSBE_ARCH = 2
-    }
-    elseif ($args -eq "amd64") {
-        clear-host
-        $_ROSBE_ARCH = 3
-    }
-    elseif ($args -ne $null) {
-        clear-host
-        "Unknown parameter specified. Exiting."
-        exit
+        $_ROSBE_ARCH = $args
     }
 }
 RosBE

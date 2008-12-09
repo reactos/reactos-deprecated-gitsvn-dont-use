@@ -25,20 +25,27 @@ if ($_ROSBE_HOST_MINGWPATH -eq $null) {
 $ENV:ROS_ARCH = $null
 $ENV:ROS_PREFIX = $null
 
-if ($_ROSBE_ARCH -eq 1) {
-    $ENV:ROS_ARCH = "arm"
-    $ENV:ROS_PREFIX = "arm-pc-mingw32"
-    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\arm"
-}
-if ($_ROSBE_ARCH -eq 2) {
-    $ENV:ROS_ARCH = "ppc"
-    $ENV:ROS_PREFIX = "ppc-pc-mingw32"
-    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\ppc"
-}
-if ($_ROSBE_ARCH -eq 3) {
-    $ENV:ROS_ARCH = "amd64"
-    $ENV:ROS_PREFIX = "x86_64-pc-mingw32"
-    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\x86_64"
+if ($_ROSBE_ARCH -ne $null) {
+    $ENV:ROS_ARCH = $_ROSBE_ARCH
+    $ENV:ROS_PREFIX = "$_ROSBE_ARCH-pc-mingw32"
+    $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\$_ROSBE_ARCH"
+
+    # HAXX
+
+    if ($_ROSBE_ARCH -eq "amd64") {
+        $ENV:ROS_PREFIX = "x86_64-pc-mingw32"
+        $_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\x86_64"
+    }
+
+    # Check if existant arch
+
+    if (Test-Path "$_ROSBE_TARGET_MINGWPATH\.") {   
+    "Unsupported arch specified. Fallback to Default."
+    pause
+    $ENV:ROS_ARCH = $null
+    $ENV:ROS_PREFIX = $null
+    $_ROSBE_TARGET_MINGWPATH = $null
+    }
 }
 
 #

@@ -32,23 +32,10 @@ if ($args.count -eq 0) {
 }
 if ($_1 -eq "i386") {
     $_ROSBE_ARCH = $null
-    SYSPARAM
+} else {
+    $_ROSBE_ARCH = $_1
 }
-elseif ($_1 -eq "arm") {
-    $_ROSBE_ARCH = 1
-    SYSPARAM
-}
-elseif ($_1 -eq "ppc") {
-    $_ROSBE_ARCH = 2
-    SYSPARAM
-}
-elseif ($_1 -eq "amd64") {
-    $_ROSBE_ARCH = 3
-    SYSPARAM
-}
-else {
-    "Unknown parameter specified. Try 'help [COMMAND]'."
-}
+SYSPARAM
 
 if ($_ROSBE_VERSION -ne $null) {
     $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
