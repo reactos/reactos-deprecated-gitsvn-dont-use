@@ -33,6 +33,7 @@ bool GetPackagePath(char* Buffer, int BuffSize, char* Module)
 
 bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data)
 {
+    int Resolved = 0;
     char* sep;
     char* sep2;
     char Module[32];
@@ -50,35 +51,59 @@ bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data)
             Module[(int)(sep-Data)-2] = '\0';
             sep2 = strchr(Data, '>');
             strncpy(Addr, Data + (sep - Data + 1), (int) (sep2 - sep) -1);
-            Addr[(int)(sep2- sep)-1] = '\0';   
+            Addr[(int)(sep2-sep)-1] = '\0'; 
+            Resolved = 1;
+        }
+    }
 
-            if (GetPackagePath(PkgData, sizeof(PkgData), Module))
+    sep = strchr(Data, '+');
+    if ((sep) && strchr(Data, ':'))
+    {
+        sep2 = strchr(Data + (sep - Data), ' ');
+        strncpy(Addr, Data + (sep - Data + 1), (int) (sep2 - sep) - 1);
+        Addr[(int)(sep2-sep) - 1] = '\0';
+        sep = strrchr(Data, '\\');
+        strcpy(Module, sep + 1);
+        Module[strlen(Module) - 2] = '\0';
+        Resolved = 2;
+    }
+
+    if (Resolved > 0)
+    {
+        if (GetPackagePath(PkgData, sizeof(PkgData), Module))
+        {
+            const char* outdir = getenv("ROS_OUTPUT");
+            char* ptr;
+            if (!outdir)
+                outdir = emptystr;
+            sprintf(Command, "%s/tools/raddr2line %s/%s %s 2>&1", 
+                    outdir, outdir, PkgData, Addr);
+            FILE* p = popen(Command, "r");
+            char buf[100] = {'\0'};
+            while(feof(p)==0)
             {
-                const char* outdir = getenv("ROS_OUTPUT");
-                char* ptr;
-                if (!outdir)
-                    outdir = emptystr;
-                sprintf(Command, "%s/tools/raddr2line %s/%s %s 2>&1", 
-                        outdir, outdir, PkgData, Addr);
-                FILE* p = popen(Command, "r");
-                char buf[100] = {'\0'};
-                while(feof(p)==0)
+                fgets(buf,100,p);
+                if (strstr(buf, "error"))
+                    strcpy(buf, "(no debug info)");
+                ptr = strchr(buf, '\n');
+                if (ptr)
+                    *ptr = '\0'; 
+                ptr = strchr(Data, '>');
+                if (ptr)
+                    *ptr = '\0';
+                if (Resolved == 2)
                 {
-                    fgets(buf,100,p);
-                    if (strstr(buf, "error"))
-                        strcpy(buf, "(no debug info)");
-                    ptr = strchr(buf, '\n');
-                    if (ptr)
-                        *ptr = '\0'; 
-                    ptr = strchr(Data, '>');
+                    ptr = strchr(Data, '\n');
                     if (ptr)
                         *ptr = '\0';
-                    strcpy(Buffer, Data);
-                    strcat(Buffer, " "); 
-                    strcat(Buffer, buf);
-                    strcat(Buffer, ">\n");
-                    return true;
                 }
+                strcpy(Buffer, Data);
+                strcat(Buffer, " ");
+                if (Resolved == 2)
+                    strcat(Buffer, "<");
+                strcat(Buffer, buf);
+                strcat(Buffer, ">\n");
+                return true;     
             }
         }
     }
