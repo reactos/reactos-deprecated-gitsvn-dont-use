@@ -25,24 +25,10 @@ if "%1" == "" (
 )
 if /i "%_1%" == "i386" (
     set _ROSBE_ARCH=
-    goto :EOA
+) else (
+    set _ROSBE_ARCH=%_1%
 )
-if /i "%_1%" == "arm" (
-    set _ROSBE_ARCH=1
-    goto :EOA
-)
-if /i "%_1%" == "ppc" (
-    set _ROSBE_ARCH=2
-    goto :EOA
-)
-if /i "%_1%" == "amd64" (
-    set _ROSBE_ARCH=3
-    goto :EOA
-)
-if not "%_1%" == "" (
-    echo Unknown parameter specified. Try 'help [COMMAND]'.
-    goto :EOC
-)
+goto :EOA
 
 ::
 :: Refresh all needed Params by recalling the main Path setting CMD File.

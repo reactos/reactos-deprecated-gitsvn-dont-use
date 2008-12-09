@@ -33,20 +33,27 @@ if "%1" == "chdefgcc" (
     goto :main
 )
 
-if "%_ROSBE_ARCH%" == "1" (
-    set ROS_ARCH=arm
-    set ROS_PREFIX=arm-pc-mingw32
-    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\arm
-)
-if "%_ROSBE_ARCH%" == "2" (
-    set ROS_ARCH=ppc
-    set ROS_PREFIX=ppc-pc-mingw32
-    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\ppc
-)
-if "%_ROSBE_ARCH%" == "3" (
-    set ROS_ARCH=amd64
-    set ROS_PREFIX=x86_64-pc-mingw32
-    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\x86_64
+if not "%_ROSBE_ARCH%" == "" (
+    set ROS_ARCH=%_ROSBE_ARCH%
+    set ROS_PREFIX=%_ROSBE_ARCH%-pc-mingw32
+    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%_ROSBE_ARCH%
+
+    REM HAXX
+
+    if "%_ROSBE_ARCH%" == "amd64" (
+        set ROS_PREFIX=x86_64-pc-mingw32
+        set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\x86_64
+    )
+
+    REM Check if existant arch
+
+    if not exist "%_ROSBE_TARGET_MINGWPATH%\." (   
+    echo Unsupported arch specified. Fallback to Default.
+    pause
+    set ROS_ARCH=
+    set ROS_PREFIX=
+    set _ROSBE_TARGET_MINGWPATH=
+    )
 )
 
 ::
