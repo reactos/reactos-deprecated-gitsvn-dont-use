@@ -53,7 +53,6 @@ if not "%_1%" == "" (
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 goto :EOC
 
-
 ::
 :: If Parameters were set, parse them, if not, ask the user to add them.
 ::

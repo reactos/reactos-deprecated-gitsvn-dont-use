@@ -54,57 +54,21 @@ goto :EOF
 
 :DEL
 
-if .%ROS_ARCH%. == .arm. (
-    if exist "obj-arm\." (
-        echo Cleaning ReactOS ARM source directory...
-        if exist "obj-arm\." (
-            rd /s /q "obj-arm" 1> NUL 2> NUL
+if not "%ROS_ARCH%" == "" (
+    if exist "obj-%ROS_ARCH%\." (
+        echo Cleaning ReactOS %ROS_ARCH% source directory...
+        if exist "obj-%ROS_ARCH%\." (
+            rd /s /q "obj-%ROS_ARCH%" 1> NUL 2> NUL
         )
-        if exist "output-arm\." (
-            rd /s /q "output-arm" 1> NUL 2> NUL
+        if exist "output-%ROS_ARCH%\." (
+            rd /s /q "output-%ROS_ARCH%" 1> NUL 2> NUL
         )
-        if exist "makefile-arm.auto" (
-            del "makefile-arm.auto" 1> NUL 2> NUL
+        if exist "makefile-%ROS_ARCH%.auto" (
+            del "makefile-%ROS_ARCH%.auto" 1> NUL 2> NUL
         )
-        echo Done cleaning ReactOS ARM source directory.
+        echo Done cleaning ReactOS %ROS_ARCH% source directory.
     ) else (
-        echo ERROR: There is no compiler output to clean.
-    )
-    goto :ROS
-)
-if .%ROS_ARCH%. == .ppc. (
-    if exist "obj-ppc\." (
-        echo Cleaning ReactOS PPC source directory...
-        if exist "obj-ppc\." (
-            rd /s /q "obj-ppc" 1> NUL 2> NUL
-        )
-        if exist "output-ppc\." (
-            rd /s /q "output-ppc" 1> NUL 2> NUL
-        )
-        if exist "makefile-ppc.auto" (
-            del "makefile-ppc.auto" 1> NUL 2> NUL
-        )
-        echo Done cleaning ReactOS PPC source directory.
-    ) else (
-        echo ERROR: There is no compiler output to clean.
-    )
-    goto :ROS
-)
-if .%ROS_ARCH%. == .amd64. (
-    if exist "obj-amd64\." (
-        echo Cleaning ReactOS X86_64 source directory...
-        if exist "obj-amd64\." (
-            rd /s /q "obj-amd64" 1> NUL 2> NUL
-        )
-        if exist "output-amd64\." (
-            rd /s /q "output-amd64" 1> NUL 2> NUL
-        )
-        if exist "makefile-amd64.auto" (
-            del "makefile-amd64.auto" 1> NUL 2> NUL
-        )
-        echo Done cleaning ReactOS X86_64 source directory.
-    ) else (
-        echo ERROR: There is no compiler output to clean.
+        echo ERROR: There is no %ROS_ARCH% compiler output to clean.
     )
     goto :ROS
 )
@@ -122,7 +86,7 @@ if exist "obj-i386\." (
     )
     echo Done cleaning ReactOS i386 source directory.
 ) else (
-    echo ERROR: There is no compiler output to clean.
+    echo ERROR: There is no i386 compiler output to clean.
 )
 
 :ROS

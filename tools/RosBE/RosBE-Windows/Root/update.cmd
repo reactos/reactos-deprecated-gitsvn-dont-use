@@ -123,7 +123,8 @@ if /i "%1" == "status" (
     call :STATUS
     set /a _ROSBE_STATCOUNT+=1
     call :STATUS
-    goto :UPDFIN
+    call :UPDFIN
+    goto :EOC
 )
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help update'.
@@ -166,7 +167,7 @@ if not "%_ROSBE_UPDATES%" == "" (
 ) else (
     echo RosBE is up to Date.
 )
-goto :EOC
+goto :EOF
 
 :UPDCHECK
 

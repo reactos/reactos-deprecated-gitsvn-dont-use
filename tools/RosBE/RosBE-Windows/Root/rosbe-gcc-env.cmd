@@ -33,17 +33,17 @@ if "%1" == "chdefgcc" (
     goto :main
 )
 
-if .%_ROSBE_ARCH%. == .1. (
+if "%_ROSBE_ARCH%" == "1" (
     set ROS_ARCH=arm
     set ROS_PREFIX=arm-pc-mingw32
     set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\arm
 )
-if .%_ROSBE_ARCH%. == .2. (
+if "%_ROSBE_ARCH%" == "2" (
     set ROS_ARCH=ppc
     set ROS_PREFIX=ppc-pc-mingw32
     set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\ppc
 )
-if .%_ROSBE_ARCH%. == .3. (
+if "%_ROSBE_ARCH%" == "3" (
     set ROS_ARCH=amd64
     set ROS_PREFIX=x86_64-pc-mingw32
     set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\x86_64
@@ -101,9 +101,9 @@ if "%_ROSBE_HOST_GCCVERSION%" == "3.4.5" (
 ::
 :: Display the current version of GCC, NASM, ld and make.
 ::
-if not .%ROS_ARCH%. == .. (
+if not "%ROS_ARCH%" == "" (
     "%_ROSBE_TARGET_MINGWPATH%\bin\%ROS_PREFIX%-gcc" -v 2>&1 | find "gcc version"
-    if .%ROS_PREFIX%. == .. (
+    if "%ROS_PREFIX%" == "" (
         echo gcc target^: %_ROSBE_GCCTARGET%
     ) else (
         echo gcc target^: %ROS_PREFIX:~0,-11%
@@ -111,7 +111,7 @@ if not .%ROS_ARCH%. == .. (
     "%_ROSBE_TARGET_MINGWPATH%\bin\%ROS_PREFIX%-ld" -v
 ) else (
     gcc -v 2>&1 | find "gcc version"
-    if .%ROS_PREFIX%. == .. (
+    if "%ROS_PREFIX%" == "" (
         echo gcc target^: %_ROSBE_GCCTARGET%
     ) else (
         echo gcc target^: %ROS_PREFIX:~0,-11%
@@ -126,7 +126,7 @@ if exist "%_ROSBE_HOST_MINGWPATH%\bin\nasm.exe" (
         yasm --version | find "yasm 0"
     ) else (
         if "%_ROSBE_MODE%" == "RosBE" (
-            echo ERROR: NASM or YASM is required to build ReactOS, none found in the current MinGW/GCC.
+            echo ERROR: NASM or YASM is required to build ReactOS, none was found in the current MinGW/GCC.
         )
     )
 )
@@ -134,14 +134,14 @@ if exist "%_ROSBE_HOST_MINGWPATH%\bin\bison.exe" (
     bison --version | find "GNU Bison"
 ) else (
     if "%_ROSBE_MODE%" == "RosBE" (
-        echo WARNING: Bison will soon be required to build ReactOS, none found in the current MinGW/GCC.
+        echo WARNING: Bison will soon be required to build ReactOS, none was found in the current MinGW/GCC.
     )
 )
 if exist "%_ROSBE_HOST_MINGWPATH%\bin\flex.exe" (
     flex --version
 ) else (
     if "%_ROSBE_MODE%" == "RosBE" (
-        echo WARNING: Flex will soon be required to build ReactOS, none found in the current MinGW/GCC.
+        echo WARNING: Flex will soon be required to build ReactOS, none was found in the current MinGW/GCC.
     )
 )
 mingw32-make -v | find "GNU Make"

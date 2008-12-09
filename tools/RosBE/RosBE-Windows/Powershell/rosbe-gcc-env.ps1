@@ -110,7 +110,7 @@ if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\nasm.exe") {
         & yasm --version | select-string "yasm 0"
     } else {
         if ($_ROSBE_MODE -eq "RosBE") {
-            "ERROR: NASM or YASM is required to build ReactOS, none found in the current MinGW/GCC."
+            "ERROR: NASM or YASM is required to build ReactOS, none was found in the current MinGW/GCC."
         }
     }
 }
@@ -118,7 +118,7 @@ if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\bison.exe") {
     & bison '--version' | select-string "GNU Bison"
 } else {
     if ($_ROSBE_MODE -eq "RosBE") {
-        "WARNING: Bison will soon be required to build ReactOS, none found in the current MinGW/GCC."
+        "WARNING: Bison will soon be required to build ReactOS, none was found in the current MinGW/GCC."
     }
 }
 if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\flex.exe") {
@@ -126,7 +126,7 @@ if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\flex.exe") {
     "flex $fver"
 } else {
     if ($_ROSBE_MODE -eq "RosBE") {
-        "WARNING: Flex will soon be required to build ReactOS, none found in the current MinGW/GCC."
+        "WARNING: Flex will soon be required to build ReactOS, none was found in the current MinGW/GCC."
     }
 }
 & mingw32-make -v | & find "GNU Make"

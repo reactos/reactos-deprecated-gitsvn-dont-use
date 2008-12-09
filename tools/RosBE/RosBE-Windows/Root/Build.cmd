@@ -36,68 +36,43 @@ endlocal
 ::
 :: Check if strip, no Debug Symbols or ccache are being used and set the appropriate options.
 ::
-if .%_ROSBE_NOSTRIP%. == .1. (
+if "%_ROSBE_NOSTRIP%" == "1" (
     set ROS_BUILDNOSTRIP=yes
 ) else (
     set ROS_BUILDNOSTRIP=no
 )
 
-if .%_ROSBE_STRIP%. == .1. (
+if "%_ROSBE_STRIP%" == "1" (
     set ROS_LEAN_AND_MEAN=yes
 ) else (
     set ROS_LEAN_AND_MEAN=no
 )
 
 :: Small Security Check to prevent useless apps.
-if .%ROS_LEAN_AND_MEAN%. == .yes. (
-    if .%ROS_BUILDNOSTRIP%. == .yes. (
+if "%ROS_LEAN_AND_MEAN%" == "yes" (
+    if "%ROS_BUILDNOSTRIP%" == "yes" (
         cls
         echo Selecting Stripping and removing Debug Symbols together will most likely cause useless apps. Please deselect one of them.
         goto :EOC
     )
 )
 
-if .%_ROSBE_USECCACHE%. == .1. (
+if "%_ROSBE_USECCACHE%" == "1" (
     set CCACHE_DIR=%APPDATA%\RosBE\.ccache
-    set HOST_CC=ccache gcc
-    set HOST_CPP=ccache g++
+    set _ROSBE_CCACHE=ccache 
+)
 
-    REM Target defaults to host(i386)
+:: Target defaults to host(i386)
 
-    set TARGET_CC=ccache gcc
-    set TARGET_CPP=ccache g++
-    if .%ROS_ARCH%. == .arm. (
-        set TARGET_CC=ccache arm-pc-mingw32-gcc
-        set TARGET_CPP=ccache arm-pc-mingw32-g++
-    )
-    if .%ROS_ARCH%. == .amd64. (
-        set TARGET_CC=ccache x86_64-pc-mingw32-gcc
-        set TARGET_CPP=ccache x86_64-pc-mingw32-g++
-    )
-    if .%ROS_ARCH%. == .ppc. (
-        set TARGET_CC=ccache ppc-pc-mingw32-gcc
-        set TARGET_CPP=ccache ppc-pc-mingw32-g++
-    )
-) else (
-    set HOST_CC=gcc
-    set HOST_CPP=g++
+set HOST_CC=%_ROSBE_CCACHE%gcc
+set HOST_CPP=%_ROSBE_CCACHE%g++
 
-    REM Target defaults to host(i386)
+set TARGET_CC=%_ROSBE_CCACHE%gcc
+set TARGET_CPP=%_ROSBE_CCACHE%g++
 
-    set TARGET_CC=gcc
-    set TARGET_CPP=g++
-    if .%ROS_ARCH%. == .arm. (
-        set TARGET_CC=arm-pc-mingw32-gcc
-        set TARGET_CPP=arm-pc-mingw32-g++
-    )
-    if .%ROS_ARCH%. == .amd64. (
-        set TARGET_CC=x86_64-pc-mingw32-gcc
-        set TARGET_CPP=x86_64-pc-mingw32-g++
-    )
-    if .%ROS_ARCH%. == .ppc. (
-        set TARGET_CC=ppc-pc-mingw32-gcc
-        set TARGET_CPP=ppc-pc-mingw32-g++
-    )
+if not "%ROS_ARCH%" == "" (
+    set TARGET_CC=%_ROSBE_CCACHE%%ROS_ARCH%-pc-mingw32-gcc
+    set TARGET_CPP=%_ROSBE_CCACHE%%ROS_ARCH%-pc-mingw32-g++
 )
 
 ::
@@ -106,7 +81,7 @@ if .%_ROSBE_USECCACHE%. == .1. (
 ::
 if defined _ROSBE_OBJPATH (
     if not exist "%_ROSBE_OBJPATH%\." (
-        echo ERROR: The path specified doesn't seem to exist.
+        echo ERROR: The Object-Path specified doesn't seem to exist.
         goto :EOC
     ) else (
         set ROS_INTERMEDIATE=%_ROSBE_OBJPATH%
@@ -114,7 +89,7 @@ if defined _ROSBE_OBJPATH (
 )
 if defined _ROSBE_OUTPATH (
     if not exist "%_ROSBE_OUTPATH%\." (
-        echo ERROR: The path specified doesn't seem to exist.
+        echo ERROR: The Output-Path specified doesn't seem to exist.
         goto :EOC
     ) else (
         set ROS_OUTPUT=%_ROSBE_OUTPATH%
@@ -228,5 +203,4 @@ set ROS_OUTPUT=
 set ROS_TEMPORARY=
 set CPUCOUNT=
 set CCACHE_DIR=
-set ROSA_DEL=
-set ROSB_DEL=
+set _ROSBE_CCACHE=

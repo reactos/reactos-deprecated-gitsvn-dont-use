@@ -22,7 +22,6 @@ if /i "%1" == "delete" (
     echo Continue?
     set /p YESNO="(yes), (no)"
     if /i "%YESNO%"=="yes" goto :CONT
-    if /i "%YESNO%"=="no" goto :NOK
     goto :NOK
 
     :CONT
@@ -46,7 +45,7 @@ if /i "%1" == "update" (
     echo Continue?
     set /p YESNO="(yes), (no)"
     if /i "%YESNO%"=="yes" goto :CONT2
-    if /i "%YESNO%"=="no" goto :NOK
+    goto :NOK
 
     :CONT2
     del "%_ROSBE_BASEDIR%\*.rbuild"
@@ -78,9 +77,7 @@ echo *** you are sure about what you are doing.                     ***
 echo.
 
 set /p YESNO="(yes), (no)"
-
 if /i "%YESNO%"=="yes" goto :OK
-if /i "%YESNO%"=="no" goto :NOK
 goto :NOK
 
 :OK
@@ -101,7 +98,6 @@ if exist ".\config.rbuild" (
         echo.
         set /p YESNO="(yes), (no)"
         if /i "%YESNO%"=="yes" del "%APPDATA%\RosBE\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild" | goto :OK
-        if /i "%YESNO%"=="no" goto :NOK
         endlocal
         goto :NOK
     )

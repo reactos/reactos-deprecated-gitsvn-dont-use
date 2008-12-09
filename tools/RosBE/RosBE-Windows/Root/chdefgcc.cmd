@@ -25,7 +25,7 @@ if "%_1%" == "" (
     call :INTERACTIVE
 )
 if "%_2%" == "" (
-    call :INTERACTIVE
+    call :INTERACTIVE2
 )
 
 if exist "%_ROSBE_BASEDIR%\%_1%\." (
@@ -66,6 +66,9 @@ if "%_1%" == "" (
     echo ERROR: You must enter a MinGW/GCC directory.
     goto :EOC
 )
+
+:INTERACTIVE2
+
 set /p _2="Please specify, if this will be the Target or Host GCC: "
 if "%_2%" == "" (
     echo ERROR: You must enter "target" or "host".

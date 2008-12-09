@@ -51,49 +51,20 @@ if ($ENV:ROS_LEAN_AND_MEAN -eq "yes") {
 if ($_ROSBE_USECCACHE -ne $null) {
     if ($_ROSBE_USECCACHE -eq 1) {
         $ENV:CCACHE_DIR = "$APPDATA\RosBE\.ccache"
-        $ENV:HOST_CC = "ccache gcc"
-        $ENV:HOST_CPP = "ccache g++"
+        $_ROSBE_CCACHE = "ccache "
+    }
+    $ENV:HOST_CC = "$_ROSBE_CCACHE" + "gcc"
+    $ENV:HOST_CPP = "$_ROSBE_CCACHE" + "g++"
 
-        #
-        #Target defaults to host(i386)
-        #
+    #
+    #Target defaults to host(i386)
+    #
 
-        $ENV:TARGET_CC = "ccache gcc"
-        $ENV:TARGET_CPP = "ccache g++"
-        if ($ENV:ROS_ARCH -eq "arm") {
-            $ENV:TARGET_CC = "ccache arm-pc-mingw32-gcc"
-            $ENV:TARGET_CPP = "ccache arm-pc-mingw32-g++"
-        }
-        if ($ENV:ROS_ARCH -eq "amd64") {
-            $ENV:TARGET_CC = "ccache x86_64-pc-mingw32-gcc"
-            $ENV:TARGET_CPP = "ccache x86_64-pc-mingw32-g++"
-        }
-        if ($ENV:ROS_ARCH -eq "ppc") {
-            $ENV:TARGET_CC = "ccache ppc-pc-mingw32-gcc"
-            $ENV:TARGET_CPP = "ccache ppc-pc-mingw32-g++"
-        }
-    } else {
-        $ENV:HOST_CC = "gcc"
-        $ENV:HOST_CPP = "g++"
-
-        #
-        #Target defaults to host(i386)
-        #
-
-        $ENV:TARGET_CC = "gcc"
-        $ENV:TARGET_CPP = "g++"
-        if ($ENV:ROS_ARCH -eq "arm") {
-            $ENV:TARGET_CC = "arm-pc-mingw32-gcc"
-            $ENV:TARGET_CPP = "arm-pc-mingw32-g++"
-        }
-        if ($ENV:ROS_ARCH -eq "amd64") {
-            $ENV:TARGET_CC = "x86_64-pc-mingw32-gcc"
-            $ENV:TARGET_CPP = "x86_64-pc-mingw32-g++"
-        }
-        if ($ENV:ROS_ARCH -eq "ppc") {
-            $ENV:TARGET_CC = "ppc-pc-mingw32-gcc"
-            $ENV:TARGET_CPP = "ppc-pc-mingw32-g++"
-        }
+    $ENV:TARGET_CC = "$_ROSBE_CCACHE" + "gcc"
+    $ENV:TARGET_CPP = "$_ROSBE_CCACHE" + "g++"
+    if ($ENV:ROS_ARCH -ne $null) {
+        $ENV:TARGET_CC = "$_ROSBE_CCACHE" + "$ROS_ARCH-pc-mingw32-gcc"
+        $ENV:TARGET_CPP = "$_ROSBE_CCACHE" + "$ROS_ARCH-pc-mingw32-g++"
     }
 }
 
@@ -103,7 +74,7 @@ if ($_ROSBE_USECCACHE -ne $null) {
 #
 if ($_ROSBE_OBJPATH -ne $null) {
     if (Test-Path "$_ROSBE_OBJPATH") {
-        "ERROR: The path specified doesn't seem to exist."
+        "ERROR: The Object-Path specified doesn't seem to exist."
         exit
     } else {
         $ENV:ROS_INTERMEDIATE = "$_ROSBE_OBJPATH"
@@ -111,7 +82,7 @@ if ($_ROSBE_OBJPATH -ne $null) {
 }
 if ($_ROSBE_OUTPATH -ne $null) {
     if (Test-Path "$_ROSBE_OUTPATH") {
-        "ERROR: The path specified doesn't seem to exist."
+        "ERROR: The Output-Path specified doesn't seem to exist."
         exit
     } else {
         $ENV:ROS_OUTPUT = "$_ROSBE_OUTPATH"
@@ -240,3 +211,4 @@ $DATENAME = $null
 $TIMENAME = $null
 $CPUCOUNT = $null
 $sw = $null
+$_ROSBE_CCACHE = $null

@@ -75,7 +75,6 @@ if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
 ""
 
 $YESNO = Read-Host "(yes), (no)"
-
 if ($YESNO -ne "yes") {settitle}
 
 #

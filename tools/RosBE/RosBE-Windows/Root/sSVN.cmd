@@ -90,14 +90,14 @@ if %OFFSVN% lss %ONSVN% (
 )
 if %OFFSVN% equ %ONSVN% (
     echo Your tree is up to date.
-    goto :EOC
+    goto :EOF
 )
 
 :UP2
 
 set /p UP="Please enter 'yes' or 'no': "
 if /i "%UP%"=="yes" "%_ROSBE_BASEDIR%\ssvn" update
-if /i "%UP%"=="no" goto :EOC
+if /i "%UP%"=="no" goto :EOF
 
 :EOC
 
