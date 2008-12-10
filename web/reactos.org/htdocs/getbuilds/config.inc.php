@@ -1,8 +1,7 @@
 <?php
 /*
   PROJECT:    ReactOS Website
-  LICENSE:    GPL v2 or any later version
-  FILE:       web/reactos.org/htdocs/getbuilds/config.inc.php
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
 */

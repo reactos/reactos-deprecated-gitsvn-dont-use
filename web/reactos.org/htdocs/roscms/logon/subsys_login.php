@@ -18,10 +18,10 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-if(!defined("ROSCMS_PATH"))
-	define("ROSCMS_PATH", "");
+if(!defined("ROOT_PATH"))
+	define("ROOT_PATH", "../");
 
-require_once(ROSCMS_PATH . "inc/utils.php");
+require_once(ROOT_PATH . "roscms/inc/utils.php");
 
 define('ROSCMS_LOGIN_OPTIONAL', 1);
 define('ROSCMS_LOGIN_REQUIRED', 2);
@@ -58,7 +58,7 @@ function roscms_subsys_login($subsys, $login_type, $target)
           $browser_agent_clean = 'unknown';
         }
 
-      require(ROSCMS_PATH . "connect.db.php");
+      require(ROOT_PATH . "roscms/connect.db.php");
 
       /* Clean out expired sessions */
       $query = "DELETE FROM user_sessions " .

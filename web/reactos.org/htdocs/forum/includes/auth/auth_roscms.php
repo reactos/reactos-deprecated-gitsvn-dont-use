@@ -12,8 +12,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-define("ROSCMS_PATH", "$phpbb_root_path/../roscms/");
-require_once(ROSCMS_PATH . "logon/subsys_login.php");
+require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
 
 /**
 * Login function

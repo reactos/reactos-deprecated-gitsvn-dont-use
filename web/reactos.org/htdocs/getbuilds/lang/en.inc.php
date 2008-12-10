@@ -1,16 +1,14 @@
 ﻿<?php
 /*
   PROJECT:    ReactOS Website
-  LICENSE:    GPL v2 or any later version
-  FILE:       web/reactos.org/htdocs/getbuilds/lang/en.inc.php
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Colin Finck <mail@colinfinck.de>
+  
+  charset=utf-8
 */
-	
-	/**** English resources (charset=utf-8) ****/
-	$getbuilds_langres["language"] = "Language";
-	
+
 	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Home</a> &gt; ReactOS SVN Trunk Builds';
 	$getbuilds_langres["title"] = "Download ReactOS Trunk Builds";
 	$getbuilds_langres["intro"] = 'Here you can download recent, but also older ReactOS Developer versions, which were created by our <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a>.';
