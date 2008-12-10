@@ -1,9 +1,18 @@
 body {
-	font-family: Verdana;
-	font-size: 12px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
 	margin: 0 0 1em 0;
 	padding: 0; /* Only affects Opera */
 	background: #FFFFFF url('http://www.reactos.org/images/topbar.jpg') repeat-x scroll top left;
+}
+
+h1 {
+	font-size: 14px;
+	font-weight: bold;
+	color: white;
+	background-color: #5984C3;
+	padding: 0px 0px 1px 10px;
+	margin-top: 0;
 }
 
 .contentSmallTitle {
@@ -15,12 +24,13 @@ body {
 	margin-bottom: 3px;
 }
 
-.contentSmallTitle a {
+h1 a {
 	color: white;
 	text-decoration: none;
 }
 
-.contentSmallTitle a:hover {
+h1 a:hover {
+	color: white;
 	text-decoration: underline;
 }
 

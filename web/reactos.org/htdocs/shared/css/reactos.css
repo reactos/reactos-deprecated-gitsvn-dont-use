@@ -1,0 +1,91 @@
+/* Headings */
+h2 {
+	font-size: 22px;
+	color: #5984C3;
+	font-weight: bold;
+	margin-top: 0;
+}
+
+/* Bubbles */
+.bubble_bg, .selectable_bubble_bg, .hovered_bubble_bg {
+	margin-bottom: 10px;
+}
+
+/* IE6 doesn't add the size of the edges to the box height. So we have to add this space by enhancing the "padding-bottom" value */
+* html .bubble_bg, * html .selectable_bubble_bg, * html .hovered_bubble_bg {
+	padding-bottom: 4px;
+}
+
+.bubble_bg {
+	background: #C9DAF8;
+}
+
+.selectable_bubble_bg {
+	background: #E1EAFB;
+}
+
+.hovered_bubble_bg {
+	background: #FFFFCC;
+}
+
+.bubble {
+	padding: 8px;
+}
+
+.bubble h1 {
+	background: transparent;
+	color: black;
+	font-size: 10pt;
+	font-weight: bold;
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+
+.rounded_ul {
+	background: transparent url(../images/ul.gif) no-repeat scroll left top;
+}
+.rounded_ur {
+	background: transparent url(../images/ur.gif) no-repeat scroll right top;
+}
+.rounded_ll {
+	background: transparent url(../images/ll.gif) no-repeat scroll left bottom;
+}
+.rounded_lr {
+	background: transparent url(../images/lr.gif) no-repeat scroll right bottom;
+}
+
+/* Data Table */
+.datatable {
+	min-width: 350px;
+	width: 100%;
+	cursor: pointer;
+	empty-cells: show;
+}
+
+.datatable tr.head th,
+.datatable tr.head {
+	background-image: none;
+	background: #5984C3;
+	color: white;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-style: normal;
+	text-align: left;
+	cursor: default;
+}
+
+.datatable tr.odd td,
+.datatable tr.even td {
+	color: black;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	border-bottom: 1px solid #bbb;
+	background-image: none;
+}
+
+.datatable tr.odd td,
+.datatable tr.odd {
+	background-color: #DDDDDD;
+}
+.datatable tr.even td,
+.datatable tr.even {
+	background-color: #EEEEEE;
+}

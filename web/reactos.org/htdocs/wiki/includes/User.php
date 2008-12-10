@@ -4,7 +4,7 @@
  * @file
  */
 
-require_once(ROSCMS_PATH . "logon/subsys_login.php");
+require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
 
 # Number of characters in user_token field
 define( 'USER_TOKEN_LENGTH', 32 );

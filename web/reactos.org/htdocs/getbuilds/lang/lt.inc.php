@@ -1,16 +1,14 @@
 ﻿<?php
 /*
   PROJECT:    ReactOS Website
-  LICENSE:    GPL v2 or any later version
-  FILE:       web/reactos.org/htdocs/getbuilds/lang/lt.inc.php
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Vytis Girdzijauskas <cman@cman.us>
+  
+  charset=utf-8
 */
-	
-	/**** Lithuanian resources (charset=utf-8) ****/
-	$getbuilds_langres["language"] = "Kalba";
-	
+
 	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Pagrindinis</a> &gt; ReactOS SVN laidos';
 	$getbuilds_langres["title"] = "Parsisiųsti ReactOS SVN laidas";
 	$getbuilds_langres["intro"] = 'Čia Jūs galite parsisiųsti naujausias, o taip pat ir senesnes ReactOS SVN laidas, sukurtas mūsų <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot\'o</a>.';

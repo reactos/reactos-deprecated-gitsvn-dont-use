@@ -1,16 +1,14 @@
 <?php
 /*
   PROJECT:    ReactOS Website
-  LICENSE:    GPL v2 or any later version
-  FILE:       web/reactos.org/htdocs/getbuilds/lang/fr.inc.php
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Pierre Schweitzer <heis_spiter@hotmail.com>
+  
+  charset=utf-8
 */
-	
-	/**** French resources (charset=utf-8) ****/
-	$getbuilds_langres["language"] = "Langue";
-	
+
 	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Accueil</a> &gt; Binaires du tronc de ReactOS';
 	$getbuilds_langres["title"] = "Télécharger les binaires du tronc de ReactOS";
 	$getbuilds_langres["intro"] = 'Ici vous pouvez télécharger les récentes binaires, mais aussi les plus anciennes version de ReactOS, qui ont été créées par notre <a href="http://www.reactos.org/wiki/index.php/RosBuild">BuildBot</a>.';

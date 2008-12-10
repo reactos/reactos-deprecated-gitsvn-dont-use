@@ -21,8 +21,8 @@
 	include("connect.db.php");
 
 
-	define("ROSCMS_PATH", "../roscms/");
-	require_once(ROSCMS_PATH . "logon/subsys_login.php");
+	define("ROOT_PATH", "../");
+	require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
 	$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . "http://localhost/reactos.org/");
 
 	if($RSDB_intern_user_id != 0) {
