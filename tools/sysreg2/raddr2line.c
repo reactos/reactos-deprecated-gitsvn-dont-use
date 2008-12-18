@@ -42,7 +42,7 @@ bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data)
     char PkgData[80];
     char emptystr[] = ""; 
 
-    if ((strchr(Data, '>')) && (!strchr(Data, ')')))
+    if ((strstr(Data, ":>")) && (!strchr(Data, ')')))
     {
         sep = strchr(Data, ':');
         if (sep)
@@ -57,7 +57,7 @@ bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data)
     }
 
     sep = strchr(Data, '+');
-    if ((sep) && strchr(Data, ':'))
+    if ((sep) && strstr(Data, ":\\"))
     {
         sep2 = strchr(Data + (sep - Data), ' ');
         strncpy(Addr, Data + (sep - Data + 1), (int) (sep2 - sep) - 1);
