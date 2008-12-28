@@ -116,13 +116,13 @@ echo Right now: %SARCH%
 set /p SARCH_CH="(), (xbox)"
 cls
 
-echo Which CPU ReactOS should be optimized for.
+echo Generate instructions for this CPU type. Specify one of:
 echo.
-echo Examples:
-echo Intel: i486, i586 / pentium, pentium-mmx, i686 / pentiumpro, pentium2, pentium3
-echo        pentium3m, pentium-m, pentium4 / pentium4m, prescott, nocona
-echo AMD:   k6, k6-2 / k6-3, athlon / athlon-tbird, athlon-4 / athlon-xp / athlon-mp
-echo        k8 / opteron / athlon64 / athlon-fx
+echo Intel: i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, pentium2
+echo        pentium3, pentium3m, pentium-m, pentium4, pentium4m, prescott, nocona
+echo        core2
+echo AMD:   k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4, athlon-xp, athlon-mp, k8
+echo        opteron, athlon64, athlon-fx, opteron-sse3, barcelona, geode
 echo IDT:   winchip-c6, winchip2
 echo VIA:   c3, c3-2
 echo Default is: pentium
@@ -133,6 +133,20 @@ echo Right now: %OARCH%
 set /p OARCH_CH=
 if "%OARCH_CH%" == "" (
     set OARCH_CH=%OARCH%
+)
+cls
+
+echo Which CPU ReactOS should be optimized for. Specify one of the above CPUs or
+echo generic. When this option is not used, GCC will optimize for the processor
+echo specified by OARCH.
+echo Default is: i686
+echo.
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "TUNE" | find "property name""`) do set TUNE=%%i
+set TUNE=%TUNE:~7,-1%
+echo Right now: %TUNE%
+set /p TUNE_CH=
+if "%TUNE_CH%" == "" (
+    set TUNE_CH=%TUNE%
 )
 cls
 
@@ -243,6 +257,7 @@ echo ^<!DOCTYPE group SYSTEM "tools/rbuild/project.dtd"^>>%TEMP%\config.tmp
 echo ^<group^>>%TEMP%\config.tmp
 echo ^<property name="SARCH" value="%SARCH_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="OARCH" value="%OARCH_CH%" /^>>>%TEMP%\config.tmp
+echo ^<property name="TUNE" value="%TUNE_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="OPTIMIZE" value="%OPTIMIZE_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="KDBG" value="%KDBG_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="DBG" value="%DBG_CH%" /^>>>%TEMP%\config.tmp
@@ -268,6 +283,8 @@ if defined _ROSBE_VERSION (
 :: Unload all used Vars.
 ::
 set YESNO=
+set TUNE=
+set TUNE_CH=
 set SARCH_CH=
 set OARCH_CH=
 set OPTIMIZE_CH=
