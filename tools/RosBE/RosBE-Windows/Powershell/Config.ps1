@@ -111,22 +111,35 @@ $SARCH = $xml.group.property | ? { $_.Name -eq "SARCH" } | % { $_.Value}
 $SARCH_CH = Read-Host "(), (xbox)"
 clear-host
 
-"Which CPU ReactOS should be optimized for."
+"Generate instructions for this CPU type. Specify one of:"
 ""
-"Examples:"
-"Intel: i486, i586 / pentium, pentium-mmx, i686 / pentiumpro, pentium2, pentium3"
-"        pentium3m, pentium-m, pentium4 / pentium4m, prescott, nocona"
-" AMD:   k6, k6-2 / k6-3, athlon / athlon-tbird, athlon-4 / athlon-xp / athlon-mp"
-"        k8 / opteron / athlon64 / athlon-fx"
-" IDT:   winchip-c6, winchip2"
-" VIA:   c3, c3-2"
-" Default is: pentium"
+"Intel: i386, i486, i586, pentium, pentium-mmx, i686, pentiumpro, pentium2"
+"       pentium3, pentium3m, pentium-m, pentium4, pentium4m, prescott, nocona"
+"       core2"
+"AMD:   k6, k6-2, k6-3, athlon, athlon-tbird, athlon-4, athlon-xp, athlon-mp, k8"
+"       opteron, athlon64, athlon-fx, opteron-sse3, barcelona, geode"
+"IDT:   winchip-c6, winchip2"
+"VIA:   c3, c3-2"
+"Default is: pentium"
 ""
 $OARCH = $xml.group.property | ? { $_.Name -eq "OARCH" } | % { $_.Value}
 "Right now: $OARCH"
 $OARCH_CH = Read-Host
 if ($OARCH_CH -eq $null) {
     $OARCH_CH = $OARCH
+}
+clear-host
+
+"Which CPU ReactOS should be optimized for. Specify one of the above CPUs or"
+"generic. When this option is not used, GCC will optimize for the processor"
+"specified by OARCH."
+"Default is: i686"
+""
+$TUNE = $xml.group.property | ? { $_.Name -eq "TUNE" } | % { $_.Value}
+"Right now: $TUNE"
+$TUNE_CH = Read-Host
+if ($TUNE_CH -eq $null) {
+    $TUNE_CH = $TUNE
 }
 clear-host
 
@@ -227,6 +240,7 @@ clear-host
 #
 $xml.group.property | ? { $_.Name -eq "SARCH" } | % { $_.Value = "$SARCH_CH"}
 $xml.group.property | ? { $_.Name -eq "OARCH" } | % { $_.Value = "$OARCH_CH"}
+$xml.group.property | ? { $_.Name -eq "TUNE" } | % { $_.Value = "$TUNE_CH"}
 $xml.group.property | ? { $_.Name -eq "OPTIMIZE" } | % { $_.Value = "$OPTIMIZE_CH"}
 $xml.group.property | ? { $_.Name -eq "KDBG" } | % { $_.Value = "$KDBG_CH"}
 $xml.group.property | ? { $_.Name -eq "DBG" } | % { $_.Value = "$DBG_CH"}
@@ -245,6 +259,8 @@ if ($_ROSBE_VERSION -ne $null) {
 # Unload all used Vars.
 #
 $YESNO = $null
+$TUNE = $null
+$TUNE_CH = $null
 $SARCH_CH = $null
 $OARCH_CH = $null
 $OPTIMIZE_CH = $null
