@@ -249,6 +249,18 @@ if "%ELF_CH%" == "" (
 )
 cls
 
+echo Whether to compile the multi processor versions for ntoskrnl and hal.
+echo Default is: 1
+echo.
+for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\config.rbuild" | find "BUILD_MP" | find "property name""`) do set BUILD_MP=%%i
+set BUILD_MP=%BUILD_MP:~7,-1%
+echo Right now: %BUILD_MP%
+set /p BUILD_MP_CH="(0), (1)"
+if "%BUILD_MP_CH%" == "" (
+    set BUILD_MP_CH=%BUILD_MP%
+)
+cls
+
 ::
 :: Generate a config.rbuild, copy it to the Source Tree and delete temp files.
 ::
@@ -265,6 +277,7 @@ echo ^<property name="GDB" value="%GDB_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="NSWPAT" value="%NSWPAT_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="_WINKD_" value="%WINKD_CH%" /^>>>%TEMP%\config.tmp
 echo ^<property name="_ELF_" value="%ELF_CH%" /^>>>%TEMP%\config.tmp
+echo ^<property name="BUILD_MP" value="%BUILD_MP_CH%" /^>>>%TEMP%\config.tmp
 echo ^</group^>>>%TEMP%\config.tmp
 
 copy "%TEMP%\config.tmp" "%APPDATA%\RosBE\config.rbuild" >NUL
@@ -283,6 +296,8 @@ if defined _ROSBE_VERSION (
 :: Unload all used Vars.
 ::
 set YESNO=
+set BUILD_MP=
+set BUILD_MP_CH=
 set TUNE=
 set TUNE_CH=
 set SARCH_CH=

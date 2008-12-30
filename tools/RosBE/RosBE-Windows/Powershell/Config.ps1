@@ -235,6 +235,17 @@ if ($ELF_CH -eq $null) {
 }
 clear-host
 
+"Whether to compile the multi processor versions for ntoskrnl and hal."
+"Default is: 1"
+""
+$BUILD_MP = $xml.group.property | ? { $_.Name -eq "BUILD_MP" } | % { $_.Value}
+"Right now: $BUILD_MP"
+$BUILD_MP_CH = Read-Host "(0), (1)"
+if ($BUILD_MP_CH -eq $null) {
+    $BUILD_MP_CH = $BUILD_MP
+}
+clear-host
+
 #
 # Generate a config.rbuild, copy it to the Source Tree and delete temp files.
 #
@@ -248,6 +259,7 @@ $xml.group.property | ? { $_.Name -eq "GDB" } | % { $_.Value = "$GDB_CH"}
 $xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value = "$NSWPAT_CH"}
 $xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value = "$WINKD_CH"}
 $xml.group.property | ? { $_.Name -eq "_ELF_" } | % { $_.Value = "$ELF_CH"}
+$xml.group.property | ? { $_.Name -eq "BUILD_MP" } | % { $_.Value = "$BUILD_MP_CH"}
 $xml.save("$ENV:APPDATA\RosBE\config.rbuild")
 copy-item "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
 
@@ -259,6 +271,8 @@ if ($_ROSBE_VERSION -ne $null) {
 # Unload all used Vars.
 #
 $YESNO = $null
+$BUILD_MP = $null
+$BUILD_MP_CH = $null
 $TUNE = $null
 $TUNE_CH = $null
 $SARCH_CH = $null
