@@ -3,10 +3,10 @@
   PROJECT:    ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Shashkov Maxim <bz00mmer@mail.ru>
   
-  charset=utf-8
+  charset=utf-8 without BOM
 */
 
 	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Главная</a> &gt; Сборки транка SVN ReactOS';
@@ -28,23 +28,13 @@
 	$getbuilds_langres["nextrev"] = "Следующая ревизия";
 	$getbuilds_langres["showrev"] = "Показать";
 	$getbuilds_langres["gettinglist"] = "Получение списка файлов";
-	$getbuilds_langres["rangeinfo"] = "Вы можете ввести номер ревизии(например, %s) или диапазон номеров ревизий (например, %s-%s)";
 	$getbuilds_langres["isotype"] = "Показать типы образов CD-дисков";
 	
 	$getbuilds_langres["foundfiles"] = "Найдено файлов - %s!";
 	
-	$getbuilds_langres["firstpage_title"] = "Перейти к первой странице";
-	$getbuilds_langres["prevpage_title"] = "Предыдущая страница";
-	$getbuilds_langres["prevpage"] = "Назад";
-	$getbuilds_langres["page"] = "Страница";
-	$getbuilds_langres["nextpage"] = "Вперёд";
-	$getbuilds_langres["nextpage_title"] = "Следующая страница";
-	$getbuilds_langres["lastpage_title"] = "Перейти к последней странице";
-	
 	$getbuilds_langres["filename"] = "Имя файла";
 	$getbuilds_langres["filesize"] = "Размер";
 	$getbuilds_langres["filedate"] = "Последнее изменение";
-	$getbuilds_langres["pleasewait"] = "Пожалуйста, подождите";
 	
 	$getbuilds_langres["nofiles"] 	 = "Собранных файлов для ревизии %s не существует!";
 	$getbuilds_langres["invalidrev"] = "Неправильный номер ревизии!";

@@ -3,7 +3,7 @@
   LICENSE:    GPL v2 or any later version
   FILE:       web/reactos.org/htdocs/peoplemap/peoplemap.css
   PURPOSE:    Main stylesheet
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 */
 
 a {
@@ -12,10 +12,6 @@ a {
  
 a:hover {
 	color: #000000;
-}
-
-#content {
-	padding-right: 10px;
 }
 
 #map_td, #toolbox_td {

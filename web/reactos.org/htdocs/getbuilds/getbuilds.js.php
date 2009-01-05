@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 */
 ?>
 
@@ -31,7 +31,7 @@ function AjaxCall()
 	AjaxGet("ajax-getfiles.php", "GetFilesCallback", data);
 }
 
-function GetFilesCallback(HttpRequest, data)
+function GetFilesCallback(HttpRequest)
 {
 	// Check for an error
 	if(HttpRequest.responseXML.getElementsByTagName("error").length > 0)
@@ -69,13 +69,13 @@ function GetFilesCallback(HttpRequest, data)
 		
 		if(CurrentPage == 1)
 		{
-			html += '<strong>&laquo;<\/strong> ';
-			html += '<strong>&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?><\/strong> ';
+			html += '&laquo; ';
+			html += '&lsaquo; <?php echo addslashes($shared_langres["prevpage"]); ?> ';
 		}
 		else
 		{
-			html += '<a href="javascript:FirstPage()" title="<?php echo addslashes($getbuilds_langres["firstpage_title"]); ?>">&laquo;<\/a> ';
-			html += '<a href="javascript:PrevPage()" title="<?php echo addslashes($getbuilds_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($getbuilds_langres["prevpage"]); ?><\/a> ';
+			html += '<a href="javascript:FirstPage()" title="<?php echo addslashes($shared_langres["firstpage_title"]); ?>">&laquo;<\/a> ';
+			html += '<a href="javascript:PrevPage()" title="<?php echo addslashes($shared_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($shared_langres["prevpage"]); ?><\/a> ';
 		}
 		
 		html += '<select id="pagesel" size="1" onchange="PageboxChange(this)">';
@@ -84,7 +84,7 @@ function GetFilesCallback(HttpRequest, data)
 		{
 			PageCount = 1;
 			
-			html += '<option selected="selected" value="' + CurrentPage + '-' + data["startrev"] + '"><?php echo addslashes($getbuilds_langres["page"]); ?> ' + CurrentPage;
+			html += '<option value="' + CurrentPage + '-' + data["startrev"] + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
 			
 			if(HttpRequest.responseXML.getElementsByTagName("filecount")[0].firstChild.data > 0)
 				html += ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
@@ -98,19 +98,19 @@ function GetFilesCallback(HttpRequest, data)
 		
 		if(HttpRequest.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 0)
 		{
-			html += '<strong><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;<\/strong> ';
-			html += '<strong>&raquo;<\/strong>';
+			html += '<?php echo addslashes($shared_langres["nextpage"]); ?> &rsaquo; ';
+			html += '&raquo;';
 		}
 		else
 		{
-			html += '<a href="javascript:NextPage()" title="<?php echo addslashes($getbuilds_langres["nextpage_title"]); ?>"><?php echo addslashes($getbuilds_langres["nextpage"]); ?> &rsaquo;<\/a> ';
-			html += '<a href="javascript:LastPage()" title="<?php echo addslashes($getbuilds_langres["lastpage_title"]); ?>">&raquo;<\/a>';
+			html += '<a href="javascript:NextPage()" title="<?php echo addslashes($shared_langres["nextpage_title"]); ?>"><?php echo addslashes($shared_langres["nextpage"]); ?> &rsaquo;<\/a> ';
+			html += '<a href="javascript:LastPage()" title="<?php echo addslashes($shared_langres["lastpage_title"]); ?>">&raquo;<\/a>';
 		}
 		
 		html += '<\/td><\/tr><\/table>';
 
 		// File table
-		html += '<table class="datatable" cellspacing="0" cellpadding="1">';
+		html += '<table class="datatable" cellspacing="0" cellpadding="0">';
 		html += '<thead><tr class="head"><th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?><\/th><th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?><\/th><th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?><\/th><\/tr><\/thead>';
 		html += '<tbody>';
 		
@@ -118,7 +118,7 @@ function GetFilesCallback(HttpRequest, data)
 	
 		if(!files.length)
 		{
-			html += '<tr class="odd"><td><?php printf(addslashes($getbuilds_langres["nofiles"]), "' + fullrange + '"); ?><\/td><td>&nbsp;<\/td><td>&nbsp;<\/td><\/tr>';
+			html += '<tr class="even"><td><?php printf(addslashes($getbuilds_langres["nofiles"]), "' + FullRange + '"); ?><\/td><td>&nbsp;<\/td><td>&nbsp;<\/td><\/tr>';
 		}
 		else
 		{
@@ -130,13 +130,14 @@ function GetFilesCallback(HttpRequest, data)
 				var fsize = files[i].getElementsByTagName("size")[0].firstChild.data;
 				var fdate = files[i].getElementsByTagName("date")[0].firstChild.data;
 				var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname.substr(0, 6) + "/" + fname + '">';
-				oddeven = !oddeven;
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
 				html += '<td>' + flink + '<img src="images/cd.gif" alt=""> ' + fname + '<\/a><\/td>';
 				html += '<td>' + flink + fsize + '<\/a><\/td>';
 				html += '<td>' + flink + fdate + '<\/a><\/td>';
 				html += '<\/tr>';
+				
+				oddeven = !oddeven;
 			}
 		}
 		
@@ -147,15 +148,7 @@ function GetFilesCallback(HttpRequest, data)
 		if(data["requesttype"] == REQUESTTYPE_PAGESWITCH)
 		{
 			// Switch the selected page in the Page ComboBox
-			var options = document.getElementById("pagesel").getElementsByTagName("option");
-			
-			for(var i = 0; i < options.length; i++)
-			{
-				if(options[i].value.substr(0, options[i].value.indexOf("-")) == CurrentPage)
-					options[i].selected = true;
-				else if(options[i].selected)
-					options[i].selected = false;
-			}
+			document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage - 1].selected = true;
 		}
 	}
 	else
@@ -169,13 +162,13 @@ function GetFilesCallback(HttpRequest, data)
 		// As always, we have to work around an IE bug
 		// If I use "innerHTML" here, the first <OPTION> start tag gets dropped in the IE...
 		// Therefore I have to use the DOM functions in this case.
-		var option_elem = document.createElement("option");
-		var option_text = document.createTextNode('<?php echo addslashes($getbuilds_langres["page"]); ?> ' + pagecount + ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data);
+		var OptionElem = document.createElement("option");
+		var OptionText = document.createTextNode('<?php echo addslashes($shared_langres["page"]); ?> ' + PageCount + ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data);
 		
-		option_elem.value = pagecount + "-" + data["startrev"];
-		option_elem.appendChild(option_text);
+		OptionElem.value = PageCount + "-" + data["startrev"];
+		OptionElem.appendChild(OptionText);
 		
-		document.getElementById("pagesel").appendChild(option_elem);
+		document.getElementById("pagesel").appendChild(OptionElem);
 	}
 	
 	if(HttpRequest.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 1 && (data["requesttype"] == REQUESTTYPE_FULLLOAD || data["requesttype"] == REQUESTTYPE_ADDPAGE))
@@ -272,7 +265,7 @@ function ShowRev()
 		return;
 	
 	CurrentPage = 1;
-	fullrange = document.getElementById("revnum").value;
+	FullRange = document.getElementById("revnum").value;
 	
 	data["bootcd-dbg"] = (document.getElementById("bootcd-dbg").checked ? 1 : 0);
 	data["livecd-dbg"] = (document.getElementById("livecd-dbg").checked ? 1 : 0);
@@ -311,7 +304,7 @@ function Load()
 	
 	// Show latest files
 	CurrentPage = 1;
-	fullrange = <?php echo $rev; ?>;
+	FullRange = <?php echo $rev; ?>;
 	
 	data["filelist"] = 1;
 	data["startrev"] = <?php echo $rev; ?>;

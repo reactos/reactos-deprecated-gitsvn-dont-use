@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 */
 
 	define("ROOT_PATH", "../");
@@ -11,28 +11,13 @@
 	require_once("config.inc.php");
 	require_once("languages.inc.php");
 	require_once(ROOT_PATH . "shared/subsys_layout.php");
+	require_once(ROOT_PATH . "shared/svn.php");
 	
 	GetLanguage();
+	require_once(ROOT_PATH . "shared/lang/$lang.inc.php");
 	require_once("lang/$lang.inc.php");
 	
-	// Get the latest SVN revision
-	$fp = fopen($SVN_ACTIVITY_URL, "r");
-	
-	do
-	{
-		$line = fread($fp, 1024);
-		
-		$firstpos = strpos($line, "<id>");
-		
-		if($firstpos > 0)
-		{
-			$lastpos = strpos($line, "</id>");
-			$rev = substr($line, $firstpos + 4, ($lastpos - $firstpos - 4));
-			break;
-		}
-	} while($line);
-	
-	fclose($fp);
+	$rev = GetLatestRevision();
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -118,7 +103,7 @@
 							<img src="images/rightarrow.gif" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="NextRev();"><br>
 						</span>
 						
-						<img src="images/info.gif" alt="INFO:"> <?php printf($getbuilds_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
+						<img src="../shared/images/info.gif" alt=""> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
 					</td>
 				</tr>
 				<tr>
@@ -141,22 +126,7 @@
 			</div>
 	
 			<div id="filetable">
-				<table class="datatable" cellspacing="0" cellpadding="1">
-					<thead>
-						<tr class="head">
-							<th class="fname"><?php echo $getbuilds_langres["filename"]; ?></th>
-							<th class="fsize"><?php echo $getbuilds_langres["filesize"]; ?></th>
-							<th class="fdate"><?php echo $getbuilds_langres["filedate"]; ?></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="odd">
-							<td><?php echo $getbuilds_langres["pleasewait"]; ?>...</td>
-							<td>&nbsp;</td>
-							<td>&nbsp;</td>
-						</tr>
-					</tbody>
-				</table>
+				<!-- Filled by the JavaScript -->
 			</div>
 		</div>
 	</div>

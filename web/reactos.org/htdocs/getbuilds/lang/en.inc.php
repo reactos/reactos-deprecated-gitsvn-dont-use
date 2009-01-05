@@ -1,12 +1,12 @@
-﻿<?php
+<?php
 /*
   PROJECT:    ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Colin Finck <mail@colinfinck.de>
   
-  charset=utf-8
+  charset=utf-8 without BOM
 */
 
 	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Home</a> &gt; ReactOS SVN Trunk Builds';
@@ -33,18 +33,9 @@
 	
 	$getbuilds_langres["foundfiles"] = "Found %s files!";
 	
-	$getbuilds_langres["firstpage_title"] = "Go to the first page";
-	$getbuilds_langres["prevpage_title"] = "Previous page";
-	$getbuilds_langres["prevpage"] = "Previous";
-	$getbuilds_langres["page"] = "Page";
-	$getbuilds_langres["nextpage"] = "Next";
-	$getbuilds_langres["nextpage_title"] = "Next page";
-	$getbuilds_langres["lastpage_title"] = "Go to the last page";
-	
 	$getbuilds_langres["filename"] = "File name";
 	$getbuilds_langres["filesize"] = "Size";
 	$getbuilds_langres["filedate"] = "Last changed";
-	$getbuilds_langres["pleasewait"] = "Please wait";
 	
 	$getbuilds_langres["nofiles"] 	 = "There are no prebuilt files for revision %s!";
 	$getbuilds_langres["invalidrev"] = "Invalid revision number!";

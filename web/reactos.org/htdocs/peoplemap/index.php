@@ -3,7 +3,7 @@
   PROJECT:    People Map of the ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Main web page
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 */
 
 	define("ROOT_PATH", "../");
@@ -13,6 +13,7 @@
 	require_once(ROOT_PATH . "shared/subsys_layout.php");
 	
 	GetLanguage();
+	require_once(ROOT_PATH . "shared/lang/$lang.inc.php");
 	require_once("lang/$lang.inc.php");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
