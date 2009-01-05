@@ -1,12 +1,12 @@
-﻿<?php
+<?php
 /*
   PROJECT:    ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Gabriel Ilardi <gabrielilardi@hotmail.it>
   
-  charset=utf-8
+  charset=utf-8 without BOM
 */
 
 	$getbuilds_langres["header"] = '<a href="http://www.reactos.org/">Home</a> &gt; Builds del Trunk di ReactOS SVN';
@@ -28,23 +28,13 @@
 	$getbuilds_langres["nextrev"] = "Revisione successiva";
 	$getbuilds_langres["showrev"] = "Mostrare";
 	$getbuilds_langres["gettinglist"] = "Ottentendo l'elenco dei file";
-	$getbuilds_langres["rangeinfo"] = "Puoi inserire un numero di revisione (ad es. %s) oppure un range di revisioni (ad es. %s-%s)";
 	$getbuilds_langres["isotype"] = "Mostrare imagini cd";
 	
 	$getbuilds_langres["foundfiles"] = "Trovato(i) %s file(s)!";
 	
-	$getbuilds_langres["firstpage_title"] = "Andare alla prima pagina";
-	$getbuilds_langres["prevpage_title"] = "Pagina precendente";
-	$getbuilds_langres["prevpage"] = "Precedente";
-	$getbuilds_langres["page"] = "Pagina";
-	$getbuilds_langres["nextpage"] = "Successiva";
-	$getbuilds_langres["nextpage_title"] = "Pagina successiva";
-	$getbuilds_langres["lastpage_title"] = "Andare all'ultima pagina";
-	
 	$getbuilds_langres["filename"] = "Nome file";
 	$getbuilds_langres["filesize"] = "Dimensioni";
 	$getbuilds_langres["filedate"] = "Modificato";
-	$getbuilds_langres["pleasewait"] = "Attendere prego";
 	
 	$getbuilds_langres["nofiles"] 	 = "Non ci sono files precompilati per la revisione %s!";
 	$getbuilds_langres["invalidrev"] = "Numero di revisione invalido!";

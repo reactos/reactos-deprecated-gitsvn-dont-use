@@ -1,3 +1,14 @@
+/*
+  PROJECT:    ReactOS Shared Website Components
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Style file for inclusion inside custom subsystems, provides the look and feel of ReactOS Website components
+  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+*/
+
+#content {
+	padding-right: 10px;
+}
+
 /* Headings */
 h2 {
 	font-size: 22px;
@@ -55,37 +66,24 @@ h2 {
 }
 
 /* Data Table */
-.datatable {
-	min-width: 350px;
-	width: 100%;
-	cursor: pointer;
-	empty-cells: show;
+.datatable th, .datatable td {
+	padding: 1px 1px 1px 2px;
 }
 
-.datatable tr.head th,
-.datatable tr.head {
-	background-image: none;
+.datatable tr.head th {
 	background: #5984C3;
 	color: white;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-style: normal;
 	text-align: left;
-	cursor: default;
 }
 
 .datatable tr.odd td,
 .datatable tr.even td {
-	color: black;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	border-bottom: 1px solid #bbb;
-	background-image: none;
+	border-bottom: 1px solid #BBBBBB;
 }
 
-.datatable tr.odd td,
-.datatable tr.odd {
+.datatable tr.odd td {
 	background-color: #DDDDDD;
 }
-.datatable tr.even td,
-.datatable tr.even {
+.datatable tr.even td {
 	background-color: #EEEEEE;
 }

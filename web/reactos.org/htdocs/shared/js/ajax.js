@@ -2,7 +2,7 @@
   PROJECT:    ReactOS Shared Website Components
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Some easy-to-use AJAX functions
-  COPYRIGHT:  Copyright 2008 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
 */
 
 /* This hint comes originally from: http://design-noir.de/webdev/JS/XMLHttpRequest-IE/ */
@@ -31,7 +31,6 @@ function AjaxGet(url, callback, data)
 	}
 	
 	var parameters = PrepareParameters(data);
-	//alert(parameters);
 	
 	HttpRequest.open("GET", url + "?" + parameters, true);
 	HttpRequest.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");			// Bypass the IE Cache

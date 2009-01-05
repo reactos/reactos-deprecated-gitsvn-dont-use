@@ -3,10 +3,10 @@
   PROJECT:    People Map of the ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Translation
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
   TRANSLATOR: Maciej Bialas
   
-  charset=utf-8
+  charset=utf-8 without BOM
 */
 
 	$peoplemap_langres["header"] = '<a href="http://www.reactos.org/">Strona główna</a> &gt; Mapa Osób ReactOS';
