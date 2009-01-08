@@ -24,7 +24,7 @@
 	
 	
 	// Entry point
-	if(!isset($_POST["username"]) || !isset($_POST["passwordhash"]) || !isset($_POST["testtype"]))
+	if(!isset($_POST["username"]) || !isset($_POST["password"]) || !isset($_POST["testtype"]))
 		die("Necessary information not specified!");
 
 	// Check the login credentials
@@ -38,9 +38,9 @@
 		die("Could not establish the DB connection");
 	}
 		
-	$stmt = $dbh->prepare("SELECT user_id FROM " . DB_ROSCMS . ".users WHERE user_name = :username AND user_roscms_password = :passwordhash AND user_account_enabled = 'yes'");
+	$stmt = $dbh->prepare("SELECT user_id FROM " . DB_ROSCMS . ".users WHERE user_name = :username AND user_roscms_password = MD5(:password) AND user_account_enabled = 'yes'");
 	$stmt->bindParam(":username", $_POST["username"]);
-	$stmt->bindParam(":passwordhash", $_POST["passwordhash"]);
+	$stmt->bindParam(":password", $_POST["password"]);
 	$stmt->execute() or die("SQL failed #1");
 	$user_id = (int)$stmt->fetchColumn();
 	
