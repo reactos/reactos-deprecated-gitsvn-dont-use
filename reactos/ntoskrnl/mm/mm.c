@@ -132,6 +132,7 @@ MmpAccessFault(KPROCESSOR_MODE Mode,
    /*
     * Find the memory area for the faulting address
     */
+   DPRINT("\n");
    if (Address >= (ULONG_PTR)MmSystemRangeStart)
    {
       /*
@@ -153,9 +154,14 @@ MmpAccessFault(KPROCESSOR_MODE Mode,
    {
       MmLockAddressSpace(AddressSpace);
    }
+
+   DPRINT("AddressSpace: %x\n", AddressSpace);
+
    do
    {
+      DPRINT("do ->\n");
       MemoryArea = MmLocateMemoryAreaByAddress(AddressSpace, (PVOID)Address);
+      DPRINT("MemoryArea %x (after MmLocateMemoryAreaByAddress)\n", MemoryArea);
       if (MemoryArea == NULL || MemoryArea->DeleteInProgress)
       {
          if (!FromMdl)
@@ -164,6 +170,9 @@ MmpAccessFault(KPROCESSOR_MODE Mode,
          }
          return (STATUS_ACCESS_VIOLATION);
       }
+
+      DPRINT("MemoryArea %x\n", MemoryArea);
+      DPRINT("MemoryArea->Type %d\n", MemoryArea->Type);
 
       switch (MemoryArea->Type)
       {
@@ -216,6 +225,7 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
    NTSTATUS Status;
    BOOLEAN Locked = FromMdl;
    PFN_TYPE Pfn;
+   PVOID Hyperspace;
 
    DPRINT("MmNotPresentFault(Mode %d, Address %x)\n", Mode, Address);
 
@@ -256,6 +266,7 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
    do
    {
       MemoryArea = MmLocateMemoryAreaByAddress(AddressSpace, (PVOID)Address);
+      DPRINT("MemoryArea %x\n", MemoryArea);
       if (MemoryArea == NULL || MemoryArea->DeleteInProgress)
       {
          if (!FromMdl)
@@ -264,6 +275,8 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
          }
          return (STATUS_ACCESS_VIOLATION);
       }
+
+      DPRINT("MemoryArea->Type %d\n", MemoryArea->Type);
 
       switch (MemoryArea->Type)
       {
@@ -294,12 +307,17 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
 
          case MEMORY_AREA_SHARED_DATA:
             Pfn = MmSharedDataPagePhysicalAddress.LowPart >> PAGE_SHIFT;
+            DPRINT1("Mapping Pfn %x for shared data\n", Pfn);
+            Hyperspace = MmCreateHyperspaceMapping(Pfn);
+            DPRINT1(">> 300 -> %x\n", *((PULONG)((PCHAR)Hyperspace+0x300)));
+            MmDeleteHyperspaceMapping(Hyperspace);
             Status =
                MmCreateVirtualMapping(PsGetCurrentProcess(),
                                       (PVOID)PAGE_ROUND_DOWN(Address),
                                       PAGE_READONLY,
                                       &Pfn,
                                       1);
+            DPRINT1("<< 300 -> %x\n", *((PULONG)((PCHAR)(PAGE_ROUND_DOWN(Address))+0x300)));
             break;
 
          default:
@@ -314,6 +332,10 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
    {
       MmUnlockAddressSpace(AddressSpace);
    }
+#ifndef LUSER
+   __invlpg(Address);
+#endif
+   DPRINT("Returning %x\n", Status);
    return(Status);
 }
 
@@ -327,6 +349,12 @@ MmAccessFault(IN BOOLEAN StoreInstruction,
               IN PVOID TrapInformation)
 {
     /* Cute little hack for ROS */
+    DPRINT("MmAccessFault(%s,%x,%s,%x)\n", 
+           StoreInstruction ? "Write" : "Read",
+           Address,
+           Mode == KernelMode ? "Kernel" : "User",
+           TrapInformation);
+
     if ((ULONG_PTR)Address >= (ULONG_PTR)MmSystemRangeStart)
     {
 #ifdef _M_IX86
@@ -334,6 +362,7 @@ MmAccessFault(IN BOOLEAN StoreInstruction,
         if (Mmi386MakeKernelPageTableGlobal(Address))
         {
             /* All is well with the world */
+            DPRINT("STATUS_SUCCESS\n");
             return STATUS_SUCCESS;
         }
 #endif
@@ -343,13 +372,17 @@ MmAccessFault(IN BOOLEAN StoreInstruction,
     if (StoreInstruction)
     {
         /* Call access fault */
+        DPRINT("MmpAccessFault\n");
         return MmpAccessFault(Mode, (ULONG_PTR)Address, TrapInformation ? FALSE : TRUE);
     }
     else
     {
         /* Call not present */
+        DPRINT("MmNotPresentFault\n");
         return MmNotPresentFault(Mode, (ULONG_PTR)Address, TrapInformation ? FALSE : TRUE);
     }
+
+    DPRINT("MmAccessFault -> End\n");
 }
 
 NTSTATUS

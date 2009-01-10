@@ -347,6 +347,7 @@ mb1:
 	rep movsb
 
 	/* Save commandline */
+        push    %ebx
 	movl	MB_INFO_FLAGS_OFFSET(%ebx),%edx
 	testl	$MB_INFO_FLAG_COMMAND_LINE,MB_INFO_FLAGS_OFFSET(%ebx)
 	jz	mb3

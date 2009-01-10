@@ -9,7 +9,7 @@
 #define INITGUID
 #include "pciidex.h"
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 static DRIVER_DISPATCH PciIdeXForwardOrIgnore;

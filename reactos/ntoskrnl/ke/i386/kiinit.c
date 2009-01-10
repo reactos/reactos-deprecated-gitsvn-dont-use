@@ -625,7 +625,7 @@ KiGetMachineBootPointers(IN PKGDTENTRY *Gdt,
     Fs = Ke386GetFs();
 
     /* Get PCR Selector, mask it and get its GDT Entry */
-    PcrSelector = *(PKGDTENTRY)((ULONG_PTR)*Gdt + (Fs & ~RPL_MASK));
+    PcrSelector = (*Gdt)[Fs>>3];
 
     /* Get the KPCR itself */
     *Pcr = (PKIPCR)(ULONG_PTR)(PcrSelector.BaseLow |
@@ -633,13 +633,33 @@ KiGetMachineBootPointers(IN PKGDTENTRY *Gdt,
                                PcrSelector.HighWord.Bytes.BaseHi << 24);
 
     /* Get TSS Selector, mask it and get its GDT Entry */
-    TssSelector = *(PKGDTENTRY)((ULONG_PTR)*Gdt + (Tr & ~RPL_MASK));
+    TssSelector = (*Gdt)[Tr>>3];
 
     /* Get the KTSS itself */
     *Tss = (PKTSS)(ULONG_PTR)(TssSelector.BaseLow |
                               TssSelector.HighWord.Bytes.BaseMid << 16 |
                               TssSelector.HighWord.Bytes.BaseHi << 24);
 }
+
+#ifdef LUSER
+VOID NTAPI PspDumpThreads(BOOLEAN System);
+VOID MapDump();
+
+static
+void
+DumpInfo(int sig)
+{
+    PspDumpThreads(TRUE);
+    MapDump();
+}
+
+VOID
+NTAPI
+ThreadAnalyze(PKTHREAD OldThread, PKTHREAD NewThread)
+{
+    //Printf("Switching from %x to %x\n", OldThread, NewThread);
+}
+#endif
 
 VOID
 NTAPI
@@ -654,7 +674,23 @@ KiSystemStartupReal(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
     PKTSS Tss;
     PKIPCR Pcr;
 
+#ifdef LUSER
+    struct sigaction sa;
+
+    LuserRegisterSigstack();
+    LuserRegisterSegv();
+    LuserSetTR(0);
+
+    sa.sa_flags = SA_ONSTACK;
+    sa.sa_sigaction = (void *)DumpInfo;
+    sigemptyset(&sa.sa_mask);
+    sigaddset(&sa.sa_mask, SIGIO);
+
+    if (unix_sigaction(SIGUSR1, &sa, NULL) == -1)
+        unix_abort();
+#endif
     /* Save the loader block and get the current CPU */
+    __asm__("int3");
     KeLoaderBlock = LoaderBlock;
     Cpu = KeNumberProcessors;
     if (!Cpu)

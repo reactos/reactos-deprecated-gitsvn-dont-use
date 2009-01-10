@@ -45,7 +45,7 @@
 /* INCLUDES *****************************************************************/
 
 #include <ntoskrnl.h>
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 #include <reactos/exeformat.h>
 
@@ -624,6 +624,7 @@ MiReadPage(PMEMORY_AREA MemoryArea,
        * filesystems do because it is safe for us to use an offset with a
        * alignment less than the file system block size.
        */
+      DPRINT("Normal section read\n");
       Status = CcRosGetCacheSegment(Bcb,
                                     FileOffset,
                                     &BaseOffset,
@@ -632,14 +633,17 @@ MiReadPage(PMEMORY_AREA MemoryArea,
                                     &CacheSeg);
       if (!NT_SUCCESS(Status))
       {
+         DPRINT("Failed: %x\n", Status);
          return(Status);
       }
+      DPRINT("UptoDate %s\n", UptoDate ? "true" : "false");
       if (!UptoDate)
       {
          /*
           * If the cache segment isn't up to date then call the file
           * system to read in the data.
           */
+         DPRINT("ReadCacheSegment\n");
          Status = ReadCacheSegment(CacheSeg);
          if (!NT_SUCCESS(Status))
          {
@@ -650,6 +654,7 @@ MiReadPage(PMEMORY_AREA MemoryArea,
       /*
        * Retrieve the page from the cache segment that we actually want.
        */
+      DPRINT("Getting physical address for %x\n", BaseAddress);
       (*Page) = MmGetPhysicalAddress((char*)BaseAddress +
                                      FileOffset - BaseOffset).LowPart >> PAGE_SHIFT;
 
@@ -663,6 +668,7 @@ MiReadPage(PMEMORY_AREA MemoryArea,
        * Allocate a page, this is rather complicated by the possibility
        * we might have to move other things out of memory
        */
+      DPRINT("Abnormal\n");
       Status = MmRequestPageMemoryConsumer(MC_USER, TRUE, Page);
       if (!NT_SUCCESS(Status))
       {
@@ -676,14 +682,17 @@ MiReadPage(PMEMORY_AREA MemoryArea,
                                     &CacheSeg);
       if (!NT_SUCCESS(Status))
       {
+         DPRINT("Failed %x\n", Status);
          return(Status);
       }
+      DPRINT("UptoDate %s\n", UptoDate ? "true" : "false");
       if (!UptoDate)
       {
          /*
           * If the cache segment isn't up to date then call the file
           * system to read in the data.
           */
+         DPRINT("ReadCacheSegment\n");
          Status = ReadCacheSegment(CacheSeg);
          if (!NT_SUCCESS(Status))
          {
@@ -691,6 +700,7 @@ MiReadPage(PMEMORY_AREA MemoryArea,
             return Status;
          }
       }
+      DPRINT("Page was %x\n", *Page);
       PageAddr = MmCreateHyperspaceMapping(*Page);
       CacheSegOffset = BaseOffset + CacheSeg->Bcb->CacheSegmentSize - FileOffset;
       Length = RawLength - SegOffset;
@@ -717,6 +727,7 @@ MiReadPage(PMEMORY_AREA MemoryArea,
             MmDeleteHyperspaceMapping(PageAddr);
             return(Status);
          }
+         DPRINT("UptoDate %s\n", UptoDate ? "true" : "false");
          if (!UptoDate)
          {
             /*
@@ -743,6 +754,7 @@ MiReadPage(PMEMORY_AREA MemoryArea,
       CcRosReleaseCacheSegment(Bcb, CacheSeg, TRUE, FALSE, FALSE);
       MmDeleteHyperspaceMapping(PageAddr);
    }
+   ASSERT(*Page);
    return(STATUS_SUCCESS);
 }
 
@@ -871,6 +883,7 @@ MmNotPresentFaultSectionView(PMM_AVL_TABLE AddressSpace,
       {
          Entry = MmGetPageEntrySectionSegment(Segment, Offset);
          HasSwapEntry = MmIsPageSwapEntry(Process, (PVOID)PAddress);
+         DPRINT1("Entry %x\n", Entry);
 
          if (PAGE_FROM_SSE(Entry) == 0 || HasSwapEntry)
          {
@@ -883,6 +896,7 @@ MmNotPresentFaultSectionView(PMM_AVL_TABLE AddressSpace,
          }
 
          Page = PFN_FROM_SSE(Entry);
+         ASSERT(Page);
 
          MmSharePageEntrySectionSegment(Segment, Offset);
 
@@ -934,6 +948,7 @@ MmNotPresentFaultSectionView(PMM_AVL_TABLE AddressSpace,
 
       MmUnlockAddressSpace(AddressSpace);
       Status = MmRequestPageMemoryConsumer(MC_USER, TRUE, &Page);
+      ASSERT(Page);
       if (!NT_SUCCESS(Status))
       {
           KeBugCheck(MEMORY_MANAGEMENT);
@@ -991,6 +1006,7 @@ MmNotPresentFaultSectionView(PMM_AVL_TABLE AddressSpace,
        * Just map the desired physical page
        */
       Page = Offset >> PAGE_SHIFT;
+      DPRINT("Mapping Physical %x\n", Page);
       Status = MmCreateVirtualMappingUnsafe(Process,
                                             Address,
                                             Region->Protect,
@@ -1025,6 +1041,7 @@ MmNotPresentFaultSectionView(PMM_AVL_TABLE AddressSpace,
     */
    if (Segment->Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA)
    {
+       DPRINT("Getting anonymous section space\n");
       MmUnlockSectionSegment(Segment);
       Status = MmRequestPageMemoryConsumer(MC_USER, FALSE, &Page);
       if (!NT_SUCCESS(Status))
@@ -1089,6 +1106,7 @@ MmNotPresentFaultSectionView(PMM_AVL_TABLE AddressSpace,
          {
             DPRINT1("MmRequestPageMemoryConsumer failed (Status %x)\n", Status);
          }
+         DPRINT1("Allocated %x\n", Page);
       }
       else
       {
@@ -3492,6 +3510,7 @@ NtCreateSection (OUT PHANDLE SectionHandle,
    NTSTATUS Status = STATUS_SUCCESS;
 
    PreviousMode = ExGetPreviousMode();
+   DPRINT("NtCreateSection: PreviousMode %s\n", PreviousMode ? "User" : "Kernel");
 
    if(MaximumSize != NULL && PreviousMode != KernelMode)
    {

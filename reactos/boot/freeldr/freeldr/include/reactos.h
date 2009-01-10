@@ -38,10 +38,17 @@
 #define PaToPfn(p) \
     ((p) >> PFN_SHIFT)
 
+#ifndef LUSER
 #define STARTUP_BASE                0xC0000000
 #define HYPERSPACE_BASE             0xC0400000
 #define HAL_BASE                    0xFFC00000
 #define APIC_BASE                   0xFFFE0000
+#else
+#define STARTUP_BASE                0xA0000000
+#define HYPERSPACE_BASE             0xA0400000
+#define HAL_BASE                    0xBFC00000
+#define APIC_BASE                   0xBFFE0000
+#endif
 
 #define LowMemPageTableIndex        0
 #define StartupPageTableIndex       (STARTUP_BASE >> 22)

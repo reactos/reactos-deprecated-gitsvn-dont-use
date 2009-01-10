@@ -144,13 +144,13 @@ CmGetSystemControlValues(IN PVOID SystemHiveData,
     /* Find the current control set */
     RtlInitUnicodeString(&KeyName, L"current");
     BaseCell = CmpFindControlSet(SystemHive, RootCell, &KeyName, &Auto);
-    if (BaseCell == HCELL_NIL) KeBugCheckEx(BAD_SYSTEM_CONFIG_INFO, 1, 2, 0, 0);
+    if (BaseCell == HCELL_NIL) KeBugCheckEx(BAD_SYSTEM_CONFIG_INFO, 1, 3, 0, 0);
 
     /*  Find the control subkey */
     RtlInitUnicodeString(&KeyName, L"control");
     Node = (PCM_KEY_NODE)HvGetCell(SystemHive, BaseCell);
     BaseCell = CmpFindSubKeyByName(SystemHive, Node, &KeyName);
-    if (BaseCell == HCELL_NIL) KeBugCheckEx(BAD_SYSTEM_CONFIG_INFO,1 , 3, 0, 0);
+    if (BaseCell == HCELL_NIL) KeBugCheckEx(BAD_SYSTEM_CONFIG_INFO, 1, 4, 0, 0);
 
     /* Loop each key */
     while (ControlVector->KeyPath)

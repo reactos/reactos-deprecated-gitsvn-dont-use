@@ -21,13 +21,18 @@
 
 #include <debug.h>
 
+#ifdef LUSER
+#include <libs/luser/luser.h>
+#include <libs/luser/lunix.h>
+#endif
+
 #ifdef DBG
 
 //#define DEBUG_ALL
 //#define DEBUG_INIFILE
 //#define DEBUG_REACTOS
-//#define DEBUG_CUSTOM
-#define DEBUG_NONE
+#define DEBUG_CUSTOM
+//#define DEBUG_NONE
 
 #if defined (DEBUG_ALL)
 ULONG		DebugPrintMask = DPRINT_WARNING | DPRINT_MEMORY | DPRINT_FILESYSTEM |
@@ -38,8 +43,7 @@ ULONG		DebugPrintMask = DPRINT_INIFILE;
 #elif defined (DEBUG_REACTOS)
 ULONG		DebugPrintMask = DPRINT_REACTOS | DPRINT_REGISTRY;
 #elif defined (DEBUG_CUSTOM)
-ULONG		DebugPrintMask = DPRINT_WARNING | DPRINT_MEMORY |
-		                 DPRINT_REACTOS | DPRINT_WINDOWS | DPRINT_HWDETECT;
+ULONG		DebugPrintMask = DPRINT_WARNING;
 #else //#elif defined (DEBUG_NONE)
 ULONG		DebugPrintMask = 0;
 #endif
@@ -47,6 +51,7 @@ ULONG		DebugPrintMask = 0;
 #define	SCREEN				1
 #define	RS232				2
 #define BOCHS				4
+#define UNIX                            8
 
 #define	COM1				1
 #define	COM2				2
@@ -55,10 +60,11 @@ ULONG		DebugPrintMask = 0;
 
 #define BOCHS_OUTPUT_PORT	0xe9
 
-ULONG		DebugPort = RS232;
+//ULONG		DebugPort = RS232;
 //ULONG		DebugPort = SCREEN;
 //ULONG		DebugPort = BOCHS;
 //ULONG		DebugPort = SCREEN|BOCHS;
+ULONG         DebugPort = UNIX;
 ULONG		ComPort = COM1;
 //ULONG		BaudRate = 19200;
 ULONG		BaudRate = 115200;
@@ -96,6 +102,10 @@ VOID DebugPrintChar(UCHAR Character)
 	{
 		MachConsPutChar(Character);
 	}
+        if (DebugPort & UNIX)
+        {
+                unix_write(1, (char *)&Character, 1);
+        }
 }
 
 VOID DebugPrintHeader(ULONG Mask)

@@ -18,6 +18,7 @@
  */
 
 #include <freeldr.h>
+#include <debug.h>
 
 VOID
 MachInit(const char *CmdLine)
@@ -26,17 +27,25 @@ MachInit(const char *CmdLine)
 
   memset(&MachVtbl, 0, sizeof(MACHVTBL));
 
+  DbgPrint((DPRINT_WARNING, "MachInit\n"));
   /* Check for Xbox by identifying device at PCI 0:0:0, if it's
    * 0x10de/0x02a5 then we're running on an Xbox */
+
   WRITE_PORT_ULONG((ULONG*) 0xcf8, CONFIG_CMD(0, 0, 0));
   PciId = READ_PORT_ULONG((ULONG*) 0xcfc);
+  DbgPrint((DPRINT_WARNING, "PciId %x\n", PciId));
+
   if (0x02a510de == PciId)
     {
+      DbgPrint((DPRINT_WARNING, "XboxMachInit\n"));
       XboxMachInit(CmdLine);
+      DbgPrint((DPRINT_WARNING, "XboxMachInit done\n"));
     }
   else
     {
+      DbgPrint((DPRINT_WARNING, "PcMachInit\n"));
       PcMachInit(CmdLine);
+      DbgPrint((DPRINT_WARNING, "PcMachInit done\n"));
     }
 
   HalpCalibrateStallExecution();

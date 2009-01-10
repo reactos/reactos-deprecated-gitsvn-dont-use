@@ -11,6 +11,10 @@
 #include <ntoskrnl.h>
 #define NDEBUG
 #include <debug.h>
+#ifdef LUSER
+#include <libs/luser/luser.h>
+#include <libs/luser/lunix.h>
+#endif
 
 #if defined (ALLOC_PRAGMA)
 #pragma alloc_text(INIT, KiInitializeBugCheck)
@@ -236,9 +240,7 @@ KeRosDumpStackFrameArray(IN PULONG Frames,
     ULONG i, Addr;
     BOOLEAN InSystem;
     PVOID p;
-
-    /* GCC complaints that it may be used uninitialized */
-    PLDR_DATA_TABLE_ENTRY LdrEntry = NULL;
+    PLDR_DATA_TABLE_ENTRY LdrEntry;
 
     /* Loop them */
     for (i = 0; i < FrameCount; i++)
@@ -554,6 +556,9 @@ KiBugCheckDebugBreak(IN ULONG StatusCode)
     /* If KDBG isn't connected, freeze the CPU, otherwise, break */
     if (KdDebuggerNotPresent) for (;;) KeArchHaltProcessor();
     DbgBreakPointWithStatus(StatusCode);
+#ifdef LUSER
+    unix_abort();
+#endif
     while (TRUE);
 }
 

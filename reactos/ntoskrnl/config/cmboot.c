@@ -28,7 +28,7 @@ CmpFindControlSet(IN PHHIVE SystemHive,
     HCELL_INDEX SelectCell, AutoSelectCell, SelectValueCell, ControlSetCell;
     HCELL_INDEX CurrentValueCell;
     PCM_KEY_VALUE KeyValue;
-    ULONG Length;
+    ULONG Length, i;
     PULONG ControlSetId;
     ANSI_STRING ControlSetAnsiName;
     CHAR Buffer[128];
@@ -87,9 +87,18 @@ CmpFindControlSet(IN PHHIVE SystemHive,
     /* And convert it to Unicode... */
     KeyName.MaximumLength = 256;
     KeyName.Buffer = WideBuffer;
+    /* Not actually sure how this works early in the boot process, before
+     * we've set up nls tables.  Hack around it for now */
+#if 1
+    for (i = 0; Buffer[i]; i++)
+        WideBuffer[i] = Buffer[i];
+    KeyName.Length = i * sizeof(WCHAR);
+    Status = STATUS_SUCCESS;
+#else
     Status = RtlAnsiStringToUnicodeString(&KeyName,
                                           &ControlSetAnsiName,
                                           FALSE);
+#endif
     if (!NT_SUCCESS(Status)) return HCELL_NIL;
 
     /* Now open it */

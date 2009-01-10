@@ -7,6 +7,9 @@
 	<include base="ReactOS">include/reactos/libs</include>
 	<include base="ReactOS">include/reactos/elf</include>
 	<define name="_NTHAL_" />
+        <if property="LUSER" value="1">
+          <define name="LUSER"/>
+        </if>
 	<compilerflag>-fno-inline</compilerflag>
 	<compilerflag>-fno-zero-initialized-in-bss</compilerflag>
 

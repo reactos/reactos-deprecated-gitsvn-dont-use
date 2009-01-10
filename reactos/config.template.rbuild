@@ -96,6 +96,11 @@
 <property name="_ELF_" value="0" />
 
 <!--
+	Whether to build as userland (start with lxload)
+-->
+<property name="LUSER" value="1" />
+
+<!--
 	Whether to compile the multi processor versions for ntoskrnl and hal.
 -->
 <property name="BUILD_MP" value="1" />

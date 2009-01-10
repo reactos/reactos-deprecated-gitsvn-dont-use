@@ -444,9 +444,11 @@ SameProcess:
     and byte ptr [edi+KTHREAD_SWAP_BUSY], 0
 #endif
 
+#ifndef LUSER
     /* Clear gs */
     xor eax, eax
     mov gs, ax
+#endif
 
     /* Set the TEB */
     mov eax, [esi+KTHREAD_TEB]
@@ -856,9 +858,11 @@ _KiSwapProcess@8:
     /* Get the KTSS */
     mov ecx, fs:[KPCR_TSS]
 
+#ifndef LUSER
     /* Clear GS on process swap */
     xor eax, eax
     mov gs, ax
+#endif
 
     /* Update IOPM offset */
     mov ax, [edx+KPROCESS_IOPM_OFFSET]

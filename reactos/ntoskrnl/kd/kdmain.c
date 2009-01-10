@@ -11,6 +11,11 @@
 #define NDEBUG
 #include <debug.h>
 
+#ifdef LUSER
+#include <libs/luser/luser.h>
+#include <libs/luser/lunix.h>
+#endif
+
 /* VARIABLES ***************************************************************/
 
 BOOLEAN KdDebuggerEnabled = FALSE;
@@ -163,6 +168,10 @@ KdpEnterDebuggerException(IN PKTRAP_FRAME TrapFrame,
 #endif
 
     /* Call KDBG if available */
+#ifdef LUSER
+    return FALSE;
+#endif
+
     Return = KdbEnterDebuggerException(ExceptionRecord,
                                        PreviousMode,
                                        Context,

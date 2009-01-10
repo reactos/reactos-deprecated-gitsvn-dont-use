@@ -38,13 +38,17 @@
 #undef LIST_FOR_EACH_SAFE
 #include <wine/list.h>
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 #define TRACE DPRINT
 #define WARN DPRINT1
 #define ERR DPRINT1
 #define DPRINTF DPRINT
+
+#define HEAP_PrintListHead(H) do { \
+    DPRINT("List Head %s @ %x: %x, %x\n", #H, (H), (H)->prev, (H)->next); \
+} while(0)
 
 /* FUNCTIONS *****************************************************************/
 
@@ -408,12 +412,17 @@ static HEAP *HEAP_GetPtr(
 static __inline void HEAP_InsertFreeBlock( HEAP *heap, ARENA_FREE *pArena, BOOL last )
 {
     FREE_LIST_ENTRY *pEntry = heap->freeList + get_freelist_index( pArena->size + sizeof(*pArena) );
+    __invlpg(heap);
     if (last)
     {
         /* insert at end of free list, i.e. before the next free list entry */
         pEntry++;
         if (pEntry == &heap->freeList[HEAP_NB_FREE_LISTS]) pEntry = heap->freeList;
+        HEAP_PrintListHead(&pEntry->arena.entry);
+        HEAP_PrintListHead(&pArena->entry);
         list_add_before( &pEntry->arena.entry, &pArena->entry );
+        HEAP_PrintListHead(&pEntry->arena.entry);
+        HEAP_PrintListHead(&pArena->entry);
     }
     else
     {
@@ -659,6 +668,8 @@ static BOOL HEAP_InitSubHeap( HEAP *heap, LPVOID address, DWORD flags,
     int i;
     NTSTATUS Status;
 
+    __asm__("int3");
+
     if (!address && ZwAllocateVirtualMemory( NtCurrentProcess(), &address, 0,
                                  &commitSize, MEM_COMMIT, get_protection_type(flags) ))
     {
@@ -703,7 +714,14 @@ static BOOL HEAP_InitSubHeap( HEAP *heap, LPVOID address, DWORD flags,
         {
             pEntry->arena.size = 0 | ARENA_FLAG_FREE;
             pEntry->arena.magic = ARENA_FREE_MAGIC;
-            if (i) list_add_after( &pEntry[-1].arena.entry, &pEntry->arena.entry );
+            if (i)
+            {
+                HEAP_PrintListHead(&pEntry[-1].arena.entry);
+                HEAP_PrintListHead(&pEntry->arena.entry);
+                list_add_after( &pEntry[-1].arena.entry, &pEntry->arena.entry );
+                HEAP_PrintListHead(&pEntry[-1].arena.entry);
+                HEAP_PrintListHead(&pEntry->arena.entry);
+            }
         }
 
           /* Initialize critical section */

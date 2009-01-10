@@ -50,6 +50,7 @@ HalInitSystem(IN ULONG BootPhase,
 {
     PKPRCB Prcb = KeGetCurrentPrcb();
 
+    Printf("HalInitSystem ...\n");
     /* Check the boot phase */
     if (!BootPhase)
     {
@@ -137,6 +138,7 @@ HalInitSystem(IN ULONG BootPhase,
     }
 
     /* All done, return */
+    Printf("HalInitSystem ... done\n");
     return TRUE;
 }
 

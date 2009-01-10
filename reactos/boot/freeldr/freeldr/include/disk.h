@@ -106,6 +106,45 @@ typedef struct _MASTER_BOOT_RECORD
 ///////////////////////////////////////////////////////////////////////////////////////
 #ifdef __i386__
 
+#ifndef PACKED
+#define PACKED __attribute__((packed))
+#endif
+
+typedef struct
+{
+	UCHAR		PacketSize;				// 00h - Size of packet (10h or 18h)
+	UCHAR		Reserved;				// 01h - Reserved (0)
+	USHORT		LBABlockCount;			// 02h - Number of blocks to transfer (max 007Fh for Phoenix EDD)
+	USHORT		TransferBufferOffset;	// 04h - Transfer buffer offset (seg:off)
+	USHORT		TransferBufferSegment;	//       Transfer buffer segment (seg:off)
+	ULONGLONG		LBAStartBlock;			// 08h - Starting absolute block number
+	//ULONGLONG		TransferBuffer64;		// 10h - (EDD-3.0, optional) 64-bit flat address of transfer buffer
+									//       used if DWORD at 04h is FFFFh:FFFFh
+									//       Commented since some earlier BIOSes refuse to work with
+									//       such extended structure
+} PACKED I386_DISK_ADDRESS_PACKET, *PI386_DISK_ADDRESS_PACKET;
+
+typedef struct _I386_EXTENDED_DRIVE_GEOMETRY {
+    USHORT Size;
+    USHORT Flags;
+    ULONG Cylinders;
+    ULONG Heads;
+    ULONG Sectors;
+    USHORT BytesPerSector;
+    ULONGLONG TotalSectors;
+    // v2
+    ULONG EDDConfig;
+    // v3
+    USHORT DevicePathMagic; // 0xbedd
+    UCHAR DevicePathLength;
+    UCHAR Reserved[3];
+    UCHAR HostBusName[4];
+    UCHAR InterfaceType[8];
+    UCHAR InterfacePath[8];
+    UCHAR DevicePath[8];
+    UCHAR Checksum;
+} PACKED I386_EXTENDED_DRIVE_GEOMETRY, *PI386_EXTENDED_DRIVE_GEOMETRY;
+
 BOOLEAN	DiskResetController(ULONG DriveNumber);
 BOOLEAN	DiskInt13ExtensionsSupported(ULONG DriveNumber);
 //VOID	DiskStopFloppyMotor(VOID);

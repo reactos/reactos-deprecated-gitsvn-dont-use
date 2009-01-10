@@ -230,26 +230,46 @@ NTSTATUS
 NTAPI
 CmpInitializeMachineDependentConfiguration(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
 {
-    UNICODE_STRING KeyName, ValueName, Data, SectionName;
+    UNICODE_STRING KeyName, ValueName, Data;
+#ifndef LUSER
+    UNICODE_STRING SectionName;
+#endif
     OBJECT_ATTRIBUTES ObjectAttributes;
-    ULONG HavePae, CacheSize, Length, TotalLength = 0, i, Disposition;
+    ULONG HavePae, CacheSize;
+#ifndef LUSER
+    ULONG Length, TotalLength = 0;
+#endif
+    ULONG i, Disposition;
+#ifndef LUSER
     SIZE_T ViewSize;
+#endif
     NTSTATUS Status;
-    HANDLE KeyHandle, BiosHandle, SystemHandle, FpuHandle, SectionHandle;
+    HANDLE KeyHandle, BiosHandle, SystemHandle, FpuHandle;
+#ifndef LUSER
+    HANDLE SectionHandle;
+#endif
     CONFIGURATION_COMPONENT_DATA ConfigData;
     CHAR Buffer[128];
     ULONG ExtendedId, Dummy;
     PKPRCB Prcb;
     USHORT IndexTable[MaximumType + 1] = {0};
     ANSI_STRING TempString;
-    PCHAR PartialString = NULL, BiosVersion;
+    PCHAR PartialString = NULL;
+#ifndef LUSER
+    PCHAR BiosVersion;
+#endif
     CHAR CpuString[48];
+#ifndef LUSER
     PVOID BaseAddress = NULL;
     LARGE_INTEGER ViewBase = {{0, 0}};
     ULONG_PTR VideoRomBase;
     PCHAR CurrentVersion;
-    extern UNICODE_STRING KeRosProcessorName, KeRosBiosDate, KeRosBiosVersion;
+#endif
+    extern UNICODE_STRING KeRosProcessorName;
+#ifndef LUSER
+    extern UNICODE_STRING KeRosBiosDate, KeRosBiosVersion;
     extern UNICODE_STRING KeRosVideoBiosDate, KeRosVideoBiosVersion;
+#endif
 
     /* Open the SMSS Memory Management key */
     RtlInitUnicodeString(&KeyName,
@@ -551,6 +571,7 @@ CmpInitializeMachineDependentConfiguration(IN PLOADER_PARAMETER_BLOCK LoaderBloc
     }
 
     /* Open physical memory */
+#ifndef LUSER
     RtlInitUnicodeString(&SectionName, L"\\Device\\PhysicalMemory");
     InitializeObjectAttributes(&ObjectAttributes,
                                &SectionName,
@@ -828,6 +849,7 @@ CmpInitializeMachineDependentConfiguration(IN PLOADER_PARAMETER_BLOCK LoaderBloc
     if (BiosVersion) ExFreePoolWithTag(BiosVersion, TAG_CM);
 
 Quickie:
+#endif
     /* Close the procesor handle */
     NtClose(KeyHandle);
     return STATUS_SUCCESS;

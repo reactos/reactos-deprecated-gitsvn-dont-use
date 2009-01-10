@@ -6,6 +6,9 @@
 		<include base="ntoskrnl">include</include>
 		<define name="_DISABLE_TIDENTS" />
 		<define name="_NTHAL_" />
+                <if property="LUSER" value="1">
+                  <define name="LUSER" />
+                </if>
 		<file>beep.c</file>
 		<file>bios.c</file>
 		<file>bus.c</file>
@@ -29,6 +32,9 @@
 		<include base="ntoskrnl">include</include>
 		<define name="_DISABLE_TIDENTS" />
 		<define name="_NTHAL_" />
+                <if property="LUSER" value="1">
+                  <define name="LUSER" />
+                </if>
 		<file>irq.S</file>
 		<file>processor.c</file>
 		<file>spinlock.c</file>
@@ -38,6 +44,9 @@
 		<include base="ntoskrnl">include</include>
 		<define name="_DISABLE_TIDENTS" />
 		<define name="_NTHAL_" />
+                <if property="LUSER" value="1">
+                  <define name="LUSER" />
+                </if>
 		<file>pci.c</file>
 	</module>
 </group>

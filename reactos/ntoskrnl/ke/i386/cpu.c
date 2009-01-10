@@ -32,7 +32,11 @@ KGDTENTRY KiBootGdt[256] =
     {0xffff, 0x0000, {{0x00, 0xfb, 0xcf, 0x00}}},       /* KGDT_R3_CODE */
     {0xffff, 0x0000, {{0x00, 0xf3, 0xcf, 0x00}}},       /* KGDT_R3_DATA*/
     {0x0000, 0x0000, {{0x00, 0x00, 0x00, 0x00}}},       /* KGDT_TSS */
+#ifndef LUSER
     {0x0001, 0xf000, {{0xdf, 0x93, 0xc0, 0xff}}},       /* KGDT_R0_PCR */
+#else
+    {0x0001, 0xf000, {{0xdf, 0x93, 0xc0, 0xbf}}},       /* KGDT_R0_PCR */
+#endif
     {0x0fff, 0x0000, {{0x00, 0xf3, 0x40, 0x00}}},       /* KGDT_R3_TEB */
     {0x0000, 0x0000, {{0x00, 0x00, 0x00, 0x00}}},       /* KGDT_UNUSED */
     {0x0000, 0x0000, {{0x00, 0x00, 0x00, 0x00}}},       /* KGDT_LDT */
@@ -383,7 +387,9 @@ KiGetFeatureBits(VOID)
     if (CpuFeatures & 0x00000008) FeatureBits |= KF_LARGE_PAGE | KF_CR4;
     if (CpuFeatures & 0x00000010) FeatureBits |= KF_RDTSC;
     if (CpuFeatures & 0x00000100) FeatureBits |= KF_CMPXCHG8B;
+#ifndef LUSER // Immediate reboot when stepping over in colinux
     if (CpuFeatures & 0x00000800) FeatureBits |= KF_FAST_SYSCALL;
+#endif
     if (CpuFeatures & 0x00001000) FeatureBits |= KF_MTRR;
     if (CpuFeatures & 0x00002000) FeatureBits |= KF_GLOBAL_PAGE | KF_CR4;
     if (CpuFeatures & 0x00008000) FeatureBits |= KF_CMOV;

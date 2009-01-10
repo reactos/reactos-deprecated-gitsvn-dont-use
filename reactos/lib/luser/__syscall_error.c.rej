@@ -1,0 +1,36 @@
+***************
+*** 22,27 ****
+   * __set_errno will prob call a function thus clobbering %eax on us.
+   */
+  
+  //#include <errno.h>
+  //#include <features.h>
+  
+--- 22,29 ----
+   * __set_errno will prob call a function thus clobbering %eax on us.
+   */
+  
++ #include <ddk/ntddk.h>
++ #include <luser/luser.h>
+  //#include <errno.h>
+  //#include <features.h>
+  
+***************
+*** 33,38 ****
+  	__asm__ ("mov %eax, %edx\n\t"
+  		 "negl %edx");
+  	/*__set_errno (edx);*/
+  	errno = edx;
+  	return -1;
+  }
+--- 35,44 ----
+  	__asm__ ("mov %eax, %edx\n\t"
+  		 "negl %edx");
+  	/*__set_errno (edx);*/
++ #if 0
++         Printf("Error %d from syscall at %x\n",
++                edx, __builtin_return_address(0));
++ #endif
+  	errno = edx;
+  	return -1;
+  }

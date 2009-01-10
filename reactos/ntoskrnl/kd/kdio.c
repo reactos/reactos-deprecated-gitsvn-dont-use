@@ -11,6 +11,10 @@
 
 #include <ntoskrnl.h>
 #include <debug.h>
+#ifdef LUSER
+#include <libs/luser/luser.h>
+#include <libs/luser/lunix.h>
+#endif
 
 /* GLOBALS *******************************************************************/
 

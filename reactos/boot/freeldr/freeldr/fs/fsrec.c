@@ -102,6 +102,13 @@ BOOLEAN FsRecIsFat(ULONG DriveNumber, ULONG VolumeStartSector)
 		return FALSE;
 	}
 
+        DbgPrint((DPRINT_FILESYSTEM, "%c%c%c%c%c\n",
+                  BootSector->FileSystemType[0],
+                  BootSector->FileSystemType[1],
+                  BootSector->FileSystemType[2],
+                  BootSector->FileSystemType[3],
+                  BootSector->FileSystemType[4]));
+
 	if (strncmp(BootSector->FileSystemType, "FAT12   ", 8) == 0 ||
 		strncmp(BootSector->FileSystemType, "FAT16   ", 8) == 0 ||
 		strncmp(BootSector32->FileSystemType, "FAT32   ", 8) == 0 ||

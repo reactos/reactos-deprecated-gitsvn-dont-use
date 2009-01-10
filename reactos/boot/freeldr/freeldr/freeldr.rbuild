@@ -13,6 +13,9 @@
 			<library>cmlib</library>
 			<library>rtl</library>
 			<library>libcntpr</library>
+                        <if property="LUSER" value="1">
+                          <library>luser</library>
+                        </if>
 			<linkerflag>-static</linkerflag>
 			<linkerflag>-lgcc</linkerflag>
 		</module>

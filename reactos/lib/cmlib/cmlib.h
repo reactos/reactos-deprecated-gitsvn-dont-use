@@ -32,6 +32,8 @@
     #define OBJ_CASE_INSENSITIVE             0x00000040L
     #define USHORT_MAX                       USHRT_MAX
 
+    #ifndef __WINDDK_H
+    #define __WINDDK_H
     VOID NTAPI
     KeQuerySystemTime(
         OUT PLARGE_INTEGER CurrentTime);
@@ -57,6 +59,8 @@
     VOID NTAPI
     RtlClearAllBits(
         IN PRTL_BITMAP BitMapHeader);
+
+    #endif//__WINDDK_H
 
     #define RtlCheckBit(BMH,BP) (((((PLONG)(BMH)->Buffer)[(BP) / 32]) >> ((BP) % 32)) & 0x1)
 

@@ -6,9 +6,17 @@
 		<include base="ntoskrnl">include</include>
 		<define name="_DISABLE_TIDENTS" />
 		<define name="_NTHAL_" />
+                <if property="LUSER" value="1">
+                  <define name="LUSER" />
+                </if>
 		<directory name="generic">
 			<file>beep.c</file>
+                        <if property="LUSER" value="0">
 			<file>bios.c</file>
+                        </if>
+                        <if property="LUSER" value="1">
+                          <file>luser.c</file>
+                        </if>
 			<file>bus.c</file>
 			<file>cmos.c</file>
 			<file>dma.c</file>

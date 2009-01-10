@@ -12,8 +12,13 @@ PULONG MmGetPageDirectory(VOID);
 #define PAE_PAGE_MASK(x)	((x)&(~0xfffLL))
 
 /* Base addresses of PTE and PDE */
+#ifndef LUSER
 #define PAGETABLE_MAP       (0xc0000000)
 #define PAGEDIRECTORY_MAP   (0xc0000000 + (PAGETABLE_MAP / (1024)))
+#else
+#define PAGETABLE_MAP       (0xa0000000)
+#define PAGEDIRECTORY_MAP   (0xa0000000 + (PAGETABLE_MAP / (1024)))
+#endif
 
 /* Converting address to a corresponding PDE or PTE entry */
 #define MiAddressToPde(x) \

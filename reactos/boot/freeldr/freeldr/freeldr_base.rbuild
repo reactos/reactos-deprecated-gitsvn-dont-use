@@ -7,6 +7,9 @@
 	<include base="ntoskrnl">include</include>
 	<define name="_NTHAL_" />
 	<define name="_NTSYSTEM_" />
+        <if property="LUSER" value="1">
+          <define name="LUSER"/>
+        </if>
 	<compilerflag>-fno-inline</compilerflag>
 	<compilerflag>-fno-zero-initialized-in-bss</compilerflag>
 	<directory name="cache">

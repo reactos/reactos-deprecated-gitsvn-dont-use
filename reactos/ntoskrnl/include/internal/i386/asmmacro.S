@@ -95,6 +95,11 @@
 //
 .macro UNHANDLED_PATH
     /* Get EIP */
+    int3
+    nop
+    nop
+    nop
+        
     call $+5
 
     /* Print debug message */
@@ -999,10 +1004,12 @@ PendingUserApc:
 .macro TRAP_EPILOG SystemCall, RestorePreviousMode, RestoreSegments, RestoreVolatiles, RestoreAllRegs
 #ifdef DBG
     /* Assert the flags */
+#ifndef LUSER
     pushfd
     pop edx
     test edx, EFLAGS_INTERRUPT_MASK
     jnz 6f
+#endif
 
     /* Assert the stack */
     cmp esp, ebp
@@ -1015,10 +1022,12 @@ PendingUserApc:
     sub dword ptr [esp+KTRAP_FRAME_DEBUGARGMARK], 0xBADB0D00
     jnz 0f
 
+#ifndef LUSER
     /* Assert FS */
     mov bx, fs
     cmp bx, KGDT_R0_PCR
     jnz 1f
+#endif
 
     /* Assert exception list */
     cmp dword ptr PCR[KPCR_EXCEPTION_LIST], 0
@@ -1106,7 +1115,11 @@ PendingUserApc:
 .if \RestoreSegments
     /* Restore segment registers */
     lea esp, [ebp+KTRAP_FRAME_GS]
+#ifndef LUSER
     pop gs
+#else
+    add esp,4
+#endif
     pop es
     pop ds
 .endif
@@ -1185,7 +1198,11 @@ FastExit:
     add esp, 0x30
 
     /* Restore segments and volatiles */
+#ifndef LUSER
     pop gs
+#else
+    add esp, 4
+#endif
     pop es
     pop ds
     pop edx

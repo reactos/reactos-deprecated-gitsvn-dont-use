@@ -200,6 +200,8 @@ BOOLEAN DiskReadBootRecord(ULONG DriveNumber, ULONGLONG LogicalSectorNumber, PMA
 	ULONG		Index;
 
 	// Read master boot record
+        DbgPrint((DPRINT_DISK, "DiskReadBootRecord(DriveNumber %d, LogicalSectorNumber %d)\n",
+                  DriveNumber, (int)LogicalSectorNumber));
 	if (!MachDiskReadLogicalSectors(DriveNumber, LogicalSectorNumber, 1, (PVOID)DISKREADBUFFER))
 	{
 		return FALSE;

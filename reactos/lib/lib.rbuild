@@ -55,4 +55,7 @@
 	<directory name="win32ksys">
 		<xi:include href="win32ksys/win32ksys.rbuild" />
 	</directory>
+	<directory name="luser">
+		<xi:include href="luser/luser.rbuild" />
+	</directory>
 </group>

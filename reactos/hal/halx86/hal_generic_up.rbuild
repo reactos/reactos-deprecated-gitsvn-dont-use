@@ -6,6 +6,9 @@
 		<include base="ntoskrnl">include</include>
 		<define name="_DISABLE_TIDENTS" />
 		<define name="_NTHAL_" />
+                <if property="LUSER" value="1">
+                  <define name="LUSER" />
+                </if>
 		<directory name="generic">
 			<file>irq.S</file>
 			<file>processor.c</file>

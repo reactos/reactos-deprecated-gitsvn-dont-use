@@ -223,6 +223,7 @@ MmRequestPageMemoryConsumer(ULONG Consumer, BOOLEAN CanWait,
       {
          KeSetEvent(&MiBalancerEvent, IO_NO_INCREMENT, FALSE);
       }
+      ASSERT(*AllocatedPage);
       return(STATUS_SUCCESS);
    }
 
@@ -270,6 +271,7 @@ MmRequestPageMemoryConsumer(ULONG Consumer, BOOLEAN CanWait,
       if(Consumer == MC_USER) MmInsertLRULastUserPage(Page);
       *AllocatedPage = Page;
       (void)InterlockedDecrementUL(&MiPagesRequired);
+      ASSERT(*AllocatedPage);
       return(STATUS_SUCCESS);
    }
 
@@ -284,6 +286,7 @@ MmRequestPageMemoryConsumer(ULONG Consumer, BOOLEAN CanWait,
    if(Consumer == MC_USER) MmInsertLRULastUserPage(Page);
    *AllocatedPage = Page;
 
+   ASSERT(*AllocatedPage);
    return(STATUS_SUCCESS);
 }
 
@@ -304,6 +307,7 @@ MiBalancerThread(PVOID Unused)
 
    while (1)
    {
+      DPRINT("MiBalancerThread\n");
       Status = KeWaitForMultipleObjects(2,
                                         WaitObjects,
                                         WaitAny,

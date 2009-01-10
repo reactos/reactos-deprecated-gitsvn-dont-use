@@ -9,14 +9,16 @@
 	<directory name="arch">
 		<if property="ARCH" value="i386">
 			<directory name="i386">
+                          <if property="LUSER" value="0">
 				<file>boot.S</file>
+				<file>i386pnp.S</file>
+				<file>int386.S</file>
+				<file>linux.S</file>
+                          </if>
 				<file>drvmap.S</file>
 				<file>i386cpu.S</file>
 				<file>i386idt.S</file>
-				<file>i386pnp.S</file>
 				<file>i386trap.S</file>
-				<file>int386.S</file>
-				<file>linux.S</file>
 				<file>mb.S</file>
 			</directory>
 		</if>

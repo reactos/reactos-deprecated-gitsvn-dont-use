@@ -208,7 +208,11 @@ struct _COMPRESSED_DATA_INFO;
 #define ZwCurrentThread() NtCurrentThread()
 
 #if (_M_IX86)
+#ifndef LUSER
 #define KIP0PCRADDRESS                      0xffdff000
+#else
+#define KIP0PCRADDRESS                      0xbfdff000
+#endif
 #endif
 
 #define KERNEL_STACK_SIZE                   12288
@@ -5610,7 +5614,11 @@ NTAPI
 KeGetCurrentThread(
     VOID);
 
+#ifndef LUSER
 #define KI_USER_SHARED_DATA               0xffdf0000
+#else
+#define KI_USER_SHARED_DATA               0xbfdf0000
+#endif
 
 #elif defined(__x86_64__)
 

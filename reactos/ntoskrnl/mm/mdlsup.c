@@ -151,6 +151,7 @@ MmBuildMdlForNonPagedPool(IN PMDL Mdl)
         /* Map it */
         *MdlPages++ = MmGetPfnForProcess(NULL,
                                          (PVOID)((ULONG_PTR)Base + (i * PAGE_SIZE)));
+        DPRINT("MDL: Pfn for %x is %x\n", (ULONG_PTR)Base + (i * PAGE_SIZE), MdlPages[-1]);
     }
     
     /* Set the final flag */

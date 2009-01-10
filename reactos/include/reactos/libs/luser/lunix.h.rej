@@ -1,0 +1,104 @@
+***************
+*** 1,15 ****
+  #ifndef _NTOSKRNL_LUSER_UNIX_H
+  #define _NTOSKRNL_LUSER_UNIX_H
+  
+  #include "sigaction.h"
+  
+  #define O_RDONLY 0
+  #define O_RDWR 2
+  
+  #define SIGTRAP 5
+  #define SIGABRT 6
+  #define SIGSEGV 11
+  #define SIGALRM 14
+  #define SIGIO 29
+  
+  #define PROT_READ 1
+--- 1,55 ----
+  #ifndef _NTOSKRNL_LUSER_UNIX_H
+  #define _NTOSKRNL_LUSER_UNIX_H
+  
++ #include <stdarg.h>
++ 
++ #ifndef _PID_T_
++ #define _PID_T_
++ typedef int pid_t;
++ #endif
++ 
++ #ifndef _CLOCK_T_DEFINED
++ #define _CLOCK_T_DEFINED
++ typedef long clock_t;
++ #endif
++ 
++ #ifndef TIMESPEC_DEFINED
++ #define TIMESPEC_DEFINED
++ struct timespec {
++     time_t tv_sec;
++     long tv_nsec;
++ };
++ #endif
++ 
++ #ifndef _OFF_T_
++ #define _OFF_T_
++ typedef long off_t;
++ #endif
++ 
+  #include "sigaction.h"
+  
++ #undef O_RDONLY
+  #define O_RDONLY 0
++ #undef O_RDWR
+  #define O_RDWR 2
+  
++ #undef SIGILL
++ #define SIGILL 4
++ #undef SIGTRAP
+  #define SIGTRAP 5
++ #undef SIGABRT
+  #define SIGABRT 6
++ #undef SIGBUS
++ #define SIGBUS 7
++ #undef SIGUSR1
++ #define SIGUSR1 10
++ #undef SIGSEGV
+  #define SIGSEGV 11
++ #undef SIGPIPE
++ #define SIGPIPE 13
++ #undef SIGALRM
+  #define SIGALRM 14
++ #undef SIGIO
+  #define SIGIO 29
+  
+  #define PROT_READ 1
+***************
+*** 19,24 ****
+  #define MAP_SHARED 1
+  #define MAP_FIXED 0x10
+  
+  #undef errno
+  extern int errno;
+  
+--- 59,66 ----
+  #define MAP_SHARED 1
+  #define MAP_FIXED 0x10
+  
++ #define MS_SYNC 4
++ 
+  #undef errno
+  extern int errno;
+  
+***************
+*** 74,78 ****
+  int unix_msync(void *addr, size_t len, int flags);
+  int unix_getcontext(ucontext_t *context);
+  void unix_setcontext(const ucontext_t *context);
+  
+  #endif/*_NTOSKRNL_LUSER_UNIX_H*/
+--- 116,121 ----
+  int unix_msync(void *addr, size_t len, int flags);
+  int unix_getcontext(ucontext_t *context);
+  void unix_setcontext(const ucontext_t *context);
++ void unix_nanosleep(struct timespec *ts, struct timespec *ret);
+  
+  #endif/*_NTOSKRNL_LUSER_UNIX_H*/

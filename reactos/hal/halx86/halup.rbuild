@@ -12,6 +12,10 @@
 		<library>hal_generic_up</library>
 		<library>hal_generic_pc</library>
 		<library>ntoskrnl</library>
+                <if property="LUSER" value="1">
+                  <library>luser</library>
+                  <library>libcntpr</library>
+                </if>
 		<directory name="up">
 			<file>halinit_up.c</file>
 			<file>halup.rc</file>

@@ -37,6 +37,8 @@ BOOLEAN CacheInitializeDrive(ULONG DriveNumber)
 	PCACHE_BLOCK	NextCacheBlock;
 	GEOMETRY	DriveGeometry;
 
+        DbgPrint((DPRINT_WARNING, "CacheInitializeDrive %d\n", DriveNumber));
+
 	// If we already have a cache for this drive then
 	// by all means lets keep it, unless it is a removable
 	// drive, in which case we'll invalidate the cache

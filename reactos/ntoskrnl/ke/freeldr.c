@@ -11,6 +11,9 @@
 #include <ntoskrnl.h>
 //#define NDEBUG
 #include <debug.h>
+#ifdef LUSER
+#include <internal/luser/lusersetup.h>
+#endif
 
 #ifdef _M_PPC
 #include <ppcmmu/mmu.h>
@@ -28,6 +31,8 @@ typedef struct _BIOS_MEMORY_DESCRIPTOR
 } BIOS_MEMORY_DESCRIPTOR, *PBIOS_MEMORY_DESCRIPTOR;
 
 /* GLOBALS *******************************************************************/
+
+extern KGDTENTRY KiBootLdt[256];
 
 /* FreeLDR Loader Data */
 PROS_LOADER_PARAMETER_BLOCK KeRosLoaderBlock;

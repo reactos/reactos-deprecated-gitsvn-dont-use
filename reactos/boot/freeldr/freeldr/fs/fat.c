@@ -483,7 +483,7 @@ PVOID FatBufferDirectory(ULONG DirectoryStartCluster, ULONG *DirectorySize, BOOL
 	}
 	else
 	{
-		if (!FatReadClusterChain(DirectoryStartCluster, 0xFFFFFFFF, DirectoryBuffer))
+            if (!FatReadClusterChain(DirectoryStartCluster, *DirectorySize / (SectorsPerCluster * BytesPerSector), DirectoryBuffer))
 		{
 			MmHeapFree(DirectoryBuffer);
 			return NULL;

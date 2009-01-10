@@ -18,6 +18,9 @@
 #pragma alloc_text(INIT, MiInitPageDirectoryMap)
 #endif
 
+#ifdef LUSER
+#define MEMFD 101
+#endif
 
 /* GLOBALS *****************************************************************/
 
@@ -39,8 +42,13 @@
 #define PA_ACCESSED  (1 << PA_BIT_ACCESSED)
 #define PA_GLOBAL    (1 << PA_BIT_GLOBAL)
 
+#ifndef LUSER
 #define HYPERSPACE		(0xc0400000)
 #define IS_HYPERSPACE(v)	(((ULONG)(v) >= HYPERSPACE && (ULONG)(v) < HYPERSPACE + 0x400000))
+#else
+#define HYPERSPACE		(0xa0400000)
+#define IS_HYPERSPACE(v)	(((ULONG)(v) >= HYPERSPACE && (ULONG)(v) < HYPERSPACE + 0x400000))
+#endif
 
 ULONG MmGlobalKernelPageDirectory[1024];
 
@@ -65,8 +73,10 @@ BOOLEAN MmUnmapPageTable(PULONG Pt);
 VOID
 MiFlushTlb(PULONG Pt, PVOID Address)
 {
+    __invlpg(Pt);
     if ((Pt && MmUnmapPageTable(Pt)) || Address >= MmSystemRangeStart)
     {
+        //DPRINT1("INVLPG: %x\n", Address);
         __invlpg(Address);
     }
 }
@@ -343,6 +353,7 @@ MmGetPageTableForProcess(PEPROCESS Process, PVOID Address, BOOLEAN Create)
             }
         }
     }
+    __invlpg(PageDir);
     return (PULONG)MiAddressToPte(Address);
 }
 
@@ -439,7 +450,10 @@ MmRawDeleteVirtualMapping(PVOID Address)
 {
     PULONG Pt;
     
+    __invlpg((PVOID)PAGEDIRECTORY_MAP);
+
     Pt = MmGetPageTableForProcess(NULL, Address, FALSE);
+
     if (Pt && *Pt)
     {
         /*
@@ -515,6 +529,11 @@ MmDeleteVirtualMapping(PEPROCESS Process, PVOID Address, BOOLEAN FreePage,
     {
         *Page = Pfn;
     }
+
+#ifdef LUSER
+    if ((ULONG_PTR)Address >= 0x80000000)
+        __invlpg(Address);
+#endif
 }
 
 VOID
@@ -759,6 +778,17 @@ MmCreateVirtualMappingForKernel(PVOID Address,
             KeBugCheck(MEMORY_MANAGEMENT);
         }
         InterlockedExchangePte(Pt, PFN_TO_PTE(Pages[i]) | Attributes);
+#ifdef LUSER
+        unix_msync((PVOID)Addr, PAGE_SIZE, MS_SYNC);
+        if (unix_mmap
+            ((PVOID)Addr,
+             PAGE_SIZE,
+             PROT_READ|PROT_WRITE|PROT_EXEC,
+             MAP_SHARED|MAP_FIXED,
+             MEMFD,
+             Pages[i] << PAGE_SHIFT) == (ULONG_PTR)-1)
+            unix_abort();
+#endif
     }
     
     return(STATUS_SUCCESS);
@@ -831,6 +861,8 @@ MmCreateVirtualMappingUnsafe(PEPROCESS Process,
     DPRINT("MmCreateVirtualMappingUnsafe(%x, %x, %x, %x (%x), %d)\n",
            Process, Address, flProtect, Pages, *Pages, PageCount);
     
+    __invlpg((PVOID)PAGEDIRECTORY_MAP);
+
     if (Process == NULL)
     {
         if (Address < MmSystemRangeStart)
@@ -896,6 +928,7 @@ MmCreateVirtualMappingUnsafe(PEPROCESS Process,
         {
             MmUnmapPageTable(Pt);
             Pt = MmGetPageTableForProcess(Process, Addr, TRUE);
+	    __invlpg(Pt);
             if (Pt == NULL)
             {
                 KeBugCheck(MEMORY_MANAGEMENT);
@@ -918,6 +951,9 @@ MmCreateVirtualMappingUnsafe(PEPROCESS Process,
             MmMarkPageUnmapped(PTE_TO_PFN((Pte)));
         }
         InterlockedExchangePte(Pt, PFN_TO_PTE(Pages[i]) | Attributes);
+#ifdef LUSER
+        __invlpg(Addr);
+#endif
         if (Pte != 0)
         {
             if (Address > MmSystemRangeStart ||
@@ -1129,6 +1165,23 @@ MmCreateHyperspaceMapping(PFN_TYPE Page)
         }
     }
     Address = (PVOID)((ULONG_PTR)HYPERSPACE + i * PAGE_SIZE);
+#ifdef LUSER
+    __invlpg(Pte);
+    *Pte = Entry;
+    if ((ULONG_PTR)Address > 0x80000000)
+    {
+        unix_msync((PVOID)Address, PAGE_SIZE, MS_SYNC);
+        //DPRINT1("Mapping page %x @ %x\n", Address, Page << PAGE_SHIFT);
+        if (unix_mmap
+            ((PVOID)Address,
+             PAGE_SIZE,
+             PROT_READ|PROT_WRITE|PROT_EXEC,
+             MAP_SHARED|MAP_FIXED,
+             MEMFD,
+             Page << PAGE_SHIFT) == (ULONG_PTR)-1)
+            unix_abort();
+    }
+#endif
     __invlpg(Address);
     return Address;
 }

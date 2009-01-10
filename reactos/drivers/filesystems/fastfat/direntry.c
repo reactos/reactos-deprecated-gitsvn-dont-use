@@ -226,6 +226,7 @@ FATGetNextDirEntry(PVOID *pContext,
                     !CcMapData(pDirFcb->FileObject, &FileOffset, PAGE_SIZE, TRUE, pContext, pPage))
                 {
                     *pContext = NULL;
+                    DPRINT("STATUS_NO_MORE_ENTRIES\n");
                     return STATUS_NO_MORE_ENTRIES;
                 }
 
@@ -253,6 +254,7 @@ FATGetNextDirEntry(PVOID *pContext,
                    !CcMapData(pDirFcb->FileObject, &FileOffset, PAGE_SIZE, TRUE, pContext, pPage))
                 {
                     *pContext = NULL;
+                    DPRINT("STATUS_NO_MORE_ENTRIES\n");
                     return STATUS_NO_MORE_ENTRIES;
                 }
 
@@ -272,10 +274,13 @@ FATGetNextDirEntry(PVOID *pContext,
 
     while (TRUE)
     {
+        DPRINT("fatDirEntry %x\n", fatDirEntry);
+
         if (FAT_ENTRY_END(fatDirEntry))
         {
             CcUnpinData(*pContext);
             *pContext = NULL;
+            DPRINT("STATUS_NO_MORE_ENTRIES\n");
             return STATUS_NO_MORE_ENTRIES;
         }
     
@@ -333,6 +338,9 @@ FATGetNextDirEntry(PVOID *pContext,
                 {
                     DPRINT1("Checksum from long and short name is not equal (short: %x, long: %x, %S)\n",
                         shortCheckSum, CheckSum, DirContext->LongNameU.Buffer);
+                    DPRINT1("LongName:  %wZ\n", &DirContext->LongNameU);
+                    DPRINT1("ShortName: %s\n", fatDirEntry->ShortName);
+                            
                     DirContext->LongNameU.Buffer[0] = 0;
                 }
 

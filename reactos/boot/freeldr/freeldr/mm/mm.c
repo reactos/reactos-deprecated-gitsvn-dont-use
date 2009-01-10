@@ -106,12 +106,16 @@ PVOID MmHeapAlloc(ULONG MemorySize)
 	DbgPrint((DPRINT_MEMORY, "Current alloced %d bytes, free %d bytes, allocs %d, frees %d\n",
 		CurAlloc, TotalFree, NumberOfGets, NumberOfRels));
 
+        DbgPrint((DPRINT_MEMORY, "Allocated %d bytes from %x at %x\n", 
+                  MemorySize, __builtin_return_address(0), Result));
+
 	return Result;
 }
 
 VOID MmHeapFree(PVOID MemoryPointer)
 {
 	// Release the buffer to the pool
+        DbgPrint((DPRINT_MEMORY, "Freeing %x\n", MemoryPointer));
 	brel(MemoryPointer);
 }
 

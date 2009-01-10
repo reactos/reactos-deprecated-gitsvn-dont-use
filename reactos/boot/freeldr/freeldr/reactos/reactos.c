@@ -50,6 +50,7 @@ FrLdrLoadDriver(PCHAR szFileName,
                 INT nPos)
 {
     PFILE FilePointer;
+    PVOID MappedImage;
     CHAR value[256], *FinalSlash;
     LPSTR p;
 
@@ -120,7 +121,8 @@ FrLdrLoadDriver(PCHAR szFileName,
     UiDrawStatusText(value);
 
     /* Load the driver */
-    FrLdrReadAndMapImage(FilePointer, szFileName, 0);
+    MappedImage = FrLdrReadAndMapImage(FilePointer, szFileName, 0);
+    DbgPrint((DPRINT_WARNING, "MODULE: %x %s\n", MappedImage, szFileName));
 
     /* Update status and return */
     UiDrawProgressBarCenter(nPos, 100, szLoadingMsg);
@@ -582,6 +584,8 @@ LoadAndBootReactOS(PCSTR OperatingSystemName)
     PVOID LoadBase;
 	ULONG_PTR Base;
 	ULONG Size;
+    
+        DbgPrint((DPRINT_WARNING,"Loading reactos\n"));
     
     //
     // Backdrop

@@ -94,7 +94,11 @@ _KdbEnter:
 	 * Restore registers including any that might have been changed
 	 * inside the debugger.
 	 */
+#ifndef LUSER
 	popl	%gs		/* Gs */
+#else
+        addl    $4, %esp
+#endif
 	popl	%es		/* Es */
 	popl	%ds		/* Ds */
 	popl	%edx		/* Edx */

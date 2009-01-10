@@ -46,7 +46,8 @@ PspDumpThreads(BOOLEAN IncludeSystem)
                 nThreads++;
 
                 /* Print the Info */
-                DbgPrint("State %d Affinity %08x Priority %d PID.TID %d.%d Name %.8s Stack: \n",
+                DbgPrint("%08x State %d Affinity %08x Priority %d PID.TID %d.%d Name %.8s Stack: \n",
+                         Thread,
                          Thread->Tcb.State,
                          Thread->Tcb.Affinity,
                          Thread->Tcb.Priority,
@@ -67,7 +68,7 @@ PspDumpThreads(BOOLEAN IncludeSystem)
                     DbgPrint("Ebp 0x%.8X\n", Ebp);
 
                     /* Walk it */
-                    while(Ebp != 0 && Ebp >= (PULONG)Thread->Tcb.StackLimit)
+                    while(Ebp > (PULONG)Thread->Tcb.KernelStack && Ebp <= (PULONG)Thread->Tcb.StackLimit)
                     {
                         /* Print what's on the stack */
                         DbgPrint("%.8X %.8X%s", Ebp[0], Ebp[1], (i % 8) == 7 ? "\n" : "  ");

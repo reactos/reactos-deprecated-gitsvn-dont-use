@@ -1,0 +1,247 @@
+/*
+ *  FreeLoader
+ *  Copyright (C) 1998-2002  Brian Palmer  <brianp@sginet.com>
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+	.text
+
+#define ASM
+#define LUSER
+#include <arch.h>
+#include <multiboot.h>
+
+
+/* Multiboot support
+ *
+ * Allows freeldr to be loaded as a "multiboot kernel" by
+ * other boot loaders like Grub
+ */
+
+#define MB_INFO_SIZE                90
+#define MB_INFO_FLAGS_OFFSET        0
+#define MB_INFO_BOOT_DEVICE_OFFSET  12
+#define MB_INFO_COMMAND_LINE_OFFSET 16
+#define CMDLINE_SIZE                256
+
+/*
+ * We want to execute at 0x8000 (to be compatible with bootsector
+ * loading), but Grub only allows loading of multiboot kernels
+ * above 1MB. So we let Grub load us there and then relocate
+ * ourself to 0x8000
+ */
+#define FREELDR_BASE 0x8000
+#define INITIAL_BASE 0x200000
+
+	/* Align 32 bits boundary */
+	.align 4
+	
+	/* Multiboot header */
+MultibootHeader:
+	/* magic */
+	.long MULTIBOOT_HEADER_MAGIC
+	/* flags */
+	.long MULTIBOOT_HEADER_FLAGS
+	/* checksum */
+	.long -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+	/* header_addr */
+	.long INITIAL_BASE + MultibootHeader - FREELDR_BASE
+	/* load_addr */
+	.long INITIAL_BASE
+	/* load_end_addr */
+	.long INITIAL_BASE + __bss_start__ - FREELDR_BASE
+	/* bss_end_addr */
+	.long INITIAL_BASE + __bss_end__ - FREELDR_BASE
+	/* entry_addr */
+	.long INITIAL_BASE + MultibootEntry - FREELDR_BASE
+
+MultibootEntry:
+	/* Copy to low mem */
+	movl	$INITIAL_BASE,%esi
+	movl	$FREELDR_BASE,%edi
+	movl	$(__bss_end__ - FREELDR_BASE),%ecx
+	addl	$3,%ecx
+	shrl	$2,%ecx
+	rep movsl
+
+        /* Setup signal handlers */
+        push %eax
+        push %ebx
+        push %ecx
+        mov $(_SetupLuser - FREELDR_BASE + INITIAL_BASE),%ecx
+        call *%ecx
+        pop %ecx
+        pop %ebx
+        pop %eax
+
+	/* Although the multiboot spec says we should be called with the
+	 * segment registers set to 4GB flat mode, let's be sure and set up
+	 * our own */
+	lgdt	gdtptrhigh + INITIAL_BASE - FREELDR_BASE
+	/* Reload segment selectors */
+	ljmp	$PMODE_CS, $(mb1 + INITIAL_BASE - FREELDR_BASE)
+mb1:
+	movw	$PMODE_DS,%dx
+	movw	%dx,%ds
+	movw	%dx,%es
+
+	/* Check for valid multiboot signature */
+	cmpl	$MULTIBOOT_BOOTLOADER_MAGIC,%eax
+        jne     mbfail
+
+	/* Store multiboot info in a safe place */
+	movl	%ebx,%esi
+	movl	$mb_info,%edi
+	movl	$MB_INFO_SIZE,%ecx
+	rep movsb
+
+	/* Save commandline */
+	movl	MB_INFO_FLAGS_OFFSET(%ebx),%edx
+	testl	$MB_INFO_FLAG_COMMAND_LINE,MB_INFO_FLAGS_OFFSET(%ebx)
+	jz	mb3
+	movl	MB_INFO_COMMAND_LINE_OFFSET(%ebx),%esi
+	movl	$cmdline,%edi
+	movl	$CMDLINE_SIZE,%ecx
+mb2:	lodsb
+	stosb
+	testb	%al,%al
+	jz	mb3
+	dec	%ecx
+	jnz	mb2
+mb3:
+	/* Load the GDT and IDT */
+	lgdt	gdtptr
+	lidt	i386idtptr
+
+	/* Clear prefetch queue & correct CS,
+	 * jump to low mem */
+	ljmp	$PMODE_CS, $mb4
+mb4:
+	/* Reload segment selectors */
+	movw	$PMODE_DS,%dx
+	movw	%dx,%ds
+	movw	%dx,%es
+	movw	%dx,%fs
+	movw	%dx,%ss
+	movl	$STACK32ADDR,%esp
+
+	movl	$mb_info,%ebx
+	/* See if the boot device was passed in */
+	movl	MB_INFO_FLAGS_OFFSET(%ebx),%edx
+	testl	$MB_INFO_FLAG_BOOT_DEVICE,%edx
+	jz	mb5
+	/* Retrieve boot device info */
+	movl	MB_INFO_BOOT_DEVICE_OFFSET(%ebx),%eax
+	shrl	$16,%eax
+	incb	%al
+	movb	%al,_BootPartition
+	movb	%ah,_BootDrive
+	jmp	mb6
+mb5:	/* No boot device known, assume first partition of first harddisk */
+	movb	$0x80,_BootDrive
+	movb	$1,_BootPartition
+mb6:
+	/* Check for command line */
+	mov	$cmdline,%eax
+	testl	$MB_INFO_FLAG_COMMAND_LINE,MB_INFO_FLAGS_OFFSET(%ebx)
+	jnz	mb7
+        call    _unix_abort
+mb7:
+
+	/* GO! */
+	pushl	%eax	
+	call	_BootMain
+        movl    $0,%eax
+        ret
+
+mbfail:
+        call _unix_abort
+        
+	/* 16-bit stack pointer */
+stack16:
+	.word	STACK16ADDR
+
+	/* 32-bit stack pointer */
+stack32:
+	.long	STACK32ADDR
+
+	/* 16-bit return address */
+code16ret:
+	.long	0
+
+	/* 32-bit return address */
+code32ret:
+	.long	0
+
+
+	.p2align	2	/* force 4-byte alignment */
+gdt:
+	/* NULL Descriptor */
+	.word	0x0000
+	.word	0x0000
+	.word	0x0000
+	.word	0x0000
+
+	/* 32-bit flat CS */
+	.word	0xFFFF
+	.word	0x0000
+	.word	0x9A00
+	.word	0x00CF
+
+	/* 32-bit flat DS */
+	.word	0xFFFF
+	.word	0x0000
+	.word	0x9200
+	.word	0x00CF
+
+	/* 16-bit real mode CS */
+	.word	0xFFFF
+	.word	0x0000
+	.word	0x9E00
+	.word	0x0000
+
+	/* 16-bit real mode DS */
+	.word	0xFFFF
+	.word	0x0000
+	.word	0x9200
+	.word	0x0000
+
+/* GDT table pointer */
+gdtptr:
+	.word	0x27		/* Limit */
+	.long	gdt			/* Base Address */
+
+/* Initial GDT table pointer for multiboot */
+gdtptrhigh:
+	.word	0x27		/* Limit */
+	.long	gdt + INITIAL_BASE - FREELDR_BASE	/* Base Address */
+
+/* Real-mode IDT pointer */
+rmode_idtptr:
+	.word	0x3ff		/* Limit */
+	.long	0			/* Base Address */
+
+mb_info:
+	.fill	MB_INFO_SIZE, 1, 0
+
+cmdline:
+	.fill	CMDLINE_SIZE, 1, 0
+
+EXTERN(_BootDrive)
+    .long 0
+    
+EXTERN(_BootPartition)
+    .long 0

@@ -10,6 +10,9 @@
 	<define name="__NO_CTYPE_INLINES" />
 	<define name="WIN9X_COMPAT_SPINLOCK" />
 	<define name="_IN_KERNEL_" />
+        <if property="LUSER" value="1">
+            <define name="LUSER"/>
+        </if>
 	<if property="_WINKD_" value="1">
 		<define name="_WINKD_" />
 	</if>
@@ -32,6 +35,9 @@
 	<library>kdcom</library>
 	<library>bootvid</library>
 	<library>wdmguid</library>
+        <if property="LUSER" value="1">
+          <library>luser</library>
+        </if>
 	<dependency>bugcodes</dependency>
 	<!-- See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=38269
 	<directory name="include">
@@ -44,7 +50,6 @@
 				<file first="true">boot.S</file>
 				<file>abios.c</file>
 				<file>cpu.c</file>
-				<file>ctxswitch.S</file>
 				<file>exp.c</file>
 				<file>irqobj.c</file>
 				<file>kiinit.c</file>
@@ -53,7 +58,10 @@
 				<file>patpge.c</file>
 				<file>systimer.S</file>
 				<file>thrdini.c</file>
+                                <if property="LUSER" value="0">
 				<file>trap.s</file>
+                                  <file>ctxswitch.S</file>
+                                </if>
 				<file>usercall_asm.S</file>
 				<file>usercall.c</file>
 				<file>v86vdm.c</file>
@@ -87,6 +95,12 @@
 				<file>thrdini.c</file>
 				<file>ctxswitch.c</file>
 				<file>ctxhelp.S</file>
+			</directory>
+		</if>
+		<if property="LUSER" value="1">
+			<directory name="luser">
+                                <file>trap.s</file>
+                                <file>ctxswitch.S</file>
 			</directory>
 		</if>
 		<file>apc.c</file>
@@ -345,9 +359,11 @@
 	</directory>
 	<directory name="mm">
 		<if property="ARCH" value="i386">
+			<if property="LUSER" value="0">
 			<directory name="i386">
 				<file>page.c</file>
 			</directory>
+		</if>
 		</if>
 		<if property="ARCH" value="arm">
 			<directory name="arm">
@@ -357,6 +373,11 @@
 		<if property="ARCH" value="powerpc">
 			<directory name="powerpc">
 				<file>pfault.c</file>
+				<file>page.c</file>
+			</directory>
+		</if>
+		<if property="LUSER" value="1">
+			<directory name="luser">
 				<file>page.c</file>
 			</directory>
 		</if>

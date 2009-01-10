@@ -11,7 +11,7 @@
 #include <isapnp.h>
 
 #ifndef NDEBUG
-#define NDEBUG
+//#define NDEBUG
 #endif
 #include <debug.h>
 

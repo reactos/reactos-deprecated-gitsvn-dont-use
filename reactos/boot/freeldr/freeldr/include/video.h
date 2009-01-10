@@ -29,6 +29,28 @@ typedef struct
 } PALETTE_ENTRY, *PPALETTE_ENTRY;
 #include <poppack.h>
 
+#ifdef __i386__
+typedef struct _VESA_CHECK_SVGA_INFO {
+    ULONG VesaMagic;
+    USHORT Version;
+    ULONG OEMName;
+    ULONG Flags;
+    ULONG ModePointer;
+    USHORT VideoMemoryBlocks;
+    // 1.*
+    UCHAR Reserved[236];
+    // 2.0
+    USHORT OEMVersion;
+    ULONG VendorNamePtr;
+    ULONG ProductNamePtr;
+    ULONG ProductRevisionPtr;
+    USHORT VBEVersion;
+    ULONG AccelModePtr;
+    UCHAR VBEReserved[216];
+    UCHAR OEMReserved[256];
+} __attribute__((packed)) VESA_CHECK_SVGA_INFO, *PVESA_CHECK_SVGA_INFO;
+#endif
+
 extern	PVOID	VideoOffScreenBuffer;
 
 USHORT		BiosIsVesaSupported(VOID);						// Implemented in i386vid.c, returns the VESA version

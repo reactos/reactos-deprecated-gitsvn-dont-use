@@ -44,6 +44,7 @@
 
 #define ANYSIZE_ARRAY 1
 
+#ifndef __WINDDK_H
 /* Basic types
    Emulate a LLP64 memory model using a LP64 compiler */
 typedef void VOID, *PVOID;
@@ -58,7 +59,7 @@ typedef unsigned int UINT, *PUINT, *LPUINT, ULONG, *PULONG, DWORD, *LPDWORD;
 typedef long LONG_PTR, *PLONG_PTR, INT_PTR, *PINT_PTR;
 typedef unsigned long ULONG_PTR, DWORD_PTR, *PULONG_PTR, UINT_PTR, *PUINT_PTR;
 typedef long long LONGLONG;
-typedef unsigned long long ULONGLONG;
+typedef unsigned long long ULONGLONG, *PULONGLONG;
 
 /* Derived types */
 typedef PVOID HANDLE, HKEY, *PHKEY;
@@ -226,8 +227,29 @@ typedef const UNICODE_STRING *PCUNICODE_STRING;
 #define RtlCopyMemory(Destination, Source, Length)    memcpy(Destination, Source, Length)
 #define RtlMoveMemory(Destination, Source, Length)    memmove(Destination, Source, Length)
 
+typedef INT CONFIGURATION_TYPE;
+typedef char *LPSTR;
+#ifndef GUID_DEFINED
+#define GUID_DEFINED
+typedef struct _GUID
+{
+#ifdef _MSC_VER
+    unsigned long  Data1;
+#else
+    unsigned int   Data1;
+#endif
+    unsigned short Data2;
+    unsigned short Data3;
+    unsigned char  Data4[ 8 ];
+} GUID;
+#endif
+
+extern char hex[];
+
 /* Prevent inclusion of some other headers */
 #define __INTERNAL_DEBUG
 #define RTL_H
+
+#endif
 
 #endif

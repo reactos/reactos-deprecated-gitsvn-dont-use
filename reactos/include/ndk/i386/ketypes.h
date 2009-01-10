@@ -60,8 +60,13 @@ Author:
 #define KGDT_R3_CODE            0x18
 #define KGDT_R3_DATA            0x20
 #define KGDT_TSS                0x28
+#ifndef LUSER
 #define KGDT_R0_PCR             0x30
 #define KGDT_R3_TEB             0x38
+#else
+#define KGDT_R0_PCR             0x37
+#define KGDT_R3_TEB             0x3f
+#endif
 #define KGDT_LDT                0x48
 #define KGDT_DF_TSS             0x50
 #define KGDT_NMI_TSS            0x58

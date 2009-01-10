@@ -69,6 +69,7 @@ CcMapData (IN PFILE_OBJECT FileObject,
     {
       return(FALSE);
     }
+  DPRINT("Valid: %d\n", Valid);
   if (!Valid)
     {
       if (!(Flags & MAP_WAIT))
@@ -76,6 +77,7 @@ CcMapData (IN PFILE_OBJECT FileObject,
           CcRosReleaseCacheSegment(Bcb, CacheSeg, FALSE, FALSE, FALSE);
 	  return(FALSE);
 	}
+      DPRINT("ReadCacheSegment\n");
       if (!NT_SUCCESS(ReadCacheSegment(CacheSeg)))
 	{
           CcRosReleaseCacheSegment(Bcb, CacheSeg, FALSE, FALSE, FALSE);

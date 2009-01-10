@@ -205,6 +205,7 @@ ReadCacheSegment(PCACHE_SEGMENT CacheSeg)
       Size = CacheSeg->Bcb->CacheSegmentSize;
     }
   Mdl = alloca(MmSizeOfMdl(CacheSeg->BaseAddress, Size));
+  DPRINT("Read cache segment %x\n", CacheSeg->BaseAddress);
   MmInitializeMdl(Mdl, CacheSeg->BaseAddress, Size);
   MmBuildMdlForNonPagedPool(Mdl);
   Mdl->MdlFlags |= MDL_IO_PAGE_READ;

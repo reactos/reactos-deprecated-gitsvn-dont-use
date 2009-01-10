@@ -1131,15 +1131,20 @@ DetectSerialPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
   ULONG Irq[4] = {4, 3, 4, 3};
   ULONG Base;
   CHAR Buffer[80];
+#ifndef LUSER
   PUSHORT BasePtr;
+#endif
   ULONG ControllerNumber = 0;
   PCONFIGURATION_COMPONENT_DATA ControllerKey;
-  ULONG i;
+  ULONG i = 0;
   ULONG Size;
 
   DbgPrint((DPRINT_HWDETECT, "DetectSerialPorts()\n"));
 
   ControllerNumber = 0;
+#ifdef LUSER
+  Base = 0x3f8;
+#else
   BasePtr = (PUSHORT)0x400;
   for (i = 0; i < 4; i++, BasePtr++)
     {
@@ -1151,6 +1156,7 @@ DetectSerialPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
 		"Found COM%u port at 0x%x\n",
 		i + 1,
 		Base));
+#endif
 
       /* Create controller key */
       FldrCreateComponentKey(BusKey,
@@ -1175,7 +1181,11 @@ DetectSerialPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
 	{
 	  DbgPrint((DPRINT_HWDETECT,
 		    "Failed to allocate resource descriptor\n"));
+#ifndef LUSER
 	  continue;
+#else
+          return;
+#endif
 	}
       memset(PartialResourceList, 0, Size);
 
@@ -1231,7 +1241,9 @@ DetectSerialPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
         }
 
       ControllerNumber++;
+#ifndef LUSER
     }
+#endif
 }
 
 
@@ -1243,21 +1255,27 @@ DetectParallelPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
   ULONG Irq[3] = {7, 5, (ULONG)-1};
   CHAR Buffer[80];
   PCONFIGURATION_COMPONENT_DATA ControllerKey;
+#ifndef LUSER
   PUSHORT BasePtr;
+#endif
   ULONG Base;
   ULONG ControllerNumber;
-  ULONG i;
+  ULONG i = 0;
   ULONG Size;
 
   DbgPrint((DPRINT_HWDETECT, "DetectParallelPorts() called\n"));
 
   ControllerNumber = 0;
+#ifndef LUSER
   BasePtr = (PUSHORT)0x408;
   for (i = 0; i < 3; i++, BasePtr++)
     {
       Base = (ULONG)*BasePtr;
       if (Base == 0)
         continue;
+#else
+      Base = 0x378;
+#endif
 
       DbgPrint((DPRINT_HWDETECT,
 		"Parallel port %u: %x\n",
@@ -1288,7 +1306,11 @@ DetectParallelPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
 	{
 	  DbgPrint((DPRINT_HWDETECT,
 		    "Failed to allocate resource descriptor\n"));
+#ifndef LUSER
 	  continue;
+#else
+          return;
+#endif
 	}
       memset(PartialResourceList, 0, Size);
 
@@ -1330,7 +1352,9 @@ DetectParallelPorts(PCONFIGURATION_COMPONENT_DATA BusKey)
 		Buffer));
 
       ControllerNumber++;
+#ifndef LUSER
     }
+#endif
 
   DbgPrint((DPRINT_HWDETECT, "DetectParallelPorts() done\n"));
 }

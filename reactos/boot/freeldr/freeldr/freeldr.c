@@ -22,10 +22,14 @@
 
 VOID BootMain(LPSTR CmdLine)
 {
+        DbgPrint((DPRINT_WARNING, "BootMain(%x) entry.\n", CmdLine));
+        DbgPrint((DPRINT_WARNING, "Command Line %s\n", CmdLine));
 	CmdLineParse(CmdLine);
 
+        DbgPrint((DPRINT_WARNING, "MachInit\n"));
 	MachInit(CmdLine);
 
+        DbgPrint((DPRINT_WARNING, "DebugInit\n"));
 	DebugInit();
 
 	DbgPrint((DPRINT_WARNING, "BootMain() called.\n"));
@@ -42,5 +46,6 @@ VOID BootMain(LPSTR CmdLine)
 		return;
 	}
 
+        DbgPrint((DPRINT_WARNING, "RunLoader\n"));
 	RunLoader();
 }

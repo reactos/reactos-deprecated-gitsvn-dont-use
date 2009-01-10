@@ -7,6 +7,8 @@
 #define LOCK ""
 #endif
 
+#ifndef LUSER
+
 #if defined(__GNUC__)
 
 #define Ke386SetInterruptDescriptorTable(X) \
@@ -411,6 +413,31 @@ Ke386SetEs(IN USHORT Value)
 #else
 #error Unknown compiler for inline assembler
 #endif
+
+#else
+
+#include "libs/luser/luser.h"
+
+#define _Ke386GetSeg(N)           ({ \
+                                     unsigned int __d; \
+                                     __asm__("movl %%" #N ",%0\n\t" :"=r" (__d)); \
+                                     __d; \
+                                 })
+
+#define _Ke386SetSeg(N,X)         __asm__ __volatile__("movl %0,%%" #N : :"r" (X));
+
+//
+// Segment Macros
+//
+#define Ke386GetSs()                _Ke386GetSeg(ss)
+#define Ke386GetFs()                _Ke386GetSeg(fs)
+#define Ke386SetFs(X)               _Ke386SetSeg(fs, X)
+#define Ke386SetDs(X)               _Ke386SetSeg(ds, X)
+#define Ke386SetEs(X)               _Ke386SetSeg(es, X)
+
+#define Ke386HaltProcessor()        __asm__("hlt\n\t");
+
+#endif//LUSER
 
 #endif
 

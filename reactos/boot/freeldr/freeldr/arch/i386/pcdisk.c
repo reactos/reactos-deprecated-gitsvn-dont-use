@@ -28,20 +28,6 @@
 #define PACKED __attribute__((packed))
 #endif
 
-typedef struct
-{
-	UCHAR		PacketSize;				// 00h - Size of packet (10h or 18h)
-	UCHAR		Reserved;				// 01h - Reserved (0)
-	USHORT		LBABlockCount;			// 02h - Number of blocks to transfer (max 007Fh for Phoenix EDD)
-	USHORT		TransferBufferOffset;	// 04h - Transfer buffer offset (seg:off)
-	USHORT		TransferBufferSegment;	//       Transfer buffer segment (seg:off)
-	ULONGLONG		LBAStartBlock;			// 08h - Starting absolute block number
-	//ULONGLONG		TransferBuffer64;		// 10h - (EDD-3.0, optional) 64-bit flat address of transfer buffer
-									//       used if DWORD at 04h is FFFFh:FFFFh
-									//       Commented since some earlier BIOSes refuse to work with
-									//       such extended structure
-} PACKED I386_DISK_ADDRESS_PACKET, *PI386_DISK_ADDRESS_PACKET;
-
 /////////////////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS
 /////////////////////////////////////////////////////////////////////////////////////////////
