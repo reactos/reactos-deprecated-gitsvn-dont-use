@@ -7,7 +7,7 @@ add-symbol-file output-luser/dll/ntdll/ntdll.nostrip.dll 0x7c901000
 set follow-fork-mode child
 handle SIGSEGV noprint nostop pass
 handle SIGBUS noprint nostop pass
-set args -f output-luser/boot/freeldr/freeldr/freeldr.sys -d ../reactos.img -c "/DEBUG /DEBUGPORT=COM1"
+set args -f output-luser/boot/freeldr/freeldr/freeldr.sys -d ../../../reactos.img -c "/DEBUG /DEBUGPORT=COM1"
 
 source modules.gdb
 source luser.gdb

@@ -9,7 +9,7 @@
 /* INCLUDES *****************************************************************/
 
 #include <ntoskrnl.h>
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 /* GLOBALS *****************************************************************/
@@ -332,9 +332,7 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
    {
       MmUnlockAddressSpace(AddressSpace);
    }
-#ifndef LUSER
-   __invlpg(Address);
-#endif
+   __invlpg((PVOID)Address);
    DPRINT("Returning %x\n", Status);
    return(Status);
 }

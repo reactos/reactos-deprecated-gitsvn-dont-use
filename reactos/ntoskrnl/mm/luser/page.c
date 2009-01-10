@@ -150,7 +150,7 @@ WritePTEForProcess(PEPROCESS Process, PVOID Address, ULONG Entry, ULONG Mode)
     HARDWARE_PTE First;
     __sigset_t sigmask = { }, oldmask = { };
 
-    DPRINT1("WritePTEForProcess(CR3 %x,%x,%x,%x,%d)\n", CR3, Process, Address, Entry, Mode);
+    DPRINT("WritePTEForProcess(CR3 %x,%x,%x,%x,%d)\n", CR3, Process, Address, Entry, Mode);
 
     unix_sigprocmask(SIG_SETMASK, NULL, &sigmask);
     sigaddset(&sigmask, SIGIO);

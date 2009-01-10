@@ -77,6 +77,8 @@ void LuserDefaultHandlePageFault(siginfo_t *info, void *addr)
     ucontext_t *ucon = addr;
     ULONG_PTR Address = (ULONG_PTR)info->si_ptr;
 
+    unix_msync((PVOID)PAGE_ROUND_DOWN(Address), PAGE_SIZE, MS_SYNC);
+
 //#if 0
     Printf("Page Fault at %x (addr %x)\n", 
            Address, ucon->uc_mcontext.gregs[REG_EIP]);

@@ -588,7 +588,9 @@ RSetSize ( PR_POOL pool, PR_FREE Block, rulong NewSize, PR_FREE NextBlock )
 	if ( !NextBlock )
 		NextBlock = RNextBlock ( pool, Block );
 	if ( NextBlock )
+        {
 		NextBlock->PrevSize = NewSize;
+        }
 }
 
 static PR_FREE
