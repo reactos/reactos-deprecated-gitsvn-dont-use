@@ -3477,12 +3477,3 @@ static LRESULT WINAPI ListBoxWndProcW( HWND hwnd, UINT msg, WPARAM wParam, LPARA
     return ListBoxWndProc_common( hwnd, msg, wParam, lParam, TRUE );
 }
 
-/***********************************************************************
- *           GetListBoxInfo !REACTOS!
- */
-DWORD WINAPI
-GetListBoxInfo(HWND hwnd)
-{
-  return NtUserGetListBoxInfo(hwnd); // Do it right! Have the message org from kmode!
-}
-

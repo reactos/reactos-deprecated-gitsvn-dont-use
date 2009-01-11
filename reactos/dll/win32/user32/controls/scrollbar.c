@@ -1480,24 +1480,6 @@ ScrollBarWndProcA(HWND Wnd, UINT Msg, WPARAM wParam, LPARAM lParam)
  * @implemented
  */
 BOOL WINAPI
-EnableScrollBar(HWND hWnd, UINT wSBflags, UINT wArrows)
-{
-  return NtUserEnableScrollBar(hWnd, wSBflags, wArrows);
-}
-
-/*
- * @implemented
- */
-BOOL WINAPI
-GetScrollBarInfo(HWND hWnd, LONG idObject, PSCROLLBARINFO psbi)
-{
-  return NtUserGetScrollBarInfo(hWnd, idObject, psbi);
-}
-
-/*
- * @implemented
- */
-BOOL WINAPI
 GetScrollInfo(HWND Wnd, INT SBType, LPSCROLLINFO Info)
 {
   if (SB_CTL == SBType)
@@ -1609,13 +1591,4 @@ SetScrollRange(HWND hWnd, INT nBar, INT nMinPos, INT nMaxPos, BOOL bRedraw)
   NtUserSetScrollInfo(hWnd, nBar, &ScrollInfo, bRedraw);
 
   return TRUE;
-}
-
-/*
- * @implemented
- */
-BOOL WINAPI
-ShowScrollBar(HWND hWnd, INT wBar, BOOL bShow)
-{
-  return NtUserShowScrollBar(hWnd, wBar, bShow);
 }
