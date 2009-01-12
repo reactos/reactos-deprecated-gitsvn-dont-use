@@ -81,25 +81,25 @@ void ZapTLB(unsigned long oldCR, unsigned long newCR)
 {
     int i, j;
     HARDWARE_PTE FirstLevelPTE, SecondLevelPTE;
-    HARDWARE_PTE OldFirstLevel; // OldSecondLevel;
+    HARDWARE_PTE OldFirstLevelPTE;
 
-    for (i = 0; i < (0xbfdf0000 >> 22); i++)
+    for (i = 0; i < (0x80000000 >> 22); i++)
     {
         int addr = i << 22;
 
         FirstLevelPTE = MapGetFirstLevelPTE(i << 22);
         if (!FirstLevelPTE.Valid)
         {
-	    OldFirstLevel = MapGetFirstLevelPTEWithCR(oldCR, i << 22);
-	    if (OldFirstLevel.Valid)
-	    {
-	    	for (j = 0; j < 1024; j++)
-	    	{
-               	    int thisAddr = addr | (j << 12);
-            	    unix_msync((PVOID)thisAddr, PAGE_SIZE, MS_SYNC);
-            	    unix_munmap((PVOID)thisAddr, PAGE_SIZE);
-		}
-	    }
+            OldFirstLevelPTE = MapGetFirstLevelPTEWithCR(oldCR, i << 22);
+            if (OldFirstLevelPTE.Valid)
+            {
+                for (j = 0; j < 1024; j++)
+                {
+                    int thisAddr = addr | (j << 12);
+                    unix_msync((PVOID)thisAddr, PAGE_SIZE, MS_SYNC);
+                }
+            }
+            unix_munmap((PVOID)(i << 22), 1 << 22);
         }
         else
         {
