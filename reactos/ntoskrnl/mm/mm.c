@@ -307,9 +307,7 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
 
          case MEMORY_AREA_SHARED_DATA:
             Pfn = MmSharedDataPagePhysicalAddress.LowPart >> PAGE_SHIFT;
-            DPRINT1("Mapping Pfn %x for shared data\n", Pfn);
             Hyperspace = MmCreateHyperspaceMapping(Pfn);
-            DPRINT1(">> 300 -> %x\n", *((PULONG)((PCHAR)Hyperspace+0x300)));
             MmDeleteHyperspaceMapping(Hyperspace);
             Status =
                MmCreateVirtualMapping(PsGetCurrentProcess(),
@@ -317,7 +315,6 @@ MmNotPresentFault(KPROCESSOR_MODE Mode,
                                       PAGE_READONLY,
                                       &Pfn,
                                       1);
-            DPRINT1("<< 300 -> %x\n", *((PULONG)((PCHAR)(PAGE_ROUND_DOWN(Address))+0x300)));
             break;
 
          default:
