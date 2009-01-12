@@ -86,7 +86,6 @@ void LuserDefaultHandlePageFault(siginfo_t *info, void *addr)
 
     if (ReplacePage(Address, ucon->uc_mcontext.gregs[REG_EIP]))
     {
-        Printf("Returning after successful page replacement (flags %x)\n", ucon->uc_mcontext.gregs[REG_EFL]);
         unix_setcontext(ucon);
     }
 
