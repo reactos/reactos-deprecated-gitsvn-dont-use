@@ -92,7 +92,13 @@ WRITE_PORT_BUFFER_UCHAR(IN PUCHAR Port,
                         IN PUCHAR Buffer,
                         IN ULONG Count)
 {
+#ifndef LUSER
     __outbytestring(H2I(Port), Buffer, Count);
+#else
+    int i;
+    for (i = 0; i < Count; i++)
+        __outbyte(H2I(Port), Buffer[i]);
+#endif
 }
 
 VOID
@@ -101,7 +107,13 @@ WRITE_PORT_BUFFER_USHORT(IN PUSHORT Port,
                          IN PUSHORT Buffer,
                          IN ULONG Count)
 {
+#ifndef LUSER
     __outwordstring(H2I(Port), Buffer, Count);
+#else
+    int i;
+    for (i = 0; i < Count; i++)
+        __outword(H2I(Port), Buffer[i]);
+#endif
 }
 
 VOID
@@ -110,7 +122,13 @@ WRITE_PORT_BUFFER_ULONG(IN PULONG Port,
                         IN PULONG Buffer,
                         IN ULONG Count)
 {
+#ifndef LUSER
     __outdwordstring(H2I(Port), Buffer, Count);
+#else
+    int i;
+    for (i = 0; i < Count; i++)
+        __outdword(H2I(Port), Buffer[i]);
+#endif
 }
 
 VOID
