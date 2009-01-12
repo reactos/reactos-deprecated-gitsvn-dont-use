@@ -221,6 +221,21 @@ void TakeIret(ucontext_t *ucon, int *stackPtr)
         ucon->uc_mcontext.gregs[REG_ESP] = (int)stackPtr;
 }
 
+void ValidateMem
+(ULONG_PTR *page_replace, ULONG_PTR mem, ULONG_PTR eip, ucontext_t *ucon)
+{
+    mem &= ~0xfff;
+    if (*page_replace != mem)
+    {
+        *page_replace = mem;
+        if (!ReplacePage(*page_replace, eip))
+        {
+            Printf("Taking trap for page %x from IN or OUT at %x\n", mem, eip);
+            TakeTrap(14, ucon, 0);
+        }
+    }
+}
+
 int SegTable[8] = {
     REG_ES,
     REG_CS,
@@ -261,7 +276,7 @@ void HandleSpecialInst(siginfo_t *info, void *addr)
     void *mref;
     int repcond = 0;
     int seg_prefix = 0, cdr, reg, cr;
-    int page_replace = 0;
+    unsigned long page_replace = 0;
     ucontext_t *ucon = addr;
     unsigned char *instByte, *repStart = NULL;
     int repEip = 0;
@@ -425,13 +440,11 @@ start:
     {
         int posdir = (ucon->uc_mcontext.gregs[REG_EFL] & DF) ? -1 : 1;
         posdir *= longarg ? 4 : 2;
-        if (page_replace != (ucon->uc_mcontext.gregs[REG_EDI] & ~0xfff))
-        {
-            page_replace = ucon->uc_mcontext.gregs[REG_EDI] & ~0xfff;
-            ReplacePage
-                (page_replace,
-                 ucon->uc_mcontext.gregs[REG_EIP]);
-        }
+        ValidateMem
+            (&page_replace, 
+             ucon->uc_mcontext.gregs[REG_EDI], 
+             ucon->uc_mcontext.gregs[REG_EIP],
+             ucon);
         if (longarg)
             *((ULONG *)ucon->uc_mcontext.gregs[REG_EDI]) =
                 LuserInDWord(ucon->uc_mcontext.gregs[REG_EDX] & 0xffff);
@@ -446,6 +459,11 @@ start:
     case 0x6e: // outs dx,m8
     {
         int posdir = (ucon->uc_mcontext.gregs[REG_EFL] & DF) ? -1 : 1;
+        ValidateMem
+            (&page_replace, 
+             ucon->uc_mcontext.gregs[REG_ESI], 
+             ucon->uc_mcontext.gregs[REG_EIP],
+             ucon);
         LuserOutByte
             (ucon->uc_mcontext.gregs[REG_EDX] & 0xffff, 
              *((char *)ucon->uc_mcontext.gregs[REG_ESI]));
@@ -458,6 +476,11 @@ start:
     {
         int posdir = (ucon->uc_mcontext.gregs[REG_EFL & DF]) ? -1 : 1;
         posdir *= longarg ? 4 : 2;
+        ValidateMem
+            (&page_replace, 
+             ucon->uc_mcontext.gregs[REG_ESI], 
+             ucon->uc_mcontext.gregs[REG_EIP],
+             ucon);
         (longarg ? LuserOutDWord : LuserOutWord)
             (ucon->uc_mcontext.gregs[REG_EDX] & 0xffff,
              *((ULONG *)ucon->uc_mcontext.gregs[REG_ESI]));
