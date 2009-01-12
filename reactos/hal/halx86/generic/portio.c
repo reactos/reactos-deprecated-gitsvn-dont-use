@@ -25,7 +25,13 @@ READ_PORT_BUFFER_UCHAR(IN PUCHAR Port,
                        OUT PUCHAR Buffer,
                        IN ULONG Count)
 {
+#ifndef LUSER
     __inbytestring(H2I(Port), Buffer, Count);
+#else
+    int i;
+    for (i = 0; i < Count; i++)
+        Buffer[i] = __inbyte(H2I(Port));
+#endif
 }
 
 VOID
@@ -34,7 +40,14 @@ READ_PORT_BUFFER_USHORT(IN PUSHORT Port,
                         OUT PUSHORT Buffer,
                         IN ULONG Count)
 {
+#ifndef LUSER
     __inwordstring(H2I(Port), Buffer, Count);
+#else
+    int i;
+    for (i = 0; i < Count; i++)
+        Buffer[i] = __inword(H2I(Port));
+#endif
+
 }
 
 VOID
@@ -43,7 +56,13 @@ READ_PORT_BUFFER_ULONG(IN PULONG Port,
                        OUT PULONG Buffer,
                        IN ULONG Count)
 {
+#ifndef LUSER
     __indwordstring(H2I(Port), Buffer, Count);
+#else
+    int i;
+    for (i = 0; i < Count; i++)
+        Buffer[i] = __indword(H2I(Port));
+#endif
 }
 
 UCHAR
