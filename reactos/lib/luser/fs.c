@@ -279,7 +279,6 @@ HARDWARE_PTE MapGetPTEWithRefresh(ULONG_PTR Addr);
 void LuserInvalidatePage(void *addr)
 {
     ULONG_PTR ptr = PAGE_ROUND_DOWN((ULONG_PTR)addr);
-    Printf("invlpg %x\n", addr);
     unix_msync((void *)ptr, PAGE_SIZE, MS_SYNC);
     MapGetPTEWithRefresh(ptr);
     ReplacePage(ptr, (ULONG_PTR)__builtin_return_address(0));
