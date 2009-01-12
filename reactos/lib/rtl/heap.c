@@ -38,7 +38,7 @@
 #undef LIST_FOR_EACH_SAFE
 #include <wine/list.h>
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 #define TRACE DPRINT
@@ -667,8 +667,6 @@ static BOOL HEAP_InitSubHeap( HEAP *heap, LPVOID address, DWORD flags,
     FREE_LIST_ENTRY *pEntry;
     int i;
     NTSTATUS Status;
-
-    __asm__("int3");
 
     if (!address && ZwAllocateVirtualMemory( NtCurrentProcess(), &address, 0,
                                  &commitSize, MEM_COMMIT, get_protection_type(flags) ))

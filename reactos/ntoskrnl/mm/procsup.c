@@ -10,7 +10,7 @@
 /* INCLUDES *****************************************************************/
 
 #include <ntoskrnl.h>
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 extern ULONG NtMajorVersion;
@@ -289,7 +289,6 @@ MmCreatePeb(PEPROCESS Process)
     DPRINT("MmCreatePeb\n");
 
     /* Allocate the PEB */
-    __asm__("int3");
     Peb = MiCreatePebOrTeb(Process,
                            (PVOID)((ULONG_PTR)MM_HIGHEST_VAD_ADDRESS + 1));
     ASSERT(Peb == (PVOID)0x7FFDF000);
