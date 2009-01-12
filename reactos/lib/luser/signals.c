@@ -39,7 +39,7 @@ BOOLEAN ReplacePage(ULONG_PTR Address, ULONG_PTR addr)
     {
         ULONG_PTR mmap_res;
         Address = PAGE_ROUND_DOWN(Address);
-        Printf("Replacing page %x\n", Address);
+        //Printf("Replacing page %x\n", Address);
         unix_msync((PVOID)Address, PAGE_SIZE, MS_SYNC);
         mmap_res = unix_mmap
             ((PVOID)Address, 
@@ -79,15 +79,18 @@ void LuserDefaultHandlePageFault(siginfo_t *info, void *addr)
 
     unix_msync((PVOID)PAGE_ROUND_DOWN(Address), PAGE_SIZE, MS_SYNC);
 
-//#if 0
+#if 0
     Printf("Page Fault at %x (addr %x)\n", 
            Address, ucon->uc_mcontext.gregs[REG_EIP]);
-//#endif
+#endif
 
     if (ReplacePage(Address, ucon->uc_mcontext.gregs[REG_EIP]))
-        return;
+    {
+        Printf("Returning after successful page replacement (flags %x)\n", ucon->uc_mcontext.gregs[REG_EFL]);
+        unix_setcontext(ucon);
+    }
 
-//#if 0
+#if 0
     HARDWARE_PTE First = MapGetFirstLevelPTE(Address), Second;
     if (!First.Valid)
     {
@@ -102,7 +105,7 @@ void LuserDefaultHandlePageFault(siginfo_t *info, void *addr)
         else
             Printf("PTE for %08x: %08x\n", Address, Second);
     }
-//#endif
+#endif
 
     // Store the address of the instruction that took the trap
     __writecr2(Address);
@@ -185,7 +188,7 @@ void TakeTrap(int trap, ucontext_t *ucon, int skip)
 
     setInterruptsEnabled(&ucon->uc_sigmask, FALSE);
 
-    //Printf("INT#%d Target %x\n", trap, ucon->uc_mcontext.gregs[REG_EIP]);
+    // Printf("INT#%d Target %x\n", trap, ucon->uc_mcontext.gregs[REG_EIP]);
 
     inTrap = FALSE;
     unix_setcontext(ucon);
@@ -382,8 +385,6 @@ start:
             goto start;
 
         case 0xa1: // pop %fs
-            Printf("Pop fs\n");
-            __asm__("int3");
             ucon->uc_mcontext.gregs[REG_FS] = *((int *)ucon->uc_mcontext.gregs[REG_ESP]);
             ucon->uc_mcontext.gregs[REG_ESP] += longarg ? 4 : 2;
             ucon->uc_mcontext.gregs[REG_EIP] += 2;

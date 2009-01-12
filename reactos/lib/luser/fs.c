@@ -121,8 +121,6 @@ void ZapTLB(unsigned long oldCR, unsigned long newCR)
                          MAP_SHARED|MAP_FIXED,
                                  MEMFD,
                          SecondLevelPTE.PageFrameNumber << PAGE_SHIFT);
-                    if (thisAddr < 0x80000000)
-                        Printf("Mapping page %x @ %x\n", SecondLevelPTE.PageFrameNumber, thisAddr);
                     if (mmap_res == (ULONG_PTR)-1)
                         unix_abort();
                 }

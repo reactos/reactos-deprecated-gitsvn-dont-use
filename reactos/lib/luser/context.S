@@ -138,6 +138,11 @@ _unix_setcontext:
 	movl	oEBP(%eax), %ebp
 	movl	oEBX(%eax), %ebx
 	movl	oEDX(%eax), %edx
+        movl    oEFL(%eax), %ecx
+        
+        pushl   %ecx
+        popf
+
 	movl	oECX(%eax), %ecx
 	movl	oEAX(%eax), %eax
 

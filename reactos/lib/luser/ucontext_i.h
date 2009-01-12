@@ -36,6 +36,7 @@
 #define oECX		60
 #define oEAX		64
 #define oEIP		76
+#define oEFL            84
 #define oFPREGS		96
 #define oSIGMASK	108
 #define oFPREGSMEM	236
