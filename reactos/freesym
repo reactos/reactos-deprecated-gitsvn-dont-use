@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./map2sym.awk output-luser/boot/freeldr/freeldr/freeldr.map > freeldr.s
+gcc -g -Ttext=0x8000 -o freeldr.sym freeldr.s  -nostdlib -nostartfiles

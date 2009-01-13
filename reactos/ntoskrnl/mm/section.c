@@ -754,7 +754,6 @@ MiReadPage(PMEMORY_AREA MemoryArea,
       CcRosReleaseCacheSegment(Bcb, CacheSeg, TRUE, FALSE, FALSE);
       MmDeleteHyperspaceMapping(PageAddr);
    }
-   ASSERT(*Page);
    return(STATUS_SUCCESS);
 }
 

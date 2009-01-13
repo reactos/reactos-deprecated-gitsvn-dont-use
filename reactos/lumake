@@ -1,0 +1,12 @@
+#!/bin/sh
+
+make \
+	ARCH=i386 \
+	HOST=mingw32-linux \
+	ROS_BUILDNOSTRIP=yes \
+	ROS_INTERMEDIATE=obj-luser \
+	ROS_OUTPUT=output-luser \
+	ROS_INSTALL=rosluser \
+	ROS_AUTOMAKE=makefile.luser \
+	ROS_RBUILDFLAGS=-rReactOS-i386.rbuild \
+	$*
