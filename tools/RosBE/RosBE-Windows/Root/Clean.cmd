@@ -54,39 +54,50 @@ goto :EOF
 
 :DEL
 
-if not "%ROS_ARCH%" == "" (
-    if exist "obj-%ROS_ARCH%\." (
-        echo Cleaning ReactOS %ROS_ARCH% source directory...
-        if exist "obj-%ROS_ARCH%\." (
-            rd /s /q "obj-%ROS_ARCH%" 1> NUL 2> NUL
-        )
-        if exist "output-%ROS_ARCH%\." (
-            rd /s /q "output-%ROS_ARCH%" 1> NUL 2> NUL
-        )
-        if exist "makefile-%ROS_ARCH%.auto" (
-            del "makefile-%ROS_ARCH%.auto" 1> NUL 2> NUL
-        )
-        echo Done cleaning ReactOS %ROS_ARCH% source directory.
+::
+:: Apply modified obj and out paths for deletion.
+::
+
+if "%_ROSBE_OBJPATH%" == "" (
+    if not "%ROS_ARCH%" == "" (
+        set _ROSBE_OBJCLEANPATH=obj-%ROS_ARCH%
     ) else (
-        echo ERROR: There is no %ROS_ARCH% compiler output to clean.
+        set _ROSBE_OBJCLEANPATH=obj-i386
     )
-    goto :ROS
+) else (
+    set _ROSBE_OBJCLEANPATH=%_ROSBE_OBJPATH%
 )
 
-if exist "obj-i386\." (
-    echo Cleaning ReactOS i386 source directory...
-    if exist "obj-i386\." (
-        rd /s /q "obj-i386" 1> NUL 2> NUL
+if "%_ROSBE_OUTPATH%" == "" (
+    if not "%ROS_ARCH%" == "" (
+        set _ROSBE_OUTCLEANPATH=output-%ROS_ARCH%
+    ) else (
+        set _ROSBE_OUTCLEANPATH=output-i386
     )
-    if exist "output-i386\." (
-        rd /s /q "output-i386" 1> NUL 2> NUL
-    )
-    if exist "makefile.auto" (
-        del "makefile.auto" 1> NUL 2> NUL
-    )
-    echo Done cleaning ReactOS i386 source directory.
 ) else (
-    echo ERROR: There is no i386 compiler output to clean.
+    set _ROSBE_OUTCLEANPATH=%_ROSBE_OUTPATH%
+)
+
+if not "%ROS_ARCH%" == "" (
+    set _ROSBE_MAKEFILE=makefile-%ROS_ARCH%.auto
+) else (
+    set _ROSBE_MAKEFILE=makefile.auto
+)
+
+if exist "%_ROSBE_OBJCLEANPATH%\." (
+    echo Cleaning ReactOS %ROS_ARCH% source directory...
+    if exist "%_ROSBE_OBJCLEANPATH%\." (
+        rd /s /q "%_ROSBE_OBJCLEANPATH%" 1> NUL 2> NUL
+    )
+    if exist "%_ROSBE_OUTCLEANPATH%\." (
+        rd /s /q "%_ROSBE_OUTCLEANPATH%" 1> NUL 2> NUL
+    )
+    if exist "%_ROSBE_MAKEFILE%" (
+        del "%_ROSBE_MAKEFILE%" 1> NUL 2> NUL
+    )
+    echo Done cleaning ReactOS %ROS_ARCH% source directory.
+) else (
+    echo ERROR: There is no %ROS_ARCH% compiler output to clean.
 )
 
 :ROS
@@ -101,3 +112,10 @@ goto :EOF
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
+
+::
+:: Unload all used Vars.
+::
+set _ROSBE_OBJCLEANPATH=
+set _ROSBE_OUTCLEANPATH=
+set _ROSBE_MAKEFILE=
