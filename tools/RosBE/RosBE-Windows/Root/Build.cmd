@@ -91,7 +91,6 @@ if defined _ROSBE_OUTPATH (
     )
     set ROS_OUTPUT=%_ROSBE_OUTPATH%
     set ROS_TEMPORARY=%_ROSBE_OUTPATH%
-    )
 )
 
 ::
