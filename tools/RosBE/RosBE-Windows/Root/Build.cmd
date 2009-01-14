@@ -81,19 +81,16 @@ if not "%ROS_ARCH%" == "" (
 ::
 if defined _ROSBE_OBJPATH (
     if not exist "%_ROSBE_OBJPATH%\." (
-        echo ERROR: The Object-Path specified doesn't seem to exist.
-        goto :EOC
-    ) else (
-        set ROS_INTERMEDIATE=%_ROSBE_OBJPATH%
+        echo WARNING: The Object-Path specified doesn't seem to exist. Creating...
     )
+    set ROS_INTERMEDIATE=%_ROSBE_OBJPATH%
 )
 if defined _ROSBE_OUTPATH (
     if not exist "%_ROSBE_OUTPATH%\." (
-        echo ERROR: The Output-Path specified doesn't seem to exist.
-        goto :EOC
-    ) else (
-        set ROS_OUTPUT=%_ROSBE_OUTPATH%
-        set ROS_TEMPORARY=%_ROSBE_OUTPATH%
+        echo WARNING: The Output-Path specified doesn't seem to exist. Creating...
+    )
+    set ROS_OUTPUT=%_ROSBE_OUTPATH%
+    set ROS_TEMPORARY=%_ROSBE_OUTPATH%
     )
 )
 
