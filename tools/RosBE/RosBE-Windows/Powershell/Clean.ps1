@@ -57,6 +57,10 @@ function rembin {
         $_ROSBE_MAKEFILE = "makefile.auto"
     }
 
+    if ($ENV:ROS_ARCH -eq $null) {
+        $ENV:ROS_ARCH = "i386"
+    }
+
     if (Test-Path "$_ROSBE_OBJCLEANPATH\.") {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
         if (Test-Path "$_ROSBE_OBJCLEANPATH\.") {
@@ -71,6 +75,10 @@ function rembin {
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
         "ERROR: There is no $ENV:ROS_ARCH compiler output to clean."
+    }
+
+    if ($ENV:ROS_ARCH -eq "i386") {
+        $ENV:ROS_ARCH = $null
     }
 
     if (Test-Path "reactos") {

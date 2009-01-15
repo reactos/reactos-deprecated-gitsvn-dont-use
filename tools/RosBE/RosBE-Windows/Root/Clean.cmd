@@ -84,6 +84,10 @@ if not "%ROS_ARCH%" == "" (
     set _ROSBE_MAKEFILE=makefile.auto
 )
 
+if "%ROS_ARCH%" == "" (
+    set ROS_ARCH=i386
+)
+
 if exist "%_ROSBE_OBJCLEANPATH%\." (
     echo Cleaning ReactOS %ROS_ARCH% source directory...
     if exist "%_ROSBE_OBJCLEANPATH%\." (
@@ -98,6 +102,10 @@ if exist "%_ROSBE_OBJCLEANPATH%\." (
     echo Done cleaning ReactOS %ROS_ARCH% source directory.
 ) else (
     echo ERROR: There is no %ROS_ARCH% compiler output to clean.
+)
+
+if "%ROS_ARCH%" == "i386" (
+    set ROS_ARCH=
 )
 
 :ROS
