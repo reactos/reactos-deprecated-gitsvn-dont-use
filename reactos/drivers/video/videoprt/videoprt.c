@@ -563,6 +563,7 @@ VideoPortInitialize(
 
    if (HwInitializationData->HwInitDataSize > sizeof(VIDEO_HW_INITIALIZATION_DATA))
    {
+       TRACE_(VIDEOPRT, "VideoPortInitialize\n");
       return STATUS_REVISION_MISMATCH;
    }
 
@@ -570,6 +571,7 @@ VideoPortInitialize(
        HwInitializationData->HwInitialize == NULL ||
        HwInitializationData->HwStartIO == NULL)
    {
+       TRACE_(VIDEOPRT, "VideoPortInitialize\n");
       return STATUS_INVALID_PARAMETER;
    }
 

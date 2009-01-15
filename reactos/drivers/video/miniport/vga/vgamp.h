@@ -36,6 +36,11 @@
 #include "video.h"
 #include "vgavideo.h"
 
+#define DPRINT1(x...) do { \
+    DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+    DbgPrint(x); \
+    } while(0)
+
 #define UNIMPLEMENTED \
    VideoPortDebugPrint(Error, "WARNING:  %s at %s:%d is UNIMPLEMENTED!\n",__FUNCTION__,__FILE__,__LINE__);
 

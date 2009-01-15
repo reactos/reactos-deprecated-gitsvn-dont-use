@@ -202,6 +202,7 @@ VideoPortInt10(
     IN PVOID HwDeviceExtension,
     IN PVIDEO_X86_BIOS_ARGUMENTS BiosArguments)
 {
+#ifndef LUSER
     CONTEXT BiosContext;
     NTSTATUS Status;
     PKPROCESS CallingProcess = (PKPROCESS)PsGetCurrentProcess();
@@ -243,4 +244,7 @@ VideoPortInt10(
     IntDetachFromCSRSS(&CallingProcess, &ApcState);
 
     return Status;
+#else
+    return STATUS_UNSUCCESSFUL;
+#endif
 }

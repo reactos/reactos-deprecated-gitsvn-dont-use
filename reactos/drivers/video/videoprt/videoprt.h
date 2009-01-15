@@ -37,6 +37,17 @@
 
 #include <debug.h>
 
+#undef TRACE_
+#define TRACE_(x,y...) do { \
+        DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+        DbgPrint(y); \
+    } while(0)
+#undef INFO_
+#define INFO_(x,y...) do { \
+        DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+        DbgPrint(y); \
+    } while(0)
+
 #define TAG_VIDEO_PORT  TAG('V', 'I', 'D', 'P')
 #define TAG_VIDEO_PORT_BUFFER  TAG('V', 'p', 'm', '\0' )
 

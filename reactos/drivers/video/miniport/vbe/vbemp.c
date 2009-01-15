@@ -184,6 +184,8 @@ VBEInitialize(PVOID HwDeviceExtension)
     * mode memory and calling the video BIOS.
     */
 
+   DPRINT1("VBEInitialize\n");
+
    VBEDeviceExtension->Int10Interface.Version = VIDEO_PORT_INT10_INTERFACE_VERSION_1;
    VBEDeviceExtension->Int10Interface.Size = sizeof(VIDEO_PORT_INT10_INTERFACE);
    Status = VideoPortQueryServices(

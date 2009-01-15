@@ -38,6 +38,11 @@
 #define TAG(A, B, C, D) (ULONG)(((A)<<0) + ((B)<<8) + ((C)<<16) + ((D)<<24))
 #define TAG_VBE TAG('V', 'B', 'E', ' ')
 
+#define DPRINT1(x...) do { \
+    DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+    DbgPrint(x); \
+    } while(0)
+
 /*
  * Compile-time define to get VBE 1.2 support. The implementation
  * is far from complete now and so it's left undefined.

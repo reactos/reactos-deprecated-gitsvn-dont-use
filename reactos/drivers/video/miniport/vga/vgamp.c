@@ -167,6 +167,8 @@ VGAStartIO(PVOID DeviceExtension,
 {
   BOOLEAN Result;
 
+  DPRINT1("VGAInitialize\n");
+
   RequestPacket->StatusBlock->Status = ERROR_INVALID_FUNCTION;
 
   switch (RequestPacket->IoControlCode)
