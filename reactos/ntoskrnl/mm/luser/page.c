@@ -90,13 +90,12 @@ VOID
 WritePDE(ULONG_PTR Table, ULONG Entry, ULONG Value, BOOLEAN Global)
 {
     DPRINT("WritePDE(%x,%x,%x)\n", Table, Entry, Value);
-    unix_lseek(MEMFD, (Table & ~0xfff) + Entry * sizeof(LONG), 0);
-    unix_write(MEMFD, (char *)&Value, sizeof(Value));
     if (Global)
     {
         MmGlobalKernelPageDirectory[Entry] = Value;
-        unix_msync(MmGlobalKernelPageDirectory, PAGE_SIZE, MS_SYNC);
     }
+    unix_lseek(MEMFD, (Table & ~0xfff) + Entry * sizeof(LONG), 0);
+    unix_write(MEMFD, (char *)&Value, sizeof(Value));
 }
 
 NTSTATUS
@@ -129,23 +128,23 @@ static ULONG MmGetPageEntryForProcess(PEPROCESS Process, PVOID Address)
 {
     HARDWARE_PTE First, Second;
     ULONG PageEntry;
-    First = MapGetFirstLevelPTEWithCR(GetCR3ForProcess(Process), (ULONG_PTR)Address);
-    if (!First.Valid)
-    {
-        First = *((HARDWARE_PTE*)&MmGlobalKernelPageDirectory[((ULONG_PTR)Address >> 22) & 0x3ff]);
-        // No main mapping either
-        if (!First.Valid) return 0;
-    }
+
+    if (Address >= MmSystemRangeStart)
+        memcpy(&First, &MmGlobalKernelPageDirectory[((ULONG_PTR)Address >> 22) & 0x3ff], sizeof(ULONG));
+    
+    else
+        First = MapGetFirstLevelPTEWithCR(GetCR3ForProcess(Process), (ULONG_PTR)Address);
+
     Second = MapGetSecondLevelPTE(First, (ULONG_PTR)Address);
     PageEntry = *((PULONG)&Second);
-    DPRINT("MmGetPageEntryForProcess(%x,%x) => %x\n", Process, Address, PageEntry);
+    DPRINT("MmGetPageEntryForProcess(%x,%x) => %x (from %x)\n", Process, Address, PageEntry, __builtin_return_address(0));
     return PageEntry;
 }
 
 VOID
 WritePTEForProcess(PEPROCESS Process, PVOID Address, ULONG Entry, ULONG Mode)
 {
-    ULONG Pte, CR3 = GetCR3ForProcess(Process), PDEntry;
+    ULONG Pte, CR3 = GetCR3ForProcess(Process);
     PFN_TYPE Pde;
     HARDWARE_PTE First;
     __sigset_t sigmask = { }, oldmask = { };
@@ -156,8 +155,11 @@ WritePTEForProcess(PEPROCESS Process, PVOID Address, ULONG Entry, ULONG Mode)
     sigaddset(&sigmask, SIGIO);
     unix_sigprocmask(SIG_SETMASK, &sigmask, &oldmask);
     
-    First = MapGetFirstLevelPTEWithCR(CR3, (ULONG_PTR)Address);
-    PDEntry = (((ULONG_PTR)Address) >> 22) & 0x3ff;
+    if (Address >= MmSystemRangeStart)
+        memcpy(&First, &MmGlobalKernelPageDirectory[((ULONG_PTR)Address >> 22) & 0x3ff], sizeof(ULONG));
+    
+    else
+        First = MapGetFirstLevelPTEWithCR(GetCR3ForProcess(Process), (ULONG_PTR)Address);
 
     if (!First.Valid)
     {
@@ -166,12 +168,6 @@ WritePTEForProcess(PEPROCESS Process, PVOID Address, ULONG Entry, ULONG Mode)
         First = MapGetFirstLevelPTEWithCR(CR3, (ULONG_PTR)Address);
         if (!First.Valid)
             unix_abort();
-    }
-
-    if (Address >= MmSystemRangeStart)
-    {
-        MmGlobalKernelPageDirectory[PDEntry] = *((PULONG)&First);
-        unix_msync(MmGlobalKernelPageDirectory, PAGE_SIZE, MS_SYNC);
     }
 
     Pte = MmGetPageEntryForProcess(Process, Address);
@@ -186,15 +182,6 @@ WritePTEForProcess(PEPROCESS Process, PVOID Address, ULONG Entry, ULONG Mode)
 
     unix_sigprocmask(SIG_SETMASK, &oldmask, NULL);
 }
-
-#if 0
-VOID
-MiFlushTlb(PVOID Address)
-{
-    DPRINT("Zap -> %x\n", Address);
-    __invlpg(Address);
-}
-#endif
 
 PULONG
 MmGetPageDirectory(VOID)
@@ -543,9 +530,9 @@ Mmi386MakeKernelPageTableGlobal(PVOID PAddress)
         if (!NT_SUCCESS(Status))
             KeBugCheck(MEMORY_MANAGEMENT);
         MmGlobalKernelPageDirectory[Offset] = PFN_TO_PTE(Page) | PA_PRESENT | PA_READWRITE;
-        unix_msync(MmGlobalKernelPageDirectory, PAGE_SIZE, MS_SYNC);
-        WritePDE(CR3, Offset, MmGlobalKernelPageDirectory[Offset], FALSE);
     }
+
+    WritePDE(CR3, Offset, MmGlobalKernelPageDirectory[Offset], FALSE);
 
     unix_sigprocmask(SIG_SETMASK, &oldmask, NULL);
     
@@ -648,11 +635,15 @@ MmCreateVirtualMappingForKernel(PVOID Address,
 
             if (!NT_SUCCESS(Status))
                 KeBugCheck(MEMORY_MANAGEMENT);
+
+            
+            First = *((HARDWARE_PTE*)&MmGlobalKernelPageDirectory[(((ULONG_PTR)Addr) >> 22) & 0x3ff]);
+            if (!First.Valid)
+                unix_abort();
         }
         WritePTEForProcess(NULL, Addr, Attributes | (Pages[i] << PAGE_SHIFT), PTE_MODE_REPLACE);
         DPRINT("Hard mapping %x to %x\n", Addr, Pages[i]<<PAGE_SHIFT);
         unix_msync(Addr, PAGE_SIZE, MS_SYNC);
-        unix_munmap(Addr, PAGE_SIZE);
         Result = unix_mmap(Addr,
                   PAGE_SIZE,
                   PROT_READ|PROT_WRITE|PROT_EXEC,
@@ -814,6 +805,7 @@ MmCreateVirtualMapping(PEPROCESS Process,
         if (!MmIsPageInUse(Pages[i]))
         {
             DPRINT1("Page at address %x not in use\n", PFN_TO_PTE(Pages[i]));
+            unix_abort();
             KeBugCheck(MEMORY_MANAGEMENT);
         }
     }
@@ -1055,9 +1047,9 @@ MmInitGlobalKernelPageDirectory(VOID)
                 MmGlobalKernelPageDirectory[i] |= PA_GLOBAL;
                 CurrentPageDirectory[i] |= PA_GLOBAL;
             }
-            unix_msync(MmGlobalKernelPageDirectory, PAGE_SIZE, MS_SYNC);
         }
     }
+    unix_msync(CurrentPageDirectory, PAGE_SIZE, MS_SYNC);
 }
 
 VOID
@@ -1108,23 +1100,6 @@ VOID
 NTAPI
 MmUpdatePageDir(PEPROCESS Process, PVOID Address, ULONG Size)
 {
-    ULONG CR3 = __readcr3(), i;
-    ULONG_PTR Start = ADDR_TO_PDE_OFFSET(Address);
-    ULONG_PTR End = ADDR_TO_PDE_OFFSET((PVOID)(Start + Size));
-
-    //DPRINT("MmUpdatePageDir(%x,%x,%x)\n", Process, Address, Size);
-
-    if (Address < MmSystemRangeStart)
-    {
-        KeBugCheck(MEMORY_MANAGEMENT);
-    }
-
-    for (i = Start; i < End; i++)
-    {
-        WritePDE(CR3, i, MmGlobalKernelPageDirectory[i], (PVOID)i > MmSystemRangeStart);
-    }
-    
-    //DPRINT("Page Dir updated!\n");
 }
 
 /* EOF */

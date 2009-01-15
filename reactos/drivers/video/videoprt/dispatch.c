@@ -22,6 +22,9 @@
 
 #include "videoprt.h"
 
+#undef TRACE_
+#define TRACE_(x,y...) DbgPrint("VIDEOPRT: ", y)
+
 /* GLOBAL VARIABLES ***********************************************************/
 
 PVIDEO_PORT_DEVICE_EXTENSION ResetDisplayParametersDeviceExtension = NULL;

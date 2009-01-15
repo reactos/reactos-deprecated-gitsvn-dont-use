@@ -12,7 +12,7 @@
 
 #include <csrss.h>
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 /* GLOBALS ******************************************************************/
@@ -190,7 +190,9 @@ CsrpInitVideo (int argc, char ** argv, char ** envp)
 
   DPRINT("CSR: %s called\n", __FUNCTION__);
 
+#ifndef LUSER
   InitializeVideoAddressSpace();
+#endif
 
   InitializeObjectAttributes(&ObjectAttributes,
 			     &DeviceName,
@@ -730,6 +732,7 @@ CsrServerInitialization (
 
 	for (i=0; i < (sizeof InitRoutine / sizeof InitRoutine[0]); i++)
 	{
+            DPRINT1("Calling CSR Init %x: %s\n", InitRoutine[i].EntryPoint, InitRoutine[i].ErrorMessage);
 		Status = InitRoutine[i].EntryPoint(argc,argv,envp);
 		if(!NT_SUCCESS(Status))
 		{

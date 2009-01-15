@@ -6,6 +6,9 @@
 		<include base="csrss">include</include>
 		<include base="ReactOS">include/reactos/subsys</include>
 		<include base="ReactOS">include/reactos/drivers</include>
+                <if property="LUSER" value="1">
+                  <define name="LUSER"/>
+                </if>
 		<library>nt</library>
 		<library>ntdll</library>
 		<library>smdll</library>

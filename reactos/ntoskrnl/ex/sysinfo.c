@@ -1541,6 +1541,8 @@ SSI_DEF(SystemExtendServiceTableInformation)
     ImageName = *(PUNICODE_STRING)Buffer;
 
     /* Load the image */
+    DPRINT1("MmLoadSystemImage(%wZ)\n", &ImageName);
+    __asm__("int3");
     Status = MmLoadSystemImage(&ImageName,
                                NULL,
                                NULL,
@@ -1850,6 +1852,7 @@ NtQuerySystemInformation(IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
         /*
          * Check the request is valid.
          */
+        DPRINT1("SystemInformationClass %d\n", SystemInformationClass);
         if (SystemInformationClass >= MAX_SYSTEM_INFO_CLASS)
         {
             _SEH2_YIELD(return STATUS_INVALID_INFO_CLASS);

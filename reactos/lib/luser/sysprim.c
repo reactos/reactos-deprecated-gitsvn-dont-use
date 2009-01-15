@@ -67,11 +67,8 @@ int unix_kill(int pid, int signal)
     return syscall(__NR_kill, pid, signal);
 }
 
-void MapDump();
-
 void unix_abort()
 {
-    MapDump();
     Printf("abort() called from %x\n", __builtin_return_address(0));
     unix_kill(unix_getpid(), SIGABRT);
 }
