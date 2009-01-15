@@ -10,5 +10,6 @@
 	$supported_languages = array(
 		"en" => "English",
 		"de" => "Deutsch (German)",
+		"pl" => "Polski (Polish)",
 	);
 ?>
