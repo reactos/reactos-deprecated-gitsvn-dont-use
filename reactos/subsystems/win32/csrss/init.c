@@ -113,11 +113,13 @@ CallInitComplete(void)
     {
       for (i = 0; i < InitCompleteProcCount && Ok; i++)
         {
+          DPRINT("CSR: Calling init complete proc %d %x\n", i, InitCompleteProcs[i]);
           Ok = (*(InitCompleteProcs[i]))();
         }
       RtlFreeHeap(CsrssApiHeap, 0, InitCompleteProcs);
     }
 
+  DPRINT("CSR: %s done\n", __FUNCTION__);
   return Ok;
 }
 
@@ -659,6 +661,7 @@ CsrpRunWinlogon (int argc, char ** argv, char ** envp)
 				   NULL,
 				   NULL);
 	/* Create the winlogon process */
+        DPRINT("CSR: Creating process %wZ [%wZ]\n", &ImagePath, &CommandLine);
 	Status = RtlCreateUserProcess (& ImagePath,
 				       OBJ_CASE_INSENSITIVE,
 				       ProcessParameters,
@@ -676,7 +679,9 @@ CsrpRunWinlogon (int argc, char ** argv, char ** envp)
 		DPRINT1("SM: %s: loading winlogon.exe failed (Status=%08lx)\n",
 				__FUNCTION__, Status);
 	}
-   ZwResumeThread(ProcessInfo.ThreadHandle, NULL);
+        DPRINT("CSR: ZwResumeThread -- hmm\n");
+        ZwResumeThread(ProcessInfo.ThreadHandle, NULL);
+        DPRINT("CSR: Returning %x\n", Status);
 	return Status;
 }
 
@@ -748,7 +753,9 @@ CsrServerInitialization (
 	}
 	if (CallInitComplete())
 	{
+                DPRINT1("Calling SmCompleteSession\n");
 		Status = SmCompleteSession (hSmApiPort,hSbApiPort,hApiPort);
+                DPRINT1("SmCompleteSession %x\n", Status);
 		return TRUE;
 	}
 	return FALSE;

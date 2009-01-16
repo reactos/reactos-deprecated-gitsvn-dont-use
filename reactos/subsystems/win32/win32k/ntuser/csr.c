@@ -9,7 +9,7 @@
 
 #include <w32k.h>
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 static HANDLE WindowsApiPort = NULL;
@@ -21,24 +21,35 @@ CsrInit(void)
    NTSTATUS Status;
    UNICODE_STRING PortName;
    ULONG ConnectInfoLength;
+   SECURITY_QUALITY_OF_SERVICE Qos;
 
+   DPRINT("CsrInit started\n");
    RtlInitUnicodeString(&PortName, L"\\Windows\\ApiPort");
    ConnectInfoLength = 0;
+   DPRINT("\n");
+   Qos.Length = sizeof(Qos);
+   Qos.ImpersonationLevel = SecurityDelegation;
+   Qos.ContextTrackingMode = SECURITY_STATIC_TRACKING;
+   Qos.EffectiveOnly = FALSE;
+   __asm__("int3");
    Status = ZwConnectPort(&WindowsApiPort,
                           &PortName,
-                          NULL,
+                          &Qos,
                           NULL,
                           NULL,
                           NULL,
                           NULL,
                           &ConnectInfoLength);
+   DPRINT("\n");
    if (! NT_SUCCESS(Status))
    {
+      DPRINT("%x\n", Status);
       return Status;
    }
 
    CsrProcess = PsGetCurrentProcess();
 
+   DPRINT("CsrInit done (process %x)\n", CsrProcess);
    return STATUS_SUCCESS;
 }
 

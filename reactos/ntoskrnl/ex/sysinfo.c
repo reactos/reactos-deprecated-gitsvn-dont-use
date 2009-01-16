@@ -11,7 +11,7 @@
 /* INCLUDES *****************************************************************/
 
 #include <ntoskrnl.h>
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 VOID MmPrintMemoryStatistic(VOID);
@@ -1293,7 +1293,6 @@ SSI_DEF(SystemLoadGdiDriverInformation)
 
     /* Load the driver */
     ImageName = DriverInfo->DriverName;
-    DPRINT("Loading GDI Driver %wZ\n", &ImageName);
     Status = MmLoadSystemImage(&ImageName,
                                NULL,
                                NULL,
@@ -1546,8 +1545,6 @@ SSI_DEF(SystemExtendServiceTableInformation)
     ImageName = *(PUNICODE_STRING)Buffer;
 
     /* Load the image */
-    DPRINT1("MmLoadSystemImage(%wZ)\n", &ImageName);
-    __asm__("int3");
     Status = MmLoadSystemImage(&ImageName,
                                NULL,
                                NULL,

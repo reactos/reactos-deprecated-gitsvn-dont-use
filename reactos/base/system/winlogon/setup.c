@@ -14,6 +14,12 @@
 
 WINE_DEFAULT_DEBUG_CHANNEL(winlogon);
 
+#undef TRACE
+#define TRACE(x...) do { \
+    DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+    DbgPrint(x); \
+    } while(0)
+
 /* FUNCTIONS ****************************************************************/
 
 DWORD

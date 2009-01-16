@@ -47,6 +47,7 @@ int _cdecl _main(int argc,
 	/*
 	 * Terminate the current thread only.
 	 */
+        DPRINT1("CsrServerInitialization done: terminating thread\n");
 	Status = NtTerminateThread (NtCurrentThread(), 0);
      }
    else
@@ -57,6 +58,7 @@ int _cdecl _main(int argc,
 	 */
 	Status = NtTerminateProcess (NtCurrentProcess(), 0);
      }
+   DPRINT1("Done with _main\n");
    return (int) Status;
 }
 

@@ -2,6 +2,7 @@
 add-symbol-file output-luser/ntoskrnl/ntoskrnl.nostrip.exe 0x80801000
 add-symbol-file output-luser/drivers/base/bootvid/bootvid.nostrip.dll 0x80b04000
 add-symbol-file output-luser/hal/halx86/hal.nostrip.dll 0x80b12000
+add-symbol-file output-luser/subsystems/win32/win32k/win32k.nostrip.sys 0x9e296000
 #add-symbol-file output-luser/drivers/base/kdcom/kdcom.nostrip.dll 0x80b2e000
 add-symbol-file output-luser/dll/ntdll/ntdll.nostrip.dll 0x7c901000
 add-symbol-file output-luser/dll/win32/smdll/smdll.nostrip.dll 0x6b3b1000
