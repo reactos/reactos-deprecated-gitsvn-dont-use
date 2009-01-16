@@ -31,6 +31,23 @@
 
 //#define EXPERIMENTAL_MOUSE_CURSOR_SUPPORT
 
+#ifdef LUSER
+void Printf(const char *fmt, ...);
+#undef NDEBUG
+#ifndef NDEBUG
+#define DPRINT(y...) do {                     \
+    Printf("(%s:%d) ", __FILE__, __LINE__); \
+    Printf(y); \
+    } while(0)
+#else
+#define DPRINT
+#endif
+#define DPRINT1(y...) do {                    \
+    Printf("(%s:%d) ", __FILE__, __LINE__); \
+    Printf(y); \
+    } while(0)
+#endif
+
 typedef struct _PDEV
 {
    HANDLE hDriver;

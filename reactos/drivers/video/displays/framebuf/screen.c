@@ -130,6 +130,7 @@ IntInitScreenInfo(
    ModeCount = GetAvailableModes(ppdev->hDriver, &ModeInfo, &ModeInfoSize);
    if (ModeCount == 0)
    {
+      DPRINT("No available modes\n");
       return FALSE;
    }
 
@@ -158,6 +159,12 @@ IntInitScreenInfo(
       ModeInfoPtr = ModeInfo;
       while (ModeCount-- > 0)
       {
+         DPRINT
+             ("Got mode %dx%d %d bits\n", 
+              ModeInfoPtr->VisScreenWidth,
+              ModeInfoPtr->VisScreenHeight,
+              ModeInfoPtr->BitsPerPlane);
+
          if (ModeInfoPtr->Length > 0 &&
 	     pDevMode->dmPelsWidth == ModeInfoPtr->VisScreenWidth &&
              pDevMode->dmPelsHeight == ModeInfoPtr->VisScreenHeight &&
@@ -177,6 +184,7 @@ IntInitScreenInfo(
    if (SelectedMode == NULL)
    {
       EngFreeMem(ModeInfo);
+      DPRINT("No selected mode\n");
       return FALSE;
    }
 

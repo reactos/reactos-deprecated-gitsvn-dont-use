@@ -200,6 +200,8 @@ DrvEnableDriver(IN ULONG EngineVersion,
     DriveEnableData->c = sizeof(FuncList) / sizeof(DRVFN);
     DriveEnableData->iDriverVersion = DDI_DRIVER_VERSION_NT4;
 
+    DPRINT("DrvEnableDriver done\n");
+
     return  TRUE;
 }
 

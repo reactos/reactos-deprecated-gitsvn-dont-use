@@ -52,15 +52,18 @@ DrvEnableDriver(
    ULONG cj,
    PDRVENABLEDATA pded)
 {
+   DPRINT("DrvEnableDriver\n");
    if (cj >= sizeof(DRVENABLEDATA))
    {
       pded->c = sizeof(DrvFunctionTable) / sizeof(DRVFN);
       pded->pdrvfn = DrvFunctionTable;
       pded->iDriverVersion = DDI_DRIVER_VERSION_NT5;
+      DPRINT("TRUE\n");
       return TRUE;
    }
    else
    {
+      DPRINT("FALSE\n");
       return FALSE;
    }
 }
@@ -92,9 +95,11 @@ DrvEnablePDEV(
    GDIINFO GdiInfo;
    DEVINFO DevInfo;
 
+   DPRINT("DrvEnablePDEV\n");
    ppdev = EngAllocMem(FL_ZERO_MEMORY, sizeof(PDEV), ALLOC_TAG);
    if (ppdev == NULL)
    {
+      DPRINT("DrvEnablePDEV - Fail\n");
       return NULL;
    }
 
@@ -102,12 +107,14 @@ DrvEnablePDEV(
 
    if (!IntInitScreenInfo(ppdev, pdm, &GdiInfo, &DevInfo))
    {
+      DPRINT("DrvEnablePDEV - Fail\n");
       EngFreeMem(ppdev);
       return NULL;
    }
 
    if (!IntInitDefaultPalette(ppdev, &DevInfo))
    {
+      DPRINT("DrvEnablePDEV - Fail\n");
       EngFreeMem(ppdev);
       return NULL;
    }
@@ -115,6 +122,7 @@ DrvEnablePDEV(
    memcpy(pdi, &DevInfo, min(sizeof(DEVINFO), cjDevInfo));
    memcpy(pdevcaps, &GdiInfo, min(sizeof(GDIINFO), cjCaps));
 
+   DPRINT("DrvEnablePDEV - Success\n");
    return (DHPDEV)ppdev;
 }
 
@@ -150,6 +158,7 @@ VOID APIENTRY
 DrvDisablePDEV(
    IN DHPDEV dhpdev)
 {
+   DPRINT("DrvDisablePDEV\n");
    if (((PPDEV)dhpdev)->DefaultPalette)
    {
       EngDeletePalette(((PPDEV)dhpdev)->DefaultPalette);
@@ -161,4 +170,5 @@ DrvDisablePDEV(
    }
 
    EngFreeMem(dhpdev);
+   DPRINT("DrvDisablePDEV - Done\n");
 }

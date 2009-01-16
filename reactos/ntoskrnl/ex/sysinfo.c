@@ -1293,13 +1293,18 @@ SSI_DEF(SystemLoadGdiDriverInformation)
 
     /* Load the driver */
     ImageName = DriverInfo->DriverName;
+    DPRINT("Loading GDI Driver %wZ\n", &ImageName);
     Status = MmLoadSystemImage(&ImageName,
                                NULL,
                                NULL,
                                0,
                                (PVOID)&ModuleObject,
                                &ImageBase);
-    if (!NT_SUCCESS(Status)) return Status;
+    if (!NT_SUCCESS(Status)) 
+    {
+        DPRINT("Loading ... returned status %x\n", Status);
+        return Status;
+    }
 
     /* Return the export pointer */
     DriverInfo->ExportSectionPointer =

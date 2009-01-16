@@ -16,12 +16,19 @@
 #include "objects/brush.h"
 #include "objects/bitblt.h"
 
+#undef NDEBUG
 #ifndef NDEBUG
-#define DPRINT DbgPrint
+#define DPRINT(y...) do {                     \
+    DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+    DbgPrint(y); \
+    } while(0)
 #else
 #define DPRINT
 #endif
-#define DPRINT1 DbgPrint
+#define DPRINT1(y...) do {                    \
+    DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+    DbgPrint(y); \
+    } while(0)
 
 /* FIXME - what a headers mess.... */
 

@@ -163,6 +163,7 @@ PGD_ENABLEDRIVER DRIVER_FindDDIDriver(LPCWSTR Name)
 
   /* If not, then load it */
   RtlInitUnicodeString (&GdiDriverInfo.DriverName, FullName);
+  DPRINT1("Trying to load %wZ\n", &GdiDriverInfo.DriverName);
   Status = ZwSetSystemInformation (SystemLoadGdiDriverInformation, &GdiDriverInfo, sizeof(SYSTEM_GDI_DRIVER_INFORMATION));
 
   if (!NT_SUCCESS(Status))

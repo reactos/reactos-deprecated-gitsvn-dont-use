@@ -24,7 +24,7 @@
 #include <w32k.h>
 #include <bugcodes.h>
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 //  ---------------------------------------------------------  File Statics
