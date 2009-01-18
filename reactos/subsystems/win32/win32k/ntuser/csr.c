@@ -9,7 +9,7 @@
 
 #include <w32k.h>
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 static HANDLE WindowsApiPort = NULL;
@@ -21,16 +21,15 @@ CsrInit(void)
    NTSTATUS Status;
    UNICODE_STRING PortName;
    ULONG ConnectInfoLength;
-   SECURITY_QUALITY_OF_SERVICE Qos;
+   SECURITY_QUALITY_OF_SERVICE Qos;   
 
-   DPRINT("CsrInit started\n");
    RtlInitUnicodeString(&PortName, L"\\Windows\\ApiPort");
    ConnectInfoLength = 0;
-   DPRINT("\n");
    Qos.Length = sizeof(Qos);
    Qos.ImpersonationLevel = SecurityDelegation;
    Qos.ContextTrackingMode = SECURITY_STATIC_TRACKING;
    Qos.EffectiveOnly = FALSE;
+
    Status = ZwConnectPort(&WindowsApiPort,
                           &PortName,
                           &Qos,
@@ -39,16 +38,13 @@ CsrInit(void)
                           NULL,
                           NULL,
                           &ConnectInfoLength);
-   DPRINT("\n");
    if (! NT_SUCCESS(Status))
    {
-      DPRINT("%x\n", Status);
       return Status;
    }
 
    CsrProcess = PsGetCurrentProcess();
 
-   DPRINT("CsrInit done (process %x)\n", CsrProcess);
    return STATUS_SUCCESS;
 }
 
@@ -58,8 +54,6 @@ co_CsrNotify(PCSR_API_MESSAGE Request)
 {
    NTSTATUS Status;
    PEPROCESS OldProcess;
-
-   DPRINT("co_CsrNotify\n");
 
    if (NULL == CsrProcess)
    {
@@ -74,24 +68,19 @@ co_CsrNotify(PCSR_API_MESSAGE Request)
    OldProcess = PsGetCurrentProcess();
    if (CsrProcess != OldProcess)
    {
-      DPRINT("CsrProcess->Pcb %x\n", &CsrProcess->Pcb);
       KeAttachProcess(&CsrProcess->Pcb);
    }
 
-   DPRINT("UserLeaveCo\n");
    UserLeaveCo();
 
-   DPRINT("ZwRequestWaitReplyPort\n");
    Status = ZwRequestWaitReplyPort(WindowsApiPort,
                                    &Request->Header,
                                    &Request->Header);
 
-   DPRINT("UserEnterCo\n");
    UserEnterCo();
 
    if (CsrProcess != OldProcess)
    {
-      DPRINT("KeDetachProcess\n");
       KeDetachProcess();
    }
 
@@ -100,7 +89,6 @@ co_CsrNotify(PCSR_API_MESSAGE Request)
       Status = Request->Status;
    }
 
-   DPRINT("Status %x\n");
    return Status;
 }
 
