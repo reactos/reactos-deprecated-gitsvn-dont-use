@@ -6,6 +6,12 @@
 * PROGRAMMERS:     Alex Ionescu (alex.ionescu@reactos.org)
 */
 
+#undef LPCTRACE
+#define LPCTRACE(x,y...) do { \
+    DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+    DbgPrint(y); \
+    } while(0)
+
 //
 // Gets the message type, removing the kernel-mode flag
 //

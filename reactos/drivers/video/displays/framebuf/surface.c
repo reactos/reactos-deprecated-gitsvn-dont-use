@@ -46,10 +46,12 @@ DrvEnableSurface(
     * Set video mode of our adapter.
     */
 
+   DPRINT("DrvEnableSurface\n");
    if (EngDeviceIoControl(ppdev->hDriver, IOCTL_VIDEO_SET_CURRENT_MODE,
                           &(ppdev->ModeIndex), sizeof(ULONG), NULL, 0,
                           &ulTemp))
    {
+      DPRINT("DrvEnableSurface - FAIL\n");
       return FALSE;
    }
 
@@ -58,11 +60,13 @@ DrvEnableSurface(
     */
 
    VideoMemory.RequestedVirtualAddress = NULL;
+   DPRINT("IoctlMapVideoMemory\n");
    if (EngDeviceIoControl(ppdev->hDriver, IOCTL_VIDEO_MAP_VIDEO_MEMORY,
                           &VideoMemory, sizeof(VIDEO_MEMORY),
                           &VideoMemoryInfo, sizeof(VIDEO_MEMORY_INFORMATION),
                           &ulTemp))
    {
+      DPRINT("IoctlMapVideoMemory - FAIL\n");
       return FALSE;
    }
 
@@ -96,11 +100,13 @@ DrvEnableSurface(
    ScreenSize.cx = ppdev->ScreenWidth;
    ScreenSize.cy = ppdev->ScreenHeight;
 
+   DPRINT("EngCreateBitmap(screen = %x)\n", ppdev->ScreenPtr);
    hSurface = (HSURF)EngCreateBitmap(ScreenSize, ppdev->ScreenDelta, BitmapType,
                                      (ppdev->ScreenDelta > 0) ? BMF_TOPDOWN : 0,
                                      ppdev->ScreenPtr);
    if (hSurface == NULL)
    {
+      DPRINT("EngCreateBitmap - FAIL\n");
       return FALSE;
    }
 
@@ -108,14 +114,17 @@ DrvEnableSurface(
     * Associate the surface with our device.
     */
 
+   DPRINT("EngAssociateSurface\n");
    if (!EngAssociateSurface(hSurface, ppdev->hDevEng, 0))
    {
       EngDeleteSurface(hSurface);
+      DPRINT("EngAssociateSurface - FAIL\n");
       return FALSE;
    }
 
    ppdev->hSurfEng = hSurface;
 
+   DPRINT("DrvEnableSurface - Success %x\n", hSurface);
    return hSurface;
 }
 

@@ -31,7 +31,6 @@ CsrInit(void)
    Qos.ImpersonationLevel = SecurityDelegation;
    Qos.ContextTrackingMode = SECURITY_STATIC_TRACKING;
    Qos.EffectiveOnly = FALSE;
-   __asm__("int3");
    Status = ZwConnectPort(&WindowsApiPort,
                           &PortName,
                           &Qos,
@@ -60,6 +59,8 @@ co_CsrNotify(PCSR_API_MESSAGE Request)
    NTSTATUS Status;
    PEPROCESS OldProcess;
 
+   DPRINT("co_CsrNotify\n");
+
    if (NULL == CsrProcess)
    {
       return STATUS_INVALID_PORT_HANDLE;
@@ -73,19 +74,24 @@ co_CsrNotify(PCSR_API_MESSAGE Request)
    OldProcess = PsGetCurrentProcess();
    if (CsrProcess != OldProcess)
    {
+      DPRINT("CsrProcess->Pcb %x\n", &CsrProcess->Pcb);
       KeAttachProcess(&CsrProcess->Pcb);
    }
 
+   DPRINT("UserLeaveCo\n");
    UserLeaveCo();
 
+   DPRINT("ZwRequestWaitReplyPort\n");
    Status = ZwRequestWaitReplyPort(WindowsApiPort,
                                    &Request->Header,
                                    &Request->Header);
 
+   DPRINT("UserEnterCo\n");
    UserEnterCo();
 
    if (CsrProcess != OldProcess)
    {
+      DPRINT("KeDetachProcess\n");
       KeDetachProcess();
    }
 
@@ -94,6 +100,7 @@ co_CsrNotify(PCSR_API_MESSAGE Request)
       Status = Request->Status;
    }
 
+   DPRINT("Status %x\n");
    return Status;
 }
 

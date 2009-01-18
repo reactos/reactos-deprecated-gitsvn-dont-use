@@ -1550,7 +1550,6 @@ co_IntSendMessageTimeoutSingle(HWND hWnd,
    if (Window->Status & WINDOWSTATUS_DESTROYING)
    {
       /* FIXME - last error? */
-      DPRINT1("Attempted to send message to window 0x%x that is being destroyed!\n", hWnd);
       RETURN( FALSE);
    }
 
@@ -1595,6 +1594,8 @@ co_IntSendMessageTimeoutSingle(HWND hWnd,
 
 CLEANUP:
    if (Window) UserDerefObjectCo(Window);
+   DPRINT1("\n");
+   __asm__("int3");
    END_CLEANUP;
 }
 

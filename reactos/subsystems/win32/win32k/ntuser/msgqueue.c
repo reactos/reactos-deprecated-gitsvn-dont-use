@@ -926,78 +926,105 @@ co_MsqDispatchOneSentMessage(PUSER_MESSAGE_QUEUE MessageQueue)
    BOOL SenderReturned;
    PUSER_SENT_MESSAGE_NOTIFY NotifyMessage;
 
+   DPRINT1("\n");
    if (IsListEmpty(&MessageQueue->SentMessagesListHead))
    {
+   DPRINT1("\n");
       return(FALSE);
    }
 
    /* remove it from the list of pending messages */
+   DPRINT1("\n");
    Entry = RemoveHeadList(&MessageQueue->SentMessagesListHead);
+   DPRINT1("\n");
    Message = CONTAINING_RECORD(Entry, USER_SENT_MESSAGE, ListEntry);
 
    /* insert it to the list of messages that are currently dispatched by this
       message queue */
+   DPRINT1("\n");
    InsertTailList(&MessageQueue->LocalDispatchingMessagesHead,
                   &Message->ListEntry);
 
    if (Message->HookMessage == MSQ_ISHOOK)
    {
+   DPRINT1("\n");
       Result = co_HOOK_CallHooks(Message->Msg.message,
                                  (INT)(INT_PTR)Message->Msg.hwnd,
                                  Message->Msg.wParam,
                                  Message->Msg.lParam);
+   DPRINT1("\n");
    }
    else if (Message->HookMessage == MSQ_ISEVENT)
    {
+   DPRINT1("\n");
       Result = co_EVENT_CallEvents( Message->Msg.message,
                                     Message->Msg.hwnd,
                                     Message->Msg.wParam,
                                     Message->Msg.lParam);                                  
+   DPRINT1("\n");
    }
    else
    {
       /* Call the window procedure. */
+   DPRINT1("\n");
       Result = co_IntSendMessage(Message->Msg.hwnd,
                                  Message->Msg.message,
                                  Message->Msg.wParam,
                                  Message->Msg.lParam);
+   DPRINT1("\n");
    }
 
    /* remove the message from the local dispatching list, because it doesn't need
       to be cleaned up on thread termination anymore */
+   DPRINT1("\n");
    RemoveEntryList(&Message->ListEntry);
 
    /* remove the message from the dispatching list, so lock the sender's message queue */
+   DPRINT1("\n");
    SenderReturned = (Message->DispatchingListEntry.Flink == NULL);
+   DPRINT1("\n");
    if(!SenderReturned)
    {
       /* only remove it from the dispatching list if not already removed by a timeout */
+   DPRINT1("\n");
       RemoveEntryList(&Message->DispatchingListEntry);
+   DPRINT1("\n");
    }
    /* still keep the sender's message queue locked, so the sender can't exit the
       MsqSendMessage() function (if timed out) */
 
    /* Let the sender know the result. */
+   DPRINT1("\n");
    if (Message->Result != NULL)
    {
+   DPRINT1("\n");
       *Message->Result = Result;
+   DPRINT1("\n");
    }
 
    /* Notify the sender. */
+   DPRINT1("\n");
    if (Message->CompletionEvent != NULL)
    {
+   DPRINT1("\n");
       KeSetEvent(Message->CompletionEvent, IO_NO_INCREMENT, FALSE);
+   DPRINT1("\n");
    }
 
    /* Notify the sender if they specified a callback. */
+   DPRINT1("\n");
    if (!SenderReturned && Message->CompletionCallback != NULL)
    {
+   DPRINT1("\n");
       if(!(NotifyMessage = ExAllocatePoolWithTag(NonPagedPool,
                            sizeof(USER_SENT_MESSAGE_NOTIFY), TAG_USRMSG)))
       {
+   DPRINT1("\n");
          DPRINT1("MsqDispatchOneSentMessage(): Not enough memory to create a callback notify message\n");
+   DPRINT1("\n");
          goto Notified;
       }
+   DPRINT1("\n");
       NotifyMessage->CompletionCallback =
          Message->CompletionCallback;
       NotifyMessage->CompletionCallbackContext =
@@ -1005,17 +1032,25 @@ co_MsqDispatchOneSentMessage(PUSER_MESSAGE_QUEUE MessageQueue)
       NotifyMessage->Result = Result;
       NotifyMessage->hWnd = Message->Msg.hwnd;
       NotifyMessage->Msg = Message->Msg.message;
+   DPRINT1("\n");
       MsqSendNotifyMessage(Message->SenderQueue, NotifyMessage);
+   DPRINT1("\n");
    }
 
+   DPRINT1("\n");
 Notified:
 
    /* dereference both sender and our queue */
+   DPRINT1("\n");
    IntDereferenceMessageQueue(MessageQueue);
+   DPRINT1("\n");
    IntDereferenceMessageQueue(Message->SenderQueue);
+   DPRINT1("\n");
 
    /* free the message */
+   DPRINT1("\n");
    ExFreePool(Message);
+   DPRINT1("\n");
    return(TRUE);
 }
 
@@ -1120,22 +1155,29 @@ co_MsqSendMessage(PUSER_MESSAGE_QUEUE MessageQueue,
    LARGE_INTEGER Timeout;
    PLIST_ENTRY Entry;
 
+   DPRINT1("\n");
    if(!(Message = ExAllocatePoolWithTag(PagedPool, sizeof(USER_SENT_MESSAGE), TAG_USRMSG)))
    {
       DPRINT1("MsqSendMessage(): Not enough memory to allocate a message");
       return STATUS_INSUFFICIENT_RESOURCES;
    }
 
+   DPRINT1("\n");
    KeInitializeEvent(&CompletionEvent, NotificationEvent, FALSE);
+   DPRINT1("\n");
 
    pti = PsGetCurrentThreadWin32Thread();
+   DPRINT1("\n");
    ThreadQueue = pti->MessageQueue;
+   DPRINT1("\n");
    ASSERT(ThreadQueue != MessageQueue);
 
+   DPRINT1("\n");
    Timeout.QuadPart = (LONGLONG) uTimeout * (LONGLONG) -10000;
 
    /* FIXME - increase reference counter of sender's message queue here */
 
+   DPRINT1("\n");
    Result = 0;
    Message->Msg.hwnd = Wnd;
    Message->Msg.message = Msg;
@@ -1148,38 +1190,51 @@ co_MsqSendMessage(PUSER_MESSAGE_QUEUE MessageQueue,
    Message->CompletionCallback = NULL;
    Message->HookMessage = HookMessage;
 
+   DPRINT1("\n");
    IntReferenceMessageQueue(MessageQueue);
 
    /* add it to the list of pending messages */
+   DPRINT1("\n");
    InsertTailList(&ThreadQueue->DispatchingMessagesHead, &Message->DispatchingListEntry);
 
    /* queue it in the destination's message queue */
+   DPRINT1("\n");
    InsertTailList(&MessageQueue->SentMessagesListHead, &Message->ListEntry);
 
+   DPRINT1("\n");
    MessageQueue->QueueBits |= QS_SENDMESSAGE;
    MessageQueue->ChangedBits |= QS_SENDMESSAGE;
+   DPRINT1("\n");
    if (MessageQueue->WakeMask & QS_SENDMESSAGE)
       KeSetEvent(MessageQueue->NewMessages, IO_NO_INCREMENT, FALSE);
 
    /* we can't access the Message anymore since it could have already been deleted! */
 
+   DPRINT1("\n");
    if(Block)
    {
+   DPRINT1("\n");
       IdlePing();
 
+   DPRINT1("\n");
       UserLeaveCo();
 
       /* don't process messages sent to the thread */
+   DPRINT1("\n");
       WaitStatus = KeWaitForSingleObject(&CompletionEvent, UserRequest, UserMode,
                                          FALSE, (uTimeout ? &Timeout : NULL));
 
+   DPRINT1("\n");
       UserEnterCo();
 
+   DPRINT1("\n");
       if(WaitStatus == STATUS_TIMEOUT)
       {
          /* look up if the message has not yet dispatched, if so
             make sure it can't pass a result and it must not set the completion event anymore */
+   DPRINT1("\n");
          Entry = MessageQueue->SentMessagesListHead.Flink;
+   DPRINT1("\n");
          while (Entry != &MessageQueue->SentMessagesListHead)
          {
             if ((PUSER_SENT_MESSAGE) CONTAINING_RECORD(Entry, USER_SENT_MESSAGE, ListEntry)
@@ -1187,18 +1242,25 @@ co_MsqSendMessage(PUSER_MESSAGE_QUEUE MessageQueue,
             {
                /* we can access Message here, it's secure because the message queue is locked
                   and the message is still hasn't been dispatched */
+   DPRINT1("\n");
                Message->CompletionEvent = NULL;
                Message->Result = NULL;
+   DPRINT1("\n");
                break;
             }
+   DPRINT1("\n");
             Entry = Entry->Flink;
+   DPRINT1("\n");
          }
 
          /* remove from the local dispatching list so the other thread knows,
             it can't pass a result and it must not set the completion event anymore */
+   DPRINT1("\n");
          Entry = ThreadQueue->DispatchingMessagesHead.Flink;
+   DPRINT1("\n");
          while (Entry != &ThreadQueue->DispatchingMessagesHead)
          {
+   DPRINT1("\n");
             if ((PUSER_SENT_MESSAGE) CONTAINING_RECORD(Entry, USER_SENT_MESSAGE, DispatchingListEntry)
                   == Message)
             {
@@ -1206,61 +1268,84 @@ co_MsqSendMessage(PUSER_MESSAGE_QUEUE MessageQueue,
                   and the message has definitely not yet been destroyed, otherwise it would
                   have been removed from this list by the dispatching routine right after
                dispatching the message */
+   DPRINT1("\n");
                Message->CompletionEvent = NULL;
                Message->Result = NULL;
                RemoveEntryList(&Message->DispatchingListEntry);
                Message->DispatchingListEntry.Flink = NULL;
+   DPRINT1("\n");
                break;
             }
+   DPRINT1("\n");
             Entry = Entry->Flink;
+   DPRINT1("\n");
          }
 
          DPRINT("MsqSendMessage (blocked) timed out\n");
       }
+   DPRINT1("\n");
       while (co_MsqDispatchOneSentMessage(ThreadQueue))
          ;
+   DPRINT1("\n");
    }
    else
    {
       PVOID WaitObjects[2];
 
+   DPRINT1("\n");
       WaitObjects[0] = &CompletionEvent;
       WaitObjects[1] = ThreadQueue->NewMessages;
+   DPRINT1("\n");
       do
       {
+   DPRINT1("\n");
          IdlePing();
 
+   DPRINT1("\n");
          UserLeaveCo();
 
+   DPRINT1("\n");
          WaitStatus = KeWaitForMultipleObjects(2, WaitObjects, WaitAny, UserRequest,
                                                UserMode, FALSE, (uTimeout ? &Timeout : NULL), NULL);
 
+   DPRINT1("\n");
          UserEnterCo();
 
+   DPRINT1("\n");
          if(WaitStatus == STATUS_TIMEOUT)
          {
             /* look up if the message has not yet been dispatched, if so
                make sure it can't pass a result and it must not set the completion event anymore */
+   DPRINT1("\n");
             Entry = MessageQueue->SentMessagesListHead.Flink;
+   DPRINT1("\n");
             while (Entry != &MessageQueue->SentMessagesListHead)
             {
+   DPRINT1("\n");
                if ((PUSER_SENT_MESSAGE) CONTAINING_RECORD(Entry, USER_SENT_MESSAGE, ListEntry)
                      == Message)
                {
                   /* we can access Message here, it's secure because the message queue is locked
                      and the message is still hasn't been dispatched */
+   DPRINT1("\n");
                   Message->CompletionEvent = NULL;
                   Message->Result = NULL;
+   DPRINT1("\n");
                   break;
                }
+   DPRINT1("\n");
                Entry = Entry->Flink;
+   DPRINT1("\n");
             }
 
             /* remove from the local dispatching list so the other thread knows,
                it can't pass a result and it must not set the completion event anymore */
+   DPRINT1("\n");
             Entry = ThreadQueue->DispatchingMessagesHead.Flink;
+   DPRINT1("\n");
             while (Entry != &ThreadQueue->DispatchingMessagesHead)
             {
+   DPRINT1("\n");
                if ((PUSER_SENT_MESSAGE) CONTAINING_RECORD(Entry, USER_SENT_MESSAGE, DispatchingListEntry)
                      == Message)
                {
@@ -1268,27 +1353,36 @@ co_MsqSendMessage(PUSER_MESSAGE_QUEUE MessageQueue,
                      and the message has definitely not yet been destroyed, otherwise it would
                      have been removed from this list by the dispatching routine right after
                   dispatching the message */
+   DPRINT1("\n");
                   Message->CompletionEvent = NULL;
                   Message->Result = NULL;
                   RemoveEntryList(&Message->DispatchingListEntry);
                   Message->DispatchingListEntry.Flink = NULL;
+   DPRINT1("\n");
                   break;
                }
+   DPRINT1("\n");
                Entry = Entry->Flink;
+   DPRINT1("\n");
             }
 
             DPRINT("MsqSendMessage timed out\n");
             break;
          }
+   DPRINT1("\n");
          while (co_MsqDispatchOneSentMessage(ThreadQueue))
             ;
+   DPRINT1("\n");
       }
       while (NT_SUCCESS(WaitStatus) && STATUS_WAIT_0 != WaitStatus);
+   DPRINT1("\n");
    }
 
+   DPRINT1("\n");
    if(WaitStatus != STATUS_TIMEOUT)
       *uResult = (STATUS_WAIT_0 == WaitStatus ? Result : -1);
 
+   DPRINT1("WaitStatus %x\n", WaitStatus);
    return WaitStatus;
 }
 

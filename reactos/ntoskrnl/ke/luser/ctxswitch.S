@@ -341,6 +341,12 @@ BadThread:
 @KiSwapContextInternal@0:
 
     /* Save the IRQL */
+    test edi, 1
+    jz NotScrutiny
+        
+    xor edi, 1
+        
+NotScrutiny:    
     push ecx
 
 #ifdef CONFIG_SMP

@@ -308,6 +308,12 @@ KiSelectNextThread(IN PKPRCB Prcb)
     return Thread;
 }
 
+#define SCRUT do { \
+    if (Scrutiny) { \
+    DPRINT1("\n"); \
+    } \
+    } while(0)
+
 NTSTATUS
 FASTCALL
 KiSwapThread(IN PKTHREAD CurrentThread,
@@ -317,71 +323,106 @@ KiSwapThread(IN PKTHREAD CurrentThread,
     KIRQL WaitIrql;
     LONG_PTR WaitStatus;
     PKTHREAD NextThread;
+    ULONG Scrutiny = FALSE;
+
+    if (((ULONG_PTR)CurrentThread) & 1)
+    {
+        Scrutiny = TRUE;
+        CurrentThread = (PKTHREAD)(((ULONG_PTR)CurrentThread)&~1);
+    }
+
+    if (Scrutiny) { DPRINT1("KeGetCurrentIrql %d\n", KeGetCurrentIrql()); }
     ASSERT(KeGetCurrentIrql() >= DISPATCH_LEVEL);
 
     /* Acquire the PRCB lock */
+    SCRUT;
     KiAcquirePrcbLock(Prcb);
 
     /* Get the next thread */
+    SCRUT;
     NextThread = Prcb->NextThread;
+    SCRUT;
     if (NextThread)
     {
         /* Already got a thread, set it up */
+    SCRUT;
         Prcb->NextThread = NULL;
         Prcb->CurrentThread = NextThread;
         NextThread->State = Running;
+    SCRUT;
     }
     else
     {
         /* Try to find a ready thread */
+    SCRUT;
         NextThread = KiSelectReadyThread(0, Prcb);
+    SCRUT;
         if (NextThread)
         {
             /* Switch to it */
+    SCRUT;
             Prcb->CurrentThread = NextThread;
             NextThread->State = Running;
+    SCRUT;
         }
         else
         {
             /* Set the idle summary */
+    SCRUT;
             InterlockedOr((PLONG)&KiIdleSummary, Prcb->SetMember);
 
             /* Schedule the idle thread */
             NextThread = Prcb->IdleThread;
             Prcb->CurrentThread = NextThread;
             NextThread->State = Running;
+    SCRUT;
         }
+    SCRUT;
     }
 
     /* Sanity check and release the PRCB */
+    SCRUT;
     ASSERT(CurrentThread != Prcb->IdleThread);
+    SCRUT;
     KiReleasePrcbLock(Prcb);
+    SCRUT;
 
     /* Save the wait IRQL */
+    SCRUT;
     WaitIrql = CurrentThread->WaitIrql;
 
     /* REACTOS Mm Hack of Doom */
+    SCRUT;
     MiSyncForContextSwitch(NextThread);
 
     /* Swap contexts */
-    ApcState = KiSwapContext(CurrentThread, NextThread);
+    SCRUT;
+    ApcState = KiSwapContext((PKTHREAD)(((ULONG_PTR)CurrentThread)|(Scrutiny?1:0)), NextThread);
 
     /* Get the wait status */
+    SCRUT;
     WaitStatus = CurrentThread->WaitStatus;
 
     /* Check if we need to deliver APCs */
+    SCRUT;
     if (ApcState)
     {
         /* Lower to APC_LEVEL */
+    SCRUT;
         KeLowerIrql(APC_LEVEL);
 
         /* Deliver APCs */
+    SCRUT;
         KiDeliverApc(KernelMode, NULL, NULL);
+    SCRUT;
         ASSERT(WaitIrql == 0);
+    SCRUT;
     }
 
     /* Lower IRQL back to what it was and return the wait status */
+    SCRUT;
     KeLowerIrql(WaitIrql);
+    if (Scrutiny) { DPRINT1("WaitStatus %x\n", WaitStatus); }
     return WaitStatus;
 }
 

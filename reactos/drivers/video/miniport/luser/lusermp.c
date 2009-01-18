@@ -48,6 +48,7 @@ LuserStartIO(
     switch (RequestPacket->IoControlCode)
     {
     case IOCTL_VIDEO_SET_CURRENT_MODE:
+        DPRINT1("IOCTL_VIDEO_SET_CURRENT_MODE\n");
         if (RequestPacket->InputBufferLength < sizeof(VIDEO_MODE))
         {
             RequestPacket->StatusBlock->Status = ERROR_INSUFFICIENT_BUFFER;
@@ -64,9 +65,11 @@ LuserStartIO(
         break;
 
     case IOCTL_VIDEO_RESET_DEVICE:
+        DPRINT1("IOCTL_VIDEO_RESET_DEVICE\n");
         break;
 
     case IOCTL_VIDEO_MAP_VIDEO_MEMORY:
+        DPRINT1("IOCTL_VIDEO_MAP_VIDEO_MEMORY\n");
         if (RequestPacket->OutputBufferLength < sizeof(VIDEO_MEMORY_INFORMATION) ||
             RequestPacket->InputBufferLength < sizeof(VIDEO_MEMORY))
         {
@@ -89,9 +92,11 @@ LuserStartIO(
 
         MapInformation->FrameBufferBase = MapInformation->VideoRamBase;
         MapInformation->FrameBufferLength = MapInformation->VideoRamLength;
+        RequestPacket->StatusBlock->Information = sizeof(*MapInformation);
         break;
 
     case IOCTL_VIDEO_UNMAP_VIDEO_MEMORY:
+        DPRINT1("IOCTL_VIDEO_UNMAP_VIDEO_MEMORY\n");
         if (RequestPacket->InputBufferLength < sizeof(VIDEO_MEMORY))
         {
             RequestPacket->StatusBlock->Status = ERROR_INSUFFICIENT_BUFFER;
@@ -103,6 +108,7 @@ LuserStartIO(
         break;
 
     case IOCTL_VIDEO_QUERY_NUM_AVAIL_MODES:
+        DPRINT1("IOCTL_VIDEO_QUERY_NUM_AVAIL_MODES\n");
         if (RequestPacket->OutputBufferLength < sizeof(VIDEO_NUM_MODES))
         {
             RequestPacket->StatusBlock->Status = ERROR_INSUFFICIENT_BUFFER;
@@ -115,6 +121,7 @@ LuserStartIO(
         break;
 
     case IOCTL_VIDEO_QUERY_AVAIL_MODES:
+        DPRINT1("IOCTL_VIDEO_QUERY_AVAIL_MODES\n");
         if (RequestPacket->OutputBufferLength < sizeof(VIDEO_MODE_INFORMATION))
         {
             RequestPacket->StatusBlock->Status = ERROR_INSUFFICIENT_BUFFER;
@@ -146,6 +153,7 @@ LuserStartIO(
         break;
 
     default:
+        DPRINT1("Unknown IOCTL\n");
         RequestPacket->StatusBlock->Status = ERROR_INVALID_FUNCTION;
         return FALSE;
     }

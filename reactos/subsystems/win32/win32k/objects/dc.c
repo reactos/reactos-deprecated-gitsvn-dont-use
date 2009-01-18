@@ -659,22 +659,28 @@ IntCreatePrimarySurface()
    if (NULL == PrimarySurface.pSurface)
    {
 /*      PrimarySurface.DriverFunctions.AssertMode(PrimarySurface.hPDev, FALSE);*/
+      DPRINT("Calling DisablePDEV\n");
       PrimarySurface.DriverFunctions.DisablePDEV(PrimarySurface.hPDev);
       ObDereferenceObject(PrimarySurface.VideoFileObject);
       DPRINT1("DrvEnableSurface failed\n");
       return FALSE;
    }
 
+   DPRINT("AssertMode\n");
    PrimarySurface.DriverFunctions.AssertMode(PrimarySurface.hPDev, TRUE);
 
+   DPRINT("UserIsEntered\n");
    calledFromUser = UserIsEntered(); //fixme: possibly upgrade a shared lock
    if (!calledFromUser){
+      DPRINT("UserExclusive\n");
       UserEnterExclusive();
    }
 
    /* attach monitor */
+   DPRINT("IntAttachMonitor %d\n", PrimarySurface.DisplayNumber);
    IntAttachMonitor(&PrimarySurface, PrimarySurface.DisplayNumber);
 
+   DPRINT("EngLockSurface\n");
    SurfObj = EngLockSurface(PrimarySurface.pSurface);
    SurfObj->dhpdev = PrimarySurface.hPDev;
    SurfSize = SurfObj->sizlBitmap;
@@ -688,15 +694,21 @@ IntCreatePrimarySurface()
    gpsi->ptCursor.x = (SurfaceRect.right - SurfaceRect.left) / 2;
    gpsi->ptCursor.y = (SurfaceRect.bottom - SurfaceRect.top) / 2;
 
+   DPRINT("EngUnlockSurface\n");
    EngUnlockSurface(SurfObj);
+   DPRINT("IntShowDesktop\n");
    co_IntShowDesktop(IntGetActiveDesktop(), SurfSize.cx, SurfSize.cy);
 
    // Init Primary Displays Device Capabilities.
+   DPRINT("IntvGetDeviceCaps\n");
    IntvGetDeviceCaps(&PrimarySurface, &GdiHandleTable->DevCaps);
 
    if (!calledFromUser){
+      DPRINT("UserLeave\n");
       UserLeave();
    }
+
+   DPRINT("IntCreatePrimarySurface - Success\n");
 
    return TRUE;
 }

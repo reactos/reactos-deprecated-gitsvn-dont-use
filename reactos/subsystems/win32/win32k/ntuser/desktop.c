@@ -471,6 +471,7 @@ IntGetDesktopWorkArea(PDESKTOP Desktop, PRECT Rect)
 PDESKTOP FASTCALL
 IntGetActiveDesktop(VOID)
 {
+    DPRINT1("InputDesktop %x\n", InputDesktop);
    return InputDesktop;
 }
 
@@ -650,6 +651,7 @@ UserRedrawDesktop()
 NTSTATUS FASTCALL
 co_IntShowDesktop(PDESKTOP Desktop, ULONG Width, ULONG Height)
 {
+   NTSTATUS Status;
    CSR_API_MESSAGE Request;
 
    Request.Type = MAKE_CSR_API(SHOW_DESKTOP, CSR_GUI);
@@ -657,7 +659,11 @@ co_IntShowDesktop(PDESKTOP Desktop, ULONG Width, ULONG Height)
    Request.Data.ShowDesktopRequest.Width = Width;
    Request.Data.ShowDesktopRequest.Height = Height;
 
-   return co_CsrNotify(&Request);
+   DPRINT1("co_CsrNotify\n");
+   __asm__("int3");
+   Status = co_CsrNotify(&Request);
+   DPRINT1("co_CsrNotify done %x\n", Status);
+   return Status;
 }
 
 NTSTATUS FASTCALL

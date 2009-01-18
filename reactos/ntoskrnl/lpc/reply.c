@@ -9,7 +9,7 @@
 /* INCLUDES ******************************************************************/
 
 #include <ntoskrnl.h>
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 /* PRIVATE FUNCTIONS *********************************************************/
@@ -169,6 +169,7 @@ NtReplyWaitReceivePortEx(IN HANDLE PortHandle,
     LARGE_INTEGER CapturedTimeout;
 
     PAGED_CODE();
+    DPRINT1("NtReplyWaitReceivePortEx\n");
     LPCTRACE(LPC_REPLY_DEBUG,
              "Handle: %lx. Messages: %p/%p. Context: %p\n",
              PortHandle,
@@ -381,7 +382,8 @@ NtReplyWaitReceivePortEx(IN HANDLE PortHandle,
 
     /* Now wait for someone to reply to us */
     LpcpReceiveWait(ReceivePort->MsgQueue.Semaphore, WaitMode);
-    if (Status != STATUS_SUCCESS) goto Cleanup;
+    /* Totally useless */
+    /* if (Status != STATUS_SUCCESS) goto Cleanup; */
 
     /* Wait done, get the LPC lock */
     KeAcquireGuardedMutex(&LpcpLock);
@@ -512,7 +514,7 @@ NtReplyWaitReceivePortEx(IN HANDLE PortHandle,
         KeReleaseGuardedMutex(&LpcpLock);
     }
 
-Cleanup:
+/*Cleanup:*/
     /* All done, dereference the port and return the status */
     LPCTRACE(LPC_REPLY_DEBUG,
              "Port: %p. Status: %p\n",
@@ -520,6 +522,7 @@ Cleanup:
              Status);
     if (ConnectionPort) ObDereferenceObject(ConnectionPort);
     ObDereferenceObject(Port);
+    DPRINT1("Returning %x\n", Status);
     return Status;
 }
 
@@ -534,11 +537,16 @@ NtReplyWaitReceivePort(IN HANDLE PortHandle,
                        OUT PPORT_MESSAGE ReceiveMessage)
 {
     /* Call the newer API */
-    return NtReplyWaitReceivePortEx(PortHandle,
-                                    PortContext,
-                                    ReplyMessage,
-                                    ReceiveMessage,
-                                    NULL);
+    NTSTATUS Status;
+    DPRINT1("NtReplyWaitReceivePortEx\n");
+    Status = NtReplyWaitReceivePortEx
+        (PortHandle,
+         PortContext,
+         ReplyMessage,
+         ReceiveMessage,
+         NULL);
+    DPRINT1("Status %x\n", Status);
+    return Status;
 }
 
 /*

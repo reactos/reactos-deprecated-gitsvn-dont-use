@@ -2847,8 +2847,10 @@ PWINDOW_OBJECT FASTCALL UserGetAncestor(PWINDOW_OBJECT Wnd, UINT Type)
 {
    PWINDOW_OBJECT WndAncestor, Parent;
 
+   DPRINT1("UserGetAncestor Wnd %x (from %x)\n", Wnd, __builtin_return_address(0));
    if (Wnd->hSelf == IntGetDesktopWindow())
    {
+       DPRINT1("NULL\n");
       return NULL;
    }
 
@@ -2889,8 +2891,10 @@ PWINDOW_OBJECT FASTCALL UserGetAncestor(PWINDOW_OBJECT Wnd, UINT Type)
             {
                PWINDOW_OBJECT Parent, Old;
 
+               DPRINT1("WndAncestor = %x\n", WndAncestor);
                Old = WndAncestor;
                Parent = IntGetParent(WndAncestor);
+               DPRINT1("Parent %x\n", Parent);
 
                if (!Parent)
                {
@@ -2907,10 +2911,12 @@ PWINDOW_OBJECT FASTCALL UserGetAncestor(PWINDOW_OBJECT Wnd, UINT Type)
 
       default:
          {
+             DPRINT1("NULL\n");
             return NULL;
          }
    }
 
+   DPRINT1("WndAncestor %x\n", WndAncestor);
    return WndAncestor;
 }
 
@@ -2934,6 +2940,7 @@ NtUserGetAncestor(HWND hWnd, UINT Type)
    }
 
    Ancestor = UserGetAncestor(Window, Type);
+   DPRINT1("Ancestor is %x\n", Ancestor);
    /* faxme: can UserGetAncestor ever return NULL for a valid window? */
 
    RETURN(Ancestor ? Ancestor->hSelf : NULL);

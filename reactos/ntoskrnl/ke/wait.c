@@ -10,8 +10,14 @@
 /* INCLUDES ******************************************************************/
 
 #include <ntoskrnl.h>
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
+
+#undef DPRINT1
+#define DPRINT1(y...) do {                         \
+        DbgPrint("(%s:%d) ", __FILE__, __LINE__); \
+        DbgPrint(y); \
+    } while(0)
 
 /* PRIVATE FUNCTIONS *********************************************************/
 
@@ -325,6 +331,8 @@ NoWait:
     return STATUS_SUCCESS;
 }
 
+#define SCRUT do { if (Scrutiny) { DPRINT1("\n"); } } while(0)
+#define FREAKOUT(x) (PKTHREAD)(((ULONG_PTR)x)|(Scrutiny?1:0))
 /*
  * @implemented
  */
@@ -345,52 +353,72 @@ KeWaitForSingleObject(IN PVOID Object,
     BOOLEAN Swappable;
     LARGE_INTEGER DueTime, NewDueTime, InterruptTime;
     PLARGE_INTEGER OriginalDueTime = Timeout;
-    ULONG Hand = 0;
+    ULONG Hand = 0, Scrutiny = FALSE;
 
     /* Check if the lock is already held */
+    if (CurrentObject->Header.Type == SemaphoreObject)
+    {
+        Scrutiny = TRUE;
+        DPRINT1("Waiting on semaphore\n");
+    }
+
     if (!Thread->WaitNext) goto WaitStart;
 
     /*  Otherwise, we already have the lock, so initialize the wait */
     Thread->WaitNext = FALSE;
+    SCRUT;
     KxSingleThreadWait();
 
     /* Start wait loop */
+    SCRUT;
     for (;;)
     {
         /* Disable pre-emption */
+        SCRUT;
         Thread->Preempted = FALSE;
 
         /* Check if a kernel APC is pending and we're below APC_LEVEL */
+        SCRUT;
         if ((Thread->ApcState.KernelApcPending) && !(Thread->SpecialApcDisable) &&
             (Thread->WaitIrql < APC_LEVEL))
         {
             /* Unlock the dispatcher */
+        SCRUT;
             KiReleaseDispatcherLock(Thread->WaitIrql);
+        SCRUT;
         }
         else
         {
             /* Sanity check */
+        SCRUT;
             ASSERT(CurrentObject->Header.Type != QueueObject);
 
             /* Check if it's a mutant */
+        SCRUT;
             if (CurrentObject->Header.Type == MutantObject)
             {
                 /* Check its signal state or if we own it */
+        SCRUT;
                 if ((CurrentObject->Header.SignalState > 0) ||
                     (Thread == CurrentObject->OwnerThread))
                 {
                     /* Just unwait this guy and exit */
+        SCRUT;
                     if (CurrentObject->Header.SignalState != (LONG)MINLONG)
                     {
                         /* It has a normal signal state. Unwait and return */
+        SCRUT;
                         KiSatisfyMutantWait(CurrentObject, Thread);
                         WaitStatus = Thread->WaitStatus;
+        SCRUT;
                         goto DontWait;
                     }
                     else
                     {
                         /* Raise an exception */
+        SCRUT;
                         KiReleaseDispatcherLock(Thread->WaitIrql);
+        SCRUT;
                         ExRaiseStatus(STATUS_MUTANT_LIMIT_EXCEEDED);
                    }
                 }
@@ -398,85 +426,121 @@ KeWaitForSingleObject(IN PVOID Object,
             else if (CurrentObject->Header.SignalState > 0)
             {
                 /* Another satisfied object */
+        SCRUT;
                 KiSatisfyNonMutantWait(CurrentObject);
                 WaitStatus = STATUS_WAIT_0;
+        SCRUT;
                 goto DontWait;
             }
 
             /* Make sure we can satisfy the Alertable request */
+        SCRUT;
             WaitStatus = KiCheckAlertability(Thread, Alertable, WaitMode);
+        SCRUT;
             if (WaitStatus != STATUS_WAIT_0) break;
 
             /* Enable the Timeout Timer if there was any specified */
+        SCRUT;
             if (Timeout)
             {
                 /* Check if the timer expired */
+        SCRUT;
                 InterruptTime.QuadPart = KeQueryInterruptTime();
+        SCRUT;
                 if ((ULONGLONG)InterruptTime.QuadPart >=
                     Timer->DueTime.QuadPart)
                 {
                     /* It did, so we don't need to wait */
+        SCRUT;
                     WaitStatus = STATUS_TIMEOUT;
+        SCRUT;
                     goto DontWait;
                 }
 
                 /* It didn't, so activate it */
+        SCRUT;
                 Timer->Header.Inserted = TRUE;
+        SCRUT;
             }
 
             /* Link the Object to this Wait Block */
+        SCRUT;
             InsertTailList(&CurrentObject->Header.WaitListHead,
                            &WaitBlock->WaitListEntry);
 
             /* Handle Kernel Queues */
+        SCRUT;
             if (Thread->Queue) KiActivateWaiterQueue(Thread->Queue);
 
             /* Setup the wait information */
+        SCRUT;
             Thread->State = Waiting;
 
             /* Add the thread to the wait list */
+        SCRUT;
             KiAddThreadToWaitList(Thread, Swappable);
 
             /* Activate thread swap */
+        SCRUT;
             ASSERT(Thread->WaitIrql <= DISPATCH_LEVEL);
+        SCRUT;
             KiSetThreadSwapBusy(Thread);
 
             /* Check if we have a timer */
+        SCRUT;
             if (Timeout)
             {
                 /* Insert it */
+        SCRUT;
                 KxInsertTimer(Timer, Hand);
+        SCRUT;
             }
             else
             {
                 /* Otherwise, unlock the dispatcher */
+        SCRUT;
                 KiReleaseDispatcherLockFromDpcLevel();
+        SCRUT;
             }
 
             /* Do the actual swap */
-            WaitStatus = KiSwapThread(Thread, KeGetCurrentPrcb());
+            SCRUT;
+            WaitStatus = KiSwapThread(FREAKOUT(Thread), KeGetCurrentPrcb());
+            SCRUT;
 
             /* Check if we were executing an APC */
+        SCRUT;
             if (WaitStatus != STATUS_KERNEL_APC) return WaitStatus;
 
             /* Check if we had a timeout */
+        SCRUT;
             if (Timeout)
             {
                 /* Recalculate due times */
+        SCRUT;
                 Timeout = KiRecalculateDueTime(OriginalDueTime,
                                                &DueTime,
                                                &NewDueTime);
+        SCRUT;
             }
+        SCRUT;
         }
+        SCRUT;
 WaitStart:
         /* Setup a new wait */
+        SCRUT;
         Thread->WaitIrql = KeRaiseIrqlToSynchLevel();
+        SCRUT;
         KxSingleThreadWait();
+        SCRUT;
         KiAcquireDispatcherLockAtDpcLevel();
+        SCRUT;
     }
 
     /* Wait complete */
+        SCRUT;
     KiReleaseDispatcherLock(Thread->WaitIrql);
+    if (Scrutiny) { DPRINT1("WaitStatus %x\n", WaitStatus); }
     return WaitStatus;
 
 DontWait:
