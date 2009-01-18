@@ -1011,6 +1011,31 @@ MingwModuleHandler::GenerateObjectMacros (
 
 		delete stubs_file;
 	}
+
+	if ( module.type == RpcProxy )
+	{
+		const FileLocation *dlldata_file = GetDlldataFilename();
+
+		fprintf (
+			fMakefile,
+			"%s += %s\n",
+			objectsMacro.c_str(),
+			ReplaceExtension ( backend->GetFullName ( *dlldata_file ), ".o" ).c_str() );
+
+		delete dlldata_file;
+	}
+}
+
+const FileLocation*
+MingwModuleHandler::GetDlldataFilename() const
+{
+	std::string dlldata_path = "";
+	size_t dlldata_path_len = module.xmlbuildFile.find_last_of(cSep);
+
+	if ( dlldata_path_len != std::string::npos && dlldata_path_len != 0 )
+		dlldata_path = module.xmlbuildFile.substr(0, dlldata_path_len);
+
+	return new FileLocation( IntermediateDirectory, dlldata_path, module.name + ".dlldata.c" );
 }
 
 /* caller needs to delete the returned object */
@@ -1030,7 +1055,7 @@ Rule arRule1 ( "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext).a: 
 Rule arRule2 ( "\t$(ECHO_AR)\n"
               "\t${ar} -rc $@ $($(module_name)_OBJS)\n",
               NULL );
-Rule arHostRule2 ( "\t$(ECHO_AR)\n"
+Rule arHostRule2 ( "\t$(ECHO_HOSTAR)\n"
                    "\t${host_ar} -rc $@ $($(module_name)_OBJS)\n",
                    NULL );
 Rule gasRule ( "$(source): ${$(module_name)_precondition}\n"
@@ -1139,6 +1164,13 @@ Rule widlProxyRule ( "$(source): ${$(module_name)_precondition}\n"
                      "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_p.c",
                      "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_p.o",
                      "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)", NULL );
+Rule widlDlldataRule ( "$(source): $(dependencies) ${$(module_name)_precondition} $(WIDL_TARGET) | $(INTERMEDIATE)$(SEP)$(source_dir)\n"
+                     "\t$(ECHO_WIDL)\n"
+                     "\t$(Q)$(WIDL_TARGET) $($(module_name)_WIDLFLAGS) --dlldata-only --dlldata=$(source) $(bare_dependencies)\n"
+                     "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext).o: $(source) $(dependencies) | $(INTERMEDIATE)$(SEP)$(source_dir)\n"
+                      "\t$(ECHO_CC)\n"
+					  "\t${gcc} -o $@ $($(module_name)_CFLAGS)$(compiler_flags) -c $<\n",
+                     "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext).o", NULL );
 Rule widlTlbRule ( "$(source): ${$(module_name)_precondition}\n"
                    "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(module_name).tlb: $(source)$(dependencies) $(WIDL_TARGET) | $(INTERMEDIATE)$(SEP)$(source_dir)\n"
                    "\t$(ECHO_WIDL)\n"
@@ -1151,7 +1183,7 @@ Rule gccRule ( "$(source): ${$(module_name)_precondition}\n"
                "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_$(module_name).o", NULL );
 Rule gccHostRule ( "$(source): ${$(module_name)_precondition}\n"
                    "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_$(module_name).o: $(source)$(dependencies) | $(INTERMEDIATE)$(SEP)$(source_dir)\n"
-                   "\t$(ECHO_CC)\n"
+                   "\t$(ECHO_HOSTCC)\n"
                    "\t${host_gcc} -o $@ $($(module_name)_CFLAGS)$(compiler_flags) -c $<\n",
                    "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_$(module_name).o", NULL );
 Rule gppRule ( "$(source): ${$(module_name)_precondition}\n"
@@ -1161,7 +1193,7 @@ Rule gppRule ( "$(source): ${$(module_name)_precondition}\n"
                "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_$(module_name).o", NULL );
 Rule gppHostRule ( "$(source): ${$(module_name)_precondition}\n"
                    "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_$(module_name).o: $(source)$(dependencies) | $(INTERMEDIATE)$(SEP)$(source_dir)\n"
-                   "\t$(ECHO_CC)\n"
+                   "\t$(ECHO_HOSTCC)\n"
                    "\t${host_gpp} -o $@ $($(module_name)_CXXFLAGS)$(compiler_flags) -c $<\n",
                    "$(INTERMEDIATE)$(SEP)$(source_dir)$(SEP)$(source_name_noext)_$(module_name).o", NULL );
 Rule emptyRule ( "", NULL );
@@ -1642,6 +1674,16 @@ MingwModuleHandler::GenerateObjectFileTargets ( const IfableData& data )
 
 		defRule->Execute ( fMakefile, backend, module, module.importLibrary->source, clean_files );
 	}
+
+	if ( module.type == RpcProxy )
+	{
+		widlDlldataRule.Execute ( fMakefile,
+								  backend,
+								  module,
+								  GetDlldataFilename(),
+								  clean_files,
+								  ssprintf ( "$(%s_SOURCES)", module.name.c_str ()) );
+	}
 }
 
 void
@@ -1671,11 +1713,12 @@ MingwModuleHandler::GenerateObjectFileTargets ()
 		          backend->GetFullPath ( *pchFilename ).c_str() );
 		fprintf ( fMakefile, "\t$(ECHO_PCH)\n" );
 		fprintf ( fMakefile,
-		          "\t%s -o %s %s %s -gstabs+ %s\n\n",
-		          module.cplusplus ? cppc.c_str() : cc.c_str(),
+		          "\t%s -o %s %s %s -gstabs+ -x %s %s\n\n",
+		          cc.c_str(),
 		          backend->GetFullName ( *pchFilename ).c_str(),
 		          module.cplusplus ? cxxflagsMacro.c_str() : cflagsMacro.c_str(),
 				  GenerateCompilerParametersFromVector ( module.non_if_data.compilerFlags, module.cplusplus ? CompilerTypeCPP : CompilerTypeCC ).c_str(),
+				  module.cplusplus ? "c++-header" : "c-header",
 		          backend->GetFullName ( baseHeaderFile ).c_str() );
 		delete pchFilename;
 	}
@@ -2476,7 +2519,7 @@ MingwBuildToolModuleHandler::GenerateBuildToolModuleTarget ()
 	          objectsMacro.c_str (),
 	          linkDepsMacro.c_str (),
 	          backend->GetFullPath ( *target_file ).c_str () );
-	fprintf ( fMakefile, "\t$(ECHO_LD)\n" );
+	fprintf ( fMakefile, "\t$(ECHO_HOSTLD)\n" );
 	fprintf ( fMakefile,
 	          "\t%s %s -o $@ %s %s\n\n",
 	          linker.c_str (),

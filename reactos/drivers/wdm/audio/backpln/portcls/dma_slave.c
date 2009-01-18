@@ -85,7 +85,7 @@ IDmaChannelSlave_fnRelease(
     if (This->ref == 0)
     {
         This->pAdapter->DmaOperations->PutDmaAdapter(This->pAdapter);
-        ExFreePoolWithTag(This, TAG_PORTCLASS);
+        FreeItem(This, TAG_PORTCLASS);
         return 0;
     }
     /* Return new reference count */
@@ -484,15 +484,20 @@ PcNewDmaChannel(
     ULONG MapRegisters;
     INTERFACE_TYPE BusType;
     ULONG ResultLength;
+    PCExtension* DeviceExt;
 
     IDmaChannelSlaveImpl * This;
 
-    This = ExAllocatePoolWithTag(PoolType, sizeof(IDmaChannelSlaveImpl), TAG_PORTCLASS);
+    DPRINT1("OutDmaChannel %p OuterUnknown %p PoolType %p DeviceDescription %p DeviceObject %p\n",
+            OutDmaChannel, OuterUnknown, PoolType, DeviceDescription, DeviceObject);
+
+    This = AllocateItem(PoolType, sizeof(IDmaChannelSlaveImpl), TAG_PORTCLASS);
     if (!This)
     {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
+    DeviceExt = (PCExtension*) DeviceObject->DeviceExtension;
 
     Status = IoGetDeviceProperty(DeviceObject, DevicePropertyLegacyBusType, sizeof(BusType), (PVOID)&BusType, &ResultLength);
     if (NT_SUCCESS(Status))
@@ -500,15 +505,16 @@ PcNewDmaChannel(
         DeviceDescription->InterfaceType = BusType;
     }
 
-    Adapter = IoGetDmaAdapter(DeviceObject, DeviceDescription, &MapRegisters);
+    DPRINT1("Calling IoGetDmaAdapter\n");
+
+    Adapter = IoGetDmaAdapter(DeviceExt->PhysicalDeviceObject, DeviceDescription, &MapRegisters);
     if (!Adapter)
     {
-        ExFreePoolWithTag(This, TAG_PORTCLASS);
+        FreeItem(This, TAG_PORTCLASS);
         return STATUS_DEVICE_CONFIGURATION_ERROR;
     }
 
-    RtlZeroMemory(This, sizeof(IDmaChannelSlaveImpl));
-
+    /* initialize object */
     This->ref = 1;
     This->lpVtbl = &vt_IDmaChannelSlaveVtbl;
     This->pAdapter = Adapter;
@@ -517,7 +523,7 @@ PcNewDmaChannel(
     This->MaxMapRegisters = MapRegisters;
 
     *OutDmaChannel = (PVOID)(&This->lpVtbl);
-
+    DPRINT1("PcNewDmaChannel result %p\n", *OutDmaChannel);
     return STATUS_SUCCESS;
 
 }

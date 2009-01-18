@@ -136,6 +136,10 @@ typedef struct _WINDOWCLASS
     UINT NotUsed : 27;
 } WINDOWCLASS, *PWINDOWCLASS;
 
+
+// Flags !Not Implemented!
+#define WNDF_CALLPROC 0x0004 // Call proc inside win32k.
+
 typedef struct _WINDOW
 {
     USER_OBJHDR hdr; /* FIXME: Move out of the structure once new handle manager is implemented */
@@ -496,6 +500,11 @@ typedef struct _USERCONNECT
 #define WM_SYSTIMER 280
 #define WM_POPUPSYSTEMMENU 787
 
+//
+// Non SDK DCE types.
+//
+#define DCX_USESTYLE     0x00010000
+#define DCX_KEEPCLIPRGN  0x00040000
 
 DWORD
 NTAPI
@@ -1202,17 +1211,9 @@ NTAPI
 NtUserDisableThreadIme(
     DWORD dwUnknown1);
 
-typedef struct tagNTUSERDISPATCHMESSAGEINFO
-{
-  BOOL HandledByKernel;
-  BOOL Ansi;
-  WNDPROC Proc;
-  MSG Msg;
-} NTUSERDISPATCHMESSAGEINFO, *PNTUSERDISPATCHMESSAGEINFO;
-
 LRESULT
 NTAPI
-NtUserDispatchMessage(PNTUSERDISPATCHMESSAGEINFO MsgInfo);
+NtUserDispatchMessage(PMSG pMsg);
 
 BOOL
 NTAPI
@@ -2682,12 +2683,12 @@ NtUserValidateRect(
     HWND hWnd,
     CONST RECT *lpRect);
 
-DWORD
-NTAPI
+BOOL
+APIENTRY
 NtUserValidateTimerCallback(
-    DWORD dwUnknown1,
-    DWORD dwUnknown2,
-    DWORD dwUnknown3);
+    HWND hWnd,
+    WPARAM wParam,
+    LPARAM lParam);
 
 DWORD
 NTAPI

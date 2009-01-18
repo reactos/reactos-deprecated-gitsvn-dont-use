@@ -4,6 +4,7 @@ typedef struct
 {
     IPortWavePciVtbl *lpVtbl;
     IServiceSinkVtbl *lpVtblServiceSink;
+    IPortEventsVtbl *lpVtblPortEvents;
 
 #if 0
     IUnregisterSubdevice *lpVtblUnregisterSubDevice;
@@ -19,8 +20,96 @@ typedef struct
 }IPortWavePciImpl;
 
 
-const GUID IID_IPortWavePci;
-const GUID IID_IMiniportWavePci;
+//---------------------------------------------------------------
+// IPortEvents
+//
+
+static
+NTSTATUS
+NTAPI
+IPortEvents_fnQueryInterface(
+    IPortEvents* iface,
+    IN  REFIID refiid,
+    OUT PVOID* Output)
+{
+    IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblPortEvents);
+
+    DPRINT1("IServiceSink_fnQueryInterface entered\n");
+
+    if (IsEqualGUIDAligned(refiid, &IID_IPortEvents) ||
+        IsEqualGUIDAligned(refiid, &IID_IUnknown))
+    {
+        *Output = &This->lpVtblServiceSink;
+        InterlockedIncrement(&This->ref);
+        return STATUS_SUCCESS;
+    }
+    return STATUS_UNSUCCESSFUL;
+}
+
+static
+ULONG
+NTAPI
+IPortEvents_fnAddRef(
+    IPortEvents* iface)
+{
+    IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblPortEvents);
+    DPRINT1("IServiceSink_fnAddRef entered\n");
+    return InterlockedIncrement(&This->ref);
+}
+
+static
+ULONG
+NTAPI
+IPortEvents_fnRelease(
+    IPortEvents* iface)
+{
+    IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblPortEvents);
+    DPRINT1("IServiceSink_fnRelease entered\n");
+    InterlockedDecrement(&This->ref);
+
+    if (This->ref == 0)
+    {
+        FreeItem(This, TAG_PORTCLASS);
+        return 0;
+    }
+    /* Return new reference count */
+    return This->ref;
+}
+
+static
+void
+NTAPI
+IPortEvents_fnAddEventToEventList(
+    IPortEvents* iface,
+    IN PKSEVENT_ENTRY EventEntry)
+{
+    DPRINT1("IPortEvents_fnAddEventToEventList stub\n");
+}
+
+
+static
+void
+NTAPI
+IPortEvents_fnGenerateEventList(
+    IPortEvents* iface,
+    IN  GUID* Set OPTIONAL,
+    IN  ULONG EventId,
+    IN  BOOL PinEvent,
+    IN  ULONG PinId,
+    IN  BOOL NodeEvent,
+    IN  ULONG NodeId)
+{
+    DPRINT1("IPortEvents_fnGenerateEventList stub\n");
+}
+
+static IPortEventsVtbl vt_IPortEvents = 
+{
+    IPortEvents_fnQueryInterface,
+    IPortEvents_fnAddRef,
+    IPortEvents_fnRelease,
+    IPortEvents_fnAddEventToEventList,
+    IPortEvents_fnGenerateEventList
+};
 
 //---------------------------------------------------------------
 // IServiceSink
@@ -36,7 +125,10 @@ IServiceSink_fnQueryInterface(
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblServiceSink);
 
-    if (IsEqualGUIDAligned(refiid, &IID_IServiceSink))
+    DPRINT1("IServiceSink_fnQueryInterface entered\n");
+
+    if (IsEqualGUIDAligned(refiid, &IID_IServiceSink) ||
+        IsEqualGUIDAligned(refiid, &IID_IUnknown))
     {
         *Output = &This->lpVtblServiceSink;
         InterlockedIncrement(&This->ref);
@@ -52,7 +144,7 @@ IServiceSink_fnAddRef(
     IServiceSink* iface)
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblServiceSink);
-
+    DPRINT1("IServiceSink_fnAddRef entered\n");
     return InterlockedIncrement(&This->ref);
 }
 
@@ -63,12 +155,12 @@ IServiceSink_fnRelease(
     IServiceSink* iface)
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblServiceSink);
-
+    DPRINT1("IServiceSink_fnRelease entered\n");
     InterlockedDecrement(&This->ref);
 
     if (This->ref == 0)
     {
-        ExFreePoolWithTag(This, TAG_PORTCLASS);
+        FreeItem(This, TAG_PORTCLASS);
         return 0;
     }
     /* Return new reference count */
@@ -82,7 +174,7 @@ IServiceSink_fnRequestService(
     IServiceSink* iface)
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)CONTAINING_RECORD(iface, IPortWavePciImpl, lpVtblServiceSink);
-
+    DPRINT1("IServiceSink_fnRequestService entered\n");
     if (This->Miniport)
     {
         This->Miniport->lpVtbl->Service(This->Miniport);
@@ -109,9 +201,13 @@ IPortWavePci_fnQueryInterface(
     IN  REFIID refiid,
     OUT PVOID* Output)
 {
+	WCHAR Buffer[100];
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
 
-    if (IsEqualGUIDAligned(refiid, &IID_IPortWavePci))
+    DPRINT1("IPortWavePci_fnQueryInterface entered\n");
+
+    if (IsEqualGUIDAligned(refiid, &IID_IPortWavePci) || 
+        IsEqualGUIDAligned(refiid, &IID_IUnknown))
     {
         *Output = &This->lpVtbl;
         InterlockedIncrement(&This->ref);
@@ -123,10 +219,20 @@ IPortWavePci_fnQueryInterface(
         InterlockedIncrement(&This->ref);
         return STATUS_SUCCESS;
     }
+    else if (IsEqualGUIDAligned(refiid, &IID_IPortEvents))
+    {
+        *Output = &This->lpVtblPortEvents;
+        InterlockedIncrement(&This->ref);
+        return STATUS_SUCCESS;
+    }
     else if (IsEqualGUIDAligned(refiid, &IID_IPortClsVersion))
     {
         return NewPortClsVersion((PPORTCLSVERSION*)Output);
     }
+
+    StringFromCLSID(refiid, Buffer);
+    DPRINT1("IPortWavePci_fnQueryInterface no interface!!! iface %S\n", Buffer);
+    KeBugCheckEx(0, 0, 0, 0, 0);
     return STATUS_UNSUCCESSFUL;
 }
 
@@ -137,6 +243,9 @@ IPortWavePci_fnAddRef(
     IPortWavePci* iface)
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
+
+    DPRINT1("IPortWavePci_fnAddRef entered\n");
+
     return InterlockedIncrement(&This->ref);
 }
 
@@ -148,11 +257,13 @@ IPortWavePci_fnRelease(
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
 
+    DPRINT1("IPortWavePci_fnRelease entered\n");
+
     InterlockedDecrement(&This->ref);
 
     if (This->ref == 0)
     {
-        ExFreePoolWithTag(This, TAG_PORTCLASS);
+        FreeItem(This, TAG_PORTCLASS);
         return 0;
     }
     /* Return new reference count */
@@ -167,9 +278,12 @@ ServiceNotifyRoutine(
     IN PVOID  SystemArgument1,
     IN PVOID  SystemArgument2)
 {
+    DPRINT1("ServiceNotifyRoutine entered %p %p %p\n", DeferredContext, SystemArgument1, SystemArgument2);
+
     IPortWavePciImpl * This = (IPortWavePciImpl*)DeferredContext;
-    if (This->ServiceGroup)
+    if (This->ServiceGroup && This->bInitialized)
     {
+        DPRINT1("ServiceGroup %p\n", This->ServiceGroup);
         This->ServiceGroup->lpVtbl->RequestService(This->ServiceGroup);
     }
 }
@@ -191,6 +305,9 @@ IPortWavePci_fnInit(
     NTSTATUS Status;
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
 
+    DPRINT1("IPortWavePci::Init entered with This %p, DeviceObject %p Irp %p UnknownMiniport %p, UnknownAdapter %p ResourceList %p\n", 
+            This, DeviceObject, Irp, UnknownMiniport, UnknownAdapter, ResourceList);
+
     if (This->bInitialized)
     {
         DPRINT("IPortWaveCyclic_Init called again\n");
@@ -204,13 +321,17 @@ IPortWavePci_fnInit(
         return STATUS_INVALID_PARAMETER;
     }
 
+    /* initialize the dpc */
+    KeInitializeDpc(&This->Dpc, ServiceNotifyRoutine, (PVOID)This);
+
+
     Status = Miniport->lpVtbl->Init(Miniport, UnknownAdapter, ResourceList, iface, &ServiceGroup);
     if (!NT_SUCCESS(Status))
     {
         DPRINT("IMiniportWaveCyclic_Init failed with %x\n", Status);
         return Status;
     }
-
+    DPRINT1("IPortWaveCyclic_Init Miniport adapter initialized\n");
     /* Initialize port object */
     This->Miniport = Miniport;
     This->pDeviceObject = DeviceObject;
@@ -218,8 +339,6 @@ IPortWavePci_fnInit(
     This->pResourceList = ResourceList;
     This->ServiceGroup = ServiceGroup;
 
-    /* initialize the dpc */
-    KeInitializeDpc(&This->Dpc, ServiceNotifyRoutine, (PVOID)This);
 
     /* increment reference on miniport adapter */
     Miniport->lpVtbl->AddRef(Miniport);
@@ -232,6 +351,7 @@ IPortWavePci_fnInit(
     /* increment reference on service group */
     ServiceGroup->lpVtbl->AddRef(ServiceGroup);
 
+    DPRINT("IPortWaveCyclic_Init sucessfully initialized\n");
     return STATUS_SUCCESS;
 }
 
@@ -247,7 +367,25 @@ IPortWavePci_fnNewRegistryKey(
     IN ULONG  CreateOptions  OPTIONAL,
     OUT PULONG  Disposition  OPTIONAL)
 {
-    return STATUS_UNSUCCESSFUL;
+    IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
+
+    DPRINT1("IPortWavePci_fnNewRegistryKey entered\n");
+
+    if (!This->bInitialized)
+    {
+        DPRINT("IPortWaveCyclic_fnNewRegistryKey called w/o initiazed\n");
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    return PcNewRegistryKey(OutRegistryKey, 
+                            OuterUnknown,
+                            RegistryKeyType,
+                            DesiredAccess,
+                            This->pDeviceObject,
+                            NULL,//FIXME
+                            ObjectAttributes,
+                            CreateOptions,
+                            Disposition);
 }
 
 NTSTATUS
@@ -260,6 +398,8 @@ IPortWavePci_fnGetDeviceProperty(
     OUT PULONG  ReturnLength)
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
+
+    DPRINT1("IPortWavePci_fnGetDeviceProperty entered\n");
 
     if (!This->bInitialized)
     {
@@ -291,6 +431,8 @@ IPortWavePci_fnNewMasterDmaChannel(
     DEVICE_DESCRIPTION DeviceDescription;
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
 
+    DPRINT1("IPortWavePci_fnNewMasterDmaChannel entered\n");
+
     Status = PcDmaMasterDescription(ResourceList, ScatterGather, Dma32BitAddresses, IgnoreCount, Dma64BitAddresses, DmaWidth, DmaSpeed, MaximumLength, DmaPort, &DeviceDescription);
     if (NT_SUCCESS(Status))
     {
@@ -307,7 +449,16 @@ IPortWavePci_fnNotify(
     IN  PSERVICEGROUP ServiceGroup)
 {
     IPortWavePciImpl * This = (IPortWavePciImpl*)iface;
-    KeInsertQueueDpc(&This->Dpc, NULL, NULL);
+
+
+    DPRINT1("IPortWavePci_fnNotify entered %p, ServiceGroup %p\n", This, This->ServiceGroup);
+
+    if (This->ServiceGroup)
+    {
+        This->ServiceGroup->lpVtbl->RequestService (This->ServiceGroup);
+    }
+
+   // KeInsertQueueDpc(&This->Dpc, NULL, NULL);
 }
 
 static IPortWavePciVtbl vt_IPortWavePci =
@@ -332,15 +483,16 @@ NewPortWavePci(
 {
     IPortWavePciImpl * This;
 
-    This = ExAllocatePoolWithTag(NonPagedPool, sizeof(IPortWavePciImpl), TAG_PORTCLASS);
+    This = AllocateItem(NonPagedPool, sizeof(IPortWavePciImpl), TAG_PORTCLASS);
     if (!This)
         return STATUS_INSUFFICIENT_RESOURCES;
 
-    RtlZeroMemory(This, sizeof(IPortWavePciImpl));
     This->lpVtblServiceSink = &vt_IServiceSink;
     This->lpVtbl = &vt_IPortWavePci;
+    This->lpVtblPortEvents = &vt_IPortEvents;
     This->ref = 1;
 
     *OutPort = (PPORT)&This->lpVtbl;
+    DPRINT1("NewPortWavePci %p\n", *OutPort);
     return STATUS_SUCCESS;
 }

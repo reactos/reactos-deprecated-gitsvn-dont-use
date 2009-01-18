@@ -42,25 +42,25 @@ DriverEntry(PDRIVER_OBJECT DriverObject,
     FatGlobalData.DriverObject = DriverObject;
     FatGlobalData.DiskDeviceObject = DeviceObject;
 
-    // TODO: Fill major function handlers
-#if 0
-    DriverObject->MajorFunction[IRP_MJ_CLOSE] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_CREATE] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_READ] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_WRITE] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_FILE_SYSTEM_CONTROL] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_QUERY_INFORMATION] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_SET_INFORMATION] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_DIRECTORY_CONTROL] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_QUERY_VOLUME_INFORMATION] =
-    VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_SET_VOLUME_INFORMATION] =
-    VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_SHUTDOWN] = VfatShutdown;
-    DriverObject->MajorFunction[IRP_MJ_LOCK_CONTROL] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_CLEANUP] = VfatBuildRequest;
-    DriverObject->MajorFunction[IRP_MJ_FLUSH_BUFFERS] = VfatBuildRequest;
-#endif
+    /* Fill major function handlers */
+    DriverObject->MajorFunction[IRP_MJ_CLOSE] = FatClose;
+    DriverObject->MajorFunction[IRP_MJ_CREATE] = FatCreate;
+    DriverObject->MajorFunction[IRP_MJ_READ] = FatRead;
+    DriverObject->MajorFunction[IRP_MJ_WRITE] = FatWrite;
+    DriverObject->MajorFunction[IRP_MJ_FILE_SYSTEM_CONTROL] = FatFileSystemControl;
+    DriverObject->MajorFunction[IRP_MJ_QUERY_INFORMATION] = FatQueryInformation;
+    DriverObject->MajorFunction[IRP_MJ_SET_INFORMATION] = FatSetInformation;
+    DriverObject->MajorFunction[IRP_MJ_DIRECTORY_CONTROL] = FatDirectoryControl;
+    DriverObject->MajorFunction[IRP_MJ_QUERY_VOLUME_INFORMATION] = FatQueryVolumeInfo;
+    DriverObject->MajorFunction[IRP_MJ_SET_VOLUME_INFORMATION] = FatSetVolumeInfo;
+    DriverObject->MajorFunction[IRP_MJ_SHUTDOWN] = FatShutdown;
+    DriverObject->MajorFunction[IRP_MJ_LOCK_CONTROL] = FatLockControl;
+    DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = FatDeviceControl;
+    DriverObject->MajorFunction[IRP_MJ_CLEANUP] = FatCleanup;
+    DriverObject->MajorFunction[IRP_MJ_FLUSH_BUFFERS] = FatFlushBuffers;
+    //DriverObject->MajorFunction[IRP_MJ_QUERY_EA]
+    //DriverObject->MajorFunction[IRP_MJ_SET_EA]
+    //DriverObject->MajorFunction[IRP_MJ_PNP]
 
     DriverObject->DriverUnload = NULL;
 
@@ -104,6 +104,9 @@ DriverEntry(PDRIVER_OBJECT DriverObject,
                                     TAG_IRP,
                                     0);
 
+    /* Initialize synchronization resource for the global data */
+    ExInitializeResourceLite(&FatGlobalData.Resource);
+
     /* Register and reference our filesystem */
     IoRegisterFileSystem(DeviceObject);
     ObReferenceObject(DeviceObject);
@@ -111,5 +114,112 @@ DriverEntry(PDRIVER_OBJECT DriverObject,
     return STATUS_SUCCESS;
 }
 
-/* EOF */
+PFAT_IRP_CONTEXT
+NTAPI
+FatBuildIrpContext(PIRP Irp,
+                   BOOLEAN CanWait)
+{
+    PIO_STACK_LOCATION IrpSp;
+    PFAT_IRP_CONTEXT IrpContext;
+    PVOLUME_DEVICE_OBJECT VolumeObject;
 
+    /* Get current IRP stack location */
+    IrpSp = IoGetCurrentIrpStackLocation(Irp);
+
+    /* Allocate memory for the Irp context */
+    IrpContext = ExAllocateFromNPagedLookasideList(&FatGlobalData.IrpContextList);
+
+    /* Zero init memory */
+    RtlZeroMemory(IrpContext, sizeof(FAT_IRP_CONTEXT));
+
+    /* Save IRP, MJ and MN */
+    IrpContext->Irp = Irp;
+    IrpContext->MajorFunction = IrpSp->MajorFunction;
+    IrpContext->MinorFunction = IrpSp->MinorFunction;
+
+    /* Set DeviceObject */
+    if (IrpSp->FileObject)
+    {
+        IrpContext->DeviceObject = IrpSp->FileObject->DeviceObject;
+
+        /* Save VCB pointer */
+        VolumeObject = (PVOLUME_DEVICE_OBJECT)IrpSp->DeviceObject;
+        IrpContext->Vcb = &VolumeObject->Vcb;
+
+        /* TODO: Handle write-through */
+    }
+    else if (IrpContext->MajorFunction == IRP_MJ_FILE_SYSTEM_CONTROL)
+    {
+        /* Handle FSCTRL case */
+        IrpContext->DeviceObject = IrpSp->Parameters.MountVolume.Vpb->RealDevice;
+    }
+
+    /* Set Wait flag */
+    if (CanWait) IrpContext->Flags |= IRPCONTEXT_CANWAIT;
+
+    /* Return prepared context */
+    return IrpContext;
+}
+
+VOID
+NTAPI
+FatDestroyIrpContext(PFAT_IRP_CONTEXT IrpContext)
+{
+    PAGED_CODE();
+
+    /* Make sure it has no pinned stuff */
+    ASSERT(IrpContext->PinCount == 0);
+
+    /* If there is a FatIo context associated with it - free it */
+    if (IrpContext->FatIoContext)
+    {
+        if (!(IrpContext->Flags & IRPCONTEXT_STACK_IO_CONTEXT))
+        {
+            /* If a zero mdl was allocated - free it */
+            if (IrpContext->FatIoContext->ZeroMdl)
+                IoFreeMdl(IrpContext->FatIoContext->ZeroMdl);
+
+            /* Free memory of FatIo context */
+            ExFreePool(IrpContext->FatIoContext);
+        }
+    }
+
+    /* Free memory */
+    ExFreeToNPagedLookasideList(&FatGlobalData.IrpContextList, IrpContext);
+}
+
+VOID
+NTAPI
+FatCompleteRequest(PFAT_IRP_CONTEXT IrpContext OPTIONAL,
+                   PIRP Irp OPTIONAL,
+                   NTSTATUS Status)
+{
+    PAGED_CODE();
+
+    if (IrpContext)
+    {
+        /* TODO: Unpin repinned BCBs */
+        //ASSERT(IrpContext->Repinned.Bcb[0] == NULL);
+        //FatUnpinRepinnedBcbs( IrpContext );
+
+        /* Destroy IRP context */
+        FatDestroyIrpContext(IrpContext);
+    }
+
+    /* Complete the IRP */
+    if (Irp)
+    {
+        /* Cleanup IoStatus.Information in case of error input operation */
+        if (NT_ERROR(Status) && (Irp->Flags & IRP_INPUT_OPERATION))
+        {
+            Irp->IoStatus.Information = 0;
+        }
+
+        /* Save status and complete this IRP */
+        Irp->IoStatus.Status = Status;
+        IoCompleteRequest( Irp, IO_DISK_INCREMENT );
+    }
+}
+
+
+/* EOF */

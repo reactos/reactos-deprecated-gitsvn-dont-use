@@ -228,5 +228,31 @@ extern PUSER_HANDLE_ENTRY gHandleEntries;
 PUSER_HANDLE_ENTRY FASTCALL GetUser32Handle(HANDLE);
 PVOID FASTCALL ValidateHandle(HANDLE, UINT);
 
+#define SYSCOLOR_GetPen(index) GetSysColorPen(index)
+#define WIN_GetFullHandle(h) ((HWND)(h))
+
+#ifndef __ms_va_list
+# if defined(__x86_64__) && defined (__GNUC__)
+#  define __ms_va_list __builtin_ms_va_list
+#  define __ms_va_start(list,arg) __builtin_ms_va_start(list,arg)
+#  define __ms_va_end(list) __builtin_ms_va_end(list)
+# else
+#  define __ms_va_list va_list
+#  define __ms_va_start(list,arg) va_start(list,arg)
+#  define __ms_va_end(list) va_end(list)
+# endif
+#endif
+
+#ifdef _MSC_VER
+#ifndef inline
+#define inline __inline
+#endif
+#endif
+
+/* Hack away wine hack */
+#define __TRY if(1)
+#define __EXCEPT_PAGE_FAULT else
+#define __ENDTRY
+
 #endif
 /* EOF */

@@ -2850,6 +2850,12 @@ GetConsoleCursorInfo(
 
    NTSTATUS Status;
 
+   if (!lpConsoleCursorInfo)
+   {
+       SetLastError(ERROR_INVALID_ACCESS);
+       return FALSE;
+   }
+
    CsrRequest = MAKE_CSR_API(GET_CURSOR_INFO, CSR_CONSOLE);
    Request.Data.GetCursorInfoRequest.ConsoleHandle = hConsoleOutput;
    Status = CsrClientCallServer( &Request, NULL, CsrRequest, sizeof( CSR_API_MESSAGE ) );
@@ -3757,6 +3763,7 @@ BOOL WINAPI SetConsoleIcon(HICON hicon)
 BOOL WINAPI
 SetConsoleInputExeNameW(LPCWSTR lpInputExeName)
 {
+  NTSTATUS Status = STATUS_SUCCESS;
   int lenName = lstrlenW(lpInputExeName);
 
   if(lenName < 1 ||
@@ -3770,14 +3777,28 @@ SetConsoleInputExeNameW(LPCWSTR lpInputExeName)
   RtlEnterCriticalSection(&ConsoleLock);
   _SEH2_TRY
   {
-    RtlCopyMemory(InputExeName, lpInputExeName, lenName * sizeof(WCHAR));
-    InputExeName[lenName] = L'\0';
+    _SEH2_TRY
+    {
+      RtlCopyMemory(InputExeName, lpInputExeName, lenName * sizeof(WCHAR));
+      InputExeName[lenName] = L'\0';
+    }
+    _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
+    {
+      Status = _SEH2_GetExceptionCode();
+    }
+    _SEH2_END;
   }
   _SEH2_FINALLY
   {
     RtlLeaveCriticalSection(&ConsoleLock);
   }
   _SEH2_END;
+
+  if (!NT_SUCCESS(Status))
+  {
+    SetLastErrorByStatus(Status);
+    return FALSE;
+  }
 
   return TRUE;
 }
@@ -3830,26 +3851,40 @@ SetConsoleInputExeNameA(LPCSTR lpInputExeName)
 DWORD WINAPI
 GetConsoleInputExeNameW(DWORD nBufferLength, LPWSTR lpBuffer)
 {
+  NTSTATUS Status = STATUS_SUCCESS;
   int lenName = 0;
 
   RtlEnterCriticalSection(&ConsoleLock);
-
   _SEH2_TRY
   {
-    lenName = lstrlenW(InputExeName);
-    if(lenName >= (int)nBufferLength)
+    _SEH2_TRY
     {
-      /* buffer is not large enough, return the required size */
-      SetLastError(ERROR_BUFFER_OVERFLOW);
-      lenName += 1;
+      lenName = lstrlenW(InputExeName);
+      if(lenName >= (int)nBufferLength)
+      {
+        /* buffer is not large enough, return the required size */
+        SetLastError(ERROR_BUFFER_OVERFLOW);
+        lenName += 1;
+      }
+      RtlCopyMemory(lpBuffer, InputExeName, (lenName + 1) * sizeof(WCHAR));
     }
-    RtlCopyMemory(lpBuffer, InputExeName, (lenName + 1) * sizeof(WCHAR));
+    _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
+    {
+      Status = _SEH2_GetExceptionCode();
+    }
+    _SEH2_END;
   }
   _SEH2_FINALLY
   {
     RtlLeaveCriticalSection(&ConsoleLock);
   }
   _SEH2_END;
+
+  if (!NT_SUCCESS(Status))
+  {
+    SetLastError(ERROR_BUFFER_OVERFLOW);
+    return lenName + 1;
+  }
 
   return lenName;
 }

@@ -13,13 +13,19 @@
 
 /* FUNCTIONS ****************************************************************/
 
-NTSTATUS VfatQueryInformation(PFAT_IRP_CONTEXT IrpContext)
+NTSTATUS
+NTAPI
+FatQueryInformation(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 {
+    DPRINT1("FatQueryInformation()\n");
     return STATUS_NOT_IMPLEMENTED;
 }
 
-NTSTATUS VfatSetInformation(PFAT_IRP_CONTEXT IrpContext)
+NTSTATUS
+NTAPI
+FatSetInformation(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 {
+    DPRINT1("FatSetInformation()\n");
     return STATUS_NOT_IMPLEMENTED;
 }
 

@@ -14,8 +14,10 @@
 /* FUNCTIONS *****************************************************************/
 
 NTSTATUS
-VfatDirectoryControl(PFAT_IRP_CONTEXT IrpContext)
+NTAPI
+FatDirectoryControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 {
+    DPRINT1("FatDirectoryControl()\n");
     return STATUS_NOT_IMPLEMENTED;
 }
 

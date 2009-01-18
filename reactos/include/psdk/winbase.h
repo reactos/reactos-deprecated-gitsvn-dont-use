@@ -1283,6 +1283,8 @@ void WINAPI DebugBreak(void);
 BOOL WINAPI DebugBreakProcess(HANDLE);
 BOOL WINAPI DebugSetProcessKillOnExit(BOOL);
 #endif
+PVOID WINAPI DecodePointer(PVOID);
+PVOID WINAPI DecodeSystemPointer(PVOID);
 BOOL WINAPI DefineDosDeviceA(DWORD,LPCSTR,LPCSTR);
 BOOL WINAPI DefineDosDeviceW(DWORD,LPCWSTR,LPCWSTR);
 #define DefineHandleTable(w) ((w),TRUE)
@@ -1312,6 +1314,8 @@ BOOL WINAPI DosDateTimeToFileTime(WORD,WORD,LPFILETIME);
 BOOL WINAPI DuplicateHandle(HANDLE,HANDLE,HANDLE,PHANDLE,DWORD,BOOL,DWORD);
 BOOL WINAPI DuplicateToken(HANDLE,SECURITY_IMPERSONATION_LEVEL,PHANDLE);
 BOOL WINAPI DuplicateTokenEx(HANDLE,DWORD,LPSECURITY_ATTRIBUTES,SECURITY_IMPERSONATION_LEVEL,TOKEN_TYPE,PHANDLE);
+PVOID WINAPI EncodePointer(PVOID);
+PVOID WINAPI EncodeSystemPointer(PVOID);
 BOOL WINAPI EncryptFileA(LPCSTR);
 BOOL WINAPI EncryptFileW(LPCWSTR);
 BOOL WINAPI EndUpdateResourceA(HANDLE,BOOL);
@@ -1526,7 +1530,7 @@ DWORD WINAPI GetPrivateProfileStringW(LPCWSTR,LPCWSTR,LPCWSTR,LPWSTR,DWORD,LPCWS
 BOOL WINAPI GetPrivateProfileStructA(LPCSTR,LPCSTR,LPVOID,UINT,LPCSTR);
 BOOL WINAPI GetPrivateProfileStructW(LPCWSTR,LPCWSTR,LPVOID,UINT,LPCWSTR);
 FARPROC WINAPI GetProcAddress(HINSTANCE,LPCSTR);
-BOOL WINAPI GetProcessAffinityMask(HANDLE,PDWORD,PDWORD);
+BOOL WINAPI GetProcessAffinityMask(HANDLE,PDWORD_PTR,PDWORD_PTR);
 #if (_WIN32_WINNT >= 0x0502)
 BOOL WINAPI GetProcessHandleCount(HANDLE,PDWORD);
 #endif
@@ -1775,7 +1779,7 @@ InterlockedAnd_Inline(IN OUT volatile LONG *Target,
     j = *Target;
     do {
         i = j;
-        j = _InterlockedCompareExchange((PLONG)Target,
+        j = _InterlockedCompareExchange((volatile long *)Target,
                                         i & Set,
                                         i);
 
@@ -1798,7 +1802,7 @@ InterlockedOr_Inline(IN OUT volatile LONG *Target,
     j = *Target;
     do {
         i = j;
-        j = _InterlockedCompareExchange((PLONG)Target,
+        j = _InterlockedCompareExchange((volatile long *)Target,
                                         i | Set,
                                         i);
 
@@ -1963,7 +1967,7 @@ BOOL WINAPI ReadEventLogW(HANDLE,DWORD,DWORD,PVOID,DWORD,DWORD *,DWORD *);
 BOOL WINAPI ReadFile(HANDLE,PVOID,DWORD,PDWORD,LPOVERLAPPED);
 BOOL WINAPI ReadFileEx(HANDLE,PVOID,DWORD,LPOVERLAPPED,LPOVERLAPPED_COMPLETION_ROUTINE);
 BOOL WINAPI ReadFileScatter(HANDLE,FILE_SEGMENT_ELEMENT*,DWORD,LPDWORD,LPOVERLAPPED);
-BOOL WINAPI ReadProcessMemory(HANDLE,PCVOID,PVOID,DWORD,PDWORD);
+BOOL WINAPI ReadProcessMemory(HANDLE,PCVOID,PVOID,SIZE_T,PSIZE_T);
 #if (_WIN32_WINNT >= 0x0600)
 VOID WINAPI RecoveryFinished(BOOL);
 HRESULT WINAPI RecoveryInProgress(OUT PBOOL);

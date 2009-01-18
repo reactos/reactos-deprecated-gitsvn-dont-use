@@ -11,11 +11,13 @@
 	<library>rtl</library>
 	<library>hal</library>
 	<file>api.c</file>
+	<file>connection.c</file>
 	<file>dll.c</file>
 	<file>dma_slave.c</file>
 	<file>drm_port.c</file>
 	<file>adapter.c</file>
 	<file>filter_wavecyclic.c</file>
+	<file>guids.c</file>
 	<file>irp.c</file>
 	<file>interrupt.c</file>
 	<file>drm.c</file>
@@ -23,7 +25,8 @@
 	<file>undoc.c</file>
 	<file>resource.c</file>
 	<file>registry.c</file>
-	<file>service_group.c</file>	
+	<file>service_group.c</file>
+	<file>pool.c</file>
 	<file>port.c</file>
 	<file>power.c</file>
 	<file>port_dmus.c</file>

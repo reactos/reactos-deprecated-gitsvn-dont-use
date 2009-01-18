@@ -119,7 +119,7 @@ PortClsPnp(
         if ( ! NT_SUCCESS(status) )
         {
             DPRINT("StartDevice returned a failure code [0x%8x]\n", status);
-            resource_list->lpVtbl->Release(resource_list);
+            //resource_list->lpVtbl->Release(resource_list);
 
             Irp->IoStatus.Status = status;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
@@ -141,7 +141,16 @@ PortClsPnp(
         /* Do not complete? */
         Irp->IoStatus.Status = STATUS_SUCCESS;
     }
+    else if ( irp_stack->MinorFunction == IRP_MN_QUERY_INTERFACE )
+    {
+        //FIXME
+        // call next lower device object
+        Irp->IoStatus.Status = STATUS_UNSUCCESSFUL;
+        return Irp->IoStatus.Status;
+    }
+ 
 
+    DPRINT1("unhandled function %u\n", irp_stack->MinorFunction);
     return STATUS_SUCCESS;
 }
 
@@ -205,7 +214,7 @@ PcDispatchIrp(
 {
     PIO_STACK_LOCATION irp_stack;
 
-    DPRINT("PcDispatchIrp called - handling IRP in PortCls\n");
+    DPRINT1("PcDispatchIrp called - handling IRP in PortCls\n");
 
     irp_stack = IoGetCurrentIrpStackLocation(Irp);
 
@@ -261,14 +270,53 @@ PcCompleteIrp(
     return STATUS_UNSUCCESSFUL;
 }
 
+static
+NTSTATUS
+NTAPI
+IrpCompletionRoutine(
+    IN PDEVICE_OBJECT DeviceObject,
+    IN PIRP Irp,
+    IN PVOID Context)
+{
+    KeSetEvent((PRKEVENT)Context, IO_NO_INCREMENT, FALSE);
+    return STATUS_SUCCESS;
+}
+
+
 /*
- * @unimplemented
+ * @implemented
  */
 NTSTATUS NTAPI
 PcForwardIrpSynchronous(
     IN  PDEVICE_OBJECT DeviceObject,
     IN  PIRP Irp)
 {
-    UNIMPLEMENTED;
-    return STATUS_UNSUCCESSFUL;
+    KEVENT Event;
+    PCExtension* DeviceExt;
+    NTSTATUS Status;
+
+    DPRINT1("PcForwardIrpSynchronous\n");
+
+    DeviceExt = (PCExtension*)DeviceObject->DeviceExtension;
+return STATUS_SUCCESS;
+    /* initialize the notification event */
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    /* copy the current stack location */
+    IoCopyCurrentIrpStackLocationToNext(Irp);
+
+    /* setup a completion routine */
+    IoSetCompletionRoutine(Irp, IrpCompletionRoutine, (PVOID)&Event, TRUE, FALSE, FALSE);
+
+    /* now call the driver */
+    Status = IoCallDriver(DeviceExt->PrevDeviceObject, Irp);
+    /* did the request complete yet */
+    if (Status == STATUS_PENDING)
+    {
+        /* not yet, lets wait a bit */
+        KeWaitForSingleObject(&Event, Executive, FALSE, FALSE, NULL);
+        Status = STATUS_SUCCESS;
+    }
+    DPRINT1("Returning status %x\n", Status);
+    return Status;
 }

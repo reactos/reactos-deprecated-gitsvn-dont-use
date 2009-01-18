@@ -72,7 +72,7 @@
 			// Validate and parse the log
 			$line = strrchr($_POST["log"], ":");
 			
-			if(sscanf($line, ": %u tests executed (%u marked as todo, %u failures), %u skipped.", $count, $todo, $failures, $skipped) != 4)
+			if(sscanf($line, ": %u tests executed (%u marked as todo, %u %s%u skipped.", $count, $todo, $failures, $ignore, $skipped) != 5)
 				return "Log is invalid!";
 			
 			// Add the information into the DB
