@@ -1,5 +1,25 @@
-*** XXX xxth, 200x - RosBE 1.3.1 Released
+*** February xxth, 200x - RosBE 1.4 Released
 
+"Quote of the year: A loooong time ago there was something called Batch. It was a old
+scripting "language" which you could use for some stuff, but with hacks, so ugly, you
+would turn to stone if used. Then there was the new shiny Powershell Scripting Language
+which came from the deep resorts of the Devil GaTeS with great features like a XML
+parser and more. A great war began for the right to be used in the Glorious Heaven of
+RosBE. After some salves of XML parse and shrapnels of DeHacking, Batch was fainted and
+vanished. The glorious winner of the war helped to gain worldwide peace and food for the
+hungry ppl. After a loong live Powershell died and was replaced by PS 2.0."
+
+- Added: Spanish Resource Files for options.exe (Javier Remacha)
+- Added: Experimental GCC 3.4.5 Support added back (Daniel Reimer)
+- Added: Support for config.rbuild TUNE and BUILD_MP Values
+- Fixed: More logical names for the GCC Folders
+- Fixed: Drive not Found Errors (Colin Finck, d0g)
+- Fixed: clean when using _ROSBE_OBJPATH and/or _ROSBE_OUTPATH
+- Fixed: If the specified OBJ and OUT Paths are non existant, don't just abort. Create 
+  them and continue.
+- Fixed: Options.exe configs the PS Port now too.
+- Updated: "clean MODULENAME" does the same like "make MODULENAME_clean now"
+  (Daniel Reimer)
 - Updated: The Update Utility now does not just blindly sync the script files. It
   loads complete Update Packs, which can contain from a single script update up to
   a fully new GCC Version and installs them if the User confirms it. (Daniel Reimer)
@@ -9,6 +29,7 @@
   it. Without this param, build was broken. (Daniel Reimer)
 - Modified: Changed the default values of config to the previous setting instead of
   the real default one if you don't type in anything for a setting. (Daniel Reimer)
+- Tons of Code cleanup, code reduction and Bugfixes (Daniel Reimer)
 
 
 *** October 26th, 2008 - RosBE 1.3 Released
