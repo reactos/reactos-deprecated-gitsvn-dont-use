@@ -157,8 +157,8 @@ if (Test-Path "$_ROSBE_BASEDIR\chdefgcc.ps1") {
         " Usage: chdefgcc [PATH]"
         " Change the MinGW/GCC directory for the current RosBE session."
         ""
-        "    Path - Path to set the Host or Target GCC to."
-        "    Type - Set it to ""target"" or ""host"""
+        "    ""Path"" - Path to set the Host or Target GCC to."
+        "    ""Type"" - Set it to ""target"" or ""host"""
         exit
     }
 }

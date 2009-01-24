@@ -12,6 +12,8 @@ if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
+setlocal enabledelayedexpansion
+
 title ReactOS Build Configurator
 
 ::
@@ -21,7 +23,7 @@ if /i "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
     echo Continue?
     set /p YESNO="(yes), (no)"
-    if /i "%YESNO%"=="yes" goto :CONT
+    if /i "!YESNO!"=="yes" goto :CONT
     goto :NOK
 
     :CONT
@@ -44,7 +46,7 @@ if /i "%1" == "update" (
     echo default one. You will need to reconfigure it to your wishes later.
     echo Continue?
     set /p YESNO="(yes), (no)"
-    if /i "%YESNO%"=="yes" goto :CONT2
+    if /i "!YESNO!"=="yes" goto :CONT2
     goto :NOK
 
     :CONT2
@@ -86,7 +88,6 @@ goto :NOK
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: inform the user and offer an update.
 ::
-setlocal enabledelayedexpansion
 if exist ".\config.rbuild" (
     "%_ROSBE_BASEDIR%\Tools\chknewer.exe" ".\config.template.rbuild" ".\config.rbuild"
     if !errorlevel! == 1 (
@@ -97,12 +98,11 @@ if exist ".\config.rbuild" (
         echo *** previously made settings.                                  ***
         echo.
         set /p YESNO="(yes), (no)"
-        if /i "%YESNO%"=="yes" del "%APPDATA%\RosBE\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild" | goto :OK
+        if /i "!YESNO!"=="yes" del "%APPDATA%\RosBE\*.rbuild" | del "config.rbuild" | copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild" | goto :OK
         endlocal
         goto :NOK
     )
 )
-endlocal
 
 ::
 :: Start with reading settings from config.rbuild and let the user edit them.
@@ -318,3 +318,4 @@ set GDB=
 set NSWPAT=
 set WINKD=
 set ELF=
+endlocal

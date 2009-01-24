@@ -163,8 +163,8 @@ if exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" (
         echo Usage: chdefgcc [OPTIONS]
         echo Change the MinGW/GCC Target/Host directory for the current RosBE session.
         echo.
-        echo    Path - Path to set the Host or Target GCC to.
-        echo    Type - Set it to "target" or "host"
+        echo    "Path" - Path to set the Host or Target GCC to.
+        echo    "Type" - Set it to "target" or "host"
         goto :EOC
     )
 )
