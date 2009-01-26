@@ -75,12 +75,20 @@ if ($_ROSBE_USECCACHE -ne $null) {
 if ($_ROSBE_OBJPATH -ne $null) {
     if (Test-Path "$_ROSBE_OBJPATH") {
         "WARNING: The Object-Path specified doesn't seem to exist. Creating..."
+        if (Test-Path "makefile*.auto") {
+            "WARNING: makefile.auto exists. Deleting..."
+            clean
+        }
     } 
     $ENV:ROS_INTERMEDIATE = "$_ROSBE_OBJPATH"
 }
 if ($_ROSBE_OUTPATH -ne $null) {
     if (Test-Path "$_ROSBE_OUTPATH") {
         "WARNING: The Output-Path specified doesn't seem to exist. Creating..."
+        if (Test-Path "makefile*.auto") {
+            "WARNING: makefile.auto exists. Deleting..."
+            clean
+        }
     }
     $ENV:ROS_OUTPUT = "$_ROSBE_OUTPATH"
     $ENV:ROS_TEMPORARY = "$_ROSBE_OUTPATH"
