@@ -61,6 +61,10 @@ function rembin {
         $ENV:ROS_ARCH = "i386"
     }
 
+    if (Test-Path "$_ROSBE_MAKEFILE") {
+        $null = (Remove-Item "$_ROSBE_MAKEFILE" -force)
+    }
+
     if (Test-Path "$_ROSBE_OBJCLEANPATH\.") {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
         if (Test-Path "$_ROSBE_OBJCLEANPATH\.") {
@@ -68,9 +72,6 @@ function rembin {
         }
         if (Test-Path "$_ROSBE_OUTCLEANPATH\.") {
             $null = (Remove-Item "$_ROSBE_OUTCLEANPATH" -recurse -force)
-        }
-        if (Test-Path "$_ROSBE_MAKEFILE") {
-            $null = (Remove-Item "$_ROSBE_MAKEFILE" -force)
         }
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
