@@ -84,6 +84,10 @@ if not "%ROS_ARCH%" == "" (
     set _ROSBE_MAKEFILE=makefile.auto
 )
 
+if exist "%_ROSBE_MAKEFILE%" (
+    del "%_ROSBE_MAKEFILE%" 1> NUL 2> NUL
+)
+
 if "%ROS_ARCH%" == "" (
     set ROS_ARCH=i386
 )
@@ -95,9 +99,6 @@ if exist "%_ROSBE_OBJCLEANPATH%\." (
     )
     if exist "%_ROSBE_OUTCLEANPATH%\." (
         rd /s /q "%_ROSBE_OUTCLEANPATH%" 1> NUL 2> NUL
-    )
-    if exist "%_ROSBE_MAKEFILE%" (
-        del "%_ROSBE_MAKEFILE%" 1> NUL 2> NUL
     )
     echo Done cleaning ReactOS %ROS_ARCH% source directory.
 ) else (
