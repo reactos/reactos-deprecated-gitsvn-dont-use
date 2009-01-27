@@ -31,34 +31,26 @@ function rembin {
     # Apply modified obj and out paths for deletion.
     #
 
+    if ($ENV:ROS_ARCH -eq $null) {
+        $ENV:ROS_ARCH = "i386"
+    }
+
     if ($_ROSBE_OBJPATH -eq $null) {
-        if ($ENV:ROS_ARCH -ne $null) {
-            $_ROSBE_OBJCLEANPATH = "obj-$ENV:ROS_ARCH"
-        } else {
-            $_ROSBE_OBJCLEANPATH = "obj-i386"
-        }
+        $_ROSBE_OBJCLEANPATH = "$_ROSBE_ROSSOURCEDIR\obj-$ENV:ROS_ARCH"
     } else {
         $_ROSBE_OBJCLEANPATH = "$_ROSBE_OBJPATH"
     }
 
     if ($_ROSBE_OUTPATH -eq $null) {
-        if ($ENV:ROS_ARCH -ne $null) {
-            $_ROSBE_OUTCLEANPATH = "output-$ENV:ROS_ARCH"
-        } else {
-            $_ROSBE_OUTCLEANPATH = "output-i386"
-        }
+        $_ROSBE_OUTCLEANPATH = "$_ROSBE_ROSSOURCEDIR\output-$ENV:ROS_ARCH"
     } else {
         $_ROSBE_OUTCLEANPATH = "$_ROSBE_OUTPATH"
     }
 
-    if ($ENV:ROS_ARCH -ne $null) {
-        $_ROSBE_MAKEFILE = "makefile-$ENV:ROS_ARCH.auto"
+    if ($ENV:ROS_ARCH -eq "i386") {
+        $_ROSBE_MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto"
     } else {
-        $_ROSBE_MAKEFILE = "makefile.auto"
-    }
-
-    if ($ENV:ROS_ARCH -eq $null) {
-        $ENV:ROS_ARCH = "i386"
+        $_ROSBE_MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile.auto"
     }
 
     if (Test-Path "$_ROSBE_MAKEFILE") {
@@ -82,8 +74,8 @@ function rembin {
         $ENV:ROS_ARCH = $null
     }
 
-    if (Test-Path "reactos") {
-        $null = (Remove-Item "reactos" -recurse -force)
+    if (Test-Path "$_ROSBE_ROSSOURCEDIR\reactos") {
+        $null = (Remove-Item "$_ROSBE_ROSSOURCEDIR\reactos" -recurse -force)
     }
 }
 
