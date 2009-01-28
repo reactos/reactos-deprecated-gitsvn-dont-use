@@ -49,7 +49,7 @@ BEGIN
   CLR13, "Magenta"
   CLR14, "Gelb"
   CLR15, "Weiß"
-  MSG_NOGCCFOUND, "Kein MinGW/GCC Compiler gefunden! Bitte überprüfen sie ihren Pfad."
+  MSG_NOGCCFOUND, "Kein MinGW/GCC Compiler gefunden! Bitte überprüfen Sie Ihren Pfad."
   MSG_CMDFFAILED, "rosbe-options.cmd konnte nicht erstellt werden!"
   MSG_PS1FFAILED, "rosbe-options.ps1 konnte nicht erstellt werden!"
   MSG_DIREFAILED, "Ordner konnte nicht erstellt werden!"
