@@ -14,7 +14,7 @@
 #include <wchar.h>
 #include "resources.h"
 
-#define MINGWVERSION L"\\4.1.3"
+#define MINGWVERSION L"\\i386"
 
 typedef struct _SETTINGS
 {

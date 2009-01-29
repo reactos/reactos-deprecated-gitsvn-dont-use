@@ -242,6 +242,8 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
     {
         LoadedSettings->foreground = 0xa;
         LoadedSettings->background = 0;
+        LoadedSettings->showtime = 1;
+        LoadedSettings->writelog = 1;
         GetCurrentDirectory(MAX_PATH, LoadedSettings->mingwpath);
         if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
             wcscat(LoadedSettings->mingwpath, MINGWVERSION);

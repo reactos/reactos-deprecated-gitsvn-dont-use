@@ -18,7 +18,9 @@ title Options
 :: Run options.exe
 ::
 if exist "%_ROSBE_BASEDIR%\Tools\options.exe" (
+    pushd "%_ROSBE_BASEDIR%"
     call "%_ROSBE_BASEDIR%\Tools\options.exe"
+    popd
     if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
         call "%APPDATA%\RosBE\rosbe-options.cmd"
     )

@@ -13,7 +13,9 @@ $host.ui.RawUI.WindowTitle = "Options"
 # Run options.exe
 #
 if (Test-Path "$_ROSBE_BASEDIR\Tools\options.exe") {
+    Push-Location "$_ROSBE_BASEDIR"
     & "$_ROSBE_BASEDIR\Tools\options.exe" | out-null
+    Pop-Location
     if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.cmd") {
         & "$ENV:APPDATA\RosBE\rosbe-options.cmd"
     }
