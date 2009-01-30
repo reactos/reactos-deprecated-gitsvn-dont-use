@@ -97,7 +97,8 @@ if %OFFSVN% equ %ONSVN% (
 
 set /p UP="Please enter 'yes' or 'no': "
 if /i "%UP%"=="yes" "%_ROSBE_BASEDIR%\ssvn" update
-if /i "%UP%"=="no" goto :EOF
+if /i "%UP%"=="y" "%_ROSBE_BASEDIR%\ssvn" update
+goto :EOF
 
 :EOC
 

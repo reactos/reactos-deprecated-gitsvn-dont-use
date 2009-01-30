@@ -14,7 +14,7 @@ function UP {
     if ($OFFSVN -lt $ONSVN) {
         "Your tree is not up to date. Do you want to update it?"
         $UP = Read-Host "Please enter 'yes' or 'no': "
-        if ($UP -eq "yes") {
+        if (($UP -eq "yes") -or ($UP -eq "y")) {
             IEX "&'$_ROSBE_BASEDIR\ssvn' update"
         }
     }

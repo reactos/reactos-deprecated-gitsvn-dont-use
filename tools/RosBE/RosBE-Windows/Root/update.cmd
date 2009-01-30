@@ -185,7 +185,10 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
     echo Install?
     setlocal enabledelayedexpansion
     set /p YESNO="(yes), (no)"
-    if /i "!YESNO!"=="yes" (
+    if /i "!YESNO!"=="yes" goto :updyes
+    if /i "!YESNO!"=="y" goto :updyes
+    goto :no
+    :updyes
         if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z" (
             "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z 1> NUL 2> NUL
         )
@@ -199,12 +202,15 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
             echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
             goto :EOF
         )
-    ) else if /i "!YESNO!"=="no" (
+        goto :EOF
+    :no
         echo Do you want to be asked again to install this update?
         set /p YESNO="(yes), (no)"
-        if /i "!YESNO!"=="yes" (
-            del "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" 1> NUL 2> NUL
-        )
+        if /i "!YESNO!"=="yes" goto :yesagain
+        if /i "!YESNO!"=="y" goto :yesagain
+        goto :EOF
+        :yesagain
+        del "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" 1> NUL 2> NUL
         goto :EOF
     )
     endlocal

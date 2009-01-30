@@ -34,7 +34,7 @@ function UPDCHECK {
         ""
         "Install?"
         $YESNO = Read-Host "(yes), (no)"
-        if ($YESNO -eq "yes") {
+        if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
             if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z")) {
                 get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
             }
@@ -51,7 +51,7 @@ function UPDCHECK {
         } elseif ($YESNO -eq "no") {
             "Do you want to be asked again to install this update?"
             $YESNO = Read-Host "(yes), (no)"
-            if ($YESNO -eq "yes") {
+            if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
                 remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt" -force -EA SilentlyContinue
             }
             return
