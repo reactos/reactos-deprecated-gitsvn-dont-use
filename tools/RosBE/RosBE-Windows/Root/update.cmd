@@ -21,7 +21,7 @@ title Updating...
 ::
 :: The Update Server.
 ::
-set _ROSBE_URL=http://mitglied.lycos.de/reimerdaniel/rosbe
+set _ROSBE_URL=http://danielreimer.5x.to/rosbe
 
 ::
 :: Save the recent dir to cd back there at the end.
