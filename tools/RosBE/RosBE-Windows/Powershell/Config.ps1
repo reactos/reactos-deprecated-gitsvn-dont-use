@@ -1,9 +1,9 @@
 #
 # PROJECT:     RosBE - ReactOS Build Environment for Windows
 # LICENSE:     GNU General Public License v2. (see LICENSE.txt)
-# FILE:        Root/Config.cmd
+# FILE:        Root/Config.ps1
 # PURPOSE:     A Basic Config.rbuild Creator for ReactOS.
-# COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+# COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
 #
 

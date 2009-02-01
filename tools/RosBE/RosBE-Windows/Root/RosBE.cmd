@@ -4,7 +4,7 @@
 :: FILE:        Root/RosBE.cmd
 :: PURPOSE:     This script provides/sets up various build environments for
 ::              ReactOS. Currently it provides a GCC 4.1.3 build environment.
-:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+:: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Peter Ward <dralnix@gmail.com>
 ::
 ::
@@ -21,7 +21,7 @@ if %_ROSBE_DEBUG% == 1 (
 color 0A
 if not defined APPDATA set APPDATA=%USERPROFILE%
 set PATH=%SystemRoot%\system32;%SystemRoot%
-set _ROSBE_VERSION=1.3
+set _ROSBE_VERSION=1.4
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
 set _ROSBE_MODE=RosBE

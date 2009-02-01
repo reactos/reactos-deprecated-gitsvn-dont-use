@@ -4,7 +4,7 @@
 # FILE:        Root/RosBE.ps1
 # PURPOSE:     This script provides/sets up various build environments for
 #              ReactOS. Currently it provides a GCC 4.1.3 build environment.
-# COPYRIGHT:   Copyright 2008 Daniel Reimer <reimer.daniel@freenet.de>
+# COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
 #
 
@@ -19,7 +19,7 @@ if ($ENV:APPDATA.Length -lt 1) {
     $ENV:APPDATA = $ENV:USERPROFILE
 }
 $ENV:PATH = "$ENV:SystemRoot\system32;$ENV:SystemRoot"
-$global:_ROSBE_VERSION = 1.3
+$global:_ROSBE_VERSION = 1.4
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_MODE = "RosBE"

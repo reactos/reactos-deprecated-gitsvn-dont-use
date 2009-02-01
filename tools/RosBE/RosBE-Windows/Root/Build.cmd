@@ -3,7 +3,7 @@
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/Build.cmd
 :: PURPOSE:     Perform the build of ReactOS.
-:: COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
+:: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Colin Finck <mail@colinfinck.de>
 ::                             Peter Ward <dralnix@gmail.com>
 ::

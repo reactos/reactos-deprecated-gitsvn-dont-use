@@ -3,7 +3,7 @@
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/update.cmd
 :: PURPOSE:     RosBE Updater.
-:: COPYRIGHT:   Copyright 2008 Daniel Reimer <reimer.daniel@freenet.de>
+:: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 ::
 @echo off

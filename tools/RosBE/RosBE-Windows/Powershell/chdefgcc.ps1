@@ -1,10 +1,9 @@
 #
 # PROJECT:     RosBE - ReactOS Build Environment for Windows
 # LICENSE:     GNU General Public License v2. (see LICENSE.txt)
-# FILE:        Root/chdefgcc.cmd
+# FILE:        Root/chdefgcc.ps1
 # PURPOSE:     Tool to change the current gcc in RosBE.
-# COPYRIGHT:   Copyright 2007 Daniel Reimer <reimer.daniel@freenet.de>
-#                             Peter Ward <dralnix@gmail.com>
+# COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
 if ($_ROSBE_MODE -eq "RosBE") {

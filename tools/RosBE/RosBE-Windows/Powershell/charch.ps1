@@ -3,7 +3,7 @@
 # LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 # FILE:        Root/charch.ps1
 # PURPOSE:     Tool to change the current Arch to build ROS for in RosBE.
-# COPYRIGHT:   Copyright 2008 Daniel Reimer <reimer.daniel@freenet.de>
+# COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
 $host.ui.RawUI.WindowTitle = "Change the Architecture to build for..."

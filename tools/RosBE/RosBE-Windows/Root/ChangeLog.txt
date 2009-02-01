@@ -30,6 +30,12 @@ hungry ppl. After a loong live Powershell died and was replaced by PS 2.0."
 - Modified: Changed the default values of config to the previous setting instead of
   the real default one if you don't type in anything for a setting. (Daniel Reimer)
 - Tons of Code cleanup, code reduction and Bugfixes (Daniel Reimer)
+- Updated: MingW32 Runtime DLL 3.15.2 (Daniel Reimer)
+- Updated: NASM to 2.05.01 (Daniel Reimer)
+- Updated: Subversion to 1.5.5 (Daniel Reimer)
+- Updated: NSIS to 2.42 (Daniel Reimer)
+- Updated: Binutils 2.19.51 Build 20090127. (Daniel Reimer)
+
 
 
 *** October 26th, 2008 - RosBE 1.3 Released

@@ -3,7 +3,7 @@
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/charch.cmd
 :: PURPOSE:     Tool to change the current Arch to build ROS for in RosBE.
-:: COPYRIGHT:   Copyright 2008 Daniel Reimer <reimer.daniel@freenet.de>
+:: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::
 @echo off
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
