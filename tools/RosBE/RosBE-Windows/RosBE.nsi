@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "1.3"
+!define PRODUCT_VERSION "1.4"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -17,15 +17,15 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "1.3.0.0"
+VIAddVersionKey /LANG=1033 "FileVersion" "1.4.0.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
 VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
-VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2008 ReactOS Team"
-VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2008 ReactOS Team"
+VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2009 ReactOS Team"
+VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2009 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "1.3.0.0"
+VIProductVersion "1.4.0.0"
 
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
@@ -238,11 +238,20 @@ Section "PowerShell RosBE Version" SEC10
     SetOverwrite try
     File /r Root\sSVN.cmd
     File /r Components\Powershell\Build.ps1
+    File /r Components\Powershell\charch.ps1
+    File /r Components\Powershell\chdefdir.ps1
+    File /r Components\Powershell\chdefgcc.ps1
     File /r Components\Powershell\Clean.ps1
+    File /r Components\Powershell\Config.ps1
     File /r Components\Powershell\Help.ps1
     File /r Components\Powershell\MinGW.ps1
+    File /r Components\Powershell\options.ps1
+    File /r Components\Powershell\reladdr2line.ps1
     File /r Components\Powershell\RosBE.ps1
     File /r Components\Powershell\rosbe-gcc-env.ps1
+    File /r Components\Powershell\scut.ps1
+    File /r Components\Powershell\sSVN.ps1
+    File /r Components\Powershell\update.ps1
 SectionEnd
 
 Section "Update Script" SEC11
@@ -252,7 +261,7 @@ Section "Update Script" SEC11
     File /r Components\Tools\wget.exe
     File /r Components\Tools\libintl3.dll
     File /r Components\Tools\libeay32.dll
-    File /r Components\Tools\ssleay32.dll
+    File /r Components\Tools\libssl32.dll
     File /r Components\Tools\libiconv2.dll
     SetOutPath "$INSTDIR"
     SetOverwrite try
