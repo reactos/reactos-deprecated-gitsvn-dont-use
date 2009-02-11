@@ -211,7 +211,7 @@ else
 	if $createdir; then
 		if ! mkdir -p "$installdir"; then
 			redmsg "Could not create \"$installdir\", aborted!"
-			return 1
+			exit 1
 		fi
 	fi
 fi
@@ -219,7 +219,7 @@ fi
 # Test if the installation directory is writeable
 if [ ! -w "$installdir" ]; then
 	redmsg "Installation directory \"$installdir\" is not writeable, aborted!"
-	return 1
+	exit 1
 fi
 
 #
@@ -443,6 +443,3 @@ echo
 echo "  $installdir/RosBE.sh [source directory] [color code] [architecture]"
 echo
 echo "All parameters for that script are optional."
-echo
-
-return 0
