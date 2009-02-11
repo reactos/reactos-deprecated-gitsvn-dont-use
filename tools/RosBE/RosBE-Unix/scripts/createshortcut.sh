@@ -2,27 +2,19 @@
 #
 # Script for creating shortcuts
 # Part of RosBE for Unix-based Operating Systems
-# Copyright 2007 Colin Finck <mail@colinfinck.de>
+# Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 #
 # Released under GNU GPL v2 or any later version.
 
 # Constants
 DEFAULT_SHORTCUT_DIR="$HOME/Desktop"
 
-# Functions
-greenmsg()
-{
-	echo -e "\e[32m$1\e[0m"
-}
-
-boldmsg()
-{
-	echo -e "\e[1m$1\e[0m"
-}
-
 # Get the absolute path to the script directory
 cd `dirname $0`
 SCRIPTDIR="$PWD"
+
+source "$SCRIPTDIR/rosbelibrary.sh"
+
 
 # Read the RosBE version
 # The file "RosBE-Version" has been created by the RosBE-Builder.sh script
@@ -85,3 +77,4 @@ echo "Exec=bash \"$SCRIPTDIR/RosBE.sh\" \"$sourcedir\"" >> "$shortcut"
 echo "Terminal=true" >> "$shortcut"
 
 greenmsg "OK"
+

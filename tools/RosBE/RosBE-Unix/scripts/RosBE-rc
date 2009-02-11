@@ -1,17 +1,18 @@
 # Set path
-PATH="$_ROSSCRIPTDIR/bin:$PATH"
+source "$_ROSBE_ROSSCRIPTDIR/rosbelibrary.sh"
+set_path_variable
 
 # Set aliases
-alias basedir="source $_ROSSCRIPTDIR/basedir.sh"
-alias clean="$_ROSSCRIPTDIR/clean.sh"
-alias help="$_ROSSCRIPTDIR/help.sh"
-alias make="$_ROSSCRIPTDIR/build.sh"
-alias makex="$_ROSSCRIPTDIR/build-multi.sh"
-alias scut="source $_ROSSCRIPTDIR/scut.sh"
-alias version="$_ROSSCRIPTDIR/version.sh"
-
-# Display the available commands
-source "$_ROSSCRIPTDIR/help.sh"
+alias basedir="source $_ROSBE_ROSSCRIPTDIR/basedir.sh"
+alias charch="source $_ROSBE_ROSSCRIPTDIR/charch.sh"
+alias chdefdir="source $_ROSBE_ROSSCRIPTDIR/chdefdir.sh"
+alias clean="$_ROSBE_ROSSCRIPTDIR/clean.sh"
+alias help="$_ROSBE_ROSSCRIPTDIR/help.sh"
+alias make="$_ROSBE_ROSSCRIPTDIR/build.sh"
+alias makex="$_ROSBE_ROSSCRIPTDIR/build-multi.sh"
+alias scut="source $_ROSBE_ROSSCRIPTDIR/scut.sh"
+alias version="$_ROSBE_ROSSCRIPTDIR/version.sh"
 
 # Change the current directory to the ReactOS source directory
 basedir
+

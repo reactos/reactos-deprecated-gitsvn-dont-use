@@ -1,15 +1,16 @@
 #!/bin/bash
 #
-# RosBE-Builder
-# Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+# ReactOS Build Environment for Unix-based Operating Systems - Basic Builder Tool
+# Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 # partially based on the BuildMingwCross script (http://www.mingw.org/MinGWiki/index.php/BuildMingwCross)
 #
 # Released under GNU GPL v2 or any later version.
 
 # Constants
-ROSBE_VERSION="1.1"
-KNOWN_ROSBE_VERSIONS="0.3.6 1.1"
-DEFAULT_INSTALL_DIR="/usr/RosBE"
+ROSBE_VERSION="1.4"
+TARGET_ARCH="i386"
+KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4"
+DEFAULT_INSTALL_DIR="/usr/local/RosBE"
 NEEDED_TOOLS="bison flex gcc g++ grep makeinfo"		# GNU Make has a special check
 
 # Get the absolute path to the script directory
@@ -17,78 +18,12 @@ cd `dirname $0`
 SCRIPTDIR="$PWD"
 SOURCEDIR="$SCRIPTDIR/sources"
 
-# Functions
-boldmsg()
-{
-	echo -e "\e[1m$1\e[0m"
-}
-
-greenmsg()
-{
-	echo -e "\e[32m$1\e[0m"
-}
-
-redmsg()
-{
-	echo -e "\e[31m$1\e[0m"
-}
-
-checkrun()
-{
-	if [ $? -ne 0 ]; then
-		redmsg "FAILED"
-
-		if [ "$1" = "" ]; then
-			echo "If you did not do something wrong, please contact the ReactOS Team."
-		else
-			echo "Please take a look at the log file \"$SCRIPTDIR/$1.log\""
-			echo "If you did not do something wrong, please save the log file and contact the ReactOS Team."
-		fi
-
-		echo "Aborted!"
-		exit 1
-	else
-		greenmsg "OK"
-
-		if [ "$1" != "" ]; then
-			rm "$SCRIPTDIR/$1.log"
-		fi
-	fi
-}
-
-showchoice()
-{
-	default_value="$1"
-	valid_choices="$2"
-
-	breakloop=false
-	choice=""
-
-	while true; do
-		read -p "Your choice [$default_value]: " choice
-
-		if [ "$choice" = "" ]; then
-			choice="$default_value"
-			break
-		fi
-
-		for valid_choice in $valid_choices; do
-			if [ "$choice" = "$valid_choice" ]; then
-				breakloop=true
-				break
-			fi
-		done
-
-		if $breakloop; then
-			break
-		fi
-	done
-}
+source "$SCRIPTDIR/scripts/rosbelibrary.sh"
 
 
 echo "*******************************************************************************"
 echo "*         ReactOS Build Environment for Unix-based Operating Systems          *"
-echo "*                                 Builder Tool                                *"
+echo "*                             Basic Builder Tool                              *"
 echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
 echo "*                                                                             *"
 echo "*                                Version $ROSBE_VERSION                                  *"
@@ -98,82 +33,21 @@ echo
 echo "This script compiles and installs a complete Build Environment for building ReactOS."
 echo
 
-# Check if we're running as root
-if [ ! "`whoami`" = "root" ]; then
-	boldmsg "User is not \"root\""
-
-	echo "The default installation path for the Build Environment is \"$DEFAULT_INSTALL_DIR\"."
-	echo "Therefore it is recommended to run this script as the \"root\" user. Otherwise you probably cannot create the necessary directories."
-	echo "An alternative is to specify another installation directory at the installation process."
-	echo "Do you really want to continue? (yes/no)"
-	read -p "[no] " answer
-
-	if [ "$answer" = "yes" ]; then
-		echo
-	else
-		exit 1
-	fi
-fi
-
-# Test if the script directory is writeable
-if [ ! -w "$SCRIPTDIR" ]; then
-	redmsg "The script directory \"$SCRIPTDIR\" is not writeable, aborted!"
-	exit 1
-fi
-
-# Test if the script directory contains spaces
-case "$SCRIPTDIR" in
-*" "*)
-	redmsg "The script directory \"$SCRIPTDIR\" contains spaces!"
-	redmsg "Therefore some build tools cannot be compiled properly."
-	echo
-	redmsg "Please move \"$SCRIPTDIR\" to a directory, which does not contain spaces."
-
-	exit 1;;
-esac
-
-# Check if all necessary tools exist
-boldmsg "Checking for the needed tools..."
-
-toolmissing=false
-for tool in $NEEDED_TOOLS; do
-	echo -n "Checking for $tool... "
-
-	if which "$tool" >& /dev/null; then
-		greenmsg "OK"
-	else
-		redmsg "MISSING"
-		toolmissing=true
-	fi
-done
-
-# Special check for GNU Make
-# For example FreeBSD's "make" is not GNU Make, so we have to define a variable
-echo -n "Checking for GNU Make... "
-
-if make -v 2>&1 | grep "GNU Make" >& /dev/null; then
-	makecmd="make"
-	greenmsg "OK"
-elif gmake -v 2>&1 | grep "GNU Make" >& /dev/null; then
-	makecmd="gmake"
-	greenmsg "OK"
-else
-	redmsg "MISSING"
-	toolmissing=true
-fi
-
-if $toolmissing; then
-	echo "At least one needed tool is missing, aborted!"
-	exit 1
-fi
-
-echo
+setup_check_requirements
 
 # Select the installation directory
 boldmsg "Installation Directory"
 
 echo "In which directory do you want to install it?"
 echo "Enter the path to the directory here or simply press ENTER to install it into the default directory."
+
+# RosBE-Unix 1.4 switched from /usr/RosBE to /usr/local/RosBE, show a message for the people who might want to update
+if [ -f "/usr/RosBE/RosBE-Version" ]; then
+	echo
+	redmsg "Warning: " "-n"
+	echo "The default installation path /usr/RosBE was changed to /usr/local/RosBE starting with version 1.4."
+	echo "If you want to update a previous installation, enter /usr/RosBE here."
+fi
 
 createdir=false
 installdir=""
@@ -301,6 +175,24 @@ if $update; then
 					process_nasm=true
 					process_scut=true
 					;;
+
+				"1.1")
+					# Updated components from 1.1 to 1.4
+					process_binutils=true
+					process_mingwruntime=true
+					process_nasm=true
+
+					# Reorganize the existing files
+					mkdir -p "$installdir/$TARGET_ARCH/bin"
+					mv "$installdir/bin/mingw32-"* "$installdir/$TARGET_ARCH/bin"
+					mv "$installdir/$TARGET_ARCH/bin/mingw32-make" "$installdir/bin/make"
+					mv "$installdir/bin/nasm" "$installdir/$TARGET_ARCH/bin/nasm"
+					mv "$installdir/bin/ndisasm" "$installdir/$TARGET_ARCH/bin/ndisasm"
+					mv "$installdir/include" "$installdir/$TARGET_ARCH/include"
+					mv "$installdir/lib" "$installdir/$TARGET_ARCH/lib"
+					mv "$installdir/libexec" "$installdir/$TARGET_ARCH/libexec"
+					mv "$installdir/mingw32" "$installdir/$TARGET_ARCH/mingw32"
+					;;
 			esac
 		fi
 	done
@@ -319,7 +211,7 @@ else
 	if $createdir; then
 		if ! mkdir -p "$installdir"; then
 			redmsg "Could not create \"$installdir\", aborted!"
-			exit 1
+			return 1
 		fi
 	fi
 fi
@@ -327,39 +219,38 @@ fi
 # Test if the installation directory is writeable
 if [ ! -w "$installdir" ]; then
 	redmsg "Installation directory \"$installdir\" is not writeable, aborted!"
-	exit 1
+	return 1
 fi
 
 #
 # Build the tools
 #
 boldmsg "Building..."
-PATH="$installdir/bin:$PATH"
-mkdir -p "$installdir/bin" >& /dev/null
-mkdir -p "$installdir/mingw32" >& /dev/null
+mkdir "$installdir/bin" >& /dev/null
+mkdir -p "$installdir/$TARGET_ARCH/mingw32" >& /dev/null
 
 # cpucount
 if $process_cpucount; then
 	echo -n "Compiling cpucount... "
-	gcc -o "$installdir/bin/cpucount" "$SCRIPTDIR/tools/cpucount.c"
-	checkrun
+	gcc -s -o "$installdir/bin/cpucount" "$SCRIPTDIR/tools/cpucount.c"
+	setup_check_run
 fi
 
 CPUCOUNT=`$installdir/bin/cpucount -x1`
-cd "$installdir/mingw32"
+cd "$installdir/$TARGET_ARCH/mingw32"
 
 # mingw-runtime
 if $process_mingwruntime; then
 	echo -n "Extracting mingw-runtime... "
 	tar -xjf "$SOURCEDIR/mingw-runtime.tar.bz2" >& "$SCRIPTDIR/tar.log"
-	checkrun "tar"
+	setup_check_run "tar"
 fi
 
 # w32api
 if $process_w32api; then
 	echo -n "Extracting w32api... "
 	tar -xjf "$SOURCEDIR/w32api.tar.bz2" >& "$SCRIPTDIR/tar.log"
-	checkrun "tar"
+	setup_check_run "tar"
 fi
 
 cd "$SOURCEDIR"
@@ -371,28 +262,28 @@ if $process_binutils; then
 
 	echo -n "Extracting binutils... "
 	tar -xjf "binutils.tar.bz2" >& "$SCRIPTDIR/tar.log"
-	checkrun "tar"
+	setup_check_run "tar"
 
 	echo -n "Configuring binutils... "
 	mkdir "binutils-build"
 	cd "binutils-build"
-	../binutils/configure --prefix="$installdir" --target=mingw32 --disable-nls --with-gcc \
+	../binutils/configure --prefix="$installdir/$TARGET_ARCH" --target=mingw32 --disable-nls --with-gcc \
 			--with-gnu-as --with-gnu-ld --disable-shared >& "$SCRIPTDIR/configure.log"
-	checkrun "configure"
+	setup_check_run "configure"
 
 	echo -n "Building binutils... "
 	$makecmd -j $CPUCOUNT CFLAGS="-O2 -fno-exceptions" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Installing binutils... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Cleaning up binutils... "
 	cd "$SOURCEDIR"
 	rm -rf "binutils-build"
 	rm -rf "binutils"
-	checkrun
+	setup_check_run
 fi
 
 # gcc
@@ -402,31 +293,31 @@ if $process_gcc; then
 
 	echo -n "Extracting gcc... "
 	tar -xjf "gcc.tar.bz2" >& "$SCRIPTDIR/tar.log"
-	checkrun "tar"
+	setup_check_run "tar"
 
 	echo -n "Configuring gcc... "
 	mkdir "gcc-build"
 	cd "gcc-build"
-	../gcc/configure --prefix="$installdir" --target=mingw32 \
-			--with-headers="$installdir/mingw32/include"--with-gcc --with-gnu-ld \
+	../gcc/configure --prefix="$installdir/$TARGET_ARCH" --target=mingw32 \
+			--with-headers="$installdir/$TARGET_ARCH/mingw32/include"--with-gcc --with-gnu-ld \
 			--with-gnu-as --enable-languages=c,c++ --enable-checking=release \
 			--enable-threads=win32 --disable-win32-registry --disable-nls  \
 			--disable-shared >& "$SCRIPTDIR/configure.log"
-	checkrun "configure"
+	setup_check_run "configure"
 
 	echo -n "Building gcc... "
 	$makecmd -j $CPUCOUNT CFLAGS="-O2" CXXFLAGS="-O2" LDFLAGS="-s" >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Installing gcc... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Cleaning up gcc... "
 	cd "$SOURCEDIR"
 	rm -rf "gcc-build"
 	rm -rf "gcc"
-	checkrun
+	setup_check_run
 fi
 
 # make
@@ -436,30 +327,29 @@ if $process_make; then
 
 	echo -n "Extracting make... "
 	tar -xjf "make.tar.bz2" >& "$SCRIPTDIR/tar.log"
-	checkrun "tar"
+	setup_check_run "tar"
 
 	echo -n "Configuring make... "
 	mkdir "make-build"
 	cd "make-build"
-	../make/configure --prefix="$installdir" --target=mingw32 \
-			--disable-dependency-tracking --disable-nls \
-			--enable-case-insensitive-file-system --disable-job-server --disable-rpath \
-			--program-prefix=mingw32- >& "$SCRIPTDIR/configure.log"
-	checkrun "configure"
+	../make/configure --prefix="$installdir" --disable-dependency-tracking \
+			--disable-nls --enable-case-insensitive-file-system
+			--disable-job-server --disable-rpath >& "$SCRIPTDIR/configure.log"
+	setup_check_run "configure"
 
 	echo -n "Building make... "
 	$makecmd -j $CPUCOUNT CFLAGS="-s -O2 -mms-bitfields" >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Installing make... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Cleaning up make... "
 	cd "$SOURCEDIR"
 	rm -rf "make-build"
 	rm -rf "make"
-	checkrun
+	setup_check_run
 fi
 
 # nasm
@@ -468,64 +358,75 @@ if $process_nasm; then
 
 	echo -n "Extracting nasm... "
 	tar -xjf "nasm.tar.bz2" >& "$SCRIPTDIR/tar.log"
-	checkrun "tar"
+	setup_check_run "tar"
 
 	echo -n "Configuring nasm... "
 	cd "nasm"
-	./configure --prefix="$installdir" --target=mingw32  >& "$SCRIPTDIR/configure.log"
-	checkrun "configure"
+	./configure --prefix="$installdir/$TARGET_ARCH"  >& "$SCRIPTDIR/configure.log"
+	setup_check_run "configure"
 
 	echo -n "Building nasm... "
 	$makecmd -j $CPUCOUNT >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Installing nasm... "
 	$makecmd install >& "$SCRIPTDIR/make.log"
-	checkrun "make"
+	setup_check_run "make"
 
 	echo -n "Cleaning up nasm... "
 	cd "$SOURCEDIR"
 	rm -rf "nasm"
-	checkrun
+	setup_check_run
 fi
 
 # Final actions
 echo
 boldmsg "Final actions"
 
+if [ "$installdir" = "/usr/RosBE" ] && $update; then
+	# Changed default installation directory starting with RosBE-Unix 1.4
+	echo "Do you want to move /usr/RosBE to /usr/local/RosBE? (yes/no)"
+	read -p "[yes] " answer
+
+	if [ "$answer" = "" ] || [ "$answer" = "yes" ]; then
+		mv "/usr/RosBE" "/usr/local/RosBE"
+		installdir="/usr/local/RosBE"
+	fi
+fi
+
 if $process_buildtime; then
 	echo -n "Compiling buildtime... "
-	gcc -o "$installdir/bin/buildtime" "$SCRIPTDIR/tools/buildtime.c"
-	checkrun
+	gcc -s -o "$installdir/bin/buildtime" "$SCRIPTDIR/tools/buildtime.c"
+	setup_check_run
 fi
 
 if $process_scut; then
 	echo -n "Compiling scut..."
-	gcc -o "$installdir/bin/scut" "$SCRIPTDIR/tools/scut.c"
-	checkrun
+	gcc -s -o "$installdir/bin/scut" "$SCRIPTDIR/tools/scut.c"
+	setup_check_run
 fi
 
 echo -n "Removing unneeded files... "
-rm -rf "$installdir/mingw32/sys-include"
-rm -rf "$installdir/info"
-rm -rf "$installdir/man"
-rm -rf "$installdir/share"
-checkrun
+rm -rf "$installdir/$TARGET_ARCH/mingw32/sys-include"
+rm -rf "$installdir/$TARGET_ARCH/info"
+rm -rf "$installdir/$TARGET_ARCH/man"
+rm -rf "$installdir/$TARGET_ARCH/share"
+setup_check_run
 
 echo -n "Removing debugging symbols... "
-ls "$installdir"/bin/* "$installdir"/mingw32/bin/* | grep -v "gccbug" |
+ls "$installdir/$TARGET_ARCH/bin/"* "$installdir/$TARGET_ARCH/mingw32/bin/"* | grep -v "gccbug" |
 while read file; do
 	strip "$file"
 done
-checkrun
+setup_check_run
 
 echo -n "Copying scripts... "
-cp "$SCRIPTDIR"/scripts/* "$installdir"
-checkrun
+cp -R "$SCRIPTDIR/scripts/"* "$installdir"
+setup_check_run
 
 echo -n "Writing version... "
 echo "$ROSBE_VERSION" > "$installdir/RosBE-Version"
-checkrun
+setup_check_run
 echo
 
 # Finish
@@ -539,7 +440,10 @@ echo
 echo "If you just want to start the Build Environment without using a shortcut, execute the"
 echo "following command:"
 echo
-echo "  $installdir/RosBE.sh <path/to/your/ReactOS/source/directory> [optional color code]"
+echo "  $installdir/RosBE.sh [source directory] [color code] [architecture]"
+echo
+echo "All parameters for that script are optional."
 echo
 
-exit 0
+return 0
+

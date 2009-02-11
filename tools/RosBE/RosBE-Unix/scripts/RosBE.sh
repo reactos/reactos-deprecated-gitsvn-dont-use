@@ -2,18 +2,25 @@
 #
 # Script for initializing RosBE
 # Part of RosBE for Unix-based Operating Systems
-# Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
+# Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 #
 # Released under GNU GPL v2 or any later version.
 
+# Save the ReactOS source directory
+if [ "$1" = "" ]; then
+	_ROSBE_ROSSOURCEDIR="$PWD"
+else
+	_ROSBE_ROSSOURCEDIR="$1"
+fi
+
+export _ROSBE_ROSSOURCEDIR
+
 # Get the absolute path to the script directory
 cd `dirname $0`
-_ROSSCRIPTDIR="$PWD"
-export _ROSSCRIPTDIR
+export _ROSBE_ROSSCRIPTDIR="$PWD"
 
-# Save the ReactOS source directory
-_ROSSOURCEDIR="$1"
-export _ROSSOURCEDIR
+# Save the current PATH variable
+export _ROSBE_OLDPATH="$PATH"
 
 # Make sure that some important variables are clean
 export HOST=
@@ -23,11 +30,22 @@ export LDFLAGS=
 
 # Read the RosBE version
 # The file "RosBE-Version" has been created by the RosBE-Builder.sh script
-ROSBE_VERSION=`cat "$_ROSSCRIPTDIR/RosBE-Version"`
+export _ROSBE_VERSION=`cat "$_ROSBE_ROSSCRIPTDIR/RosBE-Version"`
 
 # Set the text color
 if [ "$2" != "" ]; then
 	echo -e "\e[$2m"
+fi
+
+# Set the architecture to build for
+source "$_ROSBE_ROSSCRIPTDIR/rosbelibrary.sh"
+
+if [ "$3" = "" ]; then
+	# No architecture specified, fall back to i386 without any message
+	export _ROSBE_ARCH="i386"
+else
+	# Try to set the architecture to the one specified
+	change_architecture $3
 fi
 
 # Display banner
@@ -35,7 +53,12 @@ echo "**************************************************************************
 echo "*         ReactOS Build Environment for Unix-based Operating Systems          *"
 echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
 echo "*                                                                             *"
-echo "*                                Version $ROSBE_VERSION                                  *"
+echo "*                                Version $_ROSBE_VERSION                                  *"
 echo "*******************************************************************************"
+echo
+echo "For a list of all included commands, type: \"help\""
+echo "-------------------------------------------------"
+echo
 
-bash --rcfile "$_ROSSCRIPTDIR/RosBE-rc"
+bash --rcfile "$_ROSBE_ROSSCRIPTDIR/RosBE-rc"
+
