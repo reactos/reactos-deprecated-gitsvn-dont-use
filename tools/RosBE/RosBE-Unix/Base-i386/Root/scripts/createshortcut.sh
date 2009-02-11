@@ -77,4 +77,3 @@ echo "Exec=bash \"$SCRIPTDIR/RosBE.sh\" \"$sourcedir\"" >> "$shortcut"
 echo "Terminal=true" >> "$shortcut"
 
 greenmsg "OK"
-

@@ -13,4 +13,3 @@ echo
 
 # Display tool versions
 source "$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/version.sh"
-

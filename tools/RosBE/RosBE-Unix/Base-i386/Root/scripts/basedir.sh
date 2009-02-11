@@ -8,4 +8,3 @@
 
 # An alias just to "cd $_ROSBE_ROSSOURCEDIR" won't work as bash only expands when executing the shell and then never again
 cd "$_ROSBE_ROSSOURCEDIR"
-

@@ -7,4 +7,3 @@
 mingw32-gcc -v 2>&1 | grep "gcc version"
 nasm -v
 mingw32-ld -v
-

@@ -10,4 +10,3 @@ source "$_ROSBE_ROSSCRIPTDIR/build-shared.sh"
 
 CPUCOUNT=`cpucount -x1`
 buildtime make -j $CPUCOUNT $*
-

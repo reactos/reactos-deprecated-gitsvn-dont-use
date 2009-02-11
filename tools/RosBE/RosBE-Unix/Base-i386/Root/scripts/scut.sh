@@ -23,4 +23,3 @@ add|rem|edit|def|list|/?|-h|--help)
 
 	;;
 esac
-

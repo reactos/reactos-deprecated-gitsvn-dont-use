@@ -15,4 +15,3 @@ fi
 
 export _ROSBE_ROSSOURCEDIR="$1"
 basedir
-

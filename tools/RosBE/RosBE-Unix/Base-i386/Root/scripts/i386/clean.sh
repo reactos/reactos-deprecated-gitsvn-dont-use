@@ -16,4 +16,3 @@ if [ -d "obj-i386" ]; then
 else
 	echo "ERROR: There is no i386 compiler output to clean."
 fi
-

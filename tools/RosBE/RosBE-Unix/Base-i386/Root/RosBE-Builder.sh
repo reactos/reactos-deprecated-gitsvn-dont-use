@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# ReactOS Build Environment for Unix-based Operating Systems - Basic Builder Tool
+# ReactOS Build Environment for Unix-based Operating Systems - Builder Tool for the Base package
 # Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 # partially based on the BuildMingwCross script (http://www.mingw.org/MinGWiki/index.php/BuildMingwCross)
 #
@@ -23,7 +23,7 @@ source "$SCRIPTDIR/scripts/rosbelibrary.sh"
 
 echo "*******************************************************************************"
 echo "*         ReactOS Build Environment for Unix-based Operating Systems          *"
-echo "*                             Basic Builder Tool                              *"
+echo "*                       Builder Tool for the Base package                     *"
 echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
 echo "*                                                                             *"
 echo "*                                Version $ROSBE_VERSION                                  *"
@@ -446,4 +446,3 @@ echo "All parameters for that script are optional."
 echo
 
 return 0
-

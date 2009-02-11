@@ -15,4 +15,3 @@ alias version="$_ROSBE_ROSSCRIPTDIR/version.sh"
 
 # Change the current directory to the ReactOS source directory
 basedir
-

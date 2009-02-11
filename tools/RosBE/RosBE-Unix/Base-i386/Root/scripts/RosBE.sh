@@ -61,4 +61,3 @@ echo "-------------------------------------------------"
 echo
 
 bash --rcfile "$_ROSBE_ROSSCRIPTDIR/RosBE-rc"
-

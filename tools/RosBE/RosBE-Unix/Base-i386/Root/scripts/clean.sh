@@ -9,4 +9,3 @@
 pushd "$_ROSBE_ROSSOURCEDIR" >& /dev/null
 source "$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/clean.sh"
 popd >& /dev/null
-
