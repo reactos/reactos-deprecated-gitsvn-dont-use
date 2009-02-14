@@ -36,10 +36,11 @@ automatically checks for them:
     The executable file and the package name are often called "flex".
 
   * GNU GCC
-    You need the GCC compiler, which is suitable for your system. The
+    You need a GCC compiler, which is suitable for your system. The
     executable file and the package name are often called "gcc".
     Your GCC compiler needs to be able to compile both C and C++ sources.
     Therefore the "g++" module also has to be installed.
+    The compiler needs to be in version 3.4 or later.
 
   * Grep
     The executable file and the package name are often called "grep".
@@ -91,6 +92,12 @@ your used operating system:
 the shortcut.
 
 
+Uninstallation
+---------------
+  If you want to uninstall RosBE, just delete the entire installation directory
+and any shortcuts you have created.
+
+
 Version Information
 --------------------
   This version of RosBE for Unix-based operating systems uses the following
@@ -115,7 +122,7 @@ components:
     NOTE: This GCC version only supports C and C++
 
   * Make 20071219 (CVS version)
-  * MinGW-Runtime 3.15.2
+  * MinGW-Runtime 3.13
   * NASM, The Netwide assembler v2.05.01
   * W32api 3.10
 

@@ -82,17 +82,16 @@ check_file "$package_name/README.pdf"
 #
 # The Process
 #
-# Copy the directory and delete some stuff
+# Copy the directory, delete some stuff and set the permissions
+echo "Copying the \"$package_name\" directory..."
+rm -rf "$full_package_name"
 cp -R "$package_name" "$full_package_name"
 
 find "$full_package_name" -type d -name ".svn" | xargs rm -rf
+find "$full_package_name" -type f -name "SVN-Readme.txt" | xargs rm
 rm "$full_package_name/README.odt"
 
-# Copy the source packages
-for source in $sources; do
-	echo "Copying $source.tar.bz2..."
-	cp "$package_name/sources/$source.tar.bz2" "$full_package_name/sources/$source.tar.bz2"
-done
+find "$full_package_name" -type f -name "*.sh" | xargs chmod +x
 
 # Copy the shared tools
 for tool in $tools; do

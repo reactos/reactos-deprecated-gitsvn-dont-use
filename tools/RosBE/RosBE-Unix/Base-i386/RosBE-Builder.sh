@@ -51,6 +51,7 @@ fi
 
 createdir=false
 installdir=""
+reinstall=false
 update=false
 
 while [ "$installdir" = "" ]; do
@@ -94,7 +95,7 @@ while [ "$installdir" = "" ]; do
 							echo "Please choose one of the following options:"
 							echo
 							echo " (U)pdate the existing Build Environment"
-							echo " (R)einstall all new components of the Build Environment"
+							echo " (R)einstall all components of the Build Environment"
 							echo " (C)hoose a different installation directory"
 							echo
 
@@ -106,12 +107,18 @@ while [ "$installdir" = "" ]; do
 					fi
 				done
 
-				if [ "$choice" = "U" ] || [ "$choice" = "u" ]; then
-					update=true
-				elif [ "$choice" = "C" ] || [ "$choice" = "c" ]; then
-					echo "Please enter another directory!"
-					installdir=""
-				fi
+				case "$choice" in
+					"U"|"u")
+						update=true
+						;;
+					"R"|"r")
+						reinstall=true
+						;;
+					"C"|"c")
+						echo "Please enter another directory!"
+						installdir=""
+						;;
+				esac
 			else
 				echo "The directory \"$installdir\" is not empty. Do you really want to continue? (yes/no)"
 				read -p "[no] " answer
@@ -179,7 +186,6 @@ if $update; then
 				"1.1")
 					# Updated components from 1.1 to 1.4
 					process_binutils=true
-					process_mingwruntime=true
 					process_nasm=true
 
 					# Reorganize the existing files
@@ -207,6 +213,11 @@ else
 	process_buildtime=true
 	process_scut=true
 
+	# Delete the contents of the current installation directory if we're reinstalling
+	if $reinstall; then
+		rm -rf "$installdir/"*
+	fi
+
 	# Create the directory if necessary
 	if $createdir; then
 		if ! mkdir -p "$installdir"; then
@@ -228,6 +239,9 @@ fi
 boldmsg "Building..."
 mkdir "$installdir/bin" >& /dev/null
 mkdir -p "$installdir/$TARGET_ARCH/mingw32" >& /dev/null
+
+# For compiling gcc, it needs to access the already compiled mingw32 binutils
+PATH="$installdir/$TARGET_ARCH/bin:$PATH"
 
 # cpucount
 if $process_cpucount; then
@@ -333,7 +347,7 @@ if $process_make; then
 	mkdir "make-build"
 	cd "make-build"
 	../make/configure --prefix="$installdir" --disable-dependency-tracking \
-			--disable-nls --enable-case-insensitive-file-system
+			--disable-nls --enable-case-insensitive-file-system \
 			--disable-job-server --disable-rpath >& "$SCRIPTDIR/configure.log"
 	setup_check_run "configure"
 
@@ -407,6 +421,7 @@ if $process_scut; then
 fi
 
 echo -n "Removing unneeded files... "
+rm -rf "$installdir/share"
 rm -rf "$installdir/$TARGET_ARCH/mingw32/sys-include"
 rm -rf "$installdir/$TARGET_ARCH/info"
 rm -rf "$installdir/$TARGET_ARCH/man"
