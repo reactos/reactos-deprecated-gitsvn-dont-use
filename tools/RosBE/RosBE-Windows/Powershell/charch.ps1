@@ -18,6 +18,7 @@ $host.ui.RawUI.WindowTitle = "Change the Architecture to build for..."
 #
 function SYSPARAM {
     IEX "& '$_ROSBE_BASEDIR\rosbe-gcc-env.ps1'"
+    version
 }
 if ($args.count -eq 0) {
     #

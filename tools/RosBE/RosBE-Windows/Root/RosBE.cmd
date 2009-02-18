@@ -123,8 +123,6 @@ echo *                        ReactOS Build Environment %_ROSBE_VERSION%        
 echo *                                                                             *
 echo *******************************************************************************
 echo.
-echo.
-ver
 
 ::
 :: Set the correct path for the build tools and set the MinGW make.

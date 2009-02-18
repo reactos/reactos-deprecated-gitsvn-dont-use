@@ -20,6 +20,7 @@ function settitle {
 function EOA {
     IEX "&'$_ROSBE_BASEDIR\rosbe-gcc-env.cmd' chdefgcc"
     settitle
+    version
 }
 
 #

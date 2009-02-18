@@ -58,8 +58,6 @@ function RosBE {
     "*                                                                             *"
     "*******************************************************************************"
     ""
-    ""
-    (get-WmiObject Win32_OperatingSystem).caption
     #
     # Set the correct path for the build tools and set the MinGW make.
     #
@@ -113,6 +111,8 @@ function LoadAliases {
     if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
         set-alias UPDATE "$_ROSBE_BASEDIR\update.ps1" -scope Global
     }
+
+    set-alias VERSION "$_ROSBE_BASEDIR\version.ps1" -scope Global
 
     if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
         set-alias OPTIONS "$_ROSBE_BASEDIR\options.ps1" -scope Global

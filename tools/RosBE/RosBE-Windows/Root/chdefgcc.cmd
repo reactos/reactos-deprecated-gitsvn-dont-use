@@ -57,6 +57,7 @@ if /i "%_2%" == "host" (
 :EOA
 
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd" chdefgcc
+"%_ROSBE_BASEDIR%\version.cmd"
 goto :EOC
 
 :INTERACTIVE

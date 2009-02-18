@@ -37,6 +37,7 @@ goto :EOA
 :EOA
 
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+"%_ROSBE_BASEDIR%\version.cmd"
 goto :EOC
 
 ::

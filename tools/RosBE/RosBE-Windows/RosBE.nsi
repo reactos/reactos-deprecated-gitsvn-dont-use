@@ -124,6 +124,7 @@ Section -BaseFiles SEC01
     File /r Root\RosBE.cmd
     File /r Root\rosbe-gcc-env.cmd
     File /r Root\TimeDate.cmd
+    File /r Root\version.cmd
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\buildtime.exe
@@ -252,6 +253,7 @@ Section "PowerShell RosBE Version" SEC10
     File /r Components\Powershell\scut.ps1
     File /r Components\Powershell\sSVN.ps1
     File /r Components\Powershell\update.ps1
+    File /r Components\Powershell\version.ps1
 SectionEnd
 
 Section "Update Script" SEC11
@@ -354,20 +356,26 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Clean.cmd"
     Delete /REBOOTOK "$INSTDIR\Clean.ps1"
     Delete /REBOOTOK "$INSTDIR\Config.cmd"
+    Delete /REBOOTOK "$INSTDIR\Config.sp1"
     Delete /REBOOTOK "$INSTDIR\Help.cmd"
     Delete /REBOOTOK "$INSTDIR\Help.ps1"
     Delete /REBOOTOK "$INSTDIR\MinGW.cmd"
     Delete /REBOOTOK "$INSTDIR\MinGW.ps1"
     Delete /REBOOTOK "$INSTDIR\options.cmd"
+    Delete /REBOOTOK "$INSTDIR\options.ps1"
     Delete /REBOOTOK "$INSTDIR\reladdr2line.cmd"
+    Delete /REBOOTOK "$INSTDIR\reladdr2line.ps1"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"
     Delete /REBOOTOK "$INSTDIR\RosBE.ps1"
     Delete /REBOOTOK "$INSTDIR\rosbe-gcc-env.cmd"
     Delete /REBOOTOK "$INSTDIR\rosbe-gcc-env.ps1"
     Delete /REBOOTOK "$INSTDIR\scut.cmd"
+    Delete /REBOOTOK "$INSTDIR\scut.ps1"
     Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
+    Delete /REBOOTOK "$INSTDIR\sSVN.ps1"
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
     Delete /REBOOTOK "$INSTDIR\update.cmd"
+    Delete /REBOOTOK "$INSTDIR\update.ps1"
     Delete /REBOOTOK "$INSTDIR\README.pdf"
     Delete /REBOOTOK "$INSTDIR\rosbe.ico"
     Delete /REBOOTOK "$INSTDIR\mingw.ico"
@@ -378,6 +386,8 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\LICENSE.txt"
     Delete /REBOOTOK "$INSTDIR\srclist.txt"
     Delete /REBOOTOK "$INSTDIR\config.rbuild"
+    Delete /REBOOTOK "$INSTDIR\version.cmd"
+    Delete /REBOOTOK "$INSTDIR\version.ps1"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
     RMDir /REBOOTOK "$INSTDIR"
