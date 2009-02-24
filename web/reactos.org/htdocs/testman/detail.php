@@ -53,7 +53,7 @@
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
-		"SELECT e.log, e.count, e.todo, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, u.user_name " .
+		"SELECT e.log, e.count, e.todo, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, u.user_name, r.comment " .
 		"FROM " . DB_TESTMAN . ".winetest_results e " .
 		"JOIN " . DB_TESTMAN . ".winetest_suites s ON e.suite_id = s.id " .
 		"JOIN " . DB_TESTMAN . ".winetest_runs r ON e.test_id = r.id " .
@@ -106,16 +106,20 @@
 		<td><?php echo $row["revision"]; ?></td>
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["platform"]; ?>:</td>
-		<td><?php echo GetPlatformString($row["platform"]); ?></td>
+		<td class="info"><?php echo $testman_langres["date"]; ?>:</td>
+		<td><?php echo GetDateString($row["timestamp"]); ?></td>
 	</tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["user"]; ?>:</td>
 		<td><?php echo $row["user_name"]; ?></td>
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["date"]; ?>:</td>
-		<td><?php echo GetDateString($row["timestamp"]); ?></td>
+		<td class="info"><?php echo $testman_langres["platform"]; ?>:</td>
+		<td><?php echo GetPlatformString($row["platform"]); ?></td>
+	</tr>
+	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+		<td class="info"><?php echo $testman_langres["comment"]; ?>:</td>
+		<td><?php echo GetPlatformString($row["comment"]); ?></td>
 	</tr>
 </table>
 

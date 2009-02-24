@@ -8,7 +8,7 @@
 
 	header("Content-type: text/xml");
 	
-	if(!isset($_GET["startrev"]) || !isset($_GET["endrev"]) || !isset($_GET["platform"]))
+	if(!isset($_GET["startrev"]) || !isset($_GET["endrev"]) || !isset($_GET["user"]) || !isset($_GET["platform"]))
 		die("<error>Necessary information not specified!</error>");
 
 
@@ -28,28 +28,33 @@
 	// Prepare the WHERE clause
 	$where = "";
 	
-	if($_GET["startrev"] || $_GET["startid"] || $_GET["platform"])
+	if($_GET["startrev"] || $_GET["startid"] || $_GET["user"] || $_GET["platform"])
 	{
 		// Begin the WHERE clause with "WHERE 1 ", so we can begin all following statements with AND :-)
 		$where = "WHERE 1 ";
 		
 		if($_GET["startrev"])
-			$where .= "AND revision >= " . (int)$_GET["startrev"] . " AND revision <= " . (int)$_GET["endrev"] . " ";
+			$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
 		
 		if($_GET["startid"])
-			$where .= "AND id >= " . (int)$_GET["startid"] . " ";
+			$where .= "AND r.id >= " . (int)$_GET["startid"] . " ";
+		
+		if($_GET["user"])
+			$where .= "AND u.user_name LIKE " . $dbh->quote($_GET["user"] . "%") . " ";
 		
 		if($_GET["platform"])
-			$where .= "AND platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
+			$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
 	}
 	
-	// Prepare the ORDER clause
+	// Prepare some clauses
+	$tables = "FROM " . DB_TESTMAN . ".winetest_runs r JOIN " . DB_ROSCMS . ".users u ON r.user_id = u.user_id ";
 	$order = "ORDER BY revision ASC, id ASC ";
 	
 	echo "<results>";
 	
 	// First determine how many results we would get in total with this query
-	$stmt = $dbh->query("SELECT COUNT(*) FROM " . DB_TESTMAN . ".winetest_runs " . $where) or die("<error>Query failed #1</error>");
+	$stmt = $dbh->query("SELECT COUNT(*) " . $tables . $where) or die("<error>Query failed #1</error>");
+	
 	$result_count = $stmt->fetchColumn();
 	
 	if($result_count > RESULTS_PER_PAGE)
@@ -76,11 +81,8 @@
 		if($_GET["resultlist"])
 		{
 			$stmt = $dbh->query(
-				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, u.user_name, r.revision, r.platform " .
-				"FROM " . DB_TESTMAN . ".winetest_runs r " .
-				"JOIN " . DB_ROSCMS . ".users u ON r.user_id = u.user_id " .
-				$where .
-				$order .
+				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, u.user_name, r.revision, r.platform, r.comment " .
+				$tables .	$where . $order .
 				"LIMIT " . RESULTS_PER_PAGE
 			) or die("<error>Query failed #2</error>");
 			
@@ -101,6 +103,7 @@
 				printf("<user>%s</user>", htmlspecialchars($row["user_name"]));
 				printf("<revision>%d</revision>", $row["revision"]);
 				printf("<platform>%s</platform>", GetPlatformString($row["platform"]));
+				printf("<comment>%s</comment>", htmlspecialchars($row["comment"]));
 				echo "</result>";
 				
 				$last_revision = $row["revision"];
@@ -109,16 +112,17 @@
 		else
 		{
 			// Get the first and last revision belonging to this call
-			$stmt = $dbh->query("SELECT id, revision FROM " . DB_TESTMAN . ".winetest_runs " . $where . $order . "LIMIT 1") or die("<error>Query failed #3</error>");
+			$stmt = $dbh->query("SELECT r.id, r.revision " . $tables . $where .	$order . "LIMIT 1") or die("<error>Query failed #3</error>");
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			$first_id = $row["id"];
 			$first_revision = $row["revision"];
 			
-			$stmt = $dbh->query("SELECT revision FROM " . DB_TESTMAN . ".winetest_runs " . $where . $order . "LIMIT " . ($result_count - 1) . ", 1") or die("<error>Query failed #4</error>");
+			$stmt = $dbh->query("SELECT r.revision " . $tables . $where . $order . "LIMIT " . ($result_count - 1) . ", 1") or die("<error>Query failed #4</error>");
 			$last_revision = $stmt->fetchColumn();
 		}
 		
-		$stmt = $dbh->query("SELECT id FROM " . DB_TESTMAN . ".winetest_runs " . $where . $order . "LIMIT " . $result_count . ", 1") or die("<error>Query failed #5</error>");
+		// Get the next ID (= the first ID after our limit)
+		$stmt = $dbh->query("SELECT r.id " . $tables . $where .	$order . "LIMIT " . $result_count . ", 1") or die("<error>Query failed #5</error>");
 		$next_id = $stmt->fetchColumn();
 	}
 	

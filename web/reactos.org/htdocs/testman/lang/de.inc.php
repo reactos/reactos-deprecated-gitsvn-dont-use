@@ -21,12 +21,11 @@
 		"revision" => "Revision",
 		"user" => "Benutzer",
 		"platform" => "Plattform",
+		"comment" => "Kommentar",
 		
 		"search_header" => "Nach Testergebnissen suchen",
-		"search_revision" => "Revision",
-		"search_platform" => "Plattform",
 		"search_button" => "Suchen",
-		"searching" => "Testergebnisse werden gesucht...",
+		"searching" => "Testergebnisse werden gesucht",
 		
 		"foundresults" => "%s Ergebnisse gefunden!",
 		"noresults" => "Keine Suchergebnisse!",
@@ -49,13 +48,13 @@
 		"difference" => "Unterschied zum vorherigen Ergebnis",
 		
 		"testsuite" => "Test Suite",
-		"resulthead" => "Revision %d<br />unter %s<br />von %s<br />am %s",
+		"resulthead" => "Revision %d<br />am %s<br />von %s<br />unter %s",
 		
 		// Result Details page
 		"detail_title" => "Ergebnis-Details",
 		
 		"thisresult" => "Informationen über dieses Ergebnis",
 		"log" => "Log",
-		"associatedtest" => "Information über den zugeordneten Test",
+		"associatedtest" => "Informationen über den zugeordneten Test",
 	);
 ?>

@@ -170,7 +170,7 @@
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		
 		echo '<th onmousedown="ResultHead_OnMouseDown(this)">';
-		printf($testman_langres["resulthead"], $row["revision"], GetPlatformString($row["platform"]), $row["user_name"], GetDateString($row["timestamp"]));
+		printf($testman_langres["resulthead"], $row["revision"], GetDateString($row["timestamp"]), $row["user_name"], GetPlatformString($row["platform"]));
 		echo '</th>';
 	}
 	

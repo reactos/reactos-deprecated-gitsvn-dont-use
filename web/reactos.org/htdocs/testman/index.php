@@ -93,10 +93,11 @@
 							<thead>
 								<tr class="head">
 									<th class="TestCheckbox"></th>
-									<th><?php echo $testman_langres["date"]; ?></th>
 									<th><?php echo $testman_langres["revision"]; ?></th>
+									<th><?php echo $testman_langres["date"]; ?></th>
 									<th><?php echo $testman_langres["user"]; ?></th>
 									<th><?php echo $testman_langres["platform"]; ?></th>
+									<th><?php echo $testman_langres["comment"]; ?></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -112,7 +113,7 @@
 									}
 									
 									$stmt = $dbh->query(
-										"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, u.user_name, r.revision, r.platform " .
+										"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, u.user_name, r.revision, r.platform, r.comment " .
 										"FROM " . DB_TESTMAN . ".winetest_runs r " .
 										"JOIN " . DB_ROSCMS . ".users u ON r.user_id = u.user_id " .
 										"ORDER BY revision DESC, id DESC " .
@@ -128,10 +129,11 @@
 										
 										printf('<tr class="%s" onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">', ($oddeven ? "odd" : "even"));
 										printf('<td><input onclick="Result_OnCheckboxClick(this)" type="checkbox" name="test_%s" /></td>', $row["id"]);
-										printf('<td onclick="Result_OnCellClick(this)">%s</td>', GetDateString($row["timestamp"]));
 										printf('<td onclick="Result_OnCellClick(this)">%s</td>', $row["revision"]);
+										printf('<td onclick="Result_OnCellClick(this)">%s</td>', GetDateString($row["timestamp"]));
 										printf('<td onclick="Result_OnCellClick(this)">%s</td>', htmlspecialchars($row["user_name"]));
 										printf('<td onclick="Result_OnCellClick(this)">%s</td>', GetPlatformString($row["platform"]));
+										printf('<td onclick="Result_OnCellClick(this)">%s</td>', htmlspecialchars($row["comment"]));
 										echo "</tr>";
 										
 										$oddeven = !$oddeven;
@@ -170,17 +172,23 @@
 						
 						<table id="searchform">
 							<tr>
-								<td><?php echo $testman_langres["search_revision"]; ?>:</td>
+								<td><?php echo $testman_langres["revision"]; ?>:</td>
 								<td>
-									<input type="text" id="search_revision" value="" size="12" onkeyup="SearchRevisionInput_OnKeyUp(this)" /><br />
+									<input type="text" id="search_revision" value="" size="12" onkeypress="SearchInputs_OnKeyPress(event)" onkeyup="SearchRevisionInput_OnKeyUp(this)" /><br />
 									
 									<img src="../shared/images/info.gif" alt="" /> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
 								</td>
 							</tr>
 							<tr>
-								<td><?php echo $testman_langres["search_platform"]; ?>:</td>
+								<td><?php echo $testman_langres["user"]; ?>:</td>
 								<td>
-									<select id="search_platform" size="1">
+									<input type="text" id="search_user" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" />
+								</td>
+							</tr>
+							<tr>
+								<td><?php echo $testman_langres["platform"]; ?>:</td>
+								<td>
+									<select id="search_platform" size="1" onkeypress="SearchInputs_OnKeyPress(event)">
 										<option></option>
 										<option value="reactos">ReactOS</option>
 										<option value="5.0">Windows 2000</option>

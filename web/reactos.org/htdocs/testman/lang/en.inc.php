@@ -21,11 +21,9 @@
 		"revision" => "Revision",
 		"user" => "User",
 		"platform" => "Platform",
+		"comment" => "Comment",
 		
 		"search_header" => "Search for Test Results",
-		"search_revision" => "Revision",
-		"rangeinfo" => "You can enter a revision number (e.g. %s) or a revision range (e.g. %s-%s)",
-		"search_platform" => "Platform",
 		"search_button" => "Search",
 		"searching" => "Searching for Test Results",
 		
@@ -50,7 +48,7 @@
 		"difference" => "Difference to the previous result",
 		
 		"testsuite" => "Test Suite",
-		"resulthead" => "Revision %d<br />under %s<br />by %s<br />at %s",
+		"resulthead" => "Revision %d<br />at %s<br />by %s<br />under %s",
 		
 		// Result Details page
 		"detail_title" => "Result Details",

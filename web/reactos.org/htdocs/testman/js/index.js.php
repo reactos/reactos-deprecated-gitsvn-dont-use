@@ -106,6 +106,19 @@ function Result_OnCellClick(elem)
 	UpdateSelectedResults(checkbox);
 }
 
+function SearchInputs_OnKeyPress(event)
+{
+	// IE vs. other browsers again
+	if(window.event)
+		var KeyCode = window.event.keyCode;
+	else
+		var KeyCode = event.which;
+	
+	// Submit the search form in case the user pressed the Return key
+	if(KeyCode == 13)
+		SearchButton_OnClick();
+}
+
 function SearchRevisionInput_OnKeyUp(elem)
 {
 	var val = elem.value.replace(/[^[0-9-]/g, "");
@@ -172,12 +185,23 @@ function SearchButton_OnClick()
 	
 	data["startrev"] = inputbox_startrev;
 	data["endrev"] = inputbox_endrev;
+	data["user"] = document.getElementById("search_user").value;
 	data["platform"] = document.getElementById("search_platform").value;
 	
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
 	
 	SearchCall();
+}
+
+function GetTagData(RootElement, TagName)
+{
+	var Child = RootElement.getElementsByTagName(TagName)[0].firstChild;
+	
+	if(!Child)
+		return "";
+	
+	return Child.data;
 }
 
 function SearchCallback(HttpRequest)
@@ -258,10 +282,11 @@ function SearchCallback(HttpRequest)
 		
 		html += '<thead><tr class="head">';
 		html += '<th class="TestCheckbox"><\/th>';
-		html += '<th><?php echo addslashes($testman_langres["date"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["revision"]); ?><\/th>';
+		html += '<th><?php echo addslashes($testman_langres["date"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["user"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["platform"]); ?><\/th>';
+		html += '<th><?php echo addslashes($testman_langres["comment"]); ?><\/th>';
 		html += '<\/tr><\/thead>';
 		html += '<tbody>';
 		
@@ -277,18 +302,20 @@ function SearchCallback(HttpRequest)
 			
 			for(var i = 0; i < results.length; i++)
 			{
-				var ResultID = results[i].getElementsByTagName("id")[0].firstChild.data;
-				var ResultDate = results[i].getElementsByTagName("date")[0].firstChild.data;
-				var ResultUser = results[i].getElementsByTagName("user")[0].firstChild.data;
-				var ResultRevision = results[i].getElementsByTagName("revision")[0].firstChild.data;
-				var ResultPlatform = results[i].getElementsByTagName("platform")[0].firstChild.data;
+				var ResultID = GetTagData(results[i], "id");
+				var ResultRevision = GetTagData(results[i], "revision");
+				var ResultDate = GetTagData(results[i], "date");
+				var ResultUser = GetTagData(results[i], "user");
+				var ResultPlatform = GetTagData(results[i], "platform");
+				var ResultComment = GetTagData(results[i], "comment");
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
 				html += '<td><input onclick="Result_OnCheckboxClick(this)" type="checkbox" name="test_' + ResultID + '" \/><\/td>';
-				html += '<td onclick="Result_OnCellClick(this)">' + ResultDate + '<\/td>';
 				html += '<td onclick="Result_OnCellClick(this)">' + ResultRevision + '<\/td>';
+				html += '<td onclick="Result_OnCellClick(this)">' + ResultDate + '<\/td>';
 				html += '<td onclick="Result_OnCellClick(this)">' + ResultUser + '<\/td>';
 				html += '<td onclick="Result_OnCellClick(this)">' + ResultPlatform + '<\/td>';
+				html += '<td onclick="Result_OnCellClick(this)">' + ResultComment + '<\/td>';
 				html += '<\/tr>';
 
 				oddeven = !oddeven;

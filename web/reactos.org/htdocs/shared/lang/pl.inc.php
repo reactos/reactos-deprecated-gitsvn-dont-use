@@ -6,6 +6,7 @@
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
   TRANSLATOR: Maciej Bialas
               Olaf Siejka
+              Mariusz Przybylski
   
   charset=utf-8 without BOM
 */
@@ -13,7 +14,7 @@
 	$shared_langres = array(
 		"language" => "Język",
 		
-		"rangeinfo" => "Możesz wprowadzić numer wersji (np. %s) lub przedział wersji (np. %s-%s)",
+		"rangeinfo" => "Możesz wprowadzić numer rewizji (np. %s) lub przedział rewizji (np. %s-%s)",
 		
 		"firstpage_title" => "Przejdź do pierwszej strony",
 		"prevpage_title" => "Poprzednia strona",
