@@ -227,7 +227,8 @@
 
 		require_once("inc/data_edit.php");
 		require_once("inc/data_edit_tag.php");
-		
+				
+		global $RosCMS_GET_debug;
 		
 		global $roscms_intern_account_id;
 
@@ -249,9 +250,13 @@
 		
 		$RosCMS_intern_d_rev_number = "";
 		
-		echo "<p>!!!!!!!!!!!!!!!!!</p><hr /><p>asdadasdawddsda</p>";
+		$tmpTransferTags = false;
+		$tmpTransferTagsId = 0;
+		$tmpTransferTagsRid = 0;
 		
-		echo "<p>DynNumber: ".$RosCMS_GET_d_value4."</p>";
+		
+		if ($RosCMS_GET_debug) echo "<p>!!!!!!!!!!!!!!!!!</p><hr /><p>asdadasdawddsda</p>";
+		if ($RosCMS_GET_debug) echo "<p>DynNumber: ".$RosCMS_GET_d_value4."</p>";
 		
 
 
@@ -283,18 +288,36 @@
 														LIMIT 1;");
 			$result_data_save_find_draft = mysql_fetch_array($query_data_save_find_draft);
 
-			//echo "<p>DraftEntry: ".$result_data_save_find_draft['rev_id'].", ".$result_data_save_find_draft['data_id'].", ".$result_data_save_find_draft['rev_version'].", ".$result_data_save_find_draft['tv_value']."</p>";
+			if ($RosCMS_GET_debug) echo "<p>DraftEntry: ".$result_data_save_find_draft['rev_id'].", ".$result_data_save_find_draft['data_id'].", ".$result_data_save_find_draft['rev_version'].", ".$result_data_save_find_draft['tv_value']."</p>";
+			if ($RosCMS_GET_debug) echo "<p>TYPE: ".getTagValue($RosCMS_GET_d_id, $result_data_save_find_draft['rev_id'], "-1", "status")."</p>";
 
-			if (getTagValue($RosCMS_GET_d_id, $result_data_save_find_draft['rev_id'], "-1", "status") == "draft") {
-				//echo "<p>draft-lang: ".$RosCMS_GET_d_value3."|".$RosCMS_GET_d_value4."|".$result_data_save_find_draft['rev_language']."</p>";
+			$cur_data_type = getTagValue($RosCMS_GET_d_id, $result_data_save_find_draft['rev_id'], "-1", "status");
+
+			if ($cur_data_type == "draft") {
+				if ($RosCMS_GET_debug) echo "<p>draft-lang: ".$RosCMS_GET_d_value3."|".$RosCMS_GET_d_value4."|".$result_data_save_find_draft['rev_language']."</p>";
 				$RosCMS_intern_save_rev_id = $result_data_save_find_draft['rev_id'];
 				$RosCMS_intern_d_rev_lang = $result_data_save_find_draft['rev_language'];
 				$RosCMS_intern_d_rev_usrid = $result_data_save_find_draft['rev_usrid'];
 				$RosCMS_intern_d_rev_version = 0;
 			}
-			else { // save changes as draft based on a new/stable entry
-				//echo "<p>else-lang: ".$RosCMS_GET_d_value3."|".$RosCMS_GET_d_value4."|".$RosCMS_GET_d_r_lang."</p>";
+			else if ($cur_data_type == "new" || $cur_data_type == "stable") { // save changes as draft based on a new/stable entry
+				if ($RosCMS_GET_debug) echo "<p>new/stable-lang: ".$RosCMS_GET_d_value3."|".$RosCMS_GET_d_value4."|".$RosCMS_GET_d_r_lang."</p>";
+				
 				//$RosCMS_GET_d_value3 = "submit"; // save instead of update
+				$RosCMS_intern_save_rev_id = "";
+				$RosCMS_intern_d_rev_version = 0;
+				$RosCMS_intern_d_rev_lang = $RosCMS_GET_d_r_lang;
+				$RosCMS_intern_d_rev_usrid = $roscms_intern_account_id;
+				
+				if ($result_data_save_find_draft['rev_id'] != "")
+				{
+					$tmpTransferTags = true;
+					$tmpTransferTagsId = $result_data_save_find_draft['data_id'];
+					$tmpTransferTagsRid = $result_data_save_find_draft['rev_id'];
+				}
+			}
+			else {
+				if ($RosCMS_GET_debug) echo "<p>else-lang: ".$RosCMS_GET_d_value3."|".$RosCMS_GET_d_value4."|".$RosCMS_GET_d_r_lang."</p>";
 				$RosCMS_intern_save_rev_id = "";
 				$RosCMS_intern_d_rev_version = 0;
 				$RosCMS_intern_d_rev_lang = $RosCMS_GET_d_r_lang;
@@ -307,7 +330,7 @@
 		
 		
 		if (($RosCMS_GET_d_value3 == "draft" && $RosCMS_intern_save_rev_id == "") || $RosCMS_GET_d_value3 == "submit") { // add 
-			//echo "<p>ADD</p>";
+			if ($RosCMS_GET_debug) echo "<p>ADD</p>";
 			
 /*			if ($RosCMS_GET_d_value3 == "submit") {
 				$query_data_save_find_submit = mysql_query("SELECT rev_id, data_id  rev_version, rev_language, rev_usrid, rev_datetime
@@ -379,15 +402,23 @@
 														);");
 //				echo "<p>CONTENT###\n<br />".$_POST["plm".$i]."</p>";
 			}
-			
+	
+			if ($tmpTransferTags == true) {
+				// data_tag
+				transfer_tags($tmpTransferTagsId, $tmpTransferTagsRid, $RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], false);
+				if ($RosCMS_GET_debug) echo "\n<p>transfer_tags(".$tmpTransferTagsId.", ".$tmpTransferTagsRid.", ".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", false)</p>";
+				delete_tag($RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], "-1", "status");
+			}
+		
 			if ($RosCMS_GET_d_value3 == "submit") {
-//				echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'new', '-1');</h4>";
+				if ($RosCMS_GET_debug) echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'new', '-1');</h4>";
 				tag_add($RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], 'status', 'new', '-1');
 			}
 			else if ($RosCMS_GET_d_value3 == "draft") {
-//				echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'draft', '-1');</h4>";
+				if ($RosCMS_GET_debug) echo "<h4>submit_process: tag_add(".$RosCMS_GET_d_id.", ".$result_data_save_find_submit2['rev_id'].", 'status', 'draft', '-1');</h4>";
 				tag_add($RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], 'status', 'draft', '-1');
 			}
+			
 			
 			if ($RosCMS_GET_d_value4 != "no") {
 				tag_add($RosCMS_GET_d_id, $result_data_save_find_submit2['rev_id'], 'number', $RosCMS_GET_d_value4, '-1');
