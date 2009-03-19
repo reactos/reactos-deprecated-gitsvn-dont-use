@@ -13,6 +13,7 @@
 		"de" => "Deutsch (German)",
 		"es" => "Español (Spanish)",
 		"fr" => "Français (French)",
+		"ja" => "日本語 (Japanese)",
 		"it" => "Italiano (Italian)",
 		"lt" => "Lietuvių (Lithuanian)",
 		"pl" => "Polski (Polish)",
