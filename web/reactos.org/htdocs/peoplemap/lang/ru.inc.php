@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
   PROJECT:    People Map of the ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
