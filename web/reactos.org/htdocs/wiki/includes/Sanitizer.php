@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * XHTML sanitizer for MediaWiki
  *
@@ -726,7 +726,6 @@ class Sanitizer {
 	 * @return HTML-encoded text fragment
 	 */
 	static function encodeAttribute( $text ) {
-		if( is_object( $text ) ) debug_print_backtrace();
 		$encValue = htmlspecialchars( $text, ENT_QUOTES );
 
 		// Whitespace is normalized during attribute decoding,
