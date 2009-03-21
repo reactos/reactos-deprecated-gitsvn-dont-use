@@ -56,6 +56,15 @@ function ShowChangedCheckbox_OnClick(checkbox)
 	document.cookie = "showchanged=" + (checkbox.checked ? "1" : "0");
 }
 
+function GetValueForResult(td)
+{
+	// If a test crashed, return a numeric value of 0, so that the comparison is accurate
+	if(td.firstChild.data.replace(/ /g, "") == "CRASH")
+		return 0;
+	
+	return parseInt(td.firstChild.data);
+}
+
 function AddDifferenceForColumn(th)
 {
 	var Index = GetColumnIndex(th);
@@ -90,8 +99,8 @@ function AddDifferenceForColumn(th)
 		
 		for(var j = 0; j < tds.length; j++)
 		{
-			var CurrentValue = parseInt(tds[j].firstChild.data);
-			var PreviousValue = parseInt(trs[i].childNodes[Index - 1].getElementsByTagName("td")[j].firstChild.data);
+			var CurrentValue = GetValueForResult(tds[j]);
+			var PreviousValue = GetValueForResult(trs[i].childNodes[Index - 1].getElementsByTagName("td")[j]);
 			
 			// Calculate the difference
 			var Diff = CurrentValue - PreviousValue;

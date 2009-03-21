@@ -76,7 +76,7 @@
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["totaltests"]; ?>:</td>
-		<td><?php echo $row["count"]; ?></td>
+		<td><?php echo GetTotalTestsString($row["count"]); ?></td>
 	</tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["failedtests"]; ?>:</td>

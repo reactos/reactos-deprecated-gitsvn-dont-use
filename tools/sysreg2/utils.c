@@ -1,5 +1,4 @@
 #include "sysreg.h"
-#include <sys/sysinfo.h>
 
 int readln(int fd, char* buffer, int size)
 {
@@ -91,4 +90,13 @@ char * ReadFile (const char *filename)
     return buffer;
 }
 
+void SysregPrintf(const char* format, ...)
+{
+    va_list args;
 
+    printf("[SYSREG] ");
+
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+}

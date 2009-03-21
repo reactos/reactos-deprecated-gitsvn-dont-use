@@ -1,6 +1,4 @@
 #include "sysreg.h"
-#include <termios.h>
-#include <poll.h>
 
 bool ProcessDebugData(const char* tty, int timeout, int stage )
 {
@@ -11,7 +9,7 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
 
     if ((ttyfd = open(tty, O_NOCTTY | O_RDWR)) < 0)
     {
-        printf("error opening tty\n");
+        SysregPrintf("error opening tty\n");
         return false;
     }
 
@@ -47,7 +45,7 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
         else if (ret == 0)
         {
             /* timeout */
-            printf("timeout\n");
+            SysregPrintf("timeout\n");
             Ret = false;
             goto cleanup;
         }
@@ -64,6 +62,7 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
         
                 memset(buf, 0, sizeof(buf));
                 got = readln(fds[i].fd, buf, sizeof(buf));
+
                 if (got == KDBG_READY) 
                 {
                     KdbgHit++;
@@ -88,6 +87,7 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                 else if (got <= 0) {
                     goto cleanup;
                 }
+
                 if (fds[i].fd != STDIN_FILENO)
                 {
                     if ((AppSettings.Stage[stage].Checkpoint[0] != '\0') &&
@@ -99,9 +99,9 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                     } 
                     
                     if (ResolveAddressFromFile(rbuf, sizeof(rbuf), buf))
-                        printf("%s", rbuf);
+                        SysregPrintf("%s", rbuf);
                     else
-                        printf("%s", buf);
+                        SysregPrintf("%s", buf);
                 }
                 else
                 {
@@ -111,7 +111,6 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                 
             }
         }
-
     } 
 
 

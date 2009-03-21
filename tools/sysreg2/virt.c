@@ -1,5 +1,4 @@
 #include "sysreg.h"
-#include <libvirt.h>
 
 bool GetConsole(virDomainPtr vDomPtr, char* console)
 {
@@ -146,12 +145,13 @@ int main(int argc, char **argv)
     virConnectPtr vConn;
     virDomainPtr vDom;
     virDomainInfo info;
+	int Crashes;
     int Stage;
     int Stages = 3;
     char qemu_img_cmdline[300];
     FILE* file;
     char config[255];
-    int Ret = EXIT_SUCCESS;
+    int Ret = EXIT_FAILURE;
     char console[50];
 
     if (argc == 2)
@@ -161,15 +161,15 @@ int main(int argc, char **argv)
 
     if (!LoadSettings(config))
     {
-        printf("Can not load configuration file\n");
-        return EXIT_FAILURE;
+        SysregPrintf("Cannot load configuration file\n");
+        goto cleanup;
     }
     vConn = virConnectOpen("qemu:///session");
 
     if (IsVirtualMachineRunning(vConn, AppSettings.Name))
     {
-        printf("Error: Virtual Machine is already running.\n");
-        return EXIT_FAILURE;
+        SysregPrintf("Error: Virtual Machine is already running.\n");
+        goto cleanup;
     }
 
     if (file = fopen(AppSettings.HardDiskImage, "r"))
@@ -185,43 +185,71 @@ int main(int argc, char **argv)
     while(feof(p)==0)
     {
         fgets(buf,100,p);
-        printf("%s\n",buf);
+        SysregPrintf("%s\n",buf);
     }
     pclose(p); 
 
-    for (Stage=0;Stage<Stages; Stage++)
+    Stage = 0;
+
+    while(Stage < Stages)
     {
-        vDom = LaunchVirtualMachine(vConn, AppSettings.Filename,
-                AppSettings.Stage[Stage].BootDevice);
+        for(Crashes = 0; Crashes < AppSettings.MaxCrashes; Crashes++)
         {
-            if (vDom)
+            vDom = LaunchVirtualMachine(vConn, AppSettings.Filename,
+                    AppSettings.Stage[Stage].BootDevice);
+
+            if (!vDom)
             {
-                if (Stage > 0)
-                    printf("\n\n\n");
-                printf("Running stage %d...\n", Stage + 1);
-                printf("Domain %s started.\n", virDomainGetName(vDom));
-                GetConsole(vDom, console);
-                if (!ProcessDebugData(console,
-                                 AppSettings.Timeout, Stage))
-                {
-                    Ret = EXIT_FAILURE;
-                }
-                virDomainGetInfo(vDom, &info);
-                if (info.state != VIR_DOMAIN_SHUTOFF)
-                    virDomainDestroy(vDom);
-                virDomainUndefine(vDom);
-                virDomainFree(vDom);
-                if (Ret == EXIT_FAILURE)
-                    break;
+                SysregPrintf("LaunchVirtualMachine failed!\n");
+                goto cleanup;
             }
-        }   
+
+            printf("\n\n\n");
+            SysregPrintf("Running stage %d...\n", Stage + 1);
+            SysregPrintf("Domain %s started.\n", virDomainGetName(vDom));
+
+            GetConsole(vDom, console);
+            Ret = (ProcessDebugData(console, AppSettings.Timeout, Stage) ? EXIT_SUCCESS : EXIT_FAILURE);
+
+            /* Kill the VM */
+            virDomainGetInfo(vDom, &info);
+
+            if (info.state != VIR_DOMAIN_SHUTOFF)
+                virDomainDestroy(vDom);
+
+            virDomainUndefine(vDom);
+            virDomainFree(vDom);
+
+            /* If we have a checkpoint to reach for success, assume that
+               the application used for running the tests (probably "rosautotest")
+               continues with the next test after a VM restart. */
+            if (Ret == EXIT_FAILURE && *AppSettings.Stage[Stage].Checkpoint)
+                SysregPrintf("Crash %d encountered, resuming the testing process\n", Crashes);
+            else
+                break;
+        }
+
+        if (Crashes == AppSettings.MaxCrashes)
+        {
+            SysregPrintf("Maximum number of allowed crashes exceeded, aborting!\n");
+            break;
+        }
+
+        if (Ret == EXIT_FAILURE)
+            break;
+
+        ++Stage;
     }
 
+
+cleanup:
     virConnectClose(vConn);
+
     if (Ret == EXIT_SUCCESS)
-        printf("Test succeeded!\n");
+        SysregPrintf("Test status: Reached the checkpoint!\n");
     else
-        printf("Test failed!\n");
+        SysregPrintf("Test status: Failed to reach the checkpoint!\n");
+
     return Ret;
 }
 

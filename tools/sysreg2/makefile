@@ -7,7 +7,7 @@ all: $(TARGET)
 CC=gcc
 CFLAGS := -g -O0 -std=c99 -D_GNU_SOURCE
 LFLAGS := -L/usr/lib64
-LIBS := -lgcc -lm -lvirt -ltasn1 -lz -lxml2 -lgnutls
+LIBS := -lvirt -lxml2
 INC := -I/usr/include/libvirt/ -I/usr/include/libxml2/
 
 SRCS := virt.c utils.c console.c options.c raddr2line.c

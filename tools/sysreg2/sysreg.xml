@@ -2,8 +2,12 @@
 	<general>
 		<!-- kill the VM after n milliseconds without debug msg -->
 		<timeout ms="20000"/>
+
 		<!-- size of the hdd image in MB -->
 		<hdd size="512"/>
+
+		<!-- Maximum number of crashes allowed before we kill the VM -->
+		<maxcrashes value="20" />
 	</general>
 	<firststage bootdevice="cdrom">
 	</firststage>

@@ -19,12 +19,21 @@
 	require_once("lang/$lang.inc.php");
 	
 
+	function GetValueForResult($result)
+	{
+		// If a test crashed, return a numeric value of 0, so that the comparison is accurate
+		if($result == -1)
+			return 0;
+		
+		return $result;
+	}
+	
 	function GetDifference(&$current_result_row, &$prev_result_row, $subject)
 	{
 		if(!$prev_result_row["id"] || $current_result_row[$subject] == $prev_result_row[$subject])
 			return "&nbsp;";
 		
-		$diff = $current_result_row[$subject] - $prev_result_row[$subject];
+		$diff = GetValueForResult($current_result_row[$subject]) - GetValueForResult($prev_result_row[$subject]);
 		
 		if($diff > 0)
 			return "(+$diff)";
@@ -37,7 +46,7 @@
 		if($changed)
 			return;
 		
-		if($temp == -1)
+		if($temp == -2)
 			$temp = $current;
 		else if($current != $temp)
 			$changed = true;
@@ -187,10 +196,10 @@
 		
 		$changed = false;
 		$prev_result_row = null;
-		$temp_totaltests = -1;
-		$temp_failedtests = -1;
-		$temp_todotests = -1;
-		$temp_skippedtests = -1;
+		$temp_totaltests = -2;
+		$temp_failedtests = -2;
+		$temp_todotests = -2;
+		$temp_skippedtests = -2;
 		
 		for($i = 0; $i < count($result_stmt); $i++)
 		{
@@ -203,17 +212,17 @@
 			
 			echo '>';
 			
+			// Check whether there are any changes within the test results of several runs
+			CheckIfChanged($changed, $temp_totaltests, $result_row["count"]);
+			CheckIfChanged($changed, $temp_failedtests, $result_row["failedtests"]);
+			CheckIfChanged($changed, $temp_todotests, $result_row["todo"]);
+			CheckIfChanged($changed, $temp_skippedtests, $result_row["skipped"]);
+			
 			if($result_row["id"])
 			{
-				// Check whether there are any changes within the test results of several runs
-				CheckIfChanged($changed, $temp_totaltests, $result_row["count"]);
-				CheckIfChanged($changed, $temp_failedtests, $result_row["failedtests"]);
-				CheckIfChanged($changed, $temp_todotests, $result_row["todo"]);
-				CheckIfChanged($changed, $temp_skippedtests, $result_row["skipped"]);
-				
 				echo '<table class="celltable">';
 				echo '<tr>';
-				printf('<td colspan="3" title="%s" class="totaltests">%d <span class="diff">%s</span></td>', $testman_langres["totaltests"], $result_row["count"], GetDifference($result_row, $prev_result_row, "count"));
+				printf('<td colspan="3" title="%s" class="totaltests">%s <span class="diff">%s</span></td>', $testman_langres["totaltests"], GetTotalTestsString($result_row["count"]), GetDifference($result_row, $prev_result_row, "count"));
 				echo '</tr><tr>';
 				printf('<td title="%s" class="failedtests">%d <span class="diff">%s</span></td>', $testman_langres["failedtests"], $result_row["failed"], GetDifference($result_row, $prev_result_row, "failedtests"));
 				printf('<td title="%s" class="todotests">%d <span class="diff">%s</span></td>', $testman_langres["todotests"], $result_row["todo"], GetDifference($result_row, $prev_result_row, "todotests"));
