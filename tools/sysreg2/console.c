@@ -99,9 +99,9 @@ bool ProcessDebugData(const char* tty, int timeout, int stage )
                     } 
                     
                     if (ResolveAddressFromFile(rbuf, sizeof(rbuf), buf))
-                        SysregPrintf("%s", rbuf);
+                        printf("%s", rbuf);
                     else
-                        SysregPrintf("%s", buf);
+                        printf("%s", buf);
                 }
                 else
                 {
