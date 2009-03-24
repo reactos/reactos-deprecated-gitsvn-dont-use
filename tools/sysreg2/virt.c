@@ -142,16 +142,15 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char* XmlFileName, 
 
 int main(int argc, char **argv)
 {
-    virConnectPtr vConn;
+    virConnectPtr vConn = NULL;
     virDomainPtr vDom;
     virDomainInfo info;
 	int Crashes;
     int Stage;
-    int Stages = 3;
     char qemu_img_cmdline[300];
     FILE* file;
     char config[255];
-    int Ret = EXIT_FAILURE;
+    int Ret = EXIT_NONCONTINUABLE_ERROR;
     char console[50];
 
     if (argc == 2)
@@ -172,12 +171,14 @@ int main(int argc, char **argv)
         goto cleanup;
     }
 
+    /* If the HD image already exists, delete it */
     if (file = fopen(AppSettings.HardDiskImage, "r"))
     {
         fclose(file);
         remove(AppSettings.HardDiskImage);
     }
 
+    /* Create a new HD image */
     sprintf(qemu_img_cmdline, "qemu-img create -f qcow2 %s %dM", 
             AppSettings.HardDiskImage, AppSettings.ImageSize);
     FILE* p = popen(qemu_img_cmdline, "r");
@@ -187,11 +188,9 @@ int main(int argc, char **argv)
         fgets(buf,100,p);
         SysregPrintf("%s\n",buf);
     }
-    pclose(p); 
+    pclose(p);
 
-    Stage = 0;
-
-    while(Stage < Stages)
+    for(Stage = 0; Stage < NUM_STAGES; Stage++)
     {
         for(Crashes = 0; Crashes < AppSettings.MaxCrashes; Crashes++)
         {
@@ -209,7 +208,7 @@ int main(int argc, char **argv)
             SysregPrintf("Domain %s started.\n", virDomainGetName(vDom));
 
             GetConsole(vDom, console);
-            Ret = (ProcessDebugData(console, AppSettings.Timeout, Stage) ? EXIT_SUCCESS : EXIT_FAILURE);
+            Ret = ProcessDebugData(console, AppSettings.Timeout, Stage);
 
             /* Kill the VM */
             virDomainGetInfo(vDom, &info);
@@ -223,7 +222,7 @@ int main(int argc, char **argv)
             /* If we have a checkpoint to reach for success, assume that
                the application used for running the tests (probably "rosautotest")
                continues with the next test after a VM restart. */
-            if (Ret == EXIT_FAILURE && *AppSettings.Stage[Stage].Checkpoint)
+            if (Ret == EXIT_ERROR && *AppSettings.Stage[Stage].Checkpoint)
                 SysregPrintf("Crash %d encountered, resuming the testing process\n", Crashes);
             else
                 break;
@@ -235,21 +234,33 @@ int main(int argc, char **argv)
             break;
         }
 
-        if (Ret == EXIT_FAILURE)
+        if (Ret == EXIT_ERROR || Ret == EXIT_NONCONTINUABLE_ERROR)
             break;
-
-        ++Stage;
     }
 
 
 cleanup:
-    virConnectClose(vConn);
+    if (vConn)
+        virConnectClose(vConn);
 
-    if (Ret == EXIT_SUCCESS)
-        SysregPrintf("Test status: Reached the checkpoint!\n");
-    else
-        SysregPrintf("Test status: Failed to reach the checkpoint!\n");
+    switch (Ret)
+    {
+        case EXIT_CHECKPOINT_REACHED:
+            SysregPrintf("Status: Reached the checkpoint!\n");
+            break;
+
+        case EXIT_SHUTDOWN:
+            SysregPrintf("Status: Machine shut down, but did not reach the checkpoint!\n");
+            break;
+
+        case EXIT_ERROR:
+            SysregPrintf("Status: Failed to reach the checkpoint!\n");
+            break;
+
+        case EXIT_NONCONTINUABLE_ERROR:
+            SysregPrintf("Status: Testing process aborted!\n");
+            break;
+    }
 
     return Ret;
 }
-

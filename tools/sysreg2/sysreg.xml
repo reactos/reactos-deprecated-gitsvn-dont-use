@@ -7,7 +7,7 @@
 		<hdd size="512"/>
 
 		<!-- Maximum number of crashes allowed before we kill the VM -->
-		<maxcrashes value="20" />
+		<maxcrashes value="10" />
 	</general>
 	<firststage bootdevice="cdrom">
 	</firststage>

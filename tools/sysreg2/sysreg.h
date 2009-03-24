@@ -15,29 +15,31 @@
 #include <libxml/xpathInternals.h>
 #include <sys/sysinfo.h>
 
-#define KDBG_CONFIRM -3
-#define KDBG_READY -2
+#define EXIT_CHECKPOINT_REACHED     0
+#define EXIT_SHUTDOWN               1
+#define EXIT_ERROR                  2
+#define EXIT_NONCONTINUABLE_ERROR   3
+#define NUM_STAGES                  3
 
 typedef struct {
-	char BootDevice[8];
-	char Checkpoint[80];
+    char BootDevice[8];
+    char Checkpoint[80];
 } stage;
 
 typedef struct {
-	int MaxCrashes;
-	int Timeout;
-	char Filename[255];
-	char Name[80];
-	char HardDiskImage[255];
-	int ImageSize;
-	stage Stage[3];
+    int MaxCrashes;
+    int Timeout;
+    char Filename[255];
+    char Name[80];
+    char HardDiskImage[255];
+    int ImageSize;
+    stage Stage[3];
 } Settings;
 
 Settings AppSettings;
 
 /* utils.c */
 char* ReadFile (const char* filename);
-int readln(int fd, char* buffer, int size);
 ssize_t safewrite(int fd, const void *buf, size_t count);
 void SysregPrintf(const char* format, ...);
 
@@ -45,7 +47,7 @@ void SysregPrintf(const char* format, ...);
 bool LoadSettings(const char* XmlConfig);
 
 /* console.c */	
-bool  ProcessDebugData(const char* tty, int timeout, int stage);  
+int ProcessDebugData(const char* tty, int timeout, int stage);  
 
 /* raddr2line.c */
 bool GetPackagePath(char* Buffer, int BuffSize, char* Module);
