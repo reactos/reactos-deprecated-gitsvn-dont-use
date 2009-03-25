@@ -167,8 +167,9 @@ int main(int argc, char **argv)
 
     if (IsVirtualMachineRunning(vConn, AppSettings.Name))
     {
-        SysregPrintf("Error: Virtual Machine is already running.\n");
-        goto cleanup;
+        /* SysregPrintf("Error: Virtual Machine is already running.\n");
+        goto cleanup; */
+		system("virsh destroy ReactOS");
     }
 
     /* If the HD image already exists, delete it */
