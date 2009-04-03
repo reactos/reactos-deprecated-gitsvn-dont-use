@@ -1877,15 +1877,13 @@
 			}
 			
 			$query_edit_mef_data_tag = mysql_query("SELECT a.tag_id, a.tag_usrid, n.tn_name, v.tv_value 
-													FROM data_".$h_a2." d, data_revision".$h_a." r, data_tag".$h_a." a, data_tag_name".$h_a." n, data_tag_value".$h_a." v
+													FROM data_tag".$h_a." a, data_tag_name".$h_a." n, data_tag_value".$h_a." v
 													WHERE (a.data_id = '0' OR (
 																a.data_id = '".mysql_real_escape_string($RosCMS_GET_d_id)."'
-																AND a.data_id = d.data_id
 															)
 														)
 													AND (a.data_rev_id = '0' OR (
 																a.data_rev_id = '".mysql_real_escape_string($RosCMS_GET_d_r_id)."'
-																AND a.data_rev_id = r.rev_id
 															)
 														)
 													AND (".$tmpfilt."a.tag_usrid = '0' OR a.tag_usrid = '".mysql_real_escape_string($roscms_intern_account_id)."')
