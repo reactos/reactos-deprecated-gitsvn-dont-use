@@ -1,3 +1,0 @@
-Name: Newspaper Blog 
-Author: Jannis Hermanns 
-Date: 26/6-2003

@@ -1,4 +1,0 @@
-Name: Serendipity v2.3
-Author: Tom Sommer
-Date: 12/8-2004
-Require Serendipity: 0.8

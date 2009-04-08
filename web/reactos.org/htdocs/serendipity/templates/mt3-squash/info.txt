@@ -1,3 +1,0 @@
-Name: MT3 - Squash
-Author: Kaustubh Srikanth
-Date: 31-06-2004

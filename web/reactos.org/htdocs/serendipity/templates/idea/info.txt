@@ -1,3 +1,0 @@
-Name: Idea
-Author: Evan Nemerson
-Date: 01/07/2004
