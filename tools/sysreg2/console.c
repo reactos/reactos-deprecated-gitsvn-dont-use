@@ -72,8 +72,8 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
 
             bp = buf;
 
-            /* Read one line or a maximum of 512 bytes into a buffer */
-            while (bp - buf < sizeof(buf))
+            /* Read one line or a maximum of 511 bytes into a buffer (leave space for the null character) */
+            while (bp - buf < sizeof(buf) - 1)
             {
                 got = read(fds[i].fd, bp, 1);
 
@@ -89,8 +89,10 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                 }
 
                 /* Also break on newlines */
-                if(*bp++ == '\n')
+                if(*bp == '\n')
                     break;
+
+                ++bp;
             }
 
             if (bp == buf)
@@ -99,8 +101,8 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                 Ret = EXIT_SHUTDOWN;
                 goto cleanup;
             }
-                
-            *bp = 0;
+
+            *(++bp) = 0;
 
             /* Now check the output */
             if (fds[i].fd == STDIN_FILENO)
