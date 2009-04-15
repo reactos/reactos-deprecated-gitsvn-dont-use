@@ -92,6 +92,13 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                 if(*bp == '\n')
                     break;
 
+                if (fds[i].fd == STDIN_FILENO)
+                {
+                    /* break on ESC */
+                    if (*bp == '\33')
+                        goto cleanup;
+                }
+                
                 ++bp;
             }
 
@@ -105,13 +112,7 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
             *(++bp) = 0;
 
             /* Now check the output */
-            if (fds[i].fd == STDIN_FILENO)
-            {
-                /* Check whether the user pressed ESC and cancel in that case */
-                if (strchr(buf, '\33'))
-                    goto cleanup;
-            }
-            else
+            if (fds[i].fd != STDIN_FILENO)
             {
                 /* Check for "magic" sequences */
                 if (strstr(buf, "kdb:>"))
