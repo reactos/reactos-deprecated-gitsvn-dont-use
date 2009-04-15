@@ -98,6 +98,13 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                     if (*bp == '\33')
                         goto cleanup;
                 }
+                else
+                {
+                    /* KDBG doesn't send a newline */
+                    if ((strstr(buf, "kdb:>")) || 
+                        (strstr(buf, "--- Press q")))
+                        break;
+                }
                 
                 ++bp;
             }
