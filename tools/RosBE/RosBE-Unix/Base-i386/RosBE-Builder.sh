@@ -7,9 +7,9 @@
 # Released under GNU GPL v2 or any later version.
 
 # Constants
-ROSBE_VERSION="1.4"
+ROSBE_VERSION="1.4.1"
 TARGET_ARCH="i386"
-KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4"
+KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4 1.4.1"
 DEFAULT_INSTALL_DIR="/usr/local/RosBE"
 NEEDED_TOOLS="bison flex gcc g++ grep makeinfo"		# GNU Make has a special check
 
@@ -26,7 +26,7 @@ echo "*         ReactOS Build Environment for Unix-based Operating Systems      
 echo "*                       Builder Tool for the Base package                     *"
 echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
 echo "*                                                                             *"
-echo "*                                Version $ROSBE_VERSION                                  *"
+echo "*                               Version $ROSBE_VERSION                                 *"
 echo "*******************************************************************************"
 
 echo
@@ -157,6 +157,7 @@ if $update; then
 	process_nasm=false
 	process_buildtime=false
 	process_scut=false
+	process_getincludes=false
 
 	# Logic behind this update part:
 	#   - KNOWN_ROSBE_VERSIONS contains all versions from the oldest to the newest one (in this order!)
@@ -199,6 +200,10 @@ if $update; then
 					mv "$installdir/libexec" "$installdir/$TARGET_ARCH/libexec"
 					mv "$installdir/mingw32" "$installdir/$TARGET_ARCH/mingw32"
 					;;
+
+				"1.4")
+					# Updated components from 1.4 to 1.4.1
+					process_getincludes=true
 			esac
 		fi
 	done
@@ -212,6 +217,7 @@ else
 	process_nasm=true
 	process_buildtime=true
 	process_scut=true
+	process_getincludes=true
 
 	# Delete the contents of the current installation directory if we're reinstalling
 	if $reinstall; then
@@ -415,8 +421,14 @@ if $process_buildtime; then
 fi
 
 if $process_scut; then
-	echo -n "Compiling scut..."
+	echo -n "Compiling scut... "
 	gcc -s -o "$installdir/bin/scut" "$SCRIPTDIR/tools/scut.c"
+	setup_check_run
+fi
+
+if $process_getincludes; then
+	echo -n "Compiling getincludes... "
+	gcc -s -o "$installdir/bin/getincludes" "$SCRIPTDIR/tools/getincludes.c"
 	setup_check_run
 fi
 

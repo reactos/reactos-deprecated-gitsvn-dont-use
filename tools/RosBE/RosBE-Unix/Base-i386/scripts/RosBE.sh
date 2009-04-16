@@ -28,6 +28,10 @@ export CFLAGS=
 export CXXFLAGS=
 export LDFLAGS=
 
+# Export the host compiler search pathes to make them available for other build tools
+export ROSBE_HOST_CFLAGS=`cpp -x c -v < /dev/null 2>&1 | $_ROSBE_ROSSCRIPTDIR/bin/getincludes`
+export ROSBE_HOST_CXXFLAGS=`cpp -x c++ -v < /dev/null 2>&1 | $_ROSBE_ROSSCRIPTDIR/bin/getincludes`
+
 # Read the RosBE version
 # The file "RosBE-Version" has been created by the RosBE-Builder.sh script
 export _ROSBE_VERSION=`cat "$_ROSBE_ROSSCRIPTDIR/RosBE-Version"`
@@ -48,12 +52,14 @@ else
 	change_architecture $3
 fi
 
+source "$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/setvars.sh"
+
 # Display banner
 echo "*******************************************************************************"
 echo "*         ReactOS Build Environment for Unix-based Operating Systems          *"
 echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
 echo "*                                                                             *"
-echo "*                                Version $_ROSBE_VERSION                                  *"
+echo "*                               Version $_ROSBE_VERSION                                 *"
 echo "*******************************************************************************"
 echo
 echo "For a list of all included commands, type: \"help\""
