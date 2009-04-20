@@ -1,0 +1,42 @@
+This file contains the sections for the wiki page
+every line that doens't start with '/' is ignored
+the line consist of 2 parts: path wiki-header
+
+This file is fairly incomplete, please add path information step by step!
+
+/trunk/reactos/boot/freeldr == Bootloader (FreeLoader) ==
+/trunk/reactos/ntoskrnl == Kernel and Executive (NTOSKRNL) ==
+/trunk/reactos/ntoskrnl/cc === CC ===
+/trunk/reactos/ntoskrnl/cm === CM ===
+/trunk/reactos/ntoskrnl/dbgk === DBGK ===
+/trunk/reactos/ntoskrnl/ex === EX ===
+/trunk/reactos/ntoskrnl/io === IO ===
+/trunk/reactos/ntoskrnl/kd === KD ===
+/trunk/reactos/ntoskrnl/mm === MM ===
+/trunk/reactos/dll/cpl == CPL ==
+/trunk/reactos/subsystems == Subsystems ==
+/trunk/reactos/drivers == Kernel Mode Drivers ==
+/trunk/reactos/drivers/bus/acpi === ACPI ===
+/trunk/reactos/drivers/network/afd === AFD ===
+/trunk/reactos/drivers/bus/filesystems/cdfs === CDFS ===
+/trunk/reactos/drivers/bus/filesystems/ext2 === EXT2 ===
+/trunk/reactos/drivers/bus/filesystems/fastfat === FASTFAT ===
+/trunk/reactos/drivers/bus/filesystems/fs_rec === FS_REC ===
+/trunk/reactos/drivers/bus/filesystems/npfs === NPFS ===
+/trunk/reactos/drivers/bus/usb === USB ===
+/trunk/reactos/dll/ntdll == NT System Library (NTDLL) ==
+/trunk/reactos/dll/keyboard === Keyboard Layouts ===
+/trunk/reactos/base/setup == Setup ==
+/trunk/reactos/base/setup/usetup === USETUP ===
+/trunk/reactos/subsystems == Win32&trade; Personality ==
+/trunk/reactos/subsystems/win32/csrss === User mode subsystem (CSRSS) ===
+/trunk/reactos/subsystems/win32/win32k === Kernel-mode subsystem Server (Win32K) ===
+/trunk/reactos/dll/cpl == Control panel applets ==
+/trunk/reactos/dll/cpl/appwiz === APPWIZ ===
+/trunk/reactos/dll/cpl/desk === DESKTOP ===
+/trunk/reactos/dll/cpl/intl === INTL ===
+/trunk/reactos/dll/cpl/sysdm === SYSDM ===
+/trunk/reactos/dll/cpl/timedate === TIMEDATE ===
+/trunk/reactos/base/applications == Win32&trade; Applications ==
+/trunk/reactos/base/dll/win32 == Win32&trade; Libraries ==
+/trunk/reactos == uncategorized ==
