@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "1.4"
+!define PRODUCT_VERSION "1.4.2"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -17,7 +17,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "1.4.0.0"
+VIAddVersionKey /LANG=1033 "FileVersion" "1.4.2.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
@@ -25,7 +25,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2009 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2009 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "1.4.0.0"
+VIProductVersion "1.4.2.0"
 
 CRCCheck force
 SetCompressor /FINAL /SOLID lzma
@@ -330,8 +330,21 @@ FunctionEnd
 
 Function un.onInit
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
-               "Are you sure you want to completely remove ReactOS Build Environment and all of its components?" \
-               IDYES +2
+        "Are you sure you want to remove ReactOS Build Environment and all of its components?" \
+        IDYES +2
+    Abort
+    IfFileExists "$PROFILE\RosBE\." 0 +2
+        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
+        "Are you sure you want to remove the ReactOS Build Environment configuration file from the Profile Path?" \
+        IDYES +2
+        RMDir /r /REBOOTOK "$PROFILE\RosBE"
+    Abort
+    IfFileExists "$APPDATA\RosBE\." 0 +2
+        MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
+        "Are you sure you want to remove the ReactOS Build Environment configuration file from the Application Data Path?" \
+        IDYES +2
+        RMDir /r /REBOOTOK "$APPDATA\RosBE"
+
     Abort
 FunctionEnd
 
@@ -345,10 +358,6 @@ Section Uninstall
     RMDir /r /REBOOTOK "$INSTDIR\i386"
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
-    IfFileExists "$PROFILE\RosBE\." 0 +2
-        RMDir /r /REBOOTOK "$PROFILE\RosBE"
-    IfFileExists "$APPDATA\RosBE\." 0 +2
-        RMDir /r /REBOOTOK "$APPDATA\RosBE"
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
