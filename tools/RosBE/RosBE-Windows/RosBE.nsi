@@ -276,6 +276,7 @@ Section -StartMenuShortcuts SEC12
     ;;
     ;; Add our start menu shortcuts.
     ;;
+    IfFileExists "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" +10 0
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
@@ -296,6 +297,7 @@ Section /o "Desktop Shortcuts" SEC13
     ;;
     ;; Add our desktop shortcuts.
     ;;
+    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +4 0
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
@@ -308,6 +310,7 @@ Section /o "Quick Launch Shortcuts" SEC14
     ;;
     ;; Add our quick launch shortcuts.
     ;;
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +4 0
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
@@ -335,17 +338,25 @@ Function un.onInit
     Abort
     IfFileExists "$PROFILE\RosBE\." 0 +2
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
-        "Are you sure you want to remove the ReactOS Build Environment configuration file from the Profile Path?" \
-        IDYES +2
+        "Do you want to remove the ReactOS Build Environment configuration file from the Profile Path?" \
+        IDNO +1
         RMDir /r /REBOOTOK "$PROFILE\RosBE"
-    Abort
     IfFileExists "$APPDATA\RosBE\." 0 +2
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
-        "Are you sure you want to remove the ReactOS Build Environment configuration file from the Application Data Path?" \
-        IDYES +2
+        "Do you want to remove the ReactOS Build Environment configuration file from the Application Data Path?" \
+        IDNO +1
         RMDir /r /REBOOTOK "$APPDATA\RosBE"
-
-    Abort
+    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
+    "Do you want to remove the Shortcuts? If you just want to Update to a new Version of RosBE, keep them. This keeps your previous settings." \
+    IDNO +8
+    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +2
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +2
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
+    IfFileExists "$DESKTOP\Standard MinGW Build Environment.lnk" 0 +2
+        Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment.lnk"
+    IfFileExists "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" 0 +2
+        Delete /REBOOTOK "$QUICKLAUNCH\Standard MinGW Build Environment.lnk"
 FunctionEnd
 
 Section Uninstall
@@ -400,14 +411,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
     RMDir /REBOOTOK "$INSTDIR"
-    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +2
-        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
-    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +2
-        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
-    IfFileExists "$DESKTOP\Standard MinGW Build Environment.lnk" 0 +2
-        Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment.lnk"
-    IfFileExists "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" 0 +2
-        Delete /REBOOTOK "$QUICKLAUNCH\Standard MinGW Build Environment.lnk"
 
     ;;
     ;; Clean up the registry.
