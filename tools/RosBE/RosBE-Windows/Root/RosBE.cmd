@@ -8,6 +8,7 @@
 ::                             Peter Ward <dralnix@gmail.com>
 ::
 ::
+
 @echo off
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
@@ -66,7 +67,7 @@ if /i "%1" == "oldmode" (
     goto :EndCommandParse
 ) else (
     cls
-    set _ROSBE_ARCH=%1
+    set ROS_ARCH=%1
     call :RosBE4
 )
 ::

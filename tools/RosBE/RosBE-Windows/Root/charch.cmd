@@ -24,9 +24,9 @@ if "%1" == "" (
     set _1=%1
 )
 if /i "%_1%" == "i386" (
-    set _ROSBE_ARCH=
+    set ROS_ARCH=
 ) else (
-    set _ROSBE_ARCH=%_1%
+    set ROS_ARCH=%_1%
 )
 goto :EOA
 
