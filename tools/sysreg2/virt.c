@@ -145,7 +145,7 @@ int main(int argc, char **argv)
     virConnectPtr vConn = NULL;
     virDomainPtr vDom;
     virDomainInfo info;
-	int Crashes;
+    int Crashes;
     int Stage;
     char qemu_img_cmdline[300];
     FILE* file;
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
     {
         /* SysregPrintf("Error: Virtual Machine is already running.\n");
         goto cleanup; */
-		system("virsh destroy ReactOS");
+        system("virsh destroy ReactOS");
     }
 
     /* If the HD image already exists, delete it */
