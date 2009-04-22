@@ -27,46 +27,42 @@ if "%1" == "chdefgcc" (
     goto :main
 )
 
-setlocal enabledelayedexpansion
+set _ROSBE_OBJPATH=%_ROSBE_i386_OBJPATH%
+set _ROSBE_OUTPATH=%_ROSBE_i386_OUTPATH%
 
-set _ROSBE_OBJPATH=!_ROSBE_i386_OBJPATH!
-set _ROSBE_OUTPATH=!_ROSBE_i386_OUTPATH!
+if not "%ROS_ARCH%" == "" (
+    set ROS_PREFIX=%ROS_ARCH%-pc-mingw32
+    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
 
-if not "!ROS_ARCH!" == "" (
-    set ROS_PREFIX=!ROS_ARCH!-pc-mingw32
-    set _ROSBE_TARGET_MINGWPATH=!_ROSBE_BASEDIR!\!ROS_ARCH!
-
-    if "!ROS_ARCH!" == "arm" (
-        set _ROSBE_OBJPATH=!_ROSBE_ARM_OBJPATH!
-        set _ROSBE_OUTPATH=!_ROSBE_ARM_OUTPATH!
+    if "%ROS_ARCH%" == "arm" (
+        set _ROSBE_OBJPATH=%_ROSBE_ARM_OBJPATH%
+        set _ROSBE_OUTPATH=%_ROSBE_ARM_OUTPATH%
     )
-    if "!ROS_ARCH!" == "ppc" (
-        set _ROSBE_OBJPATH=!_ROSBE_PPC_OBJPATH!
-        set _ROSBE_OUTPATH=!_ROSBE_PPC_OUTPATH!
+    if "%ROS_ARCH%" == "ppc" (
+        set _ROSBE_OBJPATH=%_ROSBE_PPC_OBJPATH%
+        set _ROSBE_OUTPATH=%_ROSBE_PPC_OUTPATH%
     )
-    if "!ROS_ARCH!" == "amd64" (
-        set _ROSBE_OBJPATH=!_ROSBE_AMD64_OBJPATH!
-        set _ROSBE_OUTPATH=!_ROSBE_AMD64_OUTPATH!
+    if "%ROS_ARCH%" == "amd64" (
+        set _ROSBE_OBJPATH=%_ROSBE_AMD64_OBJPATH%
+        set _ROSBE_OUTPATH=%_ROSBE_AMD64_OUTPATH%
         set ROS_PREFIX=x86_64-pc-mingw32
-        set _ROSBE_TARGET_MINGWPATH=!_ROSBE_BASEDIR!\x86_64
+        set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\x86_64
     )
 )
 
 REM Check if existant arch
 
-if not exist "!_ROSBE_TARGET_MINGWPATH!\." (   
+if not exist "%_ROSBE_TARGET_MINGWPATH%\." (   
     echo Unsupported arch specified. Fallback to Default.
     pause
-    set _ROSBE_OBJPATH=!_ROSBE_i386_OBJPATH!
-    set _ROSBE_OUTPATH=!_ROSBE_i386_OUTPATH!
+    set _ROSBE_OBJPATH=%_ROSBE_i386_OBJPATH%
+    set _ROSBE_OUTPATH=%_ROSBE_i386_OUTPATH%
     set ROS_ARCH=
     set ROS_PREFIX=
-    set _ROSBE_TARGET_MINGWPATH=!_ROSBE_HOST_MINGWPATH!
+    set _ROSBE_TARGET_MINGWPATH=%_ROSBE_HOST_MINGWPATH%
 )
 
 REM HAXX
-
-endlocal & set ROS_ARCH=%ROS_ARCH%& set ROS_PREFIX=%ROS_PREFIX%& set _ROSBE_OBJPATH=%_ROSBE_OBJPATH%& set _ROSBE_OUTPATH=%_ROSBE_OUTPATH%& set _ROSBE_TARGET_MINGWPATH=%_ROSBE_TARGET_MINGWPATH%& set _ROSBE_HOST_MINGWPATH=%_ROSBE_HOST_MINGWPATH%& set _ROSBE_MODE=%_ROSBE_MODE%& set _ROSBE_ORIGINALPATH=%_ROSBE_ORIGINALPATH%
 
 ::
 :: Set up the GCC 4.x.x build environment.
