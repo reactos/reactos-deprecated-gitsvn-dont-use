@@ -10,10 +10,15 @@ This file is fairly incomplete, please add path information step by step!
 /trunk/reactos/ntoskrnl/cm === CM ===
 /trunk/reactos/ntoskrnl/dbgk === DBGK ===
 /trunk/reactos/ntoskrnl/ex === EX ===
+/trunk/reactos/ntoskrnl/fsrtl === FSRTL ===
+/trunk/reactos/ntoskrnl/fstub === FSTUB ===
 /trunk/reactos/ntoskrnl/io === IO ===
 /trunk/reactos/ntoskrnl/kd === KD ===
+/trunk/reactos/ntoskrnl/kdbg === KDBG ===
+/trunk/reactos/ntoskrnl/ke === KE ===
 /trunk/reactos/ntoskrnl/mm === MM ===
-/trunk/reactos/dll/cpl == CPL ==
+/trunk/reactos/ntoskrnl/ob === OB ===
+/trunk/reactos/ntoskrnl/ps === PS ===
 /trunk/reactos/subsystems == Subsystems ==
 /trunk/reactos/drivers == Kernel Mode Drivers ==
 /trunk/reactos/drivers/bus/acpi === ACPI ===
@@ -37,6 +42,20 @@ This file is fairly incomplete, please add path information step by step!
 /trunk/reactos/dll/cpl/intl === INTL ===
 /trunk/reactos/dll/cpl/sysdm === SYSDM ===
 /trunk/reactos/dll/cpl/timedate === TIMEDATE ===
+/trunk/reactos/dll/cpl/powercfg === POWERCFG ===
 /trunk/reactos/base/applications == Win32&trade; Applications ==
+/trunk/reactos/base/applications/calc === Calc ===
+/trunk/reactos/base/applications/charmap === CharMap ===
+/trunk/reactos/base/applications/downloader === Downloader ===
+/trunk/reactos/base/applications/fontview === FontView ===
+/trunk/reactos/base/applications/kbswitch === KbSwitch ===
+/trunk/reactos/base/applications/magnify === Magnify ===
+/trunk/reactos/base/applications/notepad === Notepad ===
+/trunk/reactos/base/applications/regedit === Regedit ===
+/trunk/reactos/base/applications/screensavers === Screensavers ===
+/trunk/reactos/base/applications/games/sol === Solitaire ===
+/trunk/reactos/base/applications/taskmgr === Taskmgr ===
+/trunk/reactos/base/applications/games/winmine === Winmine ===
+/trunk/reactos/base/applications/wordpad === Wordpad ===
 /trunk/reactos/base/dll/win32 == Win32&trade; Libraries ==
 /trunk/reactos == uncategorized ==
