@@ -71,8 +71,8 @@ set TARGET_CC=%_ROSBE_CCACHE%gcc
 set TARGET_CPP=%_ROSBE_CCACHE%g++
 
 if not "%ROS_ARCH%" == "" (
-    set TARGET_CC=%_ROSBE_CCACHE%%ROS_ARCH%-pc-mingw32-gcc
-    set TARGET_CPP=%_ROSBE_CCACHE%%ROS_ARCH%-pc-mingw32-g++
+    set TARGET_CC=%_ROSBE_CCACHE%%ROS_PREFIX%-gcc
+    set TARGET_CPP=%_ROSBE_CCACHE%%ROS_PREFIX%-g++
 )
 
 ::
