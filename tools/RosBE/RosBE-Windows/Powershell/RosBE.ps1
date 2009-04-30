@@ -19,7 +19,7 @@ if ($ENV:APPDATA.Length -lt 1) {
     $ENV:APPDATA = $ENV:USERPROFILE
 }
 $ENV:PATH = "$ENV:SystemRoot\system32;$ENV:SystemRoot"
-$global:_ROSBE_VERSION = 1.4
+$global:_ROSBE_VERSION = 1.4.2
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_MODE = "RosBE"

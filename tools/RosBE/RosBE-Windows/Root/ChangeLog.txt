@@ -1,4 +1,21 @@
-*** February xxth, 200x - RosBE 1.4 Released
+*** May XXth, 2009 - RosBE 1.4.2 Released
+
+- Add the environment variables ROSBE_HOST_CFLAGS, ROSBE_HOST_CXXFLAGS, ROSBE_TARGET_CFLAGS, ROSBE_TARGET_CXXFLAGS
+  They contain existing pathes for the built-in include directories of the Host C/C++ and Target C/C++ compilers as compiler flags.
+  Required for kjk's rbuild work. (Colin Finck)
+- Fixes for the Uninstall Routine to keep most settings, if wished, on a update. (Daniel Reimer)
+- Remove some stupid setlocals. (Daniel Reimer)
+- New Built GCC which supports the recent variable changes (Colin Finck)
+- Make it possible to set different settings for any arch in RosBE. (Daniel Reimer, Timo Kreuzer)
+
+
+*** April 07th, 2009 - RosBE 1.4.1 Released
+
+- Updated:SVN 1.6 included (Daniel Reimer)
+- Fixed: Sped up starting of rosbe (Daniel Reimer)
+- Fixed: Hopefully fixed bison. (Daniel Reimer)
+
+*** February 01st, 2009 - RosBE 1.4 Released
 
 "Quote of the year: A loooong time ago there was something called Batch. It was a old
 scripting "language" which you could use for some stuff, but with hacks, so ugly, you
