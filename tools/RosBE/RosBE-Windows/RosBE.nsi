@@ -277,11 +277,12 @@ Section -StartMenuShortcuts SEC12
     ;;
     ;; Add our start menu shortcuts.
     ;;
-    IfFileExists "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" +10 0
+    IfFileExists "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" +12 0
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+        IfFileExists "$INSTDIR\RosBE.ps1" 0 +1
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-noexit &"$INSTDIR\RosBE.ps1"' "$INSTDIR\rosbe.ico"
         SetOutPath $PROFILE
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
@@ -299,9 +300,10 @@ Section /o "Desktop Shortcuts" SEC13
     ;;
     ;; Add our desktop shortcuts.
     ;;
-    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +4 0
+    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +6 0
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+    IfFileExists "$INSTDIR\RosBE.ps1" 0 +1
     CreateShortCut "$DESKTOP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-noexit &"$INSTDIR\RosBE.ps1"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
     CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
@@ -313,9 +315,10 @@ Section /o "Quick Launch Shortcuts" SEC14
     ;;
     ;; Add our quick launch shortcuts.
     ;;
-    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +4 0
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +6 0
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+    IfFileExists "$INSTDIR\RosBE.ps1" 0 +1
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-noexit &"$INSTDIR\RosBE.ps1"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
     CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
@@ -352,15 +355,19 @@ Function un.onInit
         RMDir /r /REBOOTOK "$APPDATA\RosBE"
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
     "Do you want to remove the Shortcuts? If you just want to Update to a new Version of RosBE, keep them. This keeps your previous settings." \
-    IDNO +8
-    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +2
+    IDNO +12
+    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" 0 +1
         Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
-    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +2
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" 0 +1
         Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
-    IfFileExists "$DESKTOP\Standard MinGW Build Environment.lnk" 0 +2
+    IfFileExists "$DESKTOP\Standard MinGW Build Environment.lnk" 0 +1
         Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment.lnk"
-    IfFileExists "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" 0 +2
+    IfFileExists "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" 0 +1
         Delete /REBOOTOK "$QUICKLAUNCH\Standard MinGW Build Environment.lnk"
+    IfFileExists "$DESKTOP\ReactOS Build Environment - Powershell.lnk" 0 +1
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - Powershell.lnk"
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk" 0 +1
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk"
 FunctionEnd
 
 Section Uninstall

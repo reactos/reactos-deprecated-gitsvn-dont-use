@@ -36,7 +36,13 @@ goto :EOA
 
 :EOA
 
+:: arch specific settings.
+if exist "%APPDATA%\RosBE\rosbe-options-%ROS_ARCH%.cmd" (
+    call "%APPDATA%\RosBE\rosbe-options-%ROS_ARCH%.cmd"
+)
+
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+
 "%_ROSBE_BASEDIR%\version.cmd"
 goto :EOC
 

@@ -17,6 +17,12 @@ $host.ui.RawUI.WindowTitle = "Change the Architecture to build for..."
 # Refresh all needed Params by recalling the main Path setting CMD File.
 #
 function SYSPARAM {
+
+    # arch specific settings.
+    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1") {
+        IEX "& '$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1'"
+    }
+
     IEX "& '$_ROSBE_BASEDIR\rosbe-gcc-env.ps1'"
     version
 }
