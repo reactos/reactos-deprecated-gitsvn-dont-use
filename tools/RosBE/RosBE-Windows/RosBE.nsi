@@ -254,6 +254,7 @@ Section "PowerShell RosBE Version" SEC10
     File /r Components\Powershell\sSVN.ps1
     File /r Components\Powershell\update.ps1
     File /r Components\Powershell\version.ps1
+    WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
 SectionEnd
 
 Section "Update Script" SEC11
@@ -281,6 +282,7 @@ Section -StartMenuShortcuts SEC12
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-noexit &"$INSTDIR\RosBE.ps1"' "$INSTDIR\rosbe.ico"
         SetOutPath $PROFILE
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
         SetOutPath $INSTDIR
@@ -300,6 +302,7 @@ Section /o "Desktop Shortcuts" SEC13
     IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +4 0
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+    CreateShortCut "$DESKTOP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-noexit &"$INSTDIR\RosBE.ps1"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
     CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
@@ -313,6 +316,7 @@ Section /o "Quick Launch Shortcuts" SEC14
     IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +4 0
     SetOutPath $REACTOS_SOURCE_DIRECTORY
     CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+    CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" '-noexit &"$INSTDIR\RosBE.ps1"' "$INSTDIR\rosbe.ico"
     SetOutPath $PROFILE
     CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
 SectionEnd
