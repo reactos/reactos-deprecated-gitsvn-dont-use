@@ -125,7 +125,7 @@ Section -StartMenuShortcuts SEC03
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $REACTOS_SOURCE_DIRECTORY
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/t:0B /k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE - 64 Bit Target.lnk" \
                        "$INSTDIR\Uninstall64-${PRODUCT_VERSION}.exe"

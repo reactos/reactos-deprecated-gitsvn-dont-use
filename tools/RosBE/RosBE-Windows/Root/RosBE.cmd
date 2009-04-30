@@ -19,7 +19,6 @@ if %_ROSBE_DEBUG% == 1 (
 :: Set defaults to work with and override them if edited by
 :: the options utility.
 ::
-color 0A
 if not defined APPDATA set APPDATA=%USERPROFILE%
 set PATH=%SystemRoot%\system32;%SystemRoot%
 set _ROSBE_VERSION=1.4
