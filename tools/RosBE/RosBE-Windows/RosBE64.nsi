@@ -199,10 +199,8 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
     RMDir /REBOOTOK "$INSTDIR"
-    IfFileExists "$DESKTOP\ReactOS Build Environment 64-bit.lnk" 0 +2
-        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment 64-bit.lnk"
-    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment 64-bit.lnk" 0 +2
-        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment 64-bit.lnk"
+    Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment 64-bit.lnk"
+    Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment 64-bit.lnk"
 
     ;;
     ;; Clean up the registry.
