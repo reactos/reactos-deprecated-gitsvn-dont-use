@@ -53,6 +53,11 @@ if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
     call "%APPDATA%\RosBE\rosbe-options.cmd"
 )
 
+:: arch specific settings.
+if exist "%APPDATA%\RosBE\rosbe-options-%1.cmd" (
+    call "%APPDATA%\RosBE\rosbe-options-%1.cmd"
+)
+
 title ReactOS Build Environment %_ROSBE_VERSION%
 
 ::

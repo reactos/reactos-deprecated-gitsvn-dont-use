@@ -45,12 +45,12 @@ getConfigFileCMD()
     static WCHAR filename[MAX_PATH];
     if (SHGetSpecialFolderPathW(NULL, filename, CSIDL_APPDATA, FALSE))
     {
-        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
-            wcscat(filename, L"\\RosBE\\rosbe-options.cmd");
+        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options-amd64.cmd")) < MAX_PATH)
+            wcscat(filename, L"\\RosBE\\rosbe-options-amd64.cmd");
     }
     else
     {
-        wcscpy(filename, L"rosbe-options.cmd");
+        wcscpy(filename, L"rosbe-options-amd64.cmd");
     }
     return filename;
 }
@@ -63,12 +63,12 @@ getConfigFilePS1()
     static WCHAR filename[MAX_PATH];
     if (SHGetSpecialFolderPathW(NULL, filename, CSIDL_APPDATA, FALSE))
     {
-        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.ps1")) < MAX_PATH)
-            wcscat(filename, L"\\RosBE\\rosbe-options.ps1");
+        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options-amd64.ps1")) < MAX_PATH)
+            wcscat(filename, L"\\RosBE\\rosbe-options-amd64.ps1");
     }
     else
     {
-        wcscpy(filename, L"rosbe-options.ps1");
+        wcscpy(filename, L"rosbe-options-amd64.ps1");
     }
     return filename;
 }
@@ -137,7 +137,7 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFilecmd, L"set _ROSBE_NOSTRIP=%d\n", nostrip);
         fwprintf(pFilecmd, L"set _ROSBE_WRITELOG=%d\n", writelog);
         if (logdir[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_LOGDIR=%s\n", logdir);
-        if (mingwpath[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_MINGWPATH=%s\n", mingwpath);
+        if (mingwpath[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_TARGET_MINGWPATH=%s\n", mingwpath);
         if ((objdir[0] != 0) && objstate) fwprintf(pFilecmd, L"set _ROSBE_OBJPATH=%s\n", objdir);
         if ((outdir[0] != 0) && outstate) fwprintf(pFilecmd, L"set _ROSBE_OUTPATH=%s\n", outdir);
     }
@@ -157,7 +157,7 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFileps1, L"$_ROSBE_NOSTRIP = %d\n", nostrip);
         fwprintf(pFileps1, L"$_ROSBE_WRITELOG = %d\n", writelog);
         if (logdir[0] != 0) fwprintf(pFileps1, L"$_ROSBE_LOGDIR = \"%s\"\n", logdir);
-        if (mingwpath[0] != 0) fwprintf(pFileps1, L"$_ROSBE_MINGWPATH = \"%s\"\n", mingwpath);
+        if (mingwpath[0] != 0) fwprintf(pFileps1, L"$_ROSBE_TARGET_MINGWPATH = \"%s\"\n", mingwpath);
         if ((objdir[0] != 0) && objstate) fwprintf(pFileps1, L"$_ROSBE_OBJPATH = \"%s\"\n", objdir);
         if ((outdir[0] != 0) && outstate) fwprintf(pFileps1, L"$_ROSBE_OUTPATH = \"%s\"\n", outdir);
     }
@@ -226,7 +226,7 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
                     LoadedSettings->writelog = wcstol(ptr2, NULL, 2);
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
                     wcsncpy(LoadedSettings->logdir, ptr2, wcslen(ptr2)-1);
-                else if (wcscmp(ptr, L"_ROSBE_MINGWPATH") == 0)
+                else if (wcscmp(ptr, L"_ROSBE_TARGET_MINGWPATH") == 0)
                     wcsncpy(LoadedSettings->mingwpath, ptr2, wcslen(ptr2)-1);
                 else if (wcscmp(ptr, L"_ROSBE_OBJPATH") == 0)
                     wcsncpy(LoadedSettings->objdir, ptr2, wcslen(ptr2)-1);
@@ -240,7 +240,7 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
     }
     else
     {
-        LoadedSettings->foreground = 0xa;
+        LoadedSettings->foreground = 0xb;
         LoadedSettings->background = 0;
         LoadedSettings->showtime = 1;
         LoadedSettings->writelog = 1;

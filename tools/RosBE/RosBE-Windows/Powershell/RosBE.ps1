@@ -133,6 +133,11 @@ if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
     & "$ENV:APPDATA\RosBE\rosbe-options.ps1"
 }
 
+# arch specific settings.
+if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1") {
+    & "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1"
+}
+
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 #
