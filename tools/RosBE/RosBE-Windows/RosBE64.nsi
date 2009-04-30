@@ -108,8 +108,9 @@ Section -BaseFiles SEC01
     SetOutPath "$INSTDIR"
     SetOverwrite try
     File /r Root\charch.cmd
-    File /r Root\charch.ps1
     File /r Root\options.cmd
+    IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
+    File /r Root\charch.ps1
     File /r Root\options.ps1
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
