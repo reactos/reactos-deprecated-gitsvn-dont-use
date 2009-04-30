@@ -1,4 +1,4 @@
-TARGET := options.exe
+TARGET := options64.exe
 
 .PHONY: all
 

@@ -108,6 +108,18 @@ Section -BaseFiles SEC01
     SetOutPath "$INSTDIR"
     SetOverwrite try
     File /r Root\charch.cmd
+    File /r Root\charch.ps1
+    File /r Root\options.cmd
+    File /r Root\options.ps1
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Components\Tools\options64.exe
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+        SetOutPath $INSTDIR
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options x86-64.lnk" \
+                       "$INSTDIR\Tools\options64.exe"
+    !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
@@ -182,6 +194,7 @@ Section Uninstall
     ;;
     RMDir /r /REBOOTOK "$INSTDIR\x86_64"
     Delete /REBOOTOK "$INSTDIR\charch.cmd"
+    Delete /REBOOTOK "$INSTDIR\charch.ps1"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
     RMDir /REBOOTOK "$INSTDIR"

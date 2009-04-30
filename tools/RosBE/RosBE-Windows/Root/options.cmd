@@ -14,20 +14,31 @@ if %_ROSBE_DEBUG% == 1 (
 
 title Options
 
+if "%ROS_ARCH%" == "amd64" (
+    set options=%_ROSBE_BASEDIR%\Tools\options64.exe
+    set cfgfile=%APPDATA%\RosBE\rosbe-options-amd64.cmd
+else
+    set options=%_ROSBE_BASEDIR%\Tools\options.exe
+    set cfgfile=%APPDATA%\RosBE\rosbe-options.cmd
+)
+
 ::
 :: Run options.exe
 ::
-if exist "%_ROSBE_BASEDIR%\Tools\options.exe" (
+if exist "%options%" (
     pushd "%_ROSBE_BASEDIR%"
-    call "%_ROSBE_BASEDIR%\Tools\options.exe"
+    call "%options%"
     popd
-    if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
-        call "%APPDATA%\RosBE\rosbe-options.cmd"
+    if exist "%cfgfile%" (
+        call "%cfgfile%"
     )
 ) else (
-    echo ERROR: options.exe was not found.
+    echo ERROR: options executable was not found.
 )
 
 if defined _ROSBE_VERSION (
     title ReactOS Build Environment %_ROSBE_VERSION%
 )
+
+set options=
+set cfgfile=

@@ -8,7 +8,7 @@
  *
  */
 
-#include "options.h"
+#include "options64.h"
 
 typedef struct _OPTIONS_DLG
 {

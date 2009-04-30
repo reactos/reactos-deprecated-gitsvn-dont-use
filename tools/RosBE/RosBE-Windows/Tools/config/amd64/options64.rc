@@ -1,9 +1,9 @@
 #include <windows.h>
 #include "resources.h"
 
-ID_OPTICON ICON "options.ico"
+ID_OPTICON ICON "options64.ico"
 
-1 24 "options.exe.Manifest"
+1 24 "options64.exe.Manifest"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION 1,1,0,0
@@ -23,12 +23,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Marteen Bosma / Daniel Reimer / Pierre Schweitzer\0"
-            VALUE "FileDescription", "Config Tool for RosBE\0"
+            VALUE "FileDescription", "Config Tool for RosBE x86-64\0"
             VALUE "FileVersion", "1.1.0.0\0"
-            VALUE "InternalName", "options\0"
+            VALUE "InternalName", "options64\0"
             VALUE "LegalCopyright", "Copyright © Daniel Reimer 2007\0"
-            VALUE "OriginalFilename", "options.exe\0"
-            VALUE "ProductName", "Config Tool for RosBE\0"
+            VALUE "OriginalFilename", "options64.exe\0"
+            VALUE "ProductName", "Config Tool for RosBE x86-64\0"
             VALUE "ProductVersion", "1.1.0.0\0"
         END
     END
