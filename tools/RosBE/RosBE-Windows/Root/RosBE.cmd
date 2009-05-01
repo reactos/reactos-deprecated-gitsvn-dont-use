@@ -20,7 +20,6 @@ if %_ROSBE_DEBUG% == 1 (
 :: the options utility.
 ::
 if not defined APPDATA set APPDATA=%USERPROFILE%
-set PATH=%SystemRoot%\system32;%SystemRoot%
 set _ROSBE_VERSION=1.4.2
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%

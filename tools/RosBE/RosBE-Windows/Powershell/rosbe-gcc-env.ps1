@@ -67,7 +67,6 @@ if ($_ROSBE_ARCH -ne $null) {
 #
 $ENV:PATH = "$_ROSBE_HOST_MINGWPATH\bin;$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
 $global:_ROSBE_MINGWMAKE = "$_ROSBE_HOST_MINGWPATH\bin\mingw32-make.exe"
-$ENV:LIBRARY_PATH = $null
 
 if ($ENV:ROS_ARCH -ne $null) {
     & "$ENV:ROS_PREFIX-gcc" -v 2> gcctvers.tmp
@@ -111,3 +110,5 @@ if ($_ROSBE_HOST_GCCVERSION -eq "3.4.5") {
     $ENV:ROSBE_TARGET_CFLAGS = $null
     $ENV:ROSBE_TARGET_CXXFLAGS = $null
 }
+
+ENV:LIBRARY_PATH = "$_ROSBE_HOST_MINGWPATH\lib;$_ROSBE_HOST_MINGWPATH\lib\gcc\mingw32\$_ROSBE_GCCVERSION"

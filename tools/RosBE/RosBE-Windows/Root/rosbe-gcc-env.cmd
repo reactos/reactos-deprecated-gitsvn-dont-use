@@ -72,7 +72,6 @@ REM HAXX
 
 set PATH=%_ROSBE_HOST_MINGWPATH%\bin;%_ROSBE_TARGET_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
 set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
-set LIBRARY_PATH=
 
 if not .%ROS_ARCH%. == .. (
 for /f "usebackq tokens=3" %%i in (`"%ROS_PREFIX%-gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_GCCVERSION=%%i
@@ -113,6 +112,8 @@ if "%_ROSBE_HOST_GCCVERSION%" == "3.4.5" (
     set ROSBE_TARGET_CFLAGS=
     set ROSBE_TARGET_CXXFLAGS=
 )
+
+set LIBRARY_PATH=%_ROSBE_HOST_MINGWPATH%\lib;%_ROSBE_HOST_MINGWPATH%\lib\gcc\mingw32\%_ROSBE_GCCVERSION%
 
 :: HAX !!!!
 set HOST_CFLAGS=%ROSBE_HOST_CFLAGS%
