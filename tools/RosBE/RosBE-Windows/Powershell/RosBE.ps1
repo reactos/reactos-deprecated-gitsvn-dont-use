@@ -18,7 +18,7 @@ clear-host
 if ($ENV:APPDATA.Length -lt 1) {
     $ENV:APPDATA = $ENV:USERPROFILE
 }
-$global:_ROSBE_VERSION = 1.4.2
+$global:_ROSBE_VERSION = "1.4.2"
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_MODE = "RosBE"
@@ -53,7 +53,7 @@ function global:Get-WebFile {
 function RosBE {
     "*******************************************************************************"
     "*                                                                             *"
-    "*                        ReactOS Build Environment $_ROSBE_VERSION                        *"
+    "*                        ReactOS Build Environment $_ROSBE_VERSION                      *"
     "*                                                                             *"
     "*******************************************************************************"
     ""

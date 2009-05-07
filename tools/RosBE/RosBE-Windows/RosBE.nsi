@@ -28,6 +28,8 @@ VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
 VIProductVersion "1.4.2.0"
 
 CRCCheck force
+SetDatablockOptimize on
+XPStyle on
 SetCompressor /FINAL /SOLID lzma
 
 !include "MUI2.nsh"
@@ -41,6 +43,9 @@ SetCompressor /FINAL /SOLID lzma
 ;; one instance of the installer is running.
 ;;
 Function .onInit
+    ReadRegStr $R3 HKLM \
+    "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+    StrCpy $R4 $R3 3
     System::Call 'kernel32::CreateMutexA(i 0, i 0, t "RosBE-v${PRODUCT_VERSION}-Installer") i .r1 ?e'
     Pop $R0
     StrCmp $R0 0 +3
@@ -112,28 +117,42 @@ Section -BaseFiles SEC01
     File /r Icons\mingw.ico
     File /r Icons\rosbe.ico
     File /r Root\README.pdf
-    File /r Root\RosBE.mac
     File /r Root\changelog.txt
     File /r Root\LICENSE.txt
-    File /r Root\MinGW.cmd
-    File /r Root\MinGW.mac
-    File /r Root\Build.cmd
-    File /r Root\chdefgcc.cmd
-    File /r Root\Clean.cmd
-    File /r Root\Help.cmd
-    File /r Root\RosBE.cmd
-    File /r Root\rosbe-gcc-env.cmd
-    File /r Root\TimeDate.cmd
-    File /r Root\version.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\MinGW.ps1
+        File /r Components\Powershell\Build.ps1
+        File /r Components\Powershell\chdefgcc.ps1
+        File /r Components\Powershell\Clean.ps1
+        File /r Components\Powershell\Help.ps1
+        File /r Components\Powershell\RosBE.ps1
+        File /r Components\Powershell\rosbe-gcc-env.ps1
+        File /r Components\Powershell\version.ps1
+        WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+    ${else}
+        File /r Root\MinGW.cmd
+        File /r Root\MinGW.mac
+        File /r Root\Build.cmd
+        File /r Root\chdefgcc.cmd
+        File /r Root\Clean.cmd
+        File /r Root\Help.cmd
+        File /r Root\RosBE.cmd
+        File /r Root\RosBE.mac
+        File /r Root\rosbe-gcc-env.cmd
+        File /r Root\TimeDate.cmd
+        File /r Root\version.cmd
+        SetOutPath "$INSTDIR\Tools"
+        SetOverwrite try
+        File /r Components\Tools\buildtime.exe
+        File /r Components\Tools\chknewer.exe
+        File /r Components\Tools\cpucount.exe
+        File /r Components\Tools\getdate.exe
+        File /r Components\Tools\rquote.exe
+        File /r Components\Tools\tee.exe
+    ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Components\Tools\buildtime.exe
-    File /r Components\Tools\chknewer.exe
-    File /r Components\Tools\cpucount.exe
     File /r Components\Tools\flash.exe
-    File /r Components\Tools\getdate.exe
-    File /r Components\Tools\rquote.exe
-    File /r Components\Tools\tee.exe
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
@@ -146,7 +165,11 @@ Section "RosBE Configurator (options)" SEC03
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\options.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\options.ps1
+    ${else}
+        File /r Root\options.cmd
+    ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\options.exe
@@ -162,7 +185,11 @@ Section "Subversion Tools (svn, ssvn)" SEC04
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\sSVN.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\sSVN.ps1
+    ${else}
+        File /r Root\sSVN.cmd
+    ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\svn.exe
@@ -191,7 +218,11 @@ Section "Shortcut Tool (scut)" SEC05
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\scut.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\scut.ps1
+    ${else}
+        File /r Root\scut.cmd
+    ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\scut.exe
@@ -217,7 +248,11 @@ Section "relAddr2Line Tool" SEC08
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\reladdr2line.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\reladdr2line.ps1
+    ${else}
+        File /r Root\reladdr2line.cmd
+    ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\echoh.exe
@@ -229,35 +264,16 @@ Section "Other Tools (chdefdir and config)" SEC09
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\chdefdir.cmd
-    File /r Root\Config.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\chdefdir.ps1
+        File /r Components\Powershell\Config.ps1
+    ${else}
+        File /r Root\chdefdir.cmd
+        File /r Root\Config.cmd
+    ${Endif}
 SectionEnd
 
-Section "PowerShell RosBE Version" SEC10
-    SetShellVarContext current
-    SetOutPath "$INSTDIR"
-    SetOverwrite try
-    File /r Root\sSVN.cmd
-    File /r Components\Powershell\Build.ps1
-    File /r Components\Powershell\charch.ps1
-    File /r Components\Powershell\chdefdir.ps1
-    File /r Components\Powershell\chdefgcc.ps1
-    File /r Components\Powershell\Clean.ps1
-    File /r Components\Powershell\Config.ps1
-    File /r Components\Powershell\Help.ps1
-    File /r Components\Powershell\MinGW.ps1
-    File /r Components\Powershell\options.ps1
-    File /r Components\Powershell\reladdr2line.ps1
-    File /r Components\Powershell\RosBE.ps1
-    File /r Components\Powershell\rosbe-gcc-env.ps1
-    File /r Components\Powershell\scut.ps1
-    File /r Components\Powershell\sSVN.ps1
-    File /r Components\Powershell\update.ps1
-    File /r Components\Powershell\version.ps1
-    WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
-SectionEnd
-
-Section "Update Script" SEC11
+Section "Update Script" SEC10
     SetShellVarContext current
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
@@ -268,7 +284,66 @@ Section "Update Script" SEC11
     File /r Components\Tools\libiconv2.dll
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Root\update.cmd
+    ${If} $R4 = '6.1'
+        File /r Components\Powershell\update.ps1
+    ${else}
+        File /r Root\update.cmd
+    ${Endif}
+SectionEnd
+
+Section "PowerShell/CMD RosBE Version" SEC11
+SetShellVarContext current
+    ${If} $R4 = '6.1'
+        SetOutPath "$INSTDIR"
+        SetOverwrite try
+        File /r Root\MinGW.cmd
+        File /r Root\MinGW.mac
+        File /r Root\Build.cmd
+        File /r Root\chdefgcc.cmd
+        File /r Root\Clean.cmd
+        File /r Root\Help.cmd
+        File /r Root\RosBE.cmd
+        File /r Root\RosBE.mac
+        File /r Root\rosbe-gcc-env.cmd
+        File /r Root\TimeDate.cmd
+        File /r Root\version.cmd
+        File /r Root\charch.cmd
+        File /r Root\chdefdir.cmd
+        File /r Root\Config.cmd
+        File /r Root\options.cmd
+        File /r Root\reladdr2line.cmd
+        File /r Root\scut.cmd
+        File /r Root\sSVN.cmd
+        File /r Root\update.cmd
+        SetOutPath "$INSTDIR\Tools"
+        SetOverwrite try
+        File /r Components\Tools\buildtime.exe
+        File /r Components\Tools\chknewer.exe
+        File /r Components\Tools\cpucount.exe
+        File /r Components\Tools\getdate.exe
+        File /r Components\Tools\rquote.exe
+        File /r Components\Tools\tee.exe
+    ${else}
+        SetOutPath "$INSTDIR"
+        SetOverwrite try
+        File /r Components\Powershell\Build.ps1
+        File /r Components\Powershell\MinGW.ps1
+        File /r Components\Powershell\RosBE.ps1
+        File /r Components\Powershell\rosbe-gcc-env.ps1
+        File /r Components\Powershell\Help.ps1
+        File /r Components\Powershell\chdefgcc.ps1
+        File /r Components\Powershell\Clean.ps1
+        File /r Components\Powershell\version.ps1
+        File /r Components\Powershell\charch.ps1
+        File /r Components\Powershell\chdefdir.ps1
+        File /r Components\Powershell\Config.ps1
+        File /r Components\Powershell\options.ps1
+        File /r Components\Powershell\reladdr2line.ps1
+        File /r Components\Powershell\scut.ps1
+        File /r Components\Powershell\sSVN.ps1
+        File /r Components\Powershell\update.ps1
+        WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+    ${Endif}
 SectionEnd
 
 Section -StartMenuShortcuts SEC12
@@ -278,14 +353,19 @@ Section -StartMenuShortcuts SEC12
     ;; Add our start menu shortcuts.
     ;;
     IfFileExists "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" +13 0
-    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-        SetOutPath $REACTOS_SOURCE_DIRECTORY
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-        IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
-        SetOutPath $PROFILE
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
+        !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+            CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+            SetOutPath $REACTOS_SOURCE_DIRECTORY
+            IfFileExists "$INSTDIR\RosBE.cmd" 0 +2
+                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+            IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
+                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+            SetOutPath $PROFILE
+            IfFileExists "$INSTDIR\MinGW.cmd" 0 +2
+                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
+            IfFileExists "$INSTDIR\MinGW.ps1" 0 +2
+                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Standard MinGW Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\MinGW.ps1'" "$INSTDIR\mingw.ico"
+
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
                        "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
@@ -300,13 +380,18 @@ Section /o "Desktop Shortcuts" SEC13
     ;;
     ;; Add our desktop shortcuts.
     ;;
-    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +7 0
-    SetOutPath $REACTOS_SOURCE_DIRECTORY
-    CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-    IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
-    CreateShortCut "$DESKTOP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +6 0
+        SetOutPath $REACTOS_SOURCE_DIRECTORY
+        IfFileExists "$INSTDIR\RosBE.cmd" 0 +2
+            CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+        IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
+            CreateShortCut "$DESKTOP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+
     SetOutPath $PROFILE
-    CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
+    IfFileExists "$INSTDIR\MinGW.cmd" 0 +2
+        CreateShortCut "$DESKTOP\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
+    IfFileExists "$INSTDIR\MinGW.ps1" 0 +2
+        CreateShortCut "$DESKTOP\Standard MinGW Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\MinGW.ps1'" "$INSTDIR\mingw.ico"
 SectionEnd
 
 Section /o "Quick Launch Shortcuts" SEC14
@@ -315,18 +400,27 @@ Section /o "Quick Launch Shortcuts" SEC14
     ;;
     ;; Add our quick launch shortcuts.
     ;;
-    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +7 0
-    SetOutPath $REACTOS_SOURCE_DIRECTORY
-    CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
-    IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
-    CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +6 0
+        SetOutPath $REACTOS_SOURCE_DIRECTORY
+        IfFileExists "$INSTDIR\RosBE.cmd" 0 +2
+            CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+        IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
+            CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+
     SetOutPath $PROFILE
-    CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
+    IfFileExists "$INSTDIR\MinGW.cmd" 0 +2
+        CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment.lnk" "$SYSDIR\cmd.exe" '/k "$INSTDIR\MinGW.cmd"' "$INSTDIR\mingw.ico"
+    IfFileExists "$INSTDIR\MinGW.ps1" 0 +2
+        CreateShortCut "$QUICKLAUNCH\Standard MinGW Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\MinGW.ps1'" "$INSTDIR\mingw.ico"
 SectionEnd
 
 Section -Post SEC15
     WriteUninstaller "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
-    WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
+    ${If} $R4 = '6.1'
+        WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.ps1"
+    ${else}
+        WriteRegStr HKCU "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\RosBE.cmd"
+    ${Endif}
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
@@ -343,25 +437,27 @@ Function un.onInit
         "Are you sure you want to remove ReactOS Build Environment and all of its components?" \
         IDYES +2
     Abort
-    IfFileExists "$PROFILE\RosBE\." 0 +3
+    IfFileExists "$PROFILE\RosBE\." 0 +5
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
         "Do you want to remove the ReactOS Build Environment configuration file from the Profile Path?" \
         IDNO +1
         RMDir /r /REBOOTOK "$PROFILE\RosBE"
-    IfFileExists "$APPDATA\RosBE\." 0 +3
+    IfFileExists "$APPDATA\RosBE\." 0 +5
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
         "Do you want to remove the ReactOS Build Environment configuration file from the Application Data Path?" \
         IDNO +1
         RMDir /r /REBOOTOK "$APPDATA\RosBE"
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
     "Do you want to remove the Shortcuts? If you just want to Update to a new Version of RosBE, keep them. This keeps your previous settings." \
-    IDNO +7
+    IDNO +9
     Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
     Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
     Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment.lnk"
     Delete /REBOOTOK "$QUICKLAUNCH\Standard MinGW Build Environment.lnk"
     Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - Powershell.lnk"
     Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk"
+    Delete /REBOOTOK "$DESKTOP\Standard MinGW Build Environment - Powershell.lnk"
+    Delete /REBOOTOK "$QUICKLAUNCH\Standard MinGW Build Environment - Powershell.lnk"
 FunctionEnd
 
 Section Uninstall
@@ -377,11 +473,13 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
+    Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefgcc.cmd"
+    Delete /REBOOTOK "$INSTDIR\chdefgcc.ps1"
     Delete /REBOOTOK "$INSTDIR\Clean.cmd"
     Delete /REBOOTOK "$INSTDIR\Clean.ps1"
     Delete /REBOOTOK "$INSTDIR\Config.cmd"
-    Delete /REBOOTOK "$INSTDIR\Config.sp1"
+    Delete /REBOOTOK "$INSTDIR\Config.ps1"
     Delete /REBOOTOK "$INSTDIR\Help.cmd"
     Delete /REBOOTOK "$INSTDIR\Help.ps1"
     Delete /REBOOTOK "$INSTDIR\MinGW.cmd"
@@ -466,6 +564,7 @@ Function GetParent
     Push $R1
     Push $R2
     Push $R3
+    Push $R4
 
     StrCpy $R1 0
     StrLen $R2 $R0

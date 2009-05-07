@@ -123,7 +123,7 @@ goto :EOF
 
 echo *******************************************************************************
 echo *                                                                             *
-echo *                        ReactOS Build Environment %_ROSBE_VERSION%                        *
+echo *                        ReactOS Build Environment %_ROSBE_VERSION%                      *
 echo *                                                                             *
 echo *******************************************************************************
 echo.
