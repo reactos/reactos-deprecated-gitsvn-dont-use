@@ -8,7 +8,8 @@
 
 (get-WmiObject Win32_OperatingSystem).caption
 
-(select-string -path .\gcctvers.tmp "gcc version") -replace ".*: (.+?)\b",'$1'
+(select-string -path .\gcctvers.tmp "gcc version") -replace ".*: (.+?)\b",'$1' | % { $str = $_ -replace '^.*14:',''}
+$str
 "gcc target - $_ROSBE_GCCTARGET"
 remove-item gcctvers.tmp
 

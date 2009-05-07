@@ -24,11 +24,8 @@ $global:_ROSBE_ORIGINALPATH = "$ENV:PATH"
 $global:_ROSBE_HOST_MINGWPATH = "$_ROSBE_BASEDIR\i386"
 $global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\i386"
 
-""
-""
 & "$_ROSBE_BASEDIR\rosbe-gcc-env.ps1"
-""
-""
+& "$_ROSBE_BASEDIR\version.ps1"
 
 #
 # Get the number of CPUs in the system so we know how many jobs to execute.
