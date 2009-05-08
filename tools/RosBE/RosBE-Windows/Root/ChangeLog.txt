@@ -5,7 +5,8 @@
   Required for kjk's rbuild work. (Colin Finck)
 - Fixes for the Uninstall Routine to keep most settings, if wished, on a update. (Daniel Reimer)
 - Remove some stupid setlocals. (Daniel Reimer)
-- New Built GCC which supports the recent variable changes (Colin Finck)
+- New binutils and GCC builds optimized for i686 and with proper relative include directories (Colin Finck)
+- Remove unneeded components such as the MingW32 Runtime DLL (Colin Finck)
 - Make it possible to set different settings for any arch in RosBE. (Daniel Reimer, Timo Kreuzer)
 
 
