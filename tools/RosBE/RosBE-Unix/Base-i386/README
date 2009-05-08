@@ -1,5 +1,5 @@
                            ReactOS Build Environment
-                Version 1.4.1 for Unix-based operating systems
+                Version 1.4.2 for Unix-based operating systems
                       Base package and i386 build tools
                      by Colin Finck (mail@colinfinck.de)
 
@@ -104,13 +104,13 @@ Version Information
 components:
 
   * GNU Binutils v2.19.51-20090127 (snapshot)
-    compiled for i386-pc-mingw32
+    compiled for mingw32
     patched with:
       - binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch
         (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch?revision=30284&content-type=text/plain)
 
   * GCC, The GNU Compiler Collection v4.1.3-20071015 (snapshot)
-    compiled for i386-pc-mingw32
+    compiled for mingw32
     patched with:
       - GCC-v4.1-r129382-prerelease-w3seek.patch
         (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-prerelease-w3seek.patch?revision=30284&content-type=text/plain)

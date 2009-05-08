@@ -7,9 +7,9 @@
 # Released under GNU GPL v2 or any later version.
 
 # Constants
-ROSBE_VERSION="1.4.1"
+ROSBE_VERSION="1.4.2"
 TARGET_ARCH="i386"
-KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4 1.4.1"
+KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4 1.4.2"
 DEFAULT_INSTALL_DIR="/usr/local/RosBE"
 NEEDED_TOOLS="bison flex gcc g++ grep makeinfo"		# GNU Make has a special check
 
@@ -202,7 +202,7 @@ if $update; then
 					;;
 
 				"1.4")
-					# Updated components from 1.4 to 1.4.1
+					# Updated components from 1.4 to 1.4.2
 					process_getincludes=true
 			esac
 		fi
