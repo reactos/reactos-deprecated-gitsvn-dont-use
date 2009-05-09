@@ -89,7 +89,6 @@ if ($_ROSBE_MODE -eq "MinGW") {
     $ENV:ROSBE_HOST_CXXFLAGS = $null
     $ENV:ROSBE_TARGET_CFLAGS = $null
     $ENV:ROSBE_TARGET_CXXFLAGS = $null
-
 } else {
     $ENV:C_INCLUDE_PATH = $null
     $ENV:CPLUS_INCLUDE_PATH = $null
