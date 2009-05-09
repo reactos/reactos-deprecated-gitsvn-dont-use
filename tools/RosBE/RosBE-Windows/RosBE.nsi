@@ -194,12 +194,12 @@ Section "Subversion Tools (svn, ssvn)" SEC04
     SetOverwrite try
     File /r Components\Tools\svn.exe
     File /r Components\Tools\intl3_svn.dll
-    File /r Components\Tools\libapr.dll
+    File /r Components\Tools\libapr-1.dll
     File /r Components\Tools\libeay32.dll
     File /r Components\Tools\ssleay32.dll
-    File /r Components\Tools\libaprutil.dll
+    File /r Components\Tools\libaprutil-1.dll
     File /r Components\Tools\libdb44.dll
-    File /r Components\Tools\libapriconv.dll
+    File /r Components\Tools\libapriconv-1.dll
     File /r Components\Tools\libsasl.dll
     File /r Components\Tools\libsvn_client-1.dll
     File /r Components\Tools\libsvn_delta-1.dll

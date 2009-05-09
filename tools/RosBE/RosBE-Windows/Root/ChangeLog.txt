@@ -8,11 +8,16 @@
 - New binutils and GCC builds optimized for i686 and with proper relative include directories (Colin Finck)
 - Remove unneeded components such as the MingW32 Runtime DLL (Colin Finck)
 - Make it possible to set different settings for any arch in RosBE. (Daniel Reimer, Timo Kreuzer)
-
+- Updated: SVN 1.6.1 included (Daniel Reimer)
+- Finally fully integrate the PS Version of RosBE and make it default in Windows 7 (Daniel Reimer)
+  This made following stuff needed:
+  * Let the Installer change the Security Level of Powershell to Remote Signed.
+  * Generate Shortcuts for the PS Versions.
+  * Fix some typos in the PS files to fully work with the new GCC
 
 *** April 07th, 2009 - RosBE 1.4.1 Released
 
-- Updated:SVN 1.6 included (Daniel Reimer)
+- Updated: SVN 1.6 included (Daniel Reimer)
 - Fixed: Sped up starting of rosbe (Daniel Reimer)
 - Fixed: Hopefully fixed bison. (Daniel Reimer)
 
