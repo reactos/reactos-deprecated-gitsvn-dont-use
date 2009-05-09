@@ -8,14 +8,38 @@
 #
 
 function UP {
-    "Local $OFFSVN"
-    "Online HEAD $ONSVN"
+    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"
+    $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
+    $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
+    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
+    $ONSVN = $ONSVN -replace "(.*)Revision: ",''
+    $ONSVN = [CONVERT]::ToInt32($ONSVN,10)
+    "Local Revision: $OFFSVN"
+    "Online HEAD Revision: $ONSVN"
     ""
     if ($OFFSVN -lt $ONSVN) {
-        "Your tree is not up to date. Do you want to update it?"
-        $UP = Read-Host "Please enter 'yes' or 'no': "
-        if (($UP -eq "yes") -or ($UP -eq "y")) {
-            IEX "&'$_ROSBE_BASEDIR\ssvn' update"
+        if ($_ROSBE_SSVN_JOB -eq "status") {
+            "Your tree is not up to date. Do you want to update it?"
+            $UP = Read-Host "Please enter 'yes' or 'no': "
+            if (($UP -eq "yes") -or ($UP -eq "y")) {
+                $_ROSBE_SSVN_JOB = "update"
+            }
+        }
+        if ($_ROSBE_SSVN_JOB -eq "update") {
+            if ($args[1] -ne $null) {
+                $temparg = $args[1]
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+            } else {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+            }
+        }
+        "Do you want to see the changelog?"
+        $CL = Read-Host "Please enter 'yes' or 'no': "
+        if (($CL -eq "yes") -or ($CL -eq "y")) {
+            while ($OFFSVN -lt $ONSVN) {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' log -r $OFFSVN"
+                $OFFSVN += 1
+            }
         }
     }
     if ($OFFSVN -eq $ONSVN) {
@@ -37,12 +61,8 @@ elseif ($args[0] -eq "update") {
     $host.ui.RawUI.WindowTitle = "SVN Updating..."
     "This might take a while, so please be patient."
     ""
-    if ($args[1] -ne $null) {
-        $temparg = $args[1]
-        IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
-    } else {
-        IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
-    }
+    $_ROSBE_SSVN_JOB = "update"
+    UP
 }
 elseif ($args[0] -eq "cleanup") {
     $host.ui.RawUI.WindowTitle = "SVN Cleaning..."
@@ -76,8 +96,7 @@ elseif ($args[0] -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
     "This might take a while, so please be patient."
     ""
-    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"
-    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
+    $_ROSBE_SSVN_JOB = "status"
     UP
 }
 
@@ -95,5 +114,7 @@ if ($_ROSBE_VERSION -ne $null) {
 $OFFSVN = $null
 $ONSVN = $null
 $UP = $null
+$CL = $null
 $dir = dir
 $temparg = $null
+$_ROSBE_SSVN_JOB = $null
