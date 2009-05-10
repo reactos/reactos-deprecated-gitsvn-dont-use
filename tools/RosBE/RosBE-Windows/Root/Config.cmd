@@ -5,7 +5,7 @@
 :: PURPOSE:     A Basic Config.rbuild Creator for ReactOS.
 :: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::
-::
+
 @echo off
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
@@ -13,12 +13,9 @@ if %_ROSBE_DEBUG% == 1 (
 )
 
 setlocal enabledelayedexpansion
-
 title ReactOS Build Configurator
 
-::
 :: Receive the first Parameter and decide what to do.
-::
 if /i "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
     echo Continue?
@@ -34,14 +31,17 @@ if /i "%1" == "delete" (
     ) else (
         echo Main Configuration File was not found in ReactOS Source Tree.
     )
+    
     if exist "%APPDATA%\RosBE\config.rbuild" (
         del "%APPDATA%\RosBE\config.rbuild"
         echo Working Configuration File was found and deleted.
     ) else (
         echo Working Configuration File was not found in ReactOS Source Tree.
     )
-goto :NOK
+    
+    goto :NOK
 )
+
 if /i "%1" == "update" (
     echo old config.rbuild will be deleted and will be updated with a recent,
     echo default one. You will need to reconfigure it to your wishes later.
@@ -58,21 +58,18 @@ if /i "%1" == "update" (
     echo Successfully Updated.
     goto :NOK
 )
+
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help [COMMAND]'.
     goto :NOK
 )
 
-::
 :: Check if config.rbuild already exists. If not, get a working copy.
-::
 if not exist "%APPDATA%\RosBE\config.rbuild" (
     copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
 )
 
-::
 :: Help prevent non-useful bug reports/questions.
-::
 echo.
 echo *** Configurations other than release/debug are not useful for ***
 echo *** posting bug reports, and generally not very useful for     ***
@@ -86,11 +83,8 @@ if /i "%YESNO%"=="y" goto :OK
 goto :NOK
 
 :OK
-
-::
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: inform the user and offer an update.
-::
 if exist ".\config.rbuild" (
     "%_ROSBE_BASEDIR%\Tools\chknewer.exe" ".\config.template.rbuild" ".\config.rbuild"
     if !errorlevel! == 1 (
@@ -109,13 +103,11 @@ if exist ".\config.rbuild" (
         del "config.rbuild"
         copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
         goto :OK
-        endlocal
     )
 )
 
-::
+
 :: Start with reading settings from config.rbuild and let the user edit them.
-::
 echo Sub-Architecture to build for.
 echo Default is: none
 echo.
@@ -270,9 +262,7 @@ if "%BUILD_MP_CH%" == "" (
 )
 cls
 
-::
 :: Generate a config.rbuild, copy it to the Source Tree and delete temp files.
-::
 echo ^<?xml version="1.0"?^>>%TEMP%\config.tmp
 echo ^<!DOCTYPE group SYSTEM "tools/rbuild/project.dtd"^>>%TEMP%\config.tmp
 echo ^<group^>>%TEMP%\config.tmp
@@ -293,38 +283,6 @@ copy "%TEMP%\config.tmp" "%APPDATA%\RosBE\config.rbuild" >NUL
 del %TEMP%\config.tmp
 copy "%APPDATA%\RosBE\config.rbuild" "config.rbuild" >NUL
 
-goto :NOK
-
 :NOK
-
-if defined _ROSBE_VERSION (
-    title ReactOS Build Environment %_ROSBE_VERSION%
-)
-
-::
-:: Unload all used Vars.
-::
-set YESNO=
-set BUILD_MP=
-set BUILD_MP_CH=
-set TUNE=
-set TUNE_CH=
-set SARCH_CH=
-set OARCH_CH=
-set OPTIMIZE_CH=
-set KDBG_CH=
-set DBG_CH=
-set GDB_CH=
-set NSWPAT_CH=
-set WINKD_CH=
-set ELF_CH=
-set SARCH=
-set OARCH=
-set OPTIMIZE=
-set KDBG=
-set DBG=
-set GDB=
-set NSWPAT=
-set WINKD=
-set ELF=
+title ReactOS Build Environment %_ROSBE_VERSION%
 endlocal

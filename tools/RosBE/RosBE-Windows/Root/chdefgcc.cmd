@@ -5,86 +5,69 @@
 :: PURPOSE:     Tool to change the current gcc in RosBE.
 :: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Peter Ward <dralnix@gmail.com>
+::                             Colin Finck <colin@reactos.org>
 ::
+
 @echo off
 if not defined _ROSBE_DEBUG set _ROSBE_DEBUG=0
 if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
-if "%_ROSBE_MODE%" == "RosBE" (
-    title Change the current MinGW/GCC Host/Target directory...
+setlocal enabledelayedexpansion
+title Change the current MinGW/GCC Host/Target directory...
+
+:: Parse the command line arguments. Ask the user if certain parameters are missing.
+if "%1" == "" (
+    set /p TOOLPATH="Please enter a MinGW/GCC directory (don't use quotes): "
+    
+    if "!TOOLPATH!" == "" (
+        echo ERROR: You must enter a MinGW/GCC directory.
+        goto :EOC
+    )
+) else (
+    for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\rquote.exe" %1"`) do set TOOLPATH=%%i
 )
 
-::
-:: Parse the command line arguments.
-::
-for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\rquote.exe" %1"`) do set _1=%%i
-set _2=%2
-if "%_1%" == "" (
-    call :INTERACTIVE
-)
-if "%_2%" == "" (
-    call :INTERACTIVE2
+if "%2" == "" (
+    set /p TOOLMODE="Please specify, if this will be the Target or Host GCC: "
+    
+    if "!TOOLMODE!" == "" (
+        echo ERROR: You must enter "target" or "host".
+        goto :EOC
+    )
+) else (
+    set TOOLMODE=%2
 )
 
-if exist "%_ROSBE_BASEDIR%\%_1%\." (
-    set _1="%_ROSBE_BASEDIR%\%_1%"
-) else if not exist "%_1%\." (
+:: Verify the entered values
+if exist "%_ROSBE_BASEDIR%\%TOOLPATH%\." (
+    set TOOLPATH=%_ROSBE_BASEDIR%\%TOOLPATH%
+) else if not exist "%TOOLPATH%\." (
     echo ERROR: The path specified doesn't seem to exist.
     goto :EOC
 )
 
-if not exist "%_1%\bin\*gcc.exe" (
+if not exist "%TOOLPATH%\bin\*gcc.exe" (
     echo ERROR: No MinGW/GCC found in the specified path.
     goto :EOC
 )
 
-if /i "%_2%" == "target" (
-    set _ROSBE_TARGET_MINGWPATH=%_1%
-    echo Target Location: %_ROSBE_TARGET_MINGWPATH%
-    goto :EOA
-)
-if /i "%_2%" == "host" (
-    set _ROSBE_HOST_MINGWPATH=%_1%
-    echo Host Location: %_ROSBE_HOST_MINGWPATH%
-    goto :EOA
+:: Set the values
+if /i "%TOOLMODE%" == "target" (
+    echo Target Location: %TOOLPATH%
+    endlocal & set _ROSBE_TARGET_MINGWPATH=%TOOLPATH%
+) else if /i "%TOOLMODE%" == "host" (
+    echo Host Location: %TOOLPATH%
+    endlocal & set _ROSBE_HOST_MINGWPATH=%TOOLPATH%
 ) else (
     echo ERROR: You specified wrong parameters.
+    endlocal
     goto :EOC
 )
 
-:EOA
-
-call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd" chdefgcc
-"%_ROSBE_BASEDIR%\version.cmd"
-goto :EOC
-
-:INTERACTIVE
-
-set /p _1="Please enter a MinGW/GCC directory (don't use quotes): "
-if "%_1%" == "" (
-    echo ERROR: You must enter a MinGW/GCC directory.
-    goto :EOC
-)
-
-:INTERACTIVE2
-
-set /p _2="Please specify, if this will be the Target or Host GCC: "
-if "%_2%" == "" (
-    echo ERROR: You must enter "target" or "host".
-    goto :EOC
-)
-goto :EOF
+call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+call "%_ROSBE_BASEDIR%\version.cmd"
 
 :EOC
-
-if defined _ROSBE_VERSION (
-    title ReactOS Build Environment %_ROSBE_VERSION%
-)
-
-::
-:: Unload all used Vars.
-::
-set _1=
-set _2=
+title ReactOS Build Environment %_ROSBE_VERSION%
