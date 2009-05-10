@@ -126,9 +126,9 @@ Section -BaseFiles SEC01
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
-    SetOutPath "$INSTDIR\x86_64"
+    SetOutPath "$INSTDIR\amd64"
     SetOverwrite try
-    File /r Components\x86_64\*.*
+    File /r Components\amd64\*.*
 SectionEnd
 
 Section -StartMenuShortcuts SEC03
