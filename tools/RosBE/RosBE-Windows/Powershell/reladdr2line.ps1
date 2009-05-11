@@ -9,69 +9,48 @@
 
 $host.ui.RawUI.WindowTitle = "reladdr2line..."
 
-#
-# Check if the user supplied a path, if they didn't look for
-# the specified file in the current directory and any
-# sub-directories.
-#
-function CHECKPATH {
-    if ($_1.Contains("\")) {
-        $_1 = get-childitem "$_1\*" -name -recurse 2>NUL | select-string "$_1"
-    }
-}
-
-#
-# Receive the Parameters and decide what to do.
-#
-$_1 = $args[0]
-$_2 = $args[1]
-if ($args.length -gt 2) {
-    "ERROR: Too many parameters specified."
-}
-elseif ($args.length -lt 1) {
-    if ($_1 -eq $null) {
-        $_1 = Read-Host "Please enter the path/file to be examined: "
-        CHECKPATH
+# Receive all parameters.
+$FILEPATH = $args[0]
+$ADDRESS = $args[1]
+if ($args.length -lt 1) {
+    if ($FILEPATH -eq $null) {
+        $FILEPATH = Read-Host "Please enter the path/file to be examined: "
+        if ($FILEPATH.Contains("\")) {
+            $FILEPATH = get-childitem "$FILEPATH\*" -name -recurse 2>NUL | select-string "$FILEPATH"
+        }
     }
 }
 elseif ($args.length -lt 2) {
-    if ($_2 -eq $null) {
-        $_2 = Read-Host "Please enter the address you would like to analyze: "
+    if ($ADDRESS -eq $null) {
+        $ADDRESS = Read-Host "Please enter the address you would like to analyze: "
     }
 }
 
-#
-# First get the ImageBase of the File. If its smaller than the given
-# Parameter, everything is ok, because it was already added onto the
-# adress and can be given directly to raddr2line. If not, add it and
-# give the result to raddr2line.
-#
-if ($_1 -eq $null) {
+# Check if parameters were really given
+if ($FILEPATH -eq $null) {
     "ERROR: You must specify a path/file to examine."
 }
-if ($_2 -eq $null) {
+if ($ADDRESS -eq $null) {
     "ERROR: You must specify a address to analyze."
 }
 
-$baseaddr = (objdump -p $_1 | select-string "ImageBase").tostring().split()
+$baseaddr = (objdump -p $FILEPATH | select-string "ImageBase").tostring().split()
 $baseaddr = "0x" + ($baseaddr.get($baseaddr.length - 1))
 
-if ($baseaddr -lt $_2) {
-    IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$_1' '$_2'"
+if ($baseaddr -lt $ADDRESS) {
+    IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$FILEPATH' '$ADDRESS'"
 } else {
-    $baseaddr = ($baseaddr | % {[Convert]::ToInt32($_,16)}) + ($_2 | % {[Convert]::ToInt32($_,16)})
+    $baseaddr = ($baseaddr | % {[Convert]::ToInt32($_,16)}) + ($ADDRESS | % {[Convert]::ToInt32($_,16)})
     $relbase = "0x" + ("{0:X}" -f $baseaddr)
-    IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$_1' '$relbase'"
+    IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$FILEPATH' '$relbase'"
 }
 
-if ($_ROSBE_VERSION -ne $null) {
-    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-}
+$host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 #
 # Unload all used Vars.
 #
-$_1 = $null
-$_2 = $null
+$FILEPATH = $null
+$ADDRESS = $null
 $baseaddr = $null
 $relbase = $null

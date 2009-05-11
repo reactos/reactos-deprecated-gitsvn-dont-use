@@ -7,16 +7,11 @@
 #
 #
 
-#
-# Set Title
-#
 $host.ui.RawUI.WindowTitle = "Updating..."
 
 function EOC {
     set-location "$_ROSBE_OPATH"
-    if ($_ROSBE_VERSION -ne $null) {
-        $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-    }
+    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
     exit
 }
 
@@ -64,14 +59,10 @@ function UPDCHECK {
     }
 }
 
-#
 # The Update Server.
-#
-$_ROSBE_URL = "http://danielreimer.5x.to/rosbe"
+$_ROSBE_URL = "http://dreimer.dr.funpic.org/rosbe"
 
-#
 # Save the recent dir to cd back there at the end.
-#
 $_ROSBE_OPATH = "$pwd"
 
 if (!(Test-Path "$_ROSBE_BASEDIR\Tools\7z.exe")) {
@@ -82,9 +73,7 @@ if (!(Test-Path "$_ROSBE_BASEDIR\Tools\7z.exe")) {
 
 set-location $_ROSBE_BASEDIR
 
-#
 # First check for a new Updater.
-#
 rename-item update.ps1 update2.ps1
 get-webfile $_ROSBE_URL/update.ps1 $PWD\update.ps1
 if ((gi .\update.ps1).LastWriteTime -gt (gi .\update2.ps1).LastWriteTime) {
@@ -96,15 +85,15 @@ if ((gi .\update.ps1).LastWriteTime -gt (gi .\update2.ps1).LastWriteTime) {
     remove-item update.ps1 -force
     rename-item update2.ps1 update.ps1
 }
-#
 # Get to the Updates Subfolder.
-#
 if (!(Test-Path "$ENV:APPDATA\RosBE\Updates")) {New-Item -path "$ENV:APPDATA\RosBE" -name "Updates" -type directory}
 set-location "$ENV:APPDATA\RosBE\Updates"
 
-#
 # Parse the args.
-#
+
+$arg1 = $args[0]
+$arg2 = $args[1]
+
 if ("$args" -eq "") {
     $_ROSBE_MULTIUPD = 1
     $_ROSBE_STATCOUNT = 1
@@ -112,27 +101,17 @@ if ("$args" -eq "") {
         UPDCHECK
         $_ROSBE_STATCOUNT += 1
     }
-    EOC
-}
-if ("$args" -eq "reset") {
+} elseif ("$args" -eq "reset") {
     remove-item "$ENV:APPDATA\RosBE\Updates\*.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\*.*" -force -recurse -EA SilentlyContinue
-    EOC
-}
-$arg1 = $args[0]
-$arg2 = $args[1]
-if ("$arg1" -eq "nr") {
+} elseif ("$arg1" -eq "nr") {
     $_ROSBE_STATCOUNT = $arg2
     UPDCHECK
-    EOC
-}
-if ("$arg1" -eq "delete") {
+} elseif ("$arg1" -eq "delete") {
     $_ROSBE_STATCOUNT = $arg2
     remove-item "$ENV:APPDATA\RosBE\Updates\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
-    EOC
-}
-if ("$arg1" -eq "info") {
+} elseif ("$arg1" -eq "info") {
     $_ROSBE_STATCOUNT = $arg2
     set-location tmp
     if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
@@ -145,11 +124,7 @@ if ("$arg1" -eq "info") {
     }
     set-location ..
     remove-item "tmp\*.*" -force -EA SilentlyContinue
-    EOC
-}
-$arg1 = $null
-$arg2 = $null
-if ("$args" -eq "status") {
+} elseif ("$args" -eq "status") {
     $_ROSBE_STATCOUNT = 1
     if (!(test-path "tmp")) {New-Item -name "tmp" -type directory}
     copy-item *.txt .\tmp\.
@@ -170,13 +145,12 @@ if ("$args" -eq "status") {
     } else {
         "RosBE is up to Date."
     }
-    EOC
-}
-if ("$args" -ne "") {
+} else {
     "Unknown parameter specified. Try 'help update'."
-    EOC
 }
 
+$arg1 = $null
+$arg2 = $null
 $_ROSBE_UPDFINISH = $null
 $_ROSBE_OPATH = $null
 $_ROSBE_UPDDATE = $null
@@ -184,3 +158,4 @@ $_ROSBE_UPDATES = $null
 $_ROSBE_UPDDATE2 = $null
 $_ROSBE_MULTIUPD = $null
 $_ROSBE_STATCOUNT = $null
+EOC

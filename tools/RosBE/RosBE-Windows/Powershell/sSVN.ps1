@@ -47,16 +47,12 @@ function UP {
     }
 }
 
-#
 # Receive the first parameter and decide what to do.
-#
 if ($args[0] -eq $null) {
     "No parameter specified. Try 'help [COMMAND]'."
 }
 
-#
 # These two are directly parsed to svn.
-#
 elseif ($args[0] -eq "update") {
     $host.ui.RawUI.WindowTitle = "SVN Updating..."
     "This might take a while, so please be patient."
@@ -71,9 +67,7 @@ elseif ($args[0] -eq "cleanup") {
     IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' cleanup"
 }
 
-#
 # Check if the folder is empty. If not, output an error.
-#
 elseif ($args[0] -eq "create") {
     $host.ui.RawUI.WindowTitle = "SVN Creating..."
     if (Test-Path ".svn\.") {
@@ -88,10 +82,8 @@ elseif ($args[0] -eq "create") {
     }
 }
 
-#
 # Output the revision of the local and online trees and tell the user if
 # its up to date or not.
-#
 elseif ($args[0] -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
     "This might take a while, so please be patient."
@@ -104,9 +96,7 @@ elseif ($args[0] -ne $null) {
     "Unknown parameter specified. Try 'help ssvn'."
 }
 
-if ($_ROSBE_VERSION -ne $null) {
-    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-}
+$host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 #
 # Unload all used Vars.

@@ -33,9 +33,7 @@ elseif ($args[0] -eq "-h")     {paramcall($args)}
 elseif ($args[0] -eq "--help") {paramcall($args)}
 else {parse($args)}
 
-if ($_ROSBE_VERSION -ne $null) {
-    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-}
+$host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 #
 # Unload all used Vars.

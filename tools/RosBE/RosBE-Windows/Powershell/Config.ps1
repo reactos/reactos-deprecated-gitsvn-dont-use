@@ -10,15 +10,11 @@
 $host.ui.RawUI.WindowTitle = "ReactOS Build Configurator"
 
 function settitle {
-    if ($_ROSBE_VERSION -ne $null) {
-        $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-    }
+    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
     exit
 }
 
-#
 # Receive the first Parameter and decide what to do.
-#
 if ($args[0] -eq "delete") {
     "config.rbuild will be permanently deleted. All your settings will be gone."
     "Continue?"
@@ -57,16 +53,12 @@ elseif ($args[0] -ne $null) {
     settitle
 }
 
-#
 # Check if config.rbuild already exists. If not, get a working copy.
-#
 if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
     copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
 }
 
-#
 # Help prevent non-useful bug reports/questions.
-#
 ""
 "*** Configurations other than release/debug are not useful for ***"
 "*** posting bug reports, and generally not very useful for     ***"
@@ -77,10 +69,8 @@ if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
 $YESNO = Read-Host "(yes), (no)"
 if (($YESNO -ne "yes") -and ($YESNO -ne "y")) {settitle}
 
-#
 # Check if config.template.rbuild is newer than config.rbuild, if it is then
 # inform the user and offer an update.
-#
 if (Test-Path ".\config.rbuild") {
     if ((gi .\config.template.rbuild).LastWriteTime -gt (gi .\config.rbuild).LastWriteTime) {
         ""
@@ -95,14 +85,10 @@ if (Test-Path ".\config.rbuild") {
     }
 }
 
-#
 # Prepare XML Parser.
-#
 [xml] $XML = get-content "$ENV:APPDATA\RosBE\config.rbuild"
 
-#
 # Start with reading settings from config.rbuild and let the user edit them.
-#
 "Sub-Architecture to build for."
 "Default is: none"
 ""
@@ -246,9 +232,7 @@ if ($BUILD_MP_CH -eq $null) {
 }
 clear-host
 
-#
 # Generate a config.rbuild, copy it to the Source Tree and delete temp files.
-#
 $xml.group.property | ? { $_.Name -eq "SARCH" } | % { $_.Value = "$SARCH_CH"}
 $xml.group.property | ? { $_.Name -eq "OARCH" } | % { $_.Value = "$OARCH_CH"}
 $xml.group.property | ? { $_.Name -eq "TUNE" } | % { $_.Value = "$TUNE_CH"}
@@ -263,9 +247,7 @@ $xml.group.property | ? { $_.Name -eq "BUILD_MP" } | % { $_.Value = "$BUILD_MP_C
 $xml.save("$ENV:APPDATA\RosBE\config.rbuild")
 copy-item "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
 
-if ($_ROSBE_VERSION -ne $null) {
-    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-}
+$host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 #
 # Unload all used Vars.

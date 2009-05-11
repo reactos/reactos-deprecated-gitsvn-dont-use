@@ -8,47 +8,29 @@
 
 $host.ui.RawUI.WindowTitle = "Change the Architecture to build for..."
 
-#
-# Parse the command line arguments.
-# ROSBE_ARCH: Default is i386, can be set to amd64, ppc or arm.
-#
-
-#
-# Refresh all needed Params by recalling the main Path setting CMD File.
-#
-function SYSPARAM {
-
-    # arch specific settings.
-    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1") {
-        IEX "& '$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1'"
-    }
-
-    IEX "& '$_ROSBE_BASEDIR\rosbe-gcc-env.ps1'"
-    version
-}
 if ($args.count -eq 0) {
-    #
-    # If Parameters were set, parse them, if not, ask the user to add them.
-    #
-    $_1 = Read-Host "Please enter a Architecture you want to build ReactOS for: "
-    if ($_1.length -eq 0) {
+    # Parse the command line arguments.
+    $ARCH = Read-Host "Please enter a Architecture you want to build ReactOS for: "
+    if ($ARCH.length -eq 0) {
         "ERROR: You must enter a Architecture."
     }
 } else {
-    $_1 = $args
+    $ARCH = $args
 }
-if ($_1 -eq "i386") {
-    $_ROSBE_ARCH = $null
-} else {
-    $_ROSBE_ARCH = $_1
-}
-SYSPARAM
 
-if ($_ROSBE_VERSION -ne $null) {
-    $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
+# Modify ROS_ARCH for the current environment
+$ENV:ROS_ARCH = $ARCH
+
+# Refresh all needed Params by recalling the main Path setting CMD File.
+if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1") {
+    IEX "& '$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1'"
 }
+
+chdefgcc $ENV:ROS_ARCH target
+
+$host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 #
 # Unload all used Vars.
 #
-$_1 = $null
+$ARCH = $null

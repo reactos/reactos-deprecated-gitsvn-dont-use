@@ -7,9 +7,9 @@
 #
 #
 
-#
 # Check if we are displaying help on all commands, if so, display it.
-#
+# Otherwise check if we are displaying help on individual commands, if so,
+# display the help for that command.
 if ("$args" -eq "") {
     ""
     "Available Commands:"
@@ -73,13 +73,7 @@ if ("$args" -eq "") {
 
     ""
     exit
-}
-
-#
-# Now check if we are displaying help on individual commands, if so,
-# display the help for that command.
-#
-if ("$args" -eq "make") {
+} elseif ("$args" -eq "make") {
     " Usage: make [OPTIONS]"
     " Make does a standard build of ReactOS. OPTIONS are the standard ReactOS build"
     " options:"
@@ -100,9 +94,7 @@ if ("$args" -eq "make") {
         "                       and generates a new makefile. This will take a while."
         "    ""module""-depends - Does a dependency check for one module with the"
         "                       appropiate name."
-    exit
-}
-if ("$args" -eq "makex") {
+} elseif ("$args" -eq "makex") {
     " Usage: makex [OPTIONS]"
     " Same as 'make' but automatically determines the number of CPU Cores in the"
     " system and uses ""make -j x"" with the appropriate number. OPTIONS are the"
@@ -127,42 +119,32 @@ if ("$args" -eq "makex") {
     " NOTE: The number makex uses can be modified by editing Build.cmd"
     "       located in the RosBE directory, instructions for doing so are"
     "       contained within the file."
-    exit
-}
-if ("$args" -eq "basedir") {
+} elseif ("$args" -eq "basedir") {
     " Usage: basedir"
     " Switches back to the ReactOS source directory."
-    exit
-}
-if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
-    if ("$args" -eq "charch") {
+} elseif ("$args" -eq "charch") {
+    if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
         " Usage: charch [OPTIONS]"
         " Change the Architecture to build ReactOS for, for the current RosBE session."
         " Possible Architectures are: i386, ppc, arm, amd64."
         ""
-        exit
     }
-}
-if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
-    if ("$args" -eq "chdefdir") {
+} elseif ("$args" -eq "chdefdir") {
+    if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
         " Usage: chdefdir [OPTIONS]"
         " Change the ReactOS source directory for the current RosBE session."
         ""
         "    previous - Switch to the previous ReactOS source directory."
-        exit
     }
-}
-if (Test-Path "$_ROSBE_BASEDIR\chdefgcc.ps1") {
-    if ("$args" -eq "chdefgcc") {
+} elseif ("$args" -eq "chdefgcc") {
+    if (Test-Path "$_ROSBE_BASEDIR\chdefgcc.ps1") {
         " Usage: chdefgcc [PATH]"
         " Change the MinGW/GCC directory for the current RosBE session."
         ""
         "    ""Path"" - Path to set the Host or Target GCC to."
         "    ""Type"" - Set it to ""target"" or ""host"""
-        exit
     }
-}
-if ("$args" -eq "clean") {
+} elseif ("$args" -eq "clean") {
     " Usage: clean [logs]"
     " Fully clean the ReactOS source directory."
     ""
@@ -170,10 +152,8 @@ if ("$args" -eq "clean") {
     "    logs - Removes all build logs in the RosBE-Logs directory."
     "    All other commands will be parsed as ""make COMMAND_clean"" and cleans the"
     "    specific command."
-    exit
-}
-if (Test-Path "$_ROSBE_BASEDIR\Config.ps1") {
-    if ("$args" -eq "config") {
+} elseif ("$args" -eq "config") {
+    if (Test-Path "$_ROSBE_BASEDIR\Config.ps1") {
         " Usage: config [OPTIONS]"
         " Creates a configuration file, which tells RosBE how to build the tree."
         ""
@@ -181,16 +161,12 @@ if (Test-Path "$_ROSBE_BASEDIR\Config.ps1") {
         "             default settings."
         "    update - Deletes the old created configuration file and updates it with a"
         "             new, default one."
-        exit
     }
-}
-if ("$args" -eq "help") {
+} elseif ("$args" -eq "help") {
     " Usage: help [COMMAND]"
     " Shows help for the specified command or lists all available commands."
-    exit
-}
-if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
-    if ("$args" -eq "raddr2line") {
+} elseif ("$args" -eq "raddr2line") {
+    if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         " Usage: raddr2line [FILE] [ADDRESS]"
         " Translates program addresses into file names and line numbers to assist"
         " developers with finding specific bugs in ReactOS. If either of the options"
@@ -202,17 +178,13 @@ if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         "           sub-directories are searched."
         " ADDRESS - The address to be translated."
         ""
-        exit
     }
-}
-if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
-    if  ("$args" -eq "scut") {
+} elseif  ("$args" -eq "scut") {
+    if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
         IEX "&'$_ROSBE_BASEDIR\Tools\scut.exe' --help"
-        exit
     }
-}
-if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
-    if  ("$args" -eq "ssvn") {
+} elseif  ("$args" -eq "ssvn") {
+    if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
         " Usage: ssvn [OPTIONS]"
         " Creates, updates or cleans up your ReactOS source tree or shows the revision"
         " number of the local and online trees."
@@ -222,19 +194,15 @@ if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
         "    create  - Creates a new ReactOS source tree."
         "    cleanup - Cleans up and fixes errors in the source tree."
         "    status  - Show the current local and online revision numbers."
-        exit
     }
-}
-if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
-    if ("$args" -eq "options") {
+} elseif ("$args" -eq "options") {
+    if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
         " Usage: options"
         " Starts the RosBE configurator and sets the changes active in the current."
         " RosBE session."
-        exit
     }
-}
-if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
-    if ("$args" -eq "update") {
+} elseif ("$args" -eq "update") {
+    if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
         " Usage: update [OPTIONS]"
         " Updates all files of RosBE to the most recent files."
         ""
@@ -243,10 +211,7 @@ if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
         "    nr X     - Re/Installs Update Nr X."
         "    reset    - Removes the Updates Cache. Not recommended."
         "    status   - Shows the recent status of available, non installed updates."
-        exit
     }
-}
-if ("$args" -ne $null) {
+} else {
     " Unknown command specified. No help available for $args."
-    exit
 }

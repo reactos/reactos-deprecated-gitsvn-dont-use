@@ -10,9 +10,7 @@
 $host.ui.RawUI.WindowTitle = "Cleaning..."
 
 function remlog {
-    #
     # Check if we have any logs to clean, if so, clean them.
-    #
     if (Test-Path "$_ROSBE_LOGDIR") {
         "Cleaning build logs..."
         $null = (Remove-Item -path "$_ROSBE_LOGDIR\*.txt" -force)
@@ -23,55 +21,43 @@ function remlog {
 }
 
 function rembin {
-    #
     # Check if we have something to clean, if so, clean it.
-    #
 
-    #
     # Apply modified obj and out paths for deletion.
-    #
-
-    if ($ENV:ROS_ARCH -eq $null) {
-        $ENV:ROS_ARCH = "i386"
-    }
 
     if ($_ROSBE_OBJPATH -eq $null) {
-        $_ROSBE_OBJCLEANPATH = "$_ROSBE_ROSSOURCEDIR\obj-$ENV:ROS_ARCH"
+        $OBJCLEANPATH = "$_ROSBE_ROSSOURCEDIR\obj-$ENV:ROS_ARCH"
     } else {
-        $_ROSBE_OBJCLEANPATH = "$_ROSBE_OBJPATH"
+        $OBJCLEANPATH = "$_ROSBE_OBJPATH"
     }
 
     if ($_ROSBE_OUTPATH -eq $null) {
-        $_ROSBE_OUTCLEANPATH = "$_ROSBE_ROSSOURCEDIR\output-$ENV:ROS_ARCH"
+        $OUTCLEANPATH = "$_ROSBE_ROSSOURCEDIR\output-$ENV:ROS_ARCH"
     } else {
-        $_ROSBE_OUTCLEANPATH = "$_ROSBE_OUTPATH"
+        $OUTCLEANPATH = "$_ROSBE_OUTPATH"
     }
 
     if ($ENV:ROS_ARCH -eq "i386") {
-        $_ROSBE_MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto"
+        $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto"
     } else {
-        $_ROSBE_MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile.auto"
+        $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile.auto"
     }
 
-    if (Test-Path "$_ROSBE_MAKEFILE") {
-        $null = (Remove-Item "$_ROSBE_MAKEFILE" -force)
+    if (Test-Path "$MAKEFILE") {
+        $null = (Remove-Item "$MAKEFILE" -force)
     }
 
-    if (Test-Path "$_ROSBE_OBJCLEANPATH\.") {
+    if (Test-Path "$OBJCLEANPATH\.") {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
-        if (Test-Path "$_ROSBE_OBJCLEANPATH\.") {
-            $null = (Remove-Item "$_ROSBE_OBJCLEANPATH" -recurse -force)
+        if (Test-Path "$OBJCLEANPATH\.") {
+            $null = (Remove-Item "$OBJCLEANPATH" -recurse -force)
         }
-        if (Test-Path "$_ROSBE_OUTCLEANPATH\.") {
-            $null = (Remove-Item "$_ROSBE_OUTCLEANPATH" -recurse -force)
+        if (Test-Path "$OUTCLEANPATH\.") {
+            $null = (Remove-Item "$OUTCLEANPATH" -recurse -force)
         }
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
         "ERROR: There is no $ENV:ROS_ARCH compiler output to clean."
-    }
-
-    if ($ENV:ROS_ARCH -eq "i386") {
-        $ENV:ROS_ARCH = $null
     }
 
     if (Test-Path "$_ROSBE_ROSSOURCEDIR\reactos") {
@@ -85,9 +71,9 @@ function end {
     #
     # Unload all used Vars.
     #
-    $_ROSBE_OBJCLEANPATH = $null
-    $_ROSBE_OUTCLEANPATH = $null
-    $_ROSBE_MAKEFILE = $null
+    $OBJCLEANPATH = $null
+    $OUTCLEANPATH = $null
+    $MAKEFILE = $null
 
     exit
 }
