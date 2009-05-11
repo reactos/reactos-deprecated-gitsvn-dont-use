@@ -15,8 +15,8 @@ if ("$ENV:ROS_ARCH" -eq "amd64") {
 }
 
 $ENV:PATH = "$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
-
-& "$ENV:ROS_PREFIXgcc" -v 2> gcctvers.tmp
+$TARGETGCC = "$ENV:ROS_PREFIX" + "gcc"
+& $TARGETGCC -v 2> gcctvers.tmp
 $global:_ROSBE_TARGET_GCCVERSION = (select-string -path .\gcctvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
 $global:_ROSBE_TARGET_GCCTARGET = (select-string -path .\gcctvers.tmp "target=") -replace ".*--target=(.+?)\b.*",'$1'
 gcc -v 2> gcchvers.tmp

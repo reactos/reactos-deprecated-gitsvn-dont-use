@@ -23,9 +23,9 @@ if ($ENV:APPDATA.Length -lt 1) {
 # Set defaults to work with and override them if edited by
 # the options utility.
 if ("$ENV:ROS_ARCH" -eq "") {
-    set $ENV:ROS_ARCH = "i386"
+    $ENV:ROS_ARCH = "i386"
 } else {
-    set $ENV:ROS_ARCH = "$args[1]"
+    $ENV:ROS_ARCH = "$args[1]"
 }
 
 $global:0 = $myInvocation.MyCommand.Definition
@@ -144,7 +144,7 @@ LoadAliases
 
 & "$_ROSBE_BASEDIR\rosbe-gcc-env.ps1"
 
-clear-screen
+clear
 "*******************************************************************************"
 "*                                                                             *"
 "*                        ReactOS Build Environment $_ROSBE_VERSION                      *"
