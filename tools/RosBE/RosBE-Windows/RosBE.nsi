@@ -131,6 +131,8 @@ Section -BaseFiles SEC01
         WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     ${else}
         File /r Root\Build.cmd
+        File /r Root\Build-Multi.cmd
+        File /r Root\Build-Shared.cmd
         File /r Root\charch.cmd
         File /r Root\chdefgcc.cmd
         File /r Root\Clean.cmd
@@ -297,6 +299,8 @@ SetShellVarContext current
         SetOutPath "$INSTDIR"
         SetOverwrite try
         File /r Root\Build.cmd
+        File /r Root\Build-Multi.cmd
+        File /r Root\Build-Shared.cmd
         File /r Root\chdefgcc.cmd
         File /r Root\Clean.cmd
         File /r Root\Help.cmd
@@ -447,6 +451,8 @@ Section Uninstall
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
+    Delete /REBOOTOK "$INSTDIR\Build-Multi.cmd"
+    Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
