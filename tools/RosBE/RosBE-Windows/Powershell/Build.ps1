@@ -73,10 +73,10 @@ $TIMENAME = get-date -f HHmm
 if ($args[0] -eq "multi") {
     $args.setvalue($null, 0)
     $MAKE_JOBS = "$_ROSBE_MAKEX_JOBS"
-    $TITLE_COMMAND = "makex $args[2]"
+    $TITLE_COMMAND = "makex $($args)"
 } else {
     $MAKE_JOBS = 1
-    $TITLE_COMMAND = "make $args[1]"
+    $TITLE_COMMAND = "make $($args)"
 }
 
 $host.ui.RawUI.WindowTitle = "'$TITLE_COMMAND' build started: $TIMERAW   ($ENV:ROS_ARCH)"

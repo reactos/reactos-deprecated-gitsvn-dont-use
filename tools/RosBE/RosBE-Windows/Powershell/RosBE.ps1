@@ -25,7 +25,7 @@ if ($ENV:APPDATA.Length -lt 1) {
 if ("$ENV:ROS_ARCH" -eq "") {
     $ENV:ROS_ARCH = "i386"
 } else {
-    $ENV:ROS_ARCH = "$args[1]"
+    $ENV:ROS_ARCH = "$($args)"
 }
 
 $global:0 = $myInvocation.MyCommand.Definition
