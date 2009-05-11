@@ -90,11 +90,11 @@ if ($_ROSBE_SHOWTIME -eq 1) {
 if ($_ROSBE_WRITELOG -eq 1) {
     $sw.Start()
     $file = "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_TARGET_GCCVERSION-$DATENAME-$TIMENAME.txt"
-    &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} 2>&1 | tee-object $file
+    &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file
     $sw.Stop()
 } else {
     $sw.Start()
-    &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"}
+    &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} $($args)
     $sw.Stop()
 }
 write-host "Total Build Time:" $sw.Elapsed.ToString()
