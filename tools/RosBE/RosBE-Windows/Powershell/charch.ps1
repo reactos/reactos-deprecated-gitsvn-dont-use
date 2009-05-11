@@ -29,8 +29,3 @@ if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_ARCH.ps1") {
 chdefgcc $ENV:ROS_ARCH target
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-#
-# Unload all used Vars.
-#
-$ARCH = $null

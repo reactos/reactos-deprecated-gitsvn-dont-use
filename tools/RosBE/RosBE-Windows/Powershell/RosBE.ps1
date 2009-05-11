@@ -41,8 +41,8 @@ $global:_ROSBE_LOGDIR = "$pwd\RosBE-Logs"
 $global:_ROSBE_OBJPATH = $null
 $global:_ROSBE_OUTPATH = $null
 $global:_ROSBE_HOST_MINGWPATH = "$_ROSBE_BASEDIR\i386"
-$global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\i386"
-$global:_ROSBE_ORIGINALPATH = "$ENV:PATH"
+$global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\$ENV:ROS_ARCH"
+$global:_ROSBE_ORIGINALPATH = "$_ROSBE_HOST_MINGWPATH\bin;$ENV:PATH"
 $global:_ROSBE_MINGWMAKE = "$_ROSBE_HOST_MINGWPATH\bin\mingw32-make.exe"
 
 # Get the number of CPUs in the system so we know how many jobs to execute.
@@ -144,7 +144,7 @@ LoadAliases
 
 & "$_ROSBE_BASEDIR\rosbe-gcc-env.ps1"
 
-clear
+clear-host
 "*******************************************************************************"
 "*                                                                             *"
 "*                        ReactOS Build Environment $_ROSBE_VERSION                      *"

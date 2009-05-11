@@ -63,9 +63,3 @@ if ($TOOLMODE -eq "target") {
     "ERROR: You specified wrong parameters."
     settitle
 }
-
-#
-# Unload all used Vars.
-#
-$TOOLPATH = $null
-$TOOLMODE = $null

@@ -30,8 +30,3 @@ if ($SOURCEDIR -eq "previous") {
 
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-#
-# Unload all used Vars.
-#
-$SOURCEDIR = $null

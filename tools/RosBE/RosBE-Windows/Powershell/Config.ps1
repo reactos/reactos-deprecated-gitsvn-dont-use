@@ -249,32 +249,4 @@ copy-item "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
-#
-# Unload all used Vars.
-#
-$YESNO = $null
-$BUILD_MP = $null
-$BUILD_MP_CH = $null
-$TUNE = $null
-$TUNE_CH = $null
-$SARCH_CH = $null
-$OARCH_CH = $null
-$OPTIMIZE_CH = $null
-$KDBG_CH = $null
-$DBG_CH = $null
-$GDB_CH = $null
-$NSWPAT_CH = $null
-$WINKD_CH = $null
-$ELF_CH = $null
-$SARCH = $null
-$OARCH = $null
-$OPTIMIZE = $null
-$KDBG = $null
-$DBG = $null
-$GDB = $null
-$NSWPAT = $null
-$WINKD = $null
-$ELF = $null
-$XML = $null
-
 settitle

@@ -89,7 +89,8 @@ if ($_ROSBE_SHOWTIME -eq 1) {
 
 if ($_ROSBE_WRITELOG -eq 1) {
     $sw.Start()
-    IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)" 2>&1 | tee-object -filepath "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_TARGET_GCCVERSION-$DATENAME-$TIMENAME.txt"
+    $file = "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_TARGET_GCCVERSION-$DATENAME-$TIMENAME.txt"
+    IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)" | tee-object $file
     $sw.Stop()
 } else {
     $sw.Start()
@@ -101,23 +102,3 @@ write-host "Total Build Time:" $sw.Elapsed.ToString()
 # Highlight the fact that building has ended.
 "$_ROSBE_BASEDIR\Tools\flash.exe"
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-#
-# Unload all used Vars.
-#
-$ENV:ROS_BUILDNOSTRIP = $null
-$ENV:ROS_LEAN_AND_MEAN = $null
-$ENV:CCACHE_DIR = $null
-$ENV:HOST_CC = $null
-$ENV:HOST_CPP = $null
-$ENV:TARGET_CC = $null
-$ENV:TARGET_CPP = $null
-$ENV:ROS_INTERMEDIATE = $null
-$ENV:ROS_OUTPUT = $null
-$ENV:ROS_TEMPORARY = $null
-$TIMERAW = $null
-$DATENAME = $null
-$TIMENAME = $null
-$CPUCOUNT = $null
-$sw = $null
-$_ROSBE_CCACHE = $null

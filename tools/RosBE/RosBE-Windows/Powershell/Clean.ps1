@@ -67,14 +67,6 @@ function rembin {
 
 function end {
     $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-    #
-    # Unload all used Vars.
-    #
-    $OBJCLEANPATH = $null
-    $OUTCLEANPATH = $null
-    $MAKEFILE = $null
-
     exit
 }
 

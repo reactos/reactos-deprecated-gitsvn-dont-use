@@ -32,6 +32,3 @@ if (Test-Path "$options") {
 }
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-$options = $null
-$cfgfile = $null

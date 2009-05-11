@@ -97,14 +97,3 @@ elseif ($args[0] -ne $null) {
 }
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-#
-# Unload all used Vars.
-#
-$OFFSVN = $null
-$ONSVN = $null
-$UP = $null
-$CL = $null
-$dir = dir
-$temparg = $null
-$_ROSBE_SSVN_JOB = $null

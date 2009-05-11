@@ -46,11 +46,3 @@ if ($baseaddr -lt $ADDRESS) {
 }
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
-
-#
-# Unload all used Vars.
-#
-$FILEPATH = $null
-$ADDRESS = $null
-$baseaddr = $null
-$relbase = $null

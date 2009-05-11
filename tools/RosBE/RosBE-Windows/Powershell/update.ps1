@@ -149,13 +149,4 @@ if ("$args" -eq "") {
     "Unknown parameter specified. Try 'help update'."
 }
 
-$arg1 = $null
-$arg2 = $null
-$_ROSBE_UPDFINISH = $null
-$_ROSBE_OPATH = $null
-$_ROSBE_UPDDATE = $null
-$_ROSBE_UPDATES = $null
-$_ROSBE_UPDDATE2 = $null
-$_ROSBE_MULTIUPD = $null
-$_ROSBE_STATCOUNT = $null
 EOC
