@@ -50,10 +50,10 @@ call "%_ROSBE_BASEDIR%\TimeDate.cmd"
 if "%1" == "multi" (
     shift
     set MAKE_JOBS=%_ROSBE_MAKEX_JOBS%
-    set TITLE_COMMAND=makex %2
+    set TITLE_COMMAND=makex %2%3%4%5%6%7%8%9 
 ) else (
     set MAKE_JOBS=1
-    set TITLE_COMMAND=make %1
+    set TITLE_COMMAND=make %*
 )
 
 title '%TITLE_COMMAND%' build started: %TIMERAW%   (%ROS_ARCH%)
@@ -66,9 +66,9 @@ if %_ROSBE_SHOWTIME% == 1 (
 )
 
 if %_ROSBE_WRITELOG% == 1 (
-    %BUILDTIME_COMMAND% "%_ROSBE_MINGWMAKE%" -j %MAKE_JOBS% %1 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_TARGET_GCCVERSION%-%datename%-%timename%.txt"
+    %BUILDTIME_COMMAND% "%_ROSBE_MINGWMAKE%" -j %MAKE_JOBS% %1 %2 %3 %4 %5 %6 %7 %8 %9 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_TARGET_GCCVERSION%-%datename%-%timename%.txt"
 ) else (
-    %BUILDTIME_COMMAND% "%_ROSBE_MINGWMAKE%" -j %MAKE_JOBS% %1
+    %BUILDTIME_COMMAND% "%_ROSBE_MINGWMAKE%" -j %MAKE_JOBS% %1 %2 %3 %4 %5 %6 %7 %8 %9
 )
 
 :EOC
