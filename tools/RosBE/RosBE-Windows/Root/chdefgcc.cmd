@@ -20,7 +20,7 @@ title Change the current MinGW/GCC Host/Target directory...
 :: Parse the command line arguments. Ask the user if certain parameters are missing.
 if "%1" == "" (
     set /p TOOLPATH="Please enter a MinGW/GCC directory (don't use quotes): "
-    
+
     if "!TOOLPATH!" == "" (
         echo ERROR: You must enter a MinGW/GCC directory.
         goto :EOC
@@ -31,7 +31,7 @@ if "%1" == "" (
 
 if "%2" == "" (
     set /p TOOLMODE="Please specify, if this will be the Target or Host GCC: "
-    
+
     if "!TOOLMODE!" == "" (
         echo ERROR: You must enter "target" or "host".
         goto :EOC

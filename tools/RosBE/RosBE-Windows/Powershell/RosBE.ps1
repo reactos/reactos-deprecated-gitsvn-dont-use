@@ -61,7 +61,7 @@ function global:Get-WebFile {
     $clnt = new-object System.Net.WebClient
     $clnt.DownloadFile($url,$file)
     $local:ErrorActionPreference = "Continue"
-} 
+}
 
 # Load the doskey macros and delete any macros for components
 # that are not actually present.

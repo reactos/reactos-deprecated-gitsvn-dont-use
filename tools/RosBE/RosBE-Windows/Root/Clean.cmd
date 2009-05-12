@@ -73,15 +73,15 @@ if exist "%MAKEFILE%" (
 
 if exist "%OBJCLEANPATH%\." (
     echo Cleaning ReactOS %ROS_ARCH% source directory...
-    
+
     if exist "%OBJCLEANPATH%\." (
         rd /s /q "%OBJCLEANPATH%" 1> NUL 2> NUL
     )
-    
+
     if exist "%OUTCLEANPATH%\." (
         rd /s /q "%OUTCLEANPATH%" 1> NUL 2> NUL
     )
-    
+
     echo Done cleaning ReactOS %ROS_ARCH% source directory.
 ) else (
     echo ERROR: There is no %ROS_ARCH% compiler output to clean.
@@ -92,7 +92,6 @@ if exist "%_ROSBE_ROSSOURCEDIR%\reactos\." (
 )
 
 goto :EOF
-
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%

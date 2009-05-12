@@ -25,13 +25,13 @@ if /i "%1" == "update" (
     title SVN Updating...
     echo This might take a while, so please be patient.
     echo.
-    
+
     if not "%2" == "" (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
     ) else (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" update
     )
-    
+
     goto :EOC
 )
 
@@ -39,9 +39,9 @@ if /i "%1" == "cleanup" (
     title SVN Cleaning...
     echo This might take a while, so please be patient.
     echo.
-    
+
     "%_ROSBE_BASEDIR%\Tools\svn.exe" cleanup
-    
+
     goto :EOC
 )
 
@@ -52,14 +52,14 @@ if /i "%1" == "create" (
         echo ERROR: Folder already contains a repository.
         goto :EOC
     )
-    
+
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/reactos .
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
-    
+
     goto :EOC
 )
 
@@ -69,17 +69,17 @@ if /i "%1" == "status" (
     title SVN Status
     echo This might take a while, so please be patient.
     echo.
-    
+
     for /f "usebackq tokens=2" %%i in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info | find "Revision:""`) do set OFFSVN=%%i
     for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
-    
+
     echo Local Revision: !OFFSVN!
     echo Online HEAD Revision: !ONSVN!
     echo.
 
     if !OFFSVN! lss !ONSVN! (
         echo Your tree is not up to date. Do you want to update it?
-        
+
         set /p UP="Please enter 'yes' or 'no': "
         if /i "!UP!"=="yes" "%_ROSBE_BASEDIR%\ssvn" update
         if /i "!UP!"=="y" "%_ROSBE_BASEDIR%\ssvn" update
@@ -88,7 +88,7 @@ if /i "%1" == "status" (
     if !OFFSVN! equ !ONSVN! (
         echo Your tree is up to date.
     )
-    
+
     goto :EOC
 )
 

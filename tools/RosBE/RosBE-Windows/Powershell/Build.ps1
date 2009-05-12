@@ -41,7 +41,7 @@ if ($_ROSBE_STRIP -ne $null) {
 if ($_ROSBE_OBJPATH -ne $null) {
     if (Test-Path "$_ROSBE_OBJPATH") {
         "WARNING: The Object-Path specified doesn't seem to exist. Creating..."
-    } 
+    }
     $ENV:ROS_INTERMEDIATE = "$_ROSBE_OBJPATH"
     $ENV:ROS_TEMPORARY = "$_ROSBE_OBJPATH"
 }
@@ -55,7 +55,7 @@ if ($_ROSBE_OUTPATH -ne $null) {
 if ($_ROSBE_USECCACHE -eq 1) {
     $_ROSBE_CCACHE = "ccache "
 } else {
-    $_ROSBE_CCACHE = $null
+    remove-variable _ROSBE_CCACHE
 }
     $ENV:HOST_CC = "$_ROSBE_CCACHE" + "gcc"
     $ENV:HOST_CPP = "$_ROSBE_CCACHE" + "g++"

@@ -28,7 +28,7 @@ if exist "%options%" (
     pushd "%_ROSBE_BASEDIR%"
     call "%options%"
     popd
-    
+
     if exist "%cfgfile%" (
         call "%cfgfile%"
     )

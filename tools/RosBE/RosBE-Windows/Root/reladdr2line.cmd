@@ -66,7 +66,7 @@ if %%i lss %ADDRESS% (
     "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%FILEPATH%" "%ADDRESS%"
 ) else (
     set /a BASEADDRESS+=0x%ADDRESS%
-    
+
     for /f %%i in ('""%_ROSBE_BASEDIR%\Tools\echoh.exe" !BASEADDRESS!"') do set RELBASE=%%i
     "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "!FILEPATH!" "!RELBASE!"
 )

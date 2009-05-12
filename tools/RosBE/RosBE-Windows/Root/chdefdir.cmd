@@ -21,7 +21,7 @@ title Change the current working ReactOS source directory...
 :: Parse the command line arguments.
 if "%1" == "" (
     set /p SOURCEDIR="Please enter a ReactOS source directory, or 'previous': "
-    
+
     if "!SOURCEDIR!" == "" (
         echo ERROR: You must enter a ReactOS source directory, or 'previous'.
         goto :EOC
@@ -37,7 +37,7 @@ if /i "%SOURCEDIR%" == "previous" (
         echo ERROR: The path specified doesn't seem to exist.
         goto :EOC
     )
-    
+
     pushd %SOURCEDIR%
 )
 

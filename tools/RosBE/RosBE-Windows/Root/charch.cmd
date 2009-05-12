@@ -19,7 +19,7 @@ title Change the Architecture to build for...
 :: Parse the command line arguments.
 if "%1" == "" (
     set /p ARCH="Please enter an Architecture you want to build ReactOS for: "
-    
+
     if "!ARCH!" == "" (
         echo ERROR: You must enter an Architecture.
         goto :EOC

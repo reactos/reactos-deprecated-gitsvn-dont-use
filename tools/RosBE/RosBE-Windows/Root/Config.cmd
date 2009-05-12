@@ -31,14 +31,14 @@ if /i "%1" == "delete" (
     ) else (
         echo Main Configuration File was not found in ReactOS Source Tree.
     )
-    
+
     if exist "%APPDATA%\RosBE\config.rbuild" (
         del "%APPDATA%\RosBE\config.rbuild"
         echo Working Configuration File was found and deleted.
     ) else (
         echo Working Configuration File was not found in ReactOS Source Tree.
     )
-    
+
     goto :NOK
 )
 

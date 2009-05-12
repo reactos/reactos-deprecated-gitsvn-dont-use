@@ -1,4 +1,21 @@
-*** May XXth, 2009 - RosBE 1.4.2 Released
+*** XXX XXth, 2009 - RosBE 1.X.X Released
+
+RosBE-Windows spring cleaning:
+- Rewrite most of the RosBE-Windows CMD scripts resulting in more compact and cleaner code. (Colin Finck)
+- Remove the Standard MinGW Build Environment. We don't need it any longer since we have a new GCC. (Colin Finck)
+- Get rid of the GCC 3.4.5-specific hacks: A properly compiled GCC 3.4.5 shouldn't need them. (Colin Finck)
+- Get rid of the experimental ARM and PPC compiler support: It simply won't work that way and we can readd that
+  later, when we have proper compilers. (Colin Finck)
+- Use setlocal wherever possible, so that we don't need to unload the used variables explicitly. (Colin Finck)
+- Make the coding style more consistent. (Colin Finck)
+- Commands like "make bootcd livecd install" work again. (Daniel Reimer)
+- Cleaned up the PS Scripts with an eye to Colin's cleaning process and removed the Variable nulling because its
+  not needed at all. All vars are only available in the actual Script. So the are killed anyway. (Daniel Reimer)
+- In PS Logs were generated, but without any warnings or errors in it. Additionally they were not even displayed
+  in the console too. This is now fixed. (Daniel Reimer)
+- "buildno.h not found" errors i PS were fixed now that I was able to see them :-P (Daniel Reimer)
+
+*** May 08th, 2009 - RosBE 1.4.2 Released
 
 - Add the environment variables ROSBE_HOST_CFLAGS, ROSBE_HOST_CXXFLAGS, ROSBE_TARGET_CFLAGS, ROSBE_TARGET_CXXFLAGS
   They contain existing pathes for the built-in include directories of the Host C/C++ and Target C/C++ compilers as compiler flags.
@@ -39,7 +56,7 @@ hungry ppl. After a loong live Powershell died and was replaced by PS 2.0."
 - Fixed: More logical names for the GCC Folders
 - Fixed: Drive not Found Errors (Colin Finck, d0g)
 - Fixed: clean when using _ROSBE_OBJPATH and/or _ROSBE_OUTPATH
-- Fixed: If the specified OBJ and OUT Paths are non existant, don't just abort. Create 
+- Fixed: If the specified OBJ and OUT Paths are non existant, don't just abort. Create
   them and continue.
 - Fixed: Options.exe configs the PS Port now too.
 - Updated: "clean MODULENAME" does the same like "make MODULENAME_clean now"
@@ -76,11 +93,11 @@ hungry ppl. After a loong live Powershell died and was replaced by PS 2.0."
 - Added: YASM 0.72, which supports 64 bit asm too. (Daniel Reimer)
 - Added: Update command (Daniel Reimer)
 - Added: nostrip function (Christoph von Wittich)
-- Added: RosBE Debugging Feature which disables the @echo off. just set 
+- Added: RosBE Debugging Feature which disables the @echo off. just set
          _ROSBE_DEBUG=1 (Daniel Reimer)
 - Added: Mingw-64 GCC 4.4.0 for the 64 bit Branch. It will be installed with a
          Optional installer (Daniel Reimer)
-- Fixed: Fixed the Header Mess in the different GCC Versions. Now the need for 
+- Fixed: Fixed the Header Mess in the different GCC Versions. Now the need for
          LIBRARY_PATH is no more and all Arches use THEIR Headers. (Samuel Serapion)
 - Fixed: Dependant on the Arch variable a crosscompiler will be used now. (Daniel Reimer)
 - Fixed: Clean only cleans the arch which is active right now. (Daniel Reimer)

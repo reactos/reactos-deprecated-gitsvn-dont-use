@@ -86,6 +86,6 @@ elseif ("$args" -eq "all") {
 elseif ("$args" -ne "") {
     $cl = "$args" + "_clean"
     make $cl
-    $cl = $null
+    remove-variable cl
     end
 }
