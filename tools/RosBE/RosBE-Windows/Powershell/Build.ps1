@@ -55,7 +55,7 @@ if ($_ROSBE_OUTPATH -ne $null) {
 if ($_ROSBE_USECCACHE -eq 1) {
     $_ROSBE_CCACHE = "ccache "
 } else {
-    remove-variable _ROSBE_CCACHE
+    $_ROSBE_CCACHE = $null
 }
     $ENV:HOST_CC = "$_ROSBE_CCACHE" + "gcc"
     $ENV:HOST_CPP = "$_ROSBE_CCACHE" + "g++"
