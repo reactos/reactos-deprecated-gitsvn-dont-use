@@ -14,7 +14,7 @@ function settitle {
 }
 
 function EOA {
-    IEX "&'$_ROSBE_BASEDIR\rosbe-gcc-env.cmd'"
+    IEX "&'$_ROSBE_BASEDIR\rosbe-gcc-env.ps1'"
     version
     settitle
 }
@@ -38,13 +38,15 @@ if ($TOOLMODE -eq $null) {
 }
 
 # Verify the entered values
+$local:ErrorActionPreference = "SilentlyContinue"
 if (Test-Path "$_ROSBE_BASEDIR\$TOOLPATH\.") {
+    $ENV:ROS_ARCH = "$TOOLPATH"
     $TOOLPATH = "$_ROSBE_BASEDIR\$TOOLPATH"
 } elseif (!(Test-Path "$TOOLPATH\.")) {
     "ERROR: The path specified doesn't seem to exist."
     settitle
 }
-
+$local:ErrorActionPreference = "Continue"
 if (!(Test-Path "$TOOLPATH\bin\*gcc.exe")) {
     "ERROR: No MinGW/GCC found in the specified path."
     settitle
@@ -52,6 +54,9 @@ if (!(Test-Path "$TOOLPATH\bin\*gcc.exe")) {
 
 # Set the values
 if ($TOOLMODE -eq "target") {
+    if ($ENV:ROS_ARCH -eq $null) {
+        $ENV:ROS_ARCH = Read-Host "Please specify the arch: "
+    }
     $_ROSBE_TARGET_MINGWPATH = $TOOLPATH
     "Target Location: $_ROSBE_TARGET_MINGWPATH"
     EOA

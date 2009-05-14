@@ -9,14 +9,15 @@
 (get-WmiObject Win32_OperatingSystem).caption
 
 # GCC
+$TARGETGCC = "$ENV:ROS_PREFIX" + "gcc"
 & $TARGETGCC -v 2> gcctvers.tmp
-(select-string -path .\gcctvers.tmp "gcc version") -replace ".*: (.+?)\b",'$1' | % { $str = $_ -replace '^.*14:',''}
-$str
-"gcc target - $_ROSBE_GCCTARGET"
+(select-string -path .\gcctvers.tmp "gcc version") -replace ".*:(.*?)\b",'$1'
+"gcc target - $_ROSBE_TARGET_GCCTARGET"
 remove-item gcctvers.tmp
 
 # LD
-& "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIXld" -v
+$run = "$_ROSBE_TARGET_MINGWPATH\bin\$ENV:ROS_PREFIX" + "ld.exe"
+& "$run" -v
 
 # NASM or YASM
 if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\nasm.exe") {

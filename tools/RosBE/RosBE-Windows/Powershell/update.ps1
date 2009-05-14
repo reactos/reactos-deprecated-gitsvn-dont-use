@@ -76,7 +76,7 @@ set-location $_ROSBE_BASEDIR
 # First check for a new Updater.
 rename-item update.ps1 update2.ps1
 get-webfile $_ROSBE_URL/update.ps1 $PWD\update.ps1
-if ((gi .\update.ps1).LastWriteTime -gt (gi .\update2.ps1).LastWriteTime) {
+if ((gi .\update.ps1).length -ne (gi .\update2.ps1).length) {
     clear-host
     "Updater got updated and needs to be restarted."
     remove-item update2.ps1 -force

@@ -86,7 +86,7 @@ if (Test-Path ".\config.rbuild") {
 }
 
 # Prepare XML Parser.
-[xml] $XML = get-content "$ENV:APPDATA\RosBE\config.rbuild"
+[xml]$xml = get-content "$ENV:APPDATA\RosBE\config.rbuild"
 
 # Start with reading settings from config.rbuild and let the user edit them.
 "Sub-Architecture to build for."
