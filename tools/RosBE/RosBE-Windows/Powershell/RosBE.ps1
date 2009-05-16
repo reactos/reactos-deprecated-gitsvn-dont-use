@@ -69,11 +69,6 @@ function LoadAliases {
     function global:BASEDIR {
         set-location "$_ROSBE_ROSSOURCEDIR"
     }
-
-    if (Test-Path "$_ROSBE_BASEDIR\Buildflags.ps1") {
-        set-alias BUILDFLAGS "$_ROSBE_BASEDIR\Buildflags.ps1" -scope Global
-    }
-
     if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
         set-alias CHDEFDIR "$_ROSBE_BASEDIR\chdefdir.ps1" -scope Global
     }

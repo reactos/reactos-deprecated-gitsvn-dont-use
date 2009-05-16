@@ -121,7 +121,6 @@ Section -BaseFiles SEC01
     File /r Root\LICENSE.txt
     ${If} $R4 = '6.1'
         File /r Components\Powershell\Build.ps1
-        File /r Components\Powershell\Buildflags.ps1
         File /r Components\Powershell\charch.ps1
         File /r Components\Powershell\chdefgcc.ps1
         File /r Components\Powershell\Clean.ps1
@@ -132,7 +131,6 @@ Section -BaseFiles SEC01
         WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     ${else}
         File /r Root\Build.cmd
-        File /r Root\Buildflags.cmd
         File /r Root\Build-Multi.cmd
         File /r Root\Build-Shared.cmd
         File /r Root\charch.cmd
@@ -301,7 +299,6 @@ SetShellVarContext current
         SetOutPath "$INSTDIR"
         SetOverwrite try
         File /r Root\Build.cmd
-        File /r Root\Buildflags.cmd
         File /r Root\Build-Multi.cmd
         File /r Root\Build-Shared.cmd
         File /r Root\chdefgcc.cmd
@@ -333,7 +330,6 @@ SetShellVarContext current
         SetOutPath "$INSTDIR"
         SetOverwrite try
         File /r Components\Powershell\Build.ps1
-        File /r Components\Powershell\Buildflags.ps1
         File /r Components\Powershell\RosBE.ps1
         File /r Components\Powershell\rosbe-gcc-env.ps1
         File /r Components\Powershell\Help.ps1
@@ -458,8 +454,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Build-Multi.cmd"
     Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
-    Delete /REBOOTOK "$INSTDIR\Buildflags.cmd"
-    Delete /REBOOTOK "$INSTDIR\Buildflags.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefgcc.cmd"

@@ -27,11 +27,6 @@ if "%1" == "" (
     echo                           the appropriate number.
     echo    basedir              - Switch back to the ReactOS source directory.
 
-    if exist "%_ROSBE_BASEDIR%\Buildflags.cmd" (
-        echo    buildflags [OPTIONS] - Change Buildflags for Rbuild, like Dependency
-        echo                           Checking, other build tool usage and more.
-    )
-
     if exist "%_ROSBE_BASEDIR%\charch.cmd" (
         echo    charch [OPTIONS]     - Change the Architecture to build ReactOS for
         echo                           for the current RosBE session.
@@ -133,32 +128,6 @@ if "%1" == "" (
 ) else if /i "%1" == "basedir" (
     echo Usage: basedir
     echo Switches back to the ReactOS source directory.
-) else if /i "%1" == "buildflags" (
-    if exist "%_ROSBE_BASEDIR%\buildflags.cmd" (
-        echo A tool to set rather hidden switches in rbuild. It can set Dependency checks or
-        echo can completely replace the build engine.
-        echo    verbose          - Be verbose.
-        echo    lowhddspace      - Clean as you go. Delete generated files as soon as they
-        echo                       are not needed anymore.
-        echo    noautodep        - Disable automatic dependencies.
-        echo    autodep          - Enable automatic dependencies.
-        echo    fullautodep      - Enable full dependencies.
-        echo    depforx          - Check only automatic dependencies for this module.
-        echo    noprecompheaders - Disable precompiled headers.
-        echo    makegendir       - Let make handle creation of install directories. Rbuild
-        echo                       will not generate the directories.
-        echo    proxymakefiles   - Generate proxy makefiles in source tree instead of the
-        echo                       output tree.
-        echo    nocompunits      - Disable compilation units.
-        echo    inputxml         - Input XML
-        echo    installpath      - This variable controls where to install output files to
-        echo                       when using 'make install'. N.B. Don't put a path
-        echo                       separator at the end. The variable defaults to
-        echo                       .\{ROS_CDOUTPUT}.
-        echo    buildengine      - The Build engine to be used. The variable defaults to
-        echo                       rbuild
-        echo    reset            - Set all back to default.
-    )
 ) else if /i "%1" == "charch" (
     if exist "%_ROSBE_BASEDIR%\charch.cmd" (
         echo Usage: charch [OPTIONS]

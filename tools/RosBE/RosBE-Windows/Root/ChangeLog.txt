@@ -14,7 +14,6 @@ RosBE-Windows spring cleaning:
 - In PS Logs were generated, but without any warnings or errors in it. Additionally they were not even displayed
   in the console too. This is now fixed. (Daniel Reimer)
 - "buildno.h not found" errors i PS were fixed now that I was able to see them :-P (Daniel Reimer)
-- Added tool to set Buildflags of RBuild, like Dependency checking etc. (Daniel Reimer)
 - Fixed chdefgcc, charch and chdefdir for PS and Batch. (Daniel Reimer)
 - Fixed version showing when using charch and chdefdir under PS. (Daniel Reimer)
 - Fixed endless loop in update under PS. (Daniel Reimer)
