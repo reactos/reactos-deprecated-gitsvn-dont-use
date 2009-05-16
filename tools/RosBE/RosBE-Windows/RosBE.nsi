@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "1.4.2"
+!define PRODUCT_VERSION "1.4.3"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -17,7 +17,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "1.4.2.0"
+VIAddVersionKey /LANG=1033 "FileVersion" "1.4.3.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
@@ -25,7 +25,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2009 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2009 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "1.4.2.0"
+VIProductVersion "1.4.3.0"
 
 CRCCheck force
 SetDatablockOptimize on
@@ -121,6 +121,7 @@ Section -BaseFiles SEC01
     File /r Root\LICENSE.txt
     ${If} $R4 = '6.1'
         File /r Components\Powershell\Build.ps1
+        File /r Components\Powershell\Buildflags.ps1
         File /r Components\Powershell\charch.ps1
         File /r Components\Powershell\chdefgcc.ps1
         File /r Components\Powershell\Clean.ps1
@@ -131,6 +132,7 @@ Section -BaseFiles SEC01
         WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     ${else}
         File /r Root\Build.cmd
+        File /r Root\Buildflags.cmd
         File /r Root\Build-Multi.cmd
         File /r Root\Build-Shared.cmd
         File /r Root\charch.cmd
@@ -299,6 +301,7 @@ SetShellVarContext current
         SetOutPath "$INSTDIR"
         SetOverwrite try
         File /r Root\Build.cmd
+        File /r Root\Buildflags.cmd
         File /r Root\Build-Multi.cmd
         File /r Root\Build-Shared.cmd
         File /r Root\chdefgcc.cmd
@@ -330,6 +333,7 @@ SetShellVarContext current
         SetOutPath "$INSTDIR"
         SetOverwrite try
         File /r Components\Powershell\Build.ps1
+        File /r Components\Powershell\Buildflags.ps1
         File /r Components\Powershell\RosBE.ps1
         File /r Components\Powershell\rosbe-gcc-env.ps1
         File /r Components\Powershell\Help.ps1
@@ -454,6 +458,8 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Build-Multi.cmd"
     Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
+    Delete /REBOOTOK "$INSTDIR\Buildflags.cmd"
+    Delete /REBOOTOK "$INSTDIR\Buildflags.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefgcc.cmd"

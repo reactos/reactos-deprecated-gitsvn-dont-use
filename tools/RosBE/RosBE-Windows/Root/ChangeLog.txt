@@ -1,4 +1,4 @@
-*** XXX XXth, 2009 - RosBE 1.X.X Released
+*** May XXth, 2009 - RosBE 1.4.3 Released
 
 RosBE-Windows spring cleaning:
 - Rewrite most of the RosBE-Windows CMD scripts resulting in more compact and cleaner code. (Colin Finck)
@@ -14,6 +14,12 @@ RosBE-Windows spring cleaning:
 - In PS Logs were generated, but without any warnings or errors in it. Additionally they were not even displayed
   in the console too. This is now fixed. (Daniel Reimer)
 - "buildno.h not found" errors i PS were fixed now that I was able to see them :-P (Daniel Reimer)
+- Added tool to set Buildflags of RBuild, like Dependency checking etc. (Daniel Reimer)
+- Fixed chdefgcc, charch and chdefdir for PS and Batch. (Daniel Reimer)
+- Fixed version showing when using charch and chdefdir under PS. (Daniel Reimer)
+- Fixed endless loop in update under PS. (Daniel Reimer)
+- Fixed variables to TARGET GCC under PS. (Daniel Reimer)
+
 
 *** May 08th, 2009 - RosBE 1.4.2 Released
 

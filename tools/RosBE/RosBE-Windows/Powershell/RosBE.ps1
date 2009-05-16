@@ -30,7 +30,7 @@ if ("$ENV:ROS_ARCH" -eq "") {
 
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
-$global:_ROSBE_VERSION = "1.4.2"
+$global:_ROSBE_VERSION = "1.4.3"
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $global:_ROSBE_SHOWTIME = 1
 $global:_ROSBE_WRITELOG = 1
@@ -69,6 +69,11 @@ function LoadAliases {
     function global:BASEDIR {
         set-location "$_ROSBE_ROSSOURCEDIR"
     }
+
+    if (Test-Path "$_ROSBE_BASEDIR\Buildflags.ps1") {
+        set-alias BUILDFLAGS "$_ROSBE_BASEDIR\Buildflags.ps1" -scope Global
+    }
+
     if (Test-Path "$_ROSBE_BASEDIR\chdefdir.ps1") {
         set-alias CHDEFDIR "$_ROSBE_BASEDIR\chdefdir.ps1" -scope Global
     }

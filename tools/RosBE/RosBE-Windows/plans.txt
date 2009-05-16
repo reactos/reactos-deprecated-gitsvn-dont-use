@@ -1,5 +1,3 @@
 - New icons for every arch we support
 - More Error catching
 - support y/n and yes/no
-- Make it possible to set different obj and out folders for different arches
-- support for different dep checks.

@@ -19,7 +19,10 @@ if ("$args" -eq "") {
     "                           number of CPU Cores in the system and uses -j with"
     "                           the appropriate number."
     "    basedir              - Switch back to the ReactOS source directory."
-
+    if (Test-Path "$_ROSBE_BASEDIR\Buildflags.ps1") {
+        "    buildflags [OPTIONS] - Change Buildflags for Rbuild, like Dependency"
+        "                           Checking, other build tool usage and more."
+    }
     if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
         "    charch [OPTIONS]     - Change the Architecture to build ReactOS for"
         "                           for the current RosBE session."
@@ -122,6 +125,32 @@ if ("$args" -eq "") {
 } elseif ("$args" -eq "basedir") {
     " Usage: basedir"
     " Switches back to the ReactOS source directory."
+} elseif ("$args" -eq "buildflags") {
+    if (Test-Path "$_ROSBE_BASEDIR\Buildflags.ps1") {
+        " A tool to set rather hidden switches in rbuild. It can set Dependency checks"
+        " or can completely replace the build engine."
+        "    verbose          - Be verbose."
+        "    lowhddspace      - Clean as you go. Delete generated files as soon as they"
+        "                       are not needed anymore."
+        "    noautodep        - Disable automatic dependencies."
+        "    autodep          - Enable automatic dependencies."
+        "    fullautodep      - Enable full dependencies."
+        "    depforx          - Check only automatic dependencies for this module."
+        "    noprecompheaders - Disable precompiled headers."
+        "    makegendir       - Let make handle creation of install directories. Rbuild"
+        "                       will not generate the directories."
+        "    proxymakefiles   - Generate proxy makefiles in source tree instead of the"
+        "                       output tree."
+        "    nocompunits      - Disable compilation units."
+        "    inputxml         - Input XML"
+        "    installpath      - This variable controls where to install output files to"
+        "                       when using 'make install'. N.B. Don't put a path"
+        "                       separator at the end. The variable defaults to"
+        "                       .\{ROS_CDOUTPUT}."
+        "    buildengine      - The Build engine to be used. The variable defaults to"
+        "                       rbuild (RBUILD_TARGET)"
+        "    reset            - Set all back to default."
+    }
 } elseif ("$args" -eq "charch") {
     if (Test-Path "$_ROSBE_BASEDIR\charch.ps1") {
         " Usage: charch [OPTIONS]"
