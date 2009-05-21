@@ -1,5 +1,9 @@
-*** May XXth, 2009 - RosBE 1.4.3 Released
+*** May 26th, 2009 - RosBE 1.4.3 Released
 
+- GCC is now optimized for Pentium3. Thus it uses MMX and SSE Optimizations (Colin Finck)
+- Bison fixed for REAL. (Daniel Reimer)
+- Updated SVN to 1.6.2 (Daniel Reimer)
+- Updated yasm to 0.8.0 (Daniel Reimer)
 RosBE-Windows spring cleaning:
 - Rewrite most of the RosBE-Windows CMD scripts resulting in more compact and cleaner code. (Colin Finck)
 - Remove the Standard MinGW Build Environment. We don't need it any longer since we have a new GCC. (Colin Finck)
