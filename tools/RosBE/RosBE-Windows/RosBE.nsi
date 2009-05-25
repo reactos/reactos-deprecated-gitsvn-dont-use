@@ -114,7 +114,6 @@ Section -BaseFiles SEC01
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
-    File /r Icons\mingw.ico
     File /r Icons\rosbe.ico
     File /r Root\README.pdf
     File /r Root\changelog.txt
@@ -482,7 +481,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\update.ps1"
     Delete /REBOOTOK "$INSTDIR\README.pdf"
     Delete /REBOOTOK "$INSTDIR\rosbe.ico"
-    Delete /REBOOTOK "$INSTDIR\mingw.ico"
     Delete /REBOOTOK "$INSTDIR\uninstall.ico"
     Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
