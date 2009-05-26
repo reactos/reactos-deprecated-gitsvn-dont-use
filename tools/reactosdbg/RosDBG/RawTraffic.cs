@@ -69,21 +69,24 @@ namespace RosDBG
 
         private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
         {
-            switch ((int)e.KeyChar)
+            if (mConnection.ConnectionMode != DebugConnection.Mode.ClosedMode)
             {
-                case 8: /* Backspace */
-                    if (InputLabel.Text.Length > 0)
-                        InputLabel.Text = InputLabel.Text.Substring(0, InputLabel.Text.Length -1);
-                    break;
-                case 13: /* Return */
-                    InputLabel.Text = "";
-                    break;
-                default:
-                    InputLabel.Text += e.KeyChar;
-                    break;
-            }
+                switch ((int)e.KeyChar)
+                {
+                    case 8: /* Backspace */
+                        if (InputLabel.Text.Length > 0)
+                            InputLabel.Text = InputLabel.Text.Substring(0, InputLabel.Text.Length - 1);
+                        break;
+                    case 13: /* Return */
+                        InputLabel.Text = "";
+                        break;
+                    default:
+                        InputLabel.Text += e.KeyChar;
+                        break;
+                }
 
-            mConnection.Debugger.Write("" + e.KeyChar);
+                mConnection.Debugger.Write("" + e.KeyChar);
+            }
         }
 
         private void RawTrafficText_MouseUp(object sender, MouseEventArgs e)
