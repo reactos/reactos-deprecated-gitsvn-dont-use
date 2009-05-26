@@ -292,6 +292,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy $(SolutionDir)dbghelptest\dbghelp.dll $(TargetDir)</PostBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)dbghelptest\dbghelp.dll" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>
