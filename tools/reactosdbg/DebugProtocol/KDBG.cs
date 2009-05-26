@@ -395,7 +395,8 @@ namespace KDBGProtocol
 
         public void GetThreads(ulong pid)
         {
-            QueueCommand(string.Format("thread list 0x{0:X8}", pid));
+            if (pid != 0)
+                QueueCommand(string.Format("thread list 0x{0:X8}", pid));
         }
 
         public void SetProcess(ulong pid)

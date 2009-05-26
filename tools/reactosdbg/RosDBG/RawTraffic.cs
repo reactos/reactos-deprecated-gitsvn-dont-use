@@ -40,6 +40,9 @@ namespace RosDBG
                 //TODO: skip backspace signs
             }
             RawTrafficText.AppendText(toAdd.ToString());
+            InputLabel.Location = RawTrafficText.GetPositionFromCharIndex(RawTrafficText.Text.Length -1);
+            InputLabel.Top += 2;
+            InputLabel.Left += 2;
         }
 
         void DebugRawTrafficEvent(object sender, DebugRawTrafficEventArgs args)
@@ -61,10 +64,25 @@ namespace RosDBG
         {
             InitializeComponent();
             this.Tag = "Raw Traffic";
+            InputLabel.Location = new Point(2, 2);
         }
 
         private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
         {
+            switch ((int)e.KeyChar)
+            {
+                case 8: /* Backspace */
+                    if (InputLabel.Text.Length > 0)
+                        InputLabel.Text = InputLabel.Text.Substring(0, InputLabel.Text.Length -1);
+                    break;
+                case 13: /* Return */
+                    InputLabel.Text = "";
+                    break;
+                default:
+                    InputLabel.Text += e.KeyChar;
+                    break;
+            }
+
             mConnection.Debugger.Write("" + e.KeyChar);
         }
 
