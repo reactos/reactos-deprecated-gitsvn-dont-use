@@ -356,6 +356,11 @@ namespace RosDBG
                 CopyEvent(this, new CopyEventArgs(WorkTabs.SelectedTab.Controls[0]));
         }
 
+        private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            mConnection.Close(true);
+        }
+
     }
 
     public class InteractiveInputEventArgs : EventArgs

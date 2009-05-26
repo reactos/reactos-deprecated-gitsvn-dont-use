@@ -114,19 +114,20 @@ namespace DebugProtocol
             set
             {
                 mConnectionMode = value;
-                if (DebugConnectionModeChangedEvent != null)
+                if ((DebugConnectionModeChangedEvent != null) && (!mFormClosing))
                     DebugConnectionModeChangedEvent(this, new DebugConnectionModeChangedEventArgs(value));
             }
         }
 
         bool mRunning = true;
+        bool mFormClosing = false;
         public bool Running
         {
             get { return mRunning; }
             set
             {
                 mRunning = value;
-                if (DebugRunningChangeEvent != null)
+                if ((DebugRunningChangeEvent != null) && (!mFormClosing))
                     DebugRunningChangeEvent(this, new DebugRunningChangeEventArgs(value));
             }
         }
@@ -320,6 +321,12 @@ namespace DebugProtocol
 
             if (args.Current)
                 mNewCurrentThread = args.Tid;
+        }
+
+        public void Close(bool FormClosing)
+        {
+            mFormClosing = FormClosing;
+            Close();
         }
 
         public void Close()
