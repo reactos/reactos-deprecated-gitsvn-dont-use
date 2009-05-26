@@ -73,8 +73,17 @@ namespace RosDBG
 
         private void PipeTargetSelect_Load(object sender, EventArgs e)
         {
+            int i = 0;
+
             DefaultRadioBtn.Text += " [" + defaultPipeName + "]";
-            cType.SelectedIndex = 0;
+
+            for (i = 0; i < cType.Items.Count -1; i++)
+            {
+                if (cType.Items[i].ToString().CompareTo(Settings.Mode) == 0)
+                    break;
+            }
+            
+            cType.SelectedIndex = i;
         }
     }
 }

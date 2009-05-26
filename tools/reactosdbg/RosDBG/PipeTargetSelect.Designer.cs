@@ -94,6 +94,7 @@
             // 
             // cType
             // 
+            this.cType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cType.FormattingEnabled = true;
             this.cType.Items.AddRange(new object[] {
             "Client",

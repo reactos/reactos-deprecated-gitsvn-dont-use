@@ -17,6 +17,7 @@ namespace RosDBG
         public class SettingsPropertyValues : ApplicationSettingsBase
         {
             private SerialConnSettings _serialconnsettings;
+            private PipeConnSettings _pipeconnsettings;
 
             /* Hack to work around a crash (bug in .net?) 
              * using a TypeConverter in a class which is derived from
@@ -37,6 +38,23 @@ namespace RosDBG
                 get { return this["Baudrate"].ToString(); }
                 set { this["Baudrate"] = value; }
             }
+
+            [UserScopedSetting, DefaultSettingValue(@"RosDbg")]
+            [Browsable(false)]
+            public string Pipe
+            {
+                get { return this["Pipe"].ToString(); }
+                set { this["Pipe"] = value; }
+            }
+
+            [UserScopedSetting, DefaultSettingValue(@"Client")]
+            [Browsable(false)]
+            public string Mode
+            {
+                get { return this["Mode"].ToString(); }
+                set { this["Mode"] = value; }
+            }
+
             /* end of hack */
 
             [CategoryAttribute("Directories"), DescriptionAttribute("Directory settings")]
@@ -56,18 +74,17 @@ namespace RosDBG
             }
 
             [CategoryAttribute("Connection"), DescriptionAttribute("Connection settings")]
-            [UserScopedSetting, DefaultSettingValue(@"RosDbg")]
-            public string Pipe
-            {
-                get { return this["Pipe"].ToString(); }
-                set { this["Pipe"] = value; }
-            }
- 
-            [CategoryAttribute("Connection"), DescriptionAttribute("Connection settings")]
             public SerialConnSettings Serial
             {
                 get { return new SerialConnSettings(Port, Baudrate, this); }
                 set { _serialconnsettings = value; }
+            }
+
+            [CategoryAttribute("Connection"), DescriptionAttribute("Connection settings")]
+            public PipeConnSettings NamedPipe
+            {
+                get { return new PipeConnSettings(Mode, Pipe, this); }
+                set { _pipeconnsettings = value; }
             }
 
             public SettingsPropertyValues()
@@ -94,6 +111,25 @@ namespace RosDBG
                 return new StandardValuesCollection((string[]) SerialPort.GetPortNames());
             }
         }
+
+        public class PipeConverter : StringConverter
+        {
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override System.ComponentModel.TypeConverter.StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(new string[] {"Client", "Server"} );
+            }
+        }
+
         #endregion
 
         [TypeConverterAttribute(typeof(ExpandableObjectConverter))]
@@ -129,11 +165,45 @@ namespace RosDBG
             }
         }
 
+        [TypeConverterAttribute(typeof(ExpandableObjectConverter))]
+        public class PipeConnSettings
+        {
+            private string _Pipe;
+            private string _Mode;
+            private SettingsPropertyValues _Parent;
+
+            public PipeConnSettings(string Mode, string Pipe, SettingsPropertyValues parent)
+            {
+                _Pipe = Pipe;
+                _Mode = Mode;
+                _Parent = parent;
+            }
+
+            public override string ToString()
+            {
+                return this._Mode + ";" + this._Pipe;
+            }
+
+            public string Pipe
+            {
+                get { return _Pipe; }
+                set { _Pipe = value; _Parent.Pipe = _Pipe; }
+            }
+
+            [TypeConverter(typeof(PipeConverter))]
+            public string Mode
+            {
+                get { return _Mode; }
+                set { _Mode = value; _Parent.Mode = _Mode; }
+            }
+        }
+
         static SettingsPropertyValues mProperties = new SettingsPropertyValues();
 
         public static string SourceDirectory { get { return mProperties.SourceDirectory; } }
         public static string OutputDirectory { get { return mProperties.OutputDirectory; } }
-        public static string Pipe { get { return mProperties.Pipe;  } }
+        public static string Mode { get { return mProperties.Mode;  } }
+        public static string Pipe { get { return mProperties.Pipe; } }
         public static string ComPort { get { return mProperties.Port; } }
         public static string Baudrate { get { return mProperties.Baudrate; } }
 
