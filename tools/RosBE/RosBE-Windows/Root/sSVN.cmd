@@ -25,14 +25,8 @@ if /i "%1" == "update" (
     title SVN Updating...
     echo This might take a while, so please be patient.
     echo.
-
-    if not "%2" == "" (
-        "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
-    ) else (
-        "%_ROSBE_BASEDIR%\Tools\svn.exe" update
-    )
-
-    goto :EOC
+    set _ROSBE_SSVN_JOB=update
+    goto :UP    
 )
 
 if /i "%1" == "cleanup" (
@@ -69,7 +63,15 @@ if /i "%1" == "status" (
     title SVN Status
     echo This might take a while, so please be patient.
     echo.
+    set _ROSBE_SSVN_JOB=status
+    goto :UP
+)
 
+if not "%1" == "" (
+    echo Unknown parameter specified. Try 'help ssvn'.
+)
+
+:UP
     for /f "usebackq tokens=2" %%i in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info | find "Revision:""`) do set OFFSVN=%%i
     for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
 
@@ -78,23 +80,37 @@ if /i "%1" == "status" (
     echo.
 
     if !OFFSVN! lss !ONSVN! (
-        echo Your tree is not up to date. Do you want to update it?
-
-        set /p UP="Please enter 'yes' or 'no': "
-        if /i "!UP!"=="yes" "%_ROSBE_BASEDIR%\ssvn" update
-        if /i "!UP!"=="y" "%_ROSBE_BASEDIR%\ssvn" update
+        if "!_ROSBE_SSVN_JOB!" == "status" (
+            echo Your tree is not up to date. Do you want to update it?
+            set /p UP="Please enter 'yes' or 'no': "
+            if /i "!UP!" == "yes" set _ROSBE_SSVN_JOB=update
+        )
+        if "!_ROSBE_SSVN_JOB!" == "update" (
+            if not "%2" == "" (
+                "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
+            ) else (
+                "%_ROSBE_BASEDIR%\Tools\svn.exe" update
+            )
+        )
+        echo Do you want to see the changelog?
+        set /p CL="Please enter 'yes' or 'no': "
+        if /i "!UP!"=="yes" (
+            call :WHILE
+        )
     )
-
     if !OFFSVN! equ !ONSVN! (
         echo Your tree is up to date.
     )
 
-    goto :EOC
-)
+goto EOC
 
-if not "%1" == "" (
-    echo Unknown parameter specified. Try 'help ssvn'.
-)
+:WHILE
+
+if "!OFFSVN!" GTR "!ONSVN!" GOTO :OUT
+"%_ROSBE_BASEDIR%\Tools\svn.exe" log -r !OFFSVN!
+set /A OFFSVN+=1
+GOTO :WHILE
+:OUT
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
