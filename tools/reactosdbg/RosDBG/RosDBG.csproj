@@ -27,6 +27,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <ApplicationIcon>app-rosdbg.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -63,10 +64,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackTrace.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Connect.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BackTrace.Designer.cs">
+    <Compile Include="Connect.Designer.cs">
+      <DependentUpon>Connect.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Dockable Objects\BackTrace.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dockable Objects\BackTrace.Designer.cs">
       <DependentUpon>BackTrace.cs</DependentUpon>
     </Compile>
     <Compile Include="DebugControlAttribute.cs">
@@ -85,10 +92,10 @@
     <Compile Include="IShell.cs" />
     <Compile Include="IUseDebugConnection.cs" />
     <Compile Include="IUseSymbols.cs" />
-    <Compile Include="Locals.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Dockable Objects\Locals.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Locals.Designer.cs">
+    <Compile Include="Dockable Objects\Locals.Designer.cs">
       <DependentUpon>Locals.cs</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.cs">
@@ -97,35 +104,32 @@
     <Compile Include="MainWindow.Designer.cs">
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="MemoryWindow.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Dockable Objects\MemoryWindow.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MemoryWindow.Designer.cs">
+    <Compile Include="Dockable Objects\MemoryWindow.Designer.cs">
       <DependentUpon>MemoryWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Module.cs" />
     <Compile Include="ModuleIndex.cs" />
-    <Compile Include="Modules.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Modules.Designer.cs">
-      <DependentUpon>Modules.cs</DependentUpon>
-    </Compile>
-    <Compile Include="PipeTargetSelect.cs">
+    <Compile Include="Dockable Objects\Modules.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PipeTargetSelect.Designer.cs">
-      <DependentUpon>PipeTargetSelect.cs</DependentUpon>
+    <Compile Include="Dockable Objects\Modules.Designer.cs">
+      <DependentUpon>Modules.cs</DependentUpon>
     </Compile>
-    <Compile Include="ProcThread.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Dockable Objects\ProcThread.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ProcThread.Designer.cs">
+    <Compile Include="Dockable Objects\ProcThread.Designer.cs">
       <DependentUpon>ProcThread.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="BackTrace.resx">
+    <EmbeddedResource Include="Connect.resx">
+      <DependentUpon>Connect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Dockable Objects\BackTrace.resx">
       <DependentUpon>BackTrace.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -133,27 +137,22 @@
       <DependentUpon>HostWindow.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Locals.resx">
+    <EmbeddedResource Include="Dockable Objects\Locals.resx">
       <DependentUpon>Locals.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="MemoryWindow.resx">
+    <EmbeddedResource Include="Dockable Objects\MemoryWindow.resx">
       <DependentUpon>MemoryWindow.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Modules.resx">
+    <EmbeddedResource Include="Dockable Objects\Modules.resx">
       <DependentUpon>Modules.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="PipeTargetSelect.resx">
-      <DependentUpon>PipeTargetSelect.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ProcThread.resx">
+    <EmbeddedResource Include="Dockable Objects\ProcThread.resx">
       <DependentUpon>ProcThread.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -162,15 +161,15 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="RawTraffic.resx">
+    <EmbeddedResource Include="Dockable Objects\RawTraffic.resx">
       <DependentUpon>RawTraffic.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ReactOSWeb.resx">
+    <EmbeddedResource Include="Dockable Objects\ReactOSWeb.resx">
       <DependentUpon>ReactOSWeb.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="RegisterView.resx">
+    <EmbeddedResource Include="Dockable Objects\RegisterView.resx">
       <DependentUpon>RegisterView.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -178,16 +177,8 @@
       <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="SerialTargetSelect.resx">
-      <DependentUpon>SerialTargetSelect.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SourceView.resx">
+    <EmbeddedResource Include="Dockable Objects\SourceView.resx">
       <DependentUpon>SourceView.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TCPTargetSelect.resx">
-      <DependentUpon>TCPTargetSelect.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -204,22 +195,22 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="RawTraffic.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Dockable Objects\RawTraffic.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RawTraffic.Designer.cs">
+    <Compile Include="Dockable Objects\RawTraffic.Designer.cs">
       <DependentUpon>RawTraffic.cs</DependentUpon>
     </Compile>
-    <Compile Include="ReactOSWeb.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Dockable Objects\ReactOSWeb.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ReactOSWeb.Designer.cs">
+    <Compile Include="Dockable Objects\ReactOSWeb.Designer.cs">
       <DependentUpon>ReactOSWeb.cs</DependentUpon>
     </Compile>
-    <Compile Include="RegisterView.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="Dockable Objects\RegisterView.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="RegisterView.Designer.cs">
+    <Compile Include="Dockable Objects\RegisterView.Designer.cs">
       <DependentUpon>RegisterView.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs">
@@ -228,23 +219,11 @@
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
-    <Compile Include="SerialTargetSelect.cs">
+    <Compile Include="Dockable Objects\SourceView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SerialTargetSelect.Designer.cs">
-      <DependentUpon>SerialTargetSelect.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SourceView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="SourceView.Designer.cs">
+    <Compile Include="Dockable Objects\SourceView.Designer.cs">
       <DependentUpon>SourceView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="TCPTargetSelect.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TCPTargetSelect.Designer.cs">
-      <DependentUpon>TCPTargetSelect.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -282,6 +261,13 @@
       <Project>{F943218A-0A5E-436E-A7A4-475F37F45FA8}</Project>
       <Name>Pipe</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WinFormsUI\WinFormsUI.csproj">
+      <Project>{C75532C4-765B-418E-B09B-46D36B2ABDB1}</Project>
+      <Name>WinFormsUI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="app-rosdbg.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
