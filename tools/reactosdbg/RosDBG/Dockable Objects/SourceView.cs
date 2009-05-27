@@ -96,6 +96,7 @@ namespace RosDBG
         private void SourceCode_SelectionChanged(object sender, EventArgs e)
         {
             btnCopy.Enabled = (SourceCode.SelectionLength > 0);
+            copyToolStripMenuItem.Enabled = btnCopy.Enabled;
 
           /*  if (CanCopyChangedEvent != null)
                 CanCopyChangedEvent(this, new CanCopyChangedEventArgs(btnCopy.Enabled)); */
@@ -108,7 +109,8 @@ namespace RosDBG
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(SourceCode.SelectedText);
+            if (SourceCode.SelectionLength != 0)
+                Clipboard.SetText(SourceCode.SelectedText);
         }
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)

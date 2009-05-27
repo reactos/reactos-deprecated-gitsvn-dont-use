@@ -50,7 +50,7 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 24);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -61,7 +61,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.SourceCode);
-            this.splitContainer1.Size = new System.Drawing.Size(481, 272);
+            this.splitContainer1.Size = new System.Drawing.Size(481, 248);
             this.splitContainer1.SplitterDistance = 25;
             this.splitContainer1.TabIndex = 2;
             // 
@@ -103,7 +103,7 @@
             this.SourceCode.Location = new System.Drawing.Point(0, 0);
             this.SourceCode.Name = "SourceCode";
             this.SourceCode.ReadOnly = true;
-            this.SourceCode.Size = new System.Drawing.Size(481, 243);
+            this.SourceCode.Size = new System.Drawing.Size(481, 219);
             this.SourceCode.TabIndex = 3;
             this.SourceCode.Text = "";
             this.SourceCode.SelectionChanged += new System.EventHandler(this.SourceCode_SelectionChanged);
@@ -133,6 +133,7 @@
             // 
             // copyToolStripMenuItem
             // 
+            this.copyToolStripMenuItem.Enabled = false;
             this.copyToolStripMenuItem.Image = global::RosDBG.Properties.Resources.copyToolStripMenuItem_Image;
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
