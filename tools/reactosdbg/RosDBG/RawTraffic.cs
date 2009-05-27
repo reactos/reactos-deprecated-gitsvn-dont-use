@@ -69,7 +69,7 @@ namespace RosDBG
 
         private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (mConnection.ConnectionMode != DebugConnection.Mode.ClosedMode)
+            if ((mConnection.ConnectionMode != DebugConnection.Mode.ClosedMode) && (!mConnection.Running))
             {
                 switch ((int)e.KeyChar)
                 {
@@ -78,6 +78,8 @@ namespace RosDBG
                             InputLabel.Text = InputLabel.Text.Substring(0, InputLabel.Text.Length - 1);
                         break;
                     case 13: /* Return */
+                        if (InputLabel.Text.ToLower().CompareTo("cont") == 0)
+                            mConnection.Running = true; 
                         InputLabel.Text = "";
                         break;
                     default:

@@ -88,6 +88,14 @@ namespace RosDBG
             RunStatus.Text = "ConnectionMode: " + mConnectionMode + " - Running: " + mRunning + " - Source Location: " + mCurrentFile + ":" + mCurrentLine;
         }
 
+        void UpdateDebuggerMenu()
+        {
+            breakToolStripMenuItem.Enabled = mRunning;
+            nextToolStripMenuItem.Enabled = !mRunning;
+            stepToolStripMenuItem.Enabled = !mRunning;
+            continueToolStripMenuItem.Enabled = !mRunning;
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
@@ -121,6 +129,7 @@ namespace RosDBG
         {
             mRunning = args.Running;
             Invoke(Delegate.CreateDelegate(typeof(NoParamsDelegate), this, "ComposeTitleString"));
+            Invoke(Delegate.CreateDelegate(typeof(NoParamsDelegate), this, "UpdateDebuggerMenu"));
         }
 
         void DebugConnectionModeChangedEvent(object sender, DebugConnectionModeChangedEventArgs args)
