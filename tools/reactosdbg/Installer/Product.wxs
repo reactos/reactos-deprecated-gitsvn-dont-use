@@ -10,10 +10,9 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLLOCATION" Name="ReactOS Remote Debugger">
           <Component Id ="ProgramFiles" Guid ="326981F4-EF71-49fc-BE0C-9433F674F059">
-
-            
             <File Id="dbghelp.dll" Name="dbghelp.dll" Source="$(var.SolutionDir)dbghelptest\dbghelp.dll" DiskId="1"/>
             <File Id="$(var.DbgHelp.TargetFileName)" Name="$(var.DbgHelp.TargetFileName)" Source="$(var.DbgHelp.TargetPath)" DiskId="1"/>
+            <File Id="$(var.WinFormsUI.TargetFileName)" Name="$(var.WinFormsUI.TargetFileName)" Source="$(var.WinFormsUI.TargetPath)" DiskId="1"/>
             <File Id="$(var.Pipe.TargetFileName)" Name="$(var.Pipe.TargetFileName)" Source="$(var.Pipe.TargetPath)" DiskId="1"/>
             <File Id="$(var.DebugProtocol.TargetFileName)" Name="$(var.DebugProtocol.TargetFileName)" Source="$(var.DebugProtocol.TargetPath)" DiskId="1"/>
             <File Id="$(var.RosDBG.TargetFileName)" Name="$(var.RosDBG.TargetFileName)" Source="$(var.RosDBG.TargetPath)" DiskId="1" KeyPath="yes">

@@ -43,6 +43,11 @@
       <Project>{fb776bfe-d2c2-465e-b713-6ad82cae1a39}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <ProjectReference Include="..\WinFormsUI\WinFormsUI.csproj">
+      <Name>WinFormsUI</Name>
+      <Project>{c75532c4-765b-418e-b09b-46d36b2abdb1}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixNetFxExtension">
