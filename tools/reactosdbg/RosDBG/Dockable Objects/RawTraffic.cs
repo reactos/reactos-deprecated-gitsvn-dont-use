@@ -98,5 +98,15 @@ namespace RosDBG
                 CanCopyChangedEvent(this, new CanCopyChangedEventArgs(RawTrafficText.SelectionLength != 0)); */
         }
 
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(RawTrafficText.SelectedText);
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RawTrafficText.SelectAll(); 
+        }
+
     }
 }

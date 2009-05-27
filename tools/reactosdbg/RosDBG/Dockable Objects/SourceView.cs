@@ -90,7 +90,7 @@ namespace RosDBG
       /*  void CopyEvent(object sender, CopyEventArgs args)
         {
             if (args.Obj == this)  
-                Clipboard.SetText(SourceCode.SelectedText);  
+                  
         }
         */
         private void SourceCode_SelectionChanged(object sender, EventArgs e)
@@ -104,6 +104,16 @@ namespace RosDBG
         private void btnCopy_Click(object sender, EventArgs e)
         {
             //CopyEvent(this, new CopyEventArgs(this));
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(SourceCode.SelectedText);
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SourceCode.SelectAll();  
         }
 
     }

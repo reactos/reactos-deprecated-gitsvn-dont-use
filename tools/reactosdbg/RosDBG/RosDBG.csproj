@@ -268,6 +268,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-rosdbg.ico" />
+    <None Include="res\copyToolStripMenuItem.Image.png" />
     <Content Include="res\emblem-system.ico" />
     <Content Include="res\internet-web-browser.ico" />
     <Content Include="res\utilities-terminal.ico" />

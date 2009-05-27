@@ -62,7 +62,7 @@ namespace RosDBG
         void ComposeTitleString()
         {
             FocusAddress(mCurrentEip);
-            statusStrip.Text = "ConnectionMode: " + mConnectionMode + " - Running: " + mRunning + " - Source Location: " + mCurrentFile + ":" + mCurrentLine;
+            toolStripStatusLabel.Text = "ConnectionMode: " + mConnectionMode + " - Running: " + mRunning + " - Source Location: " + mCurrentFile + ":" + mCurrentLine;
         }
 
         void DebugModuleChangedEvent(object sender, DebugModuleChangedEventArgs args)
@@ -314,6 +314,21 @@ namespace RosDBG
         {
             ReactOSWeb web = new ReactOSWeb();
             web.Show(dockPanel); 
+        }
+
+        private void registerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_RegView.Show(dockPanel, DockState.DockRight);
+        }
+
+        private void localsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_Locals.Show(dockPanel, DockState.DockRight);
+        }
+
+        private void backtraceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_BackTrace.Show(dockPanel, DockState.DockBottom);
         }
 
     }
