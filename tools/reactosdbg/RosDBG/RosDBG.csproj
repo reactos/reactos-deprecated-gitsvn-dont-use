@@ -268,6 +268,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-rosdbg.ico" />
+    <Content Include="res\emblem-system.ico" />
+    <Content Include="res\internet-web-browser.ico" />
+    <Content Include="res\utilities-terminal.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
