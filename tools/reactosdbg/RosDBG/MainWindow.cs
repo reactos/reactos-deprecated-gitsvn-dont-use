@@ -108,7 +108,6 @@ namespace RosDBG
             mSymbolContext.ReactosOutputPath = Settings.OutputDirectory;
         }
 
-
         public void RegisterControl(Control ctrl)
         {
             IUseDebugConnection usedbg = ctrl as IUseDebugConnection;
@@ -177,10 +176,20 @@ namespace RosDBG
 
         void UpdateDebuggerMenu()
         {
-            breakToolStripMenuItem.Enabled = mRunning;
-            nextToolStripMenuItem.Enabled = !mRunning;
-            stepToolStripMenuItem.Enabled = !mRunning;
-            continueToolStripMenuItem.Enabled = !mRunning;
+            if (mConnection.ConnectionMode == DebugConnection.Mode.ClosedMode)
+            {
+                breakToolStripMenuItem.Enabled = false;
+                nextToolStripMenuItem.Enabled = false;
+                stepToolStripMenuItem.Enabled = false;
+                continueToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                breakToolStripMenuItem.Enabled = mRunning;
+                nextToolStripMenuItem.Enabled = !mRunning;
+                stepToolStripMenuItem.Enabled = !mRunning;
+                continueToolStripMenuItem.Enabled = !mRunning;
+            }
         }
 
         public void FocusAddress(ulong eipToFocus)
@@ -267,22 +276,32 @@ namespace RosDBG
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Connect newConnection = new Connect();
-            if (newConnection.ShowDialog() == DialogResult.OK)
+            if (mConnection.ConnectionMode == DebugConnection.Mode.ClosedMode)
+            {
+                Connect newConnection = new Connect();
+                if (newConnection.ShowDialog() == DialogResult.OK)
+                {
+                    mConnection.Close();
+                    switch (newConnection.Type)
+                    {
+                        case Connect.ConnectionType.Serial:
+                            mConnection.StartSerial(newConnection.ComPort, newConnection.Baudrate);
+                            break;
+                        case Connect.ConnectionType.Pipe:
+                            mConnection.StartPipe(newConnection.PipeName, newConnection.PipeMode);
+                            break;
+                        case Connect.ConnectionType.Socket:
+                            mConnection.StartTCP(newConnection.Host, newConnection.Port);
+                            break;
+                    }
+                }
+                connectToolStripMenuItem.Text = "&Disconect";
+            }
+            else
             {
                 mConnection.Close();
-                switch (newConnection.Type)
-                {
-                    case Connect.ConnectionType.Serial:
-                        mConnection.StartSerial(newConnection.ComPort, newConnection.Baudrate);
-                        break;
-                    case Connect.ConnectionType.Pipe:
-                        mConnection.StartPipe(newConnection.PipeName, newConnection.PipeMode);
-                        break;
-                    case Connect.ConnectionType.Socket:
-                        mConnection.StartTCP(newConnection.Host, newConnection.Port);
-                        break;
-                }
+                UpdateDebuggerMenu();
+                connectToolStripMenuItem.Text = "&Connect";
             }
         }
 
