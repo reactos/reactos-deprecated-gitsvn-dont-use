@@ -260,6 +260,8 @@ namespace RosDBG
         public static string Pipe { get { return mProperties.Pipe; } }
         public static string ComPort { get { return mProperties.Port; } }
         public static string Baudrate { get { return mProperties.Baudrate; } }
+        public static string AppLogging { get { return mProperties.AppLogging; } }
+        public static string AppLogFile { get { return mProperties.AppLogFile; } }
         public static Connect.ConnectionType SelectedConnType { 
             get { return mProperties.SelectedConnType; }
             set {  mProperties.SelectedConnType = value; }

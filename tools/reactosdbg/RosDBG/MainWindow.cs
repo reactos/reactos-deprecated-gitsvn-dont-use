@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Reflection;
+using System.Diagnostics;
 using WeifenLuo.WinFormsUI.Docking;
 using AbstractPipe;
 using DebugProtocol;
@@ -43,6 +44,29 @@ namespace RosDBG
         public MainWindow()
         {
             InitializeComponent();
+
+            // Setup the logger
+            try
+            {
+                if (Convert.ToBoolean(Settings.AppLogging))
+                {
+                    File.Delete(Settings.AppLogFile);
+                    FileStream traceLogFile = new FileStream(Settings.AppLogFile, FileMode.OpenOrCreate);
+                    Trace.Listeners.Add(new TextWriterTraceListener(traceLogFile));
+                    Trace.AutoFlush = true;
+                }
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show(String.Format("Logging: {0} does not exist.\n" +
+                                              "Please use the settings dialog to correct this",
+                                              Settings.AppLogFile));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(String.Format("Failed to setup logging. Unexpected error:\n {0}",
+                                              ex.Message));
+            }
 
             mSymbolContext = new SymbolContext();
 
