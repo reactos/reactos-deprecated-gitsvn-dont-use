@@ -339,7 +339,13 @@ namespace RosDBG
                 ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).GetDocumentName());
         }
 
-        private void dockPanel_ActiveContentChanged(object sender, EventArgs e)
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutDlg about = new AboutDlg();
+            about.ShowDialog(this); 
+        }
+
+        private void dockPanel_ActiveDocumentChanged(object sender, EventArgs e)
         {
             ToolWindow Wnd = (ToolWindow)dockPanel.ActiveDocument.DockHandler.Form;
 
@@ -348,12 +354,6 @@ namespace RosDBG
             saveAsToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.SaveAs);
             printToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
             printToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
-        }
-
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            AboutDlg about = new AboutDlg();
-            about.ShowDialog(this); 
         }
 
     }

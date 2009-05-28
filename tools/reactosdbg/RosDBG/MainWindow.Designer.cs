@@ -214,14 +214,14 @@
             // connectToolStripMenuItem
             // 
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.connectToolStripMenuItem.Text = "C&onnect";
             this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(120, 6);
             // 
             // continueToolStripMenuItem
             // 
@@ -229,7 +229,7 @@
             this.continueToolStripMenuItem.Image = global::RosDBG.Properties.Resources.Run;
             this.continueToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Fuchsia;
             this.continueToolStripMenuItem.Name = "continueToolStripMenuItem";
-            this.continueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.continueToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.continueToolStripMenuItem.Text = "&Continue";
             this.continueToolStripMenuItem.Click += new System.EventHandler(this.continueToolStripMenuItem_Click);
             // 
@@ -237,7 +237,7 @@
             // 
             this.nextToolStripMenuItem.Enabled = false;
             this.nextToolStripMenuItem.Name = "nextToolStripMenuItem";
-            this.nextToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.nextToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.nextToolStripMenuItem.Text = "&Next";
             this.nextToolStripMenuItem.Click += new System.EventHandler(this.nextToolStripMenuItem_Click);
             // 
@@ -245,14 +245,14 @@
             // 
             this.stepToolStripMenuItem.Enabled = false;
             this.stepToolStripMenuItem.Name = "stepToolStripMenuItem";
-            this.stepToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.stepToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.stepToolStripMenuItem.Text = "&Step";
             this.stepToolStripMenuItem.Click += new System.EventHandler(this.stepToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(120, 6);
             this.toolStripMenuItem1.Visible = false;
             // 
             // breakToolStripMenuItem
@@ -261,7 +261,7 @@
             this.breakToolStripMenuItem.Image = global::RosDBG.Properties.Resources.Pause;
             this.breakToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Fuchsia;
             this.breakToolStripMenuItem.Name = "breakToolStripMenuItem";
-            this.breakToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.breakToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.breakToolStripMenuItem.Text = "&Break";
             this.breakToolStripMenuItem.Visible = false;
             this.breakToolStripMenuItem.Click += new System.EventHandler(this.breakToolStripMenuItem_Click);
@@ -574,7 +574,7 @@
             dockPanelSkin1.DockPaneStripSkin = dockPaneStripSkin1;
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 4;
-            this.dockPanel.ActiveContentChanged += new System.EventHandler(this.dockPanel_ActiveContentChanged);
+            this.dockPanel.ActiveDocumentChanged += new System.EventHandler(this.dockPanel_ActiveDocumentChanged);
             // 
             // MainWindow
             // 
