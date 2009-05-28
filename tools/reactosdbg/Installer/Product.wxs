@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="c10bd463-0752-4b27-82ab-fc852bb11ee3" Name="ReactOS Remote Debugger" Language="1033" Version="1.0.0.0" Manufacturer="ReactOS Team" UpgradeCode="ea120514-a7ac-44c9-b68f-819bb15d22bd">
+  <?include version.wxs ?>
+  <Product Id="*" Name="ReactOS Remote Debugger" Language="1033" Version="$(var.version)" Manufacturer="ReactOS Team" UpgradeCode="ea120514-a7ac-44c9-b68f-819bb15d22bd">
     <Package InstallerVersion="200" Compressed="yes" />
 
     <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
-      
+
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLLOCATION" Name="ReactOS Remote Debugger">
           <Component Id ="ProgramFiles" Guid ="326981F4-EF71-49fc-BE0C-9433F674F059">
@@ -44,6 +45,19 @@
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
     <UIRef Id="WixUI_Common" />
     <UIRef Id="WixUI_ErrorProgressText" />
+
+    <Property Id="PREVIOUSVERSIONSINSTALLED" Secure="yes" />
+    <Property Id="ALLUSERS" Value="1" />
+    <Upgrade Id="ea120514-a7ac-44c9-b68f-819bb15d22bd">
+      <UpgradeVersion Property='PREVIOUSVERSIONSINSTALLED' OnlyDetect="no" IncludeMinimum='yes' Minimum='0.0.0' IncludeMaximum='no' Maximum='$(var.version)' />
+      <UpgradeVersion Minimum="$(var.version)" IncludeMinimum="no" OnlyDetect="yes" Language="1033" Property="NEWERPRODUCTFOUND" />
+    </Upgrade>
+    <InstallExecuteSequence>
+      <Custom Action="PreventDowngrading" After="FindRelatedProducts">NEWERPRODUCTFOUND AND NOT Installed</Custom>
+      <RemoveExistingProducts Before='InstallInitialize' />
+    </InstallExecuteSequence>
+    <CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
+
 
     <UI Id="WixUI_InstallDir">
       <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />

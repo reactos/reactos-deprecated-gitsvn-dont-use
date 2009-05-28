@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Reflection; 
 
 namespace RosDBG
 {
@@ -19,6 +20,11 @@ namespace RosDBG
         private void btnOK_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void AboutDlg_Load(object sender, EventArgs e)
+        {
+            versionLabel.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

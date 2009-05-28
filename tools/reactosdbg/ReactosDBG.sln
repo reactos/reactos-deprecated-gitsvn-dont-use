@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosDBG", "RosDBG\RosDBG.csproj", "{FB776BFE-D2C2-465E-B713-6AD82CAE1A39}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C} = {D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugProtocol", "DebugProtocol\DebugProtocol.csproj", "{76A02C1D-4B11-4D43-966E-E5C053870D65}"
 EndProject
@@ -10,8 +13,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbgHelp", "DbgHelp\DbgHelp.csproj", "{3442437A-CB9C-4C73-B35B-3F6E4F60F3B2}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer", "Installer\Installer.wixproj", "{B2C4FEDE-C383-49A2-B871-D17DA238BB47}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C} = {D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsUI", "WinFormsUI\WinFormsUI.csproj", "{C75532C4-765B-418E-B09B-46D36B2ABDB1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "buildhelper", "buildhelper\buildhelper.csproj", "{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +96,16 @@ Global
 		{C75532C4-765B-418E-B09B-46D36B2ABDB1}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{C75532C4-765B-418E-B09B-46D36B2ABDB1}.Release|x86.ActiveCfg = Release|x86
 		{C75532C4-765B-418E-B09B-46D36B2ABDB1}.Release|x86.Build.0 = Release|x86
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

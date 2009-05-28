@@ -66,4 +66,8 @@
 	<Target Name="AfterBuild">
 	</Target>
 	-->
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)buildhelper" "$(SolutionDir)temp.exe" "$(ProjectDir)version.wxs"
+del "$(SolutionDir)temp.exe"</PreBuildEvent>
+  </PropertyGroup>
 </Project>
