@@ -46,27 +46,9 @@ namespace RosDBG
             InitializeComponent();
 
             // Setup the logger
-            try
-            {
-                if (Convert.ToBoolean(Settings.AppLogging))
-                {
-                    File.Delete(Settings.AppLogFile);
-                    FileStream traceLogFile = new FileStream(Settings.AppLogFile, FileMode.OpenOrCreate);
-                    Trace.Listeners.Add(new TextWriterTraceListener(traceLogFile));
-                    Trace.AutoFlush = true;
-                }
-            }
-            catch (DirectoryNotFoundException)
-            {
-                MessageBox.Show(String.Format("Logging: {0} does not exist.\n" +
-                                              "Please use the settings dialog to correct this",
-                                              Settings.AppLogFile));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(String.Format("Failed to setup logging. Unexpected error:\n {0}",
-                                              ex.Message));
-            }
+            RosDiagnostics.SetupLogger();
+
+            RosDiagnostics.DebugTrace(RosDiagnostics.TraceType.Info, "Initialising application");
 
             mSymbolContext = new SymbolContext();
 
@@ -177,6 +159,7 @@ namespace RosDBG
 
         private void MainWindowMDI_FormClosing(object sender, FormClosingEventArgs e)
         {
+            RosDiagnostics.DebugTrace(RosDiagnostics.TraceType.Info, "Closing application");
             mConnection.Close(true);
         }
 
@@ -371,7 +354,7 @@ namespace RosDBG
 
         private void dockPanel_ActiveDocumentChanged(object sender, EventArgs e)
         {
-            if ((dockPanel != null) && (dockPanel.ActiveDocument != null))
+            try
             {
                 ToolWindow Wnd = (ToolWindow)dockPanel.ActiveDocument.DockHandler.Form;
 
@@ -380,6 +363,14 @@ namespace RosDBG
                 saveAsToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.SaveAs);
                 printToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
                 printToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
+            }
+            catch (NullReferenceException ex)
+            {
+                RosDiagnostics.DebugTrace(RosDiagnostics.TraceType.Exception, "Null reference : " + ex.Message);
+            }
+            catch (Exception)
+            {
+                RosDiagnostics.DebugTrace(RosDiagnostics.TraceType.Exception, "Unexpected error");
             }
         }
 

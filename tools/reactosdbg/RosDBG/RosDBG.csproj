@@ -97,6 +97,7 @@
     <Compile Include="Connect.Designer.cs">
       <DependentUpon>Connect.cs</DependentUpon>
     </Compile>
+    <Compile Include="Diagnostics.cs" />
     <Compile Include="Dockable Objects\BackTrace.cs">
       <SubType>Form</SubType>
     </Compile>
