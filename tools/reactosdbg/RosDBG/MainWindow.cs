@@ -276,8 +276,8 @@ namespace RosDBG
                             mConnection.StartTCP(newConnection.Host, newConnection.Port);
                             break;
                     }
+                    connectToolStripMenuItem.Text = "&Disconect";
                 }
-                connectToolStripMenuItem.Text = "&Disconect";
             }
             else
             {
@@ -344,6 +344,12 @@ namespace RosDBG
             saveAsToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.SaveAs);
             printToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
             printToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AboutDlg about = new AboutDlg();
+            about.ShowDialog(this); 
         }
 
     }

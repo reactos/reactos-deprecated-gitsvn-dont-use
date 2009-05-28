@@ -14,7 +14,7 @@ namespace RosDBG
     public partial class Connect : Form
     {
         public enum ConnectionType {Serial, Pipe, Socket};
-        public ConnectionType Type;
+        public ConnectionType Type = Settings.SelectedConnType;
         private string defaultPipeName = Settings.Pipe;
         private string pipeName;
         public ConnectionMode pipeMode;
@@ -100,7 +100,10 @@ namespace RosDBG
                 pipeMode = ConnectionMode.MODE_SERVER;
             else if (cType.SelectedItem.ToString().CompareTo("Automatic") == 0)
                 pipeMode = ConnectionMode.MODE_AUTO;
-            
+
+            Settings.SelectedConnType = Type;
+            Settings.Save();
+
             Close();
         }
 
@@ -125,6 +128,7 @@ namespace RosDBG
             }
             cType.SelectedIndex = i;
 
+            tabControl.SelectedIndex = (int) Settings.SelectedConnType;
         }
 
         private void CustomRadioBtn_CheckedChanged(object sender, EventArgs e)

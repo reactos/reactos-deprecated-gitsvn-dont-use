@@ -19,6 +19,14 @@ namespace RosDBG
             private SerialConnSettings _serialconnsettings;
             private PipeConnSettings _pipeconnsettings;
 
+            [UserScopedSetting, DefaultSettingValue("0")]
+            [Browsable(false)]
+            public Connect.ConnectionType SelectedConnType
+            {
+                get { return (Connect.ConnectionType) this["SelectedConnType"]; }
+                set { this["SelectedConnType"] = value; }
+            }
+            
             /* Hack to work around a crash (bug in .net?) 
              * using a TypeConverter in a class which is derived from
              * ApplicationSettingsBase results in a crash
@@ -206,6 +214,13 @@ namespace RosDBG
         public static string Pipe { get { return mProperties.Pipe; } }
         public static string ComPort { get { return mProperties.Port; } }
         public static string Baudrate { get { return mProperties.Baudrate; } }
+        public static Connect.ConnectionType SelectedConnType { 
+            get { return mProperties.SelectedConnType; }
+            set
+            {
+                MessageBox.Show(value.ToString());
+                mProperties.SelectedConnType = value; }
+        }
 
         public Settings()
         {
@@ -233,6 +248,11 @@ namespace RosDBG
         {
             DialogResult = DialogResult.Cancel;
             Close();
+        }
+
+        public static void Save()
+        {
+            mProperties.Save();
         }
     }
 }
