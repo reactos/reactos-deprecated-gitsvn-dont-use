@@ -22,7 +22,6 @@ namespace RosDBG
         {
             InitializeComponent();
             RegisterGrid.SelectedObject = new Registers();
-            this.Tag = "Registers";
         }
 
         public void SetDebugConnection(DebugConnection conn)

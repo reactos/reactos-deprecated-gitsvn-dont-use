@@ -67,7 +67,6 @@ namespace RosDBG
         public SourceView(string FileName)
         {
             InitializeComponent();
-            this.Tag = FileName;
             this.Text = FileName;
         }
 

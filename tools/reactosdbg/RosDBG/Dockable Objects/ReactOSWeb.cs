@@ -17,7 +17,6 @@ namespace RosDBG
         public ReactOSWeb()
         {
             InitializeComponent();
-            this.Tag = "Web";
             BrowserView.CanGoBackChanged += BrowserView_CanGoBackChanged;
             BrowserView.CanGoForwardChanged += BrowserView_CanGoForwardChanged;
             BrowserView.GoHome(); 
@@ -26,7 +25,7 @@ namespace RosDBG
         public ReactOSWeb(string Title, string URL)
         {
             InitializeComponent();
-            this.Tag = Title;
+            this.Text = Title;
             BrowserView.CanGoBackChanged += BrowserView_CanGoBackChanged;
             BrowserView.CanGoForwardChanged += BrowserView_CanGoForwardChanged;
             BrowserView.Navigate(URL);              

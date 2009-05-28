@@ -65,7 +65,6 @@ namespace RosDBG
         public RawTraffic()
         {
             InitializeComponent();
-            this.Tag = "Raw Traffic";
             InputLabel.Location = new Point(2, 2);
         }
 
