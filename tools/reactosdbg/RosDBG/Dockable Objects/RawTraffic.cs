@@ -119,10 +119,16 @@ namespace RosDBG
         {
             switch (Cmd)
             {
+                case Commands.Save:
                 case Commands.SaveAs:
                     return true;
             }
             return false;
+        }
+
+        public override void Save(string FileName)
+        {
+            SaveAs(FileName);
         }
 
         public override void SaveAs(string FileName)
