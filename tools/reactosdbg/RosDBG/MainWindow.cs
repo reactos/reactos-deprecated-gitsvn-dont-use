@@ -164,13 +164,17 @@ namespace RosDBG
                 nextToolStripMenuItem.Enabled = false;
                 stepToolStripMenuItem.Enabled = false;
                 continueToolStripMenuItem.Enabled = false;
+                continueToolStripButton.Enabled = false;
+                breakToolStripButton.Enabled = false;
             }
             else
             {
                 breakToolStripMenuItem.Enabled = mRunning;
+                breakToolStripButton.Enabled = mRunning;
                 nextToolStripMenuItem.Enabled = !mRunning;
                 stepToolStripMenuItem.Enabled = !mRunning;
                 continueToolStripMenuItem.Enabled = !mRunning;
+                continueToolStripButton.Enabled = !mRunning;
             }
         }
 

@@ -294,10 +294,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-rosdbg.ico" />
-    <None Include="res\copyToolStripMenuItem.Image.png" />
-    <Content Include="res\emblem-system.ico" />
-    <Content Include="res\internet-web-browser.ico" />
-    <Content Include="res\utilities-terminal.ico" />
+    <None Include="Resources\copyToolStripMenuItem.Image.png" />
+    <None Include="Resources\Run.bmp" />
+    <None Include="Resources\Pause.bmp" />
+    <Content Include="Resources\emblem-system.ico" />
+    <Content Include="Resources\internet-web-browser.ico" />
+    <Content Include="Resources\utilities-terminal.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

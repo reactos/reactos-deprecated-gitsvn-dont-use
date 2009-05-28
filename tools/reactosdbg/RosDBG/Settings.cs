@@ -8,6 +8,7 @@ using System.Text;
 using System.Configuration;
 using System.Windows.Forms;
 using System.Drawing.Design;
+using System.IO;
 using System.IO.Ports;
 
 namespace RosDBG
@@ -70,7 +71,12 @@ namespace RosDBG
             public string SourceDirectory
             {
                 get { return this["SourceDirectory"].ToString(); }
-                set { this["SourceDirectory"] = value; }
+                set 
+                {
+                    if (!File.Exists(value + "\\ReactOS-generic.rbuild"))
+                        MessageBox.Show("Can not find ReactOS sources in this directory!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    this["SourceDirectory"] = value;
+                }
             }
 
             [CategoryAttribute("Directories"), DescriptionAttribute("Directory settings")]
@@ -78,7 +84,12 @@ namespace RosDBG
             public string OutputDirectory
             {
                 get { return this["OutputDirectory"].ToString(); }
-                set { this["OutputDirectory"] = value; }
+                set
+                {
+                    if (!File.Exists(value + "\\ntoskrnl\\ntoskrnl.nostrip.exe"))
+                        MessageBox.Show("Can not find .nostrip files!\nThe Debugger will not work properly without them.\n\nPlease enable building of .nostrip files in RosBE options." , "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);  
+                    this["OutputDirectory"] = value; 
+                }
             }
 
             [CategoryAttribute("Connection"), DescriptionAttribute("Connection settings")]
