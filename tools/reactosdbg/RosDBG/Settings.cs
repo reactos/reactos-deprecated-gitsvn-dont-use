@@ -106,6 +106,24 @@ namespace RosDBG
                 set { _pipeconnsettings = value; }
             }
 
+            [Browsable(true)]
+            [CategoryAttribute("Logging"), DescriptionAttribute("Turn application logging on or off")]
+            [UserScopedSetting, DefaultSettingValue("true")]
+            [TypeConverter(typeof(AppLoggingSelection))]
+            public string AppLogging
+            {
+                get { return this["AppLogging"].ToString(); }
+                set { this["AppLogging"] = value; }
+            }
+
+            [CategoryAttribute("Logging"), DescriptionAttribute("The log file in which to store the app log")]
+            [UserScopedSetting, DefaultSettingValue(@".\rosdbg.log"), Editor(typeof(FileEditor), typeof(UITypeEditor))]
+            public string AppLogFile
+            {
+                get { return this["AppLogFile"].ToString(); }
+                set { this["AppLogFile"] = value; }
+            }
+
             public SettingsPropertyValues()
             {
                 Reload();
@@ -149,6 +167,23 @@ namespace RosDBG
             }
         }
 
+        internal class AppLoggingSelection : StringConverter
+        {
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(new string[] { "true", "false" });
+            }
+        }
         #endregion
 
         [TypeConverterAttribute(typeof(ExpandableObjectConverter))]

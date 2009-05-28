@@ -107,7 +107,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DebugInfoFile.cs" />
-    <Compile Include="DirectoryChooser.cs">
+    <Compile Include="FileDirChooser.cs">
     </Compile>
     <Compile Include="Dockable Objects\ToolWindow.cs">
       <SubType>Form</SubType>

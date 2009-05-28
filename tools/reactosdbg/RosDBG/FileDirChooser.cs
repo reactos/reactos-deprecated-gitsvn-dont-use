@@ -30,4 +30,28 @@ namespace RosDBG
         }
     }
 
+    public class FileEditor : UITypeEditor
+    {
+        public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+        {
+            return UITypeEditorEditStyle.Modal;
+        }
+
+        public override object EditValue(ITypeDescriptorContext typedesc, IServiceProvider provider, object value)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+
+            ofd.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            ofd.CheckFileExists = false;
+            ofd.Filter = "log files (*.log)|*.log";
+            ofd.DefaultExt = "log";
+            ofd.AddExtension = true;
+            ofd.RestoreDirectory = true;
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+                return ofd.FileName;
+            else
+                return value;
+        }
+    }
 }
