@@ -347,13 +347,16 @@ namespace RosDBG
 
         private void dockPanel_ActiveDocumentChanged(object sender, EventArgs e)
         {
-            ToolWindow Wnd = (ToolWindow)dockPanel.ActiveDocument.DockHandler.Form;
+            if ((dockPanel != null) && (dockPanel.ActiveDocument != null))
+            {
+                ToolWindow Wnd = (ToolWindow)dockPanel.ActiveDocument.DockHandler.Form;
 
-            saveToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Save);
-            saveToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Save);
-            saveAsToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.SaveAs);
-            printToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
-            printToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
+                saveToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Save);
+                saveToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Save);
+                saveAsToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.SaveAs);
+                printToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
+                printToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
+            }
         }
 
     }
