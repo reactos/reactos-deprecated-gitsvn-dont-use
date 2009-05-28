@@ -12,7 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class RegisterView : DockContent, IUseDebugConnection
+    public partial class RegisterView : ToolWindow, IUseDebugConnection
     {
         bool mGridEnabled;
         Registers mRegisters;

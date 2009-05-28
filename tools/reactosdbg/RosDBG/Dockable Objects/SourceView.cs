@@ -12,7 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
   
-    public partial class SourceView : DockContent
+    public partial class SourceView : ToolWindow
     {
         string mSourceFile;
         //public event CanCopyChangedEventHandler CanCopyChangedEvent;
@@ -104,6 +104,9 @@ namespace RosDBG
 
         private void btnCopy_Click(object sender, EventArgs e)
         {
+            if (SourceCode.SelectionLength != 0)
+                Clipboard.SetText(SourceCode.SelectedText);
+
             //CopyEvent(this, new CopyEventArgs(this));
         }
 
@@ -116,6 +119,29 @@ namespace RosDBG
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SourceCode.SelectAll();  
+        }
+
+        /*
+        public override void Save(string FileName)
+        {
+            SaveAs(FileName); 
+        }
+
+        public override void SaveAs(string FileName)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            saveFileDialog.Filter = "Textfiles (*.txt)|*.txt|All Files (*.*)|*.*";
+            if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                string File = saveFileDialog.FileName;
+            }
+        }
+        */
+
+        public override string GetDocumentName()
+        {
+            return SourceFile;
         }
 
     }

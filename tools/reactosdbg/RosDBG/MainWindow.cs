@@ -25,6 +25,8 @@ namespace RosDBG
         private RawTraffic m_RawTraffic = new RawTraffic();
         private Locals m_Locals = new Locals();
         private MemoryWindow m_MemoryWindow = new MemoryWindow();
+        private ProcThread m_ProcThread = new ProcThread();
+        private Modules m_Modules = new Modules(); 
 
         private bool mRunning;
         private DebugConnection.Mode mConnectionMode;
@@ -49,12 +51,15 @@ namespace RosDBG
             RegisterControl(m_RawTraffic);
             RegisterControl(m_Locals);
             RegisterControl(m_MemoryWindow);
+            RegisterControl(m_ProcThread);
+            RegisterControl(m_Modules);
 
             m_Locals.Show(dockPanel, DockState.DockRight);
             m_RegView.Show(dockPanel, DockState.DockRight);
             m_BackTrace.Show(dockPanel, DockState.DockBottom);
             m_RawTraffic.Show(dockPanel);
-            m_MemoryWindow.Show(dockPanel);
+            m_Modules.Show(dockPanel);
+            m_ProcThread.Show(dockPanel);
             ReactOSWeb web = new ReactOSWeb();
             web.Show(dockPanel);
         }
@@ -62,7 +67,7 @@ namespace RosDBG
         void ComposeTitleString()
         {
             FocusAddress(mCurrentEip);
-            toolStripStatusLabel.Text = "ConnectionMode: " + mConnectionMode + " - Running: " + mRunning + " - Source Location: " + mCurrentFile + ":" + mCurrentLine;
+            toolStripStatusLabel.Text = "ConnectionMode: " + mConnectionMode + " - Running: " + mRunning + (mCurrentFile.CompareTo("unknown") != 0 ? " - Source Location: " + mCurrentFile + ":" + mCurrentLine : "");
         }
 
         void DebugModuleChangedEvent(object sender, DebugModuleChangedEventArgs args)
@@ -131,32 +136,9 @@ namespace RosDBG
             }
         }
 
-        private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            saveFileDialog.Filter = "Textdateien (*.txt)|*.txt|Alle Dateien (*.*)|*.*";
-            if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
-            {
-                string FileName = saveFileDialog.FileName;
-            }
-        }
-
         private void ExitToolsStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
-
-        private void CutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void PasteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
         }
 
         private void ToolBarToolStripMenuItem_Click(object sender, EventArgs e)
@@ -326,9 +308,42 @@ namespace RosDBG
             m_Locals.Show(dockPanel, DockState.DockRight);
         }
 
+        private void procThreadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_ProcThread.Show(dockPanel);
+        }
+
+        private void modulesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            m_Modules.Show(dockPanel);
+        }
+
         private void backtraceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             m_BackTrace.Show(dockPanel, DockState.DockBottom);
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).Save(
+                ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).GetDocumentName());
+        }
+
+        private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).SaveAs(
+                ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).GetDocumentName());
+        }
+
+        private void dockPanel_ActiveContentChanged(object sender, EventArgs e)
+        {
+            ToolWindow Wnd = (ToolWindow)dockPanel.ActiveDocument.DockHandler.Form;
+
+            saveToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Save);
+            saveToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Save);
+            saveAsToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.SaveAs);
+            printToolStripButton.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
+            printToolStripMenuItem.Enabled = Wnd.IsCmdEnabled(ToolWindow.Commands.Print);
         }
 
     }

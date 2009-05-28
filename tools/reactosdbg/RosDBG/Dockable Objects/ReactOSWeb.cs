@@ -6,12 +6,13 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using mshtml;  
 using WeifenLuo.WinFormsUI.Docking;
 
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class ReactOSWeb : DockContent
+    public partial class ReactOSWeb : ToolWindow
     {
         public ReactOSWeb()
         {
@@ -82,6 +83,60 @@ namespace RosDBG
             if (e.KeyCode == Keys.Return)
                 BrowserView.Navigate("http://www.reactos.org/bugzilla/show_bug.cgi?id=" + ((ToolStripTextBox)sender).Text);
         }
-                
+
+        private bool pIsCmdEnabled(string Cmd)
+        {
+            IHTMLDocument2 doc2 = BrowserView.Document.DomDocument as IHTMLDocument2;
+            if (doc2 != null)
+                return doc2.queryCommandEnabled(Cmd);
+            return false;
+        }
+
+        public override bool IsCmdEnabled(Commands Cmd)
+        {
+            switch (Cmd)
+            {
+                case Commands.Copy:
+                    return pIsCmdEnabled("copy");
+                case Commands.Save:
+                case Commands.SaveAs:
+                    return true;
+            }
+            return false;
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IHTMLDocument2 htmlDocument = (mshtml.IHTMLDocument2)BrowserView.Document.DomDocument;
+            htmlDocument.execCommand("copy", true, null);
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IHTMLDocument2 htmlDocument = (mshtml.IHTMLDocument2)BrowserView.Document.DomDocument;
+            htmlDocument.execCommand("selectall", true, null);
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            copyToolStripMenuItem.Enabled = IsCmdEnabled(Commands.Copy);
+        }
+
+        public override void Save(string FileName)
+        {
+            SaveAs(FileName);
+        }
+
+        public override void SaveAs(string FileName)
+        {
+            IHTMLDocument2 htmlDocument = (mshtml.IHTMLDocument2)BrowserView.Document.DomDocument;
+            htmlDocument.execCommand("saveas", true, FileName);
+        }
+
+        public override string GetDocumentName()
+        {
+            return BrowserView.Url.GetComponents(UriComponents.Host, UriFormat.UriEscaped).ToString() + ".html";
+        }
+
     }
 }

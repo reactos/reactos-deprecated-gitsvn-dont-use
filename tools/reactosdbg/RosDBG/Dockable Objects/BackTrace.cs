@@ -16,7 +16,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class BackTrace : DockContent, IUseDebugConnection, IUseSymbols, IUseShell
+    public partial class BackTrace : ToolWindow, IUseDebugConnection, IUseSymbols, IUseShell
     {
         DebugConnection mConnection;
         SymbolContext mSymbols;

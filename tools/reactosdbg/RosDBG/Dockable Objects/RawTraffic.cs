@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -12,7 +13,7 @@ using DebugProtocol;
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class RawTraffic : DockContent, IUseDebugConnection
+    public partial class RawTraffic : ToolWindow, IUseDebugConnection
     {
         DebugConnection mConnection;
         List<string> textToAdd = new List<string>();
@@ -108,6 +109,35 @@ namespace RosDBG
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RawTrafficText.SelectAll(); 
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            selectAllToolStripMenuItem.Enabled = (RawTrafficText.Text.Length != 0);
+        }
+
+        public override bool IsCmdEnabled(Commands Cmd)
+        {
+            switch (Cmd)
+            {
+                case Commands.SaveAs:
+                    return true;
+            }
+            return false;
+        }
+
+        public override void SaveAs(string FileName)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.FileName = "debuglog-" + DateTime.Now.Date.ToShortDateString() + ".txt";
+            saveFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            saveFileDialog.Filter = "Textfiles (*.txt)|*.txt|All Files (*.*)|*.*";
+            if (saveFileDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                StreamWriter sw = new StreamWriter(saveFileDialog.FileName);
+                sw.Write(RawTrafficText.Text);
+                sw.Close(); 
+            }
         }
 
     }

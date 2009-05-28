@@ -47,6 +47,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft.NET\Primary Interop Assemblies\Microsoft.mshtml.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -81,6 +85,12 @@
     </Compile>
     <Compile Include="DebugInfoFile.cs" />
     <Compile Include="DirectoryChooser.cs">
+    </Compile>
+    <Compile Include="Dockable Objects\ToolWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Dockable Objects\ToolWindow.Designer.cs">
+      <DependentUpon>ToolWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="HighLevelInteraction.cs" />
     <Compile Include="HostWindow.cs">

@@ -16,7 +16,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class Locals : DockContent, IUseDebugConnection, IUseSymbols, IUseShell
+    public partial class Locals : ToolWindow, IUseDebugConnection, IUseSymbols, IUseShell
     {
         class DisplayValue
         {

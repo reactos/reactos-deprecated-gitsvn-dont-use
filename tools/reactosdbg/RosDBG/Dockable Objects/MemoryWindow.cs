@@ -14,7 +14,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
     [DebugControl]
-    public partial class MemoryWindow : DockContent, IUseDebugConnection
+    public partial class MemoryWindow : ToolWindow, IUseDebugConnection
     {
         ulong mAddress;
         DebugConnection mConnection;

@@ -12,7 +12,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
     [DebugControl,BuildAtStartup]
-    public partial class Modules : DockContent, IUseDebugConnection
+    public partial class Modules : ToolWindow, IUseDebugConnection
     {
         public SortedList<uint, string> mModules = new SortedList<uint, string>();
 

@@ -13,7 +13,7 @@ using WeifenLuo.WinFormsUI.Docking;
 namespace RosDBG
 {
     [DebugControl, BuildAtStartup]
-    public partial class ProcThread : DockContent, IUseDebugConnection, IUseSymbols
+    public partial class ProcThread : ToolWindow, IUseDebugConnection, IUseSymbols
     {
         DebugConnection mConnection;
         SymbolContext mSymcon;

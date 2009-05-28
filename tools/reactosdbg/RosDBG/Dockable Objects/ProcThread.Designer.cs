@@ -87,7 +87,7 @@
             this.HideOnClose = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ProcThread";
-            this.Text = "Processes & Threads";
+            this.Text = "Processes / Threads";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.ResumeLayout(false);
