@@ -216,10 +216,7 @@ namespace RosDBG
         public static string Baudrate { get { return mProperties.Baudrate; } }
         public static Connect.ConnectionType SelectedConnType { 
             get { return mProperties.SelectedConnType; }
-            set
-            {
-                MessageBox.Show(value.ToString());
-                mProperties.SelectedConnType = value; }
+            set {  mProperties.SelectedConnType = value; }
         }
 
         public Settings()
