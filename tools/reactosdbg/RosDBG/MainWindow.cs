@@ -251,7 +251,7 @@ namespace RosDBG
 
         private void contentsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ReactOSWeb Help = new ReactOSWeb("Help", "http://www.reactos.org/wiki/index.php/ReactOSDbg");
+            ReactOSWeb Help = new ReactOSWeb("Help", "http://www.reactos.org/wiki/index.php/ReactOS_Remote_Debugger");
             Help.Show(dockPanel);  
         }
 
