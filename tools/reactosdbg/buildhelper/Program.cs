@@ -32,10 +32,20 @@ namespace buildhelper
                     StreamReader reader = File.OpenText(infoPath);
                     string contents = reader.ReadToEnd();
                     reader.Close();
-                    Regex version = new Regex(@"(\d+\.\d+\.)(\d+)(\.\d+)");
+                    Regex version = new Regex(@"(\d+\.\d+\.)(\d+)(\.)(\d+)");
                     Match versionMatch = version.Match(contents);
                     string oldVersion = versionMatch.Value;
-                    string newVersion = versionMatch.Groups[1].Value + (Convert.ToUInt32(versionMatch.Groups[2].Value) + 1).ToString() + "." + DateTime.Now.ToString("mss");
+#if DEBUG
+                    string newVersion = versionMatch.Groups[1].Value +
+                        versionMatch.Groups[2].Value +
+                        versionMatch.Groups[3].Value +
+                        (Convert.ToUInt32(versionMatch.Groups[4].Value) + 1).ToString();
+#else
+                    string newVersion = versionMatch.Groups[1].Value + 
+                        (Convert.ToUInt32(versionMatch.Groups[2].Value) + 1).ToString() +
+                        versionMatch.Groups[3].Value +
+                        (Convert.ToUInt32(versionMatch.Groups[4].Value) + 1).ToString();
+#endif
                     contents = contents.Replace(oldVersion, newVersion);
                     StreamWriter writer = File.CreateText(infoPath);
                     writer.Write(contents);

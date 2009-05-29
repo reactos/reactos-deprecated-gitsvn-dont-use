@@ -32,5 +32,12 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.5.1204")]
-[assembly: AssemblyFileVersion("1.0.5.1204")]
+
+
+// WARNING: Build numbers are increased automatically!
+// On debug build only Revision will be increased, on release build the Build Number
+// will be increased as well. MSI installers must not be generated with the same Build Number
+// otherwise they won't upgrade the old installation!
+
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
