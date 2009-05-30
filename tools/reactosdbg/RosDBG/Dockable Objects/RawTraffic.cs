@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -17,12 +18,10 @@ namespace RosDBG
     {
         DebugConnection mConnection;
         List<string> textToAdd = new List<string>();
-        // public event CanCopyChangedEventHandler CanCopyChangedEvent; 
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-           // ((MainWindow)this.ParentForm).CopyEvent += CopyEvent;
         }
 
         public void SetDebugConnection(DebugConnection conn)
@@ -55,12 +54,6 @@ namespace RosDBG
             }
             Invoke(Delegate.CreateDelegate(typeof(NoParamsDelegate), this, "UpdateText"));
         }
-
-      /*  void CopyEvent(object sender, CopyEventArgs args)
-        {
-            if (args.Obj == this && RawTrafficText.SelectedText != null)
-                Clipboard.SetText(RawTrafficText.SelectedText);
-        } */
 
         public RawTraffic()
         {
@@ -95,8 +88,6 @@ namespace RosDBG
         private void RawTrafficText_MouseUp(object sender, MouseEventArgs e)
         {
             copyToolStripMenuItem.Enabled = (RawTrafficText.SelectionLength > 0);
-         /*   if (CanCopyChangedEvent != null)
-                CanCopyChangedEvent(this, new CanCopyChangedEventArgs(RawTrafficText.SelectionLength != 0)); */
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -121,6 +112,7 @@ namespace RosDBG
             {
                 case Commands.Save:
                 case Commands.SaveAs:
+                case Commands.Print:
                     return true;
             }
             return false;
@@ -143,6 +135,23 @@ namespace RosDBG
                 sw.Write(RawTrafficText.Text);
                 sw.Close(); 
             }
+        }
+
+        public override void Print(bool ShowDialog)
+        {
+            PrintDocument printDoc = new PrintDocument();
+            printDoc.PrintPage += new PrintPageEventHandler(printDoc_PrintPage);
+            PrintDialog pd = new PrintDialog();
+            pd.Document = printDoc;
+            if ((!ShowDialog) || (pd.ShowDialog() == DialogResult.OK))
+            {
+                printDoc.Print();
+            }
+        }
+
+        private void printDoc_PrintPage(object sender, PrintPageEventArgs e)
+        {
+            e.Graphics.DrawString(RawTrafficText.Text, RawTrafficText.Font, Brushes.Black, 10, 25);
         }
 
     }

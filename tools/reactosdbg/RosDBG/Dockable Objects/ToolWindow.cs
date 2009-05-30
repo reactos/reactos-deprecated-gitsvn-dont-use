@@ -30,6 +30,11 @@ namespace RosDBG
             SaveAs(FileName);
         }
 
+        public virtual void Print(bool ShowDialog)
+        {
+            MessageBox.Show("Not implemented!");
+        }
+
         public virtual string GetDocumentName()
         {
             return "";

@@ -374,6 +374,16 @@ namespace RosDBG
             }
         }
 
+        private void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).Print(true);
+        }
+
+        private void printToolStripButton_Click(object sender, EventArgs e)
+        {
+            ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).Print(false);
+        }
+
     }
 
 }

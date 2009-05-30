@@ -99,6 +99,7 @@ namespace RosDBG
                     return pIsCmdEnabled("copy");
                 case Commands.Save:
                 case Commands.SaveAs:
+                case Commands.Print:
                     return true;
             }
             return false;
@@ -135,6 +136,12 @@ namespace RosDBG
         public override string GetDocumentName()
         {
             return BrowserView.Url.GetComponents(UriComponents.Host, UriFormat.UriEscaped).ToString() + ".html";
+        }
+
+        public override void Print(bool ShowDialog)
+        {
+            IHTMLDocument2 htmlDocument = (mshtml.IHTMLDocument2)BrowserView.Document.DomDocument;
+            htmlDocument.execCommand("print", ShowDialog, null);
         }
 
     }

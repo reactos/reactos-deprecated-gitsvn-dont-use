@@ -100,6 +100,7 @@
             // SourceCode
             // 
             this.SourceCode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SourceCode.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.SourceCode.Location = new System.Drawing.Point(0, 0);
             this.SourceCode.Name = "SourceCode";
             this.SourceCode.ReadOnly = true;
