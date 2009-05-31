@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Net;
@@ -74,6 +75,7 @@ namespace DebugProtocol
         ulong mTid;
         public ulong ThreadId { get { return mTid; } set { mTid = value; } }
         ulong mEip;
+        [TypeConverter(typeof(UlongToHexTypeConverter))]
         public ulong Eip { get { return mEip; } set { mEip = value; } }
         string mDescription;
         public string Description { get { return mDescription; } set { mDescription = value; } }

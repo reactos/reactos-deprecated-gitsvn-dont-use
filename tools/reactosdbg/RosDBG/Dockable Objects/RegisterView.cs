@@ -29,6 +29,7 @@ namespace RosDBG
             mConnection = conn;
             mConnection.DebugRegisterChangeEvent += DebugRegisterChangeEvent;
             mConnection.DebugRunningChangeEvent += DebugRunningChangeEvent;
+            mConnection.DebugConnectionModeChangedEvent += DebugConnectionModeChangedEvent;
             if (!mConnection.Running)
             {
                 mConnection.Debugger.GetRegisterUpdate();
@@ -39,6 +40,19 @@ namespace RosDBG
         void UpdateGridEnabled()
         {
             RegisterGrid.Enabled = mGridEnabled;
+        }
+
+        void ClearRegs()
+        {
+            if (mRegisters != null)
+                mRegisters.Clear();
+            UpdateGrid();
+        }
+
+        void DebugConnectionModeChangedEvent(object sender, DebugConnectionModeChangedEventArgs args)
+        {
+            if (mConnection.ConnectionMode == DebugConnection.Mode.ClosedMode)
+                Invoke(Delegate.CreateDelegate(typeof(NoParamsDelegate), this, "ClearRegs"));
         }
 
         void DebugRunningChangeEvent(object sender, DebugRunningChangeEventArgs args)

@@ -88,5 +88,11 @@ namespace DebugProtocol
         [TypeConverter(typeof(UlongToHexTypeConverter))]
         public ulong Ss { get { return RegisterSet[15]; } set { RegisterSet[15] = value; } }
         public ulong[] RegisterSet = new ulong[32];
+
+        public void Clear()
+        {
+            RegisterSet = new ulong[32];
+        }
+
     }
 }
