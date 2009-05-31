@@ -16,6 +16,13 @@ namespace RosDBG
     [DebugControl, BuildAtStartup]
     public partial class RawTraffic : ToolWindow, IUseDebugConnection
     {
+        private int startPage;
+        private int totalPages;
+        private int pageNumber;
+        private string strPrintText;
+        PrintDialog pd;
+        PrintDocument printDoc;
+
         DebugConnection mConnection;
         List<string> textToAdd = new List<string>();
 
@@ -139,19 +146,95 @@ namespace RosDBG
 
         public override void Print(bool ShowDialog)
         {
-            PrintDocument printDoc = new PrintDocument();
-            printDoc.PrintPage += new PrintPageEventHandler(printDoc_PrintPage);
-            PrintDialog pd = new PrintDialog();
-            pd.Document = printDoc;
-            if ((!ShowDialog) || (pd.ShowDialog() == DialogResult.OK))
-            {
-                printDoc.Print();
-            }
+                printDoc = new PrintDocument();
+                printDoc.PrintPage += new PrintPageEventHandler(printDoc_PrintPage);
+                pd = new PrintDialog();
+                pd.Document = printDoc;
+                pd.AllowSomePages = true; 
+                if ((!ShowDialog) || (pd.ShowDialog() == DialogResult.OK))
+                {
+                    printDoc.DocumentName = "debuglog-" + DateTime.Now.Date.ToShortDateString() + ".txt";
+                    strPrintText = RawTrafficText.Text.Length > 0 ? RawTrafficText.Text : " ";
+                    switch (pd.PrinterSettings.PrintRange) 
+                    { 
+                        case PrintRange.AllPages: 
+                            startPage = 1; 
+                            totalPages = pd.PrinterSettings.MaximumPage;
+                            break; 
+                        case PrintRange.SomePages: 
+                            startPage = pd.PrinterSettings.FromPage;
+                            totalPages = pd.PrinterSettings.ToPage - startPage + 1;
+                            break; 
+                    }
+                    // start printing
+                    pageNumber = 1;
+                    printDoc.Print();
+                }
         }
 
         private void printDoc_PrintPage(object sender, PrintPageEventArgs e)
         {
-            e.Graphics.DrawString(RawTrafficText.Text, RawTrafficText.Font, Brushes.Black, 10, 25);
+                StringFormat stringFormat = new StringFormat();
+                RectangleF rectFPaper, rectFText;
+                int intChars, intLines;
+
+                rectFPaper = e.MarginBounds;
+                rectFText = RectangleF.Inflate(rectFPaper, 0,
+                                    -2 * RawTrafficText.Font.GetHeight(e.Graphics));
+                int totalLines = (int)Math.Floor(rectFText.Height /
+                                         RawTrafficText.Font.GetHeight(e.Graphics));
+                rectFText.Height = totalLines *
+                                          RawTrafficText.Font.GetHeight(e.Graphics);
+                stringFormat.Trimming = StringTrimming.Word;
+
+                while ((pageNumber < startPage) && (strPrintText.Length > 0))
+                {
+                    e.Graphics.MeasureString(strPrintText, RawTrafficText.Font,
+                                         rectFText.Size, stringFormat,
+                                         out intChars, out intLines);
+                    strPrintText = strPrintText.Substring(intChars);
+                    pageNumber++;
+                }
+
+                // Cancel job when nothing to print is left
+                if (strPrintText.Length == 0)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                e.Graphics.DrawString(strPrintText, RawTrafficText.Font, Brushes.Black, rectFText, stringFormat);
+                e.Graphics.MeasureString(strPrintText, RawTrafficText.Font,
+                                         rectFText.Size, stringFormat,
+                                         out intChars, out intLines);
+                strPrintText = strPrintText.Substring(intChars);
+                stringFormat = new StringFormat();
+
+                // show filename in header
+                stringFormat.Alignment = StringAlignment.Center;
+
+                e.Graphics.DrawString(printDoc.DocumentName, RawTrafficText.Font,
+                                      Brushes.Black, rectFPaper, stringFormat);
+
+                // show page number in footer
+                stringFormat.LineAlignment = StringAlignment.Far;
+
+                e.Graphics.DrawString("Page " + pageNumber, RawTrafficText.Font,
+                                     Brushes.Black, rectFPaper, stringFormat);
+
+                pageNumber++;
+                e.HasMorePages = (strPrintText.Length > 0) &&
+                                 (pageNumber < startPage + totalPages);
+
+                //re-init
+                if (!e.HasMorePages)
+                {
+                    strPrintText = RawTrafficText.Text;
+                    startPage = 1;
+                    totalPages = pd.PrinterSettings.MaximumPage;
+                    pageNumber = 1;
+                }
+            
         }
 
     }

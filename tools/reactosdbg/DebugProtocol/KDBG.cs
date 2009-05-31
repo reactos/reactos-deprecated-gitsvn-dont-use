@@ -88,7 +88,7 @@ namespace KDBGProtocol
                     string cleanedLine = line.Trim();
                     try 
                     {
-                        if (cleanedLine.StartsWith("Entered debugger on "))
+                        if (cleanedLine.Contains("Entered debugger on "))
                         {
                             mReceivingProcs = false;
                             mReceivingThreads = false;

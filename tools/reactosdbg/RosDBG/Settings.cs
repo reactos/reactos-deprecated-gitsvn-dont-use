@@ -56,7 +56,7 @@ namespace RosDBG
                 set { this["Pipe"] = value; }
             }
 
-            [UserScopedSetting, DefaultSettingValue(@"Client")]
+            [UserScopedSetting, DefaultSettingValue(@"Server")]
             [Browsable(false)]
             public string Mode
             {
