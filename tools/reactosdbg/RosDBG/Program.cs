@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace RosDBG
@@ -13,10 +14,18 @@ namespace RosDBG
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            MainWindow mw = new MainWindow();
-            Application.Run(mw);
+            Mutex m = new Mutex(false, "ReactOS Remote Debugger");
+            if (m.WaitOne(10, false))
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                MainWindow mw = new MainWindow();
+                Application.Run(mw);
+            }
+            else
+            {
+                /* TODO */
+            }
         }
     }
 }
