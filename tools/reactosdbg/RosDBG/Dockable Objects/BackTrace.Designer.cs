@@ -53,7 +53,7 @@
             this.HideOnClose = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "BackTrace";
-            this.Text = "Backtrace";
+            this.Text = "Call Stack";
             this.ResumeLayout(false);
 
         }
