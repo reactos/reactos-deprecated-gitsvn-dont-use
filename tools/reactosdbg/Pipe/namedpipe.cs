@@ -16,40 +16,58 @@ namespace AbstractPipe
         MODE_AUTO   = 0x00000002
     }
 
-    public class NamedPipe : Pipe
+    public class NamedPipe : Pipe, NPipe
     {
         public const int PIPE_SIZE = 1024;
 
         private PipeStream ioStream; /* stream for io operations */
         private String wCommand; /* buffer of a single command line */
         private List<String> cmdList; /*list of commands pending to be written */
+        private bool bClientConn;
+        private Thread waitThread;
 
+        public event EventHandler ClientConnectedEvent;
         public event PipeReceiveEventHandler PipeReceiveEvent;
         public event PipeErrorEventHandler PipeErrorEvent;
 
         private static ManualResetEvent newWriteData = new ManualResetEvent(false);
+
+        public bool IsClientConnected
+        {
+            get { return bClientConn; }
+        }
 
         public NamedPipe()
         {
             cmdList = new List<string>();
         }
 
-        public bool CreateServerPipe(string name)
+        private void WaitForConnection(object data)
+        {
+            NamedPipeServerStream pipeStream = (NamedPipeServerStream)data;
+
+            pipeStream.WaitForConnection();
+
+            if (pipeStream.IsConnected)
+            {
+                ioStream = pipeStream;
+                bClientConn = true;
+
+                if (ClientConnectedEvent != null)
+                {
+                    ClientConnectedEvent(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        public void CreateServerPipe(string name)
         {
             /* create a pipe and wait for a client */
             NamedPipeServerStream sStream = new NamedPipeServerStream(name, PipeDirection.InOut, 1, 
                 PipeTransmissionMode.Byte, PipeOptions.Asynchronous, PIPE_SIZE, PIPE_SIZE);
-            sStream.WaitForConnection();
 
-            if (sStream.IsConnected)
-            {
-                ioStream = sStream;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            waitThread = new Thread(WaitForConnection);
+            waitThread.Start(sStream);
         }
        
         public bool CreateClientPipe(string name)
@@ -88,33 +106,20 @@ namespace AbstractPipe
                 case ConnectionMode.MODE_AUTO:
                     //check if pipe exists, if not create server pipe, wait certain time, check if pipe...
                     //TODO: server-client lookup should time out
-                    while (true)
-                    {
-                        if (CreateClientPipe(name))
-                        {
-                            break;
-                        }
-                        if (CreateServerPipe(name))
-                        {
-                            break;
-                        }
-                    }
+                    CreateClientPipe(name);
+                    CreateServerPipe(name);
+
                     return true; 
 
                 case ConnectionMode.MODE_CLIENT:
-                    while (!CreateClientPipe(name)) ;
+                    CreateClientPipe(name);
                     
                     /* pipe open, everything fine */
                     return true;
 
                 case ConnectionMode.MODE_SERVER:
-                    if (CreateServerPipe(name))
-                    {
-                        /* wait for a client*/
-                        
+                    CreateServerPipe(name);
                         return true;
-                    }
-                    break;
             }
             return false;
         }
@@ -123,38 +128,48 @@ namespace AbstractPipe
         {
             if (ioStream != null)
                 ioStream.Close();
+
+            if (waitThread != null)
+                waitThread.Abort();
         }
 
         public void WriteLoop()
         {
-            try
-            {
-                while (true)
-                {
-                    if (cmdList.Count > 0)
-                    {
-                        byte[] wBuf = new byte[cmdList[0].Length];
-                        UTF8Encoding.UTF8.GetBytes(cmdList[0], 0, cmdList[0].Length, wBuf, 0);
-
-                        ioStream.Write(wBuf, 0, cmdList[0].Length);
-
-                        /* remove written data from commandlist */
-                        cmdList.RemoveAt(0);
-                    }
-                    else if (cmdList.Count == 0)
-                    {
-                        /* wait until new data is signaled */
-                        newWriteData.Reset();
-                        newWriteData.WaitOne();
-                    }
-                }
-            }
-            catch (Exception e)
+            if (!bClientConn)
             {
                 if (PipeErrorEvent != null)
-                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(e.Message));
+                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs("Client not connected"));
             }
+            else
+            {
+                try
+                {
+                    while (true)
+                    {
+                        if (cmdList.Count > 0)
+                        {
+                            byte[] wBuf = new byte[cmdList[0].Length];
+                            UTF8Encoding.UTF8.GetBytes(cmdList[0], 0, cmdList[0].Length, wBuf, 0);
 
+                            ioStream.Write(wBuf, 0, cmdList[0].Length);
+
+                            /* remove written data from commandlist */
+                            cmdList.RemoveAt(0);
+                        }
+                        else if (cmdList.Count == 0)
+                        {
+                            /* wait until new data is signaled */
+                            newWriteData.Reset();
+                            newWriteData.WaitOne();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (PipeErrorEvent != null)
+                        PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(e.Message));
+                }
+            }
         }
 
         public void ReadLoop()
@@ -162,27 +177,35 @@ namespace AbstractPipe
             byte[] buf = new byte[PIPE_SIZE];
             int read = 0;
 
-            try
-            {
-                while(true)
-                {
-                    read = ioStream.Read(buf, 0, PIPE_SIZE);
-                    if (read > 0)
-                    {
-                        if (PipeReceiveEvent != null)
-                            PipeReceiveEvent.Invoke(this, new PipeReceiveEventArgs(UTF8Encoding.UTF8.GetString(buf, 0, read)));
-                    }
-                    else
-                    {
-                        /* connecion closed */
-                        break;
-                    }
-                }
-            }
-            catch (Exception e)
+            if (!bClientConn)
             {
                 if (PipeErrorEvent != null)
-                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(e.Message));
+                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs("Client not connected"));
+            }
+            else
+            {
+                try
+                {
+                    while (true)
+                    {
+                        read = ioStream.Read(buf, 0, PIPE_SIZE);
+                        if (read > 0)
+                        {
+                            if (PipeReceiveEvent != null)
+                                PipeReceiveEvent.Invoke(this, new PipeReceiveEventArgs(UTF8Encoding.UTF8.GetString(buf, 0, read)));
+                        }
+                        else
+                        {
+                            /* connecion closed */
+                            break;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (PipeErrorEvent != null)
+                        PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(e.Message));
+                }
             }
         }
 
