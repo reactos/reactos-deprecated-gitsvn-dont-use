@@ -30,23 +30,23 @@
         {
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabSerial = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cBaud = new System.Windows.Forms.ComboBox();
+            this.cPort = new System.Windows.Forms.ComboBox();
             this.tabPipe = new System.Windows.Forms.TabPage();
-            this.btnCancel = new System.Windows.Forms.Button();
-            this.btnOK = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.cType = new System.Windows.Forms.ComboBox();
             this.CustomRadioBtn = new System.Windows.Forms.RadioButton();
             this.DefaultRadioBtn = new System.Windows.Forms.RadioButton();
             this.PipeNameTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.cBaud = new System.Windows.Forms.ComboBox();
-            this.cPort = new System.Windows.Forms.ComboBox();
             this.tabSocket = new System.Windows.Forms.TabPage();
             this.PortNumber = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.HostChoice = new System.Windows.Forms.ComboBox();
+            this.btnCancel = new System.Windows.Forms.Button();
+            this.btnOK = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabSerial.SuspendLayout();
             this.tabPipe.SuspendLayout();
@@ -80,6 +80,48 @@
             this.tabSerial.Text = "Serial";
             this.tabSerial.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(88, 102);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(32, 13);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Baud";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(88, 63);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(26, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Port";
+            // 
+            // cBaud
+            // 
+            this.cBaud.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cBaud.FormattingEnabled = true;
+            this.cBaud.Items.AddRange(new object[] {
+            "9600",
+            "19200",
+            "38400",
+            "57600",
+            "115200"});
+            this.cBaud.Location = new System.Drawing.Point(126, 99);
+            this.cBaud.Name = "cBaud";
+            this.cBaud.Size = new System.Drawing.Size(121, 21);
+            this.cBaud.TabIndex = 8;
+            // 
+            // cPort
+            // 
+            this.cPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cPort.FormattingEnabled = true;
+            this.cPort.Location = new System.Drawing.Point(126, 60);
+            this.cPort.Name = "cPort";
+            this.cPort.Size = new System.Drawing.Size(121, 21);
+            this.cPort.TabIndex = 7;
+            // 
             // tabPipe
             // 
             this.tabPipe.Controls.Add(this.label1);
@@ -94,28 +136,6 @@
             this.tabPipe.TabIndex = 1;
             this.tabPipe.Text = "Named Pipe";
             this.tabPipe.UseVisualStyleBackColor = true;
-            // 
-            // btnCancel
-            // 
-            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(266, 225);
-            this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(89, 27);
-            this.btnCancel.TabIndex = 1;
-            this.btnCancel.Text = "&Cancel";
-            this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
-            // 
-            // btnOK
-            // 
-            this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOK.Location = new System.Drawing.Point(171, 225);
-            this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(89, 27);
-            this.btnOK.TabIndex = 2;
-            this.btnOK.Text = "&OK";
-            this.btnOK.UseVisualStyleBackColor = true;
-            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // label1
             // 
@@ -168,48 +188,6 @@
             this.PipeNameTextBox.Name = "PipeNameTextBox";
             this.PipeNameTextBox.Size = new System.Drawing.Size(213, 20);
             this.PipeNameTextBox.TabIndex = 10;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(88, 102);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(32, 13);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Baud";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(88, 63);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(26, 13);
-            this.label3.TabIndex = 9;
-            this.label3.Text = "Port";
-            // 
-            // cBaud
-            // 
-            this.cBaud.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBaud.FormattingEnabled = true;
-            this.cBaud.Items.AddRange(new object[] {
-            "9600",
-            "19200",
-            "38400",
-            "57600",
-            "115200"});
-            this.cBaud.Location = new System.Drawing.Point(126, 99);
-            this.cBaud.Name = "cBaud";
-            this.cBaud.Size = new System.Drawing.Size(121, 21);
-            this.cBaud.TabIndex = 8;
-            // 
-            // cPort
-            // 
-            this.cPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPort.FormattingEnabled = true;
-            this.cPort.Location = new System.Drawing.Point(126, 60);
-            this.cPort.Name = "cPort";
-            this.cPort.Size = new System.Drawing.Size(121, 21);
-            this.cPort.TabIndex = 7;
             // 
             // tabSocket
             // 
@@ -273,10 +251,34 @@
             this.HostChoice.TabIndex = 4;
             this.HostChoice.Text = "localhost";
             // 
+            // btnCancel
+            // 
+            this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancel.Location = new System.Drawing.Point(266, 225);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new System.Drawing.Size(89, 27);
+            this.btnCancel.TabIndex = 1;
+            this.btnCancel.Text = "&Cancel";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            // 
+            // btnOK
+            // 
+            this.btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnOK.Location = new System.Drawing.Point(171, 225);
+            this.btnOK.Name = "btnOK";
+            this.btnOK.Size = new System.Drawing.Size(89, 27);
+            this.btnOK.TabIndex = 2;
+            this.btnOK.Text = "&OK";
+            this.btnOK.UseVisualStyleBackColor = true;
+            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
+            // 
             // Connect
             // 
+            this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(361, 261);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
