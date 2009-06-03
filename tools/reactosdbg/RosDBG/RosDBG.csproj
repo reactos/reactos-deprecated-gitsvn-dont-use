@@ -314,7 +314,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-rosdbg.ico" />
-    <None Include="app.config" />
     <None Include="Resources\copyToolStripMenuItem.Image.png" />
     <None Include="Resources\Run.bmp" />
     <None Include="Resources\Pause.bmp" />

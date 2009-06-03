@@ -17,6 +17,7 @@ namespace RosDBG
     {
         private ExternalToolList mExternalToolsList;
         private bool mUpdatingList = false;
+        private bool mAddRemove = false;
 
         public ExtTools()
         {
@@ -36,11 +37,12 @@ namespace RosDBG
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            mAddRemove = true; 
             ExternalTool t = new ExternalTool();
-            mExternalToolsList.Add(t);
             ToolsListBox.Items.Add(t);
             ToolsListBox.SelectedIndex = ToolsListBox.Items.Count - 1;
             btnRemove.Enabled = true;
+            mAddRemove = false;
         }
 
         private void ExtTools_Load(object sender, EventArgs e)
@@ -50,7 +52,7 @@ namespace RosDBG
                 mExternalToolsList = new ExternalToolList(); 
 
             foreach (object o in mExternalToolsList)
-                ToolsListBox.Items.Add(o);
+                ToolsListBox.Items.Add((ExternalTool) o);
         }
 
         private void btnRemove_Click(object sender, EventArgs e)
@@ -67,13 +69,16 @@ namespace RosDBG
             }
         }
 
-        private void SaveItem(ExternalTool item, int Idx)
+        private void SaveItem(int Idx)
         {
-            mUpdatingList = true;
-            item.Title = txtTitle.Text;
-            item.Path = txtPath.Text;
-            ToolsListBox.Items[Idx] = item;
-            mUpdatingList = false;
+            if (!mAddRemove)
+            {
+                ExternalTool item = new ExternalTool(txtTitle.Text, txtPath.Text);     
+                mUpdatingList = true;
+                ToolsListBox.Items[Idx] = item;
+                mExternalToolsList[Idx] = item; 
+                mUpdatingList = false;
+            }
         }
 
         private void ToolsListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -108,20 +113,19 @@ namespace RosDBG
             fd.Filter = "Executable files (*.exe)|*.exe";
             if (fd.ShowDialog() == DialogResult.OK)
             {
-                txtPath.Text = fd.FileName; 
+                txtPath.Text = fd.FileName;
+                SaveItem(ToolsListBox.SelectedIndex);
             }
         }
 
         private void txtTitle_TextChanged(object sender, EventArgs e)
         {
-            if (ToolsListBox.SelectedItem != null) 
-                SaveItem((ExternalTool)ToolsListBox.SelectedItem, ToolsListBox.SelectedIndex);
+            SaveItem(ToolsListBox.SelectedIndex);
         }
 
         private void txtPath_TextChanged(object sender, EventArgs e)
         {
-            if (ToolsListBox.SelectedItem != null)
-                SaveItem((ExternalTool)ToolsListBox.SelectedItem, ToolsListBox.SelectedIndex);
+            SaveItem(ToolsListBox.SelectedIndex);
         }
     }
 
