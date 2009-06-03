@@ -90,14 +90,14 @@ namespace RosDBG
 
             if (mCurrentFile.CompareTo("unknown") != 0)
             {
-                toolStripStatusSourceLocation.Text = "Source Location:";
+                toolStripStatusSourceLocation.Visible = true;
                 toolStripStatusSourceLocationFile.Text = mCurrentFile;
                 toolStripStatusSourceLocationLine.Text = mCurrentLine.ToString();
                 toolStripStatusSourceLocationColon.Visible = true;
             }
             else
             {
-                toolStripStatusSourceLocation.Text = string.Empty;
+                toolStripStatusSourceLocation.Visible = false;
                 toolStripStatusSourceLocationFile.Text = string.Empty;
                 toolStripStatusSourceLocationLine.Text = string.Empty;
                 toolStripStatusSourceLocationColon.Visible = false;
