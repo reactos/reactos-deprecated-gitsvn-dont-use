@@ -73,7 +73,35 @@ namespace RosDBG
         void ComposeTitleString()
         {
             FocusAddress(mCurrentEip);
-            toolStripStatusLabel.Text = "ConnectionMode: " + mConnectionMode + " - Running: " + mRunning + (mCurrentFile.CompareTo("unknown") != 0 ? " - Source Location: " + mCurrentFile + ":" + mCurrentLine : "");
+
+            string mode;
+            switch (mConnectionMode)
+            {
+                case DebugConnection.Mode.ClosedMode: mode = "Closed"; break;
+                case DebugConnection.Mode.PipeMode:   mode = "Pipe";   break;
+                case DebugConnection.Mode.SerialMode: mode = "Serial"; break;
+                case DebugConnection.Mode.SocketMode: mode = "Socket"; break;
+                default: mode = "Unknown"; break;
+            }
+
+            toolStripStatusConnectionMode.Text = mode;
+            toolStripStatusConnected.ForeColor = mRunning ? Color.Green : Color.Crimson;
+            toolStripStatusConnected.Text = mRunning.ToString();
+
+            if (mCurrentFile.CompareTo("unknown") != 0)
+            {
+                toolStripStatusSourceLocation.Text = "Source Location:";
+                toolStripStatusSourceLocationFile.Text = mCurrentFile;
+                toolStripStatusSourceLocationLine.Text = mCurrentLine.ToString();
+                toolStripStatusSourceLocationColon.Visible = true;
+            }
+            else
+            {
+                toolStripStatusSourceLocation.Text = string.Empty;
+                toolStripStatusSourceLocationFile.Text = string.Empty;
+                toolStripStatusSourceLocationLine.Text = string.Empty;
+                toolStripStatusSourceLocationColon.Visible = false;
+            }
         }
 
         void DebugModuleChangedEvent(object sender, DebugModuleChangedEventArgs args)
