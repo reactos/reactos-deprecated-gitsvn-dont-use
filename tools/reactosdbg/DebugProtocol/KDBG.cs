@@ -18,7 +18,7 @@ namespace KDBGProtocol
         Dictionary<string, ulong> mModuleList = new Dictionary<string, ulong>();
         ulong []mRegisters = new ulong[32];
 
-        public KDBG(Pipe connection) 
+        public KDBG(Pipe connection)
         { 
             mConnection = connection;
             mConnection.PipeReceiveEvent += PipeReceiveEvent;

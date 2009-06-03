@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections; 
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,6 +20,14 @@ namespace RosDBG
         {
             private SerialConnSettings _serialconnsettings;
             private PipeConnSettings _pipeconnsettings;
+
+            [UserScopedSetting()]
+            [Browsable(false)]
+            public ExternalToolList ExternalTools
+            {
+                get { return (ExternalToolList)this["ExternalTools"]; }
+                set { this["ExternalTools"] = (ExternalToolList)value; }
+            }
 
             [UserScopedSetting, DefaultSettingValue("0")]
             [Browsable(false)]
@@ -262,9 +271,15 @@ namespace RosDBG
         public static string Baudrate { get { return mProperties.Baudrate; } }
         public static string AppLogging { get { return mProperties.AppLogging; } }
         public static string AppLogFile { get { return mProperties.AppLogFile; } }
-        public static Connect.ConnectionType SelectedConnType { 
+        public static Connect.ConnectionType SelectedConnType
+        { 
             get { return mProperties.SelectedConnType; }
             set {  mProperties.SelectedConnType = value; }
+        }
+        public static ExternalToolList ExternalTools
+        {
+            get { return mProperties.ExternalTools; }
+            set { mProperties.ExternalTools = value; }
         }
 
         public Settings()

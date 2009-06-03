@@ -384,6 +384,58 @@ namespace RosDBG
             ((ToolWindow)dockPanel.ActiveDocument.DockHandler.Form).Print(false);
         }
 
+        private void externalToolsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExtTools exTools = new ExtTools();
+            if (exTools.ShowDialog(this) == DialogResult.OK)
+            {
+                Settings.Save();
+                UpdateExternalToolsMenu();
+            }
+        }
+
+        private void UpdateExternalToolsMenu()
+        {
+            int i = 0;
+            bool bFirst = true;
+            while (true)
+            {
+                if ((toolsMenu.DropDownItems[i].Tag != null) && 
+                    (toolsMenu.DropDownItems[i].Tag.ToString() == "tool"))
+                    toolsMenu.DropDownItems.Remove(toolsMenu.DropDownItems[i]);
+                else
+                    i++;
+                if (i >= toolsMenu.DropDownItems.Count - 1)
+                    break;
+            }
+            foreach (object o in Settings.ExternalTools)
+            {
+                ToolStripMenuItem item = new ToolStripMenuItem(o.ToString(), null,
+                    new System.EventHandler(this.LaunchExternalToolToolStripMenuItem_Click),
+                    ((ExternalTool)o).Path);
+                item.Tag = "tool";
+                toolsMenu.DropDownItems.Insert(bFirst ? 0 : 1, item);
+                bFirst = false;
+            }
+        }
+
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+            UpdateExternalToolsMenu();
+        }
+
+        private void LaunchExternalToolToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Process.Start(((ToolStripMenuItem)sender).Name);
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
     }
 
 }

@@ -108,6 +108,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DebugInfoFile.cs" />
+    <Compile Include="ExtTools.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExtTools.Designer.cs">
+      <DependentUpon>ExtTools.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileDirChooser.cs">
     </Compile>
     <Compile Include="Dockable Objects\ToolWindow.cs">
@@ -167,6 +173,9 @@
     <EmbeddedResource Include="Dockable Objects\Locals.resx">
       <DependentUpon>Locals.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ExtTools.resx">
+      <DependentUpon>ExtTools.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
@@ -305,6 +314,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-rosdbg.ico" />
+    <None Include="app.config" />
     <None Include="Resources\copyToolStripMenuItem.Image.png" />
     <None Include="Resources\Run.bmp" />
     <None Include="Resources\Pause.bmp" />
