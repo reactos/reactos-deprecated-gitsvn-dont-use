@@ -173,6 +173,8 @@ namespace DebugProtocol
 
         #region Named Pipe Members
         NamedPipe mNamedPipe;
+        string mPipeName;
+        ConnectionMode mMode;
         Thread ReadThread;
         Thread WriteThread;
         #endregion
@@ -235,13 +237,24 @@ namespace DebugProtocol
             WriteThread.Start();
         }
 
+        void NamedPipe_ClientDisconectedEvent(object sender, EventArgs e)
+        {
+            Running = false;
+            mNamedPipe.Close();
+            mNamedPipe.CreatePipe(mPipeName, mMode);
+        }
+
         public void StartPipe(string pipeName, ConnectionMode mode)
         {
+            mPipeName = pipeName;
+            mMode = mode;
+
             Close();
             ConnectionMode = Mode.PipeMode;
 
             mNamedPipe = new NamedPipe();
             mNamedPipe.ClientConnectedEvent += new EventHandler(NamedPipe_ClientConnectedEvent);
+            mNamedPipe.ClientDisconnectedEvent += new EventHandler(NamedPipe_ClientDisconectedEvent);
             mNamedPipe.PipeReceiveEvent +=new PipeReceiveEventHandler(PipeReceiveEvent);
             mNamedPipe.PipeErrorEvent +=new PipeErrorEventHandler(MediumErrorEvent);
 
@@ -352,10 +365,7 @@ namespace DebugProtocol
                         mNamedPipe = null;
                     }
                     Running = false;
-                    if (ReadThread != null)
-                        ReadThread.Abort();
-                    if (WriteThread != null)
-                        WriteThread.Abort();
+
                     break;
             }
 

@@ -408,14 +408,17 @@ namespace RosDBG
                 if (i >= toolsMenu.DropDownItems.Count - 1)
                     break;
             }
-            foreach (object o in Settings.ExternalTools)
+            if (Settings.ExternalTools != null)
             {
-                ToolStripMenuItem item = new ToolStripMenuItem(o.ToString(), null,
-                    new System.EventHandler(this.LaunchExternalToolToolStripMenuItem_Click),
-                    ((ExternalTool)o).Path);
-                item.Tag = "tool";
-                toolsMenu.DropDownItems.Insert(bFirst ? 0 : 1, item);
-                bFirst = false;
+                foreach (object o in Settings.ExternalTools)
+                {
+                    ToolStripMenuItem item = new ToolStripMenuItem(o.ToString(), null,
+                        new System.EventHandler(this.LaunchExternalToolToolStripMenuItem_Click),
+                        ((ExternalTool)o).Path);
+                    item.Tag = "tool";
+                    toolsMenu.DropDownItems.Insert(bFirst ? 0 : 1, item);
+                    bFirst = false;
+                }
             }
         }
 

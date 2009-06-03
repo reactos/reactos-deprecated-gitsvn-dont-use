@@ -27,6 +27,7 @@ namespace AbstractPipe
         private Thread waitThread;
 
         public event EventHandler ClientConnectedEvent;
+        public event EventHandler ClientDisconnectedEvent;
         public event PipeReceiveEventHandler PipeReceiveEvent;
         public event PipeErrorEventHandler PipeErrorEvent;
 
@@ -129,6 +130,11 @@ namespace AbstractPipe
             if (ioStream != null)
                 ioStream.Close();
 
+            bClientConn = false;
+
+            /* Wake up the write thread so it can die */
+            newWriteData.Set();
+
             if (waitThread != null)
                 waitThread.Abort();
         }
@@ -144,7 +150,7 @@ namespace AbstractPipe
             {
                 try
                 {
-                    while (true)
+                    while (bClientConn)
                     {
                         if (cmdList.Count > 0)
                         {
@@ -186,7 +192,7 @@ namespace AbstractPipe
             {
                 try
                 {
-                    while (true)
+                    while (bClientConn)
                     {
                         read = ioStream.Read(buf, 0, PIPE_SIZE);
                         if (read > 0)
@@ -196,7 +202,16 @@ namespace AbstractPipe
                         }
                         else
                         {
-                            /* connecion closed */
+                            /* 
+                             * Connecion closed!
+                             * We'll hijack this thread and use it to set up our pipe server again.
+                             * This thread will terminate once the connection is set up, it does not block.
+                             */
+                            if (ClientDisconnectedEvent != null)
+                            {
+                                ClientDisconnectedEvent(this, EventArgs.Empty);
+                            }
+
                             break;
                         }
                     }

@@ -35,5 +35,6 @@ namespace AbstractPipe
     public interface NPipe
     {
         event EventHandler ClientConnectedEvent;
+        event EventHandler ClientDisconnectedEvent;
     }
 }
