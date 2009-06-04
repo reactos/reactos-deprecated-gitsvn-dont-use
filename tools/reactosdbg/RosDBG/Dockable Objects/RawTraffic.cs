@@ -26,6 +26,7 @@ namespace RosDBG
         PrintDocument printDoc;
         DebugConnection mConnection;
         List<string> textToAdd = new List<string>();
+        string kdbPrompt = "\r\nkdb:> ";
 
 
 
@@ -54,9 +55,17 @@ namespace RosDBG
             lock (textToAdd)
             {
                 foreach (string s in textToAdd)
-                    toAdd.Append(s);
+                {
+                    if (s.EndsWith(kdbPrompt))
+                    {
+                        toAdd.Append(s.Remove(s.Length - kdbPrompt.Length));
+                    }
+                    else
+                    {
+                        toAdd.Append(s);
+                    }
+                }
                 textToAdd.Clear();
-                //TODO: skip backspace signs
             }
             RawTrafficText.AppendText(toAdd.ToString());
         }
@@ -93,7 +102,7 @@ namespace RosDBG
         {
             if (RawTrafficTextBox.Text.Length > 0)
             {
-                //AddCommandToList(RawTrafficTextBox.Text);
+                RawTrafficText.AppendText(kdbPrompt);
                 mConnection.Debugger.Write(RawTrafficTextBox.Text);
             }
         }
