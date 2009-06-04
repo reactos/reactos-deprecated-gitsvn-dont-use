@@ -229,7 +229,7 @@ namespace AbstractPipe
             /* only forward a complete line */
             wCommand += str;
 
-            if (str[str.Length-1] == '\r')
+            if (str[str.Length-1] == '\r') //FIXME: remove this
             {
                 cmdList.Add(wCommand);
                 wCommand = null;

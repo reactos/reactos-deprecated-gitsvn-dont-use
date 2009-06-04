@@ -20,11 +20,22 @@ namespace RosDBG
         private int totalPages;
         private int pageNumber;
         private string strPrintText;
+        private List<string> prevCommand;
+        private int maxCommands = 10;
         PrintDialog pd;
         PrintDocument printDoc;
-
         DebugConnection mConnection;
         List<string> textToAdd = new List<string>();
+
+
+
+        public RawTraffic()
+        {
+            InitializeComponent();
+
+            prevCommand = new List<string>(maxCommands);
+            RawTrafficTextBox.Tag = 0;
+        }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -48,11 +59,8 @@ namespace RosDBG
                 //TODO: skip backspace signs
             }
             RawTrafficText.AppendText(toAdd.ToString());
-            InputLabel.Location = RawTrafficText.GetPositionFromCharIndex(RawTrafficText.Text.Length -1);
-            InputLabel.Top += 2;
-            InputLabel.Left += 2;
         }
-
+        
         void DebugRawTrafficEvent(object sender, DebugRawTrafficEventArgs args)
         {
             lock (textToAdd)
@@ -62,57 +70,36 @@ namespace RosDBG
             Invoke(Delegate.CreateDelegate(typeof(NoParamsDelegate), this, "UpdateText"));
         }
 
-        public RawTraffic()
+        private void AddCommandToList(string cmd)
         {
-            InitializeComponent();
-            InputLabel.Location = new Point(2, 2);
-        }
-
-        private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if ((mConnection.ConnectionMode != DebugConnection.Mode.ClosedMode) && (!mConnection.Running))
+            if (prevCommand.Count == maxCommands)
             {
-                switch ((int)e.KeyChar)
+                for (int i = 0; i < prevCommand.Count; i++)
                 {
-                    case 8: /* Backspace */
-                        if (InputLabel.Text.Length > 0)
-                            InputLabel.Text = InputLabel.Text.Substring(0, InputLabel.Text.Length - 1);
-                        break;
-                    case 13: /* Return */
-                        if (InputLabel.Text.ToLower().CompareTo("cont") == 0)
-                            mConnection.Running = true; 
-                        InputLabel.Text = "";
-                        break;
-                    default:
-                        InputLabel.Text += e.KeyChar;
-                        break;
+                    if (i < prevCommand.Count - 1)
+                        prevCommand[i] = prevCommand[i + 1];
                 }
 
-                mConnection.Debugger.Write("" + e.KeyChar);
+                prevCommand.RemoveAt(prevCommand.Count - 1);
+            }
+
+            prevCommand.Add(cmd);
+
+            RawTrafficTextBox.Tag = prevCommand.Count;
+        }
+
+
+        private void SendCommandToDebugger()
+        {
+            if (RawTrafficTextBox.Text.Length > 0)
+            {
+                //AddCommandToList(RawTrafficTextBox.Text);
+                mConnection.Debugger.Write(RawTrafficTextBox.Text);
             }
         }
 
-        private void RawTrafficText_MouseUp(object sender, MouseEventArgs e)
-        {
-            copyToolStripMenuItem.Enabled = (RawTrafficText.SelectionLength > 0);
-        }
 
-        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (RawTrafficText.SelectionLength != 0)
-                Clipboard.SetText(RawTrafficText.SelectedText);
-        }
-
-        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RawTrafficText.SelectAll(); 
-        }
-
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            selectAllToolStripMenuItem.Enabled = (RawTrafficText.Text.Length != 0);
-        }
-
+        #region override methods
         public override bool IsCmdEnabled(Commands Cmd)
         {
             switch (Cmd)
@@ -171,71 +158,154 @@ namespace RosDBG
                     printDoc.Print();
                 }
         }
+        #endregion
+
+        #region events
+        private void RawTrafficTextBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    AddCommandToList(RawTrafficTextBox.Text);
+                    RawTrafficTextBox.Text += '\r'; //FIXME: remove this
+                    SendCommandToDebugger();
+                    RawTrafficTextBox.Text = string.Empty;
+                    break;
+
+                case Keys.Up:
+                case Keys.Down:
+                    int prevCmd = (int)RawTrafficTextBox.Tag;
+
+                    if (e.KeyCode == Keys.Up)
+                        prevCmd--;
+                    else
+                        prevCmd++;
+
+                    if (prevCmd >= 0 && prevCmd < prevCommand.Count)
+                    {
+                        RawTrafficTextBox.Text = prevCommand[prevCmd];
+                        RawTrafficTextBox.Tag = prevCmd;
+                        RawTrafficTextBox.SelectionStart = RawTrafficTextBox.Text.Length;
+                    }
+                    break;
+
+                case Keys.Escape:
+                    RawTrafficTextBox.Text = string.Empty;
+                    RawTrafficTextBox.Tag = prevCommand.Count;
+                    break;
+            }
+
+        }
+
+        private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((mConnection.ConnectionMode != DebugConnection.Mode.ClosedMode) && (!mConnection.Running))
+            {
+                switch ((int)e.KeyChar)
+                {
+                    case 8: /* Backspace */
+                        if (RawTrafficTextBox.Text.Length > 0)
+                            RawTrafficTextBox.Text = RawTrafficTextBox.Text.Substring(0, RawTrafficTextBox.Text.Length - 1);
+                        break;
+                    case 13: /* Return */
+                        if (RawTrafficTextBox.Text.ToLower().CompareTo("cont") == 0)
+                            mConnection.Running = true;
+                        RawTrafficTextBox.Text += e.KeyChar;
+                        SendCommandToDebugger();
+                        break;
+                    default:
+                        RawTrafficTextBox.Text += e.KeyChar;
+                        break;
+                }
+            }
+        }
+
+        private void RawTrafficText_MouseUp(object sender, MouseEventArgs e)
+        {
+            copyToolStripMenuItem.Enabled = (RawTrafficText.SelectionLength > 0);
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (RawTrafficText.SelectionLength != 0)
+                Clipboard.SetText(RawTrafficText.SelectedText);
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RawTrafficText.SelectAll();
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            selectAllToolStripMenuItem.Enabled = (RawTrafficText.Text.Length != 0);
+        }
 
         private void printDoc_PrintPage(object sender, PrintPageEventArgs e)
         {
-                StringFormat stringFormat = new StringFormat();
-                RectangleF rectFPaper, rectFText;
-                int intChars, intLines;
+            StringFormat stringFormat = new StringFormat();
+            RectangleF rectFPaper, rectFText;
+            int intChars, intLines;
 
-                rectFPaper = e.MarginBounds;
-                rectFText = RectangleF.Inflate(rectFPaper, 0,
-                                    -2 * RawTrafficText.Font.GetHeight(e.Graphics));
-                int totalLines = (int)Math.Floor(rectFText.Height /
-                                         RawTrafficText.Font.GetHeight(e.Graphics));
-                rectFText.Height = totalLines *
-                                          RawTrafficText.Font.GetHeight(e.Graphics);
-                stringFormat.Trimming = StringTrimming.Word;
+            rectFPaper = e.MarginBounds;
+            rectFText = RectangleF.Inflate(rectFPaper, 0,
+                                -2 * RawTrafficText.Font.GetHeight(e.Graphics));
+            int totalLines = (int)Math.Floor(rectFText.Height /
+                                     RawTrafficText.Font.GetHeight(e.Graphics));
+            rectFText.Height = totalLines *
+                                      RawTrafficText.Font.GetHeight(e.Graphics);
+            stringFormat.Trimming = StringTrimming.Word;
 
-                while ((pageNumber < startPage) && (strPrintText.Length > 0))
-                {
-                    e.Graphics.MeasureString(strPrintText, RawTrafficText.Font,
-                                         rectFText.Size, stringFormat,
-                                         out intChars, out intLines);
-                    strPrintText = strPrintText.Substring(intChars);
-                    pageNumber++;
-                }
-
-                // Cancel job when nothing to print is left
-                if (strPrintText.Length == 0)
-                {
-                    e.Cancel = true;
-                    return;
-                }
-
-                e.Graphics.DrawString(strPrintText, RawTrafficText.Font, Brushes.Black, rectFText, stringFormat);
+            while ((pageNumber < startPage) && (strPrintText.Length > 0))
+            {
                 e.Graphics.MeasureString(strPrintText, RawTrafficText.Font,
-                                         rectFText.Size, stringFormat,
-                                         out intChars, out intLines);
+                                     rectFText.Size, stringFormat,
+                                     out intChars, out intLines);
                 strPrintText = strPrintText.Substring(intChars);
-                stringFormat = new StringFormat();
-
-                // show filename in header
-                stringFormat.Alignment = StringAlignment.Center;
-
-                e.Graphics.DrawString(printDoc.DocumentName, RawTrafficText.Font,
-                                      Brushes.Black, rectFPaper, stringFormat);
-
-                // show page number in footer
-                stringFormat.LineAlignment = StringAlignment.Far;
-
-                e.Graphics.DrawString("Page " + pageNumber, RawTrafficText.Font,
-                                     Brushes.Black, rectFPaper, stringFormat);
-
                 pageNumber++;
-                e.HasMorePages = (strPrintText.Length > 0) &&
-                                 (pageNumber < startPage + totalPages);
+            }
 
-                //re-init
-                if (!e.HasMorePages)
-                {
-                    strPrintText = RawTrafficText.Text;
-                    startPage = 1;
-                    totalPages = pd.PrinterSettings.MaximumPage;
-                    pageNumber = 1;
-                }
-            
+            // Cancel job when nothing to print is left
+            if (strPrintText.Length == 0)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            e.Graphics.DrawString(strPrintText, RawTrafficText.Font, Brushes.Black, rectFText, stringFormat);
+            e.Graphics.MeasureString(strPrintText, RawTrafficText.Font,
+                                     rectFText.Size, stringFormat,
+                                     out intChars, out intLines);
+            strPrintText = strPrintText.Substring(intChars);
+            stringFormat = new StringFormat();
+
+            // show filename in header
+            stringFormat.Alignment = StringAlignment.Center;
+
+            e.Graphics.DrawString(printDoc.DocumentName, RawTrafficText.Font,
+                                  Brushes.Black, rectFPaper, stringFormat);
+
+            // show page number in footer
+            stringFormat.LineAlignment = StringAlignment.Far;
+
+            e.Graphics.DrawString("Page " + pageNumber, RawTrafficText.Font,
+                                 Brushes.Black, rectFPaper, stringFormat);
+
+            pageNumber++;
+            e.HasMorePages = (strPrintText.Length > 0) &&
+                             (pageNumber < startPage + totalPages);
+
+            //re-init
+            if (!e.HasMorePages)
+            {
+                strPrintText = RawTrafficText.Text;
+                startPage = 1;
+                totalPages = pd.PrinterSettings.MaximumPage;
+                pageNumber = 1;
+            }
+
         }
+        #endregion
 
     }
 }
