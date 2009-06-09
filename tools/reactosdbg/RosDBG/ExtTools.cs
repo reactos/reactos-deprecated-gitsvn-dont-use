@@ -40,7 +40,8 @@ namespace RosDBG
             mAddRemove = true; 
             ExternalTool t = new ExternalTool();
             ToolsListBox.Items.Add(t);
-            ToolsListBox.SelectedIndex = ToolsListBox.Items.Count - 1;
+            mExternalToolsList.Add(t);
+            ToolsListBox.SelectedIndex = ToolsListBox.Items.Count - 1; 
             btnRemove.Enabled = true;
             mAddRemove = false;
         }
@@ -71,7 +72,7 @@ namespace RosDBG
 
         private void SaveItem(int Idx)
         {
-            if (!mAddRemove)
+            if ((!mAddRemove) && (Idx >= 0))
             {
                 ExternalTool item = new ExternalTool(txtTitle.Text, txtPath.Text);     
                 mUpdatingList = true;
