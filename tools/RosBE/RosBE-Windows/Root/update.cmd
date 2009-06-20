@@ -32,7 +32,7 @@ cd /d %_ROSBE_BASEDIR%
 
 :: First check for a new Updater
 for %%F in (update.cmd) do set _ROSBE_UPDDATE=%%~tF
-rem "Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd 1> NUL 2> NUL
+"Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd 1> NUL 2> NUL
 for %%F in (update.cmd) do set _ROSBE_UPDDATE2=%%~tF
 if !_ROSBE_UPDDATE! NEQ !_ROSBE_UPDDATE2! (
     cls
