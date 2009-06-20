@@ -17,7 +17,7 @@
 #
 # Constants
 #
-CFLAGS="-march=i686 -O2"
+CFLAGS="-march=pentium3 -O2"
 CXXFLAGS="$CFLAGS"
 INSTALLDIR="/c/buildtoolchain/mingw"
 LDFLAGS="-s"
