@@ -28,6 +28,7 @@ namespace RosDBG
         List<string> textToAdd = new List<string>();
         string kdbPrompt = "\r\nkdb:> ";
 
+        private string[] builtinCommands = { ".cls", ".reload" };
 
 
         public RawTraffic()
@@ -48,6 +49,36 @@ namespace RosDBG
             mConnection = conn;
             conn.DebugRawTrafficEvent += DebugRawTrafficEvent;
         }
+
+        private void ParseBuiltinCommand(string command)
+        {
+            if (command == ".cls")
+            {
+                AddCommandToList(command);
+                RawTrafficText.Text = string.Empty;
+            }
+        }
+
+        private void ParseGdbCommand(string command)
+        {
+            AddCommandToList(command);
+            RawTrafficTextBox.Text += '\r'; //FIXME: remove this
+            SendCommandToDebugger();
+            RawTrafficTextBox.Text = string.Empty;
+        }
+
+        private void ParseCommand(string command)
+        {
+            if (command.StartsWith("."))
+            {
+                ParseBuiltinCommand(command);
+            }
+            else
+            {
+                ParseGdbCommand(command);
+            }
+        }
+
 
         void UpdateText()
         {
@@ -81,6 +112,12 @@ namespace RosDBG
 
         private void AddCommandToList(string cmd)
         {
+            if (prevCommand.Count > 0 &&
+                prevCommand[prevCommand.Count - 1] == cmd)
+            {
+                return;
+            }
+
             if (prevCommand.Count == maxCommands)
             {
                 for (int i = 0; i < prevCommand.Count; i++)
@@ -175,10 +212,10 @@ namespace RosDBG
             switch (e.KeyCode)
             {
                 case Keys.Enter:
-                    AddCommandToList(RawTrafficTextBox.Text);
-                    RawTrafficTextBox.Text += '\r'; //FIXME: remove this
-                    SendCommandToDebugger();
-                    RawTrafficTextBox.Text = string.Empty;
+                    if (RawTrafficTextBox.Text.Length > 0)
+                    {
+                        ParseCommand(RawTrafficTextBox.Text);
+                    }
                     break;
 
                 case Keys.Up:
