@@ -23,13 +23,13 @@ INSTALLDIR="/c/buildtoolchain/mingw"
 LDFLAGS="-s"
 MINGWDIR="/mingw"
 NEEDED_TOOLS="bison flex gcc g++ grep make makeinfo"
-TARGET="mingw32"
+TARGET="i586-pc-mingw32"
 TEMPDIR="/c/buildtoolchain"
 WIN32_INSTALLDIR="c:/buildtoolchain/mingw"
 
 # Make sure we build an entirely native compiler, since MSYS might report subtle differences (i.e. "i686-pc-mingw32" instead of "mingw32")
-BUILD="$TARGET"
-HOST="$TARGET"
+BUILD="mingw32"
+HOST="mingw32"
 
 # The following variables need to be accessed by Make and its subprocesses.
 export CFLAGS
