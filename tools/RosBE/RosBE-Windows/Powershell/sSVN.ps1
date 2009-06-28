@@ -73,6 +73,7 @@ elseif ($args[0] -eq "create") {
     if (Test-Path ".svn\.") {
         "ERROR: Folder already contains a repository."
     } else {
+        $null = (Remove-Item "$_ROSBE_LOGDIR" -recurse -force)
         $dir = get-childitem
         if ($dir -eq $null) {
             IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."

@@ -46,7 +46,7 @@ if /i "%1" == "create" (
         echo ERROR: Folder already contains a repository.
         goto :EOC
     )
-
+    rd /s /q "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
         "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/reactos .

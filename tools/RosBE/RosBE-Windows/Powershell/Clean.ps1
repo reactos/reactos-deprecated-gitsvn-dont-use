@@ -38,9 +38,9 @@ function rembin {
     }
 
     if ($ENV:ROS_ARCH -eq "i386") {
-        $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto"
-    } else {
         $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile.auto"
+    } else {
+        $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto"
     }
 
     if (Test-Path "$MAKEFILE") {
