@@ -9,8 +9,8 @@ CFLAGS := -DWIN32 -DUNICODE -O2 -std=c99 -D_WIN32_IE=0x0400 -D_WIN32_WINNT=0x050
 LFLAGS := -mwindows -s
 LIBS := -lshell32
 
-SRCS := options.c
-RC := options.rc
+SRCS := options64.c
+RC := options64.rc
 
 OBJS := $(SRCS:.c=.o) $(RC:.rc=.coff)
 
