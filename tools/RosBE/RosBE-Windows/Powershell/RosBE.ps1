@@ -30,7 +30,7 @@ if ("$ENV:ROS_ARCH" -eq "") {
 
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
-$global:_ROSBE_VERSION = "1.4.3"
+$global:_ROSBE_VERSION = "1.4.4"
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $global:_ROSBE_SHOWTIME = 1
 $global:_ROSBE_WRITELOG = 1
