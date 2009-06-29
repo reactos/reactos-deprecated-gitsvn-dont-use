@@ -7,6 +7,9 @@
 - Fixed "ssvn create" not working due to the fact that RosBE creates a log folder and then tries to verify a
   empty folder. Thx for gabriel_it and kjk_hyperion for mentioning. (Daniel Reimer)
 - Updated: NSIS to 2.45 (Daniel Reimer) 
+- Added a while like loop to the batch scripts where needed and used in PS. This allows us to use update.cmd for
+  more than 10 updates and made the show logs feature of ssvn working in Batch too (Daniel Reimer, Victor Martinez)
+- Fixed Update.cmd by removing a missed prerelease hack. (Daniel Reimer)
 
 *** May 26th, 2009 - RosBE 1.4.3 Released
 
