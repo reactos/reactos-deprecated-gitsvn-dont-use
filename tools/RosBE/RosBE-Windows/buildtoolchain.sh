@@ -17,13 +17,13 @@
 #
 # Constants
 #
-CFLAGS="-march=pentium3 -O2"
+CFLAGS="-O2"
 CXXFLAGS="$CFLAGS"
 INSTALLDIR="/c/buildtoolchain/mingw"
 LDFLAGS="-s"
 MINGWDIR="/mingw"
 NEEDED_TOOLS="bison flex gcc g++ grep make makeinfo"
-TARGET="i586-pc-mingw32"
+TARGET="mingw32"
 TEMPDIR="/c/buildtoolchain"
 WIN32_INSTALLDIR="c:/buildtoolchain/mingw"
 
