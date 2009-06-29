@@ -423,16 +423,16 @@ Function un.onInit
     IfFileExists "$PROFILE\RosBE\." 0 +5
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
         "Do you want to remove the ReactOS Build Environment configuration file from the Profile Path?" \
-        IDNO +1
+        IDNO +2
         RMDir /r /REBOOTOK "$PROFILE\RosBE"
     IfFileExists "$APPDATA\RosBE\." 0 +5
         MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
         "Do you want to remove the ReactOS Build Environment configuration file from the Application Data Path?" \
-        IDNO +1
+        IDNO +2
         RMDir /r /REBOOTOK "$APPDATA\RosBE"
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
     "Do you want to remove the Shortcuts? If you just want to Update to a new Version of RosBE, keep them. This keeps your previous settings." \
-    IDNO +9
+    IDNO +5
     Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
     Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
     Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - Powershell.lnk"
