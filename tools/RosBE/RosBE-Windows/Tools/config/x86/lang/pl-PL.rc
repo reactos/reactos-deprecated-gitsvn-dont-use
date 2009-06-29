@@ -13,7 +13,8 @@ BEGIN
   CONTROL "Poka¿ czas budowania", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 45, 100, 12
   CONTROL "U¿yj CCache", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 60, 100, 12
   CONTROL "Usuñ dane debugowania", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 75, 100, 12
-  CONTROL "Utwórz pliki nostrip dla debugowania", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 150, 12
+  CONTROL "Utwórz pliki nostrip dla debugowania", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 145, 12
+  CONTROL "Show Versions Header", ID_SHOWVERSION, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 155, 90, 100, 12
   LTEXT "Œcie¿ka do MinGW/GCC", -1, 10, 107, 100, 15
   EDITTEXT ID_MGWDIR, 10, 120, 200, 13, WS_TABSTOP
   PUSHBUTTON "...", ID_BROWSEMGW, 215, 120, 30, 13, WS_TABSTOP
@@ -75,4 +76,5 @@ BEGIN
   HLP_QUITBUTTON, "Przycisk pozwala na wyjœcie bez zapisania ustawieñ."
   HLP_DEFAULTMSG, "NajedŸ na element, aby uzyskaæ pomoc."
   HLP_NOSTRIP,    "Utwórz informacje debugowania dla Debuggera ReactOS."
+  HLP_VERSION,    "Show the Versions of the RosBE Components."
 END

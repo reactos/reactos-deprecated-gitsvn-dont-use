@@ -40,6 +40,7 @@ set _ROSBE_NOSTRIP=0
 set _ROSBE_LOGDIR=%CD%\RosBE-Logs
 set _ROSBE_OBJPATH=
 set _ROSBE_OUTPATH=
+set _ROSBE_SHOWVERSION=0
 set _ROSBE_HOST_MINGWPATH=%_ROSBE_BASEDIR%\i386
 set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
 set _ROSBE_ORIGINALPATH=%_ROSBE_HOST_MINGWPATH%\bin;%PATH%
@@ -104,6 +105,9 @@ echo.
 :: new source directory.
 if exist "%_ROSBE_BASEDIR%\scut.cmd" (
     call "%_ROSBE_BASEDIR%\scut.cmd"
+)
+if "%_ROSBE_SHOWVERSION%" == "1" (
+    call "%_ROSBE_BASEDIR%\version.cmd"
 )
 
 :: Tell how to display the available commands.

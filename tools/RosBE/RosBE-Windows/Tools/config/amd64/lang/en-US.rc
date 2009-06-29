@@ -13,7 +13,8 @@ BEGIN
   CONTROL "Show Build Time", ID_SHOWBUILDTIME, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 45, 100, 12
   CONTROL "Use CCache", ID_USECCACHE, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 60, 100, 12
   CONTROL "Strip Output", ID_STRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 75, 100, 12
-  CONTROL "Create nostrip files for debugging", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 150, 12
+  CONTROL "Create nostrip files for debugging", ID_NOSTRIP, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 10, 90, 145, 12
+  CONTROL "Show Versions Header", ID_SHOWVERSION, "button", BS_AUTOCHECKBOX | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 155, 90, 100, 12
   LTEXT "Path to MinGW/GCC", -1, 10, 107, 100, 15
   EDITTEXT ID_MGWDIR, 10, 120, 200, 13, WS_TABSTOP
   PUSHBUTTON "...", ID_BROWSEMGW, 215, 120, 30, 13, WS_TABSTOP
@@ -75,4 +76,5 @@ BEGIN
   HLP_QUITBUTTON, "This button lets you quit configuration without saving."
   HLP_DEFAULTMSG, "Hover over a control to get help."
   HLP_NOSTRIP,    "Creates debug information for the ReactOS Debugger."
+  HLP_VERSION,    "Show the Versions of the RosBE Components."
 END

@@ -77,7 +77,7 @@ INT
 WriteSettings(POPTIONS_DLG infoPtr)
 {
     INT foreground, background;
-    BOOL showtime, writelog, useccache, strip, nostrip, objstate, outstate;
+    BOOL showtime, writelog, useccache, strip, nostrip, objstate, outstate, showversion;
     WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH], checkmgw[MAX_PATH];
     WCHAR msgerror[256];
     HANDLE hFile;
@@ -90,6 +90,7 @@ WriteSettings(POPTIONS_DLG infoPtr)
     nostrip = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_NOSTRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
     objstate = (SendDlgItemMessage(infoPtr->hwndDlg, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
     outstate = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    showversion = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_SHOWVERSION, BM_GETCHECK, 0, 0) == BST_CHECKED);
     foreground = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_GETCURSEL, 0, 0);
     background = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_LOGDIR, logdir, MAX_PATH);
@@ -136,6 +137,7 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFilecmd, L"set _ROSBE_STRIP=%d\n", strip);
         fwprintf(pFilecmd, L"set _ROSBE_NOSTRIP=%d\n", nostrip);
         fwprintf(pFilecmd, L"set _ROSBE_WRITELOG=%d\n", writelog);
+        fwprintf(pFilecmd, L"set _ROSBE_SHOWVERSION=%d\n", showversion);
         if (logdir[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_LOGDIR=%s\n", logdir);
         if (mingwpath[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_TARGET_MINGWPATH=%s\n", mingwpath);
         if ((objdir[0] != 0) && objstate) fwprintf(pFilecmd, L"set _ROSBE_OBJPATH=%s\n", objdir);
@@ -151,15 +153,16 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFileps1, L"(Get-Host).UI.RawUI.ForegroundColor = 0x%X\n", foreground);
         fwprintf(pFileps1, L"(Get-Host).UI.RawUI.BackgroundColor = 0x%X\n", background);
         fwprintf(pFileps1, L"clear-host\n");
-        fwprintf(pFileps1, L"$_ROSBE_SHOWTIME = %d\n", showtime);
-        fwprintf(pFileps1, L"$_ROSBE_USECCACHE = %d\n", useccache);
-        fwprintf(pFileps1, L"$_ROSBE_STRIP = %d\n", strip);
-        fwprintf(pFileps1, L"$_ROSBE_NOSTRIP = %d\n", nostrip);
-        fwprintf(pFileps1, L"$_ROSBE_WRITELOG = %d\n", writelog);
-        if (logdir[0] != 0) fwprintf(pFileps1, L"$_ROSBE_LOGDIR = \"%s\"\n", logdir);
-        if (mingwpath[0] != 0) fwprintf(pFileps1, L"$_ROSBE_TARGET_MINGWPATH = \"%s\"\n", mingwpath);
-        if ((objdir[0] != 0) && objstate) fwprintf(pFileps1, L"$_ROSBE_OBJPATH = \"%s\"\n", objdir);
-        if ((outdir[0] != 0) && outstate) fwprintf(pFileps1, L"$_ROSBE_OUTPATH = \"%s\"\n", outdir);
+        fwprintf(pFileps1, L"$global:_ROSBE_SHOWTIME = %d\n", showtime);
+        fwprintf(pFileps1, L"$global:_ROSBE_USECCACHE = %d\n", useccache);
+        fwprintf(pFileps1, L"$global:_ROSBE_STRIP = %d\n", strip);
+        fwprintf(pFileps1, L"$global:_ROSBE_NOSTRIP = %d\n", nostrip);
+        fwprintf(pFileps1, L"$global:_ROSBE_WRITELOG = %d\n", writelog);
+        fwprintf(pFileps1, L"$global:_ROSBE_SHOWVERSION = %d\n", showversion);
+        if (logdir[0] != 0) fwprintf(pFileps1, L"$global:_ROSBE_LOGDIR = \"%s\"\n", logdir);
+        if (mingwpath[0] != 0) fwprintf(pFileps1, L"$global:_ROSBE_HOST_MINGWPATH = \"%s\"\n", mingwpath);
+        if ((objdir[0] != 0) && objstate) fwprintf(pFileps1, L"$global:_ROSBE_OBJPATH = \"%s\"\n", objdir);
+        if ((outdir[0] != 0) && outstate) fwprintf(pFileps1, L"$global:_ROSBE_OUTPATH = \"%s\"\n", outdir);
     }
 
     if (pFilecmd && pFileps1)
@@ -224,6 +227,8 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
                     LoadedSettings->nostrip = wcstol(ptr2, NULL, 2);
                 else if (wcscmp(ptr, L"_ROSBE_WRITELOG") == 0)
                     LoadedSettings->writelog = wcstol(ptr2, NULL, 2);
+                else if (wcscmp(ptr, L"_ROSBE_SHOWVERSION") == 0)
+                    LoadedSettings->showversion = wcstol(ptr2, NULL, 2);
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
                     wcsncpy(LoadedSettings->logdir, ptr2, wcslen(ptr2)-1);
                 else if (wcscmp(ptr, L"_ROSBE_TARGET_MINGWPATH") == 0)
@@ -244,6 +249,7 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
         LoadedSettings->background = 0;
         LoadedSettings->showtime = 1;
         LoadedSettings->writelog = 1;
+        LoadedSettings->showversion = 0;
         GetCurrentDirectory(MAX_PATH, LoadedSettings->mingwpath);
         if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
             wcscat(LoadedSettings->mingwpath, MINGWVERSION);
@@ -254,6 +260,7 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
     SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_SETCURSEL, LoadedSettings->foreground, 0);
     SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_SETCURSEL, LoadedSettings->background, 0);
     SendDlgItemMessage(infoPtr->hwndDlg, ID_SHOWBUILDTIME, BM_SETCHECK, LoadedSettings->showtime, 0);
+    SendDlgItemMessage(infoPtr->hwndDlg, ID_SHOWVERSION, BM_SETCHECK, LoadedSettings->showversion, 0);
     SendDlgItemMessage(infoPtr->hwndDlg, ID_SAVELOGS, BM_SETCHECK, LoadedSettings->writelog, 0);
     if (LoadedSettings->writelog)
     {
@@ -286,7 +293,7 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
 VOID SetSaveState(POPTIONS_DLG infoPtr)
 {
     INT foreground, background;
-    BOOL showtime, writelog, useccache, strip, nostrip, objstate, outstate;
+    BOOL showtime, writelog, useccache, strip, nostrip, objstate, outstate, showversion;
     WCHAR logdir[MAX_PATH], objdir[MAX_PATH], outdir[MAX_PATH], mingwpath[MAX_PATH];
     BOOL StateObj = TRUE, StateOut = TRUE, StateLog = TRUE, State = TRUE;
     PSETTINGS DefaultSettings = &infoPtr->Settings;
@@ -298,6 +305,7 @@ VOID SetSaveState(POPTIONS_DLG infoPtr)
     nostrip = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_NOSTRIP, BM_GETCHECK, 0, 0) == BST_CHECKED);
     objstate = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_OTHEROBJ, BM_GETCHECK, 0, 0) == BST_CHECKED);
     outstate = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_OTHEROUT, BM_GETCHECK, 0, 0) == BST_CHECKED);
+    showversion = (SendDlgItemMessageW(infoPtr->hwndDlg, ID_SHOWVERSION, BM_GETCHECK, 0, 0) == BST_CHECKED);
     foreground = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_FONT, CB_GETCURSEL, 0, 0);
     background = (INT) SendDlgItemMessageW(infoPtr->hwndDlg, IDC_BACK, CB_GETCURSEL, 0, 0);
     GetDlgItemTextW(infoPtr->hwndDlg, ID_LOGDIR, logdir, MAX_PATH);
@@ -320,7 +328,7 @@ VOID SetSaveState(POPTIONS_DLG infoPtr)
             (useccache == DefaultSettings->useccache) && (strip == DefaultSettings->strip) &&
             (objstate == DefaultSettings->objstate) && (outstate == DefaultSettings->outstate) &&
             (StateLog) && (wcscmp(mingwpath, DefaultSettings->mingwpath) == 0) &&
-            (StateObj) && (StateOut) && (nostrip == DefaultSettings->nostrip));
+            (StateObj) && (StateOut) && (nostrip == DefaultSettings->nostrip) && (showversion == DefaultSettings->showversion));
 
     EnableWindow(GetDlgItem(infoPtr->hwndDlg, ID_OK), State);
 }
@@ -425,6 +433,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 {ID_BROWSEOBJ, HLP_FINDOBJDIR},
                 {ID_OTHEROBJ, HLP_FINDOBJDIR},
                 {ID_OUTDIR, HLP_FINDOUTDIR},
+                {ID_SHOWVERSION, HLP_VERSION},
                 {ID_BROWSEOUT, HLP_FINDOUTDIR},
                 {ID_OTHEROUT, HLP_FINDOUTDIR},
                 {ID_OK, HLP_SAVEBUTTON},
