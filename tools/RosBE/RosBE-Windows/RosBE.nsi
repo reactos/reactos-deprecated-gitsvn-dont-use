@@ -433,10 +433,10 @@ Function un.onInit
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
     "Do you want to remove the Shortcuts? If you just want to Update to a new Version of RosBE, keep them. This keeps your previous settings." \
     IDNO +5
-    Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
-    Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
-    Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - Powershell.lnk"
-    Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk"
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - Powershell.lnk"
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk"
 FunctionEnd
 
 Section Uninstall
