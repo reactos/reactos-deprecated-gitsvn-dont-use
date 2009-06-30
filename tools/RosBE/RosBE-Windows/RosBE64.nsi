@@ -255,6 +255,7 @@ Function UninstallPrevious
         Push $R0
         Call GetParent
         Pop $PREVIOUSINSTDIR
+        Pop $R0
         ExecWait '$R0 _?=$PREVIOUSINSTDIR'
     UninstallPrevious_no:
 FunctionEnd

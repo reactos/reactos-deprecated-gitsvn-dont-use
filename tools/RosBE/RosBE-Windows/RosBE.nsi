@@ -448,13 +448,17 @@ Section Uninstall
     ;;
     RMDir /r /REBOOTOK "$INSTDIR\i386"
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
+    StrCmp $ICONS_GROUP "" NO_SHORTCUTS
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
+    NO_SHORTCUTS:
     Delete /REBOOTOK "$INSTDIR\Build.cmd"
     Delete /REBOOTOK "$INSTDIR\Build-Multi.cmd"
     Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
+    Delete /REBOOTOK "$INSTDIR\charch.cmd"
+    Delete /REBOOTOK "$INSTDIR\charch.ps1"
     Delete /REBOOTOK "$INSTDIR\chdefgcc.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefgcc.ps1"
     Delete /REBOOTOK "$INSTDIR\Clean.cmd"
@@ -533,6 +537,7 @@ Function UninstallPrevious
         Push $R0
         Call GetParent
         Pop $PREVIOUSINSTDIR
+        Pop $R0
         ExecWait '$R0 _?=$PREVIOUSINSTDIR'
     UninstallPrevious_no:
 FunctionEnd
