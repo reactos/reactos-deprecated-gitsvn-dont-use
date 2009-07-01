@@ -1,3 +1,11 @@
+/*
+ * PROJECT:     ReactOS System Regression Testing Utility
+ * LICENSE:     GNU GPLv2 or any later version as published by the Free Software Foundation
+ * PURPOSE:     Loading the utility settings
+ * COPYRIGHT:   Copyright 2008-2009 Christoph von Wittich <christoph_vw@reactos.org>
+ *              Copyright 2009 Colin Finck <colin@reactos.org>
+ */
+
 #include "sysreg.h"
 
 bool LoadSettings(const char* XmlConfig)
@@ -51,10 +59,18 @@ bool LoadSettings(const char* XmlConfig)
     if (obj)
         xmlXPathFreeObject(obj);
 
-    obj = xmlXPathEval(BAD_CAST"number(/settings/general/maxcrashes/@value)",ctxt);
+    obj = xmlXPathEval(BAD_CAST"number(/settings/general/maxcachehits/@value)",ctxt);
     if ((obj != NULL) && (obj->type == XPATH_NUMBER))
     {
-        AppSettings.MaxCrashes = (int)obj->floatval;
+        AppSettings.MaxCacheHits = (unsigned int)obj->floatval;
+    }
+    if (obj)
+        xmlXPathFreeObject(obj);
+
+    obj = xmlXPathEval(BAD_CAST"number(/settings/general/maxretries/@value)",ctxt);
+    if ((obj != NULL) && (obj->type == XPATH_NUMBER))
+    {
+        AppSettings.MaxRetries = (unsigned int)obj->floatval;
     }
     if (obj)
         xmlXPathFreeObject(obj);

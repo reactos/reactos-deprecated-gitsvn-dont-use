@@ -1,3 +1,11 @@
+/*
+ * PROJECT:     ReactOS System Regression Testing Utility
+ * LICENSE:     GNU GPLv2 or any later version as published by the Free Software Foundation
+ * PURPOSE:     Various auxiliary functions
+ * COPYRIGHT:   Copyright 2008-2009 Christoph von Wittich <christoph_vw@reactos.org>
+ *              Copyright 2009 Colin Finck <colin@reactos.org>
+ */
+
 #include "sysreg.h"
 
 ssize_t safewrite(int fd, const void *buf, size_t count)

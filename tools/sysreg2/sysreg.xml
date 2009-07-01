@@ -6,8 +6,13 @@
 		<!-- size of the hdd image in MB -->
 		<hdd size="512"/>
 
-		<!-- Maximum number of crashes allowed before we kill the VM -->
-		<maxcrashes value="10" />
+		<!-- Maximum number of line cache hits allowed before we cancel this test and proceed with the next one.
+		     See "console.c" code for more details. -->
+		<maxcachehits value="50" />
+
+		<!-- Maximum number of retries allowed before we cancel the entire testing process.
+		     Note that this value needs to be at least 2, since the shutdowns after 1st and 2nd stage count as retries. -->
+		<maxretries value="15" />
 	</general>
 	<firststage bootdevice="cdrom">
 	</firststage>
