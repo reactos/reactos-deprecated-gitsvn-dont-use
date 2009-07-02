@@ -156,7 +156,7 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
             else
             {
                 CacheHits = 0;
-                memcpy(CacheBuffer, Buffer, bp - Buffer);
+                memcpy(CacheBuffer, Buffer, bp - Buffer + 1);
             }
 
             /* Output the line, raddr2line the included addresses if necessary */
