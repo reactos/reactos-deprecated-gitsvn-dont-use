@@ -94,7 +94,7 @@ if not "%1" == "" (
         )
         echo Do you want to see the changelog?
         set /p CL="Please enter 'yes' or 'no': "
-        if /i "!UP!"=="yes" (
+        if /i "!CL!"=="yes" (
             call :WHILE
         )
     )
