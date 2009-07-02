@@ -243,7 +243,7 @@ int main(int argc, char **argv)
             break;
         }
 
-        if (Ret == EXIT_CONTINUE || Ret == EXIT_DONT_CONTINUE)
+        if (Ret == EXIT_DONT_CONTINUE)
             break;
     }
 
