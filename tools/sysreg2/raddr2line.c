@@ -84,7 +84,7 @@ bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data)
             char* ptr;
             if (!outdir)
                 outdir = emptystr;
-            sprintf(Command, "%s/tools/raddr2line %s/%s %s 2>&1", 
+            sprintf(Command, "%s/tools/rsym/raddr2line %s/%s %s 2>&1", 
                     outdir, outdir, PkgData, Addr);
             FILE* p = popen(Command, "r");
             char buf[100] = {'\0'};
