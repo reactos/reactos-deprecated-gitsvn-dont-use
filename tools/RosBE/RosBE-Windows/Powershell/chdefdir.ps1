@@ -30,3 +30,4 @@ if ($SOURCEDIR -eq "previous") {
 
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
+set-location "$_ROSBE_ROSSOURCEDIR"

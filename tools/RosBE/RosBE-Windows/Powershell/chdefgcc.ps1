@@ -40,7 +40,6 @@ if ($TOOLMODE -eq $null) {
 # Verify the entered values
 $local:ErrorActionPreference = "SilentlyContinue"
 if (Test-Path "$_ROSBE_BASEDIR\$TOOLPATH\.") {
-    $ENV:ROS_ARCH = "$TOOLPATH"
     $TOOLPATH = "$_ROSBE_BASEDIR\$TOOLPATH"
 } elseif (!(Test-Path "$TOOLPATH\.")) {
     "ERROR: The path specified doesn't seem to exist."
@@ -54,9 +53,6 @@ if (!(Test-Path "$TOOLPATH\bin\*gcc.exe")) {
 
 # Set the values
 if ($TOOLMODE -eq "target") {
-    if ($ENV:ROS_ARCH -eq $null) {
-        $ENV:ROS_ARCH = Read-Host "Please specify the arch: "
-    }
     $_ROSBE_TARGET_MINGWPATH = $TOOLPATH
     "Target Location: $_ROSBE_TARGET_MINGWPATH"
     EOA
