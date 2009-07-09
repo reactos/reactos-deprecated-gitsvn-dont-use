@@ -16,11 +16,11 @@ if %_ROSBE_DEBUG% == 1 (
 ver
 
 :: GCC
-"%_ROSBE_TARGET_MINGWPATH%\bin\%ROS_PREFIX%gcc" -v 2>&1 | find "gcc version"
+"%_ROSBE_TARGET_MINGWPATH%\bin\%_ROSBE_PREFIX%gcc" -v 2>&1 | find "gcc version"
 echo gcc target^: %_ROSBE_TARGET_GCCTARGET%
 
 :: LD
-"%_ROSBE_TARGET_MINGWPATH%\bin\%ROS_PREFIX%ld" -v
+"%_ROSBE_TARGET_MINGWPATH%\bin\%_ROSBE_PREFIX%ld" -v
 
 :: NASM or YASM
 if exist "%_ROSBE_HOST_MINGWPATH%\bin\nasm.exe" (

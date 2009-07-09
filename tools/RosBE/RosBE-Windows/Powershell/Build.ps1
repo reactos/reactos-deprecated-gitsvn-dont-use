@@ -61,8 +61,8 @@ if ($_ROSBE_USECCACHE -eq 1) {
     $ENV:HOST_CPP = "$_ROSBE_CCACHE" + "g++"
     $ENV:TARGET_CC = "$_ROSBE_CCACHE" + "gcc"
     $ENV:TARGET_CPP = "$_ROSBE_CCACHE" + "g++"
-    $ENV:TARGET_CC = "$_ROSBE_CCACHE" + "$ROS_PREFIX" + "gcc"
-    $ENV:TARGET_CPP = "$_ROSBE_CCACHE" + "$ROS_PREFIX" + "g++"
+    $ENV:TARGET_CC = "$_ROSBE_CCACHE" + "$_ROSBE_PREFIX" + "gcc"
+    $ENV:TARGET_CPP = "$_ROSBE_CCACHE" + "$_ROSBE_PREFIX" + "g++"
 
 # Get the current date and time for use in in our build log's file name.
 $TIMERAW = get-date -f t

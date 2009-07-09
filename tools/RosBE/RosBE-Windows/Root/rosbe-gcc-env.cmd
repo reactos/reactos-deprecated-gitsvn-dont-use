@@ -16,15 +16,17 @@ if %_ROSBE_DEBUG% == 1 (
 
 :: Check if we're switching to the AMD64 architecture
 if "%ROS_ARCH%" == "amd64" (
-    set ROS_PREFIX=x86_64-pc-mingw32-
-) else (
-    set ROS_PREFIX=
+    set ROS_PREFIX=x86_64-pc-mingw32
+)
+
+if NOT "%ROS_PREFIX%" == "" (
+    set _ROSBE_PREFIX="%ROS_PREFIX%"-
 )
 
 set PATH=%_ROSBE_TARGET_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
 
-for /f "usebackq tokens=3" %%i in (`"%ROS_PREFIX%gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_TARGET_GCCVERSION=%%i
-for /f "usebackq tokens=2" %%i in (`"%ROS_PREFIX%gcc -v 2>&1 | find "Target""`) do set _ROSBE_TARGET_GCCTARGET=%%i
+for /f "usebackq tokens=3" %%i in (`"%_ROSBE_PREFIX%gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_TARGET_GCCVERSION=%%i
+for /f "usebackq tokens=2" %%i in (`"%_ROSBE_PREFIX%gcc -v 2>&1 | find "Target""`) do set _ROSBE_TARGET_GCCTARGET=%%i
 for /f "usebackq tokens=3" %%i in (`"gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_HOST_GCCVERSION=%%i
 for /f "usebackq tokens=2" %%i in (`"gcc -v 2>&1 | find "Target""`) do set _ROSBE_HOST_GCCTARGET=%%i
 

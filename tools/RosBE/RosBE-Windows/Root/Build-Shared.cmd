@@ -38,8 +38,8 @@ if "%_ROSBE_USECCACHE%" == "1" (
 
 set HOST_CC=%_ROSBE_CCACHE%gcc
 set HOST_CPP=%_ROSBE_CCACHE%g++
-set TARGET_CC=%_ROSBE_CCACHE%%ROS_PREFIX%gcc
-set TARGET_CPP=%_ROSBE_CCACHE%%ROS_PREFIX%g++
+set TARGET_CC=%_ROSBE_CCACHE%%_ROSBE_ROSPREFIX%gcc
+set TARGET_CPP=%_ROSBE_CCACHE%%_ROSBE_ROSPREFIX%g++
 
 :: Get the current date and time for use in in our build log's file name.
 call "%_ROSBE_BASEDIR%\TimeDate.cmd"

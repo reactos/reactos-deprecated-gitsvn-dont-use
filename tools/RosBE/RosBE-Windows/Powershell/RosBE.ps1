@@ -22,7 +22,7 @@ if ($ENV:APPDATA.Length -lt 1) {
 
 # Set defaults to work with and override them if edited by
 # the options utility.
-if ("$ENV:ROS_ARCH" -eq "") {
+if ($args[0] -eq $null) {
     $ENV:ROS_ARCH = "i386"
 } else {
     $ENV:ROS_ARCH = "$($args)"
@@ -30,6 +30,7 @@ if ("$ENV:ROS_ARCH" -eq "") {
 
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
+$global:_ROSBE_PREFIX = $null
 $global:_ROSBE_VERSION = "1.4.4"
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $global:_ROSBE_SHOWTIME = 1

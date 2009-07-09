@@ -7,7 +7,7 @@
   * Fixed some line skippers.
 (care2debug, Daniel Reimer)
 
-*** Jul 29th, 2009 - RosBE 1.4.4 Released
+*** Jun 29th, 2009 - RosBE 1.4.4 Released
 
 - Reverted to the old GCC. Because of the optimization we have problems running ROS on Pentium I PCs. (Colin Finck)
 - Updated SVN to 1.6.3 (Daniel Reimer)

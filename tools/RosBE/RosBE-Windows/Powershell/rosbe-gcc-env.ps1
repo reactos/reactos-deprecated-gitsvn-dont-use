@@ -9,13 +9,19 @@
 
 # Check if we're switching to the AMD64 architecture
 if ("$ENV:ROS_ARCH" -eq "amd64") {
-    $ENV:ROS_PREFIX = "x86_64-pc-mingw32-"
+    $ENV:ROS_PREFIX = "x86_64-pc-mingw32"
 } else {
     $ENV:ROS_PREFIX = $null
 }
 
+if ("$ENV:ROS_PREFIX") {
+    $global:_ROSBE_PREFIX = "$ENV:ROS_PREFIX" + "-"
+} else {
+    $global:_ROSBE_PREFIX = $null
+}
+ 
 $ENV:PATH = "$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
-$TARGETGCC = "$ENV:ROS_PREFIX" + "gcc"
+$TARGETGCC = "$global:_ROSBE_PREFIX" + "gcc"
 & $TARGETGCC -v 2> gcctvers.tmp
 $global:_ROSBE_TARGET_GCCVERSION = (select-string -path .\gcctvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
 $global:_ROSBE_TARGET_GCCTARGET = (select-string -path .\gcctvers.tmp "target=") -replace ".*--target=(.+?)\b.*",'$1'
