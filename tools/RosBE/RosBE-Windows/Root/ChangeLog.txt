@@ -6,6 +6,12 @@
   * Installer uninstalls charch too.
   * Fixed some line skippers.
 (care2debug, Daniel Reimer)
+- AMD64 Addon Fixes:
+  * Fix the one dash too much problem.
+  * Fix the args not checked bug.
+(Samuel Serapion)
+- Prepare scripts for RosBE64 1.1 which is compatible with the new RosBE Versions (Daniel Reimer)
+
 
 *** Jun 29th, 2009 - RosBE 1.4.4 Released
 

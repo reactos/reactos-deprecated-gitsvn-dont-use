@@ -105,33 +105,13 @@ var ICONS_GROUP
 ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 !insertmacro MUI_LANGUAGE "English"
 
-Section -BaseFiles SEC01
-    SetShellVarContext current
-    SetOutPath "$INSTDIR"
-    SetOverwrite try
-    File /r Root\charch.cmd
-    File /r Root\options.cmd
-    IfFileExists "$INSTDIR\RosBE.ps1" 0 +3
-        File /r Root\charch.ps1
-        File /r Root\options.ps1
-    SetOutPath "$INSTDIR\Tools"
-    SetOverwrite try
-    File /r Components\Tools\options64.exe
-    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-        SetOutPath $INSTDIR
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options x86-64.lnk" \
-                       "$INSTDIR\Tools\options64.exe"
-    !insertmacro MUI_STARTMENU_WRITE_END
-SectionEnd
-
-Section -MinGWGCCNASM SEC02
+Section -MinGWGCCNASM SEC01
     SetOutPath "$INSTDIR\amd64"
     SetOverwrite try
     File /r Components\amd64\*.*
 SectionEnd
 
-Section -StartMenuShortcuts SEC03
+Section -StartMenuShortcuts SEC02
     SetShellVarContext current
 
     ;;
@@ -147,6 +127,24 @@ Section -StartMenuShortcuts SEC03
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE - 64 Bit Target.lnk" \
                        "$INSTDIR\Uninstall64-${PRODUCT_VERSION}.exe"
+    !insertmacro MUI_STARTMENU_WRITE_END
+SectionEnd
+
+Section /o "Config Tool" SEC03
+    SetShellVarContext current
+    SetOutPath "$INSTDIR"
+    SetOverwrite try
+    File /r Root\options.cmd
+    IfFileExists "$INSTDIR\RosBE.ps1" 0 +3
+        File /r Root\options.ps1
+    SetOutPath "$INSTDIR\Tools"
+    SetOverwrite try
+    File /r Components\Tools\options64.exe
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
+        SetOutPath $INSTDIR
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options x86-64.lnk" \
+                       "$INSTDIR\Tools\options64.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
@@ -205,8 +203,8 @@ Section Uninstall
     ;; Clean up installed files.
     ;;
     RMDir /r /REBOOTOK "$INSTDIR\x86_64"
-    Delete /REBOOTOK "$INSTDIR\charch.cmd"
-    Delete /REBOOTOK "$INSTDIR\charch.ps1"
+    Delete /REBOOTOK "$INSTDIR\Tools\options64.exe
+    Delete /REBOOTOK "$INSTDIR\Tools\options64.exe
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
     RMDir /REBOOTOK "$INSTDIR"
