@@ -22,13 +22,12 @@ if not defined APPDATA set APPDATA=%USERPROFILE%
 
 :: Set defaults to work with and override them if edited by
 :: the options utility.
-if "%1%" == "" (
+if "%1" == "" (
     set ROS_ARCH=i386
 ) else (
     set ROS_ARCH=%1
 )
 
-set _ROSBE_ROSPREFIX=""
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
 set _ROSBE_VERSION=1.4.4

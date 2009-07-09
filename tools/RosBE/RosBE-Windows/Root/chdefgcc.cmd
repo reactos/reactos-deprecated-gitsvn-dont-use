@@ -18,7 +18,7 @@ setlocal enabledelayedexpansion
 title Change the current MinGW/GCC Host/Target directory...
 
 :: Parse the command line arguments. Ask the user if certain parameters are missing.
-if .%1. == .. (
+if "%1" == "" (
     set /p TOOLPATH="Please enter a MinGW/GCC directory (don't use quotes): "
 
     if "!TOOLPATH!" == "" (
@@ -42,7 +42,6 @@ if "%2" == "" (
 
 :: Verify the entered values
 if exist "%_ROSBE_BASEDIR%\%TOOLPATH%\." (
-    set ROS_ARCH=%TOOLPATH%
     set TOOLPATH=%_ROSBE_BASEDIR%\%TOOLPATH%
 ) else if not exist "%TOOLPATH%\." (
     echo ERROR: The path specified doesn't seem to exist.
@@ -56,20 +55,17 @@ if not exist "%TOOLPATH%\bin\*gcc.exe" (
 
 :: Set the values
 if /i "%TOOLMODE%" == "target" (
-    if "%ROS_ARCH%" == "i386" ( 
-        set /p ROS_ARCH="Please specify the arch: "
-    )
     echo Target Location: %TOOLPATH%
-    set _ROSBE_TARGET_MINGWPATH=%TOOLPATH%
+    endlocal & set _ROSBE_TARGET_MINGWPATH=%TOOLPATH%
 ) else if /i "%TOOLMODE%" == "host" (
     echo Host Location: %TOOLPATH%
-    set _ROSBE_HOST_MINGWPATH=%TOOLPATH%
+    endlocal & set _ROSBE_HOST_MINGWPATH=%TOOLPATH%
 ) else (
     echo ERROR: You specified wrong parameters.
     endlocal
     goto :EOC
 )
-endlocal & set _ROSBE_HOST_MINGWPATH=%_ROSBE_HOST_MINGWPATH%& set _ROSBE_TARGET_MINGWPATH=%_ROSBE_TARGET_MINGWPATH%& set ROS_ARCH=%ROS_ARCH%
+
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 call "%_ROSBE_BASEDIR%\version.cmd"
 

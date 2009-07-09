@@ -17,10 +17,14 @@ if %_ROSBE_DEBUG% == 1 (
 :: Check if we're switching to the AMD64 architecture
 if "%ROS_ARCH%" == "amd64" (
     set ROS_PREFIX=x86_64-pc-mingw32
+) else (
+    set ROS_PREFIX=
 )
 
-if NOT "%ROS_PREFIX%" == "" (
-    set _ROSBE_PREFIX="%ROS_PREFIX%"-
+if "%ROS_PREFIX%" == "" (
+    set _ROSBE_PREFIX=
+) else (
+    set _ROSBE_PREFIX=%ROS_PREFIX%-
 )
 
 set PATH=%_ROSBE_TARGET_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%

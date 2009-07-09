@@ -42,6 +42,6 @@ if /i "%SOURCEDIR%" == "previous" (
 )
 
 :EOC
-set SOURCEDIR=%CD%
 title ReactOS Build Environment %_ROSBE_VERSION%
-endlocal & set _ROSBE_ROSSOURCEDIR=%SOURCEDIR%
+endlocal & set _ROSBE_ROSSOURCEDIR=%CD%
+cd /d %_ROSBE_ROSSOURCEDIR%
