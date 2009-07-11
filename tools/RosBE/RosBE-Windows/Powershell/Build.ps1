@@ -85,19 +85,19 @@ $host.ui.RawUI.WindowTitle = "'$TITLE_COMMAND' build started: $TIMERAW   ($ENV:R
 if ($_ROSBE_SHOWTIME -eq 1) {
     [System.Diagnostics.Stopwatch] $sw;
     $sw = New-Object System.Diagnostics.StopWatch
+    $sw.Start()
 }
 
 if ($_ROSBE_WRITELOG -eq 1) {
-    $sw.Start()
     $file = "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_TARGET_GCCVERSION-$DATENAME-$TIMENAME.txt"
     &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file
-    $sw.Stop()
 } else {
-    $sw.Start()
     &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} $($args)
-    $sw.Stop()
 }
-write-host "Total Build Time:" $sw.Elapsed.ToString()
+if ($_ROSBE_SHOWTIME -eq 1) {
+    $sw.Stop()
+    write-host "Total Build Time:" $sw.Elapsed.ToString()
+}
 
 # Highlight the fact that building has ended.
 "$_ROSBE_BASEDIR\Tools\flash.exe"
