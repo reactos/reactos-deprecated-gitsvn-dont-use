@@ -9,7 +9,7 @@
 
 # Check if we're switching to the AMD64 architecture
 if ("$ENV:ROS_ARCH" -eq "amd64") {
-    $ENV:ROS_PREFIX = "x86_64-pc-mingw32"
+    $ENV:ROS_PREFIX = "x86_64-w64-mingw32"
 } else {
     $ENV:ROS_PREFIX = $null
 }
