@@ -95,7 +95,7 @@ if not "%1" == "" (
         echo Do you want to see the changelog?
         set /p CL="Please enter 'yes' or 'no': "
         if /i "!CL!"=="yes" (
-            call :WHILE
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" log -r !OFFSVN!:!ONSVN!
         )
     )
     if !OFFSVN! equ !ONSVN! (
@@ -103,14 +103,6 @@ if not "%1" == "" (
     )
 
 goto EOC
-
-:WHILE
-
-if "!OFFSVN!" GTR "!ONSVN!" GOTO :OUT
-"%_ROSBE_BASEDIR%\Tools\svn.exe" log -r !OFFSVN!
-set /A OFFSVN+=1
-GOTO :WHILE
-:OUT
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%

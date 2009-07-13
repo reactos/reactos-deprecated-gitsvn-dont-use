@@ -36,10 +36,8 @@ function UP {
         "Do you want to see the changelog?"
         $CL = Read-Host "Please enter 'yes' or 'no': "
         if (($CL -eq "yes") -or ($CL -eq "y")) {
-            while ($OFFSVN -lt $ONSVN) {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' log -r $OFFSVN"
-                $OFFSVN += 1
-            }
+            $range = $OFFSVN + ":" + $ONSVN
+            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' log -r $range"
         }
     }
     if ($OFFSVN -eq $ONSVN) {
