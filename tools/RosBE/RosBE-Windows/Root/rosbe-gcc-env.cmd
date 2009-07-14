@@ -16,7 +16,7 @@ if %_ROSBE_DEBUG% == 1 (
 
 :: Check if we're switching to the AMD64 architecture
 if "%ROS_ARCH%" == "amd64" (
-    set ROS_PREFIX=x86_64-pc-mingw32
+    set ROS_PREFIX=x86_64-w64-mingw32
 ) else (
     set ROS_PREFIX=
 )

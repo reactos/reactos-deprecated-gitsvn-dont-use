@@ -14,7 +14,7 @@
 #include <wchar.h>
 #include "resources.h"
 
-#define MINGWVERSION L"\\x86_64"
+#define MINGWVERSION L"\\amd64"
 
 typedef struct _SETTINGS
 {

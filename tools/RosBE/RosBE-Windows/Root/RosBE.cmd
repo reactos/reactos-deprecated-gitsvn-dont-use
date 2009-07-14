@@ -55,9 +55,14 @@ set C_INCLUDE_PATH=
 set CPLUS_INCLUDE_PATH=
 set LIBRARY_PATH=
 
+if "%ROS_ARCH%" == "amd64" (
+    color 0B
+)
 :: Load the user's options if any
-if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
-    call "%APPDATA%\RosBE\rosbe-options.cmd"
+if "%ROS_ARCH%" == "i386" (
+    if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
+        call "%APPDATA%\RosBE\rosbe-options.cmd"
+    )
 )
 
 if exist "%APPDATA%\RosBE\rosbe-options-%1.cmd" (

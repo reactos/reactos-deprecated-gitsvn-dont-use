@@ -4,7 +4,7 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 ID_DIALOG DIALOGEX DISCARDABLE  0, 0, 255, 290
 STYLE DS_MODALFRAME | DS_CENTER | WS_VISIBLE | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Установки переменных компилятора ReactOS - x86-64"
+CAPTION "Установки переменных компилятора ReactOS - AMD64"
 FONT 8,"MS Sans Serif",0,0
 BEGIN
   LTEXT "Цвет фона", -1, 10, 10, 75, 12

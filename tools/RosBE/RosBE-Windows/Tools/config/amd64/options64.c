@@ -111,8 +111,8 @@ WriteSettings(POPTIONS_DLG infoPtr)
             return FALSE;
 
     wcscpy(checkmgw, mingwpath);
-    if ((wcslen(checkmgw) + wcslen(L"\\bin\\gcc.exe")) < MAX_PATH)
-        wcscat(checkmgw, L"\\bin\\gcc.exe");
+    if ((wcslen(checkmgw) + wcslen(L"\\bin\\x86_64-w64-mingw32-gcc.exe")) < MAX_PATH)
+        wcscat(checkmgw, L"\\bin\\x86_64-w64-mingw32-gcc.exe");
     hFile = CreateFile(checkmgw, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
     {

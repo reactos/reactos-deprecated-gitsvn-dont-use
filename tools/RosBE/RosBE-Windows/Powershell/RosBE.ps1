@@ -11,9 +11,6 @@
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
 # Set defaults to work with and override them if edited by the options utility.
-(Get-Host).UI.RawUI.ForegroundColor = "Green"
-(Get-Host).UI.RawUI.BackgroundColor = "Black"
-clear-host
 
 # For NT4 compatibility
 if ($ENV:APPDATA.Length -lt 1) {
@@ -27,6 +24,14 @@ if ($args[0] -eq $null) {
 } else {
     $ENV:ROS_ARCH = "$($args)"
 }
+if ($ENV:ROS_ARCH -eq "amd64") {
+    (Get-Host).UI.RawUI.ForegroundColor = 0xB
+    (Get-Host).UI.RawUI.BackgroundColor = 0x0
+} else {
+    (Get-Host).UI.RawUI.ForegroundColor = 0xA
+    (Get-Host).UI.RawUI.BackgroundColor = 0x0
+}
+clear-host
 
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
@@ -123,8 +128,10 @@ if (!(Test-Path "$ENV:APPDATA\RosBE")) {
 }
 
 # Load the user's options if any
-if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
-    & "$ENV:APPDATA\RosBE\rosbe-options.ps1"
+if ($args[0] -eq $null) {
+    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
+        & "$ENV:APPDATA\RosBE\rosbe-options.ps1"
+    }
 }
 
 if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1") {
