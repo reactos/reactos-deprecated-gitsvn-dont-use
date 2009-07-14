@@ -20,8 +20,7 @@ function UPDCHECK {
 
     if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
         return
-    }
-    if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
+    } else {
         get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
     }
     if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
@@ -31,7 +30,7 @@ function UPDCHECK {
         $YESNO = Read-Host "(yes), (no)"
         if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
             if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z")) {
-                get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
+                get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z
             }
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z") {
                 remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT\*.*" -force -EA SilentlyContinue

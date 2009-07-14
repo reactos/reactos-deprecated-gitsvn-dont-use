@@ -57,15 +57,15 @@ if "%1" == "" (
     call :UPDCHECK
 ) else if /i "%1" == "delete" (
     set _ROSBE_STATCOUNT=%2
-    del /F /Q "%APPDATA%\RosBE\Updates\%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.*" 1> NUL 2> NUL
-    del /F /Q "%APPDATA%\RosBE\Updates\tmp\%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.*" 1> NUL 2> NUL
+    del /F /Q "%APPDATA%\RosBE\Updates\%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.*" 1> NUL 2> NUL
+    del /F /Q "%APPDATA%\RosBE\Updates\tmp\%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.*" 1> NUL 2> NUL
 ) else if /i "%1" == "info" (
     set _ROSBE_STATCOUNT=%2
     cd tmp
-    if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
-        if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-            type "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt"
+    if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
+        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
+        if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
+            type "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt"
         ) else (
             echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
             goto :EOC
@@ -92,16 +92,16 @@ goto :EOC
 :UPDCHECK
 cd /d "%APPDATA%\RosBE\Updates"
 
-if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
+if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
     goto :EOF
 )
 
-if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
+if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
+    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
 )
 
-if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-    type "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt"
+if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
+    type "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt"
     echo.
     echo Install?
     set /p YESNO="(yes), (no)"
@@ -109,14 +109,14 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
     if /i "!YESNO!"=="y" goto :updyes
     goto :no
     :updyes
-        if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z" (
-            "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z 1> NUL 2> NUL
+        if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z" (
+            "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z 1> NUL 2> NUL
         )
-        if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z" (
-            del /F /Q "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%\*.*" 1>NUL 2>NUL
-            "%_ROSBE_BASEDIR%\Tools\7z.exe" x "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.7z"
-            cd "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%"
-            call "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.cmd"
+        if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z" (
+            del /F /Q "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!\*.*" 1>NUL 2>NUL
+            "%_ROSBE_BASEDIR%\Tools\7z.exe" x "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z"
+            cd "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!"
+            call "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.cmd"
             goto :EOF
         ) else (
             echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
@@ -130,7 +130,7 @@ if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
         if /i "!YESNO!"=="y" goto :yesagain
         goto :EOF
         :yesagain
-        del "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" 1> NUL 2> NUL
+        del "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" 1> NUL 2> NUL
         goto :EOF
     )
 ) else (
@@ -150,18 +150,18 @@ goto :EOF
 :WHILE2
     if "!_ROSBE_STATCOUNT!" == "10" GOTO :OUT
     cd tmp
-    if not exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt 1> NUL 2> NUL
-        if exist "%_ROSBE_VERSION%-%_ROSBE_STATCOUNT%.txt" (
-            set _ROSBE_UPDATES=%_ROSBE_UPDATES% %_ROSBE_STATCOUNT% 
+    if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
+        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
+        if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
+            set _ROSBE_UPDATES=!_ROSBE_UPDATES! !_ROSBE_STATCOUNT!
         )
     )
     cd..
     set /a _ROSBE_STATCOUNT+=1
     GOTO :WHILE2
-:OUT
 
 :EOC
 cd /d "%_ROSBE_OPATH%"
 title ReactOS Build Environment %_ROSBE_VERSION%
-endlocal
+:OUT
+endlocal & set _ROSBE_UPDATES=%_ROSBE_UPDATES% & set _ROSBE_STATCOUNT=%_ROSBE_STATCOUNT%
