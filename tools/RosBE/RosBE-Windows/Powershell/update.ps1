@@ -53,8 +53,9 @@ function UPDCHECK {
     } else {
         if ($_ROSBE_MULTIUPD -ne "1") {
             "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
-            return
         }
+        $_ROSBE_STATCOUNT = 9
+        return
     }
 }
 
@@ -133,6 +134,8 @@ if ("$args" -eq "") {
             get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
                  $_ROSBE_UPDATES += "$_ROSBE_STATCOUNT "
+            } else {
+                 $_ROSBE_STATCOUNT = 9
             }
         }
         $_ROSBE_STATCOUNT += 1

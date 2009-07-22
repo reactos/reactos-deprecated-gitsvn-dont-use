@@ -15,6 +15,10 @@ if %_ROSBE_DEBUG% == 1 (
 setlocal enabledelayedexpansion
 title ReactOS Build Configurator
 
+if not exists "%APPDATA%\RosBE\RBUILDFLAGS.FLG" (
+    echo %RBUILDFLAGS% > "%APPDATA%\RosBE\RBUILDFLAGS.FLG"
+)
+
 :: Receive the first Parameter and decide what to do.
 if /i "%1" == "delete" (
     echo config.rbuild will be permanently deleted. All your settings will be gone.
@@ -39,6 +43,13 @@ if /i "%1" == "delete" (
         echo Working Configuration File was not found in ReactOS Source Tree.
     )
 
+    if exist "%APPDATA%\RosBE\RBUILDFLAGS.FLG" (
+        del "%APPDATA%\RosBE\RBUILDFLAGS.FLG"
+        echo RBuild Flags File was found and deleted.
+    ) else (
+        echo RBuild Flags File was not found in ReactOS Source Tree.
+    )
+
     goto :NOK
 )
 
@@ -56,6 +67,170 @@ if /i "%1" == "update" (
     del "config.rbuild"
     copy "config.template.rbuild" "%APPDATA%\RosBE\config.rbuild"
     echo Successfully Updated.
+    goto :NOK
+)
+
+if /i "%1" == "rbuild" (
+    echo Be verbose.
+    echo Default is: no
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-v""`) do set VERBOSE_B=%%i
+    if "%VERBOSE_B%" == "" (
+        set VERBOSE_B=no
+    ) else (
+        set VERBOSE_B=yes
+    )
+    echo Right now: %VERBOSE_B%
+    set /p VERBOSE="(yes), (no)"
+    if "%VERBOSE%" == "" (
+        set VERBOSE=%VERBOSE_B%
+    )
+    if "%VERBOSE%" == "yes" (
+        set RBUILDFLAGS=-v
+    )
+    cls
+
+    echo Delete generated files as soon as they are not needed anymore.
+    echo Default is: no
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-c""`) do set CLEAN_B=%%i
+    if "%CLEAN_B%" == "" (
+        set CLEAN_B=no
+    ) else (
+        set CLEAN_B=yes
+    )
+    echo Right now: %CLEAN_B%
+    set /p CLEAN="(yes), (no)"
+    if "%CLEAN%" == "" (
+        set CLEAN=%CLEAN_B%
+    )
+    if "%CLEAN%" == "yes" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -c
+    )
+    cls
+
+    echo Disable/Enable automatic dependencies.
+    echo Default is: yes
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-df""`) do set DEPENDS_B=%%i
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-dd""`) do set DEPENDS_B2=%%i
+    )
+    if not "%DEPENDS_B%" == "" (
+        set DEPENDS_B=full
+    ) else if not "%DEPENDS_B2%" == "" (
+        set DEPENDS_B=no
+    ) else (
+        set DEPENDS_B=yes
+    )
+    echo Right now: %DEPENDS_B%
+    set /p DEPENDS="(full), (yes), (no)"
+    if "%DEPENDS%" == "" (
+        set DEPENDS=%DEPENDS_B%
+    )
+    if "%DEPENDS%" == "full" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -df
+    ) else if "%DEPENDS%" == "no" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -dd
+    )
+    cls
+
+    echo Use precompiled headers.
+    echo Default is: yes
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-hd""`) do set PRECHEADER_B=%%i
+    if "%PRECHEADER_B%" == "" (
+        set PRECHEADER_B=yes
+    ) else (
+        set PRECHEADER_B=no
+    )
+    echo Right now: %PRECHEADER_B%
+    set /p PRECHEADER="(yes), (no)"
+    if "%PRECHEADER%" == "" (
+        set PRECHEADER=%PRECHEADER_B%
+    )
+    if "%PRECHEADER%" == "no" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -hd
+    )
+    cls
+
+    echo Let make handle creation of install directories. Rbuild will not generate
+    echo the directories.
+    echo Default is: no
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-mi""`) do set MAKEDIR_B=%%i
+    if "%MAKEDIR_B%" == "" (
+        set MAKEDIR_B=no
+    ) else (
+        set MAKEDIR_B=yes
+    )
+    echo Right now: %MAKEDIR_B%
+    set /p MAKEDIR="(yes), (no)"
+    if "%MAKEDIR%" == "" (
+        set MAKEDIR=%MAKEDIR_B%
+    )
+    if "%MAKEDIR%" == "yes" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -mi
+    )
+    cls
+
+    echo Generate proxy makefiles in source tree instead of the output tree.
+    echo Default is: no
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-ps""`) do set PROXYMAKE_B=%%i
+    if "%PROXYMAKE_B%" == "" (
+        set PROXYMAKE_B=no
+    ) else (
+        set PROXYMAKE_B=yes
+    )
+    echo Right now: %PROXYMAKE_B%
+    set /p PROXYMAKE="(yes), (no)"
+    if "%PROXYMAKE%" == "" (
+        set PROXYMAKE=%PROXYMAKE_B%
+    )
+    if "%PROXYMAKE%" == "yes" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -ps
+    )
+    cls
+
+    echo Use compilation units.
+    echo Default is: yes
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-ud""`) do set COMPUNITS_B=%%i
+    if "%COMPUNITS_B%" == "" (
+        set COMPUNITS_B=yes
+    ) else (
+        set COMPUNITS_B=no
+    )
+    echo Right now: %COMPUNITS_B%
+    set /p COMPUNITS="(yes), (no)"
+    if "%COMPUNITS%" == "" (
+        set COMPUNITS=%COMPUNITS_B%
+    )
+    if "%COMPUNITS%" == "no" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -ud
+    )
+    cls
+
+    echo Input XML.
+    echo Default is: no
+    echo.
+    for /f "usebackq tokens=3" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG" | find "-r""`) do set XML_B=%%i
+    if "%XML_B%" == "" (
+        set XML_B=no
+    ) else (
+        set XML_B=yes
+    )
+    echo Right now: %XML_B%
+    set /p XML="(yes), (no)"
+    if "%XML%" == "" (
+        set XML=%XML_B%
+    )
+    if "%XML%" == "yes" (
+        set RBUILDFLAGS=%RBUILDFLAGS% -r
+    )
+    cls
+    echo %RBUILDFLAGS% > "%APPDATA%\RosBE\RBUILDFLAGS.FLG"
+    %ROS_RBUILDFLAGS% = %RBUILDFLAGS%
     goto :NOK
 )
 

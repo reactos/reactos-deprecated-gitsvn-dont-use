@@ -165,6 +165,7 @@ if "%1" == "" (
         echo.
         echo    delete - Deletes the created configuration file and so sets back to default
         echo             settings.
+        echo    rbuild - Switches to RBuild Flag setting mode.
         echo    update - Deletes the old created configuration file and updates it with a
         echo             new, default one.
     )

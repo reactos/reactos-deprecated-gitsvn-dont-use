@@ -159,6 +159,7 @@ if ("$args" -eq "") {
         ""
         "    delete - Deletes the created configuration file and so sets back to the"
         "             default settings."
+        "    rbuild - Switches to RBuild Flag setting mode."
         "    update - Deletes the old created configuration file and updates it with a"
         "             new, default one."
     }

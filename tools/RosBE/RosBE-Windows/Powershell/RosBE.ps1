@@ -138,6 +138,10 @@ if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1") {
     & "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1"
 }
 
+if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG") {
+    $ENV:ROS_RBUILDFLAGS = get-content "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+}
+
 # Check if writing logs is enabled, if so check if our log directory
 # exists, if it doesn't, create it.
 if ($_ROSBE_WRITELOG -eq 1) {

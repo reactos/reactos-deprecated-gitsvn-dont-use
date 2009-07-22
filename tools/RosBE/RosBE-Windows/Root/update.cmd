@@ -136,8 +136,9 @@ if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
 ) else (
     if not "%_ROSBE_MULTIUPD%" == "1" (
         echo ERROR: This Update does not seem to exist or the Internet connection is not working correctly.
-        goto :EOF
     )
+    set _ROSBE_STATCOUNT=9
+    goto :EOF
 )
 goto :EOF
 
@@ -154,6 +155,8 @@ goto :EOF
         "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
         if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
             set _ROSBE_UPDATES=!_ROSBE_UPDATES! !_ROSBE_STATCOUNT!
+        ) else (
+            set _ROSBE_STATCOUNT=9
         )
     )
     cd..
