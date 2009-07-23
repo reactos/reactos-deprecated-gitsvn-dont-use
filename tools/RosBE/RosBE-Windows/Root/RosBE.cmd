@@ -70,7 +70,7 @@ if exist "%APPDATA%\RosBE\rosbe-options-%1.cmd" (
 )
 
 if exist "%APPDATA%\RosBE\RBUILDFLAGS.FLG" (
-    for /f "usebackq" %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG""`) do set ROS_RBUILDFLAGS=%%i
+    for /f "usebackq tokens=* delims= " %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG""`) do set ROS_RBUILDFLAGS=%%i
 )
 
 :: Check if RosBE data directory exists, if not, create it.

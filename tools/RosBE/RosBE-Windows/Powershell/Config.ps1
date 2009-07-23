@@ -9,8 +9,8 @@
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Configurator"
 
-if (!(Test-Path "%APPDATA%\RosBE\RBUILDFLAGS.FLG")) {
-    $RBUILDFLAGS > "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+if (!(Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG")) {
+    "-da" > "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
 }
 
 function settitle {
@@ -22,7 +22,7 @@ function rbuild {
     "Be verbose."
     "Default is: no"
     ""
-    $VERBOSE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-v")
+    $VERBOSE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-v")
     if ("$VERBOSE_B" -eq "") {
         $VERBOSE_B = "no"
     } else {
@@ -41,7 +41,7 @@ function rbuild {
     "Delete generated files as soon as they are not needed anymore."
     "Default is: no"
     ""
-    $CLEAN_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-c")
+    $CLEAN_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-c")
     if ("$CLEAN_B" -eq "") {
         $CLEAN_B = "no"
     } else {
@@ -60,8 +60,8 @@ function rbuild {
     "Disable/Enable automatic dependencies."
     "Default is: yes"
     ""
-    $DEPENDS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-df")
-    $DEPENDS_B2 = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-dd")
+    $DEPENDS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-df")
+    $DEPENDS_B2 = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-dd")
     if (!("$DEPENDS_B" -eq "")) {
         $DEPENDS_B = "full"
     } elseif (!("$DEPENDS_B2" -eq "")) {
@@ -86,7 +86,7 @@ function rbuild {
     "Use precompiled headers."
     "Default is: yes"
     ""
-    $PRECHEADER_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-hd")
+    $PRECHEADER_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-hd")
     if ("$PRECHEADER_B" -eq "") {
         $PRECHEADER_B = "yes"
     } else {
@@ -106,7 +106,7 @@ function rbuild {
     "the directories."
     "Default is: no"
     ""
-    $MAKEDIR_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-mi")
+    $MAKEDIR_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-mi")
     if ("$MAKEDIR_B" -eq "") {
         $MAKEDIR_B = "no"
     } else {
@@ -125,7 +125,7 @@ function rbuild {
     "Generate proxy makefiles in source tree instead of the output tree."
     "Default is: no"
     ""
-    $PROXYMAKE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-ps")
+    $PROXYMAKE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-ps")
     if ("$PROXYMAKE_B" -eq "") {
         $PROXYMAKE_B = "no"
     } else {
@@ -144,7 +144,7 @@ function rbuild {
     "Use compilation units."
     "Default is: yes"
     ""
-    $COMPUNITS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-ud")
+    $COMPUNITS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-ud")
     if ("$COMPUNITS_B" -eq "") {
         $COMPUNITS_B = "yes"
     } else {
@@ -163,7 +163,7 @@ function rbuild {
     "Input XML."
     "Default is: no"
     ""
-    $XML_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" "-r")
+    $XML_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-r")
     if ("$XML_B" -eq "") {
         $XML_B = "no"
     } else {
@@ -178,7 +178,7 @@ function rbuild {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -r"
     }
     clear-host
-    $RBUILDFLAGS > "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+    "$RBUILDFLAGS" > "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
     $ENV:ROS_RBUILDFLAGS = $RBUILDFLAGS
 }
 
