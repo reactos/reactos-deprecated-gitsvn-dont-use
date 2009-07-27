@@ -25,6 +25,7 @@ namespace AbstractPipe
         private List<String> cmdList; /*list of commands pending to be written */
         private bool bClientConn;
         private Thread waitThread;
+        private NamedPipeServerStream sStream;
 
         public event EventHandler ClientConnectedEvent;
         public event EventHandler ClientDisconnectedEvent;
@@ -43,34 +44,39 @@ namespace AbstractPipe
             cmdList = new List<string>();
         }
 
-        private void WaitForConnection(object data)
+        private void WaitForConnection()
         {
-            NamedPipeServerStream pipeStream = (NamedPipeServerStream)data;
-
-            pipeStream.WaitForConnection();
-
-            if (pipeStream.IsConnected)
+            try
             {
-                ioStream = pipeStream;
-                bClientConn = true;
+                sStream.WaitForConnection();
 
-                if (ClientConnectedEvent != null)
+                if (sStream.IsConnected)
                 {
-                    ClientConnectedEvent(this, EventArgs.Empty);
+                    ioStream = sStream;
+                    bClientConn = true;
+
+                    if (ClientConnectedEvent != null)
+                    {
+                        ClientConnectedEvent(this, EventArgs.Empty);
+                    }
                 }
+            }
+            catch (IOException)
+            {
+                /* Pipe got killed externally */
             }
         }
 
         public void CreateServerPipe(string name)
         {
             /* create a pipe and wait for a client */
-            NamedPipeServerStream sStream = new NamedPipeServerStream(name, PipeDirection.InOut, 1, 
+            sStream = new NamedPipeServerStream(name, PipeDirection.InOut, 1, 
                 PipeTransmissionMode.Byte, PipeOptions.Asynchronous, PIPE_SIZE, PIPE_SIZE);
 
             waitThread = new Thread(WaitForConnection);
-            waitThread.Start(sStream);
+            waitThread.Start();
         }
-       
+
         public bool CreateClientPipe(string name)
         {
             /* try to connect as a client */
@@ -136,7 +142,9 @@ namespace AbstractPipe
             newWriteData.Set();
 
             if (waitThread != null)
-                waitThread.Abort();
+            {
+                sStream.Close();
+            }
         }
 
         public void WriteLoop()

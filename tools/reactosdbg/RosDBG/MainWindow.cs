@@ -315,7 +315,7 @@ namespace RosDBG
                             mConnection.StartTCP(newConnection.Host, newConnection.Port);
                             break;
                     }
-                    connectToolStripMenuItem.Text = "&Disconect";
+                    connectToolStripMenuItem.Text = "&Disconnect";
                 }
             }
             else
@@ -461,7 +461,7 @@ namespace RosDBG
             {
                 Process.Start(((ToolStripMenuItem)sender).Name);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
 
             }
