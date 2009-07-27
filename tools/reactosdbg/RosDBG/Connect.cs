@@ -112,12 +112,21 @@ namespace RosDBG
             int i = 0;
 
             /* Serial */
-            foreach (string s in SerialPort.GetPortNames())
+            string[] serialPorts = SerialPort.GetPortNames();
+            if (serialPorts == null || serialPorts.Length == 0)
             {
-                cPort.Items.Add(s);
+                tabControl.TabPages.Remove(tabSerial);
+                Settings.SelectedConnType = ConnectionType.Pipe;
             }
-            SelectComboItem(cPort, Settings.ComPort);
-            SelectComboItem(cBaud, Settings.Baudrate);
+            else
+            {
+                foreach (string s in serialPorts)
+                {
+                    cPort.Items.Add(s);
+                }
+                SelectComboItem(cPort, Settings.ComPort);
+                SelectComboItem(cBaud, Settings.Baudrate);
+            }
 
             /* Pipe */
             DefaultRadioBtn.Text += " [" + defaultPipeName + "]";
@@ -128,7 +137,18 @@ namespace RosDBG
             }
             cType.SelectedIndex = i;
 
-            tabControl.SelectedIndex = (int) Settings.SelectedConnType;
+            switch (Settings.SelectedConnType)
+            {
+                case ConnectionType.Pipe:
+                    tabControl.SelectedTab = tabPipe;
+                    break;
+                case ConnectionType.Serial:
+                    tabControl.SelectedTab = tabSerial;
+                    break;
+                case ConnectionType.Socket:
+                    tabControl.SelectedTab = tabSocket;
+                    break;
+            }
         }
 
         private void CustomRadioBtn_CheckedChanged(object sender, EventArgs e)
@@ -139,7 +159,18 @@ namespace RosDBG
 
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Type = (ConnectionType) ((TabControl)sender).SelectedIndex;
+            if (tabControl.SelectedTab == tabPipe)
+            {
+                Type = ConnectionType.Pipe;
+            }
+            else if(tabControl.SelectedTab == tabSerial)
+            {
+                Type = ConnectionType.Serial;
+            }
+            else if (tabControl.SelectedTab == tabSocket)
+            {
+                Type = ConnectionType.Socket;
+            }
         }
     }
 }
