@@ -54,7 +54,6 @@ namespace AbstractPipe
                 {
                     ioStream = sStream;
                     bClientConn = true;
-
                     if (ClientConnectedEvent != null)
                     {
                         ClientConnectedEvent(this, EventArgs.Empty);
@@ -89,6 +88,11 @@ namespace AbstractPipe
                 if (cStream.IsConnected)
                 {
                     ioStream = cStream;
+                    bClientConn = true;
+                    if (ClientConnectedEvent != null)
+                    {
+                        ClientConnectedEvent(this, EventArgs.Empty);
+                    }
                     return true;
                 }
                 else
@@ -120,13 +124,11 @@ namespace AbstractPipe
 
                 case ConnectionMode.MODE_CLIENT:
                     CreateClientPipe(name);
-                    
-                    /* pipe open, everything fine */
                     return true;
 
                 case ConnectionMode.MODE_SERVER:
                     CreateServerPipe(name);
-                        return true;
+                    return true;
             }
             return false;
         }
