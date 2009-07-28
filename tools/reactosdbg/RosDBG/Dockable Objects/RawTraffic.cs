@@ -137,7 +137,7 @@ namespace RosDBG
 
         private void SendCommandToDebugger()
         {
-            if (RawTrafficTextBox.Text.Length > 0)
+            if (RawTrafficTextBox.Text.Length > 0 && mConnection.Debugger != null)
             {
                 RawTrafficText.AppendText(kdbPrompt);
                 mConnection.Debugger.Write(RawTrafficTextBox.Text);

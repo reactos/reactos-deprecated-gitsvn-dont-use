@@ -24,7 +24,7 @@ namespace RosDBG
 
         private void AboutDlg_Load(object sender, EventArgs e)
         {
-            versionLabel.Text = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            rosDbgLabel.Text += " " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

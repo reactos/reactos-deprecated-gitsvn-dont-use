@@ -315,7 +315,10 @@ namespace RosDBG
                             mConnection.StartTCP(newConnection.Host, newConnection.Port);
                             break;
                     }
-                    connectToolStripMenuItem.Text = "&Disconnect";
+                    if (mConnection.ConnectionMode != DebugConnection.Mode.ClosedMode)
+                    {
+                        connectToolStripMenuItem.Text = "&Disconnect";
+                    }
                 }
             }
             else
