@@ -44,6 +44,24 @@ namespace AbstractPipe
             cmdList = new List<string>();
         }
 
+        private void signalConnected()
+        {
+            bClientConn = true;
+            if (ClientConnectedEvent != null)
+            {
+                ClientConnectedEvent(this, EventArgs.Empty);
+            }
+        }
+
+        private void signalDisconnected()
+        {
+            bClientConn = false;
+            if (ClientDisconnectedEvent != null)
+            {
+                ClientDisconnectedEvent(this, EventArgs.Empty);
+            }
+        }
+
         private void WaitForConnection()
         {
             try
@@ -53,11 +71,7 @@ namespace AbstractPipe
                 if (sStream.IsConnected)
                 {
                     ioStream = sStream;
-                    bClientConn = true;
-                    if (ClientConnectedEvent != null)
-                    {
-                        ClientConnectedEvent(this, EventArgs.Empty);
-                    }
+                    signalConnected();
                 }
             }
             catch (IOException)
@@ -88,11 +102,7 @@ namespace AbstractPipe
                 if (cStream.IsConnected)
                 {
                     ioStream = cStream;
-                    bClientConn = true;
-                    if (ClientConnectedEvent != null)
-                    {
-                        ClientConnectedEvent(this, EventArgs.Empty);
-                    }
+                    signalConnected();
                     return true;
                 }
                 else
@@ -216,12 +226,8 @@ namespace AbstractPipe
                              * Connecion closed!
                              * We'll hijack this thread and use it to set up our pipe server again.
                              * This thread will terminate once the connection is set up, it does not block.
-                             */
-                            if (ClientDisconnectedEvent != null)
-                            {
-                                ClientDisconnectedEvent(this, EventArgs.Empty);
-                            }
-
+                            */
+                            signalDisconnected();
                             break;
                         }
                     }

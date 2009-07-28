@@ -102,6 +102,7 @@ namespace RosDBG
                 pipeMode = ConnectionMode.MODE_AUTO;
 
             Settings.SelectedConnType = Type;
+            Settings.Mode = cType.SelectedItem.ToString();
             Settings.Save();
 
             Close();

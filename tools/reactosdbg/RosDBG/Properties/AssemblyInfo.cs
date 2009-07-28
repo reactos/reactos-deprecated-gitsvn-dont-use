@@ -39,5 +39,5 @@ using System.Runtime.InteropServices;
 // will be increased as well. MSI installers must not be generated with the same Build Number
 // otherwise they won't upgrade the old installation!
 
-[assembly: AssemblyVersion("1.0.2.66")]
-[assembly: AssemblyFileVersion("1.0.2.66")]
+[assembly: AssemblyVersion("1.0.2.67")]
+[assembly: AssemblyFileVersion("1.0.2.67")]
