@@ -178,6 +178,7 @@ int main(int argc, char **argv)
         /* SysregPrintf("Error: Virtual Machine is already running.\n");
         goto cleanup; */
         system("virsh destroy ReactOS");
+		usleep(1000);
     }
 
     /* If the HD image already exists, delete it */
@@ -228,7 +229,7 @@ int main(int argc, char **argv)
             virDomainUndefine(vDom);
             virDomainFree(vDom);
 
-            sleep(1);
+            usleep(1000);
 
             /* If we have a checkpoint to reach for success, assume that
                the application used for running the tests (probably "rosautotest")
