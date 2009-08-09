@@ -228,6 +228,8 @@ int main(int argc, char **argv)
             virDomainUndefine(vDom);
             virDomainFree(vDom);
 
+            sleep(1);
+
             /* If we have a checkpoint to reach for success, assume that
                the application used for running the tests (probably "rosautotest")
                continues with the next test after a VM restart. */
