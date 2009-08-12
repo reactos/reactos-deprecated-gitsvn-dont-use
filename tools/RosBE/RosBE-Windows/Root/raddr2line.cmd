@@ -49,9 +49,9 @@ if "%ADDRESS%" == "" (
 :: Check if the user supplied a path, if they didn't look for
 :: the specified file in the current directory and any
 :: sub-directories.
-"%_ROSBE_BASEDIR%\Tools\chkslash.exe" %FILEPATH%
+"%_ROSBE_BASEDIR%\Tools\chkslash.exe" "%FILEPATH%"
 if errorlevel 2 (
-    for /f "usebackq" %%i in (`"dir /a:-d /s /b %FILEPATH% 2>NUL | findstr "%FILEPATH%""`) do set FILEPATH=%%i
+    for /f "usebackq" %%i in (`"dir /a:-d /s /b "%FILEPATH%" 2>NUL | findstr "%FILEPATH%""`) do set FILEPATH=%%i
 )
 
 :: First get the ImageBase of the File. If its smaller than the given
@@ -60,7 +60,7 @@ if errorlevel 2 (
 :: give the result to raddr2line.
 echo %FILEPATH%
 
-for /f "tokens=2" %%i in ('"objdump -p %FILEPATH% 2>NUL | findstr ImageBase"') do set BASEADDRESS=0x%%i
+for /f "tokens=2" %%i in ('"objdump -p "%FILEPATH%" 2>NUL | findstr ImageBase"') do set BASEADDRESS=0x%%i
 
 if %%i lss %ADDRESS% (
     "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%FILEPATH%" "%ADDRESS%"

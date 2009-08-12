@@ -43,7 +43,7 @@ set _ROSBE_OUTPATH=
 set _ROSBE_SHOWVERSION=0
 set _ROSBE_HOST_MINGWPATH=%_ROSBE_BASEDIR%\i386
 set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
-set _ROSBE_ORIGINALPATH=%_ROSBE_HOST_MINGWPATH%\bin;%PATH%
+set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_HOST_MINGWPATH%\bin;%PATH%
 set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
 
 :: Get the number of CPUs in the system so we know how many jobs to execute.
@@ -85,20 +85,6 @@ if %_ROSBE_WRITELOG% == 1 (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     )
 )
-
-:: Load the DOSKEY macros and remove non-existent ones
-doskey /macrofile="%_ROSBE_BASEDIR%\RosBE.mac"
-
-if not exist "%_ROSBE_BASEDIR%\chdefdir.cmd" ( doskey CHDEFDIR= )
-if not exist "%_ROSBE_BASEDIR%\chdefgcc.cmd" ( doskey CHDEFGCC= )
-if not exist "%_ROSBE_BASEDIR%\charch.cmd" ( doskey CHARCH= )
-if not exist "%_ROSBE_BASEDIR%\Config.cmd" ( doskey CONFIG= )
-if not exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" ( doskey RADDR2LINE= )
-if not exist "%_ROSBE_BASEDIR%\scut.cmd" ( doskey SCUT= )
-if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SSVN= )
-if not exist "%_ROSBE_BASEDIR%\sSVN.cmd" ( doskey SVN= )
-if not exist "%_ROSBE_BASEDIR%\update.cmd" ( doskey UPDATE= )
-if not exist "%_ROSBE_BASEDIR%\options.cmd" ( doskey OPTIONS= )
 
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 
