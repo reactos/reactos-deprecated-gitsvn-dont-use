@@ -153,6 +153,7 @@ ECHO 	^<include base="%WINE_SHORT_NAME%"^>.^</include^>
 IF "%WINE_IS_EXE%" == "0" (
 	ECHO 	^<include base="ReactOS"^>include/reactos/wine^</include^>
 	ECHO 	^<define name="__WINESRC__" /^>
+	ECHO 	^<define name="_WINE" /^>
 )
 SET WINE_FULL_LINE=
 SET WINE_END_PREC_LINE=
