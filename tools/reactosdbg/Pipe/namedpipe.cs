@@ -13,7 +13,6 @@ namespace AbstractPipe
     {
         MODE_CLIENT = 0x00000000,
         MODE_SERVER = 0x00000001,
-        MODE_AUTO   = 0x00000002
     }
 
     public class NamedPipe : Pipe, NPipe
@@ -26,6 +25,7 @@ namespace AbstractPipe
         private bool bClientConn;
         private Thread waitThread;
         private NamedPipeServerStream sStream;
+        private NamedPipeClientStream cStream;
 
         public event EventHandler ClientConnectedEvent;
         public event EventHandler ClientDisconnectedEvent;
@@ -90,30 +90,49 @@ namespace AbstractPipe
             waitThread.Start();
         }
 
-        public bool CreateClientPipe(string name)
+        private void WaitForServer()
         {
-            /* try to connect as a client */
-            /* (QEMU -serial pipe or VMware in pipe server mode) */
-            try
+            while (true)
             {
-                NamedPipeClientStream cStream = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
-                cStream.Connect(100);
-
+                try
+                {
+                    cStream.Connect(10);
+                }
+                catch (TimeoutException)
+                {
+                    /* Dismiss timeout, will try again */
+                }
+                catch (Exception)
+                {
+                    /* Pipe was killed externally */
+                    return;
+                }
                 if (cStream.IsConnected)
                 {
                     ioStream = cStream;
                     signalConnected();
-                    return true;
+                    return;
                 }
-                else
-                {
-                    return false;
-                }
+                Thread.Sleep(500);
+            }
+        }
+
+        public bool CreateClientPipe(string name)
+        {
+            /* Try to connect as a client */
+            /* (QEMU -serial pipe or VMware in pipe server mode) */
+            try
+            {
+                cStream = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
             }
             catch (Exception)
             {
+                /* Pipe couldn't be created */
                 return false;
             }
+            waitThread = new Thread(WaitForServer);
+            waitThread.Start();
+            return true;
         }
 
         public bool CreatePipe(string name, ConnectionMode mode)
@@ -124,14 +143,6 @@ namespace AbstractPipe
             }
             switch (mode)
             {
-                case ConnectionMode.MODE_AUTO:
-                    //check if pipe exists, if not create server pipe, wait certain time, check if pipe...
-                    //TODO: server-client lookup should time out
-                    CreateClientPipe(name);
-                    CreateServerPipe(name);
-
-                    return true; 
-
                 case ConnectionMode.MODE_CLIENT:
                     CreateClientPipe(name);
                     return true;
@@ -153,9 +164,17 @@ namespace AbstractPipe
             /* Wake up the write thread so it can die */
             newWriteData.Set();
 
+            /* Close connection streams */
             if (waitThread != null)
             {
-                sStream.Close();
+                if (sStream != null)
+                {
+                    sStream.Close();
+                }
+                else if (cStream != null)
+                {
+                    cStream.Close();
+                }
             }
         }
 

@@ -98,8 +98,6 @@ namespace RosDBG
                 pipeMode = ConnectionMode.MODE_CLIENT;
             else if (cType.SelectedItem.ToString().CompareTo("Server") == 0)
                 pipeMode = ConnectionMode.MODE_SERVER;
-            else if (cType.SelectedItem.ToString().CompareTo("Automatic") == 0)
-                pipeMode = ConnectionMode.MODE_AUTO;
 
             Settings.SelectedConnType = Type;
             Settings.Mode = cType.SelectedItem.ToString();
