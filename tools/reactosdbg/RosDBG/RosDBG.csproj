@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{FB776BFE-D2C2-465E-B713-6AD82CAE1A39}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -99,7 +99,6 @@
     </Compile>
     <Compile Include="Diagnostics.cs" />
     <Compile Include="Dockable Objects\BackTrace.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\BackTrace.Designer.cs">
       <DependentUpon>BackTrace.cs</DependentUpon>
@@ -117,7 +116,6 @@
     <Compile Include="FileDirChooser.cs">
     </Compile>
     <Compile Include="Dockable Objects\ToolWindow.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\ToolWindow.Designer.cs">
       <DependentUpon>ToolWindow.cs</DependentUpon>
@@ -127,7 +125,6 @@
     <Compile Include="IUseDebugConnection.cs" />
     <Compile Include="IUseSymbols.cs" />
     <Compile Include="Dockable Objects\Locals.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\Locals.Designer.cs">
       <DependentUpon>Locals.cs</DependentUpon>
@@ -139,7 +136,6 @@
       <DependentUpon>MainWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Dockable Objects\MemoryWindow.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\MemoryWindow.Designer.cs">
       <DependentUpon>MemoryWindow.cs</DependentUpon>
@@ -147,13 +143,11 @@
     <Compile Include="Module.cs" />
     <Compile Include="ModuleIndex.cs" />
     <Compile Include="Dockable Objects\Modules.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\Modules.Designer.cs">
       <DependentUpon>Modules.cs</DependentUpon>
     </Compile>
     <Compile Include="Dockable Objects\ProcThread.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\ProcThread.Designer.cs">
       <DependentUpon>ProcThread.cs</DependentUpon>
@@ -193,7 +187,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -232,19 +226,16 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Dockable Objects\RawTraffic.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\RawTraffic.Designer.cs">
       <DependentUpon>RawTraffic.cs</DependentUpon>
     </Compile>
     <Compile Include="Dockable Objects\ReactOSWeb.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\ReactOSWeb.Designer.cs">
       <DependentUpon>ReactOSWeb.cs</DependentUpon>
     </Compile>
     <Compile Include="Dockable Objects\RegisterView.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\RegisterView.Designer.cs">
       <DependentUpon>RegisterView.cs</DependentUpon>
@@ -256,7 +247,6 @@
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
     <Compile Include="Dockable Objects\SourceView.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Dockable Objects\SourceView.Designer.cs">
       <DependentUpon>SourceView.cs</DependentUpon>
@@ -314,6 +304,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app-rosdbg.ico" />
+    <None Include="app.config" />
     <None Include="Resources\copyToolStripMenuItem.Image.png" />
     <None Include="Resources\Run.bmp" />
     <None Include="Resources\Pause.bmp" />

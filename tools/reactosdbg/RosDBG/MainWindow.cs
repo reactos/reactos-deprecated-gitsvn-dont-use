@@ -189,6 +189,7 @@ namespace RosDBG
         {
             RosDiagnostics.DebugTrace(RosDiagnostics.TraceType.Info, "Closing application");
             mConnection.Close(true);
+            SaveWindowSettings();
         }
 
         void UpdateDebuggerMenu()
@@ -468,6 +469,14 @@ namespace RosDBG
             {
 
             }
+        }
+        private void SaveWindowSettings()
+        {
+            RosDBG.Properties.Settings.Default.Size = this.Size;
+            RosDBG.Properties.Settings.Default.Location = this.Location;
+            RosDBG.Properties.Settings.Default.WindowState = this.WindowState;
+            RosDBG.Properties.Settings.Default.Save();
+
         }
 
     }
