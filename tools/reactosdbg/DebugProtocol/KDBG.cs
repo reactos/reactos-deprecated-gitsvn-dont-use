@@ -257,12 +257,16 @@ namespace KDBGProtocol
                                 if (ProcessListEvent != null)
                                     ProcessListEvent(this, new ProcessListEventArgs(ulong.Parse(pidEntryMatch.Groups["pid"].ToString(), NumberStyles.HexNumber), pidEntryMatch.Groups["cur"].Length > 0, 
                                         pidEntryMatch.Groups["state"].ToString(), pidEntryMatch.Groups["name"].ToString()));
+                                continue;
                             }
                             else
                             {
-                                /* TODO: this is called by far too often, results in several "thread list xx" commands */
                                 if ((mReceivingProcs || cleanedLine.Contains("No processes")) && ProcessListEvent != null)
+                                {
                                     ProcessListEvent(this, new ProcessListEventArgs(true));
+                                    mReceivingProcs = false;
+                                    continue;
+                                }
                             }
                         }
 
@@ -282,11 +286,16 @@ namespace KDBGProtocol
                             {
                                 if (ThreadListEvent != null)
                                     ThreadListEvent(this, new ThreadListEventArgs(ulong.Parse(tidEntryMatch.Groups["tid"].ToString(), NumberStyles.HexNumber), tidEntryMatch.Groups["cur"].Length > 0, ulong.Parse(tidEntryMatch.Groups["eip"].ToString(), NumberStyles.HexNumber)));
+                                continue;
                             }
                             else
                             {
                                 if (mReceivingThreads && ThreadListEvent != null)
+                                {
                                     ThreadListEvent(this, new ThreadListEventArgs(true));
+                                    mReceivingThreads = false;
+                                    continue;
+                                }
                             }
                         }
                     }
