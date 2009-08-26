@@ -139,8 +139,13 @@ namespace RosDBG
         {
             if (RawTrafficTextBox.Text.Length > 0 && mConnection.Debugger != null)
             {
+                String cmd = RawTrafficTextBox.Text;
                 RawTrafficText.AppendText(kdbPrompt);
-                mConnection.Debugger.Write(RawTrafficTextBox.Text);
+                if (cmd == "cont\r")
+                {
+                    mConnection.Running = true;
+                }
+                mConnection.Debugger.Write(cmd);
             }
         }
 

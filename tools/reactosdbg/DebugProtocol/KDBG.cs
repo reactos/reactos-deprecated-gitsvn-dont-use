@@ -422,7 +422,14 @@ namespace KDBGProtocol
             GetRegisterUpdate();
         }
 
-        public void Write(string wr) { mConnection.Write(wr); }
+        public void Write(string wr) 
+        {
+            /* Forward user input from RawTraffic if connected to kdbg */
+            if (!mRunning)
+            {
+                mConnection.Write(wr);
+            }
+        }
 
         public void Close()
         {

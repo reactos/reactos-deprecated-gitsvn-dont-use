@@ -628,7 +628,7 @@
             this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
             this.toolStripStatusLabel3.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
             this.toolStripStatusLabel3.Size = new System.Drawing.Size(78, 19);
-            this.toolStripStatusLabel3.Text = "Connected:";
+            this.toolStripStatusLabel3.Text = "State:";
             this.toolStripStatusLabel3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // toolStripStatusConnected

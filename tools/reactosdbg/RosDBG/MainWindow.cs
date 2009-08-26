@@ -85,8 +85,24 @@ namespace RosDBG
             }
 
             toolStripStatusConnectionMode.Text = mode;
-            toolStripStatusConnected.ForeColor = mRunning ? Color.Green : Color.Crimson;
-            toolStripStatusConnected.Text = mRunning.ToString();
+            if (mConnectionMode == DebugConnection.Mode.ClosedMode)
+            {
+                toolStripStatusConnected.ForeColor = Color.Crimson;
+                toolStripStatusConnected.Text = "Not connected";
+            }
+            else
+            {
+                if (mRunning)
+                {
+                    toolStripStatusConnected.ForeColor = Color.Green;
+                    toolStripStatusConnected.Text = "Debug";
+                }
+                else
+                {
+                    toolStripStatusConnected.ForeColor = Color.Yellow;
+                    toolStripStatusConnected.Text = "Waiting";
+                }
+            }
 
             if (mCurrentFile.CompareTo("unknown") != 0)
             {
