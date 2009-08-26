@@ -62,6 +62,7 @@
             this.RawTrafficText.Size = new System.Drawing.Size(425, 268);
             this.RawTrafficText.TabIndex = 0;
             this.RawTrafficText.WordWrap = false;
+            this.RawTrafficText.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.RawTrafficText_KeyPress);
             this.RawTrafficText.MouseUp += new System.Windows.Forms.MouseEventHandler(this.RawTrafficText_MouseUp);
             // 
             // menuStrip1

@@ -427,7 +427,7 @@ namespace KDBGProtocol
             /* Forward user input from RawTraffic if connected to kdbg */
             if (!mRunning)
             {
-                mConnection.Write(wr);
+                mConnection.Write(wr + "\r");
             }
         }
 

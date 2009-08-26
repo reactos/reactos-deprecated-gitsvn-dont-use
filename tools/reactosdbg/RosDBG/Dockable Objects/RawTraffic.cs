@@ -52,17 +52,17 @@ namespace RosDBG
 
         private void ParseBuiltinCommand(string command)
         {
+            AddCommandToList(command);
             if (command == ".cls")
             {
-                AddCommandToList(command);
                 RawTrafficText.Text = string.Empty;
             }
+            RawTrafficTextBox.Text = string.Empty;
         }
 
         private void ParseGdbCommand(string command)
         {
             AddCommandToList(command);
-            RawTrafficTextBox.Text += '\r'; //FIXME: remove this
             SendCommandToDebugger();
             RawTrafficTextBox.Text = string.Empty;
         }
@@ -141,7 +141,7 @@ namespace RosDBG
             {
                 String cmd = RawTrafficTextBox.Text;
                 RawTrafficText.AppendText(kdbPrompt);
-                if (cmd == "cont\r")
+                if (cmd == "cont")
                 {
                     mConnection.Running = true;
                 }
@@ -246,6 +246,26 @@ namespace RosDBG
                     break;
             }
 
+        }
+
+        private void RawTrafficText_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            switch ((int)e.KeyChar)
+            {
+                case 8: /* Backspace */
+                    if (RawTrafficTextBox.Text.Length > 0)
+                        RawTrafficTextBox.Text = RawTrafficTextBox.Text.Substring(0, RawTrafficTextBox.Text.Length - 1);
+                    break;
+                case 13: /* Return */
+                    if (RawTrafficTextBox.Text.Length > 0)
+                    {
+                        ParseCommand(RawTrafficTextBox.Text);
+                    }
+                    break;
+                default:
+                    RawTrafficTextBox.Text += e.KeyChar;
+                    break;
+            }
         }
 
         private void RawTrafficText_MouseUp(object sender, MouseEventArgs e)
