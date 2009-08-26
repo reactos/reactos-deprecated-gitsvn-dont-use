@@ -13,7 +13,7 @@ $host.ui.RawUI.WindowTitle = "reladdr2line..."
 $FILEPATH = $args[0]
 $ADDRESS = $args[1]
 if ($args.length -lt 1) {
-    if ($FILEPATH -eq $null) {
+    if ("$FILEPATH" -eq "") {
         $FILEPATH = Read-Host "Please enter the path/file to be examined: "
         if ($FILEPATH.Contains("\")) {
             $FILEPATH = get-childitem "$FILEPATH\*" -name -recurse 2>NUL | select-string "$FILEPATH"
@@ -21,22 +21,20 @@ if ($args.length -lt 1) {
     }
 }
 elseif ($args.length -lt 2) {
-    if ($ADDRESS -eq $null) {
+    if ("$ADDRESS" -eq "") {
         $ADDRESS = Read-Host "Please enter the address you would like to analyze: "
     }
 }
 
 # Check if parameters were really given
-if ($FILEPATH -eq $null) {
+if ("$FILEPATH" -eq "") {
     "ERROR: You must specify a path/file to examine."
 }
-if ($ADDRESS -eq $null) {
+if ("$ADDRESS" -eq "") {
     "ERROR: You must specify a address to analyze."
 }
-
 $baseaddr = (objdump -p $FILEPATH | select-string "ImageBase").tostring().split()
 $baseaddr = "0x" + ($baseaddr.get($baseaddr.length - 1))
-
 if ($baseaddr -lt $ADDRESS) {
     IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$FILEPATH' '$ADDRESS'"
 } else {

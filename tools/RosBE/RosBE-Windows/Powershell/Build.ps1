@@ -21,31 +21,27 @@ if (Test-Path ".\config.rbuild") {
 }
 
 # Check if strip, no Debug Symbols or ccache are being used and set the appropriate options.
-if ($_ROSBE_NOSTRIP -ne $null) {
-    if ($_ROSBE_NOSTRIP -eq 1) {
-        $ENV:ROS_BUILDNOSTRIP = "yes"
-    } else {
-        $ENV:ROS_BUILDNOSTRIP = "no"
-    }
+if ($_ROSBE_NOSTRIP -eq 1) {
+    $ENV:ROS_BUILDNOSTRIP = "yes"
+} else {
+    $ENV:ROS_BUILDNOSTRIP = "no"
 }
-if ($_ROSBE_STRIP -ne $null) {
-    if ($_ROSBE_STRIP -eq 1) {
-        $ENV:ROS_LEAN_AND_MEAN = "yes"
-    } else {
-        $ENV:ROS_LEAN_AND_MEAN = "no"
-    }
+if ($_ROSBE_STRIP -eq 1) {
+    $ENV:ROS_LEAN_AND_MEAN = "yes"
+} else {
+    $ENV:ROS_LEAN_AND_MEAN = "no"
 }
 
 # Check if the user has chosen to use a different object or output path and set
 # it accordingly.
-if ($_ROSBE_OBJPATH -ne $null) {
+if ("$_ROSBE_OBJPATH" -ne "") {
     if (Test-Path "$_ROSBE_OBJPATH") {
         "WARNING: The Object-Path specified doesn't seem to exist. Creating..."
     }
     $ENV:ROS_INTERMEDIATE = "$_ROSBE_OBJPATH"
     $ENV:ROS_TEMPORARY = "$_ROSBE_OBJPATH"
 }
-if ($_ROSBE_OUTPATH -ne $null) {
+if ("$_ROSBE_OUTPATH" -ne "") {
     if (Test-Path "$_ROSBE_OUTPATH") {
         "WARNING: The Output-Path specified doesn't seem to exist. Creating..."
     }
@@ -70,7 +66,7 @@ $DATENAME = get-date -f dyMMyyyy
 $TIMENAME = get-date -f HHmm
 
 # Check whether we were called as "makex" or "make"
-if ($args[0] -eq "multi") {
+if ("$($args[0])" -eq "multi") {
     $args.setvalue($null, 0)
     $MAKE_JOBS = "$_ROSBE_MAKEX_JOBS"
     $TITLE_COMMAND = "makex $($args)"

@@ -33,7 +33,7 @@ function rbuild {
     if ("$VERBOSE" -eq "") {
         $VERBOSE = "$VERBOSE_B"
     }
-    if (($VERBOSE -eq "yes") -or ($VERBOSE -eq "y")) {
+    if (("$VERBOSE" -eq "yes") -or ("$VERBOSE" -eq "y")) {
         $RBUILDFLAGS = "-v"
     }
     clear-host
@@ -52,7 +52,7 @@ function rbuild {
     if ("$CLEAN" -eq "") {
         $CLEAN = "$CLEAN_B"
     }
-    if (($CLEAN -eq "yes") -or ($CLEAN -eq "y")) {
+    if (("$CLEAN" -eq "yes") -or ("$CLEAN" -eq "y")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -c"
     }
     clear-host
@@ -74,9 +74,9 @@ function rbuild {
     if ("$DEPENDS" -eq "") {
         $DEPENDS = "$DEPENDS_B"
     }
-    if (($DEPENDS -eq "full") -or ($DEPENDS -eq "f")) {
+    if (("$DEPENDS" -eq "full") -or ("$DEPENDS" -eq "f")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -df"
-    } elseif (($DEPENDS -eq "no") -or ($DEPENDS -eq "n")) {
+    } elseif (("$DEPENDS" -eq "no") -or ("$DEPENDS" -eq "n")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -dd"
     } else {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -da"
@@ -97,7 +97,7 @@ function rbuild {
     if ("$PRECHEADER" -eq "") {
         $PRECHEADER = "$PRECHEADER_B"
     }
-    if (($PRECHEADER -eq "no") -or ($PRECHEADER -eq "n")) {
+    if (("$PRECHEADER" -eq "no") -or ("$PRECHEADER" -eq "n")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -hd"
     }
     clear-host
@@ -117,7 +117,7 @@ function rbuild {
     if ("$MAKEDIR" -eq "") {
         $MAKEDIR = "$MAKEDIR_B"
     }
-    if (($MAKEDIR -eq "yes") -or ($MAKEDIR -eq "y")) {
+    if (("$MAKEDIR" -eq "yes") -or ("$MAKEDIR" -eq "y")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -mi"
     }
     clear-host
@@ -136,7 +136,7 @@ function rbuild {
     if ("$PROXYMAKE" -eq "") {
         $PROXYMAKE = "$PROXYMAKE_B"
     }
-    if (($PROXYMAKE -eq "yes") -or ($PROXYMAKE -eq "y")) {
+    if (("$PROXYMAKE" -eq "yes") -or ("$PROXYMAKE" -eq "y")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -ps"
     }
     clear-host
@@ -155,7 +155,7 @@ function rbuild {
     if ("$COMPUNITS" -eq "") {
         $COMPUNITS = "$COMPUNITS_B"
     }
-    if (($COMPUNITS -eq "no") -or ($COMPUNITS -eq "n")) {
+    if (("$COMPUNITS" -eq "no") -or ("$COMPUNITS" -eq "n")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -ud"
     }
     clear-host
@@ -174,7 +174,7 @@ function rbuild {
     if ("$XML" -eq "") {
         $XML = "$XML_B"
     }
-    if (($XML -eq "yes") -or ($XML -eq "y")) {
+    if (("$XML" -eq "yes") -or ("$XML" -eq "y")) {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -r"
     }
     clear-host
@@ -183,11 +183,11 @@ function rbuild {
 }
 
 # Receive the first Parameter and decide what to do.
-if ($args[0] -eq "delete") {
+if ("$args" -eq "delete") {
     "config.rbuild will be permanently deleted. All your settings will be gone."
     "Continue?"
     $YESNO = Read-Host "(yes), (no)"
-    if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
+    if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {
         if (Test-Path ".\config.rbuild") {
             remove-item ".\config.rbuild"
             "Main Configuration File was found and deleted."
@@ -202,6 +202,7 @@ if ($args[0] -eq "delete") {
         }
         if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG") {
             remove-item "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+            $ENV:ROS_RBUILDFLAGS = ""
             "RBuild Flags File was found and deleted."
         } else {
             "RBuild Flags File was not found in ReactOS Source Tree."
@@ -209,12 +210,12 @@ if ($args[0] -eq "delete") {
     }
     settitle
 }
-elseif ($args[0] -eq "update") {
+elseif ("$args" -eq "update") {
     "old config.rbuild will be deleted and will be updated with a recent,"
     "default one. You will need to reconfigure it to your wishes later."
     "Continue?"
     $YESNO = Read-Host "(yes), (no)"
-    if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
+    if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {
         remove-item "$_ROSBE_BASEDIR\*.rbuild"
         remove-item ".\config.rbuild"
         copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
@@ -222,11 +223,11 @@ elseif ($args[0] -eq "update") {
     }
     settitle
 }
-elseif ($args[0] -eq "rbuild") {
+elseif ("$args" -eq "rbuild") {
     rbuild
     settitle
 }
-elseif ($args[0] -ne $null) {
+elseif ("$args" -ne "") {
     "Unknown parameter specified. Try 'help [COMMAND]'."
     settitle
 }
@@ -245,7 +246,7 @@ if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
 ""
 
 $YESNO = Read-Host "(yes), (no)"
-if (($YESNO -ne "yes") -and ($YESNO -ne "y")) {settitle}
+if (("$YESNO" -ne "yes") -and ("$YESNO" -ne "y")) {settitle}
 
 # Check if config.template.rbuild is newer than config.rbuild, if it is then
 # inform the user and offer an update.
@@ -258,7 +259,7 @@ if (Test-Path ".\config.rbuild") {
         "*** previously made settings.                                  ***"
         ""
         $YESNO = Read-Host "(yes), (no)"
-        if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {remove-item "$ENV:APPDATA\RosBE\*.rbuild" | remove-item ".\config.rbuild" | copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"}
+        if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {remove-item "$ENV:APPDATA\RosBE\*.rbuild" | remove-item ".\config.rbuild" | copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"}
         else {settitle}
     }
 }
@@ -289,7 +290,7 @@ clear-host
 $OARCH = $xml.group.property | ? { $_.Name -eq "OARCH" } | % { $_.Value}
 "Right now: $OARCH"
 $OARCH_CH = Read-Host
-if ($OARCH_CH -eq $null) {
+if ("$OARCH_CH" -eq "") {
     $OARCH_CH = $OARCH
 }
 clear-host
@@ -302,7 +303,7 @@ clear-host
 $TUNE = $xml.group.property | ? { $_.Name -eq "TUNE" } | % { $_.Value}
 "Right now: $TUNE"
 $TUNE_CH = Read-Host
-if ($TUNE_CH -eq $null) {
+if ("$TUNE_CH" -eq "") {
     $TUNE_CH = $TUNE
 }
 clear-host
@@ -317,7 +318,7 @@ clear-host
 $OPTIMIZE = $xml.group.property | ? { $_.Name -eq "OPTIMIZE" } | % { $_.Value}
 "Right now: $OPTIMIZE"
 $OPTIMIZE_CH = Read-Host "(0), (1), (2), (3), (4), (5)"
-if ($OPTIMIZE_CH -eq $null) {
+if ("$OPTIMIZE_CH" -eq "") {
     $OPTIMIZE_CH = $OPTIMIZE
 }
 clear-host
@@ -328,7 +329,7 @@ clear-host
 $KDBG = $xml.group.property | ? { $_.Name -eq "KDBG" } | % { $_.Value}
 "Right now: $KDBG"
 $KDBG_CH = Read-Host "(0), (1)"
-if ($KDBG_CH -eq $null) {
+if ("$KDBG_CH" -eq "") {
     $KDBG_CH = $KDBG
 }
 clear-host
@@ -340,7 +341,7 @@ clear-host
 $DBG = $xml.group.property | ? { $_.Name -eq "DBG" } | % { $_.Value}
 "Right now: $DBG"
 $DBG_CH = Read-Host "(0), (1)"
-if ($KDBG_CH -eq $null) {
+if ("$KDBG_CH" -eq "") {
     $DBG_CH = $DBG
 }
 clear-host
@@ -352,7 +353,7 @@ clear-host
 $GDB = $xml.group.property | ? { $_.Name -eq "GDB" } | % { $_.Value}
 "Right now: $GDB"
 $GDB_CH = Read-Host "(0), (1)"
-if ($GDB_CH -eq $null) {
+if ("$GDB_CH" -eq "") {
     $GDB_CH = $GDB
 }
 clear-host
@@ -366,7 +367,7 @@ clear-host
 $NSWPAT = $xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value}
 "Right now: $NSWPAT"
 $NSWPAT_CH = Read-Host "(0), (1)"
-if ($NSWPAT_CH -eq $null) {
+if ("$NSWPAT_CH" -eq "") {
     $NSWPAT_CH = $NSWPAT
 }
 clear-host
@@ -382,7 +383,7 @@ clear-host
 $WINKD = $xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value}
 "Right now: $WINKD"
 $WINKD_CH = Read-Host "(0), (1)"
-if ($WINKD_CH -eq $null) {
+if ("$WINKD_CH" -eq "") {
     $WINKD_CH = $WINKD
 }
 clear-host
@@ -394,7 +395,7 @@ clear-host
 $ELF = $xml.group.property | ? { $_.Name -eq "_ELF_" } | % { $_.Value}
 "Right now: $ELF"
 $ELF_CH = Read-Host "(0), (1)"
-if ($ELF_CH -eq $null) {
+if ("$ELF_CH" -eq "") {
     $ELF_CH = $ELF
 }
 clear-host
@@ -405,7 +406,7 @@ clear-host
 $BUILD_MP = $xml.group.property | ? { $_.Name -eq "BUILD_MP" } | % { $_.Value}
 "Right now: $BUILD_MP"
 $BUILD_MP_CH = Read-Host "(0), (1)"
-if ($BUILD_MP_CH -eq $null) {
+if ("$BUILD_MP_CH" -eq "") {
     $BUILD_MP_CH = $BUILD_MP
 }
 clear-host

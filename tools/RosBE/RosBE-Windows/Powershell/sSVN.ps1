@@ -7,7 +7,7 @@
 #
 #
 
-function UP {
+function UP($arg) {
     $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"
     $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
     $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
@@ -17,27 +17,29 @@ function UP {
     "Local Revision: $OFFSVN"
     "Online HEAD Revision: $ONSVN"
     ""
-    if ($OFFSVN -lt $ONSVN) {
-        if ($_ROSBE_SSVN_JOB -eq "status") {
+    if (($OFFSVN -lt $ONSVN) -or ("$($arg[1])" -ne "")) {
+        if ("$_ROSBE_SSVN_JOB" -eq "status") {
             "Your tree is not up to date. Do you want to update it?"
             $UP = Read-Host "Please enter 'yes' or 'no': "
-            if (($UP -eq "yes") -or ($UP -eq "y")) {
+            if (("$UP" -eq "yes") -or ("$UP" -eq "y")) {
                 $_ROSBE_SSVN_JOB = "update"
             }
         }
-        if ($_ROSBE_SSVN_JOB -eq "update") {
-            if ($args[1] -ne $null) {
-                $temparg = $args[1]
+        if ("$_ROSBE_SSVN_JOB" -eq "update") {
+            if ("$($arg[1])" -ne "") {
+                $temparg = $arg[1]
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
             } else {
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
             }
         }
-        "Do you want to see the changelog?"
-        $CL = Read-Host "Please enter 'yes' or 'no': "
-        if (($CL -eq "yes") -or ($CL -eq "y")) {
-            $range = $OFFSVN + ":" + $ONSVN
-            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' log -r $range"
+        if ("$($arg[1])" -ne "") {
+            "Do you want to see the changelog?"
+            $CL = Read-Host "Please enter 'yes' or 'no': "
+            if (("$CL" -eq "yes") -or ("$CL" -eq "y")) {
+                $range = "$OFFSVN" + ":" + "$ONSVN"
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' log -r $range"
+            }
         }
     }
     if ($OFFSVN -eq $ONSVN) {
@@ -46,19 +48,19 @@ function UP {
 }
 
 # Receive the first parameter and decide what to do.
-if ($args[0] -eq $null) {
+if ("$($args[0])" -eq "") {
     "No parameter specified. Try 'help [COMMAND]'."
 }
 
 # These two are directly parsed to svn.
-elseif ($args[0] -eq "update") {
+elseif ("$($args[0])" -eq "update") {
     $host.ui.RawUI.WindowTitle = "SVN Updating..."
     "This might take a while, so please be patient."
     ""
     $_ROSBE_SSVN_JOB = "update"
-    UP
+    UP($args)
 }
-elseif ($args[0] -eq "cleanup") {
+elseif ("$($args[0])" -eq "cleanup") {
     $host.ui.RawUI.WindowTitle = "SVN Cleaning..."
     "This might take a while, so please be patient."
     ""
@@ -66,14 +68,14 @@ elseif ($args[0] -eq "cleanup") {
 }
 
 # Check if the folder is empty. If not, output an error.
-elseif ($args[0] -eq "create") {
+elseif ("$($args[0])" -eq "create") {
     $host.ui.RawUI.WindowTitle = "SVN Creating..."
     if (Test-Path ".svn\.") {
         "ERROR: Folder already contains a repository."
     } else {
         $null = (Remove-Item "$_ROSBE_LOGDIR" -recurse -force)
         $dir = get-childitem
-        if ($dir -eq $null) {
+        if ("$dir" -eq "") {
             IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -83,15 +85,15 @@ elseif ($args[0] -eq "create") {
 
 # Output the revision of the local and online trees and tell the user if
 # its up to date or not.
-elseif ($args[0] -eq "status") {
+elseif ("$($args[0])" -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
     "This might take a while, so please be patient."
     ""
     $_ROSBE_SSVN_JOB = "status"
-    UP
+    UP($args)
 }
 
-elseif ($args[0] -ne $null) {
+elseif ("$($args[0])" -ne "") {
     "Unknown parameter specified. Try 'help ssvn'."
 }
 

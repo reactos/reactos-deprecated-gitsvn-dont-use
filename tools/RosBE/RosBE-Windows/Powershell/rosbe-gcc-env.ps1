@@ -24,11 +24,11 @@ $ENV:PATH = "$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
 $TARGETGCC = "$global:_ROSBE_PREFIX" + "gcc"
 & $TARGETGCC -v 2> gcctvers.tmp
 $global:_ROSBE_TARGET_GCCVERSION = (select-string -path .\gcctvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-$global:_ROSBE_TARGET_GCCTARGET = (select-string -path .\gcctvers.tmp "target=") -replace ".*--target=(.+?)\b.*",'$1'
+$global:_ROSBE_TARGET_GCCTARGET = (select-string -path .\gcctvers.tmp "Target: ") -replace ".*Target: (.+?)\b.*",'$1'
 remove-item gcctvers.tmp
 gcc -v 2> gcchvers.tmp
 $global:_ROSBE_HOST_GCCVERSION = (select-string -path .\gcchvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-$global:_ROSBE_HOST_GCCTARGET = (select-string -path .\gcchvers.tmp "target=") -replace ".*--target=(.+?)\b.*",'$1'
+$global:_ROSBE_HOST_GCCTARGET = (select-string -path .\gcchvers.tmp "Target: ") -replace ".*Target: (.+?)\b.*",'$1'
 remove-item gcchvers.tmp
 
 $ENV:ROSBE_HOST_CFLAGS = "-I""$_ROSBE_HOST_MINGWPATH\include"" -I""$_ROSBE_HOST_MINGWPATH\lib\gcc\$_ROSBE_HOST_GCCTARGET\$_ROSBE_HOST_GCCVERSION\include"""

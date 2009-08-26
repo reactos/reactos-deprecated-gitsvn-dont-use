@@ -22,14 +22,14 @@ function EOA {
 # Parse the command line arguments. Ask the user if certain parameters are missing.
 $TOOLPATH = $args[0]
 $TOOLMODE = $args[1]
-if ($TOOLPATH -eq $null) {
+if ("$TOOLPATH" -eq "") {
     $TOOLPATH = Read-Host "Please enter a MinGW/GCC directory (don't use quotes): "
     if ($TOOLPATH.length -eq 0) {
         "ERROR: You must enter a MinGW/GCC directory."
         settitle
     }
 }
-if ($TOOLMODE -eq $null) {
+if ("$TOOLMODE" -eq "") {
     $TOOLMODE = Read-Host "Please specify, if this will be the Target or Host GCC: "
     if ($TOOLMODE.length -eq 0) {
         "ERROR: You must enter ""target"" or ""host""."
@@ -52,11 +52,11 @@ if (!(Test-Path "$TOOLPATH\bin\*gcc.exe")) {
 }
 
 # Set the values
-if ($TOOLMODE -eq "target") {
+if ("$TOOLMODE" -eq "target") {
     $_ROSBE_TARGET_MINGWPATH = $TOOLPATH
     "Target Location: $_ROSBE_TARGET_MINGWPATH"
     EOA
-} elseif ($TOOLMODE -eq "host") {
+} elseif ("$TOOLMODE" -eq "host") {
     $_ROSBE_HOST_MINGWPATH = $TOOLPATH
     "Host Location: $_ROSBE_HOST_MINGWPATH"
     EOA

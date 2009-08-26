@@ -19,7 +19,7 @@ if ($args.count -eq 0) {
 } else {
     $SOURCEDIR = $args
 }
-if ($SOURCEDIR -eq "previous") {
+if ("$SOURCEDIR" -eq "previous") {
     pop-location
 } else {
     if (!(Test-Path "$SOURCEDIR\.")) {

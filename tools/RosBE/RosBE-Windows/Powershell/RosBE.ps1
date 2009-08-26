@@ -19,12 +19,12 @@ if ($ENV:APPDATA.Length -lt 1) {
 
 # Set defaults to work with and override them if edited by
 # the options utility.
-if ($args[0] -eq $null) {
+if ("$args" -eq "") {
     $ENV:ROS_ARCH = "i386"
 } else {
     $ENV:ROS_ARCH = "$($args)"
 }
-if ($ENV:ROS_ARCH -eq "amd64") {
+if ("$ENV:ROS_ARCH" -eq "amd64") {
     (Get-Host).UI.RawUI.ForegroundColor = 0xB
     (Get-Host).UI.RawUI.BackgroundColor = 0x0
 } else {
@@ -128,14 +128,14 @@ if (!(Test-Path "$ENV:APPDATA\RosBE")) {
 }
 
 # Load the user's options if any
-if ($args[0] -eq $null) {
+if ("$args" -eq "") {
     if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
         & "$ENV:APPDATA\RosBE\rosbe-options.ps1"
     }
 }
 
-if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1") {
-    & "$ENV:APPDATA\RosBE\rosbe-options-$args.ps1"
+if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1") {
+    & "$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1"
 }
 
 if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG") {
@@ -168,7 +168,7 @@ clear-host
 if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
     & "$_ROSBE_BASEDIR\scut.ps1"
 }
-if ($_ROSBE_SHOWVERSION -eq "1") {
+if ($_ROSBE_SHOWVERSION -eq 1) {
     & "$_ROSBE_BASEDIR\version.ps1"
 }
 

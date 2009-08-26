@@ -28,7 +28,7 @@ function UPDCHECK {
         ""
         "Install?"
         $YESNO = Read-Host "(yes), (no)"
-        if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
+        if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {
             if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z")) {
                 get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z
             }
@@ -42,16 +42,16 @@ function UPDCHECK {
                 "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
                 return
             }
-        } elseif ($YESNO -eq "no") {
+        } elseif ("$YESNO" -eq "no") {
             "Do you want to be asked again to install this update?"
             $YESNO = Read-Host "(yes), (no)"
-            if (($YESNO -eq "yes") -or ($YESNO -eq "y")) {
+            if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {
                 remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt" -force -EA SilentlyContinue
             }
             return
         }
     } else {
-        if ($_ROSBE_MULTIUPD -ne "1") {
+        if ($_ROSBE_MULTIUPD -ne 1) {
             "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
         }
         $_ROSBE_STATCOUNT = 9
@@ -89,11 +89,6 @@ if ((gi .\update.ps1).length -ne (gi .\update2.ps1).length) {
 if (!(Test-Path "$ENV:APPDATA\RosBE\Updates")) {New-Item -path "$ENV:APPDATA\RosBE" -name "Updates" -type directory}
 set-location "$ENV:APPDATA\RosBE\Updates"
 
-# Parse the args.
-
-$arg1 = $args[0]
-$arg2 = $args[1]
-
 if ("$args" -eq "") {
     $_ROSBE_MULTIUPD = 1
     $_ROSBE_STATCOUNT = 1
@@ -104,17 +99,17 @@ if ("$args" -eq "") {
 } elseif ("$args" -eq "reset") {
     remove-item "$ENV:APPDATA\RosBE\Updates\*.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\*.*" -force -recurse -EA SilentlyContinue
-} elseif ("$arg1" -eq "nr") {
-    $_ROSBE_STATCOUNT = $arg2
+} elseif ("$($args[0])" -eq "nr") {
+    $_ROSBE_STATCOUNT = $($args[1])
     UPDCHECK
-} elseif ("$arg1" -eq "delete") {
-    $_ROSBE_STATCOUNT = $arg2
+} elseif ("$($args[0])" -eq "delete") {
+    $_ROSBE_STATCOUNT = $($args[1])
     remove-item "$ENV:APPDATA\RosBE\Updates\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
-} elseif ("$arg1" -eq "info") {
-    $_ROSBE_STATCOUNT = $arg2
+} elseif ("$($args[0])" -eq "info") {
+    $_ROSBE_STATCOUNT = $($args[1])
     set-location tmp
-    if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
+    if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
         get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
         if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
             get-content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
@@ -129,8 +124,8 @@ if ("$args" -eq "") {
     if (!(test-path "tmp")) {New-Item -name "tmp" -type directory}
     copy-item *.txt .\tmp\.
     set-location tmp
-    while($_ROSBE_STATCOUNT -lt 10) {
-        if (!(Test-path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
+    while ($_ROSBE_STATCOUNT -lt 10) {
+        if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
             get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
                  $_ROSBE_UPDATES += "$_ROSBE_STATCOUNT "
@@ -142,7 +137,7 @@ if ("$args" -eq "") {
     }
     set-location ..
     remove-item "tmp\*.*" -force -EA SilentlyContinue
-    if ($_ROSBE_UPDATES -ne $null) {
+    if ("$_ROSBE_UPDATES" -ne "") {
         "Following Updates available: $_ROSBE_UPDATES"
     } else {
         "RosBE is up to Date."
