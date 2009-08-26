@@ -32,8 +32,6 @@ function UP($arg) {
             } else {
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
             }
-        }
-        if ("$($arg[1])" -ne "") {
             "Do you want to see the changelog?"
             $CL = Read-Host "Please enter 'yes' or 'no': "
             if (("$CL" -eq "yes") -or ("$CL" -eq "y")) {
@@ -87,8 +85,6 @@ elseif ("$($args[0])" -eq "create") {
 # its up to date or not.
 elseif ("$($args[0])" -eq "status") {
     $host.ui.RawUI.WindowTitle = "SVN Status"
-    "This might take a while, so please be patient."
-    ""
     $_ROSBE_SSVN_JOB = "status"
     UP($args)
 }

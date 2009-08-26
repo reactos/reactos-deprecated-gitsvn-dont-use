@@ -31,8 +31,6 @@ if /i "%1" == "update" (
 
 if /i "%1" == "cleanup" (
     title SVN Cleaning...
-    echo This might take a while, so please be patient.
-    echo.
 
     "%_ROSBE_BASEDIR%\Tools\svn.exe" cleanup
 
