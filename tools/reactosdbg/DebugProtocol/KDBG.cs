@@ -78,8 +78,6 @@ namespace KDBGProtocol
                     if (mRunning)
                     {
                         mRunning = false;
-                        GetRegisterUpdate();
-                        GetProcesses();
                     }
                     tookText = true;
                 }
@@ -334,22 +332,6 @@ namespace KDBGProtocol
         public event ProcessListEventHandler ProcessListEvent;
         public event ThreadListEventHandler ThreadListEvent;
 
-        public void GetRegisterUpdate()
-        {
-            QueueCommand("regs");
-            QueueCommand("sregs");
-        }
-
-        public void GetModuleUpdate()
-        {
-            QueueCommand("mod");
-        }
-
-        public void GetMemoryUpdate(ulong address, int len)
-        {
-            QueueCommand(string.Format("x 0x{0:X} L {1}", address, len));
-        }
-
         public void WriteMemory(ulong address, byte[] buf)
         {
         }
@@ -359,18 +341,26 @@ namespace KDBGProtocol
             lock (mCommandBuffer)
             {
                 mCommandBuffer.Add(command);
-                if (mCommandBuffer.Count == 1)
-                {
-                    mConnection.Write(command + "\r");
-                    /* remove the command after sending */
-                    mCommandBuffer.RemoveAt(0);
-                }
             }
         }
 
+        public void Write(string wr)
+        {
+            /* Forward user input from RawTraffic if connected to kdbg */
+            if (!mRunning)
+            {
+                mConnection.Write(wr + "\r");
+            }
+        }
+
+        public void Close()
+        {
+        }
+
+        /* Immediately executed commands */
         public void Step()
         {
-            QueueCommand("step");
+            Write("step");
             GetRegisterUpdate();
             GetModuleUpdate();
             GetProcesses();
@@ -378,7 +368,7 @@ namespace KDBGProtocol
 
         public void Next()
         {
-            QueueCommand("next");
+            Write("next");
             Thread.Sleep(100); 
             GetRegisterUpdate();
             GetModuleUpdate();
@@ -387,18 +377,24 @@ namespace KDBGProtocol
 
         public void Break()
         {
-            mConnection.Write("\r");
+            Write("");
             GetRegisterUpdate();
             GetModuleUpdate();
         }
 
         public void Go(ulong address)
         {
+            Write("cont");
             mRunning = true;
             mFirstModuleUpdate = false;
-            QueueCommand("cont");
         }
 
+        public void GetMemoryUpdate(ulong address, int len)
+        {
+            Write(string.Format("x 0x{0:X} L {1}", address, len));
+        }
+
+        /* Commands placed into the cmd queue */
         public void GetProcesses()
         {
             QueueCommand("proc list");
@@ -422,17 +418,15 @@ namespace KDBGProtocol
             GetRegisterUpdate();
         }
 
-        public void Write(string wr) 
+        public void GetRegisterUpdate()
         {
-            /* Forward user input from RawTraffic if connected to kdbg */
-            if (!mRunning)
-            {
-                mConnection.Write(wr + "\r");
-            }
+            QueueCommand("regs");
+            QueueCommand("sregs");
         }
 
-        public void Close()
+        public void GetModuleUpdate()
         {
+            QueueCommand("mod");
         }
     }
 }

@@ -264,14 +264,11 @@ namespace AbstractPipe
             /* only forward a complete line */
             wCommand += str;
 
-            if (str[str.Length-1] == '\r') //FIXME: remove this
-            {
-                cmdList.Add(wCommand);
-                wCommand = null;
+            cmdList.Add(wCommand);
+            wCommand = null;
 
-                /* wake up the write thread */
-                newWriteData.Set();
-            }
+            /* wake up the write thread */
+            newWriteData.Set();
             return true;
         }
     }

@@ -57,11 +57,11 @@ namespace AbstractPipe
                 } while (mResult.CompletedSynchronously);
                 
             }
-            catch (System.Net.Sockets.SocketException se)
+            catch (Exception e)
             {
                 mSocket.Close();
                 if (PipeErrorEvent != null)
-                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(se.Message));
+                    PipeErrorEvent.Invoke(this, new PipeErrorEventArgs(e.Message));
             }
         }
 
