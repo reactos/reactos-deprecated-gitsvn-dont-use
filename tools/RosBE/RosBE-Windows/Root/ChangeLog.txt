@@ -1,4 +1,4 @@
-*** Oct XXth, 2009 - RosBE 1.4.5 Released
+*** Sep XXth, 2009 - RosBE 1.5 Released
 
 - Installer Fixes:
   * Installer starts the Uninstaller of the old Version again.
@@ -11,7 +11,28 @@
   * Fix the args not checked bug.
 (Samuel Serapion)
 - Prepare scripts for RosBE64 1.1 which is compatible with the new RosBE Versions (Daniel Reimer)
-
+- Bugfixes in ssvn (Shashkov Maxim, Daniel Reimer)
+- Fix confusion between %_ROSBE_ROSPREFIX% and %_ROSBE_PREFIX%. (Colin Finck)
+  We only use %_ROSBE_PREFIX% now, which should fix building with amd64. (Colin Finck)
+- Readd chdefdir's feature to switch to the new default directory after changing it. (Colin Finck)
+- Fix inability to switch back to i386. (Colin Finck)
+- Fix Variables to be able to use more recent GCCs. (Daniel Reimer)
+- Fix up the call of the i386 config file in charch. (Daniel Reimer)
+- Fix up default color of the 64 bit RosBE. (Daniel Reimer)
+- "Only" call the 64 bit config file when you are in 64 bit mode. (Daniel Reimer)
+- Fix the 64 bit options tool to be useable. (Daniel Reimer)
+- Tidy up work on all files. (Daniel Reimer)
+- Added RBuild Flags Setting possibility into the "config" command. They will be loaded at RosBE
+  startup and thus behave the same way like the other settings you can set in there. (Daniel Reimer)
+- Made the "update" command stop when it found the last existant update online. Theres no use in trying
+  the full update 1-9 if theres none/one. This speeds up the status generation process. (Daniel Reimer)
+- Get rid of the Doskey macro file, just add %_ROSBE_BASEDIR% (and %_ROSBE_BASEDIR%\Tools for svn.exe)
+  to the PATH and call all .cmd files directly. Renamed some batch files to match the macro names and
+  added some new ones, for which no batch file existed. (except "env", this command has been removed)
+  Now these commands can be called from other batch files and stuff like "clean & make" will work as well.
+  (Colin Finck, Gunnar)
+- Fix raddr2line.cmd to properly handle spaces in the path. (Colin Finck)
+- Added rosapps and rostests support to ssvn. (Daniel Reimer)
 
 *** Jun 29th, 2009 - RosBE 1.4.4 Released
 
