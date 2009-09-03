@@ -51,7 +51,48 @@ if /i "%1" == "create" (
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
+    goto :EOC
+)
 
+:: Check if the folder is empty. If not, output an error.
+if /i "%1" == "rosapps" (
+    title SVN RosApps Creating...
+    if exist "modules\rosapps\.svn\." (
+        echo ERROR: Folder already contains a RosApps repository.
+        goto :EOC
+    )
+    if not exist "modules\rosapps\." (
+        md modules\rosapps
+    )
+    cd modules\rosapps
+    dir /b 2>nul | findstr "." >nul
+    if errorlevel 1 (
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rosapps .
+    ) else (
+        echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+    )
+    cd "%_ROSBE_ROSSOURCEDIR%"
+    goto :EOC
+)
+
+:: Check if the folder is empty. If not, output an error.
+if /i "%1" == "rostests" (
+    title SVN RosTests Creating...
+    if exist "modules\rostests\.svn\." (
+        echo ERROR: Folder already contains a RosTests repository.
+        goto :EOC
+    )
+    if not exist "modules\rostests\." (
+        md modules\rostests
+    )
+    cd modules\rostests
+    dir /b 2>nul | findstr "." >nul
+    if errorlevel 1 (
+        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rostests .
+    ) else (
+        echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+    )
+    cd "%_ROSBE_ROSSOURCEDIR%"
     goto :EOC
 )
 
@@ -86,8 +127,28 @@ if not "%1" == "" (
         if "!_ROSBE_SSVN_JOB!" == "update" (
             if not "%2" == "" (
                 "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
+                if exist "modules\rosapps\." (
+                    cd modules\rosapps
+                    "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
+                    cd "%_ROSBE_ROSSOURCEDIR%"
+                )
+                if exist "modules\rostests\." (
+                    cd modules\rostests
+                    "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
+                    cd "%_ROSBE_ROSSOURCEDIR%"
+                )
             ) else (
                 "%_ROSBE_BASEDIR%\Tools\svn.exe" update
+                if exist "modules\rosapps\." (
+                    cd modules\rosapps
+                    "%_ROSBE_BASEDIR%\Tools\svn.exe" update
+                    cd "%_ROSBE_ROSSOURCEDIR%"
+                )
+                if exist "modules\rostests\." (
+                    cd modules\rostests
+                    "%_ROSBE_BASEDIR%\Tools\svn.exe" update
+                    cd "%_ROSBE_ROSSOURCEDIR%"
+                )
             )
         )
         echo Do you want to see the changelog?

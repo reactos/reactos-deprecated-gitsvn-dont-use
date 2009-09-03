@@ -190,11 +190,13 @@ if ("$args" -eq "") {
         " Creates, updates or cleans up your ReactOS source tree or shows the revision"
         " number of the local and online trees."
         ""
-        "    update  - Updates to HEAD revision or to a specific one when the second"
-        "              parameter specifies one."
-        "    create  - Creates a new ReactOS source tree."
-        "    cleanup - Cleans up and fixes errors in the source tree."
-        "    status  - Show the current local and online revision numbers."
+        "    update    - Updates to HEAD revision or to a specific one when the second"
+        "                parameter specifies one."
+        "    create    - Creates a new ReactOS source tree."
+        "    rosapps   - Creates a new ReactOS RosApps source tree."
+        "    rostests  - Creates a new ReactOS RosTests source tree."
+        "    cleanup   - Cleans up and fixes errors in the source tree."
+        "    status    - Show the current local and online revision numbers."
     }
 } elseif ("$args" -eq "options") {
     if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {

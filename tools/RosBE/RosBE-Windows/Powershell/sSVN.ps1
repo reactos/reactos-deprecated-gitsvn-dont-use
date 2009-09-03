@@ -29,8 +29,28 @@ function UP($arg) {
             if ("$($arg[1])" -ne "") {
                 $temparg = $arg[1]
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+                if (Test-Path "modules\rosapps\.") {
+                    Set-Location modules\rosapps
+                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                }
+                if (Test-Path "modules\rostests\.") {
+                    Set-Location modules\rostests
+                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                }
             } else {
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+                if (Test-Path "modules\rosapps\.") {
+                    Set-Location modules\rosapps
+                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                }
+                if (Test-Path "modules\rostests\.") {
+                    Set-Location modules\rostests
+                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                }
             }
             "Do you want to see the changelog?"
             $CL = Read-Host "Please enter 'yes' or 'no': "
@@ -79,6 +99,46 @@ elseif ("$($args[0])" -eq "create") {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
         }
     }
+}
+
+# Check if the folder is empty. If not, output an error.
+elseif ("$($args[0])" -eq "rosapps") {
+    $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
+    if (Test-Path "modules\rosapps\.svn\.") {
+        "ERROR: Folder already contains a RosApps repository."
+    } else {
+        if (!(Test-Path "modules\rosapps\.")) {
+            new-item -path "$_ROSBE_ROSSOURCEDIR\modules" -name rosapps -type directory
+        }
+        Set-Location modules\rosapps
+        $dir = get-childitem
+        if ("$dir" -eq "") {
+            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rosapps ."
+        } else {
+            "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+        }
+    }
+    Set-Location "$_ROSBE_ROSSOURCEDIR"
+}
+
+# Check if the folder is empty. If not, output an error.
+elseif ("$($args[0])" -eq "rostests") {
+    $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
+    if (Test-Path "modules\rostests\.svn\.") {
+        "ERROR: Folder already contains a RosTests repository."
+    } else {
+        if (!(Test-Path "modules\rostests\.")) {
+            new-item -path "$_ROSBE_ROSSOURCEDIR\modules" -name rostests -type directory
+        }
+        Set-Location modules\rostests
+        $dir = get-childitem
+        if ("$dir" -eq "") {
+            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rostests ."
+        } else {
+            "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+        }
+    }
+    Set-Location "$_ROSBE_ROSSOURCEDIR"
 }
 
 # Output the revision of the local and online trees and tell the user if
