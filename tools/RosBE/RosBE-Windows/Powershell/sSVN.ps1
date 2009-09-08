@@ -31,11 +31,13 @@ function UP($arg) {
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location modules\rosapps
+                    "Updating RosApps..."
                     IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
                 if (Test-Path "modules\rostests\.") {
                     Set-Location modules\rostests
+                    "Updating RosTests..."
                     IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
@@ -43,11 +45,13 @@ function UP($arg) {
                 IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location modules\rosapps
+                    "Updating RosApps..."
                     IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
                 if (Test-Path "modules\rostests\.") {
                     Set-Location modules\rostests
+                    "Updating RosTests..."
                     IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }

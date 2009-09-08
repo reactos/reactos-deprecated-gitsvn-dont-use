@@ -129,11 +129,13 @@ if not "%1" == "" (
                 "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
                 if exist "modules\rosapps\." (
                     cd modules\rosapps
+                    echo Updating RosApps...
                     "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )
                 if exist "modules\rostests\." (
                     cd modules\rostests
+                    echo Updating RosTests...
                     "%_ROSBE_BASEDIR%\Tools\svn.exe" update -r %2
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )
@@ -141,11 +143,13 @@ if not "%1" == "" (
                 "%_ROSBE_BASEDIR%\Tools\svn.exe" update
                 if exist "modules\rosapps\." (
                     cd modules\rosapps
+                    echo Updating RosApps...
                     "%_ROSBE_BASEDIR%\Tools\svn.exe" update
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )
                 if exist "modules\rostests\." (
                     cd modules\rostests
+                    echo Updating RosTests...
                     "%_ROSBE_BASEDIR%\Tools\svn.exe" update
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )

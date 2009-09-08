@@ -84,8 +84,12 @@ elseif ("$args" -eq "all") {
     end
 }
 elseif ("$args" -ne "") {
-    $cl = "$args" + "_clean"
-    make $cl
+    $argindex = 0
+    while ( "$($args[$argindex])" -ne "") {
+        $cl = "$($args[$argindex])" + "_clean"
+        make $cl
+        $argindex += 1
+    }
     remove-variable cl
     end
 }
