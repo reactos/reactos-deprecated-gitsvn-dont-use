@@ -28,8 +28,6 @@ if exist .\config.rbuild (
     )
 )
 
-call "%_ROSBE_BASEDIR%\TranslateOptions.cmd"
-
 if "%_ROSBE_USECCACHE%" == "1" (
     set _ROSBE_CCACHE=ccache 
 ) else (

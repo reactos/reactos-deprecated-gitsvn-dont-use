@@ -12,7 +12,6 @@ if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
-setlocal enabledelayedexpansion
 title Options
 
 if "%ROS_ARCH%" == "amd64" (
@@ -37,4 +36,3 @@ if exist "%options%" (
 )
 
 title ReactOS Build Environment %_ROSBE_VERSION%
-endlocal

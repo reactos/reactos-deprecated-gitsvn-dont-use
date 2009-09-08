@@ -20,34 +20,6 @@ if (Test-Path ".\config.rbuild") {
     }
 }
 
-# Check if strip, no Debug Symbols or ccache are being used and set the appropriate options.
-if ($_ROSBE_NOSTRIP -eq 1) {
-    $ENV:ROS_BUILDNOSTRIP = "yes"
-} else {
-    $ENV:ROS_BUILDNOSTRIP = "no"
-}
-if ($_ROSBE_STRIP -eq 1) {
-    $ENV:ROS_LEAN_AND_MEAN = "yes"
-} else {
-    $ENV:ROS_LEAN_AND_MEAN = "no"
-}
-
-# Check if the user has chosen to use a different object or output path and set
-# it accordingly.
-if ("$_ROSBE_OBJPATH" -ne "") {
-    if (Test-Path "$_ROSBE_OBJPATH") {
-        "WARNING: The Object-Path specified doesn't seem to exist. Creating..."
-    }
-    $ENV:ROS_INTERMEDIATE = "$_ROSBE_OBJPATH"
-    $ENV:ROS_TEMPORARY = "$_ROSBE_OBJPATH"
-}
-if ("$_ROSBE_OUTPATH" -ne "") {
-    if (Test-Path "$_ROSBE_OUTPATH") {
-        "WARNING: The Output-Path specified doesn't seem to exist. Creating..."
-    }
-    $ENV:ROS_OUTPUT = "$_ROSBE_OUTPATH"
-}
-
 if ($_ROSBE_USECCACHE -eq 1) {
     $_ROSBE_CCACHE = "ccache "
 } else {

@@ -140,7 +140,6 @@ Section -BaseFiles SEC01
         File /r Root\RosBE.mac
         File /r Root\rosbe-gcc-env.cmd
         File /r Root\TimeDate.cmd
-        File /r Root\TranslateOptions.cmd
         File /r Root\version.cmd
         SetOutPath "$INSTDIR\Tools"
         SetOverwrite try
@@ -307,7 +306,6 @@ SetShellVarContext current
         File /r Root\RosBE.mac
         File /r Root\rosbe-gcc-env.cmd
         File /r Root\TimeDate.cmd
-        File /r Root\TranslateOptions.cmd
         File /r Root\version.cmd
         File /r Root\charch.cmd
         File /r Root\chdefdir.cmd
@@ -480,7 +478,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\sSVN.cmd"
     Delete /REBOOTOK "$INSTDIR\sSVN.ps1"
     Delete /REBOOTOK "$INSTDIR\TimeDate.cmd"
-    Delete /REBOOTOK "$INSTDIR\TranslateOptions.cmd"
     Delete /REBOOTOK "$INSTDIR\update.cmd"
     Delete /REBOOTOK "$INSTDIR\update.ps1"
     Delete /REBOOTOK "$INSTDIR\README.pdf"
