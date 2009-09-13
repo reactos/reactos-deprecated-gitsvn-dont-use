@@ -8,6 +8,11 @@
 
 #include "sysreg.h"
 
+const char DefaultOutputPath[] = "output-i386";
+const char* OutputPath;
+Settings AppSettings;
+ModuleListEntry* ModuleList;
+
 bool GetConsole(virDomainPtr vDomPtr, char* console)
 {
     xmlDocPtr xml = NULL;
@@ -147,7 +152,6 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char* XmlFileName, 
     return vDomPtr;
 }
 
-
 int main(int argc, char **argv)
 {
     virConnectPtr vConn = NULL;
@@ -160,6 +164,13 @@ int main(int argc, char **argv)
     char console[50];
     unsigned int Retries;
     unsigned int Stage;
+
+    /* Get the output path to the built ReactOS files */
+    OutputPath = getenv("ROS_OUTPUT");
+    if(!OutputPath)
+        OutputPath = DefaultOutputPath;
+
+    InitializeModuleList();
 
     if (argc == 2)
         strcpy(config, argv[1]);
@@ -252,6 +263,8 @@ int main(int argc, char **argv)
 
 
 cleanup:
+    CleanModuleList();
+
     if (vConn)
         virConnectClose(vConn);
 

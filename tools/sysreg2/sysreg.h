@@ -6,6 +6,7 @@
  *              Copyright 2009 Colin Finck <colin@reactos.org>
  */
 
+#include <dirent.h>
 #include <fcntl.h>
 #include <libvirt.h>
 #include <poll.h>
@@ -21,19 +22,24 @@
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+#include <sys/stat.h>
 #include <sys/sysinfo.h>
+#include <sys/types.h>
 
 #define EXIT_CHECKPOINT_REACHED     0
 #define EXIT_CONTINUE               1
 #define EXIT_DONT_CONTINUE          2
 #define NUM_STAGES                  3
 
-typedef struct {
+typedef struct _stage
+{
     char BootDevice[8];
     char Checkpoint[80];
-} stage;
+}
+stage;
 
-typedef struct {
+typedef struct _Settings
+{
     int Timeout;
     char Filename[255];
     char Name[80];
@@ -42,9 +48,16 @@ typedef struct {
     stage Stage[3];
     unsigned int MaxCacheHits;
     unsigned int MaxRetries;
-} Settings;
+}
+Settings;
 
-Settings AppSettings;
+typedef struct _ModuleListEntry
+{
+    struct _ModuleListEntry* Next;
+    char* Module;
+    char* Path;
+}
+ModuleListEntry;
 
 /* utils.c */
 char* ReadFile (const char* filename);
@@ -58,5 +71,11 @@ bool LoadSettings(const char* XmlConfig);
 int ProcessDebugData(const char* tty, int timeout, int stage);  
 
 /* raddr2line.c */
-bool GetPackagePath(char* Buffer, int BuffSize, char* Module);
-bool ResolveAddressFromFile(char* Buffer, int BuffSize, char* Data);
+void InitializeModuleList();
+void CleanModuleList();
+bool ResolveAddressFromFile(char* Buffer, size_t BufferSize, const char* Data);
+
+/* virt.c */
+extern const char* OutputPath;
+extern Settings AppSettings;
+extern ModuleListEntry* ModuleList;

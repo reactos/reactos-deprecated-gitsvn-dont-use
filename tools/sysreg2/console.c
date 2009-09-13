@@ -160,7 +160,7 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
             }
 
             /* Output the line, raddr2line the included addresses if necessary */
-			if ((KdbgHit == 1) && (ResolveAddressFromFile(Raddr2LineBuffer, BUFFER_SIZE, Buffer)))
+            if (KdbgHit == 1 && ResolveAddressFromFile(Raddr2LineBuffer, sizeof(Raddr2LineBuffer), Buffer))
                 printf("%s", Raddr2LineBuffer);
             else
                 printf("%s", Buffer);
