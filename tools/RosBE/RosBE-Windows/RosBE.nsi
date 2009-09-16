@@ -129,15 +129,16 @@ Section -BaseFiles SEC01
         File /r Components\Powershell\version.ps1
         WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     ${else}
-        File /r Root\Build.cmd
-        File /r Root\Build-Multi.cmd
+        File /r Root\Basedir.cmd
         File /r Root\Build-Shared.cmd
         File /r Root\charch.cmd
         File /r Root\chdefgcc.cmd
         File /r Root\Clean.cmd
         File /r Root\Help.cmd
+        File /r Root\Make.cmd
+        File /r Root\Makex.cmd
+        File /r Root\Renv.cmd
         File /r Root\RosBE.cmd
-        File /r Root\RosBE.mac
         File /r Root\rosbe-gcc-env.cmd
         File /r Root\TimeDate.cmd
         File /r Root\version.cmd
@@ -251,7 +252,7 @@ Section "relAddr2Line Tool" SEC08
     ${If} $R4 = '6.1'
         File /r Components\Powershell\reladdr2line.ps1
     ${else}
-        File /r Root\reladdr2line.cmd
+        File /r Root\raddr2line.cmd
     ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
@@ -296,14 +297,15 @@ SetShellVarContext current
     ${If} $R4 = '6.1'
         SetOutPath "$INSTDIR"
         SetOverwrite try
-        File /r Root\Build.cmd
-        File /r Root\Build-Multi.cmd
+        File /r Root\Basedir.cmd
         File /r Root\Build-Shared.cmd
         File /r Root\chdefgcc.cmd
         File /r Root\Clean.cmd
         File /r Root\Help.cmd
+        File /r Root\Make.cmd
+        File /r Root\Makex.cmd
+        File /r Root\Renv.cmd
         File /r Root\RosBE.cmd
-        File /r Root\RosBE.mac
         File /r Root\rosbe-gcc-env.cmd
         File /r Root\TimeDate.cmd
         File /r Root\version.cmd
@@ -311,7 +313,7 @@ SetShellVarContext current
         File /r Root\chdefdir.cmd
         File /r Root\Config.cmd
         File /r Root\options.cmd
-        File /r Root\reladdr2line.cmd
+        File /r Root\raddr2line.cmd
         File /r Root\scut.cmd
         File /r Root\sSVN.cmd
         File /r Root\update.cmd
@@ -449,10 +451,9 @@ Section Uninstall
     StrCmp $ICONS_GROUP "" NO_SHORTCUTS
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
     NO_SHORTCUTS:
-    Delete /REBOOTOK "$INSTDIR\Build.cmd"
-    Delete /REBOOTOK "$INSTDIR\Build-Multi.cmd"
-    Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
+    Delete /REBOOTOK "$INSTDIR\Basedir.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
+    Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
     Delete /REBOOTOK "$INSTDIR\charch.cmd"
@@ -465,10 +466,13 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Config.ps1"
     Delete /REBOOTOK "$INSTDIR\Help.cmd"
     Delete /REBOOTOK "$INSTDIR\Help.ps1"
+    Delete /REBOOTOK "$INSTDIR\Make.cmd"
+    Delete /REBOOTOK "$INSTDIR\Makex.cmd"
     Delete /REBOOTOK "$INSTDIR\options.cmd"
     Delete /REBOOTOK "$INSTDIR\options.ps1"
-    Delete /REBOOTOK "$INSTDIR\reladdr2line.cmd"
+    Delete /REBOOTOK "$INSTDIR\raddr2line.cmd"
     Delete /REBOOTOK "$INSTDIR\reladdr2line.ps1"
+    Delete /REBOOTOK "$INSTDIR\Renv.cmd"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"
     Delete /REBOOTOK "$INSTDIR\RosBE.ps1"
     Delete /REBOOTOK "$INSTDIR\rosbe-gcc-env.cmd"
@@ -483,7 +487,6 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\README.pdf"
     Delete /REBOOTOK "$INSTDIR\rosbe.ico"
     Delete /REBOOTOK "$INSTDIR\uninstall.ico"
-    Delete /REBOOTOK "$INSTDIR\RosBE.mac"
     Delete /REBOOTOK "$INSTDIR\ChangeLog.txt"
     Delete /REBOOTOK "$INSTDIR\LICENSE.txt"
     Delete /REBOOTOK "$INSTDIR\srclist.txt"

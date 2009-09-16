@@ -1,5 +1,13 @@
 *** Sep XXth, 2009 - RosBE 1.5 Released
 
+- Updated SVN to 1.6.5 (Daniel Reimer)
+- Updated NASM to 2.07 (Daniel Reimer)
+- Updated GCC to 4.4.2 20090915 (Dmitry Gorbachev)
+- Updated BinUtils to 2.20.51 20090915 (Dmitry Gorbachev)
+  (with delay import feature (Timo Kreuzer))
+- Updated w32api to 3.13 (Dmitry Gorbachev)
+- Updated mingwrt to 3.16 (Dmitry Gorbachev)
+
 - Installer Fixes:
   * Installer starts the Uninstaller of the old Version again.
   * Installer does not accidentially kill the whole Start menu again.
@@ -33,6 +41,8 @@
   (Colin Finck, Gunnar)
 - Fix raddr2line.cmd to properly handle spaces in the path. (Colin Finck)
 - Added rosapps and rostests support to ssvn. (Daniel Reimer)
+- clean supports now multiple clean commands like "clean aaa bbb" (Daniel Reimer, mota)
+- Got rid of the TranslateOptions Hack (Daniel Reimer, Art Yerkes)
 
 *** Jun 29th, 2009 - RosBE 1.4.4 Released
 
