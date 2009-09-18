@@ -11,7 +11,11 @@ function UP($arg) {
     $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"
     $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
     $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
-    $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
+    if ("$ENV:ROS_ARCH" -eq "amd64") {
+        $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos" | select-string "Revision:"
+    } else {
+        $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
+    }
     $ONSVN = $ONSVN -replace "(.*)Revision: ",''
     $ONSVN = [CONVERT]::ToInt32($ONSVN,10)
     "Local Revision: $OFFSVN"
@@ -98,7 +102,11 @@ elseif ("$($args[0])" -eq "create") {
         $null = (Remove-Item "$_ROSBE_LOGDIR" -recurse -force)
         $dir = get-childitem
         if ("$dir" -eq "") {
-            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
+            if ("$ENV:ROS_ARCH" -eq "amd64") {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
+            } else {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
+            }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
         }
@@ -117,7 +125,11 @@ elseif ("$($args[0])" -eq "rosapps") {
         Set-Location modules\rosapps
         $dir = get-childitem
         if ("$dir" -eq "") {
-            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rosapps ."
+            if ("$ENV:ROS_ARCH" -eq "amd64") {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
+            } else {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rosapps ."
+            }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
         }
@@ -137,7 +149,11 @@ elseif ("$($args[0])" -eq "rostests") {
         Set-Location modules\rostests
         $dir = get-childitem
         if ("$dir" -eq "") {
-            IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rostests ."
+            if ("$ENV:ROS_ARCH" -eq "amd64") {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
+            } else {
+                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rostests ."
+            }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
         }

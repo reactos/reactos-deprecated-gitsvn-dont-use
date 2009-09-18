@@ -47,7 +47,11 @@ if /i "%1" == "create" (
     rd /s /q "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
-        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/reactos .
+        if "%ROS_ARCH%" == "amd64" (
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos .
+        ) else (
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/reactos .
+        )
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
@@ -67,7 +71,11 @@ if /i "%1" == "rosapps" (
     cd modules\rosapps
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
-        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rosapps .
+        if "%ROS_ARCH%" == "amd64" (
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps .
+        ) else (
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rosapps .
+        )
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
@@ -88,7 +96,11 @@ if /i "%1" == "rostests" (
     cd modules\rostests
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
-        "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rostests .
+        if "%ROS_ARCH%" == "amd64" (
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests .
+        ) else (
+            "%_ROSBE_BASEDIR%\Tools\svn.exe" checkout svn://svn.reactos.org/reactos/trunk/rostests .
+        )
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
     )
@@ -112,7 +124,11 @@ if not "%1" == "" (
 
 :UP
     for /f "usebackq tokens=2" %%i in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info | find "Revision:""`) do set OFFSVN=%%i
-    for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
+    if "%ROS_ARCH%" == "amd64" (
+        for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos | find "Revision:""`) do set ONSVN=%%j
+    ) else (
+        for /f "usebackq tokens=2" %%j in (`""%_ROSBE_BASEDIR%\Tools\svn.exe" info svn://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
+    )
 
     echo Local Revision: !OFFSVN!
     echo Online HEAD Revision: !ONSVN!
