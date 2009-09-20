@@ -20,7 +20,7 @@ if ("$ENV:ROS_PREFIX") {
     $global:_ROSBE_PREFIX = $null
 }
  
-$ENV:PATH = "$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
+$ENV:PATH = "$_ROSBE_HOST_MINGWPATH\bin;$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
 $TARGETGCC = "$global:_ROSBE_PREFIX" + "gcc"
 & $TARGETGCC -v 2> gcctvers.tmp
 $global:_ROSBE_TARGET_GCCVERSION = (select-string -path .\gcctvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'

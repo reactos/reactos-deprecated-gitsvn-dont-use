@@ -27,7 +27,7 @@ if "%ROS_PREFIX%" == "" (
     set _ROSBE_PREFIX=%ROS_PREFIX%-
 )
 
-set PATH=%_ROSBE_TARGET_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
+set PATH=%_ROSBE_HOST_MINGWPATH%\bin;%_ROSBE_TARGET_MINGWPATH%\bin;%_ROSBE_ORIGINALPATH%
 
 for /f "usebackq tokens=3" %%i in (`"%_ROSBE_PREFIX%gcc -v 2>&1 | find "gcc version""`) do set _ROSBE_TARGET_GCCVERSION=%%i
 for /f "usebackq tokens=2" %%i in (`"%_ROSBE_PREFIX%gcc -v 2>&1 | find "Target""`) do set _ROSBE_TARGET_GCCTARGET=%%i
