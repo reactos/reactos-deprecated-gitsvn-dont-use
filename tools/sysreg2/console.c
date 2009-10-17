@@ -179,6 +179,7 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                 else
                 {
                     /* We hit it yet another time, give up here */
+                    printf("\n");
                     Ret = EXIT_CONTINUE;
                     goto cleanup;
                 }
