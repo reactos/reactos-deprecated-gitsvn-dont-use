@@ -43,7 +43,7 @@ set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_HOST_MIN
 set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
 
 :: Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
-SET BISON_PKGDATADIR=%~ds0%~sp0%i386\share\bison
+set BISON_PKGDATADIR=%~ds0%~sp0%i386\share\bison
 
 :: Get the number of CPUs in the system so we know how many jobs to execute.
 :: To modify the number used, see the cpucount usage for getting to know about the possible options
