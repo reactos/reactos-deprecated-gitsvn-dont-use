@@ -10,7 +10,7 @@ bison 2> NUL
 if %ERRORLEVEL% == 1 (
   start /min bison parser.y -p parser_ -d -o parser.tab.c
   choice /C:AB /T 3 /D A > NUL
-  taskkill /f /im "bison.exe" > NUL
+  taskkill /f /im "bison.exe" > NUL 2> NUL
   if !ERRORLEVEL! == 0 (
       echo [broken]
   ) else (
