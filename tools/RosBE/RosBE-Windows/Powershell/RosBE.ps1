@@ -48,6 +48,9 @@ $global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\$ENV:ROS_ARCH"
 $global:_ROSBE_ORIGINALPATH = "$_ROSBE_HOST_MINGWPATH\bin;$ENV:PATH"
 $global:_ROSBE_MINGWMAKE = "$_ROSBE_HOST_MINGWPATH\bin\mingw32-make.exe"
 
+# Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
+$ENV:BISON_PKGDATADIR = ((New-Object -ComObject Scripting.FileSystemObject).GetFolder("$_ROSBE_HOST_MINGWPATH\share\bison")).ShortPath
+
 # Get the number of CPUs in the system so we know how many jobs to execute.
 # To modify the number used, see the cpucount usage for getting to know about the possible options
 $_ROSBE_MAKEX_JOBS = (gwmi win32_processor).numberofcores + 1
