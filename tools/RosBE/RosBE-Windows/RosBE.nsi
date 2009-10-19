@@ -279,10 +279,12 @@ Section "Update Script" SEC10
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\wget.exe
+    File /r Components\Tools\7z.exe
     File /r Components\Tools\libintl3.dll
     File /r Components\Tools\libeay32.dll
     File /r Components\Tools\libssl32.dll
     File /r Components\Tools\libiconv2.dll
+    File /r Components\Tools\elevate.exe
     SetOutPath "$INSTDIR"
     SetOverwrite try
     ${If} $R4 = '6.1'
@@ -325,6 +327,7 @@ SetShellVarContext current
         File /r Components\Tools\getdate.exe
         File /r Components\Tools\rquote.exe
         File /r Components\Tools\tee.exe
+        File /r Components\Tools\elevate.exe
     ${else}
         SetOutPath "$INSTDIR"
         SetOverwrite try

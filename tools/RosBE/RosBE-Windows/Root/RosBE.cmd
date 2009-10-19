@@ -86,6 +86,7 @@ if %_ROSBE_WRITELOG% == 1 (
 )
 
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+doskey update=elevate "%_ROSBE_BASEDIR%\update.cmd" $*
 
 cls
 echo *******************************************************************************

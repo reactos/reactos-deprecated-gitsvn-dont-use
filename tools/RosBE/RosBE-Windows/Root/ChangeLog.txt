@@ -7,6 +7,7 @@
   (with delay import feature (Timo Kreuzer))
 - Updated w32api to 3.13 (Dmitry Gorbachev)
 - Updated mingwrt to 3.16 (Dmitry Gorbachev)
+- Added 7z.exe into RosBE (Daniel Reimer)
 
 - Installer Fixes:
   * Installer starts the Uninstaller of the old Version again.
@@ -43,6 +44,11 @@
 - Added rosapps and rostests support to ssvn. (Daniel Reimer)
 - clean supports now multiple clean commands like "clean aaa bbb" (Daniel Reimer, mota)
 - Got rid of the TranslateOptions Hack (Daniel Reimer, Art Yerkes)
+- Add AMD64 Branch SVN Tree Creation Support to ssvn. (Daniel Reimer)
+- Fixed the "GCC not found" bug in AMD64 Build Processes. (Daniel Reimer)
+- Fixed something cosmetical in the look on startup of rosbe. (Daniel Reimer)
+- Added a regression test for RosBE (flex/bison) (Christoph von Wittich)
+- Fix Bison running from folders with spaces (Christoph von Wittich, Daniel Reimer)
 
 *** Jun 29th, 2009 - RosBE 1.4.4 Released
 

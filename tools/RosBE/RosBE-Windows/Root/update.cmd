@@ -166,5 +166,6 @@ goto :EOF
 :EOC
 cd /d "%_ROSBE_OPATH%"
 title ReactOS Build Environment %_ROSBE_VERSION%
+pause
 :OUT
 endlocal & set _ROSBE_UPDATES=%_ROSBE_UPDATES% & set _ROSBE_STATCOUNT=%_ROSBE_STATCOUNT%
