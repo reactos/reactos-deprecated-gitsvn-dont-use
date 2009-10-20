@@ -143,14 +143,6 @@ if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG") {
     $ENV:ROS_RBUILDFLAGS = get-content "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
 }
 
-# Check if writing logs is enabled, if so check if our log directory
-# exists, if it doesn't, create it.
-if ($_ROSBE_WRITELOG -eq 1) {
-    if (!(Test-Path "$_ROSBE_LOGDIR")) {
-        New-Item -path "$_ROSBE_LOGDIR" -type directory
-    }
-}
-
 # Load the doskey macros that serve as our commands.
 LoadAliases
 

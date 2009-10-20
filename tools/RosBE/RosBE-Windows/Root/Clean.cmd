@@ -67,7 +67,7 @@ if "%_ROSBE_OUTPATH%" == "" (
     set OUTCLEANPATH=%_ROSBE_OUTPATH%
 )
 
-if "%ROS_ARCH%" == "i386" (
+if /i "%ROS_ARCH%" == "i386" (
     set MAKEFILE=%_ROSBE_ROSSOURCEDIR%\makefile.auto
 ) else (
     set MAKEFILE=%_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto

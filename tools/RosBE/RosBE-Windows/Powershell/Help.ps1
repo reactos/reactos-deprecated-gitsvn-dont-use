@@ -150,8 +150,8 @@ if ("$args" -eq "") {
     ""
     "    all  - Removes build logs and compiler output in the RosBE-Logs directory."
     "    logs - Removes all build logs in the RosBE-Logs directory."
-    "    All other commands will be parsed as ""make COMMAND_clean"" and cleans the"
-    "    specific command."
+    "    All other commands will be parsed as ""make ""module""_clean"" and cleans the"
+    "    specific module."
 } elseif ("$args" -eq "config") {
     if (Test-Path "$_ROSBE_BASEDIR\Config.ps1") {
         " Usage: config [OPTIONS]"
@@ -202,7 +202,7 @@ if ("$args" -eq "") {
     if (Test-Path "$_ROSBE_BASEDIR\options.ps1") {
         " Usage: options"
         " Starts the RosBE configurator and sets the changes active in the current."
-        " RosBE session."
+        " RosBE session immediately."
     }
 } elseif ("$args" -eq "update") {
     if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {

@@ -77,14 +77,6 @@ if not exist "%APPDATA%\RosBE\." (
     mkdir "%APPDATA%\RosBE" 1> NUL 2> NUL
 )
 
-:: Check if writing logs is enabled, if so check if our log directory
-:: exists, if it doesn't, create it.
-if %_ROSBE_WRITELOG% == 1 (
-    if not exist "%_ROSBE_LOGDIR%\." (
-        mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
-    )
-)
-
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
 doskey update=elevate "%_ROSBE_BASEDIR%\update.cmd" $*
 

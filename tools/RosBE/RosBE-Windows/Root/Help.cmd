@@ -156,8 +156,8 @@ if "%1" == "" (
     echo.
     echo    all  - Removes build logs and compiler output in the RosBE-Logs directory.
     echo    logs - Removes all build logs in the RosBE-Logs directory.
-    echo    All other commands will be parsed as "make COMMAND_clean" and cleans the
-    echo    specific command.
+    echo    All other commands will be parsed as "make module_clean" and cleans the
+    echo    specific module.
 ) else if /i "%1" == "config" (
     if exist "%_ROSBE_BASEDIR%\Config.cmd" (
         echo Usage: config [OPTIONS]
@@ -208,7 +208,7 @@ if "%1" == "" (
     if exist "%_ROSBE_BASEDIR%\options.cmd" (
         echo Usage: options
         echo Starts the RosBE configurator and sets the changes active in the current
-        echo RosBE session.
+        echo RosBE session immediately.
     )
 ) else if /i "%1" == "update" (
     if exist "%_ROSBE_BASEDIR%\update.cmd" (
