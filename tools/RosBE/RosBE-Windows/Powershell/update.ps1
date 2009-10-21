@@ -9,6 +9,22 @@
 
 $host.ui.RawUI.WindowTitle = "Updating..."
 
+$_ROSBE_VERSION = "$($args[0])"
+$_ROSBE_BASEDIR = "$($args[1])"
+
+# Web Downloader in a function.
+
+function global:Get-WebFile {
+    param(
+        $url = $null,
+        $file = $null
+    )
+    $local:ErrorActionPreference = "SilentlyContinue"
+    $clnt = new-object System.Net.WebClient
+    $clnt.DownloadFile($url,$file)
+    $local:ErrorActionPreference = "Continue"
+}
+
 function EOC {
     set-location "$_ROSBE_OPATH"
     $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
@@ -89,25 +105,25 @@ if ((gi .\update.ps1).length -ne (gi .\update2.ps1).length) {
 if (!(Test-Path "$ENV:APPDATA\RosBE\Updates")) {New-Item -path "$ENV:APPDATA\RosBE" -name "Updates" -type directory}
 set-location "$ENV:APPDATA\RosBE\Updates"
 
-if ("$args" -eq "") {
+if ("$($args[2])" -eq "") {
     $_ROSBE_MULTIUPD = 1
     $_ROSBE_STATCOUNT = 1
     while ($_ROSBE_STATCOUNT -lt 10) {
         UPDCHECK
         $_ROSBE_STATCOUNT += 1
     }
-} elseif ("$args" -eq "reset") {
+} elseif ("$($args[2])" -eq "reset") {
     remove-item "$ENV:APPDATA\RosBE\Updates\*.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\*.*" -force -recurse -EA SilentlyContinue
-} elseif ("$($args[0])" -eq "nr") {
-    $_ROSBE_STATCOUNT = $($args[1])
+} elseif ("$($args[2])" -eq "nr") {
+    $_ROSBE_STATCOUNT = $($args[3])
     UPDCHECK
-} elseif ("$($args[0])" -eq "delete") {
-    $_ROSBE_STATCOUNT = $($args[1])
+} elseif ("$($args[2])" -eq "delete") {
+    $_ROSBE_STATCOUNT = $($args[3])
     remove-item "$ENV:APPDATA\RosBE\Updates\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
-} elseif ("$($args[0])" -eq "info") {
-    $_ROSBE_STATCOUNT = $($args[1])
+} elseif ("$($args[2])" -eq "info") {
+    $_ROSBE_STATCOUNT = $($args[3])
     set-location tmp
     if (!(Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt")) {
         get-webfile $_ROSBE_URL/$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt $PWD\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt
@@ -119,7 +135,7 @@ if ("$args" -eq "") {
     }
     set-location ..
     remove-item "tmp\*.*" -force -EA SilentlyContinue
-} elseif ("$args" -eq "status") {
+} elseif ("$($args[2])" -eq "status") {
     $_ROSBE_STATCOUNT = 1
     if (!(test-path "tmp")) {New-Item -name "tmp" -type directory}
     copy-item *.txt .\tmp\.

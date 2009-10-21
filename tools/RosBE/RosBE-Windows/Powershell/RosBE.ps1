@@ -78,19 +78,6 @@ function New-PInvoke {
 
 New-PInvoke user32.dll "public static extern void FlashWindow(IntPtr hwnd, bool bInvert);"
 
-# Web Downloader in a function.
-
-function global:Get-WebFile {
-    param(
-        $url = $null,
-        $file = $null
-    )
-    $local:ErrorActionPreference = "SilentlyContinue"
-    $clnt = new-object System.Net.WebClient
-    $clnt.DownloadFile($url,$file)
-    $local:ErrorActionPreference = "Continue"
-}
-
 # Load the doskey macros and delete any macros for components
 # that are not actually present.
 function LoadAliases {
@@ -131,10 +118,7 @@ function LoadAliases {
         set-alias SSVN "$_ROSBE_BASEDIR\sSVN.ps1" -scope Global
         set-alias SVN "$_ROSBE_BASEDIR\Tools\svn.exe" -scope Global
     }
-
-    if (Test-Path "$_ROSBE_BASEDIR\update.ps1") {
-        set-alias UPDATE "$_ROSBE_BASEDIR\update.ps1" -scope Global
-    }
+    function global:UPDATE($xargs) {IEX "&'$_ROSBE_BASEDIR\Tools\Elevate.exe' '$pshome\powershell.exe' -noexit {&'$_ROSBE_BASEDIR\update.ps1' '$_ROSBE_VERSION' '$_ROSBE_BASEDIR' $($xargs)}"}
 
     set-alias VERSION "$_ROSBE_BASEDIR\version.ps1" -scope Global
 
