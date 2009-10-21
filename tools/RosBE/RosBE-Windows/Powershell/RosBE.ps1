@@ -60,6 +60,26 @@ $ENV:C_INCLUDE_PATH = $null
 $ENV:CPLUS_INCLUDE_PATH = $null
 $ENV:LIBRARY_PATH = $null
 
+# Flash Tool in a Function.
+
+function New-PInvoke {
+    param(
+        $Library,
+        $Signature
+    )
+    $local:ErrorActionPreference = "SilentlyContinue"
+    $name = $($signature -replace "^.*?\s(\w+)\(.*$",'$1')
+    $MemberDefinition = "[DllImport(`"$Library`")]`n$Signature"
+
+    $type = Add-Type -PassThru -Name "PInvoke$(Get-Random)" -MemberDefinition $MemberDefinition
+    $null = iex "New-Item Function:Global:$name -Value { [$($type.FullName)]::$name.Invoke( `$args ) }"
+    $local:ErrorActionPreference = "Continue"
+}
+
+New-PInvoke user32.dll "public static extern void FlashWindow(IntPtr hwnd, bool bInvert);"
+
+# Web Downloader in a function.
+
 function global:Get-WebFile {
     param(
         $url = $null,

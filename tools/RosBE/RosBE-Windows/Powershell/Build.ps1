@@ -71,5 +71,5 @@ if ($_ROSBE_SHOWTIME -eq 1) {
 }
 
 # Highlight the fact that building has ended.
-"$_ROSBE_BASEDIR\Tools\flash.exe"
+FlashWindow (ps -id $pid).MainWIndowHandle $true
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
