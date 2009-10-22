@@ -78,7 +78,7 @@ if not exist "%APPDATA%\RosBE\." (
 )
 
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
-doskey update=elevate "%_ROSBE_BASEDIR%\update.cmd" $*
+doskey update="%_ROSBE_BASEDIR%\Tools\elevate.exe" "%_ROSBE_BASEDIR%\update.cmd" $*
 
 cls
 echo *******************************************************************************

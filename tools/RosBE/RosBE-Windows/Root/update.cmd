@@ -79,8 +79,8 @@ del /F /Q tmp\*.* 1> NUL 2> NUL
     copy *.txt .\tmp\. 1> NUL 2> NUL
     call :WHILE2
     del /F /Q tmp\*.* 1> NUL 2> NUL
-    if not "%_ROSBE_UPDATES%" == "" (
-        echo Following Updates available: %_ROSBE_UPDATES%
+    if not "!_ROSBE_UPDATES!" == "" (
+        echo Following Updates available: !_ROSBE_UPDATES!
     ) else (
         echo RosBE is up to Date.
     )
@@ -166,6 +166,7 @@ goto :EOF
 :EOC
 cd /d "%_ROSBE_OPATH%"
 title ReactOS Build Environment %_ROSBE_VERSION%
+endlocal
 pause
+
 :OUT
-endlocal & set _ROSBE_UPDATES=%_ROSBE_UPDATES% & set _ROSBE_STATCOUNT=%_ROSBE_STATCOUNT%

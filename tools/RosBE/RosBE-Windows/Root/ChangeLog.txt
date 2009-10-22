@@ -49,6 +49,12 @@
 - Fixed something cosmetical in the look on startup of rosbe. (Daniel Reimer)
 - Added a regression test for RosBE (flex/bison) (Christoph von Wittich)
 - Fix Bison running from folders with spaces (Christoph von Wittich, Daniel Reimer)
+- Elevate Updater on Win Vista / 7 now. (Daniel Reimer, Ged Murphy)
+- Add some missing headers. (Daniel Reimer)
+- Fix some missing /i on some sets. (Daniel Reimer)
+- Fix the Info message at the very beginning that theres no source code and how to get it. (Daniel Reimer)
+- Fixed Window Flash and end of build (Daniel Reimer)
+- Fixed makex only accepting one parameter in PS. (Daniel Reimer)
 
 *** Jun 29th, 2009 - RosBE 1.4.4 Released
 
