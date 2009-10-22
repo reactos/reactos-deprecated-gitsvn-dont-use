@@ -104,7 +104,7 @@ function LoadAliases {
 
     set-alias HELP "$_ROSBE_BASEDIR\Help.ps1" -scope Global
     set-alias MAKE "$_ROSBE_BASEDIR\Build.ps1" -scope Global
-    function global:MAKEX($xargs) {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $($xargs)"}
+    function global:MAKEX {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $args}"}
 
     if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         set-alias RADDR2LINE "$_ROSBE_BASEDIR\reladdr2line.ps1" -scope Global
@@ -118,7 +118,7 @@ function LoadAliases {
         set-alias SSVN "$_ROSBE_BASEDIR\sSVN.ps1" -scope Global
         set-alias SVN "$_ROSBE_BASEDIR\Tools\svn.exe" -scope Global
     }
-    function global:UPDATE($xargs) {IEX "&'$_ROSBE_BASEDIR\Tools\Elevate.exe' '$pshome\powershell.exe' -noexit {&'$_ROSBE_BASEDIR\update.ps1' '$_ROSBE_VERSION' '$_ROSBE_BASEDIR' $($xargs)}"}
+    function global:UPDATE {IEX "&'$_ROSBE_BASEDIR\Tools\Elevate.exe' '$pshome\powershell.exe' -noexit {&'$_ROSBE_BASEDIR\update.ps1' $_ROSBE_VERSION '$_ROSBE_BASEDIR' $args}"}
 
     set-alias VERSION "$_ROSBE_BASEDIR\version.ps1" -scope Global
 
