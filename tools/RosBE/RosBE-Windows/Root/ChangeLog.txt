@@ -1,12 +1,17 @@
-*** Sep XXth, 2009 - RosBE 1.5 Released
+*** Nov XXth, 2009 - RosBE 1.5 Released
+
+- Same Version like RosBE 1.4.5, only with the new GCC 4.4.2 (Dmitry Gorbachev, Colin Finck)
+- Updated BinUtils to 2.20.51 20090915
+  (with delay import feature from Timo Kreuzer)
+- Updated w32api to 3.13
+- Updated mingwrt to 3.16
+
+*** Oct 26th, 2009 - RosBE 1.4.5 Released
 
 - Updated SVN to 1.6.6 (Daniel Reimer)
 - Updated NASM to 2.07 (Daniel Reimer)
-- Updated GCC to 4.4.2 20090915 (Dmitry Gorbachev)
-- Updated BinUtils to 2.20.51 20090915 (Dmitry Gorbachev)
-  (with delay import feature (Timo Kreuzer))
-- Updated w32api to 3.13 (Dmitry Gorbachev)
-- Updated mingwrt to 3.16 (Dmitry Gorbachev)
+- Move all Platform independent Tools to the Tools Folder (Daniel Reimer)
+- Extremely tidy up our MinGW-w64 and MinGW32 (Daniel Reimer)
 - Added 7z.exe into RosBE (Daniel Reimer)
 
 - Installer Fixes:
