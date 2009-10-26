@@ -67,6 +67,7 @@ if /i "%TOOLMODE%" == "target" (
 )
 
 call "%_ROSBE_BASEDIR%\rosbe-gcc-env.cmd"
+set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
 call "%_ROSBE_BASEDIR%\version.cmd"
 
 :EOC

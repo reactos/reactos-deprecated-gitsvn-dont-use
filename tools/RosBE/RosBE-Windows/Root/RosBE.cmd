@@ -40,7 +40,6 @@ set _ROSBE_SHOWVERSION=0
 set _ROSBE_HOST_MINGWPATH=%_ROSBE_BASEDIR%\i386
 set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
 set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_HOST_MINGWPATH%\bin;%PATH%
-set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
 
 :: Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
 set BISON_PKGDATADIR=%~ds0%~sp0%i386\share\bison
@@ -67,6 +66,8 @@ if "%ROS_ARCH%" == "i386" (
 if exist "%APPDATA%\RosBE\rosbe-options-%1.cmd" (
     call "%APPDATA%\RosBE\rosbe-options-%1.cmd"
 )
+
+set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
 
 if exist "%APPDATA%\RosBE\RBUILDFLAGS.FLG" (
     for /f "usebackq tokens=* delims= " %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG""`) do set ROS_RBUILDFLAGS=%%i
