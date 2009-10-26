@@ -1,6 +1,6 @@
 *** Sep XXth, 2009 - RosBE 1.5 Released
 
-- Updated SVN to 1.6.5 (Daniel Reimer)
+- Updated SVN to 1.6.6 (Daniel Reimer)
 - Updated NASM to 2.07 (Daniel Reimer)
 - Updated GCC to 4.4.2 20090915 (Dmitry Gorbachev)
 - Updated BinUtils to 2.20.51 20090915 (Dmitry Gorbachev)

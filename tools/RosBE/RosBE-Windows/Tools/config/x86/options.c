@@ -147,7 +147,10 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFilecmd, L"set _ROSBE_WRITELOG=%d\n", writelog);
         fwprintf(pFilecmd, L"set _ROSBE_SHOWVERSION=%d\n", showversion);
         if (logdir[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_LOGDIR=%s\n", logdir);
-        if (mingwpath[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_HOST_MINGWPATH=%s\n", mingwpath);
+        if (mingwpath[0] != 0) {
+            fwprintf(pFilecmd, L"set _ROSBE_HOST_MINGWPATH=%s\n", mingwpath);
+            fwprintf(pFilecmd, L"set _ROSBE_TARGET_MINGWPATH=%s\n", mingwpath);
+        }
         if ((objdir[0] != 0) && objstate) {
             fwprintf(pFilecmd, L"set ROS_INTERMEDIATE=%s\n", objdir);
             fwprintf(pFilecmd, L"set ROS_TEMPORARY=%s\n", objdir);
@@ -179,7 +182,10 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFileps1, L"$global:_ROSBE_WRITELOG = %d\n", writelog);
         fwprintf(pFileps1, L"$global:_ROSBE_SHOWVERSION = %d\n", showversion);
         if (logdir[0] != 0) fwprintf(pFileps1, L"$global:_ROSBE_LOGDIR = \"%s\"\n", logdir);
-        if (mingwpath[0] != 0) fwprintf(pFileps1, L"$global:_ROSBE_HOST_MINGWPATH = \"%s\"\n", mingwpath);
+        if (mingwpath[0] != 0) {
+            fwprintf(pFileps1, L"$global:_ROSBE_HOST_MINGWPATH = \"%s\"\n", mingwpath);
+            fwprintf(pFileps1, L"$global:_ROSBE_TARGET_MINGWPATH = \"%s\"\n", mingwpath);
+        }
         if ((objdir[0] != 0) && objstate) {
             fwprintf(pFileps1, L"$ENV:ROS_INTERMEDIATE = \"%s\"\n", objdir);
             fwprintf(pFileps1, L"$ENV:ROS_TEMPORARY = \"%s\"\n", objdir);
