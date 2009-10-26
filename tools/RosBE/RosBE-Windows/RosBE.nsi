@@ -144,6 +144,7 @@ Section -BaseFiles SEC01
         File /r Root\version.cmd
         SetOutPath "$INSTDIR\Tools"
         SetOverwrite try
+        File /r Components\Tools\flash.exe
         File /r Components\Tools\buildtime.exe
         File /r Components\Tools\chknewer.exe
         File /r Components\Tools\cpucount.exe
@@ -153,7 +154,16 @@ Section -BaseFiles SEC01
     ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
-    File /r Components\Tools\flash.exe
+    File /r Components\Tools\mingw32-make.exe
+    File /r Components\Tools\libintl3.dll
+    File /r Components\Tools\libiconv2.dll
+    File /r Components\Tools\regex2.dll
+    File /r Components\Tools\bison.exe
+    File /r Components\Tools\flex.exe
+    File /r Components\Tools\flex++.exe
+    File /r Components\Tools\iconv.exe
+    File /r Components\Tools\m4.exe
+    File /r Components\Tools\patch.exe
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
@@ -231,7 +241,7 @@ SectionEnd
 
 Section "ccache - Compiler Cache" SEC06
     SetShellVarContext current
-    SetOutPath "$INSTDIR\i386\bin"
+    SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\ccache.exe
     File /r Components\Tools\cygwin1.dll
@@ -239,7 +249,7 @@ SectionEnd
 
 Section "GDB - The GNU Project Debugger" SEC07
     SetShellVarContext current
-    SetOutPath "$INSTDIR\i386\bin"
+    SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\gdb.exe
     File /r Components\Tools\gdbserver.exe
@@ -280,10 +290,8 @@ Section "Update Script" SEC10
     SetOverwrite try
     File /r Components\Tools\wget.exe
     File /r Components\Tools\7z.exe
-    File /r Components\Tools\libintl3.dll
     File /r Components\Tools\libeay32.dll
     File /r Components\Tools\libssl32.dll
-    File /r Components\Tools\libiconv2.dll
     File /r Components\Tools\elevate.exe
     SetOutPath "$INSTDIR"
     SetOverwrite try
@@ -322,6 +330,7 @@ SetShellVarContext current
         SetOutPath "$INSTDIR\Tools"
         SetOverwrite try
         File /r Components\Tools\buildtime.exe
+        File /r Components\Tools\flash.exe
         File /r Components\Tools\chknewer.exe
         File /r Components\Tools\cpucount.exe
         File /r Components\Tools\getdate.exe

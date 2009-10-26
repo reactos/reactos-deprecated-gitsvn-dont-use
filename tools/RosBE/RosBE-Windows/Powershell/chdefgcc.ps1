@@ -15,7 +15,6 @@ function settitle {
 
 function EOA {
     IEX "&'$_ROSBE_BASEDIR\rosbe-gcc-env.ps1'"
-    $_ROSBE_MINGWMAKE = "$_ROSBE_HOST_MINGWPATH\bin\mingw32-make.exe"
     version
     settitle
 }

@@ -67,8 +67,6 @@ if exist "%APPDATA%\RosBE\rosbe-options-%1.cmd" (
     call "%APPDATA%\RosBE\rosbe-options-%1.cmd"
 )
 
-set _ROSBE_MINGWMAKE=%_ROSBE_HOST_MINGWPATH%\bin\mingw32-make.exe
-
 if exist "%APPDATA%\RosBE\RBUILDFLAGS.FLG" (
     for /f "usebackq tokens=* delims= " %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG""`) do set ROS_RBUILDFLAGS=%%i
 )

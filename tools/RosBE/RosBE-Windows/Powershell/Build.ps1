@@ -61,9 +61,9 @@ if ($_ROSBE_WRITELOG -eq 1) {
         New-Item -path "$_ROSBE_LOGDIR" -type directory
     }
     $file = "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_TARGET_GCCVERSION-$DATENAME-$TIMENAME.txt"
-    &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file
+    &{IEX "&'mingw32-make' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file
 } else {
-    &{IEX "&'$_ROSBE_MINGWMAKE' -j $MAKE_JOBS $($args)"} $($args)
+    &{IEX "&'mingw32-make' -j $MAKE_JOBS $($args)"} $($args)
 }
 if ($_ROSBE_SHOWTIME -eq 1) {
     $sw.Stop()
