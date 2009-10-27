@@ -7,11 +7,20 @@
 # Released under GNU GPL v2 or any later version.
 
 ##################################################################################
-# This script was tested with the following toolchain versions:
-# - binutils v2.19.51-20090127 (snapshot) using the corresponding ReactOS patches
-# - gcc v4.1.3-20071015 (snapshot) using the corresponding ReactOS patches
+# This script was built for the following toolchain versions:
+# - binutils v2.19.51-20090127 (snapshot)
+#   patched with:
+#      * http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch?revision=30284&content-type=text/plain
+# - gcc v4.1.3-20071015 (snapshot)
+#   patched with:
+#      * http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-prerelease-w3seek.patch?revision=30284&content-type=text/plain
+#      * http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-virtual-stdcall-bug27067.patch?revision=30284&content-type=text/plain
+#      * http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129490-CreateFileMapping-Vista-bug30335.patch?revision=30284&content-type=text/plain
 # - mingw-runtime 3.13
 # - w32api 3.10
+#
+# These versions are used in RosBE-Windows 1.4.2-1.4.5 and RosBE-Unix 1.4-1.4.2.
+# Get the toolchain packages from one of these RosBE-Unix versions.
 ##################################################################################
 
 #
@@ -71,6 +80,7 @@ check_run()
 # Entry point
 #
 echo "buildtoolchain - Build a binutils/GCC/mingw-runtime/w32api toolchain for Windows"
+echo "Script for gcc_4.1.3 (see script header for details)"
 echo "by Colin Finck <colin@reactos.org>"
 echo
 
