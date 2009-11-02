@@ -6,7 +6,6 @@
 #              ReactOS. Currently it provides a GCC 4.1.3 build environment.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 
@@ -107,6 +106,10 @@ function LoadAliases {
 
     if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         set-alias RADDR2LINE "$_ROSBE_BASEDIR\reladdr2line.ps1" -scope Global
+    }
+
+    if (Test-Path "$_ROSBE_BASEDIR\Remake.ps1") {
+        set-alias REMAKE "$_ROSBE_BASEDIR\Remake.ps1" -scope Global
     }
 
     if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {

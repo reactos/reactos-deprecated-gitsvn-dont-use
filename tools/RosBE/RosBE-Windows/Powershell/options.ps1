@@ -5,7 +5,6 @@
 # PURPOSE:     Starts options.exe and restarts RosBE afterwards.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 $host.ui.RawUI.WindowTitle = "Options"
 

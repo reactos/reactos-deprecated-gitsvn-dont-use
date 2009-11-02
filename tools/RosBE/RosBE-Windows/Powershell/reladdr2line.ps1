@@ -5,7 +5,6 @@
 # PURPOSE:     Converts a value to hex and displays it.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 $host.ui.RawUI.WindowTitle = "reladdr2line..."
 

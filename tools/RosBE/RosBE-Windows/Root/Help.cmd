@@ -58,6 +58,11 @@ if "%1" == "" (
         echo                           specific bugs in ReactOS.
     )
 
+    if exist "%_ROSBE_BASEDIR%\Remake.cmd" (
+        echo    remake [OPTIONS]     - Cleans one or several specific modules and
+        echo                           immediately rebuilds it cleanly.
+    )
+
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
         echo    scut [OPTIONS]       - List, add, edit, remove, switch and default to
         echo                           shortcutted ReactOS source directories.
@@ -185,6 +190,13 @@ if "%1" == "" (
         echo           sub-directories are searched.
         echo ADDRESS - The address to be translated.
         echo.
+    )
+) else if /i "%1" == "Remake" (
+    if exist "%_ROSBE_BASEDIR%\Remake.cmd" (
+        echo    Usage: remake [OPTIONS]
+        echo    Cleans one or several specific modules and immediately rebuilds it cleanly.
+        echo.
+        echo    OPTIONS - One or more Module names to rebuild.
     )
 ) else if /i "%1" == "scut" (
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (

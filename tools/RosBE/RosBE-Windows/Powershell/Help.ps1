@@ -5,7 +5,6 @@
 # PURPOSE:     Display help for the commands included with the ReactOS Build Environment.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 # Check if we are displaying help on all commands, if so, display it.
 # Otherwise check if we are displaying help on individual commands, if so,
@@ -49,6 +48,11 @@ if ("$args" -eq "") {
         "    raddr2line [OPTIONS] - Translates program addresses into file names and"
         "                           line numbers to assist developers with finding"
         "                           specific bugs in ReactOS."
+    }
+
+    if (Test-Path "$_ROSBE_BASEDIR\Remake.ps1") {
+        "    remake [OPTIONS]     - Cleans one or several specific modules and"
+        "                           immediately rebuilds it cleanly."
     }
 
     if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
@@ -179,6 +183,13 @@ if ("$args" -eq "") {
         "           sub-directories are searched."
         " ADDRESS - The address to be translated."
         ""
+    }
+} elseif ("$args" -eq "Remake") {
+    if (Test-Path "$_ROSBE_BASEDIR\Remake.cmd") {
+        "    Usage: remake [OPTIONS]"
+        "    Cleans one or several specific modules and immediately rebuilds it cleanly."
+        ""
+        "    OPTIONS - One or more Module names to rebuild."
     }
 } elseif  ("$args" -eq "scut") {
     if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {

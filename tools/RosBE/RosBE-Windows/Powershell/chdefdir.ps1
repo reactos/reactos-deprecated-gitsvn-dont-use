@@ -6,7 +6,6 @@
 #              in RosBE.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 $host.ui.RawUI.WindowTitle = "Change the current working ReactOS source directory..."
 

@@ -5,7 +5,6 @@
 # PURPOSE:     A Basic Config.rbuild Creator for ReactOS.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Configurator"
 

@@ -5,7 +5,6 @@
 # PURPOSE:     Set up the GCC 4.x.x build environment.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 # Check if we're switching to the AMD64 architecture
 if ("$ENV:ROS_ARCH" -eq "amd64") {

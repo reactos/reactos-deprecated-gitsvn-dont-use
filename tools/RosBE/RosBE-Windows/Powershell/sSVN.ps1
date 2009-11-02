@@ -5,7 +5,6 @@
 # PURPOSE:     Integrated SVN Client.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 function UP($arg) {
     $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"

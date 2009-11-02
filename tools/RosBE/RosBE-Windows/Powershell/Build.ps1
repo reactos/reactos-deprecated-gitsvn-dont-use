@@ -5,7 +5,6 @@
 # PURPOSE:     Perform the build of ReactOS.
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
-#
 
 # Check if config.template.rbuild is newer than config.rbuild, if it is then
 # abort the build and inform the user.
