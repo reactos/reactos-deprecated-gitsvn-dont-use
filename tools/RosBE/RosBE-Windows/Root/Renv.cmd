@@ -1,7 +1,7 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
-:: FILE:        Root/renv.cmd
+:: FILE:        Root/Renv.cmd
 :: PURPOSE:     Shows RosBE's Environment Variables.
 :: COPYRIGHT:   Copyright 2009 Colin Finck <colin@reactos.org>
 ::

@@ -34,7 +34,7 @@ goto :EOC
 
 :WHILE
     if "%1" == "" goto :EOF
-    call "%_ROSBE_BASEDIR%\Build.cmd" %1_clean
+    call "%_ROSBE_BASEDIR%\Make.cmd" %1_clean
     shift /1
     echo.
     GOTO :WHILE %*

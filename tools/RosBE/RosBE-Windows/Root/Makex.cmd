@@ -1,7 +1,7 @@
 ::
 :: PROJECT:     RosBE - ReactOS Build Environment for Windows
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
-:: FILE:        Root/Build-Multi.cmd
+:: FILE:        Root/Makex.cmd
 :: PURPOSE:     Perform a multiprocessor build
 :: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Colin Finck <colin@reactos.org>

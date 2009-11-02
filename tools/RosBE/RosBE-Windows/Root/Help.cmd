@@ -52,7 +52,7 @@ if "%1" == "" (
     echo    help [COMMAND]       - Display the available commands or give help on a
     echo                           specific command.
 
-    if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
+    if exist "%_ROSBE_BASEDIR%\raddr2line.cmd" (
         echo    raddr2line [OPTIONS] - Translates program addresses into file names and
         echo                           line numbers to assist developers with finding
         echo                           specific bugs in ReactOS.
@@ -173,7 +173,7 @@ if "%1" == "" (
     echo Usage: help [COMMAND]
     echo Shows help for the specified command or lists all available commands.
 ) else if /i "%1" == "raddr2line" (
-    if exist "%_ROSBE_BASEDIR%\reladdr2line.cmd" (
+    if exist "%_ROSBE_BASEDIR%\raddr2line.cmd" (
         echo Usage: raddr2line [FILE] [ADDRESS]
         echo Translates program addresses into file names and line numbers to assist
         echo developers with finding specific bugs in ReactOS. If either of the options
