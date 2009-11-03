@@ -2,7 +2,7 @@
 #
 # Script for initializing RosBE
 # Part of RosBE for Unix-based Operating Systems
-# Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
+# Copyright 2007-2009 Colin Finck <colin@reactos.org>
 #
 # Released under GNU GPL v2 or any later version.
 
@@ -57,9 +57,9 @@ source "$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/setvars.sh"
 # Display banner
 echo "*******************************************************************************"
 echo "*         ReactOS Build Environment for Unix-based Operating Systems          *"
-echo "*                      by Colin Finck <mail@colinfinck.de>                    *"
+echo "*                      by Colin Finck <colin@reactos.org>                     *"
 echo "*                                                                             *"
-echo "*                               Version $_ROSBE_VERSION                                 *"
+echo "*                                 Version $_ROSBE_VERSION                                 *"
 echo "*******************************************************************************"
 echo
 echo "For a list of all included commands, type: \"help\""

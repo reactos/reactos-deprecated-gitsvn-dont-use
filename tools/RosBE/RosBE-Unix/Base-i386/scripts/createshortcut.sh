@@ -21,7 +21,7 @@ source "$SCRIPTDIR/rosbelibrary.sh"
 ROSBE_VERSION=`cat "$SCRIPTDIR/RosBE-Version"`
 
 # Select the source directory
-boldmsg "ReactOS Source Directory"
+rs_boldmsg "ReactOS Source Directory"
 
 echo "Enter the directory where the ReactOS sources are located."
 echo "This directory will become the current directory, when you start the Build Environment."
@@ -42,7 +42,7 @@ while [ "$sourcedir" = "" ]; do
 done
 
 # Select the shortcut directory
-boldmsg "Shortcut Directory"
+rs_boldmsg "Shortcut Directory"
 
 echo "In which directory do you want to create the shortcut?"
 echo "Enter the path to the directory here or simply press ENTER to install it into the Desktop directory of the current user."
@@ -62,7 +62,7 @@ while [ "$shortcutdir" = "" ]; do
 done
 
 # Create the shortcut
-boldmsg "Create Shortcut"
+rs_boldmsg "Create Shortcut"
 
 echo -n "Creating shortcut... "
 shortcut="$shortcutdir/ReactOS Build Environment.desktop"
@@ -76,4 +76,4 @@ echo "Icon=$SCRIPTDIR/RosBE.png" >> "$shortcut"
 echo "Exec=bash \"$SCRIPTDIR/RosBE.sh\" \"$sourcedir\"" >> "$shortcut"
 echo "Terminal=true" >> "$shortcut"
 
-greenmsg "OK"
+rs_greenmsg "OK"

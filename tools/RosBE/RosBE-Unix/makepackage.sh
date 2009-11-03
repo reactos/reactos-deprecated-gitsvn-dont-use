@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # ReactOS Build Environment for Unix-based Operating Systems - Packaging tool for the Base package
-# Copyright 2009 Colin Finck <mail@colinfinck.de>
+# Copyright 2009 Colin Finck <colin@reactos.org>
 #
 # Released under GNU GPL v2 or any later version.
 
@@ -61,7 +61,7 @@ tools=""
 
 case "$package_name" in
 	"Base-i386")
-		sources+="make mingw-runtime nasm w32api"
+		sources+="gmp make mingw_runtime_dev mpfr nasm w32api"
 		tools+="cpucount scut"
 esac
 
@@ -82,16 +82,14 @@ check_file "$package_name/README.pdf"
 #
 # The Process
 #
-# Copy the directory, delete some stuff and set the permissions
+# Copy the directory and delete some stuff
 echo "Copying the \"$package_name\" directory..."
 rm -rf "$full_package_name"
 cp -R "$package_name" "$full_package_name"
 
-find "$full_package_name" -type d -name ".svn" | xargs rm -rf
-find "$full_package_name" -type f -name "SVN-Readme.txt" | xargs rm
+find "$full_package_name" -type d -name ".svn" -exec rm -rf {} ";" >& /dev/null
+find "$full_package_name" -type f -name "SVN-Readme.txt" -exec rm {} ";"
 rm "$full_package_name/README.odt"
-
-find "$full_package_name" -type f -name "*.sh" | xargs chmod +x
 
 # Copy the shared tools
 for tool in $tools; do
