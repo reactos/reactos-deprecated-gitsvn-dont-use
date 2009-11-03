@@ -7,6 +7,8 @@
 # Released under GNU GPL v2 or any later version.
 
 ##################################################################################
+# Package "rosbe_1.4"
+#
 # This script was built for the following toolchain versions:
 # - binutils v2.19.51-20090127 (snapshot)
 #   patched with:
@@ -20,7 +22,7 @@
 # - w32api 3.10
 #
 # These versions are used in RosBE-Windows 1.4.2-1.4.5 and RosBE-Unix 1.4-1.4.2.
-# Get the toolchain packages from one of these RosBE-Unix versions.
+# Get the toolchain packages from http://svn.reactos.org/RosBE-Sources/rosbe_1.4
 ##################################################################################
 
 #
@@ -80,7 +82,7 @@ check_run()
 # Entry point
 #
 echo "buildtoolchain - Build a binutils/GCC/mingw-runtime/w32api toolchain for Windows"
-echo "Script for gcc_4.1.3 (see script header for details)"
+echo "Script for rosbe_1.4 (see script header for details)"
 echo "by Colin Finck <colin@reactos.org>"
 echo
 
