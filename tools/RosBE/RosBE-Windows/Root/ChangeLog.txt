@@ -1,10 +1,9 @@
 *** Nov XXth, 2009 - RosBE 1.5 Released
 
-- Same Version like RosBE 1.4.5, only with the new GCC 4.4.2 (Dmitry Gorbachev, Colin Finck)
-- Updated BinUtils to 2.20.51 20090915
-  (with delay import feature from Timo Kreuzer)
+- Updated Binutils to 2.20.51-20091017 (snapshot)
+- Updated GCC to 4.4.2 (including backported GCC r153606)
+- Updated MinGW Runtime to 3.16
 - Updated w32api to 3.13
-- Updated mingwrt to 3.16
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 
