@@ -1,7 +1,7 @@
                            ReactOS Build Environment
-                Version 1.4.2 for Unix-based operating systems
+                Version 1.5-RC1 for Unix-based operating systems
                       Base package and i386 build tools
-                     by Colin Finck (mail@colinfinck.de)
+                      by Colin Finck (colin@reactos.org)
 
 Introduction
 -------------
@@ -103,28 +103,21 @@ Version Information
   This version of RosBE for Unix-based operating systems uses the following
 components:
 
-  * GNU Binutils v2.19.51-20090127 (snapshot)
+  * GNU Binutils v2.20-20091017 (snapshot)
     compiled for mingw32
-    patched with:
-      - binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch
-        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/binutils-2.18.50.10-15-2007-snapshot-hpoussin.patch?revision=30284&content-type=text/plain)
 
-  * GCC, The GNU Compiler Collection v4.1.3-20071015 (snapshot)
+  * GCC, The GNU Compiler Collection v4.4.2
     compiled for mingw32
     patched with:
-      - GCC-v4.1-r129382-prerelease-w3seek.patch
-        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-prerelease-w3seek.patch?revision=30284&content-type=text/plain)
-      - GCC-v4.1-r129382-virtual-stdcall-bug27067.patch
-        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129382-virtual-stdcall-bug27067.patch?revision=30284&content-type=text/plain)
-      - GCC-v4.1-r129490-CreateFileMapping-Vista-bug30335.patch
-        (http://svn.reactos.org/svn/reactos/trunk/tools/RosBE/Patches/GCC-v4.1-r129490-CreateFileMapping-Vista-bug30335.patch?revision=30284&content-type=text/plain)
+      - http://gcc.gnu.org/bugzilla/attachment.cgi?id=18882&action=view
+        (committed in GCC r153606)
 
     NOTE: This GCC version only supports C and C++
 
   * Make 20071219 (CVS version)
-  * MinGW-Runtime 3.13
-  * NASM, The Netwide assembler v2.05.01
-  * W32api 3.10
+  * MinGW-Runtime 3.16
+  * NASM, The Netwide assembler v2.07
+  * W32api 3.13
 
 
 Tested Operating Systems
@@ -132,7 +125,7 @@ Tested Operating Systems
   The Build Environment was designed to work on all Unix-based operating
 systems. Nevertheless, it is impossible to test it on all possible systems out
 there.
-  The current primary development and test system is Ubuntu 8.10. But users
+  The current primary development and test system is Ubuntu 9.10. But users
 also reported that it works well under other Linux systems such as Fedora or
 openSUSE and Unix derivates like FreeBSD or Mac OS X.
   You should be able to compile the build tools on both i386 (32-bit) and
@@ -159,7 +152,7 @@ http://nasm.sourceforge.net
 
 Credits
 --------
-Colin Finck (mail@colinfinck.de)
+Colin Finck (colin@reactos.org)
 
 Thanks go also to the members of the RosBE-Windows team, namely:
 Daniel Reimer (reimer.daniel@freenet.de)
@@ -175,3 +168,4 @@ would not be what it is.
 Environment v0.2-3.4.4.
 
 Inspired by Dazzle from TinyKRNL (http://tinykrnl.org/).
+

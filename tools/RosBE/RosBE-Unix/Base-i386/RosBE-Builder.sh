@@ -21,8 +21,8 @@ rs_sourcedir="$rs_scriptdir/sources"
 
 # RosBE-Unix Constants
 DEFAULT_INSTALL_DIR="/usr/local/RosBE"
-KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4 1.4.2 1.5"
-ROSBE_VERSION="1.5"
+KNOWN_ROSBE_VERSIONS="0.3.6 1.1 1.4 1.4.2 1.5-RC1"
+ROSBE_VERSION="1.5-RC1"
 TARGET_ARCH="i386"
 
 source "$rs_scriptdir/scripts/rosbelibrary.sh"
@@ -90,6 +90,8 @@ if [ "$1" = "" ]; then
 			# Check if the directory is empty
 			if [ ! "`ls $installdir`" = "" ]; then
 				if [ -f "$installdir/RosBE-Version" ]; then
+					choice=""
+
 					# Allow the user to update an already installed RosBE version
 					installed_version=`cat "$installdir/RosBE-Version"`
 
@@ -115,10 +117,22 @@ if [ "$1" = "" ]; then
 								rs_showchoice "U" "u U r R c C"
 							fi
 
-							echo
 							break
 						fi
 					done
+
+					if [ "$choice" = "" ]; then
+						# We found no known version, so this could be for example a Release Candidate.
+						# Only offer the reinstallation option.
+						echo "Another version of the Build Environment is already installed in this directory."
+						echo "Please choose one of the following options:"
+						echo
+						echo " (R)einstall all components of the Build Environment"
+						echo " (C)hoose a different installation directory"
+						echo
+
+						rs_showchoice "R" "r R c C"
+					fi
 
 					case "$choice" in
 						"U"|"u")

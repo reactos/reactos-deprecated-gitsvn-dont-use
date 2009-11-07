@@ -227,4 +227,6 @@ rs_showchoice()
 			fi
 		done
 	done
+
+	echo
 }
