@@ -124,6 +124,7 @@ Section -BaseFiles SEC01
         File /r Components\Powershell\chdefgcc.ps1
         File /r Components\Powershell\Clean.ps1
         File /r Components\Powershell\Help.ps1
+        File /r Components\Powershell\Remake.ps1
         File /r Components\Powershell\RosBE.ps1
         File /r Components\Powershell\rosbe-gcc-env.ps1
         File /r Components\Powershell\version.ps1
@@ -137,6 +138,7 @@ Section -BaseFiles SEC01
         File /r Root\Help.cmd
         File /r Root\Make.cmd
         File /r Root\Makex.cmd
+        File /r Root\Remake.cmd
         File /r Root\Renv.cmd
         File /r Root\RosBE.cmd
         File /r Root\rosbe-gcc-env.cmd
@@ -323,6 +325,7 @@ SetShellVarContext current
         File /r Root\chdefdir.cmd
         File /r Root\Config.cmd
         File /r Root\options.cmd
+        File /r Root\Remake.cmd
         File /r Root\raddr2line.cmd
         File /r Root\scut.cmd
         File /r Root\sSVN.cmd
@@ -351,6 +354,7 @@ SetShellVarContext current
         File /r Components\Powershell\chdefdir.ps1
         File /r Components\Powershell\Config.ps1
         File /r Components\Powershell\options.ps1
+        File /r Components\Powershell\Remake.ps1
         File /r Components\Powershell\reladdr2line.ps1
         File /r Components\Powershell\scut.ps1
         File /r Components\Powershell\sSVN.ps1
@@ -485,6 +489,8 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\raddr2line.cmd"
     Delete /REBOOTOK "$INSTDIR\reladdr2line.ps1"
     Delete /REBOOTOK "$INSTDIR\Renv.cmd"
+    Delete /REBOOTOK "$INSTDIR\Remake.cmd"
+    Delete /REBOOTOK "$INSTDIR\Remake.ps1"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"
     Delete /REBOOTOK "$INSTDIR\RosBE.ps1"
     Delete /REBOOTOK "$INSTDIR\rosbe-gcc-env.cmd"

@@ -4,6 +4,8 @@
 - Updated GCC to 4.4.2 (including backported GCC r153606)
 - Updated MinGW Runtime to 3.16
 - Updated w32api to 3.13
+- Added Remake command (Daniel Reimer)
+- Fixed a few renaming bugs (Daniel Reimer)
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 
