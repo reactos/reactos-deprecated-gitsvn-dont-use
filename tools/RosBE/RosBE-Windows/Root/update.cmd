@@ -17,7 +17,7 @@ setlocal enabledelayedexpansion
 title Updating...
 
 :: The Update Server.
-set _ROSBE_URL=http://dreimer.dr.funpic.org/rosbe
+set _ROSBE_URL=http://dreimer.bplaced.net/rosbe
 
 :: Save the recent dir to cd back there at the end.
 set _ROSBE_OPATH=%CD%

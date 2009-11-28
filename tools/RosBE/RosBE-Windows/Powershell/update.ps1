@@ -75,7 +75,7 @@ function UPDCHECK {
 }
 
 # The Update Server.
-$_ROSBE_URL = "http://dreimer.dr.funpic.org/rosbe"
+$_ROSBE_URL = "http://dreimer.bplaced.net/rosbe"
 
 # Save the recent dir to cd back there at the end.
 $_ROSBE_OPATH = "$pwd"
