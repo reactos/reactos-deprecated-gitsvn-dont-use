@@ -32,4 +32,4 @@ if exist "%_ROSBE_HOST_MINGWPATH%\bin\nasm.exe" (
 :: Bison, Flex and Make
 bison --version | find "GNU Bison"
 flex --version
-mingw32-make -v | find "GNU Make"
+make -v | find "GNU Make"
