@@ -30,4 +30,4 @@ if (Test-Path "$_ROSBE_HOST_MINGWPATH\bin\nasm.exe") {
 & bison '--version' | select-string "GNU Bison"
 $fver = (& flex '--version') -replace ".*version ((\d|\.)+).*",'$1'
 "flex $fver"
-& make -v | & find "GNU Make"
+& make.exe -v | & find "GNU Make"

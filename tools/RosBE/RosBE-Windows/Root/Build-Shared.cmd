@@ -55,9 +55,9 @@ if %_ROSBE_WRITELOG% == 1 (
     if not exist "%_ROSBE_LOGDIR%\." (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     )
-    %BUILDTIME_COMMAND% "make" -j %MAKE_JOBS% %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_TARGET_GCCVERSION%-%datename%-%timename%.txt"
+    %BUILDTIME_COMMAND% "make.exe" -j %MAKE_JOBS% %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_TARGET_GCCVERSION%-%datename%-%timename%.txt"
 ) else (
-    %BUILDTIME_COMMAND% "make" -j %MAKE_JOBS% %*
+    %BUILDTIME_COMMAND% "make.exe" -j %MAKE_JOBS% %*
 )
 
 :EOC
