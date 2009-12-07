@@ -14,6 +14,7 @@
 #include <wchar.h>
 #include "resources.h"
 
+#define MINGWVERSION64 L"\\amd64"
 #define MINGWVERSION L"\\i386"
 
 typedef struct _SETTINGS
@@ -38,3 +39,4 @@ typedef struct _SETTINGS
 SETTINGS, *PSETTINGS;
 
 wchar_t *wcsset(wchar_t *string, wchar_t c);
+BOOL amd64 = FALSE;

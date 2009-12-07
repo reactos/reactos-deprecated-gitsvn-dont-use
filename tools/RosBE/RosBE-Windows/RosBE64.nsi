@@ -124,27 +124,11 @@ Section -StartMenuShortcuts SEC02
             CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd" amd64' "$INSTDIR\rosbe.ico"
         IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
             CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment 64-bit - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1' amd64" "$INSTDIR\rosbe.ico"
+        IfFileExists "$INSTDIR\Tools\options.exe" 0 +2
+            CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options 64-bit.lnk" "$INSTDIR\Tools\options.exe" "amd64"
         SetOutPath $INSTDIR
         CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE - 64 Bit Target.lnk" \
                        "$INSTDIR\Uninstall64-${PRODUCT_VERSION}.exe"
-    !insertmacro MUI_STARTMENU_WRITE_END
-SectionEnd
-
-Section /o "Config Tool" SEC03
-    SetShellVarContext current
-    SetOutPath "$INSTDIR"
-    SetOverwrite try
-    File /r Root\options.cmd
-    IfFileExists "$INSTDIR\RosBE.ps1" 0 +3
-        File /r Components\Powershell\options.ps1
-    SetOutPath "$INSTDIR\Tools"
-    SetOverwrite try
-    File /r Components\Tools\options64.exe
-    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-        CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-        SetOutPath $INSTDIR
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options 64-bit.lnk" \
-                       "$INSTDIR\Tools\options64.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
@@ -203,8 +187,6 @@ Section Uninstall
     ;; Clean up installed files.
     ;;
     RMDir /r /REBOOTOK "$INSTDIR\amd64"
-    Delete /REBOOTOK "$INSTDIR\Tools\options64.exe"
-    Delete /REBOOTOK "$INSTDIR\Tools\options64.exe"
     Delete /REBOOTOK "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
     ;; Whoever dares to change this back into: RMDir /r /REBOOTOK "$INSTDIR" will be KILLED!!!
     RMDir /REBOOTOK "$INSTDIR"

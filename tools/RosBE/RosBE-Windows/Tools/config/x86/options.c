@@ -45,12 +45,21 @@ getConfigFileCMD()
     static WCHAR filename[MAX_PATH];
     if (SHGetSpecialFolderPathW(NULL, filename, CSIDL_APPDATA, FALSE))
     {
-        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
-            wcscat(filename, L"\\RosBE\\rosbe-options.cmd");
+        if (amd64) {
+            if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options-amd64.cmd")) < MAX_PATH)
+                wcscat(filename, L"\\RosBE\\rosbe-options-amd64.cmd");
+        } else {
+            if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.cmd")) < MAX_PATH)
+                wcscat(filename, L"\\RosBE\\rosbe-options.cmd");
+        }
     }
     else
     {
-        wcscpy(filename, L"rosbe-options.cmd");
+        if (amd64) {
+            wcscpy(filename, L"rosbe-options-amd64.cmd");
+        } else {
+            wcscpy(filename, L"rosbe-options.cmd");
+        }
     }
     return filename;
 }
@@ -63,12 +72,21 @@ getConfigFilePS1()
     static WCHAR filename[MAX_PATH];
     if (SHGetSpecialFolderPathW(NULL, filename, CSIDL_APPDATA, FALSE))
     {
-        if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.ps1")) < MAX_PATH)
-            wcscat(filename, L"\\RosBE\\rosbe-options.ps1");
+        if (amd64) {
+            if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options-amd64.ps1")) < MAX_PATH)
+                wcscat(filename, L"\\RosBE\\rosbe-options-amd64.ps1");
+        } else {
+            if ((wcslen(filename) + wcslen(L"\\RosBE\\rosbe-options.ps1")) < MAX_PATH)
+                wcscat(filename, L"\\RosBE\\rosbe-options.ps1");
+        }
     }
     else
     {
-        wcscpy(filename, L"rosbe-options.ps1");
+        if (amd64) {
+            wcscpy(filename, L"rosbe-options-amd64.ps1");
+        } else {
+            wcscpy(filename, L"rosbe-options.ps1");
+        }
     }
     return filename;
 }
@@ -111,8 +129,13 @@ WriteSettings(POPTIONS_DLG infoPtr)
             return FALSE;
 
     wcscpy(checkmgw, mingwpath);
-    if ((wcslen(checkmgw) + wcslen(L"\\bin\\gcc.exe")) < MAX_PATH)
-        wcscat(checkmgw, L"\\bin\\gcc.exe");
+    if (amd64) {
+        if ((wcslen(checkmgw) + wcslen(L"\\bin\\x86_64-w64-mingw32-gcc.exe")) < MAX_PATH)
+            wcscat(checkmgw, L"\\bin\\x86_64-w64-mingw32-gcc.exe");
+    } else {
+        if ((wcslen(checkmgw) + wcslen(L"\\bin\\gcc.exe")) < MAX_PATH)
+            wcscat(checkmgw, L"\\bin\\gcc.exe");
+    }
     hFile = CreateFile(checkmgw, 0, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
     {
@@ -147,9 +170,13 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFilecmd, L"set _ROSBE_WRITELOG=%d\n", writelog);
         fwprintf(pFilecmd, L"set _ROSBE_SHOWVERSION=%d\n", showversion);
         if (logdir[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_LOGDIR=%s\n", logdir);
-        if (mingwpath[0] != 0) {
-            fwprintf(pFilecmd, L"set _ROSBE_HOST_MINGWPATH=%s\n", mingwpath);
-            fwprintf(pFilecmd, L"set _ROSBE_TARGET_MINGWPATH=%s\n", mingwpath);
+        if (amd64) {
+            if (mingwpath[0] != 0) fwprintf(pFilecmd, L"set _ROSBE_TARGET_MINGWPATH=%s\n", mingwpath);
+        } else {
+            if (mingwpath[0] != 0) {
+                fwprintf(pFilecmd, L"set _ROSBE_HOST_MINGWPATH=%s\n", mingwpath);
+                fwprintf(pFilecmd, L"set _ROSBE_TARGET_MINGWPATH=%s\n", mingwpath);
+            }
         }
         if ((objdir[0] != 0) && objstate) {
             fwprintf(pFilecmd, L"set ROS_INTERMEDIATE=%s\n", objdir);
@@ -182,9 +209,13 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFileps1, L"$global:_ROSBE_WRITELOG = %d\n", writelog);
         fwprintf(pFileps1, L"$global:_ROSBE_SHOWVERSION = %d\n", showversion);
         if (logdir[0] != 0) fwprintf(pFileps1, L"$global:_ROSBE_LOGDIR = \"%s\"\n", logdir);
-        if (mingwpath[0] != 0) {
-            fwprintf(pFileps1, L"$global:_ROSBE_HOST_MINGWPATH = \"%s\"\n", mingwpath);
-            fwprintf(pFileps1, L"$global:_ROSBE_TARGET_MINGWPATH = \"%s\"\n", mingwpath);
+        if (amd64) {
+            if (mingwpath[0] != 0) fwprintf(pFileps1, L"$global:_ROSBE_TARGET_MINGWPATH = \"%s\"\n", mingwpath);
+        } else {
+            if (mingwpath[0] != 0) {
+                fwprintf(pFileps1, L"$global:_ROSBE_HOST_MINGWPATH = \"%s\"\n", mingwpath);
+                fwprintf(pFileps1, L"$global:_ROSBE_TARGET_MINGWPATH = \"%s\"\n", mingwpath);
+            }
         }
         if ((objdir[0] != 0) && objstate) {
             fwprintf(pFileps1, L"$ENV:ROS_INTERMEDIATE = \"%s\"\n", objdir);
@@ -259,7 +290,9 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
                     LoadedSettings->showversion = wcstol(ptr2, NULL, 2);
                 else if (wcscmp(ptr, L"_ROSBE_LOGDIR") == 0)
                     wcsncpy(LoadedSettings->logdir, ptr2, wcslen(ptr2)-1);
-                else if (wcscmp(ptr, L"_ROSBE_HOST_MINGWPATH") == 0)
+                else if ((amd64) && (wcscmp(ptr, L"_ROSBE_TARGET_MINGWPATH") == 0))
+                    wcsncpy(LoadedSettings->mingwpath, ptr2, wcslen(ptr2)-1);
+                else if ((!amd64) && (wcscmp(ptr, L"_ROSBE_HOST_MINGWPATH") == 0))
                     wcsncpy(LoadedSettings->mingwpath, ptr2, wcslen(ptr2)-1);
                 else if (wcscmp(ptr, L"ROS_INTERMEDIATE") == 0)
                     wcsncpy(LoadedSettings->objdir, ptr2, wcslen(ptr2)-1);
@@ -273,14 +306,23 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
     }
     else
     {
-        LoadedSettings->foreground = 0xa;
+        if (amd64) {
+            LoadedSettings->foreground = 0xb;
+        } else {
+            LoadedSettings->foreground = 0xa;
+        }
         LoadedSettings->background = 0;
         LoadedSettings->showtime = 1;
         LoadedSettings->writelog = 1;
         LoadedSettings->showversion = 0;
         GetCurrentDirectory(MAX_PATH, LoadedSettings->mingwpath);
-        if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
-            wcscat(LoadedSettings->mingwpath, MINGWVERSION);
+        if (amd64) {
+            if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION64)) < MAX_PATH)
+                wcscat(LoadedSettings->mingwpath, MINGWVERSION64);
+        } else {
+            if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION)) < MAX_PATH)
+                wcscat(LoadedSettings->mingwpath, MINGWVERSION);
+        }
 
         LoadString(hInstance, HLP_DEFAULTMSG, SBTitle, 256);
         SetDlgItemText(infoPtr->hwndDlg, ID_STATUSBAR, SBTitle);
@@ -689,10 +731,18 @@ WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR cmdline, int cmdshow)
     POPTIONS_DLG OptionsDlgInfo;
     hInstance = hInst;
 
+    if (strcmp(cmdline,"amd64") == 0)
+    {
+        amd64 = TRUE;
+    }
+
     OptionsDlgInfo = HeapAlloc(GetProcessHeap(), 0, sizeof(*OptionsDlgInfo));
     if (OptionsDlgInfo != NULL)
     {
         ZeroMemory(OptionsDlgInfo, sizeof(OPTIONS_DLG));
+        if (amd64)
+        DialogBoxParam(hInst, MAKEINTRESOURCE(ID_DIALOG64), 0, DlgProc, (LPARAM)OptionsDlgInfo);
+        else
         DialogBoxParam(hInst, MAKEINTRESOURCE(ID_DIALOG), 0, DlgProc, (LPARAM)OptionsDlgInfo);
         HeapFree(GetProcessHeap(), 0, OptionsDlgInfo);
     }
