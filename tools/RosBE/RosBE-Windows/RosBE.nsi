@@ -270,6 +270,7 @@ Section "relAddr2Line Tool" SEC08
     SetOverwrite try
     File /r Components\Tools\echoh.exe
     File /r Components\Tools\raddr2line.exe
+    File /r Components\Tools\log2lines.exe
     File /r Components\Tools\chkslash.exe
 SectionEnd
 
