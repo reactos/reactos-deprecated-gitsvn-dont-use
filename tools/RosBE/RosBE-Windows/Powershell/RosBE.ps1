@@ -102,7 +102,7 @@ function LoadAliases {
 
     set-alias HELP "$_ROSBE_BASEDIR\Help.ps1" -scope Global
     set-alias MAKE "$_ROSBE_BASEDIR\Build.ps1" -scope Global
-    function global:MAKEX {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $args}"}
+    function global:MAKEX {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $args"}
 
     if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         set-alias RADDR2LINE "$_ROSBE_BASEDIR\reladdr2line.ps1" -scope Global
