@@ -14,9 +14,11 @@ if %_ROSBE_DEBUG% == 1 (
     @echo on
 )
 
-:: Check if we're switching to the AMD64 architecture
+:: Check if we're switching to the AMD64 or ARM architecture.
 if "%ROS_ARCH%" == "amd64" (
     set ROS_PREFIX=x86_64-w64-mingw32
+) else if "%ROS_ARCH%" == "arm" (
+    set ROS_PREFIX=i386-mingw32ce
 ) else (
     set ROS_PREFIX=
 )

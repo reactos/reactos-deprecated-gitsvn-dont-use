@@ -8,14 +8,12 @@
 
 $host.ui.RawUI.WindowTitle = "Options"
 
+$options="$_ROSBE_BASEDIR\Tools\options.exe"
 
-
-if ("$ENV:ROS_ARCH" -eq "amd64") {
-    $options="$_ROSBE_BASEDIR\Tools\options.exe"
-    $param = "amd64"
-    $cfgfile="$ENV:APPDATA\RosBE\rosbe-options-amd64.ps1"
+if ("$ENV:ROS_ARCH" -ne "i386") {
+    $param = "$ENV:ROS_ARCH"
+    $cfgfile ="$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1"
 } else {
-    $options="$_ROSBE_BASEDIR\Tools\options.exe"
     $param = $null
     $cfgfile="$ENV:APPDATA\RosBE\rosbe-options.ps1"
 }

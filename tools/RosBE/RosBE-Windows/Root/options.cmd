@@ -14,12 +14,12 @@ if %_ROSBE_DEBUG% == 1 (
 
 title Options
 
-if "%ROS_ARCH%" == "amd64" (
-    set options=%_ROSBE_BASEDIR%\Tools\options.exe
-    set param=amd64
-    set cfgfile=%APPDATA%\RosBE\rosbe-options-amd64.cmd
+set options=%_ROSBE_BASEDIR%\Tools\options.exe
+
+if not "%ROS_ARCH%" == "i386" (
+    set param=%ROS_ARCH%
+    set cfgfile=%APPDATA%\RosBE\rosbe-options-%ROS_ARCH%.cmd
 ) else (
-    set options=%_ROSBE_BASEDIR%\Tools\options.exe
     set param=
     set cfgfile=%APPDATA%\RosBE\rosbe-options.cmd
 )

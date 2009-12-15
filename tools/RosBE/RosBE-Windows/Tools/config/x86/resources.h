@@ -5,6 +5,7 @@
  * PURPOSE:     Configuring RosBE
  * COPYRIGHT:   Copyright 2007 Maarten Bosma
  *              Copyright 2007 Pierre Schweitzer
+ *              Copyright 2009 Daniel Reimer
  *
  */
 
@@ -27,25 +28,26 @@
 #define CLR15 0x0f
 
 /* Controls */
-#define ID_OK 0x11
-#define ID_CANCEL 0x12
-#define ID_OPTICON 0x13
-#define ID_SAVELOGS 0x14
-#define ID_SHOWBUILDTIME 0x15
-#define ID_USECCACHE 0x16
-#define ID_STRIP 0x17
-#define ID_OTHEROBJ 0x18
-#define ID_OTHEROUT 0x19
-#define ID_LOGDIR 0x1a
-#define ID_MGWDIR 0x1b
-#define ID_OBJDIR 0x1c
-#define ID_OUTDIR 0x1d
-#define ID_BROWSE 0x1e
-#define ID_BROWSEMGW 0x1f
-#define ID_BROWSEOBJ 0x20
-#define ID_BROWSEOUT 0x21
-#define ID_DIALOG 0x22
-#define ID_DIALOG64 0x23
+#define ID_OK 0x10
+#define ID_CANCEL 0x11
+#define ID_OPTICON 0x12
+#define ID_SAVELOGS 0x13
+#define ID_SHOWBUILDTIME 0x14
+#define ID_USECCACHE 0x15
+#define ID_STRIP 0x16
+#define ID_OTHEROBJ 0x17
+#define ID_OTHEROUT 0x18
+#define ID_LOGDIR 0x19
+#define ID_MGWDIR 0x1a
+#define ID_OBJDIR 0x1b
+#define ID_OUTDIR 0x1c
+#define ID_BROWSE 0x1d
+#define ID_BROWSEMGW 0x1e
+#define ID_BROWSEOBJ 0x1f
+#define ID_BROWSEOUT 0x20
+#define ID_DIALOG 0x21
+#define ID_DIALOG64 0x22
+#define ID_DIALOGARM 0x23
 #define ID_EXAMPLE 0x24
 #define IDC_FONT 0x25
 #define IDC_BACK 0x26

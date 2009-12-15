@@ -6,9 +6,11 @@
 # COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
-# Check if we're switching to the AMD64 architecture
+# Check if we're switching to the AMD64 or AMR architecture.
 if ("$ENV:ROS_ARCH" -eq "amd64") {
     $ENV:ROS_PREFIX = "x86_64-w64-mingw32"
+} elseif ("$ENV:ROS_ARCH" -eq "arm") {
+    $ENV:ROS_PREFIX = "i386-mingw32ce"
 } else {
     $ENV:ROS_PREFIX = $null
 }
