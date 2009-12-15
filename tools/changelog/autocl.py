@@ -4,7 +4,7 @@
 # - argument is the generated xml log file with log entries
 #   created by 'svn log -v --xml -r revision1:revision2 repository'
 # - needs internet access for retrieving the author names from wiki
-#   (http://www.reactos.org/wiki/index.php?title=Developer_Roles&action=edit)
+#   (http://www.reactos.org/wiki/index.php?title=People_of_ReactOS&action=edit)
 # - needs a section file 'sections'
 #   this file contains all generated wiki-sections and the according paths
 #   to assign the log messages correctly
@@ -129,7 +129,7 @@ if __name__ == '__main__':
 	authors = {} # dictionary for commit name -> real names
 	sections = {} # dictionary for path -> sections
 	messages = {} # dictionary for section -> log messages
-	author = urllib.urlopen("http://www.reactos.org/wiki/index.php?title=Developer_Roles&action=edit").readlines()
+	author = urllib.urlopen("http://www.reactos.org/wiki/index.php?title=People_of_ReactOS&action=edit").readlines()
 	for i in author:
 		m = re.match("^.*\[\[(.*)\]\].*\|\|[^|]*\|\|\s([^ ]*)\s\|\|.*$",i)
 		if m:
@@ -151,7 +151,10 @@ if __name__ == '__main__':
 				if len(l) > 0:
 					lns.append(l)
 		msg = string.join(lns)
-		author = authors[i['author']] 
+		if authors.has_key(i['author']):
+			author = authors[i['author']]
+		else:
+			author = i['author']
 		if not i.has_key('paths'):
 			print "Error: no path information found"
 			print "Did you really use the option '-v' in 'svn log'?"
