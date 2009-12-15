@@ -454,11 +454,18 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
         LoadedSettings->writelog = 1;
         LoadedSettings->showversion = 0;
         GetCurrentDirectory(MAX_PATH, LoadedSettings->mingwpath);
-        if (amd64 || arm)
+        if (amd64)
         {
             if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSION64)) < MAX_PATH)
             {
                 wcscat(LoadedSettings->mingwpath, MINGWVERSION64);
+            }
+        }
+        else if (arm)
+        {
+            if ((wcslen(LoadedSettings->mingwpath) + wcslen(MINGWVERSIONARM)) < MAX_PATH)
+            {
+                wcscat(LoadedSettings->mingwpath, MINGWVERSIONARM);
             }
         }
         else

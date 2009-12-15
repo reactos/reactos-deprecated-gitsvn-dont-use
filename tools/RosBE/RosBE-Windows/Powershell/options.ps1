@@ -22,7 +22,7 @@ if ("$ENV:ROS_ARCH" -ne "i386") {
 
 if (Test-Path "$options") {
     Push-Location "$_ROSBE_BASEDIR"
-    &{IEX "& '$options' $param"} | out-null
+    &{IEX "& 'options' $param"} | out-null
     Pop-Location
     if (Test-Path "$cfgfile") {
         & "$cfgfile"
