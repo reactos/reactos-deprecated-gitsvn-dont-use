@@ -193,9 +193,9 @@ WriteSettings(POPTIONS_DLG infoPtr)
     }
     else if (arm)
     {
-        if ((wcslen(checkmgw) + wcslen(L"\\bin\\i386-mingw32ce-gcc.exe")) < MAX_PATH)
+        if ((wcslen(checkmgw) + wcslen(L"\\bin\\arm-mingw32ce-gcc.exe")) < MAX_PATH)
         {
-            wcscat(checkmgw, L"\\bin\\i386-mingw32ce-gcc.exe");
+            wcscat(checkmgw, L"\\bin\\arm-mingw32ce-gcc.exe");
         }
     }
     else

@@ -10,7 +10,7 @@
 if ("$ENV:ROS_ARCH" -eq "amd64") {
     $ENV:ROS_PREFIX = "x86_64-w64-mingw32"
 } elseif ("$ENV:ROS_ARCH" -eq "arm") {
-    $ENV:ROS_PREFIX = "i386-mingw32ce"
+    $ENV:ROS_PREFIX = "arm-mingw32ce"
 } else {
     $ENV:ROS_PREFIX = $null
 }

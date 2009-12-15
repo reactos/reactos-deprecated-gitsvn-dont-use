@@ -18,7 +18,7 @@ if %_ROSBE_DEBUG% == 1 (
 if "%ROS_ARCH%" == "amd64" (
     set ROS_PREFIX=x86_64-w64-mingw32
 ) else if "%ROS_ARCH%" == "arm" (
-    set ROS_PREFIX=i386-mingw32ce
+    set ROS_PREFIX=arm-mingw32ce
 ) else (
     set ROS_PREFIX=
 )
