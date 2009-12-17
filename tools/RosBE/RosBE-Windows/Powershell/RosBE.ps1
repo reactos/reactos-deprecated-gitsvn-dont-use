@@ -27,7 +27,7 @@ if ("$ENV:ROS_ARCH" -eq "amd64") {
     (Get-Host).UI.RawUI.ForegroundColor = 0xB
     (Get-Host).UI.RawUI.BackgroundColor = 0x0
 } elseif ("$ENV:ROS_ARCH" -eq "arm") {
-    (Get-Host).UI.RawUI.ForegroundColor = 0xC
+    (Get-Host).UI.RawUI.ForegroundColor = 0x9
     (Get-Host).UI.RawUI.BackgroundColor = 0x0
 } else {
     (Get-Host).UI.RawUI.ForegroundColor = 0xA

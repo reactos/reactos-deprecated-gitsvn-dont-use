@@ -443,7 +443,7 @@ VOID LoadSettings(POPTIONS_DLG infoPtr)
         }
         else if (arm)
         {
-            LoadedSettings->foreground = 0xc;
+            LoadedSettings->foreground = 0x9;
         }
         else
         {
