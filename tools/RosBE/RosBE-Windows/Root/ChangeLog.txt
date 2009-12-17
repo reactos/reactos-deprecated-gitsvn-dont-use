@@ -6,8 +6,17 @@
 - Updated w32api to 3.13
 - Updated NSIS to 2.46 (Daniel Reimer)
 - Added Remake command (Daniel Reimer)
-- Fixed a few renaming bugs (Daniel Reimer)
 - Added log2lines v1.8 to RosBE (Daniel Reimer)
+- Added a chinese translation to the options tool (Elton Chung)
+- Added ARM Arch support to RosBE. (Daniel Reimer)
+- Added ARM Settings to options.exe, too. (Daniel Reimer)
+- Fixed a few renaming bugs (Daniel Reimer)
+- Fixed makex in the PS Version which was broken due to a "}" too much. (Daniel Reimer)
+- Moved update Server from funpic.org to bplaced.net. No banners, no ads, no size limit and free!! (Daniel Reimer)
+- Rename mingw32-make to make. Its platform independent. (Daniel Reimer)
+- Merge the 32 bit and 64 bit options tool in one file. (Daniel Reimer)
+- PS1 options script now waits for options.exe closing and then immediately sets all options active. (Daniel Reimer)
+- Tidy up existant and add more Target Compiler Paths. (Daniel Reimer)
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 
