@@ -16,7 +16,7 @@ $TARGETGCC = "$global:_ROSBE_PREFIX" + "gcc"
 remove-item gcctvers.tmp
 
 # LD
-$run = "$_ROSBE_TARGET_MINGWPATH\bin\$global:_ROSBE_PREFIX" + "ld"
+$run = "$_ROSBE_TARGET_MINGWPATH\bin\$_ROSBE_PREFIX" + "ld"
 & "$run" -v
 
 # NASM or YASM
