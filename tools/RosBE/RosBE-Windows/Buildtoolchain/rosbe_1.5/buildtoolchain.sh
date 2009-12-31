@@ -10,13 +10,13 @@
 # Package "rosbe_1.5"
 #
 # This script was built for the following toolchain versions:
-# - binutils 2.20.51-20091017 (snapshot)
+# - binutils 2.20.51-20091222 (snapshot)
 # - gcc 4.4.2
 #   patched with:
 #      * http://gcc.gnu.org/bugzilla/attachment.cgi?id=18882&action=view (committed in GCC r153606)
 # - gmp 4.3.1
 # - mingw-runtime 3.16
-# - mpfr 2.4.2-rc1
+# - mpfr 2.4.2
 # - w32api 3.13
 #
 # These tools have to be compiled under MSYS with "gcc version 3.4.5 (mingw-vista special r3)"
@@ -136,7 +136,7 @@ if rs_prepare_module "mingw_runtime"; then
 	export CFLAGS="$rs_target_cflags"
 	export C_INCLUDE_PATH="$rs_prefixdir/$rs_target/include"
 	
-	rs_do_command ../mingw_runtime/configure --prefix="$rs_prefixdir/$rs_target" --host="$rs_target" --build="$rs_target"
+	rs_do_command ../mingw_runtime/configure --prefix="$rs_prefixdir/$rs_target" --host="$rs_target" --build="$rs_target" --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd install
 	
@@ -158,7 +158,7 @@ fi
 if rs_prepare_module "gmp"; then
 	export CFLAGS="$rs_host_cflags"
 	
-	rs_do_command ../gmp/configure ABI=32 --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --disable-shared
+	rs_do_command ../gmp/configure --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --disable-shared --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd check
 	rs_do_command $rs_makecmd install
@@ -170,7 +170,7 @@ fi
 if rs_prepare_module "mpfr"; then
 	export CFLAGS="$rs_host_cflags"
 	
-	rs_do_command ../mpfr/configure --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --with-gmp="$rs_supportprefixdir" --disable-shared
+	rs_do_command ../mpfr/configure --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --with-gmp="$rs_supportprefixdir" --disable-shared --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd check
 	rs_do_command $rs_makecmd install
@@ -182,7 +182,7 @@ fi
 if rs_prepare_module "binutils"; then
 	export CFLAGS="$rs_host_cflags"
 	
-	rs_do_command ../binutils/configure --prefix="$rs_prefixdir" --host="$rs_target" --build="$rs_target" --target="$rs_target" --disable-nls
+	rs_do_command ../binutils/configure --prefix="$rs_prefixdir" --host="$rs_target" --build="$rs_target" --target="$rs_target" --disable-nls --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd install
 	rs_clean_module "binutils"
@@ -198,7 +198,7 @@ if rs_prepare_module "gcc"; then
 	export C_INCLUDE_PATH="$rs_prefixdir/$rs_target/include"
 	export LIBRARY_PATH="$rs_prefixdir/$rs_target/lib"
 	
-	rs_do_command ../gcc/configure --prefix="$rs_prefixdir" --host="$rs_target" --build="$rs_target" --target="$rs_target" --with-gmp="$rs_supportprefixdir" --with-mpfr="$rs_supportprefixdir" --enable-languages=c,c++ --enable-checking=release --enable-version-specific-runtime-libs --enable-threads=win32 --disable-win32-registry --disable-shared --disable-nls
+	rs_do_command ../gcc/configure --prefix="$rs_prefixdir" --host="$rs_target" --build="$rs_target" --target="$rs_target" --with-gmp="$rs_supportprefixdir" --with-mpfr="$rs_supportprefixdir" --enable-languages=c,c++ --enable-checking=release --enable-version-specific-runtime-libs --enable-threads=win32 --disable-win32-registry --disable-shared --disable-nls --disable-werror
 	rs_do_command $rs_makecmd profiledbootstrap
 	rs_do_command $rs_makecmd install
 	rs_clean_module "gcc"
