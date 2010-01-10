@@ -35,11 +35,11 @@ if ("$ADDRESS" -eq "") {
 $baseaddr = (objdump -p $FILEPATH | select-string "ImageBase").tostring().split()
 $baseaddr = "0x" + ($baseaddr.get($baseaddr.length - 1))
 if ($baseaddr -lt $ADDRESS) {
-    IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$FILEPATH' '$ADDRESS'"
+    IEX "& '$_ROSBE_BASEDIR\Tools\log2lines.exe' '$FILEPATH' '$ADDRESS'"
 } else {
     $baseaddr = ($baseaddr | % {[Convert]::ToInt32($_,16)}) + ($ADDRESS | % {[Convert]::ToInt32($_,16)})
     $relbase = "0x" + ("{0:X}" -f $baseaddr)
-    IEX "& '$_ROSBE_BASEDIR\Tools\raddr2line.exe' '$FILEPATH' '$relbase'"
+    IEX "& '$_ROSBE_BASEDIR\Tools\log2lines.exe' '$FILEPATH' '$relbase'"
 }
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"

@@ -63,12 +63,12 @@ echo %FILEPATH%
 for /f "tokens=2" %%i in ('"objdump -p "%FILEPATH%" 2>NUL | findstr ImageBase"') do set BASEADDRESS=0x%%i
 
 if %%i lss %ADDRESS% (
-    "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "%FILEPATH%" "%ADDRESS%"
+    "%_ROSBE_BASEDIR%\Tools\log2lines.exe" "%FILEPATH%" "%ADDRESS%"
 ) else (
     set /a BASEADDRESS+=0x%ADDRESS%
 
     for /f %%i in ('""%_ROSBE_BASEDIR%\Tools\echoh.exe" !BASEADDRESS!"') do set RELBASE=%%i
-    "%_ROSBE_BASEDIR%\Tools\raddr2line.exe" "!FILEPATH!" "!RELBASE!"
+    "%_ROSBE_BASEDIR%\Tools\log2lines.exe" "!FILEPATH!" "!RELBASE!"
 )
 
 :EOC

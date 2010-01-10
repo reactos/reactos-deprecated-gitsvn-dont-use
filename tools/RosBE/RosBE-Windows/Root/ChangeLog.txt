@@ -6,7 +6,7 @@
 - Updated w32api to 3.14 (Daniel Reimer)
 - Updated NSIS to 2.46 (Daniel Reimer)
 - Added Remake command (Daniel Reimer)
-- Added log2lines v1.9 to RosBE (Daniel Reimer)
+- Replaced raddr2line with log2lines v1.9 (Daniel Reimer)
 - Added a chinese translation to the options tool (Elton Chung)
 - Added ARM Arch support to RosBE (Daniel Reimer)
 - Added ARM Settings to options.exe, too (Daniel Reimer)
