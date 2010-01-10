@@ -1,22 +1,22 @@
-*** Dec XXth, 2009 - RosBE 1.5 Released
+*** Jan XXth, 2010 - RosBE 1.5 Released
 
-- Updated Binutils to 2.20.51-20091017 (snapshot)
+- Updated Binutils to 2.20.51-20091222 (snapshot)
 - Updated GCC to 4.4.2 (including backported GCC r153606)
-- Updated MinGW Runtime to 3.16
-- Updated w32api to 3.13
+- Updated MinGW Runtime to 3.17 (Daniel Reimer)
+- Updated w32api to 3.14 (Daniel Reimer)
 - Updated NSIS to 2.46 (Daniel Reimer)
 - Added Remake command (Daniel Reimer)
-- Added log2lines v1.8 to RosBE (Daniel Reimer)
+- Added log2lines v1.9 to RosBE (Daniel Reimer)
 - Added a chinese translation to the options tool (Elton Chung)
-- Added ARM Arch support to RosBE. (Daniel Reimer)
-- Added ARM Settings to options.exe, too. (Daniel Reimer)
+- Added ARM Arch support to RosBE (Daniel Reimer)
+- Added ARM Settings to options.exe, too (Daniel Reimer)
 - Fixed a few renaming bugs (Daniel Reimer)
-- Fixed makex in the PS Version which was broken due to a "}" too much. (Daniel Reimer)
+- Fixed makex in the PS Version which was broken due to a "}" too much (Daniel Reimer)
 - Moved update Server from funpic.org to bplaced.net. No banners, no ads, no size limit and free!! (Daniel Reimer)
-- Rename mingw32-make to make. Its platform independent. (Daniel Reimer)
-- Merge the 32 bit and 64 bit options tool in one file. (Daniel Reimer)
-- PS1 options script now waits for options.exe closing and then immediately sets all options active. (Daniel Reimer)
-- Tidy up existant and add more Target Compiler Paths. (Daniel Reimer)
+- Rename mingw32-make to make. Its platform independent (Daniel Reimer)
+- Merge the 32 bit and 64 bit options tool in one file (Daniel Reimer)
+- PS1 options script now waits for options.exe closing and then immediately sets all options active (Daniel Reimer)
+- Tidy up existant and add more Target Compiler Paths (Daniel Reimer)
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 
