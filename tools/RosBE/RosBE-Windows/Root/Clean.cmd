@@ -56,21 +56,21 @@ goto :EOF
 
 :: Apply modified obj and out paths for deletion.
 if "%_ROSBE_OBJPATH%" == "" (
-    set OBJCLEANPATH=%_ROSBE_ROSSOURCEDIR%\obj-%ROS_ARCH%
+    set OBJCLEANPATH=obj-%ROS_ARCH%
 ) else (
     set OBJCLEANPATH=%_ROSBE_OBJPATH%
 )
 
 if "%_ROSBE_OUTPATH%" == "" (
-    set OUTCLEANPATH=%_ROSBE_ROSSOURCEDIR%\output-%ROS_ARCH%
+    set OUTCLEANPATH=output-%ROS_ARCH%
 ) else (
     set OUTCLEANPATH=%_ROSBE_OUTPATH%
 )
 
 if /i "%ROS_ARCH%" == "i386" (
-    set MAKEFILE=%_ROSBE_ROSSOURCEDIR%\makefile.auto
+    set MAKEFILE=makefile.auto
 ) else (
-    set MAKEFILE=%_ROSBE_ROSSOURCEDIR%\makefile-%ROS_ARCH%.auto
+    set MAKEFILE=makefile-%ROS_ARCH%.auto
 )
 
 if exist "%MAKEFILE%" (
@@ -93,8 +93,8 @@ if exist "%OBJCLEANPATH%\." (
     echo ERROR: There is no %ROS_ARCH% compiler output to clean.
 )
 
-if exist "%_ROSBE_ROSSOURCEDIR%\reactos\." (
-    rd /s /q "%_ROSBE_ROSSOURCEDIR%\reactos" 1> NUL 2> NUL
+if exist "reactos\." (
+    rd /s /q "reactos" 1> NUL 2> NUL
 )
 
 goto :EOF

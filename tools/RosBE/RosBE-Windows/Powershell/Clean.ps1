@@ -25,21 +25,21 @@ function rembin {
     # Apply modified obj and out paths for deletion.
 
     if ("$_ROSBE_OBJPATH" -eq "") {
-        $OBJCLEANPATH = "$_ROSBE_ROSSOURCEDIR\obj-$ENV:ROS_ARCH"
+        $OBJCLEANPATH = "obj-$ENV:ROS_ARCH"
     } else {
         $OBJCLEANPATH = "$_ROSBE_OBJPATH"
     }
 
     if ("$_ROSBE_OUTPATH" -eq "") {
-        $OUTCLEANPATH = "$_ROSBE_ROSSOURCEDIR\output-$ENV:ROS_ARCH"
+        $OUTCLEANPATH = "output-$ENV:ROS_ARCH"
     } else {
         $OUTCLEANPATH = "$_ROSBE_OUTPATH"
     }
 
     if ("$ENV:ROS_ARCH" -eq "i386") {
-        $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile.auto"
+        $MAKEFILE = "makefile.auto"
     } else {
-        $MAKEFILE = "$_ROSBE_ROSSOURCEDIR\makefile-$ENV:ROS_ARCH.auto"
+        $MAKEFILE = "makefile-$ENV:ROS_ARCH.auto"
     }
 
     if (Test-Path "$MAKEFILE") {
@@ -59,8 +59,8 @@ function rembin {
         "ERROR: There is no $ENV:ROS_ARCH compiler output to clean."
     }
 
-    if (Test-Path "$_ROSBE_ROSSOURCEDIR\reactos") {
-        $null = (Remove-Item "$_ROSBE_ROSSOURCEDIR\reactos" -recurse -force)
+    if (Test-Path "reactos") {
+        $null = (Remove-Item "reactos" -recurse -force)
     }
 }
 
