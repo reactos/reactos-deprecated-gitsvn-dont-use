@@ -20,7 +20,7 @@ function remlog {
 }
 
 function rembin {
-    # Check if we have something to clean, if so, clean it.
+    # Check if we have any binaries to clean, if so, clean them.
 
     # Apply modified obj and out paths for deletion.
 
@@ -46,12 +46,12 @@ function rembin {
         $null = (Remove-Item "$MAKEFILE" -force)
     }
 
-    if (Test-Path "$OBJCLEANPATH\.") {
+    if (Test-Path "$OBJCLEANPATH") {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
-        if (Test-Path "$OBJCLEANPATH\.") {
+        if (Test-Path "$OBJCLEANPATH") {
             $null = (Remove-Item "$OBJCLEANPATH" -recurse -force)
         }
-        if (Test-Path "$OUTCLEANPATH\.") {
+        if (Test-Path "$OUTCLEANPATH") {
             $null = (Remove-Item "$OUTCLEANPATH" -recurse -force)
         }
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
@@ -71,16 +71,13 @@ function end {
 
 if ("$args" -eq "") {
     rembin
-    end
 }
 elseif ("$args" -eq "logs") {
     remlog
-    end
 }
 elseif ("$args" -eq "all") {
     rembin
     remlog
-    end
 }
 elseif ("$args" -ne "") {
     $argindex = 0
@@ -90,5 +87,5 @@ elseif ("$args" -ne "") {
         $argindex += 1
     }
     remove-variable cl
-    end
 }
+end

@@ -7,13 +7,13 @@
 #
 
 function UP($arg) {
-    $OFFSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info" | select-string "Revision:"
+    $OFFSVN = IEX "& svn.exe info" | select-string "Revision:"
     $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
     $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
     if ("$ENV:ROS_ARCH" -eq "amd64") {
-        $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos" | select-string "Revision:"
+        $ONSVN = IEX "& svn.exe info svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos" | select-string "Revision:"
     } else {
-        $ONSVN = IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
+        $ONSVN = IEX "& svn.exe info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
     }
     $ONSVN = $ONSVN -replace "(.*)Revision: ",''
     $ONSVN = [CONVERT]::ToInt32($ONSVN,10)
@@ -31,31 +31,31 @@ function UP($arg) {
         if ("$_ROSBE_SSVN_JOB" -eq "update") {
             if ("$($arg[1])" -ne "") {
                 $temparg = $arg[1]
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+                IEX "& svn.exe update -r $temparg"
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location modules\rosapps
                     "Updating RosApps..."
-                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+                    IEX "& svn.exe update -r $temparg"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
                 if (Test-Path "modules\rostests\.") {
                     Set-Location modules\rostests
                     "Updating RosTests..."
-                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update -r $temparg"
+                    IEX "& svn.exe update -r $temparg"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
             } else {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+                IEX "& svn.exe update"
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location modules\rosapps
                     "Updating RosApps..."
-                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+                    IEX "& svn.exe update"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
                 if (Test-Path "modules\rostests\.") {
                     Set-Location modules\rostests
                     "Updating RosTests..."
-                    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' update"
+                    IEX "& svn.exe update"
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
             }
@@ -63,7 +63,7 @@ function UP($arg) {
             $CL = Read-Host "Please enter 'yes' or 'no': "
             if (("$CL" -eq "yes") -or ("$CL" -eq "y")) {
                 $range = "$OFFSVN" + ":" + "$ONSVN"
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' log -r $range"
+                IEX "& svn.exe log -r $range"
             }
         }
     }
@@ -89,7 +89,7 @@ elseif ("$($args[0])" -eq "cleanup") {
     $host.ui.RawUI.WindowTitle = "SVN Cleaning..."
     "This might take a while, so please be patient."
     ""
-    IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' cleanup"
+    IEX "& svn.exe cleanup"
 }
 
 # Check if the folder is empty. If not, output an error.
@@ -102,9 +102,9 @@ elseif ("$($args[0])" -eq "create") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$ENV:ROS_ARCH" -eq "amd64") {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
+                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
             } else {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/reactos ."
+                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/trunk/reactos ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -125,9 +125,9 @@ elseif ("$($args[0])" -eq "rosapps") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$ENV:ROS_ARCH" -eq "amd64") {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
+                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
             } else {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rosapps ."
+                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/trunk/rosapps ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -149,9 +149,9 @@ elseif ("$($args[0])" -eq "rostests") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$ENV:ROS_ARCH" -eq "amd64") {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
+                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
             } else {
-                IEX "&'$_ROSBE_BASEDIR\Tools\svn.exe' checkout svn://svn.reactos.org/reactos/trunk/rostests ."
+                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/trunk/rostests ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"

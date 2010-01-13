@@ -96,7 +96,7 @@ if ("$args" -eq "") {
         "                       appropiate name."
         "    depends          - Does a full dependency check on the ReactOS Source"
         "                       and generates a new makefile. This will take a while."
-        "    ""module""-depends - Does a dependency check for one module with the"
+        "    ""module""_depends - Does a dependency check for one module with the"
         "                       appropiate name."
 } elseif ("$args" -eq "makex") {
     " Usage: makex [OPTIONS]"
@@ -118,7 +118,7 @@ if ("$args" -eq "") {
         "                       appropiate name."
         "    depends          - Does a full dependency check on the ReactOS Source"
         "                       and generates a new makefile. This will take a while."
-        "    ""module""-depends - Does a dependency check for one module with the"
+        "    ""module""_depends - Does a dependency check for one module with the"
         "                       appropiate name."
     " NOTE: The number makex uses can be modified by editing Build.cmd"
     "       located in the RosBE directory, instructions for doing so are"
@@ -193,7 +193,7 @@ if ("$args" -eq "") {
     }
 } elseif  ("$args" -eq "scut") {
     if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
-        IEX "&'$_ROSBE_BASEDIR\Tools\scut.exe' --help"
+        IEX "& scut.exe --help"
     }
 } elseif  ("$args" -eq "ssvn") {
     if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {

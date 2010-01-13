@@ -227,7 +227,7 @@ elseif ("$args" -eq "rbuild") {
     settitle
 }
 elseif ("$args" -ne "") {
-    "Unknown parameter specified. Try 'help [COMMAND]'."
+    "Unknown parameter specified. Try 'help config'."
     settitle
 }
 

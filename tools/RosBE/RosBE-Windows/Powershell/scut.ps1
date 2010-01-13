@@ -7,7 +7,7 @@
 #
 
 function paramcall($arg) {
-    IEX "&'$_ROSBE_BASEDIR\Tools\scut.exe' $arg"
+    IEX "& scut.exe $arg"
 }
 
 function parse($arg) {

@@ -103,7 +103,7 @@ if "%1" == "" (
         echo                       appropiate name.
         echo    depends          - Does a full dependency check on the ReactOS Source
         echo                       and generates a new makefile. This will take a while.
-        echo    "module"-depends - Does a dependency check for one module with the
+        echo    "module"_depends - Does a dependency check for one module with the
         echo                       appropiate name.
 ) else if /i "%1" == "makex" (
     echo Usage: makex [OPTIONS]
@@ -125,7 +125,7 @@ if "%1" == "" (
         echo                       appropiate name.
         echo    depends          - Does a full dependency check on the ReactOS Source
         echo                       and generates a new makefile. This will take a while.
-        echo    "module"-depends - Does a dependency check for one module with the
+        echo    "module"_depends - Does a dependency check for one module with the
         echo                       appropiate name.
     echo NOTE: The number makex uses can be modified by editing Build.cmd
     echo       located in the RosBE directory, instructions for doing so are
@@ -200,7 +200,7 @@ if "%1" == "" (
     )
 ) else if /i "%1" == "scut" (
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
-        "%_ROSBE_BASEDIR%\Tools\scut.exe" --help
+        scut.exe --help
     )
 ) else if /i "%1" == "ssvn" (
     if exist "%_ROSBE_BASEDIR%\sSVN.cmd" (

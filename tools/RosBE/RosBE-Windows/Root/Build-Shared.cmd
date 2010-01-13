@@ -17,7 +17,7 @@ if %_ROSBE_DEBUG% == 1 (
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: abort the build and inform the user.
 if exist .\config.rbuild (
-    "%_ROSBE_BASEDIR%\Tools\chknewer.exe" .\config.template.rbuild .\config.rbuild
+    chknewer.exe config.template.rbuild config.rbuild
     if !errorlevel! == 1 (
         echo.
         echo *** config.template.rbuild is newer than config.rbuild ***
@@ -46,7 +46,7 @@ title '%TITLE_COMMAND%' build started: %TIMERAW%   (%ROS_ARCH%)
 
 :: Do the actual building
 if %_ROSBE_SHOWTIME% == 1 (
-    set BUILDTIME_COMMAND="%_ROSBE_BASEDIR%\Tools\buildtime.exe"
+    set BUILDTIME_COMMAND=buildtime.exe
 ) else (
     set BUILDTIME_COMMAND=
 )
@@ -55,12 +55,12 @@ if %_ROSBE_WRITELOG% == 1 (
     if not exist "%_ROSBE_LOGDIR%\." (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     )
-    %BUILDTIME_COMMAND% "make.exe" -j %MAKE_JOBS% %* 2>&1 | "%_ROSBE_BASEDIR%\Tools\tee.exe" "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_TARGET_GCCVERSION%-%datename%-%timename%.txt"
+    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildLog-%_ROSBE_TARGET_GCCVERSION%-%datename%-%timename%.txt"
 ) else (
-    %BUILDTIME_COMMAND% "make.exe" -j %MAKE_JOBS% %*
+    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %*
 )
 
 :EOC
 :: Highlight the fact that building has ended.
-"%_ROSBE_BASEDIR%\Tools\flash.exe"
+flash.exe
 title ReactOS Build Environment %_ROSBE_VERSION%

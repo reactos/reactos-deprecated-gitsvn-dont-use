@@ -49,7 +49,7 @@ function UPDCHECK {
             }
             if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z") {
                 remove-item "$_ROSBE_VERSION-$_ROSBE_STATCOUNT\*.*" -force -EA SilentlyContinue
-                IEX "&'$_ROSBE_BASEDIR\Tools\7z.exe' x '$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z'"
+                IEX "& 7z.exe x '$_ROSBE_VERSION-$_ROSBE_STATCOUNT.7z'"
                 set-location "$_ROSBE_VERSION-$_ROSBE_STATCOUNT"
                 IEX "& .\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.ps1"
                 return
@@ -57,7 +57,7 @@ function UPDCHECK {
                 "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
                 return
             }
-        } elseif ("$YESNO" -eq "no") {
+        } elseif (("$YESNO" -eq "no") -or ("$YESNO" -eq "n")) {
             "Do you want to be asked again to install this update?"
             $YESNO = Read-Host "(yes), (no)"
             if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {

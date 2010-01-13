@@ -49,7 +49,7 @@ if "%ADDRESS%" == "" (
 :: Check if the user supplied a path, if they didn't look for
 :: the specified file in the current directory and any
 :: sub-directories.
-"%_ROSBE_BASEDIR%\Tools\chkslash.exe" "%FILEPATH%"
+chkslash.exe "%FILEPATH%"
 if errorlevel 2 (
     for /f "usebackq" %%i in (`"dir /a:-d /s /b "%FILEPATH%" 2>NUL | findstr "%FILEPATH%""`) do set FILEPATH=%%i
 )
@@ -63,12 +63,12 @@ echo %FILEPATH%
 for /f "tokens=2" %%i in ('"objdump -p "%FILEPATH%" 2>NUL | findstr ImageBase"') do set BASEADDRESS=0x%%i
 
 if %%i lss %ADDRESS% (
-    "%_ROSBE_BASEDIR%\Tools\log2lines.exe" "%FILEPATH%" "%ADDRESS%"
+    log2lines.exe "%FILEPATH%" "%ADDRESS%"
 ) else (
     set /a BASEADDRESS+=0x%ADDRESS%
 
-    for /f %%i in ('""%_ROSBE_BASEDIR%\Tools\echoh.exe" !BASEADDRESS!"') do set RELBASE=%%i
-    "%_ROSBE_BASEDIR%\Tools\log2lines.exe" "!FILEPATH!" "!RELBASE!"
+    for /f %%i in ('"echoh.exe !BASEADDRESS!"') do set RELBASE=%%i
+    log2lines.exe "!FILEPATH!" "!RELBASE!"
 )
 
 :EOC

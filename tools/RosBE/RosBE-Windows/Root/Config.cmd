@@ -234,7 +234,7 @@ if /i "%1" == "rbuild" (
 )
 
 if not "%1" == "" (
-    echo Unknown parameter specified. Try 'help [COMMAND]'.
+    echo Unknown parameter specified. Try 'help config'.
     goto :NOK
 )
 
@@ -260,7 +260,7 @@ goto :NOK
 :: Check if config.template.rbuild is newer than config.rbuild, if it is then
 :: inform the user and offer an update.
 if exist ".\config.rbuild" (
-    "%_ROSBE_BASEDIR%\Tools\chknewer.exe" ".\config.template.rbuild" ".\config.rbuild"
+    chknewer.exe config.template.rbuild config.rbuild
     if !errorlevel! == 1 (
         echo.
         echo *** config.template.rbuild is newer than working config.rbuild ***

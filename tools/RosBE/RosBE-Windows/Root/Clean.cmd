@@ -18,26 +18,23 @@ setlocal enabledelayedexpansion
 title Cleaning...
 
 if "%1" == "" (
-    call :DEL
-    goto :EOC
+    call :BIN
 ) else if /i "%1" == "logs" (
     call :LOG
-    goto :EOC
 ) else if /i "%1" == "all" (
-    call :DEL
+    call :BIN
     call :LOG
-    goto :EOC
 ) else (
-    call :WHILE %*
+    call :MODULE %*
 )
 goto :EOC
 
-:WHILE
+:MODULE
     if "%1" == "" goto :EOF
     call "%_ROSBE_BASEDIR%\Make.cmd" %1_clean
     shift /1
     echo.
-    GOTO :WHILE %*
+    GOTO :MODULE %*
 
 :: Check if we have any logs to clean, if so, clean them.
 :LOG
@@ -51,8 +48,8 @@ if exist "%_ROSBE_LOGDIR%\*.txt" (
 goto :EOF
 
 
-:: Check if we have something to clean, if so, clean it.
-:DEL
+:: Check if we have any binaries to clean, if so, clean them.
+:BIN
 
 :: Apply modified obj and out paths for deletion.
 if "%_ROSBE_OBJPATH%" == "" (

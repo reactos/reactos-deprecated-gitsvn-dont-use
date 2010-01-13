@@ -45,7 +45,7 @@ $global:_ROSBE_SHOWVERSION = 0
 $global:_ROSBE_LOGDIR = "$pwd\RosBE-Logs"
 $global:_ROSBE_HOST_MINGWPATH = "$_ROSBE_BASEDIR\i386"
 $global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\$ENV:ROS_ARCH"
-$global:_ROSBE_ORIGINALPATH = "$_ROSBE_BASEDIR;$_ROSBE_BASEDIR\Tools;$_ROSBE_HOST_MINGWPATH\bin;$ENV:PATH"
+$global:_ROSBE_ORIGINALPATH = "$_ROSBE_BASEDIR;$_ROSBE_BASEDIR\Tools;$ENV:PATH"
 
 # Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
 $ENV:BISON_PKGDATADIR = ((New-Object -ComObject Scripting.FileSystemObject).GetFolder("$_ROSBE_HOST_MINGWPATH\share\bison")).ShortPath
@@ -119,7 +119,6 @@ function LoadAliases {
 
     if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
         set-alias SSVN "$_ROSBE_BASEDIR\sSVN.ps1" -scope Global
-        set-alias SVN "$_ROSBE_BASEDIR\Tools\svn.exe" -scope Global
     }
     function global:UPDATE {IEX "&'$_ROSBE_BASEDIR\Tools\Elevate.exe' '$pshome\powershell.exe' -noexit {&'$_ROSBE_BASEDIR\update.ps1' $_ROSBE_VERSION '$_ROSBE_BASEDIR' $args}"}
 

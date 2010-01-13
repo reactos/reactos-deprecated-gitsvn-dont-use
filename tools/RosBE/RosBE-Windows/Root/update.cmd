@@ -32,7 +32,7 @@ cd /d %_ROSBE_BASEDIR%
 
 :: First check for a new Updater
 for %%F in (update.cmd) do set _ROSBE_UPDDATE=%%~tF
-"Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd 1> NUL 2> NUL
+wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/update.cmd 1> NUL 2> NUL
 for %%F in (update.cmd) do set _ROSBE_UPDDATE2=%%~tF
 if !_ROSBE_UPDDATE! NEQ !_ROSBE_UPDDATE2! (
     cls
@@ -63,7 +63,7 @@ if "%1" == "" (
     set _ROSBE_STATCOUNT=%2
     cd tmp
     if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
+        wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
         if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
             type "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt"
         ) else (
@@ -97,7 +97,7 @@ if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
 )
 
 if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
-    "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
+    wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
 )
 
 if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
@@ -110,11 +110,11 @@ if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
     goto :no
     :updyes
         if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z" (
-            "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z 1> NUL 2> NUL
+            wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z 1> NUL 2> NUL
         )
         if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z" (
             del /F /Q "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!\*.*" 1>NUL 2>NUL
-            "%_ROSBE_BASEDIR%\Tools\7z.exe" x "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z"
+            7z.exe x "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.7z"
             cd "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!"
             call "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.cmd"
             goto :EOF
@@ -152,7 +152,7 @@ goto :EOF
     if "!_ROSBE_STATCOUNT!" == "10" GOTO :OUT
     cd tmp
     if not exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
-        "%_ROSBE_BASEDIR%\Tools\wget.exe" -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
+        wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt 1> NUL 2> NUL
         if exist "%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.txt" (
             set _ROSBE_UPDATES=!_ROSBE_UPDATES! !_ROSBE_STATCOUNT!
         ) else (

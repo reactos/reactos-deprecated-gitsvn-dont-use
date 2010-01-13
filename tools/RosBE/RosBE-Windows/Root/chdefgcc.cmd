@@ -26,7 +26,7 @@ if "%1" == "" (
         goto :EOC
     )
 ) else (
-    for /f "usebackq tokens=*" %%i in (`""%_ROSBE_BASEDIR%\Tools\rquote.exe" %1"`) do set TOOLPATH=%%i
+    for /f "usebackq tokens=*" %%i in (`"rquote.exe %1"`) do set TOOLPATH=%%i
 )
 
 if "%2" == "" (

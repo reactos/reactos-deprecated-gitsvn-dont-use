@@ -39,7 +39,7 @@ set _ROSBE_LOGDIR=%CD%\RosBE-Logs
 set _ROSBE_SHOWVERSION=0
 set _ROSBE_HOST_MINGWPATH=%_ROSBE_BASEDIR%\i386
 set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
-set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_HOST_MINGWPATH%\bin;%PATH%
+set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%PATH%
 
 :: Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
 set BISON_PKGDATADIR=%~ds0%~sp0%i386\share\bison

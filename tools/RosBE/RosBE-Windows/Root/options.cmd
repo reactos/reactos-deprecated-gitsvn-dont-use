@@ -14,8 +14,6 @@ if %_ROSBE_DEBUG% == 1 (
 
 title Options
 
-set options=%_ROSBE_BASEDIR%\Tools\options.exe
-
 if not "%ROS_ARCH%" == "i386" (
     set param=%ROS_ARCH%
     set cfgfile=%APPDATA%\RosBE\rosbe-options-%ROS_ARCH%.cmd
@@ -25,9 +23,9 @@ if not "%ROS_ARCH%" == "i386" (
 )
 
 :: Run options.exe
-if exist "%options%" (
+if exist "%_ROSBE_BASEDIR%\Tools\options.exe" (
     pushd "%_ROSBE_BASEDIR%"
-    call "%options%" %param%
+    call options.exe %param%
     popd
 
     if exist "%cfgfile%" (
