@@ -80,12 +80,6 @@ $_ROSBE_URL = "http://dreimer.bplaced.net/rosbe"
 # Save the recent dir to cd back there at the end.
 $_ROSBE_OPATH = "$pwd"
 
-if (!(Test-Path "$_ROSBE_BASEDIR\Tools\7z.exe")) {
-    set-location "$_ROSBE_BASEDIR\Tools"
-    get-webfile $_ROSBE_URL/7z.exe $PWD\7z.exe
-    set-location $_ROSBE_OPATH
-}
-
 set-location $_ROSBE_BASEDIR
 
 # First check for a new Updater.
@@ -111,16 +105,20 @@ if ("$($args[2])" -eq "") {
         UPDCHECK
         $_ROSBE_STATCOUNT += 1
     }
+    "Update finished..."
 } elseif ("$($args[2])" -eq "reset") {
     remove-item "$ENV:APPDATA\RosBE\Updates\*.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\*.*" -force -recurse -EA SilentlyContinue
+    "Update Statistics resetted..."
 } elseif ("$($args[2])" -eq "nr") {
     $_ROSBE_STATCOUNT = $($args[3])
     UPDCHECK
+    echo Update Nr:$($args[3]) installed...
 } elseif ("$($args[2])" -eq "delete") {
     $_ROSBE_STATCOUNT = $($args[3])
     remove-item "$ENV:APPDATA\RosBE\Updates\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
     remove-item "$ENV:APPDATA\RosBE\Updates\tmp\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.*" -force -recurse -EA SilentlyContinue
+    "Update-$($args[3]) Statistics resetted..."
 } elseif ("$($args[2])" -eq "info") {
     $_ROSBE_STATCOUNT = $($args[3])
     set-location tmp

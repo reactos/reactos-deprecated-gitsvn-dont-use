@@ -22,12 +22,6 @@ set _ROSBE_URL=http://dreimer.bplaced.net/rosbe
 :: Save the recent dir to cd back there at the end.
 set _ROSBE_OPATH=%CD%
 
-if not exist "%_ROSBE_BASEDIR%\Tools\7z.exe" (
-    cd /d "%_ROSBE_BASEDIR%\Tools"
-    wget.exe -N --ignore-length --no-verbose %_ROSBE_URL%/7z.exe 1> NUL 2> NUL
-    cd /d %_ROSBE_OPATH%
-)
-
 cd /d %_ROSBE_BASEDIR%
 
 :: First check for a new Updater
@@ -49,16 +43,20 @@ if "%1" == "" (
     set _ROSBE_MULTIUPD=1
     set _ROSBE_STATCOUNT=1
     call :WHILE
+    echo Update finished...
 ) else if /i "%1" == "reset" (
     del /F /Q "%APPDATA%\RosBE\Updates\*.*" 1> NUL 2> NUL
     del /F /Q "%APPDATA%\RosBE\Updates\tmp\*.*" 1> NUL 2> NUL
+    echo Update Statistics resetted...
 ) else if /i "%1" == "nr" (
     set _ROSBE_STATCOUNT=%2
     call :UPDCHECK
+    echo Update Nr:%2 installed...
 ) else if /i "%1" == "delete" (
     set _ROSBE_STATCOUNT=%2
     del /F /Q "%APPDATA%\RosBE\Updates\%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.*" 1> NUL 2> NUL
     del /F /Q "%APPDATA%\RosBE\Updates\tmp\%_ROSBE_VERSION%-!_ROSBE_STATCOUNT!.*" 1> NUL 2> NUL
+    echo Update-%2 Statistics resetted...
 ) else if /i "%1" == "info" (
     set _ROSBE_STATCOUNT=%2
     cd tmp
@@ -72,7 +70,7 @@ if "%1" == "" (
         )
     )
     cd..
-del /F /Q tmp\*.* 1> NUL 2> NUL
+    del /F /Q tmp\*.* 1> NUL 2> NUL
 ) else if /i "%1" == "status" (
     set _ROSBE_STATCOUNT=1
     if not exist "tmp" mkdir tmp 1> NUL 2> NUL
