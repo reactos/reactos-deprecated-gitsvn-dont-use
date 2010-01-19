@@ -52,6 +52,11 @@ if "%1" == "" (
     echo    help [COMMAND]       - Display the available commands or give help on a
     echo                           specific command.
 
+    if exist "%_ROSBE_BASEDIR%\kdbg.cmd" (
+        echo    kdbg [OPTIONS]       - Outputs KDBG Debug Output and lets you give
+        echo                           debug commands to it.
+    )
+
     if exist "%_ROSBE_BASEDIR%\raddr2line.cmd" (
         echo    raddr2line [OPTIONS] - Translates program addresses into file names and
         echo                           line numbers to assist developers with finding
@@ -177,6 +182,14 @@ if "%1" == "" (
 ) else if /i "%1" == "help" (
     echo Usage: help [COMMAND]
     echo Shows help for the specified command or lists all available commands.
+) else if /i "%1" == "kdbg" (
+    if exist "%_ROSBE_BASEDIR%\kdbg.cmd" (
+        echo Usage: kdbg [LOGFILE] [PIPE]
+        echo Outputs KDBG Debug Output and lets you give debug commands to it.
+        echo.
+        echo WRITELOG - Outputs the Log File to ".\DBG-%DATE%-%TIME%.txt".
+        echo.
+    )
 ) else if /i "%1" == "raddr2line" (
     if exist "%_ROSBE_BASEDIR%\raddr2line.cmd" (
         echo Usage: raddr2line [FILE] [ADDRESS]
