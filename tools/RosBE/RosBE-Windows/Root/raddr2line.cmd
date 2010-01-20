@@ -54,22 +54,7 @@ if errorlevel 2 (
     for /f "usebackq" %%i in (`"dir /a:-d /s /b "%FILEPATH%" 2>NUL | findstr "%FILEPATH%""`) do set FILEPATH=%%i
 )
 
-:: First get the ImageBase of the File. If its smaller than the given
-:: Parameter, everything is ok, because it was already added onto the
-:: adress and can be given directly to raddr2line. If not, add it and
-:: give the result to raddr2line.
-echo %FILEPATH%
-
-for /f "tokens=2" %%i in ('"objdump -p "%FILEPATH%" 2>NUL | findstr ImageBase"') do set BASEADDRESS=0x%%i
-
-if %%i lss %ADDRESS% (
-    log2lines.exe "%FILEPATH%" "%ADDRESS%"
-) else (
-    set /a BASEADDRESS+=0x%ADDRESS%
-
-    for /f %%i in ('"echoh.exe !BASEADDRESS!"') do set RELBASE=%%i
-    log2lines.exe "!FILEPATH!" "!RELBASE!"
-)
+log2lines.exe "%FILEPATH%" "%ADDRESS%"
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%

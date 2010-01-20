@@ -32,14 +32,7 @@ if ("$FILEPATH" -eq "") {
 if ("$ADDRESS" -eq "") {
     "ERROR: You must specify a address to analyze."
 }
-$baseaddr = (objdump -p $FILEPATH | select-string "ImageBase").tostring().split()
-$baseaddr = "0x" + ($baseaddr.get($baseaddr.length - 1))
-if ($baseaddr -lt $ADDRESS) {
-    IEX "& log2lines.exe '$FILEPATH' '$ADDRESS'"
-} else {
-    $baseaddr = ($baseaddr | % {[Convert]::ToInt32($_,16)}) + ($ADDRESS | % {[Convert]::ToInt32($_,16)})
-    $relbase = "0x" + ("{0:X}" -f $baseaddr)
-    IEX "& log2lines.exe '$FILEPATH' '$relbase'"
-}
+
+IEX "& log2lines.exe '$FILEPATH' '$ADDRESS'"
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
