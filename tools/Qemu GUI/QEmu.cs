@@ -144,17 +144,13 @@ namespace Qemu_GUI
             switch (Platform)
             {
                 case Platforms.x86:
-                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
-                    break;
                 case Platforms.x86_ISA:
-                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe";
+                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
                     break;
                 case Platforms.x64:
-                    p.StartInfo.FileName = this.Paths.QEmu + "\\qemu.exe";
-                    break;
                 case Platforms.x64_ISA:
                     p.StartInfo.FileName = this.Paths.QEmu + "\\qemu-system-x86_64.exe";
-                    break;       
+                    break;
                 case Platforms.ARM_integratorcp926:
                 case Platforms.ARM_integratorcp1026:
                 case Platforms.ARM_versatilepb:
