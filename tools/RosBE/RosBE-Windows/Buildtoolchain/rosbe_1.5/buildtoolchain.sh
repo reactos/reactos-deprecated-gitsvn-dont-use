@@ -2,7 +2,7 @@
 #
 # ReactOS Build Environment for Windows - Script for building a binutils/GCC/mingw-runtime/w32api toolchain for Windows
 # Partly based on RosBE-Unix' "RosBE-Builder.sh"
-# Copyright 2009 Colin Finck <colin@reactos.org>
+# Copyright 2009-2010 Colin Finck <colin@reactos.org>
 #
 # Released under GNU GPL v2 or any later version.
 
@@ -11,13 +11,13 @@
 #
 # This script was built for the following toolchain versions:
 # - binutils 2.20.51-20091222 (snapshot)
-# - gcc 4.4.2
+# - gcc 4.4.3
 #   patched with:
 #      * http://gcc.gnu.org/bugzilla/attachment.cgi?id=18882&action=view (committed in GCC r153606)
-# - gmp 4.3.1
-# - mingw-runtime 3.16
+# - gmp 4.3.2
+# - mingw-runtime 3.17
 # - mpfr 2.4.2
-# - w32api 3.13
+# - w32api 3.14
 #
 # These tools have to be compiled under MSYS with "gcc version 3.4.5 (mingw-vista special r3)"
 #
@@ -27,10 +27,10 @@
 
 
 # RosBE Setup Variables
-rs_host_cflags="-pipe -fno-common -O3 -march=pentium3 -mfpmath=sse"
-rs_needed_tools="bison flex gcc g++ grep makeinfo"        # GNU Make has a special check
+rs_host_cflags="-pipe -fno-common -O2 -march=pentium3 -mfpmath=sse"   # -fno-common needed for native builds due to GCC 4.4 bug according to Dmitry Gorbachev
+rs_needed_tools="bison flex gcc g++ grep makeinfo"                    # GNU Make has a special check
 rs_target="mingw32"
-rs_target_cflags="-pipe -gstabs+ -O3 -march=pentium -mtune=i686"
+rs_target_cflags="-pipe -gstabs+ -O2 -march=pentium -mtune=i686"
 
 # Get the absolute path to the script directory
 cd `dirname $0`
@@ -151,20 +151,16 @@ if rs_prepare_module "mingw_runtime"; then
 	
 	# The "mingw_runtime_dev" package needed for RosBE-Unix is manually created from the result of this build.
 
-	export CFLAGS=""
-	export C_INCLUDE_PATH=""
+	unset CFLAGS
+	unset C_INCLUDE_PATH
 fi
 
 if rs_prepare_module "gmp"; then
-	export CFLAGS="$rs_host_cflags"
-	
 	rs_do_command ../gmp/configure --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --disable-shared --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd check
 	rs_do_command $rs_makecmd install
 	rs_clean_module "gmp"
-	
-	export CFLAGS=""
 fi
 
 if rs_prepare_module "mpfr"; then
@@ -176,7 +172,7 @@ if rs_prepare_module "mpfr"; then
 	rs_do_command $rs_makecmd install
 	rs_clean_module "mpfr"
 	
-	export CFLAGS=""
+	unset CFLAGS
 fi
 
 if rs_prepare_module "binutils"; then
@@ -187,7 +183,7 @@ if rs_prepare_module "binutils"; then
 	rs_do_command $rs_makecmd install
 	rs_clean_module "binutils"
 	
-	export CFLAGS=""
+	unset CFLAGS
 fi
 
 if rs_prepare_module "gcc"; then
@@ -198,17 +194,17 @@ if rs_prepare_module "gcc"; then
 	export C_INCLUDE_PATH="$rs_prefixdir/$rs_target/include"
 	export LIBRARY_PATH="$rs_prefixdir/$rs_target/lib"
 	
-	rs_do_command ../gcc/configure --prefix="$rs_prefixdir" --host="$rs_target" --build="$rs_target" --target="$rs_target" --with-gmp="$rs_supportprefixdir" --with-mpfr="$rs_supportprefixdir" --enable-languages=c,c++ --enable-checking=release --enable-version-specific-runtime-libs --enable-threads=win32 --disable-win32-registry --disable-shared --disable-nls --disable-werror
+	rs_do_command ../gcc/configure --prefix="$rs_prefixdir" --host="$rs_target" --build="$rs_target" --target="$rs_target" --with-gmp="$rs_supportprefixdir" --with-mpfr="$rs_supportprefixdir" --with-pkgversion="RosBE-Windows" --enable-languages=c,c++ --enable-checking=release --enable-version-specific-runtime-libs --disable-win32-registry --disable-shared --disable-nls --disable-werror
 	rs_do_command $rs_makecmd profiledbootstrap
 	rs_do_command $rs_makecmd install
 	rs_clean_module "gcc"
 	
-	export STAGE1_CFLAGS=""
-	export BOOT_CFLAGS=""
-	export CFLAGS_FOR_TARGET=""
-	export CXXFLAGS_FOR_TARGET=""
-	export C_INCLUDE_PATH=""
-	export LIBRARY_PATH=""
+	unset STAGE1_CFLAGS
+	unset BOOT_CFLAGS
+	unset CFLAGS_FOR_TARGET
+	unset CXXFLAGS_FOR_TARGET
+	unset C_INCLUDE_PATH
+	unset LIBRARY_PATH
 fi
 
 # Final actions
