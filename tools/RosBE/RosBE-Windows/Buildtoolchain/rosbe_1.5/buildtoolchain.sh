@@ -61,7 +61,7 @@ fi
 
 # We don't want too less parameters
 if [ "$2" == "" ]; then
-	echo -n "Syntax: ./buildtoolchain.sh <sources> <workdir>"
+	echo -n "Syntax: ./buildtoolchain.sh <sources> <workdir> [make_dev]"
 	
 	for module in $MODULES; do
 		echo -n " [$module]"
@@ -72,6 +72,9 @@ if [ "$2" == "" ]; then
 	echo " sources  - Path to the directory containing RosBE-Unix toolchain packages (.tar.bz2 files)"
 	echo " workdir  - Path to the directory used for building. Will contain the final executables and"
 	echo "            temporary files."
+	echo " make_dev - Pass 1 here if you want to build the \"mingw_runtime_dev\" package required for"
+	echo "            RosBE-Unix. All following options will be ignored in this case."
+	echo "            Otherwise pass 0, which is the default option."
 	echo
 	echo "The rest of the arguments are optional. You specify them if you want to prevent a component"
 	echo "from being (re)built. Do this by passing 0 as the argument of the appropriate component."
@@ -107,16 +110,41 @@ shift
 rs_prefixdir="$rs_workdir/mingw"
 rs_supportprefixdir="$rs_workdir/support"
 
-# Set the rs_process_* variables based on the parameters
-for module in $MODULES; do
-	if [ "$1" = "0" ]; then
+# Find out if we just want to build the "mingw_runtime_dev" package
+if [ "$1" = "1" ]; then
+	make_dev_package=true
+else
+	make_dev_package=false
+fi
+
+shift
+
+if $make_dev_package; then
+	# Disable processing all modules
+	for module in $MODULES; do
 		eval "rs_process_$module=false"
-	else
-		eval "rs_process_$module=true"
-	fi
-	
-	shift
-done
+	done
+
+	# Only process w32api and mingw_runtime
+	rs_process_w32api=true
+	rs_process_mingw_runtime=true
+
+	# Set a prefix different to the one used for w32api, so that we can later package the built files
+	mingw_runtime_prefix="$rs_prefixdir/mingw_runtime_dev"
+else
+	# Set the rs_process_* variables based on the parameters
+	for module in $MODULES; do
+		if [ "$1" = "0" ]; then
+			eval "rs_process_$module=false"
+		else
+			eval "rs_process_$module=true"
+		fi
+		
+		shift
+	done
+
+	mingw_runtime_prefix="$rs_prefixdir/$rs_target"
+fi
 
 rs_mkdir_empty "$SYSHEADERDIR"
 
@@ -126,6 +154,7 @@ rs_boldmsg "Building..."
 
 rs_mkdir_if_not_exists "$rs_prefixdir/$rs_target"
 rs_mkdir_if_not_exists "$rs_supportprefixdir"
+rs_mkdir_if_not_exists "$mingw_runtime_prefix"
 
 rs_extract_module "w32api" "$rs_prefixdir/$rs_target"
 
@@ -136,7 +165,7 @@ if rs_prepare_module "mingw_runtime"; then
 	export CFLAGS="$rs_target_cflags"
 	export C_INCLUDE_PATH="$rs_prefixdir/$rs_target/include"
 	
-	rs_do_command ../mingw_runtime/configure --prefix="$rs_prefixdir/$rs_target" --host="$rs_target" --build="$rs_target" --disable-werror
+	rs_do_command ../mingw_runtime/configure --prefix="$mingw_runtime_prefix" --host="$rs_target" --build="$rs_target" --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd install
 	
@@ -145,12 +174,10 @@ if rs_prepare_module "mingw_runtime"; then
 	# As we use MinGW's libmingwex.a, but our own libmsvcrt.a, linking to MinGW's libmingwex.a will fail by default. Therefore we have to create an archive for the compiled
 	# _get_output_format stub, copy it to our "lib" directory and include it when linking to libmingwex.a.
 	ar r ofmt_stub.a ofmt_stub.o >& /dev/null
-	cp ofmt_stub.a "$rs_prefixdir/$rs_target/lib"
+	cp ofmt_stub.a "$mingw_runtime_prefix/lib"
 	
 	rs_clean_module "mingw_runtime"
 	
-	# The "mingw_runtime_dev" package needed for RosBE-Unix is manually created from the result of this build.
-
 	unset CFLAGS
 	unset C_INCLUDE_PATH
 fi
@@ -223,5 +250,11 @@ find -name "*.a" -type f -exec strip -d {} ";"
 find -name "*.o" -type f -exec strip -d {} ";"
 ##### END almost shared buildtoolchain/RosBE-Unix building part ###############
 
+# Create the package out of the built files if we want to build the "mingw_runtime_dev" package
+if $make_dev_package; then
+	echo "Creating the \"mingw_runtime_dev.tar.bz2\" archive..."
+	cd "$mingw_runtime_prefix"
+	tar -cjf "mingw_runtime_dev.tar.bz2" include lib
+fi
 
 echo "Finished!"
