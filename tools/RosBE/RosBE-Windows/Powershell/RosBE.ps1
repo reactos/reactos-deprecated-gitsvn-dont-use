@@ -117,6 +117,10 @@ function LoadAliases {
         set-alias SCUT "$_ROSBE_BASEDIR\scut.ps1" -scope Global
     }
 
+    if (Test-Path "$_ROSBE_BASEDIR\kdbg.ps1") {
+        set-alias KDBG "$_ROSBE_BASEDIR\kdbg.ps1" -scope Global
+    }
+
     if (Test-Path "$_ROSBE_BASEDIR\sSVN.ps1") {
         set-alias SSVN "$_ROSBE_BASEDIR\sSVN.ps1" -scope Global
     }

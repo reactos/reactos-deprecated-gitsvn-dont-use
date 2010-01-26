@@ -44,6 +44,11 @@ if ("$args" -eq "") {
     "    help [COMMAND]       - Display the available commands or give help on a"
     "                           specific command."
 
+    if (Test-Path "$_ROSBE_BASEDIR\kdbg.ps1") {
+        "    kdbg [OPTIONS]       - Outputs KDBG Debug Output and lets you give"
+        "                           debug commands to it."
+    }
+
     if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         "    raddr2line [OPTIONS] - Translates program addresses into file names and"
         "                           line numbers to assist developers with finding"
@@ -170,6 +175,15 @@ if ("$args" -eq "") {
 } elseif ("$args" -eq "help") {
     " Usage: help [COMMAND]"
     " Shows help for the specified command or lists all available commands."
+
+} elseif ("$args" -eq "kdbg") {
+    if (Test-Path "$_ROSBE_BASEDIR\kdbg.ps1") {
+        " Usage: kdbg [LOGFILE] [PIPE]"
+        " Outputs KDBG Debug Output and lets you give debug commands to it."
+        ""
+        " WRITELOG - Outputs the Log File to "".\DBG-%DATE%-%TIME%.txt""."
+        ""
+    }
 } elseif ("$args" -eq "raddr2line") {
     if (Test-Path "$_ROSBE_BASEDIR\reladdr2line.ps1") {
         " Usage: raddr2line [FILE] [ADDRESS]"
