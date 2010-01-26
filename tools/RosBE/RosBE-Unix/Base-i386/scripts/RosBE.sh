@@ -2,7 +2,7 @@
 #
 # Script for initializing RosBE
 # Part of RosBE for Unix-based Operating Systems
-# Copyright 2007-2009 Colin Finck <colin@reactos.org>
+# Copyright 2007-2010 Colin Finck <colin@reactos.org>
 #
 # Released under GNU GPL v2 or any later version.
 
@@ -20,7 +20,7 @@ cd `dirname $0`
 export _ROSBE_ROSSCRIPTDIR="$PWD"
 
 # Save the current PATH variable
-export _ROSBE_OLDPATH="$PATH"
+export _ROSBE_OLDPATH="$_ROSBE_ROSSCRIPTDIR/bin:$PATH"
 
 # Make sure that some important variables are clean
 export HOST=
@@ -44,15 +44,8 @@ fi
 # Set the architecture to build for
 source "$_ROSBE_ROSSCRIPTDIR/rosbelibrary.sh"
 
-if [ "$3" = "" ]; then
-	# No architecture specified, fall back to i386 without any message
-	export _ROSBE_ARCH="i386"
-else
-	# Try to set the architecture to the one specified
-	change_architecture $3
-fi
-
-source "$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/setvars.sh"
+# Try to set the architecture to the one specified or fallback to "i386"
+change_architecture "$3:-i386"
 
 # Display banner
 echo "*******************************************************************************"

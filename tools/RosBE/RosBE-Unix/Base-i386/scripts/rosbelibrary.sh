@@ -1,10 +1,10 @@
 # Shared functions for RosBE-Unix components
 # Part of RosBE for Unix-based Operating Systems
-# Copyright 2009 Colin Finck <mail@colinfinck.de>
+# Copyright 2009-2010 Colin Finck <colin@reactos.org>
 #
 # Released under GNU GPL v2 or any later version.
 
-# Check whether the given architecture is supported and if so, change the _ROSBE_ARCH variable appropriately
+# Check whether the given architecture is supported and if so, change the ROS_ARCH variable appropriately
 #   Parameter 1: The architecture to set
 change_architecture()
 {
@@ -12,14 +12,17 @@ change_architecture()
 
 	if [ -f "$_ROSBE_ROSSCRIPTDIR/$new_arch/version.sh" ]; then
 		# Architecture parameter seems valid
-		_ROSBE_ARCH="$new_arch"
+		ROS_ARCH="$new_arch"
 	else
 		echo "Unsupported architecture specified, falling back to i386!"
 		echo
-		_ROSBE_ARCH="i386"
+		ROS_ARCH="i386"
 	fi
 
-	export _ROSBE_ARCH
+	export PATH="$_ROSBE_ROSSCRIPTDIR/$ROS_ARCH/bin:$_ROSBE_OLDPATH"
+	export ROS_ARCH
+
+	source "$_ROSBE_ROSSCRIPTDIR/$ROS_ARCH/setvars.sh"
 }
 
 # Check whether we're running as root and warn the user in case we don't
@@ -42,11 +45,4 @@ check_root()
 			exit 1
 		fi
 	fi
-}
-
-# Set the PATH variable properly for the specified architecture
-set_path_variable()
-{
-	# Set the PATH
-	PATH="$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/bin:$_ROSBE_ROSSCRIPTDIR/bin:$_ROSBE_OLDPATH"
 }

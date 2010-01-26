@@ -11,7 +11,7 @@
 rs_host_cflags="-pipe -O2"
 rs_needed_tools="bison flex gcc g++ grep makeinfo"        # GNU Make has a special check
 rs_target="mingw32"
-rs_target_cflags="-pipe -gstabs+ -O2 -march=pentium -mtune=i686"
+rs_target_cflags="-pipe -O2 -march=pentium -mtune=i686"
 
 # Get the absolute path to the script directory
 cd `dirname $0`
@@ -295,7 +295,7 @@ if rs_prepare_module "gcc"; then
 	export CFLAGS_FOR_TARGET="$rs_target_cflags"
 	export CXXFLAGS_FOR_TARGET="$rs_target_cflags"
 	
-	rs_do_command ../gcc/configure --prefix="$rs_prefixdir" --target="$rs_target" --with-gmp="$rs_supportprefixdir" --with-mpfr="$rs_supportprefixdir" --with-pkgversion="RosBE-Unix $ROSBE_VERSION" --enable-languages=c,c++ --enable-checking=release --enable-version-specific-runtime-libs --disable-shared --disable-nls --disable-werror
+	rs_do_command ../gcc/configure --prefix="$rs_prefixdir" --target="$rs_target" --with-gmp="$rs_supportprefixdir" --with-mpfr="$rs_supportprefixdir" --with-pkgversion="RosBE-Unix" --enable-languages=c,c++ --enable-checking=release --enable-version-specific-runtime-libs --disable-shared --disable-nls --disable-werror
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd install
 	rs_clean_module "gcc"

@@ -2,7 +2,7 @@
 #
 # Show the tool versions
 # Part of RosBE for Unix-based Operating Systems
-# Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
+# Copyright 2007-2010 Colin Finck <colin@reactos.org>
 #
 # Released under GNU GPL v2 or any later version.
 
@@ -15,9 +15,9 @@ echo
 
 # Environment Information
 rs_boldmsg "Environment Information"
-echo "Selected Target Architecture: $_ROSBE_ARCH"
+echo "Selected Target Architecture: $ROS_ARCH"
 echo
 
 # Display tool versions
 rs_boldmsg "Build Tools"
-source "$_ROSBE_ROSSCRIPTDIR/$_ROSBE_ARCH/version.sh"
+source "$_ROSBE_ROSSCRIPTDIR/$ROS_ARCH/version.sh"
