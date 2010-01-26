@@ -270,7 +270,7 @@ fi
 if rs_prepare_module "mpfr"; then
 	export CFLAGS="$rs_host_cflags"
 
-	rs_do_command ../mpfr/configure --prefix="$rs_supportprefixdir" --with-gmp="$rs_supportprefixdir" --disable-shared --disable-werror
+	rs_do_command ../mpfr/configure --prefix="$rs_supportprefixdir" --with-gmp="$rs_supportprefixdir" --disable-shared
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd check
 	rs_do_command $rs_makecmd install
@@ -321,7 +321,7 @@ if rs_extract_module "nasm" "$rs_workdir"; then
 	export CFLAGS="$rs_host_cflags"
 
 	cd "nasm"
-	rs_do_command ./configure --prefix="$rs_prefixdir" --disable-werror
+	rs_do_command ./configure --prefix="$rs_prefixdir"
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd install
 	rs_clean_module "nasm"

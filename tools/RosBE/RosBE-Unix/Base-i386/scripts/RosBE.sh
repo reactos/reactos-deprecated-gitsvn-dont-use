@@ -7,13 +7,7 @@
 # Released under GNU GPL v2 or any later version.
 
 # Save the ReactOS source directory
-if [ "$1" = "" ]; then
-	_ROSBE_ROSSOURCEDIR="$PWD"
-else
-	_ROSBE_ROSSOURCEDIR="$1"
-fi
-
-export _ROSBE_ROSSOURCEDIR
+export _ROSBE_ROSSOURCEDIR="${1:-$PWD}"
 
 # Get the absolute path to the script directory
 cd `dirname $0`
@@ -45,7 +39,7 @@ fi
 source "$_ROSBE_ROSSCRIPTDIR/rosbelibrary.sh"
 
 # Try to set the architecture to the one specified or fallback to "i386"
-change_architecture "$3:-i386"
+change_architecture "${3:-i386}"
 
 # Display banner
 echo "*******************************************************************************"

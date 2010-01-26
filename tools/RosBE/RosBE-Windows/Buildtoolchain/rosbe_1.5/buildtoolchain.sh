@@ -193,7 +193,7 @@ fi
 if rs_prepare_module "mpfr"; then
 	export CFLAGS="$rs_host_cflags"
 	
-	rs_do_command ../mpfr/configure --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --with-gmp="$rs_supportprefixdir" --disable-shared --disable-werror
+	rs_do_command ../mpfr/configure --prefix="$rs_supportprefixdir" --host="$rs_target" --build="$rs_target" --with-gmp="$rs_supportprefixdir" --disable-shared
 	rs_do_command $rs_makecmd -j $rs_cpucount
 	rs_do_command $rs_makecmd check
 	rs_do_command $rs_makecmd install
