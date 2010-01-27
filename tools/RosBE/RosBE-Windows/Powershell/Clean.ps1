@@ -22,45 +22,32 @@ function remlog {
 function rembin {
     # Check if we have any binaries to clean, if so, clean them.
 
-    # Apply modified obj and out paths for deletion.
+    # Check if the user set any custom filenames or pathes, otherwise locally set the appropriate variables.
 
-    if ("$_ROSBE_OBJPATH" -eq "") {
-        $OBJCLEANPATH = "obj-$ENV:ROS_ARCH"
-    } else {
-        $OBJCLEANPATH = "$_ROSBE_OBJPATH"
+    if ("$ENV:ROS_AUTOMAKE" -eq "") {
+        $ENV:ROS_AUTOMAKE = "makefile-$ENV:ROS_ARCH.auto"
+    }
+    if ("$ENV:ROS_INTERMEDIATE" -eq "") {
+        $ENV:ROS_INTERMEDIATE = "obj-$ENV:ROS_ARCH"
+    }
+    if ("$ENV:ROS_OUTPUT" -eq "") {
+        $ENV:ROS_OUTPUT = "output-$ENV:ROS_ARCH"
+    }
+    if ("$ENV:ROS_CDOUTPUT" -eq "") {
+        $ENV:ROS_CDOUTPUT = "reactos"
     }
 
-    if ("$_ROSBE_OUTPATH" -eq "") {
-        $OUTCLEANPATH = "output-$ENV:ROS_ARCH"
-    } else {
-        $OUTCLEANPATH = "$_ROSBE_OUTPATH"
-    }
-
-    if ("$ENV:ROS_ARCH" -eq "i386") {
-        $MAKEFILE = "makefile.auto"
-    } else {
-        $MAKEFILE = "makefile-$ENV:ROS_ARCH.auto"
-    }
-
-    if (Test-Path "$MAKEFILE") {
-        $null = (Remove-Item "$MAKEFILE" -force)
-    }
-
-    if (Test-Path "$OBJCLEANPATH") {
+    if ((Test-Path "$ENV:ROS_INTERMEDIATE\.") -and (Test-Path "$ENV:ROS_OUTPUT\.")) {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
-        if (Test-Path "$OBJCLEANPATH") {
-            $null = (Remove-Item "$OBJCLEANPATH" -recurse -force)
-        }
-        if (Test-Path "$OUTCLEANPATH") {
-            $null = (Remove-Item "$OUTCLEANPATH" -recurse -force)
-        }
+
+            $null = (Remove-Item "$ENV:ROS_AUTOMAKE" -force)
+            $null = (Remove-Item "$ENV:ROS_INTERMEDIATE" -recurse -force)
+            $null = (Remove-Item "$ENV:ROS_OUTPUT" -recurse -force)
+            $null = (Remove-Item "$ENV:ROS_CDOUTPUT" -recurse -force)
+
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
         "ERROR: There is no $ENV:ROS_ARCH compiler output to clean."
-    }
-
-    if (Test-Path "reactos") {
-        $null = (Remove-Item "reactos" -recurse -force)
     }
 }
 

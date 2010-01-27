@@ -1,12 +1,16 @@
 *** Jan XXth, 2010 - RosBE 1.5 Released
 
-- Updated Binutils to 2.20.51-20091222 (snapshot)
-- Updated GCC to 4.4.2 (including backported GCC r153606)
+- Updated Binutils to 2.20.51-20091222 (snapshot) (Colin Finck)
+- Updated GCC to 4.4.3 (including backported GCC r153606) (Colin Finck)
+  * gmp 4.4.3
+  * mpfr 2.4.2
 - Updated MinGW Runtime to 3.17 (Daniel Reimer)
 - Updated w32api to 3.14 (Daniel Reimer)
 - Updated NSIS to 2.46 (Daniel Reimer)
-- Added Remake command (Daniel Reimer)
-- Replaced raddr2line with log2lines v1.9 (Daniel Reimer)
+- Added Remake Command (Daniel Reimer)
+- Added kdbg Command (Jan Roeloffzen, Daniel Reimer)
+- Replaced raddr2line with log2lines v1.11 (Jan Roeloffzen, Daniel Reimer)
+- Added piperead Tool for log2lines fully working in Powershell (Jan Roeloffzen, Daniel Reimer)
 - Added a chinese translation to the options tool (Elton Chung)
 - Added ARM Arch support to RosBE (Daniel Reimer)
 - Added ARM Settings to options.exe, too (Daniel Reimer)
@@ -17,6 +21,16 @@
 - Merge the 32 bit and 64 bit options tool in one file (Daniel Reimer)
 - PS1 options script now waits for options.exe closing and then immediately sets all options active (Daniel Reimer)
 - Tidy up existant and add more Target Compiler Paths (Daniel Reimer)
+- Reworked clean command to be more restrictive and secure
+  and being able to clean other repos except the main one (Colin Finck, Daniel Reimer)
+- Clean up from some app calls where the app's path is in the PATH Var (Daniel Reimer)
+- Cleaned up Host-GCC Path being added twice to the PATH Var (Daniel Reimer)
+- Work on the Update Script: (Daniel Reimer)
+  * Theres no need for a loading routine for 7z.exe anymore. Its included in RosBE now
+  * Added some Status Messages telling if stuff succeeded or not
+- Removed the address translation from the raddr2line script. Its done in the tools now (Daniel Reimer)
+- Fixed the Core detection in makex for PS. Added a global setting to the variable
+  containing the number of cores. (Daniel Reimer)
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 
