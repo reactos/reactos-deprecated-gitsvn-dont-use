@@ -3,8 +3,8 @@
 # LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 # FILE:        Root/RosBE.ps1
 # PURPOSE:     This script provides/sets up various build environments for
-#              ReactOS. Currently it provides a GCC 4.1.3 build environment.
-# COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
+#              ReactOS. Currently it provides a GCC 4.4.3 build environment.
+# COPYRIGHT:   Copyright 2010 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
@@ -52,7 +52,7 @@ $ENV:BISON_PKGDATADIR = ((New-Object -ComObject Scripting.FileSystemObject).GetF
 
 # Get the number of CPUs in the system so we know how many jobs to execute.
 # To modify the number used, see the cpucount usage for getting to know about the possible options
-$_ROSBE_MAKEX_JOBS = (gwmi win32_processor).numberofcores + 1
+$global:_ROSBE_MAKEX_JOBS = (gwmi win32_processor).numberofcores + 1
 
 $ENV:CCACHE_DIR = "$ENV:APPDATA\RosBE\.ccache"
 $ENV:C_INCLUDE_PATH = $null

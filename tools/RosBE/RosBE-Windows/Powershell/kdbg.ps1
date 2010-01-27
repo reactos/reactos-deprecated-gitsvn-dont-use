@@ -24,6 +24,6 @@ if ("$($args[0])" -eq "writelog") {
 "Now Start your VM with COM1 set to \\.\pipe\kdbg"
 read-host 'Press any key to continue . . .'
 
-log2lines -c $LOGFILE < \\.\pipe\kdbg
+log2lines -c $LOGFILE -P "piperead -c \\.\pipe\kdbg"
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
