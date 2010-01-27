@@ -25,25 +25,33 @@ function rembin {
     # Check if the user set any custom filenames or pathes, otherwise locally set the appropriate variables.
 
     if ("$ENV:ROS_AUTOMAKE" -eq "") {
-        $ENV:ROS_AUTOMAKE = "makefile-$ENV:ROS_ARCH.auto"
+        $ROS_AUTOMAKE = "makefile-$ENV:ROS_ARCH.auto"
+    } else {
+        $ROS_AUTOMAKE = $ENV:ROS_AUTOMAKE
     }
     if ("$ENV:ROS_INTERMEDIATE" -eq "") {
-        $ENV:ROS_INTERMEDIATE = "obj-$ENV:ROS_ARCH"
+        $ROS_INTERMEDIATE = "obj-$ENV:ROS_ARCH"
+    } else {
+        $ROS_INTERMEDIATE = $ENV:ROS_INTERMEDIATE
     }
     if ("$ENV:ROS_OUTPUT" -eq "") {
-        $ENV:ROS_OUTPUT = "output-$ENV:ROS_ARCH"
+        $ROS_OUTPUT = "output-$ENV:ROS_ARCH"
+    } else {
+        $ROS_OUTPUT = $ENV:ROS_OUTPUT
     }
     if ("$ENV:ROS_CDOUTPUT" -eq "") {
-        $ENV:ROS_CDOUTPUT = "reactos"
+        $ROS_CDOUTPUT = "reactos"
+    } else {
+        $ROS_CDOUTPUT = $ENV:ROS_CDOUTPUT
     }
 
-    if ((Test-Path "$ENV:ROS_INTERMEDIATE\.") -and (Test-Path "$ENV:ROS_OUTPUT\.")) {
+    if ((Test-Path "$ROS_INTERMEDIATE\.") -and (Test-Path "$ROS_OUTPUT\.")) {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
 
-            $null = (Remove-Item "$ENV:ROS_AUTOMAKE" -force)
-            $null = (Remove-Item "$ENV:ROS_INTERMEDIATE" -recurse -force)
-            $null = (Remove-Item "$ENV:ROS_OUTPUT" -recurse -force)
-            $null = (Remove-Item "$ENV:ROS_CDOUTPUT" -recurse -force)
+            $null = (Remove-Item "$ROS_AUTOMAKE" -force)
+            $null = (Remove-Item "$ROS_INTERMEDIATE" -recurse -force)
+            $null = (Remove-Item "$ROS_OUTPUT" -recurse -force)
+            $null = (Remove-Item "$ROS_CDOUTPUT" -recurse -force)
 
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
