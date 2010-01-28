@@ -55,7 +55,7 @@ function rembin {
 
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
-        "ERROR: There is no $ENV:ROS_ARCH compiler output to clean."
+        "ERROR: This directory contains no $ENV:ROS_ARCH compiler output to clean."
     }
 }
 

@@ -72,7 +72,7 @@ if "%IS_SOURCE_DIRECTORY%" == "1" (
     
     echo Done cleaning ReactOS %ROS_ARCH% source directory.
 ) else (
-    echo ERROR: This does not look like a ReactOS %ROS_ARCH% source directory to clean.
+    echo ERROR: This directory contains no %ROS_ARCH% compiler output to clean.
 )
 goto :EOF
 
