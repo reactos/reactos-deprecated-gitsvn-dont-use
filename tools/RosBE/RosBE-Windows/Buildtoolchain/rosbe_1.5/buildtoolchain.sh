@@ -30,7 +30,7 @@
 rs_host_cflags="-pipe -fno-common -O2 -march=pentium3 -mfpmath=sse"   # -fno-common needed for native builds due to GCC 4.4 bug according to Dmitry Gorbachev
 rs_needed_tools="bison flex gcc g++ grep makeinfo"                    # GNU Make has a special check
 rs_target="mingw32"
-rs_target_cflags="-pipe -O2 -march=pentium -mtune=i686"
+rs_target_cflags="-pipe -gstabs+ -O2 -march=pentium -mtune=i686"
 
 # Get the absolute path to the script directory
 cd `dirname $0`
@@ -246,8 +246,6 @@ rm -f bin/c++.exe bin/gccbug bin/$rs_target-*
 
 echo "Removing debugging symbols..."
 find -executable -type f -exec strip -s {} ";" >& /dev/null
-find -name "*.a" -type f -exec strip -d {} ";"
-find -name "*.o" -type f -exec strip -d {} ";"
 ##### END almost shared buildtoolchain/RosBE-Unix building part ###############
 
 # Create the package out of the built files if we want to build the "mingw_runtime_dev" package

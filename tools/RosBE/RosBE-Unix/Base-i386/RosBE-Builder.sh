@@ -11,7 +11,7 @@
 rs_host_cflags="-pipe -O2"
 rs_needed_tools="bison flex gcc g++ grep makeinfo"        # GNU Make has a special check
 rs_target="mingw32"
-rs_target_cflags="-pipe -O2 -march=pentium -mtune=i686"
+rs_target_cflags="-pipe -gstabs+ -O2 -march=pentium -mtune=i686"
 
 # Get the absolute path to the script directory
 cd `dirname $0`
@@ -169,7 +169,7 @@ if [ "$1" = "" ]; then
 	rs_boldmsg "Ready to start"
 
 	echo "Ready to build and install the ReactOS Build Environment."
-	echo "Press any key to continue or Ctrl+C to exit."
+	echo "Press Return to continue or Ctrl+C to exit."
 	read
 else
 	installdir=`eval echo $1`
