@@ -257,14 +257,16 @@ Section "GDB - The GNU Project Debugger" SEC07
     File /r Components\Tools\gdbserver.exe
 SectionEnd
 
-Section "relAddr2Line Tool" SEC08
+Section "relAddr2Line / kdbg Tools" SEC08
     SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
     ${If} $R4 = '6.1'
         File /r Components\Powershell\reladdr2line.ps1
+        File /r Components\Powershell\kdbg.ps1
     ${else}
         File /r Root\raddr2line.cmd
+        File /r Root\kdbg.cmd
     ${Endif}
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
@@ -327,6 +329,7 @@ SetShellVarContext current
         File /r Root\Config.cmd
         File /r Root\options.cmd
         File /r Root\Remake.cmd
+        File /r Root\kdbg.cmd
         File /r Root\raddr2line.cmd
         File /r Root\scut.cmd
         File /r Root\sSVN.cmd
@@ -356,6 +359,7 @@ SetShellVarContext current
         File /r Components\Powershell\Config.ps1
         File /r Components\Powershell\options.ps1
         File /r Components\Powershell\Remake.ps1
+        File /r Components\Powershell\kdbg.ps1
         File /r Components\Powershell\reladdr2line.ps1
         File /r Components\Powershell\scut.ps1
         File /r Components\Powershell\sSVN.ps1
@@ -492,6 +496,8 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Renv.cmd"
     Delete /REBOOTOK "$INSTDIR\Remake.cmd"
     Delete /REBOOTOK "$INSTDIR\Remake.ps1"
+    Delete /REBOOTOK "$INSTDIR\kdbg.cmd"
+    Delete /REBOOTOK "$INSTDIR\kdbg.ps1"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"
     Delete /REBOOTOK "$INSTDIR\RosBE.ps1"
     Delete /REBOOTOK "$INSTDIR\rosbe-gcc-env.cmd"
