@@ -5,25 +5,22 @@
  * PURPOSE:     Buildtime Counter
  * COPYRIGHT:   Copyright 2007 KJK::Hyperion
  *              Copyright 2007 Peter Ward <dralnix@gmail.com>
+ *              Copyright 2010 Colin Finck <colin@reactos.org>
  *
  */
 
 #include <windows.h>
 #include <time.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <wctype.h>
-#include <tchar.h>
 
-static LPTSTR SkipSelfArgument(LPTSTR lpszCommandLine)
+static PWSTR SkipSelfArgument(PWSTR lpszCommandLine)
 {
-    LPTSTR p = lpszCommandLine;
+    PWSTR p = lpszCommandLine;
     int quote = 0;
 
     // Skip leading whitespace
-    while(*p != 0 && _istspace(*p))
+    while(*p != 0 && iswspace(*p))
         ++ p;
 
     if(*p == 0)
@@ -33,7 +30,7 @@ static LPTSTR SkipSelfArgument(LPTSTR lpszCommandLine)
     // BUGBUG: the assumption is that argument 0 never contains escaped quotes
     do
     {
-        if(*p == TEXT('\"'))
+        if(*p == L'\"')
         {
             quote = !quote;
             ++ p;
@@ -42,10 +39,10 @@ static LPTSTR SkipSelfArgument(LPTSTR lpszCommandLine)
 
         ++ p;
     }
-    while(*p != 0 && (quote || !_istspace(*p)));
+    while(*p != 0 && (quote || !iswspace(*p)));
 
     // Skip trailing whitespace
-    while(*p != 0 && _istspace(*p))
+    while(*p != 0 && iswspace(*p))
         ++ p;
 
     return p;
@@ -53,15 +50,16 @@ static LPTSTR SkipSelfArgument(LPTSTR lpszCommandLine)
 
 int main()
 {
-    LPTSTR CommandLine, FullCommandLine, CommandLineBuffer;
+    DWORD ExitCode;
+    PWSTR CommandLine;
     time_t StartTime, FinishTime;
     double TotalTime;
     int Hour, Minute, Second;
-    int Status;
+    PROCESS_INFORMATION ProcessInfo;
+    STARTUPINFOW StartupInfo = {0};
 
     // Get the command line to pass on.
-    FullCommandLine = GetCommandLine();
-    CommandLine = SkipSelfArgument(FullCommandLine);
+    CommandLine = SkipSelfArgument(GetCommandLineW());
 
     // If nothing is on the command-line exit
     if (CommandLine[0] == 0)
@@ -70,21 +68,20 @@ int main()
         return 1;
     }
 
-    CommandLineBuffer = malloc((strlen(CommandLine) + 2 + 1));
-    if (!CommandLineBuffer)
-    {
-        fprintf(stderr, "buildtime: unable to allocate memory\n");
-        return 1;
-    }
-
-    CommandLineBuffer[0] = 0;
-    strcat(CommandLineBuffer, CommandLine);
-
     // Grab the starting timestamp.
     time(&StartTime);
 
-    // Run the program (Status is 1 on failure).
-    Status = system(CommandLineBuffer);
+    // Run the program and get its exit code.
+    StartupInfo.cb = sizeof(StartupInfo);
+
+    if(!CreateProcessW(NULL, CommandLine, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &StartupInfo, &ProcessInfo))
+    {
+        fprintf(stderr, "buildtime: CreateProcessW() failed!\n");
+        return 1;
+    }
+
+    WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+    GetExitCodeProcess(ProcessInfo.hProcess, &ExitCode);
 
     // Grab the finishing timestamp.
     time(&FinishTime);
@@ -101,8 +98,5 @@ int main()
     // Print the total build time.
     printf("\nTotal Build Time: %02d:%02d:%02d", Hour, Minute, Second);
 
-    // Free the memory we allocated for the command line.
-    free(CommandLineBuffer);
-
-    return Status;
+    return ExitCode;
 }
