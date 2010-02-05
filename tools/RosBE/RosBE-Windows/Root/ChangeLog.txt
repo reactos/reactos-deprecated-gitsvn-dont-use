@@ -7,6 +7,7 @@
 - Updated MinGW Runtime to 3.17 (Daniel Reimer)
 - Updated w32api to 3.14 (Daniel Reimer)
 - Updated NSIS to 2.46 (Daniel Reimer)
+- Updated SVN to 1.6.9 (Daniel Reimer)
 - Added Remake Command (Daniel Reimer)
 - Added kdbg Command (Jan Roeloffzen, Daniel Reimer)
 - Replaced raddr2line with log2lines v1.11 (Jan Roeloffzen, Daniel Reimer)

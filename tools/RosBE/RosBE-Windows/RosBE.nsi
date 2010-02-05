@@ -211,7 +211,7 @@ Section "Subversion Tools (svn, ssvn)" SEC04
     File /r Components\Tools\libeay32.dll
     File /r Components\Tools\ssleay32.dll
     File /r Components\Tools\libaprutil-1.dll
-    File /r Components\Tools\libdb44.dll
+    File /r Components\Tools\libdb41.dll
     File /r Components\Tools\libapriconv-1.dll
     File /r Components\Tools\libsasl.dll
     File /r Components\Tools\libsvn_client-1.dll

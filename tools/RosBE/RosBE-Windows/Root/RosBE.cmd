@@ -56,7 +56,7 @@ set LIBRARY_PATH=
 if "%ROS_ARCH%" == "amd64" (
     color 0B
 ) else if "%ROS_ARCH%" == "arm" (
-    color 09
+    color 0E
 )
 :: Load the user's options if any
 if "%ROS_ARCH%" == "i386" (
