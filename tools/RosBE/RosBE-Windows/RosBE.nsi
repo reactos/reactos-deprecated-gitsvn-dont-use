@@ -128,7 +128,8 @@ Section -BaseFiles SEC01
         File /r Components\Powershell\RosBE.ps1
         File /r Components\Powershell\rosbe-gcc-env.ps1
         File /r Components\Powershell\version.ps1
-        WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+        WriteRegStr HKLM "SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+        WriteRegStr HKLM "SOFTWARE\Wow6432Node\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     ${else}
         File /r Root\Basedir.cmd
         File /r Root\Build-Shared.cmd
