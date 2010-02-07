@@ -62,7 +62,7 @@ tools=""
 case "$package_name" in
 	"Base-i386")
 		sources+="gmp make mingw_runtime_dev mpfr nasm w32api"
-		tools+="cpucount scut"
+		tools+="cpucount getincludes scut"
 esac
 
 # Check if all required files exist

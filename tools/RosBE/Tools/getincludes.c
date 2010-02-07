@@ -2,7 +2,7 @@
  * PROJECT:     ReactOS Build Environment Tools
  * LICENSE:     GNU GPLv2 or any later version as published by the Free Software Foundation
  * PURPOSE:     Parse the search directory output of 'cpp -v' to compiler flags
- * COPYRIGHT:   Copyright 2009 Colin Finck <colin@reactos.org>
+ * COPYRIGHT:   Copyright 2009-2010 Colin Finck <colin@reactos.org>
  */
 
 #include <stdio.h>
@@ -30,7 +30,7 @@ int main()
 
         /* This is an include directory, remove the newline character and output it */
         Line[strlen(Line) - 1] = 0;
-        printf("-I%s ", &Line[1]);
+        printf("-I\"%s\" ", &Line[1]);
     }
 
     printf("\n");
