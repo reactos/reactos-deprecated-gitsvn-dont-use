@@ -365,7 +365,8 @@ SetShellVarContext current
         File /r Components\Powershell\scut.ps1
         File /r Components\Powershell\sSVN.ps1
         File /r Components\Powershell\update.ps1
-        WriteRegStr HKLM "Software\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+        WriteRegStr HKLM "SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+        WriteRegStr HKLM "SOFTWARE\Wow6432Node\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     ${Endif}
 SectionEnd
 
