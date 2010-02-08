@@ -17,11 +17,15 @@ else
 endif
 
 
-all: cpucount scut
+all: cpucount scut getincludes
 
 cpucount:  cpucount.c
 	${CC} ${CFLAGS} cpucount$(SUFFIX) cpucount.c
 	$(STRIP) cpucount$(SUFFIX)
+
+getincludes:  getincludes.c
+	${CC} ${CFLAGS} getincludes$(SUFFIX) getincludes.c
+	$(STRIP) getincludes$(SUFFIX)
 
 scut:  scut.c
 	${CC} ${CFLAGS} scut$(SUFFIX) scut.c
@@ -29,4 +33,5 @@ scut:  scut.c
 
 clean:
 	$(RM) cpucount$(SUFFIX)
+	$(RM) getincludes$(SUFFIX)
 	$(RM) scut$(SUFFIX)

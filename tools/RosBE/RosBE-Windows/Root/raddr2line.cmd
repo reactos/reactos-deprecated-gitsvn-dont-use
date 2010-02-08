@@ -3,7 +3,7 @@
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/raddr2line.cmd
 :: PURPOSE:     Converts a value to hex and displays it.
-:: COPYRIGHT:   Copyright 2009 Christoph von Wittich <Christoph_vW@reactos.org>
+:: COPYRIGHT:   Copyright 2010 Christoph von Wittich <Christoph_vW@reactos.org>
 ::                             Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Peter Ward <dralnix@gmail.com>
 ::                             Colin Finck <colin@reactos.org>
