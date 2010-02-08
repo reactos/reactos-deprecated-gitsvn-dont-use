@@ -32,8 +32,9 @@
 - Removed the address translation from the raddr2line script. Its done in the tools now (Daniel Reimer)
 - Fixed the Core detection in makex for PS. Added a global setting to the variable
   containing the number of cores. (Daniel Reimer)
-- Added getincludes from RosBE Unix. This makes the schripts way more logical and fixes a PS Bug
+- Added getincludes from RosBE Unix. This makes the scripts way more logical and fixes a PS Bug
   when you open several Windows at once (Colin Finck, Daniel Reimer)
+- Fix for GCC Version showup together with Colin's new Tool in PS. (Maciej Bialas)
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 
