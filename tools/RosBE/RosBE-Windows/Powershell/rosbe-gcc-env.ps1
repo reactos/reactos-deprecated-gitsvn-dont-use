@@ -22,17 +22,9 @@ if ("$ENV:ROS_PREFIX") {
 }
  
 $ENV:PATH = "$_ROSBE_HOST_MINGWPATH\bin;$_ROSBE_TARGET_MINGWPATH\bin;$_ROSBE_ORIGINALPATH"
-$TARGETGCC = "$global:_ROSBE_PREFIX" + "gcc"
-& $TARGETGCC -v 2> gcctvers.tmp
-$global:_ROSBE_TARGET_GCCVERSION = (select-string -path .\gcctvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-$global:_ROSBE_TARGET_GCCTARGET = (select-string -path .\gcctvers.tmp "Target: ") -replace ".*Target: (.+?)\b.*",'$1'
-remove-item gcctvers.tmp
-gcc -v 2> gcchvers.tmp
-$global:_ROSBE_HOST_GCCVERSION = (select-string -path .\gcchvers.tmp "gcc version") -replace ".*version ((\d|\.)+).*",'$1'
-$global:_ROSBE_HOST_GCCTARGET = (select-string -path .\gcchvers.tmp "Target: ") -replace ".*Target: (.+?)\b.*",'$1'
-remove-item gcchvers.tmp
 
-$ENV:ROSBE_HOST_CFLAGS = "-I""$_ROSBE_HOST_MINGWPATH\$_ROSBE_HOST_GCCTARGET\include"" -I""$_ROSBE_HOST_MINGWPATH\lib\gcc\$_ROSBE_HOST_GCCTARGET\$_ROSBE_HOST_GCCVERSION\include"""
-$ENV:ROSBE_HOST_CXXFLAGS = "-I""$_ROSBE_HOST_MINGWPATH\$_ROSBE_HOST_GCCTARGET\include"" -I""$_ROSBE_HOST_MINGWPATH\lib\gcc\$_ROSBE_HOST_GCCTARGET\$_ROSBE_HOST_GCCVERSION\include\c++"" -I""$_ROSBE_HOST_MINGWPATH\lib\gcc\$_ROSBE_HOST_GCCTARGET\$_ROSBE_HOST_GCCVERSION\include"""
-$ENV:ROSBE_TARGET_CFLAGS = "-I""$_ROSBE_TARGET_MINGWPATH\$_ROSBE_TARGET_GCCTARGET\include"" -I""$_ROSBE_TARGET_MINGWPATH\lib\gcc\$_ROSBE_TARGET_GCCTARGET\$_ROSBE_TARGET_GCCVERSION\include"""
-$ENV:ROSBE_TARGET_CXXFLAGS = "-I""$_ROSBE_TARGET_MINGWPATH\$_ROSBE_TARGET_GCCTARGET\include"" -I""$_ROSBE_TARGET_MINGWPATH\include\c++\$_ROSBE_TARGET_GCCVERSION"" -I""$_ROSBE_TARGET_MINGWPATH\include\c++\$_ROSBE_TARGET_GCCVERSION\$_ROSBE_TARGET_GCCTARGET"" -I""$_ROSBE_TARGET_MINGWPATH\lib\gcc\$_ROSBE_TARGET_GCCTARGET\$_ROSBE_TARGET_GCCVERSION\include"" -I""$_ROSBE_TARGET_MINGWPATH\lib\gcc\$_ROSBE_TARGET_GCCTARGET\$_ROSBE_TARGET_GCCVERSION\include\c++"" -I""$_ROSBE_TARGET_MINGWPATH\$_ROSBE_TARGET_GCCTARGET\include\c++\$_ROSBE_TARGET_GCCVERSION"" -I""$_ROSBE_TARGET_MINGWPATH\$_ROSBE_TARGET_GCCTARGET\include\c++\$_ROSBE_TARGET_GCCVERSION\$_ROSBE_TARGET_GCCTARGET"""
+$ENV:ROSBE_HOST_CFLAGS = "" | cpp.exe -x c -v 2>&1 | getincludes
+$ENV:ROSBE_HOST_CXXFLAGS = "" | cpp.exe -x c++ -v 2>&1 | getincludes
+$TARGETGCC = "$_ROSBE_PREFIX" + "cpp.exe"
+$ENV:ROSBE_TARGET_CFLAGS = "" | &$TARGETGCC -x c -v 2>&1 | getincludes
+$ENV:ROSBE_TARGET_CXXFLAGS = "" | &$TARGETGCC -x c++ -v 2>&1 | getincludes

@@ -17,7 +17,7 @@ ver
 
 :: GCC
 "%_ROSBE_TARGET_MINGWPATH%\bin\%_ROSBE_PREFIX%gcc" -v 2>&1 | find "gcc version"
-echo gcc target^: %_ROSBE_TARGET_GCCTARGET%
+echo gcc target^: %ROS_ARCH%
 
 :: LD
 "%_ROSBE_TARGET_MINGWPATH%\bin\%_ROSBE_PREFIX%ld" -v

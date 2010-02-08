@@ -1,4 +1,4 @@
-*** Jan XXth, 2010 - RosBE 1.5 Released
+*** Feb 08th, 2010 - RosBE 1.5 Released
 
 - Updated Binutils to 2.20.51-20091222 (snapshot) (Colin Finck)
 - Updated GCC to 4.4.3 (including backported GCC r153606) (Colin Finck)
@@ -10,7 +10,7 @@
 - Updated SVN to 1.6.9 (Daniel Reimer)
 - Added Remake Command (Daniel Reimer)
 - Added kdbg Command (Jan Roeloffzen, Daniel Reimer)
-- Replaced raddr2line with log2lines v1.11 (Jan Roeloffzen, Daniel Reimer)
+- Replaced raddr2line with log2lines v1.12 (Jan Roeloffzen, Daniel Reimer)
 - Added piperead Tool for log2lines fully working in Powershell (Jan Roeloffzen, Daniel Reimer)
 - Added a chinese translation to the options tool (Elton Chung)
 - Added ARM Arch support to RosBE (Daniel Reimer)
@@ -32,6 +32,8 @@
 - Removed the address translation from the raddr2line script. Its done in the tools now (Daniel Reimer)
 - Fixed the Core detection in makex for PS. Added a global setting to the variable
   containing the number of cores. (Daniel Reimer)
+- Added getincludes from RosBE Unix. This makes the schripts way more logical and fixes a PS Bug
+  when you open several Windows at once (Colin Finck, Daniel Reimer)
 
 *** Oct 26th, 2009 - RosBE 1.4.5 Released
 

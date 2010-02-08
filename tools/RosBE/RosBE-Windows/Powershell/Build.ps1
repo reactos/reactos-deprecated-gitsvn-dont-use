@@ -57,7 +57,7 @@ if ($_ROSBE_WRITELOG -eq 1) {
     if (!(Test-Path "$_ROSBE_LOGDIR")) {
         New-Item -path "$_ROSBE_LOGDIR" -type directory
     }
-    $file = "$_ROSBE_LOGDIR\BuildLog-$_ROSBE_TARGET_GCCVERSION-$DATENAME-$TIMENAME.txt"
+    $file = "$_ROSBE_LOGDIR\BuildLog-$ENV:ROS_ARCH-$DATENAME-$TIMENAME.txt"
     &{IEX "&'make.exe' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file
 } else {
     &{IEX "&'make.exe' -j $MAKE_JOBS $($args)"} $($args)

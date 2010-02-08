@@ -12,7 +12,7 @@
 $TARGETGCC = "$global:_ROSBE_PREFIX" + "gcc"
 & $TARGETGCC -v 2> gcctvers.tmp
 (select-string -path .\gcctvers.tmp "gcc version") -replace ".*:(.*?)\b",'$1'
-"gcc target - $_ROSBE_TARGET_GCCTARGET"
+"gcc target - $ENV:ROS_ARCH"
 remove-item gcctvers.tmp
 
 # LD
