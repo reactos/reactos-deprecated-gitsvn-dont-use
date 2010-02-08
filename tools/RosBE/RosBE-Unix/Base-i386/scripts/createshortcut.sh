@@ -13,7 +13,7 @@ DEFAULT_SHORTCUT_DIR="$HOME/Desktop"
 cd `dirname $0`
 SCRIPTDIR="$PWD"
 
-source "$SCRIPTDIR/rosbelibrary.sh"
+source "$SCRIPTDIR/setuplibrary.sh"
 
 
 # Read the RosBE version
