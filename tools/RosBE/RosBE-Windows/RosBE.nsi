@@ -290,6 +290,11 @@ SetShellVarContext current
     File /r Components\Powershell\update.ps1
     WriteRegStr HKLM "SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
     WriteRegStr HKLM "SOFTWARE\Wow6432Node\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell" "ExecutionPolicy" "RemoteSigned"
+    SetOutPath "$DESKTOP"
+    SetOverwrite try
+    File /r "Components\Powershell\RosBE PS - PostInstall.reg"
+    MessageBox MB_ICONINFORMATION|MB_OK \
+               "A REG-File was generated on your desktop. Please use it with Admin Rights to set Powershell's execution rights correctly if your RosBE Powershell Version fails to run after install. Otherwise, just delete it."
 SectionEnd
 
 Section -StartMenuShortcuts SEC12
