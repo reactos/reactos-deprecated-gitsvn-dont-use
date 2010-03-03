@@ -11,9 +11,9 @@ function UP($arg) {
     $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
     $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
     if ("$ENV:ROS_ARCH" -eq "amd64") {
-        $ONSVN = IEX "& svn.exe info svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos" | select-string "Revision:"
+        $ONSVN = IEX "& svn.exe info http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos" | select-string "Revision:"
     } else {
-        $ONSVN = IEX "& svn.exe info svn://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
+        $ONSVN = IEX "& svn.exe info http://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
     }
     $ONSVN = $ONSVN -replace "(.*)Revision: ",''
     $ONSVN = [CONVERT]::ToInt32($ONSVN,10)
@@ -102,9 +102,9 @@ elseif ("$($args[0])" -eq "create") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$ENV:ROS_ARCH" -eq "amd64") {
-                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
             } else {
-                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/trunk/reactos ."
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/trunk/reactos ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -125,9 +125,9 @@ elseif ("$($args[0])" -eq "rosapps") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$ENV:ROS_ARCH" -eq "amd64") {
-                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
             } else {
-                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/trunk/rosapps ."
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/trunk/rosapps ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -149,9 +149,9 @@ elseif ("$($args[0])" -eq "rostests") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$ENV:ROS_ARCH" -eq "amd64") {
-                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
             } else {
-                IEX "& svn.exe checkout svn://svn.reactos.org/reactos/trunk/rostests ."
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/trunk/rostests ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
