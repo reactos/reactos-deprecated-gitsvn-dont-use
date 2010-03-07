@@ -60,6 +60,12 @@ if ("$args" -eq "") {
         "                           immediately rebuilds it cleanly."
     }
 
+    if (Test-Path "$_ROSBE_BASEDIR\Remakex.ps1") {
+        "    remakex [OPTIONS]    - Cleans one or several specific modules and"
+        "                           immediately rebuilds it cleanly and multi-"
+        "                           threaded."
+    }
+
     if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
         "    scut [OPTIONS]       - List, add, edit, remove, switch and default to"
         "                           shortcutted ReactOS source directories."
@@ -125,7 +131,7 @@ if ("$args" -eq "") {
         "                       and generates a new makefile. This will take a while."
         "    ""module""_depends - Does a dependency check for one module with the"
         "                       appropiate name."
-    " NOTE: The number makex uses can be modified by editing Build.cmd"
+    " NOTE: The number makex uses can be modified by editing Build.ps1"
     "       located in the RosBE directory, instructions for doing so are"
     "       contained within the file."
 } elseif ("$args" -eq "basedir") {
@@ -199,9 +205,17 @@ if ("$args" -eq "") {
         ""
     }
 } elseif ("$args" -eq "Remake") {
-    if (Test-Path "$_ROSBE_BASEDIR\Remake.cmd") {
+    if (Test-Path "$_ROSBE_BASEDIR\Remake.ps1") {
         "    Usage: remake [OPTIONS]"
         "    Cleans one or several specific modules and immediately rebuilds it cleanly."
+        ""
+        "    OPTIONS - One or more Module names to rebuild."
+    }
+} elseif ("$args" -eq "Remakex") {
+    if (Test-Path "$_ROSBE_BASEDIR\Remakex.ps1") {
+        "    Usage: remakex [OPTIONS]"
+        "    Cleans one or several specific modules and immediately rebuilds it cleanly"
+        "    and multithreaded."
         ""
         "    OPTIONS - One or more Module names to rebuild."
     }

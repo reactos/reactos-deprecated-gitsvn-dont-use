@@ -68,6 +68,12 @@ if "%1" == "" (
         echo                           immediately rebuilds it cleanly.
     )
 
+    if exist "%_ROSBE_BASEDIR%\Remakex.cmd" (
+        echo    remakex [OPTIONS]    - Cleans one or several specific modules and
+        echo                           immediately rebuilds it cleanly and multi-
+        echo                           threaded.
+    )
+
     if exist "%_ROSBE_BASEDIR%\scut.cmd" (
         echo    scut [OPTIONS]       - List, add, edit, remove, switch and default to
         echo                           shortcutted ReactOS source directories.
@@ -208,6 +214,14 @@ if "%1" == "" (
     if exist "%_ROSBE_BASEDIR%\Remake.cmd" (
         echo    Usage: remake [OPTIONS]
         echo    Cleans one or several specific modules and immediately rebuilds it cleanly.
+        echo.
+        echo    OPTIONS - One or more Module names to rebuild.
+    )
+) else if /i "%1" == "Remakex" (
+    if exist "%_ROSBE_BASEDIR%\Remakex.cmd" (
+        echo    Usage: remakex [OPTIONS]
+        echo    Cleans one or several specific modules and immediately rebuilds it cleanly
+        echo    and multithreaded.
         echo.
         echo    OPTIONS - One or more Module names to rebuild.
     )

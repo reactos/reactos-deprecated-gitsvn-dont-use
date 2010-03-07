@@ -118,6 +118,10 @@ function LoadAliases {
         set-alias REMAKE "$_ROSBE_BASEDIR\Remake.ps1" -scope Global
     }
 
+    if (Test-Path "$_ROSBE_BASEDIR\Remakex.ps1") {
+        set-alias REMAKEX "$_ROSBE_BASEDIR\Remakex.ps1" -scope Global
+    }
+
     if (Test-Path "$_ROSBE_BASEDIR\scut.ps1") {
         set-alias SCUT "$_ROSBE_BASEDIR\scut.ps1" -scope Global
     }

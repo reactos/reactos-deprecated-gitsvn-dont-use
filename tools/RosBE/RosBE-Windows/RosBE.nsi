@@ -127,6 +127,7 @@ Section -BaseFiles SEC01
     File /r Root\Make.cmd
     File /r Root\Makex.cmd
     File /r Root\Remake.cmd
+    File /r Root\Remakex.cmd
     File /r Root\Renv.cmd
     File /r Root\RosBE.cmd
     File /r Root\rosbe-gcc-env.cmd
@@ -283,6 +284,7 @@ SetShellVarContext current
     File /r Components\Powershell\Config.ps1
     File /r Components\Powershell\options.ps1
     File /r Components\Powershell\Remake.ps1
+    File /r Components\Powershell\Remakex.ps1
     File /r Components\Powershell\kdbg.ps1
     File /r Components\Powershell\reladdr2line.ps1
     File /r Components\Powershell\scut.ps1
@@ -420,7 +422,9 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\reladdr2line.ps1"
     Delete /REBOOTOK "$INSTDIR\Renv.cmd"
     Delete /REBOOTOK "$INSTDIR\Remake.cmd"
+    Delete /REBOOTOK "$INSTDIR\Remakex.cmd"
     Delete /REBOOTOK "$INSTDIR\Remake.ps1"
+    Delete /REBOOTOK "$INSTDIR\Remakex.ps1"
     Delete /REBOOTOK "$INSTDIR\kdbg.cmd"
     Delete /REBOOTOK "$INSTDIR\kdbg.ps1"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"
