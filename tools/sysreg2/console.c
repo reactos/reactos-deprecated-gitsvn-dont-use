@@ -25,7 +25,8 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
 
     /* Initialize CacheBuffer with an empty string */
     *CacheBuffer = 0;
-
+    memset(Buffer, 0, BUFFER_SIZE);
+    
     /* ttyfd is the file descriptor of the virtual COM port */
     if ((ttyfd = open(tty, O_NOCTTY | O_RDWR)) < 0)
     {
