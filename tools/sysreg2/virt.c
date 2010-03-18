@@ -137,6 +137,7 @@ virDomainPtr LaunchVirtualMachine(virConnectPtr vConn, const char* XmlFileName, 
         if (virDomainCreate(vDomPtr) != 0)
         {
             virDomainUndefine(vDomPtr);
+            virDomainFree(vDomPtr);
             vDomPtr = NULL;
         }
         else
@@ -189,7 +190,7 @@ int main(int argc, char **argv)
         /* SysregPrintf("Error: Virtual Machine is already running.\n");
         goto cleanup; */
         system("virsh destroy ReactOS");
-		usleep(1000);
+        usleep(1000);
     }
 
     /* If the HD image already exists, delete it */
