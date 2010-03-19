@@ -25,8 +25,7 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
 
     /* Initialize CacheBuffer with an empty string */
     *CacheBuffer = 0;
-    memset(Buffer, 0, BUFFER_SIZE);
-    
+
     /* ttyfd is the file descriptor of the virtual COM port */
     if ((ttyfd = open(tty, O_NOCTTY | O_RDWR)) < 0)
     {
@@ -112,17 +111,15 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                 }
                 else
                 {
-                    /* Also break on newlines */
-                    if(*bp == '\n')
+                    /* Null-terminate the line */
+                    bp[1] = 0;
+
+                    /* Break on newlines or in case of KDBG messages (which aren't terminated by newlines) */
+                    if(*bp == '\n' || strstr(Buffer, "kdb:>") || strstr(Buffer, "--- Press q"))
                         break;
 
-                    /* KDBG doesn't send a newline */
-                    if ((strstr(Buffer, "kdb:>")) || 
-                        (strstr(Buffer, "--- Press q")))
-                        break;
+                    ++bp;
                 }
-                
-                ++bp;
             }
 
             /* The rest of this logic is just about processing the serial output */
@@ -137,9 +134,6 @@ int ProcessDebugData(const char* tty, int timeout, int stage )
                 Ret = EXIT_CONTINUE;
                 goto cleanup;
             }
-
-            /* Null-terminate the line */
-            *(++bp) = 0;
 
             /* Detect whether the same line appears over and over again.
                If that is the case, cancel this test after a specified number of repetitions. */
