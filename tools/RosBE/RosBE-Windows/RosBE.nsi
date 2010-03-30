@@ -153,6 +153,10 @@ Section -BaseFiles SEC01
     File /r Components\Tools\iconv.exe
     File /r Components\Tools\m4.exe
     File /r Components\Tools\patch.exe
+    File /r Components\Tools\wav.exe
+    SetOutPath "$INSTDIR\samples"
+    SetOverwrite try
+    File /r Components\samples\*.*
 SectionEnd
 
 Section -MinGWGCCNASM SEC02
@@ -283,6 +287,7 @@ SetShellVarContext current
     File /r Components\Powershell\chdefdir.ps1
     File /r Components\Powershell\Config.ps1
     File /r Components\Powershell\options.ps1
+    File /r Components\Powershell\playwav.ps1
     File /r Components\Powershell\Remake.ps1
     File /r Components\Powershell\Remakex.ps1
     File /r Components\Powershell\kdbg.ps1
@@ -396,6 +401,7 @@ Section Uninstall
     ;;
     RMDir /r /REBOOTOK "$INSTDIR\i386"
     RMDir /r /REBOOTOK "$INSTDIR\Tools"
+    RMDir /r /REBOOTOK "$INSTDIR\samples"
     StrCmp $ICONS_GROUP "" NO_SHORTCUTS
     RMDir /r /REBOOTOK "$SMPROGRAMS\$ICONS_GROUP"
     NO_SHORTCUTS:
@@ -425,6 +431,7 @@ Section Uninstall
     Delete /REBOOTOK "$INSTDIR\Remakex.cmd"
     Delete /REBOOTOK "$INSTDIR\Remake.ps1"
     Delete /REBOOTOK "$INSTDIR\Remakex.ps1"
+    Delete /REBOOTOK "$INSTDIR\playwav.ps1"
     Delete /REBOOTOK "$INSTDIR\kdbg.cmd"
     Delete /REBOOTOK "$INSTDIR\kdbg.ps1"
     Delete /REBOOTOK "$INSTDIR\RosBE.cmd"

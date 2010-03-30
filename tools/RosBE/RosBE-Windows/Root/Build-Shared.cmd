@@ -62,5 +62,10 @@ if %_ROSBE_WRITELOG% == 1 (
 
 :EOC
 :: Highlight the fact that building has ended.
+
+cd /d "%_ROSBE_BASEDIR%\samples"
+wav.exe Notification.wav
+
 flash.exe
+
 title ReactOS Build Environment %_ROSBE_VERSION%

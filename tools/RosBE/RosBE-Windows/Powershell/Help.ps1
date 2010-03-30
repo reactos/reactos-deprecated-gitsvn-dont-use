@@ -255,5 +255,5 @@ if ("$args" -eq "") {
         "    status   - Shows the recent status of available, non installed updates."
     }
 } else {
-    " Unknown command specified. No help available for $args."
+    get-help $args[0]
 }
