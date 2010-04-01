@@ -64,7 +64,7 @@ if %_ROSBE_WRITELOG% == 1 (
 :: Highlight the fact that building has ended.
 
 cd /d "%_ROSBE_BASEDIR%\samples"
-wav.exe Notification.wav
+playwav.exe Notification.wav
 
 flash.exe
 
