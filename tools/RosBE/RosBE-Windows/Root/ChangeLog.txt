@@ -1,3 +1,12 @@
+*** XXX XXth, 2010 - RosBE 1.X Released
+
+- Readded the old behavior of RosBE to ignore the System PATH Variable. Many ppl will love it as fix for overly stupid installed cygwin and WinAVR Tools.
+  To activate it, make a system Variable named "_ROSBE_NOSYSPATH" and set it to 1. (Daniel Reimer)
+- sSVN: Make use of the http:// protocol instead of the svn:// one. (Daniel Reimer)
+- Add remakex command to RosBE. (Daniel Reimer)
+- Add sound output on finished build. On PS we have one for a successful and one for a failed build. On CMD we have just one for now. (Daniel Reimer)
+- Made a small modification to be able to ask for help for ps commands in RosBE, too. (Daniel Reimer)
+
 *** Feb 08th, 2010 - RosBE 1.5 Released
 
 - Updated Binutils to 2.20.51-20091222 (snapshot) (Colin Finck)
