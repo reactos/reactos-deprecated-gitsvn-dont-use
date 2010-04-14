@@ -142,7 +142,9 @@ if not "%1" == "" (
         )
         if "!_ROSBE_SSVN_JOB!" == "update" (
             if not "%2" == "" (
-                svn.exe update -r %2
+                if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
+                    svn.exe update -r %2
+                )
                 if exist "modules\rosapps\." (
                     cd modules\rosapps
                     echo Updating RosApps...
@@ -156,7 +158,9 @@ if not "%1" == "" (
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )
             ) else (
-                svn.exe update
+                if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
+                    svn.exe update
+                )
                 if exist "modules\rosapps\." (
                     cd modules\rosapps
                     echo Updating RosApps...

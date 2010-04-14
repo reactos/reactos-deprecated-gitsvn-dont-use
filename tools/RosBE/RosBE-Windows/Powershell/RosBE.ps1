@@ -45,6 +45,7 @@ $global:_ROSBE_SHOWVERSION = 0
 $global:_ROSBE_LOGDIR = "$pwd\RosBE-Logs"
 $global:_ROSBE_HOST_MINGWPATH = "$_ROSBE_BASEDIR\i386"
 $global:_ROSBE_TARGET_MINGWPATH = "$_ROSBE_BASEDIR\$ENV:ROS_ARCH"
+$global:_BUILDBOT_SVNSKIPMAINTRUNK = "0"
 
 if ("$ENV:_ROSBE_NOSYSPATH" -eq "1") {
     $global:_ROSBE_ORIGINALPATH = "$_ROSBE_BASEDIR;$_ROSBE_BASEDIR\Tools;$ENV:SystemRoot\system32;$ENV:SystemRoot;$ENV:SystemRoot\System32\Wbem;$ENV:SYSTEMROOT\System32\WindowsPowerShell\v1.0\"

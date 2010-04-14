@@ -31,7 +31,9 @@ function UP($arg) {
         if ("$_ROSBE_SSVN_JOB" -eq "update") {
             if ("$($arg[1])" -ne "") {
                 $temparg = $arg[1]
-                IEX "& svn.exe update -r $temparg"
+                if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
+                    IEX "& svn.exe update -r $temparg"
+                }
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location modules\rosapps
                     "Updating RosApps..."
@@ -45,7 +47,9 @@ function UP($arg) {
                     Set-Location "$_ROSBE_ROSSOURCEDIR"
                 }
             } else {
-                IEX "& svn.exe update"
+                if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
+                    IEX "& svn.exe update"
+                }
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location modules\rosapps
                     "Updating RosApps..."
