@@ -31,8 +31,8 @@ if ($_ROSBE_USECCACHE -eq 1) {
 
 # Get the current date and time for use in in our build log's file name.
 $TIMERAW = get-date -f t
-$DATENAME = get-date -f dyMMyyyy
-$TIMENAME = get-date -f HHmm
+$DATENAME = get-date -f dMMyyyy
+$TIMENAME = get-date -f Hms
 
 # Check whether we were called as "makex" or "make"
 if ("$($args[0])" -eq "multi") {
