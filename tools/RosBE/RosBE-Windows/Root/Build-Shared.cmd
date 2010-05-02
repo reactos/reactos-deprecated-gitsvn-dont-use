@@ -64,10 +64,8 @@ if %_ROSBE_WRITELOG% == 1 (
 :: Highlight the fact that building has ended.
 
 if !errorlevel! GEQ 1 (
-    cd /d "%_ROSBE_BASEDIR%\samples"
     playwav.exe error.wav
 ) else (
-    cd /d "%_ROSBE_BASEDIR%\samples"
     playwav.exe notification.wav
 )
 

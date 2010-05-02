@@ -60,7 +60,7 @@ if "%ROS_CDOUTPUT%"     == "" (set ROS_CDOUTPUT=reactos)
 :: Do some basic sanity checks to verify that we are working in a ReactOS source tree.
 :: Consider that we also want to clean half-complete builds, so don't depend on too many existing files.
 set IS_SOURCE_DIRECTORY=1
-call :BIN_CHECKEXISTENCE "%ROS_INTERMEDIATE%\." "%ROS_OUTPUT%\."
+call :BIN_CHECKEXISTENCE "%ROS_INTERMEDIATE%\."
 
 if "%IS_SOURCE_DIRECTORY%" == "1" (
     echo Cleaning ReactOS %ROS_ARCH% source directory...

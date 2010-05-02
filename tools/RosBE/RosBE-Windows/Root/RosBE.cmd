@@ -42,9 +42,9 @@ set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
 set _BUILDBOT_SVNSKIPMAINTRUNK=0
 
 if "%_ROSBE_NOSYSPATH%" == "1" (
-    set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem
+    set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_BASEDIR%\samples;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem
 ) else (
-    set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%PATH%
+    set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_BASEDIR%\samples;%PATH%
 )
 
 :: Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
