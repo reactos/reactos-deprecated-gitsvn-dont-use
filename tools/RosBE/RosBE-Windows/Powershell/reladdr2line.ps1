@@ -33,6 +33,10 @@ if ("$ADDRESS" -eq "") {
     "ERROR: You must specify a address to analyze."
 }
 
-IEX "& log2lines.exe '$FILEPATH' '$ADDRESS'"
+if ("$ENV:ROS_OUTPUT" -ne "") {
+    IEX "& log2lines.exe -d '$ENV:ROS_OUTPUT' '$FILEPATH' '$ADDRESS'"
+} else {
+    IEX "& log2lines.exe '$FILEPATH' '$ADDRESS'"
+}
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"

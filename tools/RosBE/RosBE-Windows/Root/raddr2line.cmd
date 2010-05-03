@@ -54,7 +54,11 @@ if errorlevel 2 (
     for /f "usebackq" %%i in (`"dir /a:-d /s /b "%FILEPATH%" 2>NUL | findstr "%FILEPATH%""`) do set FILEPATH=%%i
 )
 
-log2lines.exe "%FILEPATH%" "%ADDRESS%"
+if not "%ROS_OUTPUT%" == "" (
+    log2lines.exe -d "%ROS_OUTPUT%" "%FILEPATH%" "%ADDRESS%"
+) else (
+    log2lines.exe "%FILEPATH%" "%ADDRESS%"
+)
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%
