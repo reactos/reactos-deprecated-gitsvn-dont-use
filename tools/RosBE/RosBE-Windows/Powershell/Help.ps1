@@ -232,8 +232,8 @@ if ("$args" -eq "") {
         "    update    - Updates to HEAD revision or to a specific one when the second"
         "                parameter specifies one."
         "    create    - Creates a new ReactOS source tree."
-        "    rosapps   - Creates a new ReactOS RosApps source tree."
-        "    rostests  - Creates a new ReactOS RosTests source tree."
+        "    rosapps   - Creates / Updates a ReactOS RosApps source tree."
+        "    rostests  - Creates / Updates a ReactOS RosTests source tree."
         "    cleanup   - Cleans up and fixes errors in the source tree."
         "    status    - Show the current local and online revision numbers."
     }

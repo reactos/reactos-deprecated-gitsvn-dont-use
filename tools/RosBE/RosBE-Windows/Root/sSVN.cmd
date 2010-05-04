@@ -47,10 +47,18 @@ if /i "%1" == "create" (
     rd /s /q "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
-        if "%ROS_ARCH%" == "amd64" (
-            svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos .
+        if not "%2" == "" (
+            if "%ROS_ARCH%" == "amd64" (
+                svn.exe checkout -r %2 http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos .
+            ) else (
+                svn.exe checkout -r %2 http://svn.reactos.org/reactos/trunk/reactos .
+            )
         ) else (
-            svn.exe checkout http://svn.reactos.org/reactos/trunk/reactos .
+            if "%ROS_ARCH%" == "amd64" (
+                svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos .
+            ) else (
+                svn.exe checkout http://svn.reactos.org/reactos/trunk/reactos .
+            )
         )
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
@@ -60,24 +68,50 @@ if /i "%1" == "create" (
 
 :: Check if the folder is empty. If not, output an error.
 if /i "%1" == "rosapps" (
-    title SVN RosApps Creating...
-    if exist "modules\rosapps\.svn\." (
-        echo ERROR: Folder already contains a RosApps repository.
-        goto :EOC
-    )
-    if not exist "modules\rosapps\." (
-        md modules\rosapps
-    )
-    cd modules\rosapps
-    dir /b 2>nul | findstr "." >nul
-    if errorlevel 1 (
-        if "%ROS_ARCH%" == "amd64" (
-            svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps .
+    if not "%2" == "" (
+        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
+            md "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+        )
+        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\.svn\." (
+            title SVN RosApps Updating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            svn.exe update -r %2
         ) else (
-            svn.exe checkout http://svn.reactos.org/reactos/trunk/rosapps .
+            title SVN RosApps Creating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            dir /b 2>nul | findstr "." >nul
+            if errorlevel 1 (
+                if "%ROS_ARCH%" == "amd64" (
+                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps .
+                ) else (
+                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/trunk/rosapps .
+                )
+            ) else (
+                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+            )
         )
     ) else (
-        echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
+            md "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+        )
+        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\.svn\." (
+            title SVN RosApps Updating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            svn.exe update
+        ) else (
+            title SVN RosApps Creating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            dir /b 2>nul | findstr "." >nul
+            if errorlevel 1 (
+                if "%ROS_ARCH%" == "amd64" (
+                    svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps .
+                ) else (
+                    svn.exe checkout http://svn.reactos.org/reactos/trunk/rosapps .
+                )
+            ) else (
+                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+            )
+        )
     )
     cd "%_ROSBE_ROSSOURCEDIR%"
     goto :EOC
@@ -85,24 +119,50 @@ if /i "%1" == "rosapps" (
 
 :: Check if the folder is empty. If not, output an error.
 if /i "%1" == "rostests" (
-    title SVN RosTests Creating...
-    if exist "modules\rostests\.svn\." (
-        echo ERROR: Folder already contains a RosTests repository.
-        goto :EOC
-    )
-    if not exist "modules\rostests\." (
-        md modules\rostests
-    )
-    cd modules\rostests
-    dir /b 2>nul | findstr "." >nul
-    if errorlevel 1 (
-        if "%ROS_ARCH%" == "amd64" (
-            svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests .
+    if not "%2" == "" (
+        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
+            md "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+        )
+        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\.svn\." (
+            title SVN RosTests Updating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            svn.exe update -r %2
         ) else (
-            svn.exe checkout http://svn.reactos.org/reactos/trunk/rostests .
+            title SVN RosTests Creating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            dir /b 2>nul | findstr "." >nul
+            if errorlevel 1 (
+                if "%ROS_ARCH%" == "amd64" (
+                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests .
+                ) else (
+                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/trunk/rostests .
+                )
+            ) else (
+                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+            )
         )
     ) else (
-        echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
+            md "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+        )
+        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\.svn\." (
+            title SVN RosTests Updating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            svn.exe update
+        ) else (
+            title SVN RosTests Creating...
+            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            dir /b 2>nul | findstr "." >nul
+            if errorlevel 1 (
+                if "%ROS_ARCH%" == "amd64" (
+                    svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests .
+                ) else (
+                    svn.exe checkout http://svn.reactos.org/reactos/trunk/rostests .
+                )
+            ) else (
+                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+            )
+        )
     )
     cd "%_ROSBE_ROSSOURCEDIR%"
     goto :EOC
@@ -145,14 +205,14 @@ if not "%1" == "" (
                 if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
                     svn.exe update -r %2
                 )
-                if exist "modules\rosapps\." (
-                    cd modules\rosapps
+                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
+                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
                     echo Updating RosApps...
                     svn.exe update -r %2
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )
-                if exist "modules\rostests\." (
-                    cd modules\rostests
+                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
+                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
                     echo Updating RosTests...
                     svn.exe update -r %2
                     cd "%_ROSBE_ROSSOURCEDIR%"
@@ -161,14 +221,14 @@ if not "%1" == "" (
                 if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
                     svn.exe update
                 )
-                if exist "modules\rosapps\." (
-                    cd modules\rosapps
+                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
+                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
                     echo Updating RosApps...
                     svn.exe update
                     cd "%_ROSBE_ROSSOURCEDIR%"
                 )
-                if exist "modules\rostests\." (
-                    cd modules\rostests
+                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
+                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
                     echo Updating RosTests...
                     svn.exe update
                     cd "%_ROSBE_ROSSOURCEDIR%"

@@ -238,8 +238,8 @@ if "%1" == "" (
         echo    update    - Updates to HEAD revision or to a specific one when the second
         echo                 parameter specifies one.
         echo    create    - Creates a new ReactOS source tree.
-        echo    rosapps   - Creates a new ReactOS RosApps source tree.
-        echo    rostests  - Creates a new ReactOS RosTests source tree.
+        echo    rosapps   - Creates / Updates a ReactOS RosApps source tree.
+        echo    rostests  - Creates / Updates a ReactOS RosTests source tree.
         echo    cleanup   - Cleans up and fixes errors in the source tree.
         echo    status    - Show the current local and online revision numbers.
     )
