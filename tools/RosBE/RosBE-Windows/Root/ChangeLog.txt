@@ -4,8 +4,22 @@
   To activate it, make a system Variable named "_ROSBE_NOSYSPATH" and set it to 1. (Daniel Reimer)
 - sSVN: Make use of the http:// protocol instead of the svn:// one. (Daniel Reimer)
 - Add remakex command to RosBE. (Daniel Reimer)
-- Add sound output on finished build. On PS we have one for a successful and one for a failed build. On CMD we have just one for now. (Daniel Reimer)
+- Add sound output on finished build. On PS we have one for a successful and one for a failed build. On CMD we have just one for now, if you let it
+  generate a LOG File. (Daniel Reimer)
 - Made a small modification to be able to ask for help for ps commands in RosBE, too. (Daniel Reimer)
+- Introduce %_BUILDBOT_SVNSKIPMAINTRUNK% as first of maybe more coming BuildBot Vars to skip the updating of the main trunk source when ssvn is used
+  to do so. If its being set to "1" it only updates rosapps and rostests if existant. This is needed for Olaf Siejka's Windows Buildbot project.
+  As Default its set to "0" and thus all behaves as before. (Daniel Reimer)
+- Fix a access error when you start two builds in the same minute on a PC by adding the seconds to $TIMENAME, too. (Daniel Reimer)
+- Clean up $DATENAME which included the year twice. (Daniel Reimer)
+- Weaken the ROS Source Dir check in clean a bit so that it does remove the built stuff even if it did not even build any tool yet. (Daniel Reimer)
+- Add the correct license to the audio files. (Daniel Reimer)
+- If a custom output folder is defined, pass it to log2lines, too. (Mephisto, Daniel Reimer)
+- Feature request by Olaf Siejka. The sSVN parameters "rosapps" and "rostests" were originally made for just creating rosapps / rostests repositories
+  in the modules folder. Now it detects an existant repository and just updates that one. If theres no repository or even no folder for the repository
+  it first generates it and continues. Additionally you can set the revision you wanna checkout or update to. "create" accepts a revision as second
+  parameter now, too. (Daniel Reimer)
+- Make sSVN fully multi Source Tree compatible by removing the dependency on the _ROSBE_ROSSOURCEDIR variable. (Daniel Reimer)
 
 *** Feb 08th, 2010 - RosBE 1.5 Released
 

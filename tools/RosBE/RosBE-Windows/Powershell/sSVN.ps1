@@ -6,6 +6,8 @@
 # COPYRIGHT:   Copyright 2010 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
+$_ROSBE_SSVNSOURCEDIR = "$pwd"
+
 function UP($arg) {
     $OFFSVN = IEX "& svn.exe info" | select-string "Revision:"
     $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
@@ -34,33 +36,33 @@ function UP($arg) {
                 if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
                     IEX "& svn.exe update -r $temparg"
                 }
-                if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rosapps\.") {
-                    Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rosapps"
+                if (Test-Path "modules\rosapps\.") {
+                    Set-Location "modules\rosapps"
                     "Updating RosApps..."
                     IEX "& svn.exe update -r $temparg"
-                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
                 }
-                if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rostests\.") {
-                    Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rostests"
+                if (Test-Path "modules\rostests\.") {
+                    Set-Location "modules\rostests"
                     "Updating RosTests..."
                     IEX "& svn.exe update -r $temparg"
-                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
                 }
             } else {
                 if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
                     IEX "& svn.exe update"
                 }
-                if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rosapps\.") {
-                    Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rosapps"
+                if (Test-Path "modules\rosapps\.") {
+                    Set-Location "modules\rosapps"
                     "Updating RosApps..."
                     IEX "& svn.exe update"
-                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
                 }
-                if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rostests\.") {
-                    Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rostests"
+                if (Test-Path "modules\rostests\.") {
+                    Set-Location "modules\rostests"
                     "Updating RosTests..."
                     IEX "& svn.exe update"
-                    Set-Location "$_ROSBE_ROSSOURCEDIR"
+                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
                 }
             }
             "Do you want to see the changelog?"
@@ -127,16 +129,16 @@ elseif ("$($args[0])" -eq "create") {
 # Check if the folder is empty. If not, output an error.
 elseif ("$($args[0])" -eq "rosapps") {
     if ("$($args[1])" -ne "") {
-        if (!(Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rosapps\.")) {
-            new-item -path "$_ROSBE_ROSSOURCEDIR\modules" -name rosapps -type directory
+        if (!(Test-Path "modules\rosapps\.")) {
+            new-item -path "modules" -name rosapps -type directory
         }
-        if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rosapps\.svn\.") {
+        if (Test-Path "modules\rosapps\.svn\.") {
             $host.ui.RawUI.WindowTitle = "SVN RosApps Updating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rosapps"
+            Set-Location "modules\rosapps"
             IEX "& svn.exe update -r $($args[1])"
         } else {
             $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rosapps"
+            Set-Location "modules\rosapps"
             $dir = get-childitem
             if ("$dir" -eq "") {
                 if("$ENV:ROS_ARCH" -eq "amd64") {
@@ -149,16 +151,16 @@ elseif ("$($args[0])" -eq "rosapps") {
             }
         }
     } else {
-        if (!(Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rosapps\.")) {
-            new-item -path "$_ROSBE_ROSSOURCEDIR\modules" -name rosapps -type directory
+        if (!(Test-Path "modules\rosapps\.")) {
+            new-item -path "modules" -name rosapps -type directory
         }
-        if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rosapps\.svn\.") {
+        if (Test-Path "modules\rosapps\.svn\.") {
             $host.ui.RawUI.WindowTitle = "SVN RosApps Updating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rosapps"
+            Set-Location "modules\rosapps"
             IEX "& svn.exe update"
         } else {
             $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rosapps"
+            Set-Location "modules\rosapps"
             $dir = get-childitem
             if ("$dir" -eq "") {
                 if ("$ENV:ROS_ARCH" -eq "amd64") {
@@ -171,22 +173,22 @@ elseif ("$($args[0])" -eq "rosapps") {
             }
         }
     }
-    Set-Location "$_ROSBE_ROSSOURCEDIR"
+    Set-Location "$_ROSBE_SSVNSOURCEDIR"
 }
 
 # Check if the folder is empty. If not, output an error.
 elseif ("$($args[0])" -eq "rostests") {
     if ("$($args[1])" -ne "") {
-        if (!(Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rostests\.")) {
-            new-item -path "$_ROSBE_ROSSOURCEDIR\modules" -name rostests -type directory
+        if (!(Test-Path "modules\rostests\.")) {
+            new-item -path "modules" -name rostests -type directory
         }
-        if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rostests\.svn\.") {
+        if (Test-Path "modules\rostests\.svn\.") {
             $host.ui.RawUI.WindowTitle = "SVN RosTests Updating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rostests"
+            Set-Location "modules\rostests"
             IEX "& svn.exe update -r $($args[1])"
         } else {
             $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rostests"
+            Set-Location "modules\rostests"
             $dir = get-childitem
             if ("$dir" -eq "") {
                 if("$ENV:ROS_ARCH" -eq "amd64") {
@@ -199,16 +201,16 @@ elseif ("$($args[0])" -eq "rostests") {
             }
         }
     } else {
-        if (!(Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rostests\.")) {
-            new-item -path "$_ROSBE_ROSSOURCEDIR\modules" -name rostests -type directory
+        if (!(Test-Path "modules\rostests\.")) {
+            new-item -path "modules" -name rostests -type directory
         }
-        if (Test-Path "$_ROSBE_ROSSOURCEDIR\modules\rostests\.svn\.") {
+        if (Test-Path "modules\rostests\.svn\.") {
             $host.ui.RawUI.WindowTitle = "SVN RosTests Updating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rostests"
+            Set-Location "modules\rostests"
             IEX "& svn.exe update"
         } else {
             $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
-            Set-Location "$_ROSBE_ROSSOURCEDIR\modules\rostests"
+            Set-Location "modules\rostests"
             $dir = get-childitem
             if ("$dir" -eq "") {
                 if ("$ENV:ROS_ARCH" -eq "amd64") {
@@ -221,7 +223,7 @@ elseif ("$($args[0])" -eq "rostests") {
             }
         }
     }
-    Set-Location "$_ROSBE_ROSSOURCEDIR"
+    Set-Location "$_ROSBE_SSVNSOURCEDIR"
 }
 
 # Output the revision of the local and online trees and tell the user if

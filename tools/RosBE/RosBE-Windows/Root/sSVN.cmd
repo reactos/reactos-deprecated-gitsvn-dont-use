@@ -14,6 +14,8 @@ if %_ROSBE_DEBUG% == 1 (
 
 setlocal enabledelayedexpansion
 
+set _ROSBE_SSVNSOURCEDIR=%CD%
+
 :: Receive the first parameter and decide what to do.
 if "%1" == "" (
     echo No parameter specified. Try 'help [COMMAND]'.
@@ -69,16 +71,16 @@ if /i "%1" == "create" (
 :: Check if the folder is empty. If not, output an error.
 if /i "%1" == "rosapps" (
     if not "%2" == "" (
-        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
-            md "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+        if not exist "modules\rosapps\." (
+            md "modules\rosapps"
         )
-        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\.svn\." (
+        if exist "modules\rosapps\.svn\." (
             title SVN RosApps Updating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            cd "modules\rosapps"
             svn.exe update -r %2
         ) else (
             title SVN RosApps Creating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            cd "modules\rosapps"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
                 if "%ROS_ARCH%" == "amd64" (
@@ -91,16 +93,16 @@ if /i "%1" == "rosapps" (
             )
         )
     ) else (
-        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
-            md "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+        if not exist "modules\rosapps\." (
+            md "modules\rosapps"
         )
-        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\.svn\." (
+        if exist "modules\rosapps\.svn\." (
             title SVN RosApps Updating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            cd "modules\rosapps"
             svn.exe update
         ) else (
             title SVN RosApps Creating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+            cd "modules\rosapps"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
                 if "%ROS_ARCH%" == "amd64" (
@@ -113,23 +115,23 @@ if /i "%1" == "rosapps" (
             )
         )
     )
-    cd "%_ROSBE_ROSSOURCEDIR%"
+    cd "%_ROSBE_SSVNSOURCEDIR%"
     goto :EOC
 )
 
 :: Check if the folder is empty. If not, output an error.
 if /i "%1" == "rostests" (
     if not "%2" == "" (
-        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
-            md "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+        if not exist "modules\rostests\." (
+            md "modules\rostests"
         )
-        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\.svn\." (
+        if exist "modules\rostests\.svn\." (
             title SVN RosTests Updating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            cd "modules\rostests"
             svn.exe update -r %2
         ) else (
             title SVN RosTests Creating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            cd "modules\rostests"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
                 if "%ROS_ARCH%" == "amd64" (
@@ -142,16 +144,16 @@ if /i "%1" == "rostests" (
             )
         )
     ) else (
-        if not exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
-            md "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+        if not exist "modules\rostests\." (
+            md "modules\rostests"
         )
-        if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\.svn\." (
+        if exist "modules\rostests\.svn\." (
             title SVN RosTests Updating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            cd "modules\rostests"
             svn.exe update
         ) else (
             title SVN RosTests Creating...
-            cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+            cd "modules\rostests"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
                 if "%ROS_ARCH%" == "amd64" (
@@ -164,7 +166,7 @@ if /i "%1" == "rostests" (
             )
         )
     )
-    cd "%_ROSBE_ROSSOURCEDIR%"
+    cd "%_ROSBE_SSVNSOURCEDIR%"
     goto :EOC
 )
 
@@ -205,33 +207,33 @@ if not "%1" == "" (
                 if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
                     svn.exe update -r %2
                 )
-                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
-                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+                if exist "modules\rosapps\." (
+                    cd "modules\rosapps"
                     echo Updating RosApps...
                     svn.exe update -r %2
-                    cd "%_ROSBE_ROSSOURCEDIR%"
+                    cd "%_ROSBE_SSVNSOURCEDIR%"
                 )
-                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
-                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+                if exist "modules\rostests\." (
+                    cd "modules\rostests"
                     echo Updating RosTests...
                     svn.exe update -r %2
-                    cd "%_ROSBE_ROSSOURCEDIR%"
+                    cd "%_ROSBE_SSVNSOURCEDIR%"
                 )
             ) else (
                 if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
                     svn.exe update
                 )
-                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rosapps\." (
-                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rosapps"
+                if exist "modules\rosapps\." (
+                    cd "modules\rosapps"
                     echo Updating RosApps...
                     svn.exe update
-                    cd "%_ROSBE_ROSSOURCEDIR%"
+                    cd "%_ROSBE_SSVNSOURCEDIR%"
                 )
-                if exist "%_ROSBE_ROSSOURCEDIR%\modules\rostests\." (
-                    cd "%_ROSBE_ROSSOURCEDIR%\modules\rostests"
+                if exist "modules\rostests\." (
+                    cd "modules\rostests"
                     echo Updating RosTests...
                     svn.exe update
-                    cd "%_ROSBE_ROSSOURCEDIR%"
+                    cd "%_ROSBE_SSVNSOURCEDIR%"
                 )
             )
         )
