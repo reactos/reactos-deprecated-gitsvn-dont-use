@@ -28,7 +28,7 @@ if /i "%1" == "update" (
     echo This might take a while, so please be patient.
     echo.
     set _ROSBE_SSVN_JOB=update
-    goto :UP    
+    goto :UP
 )
 
 if /i "%1" == "cleanup" (
@@ -202,10 +202,27 @@ if not "%1" == "" (
             set /p UP="Please enter 'yes' or 'no': "
             if /i "!UP!" == "yes" set _ROSBE_SSVN_JOB=update
         )
-        if "!_ROSBE_SSVN_JOB!" == "update" (
+    )
+    if !OFFSVN! equ !ONSVN! (
+        echo Your tree is up to date.
+    )
+
+    if "!_ROSBE_SSVN_JOB!" == "update" (
             if not "%2" == "" (
+            
+                if "%2" == "!OFFSVN!" (
+                    echo Your Local Repository is currently %2
+                )
+                if "%2" LSS "!OFFSVN!" (
+                    echo Downgrading to %2 ...
+                )
+                if "%2" GTR "!OFFSVN!" (
+                    echo Updating to %2 ...
+                )
                 if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
                     svn.exe update -r %2
+                ) else (
+                    echo Skipping ReactOS Trunk update.
                 )
                 if exist "modules\rosapps\." (
                     cd "modules\rosapps"
@@ -242,9 +259,6 @@ if not "%1" == "" (
         if /i "!CL!"=="yes" (
             svn.exe log -r !OFFSVN!:!ONSVN!
         )
-    )
-    if !OFFSVN! equ !ONSVN! (
-        echo Your tree is up to date.
     )
 
 goto EOC

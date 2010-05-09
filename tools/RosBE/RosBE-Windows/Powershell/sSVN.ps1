@@ -30,11 +30,27 @@ function UP($arg) {
                 $_ROSBE_SSVN_JOB = "update"
             }
         }
+        if ($OFFSVN -eq $ONSVN) {
+            "Your tree is up to date."
+        }
+
         if ("$_ROSBE_SSVN_JOB" -eq "update") {
             if ("$($arg[1])" -ne "") {
                 $temparg = $arg[1]
+
+                if ($temparg -eq $OFFSVN) {
+                    "Your Local Repository is currently $temparg"
+                }
+                if ($temparg -lt $OFFSVN) {
+                    "Downgrading to $temparg ..."
+                }
+                if ($temparg -gt $OFFSVN) {
+                    "Updating to $temparg ..."
+                }
                 if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
                     IEX "& svn.exe update -r $temparg"
+                } else {
+                    "Skipping ReactOS Trunk update."
                 }
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location "modules\rosapps"
@@ -72,9 +88,6 @@ function UP($arg) {
                 IEX "& svn.exe log -r $range"
             }
         }
-    }
-    if ($OFFSVN -eq $ONSVN) {
-        "Your tree is up to date."
     }
 }
 
