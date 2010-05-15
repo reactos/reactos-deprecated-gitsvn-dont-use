@@ -30,7 +30,7 @@ if "%1" == "" (
 
 set _ROSBE_BASEDIR=%~dp0
 set _ROSBE_BASEDIR=%_ROSBE_BASEDIR:~0,-1%
-set _ROSBE_VERSION=1.5
+set _ROSBE_VERSION=1.5.1
 set _ROSBE_ROSSOURCEDIR=%CD%
 set _ROSBE_SHOWTIME=1
 set _ROSBE_WRITELOG=1
@@ -90,7 +90,7 @@ doskey update="%_ROSBE_BASEDIR%\Tools\elevate.exe" "%_ROSBE_BASEDIR%\update.cmd"
 cls
 echo *******************************************************************************
 echo *                                                                             *
-echo *                        ReactOS Build Environment %_ROSBE_VERSION%                        *
+echo *                        ReactOS Build Environment %_ROSBE_VERSION%                      *
 echo *                                                                             *
 echo *******************************************************************************
 echo.

@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "ReactOS Build Environment for Windows"
-!define PRODUCT_VERSION "1.5"
+!define PRODUCT_VERSION "1.5.1"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\RosBE.cmd"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKCU"
@@ -17,7 +17,7 @@ ShowUnInstDetails show
 ;;
 ;; Add version/product information metadata to the installation file.
 ;;
-VIAddVersionKey /LANG=1033 "FileVersion" "1.5.0.0"
+VIAddVersionKey /LANG=1033 "FileVersion" "1.5.1.0"
 VIAddVersionKey /LANG=1033 "ProductVersion" "${PRODUCT_VERSION}"
 VIAddVersionKey /LANG=1033 "ProductName" "${PRODUCT_NAME}"
 VIAddVersionKey /LANG=1033 "Comments" "This installer was written by Peter Ward and Daniel Reimer using Nullsoft Scriptable Install System (http://nsis.sourceforge.net/)"
@@ -25,7 +25,7 @@ VIAddVersionKey /LANG=1033 "CompanyName" "ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalTrademarks" "Copyright © 2010 ReactOS Team"
 VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright © 2010 ReactOS Team"
 VIAddVersionKey /LANG=1033 "FileDescription" "${PRODUCT_NAME} Setup"
-VIProductVersion "1.5.0.0"
+VIProductVersion "1.5.1.0"
 
 CRCCheck force
 SetDatablockOptimize on
@@ -153,7 +153,7 @@ Section -BaseFiles SEC01
     File /r Components\Tools\iconv.exe
     File /r Components\Tools\m4.exe
     File /r Components\Tools\patch.exe
-    File /r Components\Tools\wav.exe
+    File /r Components\Tools\playwav.exe
     SetOutPath "$INSTDIR\samples"
     SetOverwrite try
     File /r Components\samples\*.*
@@ -189,7 +189,6 @@ Section "Subversion Tools (svn, ssvn)" SEC04
     SetOutPath "$INSTDIR\Tools"
     SetOverwrite try
     File /r Components\Tools\svn.exe
-    File /r Components\Tools\intl3_svn.dll
     File /r Components\Tools\libapr-1.dll
     File /r Components\Tools\libeay32.dll
     File /r Components\Tools\ssleay32.dll
