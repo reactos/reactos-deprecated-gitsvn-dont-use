@@ -45,7 +45,7 @@ function rembin {
         $ROS_CDOUTPUT = $ENV:ROS_CDOUTPUT
     }
 
-    if (Test-Path "$ROS_INTERMEDIATE\.")) {
+    if (Test-Path "$ROS_INTERMEDIATE\.") {
         "Cleaning ReactOS $ENV:ROS_ARCH source directory..."
 
             $null = (Remove-Item "$ROS_AUTOMAKE" -force)
