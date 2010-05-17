@@ -184,6 +184,8 @@ if not "%1" == "" (
     echo Unknown parameter specified. Try 'help ssvn'.
 )
 
+goto EOC
+
 :UP
     for /f "usebackq tokens=2" %%i in (`"svn.exe info | find "Revision:""`) do set OFFSVN=%%i
     if "%ROS_ARCH%" == "amd64" (
