@@ -67,6 +67,8 @@ function UP($arg) {
             } else {
                 if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
                     IEX "& svn.exe update"
+                } else {
+                    "Skipping ReactOS Trunk update."
                 }
                 if (Test-Path "modules\rosapps\.") {
                     Set-Location "modules\rosapps"

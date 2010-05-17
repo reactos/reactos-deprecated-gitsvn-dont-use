@@ -183,7 +183,6 @@ if /i "%1" == "status" (
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help ssvn'.
 )
-
 goto EOC
 
 :UP
@@ -211,7 +210,6 @@ goto EOC
 
     if "!_ROSBE_SSVN_JOB!" == "update" (
             if not "%2" == "" (
-            
                 if "%2" == "!OFFSVN!" (
                     echo Your Local Repository is currently %2
                 )
@@ -241,6 +239,8 @@ goto EOC
             ) else (
                 if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
                     svn.exe update
+                ) else (
+                    echo Skipping ReactOS Trunk update.
                 )
                 if exist "modules\rosapps\." (
                     cd "modules\rosapps"

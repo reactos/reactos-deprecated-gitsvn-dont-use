@@ -41,11 +41,15 @@ set _ROSBE_HOST_MINGWPATH=%_ROSBE_BASEDIR%\i386
 set _ROSBE_TARGET_MINGWPATH=%_ROSBE_BASEDIR%\%ROS_ARCH%
 set _BUILDBOT_SVNSKIPMAINTRUNK=0
 
+setlocal enabledelayedexpansion
+
 if "%_ROSBE_NOSYSPATH%" == "1" (
-    set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_BASEDIR%\samples;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem
+    set _ROSBE_ORIGINALPATH=!_ROSBE_BASEDIR!;!_ROSBE_BASEDIR!\Tools;!_ROSBE_BASEDIR!\samples;!SystemRoot!\system32;!SystemRoot!;!SystemRoot!\System32\Wbem
 ) else (
-    set _ROSBE_ORIGINALPATH=%_ROSBE_BASEDIR%;%_ROSBE_BASEDIR%\Tools;%_ROSBE_BASEDIR%\samples;%PATH%
+    set _ROSBE_ORIGINALPATH=!_ROSBE_BASEDIR!;!_ROSBE_BASEDIR!\Tools;!_ROSBE_BASEDIR!\samples;!PATH!
 )
+
+endlocal && set _ROSBE_ORIGINALPATH=%_ROSBE_ORIGINALPATH%
 
 :: Fix Bison package path (just in case RosBE is installed in a path which contains spaces)
 set BISON_PKGDATADIR=%~ds0%~sp0%i386\share\bison
