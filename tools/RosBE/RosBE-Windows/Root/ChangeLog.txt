@@ -1,4 +1,11 @@
-*** May XXth, 2010 - RosBE 1.5.1 Released
+*** May 19th, 2010 - RosBE 1.5.1.1 Released
+
+- fix a bug in ssvn batch version which always ran through the update function even if the 1st param was crap. (Crocodile)
+- Fixing another Bug noone saw in the RCs or in RosBE 1.5 Update 1, a bug which exactly shows the bullshit Batch is in real. (Daniel Reimer)
+  Results in having to remove the old behavior mode again for now. 64 bit hosts make problems with their (x86) in the path var. (Daniel Reimer)
+- Some sSVN cleanup, too. (Daniel Reimer)
+
+*** May 16th, 2010 - RosBE 1.5.1 Released
 
 - Updated NASM to 2.08.01 (Daniel Reimer)
 - Updated YASM to 1.0.0 (Daniel Reimer)
