@@ -14,6 +14,17 @@ if %_ROSBE_DEBUG% == 1 (
 
 setlocal enabledelayedexpansion
 
+:: Set branch to trunk if one is not already set
+if not defined ROS_BRANCH (
+    set _ROS_BRANCH=trunk
+) else (
+    set _ROS_BRANCH=branches/%ROS_BRANCH%
+)
+:: AMD64 architecture overrides branch that was previously set
+if "%ROS_ARCH%" == "amd64" (
+    set _ROS_BRANCH=branches/ros-amd64-bringup
+)
+
 set _ROSBE_SSVNSOURCEDIR=%CD%
 
 :: Receive the first parameter and decide what to do.
@@ -50,17 +61,9 @@ if /i "%1" == "create" (
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
         if not "%2" == "" (
-            if "%ROS_ARCH%" == "amd64" (
-                svn.exe checkout -r %2 http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos .
-            ) else (
-                svn.exe checkout -r %2 http://svn.reactos.org/reactos/trunk/reactos .
-            )
+            svn.exe checkout -r %2 http://svn.reactos.org/reactos/%_ROS_BRANCH%/reactos .
         ) else (
-            if "%ROS_ARCH%" == "amd64" (
-                svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos .
-            ) else (
-                svn.exe checkout http://svn.reactos.org/reactos/trunk/reactos .
-            )
+            svn.exe checkout http://svn.reactos.org/reactos/%_ROS_BRANCH%/reactos .
         )
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
@@ -83,11 +86,7 @@ if /i "%1" == "rosapps" (
             cd "modules\rosapps"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
-                if "%ROS_ARCH%" == "amd64" (
-                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps .
-                ) else (
-                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/trunk/rosapps .
-                )
+                svn.exe checkout -r %2 http://svn.reactos.org/reactos/%_ROS_BRANCH%/rosapps .
             ) else (
                 echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
             )
@@ -105,11 +104,7 @@ if /i "%1" == "rosapps" (
             cd "modules\rosapps"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
-                if "%ROS_ARCH%" == "amd64" (
-                    svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps .
-                ) else (
-                    svn.exe checkout http://svn.reactos.org/reactos/trunk/rosapps .
-                )
+                svn.exe checkout http://svn.reactos.org/reactos/%_ROS_BRANCH%/rosapps .
             ) else (
                 echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
             )
@@ -134,11 +129,7 @@ if /i "%1" == "rostests" (
             cd "modules\rostests"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
-                if "%ROS_ARCH%" == "amd64" (
-                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests .
-                ) else (
-                    svn.exe checkout -r %2 http://svn.reactos.org/reactos/trunk/rostests .
-                )
+                svn.exe checkout -r %2 http://svn.reactos.org/reactos/%_ROS_BRANCH%/rostests .
             ) else (
                 echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
             )
@@ -156,11 +147,7 @@ if /i "%1" == "rostests" (
             cd "modules\rostests"
             dir /b 2>nul | findstr "." >nul
             if errorlevel 1 (
-                if "%ROS_ARCH%" == "amd64" (
-                    svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests .
-                ) else (
-                    svn.exe checkout http://svn.reactos.org/reactos/trunk/rostests .
-                )
+                svn.exe checkout http://svn.reactos.org/reactos/%_ROS_BRANCH/rostests .
             ) else (
                 echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
             )
@@ -186,12 +173,8 @@ if not "%1" == "" (
 goto EOC
 
 :UP
-    for /f "usebackq tokens=2" %%i in (`"svn.exe info | find "Revision:""`) do set OFFSVN=%%i
-    if "%ROS_ARCH%" == "amd64" (
-        for /f "usebackq tokens=2" %%j in (`"svn.exe info http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos | find "Revision:""`) do set ONSVN=%%j
-    ) else (
-        for /f "usebackq tokens=2" %%j in (`"svn.exe info http://svn.reactos.org/reactos/trunk/reactos | find "Revision:""`) do set ONSVN=%%j
-    )
+    for /f "usebackq tokens=4" %%i in (`"svn.exe info | find "Last Changed Rev:""`) do set OFFSVN=%%i
+    for /f "usebackq tokens=4" %%j in (`"svn.exe info http://svn.reactos.org/reactos/%_ROS_BRANCH%/reactos | find "Last Changed Rev:""`) do set ONSVN=%%j
 
     echo Local Revision: !OFFSVN!
     echo Online HEAD Revision: !ONSVN!
@@ -206,54 +189,54 @@ goto EOC
     )
     if !OFFSVN! equ !ONSVN! (
         echo Your tree is up to date.
+        goto EOC
     )
 
     if "!_ROSBE_SSVN_JOB!" == "update" (
-            if not "%2" == "" (
-                if "%2" == "!OFFSVN!" (
-                    echo Your Local Repository is currently %2
-                )
-                if "%2" LSS "!OFFSVN!" (
-                    echo Downgrading to %2 ...
-                )
-                if "%2" GTR "!OFFSVN!" (
-                    echo Updating to %2 ...
-                )
-                if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
-                    svn.exe update -r %2
-                ) else (
-                    echo Skipping ReactOS Trunk update.
-                )
-                if exist "modules\rosapps\." (
-                    cd "modules\rosapps"
-                    echo Updating RosApps...
-                    svn.exe update -r %2
-                    cd "%_ROSBE_SSVNSOURCEDIR%"
-                )
-                if exist "modules\rostests\." (
-                    cd "modules\rostests"
-                    echo Updating RosTests...
-                    svn.exe update -r %2
-                    cd "%_ROSBE_SSVNSOURCEDIR%"
-                )
+        if not "%2" == "" (
+            if "%2" == "!OFFSVN!" (
+                echo Your Local Repository is currently %2
+            )
+            if "%2" LSS "!OFFSVN!" (
+                echo Downgrading to %2 ...
+            )
+            if "%2" GTR "!OFFSVN!" (
+                echo Updating to %2 ...
+            )
+            if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
+                svn.exe update -r %2
             ) else (
-                if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
-                    svn.exe update
-                ) else (
-                    echo Skipping ReactOS Trunk update.
-                )
-                if exist "modules\rosapps\." (
-                    cd "modules\rosapps"
-                    echo Updating RosApps...
-                    svn.exe update
-                    cd "%_ROSBE_SSVNSOURCEDIR%"
-                )
-                if exist "modules\rostests\." (
-                    cd "modules\rostests"
-                    echo Updating RosTests...
-                    svn.exe update
-                    cd "%_ROSBE_SSVNSOURCEDIR%"
-                )
+                echo Skipping ReactOS Trunk update.
+            )
+            if exist "modules\rosapps\." (
+                cd "modules\rosapps"
+                echo Updating RosApps...
+                svn.exe update -r %2
+                cd "%_ROSBE_SSVNSOURCEDIR%"
+            )
+            if exist "modules\rostests\." (
+                cd "modules\rostests"
+                echo Updating RosTests...
+                svn.exe update -r %2
+                cd "%_ROSBE_SSVNSOURCEDIR%"
+            )
+        ) else (
+            if not "%_BUILDBOT_SVNSKIPMAINTRUNK%" == "1" (
+                svn.exe update
+            ) else (
+                echo Skipping ReactOS Trunk update.
+            )
+            if exist "modules\rosapps\." (
+                cd "modules\rosapps"
+                echo Updating RosApps...
+                svn.exe update
+                cd "%_ROSBE_SSVNSOURCEDIR%"
+            )
+            if exist "modules\rostests\." (
+                cd "modules\rostests"
+                echo Updating RosTests...
+                svn.exe update
+                cd "%_ROSBE_SSVNSOURCEDIR%"
             )
         )
         echo Do you want to see the changelog?

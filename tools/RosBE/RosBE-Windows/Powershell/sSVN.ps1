@@ -6,23 +6,31 @@
 # COPYRIGHT:   Copyright 2010 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
+# Set branch to trunk if one is not already set
+if ("$ENV:ROS_BRANCH" -eq "") {
+    $_ROS_BRANCH = "trunk"
+} else {
+    $_ROS_BRANCH = "branches/$ENV:ROS_BRANCH"
+}
+
+# AMD64 architecture overrides branch that was previously set
+if ("$ENV:ROS_ARCH" -eq "amd64") {
+    $_ROS_BRANCH = "branches/ros-amd64-bringup"
+}
+
 $_ROSBE_SSVNSOURCEDIR = "$pwd"
 
 function UP($arg) {
-    $OFFSVN = IEX "& svn.exe info" | select-string "Revision:"
-    $OFFSVN = $OFFSVN -replace "(.*)Revision: ",''
+    $OFFSVN = IEX "& svn.exe info" | select-string "Last Changed Rev:"
+    $OFFSVN = $OFFSVN -replace "(.*)Last Changed Rev: ",''
     $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
-    if ("$ENV:ROS_ARCH" -eq "amd64") {
-        $ONSVN = IEX "& svn.exe info http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos" | select-string "Revision:"
-    } else {
-        $ONSVN = IEX "& svn.exe info http://svn.reactos.org/reactos/trunk/reactos" | select-string "Revision:"
-    }
-    $ONSVN = $ONSVN -replace "(.*)Revision: ",''
+    $ONSVN = IEX "& svn.exe info http://svn.reactos.org/reactos/$_ROS_BRANCH/reactos" | select-string "Last Changed Rev:"
+    $ONSVN = $ONSVN -replace "(.*)Last Changed Rev: ",''
     $ONSVN = [CONVERT]::ToInt32($ONSVN,10)
     "Local Revision: $OFFSVN"
     "Online HEAD Revision: $ONSVN"
     ""
-    if (($OFFSVN -lt $ONSVN) -or ("$($arg[1])" -ne "")) {
+    if ($OFFSVN -lt $ONSVN) {
         if ("$_ROSBE_SSVN_JOB" -eq "status") {
             "Your tree is not up to date. Do you want to update it?"
             $UP = Read-Host "Please enter 'yes' or 'no': "
@@ -30,65 +38,65 @@ function UP($arg) {
                 $_ROSBE_SSVN_JOB = "update"
             }
         }
-        if ($OFFSVN -eq $ONSVN) {
-            "Your tree is up to date."
-        }
+    }
+    if ($OFFSVN -eq $ONSVN) {
+        "Your tree is up to date."
+        exit
+    }
+    if ("$_ROSBE_SSVN_JOB" -eq "update") {
+        if ("$($arg[1])" -ne "") {
+            $temparg = $arg[1]
 
-        if ("$_ROSBE_SSVN_JOB" -eq "update") {
-            if ("$($arg[1])" -ne "") {
-                $temparg = $arg[1]
-
-                if ($temparg -eq $OFFSVN) {
-                    "Your Local Repository is currently $temparg"
-                }
-                if ($temparg -lt $OFFSVN) {
-                    "Downgrading to $temparg ..."
-                }
-                if ($temparg -gt $OFFSVN) {
-                    "Updating to $temparg ..."
-                }
-                if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
-                    IEX "& svn.exe update -r $temparg"
-                } else {
-                    "Skipping ReactOS Trunk update."
-                }
-                if (Test-Path "modules\rosapps\.") {
-                    Set-Location "modules\rosapps"
-                    "Updating RosApps..."
-                    IEX "& svn.exe update -r $temparg"
-                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
-                }
-                if (Test-Path "modules\rostests\.") {
-                    Set-Location "modules\rostests"
-                    "Updating RosTests..."
-                    IEX "& svn.exe update -r $temparg"
-                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
-                }
+            if ($temparg -eq $OFFSVN) {
+                "Your Local Repository is currently $temparg"
+            }
+            if ($temparg -lt $OFFSVN) {
+                "Downgrading to $temparg ..."
+            }
+            if ($temparg -gt $OFFSVN) {
+                "Updating to $temparg ..."
+            }
+            if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
+                IEX "& svn.exe update -r $temparg"
             } else {
-                if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
-                    IEX "& svn.exe update"
-                } else {
-                    "Skipping ReactOS Trunk update."
-                }
-                if (Test-Path "modules\rosapps\.") {
-                    Set-Location "modules\rosapps"
-                    "Updating RosApps..."
-                    IEX "& svn.exe update"
-                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
-                }
-                if (Test-Path "modules\rostests\.") {
-                    Set-Location "modules\rostests"
-                    "Updating RosTests..."
-                    IEX "& svn.exe update"
-                    Set-Location "$_ROSBE_SSVNSOURCEDIR"
-                }
+                "Skipping ReactOS Trunk update."
             }
-            "Do you want to see the changelog?"
-            $CL = Read-Host "Please enter 'yes' or 'no': "
-            if (("$CL" -eq "yes") -or ("$CL" -eq "y")) {
-                $range = "$OFFSVN" + ":" + "$ONSVN"
-                IEX "& svn.exe log -r $range"
+            if (Test-Path "modules\rosapps\.") {
+                Set-Location "modules\rosapps"
+                "Updating RosApps..."
+                IEX "& svn.exe update -r $temparg"
+                Set-Location "$_ROSBE_SSVNSOURCEDIR"
             }
+            if (Test-Path "modules\rostests\.") {
+                Set-Location "modules\rostests"
+                "Updating RosTests..."
+                IEX "& svn.exe update -r $temparg"
+                Set-Location "$_ROSBE_SSVNSOURCEDIR"
+            }
+        } else {
+            if ("$_BUILDBOT_SVNSKIPMAINTRUNK" -ne "1") {
+                IEX "& svn.exe update"
+            } else {
+                "Skipping ReactOS Trunk update."
+            }
+            if (Test-Path "modules\rosapps\.") {
+                Set-Location "modules\rosapps"
+                "Updating RosApps..."
+                IEX "& svn.exe update"
+                Set-Location "$_ROSBE_SSVNSOURCEDIR"
+            }
+            if (Test-Path "modules\rostests\.") {
+                Set-Location "modules\rostests"
+                "Updating RosTests..."
+                IEX "& svn.exe update"
+                Set-Location "$_ROSBE_SSVNSOURCEDIR"
+            }
+        }
+        "Do you want to see the changelog?"
+        $CL = Read-Host "Please enter 'yes' or 'no': "
+        if (("$CL" -eq "yes") -or ("$CL" -eq "y")) {
+            $range = "$OFFSVN" + ":" + "$ONSVN"
+            IEX "& svn.exe log -r $range"
         }
     }
 }
@@ -123,17 +131,9 @@ elseif ("$($args[0])" -eq "create") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$($args[1])" -ne "") {
-                if ("$ENV:ROS_ARCH" -eq "amd64") {
-                    IEX "& svn.exe -r $($args[1]) checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
-                } else {
-                    IEX "& svn.exe -r $($args[1]) checkout http://svn.reactos.org/reactos/trunk/reactos ."
-                }
+                IEX "& svn.exe -r $($args[1]) checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/reactos ."
             } else {
-                if ("$ENV:ROS_ARCH" -eq "amd64") {
-                    IEX "& svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/reactos ."
-                } else {
-                    IEX "& svn.exe checkout http://svn.reactos.org/reactos/trunk/reactos ."
-                }
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/reactos ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -156,13 +156,9 @@ elseif ("$($args[0])" -eq "rosapps") {
             Set-Location "modules\rosapps"
             $dir = get-childitem
             if ("$dir" -eq "") {
-                if("$ENV:ROS_ARCH" -eq "amd64") {
-                    IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
-                } else {
-                    IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/trunk/rosapps ."
-                }
+                IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/$_ROS_BRANCH/rosapps ."
             } else {
-                 "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
             }
         }
     } else {
@@ -178,13 +174,9 @@ elseif ("$($args[0])" -eq "rosapps") {
             Set-Location "modules\rosapps"
             $dir = get-childitem
             if ("$dir" -eq "") {
-                if ("$ENV:ROS_ARCH" -eq "amd64") {
-                    IEX "& svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rosapps ."
-                } else {
-                    IEX "& svn.exe checkout http://svn.reactos.org/reactos/trunk/rosapps ."
-                }
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/rosapps ."
             } else {
-                 "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
             }
         }
     }
@@ -206,13 +198,9 @@ elseif ("$($args[0])" -eq "rostests") {
             Set-Location "modules\rostests"
             $dir = get-childitem
             if ("$dir" -eq "") {
-                if("$ENV:ROS_ARCH" -eq "amd64") {
-                    IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
-                } else {
-                    IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/trunk/rostests ."
-                }
+                IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/$_ROS_BRANCH/rostests ."
             } else {
-                 "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
             }
         }
     } else {
@@ -228,13 +216,9 @@ elseif ("$($args[0])" -eq "rostests") {
             Set-Location "modules\rostests"
             $dir = get-childitem
             if ("$dir" -eq "") {
-                if ("$ENV:ROS_ARCH" -eq "amd64") {
-                    IEX "& svn.exe checkout http://svn.reactos.org/reactos/branches/ros-amd64-bringup/rostests ."
-                } else {
-                    IEX "& svn.exe checkout http://svn.reactos.org/reactos/trunk/rostests ."
-                }
+                IEX "& svn.exe checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/rostests ."
             } else {
-                 "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
             }
         }
     }
