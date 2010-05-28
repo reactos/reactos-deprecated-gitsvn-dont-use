@@ -6,16 +6,26 @@
 # COPYRIGHT:   Copyright 2010 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
-# Set branch to trunk if one is not already set
-if ("$ENV:ROS_BRANCH" -eq "") {
-    $_ROS_BRANCH = "trunk"
+$ROS_SVNURL = "http://svn.reactos.org/reactos"
+
+if ("$ENV:ROS_ARCH" -eq "amd64") {
+    $ROS_SVNURL = "$ROS_SVNURL/branches/ros-amd64-bringup"
 } else {
-    $_ROS_BRANCH = "branches/$ENV:ROS_BRANCH"
+    if ("$ENV:ROS_BRANCH" -eq "") {
+        $ROS_SVNURL = "$ROS_SVNURL/trunk"
+    } else {
+        $ROS_SVNURL = "$ROS_SVNURL/branches/$ENV:ROS_BRANCH"
+    }
 }
 
-# AMD64 architecture overrides branch that was previously set
-if ("$ENV:ROS_ARCH" -eq "amd64") {
-    $_ROS_BRANCH = "branches/ros-amd64-bringup"
+wget --spider --no-verbose %ROS_SVNURL%/reactos 1> NUL 2> NUL
+
+if (ERRORLEVEL 1) {
+    $rsubfolder = ""
+    $disapptest = 1
+} else {
+    $rsubfolder = "/reactos"
+    $disapptest = 0
 }
 
 $_ROSBE_SSVNSOURCEDIR = "$pwd"
@@ -24,7 +34,7 @@ function UP($arg) {
     $OFFSVN = IEX "& svn.exe info" | select-string "Last Changed Rev:"
     $OFFSVN = $OFFSVN -replace "(.*)Last Changed Rev: ",''
     $OFFSVN = [CONVERT]::ToInt32($OFFSVN,10)
-    $ONSVN = IEX "& svn.exe info http://svn.reactos.org/reactos/$_ROS_BRANCH/reactos" | select-string "Last Changed Rev:"
+    $ONSVN = IEX "& svn.exe info $ROS_SVNURL$rsubfolder" | select-string "Last Changed Rev:"
     $ONSVN = $ONSVN -replace "(.*)Last Changed Rev: ",''
     $ONSVN = [CONVERT]::ToInt32($ONSVN,10)
     "Local Revision: $OFFSVN"
@@ -131,9 +141,9 @@ elseif ("$($args[0])" -eq "create") {
         $dir = get-childitem
         if ("$dir" -eq "") {
             if ("$($args[1])" -ne "") {
-                IEX "& svn.exe -r $($args[1]) checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/reactos ."
+                IEX "& svn.exe -r $($args[1]) checkout $ROS_SVNURL$rsubfolder ."
             } else {
-                IEX "& svn.exe checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/reactos ."
+                IEX "& svn.exe checkout $ROS_SVNURL$rsubfolder ."
             }
         } else {
             "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
@@ -143,86 +153,94 @@ elseif ("$($args[0])" -eq "create") {
 
 # Check if the folder is empty. If not, output an error.
 elseif ("$($args[0])" -eq "rosapps") {
-    if ("$($args[1])" -ne "") {
-        if (!(Test-Path "modules\rosapps\.")) {
-            new-item -path "modules" -name rosapps -type directory
-        }
-        if (Test-Path "modules\rosapps\.svn\.") {
-            $host.ui.RawUI.WindowTitle = "SVN RosApps Updating..."
-            Set-Location "modules\rosapps"
-            IEX "& svn.exe update -r $($args[1])"
-        } else {
-            $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
-            Set-Location "modules\rosapps"
-            $dir = get-childitem
-            if ("$dir" -eq "") {
-                IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/$_ROS_BRANCH/rosapps ."
+    if ("$disapptest" -eq "0") {
+        if ("$($args[1])" -ne "") {
+            if (!(Test-Path "modules\rosapps\.")) {
+                new-item -path "modules" -name rosapps -type directory
+            }
+            if (Test-Path "modules\rosapps\.svn\.") {
+                $host.ui.RawUI.WindowTitle = "SVN RosApps Updating..."
+                Set-Location "modules\rosapps"
+                IEX "& svn.exe update -r $($args[1])"
             } else {
-                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
+                Set-Location "modules\rosapps"
+                $dir = get-childitem
+                if ("$dir" -eq "") {
+                    IEX "& svn.exe checkout -r $($args[1]) $ROS_SVNURL/rosapps ."
+                } else {
+                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                }
+            }
+        } else {
+            if (!(Test-Path "modules\rosapps\.")) {
+                new-item -path "modules" -name rosapps -type directory
+            }
+            if (Test-Path "modules\rosapps\.svn\.") {
+                $host.ui.RawUI.WindowTitle = "SVN RosApps Updating..."
+                Set-Location "modules\rosapps"
+                IEX "& svn.exe update"
+            } else {
+                $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
+                Set-Location "modules\rosapps"
+                $dir = get-childitem
+                if ("$dir" -eq "") {
+                    IEX "& svn.exe checkout $ROS_SVNURL/rosapps ."
+                } else {
+                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                }
             }
         }
+        Set-Location "$_ROSBE_SSVNSOURCEDIR"
     } else {
-        if (!(Test-Path "modules\rosapps\.")) {
-            new-item -path "modules" -name rosapps -type directory
-        }
-        if (Test-Path "modules\rosapps\.svn\.") {
-            $host.ui.RawUI.WindowTitle = "SVN RosApps Updating..."
-            Set-Location "modules\rosapps"
-            IEX "& svn.exe update"
-        } else {
-            $host.ui.RawUI.WindowTitle = "SVN RosApps Creating..."
-            Set-Location "modules\rosapps"
-            $dir = get-childitem
-            if ("$dir" -eq "") {
-                IEX "& svn.exe checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/rosapps ."
-            } else {
-                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
-            }
-        }
+        "Rosapps and Rostests disabled."
     }
-    Set-Location "$_ROSBE_SSVNSOURCEDIR"
 }
 
 # Check if the folder is empty. If not, output an error.
 elseif ("$($args[0])" -eq "rostests") {
-    if ("$($args[1])" -ne "") {
-        if (!(Test-Path "modules\rostests\.")) {
-            new-item -path "modules" -name rostests -type directory
-        }
-        if (Test-Path "modules\rostests\.svn\.") {
-            $host.ui.RawUI.WindowTitle = "SVN RosTests Updating..."
-            Set-Location "modules\rostests"
-            IEX "& svn.exe update -r $($args[1])"
-        } else {
-            $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
-            Set-Location "modules\rostests"
-            $dir = get-childitem
-            if ("$dir" -eq "") {
-                IEX "& svn.exe checkout -r $($args[1]) http://svn.reactos.org/reactos/$_ROS_BRANCH/rostests ."
+    if ("$disapptest" -eq "0") {
+        if ("$($args[1])" -ne "") {
+            if (!(Test-Path "modules\rostests\.")) {
+                new-item -path "modules" -name rostests -type directory
+            }
+            if (Test-Path "modules\rostests\.svn\.") {
+                $host.ui.RawUI.WindowTitle = "SVN RosTests Updating..."
+                Set-Location "modules\rostests"
+                IEX "& svn.exe update -r $($args[1])"
             } else {
-                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
+                Set-Location "modules\rostests"
+                $dir = get-childitem
+                if ("$dir" -eq "") {
+                    IEX "& svn.exe checkout -r $($args[1]) $ROS_SVNURL/rostests ."
+                } else {
+                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                }
+            }
+        } else {
+            if (!(Test-Path "modules\rostests\.")) {
+                new-item -path "modules" -name rostests -type directory
+            }
+            if (Test-Path "modules\rostests\.svn\.") {
+                $host.ui.RawUI.WindowTitle = "SVN RosTests Updating..."
+                Set-Location "modules\rostests"
+                IEX "& svn.exe update"
+            } else {
+                $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
+                Set-Location "modules\rostests"
+                $dir = get-childitem
+                if ("$dir" -eq "") {
+                    IEX "& svn.exe checkout $ROS_SVNURL/rostests ."
+                } else {
+                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                }
             }
         }
+        Set-Location "$_ROSBE_SSVNSOURCEDIR"
     } else {
-        if (!(Test-Path "modules\rostests\.")) {
-            new-item -path "modules" -name rostests -type directory
-        }
-        if (Test-Path "modules\rostests\.svn\.") {
-            $host.ui.RawUI.WindowTitle = "SVN RosTests Updating..."
-            Set-Location "modules\rostests"
-            IEX "& svn.exe update"
-        } else {
-            $host.ui.RawUI.WindowTitle = "SVN RosTests Creating..."
-            Set-Location "modules\rostests"
-            $dir = get-childitem
-            if ("$dir" -eq "") {
-                IEX "& svn.exe checkout http://svn.reactos.org/reactos/$_ROS_BRANCH/rostests ."
-            } else {
-                "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
-            }
-        }
+        "Rosapps and Rostests disabled."
     }
-    Set-Location "$_ROSBE_SSVNSOURCEDIR"
 }
 
 # Output the revision of the local and online trees and tell the user if

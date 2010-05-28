@@ -14,15 +14,26 @@ if %_ROSBE_DEBUG% == 1 (
 
 setlocal enabledelayedexpansion
 
-:: Set branch to trunk if one is not already set
-if not defined ROS_BRANCH (
-    set _ROS_BRANCH=trunk
-) else (
-    set _ROS_BRANCH=branches/%ROS_BRANCH%
-)
-:: AMD64 architecture overrides branch that was previously set
+set ROS_SVNURL=http://svn.reactos.org/reactos
+
 if "%ROS_ARCH%" == "amd64" (
-    set _ROS_BRANCH=branches/ros-amd64-bringup
+    set ROS_SVNURL=%ROS_SVNURL%/branches/ros-amd64-bringup
+) else (
+    if not defined ROS_BRANCH (
+        set ROS_SVNURL=%ROS_SVNURL%/trunk
+    ) else (
+        set ROS_SVNURL=%ROS_SVNURL%/branches/%ROS_BRANCH%
+    )
+)
+
+wget --spider --no-verbose %ROS_SVNURL%/reactos 1> NUL 2> NUL
+
+if ERRORLEVEL 1 (
+    set rsubfolder=
+    set disapptest=1
+) else (
+    set rsubfolder=/reactos
+    set disapptest=0
 )
 
 set _ROSBE_SSVNSOURCEDIR=%CD%
@@ -44,9 +55,7 @@ if /i "%1" == "update" (
 
 if /i "%1" == "cleanup" (
     title SVN Cleaning...
-
     svn.exe cleanup
-
     goto :EOC
 )
 
@@ -61,9 +70,9 @@ if /i "%1" == "create" (
     dir /b 2>nul | findstr "." >nul
     if errorlevel 1 (
         if not "%2" == "" (
-            svn.exe checkout -r %2 http://svn.reactos.org/reactos/%_ROS_BRANCH%/reactos .
+            svn.exe checkout -r %2 %ROS_SVNURL%%rsubfolder% .
         ) else (
-            svn.exe checkout http://svn.reactos.org/reactos/%_ROS_BRANCH%/reactos .
+            svn.exe checkout %ROS_SVNURL%%rsubfolder% .
         )
     ) else (
         echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
@@ -73,88 +82,96 @@ if /i "%1" == "create" (
 
 :: Check if the folder is empty. If not, output an error.
 if /i "%1" == "rosapps" (
-    if not "%2" == "" (
-        if not exist "modules\rosapps\." (
-            md "modules\rosapps"
-        )
-        if exist "modules\rosapps\.svn\." (
-            title SVN RosApps Updating...
-            cd "modules\rosapps"
-            svn.exe update -r %2
-        ) else (
-            title SVN RosApps Creating...
-            cd "modules\rosapps"
-            dir /b 2>nul | findstr "." >nul
-            if errorlevel 1 (
-                svn.exe checkout -r %2 http://svn.reactos.org/reactos/%_ROS_BRANCH%/rosapps .
+    if "%disapptest%" == "0" (
+        if not "%2" == "" (
+            if not exist "modules\rosapps\." (
+                md "modules\rosapps"
+            )
+            if exist "modules\rosapps\.svn\." (
+                title SVN RosApps Updating...
+                cd "modules\rosapps"
+                svn.exe update -r %2
             ) else (
-                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+                title SVN RosApps Creating...
+                cd "modules\rosapps"
+                dir /b 2>nul | findstr "." >nul
+                if errorlevel 1 (
+                    svn.exe checkout -r %2 %ROS_SVNURL%/rosapps .
+                ) else (
+                    echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+                )
+            )
+        ) else (
+            if not exist "modules\rosapps\." (
+                md "modules\rosapps"
+            )
+            if exist "modules\rosapps\.svn\." (
+                title SVN RosApps Updating...
+                cd "modules\rosapps"
+                svn.exe update
+            ) else (
+                title SVN RosApps Creating...
+                cd "modules\rosapps"
+                dir /b 2>nul | findstr "." >nul
+                if errorlevel 1 (
+                    svn.exe checkout %ROS_SVNURL%/rosapps .
+                ) else (
+                    echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+                )
             )
         )
+        cd "%_ROSBE_SSVNSOURCEDIR%"
+        goto :EOC
     ) else (
-        if not exist "modules\rosapps\." (
-            md "modules\rosapps"
-        )
-        if exist "modules\rosapps\.svn\." (
-            title SVN RosApps Updating...
-            cd "modules\rosapps"
-            svn.exe update
-        ) else (
-            title SVN RosApps Creating...
-            cd "modules\rosapps"
-            dir /b 2>nul | findstr "." >nul
-            if errorlevel 1 (
-                svn.exe checkout http://svn.reactos.org/reactos/%_ROS_BRANCH%/rosapps .
-            ) else (
-                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
-            )
-        )
+        echo Rosapps and Rostests disabled.
     )
-    cd "%_ROSBE_SSVNSOURCEDIR%"
-    goto :EOC
 )
 
 :: Check if the folder is empty. If not, output an error.
 if /i "%1" == "rostests" (
-    if not "%2" == "" (
-        if not exist "modules\rostests\." (
-            md "modules\rostests"
-        )
-        if exist "modules\rostests\.svn\." (
-            title SVN RosTests Updating...
-            cd "modules\rostests"
-            svn.exe update -r %2
-        ) else (
-            title SVN RosTests Creating...
-            cd "modules\rostests"
-            dir /b 2>nul | findstr "." >nul
-            if errorlevel 1 (
-                svn.exe checkout -r %2 http://svn.reactos.org/reactos/%_ROS_BRANCH%/rostests .
+    if "%disapptest%" == "0" (
+        if not "%2" == "" (
+            if not exist "modules\rostests\." (
+                md "modules\rostests"
+            )
+            if exist "modules\rostests\.svn\." (
+                title SVN RosTests Updating...
+                cd "modules\rostests"
+                svn.exe update -r %2
             ) else (
-                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+                title SVN RosTests Creating...
+                cd "modules\rostests"
+                dir /b 2>nul | findstr "." >nul
+                if errorlevel 1 (
+                    svn.exe checkout -r %2 %ROS_SVNURL%/rostests .
+                ) else (
+                    echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+                )
+            )
+        ) else (
+            if not exist "modules\rostests\." (
+                md "modules\rostests"
+            )
+            if exist "modules\rostests\.svn\." (
+                title SVN RosTests Updating...
+                cd "modules\rostests"
+                svn.exe update
+            ) else (
+                title SVN RosTests Creating...
+                cd "modules\rostests"
+                dir /b 2>nul | findstr "." >nul
+                if errorlevel 1 (
+                    svn.exe checkout %ROS_SVNURL%/rostests .
+                ) else (
+                    echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
+                )
             )
         )
+        cd "%_ROSBE_SSVNSOURCEDIR%"
+        goto :EOC
     ) else (
-        if not exist "modules\rostests\." (
-            md "modules\rostests"
-        )
-        if exist "modules\rostests\.svn\." (
-            title SVN RosTests Updating...
-            cd "modules\rostests"
-            svn.exe update
-        ) else (
-            title SVN RosTests Creating...
-            cd "modules\rostests"
-            dir /b 2>nul | findstr "." >nul
-            if errorlevel 1 (
-                svn.exe checkout http://svn.reactos.org/reactos/%_ROS_BRANCH/rostests .
-            ) else (
-                echo ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED
-            )
-        )
+        echo Rosapps and Rostests disabled.
     )
-    cd "%_ROSBE_SSVNSOURCEDIR%"
-    goto :EOC
 )
 
 :: Output the revision of the local and online trees and tell the user if
@@ -174,7 +191,7 @@ goto EOC
 
 :UP
     for /f "usebackq tokens=4" %%i in (`"svn.exe info | find "Last Changed Rev:""`) do set OFFSVN=%%i
-    for /f "usebackq tokens=4" %%j in (`"svn.exe info http://svn.reactos.org/reactos/%_ROS_BRANCH%/reactos | find "Last Changed Rev:""`) do set ONSVN=%%j
+    for /f "usebackq tokens=4" %%j in (`"svn.exe info %ROS_SVNURL%%rsubfolder% | find "Last Changed Rev:""`) do set ONSVN=%%j
 
     echo Local Revision: !OFFSVN!
     echo Online HEAD Revision: !ONSVN!
