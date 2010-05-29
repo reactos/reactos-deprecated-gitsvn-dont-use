@@ -25,14 +25,14 @@ $TOOLMODE = $args[1]
 if ("$TOOLPATH" -eq "") {
     $TOOLPATH = Read-Host "Please enter a MinGW/GCC directory (don't use quotes): "
     if ($TOOLPATH.length -eq 0) {
-        "ERROR: You must enter a MinGW/GCC directory."
+        throw {"ERROR: You must enter a MinGW/GCC directory."}
         settitle
     }
 }
 if ("$TOOLMODE" -eq "") {
     $TOOLMODE = Read-Host "Please specify, if this will be the Target or Host GCC: "
     if ($TOOLMODE.length -eq 0) {
-        "ERROR: You must enter ""target"" or ""host""."
+        throw {"ERROR: You must enter ""target"" or ""host""."}
         settitle
     }
 }
@@ -42,12 +42,12 @@ $local:ErrorActionPreference = "SilentlyContinue"
 if (Test-Path "$_ROSBE_BASEDIR\$TOOLPATH\.") {
     $TOOLPATH = "$_ROSBE_BASEDIR\$TOOLPATH"
 } elseif (!(Test-Path "$TOOLPATH\.")) {
-    "ERROR: The path specified doesn't seem to exist."
+    throw {"ERROR: The path specified doesn't seem to exist."}
     settitle
 }
 $local:ErrorActionPreference = "Continue"
 if (!(Test-Path "$TOOLPATH\bin\*gcc.exe")) {
-    "ERROR: No MinGW/GCC found in the specified path."
+    throw {"ERROR: No MinGW/GCC found in the specified path."}
     settitle
 }
 
@@ -61,6 +61,6 @@ if ("$TOOLMODE" -eq "target") {
     "Host Location: $_ROSBE_HOST_MINGWPATH"
     EOA
 } else {
-    "ERROR: You specified wrong parameters."
+    throw {"ERROR: You specified wrong parameters."}
     settitle
 }

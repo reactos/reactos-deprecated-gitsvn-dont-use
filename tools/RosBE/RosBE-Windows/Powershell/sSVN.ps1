@@ -17,12 +17,17 @@ if ("$ENV:ROS_ARCH" -eq "amd64") {
         $ROS_SVNURL = "$ROS_SVNURL/branches/$ENV:ROS_BRANCH"
     }
 }
-
-wget --spider --no-verbose %ROS_SVNURL%/reactos 1> NUL 2> NUL
-
-if (ERRORLEVEL 1) {
-    $rsubfolder = ""
-    $disapptest = 1
+"$ROS_SVNURL"
+get-webfile $ROS_SVNURL/reactos "$ENV:TEMP\tmp"
+if ("$_ROSBE_DWERRLVL" -eq "1") {
+    get-webfile $ROS_SVNURL "$ENV:TEMP\tmp2"
+    if ("$_ROSBE_DWERRLVL" -eq "1") {
+        throw {"ERROR: The selected branch does not exist or the Internet Connection is down."}
+        exit
+    } else {
+        $rsubfolder = ""
+        $disapptest = 1
+    }
 } else {
     $rsubfolder = "/reactos"
     $disapptest = 0
@@ -135,7 +140,7 @@ elseif ("$($args[0])" -eq "cleanup") {
 elseif ("$($args[0])" -eq "create") {
     $host.ui.RawUI.WindowTitle = "SVN Creating..."
     if (Test-Path ".svn\.") {
-        "ERROR: Folder already contains a repository."
+        throw {"ERROR: Folder already contains a repository."}
     } else {
         $null = (Remove-Item "$_ROSBE_LOGDIR" -recurse -force)
         $dir = get-childitem
@@ -146,7 +151,7 @@ elseif ("$($args[0])" -eq "create") {
                 IEX "& svn.exe checkout $ROS_SVNURL$rsubfolder ."
             }
         } else {
-            "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+            throw {"ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"}
         }
     }
 }
@@ -169,7 +174,7 @@ elseif ("$($args[0])" -eq "rosapps") {
                 if ("$dir" -eq "") {
                     IEX "& svn.exe checkout -r $($args[1]) $ROS_SVNURL/rosapps ."
                 } else {
-                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                    throw {"ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"}
                 }
             }
         } else {
@@ -187,7 +192,7 @@ elseif ("$($args[0])" -eq "rosapps") {
                 if ("$dir" -eq "") {
                     IEX "& svn.exe checkout $ROS_SVNURL/rosapps ."
                 } else {
-                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                    throw {"ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"}
                 }
             }
         }
@@ -215,7 +220,7 @@ elseif ("$($args[0])" -eq "rostests") {
                 if ("$dir" -eq "") {
                     IEX "& svn.exe checkout -r $($args[1]) $ROS_SVNURL/rostests ."
                 } else {
-                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                    throw {"ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"}
                 }
             }
         } else {
@@ -233,7 +238,7 @@ elseif ("$($args[0])" -eq "rostests") {
                 if ("$dir" -eq "") {
                     IEX "& svn.exe checkout $ROS_SVNURL/rostests ."
                 } else {
-                    "ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"
+                    throw {"ERROR: Folder is not empty. Continuing is dangerous and can cause errors. ABORTED"}
                 }
             }
         }

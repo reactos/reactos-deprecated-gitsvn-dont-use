@@ -12,7 +12,7 @@ if ($args.count -eq 0) {
     # Parse the command line arguments.
     $ARCH = Read-Host "Please enter a Architecture you want to build ReactOS for: "
     if ($ARCH.length -eq 0) {
-        "ERROR: You must enter a Architecture."
+        throw {"ERROR: You must enter a Architecture."}
     }
 } else {
     $ARCH = $args

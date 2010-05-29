@@ -15,7 +15,7 @@ function remlog {
         $null = (Remove-Item -path "$_ROSBE_LOGDIR\*.txt" -force)
         "Done cleaning build logs."
     } else {
-        "ERROR: There are no logs to clean."
+        throw {"ERROR: There are no logs to clean."}
     }
 }
 
@@ -55,7 +55,7 @@ function rembin {
 
         "Done cleaning ReactOS $ENV:ROS_ARCH source directory."
     } else {
-        "ERROR: This directory contains no $ENV:ROS_ARCH compiler output to clean."
+        throw {"ERROR: This directory contains no $ENV:ROS_ARCH compiler output to clean."}
     }
 }
 

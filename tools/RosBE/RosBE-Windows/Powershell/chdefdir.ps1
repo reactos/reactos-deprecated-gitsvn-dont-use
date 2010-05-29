@@ -13,7 +13,7 @@ $host.ui.RawUI.WindowTitle = "Change the current working ReactOS source director
 if ($args.count -eq 0) {
     $SOURCEDIR = Read-Host "Please enter a ReactOS source directory, or 'previous': "
     if ($SOURCEDIR.length -eq 0) {
-        "ERROR: You must enter a ReactOS source directory, or 'previous'."
+        throw {"ERROR: You must enter a ReactOS source directory, or 'previous'."}
     }
 } else {
     $SOURCEDIR = $args
@@ -22,7 +22,7 @@ if ("$SOURCEDIR" -eq "previous") {
     pop-location
 } else {
     if (!(Test-Path "$SOURCEDIR\.")) {
-        "ERROR: The path specified doesn't seem to exist."
+        throw {"ERROR: The path specified doesn't seem to exist."}
     }
     push-location "$SOURCEDIR"
 }

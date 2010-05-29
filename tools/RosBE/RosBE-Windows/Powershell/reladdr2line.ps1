@@ -27,10 +27,10 @@ elseif ($args.length -lt 2) {
 
 # Check if parameters were really given
 if ("$FILEPATH" -eq "") {
-    "ERROR: You must specify a path/file to examine."
+    throw {"ERROR: You must specify a path/file to examine."}
 }
 if ("$ADDRESS" -eq "") {
-    "ERROR: You must specify a address to analyze."
+    throw {"ERROR: You must specify a address to analyze."}
 }
 
 if ("$ENV:ROS_OUTPUT" -ne "") {

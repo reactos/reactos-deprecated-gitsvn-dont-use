@@ -13,13 +13,17 @@ $_ROSBE_BASEDIR = "$($args[1])"
 
 # Web Downloader in a function.
 
-function global:Get-WebFile {
+function Get-WebFile {
     param(
         $url = $null,
         $file = $null
     )
     $local:ErrorActionPreference = "SilentlyContinue"
     $clnt = new-object System.Net.WebClient
+    $global:_ROSBE_DWERRLVL = "0"
+    trap [Exception] {
+        $global:_ROSBE_DWERRLVL = "1"
+    }
     $clnt.DownloadFile($url,$file)
     $local:ErrorActionPreference = "Continue"
 }
@@ -54,7 +58,7 @@ function UPDCHECK {
                 IEX "& .\$_ROSBE_VERSION-$_ROSBE_STATCOUNT.ps1"
                 return
             } else {
-                "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
+                throw {"ERROR: This Update does not seem to exist or the Internet connection is not working correctly."}
                 return
             }
         } elseif (("$YESNO" -eq "no") -or ("$YESNO" -eq "n")) {
@@ -67,7 +71,7 @@ function UPDCHECK {
         }
     } else {
         if ($_ROSBE_MULTIUPD -ne 1) {
-            "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
+            throw {"ERROR: This Update does not seem to exist or the Internet connection is not working correctly."}
         }
         $_ROSBE_STATCOUNT = 9
         return
@@ -85,7 +89,7 @@ set-location $_ROSBE_BASEDIR
 # First check for a new Updater.
 rename-item update.ps1 update2.ps1
 get-webfile $_ROSBE_URL/update.ps1 $PWD\update.ps1
-if ((gi .\update.ps1).length -ne (gi .\update2.ps1).length) {
+if (((gi .\update.ps1).length -ne (gi .\update2.ps1).length) -and ((gi .\update.ps1).length -gt 0)) {
     clear-host
     "Updater got updated and needs to be restarted."
     remove-item update2.ps1 -force
@@ -127,7 +131,7 @@ if ("$($args[2])" -eq "") {
         if (Test-Path "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt") {
             get-content "$_ROSBE_VERSION-$_ROSBE_STATCOUNT.txt"
         } else {
-            "ERROR: This Update does not seem to exist or the Internet connection is not working correctly."
+            throw {"ERROR: This Update does not seem to exist or the Internet connection is not working correctly."}
         }
     }
     set-location ..

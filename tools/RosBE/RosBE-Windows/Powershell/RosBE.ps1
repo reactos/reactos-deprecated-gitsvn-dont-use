@@ -16,6 +16,23 @@ if ($ENV:APPDATA.Length -lt 1) {
     $ENV:APPDATA = $ENV:USERPROFILE
 }
 
+# Web Downloader in a function.
+
+function global:Get-WebFile {
+    param(
+        $url = $null,
+        $file = $null
+    )
+    $local:ErrorActionPreference = "SilentlyContinue"
+    $clnt = new-object System.Net.WebClient
+    $global:_ROSBE_DWERRLVL = "0"
+    trap [Exception] {
+        $global:_ROSBE_DWERRLVL = "1"
+    }
+    $clnt.DownloadFile($url,$file)
+    $local:ErrorActionPreference = "Continue"
+}
+
 # Set defaults to work with and override them if edited by
 # the options utility.
 if ("$args" -eq "") {

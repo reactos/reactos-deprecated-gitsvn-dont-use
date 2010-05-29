@@ -29,8 +29,14 @@ if "%ROS_ARCH%" == "amd64" (
 wget --spider --no-verbose %ROS_SVNURL%/reactos 1> NUL 2> NUL
 
 if ERRORLEVEL 1 (
-    set rsubfolder=
-    set disapptest=1
+    wget --spider --no-verbose %ROS_SVNURL% 1> NUL 2> NUL
+    if ERRORLEVEL 1 (
+        echo The selected branch does not exist or the Internet Connection is down.
+        goto :EOC
+    ) else (
+        set rsubfolder=
+        set disapptest=1
+    )
 ) else (
     set rsubfolder=/reactos
     set disapptest=0
@@ -187,7 +193,7 @@ if /i "%1" == "status" (
 if not "%1" == "" (
     echo Unknown parameter specified. Try 'help ssvn'.
 )
-goto EOC
+goto :EOC
 
 :UP
     for /f "usebackq tokens=4" %%i in (`"svn.exe info | find "Last Changed Rev:""`) do set OFFSVN=%%i
@@ -206,7 +212,7 @@ goto EOC
     )
     if !OFFSVN! equ !ONSVN! (
         echo Your tree is up to date.
-        goto EOC
+        goto :EOC
     )
 
     if "!_ROSBE_SSVN_JOB!" == "update" (
@@ -263,7 +269,7 @@ goto EOC
         )
     )
 
-goto EOC
+goto :EOC
 
 :EOC
 title ReactOS Build Environment %_ROSBE_VERSION%

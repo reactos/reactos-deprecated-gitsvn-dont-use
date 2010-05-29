@@ -3,7 +3,7 @@
 # LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 # FILE:        Root/options.ps1
 # PURPOSE:     Starts options.exe and restarts RosBE afterwards.
-# COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
+# COPYRIGHT:   Copyright 2010 Daniel Reimer <reimer.daniel@freenet.de>
 #
 
 $host.ui.RawUI.WindowTitle = "Options"
@@ -26,7 +26,7 @@ if (Test-Path "$_ROSBE_BASEDIR\Tools\options.exe") {
         & "$cfgfile"
     }
 } else {
-    "ERROR: options executable was not found."
+    throw {"ERROR: options executable was not found."}
 }
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
