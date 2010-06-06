@@ -58,6 +58,7 @@
     </InstallExecuteSequence>
     <CustomAction Id="PreventDowngrading" Error="Newer version already installed." />
 
+    <WixVariable Id="WixUICostingPopupOptOut" Value="1" Overridable="yes" />
 
     <UI Id="WixUI_InstallDir">
       <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
