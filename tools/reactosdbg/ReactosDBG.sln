@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosDBG", "RosDBG\RosDBG.csproj", "{FB776BFE-D2C2-465E-B713-6AD82CAE1A39}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C} = {D5599C1D-3A8B-4EBA-B54A-1B17E68CDC6C}
