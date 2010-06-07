@@ -226,22 +226,8 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFilecmd, L"color %X%X\n", background, foreground);
         fwprintf(pFilecmd, L"set _ROSBE_SHOWTIME=%d\n", showtime);
         fwprintf(pFilecmd, L"set _ROSBE_USECCACHE=%d\n", useccache);
-        if (strip == 1)
-        {
-            fwprintf(pFilecmd, L"set ROS_LEAN_AND_MEAN=yes\n");
-        }
-        else
-        {
-            fwprintf(pFilecmd, L"set ROS_LEAN_AND_MEAN=no\n");
-        }
-        if (nostrip == 1)
-        {
-            fwprintf(pFilecmd, L"set ROS_BUILDNOSTRIP=yes\n");
-        }
-        else
-        {
-            fwprintf(pFilecmd, L"set ROS_BUILDNOSTRIP=no\n");
-        }
+        fwprintf(pFilecmd, L"set ROS_LEAN_AND_MEAN=%s\n", (strip == 1) ? "yes" : "no");
+        fwprintf(pFilecmd, L"set ROS_BUILDNOSTRIP=%s\n", (nostrip == 1) ? "yes" : "no");
         fwprintf(pFilecmd, L"set _ROSBE_WRITELOG=%d\n", writelog);
         fwprintf(pFilecmd, L"set _ROSBE_SHOWVERSION=%d\n", showversion);
         if (logdir[0] != 0)
@@ -285,22 +271,8 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFileps1, L"clear-host\n");
         fwprintf(pFileps1, L"$global:_ROSBE_SHOWTIME = %d\n", showtime);
         fwprintf(pFileps1, L"$global:_ROSBE_USECCACHE = %d\n", useccache);
-        if (strip == 1)
-        {
-            fwprintf(pFileps1, L"$ENV:ROS_LEAN_AND_MEAN = \"yes\"\n");
-        }
-        else
-        {
-            fwprintf(pFileps1, L"$ENV:ROS_LEAN_AND_MEAN = \"no\"\n");
-        }
-        if (nostrip == 1)
-        {
-            fwprintf(pFileps1, L"$ENV:ROS_BUILDNOSTRIP = \"yes\"\n");
-        }
-        else
-        {
-            fwprintf(pFileps1, L"$ENV:ROS_BUILDNOSTRIP = \"no\"\n");
-        }
+		fwprintf(pFilecmd, L"$ENV:ROS_LEAN_AND_MEAN=\"%s\"\n", (strip == 1) ? "yes" : "no");
+        fwprintf(pFilecmd, L"$ENV:ROS_BUILDNOSTRIP=\"%s\"\n", (nostrip == 1) ? "yes" : "no");
         fwprintf(pFileps1, L"$global:_ROSBE_WRITELOG = %d\n", writelog);
         fwprintf(pFileps1, L"$global:_ROSBE_SHOWVERSION = %d\n", showversion);
         if (logdir[0] != 0)
