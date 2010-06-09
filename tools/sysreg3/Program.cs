@@ -22,7 +22,7 @@ namespace sysreg3
         string machineName = "ReactOS";
         int maxRetries = 3;
         int numStages = 3;
-        int vmTimeout = 5 * 1000; // 120 secs
+        int vmTimeout = 30 * 1000; // 120 secs
 
         IMachine rosVM;
         IVirtualBox vBox;
@@ -73,7 +73,7 @@ namespace sysreg3
                         if (waitingTime >= vmTimeout)
                         {
                             /* We hit the timeout, quit */
-                            Console.WriteLine("[SYSREG] Timeout");
+                            Console.WriteLine("[SYSREG] timeout");
                             Result = ContinueType.EXIT_CONTINUE;
                             quitLoop = true;
                             break;
@@ -147,6 +147,7 @@ namespace sysreg3
 
         public void RunTests()
         {
+            ContinueType Ret = ContinueType.EXIT_DONT_CONTINUE;
             IProgress vmProgress;
 
             // TODO: Load settings
@@ -188,7 +189,8 @@ namespace sysreg3
             /* Start main testing loop */
             for (int stage = 0; stage < numStages; stage++)
             {
-                for (int retries = 0; retries < maxRetries; retries++)
+                int retries;
+                for (retries = 0; retries < maxRetries; retries++)
                 {
                     /* Start the VM */
                     try
@@ -210,7 +212,7 @@ namespace sysreg3
                         Console.WriteLine("[SYSREG] Running stage {0}...", stage + 1);
                         Console.WriteLine("[SYSREG] Domain {0} started.\n", rosVM.Name);
 
-                        ContinueType Ret = ProcessDebugOutput(vmSession, stage);
+                        Ret = ProcessDebugOutput(vmSession, stage);
 
                         /* Kill the VM */
                         vmProgress = vmSession.Console.PowerDown();
@@ -229,14 +231,33 @@ namespace sysreg3
                     }
                     catch (Exception exc)
                     {
-                        Console.WriteLine("Running the VM failed with exception: " + exc.ToString());
+                        Console.WriteLine("[SYSREG] Running the VM failed with exception: " + exc.ToString());
                         break;
                     }
+                }
 
+                /* Check for a maximum number of retries */
+                if (retries == maxRetries)
+                {
+                    Console.WriteLine("[SYSREG] Maximum number of allowed retries exceeded, aborting!");
                     break;
                 }
 
-                break;
+                /* Stop executing if asked so */
+                if (Ret == ContinueType.EXIT_DONT_CONTINUE) break;
+            }
+
+            switch (Ret)
+            {
+                case ContinueType.EXIT_CHECKPOINT_REACHED:
+                    Console.WriteLine("[SYSREG] Status: Reached the checkpoint!");
+                    break;
+                case ContinueType.EXIT_CONTINUE:
+                    Console.WriteLine("[SYSREG] Status: Failed to reach the checkpoint!!");
+                    break;
+                case ContinueType.EXIT_DONT_CONTINUE:
+                    Console.WriteLine("[SYSREG] Status: Testing process aborted!");
+                    break;
             }
         }
     }
