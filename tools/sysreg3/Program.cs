@@ -19,10 +19,13 @@ namespace sysreg3
 {
     class RegTester
     {
-        string machineName = "ReactOS";
+        string machineName = "ReactOS Testbot";
+        string dbgPortPath = "C:\\testbot.txt";
         int maxRetries = 3;
         int numStages = 3;
-        int vmTimeout = 30 * 1000; // 120 secs
+        int vmTimeout = 120 * 1000; // 120 secs
+
+        ulong hddSize = 2048;
 
         IMachine rosVM;
         IVirtualBox vBox;
@@ -34,12 +37,17 @@ namespace sysreg3
             EXIT_DONT_CONTINUE
         }
 
-        const String stageCheckpoint = "SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE";
+        String[] stageCheckpoint;
 
         public RegTester()
         {
             /* Create VBox instance */
             vBox = new VirtualBox.VirtualBox();
+
+            stageCheckpoint = new String[3];
+            stageCheckpoint[0] = "It's the final countdown...";
+            stageCheckpoint[1] = "It's the final countdown...";
+            stageCheckpoint[2] = "SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE";
         }
 
         private ContinueType ProcessDebugOutput(ISession vmSession, int stage)
@@ -122,7 +130,7 @@ namespace sysreg3
                             quitLoop = true;
                             break;
                         }
-                        else if (stage == 2 && line.Contains(stageCheckpoint))
+                        else if (line.Contains(stageCheckpoint[stage]))
                         {
                             Result = ContinueType.EXIT_CHECKPOINT_REACHED;
                             quitLoop = true;
@@ -143,6 +151,83 @@ namespace sysreg3
             }
 
             return Result;
+        }
+
+        private void CreateHardDisk(Session vmSession)
+        {
+            IMedium rosHdd;
+            IProgress progress;
+            IStorageController controller;
+
+            /* Create the hdd and storage */
+            rosHdd = vBox.CreateHardDisk(null, "ReactOS Testbot.vdi");
+            progress = rosHdd.CreateBaseStorage(hddSize, MediumVariant.MediumVariant_Standard);
+            progress.WaitForCompletion(-1);
+
+            /* Attach it to the vm */
+            controller = rosVM.GetStorageControllerByInstance(0);
+            vmSession.Machine.SaveSettings();
+            vmSession.Machine.AttachDevice(controller.Name, 0, 0, DeviceType.DeviceType_HardDisk, rosHdd.Id);
+            vmSession.Machine.SaveSettings();
+        }
+
+        private void EmptyHardDisk(Session vmSession)
+        {
+            IProgress progress;
+            IStorageController controller;
+            IMedium rosHdd;// = rosVM.GetMedium("IDE Controller", 0, 0);
+
+            try
+            {
+                rosHdd = vBox.FindHardDisk("ReactOS Testbot.vdi");
+            }
+            catch (Exception exc)
+            {
+                /* Opening failed. Probably we need to create it */
+                //Console.WriteLine("[SYSREG] Finding hdd failed: " + exc.ToString());
+                CreateHardDisk(vmSession);
+                return;
+            }
+
+            /* Delete the existing hdd */
+            controller = rosVM.GetStorageControllerByInstance(0);
+            vmSession.Machine.DetachDevice(controller.Name, 0, 0);
+            vmSession.Machine.SaveSettings();
+
+            progress = rosHdd.DeleteStorage();
+            progress.WaitForCompletion(-1);
+            rosHdd.Close();
+
+            /* Create a new one */
+            CreateHardDisk(vmSession);
+        }
+
+        private void EmptyDebugLog(Session vmSession)
+        {
+            try
+            {
+                ISerialPort dbgPort = vmSession.Machine.GetSerialPort(0);
+                FileStream dbgFile = File.Open(dbgPort.Path, FileMode.Truncate);
+                dbgFile.Close();
+            }
+            catch
+            {
+                /* Don't care about the exceptions here */
+            }
+        }
+
+        private void ConfigVm(Session vmSession)
+        {
+            /* Check serial port */
+            ISerialPort dbgPort = vmSession.Machine.GetSerialPort(0);
+
+            if (dbgPort.Enabled == 0)
+            {
+                /* Create it */
+                dbgPort.Enabled = 1;
+                dbgPort.Path = dbgPortPath;
+                dbgPort.HostMode = PortMode.PortMode_RawFile;
+            }
         }
 
         public void RunTests()
@@ -167,21 +252,15 @@ namespace sysreg3
             }
 
             vBox.OpenSession(vmSession, rosVM.Id);
-            //vmProgress.WaitForCompletion(-1);
 
-            // TODO: Empty the HDD, prepare for the first run
+            /* Configure the virtual machine */
+            ConfigVm(vmSession);
+
+            /* Empty or create the HDD, prepare for the first run */
+            EmptyHardDisk(vmSession);
 
             /* Empty the debug log file */
-            try
-            {
-                ISerialPort dbgPort = vmSession.Machine.GetSerialPort(0);
-                FileStream dbgFile = File.Open(dbgPort.Path, FileMode.Truncate);
-                dbgFile.Close();
-            }
-            catch
-            {
-                /* Don't care about the exceptions here */
-            }
+            EmptyDebugLog(vmSession);
 
             /* Close VM session */
             vmSession.Close();
@@ -224,17 +303,25 @@ namespace sysreg3
                         if (stage == 2 && Ret == ContinueType.EXIT_CONTINUE)
                             Console.WriteLine("[SYSREG] Rebooting VM (retry {0})", retries + 1);
                         else
-                            break;
+                        {
+                            /* Empty the debug log file */
+                            EmptyDebugLog(vmSession);
 
-                        /* Close VM session */
-                        vmSession.Close();
+                            /* Close VM session */
+                            vmSession.Close();
+
+                            break;
+                        }
                     }
                     catch (Exception exc)
                     {
                         Console.WriteLine("[SYSREG] Running the VM failed with exception: " + exc.ToString());
-                        break;
+                        //break;
                     }
                 }
+
+                /* Wait till the machine state is actually closed (no vmProgress alas) */
+                //while (vmSession.State != SessionState.SessionState_Closed) Thread.Sleep(1000);
 
                 /* Check for a maximum number of retries */
                 if (retries == maxRetries)
