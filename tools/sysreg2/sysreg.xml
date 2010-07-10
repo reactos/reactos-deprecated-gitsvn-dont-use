@@ -11,7 +11,7 @@
 		<maxcachehits value="50" />
 
 		<!-- Maximum number of retries allowed before we cancel the entire testing process. -->
-		<maxretries value="20" />
+		<maxretries value="35" />
 	</general>
 	<firststage bootdevice="cdrom">
 	</firststage>
