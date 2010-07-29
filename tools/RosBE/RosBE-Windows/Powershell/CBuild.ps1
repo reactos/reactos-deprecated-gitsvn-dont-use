@@ -43,7 +43,7 @@ if (!(Test-Path "build")) {
     }
 
 cd build
-&{IEX "&'cmake.exe' -G ""MinGW Makefiles"" ..\"}
+&{IEX "&'cmake.exe' -G 'MinGW Makefiles' ..\"}
 
 if ($_ROSBE_WRITELOG -eq 1) {
     &{IEX "&'mingw32-make.exe' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file1
@@ -59,7 +59,7 @@ if (!(Test-Path "build-ros")) {
     }
 
 cd build-ros
-&{IEX "&'cmake.exe' -G ""MinGW Makefiles"" -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake ..\"}
+&{IEX "&'cmake.exe' -G 'MinGW Makefiles' '-DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake' ..\"}
 
 if ($_ROSBE_WRITELOG -eq 1) {
     &{IEX "&'mingw32-make.exe' -j $MAKE_JOBS $($args)"} $($args) 2>&1 | tee-object $file2
