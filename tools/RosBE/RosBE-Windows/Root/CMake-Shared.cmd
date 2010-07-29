@@ -18,12 +18,6 @@ if %_ROSBE_WRITELOG% == 1 (
     )
 )
 
-if not exist "output-%ROS_ARCH%\." (
-    mkdir "output-%ROS_ARCH%" 1> NUL 2> NUL
-)
-
-cd "output-%ROS_ARCH%"
-
 :: Get the current date and time for use in in our build log's file name.
 call "%_ROSBE_BASEDIR%\TimeDate.cmd"
 
@@ -40,19 +34,20 @@ if not exist "build\." (
     mkdir "build" 1> NUL 2> NUL
 )
 cd build
-cmake.exe -G "MinGW Makefiles" ..\..\
+cmake.exe -G "MinGW Makefiles" ..\
 if %_ROSBE_WRITELOG% == 1 (
     %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildToolLog-%ROS_ARCH%-%datename%-%timename%.txt"
 ) else (
     %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %*
 )
 cd..
+echo.
 
 if not exist "build-ros\." (
     mkdir "build-ros" 1> NUL 2> NUL
 )
 cd build-ros
-cmake.exe -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake ..\..\
+cmake.exe -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake ..\
 if %_ROSBE_WRITELOG% == 1 (
     %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildROSLog-%ROS_ARCH%-%datename%-%timename%.txt"
 ) else (
@@ -60,7 +55,6 @@ if %_ROSBE_WRITELOG% == 1 (
 )
 cd..
 
-cd..
 :EOC
 :: Highlight the fact that building has ended.
 
