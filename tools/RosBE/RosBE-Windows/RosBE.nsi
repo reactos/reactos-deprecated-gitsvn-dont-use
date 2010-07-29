@@ -120,6 +120,7 @@ Section -BaseFiles SEC01
     File /r Root\LICENSE.txt
     File /r Root\Basedir.cmd
     File /r Root\Build-Shared.cmd
+    File /r Root\CMake-Shared.cmd
     File /r Root\charch.cmd
     File /r Root\chdefgcc.cmd
     File /r Root\Clean.cmd
@@ -276,6 +277,7 @@ SetShellVarContext current
     SetOutPath "$INSTDIR"
     SetOverwrite try
     File /r Components\Powershell\Build.ps1
+    File /r Components\Powershell\CBuild.ps1
     File /r Components\Powershell\RosBE.ps1
     File /r Components\Powershell\rosbe-gcc-env.ps1
     File /r Components\Powershell\Help.ps1
@@ -406,7 +408,9 @@ Section Uninstall
     NO_SHORTCUTS:
     Delete /REBOOTOK "$INSTDIR\Basedir.cmd"
     Delete /REBOOTOK "$INSTDIR\Build.ps1"
+    Delete /REBOOTOK "$INSTDIR\CBuild.ps1"
     Delete /REBOOTOK "$INSTDIR\Build-Shared.cmd"
+    Delete /REBOOTOK "$INSTDIR\CMake-Shared.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.cmd"
     Delete /REBOOTOK "$INSTDIR\chdefdir.ps1"
     Delete /REBOOTOK "$INSTDIR\charch.cmd"

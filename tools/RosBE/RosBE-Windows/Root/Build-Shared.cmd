@@ -55,9 +55,9 @@ if %_ROSBE_WRITELOG% == 1 (
     if not exist "%_ROSBE_LOGDIR%\." (
         mkdir "%_ROSBE_LOGDIR%" 1> NUL 2> NUL
     )
-    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildLog-%ROS_ARCH%-%datename%-%timename%.txt"
+    %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildLog-%ROS_ARCH%-%datename%-%timename%.txt"
 ) else (
-    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %*
+    %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %*
 )
 
 :EOC

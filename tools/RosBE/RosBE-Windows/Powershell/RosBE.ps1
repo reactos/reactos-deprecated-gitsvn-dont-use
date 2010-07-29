@@ -125,8 +125,21 @@ function LoadAliases {
     }
 
     set-alias HELP "$_ROSBE_BASEDIR\Help.ps1" -scope Global
-    set-alias MAKE "$_ROSBE_BASEDIR\Build.ps1" -scope Global
-    function global:MAKEX {IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $args"}
+    function global:MAKE {
+        if (Test-Path ".\CMakeLists.txt") {
+            IEX "&'$_ROSBE_BASEDIR\CBuild.ps1'"
+        } else {
+            IEX "&'$_ROSBE_BASEDIR\Build.ps1'"
+        }
+    }
+
+    function global:MAKEX {
+        if (Test-Path ".\CMakeLists.txt") {
+            IEX "&'$_ROSBE_BASEDIR\CBuild.ps1' multi $args"
+        } else {
+            IEX "&'$_ROSBE_BASEDIR\Build.ps1' multi $args"
+        }
+    }
 
     if (Test-Path "$_ROSBE_BASEDIR\playwav.ps1") {
         set-alias PLAYWAV "$_ROSBE_BASEDIR\playwav.ps1" -scope Global

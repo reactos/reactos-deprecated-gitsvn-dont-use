@@ -42,9 +42,9 @@ if not exist "build\." (
 cd build
 cmake.exe -G "MinGW Makefiles" ..\..\
 if %_ROSBE_WRITELOG% == 1 (
-    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildToolLog-%ROS_ARCH%-%datename%-%timename%.txt"
+    %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildToolLog-%ROS_ARCH%-%datename%-%timename%.txt"
 ) else (
-    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %*
+    %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %*
 )
 cd..
 
@@ -54,9 +54,9 @@ if not exist "build-ros\." (
 cd build-ros
 cmake.exe -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake ..\..\
 if %_ROSBE_WRITELOG% == 1 (
-    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildROSLog-%ROS_ARCH%-%datename%-%timename%.txt"
+    %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %* 2>&1 | tee.exe "%_ROSBE_LOGDIR%\BuildROSLog-%ROS_ARCH%-%datename%-%timename%.txt"
 ) else (
-    %BUILDTIME_COMMAND% make.exe -j %MAKE_JOBS% %*
+    %BUILDTIME_COMMAND% mingw32-make.exe -j %MAKE_JOBS% %*
 )
 cd..
 
