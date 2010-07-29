@@ -3,7 +3,7 @@
 :: LICENSE:     GNU General Public License v2. (see LICENSE.txt)
 :: FILE:        Root/Makex.cmd
 :: PURPOSE:     Perform a multiprocessor build
-:: COPYRIGHT:   Copyright 2009 Daniel Reimer <reimer.daniel@freenet.de>
+:: COPYRIGHT:   Copyright 2010 Daniel Reimer <reimer.daniel@freenet.de>
 ::                             Colin Finck <colin@reactos.org>
 ::                             Peter Ward <dralnix@gmail.com>
 ::
@@ -20,5 +20,9 @@ setlocal enabledelayedexpansion
 set MAKE_JOBS=%_ROSBE_MAKEX_JOBS%
 set TITLE_COMMAND=makex %*
 
-call "%_ROSBE_BASEDIR%\Build-Shared.cmd" %*
+if exist "CMakeLists.txt" (
+    call "%_ROSBE_BASEDIR%\CMake-Shared.cmd" %*
+) else (
+    call "%_ROSBE_BASEDIR%\Build-Shared.cmd" %*
+)
 endlocal
