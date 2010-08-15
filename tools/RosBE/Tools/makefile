@@ -11,11 +11,16 @@ ifeq ($(word 1,$(shell gcc -dumpmachine)),mingw32)
 	RM := del /f
 	SUFFIX := .exe
 else
-	# Unix host
-	RM := rm -f
-	SUFFIX :=
+    ifeq ($(word 1,$(shell gcc -dumpmachine)),i686-w64-mingw32)
+	    # Windows host
+	    RM := del /f
+	    SUFFIX := .exe
+    else
+	    # Unix host
+	    RM := rm -f
+	    SUFFIX :=
+    endif
 endif
-
 
 all: cpucount scut getincludes
 

@@ -1,3 +1,19 @@
+*** Aug XXth, 2010 - RosBE 1.6 Released
+
+- Updated Binutils to 2.20.51-20100801 (snapshot) (Daniel Reimer)
+- Updated GCC to 4.5.1 (Daniel Reimer)
+  * gmp 5.0.1
+  * mpfr 3.0.0
+  * mpc 0.8.2
+  * MinGW-w64 Runtime 20100730
+- Updated NASM to 2.08.02 (Daniel Reimer)
+- Updated YASM to 1.0.1 (Daniel Reimer)
+- Updated SVN to 1.6.12 (Daniel Reimer)
+- Bug 5426 resolved (Adam Kachwalla)
+- Cleanup the options tool (Christoph von Wittich)
+- Add Support for the cmake bringup branch. Just install cmake and type make inside the branch (Daniel Reimer)
+- Renamed make back to mingw32-make to make cmake happy (Daniel Reimer)
+
 *** May 19th, 2010 - RosBE 1.5.1.1 Released
 
 - fix a bug in ssvn batch version which always ran through the update function even if the 1st param was crap. (Crocodile)

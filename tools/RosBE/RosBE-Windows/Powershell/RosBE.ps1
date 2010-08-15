@@ -53,7 +53,7 @@ clear-host
 $global:0 = $myInvocation.MyCommand.Definition
 $global:_ROSBE_BASEDIR = [System.IO.Path]::GetDirectoryName($0)
 $global:_ROSBE_PREFIX = $null
-$global:_ROSBE_VERSION = "1.5.1"
+$global:_ROSBE_VERSION = "1.6"
 $global:_ROSBE_ROSSOURCEDIR = "$pwd"
 $global:_ROSBE_SHOWTIME = 1
 $global:_ROSBE_WRITELOG = 1
@@ -205,7 +205,7 @@ LoadAliases
 clear-host
 "*******************************************************************************"
 "*                                                                             *"
-"*                        ReactOS Build Environment $_ROSBE_VERSION                      *"
+"*                        ReactOS Build Environment $_ROSBE_VERSION                        *"
 "*                                                                             *"
 "*******************************************************************************"
 ""
