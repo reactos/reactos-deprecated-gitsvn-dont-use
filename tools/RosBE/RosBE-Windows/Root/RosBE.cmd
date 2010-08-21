@@ -55,7 +55,12 @@ set BISON_PKGDATADIR=%~ds0%~sp0%i386\share\bison
 :: To modify the number used, see the cpucount usage for getting to know about the possible options
 for /f "usebackq" %%i in (`"%_ROSBE_BASEDIR%\Tools\cpucount.exe" -x1`) do set _ROSBE_MAKEX_JOBS=%%i
 
-set CCACHE_DIR=%APPDATA%\RosBE\.ccache
+if "%_ROSBE_CCACHE_DIR%" == "" (
+    set CCACHE_DIR=%APPDATA%\RosBE\.ccache
+) else (
+    set CCACHE_DIR=%_ROSBE_CCACHE_DIR%
+)
+
 set C_INCLUDE_PATH=
 set CPLUS_INCLUDE_PATH=
 set LIBRARY_PATH=

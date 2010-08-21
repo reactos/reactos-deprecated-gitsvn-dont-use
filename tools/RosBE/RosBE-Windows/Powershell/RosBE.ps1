@@ -77,7 +77,12 @@ $ENV:BISON_PKGDATADIR = ((New-Object -ComObject Scripting.FileSystemObject).GetF
 # To modify the number used, see the cpucount usage for getting to know about the possible options
 $global:_ROSBE_MAKEX_JOBS = (gwmi win32_processor).numberofcores + 1
 
-$ENV:CCACHE_DIR = "$ENV:APPDATA\RosBE\.ccache"
+if ("$ENV:_ROSBE_CCACHE_DIR" -eq "") {
+    $ENV:CCACHE_DIR = "$ENV:APPDATA\RosBE\.ccache"
+} else {
+    $ENV:CCACHE_DIR = "$_ROSBE_CCACHE_DIR"
+}
+
 $ENV:C_INCLUDE_PATH = $null
 $ENV:CPLUS_INCLUDE_PATH = $null
 $ENV:LIBRARY_PATH = $null
