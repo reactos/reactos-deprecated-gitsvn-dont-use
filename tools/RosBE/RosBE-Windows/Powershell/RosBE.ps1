@@ -83,6 +83,8 @@ if ("$ENV:_ROSBE_CCACHE_DIR" -eq "") {
     $ENV:CCACHE_DIR = "$_ROSBE_CCACHE_DIR"
 }
 
+$global:_ROSBE_CACHESIZE = "4"
+
 $ENV:C_INCLUDE_PATH = $null
 $ENV:CPLUS_INCLUDE_PATH = $null
 $ENV:LIBRARY_PATH = $null

@@ -20,6 +20,12 @@ if (Test-Path ".\config.rbuild") {
 }
 
 if ($_ROSBE_USECCACHE -eq 1) {
+    if ("$_ROSBE_CACHESIZE" -ne "") {
+    $_ROSBE_CACHESIZEG = "$_ROSBE_CACHESIZE" + "G"
+        &{IEX "&'ccache.exe' -M $_ROSBE_CACHESIZEG"}
+    } else {
+        &{IEX "&'ccache.exe' -M 8G"}
+    }
     $_ROSBE_CCACHE = "ccache "
 } else {
     $_ROSBE_CCACHE = $null
