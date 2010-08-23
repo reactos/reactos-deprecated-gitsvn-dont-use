@@ -8,8 +8,8 @@
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Configurator"
 
-if (!(Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG")) {
-    "-da" > "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+if (!(Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG")) {
+    "-da" > "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG"
 }
 
 function settitle {
@@ -21,7 +21,7 @@ function rbuild {
     "Be verbose."
     "Default is: no"
     ""
-    $VERBOSE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-v")
+    $VERBOSE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-v")
     if ("$VERBOSE_B" -eq "") {
         $VERBOSE_B = "no"
     } else {
@@ -40,7 +40,7 @@ function rbuild {
     "Delete generated files as soon as they are not needed anymore."
     "Default is: no"
     ""
-    $CLEAN_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-c")
+    $CLEAN_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-c")
     if ("$CLEAN_B" -eq "") {
         $CLEAN_B = "no"
     } else {
@@ -59,8 +59,8 @@ function rbuild {
     "Disable/Enable automatic dependencies."
     "Default is: yes"
     ""
-    $DEPENDS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-df")
-    $DEPENDS_B2 = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-dd")
+    $DEPENDS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-df")
+    $DEPENDS_B2 = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-dd")
     if (!("$DEPENDS_B" -eq "")) {
         $DEPENDS_B = "full"
     } elseif (!("$DEPENDS_B2" -eq "")) {
@@ -85,7 +85,7 @@ function rbuild {
     "Use precompiled headers."
     "Default is: yes"
     ""
-    $PRECHEADER_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-hd")
+    $PRECHEADER_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-hd")
     if ("$PRECHEADER_B" -eq "") {
         $PRECHEADER_B = "yes"
     } else {
@@ -105,7 +105,7 @@ function rbuild {
     "the directories."
     "Default is: no"
     ""
-    $MAKEDIR_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-mi")
+    $MAKEDIR_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-mi")
     if ("$MAKEDIR_B" -eq "") {
         $MAKEDIR_B = "no"
     } else {
@@ -124,7 +124,7 @@ function rbuild {
     "Generate proxy makefiles in source tree instead of the output tree."
     "Default is: no"
     ""
-    $PROXYMAKE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-ps")
+    $PROXYMAKE_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-ps")
     if ("$PROXYMAKE_B" -eq "") {
         $PROXYMAKE_B = "no"
     } else {
@@ -143,7 +143,7 @@ function rbuild {
     "Use compilation units."
     "Default is: yes"
     ""
-    $COMPUNITS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-ud")
+    $COMPUNITS_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-ud")
     if ("$COMPUNITS_B" -eq "") {
         $COMPUNITS_B = "yes"
     } else {
@@ -162,7 +162,7 @@ function rbuild {
     "Input XML."
     "Default is: no"
     ""
-    $XML_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG" -pattern "-r")
+    $XML_B = (select-string -path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG" -pattern "-r")
     if ("$XML_B" -eq "") {
         $XML_B = "no"
     } else {
@@ -177,7 +177,7 @@ function rbuild {
         $RBUILDFLAGS = "$RBUILDFLAGS" + " -r"
     }
     clear-host
-    "$RBUILDFLAGS" > "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+    "$RBUILDFLAGS" > "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG"
     $ENV:ROS_RBUILDFLAGS = $RBUILDFLAGS
 }
 
@@ -193,14 +193,14 @@ if ("$args" -eq "delete") {
         } else {
             "Main Configuration File was not found in ReactOS Source Tree."
         }
-        if (Test-Path "$ENV:APPDATA\RosBE\config.rbuild") {
-            remove-item "$ENV:APPDATA\RosBE\config.rbuild"
+        if (Test-Path "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild") {
+            remove-item "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild"
             "Working Configuration File was found and deleted."
         } else {
             "Working Configuration File was not found in ReactOS Source Tree."
         }
-        if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG") {
-            remove-item "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+        if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG") {
+            remove-item "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG"
             $ENV:ROS_RBUILDFLAGS = ""
             "RBuild Flags File was found and deleted."
         } else {
@@ -217,7 +217,7 @@ elseif ("$args" -eq "update") {
     if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {
         remove-item "$_ROSBE_BASEDIR\*.rbuild"
         remove-item ".\config.rbuild"
-        copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
+        copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild"
        "Successfully Updated."
     }
     settitle
@@ -232,8 +232,8 @@ elseif ("$args" -ne "") {
 }
 
 # Check if config.rbuild already exists. If not, get a working copy.
-if (!(Test-Path "$ENV:APPDATA\RosBE\config.rbuild")) {
-    copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"
+if (!(Test-Path "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild")) {
+    copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild"
 }
 
 # Help prevent non-useful bug reports/questions.
@@ -258,13 +258,13 @@ if (Test-Path ".\config.rbuild") {
         "*** previously made settings.                                  ***"
         ""
         $YESNO = Read-Host "(yes), (no)"
-        if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {remove-item "$ENV:APPDATA\RosBE\*.rbuild" | remove-item ".\config.rbuild" | copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config.rbuild"}
+        if (("$YESNO" -eq "yes") -or ("$YESNO" -eq "y")) {remove-item "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild" | remove-item ".\config.rbuild" | copy-item ".\config.template.rbuild" "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild"}
         else {settitle}
     }
 }
 
 # Prepare XML Parser.
-[xml]$xml = get-content "$ENV:APPDATA\RosBE\config.rbuild"
+[xml]$xml = get-content "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild"
 
 # Start with reading settings from config.rbuild and let the user edit them.
 "Sub-Architecture to build for."
@@ -422,8 +422,8 @@ $xml.group.property | ? { $_.Name -eq "NSWPAT" } | % { $_.Value = "$NSWPAT_CH"}
 $xml.group.property | ? { $_.Name -eq "_WINKD_" } | % { $_.Value = "$WINKD_CH"}
 $xml.group.property | ? { $_.Name -eq "_ELF_" } | % { $_.Value = "$ELF_CH"}
 $xml.group.property | ? { $_.Name -eq "BUILD_MP" } | % { $_.Value = "$BUILD_MP_CH"}
-$xml.save("$ENV:APPDATA\RosBE\config.rbuild")
-copy-item "$ENV:APPDATA\RosBE\config.rbuild" ".\config.rbuild"
+$xml.save("$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild")
+copy-item "$ENV:APPDATA\RosBE\config-$_ROSBE_VERSION.rbuild" ".\config.rbuild"
 
 $host.ui.RawUI.WindowTitle = "ReactOS Build Environment $_ROSBE_VERSION"
 

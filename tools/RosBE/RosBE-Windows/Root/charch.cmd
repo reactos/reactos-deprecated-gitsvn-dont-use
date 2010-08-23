@@ -33,8 +33,8 @@ endlocal & set ROS_ARCH=%ARCH%
 
 :: Refresh all needed Params by recalling the main Path setting CMD File.
 if /i "%ROS_ARCH%" == "i386" (
-    if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
-        call "%APPDATA%\RosBE\rosbe-options.cmd"
+    if exist "%APPDATA%\RosBE\rosbe-options-%_ROSBE_VERSION%.cmd" (
+        call "%APPDATA%\RosBE\rosbe-options-%_ROSBE_VERSION%.cmd"
     )
 ) else (
     if exist "%APPDATA%\RosBE\rosbe-options-%ROS_ARCH%.cmd" (

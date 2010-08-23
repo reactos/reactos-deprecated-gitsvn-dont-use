@@ -74,8 +74,8 @@ if "%ROS_ARCH%" == "amd64" (
 )
 :: Load the user's options if any
 if "%ROS_ARCH%" == "i386" (
-    if exist "%APPDATA%\RosBE\rosbe-options.cmd" (
-        call "%APPDATA%\RosBE\rosbe-options.cmd"
+    if exist "%APPDATA%\RosBE\rosbe-options-%_ROSBE_VERSION%.cmd" (
+        call "%APPDATA%\RosBE\rosbe-options-%_ROSBE_VERSION%.cmd"
     )
 )
 
@@ -83,8 +83,8 @@ if exist "%APPDATA%\RosBE\rosbe-options-%1.cmd" (
     call "%APPDATA%\RosBE\rosbe-options-%1.cmd"
 )
 
-if exist "%APPDATA%\RosBE\RBUILDFLAGS.FLG" (
-    for /f "usebackq tokens=* delims= " %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS.FLG""`) do set ROS_RBUILDFLAGS=%%i
+if exist "%APPDATA%\RosBE\RBUILDFLAGS-%_ROSBE_VERSION%.FLG" (
+    for /f "usebackq tokens=* delims= " %%i in (`"type "%APPDATA%\RosBE\RBUILDFLAGS-%_ROSBE_VERSION%.FLG""`) do set ROS_RBUILDFLAGS=%%i
 )
 
 :: Check if RosBE data directory exists, if not, create it.

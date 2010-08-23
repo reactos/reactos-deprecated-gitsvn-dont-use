@@ -191,8 +191,8 @@ if (!(Test-Path "$ENV:APPDATA\RosBE")) {
 
 # Load the user's options if any
 if ("$args" -eq "") {
-    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
-        & "$ENV:APPDATA\RosBE\rosbe-options.ps1"
+    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_VERSION.ps1") {
+        & "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_VERSION.ps1"
     }
 }
 
@@ -200,8 +200,8 @@ if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1") {
     & "$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1"
 }
 
-if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG") {
-    $ENV:ROS_RBUILDFLAGS = get-content "$ENV:APPDATA\RosBE\RBUILDFLAGS.FLG"
+if (Test-Path "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG") {
+    $ENV:ROS_RBUILDFLAGS = get-content "$ENV:APPDATA\RosBE\RBUILDFLAGS-$_ROSBE_VERSION.FLG"
 }
 
 # Load the doskey macros that serve as our commands.

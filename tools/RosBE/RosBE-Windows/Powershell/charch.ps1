@@ -23,8 +23,8 @@ $ENV:ROS_ARCH = $ARCH
 
 # Refresh all needed Params by recalling the main Path setting CMD File.
 if ("$ENV:ROS_ARCH" -eq "i386") {
-    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options.ps1") {
-        IEX "& '$ENV:APPDATA\RosBE\rosbe-options.ps1'"
+    if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_VERSION.ps1") {
+        IEX "& '$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_VERSION.ps1'"
     }
 } else {
     if (Test-Path "$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1") {

@@ -19,7 +19,7 @@ if not "%ROS_ARCH%" == "i386" (
     set cfgfile=%APPDATA%\RosBE\rosbe-options-%ROS_ARCH%.cmd
 ) else (
     set param=
-    set cfgfile=%APPDATA%\RosBE\rosbe-options.cmd
+    set cfgfile=%APPDATA%\RosBE\rosbe-options-%_ROSBE_VERSION%.cmd
 )
 
 :: Run options.exe

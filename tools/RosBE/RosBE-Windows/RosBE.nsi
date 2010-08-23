@@ -177,7 +177,7 @@ Section "RosBE Configurator (options)" SEC03
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
         CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
         SetOutPath $INSTDIR
-        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options.lnk" \
+        CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Options - ${PRODUCT_VERSION}.lnk" \
                        "$INSTDIR\Tools\options.exe"
     !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
@@ -311,16 +311,16 @@ Section -StartMenuShortcuts SEC12
     ;;
     ;; Add our start menu shortcuts.
     ;;
-    IfFileExists "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" +13 0
+    IfFileExists "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk" +13 0
         !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
             CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
             SetOutPath $REACTOS_SOURCE_DIRECTORY
             IfFileExists "$INSTDIR\RosBE.cmd" 0 +2
-                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
             IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
-                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+                CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\ReactOS Build Environment - ${PRODUCT_VERSION} - PS.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
             SetOutPath $INSTDIR
-            CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE.lnk" \
+            CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall RosBE - ${PRODUCT_VERSION}.lnk" \
                            "$INSTDIR\Uninstall-${PRODUCT_VERSION}.exe"
             CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Readme.lnk" \
                            "$INSTDIR\README.pdf"
@@ -333,12 +333,12 @@ Section /o "Desktop Shortcuts" SEC13
     ;;
     ;; Add our desktop shortcuts.
     ;;
-    IfFileExists "$DESKTOP\ReactOS Build Environment.lnk" +6 0
+    IfFileExists "$DESKTOP\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk" +6 0
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         IfFileExists "$INSTDIR\RosBE.cmd" 0 +2
-            CreateShortCut "$DESKTOP\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+            CreateShortCut "$DESKTOP\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
         IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
-            CreateShortCut "$DESKTOP\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+            CreateShortCut "$DESKTOP\ReactOS Build Environment - ${PRODUCT_VERSION} - PS.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
 SectionEnd
 
 Section /o "Quick Launch Shortcuts" SEC14
@@ -347,12 +347,12 @@ Section /o "Quick Launch Shortcuts" SEC14
     ;;
     ;; Add our quick launch shortcuts.
     ;;
-    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment.lnk" +6 0
+    IfFileExists "$QUICKLAUNCH\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk" +6 0
         SetOutPath $REACTOS_SOURCE_DIRECTORY
         IfFileExists "$INSTDIR\RosBE.cmd" 0 +2
-            CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
+            CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk" "$SYSDIR\cmd.exe" '/t:0A /k "$INSTDIR\RosBE.cmd"' "$INSTDIR\rosbe.ico"
         IfFileExists "$INSTDIR\RosBE.ps1" 0 +2
-            CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
+            CreateShortCut "$QUICKLAUNCH\ReactOS Build Environment - ${PRODUCT_VERSION} - PS.lnk" "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" "-noexit &'$INSTDIR\RosBE.ps1'" "$INSTDIR\rosbe.ico"
 SectionEnd
 
 Section -Post SEC15
@@ -387,10 +387,10 @@ Function un.onInit
     MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 \
     "Do you want to remove the Shortcuts? If you just want to Update to a new Version of RosBE, keep them. This keeps your previous settings." \
     IDNO +5
-        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment.lnk"
-        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment.lnk"
-        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - Powershell.lnk"
-        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - Powershell.lnk"
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk"
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - ${PRODUCT_VERSION}.lnk"
+        Delete /REBOOTOK "$DESKTOP\ReactOS Build Environment - ${PRODUCT_VERSION} - PS.lnk"
+        Delete /REBOOTOK "$QUICKLAUNCH\ReactOS Build Environment - ${PRODUCT_VERSION} - PS.lnk"
 FunctionEnd
 
 Section Uninstall

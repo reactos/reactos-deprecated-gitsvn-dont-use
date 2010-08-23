@@ -13,7 +13,7 @@ if ("$ENV:ROS_ARCH" -ne "i386") {
     $cfgfile ="$ENV:APPDATA\RosBE\rosbe-options-$ENV:ROS_ARCH.ps1"
 } else {
     $param = $null
-    $cfgfile="$ENV:APPDATA\RosBE\rosbe-options.ps1"
+    $cfgfile="$ENV:APPDATA\RosBE\rosbe-options-$_ROSBE_VERSION.ps1"
 }
 
 # Run options.exe
