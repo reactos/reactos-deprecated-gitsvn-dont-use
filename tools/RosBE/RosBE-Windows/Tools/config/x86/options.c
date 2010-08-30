@@ -271,8 +271,8 @@ WriteSettings(POPTIONS_DLG infoPtr)
         fwprintf(pFileps1, L"clear-host\n");
         fwprintf(pFileps1, L"$global:_ROSBE_SHOWTIME = %d\n", showtime);
         fwprintf(pFileps1, L"$global:_ROSBE_USECCACHE = %d\n", useccache);
-		fwprintf(pFilecmd, L"$ENV:ROS_LEAN_AND_MEAN=\"%s\"\n", (strip == 1) ? "yes" : "no");
-        fwprintf(pFilecmd, L"$ENV:ROS_BUILDNOSTRIP=\"%s\"\n", (nostrip == 1) ? "yes" : "no");
+        fwprintf(pFileps1, L"$ENV:ROS_LEAN_AND_MEAN=\"%s\"\n", (strip == 1) ? "yes" : "no");
+        fwprintf(pFileps1, L"$ENV:ROS_BUILDNOSTRIP=\"%s\"\n", (nostrip == 1) ? "yes" : "no");
         fwprintf(pFileps1, L"$global:_ROSBE_WRITELOG = %d\n", writelog);
         fwprintf(pFileps1, L"$global:_ROSBE_SHOWVERSION = %d\n", showversion);
         if (logdir[0] != 0)
@@ -667,7 +667,7 @@ DlgProc(HWND Dlg, UINT Msg, WPARAM wParam, LPARAM lParam)
                 {ID_SHOWBUILDTIME, HLP_SBUILDTIME},
                 {ID_USECCACHE, HLP_CCACHEUSED},
                 {ID_STRIP, HLP_STRIPEDEXE},
-				{ID_NOSTRIP, HLP_NOSTRIP},
+                {ID_NOSTRIP, HLP_NOSTRIP},
                 {ID_MGWDIR, HLP_FINDMGWDIR},
                 {ID_BROWSEMGW, HLP_FINDMGWDIR},
                 {ID_LOGDIR, HLP_FINDLOGDIR},
