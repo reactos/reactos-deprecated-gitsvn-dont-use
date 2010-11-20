@@ -143,6 +143,22 @@ namespace RosDBG
             return SourceFile;
         }
 
+        private void SourceCode_MouseClick(object sender, MouseEventArgs e)
+        {
+            UpdatePos();
+        }
+
+        private void UpdatePos()
+        {
+            toolStripStatusLabel1.Text = "Row " + (SourceCode.GetLineFromCharIndex(SourceCode.SelectionStart) + 1).ToString()
+                + ", Col " + (SourceCode.SelectionStart - SourceCode.GetFirstCharIndexOfCurrentLine() + 1).ToString();
+        }
+
+        private void SourceCode_KeyUp(object sender, KeyEventArgs e)
+        {
+            UpdatePos();
+        }
+
     }
 
 }

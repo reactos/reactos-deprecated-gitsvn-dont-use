@@ -345,6 +345,7 @@ namespace DbgHelpAPI
         static Random mRandom = new Random();
         static FileMap mFileMap = new FileMap();
         string mReactosOutputPath = "output-i386", mReactosSourcePath = ".";
+
         public string ReactosOutputPath
         {
             get { return mReactosOutputPath; }

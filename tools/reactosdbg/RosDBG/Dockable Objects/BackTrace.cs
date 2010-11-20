@@ -147,5 +147,14 @@ namespace RosDBG
         {
             mShell.FocusAddress(mSelectedAddr);
         }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StringBuilder sb = new StringBuilder("");
+            foreach (string s in StackFrames.Items)
+                sb.Append(s + Environment.NewLine);
+            Clipboard.SetText(sb.ToString());    
+        }
+
     }
 }
