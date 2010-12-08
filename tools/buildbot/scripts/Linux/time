@@ -1,3 +1,0 @@
-#!/bin/sh
-
-/usr/bin/time -f "\nElapsed time: %E ([h:]m:s)\nCPU usage: %P (%U user, %S sys)\nPage faults: %F major, %R minor\nNumber of IO waits: %w" "$@"

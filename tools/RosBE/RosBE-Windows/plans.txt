@@ -1,3 +1,0 @@
-- New icons for every arch we support
-- More Error catching
-- support y/n and yes/no

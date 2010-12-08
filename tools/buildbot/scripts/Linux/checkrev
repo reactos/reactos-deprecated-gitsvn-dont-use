@@ -1,8 +1,0 @@
-#!/bin/bash
-
-LIMIT=30846
-
-if [ $REV -lt $LIMIT ]; then
-	echo "* This Buildslave cannot build revisions older than $LIMIT"
-	exit 1
-fi
