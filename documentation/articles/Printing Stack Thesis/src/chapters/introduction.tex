@@ -1,0 +1,50 @@
+\chapter{Introduction}
+\href{https://reactos.org}{ReactOS} is a modern desktop operating system entirely available under Open-Source licenses.
+The Project is unique in the way that it aims for compatibility with all existing applications and drivers developed for Microsoft Windows.
+This exclusive feature among free operating systems can make ReactOS an appealing alternative to the currently dominant desktop operating system.
+By being distributed under Open-Source licenses, ReactOS can offer customizations and trustworthiness not possible with traditional closed-source systems.
+
+Printing has become an essential feature of graphical desktop operating systems in the 1980 years.
+The introduction of affordable Inkjet and Laser Printers around the same time have turned Personal Computers into Desktop Publishing machines able to produce high-quality documents \cite{leurs2013postscript}.
+Since then, computers have mostly replaced traditional typewriters and typesetter systems.
+
+Today, Printing is a self-evident ability of Personal Computers.
+A desktop operating system is expected to detect and install connected Printers automatically as well as to provide intuitive options to manage and use them.
+One of the common tasks of server operating systems is making a Printer available to multiple users over the network.
+More recently, also smartphone and tablet operating systems have added support for Printing \cite{aosp2015kitkat}.
+However, the ReactOS Operating System has not offered any support for Printing yet.
+
+Operating system support for Printing also plays an important role in document exchange.
+Creating a document in Adobe's popular \gls{PDF} is usually realized through a virtual Printer.
+Such a Printer can be used as a destination from any text processing application just like a real Printer.
+
+
+\section{Thesis Work}
+This thesis presents an initial design and implementation of a Printing Stack for the ReactOS Operating System.
+
+While several Open-Source Printing Systems already exist, none of them provides compatibility to the wide range of available Windows Printer Drivers.
+On the other hand, hardware vendors often provide the most feature-rich drivers only for the Windows platform.
+Therefore, the work does not build upon an existing Open-Source Printing System, but new components are developed from scratch.
+
+In order to achieve ReactOS' goal of full compatibility to Microsoft Windows applications and drivers, the Windows Printing interfaces are analyzed in-depth.
+Additionally, existing code of the ReactOS Operating System is examined to determine the extent of the required implementation work.
+In a next step, a set of fundamental components is developed, which form an initial Printing Stack.
+This system is able to transmit prepared RAW data in a Printer Control Language to a locally connected Printer.
+However, the entire architecture is designed for a further extension by other datatypes at a later stage.
+
+Evaluation of the written code occurs with the help of specific individual unit tests covering the implemented features.
+
+Although Microsoft provides a publicly available documentation about their Printing implementation, it does not cover specific internals.
+Therefore, a special emphasis has been put on commenting and documenting the resulting code to serve as a future reference.
+
+
+\section{Special Thanks}
+I would like to thank Univ. Prof. Dr.-Ing. Antonello~Monti and Dr. rer. nat. Stefan~Lankes for offering me the unique opportunity to make ReactOS part of my Bachelor thesis.
+Special thanks also go to all members of the ReactOS Project who are maintaining this great Open-Source Project for several years.
+
+\bigskip
+
+\textit{\\
+Colin Finck\\
+Aachen, September 2015
+}

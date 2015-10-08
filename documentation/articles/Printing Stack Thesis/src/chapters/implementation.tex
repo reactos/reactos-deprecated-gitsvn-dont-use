@@ -1,0 +1,411 @@
+\chapter{Implementation}
+\label{chp:implementation}
+This chapter details the conducted research of the required components for the Printing Stack as well as their actual implementation.
+The developed components build up the foundations for a ReactOS Printing Stack that maintains compatibility with Windows \gls{API} functions.
+
+
+\section{Examination Of Available Code}
+As a first step, the ReactOS codebase was examined to to figure out available and unavailable components as well as the quality of their code.
+Prior to this work, the project's source tree merely provided a basic skeleton for a Spooler Server along with some Printing components imported from the WINE Project.
+An inquiry to the original developer revealed that the Spooler Server skeleton was only added to let applications check the existence of that particular service.
+The service did not serve any meaningful purpose, so it could be safely removed and implemented from scratch during the thesis work.
+
+A further inspection of WINE's Printing components led to the conclusion that their code could not be reused either.
+WINE only provides a compatible replacement of \emph{winspool.drv} to account for many standard cases of Printing applications.
+But instead of forwarding calls to the remaining components of the Windows Printing Stack, WINE's \emph{winspool.drv} translates incoming Print Requests to \gls{CUPS} commands.
+WINE's Spooler Server is only a basic service skeleton as well and additional \gls{DLL} files like \emph{spoolss.dll} and \emph{localspl.dll} are unimplemented in essential parts.
+Due to these reasons, the WINE Printing components were removed from the tree as well.
+
+On the plus side, the ReactOS ecosystem has matured enough to provide a working \gls{RPC} Server, compatible kernel functions and a Parallel Port Driver.
+This allowed a clear focus on printing-related components during the thesis work.
+
+The only other notable Open-Source project sharing similar goals is the Samba Project, which implements several components to let UNIX computers interact in a network with Windows machines.
+These components also include support for Network Printing.
+But due to Samba's focus on UNIX systems, only some interface information could be used.
+No related code for the implementation of a ReactOS Printing Stack has been offered by the project.
+
+After the ReactOS codebase had been completely examined, development on the new Printing Stack components could start.
+
+
+\section{Defining The Interfaces}
+Implementation on a ReactOS component providing compatibility with a Windows one begins by defining its \gls{API} functions in a so called \emph{SPEC} file.
+The SPEC file format was invented to account for the differences in linker information file formats between the GNU Linker and the Microsoft Linker.
+Additionally, one can denote a function as a \emph{stub} in a SPEC file and that function will be exported with a simple entry point.
+If an application calls such a stub function, the call is reported through a text message, but nothing else happens.
+This still allows other features of the application to work properly.
+Without stub functions, the application may crash or not even load at all.
+SPEC files are processed by the \emph{spec2def} utility during the ReactOS build process, which converts the information into a linker information file suitable for the used linker and generates the entry points for the stub functions.
+
+The names of all provided \gls{API} functions in \emph{winspool.drv} and \emph{spoolss.dll} could easily be determined by opening the matching \gls{DLL} files from Windows Server 2003 in Dependency Walker and inspecting the Exports section.
+Consequently, parameters for several basic Printing \glspl{API} were looked up on the web.
+As these functions are fundamental to any application making use of Printing, the \href{http://msdn.microsoft.com}{MSDN Website} offers a detailed documentation on them.
+After linking the documentation from both sources together, the SPEC files for \emph{winspool.drv} and \emph{spoolss.dll} were written.
+Fundamental functions were added in all details while most of the other \glspl{API} were defined as stubs to allow a later implementation when necessary.
+
+The Spooler Server process required a radically different approach to gain compatibility.
+Its interfaces are not based on regular function calls, but use \gls{RPC} calls defined in \gls{IDL} files.
+These cannot simply be revealed by a tool like Dependency Walker.
+Instead, they usually require monitoring of the \gls{RPC} functions and reconstruction of the names and parameters.
+
+The Samba Project has done this work for its Network Printing support and provides a corresponding \href{https://git.samba.org/?p=samba.git;a=blob;f=librpc/idl/spoolss.idl;hb=618af83d1bd07b12a9acc88b0d2111cab7a8bb2b}{\gls{IDL} file}.
+A similar research has also been independently conducted in \cite{marchand2006netsvcs}.
+Furthermore, Microsoft has begun to document the Print System \gls{RPC} Interface in 2007 and now provides a freely usable \gls{IDL} file covering a subset of the \gls{RPC} functions \cite{microsoft2014msrprn}.
+By combining the information from these three sources, a detailed \gls{IDL} file could be constructed for defining the ReactOS Spooler Server interfaces.
+
+
+\section{Choosing A Programming Language}
+ReactOS components are either written in C or C++, with some performance-critical or processor-specific code written in Assembly language.
+Due to the portability issues involved, Assembly language is only used as a last resort though.
+It definitely offers no advantages for the development of a Printing Stack.
+
+The remaining decision between C and C++ has been made based on compatibility requirements.
+Advantages of C++ for a Printing Stack would lie in the object-oriented approach towards lists and strings.
+The \gls{STL} shipped with every C++ development environment provides container classes like \texttt{list} and \texttt{vector} as well as \texttt{string} for handling character sequences of arbitrary length.
+However, Windows exposes a pure C interface for its fundamental Printing Stack functions due to historical reasons.
+Using C++ objects internally would require conversions between both data formats in every step.
+This would basically lead to additional overhead and cancel out most advantages of C++ for the development of a Printing Stack.
+
+Therefore, the choice fell on the C language for all developed components of the Printing Stack.
+The unavailability of standard container classes in C is outweighed by the number of library functions ReactOS provides for development in C.
+
+
+\section{Developing The Required Components}
+As a first step towards an adequate ReactOS Printing Stack, a small test application called \emph{winspool\_print} was written in C.
+It uses fundamental \gls{API} functions of the \emph{winspool.drv} component to send a file with arbitrary RAW data to a local Printer.
+Afterwards, the goals of the development work were defined around this application:
+The created ReactOS Printing Stack must implement all required \glspl{API} and components for getting \emph{winspool\_print} to work.
+Code shall be written in a compatible and flexible way that easily allows a further addition of the not yet implemented features.
+
+In particular, this led to the following components being developed:
+
+\begin{itemize}
+	\item \textbf{winspool.drv} \\
+				The Spooler \gls{API} in \emph{winspool.drv} implements all character encoding dependent functions for the default single-byte character set and double-byte Unicode.
+				For the beginning, only some Unicode functions have been implemented, because these are recommended for new applications.
+				Future implemented single-byte character set functions will simply convert between both encodings and then call a corresponding Unicode function.
+				Besides, more advanced Spooler \gls{API} functions not required for the \emph{winspool\_print} tool were added as simple stubs for now.
+	
+	\item \textbf{spoolsv.exe} \\
+				The Spooler Server directly builds upon the \gls{IDL} file, which defines its complete \gls{RPC} communication interface.
+				As a result, all 96 \gls{RPC} calls need to be implemented as functions inside \emph{spoolsv.exe}.
+				Since many of them are unrelated to getting the basic \emph{winspool\_print} tool to work, some were just implemented to return the error code \texttt{ERROR\_INVALID\_FUNCTION} when being called.
+				The others correctly perform Impersonation and pass the call to a Spooler Router function.
+				
+	\item \textbf{spoolss.dll} \\
+				The Spooler Router has been implemented with the same subset of \gls{API} functions that were considered for \emph{winspool.drv}.
+				Apart from this, the \gls{DLL} also provides fundamental Impersonation and Memory Management functions to all Printing components.
+				Impersonation has been discussed in Section~\ref{sec:WindowsPrinting}.
+				
+				Due to the wide usage of these \glspl{API}, they received intensive \emph{Black-Box Testing}.
+				That means, the functions were called with defined input data under Windows and their output was recorded.
+				Based on the correlations between input and output, hypotheses were made and verified with further similar tests.
+				Finally, enough information has been gathered to write compatible substitution code.
+	
+	\item \textbf{localspl.dll} \\
+				For sending RAW data to a Printer, the Local Spooler in \emph{localspl.dll} needs to manage Printers, Print Jobs, Print Monitors and Print Processors as well as a list of Ports managed by Port Monitors.
+				Support for Forms, Printer Drivers as well as their configuration data can be added at a later stage.
+				
+				In contrast to the Windows counterpart of \emph{localspl.dll}, the Port Monitor and Print Processor parts were sourced out into individual \gls{DLL} files for the ReactOS implementation.
+				This decision logically separates such distinct components and follows the Windows Printing Architecture more closely.
+				
+	\item \textbf{winprint.dll} \\
+				The variant of \emph{winprint.dll} implemented for ReactOS contains the default Print Processor called \emph{WinPrint}.
+				Under Windows Server 2003, this one is part of \emph{localspl.dll} and supports \gls{EMF}, RAW and TEXT datatypes.
+				To achieve the goal of getting \emph{winspool\_print} to work, code for processing the RAW datatype is needed.
+				This code simply passes the data to the Port Monitor without altering it in any way.
+				On the other hand, it has been developed flexible enough to account for a later addition of more datatypes.
+				
+	\item \textbf{localmon.dll} \\
+				The Local Port Monitor is also part of \emph{localspl.dll} under Windows Server 2003, but has been sourced out into the \emph{localmon.dll} file for ReactOS.
+				While the original Windows Local Port Monitor provides support for Parallel and Serial Ports along with Infrared Printers, support for the latter has not been implemented into the ReactOS counterpart yet.
+				This decision originates from the unavailability of an Infrared Printer at the time of development as well as the added complexity that comes with a wireless link.
+\end{itemize}
+
+The implemented components are marked in yellow in Figures~\ref{fig:WindowsSpooling} and \ref{fig:WindowsPrinting}.
+Making them usable for the intended purpose also required an integration into the ReactOS Build System.
+This step is illustrated in the next section.
+
+
+\section{Integrating The Components Into The ReactOS Build System}
+The ReactOS Project features a Build System based on the \href{http://www.cmake.org/}{CMake} Build Automation Tool.
+This system supports building ReactOS under Windows, Linux, or Mac OS X using either GCC or the Microsoft Visual C++ compiler.
+In order to properly add the developed components to the operating system build process, several so-called \emph{CMakeLists} files have been written.
+These are usual plain-text files editable with any text editor.
+Each of them defines a module, its type (Application or \gls{DLL}), its target location in the operating system, the associated source code files, and the libraries it depends on.
+This information is sufficient for CMake to call the corresponding compilers and linkers to build suitable binary files.
+
+
+\section{Verification During Development}
+One of the basic rules when writing operating system code is to make no assumptions at any stage \cite{ionescu2007reactos}.
+The developed \glspl{API} will later be called by thousands of third-party applications.
+This requires a developer to consider every possible case of calling a particular function and respond accordingly.
+
+In the case of the Windows Printing Stack, a pure C \gls{API} is exposed.
+It throws no exceptions and responds to failure cases by setting an appropriate return value and a Win32 Error Code \cite{msdn2015setlasterror}.
+Such error codes can be very specific and some applications may implement code paths that check for a particular error code.
+Therefore, developing a compatible reimplementation also requires figuring out the returned error code for each possible failure case.
+
+The ReactOS Project is tackling this problem through \emph{Regression Tests}.
+After verifying the behavior of an \gls{API} function under Windows, a developer usually writes a Regression Test that calls the function with defined input data and checks that it returns the verified output.
+The test is then run under ReactOS to verify that the implementation of the function is compatible to the original.
+In a next step, regularly running this test catches cases where changes in one module accidentally break functionality in another module.
+Currently, the ReactOS Project runs all available Regression Tests after every commit to the source code repository.
+The results are then parsed, inserted into a database and later searchable online through the \href{https://reactos.org/testman}{ReactOS Test Manager}.
+
+Writing Regression Tests for \emph{winspool.drv} was straightforward due to the fact that this is a documented \gls{API} used in every Printing application.
+For now, the test is only able to call deterministic informational functions though (like \texttt{GetPrint\-Processor\-Directory}).
+Many other functions require the presence of a Printer, which is not guaranteed, and they also behave differently based on the type of Printer connected.
+Consequently, these functions are not yet covered by the Regression Tests.
+
+However, other components of the Printing Stack are harder to test.
+A prominent example is \emph{localspl.dll}.
+Under Windows, the Spooler Server, Spooler Router, and this \gls{DLL} are intertwined with each other in a way that prevents loading \emph{localspl.dll} in any other application.
+
+Nevertheless, it was possible to verify the behavior of its Print Provider functions under Windows by using a different approach:
+The code for testing the function was put into a self-written \gls{DLL} file.
+A standalone application was then launched with highest privileges in order to let it use the Windows \texttt{CreateRemoteThread} \gls{API} function, which creates a new thread in the running Spooler Server process \cite{msdn2015createremotethread}.
+The created thread loaded the testing code from the \gls{DLL} file and by running that code in a thread of the Spooler Server, it can access all functions of \emph{localspl.dll}.
+Eventually, this testing method offered unique insights into the internal behavior of the Local Spooler.
+These were used to develop a compatible replacement and verify it against the original.
+
+However, gathering such information from existing components is only one part of developing a Printing Stack for ReactOS.
+At a later development stage, the design of custom data structures also became necessary.
+This step is further discussed in the next section.
+
+
+\section{Designing The Data Structures}
+One of the Local Spooler's primary tasks is managing a changing number of Printers, Print Monitors, and Print Processors in a list.
+Along with every Printer comes a prioritized Job Queue.
+The exposed Spooler \gls{API} allows to add, remove, and enumerate items from these lists.
+Moreover, it also allows Print Jobs to be reprioritized or to get their Job index in the list.
+Calling these \glspl{API} often causes lookup operations to be performed in the background.
+
+Windows offers a variety of abstract data types ready to use in Kernel-Mode and User-Mode applications.
+Two of them were further analyzed with a focus on usability for the Printing components:
+
+\begin{itemize}
+	\item \textbf{Doubly-linked Lists} \\
+				A Doubly-linked List implemented through Windows' \texttt{LIST\_ENTRY} structure is the simplest abstract data type for these tasks.
+				It can do standard operations like additions, enumerations, and removals always in $\mathcal{O}(1)$, provided that no lookup is necessary beforehand.
+				Lookups are an expensive operation for Linked Lists though, because they are only doable in linear time.
+				Consequently repriorizing a Job, which involves deleting and reinserting an element at another position, needs linear time as well and shares the same $\mathcal{O}(n)$ complexity.
+				Therefore, the focus shifted to other abstract data types.
+	
+	\item \textbf{Generic Tables} \\
+				The Windows Run-Time Library also offers a data structure called \emph{General Table}.
+				Depending on the compile options, this one is either implemented as an \gls{AVL} tree or a Splay Tree \cite{osr2008splaytrees}.
+				Both are comparable in complexity, so they will not be discussed separately.
+				The tree structures also offer $\mathcal{O}(1)$ complexity for additions and removals on average.
+				Lookups and consequently repriorizations are usually faster, with a complexity of $\mathcal{O}(\log n)$ on average.
+				On the other hand, enumerations bear a higher complexity, since finding the next element of an in-order traversal is a non-trivial operation.
+				
+				For usage inside the Printing components, there is another major downside compared to the \texttt{LIST\_ENTRY}-based implementation of Doubly-linked Lists:
+				Every insertion allocates a new block of memory instead of reusing the existing one.
+				Among added overhead, this makes pointer references more complicated, because the element address is only known after the insertion.
+				Another disadvantage is the opaque structure of Generic Tables, which allows no further extensions.
+				Due to the already high complexity of enumerations, this makes figuring out the element index inside Generic Tables an even more expensive operation, with a complexity greater than $\mathcal{O}(n)$.
+\end{itemize}
+
+As both integrated abstract data types were not satisfying the requirements, a data structure adjusted to the needs of the Printing components has been developed.
+
+
+\subsection{Skip Lists}
+Skip Lists were introduced by William Pugh in 1990 as an easy to implement alternative to balanced trees \cite{pugh1990skiplists}.
+They build upon the structure of singly-linked lists, but every node features an array of pointers instead of a single pointer to a next node.
+The array size is predefined at compile time.
+
+Every time a node is inserted into a Skip List, a geometrically distributed random function for $p = 0.5$ is called to return a \emph{level} for it.
+The level determines how many pointers to a next node are used.
+Consequently, it can be between 1 and the array size.
+In the long run, every next higher level appears only half as often as a previous one due to the geometric distribution.
+This results in a structure as exemplarily depicted in Figure~\ref{fig:SkipList}.
+
+Just like for singly-linked lists, the first pointer always links to the directly adjacent element.
+The second pointer connects all nodes that received a level of 2 or higher.
+This goes on for the third pointer, the fourth pointer, etc.
+
+Such a probabilistic approach generates a data structure with lookup properties comparable to binary trees.
+It only involves a cheap random function to achieve this instead of enforcing complex and expensive rebalancing operations.
+
+Lookups are implemented by starting from the head node and checking the next node on the highest used level.
+The code then passes all nodes on this level coming before the node it is looking for.
+When a final node on one level is reached, the code goes down a level and continues there.
+These steps are repeated until the first level and the desired node is reached.
+The advantageous distribution of levels across the Skip List leads to an average complexity of $\mathcal{O}(\log n)$ for lookups.
+
+Insertions and removals in Skip Lists always need to perform a lookup first.
+However, the remaining operations are doable in $\mathcal{O}(1)$, so the final complexity for both operations is $\mathcal{O}(\log n)$ too.
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}
+		\node[cf_skiplistitem=5] (H) {L4 \nodepart{two} L3 \nodepart{three} L2 \nodepart{four} L1 \nodepart{five} Head};
+		\node[cf_skiplistitem=2, right = of H.south, anchor = south] (5) {\nodepart{two} 5};
+		\node[cf_skiplistitem=3, right = of 5.south, anchor = south] (7) {\nodepart{three} 7};
+		\node[cf_skiplistitem=5, right = of 7.south, anchor = south] (10) {\nodepart{five} 10};
+		\node[cf_skiplistitem=4, right = of 10.south, anchor = south] (15) {\nodepart{four} 15};
+		\node[cf_skiplistitem=2, right = of 15.south, anchor = south] (16) {\nodepart{two} 16};
+		\node[cf_skiplistitem=2, right = of 16.south, anchor = south] (19) {\nodepart{two} 19};
+		\node[cf_skiplistitem=3, right = of 19.south, anchor = south] (23) {\nodepart{three} 23};
+		
+		\path [cf_line] (H.one east) -- (10.one west |- H.one east);
+		\path [cf_line] (H.two east) -- (10.two west |- H.two east);
+		\path [cf_line] (H.three east) -- (7.one west |- H.three east);
+		\path [cf_line] (H.four east) -- (5.one west |- H.four east);
+		\path [cf_line] (5.one east) -- (7.two west |- 5.one east);
+		\path [cf_line] (7.one east) -- (10.three west |- 7.one east);
+		\path [cf_line] (7.two east) -- (10.four west |- 7.two east);
+		\path [cf_line] (10.two east) -- (15.one west |- 10.two east);
+		\path [cf_line] (10.three east) -- (15.two west |- 10.three east);
+		\path [cf_line] (10.four east) -- (15.three west |- 10.four east);
+		\path [cf_line] (15.two east) -- (23.one west |- 15.two east);
+		\path [cf_line] (15.three east) -- (16.one west |- 15.three east);
+		\path [cf_line] (16.one east) -- (19.one west |- 16.one east);
+		\path [cf_line] (19.one east) -- (23.two west |- 19.one east);
+	\end{tikzpicture}
+	
+	\caption{Example of a Skip List with four pointers for each node}
+	\label{fig:SkipList}
+\end{figure}
+
+For ReactOS Printing components, the Skip List has been implemented in a way that it does not copy the element data.
+Instead, it only saves a pointer to the data inside a node.
+This prevents overhead and keeps previous pointer references to the element intact.
+
+The simple structure of Skip Lists also allows for three extensions not found in known implementations:
+
+\begin{itemize}
+	\item \textbf{Reduction of comparisons} \\
+				A lookup operation in any data structure requires multiple comparisons to be performed.
+				To allow for every possible sorting order, the comparison is usually implemented by calling a previously specified Compare routine.
+				As calling a function can be an expensive operation, an extension was proposed in 1990 to reduce the number of required comparisons.
+				This is done by remembering the last compared element and never comparing the same element twice during the lookup \cite{pugh1990cookbook}.
+				The extension has been implemented into the Skip List for the Printing components.
+
+	\item \textbf{Fast lookup of element indexes} \\
+				A concept for looking up an element by index in a Skip List has also been proposed in \cite{pugh1990cookbook}.
+				It works by introducing an array, which keeps information about the distance to each other node.
+				An exemplary Skip List with distance information is depicted in Figure~\ref{fig:SkipListWithDistance}.
+				
+				Maintaining these distance arrays requires slightly more algorithm complexity in the insertion and deletion functions.
+				On the plus side, lookups can now return the element index as well while still keeping the same $\mathcal{O}(\log n)$ complexity on average.
+				Such a lookup algorithm is given in Algorithm~\ref{alg:LookupElementSkiplist}.
+				
+	\item \textbf{Insertion of elements at the end of the list} \\
+				A common task in Printing is adding a new Print Job with default priority.
+				Such jobs are always inserted at the end of the Job List.
+				Nevertheless, the standard insertion function would perform multiple expensive calls to the Compare routine to reach the Skip List tail.
+				
+				Therefore, an optimized function called \texttt{InsertTailElementSkiplist} has been introduced for the ReactOS Skip List implementation.
+				This function simply takes the shortest route to reach the end of the Skip List without the overhead of calling the Compare routine.
+\end{itemize}
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}
+		\node[cf_skiplistitem=5] (H) {L4 \nodepart{two} L3 \nodepart{three} L2 \nodepart{four} L1 \nodepart{five} Head};
+		\node[cf_skiplistitem=2, right = of H.south, anchor = south] (5) {\nodepart{two} 5};
+		\node[cf_skiplistitem=3, right = of 5.south, anchor = south] (7) {\nodepart{three} 7};
+		\node[cf_skiplistitem=5, right = of 7.south, anchor = south] (10) {\nodepart{five} 10};
+		\node[cf_skiplistitem=4, right = of 10.south, anchor = south] (15) {\nodepart{four} 15};
+		\node[cf_skiplistitem=2, right = of 15.south, anchor = south] (16) {\nodepart{two} 16};
+		\node[cf_skiplistitem=2, right = of 16.south, anchor = south] (19) {\nodepart{two} 19};
+		\node[cf_skiplistitem=3, right = of 19.south, anchor = south] (23) {\nodepart{three} 23};
+		
+		\path [cf_line] (H.one east) -- (10.one west |- H.one east);
+		\path [cf_line] (H.two east) -- (10.two west |- H.two east);
+		\path [cf_line] (H.three east) -- (7.one west |- H.three east);
+		\path [cf_line] (H.four east) -- (5.one west |- H.four east);
+		\path [cf_line] (5.one east) -- (7.two west |- 5.one east);
+		\path [cf_line] (7.one east) -- (10.three west |- 7.one east);
+		\path [cf_line] (7.two east) -- (10.four west |- 7.two east);
+		\path [cf_line] (10.two east) -- (15.one west |- 10.two east);
+		\path [cf_line] (10.three east) -- (15.two west |- 10.three east);
+		\path [cf_line] (10.four east) -- (15.three west |- 10.four east);
+		\path [cf_line] (15.two east) -- (23.one west |- 15.two east);
+		\path [cf_line] (15.three east) -- (16.one west |- 15.three east);
+		\path [cf_line] (16.one east) -- (19.one west |- 16.one east);
+		\path [cf_line] (19.one east) -- (23.two west |- 19.one east);
+		
+		\path [cf_label] (H.one east) edge node [above] {3} (10.one west |- H.one east);
+		\path [cf_label] (H.two east) edge node [above] {3} (10.two west |- H.two east);
+		\path [cf_label] (H.three east) edge node [above] {2} (7.one west |- H.three east);
+		\path [cf_label] (H.four east) edge node [above] {1} (5.one west |- H.four east);
+		\path [cf_label] (5.one east) edge node [above] {1} (7.two west |- 5.one east);
+		\path [cf_label] (7.one east) edge node [above] {1} (10.three west |- 7.one east);
+		\path [cf_label] (7.two east) edge node [above] {1} (10.four west |- 7.two east);
+		\path [cf_label] (10.two east) edge node [above] {1} (15.one west |- 10.two east);
+		\path [cf_label] (10.three east) edge node [above] {1} (15.two west |- 10.three east);
+		\path [cf_label] (10.four east) edge node [above] {1} (15.three west |- 10.four east);
+		\path [cf_label] (15.two east) edge node [above] {3} (23.one west |- 15.two east);
+		\path [cf_label] (15.three east) edge node [above] {1} (16.one west |- 15.three east);
+		\path [cf_label] (16.one east) edge node [above] {1} (19.one west |- 16.one east);
+		\path [cf_label] (19.one east) edge node [above] {1} (23.two west |- 19.one east);
+	\end{tikzpicture}
+	
+	\caption{Example of a Skip List maintaining distance information between nodes}
+	\label{fig:SkipListWithDistance}
+\end{figure}
+
+With these extensions, the Skip List performs very well for common tasks of the Printing Stack.
+The average complexity of every single Skip List operation never exceeds $\mathcal{O}(\log n)$.
+For ReactOS, a Skip List has been implemented with 16 pointers per element for managing Printers and Print Jobs.
+This number of pointers keeps the average algorithm performance for up to $2^{16} = 65536$ elements.
+A small test suite has been added to guarantee stability and reliability of the abstract data type implementation.
+
+
+\subsection{Fast Random Number Generator}
+\label{sec:FastRNG}
+As noted beforehand, the implementation of a Skip List depends on a Generator returning geometrically distributed random numbers for $p = 0.5$.
+In fact, the Generator needs to output an integer between 1 and the array size.
+It does not need to produce cryptographically secure random numbers though.
+Even more, the numbers may be fully predictable, because only their distribution is relevant for the Skip List concept to work.
+
+With these given requirements, it was decided to integrate a custom Random Number Generator into the Skip List code instead of depending on an operating system function.
+Designing a custom Random Number Generator would go far beyond the scope of this thesis.
+To make a simple Generator available for nonspecialists, Stephen Park and Keith Miller proposed a variant of the \gls{LCG} in 1988, which is now known as the \emph{Minimal Standard Random Number Generator} \cite{parkmiller1988rng}.
+
+The Skip List's \texttt{\_GetRandomLevel} function makes use of this Random Number Generator using the revised parameters $a = 48271$ and $n = 2147483647$ \cite{parkmillerstockmeyer1993rng}.
+As the returned numbers may be completely predictable, a fixed seed of 1 was defined in the code.
+
+In the beginning, it outputs 31 uniformly distributed random bits.
+A bitshift to the right is then performed to shift out some bits and only leave one bit for every possible level (as configured through the array size).
+This method limits the possible Skip List node array size to 31 pointers.
+Anyway, such a size would be enough to account for up to $2^{31}$ elements while still having a data structure that keeps the average algorithm complexity.
+For the Printing Stack, a Skip List with 16 possible levels is used, so half of the random bits are shifted out.
+
+Finally, the uniform distribution is turned into a geometric distribution for $p = 0.5$ by using the \emph{Bit Scan Forward} processor instruction.
+This instruction counts the bits set to one from the least-significant bit to the most-significant bit and returns the position of the first zero.
+Hence, a zero in the first bit has a probability of $0.5^1 = 0.5$, a zero in the first two bits has a probability of $0.5^2 = 0.25$, a zero in the first three bits has a probability of $0.5^3 = 0.125$, and so on.
+As a result, this method delivers a geometric distribution for $p = 0.5$ efficiently.
+
+The full \texttt{\_GetRandomLevel} listing can be found in Appendix~\ref{sec:GetRandomLevel}.
+The function is simple enough to be declared as an inline function.
+
+
+\begin{algorithm}[t]
+	\caption{Looking up an element and its 1-based index in a Skip List}
+	\label{alg:LookupElementSkiplist}
+	\begin{algorithmic}[1]
+		\Procedure{LookupElementSkiplist}{$Skiplist$, $Element$}
+			\State $Index \gets 1$
+			\State $Node \gets Skiplist.Head$
+			\newline
+			\For{$i = Skiplist.MaximumLevel \to 1$}
+				\While{$Node.Next[i].Element < Element$}
+					\State $Index \gets Index + Node.Distance[i]$
+					\State $Node \gets Node.Next[i]$
+				\EndWhile
+			\EndFor
+			\newline
+			\State $Node \gets Node.Next[0]$
+			\If{$Node.Element \neq Element$}
+				\State \textbf{return} $\varnothing$
+			\EndIf
+			\newline
+			\State \textbf{return} $(Node.Element, Index)$
+		\EndProcedure
+	\end{algorithmic}
+\end{algorithm}

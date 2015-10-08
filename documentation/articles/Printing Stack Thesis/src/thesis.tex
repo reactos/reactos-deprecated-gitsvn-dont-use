@@ -1,0 +1,57 @@
+% Copyright 2009 by Rainer Finocchiaro
+% Copyright 2015 by Simon Pickartz
+%
+%%*****************************************
+%%*                                       *
+%%* RWTH Aachen University                *
+%%*                                       *
+%%* Institute for Automation of Complex   *
+%%* Power Systems                         * 
+%%*                                       *
+%%* Based on the thesis template          * 
+%%* of the Chair for Operating Systems    *
+%%* created by Rainer Finocchiaro         *
+%%*                                       *
+%%*****************************************
+%%
+%%
+%% C H A N G E L O G :
+%% ~~~~~~~~~~~~~~~~~~~
+%%
+%% 2015/01/05 [SP]: - Initial version
+%% 2015/04/23 [SP]: - First Release Candidate
+%% 2015/05/21 [SP]: - Bibliography to ToC; add abstract support
+%%
+%%
+%% [SP] Simon Pickartz
+%%
+%%
+% Template for Master and Bachelor Theses at ACS (based on scrbook)
+
+\documentclass[%
+			   bibliography=totoc, 		% Add bibliography to toc
+%				english,ngerman 		% Main language: German; second Lang: English
+               ngerman,english 			% Main language: English; second Lang: German 
+               ]{template/acsthesis}	
+
+\makeindex 								% uncomment if index should be created
+			   							% and uncomment '\printindex' at the bottom
+
+
+\input{template/config} 				% Configuration (e.g., author) go into 'config.tex'
+\input{template/includes}				% Additional definitions and packages
+\input{glossary} % load glossary file
+
+\begin{document}
+\printglossary[type=\acronymtype, title=Abbreviations]
+\listoffigures
+%\listoftables	
+%\lstlistoflistings
+\input{chapters} 						% this file contains includes for the individual chapters
+
+\appendix 								% uncomment these two lines if you wish
+\input{appendices} 						% to add an appendix
+
+ 					
+
+\end{document}

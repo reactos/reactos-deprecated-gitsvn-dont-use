@@ -1,0 +1,39 @@
+% This is the glossary file for my thesis
+\newglossarystyle{myglossarystyle}{               % new glossary style
+   \setglossarystyle{long}                           % based on style long
+   \renewenvironment{theglossary}
+   {\begin{longtable}
+      {@{}p{0.25\textwidth} p{0.7\textwidth}}}   % adjust width of columns
+   {\end{longtable}}
+   \renewcommand*{\glsgroupskip}{}               % no grouping
+}
+ 
+\setglossarystyle{myglossarystyle}
+ 
+\makeglossaries
+
+\newacronym{API}{API}{Application Programming Interface}
+\newacronym{AVL}{AVL}{Adelson-Velski Landis}
+\newacronym{BIOS}{BIOS}{Basic Input/Output System}
+\newacronym{CUPS}{CUPS}{Common UNIX Printing System}
+\newacronym[longplural={Dynamic Link Libraries}]{DLL}{DLL}{Dynamic Link Library}
+\newacronym{EMF}{EMF}{Enhanced Metafile}
+\newacronym{GDI}{GDI}{Graphics Device Interface}
+\newacronym{HTTP}{HTTP}{Hyper-Text Transfer Protocol}
+\newacronym{IDL}{IDL}{Interface Definition Language}
+\newacronym{IPP}{IPP}{Internet Printing Protocol}
+\newacronym{KD}{KD}{Kernel Debugging}
+\newacronym{LCG}{LCG}{Linear Congruential Generator}
+\newacronym{LPD}{LPD}{Line Printer Daemon}
+\newacronym{MIME}{MIME}{Multipurpose Internet Mail Extensions}
+\newacronym{PDB}{PDB}{Program Database}
+\newacronym{PDF}{PDF}{Portable Document Format}
+\newacronym{PPA}{PPA}{Printing Performance Architecture}
+\newacronym{PE}{PE}{Portable Executable}
+\newacronym{RCE}{RCE}{Reverse Code Engineering}
+\newacronym{RMI}{RMI}{Remote Method Invocation}
+\newacronym{RPC}{RPC}{Remote Procedure Call}
+\newacronym{SMB}{SMB}{Server Message Block}
+\newacronym{STL}{STL}{Standard Template Library}
+\newacronym{USB}{USB}{Universal Serial Bus}
+\newacronym{XML}{XML}{Extensible Markup Language}

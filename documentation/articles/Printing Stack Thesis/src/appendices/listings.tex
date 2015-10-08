@@ -1,0 +1,74 @@
+\chapter{Listings}
+This appendix provides the actual C code for some implemented functions discussed in Chapter~\ref{chp:implementation}.
+
+
+\section{\_GetRandomLevel function}
+\label{sec:GetRandomLevel}
+The \texttt{\_GetRandomLevel} function has been introduced in Section~\ref{sec:FastRNG}.
+It implements the Random Number Generator required for determining the level of a new element added to a Skip List.
+\bigskip
+
+\begin{lstlisting}
+// Define SKIPLIST_LEVELS to the maximum number of levels the Skip List shall have.
+#define SKIPLIST_LEVELS    16
+
+C_ASSERT(SKIPLIST_LEVELS >= 1);
+C_ASSERT(SKIPLIST_LEVELS <= 31);
+
+static __inline CHAR
+_GetRandomLevel()
+{
+    // Using a simple fixed seed and the Park-Miller Lehmer Minimal Standard Random Number Generator gives an acceptable distribution for our "random" levels.
+    static DWORD dwRandom = 1;
+
+    DWORD dwLevel = 0;
+    DWORD dwShifted;
+
+    // Generate 31 uniformly distributed pseudo-random bits using the Park-Miller Lehmer Minimal Standard Random Number Generator.
+    dwRandom = (DWORD)(((ULONGLONG)dwRandom * 48271UL) % 2147483647UL);
+
+    // Shift out (31 - SKIPLIST_LEVELS) bits to the right to have no more than SKIPLIST_LEVELS bits set.
+    dwShifted = dwRandom >> (31 - SKIPLIST_LEVELS);
+
+    // BitScanForward doesn't operate on a zero input value.
+    if (dwShifted)
+    {
+        // BitScanForward sets dwLevel to the zero-based position of the first set bit (from LSB to MSB).
+        // This makes dwLevel a geometrically distributed value between 0 and SKIPLIST_LEVELS - 1 for p = 0.5.
+        BitScanForward(&dwLevel, dwShifted);
+    }
+
+    // dwLevel can't have a value higher than 30 this way, so a CHAR is more than enough.
+    return (CHAR)dwLevel;
+}
+\end{lstlisting}
+
+
+\section{\_RpcWritePrinter implementation}
+\label{sec:RpcWritePrinter}
+\texttt{\_RpcWritePrinter} is one of the \gls{RPC} server functions implemented in the Spooler Server.
+It serves as an example how most of the \gls{RPC} calls are implemented.
+Basically, Impersonation is performed, the corresponding Spooler Router function called, and finally the security context reverted back to the system context.
+This process is further illustrated in Figure~\ref{fig:WritePrinterProcessing}.
+\bigskip
+
+\begin{lstlisting}
+DWORD
+_RpcWritePrinter(WINSPOOL_PRINTER_HANDLE hPrinter, BYTE* pBuf, DWORD cbBuf, DWORD* pcWritten)
+{
+    DWORD dwErrorCode;
+
+    dwErrorCode = RpcImpersonateClient(NULL);
+    if (dwErrorCode != ERROR_SUCCESS)
+    {
+        ERR("RpcImpersonateClient failed with error %lu!\n", dwErrorCode);
+        return dwErrorCode;
+    }
+
+    WritePrinter(hPrinter, pBuf, cbBuf, pcWritten);
+    dwErrorCode = GetLastError();
+
+    RpcRevertToSelf();
+    return dwErrorCode;
+}
+\end{lstlisting}

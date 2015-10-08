@@ -1,0 +1,67 @@
+% Add further definitions and additional packages  here
+\usetikzlibrary{calc, shapes, arrows, chains, decorations.text, backgrounds}
+
+\tikzset{
+	cf_base/.style={font=\sffamily\footnotesize, node distance=15mm, fill=white},
+	cf_block/.style={cf_base, draw, rectangle, rounded corners, on grid, align=center},
+	cf_data/.style={cf_base, draw, cylinder, aspect=0.2, on grid, shape border rotate=90]},
+	cf_head/.style={font=\sffamily\bfseries\normalsize, on grid},
+	cf_impl/.style={cf_base, fill=yellow!20},
+	cf_label/.style={align=left, draw opacity=0, font=\sffamily\tiny},
+	cf_line/.style={cf_base, draw, -latex},
+	cf_skiplistitem/.style={cf_base, draw, rectangle split, rectangle split parts=#1, rectangle split empty part height=1.5ex, rectangle split empty part width=1ex, align=center}
+}
+
+% The bibliography
+\usepackage[backend=bibtex, style=numeric]{biblatex}
+\addbibresource{bibliography}
+
+% package for glossary
+\usepackage[nopostdot, nonumberlist, nogroupskip, toc]{glossaries}
+\usepackage{glossary-mcols}
+
+% package for algorithms in pseudocode
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+
+% package for plots
+\usepackage{pgfplots}
+
+% support for landscape figures
+\usepackage{rotating}
+\usepackage{pdflscape}
+
+% package for listings
+\usepackage{listings}
+
+\definecolor{bluekeywords}{rgb}{0, 0, 1}
+\definecolor{greencomments}{rgb}{0, 0.5, 0}
+\definecolor{redstrings}{rgb}{0.64, 0.08, 0.08}
+
+\lstset{
+	language=C++,
+	captionpos=b,
+	frame=lines,
+	showspaces=false,
+	showtabs=false,
+	breaklines=true,
+	showstringspaces=false,
+	breakatwhitespace=true,
+	commentstyle=\color{greencomments},
+	keywordstyle=\color{bluekeywords},
+	morekeywords={__inline},
+	stringstyle=\color{redstrings},
+	basicstyle=\ttfamily\small,
+}
+
+% Hyphenation settings for some words
+\selectlanguage{ngerman}
+\hyphenation{ReactOS}
+\selectlanguage{english}
+\hyphenation{ReactOS}
+
+% Prevent single lines to be printed on the next page
+\clubpenalty = 10000
+\widowpenalty = 10000 
+\displaywidowpenalty = 10000

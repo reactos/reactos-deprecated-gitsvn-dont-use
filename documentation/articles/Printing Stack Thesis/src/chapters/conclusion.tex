@@ -1,0 +1,32 @@
+\chapter{Conclusion}
+This thesis presents a Printing Stack for the ReactOS Operating System, which offers compatibility with Windows Printing \gls{API} functions and extensibility for future additions.
+
+Through extensive research in advance, the official Microsoft documentation for the Windows Printing Stack has been complemented by additional information.
+An overview of the components involved and their mutual dependencies has been given.
+
+Based on the gathered information, a compatible replacement has been developed for each fundamental component.
+By the consequent usage of various verification methods during the development process, reliable code and compatibility to Windows Server 2003 is guaranteed.
+Implementing communication between applications and the Printing Stack consistently over \gls{RPC} paves the way for a future integration of ReactOS-based Print Servers into a networked environment.
+
+The Skip List abstract data type has been introduced to address the need for a flexible list structure inside Printing Stack components.
+Its implemented extensions provide performance enhancements when handling large sets of elements.
+
+Final testing of the Printing Stack inside a Virtual Machine and on Real Hardware has demonstrated the functioning of the developed framework.
+
+\bigskip
+
+Within the scope of this bachelor's thesis, only the foundations of the Printing Stack could be implemented.
+The next logical task would be adding support for native Windows Printer Drivers, which convert \gls{EMF} data into Printer Control Language.
+Along with this task comes the implementation of fundamental \gls{GDI} functions for Printing, e.g. \texttt{StartDoc} and \texttt{EndDoc}.
+
+In order to provide an intuitive and satisfying user experience, the ReactOS Printing Stack also requires several user interface components to be developed, which guide the user through the installation, configuration, and management of available Printers.
+
+Finally, a modern operating system needs to provide support for a wide variety of Printers out of the box.
+Due to the vast number of different Printers available, the development focus should lie on Generic Drivers implementing common Printer Control Languages.
+One example of this is Adobe PostScript.
+
+\bigskip
+
+To put it in a nutshell, Printing is an integral feature of modern desktop operating systems.
+Providing a suitable Printing Stack for the ReactOS Project enriches the user experience and improves compatibility with many popular applications.
+All in all, this step makes more usage scenarios imaginable for the Open-Source Windows-compatible operating system.

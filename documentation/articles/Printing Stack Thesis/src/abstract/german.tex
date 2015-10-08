@@ -1,0 +1,7 @@
+Das Open-Source ReactOS Betriebssystem hat das Ziel, eine Alternative zum aktuell marktführenden PC-Betriebssystem Microsoft Windows zu schaffen, indem es volle Kompatibilität mit dafür geschriebenen Anwendungen und Treibern bietet.
+Aus diesem Grund müssen existierende Anwendungen (z.B. Textverarbeitungsprogramme) in der Lage sein, die etablierten API-Funktionen zum Drucken auch unter ReactOS zu benutzen, ohne diese Anwendungen neu zu kompilieren oder deren Code zu verändern.
+
+Diese Arbeit liefert eine ausführliche Recherche zum Druckerstack des Microsoft Windows Betriebssystems als auch einen Vergleich zu anderen verbreiteten Druckerstacks.
+Es folgt der Entwurf und eine erste Implementierung von kompatiblen Komponenten für das ReactOS Betriebssystem, um das Drucken von vorbereiteten Daten in einer Druckerkontrollsprache unter Benutzung der etablierten Betriebssystem API-Funktionen zu ermöglichen.
+Dies umfasst sowohl das Drucken auf echten Drucker, die physisch an einen Computer angeschlossen sind, als auch die Verwendung virtueller Drucker zur Ausgabe des Druckergebnisses in einer Datei.
+Die Komponenten sind flexibel entworfen, sodass eine spätere Erweiterung um Treiberunterstützung für Datentyp-Konvertierungen, Benutzeroberflächenkomponenten und zusätzliche Druckertreiber möglich ist.
