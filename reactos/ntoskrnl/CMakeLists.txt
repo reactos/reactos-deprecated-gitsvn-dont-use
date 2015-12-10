@@ -26,15 +26,9 @@ else()
 endif()
 set_subsystem(ntoskrnl native)
 
+set_image_base(ntoskrnl 0x00400000)
 if(MSVC)
-    set_image_base(ntoskrnl 0x00400000)
     add_target_link_flags(ntoskrnl "/SECTION:.rsrc,!DP") #Accessed from bugcheck code
-else()
-    if(GDB)
-        set_image_base(ntoskrnl 0x00800000)
-    else()
-        set_image_base(ntoskrnl 0x80800000)
-    endif()
 endif()
 
 target_link_libraries(ntoskrnl cportlib csq ${PSEH_LIB} cmlib rtl ${ROSSYM_LIB} libcntpr wdmguid ioevent)
