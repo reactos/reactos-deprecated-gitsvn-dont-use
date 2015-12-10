@@ -26,11 +26,9 @@ else()
 endif()
 set_subsystem(ntkrnlmp native)
 
+set_image_base(ntkrnlmp 0x00400000)
 if(MSVC)
-    set_image_base(ntkrnlmp 0x00400000)
     add_target_link_flags(ntkrnlmp "/SECTION:.rsrc,!DP") #Accessed from bugcheck code
-else()
-    set_image_base(ntkrnlmp 0x80800000)
 endif()
 
 if(STACK_PROTECTOR)
