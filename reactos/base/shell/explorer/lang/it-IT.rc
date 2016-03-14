@@ -28,15 +28,15 @@ BEGIN
         MENUITEM "", -1, MFT_SEPARATOR
         POPUP "&Programmi", IDM_PROGRAMS
         BEGIN
-            MENUITEM "(Empty)", -1, MFT_STRING, MFS_GRAYED
+            MENUITEM "(Vuoto)", -1, MFT_STRING, MFS_GRAYED
         END
         POPUP "&Preferiti", IDM_FAVORITES
         BEGIN
-            MENUITEM "(Empty)", -1, MFT_STRING, MFS_GRAYED
+            MENUITEM "(Vuoto)", -1, MFT_STRING, MFS_GRAYED
         END
         POPUP "&Documenti", IDM_DOCUMENTS
         BEGIN
-            MENUITEM "(Empty)", -1, MFT_STRING, MFS_GRAYED
+            MENUITEM "(Vuoto)", -1, MFT_STRING, MFS_GRAYED
         END
         POPUP "&Impostazioni", IDM_SETTINGS
         BEGIN
@@ -103,21 +103,21 @@ EXSTYLE WS_EX_CONTEXTHELP
 CAPTION "Customize Notifications"
 FONT 8, "MS Shell Dlg"
 BEGIN
-    LTEXT            "ReactOS displays icons for active and urgent notifications, and hides inactive ones. You can change this behavior for items in the list below.", IDC_STATIC, 6, 6, 220, 30
-    LTEXT            "Select an item, then choose its notification behavior:", IDC_STATIC, 6, 40, 220, 10
+    LTEXT            "ReactOS mostra icone per attive e urgenti notifiche, e nasconde quelle inattive. Tu puoi cambiare questa impostazione in questa lista.", IDC_STATIC, 6, 6, 220, 30
+    LTEXT            "Seleziona un oggetto, quindi anche la sua notifica:", IDC_STATIC, 6, 40, 220, 10
     CONTROL          "", IDC_NOTIFICATION_LIST, "SysListView32", WS_CLIPSIBLINGS | WS_BORDER | 0x00008005, 6, 50, 220, 128
     COMBOBOX         IDC_NOTIFICATION_BEHAVIOUR, 103, 178, 78, 200, CBS_DROPDOWNLIST | NOT WS_VISIBLE | WS_CLIPSIBLINGS
-    PUSHBUTTON       "&Restore Defaults", IDC_TASKBARPROP_NOTIREST, 164, 188, 62, 14
+    PUSHBUTTON       "&Reimposta", IDC_TASKBARPROP_NOTIREST, 164, 188, 62, 14
     DEFPUSHBUTTON    "OK", IDOK, 122, 220, 50, 14
-    PUSHBUTTON       "Cancel", IDCANCEL, 176, 220, 50, 14
+    PUSHBUTTON       "Cancella", IDCANCEL, 176, 220, 50, 14
 END
 
 IDD_CLASSICSTART_CUSTOMIZE DIALOGEX 0, 0, 232, 240, 0
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CONTEXTHELP | WS_POPUPWINDOW | WS_VISIBLE | WS_DLGFRAME
-CAPTION "Customize Classic Start Menu"
+CAPTION "Modifica il menuù start classico"
 FONT 8, "MS Shell Dlg"
 {
-    GROUPBOX         "Start menu", IDC_STATIC, 8, 7, 218, 114
+    GROUPBOX         "Menù Start", IDC_STATIC, 8, 7, 218, 114
     ICON             IDI_STARTMENU2, IDC_STATIC, 19, 17, 20, 20
     LTEXT            "You can customize your Start menu by adding or removing items.", IDC_STATIC, 48, 17, 108, 39
     PUSHBUTTON       "A&dd...", IDC_CLASSICSTART_ADD, 162, 18, 53, 14
