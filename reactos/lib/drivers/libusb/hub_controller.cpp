@@ -324,7 +324,8 @@ CHubController::QueryStatusChangeEndpoint(
         m_Hardware->GetPortStatus(PortId, &PortStatus, &PortChange);
 
         DPRINT("[%s] Port %d: Status %x, Change %x\n", m_USBType, PortId, PortStatus, PortChange);
-
+DPRINT1("QueryStatusChangeEndpoint: FIXME KeStallExecutionProcessor(100000)\n");
+KeStallExecutionProcessor(100000); //100 msec
 
         //
         // If there's a flag in PortChange return TRUE so the SCE Irp will be completed
