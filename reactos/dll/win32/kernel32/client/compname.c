@@ -145,11 +145,18 @@ GetComputerNameExW(COMPUTER_NAME_FORMAT NameType,
                                                nSize);
 
         case ComputerNameDnsDomain:
-            return GetComputerNameFromRegistry(L"\\Registry\\Machine\\System\\CurrentControlSet"
+            if (!GetComputerNameFromRegistry(L"\\Registry\\Machine\\System\\CurrentControlSet"
+                                               L"\\Services\\Tcpip\\Parameters",
+                                               L"DhcpDomain",
+                                               lpBuffer,
+                                               nSize))
+                 return GetComputerNameFromRegistry(L"\\Registry\\Machine\\System\\CurrentControlSet"
                                                L"\\Services\\Tcpip\\Parameters",
                                                L"Domain",
                                                lpBuffer,
                                                nSize);
+            else
+                return TRUE;
 
         case ComputerNameDnsFullyQualified:
             ResultString.Length = 0;
@@ -185,7 +192,7 @@ GetComputerNameExW(COMPUTER_NAME_FORMAT NameType,
                 RtlFreeUnicodeString(&DomainPart);
 
                 RtlInitUnicodeString(&DomainPart, NULL);
-                QueryTable[0].Name = L"Domain";
+                QueryTable[0].Name = L"DhcpDomain";
                 QueryTable[0].Flags = RTL_QUERY_REGISTRY_DIRECT;
                 QueryTable[0].EntryContext = &DomainPart;
 
@@ -197,7 +204,7 @@ GetComputerNameExW(COMPUTER_NAME_FORMAT NameType,
                                                 NULL,
                                                 NULL);
 
-                if (NT_SUCCESS(Status))
+                if (NT_SUCCESS(Status) && DomainPart.Buffer != NULL && wcslen(DomainPart.Buffer) > 0)
                 {
                     Status = RtlAppendUnicodeStringToString(&ResultString, &DomainPart);
                     if ((!NT_SUCCESS(Status)) || (!ret))
@@ -211,6 +218,36 @@ GetComputerNameExW(COMPUTER_NAME_FORMAT NameType,
                     *nSize = ResultString.Length / sizeof(WCHAR) - 1;
                     return TRUE;
                 }
+                else
+                {
+                    RtlInitUnicodeString(&DomainPart, NULL);
+                    QueryTable[0].Name = L"Domain";
+                    QueryTable[0].Flags = RTL_QUERY_REGISTRY_DIRECT;
+                    QueryTable[0].EntryContext = &DomainPart;
+
+                    Status = RtlQueryRegistryValues(RTL_REGISTRY_ABSOLUTE,
+                                                    L"\\Registry\\Machine\\System"
+                                                    L"\\CurrentControlSet\\Services\\Tcpip"
+                                                    L"\\Parameters",
+                                                    QueryTable,
+                                                    NULL,
+                                                    NULL);
+
+                    if (NT_SUCCESS(Status))
+                    {
+                        Status = RtlAppendUnicodeStringToString(&ResultString, &DomainPart);
+                        if ((!NT_SUCCESS(Status)) || (!ret))
+                        {
+                            *nSize = HostSize + DomainPart.Length;
+                            SetLastError(ERROR_MORE_DATA);
+                            RtlFreeUnicodeString(&DomainPart);
+                            return FALSE;
+                        }
+                        RtlFreeUnicodeString(&DomainPart);
+                        *nSize = ResultString.Length / sizeof(WCHAR) - 1;
+                        return TRUE;
+                    }
+                }
             }
             return FALSE;
 
@@ -222,11 +259,18 @@ GetComputerNameExW(COMPUTER_NAME_FORMAT NameType,
                                                nSize);
 
         case ComputerNamePhysicalDnsDomain:
-            return GetComputerNameFromRegistry(L"\\Registry\\Machine\\System\\CurrentControlSet"
+            if (!GetComputerNameFromRegistry(L"\\Registry\\Machine\\System\\CurrentControlSet"
+                                               L"\\Services\\Tcpip\\Parameters",
+                                               L"DhcpDomain",
+                                               lpBuffer,
+                                               nSize))
+                return GetComputerNameFromRegistry(L"\\Registry\\Machine\\System\\CurrentControlSet"
                                                L"\\Services\\Tcpip\\Parameters",
                                                L"Domain",
                                                lpBuffer,
                                                nSize);
+            else
+                return TRUE;
 
         /* XXX Redo these */
         case ComputerNamePhysicalDnsFullyQualified:
