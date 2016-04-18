@@ -561,6 +561,10 @@ LoadWindowsCore(IN USHORT OperatingSystemVersion,
             {
                 strncat(KdTransportDllName, BootOptions, 3);
             }
+            else if (_strnicmp(BootOptions, "GDB", 3) == 0 && '0' <= BootOptions[3] && BootOptions[3] <= '9')
+            {
+                strcat(KdTransportDllName, "GDB");
+            }
             else
             {
                 size_t i = strcspn(BootOptions, " \t:"); /* Skip valid separators: whitespace or colon */
