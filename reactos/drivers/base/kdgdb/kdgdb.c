@@ -172,8 +172,9 @@ KdDebuggerInitialize0(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
             while (*PortString == ' ') PortString++;
             PortString++;
 
-            /* Do we have a serial port? */
-            if (strncmp(PortString, "COM", 3) != 0)
+            /* Do we have a serial port?
+             * We use "GDB" instead of "COM" to coexist with kdcom */
+            if (strncmp(PortString, "GDB", 3) != 0)
             {
                 return STATUS_INVALID_PARAMETER;
             }

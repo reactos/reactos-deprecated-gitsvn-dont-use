@@ -2967,7 +2967,7 @@ NtFlushInstructionCache(_In_ HANDLE ProcessHandle,
     }
 
     /* Forward to Ke */
-    KeSweepICache(BaseAddress, FlushSize);
+    KeSweepICache();
 
     /* Check if we attached */
     if (ProcessHandle != NtCurrentProcess())
