@@ -278,7 +278,7 @@ handle_gdb_registers(
 
 static
 void
-ReadMemorySendHandler(
+MemorySendHandler(
     _In_ ULONG PacketType,
     _In_ PSTRING MessageHeader,
     _In_ PSTRING MessageData)
@@ -288,20 +288,20 @@ ReadMemorySendHandler(
     if (PacketType != PACKET_TYPE_KD_STATE_MANIPULATE)
     {
         // KdAssert
-        KDDBGPRINT("Wrong packet type (%lu) received after DbgKdReadVirtualMemoryApi request.\n", PacketType);
+        KDDBGPRINT("Wrong packet type (%lu) received after DbgKd VirtualMemoryApi request.\n", PacketType);
         while (1);
     }
 
-    if (State->ApiNumber != DbgKdReadVirtualMemoryApi)
-    {
-        KDDBGPRINT("Wrong API number (%lu) after DbgKdReadVirtualMemoryApi request.\n", State->ApiNumber);
-    }
-
     /* Check status */
-    if (!NT_SUCCESS(State->ReturnStatus))
+    if (!NT_SUCCESS(State->ReturnStatus)) {
         send_gdb_ntstatus(State->ReturnStatus);
-    else
+    } else if (State->ApiNumber == DbgKdReadVirtualMemoryApi) {
         send_gdb_memory(MessageData->Buffer, MessageData->Length);
+    } else if (State->ApiNumber == DbgKdWriteVirtualMemoryApi) {
+        send_gdb_packet("OK");
+    } else {
+        KDDBGPRINT("Wrong API number (%lu) after DbgKd VirtualMemoryApi request.\n", State->ApiNumber);
+    }
     KdpSendPacketHandler = NULL;
     KdpManipulateStateHandler = NULL;
 
@@ -314,18 +314,20 @@ ReadMemorySendHandler(
 
 static
 KDSTATUS
-handle_gdb_read_mem(
+handle_gdb_mem(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
     _Out_ PULONG MessageLength,
     _Inout_ PKD_CONTEXT KdContext)
 {
-    State->ApiNumber = DbgKdReadVirtualMemoryApi;
+    ULONG64 Address;
+    ULONG64 Length;
+
     State->ReturnStatus = STATUS_SUCCESS; /* ? */
     State->Processor = CurrentStateChange.Processor;
     State->ProcessorLevel = CurrentStateChange.ProcessorLevel;
-    if (MessageData)
-        MessageData->Length = 0;
+
+    MessageData->Length = 0;
     *MessageLength = 0;
 
     /* Set the TLB according to the process being read. Pid 0 means any process. */
@@ -341,11 +343,23 @@ handle_gdb_read_mem(
         __writecr3(AttachedProcess->Pcb.DirectoryTableBase[0]);
     }
 
-    State->u.ReadMemory.TargetBaseAddress = hex_to_address(&gdb_input[1]);
-    State->u.ReadMemory.TransferCount = hex_to_address(strstr(&gdb_input[1], ",") + 1);
+    Address = hex_to_address(&gdb_input[1]);
+    Length = hex_to_address(strstr(&gdb_input[1], ",") + 1);
+
+    if(gdb_input[0] == 'm') {
+        State->ApiNumber = DbgKdReadVirtualMemoryApi;
+        State->u.ReadMemory.TargetBaseAddress = Address;
+        State->u.ReadMemory.TransferCount = Length;
+    } else /* X */ {
+        State->ApiNumber = DbgKdWriteVirtualMemoryApi;
+        State->u.WriteMemory.TargetBaseAddress = Address;
+        State->u.WriteMemory.TransferCount = Length;
+        MessageData->Length = Length;
+        MessageData->Buffer = strstr(gdb_input, ":") + 1;
+    }
 
     /* KD will reply with KdSendPacket. Catch it */
-    KdpSendPacketHandler = ReadMemorySendHandler;
+    KdpSendPacketHandler = MemorySendHandler;
 
     return KdPacketReceived;
 }
@@ -424,7 +438,8 @@ gdb_interpret_input(
         handle_gdb_set_thread();
         break;
     case 'm':
-        return handle_gdb_read_mem(State, MessageData, MessageLength, KdContext);
+    case 'X':
+        return handle_gdb_mem(State, MessageData, MessageLength, KdContext);
     case 'p':
         return gdb_send_register(State, MessageData, MessageLength, KdContext);
     case 'q':
@@ -434,6 +449,11 @@ gdb_interpret_input(
         break;
     case 'v':
         return handle_gdb_v(State, MessageData, MessageLength, KdContext);
+    case 'z':
+    case 'Z':
+        /* Let gdb do soft breakpoints itself */
+        send_gdb_packet("");
+        break;
     default:
         /* We don't know how to handle this request. Maybe this is something for KD */
         State->ReturnStatus = STATUS_NOT_SUPPORTED;
