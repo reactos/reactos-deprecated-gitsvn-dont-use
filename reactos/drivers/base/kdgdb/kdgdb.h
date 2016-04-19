@@ -108,8 +108,8 @@ extern PEPROCESS find_process( _In_ UINT_PTR Pid);
 extern PETHREAD find_thread(_In_ UINT_PTR Pid, _In_ UINT_PTR Tid);
 
 /* arch_sup.c */
-extern KDSTATUS gdb_send_register(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
-extern KDSTATUS gdb_send_registers(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
+extern VOID gdb_send_register(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
+extern VOID gdb_send_registers(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 
 /* Architecture specific defines. See ntoskrnl/include/internal/arch/ke.h */
 #ifdef _M_IX86

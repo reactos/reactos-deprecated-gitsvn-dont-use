@@ -129,7 +129,7 @@ handle_gdb_thread_alive(void)
 
 /* q* packets */
 static
-KDSTATUS
+VOID
 handle_gdb_query(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
@@ -139,20 +139,20 @@ handle_gdb_query(
     if (strncmp(gdb_input, "qSupported:", 11) == 0)
     {
         send_gdb_packet("PacketSize=4096;multiprocess+;");
-        return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+        return;
     }
 
     if (strncmp(gdb_input, "qAttached", 9) == 0)
     {
         /* Say no: We didn't attach, we create the process! */
         send_gdb_packet("0");
-        return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+        return;
     }
 
     if (strncmp(gdb_input, "qRcmd,", 6) == 0)
     {
         send_gdb_packet("OK");
-        return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+        return;
     }
 
     if (strcmp(gdb_input, "qC") == 0)
@@ -162,7 +162,7 @@ handle_gdb_query(
             handle_to_gdb_pid(PsGetThreadProcessId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread)),
             handle_to_gdb_tid(PsGetThreadId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread)));
         send_gdb_packet(gdb_out);
-        return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+        return;
     }
 
     if ((strncmp(gdb_input, "qfThreadInfo", 12) == 0)
@@ -182,7 +182,7 @@ handle_gdb_query(
                 /* We're done */
                 send_gdb_packet("l");
                 CurrentProcessEntry = NULL;
-                return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+                return;
             }
 
             if (CurrentThreadEntry == NULL)
@@ -197,7 +197,7 @@ handle_gdb_query(
             /* We're almost done. Tell GDB about the idle thread */
             send_gdb_packet("mp1.1");
             CurrentProcessEntry = (LIST_ENTRY*)1;
-            return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+            return;
         }
 
         Process = CONTAINING_RECORD(CurrentProcessEntry, EPROCESS, ActiveProcessLinks);
@@ -235,21 +235,19 @@ handle_gdb_query(
             {
                 /* send what we got */
                 send_gdb_packet(gdb_out);
-                /* GDB can ask anything at this point, it isn't necessarily a qsThreadInfo packet */
-                return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+                return;
             }
         }
 
         /* send the list for this process */
         send_gdb_packet(gdb_out);
         CurrentThreadEntry = NULL;
-        /* GDB can ask anything at this point, it isn't necessarily a qsThreadInfo packet */
-        return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+        return;
     }
 
     KDDBGPRINT("KDGDB: Unknown query: %s\n", gdb_input);
     send_gdb_packet("");
-    return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+    return;
 }
 
 #if 0
@@ -433,7 +431,8 @@ gdb_interpret_input(
         gdb_send_exception();
         break;
     case 'g':
-        return gdb_send_registers(State, MessageData, MessageLength, KdContext);
+        gdb_send_registers(State, MessageData, MessageLength, KdContext);
+        break;
     case 'H':
         handle_gdb_set_thread();
         break;
@@ -441,9 +440,11 @@ gdb_interpret_input(
     case 'X':
         return handle_gdb_mem(State, MessageData, MessageLength, KdContext);
     case 'p':
-        return gdb_send_register(State, MessageData, MessageLength, KdContext);
+        gdb_send_register(State, MessageData, MessageLength, KdContext);
+        break;
     case 'q':
-        return handle_gdb_query(State, MessageData, MessageLength, KdContext);
+        handle_gdb_query(State, MessageData, MessageLength, KdContext);
+        break;
     case 'T':
         handle_gdb_thread_alive();
         break;

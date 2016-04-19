@@ -143,7 +143,7 @@ thread_to_reg(PETHREAD Thread, enum reg_name reg_name, unsigned short* size)
     return NULL;
 }
 
-KDSTATUS
+VOID
 gdb_send_registers(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
@@ -184,7 +184,7 @@ gdb_send_registers(
         {
             /* Thread is dead */
             send_gdb_packet("E03");
-            return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+            return;
         }
 
         for(i=0; i < 16; i++)
@@ -209,10 +209,10 @@ gdb_send_registers(
     }
     *ptr = '\0';
     send_gdb_packet(Registers);
-    return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+    return;
 }
 
-KDSTATUS
+VOID
 gdb_send_register(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
@@ -242,7 +242,7 @@ gdb_send_register(
         {
             /* Thread is dead */
             send_gdb_packet("E03");
-            return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+            return;
         }
 
         ptr = thread_to_reg(DbgThread, reg_name, &size);
@@ -258,5 +258,5 @@ gdb_send_register(
         send_gdb_memory(ptr, size);
     }
 
-    return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+    return;
 }
