@@ -50,34 +50,23 @@ exception_code_to_gdb(NTSTATUS code, char* out)
 void
 send_gdb_packet(_In_ CHAR* Buffer)
 {
-    UCHAR ack;
+    CHAR* ptr = Buffer;
+    CHAR check_sum = 0;
 
-    do {
-        CHAR* ptr = Buffer;
-        CHAR check_sum = 0;
+    KdpSendByte('$');
 
-        KdpSendByte('$');
+    /* Calculate checksum */
+    check_sum = 0;
+    while (*ptr)
+    {
+        check_sum += *ptr;
+        KdpSendByte(*ptr++);
+    }
 
-        /* Calculate checksum */
-        check_sum = 0;
-        while (*ptr)
-        {
-            check_sum += *ptr;
-            KdpSendByte(*ptr++);
-        }
-
-        /* append it */
-        KdpSendByte('#');
-        KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-        KdpSendByte(hex_chars[check_sum & 0xf]);
-
-        /* Wait for acknowledgement */
-        if (KdpReceiveByte(&ack) != KdPacketReceived)
-        {
-            KD_DEBUGGER_NOT_PRESENT = TRUE;
-            break;
-        }
-    } while (ack != '+');
+    /* append it */
+    KdpSendByte('#');
+    KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
+    KdpSendByte(hex_chars[check_sum & 0xf]);
 }
 
 void
@@ -85,82 +74,60 @@ send_gdb_memory(
     _In_ VOID* Buffer,
     _In_ size_t Length)
 {
-    UCHAR ack;
+    CHAR* ptr = Buffer;
+    CHAR check_sum = 0;
+    size_t len = Length;
+    CHAR Byte;
 
-    do {
-        CHAR* ptr = Buffer;
-        CHAR check_sum = 0;
-        size_t len = Length;
-        CHAR Byte;
+    KdpSendByte('$');
 
-        KdpSendByte('$');
+    /* Send the data */
+    check_sum = 0;
+    while (len--)
+    {
+        Byte = hex_chars[(*ptr >> 4) & 0xf];
+        KdpSendByte(Byte);
+        check_sum += Byte;
+        Byte = hex_chars[*ptr++ & 0xf];
+        KdpSendByte(Byte);
+        check_sum += Byte;
+    }
 
-        /* Send the data */
-        check_sum = 0;
-        while (len--)
-        {
-            Byte = hex_chars[(*ptr >> 4) & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-            Byte = hex_chars[*ptr++ & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-        }
-
-        /* append check sum */
-        KdpSendByte('#');
-        KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-        KdpSendByte(hex_chars[check_sum & 0xf]);
-
-        /* Wait for acknowledgement */
-        if (KdpReceiveByte(&ack) != KdPacketReceived)
-        {
-            KD_DEBUGGER_NOT_PRESENT = TRUE;
-            break;
-        }
-    } while (ack != '+');
+    /* append check sum */
+    KdpSendByte('#');
+    KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
+    KdpSendByte(hex_chars[check_sum & 0xf]);
 }
 
 void
 gdb_send_debug_io(
     _In_ PSTRING String)
 {
-    UCHAR ack;
+    CHAR* ptr = String->Buffer;
+    CHAR check_sum;
+    USHORT Length = String->Length;
+    CHAR Byte;
 
-    do {
-        CHAR* ptr = String->Buffer;
-        CHAR check_sum;
-        USHORT Length = String->Length;
-        CHAR Byte;
+    KdpSendByte('$');
 
-        KdpSendByte('$');
+    KdpSendByte('O');
 
-        KdpSendByte('O');
+    /* Send the data */
+    check_sum = 'O';
+    while (Length--)
+    {
+        Byte = hex_chars[(*ptr >> 4) & 0xf];
+        KdpSendByte(Byte);
+        check_sum += Byte;
+        Byte = hex_chars[*ptr++ & 0xf];
+        KdpSendByte(Byte);
+        check_sum += Byte;
+    }
 
-        /* Send the data */
-        check_sum = 'O';
-        while (Length--)
-        {
-            Byte = hex_chars[(*ptr >> 4) & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-            Byte = hex_chars[*ptr++ & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-        }
-
-        /* append check sum */
-        KdpSendByte('#');
-        KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-        KdpSendByte(hex_chars[check_sum & 0xf]);
-
-        /* Wait for acknowledgement */
-        if (KdpReceiveByte(&ack) != KdPacketReceived)
-        {
-            KD_DEBUGGER_NOT_PRESENT = TRUE;
-            break;
-        }
-    } while (ack != '+');
+    /* append check sum */
+    KdpSendByte('#');
+    KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
+    KdpSendByte(hex_chars[check_sum & 0xf]);
 }
 
 void
