@@ -14,6 +14,7 @@ static LIST_ENTRY* CurrentProcessEntry;
 static LIST_ENTRY* CurrentThreadEntry;
 
 /* GLOBALS ********************************************************************/
+BOOLEAN in_stop_mode;
 UINT_PTR gdb_dbg_pid;
 UINT_PTR gdb_dbg_tid;
 
@@ -395,7 +396,7 @@ handle_gdb_v(
     }
 
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
-    return KdPacketReceived;
+    return GdbContinue;
 }
 
 /* GLOBAL FUNCTIONS ***********************************************************/
@@ -408,6 +409,8 @@ gdb_receive_and_interpret_packet(
 {
     KDSTATUS Status;
     GDBSTATUS GdbStatus = GdbContinue;
+
+    in_stop_mode = TRUE;
 
     while(GdbStatus == GdbContinue)
     {
@@ -453,9 +456,11 @@ gdb_receive_and_interpret_packet(
             /* We don't know how to handle this request. Maybe this is something for KD */
             State->ReturnStatus = STATUS_NOT_SUPPORTED;
             KDDBGPRINT("Unsupported GDB command: %s.\n", gdb_input);
-            return Status;
+            goto exit;
         }
     };
 
+exit:
+    in_stop_mode = FALSE;
     return Status;
 }

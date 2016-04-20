@@ -72,6 +72,7 @@ typedef KDSTATUS (*KDP_MANIPULATESTATE_HANDLER)(
 );
 
 /* gdb_input.c */
+extern BOOLEAN in_stop_mode;
 extern UINT_PTR gdb_dbg_tid;
 extern UINT_PTR gdb_dbg_pid;
 extern KDSTATUS gdb_receive_and_interpret_packet(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
