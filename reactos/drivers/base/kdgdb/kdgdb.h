@@ -28,6 +28,12 @@ extern ULONG KdpDbgPrint(const char* Format, ...);
 #define KDDBGPRINT KdpDbgPrint
 #endif
 
+/* for gdb_receive_and_interpret_packet */
+typedef ULONG GDBSTATUS;
+
+#define GdbStop 0
+#define GdbContinue 1
+
 /* GDB doesn't like pid - tid 0, so +1 them */
 FORCEINLINE HANDLE gdb_tid_to_handle(UINT_PTR Tid)
 {
@@ -68,7 +74,6 @@ typedef KDSTATUS (*KDP_MANIPULATESTATE_HANDLER)(
 /* gdb_input.c */
 extern UINT_PTR gdb_dbg_tid;
 extern UINT_PTR gdb_dbg_pid;
-extern KDSTATUS gdb_interpret_input(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 extern KDSTATUS gdb_receive_and_interpret_packet(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 
 /* gdb_receive.c */

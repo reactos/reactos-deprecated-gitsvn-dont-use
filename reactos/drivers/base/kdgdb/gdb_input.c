@@ -91,20 +91,6 @@ handle_gdb_set_thread(void)
     }
 }
 
-KDSTATUS
-gdb_receive_and_interpret_packet(
-    _Out_ DBGKD_MANIPULATE_STATE64* State,
-    _Out_ PSTRING MessageData,
-    _Out_ PULONG MessageLength,
-    _Inout_ PKD_CONTEXT KdContext)
-{
-    KDSTATUS Status = gdb_receive_packet(KdContext);
-
-    if (Status != KdPacketReceived)
-        return Status;
-    return gdb_interpret_input(State, MessageData, MessageLength, KdContext);
-}
-
 static
 void
 handle_gdb_thread_alive(void)
@@ -252,7 +238,7 @@ handle_gdb_query(
 
 #if 0
 static
-KDSTATUS
+void
 handle_gdb_registers(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
@@ -270,7 +256,6 @@ handle_gdb_registers(
     if (MessageData)
         MessageData->Length = 0;
     *MessageLength = 0;
-    return KdPacketReceived;
 }
 #endif
 
@@ -311,7 +296,7 @@ MemorySendHandler(
 }
 
 static
-KDSTATUS
+GDBSTATUS
 handle_gdb_mem(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
@@ -336,7 +321,7 @@ handle_gdb_mem(
         {
             KDDBGPRINT("The current GDB debug thread is invalid!");
             send_gdb_packet("E03");
-            return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+            return GdbContinue;
         }
         __writecr3(AttachedProcess->Pcb.DirectoryTableBase[0]);
     }
@@ -359,7 +344,7 @@ handle_gdb_mem(
     /* KD will reply with KdSendPacket. Catch it */
     KdpSendPacketHandler = MemorySendHandler;
 
-    return KdPacketReceived;
+    return GdbStop;
 }
 
 static
@@ -374,13 +359,9 @@ handle_gdb_v(
     {
         if (gdb_input[5] == '?')
         {
-            KDSTATUS Status;
             /* Report what we support */
             send_gdb_packet("vCont;c;C;s;S");
-            Status = gdb_receive_packet(KdContext);
-            if (Status != KdPacketReceived)
-                return Status;
-            return gdb_interpret_input(State, MessageData, MessageLength, KdContext);
+            return GdbContinue;
         }
 
         if (strcmp(gdb_input, "vCont;c") == 0)
@@ -405,10 +386,11 @@ handle_gdb_v(
 
                 SetContextManipulateHandler(State, MessageData, MessageLength, KdContext);
                 KdpManipulateStateHandler = ContinueManipulateStateHandler;
-                return KdPacketReceived;
+                return GdbStop;
             }
 
-            return ContinueManipulateStateHandler(State, MessageData, MessageLength, KdContext);
+            ContinueManipulateStateHandler(State, MessageData, MessageLength, KdContext);
+            return GdbStop;
         }
     }
 
@@ -418,48 +400,62 @@ handle_gdb_v(
 
 /* GLOBAL FUNCTIONS ***********************************************************/
 KDSTATUS
-gdb_interpret_input(
+gdb_receive_and_interpret_packet(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
     _Out_ PULONG MessageLength,
     _Inout_ PKD_CONTEXT KdContext)
 {
-    switch (gdb_input[0])
+    KDSTATUS Status;
+    GDBSTATUS GdbStatus = GdbContinue;
+
+    while(GdbStatus == GdbContinue)
     {
-    case '?':
-        /* Send the Status */
-        gdb_send_exception();
-        break;
-    case 'g':
-        gdb_send_registers(State, MessageData, MessageLength, KdContext);
-        break;
-    case 'H':
-        handle_gdb_set_thread();
-        break;
-    case 'm':
-    case 'X':
-        return handle_gdb_mem(State, MessageData, MessageLength, KdContext);
-    case 'p':
-        gdb_send_register(State, MessageData, MessageLength, KdContext);
-        break;
-    case 'q':
-        handle_gdb_query(State, MessageData, MessageLength, KdContext);
-        break;
-    case 'T':
-        handle_gdb_thread_alive();
-        break;
-    case 'v':
-        return handle_gdb_v(State, MessageData, MessageLength, KdContext);
-    case 'z':
-    case 'Z':
-        /* Let gdb do soft breakpoints itself */
-        send_gdb_packet("");
-        break;
-    default:
-        /* We don't know how to handle this request. Maybe this is something for KD */
-        State->ReturnStatus = STATUS_NOT_SUPPORTED;
-        KDDBGPRINT("Unsupported GDB command: %s.\n", gdb_input);
-        return KdPacketReceived;
-    }
-    return gdb_receive_and_interpret_packet(State, MessageData, MessageLength, KdContext);
+        Status = gdb_receive_packet(KdContext);
+
+        if(Status != KdPacketReceived)
+            break;
+
+        switch (gdb_input[0])
+        {
+        case '?':
+            /* Send the Status */
+            gdb_send_exception();
+            break;
+        case 'g':
+            gdb_send_registers(State, MessageData, MessageLength, KdContext);
+            break;
+        case 'H':
+            handle_gdb_set_thread();
+            break;
+        case 'm':
+        case 'X':
+            GdbStatus = handle_gdb_mem(State, MessageData, MessageLength, KdContext);
+            break;
+        case 'p':
+            gdb_send_register(State, MessageData, MessageLength, KdContext);
+            break;
+        case 'q':
+            handle_gdb_query(State, MessageData, MessageLength, KdContext);
+            break;
+        case 'T':
+            handle_gdb_thread_alive();
+            break;
+        case 'v':
+            GdbStatus = handle_gdb_v(State, MessageData, MessageLength, KdContext);
+            break;
+        case 'z':
+        case 'Z':
+            /* Let gdb do soft breakpoints itself */
+            send_gdb_packet("");
+            break;
+        default:
+            /* We don't know how to handle this request. Maybe this is something for KD */
+            State->ReturnStatus = STATUS_NOT_SUPPORTED;
+            KDDBGPRINT("Unsupported GDB command: %s.\n", gdb_input);
+            return Status;
+        }
+    };
+
+    return Status;
 }

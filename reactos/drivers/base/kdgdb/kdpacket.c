@@ -352,7 +352,6 @@ KdReceivePacket(
     _Out_ PULONG DataLength,
     _Inout_ PKD_CONTEXT KdContext)
 {
-    KDSTATUS Status;
     DBGKD_MANIPULATE_STATE64* State;
 
     /* Special handling for breakin packet */
@@ -373,13 +372,7 @@ KdReceivePacket(
     if (KdpManipulateStateHandler != NULL)
         return KdpManipulateStateHandler(State, MessageData, DataLength, KdContext);
 
-    /* Receive data from GDB */
-    Status = gdb_receive_packet(KdContext);
-    if (Status != KdPacketReceived)
-        return Status;
-
-    /* Interpret it */
-    return gdb_interpret_input(State, MessageData, DataLength, KdContext);
+    return gdb_receive_and_interpret_packet(State, MessageData, DataLength, KdContext);
 }
 
 VOID
