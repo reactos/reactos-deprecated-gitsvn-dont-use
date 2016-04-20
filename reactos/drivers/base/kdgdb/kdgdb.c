@@ -66,7 +66,7 @@ ULONG KdpDbgPrint(const char *Format, ...)
         Length = sizeof(Buffer);
     }
 
-    if(in_stop_mode) {
+    if(!in_stop_mode) {
         STRING out;
         out.MaximumLength = 512;
         out.Length = Length;
