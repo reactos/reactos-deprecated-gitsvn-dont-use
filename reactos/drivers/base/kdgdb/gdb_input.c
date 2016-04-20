@@ -232,6 +232,13 @@ handle_gdb_query(
         return;
     }
 
+    if ((strncmp(gdb_input, "qThreadExtraInfo", 16)) == 0)
+    {
+        /* STUB: always returns "qThreadExtraInfo" */
+        send_gdb_packet("715468726561644578747261496e666f");
+        return;
+    }
+
     KDDBGPRINT("KDGDB: Unknown query: %s\n", gdb_input);
     send_gdb_packet("");
     return;
