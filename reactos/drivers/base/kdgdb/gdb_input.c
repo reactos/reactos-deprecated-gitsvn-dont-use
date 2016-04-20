@@ -356,18 +356,21 @@ handle_gdb_v(
     _Out_ PULONG MessageLength,
     _Inout_ PKD_CONTEXT KdContext)
 {
-    if (strncmp(gdb_input, "vCont", 5) == 0)
+    if (strncmp(gdb_input, "vCont?", 6) == 0)
     {
-        if (gdb_input[5] == '?')
-        {
-            /* Report what we support */
-            send_gdb_packet("vCont;c;C;s;S");
-            return GdbContinue;
-        }
+        /* Report what we support */
+        send_gdb_packet("vCont;c;C;s;S");
+        return GdbContinue;
+    }
 
-        if (strcmp(gdb_input, "vCont;c") == 0)
+    if (strncmp(gdb_input, "vCont;", 6) == 0)
+    {
+        DBGKM_EXCEPTION64* Exception = NULL;
+        /* CHAR *thread_id = strstr(gdb_input, ":"); */
+
+        switch(gdb_input[6])
         {
-            DBGKM_EXCEPTION64* Exception = NULL;
+        case 'c':
 
             /* Tell GDB everything is fine, we will handle it */
             send_gdb_packet("OK");
@@ -392,12 +395,12 @@ handle_gdb_v(
 
             ContinueManipulateStateHandler(State, MessageData, MessageLength, KdContext);
             return GdbStop;
+        default:
+            /* We can't handle this one, error */
+            KDDBGPRINT("Unhandled 'vCont' packet: %s\n", gdb_input);
+            send_gdb_packet("E");
+            return GdbContinue;
         }
-
-        /* We can't handle this one, error */
-        KDDBGPRINT("Unhandled 'vCont' packet: %s\n", gdb_input);
-        send_gdb_packet("E");
-        return GdbContinue;
     }
 
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
