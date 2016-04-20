@@ -393,6 +393,11 @@ handle_gdb_v(
             ContinueManipulateStateHandler(State, MessageData, MessageLength, KdContext);
             return GdbStop;
         }
+
+        /* We can't handle this one, error */
+        KDDBGPRINT("Unhandled 'vCont' packet: %s\n", gdb_input);
+        send_gdb_packet("E");
+        return GdbContinue;
     }
 
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
