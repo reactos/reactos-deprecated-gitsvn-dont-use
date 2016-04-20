@@ -46,6 +46,9 @@ FORCEINLINE UINT_PTR handle_to_gdb_tid(HANDLE Handle)
 }
 #define handle_to_gdb_pid handle_to_gdb_tid
 
+/* Format for printing pid/tid pair */
+#define PIDTID "p%" PRIxPTR ".%" PRIxPTR
+
 FORCEINLINE
 VOID
 InitManipulateFromStateChange(

@@ -148,7 +148,7 @@ gdb_send_exception(void)
     else
         ptr += sprintf(ptr, "05");
 
-    ptr += sprintf(ptr, "thread:p%" PRIxPTR ".%" PRIxPTR ";",
+    ptr += sprintf(ptr, "thread:"PIDTID";",
         handle_to_gdb_pid(PsGetThreadProcessId(Thread)),
         handle_to_gdb_tid(PsGetThreadId(Thread)));
     ptr += sprintf(ptr, "core:%x;", CurrentStateChange.Processor);

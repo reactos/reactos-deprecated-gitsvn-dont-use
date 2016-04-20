@@ -29,8 +29,8 @@ find_process(
             ProcessEntry = ProcessEntry->Flink)
     {
         Process = CONTAINING_RECORD(ProcessEntry, EPROCESS, ActiveProcessLinks);
-
-        if (Process->UniqueProcessId == ProcessId)
+        /* For GDB, Pid == 0 means any process */
+        if (Process->UniqueProcessId == ProcessId || (Pid == 0))
             return Process;
     }
 
@@ -62,9 +62,7 @@ find_thread(
         Thread = CONTAINING_RECORD(ThreadEntry, ETHREAD, ThreadListEntry);
         /* For GDB, Tid == 0 means any thread */
         if ((Thread->Cid.UniqueThread == ThreadId) || (Tid == 0))
-        {
             return Thread;
-        }
     }
 
     return NULL;

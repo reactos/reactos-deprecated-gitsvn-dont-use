@@ -8,7 +8,6 @@
 #include "kdgdb.h"
 
 /* LOCALS *********************************************************************/
-static ULONG_PTR gdb_run_tid;
 /* Keep track of where we are for qfThreadInfo/qsThreadInfo */
 static LIST_ENTRY* CurrentProcessEntry;
 static LIST_ENTRY* CurrentThreadEntry;
@@ -59,37 +58,28 @@ static
 void
 handle_gdb_set_thread(void)
 {
-    switch (gdb_input[1])
-    {
-    case 'c':
-        if (strcmp(&gdb_input[2], "-1") == 0)
-            gdb_run_tid = (ULONG_PTR)-1;
-        else
-            gdb_run_tid = hex_to_tid(&gdb_input[2]);
-        send_gdb_packet("OK");
-        break;
-    case 'g':
-        KDDBGPRINT("Setting debug thread: %s.\n", gdb_input);
-        if (strncmp(&gdb_input[2], "p-1", 3) == 0)
-        {
-            gdb_dbg_pid = (UINT_PTR)-1;
-            gdb_dbg_tid = (UINT_PTR)-1;
-        }
-        else
-        {
-            char* ptr = strstr(gdb_input, ".") + 1;
-            gdb_dbg_pid = hex_to_pid(&gdb_input[3]);
-            if (strncmp(ptr, "-1", 2) == 0)
-                gdb_dbg_tid = (UINT_PTR)-1;
-            else
-                gdb_dbg_tid = hex_to_tid(ptr);
-        }
-        send_gdb_packet("OK");
-        break;
-    default:
+    if(gdb_input[1] != 'g') {
         KDDBGPRINT("KDGBD: Unknown 'H' command: %s\n", gdb_input);
-        send_gdb_packet("");
+        send_gdb_packet("E");
+        return;
     }
+
+    KDDBGPRINT("Setting debug thread: %s.\n", gdb_input);
+    if (strncmp(&gdb_input[2], "p-1", 3) == 0)
+    {
+        gdb_dbg_pid = (UINT_PTR)-1;
+        gdb_dbg_tid = (UINT_PTR)-1;
+    }
+    else
+    {
+        char* ptr = strstr(gdb_input, ".") + 1;
+        gdb_dbg_pid = hex_to_pid(&gdb_input[3]);
+        if (strncmp(ptr, "-1", 2) == 0)
+            gdb_dbg_tid = (UINT_PTR)-1;
+        else
+            gdb_dbg_tid = hex_to_tid(ptr);
+    }
+    send_gdb_packet("OK");
 }
 
 static
@@ -104,7 +94,7 @@ handle_gdb_thread_alive(void)
 
     /* We cannot use PsLookupProcessThreadByCid as we could be running at any IRQL.
      * So loop. */
-    KDDBGPRINT("Checking if p%p.%p is alive.\n", Pid, Tid);
+    KDDBGPRINT("Checking if "PIDTID" is alive.\n", Pid, Tid);
 
     Thread = find_thread(Pid, Tid);
 
@@ -145,7 +135,7 @@ handle_gdb_query(
     if (strcmp(gdb_input, "qC") == 0)
     {
         char gdb_out[64];
-        sprintf(gdb_out, "QC:p%"PRIxPTR".%"PRIxPTR";",
+        sprintf(gdb_out, "QC:"PIDTID";",
             handle_to_gdb_pid(PsGetThreadProcessId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread)),
             handle_to_gdb_tid(PsGetThreadId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread)));
         send_gdb_packet(gdb_out);
@@ -215,7 +205,7 @@ handle_gdb_query(
             }
 
             ptr += _snprintf(ptr, 1024 - (ptr - gdb_out),
-                "p%p.%p",
+                PIDTID,
                 handle_to_gdb_pid(Process->UniqueProcessId),
                 handle_to_gdb_tid(Thread->Cid.UniqueThread));
             if (ptr > (gdb_out + 1024))
