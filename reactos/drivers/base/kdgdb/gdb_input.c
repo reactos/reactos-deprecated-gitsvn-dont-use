@@ -443,6 +443,7 @@ gdb_receive_and_interpret_packet(
         case 'p':
             gdb_send_register(State, MessageData, MessageLength, KdContext);
             break;
+        case 'Q':
         case 'q':
             handle_gdb_query(State, MessageData, MessageLength, KdContext);
             break;
