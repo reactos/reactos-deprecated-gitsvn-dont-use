@@ -401,6 +401,7 @@ handle_gdb_v(
     }
 
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
+    send_gdb_packet("E");
     return GdbContinue;
 }
 
@@ -457,6 +458,10 @@ gdb_receive_and_interpret_packet(
         case 'Z':
             /* Let gdb do soft breakpoints itself */
             send_gdb_packet("");
+            break;
+        case '!':
+            /* We're an extended-mode stub */
+            send_gdb_packet("OK");
             break;
         default:
             /* We don't know how to handle this request. Maybe this is something for KD */
