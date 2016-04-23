@@ -34,15 +34,16 @@ typedef ULONG GDBSTATUS;
 #define GdbStop 0
 #define GdbContinue 1
 
-/* GDB doesn't like pid - tid 0, so +1 them */
+/* pid/tid 0 is special in gdb, and pid/tid 1 aren't valid in reactos
+ * So lets map them to each other */
 FORCEINLINE HANDLE gdb_tid_to_handle(UINT_PTR Tid)
 {
-    return (HANDLE)(Tid - 1);
+    return (HANDLE)(Tid == 1 ? 0 : Tid);
 }
 #define gdb_pid_to_handle gdb_tid_to_handle
 FORCEINLINE UINT_PTR handle_to_gdb_tid(HANDLE Handle)
 {
-    return (UINT_PTR)Handle + 1;
+    return (UINT_PTR)Handle == 0 ? 1 : (UINT_PTR)Handle;
 }
 #define handle_to_gdb_pid handle_to_gdb_tid
 
