@@ -363,7 +363,14 @@ handle_gdb_v(
     if (strncmp(gdb_input, "vCont;", 6) == 0)
     {
         DBGKM_EXCEPTION64* Exception = NULL;
-        /* CHAR *thread_id = strstr(gdb_input, ":"); */
+        CHAR *thread_id = strstr(gdb_input, ":");
+
+        if(thread_id && strncmp(thread_id, ":p-1", 4) != 0)
+        {
+            /* We currently can't handle resuming individual
+             * threads/processes */
+            goto unhandled;
+        }
 
         switch(gdb_input[6])
         {
@@ -394,12 +401,11 @@ handle_gdb_v(
             return GdbStop;
         default:
             /* We can't handle this one, error */
-            KDDBGPRINT("Unhandled 'vCont' packet: %s\n", gdb_input);
-            send_gdb_packet("E");
-            return GdbContinue;
+            goto unhandled;
         }
     }
 
+unhandled:
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
     send_gdb_packet("E");
     return GdbContinue;
