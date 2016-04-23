@@ -30,10 +30,15 @@ KDSTATUS
 NTAPI
 gdb_receive_packet(_Inout_ PKD_CONTEXT KdContext)
 {
-    char* ByteBuffer = gdb_input;
+    char* ByteBuffer;
     UCHAR Byte;
     KDSTATUS Status;
-    CHAR CheckSum = 0, ReceivedCheckSum;
+    CHAR CheckSum, ReceivedCheckSum;
+
+retry:
+    CheckSum = 0;
+    ReceivedCheckSum = 0;
+    ByteBuffer = gdb_input;
 
     do
     {
@@ -78,9 +83,9 @@ gdb_receive_packet(_Inout_ PKD_CONTEXT KdContext)
 end:
     if (ReceivedCheckSum != CheckSum)
     {
-        /* Do not acknowledge to GDB */
+        /* Request resend */
         KdpSendByte('-');
-        return KdPacketNeedsResend;
+        goto retry;
     }
 
     /* Acknowledge */
