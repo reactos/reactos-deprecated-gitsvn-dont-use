@@ -370,7 +370,7 @@ handle_gdb_breakpoint(
         return GdbContinue;
     }
 
-    if (address <= (ULONG)MmHighestUserAddress) {
+    if (address < (ULONG)MmSystemRangeStart) {
         /* Kernel mode breakpoints only */
         KDDBGPRINT("KDDBG: Breakpoint address %lx in userspace\n", address);
         send_gdb_packet("E");
