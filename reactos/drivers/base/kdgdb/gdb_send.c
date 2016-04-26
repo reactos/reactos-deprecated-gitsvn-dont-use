@@ -12,8 +12,8 @@ const char hex_chars[] = "0123456789abcdef";
 
 /* PRIVATE FUNCTIONS **********************************************************/
 static
-char*
-exception_code_to_gdb(NTSTATUS code, char* out)
+unsigned char
+exception_code_to_gdb(NTSTATUS code)
 {
     unsigned char SigVal;
 
@@ -41,32 +41,44 @@ exception_code_to_gdb(NTSTATUS code, char* out)
     default:
         SigVal = 7; /* "software generated" */
     }
-    *out++ = hex_chars[(SigVal >> 4) & 0xf];
-    *out++ = hex_chars[SigVal & 0xf];
-    return out;
+    return SigVal;
 }
 
 /* GLOBAL FUNCTIONS ***********************************************************/
 void
-send_gdb_packet(_In_ CHAR* Buffer)
+send_gdb_packet_binary(char *buf, int len)
 {
-    CHAR* ptr = Buffer;
+    int i;
     CHAR check_sum = 0;
 
     KdpSendByte('$');
 
     /* Calculate checksum */
     check_sum = 0;
-    while (*ptr)
+    for (i = 0; i < len; i++)
     {
-        check_sum += *ptr;
-        KdpSendByte(*ptr++);
+        check_sum += buf[i];
+        KdpSendByte(buf[i]);
     }
 
     /* append it */
     KdpSendByte('#');
     KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
     KdpSendByte(hex_chars[check_sum & 0xf]);
+}
+
+void
+send_gdb_packet(const char* Format, ...)
+{
+    va_list ap;
+    int Length;
+    CHAR Buffer[4096];
+
+    va_start(ap, Format);
+    Length = _vsnprintf(Buffer, sizeof(Buffer), Format, ap);
+    va_end(ap);
+
+    send_gdb_packet_binary(Buffer, Length);
 }
 
 void
@@ -133,24 +145,18 @@ gdb_send_debug_io(
 void
 gdb_send_exception(void)
 {
-    char gdb_out[1024];
-    char* ptr = gdb_out;
     PETHREAD Thread = (PETHREAD)(ULONG_PTR)CurrentStateChange.Thread;
 
     /* Report to GDB */
-    *ptr++ = 'T';
+    unsigned char code = 5;
 
     if (CurrentStateChange.NewState == DbgKdExceptionStateChange)
     {
         EXCEPTION_RECORD64* ExceptionRecord = &CurrentStateChange.u.Exception.ExceptionRecord;
-        ptr = exception_code_to_gdb(ExceptionRecord->ExceptionCode, ptr);
+        code = exception_code_to_gdb(ExceptionRecord->ExceptionCode);
     }
-    else
-        ptr += sprintf(ptr, "05");
 
-    ptr += sprintf(ptr, "thread:%s;", format_ptid(ptid_from_thread(Thread)));
-    ptr += sprintf(ptr, "core:%x;", CurrentStateChange.Processor);
-    send_gdb_packet(gdb_out);
+    send_gdb_packet("T%02xthread:%s;core:%x;", code, format_ptid(ptid_from_thread(Thread)), CurrentStateChange.Processor);
 }
 
 void
@@ -158,9 +164,5 @@ send_gdb_ntstatus(
     _In_ NTSTATUS Status)
 {
     /* Just build a EXX packet and send it */
-    char gdb_out[4];
-    gdb_out[0] = 'E';
-    exception_code_to_gdb(Status, &gdb_out[1]);
-    gdb_out[3] = '\0';
-    send_gdb_packet(gdb_out);
+    send_gdb_packet("E%02x", exception_code_to_gdb(Status));
 }

@@ -110,10 +110,7 @@ handle_gdb_query(
 
     if (strcmp(gdb_input, "qC") == 0)
     {
-        char gdb_out[64];
-        ptid_t ptid = ptid_from_thread((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread);
-        sprintf(gdb_out, "QC:%s;", format_ptid(ptid));
-        send_gdb_packet(gdb_out);
+        send_gdb_packet("QC:%s;", format_ptid(current_ptid));
         return;
     }
 
@@ -196,15 +193,13 @@ handle_gdb_query(
     {
         ptid_t ptid = parse_ptid(strstr(gdb_input, ":") + 1);
         PETHREAD Thread = find_thread(ptid);
-        char out[16];
 
         if(!Thread) {
             send_gdb_packet("E");
             return;
         }
 
-        sprintf(out, "%p", Thread->Tcb.Teb);
-        send_gdb_packet(out);
+        send_gdb_packet("%p", Thread->Tcb.Teb);
         return;
     }
 
