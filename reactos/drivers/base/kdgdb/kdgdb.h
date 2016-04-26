@@ -34,21 +34,10 @@ typedef ULONG GDBSTATUS;
 #define GdbStop 0
 #define GdbContinue 1
 
-/* pid/tid 0 is special in gdb, and pid/tid 1 aren't valid in reactos
- * So lets map them to each other */
-FORCEINLINE HANDLE gdb_tid_to_handle(UINT_PTR Tid)
-{
-    return (HANDLE)(Tid == 1 ? 0 : Tid);
-}
-#define gdb_pid_to_handle gdb_tid_to_handle
-FORCEINLINE UINT_PTR handle_to_gdb_tid(HANDLE Handle)
-{
-    return (UINT_PTR)Handle == 0 ? 1 : (UINT_PTR)Handle;
-}
-#define handle_to_gdb_pid handle_to_gdb_tid
-
-/* Format for printing pid/tid pair */
-#define PIDTID "p%" PRIxPTR ".%" PRIxPTR
+typedef struct ptid {
+  int pid;
+  int tid;
+} ptid_t;
 
 FORCEINLINE
 VOID
@@ -76,9 +65,7 @@ typedef KDSTATUS (*KDP_MANIPULATESTATE_HANDLER)(
 );
 
 /* gdb_input.c */
-extern BOOLEAN in_stop_mode;
-extern UINT_PTR gdb_dbg_tid;
-extern UINT_PTR gdb_dbg_pid;
+extern ptid_t current_ptid;
 extern KDSTATUS gdb_receive_and_interpret_packet(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 
 /* gdb_receive.c */
@@ -114,8 +101,14 @@ extern PEPROCESS TheIdleProcess;
 extern PETHREAD TheIdleThread;
 
 /* utils.c */
-extern PEPROCESS find_process( _In_ UINT_PTR Pid);
-extern PETHREAD find_thread(_In_ UINT_PTR Pid, _In_ UINT_PTR Tid);
+extern ptid_t ptid_from_process(PEPROCESS);
+extern ptid_t ptid_from_thread(PETHREAD);
+extern BOOLEAN ptid_compare(ptid_t a, ptid_t);
+extern PEPROCESS find_process(ptid_t);
+extern PETHREAD find_thread(ptid_t);
+extern ptid_t parse_ptid(char*);
+extern char *format_ptid(ptid_t);
+
 
 /* arch_sup.c */
 extern VOID gdb_send_register(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);

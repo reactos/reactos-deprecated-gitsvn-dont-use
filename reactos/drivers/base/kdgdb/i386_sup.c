@@ -155,11 +155,11 @@ gdb_send_registers(
     unsigned i;
     unsigned short size;
     CHAR* ptr = Registers;
+    PETHREAD CurrentThread = (PETHREAD)(ULONG_PTR)CurrentStateChange.Thread;
 
-    KDDBGPRINT("Sending registers of thread %" PRIxPTR ".\n", gdb_dbg_tid);
-    KDDBGPRINT("Current thread_id: %p.\n", PsGetThreadId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread));
-    if (((gdb_dbg_pid == 0) && (gdb_dbg_tid == 0)) ||
-            gdb_tid_to_handle(gdb_dbg_tid) == PsGetThreadId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread))
+    KDDBGPRINT("Sending registers of thread %s.\n", format_ptid(current_ptid));
+    KDDBGPRINT("    Current thread_id: %p.\n", PsGetThreadId(CurrentThread));
+    if (find_thread(current_ptid) == CurrentThread)
     {
         for(i=0; i < 16; i++)
         {
@@ -176,11 +176,9 @@ gdb_send_registers(
     }
     else
     {
-        PETHREAD DbgThread;
+        CurrentThread = find_thread(current_ptid);
 
-        DbgThread = find_thread(gdb_dbg_pid, gdb_dbg_tid);
-
-        if (DbgThread == NULL)
+        if (CurrentThread == NULL)
         {
             /* Thread is dead */
             send_gdb_packet("E03");
@@ -189,7 +187,7 @@ gdb_send_registers(
 
         for(i=0; i < 16; i++)
         {
-            RegisterPtr = thread_to_reg(DbgThread, i, &size);
+            RegisterPtr = thread_to_reg(CurrentThread, i, &size);
             if (RegisterPtr)
             {
                 *ptr++ = hex_chars[RegisterPtr[0] >> 4];
@@ -222,30 +220,28 @@ gdb_send_register(
     enum reg_name reg_name;
     void *ptr;
     unsigned short size;
+    PETHREAD CurrentThread = (PETHREAD)(ULONG_PTR)CurrentStateChange.Thread;
 
     /* Get the GDB register name (gdb_input = "pXX") */
     reg_name = (hex_value(gdb_input[1]) << 4) | hex_value(gdb_input[2]);
 
-    if (((gdb_dbg_pid == 0) && (gdb_dbg_tid == 0)) ||
-            gdb_tid_to_handle(gdb_dbg_tid) == PsGetThreadId((PETHREAD)(ULONG_PTR)CurrentStateChange.Thread))
+    if (find_thread(current_ptid) == CurrentThread)
     {
         /* We can get it from the context of the current exception */
         ptr = ctx_to_reg(&CurrentContext, reg_name, &size);
     }
     else
     {
-        PETHREAD DbgThread;
+        CurrentThread = find_thread(current_ptid);
 
-        DbgThread = find_thread(gdb_dbg_pid, gdb_dbg_tid);
-
-        if (DbgThread == NULL)
+        if (CurrentThread == NULL)
         {
             /* Thread is dead */
             send_gdb_packet("E03");
             return;
         }
 
-        ptr = thread_to_reg(DbgThread, reg_name, &size);
+        ptr = thread_to_reg(CurrentThread, reg_name, &size);
     }
 
     if (!ptr)

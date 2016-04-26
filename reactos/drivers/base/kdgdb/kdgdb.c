@@ -66,14 +66,6 @@ ULONG KdpDbgPrint(const char *Format, ...)
         Length = sizeof(Buffer);
     }
 
-    if(!in_stop_mode) {
-        STRING out;
-        out.MaximumLength = 512;
-        out.Length = Length;
-        out.Buffer = Buffer;
-        gdb_send_debug_io(&out);
-    }
-
     ptr = Buffer;
     while (Length--)
     {
@@ -155,6 +147,9 @@ KdDebuggerInitialize0(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
 
     PCHAR CommandLine, PortString, BaudString, IrqString;
     ULONG Value;
+
+    /* Ignore messages until stage one init */
+    KD_DEBUGGER_NOT_PRESENT = 1;
 
     /* Check if we have a LoaderBlock */
     if (LoaderBlock)
@@ -258,6 +253,8 @@ KdDebuggerInitialize0(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
     if (ComPort != 0)
         CpInitialize(&KdDebugComPort, UlongToPtr(BaseArray[ComPort]), DEFAULT_BAUD_RATE);
     }
+
+    KDDBGPRINT("KdDebuggerInitialize0\n");
 #endif
 
     /* Initialize the port */
@@ -274,6 +271,9 @@ NTSTATUS
 NTAPI
 KdDebuggerInitialize1(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
 {
+    KD_DEBUGGER_NOT_PRESENT = 0;
+    HalDisplayString("KDGDB: Phase 1 init\r\n");
+    DbgBreakPoint();
     return STATUS_SUCCESS;
 }
 

@@ -152,8 +152,7 @@ send_kd_state_change(DBGKD_ANY_WAIT_STATE_CHANGE* StateChange)
             PsGetThreadProcessId(Thread),
             PsGetThreadId(Thread));
         /* Set the current debugged process/thread accordingly */
-        gdb_dbg_tid = handle_to_gdb_tid(PsGetThreadId(Thread));
-        gdb_dbg_pid = handle_to_gdb_pid(PsGetThreadProcessId(Thread));
+        current_ptid = ptid_from_thread(Thread);
         gdb_send_exception();
         /* Next receive call will ask for the context */
         KdpManipulateStateHandler = GetContextManipulateHandler;
@@ -313,13 +312,12 @@ FirstSendHandler(
 
     /* Set up the current state */
     CurrentStateChange = *StateChange;
-    gdb_dbg_tid = handle_to_gdb_tid(PsGetThreadId(Thread));
-    gdb_dbg_pid = handle_to_gdb_pid(PsGetThreadProcessId(Thread));
+    current_ptid = ptid_from_thread(Thread);
     /* This is the idle process. Save it! */
     TheIdleThread = Thread;
     TheIdleProcess = (PEPROCESS)Thread->Tcb.ApcState.Process;
 
-    KDDBGPRINT("Pid Tid of the first message: %" PRIxPTR", %" PRIxPTR ".\n", gdb_dbg_pid, gdb_dbg_tid);
+    KDDBGPRINT("Pid Tid of the first message: %s.\n", format_ptid(current_ptid));
 
     /* The next receive call will be asking for the version data */
     KdpSendPacketHandler = NULL;
