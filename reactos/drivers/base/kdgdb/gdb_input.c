@@ -91,7 +91,7 @@ handle_gdb_query(
 {
     if (strncmp(gdb_input, "qSupported:", 11) == 0)
     {
-        send_gdb_packet("PacketSize=4096;multiprocess+;");
+        send_gdb_packet("PacketSize=4096;multiprocess+;qGetTIBAddr+;");
         return;
     }
 
@@ -189,6 +189,22 @@ handle_gdb_query(
         /* send the list for this process */
         send_gdb_packet(gdb_out);
         CurrentThreadEntry = NULL;
+        return;
+    }
+
+    if (strncmp(gdb_input, "qGetTIBAddr:", 6) == 0)
+    {
+        ptid_t ptid = parse_ptid(strstr(gdb_input, ":") + 1);
+        PETHREAD Thread = find_thread(ptid);
+        char out[16];
+
+        if(!Thread) {
+            send_gdb_packet("E");
+            return;
+        }
+
+        sprintf(out, "%p", Thread->Tcb.Teb);
+        send_gdb_packet(out);
         return;
     }
 
