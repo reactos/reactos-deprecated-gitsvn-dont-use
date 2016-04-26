@@ -170,8 +170,10 @@ send_kd_debug_io(
     _In_ DBGKD_DEBUG_IO* DebugIO,
     _In_ PSTRING String)
 {
-    if (InException)
+    if (InException) {
+        KDDBGPRINT("KDGDB: debug_io in exception: %s\n", String);
         return;
+    }
 
     switch (DebugIO->ApiNumber)
     {

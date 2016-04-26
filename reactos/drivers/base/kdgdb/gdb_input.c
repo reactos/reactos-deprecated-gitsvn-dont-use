@@ -317,8 +317,100 @@ handle_gdb_mem(
     return GdbStop;
 }
 
+static ULONG active_breakpoints[KD_BREAKPOINT_MAX];
+
 static
-KDSTATUS
+void
+BreakpointSendHandler(
+    _In_ ULONG PacketType,
+    _In_ PSTRING MessageHeader,
+    _In_ PSTRING MessageData)
+{
+    DBGKD_MANIPULATE_STATE64* State = (DBGKD_MANIPULATE_STATE64*)MessageHeader->Buffer;
+
+    KdpSendPacketHandler = NULL;
+
+    if (State->ApiNumber == DbgKdWriteBreakPointApi) {
+        ULONG handle = State->u.WriteBreakPoint.BreakPointHandle;
+        ULONG address = State->u.WriteBreakPoint.BreakPointAddress;
+
+        if (!NT_SUCCESS(State->ReturnStatus)) {
+            KDDBGPRINT("KDDBG: Failed to add breakpoint: %x\n", State->ReturnStatus);
+            send_gdb_packet("E");
+            return;
+        }
+
+        active_breakpoints[handle - 1] = address;
+        KDDBGPRINT("KDDBG: Breakpoint %lx added as %lx\n", address, handle);
+    } else { /* DbgKdRestoreBreakPointApi */
+        /* Kd seems to remove hit breakpoints, and gdb seems to add
+         * breakpoints on every vCont, so ignore failures */
+        ULONG handle = State->u.RestoreBreakPoint.BreakPointHandle;
+        active_breakpoints[handle - 1] = 0;
+        KDDBGPRINT("KDDBG: Breakpoint %lx removed\n", handle);
+    }
+
+    send_gdb_packet("OK");
+}
+
+static
+GDBSTATUS
+handle_gdb_breakpoint(
+    _Out_ DBGKD_MANIPULATE_STATE64* State,
+    _Out_ PSTRING MessageData,
+    _Out_ PULONG MessageLength,
+    _Inout_ PKD_CONTEXT KdContext)
+{
+    ULONG address = hex_to_address(&gdb_input[3]);
+
+    if (gdb_input[1] != '0' || strstr(gdb_input, ";")) {
+        /* Only unconditional software breakpoints */
+        KDDBGPRINT("KDDBG: Unsupported breakpoint %s\n", gdb_input);
+        send_gdb_packet("");
+        return GdbContinue;
+    }
+
+    if (address <= (ULONG)MmHighestUserAddress) {
+        /* Kernel mode breakpoints only */
+        KDDBGPRINT("KDDBG: Breakpoint address %lx in userspace\n", address);
+        send_gdb_packet("E");
+        return GdbContinue;
+    }
+
+    if (gdb_input[0] == 'Z') {
+        State->ApiNumber = DbgKdWriteBreakPointApi;
+        State->u.WriteBreakPoint.BreakPointAddress = address;
+    } else {
+        ULONG handle;
+
+        for (handle = 0; handle < KD_BREAKPOINT_MAX; handle++)
+            if (active_breakpoints[handle] == address) break;
+
+        if (handle == KD_BREAKPOINT_MAX) {
+            /* We don't have that breakpoint */
+            send_gdb_packet("E");
+            return GdbContinue;
+        }
+
+        /* Breakpoint handles number from 1 to 32 inclusive,
+         * offset by 1 so we can store them in active_breakpoints */
+        State->ApiNumber = DbgKdRestoreBreakPointApi;
+        State->u.RestoreBreakPoint.BreakPointHandle = handle + 1;
+    }
+
+    State->ReturnStatus = STATUS_SUCCESS; /* ? */
+    State->Processor = CurrentStateChange.Processor;
+    State->ProcessorLevel = CurrentStateChange.ProcessorLevel;
+
+    MessageData->Length = 0;
+    *MessageLength = 0;
+
+    KdpSendPacketHandler = BreakpointSendHandler;
+    return GdbStop;
+}
+
+static
+GDBSTATUS
 handle_gdb_v(
     _Out_ DBGKD_MANIPULATE_STATE64* State,
     _Out_ PSTRING MessageData,
@@ -328,25 +420,26 @@ handle_gdb_v(
     if (strncmp(gdb_input, "vCont?", 6) == 0)
     {
         /* Report what we support */
-        send_gdb_packet("vCont;c;C;s;S");
+        send_gdb_packet("vCont;c;");
         return GdbContinue;
     }
 
     if (strncmp(gdb_input, "vCont;", 6) == 0)
     {
         DBGKM_EXCEPTION64* Exception = NULL;
-        CHAR *thread_id = strstr(gdb_input, ":");
+        ptid_t ptid = {.pid = -1};
 
-        if(thread_id && strncmp(thread_id, ":p-1", 4) != 0)
-        {
-            /* We currently can't handle resuming individual
-             * threads/processes */
-            goto unhandled;
-        }
+        if (strstr(gdb_input, ":"))
+          ptid = parse_ptid(strstr(gdb_input, ":") + 1);
 
         switch(gdb_input[6])
         {
         case 'c':
+            if (ptid.pid != -1) {
+                /* Can't resume individual threads */
+                send_gdb_packet("E Can't resume individual threads");
+                return GdbContinue;
+            }
 
             /* Tell GDB everything is fine, we will handle it */
             send_gdb_packet("OK");
@@ -373,11 +466,12 @@ handle_gdb_v(
             return GdbStop;
         default:
             /* We can't handle this one, error */
-            goto unhandled;
+            KDDBGPRINT("Unhandled 'vCont' packet: %s\n", gdb_input);
+            send_gdb_packet("E Unsupported: %s", gdb_input);
+            return GdbContinue;
         }
     }
 
-unhandled:
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
     send_gdb_packet("E");
     return GdbContinue;
@@ -432,8 +526,7 @@ gdb_receive_and_interpret_packet(
             break;
         case 'z':
         case 'Z':
-            /* Let gdb do soft breakpoints itself */
-            send_gdb_packet("");
+            GdbStatus = handle_gdb_breakpoint(State, MessageData, MessageLength, KdContext);
             break;
         case '!':
             /* We're an extended-mode stub */

@@ -19,6 +19,9 @@
 
 #include <pstypes.h>
 
+/* Defined in ntoskrnl/include/internal/kd64.h */
+#define KD_BREAKPOINT_MAX   32
+
 #define KDDEBUG /* uncomment to enable debugging this dll */
 
 #ifndef KDDEBUG
