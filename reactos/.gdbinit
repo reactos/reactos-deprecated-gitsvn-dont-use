@@ -68,7 +68,7 @@ def PrettyPrinter(func, typename, hint="string"):
 def relocate(filename, offset):
     p = subprocess.Popen(["objdump", "-ph", filename], stdout = subprocess.PIPE)
 
-    sections = []
+    sections = {}
     ImageBase = 0
     TextBase = 0
 
@@ -94,12 +94,10 @@ def relocate(filename, offset):
         #Factor out the base address
         address = int(vma, base=16) - ImageBase
 
-        if name == ".text":
-            TextBase = address
-        elif 'ALLOC' in flags:
-            sections.append("-s %s 0x%x" % (name, offset + address))
+        if 'ALLOC' in flags:
+            sections[name] = offset + address
 
-    return "0x%x %s" % (offset + TextBase, " ".join(sections))
+    return sections
 
 @Command(repeat=False)
 def add_symbol_file_at(filename, offset=0):
@@ -110,7 +108,26 @@ def add_symbol_file_at(filename, offset=0):
         print("No such file %s" % (filename))
         return
 
-    gdb.execute("add-symbol-file %s %s" % (filename, relocate(filename, offset)))
+    sections = relocate(filename, offset)
+    TextAddr = int(sections[".text"])
+    del sections[".text"]
+    args = " ".join("-s %s 0x%x" % (k, v) for k, v in sections.items())
+    gdb.execute("add-symbol-file %s 0x%x %s" % (filename, TextAddr, args))
+
+@Command(repeat=False)
+def add_file_at(filename, offset=0):
+    """add-file-at filename [offset=0]
+    Does not actually work due to gdb bugs"""
+    offset = int(offset)
+
+    if not os.path.isfile(filename):
+        print("No such file %s" % (filename))
+        return
+
+    gdb.execute("file %s" % (filename))
+    for k, v in relocate(filename, offset).items():
+        gdb.execute("section %s 0x%x" % (k, v))
+
 
 @PrettyPrinter("UNICODE_STRING")
 def unicode_string(val):
@@ -142,8 +159,15 @@ def load_sym_int(name, base):
 end
 
 define load-symbols
+    dont-repeat
     # Clear existing symbols
+    file
     symbol-file
+
+    # HACK: load ntdll as the executable
+    # ntoskrln can't be used since the 'section' command doesn't
+    # relocate sections as one would expect
+    file "symbols/ntdll.dll.dbg"
 
     # Manually load ntoskrnl
     add-symbol-file-at "symbols/ntoskrnl.exe.dbg" 0x80400000

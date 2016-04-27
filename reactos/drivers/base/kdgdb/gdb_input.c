@@ -420,7 +420,7 @@ handle_gdb_v(
     if (strncmp(gdb_input, "vCont?", 6) == 0)
     {
         /* Report what we support */
-        send_gdb_packet("vCont;c;");
+        send_gdb_packet("vCont;c;C");
         return GdbContinue;
     }
 
@@ -532,6 +532,9 @@ gdb_receive_and_interpret_packet(
             /* We're an extended-mode stub */
             send_gdb_packet("OK");
             break;
+        case 'P':
+            send_gdb_packet("E");
+            /* Fall Through */
         default:
             /* We don't know how to handle this request. Maybe this is something for KD */
             State->ReturnStatus = STATUS_NOT_SUPPORTED;
