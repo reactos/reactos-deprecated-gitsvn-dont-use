@@ -171,7 +171,7 @@ send_kd_debug_io(
     _In_ PSTRING String)
 {
     if (InException) {
-        KDDBGPRINT("KDGDB: debug_io in exception: %s\n", String);
+        KDDBGPRINT("KDGDB: debug_io in exception: %*s\n", String->Length, String->Buffer);
         return;
     }
 
