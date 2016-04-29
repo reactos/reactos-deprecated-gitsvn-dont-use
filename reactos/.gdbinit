@@ -1,5 +1,6 @@
 cd output-MinGW-i386
 
+set osabi Cygwin
 set target-charset ASCII
 set target-wide-charset UTF-16LE
 
@@ -109,8 +110,12 @@ def add_symbol_file_at(filename, offset=0):
         return
 
     sections = relocate(filename, offset)
-    TextAddr = int(sections[".text"])
-    del sections[".text"]
+    TextAddr = 0
+
+    if ".text" in sections.keys():
+        TextAddr = int(sections[".text"])
+        del sections[".text"]
+
     args = " ".join("-s %s 0x%x" % (k, v) for k, v in sections.items())
     gdb.execute("add-symbol-file %s 0x%x %s" % (filename, TextAddr, args))
 
@@ -158,17 +163,31 @@ def load_sym_int(name, base):
 
 end
 
+define _load-from-list
+    dont-repeat
+    # Iterate and load each module in a loader list
+    set $LoadOrderListHead = $arg0
+    set $cur = $LoadOrderListHead->Flink
+    while $cur != $LoadOrderListHead
+        set $ldr_entry = (PLDR_DATA_TABLE_ENTRY)$cur
+        load-sym-int $ldr_entry->BaseDllName $ldr_entry->DllBase
+        set $cur = $cur->Flink
+    end
+end
+
 define load-symbols
     dont-repeat
     # Clear existing symbols
     file
     symbol-file
 
-    # HACK: load ntdll as the executable
+    # HACK: load ntdll as the executable for kernel-mode
     # ntoskrln can't be used since the 'section' command doesn't
     # relocate sections as one would expect
+    # https://sourceware.org/bugzilla/show_bug.cgi?id=20007
     file "symbols/ntdll.dll.dbg"
 
+    # Kernel symbols
     # Manually load ntoskrnl
     add-symbol-file-at "symbols/ntoskrnl.exe.dbg" 0x80400000
 
@@ -178,11 +197,5 @@ define load-symbols
         set $LoadOrderListHead = &KeLoaderBlock->LoadOrderListHead
     end
 
-    # Iterate and load each module one-by-one
-    set $cur = $LoadOrderListHead->Flink
-    while $cur != $LoadOrderListHead
-        set $ldr_entry = (PLDR_DATA_TABLE_ENTRY)$cur
-        load-sym-int $ldr_entry->BaseDllName $ldr_entry->DllBase
-        set $cur = $cur->Flink
-    end
+    _load-from-list $LoadOrderListHead
 end
