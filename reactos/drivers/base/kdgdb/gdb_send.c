@@ -49,8 +49,9 @@ void
 send_gdb_packet_binary(char *buf, int len)
 {
     int i;
-    CHAR check_sum = 0;
+    CHAR check_sum;
 
+resend:
     KdpSendByte('$');
 
     /* Calculate checksum */
@@ -65,6 +66,9 @@ send_gdb_packet_binary(char *buf, int len)
     KdpSendByte('#');
     KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
     KdpSendByte(hex_chars[check_sum & 0xf]);
+
+    if (gdb_wait_ack() == KdPacketNeedsResend)
+        goto resend;
 }
 
 void
@@ -86,15 +90,18 @@ send_gdb_memory(
     _In_ VOID* Buffer,
     _In_ size_t Length)
 {
-    CHAR* ptr = Buffer;
-    CHAR check_sum = 0;
-    size_t len = Length;
+    CHAR* ptr;
+    CHAR check_sum;
+    size_t len;
     CHAR Byte;
 
+resend:
     KdpSendByte('$');
 
     /* Send the data */
     check_sum = 0;
+    len = Length;
+    ptr = Buffer;
     while (len--)
     {
         Byte = hex_chars[(*ptr >> 4) & 0xf];
@@ -109,6 +116,9 @@ send_gdb_memory(
     KdpSendByte('#');
     KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
     KdpSendByte(hex_chars[check_sum & 0xf]);
+
+    if (gdb_wait_ack() == KdPacketNeedsResend)
+        goto resend;
 }
 
 void
@@ -140,6 +150,8 @@ gdb_send_debug_io(
     KdpSendByte('#');
     KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
     KdpSendByte(hex_chars[check_sum & 0xf]);
+
+    /* Don't wait for an ack here, kd will call PollBreakIn */
 }
 
 void

@@ -43,14 +43,14 @@ handle_gdb_set_thread(void)
 
     if(gdb_input[1] != 'g') {
         KDDBGPRINT("Unknown 'H' command: %s\n", gdb_input);
-        send_gdb_packet("E");
+        send_gdb_packet("E00");
         return;
     }
 
     NextThread = find_thread(parse_ptid(&gdb_input[2]));
     if(!NextThread) {
         KDDBGPRINT("No such thread %s\n", gdb_input);
-        send_gdb_packet("E");
+        send_gdb_packet("E00");
         return;
     }
 
@@ -195,7 +195,7 @@ handle_gdb_query(
         PETHREAD Thread = find_thread(ptid);
 
         if(!Thread) {
-            send_gdb_packet("E");
+            send_gdb_packet("E00");
             return;
         }
 
@@ -336,7 +336,7 @@ BreakpointSendHandler(
 
         if (!NT_SUCCESS(State->ReturnStatus)) {
             KDDBGPRINT("KDDBG: Failed to add breakpoint: %x\n", State->ReturnStatus);
-            send_gdb_packet("E");
+            send_gdb_ntstatus(State->ReturnStatus);
             return;
         }
 
@@ -373,7 +373,7 @@ handle_gdb_breakpoint(
     if (address < (ULONG)MmSystemRangeStart) {
         /* Kernel mode breakpoints only */
         KDDBGPRINT("KDDBG: Breakpoint address %lx in userspace\n", address);
-        send_gdb_packet("E");
+        send_gdb_packet("E00");
         return GdbContinue;
     }
 
@@ -388,7 +388,7 @@ handle_gdb_breakpoint(
 
         if (handle == KD_BREAKPOINT_MAX) {
             /* We don't have that breakpoint */
-            send_gdb_packet("E");
+            send_gdb_packet("E00");
             return GdbContinue;
         }
 
@@ -427,23 +427,10 @@ handle_gdb_v(
     if (strncmp(gdb_input, "vCont;", 6) == 0)
     {
         DBGKM_EXCEPTION64* Exception = NULL;
-        ptid_t ptid = {.pid = -1};
-
-        if (strstr(gdb_input, ":"))
-          ptid = parse_ptid(strstr(gdb_input, ":") + 1);
 
         switch(gdb_input[6])
         {
         case 'c':
-            if (ptid.pid != -1) {
-                /* Can't resume individual threads */
-                send_gdb_packet("E Can't resume individual threads");
-                return GdbContinue;
-            }
-
-            /* Tell GDB everything is fine, we will handle it */
-            send_gdb_packet("OK");
-
             if (CurrentStateChange.NewState == DbgKdExceptionStateChange)
                 Exception = &CurrentStateChange.u.Exception;
 
@@ -473,7 +460,7 @@ handle_gdb_v(
     }
 
     KDDBGPRINT("Unhandled 'v' packet: %s\n", gdb_input);
-    send_gdb_packet("E");
+    send_gdb_packet("E00");
     return GdbContinue;
 }
 
@@ -533,7 +520,7 @@ gdb_receive_and_interpret_packet(
             send_gdb_packet("OK");
             break;
         case 'P':
-            send_gdb_packet("E");
+            send_gdb_packet("E00");
             /* Fall Through */
         default:
             /* We don't know how to handle this request. Maybe this is something for KD */

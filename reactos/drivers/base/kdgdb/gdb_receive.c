@@ -45,10 +45,9 @@ retry:
         Status = KdpReceiveByte(&Byte);
         if (Status != KdPacketReceived)
             return Status;
-        if (Byte == 0x03)
-        {
-            KdContext->KdpControlCPending = TRUE;
-            return KdPacketNeedsResend;
+        if (Byte == 0x03) {
+            /* This shouldn't happen here */
+            KDDBGPRINT("Unexpected breakin in gdb_receive_packet\n");
         }
     } while (Byte != '$');
 

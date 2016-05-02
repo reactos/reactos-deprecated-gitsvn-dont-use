@@ -85,10 +85,11 @@ void gdb_send_exception(void);
 void send_gdb_ntstatus(_In_ NTSTATUS Status);
 extern const char hex_chars[];
 
-/* kdcom.c */
+/* kdgdb.c */
 KDSTATUS NTAPI KdpPollBreakIn(VOID);
 VOID NTAPI KdpSendByte(_In_ UCHAR Byte);
 KDSTATUS NTAPI KdpReceiveByte(_Out_ PUCHAR OutByte);
+KDSTATUS gdb_wait_ack(VOID);
 
 /* kdpacket.c */
 extern DBGKD_ANY_WAIT_STATE_CHANGE CurrentStateChange;
