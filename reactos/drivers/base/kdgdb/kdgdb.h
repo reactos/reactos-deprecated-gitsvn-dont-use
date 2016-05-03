@@ -77,6 +77,14 @@ KDSTATUS NTAPI gdb_receive_packet(_Inout_ PKD_CONTEXT KdContext);
 char hex_value(char ch);
 
 /* gdb_send.c */
+/* For building packets */
+void gdb_begin_packet(void);
+void gdb_send_byte(char);
+void gdb_send_string(char *, ...);
+void gdb_send_binary(char *, int);
+void gdb_end_packet(void);
+
+/* For sending complete packets */
 void send_gdb_packet_binary(char *buf, int len);
 void send_gdb_packet(const char* Format, ...);
 void send_gdb_memory(_In_ VOID* Buffer, size_t Length);
@@ -102,8 +110,6 @@ extern KDP_MANIPULATESTATE_HANDLER KdpManipulateStateHandler;
 /* Commone ManipulateState handlers */
 extern KDSTATUS ContinueManipulateStateHandler(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 extern KDSTATUS SetContextManipulateHandler(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
-extern PEPROCESS TheIdleProcess;
-extern PETHREAD TheIdleThread;
 
 /* utils.c */
 extern ptid_t ptid_from_process(PEPROCESS);

@@ -44,29 +44,78 @@ exception_code_to_gdb(NTSTATUS code)
     return SigVal;
 }
 
+
+static struct {
+    char check_sum;
+#ifdef KDDEBUG
+    BOOLEAN in_packet;
+#endif
+} gdb_packet;
+
+void
+gdb_begin_packet(void)
+{
+#ifdef KDDEBUG
+    if (gdb_packet.in_packet) {
+        KDDBGPRINT("gdb_begin_packet called twice\n");
+    }
+    gdb_packet.in_packet = TRUE;
+#endif
+    gdb_packet.check_sum = 0;
+    KdpSendByte('$');
+}
+
+void
+gdb_send_byte(char byte)
+{
+    gdb_packet.check_sum += byte;
+    KdpSendByte(byte);
+}
+
+void
+gdb_send_string(char *Format, ...)
+{
+    va_list ap;
+    int Length;
+    CHAR Buffer[4096];
+
+    va_start(ap, Format);
+    Length = _vsnprintf(Buffer, sizeof(Buffer), Format, ap);
+    va_end(ap);
+
+    gdb_send_binary(Buffer, Length);
+}
+
+void
+gdb_send_binary(char *buffer, int len)
+{
+    while(len--)
+        gdb_send_byte(*buffer++);
+}
+
+void
+gdb_end_packet(void)
+{
+#ifdef KDDEBUG
+    if (!gdb_packet.in_packet) {
+        KDDBGPRINT("gdb_end_packet called without gdb_begin_packet\n");
+    }
+    gdb_packet.in_packet = FALSE;
+#endif
+
+    KdpSendByte('#');
+    KdpSendByte(hex_chars[(gdb_packet.check_sum >> 4) & 0xf]);
+    KdpSendByte(hex_chars[gdb_packet.check_sum & 0xf]);
+}
+
 /* GLOBAL FUNCTIONS ***********************************************************/
 void
 send_gdb_packet_binary(char *buf, int len)
 {
-    int i;
-    CHAR check_sum;
-
 resend:
-    KdpSendByte('$');
-
-    /* Calculate checksum */
-    check_sum = 0;
-    for (i = 0; i < len; i++)
-    {
-        check_sum += buf[i];
-        KdpSendByte(buf[i]);
-    }
-
-    /* append it */
-    KdpSendByte('#');
-    KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-    KdpSendByte(hex_chars[check_sum & 0xf]);
-
+    gdb_begin_packet();
+    gdb_send_binary(buf, len);
+    gdb_end_packet();
     if (gdb_wait_ack() == KdPacketNeedsResend)
         goto resend;
 }
@@ -91,31 +140,20 @@ send_gdb_memory(
     _In_ size_t Length)
 {
     CHAR* ptr;
-    CHAR check_sum;
     size_t len;
-    CHAR Byte;
 
 resend:
-    KdpSendByte('$');
+    gdb_begin_packet();
 
     /* Send the data */
-    check_sum = 0;
     len = Length;
     ptr = Buffer;
     while (len--)
     {
-        Byte = hex_chars[(*ptr >> 4) & 0xf];
-        KdpSendByte(Byte);
-        check_sum += Byte;
-        Byte = hex_chars[*ptr++ & 0xf];
-        KdpSendByte(Byte);
-        check_sum += Byte;
+        gdb_send_byte(hex_chars[(*ptr >> 4) & 0xf]);
+        gdb_send_byte(hex_chars[*ptr++ & 0xf]);
     }
-
-    /* append check sum */
-    KdpSendByte('#');
-    KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-    KdpSendByte(hex_chars[check_sum & 0xf]);
+    gdb_end_packet();
 
     if (gdb_wait_ack() == KdPacketNeedsResend)
         goto resend;
@@ -126,30 +164,18 @@ gdb_send_debug_io(
     _In_ PSTRING String)
 {
     CHAR* ptr = String->Buffer;
-    CHAR check_sum;
     USHORT Length = String->Length;
-    CHAR Byte;
 
-    KdpSendByte('$');
-
-    KdpSendByte('O');
+    gdb_begin_packet();
+    gdb_send_byte('O');
 
     /* Send the data */
-    check_sum = 'O';
     while (Length--)
     {
-        Byte = hex_chars[(*ptr >> 4) & 0xf];
-        KdpSendByte(Byte);
-        check_sum += Byte;
-        Byte = hex_chars[*ptr++ & 0xf];
-        KdpSendByte(Byte);
-        check_sum += Byte;
+        gdb_send_byte(hex_chars[(*ptr >> 4) & 0xf]);
+        gdb_send_byte(hex_chars[*ptr++ & 0xf]);
     }
-
-    /* append check sum */
-    KdpSendByte('#');
-    KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-    KdpSendByte(hex_chars[check_sum & 0xf]);
+    gdb_end_packet();
 
     /* Don't wait for an ack here, kd will call PollBreakIn */
 }

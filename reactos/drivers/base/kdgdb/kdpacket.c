@@ -26,8 +26,6 @@ KDP_MANIPULATESTATE_HANDLER KdpManipulateStateHandler = NULL;
 /* Data describing the current exception */
 DBGKD_ANY_WAIT_STATE_CHANGE CurrentStateChange;
 CONTEXT CurrentContext;
-PEPROCESS TheIdleProcess;
-PETHREAD TheIdleThread;
 
 /* PRIVATE FUNCTIONS **********************************************************/
 
@@ -315,9 +313,6 @@ FirstSendHandler(
     /* Set up the current state */
     CurrentStateChange = *StateChange;
     current_ptid = ptid_from_thread(Thread);
-    /* This is the idle process. Save it! */
-    TheIdleThread = Thread;
-    TheIdleProcess = (PEPROCESS)Thread->Tcb.ApcState.Process;
 
     KDDBGPRINT("Pid Tid of the first message: %s.\n", format_ptid(current_ptid));
 

@@ -7,11 +7,6 @@
 
 #include "kdgdb.h"
 
-/* LOCALS *********************************************************************/
-/* Keep track of where we are for qfThreadInfo/qsThreadInfo */
-static LIST_ENTRY* CurrentProcessEntry;
-static LIST_ENTRY* CurrentThreadEntry;
-
 /* GLOBALS ********************************************************************/
 BOOLEAN in_stop_mode;
 ptid_t current_ptid;
@@ -115,77 +110,57 @@ handle_gdb_query(
     }
 
     if ((strncmp(gdb_input, "qfThreadInfo", 12) == 0)
-            || (strncmp(gdb_input, "qsThreadInfo", 12) == 0))
+     || (strncmp(gdb_input, "qsThreadInfo", 12) == 0))
     {
-        BOOLEAN FirstThread = TRUE;
+        BOOLEAN FirstThread;
+        static LIST_ENTRY* ProcessEntry;
+        LIST_ENTRY* ThreadEntry;
+        BOOLEAN start = gdb_input[1] == 'f';
         PEPROCESS Process;
-        PETHREAD Thread;
-        char gdb_out[1024];
-        char* ptr = gdb_out;
-        BOOLEAN Resuming = strncmp(gdb_input, "qsThreadInfo", 12) == 0;
 
-        if (Resuming)
-        {
-            if (CurrentProcessEntry == (LIST_ENTRY*)1)
-            {
-                /* We're done */
-                send_gdb_packet("l");
-                CurrentProcessEntry = NULL;
-                return;
-            }
-
-            if (CurrentThreadEntry == NULL)
-                CurrentProcessEntry = CurrentProcessEntry->Flink;
-        }
-        else
-            CurrentProcessEntry = ProcessListHead->Flink;
-
-        if ((CurrentProcessEntry == ProcessListHead) ||
-                (CurrentProcessEntry == NULL)) /* Ps is not initialized */
-        {
-            /* We're almost done. Tell GDB about the idle thread */
-            send_gdb_packet("mp1.1");
-            CurrentProcessEntry = (LIST_ENTRY*)1;
+        if (!start && !ProcessEntry) {
+            KDDEBUG("qsThreadInfo called before qfThreadInfo\n");
+            send_gdb_packet("E00");
             return;
         }
 
-        Process = CONTAINING_RECORD(CurrentProcessEntry, EPROCESS, ActiveProcessLinks);
-
-        if (Resuming && CurrentThreadEntry != NULL)
-            CurrentThreadEntry = CurrentThreadEntry->Flink;
+        if (start)
+            ProcessEntry = ProcessListHead->Flink;
         else
-            CurrentThreadEntry = Process->ThreadListHead.Flink;
+            ProcessEntry = ProcessEntry->Flink;
 
-        ptr = gdb_out;
-
-        *ptr++ = 'm';
-        /* List threads from this process */
-        for ( ;
-             CurrentThreadEntry != &Process->ThreadListHead;
-             CurrentThreadEntry = CurrentThreadEntry->Flink)
-        {
-            ptid_t ptid;
-            Thread = CONTAINING_RECORD(CurrentThreadEntry, ETHREAD, ThreadListEntry);
-
-            /* See if we should add a comma */
-            if (FirstThread)
-                FirstThread = FALSE;
-            else
-                *ptr++ = ',';
-
-            ptid = ptid_from_thread(Thread);
-            ptr += _snprintf(ptr, 1024 - (ptr - gdb_out), "%s", format_ptid(ptid));
-            if (ptr > (gdb_out + 1024))
-            {
-                /* send what we got */
-                send_gdb_packet(gdb_out);
-                return;
-            }
+        if (ProcessEntry == ProcessListHead) {
+            /* Finished enumerating */
+            send_gdb_packet("l");
+            ProcessEntry = NULL;
+            return;
         }
 
-        /* send the list for this process */
-        send_gdb_packet(gdb_out);
-        CurrentThreadEntry = NULL;
+        Process = CONTAINING_RECORD(ProcessEntry, EPROCESS, ActiveProcessLinks);
+
+    resend:
+        FirstThread = TRUE;
+        gdb_begin_packet();
+
+        for (ThreadEntry = Process->ThreadListHead.Flink;
+             ThreadEntry != &Process->ThreadListHead;
+             ThreadEntry = ThreadEntry->Flink)
+        {
+            PETHREAD Thread = CONTAINING_RECORD(ThreadEntry, ETHREAD, ThreadListEntry);
+
+            if (FirstThread)
+                gdb_send_byte('m');
+            else
+                gdb_send_byte(',');
+            FirstThread = FALSE;
+
+            gdb_send_string(format_ptid(ptid_from_thread(Thread)));
+        }
+
+        gdb_end_packet();
+        if (gdb_wait_ack() == KdPacketNeedsResend)
+            goto resend;
+
         return;
     }
 

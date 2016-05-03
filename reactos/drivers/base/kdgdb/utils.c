@@ -135,10 +135,9 @@ find_process(
     LIST_ENTRY* ProcessEntry;
     PEPROCESS Process;
 
-    /* Special case for idle process
-     * pid 0 == any process, idle process is a process */
-    if (ptid.pid == 1 || ptid.pid == 0)
-        return TheIdleProcess;
+    /* pid 0 == any process, return system which is always pid 4 */
+    if (ptid.pid == 0)
+        return find_process((ptid_t){.pid = 4});
 
     for (ProcessEntry = ProcessListHead->Flink;
             ProcessEntry != ProcessListHead;
@@ -160,10 +159,6 @@ find_thread(
     PETHREAD Thread;
     PEPROCESS Process;
     LIST_ENTRY* ThreadEntry;
-
-    /* Special case for the idle thread */
-    if ((ptid.pid == 1) && (ptid.tid == 1))
-        return TheIdleThread;
 
     /* tid -1 == all threads, shouldn't happen */
     if (ptid.tid < 0)
