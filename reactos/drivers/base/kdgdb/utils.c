@@ -98,18 +98,6 @@ ptid_from_thread(
     return ret;
 }
 
-ptid_t
-ptid_from_process(
-    _In_ PEPROCESS Process)
-{
-    ptid_t ret;
-
-    ret.pid = handle_to_gdb_pid(PsGetProcessId(Process)),
-    ret.tid = -1;
-
-    return ret;
-}
-
 BOOLEAN
 ptid_compare(
     _In_ ptid_t a,

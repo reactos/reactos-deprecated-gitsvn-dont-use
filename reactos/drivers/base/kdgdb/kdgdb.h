@@ -112,7 +112,6 @@ extern KDSTATUS ContinueManipulateStateHandler(_Out_ DBGKD_MANIPULATE_STATE64* S
 extern KDSTATUS SetContextManipulateHandler(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 
 /* utils.c */
-extern ptid_t ptid_from_process(PEPROCESS);
 extern ptid_t ptid_from_thread(PETHREAD);
 extern BOOLEAN ptid_compare(ptid_t a, ptid_t);
 extern PEPROCESS find_process(ptid_t);
