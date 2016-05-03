@@ -94,6 +94,7 @@ void send_gdb_ntstatus(_In_ NTSTATUS Status);
 extern const char hex_chars[];
 
 /* kdgdb.c */
+extern BOOLEAN multiprocess;
 KDSTATUS NTAPI KdpPollBreakIn(VOID);
 VOID NTAPI KdpSendByte(_In_ UCHAR Byte);
 KDSTATUS NTAPI KdpReceiveByte(_Out_ PUCHAR OutByte);

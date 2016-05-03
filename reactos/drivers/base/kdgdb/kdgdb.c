@@ -42,6 +42,10 @@ ULONG  KdComPortIrq = 0; // Not used at the moment.
 CPPORT KdDebugComPort;
 #endif
 
+/* Whether or not we represent processes as inferiors
+ * This is to work around gdb issues with multi-inferior remotes */
+BOOLEAN multiprocess = TRUE;
+
 /* DEBUGGING ******************************************************************/
 
 #ifdef KDDEBUG

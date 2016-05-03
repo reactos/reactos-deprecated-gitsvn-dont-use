@@ -92,7 +92,7 @@ ptid_from_thread(
 {
     ptid_t ret;
 
-    ret.pid = handle_to_gdb_pid(PsGetThreadProcessId(Thread)),
+    ret.pid = multiprocess ? handle_to_gdb_pid(PsGetThreadProcessId(Thread)) : 1;
     ret.tid = handle_to_gdb_tid(PsGetThreadId(Thread));
 
     return ret;
@@ -123,6 +123,11 @@ find_process(
     LIST_ENTRY* ProcessEntry;
     PEPROCESS Process;
 
+    if (!multiprocess) {
+        PETHREAD Thread = find_thread(ptid);
+        return Thread ? Thread->ThreadsProcess : NULL;
+    }
+
     /* pid 0 == any process, return system which is always pid 4 */
     if (ptid.pid == 0)
         return find_process((ptid_t){.pid = 4});
@@ -143,27 +148,35 @@ PETHREAD
 find_thread(
     _In_ ptid_t ptid)
 {
+    HANDLE ProcessId = gdb_pid_to_handle(ptid.pid);
     HANDLE ThreadId = gdb_tid_to_handle(ptid.tid);
     PETHREAD Thread;
     PEPROCESS Process;
     LIST_ENTRY* ThreadEntry;
+    LIST_ENTRY* ProcessEntry;
 
     /* tid -1 == all threads, shouldn't happen */
     if (ptid.tid < 0)
         return NULL;
 
-    Process = find_process(ptid);
-    if (!Process)
-        return NULL;
-
-    for (ThreadEntry = Process->ThreadListHead.Flink;
-            ThreadEntry != &Process->ThreadListHead;
-            ThreadEntry = ThreadEntry->Flink)
+    for (ProcessEntry = ProcessListHead->Flink;
+            ProcessEntry != ProcessListHead;
+            ProcessEntry = ProcessEntry->Flink)
     {
-        Thread = CONTAINING_RECORD(ThreadEntry, ETHREAD, ThreadListEntry);
-        /* For GDB, Tid == 0 means any thread */
-        if ((Thread->Cid.UniqueThread == ThreadId) || (ptid.tid == 0))
-            return Thread;
+        Process = CONTAINING_RECORD(ProcessEntry, EPROCESS, ActiveProcessLinks);
+
+        if (multiprocess && Process->UniqueProcessId != ProcessId)
+            continue;
+
+        for (ThreadEntry = Process->ThreadListHead.Flink;
+                ThreadEntry != &Process->ThreadListHead;
+                ThreadEntry = ThreadEntry->Flink)
+        {
+            Thread = CONTAINING_RECORD(ThreadEntry, ETHREAD, ThreadListEntry);
+            /* For GDB, Tid == 0 means any thread */
+            if ((Thread->Cid.UniqueThread == ThreadId) || (ptid.tid == 0))
+                return Thread;
+        }
     }
 
     return NULL;
