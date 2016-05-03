@@ -148,13 +148,9 @@ handle_gdb_query(
         {
             PETHREAD Thread = CONTAINING_RECORD(ThreadEntry, ETHREAD, ThreadListEntry);
 
-            if (FirstThread)
-                gdb_send_byte('m');
-            else
-                gdb_send_byte(',');
-            FirstThread = FALSE;
-
+            gdb_send_byte(FirstThread ? 'm' : ',');
             gdb_send_string(format_ptid(ptid_from_thread(Thread)));
+            FirstThread = FALSE;
         }
 
         gdb_end_packet();
