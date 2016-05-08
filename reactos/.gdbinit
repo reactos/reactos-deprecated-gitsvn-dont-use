@@ -166,7 +166,7 @@ end
 define _load-from-list
     dont-repeat
     # Iterate and load each module in a loader list
-    set $LoadOrderListHead = $arg0
+    set $LoadOrderListHead = (LIST_ENTRY*)$arg0
     set $cur = $LoadOrderListHead->Flink
     while $cur != $LoadOrderListHead
         set $ldr_entry = (PLDR_DATA_TABLE_ENTRY)$cur
@@ -181,15 +181,7 @@ define load-symbols
     file
     symbol-file
 
-    # HACK: load ntdll as the executable for kernel-mode
-    # ntoskrln can't be used since the 'section' command doesn't
-    # relocate sections as one would expect
-    # https://sourceware.org/bugzilla/show_bug.cgi?id=20007
-    file "symbols/ntdll.dll.dbg"
-
-    # Kernel symbols
-    # Manually load ntoskrnl
-    add-symbol-file-at "symbols/ntoskrnl.exe.dbg" 0x80400000
+    file "symbols/ntoskrnl.exe.dbg"
 
     # During early init the loader is in KeLoaderBlock instead of Ps*
     set $LoadOrderListHead = &PsLoadedModuleList

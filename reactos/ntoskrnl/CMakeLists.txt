@@ -26,7 +26,11 @@ else()
 endif()
 set_subsystem(ntoskrnl native)
 
-set_image_base(ntoskrnl 0x00400000)
+if(NOT GDB)
+    set_image_base(ntoskrnl 0x00400000)
+else()
+    set_image_base(ntoskrnl 0x80400000)
+endif()
 if(MSVC)
     add_target_link_flags(ntoskrnl "/SECTION:.rsrc,!DP") #Accessed from bugcheck code
 endif()

@@ -26,7 +26,11 @@ else()
 endif()
 set_subsystem(ntkrnlmp native)
 
-set_image_base(ntkrnlmp 0x00400000)
+if(NOT GDB)
+    set_image_base(ntkrnlmp 0x00400000)
+else()
+    set_image_base(ntkrnlmp 0x80400000)
+endif()
 if(MSVC)
     add_target_link_flags(ntkrnlmp "/SECTION:.rsrc,!DP") #Accessed from bugcheck code
 endif()
