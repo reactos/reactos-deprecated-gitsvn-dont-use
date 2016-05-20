@@ -11,7 +11,15 @@
 #include <usbdlib.h>
 #include "..\usbmport.h"
 
+NTSTATUS
+NTAPI
+USBPORT_RegisterUSBPortDriver(
+  PDRIVER_OBJECT DriverObject,
+  ULONG Version,
+  PUSBPORT_REGISTRATION_PACKET RegistrationPacket);
 
-
+ULONG
+NTAPI
+USBPORT_GetHciMn(VOID);
 
 #endif /* USBPORT_H__ */
