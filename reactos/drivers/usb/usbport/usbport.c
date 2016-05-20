@@ -3,6 +3,29 @@
 //#define NDEBUG
 #include <debug.h>
 
+static
+NTSTATUS
+NTAPI
+USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
+                  PDEVICE_OBJECT PhysicalDeviceObject)
+{
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_AddDevice: DriverObject - %p, PhysicalDeviceObject - %p\n",
+           DriverObject,
+           PhysicalDeviceObject);
+
+    Status = STATUS_SUCCESS;
+    return Status;
+}
+
+VOID
+NTAPI
+USBPORT_Unload(PDRIVER_OBJECT DriverObject)
+{
+    DPRINT("USBPORT_Unload: ... \n");
+}
+
 NTSTATUS
 NTAPI
 USBPORT_Dispatch(PDEVICE_OBJECT DeviceObject,
@@ -34,6 +57,9 @@ USBPORT_RegisterUSBPortDriver(PDRIVER_OBJECT DriverObject,
            DriverObject,
            Version,
            RegPacket);
+
+    DriverObject->DriverExtension->AddDevice = (PDRIVER_ADD_DEVICE)USBPORT_AddDevice;
+    DriverObject->DriverUnload = (PDRIVER_UNLOAD)USBPORT_Unload;
 
     DriverObject->MajorFunction[IRP_MJ_CREATE] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_CLOSE] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
