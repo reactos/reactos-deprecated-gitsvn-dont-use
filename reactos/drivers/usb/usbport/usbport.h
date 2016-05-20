@@ -22,4 +22,10 @@ ULONG
 NTAPI
 USBPORT_GetHciMn(VOID);
 
+NTSTATUS
+NTAPI
+USBPORT_Dispatch(
+  PDEVICE_OBJECT DeviceObject,
+  PIRP Irp);
+
 #endif /* USBPORT_H__ */
