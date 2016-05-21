@@ -115,7 +115,21 @@ VOID
 NTAPI
 USBPORT_Unload(PDRIVER_OBJECT DriverObject)
 {
-    DPRINT("USBPORT_Unload: ... \n");
+    PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
+
+    DPRINT("USBPORT_Unload: FIXME!\n");
+
+    MiniPortInterface = USBPORT_FindMiniPort(DriverObject);
+    if (!MiniPortInterface)
+    {
+        DPRINT("USBPORT_Unload: CRITICAL ERROR!!! USBPORT_FindMiniPort not found MiniPortInterface\n");
+        ASSERT(FALSE);
+    }
+
+    ASSERT(FALSE); //FIXME
+    // ...
+    //MiniPortInterface->DriverUnload(DriverObject); // Call MiniPort _HCI_Unload
+    // ...
 }
 
 NTSTATUS
