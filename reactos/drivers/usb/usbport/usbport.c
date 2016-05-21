@@ -97,6 +97,10 @@ USBPORT_RegisterUSBPortDriver(PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_POWER] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
 
+    RtlCopyMemory(&MiniPortInterface->Packet,
+                  RegPacket,
+                  sizeof(USBPORT_REGISTRATION_PACKET));
+
     Status = STATUS_SUCCESS;
     return Status;
 }
