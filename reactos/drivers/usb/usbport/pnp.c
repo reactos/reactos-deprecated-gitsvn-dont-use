@@ -55,6 +55,31 @@ USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
             }
             while (ix < ResourceList->Count);
         }
+
+        if (PortDescriptor)
+        {
+            if (PortDescriptor->Flags & CM_RESOURCE_PORT_IO)
+            {
+                UsbPortResources->ResourceBase = (PVOID)PortDescriptor->u.Port.Start.LowPart;
+            }
+            else
+            {
+                UsbPortResources->ResourceBase = MmMapIoSpace(PortDescriptor->u.Port.Start,
+                                                              PortDescriptor->u.Port.Length,
+                                                              0);
+            }
+
+            UsbPortResources->IoSpaceLength = PortDescriptor->u.Port.Length;
+
+            if (UsbPortResources->ResourceBase)
+            {
+                UsbPortResources->TypesResources |= 1; // FIXME const
+            }
+            else
+            {
+                Status = STATUS_NONE_MAPPED;
+            }
+        }
     }
     else
     {
