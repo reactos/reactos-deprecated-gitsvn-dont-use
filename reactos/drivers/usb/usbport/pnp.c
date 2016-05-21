@@ -13,7 +13,10 @@ USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
     PCM_RESOURCE_LIST AllocatedResourcesTranslated;
     PCM_PARTIAL_RESOURCE_LIST ResourceList;
     PCM_PARTIAL_RESOURCE_DESCRIPTOR PartialDescriptor;
-
+    PCM_PARTIAL_RESOURCE_DESCRIPTOR PortDescriptor = NULL;
+    PCM_PARTIAL_RESOURCE_DESCRIPTOR MemoryDescriptor = NULL;
+    PCM_PARTIAL_RESOURCE_DESCRIPTOR InterruptDescriptor = NULL;
+    ULONG ix = 0;
     NTSTATUS Status = STATUS_SUCCESS;
 
     DPRINT("USBPORT_ParseResources: ... \n");
@@ -28,6 +31,29 @@ USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
 
         if (ResourceList->Count > 0)
         {
+            PartialDescriptor = &ResourceList->PartialDescriptors[0];
+
+            do
+            {
+                if (PartialDescriptor->Type == CmResourceTypePort) // 1
+                {
+                    if (!PortDescriptor)
+                        PortDescriptor = PartialDescriptor;
+                }
+                else if (PartialDescriptor->Type == CmResourceTypeInterrupt) // 2
+                {
+                    if (!InterruptDescriptor)
+                        InterruptDescriptor = PartialDescriptor;
+                }
+                else if (PartialDescriptor->Type == CmResourceTypeMemory) // 3
+                {
+                    if (!MemoryDescriptor)
+                        MemoryDescriptor = PartialDescriptor;
+                }
+                ++ix;
+                PartialDescriptor += 1;
+            }
+            while (ix < ResourceList->Count);
         }
     }
     else
