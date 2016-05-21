@@ -69,6 +69,23 @@ USBPORT_RegisterUSBPortDriver(PDRIVER_OBJECT DriverObject,
         USBPORT_Initialized = TRUE;
     }
 
+    MiniPortInterface = (PUSBPORT_MINIPORT_INTERFACE)ExAllocatePoolWithTag(NonPagedPool,
+                                                                           sizeof(USBPORT_MINIPORT_INTERFACE),
+                                                                           USB_PORT_TAG);
+    if (!MiniPortInterface)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(MiniPortInterface, sizeof(USBPORT_MINIPORT_INTERFACE));
+
+    MiniPortInterface->DriverObject = DriverObject;
+    MiniPortInterface->DriverUnload = DriverObject->DriverUnload;
+
+    ExInterlockedInsertTailList(&USBPORT_MiniPortDrivers,
+                                &MiniPortInterface->DriverList,
+                                &USBPORT_SpinLock);
+
     DriverObject->DriverExtension->AddDevice = (PDRIVER_ADD_DEVICE)USBPORT_AddDevice;
     DriverObject->DriverUnload = (PDRIVER_UNLOAD)USBPORT_Unload;
 
