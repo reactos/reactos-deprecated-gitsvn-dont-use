@@ -113,18 +113,17 @@ USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
 
     RtlZeroMemory(FdoExtention, sizeof(USBPORT_DEVICE_EXTENSION));
 
-    FdoExtention->SelfDevice = DeviceObject;
-    FdoExtention->LowerPdoDevice = PhysicalDeviceObject;
+    FdoExtention->CommonExtension.SelfDevice = DeviceObject;
+    FdoExtention->CommonExtension.LowerPdoDevice = PhysicalDeviceObject;
+    FdoExtention->CommonExtension.IsPDO = FALSE;
+    FdoExtention->CommonExtension.LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
+                                                                            PhysicalDeviceObject);
 
     FdoExtention->MiniPortExt = (PVOID)((ULONG_PTR)&FdoExtention +
                                         sizeof(USBPORT_DEVICE_EXTENSION));
 
     FdoExtention->MiniPortInterface = MiniPortInterface;
-    FdoExtention->IsPDO = FALSE;
     FdoExtention->FdoNameNumber = DeviceNumber;
-
-    FdoExtention->LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
-                                                            PhysicalDeviceObject);
 
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 

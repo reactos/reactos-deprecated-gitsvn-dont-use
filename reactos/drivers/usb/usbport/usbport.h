@@ -16,15 +16,19 @@
 extern KSPIN_LOCK USBPORT_SpinLock;
 extern LIST_ENTRY USBPORT_MiniPortDrivers;
 
-typedef struct _USBPORT_DEVICE_EXTENSION {
+typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   PDEVICE_OBJECT SelfDevice; // SelfDevice
   PDEVICE_OBJECT LowerPdoDevice; // PhysicalDeviceObject
   PDEVICE_OBJECT LowerDevice; // TopOfStackDeviceObject
+  ULONG IsPDO;
+} USBPORT_COMMON_DEVICE_EXTENSION, *PUSBPORT_COMMON_DEVICE_EXTENSION;
+
+typedef struct _USBPORT_DEVICE_EXTENSION {
+  USBPORT_COMMON_DEVICE_EXTENSION CommonExtension;
+  ULONG Flags;
   PDEVICE_OBJECT RootHubPdo; // RootHubDeviceObject
   PVOID MiniPortExt;
   PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
-  ULONG IsPDO;
-  ULONG Flags;
   ULONG FdoNameNumber;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
