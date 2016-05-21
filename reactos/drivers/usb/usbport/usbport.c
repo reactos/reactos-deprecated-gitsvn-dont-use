@@ -53,6 +53,7 @@ USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
     WCHAR CharDeviceName[64];
     UNICODE_STRING DeviceName;
     PDEVICE_OBJECT DeviceObject;
+    PUSBPORT_DEVICE_EXTENSION FdoExtention;
 
     DPRINT("USBPORT_AddDevice: DriverObject - %p, PhysicalDeviceObject - %p\n",
            DriverObject,
@@ -107,6 +108,25 @@ USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
            DeviceObject,
            &DeviceName,
            Status);
+
+    FdoExtention = (PUSBPORT_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+
+    RtlZeroMemory(FdoExtention, sizeof(USBPORT_DEVICE_EXTENSION));
+
+    FdoExtention->SelfDevice = DeviceObject;
+    FdoExtention->LowerPdoDevice = PhysicalDeviceObject;
+
+    FdoExtention->MiniPortExt = (PVOID)((ULONG_PTR)&FdoExtention +
+                                        sizeof(USBPORT_DEVICE_EXTENSION));
+
+    FdoExtention->MiniPortInterface = MiniPortInterface;
+    FdoExtention->IsPDO = FALSE;
+    FdoExtention->FdoNameNumber = DeviceNumber;
+
+    FdoExtention->LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
+                                                            PhysicalDeviceObject);
+
+    DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
     return Status;
 }
