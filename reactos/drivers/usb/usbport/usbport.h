@@ -21,8 +21,11 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   PDEVICE_OBJECT LowerPdoDevice; // PhysicalDeviceObject
   PDEVICE_OBJECT LowerDevice; // TopOfStackDeviceObject
   PDEVICE_OBJECT RootHubPdo; // RootHubDeviceObject
+  PVOID MiniPortExt;
+  PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
   ULONG IsPDO;
   ULONG Flags;
+  ULONG FdoNameNumber;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 NTSTATUS
