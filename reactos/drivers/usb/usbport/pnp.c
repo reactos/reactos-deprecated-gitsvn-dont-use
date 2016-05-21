@@ -98,6 +98,17 @@ USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
                 Status = STATUS_NONE_MAPPED;
             }
         }
+
+        if (InterruptDescriptor && NT_SUCCESS(Status))
+        {
+            UsbPortResources->TypesResources |= 2; // FIXME const
+
+            UsbPortResources->InterruptVector = InterruptDescriptor->u.Interrupt.Vector;
+            UsbPortResources->InterruptLevel = InterruptDescriptor->u.Interrupt.Level;
+            UsbPortResources->InterruptAffinity = InterruptDescriptor->u.Interrupt.Affinity;
+            UsbPortResources->ShareVector = InterruptDescriptor->ShareDisposition == CmResourceShareShared;
+            UsbPortResources->InterruptMode = InterruptDescriptor->Flags == CM_RESOURCE_INTERRUPT_LATCHED;
+        }
     }
     else
     {
