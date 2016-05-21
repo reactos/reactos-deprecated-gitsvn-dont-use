@@ -3,6 +3,10 @@
 //#define NDEBUG
 #include <debug.h>
 
+LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
+KSPIN_LOCK USBPORT_SpinLock = 0;
+BOOLEAN USBPORT_Initialized = FALSE;
+
 static
 NTSTATUS
 NTAPI
@@ -57,6 +61,13 @@ USBPORT_RegisterUSBPortDriver(PDRIVER_OBJECT DriverObject,
            DriverObject,
            Version,
            RegPacket);
+
+    if (!USBPORT_Initialized)
+    {
+        InitializeListHead(&USBPORT_MiniPortDrivers);
+        KeInitializeSpinLock(&USBPORT_SpinLock);
+        USBPORT_Initialized = TRUE;
+    }
 
     DriverObject->DriverExtension->AddDevice = (PDRIVER_ADD_DEVICE)USBPORT_AddDevice;
     DriverObject->DriverUnload = (PDRIVER_UNLOAD)USBPORT_Unload;

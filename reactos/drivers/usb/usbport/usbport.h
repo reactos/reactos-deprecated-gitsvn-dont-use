@@ -13,6 +13,9 @@
 
 #define USB_PORT_TAG 'pbsu'
 
+extern KSPIN_LOCK USBPORT_SpinLock;
+extern LIST_ENTRY USBPORT_MiniPortDrivers;
+
 NTSTATUS
 NTAPI
 USBPORT_RegisterUSBPortDriver(
