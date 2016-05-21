@@ -80,6 +80,24 @@ USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
                 Status = STATUS_NONE_MAPPED;
             }
         }
+
+        if (MemoryDescriptor && NT_SUCCESS(Status))
+        {
+            UsbPortResources->IoSpaceLength = MemoryDescriptor->u.Memory.Length;
+
+            UsbPortResources->ResourceBase = MmMapIoSpace(MemoryDescriptor->u.Memory.Start,
+                                                          MemoryDescriptor->u.Memory.Length,
+                                                          0);
+
+            if (UsbPortResources->ResourceBase)
+            {
+                UsbPortResources->TypesResources |= 4;// FIXME const
+            }
+            else
+            {
+                Status = STATUS_NONE_MAPPED;
+            }
+        }
     }
     else
     {
