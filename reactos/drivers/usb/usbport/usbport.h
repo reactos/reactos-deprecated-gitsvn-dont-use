@@ -49,4 +49,10 @@ USBPORT_Dispatch(
   PDEVICE_OBJECT DeviceObject,
   PIRP Irp);
 
+NTSTATUS
+NTAPI
+USBPORT_FdoPnP(
+  PDEVICE_OBJECT FdoDevice,
+  PIRP Irp);
+
 #endif /* USBPORT_H__ */
