@@ -173,6 +173,71 @@ USBPORT_Dispatch(PDEVICE_OBJECT DeviceObject,
                IoStack->MinorFunction);
     }
 
+    switch (IoStack->MajorFunction)
+    {
+        case IRP_MJ_DEVICE_CONTROL: // 14
+            DPRINT("USBPORT_Dispatch: IRP_MJ_DEVICE_CONTROL\n");
+            if (DeviceExtension->IsPDO)
+                Status = 0; // USBPORT_PdoDeviceControl(DeviceObject, Irp);
+            else
+                Status = 0; // USBPORT_FdoDeviceControl(DeviceObject, Irp);
+            break;
+
+        case IRP_MJ_SCSI: // 15 IRP_MJ_NTERNAL_DEVICE_CONTROL:
+            DPRINT("USBPORT_Dispatch: IRP_MJ_SCSI\n");
+            if (DeviceExtension->IsPDO)
+                Status = 0; // USBPORT_PdoScsi(DeviceObject, Irp);
+            else
+                Status = 0; // USBPORT_FdoScsi(DeviceObject, Irp);
+            break;
+
+        case IRP_MJ_POWER: // 22
+            DPRINT("USBPORT_Dispatch: USBPORT_XdoPowerIrp\n");
+            if (DeviceExtension->IsPDO)
+                Status = 0; // USBPORT_PdoPower(DeviceObject, Irp);
+            else
+                Status = 0; // USBPORT_FdoPower(DeviceObject, Irp);
+            break;
+
+        case IRP_MJ_SYSTEM_CONTROL: // 23
+            DPRINT("USBPORT_Dispatch: IRP_MJ_SYSTEM_CONTROL\n"); 
+            if (DeviceExtension->IsPDO)
+            {
+                Irp->IoStatus.Status = Status;
+                IoCompleteRequest(Irp, IO_NO_INCREMENT);
+            }
+            else
+            {
+                IoSkipCurrentIrpStackLocation(Irp);
+                Status = IoCallDriver(DeviceExtension->LowerDevice, Irp);
+            }
+            break;
+
+        case IRP_MJ_PNP: // 27
+            DPRINT("USBPORT_Dispatch: IRP_MJ_PNP\n"); 
+            if (DeviceExtension->IsPDO)
+                Status = 0; // USBPORT_PdoPnP(DeviceObject, Irp);
+            else
+                Status = 0; // USBPORT_FdoPnP(DeviceObject, Irp);
+            break;
+
+        case IRP_MJ_CREATE: // 0
+        case IRP_MJ_CLOSE: // 2
+            DPRINT("USBPORT_Dispatch: IRP_MJ_CREATE | IRP_MJ_CLOSE\n"); 
+            Irp->IoStatus.Status = Status;
+            IoCompleteRequest(Irp, IO_NO_INCREMENT);
+            break;
+
+        default:
+            DPRINT("USBPORT_Dispatch: unhandled IRP_MJ_??? function - %d\n",
+                   IoStack->MajorFunction);
+
+            Status = STATUS_INVALID_DEVICE_REQUEST;
+            Irp->IoStatus.Status = Status;
+            IoCompleteRequest(Irp, IO_NO_INCREMENT);
+            break;
+    }
+
     DPRINT("USBPORT_Dispatch: Status - %x\n", Status);
     return Status;
 }
