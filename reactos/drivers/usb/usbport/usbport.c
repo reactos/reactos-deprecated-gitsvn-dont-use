@@ -98,11 +98,15 @@ USBPORT_RegisterUSBPortDriver(PDRIVER_OBJECT DriverObject,
                               PUSBPORT_REGISTRATION_PACKET RegPacket)
 {
     NTSTATUS Status;
+    PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
 
     DPRINT("USBPORT_RegisterUSBPortDriver: DriverObject - %p, Version - %p, RegPacket - %p\n",
            DriverObject,
            Version,
            RegPacket);
+
+    DPRINT("USBPORT_RegisterUSBPortDriver: sizeof(USBPORT_MINIPORT_INTERFACE) - %x\n",
+           sizeof(USBPORT_MINIPORT_INTERFACE));
 
     if (!USBPORT_Initialized)
     {
