@@ -6,6 +6,41 @@
 static
 NTSTATUS
 NTAPI
+USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
+                       PIRP Irp,
+                       PUSBPORT_RESOURCES UsbPortResources)
+{
+    PCM_RESOURCE_LIST AllocatedResourcesTranslated;
+    PCM_PARTIAL_RESOURCE_LIST ResourceList;
+    PCM_PARTIAL_RESOURCE_DESCRIPTOR PartialDescriptor;
+
+    NTSTATUS Status = STATUS_SUCCESS;
+
+    DPRINT("USBPORT_ParseResources: ... \n");
+
+    AllocatedResourcesTranslated = IoGetCurrentIrpStackLocation(Irp)->Parameters.StartDevice.AllocatedResourcesTranslated;
+
+    if (AllocatedResourcesTranslated)
+    {
+        RtlZeroMemory(UsbPortResources, sizeof(USBPORT_RESOURCES));
+
+        ResourceList = &AllocatedResourcesTranslated->List[0].PartialResourceList;
+
+        if (ResourceList->Count > 0)
+        {
+        }
+    }
+    else
+    {
+        Status = STATUS_NONE_MAPPED;
+    }
+
+    return Status;
+}
+
+static
+NTSTATUS
+NTAPI
 USBPORT_FdoStartCompletion(PDEVICE_OBJECT DeviceObject,
                            PIRP Irp,
                            PRKEVENT Event)
@@ -20,6 +55,7 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
                PIRP Irp)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PUSBPORT_RESOURCES UsbPortResources = (PUSBPORT_RESOURCES)&FdoExtention->UsbPortResources;
     PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
     UCHAR Minor = IoStack->MinorFunction;
     KEVENT Event;
@@ -59,7 +95,9 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
 
             if (NT_SUCCESS(Status))
             {
-                Status = 0; // USBPORT_ParseResources(FdoDevice, Irp);
+                Status = USBPORT_ParseResources(FdoDevice,
+                                                Irp,
+                                                UsbPortResources);
 
                 if (NT_SUCCESS(Status))
                 {
