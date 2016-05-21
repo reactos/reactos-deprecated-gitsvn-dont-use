@@ -11,6 +11,8 @@
 #include <usbdlib.h>
 #include "..\usbmport.h"
 
+#define USB_PORT_TAG 'pbsu'
+
 NTSTATUS
 NTAPI
 USBPORT_RegisterUSBPortDriver(
