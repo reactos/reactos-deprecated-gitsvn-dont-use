@@ -156,9 +156,23 @@ NTAPI
 USBPORT_Dispatch(PDEVICE_OBJECT DeviceObject,
                  PIRP Irp)
 {
-    NTSTATUS Status;
-    DPRINT("USBPORT_Dispatch  ... \n");
-    Status = STATUS_SUCCESS;
+    PUSBPORT_COMMON_DEVICE_EXTENSION DeviceExtension = (PUSBPORT_COMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
+    NTSTATUS Status = STATUS_SUCCESS;
+
+    if (DeviceExtension->IsPDO)
+    {
+        DPRINT("USBPORT_Dispatch: PDO (ROOTHUB_DEVICE). Major - %d, Minor - %d\n",
+               IoStack->MajorFunction,
+               IoStack->MinorFunction);
+    }
+    else
+    {
+        DPRINT("USBPORT_Dispatch: FDO (USBPORT_DEVICE). Major - %d, Minor - %d\n",
+               IoStack->MajorFunction,
+               IoStack->MinorFunction);
+    }
+
     DPRINT("USBPORT_Dispatch: Status - %x\n", Status);
     return Status;
 }
