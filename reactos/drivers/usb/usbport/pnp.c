@@ -3,6 +3,17 @@
 //#define NDEBUG
 #include <debug.h>
 
+static
+NTSTATUS
+NTAPI
+USBPORT_FdoStartCompletion(PDEVICE_OBJECT DeviceObject,
+                           PIRP Irp,
+                           PRKEVENT Event)
+{
+    KeSetEvent(Event, EVENT_INCREMENT, FALSE);
+    return STATUS_MORE_PROCESSING_REQUIRED;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
@@ -11,6 +22,7 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
     UCHAR Minor = IoStack->MinorFunction;
+    KEVENT Event;
     NTSTATUS Status = STATUS_SUCCESS;
 
     DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
@@ -19,6 +31,42 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
     {
         case IRP_MN_START_DEVICE: // 0
             DPRINT("IRP_MN_START_DEVICE\n");
+
+            KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+            IoCopyCurrentIrpStackLocationToNext(Irp);
+
+            IoSetCompletionRoutine(Irp,
+                                   (PIO_COMPLETION_ROUTINE)USBPORT_FdoStartCompletion,
+                                   &Event,
+                                   1,
+                                   1,
+                                   1);
+
+            Status = IoCallDriver(FdoExtention->CommonExtension.LowerDevice,
+                                  Irp);
+
+            if (Status == STATUS_PENDING)
+            {
+                KeWaitForSingleObject(&Event,
+                                      Suspended,
+                                      KernelMode,
+                                      FALSE,
+                                      NULL);
+
+                Status = Irp->IoStatus.Status;
+            }
+
+            if (NT_SUCCESS(Status))
+            {
+                Status = 0; // USBPORT_ParseResources(FdoDevice, Irp);
+
+                if (NT_SUCCESS(Status))
+                {
+                    Status = 0; // USBPORT_StartDevice(FdoDevice, Irp);
+                }
+            }
+
             Irp->IoStatus.Status = Status;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
             return Status;
