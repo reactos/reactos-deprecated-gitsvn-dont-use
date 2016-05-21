@@ -8,16 +8,58 @@ KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
 
 static
+PUSBPORT_MINIPORT_INTERFACE
+NTAPI
+USBPORT_FindMiniPort(PDRIVER_OBJECT DriverObject)
+{
+    KIRQL OldIrql; 
+    PLIST_ENTRY List;
+    PUSBPORT_MINIPORT_INTERFACE MiniPortInterface = NULL;
+
+    DPRINT("USBPORT_FindMiniport: ... \n");
+
+    KeAcquireSpinLock(&USBPORT_SpinLock, &OldIrql);
+
+    for (List = USBPORT_MiniPortDrivers.Flink;
+         List != &USBPORT_MiniPortDrivers;
+         List = List->Flink)
+    {
+        MiniPortInterface = CONTAINING_RECORD(List,
+                                              USBPORT_MINIPORT_INTERFACE,
+                                              DriverList);
+
+        if (MiniPortInterface->DriverObject == DriverObject)
+        {
+            DPRINT("USBPORT_FindMiniport: find MiniPortInterface - %p\n",
+                   MiniPortInterface);
+            break;
+        }
+    }
+
+    KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
+
+    return MiniPortInterface;
+}
+
+static
 NTSTATUS
 NTAPI
 USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
                   PDEVICE_OBJECT PhysicalDeviceObject)
 {
     NTSTATUS Status;
+    PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
 
     DPRINT("USBPORT_AddDevice: DriverObject - %p, PhysicalDeviceObject - %p\n",
            DriverObject,
            PhysicalDeviceObject);
+
+    MiniPortInterface = USBPORT_FindMiniPort(DriverObject);
+    if (!MiniPortInterface)
+    {
+        DPRINT("USBPORT_AddDevice: USBPORT_FindMiniPort not found MiniPortInterface\n");
+        return STATUS_UNSUCCESSFUL;
+    }
 
     Status = STATUS_SUCCESS;
     return Status;
