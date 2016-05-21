@@ -218,7 +218,7 @@ USBPORT_Dispatch(PDEVICE_OBJECT DeviceObject,
             if (DeviceExtension->IsPDO)
                 Status = 0; // USBPORT_PdoPnP(DeviceObject, Irp);
             else
-                Status = 0; // USBPORT_FdoPnP(DeviceObject, Irp);
+                Status = USBPORT_FdoPnP(DeviceObject, Irp);
             break;
 
         case IRP_MJ_CREATE: // 0
