@@ -3,6 +3,23 @@
 //#define NDEBUG
 #include <debug.h>
 
+BOOLEAN
+NTAPI
+USBPORT_InterruptService(PKINTERRUPT Interrupt,
+                         PVOID ServiceContext)
+{
+    BOOLEAN Result = TRUE;
+
+    DPRINT("USBPORT_InterruptService: Interrupt - %p, ServiceContext - %p\n",
+           Interrupt,
+           ServiceContext);
+
+    //KeInsertQueueDpc();
+
+    DPRINT("USBPORT_InterruptService: return - %x\n", Result);
+    return Result;
+}
+
 VOID
 NTAPI
 USBPORT_IsrDpc(PRKDPC Dpc,
