@@ -6,6 +6,21 @@
 static
 NTSTATUS
 NTAPI
+USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
+                    PUSBPORT_RESOURCES UsbPortResources)
+{
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
+           FdoDevice,
+           UsbPortResources);
+
+    return Status;
+}
+
+static
+NTSTATUS
+NTAPI
 USBPORT_ParseResources(PDEVICE_OBJECT FdoDevice,
                        PIRP Irp,
                        PUSBPORT_RESOURCES UsbPortResources)
@@ -181,7 +196,7 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
 
                 if (NT_SUCCESS(Status))
                 {
-                    Status = 0; // USBPORT_StartDevice(FdoDevice, Irp);
+                    Status = USBPORT_StartDevice(FdoDevice, UsbPortResources);
                 }
             }
 
