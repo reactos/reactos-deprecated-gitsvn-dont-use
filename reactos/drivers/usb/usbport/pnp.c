@@ -144,6 +144,8 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
         goto ExitWithError;
     }
 
+    KeInitializeDpc(&FdoExtention->IsrDpc, USBPORT_IsrDpc, FdoDevice);
+
     if (NT_SUCCESS(Status))
         goto Exit;
 
