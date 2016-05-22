@@ -163,6 +163,21 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
 
     KeInitializeDpc(&FdoExtention->IsrDpc, USBPORT_IsrDpc, FdoDevice);
 
+    Status = IoConnectInterrupt(&FdoExtention->InterruptObject,
+                                USBPORT_InterruptService,
+                                (PVOID)FdoDevice,
+                                0,
+                                UsbPortResources->InterruptVector,
+                                UsbPortResources->InterruptLevel,
+                                UsbPortResources->InterruptLevel,
+                                UsbPortResources->InterruptMode,
+                                UsbPortResources->ShareVector,
+                                UsbPortResources->InterruptAffinity,
+                                0);
+
+    if (!NT_SUCCESS(Status))
+        goto ExitWithError;
+
     if (NT_SUCCESS(Status))
         goto Exit;
 
