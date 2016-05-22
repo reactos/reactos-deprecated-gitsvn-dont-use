@@ -189,7 +189,18 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     MiniPortStatus = FdoExtention->MiniPortInterface->Packet.StartController(FdoExtention->MiniPortExt,
                                                                              UsbPortResources);
 
-    DPRINT("USBPORT_StartDevice: MiniPort return - %x\n", MiniPortStatus);
+    if (MiniPortStatus)
+    {
+        DPRINT1("USBPORT_StartDevice: Failed to Start MiniPort. MiniPortStatus - %x\n",
+                MiniPortStatus);
+
+        IoDisconnectInterrupt(FdoExtention->InterruptObject);
+        goto ExitWithError;
+    }
+    else
+    {
+        FdoExtention->MiniPortInterface->Packet.EnableInterrupts(FdoExtention->MiniPortExt);
+    }
 
     if (NT_SUCCESS(Status))
         goto Exit;
