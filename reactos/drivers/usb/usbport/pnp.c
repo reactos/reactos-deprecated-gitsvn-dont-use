@@ -31,7 +31,7 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     if (BytesRead != PCI_COMMON_HDR_LENGTH)
     {
         DPRINT1("USBPORT_StartDevice: Failed to get pci config information!\n");
-        ASSERT(FALSE);
+        goto ExitWithError;
     }
 
     FdoExtention->VendorID = PciConfig.VendorID;
@@ -61,9 +61,18 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     if (!DmaAdapter)
     {
         Status = STATUS_INSUFFICIENT_RESOURCES;
-        ASSERT(FALSE);
+        goto ExitWithError;
     }
 
+    if (NT_SUCCESS(Status))
+        goto Exit;
+
+ExitWithError:
+    DPRINT("USBPORT_StartDevice: ExitWithError Status - %p\n", Status);
+    //USBPORT_StopDevice();
+
+Exit:
+    DPRINT("USBPORT_StartDevice: Exit Status - %p\n", Status);
     return Status;
 }
 
