@@ -40,6 +40,8 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   UCHAR BaseClass;
   PDMA_ADAPTER DmaAdapter;
   ULONG NumberMapRegs;
+  PKINTERRUPT InterruptObject;
+  KDPC IsrDpc;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 NTSTATUS
@@ -64,5 +66,13 @@ NTAPI
 USBPORT_FdoPnP(
   PDEVICE_OBJECT FdoDevice,
   PIRP Irp);
+
+VOID
+NTAPI
+USBPORT_IsrDpc(
+  PRKDPC Dpc,
+  PVOID DeferredContext,
+  PVOID SystemArgument1,
+  PVOID SystemArgument2);
 
 #endif /* USBPORT_H__ */
