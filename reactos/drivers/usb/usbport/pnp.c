@@ -6,6 +6,70 @@
 static
 NTSTATUS
 NTAPI
+USBPORT_QueryPciBusInterface(PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PBUS_INTERFACE_STANDARD BusInterface;
+    PIO_STACK_LOCATION IoStack;
+    IO_STATUS_BLOCK IoStatusBlock;
+    PDEVICE_OBJECT HighestDevice;
+    KEVENT Event;
+    PIRP Irp;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_QueryPciBusInterface: ...  \n");
+
+    BusInterface = &FdoExtention->BusInterface;
+    RtlZeroMemory(BusInterface, sizeof(BUS_INTERFACE_STANDARD));
+    KeInitializeEvent(&Event, SynchronizationEvent, FALSE);
+    HighestDevice = IoGetAttachedDeviceReference(FdoDevice);
+
+    Irp = IoBuildSynchronousFsdRequest(IRP_MJ_PNP,
+                                       HighestDevice,
+                                       NULL,
+                                       0,
+                                       NULL,
+                                       &Event,
+                                       &IoStatusBlock);
+
+    if (Irp)
+    {
+        IoStack = IoGetNextIrpStackLocation(Irp);
+
+        Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+        Irp->IoStatus.Information = 0;
+
+        IoStack->MinorFunction = IRP_MN_QUERY_INTERFACE;
+
+        IoStack->Parameters.QueryInterface.InterfaceType = &GUID_BUS_INTERFACE_STANDARD;
+        IoStack->Parameters.QueryInterface.Size = sizeof(BUS_INTERFACE_STANDARD);
+        IoStack->Parameters.QueryInterface.Version = 1;
+        IoStack->Parameters.QueryInterface.Interface = (PINTERFACE)BusInterface;
+        IoStack->Parameters.QueryInterface.InterfaceSpecificData = 0;
+
+        Status = IoCallDriver(HighestDevice, Irp);
+
+        if (Status == STATUS_PENDING)
+        {
+            KeWaitForSingleObject(&Event, Executive, KernelMode, FALSE, NULL);
+            Status = IoStatusBlock.Status;
+        }
+    }
+    else
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    ObDereferenceObject(HighestDevice);
+
+    DPRINT("USBPORT_QueryPciBusInterface: return Status - %x\n", Status);
+
+    return Status;
+}
+
+static
+NTSTATUS
+NTAPI
 USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
                     PUSBPORT_RESOURCES UsbPortResources)
 {
