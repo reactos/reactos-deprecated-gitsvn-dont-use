@@ -158,6 +158,7 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
 
     if (!DmaAdapter)
     {
+        DPRINT1("USBPORT_StartDevice: Failed to get DmaAdapter!\n");
         Status = STATUS_INSUFFICIENT_RESOURCES;
         goto ExitWithError;
     }
