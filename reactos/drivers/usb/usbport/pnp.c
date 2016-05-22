@@ -13,6 +13,8 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     NTSTATUS Status;
     PCI_COMMON_CONFIG PciConfig;
     ULONG BytesRead;
+    DEVICE_DESCRIPTION DeviceDescription;
+    PDMA_ADAPTER DmaAdapter = 0;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -38,6 +40,29 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     FdoExtention->ProgIf = PciConfig.ProgIf;
     FdoExtention->SubClass = PciConfig.SubClass;
     FdoExtention->BaseClass = PciConfig.BaseClass;
+
+    RtlZeroMemory(&DeviceDescription, sizeof(DeviceDescription));
+
+    DeviceDescription.Version = DEVICE_DESCRIPTION_VERSION;
+    DeviceDescription.Master = TRUE;
+    DeviceDescription.ScatterGather = TRUE;
+    DeviceDescription.Dma32BitAddresses = TRUE;
+    DeviceDescription.InterfaceType = PCIBus;
+    DeviceDescription.DmaWidth = Width32Bits;
+    DeviceDescription.DmaSpeed = Compatible;
+    DeviceDescription.MaximumLength = MAXULONG;
+
+    DmaAdapter = IoGetDmaAdapter(FdoExtention->CommonExtension.LowerPdoDevice,
+                                 &DeviceDescription,
+                                 &FdoExtention->NumberMapRegs);
+
+    FdoExtention->DmaAdapter = DmaAdapter;
+
+    if (!DmaAdapter)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        ASSERT(FALSE);
+    }
 
     return Status;
 }
