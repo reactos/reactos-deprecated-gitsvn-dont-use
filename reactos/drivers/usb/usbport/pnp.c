@@ -9,11 +9,35 @@ NTAPI
 USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
                     PUSBPORT_RESOURCES UsbPortResources)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     NTSTATUS Status;
+    PCI_COMMON_CONFIG PciConfig;
+    ULONG BytesRead;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
            UsbPortResources);
+
+    Status = USBPORT_QueryPciBusInterface(FdoDevice);
+
+    BytesRead = (*FdoExtention->BusInterface.GetBusData)(FdoExtention->BusInterface.Context,
+                                                         PCI_WHICHSPACE_CONFIG,
+                                                         &PciConfig,
+                                                         0,
+                                                         PCI_COMMON_HDR_LENGTH);
+
+    if (BytesRead != PCI_COMMON_HDR_LENGTH)
+    {
+        DPRINT1("USBPORT_StartDevice: Failed to get pci config information!\n");
+        ASSERT(FALSE);
+    }
+
+    FdoExtention->VendorID = PciConfig.VendorID;
+    FdoExtention->DeviceID = PciConfig.DeviceID;
+    FdoExtention->RevisionID = PciConfig.RevisionID;
+    FdoExtention->ProgIf = PciConfig.ProgIf;
+    FdoExtention->SubClass = PciConfig.SubClass;
+    FdoExtention->BaseClass = PciConfig.BaseClass;
 
     return Status;
 }
