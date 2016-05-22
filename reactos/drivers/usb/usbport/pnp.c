@@ -112,6 +112,7 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     ULONG BytesRead;
     DEVICE_DESCRIPTION DeviceDescription;
     PDMA_ADAPTER DmaAdapter = 0;
+    ULONG MiniPortStatus;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -183,6 +184,11 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
         RtlZeroMemory(FdoExtention->MiniPortExt,
                       FdoExtention->MiniPortInterface->Packet.MiniPortHwResourcesSize);
     }
+
+    MiniPortStatus = FdoExtention->MiniPortInterface->Packet.StartController(FdoExtention->MiniPortExt,
+                                                                             UsbPortResources);
+
+    DPRINT("USBPORT_StartDevice: MiniPort return - %x\n", MiniPortStatus);
 
     if (NT_SUCCESS(Status))
         goto Exit;
