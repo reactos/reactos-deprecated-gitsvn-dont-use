@@ -3,6 +3,22 @@
 //#define NDEBUG
 #include <debug.h>
 
+VOID
+NTAPI
+USBPORT_IsrDpc(PRKDPC Dpc,
+               PVOID DeferredContext,
+               PVOID SystemArgument1,
+               PVOID SystemArgument2)
+{
+    DPRINT("USBPORT_IsrDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
+           Dpc,
+           DeferredContext,
+           SystemArgument1,
+           SystemArgument2);
+
+    DPRINT("USBPORT_IsrDpc: exit\n");
+}
+
 static
 NTSTATUS
 NTAPI
