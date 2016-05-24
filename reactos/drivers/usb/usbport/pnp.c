@@ -180,10 +180,10 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     if (!NT_SUCCESS(Status))
         goto ExitWithError;
 
-    if (FdoExtention->MiniPortInterface->Packet.MiniPortHwResourcesSize)
+    if (FdoExtention->MiniPortInterface->Packet.MiniPortExtensionSize)
     {
         RtlZeroMemory(FdoExtention->MiniPortExt,
-                      FdoExtention->MiniPortInterface->Packet.MiniPortHwResourcesSize);
+                      FdoExtention->MiniPortInterface->Packet.MiniPortExtensionSize);
     }
 
     MiniPortStatus = FdoExtention->MiniPortInterface->Packet.StartController(FdoExtention->MiniPortExt,
