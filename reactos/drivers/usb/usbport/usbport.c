@@ -74,7 +74,7 @@ USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
 
         // Create device
         Status = IoCreateDevice(DriverObject,
-                                sizeof(USBPORT_DEVICE_EXTENSION) + MiniPortInterface->Packet.MiniPortHwResourcesSize,
+                                sizeof(USBPORT_DEVICE_EXTENSION) + MiniPortInterface->Packet.MiniPortExtensionSize,
                                 &DeviceName,
                                 FILE_DEVICE_CONTROLLER,
                                 0,
