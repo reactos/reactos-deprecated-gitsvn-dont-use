@@ -113,6 +113,7 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
     DEVICE_DESCRIPTION DeviceDescription;
     PDMA_ADAPTER DmaAdapter = 0;
     ULONG MiniPortStatus;
+    PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -178,12 +179,37 @@ USBPORT_StartDevice(PDEVICE_OBJECT FdoDevice,
                                 0);
 
     if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBPORT_StartDevice: IoConnectInterrupt failed!\n");
         goto ExitWithError;
+    }
 
     if (FdoExtention->MiniPortInterface->Packet.MiniPortExtensionSize)
     {
         RtlZeroMemory(FdoExtention->MiniPortExt,
                       FdoExtention->MiniPortInterface->Packet.MiniPortExtensionSize);
+    }
+
+    if (FdoExtention->MiniPortInterface->Packet.MiniPortResourcesSize)
+    {
+        HeaderBuffer = USBPORT_AllocateCommonBuffer(FdoDevice,
+                                                    FdoExtention->MiniPortInterface->Packet.MiniPortResourcesSize);
+
+        if (!HeaderBuffer)
+        {
+            DPRINT1("USBPORT_StartDevice: Failed to AllocateCommonBuffer!\n");
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            goto ExitWithError;
+        }
+
+        UsbPortResources->StartVA = (PVOID)HeaderBuffer->VirtualAddress;
+        UsbPortResources->StartPA = (PVOID)HeaderBuffer->PhysicalAddress;
+
+        FdoExtention->MiniPortCommonBuffer = HeaderBuffer;
+    }
+    else
+    {
+        FdoExtention->MiniPortCommonBuffer = 0;
     }
 
     MiniPortStatus = FdoExtention->MiniPortInterface->Packet.StartController(FdoExtention->MiniPortExt,
