@@ -7,6 +7,61 @@ LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
 KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
 
+PUSBPORT_COMMON_BUFFER_HEADER
+NTAPI
+USBPORT_AllocateCommonBuffer(PDEVICE_OBJECT FdoDevice,
+                             SIZE_T BufferLength)
+{
+    PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer = 0;
+    PUSBPORT_DEVICE_EXTENSION FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PDMA_ADAPTER DmaAdapter= FdoExtention->DmaAdapter;
+    SIZE_T HeaderSize = sizeof(USBPORT_COMMON_BUFFER_HEADER);
+    ULONG Length = 0;
+    ULONG LengthPadded;
+    PHYSICAL_ADDRESS LogicalAddress;
+    ULONG_PTR BaseVA;
+    ULONG_PTR StartBufferVA;
+    ULONG_PTR StartBufferPA;
+
+    DPRINT("USBPORT_HalAllocateCommonBuffer: FdoDevice - %p, BufferLength - %p\n",
+           FdoDevice,
+           BufferLength);
+
+    if (BufferLength == 0)
+        goto Exit;
+
+    Length = ROUND_TO_PAGES(BufferLength + HeaderSize);
+    LengthPadded = Length - (BufferLength + HeaderSize);
+
+    BaseVA = (ULONG_PTR)DmaAdapter->DmaOperations->AllocateCommonBuffer(DmaAdapter, // IN PDMA_ADAPTER DmaAdapter
+                                                                        Length, // IN ULONG Length,
+                                                                        &LogicalAddress,  // OUT PPHYSICAL_ADDRESS LogicalAddress
+                                                                        TRUE); // IN BOOLEAN CacheEnabled
+
+    if (!BaseVA)
+        goto Exit;
+
+    StartBufferVA = BaseVA & 0xFFFFF000;
+    StartBufferPA = LogicalAddress.LowPart & 0xFFFFF000;
+
+    HeaderBuffer = (PUSBPORT_COMMON_BUFFER_HEADER)(StartBufferVA +
+                                                   BufferLength +
+                                                   LengthPadded);
+
+    HeaderBuffer->Length = Length;
+    HeaderBuffer->BaseVA = BaseVA;
+    HeaderBuffer->LogicalAddress = LogicalAddress; // PHYSICAL_ADDRESS
+
+    HeaderBuffer->BufferLength = BufferLength + LengthPadded;
+    HeaderBuffer->VirtualAddress = StartBufferVA;
+    HeaderBuffer->PhysicalAddress = StartBufferPA;
+
+    RtlZeroMemory((PVOID)StartBufferVA, BufferLength + LengthPadded);
+
+Exit:
+    return HeaderBuffer;
+}
+
 static
 PUSBPORT_MINIPORT_INTERFACE
 NTAPI
