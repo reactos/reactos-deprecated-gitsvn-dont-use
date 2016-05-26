@@ -378,6 +378,7 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
     KEVENT Event;
     NTSTATUS Status = STATUS_SUCCESS;
     DEVICE_RELATION_TYPE RelationType = IoStack->Parameters.QueryDeviceRelations.Type;
+    PDEVICE_RELATIONS DeviceRelations;
 
     DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
 
@@ -461,6 +462,21 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
             if (RelationType == BusRelations)
             {
+                DeviceRelations = ExAllocatePoolWithTag(PagedPool,
+                                                        sizeof(DEVICE_RELATIONS),
+                                                        USB_PORT_TAG);
+
+                if (!DeviceRelations)
+                {
+                    Status = STATUS_INSUFFICIENT_RESOURCES;
+                    Irp->IoStatus.Information = 0;
+                    Irp->IoStatus.Status = Status;
+                    IoCompleteRequest(Irp, 0);
+                    return Status;
+                }
+
+                DeviceRelations->Count = 0;
+                DeviceRelations->Objects[0] = NULL;
             }
             else
             {
