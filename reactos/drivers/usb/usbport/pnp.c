@@ -377,6 +377,7 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
     UCHAR Minor = IoStack->MinorFunction;
     KEVENT Event;
     NTSTATUS Status = STATUS_SUCCESS;
+    DEVICE_RELATION_TYPE RelationType = IoStack->Parameters.QueryDeviceRelations.Type;
 
     DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
 
@@ -458,7 +459,19 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
 
         case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
-            ASSERT(FALSE);
+            if (RelationType == BusRelations)
+            {
+            }
+            else
+            {
+                if (RelationType == RemovalRelations)
+                {
+                    DPRINT("USBPORT_FdoPnP: FIXME IRP_MN_QUERY_DEVICE_RELATIONS/RemovalRelations\n");
+                }
+
+                ASSERT(FALSE);
+            }
+
             Irp->IoStatus.Status = Status;
             goto ForwardIrp;
 
