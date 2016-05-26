@@ -658,3 +658,143 @@ ForwardIrp:
 
     return Status;
 }
+
+NTSTATUS
+NTAPI
+USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
+               PIRP Irp)
+{
+    //PUSBPORT_RHDEVICE_EXTENSION PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    //PDEVICE_OBJECT FdoDevice = PdoExtention->FdoDevice;
+    PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
+    //ULONG_PTR Information = Irp->IoStatus.Information;
+    UCHAR Minor = IoStack->MinorFunction;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
+
+    Status = Irp->IoStatus.Status;
+
+    switch (Minor)
+    {
+        case IRP_MN_START_DEVICE: // 0
+            DPRINT("IRP_MN_START_DEVICE\n");
+            break;
+
+        case IRP_MN_QUERY_REMOVE_DEVICE: // 1
+            DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_REMOVE_DEVICE: // 2
+            DPRINT("IRP_MN_REMOVE_DEVICE\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
+            DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            break;
+
+        case IRP_MN_STOP_DEVICE: // 4
+            DPRINT("IRP_MN_STOP_DEVICE\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_QUERY_STOP_DEVICE: // 5
+            DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            break;
+
+        case IRP_MN_CANCEL_STOP_DEVICE: // 6
+            DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            break;
+
+        case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+            DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
+            Irp->IoStatus.Status = Status;
+            break;
+
+        case IRP_MN_QUERY_INTERFACE: // 8
+            DPRINT("IRP_MN_QUERY_INTERFACE\n");
+            Status = 0; // USBPORT_PdoQueryInterface(FdoDevice, PdoDevice, Irp);
+            break;
+
+        case IRP_MN_QUERY_CAPABILITIES: // 9
+            DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
+            Status = STATUS_SUCCESS;
+            break;
+
+        case IRP_MN_QUERY_RESOURCES: // 10
+            DPRINT("IRP_MN_QUERY_RESOURCES\n");
+            //ASSERT(FALSE);
+            break;
+
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
+            DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
+            //ASSERT(FALSE);
+            break;
+
+        case IRP_MN_QUERY_DEVICE_TEXT: // 12
+            DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
+            //ASSERT(FALSE);
+            break;
+
+        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
+            DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
+            //ASSERT(FALSE);
+            break;
+
+        case IRP_MN_READ_CONFIG: // 15
+            DPRINT("IRP_MN_READ_CONFIG\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_WRITE_CONFIG: // 16
+            DPRINT("IRP_MN_WRITE_CONFIG\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_EJECT: // 17
+            DPRINT("IRP_MN_EJECT\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_SET_LOCK: // 18
+            DPRINT("IRP_MN_SET_LOCK\n");
+            ASSERT(FALSE);
+            break;
+
+        case IRP_MN_QUERY_ID: // 19
+            DPRINT("IRP_MN_QUERY_ID/Type %x\n", IoStack->Parameters.QueryId.IdType);
+            break;
+
+        case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
+            DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
+            break;
+
+        case IRP_MN_QUERY_BUS_INFORMATION: // 21
+            DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
+            break;
+
+        case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
+            DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
+            break;
+
+        case IRP_MN_SURPRISE_REMOVAL: // 23
+            DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+            ASSERT(FALSE);
+            break;
+
+        default:
+            DPRINT("unknown IRP_MN_???\n");
+            Status = Irp->IoStatus.Status;
+            break;
+    }
+
+    //Irp->IoStatus.Information = Information;
+    Irp->IoStatus.Status = Status;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    return Status;
+}
