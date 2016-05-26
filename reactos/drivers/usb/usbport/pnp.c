@@ -366,6 +366,82 @@ USBPORT_FdoStartCompletion(PDEVICE_OBJECT DeviceObject,
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
+static
+NTSTATUS
+NTAPI
+USBPORT_CreatePdo(PDEVICE_OBJECT FdoDevice,
+                  PDEVICE_OBJECT *RootHubPdo)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtention;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtention;
+    UNICODE_STRING DeviceName;
+    ULONG DeviceNumber = 0;
+    PDEVICE_OBJECT DeviceObject = NULL;
+    WCHAR CharDeviceName[64];
+    NTSTATUS Status = 0;
+
+    DPRINT("USBPORT_CreatePdo: FdoDevice - %p, RootHubPdo - %p\n",
+           FdoDevice,
+           RootHubPdo);
+
+    FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    do
+    {
+        swprintf(CharDeviceName, L"\\Device\\USBPDO-%d", DeviceNumber);
+        RtlInitUnicodeString(&DeviceName, CharDeviceName);
+        DPRINT("USBPORT_CreatePdo: DeviceName - %wZ\n", &DeviceName);
+
+        Status = IoCreateDevice(FdoExtention->MiniPortInterface->DriverObject,
+                                sizeof(USBPORT_RHDEVICE_EXTENSION),
+                                &DeviceName,
+                                FILE_DEVICE_BUS_EXTENDER,
+                                0,
+                                FALSE,
+                                &DeviceObject);
+
+        ++DeviceNumber;
+    }
+    while (Status == STATUS_OBJECT_NAME_COLLISION);
+
+    if (!NT_SUCCESS(Status))
+    {
+        *RootHubPdo = 0;
+        DPRINT1("USBPORT_CreatePdo: Filed create HubPdo!\n");
+        return Status;
+    }
+
+    if (DeviceObject)
+    {
+        PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)DeviceObject->DeviceExtension;
+
+        RtlZeroMemory(PdoExtention, sizeof(USBPORT_RHDEVICE_EXTENSION));
+
+        PdoExtention->CommonExtension.SelfDevice = DeviceObject;
+        PdoExtention->CommonExtension.IsPDO = TRUE;
+
+        PdoExtention->FdoDevice = FdoDevice;
+        PdoExtention->PdoNameNumber = DeviceNumber;
+
+        DeviceObject->StackSize = FdoDevice->StackSize;
+
+        DeviceObject->Flags |= DO_POWER_PAGABLE;
+        DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
+    }
+    else
+    {
+        Status = STATUS_UNSUCCESSFUL;
+    }
+
+    if (!NT_SUCCESS(Status))
+        *RootHubPdo = 0;
+    else
+        *RootHubPdo = DeviceObject;
+
+    DPRINT("USBPORT_CreatePdo: HubPdo - %p\n", DeviceObject);
+    return Status;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
