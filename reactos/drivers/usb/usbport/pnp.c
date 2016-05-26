@@ -490,6 +490,11 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
                     }
                 }
 
+                DeviceRelations->Count = 1;
+                DeviceRelations->Objects[0] = FdoExtention->RootHubPdo;
+                ObReferenceObject(FdoExtention->RootHubPdo);
+                Irp->IoStatus.Information = (ULONG_PTR)DeviceRelations;
+
             }
             else
             {
