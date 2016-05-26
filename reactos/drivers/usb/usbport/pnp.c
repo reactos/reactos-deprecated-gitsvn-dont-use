@@ -670,6 +670,9 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
     //ULONG_PTR Information = Irp->IoStatus.Information;
     UCHAR Minor = IoStack->MinorFunction;
     NTSTATUS Status;
+    WCHAR Buffer[300];
+    ULONG Length;
+    LPWSTR DeviceName;
 
     DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
 
@@ -768,6 +771,28 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_ID: // 19
             DPRINT("IRP_MN_QUERY_ID/Type %x\n", IoStack->Parameters.QueryId.IdType);
+
+            if (IoStack->Parameters.QueryId.IdType == BusQueryDeviceID)
+            {
+                DPRINT("IRP_MN_QUERY_ID/BusQueryDeviceID\n");
+                swprintf(Buffer, L"USB\\ROOT_HUB");
+                Length = (wcslen(Buffer) + 1);
+
+                DeviceName = (LPWSTR)ExAllocatePoolWithTag(PagedPool,
+                                                           Length * sizeof(WCHAR),
+                                                           USB_PORT_TAG);
+                if (!DeviceName)
+                {
+                    Status = STATUS_INSUFFICIENT_RESOURCES;
+                    break;
+                }
+
+                wcscpy(DeviceName, Buffer);
+
+                Irp->IoStatus.Information = (ULONG_PTR)DeviceName;
+                Status = STATUS_SUCCESS;
+                break;
+            }
             break;
 
         case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
