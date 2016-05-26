@@ -477,6 +477,19 @@ USBPORT_FdoPnP(PDEVICE_OBJECT FdoDevice,
 
                 DeviceRelations->Count = 0;
                 DeviceRelations->Objects[0] = NULL;
+
+                if (!FdoExtention->RootHubPdo)
+                {
+                    Status = USBPORT_CreatePdo(FdoDevice,
+                                               &FdoExtention->RootHubPdo);
+
+                    if (!NT_SUCCESS(Status))
+                    {
+                        ExFreePool(DeviceRelations);
+                        goto ForwardIrp;
+                    }
+                }
+
             }
             else
             {
