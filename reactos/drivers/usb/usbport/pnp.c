@@ -659,6 +659,47 @@ ForwardIrp:
     return Status;
 }
 
+static
+ULONG_PTR
+NTAPI
+GetDeviceHwIds(PDEVICE_OBJECT FdoDevice,
+               USHORT VendorID,
+               USHORT DeviceID,
+               UCHAR RevisionID)
+{
+    PVOID Id;
+    WCHAR Buffer[300];
+    ULONG Index = 0;
+
+    Index += swprintf(&Buffer[Index],
+                      L"USB\\ROOT_HUB&VID%04x&PID%04x&RE%02x",
+                      VendorID,
+                      DeviceID,
+                      RevisionID) + 1;
+
+    Index += swprintf(&Buffer[Index],
+                      L"USB\\ROOT_HUB&VID%04x&PID%04x",
+                      VendorID,
+                      DeviceID) + 1;
+
+    Index += swprintf(&Buffer[Index], L"USB\\ROOT_HUB") + 1;
+
+    Buffer[Index] = UNICODE_NULL;
+    Index++;
+    DPRINT("USBPORT_GetIdString: Buffer - %S\n", Buffer);
+
+    Id = (LPWSTR)ExAllocatePoolWithTag(PagedPool,
+                                       Index * sizeof(WCHAR),
+                                       USB_PORT_TAG);
+
+    if (!Id)
+        return 0;
+
+    RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR)); // copy device name
+
+    return (ULONG_PTR)Id;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
