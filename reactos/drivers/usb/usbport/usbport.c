@@ -235,6 +235,14 @@ USBPORT_PdoScsi(PDEVICE_OBJECT PdoDevice,
         goto Exit;
     }
 
+    if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_HUB_COUNT)
+    {
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_HUB_COUNT\n");
+        *(PULONG)IoStack->Parameters.Others.Argument1 = *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
+
     DPRINT("USBPORT_PdoScsi: INVALID INTERNAL DEVICE CONTROL\n");
     Status = STATUS_INVALID_DEVICE_REQUEST;
 
