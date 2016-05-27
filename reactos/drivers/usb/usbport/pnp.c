@@ -821,7 +821,7 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_INTERFACE: // 8
             DPRINT("IRP_MN_QUERY_INTERFACE\n");
-            Status = 0; // USBPORT_PdoQueryInterface(FdoDevice, PdoDevice, Irp);
+            Status = USBPORT_PdoQueryInterface(FdoDevice, PdoDevice, Irp);
             break;
 
         case IRP_MN_QUERY_CAPABILITIES: // 9
