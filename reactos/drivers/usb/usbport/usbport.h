@@ -108,4 +108,12 @@ USBPORT_PdoPnP(
   PDEVICE_OBJECT FdoDevice,
   PIRP Irp);
 
+/* roothub.c */
+
+NTSTATUS
+NTAPI
+USBPORT_CreateRhDevice(
+  PDEVICE_OBJECT FdoDevice,
+  PDEVICE_OBJECT PdoDevice);
+
 #endif /* USBPORT_H__ */
