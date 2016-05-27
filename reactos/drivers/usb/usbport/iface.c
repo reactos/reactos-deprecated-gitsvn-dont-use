@@ -81,6 +81,37 @@ USBPORT_PdoQueryInterface(PDEVICE_OBJECT FdoDevice,
     else if (IsEqualGUIDAligned(IoStack->Parameters.QueryInterface.InterfaceType,
                                 &USB_BUS_INTERFACE_USBDI_GUID))
     {
+        // Get request parameters
+        InterfaceDI = (PUSB_BUS_INTERFACE_USBDI_V2)IoStack->Parameters.QueryInterface.Interface;
+        InterfaceDI->Version = IoStack->Parameters.QueryInterface.Version;
+
+        // Check version
+        if (IoStack->Parameters.QueryInterface.Version >= 3)
+        {
+            DPRINT1("USB_BUS_INTERFACE_USBDI_GUID version %x not supported!\n",
+                    IoStack->Parameters.QueryInterface.Version);
+
+            return STATUS_NOT_SUPPORTED; // Version not supported
+        }
+
+        // Interface version 0
+        InterfaceDI->Size = IoStack->Parameters.QueryInterface.Size;
+        InterfaceDI->BusContext = (PVOID)PdoDevice;
+        InterfaceDI->InterfaceReference = USBI_InterfaceReference;
+        InterfaceDI->InterfaceDereference = USBI_InterfaceDereference;
+        InterfaceDI->GetUSBDIVersion = USBDI_GetUSBDIVersion;
+        InterfaceDI->QueryBusTime = USBDI_QueryBusTime;
+        InterfaceDI->SubmitIsoOutUrb = USBDI_SubmitIsoOutUrb;
+        InterfaceDI->QueryBusInformation = USBDI_QueryBusInformation;
+
+        // Interface version 1
+        if (IoStack->Parameters.QueryInterface.Version >= 1)
+            InterfaceDI->IsDeviceHighSpeed = USBDI_IsDeviceHighSpeed;
+
+        // Interface version 2
+        if (IoStack->Parameters.QueryInterface.Version >= 2)
+            InterfaceDI->EnumLogEntry = USBDI_EnumLogEntry;
+
         return STATUS_SUCCESS;
     }
     else
