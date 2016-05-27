@@ -700,6 +700,30 @@ GetDeviceHwIds(PDEVICE_OBJECT FdoDevice,
     return (ULONG_PTR)Id;
 }
 
+static
+NTSTATUS
+NTAPI
+USBPORT_RegisterDeviceInterface(PDEVICE_OBJECT PdoDevice,
+                                BOOLEAN Enable)
+{
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PUNICODE_STRING SymbolicLinkName;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_RegisterDeviceInterface ... \n");
+
+    SymbolicLinkName = &PdoExtention->RhSymbolicLinkName;
+
+    if (Enable)
+    {
+    }
+    else if (PdoExtention->IsInterfaceEnabled)
+    {
+    }
+
+    return Status;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
