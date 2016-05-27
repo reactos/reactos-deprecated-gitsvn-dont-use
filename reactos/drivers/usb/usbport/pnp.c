@@ -664,8 +664,9 @@ NTAPI
 USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
                PIRP Irp)
 {
-    //PUSBPORT_RHDEVICE_EXTENSION PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    //PDEVICE_OBJECT FdoDevice = PdoExtention->FdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PDEVICE_OBJECT FdoDevice = PdoExtention->FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
     //ULONG_PTR Information = Irp->IoStatus.Information;
     UCHAR Minor = IoStack->MinorFunction;
@@ -673,6 +674,7 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
     WCHAR Buffer[300];
     ULONG Length;
     LPWSTR DeviceName;
+    ULONG_PTR Id;
 
     DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
 
@@ -793,6 +795,20 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
                 Status = STATUS_SUCCESS;
                 break;
             }
+
+            if (IoStack->Parameters.QueryId.IdType == BusQueryHardwareIDs)
+            {
+                DPRINT("IRP_MN_QUERY_ID/BusQueryHardwareIDs\n");
+
+                Id = GetDeviceHwIds(FdoDevice,
+                                    FdoExtention->VendorID,
+                                    FdoExtention->DeviceID,
+                                    FdoExtention->RevisionID);
+
+                Irp->IoStatus.Information = Id;
+                Status = STATUS_SUCCESS;
+            }
+
             break;
 
         case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
