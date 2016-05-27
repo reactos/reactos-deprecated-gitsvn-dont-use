@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 NTSTATUS
@@ -1611,6 +1611,10 @@ USBHUB_FdoStartDevice(
                                     IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO,
                                     &HubDeviceExtension->RootHubPhysicalDeviceObject,
                                     &HubDeviceExtension->RootHubFunctionalDeviceObject);
+
+    DPRINT("USBHUB_FdoStartDevice: SubmitRequestToRootHub(IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO) Status - %x\n",
+           Status);
+
     if (!NT_SUCCESS(Status))
     {
         // failed to obtain hub pdo
@@ -1639,6 +1643,10 @@ USBHUB_FdoStartDevice(
     Status = SubmitRequestToRootHub(RootHubDeviceObject,
                                     IOCTL_INTERNAL_USB_GET_HUB_COUNT,
                                     &HubDeviceExtension->NumberOfHubs, NULL);
+
+    DPRINT("USBHUB_FdoStartDevice: SubmitRequestToRootHub(IOCTL_INTERNAL_USB_GET_HUB_COUNT) Status - %x\n",
+           Status);
+
     if (!NT_SUCCESS(Status))
     {
         // failed to get number of hubs
@@ -1652,6 +1660,9 @@ USBHUB_FdoStartDevice(
                             sizeof(USB_BUS_INTERFACE_HUB_V5),
                             USB_BUSIF_HUB_VERSION_5,
                             (PVOID)&HubDeviceExtension->HubInterface);
+
+    DPRINT("USBHUB_FdoStartDevice: QueryInterface(USB_BUS_INTERFACE_HUB_GUID) Status - %x\n",
+           Status);
 
     if (!NT_SUCCESS(Status))
     {
@@ -1669,6 +1680,9 @@ USBHUB_FdoStartDevice(
                             USB_BUSIF_USBDI_VERSION_2,
                             (PVOID)&HubDeviceExtension->UsbDInterface);
 
+    DPRINT("USBHUB_FdoStartDevice: QueryInterface(USB_BUS_INTERFACE_USBDI_GUID) Status - %x\n",
+           Status);
+
     if (!NT_SUCCESS(Status))
     {
         // failed to get usbdi interface
@@ -1681,6 +1695,9 @@ USBHUB_FdoStartDevice(
                                     IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE,
                                     &HubDeviceExtension->RootHubHandle,
                                     NULL);
+
+    DPRINT("USBHUB_FdoStartDevice: SubmitRequestToRootHub(IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE) Status - %x\n",
+           Status);
 
     if (!NT_SUCCESS(Status))
     {
