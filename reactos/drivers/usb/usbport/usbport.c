@@ -221,6 +221,24 @@ USBPORT_PdoScsi(PDEVICE_OBJECT PdoDevice,
            Irp,
            IoStack->Parameters.DeviceIoControl.IoControlCode);
 
+    if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
+    {
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO\n");
+
+        if (IoStack->Parameters.Others.Argument1)
+            *(PVOID *)IoStack->Parameters.Others.Argument1 = PdoDevice;
+
+        if (IoStack->Parameters.Others.Argument2)
+            *(PVOID *)IoStack->Parameters.Others.Argument2 = PdoDevice;
+
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
+
+    DPRINT("USBPORT_PdoScsi: INVALID INTERNAL DEVICE CONTROL\n");
+    Status = STATUS_INVALID_DEVICE_REQUEST;
+
+Exit:
     Irp->IoStatus.Status = Status;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
     return Status;
