@@ -3,6 +3,20 @@
 //#define NDEBUG
 #include <debug.h>
 
+static
+VOID
+USB_BUSIFFN USBI_InterfaceReference(PVOID BusContext)
+{
+    DPRINT("USBI_InterfaceReference \n");
+}
+
+static
+VOID
+USB_BUSIFFN USBI_InterfaceDereference(PVOID BusContext)
+{
+    DPRINT("USBI_InterfaceDereference \n");
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoQueryInterface(PDEVICE_OBJECT FdoDevice,
