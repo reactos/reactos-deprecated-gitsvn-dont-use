@@ -96,6 +96,15 @@ USBPORT_AllocateCommonBuffer(
   PDEVICE_OBJECT FdoDevice,
   SIZE_T BufferLength);
 
+/* iface.c */
+
+NTSTATUS
+NTAPI
+USBPORT_PdoQueryInterface(
+  PDEVICE_OBJECT FdoDevice,
+  PDEVICE_OBJECT PdoDevice,
+  PIRP Irp);
+
 /* pnp.c */
 
 NTSTATUS
