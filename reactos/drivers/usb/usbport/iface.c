@@ -189,6 +189,73 @@ USBHI_SetDeviceHandleData(PVOID BusContext,
     ASSERT(FALSE);
 }
 
+/* USB bus driver Interface functions */
+
+VOID
+USB_BUSIFFN
+USBDI_GetUSBDIVersion(PVOID BusContext,
+                      OUT PUSBD_VERSION_INFORMATION VersionInfo,
+                      OUT PULONG HcdCapabilities)
+{
+    DPRINT("USBDI_GetUSBDIVersion \n");
+    ASSERT(FALSE);
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBDI_QueryBusTime(PVOID BusContext,
+                   OUT PULONG CurrentFrame)
+{
+    DPRINT("USBDI_QueryBusTime \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBDI_SubmitIsoOutUrb(PVOID BusContext,
+                      PURB Urb)
+{
+    DPRINT("USBDI_SubmitIsoOutUrb \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBDI_QueryBusInformation(PVOID BusContext,
+                          ULONG Level,
+                          OUT PVOID BusInfoBuffer,
+                          OUT PULONG BusInfoBufferLen,
+                          OUT PULONG BusInfoActualLen)
+{
+    DPRINT("USBDI_QueryBusInformation \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+BOOLEAN
+USB_BUSIFFN
+USBDI_IsDeviceHighSpeed(PVOID BusContext)
+{
+    DPRINT("USBDI_IsDeviceHighSpeed \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBDI_EnumLogEntry(PVOID BusContext,
+                   ULONG DriverTag,
+                   ULONG EnumTag,
+                   ULONG P1,
+                   ULONG P2)
+{
+    DPRINT("USBDI_EnumLogEntry \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoQueryInterface(PDEVICE_OBJECT FdoDevice,
