@@ -3,7 +3,6 @@
 //#define NDEBUG
 #include <debug.h>
 
-static
 NTSTATUS
 NTAPI
 USBPORT_PdoQueryInterface(PDEVICE_OBJECT FdoDevice,
