@@ -206,6 +206,26 @@ USBPORT_Unload(PDRIVER_OBJECT DriverObject)
     // ...
 }
 
+static
+NTSTATUS
+NTAPI
+USBPORT_PdoScsi(PDEVICE_OBJECT PdoDevice,
+                PIRP Irp)
+{
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_PdoScsi: PdoDevice - %p, Irp - %p, IoCtl - %x\n",
+           PdoDevice,
+           Irp,
+           IoStack->Parameters.DeviceIoControl.IoControlCode);
+
+    Irp->IoStatus.Status = Status;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    return Status;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_Dispatch(PDEVICE_OBJECT DeviceObject,
@@ -241,9 +261,10 @@ USBPORT_Dispatch(PDEVICE_OBJECT DeviceObject,
         case IRP_MJ_SCSI: // 15 IRP_MJ_NTERNAL_DEVICE_CONTROL:
             DPRINT("USBPORT_Dispatch: IRP_MJ_SCSI\n");
             if (DeviceExtension->IsPDO)
-                Status = 0; // USBPORT_PdoScsi(DeviceObject, Irp);
+                Status = USBPORT_PdoScsi(DeviceObject, Irp);
             else
-                Status = 0; // USBPORT_FdoScsi(DeviceObject, Irp);
+                ASSERT(FALSE);
+                //Status = USBPORT_FdoScsi(DeviceObject, Irp);
             break;
 
         case IRP_MJ_POWER: // 22
