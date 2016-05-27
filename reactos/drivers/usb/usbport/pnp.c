@@ -716,6 +716,18 @@ USBPORT_RegisterDeviceInterface(PDEVICE_OBJECT PdoDevice,
 
     if (Enable)
     {
+        Status = IoRegisterDeviceInterface(PdoDevice,
+                                           &GUID_DEVINTERFACE_USB_HUB,
+                                           0,
+                                           SymbolicLinkName);
+
+        if (NT_SUCCESS(Status))
+        {
+            Status = IoSetDeviceInterfaceState(SymbolicLinkName, TRUE);
+
+            if (NT_SUCCESS(Status))
+                PdoExtention->IsInterfaceEnabled = 1;
+        }
     }
     else if (PdoExtention->IsInterfaceEnabled)
     {
