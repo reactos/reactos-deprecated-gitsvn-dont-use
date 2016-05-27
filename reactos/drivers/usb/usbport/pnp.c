@@ -728,6 +728,17 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
     {
         case IRP_MN_START_DEVICE: // 0
             DPRINT("IRP_MN_START_DEVICE\n");
+
+            Status = USBPORT_CreateRhDevice(FdoDevice, PdoDevice);
+            if (NT_SUCCESS(Status))
+            {
+                Status = USBPORT_RegisterDeviceInterface(PdoDevice, TRUE);
+                if (NT_SUCCESS(Status))
+                {
+                    ;// TODO Flags |= DeviceIsStarted;
+                }
+            }
+
             break;
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
