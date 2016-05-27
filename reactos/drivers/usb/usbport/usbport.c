@@ -238,7 +238,21 @@ USBPORT_PdoScsi(PDEVICE_OBJECT PdoDevice,
     if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_HUB_COUNT)
     {
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_HUB_COUNT\n");
-        *(PULONG)IoStack->Parameters.Others.Argument1 = *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+
+        if (IoStack->Parameters.Others.Argument1)
+            *(PULONG)IoStack->Parameters.Others.Argument1 = *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
+
+    if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE)
+    {
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
+
+        if ( IoStack->Parameters.Others.Argument1 )
+            *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtention->DeviceHandle;
+
         Status = STATUS_SUCCESS;
         goto Exit;
     }
