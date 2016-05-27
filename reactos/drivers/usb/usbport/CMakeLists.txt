@@ -3,6 +3,7 @@ spec2def(usbport.sys usbport.spec ADD_IMPORTLIB)
 
 list(APPEND SOURCE
     pnp.c
+    roothub.c
     usbport.c
     usbport.h)
 
