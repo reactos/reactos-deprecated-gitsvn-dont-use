@@ -717,6 +717,8 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
     LPWSTR DeviceName;
     ULONG_PTR Id;
     PPNP_BUS_INFORMATION BusInformation;
+    PDEVICE_CAPABILITIES DeviceCapabilities;
+    ULONG Index = 0;
 
     DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
 
@@ -770,6 +772,34 @@ USBPORT_PdoPnP(PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_CAPABILITIES: // 9
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
+
+            DeviceCapabilities = (PDEVICE_CAPABILITIES)IoStack->Parameters.DeviceCapabilities.Capabilities;
+
+            DeviceCapabilities->LockSupported = FALSE;
+            DeviceCapabilities->EjectSupported = FALSE;
+            DeviceCapabilities->Removable = FALSE;
+            DeviceCapabilities->DockDevice = FALSE;
+            DeviceCapabilities->UniqueID = FALSE;
+            DeviceCapabilities->SilentInstall = FALSE;
+            DeviceCapabilities->RawDeviceOK = FALSE;
+            DeviceCapabilities->SurpriseRemovalOK = FALSE;
+            DeviceCapabilities->Address = 0;
+            DeviceCapabilities->UINumber = 0;
+            DeviceCapabilities->DeviceD2 = 1;
+
+            /* FIXME */
+            DeviceCapabilities->HardwareDisabled = FALSE;
+            DeviceCapabilities->NoDisplayInUI = FALSE;
+            DeviceCapabilities->DeviceState[0] = PowerDeviceD0;
+
+            for (Index = 1; Index < PowerSystemMaximum; Index++)
+                DeviceCapabilities->DeviceState[Index] = PowerDeviceD3;
+
+            DeviceCapabilities->DeviceWake = PowerDeviceUnspecified;
+            DeviceCapabilities->D1Latency = 0;
+            DeviceCapabilities->D2Latency = 0;
+            DeviceCapabilities->D3Latency = 0;
+
             Status = STATUS_SUCCESS;
             break;
 
