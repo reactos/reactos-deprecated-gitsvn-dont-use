@@ -25,6 +25,11 @@ typedef struct _USBPORT_COMMON_BUFFER_HEADER {
   ULONG_PTR PhysicalAddress;
 } USBPORT_COMMON_BUFFER_HEADER, *PUSBPORT_COMMON_BUFFER_HEADER;
 
+typedef struct _USBPORT_DEVICE_HANDLE { 
+  USHORT DeviceAddress;
+  USHORT PortNumber;
+} USBPORT_DEVICE_HANDLE, *PUSBPORT_DEVICE_HANDLE;
+
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   PDEVICE_OBJECT SelfDevice; // SelfDevice
   PDEVICE_OBJECT LowerPdoDevice; // PhysicalDeviceObject
@@ -61,6 +66,7 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
   ULONG PdoNameNumber;
   UNICODE_STRING RhSymbolicLinkName;
   BOOL IsInterfaceEnabled;
+  USBPORT_DEVICE_HANDLE DeviceHandle;
 } USBPORT_RHDEVICE_EXTENSION, *PUSBPORT_RHDEVICE_EXTENSION;
 
 /* usbport.c */
