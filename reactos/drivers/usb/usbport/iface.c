@@ -17,6 +17,178 @@ USB_BUSIFFN USBI_InterfaceDereference(PVOID BusContext)
     DPRINT("USBI_InterfaceDereference \n");
 }
 
+/* USB port driver Interface functions */
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_CreateUsbDevice(PVOID BusContext,
+                      PUSB_DEVICE_HANDLE *NewDevice,
+                      PUSB_DEVICE_HANDLE HubDeviceHandle,
+                      USHORT PortStatus,
+                      USHORT PortNumber)
+{
+    DPRINT("USBHI_CreateUsbDevice\n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_InitializeUsbDevice(PVOID BusContext,
+                          OUT PUSB_DEVICE_HANDLE DeviceHandle)
+{
+    DPRINT("USBHI_InitializeUsbDevice \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_GetUsbDescriptors(PVOID BusContext,
+                        PUSB_DEVICE_HANDLE DeviceHandle,
+                        PUCHAR DeviceDescBuffer,
+                        PULONG DeviceDescBufferLen,
+                        PUCHAR ConfigDescBuffer,
+                        PULONG ConfigDescBufferLen)
+{
+    DPRINT("USBHI_GetUsbDescriptors \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_RemoveUsbDevice(PVOID BusContext,
+                      OUT PUSB_DEVICE_HANDLE DeviceHandle,
+                      ULONG Flags)
+{
+    DPRINT("USBHI_RemoveUsbDevice \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_RestoreUsbDevice(PVOID BusContext,
+                       OUT PUSB_DEVICE_HANDLE OldDeviceHandle,
+                       OUT PUSB_DEVICE_HANDLE NewDeviceHandle)
+{
+    DPRINT("USBHI_RestoreUsbDevice \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_QueryDeviceInformation(PVOID BusContext,
+                             PUSB_DEVICE_HANDLE DeviceHandle,
+                             OUT PVOID DeviceInfoBuffer,
+                             ULONG DeviceInfoBufferLen,
+                             OUT PULONG LenDataReturned)
+{
+    DPRINT("USBHI_QueryDeviceInformation \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_GetControllerInformation(PVOID BusContext,
+                               OUT PVOID ControllerInfoBuffer,
+                               ULONG ControllerInfoBufferLen,
+                               OUT PULONG LenDataReturned)
+{
+    DPRINT("USBHI_GetControllerInformation \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_ControllerSelectiveSuspend(PVOID BusContext,
+                                 BOOLEAN Enable)
+{
+    DPRINT("USBHI_ControllerSelectiveSuspend \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_GetExtendedHubInformation(PVOID BusContext,
+                                PDEVICE_OBJECT HubPhysicalDeviceObject,
+                                OUT PVOID HubInfoBuffer,
+                                ULONG HubInfoLen,
+                                OUT PULONG LenDataReturned)
+{
+    DPRINT("USBHI_GetExtendedHubInformation \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_GetRootHubSymbolicName(PVOID BusContext,
+                             OUT PVOID HubInfoBuffer,
+                             ULONG HubInfoBufferLen,
+                             OUT PULONG HubNameActualLen)
+{
+    DPRINT("USBHI_GetRootHubSymbolicName \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+PVOID
+USB_BUSIFFN
+USBHI_GetDeviceBusContext(PVOID BusContext,
+                          PVOID DeviceHandle)
+{
+    DPRINT("USBHI_GetDeviceBusContext \n");
+    ASSERT(FALSE);
+    return NULL;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_Initialize20Hub(PVOID BusContext,
+                      PUSB_DEVICE_HANDLE HubDeviceHandle,
+                      ULONG TtCount)
+{
+    DPRINT("USBHI_Initialize20Hub \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+USB_BUSIFFN
+USBHI_RootHubInitNotification(PVOID BusContext,
+                              PVOID CallbackContext,
+                              PRH_INIT_CALLBACK CallbackFunction)
+{
+    DPRINT("USBHI_RootHubInitNotification \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
+
+VOID
+USB_BUSIFFN
+USBHI_FlushTransfers(PVOID BusContext,
+                     OUT PUSB_DEVICE_HANDLE DeviceHandle)
+{
+    DPRINT("USBHI_FlushTransfers \n");
+    ASSERT(FALSE);
+}
+
+VOID
+USB_BUSIFFN
+USBHI_SetDeviceHandleData(PVOID BusContext,
+                          PVOID DeviceHandle,
+                          PDEVICE_OBJECT UsbDevicePdo)
+{
+    DPRINT("USBHI_SetDeviceHandleData \n");
+    ASSERT(FALSE);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoQueryInterface(PDEVICE_OBJECT FdoDevice,
