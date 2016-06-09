@@ -55,7 +55,7 @@ AhciPortInitialize (
                                                         portExtension->ReceivedFIS,
                                                         &mappedLength);
 
-    if ((mappedLength) == 0 || ((receivedFISPhysical.LowPart % 1024) != 0))
+    if ((mappedLength) == 0 || ((receivedFISPhysical.LowPart % 256) != 0))
     {
         DebugPrint("\treceivedFISPhysical mappedLength:%d\n", mappedLength);
         return FALSE;
