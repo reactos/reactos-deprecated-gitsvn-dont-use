@@ -542,7 +542,8 @@ AhciHwFindAdapter (
     {
         // reset controller to have it in known state
         DebugPrint("\tAE Already set, Reset()\n");
-        if (!AhciAdapterReset(adapterExtension)){
+        if (!AhciAdapterReset(adapterExtension))
+        {
             DebugPrint("\tReset Failed!\n");
             return SP_RETURN_ERROR;// reset failed
         }
@@ -724,7 +725,9 @@ AhciZeroMemory (
 {
     ULONG i;
     for (i = 0; i < bufferSize; i++)
+    {
         buffer[i] = 0;
+    }
 }// -- AhciZeroMemory();
 
 /**
@@ -798,7 +801,9 @@ DeviceInquiryRequest (
         DataBufferLength = Srb->DataTransferLength;
 
         if (DataBuffer == NULL)
+        {
             return SRB_STATUS_INVALID_REQUEST;
+        }
 
         AhciZeroMemory(DataBuffer, DataBufferLength);
     }
