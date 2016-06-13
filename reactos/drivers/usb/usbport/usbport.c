@@ -174,7 +174,7 @@ USBPORT_AddDevice(PDRIVER_OBJECT DriverObject,
     FdoExtention->CommonExtension.LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
                                                                             PhysicalDeviceObject);
 
-    FdoExtention->MiniPortExt = (PVOID)((ULONG_PTR)&FdoExtention +
+    FdoExtention->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtention +
                                         sizeof(USBPORT_DEVICE_EXTENSION));
 
     FdoExtention->MiniPortInterface = MiniPortInterface;
