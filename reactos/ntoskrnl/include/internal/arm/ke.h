@@ -118,14 +118,8 @@ KeFlushProcessTb(VOID)
 
 FORCEINLINE
 VOID
-KeSweepICache(IN PVOID BaseAddress,
-              IN SIZE_T FlushSize)
+KeSweepICache(VOID)
 {
-    //
-    // Always sweep the whole cache
-    //
-    UNREFERENCED_PARAMETER(BaseAddress);
-    UNREFERENCED_PARAMETER(FlushSize);
     _MoveToCoprocessor(0, CP15_ICIALLU);
 }
 

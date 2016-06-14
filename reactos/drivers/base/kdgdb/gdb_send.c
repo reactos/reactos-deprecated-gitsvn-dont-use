@@ -12,8 +12,8 @@ const char hex_chars[] = "0123456789abcdef";
 
 /* PRIVATE FUNCTIONS **********************************************************/
 static
-char*
-exception_code_to_gdb(NTSTATUS code, char* out)
+unsigned char
+exception_code_to_gdb(NTSTATUS code)
 {
     unsigned char SigVal;
 
@@ -41,43 +41,97 @@ exception_code_to_gdb(NTSTATUS code, char* out)
     default:
         SigVal = 7; /* "software generated" */
     }
-    *out++ = hex_chars[(SigVal >> 4) & 0xf];
-    *out++ = hex_chars[SigVal & 0xf];
-    return out;
+    return SigVal;
+}
+
+
+static struct {
+    char check_sum;
+#ifdef KDDEBUG
+    BOOLEAN in_packet;
+#endif
+} gdb_packet;
+
+void
+gdb_begin_packet(void)
+{
+#ifdef KDDEBUG
+    if (gdb_packet.in_packet) {
+        KDDBGPRINT("gdb_begin_packet called twice\n");
+    }
+    gdb_packet.in_packet = TRUE;
+#endif
+    gdb_packet.check_sum = 0;
+    KdpSendByte('$');
+}
+
+void
+gdb_send_byte(char byte)
+{
+    gdb_packet.check_sum += byte;
+    KdpSendByte(byte);
+}
+
+void
+gdb_send_string(char *Format, ...)
+{
+    va_list ap;
+    int Length;
+    CHAR Buffer[4096];
+
+    va_start(ap, Format);
+    Length = _vsnprintf(Buffer, sizeof(Buffer), Format, ap);
+    va_end(ap);
+
+    gdb_send_binary(Buffer, Length);
+}
+
+void
+gdb_send_binary(char *buffer, int len)
+{
+    while(len--)
+        gdb_send_byte(*buffer++);
+}
+
+void
+gdb_end_packet(void)
+{
+#ifdef KDDEBUG
+    if (!gdb_packet.in_packet) {
+        KDDBGPRINT("gdb_end_packet called without gdb_begin_packet\n");
+    }
+    gdb_packet.in_packet = FALSE;
+#endif
+
+    KdpSendByte('#');
+    KdpSendByte(hex_chars[(gdb_packet.check_sum >> 4) & 0xf]);
+    KdpSendByte(hex_chars[gdb_packet.check_sum & 0xf]);
 }
 
 /* GLOBAL FUNCTIONS ***********************************************************/
 void
-send_gdb_packet(_In_ CHAR* Buffer)
+send_gdb_packet_binary(char *buf, int len)
 {
-    UCHAR ack;
+resend:
+    gdb_begin_packet();
+    gdb_send_binary(buf, len);
+    gdb_end_packet();
+    if (gdb_wait_ack() == KdPacketNeedsResend)
+        goto resend;
+}
 
-    do {
-        CHAR* ptr = Buffer;
-        CHAR check_sum = 0;
+void
+send_gdb_packet(const char* Format, ...)
+{
+    va_list ap;
+    int Length;
+    CHAR Buffer[4096];
 
-        KdpSendByte('$');
+    va_start(ap, Format);
+    Length = _vsnprintf(Buffer, sizeof(Buffer), Format, ap);
+    va_end(ap);
 
-        /* Calculate checksum */
-        check_sum = 0;
-        while (*ptr)
-        {
-            check_sum += *ptr;
-            KdpSendByte(*ptr++);
-        }
-
-        /* append it */
-        KdpSendByte('#');
-        KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-        KdpSendByte(hex_chars[check_sum & 0xf]);
-
-        /* Wait for acknowledgement */
-        if (KdpReceiveByte(&ack) != KdPacketReceived)
-        {
-            KD_DEBUGGER_NOT_PRESENT = TRUE;
-            break;
-        }
-    } while (ack != '+');
+    send_gdb_packet_binary(Buffer, Length);
 }
 
 void
@@ -85,107 +139,62 @@ send_gdb_memory(
     _In_ VOID* Buffer,
     _In_ size_t Length)
 {
-    UCHAR ack;
+    CHAR* ptr;
+    size_t len;
 
-    do {
-        CHAR* ptr = Buffer;
-        CHAR check_sum = 0;
-        size_t len = Length;
-        CHAR Byte;
+resend:
+    gdb_begin_packet();
 
-        KdpSendByte('$');
+    /* Send the data */
+    len = Length;
+    ptr = Buffer;
+    while (len--)
+    {
+        gdb_send_byte(hex_chars[(*ptr >> 4) & 0xf]);
+        gdb_send_byte(hex_chars[*ptr++ & 0xf]);
+    }
+    gdb_end_packet();
 
-        /* Send the data */
-        check_sum = 0;
-        while (len--)
-        {
-            Byte = hex_chars[(*ptr >> 4) & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-            Byte = hex_chars[*ptr++ & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-        }
-
-        /* append check sum */
-        KdpSendByte('#');
-        KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-        KdpSendByte(hex_chars[check_sum & 0xf]);
-
-        /* Wait for acknowledgement */
-        if (KdpReceiveByte(&ack) != KdPacketReceived)
-        {
-            KD_DEBUGGER_NOT_PRESENT = TRUE;
-            break;
-        }
-    } while (ack != '+');
+    if (gdb_wait_ack() == KdPacketNeedsResend)
+        goto resend;
 }
 
 void
 gdb_send_debug_io(
     _In_ PSTRING String)
 {
-    UCHAR ack;
+    CHAR* ptr = String->Buffer;
+    USHORT Length = String->Length;
 
-    do {
-        CHAR* ptr = String->Buffer;
-        CHAR check_sum;
-        USHORT Length = String->Length;
-        CHAR Byte;
+    gdb_begin_packet();
+    gdb_send_byte('O');
 
-        KdpSendByte('$');
+    /* Send the data */
+    while (Length--)
+    {
+        gdb_send_byte(hex_chars[(*ptr >> 4) & 0xf]);
+        gdb_send_byte(hex_chars[*ptr++ & 0xf]);
+    }
+    gdb_end_packet();
 
-        KdpSendByte('O');
-
-        /* Send the data */
-        check_sum = 'O';
-        while (Length--)
-        {
-            Byte = hex_chars[(*ptr >> 4) & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-            Byte = hex_chars[*ptr++ & 0xf];
-            KdpSendByte(Byte);
-            check_sum += Byte;
-        }
-
-        /* append check sum */
-        KdpSendByte('#');
-        KdpSendByte(hex_chars[(check_sum >> 4) & 0xf]);
-        KdpSendByte(hex_chars[check_sum & 0xf]);
-
-        /* Wait for acknowledgement */
-        if (KdpReceiveByte(&ack) != KdPacketReceived)
-        {
-            KD_DEBUGGER_NOT_PRESENT = TRUE;
-            break;
-        }
-    } while (ack != '+');
+    /* Don't wait for an ack here, kd will call PollBreakIn */
 }
 
 void
 gdb_send_exception(void)
 {
-    char gdb_out[1024];
-    char* ptr = gdb_out;
     PETHREAD Thread = (PETHREAD)(ULONG_PTR)CurrentStateChange.Thread;
 
     /* Report to GDB */
-    *ptr++ = 'T';
+    unsigned char code = 5;
 
     if (CurrentStateChange.NewState == DbgKdExceptionStateChange)
     {
         EXCEPTION_RECORD64* ExceptionRecord = &CurrentStateChange.u.Exception.ExceptionRecord;
-        ptr = exception_code_to_gdb(ExceptionRecord->ExceptionCode, ptr);
+        code = exception_code_to_gdb(ExceptionRecord->ExceptionCode);
     }
-    else
-        ptr += sprintf(ptr, "05");
 
-    ptr += sprintf(ptr, "thread:p%" PRIxPTR ".%" PRIxPTR ";",
-        handle_to_gdb_pid(PsGetThreadProcessId(Thread)),
-        handle_to_gdb_tid(PsGetThreadId(Thread)));
-    ptr += sprintf(ptr, "core:%x;", CurrentStateChange.Processor);
-    send_gdb_packet(gdb_out);
+    send_gdb_packet("T%02xthread:%s;core:%x;", code, format_ptid(ptid_from_thread(Thread)), CurrentStateChange.Processor);
 }
 
 void
@@ -193,9 +202,5 @@ send_gdb_ntstatus(
     _In_ NTSTATUS Status)
 {
     /* Just build a EXX packet and send it */
-    char gdb_out[4];
-    gdb_out[0] = 'E';
-    exception_code_to_gdb(Status, &gdb_out[1]);
-    gdb_out[3] = '\0';
-    send_gdb_packet(gdb_out);
+    send_gdb_packet("E%02x", exception_code_to_gdb(Status));
 }

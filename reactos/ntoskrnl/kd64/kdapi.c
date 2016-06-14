@@ -113,7 +113,7 @@ KdpCopyMemoryChunks(IN ULONG64 Address,
     /*
      * We may have modified executable code, flush the instruction cache
      */
-     KeSweepICache((PVOID)Address, TotalSize);
+     KeSweepICache();
 
     /*
      * Return the size we managed to copy

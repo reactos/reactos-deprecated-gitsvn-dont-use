@@ -1,10 +1,4 @@
 
-if(SEPARATE_DBG)
-    # FIXME: http://sourceware.org/bugzilla/show_bug.cgi?id=11822
-    set(CMAKE_LDR_PE_HELPER_CREATE_SHARED_LIBRARY "<CMAKE_C_COMPILER> <CMAKE_SHARED_LIBRARY_C_FLAGS> <LINK_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS> -o <TARGET> <OBJECTS> <LINK_LIBRARIES>")
-    set(CMAKE_LDR_PE_HELPER_STANDARD_LIBRARIES "-lgcc" CACHE STRING "Standard C Libraries")
-endif()
-
 if(MSVC)
     # We don't need it here
     replace_compile_flags("/hotpatch" " ")
@@ -224,11 +218,6 @@ endif()
 
 add_executable(freeldr_pe ${FREELDR_BASE_SOURCE})
 add_executable(freeldr_pe_dbg EXCLUDE_FROM_ALL ${FREELDR_BASE_SOURCE})
-
-if(NOT MSVC AND SEPARATE_DBG)
-    set_target_properties(freeldr_pe PROPERTIES LINKER_LANGUAGE LDR_PE_HELPER)
-    set_target_properties(freeldr_pe_dbg PROPERTIES LINKER_LANGUAGE LDR_PE_HELPER)
-endif()
 
 if(MSVC)
     if(ARCH STREQUAL "arm")

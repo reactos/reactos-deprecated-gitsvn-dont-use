@@ -42,6 +42,10 @@ ULONG  KdComPortIrq = 0; // Not used at the moment.
 CPPORT KdDebugComPort;
 #endif
 
+/* Whether or not we represent processes as inferiors
+ * This is to work around gdb issues with multi-inferior remotes */
+BOOLEAN multiprocess = FALSE;
+
 /* DEBUGGING ******************************************************************/
 
 #ifdef KDDEBUG
@@ -148,6 +152,9 @@ KdDebuggerInitialize0(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
     PCHAR CommandLine, PortString, BaudString, IrqString;
     ULONG Value;
 
+    /* Ignore messages until stage one init */
+    KD_DEBUGGER_NOT_PRESENT = 1;
+
     /* Check if we have a LoaderBlock */
     if (LoaderBlock)
     {
@@ -172,8 +179,9 @@ KdDebuggerInitialize0(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
             while (*PortString == ' ') PortString++;
             PortString++;
 
-            /* Do we have a serial port? */
-            if (strncmp(PortString, "COM", 3) != 0)
+            /* Do we have a serial port?
+             * We use "GDB" instead of "COM" to coexist with kdcom */
+            if (strncmp(PortString, "GDB", 3) != 0)
             {
                 return STATUS_INVALID_PARAMETER;
             }
@@ -249,6 +257,8 @@ KdDebuggerInitialize0(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
     if (ComPort != 0)
         CpInitialize(&KdDebugComPort, UlongToPtr(BaseArray[ComPort]), DEFAULT_BAUD_RATE);
     }
+
+    KDDBGPRINT("KdDebuggerInitialize0\n");
 #endif
 
     /* Initialize the port */
@@ -265,15 +275,49 @@ NTSTATUS
 NTAPI
 KdDebuggerInitialize1(IN PLOADER_PARAMETER_BLOCK LoaderBlock OPTIONAL)
 {
+    KD_DEBUGGER_NOT_PRESENT = 0;
+    HalDisplayString("KDGDB: Phase 1 init\r\n");
+    DbgBreakPoint();
     return STATUS_SUCCESS;
 }
 
+static void
+CorruptByte(PUCHAR Byte)
+{
+    /* Randomly corrupt bytes to ensure +/- replies are handled
+     * correctly. You need to delete PAGED_CODE() from RtlRandom
+     * to prevent an assertion */
+#if 0 && defined(KDDEBUG)
+    static ULONG Seed = 4; /* Chosen by fair dice roll */
+
+    switch(*Byte) {
+    case '$':
+    case '#':
+    case '+':
+    case '-':
+    case 3:
+        /* Gdb somewhat assumes these aren't corrupted */
+        return;
+    default:
+        /* 1/250 is chosen to corrupt often enough but prevent huge
+         * loops from lng send_debug_io packets */
+        if ((RtlRandom(&Seed) % 250) == 1) {
+            KDDBGPRINT("KDDBG: Corrupting %c\n", *Byte);
+            *Byte = *Byte + 1;
+        }
+    }
+#else
+    /* Configured out */
+    return;
+#endif
+}
 
 VOID
 NTAPI
 KdpSendByte(_In_ UCHAR Byte)
 {
     /* Send the byte */
+    CorruptByte(&Byte);
     CpPutByte(&KdComPort, Byte);
 }
 
@@ -284,6 +328,7 @@ KdpPollByte(OUT PUCHAR OutByte)
     /* Poll the byte */
     if (CpGetByte(&KdComPort, OutByte, FALSE, FALSE) == CP_GET_SUCCESS)
     {
+        CorruptByte(OutByte);
         return KdPacketReceived;
     }
     else
@@ -299,11 +344,45 @@ KdpReceiveByte(_Out_ PUCHAR OutByte)
     /* Get the byte */
     if (CpGetByte(&KdComPort, OutByte, TRUE, FALSE) == CP_GET_SUCCESS)
     {
+        CorruptByte(OutByte);
         return KdPacketReceived;
     }
     else
     {
         return KdPacketTimedOut;
+    }
+}
+
+KDSTATUS
+gdb_wait_ack(VOID)
+{
+    KDSTATUS KdStatus;
+    UCHAR Byte;
+
+    while (1)
+    {
+        KdStatus = KdpReceiveByte(&Byte);
+
+        if(KdStatus != KdPacketReceived)
+            continue;
+
+        switch(Byte) {
+        case '$':
+            /* Gdb has sent a reply before we got an ack, assume success */
+            KDDBGPRINT("Reply received before ack in gdb_wait_ack\n");
+            KdpSendByte('-');
+            /* Fall through */
+        case '+':
+            return KdPacketReceived;
+        case '-':
+            return KdPacketNeedsResend;
+        case 0x03:
+            /* This function should only run from stop mode */
+            KDDBGPRINT("Breakin received during gdb_wait_ack\n");
+            /* Fall through */
+        default:
+            continue;
+        }
     }
 }
 
@@ -314,20 +393,29 @@ KdpPollBreakIn(VOID)
     KDSTATUS KdStatus;
     UCHAR Byte;
 
-    KdStatus = KdpPollByte(&Byte);
-    if (KdStatus == KdPacketReceived)
+    while (1)
     {
-        if (Byte == 0x03)
-        {
+        KdStatus = KdpPollByte(&Byte);
+
+        if(KdStatus != KdPacketReceived)
+            return KdStatus;
+
+        switch(Byte) {
+        case 0x03:
             return KdPacketReceived;
-        }
-        else if (Byte == '$')
-        {
-            /* GDB tried to send a new packet. N-ack it. */
+        case '-':
+            return KdPacketNeedsResend;
+        case '$':
+            /* Shouldn't happen
+             * If it does, have gdb resend it, we'll receive it
+             * next send/wait */
+            KDDBGPRINT("Packet received during KdpPollBreakIn\n");
             KdpSendByte('-');
+            return KdPacketTimedOut;
+        default:
+            continue;
         }
     }
-    return KdPacketTimedOut;
 }
 
 /* EOF */

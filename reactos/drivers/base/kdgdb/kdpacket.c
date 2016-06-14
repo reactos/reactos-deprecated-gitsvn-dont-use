@@ -26,8 +26,6 @@ KDP_MANIPULATESTATE_HANDLER KdpManipulateStateHandler = NULL;
 /* Data describing the current exception */
 DBGKD_ANY_WAIT_STATE_CHANGE CurrentStateChange;
 CONTEXT CurrentContext;
-PEPROCESS TheIdleProcess;
-PETHREAD TheIdleThread;
 
 /* PRIVATE FUNCTIONS **********************************************************/
 
@@ -152,8 +150,7 @@ send_kd_state_change(DBGKD_ANY_WAIT_STATE_CHANGE* StateChange)
             PsGetThreadProcessId(Thread),
             PsGetThreadId(Thread));
         /* Set the current debugged process/thread accordingly */
-        gdb_dbg_tid = handle_to_gdb_tid(PsGetThreadId(Thread));
-        gdb_dbg_pid = handle_to_gdb_pid(PsGetThreadProcessId(Thread));
+        current_ptid = ptid_from_thread(Thread);
         gdb_send_exception();
         /* Next receive call will ask for the context */
         KdpManipulateStateHandler = GetContextManipulateHandler;
@@ -171,8 +168,10 @@ send_kd_debug_io(
     _In_ DBGKD_DEBUG_IO* DebugIO,
     _In_ PSTRING String)
 {
-    if (InException)
+    if (InException) {
+        KDDBGPRINT("KDGDB: debug_io in exception: %*s\n", String->Length, String->Buffer);
         return;
+    }
 
     switch (DebugIO->ApiNumber)
     {
@@ -215,7 +214,7 @@ ContinueManipulateStateHandler(
 {
     /* Let's go on */
     State->ApiNumber = DbgKdContinueApi;
-    State->ReturnStatus = STATUS_SUCCESS; /* ? */
+    State->ReturnStatus = STATUS_SUCCESS;
     State->Processor = CurrentStateChange.Processor;
     State->ProcessorLevel = CurrentStateChange.ProcessorLevel;
     if (MessageData)
@@ -231,6 +230,36 @@ ContinueManipulateStateHandler(
 
     return KdPacketReceived;
 }
+
+
+KDSTATUS
+SingleStepManipulateStateHandler(
+    _Out_ DBGKD_MANIPULATE_STATE64* State,
+    _Out_ PSTRING MessageData,
+    _Out_ PULONG MessageLength,
+    _Inout_ PKD_CONTEXT KdContext
+)
+{
+    State->ApiNumber = DbgKdContinueApi2;
+    State->ReturnStatus = STATUS_SUCCESS;
+    State->Processor = CurrentStateChange.Processor;
+    State->ProcessorLevel = CurrentStateChange.ProcessorLevel;
+    if (MessageData)
+        MessageData->Length = 0;
+    *MessageLength = 0;
+    State->u.Continue2 = (DBGKD_CONTINUE2){};
+    State->u.Continue2.ContinueStatus = STATUS_SUCCESS;
+    State->u.Continue2.ControlSet.TraceFlag = 1;
+
+    /* We definitely are at the end of the send <-> receive loop, if any */
+    KdpSendPacketHandler = NULL;
+    KdpManipulateStateHandler = NULL;
+    /* We're not handling an exception anymore */
+    InException = FALSE;
+
+    return KdPacketReceived;
+}
+
 
 static
 VOID
@@ -313,13 +342,9 @@ FirstSendHandler(
 
     /* Set up the current state */
     CurrentStateChange = *StateChange;
-    gdb_dbg_tid = handle_to_gdb_tid(PsGetThreadId(Thread));
-    gdb_dbg_pid = handle_to_gdb_pid(PsGetThreadProcessId(Thread));
-    /* This is the idle process. Save it! */
-    TheIdleThread = Thread;
-    TheIdleProcess = (PEPROCESS)Thread->Tcb.ApcState.Process;
+    current_ptid = ptid_from_thread(Thread);
 
-    KDDBGPRINT("Pid Tid of the first message: %" PRIxPTR", %" PRIxPTR ".\n", gdb_dbg_pid, gdb_dbg_tid);
+    KDDBGPRINT("Pid Tid of the first message: %s.\n", format_ptid(current_ptid));
 
     /* The next receive call will be asking for the version data */
     KdpSendPacketHandler = NULL;
@@ -352,7 +377,6 @@ KdReceivePacket(
     _Out_ PULONG DataLength,
     _Inout_ PKD_CONTEXT KdContext)
 {
-    KDSTATUS Status;
     DBGKD_MANIPULATE_STATE64* State;
 
     /* Special handling for breakin packet */
@@ -373,13 +397,7 @@ KdReceivePacket(
     if (KdpManipulateStateHandler != NULL)
         return KdpManipulateStateHandler(State, MessageData, DataLength, KdContext);
 
-    /* Receive data from GDB */
-    Status = gdb_receive_packet(KdContext);
-    if (Status != KdPacketReceived)
-        return Status;
-
-    /* Interpret it */
-    return gdb_interpret_input(State, MessageData, DataLength, KdContext);
+    return gdb_receive_and_interpret_packet(State, MessageData, DataLength, KdContext);
 }
 
 VOID
