@@ -401,6 +401,10 @@ handle_gdb_v(
 
         switch(gdb_input[6])
         {
+        case 's':
+            SingleStepManipulateStateHandler(State, MessageData, MessageLength, KdContext);
+            return GdbStop;
+
         case 'c':
             if (CurrentStateChange.NewState == DbgKdExceptionStateChange)
                 Exception = &CurrentStateChange.u.Exception;

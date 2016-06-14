@@ -214,7 +214,7 @@ ContinueManipulateStateHandler(
 {
     /* Let's go on */
     State->ApiNumber = DbgKdContinueApi;
-    State->ReturnStatus = STATUS_SUCCESS; /* ? */
+    State->ReturnStatus = STATUS_SUCCESS;
     State->Processor = CurrentStateChange.Processor;
     State->ProcessorLevel = CurrentStateChange.ProcessorLevel;
     if (MessageData)
@@ -230,6 +230,36 @@ ContinueManipulateStateHandler(
 
     return KdPacketReceived;
 }
+
+
+KDSTATUS
+SingleStepManipulateStateHandler(
+    _Out_ DBGKD_MANIPULATE_STATE64* State,
+    _Out_ PSTRING MessageData,
+    _Out_ PULONG MessageLength,
+    _Inout_ PKD_CONTEXT KdContext
+)
+{
+    State->ApiNumber = DbgKdContinueApi2;
+    State->ReturnStatus = STATUS_SUCCESS;
+    State->Processor = CurrentStateChange.Processor;
+    State->ProcessorLevel = CurrentStateChange.ProcessorLevel;
+    if (MessageData)
+        MessageData->Length = 0;
+    *MessageLength = 0;
+    State->u.Continue2 = (DBGKD_CONTINUE2){};
+    State->u.Continue2.ContinueStatus = STATUS_SUCCESS;
+    State->u.Continue2.ControlSet.TraceFlag = 1;
+
+    /* We definitely are at the end of the send <-> receive loop, if any */
+    KdpSendPacketHandler = NULL;
+    KdpManipulateStateHandler = NULL;
+    /* We're not handling an exception anymore */
+    InException = FALSE;
+
+    return KdPacketReceived;
+}
+
 
 static
 VOID

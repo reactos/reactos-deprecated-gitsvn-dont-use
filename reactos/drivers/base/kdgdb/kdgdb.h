@@ -110,6 +110,7 @@ extern KDP_SEND_HANDLER KdpSendPacketHandler;
 extern KDP_MANIPULATESTATE_HANDLER KdpManipulateStateHandler;
 /* Commone ManipulateState handlers */
 extern KDSTATUS ContinueManipulateStateHandler(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
+extern KDSTATUS SingleStepManipulateStateHandler(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 extern KDSTATUS SetContextManipulateHandler(_Out_ DBGKD_MANIPULATE_STATE64* State, _Out_ PSTRING MessageData, _Out_ PULONG MessageLength, _Inout_ PKD_CONTEXT KdContext);
 
 /* utils.c */
