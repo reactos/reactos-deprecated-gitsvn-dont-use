@@ -259,7 +259,7 @@ AhciInterruptHandler (
         // software should perform the appropriate error recovery actions based on whether
         // non-queued commands were being issued or native command queuing commands were being issued.
 
-        DebugPrint("\tFata Error: %x\n", PxIS.Status);
+        DebugPrint("\tFatal Error: %x\n", PxIS.Status);
     }
 
     // Normal Command Completion
@@ -992,7 +992,7 @@ AhciProcessIO (
                 tmpSrb = RemoveQueue(&PortExtension->SrbQueue);
                 if (tmpSrb != NULL)
                 {
-                    NT_ASSERT(Srb->PathId == PathId);
+                    NT_ASSERT(tmpSrb->PathId == PathId);
                     AhciProcessSrb(PortExtension, tmpSrb, slotIndex);
                 }
                 else
@@ -1211,7 +1211,7 @@ AddQueue (
     NT_ASSERT(Queue->Head < MAXIMUM_QUEUE_BUFFER_SIZE);
     NT_ASSERT(Queue->Tail < MAXIMUM_QUEUE_BUFFER_SIZE);
 
-    if (Queue->Head == ((Queue->Tail + 1) % MAXIMUM_QUEUE_BUFFER_SIZE))
+    if (Queue->Tail == ((Queue->Head + 1) % MAXIMUM_QUEUE_BUFFER_SIZE))
         return FALSE;
 
     Queue->Buffer[Queue->Head++] = Srb;
