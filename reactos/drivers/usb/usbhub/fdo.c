@@ -1338,6 +1338,8 @@ CreateUsbChildDeviceObject(
         goto Cleanup;
     }
 
+    UsbChildExtension->IsRemovePending = FALSE;
+
     HubDeviceExtension->ChildDeviceObject[ChildDeviceCount] = NewChildDeviceObject;
     HubDeviceExtension->InstanceCount++;
 
