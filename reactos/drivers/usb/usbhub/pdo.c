@@ -635,16 +635,19 @@ USBHUB_PdoHandlePnp(
         }
         case IRP_MN_QUERY_DEVICE_TEXT:
         {
+            DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
             Status = USBHUB_PdoQueryDeviceText(DeviceObject, Irp, &Information);
             break;
         }
         case IRP_MN_QUERY_ID:
         {
+            DPRINT("IRP_MN_QUERY_ID\n");
             Status = USBHUB_PdoQueryId(DeviceObject, Irp, &Information);
             break;
         }
         case IRP_MN_QUERY_BUS_INFORMATION:
         {
+            DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
             PPNP_BUS_INFORMATION BusInfo;
             BusInfo = (PPNP_BUS_INFORMATION)ExAllocatePool(PagedPool, sizeof(PNP_BUS_INFORMATION));
             RtlCopyMemory(&BusInfo->BusTypeGuid,
