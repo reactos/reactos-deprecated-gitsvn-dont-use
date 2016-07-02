@@ -4,9 +4,8 @@
 #include <debug.h>
 
 NTSTATUS
-NTAPI
-USBPORT_CreateRhDevice(PDEVICE_OBJECT FdoDevice,
-                       PDEVICE_OBJECT PdoDevice)
+USBPORT_CreateRhDevice(IN PDEVICE_OBJECT FdoDevice,
+                       IN PDEVICE_OBJECT PdoDevice)
 {
     DPRINT("USBPORT_RootHub_CreateDevice: FIXME! FdoDevice - %p, PdoDevice - %p\n",
            FdoDevice,

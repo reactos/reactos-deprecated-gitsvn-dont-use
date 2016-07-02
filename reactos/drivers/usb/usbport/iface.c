@@ -3,16 +3,16 @@
 //#define NDEBUG
 #include <debug.h>
 
-static
 VOID
-USB_BUSIFFN USBI_InterfaceReference(PVOID BusContext)
+USB_BUSIFFN
+USBI_InterfaceReference(IN PVOID BusContext)
 {
     DPRINT("USBI_InterfaceReference \n");
 }
 
-static
 VOID
-USB_BUSIFFN USBI_InterfaceDereference(PVOID BusContext)
+USB_BUSIFFN
+USBI_InterfaceDereference(IN PVOID BusContext)
 {
     DPRINT("USBI_InterfaceDereference \n");
 }
@@ -21,11 +21,11 @@ USB_BUSIFFN USBI_InterfaceDereference(PVOID BusContext)
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_CreateUsbDevice(PVOID BusContext,
-                      PUSB_DEVICE_HANDLE *NewDevice,
-                      PUSB_DEVICE_HANDLE HubDeviceHandle,
-                      USHORT PortStatus,
-                      USHORT PortNumber)
+USBHI_CreateUsbDevice(IN PVOID BusContext,
+                      IN PUSB_DEVICE_HANDLE *NewDevice,
+                      IN PUSB_DEVICE_HANDLE HubDeviceHandle,
+                      IN USHORT PortStatus,
+                      IN USHORT PortNumber)
 {
     DPRINT("USBHI_CreateUsbDevice\n");
     ASSERT(FALSE);
@@ -34,7 +34,7 @@ USBHI_CreateUsbDevice(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_InitializeUsbDevice(PVOID BusContext,
+USBHI_InitializeUsbDevice(IN PVOID BusContext,
                           OUT PUSB_DEVICE_HANDLE DeviceHandle)
 {
     DPRINT("USBHI_InitializeUsbDevice \n");
@@ -44,12 +44,12 @@ USBHI_InitializeUsbDevice(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_GetUsbDescriptors(PVOID BusContext,
-                        PUSB_DEVICE_HANDLE DeviceHandle,
-                        PUCHAR DeviceDescBuffer,
-                        PULONG DeviceDescBufferLen,
-                        PUCHAR ConfigDescBuffer,
-                        PULONG ConfigDescBufferLen)
+USBHI_GetUsbDescriptors(IN PVOID BusContext,
+                        IN PUSB_DEVICE_HANDLE DeviceHandle,
+                        IN PUCHAR DeviceDescBuffer,
+                        IN PULONG DeviceDescBufferLen,
+                        IN PUCHAR ConfigDescBuffer,
+                        IN PULONG ConfigDescBufferLen)
 {
     DPRINT("USBHI_GetUsbDescriptors \n");
     ASSERT(FALSE);
@@ -58,9 +58,9 @@ USBHI_GetUsbDescriptors(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_RemoveUsbDevice(PVOID BusContext,
+USBHI_RemoveUsbDevice(IN PVOID BusContext,
                       OUT PUSB_DEVICE_HANDLE DeviceHandle,
-                      ULONG Flags)
+                      IN ULONG Flags)
 {
     DPRINT("USBHI_RemoveUsbDevice \n");
     ASSERT(FALSE);
@@ -69,7 +69,7 @@ USBHI_RemoveUsbDevice(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_RestoreUsbDevice(PVOID BusContext,
+USBHI_RestoreUsbDevice(IN PVOID BusContext,
                        OUT PUSB_DEVICE_HANDLE OldDeviceHandle,
                        OUT PUSB_DEVICE_HANDLE NewDeviceHandle)
 {
@@ -80,10 +80,10 @@ USBHI_RestoreUsbDevice(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_QueryDeviceInformation(PVOID BusContext,
-                             PUSB_DEVICE_HANDLE DeviceHandle,
+USBHI_QueryDeviceInformation(IN PVOID BusContext,
+                             IN PUSB_DEVICE_HANDLE DeviceHandle,
                              OUT PVOID DeviceInfoBuffer,
-                             ULONG DeviceInfoBufferLen,
+                             IN ULONG DeviceInfoBufferLen,
                              OUT PULONG LenDataReturned)
 {
     DPRINT("USBHI_QueryDeviceInformation \n");
@@ -93,9 +93,9 @@ USBHI_QueryDeviceInformation(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_GetControllerInformation(PVOID BusContext,
+USBHI_GetControllerInformation(IN PVOID BusContext,
                                OUT PVOID ControllerInfoBuffer,
-                               ULONG ControllerInfoBufferLen,
+                               IN ULONG ControllerInfoBufferLen,
                                OUT PULONG LenDataReturned)
 {
     DPRINT("USBHI_GetControllerInformation \n");
@@ -105,8 +105,8 @@ USBHI_GetControllerInformation(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_ControllerSelectiveSuspend(PVOID BusContext,
-                                 BOOLEAN Enable)
+USBHI_ControllerSelectiveSuspend(IN PVOID BusContext,
+                                 IN BOOLEAN Enable)
 {
     DPRINT("USBHI_ControllerSelectiveSuspend \n");
     ASSERT(FALSE);
@@ -115,10 +115,10 @@ USBHI_ControllerSelectiveSuspend(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_GetExtendedHubInformation(PVOID BusContext,
-                                PDEVICE_OBJECT HubPhysicalDeviceObject,
+USBHI_GetExtendedHubInformation(IN PVOID BusContext,
+                                IN PDEVICE_OBJECT HubPhysicalDeviceObject,
                                 OUT PVOID HubInfoBuffer,
-                                ULONG HubInfoLen,
+                                IN ULONG HubInfoLen,
                                 OUT PULONG LenDataReturned)
 {
     DPRINT("USBHI_GetExtendedHubInformation \n");
@@ -128,9 +128,9 @@ USBHI_GetExtendedHubInformation(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_GetRootHubSymbolicName(PVOID BusContext,
+USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
                              OUT PVOID HubInfoBuffer,
-                             ULONG HubInfoBufferLen,
+                             IN ULONG HubInfoBufferLen,
                              OUT PULONG HubNameActualLen)
 {
     DPRINT("USBHI_GetRootHubSymbolicName \n");
@@ -140,8 +140,8 @@ USBHI_GetRootHubSymbolicName(PVOID BusContext,
 
 PVOID
 USB_BUSIFFN
-USBHI_GetDeviceBusContext(PVOID BusContext,
-                          PVOID DeviceHandle)
+USBHI_GetDeviceBusContext(IN PVOID BusContext,
+                          IN PVOID DeviceHandle)
 {
     DPRINT("USBHI_GetDeviceBusContext \n");
     ASSERT(FALSE);
@@ -150,9 +150,9 @@ USBHI_GetDeviceBusContext(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_Initialize20Hub(PVOID BusContext,
-                      PUSB_DEVICE_HANDLE HubDeviceHandle,
-                      ULONG TtCount)
+USBHI_Initialize20Hub(IN PVOID BusContext,
+                      IN PUSB_DEVICE_HANDLE HubDeviceHandle,
+                      IN ULONG TtCount)
 {
     DPRINT("USBHI_Initialize20Hub \n");
     ASSERT(FALSE);
@@ -161,9 +161,9 @@ USBHI_Initialize20Hub(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBHI_RootHubInitNotification(PVOID BusContext,
-                              PVOID CallbackContext,
-                              PRH_INIT_CALLBACK CallbackFunction)
+USBHI_RootHubInitNotification(IN PVOID BusContext,
+                              IN PVOID CallbackContext,
+                              IN PRH_INIT_CALLBACK CallbackFunction)
 {
     DPRINT("USBHI_RootHubInitNotification \n");
     ASSERT(FALSE);
@@ -172,7 +172,7 @@ USBHI_RootHubInitNotification(PVOID BusContext,
 
 VOID
 USB_BUSIFFN
-USBHI_FlushTransfers(PVOID BusContext,
+USBHI_FlushTransfers(IN PVOID BusContext,
                      OUT PUSB_DEVICE_HANDLE DeviceHandle)
 {
     DPRINT("USBHI_FlushTransfers \n");
@@ -181,9 +181,9 @@ USBHI_FlushTransfers(PVOID BusContext,
 
 VOID
 USB_BUSIFFN
-USBHI_SetDeviceHandleData(PVOID BusContext,
-                          PVOID DeviceHandle,
-                          PDEVICE_OBJECT UsbDevicePdo)
+USBHI_SetDeviceHandleData(IN PVOID BusContext,
+                          IN PVOID DeviceHandle,
+                          IN PDEVICE_OBJECT UsbDevicePdo)
 {
     DPRINT("USBHI_SetDeviceHandleData \n");
     ASSERT(FALSE);
@@ -193,7 +193,7 @@ USBHI_SetDeviceHandleData(PVOID BusContext,
 
 VOID
 USB_BUSIFFN
-USBDI_GetUSBDIVersion(PVOID BusContext,
+USBDI_GetUSBDIVersion(IN PVOID BusContext,
                       OUT PUSBD_VERSION_INFORMATION VersionInfo,
                       OUT PULONG HcdCapabilities)
 {
@@ -203,7 +203,7 @@ USBDI_GetUSBDIVersion(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBDI_QueryBusTime(PVOID BusContext,
+USBDI_QueryBusTime(IN PVOID BusContext,
                    OUT PULONG CurrentFrame)
 {
     DPRINT("USBDI_QueryBusTime \n");
@@ -213,8 +213,8 @@ USBDI_QueryBusTime(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBDI_SubmitIsoOutUrb(PVOID BusContext,
-                      PURB Urb)
+USBDI_SubmitIsoOutUrb(IN PVOID BusContext,
+                      IN PURB Urb)
 {
     DPRINT("USBDI_SubmitIsoOutUrb \n");
     ASSERT(FALSE);
@@ -223,8 +223,8 @@ USBDI_SubmitIsoOutUrb(PVOID BusContext,
 
 NTSTATUS
 USB_BUSIFFN
-USBDI_QueryBusInformation(PVOID BusContext,
-                          ULONG Level,
+USBDI_QueryBusInformation(IN PVOID BusContext,
+                          IN ULONG Level,
                           OUT PVOID BusInfoBuffer,
                           OUT PULONG BusInfoBufferLen,
                           OUT PULONG BusInfoActualLen)
@@ -236,7 +236,7 @@ USBDI_QueryBusInformation(PVOID BusContext,
 
 BOOLEAN
 USB_BUSIFFN
-USBDI_IsDeviceHighSpeed(PVOID BusContext)
+USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
 {
     DPRINT("USBDI_IsDeviceHighSpeed \n");
     ASSERT(FALSE);
@@ -245,11 +245,11 @@ USBDI_IsDeviceHighSpeed(PVOID BusContext)
 
 NTSTATUS
 USB_BUSIFFN
-USBDI_EnumLogEntry(PVOID BusContext,
-                   ULONG DriverTag,
-                   ULONG EnumTag,
-                   ULONG P1,
-                   ULONG P2)
+USBDI_EnumLogEntry(IN PVOID BusContext,
+                   IN ULONG DriverTag,
+                   IN ULONG EnumTag,
+                   IN ULONG P1,
+                   IN ULONG P2)
 {
     DPRINT("USBDI_EnumLogEntry \n");
     ASSERT(FALSE);
@@ -258,9 +258,9 @@ USBDI_EnumLogEntry(PVOID BusContext,
 
 NTSTATUS
 NTAPI
-USBPORT_PdoQueryInterface(PDEVICE_OBJECT FdoDevice,
-                          PDEVICE_OBJECT PdoDevice,
-                          PIRP Irp)
+USBPORT_PdoQueryInterface(IN PDEVICE_OBJECT FdoDevice,
+                          IN PDEVICE_OBJECT PdoDevice,
+                          IN PIRP Irp)
 {
     PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
     PUSB_BUS_INTERFACE_HUB_V5 InterfaceHub;
