@@ -74,63 +74,57 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
 NTSTATUS
 NTAPI
 USBPORT_RegisterUSBPortDriver(
-  PDRIVER_OBJECT DriverObject,
-  ULONG Version,
-  PUSBPORT_REGISTRATION_PACKET RegistrationPacket);
+  IN PDRIVER_OBJECT DriverObject,
+  IN ULONG Version,
+  IN PUSBPORT_REGISTRATION_PACKET RegistrationPacket);
 
 ULONG
 NTAPI
 USBPORT_GetHciMn(VOID);
 
-NTSTATUS
-NTAPI
-USBPORT_Dispatch(
-  PDEVICE_OBJECT DeviceObject,
-  PIRP Irp);
-
 VOID
 NTAPI
 USBPORT_IsrDpc(
-  PRKDPC Dpc,
-  PVOID DeferredContext,
-  PVOID SystemArgument1,
-  PVOID SystemArgument2);
+  IN PRKDPC Dpc,
+  IN PVOID DeferredContext,
+  IN PVOID SystemArgument1,
+  IN PVOID SystemArgument2);
 
 PUSBPORT_COMMON_BUFFER_HEADER
 NTAPI
 USBPORT_AllocateCommonBuffer(
-  PDEVICE_OBJECT FdoDevice,
-  SIZE_T BufferLength);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN SIZE_T BufferLength);
 
 /* iface.c */
 
 NTSTATUS
 NTAPI
 USBPORT_PdoQueryInterface(
-  PDEVICE_OBJECT FdoDevice,
-  PDEVICE_OBJECT PdoDevice,
-  PIRP Irp);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PDEVICE_OBJECT PdoDevice,
+  IN PIRP Irp);
 
 /* pnp.c */
 
 NTSTATUS
 NTAPI
 USBPORT_FdoPnP(
-  PDEVICE_OBJECT FdoDevice,
-  PIRP Irp);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
 
 NTSTATUS
 NTAPI
 USBPORT_PdoPnP(
-  PDEVICE_OBJECT FdoDevice,
-  PIRP Irp);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
 
 /* roothub.c */
 
 NTSTATUS
 NTAPI
 USBPORT_CreateRhDevice(
-  PDEVICE_OBJECT FdoDevice,
-  PDEVICE_OBJECT PdoDevice);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PDEVICE_OBJECT PdoDevice);
 
 #endif /* USBPORT_H__ */
