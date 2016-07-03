@@ -2081,17 +2081,23 @@ USBHUB_FdoHandlePnp(
         case IRP_MN_QUERY_BUS_INFORMATION:
         {
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
-            break;
+            // Function drivers and filter drivers do not handle this IRP.
+            return ForwardIrpAndForget(DeviceObject, Irp);
         }
         case IRP_MN_QUERY_ID:
         {
             DPRINT("IRP_MN_QUERY_ID\n");
-            break;
+            // Function drivers and filter drivers do not handle this IRP.
+            return ForwardIrpAndForget(DeviceObject, Irp);
         }
         case IRP_MN_QUERY_CAPABILITIES:
         {
+            //
+            // If a function or filter driver does not handle this IRP, it
+            // should pass that down.
+            //
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
-            break;
+            return ForwardIrpAndForget(DeviceObject, Irp);
         }
         default:
         {
