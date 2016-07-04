@@ -12,8 +12,15 @@
 #define DEBUG 1
 
 #define MAXIMUM_AHCI_PORT_COUNT             25
+#define MAXIMUM_AHCI_PRDT_ENTRIES           32
+#define MAXIMUM_AHCI_PORT_NCS               30
 #define MAXIMUM_QUEUE_BUFFER_SIZE           255
 #define MAXIMUM_TRANSFER_LENGTH             (128*1024) // 128 KB
+
+// device type (DeviceParams)
+#define AHCI_DEVICE_TYPE_ATA                1
+#define AHCI_DEVICE_TYPE_ATAPI              2
+#define AHCI_DEVICE_TYPE_NODEVICE           3
 
 // section 3.1.2
 #define AHCI_Global_HBA_CONTROL_HR          (1 << 0)
@@ -21,6 +28,21 @@
 #define AHCI_Global_HBA_CONTROL_MRSM        (1 << 2)
 #define AHCI_Global_HBA_CONTROL_AE          (1 << 31)
 #define AHCI_Global_HBA_CAP_S64A            (1 << 31)
+
+#define AHCI_ATA_CFIS_FisType               0
+#define AHCI_ATA_CFIS_PMPort_C              1
+#define AHCI_ATA_CFIS_CommandReg            2
+#define AHCI_ATA_CFIS_FeaturesLow           3
+#define AHCI_ATA_CFIS_LBA0                  4
+#define AHCI_ATA_CFIS_LBA1                  5
+#define AHCI_ATA_CFIS_LBA2                  6
+#define AHCI_ATA_CFIS_Device                7
+#define AHCI_ATA_CFIS_LBA3                  8
+#define AHCI_ATA_CFIS_LBA4                  9
+#define AHCI_ATA_CFIS_LBA5                  10
+#define AHCI_ATA_CFIS_FeaturesHigh          11
+#define AHCI_ATA_CFIS_SectorCountLow        12
+#define AHCI_ATA_CFIS_SectorCountHigh       13
 
 // ATA Functions
 #define ATA_FUNCTION_ATA_COMMAND            0x100
@@ -45,6 +67,14 @@
 #if DEBUG
     #define DebugPrint(format, ...) StorPortDebugPrint(0, format, __VA_ARGS__)
 #endif
+
+typedef
+VOID
+(*PAHCI_COMPLETION_ROUTINE) (
+    __in PVOID AdapterExtension,
+    __in PVOID PortExtension,
+    __in PVOID Srb
+    );
 
 //////////////////////////////////////////////////////////////
 //              ---- Support Structures ---                 //
@@ -185,22 +215,105 @@ typedef union _AHCI_COMMAND_HEADER_DESCRIPTION
 {
     struct
     {
-        ULONG CFL :5;       // Command FIS Length
-        ULONG A :1;         // IsATAPI
-        ULONG W :1;         // Write
-        ULONG P :1;         // Prefetchable
+        ULONG CFL : 5;       // Command FIS Length
+        ULONG A : 1;         // IsATAPI
+        ULONG W : 1;         // Write
+        ULONG P : 1;         // Prefetchable
 
-        ULONG R :1;         // Reset
-        ULONG B :1;         // BIST
-        ULONG C :1;         //Clear Busy upon R_OK
-        ULONG DW0_Reserved :1;
-        ULONG PMP :4;       //Port Multiplier Port
+        ULONG R : 1;         // Reset
+        ULONG B : 1;         // BIST
+        ULONG C : 1;         //Clear Busy upon R_OK
+        ULONG DW0_Reserved : 1;
+        ULONG PMP : 4;       //Port Multiplier Port
 
-        ULONG PRDTL :16;    //Physical Region Descriptor Table Length
+        ULONG PRDTL : 16;    //Physical Region Descriptor Table Length
     };
 
     ULONG Status;
 } AHCI_COMMAND_HEADER_DESCRIPTION;
+
+// section 3.3.7
+typedef union _AHCI_PORT_CMD
+{
+    struct
+    {
+        ULONG ST : 1;
+        ULONG SUD : 1;
+        ULONG POD : 1;
+        ULONG CLO : 1;
+        ULONG FRE : 1;
+        ULONG RSV0 : 3;
+        ULONG CCS : 5;
+        ULONG MPSS : 1;
+        ULONG FR : 1;
+        ULONG CR : 1;
+        ULONG CPS : 1;
+        ULONG PMA : 1;
+        ULONG HPCP : 1;
+        ULONG MPSP : 1;
+        ULONG CPD : 1;
+        ULONG ESP : 1;
+        ULONG FBSCP : 1;
+        ULONG APSTE : 1;
+        ULONG ATAPI : 1;
+        ULONG DLAE : 1;
+        ULONG ALPE : 1;
+        ULONG ASP : 1;
+        ULONG ICC : 4;
+    };
+
+    ULONG Status;
+} AHCI_PORT_CMD;
+
+typedef union _AHCI_SERIAL_ATA_CONTROL
+{
+    struct
+    {
+        ULONG DET :4;
+        ULONG SPD :4;
+        ULONG IPM :4;
+        ULONG SPM :4;
+        ULONG PMP :4;
+        ULONG DW11_Reserved :12;
+    };
+
+    ULONG Status;
+}  AHCI_SERIAL_ATA_CONTROL;
+
+typedef union _AHCI_SERIAL_ATA_STATUS
+{
+    struct
+    {
+        ULONG DET :4;
+        ULONG SPD :4;
+        ULONG IPM :4;
+        ULONG RSV0 :20;
+    };
+
+    ULONG Status;
+}  AHCI_SERIAL_ATA_STATUS;
+
+typedef struct _AHCI_PRDT
+{
+    ULONG DBA;
+    ULONG DBAU;
+    ULONG RSV0;
+
+    ULONG DBC : 22;
+    ULONG RSV1 : 9;
+    ULONG I : 1;
+} AHCI_PRDT, *PAHCI_PRDT;
+
+// 4.2.3 Command Table
+typedef struct _AHCI_COMMAND_TABLE
+{
+    // (16 * 32) + 64 + 16 + 48 = 648
+    // 128 byte aligned :D
+    UCHAR CFIS[64];
+    UCHAR ACMD[16];
+    UCHAR RSV0[48];
+    AHCI_PRDT PRDT[MAXIMUM_AHCI_PRDT_ENTRIES];
+} AHCI_COMMAND_TABLE, *PAHCI_COMMAND_TABLE;
 
 // 4.2.2 Command Header
 typedef struct _AHCI_COMMAND_HEADER
@@ -274,13 +387,17 @@ typedef struct _AHCI_MEMORY_REGISTERS
 typedef struct _AHCI_PORT_EXTENSION
 {
     ULONG PortNumber;
-    ULONG OccupiedSlots;                                // slots to which we have already assigned task
+    ULONG QueueSlots;                                   // slots which we have already assigned task (Slot)
+    ULONG CommandIssuedSlots;                           // slots which has been programmed
     BOOLEAN IsActive;
     PAHCI_PORT Port;                                    // AHCI Port Infomation
-    AHCI_QUEUE SrbQueue;
+    AHCI_QUEUE SrbQueue;                                // pending Srbs
+    PSCSI_REQUEST_BLOCK Slot[MAXIMUM_AHCI_PORT_NCS];    // Srbs which has been alloted a port
     PAHCI_RECEIVED_FIS ReceivedFIS;
     PAHCI_COMMAND_HEADER CommandList;
     STOR_DEVICE_POWER_STATE DevicePowerState;           // Device Power State
+    PIDENTIFY_DEVICE_DATA IdentifyDeviceData;
+    STOR_PHYSICAL_ADDRESS IdentifyDeviceDataPhysicalAddress;
     struct _AHCI_ADAPTER_EXTENSION* AdapterExtension;   // Port's Adapter Information
 } AHCI_PORT_EXTENSION, *PAHCI_PORT_EXTENSION;
 
@@ -304,7 +421,12 @@ typedef struct _AHCI_ADAPTER_EXTENSION
     ULONG   LastInterruptPort;
     ULONG   CurrentCommandSlot;
 
-    PVOID NonCachedExtension;// holds virtual address to noncached buffer allocated for Port Extension
+    PVOID NonCachedExtension; // holds virtual address to noncached buffer allocated for Port Extension
+
+    struct
+    {
+        UCHAR DeviceType;
+    } DeviceParams;
 
     struct
     {
@@ -318,19 +440,36 @@ typedef struct _AHCI_ADAPTER_EXTENSION
     AHCI_PORT_EXTENSION PortExtension[MAXIMUM_AHCI_PORT_COUNT];
 } AHCI_ADAPTER_EXTENSION, *PAHCI_ADAPTER_EXTENSION;
 
-typedef struct _ATA_REGISTER
+typedef struct _LOCAL_SCATTER_GATHER_LIST
 {
-    UCHAR CommandReg;
-    ULONG Reserved;
-} ATA_REGISTER;
+    ULONG                       NumberOfElements;
+    ULONG_PTR                   Reserved;
+    STOR_SCATTER_GATHER_ELEMENT List[MAXIMUM_AHCI_PRDT_ENTRIES];
+} LOCAL_SCATTER_GATHER_LIST, *PLOCAL_SCATTER_GATHER_LIST;
 
 typedef struct _AHCI_SRB_EXTENSION
 {
+    AHCI_COMMAND_TABLE CommandTable;
     ULONG AtaFunction;
     ULONG Flags;
-    ATA_REGISTER Task;
+
+    UCHAR CommandReg;
+    UCHAR FeaturesLow;
+    UCHAR LBA0;
+    UCHAR LBA1;
+    UCHAR LBA2;
+    UCHAR Device;
+    UCHAR LBA3;
+    UCHAR LBA4;
+    UCHAR LBA5;
+    UCHAR FeaturesHigh;
+
+    UCHAR SectorCountLow;
+    UCHAR SectorCountHigh;
+
     ULONG SlotIndex;
-    ULONG Reserved[4];
+    LOCAL_SCATTER_GATHER_LIST Sgl;
+    PAHCI_COMPLETION_ROUTINE CompletionRoutine;
 } AHCI_SRB_EXTENSION, *PAHCI_SRB_EXTENSION;
 
 //////////////////////////////////////////////////////////////
@@ -374,4 +513,10 @@ __inline
 PVOID
 RemoveQueue (
     __inout PAHCI_QUEUE Queue
+    );
+
+__inline
+PAHCI_SRB_EXTENSION
+GetSrbExtension(
+    __in PSCSI_REQUEST_BLOCK Srb
     );
