@@ -455,13 +455,13 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
     DEVICE_RELATION_TYPE RelationType;
     PDEVICE_RELATIONS DeviceRelations;
 
-    DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
-
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     UsbPortResources = (PUSBPORT_RESOURCES)&FdoExtension->UsbPortResources;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Minor = IoStack->MinorFunction;
+
+    DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
 
     RelationType = IoStack->Parameters.QueryDeviceRelations.Type; 
 
@@ -769,8 +769,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     ULONG Index = 0;
     //ULONG_PTR Information = Irp->IoStatus.Information;
 
-    DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
-
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -778,6 +776,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Minor = IoStack->MinorFunction;
     Status = Irp->IoStatus.Status;
+
+    DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
 
     switch (Minor)
     {

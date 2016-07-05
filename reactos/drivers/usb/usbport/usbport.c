@@ -212,13 +212,13 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
     PIO_STACK_LOCATION IoStack;
     NTSTATUS Status;
 
+    PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
     DPRINT("USBPORT_PdoScsi: PdoDevice - %p, Irp - %p, IoCtl - %x\n",
            PdoDevice,
            Irp,
            IoStack->Parameters.DeviceIoControl.IoControlCode);
-
-    PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    IoStack = IoGetCurrentIrpStackLocation(Irp);
 
     if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
     {
