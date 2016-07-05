@@ -86,8 +86,7 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
                              IN ULONG DeviceInfoBufferLen,
                              OUT PULONG LenDataReturned)
 {
-    DPRINT("USBHI_QueryDeviceInformation \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_QueryDeviceInformation FIXME\n");
     return STATUS_SUCCESS;
 }
 
