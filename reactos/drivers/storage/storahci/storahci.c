@@ -130,7 +130,7 @@ AhciAllocateResourceForAdapter (
     )
 {
     PCHAR nonCachedExtension, tmp;
-    ULONG status, index, NCS, AlignedNCS;
+    ULONG index, NCS, AlignedNCS;
     ULONG portCount, portImplemented, nonCachedExtensionSize;
 
     DebugPrint("AhciAllocateResourceForAdapter()\n");
@@ -179,7 +179,7 @@ AhciAllocateResourceForAdapter (
             AdapterExtension->PortExtension[index].PortNumber = index;
             AdapterExtension->PortExtension[index].IsActive = TRUE;
             AdapterExtension->PortExtension[index].AdapterExtension = AdapterExtension;
-            AdapterExtension->PortExtension[index].CommandList = nonCachedExtension;
+            AdapterExtension->PortExtension[index].CommandList = (PAHCI_COMMAND_HEADER)nonCachedExtension;
 
             tmp = (PCHAR)(nonCachedExtension + sizeof(AHCI_COMMAND_HEADER) * AlignedNCS);
 
@@ -209,6 +209,8 @@ AhciStartPort (
 {
     ULONG index;
     AHCI_PORT_CMD cmd;
+    AHCI_TASK_FILE_DATA tfd;
+    AHCI_INTERRUPT_ENABLE ie;
     AHCI_SERIAL_ATA_STATUS ssts;
     AHCI_SERIAL_ATA_CONTROL sctl;
     PAHCI_ADAPTER_EXTENSION AdapterExtension;
@@ -268,13 +270,104 @@ AhciStartPort (
     }
 
     ssts.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->SSTS);
-    if (ssts.DET == 0x4)
+    switch (ssts.DET)
     {
-        // no device found
-        return FALSE;
+        case 0x0:
+        case 0x1:
+        case 0x2:
+        default:
+            // unhandled case
+            DebugPrint("\tDET == %x Unsupported\n", ssts.DET);
+            return FALSE;
+        case 0x3:
+            {
+                NT_ASSERT(cmd.ST == 0);
+
+                // make sure FIS Recieve is enabled (cmd.FRE)
+                index = 0;
+                do
+                {
+                    StorPortStallExecution(10000);
+                    cmd.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->CMD);
+                    cmd.FRE = 1;
+                    StorPortWriteRegisterUlong(AdapterExtension, &PortExtension->Port->CMD, cmd.Status);
+                    index++;
+                }
+                while((cmd.FR != 1) && (index < 3));
+
+                if (cmd.FR != 1)
+                {
+                    // failed to start FIS DMA engine
+                    // it can crash the driver later
+                    return FALSE;
+                }
+
+                // start port channel
+                // set cmd.ST
+
+                NT_ASSERT(cmd.FRE == 1);
+                NT_ASSERT(cmd.CR == 0);
+
+                // why assert? well If we face such condition on DET = 0x3
+                // then we don't have port in idle state and hence before executing this part of code
+                // we must have restarted it.
+                tfd.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->TFD);
+
+                if ((tfd.STS.BSY) || (tfd.STS.DRQ))
+                {
+                    DebugPrint("\tUnhandled Case BSY-DRQ\n");
+                }
+
+                // clear pending interrupts
+                StorPortWriteRegisterUlong(AdapterExtension, &PortExtension->Port->SERR, (ULONG)~0);
+                StorPortWriteRegisterUlong(AdapterExtension, &PortExtension->Port->IS, (ULONG)~0);
+                StorPortWriteRegisterUlong(AdapterExtension, AdapterExtension->IS, (1 << PortExtension->PortNumber));
+
+                // set IE
+                ie.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->IE);
+                ie.DHRE = 1;
+                ie.PSE = 1;
+                ie.DSE = 1;
+                ie.SDBE = 1;
+
+                ie.UFE = 0;
+                ie.DPE = 0;
+                ie.PCE = 1;
+
+                ie.DMPE = 0;
+
+                ie.PRCE = 1;
+                ie.IPME = 0;
+                ie.OFE = 1;
+                ie.INFE = 1;
+                ie.IFE = 1;
+                ie.HBDE = 1;
+                ie.HBFE = 1;
+                ie.TFEE = 1;
+
+                cmd.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->CMD);
+                ie.CPDE = cmd.CPD;
+
+                StorPortWriteRegisterUlong(AdapterExtension, &PortExtension->Port->IE, ie.Status);
+
+                cmd.ST = 1;
+                StorPortWriteRegisterUlong(AdapterExtension, &PortExtension->Port->CMD, cmd.Status);
+                cmd.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->CMD);
+
+                if (cmd.ST != 1)
+                {
+                    DebugPrint("\tFailed to start Port\n");
+                    return FALSE;
+                }
+
+                return TRUE;
+            }
+        case 0x4:
+            // no device found
+            return FALSE;
     }
 
-    DebugPrint("\tDET: %d %x %x\n", ssts.DET, PortExtension->Port->CMD, PortExtension->Port->SSTS);
+    DebugPrint("\tInvalid DET value: %x\n", ssts.DET);
     return FALSE;
 }// -- AhciStartPort();
 
@@ -294,10 +387,9 @@ AhciHwInitialize (
     __in PVOID AdapterExtension
     )
 {
-    ULONG ghc, messageCount, status, cmd, index;
+    ULONG ghc, index;
     PAHCI_PORT_EXTENSION PortExtension;
     PAHCI_ADAPTER_EXTENSION adapterExtension;
-    AHCI_SERIAL_ATA_STATUS ssts;
 
     DebugPrint("AhciHwInitialize()\n");
 
@@ -323,10 +415,6 @@ AhciHwInitialize (
         {
             PortExtension = &adapterExtension->PortExtension[index];
             PortExtension->IsActive = AhciStartPort(PortExtension);
-            if (PortExtension->IsActive == FALSE)
-            {
-                DebugPrint("\tPort Disabled: %d\n", index);
-            }
         }
     }
 
@@ -367,7 +455,7 @@ AhciCompleteIssuedSrb (
     {
         if (((1 << i) & CommandsToComplete) != 0)
         {
-            Srb = &PortExtension->Slot[i];
+            Srb = PortExtension->Slot[i];
             NT_ASSERT(Srb != NULL);
 
             if (Srb->SrbStatus == SRB_STATUS_PENDING)
@@ -501,13 +589,11 @@ AhciInterruptHandler (
  * return FALSE Indicates the interrupt was not ours.
  */
 BOOLEAN
-AhciHwInterrupt(
+AhciHwInterrupt (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension
     )
 {
     ULONG portPending, nextPort, i, portCount;
-
-    DebugPrint("AhciHwInterrupt()\n");
 
     if (AdapterExtension->StateFlags.Removed)
     {
@@ -515,6 +601,7 @@ AhciHwInterrupt(
     }
 
     portPending = StorPortReadRegisterUlong(AdapterExtension, AdapterExtension->IS);
+
     // we process interrupt for implemented ports only
     portCount = AdapterExtension->PortCount;
     portPending = portPending & AdapterExtension->PortImplemented;
@@ -523,6 +610,8 @@ AhciHwInterrupt(
     {
         return FALSE;
     }
+
+    DebugPrint("\tPortPending: %d\n", portPending);
 
     for (i = 1; i <= portCount; i++)
     {
@@ -750,10 +839,7 @@ AhciHwFindAdapter (
     __in PBOOLEAN Reserved3
     )
 {
-    ULONG ghc;
-    ULONG index;
-    ULONG portCount, portImplemented;
-    ULONG pci_cfg_len;
+    ULONG ghc, index, pci_cfg_len;
     UCHAR pci_cfg_buf[sizeof(PCI_COMMON_CONFIG)];
     PACCESS_RANGE accessRange;
 
@@ -762,6 +848,11 @@ AhciHwFindAdapter (
     PAHCI_ADAPTER_EXTENSION adapterExtension;
 
     DebugPrint("AhciHwFindAdapter()\n");
+
+    UNREFERENCED_PARAMETER(HwContext);
+    UNREFERENCED_PARAMETER(BusInformation);
+    UNREFERENCED_PARAMETER(ArgumentString);
+    UNREFERENCED_PARAMETER(Reserved3);
 
     adapterExtension = AdapterExtension;
     adapterExtension->SlotNumber = ConfigInfo->SlotNumber;
@@ -797,9 +888,9 @@ AhciHwFindAdapter (
     abar = NULL;
     if (ConfigInfo->NumberOfAccessRanges > 0)
     {
+        accessRange = *(ConfigInfo->AccessRanges);
         for (index = 0; index < ConfigInfo->NumberOfAccessRanges; index++)
         {
-            accessRange = *ConfigInfo->AccessRanges;
             if (accessRange[index].RangeStart.QuadPart == adapterExtension->AhciBaseAddress)
             {
                 abar = StorPortGetDeviceBase(adapterExtension,
@@ -902,8 +993,8 @@ DriverEntry (
     __in PVOID RegistryPath
     )
 {
+    ULONG status;
     HW_INITIALIZATION_DATA hwInitializationData;
-    ULONG i, status;
 
     DebugPrint("Storahci Loaded\n");
 
@@ -962,6 +1053,8 @@ AhciATA_CFIS (
 {
     PAHCI_COMMAND_TABLE cmdTable;
 
+    UNREFERENCED_PARAMETER(PortExtension);
+
     DebugPrint("AhciATA_CFIS()\n");
 
     cmdTable = (PAHCI_COMMAND_TABLE)SrbExtension;
@@ -1005,8 +1098,12 @@ AhciATAPI_CFIS (
     __in PAHCI_SRB_EXTENSION SrbExtension
     )
 {
+    UNREFERENCED_PARAMETER(PortExtension);
+    UNREFERENCED_PARAMETER(SrbExtension);
+
     DebugPrint("AhciATAPI_CFIS()\n");
 
+    return;
 }// -- AhciATAPI_CFIS();
 
 /**
@@ -1183,7 +1280,8 @@ AhciActivatePort (
     __in PAHCI_PORT_EXTENSION PortExtension
     )
 {
-    ULONG cmd, QueueSlots, slotToActivate, tmp;
+    AHCI_PORT_CMD cmd;
+    ULONG QueueSlots, slotToActivate, tmp;
     PAHCI_ADAPTER_EXTENSION AdapterExtension;
 
     DebugPrint("AhciActivatePort()\n");
@@ -1196,10 +1294,12 @@ AhciActivatePort (
 
     // section 3.3.14
     // Bits in this field shall only be set to ‘1’ by software when PxCMD.ST is set to ‘1’
-    cmd = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->CMD);
+    cmd.Status = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->CMD);
 
-    if ((cmd&1) == 0) // PxCMD.ST == 0
+    if (cmd.ST == 0) // PxCMD.ST == 0
+    {
         return;
+    }
 
     // get the lowest set bit
     tmp = QueueSlots & (QueueSlots - 1);
@@ -1215,6 +1315,8 @@ AhciActivatePort (
     // mark this CommandIssuedSlots
     // to validate in completeIssuedCommand
     PortExtension->CommandIssuedSlots |= slotToActivate;
+
+    DebugPrint("\tslotToActivate: %d\n", slotToActivate);
 
     // tell the HBA to issue this Command Slot to the given port
     StorPortWriteRegisterUlong(AdapterExtension, &PortExtension->Port->CI, slotToActivate);
@@ -1376,7 +1478,7 @@ InquiryCompletion (
  * @remark
  * http://www.seagate.com/staticfiles/support/disc/manuals/Interface%20manuals/100293068c.pdf
  */
-ULONG
+UCHAR
 DeviceInquiryRequest (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
     __in PSCSI_REQUEST_BLOCK Srb,
@@ -1546,10 +1648,10 @@ __inline
 BOOLEAN
 IsPortValid (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
-    __in UCHAR pathId
+    __in ULONG pathId
     )
 {
-    NT_ASSERT(pathId >= 0);
+    NT_ASSERT(pathId < MAXIMUM_AHCI_PORT_COUNT);
 
     if (pathId >= AdapterExtension->PortCount)
     {
@@ -1644,7 +1746,7 @@ GetSrbExtension (
     ULONG Offset;
     ULONG_PTR SrbExtension;
 
-    SrbExtension = Srb->SrbExtension;
+    SrbExtension = (ULONG_PTR)Srb->SrbExtension;
     Offset = SrbExtension % 128;
 
     // CommandTable should be 128 byte aligned
