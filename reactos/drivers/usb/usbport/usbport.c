@@ -210,17 +210,41 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtention;
     PIO_STACK_LOCATION IoStack;
+    ULONG IoCtl;
     NTSTATUS Status;
 
     PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
+    IoCtl = IoStack->Parameters.DeviceIoControl.IoControlCode;
 
     DPRINT("USBPORT_PdoScsi: PdoDevice - %p, Irp - %p, IoCtl - %x\n",
            PdoDevice,
            Irp,
-           IoStack->Parameters.DeviceIoControl.IoControlCode);
+           IoCtl);
 
-    if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
+    if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_URB)
+    {
+        PURB Urb = (PURB)IoStack->Parameters.Others.Argument1;
+
+        ASSERT(Urb);
+        Status = STATUS_NOT_IMPLEMENTED;
+
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Urb - %p, UrbFunction - 0x%02X\n",
+               Urb,
+               Urb->UrbHeader.Function);
+
+        Urb->UrbHeader.Status = 0;
+        Urb->UrbHeader.UsbdFlags = 0;
+
+        if (Status == STATUS_PENDING)
+        {
+            return Status;
+        }
+
+        goto Exit;
+    }
+
+    if (IoCtl == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
     {
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO\n");
 
@@ -234,7 +258,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         goto Exit;
     }
 
-    if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_HUB_COUNT)
+    if (IoCtl == IOCTL_INTERNAL_USB_GET_HUB_COUNT)
     {
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_HUB_COUNT\n");
 
@@ -245,7 +269,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         goto Exit;
     }
 
-    if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE)
+    if (IoCtl == IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE)
     {
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
 
