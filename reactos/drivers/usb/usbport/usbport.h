@@ -15,7 +15,8 @@
 #define URB_FUNCTION_MAX 0x31
 
 /* Flags */
-#define USBD_FLAG_ALLOCATED_MDL 0x00000002
+#define USBD_FLAG_ALLOCATED_MDL      0x0002
+#define USBD_FLAG_ALLOCATED_TRANSFER 0x0020
 
 extern KSPIN_LOCK USBPORT_SpinLock;
 extern LIST_ENTRY USBPORT_MiniPortDrivers;
@@ -29,9 +30,12 @@ typedef struct _USBPORT_COMMON_BUFFER_HEADER {
   ULONG_PTR PhysicalAddress;
 } USBPORT_COMMON_BUFFER_HEADER, *PUSBPORT_COMMON_BUFFER_HEADER;
 
+typedef struct _USBPORT_ENDPOINT *PUSBPORT_ENDPOINT;
+
 typedef struct _USBPORT_PIPE_HANDLE {
   USB_ENDPOINT_DESCRIPTOR EndpointDescriptor;
   UCHAR Padded;
+  PUSBPORT_ENDPOINT Endpoint;
 } USBPORT_PIPE_HANDLE, *PUSBPORT_PIPE_HANDLE;
 
 typedef struct _USBPORT_DEVICE_HANDLE { 
@@ -48,6 +52,7 @@ typedef struct _USBPORT_TRANSFER {
   PVOID MiniportTransfer;
   SIZE_T PortTransferLength; // Only port part
   SIZE_T FullTransferLength; // Port + miniport
+  PUSBPORT_ENDPOINT Endpoint;
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
