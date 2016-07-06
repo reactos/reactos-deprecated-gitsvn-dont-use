@@ -784,7 +784,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
         case IRP_MN_START_DEVICE: // 0
             DPRINT("IRP_MN_START_DEVICE\n");
 
-            Status = USBPORT_CreateRhDevice(FdoDevice, PdoDevice);
+            Status = USBPORT_RootHubCreateDevice(FdoDevice, PdoDevice);
             if (NT_SUCCESS(Status))
             {
                 Status = USBPORT_RegisterDeviceInterface(PdoDevice, TRUE);
