@@ -383,6 +383,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_CLASS_ENDPOINT: // 0x1C
             case URB_FUNCTION_CLASS_OTHER: // 0x1F
             case URB_FUNCTION_VENDOR_OTHER: // 0x20
+                Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
+                Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                ValidateTransferParameters(Urb);
                 ASSERT(FALSE);
                 break;
 
@@ -392,6 +395,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT: // 0x25
             case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE: // 0x28
             case URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE: // 0x29
+                Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
+                Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                ValidateTransferParameters(Urb);
                 ASSERT(FALSE);
                 break;
 
@@ -399,6 +405,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_GET_STATUS_FROM_INTERFACE: // 0x14
             case URB_FUNCTION_GET_STATUS_FROM_ENDPOINT: // 0x15
             case URB_FUNCTION_GET_STATUS_FROM_OTHER: // 0x21
+                Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
+                Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                ValidateTransferParameters(Urb);
                 ASSERT(FALSE);
                 break;
 
