@@ -31,6 +31,8 @@ USBPORT_RootHubCreateDevice(PDEVICE_OBJECT FdoDevice,
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     DeviceHandle = &PdoExtension->DeviceHandle;
 
+    InitializeListHead(&DeviceHandle->PipeHandleList);
+
     DeviceHandle->IsRootHub = 1;
     DeviceHandle->DeviceSpeed = 1; // 0-low, 1-full, 2-high
 
@@ -138,9 +140,10 @@ USBPORT_RootHubCreateDevice(PDEVICE_OBJECT FdoDevice,
         EndpointDescriptor->wMaxPacketSize = 0x0040;
         EndpointDescriptor->bInterval = 0x00;
 
-        ASSERT(FALSE);
-
-        Status = 0;
+        Status = USBPORT_OpenPipe(DeviceHandle,
+                                  FdoDevice,
+                                  &DeviceHandle->PipeHandle,
+                                  NULL);
     }
     else
     {

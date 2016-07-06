@@ -33,6 +33,7 @@ typedef ULONG
 typedef struct _USBPORT_REGISTRATION_PACKET {
   ULONG Version; // Type: 1 - OHCI, 2 - UHCI, 3 - EHCI
   ULONG MiniPortExtensionSize;
+  ULONG MiniPortEndpointSize;
   ULONG MiniPortTransferSize;
   ULONG MiniPortResourcesSize;
   PHCI_START_CONTROLLER StartController;
@@ -47,6 +48,17 @@ typedef struct _USBPORT_MINIPORT_INTERFACE {
   PDRIVER_UNLOAD DriverUnload;
   USBPORT_REGISTRATION_PACKET Packet;
 } USBPORT_MINIPORT_INTERFACE, *PUSBPORT_MINIPORT_INTERFACE;
+
+typedef struct _USBPORT_ENDPOINT_PROPERTIES {
+  USHORT DeviceAddress;
+  USHORT EndpointAddress;
+  USHORT MaxPacketSize;
+  UCHAR Period;
+  UCHAR Direction;
+  ULONG DeviceSpeed;
+  ULONG TransferType;
+  ULONG MaxTransferSize;
+} USBPORT_ENDPOINT_PROPERTIES, *PUSBPORT_ENDPOINT_PROPERTIES;
 
 typedef struct _USBPORT_SCATTER_GATHER_ELEMENT {
   PHYSICAL_ADDRESS SgPhysicalAddress;

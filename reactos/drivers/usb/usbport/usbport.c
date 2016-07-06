@@ -223,6 +223,8 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     FdoExtension->MiniPortInterface = MiniPortInterface;
     FdoExtension->FdoNameNumber = DeviceNumber;
 
+    InitializeListHead(&FdoExtension->EndpointList);
+
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
     return Status;
