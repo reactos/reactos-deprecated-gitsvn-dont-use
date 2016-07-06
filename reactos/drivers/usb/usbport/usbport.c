@@ -303,6 +303,57 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             UsbdDeviceHandle = &PdoExtension->DeviceHandle;
         }
 
+        switch (Function)
+        {
+            case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
+                ASSERT(FALSE);
+                break;
+
+            case URB_FUNCTION_CONTROL_TRANSFER: // 0x08
+                ASSERT(FALSE);
+                break;
+
+            case URB_FUNCTION_VENDOR_DEVICE: // 0x17
+            case URB_FUNCTION_VENDOR_INTERFACE: // 0x18
+            case URB_FUNCTION_VENDOR_ENDPOINT: // 0x19
+            case URB_FUNCTION_CLASS_DEVICE: // 0x1A
+            case URB_FUNCTION_CLASS_INTERFACE: // 0x1B
+            case URB_FUNCTION_CLASS_ENDPOINT: // 0x1C
+            case URB_FUNCTION_CLASS_OTHER: // 0x1F
+            case URB_FUNCTION_VENDOR_OTHER: // 0x20
+                ASSERT(FALSE);
+                break;
+
+            case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE: // 0x0B
+            case URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE: // 0x0C
+            case URB_FUNCTION_GET_DESCRIPTOR_FROM_ENDPOINT: // 0x24
+            case URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT: // 0x25
+            case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE: // 0x28
+            case URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE: // 0x29
+                ASSERT(FALSE);
+                break;
+
+            case URB_FUNCTION_GET_STATUS_FROM_DEVICE: // 0x13
+            case URB_FUNCTION_GET_STATUS_FROM_INTERFACE: // 0x14
+            case URB_FUNCTION_GET_STATUS_FROM_ENDPOINT: // 0x15
+            case URB_FUNCTION_GET_STATUS_FROM_OTHER: // 0x21
+                ASSERT(FALSE);
+                break;
+
+            case URB_FUNCTION_SELECT_CONFIGURATION: // 0x00
+                ASSERT(FALSE);
+                break;
+
+            case URB_FUNCTION_SELECT_INTERFACE: // 0x01
+                ASSERT(FALSE);
+                break;
+
+            default:
+                DPRINT("USBPORT_PdoScsi: default Function - %x\n", Function);
+                ASSERT(FALSE);
+                break;
+        }
+
         if (Status == STATUS_PENDING)
         {
             return Status;
