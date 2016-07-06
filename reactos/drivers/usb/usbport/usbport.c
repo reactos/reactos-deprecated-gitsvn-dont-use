@@ -252,13 +252,13 @@ NTSTATUS
 USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
 {
-    PUSBPORT_RHDEVICE_EXTENSION PdoExtention;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle;
     PIO_STACK_LOCATION IoStack;
     ULONG IoCtl;
     NTSTATUS Status;
 
-    PdoExtention = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     IoCtl = IoStack->Parameters.DeviceIoControl.IoControlCode;
 
@@ -270,6 +270,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
     if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_URB)
     {
         PURB Urb = (PURB)IoStack->Parameters.Others.Argument1;
+        USHORT Function = Urb->UrbHeader.Function;
 
         ASSERT(Urb);
         Status = STATUS_NOT_IMPLEMENTED;
@@ -297,8 +298,6 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
         if (!UsbdDeviceHandle)
         {
-            PdoExtension = (PUSBPORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
-  
             DPRINT("USBPORT_PdoScsi: UsbdDeviceHandle == 0\n");
             Urb->UrbHeader.UsbdDeviceHandle = &PdoExtension->DeviceHandle;
             UsbdDeviceHandle = &PdoExtension->DeviceHandle;
@@ -342,7 +341,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
 
         if ( IoStack->Parameters.Others.Argument1 )
-            *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtention->DeviceHandle;
+            *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtension->DeviceHandle;
 
         Status = STATUS_SUCCESS;
         goto Exit;
