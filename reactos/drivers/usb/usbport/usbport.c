@@ -294,7 +294,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             return Status;
         }
 
-        UsbdDeviceHandle = (PUSBPORT_RHDEVICE_EXTENSION)Urb->UrbHeader.UsbdDeviceHandle;
+        UsbdDeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
 
         if (!UsbdDeviceHandle)
         {
