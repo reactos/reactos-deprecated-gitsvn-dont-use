@@ -7,6 +7,50 @@ LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
 KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
 
+NTSTATUS
+USBPORT_USBDStatusToNtStatus(IN PURB Urb,
+                             IN USBD_STATUS USBDStatus)
+{
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %p\n",
+           Urb,
+           USBDStatus);
+
+    if (Urb)
+        Urb->UrbHeader.Status = USBDStatus;
+
+    switch (USBDStatus)
+    {
+        case USBD_STATUS_SUCCESS:
+            Status = STATUS_SUCCESS;
+            break;
+
+        case USBD_STATUS_INSUFFICIENT_RESOURCES:
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            break;
+
+        case USBD_STATUS_DEVICE_GONE:
+            Status = STATUS_DEVICE_NOT_CONNECTED;
+            break;
+
+        case USBD_STATUS_CANCELED:
+            Status = STATUS_CANCELLED;
+            break;
+
+        case USBD_STATUS_NOT_SUPPORTED:
+            Status = STATUS_NOT_SUPPORTED;
+            break;
+
+        default:
+            if (USBD_ERROR(Status))
+                Status = STATUS_UNSUCCESSFUL;
+            break;
+    }
+
+    return Result;
+}
+
 PUSBPORT_COMMON_BUFFER_HEADER
 USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
                              IN SIZE_T BufferLength)
