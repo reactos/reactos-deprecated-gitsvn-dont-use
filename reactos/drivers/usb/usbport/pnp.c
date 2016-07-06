@@ -166,6 +166,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         goto ExitWithError;
     }
 
+    KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
+
     KeInitializeDpc(&FdoExtension->IsrDpc, USBPORT_IsrDpc, FdoDevice);
 
     Status = IoConnectInterrupt(&FdoExtension->InterruptObject,
