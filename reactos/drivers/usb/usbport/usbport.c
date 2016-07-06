@@ -321,6 +321,7 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
     SIZE_T PortTransferLength;
     SIZE_T FullTransferLength;
     PUSBPORT_TRANSFER Transfer;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
     USBD_STATUS USBDStatus;
 
     DPRINT("USBPORT_AllocateTransfer: FdoDevice - %p, Urb - %p, UsbdDeviceHandle - %p, Irp - %p, Event - %p\n",
@@ -333,6 +334,7 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     TransferLength = Urb->UrbControlTransfer.TransferBufferLength;
+    PipeHandle = Urb->UrbControlTransfer.PipeHandle;
 
     if (TransferLength)
     {
@@ -356,12 +358,27 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
     if (Transfer)
     {
         RtlZeroMemory(Transfer, FullTransferLength);
+
+        Transfer->Irp = Irp;
+        Transfer->Urb = Urb;
+        Transfer->Endpoint = PipeHandle->Endpoint;
+        Transfer->Event = Event;
+        Transfer->PortTransferLength = PortTransferLength;
+        Transfer->FullTransferLength = FullTransferLength;
+
+        Transfer->MiniportTransfer = (PVOID)((ULONG_PTR)Transfer +
+                                             PortTransferLength);
+
+        Urb->UrbControlTransfer.hca.Reserved8[1] = (PVOID)USBD_FLAG_ALLOCATED_TRANSFER;
+
         USBDStatus = USBD_STATUS_SUCCESS;
     }
     else
     {
         USBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
     }
+
+    Urb->UrbControlTransfer.hca.Reserved8[0] = Transfer;
 
     DPRINT("USBPORT_AllocateTransfer: return USBDStatus - %x\n", USBDStatus);
     return USBDStatus;
