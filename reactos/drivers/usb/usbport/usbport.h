@@ -40,6 +40,16 @@ typedef struct _USBPORT_DEVICE_HANDLE {
   USBPORT_PIPE_HANDLE PipeHandle;
 } USBPORT_DEVICE_HANDLE, *PUSBPORT_DEVICE_HANDLE;
 
+typedef struct _USBPORT_TRANSFER {
+  ULONG Flags;
+  PIRP Irp;
+  PURB Urb;
+  PRKEVENT Event;
+  PVOID MiniportTransfer;
+  SIZE_T PortTransferLength; // Only port part
+  SIZE_T FullTransferLength; // Port + miniport
+} USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
+
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   PDEVICE_OBJECT SelfDevice; // SelfDevice
   PDEVICE_OBJECT LowerPdoDevice; // PhysicalDeviceObject
