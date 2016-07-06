@@ -248,6 +248,12 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
     // ...
 }
 
+VOID
+USBPORT_QueueTransferUrb(PURB Urb)
+{
+    DPRINT("USBPORT_QueueTransferUrb: Urb - %p\n", Urb);
+}
+
 NTSTATUS
 ValidateTransferParameters(IN PURB Urb)
 {
@@ -464,7 +470,7 @@ USBPORT_HandleGetSetDescriptor(PIRP Irp,
     DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->wLength         - %x\n",
            SetupPacket->wLength); // Urb->UrbControlDescriptorRequest.TransferBufferLength;
 
-    //USBPORT_QueueTransferUrb(Urb);
+    USBPORT_QueueTransferUrb(Urb);
 
     return STATUS_PENDING;
 }
