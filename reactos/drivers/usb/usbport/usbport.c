@@ -306,6 +306,67 @@ ValidateTransferParameters(IN PURB Urb)
     return STATUS_SUCCESS;
 }
 
+USBD_STATUS
+USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
+                         PURB Urb,
+                         PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+                         PIRP Irp,
+                         PRKEVENT Event)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    SIZE_T TransferLength;
+    PMDL Mdl;
+    ULONG_PTR VirtualAddr;
+    ULONG PagesNeed = 0;
+    SIZE_T PortTransferLength;
+    SIZE_T FullTransferLength;
+    PUSBPORT_TRANSFER Transfer;
+    USBD_STATUS USBDStatus;
+
+    DPRINT("USBPORT_AllocateTransfer: FdoDevice - %p, Urb - %p, UsbdDeviceHandle - %p, Irp - %p, Event - %p\n",
+           FdoDevice,
+           Urb,
+           UsbdDeviceHandle,
+           Irp,
+           Event);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    TransferLength = Urb->UrbControlTransfer.TransferBufferLength;
+
+    if (TransferLength)
+    {
+        Mdl = Urb->UrbControlTransfer.TransferBufferMDL;
+        VirtualAddr = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
+
+        PagesNeed = ADDRESS_AND_SIZE_TO_SPAN_PAGES(VirtualAddr,
+                                                   TransferLength);
+    }
+
+    PortTransferLength = sizeof(USBPORT_TRANSFER) +
+                         PagesNeed * sizeof(USBPORT_SCATTER_GATHER_ELEMENT);
+
+    FullTransferLength = PortTransferLength +
+                         FdoExtension->MiniPortInterface->Packet.MiniPortTransferSize;
+
+    Transfer = ExAllocatePoolWithTag(NonPagedPool,
+                                     FullTransferLength,
+                                     USB_PORT_TAG);
+
+    if (Transfer)
+    {
+        RtlZeroMemory(Transfer, FullTransferLength);
+        USBDStatus = USBD_STATUS_SUCCESS;
+    }
+    else
+    {
+        USBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    DPRINT("USBPORT_AllocateTransfer: return USBDStatus - %x\n", USBDStatus);
+    return USBDStatus;
+}
+
 NTSTATUS
 USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
@@ -398,7 +459,20 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
                 Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
+
+                Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
+                                                  Urb,
+                                                  UsbdDeviceHandle,
+                                                  Irp,
+                                                  NULL);
+
+                if (!NT_SUCCESS(Status))
+                {
+                    goto Exit;
+                }
+
                 ASSERT(FALSE);
+                Status = 0; // USBPORT_HandleGetSetDescriptor(Irp, Urb);
                 break;
 
             case URB_FUNCTION_GET_STATUS_FROM_DEVICE: // 0x13
