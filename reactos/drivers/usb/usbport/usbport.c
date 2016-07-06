@@ -48,7 +48,7 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
             break;
     }
 
-    return Result;
+    return Status;
 }
 
 PUSBPORT_COMMON_BUFFER_HEADER
