@@ -253,6 +253,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtention;
+    PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle;
     PIO_STACK_LOCATION IoStack;
     ULONG IoCtl;
     NTSTATUS Status;
@@ -279,6 +280,29 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
         Urb->UrbHeader.Status = 0;
         Urb->UrbHeader.UsbdFlags = 0;
+
+        if (Function > URB_FUNCTION_MAX)
+        {
+            Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                  USBD_STATUS_INVALID_URB_FUNCTION);
+
+            DPRINT("USBPORT_PdoScsi: !!! Unknown Function %x NOT IMPLEMENTED\n",
+                   Function);
+
+            //ASSERT(FALSE);
+            return Status;
+        }
+
+        UsbdDeviceHandle = (PUSBPORT_RHDEVICE_EXTENSION)Urb->UrbHeader.UsbdDeviceHandle;
+
+        if (!UsbdDeviceHandle)
+        {
+            PdoExtension = (PUSBPORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+  
+            DPRINT("USBPORT_PdoScsi: UsbdDeviceHandle == 0\n");
+            Urb->UrbHeader.UsbdDeviceHandle = &PdoExtension->DeviceHandle;
+            UsbdDeviceHandle = &PdoExtension->DeviceHandle;
+        }
 
         if (Status == STATUS_PENDING)
         {
