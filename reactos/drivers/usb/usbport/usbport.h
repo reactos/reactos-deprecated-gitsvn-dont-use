@@ -12,6 +12,7 @@
 #include "..\usbmport.h"
 
 #define USB_PORT_TAG 'pbsu'
+#define URB_FUNCTION_MAX 0x31
 
 extern KSPIN_LOCK USBPORT_SpinLock;
 extern LIST_ENTRY USBPORT_MiniPortDrivers;
