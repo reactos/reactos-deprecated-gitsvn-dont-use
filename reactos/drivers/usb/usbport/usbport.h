@@ -14,6 +14,9 @@
 #define USB_PORT_TAG 'pbsu'
 #define URB_FUNCTION_MAX 0x31
 
+/* Flags */
+#define USBD_FLAG_ALLOCATED_MDL 0x00000002
+
 extern KSPIN_LOCK USBPORT_SpinLock;
 extern LIST_ENTRY USBPORT_MiniPortDrivers;
 

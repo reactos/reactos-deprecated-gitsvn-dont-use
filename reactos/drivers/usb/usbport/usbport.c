@@ -48,7 +48,7 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
             break;
     }
 
-    return Status;
+    return USBD_STATUS_SUCCESS;
 }
 
 PUSBPORT_COMMON_BUFFER_HEADER
@@ -249,6 +249,64 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 }
 
 NTSTATUS
+ValidateTransferParameters(IN PURB Urb)
+{
+    struct _URB_CONTROL_TRANSFER *UrbTransfer;
+    PMDL Mdl;
+
+    DPRINT("ValidateTransferParameters: Urb - %p\n", Urb);
+
+    UrbTransfer = &Urb->UrbControlTransfer;
+
+    if (UrbTransfer->TransferBuffer == NULL &&
+        UrbTransfer->TransferBufferMDL == NULL &&
+        UrbTransfer->TransferBufferLength > 0)
+    {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    if ((UrbTransfer->TransferBuffer > 0 || UrbTransfer->TransferBufferMDL > 0) &&
+        UrbTransfer->TransferBufferLength == 0)
+    {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    if (UrbTransfer->TransferBuffer != NULL &&
+        UrbTransfer->TransferBufferMDL == NULL &&
+        UrbTransfer->TransferBufferLength != 0)
+    {
+        DPRINT("ValidateTransferParameters: TransferBuffer       - %p\n",
+               UrbTransfer->TransferBuffer);
+
+        DPRINT("ValidateTransferParameters: TransferBufferMDL    - %p\n",
+               UrbTransfer->TransferBufferMDL);
+
+        DPRINT("ValidateTransferParameters: TransferBufferLength - %p\n",
+               UrbTransfer->TransferBufferLength);
+
+        Mdl = IoAllocateMdl(UrbTransfer->TransferBuffer,
+                            UrbTransfer->TransferBufferLength,
+                            FALSE,
+                            FALSE,
+                            NULL);
+
+        if (!Mdl)
+        {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+
+        MmBuildMdlForNonPagedPool(Mdl);
+
+        UrbTransfer->TransferBufferMDL = Mdl;
+        UrbTransfer->hca.Reserved8[1] = (PVOID)USBD_FLAG_ALLOCATED_MDL;
+
+        DPRINT("ValidateTransferParameters: Mdl - %p\n", Mdl);
+    }
+
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
 USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
 {
@@ -256,7 +314,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
     PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle;
     PIO_STACK_LOCATION IoStack;
     ULONG IoCtl;
-    NTSTATUS Status;
+    NTSTATUS Status = 0;
 
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
@@ -305,6 +363,10 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
         switch (Function)
         {
+            case URB_FUNCTION_ISOCH_TRANSFER: // 0x10
+                ASSERT(FALSE);
+                break;
+
             case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
                 ASSERT(FALSE);
                 break;
