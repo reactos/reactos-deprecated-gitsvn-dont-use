@@ -42,6 +42,7 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     Endpoint->FdoDevice = FdoDevice;
     Endpoint->DeviceHandle = (PUSBPORT_DEVICE_HANDLE)DeviceHandle;
+    Endpoint->LockCounter = -1;
 
     InitializeListHead(&Endpoint->PendingTransferList);
     InitializeListHead(&Endpoint->TransferList);
