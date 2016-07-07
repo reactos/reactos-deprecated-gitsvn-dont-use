@@ -25,10 +25,6 @@
 #define AHCI_DEVICE_TYPE_NODEVICE           3
 
 // section 3.1.2
-#define AHCI_Global_HBA_CONTROL_HR          (1 << 0)
-#define AHCI_Global_HBA_CONTROL_IE          (1 << 1)
-#define AHCI_Global_HBA_CONTROL_MRSM        (1 << 2)
-#define AHCI_Global_HBA_CONTROL_AE          (1 << 31)
 #define AHCI_Global_HBA_CAP_S64A            (1 << 31)
 
 #define AHCI_ATA_CFIS_FisType               0
@@ -233,6 +229,20 @@ typedef union _AHCI_COMMAND_HEADER_DESCRIPTION
 
     ULONG Status;
 } AHCI_COMMAND_HEADER_DESCRIPTION;
+
+typedef union _AHCI_GHC
+{
+    struct
+    {
+        ULONG HR : 1;
+        ULONG IE : 1;
+        ULONG MRSM : 1;
+        ULONG RSV0 : 28;
+        ULONG AE : 1;
+    };
+
+    ULONG Status;
+} AHCI_GHC;
 
 // section 3.3.7
 typedef union _AHCI_PORT_CMD
@@ -606,3 +616,5 @@ C_ASSERT(FIELD_OFFSET(AHCI_PORT, SNTF) == 0x3C);
 C_ASSERT(FIELD_OFFSET(AHCI_PORT, FBS) == 0x40);
 C_ASSERT(FIELD_OFFSET(AHCI_PORT, RSV1) == 0x44);
 C_ASSERT(FIELD_OFFSET(AHCI_PORT, Vendor) == 0x70);
+
+C_ASSERT((sizeof(AHCI_COMMAND_TABLE) % 128) == 0);

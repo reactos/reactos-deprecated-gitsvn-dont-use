@@ -299,6 +299,7 @@ AhciStartPort (
                 {
                     // failed to start FIS DMA engine
                     // it can crash the driver later
+                    // so better to turn this port off
                     return FALSE;
                 }
 
@@ -367,8 +368,6 @@ AhciStartPort (
             return FALSE;
     }
 
-    DebugPrint("\tInvalid DET value: %x\n", ssts.DET);
-    return FALSE;
 }// -- AhciStartPort();
 
 /**
@@ -387,9 +386,11 @@ AhciHwInitialize (
     __in PVOID AdapterExtension
     )
 {
-    ULONG ghc, index;
+    ULONG index;
+    AHCI_GHC ghc;
     PAHCI_PORT_EXTENSION PortExtension;
     PAHCI_ADAPTER_EXTENSION adapterExtension;
+    MESSAGE_INTERRUPT_INFORMATION messageInfo;
 
     DebugPrint("AhciHwInitialize()\n");
 
@@ -397,13 +398,13 @@ AhciHwInitialize (
     adapterExtension->StateFlags.MessagePerPort = FALSE;
 
     // First check what type of interrupt/synchronization device is using
-    ghc = StorPortReadRegisterUlong(adapterExtension, &adapterExtension->ABAR_Address->GHC);
+    ghc.Status = StorPortReadRegisterUlong(adapterExtension, &adapterExtension->ABAR_Address->GHC);
 
     // When set to ‘1’ by hardware, indicates that the HBA requested more than one MSI vector
     // but has reverted to using the first vector only.  When this bit is cleared to ‘0’,
     // the HBA has not reverted to single MSI mode (i.e. hardware is already in single MSI mode,
     // software has allocated the number of messages requested
-    if ((ghc & AHCI_Global_HBA_CONTROL_MRSM) == 0)
+    if (ghc.MRSM == 0)
     {
         adapterExtension->StateFlags.MessagePerPort = TRUE;
         DebugPrint("\tMultiple MSI based message not supported\n");
@@ -600,6 +601,8 @@ AhciHwInterrupt (
         return FALSE;
     }
 
+    DebugPrint("AhciHwInterrupt()\n");
+
     portPending = StorPortReadRegisterUlong(AdapterExtension, AdapterExtension->IS);
 
     // we process interrupt for implemented ports only
@@ -616,7 +619,6 @@ AhciHwInterrupt (
     for (i = 1; i <= portCount; i++)
     {
         nextPort = (AdapterExtension->LastInterruptPort + i) % portCount;
-
         if ((portPending & (0x1 << nextPort)) == 0)
             continue;
 
@@ -751,7 +753,7 @@ AhciHwStartIo (
     }
 
     DebugPrint("\tUnknown function code recieved: %x\n", function);
-    Srb->SrbStatus = SRB_STATUS_BAD_FUNCTION;
+    Srb->SrbStatus = SRB_STATUS_INVALID_REQUEST;
     StorPortNotification(RequestComplete, adapterExtension, Srb);
     return TRUE;
 }// -- AhciHwStartIo();
@@ -839,7 +841,8 @@ AhciHwFindAdapter (
     __in PBOOLEAN Reserved3
     )
 {
-    ULONG ghc, index, pci_cfg_len;
+    ULONG index, pci_cfg_len;
+    AHCI_GHC ghc;
     UCHAR pci_cfg_buf[sizeof(PCI_COMMON_CONFIG)];
     PACCESS_RANGE accessRange;
 
@@ -919,9 +922,9 @@ AhciHwFindAdapter (
     // 10.1.2
     // 1. Indicate that system software is AHCI aware by setting GHC.AE to ‘1’.
     // 3.1.2 -- AE bit is read-write only if CAP.SAM is '0'
-    ghc = StorPortReadRegisterUlong(adapterExtension, &abar->GHC);
+    ghc.Status = StorPortReadRegisterUlong(adapterExtension, &abar->GHC);
     // AE := Highest Significant bit of GHC
-    if ((ghc & AHCI_Global_HBA_CONTROL_AE) != 0)// Hmm, controller was already in power state
+    if (ghc.AE != 0)// Hmm, controller was already in power state
     {
         // reset controller to have it in known state
         DebugPrint("\tAE Already set, Reset()\n");
@@ -932,9 +935,10 @@ AhciHwFindAdapter (
         }
     }
 
-    ghc = AHCI_Global_HBA_CONTROL_AE;// only AE=1
+    ghc.Status = 0;
+    ghc.AE = 1;// only AE=1
     // tell the controller that we know about AHCI
-    StorPortWriteRegisterUlong(adapterExtension, &abar->GHC, ghc);
+    StorPortWriteRegisterUlong(adapterExtension, &abar->GHC, ghc.Status);
 
     adapterExtension->IS = &abar->IS;
     adapterExtension->PortImplemented = StorPortReadRegisterUlong(adapterExtension, &abar->PI);
@@ -954,6 +958,11 @@ AhciHwFindAdapter (
     ConfigInfo->SynchronizationModel = StorSynchronizeFullDuplex;
     ConfigInfo->ScatterGather = TRUE;
 
+    // Turn IE -- Interrupt Enabled
+    ghc.Status = StorPortReadRegisterUlong(adapterExtension, &abar->GHC);
+    ghc.IE = 1;
+    StorPortWriteRegisterUlong(adapterExtension, &abar->GHC, ghc.Status);
+
     // allocate necessary resource for each port
     if (!AhciAllocateResourceForAdapter(adapterExtension, ConfigInfo))
     {
@@ -966,11 +975,6 @@ AhciHwFindAdapter (
         if ((adapterExtension->PortImplemented & (0x1 << index)) != 0)
             AhciPortInitialize(&adapterExtension->PortExtension[index]);
     }
-
-    // Turn IE -- Interrupt Enabled
-    ghc = StorPortReadRegisterUlong(adapterExtension, &abar->GHC);
-    ghc |= AHCI_Global_HBA_CONTROL_IE;
-    StorPortWriteRegisterUlong(adapterExtension, &abar->GHC, ghc);
 
     return SP_RETURN_FOUND;
 }// -- AhciHwFindAdapter();
@@ -1147,6 +1151,8 @@ AhciBuild_PRDT (
         {
             cmdTable->PRDT[index].DBAU = sgl->List[index].PhysicalAddress.HighPart;
         }
+
+        DebugPrint("\tPRDR[%d].DBA=%x\n", index, cmdTable->PRDT[index].DBA);
     }
 
     return sgl->NumberOfElements;
@@ -1193,10 +1199,12 @@ AhciProcessSrb (
         sig = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->SIG);
         if (sig == 0x101)
         {
+            DebugPrint("\tATA Device Found!\n");
             SrbExtension->CommandReg = IDE_COMMAND_IDENTIFY;
         }
         else
         {
+            DebugPrint("\tATAPI Device Found!\n");
             SrbExtension->CommandReg = IDE_COMMAND_ATAPI_IDENTIFY;
         }
     }
@@ -1226,6 +1234,7 @@ AhciProcessSrb (
     // Program the command header
     CommandHeader->DI.PRDTL = prdtlen; // number of entries in PRD table
     CommandHeader->DI.CFL = 5;
+    CommandHeader->DI.A = (SrbExtension->AtaFunction & ATA_FUNCTION_ATAPI_COMMAND) ? 1 : 0;
     CommandHeader->DI.W = (SrbExtension->Flags & ATA_FLAGS_DATA_OUT) ? 1 : 0;
     CommandHeader->DI.P = 0;    // ATA Specifications says so
     CommandHeader->DI.PMP = 0;  // Port Multiplier
@@ -1243,8 +1252,6 @@ AhciProcessSrb (
     CommandHeader->Reserved[3] = 0;
 
     // set CommandHeader CTBA
-    // I am really not sure if SrbExtension is 128 byte aligned or not
-    // Command FIS will not work if it is not so.
     CommandTablePhysicalAddress = StorPortGetPhysicalAddress(AdapterExtension,
                                                              NULL,
                                                              SrbExtension,
@@ -1281,6 +1288,7 @@ AhciActivatePort (
     )
 {
     AHCI_PORT_CMD cmd;
+    ULONG sact, ci;
     ULONG QueueSlots, slotToActivate, tmp;
     PAHCI_ADAPTER_EXTENSION AdapterExtension;
 
@@ -1300,6 +1308,9 @@ AhciActivatePort (
     {
         return;
     }
+
+    sact = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->SACT);
+    ci = StorPortReadRegisterUlong(AdapterExtension, &PortExtension->Port->CI);
 
     // get the lowest set bit
     tmp = QueueSlots & (QueueSlots - 1);
@@ -1514,7 +1525,7 @@ DeviceInquiryRequest (
         SrbExtension->LBA0 = 0;
         SrbExtension->LBA1 = 0;
         SrbExtension->LBA2 = 0;
-        SrbExtension->Device = 0;
+        SrbExtension->Device = 0xA0;
         SrbExtension->LBA3 = 0;
         SrbExtension->LBA4 = 0;
         SrbExtension->LBA5 = 0;
@@ -1573,7 +1584,8 @@ AhciAdapterReset (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension
     )
 {
-    ULONG ghc, ticks, ghcStatus;
+    ULONG ticks;
+    AHCI_GHC ghc;
     PAHCI_MEMORY_REGISTERS abar = NULL;
 
     DebugPrint("AhciAdapterReset()\n");
@@ -1585,13 +1597,13 @@ AhciAdapterReset (
     }
 
     // HR -- Very first bit (lowest significant)
-    ghc = AHCI_Global_HBA_CONTROL_HR;
-    StorPortWriteRegisterUlong(AdapterExtension, &abar->GHC, ghc);
+    ghc.HR = 1;
+    StorPortWriteRegisterUlong(AdapterExtension, &abar->GHC, ghc.Status);
 
     for (ticks = 0; ticks < 50; ++ticks)
     {
-        ghcStatus = StorPortReadRegisterUlong(AdapterExtension, &abar->GHC);
-        if ((ghcStatus & AHCI_Global_HBA_CONTROL_HR) == 0)
+        ghc.Status = StorPortReadRegisterUlong(AdapterExtension, &abar->GHC);
+        if (ghc.HR == 0)
         {
             break;
         }
