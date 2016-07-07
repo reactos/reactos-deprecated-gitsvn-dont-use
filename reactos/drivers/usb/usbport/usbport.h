@@ -74,6 +74,7 @@ typedef struct _USBPORT_ENDPOINT {
   ULONG StateNext;
   LIST_ENTRY EndpointLink;
   LIST_ENTRY PendingTransferList;
+  LIST_ENTRY TransferList;
 } USBPORT_ENDPOINT, *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_TRANSFER {
