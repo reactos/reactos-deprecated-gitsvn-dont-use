@@ -124,6 +124,9 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   PUSBPORT_COMMON_BUFFER_HEADER MiniPortCommonBuffer;
   LIST_ENTRY EndpointList;
   KSPIN_LOCK EndpointListSpinLock;
+  LIST_ENTRY DoneTransferList;
+  KSPIN_LOCK DoneTransferSpinLock;
+  KDPC TransferFlushDpc;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
@@ -162,6 +165,14 @@ USBPORT_GetHciMn(VOID);
 VOID
 NTAPI
 USBPORT_IsrDpc(
+  IN PRKDPC Dpc,
+  IN PVOID DeferredContext,
+  IN PVOID SystemArgument1,
+  IN PVOID SystemArgument2);
+
+VOID
+NTAPI
+USBPORT_TransferFlushDpc(
   IN PRKDPC Dpc,
   IN PVOID DeferredContext,
   IN PVOID SystemArgument1,

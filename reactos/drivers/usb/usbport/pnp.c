@@ -167,8 +167,13 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     }
 
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
+    KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
 
     KeInitializeDpc(&FdoExtension->IsrDpc, USBPORT_IsrDpc, FdoDevice);
+
+    KeInitializeDpc(&FdoExtension->TransferFlushDpc,
+                    USBPORT_TransferFlushDpc,
+                    FdoDevice);
 
     Status = IoConnectInterrupt(&FdoExtension->InterruptObject,
                                 USBPORT_InterruptService,
