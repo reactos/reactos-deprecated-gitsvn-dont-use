@@ -43,6 +43,8 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
     Endpoint->FdoDevice = FdoDevice;
     Endpoint->DeviceHandle = (PUSBPORT_DEVICE_HANDLE)DeviceHandle;
 
+    InitializeListHead(&Endpoint->PendingTransferList);
+
     EndpointProperties = &Endpoint->EndpointProperties;
     EndpointDescriptor = &PipeHandle->EndpointDescriptor;
 
