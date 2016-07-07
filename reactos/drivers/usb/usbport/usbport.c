@@ -251,6 +251,46 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 }
 
 VOID
+USBPORT_EndpointWorker(PUSBPORT_ENDPOINT Endpoint,
+                       BOOLEAN Flag)
+{
+    DPRINT("USBPORT_EndpointWorker: Endpoint - %p, Flag - %x\n",
+           Endpoint,
+           Flag);
+
+    if (Flag == FALSE)
+    {
+        if (InterlockedIncrement(&Endpoint->LockCounter))
+        {
+            InterlockedDecrement(&Endpoint->LockCounter);
+            DPRINT("USBPORT_EndpointWorker: LockCounter > 0\n");
+            return;
+        }
+    }
+
+    if (!IsListEmpty(&Endpoint->PendingTransferList) ||
+        !IsListEmpty(&Endpoint->TransferList))
+    {
+        if (Endpoint->StateLast == Endpoint->StateNext)
+        {
+            if (Endpoint->EndpointWorker)
+            {
+                ASSERT(FALSE);
+            }
+            else
+            {
+                ASSERT(FALSE);
+            }
+
+            InterlockedDecrement(&Endpoint->LockCounter);
+            return;
+        }
+    }
+
+    InterlockedDecrement(&Endpoint->LockCounter);
+}
+
+VOID
 USBPORT_FlushPendingTransfers(PUSBPORT_ENDPOINT Endpoint)
 {
     BOOLEAN IsMapTransfer;
