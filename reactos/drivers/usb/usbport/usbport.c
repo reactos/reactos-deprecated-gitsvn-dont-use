@@ -639,6 +639,94 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
 }
 
 NTSTATUS
+USBPORT_HandleVendorOrClass(PIRP Irp,
+                            PURB Urb)
+{
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+
+    // Specifies a value, from 4 to 31 inclusive, that becomes part of the request type code in the USB-defined setup packet.
+    // This value is defined by USB for a class request or the vendor for a vendor request. 
+
+    SetupPacket->bmRequestType._BM.Dir = Urb->UrbControlTransfer.TransferFlags & 1;
+    SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
+
+    Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK; // 2
+
+    switch (Urb->UrbHeader.Function)
+    {
+        case URB_FUNCTION_VENDOR_DEVICE: // 0x17
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_DEVICE\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            break;
+
+        case URB_FUNCTION_VENDOR_INTERFACE: // 0x18
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_INTERFACE\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            break;
+
+        case URB_FUNCTION_VENDOR_ENDPOINT: // 0x19
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_ENDPOINT\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            break;
+
+        case URB_FUNCTION_CLASS_DEVICE: // 0x1A
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_DEVICE\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            break;
+
+        case URB_FUNCTION_CLASS_INTERFACE: // 0x1B
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_INTERFACE\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            break;
+
+        case URB_FUNCTION_CLASS_ENDPOINT: // 0x1C
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_ENDPOINT\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            break;
+
+        case URB_FUNCTION_CLASS_OTHER: // 0x1F
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_OTHER\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            break;
+
+        case URB_FUNCTION_VENDOR_OTHER: // 0x20
+            DPRINT("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_OTHER\n");
+            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            break;
+    }
+
+    DPRINT("USBPORT_HandleVendorOrClass: bmRequestType.B - %x\n",
+           SetupPacket->bmRequestType.B);
+
+    DPRINT("USBPORT_HandleVendorOrClass: bRequest        - %x\n",
+           SetupPacket->bRequest);
+
+    DPRINT("USBPORT_HandleVendorOrClass: wValue.LowByte  - %x\n",
+           SetupPacket->wValue.LowByte);
+
+    DPRINT("USBPORT_HandleVendorOrClass: wValue.HiByte   - %x\n",
+           SetupPacket->wValue.HiByte);
+
+    DPRINT("USBPORT_HandleVendorOrClass: wIndex.W        - %x\n",
+           SetupPacket->wIndex.W);
+
+    DPRINT("USBPORT_HandleVendorOrClass: wLength         - %x\n",
+           SetupPacket->wLength);
+
+    USBPORT_QueueTransferUrb(Urb);
+
+    return STATUS_PENDING;
+}
+
+NTSTATUS
 USBPORT_HandleGetSetDescriptor(PIRP Irp,
                                PURB Urb)
 {
@@ -803,7 +891,18 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
                 Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
-                ASSERT(FALSE);
+                Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
+                                                  Urb,
+                                                  UsbdDeviceHandle,
+                                                  Irp,
+                                                  NULL);
+
+                if (!NT_SUCCESS(Status))
+                {
+                    goto Exit;
+                }
+
+                Status = USBPORT_HandleVendorOrClass(Irp, Urb);
                 break;
 
             case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE: // 0x0B
