@@ -253,7 +253,36 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 VOID
 USBPORT_QueueTransferUrb(PURB Urb)
 {
+    PUSBPORT_TRANSFER Transfer;
+    PUSBPORT_ENDPOINT Endpoint;
+
     DPRINT("USBPORT_QueueTransferUrb: Urb - %p\n", Urb);
+
+    if (Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER)
+        Urb->UrbHeader.Function = URB_FUNCTION_CONTROL_TRANSFER;
+
+    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Endpoint = Transfer->Endpoint;
+
+    Endpoint->Flags &= ~ENDPOINT_FLAG_QUEUENE_EMPTY;
+
+    Transfer->TransferParameters.TransferBufferLength = Urb->UrbControlTransfer.TransferBufferLength;
+    Transfer->TransferParameters.TransferFlags = Urb->UrbControlTransfer.TransferFlags;
+
+    Transfer->TransferBufferMDL = Urb->UrbControlTransfer.TransferBufferMDL;
+    Transfer->Direction = ((Urb->UrbControlTransfer.TransferFlags & 1) == 0) + 1;
+
+    if (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_CONTROL)
+    {
+        RtlCopyMemory(&Transfer->TransferParameters.SetupPacket,
+                      Urb->UrbControlTransfer.SetupPacket,
+                      sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+    }
+
+    DPRINT("... URB TransferBufferLength - %x\n",
+           Urb->UrbControlTransfer.TransferBufferLength);
+
+    Urb->UrbControlTransfer.TransferBufferLength = 0;
 }
 
 NTSTATUS
