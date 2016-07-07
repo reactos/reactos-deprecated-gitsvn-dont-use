@@ -561,7 +561,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                     Status = STATUS_INSUFFICIENT_RESOURCES;
                     Irp->IoStatus.Information = 0;
                     Irp->IoStatus.Status = Status;
-                    IoCompleteRequest(Irp, 0);
+                    IoCompleteRequest(Irp, IO_NO_INCREMENT);
                     return Status;
                 }
 
