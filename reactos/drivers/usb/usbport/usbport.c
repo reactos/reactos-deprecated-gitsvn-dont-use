@@ -279,7 +279,7 @@ USBPORT_EndpointWorker(PUSBPORT_ENDPOINT Endpoint,
             }
             else
             {
-                ASSERT(FALSE);
+                USBPORT_RootHubEndpointWorker(Endpoint);
             }
 
             InterlockedDecrement(&Endpoint->LockCounter);

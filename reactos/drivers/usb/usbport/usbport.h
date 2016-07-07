@@ -205,6 +205,10 @@ USBPORT_PdoPnP(
 
 /* roothub.c */
 
+VOID
+USBPORT_RootHubEndpointWorker(
+  PUSBPORT_ENDPOINT Endpoint);
+
 NTSTATUS
 NTAPI
 USBPORT_RootHubCreateDevice(
