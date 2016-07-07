@@ -117,8 +117,9 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             break;
 
         case USB_REQUEST_GET_STATUS:
-            ASSERT(FALSE);
-            break;
+            *(PULONG)Buffer = 1; // FIXME
+            *TransferLength = 2;
+            return 0;
 
         default:
             ASSERT(FALSE);
