@@ -13,7 +13,7 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 {
     NTSTATUS Status;
 
-    DPRINT("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %p\n",
+    DPRINT("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %x\n",
            Urb,
            USBDStatus);
 
@@ -252,6 +252,62 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 }
 
 VOID
+USBPORT_CompleteTransfer(PURB Urb,
+                         USBD_STATUS TransferStatus)
+{
+    struct _URB_CONTROL_TRANSFER *UrbTransfer;
+    PUSBPORT_TRANSFER Transfer;
+    NTSTATUS Status;
+    PIRP Irp;
+    KIRQL OldIrql;
+    PRKEVENT Event;
+
+    DPRINT("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %p\n",
+           Urb,
+           TransferStatus);
+
+    UrbTransfer = &Urb->UrbControlTransfer;
+    Transfer = (PUSBPORT_TRANSFER)UrbTransfer->hca.Reserved8[0];
+
+    Transfer->USBDStatus = TransferStatus;
+    Status = USBPORT_USBDStatusToNtStatus(Urb, TransferStatus);
+
+    UrbTransfer->TransferBufferLength = Transfer->CompletedTransferLen;
+
+    if (Transfer->Flags & TRANSFER_FLAG_DMA_MAPPED)
+    {
+        ASSERT(FALSE);
+    }
+
+    if (UrbTransfer->hca.Reserved8[1] == (PVOID)USBD_FLAG_ALLOCATED_MDL)
+        IoFreeMdl(Transfer->TransferBufferMDL);
+
+    UrbTransfer->hca.Reserved8[0] = (PVOID)-1;
+    UrbTransfer->hca.Reserved8[2] = (PVOID)-1;
+
+    Irp = Transfer->Irp;
+
+    if (Irp)
+    {
+        Irp->IoStatus.Status = Status;
+        Irp->IoStatus.Information = 0;
+
+        KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+        KeLowerIrql(OldIrql);
+    }
+
+    Event = Transfer->Event;
+
+    if (Event)
+        KeSetEvent(Event, 1, FALSE);
+
+    ExFreePool(Transfer);
+
+    DPRINT("USBPORT_CompleteTransfer: exit\n");
+}
+
+VOID
 NTAPI
 USBPORT_TransferFlushDpc(PRKDPC Dpc,
                          PVOID DeferredContext,
@@ -262,6 +318,7 @@ USBPORT_TransferFlushDpc(PRKDPC Dpc,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PLIST_ENTRY DoneTransferList;
     PUSBPORT_TRANSFER Transfer;
+    PURB Urb;
 
     DPRINT("USBPORT_TransferFlushDpc: ... \n");
 
@@ -281,9 +338,10 @@ USBPORT_TransferFlushDpc(PRKDPC Dpc,
 
         RemoveHeadList(DoneTransferList);
 
+        Urb = Transfer->Urb;
         USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
 
-        ASSERT(FALSE);
+        USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
     }
 }
 
