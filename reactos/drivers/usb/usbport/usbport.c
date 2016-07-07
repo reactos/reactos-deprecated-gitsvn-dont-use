@@ -224,6 +224,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     FdoExtension->FdoNameNumber = DeviceNumber;
 
     InitializeListHead(&FdoExtension->EndpointList);
+    InitializeListHead(&FdoExtension->DoneTransferList);
 
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
@@ -248,6 +249,42 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
     // ...
     //MiniPortInterface->DriverUnload(DriverObject); // Call MiniPort _HCI_Unload
     // ...
+}
+
+VOID
+NTAPI
+USBPORT_TransferFlushDpc(PRKDPC Dpc,
+                         PVOID DeferredContext,
+                         PVOID SystemArgument1,
+                         PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PLIST_ENTRY DoneTransferList;
+    PUSBPORT_TRANSFER Transfer;
+
+    DPRINT("USBPORT_TransferFlushDpc: ... \n");
+
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    DoneTransferList = &FdoExtension->DoneTransferList;
+
+    while (TRUE)
+    {
+        if (IsListEmpty(DoneTransferList))
+            break;
+
+        Transfer = CONTAINING_RECORD(DoneTransferList->Flink,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
+
+        RemoveHeadList(DoneTransferList);
+
+        USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
+
+        ASSERT(FALSE);
+    }
 }
 
 VOID
