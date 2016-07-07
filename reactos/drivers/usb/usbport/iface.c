@@ -116,12 +116,55 @@ NTSTATUS
 USB_BUSIFFN
 USBHI_GetExtendedHubInformation(IN PVOID BusContext,
                                 IN PDEVICE_OBJECT HubPhysicalDeviceObject,
-                                OUT PVOID HubInfoBuffer,
+                                IN OUT PVOID HubInformationBuffer,
                                 IN ULONG HubInfoLen,
-                                OUT PULONG LenDataReturned)
+                                IN OUT PULONG LenDataReturned)
 {
-    DPRINT("USBHI_GetExtendedHubInformation \n");
-    ASSERT(FALSE);
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    ULONG NumPorts;
+    ULONG ix;
+    PUSB_EXTHUB_INFORMATION_0 HubInfoBuffer;
+
+    DPRINT("USBHI_GetExtendedHubInformation: ... \n");
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    HubInfoBuffer = (PUSB_EXTHUB_INFORMATION_0)HubInformationBuffer;
+
+    if (HubPhysicalDeviceObject != PdoDevice)
+    {
+        *LenDataReturned = 0;
+        return STATUS_NOT_SUPPORTED;
+    }
+
+    if (HubInfoLen < sizeof(USB_EXTHUB_INFORMATION_0))
+    {
+        *LenDataReturned = 0;
+        return STATUS_BUFFER_TOO_SMALL;
+    }
+
+    NumPorts = PdoExtension->RootHubDescriptors->Descriptor.bNumberOfPorts;
+    HubInfoBuffer->NumberOfPorts = NumPorts;
+
+    if (NumPorts == 0)
+    {
+        *LenDataReturned = sizeof(USB_EXTHUB_INFORMATION_0);
+        return STATUS_SUCCESS;
+    }
+
+    for (ix = 1; ix < HubInfoBuffer->NumberOfPorts; ++ix)
+    {
+        HubInfoBuffer->Port[ix].PhysicalPortNumber = ix + 1;
+        HubInfoBuffer->Port[ix].PortLabelNumber = ix + 1;
+        HubInfoBuffer->Port[ix].VidOverride = 0;
+        HubInfoBuffer->Port[ix].PidOverride = 0;
+        HubInfoBuffer->Port[ix].PortAttributes = 0; // USB_PORTATTR_SHARED_USB2; // FIXME
+    }
+
+    *LenDataReturned = sizeof(USB_EXTHUB_INFORMATION_0);
+
     return STATUS_SUCCESS;
 }
 
