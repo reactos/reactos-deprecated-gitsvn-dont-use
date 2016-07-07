@@ -3,10 +3,58 @@
 //#define NDEBUG
 #include <debug.h>
 
+ULONG
+USBPORT_RootHubEndpoint0(PUSBPORT_TRANSFER Transfer)
+{
+    SIZE_T TransferLength;
+    PVOID Buffer;
+    PURB Urb;
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+    UCHAR Type;
+    ULONG Result;
+
+    DPRINT("USBPORT_RootHubEndpoint0: Transfer - %p\n", Transfer);
+
+    TransferLength = Transfer->TransferParameters.TransferBufferLength;
+    Urb = Transfer->Urb;
+
+    if (TransferLength > 0)
+        Buffer = Urb->UrbControlTransfer.TransferBufferMDL->MappedSystemVa;
+    else
+        Buffer = NULL;
+
+    DPRINT("USBPORT_RootHubEndpoint0: Buffer - %p\n", Buffer);
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)Urb->UrbControlTransfer.SetupPacket;
+
+    Type = SetupPacket->bmRequestType._BM.Type;
+
+    if (Type != BMREQUEST_STANDARD)
+    {
+        Result = 0;
+        ASSERT(FALSE);
+    }
+    else if (Type != BMREQUEST_CLASS)
+    {
+        Result = 0;
+        ASSERT(FALSE);
+    }
+    else
+    {
+        return 1;
+    }
+
+    if (Result == 0)
+        Transfer->CompletedTransferLen = TransferLength;
+
+    return Result;
+}
+
 VOID
 USBPORT_RootHubEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
 {
     PUSBPORT_TRANSFER Transfer;
+    ULONG Result;
 
     DPRINT("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
 
@@ -23,9 +71,14 @@ USBPORT_RootHubEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
     }
 
     if (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_CONTROL)
-        ASSERT(FALSE);
+        Result = USBPORT_RootHubEndpoint0(Transfer);
     else
         ASSERT(FALSE);
+
+    if (Result == 0)
+    {
+        Transfer->USBDStatus = USBD_STATUS_SUCCESS;
+    }
 }
 
 NTSTATUS

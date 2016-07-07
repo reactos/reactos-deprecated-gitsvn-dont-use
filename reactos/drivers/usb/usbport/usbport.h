@@ -91,6 +91,8 @@ typedef struct _USBPORT_TRANSFER {
   PMDL TransferBufferMDL;
   ULONG Direction;
   LIST_ENTRY TransferLink;
+  USBD_STATUS USBDStatus;
+  ULONG CompletedTransferLen;
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
