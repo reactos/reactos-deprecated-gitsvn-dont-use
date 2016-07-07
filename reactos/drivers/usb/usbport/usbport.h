@@ -57,6 +57,12 @@ typedef struct _USBPORT_PIPE_HANDLE {
   LIST_ENTRY PipeLink;
 } USBPORT_PIPE_HANDLE, *PUSBPORT_PIPE_HANDLE;
 
+typedef struct _USBPORT_CONFIGURATION_HANDLE {
+  PUSB_CONFIGURATION_DESCRIPTOR ConfigurationDescriptor; // 00
+  LIST_ENTRY InterfaceHandleList; // 04
+  //USB_CONFIGURATION_DESCRIPTOR CfgDescriptor; // 12 Body
+} USBPORT_CONFIGURATION_HANDLE, *PUSBPORT_CONFIGURATION_HANDLE;
+
 typedef struct _USBPORT_DEVICE_HANDLE { 
   USHORT DeviceAddress;
   USHORT PortNumber;
@@ -64,6 +70,7 @@ typedef struct _USBPORT_DEVICE_HANDLE {
   ULONG DeviceSpeed;
   BOOL IsRootHub;
   LIST_ENTRY PipeHandleList;
+  PUSBPORT_CONFIGURATION_HANDLE ConfigHandle;
 } USBPORT_DEVICE_HANDLE, *PUSBPORT_DEVICE_HANDLE;
 
 typedef struct _USBPORT_ENDPOINT {
@@ -164,6 +171,11 @@ ULONG
 NTAPI
 USBPORT_GetHciMn(VOID);
 
+NTSTATUS
+USBPORT_USBDStatusToNtStatus(
+  IN PURB Urb,
+  IN USBD_STATUS USBDStatus);
+
 VOID
 NTAPI
 USBPORT_IsrDpc(
@@ -187,6 +199,13 @@ USBPORT_AllocateCommonBuffer(
   IN SIZE_T BufferLength);
 
 /* device.c */
+
+NTSTATUS
+USBPORT_HandleSelectConfiguration(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp,
+  IN PURB Urb);
+
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(

@@ -1023,7 +1023,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 break;
 
             case URB_FUNCTION_SELECT_CONFIGURATION: // 0x00
-                ASSERT(FALSE);
+                Status = USBPORT_HandleSelectConfiguration(PdoExtension->FdoDevice,
+                                                           Irp,
+                                                           Urb);
                 break;
 
             case URB_FUNCTION_SELECT_INTERFACE: // 0x01
