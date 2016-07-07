@@ -251,6 +251,62 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 }
 
 VOID
+USBPORT_FlushPendingTransfers(PUSBPORT_ENDPOINT Endpoint)
+{
+    BOOLEAN IsMapTransfer;
+    BOOLEAN IsEnd = FALSE;
+    PLIST_ENTRY List;
+    PUSBPORT_TRANSFER Transfer;
+    KIRQL PrevIrql;
+
+    DPRINT("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
+
+    while (TRUE)
+    {
+        IsMapTransfer = 0;
+
+        if (IsListEmpty(&Endpoint->PendingTransferList) ||
+            Endpoint->PendingTransferList.Flink == 0)
+        {
+            IsEnd = TRUE;
+            goto Worker;
+        }
+
+        List = Endpoint->PendingTransferList.Flink;
+        Transfer = CONTAINING_RECORD(List, USBPORT_TRANSFER, TransferLink);
+
+        RemoveEntryList(&Transfer->TransferLink);
+        Transfer->TransferLink.Flink = NULL;
+        Transfer->TransferLink.Blink = NULL;
+
+        if (Transfer->TransferParameters.TransferBufferLength == 0 ||
+            !(Endpoint->Flags & ENDPOINT_FLAG_DMA_TYPE))
+        {
+            InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
+            IsMapTransfer = 0;
+        }
+        else
+        {
+            ASSERT(FALSE);
+            IsMapTransfer = 1;
+        }
+
+        if (IsMapTransfer)
+        {
+            ASSERT(FALSE);
+        }
+
+Worker:
+        KeRaiseIrql(DISPATCH_LEVEL, &PrevIrql);
+        ASSERT(FALSE);
+        KeLowerIrql(PrevIrql);
+
+        if (IsEnd)
+            return;
+    }
+}
+
+VOID
 USBPORT_QueueTransferUrb(PURB Urb)
 {
     PUSBPORT_TRANSFER Transfer;
