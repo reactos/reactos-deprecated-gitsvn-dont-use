@@ -3,38 +3,110 @@
 //#define NDEBUG
 #include <debug.h>
 
-ULONG
-USBPORT_RootHubEndpoint0(PUSBPORT_TRANSFER Transfer)
+BOOLEAN
+USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
+                               IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
+                               IN PVOID Buffer,
+                               IN OUT PULONG TransferLength)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    SIZE_T Length;
+    PVOID Descriptor;
+    SIZE_T DescriptorLength;
+
+    DPRINT("USBPORT_RootHubStandardCommand: USB command - %x, TransferLength - %p\n",
+           SetupPacket->bRequest,
+           TransferLength);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+
+    switch (SetupPacket->bRequest)
+    {
+        case USB_REQUEST_GET_DESCRIPTOR:
+            switch (SetupPacket->wValue.HiByte)
+            {
+                case USB_DEVICE_DESCRIPTOR_TYPE:
+                    if (SetupPacket->wValue.LowByte ||
+                        !(SetupPacket->bmRequestType._BM.Dir))
+                        return 1;
+
+                    Descriptor = &PdoExtension->RootHubDescriptors->DeviceDescriptor;
+                    DescriptorLength = sizeof(USB_DEVICE_DESCRIPTOR);
+                    break;
+
+                case USB_CONFIGURATION_DESCRIPTOR_TYPE:
+                    if (SetupPacket->wValue.LowByte ||
+                        !(SetupPacket->bmRequestType._BM.Dir))
+                        return 1;
+
+                    Descriptor = &PdoExtension->RootHubDescriptors->ConfigDescriptor;
+                    DescriptorLength = sizeof(USB_CONFIGURATION_DESCRIPTOR) +
+                                       sizeof(USB_INTERFACE_DESCRIPTOR) +
+                                       sizeof(USB_ENDPOINT_DESCRIPTOR);
+                    break;
+
+                default:
+                    ASSERT(FALSE);
+                    break;
+            }
+
+            if (*TransferLength >= DescriptorLength)
+                Length = DescriptorLength;
+            else
+                Length = *TransferLength;
+
+            RtlCopyMemory(Buffer, Descriptor, Length);
+            *TransferLength = Length;
+            break;
+
+        case USB_REQUEST_GET_STATUS:
+            ASSERT(FALSE);
+            break;
+
+        default:
+            ASSERT(FALSE);
+            break;
+    }
+
+    return 0;
+}
+
+ULONG
+USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
+{
+    PDEVICE_OBJECT FdoDevice;
     SIZE_T TransferLength;
     PVOID Buffer;
     PURB Urb;
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     UCHAR Type;
-    ULONG Result;
+    BOOLEAN Result;
 
     DPRINT("USBPORT_RootHubEndpoint0: Transfer - %p\n", Transfer);
 
     TransferLength = Transfer->TransferParameters.TransferBufferLength;
     Urb = Transfer->Urb;
+    FdoDevice = Transfer->Endpoint->FdoDevice;
 
     if (TransferLength > 0)
         Buffer = Urb->UrbControlTransfer.TransferBufferMDL->MappedSystemVa;
     else
         Buffer = NULL;
 
-    DPRINT("USBPORT_RootHubEndpoint0: Buffer - %p\n", Buffer);
-
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)Urb->UrbControlTransfer.SetupPacket;
 
     Type = SetupPacket->bmRequestType._BM.Type;
 
-    if (Type != BMREQUEST_STANDARD)
+    if (Type == BMREQUEST_STANDARD)
     {
-        Result = 0;
-        ASSERT(FALSE);
+        Result = USBPORT_RootHubStandardCommand(FdoDevice,
+                                                SetupPacket,
+                                                Buffer,
+                                                &TransferLength);
     }
-    else if (Type != BMREQUEST_CLASS)
+    else if (Type == BMREQUEST_CLASS)
     {
         Result = 0;
         ASSERT(FALSE);
@@ -51,12 +123,17 @@ USBPORT_RootHubEndpoint0(PUSBPORT_TRANSFER Transfer)
 }
 
 VOID
-USBPORT_RootHubEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
+USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 {
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_TRANSFER Transfer;
     ULONG Result;
 
     DPRINT("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     Transfer = CONTAINING_RECORD(Endpoint->TransferList.Flink,
                                  USBPORT_TRANSFER,
@@ -78,12 +155,20 @@ USBPORT_RootHubEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
     if (Result == 0)
     {
         Transfer->USBDStatus = USBD_STATUS_SUCCESS;
+
+        RemoveEntryList(&Transfer->TransferLink);
+
+        ExInterlockedInsertTailList(&FdoExtension->DoneTransferList,
+                                    &Transfer->TransferLink,
+                                    &FdoExtension->DoneTransferSpinLock);
+
+        KeInsertQueueDpc(&FdoExtension->TransferFlushDpc, NULL, NULL);
     }
 }
 
 NTSTATUS
-USBPORT_RootHubCreateDevice(PDEVICE_OBJECT FdoDevice,
-                            PDEVICE_OBJECT PdoDevice)
+USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
+                            IN PDEVICE_OBJECT PdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
