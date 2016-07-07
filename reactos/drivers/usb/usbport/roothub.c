@@ -4,6 +4,61 @@
 #include <debug.h>
 
 BOOLEAN
+USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
+                            IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
+                            IN PVOID Buffer,
+                            IN PULONG BufferLength)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    ULONG Result = 1;
+
+    DPRINT("USBPORT_RootHubClassCommand: USB command - %x, BufferLength - %p\n",
+           SetupPacket->bRequest,
+           BufferLength);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+
+    switch (SetupPacket->bRequest)
+    {
+        case USB_REQUEST_GET_STATUS:
+            ASSERT(FALSE);
+            break;
+
+        case USB_REQUEST_CLEAR_FEATURE:
+            ASSERT(FALSE);
+            break;
+
+        case USB_REQUEST_SET_FEATURE:
+            ASSERT(FALSE);
+            break;
+
+        case USB_REQUEST_GET_DESCRIPTOR:
+            if (Buffer &&
+                SetupPacket->bmRequestType._BM.Dir == BMREQUEST_DEVICE_TO_HOST)
+            {
+                SIZE_T DescriptorLength;
+
+                DescriptorLength = PdoExtension->RootHubDescriptors->Descriptor.bDescriptorLength;
+  
+                if (*BufferLength < DescriptorLength)
+                    DescriptorLength = *BufferLength;
+  
+                RtlCopyMemory(Buffer,
+                              &PdoExtension->RootHubDescriptors->Descriptor,
+                              DescriptorLength);
+    
+                *BufferLength = DescriptorLength;
+                Result = 0;
+            }
+            break;
+    }
+
+    return Result;
+}
+
+BOOLEAN
 USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                                IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
                                IN PVOID Buffer,
@@ -108,8 +163,10 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
     }
     else if (Type == BMREQUEST_CLASS)
     {
-        Result = 0;
-        ASSERT(FALSE);
+        Result = USBPORT_RootHubClassCommand(FdoDevice,
+                                             SetupPacket,
+                                             Buffer,
+                                             &TransferLength);
     }
     else
     {
