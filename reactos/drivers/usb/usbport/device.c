@@ -138,3 +138,128 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     return Status;
 }
+
+NTSTATUS
+USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
+                                  IN PIRP Irp,
+                                  IN PURB Urb)
+{
+    PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PUSBPORT_CONFIGURATION_HANDLE ConfigHandle = NULL;
+    PUSBD_INTERFACE_INFORMATION InterfaceInfo;
+    ULONG iNumber;
+    //ULONG ix;
+    USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+    NTSTATUS Status = 0;
+    USBD_STATUS USBDStatus = 0;
+
+    DPRINT("USBPORT_HandleSelectConfiguration: ... \n");
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    ConfigDescriptor = Urb->UrbSelectConfiguration.ConfigurationDescriptor;
+
+    DPRINT("USBPORT_SelectConfiguration: ConfigDescriptor %x\n",
+           ConfigDescriptor);
+
+    if (!ConfigDescriptor)
+    {
+        ASSERT(FALSE);
+        goto Exit;
+    }
+
+    InterfaceInfo = &Urb->UrbSelectConfiguration.Interface;
+
+    iNumber = 0;
+
+    do
+    {
+        ++iNumber;
+        InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)((ULONG_PTR)InterfaceInfo +
+                                                      InterfaceInfo->Length);
+    }
+    while ((ULONG_PTR)InterfaceInfo < (ULONG_PTR)Urb + Urb->UrbHeader.Length);
+
+    if ((iNumber > 0) && (iNumber == ConfigDescriptor->bNumInterfaces))
+    {
+        ConfigHandle = (PUSBPORT_CONFIGURATION_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
+                                                                            ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE),
+                                                                            USB_PORT_TAG);
+
+        if (ConfigHandle)
+        {
+            RtlZeroMemory(ConfigHandle,
+                          ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE));
+
+            InitializeListHead(&ConfigHandle->InterfaceHandleList);
+
+            ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)ConfigHandle +
+                                                                                    sizeof(USBPORT_CONFIGURATION_HANDLE));
+
+            RtlCopyMemory(ConfigHandle->ConfigurationDescriptor,
+                          ConfigDescriptor,
+                          ConfigDescriptor->wTotalLength);
+
+            RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+            SetupPacket.bmRequestType.B = 0;
+            SetupPacket.bRequest = USB_REQUEST_SET_CONFIGURATION;
+            SetupPacket.wValue.W = ConfigDescriptor->bConfigurationValue;
+            SetupPacket.wIndex.W = 0;
+            SetupPacket.wLength = 0;
+
+            ASSERT(FALSE);
+
+            if (USBD_SUCCESS(USBDStatus))
+            {
+                if (iNumber <= 0)
+                {
+                    Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                          USBD_STATUS_SUCCESS);
+
+                    goto Exit;
+                }
+
+                InterfaceInfo = &Urb->UrbSelectConfiguration.Interface;
+
+                //ix = 0;
+
+                while (TRUE)
+                {
+                    ASSERT(FALSE);
+                }
+
+                Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+            }
+            else
+            {
+                Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                      USBD_STATUS_SET_CONFIG_FAILED);
+            }
+        }
+        else
+        {
+            Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                  USBD_STATUS_INSUFFICIENT_RESOURCES);
+        }
+    }
+    else
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR);
+    }
+
+Exit:
+
+    if (NT_SUCCESS(Status))
+    {
+        Urb->UrbSelectConfiguration.ConfigurationHandle = ConfigHandle;
+        DeviceHandle->ConfigHandle = ConfigHandle;
+    }
+    else
+    {
+        ASSERT(FALSE);
+    }
+
+    return Status;
+}
