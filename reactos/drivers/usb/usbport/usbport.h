@@ -73,6 +73,7 @@ typedef struct _USBPORT_ENDPOINT {
   ULONG StateLast;
   ULONG StateNext;
   LIST_ENTRY EndpointLink;
+  LIST_ENTRY PendingTransferList;
 } USBPORT_ENDPOINT, *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_TRANSFER {
@@ -84,6 +85,10 @@ typedef struct _USBPORT_TRANSFER {
   SIZE_T PortTransferLength; // Only port part
   SIZE_T FullTransferLength; // Port + miniport
   PUSBPORT_ENDPOINT Endpoint;
+  USBPORT_TRANSFER_PARAMETERS TransferParameters;
+  PMDL TransferBufferMDL;
+  ULONG Direction;
+  LIST_ENTRY TransferLink;
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {

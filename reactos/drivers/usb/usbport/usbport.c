@@ -255,6 +255,7 @@ USBPORT_QueueTransferUrb(PURB Urb)
 {
     PUSBPORT_TRANSFER Transfer;
     PUSBPORT_ENDPOINT Endpoint;
+    PIRP Irp;
 
     DPRINT("USBPORT_QueueTransferUrb: Urb - %p\n", Urb);
 
@@ -283,6 +284,31 @@ USBPORT_QueueTransferUrb(PURB Urb)
            Urb->UrbControlTransfer.TransferBufferLength);
 
     Urb->UrbControlTransfer.TransferBufferLength = 0;
+
+    Irp = Transfer->Irp;
+
+    if (Irp)
+        Irp->IoStatus.Status = STATUS_PENDING;
+
+    InsertTailList(&Endpoint->PendingTransferList, &Transfer->TransferLink);
+    Urb->UrbHeader.Status = USBD_STATUS_PENDING;
+
+    ASSERT(FALSE);
+
+    DPRINT("... URB TransferBufferLength - %x\n",
+           Urb->UrbControlTransfer.TransferBufferLength);
+
+    if (Urb->UrbControlTransfer.TransferBufferLength)
+    {
+        ULONG TransferBuffer;
+
+        TransferBuffer = (ULONG)Urb->UrbControlTransfer.TransferBuffer;
+        DPRINT("URB TransferBuffer - %p\n", TransferBuffer);
+        DPRINT("*TransferBuffer    - %p\n", *(PULONG)TransferBuffer);
+        DPRINT("*TransferBuffer+1  - %p\n", *(PULONG)(TransferBuffer+4));
+        DPRINT("*TransferBuffer+2  - %p\n", *(PULONG)(TransferBuffer+8));
+        DPRINT("*TransferBuffer+3  - %p\n", *(PULONG)(TransferBuffer+12));
+    }
 }
 
 NTSTATUS
