@@ -639,6 +639,78 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
 }
 
 NTSTATUS
+USBPORT_HandleGetStatus(PIRP Irp,
+                        PURB Urb)
+{
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+    NTSTATUS Status;
+
+    SetupPacket->bmRequestType.B = 0;
+    SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    SetupPacket->bRequest = USB_REQUEST_GET_STATUS;
+    SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
+    SetupPacket->wValue.W = 0;
+
+    switch (Urb->UrbHeader.Function)
+    {
+        case URB_FUNCTION_GET_STATUS_FROM_DEVICE: // 0x13
+            DPRINT("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_DEVICE\n");
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            break;
+
+        case URB_FUNCTION_GET_STATUS_FROM_INTERFACE: // 0x14
+            DPRINT("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_INTERFACE\n");
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            break;
+
+        case URB_FUNCTION_GET_STATUS_FROM_ENDPOINT: // 0x15
+            DPRINT("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_ENDPOINT\n");
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            break;
+
+        case URB_FUNCTION_GET_STATUS_FROM_OTHER: // 0x21
+            DPRINT("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_OTHER\n");
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            break;
+    }
+
+    if (SetupPacket->wLength == 2)
+    {
+        Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK; // 2
+
+        if (SetupPacket->bmRequestType._BM.Dir)
+            Urb->UrbControlTransfer.TransferFlags |= USBD_TRANSFER_DIRECTION_IN; // 1;
+        else
+            Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
+
+        DPRINT("USBPORT_HandleGetStatus: SetupPacket->bmRequestType.B - %x\n",
+               SetupPacket->bmRequestType.B);
+
+        DPRINT("USBPORT_HandleGetStatus: SetupPacket->bRequest        - %x\n",
+               SetupPacket->bRequest);
+
+        DPRINT("USBPORT_HandleGetStatus: SetupPacket->wIndex.W        - %x\n",
+               SetupPacket->wIndex.W);
+
+        DPRINT("USBPORT_HandleGetStatus: SetupPacket->wLength         - %x\n",
+               SetupPacket->wLength);
+
+        USBPORT_QueueTransferUrb(Urb);
+
+        Status = STATUS_PENDING;
+    }
+    else
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_INVALID_PARAMETER);
+
+        DPRINT1("USBPORT_HandleGetStatus: Bad wLength\n");
+    }
+
+    return Status;
+}
+
+NTSTATUS
 USBPORT_HandleVendorOrClass(PIRP Irp,
                             PURB Urb)
 {
@@ -936,7 +1008,18 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
                 Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
-                ASSERT(FALSE);
+                Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
+                                                  Urb,
+                                                  UsbdDeviceHandle,
+                                                  Irp,
+                                                  NULL);
+
+                if (!NT_SUCCESS(Status))
+                {
+                    goto Exit;
+                }
+
+                Status = USBPORT_HandleGetStatus(Irp, Urb);
                 break;
 
             case URB_FUNCTION_SELECT_CONFIGURATION: // 0x00
