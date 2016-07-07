@@ -3,6 +3,31 @@
 //#define NDEBUG
 #include <debug.h>
 
+VOID
+USBPORT_RootHubEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_TRANSFER Transfer;
+
+    DPRINT("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
+
+    Transfer = CONTAINING_RECORD(Endpoint->TransferList.Flink,
+                                 USBPORT_TRANSFER,
+                                 TransferLink);
+
+    if (IsListEmpty(&Endpoint->TransferList) ||
+        Endpoint->TransferList.Flink == NULL ||
+        !Transfer)
+    {
+        if (Endpoint->StateLast == USBPORT_ENDPOINT_CLOSED)
+            return;
+    }
+
+    if (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_CONTROL)
+        ASSERT(FALSE);
+    else
+        ASSERT(FALSE);
+}
+
 NTSTATUS
 USBPORT_RootHubCreateDevice(PDEVICE_OBJECT FdoDevice,
                             PDEVICE_OBJECT PdoDevice)
