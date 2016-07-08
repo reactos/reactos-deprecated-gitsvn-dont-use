@@ -171,6 +171,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG NumberMapRegs;
   PKINTERRUPT InterruptObject;
   KDPC IsrDpc;
+  ULONG MiniPortInterruptEnable;
   PUSBPORT_COMMON_BUFFER_HEADER MiniPortCommonBuffer;
   LIST_ENTRY EndpointList;
   KSPIN_LOCK EndpointListSpinLock;
