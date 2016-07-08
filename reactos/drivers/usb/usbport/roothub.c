@@ -3,6 +3,20 @@
 //#define NDEBUG
 #include <debug.h>
 
+ULONG
+USBPORT_SetBit(ULONG_PTR Address,
+               UCHAR Index)
+{
+    ULONG_PTR AddressBitMap;
+
+    DPRINT("USBPORT_SetBit ... \n");
+
+    AddressBitMap = Address + 4 * (Index >> 5);
+    *(ULONG_PTR *)AddressBitMap |= 1 << (Index & 0x1F);
+
+    return AddressBitMap;
+}
+
 BOOLEAN
 USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                             IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
@@ -286,6 +300,93 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
     return Result;
 }
 
+ULONG
+USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
+{
+    PUSBPORT_ENDPOINT Endpoint;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    ULONG TransferLength;
+    ULONG PortStatus = 0;
+    ULONG HubStatus = 0;
+    ULONG_PTR Buffer;
+    PURB Urb;
+    ULONG Result = 1; 
+    PUSB_HUB_DESCRIPTOR HubDescriptor;
+    UCHAR NumberOfPorts;
+    UCHAR ix;
+
+    DPRINT("USBPORT_RootHubSCE: Transfer - %p\n", Transfer);
+
+    Endpoint = Transfer->Endpoint;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)Endpoint->FdoDevice->DeviceExtension;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+    HubDescriptor = (PUSB_HUB_DESCRIPTOR)&PdoExtension->RootHubDescriptors->Descriptor;
+    NumberOfPorts = HubDescriptor->bNumberOfPorts;
+
+    Urb = Transfer->Urb;
+    TransferLength = Transfer->TransferParameters.TransferBufferLength;
+
+    if (TransferLength)
+        Buffer = (ULONG_PTR)Urb->UrbControlTransfer.TransferBufferMDL->MappedSystemVa;
+    else
+        Buffer = 0;
+
+    if (Buffer && TransferLength >= (NumberOfPorts / 8 + 1))
+    {
+        RtlZeroMemory((PVOID)Buffer, TransferLength);
+
+        if (NumberOfPorts)
+        {
+            ix = 0;
+
+            while (ix < 256)
+            {
+                if (FdoExtension->MiniPortInterface->Packet.RH_GetPortStatus(FdoExtension->MiniPortExt,
+                                                                             ix + 1,
+                                                                             &PortStatus))
+                    return 1;
+
+                if (PortStatus & 0x001F0000)
+                {
+                    USBPORT_SetBit(Buffer, ix + 1);
+                    Result = 0;
+                }
+
+                ++ix;
+
+                if (ix >= NumberOfPorts)
+                    break;
+            }
+        }
+
+        if (!FdoExtension->MiniPortInterface->Packet.RH_GetHubStatus(FdoExtension->MiniPortExt,
+                                                                     &HubStatus))
+        {
+            if (HubStatus & 0x300)
+            {
+                USBPORT_SetBit(Buffer, 0);
+                Result = 0;
+            }
+
+            if (Result == 0)
+            {
+                Urb->UrbControlTransfer.TransferBufferLength = TransferLength;
+                return Result;
+            }
+
+            if (Result == 1)
+            {
+                FdoExtension->MiniPortInterface->Packet.RH_EnableIrq(FdoExtension->MiniPortExt);
+            }
+
+            return Result;
+        }
+    }
+
+    return 1;
+}
+
 VOID
 USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 {
@@ -314,7 +415,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     if (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_CONTROL)
         Result = USBPORT_RootHubEndpoint0(Transfer);
     else
-        ASSERT(FALSE);
+        Result = USBPORT_RootHubSCE(Transfer);
 
     if (Result == 0)
     {
