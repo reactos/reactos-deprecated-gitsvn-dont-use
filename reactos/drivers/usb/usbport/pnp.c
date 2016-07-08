@@ -37,6 +37,50 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 }
 
 NTSTATUS
+USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
+                                IN PDEVICE_OBJECT DeviceObject,
+                                IN CONST GUID *InterfaceClassGuid,
+                                IN BOOLEAN Enable)
+{
+    PUSBPORT_RHDEVICE_EXTENSION DeviceExtension;
+    PUNICODE_STRING SymbolicLinkName;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_RegisterDeviceInterface ... \n");
+
+    DeviceExtension = (PUSBPORT_RHDEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    SymbolicLinkName = &DeviceExtension->CommonExtension.SymbolicLinkName;
+
+    if (Enable)
+    {
+        Status = IoRegisterDeviceInterface(PdoDevice,
+                                           InterfaceClassGuid,
+                                           NULL,
+                                           SymbolicLinkName);
+
+        if (NT_SUCCESS(Status))
+        {
+            Status = IoSetDeviceInterfaceState(SymbolicLinkName, TRUE);
+
+            if (NT_SUCCESS(Status))
+                DeviceExtension->CommonExtension.IsInterfaceEnabled = 1;
+        }
+    }
+    else if (DeviceExtension->CommonExtension.IsInterfaceEnabled)
+    {
+        // Disable device interface
+        Status = IoSetDeviceInterfaceState(SymbolicLinkName, FALSE);
+
+        if (NT_SUCCESS(Status))
+            RtlFreeUnicodeString(SymbolicLinkName);
+
+        DeviceExtension->CommonExtension.IsInterfaceEnabled = 0; // Disabled interface
+    }
+
+    return Status;
+}
+
+NTSTATUS
 NTAPI
 USBPORT_QueryPciBusInterface(IN PDEVICE_OBJECT FdoDevice)
 {
@@ -236,6 +280,11 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     {
         FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
     }
+
+    Status = USBPORT_RegisterDeviceInterface(FdoExtension->CommonExtension.LowerPdoDevice,
+                                             FdoDevice,
+                                             (CONST GUID *)&GUID_DEVINTERFACE_USB_HOST_CONTROLLER,
+                                             TRUE);
 
     if (NT_SUCCESS(Status))
         goto Exit;
@@ -715,49 +764,6 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
-                                IN BOOLEAN Enable)
-{
-    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
-    PUNICODE_STRING SymbolicLinkName;
-    NTSTATUS Status;
-
-    DPRINT("USBPORT_RegisterDeviceInterface ... \n");
-
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    SymbolicLinkName = &PdoExtension->RhSymbolicLinkName;
-
-    if (Enable)
-    {
-        Status = IoRegisterDeviceInterface(PdoDevice,
-                                           &GUID_DEVINTERFACE_USB_HUB,
-                                           0,
-                                           SymbolicLinkName);
-
-        if (NT_SUCCESS(Status))
-        {
-            Status = IoSetDeviceInterfaceState(SymbolicLinkName, TRUE);
-
-            if (NT_SUCCESS(Status))
-                PdoExtension->IsInterfaceEnabled = 1;
-        }
-    }
-    else if (PdoExtension->IsInterfaceEnabled)
-    {
-        // Disable device interface
-        Status = IoSetDeviceInterfaceState(SymbolicLinkName, FALSE);
-
-        if (NT_SUCCESS(Status))
-            RtlFreeUnicodeString(SymbolicLinkName);
-
-        PdoExtension->IsInterfaceEnabled = 0; // Disabled interface
-    }
-
-    return Status;
-}
-
-NTSTATUS
-NTAPI
 USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                IN PIRP Irp)
 {
@@ -794,7 +800,11 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             Status = USBPORT_RootHubCreateDevice(FdoDevice, PdoDevice);
             if (NT_SUCCESS(Status))
             {
-                Status = USBPORT_RegisterDeviceInterface(PdoDevice, TRUE);
+                Status = USBPORT_RegisterDeviceInterface(PdoDevice,
+                                                         PdoDevice,
+                                                         (CONST GUID *)&GUID_DEVINTERFACE_USB_HUB,
+                                                         TRUE);
+
                 if (NT_SUCCESS(Status))
                 {
                     ;// TODO Flags |= DeviceIsStarted;

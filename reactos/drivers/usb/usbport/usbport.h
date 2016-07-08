@@ -145,6 +145,8 @@ typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   PDEVICE_OBJECT LowerPdoDevice; // PhysicalDeviceObject
   PDEVICE_OBJECT LowerDevice; // TopOfStackDeviceObject
   ULONG IsPDO;
+  UNICODE_STRING SymbolicLinkName;
+  BOOL IsInterfaceEnabled;
 } USBPORT_COMMON_DEVICE_EXTENSION, *PUSBPORT_COMMON_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_DEVICE_EXTENSION {
@@ -187,8 +189,6 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
   ULONG Flags;
   PDEVICE_OBJECT FdoDevice;
   ULONG PdoNameNumber;
-  UNICODE_STRING RhSymbolicLinkName;
-  BOOL IsInterfaceEnabled;
   USBPORT_DEVICE_HANDLE DeviceHandle;
   PUSBPORT_RH_DESCRIPTORS RootHubDescriptors;
   PUSBPORT_ENDPOINT Endpoint;
