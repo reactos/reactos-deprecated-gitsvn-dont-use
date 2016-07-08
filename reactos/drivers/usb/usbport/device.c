@@ -379,6 +379,10 @@ USBPORT_InitInterfaceInfo(IN PUSBD_INTERFACE_INFORMATION InterfaceInfo,
                           IN PUSBPORT_CONFIGURATION_HANDLE ConfigHandle)
 {
     PUSB_INTERFACE_DESCRIPTOR Descriptor;
+    PUSBD_PIPE_INFORMATION Pipe;
+    USHORT Length;
+    ULONG PipeFlags;
+    ULONG NumberOfPipes;
     USBD_STATUS USBDStatus = USBD_STATUS_SUCCESS;
 
     DPRINT("USBPORT_InitInterfaceInfo: InterfaceInfo - %p, ConfigHandle - %p\n",
@@ -390,16 +394,59 @@ USBPORT_InitInterfaceInfo(IN PUSBD_INTERFACE_INFORMATION InterfaceInfo,
                                                       InterfaceInfo->AlternateSetting,
                                                       &InterfaceInfo->AlternateSetting);
 
+    Length = sizeof(USBD_INTERFACE_INFORMATION) +
+             sizeof(USBD_PIPE_INFORMATION);
+
     if (Descriptor)
     {
-        ASSERT(FALSE);
+        NumberOfPipes = Descriptor->bNumEndpoints;
+        Length = sizeof(USBD_INTERFACE_INFORMATION) + (NumberOfPipes - 1) * sizeof(USBD_PIPE_INFORMATION);
+
+        if (InterfaceInfo->Length >= Length)
+        {
+            InterfaceInfo->Class = 0;
+            InterfaceInfo->SubClass = 0;
+            InterfaceInfo->Protocol = 0;
+            InterfaceInfo->Reserved = 0;
+            InterfaceInfo->InterfaceHandle = 0;
+            InterfaceInfo->NumberOfPipes = NumberOfPipes;
+
+            if (NumberOfPipes > 0)
+            {
+                Pipe = InterfaceInfo->Pipes;
+
+                do
+                {
+                    Pipe->EndpointAddress = 0;
+                    Pipe->Interval = 0;
+                    Pipe->PipeType = 0;
+                    Pipe->PipeHandle = 0;
+
+                    PipeFlags = Pipe->PipeFlags;
+
+                    if (PipeFlags & ~USBD_PF_VALID_MASK)
+                        USBDStatus = USBD_STATUS_INVALID_PIPE_FLAGS;
+
+                    if (!(PipeFlags & USBD_PF_CHANGE_MAX_PACKET))
+                        Pipe->MaximumPacketSize = 0;
+
+                    Pipe += 1;
+                    --NumberOfPipes;
+                }
+                while (NumberOfPipes > 0);
+            }
+        }
+        else
+        {
+            USBDStatus = USBD_STATUS_BUFFER_TOO_SMALL;
+        }
     }
     else
     {
         USBDStatus = USBD_STATUS_INTERFACE_NOT_FOUND;
     }
 
-    ASSERT(FALSE);
+    InterfaceInfo->Length = Length;
     return USBDStatus;
 }
 
@@ -498,6 +545,9 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
                 {
                     USBDStatus = USBPORT_InitInterfaceInfo(InterfaceInfo,
                                                            ConfigHandle);
+
+                    if (USBD_SUCCESS(USBDStatus))
+                        ASSERT(FALSE);
 
                     if (USBD_ERROR(USBDStatus))
                         break;
