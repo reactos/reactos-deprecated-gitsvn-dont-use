@@ -53,7 +53,7 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 
 VOID
 NTAPI
-USBPORT_WorkerThread(PVOID StartContext)
+USBPORT_WorkerThread(IN PVOID StartContext)
 {
     PDEVICE_OBJECT FdoDevice;
     PDEVICE_OBJECT PdoDevice;
@@ -116,7 +116,7 @@ USBPORT_WorkerThread(PVOID StartContext)
 
 NTSTATUS
 NTAPI
-USBPORT_CreateWorkerThread(PDEVICE_OBJECT FdoDevice)
+USBPORT_CreateWorkerThread(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     NTSTATUS Status;
@@ -144,10 +144,10 @@ USBPORT_CreateWorkerThread(PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
-USBPORT_TimerDpc(PRKDPC Dpc,
-                 PVOID DeferredContext,
-                 PVOID SystemArgument1,
-                 PVOID SystemArgument2)
+USBPORT_TimerDpc(IN PRKDPC Dpc,
+                 IN PVOID DeferredContext,
+                 IN PVOID SystemArgument1,
+                 IN PVOID SystemArgument2)
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -194,8 +194,8 @@ USBPORT_TimerDpc(PRKDPC Dpc,
 
 BOOLEAN
 NTAPI
-USBPORT_StartTimer(PDEVICE_OBJECT FdoDevice,
-                   ULONG Time)
+USBPORT_StartTimer(IN PDEVICE_OBJECT FdoDevice,
+                   IN ULONG Time)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     LARGE_INTEGER DueTime = {{0, 0}};
@@ -426,8 +426,8 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 }
 
 VOID
-USBPORT_CompleteTransfer(PURB Urb,
-                         USBD_STATUS TransferStatus)
+USBPORT_CompleteTransfer(IN PURB Urb,
+                         IN USBD_STATUS TransferStatus)
 {
     struct _URB_CONTROL_TRANSFER *UrbTransfer;
     PUSBPORT_TRANSFER Transfer;
@@ -483,10 +483,10 @@ USBPORT_CompleteTransfer(PURB Urb,
 
 VOID
 NTAPI
-USBPORT_TransferFlushDpc(PRKDPC Dpc,
-                         PVOID DeferredContext,
-                         PVOID SystemArgument1,
-                         PVOID SystemArgument2)
+USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
+                         IN PVOID DeferredContext,
+                         IN PVOID SystemArgument1,
+                         IN PVOID SystemArgument2)
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -520,8 +520,8 @@ USBPORT_TransferFlushDpc(PRKDPC Dpc,
 }
 
 VOID
-USBPORT_EndpointWorker(PUSBPORT_ENDPOINT Endpoint,
-                       BOOLEAN Flag)
+USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
+                       IN BOOLEAN Flag)
 {
     DPRINT("USBPORT_EndpointWorker: Endpoint - %p, Flag - %x\n",
            Endpoint,
@@ -560,7 +560,7 @@ USBPORT_EndpointWorker(PUSBPORT_ENDPOINT Endpoint,
 }
 
 VOID
-USBPORT_FlushPendingTransfers(PUSBPORT_ENDPOINT Endpoint)
+USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 {
     BOOLEAN IsMapTransfer;
     BOOLEAN IsEnd = FALSE;
@@ -616,7 +616,7 @@ Worker:
 }
 
 VOID
-USBPORT_QueueTransferUrb(PURB Urb)
+USBPORT_QueueTransferUrb(IN PURB Urb)
 {
     PUSBPORT_TRANSFER Transfer;
     PUSBPORT_ENDPOINT Endpoint;
