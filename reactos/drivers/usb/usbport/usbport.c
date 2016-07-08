@@ -51,6 +51,51 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
     return USBD_STATUS_SUCCESS;
 }
 
+VOID
+NTAPI
+USBPORT_TimerDpc(PRKDPC Dpc,
+                 PVOID DeferredContext,
+                 PVOID SystemArgument1,
+                 PVOID SystemArgument2)
+{
+    DPRINT("USBPORT_TimerDpc: ... \n");
+    ASSERT(FALSE);
+    DPRINT("USBPORT_TimerDpc: exit\n");
+}
+
+BOOLEAN
+NTAPI
+USBPORT_StartTimer(PDEVICE_OBJECT FdoDevice,
+                   ULONG Time)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    LARGE_INTEGER DueTime = {{0, 0}};
+    ULONG TimeIncrement;
+    BOOLEAN Result;
+
+    DPRINT("USBPORT_StartTimer: FdoDevice - %p, Time - %x\n",
+           FdoDevice,
+           Time);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    TimeIncrement = KeQueryTimeIncrement();
+
+    FdoExtension->TimerFlags |= 1;
+    FdoExtension->TimerValue = Time;
+
+    KeInitializeTimer(&FdoExtension->TimerObject);
+    KeInitializeDpc(&FdoExtension->TimerDpc, USBPORT_TimerDpc, FdoDevice);
+
+    DueTime.QuadPart -= 10000 * Time + (TimeIncrement - 1);
+
+    Result = KeSetTimer(&FdoExtension->TimerObject,
+                        DueTime,
+                        &FdoExtension->TimerDpc);
+
+    return Result;
+}
+
 PUSBPORT_COMMON_BUFFER_HEADER
 USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
                              IN SIZE_T BufferLength)

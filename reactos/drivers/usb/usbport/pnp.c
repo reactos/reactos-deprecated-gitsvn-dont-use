@@ -281,6 +281,9 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
     }
 
+    FdoExtension->TimerValue = 500;
+    USBPORT_StartTimer((PVOID)FdoDevice, 500);
+
     Status = USBPORT_RegisterDeviceInterface(FdoExtension->CommonExtension.LowerPdoDevice,
                                              FdoDevice,
                                              (CONST GUID *)&GUID_DEVINTERFACE_USB_HOST_CONTROLLER,
