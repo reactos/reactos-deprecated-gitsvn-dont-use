@@ -11,6 +11,8 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    USHORT Port;
     ULONG Result = 1;
 
     DPRINT("USBPORT_RootHubClassCommand: USB command - %x, BufferLength - %p\n",
@@ -19,6 +21,9 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+    Port = SetupPacket->wIndex.W;
 
     switch (SetupPacket->bRequest)
     {
@@ -27,12 +32,103 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             break;
 
         case USB_REQUEST_CLEAR_FEATURE:
-            ASSERT(FALSE);
+            switch (SetupPacket->wValue.W)
+            {
+                case FEATURE_PORT_CONNECTION: // 0
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_ENABLE: // 1
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_SUSPEND: // 2
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_OVER_CURRENT: // 3
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_RESET: // 4
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_POWER: // 8
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_LOW_SPEED: // 9
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_C_PORT_CONNECTION: // 16
+                    Result = Packet->RH_ClearFeaturePortConnectChange(FdoExtension->MiniPortExt,
+                                                                      Port);
+                    return Result;
+                    break;
+
+                case FEATURE_C_PORT_ENABLE: // 17
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_C_PORT_SUSPEND: // 18
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_C_PORT_OVER_CURRENT: // 19
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_C_PORT_RESET: // 20
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                default:
+                    ASSERT(FALSE);
+                    return Result;
+            }
             break;
 
         case USB_REQUEST_SET_FEATURE:
-            ASSERT(FALSE);
-            break;
+            switch (SetupPacket->wValue.W)
+            {
+                case FEATURE_PORT_ENABLE: // 1
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_SUSPEND: // 2
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_RESET: // 4
+                    ASSERT(FALSE);
+                    return Result;
+                    break;
+
+                case FEATURE_PORT_POWER: // 8
+                    Result = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
+                                                            Port);
+                    return Result;
+                    break;
+
+                default:
+                    return Result;
+            }
+            return Result;
 
         case USB_REQUEST_GET_DESCRIPTOR:
             if (Buffer &&

@@ -20,6 +20,26 @@
 #define USB_PORT_TAG 'pbsu'
 #define URB_FUNCTION_MAX 0x31
 
+/* Hub Class Feature Selectors (Recipient - Port) */
+#define FEATURE_PORT_CONNECTION     0
+#define FEATURE_PORT_ENABLE         1
+#define FEATURE_PORT_SUSPEND        2
+#define FEATURE_PORT_OVER_CURRENT   3
+#define FEATURE_PORT_RESET          4
+#define FEATURE_PORT_POWER          8
+#define FEATURE_PORT_LOW_SPEED      9
+#define FEATURE_C_PORT_CONNECTION   16
+#define FEATURE_C_PORT_ENABLE       17
+#define FEATURE_C_PORT_SUSPEND      18
+#define FEATURE_C_PORT_OVER_CURRENT 19
+#define FEATURE_C_PORT_RESET        20
+
+/* Hub Class Feature Selectors (Recipient - Hub) */
+#define FEATURE_C_HUB_LOCAL_POWER  0 
+#define FEATURE_C_HUB_OVER_CURRENT 1
+
+/* Endpoint states */
+
 #define USBPORT_ENDPOINT_PAUSED 2
 #define USBPORT_ENDPOINT_ACTIVE 3
 #define USBPORT_ENDPOINT_CLOSED 4
