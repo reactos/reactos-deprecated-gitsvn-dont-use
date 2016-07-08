@@ -262,6 +262,21 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
 }
 
 NTSTATUS
+NTAPI
+USBPORT_InitInterfaceInfo(PUSBD_INTERFACE_INFORMATION InterfaceInfo,
+                          PUSBPORT_CONFIGURATION_HANDLE ConfigHandle)
+{
+    USBD_STATUS USBDStatus = USBD_STATUS_SUCCESS;
+
+    DPRINT("USBPORT_InitInterfaceInfo: InterfaceInfo - %p, ConfigHandle - %p\n",
+           InterfaceInfo,
+           ConfigHandle);
+
+    ASSERT(FALSE);
+    return USBDStatus;
+}
+
+NTSTATUS
 USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
                                   IN PIRP Irp,
                                   IN PURB Urb)
@@ -271,7 +286,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_CONFIGURATION_HANDLE ConfigHandle = NULL;
     PUSBD_INTERFACE_INFORMATION InterfaceInfo;
     ULONG iNumber;
-    //ULONG ix;
+    ULONG ix;
     USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     NTSTATUS Status = 0;
     USBD_STATUS USBDStatus = 0;
@@ -350,11 +365,24 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
                 InterfaceInfo = &Urb->UrbSelectConfiguration.Interface;
 
-                //ix = 0;
+                ix = 0;
 
                 while (TRUE)
                 {
-                    ASSERT(FALSE);
+                    USBDStatus = USBPORT_InitInterfaceInfo(InterfaceInfo,
+                                                           ConfigHandle);
+
+                    if (USBD_ERROR(USBDStatus))
+                        break;
+
+                    ++ix;
+
+                    if (ix >= iNumber)
+                    {
+                        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                              USBD_STATUS_SUCCESS);
+                        goto Exit;
+                    }
                 }
 
                 Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
