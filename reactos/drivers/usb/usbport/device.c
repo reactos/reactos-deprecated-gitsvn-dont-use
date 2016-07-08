@@ -261,6 +261,54 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
     return Status;
 }
 
+ULONG
+NTAPI
+USBPORT_GetInterfaceLength(IN PUSB_INTERFACE_DESCRIPTOR iDescriptor,
+                           IN ULONG EndDescriptors)
+{
+    SIZE_T Length;
+    PUSB_ENDPOINT_DESCRIPTOR Descriptor;
+    ULONG ix;
+
+    DPRINT("USBPORT_GetInterfaceLength ... \n");
+
+    Length = iDescriptor->bLength;
+    Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)iDescriptor + Length);
+
+    if (iDescriptor->bNumEndpoints)
+    {
+        ix = iDescriptor->bNumEndpoints;
+
+        do
+        {
+            while ((Descriptor->bDescriptorType != USB_ENDPOINT_DESCRIPTOR_TYPE) &&
+                   (Descriptor->bLength > 0))
+            {
+                Length += Descriptor->bLength;
+                Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
+                                                        Descriptor->bLength);
+            }
+
+            Length += Descriptor->bLength;
+            Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
+                                                    Descriptor->bLength);
+            --ix;
+        }
+        while (ix);
+    }
+
+    while (((ULONG_PTR)Descriptor < EndDescriptors) &&
+           (Descriptor->bDescriptorType != USB_INTERFACE_DESCRIPTOR_TYPE) &&
+           (Descriptor->bLength > 0))
+    {
+        Length += Descriptor->bLength;
+        Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
+                                                Descriptor->bLength);
+    }
+
+    return Length;
+}
+
 PUSB_INTERFACE_DESCRIPTOR
 USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor,
                                      IN UCHAR InterfaceNumber,
@@ -291,7 +339,9 @@ USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDesc
     while ((Descriptor < EndDescriptors) &&
            (iDescriptor->bInterfaceNumber != InterfaceNumber))
     {
-        Descriptor = 0; // (ULONG_PTR)iDescriptor + USBPORT_GetInterfaceLength(iDescriptor, EndDescriptors);
+        Descriptor = (ULONG_PTR)iDescriptor +
+                     USBPORT_GetInterfaceLength(iDescriptor, EndDescriptors);
+
         iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)Descriptor;
     }
 
@@ -307,7 +357,9 @@ USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDesc
             if (iDescriptor->bAlternateSetting == Alternate)
                 OutDescriptor = iDescriptor;
 
-            Descriptor = 0; // (ULONG_PTR)iDescriptor + USBPORT_GetInterfaceLength(iDescriptor, EndDescriptors);
+            Descriptor = (ULONG_PTR)iDescriptor +
+                         USBPORT_GetInterfaceLength(iDescriptor, EndDescriptors);
+
             iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)Descriptor;
 
             ++ix;
