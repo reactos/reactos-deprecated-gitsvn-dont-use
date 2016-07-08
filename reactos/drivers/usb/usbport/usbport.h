@@ -174,6 +174,10 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   LIST_ENTRY DoneTransferList;
   KSPIN_LOCK DoneTransferSpinLock;
   KDPC TransferFlushDpc;
+  ULONG TimerValue; // Timer period (500) msec. default
+  ULONG TimerFlags;
+  KTIMER TimerObject;
+  KDPC TimerDpc;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
@@ -230,6 +234,12 @@ USBPORT_TransferFlushDpc(
   IN PVOID DeferredContext,
   IN PVOID SystemArgument1,
   IN PVOID SystemArgument2);
+
+BOOLEAN
+NTAPI
+USBPORT_StartTimer(
+  PDEVICE_OBJECT FdoDevice,
+  ULONG Time);
 
 PUSBPORT_COMMON_BUFFER_HEADER
 NTAPI
