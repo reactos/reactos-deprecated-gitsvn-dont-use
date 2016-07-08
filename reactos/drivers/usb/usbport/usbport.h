@@ -193,6 +193,8 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
   PUSBPORT_RH_DESCRIPTORS RootHubDescriptors;
   PUSBPORT_ENDPOINT Endpoint;
   ULONG ConfigurationValue;
+  PRH_INIT_CALLBACK RootHubInitCallback;
+  PVOID RootHubInitContext;
 } USBPORT_RHDEVICE_EXTENSION, *PUSBPORT_RHDEVICE_EXTENSION;
 
 /* usbport.c */
