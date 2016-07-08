@@ -261,16 +261,91 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
     return Status;
 }
 
+PUSB_INTERFACE_DESCRIPTOR
+USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor,
+                                     IN UCHAR InterfaceNumber,
+                                     IN UCHAR Alternate,
+                                     OUT PUCHAR pAlternate)
+{
+    PUSB_CONFIGURATION_DESCRIPTOR TmpDescriptor;
+    PUSB_INTERFACE_DESCRIPTOR iDescriptor;
+    PUSB_INTERFACE_DESCRIPTOR OutDescriptor = NULL;
+    ULONG_PTR Descriptor = (ULONG_PTR)ConfigDescriptor;
+    ULONG EndDescriptors;
+    ULONG ix;
+
+    DPRINT("USBPORT_ParseConfigurationDescriptor ... \n");
+
+    if (pAlternate)
+        *pAlternate = 0;
+
+    for (TmpDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)ConfigDescriptor + ConfigDescriptor->bLength);
+         TmpDescriptor->bDescriptorType == USB_CONFIGURATION_DESCRIPTOR_TYPE && TmpDescriptor->bDescriptorType > 0;
+         TmpDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)TmpDescriptor + TmpDescriptor->bLength));
+
+    iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)TmpDescriptor;
+
+    EndDescriptors = (ULONG_PTR)ConfigDescriptor +
+                                ConfigDescriptor->wTotalLength;
+
+    while ((Descriptor < EndDescriptors) &&
+           (iDescriptor->bInterfaceNumber != InterfaceNumber))
+    {
+        Descriptor = 0; // (ULONG_PTR)iDescriptor + USBPORT_GetInterfaceLength(iDescriptor, EndDescriptors);
+        iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)Descriptor;
+    }
+
+    ix = 0;
+
+    if (Descriptor < EndDescriptors)
+    {
+        do
+        {
+            if (iDescriptor->bInterfaceNumber != InterfaceNumber)
+                break;
+
+            if (iDescriptor->bAlternateSetting == Alternate)
+                OutDescriptor = iDescriptor;
+
+            Descriptor = 0; // (ULONG_PTR)iDescriptor + USBPORT_GetInterfaceLength(iDescriptor, EndDescriptors);
+            iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)Descriptor;
+
+            ++ix;
+        }
+        while (Descriptor < EndDescriptors);
+
+        if ((ix > 1) && pAlternate)
+            *pAlternate = 1;
+    }
+
+    return OutDescriptor;
+}
+
 NTSTATUS
 NTAPI
-USBPORT_InitInterfaceInfo(PUSBD_INTERFACE_INFORMATION InterfaceInfo,
-                          PUSBPORT_CONFIGURATION_HANDLE ConfigHandle)
+USBPORT_InitInterfaceInfo(IN PUSBD_INTERFACE_INFORMATION InterfaceInfo,
+                          IN PUSBPORT_CONFIGURATION_HANDLE ConfigHandle)
 {
+    PUSB_INTERFACE_DESCRIPTOR Descriptor;
     USBD_STATUS USBDStatus = USBD_STATUS_SUCCESS;
 
     DPRINT("USBPORT_InitInterfaceInfo: InterfaceInfo - %p, ConfigHandle - %p\n",
            InterfaceInfo,
            ConfigHandle);
+
+    Descriptor = USBPORT_ParseConfigurationDescriptor(ConfigHandle->ConfigurationDescriptor,
+                                                      InterfaceInfo->InterfaceNumber,
+                                                      InterfaceInfo->AlternateSetting,
+                                                      &InterfaceInfo->AlternateSetting);
+
+    if (Descriptor)
+    {
+        ASSERT(FALSE);
+    }
+    else
+    {
+        USBDStatus = USBD_STATUS_INTERFACE_NOT_FOUND;
+    }
 
     ASSERT(FALSE);
     return USBDStatus;
