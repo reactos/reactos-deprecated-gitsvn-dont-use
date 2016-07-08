@@ -852,9 +852,36 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+        {
+            PDEVICE_RELATIONS DeviceRelations;
+
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
-            Irp->IoStatus.Status = Status;
+            if (IoStack->Parameters.QueryDeviceRelations.Type != TargetDeviceRelation)
+            {
+                Status = Irp->IoStatus.Status;
+                break;
+            }
+
+            DeviceRelations = (PDEVICE_RELATIONS)ExAllocatePoolWithTag(PagedPool,
+                                                                       sizeof(DEVICE_RELATIONS),
+                                                                       USB_PORT_TAG);
+
+            if (!DeviceRelations)
+            {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+                Irp->IoStatus.Information = 0;
+                break;
+            }
+
+            DeviceRelations->Count = 1;
+            DeviceRelations->Objects[0] = PdoDevice;
+
+            ObReferenceObject(PdoDevice);
+
+            Status = STATUS_SUCCESS;
+            Irp->IoStatus.Information = (ULONG_PTR)DeviceRelations;
             break;
+        }
 
         case IRP_MN_QUERY_INTERFACE: // 8
             DPRINT("IRP_MN_QUERY_INTERFACE\n");
