@@ -639,8 +639,8 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
 }
 
 NTSTATUS
-USBPORT_HandleGetStatus(PIRP Irp,
-                        PURB Urb)
+USBPORT_HandleGetStatus(IN PIRP Irp,
+                        IN PURB Urb)
 {
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
     NTSTATUS Status;
@@ -711,8 +711,8 @@ USBPORT_HandleGetStatus(PIRP Irp,
 }
 
 NTSTATUS
-USBPORT_HandleVendorOrClass(PIRP Irp,
-                            PURB Urb)
+USBPORT_HandleVendorOrClass(IN PIRP Irp,
+                            IN PURB Urb)
 {
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
@@ -799,8 +799,8 @@ USBPORT_HandleVendorOrClass(PIRP Irp,
 }
 
 NTSTATUS
-USBPORT_HandleGetSetDescriptor(PIRP Irp,
-                               PURB Urb)
+USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
+                               IN PURB Urb)
 {
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
