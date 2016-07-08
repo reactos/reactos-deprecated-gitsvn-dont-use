@@ -5,6 +5,128 @@
 
 NTSTATUS
 NTAPI
+USBPORT_SendSetupPacket(PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+                        PDEVICE_OBJECT FdoDevice,
+                        PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
+                        PVOID Buffer,
+                        ULONG Length,
+                        PULONG TransferedLen,
+                        PUSBD_STATUS pUSBDStatus)
+{
+    PURB Urb;
+    PMDL Mdl;
+    USBD_STATUS USBDStatus;
+    KEVENT Event;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_SendSetupPacket: UsbdDeviceHandle - %p, FdoDevice - %p, SetupPacket - %p, Buffer - %p, Length - %x, TransferedLen - %x, pUSBDStatus - %x\n",
+           UsbdDeviceHandle,
+           FdoDevice,
+           SetupPacket,
+           Buffer,
+           Length,
+           TransferedLen,
+           pUSBDStatus);
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Urb = (PURB)ExAllocatePoolWithTag(NonPagedPool,
+                                      sizeof(struct _URB_CONTROL_TRANSFER),
+                                      USB_PORT_TAG);
+
+    if (Urb)
+    {
+        RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_TRANSFER));
+
+        RtlCopyMemory(Urb->UrbControlTransfer.SetupPacket,
+                      SetupPacket,
+                      sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+        Urb->UrbHeader.Length = sizeof(struct _URB_CONTROL_TRANSFER);
+        Urb->UrbHeader.Function = URB_FUNCTION_CONTROL_TRANSFER;
+        Urb->UrbHeader.UsbdDeviceHandle = (PVOID)UsbdDeviceHandle;
+        Urb->UrbHeader.UsbdFlags = 0;
+
+        Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+        Urb->UrbControlTransfer.TransferBufferLength = Length;
+        Urb->UrbControlTransfer.TransferBuffer = Buffer;
+        Urb->UrbControlTransfer.TransferBufferMDL = NULL;
+
+        Urb->UrbControlTransfer.TransferFlags = USBD_SHORT_TRANSFER_OK |
+                                                USBD_TRANSFER_DIRECTION;
+
+        if (SetupPacket->bmRequestType._BM.Dir != BMREQUEST_DEVICE_TO_HOST)
+        {
+            Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN;
+        }
+
+        Status = STATUS_SUCCESS;
+
+        if (Length)
+        {
+            Mdl = IoAllocateMdl(Buffer, Length, FALSE, FALSE, NULL);
+
+            Urb->UrbControlTransfer.TransferBufferMDL = Mdl;
+
+            if (Mdl)
+            {
+                Urb->UrbControlTransfer.hca.Reserved8[1] = (PVOID)USBD_FLAG_ALLOCATED_MDL;
+                MmBuildMdlForNonPagedPool(Mdl);
+            }
+            else
+            {
+                Status = USBPORT_USBDStatusToNtStatus(NULL,
+                                                      USBD_STATUS_INSUFFICIENT_RESOURCES);
+            }
+        }
+
+        if (NT_SUCCESS(Status))
+        {
+            USBDStatus = USBPORT_AllocateTransfer(FdoDevice,
+                                                  Urb,
+                                                  NULL,
+                                                  NULL,
+                                                  &Event);
+
+            if (USBD_SUCCESS(USBDStatus))
+            {
+                USBPORT_QueueTransferUrb(Urb);
+
+                KeWaitForSingleObject(&Event,
+                                      Suspended,
+                                      KernelMode,
+                                      FALSE,
+                                      NULL);
+
+                USBDStatus = Urb->UrbHeader.Status;
+            }
+
+            Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+
+            if (TransferedLen)
+                *TransferedLen = Urb->UrbControlTransfer.TransferBufferLength;
+
+            if (pUSBDStatus)
+                *pUSBDStatus = USBDStatus;
+        }
+
+        ExFreePool(Urb);
+    }
+    else
+    {
+        if (pUSBDStatus)
+            *pUSBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
+
+        Status = USBPORT_USBDStatusToNtStatus(NULL,
+                                              USBD_STATUS_INSUFFICIENT_RESOURCES);
+    }
+
+    DPRINT("USBPORT_SendSetupPacket: Status - %x\n", Status);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
                  PDEVICE_OBJECT FdoDevice,
                  PUSBPORT_PIPE_HANDLE PipeHandle,
@@ -208,7 +330,13 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
             SetupPacket.wIndex.W = 0;
             SetupPacket.wLength = 0;
 
-            ASSERT(FALSE);
+            USBPORT_SendSetupPacket(DeviceHandle,
+                                    FdoDevice,
+                                    &SetupPacket,
+                                    NULL,
+                                    0,
+                                    NULL,
+                                    NULL);
 
             if (USBD_SUCCESS(USBDStatus))
             {
