@@ -58,8 +58,46 @@ USBPORT_TimerDpc(PRKDPC Dpc,
                  PVOID SystemArgument1,
                  PVOID SystemArgument2)
 {
-    DPRINT("USBPORT_TimerDpc: ... \n");
-    ASSERT(FALSE);
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    LARGE_INTEGER DueTime = {{0, 0}};
+    ULONG TimerFlags;
+    ULONG TimeIncrement;
+
+    DPRINT("USBPORT_TimerDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
+           Dpc,
+           DeferredContext,
+           SystemArgument1,
+           SystemArgument2);
+
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    PdoDevice = FdoExtension->RootHubPdo;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    TimerFlags = FdoExtension->TimerFlags;
+
+    if (PdoDevice &&
+        (PdoExtension->RootHubInitCallback != NULL) &&
+        !(FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK))
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
+        ASSERT(FALSE);
+    }
+
+    if (TimerFlags & 1)
+    {
+        TimeIncrement = KeQueryTimeIncrement();
+        DueTime.QuadPart -= 10000 * FdoExtension->TimerValue + (TimeIncrement - 1);
+
+        KeSetTimer(&FdoExtension->TimerObject,
+                   DueTime,
+                   &FdoExtension->TimerDpc);
+    }
+
     DPRINT("USBPORT_TimerDpc: exit\n");
 }
 

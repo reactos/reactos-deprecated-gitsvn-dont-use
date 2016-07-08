@@ -46,6 +46,8 @@
 
 /* Flags */
 
+#define USBPORT_FLAG_RH_INIT_CALLBACK 0x80000000
+
 #define ENDPOINT_FLAG_DMA_TYPE      0x00000001
 #define ENDPOINT_FLAG_ROOTHUB_EP0   0x00000002
 #define ENDPOINT_FLAG_QUEUENE_EMPTY 0x00000010
@@ -238,8 +240,8 @@ USBPORT_TransferFlushDpc(
 BOOLEAN
 NTAPI
 USBPORT_StartTimer(
-  PDEVICE_OBJECT FdoDevice,
-  ULONG Time);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN ULONG Time);
 
 PUSBPORT_COMMON_BUFFER_HEADER
 NTAPI
@@ -249,14 +251,14 @@ USBPORT_AllocateCommonBuffer(
 
 USBD_STATUS
 USBPORT_AllocateTransfer(
-  PDEVICE_OBJECT FdoDevice,
-  PURB Urb,
-  PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
-  PIRP Irp,
-  PRKEVENT Event);
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PURB Urb,
+  IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+  IN PIRP Irp,
+  IN PRKEVENT Event);
 
 VOID
-USBPORT_QueueTransferUrb(PURB Urb);
+USBPORT_QueueTransferUrb(IN PURB Urb);
 
 /* device.c */
 
