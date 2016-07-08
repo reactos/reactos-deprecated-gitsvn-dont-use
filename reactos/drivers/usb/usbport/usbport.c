@@ -55,8 +55,63 @@ VOID
 NTAPI
 USBPORT_WorkerThread(PVOID StartContext)
 {
+    PDEVICE_OBJECT FdoDevice;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    LARGE_INTEGER OldTime = {{0, 0}};
+    LARGE_INTEGER NewTime = {{0, 0}};
+    PRH_INIT_CALLBACK RootHubInitCallback;
+    PVOID RootHubInitContext;
+
     DPRINT("USBPORT_WorkerThread ... \n");
-    ASSERT(FALSE);
+
+    FdoDevice = (PDEVICE_OBJECT)StartContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    FdoExtension->WorkerThread = KeGetCurrentThread();
+
+    do
+    {
+        KeQuerySystemTime(&OldTime);
+
+        KeWaitForSingleObject(&FdoExtension->WorkerThreadEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+
+        KeQuerySystemTime(&NewTime);
+
+        KeResetEvent(&FdoExtension->WorkerThreadEvent);
+
+        if (FdoExtension->MiniPortInterruptEnable & 1)
+        {
+            if (FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK)
+            {
+                PdoDevice = FdoExtension->RootHubPdo;
+
+                if (PdoDevice)
+                {
+                    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+                    RootHubInitContext = PdoExtension->RootHubInitContext;
+                    RootHubInitCallback = PdoExtension->RootHubInitCallback;
+
+                    PdoExtension->RootHubInitCallback = NULL;
+                    PdoExtension->RootHubInitContext = NULL;
+
+                    if (RootHubInitCallback)
+                        RootHubInitCallback(RootHubInitContext);
+                }
+
+                FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
+            }
+        }
+    }
+    while (!(FdoExtension->Flags & USBPORT_FLAG_WORKER_THREAD_ON));
+
+    PsTerminateSystemThread(0);
 }
 
 NTSTATUS
