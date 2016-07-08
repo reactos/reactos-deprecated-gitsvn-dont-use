@@ -976,6 +976,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
             DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_QUERY_BUS_INFORMATION: // 21
