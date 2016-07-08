@@ -176,7 +176,7 @@ USBPORT_TimerDpc(PRKDPC Dpc,
         !(FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK))
     {
         FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
-        ASSERT(FALSE);
+        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
     }
 
     if (TimerFlags & 1)
@@ -735,11 +735,11 @@ ValidateTransferParameters(IN PURB Urb)
 }
 
 USBD_STATUS
-USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
-                         PURB Urb,
-                         PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
-                         PIRP Irp,
-                         PRKEVENT Event)
+USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
+                         IN PURB Urb,
+                         IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+                         IN PIRP Irp,
+                         IN PRKEVENT Event)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     SIZE_T TransferLength;
@@ -810,6 +810,28 @@ USBPORT_AllocateTransfer(PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_AllocateTransfer: return USBDStatus - %x\n", USBDStatus);
     return USBDStatus;
+}
+
+NTSTATUS
+USBPORT_HandleDataTransfers(IN PURB Urb)
+{
+    PUSBPORT_ENDPOINT Endpoint;
+
+    DPRINT("USBPORT_HandleDataTransfers: Urb - %p\n", Urb);
+
+    Endpoint = ((PUSBPORT_PIPE_HANDLE)(Urb->UrbBulkOrInterruptTransfer.PipeHandle))->Endpoint;
+
+    if (Endpoint->EndpointProperties.TransferType != USB_ENDPOINT_TYPE_CONTROL)
+    {
+        if (Endpoint->EndpointProperties.Direction)
+            Urb->UrbBulkOrInterruptTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1
+        else
+            Urb->UrbBulkOrInterruptTransfer.TransferFlags |= USBD_TRANSFER_DIRECTION_IN; // 1
+    }
+
+    USBPORT_QueueTransferUrb(Urb);
+
+    return STATUS_PENDING;
 }
 
 NTSTATUS
@@ -1115,15 +1137,26 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         switch (Function)
         {
             case URB_FUNCTION_ISOCH_TRANSFER: // 0x10
-                ASSERT(FALSE);
-                break;
-
             case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
-                ASSERT(FALSE);
-                break;
-
             case URB_FUNCTION_CONTROL_TRANSFER: // 0x08
-                ASSERT(FALSE);
+                ValidateTransferParameters(Urb);
+
+                Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
+                                                  Urb,
+                                                  UsbdDeviceHandle,
+                                                  Irp,
+                                                  NULL);
+
+                if (!NT_SUCCESS(Status))
+                {
+                    goto Exit;
+                }
+
+                if ((Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER) &&
+                    (Function == URB_FUNCTION_CONTROL_TRANSFER))
+                    Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+
+                Status = USBPORT_HandleDataTransfers(Urb);
                 break;
 
             case URB_FUNCTION_VENDOR_DEVICE: // 0x17
