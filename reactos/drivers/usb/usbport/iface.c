@@ -207,8 +207,17 @@ USBHI_RootHubInitNotification(IN PVOID BusContext,
                               IN PVOID CallbackContext,
                               IN PRH_INIT_CALLBACK CallbackFunction)
 {
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+
     DPRINT("USBHI_RootHubInitNotification \n");
-    ASSERT(FALSE);
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    PdoExtension->RootHubInitContext = CallbackContext;
+    PdoExtension->RootHubInitCallback = CallbackFunction;
+
     return STATUS_SUCCESS;
 }
 
