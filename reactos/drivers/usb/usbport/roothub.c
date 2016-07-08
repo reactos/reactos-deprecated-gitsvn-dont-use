@@ -121,6 +121,16 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             *TransferLength = 2;
             return 0;
 
+
+        case USB_REQUEST_SET_CONFIGURATION:
+            if ((SetupPacket->wValue.W == 0) ||
+                (SetupPacket->wValue.W == PdoExtension->RootHubDescriptors->ConfigDescriptor.bConfigurationValue))
+            {
+                PdoExtension->ConfigurationValue = SetupPacket->wValue.LowByte;
+            }
+
+            return 0;
+
         default:
             ASSERT(FALSE);
             break;
