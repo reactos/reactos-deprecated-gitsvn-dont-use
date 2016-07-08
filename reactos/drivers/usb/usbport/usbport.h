@@ -6,10 +6,16 @@
 #include <stdio.h>
 #include <wdm.h>
 #include <wdmguid.h>
+#include <usb.h>
 #include <hubbusif.h>
 #include <usbbusif.h>
 #include <usbdlib.h>
 #include "..\usbmport.h"
+
+#ifdef USBD_TRANSFER_DIRECTION
+#undef USBD_TRANSFER_DIRECTION
+#define USBD_TRANSFER_DIRECTION 0x00000001
+#endif
 
 #define USB_PORT_TAG 'pbsu'
 #define URB_FUNCTION_MAX 0x31
@@ -197,6 +203,17 @@ NTAPI
 USBPORT_AllocateCommonBuffer(
   IN PDEVICE_OBJECT FdoDevice,
   IN SIZE_T BufferLength);
+
+USBD_STATUS
+USBPORT_AllocateTransfer(
+  PDEVICE_OBJECT FdoDevice,
+  PURB Urb,
+  PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+  PIRP Irp,
+  PRKEVENT Event);
+
+VOID
+USBPORT_QueueTransferUrb(PURB Urb);
 
 /* device.c */
 
