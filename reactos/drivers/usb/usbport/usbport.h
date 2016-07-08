@@ -57,6 +57,7 @@ typedef struct _USBPORT_ENDPOINT *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_PIPE_HANDLE {
   ULONG Flags;
+  ULONG PipeFlags;
   USB_ENDPOINT_DESCRIPTOR EndpointDescriptor;
   UCHAR Padded;
   PUSBPORT_ENDPOINT Endpoint;
@@ -68,6 +69,15 @@ typedef struct _USBPORT_CONFIGURATION_HANDLE {
   LIST_ENTRY InterfaceHandleList; // 04
   //USB_CONFIGURATION_DESCRIPTOR CfgDescriptor; // 12 Body
 } USBPORT_CONFIGURATION_HANDLE, *PUSBPORT_CONFIGURATION_HANDLE;
+
+typedef struct _USBPORT_INTERFACE_HANDLE {
+  LIST_ENTRY InterfaceLink; // 00
+  UCHAR AlternateSetting; // 08
+  UCHAR Pad1[3]; // 09
+  USB_INTERFACE_DESCRIPTOR InterfaceDescriptor; // 12
+  UCHAR Pad2[3]; // 21
+  USBPORT_PIPE_HANDLE PipeHandle[1]; // 24
+} USBPORT_INTERFACE_HANDLE, *PUSBPORT_INTERFACE_HANDLE;
 
 typedef struct _USBPORT_DEVICE_HANDLE { 
   USHORT DeviceAddress;
