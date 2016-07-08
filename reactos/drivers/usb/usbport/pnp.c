@@ -210,6 +210,10 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         goto ExitWithError;
     }
 
+    Status = USBPORT_CreateWorkerThread(FdoDevice);
+    if (!NT_SUCCESS(Status))
+        goto ExitWithError;
+
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
     KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
 
