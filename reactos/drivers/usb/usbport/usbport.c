@@ -53,6 +53,42 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 
 VOID
 NTAPI
+USBPORT_WorkerThread(PVOID StartContext)
+{
+    DPRINT("USBPORT_WorkerThread ... \n");
+    ASSERT(FALSE);
+}
+
+NTSTATUS
+NTAPI
+USBPORT_CreateWorkerThread(PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_CreateWorkerThread ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    FdoExtension->Flags &= ~USBPORT_FLAG_WORKER_THREAD_ON;
+
+    KeInitializeEvent(&FdoExtension->WorkerThreadEvent,
+                      NotificationEvent,
+                      FALSE);
+
+    Status = PsCreateSystemThread(&FdoExtension->WorkerThreadHandle,
+                                  THREAD_ALL_ACCESS,
+                                  NULL,
+                                  NULL,
+                                  NULL,
+                                  USBPORT_WorkerThread,
+                                  (PVOID)FdoDevice);
+
+    return Status;
+}
+
+VOID
+NTAPI
 USBPORT_TimerDpc(PRKDPC Dpc,
                  PVOID DeferredContext,
                  PVOID SystemArgument1,

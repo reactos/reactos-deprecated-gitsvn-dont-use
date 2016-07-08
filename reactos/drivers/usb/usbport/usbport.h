@@ -46,6 +46,7 @@
 
 /* Flags */
 
+#define USBPORT_FLAG_WORKER_THREAD_ON 0x00000008
 #define USBPORT_FLAG_RH_INIT_CALLBACK 0x80000000
 
 #define ENDPOINT_FLAG_DMA_TYPE      0x00000001
@@ -180,6 +181,9 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG TimerFlags;
   KTIMER TimerObject;
   KDPC TimerDpc;
+  PRKTHREAD WorkerThread;
+  HANDLE WorkerThreadHandle;
+  KEVENT WorkerThreadEvent;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
@@ -236,6 +240,11 @@ USBPORT_TransferFlushDpc(
   IN PVOID DeferredContext,
   IN PVOID SystemArgument1,
   IN PVOID SystemArgument2);
+
+NTSTATUS
+NTAPI
+USBPORT_CreateWorkerThread(
+  IN PDEVICE_OBJECT FdoDevice);
 
 BOOLEAN
 NTAPI
