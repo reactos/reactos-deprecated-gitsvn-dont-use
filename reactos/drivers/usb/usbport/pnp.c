@@ -15,7 +15,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
            ServiceContext);
 
     //KeInsertQueueDpc();
-
+    ASSERT(FALSE);
     DPRINT("USBPORT_InterruptService: return - %x\n", Result);
     return Result;
 }
