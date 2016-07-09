@@ -141,7 +141,11 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
     UCHAR Direction;
     UCHAR Interval;
     UCHAR Period;
-    NTSTATUS Status=0;
+    ULONG TransferParams[2] = {0};
+    PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+    ULONG Result;
+    USBD_STATUS USBDStatus;
+    NTSTATUS Status;
 
     DPRINT("USBPORT_OpenPipe: DeviceHandle - %p, FdoDevice - %p, PipeHandle - %p, UsbdStatus - %p\n",
            DeviceHandle,
@@ -257,12 +261,62 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
         if (EndpointProperties->TransferType == USB_ENDPOINT_TYPE_INTERRUPT)
             PdoExtension->Endpoint = Endpoint;
 
-        Status = STATUS_SUCCESS;
+        USBDStatus = USBD_STATUS_SUCCESS;
     }
-    else
     {
-        ASSERT(FALSE);
+        Endpoint->EndpointWorker = 1; // USBPORT_DmaEndpointWorker;
+
+        FdoExtension->MiniPortInterface->Packet.QueryEndpointRequirements(FdoExtension->MiniPortExt,
+                                                                          &Endpoint->EndpointProperties,
+                                                                          (PULONG)&TransferParams);
+
+        if ((EndpointProperties->TransferType == USB_ENDPOINT_TYPE_BULK) ||
+            (EndpointProperties->TransferType == USB_ENDPOINT_TYPE_INTERRUPT))
+        {
+            EndpointProperties->MaxTransferSize = TransferParams[1];
+        }
+
+        if (TransferParams[0])
+        {
+            HeaderBuffer = USBPORT_AllocateCommonBuffer(FdoDevice,
+                                                        TransferParams[0]);
+        }
+        else
+        {
+            HeaderBuffer = NULL;
+        }
+
+        if (HeaderBuffer || (TransferParams[0] == 0))
+        {
+            Endpoint->HeaderBuffer = HeaderBuffer;
+
+            if (HeaderBuffer)
+            {
+                EndpointProperties->BufferVA = HeaderBuffer->VirtualAddress;
+                EndpointProperties->BufferPA = HeaderBuffer->PhysicalAddress;
+                EndpointProperties->BufferLength = HeaderBuffer->BufferLength; // BufferLength + LengthPadded;
+            }
+
+            Endpoint->Flags &= ~ENDPOINT_FLAG_CLOSED;
+
+            ASSERT(FALSE);
+        }
+        else
+        {
+            Result = 1;
+            Endpoint->HeaderBuffer = NULL;
+        }
+
+        if (Result)
+            USBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
+        else
+            USBDStatus = USBD_STATUS_SUCCESS;
     }
+
+    if (UsbdStatus)
+        *UsbdStatus = USBDStatus;
+
+    Status = USBPORT_USBDStatusToNtStatus(NULL, USBDStatus);
 
     if (NT_SUCCESS(Status))
     {

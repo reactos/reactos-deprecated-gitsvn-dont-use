@@ -14,6 +14,12 @@ typedef struct _USBPORT_RESOURCES {
   PVOID StartPA;
 } USBPORT_RESOURCES, *PUSBPORT_RESOURCES;
 
+typedef VOID
+(NTAPI *PHCI_QUERY_ENDPOINT_REQUIREMENTS)(
+  PVOID,
+  PVOID,
+  PULONG);
+
 typedef ULONG
 (NTAPI *PHCI_START_CONTROLLER)(
   PVOID,
@@ -89,6 +95,7 @@ typedef struct _USBPORT_REGISTRATION_PACKET {
   ULONG MiniPortEndpointSize;
   ULONG MiniPortTransferSize;
   ULONG MiniPortResourcesSize;
+  PHCI_QUERY_ENDPOINT_REQUIREMENTS QueryEndpointRequirements;
   PHCI_START_CONTROLLER StartController;
   PHCI_INTERRUPT_SERVICE InterruptService;
   PHCI_INTERRUPT_DPC InterruptDpc;
@@ -123,6 +130,9 @@ typedef struct _USBPORT_ENDPOINT_PROPERTIES {
   ULONG DeviceSpeed;
   ULONG TransferType;
   ULONG MaxTransferSize;
+  ULONG BufferVA;
+  ULONG BufferPA;
+  ULONG BufferLength;
 } USBPORT_ENDPOINT_PROPERTIES, *PUSBPORT_ENDPOINT_PROPERTIES;
 
 typedef struct _USBPORT_SCATTER_GATHER_ELEMENT {
