@@ -125,6 +125,34 @@ USBPORT_SendSetupPacket(PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
     return Status;
 }
 
+VOID
+USBPORT_SetEndpointState(PUSBPORT_ENDPOINT Endpoint,
+                         ULONG State)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_SetEndpointState \n");
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+    {
+        FdoExtension->MiniPortInterface->Packet.SetEndpointState(FdoExtension->MiniPortExt,
+                                                                 (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                                 State);
+
+        Endpoint->StateNext = State;
+
+        ExInterlockedInsertTailList(&FdoExtension->EpStateChangeList,
+                                    &Endpoint->StateChangeLink,
+                                    &FdoExtension->EpStateChangeSpinLock);
+
+        FdoExtension->MiniPortInterface->Packet.InterruptNextSOF(FdoExtension->MiniPortExt);
+    }
+}
+
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
@@ -303,7 +331,25 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
                                                                           &Endpoint->EndpointProperties,
                                                                           (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
 
-            ASSERT(FALSE);
+            Endpoint->Flags |= ENDPOINT_FLAG_DMA_TYPE;
+            Endpoint->Flags |= ENDPOINT_FLAG_QUEUENE_EMPTY;
+
+            if (Result == 0)
+            {
+                Endpoint->Flags |= ENDPOINT_FLAG_OPENED;
+                Endpoint->StateLast = USBPORT_ENDPOINT_PAUSED;
+                Endpoint->StateNext = USBPORT_ENDPOINT_PAUSED;
+
+                USBPORT_SetEndpointState(Endpoint, USBPORT_ENDPOINT_ACTIVE);
+
+                while (TRUE)
+                {
+                    if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
+                        break;
+
+                    ASSERT(FALSE); // USBPORT_Wait(1); // 1 msec.
+                }
+            }
         }
         else
         {
