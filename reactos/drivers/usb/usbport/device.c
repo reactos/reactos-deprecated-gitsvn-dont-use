@@ -298,6 +298,10 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
             }
 
             Endpoint->Flags &= ~ENDPOINT_FLAG_CLOSED;
+            
+            Result = FdoExtension->MiniPortInterface->Packet.OpenEndpoint(FdoExtension->MiniPortExt,
+                                                                          &Endpoint->EndpointProperties,
+                                                                          (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
 
             ASSERT(FALSE);
         }
