@@ -8,15 +8,35 @@ NTAPI
 USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
                          IN PVOID ServiceContext)
 {
-    BOOLEAN Result = TRUE;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    BOOLEAN Result = 0;
 
-    DPRINT("USBPORT_InterruptService: Interrupt - %p, ServiceContext - %p\n",
-           Interrupt,
-           ServiceContext);
+    FdoDevice = (PDEVICE_OBJECT)ServiceContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    //KeInsertQueueDpc();
-    ASSERT(FALSE);
+    DPRINT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
+           FdoExtension->Flags);
+
+    if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED)
+    {
+        if (FdoExtension->MiniPortInterruptEnable & 1)
+        {
+            Result = FdoExtension->MiniPortInterface->Packet.InterruptService(FdoExtension->MiniPortExt);
+
+            if (Result)
+            {
+                KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, NULL);
+            }
+        }
+    }
+    else
+    {
+        Result = 0;
+    }
+
     DPRINT("USBPORT_InterruptService: return - %x\n", Result);
+
     return Result;
 }
 
@@ -33,6 +53,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
            SystemArgument1,
            SystemArgument2);
 
+    ASSERT(FALSE);
     DPRINT("USBPORT_IsrDpc: exit\n");
 }
 
@@ -284,6 +305,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     {
         FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
         FdoExtension->MiniPortInterruptEnable |= 1;
+        FdoExtension->Flags |= USBPORT_FLAG_INTERRUPT_ENABLED;
     }
 
     FdoExtension->TimerValue = 500;
