@@ -378,8 +378,6 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
                                                                              &PortStatus))
                     return 1;
 
-                DPRINT("EHCI_: PortStatus - %p\n", PortStatus);
-
                 if (PortStatus & 0x001F0000)
                 {
                     USBPORT_SetBit(Buffer, ix + 1);
@@ -396,8 +394,6 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
         if (!FdoExtension->MiniPortInterface->Packet.RH_GetHubStatus(FdoExtension->MiniPortExt,
                                                                      &HubStatus))
         {
-
-            DPRINT("EHCI_: HubStatus - %p\n", HubStatus);
 
             if (HubStatus & 0x300)
             {

@@ -172,6 +172,8 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG NumberMapRegs;
   PKINTERRUPT InterruptObject;
   KDPC IsrDpc;
+  LONG IsrDpcCounter;
+  KSPIN_LOCK MiniportInterruptsSpinLock;
   ULONG MiniPortInterruptEnable;
   PUSBPORT_COMMON_BUFFER_HEADER MiniPortCommonBuffer;
   LIST_ENTRY EndpointList;
@@ -186,6 +188,9 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   PRKTHREAD WorkerThread;
   HANDLE WorkerThreadHandle;
   KEVENT WorkerThreadEvent;
+  LIST_ENTRY WorkerList;
+  LIST_ENTRY EpStateChangeList;
+  KSPIN_LOCK EpStateChangeSpinLock;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
@@ -270,6 +275,16 @@ USBPORT_AllocateTransfer(
 
 VOID
 USBPORT_QueueTransferUrb(IN PURB Urb);
+
+VOID
+USBPORT_EndpointWorker(
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN BOOLEAN Flag);
+
+VOID
+USBPORT_CompleteTransfer(
+  IN PURB Urb,
+  IN USBD_STATUS TransferStatus);
 
 /* device.c */
 
