@@ -1137,6 +1137,10 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         switch (Function)
         {
             case URB_FUNCTION_ISOCH_TRANSFER: // 0x10
+                DPRINT("USBPORT_PdoScsi: URB_FUNCTION_ISOCH_TRANSFER\n");
+                ASSERT(FALSE);
+                break;
+
             case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
             case URB_FUNCTION_CONTROL_TRANSFER: // 0x08
                 ValidateTransferParameters(Urb);
