@@ -850,3 +850,19 @@ Exit:
 
     return Status;
 }
+
+NTSTATUS
+NTAPI
+USBPORT_CreateDevice(PUSB_DEVICE_HANDLE *pHandle,
+                     PDEVICE_OBJECT FdoDevice,
+                     PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
+                     USHORT PortStatus,
+                     USHORT Port)
+{
+    DPRINT("USBPORT_CreateDevice: PortStatus - %p, Port - %p\n",
+           PortStatus,
+           Port);
+
+    ASSERT(FALSE);
+    return 0;
+}
