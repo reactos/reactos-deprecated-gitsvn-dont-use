@@ -128,6 +128,7 @@ typedef struct _USBPORT_ENDPOINT {
   LIST_ENTRY PendingTransferList;
   LIST_ENTRY TransferList;
   LONG LockCounter;
+  PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
 } USBPORT_ENDPOINT, *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_TRANSFER {
