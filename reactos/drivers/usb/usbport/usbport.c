@@ -63,6 +63,9 @@ USBPORT_WorkerThread(IN PVOID StartContext)
     LARGE_INTEGER NewTime = {{0, 0}};
     PRH_INIT_CALLBACK RootHubInitCallback;
     PVOID RootHubInitContext;
+    PUSBPORT_ENDPOINT Endpoint;
+    PLIST_ENTRY workerList;
+    KIRQL OldIrql;
 
     DPRINT("USBPORT_WorkerThread ... \n");
 
@@ -108,6 +111,34 @@ USBPORT_WorkerThread(IN PVOID StartContext)
                 FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
             }
         }
+
+        while (TRUE)
+        {
+            KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
+            KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+            workerList = &FdoExtension->WorkerList;
+
+            if (IsListEmpty(workerList))
+                break;
+
+            Endpoint = CONTAINING_RECORD(workerList->Flink,
+                                         USBPORT_ENDPOINT,
+                                         WorkerLink);
+
+            RemoveHeadList(workerList);
+            Endpoint->WorkerLink.Blink = NULL;
+            Endpoint->WorkerLink.Flink = NULL;
+
+            KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+            USBPORT_EndpointWorker(Endpoint, FALSE);
+
+            KeLowerIrql(OldIrql);
+        }
+
+        KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+        KeLowerIrql(OldIrql);
     }
     while (!(FdoExtension->Flags & USBPORT_FLAG_WORKER_THREAD_ON));
 
@@ -1468,6 +1499,8 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_PNP] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_POWER] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
+
+    RegPacket->UsbPortInvalidateRootHub = USBPORT_InvalidateRootHub;
 
     RtlCopyMemory(&MiniPortInterface->Packet,
                   RegPacket,

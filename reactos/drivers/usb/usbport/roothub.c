@@ -612,3 +612,39 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
 
     return Status;
 }
+
+VOID
+NTAPI
+USBPORT_InvalidateRootHub(PVOID Context)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_ENDPOINT Endpoint = NULL;
+
+    DPRINT("USBPORT_InvalidateRootHub ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context -
+                                               sizeof(USBPORT_DEVICE_EXTENSION));
+
+    FdoExtension->MiniPortInterface->Packet.RH_DisableIrq(FdoExtension->MiniPortExt);
+
+    PdoDevice = FdoExtension->RootHubPdo;
+
+    if (PdoDevice)
+    {
+        PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+        Endpoint = PdoExtension->Endpoint;
+    }
+
+    if (Endpoint)
+    {
+        if (!Endpoint->WorkerLink.Flink || !Endpoint->WorkerLink.Blink)
+        {
+            InsertTailList(&FdoExtension->WorkerList,
+                           &Endpoint->WorkerLink);
+        }
+
+        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+    }
+}
