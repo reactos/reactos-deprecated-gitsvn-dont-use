@@ -22,14 +22,30 @@ USBI_InterfaceDereference(IN PVOID BusContext)
 NTSTATUS
 USB_BUSIFFN
 USBHI_CreateUsbDevice(IN PVOID BusContext,
-                      IN PUSB_DEVICE_HANDLE *NewDevice,
+                      IN OUT PUSB_DEVICE_HANDLE *DeviceHandle,
                       IN PUSB_DEVICE_HANDLE HubDeviceHandle,
                       IN USHORT PortStatus,
                       IN USHORT PortNumber)
 {
-    DPRINT("USBHI_CreateUsbDevice\n");
-    ASSERT(FALSE);
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSB_DEVICE_HANDLE deviceHandle = NULL;
+    NTSTATUS Status;
+
+    DPRINT("USBHI_CreateUsbDevice: ... \n");
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    Status = USBPORT_CreateDevice(&deviceHandle,
+                                  PdoExtension->FdoDevice,
+                                  (PUSBPORT_DEVICE_HANDLE)HubDeviceHandle,
+                                  PortStatus,
+                                  PortNumber);
+
+    *DeviceHandle = deviceHandle;
+
+    return Status;
 }
 
 NTSTATUS
