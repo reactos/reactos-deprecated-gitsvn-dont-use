@@ -859,10 +859,134 @@ USBPORT_CreateDevice(PUSB_DEVICE_HANDLE *pHandle,
                      USHORT PortStatus,
                      USHORT Port)
 {
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    BOOLEAN IsOpenedPipe;
+    PVOID DeviceDescriptor;
+    USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+    SIZE_T TransferedLen;
+    UCHAR MaxPacketSize;
+
+    NTSTATUS Status;
+
     DPRINT("USBPORT_CreateDevice: PortStatus - %p, Port - %p\n",
            PortStatus,
            Port);
 
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
+                                                                 sizeof(USBPORT_DEVICE_HANDLE),
+                                                                 USB_PORT_TAG);
+
+    if (!DeviceHandle)
+        return STATUS_INSUFFICIENT_RESOURCES;
+
+    RtlZeroMemory(DeviceHandle, sizeof(USBPORT_DEVICE_HANDLE));
+
+    *pHandle = NULL;
+
+    DeviceHandle->PortNumber = Port;
+    DeviceHandle->HubDeviceHandle = HubDeviceHandle;
+
+    if (PortStatus & USB_PORT_STATUS_LOW_SPEED)
+        DeviceHandle->DeviceSpeed = 0;
+    else
+        DeviceHandle->DeviceSpeed = 1; // Fullspeed
+
+    PipeHandle = &DeviceHandle->PipeHandle;
+
+    PipeHandle->EndpointDescriptor.bLength = 7;
+    PipeHandle->EndpointDescriptor.bDescriptorType = 5;
+    PipeHandle->EndpointDescriptor.bEndpointAddress = 0;
+    PipeHandle->EndpointDescriptor.bmAttributes = 0;
+    PipeHandle->EndpointDescriptor.bInterval = 0;
+
+    PipeHandle->Flags = PIPEHANDLE_FLAG_CLOSED;
+    PipeHandle->PipeFlags = 0;
+
+    if (DeviceHandle->DeviceSpeed == 0)
+        PipeHandle->EndpointDescriptor.wMaxPacketSize = 8;
+    else
+        PipeHandle->EndpointDescriptor.wMaxPacketSize = USB_DEFAULT_MAX_PACKET;
+
+    InitializeListHead(&DeviceHandle->PipeHandleList);
+
+    Status = USBPORT_OpenPipe(DeviceHandle, FdoDevice, PipeHandle, NULL);
+
+    if (NT_SUCCESS(Status))
+    {
+        IsOpenedPipe = TRUE;
+    }
+    else
+    {
+        ExFreePool(DeviceHandle);
+        return Status;
+    }
+
+    DeviceDescriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                             64,
+                                             USB_PORT_TAG);
+
+    if (!DeviceDescriptor)
+    {
+        Status = STATUS_DEVICE_DATA_ERROR;
+
+        if (IsOpenedPipe)
+            ASSERT(FALSE); //USBPORT_ClosePipe();
+
+        ExFreePool(DeviceHandle);
+        return Status;
+    }
+
+    RtlZeroMemory(DeviceDescriptor, USB_DEFAULT_MAX_PACKET);
+    RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+    SetupPacket.bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    SetupPacket.bRequest = USB_REQUEST_GET_DESCRIPTOR;
+    SetupPacket.wValue.HiByte = USB_DEVICE_DESCRIPTOR_TYPE;
+    SetupPacket.wLength = USB_DEFAULT_MAX_PACKET;
+
+    TransferedLen = 0;
+
+    Status = USBPORT_SendSetupPacket(DeviceHandle,
+                                     FdoDevice,
+                                     &SetupPacket,
+                                     DeviceDescriptor,
+                                     USB_DEFAULT_MAX_PACKET,
+                                     &TransferedLen,
+                                     NULL);
+
+    RtlCopyMemory(&DeviceHandle->DeviceDescriptor,
+                  DeviceDescriptor,
+                  sizeof(USB_DEVICE_DESCRIPTOR));
+
+    ExFreePool(DeviceDescriptor);
+
+    if ((TransferedLen == 8) && (!NT_SUCCESS(Status)))
+        Status = STATUS_SUCCESS;
+
+    if (NT_SUCCESS(Status) && (TransferedLen >= 8))
+    {
+        if ((DeviceHandle->DeviceDescriptor.bLength >= sizeof(USB_DEVICE_DESCRIPTOR)) &&
+            (DeviceHandle->DeviceDescriptor.bDescriptorType == 1))
+        {
+            MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
+
+            if (MaxPacketSize == 8 ||
+                MaxPacketSize == 16 ||
+                MaxPacketSize == 32 ||
+                MaxPacketSize == 64)
+            {
+                *pHandle = DeviceHandle;
+
+                if (!NT_SUCCESS(Status))
+                    ExFreePool(DeviceHandle);
+
+                return Status;
+            }
+        }
+    }
+
     ASSERT(FALSE);
-    return 0;
+
+    return Status;
 }
