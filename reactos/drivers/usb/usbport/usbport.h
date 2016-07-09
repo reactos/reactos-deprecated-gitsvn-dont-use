@@ -119,6 +119,7 @@ typedef struct _USBPORT_ENDPOINT {
   PUSBPORT_DEVICE_HANDLE DeviceHandle;
   USBPORT_ENDPOINT_PROPERTIES EndpointProperties;
   ULONG EndpointWorker;
+  LIST_ENTRY WorkerLink;
   ULONG StateLast;
   ULONG StateNext;
   LIST_ENTRY EndpointLink;
@@ -336,5 +337,10 @@ NTAPI
 USBPORT_RootHubCreateDevice(
   IN PDEVICE_OBJECT FdoDevice,
   IN PDEVICE_OBJECT PdoDevice);
+
+VOID
+NTAPI
+USBPORT_InvalidateRootHub(
+  PVOID Context);
 
 #endif /* USBPORT_H__ */
