@@ -124,6 +124,7 @@ typedef struct _USBPORT_ENDPOINT {
   LIST_ENTRY WorkerLink;
   ULONG StateLast;
   ULONG StateNext;
+  LIST_ENTRY StateChangeLink;
   LIST_ENTRY EndpointLink;
   LIST_ENTRY PendingTransferList;
   LIST_ENTRY TransferList;
