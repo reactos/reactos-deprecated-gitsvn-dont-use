@@ -9,7 +9,7 @@ USBPORT_SetBit(ULONG_PTR Address,
 {
     ULONG_PTR AddressBitMap;
 
-    DPRINT("USBPORT_SetBit ... \n");
+    DPRINT("USBPORT_SetBit: Address - %p, Index - %p\n", Address, Index);
 
     AddressBitMap = Address + 4 * (Index >> 5);
     *(ULONG_PTR *)AddressBitMap |= 1 << (Index & 0x1F);
@@ -42,8 +42,29 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
     switch (SetupPacket->bRequest)
     {
         case USB_REQUEST_GET_STATUS:
-            ASSERT(FALSE);
-            break;
+        {
+            if (!Buffer)
+                return 1;
+
+            *(PULONG)Buffer = 0;
+
+            if (SetupPacket->bmRequestType._BM.Recipient == BMREQUEST_TO_OTHER)
+            {
+                Result = FdoExtension->MiniPortInterface->Packet.RH_GetPortStatus(FdoExtension->MiniPortExt,
+                                                                                  SetupPacket->wIndex.W,
+                                                                                  Buffer);
+            }
+            else
+            {
+                Result = FdoExtension->MiniPortInterface->Packet.RH_GetHubStatus(FdoExtension->MiniPortExt,
+                                                                                 Buffer);
+            }
+
+            if (Result)
+                return 1;
+            else
+                return 0;
+        }
 
         case USB_REQUEST_CLEAR_FEATURE:
             switch (SetupPacket->wValue.W)
@@ -105,7 +126,8 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 case FEATURE_C_PORT_RESET: // 20
-                    ASSERT(FALSE);
+                    Result = Packet->RH_ClearFeaturePortResetChange(FdoExtension->MiniPortExt,
+                                                                    Port);
                     return Result;
                     break;
 
@@ -179,6 +201,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
     SIZE_T Length;
     PVOID Descriptor;
     SIZE_T DescriptorLength;
+    ULONG Result;
 
     DPRINT("USBPORT_RootHubStandardCommand: USB command - %x, TransferLength - %p\n",
            SetupPacket->bRequest,
@@ -227,10 +250,15 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             break;
 
         case USB_REQUEST_GET_STATUS:
-            *(PULONG)Buffer = 1; // FIXME
-            *TransferLength = 2;
-            return 0;
+            Result = FdoExtension->MiniPortInterface->Packet.RH_GetStatus(FdoExtension->MiniPortExt,
+                                                                          Buffer);
 
+            *TransferLength = 2;
+
+            if (Result)
+                return 1;
+            else
+                return 0;
 
         case USB_REQUEST_SET_CONFIGURATION:
             if ((SetupPacket->wValue.W == 0) ||
@@ -347,6 +375,8 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
                                                                              &PortStatus))
                     return 1;
 
+                DPRINT("EHCI_: PortStatus - %p\n", PortStatus);
+
                 if (PortStatus & 0x001F0000)
                 {
                     USBPORT_SetBit(Buffer, ix + 1);
@@ -363,6 +393,9 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
         if (!FdoExtension->MiniPortInterface->Packet.RH_GetHubStatus(FdoExtension->MiniPortExt,
                                                                      &HubStatus))
         {
+
+            DPRINT("EHCI_: HubStatus - %p\n", HubStatus);
+
             if (HubStatus & 0x300)
             {
                 USBPORT_SetBit(Buffer, 0);
