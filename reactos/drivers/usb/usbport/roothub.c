@@ -151,7 +151,10 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 case FEATURE_PORT_RESET: // 4
-                    ASSERT(FALSE);
+
+                    Result = Packet->RH_SetFeaturePortReset(FdoExtension->MiniPortExt,
+                                                            Port);
+
                     return Result;
                     break;
 
