@@ -80,7 +80,16 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
          List != NULL;
          List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList, &FdoExtension->EpStateChangeSpinLock))
     {
-        ASSERT(FALSE);
+        Endpoint = CONTAINING_RECORD(List, USBPORT_ENDPOINT, StateChangeLink);
+
+        Endpoint->StateLast = Endpoint->StateNext;
+
+        if (!Endpoint->WorkerLink.Flink || !Endpoint->WorkerLink.Blink)
+        {
+            InsertTailList(&FdoExtension->WorkerList, &Endpoint->WorkerLink);
+        }
+
+        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
     }
 
     DoneTransferList = &FdoExtension->DoneTransferList;
