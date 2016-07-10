@@ -196,6 +196,7 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     RtlZeroMemory(Endpoint, EndpointSize);
 
+    Endpoint->Flags = 0;
     Endpoint->FdoDevice = FdoDevice;
     Endpoint->DeviceHandle = (PUSBPORT_DEVICE_HANDLE)DeviceHandle;
     Endpoint->LockCounter = -1;
@@ -291,6 +292,7 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
         USBDStatus = USBD_STATUS_SUCCESS;
     }
+    else
     {
         Endpoint->EndpointWorker = 1; // USBPORT_DmaEndpointWorker;
 
@@ -347,7 +349,7 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
                     if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
                         break;
 
-                    ASSERT(FALSE); // USBPORT_Wait(1); // 1 msec.
+                    USBPORT_Wait(1); // 1 msec.
                 }
             }
         }

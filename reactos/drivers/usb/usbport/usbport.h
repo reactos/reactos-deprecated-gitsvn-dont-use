@@ -237,6 +237,10 @@ USBPORT_USBDStatusToNtStatus(
   IN PURB Urb,
   IN USBD_STATUS USBDStatus);
 
+NTSTATUS
+USBPORT_Wait(
+  IN ULONG Milliseconds);
+
 VOID
 NTAPI
 USBPORT_IsrDpc(

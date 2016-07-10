@@ -51,6 +51,16 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
     return USBD_STATUS_SUCCESS;
 }
 
+NTSTATUS
+USBPORT_Wait(IN ULONG Milliseconds)
+{
+    LARGE_INTEGER Interval = {{0, 0}};
+
+    DPRINT("USBPORT_Wait: Milliseconds - %x\n", Milliseconds);
+    Interval.QuadPart -= 10000 * Milliseconds + (KeQueryTimeIncrement() - 1);
+    return KeDelayExecutionThread(KernelMode, FALSE, &Interval);
+}
+
 VOID
 NTAPI
 USBPORT_WorkerThread(IN PVOID StartContext)
