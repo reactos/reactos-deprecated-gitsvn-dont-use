@@ -196,6 +196,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   LIST_ENTRY WorkerList;
   LIST_ENTRY EpStateChangeList;
   KSPIN_LOCK EpStateChangeSpinLock;
+  LIST_ENTRY MapTransferList;
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_RH_DESCRIPTORS {

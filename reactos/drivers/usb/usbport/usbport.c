@@ -442,6 +442,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     InitializeListHead(&FdoExtension->DoneTransferList);
     InitializeListHead(&FdoExtension->WorkerList);
     InitializeListHead(&FdoExtension->EpStateChangeList);
+    InitializeListHead(&FdoExtension->MapTransferList);
 
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
@@ -603,8 +604,17 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 }
 
 VOID
+USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
+{
+    DPRINT("USBPORT_FlushMapTransfers: ... \n");
+    ASSERT(FALSE);
+}
+
+VOID
 USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 {
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
     BOOLEAN IsMapTransfer;
     BOOLEAN IsEnd = FALSE;
     PLIST_ENTRY List;
@@ -612,6 +622,9 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
     KIRQL PrevIrql;
 
     DPRINT("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     while (TRUE)
     {
@@ -639,13 +652,18 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
         }
         else
         {
-            ASSERT(FALSE);
+            InsertTailList(&FdoExtension->MapTransferList,
+                           &Transfer->TransferLink);
+
             IsMapTransfer = 1;
         }
 
         if (IsMapTransfer)
         {
-            ASSERT(FALSE);
+            USBPORT_FlushMapTransfers(FdoDevice);
+
+            if (IsEnd)
+                return;
         }
 
 Worker:
