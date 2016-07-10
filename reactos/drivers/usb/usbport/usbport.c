@@ -610,8 +610,124 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
                     IN PVOID MapRegisterBase,
                     IN PVOID Context)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDMA_ADAPTER DmaAdapter;
+    PUSBPORT_TRANSFER Transfer;
+    PURB Urb;
+    PUSBPORT_ENDPOINT Endpoint;
+    PMDL Mdl;
+    ULONG_PTR CurrentVa;
+    PVOID MappedSystemVa;
+    PUSBPORT_SCATTER_GATHER_LIST sgList;
+    SIZE_T CurrentLength;
+    ULONG ix;
+    BOOLEAN WriteToDevice;
+    PHYSICAL_ADDRESS PhAddr;
+    PHYSICAL_ADDRESS PhAddress = {{0, 0}};
+    SIZE_T TransferLength;
+    SIZE_T SgCurrentLength;
+    SIZE_T ElementLength;
+
     DPRINT("USBPORT_MapTransfer: ... \n");
-    ASSERT(FALSE);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    DmaAdapter = FdoExtension->DmaAdapter;
+
+    Transfer = (PUSBPORT_TRANSFER)Context;
+
+    Urb = Transfer->Urb;
+    Endpoint = Transfer->Endpoint;
+    TransferLength = Transfer->TransferParameters.TransferBufferLength;
+
+    Mdl = Urb->UrbControlTransfer.TransferBufferMDL;
+    CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
+    Transfer->SgList.CurrentVa = CurrentVa;
+
+    Mdl->MdlFlags |= MDL_MAPPING_CAN_FAIL;
+
+    if (Mdl->MdlFlags & (MDL_SOURCE_IS_NONPAGED_POOL | MDL_MAPPED_TO_SYSTEM_VA))
+        MappedSystemVa = Mdl->MappedSystemVa;
+    else
+        MappedSystemVa = MmMapLockedPages(Mdl, KernelMode);
+
+    Transfer->SgList.MappedSystemVa = MappedSystemVa;
+
+    Mdl->MdlFlags & ~MDL_MAPPING_CAN_FAIL;
+
+    sgList = &Transfer->SgList;
+    sgList->Flags = 0;
+
+    Transfer->MapRegisterBase = MapRegisterBase;
+
+    ix = 0;
+    CurrentLength = 0;
+
+    do
+    {
+        WriteToDevice = Transfer->Direction == 2;
+        ASSERT(Transfer->Direction != 0);
+
+        PhAddress = DmaAdapter->DmaOperations->MapTransfer(DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
+                                                           Mdl, // IN PMDL Mdl,
+                                                           MapRegisterBase, // IN PVOID MapRegisterBase,
+                                                           (PVOID)CurrentVa, // IN PVOID CurrentVa,
+                                                           (PULONG)&TransferLength, // IN OUT PULONG Length,
+                                                           WriteToDevice); // IN BOOLEAN WriteToDevice
+
+        DPRINT("USBPORT_MapTransfer: PhAddress.LowPart - %p, PhAddress.HighPart - %x, TransferLength - %x\n",
+               PhAddress.LowPart,
+               PhAddress.HighPart,
+               TransferLength);
+
+        PhAddress.HighPart = 0;
+        SgCurrentLength = TransferLength;
+
+        do
+        {
+            ElementLength = 0x1000 - (PhAddress.LowPart & 0xFFF);
+
+            if (ElementLength > SgCurrentLength)
+                ElementLength = SgCurrentLength;
+
+            DPRINT("USBPORT_MapTransfer: PhAddress.LowPart - %p, HighPart - %x, ElementLength - %x\n",
+                   PhAddress.LowPart,
+                   PhAddress.HighPart,
+                   ElementLength);
+
+            sgList->SgElement[ix].SgPhysicalAddress = PhAddress;
+            sgList->SgElement[ix].SgTransferLength = ElementLength;
+            sgList->SgElement[ix].SgOffset = CurrentLength + (TransferLength - SgCurrentLength);
+
+            PhAddress.LowPart += ElementLength;
+            SgCurrentLength -= ElementLength;
+
+            ++ix;
+        }
+        while (SgCurrentLength);
+
+        if ((PhAddr.LowPart == PhAddress.LowPart) &&
+            (PhAddr.HighPart == PhAddress.HighPart))
+        {
+            ASSERT(FALSE);
+        }
+
+        PhAddr = PhAddress;
+
+        CurrentLength += TransferLength;
+        CurrentVa += TransferLength;
+
+        TransferLength = Transfer->TransferParameters.TransferBufferLength - CurrentLength;
+    }
+    while (CurrentLength != Transfer->TransferParameters.TransferBufferLength);
+
+    Transfer->SgList.SgElementCount = ix;
+    Transfer->Flags |= TRANSFER_FLAG_DMA_MAPPED;
+
+    ASSERT(Transfer->TransferParameters.TransferBufferLength <=
+           Endpoint->EndpointProperties.MaxTransferSize);
+
+    InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
+
     return DeallocateObjectKeepRegisters;
 }
 

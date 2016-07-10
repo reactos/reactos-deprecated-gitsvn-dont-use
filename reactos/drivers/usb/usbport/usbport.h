@@ -148,6 +148,9 @@ typedef struct _USBPORT_TRANSFER {
   USBD_STATUS USBDStatus;
   ULONG CompletedTransferLen;
   ULONG NumberOfMapRegisters;
+  PVOID MapRegisterBase;
+  // SgList should be LAST field
+  USBPORT_SCATTER_GATHER_LIST SgList; // Non IsoTransfer
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
