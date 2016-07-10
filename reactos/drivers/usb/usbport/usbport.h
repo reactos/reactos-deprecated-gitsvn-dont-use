@@ -62,6 +62,7 @@
 #define PIPEHANDLE_FLAG_CLOSED 0x00000001
 
 #define TRANSFER_FLAG_DMA_MAPPED 0x00000002
+#define TRANSFER_FLAG_SUBMITED   0x00000008
 
 extern KSPIN_LOCK USBPORT_SpinLock;
 extern LIST_ENTRY USBPORT_MiniPortDrivers;
@@ -324,6 +325,11 @@ USBPORT_CreateDevice(
   PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
   USHORT PortStatus,
   USHORT Port);
+
+VOID
+USBPORT_SetEndpointState(
+  PUSBPORT_ENDPOINT Endpoint,
+  ULONG State);
 
 /* iface.c */
 

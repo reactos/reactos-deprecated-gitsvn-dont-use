@@ -564,6 +564,71 @@ USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
 }
 
 VOID
+NTAPI
+USBPORT_DmaEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_TRANSFER Transfer;
+    ULONG OldState;
+    ULONG NewState;
+    ULONG CurrentState;
+    PLIST_ENTRY List;
+    ULONG Result;
+
+    DPRINT("USBPORT_DmaEndpointWorker ... \n");
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    OldState = Endpoint->StateLast;
+
+    if (OldState == USBPORT_ENDPOINT_ACTIVE)
+    {
+        CurrentState = Endpoint->StateLast;
+        ASSERT(CurrentState == USBPORT_ENDPOINT_ACTIVE);
+
+        List = Endpoint->TransferList.Flink;
+        if (!IsListEmpty(&Endpoint->TransferList))
+        {
+            while (List && (List != &Endpoint->TransferList))
+            {
+                Transfer = CONTAINING_RECORD(List,
+                                             USBPORT_TRANSFER,
+                                             TransferLink);
+
+                if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED))
+                {
+                    Result = FdoExtension->MiniPortInterface->Packet.SubmitTransfer(FdoExtension->MiniPortExt,
+                                                                                    (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                                                    &Transfer->TransferParameters,
+                                                                                    Transfer->MiniportTransfer,
+                                                                                    &Transfer->SgList);
+
+                    if (Result)
+                        goto Exit;
+
+                    Transfer->Flags |= TRANSFER_FLAG_SUBMITED;
+                    CurrentState = USBPORT_ENDPOINT_ACTIVE;
+                }
+
+                List = Transfer->TransferLink.Flink;
+            }
+        }
+
+Exit:
+        NewState = CurrentState;
+    }
+
+    if (NewState != OldState)
+    {
+        USBPORT_SetEndpointState(Endpoint, NewState);
+    }
+
+    DPRINT("USBPORT_DmaEndpointWorker exit \n");
+}
+
+VOID
 USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
                        IN BOOLEAN Flag)
 {
@@ -588,7 +653,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
         {
             if (Endpoint->EndpointWorker)
             {
-                ASSERT(FALSE);
+                USBPORT_DmaEndpointWorker(Endpoint);
             }
             else
             {
