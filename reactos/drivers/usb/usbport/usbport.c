@@ -603,11 +603,73 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
     InterlockedDecrement(&Endpoint->LockCounter);
 }
 
+IO_ALLOCATION_ACTION
+NTAPI
+USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
+                    IN PIRP Irp,
+                    IN PVOID MapRegisterBase,
+                    IN PVOID Context)
+{
+    DPRINT("USBPORT_MapTransfer: ... \n");
+    ASSERT(FALSE);
+    return DeallocateObjectKeepRegisters;
+}
+
 VOID
 USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PLIST_ENTRY MapTransferList;
+    PUSBPORT_TRANSFER Transfer;
+    ULONG NumMapRegisters;
+    PMDL Mdl;
+    SIZE_T TransferBufferLength;
+    ULONG_PTR VirtualAddr;
+    KIRQL OldIrql;
+    NTSTATUS Status;
+
     DPRINT("USBPORT_FlushMapTransfers: ... \n");
-    ASSERT(FALSE);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
+
+    while (TRUE)
+    {
+        MapTransferList = &FdoExtension->MapTransferList;
+
+        if (IsListEmpty(&FdoExtension->MapTransferList))
+        {
+            KeLowerIrql(OldIrql);
+            return;
+        }
+
+        Transfer = CONTAINING_RECORD(MapTransferList->Flink,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
+
+        RemoveHeadList(MapTransferList);
+
+        Mdl = Transfer->Urb->UrbControlTransfer.TransferBufferMDL;
+        TransferBufferLength = Transfer->TransferParameters.TransferBufferLength;
+        VirtualAddr = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
+
+        NumMapRegisters = ADDRESS_AND_SIZE_TO_SPAN_PAGES(VirtualAddr,
+                                                         TransferBufferLength);
+
+        Transfer->NumberOfMapRegisters = NumMapRegisters;
+
+        Status = FdoExtension->DmaAdapter->DmaOperations->AllocateAdapterChannel(FdoExtension->DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
+                                                                                 FdoDevice, // IN PDEVICE_OBJECT DeviceObject,
+                                                                                 NumMapRegisters, // IN ULONG NumberOfMapRegisters,
+                                                                                 (PDRIVER_CONTROL)USBPORT_MapTransfer, // IN PDRIVER_CONTROL ExecutionRoutine,
+                                                                                 Transfer); // IN PVOID Context
+
+        if (!NT_SUCCESS(Status))
+            ASSERT(FALSE);
+    }
+
+    KeLowerIrql(OldIrql);
 }
 
 VOID

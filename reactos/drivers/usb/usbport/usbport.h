@@ -147,6 +147,7 @@ typedef struct _USBPORT_TRANSFER {
   LIST_ENTRY TransferLink;
   USBD_STATUS USBDStatus;
   ULONG CompletedTransferLen;
+  ULONG NumberOfMapRegisters;
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
