@@ -1863,6 +1863,9 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DPRINT("USBPORT_RegisterUSBPortDriver: sizeof(USBPORT_MINIPORT_INTERFACE) - %x\n",
            sizeof(USBPORT_MINIPORT_INTERFACE));
 
+    DPRINT("USBPORT_RegisterUSBPortDriver: sizeof(USBPORT_DEVICE_EXTENSION)   - %x\n",
+           sizeof(USBPORT_DEVICE_EXTENSION));
+
     if (!USBPORT_Initialized)
     {
         InitializeListHead(&USBPORT_MiniPortDrivers);
