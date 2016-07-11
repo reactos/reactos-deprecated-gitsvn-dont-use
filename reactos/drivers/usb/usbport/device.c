@@ -1249,6 +1249,7 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
     USB_DEFAULT_PIPE_SETUP_PACKET CtrlSetup;
     ULONG TransferedLen;
     USHORT DeviceAddress = 0;
+    UCHAR MaxPacketSize;
     NTSTATUS Status;
 
     DPRINT("USBPORT_InitializeDevice: ... \n");
@@ -1257,7 +1258,6 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
     ASSERT(UsbDeviceHandle != NULL);
 
     DeviceAddress = USBPORT_AllocateUsbAddress(FdoDevice);
-    DPRINT("USBPORT_InitializeDevice: DeviceAddress - %x\n", DeviceAddress);
     ASSERT(DeviceHandle->DeviceAddress == USB_DEFAULT_DEVICE_ADDRESS);
 
     RtlZeroMemory(&CtrlSetup, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
@@ -1273,7 +1273,7 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
                                      NULL,
                                      NULL);
 
-    DPRINT("USBPORT_InitializeDevice: DeviceAddress - %x. USBPORT_SendSetupPacket Status - %x\n",
+    DPRINT("USBPORT_InitializeDevice: DeviceAddress - %x. SendSetupPacket Status - %x\n",
            DeviceAddress,
            Status);
 
@@ -1293,7 +1293,6 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
 
     USBPORT_Wait(10);
 
-    // Setup request
     RtlZeroMemory(&CtrlSetup, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
     CtrlSetup.bRequest = USB_REQUEST_GET_DESCRIPTOR;
@@ -1311,14 +1310,50 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
 
     if (NT_SUCCESS(Status))
     {
-        ASSERT(FALSE);
+        ASSERT(TransferedLen == sizeof(USB_DEVICE_DESCRIPTOR));
+        ASSERT(DeviceHandle->DeviceDescriptor.bLength >= sizeof(USB_DEVICE_DESCRIPTOR));
+        ASSERT(DeviceHandle->DeviceDescriptor.bDescriptorType == 1);
+
+        MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
+
+        ASSERT((MaxPacketSize == 8) ||
+               (MaxPacketSize == 16) ||
+               (MaxPacketSize == 32) ||
+               (MaxPacketSize == 64));
     }
     else
     {
 ExitError:
         ASSERT(FALSE);
-        ExFreePool(DeviceHandle);
     }
 
     return Status;
+}
+
+NTSTATUS
+NTAPI
+USBPORT_GetUsbDescriptor(IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
+                         IN PDEVICE_OBJECT FdoDevice,
+                         IN UCHAR Type,
+                         IN PUCHAR ConfigDesc,
+                         IN PULONG ConfigDescSize)
+{
+    USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+
+    DPRINT("USBPORT_GetUsbDescriptor: Type - %x\n");
+
+    RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+    SetupPacket.bmRequestType.B = 0x80;
+    SetupPacket.bRequest = USB_REQUEST_GET_DESCRIPTOR;
+    SetupPacket.wValue.HiByte = Type;
+    SetupPacket.wLength = (USHORT)*ConfigDescSize;
+
+    return USBPORT_SendSetupPacket(UsbDeviceHandle,
+                                   FdoDevice,
+                                   &SetupPacket,
+                                   ConfigDesc,
+                                   *ConfigDescSize,
+                                   ConfigDescSize,
+                                   NULL);
 }
