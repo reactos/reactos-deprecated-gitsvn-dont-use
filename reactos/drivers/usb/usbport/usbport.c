@@ -558,6 +558,14 @@ USBPORT_CompleteTransfer(IN PURB Urb,
     PIRP Irp;
     KIRQL OldIrql;
     PRKEVENT Event;
+    BOOLEAN WriteToDevice;
+    BOOLEAN IsFlushSuccess;
+    PMDL Mdl;
+    ULONG_PTR CurrentVa;
+    SIZE_T TransferLength;
+    PUSBPORT_ENDPOINT Endpoint;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     DPRINT("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %p\n",
            Urb,
@@ -573,7 +581,35 @@ USBPORT_CompleteTransfer(IN PURB Urb,
 
     if (Transfer->Flags & TRANSFER_FLAG_DMA_MAPPED)
     {
-        ASSERT(FALSE);
+        Endpoint = Transfer->Endpoint;
+        FdoDevice = Endpoint->FdoDevice;
+        FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+        WriteToDevice = Transfer->Direction == 2;
+        Mdl = UrbTransfer->TransferBufferMDL;
+        CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
+        TransferLength = UrbTransfer->TransferBufferLength;
+
+        IsFlushSuccess = FdoExtension->DmaAdapter->DmaOperations->FlushAdapterBuffers(FdoExtension->DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
+                                                                                      Mdl, // IN PMDL Mdl,
+                                                                                      Transfer->MapRegisterBase, // IN PVOID MapRegisterBase,
+                                                                                      (PVOID)CurrentVa, // IN PVOID CurrentVa,
+                                                                                      TransferLength, // IN ULONG Length,
+                                                                                      WriteToDevice); // IN BOOLEAN WriteToDevice
+
+        if (!IsFlushSuccess)
+        {
+            DPRINT("USBPORT_CompleteTransfer: no FlushAdapterBuffers !!!\n");
+            ASSERT(FALSE);
+        }
+
+        KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
+
+        FdoExtension->DmaAdapter->DmaOperations->FreeMapRegisters(FdoExtension->DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
+                                                                  Transfer->MapRegisterBase, // PVOID MapRegisterBase,
+                                                                  Transfer->NumberOfMapRegisters); // ULONG NumberOfMapRegisters
+
+        KeLowerIrql(OldIrql);
     }
 
     if (UrbTransfer->hca.Reserved8[1] == (PVOID)USBD_FLAG_ALLOCATED_MDL)
