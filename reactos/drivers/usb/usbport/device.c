@@ -5,13 +5,13 @@
 
 NTSTATUS
 NTAPI
-USBPORT_SendSetupPacket(PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
-                        PDEVICE_OBJECT FdoDevice,
-                        PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
-                        PVOID Buffer,
-                        ULONG Length,
-                        PULONG TransferedLen,
-                        PUSBD_STATUS pUSBDStatus)
+USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+                        IN PDEVICE_OBJECT FdoDevice,
+                        IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
+                        IN PVOID Buffer,
+                        IN ULONG Length,
+                        IN OUT PULONG TransferedLen,
+                        IN OUT PUSBD_STATUS pUSBDStatus)
 {
     PURB Urb;
     PMDL Mdl;
@@ -1096,11 +1096,124 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
     return Status;
 }
 
+ULONG
+USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG Offset; 
+    ULONG Bit;
+    ULONG ix = 0; 
+
+    DPRINT("USBPORT_AllocateUsbAddress \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    while (TRUE)
+    {
+        Offset = 1;
+        Bit = 0;
+
+        do
+        {
+            if (!(FdoExtension->UsbAddressBitMap[ix] & Offset))
+            {
+                FdoExtension->UsbAddressBitMap[ix] |= Offset;
+                return 32 * ix + Bit;
+            }
+
+            Offset *= 2;
+            ++Bit;
+        }
+        while (Bit < 32);
+
+        ++ix;
+
+        if (ix < 4)
+            continue;
+
+        break;
+    }
+
+    return 0;
+}
+
 NTSTATUS
 USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
                          IN PDEVICE_OBJECT FdoDevice)
 {
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    USB_DEFAULT_PIPE_SETUP_PACKET CtrlSetup;
+    ULONG TransferedLen;
+    USHORT DeviceAddress = 0;
+    NTSTATUS Status;
+
     DPRINT("USBPORT_InitializeDevice: ... \n");
-    ASSERT(FALSE);
-    return 0;
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbDeviceHandle;
+    ASSERT(UsbDeviceHandle != NULL);
+
+    DeviceAddress = USBPORT_AllocateUsbAddress(FdoDevice);
+    DPRINT("USBPORT_InitializeDevice: DeviceAddress - %x\n", DeviceAddress);
+    ASSERT(DeviceHandle->DeviceAddress == USB_DEFAULT_DEVICE_ADDRESS);
+
+    RtlZeroMemory(&CtrlSetup, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+    CtrlSetup.bRequest = USB_REQUEST_SET_ADDRESS;
+    CtrlSetup.wValue.W = DeviceAddress;
+
+    Status = USBPORT_SendSetupPacket(DeviceHandle,
+                                     FdoDevice,
+                                     &CtrlSetup,
+                                     NULL,
+                                     0,
+                                     NULL,
+                                     NULL);
+
+    DPRINT("USBPORT_InitializeDevice: DeviceAddress - %x. USBPORT_SendSetupPacket Status - %x\n",
+           DeviceAddress,
+           Status);
+
+    if (!NT_SUCCESS(Status))
+        goto ExitError;
+
+    DeviceHandle->DeviceAddress = DeviceAddress;
+
+    DeviceHandle->PipeHandle.Endpoint->EndpointProperties.MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
+    DeviceHandle->PipeHandle.Endpoint->EndpointProperties.DeviceAddress = DeviceAddress;
+
+    ASSERT(FALSE); // USBPORT_ReopenPipe()
+
+    if (!NT_SUCCESS(Status))
+        goto ExitError;
+
+    USBPORT_Wait(10);
+
+    // Setup request
+    RtlZeroMemory(&CtrlSetup, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+    CtrlSetup.bRequest = USB_REQUEST_GET_DESCRIPTOR;
+    CtrlSetup.wValue.HiByte = USB_DEVICE_DESCRIPTOR_TYPE;
+    CtrlSetup.wLength = sizeof(USB_DEVICE_DESCRIPTOR);
+    CtrlSetup.bmRequestType.B = 0x80;
+
+    Status = USBPORT_SendSetupPacket(DeviceHandle,
+                                     FdoDevice,
+                                     &CtrlSetup,
+                                     &DeviceHandle->DeviceDescriptor,
+                                     sizeof(USB_DEVICE_DESCRIPTOR),
+                                     &TransferedLen,
+                                     NULL);
+
+    if (NT_SUCCESS(Status))
+    {
+        ASSERT(FALSE);
+    }
+    else
+    {
+ExitError:
+        ASSERT(FALSE);
+        ExFreePool(DeviceHandle);
+    }
+
+    return Status;
 }
