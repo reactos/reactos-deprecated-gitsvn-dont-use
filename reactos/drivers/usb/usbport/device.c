@@ -958,12 +958,11 @@ Exit:
 }
 
 NTSTATUS
-NTAPI
-USBPORT_CreateDevice(PUSB_DEVICE_HANDLE *pHandle,
-                     PDEVICE_OBJECT FdoDevice,
-                     PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
-                     USHORT PortStatus,
-                     USHORT Port)
+USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
+                     IN PDEVICE_OBJECT FdoDevice,
+                     IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
+                     IN USHORT PortStatus,
+                     IN USHORT Port)
 {
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
     PUSBPORT_PIPE_HANDLE PipeHandle;
@@ -1095,4 +1094,13 @@ USBPORT_CreateDevice(PUSB_DEVICE_HANDLE *pHandle,
     ASSERT(FALSE);
 
     return Status;
+}
+
+NTSTATUS
+USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
+                         IN PDEVICE_OBJECT FdoDevice)
+{
+    DPRINT("USBPORT_InitializeDevice: ... \n");
+    ASSERT(FALSE);
+    return 0;
 }

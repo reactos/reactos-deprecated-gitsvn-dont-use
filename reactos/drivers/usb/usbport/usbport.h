@@ -317,24 +317,28 @@ USBPORT_HandleSelectConfiguration(
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(
-  PUSBPORT_DEVICE_HANDLE DeviceHandle,
-  PDEVICE_OBJECT FdoDevice,
-  PUSBPORT_PIPE_HANDLE PipeHandle,
-  PUSBD_STATUS UsbdStatus);
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_PIPE_HANDLE PipeHandle,
+  IN PUSBD_STATUS UsbdStatus);
 
 NTSTATUS
-NTAPI
 USBPORT_CreateDevice(
-  PUSB_DEVICE_HANDLE *pHandle,
-  PDEVICE_OBJECT FdoDevice,
-  PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
-  USHORT PortStatus,
-  USHORT Port);
+  IN OUT PUSB_DEVICE_HANDLE *pHandle,
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
+  IN USHORT PortStatus,
+  IN USHORT Port);
+
+NTSTATUS
+USBPORT_InitializeDevice(
+  IN PVOID UsbDeviceHandle,
+  IN PDEVICE_OBJECT FdoDevice);
 
 VOID
 USBPORT_SetEndpointState(
-  PUSBPORT_ENDPOINT Endpoint,
-  ULONG State);
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN ULONG State);
 
 /* iface.c */
 
