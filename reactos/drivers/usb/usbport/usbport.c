@@ -324,6 +324,26 @@ Exit:
     return HeaderBuffer;
 }
 
+VOID
+NTAPI
+USBPORT_FreeCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
+                         IN PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDMA_ADAPTER DmaAdapter;
+
+    DPRINT("USBPORT_FreeCommonBuffer: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    DmaAdapter = FdoExtension->DmaAdapter;
+
+    DmaAdapter->DmaOperations->FreeCommonBuffer(FdoExtension->DmaAdapter,
+                                                HeaderBuffer->Length,
+                                                HeaderBuffer->LogicalAddress,
+                                                (PVOID)HeaderBuffer->VirtualAddress,
+                                                TRUE);
+}
+
 PUSBPORT_MINIPORT_INTERFACE
 USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
 {

@@ -285,6 +285,12 @@ USBPORT_AllocateCommonBuffer(
   IN PDEVICE_OBJECT FdoDevice,
   IN SIZE_T BufferLength);
 
+VOID
+NTAPI
+USBPORT_FreeCommonBuffer(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer);
+
 USBD_STATUS
 USBPORT_AllocateTransfer(
   IN PDEVICE_OBJECT FdoDevice,

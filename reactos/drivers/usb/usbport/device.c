@@ -437,8 +437,7 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
 
     if (Endpoint->HeaderBuffer)
     {
-        ASSERT(FALSE);
-        // USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
+        USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
         Endpoint->HeaderBuffer = 0;
     }
 
