@@ -26,6 +26,12 @@ typedef VOID
   PVOID,
   PULONG);
 
+typedef VOID
+(NTAPI *PHCI_CLOSE_ENDPOINT)(
+  PVOID,
+  PVOID,
+  BOOLEAN);
+
 typedef ULONG
 (NTAPI *PHCI_START_CONTROLLER)(
   PVOID,
@@ -141,6 +147,7 @@ typedef struct _USBPORT_REGISTRATION_PACKET {
   ULONG MiniPortTransferSize;
   ULONG MiniPortResourcesSize;
   PHCI_QUERY_ENDPOINT_REQUIREMENTS QueryEndpointRequirements;
+  PHCI_CLOSE_ENDPOINT CloseEndpoint;
   PHCI_START_CONTROLLER StartController;
   PHCI_INTERRUPT_SERVICE InterruptService;
   PHCI_INTERRUPT_DPC InterruptDpc;

@@ -155,10 +155,10 @@ USBPORT_SetEndpointState(PUSBPORT_ENDPOINT Endpoint,
 
 NTSTATUS
 NTAPI
-USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
-                 PDEVICE_OBJECT FdoDevice,
-                 PUSBPORT_PIPE_HANDLE PipeHandle,
-                 PUSBD_STATUS UsbdStatus)
+USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+                 IN PDEVICE_OBJECT FdoDevice,
+                 IN PUSBPORT_PIPE_HANDLE PipeHandle,
+                 IN OUT PUSBD_STATUS UsbdStatus)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
@@ -390,6 +390,110 @@ USBPORT_OpenPipe(PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
         ASSERT(FALSE);
     }
+
+    return Status;
+}
+
+NTSTATUS
+USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
+                   IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+    ULONG EndpointRequirements[2] = {0};
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    ULONG Result;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_ReopenPipe ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+    while (TRUE)
+    {
+        if (!InterlockedIncrement(&Endpoint->LockCounter))
+            break;
+    }
+
+    Packet->SetEndpointState(FdoExtension->MiniPortExt,
+                             (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                             USBPORT_ENDPOINT_CLOSED);
+
+    USBPORT_Wait(2);
+
+    if (Endpoint->Flags & ENDPOINT_FLAG_OPENED)
+    {
+        Packet->CloseEndpoint(FdoExtension->MiniPortExt,
+                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                              1); // Control or Bulk
+
+        Endpoint->Flags = (Endpoint->Flags & ~ENDPOINT_FLAG_OPENED) |
+                          ENDPOINT_FLAG_CLOSED;
+    }
+
+    RtlZeroMemory((PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                  Packet->MiniPortEndpointSize);
+
+    if (Endpoint->HeaderBuffer)
+    {
+        ASSERT(FALSE);
+        // USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
+        Endpoint->HeaderBuffer = 0;
+    }
+
+    Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
+                                      &Endpoint->EndpointProperties,
+                                      (PULONG)&EndpointRequirements);
+
+    if (EndpointRequirements[0])
+    {
+        HeaderBuffer = USBPORT_AllocateCommonBuffer(FdoDevice,
+                                                    EndpointRequirements[0]);
+    }
+    else
+    {
+        HeaderBuffer = NULL;
+    }
+
+    if (HeaderBuffer || EndpointRequirements[0] == 0)
+    {
+        Endpoint->HeaderBuffer = HeaderBuffer;
+        Status = STATUS_SUCCESS;
+    }
+    else
+    {
+        Endpoint->HeaderBuffer = 0;
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    if (Endpoint->HeaderBuffer && HeaderBuffer)
+    {
+        Endpoint->EndpointProperties.BufferVA = HeaderBuffer->VirtualAddress;
+        Endpoint->EndpointProperties.BufferPA = HeaderBuffer->PhysicalAddress;
+        Endpoint->EndpointProperties.BufferLength = HeaderBuffer->BufferLength;
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        Endpoint->Flags &= ~ENDPOINT_FLAG_CLOSED;
+
+        Result = Packet->OpenEndpoint(FdoExtension->MiniPortExt,
+                                      &Endpoint->EndpointProperties,
+                                      (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+
+        if (Result == 0)
+            Endpoint->Flags |= ENDPOINT_FLAG_OPENED;
+
+        if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
+        {
+            Packet->SetEndpointState(FdoExtension->MiniPortExt,
+                                     (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                     USBPORT_ENDPOINT_ACTIVE);
+        }
+    }
+
+    InterlockedDecrement(&Endpoint->LockCounter);
 
     return Status;
 }
@@ -1142,6 +1246,7 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
                          IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PUSBPORT_ENDPOINT Endpoint;
     USB_DEFAULT_PIPE_SETUP_PACKET CtrlSetup;
     ULONG TransferedLen;
     USHORT DeviceAddress = 0;
@@ -1177,11 +1282,12 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
         goto ExitError;
 
     DeviceHandle->DeviceAddress = DeviceAddress;
+    Endpoint = DeviceHandle->PipeHandle.Endpoint;
 
-    DeviceHandle->PipeHandle.Endpoint->EndpointProperties.MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
-    DeviceHandle->PipeHandle.Endpoint->EndpointProperties.DeviceAddress = DeviceAddress;
+    Endpoint->EndpointProperties.MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
+    Endpoint->EndpointProperties.DeviceAddress = DeviceAddress;
 
-    ASSERT(FALSE); // USBPORT_ReopenPipe()
+    Status = USBPORT_ReopenPipe(FdoDevice, Endpoint);
 
     if (!NT_SUCCESS(Status))
         goto ExitError;
