@@ -469,6 +469,35 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
     // ...
 }
 
+ULONG
+NTAPI
+USBPORT_GetMappedVirtualAddress(ULONG_PTR TD,
+                                PVOID MiniPortExtension,
+                                PVOID MiniPortEndpoint)
+{
+    PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+    PUSBPORT_ENDPOINT Endpoint;
+    ULONG Offset; 
+    ULONG_PTR VirtualAddress;
+
+    DPRINT("USBPORT_GetMappedVirtualAddress ... \n");
+
+    Endpoint = (PUSBPORT_ENDPOINT)((ULONG_PTR)MiniPortEndpoint -
+                                   sizeof(USBPORT_ENDPOINT));
+
+    if (!Endpoint)
+    {
+        ASSERT(FALSE);
+    }
+
+    HeaderBuffer = Endpoint->HeaderBuffer;
+
+    Offset = TD - HeaderBuffer->PhysicalAddress;
+    VirtualAddress = HeaderBuffer->VirtualAddress + Offset;
+
+    return VirtualAddress;
+}
+
 VOID
 NTAPI
 USBPORT_InvalidateEndpoint(IN PVOID Context)
@@ -1799,6 +1828,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
 
     RegPacket->UsbPortInvalidateRootHub = USBPORT_InvalidateRootHub;
     RegPacket->UsbPortInvalidateEndpoint = USBPORT_InvalidateEndpoint;
+    RegPacket->UsbPortGetMappedVirtualAddress = USBPORT_GetMappedVirtualAddress;
 
     RtlCopyMemory(&MiniPortInterface->Packet,
                   RegPacket,
