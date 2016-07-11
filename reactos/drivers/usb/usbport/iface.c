@@ -53,9 +53,14 @@ USB_BUSIFFN
 USBHI_InitializeUsbDevice(IN PVOID BusContext,
                           OUT PUSB_DEVICE_HANDLE DeviceHandle)
 {
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+
     DPRINT("USBHI_InitializeUsbDevice \n");
-    ASSERT(FALSE);
-    return STATUS_SUCCESS;
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    return USBPORT_InitializeDevice(DeviceHandle, PdoExtension->FdoDevice);
 }
 
 NTSTATUS
