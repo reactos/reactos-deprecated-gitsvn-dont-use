@@ -470,6 +470,20 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 }
 
 VOID
+NTAPI
+USBPORT_InvalidateEndpoint(IN PVOID Context)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+
+    DPRINT("USBPORT_InvalidateEndpoint: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context - 
+                                               sizeof(USBPORT_DEVICE_EXTENSION));
+
+    KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+}
+
+VOID
 USBPORT_CompleteTransfer(IN PURB Urb,
                          IN USBD_STATUS TransferStatus)
 {
@@ -1772,6 +1786,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
 
     RegPacket->UsbPortInvalidateRootHub = USBPORT_InvalidateRootHub;
+    RegPacket->UsbPortInvalidateEndpoint = USBPORT_InvalidateEndpoint;
 
     RtlCopyMemory(&MiniPortInterface->Packet,
                   RegPacket,
