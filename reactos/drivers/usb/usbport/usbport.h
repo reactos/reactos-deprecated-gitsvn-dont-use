@@ -131,6 +131,7 @@ typedef struct _USBPORT_ENDPOINT {
   LIST_ENTRY TransferList;
   LONG LockCounter;
   PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+  LIST_ENTRY DispatchLink;
 } USBPORT_ENDPOINT, *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_TRANSFER {
@@ -300,6 +301,10 @@ VOID
 USBPORT_CompleteTransfer(
   IN PURB Urb,
   IN USBD_STATUS TransferStatus);
+
+VOID
+USBPORT_FlushPendingTransfers(
+  IN PUSBPORT_ENDPOINT Endpoint);
 
 /* device.c */
 
