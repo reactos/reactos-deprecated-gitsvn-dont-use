@@ -55,6 +55,8 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     PLIST_ENTRY EndpointList;
     PLIST_ENTRY DoneTransferList;
     LIST_ENTRY DispatchList;
+    PUSBPORT_TRANSFER Transfer;
+    PURB Urb;
 
     DPRINT("USBPORT_IsrDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
            Dpc,
@@ -151,7 +153,17 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
         if (IsListEmpty(DoneTransferList))
             break;
 
-        ASSERT(FALSE);
+        Transfer = CONTAINING_RECORD(DoneTransferList->Flink,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
+
+        RemoveHeadList(DoneTransferList);
+
+        USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
+
+        Urb = Transfer->Urb;
+
+        USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
     }
 
     InterlockedDecrement(&FdoExtension->IsrDpcCounter);
