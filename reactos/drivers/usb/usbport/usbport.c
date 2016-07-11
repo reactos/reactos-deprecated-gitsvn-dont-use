@@ -646,9 +646,15 @@ VOID
 USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
                        IN BOOLEAN Flag)
 {
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
     DPRINT("USBPORT_EndpointWorker: Endpoint - %p, Flag - %x\n",
            Endpoint,
            Flag);
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     if (Flag == FALSE)
     {
@@ -662,7 +668,8 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 
     if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
     {
-        ASSERT(FALSE);
+        FdoExtension->MiniPortInterface->Packet.PollEndpoint(FdoExtension->MiniPortExt,
+                                                             (ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT));
     }
 
     if (!IsListEmpty(&Endpoint->PendingTransferList) ||
