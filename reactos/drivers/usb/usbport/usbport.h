@@ -345,6 +345,15 @@ USBPORT_InitializeDevice(
   IN PVOID UsbDeviceHandle,
   IN PDEVICE_OBJECT FdoDevice);
 
+NTSTATUS
+NTAPI
+USBPORT_GetUsbDescriptor(
+  IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
+  IN PDEVICE_OBJECT FdoDevice,
+  IN UCHAR Type,
+  IN PUCHAR ConfigDesc,
+  IN PULONG ConfigDescSize);
+
 VOID
 USBPORT_SetEndpointState(
   IN PUSBPORT_ENDPOINT Endpoint,

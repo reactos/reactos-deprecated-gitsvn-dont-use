@@ -72,9 +72,32 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
                         IN PUCHAR ConfigDescBuffer,
                         IN PULONG ConfigDescBufferLen)
 {
-    DPRINT("USBHI_GetUsbDescriptors \n");
-    ASSERT(FALSE);
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    NTSTATUS Status;
+
+    DPRINT("USBHI_GetUsbDescriptors ...\n");
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    if (DeviceDescBuffer && *DeviceDescBufferLen)
+    {
+        if (*DeviceDescBufferLen > sizeof(USB_DEVICE_DESCRIPTOR))
+            *DeviceDescBufferLen = sizeof(USB_DEVICE_DESCRIPTOR);
+
+        RtlCopyMemory(DeviceDescBuffer,
+                      &(((PUSBPORT_DEVICE_HANDLE)DeviceHandle)->DeviceDescriptor),
+                      *DeviceDescBufferLen);
+    }
+
+    Status = USBPORT_GetUsbDescriptor((PUSB_DEVICE_HANDLE)DeviceHandle,
+                                      PdoExtension->FdoDevice,
+                                      USB_CONFIGURATION_DESCRIPTOR_TYPE,
+                                      ConfigDescBuffer,
+                                      ConfigDescBufferLen);
+
+    return Status;
 }
 
 NTSTATUS
