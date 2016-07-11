@@ -660,6 +660,11 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
         }
     }
 
+    if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+    {
+        ASSERT(FALSE);
+    }
+
     if (!IsListEmpty(&Endpoint->PendingTransferList) ||
         !IsListEmpty(&Endpoint->TransferList))
     {

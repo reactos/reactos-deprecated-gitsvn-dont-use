@@ -54,6 +54,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     PLIST_ENTRY List;
     PLIST_ENTRY EndpointList;
     PLIST_ENTRY DoneTransferList;
+    LIST_ENTRY DispatchList;
 
     DPRINT("USBPORT_IsrDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
            Dpc,
@@ -63,6 +64,8 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 
     FdoDevice = (PDEVICE_OBJECT)DeferredContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    InitializeListHead(&DispatchList);
 
     KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
 
@@ -109,7 +112,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
                 !InterlockedIncrement(&Endpoint->LockCounter) &&
                 !(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
             {
-                ASSERT(FALSE);
+                InsertTailList(&DispatchList, &Endpoint->DispatchLink);
             }
             else
             {
@@ -119,7 +122,22 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
             EndpointList = Endpoint->EndpointLink.Flink;
         }
     }
+
     KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+    while (!IsListEmpty(&DispatchList))
+    {
+        Endpoint = CONTAINING_RECORD(DispatchList.Flink,
+                                     USBPORT_ENDPOINT,
+                                     DispatchLink);
+
+        RemoveEntryList(DispatchList.Flink);
+        Endpoint->DispatchLink.Flink = NULL;
+        Endpoint->DispatchLink.Blink = NULL;
+
+        USBPORT_EndpointWorker(Endpoint, TRUE);
+        USBPORT_FlushPendingTransfers(Endpoint);
+    }
 
     KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
 
