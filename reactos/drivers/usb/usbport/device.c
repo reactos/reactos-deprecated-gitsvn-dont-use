@@ -1357,6 +1357,41 @@ USBPORT_GetUsbDescriptor(IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
                                    NULL);
 }
 
+PUSBPORT_INTERFACE_HANDLE
+USBPORT_GetInterfaceHandle(IN PUSBPORT_CONFIGURATION_HANDLE ConfigurationHandle,
+                           IN UCHAR InterfaceNumber)
+{
+    PUSBPORT_INTERFACE_HANDLE InterfaceHandle;
+    PLIST_ENTRY iHandleList;
+    UCHAR InterfaceNum;
+
+    DPRINT("USBPORT_GetInterfaceHandle: ConfigurationHandle - %p, InterfaceNumber - %p\n",
+           ConfigurationHandle,
+           InterfaceNumber);
+
+    if (!IsListEmpty(&ConfigurationHandle->InterfaceHandleList))
+    {
+        iHandleList = ConfigurationHandle->InterfaceHandleList.Flink;
+
+        while (iHandleList &&
+               (iHandleList != &ConfigurationHandle->InterfaceHandleList))
+        {
+            InterfaceHandle = CONTAINING_RECORD(iHandleList,
+                                                USBPORT_INTERFACE_HANDLE,
+                                                InterfaceLink);
+
+            InterfaceNum = InterfaceHandle->InterfaceDescriptor.bInterfaceNumber;
+
+            if (InterfaceNum == InterfaceNumber)
+                return InterfaceHandle;
+
+            iHandleList = InterfaceHandle->InterfaceLink.Flink;
+        }
+    }
+
+    return NULL;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_SelectInterface(IN PDEVICE_OBJECT FdoDevice,
