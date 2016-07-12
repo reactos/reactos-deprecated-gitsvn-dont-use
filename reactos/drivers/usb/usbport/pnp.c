@@ -58,11 +58,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     PUSBPORT_TRANSFER Transfer;
     PURB Urb;
 
-    DPRINT("USBPORT_IsrDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
-           Dpc,
-           DeferredContext,
-           SystemArgument1,
-           SystemArgument2);
+    DPRINT("USBPORT_IsrDpc: \n");
 
     FdoDevice = (PDEVICE_OBJECT)DeferredContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -181,7 +177,7 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
     PUNICODE_STRING SymbolicLinkName;
     NTSTATUS Status;
 
-    DPRINT("USBPORT_RegisterDeviceInterface ... \n");
+    DPRINT("USBPORT_RegisterDeviceInterface: Enable - %x\n", Enable);
 
     DeviceExtension = (PUSBPORT_RHDEVICE_EXTENSION)DeviceObject->DeviceExtension;
     SymbolicLinkName = &DeviceExtension->CommonExtension.SymbolicLinkName;
@@ -198,7 +194,12 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
             Status = IoSetDeviceInterfaceState(SymbolicLinkName, TRUE);
 
             if (NT_SUCCESS(Status))
+            {
                 DeviceExtension->CommonExtension.IsInterfaceEnabled = 1;
+
+                DPRINT("USBPORT_RegisterDeviceInterface: LinkName  - %wZ\n",
+                       &DeviceExtension->CommonExtension.SymbolicLinkName);
+            }
         }
     }
     else if (DeviceExtension->CommonExtension.IsInterfaceEnabled)
@@ -360,6 +361,11 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     FdoDevice);
 
     FdoExtension->IsrDpcCounter = -1;
+
+    FdoExtension->UsbAddressBitMap[0] = 1;
+    FdoExtension->UsbAddressBitMap[1] = 0;
+    FdoExtension->UsbAddressBitMap[2] = 0;
+    FdoExtension->UsbAddressBitMap[3] = 0;
 
     Status = IoConnectInterrupt(&FdoExtension->InterruptObject,
                                 USBPORT_InterruptService,

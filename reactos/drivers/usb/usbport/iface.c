@@ -280,8 +280,8 @@ USBHI_SetDeviceHandleData(IN PVOID BusContext,
                           IN PVOID DeviceHandle,
                           IN PDEVICE_OBJECT UsbDevicePdo)
 {
-    DPRINT("USBHI_SetDeviceHandleData \n");
-    ASSERT(FALSE);
+    DPRINT("USBHI_SetDeviceHandleData FIXME\n");
+    // ASSERT(FALSE);
 }
 
 /* USB bus driver Interface functions */
@@ -347,7 +347,7 @@ USBDI_EnumLogEntry(IN PVOID BusContext,
                    IN ULONG P2)
 {
     DPRINT("USBDI_EnumLogEntry \n");
-    ASSERT(FALSE);
+    // ASSERT(FALSE);
     return STATUS_SUCCESS;
 }
 

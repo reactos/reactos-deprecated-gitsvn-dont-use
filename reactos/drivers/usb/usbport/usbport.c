@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
@@ -632,11 +632,14 @@ USBPORT_CompleteTransfer(IN PURB Urb,
         KeLowerIrql(OldIrql);
     }
 
-    if (UrbTransfer->hca.Reserved8[1] == (PVOID)USBD_FLAG_ALLOCATED_MDL)
+    if (Urb->UrbHeader.UsbdFlags & USBD_FLAG_ALLOCATED_MDL)
+    {
         IoFreeMdl(Transfer->TransferBufferMDL);
+        Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_MDL;
+    }
 
-    UrbTransfer->hca.Reserved8[0] = (PVOID)-1;
-    UrbTransfer->hca.Reserved8[2] = (PVOID)-1;
+    Urb->UrbControlTransfer.hca.Reserved8[0] = NULL;
+    Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
 
     Irp = Transfer->Irp;
 
@@ -1177,7 +1180,7 @@ ValidateTransferParameters(IN PURB Urb)
         MmBuildMdlForNonPagedPool(Mdl);
 
         UrbTransfer->TransferBufferMDL = Mdl;
-        UrbTransfer->hca.Reserved8[1] = (PVOID)USBD_FLAG_ALLOCATED_MDL;
+        Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_MDL;
 
         DPRINT("ValidateTransferParameters: Mdl - %p\n", Mdl);
     }
@@ -1248,16 +1251,14 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
         Transfer->MiniportTransfer = (PVOID)((ULONG_PTR)Transfer +
                                              PortTransferLength);
 
-        Urb->UrbControlTransfer.hca.Reserved8[1] = (PVOID)USBD_FLAG_ALLOCATED_TRANSFER;
-
+        Urb->UrbControlTransfer.hca.Reserved8[0] = Transfer;
+        Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_TRANSFER;
         USBDStatus = USBD_STATUS_SUCCESS;
     }
     else
     {
         USBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
     }
-
-    Urb->UrbControlTransfer.hca.Reserved8[0] = Transfer;
 
     DPRINT("USBPORT_AllocateTransfer: return USBDStatus - %x\n", USBDStatus);
     return USBDStatus;
@@ -1330,16 +1331,16 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
         else
             Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
 
-        DPRINT("USBPORT_HandleGetStatus: SetupPacket->bmRequestType.B - %x\n",
+        DPRINT("GetStatus: SetupPacket->bmRequestType.B - %x\n",
                SetupPacket->bmRequestType.B);
 
-        DPRINT("USBPORT_HandleGetStatus: SetupPacket->bRequest        - %x\n",
+        DPRINT("GetStatus: SetupPacket->bRequest        - %x\n",
                SetupPacket->bRequest);
 
-        DPRINT("USBPORT_HandleGetStatus: SetupPacket->wIndex.W        - %x\n",
+        DPRINT("GetStatus: SetupPacket->wIndex.W        - %x\n",
                SetupPacket->wIndex.W);
 
-        DPRINT("USBPORT_HandleGetStatus: SetupPacket->wLength         - %x\n",
+        DPRINT("GetStatus: SetupPacket->wLength         - %x\n",
                SetupPacket->wLength);
 
         USBPORT_QueueTransferUrb(Urb);
@@ -1422,23 +1423,12 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
             break;
     }
 
-    DPRINT("USBPORT_HandleVendorOrClass: bmRequestType.B - %x\n",
-           SetupPacket->bmRequestType.B);
-
-    DPRINT("USBPORT_HandleVendorOrClass: bRequest        - %x\n",
-           SetupPacket->bRequest);
-
-    DPRINT("USBPORT_HandleVendorOrClass: wValue.LowByte  - %x\n",
-           SetupPacket->wValue.LowByte);
-
-    DPRINT("USBPORT_HandleVendorOrClass: wValue.HiByte   - %x\n",
-           SetupPacket->wValue.HiByte);
-
-    DPRINT("USBPORT_HandleVendorOrClass: wIndex.W        - %x\n",
-           SetupPacket->wIndex.W);
-
-    DPRINT("USBPORT_HandleVendorOrClass: wLength         - %x\n",
-           SetupPacket->wLength);
+    DPRINT("VendorOrClass: bmRequestType.B - %x\n", SetupPacket->bmRequestType.B);
+    DPRINT("VendorOrClass: bRequest        - %x\n", SetupPacket->bRequest);
+    DPRINT("VendorOrClass: wValue.LowByte  - %x\n", SetupPacket->wValue.LowByte);
+    DPRINT("VendorOrClass: wValue.HiByte   - %x\n", SetupPacket->wValue.HiByte);
+    DPRINT("VendorOrClass: wIndex.W        - %x\n", SetupPacket->wIndex.W);
+    DPRINT("VendorOrClass: wLength         - %x\n", SetupPacket->wLength);
 
     USBPORT_QueueTransferUrb(Urb);
 
@@ -1507,22 +1497,22 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
     else
         Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
 
-    DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->bmRequestType.B - %x\n",
+    DPRINT("GetSetDescriptor: SetupPacket->bmRequestType.B - %x\n",
            SetupPacket->bmRequestType.B); // 0x80
 
-    DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->bRequest        - %x\n",
+    DPRINT("GetSetDescriptor: SetupPacket->bRequest        - %x\n",
            SetupPacket->bRequest); // USB_REQUEST_GET_DESCRIPTOR
 
-    DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->wValue.LowByte  - %x\n",
+    DPRINT("GetSetDescriptor: SetupPacket->wValue.LowByte  - %x\n",
            SetupPacket->wValue.LowByte); // Urb->UrbControlDescriptorRequest.Index;
 
-    DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->wValue.HiByte   - %x\n",
+    DPRINT("GetSetDescriptor: SetupPacket->wValue.HiByte   - %x\n",
            SetupPacket->wValue.HiByte); // Urb->UrbControlDescriptorRequest.DescriptorType;
 
-    DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->wIndex.W        - %x\n",
+    DPRINT("GetSetDescriptor: SetupPacket->wIndex.W        - %x\n",
            SetupPacket->wIndex.W); // Urb->UrbControlDescriptorRequest.LanguageId;
 
-    DPRINT("USBPORT_HandleGetSetDescriptor: SetupPacket->wLength         - %x\n",
+    DPRINT("GetSetDescriptor: SetupPacket->wLength         - %x\n",
            SetupPacket->wLength); // Urb->UrbControlDescriptorRequest.TransferBufferLength;
 
     USBPORT_QueueTransferUrb(Urb);
@@ -1557,10 +1547,6 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         ASSERT(Urb);
         Status = STATUS_NOT_IMPLEMENTED;
 
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Urb - %p, UrbFunction - 0x%02X\n",
-               Urb,
-               Urb->UrbHeader.Function);
-
         Urb->UrbHeader.Status = 0;
         Urb->UrbHeader.UsbdFlags = 0;
 
@@ -1580,10 +1566,14 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
         if (!UsbdDeviceHandle)
         {
-            DPRINT("USBPORT_PdoScsi: UsbdDeviceHandle == 0\n");
+            //DPRINT("USBPORT_PdoScsi: UsbdDeviceHandle == 0\n");
             Urb->UrbHeader.UsbdDeviceHandle = &PdoExtension->DeviceHandle;
             UsbdDeviceHandle = &PdoExtension->DeviceHandle;
         }
+
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Function - 0x%02X, UsbdDeviceHandle - %p\n",
+               Function,
+               Urb->UrbHeader.UsbdDeviceHandle);
 
         switch (Function)
         {
@@ -1594,6 +1584,12 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
             case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
             case URB_FUNCTION_CONTROL_TRANSFER: // 0x08
+                Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
+
+                if ((Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER) &&
+                    (Function == URB_FUNCTION_CONTROL_TRANSFER))
+                    Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+
                 ValidateTransferParameters(Urb);
 
                 Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
@@ -1607,10 +1603,6 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                     goto Exit;
                 }
 
-                if ((Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER) &&
-                    (Function == URB_FUNCTION_CONTROL_TRANSFER))
-                    Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
-
                 Status = USBPORT_HandleDataTransfers(Urb);
                 break;
 
@@ -1622,6 +1614,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_CLASS_ENDPOINT: // 0x1C
             case URB_FUNCTION_CLASS_OTHER: // 0x1F
             case URB_FUNCTION_VENDOR_OTHER: // 0x20
+                Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
                 Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
@@ -1645,6 +1638,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT: // 0x25
             case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE: // 0x28
             case URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE: // 0x29
+                Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
                 Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
@@ -1667,6 +1661,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_GET_STATUS_FROM_INTERFACE: // 0x14
             case URB_FUNCTION_GET_STATUS_FROM_ENDPOINT: // 0x15
             case URB_FUNCTION_GET_STATUS_FROM_OTHER: // 0x21
+                Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
                 Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
@@ -1706,13 +1701,13 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         }
         else
         {
-            if (Urb->UrbControlTransfer.hca.Reserved8[1] == (PVOID)USBD_FLAG_ALLOCATED_TRANSFER)
+            if (Urb->UrbHeader.UsbdFlags & USBD_FLAG_ALLOCATED_TRANSFER)
             {
                 PUSBPORT_TRANSFER Transfer;
 
                 Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
-                Urb->UrbControlTransfer.hca.Reserved8[0] = (PVOID)-1;
-                Urb->UrbControlTransfer.hca.Reserved8[1] = (PVOID)-1;
+                Urb->UrbControlTransfer.hca.Reserved8[0] = NULL;
+                Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
                 ExFreePool(Transfer);
             }
         }

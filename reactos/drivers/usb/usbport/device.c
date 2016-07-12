@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 NTSTATUS
@@ -70,7 +70,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 
             if (Mdl)
             {
-                Urb->UrbControlTransfer.hca.Reserved8[1] = (PVOID)USBD_FLAG_ALLOCATED_MDL;
+                Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_MDL;
                 MmBuildMdlForNonPagedPool(Mdl);
             }
             else
@@ -389,9 +389,8 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
             ExFreePool(Endpoint);
 
         ASSERT(FALSE);
+        return Status;
     }
-
-    return Status;
 }
 
 NTSTATUS
@@ -1131,7 +1130,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
     }
 
     DeviceDescriptor = ExAllocatePoolWithTag(NonPagedPool,
-                                             64,
+                                             USB_DEFAULT_MAX_PACKET,
                                              USB_PORT_TAG);
 
     if (!DeviceDescriptor)
