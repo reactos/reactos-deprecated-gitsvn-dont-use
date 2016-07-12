@@ -361,7 +361,7 @@ USBPORT_SetEndpointState(
 
 NTSTATUS
 NTAPI
-USBPORT_SelectInterface(
+USBPORT_HandleSelectInterface(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp,
   IN PURB Urb);

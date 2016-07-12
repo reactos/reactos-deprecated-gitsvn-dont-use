@@ -393,6 +393,71 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     }
 }
 
+VOID
+USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+                  IN PDEVICE_OBJECT FdoDevice,
+                  IN PUSBPORT_PIPE_HANDLE PipeHandle)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_ENDPOINT Endpoint;
+    BOOLEAN IsReady;
+
+    DPRINT("USBPORT_ClosePipe \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (!(PipeHandle->Flags & PIPEHANDLE_FLAG_CLOSED))
+    {
+        RemoveEntryList(&PipeHandle->PipeLink);
+
+        PipeHandle->PipeLink.Flink = NULL;
+        PipeHandle->PipeLink.Blink = NULL;
+
+        PipeHandle->Flags |= PIPEHANDLE_FLAG_CLOSED;
+
+        Endpoint = PipeHandle->Endpoint;
+
+        if ((Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
+            (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_INTERRUPT))
+        {
+            PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+            PdoExtension->Endpoint = NULL;
+        }
+
+        while (TRUE)
+        {
+            IsReady = TRUE;
+
+            if (!IsListEmpty(&Endpoint->PendingTransferList))
+                IsReady = FALSE;
+
+            if (!IsListEmpty(&Endpoint->TransferList))
+                IsReady = FALSE;
+
+            if (Endpoint->StateLast != Endpoint->StateNext)
+                IsReady = FALSE;
+
+            if (InterlockedIncrement(&Endpoint->LockCounter))
+                IsReady = FALSE;
+
+            InterlockedDecrement(&Endpoint->LockCounter);
+
+            if (IsReady == TRUE)
+                break;
+
+            USBPORT_Wait(1);
+        }
+
+        Endpoint->DeviceHandle = NULL;
+
+        USBPORT_SetEndpointState(Endpoint,
+                                 USBPORT_ENDPOINT_CLOSED);
+
+        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+    }
+}
+
 NTSTATUS
 USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
                    IN PUSBPORT_ENDPOINT Endpoint)
@@ -1394,9 +1459,9 @@ USBPORT_GetInterfaceHandle(IN PUSBPORT_CONFIGURATION_HANDLE ConfigurationHandle,
 
 NTSTATUS
 NTAPI
-USBPORT_SelectInterface(IN PDEVICE_OBJECT FdoDevice,
-                        IN PIRP Irp,
-                        IN PURB Urb)
+USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
+                              IN PIRP Irp,
+                              IN PURB Urb)
 {
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
     PUSBPORT_CONFIGURATION_HANDLE ConfigurationHandle;
