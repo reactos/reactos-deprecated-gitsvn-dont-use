@@ -334,8 +334,7 @@ USB_BUSIFFN
 USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
 {
     DPRINT("USBDI_IsDeviceHighSpeed \n");
-    ASSERT(FALSE);
-    return STATUS_SUCCESS;
+    return FALSE;
 }
 
 NTSTATUS
