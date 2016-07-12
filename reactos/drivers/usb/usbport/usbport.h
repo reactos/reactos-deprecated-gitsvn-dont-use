@@ -359,6 +359,13 @@ USBPORT_SetEndpointState(
   IN PUSBPORT_ENDPOINT Endpoint,
   IN ULONG State);
 
+NTSTATUS
+NTAPI
+USBPORT_SelectInterface(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp,
+  IN PURB Urb);
+
 /* iface.c */
 
 NTSTATUS

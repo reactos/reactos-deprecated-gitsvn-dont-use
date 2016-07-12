@@ -1356,3 +1356,94 @@ USBPORT_GetUsbDescriptor(IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
                                    ConfigDescSize,
                                    NULL);
 }
+
+NTSTATUS
+NTAPI
+USBPORT_SelectInterface(IN PDEVICE_OBJECT FdoDevice,
+                        IN PIRP Irp,
+                        IN PURB Urb)
+{
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PUSBPORT_CONFIGURATION_HANDLE ConfigurationHandle;
+    PUSBD_INTERFACE_INFORMATION Interface;
+    PUSBPORT_INTERFACE_HANDLE InterfaceHandle;
+    PUSBPORT_INTERFACE_HANDLE iHandle;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    USBD_STATUS USBDStatus;
+    ULONG NumInterfaces;
+    USHORT Length; 
+    ULONG ix;
+
+    DPRINT("USBPORT_SelectInterface: ... \n");
+
+    ConfigurationHandle = (PUSBPORT_CONFIGURATION_HANDLE)Urb->UrbSelectInterface.ConfigurationHandle;
+
+    Interface = (PUSBD_INTERFACE_INFORMATION)&Urb->UrbSelectInterface.Interface;
+
+    Length = Interface->Length + sizeof(USBD_PIPE_INFORMATION);
+
+    if (Length != Urb->UrbHeader.Length)
+        Urb->UrbHeader.Length = Length;
+
+    USBDStatus = USBPORT_InitInterfaceInfo(Interface, ConfigurationHandle);
+
+    if (USBDStatus)
+    {
+        Interface->InterfaceHandle = (USBD_INTERFACE_HANDLE)-1;
+        return USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+    }
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+
+    InterfaceHandle = USBPORT_GetInterfaceHandle(ConfigurationHandle,
+                                                 Interface->InterfaceNumber);
+
+    if (InterfaceHandle)
+    {
+        RemoveEntryList(&InterfaceHandle->InterfaceLink);
+
+
+        if (InterfaceHandle->InterfaceDescriptor.bNumEndpoints)
+        {
+            PipeHandle = &InterfaceHandle->PipeHandle[0];
+
+            ix = 0;
+
+            do
+            {
+                USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
+                NumInterfaces = InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
+                ++ix;
+                PipeHandle += 1;
+            }
+            while (ix < NumInterfaces);
+        }
+    }
+
+    iHandle = 0;
+
+    USBDStatus = USBPORT_OpenInterface(Urb,
+                                       DeviceHandle,
+                                       FdoDevice,
+                                       ConfigurationHandle,
+                                       Interface,
+                                       &iHandle,
+                                       1);
+
+    if (USBDStatus)
+    {
+        Interface->InterfaceHandle = (USBD_INTERFACE_HANDLE)-1;
+    }
+    else
+    {
+        if (InterfaceHandle)
+            ExFreePool(InterfaceHandle);
+
+        Interface->InterfaceHandle = (USBD_INTERFACE_HANDLE)iHandle;
+
+        InsertTailList(&ConfigurationHandle->InterfaceHandleList,
+                       &iHandle->InterfaceLink);
+    }
+
+    return USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+}
