@@ -614,7 +614,7 @@ USBPORT_CreatePdo(IN PDEVICE_OBJECT FdoDevice,
 
     if (!NT_SUCCESS(Status))
     {
-        *RootHubPdo = 0;
+        *RootHubPdo = NULL;
         DPRINT1("USBPORT_CreatePdo: Filed create HubPdo!\n");
         return Status;
     }
@@ -642,7 +642,7 @@ USBPORT_CreatePdo(IN PDEVICE_OBJECT FdoDevice,
     }
 
     if (!NT_SUCCESS(Status))
-        *RootHubPdo = 0;
+        *RootHubPdo = NULL;
     else
         *RootHubPdo = DeviceObject;
 
@@ -926,10 +926,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     PIO_STACK_LOCATION IoStack;
     UCHAR Minor;
     NTSTATUS Status;
-    WCHAR Buffer[300];
-    ULONG Length;
-    LPWSTR DeviceName;
-    ULONG_PTR Id;
     PPNP_BUS_INFORMATION BusInformation;
     PDEVICE_CAPABILITIES DeviceCapabilities;
     ULONG Index = 0;
@@ -1107,44 +1103,49 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_QUERY_ID: // 19
-            DPRINT("IRP_MN_QUERY_ID/Type %x\n", IoStack->Parameters.QueryId.IdType);
+        {
+            ULONG IdType;
+            LONG Length;
+            WCHAR Buffer[64];
+            ULONG_PTR Id;
 
-            if (IoStack->Parameters.QueryId.IdType == BusQueryDeviceID)
+            Status = STATUS_SUCCESS;
+            IdType = IoStack->Parameters.QueryId.IdType;
+
+            DPRINT("IRP_MN_QUERY_ID/Type %x\n", IdType);
+
+            if (IdType == BusQueryDeviceID) // 0
             {
-                DPRINT("IRP_MN_QUERY_ID/BusQueryDeviceID\n");
                 swprintf(Buffer, L"USB\\ROOT_HUB");
                 Length = (wcslen(Buffer) + 1);
 
-                DeviceName = (LPWSTR)ExAllocatePoolWithTag(PagedPool,
-                                                           Length * sizeof(WCHAR),
-                                                           USB_PORT_TAG);
-                if (!DeviceName)
+                Id = (ULONG_PTR)ExAllocatePoolWithTag(PagedPool,
+                                                      Length * sizeof(WCHAR),
+                                                      USB_PORT_TAG);
+
+                if (!Id)
                 {
                     Status = STATUS_INSUFFICIENT_RESOURCES;
                     break;
                 }
 
-                wcscpy(DeviceName, Buffer);
-
-                Irp->IoStatus.Information = (ULONG_PTR)DeviceName;
-                Status = STATUS_SUCCESS;
+                wcscpy((PVOID)Id, Buffer);
+                Irp->IoStatus.Information = Id;
                 break;
             }
 
-            if (IoStack->Parameters.QueryId.IdType == BusQueryHardwareIDs)
+            if (IdType == BusQueryHardwareIDs) // 1
             {
-                DPRINT("IRP_MN_QUERY_ID/BusQueryHardwareIDs\n");
-
                 Id = USBPORT_GetDeviceHwIds(FdoDevice,
                                             FdoExtension->VendorID,
                                             FdoExtension->DeviceID,
                                             FdoExtension->RevisionID);
 
                 Irp->IoStatus.Information = Id;
-                Status = STATUS_SUCCESS;
             }
 
             break;
+        }
 
         case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
             DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
