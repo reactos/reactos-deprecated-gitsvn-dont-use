@@ -849,7 +849,7 @@ AhciHwStartIo (
                         Srb->SrbStatus = DeviceRequestSense(AdapterExtension, Srb, cdb);
                         break;
                     case SCSIOP_READ:
-                    //case SCSIOP_WRITE:
+                    case SCSIOP_WRITE:
                         Srb->SrbStatus = DeviceRequestReadWrite(AdapterExtension, Srb, cdb);
                         break;
                     default:
@@ -1726,7 +1726,7 @@ UCHAR DeviceRequestSense (
 
     ModeHeader->ModeDataLength = sizeof(MODE_PARAMETER_HEADER);
     ModeHeader->MediumType = 0;
-    ModeHeader->DeviceSpecificParameter = MODE_DSP_WRITE_PROTECT;
+    ModeHeader->DeviceSpecificParameter = 0;
     ModeHeader->BlockDescriptorLength = 0;
 
     if (Cdb->MODE_SENSE.PageCode == MODE_SENSE_CURRENT_VALUES)
@@ -1776,9 +1776,12 @@ UCHAR DeviceRequestReadWrite (
 
     NT_ASSERT(BytesPerSector > 0);
 
-    ROUND_UP(DataTransferLength, BytesPerSector);
+    //ROUND_UP(DataTransferLength, BytesPerSector);
 
     SectorCount = DataTransferLength / BytesPerSector;
+
+    Srb->DataTransferLength = SectorCount * BytesPerSector;
+
     StartOffset = AhciGetLba(Cdb, Srb->CdbLength);
     IsReading = (Cdb->CDB10.OperationCode == SCSIOP_READ);
 
@@ -1796,7 +1799,7 @@ UCHAR DeviceRequestReadWrite (
     else
     {
         SrbExtension->Flags |= ATA_FLAGS_DATA_OUT;
-        NT_ASSERT(FALSE);
+        SrbExtension->CommandReg = IDE_COMMAND_WRITE_DMA;
     }
 
     SrbExtension->FeaturesLow = 0;
@@ -1809,7 +1812,15 @@ UCHAR DeviceRequestReadWrite (
     if (PortExtension->DeviceParams.Lba48BitMode)
     {
         SrbExtension->Flags |= ATA_FLAGS_48BIT_COMMAND;
-        SrbExtension->CommandReg = IDE_COMMAND_READ_DMA_EXT;
+
+        if (IsReading)
+        {
+            SrbExtension->CommandReg = IDE_COMMAND_READ_DMA_EXT;
+        }
+        else
+        {
+            SrbExtension->CommandReg = IDE_COMMAND_WRITE_DMA_EXT;
+        }
 
         SrbExtension->LBA3 = (StartOffset >> 24) & 0xFF;
         SrbExtension->LBA4 = (StartOffset >> 32) & 0xFF;
