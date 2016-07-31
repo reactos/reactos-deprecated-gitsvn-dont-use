@@ -1324,6 +1324,8 @@ CreateUsbChildDeviceObject(
 
     INITIALIZE_PNP_STATE(UsbChildExtension->Common);
 
+    IoInitializeRemoveLock(&UsbChildExtension->Common.RemoveLock, 'pbuH', 0, 0);
+
     KeAcquireGuardedMutex(&HubDeviceExtension->HubMutexLock);
 
     //
@@ -2045,6 +2047,13 @@ USBHUB_FdoHandlePnp(
 
     Stack = IoGetCurrentIrpStackLocation(Irp);
 
+    Status = IoAcquireRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
+    if (!NT_SUCCESS(Status)) {
+        Irp->IoStatus.Status = Status;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+        return Status;
+    }
+
     switch (Stack->MinorFunction)
     {
         case IRP_MN_START_DEVICE:
@@ -2064,6 +2073,7 @@ USBHUB_FdoHandlePnp(
 
             Irp->IoStatus.Status = Status;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
+            IoReleaseRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
             return Status;
         }
 
@@ -2090,6 +2100,7 @@ USBHUB_FdoHandlePnp(
                         // We should fail an IRP
                         Irp->IoStatus.Status = Status;
                         IoCompleteRequest(Irp, IO_NO_INCREMENT);
+                        IoReleaseRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
                         return Status;
                     }
 
@@ -2207,7 +2218,9 @@ USBHUB_FdoHandlePnp(
         }
     }
 
-    return ForwardIrpAndForget(DeviceObject, Irp);
+    Status = ForwardIrpAndForget(DeviceObject, Irp);
+    IoReleaseRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
+    return Status;
 }
 
 NTSTATUS
@@ -2230,6 +2243,24 @@ USBHUB_FdoHandleDeviceControl(
 
     // get device extension
     HubDeviceExtension = (PHUB_DEVICE_EXTENSION) DeviceObject->DeviceExtension;
+
+    Status = IoAcquireRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
+    if (!NT_SUCCESS(Status)) {
+        Irp->IoStatus.Status = Status;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+        return Status;
+    }
+
+    // Prevent handling of control requests in remove pending state
+    if (HubDeviceExtension->Common.PnPState == RemovePending)
+    {
+        DPRINT1("[USBHUB] Request for removed device object %p\n", DeviceObject);
+        Irp->IoStatus.Status = STATUS_DEVICE_NOT_CONNECTED;
+        Irp->IoStatus.Information = 0;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+        IoReleaseRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
+        return STATUS_DEVICE_NOT_CONNECTED;
+    }
 
     if (IoStack->Parameters.DeviceIoControl.IoControlCode == IOCTL_USB_GET_NODE_INFORMATION)
     {
@@ -2396,6 +2427,7 @@ USBHUB_FdoHandleDeviceControl(
     Irp->IoStatus.Status = Status;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
+    IoReleaseRemoveLock(&HubDeviceExtension->Common.RemoveLock, Irp);
     return Status;
 }
 
