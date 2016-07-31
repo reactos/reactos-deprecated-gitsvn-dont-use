@@ -1633,7 +1633,7 @@ USBHUB_FdoStartDevice(
     RootHubDeviceObject = HubDeviceExtension->RootHubPhysicalDeviceObject;
 
     // Send the StartDevice to RootHub
-    Status = ForwardIrpAndWait(RootHubDeviceObject, Irp);
+    Status = ForwardIrpAndWait(HubDeviceExtension->LowerDeviceObject, Irp);
 
     if (!NT_SUCCESS(Status))
     {
@@ -2129,7 +2129,7 @@ USBHUB_FdoHandlePnp(
             // IRP_MN_STOP_DEVICE for now.We'll receive this IRP ONLY when
             // PnP manager rebalances resources.
             //
-            Status = STATUS_NOT_SUPPORTED;
+            Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
             break;
         }
         case IRP_MN_QUERY_REMOVE_DEVICE:
