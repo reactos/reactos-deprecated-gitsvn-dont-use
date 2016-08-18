@@ -24,8 +24,8 @@ AhciPortInitialize (
     )
 {
     AHCI_PORT_CMD cmd;
-    ULONG mappedLength, portNumber;
     PAHCI_MEMORY_REGISTERS abar;
+    ULONG mappedLength, portNumber, ticks;
     PAHCI_ADAPTER_EXTENSION adapterExtension;
     STOR_PHYSICAL_ADDRESS commandListPhysical, receivedFISPhysical;
 
@@ -76,7 +76,22 @@ AhciPortInitialize (
     cmd.Status = StorPortReadRegisterUlong(adapterExtension, &PortExtension->Port->CMD);
     if ((cmd.FR != 0) || (cmd.CR != 0) || (cmd.FRE != 0) || (cmd.ST != 0))
     {
-        AhciDebugPrint("\tPort is not idle: %x\n", cmd);
+        cmd.ST = 0;
+        cmd.FRE = 0;
+
+        ticks = 3;
+        do
+        {
+            StorPortStallExecution(50000);
+            cmd.Status = StorPortReadRegisterUlong(adapterExtension, &PortExtension->Port->CMD);
+            if (ticks == 0)
+            {
+                AhciDebugPrint("\tAttempt to reset port failed: %x\n", cmd);
+                return FALSE;
+            }
+            ticks--;
+        }
+        while(cmd.CR != 0 || cmd.FR != 0);
     }
 
     // 10.1.2 For each implemented port, system software shall allocate memory for and program:
@@ -386,7 +401,6 @@ AhciStartPort (
             AhciDebugPrint("\tDET == %x Unsupported\n", ssts.DET);
             return FALSE;
     }
-
 }// -- AhciStartPort();
 
 /**
@@ -1227,12 +1241,34 @@ AhciATAPI_CFIS (
     __in PAHCI_SRB_EXTENSION SrbExtension
     )
 {
+    PAHCI_COMMAND_TABLE cmdTable;
     UNREFERENCED_PARAMETER(PortExtension);
-    UNREFERENCED_PARAMETER(SrbExtension);
 
     AhciDebugPrint("AhciATAPI_CFIS()\n");
 
-    return 2;
+    cmdTable = (PAHCI_COMMAND_TABLE)SrbExtension;
+
+    NT_ASSERT(SrbExtension->CommandReg == IDE_COMMAND_ATAPI_PACKET);
+
+    AhciZeroMemory((PCHAR)cmdTable->CFIS, sizeof(cmdTable->CFIS));
+
+    cmdTable->CFIS[AHCI_ATA_CFIS_FisType] = FIS_TYPE_REG_H2D;       // FIS Type
+    cmdTable->CFIS[AHCI_ATA_CFIS_PMPort_C] = (1 << 7);              // PM Port & C
+    cmdTable->CFIS[AHCI_ATA_CFIS_CommandReg] = SrbExtension->CommandReg;
+
+    cmdTable->CFIS[AHCI_ATA_CFIS_FeaturesLow] = SrbExtension->FeaturesLow;
+    cmdTable->CFIS[AHCI_ATA_CFIS_LBA0] = SrbExtension->LBA0;
+    cmdTable->CFIS[AHCI_ATA_CFIS_LBA1] = SrbExtension->LBA1;
+    cmdTable->CFIS[AHCI_ATA_CFIS_LBA2] = SrbExtension->LBA2;
+    cmdTable->CFIS[AHCI_ATA_CFIS_Device] = SrbExtension->Device;
+    cmdTable->CFIS[AHCI_ATA_CFIS_LBA3] = SrbExtension->LBA3;
+    cmdTable->CFIS[AHCI_ATA_CFIS_LBA4] = SrbExtension->LBA4;
+    cmdTable->CFIS[AHCI_ATA_CFIS_LBA5] = SrbExtension->LBA5;
+    cmdTable->CFIS[AHCI_ATA_CFIS_FeaturesHigh] = SrbExtension->FeaturesHigh;
+    cmdTable->CFIS[AHCI_ATA_CFIS_SectorCountLow] = SrbExtension->SectorCountLow;
+    cmdTable->CFIS[AHCI_ATA_CFIS_SectorCountHigh] = SrbExtension->SectorCountHigh;
+
+    return 5;
 }// -- AhciATAPI_CFIS();
 
 /**
@@ -1551,8 +1587,46 @@ AhciProcessIO (
 }// -- AhciProcessIO();
 
 /**
+ * @name AtapiInquiryCompletion
+ * @implemented
+ *
+ * AtapiInquiryCompletion routine should be called after device signals
+ * for device inquiry request is completed (through interrupt) -- ATAPI Device only
+ *
+ * @param PortExtension
+ * @param Srb
+ *
+ */
+VOID
+AtapiInquiryCompletion (
+    __in PAHCI_PORT_EXTENSION PortExtension,
+    __in PSCSI_REQUEST_BLOCK Srb
+    )
+{
+    BOOLEAN status;
+    PAHCI_ADAPTER_EXTENSION AdapterExtension;
+
+    AhciDebugPrint("AtapiInquiryCompletion()\n");
+
+    NT_ASSERT(Srb != NULL);
+    NT_ASSERT(PortExtension != NULL);
+
+    AdapterExtension = PortExtension->AdapterExtension;
+
+    // send queue depth
+    status = StorPortSetDeviceQueueDepth(PortExtension->AdapterExtension,
+                                         Srb->PathId,
+                                         Srb->TargetId,
+                                         Srb->Lun,
+                                         AHCI_Global_Port_CAP_NCS(AdapterExtension->CAP));
+
+    NT_ASSERT(status == TRUE);
+    return;
+}// -- AtapiInquiryCompletion();
+
+/**
  * @name InquiryCompletion
- * @not_implemented
+ * @implemented
  *
  * InquiryCompletion routine should be called after device signals
  * for device inquiry request is completed (through interrupt)
@@ -1644,6 +1718,15 @@ InquiryCompletion (
 
         PortExtension->DeviceParams.BytesPerPhysicalSector = DEVICE_ATA_BLOCK_SIZE;
 
+        // last byte should be NULL
+        StorPortCopyMemory(PortExtension->DeviceParams.VendorId, IdentifyDeviceData->ModelNumber, sizeof(PortExtension->DeviceParams.VendorId) - 1);
+        StorPortCopyMemory(PortExtension->DeviceParams.RevisionID, IdentifyDeviceData->FirmwareRevision, sizeof(PortExtension->DeviceParams.RevisionID) - 1);
+        StorPortCopyMemory(PortExtension->DeviceParams.SerialNumber, IdentifyDeviceData->SerialNumber, sizeof(PortExtension->DeviceParams.SerialNumber) - 1);
+
+        PortExtension->DeviceParams.VendorId[sizeof(PortExtension->DeviceParams.VendorId) - 1] = '\0';
+        PortExtension->DeviceParams.RevisionID[sizeof(PortExtension->DeviceParams.RevisionID) - 1] = '\0';
+        PortExtension->DeviceParams.SerialNumber[sizeof(PortExtension->DeviceParams.SerialNumber) - 1] = '\0';
+
         // TODO: Add other device params
         AhciDebugPrint("\tATA Device\n");
     }
@@ -1658,6 +1741,7 @@ InquiryCompletion (
     if (Srb->DataTransferLength < INQUIRYDATABUFFERSIZE)
     {
         AhciDebugPrint("\tDataBufferLength < sizeof(INQUIRYDATA), Could crash the driver.\n");
+        NT_ASSERT(FALSE);
     }
 
     // update data transfer length
@@ -1674,10 +1758,14 @@ InquiryCompletion (
     InquiryData->DeviceType = PortExtension->DeviceParams.AccessType;
     InquiryData->RemovableMedia = PortExtension->DeviceParams.RemovableDevice;
 
-    // TODO: Fill VendorID, Product Revision Level and other string fields
-    InquiryData->VendorId[0] = '2';
-    InquiryData->ProductId[0] = '3';
-    InquiryData->ProductRevisionLevel[0] = '4';
+    // Fill VendorID, Product Revision Level and other string fields
+    StorPortCopyMemory(InquiryData->VendorId, PortExtension->DeviceParams.VendorId, sizeof(InquiryData->VendorId) - 1);
+    StorPortCopyMemory(InquiryData->ProductId, PortExtension->DeviceParams.RevisionID, sizeof(PortExtension->DeviceParams.RevisionID));
+    StorPortCopyMemory(InquiryData->ProductRevisionLevel, PortExtension->DeviceParams.SerialNumber, sizeof(InquiryData->ProductRevisionLevel) - 1);
+
+    InquiryData->VendorId[sizeof(InquiryData->VendorId) - 1] = '\0';
+    InquiryData->ProductId[sizeof(InquiryData->ProductId) - 1] = '\0';
+    InquiryData->ProductRevisionLevel[sizeof(InquiryData->ProductRevisionLevel) - 1] = '\0';
 
     // send queue depth
     status = StorPortSetDeviceQueueDepth(PortExtension->AdapterExtension,
@@ -1689,6 +1777,96 @@ InquiryCompletion (
     NT_ASSERT(status == TRUE);
     return;
 }// -- InquiryCompletion();
+
+ /**
+ * @name AhciATAPICommand
+ * @implemented
+ *
+ * Handles ATAPI Requests commands
+ *
+ * @param AdapterExtension
+ * @param Srb
+ * @param Cdb
+ *
+ * @return
+ * return STOR status for AhciATAPICommand
+ */
+UCHAR
+AhciATAPICommand (
+    __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
+    __in PSCSI_REQUEST_BLOCK Srb,
+    __in PCDB Cdb
+    )
+{
+    ULONG SrbFlags, DataBufferLength;
+    PAHCI_SRB_EXTENSION SrbExtension;
+    PAHCI_PORT_EXTENSION PortExtension;
+
+    AhciDebugPrint("AhciATAPICommand()\n");
+
+    SrbFlags = Srb->SrbFlags;
+    SrbExtension = GetSrbExtension(Srb);
+    DataBufferLength = Srb->DataTransferLength;
+    PortExtension = &AdapterExtension->PortExtension[Srb->PathId];
+
+    NT_ASSERT(PortExtension->DeviceParams.DeviceType == AHCI_DEVICE_TYPE_ATAPI);
+
+    NT_ASSERT(SrbExtension != NULL);
+
+    SrbExtension->AtaFunction = ATA_FUNCTION_ATAPI_COMMAND;
+    SrbExtension->Flags = 0;
+
+    if (SrbFlags & SRB_FLAGS_DATA_IN)
+    {
+        SrbExtension->Flags |= ATA_FLAGS_DATA_IN;
+    }
+
+    if (SrbFlags & SRB_FLAGS_DATA_OUT)
+    {
+        SrbExtension->Flags |= ATA_FLAGS_DATA_OUT;
+    }
+
+    SrbExtension->FeaturesLow = 0;
+
+    SrbExtension->CompletionRoutine = NULL;
+
+    NT_ASSERT(Cdb != NULL);
+    switch(Cdb->CDB10.OperationCode)
+    {
+        case SCSIOP_INQUIRY:
+            SrbExtension->Flags |= ATA_FLAGS_DATA_IN;
+            SrbExtension->CompletionRoutine = AtapiInquiryCompletion;
+            break;
+        case SCSIOP_READ:
+            SrbExtension->Flags |= ATA_FLAGS_USE_DMA;
+            SrbExtension->FeaturesLow = 0x5;
+            break;
+        case SCSIOP_WRITE:
+            SrbExtension->Flags |= ATA_FLAGS_USE_DMA;
+            SrbExtension->FeaturesLow = 0x1;
+            break;
+    }
+
+    SrbExtension->CommandReg = IDE_COMMAND_ATAPI_PACKET;
+
+    SrbExtension->LBA0 = 0;
+    SrbExtension->LBA1 = (UCHAR)(DataBufferLength >> 0);
+    SrbExtension->LBA2 = (UCHAR)(DataBufferLength >> 8);
+    SrbExtension->Device = 0;
+    SrbExtension->LBA3 = 0;
+    SrbExtension->LBA4 = 0;
+    SrbExtension->LBA5 = 0;
+    SrbExtension->FeaturesHigh = 0;
+    SrbExtension->SectorCountLow = 0;
+    SrbExtension->SectorCountHigh = 0;
+
+    if ((SrbExtension->Flags & ATA_FLAGS_DATA_IN) || (SrbExtension->Flags & ATA_FLAGS_DATA_OUT))
+    {
+        SrbExtension->pSgl = (PLOCAL_SCATTER_GATHER_LIST)StorPortGetScatterGatherList(AdapterExtension, Srb);
+    }
+
+    return SRB_STATUS_PENDING;
+}// -- AhciATAPICommand();
 
 /**
  * @name DeviceRequestSense
@@ -1703,20 +1881,27 @@ InquiryCompletion (
  * @return
  * return STOR status for DeviceRequestSense
  */
-UCHAR DeviceRequestSense (
+UCHAR
+DeviceRequestSense (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
     __in PSCSI_REQUEST_BLOCK Srb,
     __in PCDB Cdb
     )
 {
     PMODE_PARAMETER_HEADER ModeHeader;
+    PAHCI_PORT_EXTENSION PortExtension;
 
     AhciDebugPrint("DeviceRequestSense()\n");
 
-    UNREFERENCED_PARAMETER(AdapterExtension);
-
     NT_ASSERT(IsPortValid(AdapterExtension, Srb->PathId));
     NT_ASSERT(Cdb->CDB10.OperationCode == SCSIOP_MODE_SENSE);
+
+    PortExtension = &AdapterExtension->PortExtension[Srb->PathId];
+
+    if (PortExtension->DeviceParams.DeviceType == AHCI_DEVICE_TYPE_ATAPI)
+    {
+        return AhciATAPICommand(AdapterExtension, Srb, Cdb);
+    }
 
     ModeHeader = (PMODE_PARAMETER_HEADER)Srb->DataBuffer;
 
@@ -1749,9 +1934,10 @@ UCHAR DeviceRequestSense (
  * @param Cdb
  *
  * @return
- * return STOR status for DeviceReportLuns
+ * return STOR status for DeviceRequestReadWrite
  */
-UCHAR DeviceRequestReadWrite (
+UCHAR
+DeviceRequestReadWrite (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
     __in PSCSI_REQUEST_BLOCK Srb,
     __in PCDB Cdb
@@ -1770,6 +1956,11 @@ UCHAR DeviceRequestReadWrite (
 
     SrbExtension = GetSrbExtension(Srb);
     PortExtension = &AdapterExtension->PortExtension[Srb->PathId];
+
+    if (PortExtension->DeviceParams.DeviceType == AHCI_DEVICE_TYPE_ATAPI)
+    {
+        return AhciATAPICommand(AdapterExtension, Srb, Cdb);
+    }
 
     DataTransferLength = Srb->DataTransferLength;
     BytesPerSector = PortExtension->DeviceParams.BytesPerLogicalSector;
@@ -1853,9 +2044,10 @@ UCHAR DeviceRequestReadWrite (
  * @param Cdb
  *
  * @return
- * return STOR status for DeviceReportLuns
+ * return STOR status for DeviceRequestCapacity
  */
-UCHAR DeviceRequestCapacity (
+UCHAR
+DeviceRequestCapacity (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
     __in PSCSI_REQUEST_BLOCK Srb,
     __in PCDB Cdb
@@ -1873,7 +2065,13 @@ UCHAR DeviceRequestCapacity (
     NT_ASSERT(Srb->DataBuffer != NULL);
     NT_ASSERT(IsPortValid(AdapterExtension, Srb->PathId));
 
+
     PortExtension = &AdapterExtension->PortExtension[Srb->PathId];
+
+    if (PortExtension->DeviceParams.DeviceType == AHCI_DEVICE_TYPE_ATAPI)
+    {
+        return AhciATAPICommand(AdapterExtension, Srb, Cdb);
+    }
 
     if (Cdb->CDB10.OperationCode == SCSIOP_READ_CAPACITY)
     {
@@ -1916,7 +2114,8 @@ UCHAR DeviceRequestCapacity (
  * @return
  * return STOR status for DeviceRequestComplete
  */
-UCHAR DeviceRequestComplete (
+UCHAR
+DeviceRequestComplete (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
     __in PSCSI_REQUEST_BLOCK Srb,
     __in PCDB Cdb
@@ -1945,21 +2144,29 @@ UCHAR DeviceRequestComplete (
  * @return
  * return STOR status for DeviceReportLuns
  */
-UCHAR DeviceReportLuns (
+UCHAR
+DeviceReportLuns (
     __in PAHCI_ADAPTER_EXTENSION AdapterExtension,
     __in PSCSI_REQUEST_BLOCK Srb,
     __in PCDB Cdb
     )
 {
     PLUN_LIST LunList;
+    PAHCI_PORT_EXTENSION PortExtension;
 
     AhciDebugPrint("DeviceReportLuns()\n");
 
-    UNREFERENCED_PARAMETER(AdapterExtension);
     UNREFERENCED_PARAMETER(Cdb);
+
+    PortExtension = &AdapterExtension->PortExtension[Srb->PathId];
 
     NT_ASSERT(Srb->DataTransferLength >= sizeof(LUN_LIST));
     NT_ASSERT(Cdb->CDB10.OperationCode == SCSIOP_REPORT_LUNS);
+
+    if (PortExtension->DeviceParams.DeviceType == AHCI_DEVICE_TYPE_ATAPI)
+    {
+        return AhciATAPICommand(AdapterExtension, Srb, Cdb);
+    }
 
     LunList = (PLUN_LIST)Srb->DataBuffer;
 
@@ -2011,6 +2218,11 @@ DeviceInquiryRequest (
 
     SrbExtension = GetSrbExtension(Srb);
     PortExtension = &AdapterExtension->PortExtension[Srb->PathId];
+
+    if (PortExtension->DeviceParams.DeviceType == AHCI_DEVICE_TYPE_ATAPI)
+    {
+        return AhciATAPICommand(AdapterExtension, Srb, Cdb);
+    }
 
     if (Srb->Lun != 0)
     {
