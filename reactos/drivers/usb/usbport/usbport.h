@@ -401,7 +401,7 @@ USBPORT_RootHubCreateDevice(
   IN PDEVICE_OBJECT FdoDevice,
   IN PDEVICE_OBJECT PdoDevice);
 
-VOID
+ULONG
 NTAPI
 USBPORT_InvalidateRootHub(
   PVOID Context);
