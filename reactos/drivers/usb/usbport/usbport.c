@@ -1883,6 +1883,11 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DPRINT("USBPORT_RegisterUSBPortDriver: sizeof(USBPORT_DEVICE_EXTENSION)   - %x\n",
            sizeof(USBPORT_DEVICE_EXTENSION));
 
+    if (Version < 100) // 100 - USB1.1; 200 - USB2.0
+    {
+        return STATUS_UNSUCCESSFUL;
+    }
+
     if (!USBPORT_Initialized)
     {
         InitializeListHead(&USBPORT_MiniPortDrivers);
@@ -1904,7 +1909,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     MiniPortInterface->DriverUnload = DriverObject->DriverUnload;
 
     ExInterlockedInsertTailList(&USBPORT_MiniPortDrivers,
-                                &MiniPortInterface->DriverList,
+                                &MiniPortInterface->DriverLink,
                                 &USBPORT_SpinLock);
 
     DriverObject->DriverExtension->AddDevice = (PDRIVER_ADD_DEVICE)USBPORT_AddDevice;
@@ -1918,10 +1923,22 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_POWER] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
 
+    RegPacket->UsbPortDbgPrint = 0; // USBPORT_DbgPrint;
+    RegPacket->UsbPortTestDebugBreak = 0; // USBPORT_TestDebugBreak;
+    RegPacket->UsbPortAssertFailure = 0; // USBPORT_AssertFailure;
+    RegPacket->UsbPortGetMiniportRegistryKeyValue = 0; // USBPORT_GetMiniportRegistryKeyValue;
     RegPacket->UsbPortInvalidateRootHub = USBPORT_InvalidateRootHub;
     RegPacket->UsbPortInvalidateEndpoint = USBPORT_InvalidateEndpoint;
     RegPacket->UsbPortCompleteTransfer = USBPORT_MiniportCompleteTransfer;
+    RegPacket->UsbPortCompleteIsoTransfer = 0; // USBPORT_CompleteIsoTransfer;
+    RegPacket->UsbPortLogEntry = 0; // USBPORT_LogEntry;
     RegPacket->UsbPortGetMappedVirtualAddress = USBPORT_GetMappedVirtualAddress;
+    RegPacket->UsbPortRequestAsyncCallback = 0; // USBPORT_RequestAsyncCallback;
+    RegPacket->UsbPortReadWriteConfigSpace = 0; // USBPORT_ReadWriteConfigSpace;
+    RegPacket->UsbPortWait = 0; // USBPORT_Wait;
+    RegPacket->UsbPortInvalidateController = 0; // USBPORT_InvalidateController;
+    RegPacket->UsbPortBugCheck = 0; // USBPORT_BugCheck;
+    RegPacket->UsbPortNotifyDoubleBuffer = 0; // USBPORT_NotifyDoubleBuffer;
 
     RtlCopyMemory(&MiniPortInterface->Packet,
                   RegPacket,
