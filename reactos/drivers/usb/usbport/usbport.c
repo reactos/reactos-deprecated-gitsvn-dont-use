@@ -7,6 +7,56 @@ LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
 KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
 
+ULONG
+NTAPI
+USBPORT_DbgPrint(IN PVOID Context,
+                 IN ULONG Level,
+                 IN PCH Format,
+                 IN ULONG Arg1,
+                 IN ULONG Arg2,
+                 IN ULONG Arg3,
+                 IN ULONG Arg4,
+                 IN ULONG Arg5,
+                 IN ULONG Arg6)
+{
+    DPRINT("USBPORT_DbgPrint: UNIMPLEMENTED. FIXME. \n");
+    return Level;
+}
+
+ULONG
+NTAPI
+USBPORT_TestDebugBreak(IN PVOID Context)
+{
+    DPRINT("USBPORT_TestDebugBreak: UNIMPLEMENTED. FIXME. \n");
+    return 0;
+}
+
+ULONG
+NTAPI
+USBPORT_AssertFailure(PVOID Context,
+                      PVOID FailedAssertion,
+                      PVOID FileName,
+                      ULONG LineNumber,
+                      PCHAR Message)
+{
+    DPRINT("USBPORT_AssertFailure: ... \n");
+    RtlAssert(FailedAssertion, FileName, LineNumber, Message);
+    return 0;
+}
+
+MPSTATUS
+NTAPI
+USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
+                                    IN ULONG Type,
+                                    IN PCWSTR SourceString,
+                                    IN SIZE_T Length,
+                                    IN PVOID Buffer,
+                                    IN SIZE_T NumberOfBytes)
+{
+    DPRINT("USBPORT_GetMiniportRegistryKeyValue: UNIMPLEMENTED. FIXME. \n");
+    return 0;
+}
+
 NTSTATUS
 USBPORT_USBDStatusToNtStatus(IN PURB Urb,
                              IN USBD_STATUS USBDStatus)
@@ -361,7 +411,7 @@ USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
     {
         MiniPortInterface = CONTAINING_RECORD(List,
                                               USBPORT_MINIPORT_INTERFACE,
-                                              DriverList);
+                                              DriverLink);
 
         if (MiniPortInterface->DriverObject == DriverObject)
         {
@@ -527,7 +577,45 @@ USBPORT_MiniportCompleteTransfer(IN PVOID MiniPortExtension,
 
 ULONG
 NTAPI
-USBPORT_GetMappedVirtualAddress(IN ULONG_PTR PhysicalAddress,
+USBPORT_CompleteIsoTransfer(IN PVOID MiniPortExtension,
+                            IN PVOID MiniPortEndpoint,
+                            IN PVOID TransferParameters,
+                            IN ULONG TransferLength)
+{
+    DPRINT("USBPORT_CompleteIsoTransfer: UNIMPLEMENTED. FIXME.\n");
+    ASSERT(FALSE);
+    return 0;
+}
+
+ULONG
+NTAPI
+USBPORT_LogEntry(IN PVOID Context,
+                 IN PVOID BusContext,
+                 IN PVOID DriverTag,
+                 IN ULONG EnumTag,
+                 IN ULONG P1,
+                 IN ULONG P2)
+{
+    DPRINT("USBPORT_LogEntry: UNIMPLEMENTED. FIXME.\n");
+    return (ULONG)Context;
+}
+
+ULONG
+NTAPI
+USBPORT_RequestAsyncCallback(IN PVOID Context,
+                             IN ULONG TimerValue,
+                             IN PVOID Buffer,
+                             IN SIZE_T Length,
+                             IN ULONG Callback)
+{
+    DPRINT("USBPORT_RequestAsyncCallback: UNIMPLEMENTED. FIXME.\n");
+    ASSERT(FALSE);
+    return 0;
+}
+
+PVOID
+NTAPI
+USBPORT_GetMappedVirtualAddress(IN PVOID PhysicalAddress,
                                 IN PVOID MiniPortExtension,
                                 IN PVOID MiniPortEndpoint)
 {
@@ -548,24 +636,26 @@ USBPORT_GetMappedVirtualAddress(IN ULONG_PTR PhysicalAddress,
 
     HeaderBuffer = Endpoint->HeaderBuffer;
 
-    Offset = PhysicalAddress - HeaderBuffer->PhysicalAddress;
+    Offset = (ULONG_PTR)PhysicalAddress - HeaderBuffer->PhysicalAddress;
     VirtualAddress = HeaderBuffer->VirtualAddress + Offset;
 
-    return VirtualAddress;
+    return (PVOID)VirtualAddress;
 }
 
-VOID
+ULONG
 NTAPI
-USBPORT_InvalidateEndpoint(IN PVOID Context)
+USBPORT_InvalidateEndpoint(IN PVOID Context1,
+                           IN PVOID Context2)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
 
     DPRINT("USBPORT_InvalidateEndpoint: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context - 
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context1 - 
                                                sizeof(USBPORT_DEVICE_EXTENSION));
 
     KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+    return 0;
 }
 
 VOID
@@ -793,7 +883,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
     if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
     {
         FdoExtension->MiniPortInterface->Packet.PollEndpoint(FdoExtension->MiniPortExt,
-                                                             (ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT));
+                                                             (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
     }
 
     if (!IsListEmpty(&Endpoint->PendingTransferList) ||
@@ -1923,17 +2013,17 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_POWER] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
 
-    RegPacket->UsbPortDbgPrint = 0; // USBPORT_DbgPrint;
-    RegPacket->UsbPortTestDebugBreak = 0; // USBPORT_TestDebugBreak;
-    RegPacket->UsbPortAssertFailure = 0; // USBPORT_AssertFailure;
-    RegPacket->UsbPortGetMiniportRegistryKeyValue = 0; // USBPORT_GetMiniportRegistryKeyValue;
+    RegPacket->UsbPortDbgPrint = USBPORT_DbgPrint;
+    RegPacket->UsbPortTestDebugBreak = USBPORT_TestDebugBreak;
+    RegPacket->UsbPortAssertFailure = USBPORT_AssertFailure;
+    RegPacket->UsbPortGetMiniportRegistryKeyValue = USBPORT_GetMiniportRegistryKeyValue;
     RegPacket->UsbPortInvalidateRootHub = USBPORT_InvalidateRootHub;
     RegPacket->UsbPortInvalidateEndpoint = USBPORT_InvalidateEndpoint;
     RegPacket->UsbPortCompleteTransfer = USBPORT_MiniportCompleteTransfer;
-    RegPacket->UsbPortCompleteIsoTransfer = 0; // USBPORT_CompleteIsoTransfer;
-    RegPacket->UsbPortLogEntry = 0; // USBPORT_LogEntry;
+    RegPacket->UsbPortCompleteIsoTransfer = USBPORT_CompleteIsoTransfer;
+    RegPacket->UsbPortLogEntry = USBPORT_LogEntry;
     RegPacket->UsbPortGetMappedVirtualAddress = USBPORT_GetMappedVirtualAddress;
-    RegPacket->UsbPortRequestAsyncCallback = 0; // USBPORT_RequestAsyncCallback;
+    RegPacket->UsbPortRequestAsyncCallback = USBPORT_RequestAsyncCallback;
     RegPacket->UsbPortReadWriteConfigSpace = 0; // USBPORT_ReadWriteConfigSpace;
     RegPacket->UsbPortWait = 0; // USBPORT_Wait;
     RegPacket->UsbPortInvalidateController = 0; // USBPORT_InvalidateController;

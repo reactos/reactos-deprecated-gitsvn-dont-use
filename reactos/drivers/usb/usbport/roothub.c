@@ -613,7 +613,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
     return Status;
 }
 
-VOID
+ULONG
 NTAPI
 USBPORT_InvalidateRootHub(PVOID Context)
 {
@@ -647,4 +647,6 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
         KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
     }
+
+    return 0;
 }
