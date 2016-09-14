@@ -25,7 +25,7 @@ BEGIN
     POPUP "&Yardım"
     BEGIN
         MENUITEM "&Yardım\tF1", ID_HELP, GRAYED
-        MENUITEM "&Üzerine...", ID_ABOUT
+        MENUITEM "&Üzerine", ID_ABOUT
     END
 END
 
