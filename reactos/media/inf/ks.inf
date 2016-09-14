@@ -543,7 +543,7 @@ Node.StereoEnhance="Stereo Enhance"
 Node.Reverb="Reverb"
 Node.Chorus="Chorus"
 Node.3DEffects="3D Effects"
-Node.AEC="Accoustic Echo Cancelation"
+Node.AEC="Acoustic Echo Cancelation"
 Node.DevSpecific="Device Specific"
 
 Pin.Microphone="Microphone"
