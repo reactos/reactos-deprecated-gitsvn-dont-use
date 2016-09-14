@@ -50,6 +50,11 @@ static BOOL _ILIsSpecialFolder (LPCITEMIDLIST pidl)
         PT_YAGUID == lpPData->type)) || (pidl && pidl->mkid.cb == 0x00)));
 }
 
+static BOOL _ILIsDesktop (LPCITEMIDLIST pidl)
+{
+    return (pidl && pidl->mkid.cb == 0x00);
+}
+
 /*
  This is a Windows hack, because shell event messages in Windows gives an 
  ill-formed PIDL stripped from useful data that parses incorrectly with SHGetFileInfo.
@@ -1351,37 +1356,119 @@ HRESULT STDMETHODCALLTYPE CExplorerBand::Invoke(DISPID dispIdMember, REFIID riid
 // *** IDropTarget methods ***
 HRESULT STDMETHODCALLTYPE CExplorerBand::DragEnter(IDataObject *pObj, DWORD glfKeyState, POINTL pt, DWORD *pdwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    pCurObject = pObj;
+    oldSelected = TreeView_GetSelection(m_hWnd);
+    return DragOver(glfKeyState, pt, pdwEffect);
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::DragOver(DWORD glfKeyState, POINTL pt, DWORD *pdwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    TVHITTESTINFO                           info;
+    CComPtr<IShellFolder>                   pShellFldr;
+    NodeInfo                                *nodeInfo;
+    //LPCITEMIDLIST                         pChild;
+    HRESULT                                 hr;
+
+    info.pt.x = pt.x;
+    info.pt.y = pt.y;
+    info.flags = TVHT_ONITEM;
+    info.hItem = NULL;
+    ScreenToClient(&info.pt);
+
+    // Move to the item selected by the treeview (don't change right pane)
+    TreeView_HitTest(m_hWnd, &info);
+
+    if (info.hItem)
+    {
+        bNavigating = TRUE;
+        TreeView_SelectItem(m_hWnd, info.hItem);
+        bNavigating = FALSE;
+        // Delegate to shell folder
+        if (pDropTarget && info.hItem != childTargetNode)
+        {
+            pDropTarget = NULL;
+        }
+        if (info.hItem != childTargetNode)
+        {
+            nodeInfo = GetNodeInfo(info.hItem);
+            if (!nodeInfo)
+                return E_FAIL;
+#if 0
+            hr = SHBindToParent(nodeInfo->absolutePidl, IID_PPV_ARG(IShellFolder, &pShellFldr), &pChild);
+            if (!SUCCEEDED(hr))
+                return E_FAIL;
+            hr = pShellFldr->GetUIObjectOf(m_hWnd, 1, &pChild, IID_IDropTarget, NULL, reinterpret_cast<void**>(&pDropTarget));
+            if (!SUCCEEDED(hr))
+                return E_FAIL;
+#endif
+            if(_ILIsDesktop(nodeInfo->absolutePidl))
+                pShellFldr = pDesktop;
+            else
+            {
+                hr = pDesktop->BindToObject(nodeInfo->absolutePidl, 0, IID_PPV_ARG(IShellFolder, &pShellFldr));
+                if (!SUCCEEDED(hr))
+                {
+                    /* Don't allow dnd since we couldn't get our folder object */
+                    ERR("Can't bind to folder object\n");
+                    *pdwEffect = DROPEFFECT_NONE;
+                    return E_FAIL;
+                }
+            }
+            hr = pShellFldr->CreateViewObject(m_hWnd, IID_PPV_ARG(IDropTarget, &pDropTarget));
+            if (!SUCCEEDED(hr))
+            {
+                /* Don't allow dnd since we couldn't get our drop target */
+                ERR("Can't get drop target for folder object\n");
+                *pdwEffect = DROPEFFECT_NONE;
+                return E_FAIL;
+            }
+            hr = pDropTarget->DragEnter(pCurObject, glfKeyState, pt, pdwEffect);
+            childTargetNode = info.hItem;
+        }
+        hr = pDropTarget->DragOver(glfKeyState, pt, pdwEffect);
+    }
+    else
+    {
+        childTargetNode = NULL;
+        pDropTarget = NULL;
+        *pdwEffect = DROPEFFECT_NONE;
+    }
+    return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::DragLeave()
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    bNavigating = TRUE;
+    TreeView_SelectItem(m_hWnd, oldSelected);
+    bNavigating = FALSE;
+    childTargetNode = NULL;
+    if (pCurObject)
+    {
+        pCurObject = NULL;
+    }
+    return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::Drop(IDataObject *pObj, DWORD glfKeyState, POINTL pt, DWORD *pdwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    if (!pDropTarget)
+        return E_FAIL;
+    pDropTarget->Drop(pObj, glfKeyState, pt, pdwEffect);
+    DragLeave();
+    return S_OK;
 }
 
 // *** IDropSource methods ***
 HRESULT STDMETHODCALLTYPE CExplorerBand::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    if (fEscapePressed)
+        return DRAGDROP_S_CANCEL;
+    if ((grfKeyState & MK_LBUTTON) || (grfKeyState & MK_RBUTTON))
+        return S_OK;
+    return DRAGDROP_S_DROP;
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::GiveFeedback(DWORD dwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    return DRAGDROP_S_USEDEFAULTCURSORS;
 }

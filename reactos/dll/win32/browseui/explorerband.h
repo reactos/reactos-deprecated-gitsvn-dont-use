@@ -67,7 +67,12 @@ private:
     // *** notification cookies ***
     DWORD adviseCookie;
     ULONG shellRegID;
-    
+
+    // *** Drop target information ***
+    CComPtr<IDropTarget> pDropTarget;
+    HTREEITEM childTargetNode;
+    CComPtr<IDataObject> pCurObject;
+
     void InitializeExplorerBand();
     void DestroyExplorerBand();
     HRESULT ExecuteCommand(CComPtr<IContextMenu>& menu, UINT nCmd);
