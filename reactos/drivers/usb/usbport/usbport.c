@@ -58,6 +58,76 @@ USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
 }
 
 NTSTATUS
+USBPORT_GetSetConfigSpaceData(IN PDEVICE_OBJECT FdoDevice,
+                              IN BOOLEAN IsReadData,
+                              IN PVOID Buffer,
+                              IN ULONG Offset,
+                              IN ULONG Length)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG BytesReadWrite;
+
+    DPRINT("USBPORT_ReadWriteConfigSpace ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    BytesReadWrite = Length;
+
+    if (IsReadData)
+    {
+        RtlZeroMemory(Buffer, Length);
+
+        BytesReadWrite = (*FdoExtension->BusInterface.GetBusData)(FdoExtension->BusInterface.Context,
+                                                                  PCI_WHICHSPACE_CONFIG,
+                                                                  Buffer,
+                                                                  Offset,
+                                                                  Length);
+    }
+    else
+    {
+        BytesReadWrite = (*FdoExtension->BusInterface.SetBusData)(FdoExtension->BusInterface.Context,
+                                                                  PCI_WHICHSPACE_CONFIG,
+                                                                  Buffer,
+                                                                  Offset,
+                                                                  Length);
+    }
+
+    if (BytesReadWrite == Length)
+    {
+        return STATUS_SUCCESS;
+    }
+
+    return STATUS_UNSUCCESSFUL;
+}
+
+MPSTATUS
+NTAPI 
+USBPORT_ReadWriteConfigSpace(IN PVOID Context,
+                             IN BOOLEAN IsReadData,
+                             IN PVOID Buffer,
+                             IN ULONG Offset,
+                             IN ULONG Length)
+{
+    NTSTATUS Status;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+
+    DPRINT("USBPORTSVC_ReadWriteConfigSpace:  \n");
+
+    //FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension + sizeof(USBPORT_DEVICE_EXTENSION));
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context - sizeof(USBPORT_DEVICE_EXTENSION));
+    FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+
+    Status = USBPORT_GetSetConfigSpaceData(FdoDevice,
+                                           IsReadData,
+                                           Buffer,
+                                           Offset,
+                                           Length);
+
+    return Status; // FIXME: Convert NTSTATUS to MPSTATUS
+}
+
+NTSTATUS
 USBPORT_USBDStatusToNtStatus(IN PURB Urb,
                              IN USBD_STATUS USBDStatus)
 {
@@ -2024,7 +2094,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     RegPacket->UsbPortLogEntry = USBPORT_LogEntry;
     RegPacket->UsbPortGetMappedVirtualAddress = USBPORT_GetMappedVirtualAddress;
     RegPacket->UsbPortRequestAsyncCallback = USBPORT_RequestAsyncCallback;
-    RegPacket->UsbPortReadWriteConfigSpace = 0; // USBPORT_ReadWriteConfigSpace;
+    RegPacket->UsbPortReadWriteConfigSpace = USBPORT_ReadWriteConfigSpace;
     RegPacket->UsbPortWait = 0; // USBPORT_Wait;
     RegPacket->UsbPortInvalidateController = 0; // USBPORT_InvalidateController;
     RegPacket->UsbPortBugCheck = 0; // USBPORT_BugCheck;
