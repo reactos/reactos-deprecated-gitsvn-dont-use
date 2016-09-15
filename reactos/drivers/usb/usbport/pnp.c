@@ -168,6 +168,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
                                 IN PDEVICE_OBJECT DeviceObject,
                                 IN CONST GUID *InterfaceClassGuid,
