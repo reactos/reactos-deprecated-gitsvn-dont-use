@@ -58,6 +58,7 @@ USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_GetSetConfigSpaceData(IN PDEVICE_OBJECT FdoDevice,
                               IN BOOLEAN IsReadData,
                               IN PVOID Buffer,
@@ -128,6 +129,7 @@ USBPORT_ReadWriteConfigSpace(IN PVOID Context,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_USBDStatusToNtStatus(IN PURB Urb,
                              IN USBD_STATUS USBDStatus)
 {
@@ -172,6 +174,7 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_Wait(IN ULONG Milliseconds)
 {
     LARGE_INTEGER Interval = {{0, 0}};
@@ -387,6 +390,7 @@ USBPORT_StartTimer(IN PDEVICE_OBJECT FdoDevice,
 }
 
 PUSBPORT_COMMON_BUFFER_HEADER
+NTAPI
 USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
                              IN SIZE_T BufferLength)
 {
@@ -465,6 +469,7 @@ USBPORT_FreeCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
 }
 
 PUSBPORT_MINIPORT_INTERFACE
+NTAPI
 USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
 {
     KIRQL OldIrql; 
@@ -497,6 +502,7 @@ USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
 }
 
 NTSTATUS
+NTAPI
 USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
                   IN PDEVICE_OBJECT PhysicalDeviceObject)
 {
@@ -590,6 +596,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
 }
 
 VOID
+NTAPI
 USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 {
     PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
@@ -729,6 +736,7 @@ USBPORT_InvalidateEndpoint(IN PVOID Context1,
 }
 
 VOID
+NTAPI
 USBPORT_CompleteTransfer(IN PURB Urb,
                          IN USBD_STATUS TransferStatus)
 {
@@ -927,6 +935,7 @@ Exit:
 }
 
 VOID
+NTAPI
 USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
                        IN BOOLEAN Flag)
 {
@@ -1107,6 +1116,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 }
 
 VOID
+NTAPI
 USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -1164,6 +1174,7 @@ USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
 }
 
 VOID
+NTAPI
 USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 {
     PDEVICE_OBJECT FdoDevice;
@@ -1230,6 +1241,7 @@ Worker:
 }
 
 VOID
+NTAPI
 USBPORT_QueueTransferUrb(IN PURB Urb)
 {
     PUSBPORT_TRANSFER Transfer;
@@ -1291,6 +1303,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
 }
 
 NTSTATUS
+NTAPI
 ValidateTransferParameters(IN PURB Urb)
 {
     struct _URB_CONTROL_TRANSFER *UrbTransfer;
@@ -1349,6 +1362,7 @@ ValidateTransferParameters(IN PURB Urb)
 }
 
 USBD_STATUS
+NTAPI
 USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
                          IN PURB Urb,
                          IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
@@ -1425,6 +1439,7 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_HandleDataTransfers(IN PURB Urb)
 {
     PUSBPORT_ENDPOINT Endpoint;
@@ -1447,6 +1462,7 @@ USBPORT_HandleDataTransfers(IN PURB Urb)
 }
 
 NTSTATUS
+NTAPI
 USBPORT_HandleGetStatus(IN PIRP Irp,
                         IN PURB Urb)
 {
@@ -1519,6 +1535,7 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_HandleVendorOrClass(IN PIRP Irp,
                             IN PURB Urb)
 {
@@ -1596,6 +1613,7 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
                                IN PURB Urb)
 {
@@ -1681,6 +1699,7 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
 {
@@ -1923,6 +1942,7 @@ Exit:
 }
 
 NTSTATUS
+NTAPI
 USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
                  IN PIRP Irp)
 {

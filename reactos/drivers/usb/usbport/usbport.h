@@ -244,11 +244,13 @@ NTAPI
 USBPORT_GetHciMn(VOID);
 
 NTSTATUS
+NTAPI
 USBPORT_USBDStatusToNtStatus(
   IN PURB Urb,
   IN USBD_STATUS USBDStatus);
 
 NTSTATUS
+NTAPI
 USBPORT_Wait(
   IN ULONG Milliseconds);
 
@@ -292,6 +294,7 @@ USBPORT_FreeCommonBuffer(
   IN PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer);
 
 USBD_STATUS
+NTAPI
 USBPORT_AllocateTransfer(
   IN PDEVICE_OBJECT FdoDevice,
   IN PURB Urb,
@@ -300,19 +303,23 @@ USBPORT_AllocateTransfer(
   IN PRKEVENT Event);
 
 VOID
+NTAPI
 USBPORT_QueueTransferUrb(IN PURB Urb);
 
 VOID
+NTAPI
 USBPORT_EndpointWorker(
   IN PUSBPORT_ENDPOINT Endpoint,
   IN BOOLEAN Flag);
 
 VOID
+NTAPI
 USBPORT_CompleteTransfer(
   IN PURB Urb,
   IN USBD_STATUS TransferStatus);
 
 VOID
+NTAPI
 USBPORT_FlushPendingTransfers(
   IN PUSBPORT_ENDPOINT Endpoint);
 
