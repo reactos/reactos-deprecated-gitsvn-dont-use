@@ -173,7 +173,7 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
             break;
 
         default:
-            if (USBD_ERROR(Status))
+            if (USBD_ERROR(USBDStatus))
                 Status = STATUS_UNSUCCESSFUL;
             break;
     }
@@ -1014,7 +1014,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     SIZE_T CurrentLength;
     ULONG ix;
     BOOLEAN WriteToDevice;
-    PHYSICAL_ADDRESS PhAddr;
+    PHYSICAL_ADDRESS PhAddr = {{0, 0}};
     PHYSICAL_ADDRESS PhAddress = {{0, 0}};
     SIZE_T TransferLength;
     SIZE_T SgCurrentLength;
@@ -1044,7 +1044,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
     Transfer->SgList.MappedSystemVa = MappedSystemVa;
 
-    Mdl->MdlFlags & ~MDL_MAPPING_CAN_FAIL;
+    Mdl->MdlFlags &= ~MDL_MAPPING_CAN_FAIL;
 
     sgList = &Transfer->SgList;
     sgList->Flags = 0;
