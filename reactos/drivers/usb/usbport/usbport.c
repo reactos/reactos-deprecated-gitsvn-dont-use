@@ -2048,7 +2048,7 @@ ULONG
 NTAPI
 USBPORT_GetHciMn(VOID)
 {
-    return 0;
+    return 0x10000001;
 }
 
 NTSTATUS
