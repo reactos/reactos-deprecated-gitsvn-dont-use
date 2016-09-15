@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
@@ -112,7 +112,7 @@ USBPORT_ReadWriteConfigSpace(IN PVOID Context,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDEVICE_OBJECT FdoDevice;
 
-    DPRINT("USBPORTSVC_ReadWriteConfigSpace:  \n");
+    DPRINT("USBPORT_ReadWriteConfigSpace: ... \n");
 
     //FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension + sizeof(USBPORT_DEVICE_EXTENSION));
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context - sizeof(USBPORT_DEVICE_EXTENSION));
