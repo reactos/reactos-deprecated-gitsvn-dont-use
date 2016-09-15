@@ -53,7 +53,15 @@ USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
                                     IN PVOID Buffer,
                                     IN SIZE_T NumberOfBytes)
 {
-    DPRINT("USBPORT_GetMiniportRegistryKeyValue: UNIMPLEMENTED. FIXME. \n");
+    DPRINT("USBPORT_GetMiniportRegistryKeyValue: Context - %p, Type - %x, SourceString - %S, Length - %x, Buffer - %p, NumberOfBytes - %x\n",
+           Context,
+           Type,
+           SourceString,
+           Length,
+           Buffer,
+           NumberOfBytes);
+
+    DbgBreakPoint();
     return 0;
 }
 
