@@ -204,7 +204,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK EpStateChangeSpinLock;
   LIST_ENTRY MapTransferList;
   ULONG UsbAddressBitMap[4];
-  ULONG Padded[30]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[27]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x200);
