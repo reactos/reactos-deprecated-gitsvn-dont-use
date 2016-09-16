@@ -3,15 +3,20 @@
 
 typedef struct _USBPORT_RESOURCES {
   ULONG TypesResources; // 1 | 2 | 4  (Port | Interrupt | Memory)
+  ULONG HcFlavor;
   ULONG InterruptVector;
   KIRQL InterruptLevel;
-  BOOLEAN ShareVector;
-  KINTERRUPT_MODE InterruptMode;
+  UCHAR Padded1[3];
   KAFFINITY InterruptAffinity;
+  BOOLEAN ShareVector;
+  UCHAR Padded2[3];
+  KINTERRUPT_MODE InterruptMode;
+  ULONG Reserved;
   PVOID ResourceBase;
   SIZE_T IoSpaceLength;
   PVOID StartVA;
   PVOID StartPA;
+  ULONG LegacySupport;
 } USBPORT_RESOURCES, *PUSBPORT_RESOURCES;
 
 typedef ULONG MPSTATUS;
