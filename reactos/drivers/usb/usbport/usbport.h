@@ -252,6 +252,7 @@ USBPORT_USBDStatusToNtStatus(
 NTSTATUS
 NTAPI
 USBPORT_Wait(
+  IN PVOID Context,
   IN ULONG Milliseconds);
 
 VOID
