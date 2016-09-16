@@ -302,6 +302,37 @@ USBPORT_Wait(IN PVOID Context,
     return KeDelayExecutionThread(KernelMode, FALSE, &Interval);
 }
 
+ULONG
+NTAPI
+USBPORT_InvalidateController(IN PVOID Context,
+                             IN ULONG Type)
+{
+    DPRINT("USBPORT_InvalidateController: Invalidate Type - %x\n", Type);
+    ASSERT(FALSE);
+    return 0;
+}
+
+VOID
+NTAPI
+USBPORT_BugCheck(IN PVOID Context)
+{
+    DPRINT1("USBPORT_BugCheck: FIXME \n");
+    //KeBugCheckEx(...);
+    ASSERT(FALSE);
+}
+
+ULONG
+NTAPI
+USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
+                           IN PVOID Context2,
+                           IN PVOID Buffer,
+                           IN SIZE_T Length)
+{
+    DPRINT("USBPORT_NotifyDoubleBuffer: FIXME \n");
+    ASSERT(FALSE);
+    return 0;
+}
+
 VOID
 NTAPI
 USBPORT_WorkerThread(IN PVOID StartContext)
@@ -2234,9 +2265,9 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     RegPacket->UsbPortRequestAsyncCallback = USBPORT_RequestAsyncCallback;
     RegPacket->UsbPortReadWriteConfigSpace = USBPORT_ReadWriteConfigSpace;
     RegPacket->UsbPortWait = USBPORT_Wait;
-    RegPacket->UsbPortInvalidateController = 0; // USBPORT_InvalidateController;
-    RegPacket->UsbPortBugCheck = 0; // USBPORT_BugCheck;
-    RegPacket->UsbPortNotifyDoubleBuffer = 0; // USBPORT_NotifyDoubleBuffer;
+    RegPacket->UsbPortInvalidateController = USBPORT_InvalidateController;
+    RegPacket->UsbPortBugCheck = USBPORT_BugCheck;
+    RegPacket->UsbPortNotifyDoubleBuffer = USBPORT_NotifyDoubleBuffer;
 
     RtlCopyMemory(&MiniPortInterface->Packet,
                   RegPacket,
