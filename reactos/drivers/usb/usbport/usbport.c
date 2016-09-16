@@ -46,6 +46,22 @@ USBPORT_AssertFailure(PVOID Context,
 
 MPSTATUS
 NTAPI
+USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
+{
+    DPRINT("USBPORT_NtStatusToMpStatus: NtStatus - %x\n", NtStatus);
+
+    if (NtStatus == STATUS_SUCCESS)
+    {
+        return 0;
+    }
+    else
+    {
+        return 8;
+    }
+}
+
+MPSTATUS
+NTAPI
 USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
                                     IN ULONG Type,
                                     IN PCWSTR SourceString,
@@ -152,7 +168,7 @@ USBPORT_ReadWriteConfigSpace(IN PVOID Context,
                                            Offset,
                                            Length);
 
-    return Status; // FIXME: Convert NTSTATUS to MPSTATUS
+    return USBPORT_NtStatusToMpStatus(Status);
 }
 
 NTSTATUS
