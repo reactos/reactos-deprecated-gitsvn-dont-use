@@ -49,20 +49,39 @@ NTAPI
 USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
                                     IN ULONG Type,
                                     IN PCWSTR SourceString,
-                                    IN SIZE_T Length,
+                                    IN SIZE_T LengthStr,
                                     IN PVOID Buffer,
                                     IN SIZE_T NumberOfBytes)
 {
-    DPRINT("USBPORT_GetMiniportRegistryKeyValue: Context - %p, Type - %x, SourceString - %S, Length - %x, Buffer - %p, NumberOfBytes - %x\n",
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_GetMiniportRegistryKeyValue: Context - %p, Type - %x, SourceString - %S, LengthStr - %x, Buffer - %p, NumberOfBytes - %x\n",
            Context,
            Type,
            SourceString,
-           Length,
+           LengthStr,
            Buffer,
            NumberOfBytes);
 
-    DbgBreakPoint();
-    return 0;
+    //DbgBreakPoint();
+
+    //FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension + sizeof(USBPORT_DEVICE_EXTENSION));
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context -
+                                               sizeof(USBPORT_DEVICE_EXTENSION));
+
+    FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+
+    Status = USBPORT_GetRegistryKeyValue(FdoDevice,
+                                         FdoExtension->CommonExtension.LowerPdoDevice,
+                                         Type,
+                                         SourceString,
+                                         LengthStr,
+                                         Buffer,
+                                         NumberOfBytes);
+
+    return USBPORT_NtStatusToMpStatus(Status);
 }
 
 NTSTATUS
