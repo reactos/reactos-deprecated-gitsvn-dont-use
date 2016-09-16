@@ -60,6 +60,80 @@ USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
     }
 }
 
+NTSTATUS
+NTAPI
+USBPORT_GetRegistryKeyValueFullInfo(PDEVICE_OBJECT FdoDevice,
+                                    PDEVICE_OBJECT PdoDevice,
+                                    ULONG Type,
+                                    PCWSTR SourceString,
+                                    ULONG LengthStr,
+                                    PVOID Buffer,
+                                    ULONG NumberOfBytes)
+{
+    NTSTATUS Status;
+    PKEY_VALUE_FULL_INFORMATION KeyValue;
+    UNICODE_STRING ValueName;
+    HANDLE KeyHandle;
+    ULONG LengthKey;
+
+    DPRINT("USBPORT_GetRegistryKeyValue: Type - %x, SourceString - %S, LengthStr - %x, Buffer - %p, NumberOfBytes - %x\n",
+           Type,
+           SourceString,
+           LengthStr,
+           Buffer,
+           NumberOfBytes);
+
+    if (Type)
+    {
+        Status = IoOpenDeviceRegistryKey(PdoDevice,
+                                         PLUGPLAY_REGKEY_DRIVER,
+                                         STANDARD_RIGHTS_ALL,
+                                         &KeyHandle);
+    }
+    else
+    {
+        Status = IoOpenDeviceRegistryKey(PdoDevice,
+                                         PLUGPLAY_REGKEY_DEVICE,
+                                         STANDARD_RIGHTS_ALL,
+                                         &KeyHandle);
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        RtlInitUnicodeString(&ValueName, SourceString);
+        LengthKey = sizeof(KEY_VALUE_FULL_INFORMATION) + LengthStr + NumberOfBytes;
+
+        KeyValue = (PKEY_VALUE_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool,
+                                                                      LengthKey,
+                                                                      USB_PORT_TAG);
+
+        if (KeyValue)
+        {
+            RtlZeroMemory(KeyValue, LengthKey);
+
+            Status = ZwQueryValueKey(KeyHandle,
+                                     &ValueName,
+                                     KeyValueFullInformation,
+                                     KeyValue,
+                                     LengthKey,
+                                     &LengthKey);
+
+            if (NT_SUCCESS(Status))
+            {
+                RtlCopyMemory(Buffer,
+                              (PUCHAR)KeyValue + KeyValue->DataOffset,
+                              NumberOfBytes);
+            }
+
+            ExFreePool(KeyValue);
+        }
+
+        ZwClose(KeyHandle);
+    }
+
+    return Status;
+}
+
 MPSTATUS
 NTAPI
 USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
@@ -89,13 +163,13 @@ USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
 
     FdoDevice = FdoExtension->CommonExtension.SelfDevice;
 
-    Status = USBPORT_GetRegistryKeyValue(FdoDevice,
-                                         FdoExtension->CommonExtension.LowerPdoDevice,
-                                         Type,
-                                         SourceString,
-                                         LengthStr,
-                                         Buffer,
-                                         NumberOfBytes);
+    Status = USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
+                                                 FdoExtension->CommonExtension.LowerPdoDevice,
+                                                 Type,
+                                                 SourceString,
+                                                 LengthStr,
+                                                 Buffer,
+                                                 NumberOfBytes);
 
     return USBPORT_NtStatusToMpStatus(Status);
 }
