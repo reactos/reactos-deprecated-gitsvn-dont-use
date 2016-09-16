@@ -183,7 +183,8 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 
 NTSTATUS
 NTAPI
-USBPORT_Wait(IN ULONG Milliseconds)
+USBPORT_Wait(IN PVOID Context,
+             IN ULONG Milliseconds)
 {
     LARGE_INTEGER Interval = {{0, 0}};
 
@@ -2123,7 +2124,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     RegPacket->UsbPortGetMappedVirtualAddress = USBPORT_GetMappedVirtualAddress;
     RegPacket->UsbPortRequestAsyncCallback = USBPORT_RequestAsyncCallback;
     RegPacket->UsbPortReadWriteConfigSpace = USBPORT_ReadWriteConfigSpace;
-    RegPacket->UsbPortWait = 0; // USBPORT_Wait;
+    RegPacket->UsbPortWait = USBPORT_Wait;
     RegPacket->UsbPortInvalidateController = 0; // USBPORT_InvalidateController;
     RegPacket->UsbPortBugCheck = 0; // USBPORT_BugCheck;
     RegPacket->UsbPortNotifyDoubleBuffer = 0; // USBPORT_NotifyDoubleBuffer;

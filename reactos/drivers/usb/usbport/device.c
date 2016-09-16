@@ -349,7 +349,7 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                     if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
                         break;
 
-                    USBPORT_Wait(1); // 1 msec.
+                    USBPORT_Wait(FdoDevice, 1); // 1 msec.
                 }
             }
         }
@@ -446,7 +446,7 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
             if (IsReady == TRUE)
                 break;
 
-            USBPORT_Wait(1);
+            USBPORT_Wait(FdoDevice, 1);
         }
 
         Endpoint->DeviceHandle = NULL;
@@ -484,7 +484,7 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
                              USBPORT_ENDPOINT_CLOSED);
 
-    USBPORT_Wait(2);
+    USBPORT_Wait(FdoDevice, 2);
 
     if (Endpoint->Flags & ENDPOINT_FLAG_OPENED)
     {
@@ -1355,7 +1355,7 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
     if (!NT_SUCCESS(Status))
         goto ExitError;
 
-    USBPORT_Wait(10);
+    USBPORT_Wait(FdoDevice, 10);
 
     RtlZeroMemory(&CtrlSetup, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
