@@ -340,6 +340,7 @@ USBPORT_FlushPendingTransfers(
 /* device.c */
 
 NTSTATUS
+NTAPI
 USBPORT_HandleSelectConfiguration(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp,
@@ -354,6 +355,7 @@ USBPORT_OpenPipe(
   IN PUSBD_STATUS UsbdStatus);
 
 NTSTATUS
+NTAPI
 USBPORT_CreateDevice(
   IN OUT PUSB_DEVICE_HANDLE *pHandle,
   IN PDEVICE_OBJECT FdoDevice,
@@ -362,6 +364,7 @@ USBPORT_CreateDevice(
   IN USHORT Port);
 
 NTSTATUS
+NTAPI
 USBPORT_InitializeDevice(
   IN PVOID UsbDeviceHandle,
   IN PDEVICE_OBJECT FdoDevice);
@@ -376,6 +379,7 @@ USBPORT_GetUsbDescriptor(
   IN PULONG ConfigDescSize);
 
 VOID
+NTAPI
 USBPORT_SetEndpointState(
   IN PUSBPORT_ENDPOINT Endpoint,
   IN ULONG State);
@@ -447,6 +451,7 @@ USBPORT_FdoPower(
 /* roothub.c */
 
 VOID
+NTAPI
 USBPORT_RootHubEndpointWorker(
   PUSBPORT_ENDPOINT Endpoint);
 
