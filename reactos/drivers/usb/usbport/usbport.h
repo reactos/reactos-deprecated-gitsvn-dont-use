@@ -230,6 +230,19 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
   PVOID RootHubInitContext;
 } USBPORT_RHDEVICE_EXTENSION, *PUSBPORT_RHDEVICE_EXTENSION;
 
+typedef struct _USBPORT_ROOT_HUB_DATA {
+  UCHAR NumberOfPorts;
+  UCHAR Rezerved1[3];
+  USHORT HubCharacteristics;
+  USHORT Rezerved2;
+  UCHAR PowerOnToPowerGood;
+  UCHAR Rezerved3[3];
+  UCHAR HubControlCurrent;
+  UCHAR Rezerved4[3];
+} USBPORT_ROOT_HUB_DATA, *PUSBPORT_ROOT_HUB_DATA;
+
+C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
+
 /* usbport.c */
 
 NTSTATUS
