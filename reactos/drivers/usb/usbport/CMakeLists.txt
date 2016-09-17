@@ -4,7 +4,9 @@ spec2def(usbport.sys usbport.spec ADD_IMPORTLIB)
 list(APPEND SOURCE
     device.c
     iface.c
+    ioctl.c
     pnp.c
+    power.c
     roothub.c
     usbport.c
     usbport.h)

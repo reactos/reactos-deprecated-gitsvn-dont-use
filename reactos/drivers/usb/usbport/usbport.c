@@ -2120,9 +2120,9 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
         case IRP_MJ_DEVICE_CONTROL: // 14
             DPRINT("USBPORT_Dispatch: IRP_MJ_DEVICE_CONTROL\n");
             if (DeviceExtension->IsPDO)
-                Status = 0; // USBPORT_PdoDeviceControl(DeviceObject, Irp);
+                Status = USBPORT_PdoDeviceControl(DeviceObject, Irp);
             else
-                Status = 0; // USBPORT_FdoDeviceControl(DeviceObject, Irp);
+                Status = USBPORT_FdoDeviceControl(DeviceObject, Irp);
             break;
 
         case IRP_MJ_SCSI: // 15 IRP_MJ_NTERNAL_DEVICE_CONTROL:
@@ -2130,16 +2130,15 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
             if (DeviceExtension->IsPDO)
                 Status = USBPORT_PdoScsi(DeviceObject, Irp);
             else
-                ASSERT(FALSE);
-                //Status = USBPORT_FdoScsi(DeviceObject, Irp);
+                Status = USBPORT_FdoScsi(DeviceObject, Irp);
             break;
 
         case IRP_MJ_POWER: // 22
             DPRINT("USBPORT_Dispatch: USBPORT_XdoPowerIrp\n");
             if (DeviceExtension->IsPDO)
-                Status = 0; // USBPORT_PdoPower(DeviceObject, Irp);
+                Status = USBPORT_PdoPower(DeviceObject, Irp);
             else
-                Status = 0; // USBPORT_FdoPower(DeviceObject, Irp);
+                Status = USBPORT_FdoPower(DeviceObject, Irp);
             break;
 
         case IRP_MJ_SYSTEM_CONTROL: // 23
