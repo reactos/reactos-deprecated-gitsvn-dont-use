@@ -822,15 +822,21 @@ USBPORT_CompleteIsoTransfer(IN PVOID MiniPortExtension,
 
 ULONG
 NTAPI
-USBPORT_LogEntry(IN PVOID Context,
-                 IN PVOID BusContext,
+USBPORT_LogEntry(IN PVOID BusContext,
                  IN PVOID DriverTag,
-                 IN ULONG EnumTag,
+                 IN PVOID EnumTag,
                  IN ULONG P1,
-                 IN ULONG P2)
+                 IN ULONG P2,
+                 IN ULONG P3)
 {
-    DPRINT("USBPORT_LogEntry: UNIMPLEMENTED. FIXME.\n");
-    return (ULONG)Context;
+    DPRINT("USBPORT_LogEntry: BusContext - %p, EnumTag - %p, P1 - %p, P2 - %p, P3 - %p\n",
+           BusContext,
+           EnumTag,
+           P1,
+           P2,
+           P3);
+
+    return (ULONG)BusContext;
 }
 
 ULONG
