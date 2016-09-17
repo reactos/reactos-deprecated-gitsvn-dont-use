@@ -4,6 +4,7 @@
 #include <debug.h>
 
 ULONG
+NTAPI
 USBPORT_SetBit(ULONG_PTR Address,
                UCHAR Index)
 {
@@ -18,6 +19,7 @@ USBPORT_SetBit(ULONG_PTR Address,
 }
 
 BOOLEAN
+NTAPI
 USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                             IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
                             IN PVOID Buffer,
@@ -194,6 +196,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 }
 
 BOOLEAN
+NTAPI
 USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                                IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
                                IN PVOID Buffer,
@@ -281,6 +284,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 }
 
 ULONG
+NTAPI
 USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
 {
     PDEVICE_OBJECT FdoDevice;
@@ -332,6 +336,7 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
 }
 
 ULONG
+NTAPI
 USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
 {
     PUSBPORT_ENDPOINT Endpoint;
@@ -420,6 +425,7 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
 }
 
 VOID
+NTAPI
 USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 {
     PDEVICE_OBJECT FdoDevice;

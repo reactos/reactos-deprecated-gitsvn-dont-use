@@ -126,6 +126,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 }
 
 VOID
+NTAPI
 USBPORT_SetEndpointState(PUSBPORT_ENDPOINT Endpoint,
                          ULONG State)
 {
@@ -394,6 +395,7 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 }
 
 VOID
+NTAPI
 USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                   IN PDEVICE_OBJECT FdoDevice,
                   IN PUSBPORT_PIPE_HANDLE PipeHandle)
@@ -459,6 +461,7 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
                    IN PUSBPORT_ENDPOINT Endpoint)
 {
@@ -610,6 +613,7 @@ USBPORT_GetInterfaceLength(IN PUSB_INTERFACE_DESCRIPTOR iDescriptor,
 }
 
 PUSB_INTERFACE_DESCRIPTOR
+NTAPI
 USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor,
                                      IN UCHAR InterfaceNumber,
                                      IN UCHAR Alternate,
@@ -960,6 +964,7 @@ USBPORT_InitInterfaceInfo(IN PUSBD_INTERFACE_INFORMATION InterfaceInfo,
 }
 
 NTSTATUS
+NTAPI
 USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
                                   IN PIRP Irp,
                                   IN PURB Urb)
@@ -1125,6 +1130,7 @@ Exit:
 }
 
 NTSTATUS
+NTAPI
 USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
                      IN PDEVICE_OBJECT FdoDevice,
                      IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
@@ -1264,6 +1270,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
 }
 
 ULONG
+NTAPI
 USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -1305,6 +1312,7 @@ USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 }
 
 NTSTATUS
+NTAPI
 USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
                          IN PDEVICE_OBJECT FdoDevice)
 {
@@ -1423,6 +1431,7 @@ USBPORT_GetUsbDescriptor(IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
 }
 
 PUSBPORT_INTERFACE_HANDLE
+NTAPI
 USBPORT_GetInterfaceHandle(IN PUSBPORT_CONFIGURATION_HANDLE ConfigurationHandle,
                            IN UCHAR InterfaceNumber)
 {
