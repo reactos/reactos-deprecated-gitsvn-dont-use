@@ -510,13 +510,24 @@ typedef struct _USBPORT_ENDPOINT_PROPERTIES {
   USHORT EndpointAddress;
   USHORT MaxPacketSize;
   UCHAR Period;
-  UCHAR Direction;
+  UCHAR Reserved1;
   ULONG DeviceSpeed;
+  ULONG UsbBandwidth;
+  ULONG Reserved2;
   ULONG TransferType;
-  ULONG MaxTransferSize;
+  ULONG Direction;
   ULONG BufferVA;
   ULONG BufferPA;
   ULONG BufferLength;
+  ULONG Reserved3;
+  ULONG MaxTransferSize;
+  USHORT HubAddr;
+  USHORT PortNumber;
+  UCHAR InterruptScheduleMask;
+  UCHAR SplitCompletionMask;
+  USHORT Reserved4;
+  ULONG Reserved5;
+  ULONG Reserved6;
 } USBPORT_ENDPOINT_PROPERTIES, *PUSBPORT_ENDPOINT_PROPERTIES;
 
 typedef struct _USBPORT_SCATTER_GATHER_ELEMENT {
