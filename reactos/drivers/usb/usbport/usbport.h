@@ -383,6 +383,26 @@ USBPORT_PdoQueryInterface(
   IN PDEVICE_OBJECT PdoDevice,
   IN PIRP Irp);
 
+/* ioctl.c */
+
+NTSTATUS
+NTAPI
+USBPORT_PdoDeviceControl(
+  PDEVICE_OBJECT PdoDevice,
+  PIRP Irp);
+
+NTSTATUS
+NTAPI
+USBPORT_FdoDeviceControl(
+  PDEVICE_OBJECT FdoDevice,
+  PIRP Irp);
+
+NTSTATUS
+NTAPI
+USBPORT_FdoScsi(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
+
 /* pnp.c */
 
 NTSTATUS
@@ -394,6 +414,20 @@ USBPORT_FdoPnP(
 NTSTATUS
 NTAPI
 USBPORT_PdoPnP(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
+
+/* power.c */
+
+NTSTATUS
+NTAPI
+USBPORT_PdoPower(
+  IN PDEVICE_OBJECT PdoDevice,
+  IN PIRP Irp);
+
+NTSTATUS
+NTAPI
+USBPORT_FdoPower(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp);
 
