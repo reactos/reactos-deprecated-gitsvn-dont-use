@@ -281,13 +281,20 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
             Status = STATUS_NOT_SUPPORTED;
             break;
 
+        case USBD_STATUS_INVALID_URB_FUNCTION:
+        case USBD_STATUS_INVALID_PARAMETER:
+        case USBD_STATUS_INVALID_PIPE_HANDLE:
+        case USBD_STATUS_BAD_START_FRAME:
+            Status = STATUS_INVALID_PARAMETER;
+            break;
+
         default:
             if (USBD_ERROR(USBDStatus))
                 Status = STATUS_UNSUCCESSFUL;
             break;
     }
 
-    return USBD_STATUS_SUCCESS;
+    return Status;
 }
 
 NTSTATUS
