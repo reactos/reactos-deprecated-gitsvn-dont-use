@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 ULONG
@@ -29,9 +29,9 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
     USHORT Port;
     ULONG Result = 1;
 
-    DPRINT("USBPORT_RootHubClassCommand: USB command - %x, BufferLength - %p\n",
+    DPRINT("USBPORT_RootHubClassCommand: USB command - %x, *BufferLength - %x\n",
            SetupPacket->bRequest,
-           BufferLength);
+           *BufferLength);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
@@ -464,13 +464,14 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 }
 
 NTSTATUS
+NTAPI
 USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
                             IN PDEVICE_OBJECT PdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
-    USB_HUB_DESCRIPTOR RootHubData;
+    USBPORT_ROOT_HUB_DATA RootHubData;
     ULONG NumMaskByte;
     ULONG LenghtDescriptors;
     PUSBPORT_RH_DESCRIPTORS Descriptors;
@@ -496,10 +497,13 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
     DeviceHandle->IsRootHub = 1;
     DeviceHandle->DeviceSpeed = 1; // 0-low, 1-full, 2-high
 
-    FdoExtension->MiniPortInterface->Packet.RH_GetRootHubData(FdoExtension->MiniPortExt,
-                                                              (PULONG)&RootHubData);
+    RtlZeroMemory(&RootHubData, sizeof(RootHubData));
 
-    NumMaskByte = ((RootHubData.bNumberOfPorts - 1) >> 3) + 1;
+    FdoExtension->MiniPortInterface->Packet.RH_GetRootHubData(FdoExtension->MiniPortExt,
+                                                              &RootHubData);
+
+    ASSERT(RootHubData.NumberOfPorts > 1);
+    NumMaskByte = ((RootHubData.NumberOfPorts - 1) >> 3) + 1;
 
     LenghtDescriptors = sizeof(USB_DEVICE_DESCRIPTOR) +
                         sizeof(USB_CONFIGURATION_DESCRIPTOR) +
@@ -572,12 +576,12 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
 
         RH_HubDescriptor = &PdoExtension->RootHubDescriptors->Descriptor;
 
-        RH_HubDescriptor->bDescriptorLength = 7 + 2 * NumMaskByte;;
+        RH_HubDescriptor->bDescriptorLength = 7 + 2 * NumMaskByte;
         RH_HubDescriptor->bDescriptorType = 0x29;
-        RH_HubDescriptor->bNumberOfPorts = RootHubData.bNumberOfPorts;
-        RH_HubDescriptor->wHubCharacteristics = RootHubData.wHubCharacteristics;
-        RH_HubDescriptor->bPowerOnToPowerGood = RootHubData.bPowerOnToPowerGood;
-        RH_HubDescriptor->bHubControlCurrent = RootHubData.bHubControlCurrent;
+        RH_HubDescriptor->bNumberOfPorts = RootHubData.NumberOfPorts;
+        RH_HubDescriptor->wHubCharacteristics = RootHubData.HubCharacteristics;
+        RH_HubDescriptor->bPowerOnToPowerGood = RootHubData.PowerOnToPowerGood;
+        RH_HubDescriptor->bHubControlCurrent = RootHubData.HubControlCurrent;
 
         if (NumMaskByte)
         {
