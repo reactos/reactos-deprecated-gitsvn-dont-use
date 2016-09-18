@@ -248,6 +248,22 @@ typedef struct _USBPORT_ROOT_HUB_DATA {
 
 C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
 
+typedef VOID
+(NTAPI ASYNC_TIMER_CALLBACK)(
+  IN PVOID MiniportExtension,
+  IN PVOID CallBackContext);
+
+typedef struct _USBPORT_ASYNC_CALLBACK_DATA {
+  ULONG Reserved;
+  PDEVICE_OBJECT FdoDevice;
+  KTIMER AsyncTimer;
+  KDPC AsyncTimerDpc;
+  ASYNC_TIMER_CALLBACK *CallbackFunction;
+  ULONG CallbackContext;
+} USBPORT_ASYNC_CALLBACK_DATA, *PUSBPORT_ASYNC_CALLBACK_DATA;
+
+C_ASSERT(sizeof(USBPORT_ASYNC_CALLBACK_DATA) == 88);
+
 /* usbport.c */
 
 NTSTATUS

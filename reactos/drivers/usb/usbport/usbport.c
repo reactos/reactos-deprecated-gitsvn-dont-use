@@ -839,6 +839,29 @@ USBPORT_LogEntry(IN PVOID BusContext,
     return (ULONG)BusContext;
 }
 
+VOID
+NTAPI
+USBPORT_AsyncTimerDpc(IN PRKDPC Dpc,
+                      IN PVOID DeferredContext,
+                      IN PVOID SystemArgument1,
+                      IN PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_ASYNC_CALLBACK_DATA AsyncCallbackData;
+
+    DPRINT("USBPORT_AsyncTimerDpc: ... \n");
+
+    AsyncCallbackData = (PUSBPORT_ASYNC_CALLBACK_DATA)DeferredContext;
+    FdoDevice = AsyncCallbackData->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    (*(ASYNC_TIMER_CALLBACK *)AsyncCallbackData->CallbackFunction)(FdoExtension->MiniPortExt,
+                                                                   &AsyncCallbackData->CallbackContext);
+
+    ExFreePool(AsyncCallbackData);
+}
+
 ULONG
 NTAPI
 USBPORT_RequestAsyncCallback(IN PVOID Context,
@@ -847,8 +870,51 @@ USBPORT_RequestAsyncCallback(IN PVOID Context,
                              IN SIZE_T Length,
                              IN ULONG Callback)
 {
-    DPRINT("USBPORT_RequestAsyncCallback: UNIMPLEMENTED. FIXME.\n");
-    ASSERT(FALSE);
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_ASYNC_CALLBACK_DATA AsyncCallbackData;
+    LARGE_INTEGER DueTime = {{0, 0}};
+
+    DPRINT("USBPORT_RequestAsyncCallback: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context -
+                                               sizeof(USBPORT_DEVICE_EXTENSION));
+
+    FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+
+    AsyncCallbackData = (PUSBPORT_ASYNC_CALLBACK_DATA)ExAllocatePoolWithTag(NonPagedPool,
+                                                                            sizeof(USBPORT_ASYNC_CALLBACK_DATA) + Length,
+                                                                            USB_PORT_TAG);
+
+    if (!AsyncCallbackData)
+    {
+        DPRINT1("USBPORT_RequestAsyncCallback: Not allocated AsyncCallbackData!\n");
+        return 0;
+    }
+
+    RtlZeroMemory(AsyncCallbackData,
+                  sizeof(USBPORT_ASYNC_CALLBACK_DATA) + Length);
+
+    if (Length)
+    {
+        RtlCopyMemory(&AsyncCallbackData->CallbackContext, Buffer, Length);
+    }
+
+    AsyncCallbackData->FdoDevice = FdoDevice;
+    AsyncCallbackData->CallbackFunction = (ASYNC_TIMER_CALLBACK *)Callback;
+
+    KeInitializeTimer(&AsyncCallbackData->AsyncTimer);
+
+    KeInitializeDpc(&AsyncCallbackData->AsyncTimerDpc,
+                    USBPORT_AsyncTimerDpc,
+                    AsyncCallbackData);
+
+    DueTime.QuadPart -= (KeQueryTimeIncrement() - 1) + 10000 * TimerValue;
+
+    KeSetTimer(&AsyncCallbackData->AsyncTimer,
+               DueTime,
+               &AsyncCallbackData->AsyncTimerDpc);
+
     return 0;
 }
 
