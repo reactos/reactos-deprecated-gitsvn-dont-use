@@ -1426,8 +1426,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
     Transfer->TransferBufferMDL = Urb->UrbControlTransfer.TransferBufferMDL;
     Transfer->Direction = ((Urb->UrbControlTransfer.TransferFlags & 1) == 0) + 1;
 
-    //if (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_CONTROL)
-    if (Endpoint->EndpointProperties.TransferType == 1)
+    if (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_CONTROL)
     {
         RtlCopyMemory(&Transfer->TransferParameters.SetupPacket,
                       Urb->UrbControlTransfer.SetupPacket,
@@ -1611,8 +1610,7 @@ USBPORT_HandleDataTransfers(IN PURB Urb)
 
     Endpoint = ((PUSBPORT_PIPE_HANDLE)(Urb->UrbBulkOrInterruptTransfer.PipeHandle))->Endpoint;
 
-    //if (Endpoint->EndpointProperties.TransferType != USB_ENDPOINT_TYPE_CONTROL)
-    if (Endpoint->EndpointProperties.TransferType != 1)
+    if (Endpoint->EndpointProperties.TransferType != USBPORT_TRANSFER_TYPE_CONTROL)
     {
         if (Endpoint->EndpointProperties.Direction)
             Urb->UrbBulkOrInterruptTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1

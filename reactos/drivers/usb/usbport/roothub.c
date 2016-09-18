@@ -450,8 +450,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
             return;
     }
 
-    //if (Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_CONTROL)
-    if (Endpoint->EndpointProperties.TransferType == 1)
+    if (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_CONTROL)
         Result = USBPORT_RootHubEndpoint0(Transfer);
     else
         Result = USBPORT_RootHubSCE(Transfer);

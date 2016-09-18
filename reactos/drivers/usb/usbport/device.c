@@ -216,12 +216,10 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     EndpointProperties->MaxPacketSize = EndpointDescriptor->wMaxPacketSize &
                                         0x7FF; // FIXME for Highspeed
 
-    //EndpointProperties->TransferType = EndpointDescriptor->bmAttributes & USB_ENDPOINT_TYPE_MASK;
-
-    switch ( EndpointDescriptor->bmAttributes & USB_ENDPOINT_TYPE_MASK )
+    switch (EndpointDescriptor->bmAttributes & USB_ENDPOINT_TYPE_MASK)
     {
         case USB_ENDPOINT_TYPE_CONTROL: // 0x00
-            EndpointProperties->TransferType = 1;
+            EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_CONTROL;
             if (EndpointProperties->EndpointAddress == 0)
                 EndpointProperties->MaxTransferSize = 0x400; // OUT Ep0
             else
@@ -230,22 +228,22 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
             break;
 
         case USB_ENDPOINT_TYPE_ISOCHRONOUS: // 0x01
-            EndpointProperties->TransferType = 0;
+            EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_ISOCHRONOUS;
             ASSERT(FALSE);
             break;
 
         case USB_ENDPOINT_TYPE_BULK: // 0x02
-            EndpointProperties->TransferType = 2;
+            EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_BULK;
             EndpointProperties->MaxTransferSize = 0x10000;
             break;
 
         case USB_ENDPOINT_TYPE_INTERRUPT: // 0x03
-            EndpointProperties->TransferType = 3;
+            EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_INTERRUPT;
             EndpointProperties->MaxTransferSize = 0x400;
             break;
     }
 
-    if (EndpointProperties->TransferType == 3)
+    if (EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT)
     {
         Interval = EndpointDescriptor->bInterval;
         EndpointProperties->Period = 0x20;
@@ -290,7 +288,7 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
         PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
 
-        if (EndpointProperties->TransferType == 3)
+        if (EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT)
             PdoExtension->Endpoint = Endpoint;
 
         USBDStatus = USBD_STATUS_SUCCESS;
@@ -303,8 +301,8 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                                                                           &Endpoint->EndpointProperties,
                                                                           (PULONG)&TransferParams);
 
-        if ((EndpointProperties->TransferType == 2) ||
-            (EndpointProperties->TransferType == 3))
+        if ((EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_BULK) ||
+            (EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT))
         {
             EndpointProperties->MaxTransferSize = TransferParams[1];
         }
@@ -423,8 +421,7 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         Endpoint = PipeHandle->Endpoint;
 
         if ((Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
-            //Endpoint->EndpointProperties.TransferType == USB_ENDPOINT_TYPE_INTERRUPT)
-            Endpoint->EndpointProperties.TransferType == 3)
+            (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT))
         {
             PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
             PdoExtension->Endpoint = NULL;
