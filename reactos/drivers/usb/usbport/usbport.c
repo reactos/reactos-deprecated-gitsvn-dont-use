@@ -314,8 +314,18 @@ NTAPI
 USBPORT_InvalidateController(IN PVOID Context,
                              IN ULONG Type)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+
     DPRINT("USBPORT_InvalidateController: Invalidate Type - %x\n", Type);
-    ASSERT(FALSE);
+
+    //FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension + sizeof(USBPORT_DEVICE_EXTENSION));
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context -
+                                               sizeof(USBPORT_DEVICE_EXTENSION));
+    FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+
+    USBPORT_InvalidateControllerHandler(FdoDevice, Type);
+
     return 0;
 }
 
