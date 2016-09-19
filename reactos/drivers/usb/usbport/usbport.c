@@ -309,6 +309,40 @@ USBPORT_Wait(IN PVOID Context,
     return KeDelayExecutionThread(KernelMode, FALSE, &Interval);
 }
 
+VOID
+NTAPI
+USBPORT_InvalidateControllerHandler(IN PDEVICE_OBJECT FdoDevice,
+                                    IN ULONG Type)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_InvalidateControllerHandler: Invalidate Type - %x\n", Type);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    switch (Type)
+    {
+        case INVALIDATE_CONTROLLER_RESET:
+            ASSERT(FALSE);
+            break;
+
+        case INVALIDATE_CONTROLLER_SURPRISE_REMOVE:
+            ASSERT(FALSE);
+            break;
+
+        case INVALIDATE_CONTROLLER_SOFT_INTERRUPT:
+            if (InterlockedIncrement(&FdoExtension->IsrDpcCounter))
+            {
+                InterlockedDecrement(&FdoExtension->IsrDpcCounter);
+            }
+            else
+            {
+                USBPORT_SoftInterrupt(FdoDevice);
+            }
+            break;
+    }
+}
+
 ULONG
 NTAPI
 USBPORT_InvalidateController(IN PVOID Context,
