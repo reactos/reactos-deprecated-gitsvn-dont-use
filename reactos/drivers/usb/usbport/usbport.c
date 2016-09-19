@@ -311,6 +311,30 @@ USBPORT_Wait(IN PVOID Context,
 
 VOID
 NTAPI
+USBPORT_SoftInterrupt(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    LARGE_INTEGER DueTime = {{0, 0}};
+
+    DPRINT("USBPORT_SoftInterrupt: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeInitializeTimer(&FdoExtension->TimerSoftInterrupt);
+
+    KeInitializeDpc(&FdoExtension->SoftInterruptDpc,
+                    USBPORT_SoftInterruptDpc,
+                    FdoDevice);
+
+    DueTime.QuadPart -= 10000 + (KeQueryTimeIncrement() - 1);
+
+    KeSetTimer(&FdoExtension->TimerSoftInterrupt,
+               DueTime,
+               &FdoExtension->SoftInterruptDpc);
+}
+
+VOID
+NTAPI
 USBPORT_InvalidateControllerHandler(IN PDEVICE_OBJECT FdoDevice,
                                     IN ULONG Type)
 {
