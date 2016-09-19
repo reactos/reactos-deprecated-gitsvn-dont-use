@@ -311,6 +311,27 @@ USBPORT_Wait(IN PVOID Context,
 
 VOID
 NTAPI
+USBPORT_SoftInterruptDpc(IN PRKDPC Dpc,
+                         IN PVOID DeferredContext,
+                         IN PVOID SystemArgument1,
+                         IN PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_SoftInterruptDpc: ... \n");
+
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (!KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, (PVOID)1))
+    {
+        InterlockedDecrement(&FdoExtension->IsrDpcCounter);
+    }
+}
+
+VOID
+NTAPI
 USBPORT_SoftInterrupt(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
