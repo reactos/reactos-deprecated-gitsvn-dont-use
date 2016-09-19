@@ -42,15 +42,10 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
 
 VOID
 NTAPI
-USBPORT_IsrDpc(IN PRKDPC Dpc,
-               IN PVOID DeferredContext,
-               IN PVOID SystemArgument1,
-               IN PVOID SystemArgument2)
+USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice)
 {
-    PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_ENDPOINT Endpoint;
-    BOOLEAN InterruptEnable;
     PLIST_ENTRY List;
     PLIST_ENTRY EndpointList;
     PLIST_ENTRY DoneTransferList;
@@ -58,31 +53,20 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     PUSBPORT_TRANSFER Transfer;
     PURB Urb;
 
-    DPRINT("USBPORT_IsrDpc: \n");
+    DPRINT("USBPORT_IsrDpcHandler: ... \n" FdoDevice);
 
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     InitializeListHead(&DispatchList);
+    InterlockedIncrement(&FdoExtension->IsrDpcHandlerCounter);
 
-    KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
-
-    InterruptEnable = (FdoExtension->Flags &
-                       USBPORT_FLAG_INTERRUPT_ENABLED) == USBPORT_FLAG_INTERRUPT_ENABLED;
-
-    FdoExtension->MiniPortInterface->Packet.InterruptDpc(FdoExtension->MiniPortExt,
-                                                         InterruptEnable);
-
-    KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
-
-    InterlockedIncrement(&FdoExtension->IsrDpcCounter);
-
-    for (List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList, &FdoExtension->EpStateChangeSpinLock);
+    for (List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList,
+                                            &FdoExtension->EpStateChangeSpinLock);
          List != NULL;
-         List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList, &FdoExtension->EpStateChangeSpinLock))
+         List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList,
+                                             &FdoExtension->EpStateChangeSpinLock))
     {
         Endpoint = CONTAINING_RECORD(List, USBPORT_ENDPOINT, StateChangeLink);
-
         Endpoint->StateLast = Endpoint->StateNext;
 
         if (!Endpoint->WorkerLink.Flink || !Endpoint->WorkerLink.Blink)
@@ -100,13 +84,13 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 
     if (!IsListEmpty(&FdoExtension->EndpointList))
     {
-        while (EndpointList && (EndpointList != &FdoExtension->EndpointList))
+        while (EndpointList && EndpointList != &FdoExtension->EndpointList)
         {
             Endpoint = CONTAINING_RECORD(EndpointList,
                                          USBPORT_ENDPOINT,
                                          EndpointLink);
 
-            if ((Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE) &&
+            if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE &&
                 !InterlockedIncrement(&Endpoint->LockCounter) &&
                 !(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
             {
@@ -138,10 +122,10 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     }
 
     KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
-
     if (!IsListEmpty(&FdoExtension->WorkerList))
+    {
         KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
-
+    }
     KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
 
     while (TRUE)
@@ -155,14 +139,44 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 
         RemoveHeadList(DoneTransferList);
 
-        USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
-
         Urb = Transfer->Urb;
-
+        USBPORT_USBDStatusToNtStatus(Urb, Transfer->USBDStatus);
         USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
     }
 
-    InterlockedDecrement(&FdoExtension->IsrDpcCounter);
+    InterlockedDecrement(&FdoExtension->IsrDpcHandlerCounter);
+}
+
+VOID
+NTAPI
+USBPORT_IsrDpc(IN PRKDPC Dpc,
+               IN PVOID DeferredContext,
+               IN PVOID SystemArgument1,
+               IN PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    BOOLEAN InterruptEnable;
+
+    DPRINT("USBPORT_IsrDpc: ... \n");
+
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (SystemArgument2)
+    {
+        InterlockedDecrement(&FdoExtension->IsrDpcCounter);
+    }
+
+    KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
+    InterruptEnable = (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED) == USBPORT_FLAG_INTERRUPT_ENABLED;
+
+    FdoExtension->MiniPortInterface->Packet.InterruptDpc(FdoExtension->MiniPortExt,
+                                                         InterruptEnable);
+
+    KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
+
+    USBPORT_IsrDpcHandler(FdoDevice);
 
     DPRINT("USBPORT_IsrDpc: exit\n");
 }
@@ -362,6 +376,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     FdoDevice);
 
     FdoExtension->IsrDpcCounter = -1;
+    FdoExtension->IsrDpcHandlerCounter = -1;
 
     FdoExtension->UsbAddressBitMap[0] = 1;
     FdoExtension->UsbAddressBitMap[1] = 0;
