@@ -1596,7 +1596,10 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
     Irp = Transfer->Irp;
 
     if (Irp)
+    {
         Irp->IoStatus.Status = STATUS_PENDING;
+        IoMarkIrpPending(Irp);
+    }
 
     InsertTailList(&Endpoint->PendingTransferList, &Transfer->TransferLink);
     Urb->UrbHeader.Status = USBD_STATUS_PENDING;
