@@ -103,12 +103,20 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
 NTSTATUS
 USB_BUSIFFN
 USBHI_RemoveUsbDevice(IN PVOID BusContext,
-                      OUT PUSB_DEVICE_HANDLE DeviceHandle,
+                      IN OUT PUSB_DEVICE_HANDLE DeviceHandle,
                       IN ULONG Flags)
 {
-    DPRINT("USBHI_RemoveUsbDevice \n");
-    ASSERT(FALSE);
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+
+    DPRINT("USBHI_RemoveUsbDevice: DeviceHandle - %p, Flags - %x\n",
+           DeviceHandle,
+           Flags);
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    return USBPORT_RemoveDevice(PdoExtension->FdoDevice, DeviceHandle, Flags);
 }
 
 NTSTATUS

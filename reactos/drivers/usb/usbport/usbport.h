@@ -422,6 +422,13 @@ USBPORT_HandleSelectInterface(
   IN PIRP Irp,
   IN PURB Urb);
 
+NTSTATUS
+NTAPI
+USBPORT_RemoveDevice(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN OUT PUSB_DEVICE_HANDLE DeviceHandle,
+  IN ULONG Flags);
+
 /* iface.c */
 
 NTSTATUS

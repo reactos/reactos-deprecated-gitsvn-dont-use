@@ -1556,3 +1556,16 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
 
     return USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
 }
+
+NTSTATUS
+NTAPI
+USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
+                     IN OUT PUSB_DEVICE_HANDLE DeviceHandle,
+                     IN ULONG Flags)
+{
+    DPRINT("USBPORT_RemoveDevice: DeviceHandle - %p, Flags - %x\n",
+           DeviceHandle,
+           Flags);
+
+    return 0;
+}
