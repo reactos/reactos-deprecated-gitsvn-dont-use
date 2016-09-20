@@ -811,7 +811,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                     DPRINT("USBPORT_FdoPnP: FIXME IRP_MN_QUERY_DEVICE_RELATIONS/RemovalRelations\n");
                 }
 
-                ASSERT(FALSE);
+                goto ForwardIrp;
             }
 
             Irp->IoStatus.Status = Status;
@@ -877,7 +877,6 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
             ASSERT(FALSE);
             goto ForwardIrp;
-            break;
 
         default:
             DPRINT("unknown IRP_MN_???\n");
