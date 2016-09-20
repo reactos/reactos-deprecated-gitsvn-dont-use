@@ -161,9 +161,20 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 case FEATURE_PORT_POWER: // 8
-                    Result = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
-                                                            Port);
-                    return Result;
+                    if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+                    {
+                        DPRINT1("USBPORT_RootHubClassCommand: FIXME - Usb2PortPower\n");
+
+                        Result = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
+                                                                Port);
+
+                        //Result = USBPORT_RH_SetFeatureUsb2PortPower(FdoDevice, Port);
+                    }
+                    else
+                    {
+                        Result = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
+                                                                Port);
+                    }
                     break;
 
                 default:
