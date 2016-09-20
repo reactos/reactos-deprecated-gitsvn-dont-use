@@ -53,7 +53,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice)
     PUSBPORT_TRANSFER Transfer;
     PURB Urb;
 
-    DPRINT("USBPORT_IsrDpcHandler: ... \n" FdoDevice);
+    DPRINT("USBPORT_IsrDpcHandler: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
