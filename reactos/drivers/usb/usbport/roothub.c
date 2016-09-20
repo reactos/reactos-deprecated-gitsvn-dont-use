@@ -143,21 +143,19 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             switch (SetupPacket->wValue.W)
             {
                 case FEATURE_PORT_ENABLE: // 1
-                    ASSERT(FALSE);
-                    return Result;
+                    Result = Packet->RH_SetFeaturePortEnable(FdoExtension->MiniPortExt,
+                                                             Port);
                     break;
 
                 case FEATURE_PORT_SUSPEND: // 2
-                    ASSERT(FALSE);
-                    return Result;
+                    Result = Packet->RH_SetFeaturePortSuspend(FdoExtension->MiniPortExt,
+                                                              Port);
                     break;
 
                 case FEATURE_PORT_RESET: // 4
 
                     Result = Packet->RH_SetFeaturePortReset(FdoExtension->MiniPortExt,
                                                             Port);
-
-                    return Result;
                     break;
 
                 case FEATURE_PORT_POWER: // 8
@@ -178,9 +176,10 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 default:
-                    return Result;
+                    ASSERT(FALSE);
+                    break;
             }
-            return Result;
+            break;
 
         case USB_REQUEST_GET_DESCRIPTOR:
             if (Buffer &&
