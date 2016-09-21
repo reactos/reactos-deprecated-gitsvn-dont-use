@@ -1129,6 +1129,21 @@ Exit:
     return Status;
 }
 
+VOID
+NTAPI
+USBPORT_AddDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
+                        IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_AddDeviceHandle: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)(FdoDevice->DeviceExtension);
+
+    InsertTailList(&FdoExtension->DeviceHandleList,
+                   &DeviceHandle->DeviceHandleLink);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,

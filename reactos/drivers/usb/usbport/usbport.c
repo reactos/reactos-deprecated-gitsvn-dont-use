@@ -834,6 +834,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     InitializeListHead(&FdoExtension->WorkerList);
     InitializeListHead(&FdoExtension->EpStateChangeList);
     InitializeListHead(&FdoExtension->MapTransferList);
+    InitializeListHead(&FdoExtension->DeviceHandleList);
 
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
@@ -2191,7 +2192,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 break;
 
             default:
-                DPRINT("USBPORT_PdoScsi: default Function - %x\n", Function);
+                DPRINT1("USBPORT_PdoScsi: default Function - %x\n", Function);
                 ASSERT(FALSE);
                 break;
         }

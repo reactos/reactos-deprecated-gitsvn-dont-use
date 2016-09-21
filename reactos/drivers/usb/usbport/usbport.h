@@ -126,6 +126,7 @@ typedef struct _USBPORT_DEVICE_HANDLE {
   PUSBPORT_CONFIGURATION_HANDLE ConfigHandle;
   struct _USBPORT_DEVICE_HANDLE *HubDeviceHandle;
   USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 0x12
+  LIST_ENTRY DeviceHandleLink;
 } USBPORT_DEVICE_HANDLE, *PUSBPORT_DEVICE_HANDLE;
 
 typedef struct _USBPORT_ENDPOINT {
@@ -219,7 +220,8 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG UsbAddressBitMap[4];
   KTIMER TimerSoftInterrupt;
   KDPC SoftInterruptDpc;
-  ULONG Padded[6]; // Miniport extension should be aligned on 0x100
+  LIST_ENTRY DeviceHandleList;
+  ULONG Padded[4]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x200);
@@ -384,6 +386,12 @@ USBPORT_OpenPipe(
   IN PDEVICE_OBJECT FdoDevice,
   IN PUSBPORT_PIPE_HANDLE PipeHandle,
   IN PUSBD_STATUS UsbdStatus);
+
+VOID
+NTAPI
+USBPORT_AddDeviceHandle(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle);
 
 NTSTATUS
 NTAPI
