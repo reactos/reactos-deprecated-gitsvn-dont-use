@@ -2071,6 +2071,16 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             UsbdDeviceHandle = &PdoExtension->DeviceHandle;
         }
 
+        if (!USBPORT_ValidateDeviceHandle(PdoExtension->FdoDevice,
+                                          UsbdDeviceHandle))
+        {
+            DPRINT1("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Not valid device handle\n");
+
+            Irp->IoStatus.Status = STATUS_PENDING;
+            IoMarkIrpPending(Irp);
+            return STATUS_PENDING;
+        }
+
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Function - 0x%02X, UsbdDeviceHandle - %p\n",
                Function,
                Urb->UrbHeader.UsbdDeviceHandle);

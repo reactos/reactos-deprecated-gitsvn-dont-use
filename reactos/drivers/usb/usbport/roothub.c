@@ -525,6 +525,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     DeviceHandle = &PdoExtension->DeviceHandle;
+    USBPORT_AddDeviceHandle(FdoDevice, DeviceHandle);
 
     InitializeListHead(&DeviceHandle->PipeHandleList);
 
