@@ -1228,6 +1228,12 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
            PortStatus,
            Port);
 
+    if (!USBPORT_ValidateDeviceHandle(FdoDevice, HubDeviceHandle))
+    {
+        DPRINT1("USBPORT_CreateDevice: Not valid hub DeviceHandle\n");
+        return STATUS_DEVICE_NOT_CONNECTED;
+    }
+
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
                                                                  sizeof(USBPORT_DEVICE_HANDLE),
                                                                  USB_PORT_TAG);
@@ -1331,6 +1337,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
                 MaxPacketSize == 32 ||
                 MaxPacketSize == 64)
             {
+                USBPORT_AddDeviceHandle(FdoDevice, DeviceHandle);
                 *pHandle = DeviceHandle;
 
                 if (!NT_SUCCESS(Status))
@@ -1647,6 +1654,12 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
     if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
     {
         return STATUS_SUCCESS;
+    }
+
+    if (!USBPORT_ValidateDeviceHandle(FdoDevice, DeviceHandle))
+    {
+        DPRINT1("USBPORT_CreateDevice: Not valid device handle\n");
+        return STATUS_DEVICE_NOT_CONNECTED;
     }
 
     return 0;
