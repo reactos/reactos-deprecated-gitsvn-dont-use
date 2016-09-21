@@ -400,6 +400,12 @@ USBPORT_RemoveDeviceHandle(
   IN PDEVICE_OBJECT FdoDevice,
   IN PUSBPORT_DEVICE_HANDLE DeviceHandle);
 
+BOOLEAN
+NTAPI
+USBPORT_ValidateDeviceHandle(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle);
+
 NTSTATUS
 NTAPI
 USBPORT_CreateDevice(
