@@ -1144,6 +1144,23 @@ USBPORT_AddDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
                    &DeviceHandle->DeviceHandleLink);
 }
 
+VOID
+NTAPI
+USBPORT_RemoveDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
+                           IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_RemoveDeviceHandle \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->DeviceHandleSpinLock, &OldIrql);
+    RemoveEntryList(&DeviceHandle->DeviceHandleLink);
+    KeReleaseSpinLock(&FdoExtension->DeviceHandleSpinLock, OldIrql);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
