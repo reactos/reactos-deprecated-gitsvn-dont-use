@@ -1567,5 +1567,10 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
            DeviceHandle,
            Flags);
 
+    if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
+    {
+        return STATUS_SUCCESS;
+    }
+
     return 0;
 }
