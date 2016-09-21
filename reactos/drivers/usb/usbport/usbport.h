@@ -221,7 +221,8 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KTIMER TimerSoftInterrupt;
   KDPC SoftInterruptDpc;
   LIST_ENTRY DeviceHandleList;
-  ULONG Padded[4]; // Miniport extension should be aligned on 0x100
+  KSPIN_LOCK DeviceHandleSpinLock;
+  ULONG Padded[3]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x200);
@@ -390,6 +391,12 @@ USBPORT_OpenPipe(
 VOID
 NTAPI
 USBPORT_AddDeviceHandle(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle);
+
+VOID
+NTAPI
+USBPORT_RemoveDeviceHandle(
   IN PDEVICE_OBJECT FdoDevice,
   IN PUSBPORT_DEVICE_HANDLE DeviceHandle);
 

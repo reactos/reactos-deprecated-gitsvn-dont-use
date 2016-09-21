@@ -368,6 +368,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
     KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
     KeInitializeSpinLock(&FdoExtension->EpStateChangeSpinLock);
+    KeInitializeSpinLock(&FdoExtension->DeviceHandleSpinLock);
 
     KeInitializeDpc(&FdoExtension->IsrDpc, USBPORT_IsrDpc, FdoDevice);
 
