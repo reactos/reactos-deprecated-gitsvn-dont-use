@@ -23,3 +23,18 @@ USBPORT_FdoPower(IN PDEVICE_OBJECT FdoDevice,
     ASSERT(FALSE);
     return 0;
 }
+
+NTSTATUS
+NTAPI
+USBPORT_IdleNotification(IN PDEVICE_OBJECT PdoDevice,
+                         IN PIRP Irp)
+{
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_IdleNotification: ... \n");
+
+    ASSERT(FALSE);
+
+    Status = STATUS_NOT_SUPPORTED;
+    return Status;
+}
