@@ -22,8 +22,8 @@ USBI_InterfaceDereference(IN PVOID BusContext)
 NTSTATUS
 USB_BUSIFFN
 USBHI_CreateUsbDevice(IN PVOID BusContext,
-                      IN OUT PUSB_DEVICE_HANDLE *DeviceHandle,
-                      IN PUSB_DEVICE_HANDLE HubDeviceHandle,
+                      IN OUT PUSB_DEVICE_HANDLE *UsbdDeviceHandle,
+                      IN PUSB_DEVICE_HANDLE UsbdHubDeviceHandle,
                       IN USHORT PortStatus,
                       IN USHORT PortNumber)
 {
@@ -39,11 +39,11 @@ USBHI_CreateUsbDevice(IN PVOID BusContext,
 
     Status = USBPORT_CreateDevice(&deviceHandle,
                                   PdoExtension->FdoDevice,
-                                  (PUSBPORT_DEVICE_HANDLE)HubDeviceHandle,
+                                  (PUSBPORT_DEVICE_HANDLE)UsbdHubDeviceHandle,
                                   PortStatus,
                                   PortNumber);
 
-    *DeviceHandle = deviceHandle;
+    *UsbdDeviceHandle = deviceHandle;
 
     return Status;
 }
@@ -51,7 +51,7 @@ USBHI_CreateUsbDevice(IN PVOID BusContext,
 NTSTATUS
 USB_BUSIFFN
 USBHI_InitializeUsbDevice(IN PVOID BusContext,
-                          OUT PUSB_DEVICE_HANDLE DeviceHandle)
+                          OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle)
 {
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
@@ -60,13 +60,13 @@ USBHI_InitializeUsbDevice(IN PVOID BusContext,
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    return USBPORT_InitializeDevice(DeviceHandle, PdoExtension->FdoDevice);
+    return USBPORT_InitializeDevice((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle, PdoExtension->FdoDevice);
 }
 
 NTSTATUS
 USB_BUSIFFN
 USBHI_GetUsbDescriptors(IN PVOID BusContext,
-                        IN PUSB_DEVICE_HANDLE DeviceHandle,
+                        IN PUSB_DEVICE_HANDLE UsbdDeviceHandle,
                         IN PUCHAR DeviceDescBuffer,
                         IN PULONG DeviceDescBufferLen,
                         IN PUCHAR ConfigDescBuffer,
@@ -87,11 +87,11 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
             *DeviceDescBufferLen = sizeof(USB_DEVICE_DESCRIPTOR);
 
         RtlCopyMemory(DeviceDescBuffer,
-                      &(((PUSBPORT_DEVICE_HANDLE)DeviceHandle)->DeviceDescriptor),
+                      &(((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle)->DeviceDescriptor),
                       *DeviceDescBufferLen);
     }
 
-    Status = USBPORT_GetUsbDescriptor((PUSB_DEVICE_HANDLE)DeviceHandle,
+    Status = USBPORT_GetUsbDescriptor((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle,
                                       PdoExtension->FdoDevice,
                                       USB_CONFIGURATION_DESCRIPTOR_TYPE,
                                       ConfigDescBuffer,
@@ -103,27 +103,27 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
 NTSTATUS
 USB_BUSIFFN
 USBHI_RemoveUsbDevice(IN PVOID BusContext,
-                      IN OUT PUSB_DEVICE_HANDLE DeviceHandle,
+                      IN OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle,
                       IN ULONG Flags)
 {
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
 
-    DPRINT("USBHI_RemoveUsbDevice: DeviceHandle - %p, Flags - %x\n",
-           DeviceHandle,
+    DPRINT("USBHI_RemoveUsbDevice: UsbdDeviceHandle - %p, Flags - %x\n",
+           UsbdDeviceHandle,
            Flags);
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
 
-    return USBPORT_RemoveDevice(PdoExtension->FdoDevice, DeviceHandle, Flags);
+    return USBPORT_RemoveDevice(PdoExtension->FdoDevice, (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle, Flags);
 }
 
 NTSTATUS
 USB_BUSIFFN
 USBHI_RestoreUsbDevice(IN PVOID BusContext,
-                       OUT PUSB_DEVICE_HANDLE OldDeviceHandle,
-                       OUT PUSB_DEVICE_HANDLE NewDeviceHandle)
+                       OUT PUSB_DEVICE_HANDLE OldUsbdDeviceHandle,
+                       OUT PUSB_DEVICE_HANDLE NewUsbdDeviceHandle)
 {
     DPRINT("USBHI_RestoreUsbDevice \n");
     ASSERT(FALSE);
@@ -133,7 +133,7 @@ USBHI_RestoreUsbDevice(IN PVOID BusContext,
 NTSTATUS
 USB_BUSIFFN
 USBHI_QueryDeviceInformation(IN PVOID BusContext,
-                             IN PUSB_DEVICE_HANDLE DeviceHandle,
+                             IN PUSB_DEVICE_HANDLE UsbdDeviceHandle,
                              OUT PVOID DeviceInfoBuffer,
                              IN ULONG DeviceInfoBufferLen,
                              OUT PULONG LenDataReturned)
@@ -245,7 +245,7 @@ USBHI_GetDeviceBusContext(IN PVOID BusContext,
 NTSTATUS
 USB_BUSIFFN
 USBHI_Initialize20Hub(IN PVOID BusContext,
-                      IN PUSB_DEVICE_HANDLE HubDeviceHandle,
+                      IN PUSB_DEVICE_HANDLE UsbdHubDeviceHandle,
                       IN ULONG TtCount)
 {
     DPRINT("USBHI_Initialize20Hub \n");
@@ -276,7 +276,7 @@ USBHI_RootHubInitNotification(IN PVOID BusContext,
 VOID
 USB_BUSIFFN
 USBHI_FlushTransfers(IN PVOID BusContext,
-                     OUT PUSB_DEVICE_HANDLE DeviceHandle)
+                     OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle)
 {
     DPRINT("USBHI_FlushTransfers \n");
     ASSERT(FALSE);

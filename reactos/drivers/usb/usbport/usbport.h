@@ -347,7 +347,7 @@ NTAPI
 USBPORT_AllocateTransfer(
   IN PDEVICE_OBJECT FdoDevice,
   IN PURB Urb,
-  IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN PIRP Irp,
   IN PRKEVENT Event);
 
@@ -410,7 +410,7 @@ USBPORT_ValidateDeviceHandle(
 NTSTATUS
 NTAPI
 USBPORT_CreateDevice(
-  IN OUT PUSB_DEVICE_HANDLE *pHandle,
+  IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
   IN PDEVICE_OBJECT FdoDevice,
   IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
   IN USHORT PortStatus,
@@ -419,13 +419,13 @@ USBPORT_CreateDevice(
 NTSTATUS
 NTAPI
 USBPORT_InitializeDevice(
-  IN PVOID UsbDeviceHandle,
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN PDEVICE_OBJECT FdoDevice);
 
 NTSTATUS
 NTAPI
 USBPORT_GetUsbDescriptor(
-  IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN PDEVICE_OBJECT FdoDevice,
   IN UCHAR Type,
   IN PUCHAR ConfigDesc,
@@ -448,7 +448,7 @@ NTSTATUS
 NTAPI
 USBPORT_RemoveDevice(
   IN PDEVICE_OBJECT FdoDevice,
-  IN OUT PUSB_DEVICE_HANDLE DeviceHandle,
+  IN OUT PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN ULONG Flags);
 
 /* iface.c */

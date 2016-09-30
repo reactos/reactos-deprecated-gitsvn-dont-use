@@ -1698,7 +1698,7 @@ USBD_STATUS
 NTAPI
 USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
                          IN PURB Urb,
-                         IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+                         IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                          IN PIRP Irp,
                          IN PRKEVENT Event)
 {
@@ -1713,10 +1713,10 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_PIPE_HANDLE PipeHandle;
     USBD_STATUS USBDStatus;
 
-    DPRINT("USBPORT_AllocateTransfer: FdoDevice - %p, Urb - %p, UsbdDeviceHandle - %p, Irp - %p, Event - %p\n",
+    DPRINT("USBPORT_AllocateTransfer: FdoDevice - %p, Urb - %p, DeviceHandle - %p, Irp - %p, Event - %p\n",
            FdoDevice,
            Urb,
-           UsbdDeviceHandle,
+           DeviceHandle,
            Irp,
            Event);
 
@@ -2037,7 +2037,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
-    PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
     PIO_STACK_LOCATION IoStack;
     ULONG IoCtl;
     NTSTATUS Status;
@@ -2074,17 +2074,17 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             return Status;
         }
 
-        UsbdDeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+        DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
 
-        if (!UsbdDeviceHandle)
+        if (!DeviceHandle)
         {
-            //DPRINT("USBPORT_PdoScsi: UsbdDeviceHandle == 0\n");
+            //DPRINT("USBPORT_PdoScsi: DeviceHandle == 0\n");
             Urb->UrbHeader.UsbdDeviceHandle = &PdoExtension->DeviceHandle;
-            UsbdDeviceHandle = &PdoExtension->DeviceHandle;
+            DeviceHandle = &PdoExtension->DeviceHandle;
         }
 
         if (!USBPORT_ValidateDeviceHandle(PdoExtension->FdoDevice,
-                                          UsbdDeviceHandle))
+                                          DeviceHandle))
         {
             DPRINT1("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Not valid device handle\n");
 
@@ -2093,7 +2093,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             return STATUS_PENDING;
         }
 
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Function - 0x%02X, UsbdDeviceHandle - %p\n",
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Function - 0x%02X, DeviceHandle - %p\n",
                Function,
                Urb->UrbHeader.UsbdDeviceHandle);
 
@@ -2110,13 +2110,13 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
                 if ((Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER) &&
                     (Function == URB_FUNCTION_CONTROL_TRANSFER))
-                    Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                    Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
 
                 ValidateTransferParameters(Urb);
 
                 Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
                                                   Urb,
-                                                  UsbdDeviceHandle,
+                                                  DeviceHandle,
                                                   Irp,
                                                   NULL);
 
@@ -2138,11 +2138,11 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_VENDOR_OTHER: // 0x20
                 Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
-                Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
                 Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
                                                   Urb,
-                                                  UsbdDeviceHandle,
+                                                  DeviceHandle,
                                                   Irp,
                                                   NULL);
 
@@ -2162,12 +2162,12 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE: // 0x29
                 Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
-                Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
 
                 Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
                                                   Urb,
-                                                  UsbdDeviceHandle,
+                                                  DeviceHandle,
                                                   Irp,
                                                   NULL);
 
@@ -2185,11 +2185,11 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             case URB_FUNCTION_GET_STATUS_FROM_OTHER: // 0x21
                 Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
                 Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
-                Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+                Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
                 ValidateTransferParameters(Urb);
                 Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
                                                   Urb,
-                                                  UsbdDeviceHandle,
+                                                  DeviceHandle,
                                                   Irp,
                                                   NULL);
 
@@ -2234,9 +2234,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
                 ExFreePool(Transfer);
 
-                if (UsbdDeviceHandle)
+                if (DeviceHandle)
                 {
-                    InterlockedDecrement(&UsbdDeviceHandle->DeviceHandleLock);
+                    InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
                 }
             }
         }
