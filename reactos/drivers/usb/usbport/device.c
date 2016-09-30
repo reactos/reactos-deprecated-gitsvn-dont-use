@@ -5,7 +5,7 @@
 
 NTSTATUS
 NTAPI
-USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
+USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                         IN PDEVICE_OBJECT FdoDevice,
                         IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
                         IN PVOID Buffer,
@@ -19,8 +19,8 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
     KEVENT Event;
     NTSTATUS Status;
 
-    DPRINT("USBPORT_SendSetupPacket: UsbdDeviceHandle - %p, FdoDevice - %p, SetupPacket - %p, Buffer - %p, Length - %x, TransferedLen - %x, pUSBDStatus - %x\n",
-           UsbdDeviceHandle,
+    DPRINT("USBPORT_SendSetupPacket: DeviceHandle - %p, FdoDevice - %p, SetupPacket - %p, Buffer - %p, Length - %x, TransferedLen - %x, pUSBDStatus - %x\n",
+           DeviceHandle,
            FdoDevice,
            SetupPacket,
            Buffer,
@@ -36,7 +36,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 
     if (Urb)
     {
-        InterlockedIncrement(&UsbdDeviceHandle->DeviceHandleLock);
+        InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
 
         RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_TRANSFER));
 
@@ -46,10 +46,10 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 
         Urb->UrbHeader.Length = sizeof(struct _URB_CONTROL_TRANSFER);
         Urb->UrbHeader.Function = URB_FUNCTION_CONTROL_TRANSFER;
-        Urb->UrbHeader.UsbdDeviceHandle = (PVOID)UsbdDeviceHandle;
+        Urb->UrbHeader.UsbdDeviceHandle = (PVOID)DeviceHandle;
         Urb->UrbHeader.UsbdFlags = 0;
 
-        Urb->UrbControlTransfer.PipeHandle = &UsbdDeviceHandle->PipeHandle;
+        Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
         Urb->UrbControlTransfer.TransferBufferLength = Length;
         Urb->UrbControlTransfer.TransferBuffer = Buffer;
         Urb->UrbControlTransfer.TransferBufferMDL = NULL;
@@ -92,7 +92,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 
             if (USBD_SUCCESS(USBDStatus))
             {
-                InterlockedIncrement(&UsbdDeviceHandle->DeviceHandleLock);
+                InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
 
                 USBPORT_QueueTransferUrb(Urb);
 
@@ -114,7 +114,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
                 *pUSBDStatus = USBDStatus;
         }
 
-        InterlockedDecrement(&UsbdDeviceHandle->DeviceHandleLock);
+        InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
         ExFreePool(Urb);
     }
     else
@@ -1222,7 +1222,7 @@ USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
+USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                      IN PDEVICE_OBJECT FdoDevice,
                      IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
                      IN USHORT PortStatus,
@@ -1257,7 +1257,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
 
     RtlZeroMemory(DeviceHandle, sizeof(USBPORT_DEVICE_HANDLE));
 
-    *pHandle = NULL;
+    *pUsbdDeviceHandle = NULL;
 
     DeviceHandle->PortNumber = Port;
     DeviceHandle->HubDeviceHandle = HubDeviceHandle;
@@ -1352,7 +1352,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
                 MaxPacketSize == 64)
             {
                 USBPORT_AddDeviceHandle(FdoDevice, DeviceHandle);
-                *pHandle = DeviceHandle;
+                *pUsbdDeviceHandle = (PUSB_DEVICE_HANDLE)DeviceHandle;
 
                 if (!NT_SUCCESS(Status))
                     ExFreePool(DeviceHandle);
@@ -1411,10 +1411,9 @@ USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 
 NTSTATUS
 NTAPI
-USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
+USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                          IN PDEVICE_OBJECT FdoDevice)
 {
-    PUSBPORT_DEVICE_HANDLE DeviceHandle;
     PUSBPORT_ENDPOINT Endpoint;
     USB_DEFAULT_PIPE_SETUP_PACKET CtrlSetup;
     ULONG TransferedLen;
@@ -1424,8 +1423,7 @@ USBPORT_InitializeDevice(IN PVOID UsbDeviceHandle,
 
     DPRINT("USBPORT_InitializeDevice: ... \n");
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbDeviceHandle;
-    ASSERT(UsbDeviceHandle != NULL);
+    ASSERT(DeviceHandle != NULL);
 
     DeviceAddress = USBPORT_AllocateUsbAddress(FdoDevice);
     ASSERT(DeviceHandle->DeviceAddress == USB_DEFAULT_DEVICE_ADDRESS);
@@ -1502,7 +1500,7 @@ ExitError:
 
 NTSTATUS
 NTAPI
-USBPORT_GetUsbDescriptor(IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
+USBPORT_GetUsbDescriptor(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                          IN PDEVICE_OBJECT FdoDevice,
                          IN UCHAR Type,
                          IN PUCHAR ConfigDesc,
@@ -1519,7 +1517,7 @@ USBPORT_GetUsbDescriptor(IN PUSB_DEVICE_HANDLE UsbDeviceHandle,
     SetupPacket.wValue.HiByte = Type;
     SetupPacket.wLength = (USHORT)*ConfigDescSize;
 
-    return USBPORT_SendSetupPacket(UsbDeviceHandle,
+    return USBPORT_SendSetupPacket(DeviceHandle,
                                    FdoDevice,
                                    &SetupPacket,
                                    ConfigDesc,
@@ -1658,16 +1656,12 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
 NTSTATUS
 NTAPI
 USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
-                     IN OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle,
+                     IN OUT PUSBPORT_DEVICE_HANDLE DeviceHandle,
                      IN ULONG Flags)
 {
-    PUSBPORT_DEVICE_HANDLE DeviceHandle;
-
-    DPRINT("USBPORT_RemoveDevice: UsbdDeviceHandle - %p, Flags - %x\n",
-           UsbdDeviceHandle,
+    DPRINT("USBPORT_RemoveDevice: DeviceHandle - %p, Flags - %x\n",
+           DeviceHandle,
            Flags);
-
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle;
 
     if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
     {
