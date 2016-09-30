@@ -1550,7 +1550,7 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 
 Worker:
         KeRaiseIrql(DISPATCH_LEVEL, &PrevIrql);
-        ASSERT(FALSE);
+        USBPORT_EndpointWorker(Endpoint, FALSE);
         KeLowerIrql(PrevIrql);
 
         if (IsEnd)
@@ -1605,7 +1605,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
     InsertTailList(&Endpoint->PendingTransferList, &Transfer->TransferLink);
     Urb->UrbHeader.Status = USBD_STATUS_PENDING;
 
-    ASSERT(FALSE);
+    USBPORT_FlushPendingTransfers(Endpoint);
 
     DPRINT("... URB TransferBufferLength - %x\n",
            Urb->UrbControlTransfer.TransferBufferLength);
