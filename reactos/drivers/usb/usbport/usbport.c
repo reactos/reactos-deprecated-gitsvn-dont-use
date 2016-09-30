@@ -1329,6 +1329,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     SIZE_T TransferLength;
     SIZE_T SgCurrentLength;
     SIZE_T ElementLength;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
 
     DPRINT("USBPORT_MapTransfer: ... \n");
 
@@ -1430,6 +1431,9 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
     InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
 
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
+
     return DeallocateObjectKeepRegisters;
 }
 
@@ -1502,6 +1506,7 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
     PLIST_ENTRY List;
     PUSBPORT_TRANSFER Transfer;
     KIRQL PrevIrql;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
 
     DPRINT("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
 
@@ -1538,6 +1543,9 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
                            &Transfer->TransferLink);
 
             IsMapTransfer = 1;
+
+            DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Transfer->Urb->UrbHeader.UsbdDeviceHandle;
+            InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
         }
 
         if (IsMapTransfer)
@@ -1565,6 +1573,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
     PUSBPORT_TRANSFER Transfer;
     PUSBPORT_ENDPOINT Endpoint;
     PIRP Irp;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
 
     DPRINT("USBPORT_QueueTransferUrb: Urb - %p\n", Urb);
 
@@ -1604,6 +1613,9 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
 
     InsertTailList(&Endpoint->PendingTransferList, &Transfer->TransferLink);
     Urb->UrbHeader.Status = USBD_STATUS_PENDING;
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
 
     USBPORT_FlushPendingTransfers(Endpoint);
 
@@ -2221,6 +2233,11 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 Urb->UrbControlTransfer.hca.Reserved8[0] = NULL;
                 Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
                 ExFreePool(Transfer);
+
+                if (UsbdDeviceHandle)
+                {
+                    InterlockedDecrement(&UsbdDeviceHandle->DeviceHandleLock);
+                }
             }
         }
 
