@@ -1211,6 +1211,15 @@ USBPORT_ValidateDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
     return Result;
 }
 
+VOID
+NTAPI
+USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
+                          IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
+{
+    DPRINT("USBPORT_AbortTransfers: FIXME \n");
+    //ASSERT(FALSE);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pHandle,
@@ -1670,6 +1679,9 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
         DPRINT1("USBPORT_RemoveDevice: Not valid device handle\n");
         return STATUS_DEVICE_NOT_CONNECTED;
     }
+
+    USBPORT_RemoveDeviceHandle(FdoDevice, DeviceHandle);
+    USBPORT_AbortTransfers(FdoDevice, DeviceHandle);
 
     DPRINT("USBPORT_RemoveDevice: DeviceHandleLock - %x\n", DeviceHandle->DeviceHandleLock);
     while ( InterlockedDecrement(&DeviceHandle->DeviceHandleLock) >= 0 )
