@@ -127,6 +127,7 @@ typedef struct _USBPORT_DEVICE_HANDLE {
   struct _USBPORT_DEVICE_HANDLE *HubDeviceHandle;
   USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 0x12
   LIST_ENTRY DeviceHandleLink;
+  LONG DeviceHandleLock;
 } USBPORT_DEVICE_HANDLE, *PUSBPORT_DEVICE_HANDLE;
 
 typedef struct _USBPORT_ENDPOINT {

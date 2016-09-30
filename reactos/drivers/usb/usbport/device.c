@@ -36,6 +36,8 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 
     if (Urb)
     {
+        InterlockedIncrement(&UsbdDeviceHandle->DeviceHandleLock);
+
         RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_TRANSFER));
 
         RtlCopyMemory(Urb->UrbControlTransfer.SetupPacket,
@@ -90,6 +92,8 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
 
             if (USBD_SUCCESS(USBDStatus))
             {
+                InterlockedIncrement(&UsbdDeviceHandle->DeviceHandleLock);
+
                 USBPORT_QueueTransferUrb(Urb);
 
                 KeWaitForSingleObject(&Event,
@@ -110,6 +114,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE UsbdDeviceHandle,
                 *pUSBDStatus = USBDStatus;
         }
 
+        InterlockedDecrement(&UsbdDeviceHandle->DeviceHandleLock);
         ExFreePool(Urb);
     }
     else
@@ -1644,12 +1649,16 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
 NTSTATUS
 NTAPI
 USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
-                     IN OUT PUSB_DEVICE_HANDLE DeviceHandle,
+                     IN OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle,
                      IN ULONG Flags)
 {
-    DPRINT("USBPORT_RemoveDevice: DeviceHandle - %p, Flags - %x\n",
-           DeviceHandle,
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+
+    DPRINT("USBPORT_RemoveDevice: UsbdDeviceHandle - %p, Flags - %x\n",
+           UsbdDeviceHandle,
            Flags);
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle;
 
     if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
     {
@@ -1658,9 +1667,18 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
     if (!USBPORT_ValidateDeviceHandle(FdoDevice, DeviceHandle))
     {
-        DPRINT1("USBPORT_CreateDevice: Not valid device handle\n");
+        DPRINT1("USBPORT_RemoveDevice: Not valid device handle\n");
         return STATUS_DEVICE_NOT_CONNECTED;
     }
+
+    DPRINT("USBPORT_RemoveDevice: DeviceHandleLock - %x\n", DeviceHandle->DeviceHandleLock);
+    while ( InterlockedDecrement(&DeviceHandle->DeviceHandleLock) >= 0 )
+    {
+        InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
+        USBPORT_Wait(FdoDevice, 100);
+    }
+    DPRINT("USBPORT_RemoveDevice: DeviceHandleLock ok\n");
+
 
     return 0;
 }
