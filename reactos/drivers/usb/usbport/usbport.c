@@ -2280,6 +2280,12 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         goto Exit;
     }
 
+    if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION)
+    {
+        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n");
+        return USBPORT_IdleNotification(PdoDevice, Irp);
+    }
+
     DPRINT("USBPORT_PdoScsi: INVALID INTERNAL DEVICE CONTROL\n");
     Status = STATUS_INVALID_DEVICE_REQUEST;
 
