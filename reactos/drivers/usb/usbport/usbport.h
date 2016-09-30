@@ -508,6 +508,12 @@ USBPORT_FdoPower(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp);
 
+NTSTATUS
+NTAPI
+USBPORT_IdleNotification(
+  IN PDEVICE_OBJECT PdoDevice,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID
