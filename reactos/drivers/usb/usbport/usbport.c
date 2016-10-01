@@ -2093,6 +2093,8 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             return STATUS_PENDING;
         }
 
+        InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
+
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB. Function - 0x%02X, DeviceHandle - %p\n",
                Function,
                Urb->UrbHeader.UsbdDeviceHandle);
@@ -2233,11 +2235,11 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 Urb->UrbControlTransfer.hca.Reserved8[0] = NULL;
                 Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
                 ExFreePool(Transfer);
+            }
 
-                if (DeviceHandle)
-                {
-                    InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
-                }
+            if (DeviceHandle)
+            {
+                InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
             }
         }
 
