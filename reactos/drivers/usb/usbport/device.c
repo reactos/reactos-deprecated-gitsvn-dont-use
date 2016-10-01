@@ -3,6 +3,9 @@
 //#define NDEBUG
 #include <debug.h>
 
+#define NDEBUG_USBPORT_URB
+#include "usbdebug.h"
+
 NTSTATUS
 NTAPI
 USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
@@ -1229,7 +1232,7 @@ USBPORT_ValidateDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_HANDLE CurrentHandle;
     BOOLEAN Result = FALSE;
 
-    DPRINT("USBPORT_ValidateDeviceHandle: ... \n");
+    DPRINT_URB("USBPORT_ValidateDeviceHandle: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 

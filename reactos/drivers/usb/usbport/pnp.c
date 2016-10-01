@@ -3,6 +3,10 @@
 //#define NDEBUG
 #include <debug.h>
 
+#define NDEBUG_USBPORT_CORE
+#define NDEBUG_USBPORT_INTERRUPT
+#include "usbdebug.h"
+
 BOOLEAN
 NTAPI
 USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
@@ -15,7 +19,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     FdoDevice = (PDEVICE_OBJECT)ServiceContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    DPRINT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
+    DPRINT_INT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
            FdoExtension->Flags);
 
     if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED)
@@ -35,7 +39,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
         Result = 0;
     }
 
-    DPRINT("USBPORT_InterruptService: return - %x\n", Result);
+    DPRINT_INT("USBPORT_InterruptService: return - %x\n", Result);
 
     return Result;
 }
@@ -53,7 +57,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice)
     PUSBPORT_TRANSFER Transfer;
     PURB Urb;
 
-    DPRINT("USBPORT_IsrDpcHandler: ... \n");
+    DPRINT_CORE("USBPORT_IsrDpcHandler: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
@@ -158,7 +162,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     BOOLEAN InterruptEnable;
 
-    DPRINT("USBPORT_IsrDpc: ... \n");
+    DPRINT_INT("USBPORT_IsrDpc: ... \n");
 
     FdoDevice = (PDEVICE_OBJECT)DeferredContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -178,7 +182,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 
     USBPORT_IsrDpcHandler(FdoDevice);
 
-    DPRINT("USBPORT_IsrDpc: exit\n");
+    DPRINT_INT("USBPORT_IsrDpc: exit\n");
 }
 
 NTSTATUS

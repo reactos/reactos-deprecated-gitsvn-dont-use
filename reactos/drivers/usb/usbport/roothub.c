@@ -3,6 +3,10 @@
 #define NDEBUG
 #include <debug.h>
 
+#define NDEBUG_USBPORT_MINIPORT
+#define NDEBUG_USBPORT_CORE
+#include "usbdebug.h"
+
 ULONG
 NTAPI
 USBPORT_SetBit(ULONG_PTR Address,
@@ -461,7 +465,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     PUSBPORT_TRANSFER Transfer;
     ULONG Result;
 
-    DPRINT("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
+    DPRINT_CORE("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
 
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
