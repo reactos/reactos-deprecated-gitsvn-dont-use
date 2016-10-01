@@ -891,6 +891,58 @@ Exit:
     return USBDStatus;
 }
 
+VOID
+NTAPI
+USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+                           IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_CONFIGURATION_HANDLE ConfigHandle;
+    PLIST_ENTRY iHandleList;
+    PUSBPORT_INTERFACE_HANDLE iHandle;
+    ULONG NumEndpoints;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+
+    DPRINT("USBPORT_CloseConfiguration: ... \n");
+
+    ConfigHandle = DeviceHandle->ConfigHandle;
+
+    if (ConfigHandle)
+    {
+        iHandleList = &ConfigHandle->InterfaceHandleList;
+    
+        while (!IsListEmpty(iHandleList))
+        {
+            iHandle = CONTAINING_RECORD(iHandleList->Flink,
+                                        USBPORT_INTERFACE_HANDLE,
+                                        InterfaceLink);
+
+            DPRINT1("USBPORT_CloseConfiguration: iHandle - %p\n", iHandle);
+      
+            RemoveHeadList(iHandleList);
+      
+            NumEndpoints = iHandle->InterfaceDescriptor.bNumEndpoints;
+      
+            if (NumEndpoints > 0)
+            {
+                PipeHandle = &iHandle->PipeHandle[0];
+        
+                do
+                {
+                    USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
+                    PipeHandle += 1;
+                    --NumEndpoints;
+                }
+                while (NumEndpoints > 0);
+            }
+      
+            ExFreePool(iHandle);
+        }
+    
+        ExFreePool(ConfigHandle);
+        DeviceHandle->ConfigHandle = NULL;
+    }
+}
+
 NTSTATUS
 NTAPI
 USBPORT_InitInterfaceInfo(IN PUSBD_INTERFACE_INFORMATION InterfaceInfo,
@@ -1685,6 +1737,10 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
     }
     DPRINT("USBPORT_RemoveDevice: DeviceHandleLock ok\n");
 
+    if ( DeviceHandle->ConfigHandle )
+    {
+        USBPORT_CloseConfiguration(DeviceHandle, FdoDevice);
+    }
 
     return 0;
 }
