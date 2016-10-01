@@ -881,7 +881,7 @@ USBPORT_MiniportCompleteTransfer(IN PVOID MiniPortExtension,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
-    DPRINT("USBPORT_MiniportCompleteTransfer: USBDStatus - %p, TransferLength - %x\n",
+    DPRINT("USBPORT_MiniportCompleteTransfer: USBDStatus - %x, TransferLength - %x\n",
            USBDStatus,
            TransferLength);
 

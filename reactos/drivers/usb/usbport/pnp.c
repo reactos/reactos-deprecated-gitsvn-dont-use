@@ -144,7 +144,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice)
         RemoveHeadList(DoneTransferList);
 
         Urb = Transfer->Urb;
-        USBPORT_USBDStatusToNtStatus(Urb, Transfer->USBDStatus);
+        Urb->UrbHeader.Status = Transfer->USBDStatus;
         USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
     }
 
