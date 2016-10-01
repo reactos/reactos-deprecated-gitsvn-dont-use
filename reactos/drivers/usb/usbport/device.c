@@ -919,7 +919,7 @@ USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                                         USBPORT_INTERFACE_HANDLE,
                                         InterfaceLink);
 
-            DPRINT1("USBPORT_CloseConfiguration: iHandle - %p\n", iHandle);
+            DPRINT("USBPORT_CloseConfiguration: iHandle - %p\n", iHandle);
       
             RemoveHeadList(iHandleList);
       
@@ -1427,7 +1427,7 @@ NTAPI
 USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    ULONG Offset; 
+    ULONG BitMap; 
     ULONG Bit;
     ULONG ix = 0; 
 
@@ -1437,18 +1437,18 @@ USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 
     while (TRUE)
     {
-        Offset = 1;
+        BitMap = 1;
         Bit = 0;
 
         do
         {
-            if (!(FdoExtension->UsbAddressBitMap[ix] & Offset))
+            if (!(FdoExtension->UsbAddressBitMap[ix] & BitMap))
             {
-                FdoExtension->UsbAddressBitMap[ix] |= Offset;
+                FdoExtension->UsbAddressBitMap[ix] |= BitMap;
                 return 32 * ix + Bit;
             }
 
-            Offset *= 2;
+            BitMap *= 2;
             ++Bit;
         }
         while (Bit < 32);
@@ -1462,6 +1462,52 @@ USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
     }
 
     return 0;
+}
+
+VOID
+NTAPI
+USBPORT_FreeUsbAddress(IN PDEVICE_OBJECT FdoDevice,
+                       IN USHORT DeviceAddress)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    ULONG ix = 0;
+    ULONG BitMap;
+    ULONG Bit;
+    USHORT CurrentAddress;
+
+    DPRINT("USBPORT_FreeUsbAddress: DeviceAddress - %x\n", DeviceAddress);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    while (TRUE)
+    {
+        BitMap = 1;
+        Bit = 0;
+        CurrentAddress = 32 * ix;
+
+        do
+        {
+            if (CurrentAddress == DeviceAddress)
+            {
+                BitMap = ~BitMap;
+                FdoExtension->UsbAddressBitMap[ix] &= BitMap;
+                return;
+            }
+
+            BitMap *= 2;
+
+            ++Bit;
+            ++CurrentAddress;
+        }
+        while (Bit < 32);
+
+        ++ix;
+
+        if (ix < 4)
+            continue;
+
+        break;
+    }
 }
 
 NTSTATUS
@@ -1733,16 +1779,28 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
     USBPORT_AbortTransfers(FdoDevice, DeviceHandle);
 
     DPRINT("USBPORT_RemoveDevice: DeviceHandleLock - %x\n", DeviceHandle->DeviceHandleLock);
-    while ( InterlockedDecrement(&DeviceHandle->DeviceHandleLock) >= 0 )
+    while (InterlockedDecrement(&DeviceHandle->DeviceHandleLock) >= 0)
     {
         InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
         USBPORT_Wait(FdoDevice, 100);
     }
     DPRINT("USBPORT_RemoveDevice: DeviceHandleLock ok\n");
 
-    if ( DeviceHandle->ConfigHandle )
+    if (DeviceHandle->ConfigHandle)
     {
         USBPORT_CloseConfiguration(DeviceHandle, FdoDevice);
+    }
+
+    USBPORT_ClosePipe(DeviceHandle, FdoDevice, &DeviceHandle->PipeHandle);
+
+    if (DeviceHandle->DeviceAddress)
+    {
+        USBPORT_FreeUsbAddress(FdoDevice, DeviceHandle->DeviceAddress);
+    }
+
+    if (!(DeviceHandle->Flags & DEVICE_HANDLE_FLAG_ROOTHUB))
+    {
+        ExFreePool(DeviceHandle);
     }
 
     return 0;
