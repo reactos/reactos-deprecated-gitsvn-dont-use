@@ -3,15 +3,88 @@
 //#define NDEBUG
 #include <debug.h>
 
+NTSTATUS
+NTAPI
+USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT FdoDevice,
+                         IN PIRP Irp)
+{
+    DPRINT("USBPORT_DevicePowerState: ... \n");
+    ASSERT(FALSE);
+    return STATUS_SUCCESS;
+}
 
 NTSTATUS
 NTAPI
 USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
                  IN PIRP Irp)
 {
-    DPRINT("USBPORT_PdoPower: FIXME \n");
-    ASSERT(FALSE);
-    return 0;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PIO_STACK_LOCATION IoStack;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_PdoPower: ... \n");
+
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    Status = Irp->IoStatus.Status;
+
+    switch (IoStack->MinorFunction)
+    {
+      case IRP_MN_WAIT_WAKE:
+          DPRINT("USBPORT_PdoPowerIrp: IRP_MN_WAIT_WAKE\n");
+
+          if (!(FdoExtension->Flags & USBPORT_FLAG_DEVICE_STARTED))
+          {
+              Status = STATUS_NOT_SUPPORTED;
+              break;
+          }
+
+          ASSERT(FALSE);
+          return Status;
+
+      case IRP_MN_POWER_SEQUENCE:
+          DPRINT("USBPORT_PdoPower: IRP_MN_POWER_SEQUENCE\n");
+          PoStartNextPowerIrp(Irp);
+          break;
+
+      case IRP_MN_SET_POWER:
+          DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER\n");
+          if (IoStack->Parameters.Power.Type == DevicePowerState)
+          {
+              DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/DevicePowerState\n");
+              Status = USBPORT_PdoDevicePowerState(FdoDevice, Irp);
+          }
+          else
+          {
+              DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState\n");
+              ASSERT(FALSE);
+              Status = STATUS_SUCCESS;
+          }
+
+          break;
+
+      case IRP_MN_QUERY_POWER:
+          DPRINT("USBPORT_PdoPower: IRP_MN_QUERY_POWER\n");
+          Status = STATUS_SUCCESS;
+          PoStartNextPowerIrp(Irp);
+          break;
+
+      default:
+          DPRINT1("USBPORT_PdoPower: unknown IRP_MN_POWER!\n");
+          PoStartNextPowerIrp(Irp);
+          break;
+    }
+
+    Irp->IoStatus.Status = Status;
+    Irp->IoStatus.Information = 0;
+    IoCompleteRequest(Irp, 0);
+
+    return Status;
 }
 
 NTSTATUS
