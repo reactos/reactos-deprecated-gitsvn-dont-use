@@ -482,6 +482,18 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     if (!NT_SUCCESS(Status))
         goto ExitWithError;
 
+    FdoExtension->PciDeviceNumber = FdoExtension->Capabilities.Address >> 16;
+    FdoExtension->PciFunctionNumber = FdoExtension->Capabilities.Address & 0xFFFF;
+
+    Status = IoGetDeviceProperty(FdoExtension->CommonExtension.LowerPdoDevice,
+                                 DevicePropertyBusNumber,
+                                 sizeof(ULONG),
+                                 &FdoExtension->BusNumber,
+                                 &ResultLength);
+
+    if (!NT_SUCCESS(Status))
+        goto ExitWithError;
+
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
     KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
     KeInitializeSpinLock(&FdoExtension->EpStateChangeSpinLock);
