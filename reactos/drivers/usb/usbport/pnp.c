@@ -7,6 +7,16 @@
 #define NDEBUG_USBPORT_INTERRUPT
 #include "usbdebug.h"
 
+NTSTATUS
+NTAPI
+USBPORT_FdoStartCompletion(IN PDEVICE_OBJECT DeviceObject,
+                           IN PIRP Irp,
+                           PRKEVENT Event)
+{
+    KeSetEvent(Event, EVENT_INCREMENT, FALSE);
+    return STATUS_MORE_PROCESSING_REQUIRED;
+}
+
 BOOLEAN
 NTAPI
 USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
@@ -302,6 +312,104 @@ USBPORT_QueryPciBusInterface(IN PDEVICE_OBJECT FdoDevice)
 
 NTSTATUS
 NTAPI
+USBPORT_QueryCapabilities(IN PDEVICE_OBJECT FdoDevice,
+                          IN PDEVICE_CAPABILITIES Capabilities)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtention;
+    PIRP Irp;
+    NTSTATUS Status;
+    PIO_STACK_LOCATION IoStack;
+    KEVENT Event;
+
+    DPRINT("USBPORT_QueryCapabilities: ... \n");
+
+    FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    RtlZeroMemory(Capabilities, sizeof(DEVICE_CAPABILITIES));
+
+    Capabilities->Size     = 64;
+    Capabilities->Version  = 1;
+    Capabilities->Address  = -1;
+    Capabilities->UINumber = -1;
+
+    Irp = IoAllocateIrp(FdoExtention->CommonExtension.LowerDevice->StackSize, FALSE);
+
+    if (!Irp)
+    {
+        DPRINT1("USBPORT_QueryCapabilities: No resources - IoAllocateIrp!\n");
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+    IoStack->MajorFunction = IRP_MJ_PNP;
+    IoStack->MinorFunction = IRP_MN_QUERY_CAPABILITIES;
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    IoSetCompletionRoutine(Irp,
+                          USBPORT_FdoStartCompletion,
+                          &Event,
+                          TRUE,
+                          TRUE,
+                          TRUE);
+
+    IoStack->Parameters.DeviceCapabilities.Capabilities = Capabilities;
+
+    Status = IoCallDriver(FdoExtention->CommonExtension.LowerDevice, Irp);
+
+    if (Status == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event, Suspended, KernelMode, FALSE, NULL);
+        Status = Irp->IoStatus.Status;
+    }
+
+#if 1
+    if (NT_SUCCESS(Status) && Capabilities)
+    {
+        DPRINT1("Capabilities->Size              - %x\n", Capabilities->Size);
+        DPRINT1("Capabilities->Version           - %x\n", Capabilities->Version);
+  
+        DPRINT1("Capabilities->DeviceD1          - %x\n", Capabilities->DeviceD1);
+        DPRINT1("Capabilities->DeviceD2          - %x\n", Capabilities->DeviceD2);
+        DPRINT1("Capabilities->LockSupported     - %x\n", Capabilities->LockSupported);
+        DPRINT1("Capabilities->EjectSupported    - %x\n", Capabilities->EjectSupported);
+        DPRINT1("Capabilities->Removable         - %x\n", Capabilities->Removable);
+        DPRINT1("Capabilities->DockDevice        - %x\n", Capabilities->DockDevice);
+        DPRINT1("Capabilities->UniqueID          - %x\n", Capabilities->UniqueID);
+        DPRINT1("Capabilities->SilentInstall     - %x\n", Capabilities->SilentInstall);
+        DPRINT1("Capabilities->RawDeviceOK       - %x\n", Capabilities->RawDeviceOK);
+        DPRINT1("Capabilities->SurpriseRemovalOK - %x\n", Capabilities->SurpriseRemovalOK);
+  
+        DPRINT1("Capabilities->Address           - %x\n", Capabilities->Address);
+        DPRINT1("Capabilities->UINumber          - %x\n", Capabilities->UINumber);
+
+        DPRINT1("Capabilities->DeviceState[0]    - %x\n", Capabilities->DeviceState[0]);
+        DPRINT1("Capabilities->DeviceState[1]    - %x\n", Capabilities->DeviceState[1]);
+        DPRINT1("Capabilities->DeviceState[2]    - %x\n", Capabilities->DeviceState[2]);
+        DPRINT1("Capabilities->DeviceState[3]    - %x\n", Capabilities->DeviceState[3]);
+        DPRINT1("Capabilities->DeviceState[4]    - %x\n", Capabilities->DeviceState[4]);
+        DPRINT1("Capabilities->DeviceState[5]    - %x\n", Capabilities->DeviceState[5]);
+        DPRINT1("Capabilities->DeviceState[6]    - %x\n", Capabilities->DeviceState[6]);
+
+        DPRINT1("Capabilities->SystemWake        - %x\n", Capabilities->SystemWake);
+        DPRINT1("Capabilities->DeviceWake        - %x\n", Capabilities->DeviceWake);
+
+        DPRINT1("Capabilities->D1Latency         - %x\n", Capabilities->D1Latency);
+        DPRINT1("Capabilities->D2Latency         - %x\n", Capabilities->D2Latency);
+        DPRINT1("Capabilities->D3Latency         - %x\n", Capabilities->D3Latency);
+    }
+#endif
+
+    IoFreeIrp(Irp);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     IN PUSBPORT_RESOURCES UsbPortResources)
 {
@@ -313,6 +421,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     PDMA_ADAPTER DmaAdapter = NULL;
     ULONG MiniPortStatus;
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+    ULONG ResultLength;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -366,6 +475,10 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     }
 
     Status = USBPORT_CreateWorkerThread(FdoDevice);
+    if (!NT_SUCCESS(Status))
+        goto ExitWithError;
+
+    Status = USBPORT_QueryCapabilities(FdoDevice, &FdoExtension->Capabilities);
     if (!NT_SUCCESS(Status))
         goto ExitWithError;
 
@@ -460,15 +573,25 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                                              (CONST GUID *)&GUID_DEVINTERFACE_USB_HOST_CONTROLLER,
                                              TRUE);
 
-    if (NT_SUCCESS(Status))
-        goto Exit;
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBPORT_StartDevice: RegisterDeviceInterface failed!\n");
+        goto ExitWithError;
+    }
+
+    DPRINT1("USBPORT_StartDevice: FIXME USBPORT_CreateLegacySymbolicLink\n");
+    //USBPORT_CreateLegacySymbolicLink(FdoDevice);
+
+    FdoExtension->Flags |= USBPORT_FLAG_DEVICE_STARTED;
+
+    DPRINT("USBPORT_StartDevice: Exit Status - %p\n", Status);
+    return Status;
 
 ExitWithError:
-    DPRINT("USBPORT_StartDevice: ExitWithError Status - %p\n", Status);
-    //USBPORT_StopDevice();
+    DPRINT1("USBPORT_StartDevice: FIXME USBPORT_StopDevice\n");
+    //USBPORT_StopDevice(FdoDevice);
 
-Exit:
-    DPRINT("USBPORT_StartDevice: Exit Status - %p\n", Status);
+    DPRINT1("USBPORT_StartDevice: ExitWithError Status - %p\n", Status);
     return Status;
 }
 
@@ -588,16 +711,6 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_FdoStartCompletion(IN PDEVICE_OBJECT DeviceObject,
-                           IN PIRP Irp,
-                           PRKEVENT Event)
-{
-    KeSetEvent(Event, EVENT_INCREMENT, FALSE);
-    return STATUS_MORE_PROCESSING_REQUIRED;
-}
-
-NTSTATUS
-NTAPI
 USBPORT_CreatePdo(IN PDEVICE_OBJECT FdoDevice,
                   OUT PDEVICE_OBJECT *RootHubPdo)
 {
@@ -607,7 +720,7 @@ USBPORT_CreatePdo(IN PDEVICE_OBJECT FdoDevice,
     ULONG DeviceNumber = 0;
     PDEVICE_OBJECT DeviceObject = NULL;
     WCHAR CharDeviceName[64];
-    NTSTATUS Status = 0;
+    NTSTATUS Status = STATUS_SUCCESS;
 
     DPRINT("USBPORT_CreatePdo: FdoDevice - %p, RootHubPdo - %p\n",
            FdoDevice,
@@ -1051,34 +1164,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_CAPABILITIES: // 9
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
-
             DeviceCapabilities = (PDEVICE_CAPABILITIES)IoStack->Parameters.DeviceCapabilities.Capabilities;
-
-            DeviceCapabilities->LockSupported = FALSE;
-            DeviceCapabilities->EjectSupported = FALSE;
-            DeviceCapabilities->Removable = FALSE;
-            DeviceCapabilities->DockDevice = FALSE;
-            DeviceCapabilities->UniqueID = FALSE;
-            DeviceCapabilities->SilentInstall = FALSE;
-            DeviceCapabilities->RawDeviceOK = FALSE;
-            DeviceCapabilities->SurpriseRemovalOK = FALSE;
-            DeviceCapabilities->Address = 0;
-            DeviceCapabilities->UINumber = 0;
-            DeviceCapabilities->DeviceD2 = 1;
-
-            /* FIXME */
-            DeviceCapabilities->HardwareDisabled = FALSE;
-            DeviceCapabilities->NoDisplayInUI = FALSE;
-            DeviceCapabilities->DeviceState[0] = PowerDeviceD0;
-
-            for (Index = 1; Index < PowerSystemMaximum; Index++)
-                DeviceCapabilities->DeviceState[Index] = PowerDeviceD3;
-
-            DeviceCapabilities->DeviceWake = PowerDeviceUnspecified;
-            DeviceCapabilities->D1Latency = 0;
-            DeviceCapabilities->D2Latency = 0;
-            DeviceCapabilities->D3Latency = 0;
-
+            RtlCopyMemory(DeviceCapabilities, &PdoExtension->Capabilities, sizeof(DEVICE_CAPABILITIES));
             Status = STATUS_SUCCESS;
             break;
 

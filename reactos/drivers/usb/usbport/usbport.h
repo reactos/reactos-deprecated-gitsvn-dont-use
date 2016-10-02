@@ -58,6 +58,7 @@
 
 /* Flags */
 
+#define USBPORT_FLAG_DEVICE_STARTED    0x00000002
 #define USBPORT_FLAG_WORKER_THREAD_ON  0x00000008
 #define USBPORT_FLAG_INTERRUPT_ENABLED 0x00000400
 #define USBPORT_FLAG_RH_INIT_CALLBACK  0x80000000
@@ -235,10 +236,14 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KDPC SoftInterruptDpc;
   LIST_ENTRY DeviceHandleList;
   KSPIN_LOCK DeviceHandleSpinLock;
-  ULONG Padded[3]; // Miniport extension should be aligned on 0x100
+  DEVICE_CAPABILITIES Capabilities;
+  ULONG BusNumber;
+  ULONG PciDeviceNumber;
+  ULONG PciFunctionNumber;
+  ULONG Padded[48]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
-C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x200);
+C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x300);
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
   USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 18
@@ -259,6 +264,7 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
   ULONG ConfigurationValue;
   PRH_INIT_CALLBACK RootHubInitCallback;
   PVOID RootHubInitContext;
+  DEVICE_CAPABILITIES Capabilities;
 } USBPORT_RHDEVICE_EXTENSION, *PUSBPORT_RHDEVICE_EXTENSION;
 
 typedef struct _USBPORT_ROOT_HUB_DATA {
