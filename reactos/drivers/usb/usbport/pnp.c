@@ -777,6 +777,8 @@ USBPORT_CreatePdo(IN PDEVICE_OBJECT FdoDevice,
         PdoExtension->FdoDevice = FdoDevice;
         PdoExtension->PdoNameNumber = DeviceNumber;
 
+        USBPORT_AdjustDeviceCapabilities(FdoDevice, DeviceObject);
+
         DeviceObject->StackSize = FdoDevice->StackSize;
 
         DeviceObject->Flags |= DO_POWER_PAGABLE;

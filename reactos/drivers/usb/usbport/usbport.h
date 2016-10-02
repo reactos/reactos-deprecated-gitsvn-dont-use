@@ -532,6 +532,12 @@ USBPORT_IdleNotification(
   IN PDEVICE_OBJECT PdoDevice,
   IN PIRP Irp);
 
+VOID
+NTAPI
+USBPORT_AdjustDeviceCapabilities(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PDEVICE_OBJECT PdoDevice);
+
 /* roothub.c */
 
 VOID
