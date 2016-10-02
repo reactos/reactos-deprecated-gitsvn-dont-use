@@ -63,6 +63,33 @@ USBHI_InitializeUsbDevice(IN PVOID BusContext,
     return USBPORT_InitializeDevice((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle, PdoExtension->FdoDevice);
 }
 
+VOID
+NTAPI
+USBPORT_DumpingDeviceDescriptor(IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor)
+{
+    if (!DeviceDescriptor)
+    {
+        return;
+    }
+
+    DPRINT1("Dumping Device Descriptor - %p\n", DeviceDescriptor);
+    DPRINT1("bLength             - %x\n", DeviceDescriptor->bLength);
+    DPRINT1("bDescriptorType     - %x\n", DeviceDescriptor->bDescriptorType);
+    DPRINT1("bcdUSB              - %x\n", DeviceDescriptor->bcdUSB);
+    DPRINT1("bDeviceClass        - %x\n", DeviceDescriptor->bDeviceClass);
+    DPRINT1("bDeviceSubClass     - %x\n", DeviceDescriptor->bDeviceSubClass);
+    DPRINT1("bDeviceProtocol     - %x\n", DeviceDescriptor->bDeviceProtocol);
+    DPRINT1("bMaxPacketSize0     - %x\n", DeviceDescriptor->bMaxPacketSize0);
+    DPRINT1("idVendor            - %x\n", DeviceDescriptor->idVendor);
+    DPRINT1("idProduct           - %x\n", DeviceDescriptor->idProduct);
+    DPRINT1("bcdDevice           - %x\n", DeviceDescriptor->bcdDevice);
+    DPRINT1("iManufacturer       - %x\n", DeviceDescriptor->iManufacturer);
+    DPRINT1("iProduct            - %x\n", DeviceDescriptor->iProduct);
+    DPRINT1("iSerialNumber       - %x\n", DeviceDescriptor->iSerialNumber);
+    DPRINT1("bNumConfigurations  - %x\n", DeviceDescriptor->bNumConfigurations);
+
+}
+
 NTSTATUS
 USB_BUSIFFN
 USBHI_GetUsbDescriptors(IN PVOID BusContext,
@@ -96,6 +123,8 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
                                       USB_CONFIGURATION_DESCRIPTOR_TYPE,
                                       ConfigDescBuffer,
                                       ConfigDescBufferLen);
+
+    USBPORT_DumpingDeviceDescriptor((PUSB_DEVICE_DESCRIPTOR)DeviceDescBuffer);
 
     return Status;
 }

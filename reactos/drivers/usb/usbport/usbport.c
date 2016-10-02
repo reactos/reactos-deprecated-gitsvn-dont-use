@@ -5,7 +5,7 @@
 
 #define NDEBUG_USBPORT_MINIPORT
 #define NDEBUG_USBPORT_CORE
-#define NDEBUG_USBPORT_URB
+//#define NDEBUG_USBPORT_URB
 #define NDEBUG_USBPORT_INTERRUPT
 #define NDEBUG_USBPORT_TIMER
 #include "usbdebug.h"
@@ -1605,7 +1605,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
                       sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
     }
 
-    DPRINT_CORE("... URB TransferBufferLength - %x\n",
+    DPRINT_URB("... URB TransferBufferLength - %x\n",
            Urb->UrbControlTransfer.TransferBufferLength);
 
     Urb->UrbControlTransfer.TransferBufferLength = 0;
@@ -1626,19 +1626,26 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
 
     USBPORT_FlushPendingTransfers(Endpoint);
 
-    DPRINT_CORE("... URB TransferBufferLength - %x\n",
+    DPRINT_URB("... URB TransferBufferLength - %x\n",
            Urb->UrbControlTransfer.TransferBufferLength);
 
     if (Urb->UrbControlTransfer.TransferBufferLength)
     {
-        ULONG TransferBuffer;
+        ULONG Buffer;
+        ULONG BufferLength;
+        ULONG BufferEnd;
+        ULONG ix;
 
-        TransferBuffer = (ULONG)Urb->UrbControlTransfer.TransferBuffer;
-        DPRINT_CORE("URB TransferBuffer - %p\n", TransferBuffer);
-        DPRINT_CORE("*TransferBuffer    - %p\n", *(PULONG)TransferBuffer);
-        DPRINT_CORE("*TransferBuffer+1  - %p\n", *(PULONG)(TransferBuffer+4));
-        DPRINT_CORE("*TransferBuffer+2  - %p\n", *(PULONG)(TransferBuffer+8));
-        DPRINT_CORE("*TransferBuffer+3  - %p\n", *(PULONG)(TransferBuffer+12));
+        Buffer = (ULONG)Urb->UrbControlTransfer.TransferBuffer;
+        BufferLength = Urb->UrbControlTransfer.TransferBufferLength;
+        BufferEnd = Buffer + BufferLength;
+
+        DPRINT_URB("URB TransferBuffer - %p\n", Buffer);
+
+        for (ix = 0; (Buffer + ix * 4) <= BufferEnd; ix++)
+        {
+            DPRINT_URB("Buffer[%02X] - %p\n", ix, *(PULONG)(Buffer + ix * 4));
+        }
     }
 }
 
