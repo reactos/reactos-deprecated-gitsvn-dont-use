@@ -392,6 +392,63 @@ USBPORT_FlushPendingTransfers(
 
 /* debug.c */
 
+ULONG
+NTAPI
+USBPORT_DbgPrint(
+  IN PVOID Context,
+  IN ULONG Level,
+  IN PCH Format,
+  IN ULONG Arg1,
+  IN ULONG Arg2,
+  IN ULONG Arg3,
+  IN ULONG Arg4,
+  IN ULONG Arg5,
+  IN ULONG Arg6);
+
+ULONG
+NTAPI
+USBPORT_TestDebugBreak(
+  IN PVOID Context);
+
+ULONG
+NTAPI
+USBPORT_AssertFailure(
+  PVOID Context,
+  PVOID FailedAssertion,
+  PVOID FileName,
+  ULONG LineNumber,
+  PCHAR Message);
+
+VOID
+NTAPI
+USBPORT_BugCheck(
+  IN PVOID Context);
+
+ULONG
+NTAPI
+USBPORT_LogEntry(
+  IN PVOID BusContext,
+  IN PVOID DriverTag,
+  IN PVOID EnumTag,
+  IN ULONG P1,
+  IN ULONG P2,
+  IN ULONG P3);
+
+VOID
+NTAPI
+USBPORT_DumpingDeviceDescriptor(
+  IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor);
+
+VOID
+NTAPI
+USBPORT_DumpingConfiguration(
+  IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor);
+
+VOID
+NTAPI
+USBPORT_DumpingCapabilities(
+  IN PDEVICE_CAPABILITIES Capabilities);
+
 /* device.c */
 
 NTSTATUS

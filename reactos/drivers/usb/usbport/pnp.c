@@ -366,42 +366,10 @@ USBPORT_QueryCapabilities(IN PDEVICE_OBJECT FdoDevice,
         Status = Irp->IoStatus.Status;
     }
 
-#if 1
     if (NT_SUCCESS(Status) && Capabilities)
     {
-        DPRINT1("Capabilities->Size              - %x\n", Capabilities->Size);
-        DPRINT1("Capabilities->Version           - %x\n", Capabilities->Version);
-  
-        DPRINT1("Capabilities->DeviceD1          - %x\n", Capabilities->DeviceD1);
-        DPRINT1("Capabilities->DeviceD2          - %x\n", Capabilities->DeviceD2);
-        DPRINT1("Capabilities->LockSupported     - %x\n", Capabilities->LockSupported);
-        DPRINT1("Capabilities->EjectSupported    - %x\n", Capabilities->EjectSupported);
-        DPRINT1("Capabilities->Removable         - %x\n", Capabilities->Removable);
-        DPRINT1("Capabilities->DockDevice        - %x\n", Capabilities->DockDevice);
-        DPRINT1("Capabilities->UniqueID          - %x\n", Capabilities->UniqueID);
-        DPRINT1("Capabilities->SilentInstall     - %x\n", Capabilities->SilentInstall);
-        DPRINT1("Capabilities->RawDeviceOK       - %x\n", Capabilities->RawDeviceOK);
-        DPRINT1("Capabilities->SurpriseRemovalOK - %x\n", Capabilities->SurpriseRemovalOK);
-  
-        DPRINT1("Capabilities->Address           - %x\n", Capabilities->Address);
-        DPRINT1("Capabilities->UINumber          - %x\n", Capabilities->UINumber);
-
-        DPRINT1("Capabilities->DeviceState[0]    - %x\n", Capabilities->DeviceState[0]);
-        DPRINT1("Capabilities->DeviceState[1]    - %x\n", Capabilities->DeviceState[1]);
-        DPRINT1("Capabilities->DeviceState[2]    - %x\n", Capabilities->DeviceState[2]);
-        DPRINT1("Capabilities->DeviceState[3]    - %x\n", Capabilities->DeviceState[3]);
-        DPRINT1("Capabilities->DeviceState[4]    - %x\n", Capabilities->DeviceState[4]);
-        DPRINT1("Capabilities->DeviceState[5]    - %x\n", Capabilities->DeviceState[5]);
-        DPRINT1("Capabilities->DeviceState[6]    - %x\n", Capabilities->DeviceState[6]);
-
-        DPRINT1("Capabilities->SystemWake        - %x\n", Capabilities->SystemWake);
-        DPRINT1("Capabilities->DeviceWake        - %x\n", Capabilities->DeviceWake);
-
-        DPRINT1("Capabilities->D1Latency         - %x\n", Capabilities->D1Latency);
-        DPRINT1("Capabilities->D2Latency         - %x\n", Capabilities->D2Latency);
-        DPRINT1("Capabilities->D3Latency         - %x\n", Capabilities->D3Latency);
+        USBPORT_DumpingCapabilities(Capabilities);
     }
-#endif
 
     IoFreeIrp(Irp);
 

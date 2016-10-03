@@ -14,43 +14,6 @@ LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
 KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
 
-ULONG
-NTAPI
-USBPORT_DbgPrint(IN PVOID Context,
-                 IN ULONG Level,
-                 IN PCH Format,
-                 IN ULONG Arg1,
-                 IN ULONG Arg2,
-                 IN ULONG Arg3,
-                 IN ULONG Arg4,
-                 IN ULONG Arg5,
-                 IN ULONG Arg6)
-{
-    DPRINT("USBPORT_DbgPrint: UNIMPLEMENTED. FIXME. \n");
-    return Level;
-}
-
-ULONG
-NTAPI
-USBPORT_TestDebugBreak(IN PVOID Context)
-{
-    DPRINT("USBPORT_TestDebugBreak: UNIMPLEMENTED. FIXME. \n");
-    return 0;
-}
-
-ULONG
-NTAPI
-USBPORT_AssertFailure(PVOID Context,
-                      PVOID FailedAssertion,
-                      PVOID FileName,
-                      ULONG LineNumber,
-                      PCHAR Message)
-{
-    DPRINT("USBPORT_AssertFailure: ... \n");
-    RtlAssert(FailedAssertion, FileName, LineNumber, Message);
-    return 0;
-}
-
 MPSTATUS
 NTAPI
 USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
@@ -413,15 +376,6 @@ USBPORT_InvalidateController(IN PVOID Context,
     USBPORT_InvalidateControllerHandler(FdoDevice, Type);
 
     return 0;
-}
-
-VOID
-NTAPI
-USBPORT_BugCheck(IN PVOID Context)
-{
-    DPRINT1("USBPORT_BugCheck: FIXME \n");
-    //KeBugCheckEx(...);
-    ASSERT(FALSE);
 }
 
 ULONG
@@ -915,25 +869,6 @@ USBPORT_CompleteIsoTransfer(IN PVOID MiniPortExtension,
     DPRINT("USBPORT_CompleteIsoTransfer: UNIMPLEMENTED. FIXME.\n");
     ASSERT(FALSE);
     return 0;
-}
-
-ULONG
-NTAPI
-USBPORT_LogEntry(IN PVOID BusContext,
-                 IN PVOID DriverTag,
-                 IN PVOID EnumTag,
-                 IN ULONG P1,
-                 IN ULONG P2,
-                 IN ULONG P3)
-{
-    DPRINT_MINIPORT("USBPORT_LogEntry: BusContext - %p, EnumTag - %p, P1 - %p, P2 - %p, P3 - %p\n",
-           BusContext,
-           EnumTag,
-           P1,
-           P2,
-           P3);
-
-    return (ULONG)BusContext;
 }
 
 VOID
