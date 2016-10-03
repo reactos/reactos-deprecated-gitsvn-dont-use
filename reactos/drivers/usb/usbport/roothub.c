@@ -183,7 +183,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                 case FEATURE_PORT_POWER: // 8
                     if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
                     {
-                        DPRINT1("USBPORT_RootHubClassCommand: FIXME - Usb2PortPower\n");
+                        DPRINT1("USBPORT_RootHubClassCommand: Usb2PortPower UNIMPLEMENTED. FIXME.\n");
 
                         Result = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
                                                                 Port);
@@ -198,7 +198,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 default:
-                    ASSERT(FALSE);
+                    DPRINT1("USBPORT_RootHubClassCommand: Unknown feature - %x\n", SetupPacket->wValue.W);
                     break;
             }
             break;
@@ -274,7 +274,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 default:
-                    ASSERT(FALSE);
+                    DPRINT1("USBPORT_RootHubStandardCommand: Unknown Descriptor Type - %x\n", SetupPacket->wValue.HiByte);
                     break;
             }
 
@@ -308,7 +308,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             return 0;
 
         default:
-            ASSERT(FALSE);
+            DPRINT1("USBPORT_RootHubStandardCommand: Unknown Request - %x\n", SetupPacket->bRequest);
             break;
     }
 

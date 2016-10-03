@@ -127,8 +127,7 @@ USBHI_RestoreUsbDevice(IN PVOID BusContext,
                        OUT PUSB_DEVICE_HANDLE OldUsbdDeviceHandle,
                        OUT PUSB_DEVICE_HANDLE NewUsbdDeviceHandle)
 {
-    DPRINT("USBHI_RestoreUsbDevice \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_RestoreUsbDevice: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -151,8 +150,7 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
                                IN ULONG ControllerInfoBufferLen,
                                OUT PULONG LenDataReturned)
 {
-    DPRINT("USBHI_GetControllerInformation \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_GetControllerInformation: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -161,8 +159,7 @@ USB_BUSIFFN
 USBHI_ControllerSelectiveSuspend(IN PVOID BusContext,
                                  IN BOOLEAN Enable)
 {
-    DPRINT("USBHI_ControllerSelectiveSuspend \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_ControllerSelectiveSuspend: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -229,8 +226,7 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
                              IN ULONG HubInfoBufferLen,
                              OUT PULONG HubNameActualLen)
 {
-    DPRINT("USBHI_GetRootHubSymbolicName \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_GetRootHubSymbolicName: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -239,8 +235,7 @@ USB_BUSIFFN
 USBHI_GetDeviceBusContext(IN PVOID BusContext,
                           IN PVOID DeviceHandle)
 {
-    DPRINT("USBHI_GetDeviceBusContext \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_GetDeviceBusContext: UNIMPLEMENTED. FIXME. \n");
     return NULL;
 }
 
@@ -250,8 +245,7 @@ USBHI_Initialize20Hub(IN PVOID BusContext,
                       IN PUSB_DEVICE_HANDLE UsbdHubDeviceHandle,
                       IN ULONG TtCount)
 {
-    DPRINT("USBHI_Initialize20Hub \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_Initialize20Hub: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -280,8 +274,7 @@ USB_BUSIFFN
 USBHI_FlushTransfers(IN PVOID BusContext,
                      OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle)
 {
-    DPRINT("USBHI_FlushTransfers \n");
-    ASSERT(FALSE);
+    DPRINT1("USBHI_FlushTransfers: UNIMPLEMENTED. FIXME. \n");
 }
 
 VOID
@@ -290,8 +283,7 @@ USBHI_SetDeviceHandleData(IN PVOID BusContext,
                           IN PVOID DeviceHandle,
                           IN PDEVICE_OBJECT UsbDevicePdo)
 {
-    DPRINT("USBHI_SetDeviceHandleData FIXME\n");
-    // ASSERT(FALSE);
+    DPRINT1("USBHI_SetDeviceHandleData: UNIMPLEMENTED. FIXME. \n");
 }
 
 /* USB bus driver Interface functions */
@@ -302,8 +294,7 @@ USBDI_GetUSBDIVersion(IN PVOID BusContext,
                       OUT PUSBD_VERSION_INFORMATION VersionInfo,
                       OUT PULONG HcdCapabilities)
 {
-    DPRINT("USBDI_GetUSBDIVersion \n");
-    ASSERT(FALSE);
+    DPRINT1("USBDI_GetUSBDIVersion: UNIMPLEMENTED. FIXME. \n");
 }
 
 NTSTATUS
@@ -311,8 +302,7 @@ USB_BUSIFFN
 USBDI_QueryBusTime(IN PVOID BusContext,
                    OUT PULONG CurrentFrame)
 {
-    DPRINT("USBDI_QueryBusTime \n");
-    ASSERT(FALSE);
+    DPRINT1("USBDI_QueryBusTime: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -321,8 +311,7 @@ USB_BUSIFFN
 USBDI_SubmitIsoOutUrb(IN PVOID BusContext,
                       IN PURB Urb)
 {
-    DPRINT("USBDI_SubmitIsoOutUrb \n");
-    ASSERT(FALSE);
+    DPRINT1("USBDI_SubmitIsoOutUrb: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -334,8 +323,7 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
                           OUT PULONG BusInfoBufferLen,
                           OUT PULONG BusInfoActualLen)
 {
-    DPRINT("USBDI_QueryBusInformation \n");
-    ASSERT(FALSE);
+    DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -355,8 +343,7 @@ USBDI_EnumLogEntry(IN PVOID BusContext,
                    IN ULONG P1,
                    IN ULONG P2)
 {
-    DPRINT("USBDI_EnumLogEntry \n");
-    // ASSERT(FALSE);
+    DPRINT1("USBDI_EnumLogEntry: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 

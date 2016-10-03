@@ -338,11 +338,11 @@ USBPORT_InvalidateControllerHandler(IN PDEVICE_OBJECT FdoDevice,
     switch (Type)
     {
         case INVALIDATE_CONTROLLER_RESET:
-            ASSERT(FALSE);
+            DPRINT1("USBPORT_InvalidateControllerHandler: INVALIDATE_CONTROLLER_RESET UNIMPLEMENTED. FIXME. \n");
             break;
 
         case INVALIDATE_CONTROLLER_SURPRISE_REMOVE:
-            ASSERT(FALSE);
+            DPRINT1("USBPORT_InvalidateControllerHandler: INVALIDATE_CONTROLLER_SURPRISE_REMOVE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case INVALIDATE_CONTROLLER_SOFT_INTERRUPT:
@@ -385,8 +385,7 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
                            IN PVOID Buffer,
                            IN SIZE_T Length)
 {
-    DPRINT("USBPORT_NotifyDoubleBuffer: FIXME \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_NotifyDoubleBuffer: UNIMPLEMENTED. FIXME. \n");
     return 0;
 }
 
@@ -817,7 +816,7 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
         ASSERT(FALSE);
     }
 
-    ASSERT(FALSE); //FIXME
+    DPRINT1("USBPORT_Unload: UNIMPLEMENTED. FIXME. \n");
     // ...
     //MiniPortInterface->DriverUnload(DriverObject); // Call MiniPort _HCI_Unload
     // ...
@@ -866,8 +865,7 @@ USBPORT_CompleteIsoTransfer(IN PVOID MiniPortExtension,
                             IN PVOID TransferParameters,
                             IN ULONG TransferLength)
 {
-    DPRINT("USBPORT_CompleteIsoTransfer: UNIMPLEMENTED. FIXME.\n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_CompleteIsoTransfer: UNIMPLEMENTED. FIXME.\n");
     return 0;
 }
 
@@ -2016,10 +2014,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
             Status = USBPORT_USBDStatusToNtStatus(Urb,
                                                   USBD_STATUS_INVALID_URB_FUNCTION);
 
-            DPRINT1("USBPORT_PdoScsi: !!! Unknown Function %x NOT IMPLEMENTED\n",
+            DPRINT1("USBPORT_PdoScsi: Unknown Function %x. UNIMPLEMENTED\n",
                    Function);
 
-            //ASSERT(FALSE);
             return Status;
         }
 
@@ -2051,8 +2048,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         switch (Function)
         {
             case URB_FUNCTION_ISOCH_TRANSFER: // 0x10
-                DPRINT("USBPORT_PdoScsi: URB_FUNCTION_ISOCH_TRANSFER\n");
-                ASSERT(FALSE);
+                DPRINT1("USBPORT_PdoScsi: URB_FUNCTION_ISOCH_TRANSFER UNIMPLEMENTED. FIXME. \n");
                 break;
 
             case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
@@ -2165,8 +2161,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 break;
 
             default:
-                DPRINT1("USBPORT_PdoScsi: default Function - %x\n", Function);
-                ASSERT(FALSE);
+                DPRINT1("USBPORT_PdoScsi: Function - %x UNIMPLEMENTED. FIXME\n", Function);
                 break;
         }
 

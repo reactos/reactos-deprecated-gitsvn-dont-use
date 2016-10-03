@@ -8,8 +8,7 @@ NTAPI
 USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT FdoDevice,
                          IN PIRP Irp)
 {
-    DPRINT("USBPORT_DevicePowerState: ... \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_DevicePowerState: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -36,7 +35,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
     switch (IoStack->MinorFunction)
     {
       case IRP_MN_WAIT_WAKE:
-          DPRINT("USBPORT_PdoPowerIrp: IRP_MN_WAIT_WAKE\n");
+          DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE\n");
 
           if (!(FdoExtension->Flags & USBPORT_FLAG_DEVICE_STARTED))
           {
@@ -44,7 +43,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
               break;
           }
 
-          ASSERT(FALSE);
+          DPRINT1("USBPORT_PdoPower: IRP_MN_WAIT_WAKE UNIMPLEMENTED. FIXME. \n");
           return Status;
 
       case IRP_MN_POWER_SEQUENCE:
@@ -61,8 +60,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
           }
           else
           {
-              DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState\n");
-              ASSERT(FALSE);
+              DPRINT1("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState UNIMPLEMENTED. FIXME. \n");
               Status = STATUS_SUCCESS;
           }
 
@@ -92,8 +90,7 @@ NTAPI
 USBPORT_HcWake(IN PDEVICE_OBJECT FdoDevice,
                IN PIRP Irp)
 {
-    DPRINT("USBPORT_HcWake: ... \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_HcWake: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -102,8 +99,7 @@ NTAPI
 USBPORT_DevicePowerState(IN PDEVICE_OBJECT FdoDevice,
                          IN PIRP Irp)
 {
-    DPRINT("USBPORT_DevicePowerState: ... \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_DevicePowerState: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -112,8 +108,7 @@ NTAPI
 USBPORT_SystemPowerState(IN PDEVICE_OBJECT FdoDevice,
                          IN PIRP Irp)
 {
-    DPRINT("USBPORT_SystemPowerState: ... \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_SystemPowerState: UNIMPLEMENTED. FIXME. \n");
     return STATUS_SUCCESS;
 }
 
@@ -180,9 +175,7 @@ USBPORT_IdleNotification(IN PDEVICE_OBJECT PdoDevice,
 {
     NTSTATUS Status;
 
-    DPRINT("USBPORT_IdleNotification: ... \n");
-
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_IdleNotification: UNIMPLEMENTED. FIXME. \n");
 
     Status = STATUS_NOT_SUPPORTED;
     return Status;
