@@ -323,8 +323,73 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
                           OUT PULONG BusInfoBufferLen,
                           OUT PULONG BusInfoActualLen)
 {
-    DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    SIZE_T Length;
+    PUSB_BUS_INFORMATION_LEVEL_0 Buffer0;
+    PUSB_BUS_INFORMATION_LEVEL_1 Buffer1;
+
+    DPRINT("USBDI_QueryBusInformation: Level - %p\n", Level);
+
+    if ((Level != 0) || (Level != 1))
+    {
+        DPRINT1("USBDI_QueryBusInformation: Level should be 0 or 1\n");
+        return STATUS_NOT_SUPPORTED;
+    }
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if ( Level == 0 )
+    {
+        if ( BusInfoActualLen )
+            *BusInfoActualLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
+    
+        if ( *BusInfoBufferLen < sizeof(USB_BUS_INFORMATION_LEVEL_0) )
+        {
+            return STATUS_BUFFER_TOO_SMALL;
+        }
+    
+        *BusInfoBufferLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
+    
+        Buffer0 = (PUSB_BUS_INFORMATION_LEVEL_0)BusInfoBuffer;
+        DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
+        //Buffer0->TotalBandwidth = USBPORT_GetTotalBandwidth();
+        //Buffer0->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
+    
+        return STATUS_SUCCESS;
+    }
+
+    if ( Level == 1 )
+    {
+        Length = sizeof(USB_BUS_INFORMATION_LEVEL_1) + FdoExtension->CommonExtension.SymbolicLinkName.Length;
+    
+        if ( BusInfoActualLen )
+            *BusInfoActualLen = Length;
+    
+        if ( *BusInfoBufferLen < Length )
+        {
+            return STATUS_BUFFER_TOO_SMALL;
+        }
+    
+        *BusInfoBufferLen = Length;
+    
+        Buffer1 = (PUSB_BUS_INFORMATION_LEVEL_1)BusInfoBuffer;
+        DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
+        //Buffer1->TotalBandwidth = USBPORT_GetTotalBandwidth();
+        //Buffer1->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
+        Buffer1->ControllerNameLength = FdoExtension->CommonExtension.SymbolicLinkName.Length;
+    
+        RtlCopyMemory(&Buffer1->ControllerNameUnicodeString,
+                      FdoExtension->CommonExtension.SymbolicLinkName.Buffer,
+                      FdoExtension->CommonExtension.SymbolicLinkName.Length);
+    
+        return STATUS_SUCCESS;
+    }
 }
 
 BOOLEAN

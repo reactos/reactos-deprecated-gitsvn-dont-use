@@ -240,7 +240,8 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG BusNumber;
   ULONG PciDeviceNumber;
   ULONG PciFunctionNumber;
-  ULONG Padded[48]; // Miniport extension should be aligned on 0x100
+  ULONG BusBandwidth;
+  ULONG Padded[47]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x300);
