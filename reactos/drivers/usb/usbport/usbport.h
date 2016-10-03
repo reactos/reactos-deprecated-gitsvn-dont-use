@@ -390,6 +390,8 @@ NTAPI
 USBPORT_FlushPendingTransfers(
   IN PUSBPORT_ENDPOINT Endpoint);
 
+/* debug.c */
+
 /* device.c */
 
 NTSTATUS

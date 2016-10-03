@@ -2,6 +2,7 @@
 spec2def(usbport.sys usbport.spec ADD_IMPORTLIB)
 
 list(APPEND SOURCE
+    debug.c
     device.c
     iface.c
     ioctl.c
