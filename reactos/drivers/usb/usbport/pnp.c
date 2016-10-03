@@ -462,6 +462,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     if (!NT_SUCCESS(Status))
         goto ExitWithError;
 
+    FdoExtension->BusBandwidth = FdoExtension->MiniPortInterface->Packet.MiniPortBusBandwidth;
+
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
     KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
     KeInitializeSpinLock(&FdoExtension->EpStateChangeSpinLock);
