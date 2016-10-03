@@ -9,8 +9,7 @@ NTAPI
 USBPORT_PdoDeviceControl(PDEVICE_OBJECT PdoDevice,
                          PIRP Irp)
 {
-    DPRINT("USBPORT_PdoDeviceControl: FIXME \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_PdoDeviceControl: UNIMPLEMENTED. FIXME. \n");
     return 0;
 }
 
@@ -19,8 +18,7 @@ NTAPI
 USBPORT_FdoDeviceControl(PDEVICE_OBJECT FdoDevice,
                          PIRP Irp)
 {
-    DPRINT("USBPORT_FdoDeviceControl: FIXME \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_FdoDeviceControl: UNIMPLEMENTED. FIXME. \n");
     return 0;
 }
 
@@ -29,7 +27,6 @@ NTAPI
 USBPORT_FdoScsi(IN PDEVICE_OBJECT FdoDevice,
                 IN PIRP Irp)
 {
-    DPRINT("USBPORT_FdoScsi: FIXME \n");
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_FdoScsi: UNIMPLEMENTED. FIXME. \n");
     return 0;
 }

@@ -837,13 +837,13 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             return Status;
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
-            DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+            DPRINT1("USBPORT_FdoPnP: IRP_MN_QUERY_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_REMOVE_DEVICE: // 2
-            DPRINT("IRP_MN_REMOVE_DEVICE\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_REMOVE_DEVICE\n");
+            DPRINT1("USBPORT_FdoPnP: IRP_MN_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
@@ -852,8 +852,8 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             goto ForwardIrp;
 
         case IRP_MN_STOP_DEVICE: // 4
-            DPRINT("IRP_MN_STOP_DEVICE\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_STOP_DEVICE\n");
+            DPRINT1("USBPORT_FdoPnP: IRP_MN_STOP_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_QUERY_STOP_DEVICE: // 5
@@ -974,8 +974,8 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             goto ForwardIrp;
 
         case IRP_MN_SURPRISE_REMOVAL: // 23
-            DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+            DPRINT1("USBPORT_FdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
             goto ForwardIrp;
 
         default:
@@ -1078,13 +1078,13 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
-            DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+            DPRINT1("USBPORT_PdoPnP: IRP_MN_QUERY_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_REMOVE_DEVICE: // 2
-            DPRINT("IRP_MN_REMOVE_DEVICE\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_REMOVE_DEVICE\n");
+            DPRINT1("USBPORT_PdoPnP: IRP_MN_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
@@ -1093,8 +1093,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_STOP_DEVICE: // 4
-            DPRINT("IRP_MN_STOP_DEVICE\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_STOP_DEVICE\n");
+            DPRINT1("USBPORT_PdoPnP: IRP_MN_STOP_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_QUERY_STOP_DEVICE: // 5
@@ -1152,8 +1152,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_QUERY_RESOURCES: // 10
-            DPRINT("IRP_MN_QUERY_RESOURCES\n");
-            //ASSERT(FALSE);
+            //DPRINT("IRP_MN_QUERY_RESOURCES\n");
+            DPRINT1("USBPORT_PdoPnP: IRP_MN_QUERY_RESOURCES UNIMPLEMENTED. FIXME. \n");
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
@@ -1275,8 +1275,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_SURPRISE_REMOVAL: // 23
-            DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
-            ASSERT(FALSE);
+            //DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+            DPRINT1("USBPORT_PdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
             break;
 
         default:

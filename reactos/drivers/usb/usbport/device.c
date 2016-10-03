@@ -199,6 +199,7 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     if (!Endpoint)
     {
+        DPRINT1("USBPORT_OpenPipe: Not allocated Endpoint!\n");
         Status = STATUS_INSUFFICIENT_RESOURCES;
         return Status;
     }
@@ -237,7 +238,7 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
         case USB_ENDPOINT_TYPE_ISOCHRONOUS: // 0x01
             EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_ISOCHRONOUS;
-            ASSERT(FALSE);
+            DPRINT1("USBPORT_OpenPipe: USB_ENDPOINT_TYPE_ISOCHRONOUS UNIMPLEMENTED. FIXME. \n");
             break;
 
         case USB_ENDPOINT_TYPE_BULK: // 0x02
@@ -397,7 +398,7 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         if (Endpoint)
             ExFreePool(Endpoint);
 
-        ASSERT(FALSE);
+        DPRINT1("USBPORT_OpenPipe: Status - %p\n", Status);
         return Status;
     }
 }
@@ -724,7 +725,7 @@ USBPORT_OpenInterface(IN PURB Urb,
 
     if (InterfaceInfo->AlternateSetting && IsSetInterface)
     {
-        ASSERT(FALSE);
+        DPRINT1("USBPORT_OpenInterface: InterfaceInfo->AlternateSetting && IsSetInterface !\n");
     }
 
     if (*iHandle)
@@ -883,7 +884,7 @@ Exit:
         {
             if (NumInterfaces)
             {
-                ASSERT(FALSE);
+                DPRINT1("USBPORT_OpenInterface: USBDStatus - %p\n", USBDStatus);
             }
 
             if (IsAllocated)
@@ -1050,7 +1051,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
     if (!ConfigDescriptor)
     {
-        ASSERT(FALSE);
+        DPRINT1("USBPORT_SelectConfiguration: ConfigDescriptor == NULL!\n");
         goto Exit;
     }
 
@@ -1185,7 +1186,7 @@ Exit:
     }
     else
     {
-        ASSERT(FALSE);
+        DPRINT1("USBPORT_SelectConfiguration: Status %x\n", Status);
     }
 
     return Status;
@@ -1273,8 +1274,7 @@ NTAPI
 USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
                           IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
 {
-    DPRINT("USBPORT_AbortTransfers: FIXME \n");
-    //ASSERT(FALSE);
+    DPRINT1("USBPORT_AbortTransfers: UNIMPLEMENTED. FIXME. \n");
 }
 
 NTSTATUS
@@ -1363,7 +1363,9 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         Status = STATUS_DEVICE_DATA_ERROR;
 
         if (IsOpenedPipe)
-            ASSERT(FALSE); //USBPORT_ClosePipe();
+        {
+            USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
+        }
 
         ExFreePool(DeviceHandle);
         return Status;
@@ -1419,7 +1421,9 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         }
     }
 
-    ASSERT(FALSE);
+    DPRINT1("USBPORT_CreateDevice: ERROR!!! TransferedLen - %x, Status - %p\n",
+            TransferedLen,
+            Status);
 
     return Status;
 }
@@ -1595,7 +1599,7 @@ USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     else
     {
 ExitError:
-        ASSERT(FALSE);
+        DPRINT1("USBPORT_InitializeDevice: ExitError. Status - %x\n", Status);
     }
 
     return Status;
