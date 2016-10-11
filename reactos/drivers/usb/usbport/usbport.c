@@ -403,6 +403,29 @@ USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
     USBPORT_FlushDoneTransfers(FdoDevice);
 }
 
+BOOLEAN
+NTAPI
+USBPORT_QueueDoneTransfer(IN PUSBPORT_TRANSFER Transfer,
+                          IN USBD_STATUS USBDStatus)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+
+    DPRINT("USBPORT_QueueDoneTransfer: Transfer - %p, USBDStatus - %p\n", Transfer, USBDStatus);
+
+    FdoDevice = Transfer->Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    RemoveEntryList(&Transfer->TransferLink);
+    Transfer->USBDStatus = USBDStatus;
+
+    ExInterlockedInsertTailList(&FdoExtension->DoneTransferList,
+                                &Transfer->TransferLink,
+                                &FdoExtension->DoneTransferSpinLock);
+
+    return KeInsertQueueDpc(&FdoExtension->TransferFlushDpc, NULL, NULL);
+}
+
 VOID
 NTAPI
 USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
