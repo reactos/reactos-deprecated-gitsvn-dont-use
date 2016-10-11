@@ -328,6 +328,45 @@ USBPORT_DeleteEndpoint(IN PDEVICE_OBJECT FdoDevice,
     return Result;
 }
 
+VOID
+NTAPI
+USBPORT_FlushClosedEndpointList(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    KIRQL OldIrql;
+    PLIST_ENTRY ClosedList;
+    PUSBPORT_ENDPOINT Endpoint;
+
+    DPRINT("USBPORT_FlushClosedEndpointList: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->EndpointClosedSpinLock, &OldIrql);
+    ClosedList = &FdoExtension->EndpointClosedList;
+
+    while (TRUE)
+    {
+        if (IsListEmpty(ClosedList))
+            break;
+
+        Endpoint = CONTAINING_RECORD(ClosedList->Flink,
+                                     USBPORT_ENDPOINT,
+                                     CloseLink);
+
+        RemoveHeadList(ClosedList);
+        Endpoint->CloseLink.Flink = NULL;
+        Endpoint->CloseLink.Blink = NULL;
+
+        KeReleaseSpinLock(&FdoExtension->EndpointClosedSpinLock, OldIrql);
+
+        USBPORT_DeleteEndpoint(FdoDevice, Endpoint);
+
+        KeAcquireSpinLock(&FdoExtension->EndpointClosedSpinLock, &OldIrql);
+    }
+
+    KeReleaseSpinLock(&FdoExtension->EndpointClosedSpinLock, OldIrql);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
