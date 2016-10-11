@@ -470,7 +470,7 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         USBPORT_SetEndpointState(Endpoint,
                                  USBPORT_ENDPOINT_CLOSED);
 
-        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+        USBPORT_SignalWorkerThread(FdoDevice);
     }
 }
 
