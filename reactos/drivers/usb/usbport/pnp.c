@@ -503,6 +503,26 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension->UsbAddressBitMap[2] = 0;
     FdoExtension->UsbAddressBitMap[3] = 0;
 
+    FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
+
+    if (!FdoExtension->ActiveIrpTable)
+    {
+        DPRINT1("USBPORT_StartDevice: Allocate ActiveIrpTable failed!\n");
+        goto ExitWithError;
+    }
+
+    RtlZeroMemory(FdoExtension->ActiveIrpTable, sizeof(USBPORT_IRP_TABLE));
+
+    FdoExtension->PendingIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
+
+    if (!FdoExtension->PendingIrpTable)
+    {
+        DPRINT1("USBPORT_StartDevice: Allocate PendingIrpTable failed!\n");
+        goto ExitWithError;
+    }
+
+    RtlZeroMemory(FdoExtension->PendingIrpTable, sizeof(USBPORT_IRP_TABLE));
+
     Status = IoConnectInterrupt(&FdoExtension->InterruptObject,
                                 USBPORT_InterruptService,
                                 (PVOID)FdoDevice,
