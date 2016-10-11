@@ -391,6 +391,84 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
 
 VOID
 NTAPI
+USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_ENDPOINT Endpoint;
+    PLIST_ENTRY Entry;
+    LIST_ENTRY List;
+
+    DPRINT_CORE("USBPORT_DpcHandler: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    InitializeListHead(&List);
+
+    KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
+    Entry = FdoExtension->EndpointList.Flink;
+
+    if (!IsListEmpty(&FdoExtension->EndpointList))
+    {
+        while (Entry && Entry != &FdoExtension->EndpointList)
+        {
+            Endpoint = CONTAINING_RECORD(Entry,
+                                         USBPORT_ENDPOINT,
+                                         EndpointLink);
+
+            if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE &&
+                !InterlockedIncrement(&Endpoint->LockCounter) &&
+                !(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+            {
+                InsertTailList(&List, &Endpoint->DispatchLink);
+
+                if (Endpoint->WorkerLink.Flink && Endpoint->WorkerLink.Blink)
+                {
+                    RemoveEntryList(&Endpoint->WorkerLink);
+
+                    Endpoint->WorkerLink.Flink = NULL;
+                    Endpoint->WorkerLink.Blink = NULL;
+                }
+
+            }
+            else
+            {
+                InterlockedDecrement(&Endpoint->LockCounter);
+            }
+
+            Entry = Endpoint->EndpointLink.Flink;
+        }
+    }
+
+    KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+    while (!IsListEmpty(&List))
+    {
+        Endpoint = CONTAINING_RECORD(List.Flink,
+                                     USBPORT_ENDPOINT,
+                                     DispatchLink);
+
+        RemoveEntryList(List.Flink);
+        Endpoint->DispatchLink.Flink = NULL;
+        Endpoint->DispatchLink.Blink = NULL;
+
+        USBPORT_EndpointWorker(Endpoint, TRUE);
+        USBPORT_FlushPendingTransfers(Endpoint);
+    }
+
+    KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+    if (!IsListEmpty(&FdoExtension->WorkerList))
+    {
+        USBPORT_SignalWorkerThread(FdoDevice);
+    }
+
+    KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+    USBPORT_FlushDoneTransfers(FdoDevice);
+}
+
+VOID
+NTAPI
 USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
                       IN BOOLEAN IsDpcHandler)
 {
