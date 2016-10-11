@@ -400,3 +400,47 @@ USBPORT_FindUrbInIrpTable(IN PUSBPORT_IRP_TABLE IrpTable,
     }
     while (IrpTable);
 }
+
+PIRP
+NTAPI
+USBPORT_FindIrpInTable(IN PUSBPORT_IRP_TABLE IrpTable,
+                       IN PIRP Irp)
+{
+    ULONG ix; 
+    PIRP irp;
+
+    DPRINT_CORE("USBPORT_FindIrpInTable: IrpTable - %p, Irp - %p\n", IrpTable, Irp);
+
+    ASSERT(IrpTable != NULL);
+
+    do
+    {
+        for (ix = 0; ix < 0x200; ix++)
+        {
+            irp = IrpTable->irp[ix];
+
+            if (irp && irp == Irp)
+            {
+                return irp;
+            }
+        }
+
+        IrpTable = IrpTable->LinkNextTable;
+    }
+    while (IrpTable->LinkNextTable);
+
+    DPRINT_CORE("USBPORT_FindIrpInTable: Not found!!!\n");
+    return NULL;
+}
+
+PIRP
+NTAPI
+USBPORT_FindActiveTransferIrp(IN PDEVICE_OBJECT FdoDevice,
+                              IN PIRP Irp)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_CORE("USBPORT_FindActiveTransferIrp: Irp - %p\n", Irp);
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    return USBPORT_FindIrpInTable(FdoExtension->ActiveIrpTable, Irp);
+}
