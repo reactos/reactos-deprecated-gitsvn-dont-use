@@ -385,9 +385,10 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     UCHAR Period;
     ULONG TransferParams[2] = {0};
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
-    ULONG Result;
+    MPSTATUS MpStatus;
     USBD_STATUS USBDStatus;
     NTSTATUS Status;
+    KIRQL OldIrql;
 
     DPRINT("USBPORT_OpenPipe: DeviceHandle - %p, FdoDevice - %p, PipeHandle - %p, UsbdStatus - %p\n",
            DeviceHandle,
@@ -516,9 +517,11 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     {
         Endpoint->EndpointWorker = 1; // USBPORT_DmaEndpointWorker;
 
+        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
         FdoExtension->MiniPortInterface->Packet.QueryEndpointRequirements(FdoExtension->MiniPortExt,
                                                                           &Endpoint->EndpointProperties,
                                                                           (PULONG)&TransferParams);
+        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
         if ((EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_BULK) ||
             (EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT))
@@ -547,22 +550,21 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                 EndpointProperties->BufferLength = HeaderBuffer->BufferLength; // BufferLength + LengthPadded;
             }
 
-            Endpoint->Flags &= ~ENDPOINT_FLAG_CLOSED;
-            
-            Result = FdoExtension->MiniPortInterface->Packet.OpenEndpoint(FdoExtension->MiniPortExt,
-                                                                          &Endpoint->EndpointProperties,
-                                                                          (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+            MpStatus = MiniportOpenEndpoint(FdoDevice, Endpoint);
 
             Endpoint->Flags |= ENDPOINT_FLAG_DMA_TYPE;
             Endpoint->Flags |= ENDPOINT_FLAG_QUEUENE_EMPTY;
 
-            if (Result == 0)
+            if (MpStatus == 0)
             {
-                Endpoint->Flags |= ENDPOINT_FLAG_OPENED;
+                KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
                 Endpoint->StateLast = USBPORT_ENDPOINT_PAUSED;
                 Endpoint->StateNext = USBPORT_ENDPOINT_PAUSED;
 
                 USBPORT_SetEndpointState(Endpoint, USBPORT_ENDPOINT_ACTIVE);
+
+                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
                 while (TRUE)
                 {
@@ -575,11 +577,11 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         }
         else
         {
-            Result = 1;
+            MpStatus = 1;
             Endpoint->HeaderBuffer = NULL;
         }
 
-        if (Result)
+        if (MpStatus)
             USBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
         else
             USBDStatus = USBD_STATUS_SUCCESS;
