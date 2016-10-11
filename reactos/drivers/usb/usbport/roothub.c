@@ -245,6 +245,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
     PVOID Descriptor;
     SIZE_T DescriptorLength;
     ULONG Result;
+    KIRQL OldIrql;
 
     DPRINT("USBPORT_RootHubStandardCommand: USB command - %x, TransferLength - %p\n",
            SetupPacket->bRequest,
@@ -293,8 +294,10 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             break;
 
         case USB_REQUEST_GET_STATUS:
+            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
             Result = FdoExtension->MiniPortInterface->Packet.RH_GetStatus(FdoExtension->MiniPortExt,
                                                                           Buffer);
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
             *TransferLength = 2;
 
