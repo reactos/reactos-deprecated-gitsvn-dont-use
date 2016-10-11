@@ -699,6 +699,39 @@ USBPORT_QueuePendingUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
     Urb->UrbHeader.Status = USBD_STATUS_PENDING;
 }
 
+BOOLEAN
+NTAPI
+USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
+                                 IN PURB Urb)
+{
+    PUSBPORT_TRANSFER Transfer;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+
+    DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: Endpoint - %p, Urb - %p\n", Endpoint, Urb);
+
+    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (Transfer->TransferParameters.TransferBufferLength == 0 ||
+        !(Endpoint->Flags & ENDPOINT_FLAG_DMA_TYPE))
+    {
+      InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
+      DPRINT("USBPORT_QueueActiveUrbToEndpoint: return FALSE\n");
+      return FALSE;
+    }
+
+    InsertTailList(&FdoExtension->MapTransferList, &Transfer->TransferLink);
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Transfer->Urb->UrbHeader.UsbdDeviceHandle;
+    InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
+
+    DPRINT("USBPORT_QueueActiveUrbToEndpoint: return TRUE\n");
+    return TRUE;
+}
+
 VOID
 NTAPI
 USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
