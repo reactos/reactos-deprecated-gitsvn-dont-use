@@ -873,3 +873,67 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
 
     DPRINT_CORE("USBPORT_FlushAllEndpoints: exit\n");
 }
+
+VOID
+NTAPI
+USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PLIST_ENTRY Entry;
+    PUSBPORT_ENDPOINT Endpoint;
+    ULONG KilledTransfers = 0;
+    PLIST_ENTRY EndpointList;
+    KIRQL OldIrql;
+    LIST_ENTRY FlushList;
+
+    DPRINT("USBPORT_FlushController \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    EndpointList = &FdoExtension->EndpointList;
+
+    while (TRUE)
+    {
+        KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+
+        InitializeListHead(&FlushList);
+
+        Entry = EndpointList->Flink;
+
+        if (!IsListEmpty(EndpointList))
+        {
+            while (Entry && Entry != EndpointList)
+            {
+                Endpoint = CONTAINING_RECORD(Entry, USBPORT_ENDPOINT, EndpointLink);
+
+                if (Endpoint->StateLast != 4 && Endpoint->StateLast != 5)
+                {
+                    InterlockedIncrement(&Endpoint->LockCounter);
+                    InsertTailList(&FlushList, &Endpoint->FlushControllerLink);
+                }
+
+                Entry = Endpoint->EndpointLink.Flink;
+            }
+        }
+
+        KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+
+        if (IsListEmpty(&FlushList))
+            break;
+
+        do
+        {
+            Endpoint = CONTAINING_RECORD(FlushList.Flink, USBPORT_ENDPOINT, FlushControllerLink);
+
+            RemoveHeadList(&FlushList);
+            KilledTransfers += USBPORT_KillEndpointActiveTransfers(FdoDevice, Endpoint);
+            InterlockedDecrement(&Endpoint->LockCounter);
+        }
+        while (!IsListEmpty(&FlushList));
+
+        if (!KilledTransfers)
+            break;
+
+        USBPORT_Wait(FdoDevice, 100);
+    }
+}
