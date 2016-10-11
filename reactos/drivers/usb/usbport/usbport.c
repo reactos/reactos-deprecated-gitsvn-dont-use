@@ -1469,14 +1469,29 @@ NTAPI
 USBPORT_InvalidateEndpoint(IN PVOID Context1,
                            IN PVOID Context2)
 {
-    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_ENDPOINT Endpoint;
 
     DPRINT_CORE("USBPORT_InvalidateEndpoint: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context1 - 
                                                sizeof(USBPORT_DEVICE_EXTENSION));
 
-    KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+    FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+
+    Endpoint = (PUSBPORT_ENDPOINT)((ULONG_PTR)Context2 - 
+                                   sizeof(USBPORT_ENDPOINT));
+
+    if (Context2)
+    {
+        USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 0);
+    }
+    else
+    {
+        USBPORT_InvalidateEndpointHandler(FdoDevice, NULL, 0);
+    }
+
     return 0;
 }
 
