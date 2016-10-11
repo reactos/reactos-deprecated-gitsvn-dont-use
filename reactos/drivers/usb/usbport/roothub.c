@@ -691,6 +691,7 @@ NTAPI
 USBPORT_InvalidateRootHub(PVOID Context)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT FdoDevice;
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PUSBPORT_ENDPOINT Endpoint = NULL;
@@ -704,6 +705,8 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
     PdoDevice = FdoExtension->RootHubPdo;
 
+    //FIXME - USBPORT_HcQueueWakeDpc()
+
     if (PdoDevice)
     {
         PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
@@ -712,13 +715,8 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
     if (Endpoint)
     {
-        if (!Endpoint->WorkerLink.Flink || !Endpoint->WorkerLink.Blink)
-        {
-            InsertTailList(&FdoExtension->WorkerList,
-                           &Endpoint->WorkerLink);
-        }
-
-        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+        FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+        USBPORT_InvalidateEndpointHandler(FdoDevice, PdoExtension->Endpoint, 1);
     }
 
     return 0;
