@@ -238,6 +238,45 @@ MiniportOpenEndpoint(IN PDEVICE_OBJECT FdoDevice,
     return MpStatus;
 }
 
+VOID
+NTAPI
+MiniportCloseEndpoint(IN PDEVICE_OBJECT FdoDevice,
+                      IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    BOOLEAN IsDoDisablePeriodic;
+    ULONG TransferType;
+    KIRQL OldIrql;
+
+    DPRINT("MiniportCloseEndpoint: Endpoint - %p\n", Endpoint);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+    if (Endpoint->Flags & ENDPOINT_FLAG_OPENED)
+    {
+        TransferType = Endpoint->EndpointProperties.TransferType;
+
+        if (TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT ||
+            TransferType == USBPORT_TRANSFER_TYPE_ISOCHRONOUS)
+        {
+            --FdoExtension->PeriodicEndpoints;
+        }
+
+        IsDoDisablePeriodic = FdoExtension->PeriodicEndpoints == 0;
+
+        FdoExtension->MiniPortInterface->Packet.CloseEndpoint(FdoExtension->MiniPortExt,
+                                                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                              IsDoDisablePeriodic);
+
+        Endpoint->Flags &= ~ENDPOINT_FLAG_OPENED;
+        Endpoint->Flags |= ENDPOINT_FLAG_CLOSED;
+    }
+
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
