@@ -127,3 +127,123 @@ USBPORT_CompleteCanceledIdleIrp(IN PIO_CSQ Csq,
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
 }
 
+VOID
+NTAPI
+USBPORT_InsertBadRequest(IN PIO_CSQ Csq,
+                         IN PIRP Irp)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_QUEUE("USBPORT_InsertBadRequest: Irp - %p\n", Irp);
+
+    FdoExtension = CONTAINING_RECORD(Csq,
+                                     USBPORT_DEVICE_EXTENSION,
+                                     BadRequestIoCsq);
+
+    InsertTailList(&FdoExtension->BadRequestList, &Irp->Tail.Overlay.ListEntry);
+}
+
+VOID
+NTAPI
+USBPORT_RemoveBadRequest(IN PIO_CSQ Csq,
+                         IN PIRP Irp)
+{
+    DPRINT_QUEUE("USBPORT_RemoveBadRequest: Irp - %p\n", Irp);
+    RemoveEntryList(&Irp->Tail.Overlay.ListEntry);
+}
+
+PIRP
+NTAPI
+USBPORT_PeekNextBadRequest(IN PIO_CSQ Csq,
+                           IN PIRP Irp,
+                           IN PVOID PeekContext)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PLIST_ENTRY NextEntry;
+    PLIST_ENTRY ListHead;
+    PIRP NextIrp = NULL;
+
+    DPRINT_QUEUE("USBPORT_PeekNextBadRequest: Irp - %p, PeekContext - %p\n", Irp, PeekContext);
+
+    FdoExtension = CONTAINING_RECORD(Csq,
+                                     USBPORT_DEVICE_EXTENSION,
+                                     BadRequestIoCsq);
+
+    ListHead = &FdoExtension->BadRequestList;
+
+    if (Irp)
+    {
+        NextEntry = Irp->Tail.Overlay.ListEntry.Flink;
+    }
+    else
+    {
+        NextEntry = ListHead->Flink;
+    }
+
+    while (NextEntry != ListHead)
+    {
+        NextIrp = CONTAINING_RECORD(NextEntry,
+                                    IRP,
+                                    Tail.Overlay.ListEntry);
+
+        if (!PeekContext)
+            break;
+
+        NextEntry = NextEntry->Flink;
+    }
+
+    return NextIrp;
+}
+
+VOID
+NTAPI
+USBPORT_AcquireBadRequestLock(IN PIO_CSQ Csq,
+                              IN PKIRQL Irql)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_QUEUE("USBPORT_AcquireBadRequestLock: ... \n");
+
+    FdoExtension = CONTAINING_RECORD(Csq,
+                                     USBPORT_DEVICE_EXTENSION,
+                                     BadRequestIoCsq);
+
+    KeAcquireSpinLock(&FdoExtension->BadRequestIoCsqSpinLock, Irql);
+}
+
+VOID
+NTAPI
+USBPORT_ReleaseBadRequestLock(IN PIO_CSQ Csq,
+                              IN KIRQL Irql)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_QUEUE("USBPORT_ReleaseBadRequestLock: ... \n");
+
+    FdoExtension = CONTAINING_RECORD(Csq,
+                                     USBPORT_DEVICE_EXTENSION,
+                                     BadRequestIoCsq);
+
+    KeReleaseSpinLock(&FdoExtension->BadRequestIoCsqSpinLock, Irql);
+}
+
+VOID
+NTAPI
+USBPORT_CompleteCanceledBadRequest(IN PIO_CSQ Csq,
+                                   IN PIRP Irp)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_QUEUE("USBPORT_CompleteCanceledBadRequest: Irp - %p\n", Irp);
+
+    FdoExtension = CONTAINING_RECORD(Csq,
+                                     USBPORT_DEVICE_EXTENSION,
+                                     BadRequestIoCsq);
+
+    InterlockedDecrement(&FdoExtension->BadRequestLockCounter);
+
+    Irp->IoStatus.Status = STATUS_CANCELLED;
+    Irp->IoStatus.Information = 0;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+}
+

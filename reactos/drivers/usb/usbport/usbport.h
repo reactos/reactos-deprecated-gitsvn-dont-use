@@ -677,6 +677,43 @@ USBPORT_CompleteCanceledIdleIrp(
   IN PIO_CSQ Csq,
   IN PIRP Irp);
 
+VOID
+NTAPI
+USBPORT_InsertBadRequest(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp);
+
+VOID
+NTAPI
+USBPORT_RemoveBadRequest(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp);
+
+PIRP
+NTAPI
+USBPORT_PeekNextBadRequest(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp,
+  IN PVOID PeekContext);
+
+VOID
+NTAPI
+USBPORT_AcquireBadRequestLock(
+  IN PIO_CSQ Csq,
+  IN PKIRQL Irql);
+
+VOID
+NTAPI
+USBPORT_ReleaseBadRequestLock(
+  IN PIO_CSQ Csq,
+  IN KIRQL Irql);
+
+VOID
+NTAPI
+USBPORT_CompleteCanceledBadRequest(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID
