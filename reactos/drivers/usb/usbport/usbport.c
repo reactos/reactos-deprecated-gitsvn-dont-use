@@ -391,6 +391,55 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
 
 VOID
 NTAPI
+USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PLIST_ENTRY DoneTransferList;
+    PUSBPORT_TRANSFER Transfer;
+    PUSBPORT_ENDPOINT Endpoint;
+    ULONG TransferCount;
+    KIRQL OldIrql;
+    BOOLEAN IsHasTransfers;
+
+    DPRINT_CORE("USBPORT_FlushDoneTransfers: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    DoneTransferList = &FdoExtension->DoneTransferList;
+
+    while (TRUE)
+    {
+        KeAcquireSpinLock(&FdoExtension->DoneTransferSpinLock, &OldIrql);
+
+        if (IsListEmpty(DoneTransferList))
+            break;
+
+        Transfer = CONTAINING_RECORD(DoneTransferList->Flink,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
+
+        RemoveHeadList(DoneTransferList);
+        KeReleaseSpinLock(&FdoExtension->DoneTransferSpinLock, OldIrql);
+
+        if (Transfer)
+        {
+            Endpoint = Transfer->Endpoint;
+
+            USBPORT_DoneTransfer(Transfer);
+
+            IsHasTransfers = USBPORT_EndpointHasQueuedTransfers(FdoDevice, Endpoint, &TransferCount);
+
+            if (IsHasTransfers && !TransferCount)
+            {
+                USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 2);
+            }
+        }
+    }
+
+    KeReleaseSpinLock(&FdoExtension->DoneTransferSpinLock, OldIrql);
+}
+
+VOID
+NTAPI
 USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
                          IN PVOID DeferredContext,
                          IN PVOID SystemArgument1,
