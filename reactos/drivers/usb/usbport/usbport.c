@@ -391,6 +391,20 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
 
 VOID
 NTAPI
+USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
+                         IN PVOID DeferredContext,
+                         IN PVOID SystemArgument1,
+                         IN PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+
+    DPRINT_CORE("USBPORT_TransferFlushDpc: ... \n");
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    USBPORT_FlushDoneTransfers(FdoDevice);
+}
+
+VOID
+NTAPI
 USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -1403,44 +1417,6 @@ USBPORT_CompleteTransfer(IN PURB Urb,
     ExFreePool(Transfer);
 
     DPRINT_CORE("USBPORT_CompleteTransfer: exit\n");
-}
-
-VOID
-NTAPI
-USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
-                         IN PVOID DeferredContext,
-                         IN PVOID SystemArgument1,
-                         IN PVOID SystemArgument2)
-{
-    PDEVICE_OBJECT FdoDevice;
-    PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    PLIST_ENTRY DoneTransferList;
-    PUSBPORT_TRANSFER Transfer;
-    PURB Urb;
-
-    DPRINT_CORE("USBPORT_TransferFlushDpc: ... \n");
-
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-
-    DoneTransferList = &FdoExtension->DoneTransferList;
-
-    while (TRUE)
-    {
-        if (IsListEmpty(DoneTransferList))
-            break;
-
-        Transfer = CONTAINING_RECORD(DoneTransferList->Flink,
-                                     USBPORT_TRANSFER,
-                                     TransferLink);
-
-        RemoveHeadList(DoneTransferList);
-
-        Urb = Transfer->Urb;
-        USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
-
-        USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
-    }
 }
 
 VOID
