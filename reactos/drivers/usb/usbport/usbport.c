@@ -391,6 +391,22 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
 
 VOID
 NTAPI
+USBPORT_SignalWorkerThread(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_SignalWorkerThread ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->WorkerThreadEventSpinLock, &OldIrql);
+    KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+    KeReleaseSpinLock(&FdoExtension->WorkerThreadEventSpinLock, OldIrql);
+}
+
+VOID
+NTAPI
 USBPORT_WorkerThread(IN PVOID StartContext)
 {
     PDEVICE_OBJECT FdoDevice;
@@ -545,7 +561,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
         !(FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK))
     {
         FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
-        KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+        USBPORT_SignalWorkerThread(FdoDevice);
     }
 
     if (TimerFlags & 1)
