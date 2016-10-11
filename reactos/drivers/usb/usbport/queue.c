@@ -333,3 +333,27 @@ USBPORT_RemoveIrpFromTable(IN PUSBPORT_IRP_TABLE IrpTable,
     DPRINT1("USBPORT_RemoveIrpFromTable: return NULL. ix - %x\n", ix);
     return NULL;
 }
+
+PIRP
+NTAPI
+USBPORT_RemoveActiveTransferIrp(IN PDEVICE_OBJECT FdoDevice,
+                                IN PIRP Irp)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_CORE("USBPORT_RemoveActiveTransferIrp: Irp - %p\n", Irp);
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    return USBPORT_RemoveIrpFromTable(FdoExtension->ActiveIrpTable, Irp);
+}
+
+PIRP
+NTAPI
+USBPORT_RemovePendingTransferIrp(IN PDEVICE_OBJECT FdoDevice,
+                                 IN PIRP Irp)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_CORE("USBPORT_RemovePendingTransferIrp: Irp - %p\n", Irp);
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    return USBPORT_RemoveIrpFromTable(FdoExtension->PendingIrpTable, Irp);
+}

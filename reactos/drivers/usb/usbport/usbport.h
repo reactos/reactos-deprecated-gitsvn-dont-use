@@ -720,6 +720,18 @@ USBPORT_InsertIrpInTable(
   IN PUSBPORT_IRP_TABLE IrpTable,
   IN PIRP Irp);
 
+PIRP
+NTAPI
+USBPORT_RemovePendingTransferIrp(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
+
+PIRP
+NTAPI
+USBPORT_RemoveActiveTransferIrp(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID
