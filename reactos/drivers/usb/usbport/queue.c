@@ -874,6 +874,41 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
     DPRINT_CORE("USBPORT_FlushAllEndpoints: exit\n");
 }
 
+ULONG
+NTAPI
+USBPORT_KillEndpointActiveTransfers(IN PDEVICE_OBJECT FdoDevice,
+                                    IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PLIST_ENTRY ActiveList;
+    PUSBPORT_TRANSFER Transfer;
+    ULONG KilledTransfers = 0;
+
+    DPRINT("USBPORT_KillEndpointActiveTransfers \n");
+
+    ActiveList = Endpoint->TransferList.Flink;
+
+    if (!IsListEmpty(&Endpoint->TransferList))
+    {
+        while (ActiveList && ActiveList != &Endpoint->TransferList)
+        {
+            ++KilledTransfers;
+
+            Transfer = CONTAINING_RECORD(ActiveList,
+                                         USBPORT_TRANSFER,
+                                         TransferLink);
+
+            Transfer->Flags |= TRANSFER_FLAG_ABORTED;
+
+            ActiveList = Transfer->TransferLink.Flink;
+        }
+    }
+
+    USBPORT_FlushPendingTransfers(Endpoint);
+    USBPORT_FlushCancelList(Endpoint);
+
+    return KilledTransfers;
+}
+
 VOID
 NTAPI
 USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
