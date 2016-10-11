@@ -786,6 +786,12 @@ USBPORT_FindUrbInIrpTable(
   IN PURB Urb,
   IN PIRP Irp);
 
+VOID
+NTAPI
+USBPORT_CancelActiveTransferIrp(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID
