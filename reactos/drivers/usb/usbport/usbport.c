@@ -222,9 +222,12 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 {
     NTSTATUS Status;
 
-    DPRINT("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %x\n",
-           Urb,
-           USBDStatus);
+    if (USBD_ERROR(USBDStatus))
+    {
+        DPRINT("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %x\n",
+               Urb,
+               USBDStatus);
+    }
 
     if (Urb)
         Urb->UrbHeader.Status = USBDStatus;
