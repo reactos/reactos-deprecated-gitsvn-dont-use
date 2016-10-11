@@ -281,6 +281,39 @@ USBPORT_Wait(IN PVOID Context,
 
 VOID
 NTAPI
+USBPORT_MiniportInterrupts(IN PDEVICE_OBJECT FdoDevice,
+                           IN BOOLEAN IsEnable)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    BOOLEAN IsLock;
+    KIRQL OldIrql;
+
+    DPRINT_INT("USBPORT_MiniportInterrupts: IsEnable - %p\n", IsEnable);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    IsLock = ~(UCHAR)(FdoExtension->MiniPortInterface->Packet.MiniPortFlags >> 6) & 1;
+
+    if (IsLock)
+        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+    if (IsEnable)
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_INTERRUPT_ENABLED;
+        FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
+    }
+    else
+    {
+        FdoExtension->MiniPortInterface->Packet.DisableInterrupts(FdoExtension->MiniPortExt);
+        FdoExtension->Flags &= ~USBPORT_FLAG_INTERRUPT_ENABLED;
+    }
+
+    if (IsLock)
+        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+}
+
+VOID
+NTAPI
 USBPORT_SoftInterruptDpc(IN PRKDPC Dpc,
                          IN PVOID DeferredContext,
                          IN PVOID SystemArgument1,
