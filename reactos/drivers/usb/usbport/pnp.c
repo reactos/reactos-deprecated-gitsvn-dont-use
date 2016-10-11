@@ -17,43 +17,6 @@ USBPORT_FdoStartCompletion(IN PDEVICE_OBJECT DeviceObject,
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
-BOOLEAN
-NTAPI
-USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
-                         IN PVOID ServiceContext)
-{
-    PDEVICE_OBJECT FdoDevice;
-    PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    BOOLEAN Result = 0;
-
-    FdoDevice = (PDEVICE_OBJECT)ServiceContext;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-
-    DPRINT_INT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
-           FdoExtension->Flags);
-
-    if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED)
-    {
-        if (FdoExtension->MiniPortFlags & 1)
-        {
-            Result = FdoExtension->MiniPortInterface->Packet.InterruptService(FdoExtension->MiniPortExt);
-
-            if (Result)
-            {
-                KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, NULL);
-            }
-        }
-    }
-    else
-    {
-        Result = 0;
-    }
-
-    DPRINT_INT("USBPORT_InterruptService: return - %x\n", Result);
-
-    return Result;
-}
-
 VOID
 NTAPI
 USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice)

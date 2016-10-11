@@ -456,6 +456,12 @@ NTAPI
 USBPORT_FlushMapTransfers(
   IN PDEVICE_OBJECT FdoDevice);
 
+BOOLEAN
+NTAPI
+USBPORT_InterruptService(
+  IN PKINTERRUPT Interrupt,
+  IN PVOID ServiceContext);
+
 VOID
 NTAPI
 USBPORT_SignalWorkerThread(
