@@ -389,6 +389,52 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
     return 0;
 }
 
+BOOLEAN
+NTAPI
+USBPORT_EndpointHasQueuedTransfers(IN PDEVICE_OBJECT FdoDevice,
+                                   IN PUSBPORT_ENDPOINT Endpoint,
+                                   IN PULONG TransferCount)
+{
+    PLIST_ENTRY Entry;
+    PUSBPORT_TRANSFER Transfer;
+    BOOLEAN Result = FALSE;
+
+    DPRINT_CORE("USBPORT_EndpointHasQueuedTransfers: TransferCount - %p\n", TransferCount);
+
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+    if (!IsListEmpty(&Endpoint->PendingTransferList))
+        Result = TRUE;
+
+    if (!IsListEmpty(&Endpoint->TransferList))
+    {
+        Result = TRUE;
+
+        if (TransferCount)
+        {
+            *TransferCount = 0;
+
+            for (Entry = Endpoint->TransferList.Flink;
+                 Entry && Entry != &Endpoint->TransferList;
+                 Entry = Transfer->TransferLink.Flink)
+            {
+                Transfer = CONTAINING_RECORD(Entry,
+                                             USBPORT_TRANSFER,
+                                             TransferLink);
+
+                if (Transfer->Flags & TRANSFER_FLAG_SUBMITED)
+                {
+                    ++*TransferCount;
+                }
+            }
+        }
+    }
+
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+    return Result;
+}
+
 VOID
 NTAPI
 USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
