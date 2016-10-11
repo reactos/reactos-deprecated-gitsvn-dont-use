@@ -1123,7 +1123,7 @@ USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     if (ConfigHandle)
     {
         iHandleList = &ConfigHandle->InterfaceHandleList;
-    
+
         while (!IsListEmpty(iHandleList))
         {
             iHandle = CONTAINING_RECORD(iHandleList->Flink,
@@ -1131,15 +1131,15 @@ USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                                         InterfaceLink);
 
             DPRINT("USBPORT_CloseConfiguration: iHandle - %p\n", iHandle);
-      
+
             RemoveHeadList(iHandleList);
-      
+
             NumEndpoints = iHandle->InterfaceDescriptor.bNumEndpoints;
-      
+
             if (NumEndpoints > 0)
             {
                 PipeHandle = &iHandle->PipeHandle[0];
-        
+
                 do
                 {
                     USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
@@ -1148,10 +1148,10 @@ USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                 }
                 while (NumEndpoints > 0);
             }
-      
+
             ExFreePool(iHandle);
         }
-    
+
         ExFreePool(ConfigHandle);
         DeviceHandle->ConfigHandle = NULL;
     }
