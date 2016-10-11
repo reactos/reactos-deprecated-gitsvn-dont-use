@@ -478,6 +478,8 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
     Transfer = CONTAINING_RECORD(Endpoint->TransferList.Flink,
                                  USBPORT_TRANSFER,
                                  TransferLink);
@@ -487,8 +489,28 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
         !Transfer)
     {
         if (Endpoint->StateLast == USBPORT_ENDPOINT_CLOSED)
-            return;
+        {
+            ExInterlockedInsertTailList(&FdoExtension->EndpointClosedList,
+                                        &Endpoint->CloseLink,
+                                        &FdoExtension->EndpointClosedSpinLock);
+        }
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        USBPORT_FlushCancelList(Endpoint);
+        return;
     }
+
+    if (Transfer->Flags & (TRANSFER_FLAG_ABORTED | TRANSFER_FLAG_CANCELED))
+    {
+        RemoveEntryList(&Transfer->TransferLink);
+        InsertTailList(&Endpoint->CancelList, &Transfer->TransferLink);
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        USBPORT_FlushCancelList(Endpoint);
+        return;
+    }
+
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
     if (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_CONTROL)
         Result = USBPORT_RootHubEndpoint0(Transfer);
@@ -497,16 +519,15 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 
     if (Result == 0)
     {
-        Transfer->USBDStatus = USBD_STATUS_SUCCESS;
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+        USBPORT_QueueDoneTransfer(Transfer, USBD_STATUS_SUCCESS);
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
-        RemoveEntryList(&Transfer->TransferLink);
-
-        ExInterlockedInsertTailList(&FdoExtension->DoneTransferList,
-                                    &Transfer->TransferLink,
-                                    &FdoExtension->DoneTransferSpinLock);
-
-        KeInsertQueueDpc(&FdoExtension->TransferFlushDpc, NULL, NULL);
+        USBPORT_FlushCancelList(Endpoint);
+        return;
     }
+
+    USBPORT_FlushCancelList(Endpoint);
 }
 
 NTSTATUS
