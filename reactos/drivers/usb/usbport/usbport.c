@@ -541,6 +541,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
     LARGE_INTEGER DueTime = {{0, 0}};
     ULONG TimerFlags;
     ULONG TimeIncrement;
+    PTIMER_WORK_QUEUE_ITEM IdleQueueItem;
 
     DPRINT_TIMER("USBPORT_TimerDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
            Dpc,
@@ -562,6 +563,33 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
     {
         FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
         USBPORT_SignalWorkerThread(FdoDevice);
+    }
+
+    USBPORT_IsrDpcHandler(FdoDevice, FALSE);
+
+    if (FdoExtension->IdleLockCounter > -1 && 
+        !(TimerFlags & USBPORT_TMFLAG_IDLE_QUEUEITEM_ON))
+    {
+        IdleQueueItem = (PTIMER_WORK_QUEUE_ITEM)ExAllocatePoolWithTag(NonPagedPool,
+                                                                      sizeof(TIMER_WORK_QUEUE_ITEM),
+                                                                      USB_PORT_TAG);
+
+        DPRINT1("USBPORT_DM_TimerDpc: IdleLockCounter - %x, IdleQueueItem - %p\n",
+                FdoExtension->IdleLockCounter,
+                IdleQueueItem);
+
+        if (IdleQueueItem)
+        {
+            RtlZeroMemory(IdleQueueItem, sizeof(TIMER_WORK_QUEUE_ITEM));
+
+            IdleQueueItem->WqItem.WorkerRoutine = (PWORKER_THREAD_ROUTINE)USBPORT_DoIdleNotificationCallback;
+            IdleQueueItem->WqItem.Parameter = (PVOID)IdleQueueItem;
+            IdleQueueItem->FdoDevice = FdoDevice;
+
+            FdoExtension->TimerFlags |= USBPORT_TMFLAG_IDLE_QUEUEITEM_ON;
+
+            ExQueueWorkItem((PWORK_QUEUE_ITEM)IdleQueueItem, 0);
+        }
     }
 
     if (TimerFlags & 1)
