@@ -686,6 +686,15 @@ Next:
 
 VOID
 NTAPI
+USBPORT_CancelPendingTransferIrp(IN PDEVICE_OBJECT DeviceObject,
+                                 IN PIRP Irp)
+{
+    DPRINT_CORE("USBPORT_CancelPendingTransferIrp: UNIMPLEMENTED. FIXME.\n");
+    IoReleaseCancelSpinLock(Irp->CancelIrql);
+}
+
+VOID
+NTAPI
 USBPORT_QueuePendingUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
                                   IN PURB Urb)
 {
@@ -746,8 +755,8 @@ USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
     DPRINT_CORE("USBPORT_QueuePendingTransferIrp: Irp - %p\n", Irp);
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
-
     Urb = (PURB)(IoStack->Parameters.Others.Argument1);
+
     Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
     Endpoint = Transfer->Endpoint;
 
