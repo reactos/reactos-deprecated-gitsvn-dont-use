@@ -214,6 +214,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG MiniPortStatus;
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
     ULONG ResultLength;
+    KIRQL OldIrql;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -289,8 +290,9 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension->BusBandwidth = FdoExtension->MiniPortInterface->Packet.MiniPortBusBandwidth;
 
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
-    KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
     KeInitializeSpinLock(&FdoExtension->EpStateChangeSpinLock);
+    KeInitializeSpinLock(&FdoExtension->EndpointClosedSpinLock);
+    KeInitializeSpinLock(&FdoExtension->DoneTransferSpinLock);
     KeInitializeSpinLock(&FdoExtension->DeviceHandleSpinLock);
     KeInitializeSpinLock(&FdoExtension->IdleIoCsqSpinLock);
     KeInitializeSpinLock(&FdoExtension->BadRequestIoCsqSpinLock);
@@ -329,7 +331,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension->IsrDpcHandlerCounter = -1;
     FdoExtension->IdleLockCounter = -1;
     FdoExtension->BadRequestLockCounter = -1;
- 
+
     FdoExtension->UsbAddressBitMap[0] = 1;
     FdoExtension->UsbAddressBitMap[1] = 0;
     FdoExtension->UsbAddressBitMap[2] = 0;
@@ -401,8 +403,10 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         FdoExtension->MiniPortCommonBuffer = 0;
     }
 
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
     MiniPortStatus = FdoExtension->MiniPortInterface->Packet.StartController(FdoExtension->MiniPortExt,
                                                                              UsbPortResources);
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
     if (MiniPortStatus)
     {
@@ -414,9 +418,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     }
     else
     {
-        FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
-        FdoExtension->MiniPortFlags |= 1;
-        FdoExtension->Flags |= USBPORT_FLAG_INTERRUPT_ENABLED;
+        USBPORT_MiniportInterrupts(FdoDevice, TRUE);
+        FdoExtension->MiniPortFlags |= USBPORT_MPFLAG_INTERRUPTS_ENABLED;
     }
 
     FdoExtension->TimerValue = 500;
