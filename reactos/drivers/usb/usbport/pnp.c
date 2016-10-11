@@ -469,6 +469,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     KeInitializeSpinLock(&FdoExtension->EpStateChangeSpinLock);
     KeInitializeSpinLock(&FdoExtension->DeviceHandleSpinLock);
     KeInitializeSpinLock(&FdoExtension->IdleIoCsqSpinLock);
+    KeInitializeSpinLock(&FdoExtension->BadRequestIoCsqSpinLock);
 
     KeInitializeDpc(&FdoExtension->IsrDpc, USBPORT_IsrDpc, FdoDevice);
 
@@ -484,10 +485,19 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     USBPORT_ReleaseIdleLock,
                     USBPORT_CompleteCanceledIdleIrp);
 
+    IoCsqInitialize(&FdoExtension->BadRequestIoCsq,
+                    USBPORT_InsertBadRequest,
+                    USBPORT_RemoveBadRequest,
+                    USBPORT_PeekNextBadRequest,
+                    USBPORT_AcquireBadRequestLock,
+                    USBPORT_ReleaseBadRequestLock,
+                    USBPORT_CompleteCanceledBadRequest);
+
     FdoExtension->IsrDpcCounter = -1;
     FdoExtension->IsrDpcHandlerCounter = -1;
     FdoExtension->IdleLockCounter = -1;
-
+    FdoExtension->BadRequestLockCounter = -1;
+ 
     FdoExtension->UsbAddressBitMap[0] = 1;
     FdoExtension->UsbAddressBitMap[1] = 0;
     FdoExtension->UsbAddressBitMap[2] = 0;

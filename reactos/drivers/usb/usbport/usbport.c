@@ -795,6 +795,8 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     InitializeListHead(&FdoExtension->EpStateChangeList);
     InitializeListHead(&FdoExtension->MapTransferList);
     InitializeListHead(&FdoExtension->DeviceHandleList);
+    InitializeListHead(&FdoExtension->IdleIrpList);
+    InitializeListHead(&FdoExtension->BadRequestList);
 
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
