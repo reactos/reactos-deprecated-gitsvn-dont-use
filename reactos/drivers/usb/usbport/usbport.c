@@ -426,7 +426,7 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 
         KeResetEvent(&FdoExtension->WorkerThreadEvent);
 
-        if (FdoExtension->MiniPortInterruptEnable & 1)
+        if (FdoExtension->MiniPortFlags & 1)
         {
             if (FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK)
             {

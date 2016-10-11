@@ -182,6 +182,11 @@ typedef struct _USBPORT_TRANSFER {
   USBPORT_SCATTER_GATHER_LIST SgList; // Non IsoTransfer
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
+typedef struct _USBPORT_IRP_TABLE {
+  struct _USBPORT_IRP_TABLE * LinkNextTable; 
+  PIRP irp[0X200];
+} USBPORT_IRP_TABLE, *PUSBPORT_IRP_TABLE;
+
 typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   PDEVICE_OBJECT SelfDevice;
   PDEVICE_OBJECT LowerPdoDevice; // PhysicalDeviceObject
@@ -189,16 +194,22 @@ typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   ULONG IsPDO;
   UNICODE_STRING SymbolicLinkName;
   BOOL IsInterfaceEnabled;
+  DEVICE_POWER_STATE DevicePowerState;
 } USBPORT_COMMON_DEVICE_EXTENSION, *PUSBPORT_COMMON_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_DEVICE_EXTENSION {
   USBPORT_COMMON_DEVICE_EXTENSION CommonExtension;
   ULONG Flags;
   PDEVICE_OBJECT RootHubPdo; // RootHubDeviceObject
+  ULONG FdoNameNumber;
+  /* Miniport */
+  ULONG MiniPortFlags;
   PVOID MiniPortExt;
   PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
-  ULONG FdoNameNumber;
   USBPORT_RESOURCES UsbPortResources;
+  PUSBPORT_COMMON_BUFFER_HEADER MiniPortCommonBuffer;
+  KSPIN_LOCK MiniportSpinLock;
+  /* Bus Interface */
   BUS_INTERFACE_STANDARD BusInterface;
   USHORT VendorID;
   USHORT DeviceID;
@@ -206,42 +217,71 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   UCHAR ProgIf;
   UCHAR SubClass;
   UCHAR BaseClass;
+  /* Dma Adapter */
   PDMA_ADAPTER DmaAdapter;
   ULONG NumberMapRegs;
+  /* Interrupt */
   PKINTERRUPT InterruptObject;
   KDPC IsrDpc;
   LONG IsrDpcCounter;
   LONG IsrDpcHandlerCounter;
   KSPIN_LOCK MiniportInterruptsSpinLock;
-  ULONG MiniPortInterruptEnable;
-  PUSBPORT_COMMON_BUFFER_HEADER MiniPortCommonBuffer;
+  KTIMER TimerSoftInterrupt;
+  KDPC SoftInterruptDpc;
+  /* Endpoints */
+  ULONG PeriodicEndpoints;
   LIST_ENTRY EndpointList;
   KSPIN_LOCK EndpointListSpinLock;
+  LIST_ENTRY EpStateChangeList;
+  KSPIN_LOCK EpStateChangeSpinLock;
+  LIST_ENTRY EndpointClosedList;
+  KSPIN_LOCK EndpointClosedSpinLock;
+  LIST_ENTRY WorkerList;
+  /* Transfers */
+  LIST_ENTRY MapTransferList;
   LIST_ENTRY DoneTransferList;
   KSPIN_LOCK DoneTransferSpinLock;
   KDPC TransferFlushDpc;
+  KSPIN_LOCK FlushTransferSpinLock;
+  /* Timer */
   ULONG TimerValue; // Timer period (500) msec. default
   ULONG TimerFlags;
   KTIMER TimerObject;
   KDPC TimerDpc;
+  KSPIN_LOCK TimerFlagsSpinLock;
+  /* Worker Thread */
   PRKTHREAD WorkerThread;
   HANDLE WorkerThreadHandle;
   KEVENT WorkerThreadEvent;
-  LIST_ENTRY WorkerList;
-  LIST_ENTRY EpStateChangeList;
-  KSPIN_LOCK EpStateChangeSpinLock;
-  LIST_ENTRY MapTransferList;
+  KSPIN_LOCK WorkerThreadEventSpinLock;
+  /* Usb Devices */
   ULONG UsbAddressBitMap[4];
-  KTIMER TimerSoftInterrupt;
-  KDPC SoftInterruptDpc;
   LIST_ENTRY DeviceHandleList;
   KSPIN_LOCK DeviceHandleSpinLock;
+  /* Device Capabilities */
   DEVICE_CAPABILITIES Capabilities;
   ULONG BusNumber;
   ULONG PciDeviceNumber;
   ULONG PciFunctionNumber;
   ULONG BusBandwidth;
-  ULONG Padded[47]; // Miniport extension should be aligned on 0x100
+  /* Idle */
+  LARGE_INTEGER IdleTime;
+  IO_CSQ IdleIoCsq;
+  KSPIN_LOCK IdleIoCsqSpinLock;
+  LIST_ENTRY IdleIrpList;
+  LONG IdleLockCounter;
+  /* Bad Requests */
+  IO_CSQ BadRequestIoCsq;
+  KSPIN_LOCK BadRequestIoCsqSpinLock;
+  LIST_ENTRY BadRequestList;
+  LONG BadRequestLockCounter;
+  /* Irp Queues */
+  PUSBPORT_IRP_TABLE PendingIrpTable;
+  PUSBPORT_IRP_TABLE ActiveIrpTable;
+  /* Power */
+  LONG SetPowerLockCounter;
+  KDPC WorkerRequestDpc;
+  ULONG Padded[1]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x300);
