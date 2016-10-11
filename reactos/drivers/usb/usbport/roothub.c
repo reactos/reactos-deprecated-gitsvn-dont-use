@@ -34,6 +34,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_REGISTRATION_PACKET Packet;
     USHORT Port;
     ULONG Result = 2;
+    KIRQL OldIrql;
 
     DPRINT("USBPORT_RootHubClassCommand: USB command - %x, *BufferLength - %x\n",
            SetupPacket->bRequest,
@@ -56,15 +57,19 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 
             if (SetupPacket->bmRequestType._BM.Recipient == BMREQUEST_TO_OTHER)
             {
+                KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
                 Result = FdoExtension->MiniPortInterface->Packet.RH_GetPortStatus(FdoExtension->MiniPortExt,
                                                                                   SetupPacket->wIndex.W,
                                                                                   Buffer);
             }
             else
             {
+                KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
                 Result = FdoExtension->MiniPortInterface->Packet.RH_GetHubStatus(FdoExtension->MiniPortExt,
                                                                                  Buffer);
             }
+
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
             if (Result)
                 return 1;
@@ -210,14 +215,14 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                 SIZE_T DescriptorLength;
 
                 DescriptorLength = PdoExtension->RootHubDescriptors->Descriptor.bDescriptorLength;
-  
+
                 if (*BufferLength < DescriptorLength)
                     DescriptorLength = *BufferLength;
-  
+
                 RtlCopyMemory(Buffer,
                               &PdoExtension->RootHubDescriptors->Descriptor,
                               DescriptorLength);
-    
+
                 *BufferLength = DescriptorLength;
                 Result = 0;
             }
