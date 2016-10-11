@@ -34,7 +34,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
 
     if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED)
     {
-        if (FdoExtension->MiniPortInterruptEnable & 1)
+        if (FdoExtension->MiniPortFlags & 1)
         {
             Result = FdoExtension->MiniPortInterface->Packet.InterruptService(FdoExtension->MiniPortExt);
 
@@ -543,7 +543,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     else
     {
         FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
-        FdoExtension->MiniPortInterruptEnable |= 1;
+        FdoExtension->MiniPortFlags |= 1;
         FdoExtension->Flags |= USBPORT_FLAG_INTERRUPT_ENABLED;
     }
 
