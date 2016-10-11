@@ -124,40 +124,6 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice)
     InterlockedDecrement(&FdoExtension->IsrDpcHandlerCounter);
 }
 
-VOID
-NTAPI
-USBPORT_IsrDpc(IN PRKDPC Dpc,
-               IN PVOID DeferredContext,
-               IN PVOID SystemArgument1,
-               IN PVOID SystemArgument2)
-{
-    PDEVICE_OBJECT FdoDevice;
-    PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    BOOLEAN InterruptEnable;
-
-    DPRINT_INT("USBPORT_IsrDpc: ... \n");
-
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-
-    if (SystemArgument2)
-    {
-        InterlockedDecrement(&FdoExtension->IsrDpcCounter);
-    }
-
-    KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
-    InterruptEnable = (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED) == USBPORT_FLAG_INTERRUPT_ENABLED;
-
-    FdoExtension->MiniPortInterface->Packet.InterruptDpc(FdoExtension->MiniPortExt,
-                                                         InterruptEnable);
-
-    KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
-
-    USBPORT_IsrDpcHandler(FdoDevice);
-
-    DPRINT_INT("USBPORT_IsrDpc: exit\n");
-}
-
 NTSTATUS
 NTAPI
 USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
