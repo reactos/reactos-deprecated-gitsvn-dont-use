@@ -7,13 +7,15 @@
 #define NDEBUG_USBPORT_INTERRUPT
 #include "usbdebug.h"
 
+IO_COMPLETION_ROUTINE USBPORT_FdoStartCompletion;
+
 NTSTATUS
 NTAPI
 USBPORT_FdoStartCompletion(IN PDEVICE_OBJECT DeviceObject,
                            IN PIRP Irp,
-                           PRKEVENT Event)
+                           IN PVOID Context)
 {
-    KeSetEvent(Event, EVENT_INCREMENT, FALSE);
+    KeSetEvent((PKEVENT)Context, EVENT_INCREMENT, FALSE);
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
@@ -672,11 +674,11 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             IoCopyCurrentIrpStackLocationToNext(Irp);
 
             IoSetCompletionRoutine(Irp,
-                                   (PIO_COMPLETION_ROUTINE)USBPORT_FdoStartCompletion,
+                                   USBPORT_FdoStartCompletion,
                                    &Event,
-                                   1,
-                                   1,
-                                   1);
+                                   TRUE,
+                                   TRUE,
+                                   TRUE);
 
             Status = IoCallDriver(FdoExtension->CommonExtension.LowerDevice,
                                   Irp);
