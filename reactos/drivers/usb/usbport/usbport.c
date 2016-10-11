@@ -389,6 +389,100 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
     return 0;
 }
 
+VOID
+NTAPI
+USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
+                                  IN PUSBPORT_ENDPOINT Endpoint,
+                                  IN ULONG Type)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PLIST_ENTRY                Entry;
+    PLIST_ENTRY                WorkerLink;
+    PUSBPORT_ENDPOINT          endpoint;
+    KIRQL                      OldIrql;
+    BOOLEAN                    IsAddEntry = FALSE;
+
+    DPRINT_CORE("USBPORT_InvalidateEndpointHandler: Endpoint - %p, Type - %x\n", Endpoint, Type);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (Endpoint)
+    {
+        WorkerLink = &Endpoint->WorkerLink;
+        KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+
+        if ((!WorkerLink->Flink || !WorkerLink->Blink) &&
+            !(Endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
+            Endpoint->StateLast != 5)
+        {
+            InsertTailList(&FdoExtension->WorkerList, WorkerLink);
+            IsAddEntry = TRUE;
+        }
+
+        KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+
+        if (Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0)
+            Type = 1;
+    }
+    else
+    {
+        KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+
+        Entry = &FdoExtension->EndpointList;
+
+        if (Entry != &FdoExtension->EndpointList)
+        {
+            while (Entry && Entry != &FdoExtension->EndpointList)
+            {
+                endpoint = CONTAINING_RECORD(Entry,
+                                             USBPORT_ENDPOINT,
+                                             EndpointLink);
+
+                if (!endpoint->WorkerLink.Flink || !endpoint->WorkerLink.Blink)
+                {
+                    if (!(endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
+                        !(endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
+                        endpoint->StateLast != 5)
+                    {
+                        InsertTailList(&FdoExtension->WorkerList, &endpoint->WorkerLink);
+                        IsAddEntry = TRUE;
+                    }
+                }
+
+                Entry = endpoint->EndpointLink.Flink;
+            }
+        }
+
+        KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+    }
+
+    if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND)
+    {
+        Type = 1;
+    }
+    else if (IsAddEntry == FALSE && Type == 3)
+    {
+        Type = 0;
+    }
+
+    switch (Type)
+    {
+        case 1:
+            USBPORT_SignalWorkerThread(FdoDevice);
+            break;
+
+        case 2:
+            KeInsertQueueDpc(&FdoExtension->WorkerRequestDpc, NULL, NULL);
+            break;
+
+        case 3:
+            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+            FdoExtension->MiniPortInterface->Packet.InterruptNextSOF(FdoExtension->MiniPortExt);
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+            break;
+    }
+}
+
 BOOLEAN
 NTAPI
 USBPORT_EndpointHasQueuedTransfers(IN PDEVICE_OBJECT FdoDevice,
