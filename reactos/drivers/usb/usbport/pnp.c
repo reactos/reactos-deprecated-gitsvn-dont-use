@@ -470,11 +470,19 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     KeInitializeSpinLock(&FdoExtension->DeviceHandleSpinLock);
     KeInitializeSpinLock(&FdoExtension->IdleIoCsqSpinLock);
     KeInitializeSpinLock(&FdoExtension->BadRequestIoCsqSpinLock);
+    KeInitializeSpinLock(&FdoExtension->FlushTransferSpinLock);
+    KeInitializeSpinLock(&FdoExtension->WorkerThreadEventSpinLock);
+    KeInitializeSpinLock(&FdoExtension->MiniportSpinLock);
+    KeInitializeSpinLock(&FdoExtension->TimerFlagsSpinLock);
 
     KeInitializeDpc(&FdoExtension->IsrDpc, USBPORT_IsrDpc, FdoDevice);
 
     KeInitializeDpc(&FdoExtension->TransferFlushDpc,
                     USBPORT_TransferFlushDpc,
+                    FdoDevice);
+
+    KeInitializeDpc(&FdoExtension->WorkerRequestDpc,
+                    USBPORT_WorkerRequestDpc,
                     FdoDevice);
 
     IoCsqInitialize(&FdoExtension->IdleIoCsq,

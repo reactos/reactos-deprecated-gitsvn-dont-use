@@ -146,19 +146,35 @@ typedef struct _USBPORT_DEVICE_HANDLE {
 typedef struct _USBPORT_ENDPOINT {
   ULONG Flags;
   PDEVICE_OBJECT FdoDevice;
+  PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
   PUSBPORT_DEVICE_HANDLE DeviceHandle;
   USBPORT_ENDPOINT_PROPERTIES EndpointProperties;
   ULONG EndpointWorker;
-  LIST_ENTRY WorkerLink;
+  ULONG FrameNumber;
+  /* Locks */
+  KSPIN_LOCK EndpointSpinLock;
+  KIRQL EndpointOldIrql;
+  KIRQL EndpointStateOldIrql;
+  UCHAR Padded[2];
+  LONG LockCounter;
+  LONG FlushPendingLock;
+  /* State */
   ULONG StateLast;
   ULONG StateNext;
   LIST_ENTRY StateChangeLink;
-  LIST_ENTRY EndpointLink;
+  KSPIN_LOCK StateChangeSpinLock;
+  /* Transfer lists */
   LIST_ENTRY PendingTransferList;
   LIST_ENTRY TransferList;
-  LONG LockCounter;
-  PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+  LIST_ENTRY CancelList;
+  LIST_ENTRY AbortList;
+  /* Links */
+  LIST_ENTRY EndpointLink;
+  LIST_ENTRY WorkerLink;
+  LIST_ENTRY CloseLink;
   LIST_ENTRY DispatchLink;
+  LIST_ENTRY FlushLink;
+  LIST_ENTRY FlushControllerLink;
 } USBPORT_ENDPOINT, *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_TRANSFER {

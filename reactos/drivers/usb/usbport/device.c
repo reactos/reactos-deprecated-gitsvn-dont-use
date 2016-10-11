@@ -211,8 +211,13 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     Endpoint->DeviceHandle = (PUSBPORT_DEVICE_HANDLE)DeviceHandle;
     Endpoint->LockCounter = -1;
 
+    KeInitializeSpinLock(&Endpoint->EndpointSpinLock);
+    KeInitializeSpinLock(&Endpoint->StateChangeSpinLock);
+
     InitializeListHead(&Endpoint->PendingTransferList);
     InitializeListHead(&Endpoint->TransferList);
+    InitializeListHead(&Endpoint->CancelList);
+    InitializeListHead(&Endpoint->AbortList);
 
     EndpointProperties = &Endpoint->EndpointProperties;
     EndpointDescriptor = &PipeHandle->EndpointDescriptor;
