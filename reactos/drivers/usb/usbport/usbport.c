@@ -711,6 +711,7 @@ USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
     KeReleaseSpinLock(&FdoExtension->DoneTransferSpinLock, OldIrql);
 }
 
+
 VOID
 NTAPI
 USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
@@ -1791,6 +1792,7 @@ USBPORT_DmaEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
     ULONG CurrentState;
     PLIST_ENTRY List;
     ULONG Result;
+    KIRQL OldIrql;
 
     DPRINT_CORE("USBPORT_DmaEndpointWorker ... \n");
 
@@ -1815,11 +1817,14 @@ USBPORT_DmaEndpointWorker(PUSBPORT_ENDPOINT Endpoint)
 
                 if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED))
                 {
+                    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
                     Result = FdoExtension->MiniPortInterface->Packet.SubmitTransfer(FdoExtension->MiniPortExt,
                                                                                     (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
                                                                                     &Transfer->TransferParameters,
                                                                                     Transfer->MiniportTransfer,
                                                                                     &Transfer->SgList);
+                    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
                     if (Result)
                         goto Exit;
