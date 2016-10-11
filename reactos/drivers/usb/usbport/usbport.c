@@ -783,6 +783,8 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     FdoExtension->CommonExtension.LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
                                                                             PhysicalDeviceObject);
 
+    FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD3;
+
     FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension +
                                         sizeof(USBPORT_DEVICE_EXTENSION));
 
@@ -797,6 +799,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     InitializeListHead(&FdoExtension->DeviceHandleList);
     InitializeListHead(&FdoExtension->IdleIrpList);
     InitializeListHead(&FdoExtension->BadRequestList);
+    InitializeListHead(&FdoExtension->EndpointClosedList);
 
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
