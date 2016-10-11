@@ -542,6 +542,44 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
 
 VOID
 NTAPI
+USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
+{
+    PIO_STACK_LOCATION IoStack;
+    PURB Urb;
+    PUSBPORT_TRANSFER Transfer;
+    PUSBPORT_ENDPOINT Endpoint;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT_CORE("USBPORT_QueuePendingTransferIrp: Irp - %p\n", Irp);
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    Urb = (PURB)(IoStack->Parameters.Others.Argument1);
+    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Endpoint = Transfer->Endpoint;
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Irp->IoStatus.Status = STATUS_PENDING;
+    IoMarkIrpPending(Irp);
+
+    IoSetCancelRoutine(Irp, USBPORT_CancelPendingTransferIrp);
+
+    if (Irp->Cancel && !IoSetCancelRoutine(Irp, NULL))
+    {
+        USBPORT_CompleteTransfer(Urb, USBD_STATUS_CANCELED);
+    }
+    else
+    {
+        USBPORT_InsertIrpInTable(FdoExtension->PendingIrpTable, Irp);
+        USBPORT_QueuePendingUrbToEndpoint(Endpoint, Urb);
+    }
+}
+
+VOID
+NTAPI
 USBPORT_QueueTransferUrb(IN PURB Urb)
 {
     PUSBPORT_TRANSFER Transfer;
