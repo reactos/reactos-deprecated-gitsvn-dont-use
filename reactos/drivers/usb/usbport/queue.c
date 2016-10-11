@@ -444,3 +444,52 @@ USBPORT_FindActiveTransferIrp(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     return USBPORT_FindIrpInTable(FdoExtension->ActiveIrpTable, Irp);
 }
+
+VOID
+NTAPI
+USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
+                                IN PIRP Irp)
+{
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PIO_STACK_LOCATION IoStack;
+    PURB Urb;
+    PUSBPORT_TRANSFER Transfer;
+    PUSBPORT_ENDPOINT Endpoint;
+    PIRP irp;
+    KIRQL OldIrql;
+
+    DPRINT_CORE("USBPORT_CancelTransferIrp: Irp - %p\n", Irp);
+
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    IoReleaseCancelSpinLock(Irp->CancelIrql);
+
+    KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
+
+    irp = USBPORT_FindActiveTransferIrp(FdoDevice, Irp);
+
+    if (irp)
+    {
+        IoStack = IoGetCurrentIrpStackLocation(irp);
+        Urb = (PURB)(IoStack->Parameters.Others.Argument1);
+        Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+        Endpoint = Transfer->Endpoint;
+
+        DPRINT_CORE("USBPORT_CancelTransferIrp: irp - %p, Urb - %p, Transfer - %p\n", irp, Urb, Transfer);
+
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+        Transfer->Flags |= TRANSFER_FLAG_CANCELED;
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+        KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
+
+        USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+        return;
+    }
+
+    KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
+}
