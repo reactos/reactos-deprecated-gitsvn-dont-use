@@ -277,6 +277,57 @@ MiniportCloseEndpoint(IN PDEVICE_OBJECT FdoDevice,
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 }
 
+BOOLEAN
+NTAPI
+USBPORT_DeleteEndpoint(IN PDEVICE_OBJECT FdoDevice,
+                       IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    BOOLEAN Result;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_DeleteEndpoint: Endpoint - %p\n", Endpoint);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if ((Endpoint->WorkerLink.Flink && Endpoint->WorkerLink.Blink) ||
+        Endpoint->LockCounter != -1)
+    {
+        KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+
+        ExInterlockedInsertTailList(&FdoExtension->EndpointClosedList,
+                                    &Endpoint->CloseLink,
+                                    &FdoExtension->EndpointClosedSpinLock);
+
+        KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+
+        Result = FALSE;
+    }
+    else
+    {
+        KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+
+        RemoveEntryList(&Endpoint->EndpointLink);
+        Endpoint->EndpointLink.Flink = NULL;
+        Endpoint->EndpointLink.Blink = NULL;
+
+        KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+
+        MiniportCloseEndpoint(FdoDevice, Endpoint);
+
+        if (Endpoint->HeaderBuffer)
+        {
+            USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
+        }
+
+        ExFreePool(Endpoint);
+
+        Result = TRUE;
+    }
+
+    return Result;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
