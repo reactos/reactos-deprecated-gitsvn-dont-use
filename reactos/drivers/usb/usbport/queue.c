@@ -268,7 +268,7 @@ Start:
 
             if (ix > 0)
             {
-                DPRINT1("USBPORT_InsertIrpInTable: ix - %x\n", ix);
+                DPRINT_CORE("USBPORT_InsertIrpInTable: ix - %x\n", ix);
             }
 
             return;
@@ -291,4 +291,45 @@ Start:
     IrpTable = IrpTable->LinkNextTable;
 
     goto Start;
+}
+
+PIRP
+NTAPI
+USBPORT_RemoveIrpFromTable(IN PUSBPORT_IRP_TABLE IrpTable,
+                           IN PIRP Irp)
+{
+    ULONG ix;
+
+    DPRINT_CORE("USBPORT_RemoveIrpFromTable: IrpTable - %p, Irp - %p\n", IrpTable, Irp);
+
+    ASSERT(IrpTable != NULL);
+
+    while (TRUE)
+    {
+        ix = 0;
+
+        for (ix = 0; ix < 0x200; ix++)
+        {
+            if (IrpTable->irp[ix] == Irp)
+            {
+                IrpTable->irp[ix] = NULL;
+
+                if (ix > 0)
+                {
+                    DPRINT1("USBPORT_RemoveIrpFromTable: ix - %x\n", ix);
+                }
+
+                return Irp;
+            }
+        }
+
+        if (IrpTable->LinkNextTable == 0)
+            break;
+
+        IrpTable = IrpTable->LinkNextTable;
+        continue;
+    }
+
+    DPRINT1("USBPORT_RemoveIrpFromTable: return NULL. ix - %x\n", ix);
+    return NULL;
 }
