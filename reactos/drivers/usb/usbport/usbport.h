@@ -802,6 +802,11 @@ NTAPI
 USBPORT_QueueTransferUrb(
   IN PURB Urb);
 
+VOID
+NTAPI
+USBPORT_FlushAllEndpoints(
+  IN PDEVICE_OBJECT FdoDevice);
+
 /* roothub.c */
 
 VOID
