@@ -792,6 +792,16 @@ USBPORT_CancelActiveTransferIrp(
   IN PDEVICE_OBJECT DeviceObject,
   IN PIRP Irp);
 
+VOID
+NTAPI
+USBPORT_FlushAbortList(
+  IN PUSBPORT_ENDPOINT Endpoint);
+
+VOID
+NTAPI
+USBPORT_FlushCancelList(
+  IN PUSBPORT_ENDPOINT Endpoint);
+
 /* roothub.c */
 
 VOID

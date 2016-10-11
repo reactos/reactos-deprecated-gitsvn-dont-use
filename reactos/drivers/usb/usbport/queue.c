@@ -493,3 +493,49 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
 
     KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
 }
+
+VOID
+NTAPI
+USBPORT_FlushAbortList(IN PUSBPORT_ENDPOINT Endpoint)
+{
+    DPRINT_CORE("USBPORT_FlushCancelList: FIXME unimplemented\n");
+}
+
+VOID
+NTAPI
+USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_TRANSFER Transfer;
+    PIRP Irp;
+    KIRQL OldIrql;
+
+    DPRINT_CORE("USBPORT_FlushCancelList: FIXME FlushAbortList\n");
+
+    FdoDevice = Endpoint->FdoDevice;
+
+    while (!IsListEmpty(&Endpoint->CancelList))
+    {
+        Transfer = CONTAINING_RECORD(Endpoint->CancelList.Flink,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
+
+        RemoveHeadList(&Endpoint->CancelList);
+
+        Irp = Transfer->Irp;
+
+        if (Irp)
+        {
+            DPRINT1("USBPORT_FlushCancelList: Irp - %p\n", Irp);
+            IoAcquireCancelSpinLock(&OldIrql);
+            IoSetCancelRoutine(Irp, NULL);
+            IoReleaseCancelSpinLock(OldIrql);
+
+            USBPORT_RemoveActiveTransferIrp(FdoDevice, Irp);
+        }
+
+        USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_CANCELED);
+    }
+
+    USBPORT_FlushAbortList(Endpoint);
+}
