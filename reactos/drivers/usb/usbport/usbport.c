@@ -391,6 +391,87 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
 
 VOID
 NTAPI
+USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
+                      IN BOOLEAN IsDpcHandler)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_ENDPOINT Endpoint;
+    PLIST_ENTRY List;
+    ULONG FrameNumber;
+    KIRQL OldIrql;
+
+    DPRINT_CORE("USBPORT_IsrDpcHandler: IsDpcHandler - %x\n", IsDpcHandler);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (InterlockedIncrement(&FdoExtension->IsrDpcHandlerCounter))
+    {
+        KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, NULL);
+        InterlockedDecrement(&FdoExtension->IsrDpcHandlerCounter);
+        return;
+    }
+
+    for (List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList,
+                                            &FdoExtension->EpStateChangeSpinLock);
+         List != NULL;
+         List = ExInterlockedRemoveHeadList(&FdoExtension->EpStateChangeList,
+                                            &FdoExtension->EpStateChangeSpinLock))
+    {
+        Endpoint = CONTAINING_RECORD(List,
+                                     USBPORT_ENDPOINT,
+                                     StateChangeLink);
+
+        DPRINT_CORE("USBPORT_IsrDpcHandler: Endpoint - %p\n", Endpoint);
+
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+        FrameNumber = FdoExtension->MiniPortInterface->Packet.Get32BitFrameNumber(FdoExtension->MiniPortExt);
+        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+        if (FrameNumber <= Endpoint->FrameNumber && !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+        {
+            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+            ExInterlockedInsertHeadList(&FdoExtension->EpStateChangeList,
+                                        &Endpoint->StateChangeLink,
+                                        &FdoExtension->EpStateChangeSpinLock);
+
+            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+            FdoExtension->MiniPortInterface->Packet.InterruptNextSOF(FdoExtension->MiniPortExt);
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+            break;
+        }
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+        KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
+        Endpoint->StateLast = Endpoint->StateNext;
+        KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
+
+        DPRINT_CORE("USBPORT_IsrDpcHandler: Endpoint->StateLast - %x\n", Endpoint->StateLast);
+
+        if (IsDpcHandler)
+        {
+            USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 0);
+        }
+        else
+        {
+            USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+        }
+    }
+
+    if (IsDpcHandler)
+    {
+        USBPORT_DpcHandler(FdoDevice);
+    }
+
+    InterlockedDecrement(&FdoExtension->IsrDpcHandlerCounter);
+}
+
+VOID
+NTAPI
 USBPORT_IsrDpc(IN PRKDPC Dpc,
                IN PVOID DeferredContext,
                IN PVOID SystemArgument1,
