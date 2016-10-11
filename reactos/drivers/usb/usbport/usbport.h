@@ -714,6 +714,12 @@ USBPORT_CompleteCanceledBadRequest(
   IN PIO_CSQ Csq,
   IN PIRP Irp);
 
+VOID
+NTAPI
+USBPORT_InsertIrpInTable(
+  IN PUSBPORT_IRP_TABLE IrpTable,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID

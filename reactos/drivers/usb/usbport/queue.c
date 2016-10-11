@@ -247,3 +247,48 @@ USBPORT_CompleteCanceledBadRequest(IN PIO_CSQ Csq,
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
 }
 
+VOID
+NTAPI
+USBPORT_InsertIrpInTable(IN PUSBPORT_IRP_TABLE IrpTable,
+                         IN PIRP Irp)
+{
+    ULONG ix;
+
+    DPRINT_CORE("USBPORT_InsertIrpInTable: IrpTable - %p, Irp - %p\n", IrpTable, Irp);
+
+    ASSERT(IrpTable != NULL);
+
+Start:
+
+    for (ix = 0; ix < 0x200; ix++)
+    {
+        if (IrpTable->irp[ix] == NULL)
+        {
+            IrpTable->irp[ix] = Irp;
+
+            if (ix > 0)
+            {
+                DPRINT1("USBPORT_InsertIrpInTable: ix - %x\n", ix);
+            }
+
+            return;
+        }
+    }
+
+    if (ix != 0x200)
+    {
+        KeBugCheckEx(0xFE, 1, 0, 0, 0);
+    }
+
+    IrpTable->LinkNextTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
+
+    if (IrpTable->LinkNextTable == NULL)
+    {
+        KeBugCheckEx(0xFE, 1, 0, 0, 0);
+    }
+
+    RtlZeroMemory(IrpTable->LinkNextTable, sizeof(USBPORT_IRP_TABLE));
+    IrpTable = IrpTable->LinkNextTable;
+
+    goto Start;
+}
