@@ -389,6 +389,48 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
     return 0;
 }
 
+VOID
+NTAPI
+USBPORT_IsrDpc(IN PRKDPC Dpc,
+               IN PVOID DeferredContext,
+               IN PVOID SystemArgument1,
+               IN PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    BOOLEAN InterruptEnable;
+
+    DPRINT_INT("USBPORT_IsrDpc: DeferredContext - %p, SystemArgument2 - %p\n", DeferredContext, SystemArgument2);
+
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (SystemArgument2)
+    {
+        InterlockedDecrement(&FdoExtension->IsrDpcCounter);
+    }
+
+    KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
+    InterruptEnable = (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED) == USBPORT_FLAG_INTERRUPT_ENABLED;
+
+    FdoExtension->MiniPortInterface->Packet.InterruptDpc(FdoExtension->MiniPortExt,
+                                                         InterruptEnable);
+
+    KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
+
+    if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND &&
+        FdoExtension->TimerFlags & USBPORT_TMFLAG_WAKE)
+    {
+        USBPORT_CompletePdoWaitWake(FdoDevice);
+    }
+    else
+    {
+        USBPORT_IsrDpcHandler(FdoDevice, TRUE);
+    }
+
+    DPRINT_INT("USBPORT_IsrDpc: exit\n");
+}
+
 BOOLEAN
 NTAPI
 USBPORT_InterruptService(IN PKINTERRUPT Interrupt,

@@ -405,14 +405,6 @@ USBPORT_Wait(
 
 VOID
 NTAPI
-USBPORT_IsrDpc(
-  IN PRKDPC Dpc,
-  IN PVOID DeferredContext,
-  IN PVOID SystemArgument1,
-  IN PVOID SystemArgument2);
-
-VOID
-NTAPI
 USBPORT_TransferFlushDpc(
   IN PRKDPC Dpc,
   IN PVOID DeferredContext,
@@ -455,6 +447,14 @@ VOID
 NTAPI
 USBPORT_FlushMapTransfers(
   IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
+USBPORT_IsrDpc(
+  IN PRKDPC Dpc,
+  IN PVOID DeferredContext,
+  IN PVOID SystemArgument1,
+  IN PVOID SystemArgument2);
 
 BOOLEAN
 NTAPI
