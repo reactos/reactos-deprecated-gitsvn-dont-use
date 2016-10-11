@@ -2153,12 +2153,16 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
                 IN PIRP Irp)
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
     PIO_STACK_LOCATION IoStack;
     ULONG IoCtl;
     NTSTATUS Status;
 
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     IoCtl = IoStack->Parameters.DeviceIoControl.IoControlCode;
 
@@ -2185,6 +2189,20 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
             DPRINT1("USBPORT_PdoScsi: Unknown Function %x. UNIMPLEMENTED\n",
                    Function);
+
+            return Status;
+        }
+
+        if (FdoExtension->TimerFlags & USBPORT_TMFLAG_RH_SUSPENDED)
+        {
+            DPRINT("USBPORT_PdoScsi: Bad Request\n");
+
+            Irp->IoStatus.Status = STATUS_PENDING;
+            Status = STATUS_PENDING;
+            USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_DEVICE_GONE);
+
+            IoMarkIrpPending(Irp);
+            IoCsqInsertIrp(&FdoExtension->BadRequestIoCsq, Irp, NULL);
 
             return Status;
         }
