@@ -357,3 +357,46 @@ USBPORT_RemovePendingTransferIrp(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     return USBPORT_RemoveIrpFromTable(FdoExtension->PendingIrpTable, Irp);
 }
+
+VOID
+NTAPI
+USBPORT_FindUrbInIrpTable(IN PUSBPORT_IRP_TABLE IrpTable,
+                          IN PURB Urb,
+                          IN PIRP Irp)
+{
+    ULONG ix; 
+    PIRP irp;
+    PURB urbIn;
+    PIO_STACK_LOCATION IoStack;
+
+    DPRINT_CORE("USBPORT_FindUrbInIrpTable: IrpTable - %p, Urb - %p, Irp - %p\n", IrpTable, Urb, Irp);
+
+    ASSERT(IrpTable != NULL);
+
+    do
+    {
+        for (ix = 0; ix < 0x200; ix++)
+        {
+            irp = IrpTable->irp[ix];
+
+            if (irp)
+            {
+                IoStack = IoGetCurrentIrpStackLocation(irp);
+                urbIn = (PURB)(IoStack->Parameters.Others.Argument1);
+
+                if (urbIn == Urb)
+                {
+                    if (irp == Irp)
+                    {
+                        KeBugCheckEx(0xFE, 4, (ULONG_PTR)irp, (ULONG_PTR)urbIn, 0);
+                    }
+
+                    KeBugCheckEx(0xFE, 2, (ULONG_PTR)irp, (ULONG_PTR)Irp, (ULONG_PTR)urbIn);
+                }
+            }
+        }
+
+        IrpTable = IrpTable->LinkNextTable;
+    }
+    while (IrpTable);
+}

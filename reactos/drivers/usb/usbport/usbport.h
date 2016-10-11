@@ -732,6 +732,13 @@ USBPORT_RemoveActiveTransferIrp(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp);
 
+VOID
+NTAPI
+USBPORT_FindUrbInIrpTable(
+  IN PUSBPORT_IRP_TABLE IrpTable,
+  IN PURB Urb,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID
