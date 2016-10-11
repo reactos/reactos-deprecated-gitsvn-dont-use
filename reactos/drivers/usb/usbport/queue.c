@@ -542,6 +542,21 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
 
 VOID
 NTAPI
+USBPORT_QueuePendingUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
+                                  IN PURB Urb)
+{
+    PUSBPORT_TRANSFER Transfer;
+
+    DPRINT_CORE("USBPORT_QueuePendingUrbToEndpoint: Endpoint - %p, Urb - %p\n", Endpoint, Urb);
+
+    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    //FIXME USBPORT_ResetEndpointIdle();
+    InsertTailList(&Endpoint->PendingTransferList, &Transfer->TransferLink);
+    Urb->UrbHeader.Status = USBD_STATUS_PENDING;
+}
+
+VOID
+NTAPI
 USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
 {
     PIO_STACK_LOCATION IoStack;
