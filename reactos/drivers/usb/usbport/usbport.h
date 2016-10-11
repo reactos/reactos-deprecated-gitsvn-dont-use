@@ -467,7 +467,7 @@ NTAPI
 USBPORT_SignalWorkerThread(
   IN PDEVICE_OBJECT FdoDevice);
 
-VOID
+BOOLEAN
 NTAPI
 USBPORT_EndpointWorker(
   IN PUSBPORT_ENDPOINT Endpoint,
@@ -478,6 +478,43 @@ NTAPI
 USBPORT_CompleteTransfer(
   IN PURB Urb,
   IN USBD_STATUS TransferStatus);
+
+VOID
+NTAPI
+USBPORT_DpcHandler(
+  IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
+USBPORT_WorkerRequestDpc(
+  IN PRKDPC Dpc,
+  IN PVOID DeferredContext,
+  IN PVOID SystemArgument1,
+  IN PVOID SystemArgument2);
+
+VOID
+NTAPI
+USBPORT_InvalidateEndpointHandler(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN ULONG Type);
+
+BOOLEAN
+NTAPI
+USBPORT_QueueDoneTransfer(
+  IN PUSBPORT_TRANSFER Transfer,
+  IN USBD_STATUS USBDStatus);
+
+VOID
+NTAPI
+USBPORT_MiniportInterrupts(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN BOOLEAN IsEnable);
+
+VOID
+NTAPI
+USBPORT_NukeAllEndpoints(
+  IN PDEVICE_OBJECT FdoDevice);
 
 /* debug.c */
 
@@ -616,6 +653,11 @@ USBPORT_RemoveDevice(
   IN PDEVICE_OBJECT FdoDevice,
   IN OUT PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN ULONG Flags);
+
+VOID
+NTAPI
+USBPORT_FlushClosedEndpointList(
+  IN PDEVICE_OBJECT FdoDevice);
 
 /* iface.c */
 
