@@ -625,6 +625,45 @@ USBPORT_EndpointHasQueuedTransfers(IN PDEVICE_OBJECT FdoDevice,
 
 VOID
 NTAPI
+USBPORT_DoneTransfer(IN PUSBPORT_TRANSFER Transfer)
+{
+    PUSBPORT_ENDPOINT          Endpoint;
+    PDEVICE_OBJECT             FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PURB                       Urb;
+    PIRP                       Irp;
+    KIRQL                      CancelIrql;
+    KIRQL                      OldIrql;
+
+    DPRINT_CORE("USBPORT_DoneTransfer: Transfer - %p\n", Transfer);
+
+    Endpoint = Transfer->Endpoint;
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Urb = Transfer->Urb;
+    Irp = Transfer->Irp;
+
+    KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
+
+    if (Irp)
+    {
+        IoAcquireCancelSpinLock(&CancelIrql);
+        IoSetCancelRoutine(Irp, NULL);
+        IoReleaseCancelSpinLock(CancelIrql);
+
+        USBPORT_RemoveActiveTransferIrp(FdoDevice, Irp);
+    }
+
+    KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
+
+    USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
+    USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
+
+    DPRINT_CORE("USBPORT_DoneTransfer: exit\n");
+}
+
+VOID
+NTAPI
 USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -670,45 +709,6 @@ USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
     }
 
     KeReleaseSpinLock(&FdoExtension->DoneTransferSpinLock, OldIrql);
-}
-
-VOID
-NTAPI
-USBPORT_DoneTransfer(IN PUSBPORT_TRANSFER Transfer)
-{
-    PUSBPORT_ENDPOINT          Endpoint;
-    PDEVICE_OBJECT             FdoDevice;
-    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
-    PURB                       Urb;
-    PIRP                       Irp;
-    KIRQL                      CancelIrql;
-    KIRQL                      OldIrql;
-
-    DPRINT_CORE("USBPORT_DoneTransfer: Transfer - %p\n", Transfer);
-
-    Endpoint = Transfer->Endpoint;
-    FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-    Urb = Transfer->Urb;
-    Irp = Transfer->Irp;
-
-    KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
-
-    if (Irp)
-    {
-        IoAcquireCancelSpinLock(&CancelIrql);
-        IoSetCancelRoutine(Irp, NULL);
-        IoReleaseCancelSpinLock(CancelIrql);
-
-        USBPORT_RemoveActiveTransferIrp(FdoDevice, Irp);
-    }
-
-    KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
-
-    USBPORT_USBDStatusToNtStatus(Transfer->Urb, Transfer->USBDStatus);
-    USBPORT_CompleteTransfer(Urb, Urb->UrbHeader.Status);
-
-    DPRINT_CORE("USBPORT_DoneTransfer: exit\n");
 }
 
 VOID
