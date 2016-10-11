@@ -8,6 +8,7 @@ list(APPEND SOURCE
     ioctl.c
     pnp.c
     power.c
+    queue.c
     roothub.c
     usbport.c
     usbport.h)
