@@ -391,6 +391,29 @@ USBPORT_NotifyDoubleBuffer(IN PVOID Context1,
 
 VOID
 NTAPI
+USBPORT_WorkerRequestDpc(IN PRKDPC Dpc,
+                         IN PVOID DeferredContext,
+                         IN PVOID SystemArgument1,
+                         IN PVOID SystemArgument2)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_WorkerRequestDpc: ... \n");
+
+    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (!InterlockedIncrement(&FdoExtension->IsrDpcHandlerCounter))
+    {
+        USBPORT_DpcHandler(FdoDevice);
+    }
+
+    InterlockedDecrement(&FdoExtension->IsrDpcHandlerCounter);
+}
+
+VOID
+NTAPI
 USBPORT_NukeAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
