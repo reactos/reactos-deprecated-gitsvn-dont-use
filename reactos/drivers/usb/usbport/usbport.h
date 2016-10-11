@@ -453,6 +453,11 @@ USBPORT_AllocateTransfer(
 
 VOID
 NTAPI
+USBPORT_FlushMapTransfers(
+  IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
 USBPORT_SignalWorkerThread(
   IN PDEVICE_OBJECT FdoDevice);
 
@@ -467,11 +472,6 @@ NTAPI
 USBPORT_CompleteTransfer(
   IN PURB Urb,
   IN USBD_STATUS TransferStatus);
-
-VOID
-NTAPI
-USBPORT_FlushPendingTransfers(
-  IN PUSBPORT_ENDPOINT Endpoint);
 
 /* debug.c */
 
@@ -806,6 +806,11 @@ VOID
 NTAPI
 USBPORT_FlushAllEndpoints(
   IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
+USBPORT_FlushPendingTransfers(
+  IN PUSBPORT_ENDPOINT Endpoint);
 
 /* roothub.c */
 

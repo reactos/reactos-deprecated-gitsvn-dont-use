@@ -344,12 +344,12 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    if ( Level == 0 )
+    if (Level == 0)
     {
-        if ( BusInfoActualLen )
+        if (BusInfoActualLen)
             *BusInfoActualLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
     
-        if ( *BusInfoBufferLen < sizeof(USB_BUS_INFORMATION_LEVEL_0) )
+        if (*BusInfoBufferLen < sizeof(USB_BUS_INFORMATION_LEVEL_0))
         {
             return STATUS_BUFFER_TOO_SMALL;
         }
@@ -364,14 +364,14 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
         return STATUS_SUCCESS;
     }
 
-    if ( Level == 1 )
+    if (Level == 1)
     {
         Length = sizeof(USB_BUS_INFORMATION_LEVEL_1) + FdoExtension->CommonExtension.SymbolicLinkName.Length;
     
-        if ( BusInfoActualLen )
+        if (BusInfoActualLen)
             *BusInfoActualLen = Length;
     
-        if ( *BusInfoBufferLen < Length )
+        if (*BusInfoBufferLen < Length)
         {
             return STATUS_BUFFER_TOO_SMALL;
         }

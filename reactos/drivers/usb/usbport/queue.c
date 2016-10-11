@@ -542,6 +542,150 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
 
 VOID
 NTAPI
+USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    BOOLEAN IsMapTransfer;
+    BOOLEAN IsEnd = FALSE;
+    PLIST_ENTRY List;
+    PUSBPORT_TRANSFER Transfer;
+    KIRQL PrevIrql;
+    PURB Urb;
+    PIRP Irp;
+    PIRP irp;
+    KIRQL OldIrql;
+
+    DPRINT_CORE("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
+
+    FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (InterlockedCompareExchange(&Endpoint->FlushPendingLock, 1, 0))
+    {
+      DPRINT1("USBPORT_FlushPendingTransfers: Endpoint Locked \n");
+      return;
+    }
+
+    while (TRUE)
+    {
+        IsMapTransfer = 0;
+
+        if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+        {
+            if (!IsListEmpty(&Endpoint->TransferList))
+            {
+                List = Endpoint->TransferList.Flink;
+
+                while (List && List != &Endpoint->TransferList)
+                {
+                    Transfer = CONTAINING_RECORD(List, USBPORT_TRANSFER, TransferLink);
+
+                    if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED))
+                    {
+                        IsEnd = TRUE;
+                        goto Worker;
+                    }
+
+                    List = Transfer->TransferLink.Flink;
+                }
+            }
+        }
+
+        List = Endpoint->PendingTransferList.Flink;
+
+        if (IsListEmpty(&Endpoint->PendingTransferList) || List == NULL)
+        {
+            IsEnd = TRUE;
+            goto Worker;
+        }
+
+        Transfer = CONTAINING_RECORD(List, USBPORT_TRANSFER, TransferLink);
+
+        if (Transfer->Irp)
+        {
+            DPRINT_CORE("USBPORT_FlushPendingTransfers: Transfer->Irp->CancelRoutine - %p\n", Transfer->Irp->CancelRoutine);
+        }
+
+        if (Transfer->Irp && (IoSetCancelRoutine(Transfer->Irp, NULL) == NULL))
+        {
+            DPRINT_CORE("USBPORT_FlushPendingTransfers: Transfer->Irp - %p\n", Transfer->Irp);
+            Transfer = NULL;
+            IsEnd = TRUE;
+        }
+
+        if (!Transfer)
+        {
+            if (IsMapTransfer)
+            {
+                USBPORT_FlushMapTransfers(FdoDevice);
+                goto Next;
+            }
+
+            goto Worker;
+        }
+
+        Irp = Transfer->Irp;
+        Urb = Transfer->Urb;
+
+        RemoveEntryList(&Transfer->TransferLink);
+        Transfer->TransferLink.Flink = NULL;
+        Transfer->TransferLink.Blink = NULL;
+
+        irp = Irp;
+
+        if (Irp)
+        {
+            irp = USBPORT_RemovePendingTransferIrp(FdoDevice, Irp);
+        }
+
+        KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
+
+        if (irp)
+        {
+            IoSetCancelRoutine(irp, USBPORT_CancelActiveTransferIrp);
+
+            if (Irp->Cancel && IoSetCancelRoutine(irp, NULL))
+            {
+                DPRINT_CORE("USBPORT_FlushPendingTransfers: irp - %p\n", irp);
+                KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
+                USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_CANCELED);
+                goto Worker;
+            }
+
+            USBPORT_FindUrbInIrpTable(FdoExtension->ActiveIrpTable, Urb, irp);
+            USBPORT_InsertIrpInTable(FdoExtension->ActiveIrpTable, irp);
+        }
+
+        IsMapTransfer = USBPORT_QueueActiveUrbToEndpoint(Endpoint, Urb);
+
+        KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
+
+        if (IsMapTransfer)
+        {
+            USBPORT_FlushMapTransfers(FdoDevice);
+
+            if (IsEnd)
+                goto Next;
+        }
+
+Worker:
+        KeRaiseIrql(DISPATCH_LEVEL, &PrevIrql);
+        USBPORT_EndpointWorker(Endpoint, FALSE);
+        KeLowerIrql(PrevIrql);
+
+Next:
+        if (IsEnd)
+        {
+            InterlockedDecrement(&Endpoint->FlushPendingLock);
+            DPRINT_CORE("USBPORT_FlushPendingTransfers: Endpoint Unlocked. Exit\n");
+            return;
+        }
+    }
+}
+
+VOID
+NTAPI
 USBPORT_QueuePendingUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
                                   IN PURB Urb)
 {

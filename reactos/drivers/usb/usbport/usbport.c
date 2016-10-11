@@ -1484,77 +1484,6 @@ USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
     KeLowerIrql(OldIrql);
 }
 
-VOID
-NTAPI
-USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
-{
-    PDEVICE_OBJECT FdoDevice;
-    PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    BOOLEAN IsMapTransfer;
-    BOOLEAN IsEnd = FALSE;
-    PLIST_ENTRY List;
-    PUSBPORT_TRANSFER Transfer;
-    KIRQL PrevIrql;
-    PUSBPORT_DEVICE_HANDLE DeviceHandle;
-
-    DPRINT_CORE("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
-
-    FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-
-    while (TRUE)
-    {
-        IsMapTransfer = 0;
-
-        if (IsListEmpty(&Endpoint->PendingTransferList) ||
-            Endpoint->PendingTransferList.Flink == 0)
-        {
-            IsEnd = TRUE;
-            goto Worker;
-        }
-
-        List = Endpoint->PendingTransferList.Flink;
-        Transfer = CONTAINING_RECORD(List, USBPORT_TRANSFER, TransferLink);
-
-        RemoveEntryList(&Transfer->TransferLink);
-        Transfer->TransferLink.Flink = NULL;
-        Transfer->TransferLink.Blink = NULL;
-
-        if (Transfer->TransferParameters.TransferBufferLength == 0 ||
-            !(Endpoint->Flags & ENDPOINT_FLAG_DMA_TYPE))
-        {
-            InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
-            IsMapTransfer = 0;
-        }
-        else
-        {
-            InsertTailList(&FdoExtension->MapTransferList,
-                           &Transfer->TransferLink);
-
-            IsMapTransfer = 1;
-
-            DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Transfer->Urb->UrbHeader.UsbdDeviceHandle;
-            InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
-        }
-
-        if (IsMapTransfer)
-        {
-            USBPORT_FlushMapTransfers(FdoDevice);
-
-            if (IsEnd)
-                return;
-        }
-
-Worker:
-        KeRaiseIrql(DISPATCH_LEVEL, &PrevIrql);
-        USBPORT_EndpointWorker(Endpoint, FALSE);
-        KeLowerIrql(PrevIrql);
-
-        if (IsEnd)
-            return;
-    }
-}
-
 NTSTATUS
 NTAPI
 ValidateTransferParameters(IN PURB Urb)
@@ -2192,7 +2121,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
     {
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
 
-        if ( IoStack->Parameters.Others.Argument1 )
+        if (IoStack->Parameters.Others.Argument1)
             *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtension->DeviceHandle;
 
         Status = STATUS_SUCCESS;
