@@ -407,6 +407,54 @@ USBPORT_SignalWorkerThread(IN PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
+USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PLIST_ENTRY workerList;
+    KIRQL OldIrql;
+    PUSBPORT_ENDPOINT Endpoint;
+
+    DPRINT("USBPORT_WorkerThreadHandler: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    USBPORT_FlushAllEndpoints(FdoDevice);
+
+    while (TRUE)
+    {
+        KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
+        KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+        workerList = &FdoExtension->WorkerList;
+
+        if (IsListEmpty(workerList))
+            break;
+
+        Endpoint = CONTAINING_RECORD(workerList->Flink,
+                                     USBPORT_ENDPOINT,
+                                     WorkerLink);
+
+        DPRINT("USBPORT_WorkerThreadHandler: Endpoint - %p\n", Endpoint);
+
+        RemoveHeadList(workerList);
+        Endpoint->WorkerLink.Blink = NULL;
+        Endpoint->WorkerLink.Flink = NULL;
+
+        KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+
+        USBPORT_EndpointWorker(Endpoint, FALSE);
+
+        KeLowerIrql(OldIrql);
+    }
+
+    KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
+    KeLowerIrql(OldIrql);
+
+    USBPORT_FlushClosedEndpointList(FdoDevice);
+}
+
+VOID
+NTAPI
 USBPORT_WorkerThread(IN PVOID StartContext)
 {
     PDEVICE_OBJECT FdoDevice;
@@ -417,8 +465,6 @@ USBPORT_WorkerThread(IN PVOID StartContext)
     LARGE_INTEGER NewTime = {{0, 0}};
     PRH_INIT_CALLBACK RootHubInitCallback;
     PVOID RootHubInitContext;
-    PUSBPORT_ENDPOINT Endpoint;
-    PLIST_ENTRY workerList;
     KIRQL OldIrql;
 
     DPRINT("USBPORT_WorkerThread ... \n");
@@ -440,12 +486,19 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 
         KeQuerySystemTime(&NewTime);
 
+        KeAcquireSpinLock(&FdoExtension->WorkerThreadEventSpinLock, &OldIrql);
         KeResetEvent(&FdoExtension->WorkerThreadEvent);
+        KeReleaseSpinLock(&FdoExtension->WorkerThreadEventSpinLock, OldIrql);
+        DPRINT("USBPORT_WorkerThread: run \n");
 
-        if (FdoExtension->MiniPortFlags & 1)
+        if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
         {
+            USBPORT_DoSetPowerD0(FdoDevice);
+
             if (FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK)
             {
+                DPRINT("USBPORT_WorkerThread: RootHubInitCallback \n");
+
                 PdoDevice = FdoExtension->RootHubPdo;
 
                 if (PdoDevice)
@@ -463,36 +516,12 @@ USBPORT_WorkerThread(IN PVOID StartContext)
                 }
 
                 FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
+
+                DPRINT("USBPORT_WorkerThread: end RootHubInitCallback \n");
             }
         }
 
-        while (TRUE)
-        {
-            KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
-            KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
-
-            workerList = &FdoExtension->WorkerList;
-
-            if (IsListEmpty(workerList))
-                break;
-
-            Endpoint = CONTAINING_RECORD(workerList->Flink,
-                                         USBPORT_ENDPOINT,
-                                         WorkerLink);
-
-            RemoveHeadList(workerList);
-            Endpoint->WorkerLink.Blink = NULL;
-            Endpoint->WorkerLink.Flink = NULL;
-
-            KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
-
-            USBPORT_EndpointWorker(Endpoint, FALSE);
-
-            KeLowerIrql(OldIrql);
-        }
-
-        KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
-        KeLowerIrql(OldIrql);
+        USBPORT_WorkerThreadHandler(FdoDevice);
     }
     while (!(FdoExtension->Flags & USBPORT_FLAG_WORKER_THREAD_ON));
 
