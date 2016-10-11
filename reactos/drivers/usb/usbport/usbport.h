@@ -453,11 +453,6 @@ USBPORT_AllocateTransfer(
 
 VOID
 NTAPI
-USBPORT_QueueTransferUrb(
-  IN PURB Urb);
-
-VOID
-NTAPI
 USBPORT_SignalWorkerThread(
   IN PDEVICE_OBJECT FdoDevice);
 
@@ -801,6 +796,11 @@ VOID
 NTAPI
 USBPORT_FlushCancelList(
   IN PUSBPORT_ENDPOINT Endpoint);
+
+VOID
+NTAPI
+USBPORT_QueueTransferUrb(
+  IN PURB Urb);
 
 /* roothub.c */
 
