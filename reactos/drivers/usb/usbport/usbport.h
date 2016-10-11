@@ -638,6 +638,45 @@ USBPORT_AdjustDeviceCapabilities(
   IN PDEVICE_OBJECT FdoDevice,
   IN PDEVICE_OBJECT PdoDevice);
 
+/* queue.c */
+
+VOID
+NTAPI
+USBPORT_InsertIdleIrp(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp);
+
+VOID
+NTAPI
+USBPORT_RemoveIdleIrp(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp);
+
+PIRP
+NTAPI
+USBPORT_PeekNextIdleIrp(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp,
+  IN PVOID PeekContext);
+
+VOID
+NTAPI
+USBPORT_AcquireIdleLock(
+  IN PIO_CSQ Csq,
+  IN PKIRQL Irql);
+
+VOID
+NTAPI
+USBPORT_ReleaseIdleLock(
+  IN PIO_CSQ Csq,
+  IN KIRQL Irql);
+
+VOID
+NTAPI
+USBPORT_CompleteCanceledIdleIrp(
+  IN PIO_CSQ Csq,
+  IN PIRP Irp);
+
 /* roothub.c */
 
 VOID
