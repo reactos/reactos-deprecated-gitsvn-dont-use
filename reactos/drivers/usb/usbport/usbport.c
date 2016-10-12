@@ -5,7 +5,7 @@
 
 #define NDEBUG_USBPORT_MINIPORT
 #define NDEBUG_USBPORT_CORE
-//#define NDEBUG_USBPORT_URB
+#define NDEBUG_USBPORT_URB
 #define NDEBUG_USBPORT_INTERRUPT
 #define NDEBUG_USBPORT_TIMER
 #include "usbdebug.h"
@@ -734,7 +734,7 @@ USBPORT_QueueDoneTransfer(IN PUSBPORT_TRANSFER Transfer,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
 
-    DPRINT("USBPORT_QueueDoneTransfer: Transfer - %p, USBDStatus - %p\n", Transfer, USBDStatus);
+    DPRINT_CORE("USBPORT_QueueDoneTransfer: Transfer - %p, USBDStatus - %p\n", Transfer, USBDStatus);
 
     FdoDevice = Transfer->Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -994,7 +994,7 @@ USBPORT_SignalWorkerThread(IN PDEVICE_OBJECT FdoDevice)
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     KIRQL OldIrql;
 
-    DPRINT("USBPORT_SignalWorkerThread ... \n");
+    DPRINT_CORE("USBPORT_SignalWorkerThread ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
@@ -1012,7 +1012,7 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
     KIRQL OldIrql;
     PUSBPORT_ENDPOINT Endpoint;
 
-    DPRINT("USBPORT_WorkerThreadHandler: ... \n");
+    DPRINT_CORE("USBPORT_WorkerThreadHandler: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
@@ -1032,7 +1032,7 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
                                      USBPORT_ENDPOINT,
                                      WorkerLink);
 
-        DPRINT("USBPORT_WorkerThreadHandler: Endpoint - %p\n", Endpoint);
+        DPRINT_CORE("USBPORT_WorkerThreadHandler: Endpoint - %p\n", Endpoint);
 
         RemoveHeadList(workerList);
         Endpoint->WorkerLink.Blink = NULL;
@@ -1065,7 +1065,7 @@ USBPORT_WorkerThread(IN PVOID StartContext)
     PVOID RootHubInitContext;
     KIRQL OldIrql;
 
-    DPRINT("USBPORT_WorkerThread ... \n");
+    DPRINT_CORE("USBPORT_WorkerThread ... \n");
 
     FdoDevice = (PDEVICE_OBJECT)StartContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -1087,7 +1087,7 @@ USBPORT_WorkerThread(IN PVOID StartContext)
         KeAcquireSpinLock(&FdoExtension->WorkerThreadEventSpinLock, &OldIrql);
         KeResetEvent(&FdoExtension->WorkerThreadEvent);
         KeReleaseSpinLock(&FdoExtension->WorkerThreadEventSpinLock, OldIrql);
-        DPRINT("USBPORT_WorkerThread: run \n");
+        DPRINT_CORE("USBPORT_WorkerThread: run \n");
 
         if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
         {
@@ -1095,7 +1095,7 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 
             if (FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK)
             {
-                DPRINT("USBPORT_WorkerThread: RootHubInitCallback \n");
+                DPRINT_CORE("USBPORT_WorkerThread: RootHubInitCallback \n");
 
                 PdoDevice = FdoExtension->RootHubPdo;
 
@@ -1115,7 +1115,7 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 
                 FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
 
-                DPRINT("USBPORT_WorkerThread: end RootHubInitCallback \n");
+                DPRINT_CORE("USBPORT_WorkerThread: end RootHubInitCallback \n");
             }
         }
 
@@ -1510,9 +1510,9 @@ USBPORT_MiniportCompleteTransfer(IN PVOID MiniPortExtension,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
-    DPRINT("USBPORT_MiniportCompleteTransfer: USBDStatus - %x, TransferLength - %x\n",
-           USBDStatus,
-           TransferLength);
+    DPRINT_CORE("USBPORT_MiniportCompleteTransfer: USBDStatus - %x, TransferLength - %x\n",
+                USBDStatus,
+                TransferLength);
 
     Transfer = CONTAINING_RECORD(TransferParameters,
                                  USBPORT_TRANSFER,

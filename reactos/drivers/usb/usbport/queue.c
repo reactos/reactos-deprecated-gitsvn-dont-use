@@ -5,6 +5,7 @@
 
 #define NDEBUG_USBPORT_CORE
 #define NDEBUG_USBPORT_QUEUE
+#define NDEBUG_USBPORT_URB
 #include "usbdebug.h"
 
 VOID
@@ -316,7 +317,7 @@ USBPORT_RemoveIrpFromTable(IN PUSBPORT_IRP_TABLE IrpTable,
 
                 if (ix > 0)
                 {
-                    DPRINT1("USBPORT_RemoveIrpFromTable: ix - %x\n", ix);
+                    DPRINT_CORE("USBPORT_RemoveIrpFromTable: ix - %x\n", ix);
                 }
 
                 return Irp;
@@ -737,7 +738,7 @@ USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Transfer->Urb->UrbHeader.UsbdDeviceHandle;
     InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
 
-    DPRINT("USBPORT_QueueActiveUrbToEndpoint: return TRUE\n");
+    DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return TRUE\n");
     return TRUE;
 }
 
