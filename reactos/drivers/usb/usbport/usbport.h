@@ -735,6 +735,11 @@ NTAPI
 USBPORT_DoIdleNotificationCallback(
   IN PVOID Context);
 
+VOID
+NTAPI
+USBPORT_CompletePdoWaitWake(
+  IN PDEVICE_OBJECT FdoDevice);
+
 /* queue.c */
 
 VOID
