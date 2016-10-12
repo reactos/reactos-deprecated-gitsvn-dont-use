@@ -5,6 +5,41 @@
 
 VOID
 NTAPI
+USBPORT_CompletePdoWaitWake(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PIRP Irp;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_CompletePdoWaitWake: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PdoDevice = FdoExtension->RootHubPdo;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->PowerWakeSpinLock, &OldIrql);
+
+    Irp = PdoExtension->WakeIrp;
+
+    if (Irp && IoSetCancelRoutine(Irp, NULL))
+    {
+        PdoExtension->WakeIrp = NULL;
+        KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+
+        Irp->IoStatus.Status = STATUS_SUCCESS;
+        Irp->IoStatus.Information = 0;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+        return;
+    }
+
+    KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+}
+
+VOID
+NTAPI
 USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
