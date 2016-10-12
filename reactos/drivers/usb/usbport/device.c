@@ -1250,8 +1250,17 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
     USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     NTSTATUS Status;
     USBD_STATUS USBDStatus;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     DPRINT("USBPORT_HandleSelectConfiguration: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
 
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
     ConfigDescriptor = Urb->UrbSelectConfiguration.ConfigurationDescriptor;
@@ -1399,6 +1408,11 @@ Exit:
         DPRINT1("USBPORT_SelectConfiguration: Status %x\n", Status);
     }
 
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
     return Status;
 }
 
@@ -1502,6 +1516,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     SIZE_T TransferedLen;
     UCHAR MaxPacketSize;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     NTSTATUS Status;
 
@@ -1509,11 +1524,29 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
            PortStatus,
            Port);
 
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
     if (!USBPORT_ValidateDeviceHandle(FdoDevice, HubDeviceHandle))
     {
+        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+
         DPRINT1("USBPORT_CreateDevice: Not valid hub DeviceHandle\n");
         return STATUS_DEVICE_NOT_CONNECTED;
     }
+
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
 
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
                                                                  sizeof(USBPORT_DEVICE_HANDLE),
@@ -1533,6 +1566,12 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         DeviceHandle->DeviceSpeed = 0;
     else
         DeviceHandle->DeviceSpeed = 1; // Fullspeed
+
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
 
     PipeHandle = &DeviceHandle->PipeHandle;
 
@@ -1560,6 +1599,10 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     }
     else
     {
+        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
         ExFreePool(DeviceHandle);
         return Status;
     }
@@ -1576,6 +1619,11 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         {
             USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
         }
+
+        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
 
         ExFreePool(DeviceHandle);
         return Status;
@@ -1622,6 +1670,11 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
             {
                 USBPORT_AddDeviceHandle(FdoDevice, DeviceHandle);
                 *pUsbdDeviceHandle = (PUSB_DEVICE_HANDLE)DeviceHandle;
+
+                KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                                   LOW_REALTIME_PRIORITY,
+                                   1,
+                                   FALSE);
 
                 if (!NT_SUCCESS(Status))
                     ExFreePool(DeviceHandle);
@@ -1737,10 +1790,19 @@ USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     USHORT DeviceAddress = 0;
     UCHAR MaxPacketSize;
     NTSTATUS Status;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     DPRINT("USBPORT_InitializeDevice: ... \n");
 
     ASSERT(DeviceHandle != NULL);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
 
     DeviceAddress = USBPORT_AllocateUsbAddress(FdoDevice);
     ASSERT(DeviceHandle->DeviceAddress == USB_DEFAULT_DEVICE_ADDRESS);
@@ -1811,6 +1873,11 @@ USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 ExitError:
         DPRINT1("USBPORT_InitializeDevice: ExitError. Status - %x\n", Status);
     }
+
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
 
     return Status;
 }
@@ -1895,8 +1962,17 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
     ULONG NumInterfaces;
     USHORT Length;
     ULONG ix;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
-    DPRINT("USBPORT_SelectInterface: ... \n");
+    DPRINT("USBPORT_HandleSelectInterface: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
 
     ConfigurationHandle = (PUSBPORT_CONFIGURATION_HANDLE)Urb->UrbSelectInterface.ConfigurationHandle;
 
@@ -1967,6 +2043,11 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
                        &iHandle->InterfaceLink);
     }
 
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
     return USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
 }
 
@@ -1976,17 +2057,32 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
                      IN OUT PUSBPORT_DEVICE_HANDLE DeviceHandle,
                      IN ULONG Flags)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
     DPRINT("USBPORT_RemoveDevice: DeviceHandle - %p, Flags - %x\n",
            DeviceHandle,
            Flags);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
     {
         return STATUS_SUCCESS;
     }
 
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
     if (!USBPORT_ValidateDeviceHandle(FdoDevice, DeviceHandle))
     {
+        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+
         DPRINT1("USBPORT_RemoveDevice: Not valid device handle\n");
         return STATUS_DEVICE_NOT_CONNECTED;
     }
@@ -2013,6 +2109,11 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
     {
         USBPORT_FreeUsbAddress(FdoDevice, DeviceHandle->DeviceAddress);
     }
+
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
 
     if (!(DeviceHandle->Flags & DEVICE_HANDLE_FLAG_ROOTHUB))
     {
