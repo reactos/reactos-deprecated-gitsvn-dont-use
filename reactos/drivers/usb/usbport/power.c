@@ -5,11 +5,60 @@
 
 NTSTATUS
 NTAPI
-USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT FdoDevice,
-                         IN PIRP Irp)
+USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
+                            IN PIRP Irp)
 {
-    DPRINT1("USBPORT_DevicePowerState: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PIO_STACK_LOCATION IoStack;
+    NTSTATUS Status = STATUS_SUCCESS;
+    POWER_STATE State;
+
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    State = IoStack->Parameters.Power.State;
+
+    DPRINT1("USBPORT_PdoDevicePowerState: Irp - %p, State - %x\n", Irp, State.DeviceState);
+
+    if (State.DeviceState == PowerDeviceD0)
+    {
+        DPRINT1("USBPORT_PdoDevicePowerState: PowerDeviceD0.\n");
+
+        if (FdoExtension->CommonExtension.DevicePowerState == PowerDeviceD0)
+        {
+            while ((FdoExtension->Flags & 0x00000020) || FdoExtension->SetPowerLockCounter)
+            {
+                USBPORT_Wait(FdoDevice, 10);
+            }
+
+            USBPORT_ResumeController(FdoDevice);
+
+            PdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
+
+            USBPORT_CompletePdoWaitWake(FdoDevice);
+            USBPORT_CompletePendingIdleIrp(PdoDevice);
+        }
+        else
+        {
+            DPRINT1("USBPORT_PdoDevicePowerState: FdoExtension->Flags - %p\n", FdoExtension->Flags);
+            DbgBreakPoint();
+            Status = STATUS_UNSUCCESSFUL;
+        }
+    }
+    else if (State.DeviceState  == PowerDeviceD1 ||
+             State.DeviceState  == PowerDeviceD2 ||
+             State.DeviceState  == PowerDeviceD3)
+    {
+        FdoExtension->TimerFlags |= USBPORT_TMFLAG_WAKE;
+        USBPORT_SuspendController(FdoDevice);
+        PdoExtension->CommonExtension.DevicePowerState = State.DeviceState;
+    }
+
+    return Status;
 }
 
 VOID
