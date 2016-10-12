@@ -40,6 +40,33 @@ USBPORT_CompletePdoWaitWake(IN PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
+USBPORT_CompletePendingIdleIrp(IN PDEVICE_OBJECT PdoDevice)
+{
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PIRP Irp;
+
+    DPRINT("USBPORT_CompletePendingIdleIrp: ... \n");
+
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Irp = IoCsqRemoveNextIrp(&FdoExtension->IdleIoCsq, 0);
+
+    if (Irp)
+    {
+        InterlockedDecrement(&FdoExtension->IdleLockCounter);
+
+        Irp->IoStatus.Status = STATUS_CANCELLED;
+        Irp->IoStatus.Information = 0;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    }
+}
+
+VOID
+NTAPI
 USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
