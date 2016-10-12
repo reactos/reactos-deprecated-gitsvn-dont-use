@@ -18,7 +18,7 @@
 #endif
 
 #define USBPORT_RECIPIENT_ROOT_HUB  BMREQUEST_TO_DEVICE
-#define USBPORT_RECIPIENT_ROOT_PORT BMREQUEST_TO_OTHER 
+#define USBPORT_RECIPIENT_ROOT_PORT BMREQUEST_TO_OTHER
 
 #define USBPORT_TRANSFER_TYPE_ISOCHRONOUS 0
 #define USBPORT_TRANSFER_TYPE_CONTROL     1
@@ -47,7 +47,7 @@
 #define FEATURE_C_PORT_RESET        20
 
 /* Hub Class Feature Selectors (Recipient - Hub) */
-#define FEATURE_C_HUB_LOCAL_POWER  0 
+#define FEATURE_C_HUB_LOCAL_POWER  0
 #define FEATURE_C_HUB_OVER_CURRENT 1
 
 /* Endpoint states */
@@ -74,8 +74,8 @@
 
 /* Miniport Flags */
 
-#define USBPORT_MPFLAG_INTERRUPTS_ENABLED  0x00000001 
-#define USBPORT_MPFLAG_SUSPENDED           0x00000002 
+#define USBPORT_MPFLAG_INTERRUPTS_ENABLED  0x00000001
+#define USBPORT_MPFLAG_SUSPENDED           0x00000002
 
 /* Device handle Flags (USBPORT_DEVICE_HANDLE) */
 
@@ -147,7 +147,7 @@ typedef struct _USBPORT_INTERFACE_HANDLE {
   USBPORT_PIPE_HANDLE PipeHandle[1]; // 24
 } USBPORT_INTERFACE_HANDLE, *PUSBPORT_INTERFACE_HANDLE;
 
-typedef struct _USBPORT_DEVICE_HANDLE { 
+typedef struct _USBPORT_DEVICE_HANDLE {
   ULONG Flags;
   USHORT DeviceAddress;
   USHORT PortNumber;
@@ -218,7 +218,7 @@ typedef struct _USBPORT_TRANSFER {
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
 
 typedef struct _USBPORT_IRP_TABLE {
-  struct _USBPORT_IRP_TABLE * LinkNextTable; 
+  struct _USBPORT_IRP_TABLE * LinkNextTable;
   PIRP irp[0X200];
 } USBPORT_IRP_TABLE, *PUSBPORT_IRP_TABLE;
 
@@ -316,8 +316,9 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   /* Power */
   LONG SetPowerLockCounter;
   KSPIN_LOCK PowerWakeSpinLock;
+  KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[64]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[63]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
@@ -740,6 +741,11 @@ NTAPI
 USBPORT_CompletePdoWaitWake(
   IN PDEVICE_OBJECT FdoDevice);
 
+VOID
+NTAPI
+USBPORT_DoSetPowerD0(
+  IN PDEVICE_OBJECT FdoDevice);
+
 /* queue.c */
 
 VOID
@@ -871,6 +877,17 @@ VOID
 NTAPI
 USBPORT_FlushPendingTransfers(
   IN PUSBPORT_ENDPOINT Endpoint);
+
+BOOLEAN
+NTAPI
+USBPORT_QueueActiveUrbToEndpoint(
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN PURB Urb);
+
+VOID
+NTAPI
+USBPORT_FlushController(
+  IN PDEVICE_OBJECT FdoDevice);
 
 /* roothub.c */
 

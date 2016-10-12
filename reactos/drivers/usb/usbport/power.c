@@ -67,6 +67,31 @@ USBPORT_CompletePendingIdleIrp(IN PDEVICE_OBJECT PdoDevice)
 
 VOID
 NTAPI
+USBPORT_DoSetPowerD0(IN PDEVICE_OBJECT FdoDevice)
+{
+    KIRQL OldIrql;
+
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+
+    DPRINT("USBPORT_DoSetPowerD0: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->SetPowerD0SpinLock, &OldIrql);
+
+    if (!(FdoExtension->Flags & 0x00000020))
+    {
+        KeReleaseSpinLock(&FdoExtension->SetPowerD0SpinLock, OldIrql);
+        return;
+    }
+
+    DPRINT1("USBPORT_DoSetPowerD0: FIXME!\n");
+    DbgBreakPoint();
+    //ASSERT(FALSE);
+}
+
+VOID
+NTAPI
 USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;

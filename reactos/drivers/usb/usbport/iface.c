@@ -390,6 +390,8 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     
         return STATUS_SUCCESS;
     }
+
+    return STATUS_SUCCESS;
 }
 
 BOOLEAN
