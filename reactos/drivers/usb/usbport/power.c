@@ -21,9 +21,11 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
     PDEVICE_OBJECT FdoDevice;
     PIO_STACK_LOCATION IoStack;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDRIVER_CANCEL OldCancelRoutine;
     NTSTATUS Status;
+    KIRQL OldIrql;
 
-    DPRINT("USBPORT_PdoPower: ... \n");
+    DPRINT("USBPORT_PdoPower: Irp - %p\n", Irp);
 
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
@@ -43,7 +45,41 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
               break;
           }
 
-          DPRINT1("USBPORT_PdoPower: IRP_MN_WAIT_WAKE UNIMPLEMENTED. FIXME. \n");
+          KeAcquireSpinLock(&FdoExtension->PowerWakeSpinLock, &OldIrql);
+
+          OldCancelRoutine = IoSetCancelRoutine(Irp, USBPORT_CancelPendingWakeIrp);
+
+          if (Irp->Cancel && InterlockedExchange((PLONG)OldCancelRoutine, 0))
+          {
+              KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+
+              DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_CANCELLED\n");
+              Status = STATUS_CANCELLED;
+              break;
+          }
+
+          if (!PdoExtension->WakeIrp)
+          {
+              DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - No WakeIrp\n");
+
+              IoMarkIrpPending(Irp);
+              PdoExtension->WakeIrp = Irp;
+
+              KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+              return STATUS_PENDING;
+          }
+
+          if (InterlockedExchange((PLONG)OldCancelRoutine, 0))
+          {
+              DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_DEVICE_BUSY\n");
+
+              KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+              PoStartNextPowerIrp(Irp);
+              Status = STATUS_DEVICE_BUSY;
+              break;
+          }
+
+          KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
           return Status;
 
       case IRP_MN_POWER_SEQUENCE:
