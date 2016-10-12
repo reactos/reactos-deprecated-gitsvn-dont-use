@@ -2122,3 +2122,13 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
     return 0;
 }
+
+NTSTATUS
+NTAPI
+USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
+                                   IN PIRP Irp,
+                                   IN PURB Urb)
+{
+    DPRINT1("USBPORT_SyncResetPipeAndClearStall: UNIMPLEMENTED. FIXME. \n");
+    return 0;
+}
