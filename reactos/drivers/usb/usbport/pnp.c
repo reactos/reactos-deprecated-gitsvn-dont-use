@@ -300,6 +300,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     KeInitializeSpinLock(&FdoExtension->WorkerThreadEventSpinLock);
     KeInitializeSpinLock(&FdoExtension->MiniportSpinLock);
     KeInitializeSpinLock(&FdoExtension->TimerFlagsSpinLock);
+    KeInitializeSpinLock(&FdoExtension->PowerWakeSpinLock);
 
     KeInitializeDpc(&FdoExtension->IsrDpc, USBPORT_IsrDpc, FdoDevice);
 
@@ -665,7 +666,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
 
-    RelationType = IoStack->Parameters.QueryDeviceRelations.Type; 
+    RelationType = IoStack->Parameters.QueryDeviceRelations.Type;
 
     switch (Minor)
     {
@@ -706,6 +707,11 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                 if (NT_SUCCESS(Status))
                 {
                     Status = USBPORT_StartDevice(FdoDevice, UsbPortResources);
+
+                    if (NT_SUCCESS(Status))
+                    {
+                        FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
+                    }
                 }
             }
 
@@ -920,7 +926,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     NTSTATUS Status;
     PPNP_BUS_INFORMATION BusInformation;
     PDEVICE_CAPABILITIES DeviceCapabilities;
-    ULONG Index = 0;
+    //ULONG Index = 0;
     //ULONG_PTR Information = Irp->IoStatus.Information;
 
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
@@ -948,7 +954,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
                 if (NT_SUCCESS(Status))
                 {
-                    ;// TODO Flags |= DeviceIsStarted;
+                    PdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
+                    // TODO Flags |= DeviceIsStarted;
                 }
             }
 
