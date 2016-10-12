@@ -40,6 +40,70 @@ USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 
 NTSTATUS
 NTAPI
+USBPORT_ResumeController(IN PDEVICE_OBJECT FdoDevice)
+{
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    KIRQL OldIrql;
+    MPSTATUS MpStatus;
+
+    DPRINT("USBPORT_ResumeController: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND)
+    {
+        KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
+        FdoExtension->TimerFlags &= ~(USBPORT_TMFLAG_HC_SUSPENDED | USBPORT_TMFLAG_RH_SUSPENDED);
+        KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
+
+        if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_SUSPENDED)
+        {
+            FdoExtension->MiniPortFlags &= ~USBPORT_MPFLAG_SUSPENDED;
+
+            if (FdoExtension->MiniPortInterface->Packet.ResumeController(FdoExtension->MiniPortExt))
+            {
+                KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
+                FdoExtension->TimerFlags |= (USBPORT_TMFLAG_HC_SUSPENDED | 0x00000004);
+                KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
+
+                USBPORT_MiniportInterrupts(FdoDevice, FALSE);
+
+                FdoExtension->MiniPortInterface->Packet.StopController(FdoExtension->MiniPortExt, 1);
+
+                USBPORT_NukeAllEndpoints(FdoDevice);
+
+                RtlZeroMemory(FdoExtension->MiniPortExt, FdoExtension->MiniPortInterface->Packet.MiniPortExtensionSize);
+                RtlZeroMemory(FdoExtension->UsbPortResources.StartVA, FdoExtension->MiniPortInterface->Packet.MiniPortResourcesSize);
+
+                FdoExtension->UsbPortResources.LegacySupport &= ~0xFF00;
+                FdoExtension->UsbPortResources.LegacySupport |= 0x0100;// = 1;
+
+                MpStatus = FdoExtension->MiniPortInterface->Packet.StartController(FdoExtension->MiniPortExt, &FdoExtension->UsbPortResources);
+
+                FdoExtension->UsbPortResources.LegacySupport &= ~0xFF00;// = 0;
+
+                if (!MpStatus)
+                {
+                    USBPORT_MiniportInterrupts(FdoDevice, TRUE);
+                }
+
+                KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
+                FdoExtension->TimerFlags &= ~(USBPORT_TMFLAG_HC_SUSPENDED | 0x00000004 | USBPORT_TMFLAG_RH_SUSPENDED);
+                KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
+            }
+
+            Status = USBPORT_Wait(FdoDevice, 100);
+        }
+
+        FdoExtension->Flags &= ~USBPORT_FLAG_HC_SUSPEND;
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
                             IN PIRP Irp)
 {
