@@ -2129,6 +2129,69 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
                                    IN PIRP Irp,
                                    IN PURB Urb)
 {
-    DPRINT1("USBPORT_SyncResetPipeAndClearStall: UNIMPLEMENTED. FIXME. \n");
-    return 0;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    PUSBPORT_ENDPOINT Endpoint;
+    ULONG EndpointState;
+    NTSTATUS Status;
+
+    DPRINT_URB("USBPORT_SyncResetPipeAndClearStall: ... \n");
+
+    ASSERT(Urb->UrbHeader.UsbdDeviceHandle);
+    ASSERT(Urb->UrbHeader.Length == sizeof(struct _URB_PIPE_REQUEST));
+    ASSERT(Urb->UrbPipeRequest.PipeHandle);
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
+
+    //if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
+    //  return USBPORT_USBDStatusToNtStatus((int)Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+
+    if (PipeHandle->Flags & 2)
+        return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
+
+    Endpoint = PipeHandle->Endpoint;
+    InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
+
+    if (Endpoint->EndpointProperties.TransferType != USBPORT_TRANSFER_TYPE_ISOCHRONOUS)
+    {
+        Urb->UrbHeader.UsbdFlags |= 0x00000010;
+        Status = USBPORT_ClearStall(FdoDevice, Irp, Urb);
+    }
+    else
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        Status = USBPORT_ResetPipe(FdoDevice, Irp, Urb);
+
+        if (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_ISOCHRONOUS)
+        {
+            while (TRUE)
+            {
+                KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+                EndpointState = Endpoint->StateLast;
+
+                if (EndpointState == USBPORT_ENDPOINT_PAUSED &&
+                    IsListEmpty(&Endpoint->TransferList))
+                {
+                    USBPORT_SetEndpointState(Endpoint, USBPORT_ENDPOINT_ACTIVE);
+                }
+
+                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+                if (EndpointState == USBPORT_ENDPOINT_ACTIVE)
+                    break;
+
+                USBPORT_Wait(FdoDevice, 1);
+            }
+        }
+    }
+
+    InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
+
+    return Status;
 }
