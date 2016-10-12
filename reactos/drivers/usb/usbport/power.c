@@ -3,6 +3,41 @@
 //#define NDEBUG
 #include <debug.h>
 
+VOID
+NTAPI
+USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_SuspendController \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    FdoExtension->TimerFlags |= USBPORT_TMFLAG_RH_SUSPENDED;
+
+    USBPORT_FlushController(FdoDevice);
+
+    if (!(FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND))
+    {
+        KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
+        FdoExtension->TimerFlags |= USBPORT_TMFLAG_HC_SUSPENDED;
+        KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
+
+        if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
+        {
+            FdoExtension->MiniPortFlags |= USBPORT_MPFLAG_SUSPENDED;
+
+            USBPORT_Wait(FdoDevice, 10);
+            FdoExtension->MiniPortInterface->Packet.SuspendController(FdoExtension->MiniPortExt);
+        }
+
+        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+        FdoExtension->Flags |= USBPORT_FLAG_HC_SUSPEND;
+        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+    }
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
