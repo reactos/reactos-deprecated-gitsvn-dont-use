@@ -2125,6 +2125,64 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
+                  IN PIRP Irp,
+                  IN PURB Urb)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    PUSBPORT_ENDPOINT Endpoint;
+    KIRQL OldIrql;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_ResetPipe: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
+
+    //if ( !USBPORT_ValidatePipeHandle((PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle, PipeHandle) )
+    //    return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+
+    Endpoint = PipeHandle->Endpoint;
+
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+    if ( IsListEmpty(&Endpoint->TransferList) )
+    {
+        if ( Urb->UrbHeader.UsbdFlags & 0x00000010 )
+        {
+            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+            FdoExtension->MiniPortInterface->Packet.SetEndpointDataToggle(FdoExtension->MiniPortExt,
+                                                                          (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                                          0);
+
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+        }
+
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
+    }
+    else
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_ERROR_BUSY);
+    }
+
+    Endpoint->Flags |= ENDPOINT_FLAG_QUEUENE_EMPTY;
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+    FdoExtension->MiniPortInterface->Packet.SetEndpointStatus(FdoExtension->MiniPortExt,
+                                                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                              0);
+
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_ClearStall(IN PDEVICE_OBJECT FdoDevice,
                    IN PIRP Irp,
                    IN PURB Urb)
