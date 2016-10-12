@@ -730,6 +730,11 @@ USBPORT_AdjustDeviceCapabilities(
   IN PDEVICE_OBJECT FdoDevice,
   IN PDEVICE_OBJECT PdoDevice);
 
+VOID
+NTAPI
+USBPORT_DoIdleNotificationCallback(
+  IN PVOID Context);
+
 /* queue.c */
 
 VOID

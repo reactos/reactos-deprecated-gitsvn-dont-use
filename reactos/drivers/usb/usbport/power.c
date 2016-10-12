@@ -168,6 +168,74 @@ USBPORT_FdoPower(IN PDEVICE_OBJECT FdoDevice,
     return PoCallDriver(FdoExtension->CommonExtension.LowerDevice, Irp);
 }
 
+VOID
+NTAPI
+USBPORT_DoIdleNotificationCallback(IN PVOID Context)
+{
+    PIO_STACK_LOCATION IoStack;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PIRP NextIrp;
+    LARGE_INTEGER CurrentTime = {{0, 0}};
+    PTIMER_WORK_QUEUE_ITEM IdleQueueItem;
+    PDEVICE_OBJECT PdoDevice;
+    PUSB_IDLE_CALLBACK_INFO IdleCallbackInfo;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_DoIdleNotificationCallback \n");
+
+    IdleQueueItem = (PTIMER_WORK_QUEUE_ITEM)Context;
+
+    FdoDevice = IdleQueueItem->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    PdoDevice = FdoExtension->RootHubPdo;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    KeQuerySystemTime(&CurrentTime);
+
+    if ((FdoExtension->IdleTime.QuadPart == 0) ||
+        (((CurrentTime.QuadPart - FdoExtension->IdleTime.QuadPart) / 10000) >= 500))
+    {
+        if (PdoExtension->CommonExtension.DevicePowerState == PowerDeviceD0 &&
+            FdoExtension->CommonExtension.DevicePowerState == PowerDeviceD0)
+        {
+            NextIrp = IoCsqRemoveNextIrp(&FdoExtension->IdleIoCsq, NULL);
+
+            if (NextIrp)
+            {
+                IoStack = IoGetCurrentIrpStackLocation(NextIrp);
+                IdleCallbackInfo = (PUSB_IDLE_CALLBACK_INFO)IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+
+                if (IdleCallbackInfo && IdleCallbackInfo->IdleCallback)
+                {
+                    //DbgBreakPoint();
+                    IdleCallbackInfo->IdleCallback(IdleCallbackInfo->IdleContext);
+                }
+
+                if (NextIrp->Cancel)
+                {
+                    InterlockedDecrement(&FdoExtension->IdleLockCounter);
+
+                    NextIrp->IoStatus.Status = STATUS_CANCELLED;
+                    NextIrp->IoStatus.Information = 0;
+                    IoCompleteRequest(NextIrp, IO_NO_INCREMENT);
+                }
+                else
+                {
+                    IoCsqInsertIrp(&FdoExtension->IdleIoCsq, NextIrp, NULL);
+                }
+            }
+        }
+    }
+
+    KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
+    FdoExtension->TimerFlags &= ~USBPORT_TMFLAG_IDLE_QUEUEITEM_ON;
+    KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
+
+    ExFreePool(IdleQueueItem);
+}
+
 NTSTATUS
 NTAPI
 USBPORT_IdleNotification(IN PDEVICE_OBJECT PdoDevice,
