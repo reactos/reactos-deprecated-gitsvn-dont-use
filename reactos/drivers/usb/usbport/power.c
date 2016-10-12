@@ -173,11 +173,54 @@ NTAPI
 USBPORT_IdleNotification(IN PDEVICE_OBJECT PdoDevice,
                          IN PIRP Irp)
 {
-    NTSTATUS Status;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    LONG LockCounter;
+    NTSTATUS Status = STATUS_PENDING;
 
-    DPRINT1("USBPORT_IdleNotification: UNIMPLEMENTED. FIXME. \n");
+    DPRINT("USBPORT_IdleNotification: Irp - %p\n", Irp);
 
-    Status = STATUS_NOT_SUPPORTED;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    LockCounter = InterlockedIncrement(&FdoExtension->IdleLockCounter);
+
+    if (LockCounter != 0)
+    {
+        if (Status != STATUS_PENDING)
+        {
+            InterlockedDecrement(&FdoExtension->IdleLockCounter);
+
+            Irp->IoStatus.Status = Status;
+            Irp->IoStatus.Information = 0;
+            IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+            return Status;
+        }
+
+        Status = STATUS_DEVICE_BUSY;
+    }
+
+    if (Status != STATUS_PENDING)
+    {
+        InterlockedDecrement(&FdoExtension->IdleLockCounter);
+
+        Irp->IoStatus.Status = Status;
+        Irp->IoStatus.Information = 0;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+        return Status;
+    }
+
+    Irp->IoStatus.Status = STATUS_PENDING;
+    IoMarkIrpPending(Irp);
+
+    KeQuerySystemTime(&FdoExtension->IdleTime);
+
+    IoCsqInsertIrp(&FdoExtension->IdleIoCsq, Irp, 0);
+
     return Status;
 }
 
