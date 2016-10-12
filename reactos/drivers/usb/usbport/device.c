@@ -2125,6 +2125,50 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_ClearStall(IN PDEVICE_OBJECT FdoDevice,
+                   IN PIRP Irp,
+                   IN PURB Urb)
+{
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    USBD_STATUS USBDStatus;
+    PUSBPORT_ENDPOINT Endpoint;
+    NTSTATUS Status;
+    USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+
+    DPRINT("USBPORT_ClearStall: ... \n");
+
+    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+
+    //if ( !USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle) )
+    //    return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+
+    Endpoint = PipeHandle->Endpoint;
+
+    RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+    SetupPacket.bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+    SetupPacket.bRequest = USB_REQUEST_CLEAR_FEATURE;
+    SetupPacket.wValue.W = 0;
+    SetupPacket.wIndex.W = Endpoint->EndpointProperties.EndpointAddress;
+    SetupPacket.wLength = 0;
+
+    USBPORT_SendSetupPacket(DeviceHandle,
+                            FdoDevice,
+                            &SetupPacket,
+                            NULL,
+                            0,
+                            NULL,
+                            &USBDStatus);
+
+    Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
                                    IN PIRP Irp,
                                    IN PURB Urb)
