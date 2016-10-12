@@ -944,7 +944,7 @@ USBPORT_OpenInterface(IN PURB Urb,
     }
     else
     {
-        HandleLength = sizeof(USBPORT_INTERFACE_HANDLE) + 
+        HandleLength = sizeof(USBPORT_INTERFACE_HANDLE) +
                        (NumInterfaces - 1) * sizeof(USBPORT_PIPE_HANDLE);
 
         InterfaceHandle = (PUSBPORT_INTERFACE_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
@@ -1643,9 +1643,9 @@ NTAPI
 USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    ULONG BitMap; 
+    ULONG BitMap;
     ULONG Bit;
-    ULONG ix = 0; 
+    ULONG ix = 0;
 
     DPRINT("USBPORT_AllocateUsbAddress \n");
 
@@ -1893,7 +1893,7 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_PIPE_HANDLE PipeHandle;
     USBD_STATUS USBDStatus;
     ULONG NumInterfaces;
-    USHORT Length; 
+    USHORT Length;
     ULONG ix;
 
     DPRINT("USBPORT_SelectInterface: ... \n");

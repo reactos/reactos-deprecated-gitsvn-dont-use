@@ -387,7 +387,7 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
     ULONG HubStatus = 0;
     ULONG_PTR Buffer;
     PURB Urb;
-    ULONG Result = 1; 
+    ULONG Result = 1;
     PUSB_HUB_DESCRIPTOR HubDescriptor;
     UCHAR NumberOfPorts;
     UCHAR ix;
