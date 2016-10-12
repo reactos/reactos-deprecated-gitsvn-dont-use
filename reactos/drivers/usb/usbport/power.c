@@ -97,17 +97,29 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
 
       case IRP_MN_SET_POWER:
           DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER\n");
+
           if (IoStack->Parameters.Power.Type == DevicePowerState)
           {
               DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/DevicePowerState\n");
-              Status = USBPORT_PdoDevicePowerState(FdoDevice, Irp);
+              Status = USBPORT_PdoDevicePowerState(PdoDevice, Irp);
           }
           else
           {
-              DPRINT1("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState UNIMPLEMENTED. FIXME. \n");
+              DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState \n");
+
+              if (IoStack->Parameters.Power.State.SystemState == PowerSystemWorking)
+              {
+                  FdoExtension->TimerFlags |= USBPORT_TMFLAG_WAKE;
+              }
+              else
+              {
+                  FdoExtension->TimerFlags &= ~USBPORT_TMFLAG_WAKE;
+              }
+
               Status = STATUS_SUCCESS;
           }
 
+          PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_QUERY_POWER:
@@ -124,7 +136,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
 
     Irp->IoStatus.Status = Status;
     Irp->IoStatus.Information = 0;
-    IoCompleteRequest(Irp, 0);
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
     return Status;
 }
