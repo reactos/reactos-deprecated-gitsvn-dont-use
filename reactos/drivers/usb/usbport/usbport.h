@@ -663,6 +663,13 @@ NTAPI
 USBPORT_FlushClosedEndpointList(
   IN PDEVICE_OBJECT FdoDevice);
 
+NTSTATUS
+NTAPI
+USBPORT_SyncResetPipeAndClearStall(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp,
+  IN PURB Urb);
+
 /* iface.c */
 
 NTSTATUS
