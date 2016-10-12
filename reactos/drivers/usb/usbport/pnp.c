@@ -313,6 +313,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     USBPORT_WorkerRequestDpc,
                     FdoDevice);
 
+    KeInitializeSemaphore(&FdoExtension->DeviceSemaphore, 1, 1);
+
     IoCsqInitialize(&FdoExtension->IdleIoCsq,
                     USBPORT_InsertIdleIrp,
                     USBPORT_RemoveIdleIrp,

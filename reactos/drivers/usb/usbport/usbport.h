@@ -293,6 +293,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG UsbAddressBitMap[4];
   LIST_ENTRY DeviceHandleList;
   KSPIN_LOCK DeviceHandleSpinLock;
+  KSEMAPHORE DeviceSemaphore;
   /* Device Capabilities */
   DEVICE_CAPABILITIES Capabilities;
   ULONG BusNumber;
@@ -318,7 +319,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[63]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[58]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
