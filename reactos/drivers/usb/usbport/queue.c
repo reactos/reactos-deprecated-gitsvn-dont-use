@@ -364,7 +364,7 @@ USBPORT_FindUrbInIrpTable(IN PUSBPORT_IRP_TABLE IrpTable,
                           IN PURB Urb,
                           IN PIRP Irp)
 {
-    ULONG ix; 
+    ULONG ix;
     PIRP irp;
     PURB urbIn;
     PIO_STACK_LOCATION IoStack;
@@ -406,7 +406,7 @@ NTAPI
 USBPORT_FindIrpInTable(IN PUSBPORT_IRP_TABLE IrpTable,
                        IN PIRP Irp)
 {
-    ULONG ix; 
+    ULONG ix;
     PIRP irp;
 
     DPRINT_CORE("USBPORT_FindIrpInTable: IrpTable - %p, Irp - %p\n", IrpTable, Irp);

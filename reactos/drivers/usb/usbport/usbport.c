@@ -189,7 +189,7 @@ USBPORT_GetSetConfigSpaceData(IN PDEVICE_OBJECT FdoDevice,
 }
 
 MPSTATUS
-NTAPI 
+NTAPI
 USBPORT_ReadWriteConfigSpace(IN PVOID Context,
                              IN BOOLEAN IsReadData,
                              IN PVOID Buffer,
@@ -1194,7 +1194,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
 
     USBPORT_IsrDpcHandler(FdoDevice, FALSE);
 
-    if (FdoExtension->IdleLockCounter > -1 && 
+    if (FdoExtension->IdleLockCounter > -1 &&
         !(TimerFlags & USBPORT_TMFLAG_IDLE_QUEUEITEM_ON))
     {
         IdleQueueItem = (PTIMER_WORK_QUEUE_ITEM)ExAllocatePoolWithTag(NonPagedPool,
@@ -1348,7 +1348,7 @@ PUSBPORT_MINIPORT_INTERFACE
 NTAPI
 USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
 {
-    KIRQL OldIrql; 
+    KIRQL OldIrql;
     PLIST_ENTRY List;
     PUSBPORT_MINIPORT_INTERFACE MiniPortInterface = NULL;
 
@@ -1632,7 +1632,7 @@ USBPORT_GetMappedVirtualAddress(IN PVOID PhysicalAddress,
 {
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
     PUSBPORT_ENDPOINT Endpoint;
-    ULONG Offset; 
+    ULONG Offset;
     ULONG_PTR VirtualAddress;
 
     DPRINT_CORE("USBPORT_GetMappedVirtualAddress ... \n");
@@ -1664,12 +1664,12 @@ USBPORT_InvalidateEndpoint(IN PVOID Context1,
 
     DPRINT_CORE("USBPORT_InvalidateEndpoint: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context1 - 
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context1 -
                                                sizeof(USBPORT_DEVICE_EXTENSION));
 
     FdoDevice = FdoExtension->CommonExtension.SelfDevice;
 
-    Endpoint = (PUSBPORT_ENDPOINT)((ULONG_PTR)Context2 - 
+    Endpoint = (PUSBPORT_ENDPOINT)((ULONG_PTR)Context2 -
                                    sizeof(USBPORT_ENDPOINT));
 
     if (Context2)
@@ -2384,7 +2384,7 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
     // Specifies a value, from 4 to 31 inclusive, that becomes part of the request type code in the USB-defined setup packet.
-    // This value is defined by USB for a class request or the vendor for a vendor request. 
+    // This value is defined by USB for a class request or the vendor for a vendor request.
 
     SetupPacket->bmRequestType._BM.Dir = Urb->UrbControlTransfer.TransferFlags & 1;
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
@@ -2873,7 +2873,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
             break;
 
         case IRP_MJ_SYSTEM_CONTROL: // 23
-            DPRINT("USBPORT_Dispatch: IRP_MJ_SYSTEM_CONTROL\n"); 
+            DPRINT("USBPORT_Dispatch: IRP_MJ_SYSTEM_CONTROL\n");
             if (DeviceExtension->IsPDO)
             {
                 Irp->IoStatus.Status = Status;
@@ -2887,7 +2887,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
             break;
 
         case IRP_MJ_PNP: // 27
-            DPRINT("USBPORT_Dispatch: IRP_MJ_PNP\n"); 
+            DPRINT("USBPORT_Dispatch: IRP_MJ_PNP\n");
             if (DeviceExtension->IsPDO)
                 Status = USBPORT_PdoPnP(DeviceObject, Irp);
             else
@@ -2896,7 +2896,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
         case IRP_MJ_CREATE: // 0
         case IRP_MJ_CLOSE: // 2
-            DPRINT("USBPORT_Dispatch: IRP_MJ_CREATE | IRP_MJ_CLOSE\n"); 
+            DPRINT("USBPORT_Dispatch: IRP_MJ_CREATE | IRP_MJ_CLOSE\n");
             Irp->IoStatus.Status = Status;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
             break;
