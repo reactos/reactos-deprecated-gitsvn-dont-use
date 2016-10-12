@@ -315,11 +315,12 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   PUSBPORT_IRP_TABLE ActiveIrpTable;
   /* Power */
   LONG SetPowerLockCounter;
+  KSPIN_LOCK PowerWakeSpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[1]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[64]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
-C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x300);
+C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
   USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 18
@@ -341,6 +342,7 @@ typedef struct _USBPORT_RHDEVICE_EXTENSION {
   PRH_INIT_CALLBACK RootHubInitCallback;
   PVOID RootHubInitContext;
   DEVICE_CAPABILITIES Capabilities;
+  PIRP WakeIrp;
 } USBPORT_RHDEVICE_EXTENSION, *PUSBPORT_RHDEVICE_EXTENSION;
 
 typedef struct _USBPORT_ROOT_HUB_DATA {
