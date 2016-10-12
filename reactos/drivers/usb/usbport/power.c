@@ -12,6 +12,14 @@ USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT FdoDevice,
     return STATUS_SUCCESS;
 }
 
+VOID
+NTAPI
+USBPORT_CancelPendingWakeIrp(IN PDEVICE_OBJECT DeviceObject,
+                             IN PIRP Irp)
+{
+    DPRINT1("USBPORT_CancelPendingWakeIrp: UNIMPLEMENTED. FIXME. \n");
+}
+
 NTSTATUS
 NTAPI
 USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
