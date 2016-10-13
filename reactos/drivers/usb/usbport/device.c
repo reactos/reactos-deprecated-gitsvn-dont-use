@@ -1559,6 +1559,41 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     return Result;
 }
 
+BOOLEAN
+NTAPI
+USBPORT_DeviceHasTransfers(IN PDEVICE_OBJECT FdoDevice,
+                           IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
+{
+    PLIST_ENTRY PipeHandleList;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+
+    DPRINT("USBPORT_DeviceHasTransfers: ... \n");
+
+    PipeHandleList = &DeviceHandle->PipeHandleList;
+
+    if (!IsListEmpty(&DeviceHandle->PipeHandleList))
+    {
+        PipeHandleList = PipeHandleList->Flink;
+    }
+
+    while (PipeHandleList != &DeviceHandle->PipeHandleList)
+    {
+        PipeHandle = CONTAINING_RECORD(PipeHandleList,
+                                       USBPORT_PIPE_HANDLE,
+                                       PipeLink);
+
+        PipeHandleList = PipeHandleList->Flink;
+
+        if (!(PipeHandle->Flags & 2) && 
+            USBPORT_EndpointHasQueuedTransfers(FdoDevice, PipeHandle->Endpoint, NULL))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 VOID
 NTAPI
 USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
@@ -1603,8 +1638,6 @@ USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
 
         USBPORT_Wait(FdoDevice, 100);
     }
-
-    return Result;
 }
 
 NTSTATUS
