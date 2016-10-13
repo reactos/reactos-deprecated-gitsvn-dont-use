@@ -10,6 +10,7 @@ list(APPEND SOURCE
     power.c
     queue.c
     roothub.c
+    urb.c
     usbport.c
     usbport.h)
 
