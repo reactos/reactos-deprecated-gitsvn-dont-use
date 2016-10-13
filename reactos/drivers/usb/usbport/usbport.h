@@ -933,4 +933,13 @@ NTAPI
 USBPORT_InvalidateRootHub(
   PVOID Context);
 
+/* urb.c */
+
+NTSTATUS
+NTAPI
+USBPORT_HandleSubmitURB(
+  IN PDEVICE_OBJECT PdoDevice,
+  IN PIRP Irp,
+  IN PURB Urb);
+
 #endif /* USBPORT_H__ */
