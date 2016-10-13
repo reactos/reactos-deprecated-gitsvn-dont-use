@@ -274,7 +274,15 @@ USB_BUSIFFN
 USBHI_FlushTransfers(IN PVOID BusContext,
                      OUT PUSB_DEVICE_HANDLE UsbdDeviceHandle)
 {
-    DPRINT1("USBHI_FlushTransfers: UNIMPLEMENTED. FIXME. \n");
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+
+    DPRINT("USBHI_FlushTransfers: ... \n");
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    USBPORT_BadRequestFlush(PdoExtension->FdoDevice);
 }
 
 VOID

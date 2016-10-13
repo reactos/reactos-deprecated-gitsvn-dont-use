@@ -1015,3 +1015,29 @@ USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
         USBPORT_Wait(FdoDevice, 100);
     }
 }
+
+VOID
+NTAPI
+USBPORT_BadRequestFlush(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PIRP Irp;
+
+    NDEBUG_USBPORT_QUEUE("USBPORT_BadRequestFlush: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    while (TRUE)
+    {
+        Irp = IoCsqRemoveNextIrp(&FdoExtension->BadRequestIoCsq, 0);
+
+        if (!Irp)
+            break;
+
+        DPRINT1("USBPORT_BadRequestFlush: Irp - %p\n", Irp);
+
+        Irp->IoStatus.Status = STATUS_DEVICE_NOT_CONNECTED;
+        Irp->IoStatus.Information = 0;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    }
+}
