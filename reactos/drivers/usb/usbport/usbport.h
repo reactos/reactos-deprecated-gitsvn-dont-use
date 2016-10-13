@@ -683,10 +683,14 @@ USBPORT_FlushClosedEndpointList(
 
 NTSTATUS
 NTAPI
-USBPORT_SyncResetPipeAndClearStall(
+USBPORT_SendSetupPacket(
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN PDEVICE_OBJECT FdoDevice,
-  IN PIRP Irp,
-  IN PURB Urb);
+  IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
+  IN PVOID Buffer,
+  IN ULONG Length,
+  IN OUT PULONG TransferedLen,
+  IN OUT PUSBD_STATUS pUSBDStatus);
 
 /* iface.c */
 
