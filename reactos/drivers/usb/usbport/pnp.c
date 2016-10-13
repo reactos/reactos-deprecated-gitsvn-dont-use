@@ -443,7 +443,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     DPRINT1("USBPORT_StartDevice: FIXME USBPORT_CreateLegacySymbolicLink\n");
     //USBPORT_CreateLegacySymbolicLink(FdoDevice);
 
-    FdoExtension->Flags |= USBPORT_FLAG_DEVICE_STARTED;
+    FdoExtension->Flags |= USBPORT_FLAG_HC_STARTED;
 
     DPRINT("USBPORT_StartDevice: Exit Status - %p\n", Status);
     return Status;

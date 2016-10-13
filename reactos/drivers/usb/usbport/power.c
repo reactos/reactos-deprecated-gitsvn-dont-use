@@ -282,7 +282,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
       case IRP_MN_WAIT_WAKE:
           DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE\n");
 
-          if (!(FdoExtension->Flags & USBPORT_FLAG_DEVICE_STARTED))
+          if (!(FdoExtension->Flags & USBPORT_FLAG_HC_STARTED))
           {
               Status = STATUS_NOT_SUPPORTED;
               break;
