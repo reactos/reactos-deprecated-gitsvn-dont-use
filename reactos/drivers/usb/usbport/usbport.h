@@ -520,6 +520,13 @@ NTAPI
 USBPORT_NukeAllEndpoints(
   IN PDEVICE_OBJECT FdoDevice);
 
+BOOLEAN
+NTAPI
+USBPORT_EndpointHasQueuedTransfers(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN PULONG TransferCount);
+
 /* debug.c */
 
 ULONG
@@ -923,6 +930,13 @@ VOID
 NTAPI
 USBPORT_BadRequestFlush(
   IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
+USBPORT_AbortEndpoint(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN PIRP Irp);
 
 /* roothub.c */
 
