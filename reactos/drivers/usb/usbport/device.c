@@ -1562,9 +1562,49 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 VOID
 NTAPI
 USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
-                          IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
+                       IN PUSBPORT_DEVICE_HANDLE DeviceHandle)
 {
-    DPRINT1("USBPORT_AbortTransfers: UNIMPLEMENTED. FIXME. \n");
+    PLIST_ENTRY HandleList;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    BOOLEAN Result;
+
+    DPRINT("USBPORT_AbortAllTransfers: ... \n");
+
+    HandleList = &DeviceHandle->PipeHandleList;
+
+    if (!IsListEmpty(HandleList))
+    {
+        HandleList = HandleList->Flink;
+    }
+
+    while (HandleList != &DeviceHandle->PipeHandleList)
+    {
+        PipeHandle = CONTAINING_RECORD(HandleList,
+                                       USBPORT_PIPE_HANDLE,
+                                       PipeLink);
+
+        HandleList = HandleList->Flink;
+
+        if (!(PipeHandle->Flags & 2))
+        {
+            PipeHandle->Endpoint->Flags |= 0x20;
+
+            USBPORT_AbortEndpoint(FdoDevice, PipeHandle->Endpoint, NULL);
+            USBPORT_FlushMapTransfers(FdoDevice);
+        }
+    }
+
+    while (TRUE)
+    {
+        Result = USBPORT_DeviceHasTransfers(FdoDevice, DeviceHandle);
+
+        if (!Result)
+            break;
+
+        USBPORT_Wait(FdoDevice, 100);
+    }
+
+    return Result;
 }
 
 NTSTATUS
