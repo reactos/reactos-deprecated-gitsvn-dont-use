@@ -919,6 +919,11 @@ NTAPI
 USBPORT_FlushController(
   IN PDEVICE_OBJECT FdoDevice);
 
+VOID
+NTAPI
+USBPORT_BadRequestFlush(
+  IN PDEVICE_OBJECT FdoDevice);
+
 /* roothub.c */
 
 VOID
