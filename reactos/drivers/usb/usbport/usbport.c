@@ -2247,8 +2247,6 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
     if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_URB)
     {
         PURB Urb = (PURB)IoStack->Parameters.Others.Argument1;
-
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_URB\n");
         return USBPORT_HandleSubmitURB(PdoDevice, Irp, Urb);
     }
 
@@ -2315,65 +2313,108 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
     DeviceExtension = (PUSBPORT_COMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
-    if (DeviceExtension->IsPDO)
-    {
-        DPRINT("USBPORT_Dispatch: PDO (ROOTHUB_DEVICE). Major - %d, Minor - %d\n",
-               IoStack->MajorFunction,
-               IoStack->MinorFunction);
-    }
-    else
-    {
-        DPRINT("USBPORT_Dispatch: FDO (USBPORT_DEVICE). Major - %d, Minor - %d\n",
-               IoStack->MajorFunction,
-               IoStack->MinorFunction);
-    }
-
     switch (IoStack->MajorFunction)
     {
         case IRP_MJ_DEVICE_CONTROL: // 14
-            DPRINT("USBPORT_Dispatch: IRP_MJ_DEVICE_CONTROL\n");
             if (DeviceExtension->IsPDO)
+            {
+                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_DEVICE_CONTROL. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_PdoDeviceControl(DeviceObject, Irp);
+            }
             else
+            {
+                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_DEVICE_CONTROL. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_FdoDeviceControl(DeviceObject, Irp);
+            }
+
             break;
 
         case IRP_MJ_SCSI: // 15 IRP_MJ_NTERNAL_DEVICE_CONTROL:
-            DPRINT("USBPORT_Dispatch: IRP_MJ_SCSI\n");
             if (DeviceExtension->IsPDO)
+            {
+                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_SCSI. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_PdoScsi(DeviceObject, Irp);
+            }
             else
+            {
+                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_SCSI. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_FdoScsi(DeviceObject, Irp);
+            }
+
             break;
 
         case IRP_MJ_POWER: // 22
-            DPRINT("USBPORT_Dispatch: USBPORT_XdoPowerIrp\n");
             if (DeviceExtension->IsPDO)
+            {
+                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_POWER. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_PdoPower(DeviceObject, Irp);
+            }
             else
+            {
+                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_POWER. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_FdoPower(DeviceObject, Irp);
+            }
+
             break;
 
         case IRP_MJ_SYSTEM_CONTROL: // 23
-            DPRINT("USBPORT_Dispatch: IRP_MJ_SYSTEM_CONTROL\n");
             if (DeviceExtension->IsPDO)
             {
+                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_SYSTEM_CONTROL. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Irp->IoStatus.Status = Status;
                 IoCompleteRequest(Irp, IO_NO_INCREMENT);
             }
             else
             {
+                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_SYSTEM_CONTROL. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 IoSkipCurrentIrpStackLocation(Irp);
                 Status = IoCallDriver(DeviceExtension->LowerDevice, Irp);
             }
+
             break;
 
         case IRP_MJ_PNP: // 27
-            DPRINT("USBPORT_Dispatch: IRP_MJ_PNP\n");
             if (DeviceExtension->IsPDO)
+            {
+                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_PNP. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_PdoPnP(DeviceObject, Irp);
+            }
             else
+            {
+                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_PNP. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+
                 Status = USBPORT_FdoPnP(DeviceObject, Irp);
+            }
+
             break;
 
         case IRP_MJ_CREATE: // 0
@@ -2384,8 +2425,18 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
             break;
 
         default:
-            DPRINT("USBPORT_Dispatch: unhandled IRP_MJ_??? function - %d\n",
-                   IoStack->MajorFunction);
+            if (DeviceExtension->IsPDO)
+            {
+                DPRINT("USBPORT_Dispatch: PDO unhandled IRP_MJ_???. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+            }
+            else
+            {
+                DPRINT("USBPORT_Dispatch: FDO unhandled IRP_MJ_???. Major - %d, Minor - %d\n",
+                       IoStack->MajorFunction,
+                       IoStack->MinorFunction);
+            }
 
             Status = STATUS_INVALID_DEVICE_REQUEST;
             Irp->IoStatus.Status = Status;
