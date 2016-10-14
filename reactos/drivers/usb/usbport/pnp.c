@@ -860,6 +860,16 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                     if (NT_SUCCESS(Status))
                     {
                         FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
+
+                        if ( FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2 )
+                        {
+                            USBPORT_AddUSB2Fdo(FdoDevice);
+                        }
+                        else
+                        {
+                            USBPORT_AddUSB1Fdo(FdoDevice);
+                        }
+
                     }
                 }
             }

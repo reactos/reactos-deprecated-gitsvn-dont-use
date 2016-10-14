@@ -11,8 +11,64 @@
 #include "usbdebug.h"
 
 LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
+LIST_ENTRY USBPORT_USB1FdoList = {NULL, NULL};
+LIST_ENTRY USBPORT_USB2FdoList = {NULL, NULL};
+
 KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
+
+VOID
+NTAPI
+USBPORT_AddUSB1Fdo(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_AddUSB1Fdo: FdoDevice - %p\n", FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension->Flags |= USBPORT_FLAG_REGISTERED_FDO;
+
+    ExInterlockedInsertTailList(&USBPORT_USB1FdoList,
+                                &FdoExtension->ControllerLink,
+                                &USBPORT_SpinLock);
+}
+
+VOID
+NTAPI
+USBPORT_AddUSB2Fdo(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_AddUSB2Fdo: FdoDevice - %p\n", FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension->Flags |= USBPORT_FLAG_REGISTERED_FDO;
+
+    ExInterlockedInsertTailList(&USBPORT_USB2FdoList,
+                                &FdoExtension->ControllerLink,
+                                &USBPORT_SpinLock);
+}
+
+VOID
+NTAPI
+USBPORT_RemoveUSBxFdo(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_RemoveUSBxFdo: FdoDevice - %p\n", FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&USBPORT_SpinLock, &OldIrql);
+    RemoveEntryList(&FdoExtension->ControllerLink);
+    KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
+
+    FdoExtension->Flags &= ~USBPORT_FLAG_REGISTERED_FDO;
+
+    FdoExtension->ControllerLink.Flink = NULL;
+    FdoExtension->ControllerLink.Blink = NULL;
+}
 
 MPSTATUS
 NTAPI
@@ -2529,6 +2585,9 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     if (!USBPORT_Initialized)
     {
         InitializeListHead(&USBPORT_MiniPortDrivers);
+        InitializeListHead(&USBPORT_USB1FdoList);
+        InitializeListHead(&USBPORT_USB2FdoList);
+
         KeInitializeSpinLock(&USBPORT_SpinLock);
         USBPORT_Initialized = TRUE;
     }
