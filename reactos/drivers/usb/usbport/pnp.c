@@ -446,6 +446,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG IdleEpSupportEx = 0;
     ULONG SoftRetry = 0;
     ULONG Limit2GB = 0;
+    ULONG TotalBusBandwidth = 0;
     BOOLEAN IsCompanion = FALSE;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
@@ -518,8 +519,6 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 
     if (!NT_SUCCESS(Status))
         goto ExitWithError;
-
-    FdoExtension->BusBandwidth = FdoExtension->MiniPortInterface->Packet.MiniPortBusBandwidth;
 
     KeInitializeSpinLock(&FdoExtension->EndpointListSpinLock);
     KeInitializeSpinLock(&FdoExtension->EpStateChangeSpinLock);
@@ -639,6 +638,19 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     if (DisableCcDetect)
         FdoExtension->Flags &= USBPORT_FLAG_COMPANION_HC;
 
+    TotalBusBandwidth = FdoExtension->MiniPortInterface->Packet.MiniPortBusBandwidth;
+    FdoExtension->BusBandwidth = TotalBusBandwidth;
+
+    USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
+                                        FdoExtension->CommonExtension.LowerPdoDevice,
+                                        1,
+                                        L"TotalBusBandwidth",
+                                        36,
+                                        &TotalBusBandwidth,
+                                        sizeof(TotalBusBandwidth));
+
+    if (TotalBusBandwidth != FdoExtension->BusBandwidth)
+        FdoExtension->BusBandwidth = TotalBusBandwidth;
 
     FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
 
