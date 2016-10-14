@@ -78,13 +78,13 @@ USBPORT_SetRegistryKeyValue(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
-USBPORT_GetRegistryKeyValueFullInfo(PDEVICE_OBJECT FdoDevice,
-                                    PDEVICE_OBJECT PdoDevice,
-                                    ULONG Type,
-                                    PCWSTR SourceString,
-                                    ULONG LengthStr,
-                                    PVOID Buffer,
-                                    ULONG NumberOfBytes)
+USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
+                                    IN PDEVICE_OBJECT PdoDevice,
+                                    IN ULONG Type,
+                                    IN PCWSTR SourceString,
+                                    IN ULONG LengthStr,
+                                    IN PVOID Buffer,
+                                    IN ULONG NumberOfBytes)
 {
     NTSTATUS Status;
     PKEY_VALUE_FULL_INFORMATION KeyValue;

@@ -69,6 +69,57 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
     return Status;
 }
 
+BOOLEAN
+NTAPI
+USBPORT_IsSelectiveSuspendEnabled(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG IsEnabled = 0;
+
+    DPRINT("USBPORT_IsSelectiveSuspendEnabled: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
+                                        FdoExtension->CommonExtension.LowerPdoDevice,
+                                        1,
+                                        L"HcDisableSelectiveSuspend",
+                                        52, //FIXME: Length "HcDisableSelectiveSuspend" + 0
+                                        &IsEnabled,
+                                        sizeof(IsEnabled));
+
+    return (IsEnabled == 0);
+}
+
+NTSTATUS
+NTAPI
+USBPORT_GetConfigValue(IN PWSTR ValueName,
+                       IN ULONG ValueType,
+                       IN PVOID ValueData,
+                       IN ULONG ValueLength,
+                       IN PVOID Context,
+                       IN PVOID EntryContext)
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+
+    DPRINT("USBPORT_GetConfigValue \n");
+
+    if ( ValueType == REG_BINARY )
+    {
+        *(PUCHAR)EntryContext = *(PUCHAR)ValueData;
+    }
+    else if ( ValueType == REG_DWORD )
+    {
+        *(PULONG)EntryContext = *(PULONG)ValueData;
+    }
+    else
+    {
+        Status = STATUS_INVALID_PARAMETER;
+    }
+
+    return Status;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_GetDefaultBIOSx(IN PDEVICE_OBJECT FdoDevice,
@@ -419,13 +470,22 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension->UsbAddressBitMap[2] = 0;
     FdoExtension->UsbAddressBitMap[3] = 0;
 
-    USBPORT_GetDefaultBIOS_X(FdoDevice,
-                             &FdoExtension->UsbBIOSx,
-                             &DisableSelectiveSuspend,
-                             &DisableCcDetect,
-                             &IdleEpSupport,
-                             &IdleEpSupportEx,
-                             &SoftRetry);
+    USBPORT_GetDefaultBIOSx(FdoDevice,
+                            &FdoExtension->UsbBIOSx,
+                            &DisableSelectiveSuspend,
+                            &DisableCcDetect,
+                            &IdleEpSupport,
+                            &IdleEpSupportEx,
+                            &SoftRetry);
+
+    if (DisableSelectiveSuspend)
+        FdoExtension->Flags |= USBPORT_FLAG_BIOS_DISABLE_SS;
+
+    if (!DisableSelectiveSuspend &&
+        USBPORT_IsSelectiveSuspendEnabled(FdoDevice))
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_SELECTIVE_SUSPEND;
+    }
 
     FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
 

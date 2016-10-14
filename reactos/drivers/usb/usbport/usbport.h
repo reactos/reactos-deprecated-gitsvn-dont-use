@@ -67,7 +67,7 @@
 #define USBPORT_FLAG_COMPANION_HC      0x01000000
 #define USBPORT_FLAG_REGISTERED_FDO    0x02000000
 #define USBPORT_FLAG_NO_HACTION        0x04000000
-
+#define USBPORT_FLAG_BIOS_DISABLE_SS   0x08000000 //Selective Suspend
 #define USBPORT_FLAG_RH_INIT_CALLBACK  0x80000000
 
 /* Timer Flags */
@@ -326,7 +326,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[57]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[58]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
@@ -543,6 +543,17 @@ USBPORT_SetRegistryKeyValue(
   IN PCWSTR ValueNameString,
   IN PVOID Data,
   IN ULONG DataSize);
+
+NTSTATUS
+NTAPI
+USBPORT_GetRegistryKeyValueFullInfo(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PDEVICE_OBJECT PdoDevice,
+  IN ULONG Type,
+  IN PCWSTR SourceString,
+  IN ULONG LengthStr,
+  IN PVOID Buffer,
+  IN ULONG NumberOfBytes);
 
 /* debug.c */
 
