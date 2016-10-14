@@ -519,7 +519,7 @@ typedef struct _USBPORT_ENDPOINT_PROPERTIES {
   UCHAR Reserved1;
   ULONG DeviceSpeed;
   ULONG UsbBandwidth;
-  ULONG Reserved2;
+  ULONG ScheduleOffset;
   ULONG TransferType;
   ULONG Direction;
   ULONG BufferVA;
