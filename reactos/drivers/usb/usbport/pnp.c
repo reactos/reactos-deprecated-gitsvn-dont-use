@@ -71,6 +71,79 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_GetDefaultBIOSx(IN PDEVICE_OBJECT FdoDevice,
+                         IN PULONG UsbBIOSx,
+                         IN PULONG DisableSelectiveSuspend,
+                         IN PULONG DisableCcDetect,
+                         IN PULONG IdleEpSupport,
+                         IN PULONG IdleEpSupportEx,
+                         IN PULONG SoftRetry)
+{
+    RTL_QUERY_REGISTRY_TABLE QueryTable[7];
+
+    DPRINT("USBPORT_GetDefaultBIOS_X: ... \n");
+
+    RtlZeroMemory(QueryTable, 7 * sizeof(RTL_QUERY_REGISTRY_TABLE));
+
+    *UsbBIOSx = 2;
+
+    QueryTable[0].QueryRoutine = USBPORT_GetConfigValue;
+    QueryTable[0].Flags = 0;
+    QueryTable[0].Name = L"UsbBIOSx";
+    QueryTable[0].EntryContext = UsbBIOSx;
+    QueryTable[0].DefaultType = REG_DWORD;
+    QueryTable[0].DefaultData = UsbBIOSx;
+    QueryTable[0].DefaultLength = sizeof(ULONG);
+
+    QueryTable[1].QueryRoutine = USBPORT_GetConfigValue;
+    QueryTable[1].Flags = 0;
+    QueryTable[1].Name = L"DisableSelectiveSuspend";
+    QueryTable[1].EntryContext = DisableSelectiveSuspend;
+    QueryTable[1].DefaultType = REG_DWORD;
+    QueryTable[1].DefaultData = DisableSelectiveSuspend;
+    QueryTable[1].DefaultLength = sizeof(ULONG);
+
+    QueryTable[2].QueryRoutine = USBPORT_GetConfigValue;
+    QueryTable[2].Flags = 0;
+    QueryTable[2].Name = L"DisableCcDetect";
+    QueryTable[2].EntryContext = DisableCcDetect;
+    QueryTable[2].DefaultType = REG_DWORD;
+    QueryTable[2].DefaultData = DisableCcDetect;
+    QueryTable[2].DefaultLength = sizeof(ULONG);
+
+    QueryTable[3].QueryRoutine = USBPORT_GetConfigValue;
+    QueryTable[3].Flags = 0;
+    QueryTable[3].Name = L"EnIdleEndpointSupport";
+    QueryTable[3].EntryContext = IdleEpSupport;
+    QueryTable[3].DefaultType = REG_DWORD;
+    QueryTable[3].DefaultData = IdleEpSupport;
+    QueryTable[3].DefaultLength = sizeof(ULONG);
+
+    QueryTable[4].QueryRoutine = USBPORT_GetConfigValue;
+    QueryTable[4].Flags = 0;
+    QueryTable[4].Name = L"EnIdleEndpointSupportEx";
+    QueryTable[4].EntryContext = IdleEpSupportEx;
+    QueryTable[4].DefaultType = REG_DWORD;
+    QueryTable[4].DefaultData = IdleEpSupportEx;
+    QueryTable[4].DefaultLength = sizeof(ULONG);
+
+    QueryTable[5].QueryRoutine = USBPORT_GetConfigValue;
+    QueryTable[5].Flags = 0;
+    QueryTable[5].Name = L"EnSoftRetry";
+    QueryTable[5].EntryContext = SoftRetry;
+    QueryTable[5].DefaultType = REG_DWORD;
+    QueryTable[5].DefaultData = SoftRetry;
+    QueryTable[5].DefaultLength = sizeof(ULONG);
+
+    return RtlQueryRegistryValues(RTL_REGISTRY_SERVICES,
+                                  L"usb",
+                                  QueryTable,
+                                  NULL,
+                                  NULL);
+}
+
+NTSTATUS
+NTAPI
 USBPORT_QueryPciBusInterface(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -215,6 +288,11 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
     ULONG ResultLength;
     KIRQL OldIrql;
+    ULONG DisableSelectiveSuspend = 0;
+    ULONG DisableCcDetect = 0;
+    ULONG IdleEpSupport = 0;
+    ULONG IdleEpSupportEx = 0;
+    ULONG SoftRetry = 0;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -340,6 +418,14 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension->UsbAddressBitMap[1] = 0;
     FdoExtension->UsbAddressBitMap[2] = 0;
     FdoExtension->UsbAddressBitMap[3] = 0;
+
+    USBPORT_GetDefaultBIOS_X(FdoDevice,
+                             &FdoExtension->UsbBIOSx,
+                             &DisableSelectiveSuspend,
+                             &DisableCcDetect,
+                             &IdleEpSupport,
+                             &IdleEpSupportEx,
+                             &SoftRetry);
 
     FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
 

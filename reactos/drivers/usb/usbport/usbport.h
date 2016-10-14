@@ -243,6 +243,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG Flags;
   PDEVICE_OBJECT RootHubPdo; // RootHubDeviceObject
   ULONG FdoNameNumber;
+  ULONG UsbBIOSx;
   /* Miniport */
   ULONG MiniPortFlags;
   PVOID MiniPortExt;
@@ -325,7 +326,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[58]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[57]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
