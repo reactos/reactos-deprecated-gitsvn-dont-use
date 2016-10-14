@@ -683,8 +683,19 @@ BOOLEAN
 USB_BUSIFFN
 USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
 {
-    DPRINT("USBDI_IsDeviceHighSpeed \n");
-    return FALSE;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBDI_IsDeviceHighSpeed: ... \n");
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    return FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2;
 }
 
 NTSTATUS
