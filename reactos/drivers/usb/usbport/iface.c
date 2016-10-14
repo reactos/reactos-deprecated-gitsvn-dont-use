@@ -307,14 +307,53 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
 }
 
 NTSTATUS
+NTAPI
+USBPORT_ParseSymbolicName(IN PDEVICE_OBJECT Device,
+                          IN OUT PUNICODE_STRING Name)
+{
+    DPRINT1("USBPORT_ParseSymbolicName FIXME\n");
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
 USB_BUSIFFN
 USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
-                             OUT PVOID HubInfoBuffer,
+                             IN OUT PVOID HubInfoBuffer,
                              IN ULONG HubInfoBufferLen,
                              OUT PULONG HubNameActualLen)
 {
-    DPRINT1("USBHI_GetRootHubSymbolicName: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    UNICODE_STRING HubName;
+    PUNICODE_STRING InfoBuffer;
+    NTSTATUS Status;
+
+    DPRINT("USBHI_GetRootHubSymbolicName: ... \n");
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Status = USBPORT_ParseSymbolicName(FdoDevice, &HubName);
+
+    if ( HubInfoBufferLen < HubName.Length )
+    {
+        InfoBuffer = (PUNICODE_STRING)HubInfoBuffer;
+        InfoBuffer->Length = 0;
+    }
+    else
+    {
+        RtlCopyMemory(HubInfoBuffer, HubName.Buffer, HubName.Length);
+    }
+
+    *HubNameActualLen = HubName.Length;
+
+    RtlFreeUnicodeString(&HubName);
+
+    return Status;
 }
 
 PVOID
