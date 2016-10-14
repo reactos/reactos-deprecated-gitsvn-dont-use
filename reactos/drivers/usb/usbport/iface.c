@@ -199,8 +199,55 @@ USB_BUSIFFN
 USBHI_ControllerSelectiveSuspend(IN PVOID BusContext,
                                  IN BOOLEAN Enable)
 {
-    DPRINT1("USBHI_ControllerSelectiveSuspend: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG Flags;
+    ULONG HcDisable;
+    NTSTATUS Status;
+
+    DPRINT("USBHI_ControllerSelectiveSuspend: Enable - %x\n", Enable);
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Flags = FdoExtension->Flags;
+
+    if (Flags & USBPORT_FLAG_BIOS_DISABLE_SS)
+    {
+        return STATUS_SUCCESS;
+    }
+
+    if (Enable)
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_SELECTIVE_SUSPEND;
+        HcDisable = 0;
+    }
+    else
+    {
+        FdoExtension->Flags &= ~USBPORT_FLAG_SELECTIVE_SUSPEND;
+        HcDisable = 1;
+    }
+
+    Status = USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
+                                         (HANDLE)1,
+                                         REG_DWORD,
+                                         L"HcDisableSelectiveSuspend",
+                                         &HcDisable,
+                                         sizeof(HcDisable));
+
+    if (NT_SUCCESS(Status))
+    {
+        if (Enable) 
+            FdoExtension->Flags |= USBPORT_FLAG_SELECTIVE_SUSPEND;
+        else
+            FdoExtension->Flags &= ~USBPORT_FLAG_SELECTIVE_SUSPEND;
+    }
+
+    return Status;
 }
 
 NTSTATUS
