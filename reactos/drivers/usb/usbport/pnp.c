@@ -195,6 +195,107 @@ USBPORT_GetDefaultBIOSx(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_IsCompanionController(IN PDEVICE_OBJECT DeviceObject,
+                              IN BOOLEAN *IsCompanion)
+{
+    PDEVICE_OBJECT HighestDevice;
+    PIRP Irp;
+    KEVENT Event;
+    PIO_STACK_LOCATION IoStack;
+    PCI_DEVICE_PRESENT_INTERFACE PciInterface = {0};
+    PCI_DEVICE_PRESENCE_PARAMETERS Parameters   = {0};
+    IO_STATUS_BLOCK IoStatusBlock;
+    NTSTATUS Status;
+    BOOLEAN IsPresent;
+
+    DPRINT("USBPORT_IsCompanionController: ... \n");
+
+    *IsCompanion = FALSE;
+
+    KeInitializeEvent(&Event, SynchronizationEvent, FALSE);
+
+    HighestDevice = IoGetAttachedDeviceReference(DeviceObject);
+
+    Irp = IoBuildSynchronousFsdRequest(IRP_MJ_PNP,
+                                       HighestDevice,
+                                       0,
+                                       0,
+                                       0,
+                                       &Event,
+                                       &IoStatusBlock);
+
+    if (!Irp)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        ObDereferenceObject(HighestDevice);
+        return Status;
+    }
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+
+    Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+    Irp->IoStatus.Information = 0;
+
+    IoStack->MinorFunction = IRP_MN_QUERY_INTERFACE;
+
+    IoStack->Parameters.QueryInterface.InterfaceType = &GUID_PCI_DEVICE_PRESENT_INTERFACE;
+    IoStack->Parameters.QueryInterface.Size = sizeof(PCI_DEVICE_PRESENT_INTERFACE);
+    IoStack->Parameters.QueryInterface.Version = 1;
+    IoStack->Parameters.QueryInterface.Interface = (PINTERFACE)&PciInterface;
+    IoStack->Parameters.QueryInterface.InterfaceSpecificData = 0;
+
+    Status = IoCallDriver(HighestDevice, Irp);
+
+    if (Status == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event, Executive, KernelMode, FALSE, NULL);
+        Status = IoStatusBlock.Status;
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBPORT_IsCompanionController: query interface failed\\n");
+        ObDereferenceObject(HighestDevice);
+        return Status;
+    }
+
+    DPRINT("USBPORT_IsCompanionController: query interface succeeded\n");
+
+    if (PciInterface.Size < sizeof(PCI_DEVICE_PRESENT_INTERFACE))
+    {
+        DPRINT1("USBPORT_IsCompanionController: old version\n");
+        ObDereferenceObject(HighestDevice);
+        return Status;
+    }
+
+    Parameters.Size = sizeof(PCI_DEVICE_PRESENT_INTERFACE);
+    Parameters.Flags = PCI_USE_LOCAL_BUS | PCI_USE_LOCAL_DEVICE | PCI_USE_CLASS_SUBCLASS | PCI_USE_PROGIF;
+    Parameters.BaseClass = PCI_CLASS_SERIAL_BUS_CTLR;
+    Parameters.SubClass = PCI_SUBCLASS_SB_USB;
+    Parameters.ProgIf = PCI_INTERFACE_USB_ID_EHCI;
+
+    IsPresent = (PciInterface.IsDevicePresentEx)(PciInterface.Context, &Parameters);
+
+    if (IsPresent)
+    {
+        DPRINT("USBPORT_IsCompanionController: Present EHCI controller for FDO - %p\n", DeviceObject);
+    }
+    else
+    {
+        DPRINT("USBPORT_IsCompanionController: No EHCI controller for FDO - %p\n", DeviceObject);
+    }
+
+    *IsCompanion = IsPresent;
+
+    (PciInterface.InterfaceDereference)(PciInterface.Context);
+
+    ObDereferenceObject(HighestDevice);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_QueryPciBusInterface(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -344,6 +445,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG IdleEpSupport = 0;
     ULONG IdleEpSupportEx = 0;
     ULONG SoftRetry = 0;
+    ULONG Limit2GB = 0;
+    BOOLEAN IsCompanion = FALSE;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -486,6 +589,56 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     {
         FdoExtension->Flags |= USBPORT_FLAG_SELECTIVE_SUSPEND;
     }
+
+    USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
+                                (PVOID)1,
+                                REG_DWORD,
+                                L"EnIdleEndpointSupport",
+                                &IdleEpSupport,
+                                sizeof(IdleEpSupport));
+
+    USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
+                                (PVOID)1,
+                                REG_DWORD,
+                                L"EnIdleEndpointSupportEx",
+                                &IdleEpSupportEx,
+                                sizeof(IdleEpSupportEx));
+
+    USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
+                                (PVOID)1,
+                                REG_DWORD,
+                                L"EnSoftRetry",
+                                &SoftRetry,
+                                sizeof(SoftRetry));
+
+    USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
+                                        FdoExtension->CommonExtension.LowerPdoDevice,
+                                        1,
+                                        L"CommonBuffer2GBLimit",
+                                        42,
+                                        &Limit2GB,
+                                        sizeof(Limit2GB));
+
+    FdoExtension->CommonBufferLimit = (Limit2GB != 0);
+
+    if (FdoExtension->BaseClass == PCI_CLASS_SERIAL_BUS_CTLR &&
+        FdoExtension->SubClass == PCI_SUBCLASS_SB_USB  &&
+        FdoExtension->ProgIf < PCI_INTERFACE_USB_ID_EHCI)
+    {
+        Status = USBPORT_IsCompanionController(FdoDevice, &IsCompanion);
+
+        if (!NT_SUCCESS(Status))
+        {
+            if (IsCompanion)
+                FdoExtension->Flags |= USBPORT_FLAG_COMPANION_HC;
+            else
+                FdoExtension->Flags &= ~USBPORT_FLAG_COMPANION_HC;
+        }
+    }
+
+    if (DisableCcDetect)
+        FdoExtension->Flags &= USBPORT_FLAG_COMPANION_HC;
+
 
     FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
 

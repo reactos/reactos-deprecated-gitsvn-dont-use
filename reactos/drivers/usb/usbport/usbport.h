@@ -12,6 +12,11 @@
 #include <usbdlib.h>
 #include "..\usbmport.h"
 
+#define PCI_INTERFACE_USB_ID_UHCI 0x00
+#define PCI_INTERFACE_USB_ID_OHCI 0x10
+#define PCI_INTERFACE_USB_ID_EHCI 0x20
+#define PCI_INTERFACE_USB_ID_XHCI 0x30
+
 #ifdef USBD_TRANSFER_DIRECTION
 #undef USBD_TRANSFER_DIRECTION
 #define USBD_TRANSFER_DIRECTION 0x00000001
@@ -245,6 +250,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG FdoNameNumber;
   ULONG UsbBIOSx;
   LIST_ENTRY ControllerLink;
+  ULONG CommonBufferLimit;
   /* Miniport */
   ULONG MiniPortFlags;
   PVOID MiniPortExt;
@@ -327,7 +333,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[56]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[55]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
