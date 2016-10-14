@@ -533,6 +533,16 @@ USBPORT_EndpointHasQueuedTransfers(
   IN PUSBPORT_ENDPOINT Endpoint,
   IN PULONG TransferCount);
 
+NTSTATUS
+NTAPI
+USBPORT_SetRegistryKeyValue(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN HANDLE KeyHandle,
+  IN ULONG Type,
+  IN PCWSTR ValueNameString,
+  IN PVOID Data,
+  IN ULONG DataSize);
+
 /* debug.c */
 
 ULONG

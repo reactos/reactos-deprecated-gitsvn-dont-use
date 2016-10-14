@@ -32,6 +32,52 @@ USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
 
 NTSTATUS
 NTAPI
+USBPORT_SetRegistryKeyValue(IN PDEVICE_OBJECT DeviceObject,
+                            IN HANDLE KeyHandle,
+                            IN ULONG Type,
+                            IN PCWSTR ValueNameString,
+                            IN PVOID Data,
+                            IN ULONG DataSize)
+{
+    UNICODE_STRING ValueName;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_SetRegistryKeyValue: ValueNameString - %S \n", ValueNameString);
+
+    if (KeyHandle)
+    {
+        Status = IoOpenDeviceRegistryKey(DeviceObject,
+                                         PLUGPLAY_REGKEY_DRIVER,
+                                         STANDARD_RIGHTS_ALL,
+                                         &KeyHandle);
+    }
+    else
+    {
+        Status = IoOpenDeviceRegistryKey(DeviceObject,
+                                         PLUGPLAY_REGKEY_DEVICE,
+                                         STANDARD_RIGHTS_ALL,
+                                         &KeyHandle);
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        RtlInitUnicodeString(&ValueName, ValueNameString);
+
+        Status = ZwSetValueKey(KeyHandle,
+                               &ValueName,
+                               0,
+                               Type,
+                               Data,
+                               DataSize);
+
+        ZwClose(KeyHandle);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_GetRegistryKeyValueFullInfo(PDEVICE_OBJECT FdoDevice,
                                     PDEVICE_OBJECT PdoDevice,
                                     ULONG Type,
