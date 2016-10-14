@@ -150,7 +150,47 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
                                IN ULONG ControllerInfoBufferLen,
                                OUT PULONG LenDataReturned)
 {
-    DPRINT1("USBHI_GetControllerInformation: UNIMPLEMENTED. FIXME. \n");
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSB_CONTROLLER_INFORMATION_0 InfoBuffer;
+    NTSTATUS Status;
+
+    DPRINT("USBHI_GetControllerInformation: ControllerInfoBufferLen - %x\n", ControllerInfoBufferLen);
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    InfoBuffer = (PUSB_CONTROLLER_INFORMATION_0)ControllerInfoBuffer;
+
+    *LenDataReturned = 0;
+
+    if (ControllerInfoBufferLen < (2 * sizeof(ULONG)))
+    {
+        Status = STATUS_BUFFER_TOO_SMALL;
+        return Status;
+    }
+
+    *LenDataReturned = 8;
+
+    if (InfoBuffer->InformationLevel > 0)
+    {
+        Status = STATUS_NOT_SUPPORTED;
+        return Status;
+    }
+
+    InfoBuffer->ActualLength = sizeof(USB_CONTROLLER_INFORMATION_0);
+
+    if (ControllerInfoBufferLen >= sizeof(USB_CONTROLLER_INFORMATION_0))
+    {
+        InfoBuffer->SelectiveSuspendEnabled = (FdoExtension->Flags & USBPORT_FLAG_SELECTIVE_SUSPEND) == USBPORT_FLAG_SELECTIVE_SUSPEND;
+    }
+
+    *LenDataReturned = sizeof(USB_CONTROLLER_INFORMATION_0);
+
     return STATUS_SUCCESS;
 }
 
