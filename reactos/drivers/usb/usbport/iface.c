@@ -139,7 +139,158 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
                              IN ULONG DeviceInfoBufferLen,
                              OUT PULONG LenDataReturned)
 {
-    DPRINT1("USBHI_QueryDeviceInformation FIXME\n");
+    PUSB_DEVICE_INFORMATION_0 DeviceInfo;
+    PUSBPORT_CONFIGURATION_HANDLE ConfigHandle;
+    PLIST_ENTRY InterfaceEntry;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    ULONG NumberOfOpenPipes = 0;
+    PUSB_PIPE_INFORMATION_0 PipeInfo;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    PUSBPORT_INTERFACE_HANDLE InterfaceHandle;
+    ULONG ActualLength;
+    ULONG ix;
+    ULONG jx;
+
+    DPRINT("USBHI_QueryDeviceInformation: ... \n");
+
+    *LenDataReturned = 0;
+
+    if (DeviceInfoBufferLen < (2 * sizeof(ULONG)))
+    {
+        return STATUS_BUFFER_TOO_SMALL;
+    }
+
+    DeviceInfo = (PUSB_DEVICE_INFORMATION_0)DeviceInfoBuffer;
+
+    if (DeviceInfo->InformationLevel > 0)
+    {
+        return STATUS_NOT_SUPPORTED;
+    }
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle;
+    ConfigHandle = DeviceHandle->ConfigHandle;
+
+    if (ConfigHandle)
+    {
+        InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
+
+        if (!IsListEmpty(&ConfigHandle->InterfaceHandleList))
+        {
+            while (InterfaceEntry)
+            {
+                if (InterfaceEntry == &ConfigHandle->InterfaceHandleList)
+                    break;
+
+                InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
+                                                    USBPORT_INTERFACE_HANDLE,
+                                                    InterfaceLink);
+
+                NumberOfOpenPipes += InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
+
+                InterfaceEntry = InterfaceEntry->Flink;
+            }
+        }
+    }
+
+    ActualLength = sizeof(USB_DEVICE_INFORMATION_0) + 
+                   (NumberOfOpenPipes - 1) * sizeof(USB_PIPE_INFORMATION_0);
+
+    if (DeviceInfoBufferLen < ActualLength)
+    {
+        DeviceInfo->ActualLength = ActualLength;
+        *LenDataReturned = 2 * sizeof(ULONG);
+
+        return STATUS_BUFFER_TOO_SMALL;
+    }
+
+    RtlZeroMemory(DeviceInfo, ActualLength);
+
+    DeviceInfo->InformationLevel = 0;
+    DeviceInfo->ActualLength = ActualLength;
+    DeviceInfo->DeviceAddress = DeviceHandle->DeviceAddress;
+    DeviceInfo->NumberOfOpenPipes = NumberOfOpenPipes;
+    DeviceInfo->DeviceSpeed = DeviceHandle->DeviceSpeed;
+
+    RtlCopyMemory(&DeviceInfo->DeviceDescriptor,
+                  &DeviceHandle->DeviceDescriptor,
+                  sizeof(USB_DEVICE_DESCRIPTOR));
+
+    USBPORT_DumpingDeviceDescriptor(&DeviceInfo->DeviceDescriptor);
+
+    if (DeviceHandle->DeviceSpeed >= 0)
+    {
+        if (DeviceHandle->DeviceSpeed == UsbFullSpeed ||
+            DeviceHandle->DeviceSpeed == UsbLowSpeed)
+        {
+            DeviceInfo->DeviceType = Usb11Device;
+        }
+        else if (DeviceHandle->DeviceSpeed == UsbHighSpeed)
+        {
+            DeviceInfo->DeviceType = Usb20Device;
+        }
+    }
+
+    DeviceInfo->CurrentConfigurationValue = 0;
+
+    if (!ConfigHandle)
+    {
+        *LenDataReturned = ActualLength;
+        return STATUS_SUCCESS;
+    }
+
+    DeviceInfo->CurrentConfigurationValue = ConfigHandle->ConfigurationDescriptor->bConfigurationValue;
+
+    InterfaceEntry = NULL;
+
+    if (!IsListEmpty(&ConfigHandle->InterfaceHandleList))
+    {
+        InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
+    }
+
+    jx = 0;
+
+    while (InterfaceEntry && InterfaceEntry != &ConfigHandle->InterfaceHandleList)
+    {
+        ix = 0;
+
+        InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
+                                            USBPORT_INTERFACE_HANDLE,
+                                            InterfaceLink);
+
+        if (InterfaceHandle->InterfaceDescriptor.bNumEndpoints > 0)
+        {
+            PipeInfo = &DeviceInfo->PipeList[0];
+            PipeHandle = &InterfaceHandle->PipeHandle[0];
+
+            do
+            {
+                if (PipeHandle->Flags & 2)
+                {
+                    PipeInfo->ScheduleOffset = 1;
+                }
+                else
+                {
+                    PipeInfo->ScheduleOffset = PipeHandle->Endpoint->EndpointProperties.ScheduleOffset;
+                }
+
+                RtlCopyMemory(&PipeInfo->EndpointDescriptor,
+                              &PipeHandle->EndpointDescriptor,
+                              sizeof(USB_ENDPOINT_DESCRIPTOR));
+
+                ++ix;
+                ++jx;
+
+                PipeInfo += 1;
+                PipeHandle += 1;
+            }
+            while (ix < InterfaceHandle->InterfaceDescriptor.bNumEndpoints);
+        }
+
+        InterfaceEntry = InterfaceEntry->Flink;
+    }
+
+    *LenDataReturned = ActualLength;
+
     return STATUS_SUCCESS;
 }
 
