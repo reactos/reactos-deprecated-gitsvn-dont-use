@@ -457,6 +457,15 @@ USBPORT_CreateLegacySymbolicLink(IN PDEVICE_OBJECT FdoDevice)
 
 NTSTATUS
 NTAPI
+USBPORT_StopDevice(IN PDEVICE_OBJECT FdoDevice)
+{
+    DPRINT1("USBPORT_StopDevice: UNIMPLEMENTED. FIXME\n");
+    DbgBreakPoint();
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     IN PUSBPORT_RESOURCES UsbPortResources)
 {
@@ -716,11 +725,14 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                                 UsbPortResources->InterruptAffinity,
                                 0);
 
+
     if (!NT_SUCCESS(Status))
     {
         DPRINT1("USBPORT_StartDevice: IoConnectInterrupt failed!\n");
         goto ExitWithError;
     }
+
+    FdoExtension->Flags &= ~USBPORT_FLAG_INT_CONNECTED;
 
     if (FdoExtension->MiniPortInterface->Packet.MiniPortExtensionSize)
     {
@@ -747,7 +759,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     }
     else
     {
-        FdoExtension->MiniPortCommonBuffer = 0;
+        FdoExtension->MiniPortCommonBuffer = NULL;
     }
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
@@ -777,7 +789,18 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         DPRINT1("USBPORT_StartDevice: Failed to Start MiniPort. MiniPortStatus - %x\n",
                 MiniPortStatus);
 
-        IoDisconnectInterrupt(FdoExtension->InterruptObject);
+        if (FdoExtension->Flags & USBPORT_FLAG_INT_CONNECTED)
+        {
+            IoDisconnectInterrupt(FdoExtension->InterruptObject);
+            FdoExtension->Flags &= ~USBPORT_FLAG_INT_CONNECTED;
+        }
+
+        if (FdoExtension->MiniPortCommonBuffer)
+        {
+            USBPORT_FreeCommonBuffer(FdoDevice, FdoExtension->MiniPortCommonBuffer);
+            FdoExtension->MiniPortCommonBuffer = NULL;
+        }
+
         goto ExitWithError;
     }
     else
@@ -808,8 +831,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     return Status;
 
 ExitWithError:
-    DPRINT1("USBPORT_StartDevice: FIXME USBPORT_StopDevice\n");
-    //USBPORT_StopDevice(FdoDevice);
+    USBPORT_StopDevice(FdoDevice);
 
     DPRINT1("USBPORT_StartDevice: ExitWithError Status - %p\n", Status);
     return Status;
