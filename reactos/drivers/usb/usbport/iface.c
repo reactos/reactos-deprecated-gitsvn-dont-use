@@ -577,14 +577,21 @@ USBHI_RootHubInitNotification(IN PVOID BusContext,
 {
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    KIRQL OldIrql;
 
     DPRINT("USBHI_RootHubInitNotification \n");
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
+    KeAcquireSpinLock(&FdoExtension->RootHubCallbackSpinLock, &OldIrql);
     PdoExtension->RootHubInitContext = CallbackContext;
     PdoExtension->RootHubInitCallback = CallbackFunction;
+    KeReleaseSpinLock(&FdoExtension->RootHubCallbackSpinLock, OldIrql);
 
     return STATUS_SUCCESS;
 }
