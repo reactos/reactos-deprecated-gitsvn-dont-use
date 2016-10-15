@@ -478,6 +478,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG Limit2GB = 0;
     ULONG TotalBusBandwidth = 0;
     BOOLEAN IsCompanion = FALSE;
+    ULONG LegacyBIOS;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -670,7 +671,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         FdoExtension->Flags &= USBPORT_FLAG_COMPANION_HC;
 
     TotalBusBandwidth = FdoExtension->MiniPortInterface->Packet.MiniPortBusBandwidth;
-    FdoExtension->BusBandwidth = TotalBusBandwidth;
+    FdoExtension->TotalBusBandwidth = TotalBusBandwidth;
 
     USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
                                         FdoExtension->CommonExtension.LowerPdoDevice,
@@ -680,8 +681,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                                         &TotalBusBandwidth,
                                         sizeof(TotalBusBandwidth));
 
-    if (TotalBusBandwidth != FdoExtension->BusBandwidth)
-        FdoExtension->BusBandwidth = TotalBusBandwidth;
+    if (TotalBusBandwidth != FdoExtension->TotalBusBandwidth)
+        FdoExtension->TotalBusBandwidth = TotalBusBandwidth;
 
     FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool, sizeof(USBPORT_IRP_TABLE), USB_PORT_TAG);
 
@@ -753,6 +754,23 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     MiniPortStatus = FdoExtension->MiniPortInterface->Packet.StartController(FdoExtension->MiniPortExt,
                                                                              UsbPortResources);
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+    if (UsbPortResources->LegacySupport)
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_LEGACY_SUPPORT;
+        LegacyBIOS = 1;
+    }
+    else
+    {
+        LegacyBIOS = 0;
+    }
+
+    USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
+                                (HANDLE)0,
+                                REG_DWORD,
+                                L"DetectedLegacyBIOS",
+                                &LegacyBIOS,
+                                sizeof(LegacyBIOS));
 
     if (MiniPortStatus)
     {

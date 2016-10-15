@@ -319,7 +319,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG BusNumber;
   ULONG PciDeviceNumber;
   ULONG PciFunctionNumber;
-  ULONG BusBandwidth;
+  ULONG TotalBusBandwidth;
   /* Idle */
   LARGE_INTEGER IdleTime;
   IO_CSQ IdleIoCsq;
