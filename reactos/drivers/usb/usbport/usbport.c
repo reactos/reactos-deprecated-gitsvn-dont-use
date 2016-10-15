@@ -17,6 +17,48 @@ LIST_ENTRY USBPORT_USB2FdoList = {NULL, NULL};
 KSPIN_LOCK USBPORT_SpinLock = 0;
 BOOLEAN USBPORT_Initialized = FALSE;
 
+PDEVICE_OBJECT
+NTAPI
+USBPORT_FindUSB2Controller(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_DEVICE_EXTENSION USB2FdoExtension;
+    KIRQL OldIrql;
+    PLIST_ENTRY USB2FdoEntry;
+    PDEVICE_OBJECT USB2FdoDevice = NULL;
+
+    DPRINT("USBPORT_FindUSB2Controller: FdoDevice - %p\n", FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&USBPORT_SpinLock, &OldIrql);
+
+    USB2FdoEntry = USBPORT_USB2FdoList.Flink;
+
+    if ( !IsListEmpty(&USBPORT_USB2FdoList) )
+    {
+        while (USB2FdoEntry && USB2FdoEntry != &USBPORT_USB2FdoList)
+        {
+            USB2FdoExtension = CONTAINING_RECORD(USB2FdoEntry,
+                                                 USBPORT_DEVICE_EXTENSION,
+                                                 ControllerLink);
+
+            if (USB2FdoExtension->BusNumber == FdoExtension->BusNumber &&
+                USB2FdoExtension->PciDeviceNumber == FdoExtension->PciDeviceNumber)
+            {
+                USB2FdoDevice = USB2FdoExtension->CommonExtension.SelfDevice;
+                break;
+            }
+
+            USB2FdoEntry = USB2FdoEntry->Flink;
+        }
+    }
+
+  KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
+
+  return USB2FdoDevice;
+}
+
 VOID
 NTAPI
 USBPORT_AddUSB1Fdo(IN PDEVICE_OBJECT FdoDevice)

@@ -577,6 +577,11 @@ NTAPI
 USBPORT_RemoveUSBxFdo(
   IN PDEVICE_OBJECT FdoDevice);
 
+PDEVICE_OBJECT
+NTAPI
+USBPORT_FindUSB2Controller(
+  IN PDEVICE_OBJECT FdoDevice);
+
 /* debug.c */
 
 ULONG
