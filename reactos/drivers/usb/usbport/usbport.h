@@ -68,6 +68,7 @@
 #define USBPORT_FLAG_HC_SUSPEND        0x00000100
 #define USBPORT_FLAG_INTERRUPT_ENABLED 0x00000400
 #define USBPORT_FLAG_SELECTIVE_SUSPEND 0x00000800
+#define USBPORT_FLAG_DOS_SYMBOLIC_NAME 0x00010000
 #define USBPORT_FLAG_LEGACY_SUPPORT    0x00080000
 #define USBPORT_FLAG_COMPANION_HC      0x01000000
 #define USBPORT_FLAG_REGISTERED_FDO    0x02000000
@@ -249,6 +250,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   PDEVICE_OBJECT RootHubPdo; // RootHubDeviceObject
   KSPIN_LOCK RootHubCallbackSpinLock;
   ULONG FdoNameNumber;
+  UNICODE_STRING DosDeviceSymbolicName;
   ULONG UsbBIOSx;
   LIST_ENTRY ControllerLink;
   ULONG CommonBufferLimit;
@@ -334,7 +336,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[54]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[52]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);

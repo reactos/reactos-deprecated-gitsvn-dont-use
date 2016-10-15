@@ -427,6 +427,36 @@ USBPORT_QueryCapabilities(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_CreateLegacySymbolicLink(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    WCHAR CharName[255] = {0};
+    WCHAR CharDosName[255] = {0};
+    UNICODE_STRING DeviceName;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_CreateLegacySymbolicLink: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    swprintf(CharName, L"\\Device\\USBFDO-%d", FdoExtension->FdoNameNumber);
+    RtlInitUnicodeString(&DeviceName, CharName);
+
+    swprintf(CharDosName, L"\\DosDevices\\HCD%d", FdoExtension->FdoNameNumber);
+    RtlInitUnicodeString(&FdoExtension->DosDeviceSymbolicName, CharDosName);
+
+    Status = IoCreateSymbolicLink(&FdoExtension->DosDeviceSymbolicName, &DeviceName);
+
+    if (NT_SUCCESS(Status))
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_DOS_SYMBOLIC_NAME;
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     IN PUSBPORT_RESOURCES UsbPortResources)
 {
@@ -752,8 +782,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         goto ExitWithError;
     }
 
-    DPRINT1("USBPORT_StartDevice: FIXME USBPORT_CreateLegacySymbolicLink\n");
-    //USBPORT_CreateLegacySymbolicLink(FdoDevice);
+    USBPORT_CreateLegacySymbolicLink(FdoDevice);
 
     FdoExtension->Flags |= USBPORT_FLAG_HC_STARTED;
 

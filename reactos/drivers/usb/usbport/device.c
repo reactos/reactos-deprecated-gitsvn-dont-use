@@ -1682,6 +1682,15 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         return STATUS_DEVICE_NOT_CONNECTED;
     }
 
+    if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+    {
+        if (!(PortStatus & USB_PORT_STATUS_HIGH_SPEED))
+        {
+            DPRINT1("USBPORT_CreateDevice: USB1 device connected to USB2 port. FIXME: Transaction Translator.\n");
+            DbgBreakPoint();
+        }
+    }
+
     KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
                        LOW_REALTIME_PRIORITY,
                        1,
@@ -1742,6 +1751,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                            LOW_REALTIME_PRIORITY,
                            1,
                            FALSE);
+
         ExFreePool(DeviceHandle);
         return Status;
     }
