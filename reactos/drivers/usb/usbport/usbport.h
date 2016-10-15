@@ -757,6 +757,13 @@ USBPORT_SendSetupPacket(
   IN OUT PULONG TransferedLen,
   IN OUT PUSBD_STATUS pUSBDStatus);
 
+NTSTATUS
+NTAPI
+USBPORT_RestoreDevice(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN OUT PUSBPORT_DEVICE_HANDLE OldDeviceHandle,
+  IN OUT PUSBPORT_DEVICE_HANDLE NewDeviceHandle);
+
 /* iface.c */
 
 NTSTATUS

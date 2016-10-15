@@ -127,8 +127,19 @@ USBHI_RestoreUsbDevice(IN PVOID BusContext,
                        OUT PUSB_DEVICE_HANDLE OldUsbdDeviceHandle,
                        OUT PUSB_DEVICE_HANDLE NewUsbdDeviceHandle)
 {
-    DPRINT1("USBHI_RestoreUsbDevice: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+
+    DPRINT("USBHI_RestoreUsbDevice: OldUsbdDeviceHandle - %p, NewUsbdDeviceHandle - %x\n",
+           OldUsbdDeviceHandle,
+           NewUsbdDeviceHandle);
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    return USBPORT_RestoreDevice(PdoExtension->FdoDevice,
+                                (PUSBPORT_DEVICE_HANDLE)OldUsbdDeviceHandle,
+                                (PUSBPORT_DEVICE_HANDLE)NewUsbdDeviceHandle);
 }
 
 NTSTATUS

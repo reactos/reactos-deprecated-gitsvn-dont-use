@@ -2271,3 +2271,18 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
     return 0;
 }
+
+NTSTATUS
+NTAPI
+USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
+                     IN OUT PUSBPORT_DEVICE_HANDLE OldDeviceHandle,
+                     IN OUT PUSBPORT_DEVICE_HANDLE NewDeviceHandle)
+{
+    DPRINT("USBPORT_RestoreDevice: OldDeviceHandle - %p, Flags - %x\n",
+           OldDeviceHandle,
+           NewDeviceHandle);
+
+    DPRINT1("USBPORT_RestoreDevice: UNIMPLEMENTED. FIXME. \n");
+
+    return STATUS_SUCCESS;
+}
