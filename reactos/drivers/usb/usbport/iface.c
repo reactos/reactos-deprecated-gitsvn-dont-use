@@ -411,14 +411,20 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
 {
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
     ULONG NumPorts;
     ULONG ix;
     PUSB_EXTHUB_INFORMATION_0 HubInfoBuffer;
+    ULONG PortStatus;
+    ULONG PortAttrX;
 
     DPRINT("USBHI_GetExtendedHubInformation: ... \n");
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoDevice = PdoExtension->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     HubInfoBuffer = (PUSB_EXTHUB_INFORMATION_0)HubInformationBuffer;
 
@@ -443,13 +449,50 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
         return STATUS_SUCCESS;
     }
 
-    for (ix = 1; ix < HubInfoBuffer->NumberOfPorts; ++ix)
+    for (ix = 1; ix <= HubInfoBuffer->NumberOfPorts; ++ix)
     {
-        HubInfoBuffer->Port[ix].PhysicalPortNumber = ix + 1;
-        HubInfoBuffer->Port[ix].PortLabelNumber = ix + 1;
+        HubInfoBuffer->Port[ix].PhysicalPortNumber = ix;
+        HubInfoBuffer->Port[ix].PortLabelNumber = ix;
         HubInfoBuffer->Port[ix].VidOverride = 0;
         HubInfoBuffer->Port[ix].PidOverride = 0;
-        HubInfoBuffer->Port[ix].PortAttributes = 0; // USB_PORTATTR_SHARED_USB2; // FIXME
+        HubInfoBuffer->Port[ix].PortAttributes = 0;
+
+        if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+        {
+            HubInfoBuffer->Port[ix].PortAttributes = USB_PORTATTR_SHARED_USB2;
+
+            FdoExtension->MiniPortInterface->Packet.RH_GetPortStatus(FdoExtension->MiniPortExt,
+                                                                     ix,
+                                                                     &PortStatus);
+
+            if (PortStatus & 0x8000)
+            {
+                HubInfoBuffer->Port[ix].PortAttributes |= USB_PORTATTR_NO_CONNECTOR;
+            }
+        }
+        else
+        {
+            if (!(FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC))
+                continue;
+
+            if (USBPORT_FindUSB2Controller(FdoDevice))
+            {
+                HubInfoBuffer->Port[ix].PortAttributes |= USB_PORTATTR_SHARED_USB2;
+            }
+        }
+    }
+
+    USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
+                                        FdoExtension->CommonExtension.LowerPdoDevice,
+                                        0,
+                                        L"PortAttrX",
+                                        128,
+                                        &PortAttrX,
+                                        sizeof(PortAttrX));
+
+    for (ix = 1; ix <= HubInfoBuffer->NumberOfPorts; ++ix)
+    {
+        HubInfoBuffer->Port[ix].PortAttributes |= PortAttrX;
     }
 
     *LenDataReturned = sizeof(USB_EXTHUB_INFORMATION_0);
