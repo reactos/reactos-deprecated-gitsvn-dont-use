@@ -401,6 +401,21 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     EndpointSize = sizeof(USBPORT_ENDPOINT) +
                    FdoExtension->MiniPortInterface->Packet.MiniPortEndpointSize;
 
+    if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+    {
+        DPRINT1("USBPORT_OpenPipe: FIXME USB2 EndpointSize\n");
+    }
+
+    if (PipeHandle->EndpointDescriptor.wMaxPacketSize == 0)
+    {
+        USBPORT_AddPipeHandle(DeviceHandle, PipeHandle);
+  
+        PipeHandle->Flags = (PipeHandle->Flags & ~PIPE_HANDLE_FLAG_CLOSED) | 2;
+        PipeHandle->Endpoint = (PUSBPORT_ENDPOINT)-1;
+
+        return STATUS_SUCCESS;
+    }
+
     Endpoint = ExAllocatePoolWithTag(NonPagedPool, EndpointSize, USB_PORT_TAG);
 
     if (!Endpoint)
@@ -594,14 +609,14 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     if (NT_SUCCESS(Status))
     {
-        InsertTailList(&DeviceHandle->PipeHandleList, &PipeHandle->PipeLink);
+        USBPORT_AddPipeHandle(DeviceHandle, PipeHandle);
 
         ExInterlockedInsertTailList(&FdoExtension->EndpointList,
                                     &Endpoint->EndpointLink,
                                     &FdoExtension->EndpointListSpinLock);
 
         PipeHandle->Endpoint = Endpoint;
-        PipeHandle->Flags &= ~PIPEHANDLE_FLAG_CLOSED;
+        PipeHandle->Flags &= ~PIPE_HANDLE_FLAG_CLOSED;
 
         return Status;
     }
@@ -630,55 +645,58 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    if (!(PipeHandle->Flags & PIPEHANDLE_FLAG_CLOSED))
+    if (PipeHandle->Flags & PIPE_HANDLE_FLAG_CLOSED)
+        return;
+
+    USBPORT_RemovePipeHandle(DeviceHandle, PipeHandle);
+
+    PipeHandle->Flags |= PIPE_HANDLE_FLAG_CLOSED;
+
+    if (PipeHandle->Flags & 2)
     {
-        RemoveEntryList(&PipeHandle->PipeLink);
-
-        PipeHandle->PipeLink.Flink = NULL;
-        PipeHandle->PipeLink.Blink = NULL;
-
-        PipeHandle->Flags |= PIPEHANDLE_FLAG_CLOSED;
-
-        Endpoint = PipeHandle->Endpoint;
-
-        if ((Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
-            (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT))
-        {
-            PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
-            PdoExtension->Endpoint = NULL;
-        }
-
-        while (TRUE)
-        {
-            IsReady = TRUE;
-
-            if (!IsListEmpty(&Endpoint->PendingTransferList))
-                IsReady = FALSE;
-
-            if (!IsListEmpty(&Endpoint->TransferList))
-                IsReady = FALSE;
-
-            if (Endpoint->StateLast != Endpoint->StateNext)
-                IsReady = FALSE;
-
-            if (InterlockedIncrement(&Endpoint->LockCounter))
-                IsReady = FALSE;
-
-            InterlockedDecrement(&Endpoint->LockCounter);
-
-            if (IsReady == TRUE)
-                break;
-
-            USBPORT_Wait(FdoDevice, 1);
-        }
-
-        Endpoint->DeviceHandle = NULL;
-
-        USBPORT_SetEndpointState(Endpoint,
-                                 USBPORT_ENDPOINT_CLOSED);
-
-        USBPORT_SignalWorkerThread(FdoDevice);
+        PipeHandle->Flags &= ~2;
+        return;
     }
+
+    Endpoint = PipeHandle->Endpoint;
+
+    if ((Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
+        (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT))
+    {
+        PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+        PdoExtension->Endpoint = NULL;
+    }
+
+    while (TRUE)
+    {
+        IsReady = TRUE;
+
+        if (!IsListEmpty(&Endpoint->PendingTransferList))
+            IsReady = FALSE;
+
+        if (!IsListEmpty(&Endpoint->TransferList))
+            IsReady = FALSE;
+
+        if (Endpoint->StateLast != Endpoint->StateNext)
+            IsReady = FALSE;
+
+        if (InterlockedIncrement(&Endpoint->LockCounter))
+            IsReady = FALSE;
+
+        InterlockedDecrement(&Endpoint->LockCounter);
+
+        if (IsReady == TRUE)
+            break;
+
+        USBPORT_Wait(FdoDevice, 1);
+    }
+
+    Endpoint->DeviceHandle = NULL;
+
+    USBPORT_SetEndpointState(Endpoint,
+                             USBPORT_ENDPOINT_CLOSED);
+
+    USBPORT_SignalWorkerThread(FdoDevice);
 }
 
 NTSTATUS
@@ -967,7 +985,7 @@ USBPORT_OpenInterface(IN PURB Urb,
 
             do
             {
-                PipeHandle->Flags = PIPEHANDLE_FLAG_CLOSED;
+                PipeHandle->Flags = PIPE_HANDLE_FLAG_CLOSED;
                 PipeHandle->Endpoint = NULL;
 
                 PipeHandle += 1;
@@ -1022,7 +1040,7 @@ USBPORT_OpenInterface(IN PURB Urb,
                           Descriptor,
                           sizeof(USB_ENDPOINT_DESCRIPTOR));
 
-            PipeHandle->Flags = PIPEHANDLE_FLAG_CLOSED;
+            PipeHandle->Flags = PIPE_HANDLE_FLAG_CLOSED;
             PipeHandle->PipeFlags = InterfaceInfo->Pipes[ix].PipeFlags;
             PipeHandle->Endpoint = NULL;
 
@@ -1620,7 +1638,7 @@ USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
 
         HandleList = HandleList->Flink;
 
-        if (!(PipeHandle->Flags & 2))
+        if (!(PipeHandle->Flags & DEVICE_HANDLE_FLAG_ROOTHUB))
         {
             PipeHandle->Endpoint->Flags |= 0x20;
 
@@ -1729,7 +1747,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     PipeHandle->EndpointDescriptor.bmAttributes = 0;
     PipeHandle->EndpointDescriptor.bInterval = 0;
 
-    PipeHandle->Flags = PIPEHANDLE_FLAG_CLOSED;
+    PipeHandle->Flags = PIPE_HANDLE_FLAG_CLOSED;
     PipeHandle->PipeFlags = 0;
 
     if (DeviceHandle->DeviceSpeed == 0)
@@ -2237,6 +2255,9 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
     }
 
     USBPORT_RemoveDeviceHandle(FdoDevice, DeviceHandle);
+
+    DeviceHandle->Flags |= DEVICE_HANDLE_FLAG_REMOVED;
+
     USBPORT_AbortTransfers(FdoDevice, DeviceHandle);
 
     DPRINT("USBPORT_RemoveDevice: DeviceHandleLock - %x\n", DeviceHandle->DeviceHandleLock);
@@ -2269,7 +2290,7 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
         ExFreePool(DeviceHandle);
     }
 
-    return 0;
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS
