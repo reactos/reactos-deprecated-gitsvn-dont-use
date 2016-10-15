@@ -172,6 +172,7 @@ typedef struct _USBPORT_DEVICE_HANDLE {
   USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 0x12
   LIST_ENTRY DeviceHandleLink;
   LONG DeviceHandleLock;
+  ULONG TtCount;
 } USBPORT_DEVICE_HANDLE, *PUSBPORT_DEVICE_HANDLE;
 
 typedef struct _USBPORT_ENDPOINT {
@@ -763,6 +764,13 @@ USBPORT_RestoreDevice(
   IN PDEVICE_OBJECT FdoDevice,
   IN OUT PUSBPORT_DEVICE_HANDLE OldDeviceHandle,
   IN OUT PUSBPORT_DEVICE_HANDLE NewDeviceHandle);
+
+NTSTATUS
+NTAPI
+USBPORT_Initialize20Hub(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
+  IN ULONG TtCount);
 
 /* iface.c */
 

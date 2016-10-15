@@ -2275,8 +2275,8 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 NTSTATUS
 NTAPI
 USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
-                     IN OUT PUSBPORT_DEVICE_HANDLE OldDeviceHandle,
-                     IN OUT PUSBPORT_DEVICE_HANDLE NewDeviceHandle)
+                      IN OUT PUSBPORT_DEVICE_HANDLE OldDeviceHandle,
+                      IN OUT PUSBPORT_DEVICE_HANDLE NewDeviceHandle)
 {
     DPRINT("USBPORT_RestoreDevice: OldDeviceHandle - %p, Flags - %x\n",
            OldDeviceHandle,
@@ -2285,4 +2285,56 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
     DPRINT1("USBPORT_RestoreDevice: UNIMPLEMENTED. FIXME. \n");
 
     return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
+USBPORT_InitializeTT(IN PDEVICE_OBJECT FdoDevice,
+                     IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
+                     IN ULONG TtNumber)
+{
+    DPRINT1("USBPORT_InitializeTT: UNIMPLEMENTED. FIXME. \n");
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
+USBPORT_Initialize20Hub(IN PDEVICE_OBJECT FdoDevice,
+                        IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
+                        IN ULONG TtCount)
+{
+    NTSTATUS Status;
+    ULONG ix;
+
+    DPRINT("USBPORT_Initialize20Hub \n");
+
+    if (!HubDeviceHandle)
+    {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    if (HubDeviceHandle->Flags & DEVICE_HANDLE_FLAG_ROOTHUB)
+    {
+        return STATUS_SUCCESS;
+    }
+
+    ix = 0;
+
+    if (TtCount)
+    {
+        do
+        {
+            Status = USBPORT_InitializeTT(FdoDevice, HubDeviceHandle, ix + 1);
+
+            if (!NT_SUCCESS(Status))
+                break;
+
+            ++ix;
+        }
+        while (ix < TtCount);
+    }
+
+    HubDeviceHandle->TtCount = TtCount;
+
+    return Status;
 }

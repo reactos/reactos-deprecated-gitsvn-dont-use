@@ -576,8 +576,19 @@ USBHI_Initialize20Hub(IN PVOID BusContext,
                       IN PUSB_DEVICE_HANDLE UsbdHubDeviceHandle,
                       IN ULONG TtCount)
 {
-    DPRINT1("USBHI_Initialize20Hub: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+
+    DPRINT("USBHI_Initialize20Hub: UsbdHubDeviceHandle - %p, TtCount - %x\n",
+           UsbdHubDeviceHandle,
+           TtCount);
+
+    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    return USBPORT_Initialize20Hub(PdoExtension->FdoDevice,
+                                   (PUSBPORT_DEVICE_HANDLE)UsbdHubDeviceHandle,
+                                   TtCount);
 }
 
 NTSTATUS
