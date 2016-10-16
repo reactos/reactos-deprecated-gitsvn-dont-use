@@ -488,6 +488,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG TotalBusBandwidth = 0;
     BOOLEAN IsCompanion = FALSE;
     ULONG LegacyBIOS;
+    ULONG MiniportFlags;
 
     DPRINT("USBPORT_StartDevice: FdoDevice - %p, UsbPortResources - %p\n",
            FdoDevice,
@@ -629,6 +630,17 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     {
         FdoExtension->Flags |= USBPORT_FLAG_SELECTIVE_SUSPEND;
     }
+
+    MiniportFlags = FdoExtension->MiniPortInterface->Packet.MiniPortFlags;
+
+    if (MiniportFlags & 0x80)
+        FdoExtension->Flags |= 4;
+
+    if (MiniportFlags & 0x200)
+        FdoExtension->Flags |= 0x00200000;
+
+    if (MiniportFlags & 0x20)
+        FdoExtension->Flags = (FdoExtension->Flags & ~USBPORT_FLAG_SELECTIVE_SUSPEND) | USBPORT_FLAG_BIOS_DISABLE_SS;
 
     USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
                                 (PVOID)1,
@@ -1185,7 +1197,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             {
                 if (RelationType == RemovalRelations)
                 {
-                    DPRINT("USBPORT_FdoPnP: FIXME IRP_MN_QUERY_DEVICE_RELATIONS/RemovalRelations\n");
+                    DPRINT1("USBPORT_FdoPnP: FIXME IRP_MN_QUERY_DEVICE_RELATIONS/RemovalRelations\n");
                 }
 
                 goto ForwardIrp;

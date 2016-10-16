@@ -3,7 +3,7 @@
 //#define NDEBUG
 #include <debug.h>
 
-#define NDEBUG_USBPORT_URB
+//#define NDEBUG_USBPORT_URB
 #include "usbdebug.h"
 
 NTSTATUS
@@ -34,14 +34,9 @@ ValidateTransferParameters(IN PURB Urb)
         UrbTransfer->TransferBufferMDL == NULL &&
         UrbTransfer->TransferBufferLength != 0)
     {
-        DPRINT_URB("ValidateTransferParameters: TransferBuffer       - %p\n",
-               UrbTransfer->TransferBuffer);
-
-        DPRINT_URB("ValidateTransferParameters: TransferBufferMDL    - %p\n",
-               UrbTransfer->TransferBufferMDL);
-
-        DPRINT_URB("ValidateTransferParameters: TransferBufferLength - %p\n",
-               UrbTransfer->TransferBufferLength);
+        DPRINT_URB("ValidateTransferParameters: TransferBuffer - %p, TransferBufferLength - %x\n",
+                   UrbTransfer->TransferBuffer,
+                   UrbTransfer->TransferBufferLength);
 
         Mdl = IoAllocateMdl(UrbTransfer->TransferBuffer,
                             UrbTransfer->TransferBufferLength,
@@ -82,16 +77,16 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
 
-    //if ( !USBPORT_ValidatePipeHandle((PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle, PipeHandle) )
-    //    return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    if (!USBPORT_ValidatePipeHandle((PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle, PipeHandle))
+        return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
 
     Endpoint = PipeHandle->Endpoint;
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
-    if ( IsListEmpty(&Endpoint->TransferList) )
+    if (IsListEmpty(&Endpoint->TransferList))
     {
-        if ( Urb->UrbHeader.UsbdFlags & 0x00000010 )
+        if (Urb->UrbHeader.UsbdFlags & 0x00000010)
         {
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
@@ -141,8 +136,8 @@ USBPORT_ClearStall(IN PDEVICE_OBJECT FdoDevice,
     PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
 
-    //if ( !USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle) )
-    //    return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
+        return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
 
     Endpoint = PipeHandle->Endpoint;
 
@@ -188,8 +183,8 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
     PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
 
-    //if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
-    //  return USBPORT_USBDStatusToNtStatus((int)Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
+        return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
 
     if (PipeHandle->Flags & 2)
         return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);

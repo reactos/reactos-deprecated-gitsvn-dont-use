@@ -439,8 +439,7 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
         if (!FdoExtension->MiniPortInterface->Packet.RH_GetHubStatus(FdoExtension->MiniPortExt,
                                                                      &HubStatus))
         {
-
-            if (HubStatus & 0x300)
+            if (HubStatus & 0x30000)
             {
                 USBPORT_SetBit(Buffer, 0);
                 Result = 0;
@@ -449,7 +448,7 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
             if (Result == 0)
             {
                 Urb->UrbControlTransfer.TransferBufferLength = TransferLength;
-                return Result;
+                return 0;
             }
 
             if (Result == 1)
@@ -701,11 +700,23 @@ USBPORT_InvalidateRootHub(PVOID Context)
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context -
                                                sizeof(USBPORT_DEVICE_EXTENSION));
 
+    FdoDevice = FdoExtension->CommonExtension.SelfDevice;
+
+    if ( FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND && 
+         FdoExtension->Flags & 0x00200000 &&
+         FdoExtension->MiniPortFlags & USBPORT_MPFLAG_SUSPENDED &&
+         FdoExtension->TimerFlags & USBPORT_TMFLAG_WAKE )
+    {
+        
+        DPRINT1("USBPORT_InvalidateRootHub: USBPORT_HcQueueWakeDpc UNIMPLEMENTED. FIXME. \n");
+        DbgBreakPoint();
+        //USBPORT_HcQueueWakeDpc(FdoDevice);
+        return 0;
+    }
+    
     FdoExtension->MiniPortInterface->Packet.RH_DisableIrq(FdoExtension->MiniPortExt);
 
     PdoDevice = FdoExtension->RootHubPdo;
-
-    //FIXME - USBPORT_HcQueueWakeDpc()
 
     if (PdoDevice)
     {
@@ -715,7 +726,6 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
     if (Endpoint)
     {
-        FdoDevice = FdoExtension->CommonExtension.SelfDevice;
         USBPORT_InvalidateEndpointHandler(FdoDevice, PdoExtension->Endpoint, 1);
     }
 
