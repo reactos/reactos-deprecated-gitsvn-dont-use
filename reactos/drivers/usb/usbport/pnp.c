@@ -1274,22 +1274,45 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
                        IN USHORT DeviceID,
                        IN UCHAR RevisionID)
 {
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PVOID Id;
     WCHAR Buffer[300];
     ULONG Index = 0;
 
-    Index += swprintf(&Buffer[Index],
-                      L"USB\\ROOT_HUB&VID%04x&PID%04x&RE%02x",
-                      VendorID,
-                      DeviceID,
-                      RevisionID) + 1;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    Index += swprintf(&Buffer[Index],
-                      L"USB\\ROOT_HUB&VID%04x&PID%04x",
-                      VendorID,
-                      DeviceID) + 1;
+    if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+    {
+        /* USB 2.0 hub */
+        Index += swprintf(&Buffer[Index],
+                          L"USB\\ROOT_HUB20&VID%04x&PID%04x&RE%02x",
+                          VendorID,
+                          DeviceID,
+                          RevisionID) + 1;
 
-    Index += swprintf(&Buffer[Index], L"USB\\ROOT_HUB") + 1;
+        Index += swprintf(&Buffer[Index],
+                          L"USB\\ROOT_HUB20&VID%04x&PID%04x",
+                          VendorID,
+                          DeviceID) + 1;
+
+        Index += swprintf(&Buffer[Index], L"USB\\ROOT_HUB20") + 1;
+    }
+    else
+    {
+        /* USB 1.1 */
+        Index += swprintf(&Buffer[Index],
+                          L"USB\\ROOT_HUB&VID%04x&PID%04x&RE%02x",
+                          VendorID,
+                          DeviceID,
+                          RevisionID) + 1;
+
+        Index += swprintf(&Buffer[Index],
+                          L"USB\\ROOT_HUB&VID%04x&PID%04x",
+                          VendorID,
+                          DeviceID) + 1;
+
+        Index += swprintf(&Buffer[Index], L"USB\\ROOT_HUB") + 1;
+    }
 
     Buffer[Index] = UNICODE_NULL;
     Index++;
