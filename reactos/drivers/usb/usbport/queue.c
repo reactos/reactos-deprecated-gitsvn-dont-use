@@ -499,7 +499,7 @@ VOID
 NTAPI
 USBPORT_FlushAbortList(IN PUSBPORT_ENDPOINT Endpoint)
 {
-    DPRINT_CORE("USBPORT_FlushCancelList: FIXME unimplemented\n");
+    DPRINT_CORE("USBPORT_FlushAbortList: FIXME unimplemented\n");
 }
 
 VOID
@@ -758,7 +758,7 @@ USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
         !(Endpoint->Flags & ENDPOINT_FLAG_DMA_TYPE))
     {
         InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
-        DPRINT("USBPORT_QueueActiveUrbToEndpoint: return FALSE\n");
+        DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return FALSE\n");
         return FALSE;
     }
 

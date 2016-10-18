@@ -3,7 +3,6 @@
 //#define NDEBUG
 #include <debug.h>
 
-#define NDEBUG_USBPORT_MINIPORT
 #define NDEBUG_USBPORT_CORE
 #define NDEBUG_USBPORT_INTERRUPT
 #define NDEBUG_USBPORT_TIMER
@@ -367,9 +366,9 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
 
     if (USBD_ERROR(USBDStatus))
     {
-        DPRINT("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %x\n",
-               Urb,
-               USBDStatus);
+        DPRINT1("USBPORT_USBDStatusToNtStatus: Urb - %p, USBDStatus - %x\n",
+                Urb,
+                USBDStatus);
     }
 
     if (Urb)
@@ -900,8 +899,9 @@ USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
     PUSBPORT_ENDPOINT Endpoint;
     PLIST_ENTRY Entry;
     LIST_ENTRY List;
+    LONG LockCounter;
 
-    DPRINT_CORE("USBPORT_DpcHandler: ... \n");
+    DPRINT("USBPORT_DpcHandler: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
@@ -918,9 +918,15 @@ USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
                                          USBPORT_ENDPOINT,
                                          EndpointLink);
 
-            if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE &&
-                !InterlockedIncrement(&Endpoint->LockCounter) &&
-                !(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+            LockCounter = InterlockedIncrement(&Endpoint->LockCounter);
+
+            if (Endpoint->StateLast != USBPORT_ENDPOINT_ACTIVE ||
+                LockCounter ||
+                Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0)
+            {
+                InterlockedDecrement(&Endpoint->LockCounter);
+            }
+            else
             {
                 InsertTailList(&List, &Endpoint->DispatchLink);
 
@@ -931,11 +937,6 @@ USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
                     Endpoint->WorkerLink.Flink = NULL;
                     Endpoint->WorkerLink.Blink = NULL;
                 }
-
-            }
-            else
-            {
-                InterlockedDecrement(&Endpoint->LockCounter);
             }
 
             Entry = Endpoint->EndpointLink.Flink;
