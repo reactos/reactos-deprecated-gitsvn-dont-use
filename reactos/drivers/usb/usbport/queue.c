@@ -510,10 +510,15 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
     PUSBPORT_TRANSFER Transfer;
     PIRP Irp;
     KIRQL OldIrql;
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
 
-    DPRINT_CORE("USBPORT_FlushCancelList: FIXME FlushAbortList\n");
+    DPRINT_CORE("USBPORT_FlushCancelList: ... \n");
 
     FdoDevice = Endpoint->FdoDevice;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
     while (!IsListEmpty(&Endpoint->CancelList))
     {
@@ -527,7 +532,8 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
 
         if (Irp)
         {
-            DPRINT1("USBPORT_FlushCancelList: Irp - %p\n", Irp);
+            DPRINT("USBPORT_FlushCancelList: Irp - %p\n", Irp);
+
             IoAcquireCancelSpinLock(&OldIrql);
             IoSetCancelRoutine(Irp, NULL);
             IoReleaseCancelSpinLock(OldIrql);
@@ -535,8 +541,31 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
             USBPORT_RemoveActiveTransferIrp(FdoDevice, Irp);
         }
 
-        USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_CANCELED);
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
+
+        if (Endpoint->Flags & ENDPOINT_FLAG_NUKE)
+        {
+            USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_DEVICE_GONE);
+        }
+        else
+        {
+            if (Transfer->Flags & 0x80)
+            {
+                USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_DEVICE_GONE);
+            }
+            else
+            {
+                USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_CANCELED);
+            }
+        }
+
+        KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
     }
+
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+    KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
 
     USBPORT_FlushAbortList(Endpoint);
 }

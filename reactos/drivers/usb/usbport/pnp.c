@@ -4,7 +4,6 @@
 #include <debug.h>
 
 #define NDEBUG_USBPORT_CORE
-#define NDEBUG_USBPORT_INTERRUPT
 #include "usbdebug.h"
 
 IO_COMPLETION_ROUTINE USBPORT_FdoStartCompletion;
