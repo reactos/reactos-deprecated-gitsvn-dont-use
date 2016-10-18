@@ -1848,7 +1848,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
-    DPRINT_CORE("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %p\n",
+    DPRINT("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %p\n",
            Urb,
            TransferStatus);
 
@@ -1871,12 +1871,12 @@ USBPORT_CompleteTransfer(IN PURB Urb,
         CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
         TransferLength = UrbTransfer->TransferBufferLength;
 
-        IsFlushSuccess = FdoExtension->DmaAdapter->DmaOperations->FlushAdapterBuffers(FdoExtension->DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
-                                                                                      Mdl, // IN PMDL Mdl,
-                                                                                      Transfer->MapRegisterBase, // IN PVOID MapRegisterBase,
-                                                                                      (PVOID)CurrentVa, // IN PVOID CurrentVa,
-                                                                                      TransferLength, // IN ULONG Length,
-                                                                                      WriteToDevice); // IN BOOLEAN WriteToDevice
+        IsFlushSuccess = FdoExtension->DmaAdapter->DmaOperations->FlushAdapterBuffers(FdoExtension->DmaAdapter,
+                                                                                      Mdl,
+                                                                                      Transfer->MapRegisterBase,
+                                                                                      (PVOID)CurrentVa,
+                                                                                      TransferLength,
+                                                                                      WriteToDevice);
 
         if (!IsFlushSuccess)
         {
@@ -1886,9 +1886,9 @@ USBPORT_CompleteTransfer(IN PURB Urb,
 
         KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
 
-        FdoExtension->DmaAdapter->DmaOperations->FreeMapRegisters(FdoExtension->DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
-                                                                  Transfer->MapRegisterBase, // PVOID MapRegisterBase,
-                                                                  Transfer->NumberOfMapRegisters); // ULONG NumberOfMapRegisters
+        FdoExtension->DmaAdapter->DmaOperations->FreeMapRegisters(FdoExtension->DmaAdapter,
+                                                                  Transfer->MapRegisterBase,
+                                                                  Transfer->NumberOfMapRegisters);
 
         KeLowerIrql(OldIrql);
     }
@@ -1906,6 +1906,14 @@ USBPORT_CompleteTransfer(IN PURB Urb,
 
     if (Irp)
     {
+        if (!NT_SUCCESS(Status))
+        {
+            //DbgBreakPoint();
+            DPRINT1("USBPORT_CompleteTransfer: Irp - %p complete with Status - %p\n",
+                    Irp,
+                    Status);
+        }
+
         Irp->IoStatus.Status = Status;
         Irp->IoStatus.Information = 0;
 
@@ -1985,6 +1993,8 @@ Exit:
         NewState = CurrentState;
     }
 
+    USBPORT_FlushCancelList(Endpoint);
+
     if (NewState != OldState)
     {
         USBPORT_SetEndpointState(Endpoint, NewState);
@@ -2046,7 +2056,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
-        KefAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
+        KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
         ExInterlockedInsertTailList(&FdoExtension->EndpointClosedList,
                                     &Endpoint->CloseLink,
                                     &FdoExtension->EndpointClosedSpinLock);
