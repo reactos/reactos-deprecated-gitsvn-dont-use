@@ -16,7 +16,10 @@ typedef struct _USBPORT_RESOURCES {
   SIZE_T IoSpaceLength;
   PVOID StartVA;
   PVOID StartPA;
-  ULONG LegacySupport;
+  UCHAR LegacySupport;
+  UCHAR Reserved1;
+  UCHAR Reserved2;
+  UCHAR Reserved3;
 } USBPORT_RESOURCES, *PUSBPORT_RESOURCES;
 
 C_ASSERT(sizeof(USBPORT_RESOURCES) == 52);

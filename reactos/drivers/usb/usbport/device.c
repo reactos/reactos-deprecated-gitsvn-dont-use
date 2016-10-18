@@ -142,7 +142,9 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     KIRQL OldIrql;
 
-    DPRINT("USBPORT_SetEndpointState \n");
+    DPRINT("USBPORT_SetEndpointState: Endpoint - %p, State - %x\n",
+           Endpoint,
+           State);
 
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;

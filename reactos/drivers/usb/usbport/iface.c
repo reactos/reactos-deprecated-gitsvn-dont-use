@@ -530,7 +530,6 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PDEVICE_OBJECT FdoDevice;
-    PUSBPORT_DEVICE_EXTENSION FdoExtension;
     UNICODE_STRING HubName;
     PUNICODE_STRING InfoBuffer;
     NTSTATUS Status;
@@ -540,7 +539,6 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     Status = USBPORT_ParseSymbolicName(FdoDevice, &HubName);
 
@@ -685,7 +683,7 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     SIZE_T Length;
-    PUSB_BUS_INFORMATION_LEVEL_0 Buffer0;
+    //PUSB_BUS_INFORMATION_LEVEL_0 Buffer0;
     PUSB_BUS_INFORMATION_LEVEL_1 Buffer1;
 
     DPRINT("USBDI_QueryBusInformation: Level - %p\n", Level);
@@ -713,7 +711,7 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     
         *BusInfoBufferLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
     
-        Buffer0 = (PUSB_BUS_INFORMATION_LEVEL_0)BusInfoBuffer;
+        //Buffer0 = (PUSB_BUS_INFORMATION_LEVEL_0)BusInfoBuffer;
         DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
         //Buffer0->TotalBandwidth = USBPORT_GetTotalBandwidth();
         //Buffer0->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
