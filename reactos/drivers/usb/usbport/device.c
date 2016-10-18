@@ -642,6 +642,7 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PUSBPORT_ENDPOINT Endpoint;
     BOOLEAN IsReady;
+    KIRQL OldIrql;
 
     DPRINT("USBPORT_ClosePipe \n");
 
@@ -661,6 +662,9 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     }
 
     Endpoint = PipeHandle->Endpoint;
+    DPRINT("USBPORT_ClosePipe: Endpoint - %p\n", Endpoint);
+
+    KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
 
     if ((Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
         (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT))
@@ -669,9 +673,13 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         PdoExtension->Endpoint = NULL;
     }
 
+    KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+
     while (TRUE)
     {
         IsReady = TRUE;
+
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
         if (!IsListEmpty(&Endpoint->PendingTransferList))
             IsReady = FALSE;
@@ -679,12 +687,21 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         if (!IsListEmpty(&Endpoint->TransferList))
             IsReady = FALSE;
 
+        if (!IsListEmpty(&Endpoint->CancelList))
+            IsReady = FALSE;
+
+        if (!IsListEmpty(&Endpoint->AbortList))
+            IsReady = FALSE;
+
+        KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
         if (Endpoint->StateLast != Endpoint->StateNext)
             IsReady = FALSE;
+        KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
         if (InterlockedIncrement(&Endpoint->LockCounter))
             IsReady = FALSE;
-
         InterlockedDecrement(&Endpoint->LockCounter);
 
         if (IsReady == TRUE)
@@ -695,8 +712,21 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     Endpoint->DeviceHandle = NULL;
 
+    if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+    {
+        DPRINT("USBPORT_ClosePipe: FIXME USBPORT_FreeBandwidthUSB20\n");
+        //USBPORT_FreeBandwidthUSB20();
+    }
+    else
+    {
+        DPRINT("USBPORT_ClosePipe: FIXME USBPORT_FreeBandwidthUSB11\n");
+        //USBPORT_FreeBandwidthUSB11();
+    }
+
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
     USBPORT_SetEndpointState(Endpoint,
                              USBPORT_ENDPOINT_CLOSED);
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
     USBPORT_SignalWorkerThread(FdoDevice);
 }
