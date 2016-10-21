@@ -237,6 +237,16 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_HandleSetOrClearFeature(IN PDEVICE_OBJECT FdoDevice,
+                                IN PIRP Irp,
+                                IN PURB Urb)
+{
+    DPRINT1("USBPORT_HandleSetOrClearFeature: UNIMPLEMENTED. FIXME. \n");
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_HandleDataTransfers(IN PURB Urb)
 {
     PUSBPORT_ENDPOINT Endpoint;
@@ -700,6 +710,18 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
                                                         Urb);
             break;
 
+        case URB_FUNCTION_SET_FEATURE_TO_DEVICE: // 0x0D
+        case URB_FUNCTION_SET_FEATURE_TO_INTERFACE: // 0x0E
+        case URB_FUNCTION_SET_FEATURE_TO_ENDPOINT: // 0x0F
+        case URB_FUNCTION_CLEAR_FEATURE_TO_INTERFACE: // 0x11
+        case URB_FUNCTION_CLEAR_FEATURE_TO_ENDPOINT: // 0x12
+        case URB_FUNCTION_CLEAR_FEATURE_TO_OTHER: // 0x22
+        case URB_FUNCTION_SET_FEATURE_TO_OTHER: // 0x23
+            Status = USBPORT_HandleSetOrClearFeature(PdoExtension->FdoDevice,
+                                                     Irp,
+                                                     Urb);
+            break;
+
         default:
             DPRINT1("USBPORT_HandleSubmitURB: Function - %x UNIMPLEMENTED. FIXME\n", Function);
             //0x02 02 URB_FUNCTION_ABORT_PIPE
@@ -709,15 +731,8 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             //0x06 06 URB_FUNCTION_SET_FRAME_LENGTH
             //0x07 07 URB_FUNCTION_GET_CURRENT_FRAME_NUMBER
             //0x0A 10 URB_FUNCTION_ISOCH_TRANSFER
-            //0x0D 13 URB_FUNCTION_SET_FEATURE_TO_DEVICE
-            //0x0E 14 URB_FUNCTION_SET_FEATURE_TO_INTERFACE
-            //0x0F 15 URB_FUNCTION_SET_FEATURE_TO_ENDPOINT
-            //0x11 17 URB_FUNCTION_CLEAR_FEATURE_TO_INTERFACE
-            //0x12 18 URB_FUNCTION_CLEAR_FEATURE_TO_ENDPOINT
             //0x16 22 URB_FUNCTION_RESERVED_0X0016
             //0x1D 29 URB_FUNCTION_RESERVE_0X001D
-            //0x22 34 URB_FUNCTION_CLEAR_FEATURE_TO_OTHER
-            //0x23 35 URB_FUNCTION_SET_FEATURE_TO_OTHER
             //0x26 38 URB_FUNCTION_GET_CONFIGURATION
             //0x27 39 URB_FUNCTION_GET_INTERFACE
             //0x2A 42 URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR
