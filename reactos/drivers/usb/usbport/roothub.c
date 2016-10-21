@@ -339,7 +339,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
     return 0;
 }
 
-ULONG
+RHSTATUS
 NTAPI
 USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
 {
@@ -349,7 +349,7 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
     PURB Urb;
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     UCHAR Type;
-    BOOLEAN Result;
+    RHSTATUS RHStatus;
 
     DPRINT("USBPORT_RootHubEndpoint0: Transfer - %p\n", Transfer);
 
@@ -368,27 +368,27 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
 
     if (Type == BMREQUEST_STANDARD)
     {
-        Result = USBPORT_RootHubStandardCommand(FdoDevice,
-                                                SetupPacket,
-                                                Buffer,
-                                                &TransferLength);
+        RHStatus = USBPORT_RootHubStandardCommand(FdoDevice,
+                                                  SetupPacket,
+                                                  Buffer,
+                                                  &TransferLength);
     }
     else if (Type == BMREQUEST_CLASS)
     {
-        Result = USBPORT_RootHubClassCommand(FdoDevice,
-                                             SetupPacket,
-                                             Buffer,
-                                             &TransferLength);
+        RHStatus = USBPORT_RootHubClassCommand(FdoDevice,
+                                               SetupPacket,
+                                               Buffer,
+                                               &TransferLength);
     }
     else
     {
-        return 1;
+        return 2;
     }
 
-    if (Result == 0)
+    if (RHStatus == 0)
         Transfer->CompletedTransferLen = TransferLength;
 
-    return Result;
+    return RHStatus;
 }
 
 RHSTATUS
