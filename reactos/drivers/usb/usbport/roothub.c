@@ -248,7 +248,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
     return Result;
 }
 
-BOOLEAN
+RHSTATUS
 NTAPI
 USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                                IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket,
@@ -260,7 +260,8 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
     SIZE_T Length;
     PVOID Descriptor;
     SIZE_T DescriptorLength;
-    ULONG Result;
+    MPSTATUS MPStatus;
+    RHSTATUS RHStatus = 2;
     KIRQL OldIrql;
 
     DPRINT("USBPORT_RootHubStandardCommand: USB command - %x, TransferLength - %p\n",
@@ -272,23 +273,21 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
     switch (SetupPacket->bRequest)
     {
-        case USB_REQUEST_GET_DESCRIPTOR:
+        case USB_REQUEST_GET_DESCRIPTOR: //0x06
+            if (SetupPacket->wValue.LowByte ||
+                !(SetupPacket->bmRequestType._BM.Dir))
+            {
+                return RHStatus;
+            }
+
             switch (SetupPacket->wValue.HiByte)
             {
                 case USB_DEVICE_DESCRIPTOR_TYPE:
-                    if (SetupPacket->wValue.LowByte ||
-                        !(SetupPacket->bmRequestType._BM.Dir))
-                        return 1;
-
                     Descriptor = &PdoExtension->RootHubDescriptors->DeviceDescriptor;
                     DescriptorLength = sizeof(USB_DEVICE_DESCRIPTOR);
                     break;
 
                 case USB_CONFIGURATION_DESCRIPTOR_TYPE:
-                    if (SetupPacket->wValue.LowByte ||
-                        !(SetupPacket->bmRequestType._BM.Dir))
-                        return 1;
-
                     Descriptor = &PdoExtension->RootHubDescriptors->ConfigDescriptor;
                     DescriptorLength = sizeof(USB_CONFIGURATION_DESCRIPTOR) +
                                        sizeof(USB_INTERFACE_DESCRIPTOR) +
@@ -296,8 +295,14 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                     break;
 
                 default:
-                    DPRINT1("USBPORT_RootHubStandardCommand: Unknown Descriptor Type - %x\n", SetupPacket->wValue.HiByte);
-                    break;
+                    DPRINT1("USBPORT_RootHubStandardCommand: Not supported Descriptor Type - %x\n",
+                            SetupPacket->wValue.HiByte);
+                    return RHStatus;
+            }
+
+            if (!Descriptor)
+            {
+                return RHStatus;
             }
 
             if (*TransferLength >= DescriptorLength)
@@ -307,36 +312,89 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
             RtlCopyMemory(Buffer, Descriptor, Length);
             *TransferLength = Length;
+
+            RHStatus = 0;
             break;
 
-        case USB_REQUEST_GET_STATUS:
-            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-            Result = FdoExtension->MiniPortInterface->Packet.RH_GetStatus(FdoExtension->MiniPortExt,
-                                                                          Buffer);
-            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
-
-            *TransferLength = 2;
-
-            if (Result)
-                return 1;
-            else
-                return 0;
-
-        case USB_REQUEST_SET_CONFIGURATION:
-            if ((SetupPacket->wValue.W == 0) ||
-                (SetupPacket->wValue.W == PdoExtension->RootHubDescriptors->ConfigDescriptor.bConfigurationValue))
+        case USB_REQUEST_GET_STATUS: //0x00
+            if (!SetupPacket->wValue.W &&
+                 SetupPacket->wLength == 2 &&
+                 !SetupPacket->wIndex.W &&
+                 SetupPacket->bmRequestType._BM.Dir)
             {
-                PdoExtension->ConfigurationValue = SetupPacket->wValue.LowByte;
+                KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                MPStatus = FdoExtension->MiniPortInterface->Packet.RH_GetStatus(FdoExtension->MiniPortExt,
+                                                                                Buffer);
+                KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+                *TransferLength = 2;
+                RHStatus = USBPORT_MPStatusToRHStatus(MPStatus);
             }
 
-            return 0;
+            break;
+
+        case USB_REQUEST_GET_CONFIGURATION: //0x08
+            if (SetupPacket->wValue.W ||
+                SetupPacket->wIndex.W ||
+                SetupPacket->wLength != 1 ||
+                !(SetupPacket->bmRequestType._BM.Dir))
+            {
+                return RHStatus;
+            }
+
+            Length = 0;
+
+            if (*TransferLength >= 1)
+            {
+                Length = 1;
+                RtlCopyMemory(Buffer, &PdoExtension->ConfigurationValue, Length);
+            }
+
+            *TransferLength = Length;
+
+            RHStatus = 0;
+            break;
+
+        case USB_REQUEST_SET_CONFIGURATION: //0x09
+            if (!SetupPacket->wIndex.W &&
+                !SetupPacket->wLength &&
+                !(SetupPacket->bmRequestType._BM.Dir == BMREQUEST_DEVICE_TO_HOST))
+            {
+                if (SetupPacket->wValue.W == PdoExtension->RootHubDescriptors->ConfigDescriptor.bConfigurationValue ||
+                    SetupPacket->wValue.W == 0)
+                {
+                  PdoExtension->ConfigurationValue = SetupPacket->wValue.LowByte;
+                  RHStatus = 0;
+                }
+            }
+
+            break;
+
+        case USB_REQUEST_SET_ADDRESS: //0x05
+            if (!SetupPacket->wIndex.W &&
+                !SetupPacket->wLength &&
+                !(SetupPacket->bmRequestType._BM.Dir))
+            {
+                PdoExtension->DeviceHandle.DeviceAddress = SetupPacket->wValue.LowByte;
+                RHStatus = 0;
+                break;
+            }
+
+            break;
 
         default:
-            DPRINT1("USBPORT_RootHubStandardCommand: Unknown Request - %x\n", SetupPacket->bRequest);
+            DPRINT1("USBPORT_RootHubStandardCommand: Not supported USB request - %x\n",
+                    SetupPacket->bRequest);
+            //USB_REQUEST_CLEAR_FEATURE                 0x01
+            //USB_REQUEST_SET_FEATURE                   0x03
+            //USB_REQUEST_SET_DESCRIPTOR                0x07
+            //USB_REQUEST_GET_INTERFACE                 0x0A
+            //USB_REQUEST_SET_INTERFACE                 0x0B
+            //USB_REQUEST_SYNC_FRAME                    0x0C
             break;
     }
 
-    return 0;
+    return RHStatus;
 }
 
 RHSTATUS
