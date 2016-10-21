@@ -486,12 +486,21 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_TRANSFER Transfer;
-    ULONG Result;
+    RHSTATUS RHStatus;
+    USBD_STATUS USBDStatus;
+    KIRQL OldIrql;
 
     DPRINT_CORE("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
 
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+    if (!(FdoExtension->Flags & 0x20300))
+    {
+        FdoExtension->MiniPortInterface->Packet.CheckController(FdoExtension->MiniPortExt);
+    }
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
@@ -508,7 +517,8 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
             ExInterlockedInsertTailList(&FdoExtension->EndpointClosedList,
                                         &Endpoint->CloseLink,
                                         &FdoExtension->EndpointClosedSpinLock);
-        }
+            DPRINT("USBPORT_RootHubEndpointWorker: USBPORT_ENDPOINT_CLOSED Endpoint - %p\n", Endpoint);
+       }
 
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
         USBPORT_FlushCancelList(Endpoint);
@@ -528,14 +538,19 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
     if (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_CONTROL)
-        Result = USBPORT_RootHubEndpoint0(Transfer);
+        RHStatus = USBPORT_RootHubEndpoint0(Transfer);
     else
-        Result = USBPORT_RootHubSCE(Transfer);
+        RHStatus = USBPORT_RootHubSCE(Transfer);
 
-    if (Result == 0)
+    if (RHStatus != 1)
     {
+        if (!RHStatus)
+            USBDStatus = USBD_STATUS_SUCCESS;
+        else
+            USBDStatus = USBD_STATUS_STALL_PID;
+
         KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
-        USBPORT_QueueDoneTransfer(Transfer, USBD_STATUS_SUCCESS);
+        USBPORT_QueueDoneTransfer(Transfer, USBDStatus);
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
         USBPORT_FlushCancelList(Endpoint);
