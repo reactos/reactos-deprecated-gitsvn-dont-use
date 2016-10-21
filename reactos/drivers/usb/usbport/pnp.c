@@ -1283,11 +1283,11 @@ NTAPI
 USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
                        IN USHORT VendorID,
                        IN USHORT DeviceID,
-                       IN UCHAR RevisionID)
+                       IN USHORT RevisionID)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PVOID Id;
-    WCHAR Buffer[300];
+    WCHAR Buffer[300] = {0};
     ULONG Index = 0;
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -1296,7 +1296,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     {
         /* USB 2.0 hub */
         Index += swprintf(&Buffer[Index],
-                          L"USB\\ROOT_HUB20&VID%04x&PID%04x&RE%02x",
+                          L"USB\\ROOT_HUB20&VID%04x&PID%04x&REV%04x",
                           VendorID,
                           DeviceID,
                           RevisionID) + 1;
@@ -1312,7 +1312,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     {
         /* USB 1.1 */
         Index += swprintf(&Buffer[Index],
-                          L"USB\\ROOT_HUB&VID%04x&PID%04x&RE%02x",
+                          L"USB\\ROOT_HUB&VID%04x&PID%04x&REV%04x",
                           VendorID,
                           DeviceID,
                           RevisionID) + 1;
@@ -1326,7 +1326,6 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     }
 
     Buffer[Index] = UNICODE_NULL;
-    Index++;
     DPRINT("USBPORT_GetIdString: Buffer - %S\n", Buffer);
 
     Id = (LPWSTR)ExAllocatePoolWithTag(PagedPool,
@@ -1336,6 +1335,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     if (!Id)
         return 0;
 
+    RtlZeroMemory(Id, Index * sizeof(WCHAR));
     RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR)); // copy device name
 
     return (ULONG_PTR)Id;
