@@ -3,9 +3,25 @@
 #define NDEBUG
 #include <debug.h>
 
-#define NDEBUG_USBPORT_MINIPORT
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
+
+RHSTATUS
+NTAPI
+USBPORT_MPStatusToRHStatus(IN MPSTATUS MPStatus)
+{
+    RHSTATUS RHStatus = 0;
+
+    //DPRINT("USBPORT_MPStatusToRHStatus: MPStatus - %x\n", MPStatus);
+
+    if (MPStatus)
+    {
+        RHStatus = (MPStatus != 1);
+        ++RHStatus;
+    }
+
+    return RHStatus;
+}
 
 ULONG
 NTAPI
