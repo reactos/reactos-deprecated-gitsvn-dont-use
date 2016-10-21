@@ -1507,7 +1507,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
         {
             ULONG IdType;
             LONG Length;
-            WCHAR Buffer[64];
+            WCHAR Buffer[64] = {0};
             ULONG_PTR Id;
 
             Status = STATUS_SUCCESS;
@@ -1517,12 +1517,22 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
             if (IdType == BusQueryDeviceID) // 0
             {
-                swprintf(Buffer, L"USB\\ROOT_HUB");
+                if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+                {
+                    swprintf(Buffer, L"USB\\ROOT_HUB20");
+                }
+                else
+                {
+                    swprintf(Buffer, L"USB\\ROOT_HUB");
+                }
+
                 Length = (wcslen(Buffer) + 1);
 
                 Id = (ULONG_PTR)ExAllocatePoolWithTag(PagedPool,
                                                       Length * sizeof(WCHAR),
                                                       USB_PORT_TAG);
+
+                RtlZeroMemory((PVOID)Id, Length * sizeof(WCHAR));
 
                 if (!Id)
                 {
@@ -1559,6 +1569,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             // Allocate buffer for bus information
             BusInformation = (PPNP_BUS_INFORMATION)ExAllocatePool(PagedPool,
                                                                   sizeof(PNP_BUS_INFORMATION));
+
+            RtlZeroMemory(BusInformation, sizeof(PNP_BUS_INFORMATION));
 
             if (BusInformation)
             {
