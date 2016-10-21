@@ -1,9 +1,9 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
-//#define NDEBUG_USBPORT_URB
+#define NDEBUG_USBPORT_URB
 #include "usbdebug.h"
 
 NTSTATUS

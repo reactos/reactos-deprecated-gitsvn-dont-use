@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 #define NDEBUG_USBPORT_CORE
@@ -1345,7 +1345,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
                                                                       sizeof(TIMER_WORK_QUEUE_ITEM),
                                                                       USB_PORT_TAG);
 
-        DPRINT1("USBPORT_DM_TimerDpc: IdleLockCounter - %x, IdleQueueItem - %p\n",
+        DPRINT("USBPORT_TimerDpc: IdleLockCounter - %x, IdleQueueItem - %p\n",
                 FdoExtension->IdleLockCounter,
                 IdleQueueItem);
 
@@ -2336,6 +2336,11 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
 
         PagesNeed = ADDRESS_AND_SIZE_TO_SPAN_PAGES(VirtualAddr,
                                                    TransferLength);
+    }
+
+    if (Urb->UrbHeader.Function == URB_FUNCTION_ISOCH_TRANSFER)
+    {
+        DPRINT1("USBPORT_AllocateTransfer: ISOCH_TRANSFER UNIMPLEMENTED. FIXME.\n");
     }
 
     PortTransferLength = sizeof(USBPORT_TRANSFER) +

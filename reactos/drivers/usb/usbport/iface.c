@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 VOID

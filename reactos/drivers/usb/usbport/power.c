@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 VOID
@@ -27,6 +27,8 @@ USBPORT_CompletePdoWaitWake(IN PDEVICE_OBJECT FdoDevice)
     {
         PdoExtension->WakeIrp = NULL;
         KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+
+        DPRINT("USBPORT_CompletePdoWaitWake: Complete Irp - %p\n", Irp);
 
         Irp->IoStatus.Status = STATUS_SUCCESS;
         Irp->IoStatus.Information = 0;
@@ -58,6 +60,8 @@ USBPORT_CompletePendingIdleIrp(IN PDEVICE_OBJECT PdoDevice)
     if (Irp)
     {
         InterlockedDecrement(&FdoExtension->IdleLockCounter);
+
+        DPRINT("USBPORT_CompletePendingIdleIrp: Complete Irp - %p\n", Irp);
 
         Irp->IoStatus.Status = STATUS_CANCELLED;
         Irp->IoStatus.Information = 0;
@@ -97,7 +101,7 @@ USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
     KIRQL OldIrql;
 
-    DPRINT("USBPORT_SuspendController \n");
+    DPRINT1("USBPORT_SuspendController \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
@@ -134,7 +138,7 @@ USBPORT_ResumeController(IN PDEVICE_OBJECT FdoDevice)
     KIRQL OldIrql;
     MPSTATUS MpStatus;
 
-    DPRINT("USBPORT_ResumeController: ... \n");
+    DPRINT1("USBPORT_ResumeController: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
@@ -219,8 +223,6 @@ USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
 
     if (State.DeviceState == PowerDeviceD0)
     {
-        DPRINT1("USBPORT_PdoDevicePowerState: PowerDeviceD0.\n");
-
         if (FdoExtension->CommonExtension.DevicePowerState == PowerDeviceD0)
         {
             while ((FdoExtension->Flags & 0x00000020) || FdoExtension->SetPowerLockCounter)

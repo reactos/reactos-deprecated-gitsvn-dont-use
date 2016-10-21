@@ -1,6 +1,6 @@
 #include "usbport.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 #define NDEBUG_USBPORT_CORE
@@ -1465,7 +1465,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_RESOURCES: // 10
             //DPRINT("IRP_MN_QUERY_RESOURCES\n");
-            DPRINT1("USBPORT_PdoPnP: IRP_MN_QUERY_RESOURCES UNIMPLEMENTED. FIXME. \n");
+            DPRINT("USBPORT_PdoPnP: IRP_MN_QUERY_RESOURCES\n");
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
