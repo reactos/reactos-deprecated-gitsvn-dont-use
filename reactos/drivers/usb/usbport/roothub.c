@@ -391,9 +391,9 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
     return Result;
 }
 
-ULONG
+RHSTATUS
 NTAPI
-USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
+USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
 {
     PUSBPORT_ENDPOINT Endpoint;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -403,7 +403,7 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
     ULONG HubStatus = 0;
     ULONG_PTR Buffer;
     PURB Urb;
-    ULONG Result = 1;
+    RHSTATUS RHStatus = 1;
     PUSB_HUB_DESCRIPTOR HubDescriptor;
     UCHAR NumberOfPorts;
     UCHAR ix;
@@ -415,6 +415,9 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
     HubDescriptor = (PUSB_HUB_DESCRIPTOR)&PdoExtension->RootHubDescriptors->Descriptor;
     NumberOfPorts = HubDescriptor->bNumberOfPorts;
+
+    if (FdoExtension->Flags & 0x20000)
+        return 1;
 
     Urb = Transfer->Urb;
     TransferLength = Transfer->TransferParameters.TransferBufferLength;
@@ -434,15 +437,16 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
 
             while (ix < 256)
             {
+                DPRINT("USBPORT_RootHubSCE: ix - %p\n", ix);
                 if (FdoExtension->MiniPortInterface->Packet.RH_GetPortStatus(FdoExtension->MiniPortExt,
                                                                              ix + 1,
                                                                              &PortStatus))
-                    return 1;
+                    return 2;
 
                 if (PortStatus & 0x001F0000)
                 {
                     USBPORT_SetBit(Buffer, ix + 1);
-                    Result = 0;
+                    RHStatus = 0;
                 }
 
                 ++ix;
@@ -458,25 +462,25 @@ USBPORT_RootHubSCE(PUSBPORT_TRANSFER Transfer)
             if (HubStatus & 0x30000)
             {
                 USBPORT_SetBit(Buffer, 0);
-                Result = 0;
+                RHStatus = 0;
             }
 
-            if (Result == 0)
+            if (RHStatus == 0)
             {
                 Urb->UrbControlTransfer.TransferBufferLength = TransferLength;
                 return 0;
             }
 
-            if (Result == 1)
+            if (RHStatus == 1)
             {
                 FdoExtension->MiniPortInterface->Packet.RH_EnableIrq(FdoExtension->MiniPortExt);
             }
 
-            return Result;
+            return RHStatus;
         }
     }
 
-    return 1;
+    return 2;
 }
 
 VOID
