@@ -38,6 +38,27 @@ USBPORT_SetBit(ULONG_PTR Address,
     return AddressBitMap;
 }
 
+MPSTATUS
+NTAPI
+USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
+                                   IN USHORT Port)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    MPSTATUS MPStatus;
+
+    DPRINT1("USBPORT_RootHubClassCommand: Usb2PortPower UNIMPLEMENTED. FIXME.\n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+//FIXME
+MPStatus = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
+                                          Port);
+
+    return MPStatus;
+}
+
 RHSTATUS
 NTAPI
 USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
