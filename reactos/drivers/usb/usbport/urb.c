@@ -510,6 +510,92 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
 
 NTSTATUS
 NTAPI
+USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
+                    IN PIRP Irp,
+                    IN PURB Urb,
+                    IN BOOLEAN IsControlTransfer,
+                    IN BOOLEAN IsNullTransfer)
+{
+    struct _URB_CONTROL_TRANSFER *UrbRequest;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    NTSTATUS Status;
+    USBD_STATUS USBDStatus;
+
+    UrbRequest = &Urb->UrbControlTransfer;
+
+    if (UrbRequest->UrbLink)
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PARAMETER);
+        DPRINT1("USBPORT_ValidateURB: Not valid parameter\n");
+        return Status;
+    }
+
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+
+    if (IsControlTransfer)
+    {
+        UrbRequest->TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
+        UrbRequest->PipeHandle = &DeviceHandle->PipeHandle;
+    }
+
+    if (UrbRequest->TransferFlags & USBD_DEFAULT_PIPE_TRANSFER)
+    {
+        if (UrbRequest->TransferBufferLength > 0x1000)
+        {
+            Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PARAMETER);
+            DPRINT1("USBPORT_ValidateURB: Not valid parameter\n");
+            return Status;
+        }
+
+        if (Urb->UrbHeader.Function == URB_FUNCTION_CONTROL_TRANSFER)
+        {
+            UrbRequest->PipeHandle = &DeviceHandle->PipeHandle;
+        }
+    }
+
+    if (!USBPORT_ValidatePipeHandle(DeviceHandle, UrbRequest->PipeHandle))
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+        DPRINT1("USBPORT_ValidateURB: Not valid pipe handle\n");
+        return Status;
+    }
+
+    UrbRequest->hca.Reserved8[0] = NULL; // Transfer
+
+    if (IsNullTransfer)
+    {
+        UrbRequest->TransferBuffer = 0;
+        UrbRequest->TransferBufferMDL = NULL;
+        UrbRequest->TransferBufferLength = 0;
+    }
+    else
+    {
+        Status = USBPORT_ValidateTransferParametersURB(Urb);
+
+        if (!NT_SUCCESS(Status))
+        {
+            return Status;
+        }
+    }
+
+    USBDStatus = USBPORT_AllocateTransfer(FdoDevice,
+                                          Urb,
+                                          DeviceHandle,
+                                          Irp,
+                                          NULL);
+
+    Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBPORT_ValidateURB: Not allocated transfer\n");
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
                         IN PIRP Irp,
                         IN PURB Urb)
