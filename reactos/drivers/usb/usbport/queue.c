@@ -368,7 +368,6 @@ USBPORT_FindUrbInIrpTable(IN PUSBPORT_IRP_TABLE IrpTable,
     ULONG ix;
     PIRP irp;
     PURB urbIn;
-    PIO_STACK_LOCATION IoStack;
 
     DPRINT_CORE("USBPORT_FindUrbInIrpTable: IrpTable - %p, Urb - %p, Irp - %p\n", IrpTable, Urb, Irp);
 
@@ -382,8 +381,7 @@ USBPORT_FindUrbInIrpTable(IN PUSBPORT_IRP_TABLE IrpTable,
 
             if (irp)
             {
-                IoStack = IoGetCurrentIrpStackLocation(irp);
-                urbIn = (PURB)(IoStack->Parameters.Others.Argument1);
+                urbIn = URB_FROM_IRP(irp);
 
                 if (urbIn == Urb)
                 {
@@ -454,7 +452,6 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    PIO_STACK_LOCATION IoStack;
     PURB Urb;
     PUSBPORT_TRANSFER Transfer;
     PUSBPORT_ENDPOINT Endpoint;
@@ -475,8 +472,7 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
 
     if (irp)
     {
-        IoStack = IoGetCurrentIrpStackLocation(irp);
-        Urb = (PURB)(IoStack->Parameters.Others.Argument1);
+        Urb = URB_FROM_IRP(irp);
         Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
         Endpoint = Transfer->Endpoint;
 
@@ -775,7 +771,6 @@ VOID
 NTAPI
 USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
 {
-    PIO_STACK_LOCATION IoStack;
     PURB Urb;
     PUSBPORT_TRANSFER Transfer;
     PUSBPORT_ENDPOINT Endpoint;
@@ -784,8 +779,7 @@ USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
 
     DPRINT_CORE("USBPORT_QueuePendingTransferIrp: Irp - %p\n", Irp);
 
-    IoStack = IoGetCurrentIrpStackLocation(Irp);
-    Urb = (PURB)(IoStack->Parameters.Others.Argument1);
+    Urb = URB_FROM_IRP(Irp);
 
     Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
     Endpoint = Transfer->Endpoint;

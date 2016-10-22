@@ -2401,8 +2401,7 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
 
     if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_URB)
     {
-        PURB Urb = (PURB)IoStack->Parameters.Others.Argument1;
-        return USBPORT_HandleSubmitURB(PdoDevice, Irp, Urb);
+        return USBPORT_HandleSubmitURB(PdoDevice, Irp, URB_FROM_IRP(Irp));
     }
 
     if (IoCtl == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
