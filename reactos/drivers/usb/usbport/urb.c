@@ -8,63 +8,6 @@
 
 NTSTATUS
 NTAPI
-USBPORT_ValidateTransferParametersURB(IN PURB Urb)
-{
-    struct _URB_CONTROL_TRANSFER *UrbRequest;
-    PMDL Mdl;
-
-    DPRINT_URB("USBPORT_ValidateTransferParametersURB: Urb - %p\n", Urb);
-
-    UrbRequest = &Urb->UrbControlTransfer;
-
-    if (UrbRequest->TransferBuffer == NULL &&
-        UrbRequest->TransferBufferMDL == NULL &&
-        UrbRequest->TransferBufferLength > 0)
-    {
-        DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
-        return STATUS_INVALID_PARAMETER;
-    }
-
-    if ((UrbRequest->TransferBuffer > 0 || UrbRequest->TransferBufferMDL > 0) &&
-        UrbRequest->TransferBufferLength == 0)
-    {
-        DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
-        return STATUS_INVALID_PARAMETER;
-    }
-
-    if (UrbRequest->TransferBuffer != NULL &&
-        UrbRequest->TransferBufferMDL == NULL &&
-        UrbRequest->TransferBufferLength != 0)
-    {
-        DPRINT_URB("USBPORT_ValidateTransferParametersURB: TransferBuffer - %p, TransferBufferLength - %x\n",
-                   UrbRequest->TransferBuffer,
-                   UrbRequest->TransferBufferLength);
-
-        Mdl = IoAllocateMdl(UrbRequest->TransferBuffer,
-                            UrbRequest->TransferBufferLength,
-                            FALSE,
-                            FALSE,
-                            NULL);
-
-        if (!Mdl)
-        {
-            DPRINT1("USBPORT_ValidateTransferParametersURB: Not allocated Mdl\n");
-            return STATUS_INSUFFICIENT_RESOURCES;
-        }
-
-        MmBuildMdlForNonPagedPool(Mdl);
-
-        UrbRequest->TransferBufferMDL = Mdl;
-        Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_MDL;
-
-        DPRINT_URB("USBPORT_ValidateTransferParametersURB: Mdl - %p\n", Mdl);
-    }
-
-    return STATUS_SUCCESS;
-}
-
-NTSTATUS
-NTAPI
 USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
                   IN PIRP Irp,
                   IN PURB Urb)
@@ -506,6 +449,63 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
     USBPORT_QueueTransferUrb(Urb);
 
     return STATUS_PENDING;
+}
+
+NTSTATUS
+NTAPI
+USBPORT_ValidateTransferParametersURB(IN PURB Urb)
+{
+    struct _URB_CONTROL_TRANSFER *UrbRequest;
+    PMDL Mdl;
+
+    DPRINT_URB("USBPORT_ValidateTransferParametersURB: Urb - %p\n", Urb);
+
+    UrbRequest = &Urb->UrbControlTransfer;
+
+    if (UrbRequest->TransferBuffer == NULL &&
+        UrbRequest->TransferBufferMDL == NULL &&
+        UrbRequest->TransferBufferLength > 0)
+    {
+        DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    if ((UrbRequest->TransferBuffer > 0 || UrbRequest->TransferBufferMDL > 0) &&
+        UrbRequest->TransferBufferLength == 0)
+    {
+        DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    if (UrbRequest->TransferBuffer != NULL &&
+        UrbRequest->TransferBufferMDL == NULL &&
+        UrbRequest->TransferBufferLength != 0)
+    {
+        DPRINT_URB("USBPORT_ValidateTransferParametersURB: TransferBuffer - %p, TransferBufferLength - %x\n",
+                   UrbRequest->TransferBuffer,
+                   UrbRequest->TransferBufferLength);
+
+        Mdl = IoAllocateMdl(UrbRequest->TransferBuffer,
+                            UrbRequest->TransferBufferLength,
+                            FALSE,
+                            FALSE,
+                            NULL);
+
+        if (!Mdl)
+        {
+            DPRINT1("USBPORT_ValidateTransferParametersURB: Not allocated Mdl\n");
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+
+        MmBuildMdlForNonPagedPool(Mdl);
+
+        UrbRequest->TransferBufferMDL = Mdl;
+        Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_MDL;
+
+        DPRINT_URB("USBPORT_ValidateTransferParametersURB: Mdl - %p\n", Mdl);
+    }
+
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS
