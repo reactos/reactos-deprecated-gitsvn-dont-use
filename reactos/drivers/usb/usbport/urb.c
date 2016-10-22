@@ -8,12 +8,12 @@
 
 NTSTATUS
 NTAPI
-ValidateTransferParameters(IN PURB Urb)
+USBPORT_ValidateTransferParametersURB(IN PURB Urb)
 {
     struct _URB_CONTROL_TRANSFER *UrbTransfer;
     PMDL Mdl;
 
-    DPRINT_URB("ValidateTransferParameters: Urb - %p\n", Urb);
+    DPRINT_URB("USBPORT_ValidateTransferParametersURB: Urb - %p\n", Urb);
 
     UrbTransfer = &Urb->UrbControlTransfer;
 
@@ -21,12 +21,14 @@ ValidateTransferParameters(IN PURB Urb)
         UrbTransfer->TransferBufferMDL == NULL &&
         UrbTransfer->TransferBufferLength > 0)
     {
+        DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
         return STATUS_INVALID_PARAMETER;
     }
 
     if ((UrbTransfer->TransferBuffer > 0 || UrbTransfer->TransferBufferMDL > 0) &&
         UrbTransfer->TransferBufferLength == 0)
     {
+        DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -34,7 +36,7 @@ ValidateTransferParameters(IN PURB Urb)
         UrbTransfer->TransferBufferMDL == NULL &&
         UrbTransfer->TransferBufferLength != 0)
     {
-        DPRINT_URB("ValidateTransferParameters: TransferBuffer - %p, TransferBufferLength - %x\n",
+        DPRINT_URB("USBPORT_ValidateTransferParametersURB: TransferBuffer - %p, TransferBufferLength - %x\n",
                    UrbTransfer->TransferBuffer,
                    UrbTransfer->TransferBufferLength);
 
@@ -46,6 +48,7 @@ ValidateTransferParameters(IN PURB Urb)
 
         if (!Mdl)
         {
+            DPRINT1("USBPORT_ValidateTransferParametersURB: Not allocated Mdl\n");
             return STATUS_INSUFFICIENT_RESOURCES;
         }
 
@@ -54,7 +57,7 @@ ValidateTransferParameters(IN PURB Urb)
         UrbTransfer->TransferBufferMDL = Mdl;
         Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_MDL;
 
-        DPRINT_URB("ValidateTransferParameters: Mdl - %p\n", Mdl);
+        DPRINT_URB("USBPORT_ValidateTransferParametersURB: Mdl - %p\n", Mdl);
     }
 
     return STATUS_SUCCESS;
@@ -516,26 +519,25 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     USHORT Function;
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
-    NTSTATUS Status;
+    NTSTATUS Status = STATUS_NOT_IMPLEMENTED;
+
+    ASSERT(Urb);
 
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    Function = Urb->UrbHeader.Function;
-
-    ASSERT(Urb);
-    Status = STATUS_NOT_IMPLEMENTED;
-
     Urb->UrbHeader.Status = USBD_STATUS_SUCCESS;
     Urb->UrbHeader.UsbdFlags = 0;
+
+    Function = Urb->UrbHeader.Function;
 
     if (Function > URB_FUNCTION_MAX)
     {
         Status = USBPORT_USBDStatusToNtStatus(Urb,
                                               USBD_STATUS_INVALID_URB_FUNCTION);
 
-        DPRINT1("USBPORT_HandleSubmitURB: Unknown Function %x. UNIMPLEMENTED\n",
+        DPRINT1("USBPORT_HandleSubmitURB: Unknown URB function - %x !!!\n",
                Function);
 
         return Status;
@@ -545,23 +547,21 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
     {
         DPRINT1("USBPORT_HandleSubmitURB: Bad Request\n");
 
-        Irp->IoStatus.Status = STATUS_PENDING;
-        Status = STATUS_PENDING;
         USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_DEVICE_GONE);
 
+        Irp->IoStatus.Status = STATUS_PENDING;
         IoMarkIrpPending(Irp);
         IoCsqInsertIrp(&FdoExtension->BadRequestIoCsq, Irp, NULL);
 
-        return Status;
+        return STATUS_PENDING;
     }
 
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
 
     if (!DeviceHandle)
     {
-        //DPRINT("USBPORT_HandleSubmitURB: DeviceHandle == 0\n");
-        Urb->UrbHeader.UsbdDeviceHandle = &PdoExtension->DeviceHandle;
         DeviceHandle = &PdoExtension->DeviceHandle;
+        Urb->UrbHeader.UsbdDeviceHandle = DeviceHandle;
     }
 
     if (!USBPORT_ValidateDeviceHandle(PdoExtension->FdoDevice,
@@ -571,6 +571,8 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
 
         Irp->IoStatus.Status = STATUS_PENDING;
         IoMarkIrpPending(Irp);
+        IoCsqInsertIrp(&FdoExtension->BadRequestIoCsq, Irp, NULL);
+
         return STATUS_PENDING;
     }
 
@@ -588,23 +590,11 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
 
         case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER: // 0x09
         case URB_FUNCTION_CONTROL_TRANSFER: // 0x08
-            Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
-
-            if ((Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER) &&
-                (Function == URB_FUNCTION_CONTROL_TRANSFER))
-                Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
-
-            ValidateTransferParameters(Urb);
-
-            Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
-                                              Urb,
-                                              DeviceHandle,
-                                              Irp,
-                                              NULL);
+            Status = USBPORT_ValidateURB(FdoDevice, Irp, Urb, FALSE, FALSE);
 
             if (!NT_SUCCESS(Status))
             {
-                DPRINT1("USBPORT_HandleSubmitURB: Not allocated transfer\n");
+                DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
                 return Status;
             }
 
@@ -619,21 +609,11 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
         case URB_FUNCTION_CLASS_ENDPOINT: // 0x1C
         case URB_FUNCTION_CLASS_OTHER: // 0x1F
         case URB_FUNCTION_VENDOR_OTHER: // 0x20
-            Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
-            Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
-            Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
-
-            ValidateTransferParameters(Urb);
-
-            Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
-                                              Urb,
-                                              DeviceHandle,
-                                              Irp,
-                                              NULL);
+            Status = USBPORT_ValidateURB(FdoDevice, Irp, Urb, TRUE, FALSE);
 
             if (!NT_SUCCESS(Status))
             {
-                DPRINT1("USBPORT_HandleSubmitURB: Not allocated transfer\n");
+                DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
                 return Status;
             }
 
@@ -646,46 +626,30 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
         case URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT: // 0x25
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE: // 0x28
         case URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE: // 0x29
-            Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
-            Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
-            Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
-
-            ValidateTransferParameters(Urb);
-
-            Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
-                                              Urb,
-                                              DeviceHandle,
-                                              Irp,
-                                              NULL);
+            Status = USBPORT_ValidateURB(FdoDevice, Irp, Urb, TRUE, FALSE);
 
             if (!NT_SUCCESS(Status))
             {
-                DPRINT1("USBPORT_HandleSubmitURB: Not allocated transfer\n");
+                DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
                 return Status;
             }
 
             Status = USBPORT_HandleGetSetDescriptor(Irp, Urb);
             break;
 
+        case URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR: // 0x2A
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR (0x2A) NOT_SUPPORTED\n");
+            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_URB_FUNCTION);
+
         case URB_FUNCTION_GET_STATUS_FROM_DEVICE: // 0x13
         case URB_FUNCTION_GET_STATUS_FROM_INTERFACE: // 0x14
         case URB_FUNCTION_GET_STATUS_FROM_ENDPOINT: // 0x15
         case URB_FUNCTION_GET_STATUS_FROM_OTHER: // 0x21
-            Urb->UrbControlTransfer.hca.Reserved8[0] = NULL; // Transfer
-            Urb->UrbControlTransfer.TransferFlags |= USBD_DEFAULT_PIPE_TRANSFER;
-            Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
-
-            ValidateTransferParameters(Urb);
-
-            Status = USBPORT_AllocateTransfer(PdoExtension->FdoDevice,
-                                              Urb,
-                                              DeviceHandle,
-                                              Irp,
-                                              NULL);
+            Status = USBPORT_ValidateURB(FdoDevice, Irp, Urb, TRUE, FALSE);
 
             if (!NT_SUCCESS(Status))
             {
-                DPRINT1("USBPORT_HandleSubmitURB: Not allocated transfer\n");
+                DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
                 return Status;
             }
 
@@ -704,10 +668,36 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
                                                    Urb);
             break;
 
+        case URB_FUNCTION_GET_CONFIGURATION: // 0x26
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_CONFIGURATION (0x26) UNIMPLEMENTED. FIXME\n");
+            break;
+
+        case URB_FUNCTION_GET_INTERFACE: // 0x27
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_INTERFACE (0x27) NOT_SUPPORTED\n");
+            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_URB_FUNCTION);
+
         case URB_FUNCTION_SYNC_RESET_PIPE_AND_CLEAR_STALL: // 0x1E
             Status = USBPORT_SyncResetPipeAndClearStall(PdoExtension->FdoDevice,
                                                         Irp,
                                                         Urb);
+            break;
+
+        case URB_FUNCTION_SYNC_RESET_PIPE: // 0x30
+            Status = USBPORT_ResetPipe(PdoExtension->FdoDevice,
+                                       Irp,
+                                       Urb);
+            break;
+
+        case URB_FUNCTION_SYNC_CLEAR_STALL: // 0x31
+            Status = USBPORT_ClearStall(PdoExtension->FdoDevice,
+                                        Irp,
+                                        Urb);
+            break;
+
+        case URB_FUNCTION_ABORT_PIPE: // 0x02
+            Status = USBPORT_AbortPipe(PdoExtension->FdoDevice,
+                                       Irp,
+                                       Urb);
             break;
 
         case URB_FUNCTION_SET_FEATURE_TO_DEVICE: // 0x0D
@@ -717,32 +707,50 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
         case URB_FUNCTION_CLEAR_FEATURE_TO_ENDPOINT: // 0x12
         case URB_FUNCTION_CLEAR_FEATURE_TO_OTHER: // 0x22
         case URB_FUNCTION_SET_FEATURE_TO_OTHER: // 0x23
+            Status = USBPORT_ValidateURB(FdoDevice, Irp, Urb, TRUE, TRUE);
+
+            if (!NT_SUCCESS(Status))
+            {
+                DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
+                return Status;
+            }
+
             Status = USBPORT_HandleSetOrClearFeature(PdoExtension->FdoDevice,
                                                      Irp,
                                                      Urb);
             break;
 
+        case URB_FUNCTION_GET_CURRENT_FRAME_NUMBER: // 0x07
+            Status = USBPORT_HandleGetCurrentFrame(PdoExtension->FdoDevice,
+                                                   Irp,
+                                                   Urb);
+            break;
+
+        case URB_FUNCTION_TAKE_FRAME_LENGTH_CONTROL: // 0x03
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_TAKE_FRAME_LENGTH_CONTROL (0x03) NOT_SUPPORTED\n");
+            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_NOT_SUPPORTED);
+
+        case URB_FUNCTION_RELEASE_FRAME_LENGTH_CONTROL: // 0x04
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_RELEASE_FRAME_LENGTH_CONTROL (0x04) NOT_SUPPORTED\n");
+            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_NOT_SUPPORTED);
+
+        case URB_FUNCTION_GET_FRAME_LENGTH: // 0x05
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_FRAME_LENGTH (0x05) NOT_SUPPORTED\n");
+            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_NOT_SUPPORTED);
+
+        case URB_FUNCTION_SET_FRAME_LENGTH: // 0x06
+            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_SET_FRAME_LENGTH (0x06) NOT_SUPPORTED\n");
+            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_NOT_SUPPORTED);
+
         default:
-            DPRINT1("USBPORT_HandleSubmitURB: Function - %x UNIMPLEMENTED. FIXME\n", Function);
-            //0x02 02 URB_FUNCTION_ABORT_PIPE
-            //0x03 03 URB_FUNCTION_TAKE_FRAME_LENGTH_CONTROL
-            //0x04 04 URB_FUNCTION_RELEASE_FRAME_LENGTH_CONTROL
-            //0x05 05 URB_FUNCTION_GET_FRAME_LENGTH
-            //0x06 06 URB_FUNCTION_SET_FRAME_LENGTH
-            //0x07 07 URB_FUNCTION_GET_CURRENT_FRAME_NUMBER
-            //0x0A 10 URB_FUNCTION_ISOCH_TRANSFER
+            DPRINT1("USBPORT_HandleSubmitURB: Unknown URB Function - %x\n", Function);
             //0x16 22 URB_FUNCTION_RESERVED_0X0016
             //0x1D 29 URB_FUNCTION_RESERVE_0X001D
-            //0x26 38 URB_FUNCTION_GET_CONFIGURATION
-            //0x27 39 URB_FUNCTION_GET_INTERFACE
-            //0x2A 42 URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR
             //0x2B 43 URB_FUNCTION_RESERVE_0X002B
             //0x2C 44 URB_FUNCTION_RESERVE_0X002C
             //0x2D 45 URB_FUNCTION_RESERVE_0X002D
             //0x2E 46 URB_FUNCTION_RESERVE_0X002E
             //0x2F 47 URB_FUNCTION_RESERVE_0X002F
-            //0x30 48 URB_FUNCTION_SYNC_RESET_PIPE
-            //0x31 49 URB_FUNCTION_SYNC_CLEAR_STALL
             break;
     }
 
