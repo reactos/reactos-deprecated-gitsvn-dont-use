@@ -8,6 +8,40 @@
 
 NTSTATUS
 NTAPI
+USBPORT_HandleGetConfiguration(IN PURB Urb)
+{
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+
+    DPRINT_URB("USBPORT_HandleGetConfiguration: Urb - %p\n", Urb);
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlGetConfigurationRequest.Reserved1;
+
+    SetupPacket->bmRequestType._BM.Dir = Urb->UrbControlGetConfigurationRequest.Reserved0 & 1;
+    SetupPacket->wValue.W = 0;
+    SetupPacket->wIndex.W = 0;
+    SetupPacket->wLength = Urb->UrbControlGetConfigurationRequest.TransferBufferLength;
+
+    Urb->UrbControlGetConfigurationRequest.Reserved0 |= USBD_SHORT_TRANSFER_OK; // 2
+
+    if (SetupPacket->bmRequestType._BM.Dir)
+        Urb->UrbControlGetConfigurationRequest.Reserved0 |= USBD_TRANSFER_DIRECTION_IN; // 1;
+    else
+        Urb->UrbControlGetConfigurationRequest.Reserved0 &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
+
+    DPRINT_URB("USBPORT_HandleGetConfiguration: bmRequestType.B - %x\n", SetupPacket->bmRequestType.B);
+    DPRINT_URB("USBPORT_HandleGetConfiguration: bRequest        - %x\n", SetupPacket->bRequest);
+    DPRINT_URB("USBPORT_HandleGetConfiguration: wValue.LowByte  - %x\n", SetupPacket->wValue.LowByte);
+    DPRINT_URB("USBPORT_HandleGetConfiguration: wValue.HiByte   - %x\n", SetupPacket->wValue.HiByte);
+    DPRINT_URB("USBPORT_HandleGetConfiguration: wIndex.W        - %x\n", SetupPacket->wIndex.W);
+    DPRINT_URB("USBPORT_HandleGetConfiguration: wLength         - %x\n", SetupPacket->wLength);
+
+    USBPORT_QueueTransferUrb(Urb);
+
+    return STATUS_PENDING;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_HandleGetCurrentFrame(IN PDEVICE_OBJECT FdoDevice,
                               IN PIRP Irp,
                               IN PURB Urb)
@@ -775,7 +809,15 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case URB_FUNCTION_GET_CONFIGURATION: // 0x26
-            DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_CONFIGURATION (0x26) UNIMPLEMENTED. FIXME\n");
+            Status = USBPORT_ValidateURB(FdoDevice, Irp, Urb, TRUE, FALSE);
+
+            if (!NT_SUCCESS(Status))
+            {
+                DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
+                return Status;
+            }
+
+            Status = USBPORT_HandleGetConfiguration(Urb);
             break;
 
         case URB_FUNCTION_GET_INTERFACE: // 0x27
