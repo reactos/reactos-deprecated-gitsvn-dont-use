@@ -10,38 +10,38 @@ NTSTATUS
 NTAPI
 USBPORT_ValidateTransferParametersURB(IN PURB Urb)
 {
-    struct _URB_CONTROL_TRANSFER *UrbTransfer;
+    struct _URB_CONTROL_TRANSFER *UrbRequest;
     PMDL Mdl;
 
     DPRINT_URB("USBPORT_ValidateTransferParametersURB: Urb - %p\n", Urb);
 
-    UrbTransfer = &Urb->UrbControlTransfer;
+    UrbRequest = &Urb->UrbControlTransfer;
 
-    if (UrbTransfer->TransferBuffer == NULL &&
-        UrbTransfer->TransferBufferMDL == NULL &&
-        UrbTransfer->TransferBufferLength > 0)
+    if (UrbRequest->TransferBuffer == NULL &&
+        UrbRequest->TransferBufferMDL == NULL &&
+        UrbRequest->TransferBufferLength > 0)
     {
         DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
         return STATUS_INVALID_PARAMETER;
     }
 
-    if ((UrbTransfer->TransferBuffer > 0 || UrbTransfer->TransferBufferMDL > 0) &&
-        UrbTransfer->TransferBufferLength == 0)
+    if ((UrbRequest->TransferBuffer > 0 || UrbRequest->TransferBufferMDL > 0) &&
+        UrbRequest->TransferBufferLength == 0)
     {
         DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
         return STATUS_INVALID_PARAMETER;
     }
 
-    if (UrbTransfer->TransferBuffer != NULL &&
-        UrbTransfer->TransferBufferMDL == NULL &&
-        UrbTransfer->TransferBufferLength != 0)
+    if (UrbRequest->TransferBuffer != NULL &&
+        UrbRequest->TransferBufferMDL == NULL &&
+        UrbRequest->TransferBufferLength != 0)
     {
         DPRINT_URB("USBPORT_ValidateTransferParametersURB: TransferBuffer - %p, TransferBufferLength - %x\n",
-                   UrbTransfer->TransferBuffer,
-                   UrbTransfer->TransferBufferLength);
+                   UrbRequest->TransferBuffer,
+                   UrbRequest->TransferBufferLength);
 
-        Mdl = IoAllocateMdl(UrbTransfer->TransferBuffer,
-                            UrbTransfer->TransferBufferLength,
+        Mdl = IoAllocateMdl(UrbRequest->TransferBuffer,
+                            UrbRequest->TransferBufferLength,
                             FALSE,
                             FALSE,
                             NULL);
@@ -54,7 +54,7 @@ USBPORT_ValidateTransferParametersURB(IN PURB Urb)
 
         MmBuildMdlForNonPagedPool(Mdl);
 
-        UrbTransfer->TransferBufferMDL = Mdl;
+        UrbRequest->TransferBufferMDL = Mdl;
         Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_MDL;
 
         DPRINT_URB("USBPORT_ValidateTransferParametersURB: Mdl - %p\n", Mdl);
