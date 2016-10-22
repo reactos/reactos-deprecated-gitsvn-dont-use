@@ -8,6 +8,26 @@
 
 NTSTATUS
 NTAPI
+USBPORT_HandleGetCurrentFrame(IN PDEVICE_OBJECT FdoDevice,
+                              IN PIRP Irp,
+                              IN PURB Urb)
+{
+    DPRINT1("USBPORT_HandleGetCurrentFrame: UNIMPLEMENTED. FIXME. \n");
+    return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS
+NTAPI
+USBPORT_AbortPipe(IN PDEVICE_OBJECT FdoDevice,
+                  IN PIRP Irp,
+                  IN PURB Urb)
+{
+    DPRINT1("USBPORT_AbortPipe: UNIMPLEMENTED. FIXME. \n");
+    return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
                   IN PIRP Irp,
                   IN PURB Urb)
