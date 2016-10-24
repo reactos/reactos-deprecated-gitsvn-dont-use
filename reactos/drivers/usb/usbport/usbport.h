@@ -654,6 +654,11 @@ NTAPI
 USBPORT_DumpingSetupPacket(
   IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket);
 
+VOID
+NTAPI
+USBPORT_DumpingURB(
+  IN PURB Urb);
+
 /* device.c */
 
 NTSTATUS

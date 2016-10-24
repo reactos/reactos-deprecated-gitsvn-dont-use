@@ -215,3 +215,36 @@ USBPORT_DumpingSetupPacket(IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket)
     DPRINT("SetupPacket->wIndex.W        - %x\n", SetupPacket->wIndex.W);
     DPRINT("SetupPacket->wLength         - %x\n", SetupPacket->wLength);
 }
+
+VOID
+NTAPI
+USBPORT_DumpingURB(IN PURB Urb)
+{
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+
+    DPRINT("UrbHeader.Length           - %x\n", Urb->UrbHeader.Length);
+    DPRINT("UrbHeader.Function         - %x\n", Urb->UrbHeader.Function);
+    DPRINT("UrbHeader.Status           - %x\n", Urb->UrbHeader.Status);
+    DPRINT("UrbHeader.UsbdDeviceHandle - %p\n", Urb->UrbHeader.UsbdDeviceHandle);
+    DPRINT("UrbHeader.UsbdFlags        - %x\n", Urb->UrbHeader.UsbdFlags);
+
+    if (Urb->UrbHeader.Length < 0x48)
+    {
+        return;
+    }
+
+    DPRINT("PipeHandle                - %p\n", Urb->UrbControlTransfer.PipeHandle);
+    DPRINT("TransferFlags             - %x\n", Urb->UrbControlTransfer.TransferFlags);
+    DPRINT("TransferBufferLength      - %x\n", Urb->UrbControlTransfer.TransferBufferLength);
+    DPRINT("TransferBuffer            - %p\n", Urb->UrbControlTransfer.TransferBuffer);
+    DPRINT("TransferBufferMDL         - %p\n", Urb->UrbControlTransfer.TransferBufferMDL);
+    DPRINT("UrbLink                   - %p\n", Urb->UrbControlTransfer.UrbLink);
+
+    if (Urb->UrbHeader.Length < 0x50)
+    {
+        return;
+    }
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlTransfer.SetupPacket;
+    USBPORT_DumpingSetupPacket(SetupPacket);
+}
