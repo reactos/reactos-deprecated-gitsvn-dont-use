@@ -806,12 +806,12 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
                                   IN PUSBPORT_ENDPOINT Endpoint,
                                   IN ULONG Type)
 {
-    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
-    PLIST_ENTRY                Entry;
-    PLIST_ENTRY                WorkerLink;
-    PUSBPORT_ENDPOINT          endpoint;
-    KIRQL                      OldIrql;
-    BOOLEAN                    IsAddEntry = FALSE;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PLIST_ENTRY Entry;
+    PLIST_ENTRY WorkerLink;
+    PUSBPORT_ENDPOINT endpoint;
+    KIRQL OldIrql;
+    BOOLEAN IsAddEntry = FALSE;
 
     DPRINT_CORE("USBPORT_InvalidateEndpointHandler: Endpoint - %p, Type - %x\n", Endpoint, Type);
 
@@ -821,11 +821,13 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
     {
         WorkerLink = &Endpoint->WorkerLink;
         KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+            DPRINT_CORE("USBPORT_InvalidateEndpointHandler: KeAcquireSpinLock \n");
 
         if ((!WorkerLink->Flink || !WorkerLink->Blink) &&
             !(Endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
-            Endpoint->StateLast != 5)
+            USBPORT_GetEndpointState(Endpoint) != 5)
         {
+            DPRINT_CORE("USBPORT_InvalidateEndpointHandler: InsertTailList \n");
             InsertTailList(&FdoExtension->WorkerList, WorkerLink);
             IsAddEntry = TRUE;
         }
@@ -853,8 +855,9 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
                 {
                     if (!(endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
                         !(endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
-                        endpoint->StateLast != 5)
+                        USBPORT_GetEndpointState(endpoint) != 5)
                     {
+                        DPRINT_CORE("USBPORT_InvalidateEndpointHandler: InsertTailList \n");
                         InsertTailList(&FdoExtension->WorkerList, &endpoint->WorkerLink);
                         IsAddEntry = TRUE;
                     }
