@@ -1,9 +1,9 @@
 #include "usbport.h"
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
-#define NDEBUG_USBPORT_URB
+//#define NDEBUG_USBPORT_URB
 #include "usbdebug.h"
 
 NTSTATUS
@@ -16,24 +16,16 @@ USBPORT_HandleGetConfiguration(IN PURB Urb)
 
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlGetConfigurationRequest.Reserved1;
 
-    SetupPacket->bmRequestType._BM.Dir = Urb->UrbControlGetConfigurationRequest.Reserved0 & 1;
+    SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    SetupPacket->bRequest = USB_REQUEST_GET_CONFIGURATION;
     SetupPacket->wValue.W = 0;
     SetupPacket->wIndex.W = 0;
     SetupPacket->wLength = Urb->UrbControlGetConfigurationRequest.TransferBufferLength;
 
+    Urb->UrbControlGetConfigurationRequest.Reserved0 |= USBD_TRANSFER_DIRECTION_IN; // 1;
     Urb->UrbControlGetConfigurationRequest.Reserved0 |= USBD_SHORT_TRANSFER_OK; // 2
 
-    if (SetupPacket->bmRequestType._BM.Dir)
-        Urb->UrbControlGetConfigurationRequest.Reserved0 |= USBD_TRANSFER_DIRECTION_IN; // 1;
-    else
-        Urb->UrbControlGetConfigurationRequest.Reserved0 &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
-
-    DPRINT_URB("USBPORT_HandleGetConfiguration: bmRequestType.B - %x\n", SetupPacket->bmRequestType.B);
-    DPRINT_URB("USBPORT_HandleGetConfiguration: bRequest        - %x\n", SetupPacket->bRequest);
-    DPRINT_URB("USBPORT_HandleGetConfiguration: wValue.LowByte  - %x\n", SetupPacket->wValue.LowByte);
-    DPRINT_URB("USBPORT_HandleGetConfiguration: wValue.HiByte   - %x\n", SetupPacket->wValue.HiByte);
-    DPRINT_URB("USBPORT_HandleGetConfiguration: wIndex.W        - %x\n", SetupPacket->wIndex.W);
-    DPRINT_URB("USBPORT_HandleGetConfiguration: wLength         - %x\n", SetupPacket->wLength);
+    USBPORT_DumpingSetupPacket(SetupPacket);
 
     USBPORT_QueueTransferUrb(Urb);
 
@@ -425,17 +417,7 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
         else
             Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
 
-        DPRINT_URB("GetStatus: SetupPacket->bmRequestType.B - %x\n",
-               SetupPacket->bmRequestType.B);
-
-        DPRINT_URB("GetStatus: SetupPacket->bRequest        - %x\n",
-               SetupPacket->bRequest);
-
-        DPRINT_URB("GetStatus: SetupPacket->wIndex.W        - %x\n",
-               SetupPacket->wIndex.W);
-
-        DPRINT_URB("GetStatus: SetupPacket->wLength         - %x\n",
-               SetupPacket->wLength);
+        //USBPORT_DumpingSetupPacket(SetupPacket);
 
         USBPORT_QueueTransferUrb(Urb);
 
@@ -447,6 +429,7 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
                                               USBD_STATUS_INVALID_PARAMETER);
 
         DPRINT1("USBPORT_HandleGetStatus: Bad wLength\n");
+        USBPORT_DumpingSetupPacket(SetupPacket);
     }
 
     return Status;
@@ -518,12 +501,7 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
             break;
     }
 
-    DPRINT_URB("VendorOrClass: bmRequestType.B - %x\n", SetupPacket->bmRequestType.B);
-    DPRINT_URB("VendorOrClass: bRequest        - %x\n", SetupPacket->bRequest);
-    DPRINT_URB("VendorOrClass: wValue.LowByte  - %x\n", SetupPacket->wValue.LowByte);
-    DPRINT_URB("VendorOrClass: wValue.HiByte   - %x\n", SetupPacket->wValue.HiByte);
-    DPRINT_URB("VendorOrClass: wIndex.W        - %x\n", SetupPacket->wIndex.W);
-    DPRINT_URB("VendorOrClass: wLength         - %x\n", SetupPacket->wLength);
+    USBPORT_DumpingSetupPacket(SetupPacket);
 
     USBPORT_QueueTransferUrb(Urb);
 
@@ -593,23 +571,7 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
     else
         Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
 
-    DPRINT_URB("GetSetDescriptor: SetupPacket->bmRequestType.B - %x\n",
-           SetupPacket->bmRequestType.B); // 0x80
-
-    DPRINT_URB("GetSetDescriptor: SetupPacket->bRequest        - %x\n",
-           SetupPacket->bRequest); // USB_REQUEST_GET_DESCRIPTOR
-
-    DPRINT_URB("GetSetDescriptor: SetupPacket->wValue.LowByte  - %x\n",
-           SetupPacket->wValue.LowByte); // Urb->UrbControlDescriptorRequest.Index;
-
-    DPRINT_URB("GetSetDescriptor: SetupPacket->wValue.HiByte   - %x\n",
-           SetupPacket->wValue.HiByte); // Urb->UrbControlDescriptorRequest.DescriptorType;
-
-    DPRINT_URB("GetSetDescriptor: SetupPacket->wIndex.W        - %x\n",
-           SetupPacket->wIndex.W); // Urb->UrbControlDescriptorRequest.LanguageId;
-
-    DPRINT_URB("GetSetDescriptor: SetupPacket->wLength         - %x\n",
-           SetupPacket->wLength); // Urb->UrbControlDescriptorRequest.TransferBufferLength;
+    USBPORT_DumpingSetupPacket(SetupPacket);
 
     USBPORT_QueueTransferUrb(Urb);
 
@@ -632,13 +594,16 @@ USBPORT_ValidateTransferParametersURB(IN PURB Urb)
         UrbRequest->TransferBufferLength > 0)
     {
         DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
+        USBPORT_DumpingURB(Urb);
         return STATUS_INVALID_PARAMETER;
     }
 
-    if ((UrbRequest->TransferBuffer > 0 || UrbRequest->TransferBufferMDL > 0) &&
+    if ((UrbRequest->TransferBuffer != NULL) &&
+        (UrbRequest->TransferBufferMDL != NULL) &&
         UrbRequest->TransferBufferLength == 0)
     {
         DPRINT1("USBPORT_ValidateTransferParametersURB: Not valid parameter\n");
+        USBPORT_DumpingURB(Urb);
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -692,6 +657,7 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
     {
         Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PARAMETER);
         DPRINT1("USBPORT_ValidateURB: Not valid parameter\n");
+        USBPORT_DumpingURB(Urb);
         return Status;
     }
 
@@ -709,6 +675,7 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
         {
             Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PARAMETER);
             DPRINT1("USBPORT_ValidateURB: Not valid parameter\n");
+            USBPORT_DumpingURB(Urb);
             return Status;
         }
 
@@ -722,6 +689,7 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
     {
         Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
         DPRINT1("USBPORT_ValidateURB: Not valid pipe handle\n");
+        USBPORT_DumpingURB(Urb);
         return Status;
     }
 
