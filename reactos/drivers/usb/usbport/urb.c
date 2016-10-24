@@ -69,8 +69,40 @@ USBPORT_AbortPipe(IN PDEVICE_OBJECT FdoDevice,
                   IN PIRP Irp,
                   IN PURB Urb)
 {
-    DPRINT1("USBPORT_AbortPipe: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_NOT_IMPLEMENTED;
+    PUSBPORT_ENDPOINT Endpoint;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    NTSTATUS Status;
+
+    DPRINT_URB("USBPORT_AbortPipe: ... \n");
+
+    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+
+    if (USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
+    {
+        if (!(PipeHandle->Flags & 0x00000002))
+        {
+            Endpoint = PipeHandle->Endpoint;
+
+            Status = STATUS_PENDING;
+
+            Irp->IoStatus.Status = Status;
+            IoMarkIrpPending(Irp);
+
+            USBPORT_AbortEndpoint(FdoDevice, Endpoint, Irp);
+
+            return Status;
+        }
+
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
+    }
+    else
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    }
+
+    return Status;
 }
 
 NTSTATUS
