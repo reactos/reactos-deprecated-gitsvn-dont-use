@@ -733,6 +733,7 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
     PIRP Irp;
     PIRP irp;
     KIRQL OldIrql;
+    BOOLEAN Result;
 
     DPRINT_CORE("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
 
@@ -741,13 +742,25 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 
     if (InterlockedCompareExchange(&Endpoint->FlushPendingLock, 1, 0))
     {
-        DPRINT1("USBPORT_FlushPendingTransfers: Endpoint Locked \n");
+        DPRINT_CORE("USBPORT_FlushPendingTransfers: Endpoint Locked \n");
         return;
     }
 
     while (TRUE)
     {
         IsMapTransfer = 0;
+
+        KeAcquireSpinLock(&FdoExtension->FlushPendingTransferSpinLock, &OldIrql);
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+        if (FdoExtension->Flags & 0x300)
+        {
+            IsEnd = TRUE;
+
+            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+            KeReleaseSpinLock(&FdoExtension->FlushPendingTransferSpinLock, OldIrql);
+            goto Next;
+        }
 
         if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
         {
@@ -761,6 +774,9 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 
                     if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED))
                     {
+                        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+                        KeReleaseSpinLock(&FdoExtension->FlushPendingTransferSpinLock, OldIrql);
+
                         IsEnd = TRUE;
                         goto Worker;
                     }
@@ -774,11 +790,16 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 
         if (IsListEmpty(&Endpoint->PendingTransferList) || List == NULL)
         {
+            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+            KeReleaseSpinLock(&FdoExtension->FlushPendingTransferSpinLock, OldIrql);
+
             IsEnd = TRUE;
             goto Worker;
         }
 
-        Transfer = CONTAINING_RECORD(List, USBPORT_TRANSFER, TransferLink);
+        Transfer = CONTAINING_RECORD(List,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
 
         if (Transfer->Irp)
         {
@@ -794,6 +815,8 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 
         if (!Transfer)
         {
+            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
             if (IsMapTransfer)
             {
                 USBPORT_FlushMapTransfers(FdoDevice);
@@ -816,6 +839,9 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
         {
             irp = USBPORT_RemovePendingTransferIrp(FdoDevice, Irp);
         }
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        KeReleaseSpinLock(&FdoExtension->FlushPendingTransferSpinLock, OldIrql);
 
         KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
 
@@ -843,14 +869,17 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
         {
             USBPORT_FlushMapTransfers(FdoDevice);
 
-            if (IsEnd)
-                goto Next;
+            //if (IsEnd)
+            goto Next;
         }
 
 Worker:
         KeRaiseIrql(DISPATCH_LEVEL, &PrevIrql);
-        USBPORT_EndpointWorker(Endpoint, FALSE);
+        Result = USBPORT_EndpointWorker(Endpoint, FALSE);
         KeLowerIrql(PrevIrql);
+
+        if (Result)
+            USBPORT_InvalidateEndpoint(FdoDevice, Endpoint, 1);
 
 Next:
         if (IsEnd)
