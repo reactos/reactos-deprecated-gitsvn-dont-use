@@ -203,3 +203,15 @@ USBPORT_DumpingCapabilities(IN PDEVICE_CAPABILITIES Capabilities)
     DPRINT("Capabilities->D2Latency         - %x\n", Capabilities->D2Latency);
     DPRINT("Capabilities->D3Latency         - %x\n", Capabilities->D3Latency);
 }
+
+VOID
+NTAPI
+USBPORT_DumpingSetupPacket(IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket)
+{
+    DPRINT("SetupPacket->bmRequestType.B - %x\n", SetupPacket->bmRequestType.B);
+    DPRINT("SetupPacket->bRequest        - %x\n", SetupPacket->bRequest);
+    DPRINT("SetupPacket->wValue.LowByte  - %x\n", SetupPacket->wValue.LowByte);
+    DPRINT("SetupPacket->wValue.HiByte   - %x\n", SetupPacket->wValue.HiByte);
+    DPRINT("SetupPacket->wIndex.W        - %x\n", SetupPacket->wIndex.W);
+    DPRINT("SetupPacket->wLength         - %x\n", SetupPacket->wLength);
+}

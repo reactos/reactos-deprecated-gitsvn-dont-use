@@ -649,6 +649,11 @@ NTAPI
 USBPORT_DumpingCapabilities(
   IN PDEVICE_CAPABILITIES Capabilities);
 
+VOID
+NTAPI
+USBPORT_DumpingSetupPacket(
+  IN PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket);
+
 /* device.c */
 
 NTSTATUS
