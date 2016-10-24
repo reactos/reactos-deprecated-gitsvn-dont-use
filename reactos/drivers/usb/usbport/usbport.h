@@ -530,11 +530,6 @@ USBPORT_MiniportInterrupts(
   IN PDEVICE_OBJECT FdoDevice,
   IN BOOLEAN IsEnable);
 
-VOID
-NTAPI
-USBPORT_NukeAllEndpoints(
-  IN PDEVICE_OBJECT FdoDevice);
-
 BOOLEAN
 NTAPI
 USBPORT_EndpointHasQueuedTransfers(
@@ -823,6 +818,11 @@ NTAPI
 USBPORT_EndpointWorker(
   IN PUSBPORT_ENDPOINT Endpoint,
   IN BOOLEAN Flag);
+
+VOID
+NTAPI
+USBPORT_NukeAllEndpoints(
+  IN PDEVICE_OBJECT FdoDevice);
 
 /* iface.c */
 

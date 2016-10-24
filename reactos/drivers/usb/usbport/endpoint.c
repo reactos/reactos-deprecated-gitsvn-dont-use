@@ -6,6 +6,41 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+VOID
+NTAPI
+USBPORT_NukeAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PLIST_ENTRY EndpointList;
+    PUSBPORT_ENDPOINT Endpoint;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_NukeAllEndpoints \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
+
+    EndpointList = FdoExtension->EndpointList.Flink;
+
+    if (!IsListEmpty(&FdoExtension->EndpointList))
+    {
+        while (EndpointList && (EndpointList != &FdoExtension->EndpointList))
+        {
+            Endpoint = CONTAINING_RECORD(EndpointList,
+                                         USBPORT_ENDPOINT,
+                                         EndpointLink);
+
+            if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+                Endpoint->Flags |= ENDPOINT_FLAG_NUKE;
+
+            EndpointList = Endpoint->EndpointLink.Flink;
+        }
+    }
+
+    KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
+}
+
 ULONG 
 NTAPI
 USBPORT_GetEndpointState(IN PUSBPORT_ENDPOINT Endpoint)
