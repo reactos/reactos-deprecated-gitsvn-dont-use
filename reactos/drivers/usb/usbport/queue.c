@@ -886,27 +886,52 @@ USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    KIRQL OldIrql;
 
-    DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: Endpoint - %p, Urb - %p\n", Endpoint, Urb);
+    DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: Endpoint - %p, Urb - %p\n",
+                Endpoint,
+                Urb);
 
     Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+    if ((Endpoint->Flags & ENDPOINT_FLAG_NUKE) ||
+        (Transfer->Flags & TRANSFER_FLAG_ABORTED))
+    {
+        InsertTailList(&Endpoint->CancelList, &Transfer->TransferLink);
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+        //DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return FALSE\n");
+        return FALSE;
+    }
+
     if (Transfer->TransferParameters.TransferBufferLength == 0 ||
         !(Endpoint->Flags & ENDPOINT_FLAG_DMA_TYPE))
     {
         InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
-        DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return FALSE\n");
+
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+        //DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return FALSE\n");
         return FALSE;
     }
+
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+    KeAcquireSpinLock(&FdoExtension->MapTransferSpinLock, &OldIrql);
 
     InsertTailList(&FdoExtension->MapTransferList, &Transfer->TransferLink);
 
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Transfer->Urb->UrbHeader.UsbdDeviceHandle;
     InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
 
-    DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return TRUE\n");
+    KeReleaseSpinLock(&FdoExtension->MapTransferSpinLock, OldIrql);
+
+    //DPRINT_CORE("USBPORT_QueueActiveUrbToEndpoint: return TRUE\n");
     return TRUE;
 }
 
