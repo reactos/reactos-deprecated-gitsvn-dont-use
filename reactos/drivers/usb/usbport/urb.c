@@ -237,12 +237,78 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_HandleSetOrClearFeature(IN PDEVICE_OBJECT FdoDevice,
-                                IN PIRP Irp,
-                                IN PURB Urb)
+USBPORT_HandleSetOrClearFeature(IN PURB Urb)
 {
-    DPRINT1("USBPORT_HandleSetOrClearFeature: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_SUCCESS;
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+
+    DPRINT_URB("USBPORT_HandleSetOrClearFeature: Urb - %p\n", Urb);
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlFeatureRequest.Reserved0;
+
+    SetupPacket->wLength = 0;
+    Urb->UrbControlFeatureRequest.Reserved3 = 0; // TransferBufferLength
+
+    SetupPacket->bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+
+    switch (Urb->UrbHeader.Function)
+    {
+        case URB_FUNCTION_SET_FEATURE_TO_DEVICE: // 0x0D
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n");
+            SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            break;
+
+        case URB_FUNCTION_SET_FEATURE_TO_INTERFACE: // 0x0E
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE\n");
+            SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            break;
+
+        case URB_FUNCTION_SET_FEATURE_TO_ENDPOINT: // 0x0F
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE\n");
+            SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            break;
+
+        case URB_FUNCTION_CLEAR_FEATURE_TO_DEVICE: // 0x10
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_ENDPOINT\n");
+            SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            break;
+
+        case URB_FUNCTION_CLEAR_FEATURE_TO_INTERFACE: // 0x11
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT\n");
+            SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            break;
+
+        case URB_FUNCTION_CLEAR_FEATURE_TO_ENDPOINT: // 0x12
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n");
+            SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            break;
+
+        case URB_FUNCTION_CLEAR_FEATURE_TO_OTHER: // 0x22
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE\n");
+            SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            break;
+
+        case URB_FUNCTION_SET_FEATURE_TO_OTHER: // 0x23
+            DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE\n");
+            SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
+            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            break;
+    }
+
+    Urb->UrbControlFeatureRequest.Reserved2 &= ~USBD_TRANSFER_DIRECTION_IN; // ~1;
+    Urb->UrbControlFeatureRequest.Reserved2 |= USBD_SHORT_TRANSFER_OK; // 2
+
+    USBPORT_DumpingSetupPacket(SetupPacket);
+
+    USBPORT_QueueTransferUrb(Urb);
+
+    return STATUS_PENDING;
 }
 
 NTSTATUS
@@ -735,7 +801,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             if (!NT_SUCCESS(Status))
             {
                 DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
-                return Status;
+                break;
             }
 
             Status = USBPORT_HandleDataTransfers(Urb);
@@ -754,7 +820,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             if (!NT_SUCCESS(Status))
             {
                 DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
-                return Status;
+                break;
             }
 
             Status = USBPORT_HandleVendorOrClass(Irp, Urb);
@@ -771,7 +837,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             if (!NT_SUCCESS(Status))
             {
                 DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
-                return Status;
+                break;
             }
 
             Status = USBPORT_HandleGetSetDescriptor(Irp, Urb);
@@ -790,7 +856,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             if (!NT_SUCCESS(Status))
             {
                 DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
-                return Status;
+                break;
             }
 
             Status = USBPORT_HandleGetStatus(Irp, Urb);
@@ -814,7 +880,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             if (!NT_SUCCESS(Status))
             {
                 DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
-                return Status;
+                break;
             }
 
             Status = USBPORT_HandleGetConfiguration(Urb);
@@ -860,12 +926,10 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             if (!NT_SUCCESS(Status))
             {
                 DPRINT1("USBPORT_HandleSubmitURB: Not valid URB\n");
-                return Status;
+                break;
             }
 
-            Status = USBPORT_HandleSetOrClearFeature(PdoExtension->FdoDevice,
-                                                     Irp,
-                                                     Urb);
+            Status = USBPORT_HandleSetOrClearFeature(Urb);
             break;
 
         case URB_FUNCTION_GET_CURRENT_FRAME_NUMBER: // 0x07
