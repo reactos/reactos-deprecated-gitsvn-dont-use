@@ -835,7 +835,7 @@ USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
 
             LockCounter = InterlockedIncrement(&Endpoint->LockCounter);
 
-            if (Endpoint->StateLast != USBPORT_ENDPOINT_ACTIVE ||
+            if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_ACTIVE ||
                 LockCounter ||
                 Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0)
             {
@@ -1070,10 +1070,23 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
     PLIST_ENTRY workerList;
     KIRQL OldIrql;
     PUSBPORT_ENDPOINT Endpoint;
+    LIST_ENTRY list;
+    BOOLEAN Result;
 
     DPRINT_CORE("USBPORT_WorkerThreadHandler: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+    if (!(FdoExtension->Flags & 0x20300))
+    {
+        FdoExtension->MiniPortInterface->Packet.CheckController(FdoExtension->MiniPortExt);
+    }
+
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+    InitializeListHead(&list);
 
     USBPORT_FlushAllEndpoints(FdoDevice);
 
@@ -1099,8 +1112,41 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
 
         KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
 
-        USBPORT_EndpointWorker(Endpoint, FALSE);
+        Result = USBPORT_EndpointWorker(Endpoint, FALSE);
+        KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
 
+        if (Result)
+        {
+            if (Endpoint->FlushAbortLink.Flink == NULL ||
+                Endpoint->FlushAbortLink.Blink == NULL)
+            {
+                InsertTailList(&list, &Endpoint->FlushAbortLink);
+            }
+        }
+
+        while (TRUE)
+        {
+            if (IsListEmpty(&list))
+                break;
+
+            Endpoint = CONTAINING_RECORD(list.Flink,
+                                         USBPORT_ENDPOINT,
+                                         FlushAbortLink);
+
+            RemoveHeadList(&list);
+
+            Endpoint->FlushAbortLink.Flink = NULL;
+            Endpoint->FlushAbortLink.Blink = NULL;
+
+            if (Endpoint->WorkerLink.Flink == NULL ||
+                Endpoint->WorkerLink.Blink == NULL)
+            {
+                InsertTailList(&FdoExtension->WorkerList, &Endpoint->WorkerLink);
+                USBPORT_SignalWorkerThread(FdoDevice);
+            }
+        }
+
+        KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
         KeLowerIrql(OldIrql);
     }
 
