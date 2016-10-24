@@ -198,45 +198,6 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
     }
 }
 
-MPSTATUS
-NTAPI
-MiniportOpenEndpoint(IN PDEVICE_OBJECT FdoDevice,
-                     IN PUSBPORT_ENDPOINT Endpoint)
-{
-    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
-    KIRQL OldIrql;
-    ULONG TransferType;
-    MPSTATUS MpStatus;
-
-    DPRINT("MiniportOpenEndpoint: Endpoint - %p\n", Endpoint);
-
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-
-    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-
-    Endpoint->Flags &= ~ENDPOINT_FLAG_CLOSED;
-
-    MpStatus = FdoExtension->MiniPortInterface->Packet.OpenEndpoint(FdoExtension->MiniPortExt,
-                                                                    &Endpoint->EndpointProperties,
-                                                                    (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
-
-    if (!MpStatus)
-    {
-        TransferType = Endpoint->EndpointProperties.TransferType;
-
-        if (TransferType == USBPORT_TRANSFER_TYPE_INTERRUPT ||
-            TransferType == USBPORT_TRANSFER_TYPE_ISOCHRONOUS)
-        {
-            ++FdoExtension->PeriodicEndpoints;
-        }
-
-        Endpoint->Flags |= ENDPOINT_FLAG_OPENED;
-    }
-
-    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
-    return MpStatus;
-}
-
 VOID
 NTAPI
 MiniportCloseEndpoint(IN PDEVICE_OBJECT FdoDevice,
