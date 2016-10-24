@@ -1562,13 +1562,235 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                       IN OUT PUSBPORT_DEVICE_HANDLE OldDeviceHandle,
                       IN OUT PUSBPORT_DEVICE_HANDLE NewDeviceHandle)
 {
-    DPRINT("USBPORT_RestoreDevice: OldDeviceHandle - %p, Flags - %x\n",
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PLIST_ENTRY iHandleList;
+    PUSBPORT_ENDPOINT Endpoint;
+    ULONG EndpointRequirements[2] = { 0 };
+    USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+    NTSTATUS Status = STATUS_SUCCESS;
+    USBD_STATUS USBDStatus;
+    KIRQL OldIrql;
+    PUSBPORT_INTERFACE_HANDLE InterfaceHandle;
+    PUSBPORT_PIPE_HANDLE PipeHandle;
+    PUSBPORT_REGISTRATION_PACKET Packet;
+
+    DPRINT("USBPORT_RestoreDevice: OldDeviceHandle - %p, NewDeviceHandle - %p\n",
            OldDeviceHandle,
            NewDeviceHandle);
 
-    DPRINT1("USBPORT_RestoreDevice: UNIMPLEMENTED. FIXME. \n");
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
-    return STATUS_SUCCESS;
+    KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    if (!USBPORT_ValidateDeviceHandle(FdoDevice, OldDeviceHandle))
+    {
+        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+
+        ASSERT(FALSE);
+        return STATUS_DEVICE_NOT_CONNECTED;
+    }
+
+    if (!USBPORT_ValidateDeviceHandle(FdoDevice, NewDeviceHandle))
+    {
+        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+        ASSERT(FALSE);
+        return STATUS_DEVICE_NOT_CONNECTED;
+    }
+
+    USBPORT_RemoveDeviceHandle(FdoDevice, OldDeviceHandle);
+    USBPORT_AbortTransfers(FdoDevice, OldDeviceHandle);
+
+    //DPRINT1("USBPORT_RestoreDevice: DeviceHandleLock - %x\n", OldDeviceHandle->DeviceHandleLock);
+    while (InterlockedDecrement(&OldDeviceHandle->DeviceHandleLock) >= 0)
+    {
+        InterlockedIncrement(&OldDeviceHandle->DeviceHandleLock);
+        USBPORT_Wait(FdoDevice, 100);
+    }
+    //DPRINT1("USBPORT_RestoreDevice: DeviceHandleLock ok\n");
+
+    if (sizeof(USB_DEVICE_DESCRIPTOR) == RtlCompareMemory(&NewDeviceHandle->DeviceDescriptor,
+                                                          &OldDeviceHandle->DeviceDescriptor,
+                                                          sizeof(USB_DEVICE_DESCRIPTOR)))
+    {
+        NewDeviceHandle->ConfigHandle = OldDeviceHandle->ConfigHandle;
+
+        if (OldDeviceHandle->ConfigHandle)
+        {
+            RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+            SetupPacket.bmRequestType.B = 0;
+            SetupPacket.bRequest = USB_REQUEST_SET_CONFIGURATION;
+            SetupPacket.wValue.W = OldDeviceHandle->ConfigHandle->ConfigurationDescriptor->bConfigurationValue;
+            SetupPacket.wIndex.W = 0;
+            SetupPacket.wLength = 0;
+
+            USBPORT_SendSetupPacket(NewDeviceHandle,
+                                    FdoDevice,
+                                    &SetupPacket,
+                                    NULL,
+                                    0,
+                                    NULL,
+                                    &USBDStatus);
+
+            if (USBD_ERROR(USBDStatus))
+                Status = USBPORT_USBDStatusToNtStatus(NULL, USBDStatus);
+
+            if (NT_SUCCESS(Status))
+            {
+                iHandleList = NewDeviceHandle->ConfigHandle->InterfaceHandleList.Flink;
+
+                if (!IsListEmpty(&NewDeviceHandle->ConfigHandle->InterfaceHandleList))
+                {
+                    while (iHandleList && iHandleList != &NewDeviceHandle->ConfigHandle->InterfaceHandleList)
+                    {
+                        InterfaceHandle = CONTAINING_RECORD(iHandleList,
+                                                            USBPORT_INTERFACE_HANDLE,
+                                                            InterfaceLink);
+
+                        if (InterfaceHandle->AlternateSetting)
+                        {
+                            RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+                            SetupPacket.bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+                            SetupPacket.bmRequestType._BM.Type = BMREQUEST_STANDARD;
+                            SetupPacket.bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+
+                            SetupPacket.bRequest = USB_REQUEST_SET_INTERFACE;
+                            SetupPacket.wValue.W = InterfaceHandle->InterfaceDescriptor.bAlternateSetting;
+                            SetupPacket.wIndex.W = InterfaceHandle->InterfaceDescriptor.bInterfaceNumber;
+                            SetupPacket.wLength = 0;
+
+                            USBPORT_SendSetupPacket(NewDeviceHandle,
+                                                    FdoDevice,
+                                                    &SetupPacket,
+                                                    NULL,
+                                                    0,
+                                                    NULL,
+                                                    &USBDStatus);
+                        }
+
+                        iHandleList = iHandleList->Flink;
+                    }
+                }
+            }
+        }
+
+        if (NewDeviceHandle->Flags & DEVICE_HANDLE_FLAG_INITIALIZED)
+        {
+            DPRINT1("USBPORT_RestoreDevice: FIXME Transaction Translator\n");
+            NewDeviceHandle->TtCount = OldDeviceHandle->TtCount;
+        }
+
+        while (!IsListEmpty(&OldDeviceHandle->PipeHandleList))
+        {
+            PipeHandle = CONTAINING_RECORD(OldDeviceHandle->PipeHandleList.Flink,
+                                           USBPORT_PIPE_HANDLE,
+                                           PipeLink);
+
+            DPRINT("USBPORT_RestoreDevice: PipeHandle - %p\n", PipeHandle);
+
+            USBPORT_RemovePipeHandle(OldDeviceHandle, PipeHandle);
+
+            if (PipeHandle != &OldDeviceHandle->PipeHandle)
+            {
+                USBPORT_AddPipeHandle(NewDeviceHandle, PipeHandle);
+
+                if (!(PipeHandle->Flags & 0x00000002))
+                {
+                    Endpoint = PipeHandle->Endpoint;
+                    Endpoint->DeviceHandle = NewDeviceHandle;
+                    Endpoint->EndpointProperties.DeviceAddress = NewDeviceHandle->DeviceAddress;
+
+                    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+                    if (!(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+                    {
+                        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                        Packet->ReopenEndpoint(FdoExtension->MiniPortExt,
+                                               &Endpoint->EndpointProperties,
+                                               (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+                        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                        Packet->SetEndpointDataToggle(FdoExtension->MiniPortExt,
+                                                      (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                      0);
+                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+                        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                        Packet->SetEndpointStatus(FdoExtension->MiniPortExt,
+                                                  (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                  0);
+                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+                    }
+                    else
+                    {
+                        MiniportCloseEndpoint(FdoDevice, Endpoint);
+
+                        RtlZeroMemory((PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                      Packet->MiniPortEndpointSize);
+
+                        RtlZeroMemory((PVOID)Endpoint->EndpointProperties.BufferVA,
+                                      Endpoint->EndpointProperties.BufferLength);
+
+                        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                        Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
+                                                          &Endpoint->EndpointProperties,
+                                                          (PULONG)&EndpointRequirements);
+                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+                        MiniportOpenEndpoint(FdoDevice, Endpoint);
+
+                        Endpoint->Flags &= ~(ENDPOINT_FLAG_NUKE | 0x00000020);
+
+                        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+                        if (Endpoint->StateLast == 3)
+                        {
+                            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                            Packet->SetEndpointState(FdoExtension->MiniPortExt,
+                                                     (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                     3);
+                            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+                        }
+
+                        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+                    }
+                }
+            }
+        }
+
+        USBPORT_AddPipeHandle(OldDeviceHandle, &OldDeviceHandle->PipeHandle);
+    }
+    else
+    {
+        ASSERT(FALSE);
+        Status = STATUS_UNSUCCESSFUL;
+    }
+
+    USBPORT_ClosePipe(OldDeviceHandle, FdoDevice, &OldDeviceHandle->PipeHandle);
+
+    if (OldDeviceHandle->DeviceAddress != 0)
+        USBPORT_FreeUsbAddress(FdoDevice, OldDeviceHandle->DeviceAddress);
+
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    ExFreePool(OldDeviceHandle);
+
+    return Status;
 }
 
 NTSTATUS
