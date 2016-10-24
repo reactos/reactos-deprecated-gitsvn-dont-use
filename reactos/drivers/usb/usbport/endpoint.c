@@ -308,3 +308,105 @@ USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     }
 }
 
+NTSTATUS
+NTAPI
+USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
+                   IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
+    ULONG EndpointRequirements[2] = {0};
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    KIRQL MiniportOldIrql;
+    KIRQL OldIrql;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_ReopenPipe ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+    while (TRUE)
+    {
+        if (!InterlockedIncrement(&Endpoint->LockCounter))
+            break;
+    }
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
+    Packet->SetEndpointState(FdoExtension->MiniPortExt,
+                             (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                             USBPORT_ENDPOINT_CLOSED);
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
+
+    USBPORT_Wait(FdoDevice, 2);
+
+    MiniportCloseEndpoint(FdoDevice, Endpoint);
+
+    RtlZeroMemory((PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                  Packet->MiniPortEndpointSize);
+
+    if (Endpoint->HeaderBuffer)
+    {
+        USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
+        Endpoint->HeaderBuffer = 0;
+    }
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
+    Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
+                                      &Endpoint->EndpointProperties,
+                                      (PULONG)&EndpointRequirements);
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
+
+    if (EndpointRequirements[0])
+    {
+        HeaderBuffer = USBPORT_AllocateCommonBuffer(FdoDevice,
+                                                    EndpointRequirements[0]);
+    }
+    else
+    {
+        HeaderBuffer = NULL;
+    }
+
+    if (HeaderBuffer || EndpointRequirements[0] == 0)
+    {
+        Endpoint->HeaderBuffer = HeaderBuffer;
+        Status = STATUS_SUCCESS;
+    }
+    else
+    {
+        Endpoint->HeaderBuffer = 0;
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    if (Endpoint->HeaderBuffer && HeaderBuffer)
+    {
+        Endpoint->EndpointProperties.BufferVA = HeaderBuffer->VirtualAddress;
+        Endpoint->EndpointProperties.BufferPA = HeaderBuffer->PhysicalAddress;
+        Endpoint->EndpointProperties.BufferLength = HeaderBuffer->BufferLength;
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        MiniportOpenEndpoint(FdoDevice, Endpoint);
+
+        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+        KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &OldIrql);
+
+        if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
+        {
+            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
+            Packet->SetEndpointState(FdoExtension->MiniPortExt,
+                                     (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                     USBPORT_ENDPOINT_ACTIVE);
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
+        }
+
+        KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, OldIrql);
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+    }
+
+    InterlockedDecrement(&Endpoint->LockCounter);
+
+    return Status;
+}
+

@@ -778,6 +778,18 @@ USBPORT_OpenPipe(
   IN PUSBPORT_PIPE_HANDLE PipeHandle,
   IN PUSBD_STATUS UsbdStatus);
 
+MPSTATUS
+NTAPI
+MiniportOpenEndpoint(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint);
+
+NTSTATUS
+NTAPI
+USBPORT_ReopenPipe(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint);
+
 /* iface.c */
 
 NTSTATUS
