@@ -700,12 +700,6 @@ USBPORT_GetUsbDescriptor(
   IN PUCHAR ConfigDesc,
   IN PULONG ConfigDescSize);
 
-VOID
-NTAPI
-USBPORT_SetEndpointState(
-  IN PUSBPORT_ENDPOINT Endpoint,
-  IN ULONG State);
-
 NTSTATUS
 NTAPI
 USBPORT_HandleSelectInterface(
@@ -719,11 +713,6 @@ USBPORT_RemoveDevice(
   IN PDEVICE_OBJECT FdoDevice,
   IN OUT PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN ULONG Flags);
-
-VOID
-NTAPI
-USBPORT_FlushClosedEndpointList(
-  IN PDEVICE_OBJECT FdoDevice);
 
 NTSTATUS
 NTAPI
@@ -802,6 +791,17 @@ NTAPI
 USBPORT_ValidatePipeHandle(
   IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
   IN PUSBPORT_PIPE_HANDLE PipeHandle);
+
+VOID
+NTAPI
+USBPORT_FlushClosedEndpointList(
+  IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
+USBPORT_SetEndpointState(
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN ULONG State);
 
 /* iface.c */
 
