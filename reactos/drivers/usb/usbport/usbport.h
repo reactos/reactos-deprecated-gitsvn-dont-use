@@ -776,6 +776,8 @@ USBPORT_Initialize20Hub(
   IN PUSBPORT_DEVICE_HANDLE HubDeviceHandle,
   IN ULONG TtCount);
 
+/* endpoint.c */
+
 /* iface.c */
 
 NTSTATUS
