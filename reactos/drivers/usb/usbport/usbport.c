@@ -745,9 +745,18 @@ USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
         {
             Endpoint = Transfer->Endpoint;
 
-            USBPORT_DoneTransfer(Transfer);
+            if ( (Transfer->Flags & TRANSFER_FLAG_SPLITED) )
+            {
+                ASSERT(FALSE);// USBPORT_DoneSplitTransfer(Transfer);
+            }
+            else
+            {
+                USBPORT_DoneTransfer(Transfer);
+            }
 
-            IsHasTransfers = USBPORT_EndpointHasQueuedTransfers(FdoDevice, Endpoint, &TransferCount);
+            IsHasTransfers = USBPORT_EndpointHasQueuedTransfers(FdoDevice,
+                                                                Endpoint,
+                                                                &TransferCount);
 
             if (IsHasTransfers && !TransferCount)
             {
