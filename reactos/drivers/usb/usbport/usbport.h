@@ -530,13 +530,6 @@ USBPORT_MiniportInterrupts(
   IN PDEVICE_OBJECT FdoDevice,
   IN BOOLEAN IsEnable);
 
-BOOLEAN
-NTAPI
-USBPORT_EndpointHasQueuedTransfers(
-  IN PDEVICE_OBJECT FdoDevice,
-  IN PUSBPORT_ENDPOINT Endpoint,
-  IN PULONG TransferCount);
-
 NTSTATUS
 NTAPI
 USBPORT_SetRegistryKeyValue(
@@ -823,6 +816,13 @@ VOID
 NTAPI
 USBPORT_NukeAllEndpoints(
   IN PDEVICE_OBJECT FdoDevice);
+
+BOOLEAN
+NTAPI
+USBPORT_EndpointHasQueuedTransfers(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN PULONG TransferCount);
 
 /* iface.c */
 
