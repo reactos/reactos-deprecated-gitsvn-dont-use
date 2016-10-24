@@ -46,8 +46,21 @@ USBPORT_HandleGetCurrentFrame(IN PDEVICE_OBJECT FdoDevice,
                               IN PIRP Irp,
                               IN PURB Urb)
 {
-    DPRINT1("USBPORT_HandleGetCurrentFrame: UNIMPLEMENTED. FIXME. \n");
-    return STATUS_NOT_IMPLEMENTED;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG FrameNumber;
+    KIRQL OldIrql;
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+    FrameNumber = FdoExtension->MiniPortInterface->Packet.Get32BitFrameNumber(FdoExtension->MiniPortExt);
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+    Urb->UrbGetCurrentFrameNumber.FrameNumber = FrameNumber;
+
+    DPRINT_URB("USBPORT_HandleGetCurrentFrame: FrameNumber - %p\n", FrameNumber);
+
+    return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
 }
 
 NTSTATUS
