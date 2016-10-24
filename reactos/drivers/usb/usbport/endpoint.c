@@ -6,6 +6,72 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+VOID
+NTAPI
+USBPORT_AddPipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+                      IN PUSBPORT_PIPE_HANDLE PipeHandle)
+{
+    DPRINT("USBPORT_AddPipeHandle: DeviceHandle - %p, PipeHandle - %p\n",
+           DeviceHandle,
+           PipeHandle);
+
+    InsertTailList(&DeviceHandle->PipeHandleList, &PipeHandle->PipeLink);
+}
+
+VOID
+NTAPI
+USBPORT_RemovePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+                         IN PUSBPORT_PIPE_HANDLE PipeHandle)
+{
+    DPRINT("USBPORT_RemovePipeHandle: PipeHandle - %p\n", PipeHandle);
+
+    RemoveEntryList(&PipeHandle->PipeLink);
+
+    PipeHandle->PipeLink.Flink = NULL;
+    PipeHandle->PipeLink.Blink = NULL;
+}
+
+BOOLEAN
+NTAPI
+USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+                           IN PUSBPORT_PIPE_HANDLE PipeHandle)
+{
+    PLIST_ENTRY HandleList;
+    BOOLEAN Result;
+    PUSBPORT_PIPE_HANDLE CurrentHandle;
+
+    //DPRINT("USBPORT_ValidatePipeHandle: DeviceHandle - %p, PipeHandle - %p\n", DeviceHandle, PipeHandle);
+
+    HandleList = &DeviceHandle->PipeHandleList;
+
+    Result = FALSE;
+
+    if (!IsListEmpty(HandleList))
+        HandleList = HandleList->Flink;
+
+    if (HandleList != &DeviceHandle->PipeHandleList)
+    {
+        while (TRUE)
+        {
+            CurrentHandle = CONTAINING_RECORD(HandleList,
+                                              USBPORT_PIPE_HANDLE,
+                                              PipeLink);
+      
+            HandleList = HandleList->Flink;
+      
+            if (CurrentHandle == PipeHandle)
+                break;
+      
+            if (HandleList == &DeviceHandle->PipeHandleList)
+                return Result;
+        }
+    
+        Result = TRUE;
+    }
+
+    return Result;
+}
+
 BOOLEAN
 NTAPI
 USBPORT_DeleteEndpoint(IN PDEVICE_OBJECT FdoDevice,
