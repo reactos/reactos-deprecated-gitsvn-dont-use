@@ -122,6 +122,7 @@
 #define TRANSFER_FLAG_SUBMITED   0x00000008
 #define TRANSFER_FLAG_ABORTED    0x00000010
 #define TRANSFER_FLAG_ISO        0x00000020
+#define TRANSFER_FLAG_SPLITED    0x00000100
 
 extern KSPIN_LOCK USBPORT_SpinLock;
 extern LIST_ENTRY USBPORT_MiniPortDrivers;
@@ -211,6 +212,7 @@ typedef struct _USBPORT_ENDPOINT {
   LIST_ENTRY DispatchLink;
   LIST_ENTRY FlushLink;
   LIST_ENTRY FlushControllerLink;
+  LIST_ENTRY FlushAbortLink;
 } USBPORT_ENDPOINT, *PUSBPORT_ENDPOINT;
 
 typedef struct _USBPORT_TRANSFER {
@@ -230,6 +232,8 @@ typedef struct _USBPORT_TRANSFER {
   ULONG CompletedTransferLen;
   ULONG NumberOfMapRegisters;
   PVOID MapRegisterBase;
+  ULONG TimeOut;
+  LARGE_INTEGER Time;
   // SgList should be LAST field
   USBPORT_SCATTER_GATHER_LIST SgList; // Non IsoTransfer
 } USBPORT_TRANSFER, *PUSBPORT_TRANSFER;
@@ -296,10 +300,12 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   LIST_ENTRY WorkerList;
   /* Transfers */
   LIST_ENTRY MapTransferList;
+  KSPIN_LOCK MapTransferSpinLock;
   LIST_ENTRY DoneTransferList;
   KSPIN_LOCK DoneTransferSpinLock;
   KDPC TransferFlushDpc;
   KSPIN_LOCK FlushTransferSpinLock;
+  KSPIN_LOCK FlushPendingTransferSpinLock;
   /* Timer */
   ULONG TimerValue; // Timer period (500) msec. default
   ULONG TimerFlags;
@@ -341,7 +347,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[52]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[50]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);

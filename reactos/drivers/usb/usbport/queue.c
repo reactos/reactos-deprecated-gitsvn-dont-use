@@ -495,7 +495,110 @@ VOID
 NTAPI
 USBPORT_FlushAbortList(IN PUSBPORT_ENDPOINT Endpoint)
 {
-    DPRINT_CORE("USBPORT_FlushAbortList: FIXME unimplemented\n");
+    PLIST_ENTRY Entry;
+    PUSBPORT_TRANSFER Transfer;
+    PLIST_ENTRY AbortList;
+    LIST_ENTRY List;
+    NTSTATUS Status;
+    PIRP Irp;
+    PURB Urb;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle = NULL;
+
+    DPRINT_CORE("USBPORT_FlushAbortList: Endpoint - %p\n", Endpoint);
+
+    InitializeListHead(&List);
+
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+
+    if (IsListEmpty(&Endpoint->AbortList))
+    {
+        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        return;
+    }
+
+    if (!IsListEmpty(&Endpoint->PendingTransferList))
+    {
+        Entry = Endpoint->PendingTransferList.Flink;
+
+        while (Entry && Entry != &Endpoint->PendingTransferList)
+        {
+            Transfer = CONTAINING_RECORD(Entry,
+                                         USBPORT_TRANSFER,
+                                         TransferLink);
+
+            if (Transfer->Flags & TRANSFER_FLAG_ABORTED)
+            {
+                DPRINT_CORE("USBPORT_FlushAbortList: Aborted PendingTransfer  - %p\n",
+                            Transfer);
+
+                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+                return;
+            }
+
+            Entry = Transfer->TransferLink.Flink;
+        }
+    }
+
+    if (!IsListEmpty(&Endpoint->TransferList))
+    {
+        Entry = Endpoint->TransferList.Flink;
+
+        while (Entry && Entry != &Endpoint->TransferList)
+        {
+            Transfer = CONTAINING_RECORD(Entry, USBPORT_TRANSFER, TransferLink);
+
+            if (Transfer->Flags & TRANSFER_FLAG_ABORTED)
+            {
+                DPRINT_CORE("USBPORT_FlushAbortList: Aborted ActiveTransfer - %p\n",
+                            Transfer);
+
+                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+                return;
+            }
+
+            Entry = Transfer->TransferLink.Flink;
+        }
+    }
+
+    AbortList = &Endpoint->AbortList;
+
+    while (!IsListEmpty(AbortList))
+    {
+        //DbgBreakPoint();
+
+        Irp = CONTAINING_RECORD(AbortList->Flink,
+                                IRP,
+                                Tail.Overlay.ListEntry);
+
+        RemoveHeadList(AbortList);
+        InsertTailList(&List, &Irp->Tail.Overlay.ListEntry);
+    }
+
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+
+    while (!IsListEmpty(&List))
+    {
+        //DbgBreakPoint();
+
+        Irp = CONTAINING_RECORD(List.Flink,
+                                IRP,
+                                Tail.Overlay.ListEntry);
+
+        RemoveHeadList(&List);
+
+        Urb = URB_FROM_IRP(Irp);
+
+        DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+        InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
+
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
+
+        DPRINT_CORE("USBPORT_FlushAbortList: complete Irp - %p\n", Irp);
+
+        Irp->IoStatus.Status = Status;
+        Irp->IoStatus.Information = 0;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    }
 }
 
 VOID
