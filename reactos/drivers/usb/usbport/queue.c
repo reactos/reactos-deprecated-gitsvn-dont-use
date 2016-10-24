@@ -1244,7 +1244,7 @@ USBPORT_AbortEndpoint(IN PDEVICE_OBJECT FdoDevice,
     PLIST_ENTRY ActiveList;
     PUSBPORT_TRANSFER ActiveTransfer;
 
-    DPRINT_CORE("USBPORT_AbortEndpoint: ... \n");
+    DPRINT_CORE("USBPORT_AbortEndpoint: Irp - %p\n", Irp);
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
@@ -1263,6 +1263,9 @@ USBPORT_AbortEndpoint(IN PDEVICE_OBJECT FdoDevice,
                                                 USBPORT_TRANSFER,
                                                 TransferLink);
 
+            DPRINT_CORE("USBPORT_AbortEndpoint: Abort PendingTransfer - %p\n",
+                        PendingTransfer);
+
             PendingTransfer->Flags |= TRANSFER_FLAG_ABORTED;
 
             PendingList = PendingTransfer->TransferLink.Flink;
@@ -1278,6 +1281,9 @@ USBPORT_AbortEndpoint(IN PDEVICE_OBJECT FdoDevice,
             ActiveTransfer = CONTAINING_RECORD(ActiveList,
                                                USBPORT_TRANSFER,
                                                TransferLink);
+
+            DPRINT_CORE("USBPORT_AbortEndpoint: Abort ActiveTransfer - %p\n",
+                        ActiveTransfer);
 
             ActiveTransfer->Flags |= TRANSFER_FLAG_ABORTED;
 
