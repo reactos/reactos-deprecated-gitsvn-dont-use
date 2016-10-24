@@ -658,14 +658,6 @@ USBPORT_HandleSelectConfiguration(
   IN PIRP Irp,
   IN PURB Urb);
 
-NTSTATUS
-NTAPI
-USBPORT_OpenPipe(
-  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
-  IN PDEVICE_OBJECT FdoDevice,
-  IN PUSBPORT_PIPE_HANDLE PipeHandle,
-  IN PUSBD_STATUS UsbdStatus);
-
 VOID
 NTAPI
 USBPORT_AddDeviceHandle(
@@ -777,6 +769,14 @@ USBPORT_Initialize20Hub(
   IN ULONG TtCount);
 
 /* endpoint.c */
+
+NTSTATUS
+NTAPI
+USBPORT_OpenPipe(
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_PIPE_HANDLE PipeHandle,
+  IN PUSBD_STATUS UsbdStatus);
 
 /* iface.c */
 
