@@ -257,7 +257,7 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
             {
                 KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
-                EndpointState = Endpoint->StateLast;
+                EndpointState = USBPORT_GetEndpointState(Endpoint);
 
                 if (EndpointState == USBPORT_ENDPOINT_PAUSED &&
                     IsListEmpty(&Endpoint->TransferList))

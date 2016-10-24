@@ -524,13 +524,6 @@ USBPORT_WorkerRequestDpc(
   IN PVOID SystemArgument1,
   IN PVOID SystemArgument2);
 
-VOID
-NTAPI
-USBPORT_InvalidateEndpointHandler(
-  IN PDEVICE_OBJECT FdoDevice,
-  IN PUSBPORT_ENDPOINT Endpoint,
-  IN ULONG Type);
-
 BOOLEAN
 NTAPI
 USBPORT_QueueDoneTransfer(
@@ -823,6 +816,13 @@ ULONG
 NTAPI
 USBPORT_GetEndpointState(
   IN PUSBPORT_ENDPOINT Endpoint);
+
+VOID
+NTAPI
+USBPORT_InvalidateEndpointHandler(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN ULONG Type);
 
 /* iface.c */
 

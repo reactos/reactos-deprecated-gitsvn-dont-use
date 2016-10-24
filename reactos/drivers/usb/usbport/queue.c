@@ -1073,7 +1073,7 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
         {
             Endpoint = CONTAINING_RECORD(Entry, USBPORT_ENDPOINT, EndpointLink);
 
-            if (Endpoint->StateLast != 5)
+            if (USBPORT_GetEndpointState(Endpoint) != 5)
             {
                 InsertTailList(&List, &Endpoint->FlushLink);
             }
