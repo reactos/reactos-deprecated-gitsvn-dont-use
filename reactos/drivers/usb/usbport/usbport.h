@@ -10,6 +10,7 @@
 #include <hubbusif.h>
 #include <usbbusif.h>
 #include <usbdlib.h>
+#include <usbuser.h>
 #include "..\usbmport.h"
 
 #define PCI_INTERFACE_USB_ID_UHCI 0x00
@@ -71,6 +72,7 @@
 #define USBPORT_FLAG_SELECTIVE_SUSPEND 0x00000800
 #define USBPORT_FLAG_DOS_SYMBOLIC_NAME 0x00010000
 #define USBPORT_FLAG_LEGACY_SUPPORT    0x00080000
+#define USBPORT_FLAG_DIAGNOSTIC_MODE   0x00800000 //IOCTL_USB_DIAGNOSTIC_MODE_ON
 #define USBPORT_FLAG_COMPANION_HC      0x01000000
 #define USBPORT_FLAG_REGISTERED_FDO    0x02000000
 #define USBPORT_FLAG_NO_HACTION        0x04000000
