@@ -499,12 +499,6 @@ NTAPI
 USBPORT_SignalWorkerThread(
   IN PDEVICE_OBJECT FdoDevice);
 
-BOOLEAN
-NTAPI
-USBPORT_EndpointWorker(
-  IN PUSBPORT_ENDPOINT Endpoint,
-  IN BOOLEAN Flag);
-
 VOID
 NTAPI
 USBPORT_CompleteTransfer(
@@ -823,6 +817,12 @@ USBPORT_InvalidateEndpointHandler(
   IN PDEVICE_OBJECT FdoDevice,
   IN PUSBPORT_ENDPOINT Endpoint,
   IN ULONG Type);
+
+BOOLEAN
+NTAPI
+USBPORT_EndpointWorker(
+  IN PUSBPORT_ENDPOINT Endpoint,
+  IN BOOLEAN Flag);
 
 /* iface.c */
 

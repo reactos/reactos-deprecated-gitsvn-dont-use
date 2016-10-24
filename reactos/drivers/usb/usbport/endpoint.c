@@ -902,6 +902,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     KIRQL OldIrql;
+    ULONG EndpointState;
 
     DPRINT_CORE("USBPORT_EndpointWorker: Endpoint - %p, Flag - %x\n",
            Endpoint,
@@ -922,7 +923,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
-    if (Endpoint->StateLast == 5)
+    if (USBPORT_GetEndpointState(Endpoint) == 5)
     {
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
         InterlockedDecrement(&Endpoint->LockCounter);
@@ -938,7 +939,9 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
     }
 
-    if (Endpoint->StateLast == USBPORT_ENDPOINT_CLOSED)
+    EndpointState = USBPORT_GetEndpointState(Endpoint);
+
+    if (EndpointState == USBPORT_ENDPOINT_CLOSED)
     {
         KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
         Endpoint->StateLast = 5;
@@ -964,8 +967,10 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
     {
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
+        EndpointState = USBPORT_GetEndpointState(Endpoint);
+
         KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
-        if (Endpoint->StateLast == Endpoint->StateNext)
+        if (EndpointState == Endpoint->StateNext)
         {
             KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
 
@@ -985,7 +990,9 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
             return FALSE;
         }
 
+        KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
         InterlockedDecrement(&Endpoint->LockCounter);
+
         DPRINT_CORE("USBPORT_EndpointWorker: return TRUE\n");
         return TRUE;
     }
