@@ -896,6 +896,101 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
 
 ULONG
 NTAPI
+USBPORT_DmaEndpointPaused(IN PDEVICE_OBJECT FdoDevice,
+                          IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    PLIST_ENTRY Entry;
+    PUSBPORT_TRANSFER Transfer;
+    PURB Urb;
+    ULONG Frame;
+    ULONG CurrentFrame;
+    ULONG CompletedLen = 0;
+    KIRQL OldIrql;
+
+    DPRINT_CORE("USBPORT_DmaEndpointPaused \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+    Entry = Endpoint->TransferList.Flink;
+
+    if (Entry == &Endpoint->TransferList)
+        return USBPORT_ENDPOINT_ACTIVE;
+
+    while (Entry && Entry != &Endpoint->TransferList)
+    {
+        Transfer = CONTAINING_RECORD(Entry, USBPORT_TRANSFER, TransferLink);
+
+        if (Transfer->Flags & (TRANSFER_FLAG_CANCELED | TRANSFER_FLAG_ABORTED))
+        {
+            if (Transfer->Flags & TRANSFER_FLAG_ISO &&
+                 Transfer->Flags & TRANSFER_FLAG_SUBMITED &&
+                 !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+            {
+                Urb = Transfer->Urb;
+
+                Frame = Urb->UrbIsochronousTransfer.StartFrame +
+                        Urb->UrbIsochronousTransfer.NumberOfPackets;
+
+                KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                CurrentFrame = Packet->Get32BitFrameNumber(FdoExtension->MiniPortExt);
+                KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+                if (Frame + 1 > CurrentFrame)
+                {
+                    return USBPORT_GetEndpointState(Endpoint);
+                }
+            }
+
+            if ((Transfer->Flags & TRANSFER_FLAG_SUBMITED) &&
+                 !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+            {
+                KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+                Packet->AbortTransfer(FdoExtension->MiniPortExt,
+                                      (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                      Transfer->MiniportTransfer,
+                                      &CompletedLen);
+
+                KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+                if (Transfer->Flags & TRANSFER_FLAG_ISO)
+                {
+                    DPRINT1("USBPORT_DmaEndpointActive: FIXME call USBPORT_FlushIsoTransfer\n");
+                    ASSERT(FALSE); //USBPORT_FlushIsoTransfer();
+                }
+                else
+                {
+                    Transfer->CompletedTransferLen = CompletedLen;
+                }
+            }
+
+            RemoveEntryList(&Transfer->TransferLink);
+            Entry = Transfer->TransferLink.Flink;
+
+            if (Transfer->Flags & TRANSFER_FLAG_SPLITED)
+            {
+                DPRINT1("USBPORT_DmaEndpointActive: FIXME call USBPORT_CancelSplitTransfer\n");
+                ASSERT(FALSE); //USBPORT_CancelSplitTransfer();
+            }
+            else
+            {
+                InsertTailList(&Endpoint->CancelList, &Transfer->TransferLink);
+            }
+        }
+        else
+        {
+            Entry = Transfer->TransferLink.Flink;
+        }
+    }
+
+    return USBPORT_ENDPOINT_ACTIVE;
+}
+
+ULONG
+NTAPI
 USBPORT_DmaEndpointActive(IN PDEVICE_OBJECT FdoDevice,
                           IN PUSBPORT_ENDPOINT Endpoint)
 {
