@@ -6,6 +6,35 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+ULONG 
+NTAPI
+USBPORT_GetEndpointState(IN PUSBPORT_ENDPOINT Endpoint)
+{
+    ULONG State;
+
+    //DPRINT("USBPORT_GetEndpointState \n");
+
+    KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
+
+    if (Endpoint->StateLast != Endpoint->StateNext)
+    {
+        State = 0;
+    }
+    else
+    {
+        State = Endpoint->StateLast;
+    }
+
+    KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
+
+    if (State != USBPORT_ENDPOINT_ACTIVE)
+        DPRINT("USBPORT_GetEndpointState: Endpoint - %p, State - %x\n",
+               Endpoint,
+               State);
+
+    return State;
+}
+
 VOID
 NTAPI
 USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
