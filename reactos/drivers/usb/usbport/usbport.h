@@ -790,6 +790,19 @@ USBPORT_ReopenPipe(
   IN PDEVICE_OBJECT FdoDevice,
   IN PUSBPORT_ENDPOINT Endpoint);
 
+VOID
+NTAPI
+USBPORT_ClosePipe(
+  IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_PIPE_HANDLE PipeHandle);
+
+VOID
+NTAPI
+MiniportCloseEndpoint(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint);
+
 /* iface.c */
 
 NTSTATUS
