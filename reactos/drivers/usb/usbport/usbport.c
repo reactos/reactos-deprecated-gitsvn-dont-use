@@ -33,7 +33,7 @@ USBPORT_FindUSB2Controller(IN PDEVICE_OBJECT FdoDevice)
 
     USB2FdoEntry = USBPORT_USB2FdoList.Flink;
 
-    if ( !IsListEmpty(&USBPORT_USB2FdoList) )
+    if (!IsListEmpty(&USBPORT_USB2FdoList))
     {
         while (USB2FdoEntry && USB2FdoEntry != &USBPORT_USB2FdoList)
         {
@@ -664,7 +664,7 @@ USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
         {
             Endpoint = Transfer->Endpoint;
 
-            if ( (Transfer->Flags & TRANSFER_FLAG_SPLITED) )
+            if ((Transfer->Flags & TRANSFER_FLAG_SPLITED))
             {
                 ASSERT(FALSE);// USBPORT_DoneSplitTransfer(Transfer);
             }
@@ -1839,11 +1839,13 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     SIZE_T SgCurrentLength;
     SIZE_T ElementLength;
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
+    PDMA_OPERATIONS DmaOperations;
 
     DPRINT_CORE("USBPORT_MapTransfer: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     DmaAdapter = FdoExtension->DmaAdapter;
+    DmaOperations = DmaAdapter->DmaOperations;
 
     Transfer = (PUSBPORT_TRANSFER)Context;
 
@@ -1879,12 +1881,12 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
         WriteToDevice = Transfer->Direction == 2;
         ASSERT(Transfer->Direction != 0);
 
-        PhAddress = DmaAdapter->DmaOperations->MapTransfer(DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
-                                                           Mdl, // IN PMDL Mdl,
-                                                           MapRegisterBase, // IN PVOID MapRegisterBase,
-                                                           (PVOID)CurrentVa, // IN PVOID CurrentVa,
-                                                           (PULONG)&TransferLength, // IN OUT PULONG Length,
-                                                           WriteToDevice); // IN BOOLEAN WriteToDevice
+        PhAddress = DmaOperations->MapTransfer(DmaAdapter,
+                                               Mdl,
+                                               MapRegisterBase,
+                                               (PVOID)CurrentVa,
+                                               &TransferLength,
+                                               WriteToDevice);
 
         DPRINT_CORE("USBPORT_MapTransfer: PhAddress.LowPart - %p, PhAddress.HighPart - %x, TransferLength - %x\n",
                PhAddress.LowPart,
@@ -1938,10 +1940,17 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     ASSERT(Transfer->TransferParameters.TransferBufferLength <=
            Endpoint->EndpointProperties.MaxTransferSize);
 
+    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
     InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
+    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
     DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
     InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
+
+    if (USBPORT_EndpointWorker(Endpoint, 0))
+    {
+        USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+    }
 
     return DeallocateObjectKeepRegisters;
 }
@@ -1959,10 +1968,12 @@ USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
     ULONG_PTR VirtualAddr;
     KIRQL OldIrql;
     NTSTATUS Status;
+    PDMA_OPERATIONS DmaOperations;
 
     DPRINT_CORE("USBPORT_FlushMapTransfers: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    DmaOperations = FdoExtension->DmaAdapter->DmaOperations;
 
     KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
 
@@ -1991,11 +2002,11 @@ USBPORT_FlushMapTransfers(IN PDEVICE_OBJECT FdoDevice)
 
         Transfer->NumberOfMapRegisters = NumMapRegisters;
 
-        Status = FdoExtension->DmaAdapter->DmaOperations->AllocateAdapterChannel(FdoExtension->DmaAdapter, // IN PDMA_ADAPTER DmaAdapter,
-                                                                                 FdoDevice, // IN PDEVICE_OBJECT DeviceObject,
-                                                                                 NumMapRegisters, // IN ULONG NumberOfMapRegisters,
-                                                                                 (PDRIVER_CONTROL)USBPORT_MapTransfer, // IN PDRIVER_CONTROL ExecutionRoutine,
-                                                                                 Transfer); // IN PVOID Context
+        Status = DmaOperations->AllocateAdapterChannel(FdoExtension->DmaAdapter,
+                                                       FdoDevice,
+                                                       NumMapRegisters,
+                                                       USBPORT_MapTransfer,
+                                                       Transfer);
 
         if (!NT_SUCCESS(Status))
             ASSERT(FALSE);

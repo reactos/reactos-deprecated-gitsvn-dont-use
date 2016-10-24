@@ -868,8 +868,6 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
         if (IsMapTransfer)
         {
             USBPORT_FlushMapTransfers(FdoDevice);
-
-            //if (IsEnd)
             goto Next;
         }
 
@@ -879,7 +877,7 @@ Worker:
         KeLowerIrql(PrevIrql);
 
         if (Result)
-            USBPORT_InvalidateEndpoint(FdoDevice, Endpoint, 1);
+            USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
 
 Next:
         if (IsEnd)
