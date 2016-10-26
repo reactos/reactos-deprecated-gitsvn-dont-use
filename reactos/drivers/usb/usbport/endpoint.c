@@ -6,6 +6,14 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+VOID
+NTAPI
+USBPORT_FreeBandwidth(IN PDEVICE_OBJECT FdoDevice,
+                      IN PUSBPORT_ENDPOINT Endpoint)
+{
+    DPRINT1("USBPORT_FreeBandwidth: UNIMPLEMENTED. FIXME. \n");
+}
+
 UCHAR
 NTAPI
 USBPORT_NormalizeHsInterval(UCHAR Interval)
