@@ -6,6 +6,25 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+UCHAR
+NTAPI
+USBPORT_NormalizeHsInterval(UCHAR Interval)
+{
+    UCHAR interval;
+
+    DPRINT("USBPORT_NormalizeHsInterval: Interval - %x\n", Interval);
+
+    interval = Interval;
+
+    if (Interval)
+       interval = Interval - 1;
+
+    if (interval > 5)
+       interval = 5;
+
+    return 1 << interval;
+}
+
 BOOLEAN
 NTAPI
 USBPORT_EndpointHasQueuedTransfers(IN PDEVICE_OBJECT FdoDevice,
