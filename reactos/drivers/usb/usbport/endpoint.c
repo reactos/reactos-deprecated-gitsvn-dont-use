@@ -6,6 +6,51 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+ULONG
+NTAPI
+USBPORT_CalculateUsbBandwidth(IN PDEVICE_OBJECT FdoDevice,
+                              IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_ENDPOINT_PROPERTIES EndpointProperties;
+    ULONG Bandwidth;
+    ULONG Additional;
+
+    DPRINT("USBPORT_CalculateUsbBandwidth ... \n");
+
+    EndpointProperties = &Endpoint->EndpointProperties;
+
+    switch (EndpointProperties->TransferType)
+    {
+        case USBPORT_TRANSFER_TYPE_ISOCHRONOUS:
+            Additional = 9;
+            break;
+
+        case USBPORT_TRANSFER_TYPE_INTERRUPT:
+            Additional = 13;
+            break;
+
+        default: //USBPORT_TRANSFER_TYPE_CONTROL or USBPORT_TRANSFER_TYPE_BULK
+            Additional = 0;
+            break;
+    }
+
+    if (Additional == 0)
+    {
+        Bandwidth = 0;
+    }
+    else
+    {
+        Bandwidth = (EndpointProperties->TotalMaxPacketSize + Additional) * 8 * 7 / 6;
+    }
+
+    if (EndpointProperties->DeviceSpeed == UsbLowSpeed)
+    {
+        Bandwidth *= 8;
+    }
+
+    return Bandwidth;
+}
+
 BOOLEAN
 NTAPI
 USBPORT_AllocateBandwidth(IN PDEVICE_OBJECT FdoDevice,
