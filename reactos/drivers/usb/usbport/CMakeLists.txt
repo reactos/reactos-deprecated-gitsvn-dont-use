@@ -12,6 +12,7 @@ list(APPEND SOURCE
     queue.c
     roothub.c
     urb.c
+    usb2.c
     usbport.c
     usbport.h)
 
