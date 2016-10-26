@@ -1263,7 +1263,7 @@ USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     DeviceHandle->DeviceAddress = DeviceAddress;
     Endpoint = DeviceHandle->PipeHandle.Endpoint;
 
-    Endpoint->EndpointProperties.MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
+    Endpoint->EndpointProperties.TotalMaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
     Endpoint->EndpointProperties.DeviceAddress = DeviceAddress;
 
     Status = USBPORT_ReopenPipe(FdoDevice, Endpoint);

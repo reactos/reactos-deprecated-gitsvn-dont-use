@@ -517,10 +517,10 @@ C_ASSERT(sizeof(USBPORT_MINIPORT_INTERFACE) == 336);
 typedef struct _USBPORT_ENDPOINT_PROPERTIES {
   USHORT DeviceAddress;
   USHORT EndpointAddress;
-  USHORT MaxPacketSize;
+  USHORT TotalMaxPacketSize; // TransactionPerMicroframe * MaxPacketSize
   UCHAR Period;
   UCHAR Reserved1;
-  ULONG DeviceSpeed;
+  USB_DEVICE_SPEED DeviceSpeed;
   ULONG UsbBandwidth;
   ULONG ScheduleOffset;
   ULONG TransferType;
@@ -534,8 +534,9 @@ typedef struct _USBPORT_ENDPOINT_PROPERTIES {
   USHORT PortNumber;
   UCHAR InterruptScheduleMask;
   UCHAR SplitCompletionMask;
-  USHORT Reserved4;
-  ULONG Reserved5;
+  UCHAR TransactionPerMicroframe; // 1 + additional transactions. Total: from 1 to 3)
+  UCHAR Reserved4;
+  ULONG MaxPacketSize;
   ULONG Reserved6;
 } USBPORT_ENDPOINT_PROPERTIES, *PUSBPORT_ENDPOINT_PROPERTIES;
 
