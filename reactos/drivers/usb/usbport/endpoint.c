@@ -6,6 +6,47 @@
 #define NDEBUG_USBPORT_CORE
 #include "usbdebug.h"
 
+BOOLEAN
+NTAPI
+USBPORT_AllocateBandwidth(IN PDEVICE_OBJECT FdoDevice,
+                          IN PUSBPORT_ENDPOINT Endpoint)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_ENDPOINT_PROPERTIES EndpointProperties;
+    ULONG TransferType;
+    ULONG TotalBusBandwidth;
+    ULONG EndpointBandwidth;
+    ULONG Period;
+
+    DPRINT("USBPORT_AllocateBandwidth: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    EndpointProperties = &Endpoint->EndpointProperties;
+    TransferType = EndpointProperties->TransferType;
+
+    if (TransferType == USBPORT_TRANSFER_TYPE_BULK || 
+        TransferType == USBPORT_TRANSFER_TYPE_CONTROL ||
+        Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0)
+    {
+        EndpointProperties->ScheduleOffset = 0;
+        return TRUE;
+    }
+
+    TotalBusBandwidth = FdoExtension->TotalBusBandwidth;
+    EndpointBandwidth = EndpointProperties->UsbBandwidth;
+    Period = EndpointProperties->Period;
+
+    DPRINT1("USBPORT_AllocateBandwidth: FIXME. \n");
+    DPRINT1("USBPORT_AllocateBandwidth: Endpoint - %p, Type - %x, TotalBandwidth - %x, EpBandwidth - %x, Period - %x\n",
+           Endpoint,
+           TransferType,
+           TotalBusBandwidth,
+           EndpointBandwidth,
+           Period);
+
+    return TRUE;
+}
+
 VOID
 NTAPI
 USBPORT_FreeBandwidth(IN PDEVICE_OBJECT FdoDevice,
