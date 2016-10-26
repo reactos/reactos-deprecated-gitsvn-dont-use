@@ -404,8 +404,8 @@ USBPORT_OpenInterface(IN PURB Urb,
 
             while (TRUE)
             {
-                Status = USBPORT_OpenPipe(DeviceHandle,
-                                          FdoDevice,
+                Status = USBPORT_OpenPipe(FdoDevice,
+                                          DeviceHandle,
                                           PipeHandle,
                                           &USBDStatus);
 
@@ -1020,7 +1020,10 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     InitializeListHead(&DeviceHandle->PipeHandleList);
 
-    Status = USBPORT_OpenPipe(DeviceHandle, FdoDevice, PipeHandle, NULL);
+    Status = USBPORT_OpenPipe(FdoDevice,
+                              DeviceHandle,
+                              PipeHandle,
+                              NULL);
 
     if (NT_SUCCESS(Status))
     {

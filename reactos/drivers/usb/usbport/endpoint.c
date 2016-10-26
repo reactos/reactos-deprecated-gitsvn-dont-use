@@ -479,8 +479,8 @@ MiniportOpenEndpoint(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_OpenPipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
-                 IN PDEVICE_OBJECT FdoDevice,
+USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
+                 IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                  IN PUSBPORT_PIPE_HANDLE PipeHandle,
                  IN OUT PUSBD_STATUS UsbdStatus)
 {

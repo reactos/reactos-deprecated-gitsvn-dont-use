@@ -801,8 +801,8 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
         EndpointDescriptor->wMaxPacketSize = 0x0040;
         EndpointDescriptor->bInterval = 0x00;
 
-        Status = USBPORT_OpenPipe(DeviceHandle,
-                                  FdoDevice,
+        Status = USBPORT_OpenPipe(FdoDevice,
+                                  DeviceHandle,
                                   &DeviceHandle->PipeHandle,
                                   NULL);
     }
