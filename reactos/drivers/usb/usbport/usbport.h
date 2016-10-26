@@ -1092,4 +1092,18 @@ USBPORT_HandleSubmitURB(
   IN PIRP Irp,
   IN PURB Urb);
 
+/* usb2.c */
+
+BOOLEAN
+NTAPI
+USBPORT_AllocateBandwidthUSB2(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint);
+
+VOID
+NTAPI
+USBPORT_FreeBandwidthUSB2(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PUSBPORT_ENDPOINT Endpoint);
+
 #endif /* USBPORT_H__ */
