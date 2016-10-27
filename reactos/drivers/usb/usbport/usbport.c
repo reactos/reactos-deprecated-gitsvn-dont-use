@@ -138,7 +138,8 @@ USBPORT_SetRegistryKeyValue(IN PDEVICE_OBJECT DeviceObject,
     UNICODE_STRING ValueName;
     NTSTATUS Status;
 
-    DPRINT("USBPORT_SetRegistryKeyValue: ValueNameString - %S \n", ValueNameString);
+    DPRINT("USBPORT_SetRegistryKeyValue: ValueNameString - %S \n",
+           ValueNameString);
 
     if (KeyHandle)
     {
@@ -345,7 +346,9 @@ USBPORT_ReadWriteConfigSpace(IN PVOID Context,
     DPRINT("USBPORT_ReadWriteConfigSpace: ... \n");
 
     //FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension + sizeof(USBPORT_DEVICE_EXTENSION));
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context - sizeof(USBPORT_DEVICE_EXTENSION));
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)((ULONG_PTR)Context -
+                                               sizeof(USBPORT_DEVICE_EXTENSION));
+
     FdoDevice = FdoExtension->CommonExtension.SelfDevice;
 
     Status = USBPORT_GetSetConfigSpaceData(FdoDevice,
@@ -430,14 +433,16 @@ USBPORT_MiniportInterrupts(IN PDEVICE_OBJECT FdoDevice,
                            IN BOOLEAN IsEnable)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     BOOLEAN IsLock;
     KIRQL OldIrql;
 
     DPRINT_INT("USBPORT_MiniportInterrupts: IsEnable - %p\n", IsEnable);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    IsLock = ~(UCHAR)(FdoExtension->MiniPortInterface->Packet.MiniPortFlags >> 6) & 1;
+    IsLock = ~(UCHAR)(Packet->MiniPortFlags >> 6) & 1;
 
     if (IsLock)
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
@@ -445,11 +450,11 @@ USBPORT_MiniportInterrupts(IN PDEVICE_OBJECT FdoDevice,
     if (IsEnable)
     {
         FdoExtension->Flags |= USBPORT_FLAG_INTERRUPT_ENABLED;
-        FdoExtension->MiniPortInterface->Packet.EnableInterrupts(FdoExtension->MiniPortExt);
+        Packet->EnableInterrupts(FdoExtension->MiniPortExt);
     }
     else
     {
-        FdoExtension->MiniPortInterface->Packet.DisableInterrupts(FdoExtension->MiniPortExt);
+        Packet->DisableInterrupts(FdoExtension->MiniPortExt);
         FdoExtension->Flags &= ~USBPORT_FLAG_INTERRUPT_ENABLED;
     }
 
@@ -607,6 +612,7 @@ USBPORT_DoneTransfer(IN PUSBPORT_TRANSFER Transfer)
     Endpoint = Transfer->Endpoint;
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
     Urb = Transfer->Urb;
     Irp = Transfer->Irp;
 
@@ -710,7 +716,9 @@ USBPORT_QueueDoneTransfer(IN PUSBPORT_TRANSFER Transfer,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
 
-    DPRINT_CORE("USBPORT_QueueDoneTransfer: Transfer - %p, USBDStatus - %p\n", Transfer, USBDStatus);
+    DPRINT_CORE("USBPORT_QueueDoneTransfer: Transfer - %p, USBDStatus - %p\n",
+                Transfer,
+                USBDStatus);
 
     FdoDevice = Transfer->Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -811,6 +819,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
                       IN BOOLEAN IsDpcHandler)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     PUSBPORT_ENDPOINT Endpoint;
     PLIST_ENTRY List;
     ULONG FrameNumber;
@@ -819,6 +828,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
     DPRINT_CORE("USBPORT_IsrDpcHandler: IsDpcHandler - %x\n", IsDpcHandler);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     if (InterlockedIncrement(&FdoExtension->IsrDpcHandlerCounter))
     {
@@ -842,7 +852,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
         KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-        FrameNumber = FdoExtension->MiniPortInterface->Packet.Get32BitFrameNumber(FdoExtension->MiniPortExt);
+        FrameNumber = Packet->Get32BitFrameNumber(FdoExtension->MiniPortExt);
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
         if (FrameNumber <= Endpoint->FrameNumber && !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
@@ -854,7 +864,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
                                         &FdoExtension->EpStateChangeSpinLock);
 
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-            FdoExtension->MiniPortInterface->Packet.InterruptNextSOF(FdoExtension->MiniPortExt);
+            Packet->InterruptNextSOF(FdoExtension->MiniPortExt);
             KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
             break;
@@ -866,7 +876,8 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
         Endpoint->StateLast = Endpoint->StateNext;
         KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
 
-        DPRINT_CORE("USBPORT_IsrDpcHandler: Endpoint->StateLast - %x\n", Endpoint->StateLast);
+        DPRINT_CORE("USBPORT_IsrDpcHandler: Endpoint->StateLast - %x\n",
+                    Endpoint->StateLast);
 
         if (IsDpcHandler)
         {
@@ -895,12 +906,16 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     BOOLEAN InterruptEnable;
 
-    DPRINT_INT("USBPORT_IsrDpc: DeferredContext - %p, SystemArgument2 - %p\n", DeferredContext, SystemArgument2);
+    DPRINT_INT("USBPORT_IsrDpc: DeferredContext - %p, SystemArgument2 - %p\n",
+               DeferredContext,
+               SystemArgument2);
 
     FdoDevice = (PDEVICE_OBJECT)DeferredContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     if (SystemArgument2)
     {
@@ -908,10 +923,10 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
     }
 
     KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
-    InterruptEnable = (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED) == USBPORT_FLAG_INTERRUPT_ENABLED;
+    InterruptEnable = (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED) ==
+                       USBPORT_FLAG_INTERRUPT_ENABLED;
 
-    FdoExtension->MiniPortInterface->Packet.InterruptDpc(FdoExtension->MiniPortExt,
-                                                         InterruptEnable);
+    Packet->InterruptDpc(FdoExtension->MiniPortExt, InterruptEnable);
 
     KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportInterruptsSpinLock);
 
@@ -935,10 +950,12 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     BOOLEAN Result = 0;
 
     FdoDevice = (PDEVICE_OBJECT)ServiceContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     DPRINT_INT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
            FdoExtension->Flags);
@@ -947,7 +964,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     {
         if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
         {
-            Result = FdoExtension->MiniPortInterface->Packet.InterruptService(FdoExtension->MiniPortExt);
+            Result = Packet->InterruptService(FdoExtension->MiniPortExt);
 
             if (Result)
             {
@@ -986,6 +1003,7 @@ NTAPI
 USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     PLIST_ENTRY workerList;
     KIRQL OldIrql;
     PUSBPORT_ENDPOINT Endpoint;
@@ -995,12 +1013,13 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
     DPRINT_CORE("USBPORT_WorkerThreadHandler: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
     if (!(FdoExtension->Flags & 0x20300))
     {
-        FdoExtension->MiniPortInterface->Packet.CheckController(FdoExtension->MiniPortExt);
+        Packet->CheckController(FdoExtension->MiniPortExt);
     }
 
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
@@ -1297,6 +1316,7 @@ USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer = NULL;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDMA_ADAPTER DmaAdapter;
+    PDMA_OPERATIONS DmaOperations;
     SIZE_T HeaderSize;
     ULONG Length = 0;
     ULONG LengthPadded;
@@ -1313,16 +1333,18 @@ USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
         goto Exit;
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
     DmaAdapter = FdoExtension->DmaAdapter;
+    DmaOperations = DmaAdapter->DmaOperations;
 
     HeaderSize = sizeof(USBPORT_COMMON_BUFFER_HEADER);
     Length = ROUND_TO_PAGES(BufferLength + HeaderSize);
     LengthPadded = Length - (BufferLength + HeaderSize);
 
-    BaseVA = (ULONG_PTR)DmaAdapter->DmaOperations->AllocateCommonBuffer(DmaAdapter, // IN PDMA_ADAPTER DmaAdapter
-                                                                        Length, // IN ULONG Length,
-                                                                        &LogicalAddress,  // OUT PPHYSICAL_ADDRESS LogicalAddress
-                                                                        TRUE); // IN BOOLEAN CacheEnabled
+    BaseVA = (ULONG_PTR)DmaOperations->AllocateCommonBuffer(DmaAdapter,
+                                                            Length,
+                                                            &LogicalAddress,
+                                                            TRUE);
 
     if (!BaseVA)
         goto Exit;
@@ -1355,17 +1377,20 @@ USBPORT_FreeCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDMA_ADAPTER DmaAdapter;
+    PDMA_OPERATIONS DmaOperations;
 
     DPRINT("USBPORT_FreeCommonBuffer: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-    DmaAdapter = FdoExtension->DmaAdapter;
 
-    DmaAdapter->DmaOperations->FreeCommonBuffer(FdoExtension->DmaAdapter,
-                                                HeaderBuffer->Length,
-                                                HeaderBuffer->LogicalAddress,
-                                                (PVOID)HeaderBuffer->VirtualAddress,
-                                                TRUE);
+    DmaAdapter = FdoExtension->DmaAdapter;
+    DmaOperations = DmaAdapter->DmaOperations;
+
+    DmaOperations->FreeCommonBuffer(FdoExtension->DmaAdapter,
+                                    HeaderBuffer->Length,
+                                    HeaderBuffer->LogicalAddress,
+                                    (PVOID)HeaderBuffer->VirtualAddress,
+                                    TRUE);
 }
 
 PUSBPORT_MINIPORT_INTERFACE
@@ -1413,6 +1438,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     UNICODE_STRING DeviceName;
     PDEVICE_OBJECT DeviceObject;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG Length;
 
     DPRINT("USBPORT_AddDevice: DriverObject - %p, PhysicalDeviceObject - %p\n",
            DriverObject,
@@ -1431,9 +1457,12 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
         swprintf(CharDeviceName, L"\\Device\\USBFDO-%d", DeviceNumber);
         RtlInitUnicodeString(&DeviceName, CharDeviceName);
 
+        Length = sizeof(USBPORT_DEVICE_EXTENSION) +
+                 MiniPortInterface->Packet.MiniPortExtensionSize;
+
         // Create device
         Status = IoCreateDevice(DriverObject,
-                                sizeof(USBPORT_DEVICE_EXTENSION) + MiniPortInterface->Packet.MiniPortExtensionSize,
+                                Length,
                                 &DeviceName,
                                 FILE_DEVICE_CONTROLLER,
                                 0,
@@ -1612,9 +1641,10 @@ USBPORT_RequestAsyncCallback(IN PVOID Context,
 
     FdoDevice = FdoExtension->CommonExtension.SelfDevice;
 
-    AsyncCallbackData = (PUSBPORT_ASYNC_CALLBACK_DATA)ExAllocatePoolWithTag(NonPagedPool,
-                                                                            sizeof(USBPORT_ASYNC_CALLBACK_DATA) + Length,
-                                                                            USB_PORT_TAG);
+    AsyncCallbackData = (PUSBPORT_ASYNC_CALLBACK_DATA)
+                        ExAllocatePoolWithTag(NonPagedPool,
+                                              sizeof(USBPORT_ASYNC_CALLBACK_DATA) + Length,
+                                              USB_PORT_TAG);
 
     if (!AsyncCallbackData)
     {
@@ -1727,6 +1757,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
     PUSBPORT_ENDPOINT Endpoint;
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDMA_OPERATIONS DmaOperations;
 
     DPRINT("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %p\n",
            Urb,
@@ -1745,18 +1776,19 @@ USBPORT_CompleteTransfer(IN PURB Urb,
         Endpoint = Transfer->Endpoint;
         FdoDevice = Endpoint->FdoDevice;
         FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+        DmaOperations = FdoExtension->DmaAdapter->DmaOperations;
 
         WriteToDevice = Transfer->Direction == 2;
         Mdl = UrbTransfer->TransferBufferMDL;
         CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
         TransferLength = UrbTransfer->TransferBufferLength;
 
-        IsFlushSuccess = FdoExtension->DmaAdapter->DmaOperations->FlushAdapterBuffers(FdoExtension->DmaAdapter,
-                                                                                      Mdl,
-                                                                                      Transfer->MapRegisterBase,
-                                                                                      (PVOID)CurrentVa,
-                                                                                      TransferLength,
-                                                                                      WriteToDevice);
+        IsFlushSuccess = DmaOperations->FlushAdapterBuffers(FdoExtension->DmaAdapter,
+                                                            Mdl,
+                                                            Transfer->MapRegisterBase,
+                                                            (PVOID)CurrentVa,
+                                                            TransferLength,
+                                                            WriteToDevice);
 
         if (!IsFlushSuccess)
         {
@@ -1766,9 +1798,9 @@ USBPORT_CompleteTransfer(IN PURB Urb,
 
         KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
 
-        FdoExtension->DmaAdapter->DmaOperations->FreeMapRegisters(FdoExtension->DmaAdapter,
-                                                                  Transfer->MapRegisterBase,
-                                                                  Transfer->NumberOfMapRegisters);
+        DmaOperations->FreeMapRegisters(FdoExtension->DmaAdapter,
+                                        Transfer->MapRegisterBase,
+                                        Transfer->NumberOfMapRegisters);
 
         KeLowerIrql(OldIrql);
     }
@@ -1930,7 +1962,8 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
         CurrentLength += TransferLength;
         CurrentVa += TransferLength;
 
-        TransferLength = Transfer->TransferParameters.TransferBufferLength - CurrentLength;
+        TransferLength = Transfer->TransferParameters.TransferBufferLength -
+                         CurrentLength;
     }
     while (CurrentLength != Transfer->TransferParameters.TransferBufferLength);
 
@@ -2140,7 +2173,10 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_HUB_COUNT\n");
 
         if (IoStack->Parameters.Others.Argument1)
-            *(PULONG)IoStack->Parameters.Others.Argument1 = *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+        {
+            *(PULONG)IoStack->Parameters.Others.Argument1 =
+            *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+        }
 
         Status = STATUS_SUCCESS;
         goto Exit;
@@ -2151,7 +2187,9 @@ USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
         DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
 
         if (IoStack->Parameters.Others.Argument1)
+        {
             *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtension->DeviceHandle;
+        }
 
         Status = STATUS_SUCCESS;
         goto Exit;
@@ -2361,9 +2399,10 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
         USBPORT_Initialized = TRUE;
     }
 
-    MiniPortInterface = (PUSBPORT_MINIPORT_INTERFACE)ExAllocatePoolWithTag(NonPagedPool,
-                                                                           sizeof(USBPORT_MINIPORT_INTERFACE),
-                                                                           USB_PORT_TAG);
+    MiniPortInterface = (PUSBPORT_MINIPORT_INTERFACE)
+                        ExAllocatePoolWithTag(NonPagedPool,
+                                              sizeof(USBPORT_MINIPORT_INTERFACE),
+                                              USB_PORT_TAG);
     if (!MiniPortInterface)
     {
         return STATUS_INSUFFICIENT_RESOURCES;

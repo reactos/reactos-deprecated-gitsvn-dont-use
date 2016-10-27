@@ -60,7 +60,9 @@ USBHI_InitializeUsbDevice(IN PVOID BusContext,
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    return USBPORT_InitializeDevice((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle, PdoExtension->FdoDevice);
+
+    return USBPORT_InitializeDevice((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle,
+                                    PdoExtension->FdoDevice);
 }
 
 NTSTATUS
@@ -118,7 +120,9 @@ USBHI_RemoveUsbDevice(IN PVOID BusContext,
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
 
-    return USBPORT_RemoveDevice(PdoExtension->FdoDevice, (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle, Flags);
+    return USBPORT_RemoveDevice(PdoExtension->FdoDevice,
+                                (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle,
+                                Flags);
 }
 
 NTSTATUS
@@ -249,7 +253,8 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
         return STATUS_SUCCESS;
     }
 
-    DeviceInfo->CurrentConfigurationValue = ConfigHandle->ConfigurationDescriptor->bConfigurationValue;
+    DeviceInfo->CurrentConfigurationValue = 
+        ConfigHandle->ConfigurationDescriptor->bConfigurationValue;
 
     InterfaceEntry = NULL;
 
@@ -281,7 +286,8 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
                 }
                 else
                 {
-                    PipeInfo->ScheduleOffset = PipeHandle->Endpoint->EndpointProperties.ScheduleOffset;
+                    PipeInfo->ScheduleOffset = 
+                        PipeHandle->Endpoint->EndpointProperties.ScheduleOffset;
                 }
 
                 RtlCopyMemory(&PipeInfo->EndpointDescriptor,
@@ -319,7 +325,8 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
     PUSB_CONTROLLER_INFORMATION_0 InfoBuffer;
     NTSTATUS Status;
 
-    DPRINT("USBHI_GetControllerInformation: ControllerInfoBufferLen - %x\n", ControllerInfoBufferLen);
+    DPRINT("USBHI_GetControllerInformation: ControllerInfoBufferLen - %x\n",
+           ControllerInfoBufferLen);
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
@@ -348,7 +355,9 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
 
     if (ControllerInfoBufferLen >= sizeof(USB_CONTROLLER_INFORMATION_0))
     {
-        InfoBuffer->SelectiveSuspendEnabled = (FdoExtension->Flags & USBPORT_FLAG_SELECTIVE_SUSPEND) == USBPORT_FLAG_SELECTIVE_SUSPEND;
+        InfoBuffer->SelectiveSuspendEnabled = 
+            (FdoExtension->Flags & USBPORT_FLAG_SELECTIVE_SUSPEND) == 
+            USBPORT_FLAG_SELECTIVE_SUSPEND;
     }
 
     *LenDataReturned = sizeof(USB_CONTROLLER_INFORMATION_0);
@@ -424,6 +433,7 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     ULONG NumPorts;
     ULONG ix;
     PUSB_EXTHUB_INFORMATION_0 HubInfoBuffer;
@@ -436,6 +446,7 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     HubInfoBuffer = (PUSB_EXTHUB_INFORMATION_0)HubInformationBuffer;
 
@@ -468,13 +479,13 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
         HubInfoBuffer->Port[ix].PidOverride = 0;
         HubInfoBuffer->Port[ix].PortAttributes = 0;
 
-        if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+        if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
         {
             HubInfoBuffer->Port[ix].PortAttributes = USB_PORTATTR_SHARED_USB2;
 
-            FdoExtension->MiniPortInterface->Packet.RH_GetPortStatus(FdoExtension->MiniPortExt,
-                                                                     ix,
-                                                                     &PortStatus);
+            Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
+                                     ix,
+                                     &PortStatus);
 
             if (PortStatus & 0x8000)
             {
@@ -542,7 +553,7 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
 
     Status = USBPORT_ParseSymbolicName(FdoDevice, &HubName);
 
-    if ( HubInfoBufferLen < HubName.Length )
+    if (HubInfoBufferLen < HubName.Length)
     {
         InfoBuffer = (PUNICODE_STRING)HubInfoBuffer;
         InfoBuffer->Length = 0;
@@ -721,7 +732,8 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
 
     if (Level == 1)
     {
-        Length = sizeof(USB_BUS_INFORMATION_LEVEL_1) + FdoExtension->CommonExtension.SymbolicLinkName.Length;
+        Length = sizeof(USB_BUS_INFORMATION_LEVEL_1) + 
+                 FdoExtension->CommonExtension.SymbolicLinkName.Length;
     
         if (BusInfoActualLen)
             *BusInfoActualLen = Length;
@@ -757,6 +769,7 @@ USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
 
     DPRINT("USBDI_IsDeviceHighSpeed: ... \n");
 
@@ -764,8 +777,9 @@ USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    return FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2;
+    return Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2;
 }
 
 NTSTATUS

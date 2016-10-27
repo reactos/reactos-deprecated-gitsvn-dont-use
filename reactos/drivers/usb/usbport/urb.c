@@ -39,13 +39,15 @@ USBPORT_HandleGetCurrentFrame(IN PDEVICE_OBJECT FdoDevice,
                               IN PURB Urb)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     ULONG FrameNumber;
     KIRQL OldIrql;
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-    FrameNumber = FdoExtension->MiniPortInterface->Packet.Get32BitFrameNumber(FdoExtension->MiniPortExt);
+    FrameNumber = Packet->Get32BitFrameNumber(FdoExtension->MiniPortExt);
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
     Urb->UrbGetCurrentFrameNumber.FrameNumber = FrameNumber;
@@ -104,6 +106,7 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
                   IN PURB Urb)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     PUSBPORT_PIPE_HANDLE PipeHandle;
     PUSBPORT_ENDPOINT Endpoint;
     KIRQL OldIrql;
@@ -112,10 +115,15 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
     DPRINT_URB("USBPORT_ResetPipe: ... \n");
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
     PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
 
-    if (!USBPORT_ValidatePipeHandle((PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle, PipeHandle))
+    if (!USBPORT_ValidatePipeHandle((PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle,
+                                    PipeHandle))
+    {
         return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    }
 
     Endpoint = PipeHandle->Endpoint;
 
@@ -127,9 +135,9 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
         {
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
-            FdoExtension->MiniPortInterface->Packet.SetEndpointDataToggle(FdoExtension->MiniPortExt,
-                                                                          (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                                          0);
+            Packet->SetEndpointDataToggle(FdoExtension->MiniPortExt,
+                                          (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                          0);
 
             KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
         }
@@ -145,9 +153,9 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
-    FdoExtension->MiniPortInterface->Packet.SetEndpointStatus(FdoExtension->MiniPortExt,
-                                                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                              0);
+    Packet->SetEndpointStatus(FdoExtension->MiniPortExt,
+                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                              0);
 
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
@@ -440,10 +448,15 @@ NTAPI
 USBPORT_HandleVendorOrClass(IN PIRP Irp,
                             IN PURB Urb)
 {
-    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
 
-    // Specifies a value, from 4 to 31 inclusive, that becomes part of the request type code in the USB-defined setup packet.
-    // This value is defined by USB for a class request or the vendor for a vendor request.
+    /*
+        Specifies a value, from 4 to 31 inclusive,
+        that becomes part of the request type code in the USB-defined setup packet.
+        This value is defined by USB for a class request or the vendor for a vendor request.
+    */
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
     SetupPacket->bmRequestType._BM.Dir = Urb->UrbControlTransfer.TransferFlags & 1;
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
@@ -513,7 +526,9 @@ NTAPI
 USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
                                IN PURB Urb)
 {
-    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
     SetupPacket->bmRequestType.B = 0; // Clear bmRequestType

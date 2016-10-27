@@ -236,6 +236,7 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     KIRQL OldIrql;
 
     DPRINT("USBPORT_SetEndpointState: Endpoint - %p, State - %x\n",
@@ -244,6 +245,7 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
 
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
 
@@ -262,15 +264,15 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
         KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
 
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-        FdoExtension->MiniPortInterface->Packet.SetEndpointState(FdoExtension->MiniPortExt,
-                                                                 (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                                 State);
+        Packet->SetEndpointState(FdoExtension->MiniPortExt,
+                                 (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                 State);
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
         Endpoint->StateNext = State;
 
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-        Endpoint->FrameNumber = FdoExtension->MiniPortInterface->Packet.Get32BitFrameNumber(FdoExtension->MiniPortExt);
+        Endpoint->FrameNumber = Packet->Get32BitFrameNumber(FdoExtension->MiniPortExt);
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
         ExInterlockedInsertTailList(&FdoExtension->EpStateChangeList,
@@ -278,7 +280,7 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
                                     &FdoExtension->EpStateChangeSpinLock);
 
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-        FdoExtension->MiniPortInterface->Packet.InterruptNextSOF(FdoExtension->MiniPortExt);
+        Packet->InterruptNextSOF(FdoExtension->MiniPortExt);
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
     }
     else
@@ -331,7 +333,9 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     BOOLEAN Result;
     PUSBPORT_PIPE_HANDLE CurrentHandle;
 
-    //DPRINT("USBPORT_ValidatePipeHandle: DeviceHandle - %p, PipeHandle - %p\n", DeviceHandle, PipeHandle);
+    //DPRINT("USBPORT_ValidatePipeHandle: DeviceHandle - %p, PipeHandle - %p\n",
+    //       DeviceHandle,
+    //       PipeHandle);
 
     HandleList = &DeviceHandle->PipeHandleList;
 
@@ -420,6 +424,7 @@ MiniportCloseEndpoint(IN PDEVICE_OBJECT FdoDevice,
                       IN PUSBPORT_ENDPOINT Endpoint)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     BOOLEAN IsDoDisablePeriodic;
     ULONG TransferType;
     KIRQL OldIrql;
@@ -427,6 +432,7 @@ MiniportCloseEndpoint(IN PDEVICE_OBJECT FdoDevice,
     DPRINT("MiniportCloseEndpoint: Endpoint - %p\n", Endpoint);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
@@ -442,9 +448,9 @@ MiniportCloseEndpoint(IN PDEVICE_OBJECT FdoDevice,
 
         IsDoDisablePeriodic = FdoExtension->PeriodicEndpoints == 0;
 
-        FdoExtension->MiniPortInterface->Packet.CloseEndpoint(FdoExtension->MiniPortExt,
-                                                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                              IsDoDisablePeriodic);
+        Packet->CloseEndpoint(FdoExtension->MiniPortExt,
+                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                              IsDoDisablePeriodic);
 
         Endpoint->Flags &= ~ENDPOINT_FLAG_OPENED;
         Endpoint->Flags |= ENDPOINT_FLAG_CLOSED;
@@ -557,6 +563,7 @@ MiniportOpenEndpoint(IN PDEVICE_OBJECT FdoDevice,
                      IN PUSBPORT_ENDPOINT Endpoint)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     KIRQL OldIrql;
     ULONG TransferType;
     MPSTATUS MpStatus;
@@ -564,14 +571,15 @@ MiniportOpenEndpoint(IN PDEVICE_OBJECT FdoDevice,
     DPRINT("MiniportOpenEndpoint: Endpoint - %p\n", Endpoint);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
     Endpoint->Flags &= ~ENDPOINT_FLAG_CLOSED;
 
-    MpStatus = FdoExtension->MiniPortInterface->Packet.OpenEndpoint(FdoExtension->MiniPortExt,
-                                                                    &Endpoint->EndpointProperties,
-                                                                    (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+    MpStatus = Packet->OpenEndpoint(FdoExtension->MiniPortExt,
+                                    &Endpoint->EndpointProperties,
+                                    (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
 
     if (!MpStatus)
     {
@@ -754,7 +762,8 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
     {
         if (EndpointProperties->DeviceSpeed == UsbHighSpeed)
         {
-            EndpointProperties->Period = USBPORT_NormalizeHsInterval(EndpointDescriptor->bInterval);
+            EndpointProperties->Period = 
+                USBPORT_NormalizeHsInterval(EndpointDescriptor->bInterval);
         }
         else
         {
@@ -809,9 +818,11 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
         Endpoint->EndpointWorker = 1; // USBPORT_DmaEndpointWorker;
 
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
         Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
                                           &Endpoint->EndpointProperties,
                                           (PULONG)&TransferParams);
+
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
         if ((EndpointProperties->TransferType == USBPORT_TRANSFER_TYPE_BULK) ||
@@ -901,7 +912,7 @@ ExitWithError:
 
     if (Endpoint)
     {
-        if ( IsAllocatedBandwidth )
+        if (IsAllocatedBandwidth)
         {
             if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
             {
@@ -945,9 +956,11 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
     }
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
+
     Packet->SetEndpointState(FdoExtension->MiniPortExt,
                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
                              USBPORT_ENDPOINT_CLOSED);
+
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
 
     USBPORT_Wait(FdoDevice, 2);
@@ -964,9 +977,11 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
     }
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
+
     Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
                                       &Endpoint->EndpointProperties,
                                       (PULONG)&EndpointRequirements);
+
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
 
     if (EndpointRequirements[0])
@@ -1007,9 +1022,11 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
         if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
         {
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
+
             Packet->SetEndpointState(FdoExtension->MiniPortExt,
                                      (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
                                      USBPORT_ENDPOINT_ACTIVE);
+
             KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
         }
 
@@ -1068,15 +1085,19 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
                                   IN ULONG Type)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     PLIST_ENTRY Entry;
     PLIST_ENTRY WorkerLink;
     PUSBPORT_ENDPOINT endpoint;
     KIRQL OldIrql;
     BOOLEAN IsAddEntry = FALSE;
 
-    DPRINT_CORE("USBPORT_InvalidateEndpointHandler: Endpoint - %p, Type - %x\n", Endpoint, Type);
+    DPRINT_CORE("USBPORT_InvalidateEndpointHandler: Endpoint - %p, Type - %x\n",
+                Endpoint,
+                Type);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     if (Endpoint)
     {
@@ -1152,7 +1173,7 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
 
         case 3:
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-            FdoExtension->MiniPortInterface->Packet.InterruptNextSOF(FdoExtension->MiniPortExt);
+            Packet->InterruptNextSOF(FdoExtension->MiniPortExt);
             KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
             break;
     }
@@ -1185,7 +1206,9 @@ USBPORT_DmaEndpointPaused(IN PDEVICE_OBJECT FdoDevice,
 
     while (Entry && Entry != &Endpoint->TransferList)
     {
-        Transfer = CONTAINING_RECORD(Entry, USBPORT_TRANSFER, TransferLink);
+        Transfer = CONTAINING_RECORD(Entry,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
 
         if (Transfer->Flags & (TRANSFER_FLAG_CANCELED | TRANSFER_FLAG_ABORTED))
         {
@@ -1410,6 +1433,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     KIRQL OldIrql;
     ULONG EndpointState;
 
@@ -1419,6 +1443,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
     if (Flag == FALSE)
     {
@@ -1443,8 +1468,10 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
     if ((Endpoint->Flags & (ENDPOINT_FLAG_ROOTHUB_EP0 | 0x00000008)) == 0)
     {
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-        FdoExtension->MiniPortInterface->Packet.PollEndpoint(FdoExtension->MiniPortExt,
-                                                             (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+
+        Packet->PollEndpoint(FdoExtension->MiniPortExt,
+                             (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
     }
 
@@ -1460,9 +1487,11 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
         KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
+
         ExInterlockedInsertTailList(&FdoExtension->EndpointClosedList,
                                     &Endpoint->CloseLink,
                                     &FdoExtension->EndpointClosedSpinLock);
+
         KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
 
         InterlockedDecrement(&Endpoint->LockCounter);
