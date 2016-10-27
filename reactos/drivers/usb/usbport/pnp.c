@@ -644,10 +644,10 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 
     MiniportFlags = Packet->MiniPortFlags;
 
-    if (MiniportFlags & 0x80)
+    if (MiniportFlags & USB_MINIPORT_FLAGS_POLLING)
         FdoExtension->Flags |= 4;
 
-    if (MiniportFlags & 0x200)
+    if (MiniportFlags & USB_MINIPORT_FLAGS_WAKE_SUPPORT)
         FdoExtension->Flags |= 0x00200000;
 
     if (MiniportFlags & 0x20)
