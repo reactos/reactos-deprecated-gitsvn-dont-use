@@ -579,4 +579,17 @@ typedef struct _USBPORT_TRANSFER_PARAMETERS {
 
 C_ASSERT(sizeof(USBPORT_TRANSFER_PARAMETERS) == 28);
 
+typedef struct _USBPORT_ROOT_HUB_DATA {
+  UCHAR NumberOfPorts;
+  UCHAR Rezerved1[3];
+  USHORT HubCharacteristics;
+  USHORT Rezerved2;
+  UCHAR PowerOnToPowerGood;
+  UCHAR Rezerved3[3];
+  UCHAR HubControlCurrent;
+  UCHAR Rezerved4[3];
+} USBPORT_ROOT_HUB_DATA, *PUSBPORT_ROOT_HUB_DATA;
+
+C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
+
 #endif /* USBMPORT_H__ */
