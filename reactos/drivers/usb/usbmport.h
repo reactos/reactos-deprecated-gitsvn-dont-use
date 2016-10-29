@@ -1,6 +1,11 @@
 #ifndef USBMPORT_H__
 #define USBMPORT_H__
 
+#define USBPORT_TRANSFER_TYPE_ISOCHRONOUS 0
+#define USBPORT_TRANSFER_TYPE_CONTROL     1
+#define USBPORT_TRANSFER_TYPE_BULK        2
+#define USBPORT_TRANSFER_TYPE_INTERRUPT   3
+
 typedef struct _USBPORT_RESOURCES {
   ULONG TypesResources; // 1 | 2 | 4  (Port | Interrupt | Memory)
   ULONG HcFlavor;
