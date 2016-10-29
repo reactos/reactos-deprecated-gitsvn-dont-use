@@ -1,10 +1,18 @@
 #ifndef USBMPORT_H__
 #define USBMPORT_H__
 
+/* Tranfer types */
+
 #define USBPORT_TRANSFER_TYPE_ISOCHRONOUS 0
 #define USBPORT_TRANSFER_TYPE_CONTROL     1
 #define USBPORT_TRANSFER_TYPE_BULK        2
 #define USBPORT_TRANSFER_TYPE_INTERRUPT   3
+
+/* Endpoint states */
+
+#define USBPORT_ENDPOINT_PAUSED 2
+#define USBPORT_ENDPOINT_ACTIVE 3
+#define USBPORT_ENDPOINT_CLOSED 4
 
 typedef struct _USBPORT_RESOURCES {
   ULONG TypesResources; // 1 | 2 | 4  (Port | Interrupt | Memory)
@@ -585,14 +593,10 @@ typedef struct _USBPORT_TRANSFER_PARAMETERS {
 C_ASSERT(sizeof(USBPORT_TRANSFER_PARAMETERS) == 28);
 
 typedef struct _USBPORT_ROOT_HUB_DATA {
-  UCHAR NumberOfPorts;
-  UCHAR Rezerved1[3];
-  USHORT HubCharacteristics;
-  USHORT Rezerved2;
-  UCHAR PowerOnToPowerGood;
-  UCHAR Rezerved3[3];
-  UCHAR HubControlCurrent;
-  UCHAR Rezerved4[3];
+  ULONG NumberOfPorts;
+  ULONG HubCharacteristics;
+  ULONG PowerOnToPowerGood;
+  ULONG HubControlCurrent;
 } USBPORT_ROOT_HUB_DATA, *PUSBPORT_ROOT_HUB_DATA;
 
 C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
