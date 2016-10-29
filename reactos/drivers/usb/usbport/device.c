@@ -995,9 +995,9 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     DeviceHandle->HubDeviceHandle = HubDeviceHandle;
 
     if (PortStatus & USB_PORT_STATUS_LOW_SPEED)
-        DeviceHandle->DeviceSpeed = 0;
+        DeviceHandle->DeviceSpeed = UsbLowSpeed;
     else
-        DeviceHandle->DeviceSpeed = 1; // Fullspeed
+        DeviceHandle->DeviceSpeed = UsbFullSpeed;
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,
@@ -1016,7 +1016,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     PipeHandle->Flags = PIPE_HANDLE_FLAG_CLOSED;
     PipeHandle->PipeFlags = 0;
 
-    if (DeviceHandle->DeviceSpeed == 0)
+    if (DeviceHandle->DeviceSpeed == UsbLowSpeed)
         PipeHandle->EndpointDescriptor.wMaxPacketSize = 8;
     else
         PipeHandle->EndpointDescriptor.wMaxPacketSize = USB_DEFAULT_MAX_PACKET;
