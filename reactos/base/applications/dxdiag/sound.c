@@ -73,7 +73,7 @@ IsDriverWHQL(LPWSTR szFileName)
     /* get the driver's cat file */
     if (!GetCatFileFromDriverPath(szFileName, szCatFile))
     {
-        /* driver has no cat so its definately not WHQL signed */
+        /* driver has no cat so its definitely not WHQL signed */
         return FALSE;
     }
 
