@@ -25,7 +25,7 @@ void CreateSol()
 
     pDeck = SolWnd.CreateRegion(DECK_ID, true, X_BORDER, Y_BORDERWITHFRAME, 2, 1);
     pDeck->SetEmptyImage(CS_EI_CIRC);
-    pDeck->SetThreedCount(6);
+    pDeck->SetThreadCount(6);
     pDeck->SetDragRule(CS_DRAG_NONE, 0);
     pDeck->SetDropRule(CS_DROP_NONE, 0);
     pDeck->SetClickProc(DeckClickProc);
