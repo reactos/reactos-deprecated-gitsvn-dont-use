@@ -50,6 +50,15 @@ USBPORT_UserGetHcName(IN PDEVICE_OBJECT FdoDevice,
                                                 ResultLength;
 }
 
+VOID
+NTAPI
+USBPORT_UserGetRootHubName(IN PDEVICE_OBJECT FdoDevice,
+                           IN PUSBUSER_CONTROLLER_UNICODE_NAME RootHubName,
+                           IN PUSB_UNICODE_NAME UnicodeName)
+{
+    DPRINT1("USBPORT_UserGetRootHubName: UNIMPLEMENTED. FIXME. \n");
+}
+
 NTSTATUS
 NTAPI
 USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
