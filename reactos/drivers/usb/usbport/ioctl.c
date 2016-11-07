@@ -50,6 +50,90 @@ USBPORT_UserGetHcName(IN PDEVICE_OBJECT FdoDevice,
                                                 ResultLength;
 }
 
+NTSTATUS
+NTAPI
+USBPORT_GetSymbolicName(IN PDEVICE_OBJECT RootHubPdo,
+                        IN PUNICODE_STRING DestinationString)
+{
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUNICODE_STRING RootHubName;
+    PUSHORT Buffer;
+    SIZE_T LengthName;
+    SIZE_T Length;
+    PWSTR SourceString;
+    USHORT Symbol;
+
+    DPRINT("USBPORT_GetSymbolicName: ... \n");
+
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)RootHubPdo->DeviceExtension;
+    RootHubName = &PdoExtension->CommonExtension.SymbolicLinkName;
+    Buffer = RootHubName->Buffer;
+
+    if (!Buffer)
+    {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    LengthName = RootHubName->Length;
+
+    SourceString = ExAllocatePoolWithTag(PagedPool, LengthName, USB_PORT_TAG);
+
+    if (!SourceString)
+    {
+        RtlInitUnicodeString(DestinationString, NULL);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(SourceString, LengthName);
+
+    if (*Buffer == 0x005C) // '\'
+    {
+         Buffer += 1;
+
+        if (*Buffer == 0x005C)
+        {
+            Buffer += 1;
+            goto Exit;
+        }
+
+        Symbol = *Buffer;
+
+        do
+        {
+            if (Symbol == 0)
+            {
+                break;
+            }
+
+            Buffer += 1;
+            Symbol = *Buffer;
+        }
+        while (*Buffer != 0x005C);
+
+        if (*Buffer == 0x005C)
+        {
+            Buffer += 1;
+        }
+
+Exit:
+        Length = (ULONG)Buffer - (ULONG)RootHubName->Buffer;
+    }
+    else
+    {
+        Length = 0;
+    }
+
+    RtlCopyMemory(SourceString,
+                  (PVOID)((ULONG)RootHubName->Buffer + Length),
+                  RootHubName->Length - Length);
+
+    RtlInitUnicodeString(DestinationString, (PCWSTR)SourceString);
+    DPRINT("USBPORT_RegisterDeviceInterface: DestinationString  - %wZ\n",
+           DestinationString);
+
+    return STATUS_SUCCESS;
+}
+
 VOID
 NTAPI
 USBPORT_UserGetRootHubName(IN PDEVICE_OBJECT FdoDevice,
@@ -210,8 +294,8 @@ USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_PdoDeviceControl(PDEVICE_OBJECT PdoDevice,
-                         PIRP Irp)
+USBPORT_PdoDeviceControl(IN PDEVICE_OBJECT PdoDevice,
+                         IN PIRP Irp)
 {
     DPRINT1("USBPORT_PdoDeviceControl: UNIMPLEMENTED. FIXME. \n");
     return 0;
