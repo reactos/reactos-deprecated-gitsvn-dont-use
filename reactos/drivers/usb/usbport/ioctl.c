@@ -3,6 +3,53 @@
 //#define NDEBUG
 #include <debug.h>
 
+VOID
+NTAPI
+USBPORT_UserGetHcName(IN PDEVICE_OBJECT FdoDevice,
+                      IN PUSBUSER_CONTROLLER_UNICODE_NAME ControllerName,
+                      IN PUSB_UNICODE_NAME UnicodeName)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    ULONG Length;
+    NTSTATUS Status;
+    ULONG ResultLength;
+
+    DPRINT("USBPORT_UserGetHcName: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Length = ControllerName->Header.RequestBufferLength -
+             sizeof(USBUSER_CONTROLLER_UNICODE_NAME);
+
+    RtlZeroMemory(UnicodeName, Length);
+
+    Status = IoGetDeviceProperty(FdoExtension->CommonExtension.LowerPdoDevice,
+                                 DevicePropertyDriverKeyName,
+                                 Length,
+                                 UnicodeName->String,
+                                 &ResultLength);
+
+    if (!NT_SUCCESS(Status))
+    {
+        if (Status == STATUS_BUFFER_TOO_SMALL)
+        {
+            ControllerName->Header.UsbUserStatusCode = UsbUserBufferTooSmall;
+        }
+        else
+        {
+            ControllerName->Header.UsbUserStatusCode = UsbUserInvalidParameter;
+        }
+    }
+    else
+    {
+        ControllerName->Header.UsbUserStatusCode = UsbUserSuccess;
+        UnicodeName->Length = ResultLength + sizeof(UNICODE_NULL);
+    }
+
+    ControllerName->Header.ActualBufferLength = sizeof(USBUSER_CONTROLLER_UNICODE_NAME) +
+                                                ResultLength;
+}
+
 NTSTATUS
 NTAPI
 USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
