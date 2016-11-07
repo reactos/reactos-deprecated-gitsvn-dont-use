@@ -56,7 +56,62 @@ USBPORT_UserGetRootHubName(IN PDEVICE_OBJECT FdoDevice,
                            IN PUSBUSER_CONTROLLER_UNICODE_NAME RootHubName,
                            IN PUSB_UNICODE_NAME UnicodeName)
 {
-    DPRINT1("USBPORT_UserGetRootHubName: UNIMPLEMENTED. FIXME. \n");
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    UNICODE_STRING UnicodeString;
+    ULONG Length;
+    ULONG ResultLength;
+    NTSTATUS Status;
+
+    DPRINT("USBPORT_UserGetRootHubName: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Length = RootHubName->Header.RequestBufferLength -
+             sizeof(USBUSER_CONTROLLER_UNICODE_NAME);
+
+    RtlZeroMemory(UnicodeName, Length);
+
+    Status = USBPORT_GetSymbolicName(FdoExtension->RootHubPdo, &UnicodeString);
+
+    if (NT_SUCCESS(Status))
+    {
+        ResultLength = UnicodeString.Length;
+
+        if (UnicodeString.Length > Length)
+        {
+            UnicodeString.Length = Length;
+            Status = STATUS_BUFFER_TOO_SMALL;
+        }
+
+        if (UnicodeString.Length)
+        {
+            RtlCopyMemory(UnicodeName->String,
+                          UnicodeString.Buffer,
+                          UnicodeString.Length);
+        }
+
+        RtlFreeUnicodeString(&UnicodeString);
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        if (Status == STATUS_BUFFER_TOO_SMALL)
+        {
+            RootHubName->Header.UsbUserStatusCode = UsbUserBufferTooSmall;
+        }
+        else
+        {
+            RootHubName->Header.UsbUserStatusCode = UsbUserInvalidParameter;
+        }
+    }
+    else
+    {
+        RootHubName->Header.UsbUserStatusCode = UsbUserSuccess;
+        UnicodeName->Length = ResultLength + sizeof(UNICODE_NULL);
+    }
+
+    RootHubName->Header.ActualBufferLength = sizeof(USBUSER_CONTROLLER_UNICODE_NAME) +
+                                             ResultLength;
 }
 
 NTSTATUS
