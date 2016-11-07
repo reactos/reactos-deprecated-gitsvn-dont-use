@@ -831,6 +831,12 @@ USBPORT_FdoScsi(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp);
 
+NTSTATUS
+NTAPI
+USBPORT_GetSymbolicName(
+  IN PDEVICE_OBJECT RootHubPdo,
+  IN PUNICODE_STRING DestinationString);
+
 /* pnp.c */
 
 NTSTATUS

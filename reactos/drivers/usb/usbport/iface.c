@@ -539,8 +539,6 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
                              OUT PULONG HubNameActualLen)
 {
     PDEVICE_OBJECT PdoDevice;
-    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
-    PDEVICE_OBJECT FdoDevice;
     UNICODE_STRING HubName;
     PUNICODE_STRING InfoBuffer;
     NTSTATUS Status;
@@ -548,10 +546,8 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
     DPRINT("USBHI_GetRootHubSymbolicName: ... \n");
 
     PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    FdoDevice = PdoExtension->FdoDevice;
 
-    Status = USBPORT_ParseSymbolicName(FdoDevice, &HubName);
+    Status = USBPORT_GetSymbolicName(PdoDevice, &HubName);
 
     if (HubInfoBufferLen < HubName.Length)
     {
