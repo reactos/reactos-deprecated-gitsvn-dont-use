@@ -523,15 +523,6 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
 }
 
 NTSTATUS
-NTAPI
-USBPORT_ParseSymbolicName(IN PDEVICE_OBJECT Device,
-                          IN OUT PUNICODE_STRING Name)
-{
-    DPRINT1("USBPORT_ParseSymbolicName FIXME\n");
-    return STATUS_SUCCESS;
-}
-
-NTSTATUS
 USB_BUSIFFN
 USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
                              IN OUT PVOID HubInfoBuffer,
