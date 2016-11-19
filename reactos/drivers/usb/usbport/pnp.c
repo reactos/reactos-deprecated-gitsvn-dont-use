@@ -1414,8 +1414,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     NTSTATUS Status;
     PPNP_BUS_INFORMATION BusInformation;
     PDEVICE_CAPABILITIES DeviceCapabilities;
-    //ULONG Index = 0;
-    //ULONG_PTR Information = Irp->IoStatus.Information;
 
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
@@ -1423,7 +1421,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Minor = IoStack->MinorFunction;
-    Status = Irp->IoStatus.Status;
 
     DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
 
@@ -1532,21 +1529,25 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
         case IRP_MN_QUERY_RESOURCES: // 10
             //DPRINT("IRP_MN_QUERY_RESOURCES\n");
             DPRINT("USBPORT_PdoPnP: IRP_MN_QUERY_RESOURCES\n");
+            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
             //ASSERT(FALSE);
+            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_QUERY_DEVICE_TEXT: // 12
             DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
             //ASSERT(FALSE);
+            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
             DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
             //ASSERT(FALSE);
+            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_READ_CONFIG: // 15
@@ -1574,7 +1575,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             ULONG IdType;
             LONG Length;
             WCHAR Buffer[64] = {0};
-            ULONG_PTR Id;
+            PVOID Id;
 
             Status = STATUS_SUCCESS;
             IdType = IoStack->Parameters.QueryId.IdType;
@@ -1597,11 +1598,11 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
                 Length = (wcslen(Buffer) + 1);
 
-                Id = (ULONG_PTR)ExAllocatePoolWithTag(PagedPool,
-                                                      Length * sizeof(WCHAR),
-                                                      USB_PORT_TAG);
+                Id = ExAllocatePoolWithTag(PagedPool,
+                                           Length * sizeof(WCHAR),
+                                           USB_PORT_TAG);
 
-                RtlZeroMemory((PVOID)Id, Length * sizeof(WCHAR));
+                RtlZeroMemory(Id, Length * sizeof(WCHAR));
 
                 if (!Id)
                 {
@@ -1609,8 +1610,10 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                     break;
                 }
 
-                wcscpy((PVOID)Id, Buffer);
-                Irp->IoStatus.Information = Id;
+                wcscpy(Id, Buffer);
+                DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n", Id, Length);
+
+                Irp->IoStatus.Information = (ULONG_PTR)Id;
                 break;
             }
 
@@ -1621,7 +1624,17 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                                             FdoExtension->DeviceID,
                                             FdoExtension->RevisionID);
 
-                Irp->IoStatus.Information = Id;
+                Irp->IoStatus.Information = (ULONG_PTR)Id;
+            }
+
+            if (IdType == BusQueryCompatibleIDs ||
+                IdType == BusQueryInstanceID)
+            {
+                Irp->IoStatus.Information = 0;
+            }
+            else if (IdType == BusQueryDeviceSerialNumber)
+            {
+                Status = Irp->IoStatus.Status;
             }
 
             break;
@@ -1665,11 +1678,13 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
             DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
+            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_SURPRISE_REMOVAL: // 23
             //DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
             DPRINT1("USBPORT_PdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
+            Status = Irp->IoStatus.Status;
             break;
 
         default:
