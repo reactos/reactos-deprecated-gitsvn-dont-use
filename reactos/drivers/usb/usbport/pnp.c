@@ -43,14 +43,21 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
 
         if (NT_SUCCESS(Status))
         {
-            Status = IoSetDeviceInterfaceState(SymbolicLinkName, TRUE);
+            DeviceExtension->CommonExtension.IsInterfaceEnabled = 1;
+
+            Status = USBPORT_SetRegistryKeyValue(PdoDevice,
+                                                 (HANDLE)0,
+                                                 REG_SZ,
+                                                 L"SymbolicName",
+                                                 SymbolicLinkName->Buffer,
+                                                 SymbolicLinkName->Length);
 
             if (NT_SUCCESS(Status))
             {
-                DeviceExtension->CommonExtension.IsInterfaceEnabled = 1;
-
                 DPRINT("USBPORT_RegisterDeviceInterface: LinkName  - %wZ\n",
                        &DeviceExtension->CommonExtension.SymbolicLinkName);
+
+                Status = IoSetDeviceInterfaceState(SymbolicLinkName, TRUE);
             }
         }
     }
