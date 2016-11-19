@@ -448,8 +448,6 @@ USBPORT_CreateLegacySymbolicLink(IN PDEVICE_OBJECT FdoDevice)
     UNICODE_STRING DeviceName;
     NTSTATUS Status;
 
-    DPRINT("USBPORT_CreateLegacySymbolicLink: ... \n");
-
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     swprintf(CharName, L"\\Device\\USBFDO-%d", FdoExtension->FdoNameNumber);
@@ -457,6 +455,10 @@ USBPORT_CreateLegacySymbolicLink(IN PDEVICE_OBJECT FdoDevice)
 
     swprintf(CharDosName, L"\\DosDevices\\HCD%d", FdoExtension->FdoNameNumber);
     RtlInitUnicodeString(&FdoExtension->DosDeviceSymbolicName, CharDosName);
+
+    DPRINT("USBPORT_CreateLegacySymbolicLink: DeviceName - %wZ, DosSymbolicName - %wZ\n",
+           &DeviceName,
+           &FdoExtension->DosDeviceSymbolicName);
 
     Status = IoCreateSymbolicLink(&FdoExtension->DosDeviceSymbolicName,
                                   &DeviceName);
