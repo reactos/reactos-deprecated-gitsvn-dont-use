@@ -1315,7 +1315,7 @@ ForwardIrp:
     return IoCallDriver(FdoExtension->CommonExtension.LowerDevice, Irp);
 }
 
-ULONG_PTR
+PVOID
 NTAPI
 USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
                        IN USHORT VendorID,
@@ -1365,11 +1365,32 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     }
 
     Buffer[Index] = UNICODE_NULL;
-    DPRINT("USBPORT_GetIdString: Buffer - %S\n", Buffer);
 
-    Id = (LPWSTR)ExAllocatePoolWithTag(PagedPool,
-                                       Index * sizeof(WCHAR),
-                                       USB_PORT_TAG);
+    if (FALSE) // for debug only
+    {
+        PWSTR Ptr;
+        ULONG Length;
+        ULONG TotalLength = 0;
+
+        Ptr = (PWSTR)Buffer;
+        DPRINT("Hardware IDs:\n");
+
+        while (*Ptr)
+        {
+            DPRINT("  %S\n", Ptr);
+            Length = (ULONG)wcslen(Ptr) + 1;
+
+            Ptr += Length;
+            TotalLength += Length;
+        }
+
+        DPRINT("TotalLength: %hu\n", TotalLength);
+        DPRINT("\n");
+    }
+
+    Id = ExAllocatePoolWithTag(PagedPool,
+                               Index * sizeof(WCHAR),
+                               USB_PORT_TAG);
 
     if (!Id)
         return 0;
@@ -1377,7 +1398,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     RtlZeroMemory(Id, Index * sizeof(WCHAR));
     RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR)); // copy device name
 
-    return (ULONG_PTR)Id;
+    return Id;
 }
 
 NTSTATUS
