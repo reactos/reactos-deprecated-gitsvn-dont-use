@@ -1082,7 +1082,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
     PIO_STACK_LOCATION IoStack;
     UCHAR Minor;
     KEVENT Event;
-    NTSTATUS Status = STATUS_SUCCESS;
+    NTSTATUS Status;
     DEVICE_RELATION_TYPE RelationType;
     PDEVICE_RELATIONS DeviceRelations;
 
@@ -1219,12 +1219,16 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                         goto ForwardIrp;
                     }
                 }
+                else
+                {
+                    Status = STATUS_SUCCESS;
+                }
 
                 DeviceRelations->Count = 1;
                 DeviceRelations->Objects[0] = FdoExtension->RootHubPdo;
+
                 ObReferenceObject(FdoExtension->RootHubPdo);
                 Irp->IoStatus.Information = (ULONG_PTR)DeviceRelations;
-
             }
             else
             {
@@ -1305,11 +1309,10 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
 ForwardIrp:
             // forward irp to next device object
             IoSkipCurrentIrpStackLocation(Irp);
-            return IoCallDriver(FdoExtension->CommonExtension.LowerDevice, Irp);
             break;
     }
 
-    return Status;
+    return IoCallDriver(FdoExtension->CommonExtension.LowerDevice, Irp);
 }
 
 ULONG_PTR
