@@ -1365,6 +1365,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     }
 
     Buffer[Index] = UNICODE_NULL;
+    Index++;
 
     if (FALSE) // for debug only
     {
@@ -1602,13 +1603,13 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                                            Length * sizeof(WCHAR),
                                            USB_PORT_TAG);
 
-                RtlZeroMemory(Id, Length * sizeof(WCHAR));
-
                 if (!Id)
                 {
                     Status = STATUS_INSUFFICIENT_RESOURCES;
                     break;
                 }
+
+                RtlZeroMemory(Id, Length * sizeof(WCHAR));
 
                 wcscpy(Id, Buffer);
                 DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n", Id, Length);
@@ -1625,18 +1626,17 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                                             FdoExtension->RevisionID);
 
                 Irp->IoStatus.Information = (ULONG_PTR)Id;
+                break;
             }
 
             if (IdType == BusQueryCompatibleIDs ||
                 IdType == BusQueryInstanceID)
             {
                 Irp->IoStatus.Information = 0;
-            }
-            else if (IdType == BusQueryDeviceSerialNumber)
-            {
-                Status = Irp->IoStatus.Status;
+                break;
             }
 
+            Status = Irp->IoStatus.Status;
             break;
         }
 
