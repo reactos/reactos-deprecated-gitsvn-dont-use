@@ -34,9 +34,29 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
 
 /* ioctl.c */
 
+NTSTATUS
+NTAPI
+USBH_DeviceControl(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PIRP Irp);
+
 /* pnp.c */
 
+NTSTATUS
+NTAPI
+USBH_FdoPnP(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PIRP Irp,
+  IN UCHAR Minor);
+
 /* power.c */
+
+NTSTATUS
+NTAPI
+USBH_FdoPower(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PIRP Irp,
+  IN UCHAR Minor);
 
 /* usbhub.c */
 
