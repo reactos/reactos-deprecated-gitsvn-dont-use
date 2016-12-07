@@ -5,6 +5,30 @@
 
 NTSTATUS
 NTAPI
+USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                 IN PIRP Irp)
+{
+    DPRINT("USBH_PdoDispatch: PortExtension - %p, Irp - %p\n",
+           PortExtension,
+           Irp);
+
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
+USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                 IN PIRP Irp)
+{
+    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p\n",
+           HubExtension,
+           Irp);
+
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
 USBH_AddDevice(
   IN PDRIVER_OBJECT DriverObject,
   IN PDEVICE_OBJECT LowerPDO)
