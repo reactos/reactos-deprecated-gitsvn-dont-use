@@ -12,11 +12,34 @@
 #include <usbbusif.h>
 #include <usbdlib.h>
 
+#define USB_HUB_TAG 'BUHU'
+
+#define USBH_EXTENSION_TYPE_HUB        0x01
+#define USBH_EXTENSION_TYPE_PORT       0x02
+
+typedef struct _COMMON_DEVICE_EXTENSION {
+  ULONG ExtensionType;
+  PDEVICE_OBJECT SelfDevice;
+} COMMON_DEVICE_EXTENSION, *PCOMMON_DEVICE_EXTENSION;
+
+typedef struct _USBHUB_FDO_EXTENSION {
+  COMMON_DEVICE_EXTENSION Common;
+  PDEVICE_OBJECT LowerPDO;
+  PDEVICE_OBJECT LowerDevice;
+} USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
+
+typedef struct _USBHUB_PORT_PDO_EXTENSION {
+  COMMON_DEVICE_EXTENSION Common;
+} USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
+
 /* ioctl.c */
+
 /* pnp.c */
+
 /* power.c */
 
 /* usbhub.c */
+
 NTSTATUS
 NTAPI
 DriverEntry(
