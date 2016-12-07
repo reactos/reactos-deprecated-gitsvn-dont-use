@@ -1,7 +1,20 @@
 #include "usbhub.h"
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
+
+VOID
+NTAPI
+USBH_CompleteIrp(IN PIRP Irp,
+                 IN NTSTATUS CompleteStatus)
+{
+    DPRINT("USBH_CompleteIrp: Irp - %p, CompleteStatus - %x\n",
+           Irp,
+           CompleteStatus);
+
+    Irp->IoStatus.Status = CompleteStatus;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+}
 
 NTSTATUS
 NTAPI

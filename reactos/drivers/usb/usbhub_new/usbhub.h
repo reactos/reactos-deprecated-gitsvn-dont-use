@@ -40,6 +40,12 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
 
 /* usbhub.c */
 
+VOID
+NTAPI
+USBH_CompleteIrp(
+  IN PIRP Irp,
+  IN NTSTATUS CompleteStatus);
+
 NTSTATUS
 NTAPI
 DriverEntry(
