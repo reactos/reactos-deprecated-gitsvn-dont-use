@@ -46,11 +46,48 @@ NTAPI
 USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
                  IN PIRP Irp)
 {
+    PIO_STACK_LOCATION IoStack;
+    UCHAR MajorFunction;
+    NTSTATUS Status;
+
     DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p\n",
            HubExtension,
            Irp);
 
-    return STATUS_SUCCESS;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    MajorFunction = IoStack->MajorFunction;
+
+    switch (MajorFunction)
+    {
+        case IRP_MJ_CREATE:
+        case IRP_MJ_CLOSE:
+            USBH_CompleteIrp(Irp, STATUS_SUCCESS);
+            break;
+
+        case IRP_MJ_DEVICE_CONTROL:
+            Status = USBH_DeviceControl(HubExtension, Irp);
+            break;
+
+        case IRP_MJ_PNP:
+            Status = USBH_FdoPnP(HubExtension, Irp, IoStack->MinorFunction);
+            break;
+
+        case IRP_MJ_POWER:
+            Status = USBH_FdoPower(HubExtension, Irp, IoStack->MinorFunction);
+            break;
+
+        case IRP_MJ_SYSTEM_CONTROL:
+            DPRINT1("USBH_FdoDispatch: USBH_SystemControl() UNIMPLEMENTED. FIXME\n");
+            //Status USBH_SystemControl(HubExtension, Irp);
+            break;
+
+        case IRP_MJ_INTERNAL_DEVICE_CONTROL:
+        default:
+            Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+            break;
+    }
+
+    return Status;
 }
 
 NTSTATUS
