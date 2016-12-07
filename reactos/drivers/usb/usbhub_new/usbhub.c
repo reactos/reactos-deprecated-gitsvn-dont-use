@@ -26,8 +26,32 @@ NTAPI
 USBH_HubDispatch(IN PDEVICE_OBJECT DeviceObject,
                  IN PIRP Irp)
 {
-    DPRINT("USBH_HubDispatch: DeviceObject - %p, Irp - %p\n", DeviceObject, Irp);
-    return STATUS_SUCCESS;
+    PCOMMON_DEVICE_EXTENSION DeviceExtension;
+    ULONG ExtensionType;
+    NTSTATUS Status;
+
+    DPRINT("USBH_HubDispatch: DeviceObject - %p, Irp - %p\n",
+           DeviceObject,
+           Irp);
+
+    DeviceExtension = (PCOMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    ExtensionType = DeviceExtension->ExtensionType;
+
+    if (ExtensionType == USBH_EXTENSION_TYPE_HUB)
+    {
+        Status = USBH_FdoDispatch((PUSBHUB_FDO_EXTENSION)DeviceExtension, Irp);
+    }
+    else if (ExtensionType == USBH_EXTENSION_TYPE_PORT)
+    {
+        Status = USBH_PdoDispatch((PUSBHUB_PORT_PDO_EXTENSION)DeviceExtension, Irp);
+    }
+    else
+    {
+        DPRINT1("USBH_HubDispatch: Unknown ExtensionType - %x\n", ExtensionType);
+        DbgBreakPoint();
+    }
+
+    return Status;
 }
 
 NTSTATUS
