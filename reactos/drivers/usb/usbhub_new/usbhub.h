@@ -48,6 +48,12 @@ USBH_CompleteIrp(
 
 NTSTATUS
 NTAPI
+USBH_PassIrp(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN PIRP Irp);
+
+NTSTATUS
+NTAPI
 DriverEntry(
   IN PDRIVER_OBJECT DriverObject,
   IN PUNICODE_STRING RegistryPath);

@@ -18,6 +18,19 @@ USBH_CompleteIrp(IN PIRP Irp,
 
 NTSTATUS
 NTAPI
+USBH_PassIrp(IN PDEVICE_OBJECT DeviceObject,
+             IN PIRP Irp)
+{
+    DPRINT("USBH_PassIrp: DeviceObject - %p, Irp - %p\n",
+           DeviceObject,
+           Irp);
+
+    IoSkipCurrentIrpStackLocation(Irp);
+    return IoCallDriver(DeviceObject, Irp);
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
