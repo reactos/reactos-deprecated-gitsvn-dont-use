@@ -307,6 +307,42 @@ USBH_SyncGetDeviceHandle(IN PDEVICE_OBJECT DeviceObject)
 
 NTSTATUS
 NTAPI
+USBH_GetDeviceDescriptor(IN PDEVICE_OBJECT DeviceObject,
+                         IN PUSB_DEVICE_DESCRIPTOR HubDeviceDescriptor)
+{
+    struct _URB_CONTROL_DESCRIPTOR_REQUEST * Urb;
+    NTSTATUS Status;
+
+    DPRINT("USBH_GetDeviceDescriptor: ... \n");
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST),
+                                USB_HUB_TAG);
+
+    if (!Urb)
+    {
+        DPRINT1("USBH_SyncGetDeviceHandle: Urb - NULL!\n");
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST));
+
+    Urb->Hdr.Function = URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE;
+    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST);
+
+    Urb->TransferBufferLength = sizeof(USB_DEVICE_DESCRIPTOR);
+    Urb->TransferBuffer = HubDeviceDescriptor;
+    Urb->DescriptorType = USB_DEVICE_DESCRIPTOR_TYPE;
+
+    Status = USBH_FdoSyncSubmitUrb(DeviceObject, (PURB)Urb);
+
+    ExFreePool(Urb);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
