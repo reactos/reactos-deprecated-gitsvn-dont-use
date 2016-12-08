@@ -31,6 +31,42 @@ USBH_PassIrp(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
+                       IN ULONG Data)
+{
+    NTSTATUS Status;
+    WCHAR SourceString[64];
+    HANDLE KeyHandle;
+    UNICODE_STRING DestinationString;
+
+    DPRINT("USBH_WriteFailReason: ID - %x\n", Data);
+
+    swprintf(SourceString, L"FailReasonID");
+
+    Status = IoOpenDeviceRegistryKey(DeviceObject,
+                                     PLUGPLAY_REGKEY_DEVICE,
+                                     STANDARD_RIGHTS_ALL,
+                                     &KeyHandle);
+
+    if (NT_SUCCESS(Status))
+    {
+        RtlInitUnicodeString(&DestinationString, SourceString);
+
+        return ZwSetValueKey(KeyHandle,
+                             &DestinationString,
+                             0,
+                             REG_DWORD,
+                             &Data,
+                             sizeof(Data));
+
+        ZwClose(KeyHandle);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
                        IN OUT PDEVICE_OBJECT * OutPdo1,
                        IN OUT PDEVICE_OBJECT * OutPdo2)
@@ -202,9 +238,8 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
-USBH_AddDevice(
-  IN PDRIVER_OBJECT DriverObject,
-  IN PDEVICE_OBJECT LowerPDO)
+USBH_AddDevice(IN PDRIVER_OBJECT DriverObject,
+               IN PDEVICE_OBJECT LowerPDO)
 {
     PDEVICE_OBJECT DeviceObject;
     NTSTATUS Status;
@@ -275,8 +310,7 @@ USBH_AddDevice(
 
 VOID
 NTAPI
-USBH_DriverUnload(
-  IN PDRIVER_OBJECT DriverObject)
+USBH_DriverUnload(IN PDRIVER_OBJECT DriverObject)
 {
     DPRINT("USBH_DriverUnload: UNIMPLEMENTED\n");
 }

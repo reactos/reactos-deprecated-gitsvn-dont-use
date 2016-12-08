@@ -83,6 +83,12 @@ USBH_PassIrp(
 
 NTSTATUS
 NTAPI
+USBH_WriteFailReasonID(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN ULONG Data);
+
+NTSTATUS
+NTAPI
 USBH_SyncGetRootHubPdo(
   IN PDEVICE_OBJECT DeviceObject,
   IN OUT PDEVICE_OBJECT * OutPdo1,
