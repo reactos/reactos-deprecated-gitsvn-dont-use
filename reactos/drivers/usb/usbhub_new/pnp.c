@@ -220,9 +220,8 @@ USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
-USBH_StartHubFdoDevice(
-  IN PUSBHUB_FDO_EXTENSION HubExtension,
-  IN PIRP Irp)
+USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                       IN PIRP Irp)
 {
     NTSTATUS Status=0;
 

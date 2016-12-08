@@ -506,6 +506,69 @@ USBH_GetDeviceDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_GetConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
+                                IN PUSB_CONFIGURATION_DESCRIPTOR * pConfigurationDescriptor)
+{
+    PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
+    NTSTATUS Status;
+    ULONG Length;
+
+    DPRINT("USBH_GetConfigurationDescriptor: ... \n");
+
+    ConfigDescriptor = ExAllocatePoolWithTag(NonPagedPool, 0xFF, USB_HUB_TAG);
+
+    if (!ConfigDescriptor)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto ErrorExit;
+    }
+
+    Status = USBH_SyncGetDeviceConfigurationDescriptor(DeviceObject,
+                                                       ConfigDescriptor,
+                                                       0xFF,
+                                                       &Length);
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    if (Length < sizeof(USB_CONFIGURATION_DESCRIPTOR))
+    {
+        Status = STATUS_DEVICE_DATA_ERROR;
+        goto ErrorExit;
+    }
+
+    if (Length < ConfigDescriptor->wTotalLength)
+    {
+        Status = STATUS_DEVICE_DATA_ERROR;
+        goto ErrorExit;
+    }
+
+    if (ConfigDescriptor->wTotalLength > 0xFF)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto ErrorExit;
+    }
+
+    *pConfigurationDescriptor = ConfigDescriptor;
+
+     return Status;
+
+ErrorExit:
+
+    if (ConfigDescriptor)
+    {
+        ExFreePool(ConfigDescriptor);
+    }
+
+    *pConfigurationDescriptor = NULL;
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
