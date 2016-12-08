@@ -315,6 +315,25 @@ USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBHUB_GetExtendedHubInfo(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                          IN PUSB_EXTHUB_INFORMATION_0 HubInfoBuffer)
+{
+    PUSB_BUSIFFN_GET_EXTENDED_HUB_INFO GetExtendedHubInformation;
+    ULONG dummy = 0;
+
+    DPRINT("USBHUB_GetExtendedHubInfo: ... \n");
+
+    GetExtendedHubInformation = HubExtension->BusInterface.GetExtendedHubInformation;
+
+    return GetExtendedHubInformation(HubExtension->BusInterface.BusContext,
+                                     HubExtension->LowerPDO,
+                                     HubInfoBuffer,
+                                     sizeof(USB_EXTHUB_INFORMATION_0),
+                                     &dummy);
+}
+
+NTSTATUS
+NTAPI
 USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
                        IN OUT PDEVICE_OBJECT * OutPdo1,
                        IN OUT PDEVICE_OBJECT * OutPdo2)
