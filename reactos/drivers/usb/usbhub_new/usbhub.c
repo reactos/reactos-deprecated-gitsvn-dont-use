@@ -65,6 +65,35 @@ USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
     return Status;
 }
 
+VOID
+NTAPI
+USBH_UrbTimeoutDPC(IN PKDPC Dpc,
+                   IN PVOID DeferredContext,
+                   IN PVOID SystemArgument1,
+                   IN PVOID SystemArgument2)
+{
+    PUSBHUB_URB_TIMEOUT_CONTEXT HubTimeoutContext;
+    KIRQL OldIrql;
+    BOOL IsCompleted;
+
+    DPRINT("USBH_TimeoutDPC ... \n");
+
+    HubTimeoutContext = (PUSBHUB_URB_TIMEOUT_CONTEXT)DeferredContext;
+
+    KeAcquireSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock, &OldIrql);
+    IsCompleted = HubTimeoutContext->IsNormalCompleted;
+    KeReleaseSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock, OldIrql);
+
+    if (!IsCompleted)
+    {
+        IoCancelIrp(HubTimeoutContext->Irp);
+    }
+
+    KeSetEvent(&HubTimeoutContext->UrbTimeoutEvent,
+               EVENT_INCREMENT,
+               FALSE);
+}
+
 NTSTATUS
 NTAPI
 USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
@@ -120,7 +149,7 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
         KeInitializeTimer(&HubTimeoutContext->UrbTimeoutTimer);
 
         KeInitializeDpc(&HubTimeoutContext->UrbTimeoutDPC,
-                        USBH_TimeoutDPC,
+                        USBH_UrbTimeoutDPC,
                         HubTimeoutContext);
 
         DueTime.QuadPart -= 5000 * 10000; // Timeout 5 sec.
