@@ -69,6 +69,13 @@ struct {
   ULONG AsULONG;
 } USBHUB_PORT_STATUS, *PUSBHUB_PORT_STATUS;
 
+typedef struct _USBHUB_PORT_DATA {
+  USBHUB_PORT_STATUS PortStatus;
+  PDEVICE_OBJECT DeviceObject;
+  USB_CONNECTION_STATUS ConnectionStatus;
+  ULONG PortAttributes;
+} USBHUB_PORT_DATA, *PUSBHUB_PORT_DATA;
+
 typedef struct _COMMON_DEVICE_EXTENSION {
   ULONG ExtensionType;
   PDEVICE_OBJECT SelfDevice;
@@ -91,6 +98,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   USB_DEVICE_DESCRIPTOR HubDeviceDescriptor;
   PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor;
   PUSB_HUB_DESCRIPTOR HubDescriptor;
+  PUSBHUB_PORT_DATA PortData;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -194,6 +202,11 @@ NTAPI
 USBH_GetConfigurationDescriptor(
   IN PDEVICE_OBJECT DeviceObject,
   IN PUSB_CONFIGURATION_DESCRIPTOR * pConfigurationDescriptor);
+
+NTSTATUS
+NTAPI
+USBH_SyncGetHubDescriptor(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
 
 NTSTATUS
 NTAPI

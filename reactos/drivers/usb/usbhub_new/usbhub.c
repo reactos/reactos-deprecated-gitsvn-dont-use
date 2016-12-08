@@ -649,6 +649,187 @@ ErrorExit:
 
 NTSTATUS
 NTAPI
+USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_EXTHUB_INFORMATION_0 ExtendedHubInfo;
+    ULONG NumberPorts;
+    PUSBHUB_PORT_DATA PortData;
+    USHORT RequestValue;
+    ULONG NumberOfBytes;
+    NTSTATUS Status;
+    PUSB_HUB_DESCRIPTOR HubDescriptor;
+    ULONG ix;
+
+    DPRINT("USBH_SyncGetHubDescriptor: ... \n");
+
+    ExtendedHubInfo = ExAllocatePoolWithTag(NonPagedPool,
+                                            sizeof(USB_EXTHUB_INFORMATION_0),
+                                            USB_HUB_TAG);
+
+    if (!ExtendedHubInfo)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto ErrorExit;
+    }
+
+    Status = USBHUB_GetExtendedHubInfo(HubExtension, ExtendedHubInfo);
+
+    if (!NT_SUCCESS(Status))
+    {
+        ExFreePool(ExtendedHubInfo);
+    }
+
+    NumberOfBytes = sizeof(USB_HUB_DESCRIPTOR);
+
+    HubDescriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                          NumberOfBytes,
+                                          USB_HUB_TAG);
+
+    if (!HubDescriptor)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto ErrorExit;
+    }
+
+    RequestValue = 0;
+
+    while (TRUE)
+    {
+        while (TRUE)
+        {
+            Status = USBH_Transact(HubExtension,
+                                   HubDescriptor,
+                                   NumberOfBytes,
+                                   0,
+                                   URB_FUNCTION_CLASS_DEVICE,
+                                   0xA0,
+                                   USB_REQUEST_GET_DESCRIPTOR,
+                                   RequestValue,
+                                   0);
+
+            if (NT_SUCCESS(Status))
+            {
+                break;
+            }
+
+            RequestValue = 0x2900; // Hub DescriptorType - 0x29
+        }
+
+        if (HubDescriptor->bDescriptorLength <= NumberOfBytes)
+        {
+            break;
+        }
+
+        NumberOfBytes = HubDescriptor->bDescriptorLength;
+        ExFreePool(HubDescriptor);
+
+        HubDescriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                              NumberOfBytes,
+                                              USB_HUB_TAG);
+
+        if (!HubDescriptor)
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            goto ErrorExit;
+        }
+    }
+
+    NumberPorts = HubDescriptor->bNumberOfPorts;
+
+    if (HubExtension->PortData)
+    {
+        PortData = HubExtension->PortData;
+
+        if (HubDescriptor->bNumberOfPorts)
+        {
+            for (ix = 0; ix < NumberPorts; ix++)
+            {
+                PortData[ix].PortStatus.AsULONG = 0;
+
+                if (ExtendedHubInfo)
+                {
+                    PortData[ix].PortAttributes = ExtendedHubInfo->Port[ix].PortAttributes;
+                }
+                else
+                {
+                    PortData[ix].PortAttributes = 0;
+                }
+
+                PortData[ix].ConnectionStatus = NoDeviceConnected;
+
+                if (PortData[ix].DeviceObject != NULL)
+                {
+                    PortData[ix].ConnectionStatus = DeviceConnected;
+                }
+            }
+        }
+    }
+    else
+    {
+        PortData = NULL;
+
+        if (HubDescriptor->bNumberOfPorts)
+        {
+            PortData = ExAllocatePoolWithTag(NonPagedPool,
+                                             NumberPorts * sizeof(USBHUB_PORT_DATA),
+                                             USB_HUB_TAG);
+        }
+
+        if (!PortData)
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            goto ErrorExit;
+        }
+
+        RtlZeroMemory(PortData, NumberPorts * sizeof(USBHUB_PORT_DATA));
+
+        if (NumberPorts)
+        {
+            for (ix = 0; ix < NumberPorts; ix++)
+            {
+                PortData[ix].ConnectionStatus = NoDeviceConnected;
+
+                if (ExtendedHubInfo)
+                {
+                    PortData[ix].PortAttributes = ExtendedHubInfo->Port[ix].PortAttributes;
+                }
+            }
+       }
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    HubExtension->HubDescriptor = HubDescriptor;
+
+    HubExtension->PortData = PortData;
+
+    if (ExtendedHubInfo)
+    {
+        ExFreePool(ExtendedHubInfo);
+    }
+
+    return Status;
+
+ErrorExit:
+
+    if (HubDescriptor)
+    {
+        ExFreePool(HubDescriptor);
+    }
+
+    if (ExtendedHubInfo)
+    {
+        ExFreePool(ExtendedHubInfo);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
