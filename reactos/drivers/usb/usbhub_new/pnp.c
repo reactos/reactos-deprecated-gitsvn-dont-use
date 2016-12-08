@@ -220,6 +220,105 @@ USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_OpenConfiguration(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_INTERFACE_DESCRIPTOR Pid;
+    PURB Urb;
+    NTSTATUS Status;
+    USBD_INTERFACE_LIST_ENTRY InterfaceList[2] = {{NULL, NULL}, {NULL, NULL}};
+
+    DPRINT("USBH_OpenConfiguration ... \n");
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB && 
+        HubExtension->LowerPDO != HubExtension->RootHubPdo)
+    {
+        Pid = USBD_ParseConfigurationDescriptorEx(HubExtension->HubConfigDescriptor,
+                                                  HubExtension->HubConfigDescriptor,
+                                                  -1,
+                                                  -1,
+                                                  USB_DEVICE_CLASS_HUB,
+                                                  -1,
+                                                  2);
+
+        if (Pid)
+        {
+            HubExtension->HubFlags |= USBHUB_FDO_FLAG_MULTIPLE_TTS;
+        }
+        else
+        {
+            Pid = USBD_ParseConfigurationDescriptorEx(HubExtension->HubConfigDescriptor,
+                                                      HubExtension->HubConfigDescriptor,
+                                                      -1,
+                                                      -1,
+                                                      USB_DEVICE_CLASS_HUB,
+                                                      -1,
+                                                      1);
+
+            if (Pid)
+            {
+                goto Next;
+            }
+
+            Pid = USBD_ParseConfigurationDescriptorEx(HubExtension->HubConfigDescriptor,
+                                                      HubExtension->HubConfigDescriptor,
+                                                      -1,
+                                                      -1,
+                                                      USB_DEVICE_CLASS_HUB,
+                                                      -1,
+                                                      0);
+        }
+    }
+    else
+    {
+        Pid = USBD_ParseConfigurationDescriptorEx(HubExtension->HubConfigDescriptor,
+                                                  HubExtension->HubConfigDescriptor,
+                                                  -1,
+                                                  -1,
+                                                  USB_DEVICE_CLASS_HUB,
+                                                  -1,
+                                                  -1);
+    }
+
+    if (!Pid)
+    {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+  Next:
+
+    if (Pid->bInterfaceClass != USB_DEVICE_CLASS_HUB)
+    {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    InterfaceList[0].InterfaceDescriptor = Pid;
+
+    Urb = USBD_CreateConfigurationRequestEx(HubExtension->HubConfigDescriptor,
+                                            InterfaceList);
+
+    if (!Urb)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice, Urb);
+
+    if (NT_SUCCESS(Status))
+    {
+        RtlCopyMemory(&HubExtension->PipeInfo,
+                      InterfaceList[0].Interface->Pipes,
+                      sizeof(USBD_PIPE_INFORMATION));
+
+        HubExtension->ConfigHandle = Urb->UrbSelectConfiguration.ConfigurationHandle;
+    }
+
+    ExFreePool(Urb);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                        IN PIRP Irp)
 {

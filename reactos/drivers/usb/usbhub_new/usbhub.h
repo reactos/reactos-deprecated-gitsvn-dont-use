@@ -24,6 +24,7 @@
 #define USBHUB_FDO_FLAG_DEVICE_FAILED     (1 << 3)    // 0x00000008
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
+#define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
 
 typedef union _USB_PORT_STATUS {
   struct {
@@ -97,9 +98,12 @@ typedef struct _USBHUB_FDO_EXTENSION {
   POWER_STATE CurrentPowerState;
   ULONG MaxPower;
   USB_DEVICE_DESCRIPTOR HubDeviceDescriptor;
+  USHORT Reserved1;
   PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor;
   PUSB_HUB_DESCRIPTOR HubDescriptor;
   PUSBHUB_PORT_DATA PortData;
+  USBD_CONFIGURATION_HANDLE ConfigHandle;
+  USBD_PIPE_INFORMATION PipeInfo;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
