@@ -245,6 +245,98 @@ USBH_FdoSyncSubmitUrb(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
+USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
+              IN PVOID TransferBuffer,
+              IN ULONG BufferLen,
+              IN BOOLEAN Direction,
+              IN USHORT Function,
+              IN UCHAR RequestType,
+              IN UCHAR Request,
+              IN USHORT RequestValue,
+              IN USHORT RequestIndex)
+{
+    struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST * Urb;
+    ULONG TransferFlags;
+    PVOID Buffer = NULL;
+    NTSTATUS Status;
+
+    DPRINT("USBH_Transact: ... \n");
+
+    if (BufferLen)
+    {
+        Buffer = ExAllocatePoolWithTag(NonPagedPool,
+                                       (BufferLen + sizeof(ULONG)) & ~((sizeof(ULONG) - 1)),
+                                       USB_HUB_TAG);
+
+        if (!Buffer)
+        {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }     
+    }
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST),
+                                USB_HUB_TAG);
+
+    if (!Urb)
+    {
+        if (Buffer)
+        {
+            ExFreePool(Buffer);
+        }
+
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    if (Direction)
+    {
+        if (BufferLen)
+        {
+            RtlCopyMemory(Buffer, TransferBuffer, BufferLen);
+        }
+
+        TransferFlags = USBD_TRANSFER_DIRECTION_OUT;
+    }
+    else
+    {
+        if (BufferLen)
+        {
+            RtlZeroMemory(TransferBuffer, BufferLen);
+        }
+
+        TransferFlags = USBD_TRANSFER_DIRECTION_IN | USBD_SHORT_TRANSFER_OK;
+    }
+
+    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
+    Urb->Hdr.Function = Function;
+    Urb->Hdr.UsbdDeviceHandle = NULL;
+
+    Urb->TransferFlags = TransferFlags;
+    Urb->TransferBuffer = BufferLen != 0 ? Buffer : NULL;
+    Urb->TransferBufferLength = BufferLen;
+    Urb->TransferBufferMDL = NULL;
+    Urb->UrbLink = NULL;
+
+    Urb->RequestTypeReservedBits = RequestType;
+    Urb->Request = Request;
+    Urb->Value = RequestValue;
+    Urb->Index = RequestIndex;
+
+    Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice, (PURB)Urb);
+
+    if (!Direction && BufferLen)
+    {
+        RtlCopyMemory(TransferBuffer, Buffer, BufferLen);
+    }
+
+    ExFreePool(Buffer);
+    ExFreePool(Urb);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PUSB_DEVICE_HANDLE DeviceHandle,
                    OUT USB_DEVICE_TYPE * OutDeviceType)
