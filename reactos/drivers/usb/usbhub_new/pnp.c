@@ -5,6 +5,21 @@
 
 NTSTATUS
 NTAPI
+USBH_IrpCompletion(IN PDEVICE_OBJECT DeviceObject,
+                   IN PIRP Irp,
+                   IN PVOID Context)
+{
+    PRKEVENT Event;
+
+    DPRINT("USBH_IrpCompletion: Irp - %p\n", Irp);
+
+    Event = (PRKEVENT)Context;
+    KeSetEvent(Event, EVENT_INCREMENT, FALSE);
+    return STATUS_MORE_PROCESSING_REQUIRED;
+}
+
+NTSTATUS
+NTAPI
 USBH_HubPnPIrpComplete(IN PDEVICE_OBJECT DeviceObject,
                        IN PIRP Irp,
                        IN PVOID Context)
