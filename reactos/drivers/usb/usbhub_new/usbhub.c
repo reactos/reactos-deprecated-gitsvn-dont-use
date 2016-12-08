@@ -67,6 +67,21 @@ USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_FdoSyncSubmitUrb(IN PDEVICE_OBJECT FdoDevice,
+                      IN PURB Urb)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+
+    DPRINT("USBH_FdoSyncSubmitUrb: FdoDevice - %p, Urb - %p\n",
+           FdoDevice,
+           Urb);
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)FdoDevice->DeviceExtension;
+    return USBH_SyncSubmitUrb(HubExtension->LowerDevice, Urb);
+}
+
+NTSTATUS
+NTAPI
 USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PUSB_DEVICE_HANDLE DeviceHandle,
                    OUT USB_DEVICE_TYPE * OutDeviceType)
