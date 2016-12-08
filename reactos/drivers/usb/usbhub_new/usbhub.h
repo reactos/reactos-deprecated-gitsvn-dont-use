@@ -21,6 +21,7 @@
 #define USBHUB_FDO_FLAG_DEVICE_STOPPING   (1 << 2)    // 0x00000004
 #define USBHUB_FDO_FLAG_DEVICE_FAILED     (1 << 3)    // 0x00000008
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
+#define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 
 typedef struct _COMMON_DEVICE_EXTENSION {
   ULONG ExtensionType;
@@ -88,6 +89,13 @@ NTAPI
 USBH_WriteFailReasonID(
   IN PDEVICE_OBJECT DeviceObject,
   IN ULONG Data);
+
+NTSTATUS
+NTAPI
+USBH_GetDeviceType(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PUSB_DEVICE_HANDLE DeviceHandle,
+  OUT USB_DEVICE_TYPE * OutDeviceType);
 
 NTSTATUS
 NTAPI

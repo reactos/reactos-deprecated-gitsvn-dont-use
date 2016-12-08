@@ -67,6 +67,76 @@ USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                   IN PUSB_DEVICE_HANDLE DeviceHandle,
+                   OUT USB_DEVICE_TYPE * OutDeviceType)
+{
+    PUSB_BUSIFFN_GET_DEVICE_INFORMATION QueryDeviceInformation;
+    PUSB_DEVICE_INFORMATION_0 DeviceInfo;
+    SIZE_T DeviceInformationBufferLength;
+    USB_DEVICE_TYPE DeviceType = Usb11Device;
+    ULONG dummy;
+    NTSTATUS Status;
+
+    DPRINT("USBH_GetDeviceType: ... \n");
+
+    QueryDeviceInformation = HubExtension->BusInterface.QueryDeviceInformation;
+
+    if (!QueryDeviceInformation)
+    {
+        DPRINT1("USBH_GetDeviceType: no QueryDeviceInformation()\n");
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    DeviceInformationBufferLength = sizeof(USB_DEVICE_INFORMATION_0);
+
+    while (TRUE)
+    {
+        DeviceInfo = ExAllocatePoolWithTag(PagedPool,
+                                           DeviceInformationBufferLength,
+                                           USB_HUB_TAG);
+
+        if (!DeviceInfo)
+        {
+            DPRINT1("USBH_GetDeviceType: ExAllocatePoolWithTag() failed\n");
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            break;
+        }
+
+        DeviceInfo->InformationLevel = 0;
+
+        Status = QueryDeviceInformation(HubExtension->BusInterface.BusContext,
+                                        DeviceHandle,
+                                        DeviceInfo,
+                                        DeviceInformationBufferLength,
+                                        &dummy);
+
+        if (Status != STATUS_BUFFER_TOO_SMALL)
+        {
+            if (NT_SUCCESS(Status))
+            {
+                DeviceType = DeviceInfo->DeviceType;
+            }
+
+            ExFreePool(DeviceInfo);
+            break;
+        }
+
+        DeviceInformationBufferLength = DeviceInfo->ActualLength;
+        ExFreePool(DeviceInfo);
+    }
+
+    if (OutDeviceType)
+    {
+        *OutDeviceType = DeviceType;
+        DPRINT("USBH_GetDeviceType: DeviceType - %x\n", DeviceType);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
                        IN OUT PDEVICE_OBJECT * OutPdo1,
                        IN OUT PDEVICE_OBJECT * OutPdo2)
