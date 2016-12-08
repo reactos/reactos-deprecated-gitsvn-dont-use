@@ -163,6 +163,61 @@ USBHUB_GetBusInterfaceUSBDI(IN PDEVICE_OBJECT DeviceObject,
     return Status;
 }
 
+VOID
+NTAPI
+USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
+                       IN PDEVICE_CAPABILITIES DeviceCapabilities)
+{
+    PIRP Irp;
+    PIO_STACK_LOCATION IoStack;
+    KEVENT Event;
+
+    DPRINT("USBH_QueryCapabilities: ... \n");
+
+    Irp = IoAllocateIrp(DeviceObject->StackSize, 0);
+
+    if (!Irp)
+    {
+        DPRINT1("USBH_QueryCapabilities: IoAllocateIrp() failed\n");
+        return;
+    }
+
+    Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+
+    RtlZeroMemory(DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    IoSetCompletionRoutine(Irp,
+                           USBH_IrpCompletion,
+                           &Event,
+                           TRUE,
+                           TRUE,
+                           TRUE);
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+ 
+    IoStack->MajorFunction = IRP_MJ_PNP;
+    IoStack->MinorFunction = IRP_MN_QUERY_CAPABILITIES;
+
+    IoStack->Parameters.DeviceCapabilities.Capabilities = DeviceCapabilities;
+    IoStack->Parameters.DeviceCapabilities.Capabilities->Size = sizeof(DEVICE_CAPABILITIES);
+    IoStack->Parameters.DeviceCapabilities.Capabilities->Version = 1;
+    IoStack->Parameters.DeviceCapabilities.Capabilities->Address = -1;
+    IoStack->Parameters.DeviceCapabilities.Capabilities->UINumber = -1;
+
+    if (IoCallDriver(DeviceObject, Irp) == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    IoFreeIrp(Irp);
+}
+
 NTSTATUS
 NTAPI
 USBH_StartHubFdoDevice(
