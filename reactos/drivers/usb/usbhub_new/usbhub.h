@@ -81,6 +81,12 @@ USBH_SyncGetRootHubPdo(
 
 NTSTATUS
 NTAPI
+USBH_SyncGetHubCount(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN OUT PULONG OutHubCount);
+
+NTSTATUS
+NTAPI
 DriverEntry(
   IN PDRIVER_OBJECT DriverObject,
   IN PUNICODE_STRING RegistryPath);

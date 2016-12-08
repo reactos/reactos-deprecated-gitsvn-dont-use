@@ -87,6 +87,60 @@ USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncGetHubCount(IN PDEVICE_OBJECT DeviceObject,
+                     IN OUT PULONG OutHubCount)
+{
+    KEVENT Event;
+    IO_STATUS_BLOCK IoStatusBlock;
+    PIRP Irp;
+    PIO_STACK_LOCATION IoStack;
+    NTSTATUS Status;
+    NTSTATUS result;
+
+    DPRINT("USBH_SyncGetHubCount: *OutHubCount - %x\n", *OutHubCount);
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Irp = IoBuildDeviceIoControlRequest(IOCTL_INTERNAL_USB_GET_HUB_COUNT,
+                                        DeviceObject,
+                                        NULL,
+                                        0,
+                                        NULL,
+                                        0,
+                                        TRUE,
+                                        &Event,
+                                        &IoStatusBlock);
+
+    if (!Irp)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+    IoStack->Parameters.Others.Argument1 = OutHubCount;
+
+    result = IoCallDriver(DeviceObject, Irp);
+
+    if (result == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+    else
+    {
+        IoStatusBlock.Status = result;
+    }
+
+    Status = IoStatusBlock.Status;
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
