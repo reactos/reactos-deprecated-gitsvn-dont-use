@@ -920,6 +920,46 @@ ErrorExit:
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
+                   IN PUSHORT OutStatus,
+                   IN USHORT Function,
+                   IN USHORT RequestIndex)
+{
+    struct _URB_CONTROL_GET_STATUS_REQUEST * Urb;
+    NTSTATUS NtStatus;
+    USHORT UsbStatus;
+
+    DPRINT("USBH_SyncGetStatus: ... \n");
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_CONTROL_GET_STATUS_REQUEST),
+                                USB_HUB_TAG);
+
+    if (!Urb)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_GET_STATUS_REQUEST));
+
+    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_GET_STATUS_REQUEST);
+    Urb->Hdr.Function = Function;
+
+    Urb->TransferBuffer = &UsbStatus;
+    Urb->TransferBufferLength = sizeof(UsbStatus);
+    Urb->Index = RequestIndex;
+
+    NtStatus = USBH_FdoSyncSubmitUrb(DeviceObject, (PURB)Urb);
+
+    *OutStatus = UsbStatus;
+
+    ExFreePool(Urb);
+
+    return NtStatus;
+}
+
 BOOLEAN
 NTAPI
 USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
