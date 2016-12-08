@@ -5,6 +5,21 @@
 
 NTSTATUS
 NTAPI
+USBH_StartHubFdoDevice(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PIRP Irp)
+{
+    NTSTATUS Status=0;
+
+    DPRINT("USBH_StartHubFdoDevice: ... \n");
+
+    USBH_CompleteIrp(Irp, Status);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoStartDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                     IN PIRP Irp)
 {
@@ -59,7 +74,8 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         case IRP_MN_START_DEVICE: // 0
             DPRINT("IRP_MN_START_DEVICE\n");
-            Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            Status = USBH_FdoStartDevice(HubExtension, Irp);
             break;
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
