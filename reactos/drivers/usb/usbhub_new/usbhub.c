@@ -506,6 +506,67 @@ USBH_GetDeviceDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncGetDeviceConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
+                                          IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor,
+                                          IN ULONG NumberOfBytes,
+                                          IN PULONG OutLength)
+{
+    PCOMMON_DEVICE_EXTENSION DeviceExtension;
+    struct _URB_CONTROL_DESCRIPTOR_REQUEST * Urb;
+    NTSTATUS Status;
+
+    DPRINT("USBH_SyncGetDeviceConfigurationDescriptor: ... \n");
+
+    DeviceExtension = (PCOMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+
+    if (OutLength)
+    {
+        *OutLength = 0;
+    }
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST),
+                                USB_HUB_TAG);
+
+    if (!Urb)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST));
+
+    Urb->Hdr.Function = URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE;
+    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST);
+
+    Urb->TransferBufferLength = NumberOfBytes;
+    Urb->TransferBuffer = ConfigDescriptor;
+    Urb->DescriptorType = USB_CONFIGURATION_DESCRIPTOR_TYPE;
+
+    if (DeviceExtension->ExtensionType == USBH_EXTENSION_TYPE_HUB ||
+        DeviceExtension->ExtensionType == USBH_EXTENSION_TYPE_PARENT)
+    {
+        Status = USBH_FdoSyncSubmitUrb(DeviceObject, (PURB)Urb);
+    }
+    else
+    {
+        Status = USBH_SyncSubmitUrb(DeviceObject, (PURB)Urb);
+    }
+
+    if (OutLength)
+    {
+        *OutLength = Urb->TransferBufferLength;
+    }
+
+    if (Urb)
+    {
+        ExFreePool(Urb);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_GetConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
                                 IN PUSB_CONFIGURATION_DESCRIPTOR * pConfigurationDescriptor)
 {
