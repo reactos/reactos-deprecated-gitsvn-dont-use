@@ -45,6 +45,66 @@ USBH_HubPnPIrpComplete(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBHUB_GetBusInterface(IN PDEVICE_OBJECT DeviceObject,
+                       IN PUSB_BUS_INTERFACE_HUB_V5 BusInterface)
+{
+    PIRP Irp;
+    NTSTATUS Status;
+    PIO_STACK_LOCATION IoStack;
+    KEVENT Event;
+
+    DPRINT("USBHUB_GetBusInterface: ... \n");
+
+    Irp = IoAllocateIrp(DeviceObject->StackSize, 0);
+
+    if (!Irp)
+    {
+        DPRINT1("USBHUB_GetBusInterface: IoAllocateIrp() failed\n");
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    IoSetCompletionRoutine(Irp,
+                           USBH_IrpCompletion,
+                           &Event,
+                           TRUE,
+                           TRUE,
+                           TRUE);
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+
+    IoStack->MajorFunction = IRP_MJ_PNP;
+    IoStack->MinorFunction = IRP_MN_QUERY_INTERFACE;
+
+    IoStack->Parameters.QueryInterface.InterfaceType = &USB_BUS_INTERFACE_HUB_GUID;
+    IoStack->Parameters.QueryInterface.Size = sizeof(USB_BUS_INTERFACE_HUB_V5);
+    IoStack->Parameters.QueryInterface.Version = USB_BUSIF_HUB_VERSION_5;
+    IoStack->Parameters.QueryInterface.Interface = (PINTERFACE)BusInterface;
+    IoStack->Parameters.QueryInterface.InterfaceSpecificData = DeviceObject;
+
+    Status = IoCallDriver(DeviceObject, Irp);
+
+    if (Status == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+
+        Status = Irp->IoStatus.Status;
+    }
+
+    IoFreeIrp(Irp);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_StartHubFdoDevice(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN PIRP Irp)
