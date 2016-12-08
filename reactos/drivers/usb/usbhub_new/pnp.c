@@ -5,6 +5,31 @@
 
 NTSTATUS
 NTAPI
+USBH_HubPnPIrpComplete(IN PDEVICE_OBJECT DeviceObject,
+                       IN PIRP Irp,
+                       IN PVOID Context)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+
+    DPRINT("USBH_HubPnPIrpComplete: Irp - %p\n", Irp);
+
+     HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    if (!NT_SUCCESS(Irp->IoStatus.Status))
+    {
+        DPRINT1("USBH_HubPnPIrpComplete: Irp failed - %p\n", Irp->IoStatus.Status);
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
+    }
+
+    Irp->IoStatus.Status = STATUS_MORE_PROCESSING_REQUIRED;
+
+    KeSetEvent(&HubExtension->LowerDeviceEvent, EVENT_INCREMENT, FALSE);
+
+    return STATUS_MORE_PROCESSING_REQUIRED;
+}
+
+NTSTATUS
+NTAPI
 USBH_StartHubFdoDevice(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN PIRP Irp)
