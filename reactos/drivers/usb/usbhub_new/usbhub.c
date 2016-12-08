@@ -31,6 +31,62 @@ USBH_PassIrp(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
+                       IN OUT PDEVICE_OBJECT * OutPdo1,
+                       IN OUT PDEVICE_OBJECT * OutPdo2)
+{
+    KEVENT Event;
+    IO_STATUS_BLOCK IoStatusBlock;
+    PIRP Irp;
+    PIO_STACK_LOCATION IoStack;
+    NTSTATUS Status;
+    NTSTATUS result;
+
+    DPRINT("USBH_SyncGetRootHubPdo: ... \n");
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Irp = IoBuildDeviceIoControlRequest(IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO,
+                                        DeviceObject,
+                                        NULL,
+                                        0,
+                                        NULL,
+                                        0,
+                                        TRUE,
+                                        &Event,
+                                        &IoStatusBlock);
+
+    if (!Irp)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+    IoStack->Parameters.Others.Argument1 = OutPdo1;
+    IoStack->Parameters.Others.Argument2 = OutPdo2;
+
+    result = IoCallDriver(DeviceObject, Irp);
+
+    if (result == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+    else
+    {
+        IoStatusBlock.Status = result;
+    }
+
+    Status = IoStatusBlock.Status;
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {

@@ -74,6 +74,13 @@ USBH_PassIrp(
 
 NTSTATUS
 NTAPI
+USBH_SyncGetRootHubPdo(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN OUT PDEVICE_OBJECT * OutPdo1,
+  IN OUT PDEVICE_OBJECT * OutPdo2);
+
+NTSTATUS
+NTAPI
 DriverEntry(
   IN PDRIVER_OBJECT DriverObject,
   IN PUNICODE_STRING RegistryPath);
