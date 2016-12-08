@@ -920,6 +920,34 @@ ErrorExit:
     return Status;
 }
 
+BOOLEAN
+NTAPI
+USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
+                     IN PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor)
+{
+    BOOLEAN Result;
+    USHORT UsbStatus;
+    NTSTATUS Status;
+
+    DPRINT("USBH_HubIsBusPowered: ... \n");
+
+    Status = USBH_SyncGetStatus(DeviceObject,
+                                &UsbStatus,
+                                URB_FUNCTION_GET_STATUS_FROM_DEVICE,
+                                0);
+
+    if (!NT_SUCCESS(Status))
+    {
+        Result = (HubConfigDescriptor->bmAttributes & 0xC0) == 0x80;
+    }
+    else
+    {
+        Result = ~UsbStatus & 1; //SelfPowered bit from status word
+    }
+
+    return Result;
+}
+
 NTSTATUS
 NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,

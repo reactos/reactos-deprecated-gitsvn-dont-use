@@ -95,6 +95,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   SYSTEM_POWER_STATE SystemWake;
   DEVICE_POWER_STATE DeviceWake;
   POWER_STATE CurrentPowerState;
+  ULONG MaxPower;
   USB_DEVICE_DESCRIPTOR HubDeviceDescriptor;
   PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor;
   PUSB_HUB_DESCRIPTOR HubDescriptor;
@@ -207,6 +208,12 @@ NTSTATUS
 NTAPI
 USBH_SyncGetHubDescriptor(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+BOOLEAN
+NTAPI
+USBH_HubIsBusPowered(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor);
 
 NTSTATUS
 NTAPI
