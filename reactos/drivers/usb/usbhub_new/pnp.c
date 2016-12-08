@@ -319,6 +319,37 @@ USBH_OpenConfiguration(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBD_Initialize20Hub(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_BUSIFFN_INITIALIZE_20HUB Initialize20Hub;
+    ULONG TtCount;
+    PUSB_DEVICE_HANDLE DeviceHandle;
+
+    DPRINT("USBD_InitUsb2Hub ... \n");
+
+    Initialize20Hub = HubExtension->BusInterface.Initialize20Hub;
+
+    if (!Initialize20Hub)
+    {
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    TtCount = 1;
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_MULTIPLE_TTS)
+    {
+        TtCount = HubExtension->HubDescriptor->bNumberOfPorts;
+    }
+
+    DeviceHandle = USBH_SyncGetDeviceHandle(HubExtension->LowerDevice);
+
+    return Initialize20Hub(HubExtension->BusInterface.BusContext,
+                           DeviceHandle,
+                           TtCount);
+}
+
+NTSTATUS
+NTAPI
 USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                        IN PIRP Irp)
 {
