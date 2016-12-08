@@ -175,6 +175,51 @@ USBH_SyncGetHubCount(IN PDEVICE_OBJECT DeviceObject,
     return Status;
 }
 
+PUSB_DEVICE_HANDLE
+NTAPI
+USBH_SyncGetDeviceHandle(IN PDEVICE_OBJECT DeviceObject)
+{
+    PIRP Irp;
+    KEVENT Event;
+    IO_STATUS_BLOCK IoStatusBlock;
+    PUSB_DEVICE_HANDLE DeviceHandle = NULL;
+    PIO_STACK_LOCATION IoStack;
+
+    DPRINT("USBH_SyncGetDeviceHandle: ... \n");
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Irp = IoBuildDeviceIoControlRequest(IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE,
+                                        DeviceObject,
+                                        NULL,
+                                        0,
+                                        NULL,
+                                        0,
+                                        TRUE,
+                                        &Event,
+                                        &IoStatusBlock);
+
+    if (!Irp)
+    {
+        DPRINT1("USBH_SyncGetDeviceHandle: Irp - NULL!\n");
+        return NULL;
+    }
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+    IoStack->Parameters.Others.Argument1 = &DeviceHandle;
+
+    if (IoCallDriver(DeviceObject, Irp) == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    return DeviceHandle;
+}
+
 NTSTATUS
 NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,

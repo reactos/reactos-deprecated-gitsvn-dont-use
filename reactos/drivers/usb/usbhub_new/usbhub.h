@@ -102,6 +102,11 @@ USBH_SyncGetHubCount(
   IN PDEVICE_OBJECT DeviceObject,
   IN OUT PULONG OutHubCount);
 
+PUSB_DEVICE_HANDLE
+NTAPI
+USBH_SyncGetDeviceHandle(
+  IN PDEVICE_OBJECT DeviceObject);
+
 NTSTATUS
 NTAPI
 DriverEntry(
