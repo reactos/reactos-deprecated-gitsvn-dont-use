@@ -67,6 +67,111 @@ USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
+                   IN PURB Urb)
+{
+    KEVENT Event;
+    IO_STATUS_BLOCK IoStatusBlock;
+    PIRP Irp;
+    PIO_STACK_LOCATION IoStack;
+    PUSBHUB_URB_TIMEOUT_CONTEXT HubTimeoutContext;
+    BOOLEAN IsWaitTimeout = FALSE;
+    LARGE_INTEGER DueTime = {{0, 0}};
+    NTSTATUS Status;
+
+    DPRINT("USBH_SyncSubmitUrb: ... \n");
+
+    Urb->UrbHeader.UsbdDeviceHandle = NULL;
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Irp = IoBuildDeviceIoControlRequest(IOCTL_INTERNAL_USB_SUBMIT_URB,
+                                        DeviceObject,
+                                        NULL,
+                                        0,
+                                        NULL,
+                                        0,
+                                        TRUE,
+                                        &Event,
+                                        &IoStatusBlock);
+
+    if (!Irp)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+    IoStack->Parameters.Others.Argument1 = Urb;
+
+    HubTimeoutContext = ExAllocatePoolWithTag(NonPagedPool,
+                                              sizeof(USBHUB_URB_TIMEOUT_CONTEXT),
+                                              USB_HUB_TAG);
+
+    if (HubTimeoutContext)
+    {
+        HubTimeoutContext->Irp = Irp;
+        HubTimeoutContext->IsNormalCompleted = FALSE;
+
+        KeInitializeEvent(&HubTimeoutContext->UrbTimeoutEvent,
+                          NotificationEvent,
+                          FALSE);
+
+        KeInitializeSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock);
+        KeInitializeTimer(&HubTimeoutContext->UrbTimeoutTimer);
+
+        KeInitializeDpc(&HubTimeoutContext->UrbTimeoutDPC,
+                        USBH_TimeoutDPC,
+                        HubTimeoutContext);
+
+        DueTime.QuadPart -= 5000 * 10000; // Timeout 5 sec.
+
+        KeSetTimer(&HubTimeoutContext->UrbTimeoutTimer,
+                   DueTime,
+                   &HubTimeoutContext->UrbTimeoutDPC);
+
+        IoSetCompletionRoutine(Irp,
+                               USBH_SyncIrpComplete,
+                               HubTimeoutContext,
+                               TRUE,
+                               TRUE,
+                               TRUE);
+
+        IsWaitTimeout = TRUE;
+    }
+
+    Status = IoCallDriver(DeviceObject, Irp);
+
+    if (Status == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+    else
+    {
+        IoStatusBlock.Status = Status;
+    }
+
+    if (IsWaitTimeout)
+    {
+        KeWaitForSingleObject(&HubTimeoutContext->UrbTimeoutEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+
+        ExFreePool(HubTimeoutContext);
+    }
+
+    Status = IoStatusBlock.Status;
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoSyncSubmitUrb(IN PDEVICE_OBJECT FdoDevice,
                       IN PURB Urb)
 {
