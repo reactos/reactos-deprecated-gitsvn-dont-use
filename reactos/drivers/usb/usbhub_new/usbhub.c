@@ -31,6 +31,35 @@ USBH_PassIrp(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncIrpComplete(IN PDEVICE_OBJECT DeviceObject,
+                     IN PIRP Irp,
+                     IN PVOID Context)
+{
+    PUSBHUB_URB_TIMEOUT_CONTEXT HubTimeoutContext;
+    KIRQL OldIrql;
+    BOOLEAN TimerCancelled;
+
+    DPRINT("USBH_SyncIrpComplete: ... \n");
+
+    HubTimeoutContext = (PUSBHUB_URB_TIMEOUT_CONTEXT)Context;
+
+    KeAcquireSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock, &OldIrql);
+    HubTimeoutContext->IsNormalCompleted = TRUE;
+    TimerCancelled = KeCancelTimer(&HubTimeoutContext->UrbTimeoutTimer);
+    KeReleaseSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock, OldIrql);
+
+    if (TimerCancelled)
+    {
+        KeSetEvent(&HubTimeoutContext->UrbTimeoutEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    return STATUS_SUCCESS;
+}
+
+NTSTATUS
+NTAPI
 USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
                        IN ULONG Data)
 {
