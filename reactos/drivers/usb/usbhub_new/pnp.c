@@ -5,6 +5,45 @@
 
 NTSTATUS
 NTAPI
+USBH_FdoStartDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                    IN PIRP Irp)
+{
+    NTSTATUS Status;
+
+    DPRINT("USBH_FdoStartDevice: ... \n");
+
+    HubExtension->RootHubPdo = NULL;
+
+    Status = USBH_SyncGetRootHubPdo(HubExtension->LowerDevice,
+                                    &HubExtension->RootHubPdo,
+                                    &HubExtension->RootHubPdo2);
+
+    if (NT_SUCCESS(Status))
+    {
+        if (HubExtension->RootHubPdo)
+        {
+            Status = USBH_StartHubFdoDevice(HubExtension, Irp);
+        }
+        else
+        {
+            DPRINT1("USBH_FdoStartDevice: FIXME. start ParentDevice\n");
+            DbgBreakPoint();
+        }
+    }
+    else
+    {
+        DPRINT1("USBH_FdoStartDevice: FIXME. USBH_SyncGetRootHubPdo return - %p\n",
+                Status);
+
+        DbgBreakPoint();
+        USBH_CompleteIrp(Irp, Status);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             IN PIRP Irp,
             IN UCHAR Minor)
