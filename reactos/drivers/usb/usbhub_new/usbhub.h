@@ -25,6 +25,7 @@
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
+#define USBHUB_FDO_FLAG_DO_ENUMERATION    (1 << 20)   // 0x00100000
 
 /* Hub Class Feature Selectors */
 
@@ -128,6 +129,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   PIRP ResetPortIrp;
   PVOID HubBuffer;
   ULONG HubBufferLength;
+  KEVENT RootHubNotificationEvent;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {

@@ -353,9 +353,303 @@ NTAPI
 USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                        IN PIRP Irp)
 {
-    NTSTATUS Status=0;
+    NTSTATUS Status;
+    WCHAR KeyName[64];
+    PVOID DisableRemoteWakeup = NULL;
+    ULONG HubCount = 0;
+    PUSB_DEVICE_HANDLE DeviceHandle;
+    USB_DEVICE_TYPE DeviceType;
+    DEVICE_CAPABILITIES  DeviceCapabilities;
+    BOOLEAN IsBusPowered;
 
     DPRINT("USBH_StartHubFdoDevice: ... \n");
+
+    KeInitializeEvent(&HubExtension->LowerDeviceEvent, NotificationEvent, FALSE);
+    KeInitializeEvent(&HubExtension->RootHubNotificationEvent,
+                      NotificationEvent,
+                      TRUE);
+
+    HubExtension->HubFlags = 0;
+    HubExtension->HubConfigDescriptor = NULL;
+    HubExtension->HubDescriptor = NULL;
+    HubExtension->SCEIrp = NULL;
+    HubExtension->HubBuffer = NULL;
+
+    IoCopyCurrentIrpStackLocationToNext(Irp);
+
+    IoSetCompletionRoutine(Irp,
+                           USBH_HubPnPIrpComplete,
+                           HubExtension,
+                           TRUE,
+                           TRUE,
+                           TRUE);
+
+    if (IoCallDriver(HubExtension->LowerDevice, Irp) == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&HubExtension->LowerDeviceEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    HubExtension->RootHubPdo = NULL;
+
+    Status = USBH_SyncGetRootHubPdo(HubExtension->LowerDevice,
+                                    &HubExtension->RootHubPdo,
+                                    &HubExtension->RootHubPdo2);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_SyncGetRootHubPdo() failed - %p\n", Status);
+        goto ErrorExit;
+    }
+
+    USBH_WriteFailReasonID(HubExtension->LowerPDO, 5);
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED)
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBHUB_FDO_FLAG_DEVICE_FAILED - TRUE\n");
+        Status = STATUS_UNSUCCESSFUL;
+        goto ErrorExit;
+    }
+
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_REMOTE_WAKEUP;
+
+    swprintf(KeyName, L"DisableRemoteWakeup");
+
+    Status = USBD_GetPdoRegistryParameter(HubExtension->LowerPDO,
+                                          &DisableRemoteWakeup,
+                                          sizeof(DisableRemoteWakeup),
+                                          KeyName,
+                                          (wcslen(KeyName) + 1) * sizeof(WCHAR));
+
+    if (NT_SUCCESS(Status) && DisableRemoteWakeup)
+    {
+        DPRINT("USBH_StartHubFdoDevice: DisableRemoteWakeup - TRUE\n");
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_REMOTE_WAKEUP;
+    }
+
+    HubExtension->CurrentPowerState.DeviceState = PowerDeviceD0;
+
+    USBH_SyncGetHubCount(HubExtension->LowerDevice,
+                         &HubCount);
+
+    Status = USBHUB_GetBusInterface(HubExtension->RootHubPdo,
+                                    &HubExtension->BusInterface);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBHUB_GetBusInterface() failed - %p\n",
+                Status);
+        goto ErrorExit;
+    }
+
+    Status = USBHUB_GetBusInterfaceUSBDI(HubExtension->LowerDevice,
+                                         &HubExtension->BusInterfaceUSBDI);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBHUB_GetBusInterfaceUSBDI() failed - %p\n",
+                Status);
+        goto ErrorExit;
+    }
+
+    DeviceHandle = USBH_SyncGetDeviceHandle(HubExtension->LowerDevice);
+
+    if (DeviceHandle)
+    {
+        Status = USBH_GetDeviceType(HubExtension, DeviceHandle, &DeviceType);
+
+        if (!NT_SUCCESS(Status))
+        {
+            DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceType() failed - %p\n", Status);
+            goto ErrorExit;
+        }
+
+        if (DeviceType == Usb20Device)
+        {
+            HubExtension->HubFlags |= USBHUB_FDO_FLAG_USB20_HUB;
+        }
+    }
+
+    if (HubCount > 6)
+    {
+        DPRINT1("USBH_StartHubFdoDevice: HubCount > 6 - %x\n", HubCount);
+        USBH_WriteFailReasonID(HubExtension->LowerPDO, 6);
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
+        DbgBreakPoint();
+    }
+
+    RtlZeroMemory(&DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
+
+    USBH_QueryCapabilities(HubExtension->LowerDevice, &DeviceCapabilities);
+
+    //RtlFillMemory(HubExtension->DeviceState, POWER_SYSTEM_MAXIMUM, PowerDeviceD3);
+
+    HubExtension->SystemWake = DeviceCapabilities.SystemWake;
+    HubExtension->DeviceWake = DeviceCapabilities.DeviceWake;
+
+    RtlCopyMemory(HubExtension->DeviceState,
+                  &DeviceCapabilities.DeviceState,
+                  POWER_SYSTEM_MAXIMUM * sizeof(DEVICE_POWER_STATE));
+
+    Status = USBH_GetDeviceDescriptor(HubExtension->Common.SelfDevice,
+                                      &HubExtension->HubDeviceDescriptor);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceDescriptor() failed - %p\n",
+                Status);
+        goto ErrorExit;
+    }
+
+    Status = USBH_GetConfigurationDescriptor(HubExtension->Common.SelfDevice,
+                                             &HubExtension->HubConfigDescriptor);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBH_GetConfigurationDescriptor() failed - %p\n",
+                Status);
+        goto ErrorExit;
+    }
+
+    Status = USBH_SyncGetHubDescriptor(HubExtension);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBH_SyncGetHubDescriptor() failed - %p\n",
+                Status);
+        goto ErrorExit;
+    }
+
+    IsBusPowered = USBH_HubIsBusPowered(HubExtension->Common.SelfDevice,
+                                        HubExtension->HubConfigDescriptor);
+
+    if (IsBusPowered)
+    {
+        HubExtension->MaxPower = 100;
+        HubExtension->HubConfigDescriptor->MaxPower = 250; // 500 mA
+    }
+    else
+    {
+        HubExtension->MaxPower = 500;
+    }
+
+    Status = USBH_OpenConfiguration(HubExtension);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_StartHubFdoDevice: USBH_OpenConfiguration() failed - %p\n",
+                Status);
+        goto ErrorExit;
+    }
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB)
+    {
+        Status = USBD_Initialize20Hub(HubExtension);
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    HubExtension->SCEIrp = IoAllocateIrp(HubExtension->Common.SelfDevice->StackSize,
+                                         FALSE);
+
+    HubExtension->ResetPortIrp = IoAllocateIrp(HubExtension->Common.SelfDevice->StackSize,
+                                               FALSE);
+
+    if (!HubExtension->SCEIrp || !HubExtension->ResetPortIrp)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto ErrorExit;
+    }
+
+    HubExtension->HubBufferLength = HubExtension->PipeInfo.MaximumPacketSize;
+
+    HubExtension->HubBuffer = ExAllocatePoolWithTag(NonPagedPool,
+                                                    HubExtension->HubBufferLength,
+                                                    USB_HUB_TAG);
+
+    if (!HubExtension->HubBuffer)
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto ErrorExit;
+    }
+
+    Status = USBH_SyncPowerOnPorts(HubExtension);
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+    else
+    {
+        USHORT Port;
+
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_STARTED;
+
+        Port = 1;
+
+        if (HubExtension->HubDescriptor->bNumberOfPorts >= 1)
+        {
+            do
+            {
+                USBH_SyncClearPortStatus(HubExtension,
+                                         Port++,
+                                         USBHUB_FEATURE_C_PORT_CONNECTION);
+            }
+            while (Port <= HubExtension->HubDescriptor->bNumberOfPorts);
+        }
+    }
+
+    if (HubExtension->LowerPDO == HubExtension->RootHubPdo)
+    {
+        USBD_RegisterRootHubCallBack(HubExtension);
+    }
+    else
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DO_ENUMERATION;
+        DbgBreakPoint();
+    }
+
+    goto Exit;
+
+  ErrorExit:
+
+    if (HubExtension->HubDescriptor)
+    {
+        ExFreePool(HubExtension->HubDescriptor);
+        HubExtension->HubDescriptor = NULL;
+    }
+
+    if (HubExtension->SCEIrp)
+    {
+        IoFreeIrp(HubExtension->SCEIrp);
+        HubExtension->SCEIrp = NULL;
+    }
+
+    if (HubExtension->ResetPortIrp)
+    {
+        IoFreeIrp(HubExtension->ResetPortIrp);
+        HubExtension->ResetPortIrp = NULL;
+    }
+
+    if (HubExtension->HubBuffer)
+    {
+        ExFreePool(HubExtension->HubBuffer);
+        HubExtension->HubBuffer = NULL;
+    }
+
+    if (HubExtension->HubConfigDescriptor)
+    {
+        ExFreePool(HubExtension->HubConfigDescriptor);
+        HubExtension->HubConfigDescriptor = NULL;
+    }
+
+  Exit:
 
     USBH_CompleteIrp(Irp, Status);
 

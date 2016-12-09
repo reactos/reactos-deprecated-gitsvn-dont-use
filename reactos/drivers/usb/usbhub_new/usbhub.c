@@ -1122,6 +1122,14 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
     return Result;
 }
 
+VOID
+NTAPI
+USBHUB_RootHubCallBack(IN PVOID Context)
+{
+    DPRINT1("USBHUB_RootHubCallBack: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
 NTSTATUS
 NTAPI
 USBD_RegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
@@ -1141,7 +1149,7 @@ USBD_RegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
     return RootHubInitNotification(HubExtension->BusInterface.BusContext,
                                    HubExtension,
-                                   (PRH_INIT_CALLBACK)USBHUB_RhHubCallBack);
+                                   USBHUB_RootHubCallBack);
 }
 
 NTSTATUS
