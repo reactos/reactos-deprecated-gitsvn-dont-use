@@ -26,6 +26,26 @@
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
 
+/* Hub Class Feature Selectors */
+
+#define USBHUB_FEATURE_USBHUB_FEATURE_C_HUB_LOCAL_POWER  0
+#define USBHUB_FEATURE_C_HUB_OVER_CURRENT                1
+
+#define USBHUB_FEATURE_PORT_CONNECTION     0
+#define USBHUB_FEATURE_PORT_ENABLE         1
+#define USBHUB_FEATURE_PORT_SUSPEND        2
+#define USBHUB_FEATURE_PORT_OVER_CURRENT   3
+#define USBHUB_FEATURE_PORT_RESET          4
+#define USBHUB_FEATURE_PORT_POWER          8
+#define USBHUB_FEATURE_PORT_LOW_SPEED      9
+#define USBHUB_FEATURE_C_PORT_CONNECTION   16
+#define USBHUB_FEATURE_C_PORT_ENABLE       17
+#define USBHUB_FEATURE_C_PORT_SUSPEND      18
+#define USBHUB_FEATURE_C_PORT_OVER_CURRENT 19
+#define USBHUB_FEATURE_C_PORT_RESET        20
+#define USBHUB_FEATURE_PORT_TEST           21
+#define USBHUB_FEATURE_PORT_INDICATOR      22
+
 typedef union _USB_PORT_STATUS {
   struct {
     USHORT ConnectStatus          : 1; // Current Connect Status
@@ -104,6 +124,10 @@ typedef struct _USBHUB_FDO_EXTENSION {
   PUSBHUB_PORT_DATA PortData;
   USBD_CONFIGURATION_HANDLE ConfigHandle;
   USBD_PIPE_INFORMATION PipeInfo;
+  PIRP SCEIrp;
+  PIRP ResetPortIrp;
+  PVOID HubBuffer;
+  ULONG HubBufferLength;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {

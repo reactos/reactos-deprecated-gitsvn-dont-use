@@ -250,7 +250,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
               IN ULONG BufferLen,
               IN BOOLEAN Direction,
               IN USHORT Function,
-              IN UCHAR RequestType,
+              IN BM_REQUEST_TYPE RequestType,
               IN UCHAR Request,
               IN USHORT RequestValue,
               IN USHORT RequestIndex)
@@ -317,7 +317,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Urb->TransferBufferMDL = NULL;
     Urb->UrbLink = NULL;
 
-    Urb->RequestTypeReservedBits = RequestType;
+    Urb->RequestTypeReservedBits = RequestType.B;
     Urb->Request = Request;
     Urb->Value = RequestValue;
     Urb->Index = RequestIndex;
@@ -789,12 +789,19 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
     {
         while (TRUE)
         {
+            BM_REQUEST_TYPE RequestType;
+
+            RequestType.B = 0;//0xA0
+            RequestType.Recipient = 0;
+            RequestType.Type = 0;
+            RequestType.Dir = 0;
+
             Status = USBH_Transact(HubExtension,
                                    HubDescriptor,
                                    NumberOfBytes,
                                    0,
                                    URB_FUNCTION_CLASS_DEVICE,
-                                   0xA0,
+                                   RequestType,
                                    USB_REQUEST_GET_DESCRIPTOR,
                                    RequestValue,
                                    0);
@@ -958,6 +965,43 @@ USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
     ExFreePool(Urb);
 
     return NtStatus;
+}
+
+NTSTATUS
+NTAPI
+USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_HUB_DESCRIPTOR HubDescriptor;
+    ULONG NumberOfPorts;
+    ULONG Port;
+    NTSTATUS Status;
+
+    DPRINT("USBH_SyncPowerOnPorts: ... \n");
+
+    HubDescriptor = HubExtension->HubDescriptor;
+    NumberOfPorts = HubDescriptor->bNumberOfPorts;
+
+    Port = 1;
+
+    if (HubDescriptor->bNumberOfPorts)
+    {
+        do
+        {
+            Status = USBH_SyncPowerOnPort(HubExtension, Port, 0);
+
+            if (!NT_SUCCESS(Status))
+            {
+                break;
+            }
+
+            ++Port;
+        }
+        while (Port <= NumberOfPorts);
+    }
+
+    UsbhWait(2 * HubDescriptor->bPowerOnToPowerGood);
+
+    return Status;
 }
 
 BOOLEAN
