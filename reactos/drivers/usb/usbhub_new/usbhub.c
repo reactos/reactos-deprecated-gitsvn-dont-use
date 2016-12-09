@@ -792,9 +792,9 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
             BM_REQUEST_TYPE RequestType;
 
             RequestType.B = 0;//0xA0
-            RequestType.Recipient = 0;
-            RequestType.Type = 0;
-            RequestType.Dir = 0;
+            RequestType._BM.Recipient = 0;
+            RequestType._BM.Type = 0;
+            RequestType._BM.Dir = 0;
 
             Status = USBH_Transact(HubExtension,
                                    HubDescriptor,
@@ -965,6 +965,56 @@ USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
     ExFreePool(Urb);
 
     return NtStatus;
+}
+
+NTSTATUS
+NTAPI
+USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                     IN USHORT Port,
+                     IN BOOLEAN IsWait)
+{
+    PUSBHUB_PORT_DATA PortData;
+    PUSB_HUB_DESCRIPTOR HubDescriptor;
+    NTSTATUS Status;
+    BM_REQUEST_TYPE RequestType;
+
+    DPRINT("USBH_SyncPowerOnPort: Port - %x, IsWait - %x\n", Port, IsWait);
+
+    PortData = &HubExtension->PortData[Port - 1];
+
+    HubDescriptor = HubExtension->HubDescriptor;
+
+    if (PortData->PortStatus.UsbPortStatus.ConnectStatus)
+    {
+        return STATUS_SUCCESS;
+    }
+
+    RequestType.B = 0;
+    RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+    RequestType._BM.Type = BMREQUEST_CLASS;
+    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+
+    Status = USBH_Transact(HubExtension,
+                           0,
+                           0,
+                           1,
+                           URB_FUNCTION_CLASS_OTHER,
+                           RequestType,
+                           USB_REQUEST_SET_FEATURE,
+                           USBHUB_FEATURE_PORT_POWER,
+                           Port);
+
+    if (NT_SUCCESS(Status))
+    {
+        if (IsWait)
+        {
+            UsbhWait(2 * HubDescriptor->bPowerOnToPowerGood);
+        }
+
+        PortData->PortStatus.UsbPortStatus.ConnectStatus = 1;
+    }
+
+    return Status;
 }
 
 NTSTATUS

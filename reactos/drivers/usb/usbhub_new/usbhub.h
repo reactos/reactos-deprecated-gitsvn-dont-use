@@ -237,6 +237,11 @@ NTAPI
 USBH_SyncGetHubDescriptor(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
 
+NTSTATUS
+NTAPI
+USBH_SyncPowerOnPorts(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
+
 BOOLEAN
 NTAPI
 USBH_HubIsBusPowered(
