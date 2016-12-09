@@ -171,6 +171,11 @@ USBH_FdoPower(
 
 /* usbhub.c */
 
+NTSTATUS
+NTAPI
+USBH_Wait(
+  IN ULONG Milliseconds);
+
 VOID
 NTAPI
 USBH_CompleteIrp(

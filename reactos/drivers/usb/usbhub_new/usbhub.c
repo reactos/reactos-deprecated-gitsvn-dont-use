@@ -3,6 +3,18 @@
 //#define NDEBUG
 #include <debug.h>
 
+NTSTATUS
+NTAPI
+USBH_Wait(IN ULONG Milliseconds)
+{
+    LARGE_INTEGER Interval = {{0, 0}};
+
+    DPRINT("USBH_Wait: Milliseconds - %x\n", Milliseconds);
+    Interval.QuadPart -= 10000 * Milliseconds + (KeQueryTimeIncrement() - 1);
+    Interval.HighPart = -1;
+    return KeDelayExecutionThread(KernelMode, FALSE, &Interval);
+}
+
 VOID
 NTAPI
 USBH_CompleteIrp(IN PIRP Irp,
