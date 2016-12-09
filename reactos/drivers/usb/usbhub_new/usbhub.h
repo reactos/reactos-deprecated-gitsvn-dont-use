@@ -262,6 +262,16 @@ USBH_HubIsBusPowered(
 
 NTSTATUS
 NTAPI
+USBD_RegisterRootHubCallBack(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+NTSTATUS
+NTAPI
+USBD_UnRegisterRootHubCallBack(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+NTSTATUS
+NTAPI
 DriverEntry(
   IN PDRIVER_OBJECT DriverObject,
   IN PUNICODE_STRING RegistryPath);

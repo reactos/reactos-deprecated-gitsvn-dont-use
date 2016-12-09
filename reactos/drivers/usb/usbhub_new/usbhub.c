@@ -1124,6 +1124,60 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBD_RegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_BUSIFFN_ROOTHUB_INIT_NOTIFY RootHubInitNotification;
+
+    DPRINT("USBD_RegisterRootHubCallBack: ... \n");
+
+    RootHubInitNotification = HubExtension->BusInterface.RootHubInitNotification;
+
+    if (!RootHubInitNotification)
+    {
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    KeResetEvent(&HubExtension->RootHubNotificationEvent);
+
+    return RootHubInitNotification(HubExtension->BusInterface.BusContext,
+                                   HubExtension,
+                                   (PRH_INIT_CALLBACK)USBHUB_RhHubCallBack);
+}
+
+NTSTATUS
+NTAPI
+USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_BUSIFFN_ROOTHUB_INIT_NOTIFY RootHubInitNotification;
+    NTSTATUS Status;
+
+    DPRINT("USBD_UnRegisterRootHubCallBack ... \n");
+
+    RootHubInitNotification = HubExtension->BusInterface.RootHubInitNotification;
+
+    if (!RootHubInitNotification)
+    {
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    Status = RootHubInitNotification(HubExtension->BusInterface.BusContext,
+                                     NULL,
+                                     NULL);
+
+    if (!NT_SUCCESS(Status))
+    {
+        KeWaitForSingleObject(&HubExtension->RootHubNotificationEvent,
+                              Executive,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
