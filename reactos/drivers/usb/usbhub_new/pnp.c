@@ -844,6 +844,12 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
             DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
+
+            if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED)
+            {
+                Irp->IoStatus.Information |= PNP_DEVICE_FAILED;
+            }
+
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
