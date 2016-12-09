@@ -45,6 +45,33 @@ USBH_HubPnPIrpComplete(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_QueryCapsComplete(IN PDEVICE_OBJECT DeviceObject,
+                       IN PIRP Irp,
+                       IN PVOID Context)
+{
+    PIO_STACK_LOCATION IoStack;
+    NTSTATUS Status;
+    PDEVICE_CAPABILITIES Capabilities;
+
+    DPRINT("USBH_QueryCapsComplete: ... \n");
+
+    Status = Irp->IoStatus.Status;
+
+    if (Irp->PendingReturned)
+    {
+        IoMarkIrpPending(Irp);
+    }
+
+    IoStack= IoGetCurrentIrpStackLocation(Irp);
+    Capabilities = IoStack->Parameters.DeviceCapabilities.Capabilities;
+
+    Capabilities->SurpriseRemovalOK = 1;
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBHUB_GetBusInterface(IN PDEVICE_OBJECT DeviceObject,
                        IN PUSB_BUS_INTERFACE_HUB_V5 BusInterface)
 {
@@ -758,7 +785,16 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_QUERY_CAPABILITIES:           // 9
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
-            Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+            IoCopyCurrentIrpStackLocationToNext(Irp);
+
+            IoSetCompletionRoutine(Irp,
+                                   USBH_QueryCapsComplete,
+                                   HubExtension,
+                                   TRUE,
+                                   FALSE,
+                                   FALSE);
+
+            Status = IoCallDriver(HubExtension->LowerDevice, Irp);
             break;
 
         case IRP_MN_QUERY_RESOURCES:              // 10

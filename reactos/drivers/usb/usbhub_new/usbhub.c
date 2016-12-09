@@ -232,7 +232,7 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
                               FALSE,
                               NULL);
 
-        ExFreePool(HubTimeoutContext);
+       ExFreePool(HubTimeoutContext);
     }
 
     Status = IoStatusBlock.Status;
@@ -283,7 +283,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
         if (!Buffer)
         {
             return STATUS_INSUFFICIENT_RESOURCES;
-        }     
+        }
     }
 
     Urb = ExAllocatePoolWithTag(NonPagedPool,
@@ -341,7 +341,11 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
         RtlCopyMemory(TransferBuffer, Buffer, BufferLen);
     }
 
-    ExFreePool(Buffer);
+    if (Buffer)
+    {
+        ExFreePool(Buffer);
+    }
+
     ExFreePool(Urb);
 
     return Status;
@@ -1081,6 +1085,8 @@ USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
             if (!NT_SUCCESS(Status))
             {
+                DPRINT1("USBH_SyncPowerOnPorts: USBH_SyncPowerOnPort() failed - %p\n",
+                        Status);
                 break;
             }
 
