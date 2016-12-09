@@ -244,6 +244,13 @@ USBH_SyncGetHubDescriptor(
 
 NTSTATUS
 NTAPI
+USBH_SyncClearPortStatus(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN USHORT Port,
+  IN USHORT RequestValue);
+
+NTSTATUS
+NTAPI
 USBH_SyncPowerOnPorts(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
 

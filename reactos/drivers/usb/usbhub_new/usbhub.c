@@ -981,6 +981,34 @@ USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncClearPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                         IN USHORT Port,
+                         IN USHORT RequestValue)
+{
+    BM_REQUEST_TYPE RequestType;
+
+    DPRINT("USBH_SyncClearPortStatus: Port - %x, RequestValue - %x\n",
+           Port,
+           RequestValue);
+
+    RequestType.B = 0;//0x23
+    RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+    RequestType._BM.Type = BMREQUEST_CLASS;
+    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+
+    return USBH_Transact(HubExtension,
+                         NULL,
+                         0,
+                         1, // to device
+                         URB_FUNCTION_CLASS_OTHER,
+                         RequestType,
+                         USB_REQUEST_CLEAR_FEATURE,
+                         RequestValue,
+                         Port);
+}
+
+NTSTATUS
+NTAPI
 USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                      IN USHORT Port,
                      IN BOOLEAN IsWait)
@@ -1007,7 +1035,7 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
 
     Status = USBH_Transact(HubExtension,
-                           0,
+                           NULL,
                            0,
                            1,
                            URB_FUNCTION_CLASS_OTHER,
@@ -1020,7 +1048,7 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         if (IsWait)
         {
-            UsbhWait(2 * HubDescriptor->bPowerOnToPowerGood);
+            USBH_Wait(2 * HubDescriptor->bPowerOnToPowerGood);
         }
 
         PortData->PortStatus.UsbPortStatus.ConnectStatus = 1;
@@ -1061,7 +1089,7 @@ USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
         while (Port <= NumberOfPorts);
     }
 
-    UsbhWait(2 * HubDescriptor->bPowerOnToPowerGood);
+    USBH_Wait(2 * HubDescriptor->bPowerOnToPowerGood);
 
     return Status;
 }
