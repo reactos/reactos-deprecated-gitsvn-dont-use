@@ -392,6 +392,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     DPRINT("USBH_StartHubFdoDevice: ... \n");
 
     KeInitializeEvent(&HubExtension->LowerDeviceEvent, NotificationEvent, FALSE);
+    KeInitializeEvent(&HubExtension->StatusChangeEvent, NotificationEvent, TRUE);
     KeInitializeEvent(&HubExtension->RootHubNotificationEvent,
                       NotificationEvent,
                       TRUE);
@@ -400,7 +401,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     HubExtension->HubConfigDescriptor = NULL;
     HubExtension->HubDescriptor = NULL;
     HubExtension->SCEIrp = NULL;
-    HubExtension->HubBuffer = NULL;
+    HubExtension->SCEBitmap = NULL;
 
     IoCopyCurrentIrpStackLocationToNext(Irp);
 
@@ -594,13 +595,13 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         goto ErrorExit;
     }
 
-    HubExtension->HubBufferLength = HubExtension->PipeInfo.MaximumPacketSize;
+    HubExtension->SCEBitmapLength = HubExtension->PipeInfo.MaximumPacketSize;
 
-    HubExtension->HubBuffer = ExAllocatePoolWithTag(NonPagedPool,
-                                                    HubExtension->HubBufferLength,
-                                                    USB_HUB_TAG);
+    HubExtension->SCEBitmap = ExAllocatePoolWithTag(NonPagedPool,
+                                                             HubExtension->SCEBitmapLength,
+                                                             USB_HUB_TAG);
 
-    if (!HubExtension->HubBuffer)
+    if (!HubExtension->SCEBitmap)
     {
         Status = STATUS_INSUFFICIENT_RESOURCES;
         goto ErrorExit;
@@ -639,7 +640,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     else
     {
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DO_ENUMERATION;
-        DbgBreakPoint();
+        USBH_SubmitStatusChangeTransfer(HubExtension);
     }
 
     goto Exit;
@@ -664,10 +665,10 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         HubExtension->ResetPortIrp = NULL;
     }
 
-    if (HubExtension->HubBuffer)
+    if (HubExtension->SCEBitmap)
     {
-        ExFreePool(HubExtension->HubBuffer);
-        HubExtension->HubBuffer = NULL;
+        ExFreePool(HubExtension->SCEBitmap);
+        HubExtension->SCEBitmap = NULL;
     }
 
     if (HubExtension->HubConfigDescriptor)

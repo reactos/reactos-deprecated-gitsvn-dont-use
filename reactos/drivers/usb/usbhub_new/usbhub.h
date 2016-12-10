@@ -23,9 +23,11 @@
 #define USBHUB_FDO_FLAG_DEVICE_STOPPING   (1 << 2)    // 0x00000004
 #define USBHUB_FDO_FLAG_DEVICE_FAILED     (1 << 3)    // 0x00000008
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
+#define USBHUB_FDO_FLAG_NOT_D0_STATE      (1 << 11)   // 0x00000800
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
 #define USBHUB_FDO_FLAG_DO_ENUMERATION    (1 << 20)   // 0x00100000
+#define USBHUB_FDO_FLAG_NOT_ENUMERATED    (1 << 23)   // 0x00800000
 
 /* Hub Class Feature Selectors */
 
@@ -127,9 +129,11 @@ typedef struct _USBHUB_FDO_EXTENSION {
   USBD_PIPE_INFORMATION PipeInfo;
   PIRP SCEIrp;
   PIRP ResetPortIrp;
-  PVOID HubBuffer;
-  ULONG HubBufferLength;
+  PVOID SCEBitmap;
+  ULONG SCEBitmapLength;
   KEVENT RootHubNotificationEvent;
+  struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST SCEWorkerUrb;
+  KEVENT StatusChangeEvent;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -261,6 +265,11 @@ NTAPI
 USBH_HubIsBusPowered(
   IN PDEVICE_OBJECT DeviceObject,
   IN PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor);
+
+NTSTATUS
+NTAPI
+USBH_SubmitStatusChangeTransfer(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
 
 NTSTATUS
 NTAPI

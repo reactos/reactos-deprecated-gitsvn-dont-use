@@ -1132,8 +1132,29 @@ VOID
 NTAPI
 USBHUB_RootHubCallBack(IN PVOID Context)
 {
-    DPRINT1("USBHUB_RootHubCallBack: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_FDO_EXTENSION HubExtension;
+
+    DPRINT("USBHUB_RhHubCallBack: ... \n");
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    if (HubExtension->SCEIrp)
+    {
+        HubExtension->HubFlags |= (USBHUB_FDO_FLAG_DO_ENUMERATION |
+                                   USBHUB_FDO_FLAG_NOT_ENUMERATED);
+
+        USBH_SubmitStatusChangeTransfer(HubExtension);
+
+        IoInvalidateDeviceRelations(HubExtension->LowerPDO, BusRelations);
+    }
+    else
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DO_ENUMERATION;
+    }
+
+    KeSetEvent(&HubExtension->RootHubNotificationEvent,
+               EVENT_INCREMENT,
+               FALSE);
 }
 
 NTSTATUS
