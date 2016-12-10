@@ -1128,6 +1128,77 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
     return Result;
 }
 
+NTSTATUS
+NTAPI
+USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
+                      IN PIRP Irp,
+                      IN PVOID Context)
+{
+    DPRINT1("USBH_ChangeIndication: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
+USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PIRP Irp;
+    NTSTATUS Status;
+    struct _URB_BULK_OR_INTERRUPT_TRANSFER * Urb;
+    PIO_STACK_LOCATION IoStack;
+
+    DPRINT("USBH_SubmitStatusChangeTransfer ... \n");
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_NOT_D0_STATE)
+    {
+        return STATUS_INVALID_DEVICE_STATE;
+    }
+
+    Irp = HubExtension->SCEIrp;
+
+    if (!Irp)
+    {
+        return STATUS_INVALID_DEVICE_STATE;
+    }
+
+    Urb = (struct _URB_BULK_OR_INTERRUPT_TRANSFER *)&HubExtension->SCEWorkerUrb;
+
+    Urb->Hdr.Length = sizeof(struct _URB_BULK_OR_INTERRUPT_TRANSFER);
+    Urb->Hdr.Function = URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER;
+    Urb->Hdr.UsbdDeviceHandle = NULL;
+
+    Urb->PipeHandle = HubExtension->PipeInfo.PipeHandle;
+    Urb->TransferFlags = USBD_SHORT_TRANSFER_OK;
+    Urb->TransferBuffer = HubExtension->SCEBitmap;
+    Urb->TransferBufferLength = HubExtension->SCEBitmapLength;
+    Urb->TransferBufferMDL = NULL;
+    Urb->UrbLink = NULL;
+
+    IoInitializeIrp(Irp,
+                    IoSizeOfIrp(HubExtension->LowerDevice->StackSize),
+                    HubExtension->LowerDevice->StackSize);
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+
+    IoStack->MajorFunction = IRP_MJ_INTERNAL_DEVICE_CONTROL;
+    IoStack->Parameters.Others.Argument1 = &HubExtension->SCEWorkerUrb;
+    IoStack->Parameters.DeviceIoControl.IoControlCode = IOCTL_INTERNAL_USB_SUBMIT_URB;
+
+    IoSetCompletionRoutine(Irp,
+                          USBH_ChangeIndication,
+                          HubExtension,
+                          TRUE,
+                          TRUE,
+                          TRUE);
+
+    KeResetEvent(&HubExtension->StatusChangeEvent);
+
+    Status = IoCallDriver(HubExtension->LowerDevice, Irp);
+
+    return Status;
+}
+
 VOID
 NTAPI
 USBHUB_RootHubCallBack(IN PVOID Context)
