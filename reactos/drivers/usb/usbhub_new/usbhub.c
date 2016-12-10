@@ -1205,7 +1205,7 @@ USBHUB_RootHubCallBack(IN PVOID Context)
 {
     PUSBHUB_FDO_EXTENSION HubExtension;
 
-    DPRINT("USBHUB_RhHubCallBack: ... \n");
+    DPRINT("USBHUB_RootHubCallBack: ... \n");
 
     HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
 
@@ -1280,6 +1280,13 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     }
 
     return Status;
+}
+
+VOID
+NTAPI
+USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT1("USBH_CheckIdleDeferred: UNIMPLEMENTED. FIXME. \n");
 }
 
 NTSTATUS
@@ -1406,6 +1413,8 @@ USBH_AddDevice(IN PDRIVER_OBJECT DriverObject,
 
     HubExtension->LowerPDO = LowerPDO;
     HubExtension->LowerDevice = LowerDevice;
+
+    KeInitializeSemaphore(&HubExtension->IdleSemaphore, 1, 1);
 
     DeviceObject->Flags |= DO_POWER_PAGABLE;
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;

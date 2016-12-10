@@ -725,16 +725,39 @@ USBH_FdoStartDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_FdoQueryBusRelations(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                          IN PIRP Irp)
+{
+    NTSTATUS Status;
+
+    DPRINT1("USBH_FdoQueryBusRelations: UNIMPLEMENTED. FIXME. \n");
+
+    Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             IN PIRP Irp,
             IN UCHAR Minor)
 {
-    NTSTATUS Status=0;
+    NTSTATUS Status;
+    PIO_STACK_LOCATION IoStack;
+    BOOLEAN IsCheckIdle = FALSE;
 
     DPRINT("USBH_FdoPnP: HubExtension - %p, Irp - %p, Minor - %x\n",
            HubExtension,
            Irp,
            Minor);
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    KeWaitForSingleObject(&HubExtension->IdleSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
 
     switch (Minor)
     {
@@ -776,7 +799,19 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
-            Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+            if (IoStack->Parameters.QueryDeviceRelations.Type != BusRelations)
+            {
+                Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+                break;
+            }
+
+            HubExtension->HubFlags |= USBHUB_FDO_FLAG_HUB_BUSY;
+
+            IsCheckIdle = 1;
+
+            Status = USBH_FdoQueryBusRelations(HubExtension, Irp);
+
+            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_HUB_BUSY;
             break;
 
         case IRP_MN_QUERY_INTERFACE: // 8
@@ -873,6 +908,16 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             DPRINT("unknown IRP_MN_???\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
+    }
+
+    KeReleaseSemaphore(&HubExtension->IdleSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (IsCheckIdle)
+    {
+        USBH_CheckIdleDeferred(HubExtension);
     }
 
     return Status;

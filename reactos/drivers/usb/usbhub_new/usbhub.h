@@ -23,6 +23,7 @@
 #define USBHUB_FDO_FLAG_DEVICE_STOPPING   (1 << 2)    // 0x00000004
 #define USBHUB_FDO_FLAG_DEVICE_FAILED     (1 << 3)    // 0x00000008
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
+#define USBHUB_FDO_FLAG_HUB_BUSY          (1 << 6)    // 0x00000040
 #define USBHUB_FDO_FLAG_NOT_D0_STATE      (1 << 11)   // 0x00000800
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
@@ -134,6 +135,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   KEVENT RootHubNotificationEvent;
   struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST SCEWorkerUrb;
   KEVENT StatusChangeEvent;
+  KSEMAPHORE IdleSemaphore;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -279,6 +281,11 @@ USBD_RegisterRootHubCallBack(
 NTSTATUS
 NTAPI
 USBD_UnRegisterRootHubCallBack(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+VOID
+NTAPI
+USBH_CheckIdleDeferred(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
 
 NTSTATUS
