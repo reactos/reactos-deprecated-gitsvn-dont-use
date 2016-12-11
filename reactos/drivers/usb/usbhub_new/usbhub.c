@@ -985,6 +985,34 @@ USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_SyncGetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                       IN USHORT Port,
+                       IN PUSBHUB_PORT_STATUS PortStatus,
+                       IN ULONG Length)
+{
+    BM_REQUEST_TYPE RequestType;
+
+    DPRINT("USBH_SyncGetPortStatus: Port - %x\n", Port);
+
+    RequestType.B = 0;//0xA3
+    RequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+    RequestType._BM.Type = BMREQUEST_CLASS;
+    RequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+
+    return USBH_Transact(HubExtension,
+                         PortStatus,
+                         Length,
+                         0, // to host
+                         URB_FUNCTION_CLASS_OTHER,
+                         RequestType,
+                         USB_REQUEST_GET_STATUS,
+                         0,
+                         Port);
+}
+
+
+NTSTATUS
+NTAPI
 USBH_SyncClearPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
                          IN USHORT Port,
                          IN USHORT RequestValue)

@@ -24,9 +24,11 @@
 #define USBHUB_FDO_FLAG_DEVICE_FAILED     (1 << 3)    // 0x00000008
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
 #define USBHUB_FDO_FLAG_HUB_BUSY          (1 << 6)    // 0x00000040
+#define USBHUB_FDO_FLAG_ESD_RECOVERING    (1 << 9)    // 0x00000200
 #define USBHUB_FDO_FLAG_NOT_D0_STATE      (1 << 11)   // 0x00000800
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
+#define USBHUB_FDO_FLAG_ENUM_POST_RECOVER (1 << 19)   // 0x00080000
 #define USBHUB_FDO_FLAG_DO_ENUMERATION    (1 << 20)   // 0x00100000
 #define USBHUB_FDO_FLAG_NOT_ENUMERATED    (1 << 23)   // 0x00800000
 
@@ -120,6 +122,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   SYSTEM_POWER_STATE SystemWake;
   DEVICE_POWER_STATE DeviceWake;
   POWER_STATE CurrentPowerState;
+  POWER_STATE SystemPowerState;
   ULONG MaxPower;
   USB_DEVICE_DESCRIPTOR HubDeviceDescriptor;
   USHORT Reserved1;
@@ -136,6 +139,11 @@ typedef struct _USBHUB_FDO_EXTENSION {
   struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST SCEWorkerUrb;
   KEVENT StatusChangeEvent;
   KSEMAPHORE IdleSemaphore;
+  KSPIN_LOCK RelationsWorkerSpinLock;
+  LIST_ENTRY PdoList;
+  LONG PendingRequestCount;
+  KEVENT PendingRequestEvent;
+  KSEMAPHORE ResetDeviceSemaphore;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -249,6 +257,14 @@ NTSTATUS
 NTAPI
 USBH_SyncGetHubDescriptor(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+NTSTATUS
+NTAPI
+USBH_SyncGetPortStatus(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN USHORT Port,
+  IN PUSBHUB_PORT_STATUS PortStatus,
+  IN ULONG Length);
 
 NTSTATUS
 NTAPI
