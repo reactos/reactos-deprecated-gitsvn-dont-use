@@ -1373,21 +1373,65 @@ USBD_CreateDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
                     IN USHORT Port)
 {
     PUSB_DEVICE_HANDLE HubDeviceHandle;
+    PUSB_BUSIFFN_CREATE_USB_DEVICE CreateUsbDevice;
 
-    DPRINT("USBD_CreateDeviceEx: Port - %x, UsbPortStatus - 0x%04X\n", Port, UsbPortStatus.AsUSHORT);
+    DPRINT("USBD_CreateDeviceEx: Port - %x, UsbPortStatus - 0x%04X\n",
+           Port,
+           UsbPortStatus.AsUSHORT);
 
-    HubDeviceHandle = USBH_SyncGetDeviceHandle(HubExtension->LowerDevice);
+    CreateUsbDevice = HubExtension->BusInterface.CreateUsbDevice;
 
-    if (!HubExtension->BusInterface.CreateUsbDevice)
+    if (!CreateUsbDevice)
     {
         return STATUS_NOT_IMPLEMENTED;
     }
 
-    return HubExtension->BusInterface.CreateUsbDevice(HubExtension->BusInterface.BusContext,
-                                                      OutDeviceHandle,
-                                                      HubDeviceHandle,
-                                                      UsbPortStatus.AsUSHORT,
-                                                      Port);
+    HubDeviceHandle = USBH_SyncGetDeviceHandle(HubExtension->LowerDevice);
+
+    return CreateUsbDevice(HubExtension->BusInterface.BusContext,
+                           OutDeviceHandle,
+                           HubDeviceHandle,
+                           UsbPortStatus.AsUSHORT,
+                           Port);
+}
+
+NTSTATUS
+NTAPI
+USBD_InitializeDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                        IN PUSB_DEVICE_HANDLE DeviceHandle,
+                        IN PUCHAR DeviceDescriptorBuffer,
+                        IN ULONG DeviceDescriptorBufferLength,
+                        IN PUCHAR ConfigDescriptorBuffer,
+                        IN ULONG ConfigDescriptorBufferLength)
+{
+    NTSTATUS Status;
+    PUSB_BUSIFFN_INITIALIZE_USB_DEVICE InitializeUsbDevice;
+    PUSB_BUSIFFN_GET_USB_DESCRIPTORS GetUsbDescriptors;
+
+    DPRINT("USBD_InitializeDeviceEx: ... \n");
+
+    InitializeUsbDevice = HubExtension->BusInterface.InitializeUsbDevice;
+    GetUsbDescriptors = HubExtension->BusInterface.GetUsbDescriptors;
+
+    if (!InitializeUsbDevice || !GetUsbDescriptors)
+    {
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    Status = InitializeUsbDevice(HubExtension->BusInterface.BusContext,
+                                 DeviceHandle);
+
+    if (!NT_SUCCESS(Status))
+    {
+        return Status;
+    }
+
+    return GetUsbDescriptors(HubExtension->BusInterface.BusContext,
+                             DeviceHandle,
+                             DeviceDescriptorBuffer,
+                             &DeviceDescriptorBufferLength,
+                             ConfigDescriptorBuffer,
+                             &ConfigDescriptorBufferLength);
 }
 
 VOID

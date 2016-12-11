@@ -311,6 +311,16 @@ USBD_CreateDeviceEx(
 
 NTSTATUS
 NTAPI
+USBD_InitializeDeviceEx(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PUSB_DEVICE_HANDLE DeviceHandle,
+  IN PUCHAR DeviceDescriptorBuffer,
+  IN ULONG DeviceDescriptorBufferLength,
+  IN PUCHAR ConfigDescriptorBuffer,
+  IN ULONG ConfigDescriptorBufferLength);
+
+NTSTATUS
+NTAPI
 USBD_RegisterRootHubCallBack(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
 
