@@ -1083,6 +1083,81 @@ ErrorExit:
 
 NTSTATUS
 NTAPI
+USBH_SyncGetStringDescriptor(IN PDEVICE_OBJECT DeviceObject,
+                             IN UCHAR Index,
+                             IN USHORT LanguageId,
+                             IN PUSB_STRING_DESCRIPTOR Descriptor,
+                             IN ULONG NumberOfBytes,
+                             IN PULONG OutLength,
+                             IN BOOLEAN IsValidateLength)
+{
+    struct _URB_CONTROL_DESCRIPTOR_REQUEST * Urb;
+    ULONG TransferedLength;
+    NTSTATUS Status;
+
+    DPRINT("USBH_SyncGetStringDescriptor: Index - %x, LanguageId - %x\n",
+           Index,
+           LanguageId);
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST),
+                                USB_HUB_TAG);
+
+    if (!Urb)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST));
+
+    Urb->Hdr.Function = URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE;
+    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST);
+
+    Urb->TransferBuffer = Descriptor;
+    Urb->TransferBufferLength = NumberOfBytes;
+
+    Urb->Index = Index;
+    Urb->DescriptorType = USB_STRING_DESCRIPTOR_TYPE;
+    Urb->LanguageId = LanguageId;
+
+    Status = USBH_SyncSubmitUrb(DeviceObject, (PURB)Urb);
+
+    if (!NT_SUCCESS(Status))
+    {
+        ExFreePool(Urb);
+        return Status;
+    }
+
+    TransferedLength = Urb->TransferBufferLength;
+
+    if (TransferedLength > NumberOfBytes)
+    {
+        Status = STATUS_DEVICE_DATA_ERROR;
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        ExFreePool(Urb);
+        return Status;
+    }
+
+    if (OutLength)
+    {
+        *OutLength = TransferedLength;
+    }
+
+    if (IsValidateLength && TransferedLength != Descriptor->bLength)
+    {
+        Status = STATUS_DEVICE_DATA_ERROR;
+    }
+
+    ExFreePool(Urb);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
                    IN PUSHORT OutStatus,
                    IN USHORT Function,

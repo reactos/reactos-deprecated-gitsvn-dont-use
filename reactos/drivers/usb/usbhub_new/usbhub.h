@@ -159,7 +159,10 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   PUSBHUB_FDO_EXTENSION HubExtension;
   PUSB_DEVICE_HANDLE DeviceHandle;
   USHORT PortNumber;
-  USHORT Pad;
+  USHORT SN_DescriptorLength;
+  BOOL IgnoringHwSerial;
+  USB_DEVICE_DESCRIPTOR DeviceDescriptor;
+  USHORT Reserved1;
 } USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
 
 typedef struct _USBHUB_URB_TIMEOUT_CONTEXT {
@@ -269,6 +272,17 @@ NTSTATUS
 NTAPI
 USBH_SyncGetHubDescriptor(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+NTSTATUS
+NTAPI
+USBH_SyncGetStringDescriptor(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN UCHAR Index,
+  IN USHORT LanguageId,
+  IN PUSB_STRING_DESCRIPTOR Descriptor,
+  IN ULONG NumberOfBytes,
+  IN PULONG OutLength,
+  IN BOOLEAN IsValidateLength);
 
 NTSTATUS
 NTAPI
