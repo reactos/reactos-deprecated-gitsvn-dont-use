@@ -23,14 +23,19 @@
 #define USBHUB_FDO_FLAG_DEVICE_STOPPING   (1 << 2)    // 0x00000004
 #define USBHUB_FDO_FLAG_DEVICE_FAILED     (1 << 3)    // 0x00000008
 #define USBHUB_FDO_FLAG_REMOTE_WAKEUP     (1 << 4)    // 0x00000010
+#define USBHUB_FDO_FLAG_DEVICE_STOPPED    (1 << 5)    // 0x00000020
 #define USBHUB_FDO_FLAG_HUB_BUSY          (1 << 6)    // 0x00000040
+#define USBHUB_FDO_FLAG_PENDING_WAKE_IRP  (1 << 7)    // 0x00000080
+#define USBHUB_FDO_FLAG_RESET_PORT_LOCK   (1 << 8)    // 0x00000100
 #define USBHUB_FDO_FLAG_ESD_RECOVERING    (1 << 9)    // 0x00000200
 #define USBHUB_FDO_FLAG_NOT_D0_STATE      (1 << 11)   // 0x00000800
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
 #define USBHUB_FDO_FLAG_ENUM_POST_RECOVER (1 << 19)   // 0x00080000
 #define USBHUB_FDO_FLAG_DO_ENUMERATION    (1 << 20)   // 0x00100000
+#define USBHUB_FDO_FLAG_CHECK_IDLE_LOCK   (1 << 21)   // 0x00200000
 #define USBHUB_FDO_FLAG_NOT_ENUMERATED    (1 << 23)   // 0x00800000
+#define USBHUB_FDO_FLAG_WITEM_INIT        (1 << 27)   // 0x08000000
 
 /* Hub Class Feature Selectors */
 
@@ -144,10 +149,17 @@ typedef struct _USBHUB_FDO_EXTENSION {
   LONG PendingRequestCount;
   KEVENT PendingRequestEvent;
   KSEMAPHORE ResetDeviceSemaphore;
+  PRKEVENT pResetPortEvent;
+  KSEMAPHORE HubPortSemaphore;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
   COMMON_DEVICE_EXTENSION Common;
+  ULONG PortPdoFlags;
+  PUSBHUB_FDO_EXTENSION HubExtension;
+  PUSB_DEVICE_HANDLE DeviceHandle;
+  USHORT PortNumber;
+  USHORT Pad;
 } USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
 
 typedef struct _USBHUB_URB_TIMEOUT_CONTEXT {

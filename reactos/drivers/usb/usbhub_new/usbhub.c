@@ -353,6 +353,144 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                   IN USHORT Port)
+{
+    USBHUB_PORT_STATUS PortStatus;
+    KEVENT Event;
+    LARGE_INTEGER Timeout = {{0, 0}};
+    ULONG ix;
+    NTSTATUS Status;
+
+    DPRINT("USBH_SyncResetPort: Port - %x\n", Port);
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->HubPortSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    Status = USBH_SyncGetPortStatus(HubExtension,
+                                    Port,
+                                    &PortStatus,
+                                    4);
+
+    if (NT_SUCCESS(Status) && !PortStatus.UsbPortStatus.ConnectStatus)
+    {
+        Status = STATUS_UNSUCCESSFUL;
+        goto Exit;
+    }
+
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_RESET_PORT_LOCK;
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    ix = 0;
+
+    while (TRUE)
+    {
+        BM_REQUEST_TYPE RequestType;
+
+        InterlockedExchange((PLONG)&HubExtension->pResetPortEvent,
+                            (LONG)&Event);
+
+        RequestType.B = 0;//0x23
+        RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+        RequestType._BM.Type = BMREQUEST_CLASS;
+        RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+
+        Status = USBH_Transact(HubExtension,
+                               NULL,
+                               0,
+                               1, // to device
+                               URB_FUNCTION_CLASS_OTHER,
+                               RequestType,
+                               USB_REQUEST_SET_FEATURE,
+                               USBHUB_FEATURE_PORT_RESET,
+                               Port);
+
+        Timeout.QuadPart -= 5000 * 10000;
+
+        if (!NT_SUCCESS(Status))
+        {
+            InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
+
+            USBH_Wait(10);
+            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;
+
+            goto Exit;
+        }
+
+        Status = KeWaitForSingleObject(&Event,
+                                       Suspended,
+                                       KernelMode,
+                                       FALSE,
+                                       &Timeout);
+
+        if (Status != STATUS_TIMEOUT)
+        {
+            break;
+        }
+
+        Status = USBH_SyncGetPortStatus(HubExtension,
+                                        Port,
+                                        &PortStatus,
+                                        4);
+
+        if (!NT_SUCCESS(Status) ||
+            !PortStatus.UsbPortStatus.ConnectStatus ||
+            ix >= 3)
+        {
+            InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
+
+            USBH_Wait(10);
+            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;
+
+            Status = STATUS_DEVICE_DATA_ERROR;
+            goto Exit;
+        }
+
+        ++ix;
+
+        KeInitializeEvent(&Event, NotificationEvent, FALSE);
+    }
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB)
+    {
+        Status = USBH_SyncGetPortStatus(HubExtension,
+                                        Port,
+                                        &PortStatus,
+                                        4);
+
+        if (!NT_SUCCESS(Status) && !PortStatus.UsbPortStatus.ConnectStatus)
+        {
+            USBH_Wait(10);
+            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;
+
+            Status = STATUS_DEVICE_DATA_ERROR;
+        }
+    }
+
+Exit:
+
+    KeReleaseSemaphore(&HubExtension->HubPortSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PUSB_DEVICE_HANDLE DeviceHandle,
                    OUT USB_DEVICE_TYPE * OutDeviceType)
@@ -1246,10 +1384,10 @@ USBD_CreateDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 
     return HubExtension->BusInterface.CreateUsbDevice(HubExtension->BusInterface.BusContext,
-                                                        OutDeviceHandle,
-                                                        HubDeviceHandle,
-                                                        UsbPortStatus.AsUSHORT,
-                                                        Port);
+                                                      OutDeviceHandle,
+                                                      HubDeviceHandle,
+                                                      UsbPortStatus.AsUSHORT,
+                                                      Port);
 }
 
 VOID
