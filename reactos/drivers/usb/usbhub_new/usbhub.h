@@ -291,6 +291,14 @@ USBH_SubmitStatusChangeTransfer(
 
 NTSTATUS
 NTAPI
+USBD_CreateDeviceEx(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PUSB_DEVICE_HANDLE * OutDeviceHandle,
+  IN USB_PORT_STATUS UsbPortStatus,
+  IN USHORT Port);
+
+NTSTATUS
+NTAPI
 USBD_RegisterRootHubCallBack(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
 

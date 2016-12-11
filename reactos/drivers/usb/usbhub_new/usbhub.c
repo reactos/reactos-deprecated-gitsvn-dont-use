@@ -1227,6 +1227,31 @@ USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBD_CreateDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                    IN PUSB_DEVICE_HANDLE * OutDeviceHandle,
+                    IN USB_PORT_STATUS UsbPortStatus,
+                    IN USHORT Port)
+{
+    PUSB_DEVICE_HANDLE HubDeviceHandle;
+
+    DPRINT("USBD_CreateDeviceEx: Port - %x, UsbPortStatus - 0x%04X\n", Port, UsbPortStatus.AsUSHORT);
+
+    HubDeviceHandle = USBH_SyncGetDeviceHandle(HubExtension->LowerDevice);
+
+    if (!HubExtension->BusInterface.CreateUsbDevice)
+    {
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    return HubExtension->BusInterface.CreateUsbDevice(HubExtension->BusInterface.BusContext,
+                                                        OutDeviceHandle,
+                                                        HubDeviceHandle,
+                                                        UsbPortStatus.AsUSHORT,
+                                                        Port);
+}
+
 VOID
 NTAPI
 USBHUB_RootHubCallBack(IN PVOID Context)
