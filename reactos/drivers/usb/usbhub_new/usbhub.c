@@ -1677,6 +1677,26 @@ USBH_QueueWorkItem(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 VOID
 NTAPI
+USBH_FreeWorkItem(IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem)
+{
+    PIO_WORKITEM WorkItem;
+
+    DPRINT("UsbhFreeIoWorkItem: ... \n");
+
+    WorkItem = HubIoWorkItem->HubWorkItem;
+
+    if (HubIoWorkItem->HubWorkItemBuffer)
+    {
+        ExFreePool(HubIoWorkItem->HubWorkItemBuffer);
+    }
+
+    ExFreePool(HubIoWorkItem);
+
+    IoFreeWorkItem(WorkItem);
+}
+
+VOID
+NTAPI
 USBHUB_RootHubCallBack(IN PVOID Context)
 {
     PUSBHUB_FDO_EXTENSION HubExtension;

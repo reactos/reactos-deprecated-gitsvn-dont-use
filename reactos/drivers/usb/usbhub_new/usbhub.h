@@ -382,6 +382,11 @@ USBH_QueueWorkItem(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem);
 
+VOID
+NTAPI
+USBH_FreeWorkItem(
+  IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem);
+
 NTSTATUS
 NTAPI
 USBD_RegisterRootHubCallBack(
