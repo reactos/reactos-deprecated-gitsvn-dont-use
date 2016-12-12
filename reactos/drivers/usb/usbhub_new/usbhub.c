@@ -1533,6 +1533,85 @@ USBD_InitializeDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              &ConfigDescriptorBufferLength);
 }
 
+NTSTATUS
+NTAPI
+USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
+                      PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,
+                      PVOID WorkerRoutine,
+                      SIZE_T BufferLength,
+                      PVOID * OutHubWorkItemBuffer,
+                      WORK_QUEUE_TYPE Type)
+{
+    PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
+    PIO_WORKITEM WorkItem;
+    PVOID WorkItemBuffer;
+
+    DPRINT("USBH_AllocateWorkItem: ... \n");
+
+    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_WITEM_INIT))
+    {
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    HubIoWorkItem = ExAllocatePoolWithTag(NonPagedPool,
+                                          sizeof(USBHUB_IO_WORK_ITEM),
+                                          USB_HUB_TAG);
+
+    if (!HubIoWorkItem)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(HubIoWorkItem, sizeof(USBHUB_IO_WORK_ITEM));
+
+    WorkItem = IoAllocateWorkItem(HubExtension->Common.SelfDevice);
+
+    HubIoWorkItem->HubWorkItem = WorkItem;
+
+    if (!WorkItem)
+    {
+        ExFreePool(HubIoWorkItem);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    if (BufferLength && OutHubWorkItemBuffer)
+    {
+        WorkItemBuffer = ExAllocatePoolWithTag(NonPagedPool,
+                                               BufferLength,
+                                               USB_HUB_TAG);
+
+        HubIoWorkItem->HubWorkItemBuffer = WorkItemBuffer;
+
+        if (!WorkItemBuffer)
+        {
+            IoFreeWorkItem(HubIoWorkItem->HubWorkItem);
+            ExFreePool(HubIoWorkItem);
+
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+    }
+    else
+    {
+        HubIoWorkItem->HubWorkItemBuffer = NULL;
+    }
+
+    HubIoWorkItem->HubWorkItemType = Type;
+    HubIoWorkItem->HubExtension = HubExtension;
+    HubIoWorkItem->HubWorkerRoutine = WorkerRoutine;
+
+    if (OutHubIoWorkItem)
+    {
+        *OutHubIoWorkItem = HubIoWorkItem;
+    }
+
+    if (OutHubWorkItemBuffer)
+    {
+        *OutHubWorkItemBuffer = HubIoWorkItem->HubWorkItemBuffer;
+    }
+
+    return STATUS_SUCCESS;
+}
+
 VOID
 NTAPI
 USBHUB_RootHubCallBack(IN PVOID Context)

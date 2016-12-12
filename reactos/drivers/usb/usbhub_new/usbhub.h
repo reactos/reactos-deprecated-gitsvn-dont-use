@@ -110,6 +110,24 @@ typedef struct _USBHUB_PORT_DATA {
   ULONG PortAttributes;
 } USBHUB_PORT_DATA, *PUSBHUB_PORT_DATA;
 
+typedef struct _USBHUB_FDO_EXTENSION *PUSBHUB_FDO_EXTENSION;
+
+typedef VOID
+(NTAPI * PUSBHUB_WORKER_ROUTINE)(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PVOID Context);
+
+typedef struct _USBHUB_IO_WORK_ITEM {
+  ULONG Reserved;
+  LIST_ENTRY HubWorkItemLink;
+  LONG HubWorkerQueued;
+  PIO_WORKITEM HubWorkItem;
+  WORK_QUEUE_TYPE HubWorkItemType;
+  PUSBHUB_FDO_EXTENSION HubExtension;
+  PUSBHUB_WORKER_ROUTINE HubWorkerRoutine;
+  PVOID HubWorkItemBuffer;
+} USBHUB_IO_WORK_ITEM, *PUSBHUB_IO_WORK_ITEM;
+
 typedef struct _COMMON_DEVICE_EXTENSION {
   ULONG ExtensionType;
   PDEVICE_OBJECT SelfDevice;
@@ -157,6 +175,8 @@ typedef struct _USBHUB_FDO_EXTENSION {
   KEVENT ResetEvent;
   PIRP PendingIdleIrp;
   PIRP PendingWakeIrp;
+  LIST_ENTRY WorkItemList;
+  KSPIN_LOCK WorkItemSpinLock;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -345,6 +365,16 @@ USBD_InitializeDeviceEx(
   IN ULONG DeviceDescriptorBufferLength,
   IN PUCHAR ConfigDescriptorBuffer,
   IN ULONG ConfigDescriptorBufferLength);
+
+NTSTATUS
+NTAPI
+USBH_AllocateWorkItem(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  OUT PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,
+  IN PVOID WorkerRoutine,
+  IN SIZE_T BufferLength,
+  OUT PVOID * OutHubWorkItemBuffer,
+  IN WORK_QUEUE_TYPE Type);
 
 NTSTATUS
 NTAPI
