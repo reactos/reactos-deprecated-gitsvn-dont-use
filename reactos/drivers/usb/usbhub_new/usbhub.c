@@ -1614,6 +1614,26 @@ USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
 
 VOID
 NTAPI
+USBH_QueueWorkItem(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                   IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem)
+{
+    DPRINT("UsbhQueueIoWorkItem: ... \n");
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+    InterlockedIncrement(&HubIoWorkItem->HubWorkerQueued);
+
+    ExInterlockedInsertTailList(&HubExtension->WorkItemList,
+                                &HubIoWorkItem->HubWorkItemLink,
+                                &HubExtension->WorkItemSpinLock);
+
+    IoQueueWorkItem(HubIoWorkItem->HubWorkItem,
+                    USBH_Worker,
+                    HubIoWorkItem->HubWorkItemType,
+                    HubIoWorkItem);
+}
+
+VOID
+NTAPI
 USBHUB_RootHubCallBack(IN PVOID Context)
 {
     PUSBHUB_FDO_EXTENSION HubExtension;

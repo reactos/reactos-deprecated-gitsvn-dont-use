@@ -376,6 +376,12 @@ USBH_AllocateWorkItem(
   OUT PVOID * OutHubWorkItemBuffer,
   IN WORK_QUEUE_TYPE Type);
 
+VOID
+NTAPI
+USBH_QueueWorkItem(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem);
+
 NTSTATUS
 NTAPI
 USBD_RegisterRootHubCallBack(
