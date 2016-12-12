@@ -30,6 +30,7 @@
 #define USBHUB_FDO_FLAG_ESD_RECOVERING    (1 << 9)    // 0x00000200
 #define USBHUB_FDO_FLAG_NOT_D0_STATE      (1 << 11)   // 0x00000800
 #define USBHUB_FDO_FLAG_HUB_IDLE_ON       (1 << 12)   // 0x00001000
+#define USBHUB_FDO_FLAG_DEVICE_REMOVED    (1 << 14)   // 0x00004000
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
 #define USBHUB_FDO_FLAG_DEFER_CHECK_IDLE  (1 << 16)   // 0x00010000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs

@@ -1808,6 +1808,14 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBH_FdoSubmitIdleRequestIrp(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT1("USBH_FdoSubmitIdleRequestIrp: UNIMPLEMENTED. FIXME. \n");
+    return 0;
+}
+
 VOID
 NTAPI
 USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
@@ -1851,6 +1859,7 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
             !(HubFlags & USBHUB_FDO_FLAG_ENUM_POST_RECOVER) &&
             !(HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) &&
             !(HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) &&
+            !(HubFlags & USBHUB_FDO_FLAG_DEVICE_REMOVED) &&
             !(HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING))
         {
             if (HubExtension->ResetRequestCount > 0)
