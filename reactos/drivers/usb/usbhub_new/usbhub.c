@@ -578,6 +578,36 @@ USBHUB_GetExtendedHubInfo(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                      &dummy);
 }
 
+PUSBHUB_FDO_EXTENSION
+NTAPI
+USBH_GetRootHubExtension(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PDEVICE_OBJECT RootHubPdo;
+    PDEVICE_OBJECT RootHubFdo;
+    PUSBHUB_FDO_EXTENSION RootHubExtension;
+
+    DPRINT("USBH_GetRootHubExtension: HubExtension - %p\n", HubExtension);
+
+    RootHubExtension = HubExtension;
+
+    if (HubExtension->LowerPDO != HubExtension->RootHubPdo)
+    {
+        RootHubPdo = HubExtension->RootHubPdo;
+
+        do
+        {
+            RootHubFdo = RootHubPdo->AttachedDevice;
+        }
+        while (RootHubFdo->DriverObject != HubExtension->Common.SelfDevice->DriverObject);
+
+        RootHubExtension = (PUSBHUB_FDO_EXTENSION)RootHubFdo->DeviceExtension;
+    }
+
+    DPRINT("USBH_GetRootHubExtension: RootHubExtension - %p\n", RootHubExtension);
+
+    return RootHubExtension;
+}
+
 NTSTATUS
 NTAPI
 USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
