@@ -1472,6 +1472,30 @@ USBD_CreateDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBD_RemoveDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                    IN PUSB_DEVICE_HANDLE DeviceHandle,
+                    IN ULONG Flags)
+{
+    PUSB_BUSIFFN_REMOVE_USB_DEVICE RemoveUsbDevice;
+
+    DPRINT("USBD_RemoveDeviceEx: DeviceHandle - %p, Flags - x\n",
+           DeviceHandle,
+           Flags);
+
+    RemoveUsbDevice = HubExtension->BusInterface.RemoveUsbDevice;
+
+    if (!RemoveUsbDevice)
+    {
+        return STATUS_NOT_IMPLEMENTED;
+    }
+
+    return RemoveUsbDevice(HubExtension->BusInterface.BusContext,
+                           DeviceHandle,
+                           Flags);
+}
+
+NTSTATUS
+NTAPI
 USBD_InitializeDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
                         IN PUSB_DEVICE_HANDLE DeviceHandle,
                         IN PUCHAR DeviceDescriptorBuffer,

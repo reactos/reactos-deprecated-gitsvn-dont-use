@@ -29,7 +29,9 @@
 #define USBHUB_FDO_FLAG_RESET_PORT_LOCK   (1 << 8)    // 0x00000100
 #define USBHUB_FDO_FLAG_ESD_RECOVERING    (1 << 9)    // 0x00000200
 #define USBHUB_FDO_FLAG_NOT_D0_STATE      (1 << 11)   // 0x00000800
+#define USBHUB_FDO_FLAG_HUB_IDLE_ON       (1 << 12)   // 0x00001000
 #define USBHUB_FDO_FLAG_USB20_HUB         (1 << 15)   // 0x00008000
+#define USBHUB_FDO_FLAG_DEFER_CHECK_IDLE  (1 << 16)   // 0x00010000
 #define USBHUB_FDO_FLAG_MULTIPLE_TTS      (1 << 18)   // 0x00040000 // High-speed Operating Hub with Multiple TTs
 #define USBHUB_FDO_FLAG_ENUM_POST_RECOVER (1 << 19)   // 0x00080000
 #define USBHUB_FDO_FLAG_DO_ENUMERATION    (1 << 20)   // 0x00100000
@@ -151,6 +153,10 @@ typedef struct _USBHUB_FDO_EXTENSION {
   KSEMAPHORE ResetDeviceSemaphore;
   PRKEVENT pResetPortEvent;
   KSEMAPHORE HubPortSemaphore;
+  LONG ResetRequestCount;
+  KEVENT ResetEvent;
+  PIRP PendingIdleIrp;
+  PIRP PendingWakeIrp;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -322,6 +328,13 @@ USBD_CreateDeviceEx(
   IN PUSB_DEVICE_HANDLE * OutDeviceHandle,
   IN USB_PORT_STATUS UsbPortStatus,
   IN USHORT Port);
+
+NTSTATUS
+NTAPI
+USBD_RemoveDeviceEx(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PUSB_DEVICE_HANDLE DeviceHandle,
+  IN ULONG Flags);
 
 NTSTATUS
 NTAPI
