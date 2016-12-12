@@ -1614,6 +1614,49 @@ USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
 
 VOID
 NTAPI
+USBH_Worker(IN PDEVICE_OBJECT DeviceObject,
+            IN PVOID Context)
+{
+    PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    KIRQL OldIrql;
+    PIO_WORKITEM WorkItem;
+
+    DPRINT("UsbhIoWorker: ... \n");
+
+    HubIoWorkItem = (PUSBHUB_IO_WORK_ITEM)Context;
+
+    InterlockedDecrement(&HubIoWorkItem->HubWorkerQueued);
+
+    HubExtension = HubIoWorkItem->HubExtension;
+    WorkItem = HubIoWorkItem->HubWorkItem;
+
+    HubIoWorkItem->HubWorkerRoutine(HubIoWorkItem->HubExtension,
+                                    HubIoWorkItem->HubWorkItemBuffer);
+
+    KeAcquireSpinLock(&HubExtension->WorkItemSpinLock, &OldIrql);
+    RemoveEntryList(&HubIoWorkItem->HubWorkItemLink);
+    KeReleaseSpinLock(&HubExtension->WorkItemSpinLock, OldIrql);
+
+    if (HubIoWorkItem->HubWorkItemBuffer)
+    {
+        ExFreePool(HubIoWorkItem->HubWorkItemBuffer);
+    }
+
+    ExFreePool(HubIoWorkItem);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    IoFreeWorkItem(WorkItem);
+}
+
+VOID
+NTAPI
 USBH_QueueWorkItem(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem)
 {
