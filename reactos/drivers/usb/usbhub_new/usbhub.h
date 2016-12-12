@@ -177,6 +177,8 @@ typedef struct _USBHUB_FDO_EXTENSION {
   PIRP PendingWakeIrp;
   LIST_ENTRY WorkItemList;
   KSPIN_LOCK WorkItemSpinLock;
+  KSPIN_LOCK CheckIdleSpinLock;
+  KEVENT IdleEvent;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -189,6 +191,7 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   BOOL IgnoringHwSerial;
   USB_DEVICE_DESCRIPTOR DeviceDescriptor;
   USHORT Reserved1;
+  PIRP IdleNotificationIrp;
 } USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
 
 typedef struct _USBHUB_URB_TIMEOUT_CONTEXT {

@@ -1782,7 +1782,133 @@ VOID
 NTAPI
 USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT("USBH_CheckIdleWorker: ... \n");
+    PDEVICE_OBJECT PdoDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PUSBHUB_PORT_DATA PortData;
+    ULONG HubFlags;
+    ULONG Port;
+    KIRQL Irql;
+    BOOLEAN IsHubIdle = FALSE;
+    BOOLEAN IsAllPortsIdle;
+
+    DPRINT("USBH_CheckHubIdle: ... \n");
+
+    KeAcquireSpinLock(&HubExtension->CheckIdleSpinLock, &Irql);
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_CHECK_IDLE_LOCK)
+    {
+        KeReleaseSpinLock(&HubExtension->CheckIdleSpinLock, Irql);
+        return;
+    }
+
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_CHECK_IDLE_LOCK;
+    KeReleaseSpinLock(&HubExtension->CheckIdleSpinLock, Irql);
+
+    if (USBH_GetRootHubExtension(HubExtension)->SystemPowerState.SystemState != PowerSystemWorking)
+    {
+        KeAcquireSpinLock(&HubExtension->CheckIdleSpinLock, &Irql);
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_CHECK_IDLE_LOCK;
+        KeReleaseSpinLock(&HubExtension->CheckIdleSpinLock, Irql);
+        return;
+    }
+
+    HubFlags = HubExtension->HubFlags;
+
+    if (HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED &&
+        HubFlags & USBHUB_FDO_FLAG_DO_ENUMERATION)
+    {
+        if (!(HubFlags & USBHUB_FDO_FLAG_NOT_ENUMERATED) &&
+            !(HubFlags & USBHUB_FDO_FLAG_ENUM_POST_RECOVER) &&
+            !(HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) &&
+            !(HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) &&
+            !(HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING))
+        {
+            if (HubExtension->ResetRequestCount > 0)
+            {
+                HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
+            }
+            else
+            {
+                HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
+
+                InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+                KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
+                                      Executive,
+                                      KernelMode,
+                                      FALSE,
+                                      NULL);
+
+                IoAcquireCancelSpinLock(&Irql);
+
+                IsAllPortsIdle = TRUE;
+
+                Port = 0;
+
+                if (HubExtension->HubDescriptor->bNumberOfPorts)
+                {
+                    PortData = HubExtension->PortData;
+
+                    while (TRUE)
+                    {
+                        PdoDevice = PortData[Port].DeviceObject;
+
+                        if (PdoDevice)
+                        {
+                            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+
+                            if (!PortExtension->IdleNotificationIrp)
+                            {
+                                break;
+                            }
+                        }
+
+                        ++Port;
+
+                        if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
+                        {
+                            goto HubIdleCheck;
+                        }
+                    }
+
+                    IsAllPortsIdle = FALSE;
+                }
+                else
+                {
+      HubIdleCheck:
+                    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_HUB_IDLE_ON))
+                    {
+                        KeResetEvent(&HubExtension->IdleEvent);
+                        HubExtension->HubFlags |= USBHUB_FDO_FLAG_HUB_IDLE_ON;
+                        IsHubIdle = TRUE;
+                    }
+                }
+
+                IoReleaseCancelSpinLock(Irql);
+
+                KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                                   LOW_REALTIME_PRIORITY,
+                                   1,
+                                   FALSE);
+
+                if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+                {
+                    KeSetEvent(&HubExtension->PendingRequestEvent,
+                               EVENT_INCREMENT,
+                               FALSE);
+                }
+
+                if (IsAllPortsIdle && IsHubIdle)
+                {
+                    USBH_FdoSubmitIdleRequestIrp(HubExtension);
+                }
+            }
+        }
+    }
+
+    KeAcquireSpinLock(&HubExtension->CheckIdleSpinLock, &Irql);
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_CHECK_IDLE_LOCK;
+    KeReleaseSpinLock(&HubExtension->CheckIdleSpinLock, Irql);
 }
 
 VOID
