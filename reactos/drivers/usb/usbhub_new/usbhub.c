@@ -1780,9 +1780,40 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 VOID
 NTAPI
+USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT("USBH_CheckIdleWorker: ... \n");
+}
+
+VOID
+NTAPI
+USBH_CheckIdleWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                     IN PVOID Context)
+{
+    DPRINT("USBH_CheckIdleWorker: ... \n");
+    USBH_CheckHubIdle(HubExtension);
+}
+
+VOID
+NTAPI
 USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT1("USBH_CheckIdleDeferred: UNIMPLEMENTED. FIXME. \n");
+    PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
+    NTSTATUS Status;
+
+    DPRINT("USBH_CheckIdleDeferred: ... \n");
+
+    Status = USBH_AllocateWorkItem(HubExtension,
+                                   &HubIoWorkItem,
+                                   USBH_CheckIdleWorker,
+                                   0,
+                                   NULL,
+                                   DelayedWorkQueue);
+
+    if (NT_SUCCESS(Status))
+    {
+        USBH_QueueWorkItem(HubExtension, HubIoWorkItem);
+    }
 }
 
 NTSTATUS
