@@ -1808,12 +1808,107 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+VOID
+NTAPI
+USBH_FdoIdleNotificationCallback(IN PVOID Context)
+{
+    DPRINT1("USBH_FdoIdleNotificationCallback: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
+NTSTATUS
+NTAPI
+USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
+                                        IN PIRP Irp,
+                                        IN PVOID Context)
+{
+    DPRINT1("USBH_FdoIdleNotificationRequestComplete: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
 NTSTATUS
 NTAPI
 USBH_FdoSubmitIdleRequestIrp(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT1("USBH_FdoSubmitIdleRequestIrp: UNIMPLEMENTED. FIXME. \n");
-    return 0;
+    NTSTATUS Status;
+    ULONG HubFlags;
+    PDEVICE_OBJECT LowerPDO;
+    PIRP Irp;
+    PIO_STACK_LOCATION IoStack;
+    KIRQL Irql;
+
+    DPRINT("USBH_FdoSubmitIdleRequestIrp: ... \n");
+
+    if (HubExtension->PendingIdleIrp)
+    {
+        Status = STATUS_DEVICE_BUSY;
+        KeSetEvent(&HubExtension->IdleEvent, EVENT_INCREMENT, FALSE);
+        return Status;
+    }
+
+    HubFlags = HubExtension->HubFlags;
+
+    if (HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING ||
+        HubFlags & USBHUB_FDO_FLAG_DEVICE_REMOVED)
+    {
+        HubExtension->HubFlags = HubFlags & ~USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
+        KeSetEvent(&HubExtension->IdleEvent, EVENT_INCREMENT, FALSE);
+        return STATUS_DEVICE_REMOVED;
+    }
+
+    LowerPDO = HubExtension->LowerPDO;
+
+    HubExtension->IdleCallbackInfo.IdleCallback = USBH_FdoIdleNotificationCallback;
+    HubExtension->IdleCallbackInfo.IdleContext = HubExtension;
+
+    Irp = IoAllocateIrp(LowerPDO->StackSize, 0);
+
+    if (!Irp)
+    {
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+
+        KeSetEvent(&HubExtension->IdleEvent, EVENT_INCREMENT, FALSE);
+        return Status;
+    }
+ 
+    IoStack = IoGetNextIrpStackLocation(Irp);
+
+    IoStack->MajorFunction = IRP_MJ_INTERNAL_DEVICE_CONTROL;
+
+    IoStack->Parameters.DeviceIoControl.InputBufferLength = sizeof(USB_IDLE_CALLBACK_INFO);
+    IoStack->Parameters.DeviceIoControl.IoControlCode = IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION;
+    IoStack->Parameters.DeviceIoControl.Type3InputBuffer = &HubExtension->IdleCallbackInfo;
+
+    IoSetCompletionRoutine(Irp,
+                           USBH_FdoIdleNotificationRequestComplete,
+                           HubExtension,
+                           TRUE,
+                           TRUE,
+                           TRUE);
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+    InterlockedExchange(&HubExtension->IdleRequestLock, 0);
+
+    HubExtension->HubFlags &= ~(USBHUB_FDO_FLAG_DEVICE_SUSPENDED |
+                                USBHUB_FDO_FLAG_GOING_IDLE);
+
+    Status = IoCallDriver(HubExtension->LowerPDO, Irp);
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    if (Status == STATUS_PENDING &&
+        HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
+    {
+        HubExtension->PendingIdleIrp = Irp;
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    KeSetEvent(&HubExtension->IdleEvent, EVENT_INCREMENT, FALSE);
+
+    return Status;
 }
 
 VOID
