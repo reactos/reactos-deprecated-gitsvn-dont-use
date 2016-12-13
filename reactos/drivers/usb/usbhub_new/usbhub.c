@@ -1383,6 +1383,42 @@ USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBH_SyncDisablePort(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                     IN USHORT Port)
+{
+    PUSBHUB_PORT_DATA PortData;
+    NTSTATUS Status;
+    BM_REQUEST_TYPE RequestType;
+
+    DPRINT("USBH_SyncDisablePort ... \n");
+
+    PortData = &HubExtension->PortData[Port - 1];
+
+    RequestType.B = 0;//0x23
+    RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+    RequestType._BM.Type = BMREQUEST_CLASS;
+    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+
+    Status = USBH_Transact(HubExtension,
+                           NULL,
+                           0,
+                           1, // to device
+                           URB_FUNCTION_CLASS_OTHER,
+                           RequestType,
+                           USB_REQUEST_CLEAR_FEATURE,
+                           USBHUB_FEATURE_PORT_ENABLE,
+                           Port);
+
+    if (NT_SUCCESS(Status))
+    {
+        PortData->PortStatus.UsbPortStatus.EnableStatus = 0;
+    }
+
+    return Status;
+}
+
 BOOLEAN
 NTAPI
 USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
