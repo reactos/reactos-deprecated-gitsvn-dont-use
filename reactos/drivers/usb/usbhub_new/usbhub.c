@@ -70,6 +70,18 @@ USBH_SyncIrpComplete(IN PDEVICE_OBJECT DeviceObject,
     return STATUS_SUCCESS;
 }
 
+BOOLEAN
+NTAPI
+IsBitSet(IN ULONG_PTR BitMapAddress,
+         IN ULONG Bit)
+{
+    BOOLEAN IsSet;
+
+    IsSet = (*(PUCHAR)(BitMapAddress + (Bit >> 3)) & (1 << (Bit & 7))) != 0;
+    DPRINT("IsBitSet: Bit - %p, IsSet - %x\n", Bit, IsSet);
+    return IsSet;
+}
+
 NTSTATUS
 NTAPI
 USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
@@ -1549,7 +1561,6 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
-
 NTSTATUS
 NTAPI
 USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
@@ -2095,6 +2106,8 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
             !(HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) &&
             !(HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) &&
             !(HubFlags & USBHUB_FDO_FLAG_DEVICE_REMOVED) &&
+            !(HubFlags & USBHUB_FDO_FLAG_STATE_CHANGING) &&
+            !(HubFlags & USBHUB_FDO_FLAG_WAKEUP_START) &&
             !(HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING))
         {
             if (HubExtension->ResetRequestCount > 0)
@@ -2150,10 +2163,10 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
                 else
                 {
       HubIdleCheck:
-                    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_HUB_IDLE_ON))
+                    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST))
                     {
                         KeResetEvent(&HubExtension->IdleEvent);
-                        HubExtension->HubFlags |= USBHUB_FDO_FLAG_HUB_IDLE_ON;
+                        HubExtension->HubFlags |= USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
                         IsHubIdle = TRUE;
                     }
                 }
