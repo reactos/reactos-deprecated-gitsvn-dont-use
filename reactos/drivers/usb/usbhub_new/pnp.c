@@ -391,17 +391,37 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_StartHubFdoDevice: ... \n");
 
+    KeInitializeEvent(&HubExtension->IdleEvent, NotificationEvent, FALSE);
+    KeInitializeEvent(&HubExtension->ResetEvent, NotificationEvent, TRUE);
+    KeInitializeEvent(&HubExtension->PendingRequestEvent, NotificationEvent, FALSE);
     KeInitializeEvent(&HubExtension->LowerDeviceEvent, NotificationEvent, FALSE);
     KeInitializeEvent(&HubExtension->StatusChangeEvent, NotificationEvent, TRUE);
     KeInitializeEvent(&HubExtension->RootHubNotificationEvent,
                       NotificationEvent,
                       TRUE);
 
+    KeInitializeSpinLock(&HubExtension->RelationsWorkerSpinLock);
+    KeInitializeSpinLock(&HubExtension->CheckIdleSpinLock);
+
+    KeInitializeSemaphore(&HubExtension->ResetDeviceSemaphore, 1, 1);
+    KeInitializeSemaphore(&HubExtension->HubPortSemaphore, 1, 1);
+
     HubExtension->HubFlags = 0;
     HubExtension->HubConfigDescriptor = NULL;
     HubExtension->HubDescriptor = NULL;
     HubExtension->SCEIrp = NULL;
     HubExtension->SCEBitmap = NULL;
+    HubExtension->SystemPowerState.SystemState = PowerSystemWorking;
+    HubExtension->PendingRequestCount = 1;
+    HubExtension->ResetRequestCount = 0;
+    HubExtension->PendingIdleIrp = NULL;
+    HubExtension->PendingWakeIrp = NULL;
+
+    InitializeListHead(&HubExtension->PdoList);
+
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_WITEM_INIT;
+    InitializeListHead(&HubExtension->WorkItemList);
+    KeInitializeSpinLock(&HubExtension->WorkItemSpinLock);
 
     IoCopyCurrentIrpStackLocationToNext(Irp);
 
@@ -491,7 +511,9 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         if (!NT_SUCCESS(Status))
         {
-            DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceType() failed - %p\n", Status);
+            DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceType() failed - %p\n",
+                    Status);
+
             goto ErrorExit;
         }
 
@@ -512,8 +534,6 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     RtlZeroMemory(&DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
 
     USBH_QueryCapabilities(HubExtension->LowerDevice, &DeviceCapabilities);
-
-    //RtlFillMemory(HubExtension->DeviceState, POWER_SYSTEM_MAXIMUM, PowerDeviceD3);
 
     HubExtension->SystemWake = DeviceCapabilities.SystemWake;
     HubExtension->DeviceWake = DeviceCapabilities.DeviceWake;
@@ -598,8 +618,8 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     HubExtension->SCEBitmapLength = HubExtension->PipeInfo.MaximumPacketSize;
 
     HubExtension->SCEBitmap = ExAllocatePoolWithTag(NonPagedPool,
-                                                             HubExtension->SCEBitmapLength,
-                                                             USB_HUB_TAG);
+                                                    HubExtension->SCEBitmapLength,
+                                                    USB_HUB_TAG);
 
     if (!HubExtension->SCEBitmap)
     {
