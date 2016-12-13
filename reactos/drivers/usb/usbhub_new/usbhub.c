@@ -1401,14 +1401,154 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                 IN PIRP Irp,
+                                 IN struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST * Urb,
+                                 IN USHORT Port)
+{
+    DPRINT1("USBH_ChangeIndicationQueryChange: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+VOID
+NTAPI
+USBH_ChangeIndicationWorker(IN PVOID Context,
+                            IN PUSBHUB_STATUS_CHANGE_CONTEXT WorkItem)
+{
+    DPRINT1("USBH_ChangeIndicationWorker: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
+NTSTATUS
+NTAPI
 USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
                       IN PIRP Irp,
                       IN PVOID Context)
 {
-    DPRINT1("USBH_ChangeIndication: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    USBD_STATUS UrbStatus;
+    BOOLEAN IsErrors = FALSE;
+    PUSBHUB_IO_WORK_ITEM HubWorkItem;
+    PUSBHUB_STATUS_CHANGE_CONTEXT HubWorkItemBuffer;
+    USHORT NumPorts;
+    USHORT Port;
+    NTSTATUS Status;
+    ULONG_PTR Bitmap;
+    ULONG BufferLength;
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    UrbStatus = HubExtension->SCEWorkerUrb.Hdr.Status;
+
+    DPRINT("USBH_ChangeIndication: IrpStatus - %p, UrbStatus - %p\n",
+           Irp->IoStatus.Status,
+           UrbStatus);
+
+    if ((Irp->IoStatus.Status & 0xC0000000) == 0xC0000000 ||
+       USBD_ERROR(UrbStatus) ||
+       (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) ||
+       (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) )
+    {
+        DPRINT1("USBH_ChangeIndication: Error ... \n");
+        DbgBreakPoint();
+
+        ++HubExtension->RequestErrors;
+
+        IsErrors = TRUE;
+
+        if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING ||
+            HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED ||
+            HubExtension->RequestErrors > 3 ||
+            Irp->IoStatus.Status == STATUS_DELETE_PENDING)
+        {
+            KeSetEvent(&HubExtension->StatusChangeEvent,
+                       EVENT_INCREMENT,
+                       FALSE);
+
+            return STATUS_MORE_PROCESSING_REQUIRED;
+        }
+
+        KeSetEvent(&HubExtension->StatusChangeEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+    else
+    {
+        HubExtension->RequestErrors = 0;
+    }
+
+    BufferLength = sizeof(USBHUB_STATUS_CHANGE_CONTEXT) +
+                   HubExtension->SCEBitmapLength;
+
+    Status = USBH_AllocateWorkItem(HubExtension,
+                                   &HubWorkItem,
+                                   (PVOID)USBH_ChangeIndicationWorker,
+                                   BufferLength,
+                                   (PVOID *)&HubWorkItemBuffer,
+                                   DelayedWorkQueue);
+
+    if (!NT_SUCCESS(Status))
+    {
+        return STATUS_MORE_PROCESSING_REQUIRED;
+    }
+
+    RtlZeroMemory(HubWorkItemBuffer, BufferLength);
+
+    HubWorkItemBuffer->RequestErrors = 0;
+
+    if (IsErrors != 0)
+    {
+        HubWorkItemBuffer->RequestErrors = 1;
+    }
+
+    if (InterlockedIncrement(&HubExtension->ResetRequestCount) == 1)
+    {
+        KeResetEvent(&HubExtension->ResetEvent);
+    }
+
+    HubWorkItemBuffer->HubExtension = HubExtension;
+
+    Port = 0;
+
+    HubExtension->WorkItemToQueue = HubWorkItem;
+
+    RtlCopyMemory((PVOID)((ULONG)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)),
+                  HubExtension->SCEBitmap,
+                  HubExtension->SCEBitmapLength);
+
+    NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+
+    Bitmap = (ULONG)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT);
+
+    do
+    {
+        if (IsBitSet(Bitmap, Port))
+        {
+            break;
+        }
+
+        ++Port;
+    }
+    while (Port <= NumPorts);
+
+    if (Port > NumPorts)
+    {
+       Port = 0;
+    }
+
+    Status = USBH_ChangeIndicationQueryChange(HubExtension,
+                                              HubExtension->ResetPortIrp,
+                                              &HubExtension->SCEWorkerUrb,
+                                              Port);
+
+    if ((Status & 0xC0000000) == 0xC0000000)
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
+    }
+
+    return STATUS_MORE_PROCESSING_REQUIRED;
 }
+
 
 NTSTATUS
 NTAPI
