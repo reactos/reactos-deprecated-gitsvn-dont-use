@@ -458,6 +458,14 @@ USBH_CheckIdleDeferred(
 
 NTSTATUS
 NTAPI
+USBH_CreateDevice(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN USHORT Port,
+  IN USB_PORT_STATUS UsbPortStatus,
+  IN ULONG IsWait);
+
+NTSTATUS
+NTAPI
 DriverEntry(
   IN PDRIVER_OBJECT DriverObject,
   IN PUNICODE_STRING RegistryPath);

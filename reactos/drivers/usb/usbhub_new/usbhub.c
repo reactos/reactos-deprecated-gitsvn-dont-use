@@ -2267,6 +2267,18 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                  IN USHORT Port,
+                  IN USB_PORT_STATUS UsbPortStatus,
+                  IN ULONG IsWait)
+{
+    DPRINT1("USBH_CreateDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
