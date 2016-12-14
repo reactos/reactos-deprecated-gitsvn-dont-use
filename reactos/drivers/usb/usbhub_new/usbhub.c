@@ -1449,13 +1449,73 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_ChangeIndicationAckChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                               IN PIRP Irp,
+                               IN struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST * Urb,
+                               IN USHORT Port,
+                               IN USHORT Value)
+{
+    DPRINT1("USBH_ChangeIndicationAckChange: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
                                    IN PIRP Irp,
                                    IN PVOID Context)
 {
-    DPRINT1("USBH_ChangeIndicationProcessChange: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PUSBHUB_IO_WORK_ITEM WorkItem;
+    USHORT RequestValue;
+
+    DPRINT("USBH_ChangeIndicationProcessChange: ... \n");
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    if (NT_SUCCESS(Irp->IoStatus.Status) ||
+        USBD_SUCCESS(HubExtension->SCEWorkerUrb.Hdr.Status))
+    {
+        if (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange ||
+            HubExtension->PortStatus.UsbPortStatusChange.EnableStatusChange)
+        {
+            if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+            {
+                KeSetEvent(&HubExtension->PendingRequestEvent,
+                           EVENT_INCREMENT,
+                           FALSE);
+            }
+
+            USBH_FreeWorkItem(HubExtension->WorkItemToQueue);
+
+            HubExtension->WorkItemToQueue = NULL;
+
+            if (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange)
+            {
+                RequestValue = USBHUB_FEATURE_C_PORT_RESET;
+            }
+            else
+            {
+                RequestValue = USBHUB_FEATURE_C_PORT_ENABLE;
+            }
+
+            USBH_ChangeIndicationAckChange(HubExtension,
+                                           HubExtension->ResetPortIrp,
+                                           &HubExtension->SCEWorkerUrb,
+                                           HubExtension->Port,
+                                           RequestValue);
+        }
+    }
+    else
+    {
+        WorkItem = HubExtension->WorkItemToQueue;
+        HubExtension->WorkItemToQueue = NULL;
+
+        USBH_QueueWorkItem(HubExtension, WorkItem);
+    }
+
+    return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
 NTSTATUS
@@ -1470,7 +1530,6 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PIO_STACK_LOCATION IoStack;
     BM_REQUEST_TYPE RequestType;
 
-    DPRINT("USBH_ChangeIndicationQueryChange: ... \n");
     DPRINT("USBH_ChangeIndicationQueryChange: Port - %x\n", Port);
 
     InterlockedIncrement(&HubExtension->PendingRequestCount);
