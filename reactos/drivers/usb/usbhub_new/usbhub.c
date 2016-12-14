@@ -1453,9 +1453,34 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
                                        IN PIRP Irp,
                                        IN PVOID Context)
 {
-    DPRINT1("USBH_ChangeIndicationAckChangeComplete: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    LONG Event;
+    USHORT Port;
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    DPRINT("USBH_ChangeIndicationAckChangeComplete: ... \n");
+
+    Port = HubExtension->Port - 1;
+    HubExtension->PortData[Port].PortStatus = HubExtension->PortStatus;
+
+    Event = InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
+
+    if (Event)
+    {
+        KeSetEvent((PRKEVENT)Event, EVENT_INCREMENT, FALSE);
+    }
+
+    USBH_SubmitStatusChangeTransfer(HubExtension);
+
+    if (!InterlockedDecrement(&HubExtension->ResetRequestCount))
+    {
+        KeSetEvent(&HubExtension->ResetEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
 NTSTATUS
