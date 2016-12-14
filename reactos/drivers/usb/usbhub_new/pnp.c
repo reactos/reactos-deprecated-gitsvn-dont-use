@@ -751,7 +751,7 @@ USBH_FdoQueryBusRelations(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     PDEVICE_RELATIONS DeviceRelations = NULL;
     NTSTATUS Status = STATUS_SUCCESS;
-    LIST_ENTRY List;
+    LIST_ENTRY GhostPdoList;
     KIRQL OldIrql;
     PLIST_ENTRY PdoList;
     UCHAR NumberPorts;
@@ -763,6 +763,7 @@ USBH_FdoQueryBusRelations(IN PUSBHUB_FDO_EXTENSION HubExtension,
     LONG SerialNumber;
     LONG DeviceHandle;
     USB_PORT_STATUS UsbPortStatus;
+    PLIST_ENTRY Entry;
 
     DPRINT("USBH_FdoQueryBusRelations: HubFlags - %p\n", HubExtension->HubFlags);
 
@@ -1070,17 +1071,88 @@ RelationsWorker:
         return Status;
     }
 
-    InitializeListHead(&List);
-
     KeAcquireSpinLock(&HubExtension->RelationsWorkerSpinLock, &OldIrql);
 
     if (DeviceRelations && DeviceRelations->Count)
     {
-        DPRINT1("USBH_: UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
+        Port = 0;
+
+        do
+        {
+            PdoDevice = DeviceRelations->Objects[Port];
+            Entry = HubExtension->PdoList.Flink;
+
+            if (Entry == &HubExtension->PdoList)
+            {
+                PdoExt(PdoDevice)->EnumFlags |= USBHUB_ENUM_FLAG_DEVICE_PRESENT;
+            }
+            else
+            {
+                PUSBHUB_PORT_PDO_EXTENSION pdoExtension;
+
+                while (TRUE)
+                {
+                    pdoExtension = CONTAINING_RECORD(Entry,
+                                                     USBHUB_PORT_PDO_EXTENSION,
+                                                     PortLink);
+
+                    if (pdoExtension == (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension)
+                    {
+                        break;
+                    }
+
+                    Entry = Entry->Flink;
+
+                    if (Entry == &HubExtension->PdoList)
+                    {
+                        PdoExt(PdoDevice)->EnumFlags |= USBHUB_ENUM_FLAG_DEVICE_PRESENT;
+                        goto PortNext;
+                    }
+                }
+
+                PdoExt(PdoDevice)->EnumFlags |= USBHUB_ENUM_FLAG_GHOST_DEVICE;
+            }
+
+    PortNext:
+            ++Port;
+        }
+        while (Port < DeviceRelations->Count);
+
+        Port = 0;
+
+        if (DeviceRelations->Count)
+        {
+            do
+            {
+                PdoDevice = DeviceRelations->Objects[Port];
+
+                ++Port;
+
+                if (PdoExt(PdoDevice)->EnumFlags & USBHUB_ENUM_FLAG_GHOST_DEVICE)
+                {
+                    while (Port < DeviceRelations->Count)
+                    {
+                        DeviceRelations->Objects[Port-1] = DeviceRelations->Objects[Port];
+                        ++Port;
+                    }
+
+                    ObDereferenceObject(PdoDevice);
+
+                    --DeviceRelations->Count;
+
+                    if (PdoExt(PdoDevice)->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT)
+                    {
+                        PdoExt(PdoDevice)->EnumFlags &= ~USBHUB_ENUM_FLAG_GHOST_DEVICE;
+                    }
+                }
+            }
+            while (Port < DeviceRelations->Count);
+        }
     }
 
     Irp->IoStatus.Information = (ULONG)DeviceRelations;
+
+    InitializeListHead(&GhostPdoList);
     PdoList = &HubExtension->PdoList;
 
     while (!IsListEmpty(PdoList))
@@ -1093,7 +1165,7 @@ RelationsWorker:
 
     while (TRUE)
     {
-        if (IsListEmpty(&List))
+        if (IsListEmpty(&GhostPdoList))
         {
             break;
         }
