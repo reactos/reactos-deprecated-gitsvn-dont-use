@@ -2472,6 +2472,74 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
+                           IN LPWSTR * OutSerialNumber,
+                           IN PUSHORT OutDescriptorLength,
+                           IN USHORT LanguageId,
+                           IN UCHAR Index)
+{
+    PUSB_STRING_DESCRIPTOR Descriptor;
+    NTSTATUS Status;
+    LPWSTR SerialNumberBuffer = NULL;
+
+    DPRINT("USBH_GetSerialNumberString: ... \n");
+
+    *OutSerialNumber = NULL;
+    *OutDescriptorLength = 0;
+
+    Descriptor = ExAllocatePoolWithTag(NonPagedPool, 0xFF, USB_HUB_TAG);
+
+    if (!Descriptor)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    Status = USBH_CheckDeviceLanguage(DeviceObject, LanguageId);
+
+    if (!NT_SUCCESS(Status))
+    {
+        ExFreePool(Descriptor);
+        return Status;
+    }
+
+    Status = USBH_SyncGetStringDescriptor(DeviceObject,
+                                          Index,
+                                          LanguageId,
+                                          Descriptor,
+                                          0xFF,
+                                          0,
+                                          TRUE);
+
+    if (NT_SUCCESS(Status) && Descriptor->bLength > 2)
+    {
+        SerialNumberBuffer = ExAllocatePoolWithTag(PagedPool,
+                                                   Descriptor->bLength,
+                                                   USB_HUB_TAG);
+
+        if (SerialNumberBuffer)
+        {
+            RtlZeroMemory(SerialNumberBuffer, Descriptor->bLength);
+
+            RtlCopyMemory(SerialNumberBuffer,
+                          Descriptor->bString,
+                          Descriptor->bLength - 2);
+
+            *OutSerialNumber = SerialNumberBuffer;
+            *OutDescriptorLength = Descriptor->bLength;
+        }
+    }
+    else
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    ExFreePool(Descriptor);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                   IN USHORT Port,
                   IN USB_PORT_STATUS UsbPortStatus,
