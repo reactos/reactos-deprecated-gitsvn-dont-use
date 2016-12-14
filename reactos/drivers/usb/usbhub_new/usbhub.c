@@ -2470,6 +2470,111 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
     }
 }
 
+NTSTATUS
+NTAPI
+USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
+{
+    PUSB_INTERFACE_DESCRIPTOR Pid;
+    PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
+    NTSTATUS Status;
+
+    DPRINT("USBH_ProcessDeviceInformation ... \n");
+
+    ConfigDescriptor = NULL;
+
+    RtlZeroMemory(&PortExtension->InterfaceDescriptor,
+                  sizeof(PortExtension->InterfaceDescriptor));
+
+    PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_HUB_DEVICE;
+
+    Status = USBH_GetConfigurationDescriptor(PortExtension->Common.SelfDevice,
+                                             &ConfigDescriptor);
+
+    if (!NT_SUCCESS(Status))
+    {
+        if (ConfigDescriptor)
+        {
+            ExFreePool(ConfigDescriptor);
+        }
+
+        return Status;
+    }
+
+    PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_REMOTE_WAKEUP;
+
+    if (ConfigDescriptor->bmAttributes & 0x20)
+    {
+        /* device configuration supports remote wakeup */
+        PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_REMOTE_WAKEUP;
+    }
+
+    DPRINT("USBH_ProcessDeviceInformation: Class - %x, SubClass - %x, Protocol - %x\n",
+           PortExtension->DeviceDescriptor.bDeviceClass,
+           PortExtension->DeviceDescriptor.bDeviceSubClass,
+           PortExtension->DeviceDescriptor.bDeviceProtocol);
+
+    DPRINT("USBH_ProcessDeviceInformation: bNumConfigurations - %x, bNumInterfaces - %x\n",
+           PortExtension->DeviceDescriptor.bNumConfigurations,
+           ConfigDescriptor->bNumInterfaces);
+
+    /*
+       If bDeviceClass == USB_DEVICE_CLASS_RESERVED then
+       use class code info from Interface Descriptors.
+       If Class == 0xEF, SubClass == 2 and Protocol == 1 then
+       this set of class codes is defined as Multi-Interface Function Device Class Codes.
+    */
+
+    if (((PortExtension->DeviceDescriptor.bDeviceClass == USB_DEVICE_CLASS_RESERVED) &&
+         (PortExtension->DeviceDescriptor.bNumConfigurations < 2) &&
+         (ConfigDescriptor->bNumInterfaces > 1)) ||
+        (PortExtension->DeviceDescriptor.bDeviceClass == 0xEF &&
+         PortExtension->DeviceDescriptor.bDeviceSubClass == 2 &&
+         PortExtension->DeviceDescriptor.bDeviceProtocol == 1))
+    {
+        DbgBreakPoint();
+
+        PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_MULTI_INTERFACE;
+
+        if (ConfigDescriptor)
+        {
+            ExFreePool(ConfigDescriptor);
+        }
+
+        return Status;
+    }
+
+    Pid = USBD_ParseConfigurationDescriptorEx(ConfigDescriptor,
+                                              ConfigDescriptor,
+                                              -1,
+                                              -1,
+                                              -1,
+                                              -1,
+                                              -1);
+    if (Pid)
+    {
+        RtlCopyMemory(&PortExtension->InterfaceDescriptor,
+                      Pid,
+                      sizeof(PortExtension->InterfaceDescriptor));
+
+        if (Pid->bInterfaceClass == USB_DEVICE_CLASS_HUB)
+        {
+            PortExtension->PortPdoFlags |= (USBHUB_PDO_FLAG_HUB_DEVICE |
+                                            USBHUB_PDO_FLAG_REMOTE_WAKEUP);
+        }
+    }
+    else
+    {
+        Status = STATUS_UNSUCCESSFUL;
+    }
+
+    if (ConfigDescriptor)
+    {
+        ExFreePool(ConfigDescriptor);
+    }
+
+    return Status;
+}
+
 BOOLEAN
 NTAPI
 USBH_ValidateSerialNumberString(IN PUSHORT SerialNumberString)
