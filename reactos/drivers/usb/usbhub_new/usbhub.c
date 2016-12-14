@@ -2655,6 +2655,67 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
 
 BOOLEAN
 NTAPI
+USBH_CheckDeviceIDUnique(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                         IN USHORT idVendor,
+                         IN USHORT idProduct,
+                         IN PVOID SerialNumber,
+                         IN USHORT SN_DescriptorLength)
+{
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    ULONG Port;
+    SIZE_T NumberBytes;
+
+    DPRINT("USBH_CheckDeviceIDUnique: idVendor - 0x%04X, idProduct - 0x%04X\n",
+           idVendor,
+           idProduct);
+
+    Port = 0;
+
+    if (!HubExtension->HubDescriptor->bNumberOfPorts)
+    {
+        return TRUE;
+    }
+
+    while (TRUE)
+    {
+        PortDevice = HubExtension->PortData[Port].DeviceObject;
+
+        if (PortDevice)
+        {
+            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+            if (PortExtension->DeviceDescriptor.idVendor == idVendor &&
+                PortExtension->DeviceDescriptor.idProduct == idProduct &&
+                PortExtension->SN_DescriptorLength == SN_DescriptorLength)
+            {
+                if (PortExtension->SerialNumber)
+                {
+                    NumberBytes = RtlCompareMemory(PortExtension->SerialNumber,
+                                                   SerialNumber,
+                                                   SN_DescriptorLength);
+
+                    if (NumberBytes == SN_DescriptorLength)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        ++Port;
+
+        if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+BOOLEAN
+NTAPI
 USBH_ValidateSerialNumberString(IN PUSHORT SerialNumberString)
 {
     USHORT Symbol;
