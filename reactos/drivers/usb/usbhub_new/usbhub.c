@@ -2470,6 +2470,84 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
     }
 }
 
+VOID
+NTAPI
+USBH_PdoSetCapabilities(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    ULONG State;
+    SYSTEM_POWER_STATE SystemPowerState;
+    PDEVICE_POWER_STATE pDeviceState;
+
+    DPRINT("USBH_PdoSetCapabilities ... \n");
+
+    HubExtension = PortExtension->HubExtension;
+
+    PortExtension->Capabilities.Size = 64;
+    PortExtension->Capabilities.Version = 1;
+
+    PortExtension->Capabilities.Removable = 1;
+    PortExtension->Capabilities.Address = PortExtension->PortNumber;
+
+    if (PortExtension->SerialNumber)
+    {
+        PortExtension->Capabilities.UniqueID = 1;
+    }
+    else
+    {
+        PortExtension->Capabilities.UniqueID = 0;
+    }
+
+    PortExtension->Capabilities.RawDeviceOK = 0;
+
+    RtlCopyMemory(PortExtension->Capabilities.DeviceState,
+                  HubExtension->DeviceState,
+                  sizeof(DEVICE_CAPABILITIES));
+
+    PortExtension->Capabilities.DeviceState[1] = PowerDeviceD0;
+
+    if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_REMOTE_WAKEUP)
+    {
+        PortExtension->Capabilities.DeviceWake = PowerDeviceD2;
+
+        PortExtension->Capabilities.DeviceD1 = 1;
+        PortExtension->Capabilities.DeviceD2 = 1;
+
+        PortExtension->Capabilities.WakeFromD0 = 1;
+        PortExtension->Capabilities.WakeFromD1 = 1;
+        PortExtension->Capabilities.WakeFromD2 = 1;
+
+        pDeviceState = &PortExtension->Capabilities.DeviceState[2];
+
+        State = 2;
+
+        do
+        {
+            SystemPowerState = State++;
+
+            if (PortExtension->Capabilities.SystemWake < SystemPowerState)
+            {
+                *pDeviceState = PowerDeviceD3;
+            }
+            else
+            {
+                *pDeviceState = PowerDeviceD2;
+            }
+
+            ++pDeviceState;
+        }
+        while (State <= 5);
+    }
+    else
+    {
+        PortExtension->Capabilities.DeviceWake = PowerDeviceD0;
+        PortExtension->Capabilities.DeviceState[2] = PowerDeviceD3;
+        PortExtension->Capabilities.DeviceState[3] = PowerDeviceD3;
+        PortExtension->Capabilities.DeviceState[4] = PowerDeviceD3;
+        PortExtension->Capabilities.DeviceState[5] = PowerDeviceD3;
+    }
+}
+
 NTSTATUS
 NTAPI
 USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
