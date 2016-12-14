@@ -249,6 +249,13 @@ typedef struct _USBHUB_STATUS_CHANGE_CONTEXT {
   PUSBHUB_FDO_EXTENSION HubExtension;
 } USBHUB_STATUS_CHANGE_CONTEXT, *PUSBHUB_STATUS_CHANGE_CONTEXT;
 
+/* debug.c */
+
+VOID
+NTAPI
+USBPORT_DumpingDeviceDescriptor(
+  IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor);
+
 /* ioctl.c */
 
 NTSTATUS
