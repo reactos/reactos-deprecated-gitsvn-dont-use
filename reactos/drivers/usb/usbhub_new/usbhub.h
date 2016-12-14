@@ -176,7 +176,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   POWER_STATE SystemPowerState;
   ULONG MaxPower;
   USB_DEVICE_DESCRIPTOR HubDeviceDescriptor;
-  USHORT Reserved1;
+  USHORT Port;
   PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor;
   PUSB_HUB_DESCRIPTOR HubDescriptor;
   PUSBHUB_PORT_DATA PortData;
@@ -210,6 +210,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   KSEMAPHORE HubSemaphore;
   PUSBHUB_IO_WORK_ITEM WorkItemToQueue;
   USB_IDLE_CALLBACK_INFO IdleCallbackInfo;
+  USBHUB_PORT_STATUS PortStatus;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
