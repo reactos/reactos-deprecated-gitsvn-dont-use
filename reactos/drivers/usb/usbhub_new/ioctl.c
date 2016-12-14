@@ -5,6 +5,69 @@
 
 NTSTATUS
 NTAPI
+USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
+                                     IN PIRP Irp,
+                                     IN PVOID Context)
+{
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PVOID TimeoutContext; // PUSBHUB_BANDWIDTH_TIMEOUT_CONTEXT
+    PUSBHUB_PORT_DATA PortData = NULL;
+    NTSTATUS Status;
+    KIRQL OldIrql;
+
+    DPRINT("USBH_SelectConfigOrInterface_Complete ... \n");
+
+    PortData;
+
+    if (Irp->PendingReturned)
+    {
+         IoMarkIrpPending(Irp);
+    }
+
+    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)Context;
+    HubExtension = PortExtension->HubExtension;
+
+    if (HubExtension)
+    {
+        PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
+    }
+
+    Status = Irp->IoStatus.Status;
+
+    if (Irp->IoStatus.Status == STATUS_SUCCESS)
+    {
+        KeAcquireSpinLock(&PortExtension->PortTimeoutSpinLock, &OldIrql);
+
+        TimeoutContext = PortExtension->BndwTimeoutContext;
+
+        if (TimeoutContext)
+        {
+            DPRINT1("USBH_SelectConfigOrInterfaceComplete: TimeoutContext != NULL. FIXME. \n");
+            DbgBreakPoint();
+        }
+
+        KeReleaseSpinLock(&PortExtension->PortTimeoutSpinLock, OldIrql);
+
+        PortExtension->PortPdoFlags &= ~(USBHUB_PDO_FLAG_PORT_RESTORE_FAIL |
+                                         USBHUB_PDO_FLAG_ALLOC_BNDW_FAILED);
+
+        if (PortData && PortData->ConnectionStatus != DeviceHubNestedTooDeeply)
+        {
+            PortData->ConnectionStatus = DeviceConnected;
+        }
+    }
+    else
+    {
+        DPRINT1("USBH_SelectConfigOrInterfaceComplete: Status != STATUS_SUCCESS. FIXME. \n");
+        DbgBreakPoint();
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension, 
                   IN PIRP Irp)
 {
