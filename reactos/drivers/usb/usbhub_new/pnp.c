@@ -1292,3 +1292,17 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     return Status;
 }
+
+NTSTATUS
+NTAPI
+USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+            IN PIRP Irp,
+            IN UCHAR Minor)
+{
+    DPRINT("USBH_FdoPnP: PortExtension - %p, Irp - %p, Minor - %x\n",
+           PortExtension,
+           Irp,
+           Minor);
+
+    return 0;
+}

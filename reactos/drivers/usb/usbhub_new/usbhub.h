@@ -218,14 +218,20 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   ULONG PortPdoFlags;
   ULONG EnumFlags;
   PUSBHUB_FDO_EXTENSION HubExtension;
+  PUSBHUB_FDO_EXTENSION RootHubExtension;
   PUSB_DEVICE_HANDLE DeviceHandle;
   USHORT PortNumber;
   USHORT SN_DescriptorLength;
   BOOL IgnoringHwSerial;
   USB_DEVICE_DESCRIPTOR DeviceDescriptor;
+  USB_DEVICE_DESCRIPTOR OldDeviceDescriptor;
+  USB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
+  USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
   USHORT Reserved1;
   PIRP IdleNotificationIrp;
   LPWSTR SerialNumber; // serial number string
+  POWER_STATE CurrentPowerState;
+  DEVICE_CAPABILITIES Capabilities;
 } USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
 
 typedef struct _USBHUB_URB_TIMEOUT_CONTEXT {
@@ -251,6 +257,12 @@ USBH_DeviceControl(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN PIRP Irp);
 
+NTSTATUS
+NTAPI
+USBH_PdoInternalControl(
+  IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+  IN PIRP Irp);
+
 /* pnp.c */
 
 NTSTATUS
@@ -260,12 +272,26 @@ USBH_FdoPnP(
   IN PIRP Irp,
   IN UCHAR Minor);
 
+NTSTATUS
+NTAPI
+USBH_PdoPnP(
+  IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+  IN PIRP Irp,
+  IN UCHAR Minor);
+
 /* power.c */
 
 NTSTATUS
 NTAPI
 USBH_FdoPower(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PIRP Irp,
+  IN UCHAR Minor);
+
+NTSTATUS
+NTAPI
+USBH_PdoPower(
+  IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
   IN PIRP Irp,
   IN UCHAR Minor);
 

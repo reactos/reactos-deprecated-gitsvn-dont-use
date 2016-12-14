@@ -3031,11 +3031,76 @@ NTAPI
 USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                  IN PIRP Irp)
 {
-    DPRINT("USBH_PdoDispatch: PortExtension - %p, Irp - %p\n",
-           PortExtension,
-           Irp);
+    PIO_STACK_LOCATION IoStack;
+    UCHAR MajorFunction;
+    ULONG ControlCode;
+    NTSTATUS Status;
 
-    return STATUS_SUCCESS;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    MajorFunction = IoStack->MajorFunction;
+
+    DPRINT("USBH_PdoDispatch: PortExtension - %p, Irp - %p, MajorFunction - %x\n",
+           PortExtension,
+           Irp,
+           MajorFunction);
+
+    switch (MajorFunction)
+    {
+        case IRP_MJ_CREATE:
+        case IRP_MJ_CLOSE:
+            Status = STATUS_SUCCESS;
+            USBH_CompleteIrp(Irp, Status);
+            break;
+
+        case IRP_MJ_DEVICE_CONTROL:
+            ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
+            DPRINT("USBH_PdoDispatch: IRP_MJ_DEVICE_CONTROL ControlCode - %x\n",
+                   ControlCode);
+
+            if (ControlCode == 0X2D0C10)//IOCTL_STORAGE_GET_MEDIA_SERIAL_NUMBER
+            {
+                Status = STATUS_NOT_SUPPORTED;
+                USBH_CompleteIrp(Irp, Status);
+                break;
+            }
+
+            if (ControlCode == 0x2F0003)//IOCTL_KS_PROPERTY
+            {
+                DPRINT1("USBH_PdoDispatch: IOCTL_KS_PROPERTY FIXME. \n");
+                DbgBreakPoint();
+                Status = STATUS_NOT_SUPPORTED;
+                USBH_CompleteIrp(Irp, Status);
+                break;
+            }
+
+            Status = Irp->IoStatus.Status;
+            USBH_CompleteIrp(Irp, Status);
+            break;
+
+        case IRP_MJ_INTERNAL_DEVICE_CONTROL:
+            Status = USBH_PdoInternalControl(PortExtension, Irp);
+            break;
+
+        case IRP_MJ_PNP:
+            Status = USBH_PdoPnP(PortExtension, Irp, IoStack->MinorFunction);
+            break;
+
+        case IRP_MJ_POWER:
+            Status = USBH_PdoPower(PortExtension, Irp, IoStack->MinorFunction);
+            break;
+
+        case IRP_MJ_SYSTEM_CONTROL:
+            DPRINT1("USBH_PdoDispatch: USBH_SystemControl() UNIMPLEMENTED. FIXME\n");
+            Status = STATUS_NOT_SUPPORTED;//USBH_PortSystemControl(PortExtension, Irp);
+            break;
+
+        default:
+            Status = Irp->IoStatus.Status;
+            USBH_CompleteIrp(Irp, Status);
+            break;
+    }
+
+    return Status;
 }
 
 NTSTATUS
