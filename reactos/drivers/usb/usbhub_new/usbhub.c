@@ -1449,15 +1449,66 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
+                                       IN PIRP Irp,
+                                       IN PVOID Context)
+{
+    DPRINT1("USBH_ChangeIndicationAckChangeComplete: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_ChangeIndicationAckChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                IN PIRP Irp,
                                IN struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST * Urb,
                                IN USHORT Port,
-                               IN USHORT Value)
+                               IN USHORT RequestValue)
 {
-    DPRINT1("USBH_ChangeIndicationAckChange: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PIO_STACK_LOCATION IoStack;
+    BM_REQUEST_TYPE RequestType;
+
+    DPRINT("USBH_ChangeIndicationAckChange: ... \n");
+
+    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
+    Urb->Hdr.Function = URB_FUNCTION_CLASS_OTHER;
+    Urb->Hdr.UsbdDeviceHandle = NULL;
+
+    Urb->TransferFlags = USBD_SHORT_TRANSFER_OK;
+    Urb->TransferBufferLength = 0;
+    Urb->TransferBuffer = NULL;
+    Urb->TransferBufferMDL = NULL;
+    Urb->UrbLink = NULL;
+
+    RequestType.B = 0;
+    RequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+    RequestType._BM.Type = BMREQUEST_CLASS;
+    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+
+    Urb->RequestTypeReservedBits = RequestType.B;
+    Urb->Request = USB_REQUEST_CLEAR_FEATURE;
+    Urb->Index = Port;
+    Urb->Value = RequestValue;
+
+    IoInitializeIrp(Irp,
+                    IoSizeOfIrp(HubExtension->LowerDevice->StackSize),
+                    HubExtension->LowerDevice->StackSize);
+
+    IoStack = IoGetNextIrpStackLocation(Irp);
+
+    IoStack->MajorFunction = IRP_MJ_INTERNAL_DEVICE_CONTROL;
+    IoStack->Parameters.Others.Argument1 = Urb;
+    IoStack->Parameters.DeviceIoControl.IoControlCode = IOCTL_INTERNAL_USB_SUBMIT_URB;
+
+    IoSetCompletionRoutine(Irp,
+                          USBH_ChangeIndicationAckChangeComplete,
+                          HubExtension,
+                          TRUE,
+                          TRUE,
+                          TRUE);
+
+    return IoCallDriver(HubExtension->LowerDevice, Irp);
 }
 
 NTSTATUS
@@ -1545,14 +1596,14 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 
     Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
-    Urb->Hdr.UsbdDeviceHandle = 0;
+    Urb->Hdr.UsbdDeviceHandle = NULL;
     Urb->Hdr.Function = URB_FUNCTION_CLASS_OTHER;
 
     Urb->TransferFlags = USBD_SHORT_TRANSFER_OK | USBD_TRANSFER_DIRECTION_IN;
     Urb->TransferBuffer = &HubExtension->PortStatus;
     Urb->TransferBufferLength = sizeof(HubExtension->PortStatus);
-    Urb->TransferBufferMDL = 0;
-    Urb->UrbLink = 0;
+    Urb->TransferBufferMDL = NULL;
+    Urb->UrbLink = NULL;
 
     RequestType.B = 0;
     RequestType._BM.Recipient = BMREQUEST_TO_OTHER;
