@@ -217,15 +217,13 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     if (PortExtension->DeviceHandle == NULL)
     {
         Urb->UrbHeader.UsbdDeviceHandle = (PVOID)-1;
-        Status = USBH_PassIrp(Irp, HubExtension->RootHubPdo2);
+        Status = USBH_PassIrp(HubExtension->RootHubPdo2, Irp);
     }
     else
     {
         Urb->UrbHeader.UsbdDeviceHandle = PortExtension->DeviceHandle;
         Status = USBH_PdoUrbFilter(PortExtension, Irp);
     }
-
-    USBH_CompleteIrp(Irp, Status);
 
     return Status;
 }

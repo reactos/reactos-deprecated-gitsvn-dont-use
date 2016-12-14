@@ -2586,14 +2586,17 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
         PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_REMOTE_WAKEUP;
     }
 
-    DPRINT("USBH_ProcessDeviceInformation: Class - %x, SubClass - %x, Protocol - %x\n",
-           PortExtension->DeviceDescriptor.bDeviceClass,
-           PortExtension->DeviceDescriptor.bDeviceSubClass,
-           PortExtension->DeviceDescriptor.bDeviceProtocol);
+    USBPORT_DumpingDeviceDescriptor(&PortExtension->DeviceDescriptor);
+    USBPORT_DumpingConfiguration(ConfigDescriptor);
 
-    DPRINT("USBH_ProcessDeviceInformation: bNumConfigurations - %x, bNumInterfaces - %x\n",
-           PortExtension->DeviceDescriptor.bNumConfigurations,
-           ConfigDescriptor->bNumInterfaces);
+    //DPRINT("USBH_ProcessDeviceInformation: Class - %x, SubClass - %x, Protocol - %x\n",
+    //       PortExtension->DeviceDescriptor.bDeviceClass,
+    //       PortExtension->DeviceDescriptor.bDeviceSubClass,
+    //       PortExtension->DeviceDescriptor.bDeviceProtocol);
+
+    //DPRINT("USBH_ProcessDeviceInformation: bNumConfigurations - %x, bNumInterfaces - %x\n",
+    //       PortExtension->DeviceDescriptor.bNumConfigurations,
+    //       ConfigDescriptor->bNumInterfaces);
 
     /*
        If bDeviceClass == USB_DEVICE_CLASS_RESERVED then
@@ -2937,6 +2940,8 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PortExtension->PortNumber = Port;
     PortExtension->CurrentPowerState.DeviceState = PowerDeviceD0;
     PortExtension->IgnoringHwSerial = FALSE;
+
+    KeInitializeSpinLock(&PortExtension->PortTimeoutSpinLock);
 
     SerialNumberBuffer = NULL;
 
