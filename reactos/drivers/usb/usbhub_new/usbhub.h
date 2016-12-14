@@ -256,6 +256,11 @@ NTAPI
 USBPORT_DumpingDeviceDescriptor(
   IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor);
 
+VOID
+NTAPI
+USBPORT_DumpingConfiguration(
+  IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor);
+
 /* ioctl.c */
 
 NTSTATUS
