@@ -3173,11 +3173,13 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
     UCHAR MajorFunction;
     NTSTATUS Status;
 
-    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p\n",
-           HubExtension,
-           Irp);
-
     IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p, MajorFunction - %x\n",
+           HubExtension,
+           Irp,
+           IoStack->MajorFunction);
+
     MajorFunction = IoStack->MajorFunction;
 
     switch (MajorFunction)
