@@ -2472,6 +2472,71 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
+                         IN USHORT LanguageId)
+{
+    PUSB_STRING_DESCRIPTOR Descriptor;
+    NTSTATUS Status;
+    ULONG NumSymbols;
+    ULONG ix = 0;
+    PWCHAR pSymbol;
+    ULONG Length;
+
+    DPRINT("USBH_CheckDeviceLanguage: LanguageId - 0x%04X\n", LanguageId);
+
+    Descriptor = ExAllocatePoolWithTag(NonPagedPool, 0xFF, USB_HUB_TAG);
+
+    if (!Descriptor)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    Status = USBH_SyncGetStringDescriptor(DeviceObject,
+                                          0,
+                                          0,
+                                          Descriptor,
+                                          0xFF,
+                                          &Length,
+                                          TRUE);
+
+    if (NT_SUCCESS(Status))
+    {
+        if (Length >= 2)
+        {
+            NumSymbols = (Length - 2) >> 1;
+        }
+        else
+        {
+            NumSymbols = 0;
+        }
+
+        pSymbol = Descriptor->bString;
+
+        if (NumSymbols > 0)
+        {
+            while (*pSymbol != (WCHAR)LanguageId)
+            {
+                ++pSymbol;
+                ++ix;
+
+                if (ix >= NumSymbols)
+                {
+                    ExFreePool(Descriptor);
+                    return STATUS_NOT_SUPPORTED;
+                }
+            }
+
+            Status = STATUS_SUCCESS;
+        }
+    }
+
+    ExFreePool(Descriptor);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
                            IN LPWSTR * OutSerialNumber,
                            IN PUSHORT OutDescriptorLength,
