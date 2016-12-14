@@ -82,6 +82,26 @@ IsBitSet(IN ULONG_PTR BitMapAddress,
     return IsSet;
 }
 
+PUSBHUB_PORT_PDO_EXTENSION
+NTAPI
+PdoExt(IN PDEVICE_OBJECT DeviceObject)
+{
+    PVOID PdoExtension;
+
+    DPRINT("PdoExt: DeviceObject - %p\n", DeviceObject);
+
+    if (DeviceObject)
+    {
+        PdoExtension = DeviceObject->DeviceExtension;
+    }
+    else
+    {
+        PdoExtension = (PVOID)-1;
+    }
+
+    return (PUSBHUB_PORT_PDO_EXTENSION)PdoExtension;
+}
+
 NTSTATUS
 NTAPI
 USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
@@ -2044,7 +2064,7 @@ USBH_Worker(IN PDEVICE_OBJECT DeviceObject,
     KIRQL OldIrql;
     PIO_WORKITEM WorkItem;
 
-    DPRINT("UsbhIoWorker: ... \n");
+    DPRINT("USBH_Worker: ... \n");
 
     HubIoWorkItem = (PUSBHUB_IO_WORK_ITEM)Context;
 
@@ -2082,7 +2102,7 @@ NTAPI
 USBH_QueueWorkItem(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem)
 {
-    DPRINT("UsbhQueueIoWorkItem: ... \n");
+    DPRINT("USBH_QueueWorkItem: ... \n");
 
     InterlockedIncrement(&HubExtension->PendingRequestCount);
     InterlockedIncrement(&HubIoWorkItem->HubWorkerQueued);
@@ -2103,7 +2123,7 @@ USBH_FreeWorkItem(IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem)
 {
     PIO_WORKITEM WorkItem;
 
-    DPRINT("UsbhFreeIoWorkItem: ... \n");
+    DPRINT("USBH_FreeWorkItem: ... \n");
 
     WorkItem = HubIoWorkItem->HubWorkItem;
 
