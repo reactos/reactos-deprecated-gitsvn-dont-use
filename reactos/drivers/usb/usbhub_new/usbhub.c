@@ -2470,6 +2470,32 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
     }
 }
 
+BOOLEAN
+NTAPI
+USBH_ValidateSerialNumberString(IN PUSHORT SerialNumberString)
+{
+    USHORT Symbol;
+
+    DPRINT("USBH_ValidateSerialNumberString: ... \n");
+
+    for (Symbol = *SerialNumberString; ; Symbol = *SerialNumberString)
+    {
+        if (!Symbol)
+        {
+            return TRUE;
+        }
+
+        if (Symbol < 0x0020 || Symbol > 0x007F || Symbol == 0x002C) // ','
+        {
+            break;
+        }
+
+        ++SerialNumberString;
+    }
+
+    return 0;
+}
+
 NTSTATUS
 NTAPI
 USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
