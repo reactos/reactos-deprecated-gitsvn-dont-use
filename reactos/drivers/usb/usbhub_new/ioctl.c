@@ -5,6 +5,49 @@
 
 NTSTATUS
 NTAPI
+USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension, 
+                  IN PIRP Irp)
+{
+    DPRINT1("USBH_PdoUrbFilter: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
+USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                       IN PIRP Irp)
+{
+    PIO_STACK_LOCATION IoStack;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PURB Urb;
+    NTSTATUS Status;
+
+    DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)PortExtension->HubExtension;
+    IoStack = Irp->Tail.Overlay.CurrentStackLocation;
+
+    Urb = (PURB)IoStack->Parameters.Others.Argument1;
+
+    if (PortExtension->DeviceHandle == NULL)
+    {
+        Urb->UrbHeader.UsbdDeviceHandle = (PVOID)-1;
+        Status = USBH_PassIrp(Irp, HubExtension->RootHubPdo2);
+    }
+    else
+    {
+        Urb->UrbHeader.UsbdDeviceHandle = PortExtension->DeviceHandle;
+        Status = USBH_PdoUrbFilter(PortExtension, Irp);
+    }
+
+    USBH_CompleteIrp(Irp, Status);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
@@ -63,7 +106,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     {
         case IOCTL_INTERNAL_USB_SUBMIT_URB:
             DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_URB. \n");
-            break;
+            return USBH_PdoIoctlSubmitUrb(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
             DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION. \n");
