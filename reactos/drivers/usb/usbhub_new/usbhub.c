@@ -2220,6 +2220,16 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBH_HubCompletePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                             IN NTSTATUS NtStatus)
+{
+    DPRINT1("USBH_HubCompletePortIdleIrps: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
 VOID
 NTAPI
 USBH_HubCancelIdleIrp(IN PUSBHUB_FDO_EXTENSION HubExtension, 
