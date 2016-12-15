@@ -2220,6 +2220,109 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+BOOLEAN
+NTAPI
+USBH_CheckIdleAbort(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                    IN BOOLEAN IsWait,
+                    IN BOOLEAN IsExtCheck)
+{
+    PDEVICE_OBJECT PdoDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PUSBHUB_PORT_DATA PortData;
+    ULONG Port;
+    BOOLEAN Result;
+
+    DPRINT("USBH_CheckIdleAbort: ... \n");
+
+    Result = FALSE;
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    if (IsWait == TRUE)
+    {
+        KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
+                              Executive,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    Port = 0;
+
+    if (HubExtension->HubDescriptor->bNumberOfPorts)
+    {
+        PortData = HubExtension->PortData;
+
+        while (TRUE)
+        {
+            PdoDevice = PortData[Port].DeviceObject;
+
+            if (PdoDevice)
+            {
+                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+
+                if (PortExtension->PoRequestCounter)
+                {
+                    break;
+                }
+            }
+
+            ++Port;
+
+            if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
+            {
+                goto ExtCheck;
+            }
+        }
+
+        Result = TRUE;
+    }
+    else
+    {
+
+ExtCheck:
+
+        if (IsExtCheck == TRUE &&
+            HubExtension->HubDescriptor->bNumberOfPorts)
+        {
+            PortData = HubExtension->PortData;
+
+            Port = 0;
+
+            do
+            {
+                PdoDevice = PortData[Port].DeviceObject;
+
+                if (PdoDevice)
+                {
+                    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+                    InterlockedExchange(&PortExtension->StateBehindD2, 0);
+                }
+
+                ++Port;
+            }
+            while (Port < HubExtension->HubDescriptor->bNumberOfPorts);
+        }
+    }
+
+    if (IsWait == TRUE)
+    {
+        KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+    }
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    return Result;
+}
+
 VOID
 NTAPI
 USBH_FdoWaitWakeIrpCompletion(IN PDEVICE_OBJECT DeviceObject, 
