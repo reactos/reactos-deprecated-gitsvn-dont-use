@@ -233,9 +233,16 @@ NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
+    PIO_STACK_LOCATION IoStack;
+    ULONG ControlCode;
+
     DPRINT("USBH_DeviceControl: HubExtension - %p, Irp - %p\n",
            HubExtension,
            Irp);
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
+    DPRINT("USBH_PdoInternalControl: ControlCode - %p\n", ControlCode);
 
     return 0;
 }
@@ -268,7 +275,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         goto Exit;
     }
 
-    IoStack = Irp->Tail.Overlay.CurrentStackLocation;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
     DPRINT("USBH_PdoInternalControl: ControlCode - %p\n", ControlCode);
 

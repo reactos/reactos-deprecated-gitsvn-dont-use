@@ -1830,6 +1830,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     USHORT Size;
     USHORT Version;
     PUSBHUB_FDO_EXTENSION HubExtension;
+    PDEVICE_RELATIONS DeviceRelation;
 
     DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %d\n",
            PortExtension,
@@ -1884,8 +1885,31 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
+
+            if (IoStack->Parameters.QueryDeviceRelations.Type != TargetDeviceRelation)
+            {
+                return Irp->IoStatus.Status;
+            }
+  
+            DeviceRelation = ExAllocatePoolWithTag(PagedPool,
+                                                   sizeof(DEVICE_RELATIONS),
+                                                   USB_HUB_TAG);
+
+            if (DeviceRelation)
+            {
+                DeviceRelation->Count = 1;
+                DeviceRelation->Objects[0] = PortExtension->Common.SelfDevice;
+
+                ObReferenceObject(DeviceRelation->Objects[0]);
+
+                Status = STATUS_SUCCESS;
+            }
+            else
+            {
+                Status = STATUS_INSUFFICIENT_RESOURCES;
+            }
+  
+            Irp->IoStatus.Information = (ULONG_PTR)DeviceRelation;
             break;
 
         case IRP_MN_QUERY_INTERFACE: // 8
@@ -1929,7 +1953,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_RESOURCES: // 10
             DPRINT("IRP_MN_QUERY_RESOURCES\n");
-            Status = Irp->IoStatus.Status; // STATUS_SUCCESS
+            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
