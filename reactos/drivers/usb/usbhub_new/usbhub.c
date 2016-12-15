@@ -2220,6 +2220,18 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+VOID
+NTAPI
+USBH_HubSetDWakeCompletion(IN PDEVICE_OBJECT DeviceObject,
+                           IN UCHAR MinorFunction,
+                           IN POWER_STATE PowerState,
+                           IN PVOID Context,
+                           IN PIO_STATUS_BLOCK IoStatus)
+{
+    DPRINT("USBH_HubSetDWakeCompletion: ... \n");
+    KeSetEvent((PRKEVENT)Context, IO_NO_INCREMENT, FALSE);
+}
+
 NTSTATUS
 NTAPI
 USBH_HubCompletePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
