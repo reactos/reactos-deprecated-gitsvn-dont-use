@@ -1503,13 +1503,33 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
            Irp,
            Minor);
 
-    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST &&
+        (Minor == IRP_MN_REMOVE_DEVICE || Minor == IRP_MN_STOP_DEVICE))
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_SUSPENDED;
+    }
 
     KeWaitForSingleObject(&HubExtension->IdleSemaphore,
                           Executive,
                           KernelMode,
                           FALSE,
                           NULL);
+
+    DPRINT("USBH_FdoPnP: HubFlags - %p\n", HubExtension->HubFlags);
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_GOING_IDLE)
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_SUSPENDED;
+    }
+
+    if ((HubExtension->CurrentPowerState.DeviceState != 1) &&
+        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED) &&
+        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED) &&
+        (Minor != IRP_MN_QUERY_DEVICE_RELATIONS || Minor != IRP_MN_STOP_DEVICE))
+    {
+        IsCheckIdle = 1;
+        DbgBreakPoint();
+    }
 
     switch (Minor)
     {
@@ -1551,6 +1571,9 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
+
+            IoStack = IoGetCurrentIrpStackLocation(Irp);
+
             if (IoStack->Parameters.QueryDeviceRelations.Type != BusRelations)
             {
                 Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
@@ -1672,6 +1695,8 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
         USBH_CheckIdleDeferred(HubExtension);
     }
 
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_STATE_CHANGING;
+
     return Status;
 }
 
@@ -1784,7 +1809,6 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
             DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
-            DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
@@ -1857,7 +1881,6 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         default:
             DPRINT("unknown IRP_MN_???\n");
-            DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
     }
