@@ -192,7 +192,7 @@ USBH_SetPdoRegistryParameter(IN PDEVICE_OBJECT DeviceObject,
     if (NT_SUCCESS(Status))
     {
          ZwSetValueKey(KeyHandle,
-                       ValueName,
+                       &ValueName,
                        0,
                        Type,
                        Data,

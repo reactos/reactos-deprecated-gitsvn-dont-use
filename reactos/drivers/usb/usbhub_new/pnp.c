@@ -1539,6 +1539,16 @@ USBH_SymbolicLink(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                   IN BOOLEAN IsKeepDeviceData)
+{
+    DPRINT1("USBH_RestoreDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoStartDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                     IN PIRP Irp)
 {
