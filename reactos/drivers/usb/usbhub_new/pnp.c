@@ -1358,6 +1358,134 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                        IN PIRP Irp)
+{
+    PDEVICE_OBJECT DeviceObject;
+    PIO_STACK_LOCATION IoStack;
+    DEVICE_TEXT_TYPE DeviceTextType;
+    USHORT LanguageId;
+    PUSB_STRING_DESCRIPTOR Descriptor;
+    PVOID DeviceText;
+    UCHAR iProduct = 0;
+    NTSTATUS Status;
+
+    DPRINT("USBH_PdoQueryDeviceText ... \n");
+
+    DeviceObject = PortExtension->Common.SelfDevice;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    DeviceTextType = IoStack->Parameters.QueryDeviceText.DeviceTextType;
+
+    if (DeviceTextType != DeviceTextDescription &&
+        DeviceTextType != DeviceTextLocationInformation)
+    {
+        return Irp->IoStatus.Status;
+    }
+
+    LanguageId = IoStack->Parameters.QueryDeviceText.LocaleId;
+
+    if (!LanguageId)
+    {
+        LanguageId = 0x0409;
+    }
+
+    iProduct = PortExtension->DeviceDescriptor.iProduct;
+
+    if (PortExtension->DeviceHandle && iProduct &&
+        !PortExtension->IgnoringHwSerial &&
+        !(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED))
+    {
+        Descriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                           0xFF,
+                                           USB_HUB_TAG);
+
+        if (Descriptor)
+        {
+            for (Status = USBH_CheckDeviceLanguage(DeviceObject, LanguageId);
+                 ; 
+                 Status = USBH_CheckDeviceLanguage(DeviceObject, 0x0409))
+            {
+                if (NT_SUCCESS(Status))
+                {
+                    Status = USBH_SyncGetStringDescriptor(DeviceObject,
+                                                          iProduct,
+                                                          LanguageId,
+                                                          Descriptor,
+                                                          0xFF,
+                                                          0,
+                                                          1);
+
+                    if (NT_SUCCESS(Status))
+                    {
+                        break;
+                    }
+                }
+
+                if (LanguageId == 0x0409)
+                {
+                    goto Exit;
+                }
+
+                LanguageId = 0x0409;
+            }
+
+            if (Descriptor->bLength <= 2)
+            {
+                Status = STATUS_UNSUCCESSFUL;
+            }
+
+            if (NT_SUCCESS(Status))
+            {
+                DeviceText = ExAllocatePoolWithTag(PagedPool,
+                                                   Descriptor->bLength,
+                                                   USB_HUB_TAG);
+
+                if (DeviceText)
+                {
+                    RtlZeroMemory(DeviceText, Descriptor->bLength);
+
+                    RtlCopyMemory(DeviceText,
+                                  Descriptor->bString,
+                                  Descriptor->bLength - 2);
+
+                    Irp->IoStatus.Information = (ULONG)DeviceText;
+
+                    DPRINT("USBH_PdoQueryDeviceText: Descriptor->bString - %S\n",
+                           DeviceText);
+                }
+                else
+                {
+                    Status = STATUS_INSUFFICIENT_RESOURCES;
+                }
+            }
+
+        Exit:
+
+            ExFreePool(Descriptor);
+
+            if (NT_SUCCESS(Status))
+            {
+                return Status;
+            }
+        }
+        else
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+        }
+    }
+    else
+    {
+        Status = STATUS_NOT_SUPPORTED;
+    }
+
+    DPRINT1("USBH_PdoQueryDeviceText: GenericUSBDeviceString UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             IN PIRP Irp,
             IN UCHAR Minor)
@@ -1644,9 +1772,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_DEVICE_TEXT: // 12
             DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return USBH_PdoQueryDeviceText(PortExtension, Irp);
 
         case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
             DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");

@@ -515,6 +515,12 @@ USBH_CheckIdleDeferred(
 
 NTSTATUS
 NTAPI
+USBH_CheckDeviceLanguage(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN USHORT LanguageId);
+
+NTSTATUS
+NTAPI
 USBH_CreateDevice(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN USHORT Port,
