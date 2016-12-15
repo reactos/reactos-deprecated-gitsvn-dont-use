@@ -204,6 +204,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   KEVENT ResetEvent;
   PIRP PendingIdleIrp;
   PIRP PendingWakeIrp;
+  LONG FdoWaitWakeLock;
   LIST_ENTRY WorkItemList;
   KSPIN_LOCK WorkItemSpinLock;
   KSPIN_LOCK CheckIdleSpinLock;
@@ -239,6 +240,10 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   PVOID BndwTimeoutContext;
   KSPIN_LOCK PortTimeoutSpinLock;
   LIST_ENTRY PortLink;
+  LONG PoRequestCounter;
+  LONG PendingSystemPoRequest;
+  LONG PendingDevicePoRequest;
+  LONG StateBehindD2;
 } USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
 
 typedef struct _USBHUB_URB_TIMEOUT_CONTEXT {

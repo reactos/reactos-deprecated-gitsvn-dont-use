@@ -1479,6 +1479,10 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     }
 
     DPRINT1("USBH_PdoQueryDeviceText: GenericUSBDeviceString UNIMPLEMENTED. FIXME. \n");
+    /* HKEY_LOCAL_MACHINE\SYSTEM\ControlSetXXX\Control\UsbFlags\
+      if (GenericUSBDeviceString = 'USB Device')
+    */
+
     DbgBreakPoint();
 
     return Status;
@@ -1665,8 +1669,7 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (IsCheckIdle)
     {
-    DPRINT1("USBH_:USBH_CheckIdleDeferred UNIMPLEMENTED. FIXME. \n");
-        //USBH_CheckIdleDeferred(HubExtension);
+        USBH_CheckIdleDeferred(HubExtension);
     }
 
     return Status;
@@ -1745,7 +1748,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         case IRP_MN_QUERY_INTERFACE: // 8
             DPRINT("IRP_MN_QUERY_INTERFACE\n");
             DbgBreakPoint();
-            //*IsCompleteIrp = 0;
+            // *IsCompleteIrp = 0;
             Status = Irp->IoStatus.Status;
             break;
 
@@ -1761,14 +1764,18 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_RESOURCES: // 10
             DPRINT("IRP_MN_QUERY_RESOURCES\n");
-            DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
+
+            /* FIXME HKEY_LOCAL_MACHINE\SYSTEM\ControlSetXXX\Enum\USB\
+               Vid_????&Pid_????\????????????\Device Parameters\
+               if (ExtPropDescSemaphore)
+            */
+
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_QUERY_DEVICE_TEXT: // 12

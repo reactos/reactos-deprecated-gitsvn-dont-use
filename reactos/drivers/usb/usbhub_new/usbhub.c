@@ -2224,8 +2224,223 @@ VOID
 NTAPI
 USBH_FdoIdleNotificationCallback(IN PVOID Context)
 {
-    DPRINT1("USBH_FdoIdleNotificationCallback: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PUSBHUB_PORT_DATA PortData;
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PIRP Irp = NULL;
+    PIRP IdleIrp;
+    POWER_STATE PowerState;
+    KEVENT Event;
+    ULONG Port;
+    PIO_STACK_LOCATION IoStack;
+    PUSB_IDLE_CALLBACK_INFO CallbackInfo;
+    BOOLEAN IsReady;
+    KIRQL OldIrql;
+    NTSTATUS Status;
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    DPRINT("USBH_FdoIdleNotificationCallback: HubExtension - %p, HubFlags - %p\n",
+           HubExtension,
+           HubExtension->HubFlags);
+
+    IsReady = TRUE;
+
+    if (HubExtension->HubFlags & (USBHUB_FDO_FLAG_ENUM_POST_RECOVER |
+                                  USBHUB_FDO_FLAG_WAKEUP_START |
+                                  USBHUB_FDO_FLAG_DEVICE_REMOVED |
+                                  USBHUB_FDO_FLAG_STATE_CHANGING |
+                                  USBHUB_FDO_FLAG_ESD_RECOVERING |
+                                  USBHUB_FDO_FLAG_DEVICE_FAILED |
+                                  USBHUB_FDO_FLAG_DEVICE_STOPPING))
+    {
+        DbgBreakPoint();
+        return;
+    }
+
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_GOING_IDLE;
+
+    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_PENDING_WAKE_IRP))
+    {
+        Status = USBH_FdoSubmitWaitWakeIrp(HubExtension);
+
+        if (Status != STATUS_PENDING)
+        {
+            DbgBreakPoint();
+            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_GOING_IDLE;
+            return;
+        }
+    }
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    Port = 0;
+
+    if (HubExtension->HubDescriptor->bNumberOfPorts == 0)
+    {
+        if ((HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) ||
+            (USBH_CheckIdleAbort(HubExtension, FALSE, FALSE) != TRUE))
+        {
+            goto IdleHub;
+        }
+    }
+    else
+    {
+        PortData = HubExtension->PortData;
+
+        while (TRUE)
+        {
+            PortDevice = PortData[Port].DeviceObject;
+
+            if (PortDevice)
+            {
+                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+                IdleIrp = PortExtension->IdleNotificationIrp;
+
+                if (!IdleIrp)
+                {
+                    break;
+                }
+
+                IoStack = IoGetCurrentIrpStackLocation(IdleIrp);
+
+                CallbackInfo = (PUSB_IDLE_CALLBACK_INFO)IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+
+                if (!CallbackInfo)
+                {
+                    break;
+                }
+
+                if (!CallbackInfo->IdleCallback)
+                {
+                    break;
+                }
+
+                if (PortExtension->PendingSystemPoRequest)
+                {
+                    break;
+                }
+
+                if (InterlockedCompareExchange(&PortExtension->StateBehindD2,
+                                               1,
+                                               0))
+                {
+                    break;
+                }
+
+                DPRINT("USBH_FdoIdleNotificationCallback: IdleContext - %p\n",
+                       CallbackInfo->IdleContext);
+
+                CallbackInfo->IdleCallback(CallbackInfo->IdleContext);
+
+                if (PortExtension->CurrentPowerState.DeviceState == PowerDeviceD0)
+                {
+                    break;
+                }
+            }
+
+            ++Port;
+
+            if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
+            {
+                if ((HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) ||
+                    (USBH_CheckIdleAbort(HubExtension, FALSE, FALSE) != TRUE))
+                {
+                    goto IdleHub;
+                }
+            }
+        }
+    }
+
+    IsReady = FALSE;
+
+IdleHub:
+
+    KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    if (!IsReady ||
+        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_SUSPENDED))
+    {
+        DPRINT1("USBH_FdoIdleNotificationCallback: HubFlags - %p\n",
+                HubExtension->HubFlags);
+
+        HubExtension->HubFlags &= ~(USBHUB_FDO_FLAG_DEVICE_SUSPENDED |
+                                    USBHUB_FDO_FLAG_GOING_IDLE);
+
+        //Aborting Idle for Hub
+        IoAcquireCancelSpinLock(&OldIrql);
+
+        if (HubExtension->PendingIdleIrp)
+        {
+            Irp = HubExtension->PendingIdleIrp;
+            HubExtension->PendingIdleIrp = NULL;
+        }
+
+        IoReleaseCancelSpinLock(OldIrql);
+
+        if (Irp)
+        {
+            USBH_HubCancelIdleIrp(HubExtension, Irp);
+        }
+
+        DbgBreakPoint();
+        USBH_HubCompletePortIdleIrps(HubExtension, STATUS_CANCELLED);
+    }
+    else
+    {
+        PowerState.DeviceState = HubExtension->DeviceWake;
+
+        KeWaitForSingleObject(&HubExtension->IdleSemaphore,
+                              Executive,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_GOING_IDLE;
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DO_SUSPENSE;
+
+        KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+        DPRINT("USBH_FdoIdleNotificationCallback: LowerPdo - %p\n",
+                HubExtension->LowerPDO);
+
+        DPRINT("USBH_FdoIdleNotificationCallback: PowerState.DeviceState - %x\n",
+               PowerState.DeviceState);
+
+        Status = PoRequestPowerIrp(HubExtension->LowerPDO,
+                                   IRP_MN_SET_POWER,
+                                   PowerState,
+                                   USBH_HubSetDWakeCompletion,
+                                   &Event,
+                                   0);
+
+        if (Status == STATUS_PENDING)
+        {
+            KeWaitForSingleObject(&Event,
+                                  Executive,
+                                  KernelMode,
+                                  FALSE,
+                                  NULL);
+        }
+    }
 }
 
 NTSTATUS
