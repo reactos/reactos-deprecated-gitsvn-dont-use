@@ -1283,18 +1283,18 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             else
             {
                 Index += swprintf(&Buffer[Index],
-                                  L"USB\\DevClass_%02x&SubClass_%02x&Prot_%02x",
+                                  L"USB\\Class_%02x&SubClass_%02x&Prot_%02x",
                                   PortExtension->InterfaceDescriptor.bInterfaceClass,
                                   PortExtension->InterfaceDescriptor.bInterfaceSubClass,
                                   PortExtension->InterfaceDescriptor.bInterfaceProtocol) + 1;
 
                 Index += swprintf(&Buffer[Index],
-                                  L"USB\\DevClass_%02x&SubClass_%02x",
+                                  L"USB\\Class_%02x&SubClass_%02x",
                                   PortExtension->InterfaceDescriptor.bInterfaceClass,
                                   PortExtension->InterfaceDescriptor.bInterfaceSubClass) + 1;
 
                 Index += swprintf(&Buffer[Index],
-                                  L"USB\\DevClass_%02x",
+                                  L"USB\\Class_%02x",
                                   PortExtension->InterfaceDescriptor.bInterfaceClass) + 2;
             }
 
@@ -1829,6 +1829,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PDEVICE_CAPABILITIES DeviceCapabilities;
     USHORT Size;
     USHORT Version;
+    PUSBHUB_FDO_EXTENSION HubExtension;
 
     DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %d\n",
            PortExtension,
@@ -1889,9 +1890,23 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_INTERFACE: // 8
             DPRINT("IRP_MN_QUERY_INTERFACE\n");
-            DbgBreakPoint();
-            // *IsCompleteIrp = 0;
-            Status = Irp->IoStatus.Status;
+
+            *IsCompleteIrp = 0;
+
+            if (IsEqualGUIDAligned(IoStack->Parameters.QueryInterface.InterfaceType,
+                                   &USB_BUS_INTERFACE_USBDI_GUID))
+            {
+                IoStack->Parameters.QueryInterface.InterfaceSpecificData = PortExtension->DeviceHandle;
+            }
+
+            HubExtension = PortExtension->HubExtension;
+
+            if (!HubExtension)
+            {
+                HubExtension = PortExtension->RootHubExtension;
+            }
+
+            Status = USBH_PassIrp(HubExtension->RootHubPdo, Irp);
             break;
 
         case IRP_MN_QUERY_CAPABILITIES: // 9

@@ -16,7 +16,7 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
     NTSTATUS Status;
     KIRQL OldIrql;
 
-    DPRINT("USBH_SelectConfigOrInterface_Complete ... \n");
+    DPRINT("USBH_SelectConfigOrInterfaceComplete ... \n");
 
     PortData;
 
