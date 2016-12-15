@@ -169,6 +169,43 @@ USBH_UrbTimeoutDPC(IN PKDPC Dpc,
 
 NTSTATUS
 NTAPI
+USBH_SetPdoRegistryParameter(IN PDEVICE_OBJECT DeviceObject,
+                             IN PCWSTR SourceString,
+                             IN PVOID Data,
+                             IN ULONG DataSize,
+                             IN ULONG Type,
+                             IN ULONG DevInstKeyType)
+{
+    NTSTATUS Status;
+    UNICODE_STRING ValueName;
+    HANDLE KeyHandle;
+
+    DPRINT("USBH_SetPdoRegistryParameter ... \n");
+
+    RtlInitUnicodeString(&ValueName, SourceString);
+
+    Status = IoOpenDeviceRegistryKey(DeviceObject,
+                                     DevInstKeyType,
+                                     STANDARD_RIGHTS_ALL,
+                                     &KeyHandle);
+
+    if (NT_SUCCESS(Status))
+    {
+         ZwSetValueKey(KeyHandle,
+                       ValueName,
+                       0,
+                       Type,
+                       Data,
+                       DataSize);
+
+        ZwClose(KeyHandle);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
                    IN PURB Urb)
 {

@@ -359,6 +359,16 @@ USBH_WriteFailReasonID(
 
 NTSTATUS
 NTAPI
+USBH_SetPdoRegistryParameter(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN PCWSTR SourceString,
+  IN PVOID Data,
+  IN ULONG DataSize,
+  IN ULONG Type,
+  IN ULONG DevInstKeyType);
+
+NTSTATUS
+NTAPI
 USBH_FdoSyncSubmitUrb(
   IN PDEVICE_OBJECT FdoDevice,
   IN PURB Urb);
