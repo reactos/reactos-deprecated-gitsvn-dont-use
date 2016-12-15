@@ -226,13 +226,13 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   USHORT PortNumber;
   USHORT SN_DescriptorLength;
   BOOL IgnoringHwSerial;
+  LPWSTR SerialNumber; // serial number string
   USB_DEVICE_DESCRIPTOR DeviceDescriptor;
   USB_DEVICE_DESCRIPTOR OldDeviceDescriptor;
   USB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
   USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
   USHORT Reserved1;
   PIRP IdleNotificationIrp;
-  LPWSTR SerialNumber; // serial number string
   POWER_STATE CurrentPowerState;
   DEVICE_CAPABILITIES Capabilities;
   ULONG MaxPower;
@@ -268,6 +268,11 @@ NTAPI
 USBPORT_DumpingConfiguration(
   IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor);
 
+VOID
+NTAPI
+USBPORT_DumpingIDs(
+  IN PVOID Id);
+
 /* ioctl.c */
 
 NTSTATUS
@@ -296,7 +301,8 @@ NTAPI
 USBH_PdoPnP(
   IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
   IN PIRP Irp,
-  IN UCHAR Minor);
+  IN UCHAR Minor,
+  OUT BOOLEAN * IsCompleteIrp);
 
 /* power.c */
 

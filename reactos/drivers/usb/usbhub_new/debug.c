@@ -92,3 +92,27 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
         Descriptor += 1;
     }
 }
+
+VOID
+NTAPI
+USBPORT_DumpingIDs(IN PVOID Id)
+{
+    PWSTR Ptr;
+    ULONG Length;
+    ULONG TotalLength = 0;
+
+    Ptr = (PWSTR)Id;
+    DPRINT("USBPORT_DumpingIDs:\n");
+
+    while (*Ptr)
+    {
+        DPRINT("  %S\n", Ptr);
+        Length = (ULONG)wcslen(Ptr) + 1;
+
+        Ptr += Length;
+        TotalLength += Length;
+    }
+
+    DPRINT("TotalLength: %hu\n", TotalLength);
+    DPRINT("\n");
+}
