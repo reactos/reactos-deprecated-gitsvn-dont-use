@@ -2220,6 +2220,17 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+VOID
+NTAPI
+USBH_FdoWaitWakeIrpCompletion(IN PDEVICE_OBJECT DeviceObject, 
+                              IN UCHAR MinorFunction,
+                              IN POWER_STATE PowerState,
+                              IN PVOID Context,
+                              IN PIO_STATUS_BLOCK IoStatus)
+{
+    DPRINT("USBH_FdoWaitWakeIrpCompletion ... \n");
+}
+
 NTSTATUS
 NTAPI
 USBH_FdoSubmitWaitWakeIrp(IN PUSBHUB_FDO_EXTENSION HubExtension)
