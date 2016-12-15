@@ -2220,6 +2220,21 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+VOID
+NTAPI
+USBH_HubCancelIdleIrp(IN PUSBHUB_FDO_EXTENSION HubExtension, 
+                      IN PIRP IdleIrp)
+{
+    DPRINT("USBH_HubCancelIdleIrp ... \n");
+
+    IoCancelIrp(IdleIrp);
+
+    if (InterlockedExchange(&HubExtension->IdleRequestLock, 1))
+    {
+        IoFreeIrp(IdleIrp);
+    }
+}
+
 BOOLEAN
 NTAPI
 USBH_CheckIdleAbort(IN PUSBHUB_FDO_EXTENSION HubExtension,
