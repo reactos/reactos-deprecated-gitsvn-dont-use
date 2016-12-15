@@ -1490,6 +1490,55 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_SymbolicLink(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                  IN const GUID * InterfaceClassGuid,
+                  IN BOOLEAN IsEnable)
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+    PVOID NameBuffer;
+
+    DPRINT("USBH_SymbolicLink ... \n");
+
+    if (IsEnable)
+    {
+        Status = IoRegisterDeviceInterface(PortExtension->Common.SelfDevice,
+                                           InterfaceClassGuid,
+                                           NULL,
+                                           &PortExtension->SymbolicLinkName);
+
+        if (NT_SUCCESS(Status))
+        {
+            USBH_SetPdoRegistryParameter(PortExtension->Common.SelfDevice,
+                                         L"SymbolicName",
+                                         PortExtension->SymbolicLinkName.Buffer,
+                                         PortExtension->SymbolicLinkName.Length,
+                                         REG_SZ,
+                                         PLUGPLAY_REGKEY_DEVICE);
+
+            Status = IoSetDeviceInterfaceState(&PortExtension->SymbolicLinkName,
+                                               TRUE);
+        }
+    }
+    else
+    {
+        NameBuffer = PortExtension->SymbolicLinkName.Buffer;
+
+        if (NameBuffer && NameBuffer != (PVOID)-2)
+        {
+            Status = IoSetDeviceInterfaceState(&PortExtension->SymbolicLinkName,
+                                               FALSE);
+
+            ExFreePool(PortExtension->SymbolicLinkName.Buffer);
+
+            PortExtension->SymbolicLinkName.Buffer = (PVOID)-2;
+        }
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             IN PIRP Irp,
             IN UCHAR Minor)
