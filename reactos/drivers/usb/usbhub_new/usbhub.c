@@ -3119,16 +3119,14 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     PIO_STACK_LOCATION IoStack;
     UCHAR MajorFunction;
+    BOOLEAN IsCompleteIrp;
     ULONG ControlCode;
     NTSTATUS Status;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     MajorFunction = IoStack->MajorFunction;
 
-    DPRINT("USBH_PdoDispatch: PortExtension - %p, Irp - %p, MajorFunction - %x\n",
-           PortExtension,
-           Irp,
-           MajorFunction);
+    DPRINT("USBH_PdoDispatch: MajorFunction - %d\n", MajorFunction);
 
     switch (MajorFunction)
     {
@@ -3168,7 +3166,16 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             break;
 
         case IRP_MJ_PNP:
-            Status = USBH_PdoPnP(PortExtension, Irp, IoStack->MinorFunction);
+            Status = USBH_PdoPnP(PortExtension,
+                                 Irp,
+                                 IoStack->MinorFunction,
+                                 &IsCompleteIrp);
+
+            if (IsCompleteIrp)
+            {
+                USBH_CompleteIrp(Irp, Status);
+            }
+
             break;
 
         case IRP_MJ_POWER:

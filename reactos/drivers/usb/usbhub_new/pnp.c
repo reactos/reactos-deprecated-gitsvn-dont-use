@@ -1355,6 +1355,7 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     return Status;
 }
+
 NTSTATUS
 NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
@@ -1536,7 +1537,8 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (IsCheckIdle)
     {
-        USBH_CheckIdleDeferred(HubExtension);
+    DPRINT1("USBH_:USBH_CheckIdleDeferred UNIMPLEMENTED. FIXME. \n");
+        //USBH_CheckIdleDeferred(HubExtension);
     }
 
     return Status;
@@ -1546,12 +1548,170 @@ NTSTATUS
 NTAPI
 USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             IN PIRP Irp,
-            IN UCHAR Minor)
+            IN UCHAR Minor,
+            OUT BOOLEAN * IsCompleteIrp)
 {
-    DPRINT("USBH_FdoPnP: PortExtension - %p, Irp - %p, Minor - %x\n",
+    NTSTATUS Status;
+    PIO_STACK_LOCATION IoStack;
+
+    DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %d\n",
            PortExtension,
            Irp,
            Minor);
 
-    return 0;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    *IsCompleteIrp = TRUE;
+
+    switch (Minor)
+    {
+        case IRP_MN_START_DEVICE: // 0
+            DPRINT("IRP_MN_START_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_REMOVE_DEVICE: // 1
+            DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_REMOVE_DEVICE: // 2
+            DPRINT("IRP_MN_REMOVE_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
+            DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_STOP_DEVICE: // 4
+            DPRINT("IRP_MN_STOP_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_STOP_DEVICE: // 5
+            DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_CANCEL_STOP_DEVICE: // 6
+            DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+            DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_INTERFACE: // 8
+            DPRINT("IRP_MN_QUERY_INTERFACE\n");
+            DbgBreakPoint();
+            //*IsCompleteIrp = 0;
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_CAPABILITIES: // 9
+            DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
+
+            RtlCopyMemory(IoStack->Parameters.DeviceCapabilities.Capabilities,
+                          &PortExtension->Capabilities,
+                          sizeof(DEVICE_CAPABILITIES));
+
+            Status = STATUS_SUCCESS;
+            break;
+
+        case IRP_MN_QUERY_RESOURCES: // 10
+            DPRINT("IRP_MN_QUERY_RESOURCES\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
+            DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_DEVICE_TEXT: // 12
+            DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
+            DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_READ_CONFIG: // 15
+            DPRINT("IRP_MN_READ_CONFIG\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_WRITE_CONFIG: // 16
+            DPRINT("IRP_MN_WRITE_CONFIG\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_EJECT: // 17
+            DPRINT("IRP_MN_EJECT\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_SET_LOCK: // 18
+            DPRINT("IRP_MN_SET_LOCK\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_ID: // 19
+            DPRINT("IRP_MN_QUERY_ID\n");
+            return USBH_PdoQueryId(PortExtension, Irp);
+
+        case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
+            DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_QUERY_BUS_INFORMATION: // 21
+            DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
+            DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        case IRP_MN_SURPRISE_REMOVAL: // 23
+            DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+
+        default:
+            DPRINT("unknown IRP_MN_???\n");
+            DbgBreakPoint();
+            Status = Irp->IoStatus.Status;
+            break;
+    }
+
+    return Status;
 }
