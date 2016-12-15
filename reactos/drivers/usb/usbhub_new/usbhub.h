@@ -55,6 +55,7 @@
 #define USBHUB_PDO_FLAG_NOT_CONNECTED     (1 << 6)    // 0x00000040
 #define USBHUB_PDO_FLAG_DELETE_PENDING    (1 << 7)    // 0x00000080
 #define USBHUB_PDO_FLAG_POWER_D3          (1 << 8)    // 0x00000100
+#define USBHUB_PDO_FLAG_DEVICE_STARTED    (1 << 9)    // 0x00000200
 #define USBHUB_PDO_FLAG_HS_USB1_DUALMODE  (1 << 10)   // 0x00000400
 #define USBHUB_PDO_FLAG_REG_DEV_INTERFACE (1 << 11)   // 0x00000800 // SymbolicLink
 #define USBHUB_PDO_FLAG_PORT_RESTORE_FAIL (1 << 12)   // 0x00001000
@@ -221,6 +222,7 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   COMMON_DEVICE_EXTENSION Common;
   ULONG PortPdoFlags;
   ULONG EnumFlags;
+  UNICODE_STRING SymbolicLinkName;
   PUSBHUB_FDO_EXTENSION HubExtension;
   PUSBHUB_FDO_EXTENSION RootHubExtension;
   PUSB_DEVICE_HANDLE DeviceHandle;
@@ -481,6 +483,13 @@ USBD_InitializeDeviceEx(
   IN ULONG DeviceDescriptorBufferLength,
   IN PUCHAR ConfigDescriptorBuffer,
   IN ULONG ConfigDescriptorBufferLength);
+
+VOID
+NTAPI
+USBHUB_SetDeviceHandleData(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PDEVICE_OBJECT UsbDevicePdo,
+  IN PVOID DeviceHandle);
 
 NTSTATUS
 NTAPI

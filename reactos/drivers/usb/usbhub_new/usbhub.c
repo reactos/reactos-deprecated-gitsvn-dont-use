@@ -1975,6 +1975,28 @@ USBD_InitializeDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              &ConfigDescriptorBufferLength);
 }
 
+VOID
+NTAPI
+USBHUB_SetDeviceHandleData(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                           IN PDEVICE_OBJECT UsbDevicePdo,
+                           IN PVOID DeviceHandle)
+{
+    PUSB_BUSIFFN_SET_DEVHANDLE_DATA SetDeviceHandleData;
+
+    DPRINT("USBHUB_SetDeviceHandleData ... \n");
+
+    SetDeviceHandleData = HubExtension->BusInterface.SetDeviceHandleData;
+
+    if (!SetDeviceHandleData)
+    {
+        return;
+    }
+
+    SetDeviceHandleData(HubExtension->BusInterface.BusContext,
+                        DeviceHandle,
+                        UsbDevicePdo);
+}
+
 NTSTATUS
 NTAPI
 USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
