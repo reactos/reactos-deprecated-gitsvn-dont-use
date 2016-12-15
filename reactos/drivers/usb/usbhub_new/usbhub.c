@@ -2220,6 +2220,58 @@ USBD_UnRegisterRootHubCallBack(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBH_FdoSubmitWaitWakeIrp(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    POWER_STATE PowerState;
+    NTSTATUS Status;
+    PIRP Irp = NULL;
+    KIRQL Irql;
+
+    DPRINT("USBH_FdoSubmitWaitWakeIrp: ... \n");
+
+    PowerState.SystemState = HubExtension->SystemWake;
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_PENDING_WAKE_IRP;
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+    InterlockedExchange(&HubExtension->FdoWaitWakeLock, 0);
+
+    Status = PoRequestPowerIrp(HubExtension->LowerPDO,
+                               IRP_MN_WAIT_WAKE,
+                               PowerState,
+                               USBH_FdoWaitWakeIrpCompletion,
+                               HubExtension,
+                               &Irp);
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    if (Status == STATUS_PENDING)
+    {
+        if (HubExtension->HubFlags & USBHUB_FDO_FLAG_PENDING_WAKE_IRP)
+        {
+            HubExtension->PendingWakeIrp = Irp;
+            DPRINT("USBH_FdoSubmitWaitWakeIrp: PendingWakeIrp - %p\n",
+                   HubExtension->PendingWakeIrp);
+        }
+    }
+    else
+    {
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_PENDING_WAKE_IRP;
+
+        if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+        {
+            KeSetEvent(&HubExtension->PendingRequestEvent,
+                       EVENT_INCREMENT,
+                       FALSE);
+        }
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    return Status;
+}
+
 VOID
 NTAPI
 USBH_FdoIdleNotificationCallback(IN PVOID Context)
