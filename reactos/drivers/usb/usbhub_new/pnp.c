@@ -1681,6 +1681,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     NTSTATUS Status;
     PIO_STACK_LOCATION IoStack;
+    PPNP_BUS_INFORMATION BusInfo;
 
     DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %d\n",
            PortExtension,
@@ -1816,8 +1817,23 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_BUS_INFORMATION: // 21
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
+
+            BusInfo = ExAllocatePoolWithTag(PagedPool, sizeof(PNP_BUS_INFORMATION), USB_HUB_TAG);
+
+            if (!BusInfo)
+            {
+                return STATUS_INSUFFICIENT_RESOURCES;
+            }
+
+            RtlCopyMemory(&BusInfo->BusTypeGuid,
+                          &GUID_BUS_TYPE_USB,
+                          sizeof(BusInfo->BusTypeGuid));
+
+            BusInfo->LegacyBusType = PNPBus;
+            BusInfo->BusNumber = 0;
+
+            Irp->IoStatus.Information = (ULONG_PTR)BusInfo;
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
