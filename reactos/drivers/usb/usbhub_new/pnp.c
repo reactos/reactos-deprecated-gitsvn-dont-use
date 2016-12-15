@@ -1539,6 +1539,63 @@ USBH_SymbolicLink(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_PdoStartDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                    IN PIRP Irp)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    const GUID * Guid;
+    NTSTATUS Status;
+
+    DPRINT("USBH_PdoStartDevice ... \n");
+
+    if (!PortExtension->HubExtension &&
+        PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D3)
+    {
+        PortExtension->HubExtension = PortExtension->RootHubExtension;
+    }
+
+    HubExtension = PortExtension->HubExtension;
+
+    if (HubExtension)
+    {
+        USBHUB_SetDeviceHandleData(HubExtension,
+                                   PortExtension->Common.SelfDevice,
+                                   PortExtension->DeviceHandle);
+    }
+
+    if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE)
+    {
+        Guid = &GUID_DEVINTERFACE_USB_HUB;
+    }
+    else
+    {
+        Guid = &GUID_DEVINTERFACE_USB_DEVICE;
+    }
+
+    Status = USBH_SymbolicLink(PortExtension, Guid, TRUE);
+
+    if (NT_SUCCESS(Status))
+    {
+        PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_REG_DEV_INTERFACE;
+    }
+
+    if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D3)
+    {
+        Status = USBH_RestoreDevice(PortExtension, 0);
+    }
+
+    PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_DEVICE_STARTED;
+
+    PortExtension->CurrentPowerState.DeviceState = PowerDeviceD0;
+
+    DPRINT1("USBH_PdoStartDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
+    //IoWMIRegistrationControl()
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             IN PIRP Irp,
             IN UCHAR Minor)
@@ -1759,6 +1816,9 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     NTSTATUS Status;
     PIO_STACK_LOCATION IoStack;
     PPNP_BUS_INFORMATION BusInfo;
+    PDEVICE_CAPABILITIES DeviceCapabilities;
+    USHORT Size;
+    USHORT Version;
 
     DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %d\n",
            PortExtension,
@@ -1773,9 +1833,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     {
         case IRP_MN_START_DEVICE: // 0
             DPRINT("IRP_MN_START_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return USBH_PdoStartDevice(PortExtension, Irp);
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
             DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
@@ -1829,16 +1887,24 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         case IRP_MN_QUERY_CAPABILITIES: // 9
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
 
-            RtlCopyMemory(IoStack->Parameters.DeviceCapabilities.Capabilities,
+            DeviceCapabilities = IoStack->Parameters.DeviceCapabilities.Capabilities;
+
+            Size = DeviceCapabilities->Size;
+            Version = DeviceCapabilities->Version;
+
+            RtlCopyMemory(DeviceCapabilities,
                           &PortExtension->Capabilities,
                           sizeof(DEVICE_CAPABILITIES));
+
+            DeviceCapabilities->Size = Size;
+            DeviceCapabilities->Version = Version;
 
             Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_QUERY_RESOURCES: // 10
             DPRINT("IRP_MN_QUERY_RESOURCES\n");
-            Status = Irp->IoStatus.Status;
+            Status = Irp->IoStatus.Status; // STATUS_SUCCESS
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
@@ -1891,14 +1957,23 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
             DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
+            if (PortExtension->PortPdoFlags & (USBHUB_PDO_FLAG_INSUFFICIENT_PWR |
+                                               USBHUB_PDO_FLAG_OVERCURRENT_PORT |
+                                               USBHUB_PDO_FLAG_PORT_RESTORE_FAIL |
+                                               USBHUB_PDO_FLAG_INIT_PORT_FAILED))
+            {
+                Irp->IoStatus.Information |= PNP_DEVICE_FAILED;
+            }
+
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_QUERY_BUS_INFORMATION: // 21
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
 
-            BusInfo = ExAllocatePoolWithTag(PagedPool, sizeof(PNP_BUS_INFORMATION), USB_HUB_TAG);
+            BusInfo = ExAllocatePoolWithTag(PagedPool,
+                                            sizeof(PNP_BUS_INFORMATION),
+                                            USB_HUB_TAG);
 
             if (!BusInfo)
             {
