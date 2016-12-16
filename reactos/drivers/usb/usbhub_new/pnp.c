@@ -1180,6 +1180,16 @@ RelationsWorker:
 
 NTSTATUS
 NTAPI
+USBH_FdoStopDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                   IN PIRP Irp)
+{
+    DPRINT1("USBH_FdoStopDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                      IN PIRP Irp)
 {
@@ -1700,12 +1710,14 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
             DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
         case IRP_MN_STOP_DEVICE: // 4
             DPRINT("IRP_MN_STOP_DEVICE\n");
-            Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            Status = USBH_FdoStopDevice(HubExtension, Irp);
             break;
 
         case IRP_MN_QUERY_STOP_DEVICE: // 5
