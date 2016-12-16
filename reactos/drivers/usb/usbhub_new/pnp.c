@@ -1180,6 +1180,16 @@ RelationsWorker:
 
 NTSTATUS
 NTAPI
+USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                     IN PIRP Irp)
+{
+    DPRINT1("USBH_FdoRemoveDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                 IN PIRP Irp)
 {
@@ -1677,12 +1687,15 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
             DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
         case IRP_MN_REMOVE_DEVICE: // 2
             DPRINT("IRP_MN_REMOVE_DEVICE\n");
-            Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+            HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_REMOVED;
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            Status = USBH_FdoRemoveDevice(HubExtension, Irp);
             break;
 
         case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
@@ -1697,11 +1710,13 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_QUERY_STOP_DEVICE: // 5
             DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
         case IRP_MN_CANCEL_STOP_DEVICE: // 6
             DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
