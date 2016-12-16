@@ -1360,9 +1360,18 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             }
             else
             {
-                 DPRINT("USBH_PdoQueryId: ??? FIXME\n");
-                 DbgBreakPoint();
-                 //Id = USBH_BuildInstanceID();
+                 Id = ExAllocatePoolWithTag(PagedPool,
+                                            4 * sizeof(WCHAR) + 2,
+                                            USB_HUB_TAG);
+
+                 if (Id)
+                 {
+                     RtlZeroMemory(Id, 4 * sizeof(WCHAR) + 2);
+
+                     RtlCopyMemory(Id,
+                                   &PortExtension->InstanceID,
+                                   4 * sizeof(WCHAR));
+                 }
             }
 
             break;
@@ -1767,7 +1776,7 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_CAPABILITIES:           // 9
+        case IRP_MN_QUERY_CAPABILITIES: // 9
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
             IoCopyCurrentIrpStackLocationToNext(Irp);
 
@@ -1781,17 +1790,17 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             Status = IoCallDriver(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_RESOURCES:              // 10
+        case IRP_MN_QUERY_RESOURCES: // 10
             DPRINT("IRP_MN_QUERY_RESOURCES\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:  // 11
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_DEVICE_TEXT:            // 12
+        case IRP_MN_QUERY_DEVICE_TEXT: // 12
             DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;

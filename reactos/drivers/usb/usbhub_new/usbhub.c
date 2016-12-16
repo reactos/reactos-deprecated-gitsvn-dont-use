@@ -2123,7 +2123,7 @@ USBH_Worker(IN PDEVICE_OBJECT DeviceObject,
     KIRQL OldIrql;
     PIO_WORKITEM WorkItem;
 
-    DPRINT("USBH_Worker: ... \n");
+    DPRINT("USBH_Worker: HubIoWorkItem - %p\n", Context);
 
     HubIoWorkItem = (PUSBHUB_IO_WORK_ITEM)Context;
 
@@ -2154,6 +2154,8 @@ USBH_Worker(IN PDEVICE_OBJECT DeviceObject,
     }
 
     IoFreeWorkItem(WorkItem);
+
+    DPRINT("USBH_Worker: HubIoWorkItem %p complete\n", Context);
 }
 
 VOID
@@ -2835,6 +2837,7 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
     }
 
     HubFlags = HubExtension->HubFlags;
+    DPRINT("USBH_CheckHubIdle: HubFlags - %p\n", HubFlags);
 
     if (HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED &&
         HubFlags & USBHUB_FDO_FLAG_DO_ENUMERATION)
@@ -3391,6 +3394,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     BOOLEAN IsLsDevice;
     BOOLEAN IgnoringHwSerial = FALSE;
     NTSTATUS Status;
+    UNICODE_STRING DestinationString;
 
     DPRINT("USBH_CreateDevice: Port - %x, UsbPortStatus - %p\n",
            Port,
@@ -3456,6 +3460,11 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         PortExtension->PortPdoFlags = USBHUB_PDO_FLAG_PORT_LOW_SPEED;
     }
+
+    /* Initialize PortExtension->InstanceID */
+    RtlInitUnicodeString(&DestinationString, (PCWSTR)&PortExtension->InstanceID);
+    DestinationString.MaximumLength = 4 * sizeof(WCHAR);
+    Status = RtlIntegerToUnicodeString(Port, 10, &DestinationString);
 
     DeviceObject->Flags |= DO_POWER_PAGABLE;
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;

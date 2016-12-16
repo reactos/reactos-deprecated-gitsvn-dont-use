@@ -223,6 +223,7 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   ULONG PortPdoFlags;
   ULONG EnumFlags;
   UNICODE_STRING SymbolicLinkName;
+  WCHAR InstanceID[4];
   PUSBHUB_FDO_EXTENSION HubExtension;
   PUSBHUB_FDO_EXTENSION RootHubExtension;
   PUSB_DEVICE_HANDLE DeviceHandle;
