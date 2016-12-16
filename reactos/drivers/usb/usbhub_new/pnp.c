@@ -1606,6 +1606,26 @@ USBH_PdoStartDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                     IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT1("USBH_PdoRemoveDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
+USBH_PdoStopDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                   IN PIRP Irp)
+{
+    DPRINT1("USBH_PdoStopDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             IN PIRP Irp,
             IN UCHAR Minor)
@@ -1849,39 +1869,27 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_REMOVE_DEVICE: // 1
             DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return STATUS_SUCCESS;
 
         case IRP_MN_REMOVE_DEVICE: // 2
             DPRINT("IRP_MN_REMOVE_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return USBH_PdoRemoveDevice(PortExtension, PortExtension->HubExtension);
 
         case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
             DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return STATUS_SUCCESS;
 
         case IRP_MN_STOP_DEVICE: // 4
             DPRINT("IRP_MN_STOP_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return USBH_PdoStopDevice(PortExtension, Irp);
 
         case IRP_MN_QUERY_STOP_DEVICE: // 5
             DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return STATUS_SUCCESS;
 
         case IRP_MN_CANCEL_STOP_DEVICE: // 6
             DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
-            break;
+            return STATUS_SUCCESS;
 
         case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
