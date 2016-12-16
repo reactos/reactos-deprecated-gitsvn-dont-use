@@ -1658,13 +1658,13 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_SUSPENDED;
     }
 
-    if ((HubExtension->CurrentPowerState.DeviceState != 1) &&
+    if ((HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0) &&
         (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED) &&
         (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED) &&
         (Minor != IRP_MN_QUERY_DEVICE_RELATIONS || Minor != IRP_MN_STOP_DEVICE))
     {
-        IsCheckIdle = 1;
-        DbgBreakPoint();
+        IsCheckIdle = TRUE;
+        USBH_HubSetD0(HubExtension);
     }
 
     switch (Minor)

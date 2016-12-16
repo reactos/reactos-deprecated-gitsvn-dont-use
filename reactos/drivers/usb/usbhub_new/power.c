@@ -5,6 +5,15 @@
 
 NTSTATUS
 NTAPI
+USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT1("USBH_HubSetD0: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
               IN PIRP Irp,
               IN UCHAR Minor)
