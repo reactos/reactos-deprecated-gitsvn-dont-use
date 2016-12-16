@@ -2048,8 +2048,17 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_SURPRISE_REMOVAL: // 23
             DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
-            DbgBreakPoint();
-            Status = Irp->IoStatus.Status;
+            if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_REG_DEV_INTERFACE)
+            {
+                Status = USBH_SymbolicLink(PortExtension, NULL, FALSE);
+
+                if (NT_SUCCESS(Status))
+                {
+                    PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_REG_DEV_INTERFACE;
+                }
+            }
+
+            Status = STATUS_SUCCESS;
             break;
 
         default:
