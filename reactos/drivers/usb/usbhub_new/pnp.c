@@ -1200,6 +1200,16 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_FdoSurpriseRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                             IN PIRP Irp)
+{
+    DPRINT1("USBH_FdoSurpriseRemoveDevice: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                 IN PIRP Irp)
 {
@@ -1834,11 +1844,13 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
             DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
+            Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
         case IRP_MN_SURPRISE_REMOVAL: // 23
             DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+            USBH_FdoSurpriseRemoveDevice(HubExtension, Irp);
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
