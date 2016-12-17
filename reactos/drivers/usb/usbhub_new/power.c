@@ -12,6 +12,85 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return 0;
 }
 
+NTSTATUS
+NTAPI
+USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
+                        IN PIRP Irp,
+                        IN PVOID Context)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PIO_STACK_LOCATION IoStack;
+    DEVICE_POWER_STATE OldDeviceState;
+    NTSTATUS Status;
+    POWER_STATE PowerState;
+
+    DPRINT("USBH_PowerIrpCompletion: DeviceObject - %p, Irp - %p\n",
+           DeviceObject,
+           Irp);
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    PowerState = IoStack->Parameters.Power.State;
+
+    Status = Irp->IoStatus.Status;
+    DPRINT("USBH_PowerIrpCompletion: Status - %p\n", Status);
+
+
+    if (Irp->PendingReturned)
+    {
+        IoMarkIrpPending(Irp);
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        if (PowerState.DeviceState == PowerDeviceD0)
+        {
+            PoStartNextPowerIrp(Irp);
+            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_SET_D0_STATE;
+        }
+    }
+    else if (PowerState.DeviceState == PowerDeviceD0)
+    {
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_SET_D0_STATE;
+
+        OldDeviceState = HubExtension->CurrentPowerState.DeviceState;
+        HubExtension->CurrentPowerState.DeviceState = PowerDeviceD0;
+
+        DPRINT("USBH_PowerIrpCompletion: OldDeviceState - %x\n", OldDeviceState);
+
+        if (HubExtension->HubFlags & USBHUB_FDO_FLAG_HIBERNATE_STATE)
+        {
+            DPRINT1("USBH_PowerIrpCompletion: USBHUB_FDO_FLAG_HIBERNATE_STATE. FIXME. \n");
+            DbgBreakPoint();
+        }
+
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_HIBERNATE_STATE;
+
+        if (OldDeviceState == PowerDeviceD3)
+        {
+            DPRINT1("USBH_PowerIrpCompletion: PowerDeviceD3. FIXME. \n");
+            DbgBreakPoint();
+        }
+
+        if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED) &&
+            HubExtension->HubFlags & USBHUB_FDO_FLAG_DO_ENUMERATION)
+        {
+            USBH_SubmitStatusChangeTransfer(HubExtension);
+        }
+
+        DPRINT("USBH_PowerIrpCompletion: Status - %p\n", Status);
+
+        if (Status != STATUS_MORE_PROCESSING_REQUIRED)
+        {
+            PoStartNextPowerIrp(Irp);
+            return Status;
+        }
+    }
+
+    return Status;
+}
+
 VOID
 NTAPI
 USBH_FdoDeferPoRequestCompletion(IN PDEVICE_OBJECT DeviceObject,
