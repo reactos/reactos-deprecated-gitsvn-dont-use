@@ -1922,37 +1922,37 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
     HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
     UrbStatus = HubExtension->SCEWorkerUrb.Hdr.Status;
 
-    DPRINT("USBH_ChangeIndication: IrpStatus - %p, UrbStatus - %p\n",
+    DPRINT("USBH_ChangeIndication: IrpStatus - %p, UrbStatus - %p, HubFlags - %p\n",
            Irp->IoStatus.Status,
-           UrbStatus);
+           UrbStatus,
+           HubExtension->HubFlags);
 
     if ((Irp->IoStatus.Status & 0xC0000000) == 0xC0000000 ||
        USBD_ERROR(UrbStatus) ||
        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) ||
        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) )
     {
-        DPRINT1("USBH_ChangeIndication: Error ... \n");
-        DbgBreakPoint();
-
         ++HubExtension->RequestErrors;
 
         IsErrors = TRUE;
+
+        KeSetEvent(&HubExtension->StatusChangeEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
 
         if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING ||
             HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED ||
             HubExtension->RequestErrors > 3 ||
             Irp->IoStatus.Status == STATUS_DELETE_PENDING)
         {
-            KeSetEvent(&HubExtension->StatusChangeEvent,
-                       EVENT_INCREMENT,
-                       FALSE);
+            DPRINT("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
+                   HubExtension->RequestErrors);
 
             return STATUS_MORE_PROCESSING_REQUIRED;
         }
 
-        KeSetEvent(&HubExtension->StatusChangeEvent,
-                   EVENT_INCREMENT,
-                   FALSE);
+        DPRINT("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
+               HubExtension->RequestErrors);
     }
     else
     {
@@ -1964,7 +1964,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     Status = USBH_AllocateWorkItem(HubExtension,
                                    &HubWorkItem,
-                                   (PVOID)USBH_ChangeIndicationWorker,
+                                   USBH_ChangeIndicationWorker,
                                    BufferLength,
                                    (PVOID *)&HubWorkItemBuffer,
                                    DelayedWorkQueue);
@@ -1978,7 +1978,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     HubWorkItemBuffer->RequestErrors = 0;
 
-    if (IsErrors != 0)
+    if (IsErrors == TRUE)
     {
         HubWorkItemBuffer->RequestErrors = 1;
     }
