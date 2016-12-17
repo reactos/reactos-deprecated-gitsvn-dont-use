@@ -2302,6 +2302,22 @@ USBHUB_SetDeviceHandleData(IN PUSBHUB_FDO_EXTENSION HubExtension,
                         UsbDevicePdo);
 }
 
+VOID
+NTAPI
+USBHUB_FlushAllTransfers(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PUSB_BUSIFFN_FLUSH_TRANSFERS FlushTransfers;
+
+    DPRINT("USBHUB_FlushAllTransfers ... \n");
+
+    FlushTransfers = HubExtension->BusInterface.FlushTransfers;
+
+    if (FlushTransfers)
+    {
+        FlushTransfers(HubExtension->BusInterface.BusContext, NULL);
+    }
+}
+
 NTSTATUS
 NTAPI
 USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
@@ -2597,8 +2613,7 @@ USBH_HubQueuePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                 IdleIrp = PortExtension->IdleNotificationIrp;
                 PortExtension->IdleNotificationIrp = NULL;
 
-                if (IdleIrp &&
-                    InterlockedExchange((PLONG)&IdleIrp->CancelRoutine, 0))
+                if (IdleIrp && IoSetCancelRoutine(IdleIrp, NULL))
                 {
                     DPRINT1("USBH_HubQueuePortIdleIrps: IdleIrp != NULL. FIXME. \n");
                     DbgBreakPoint();
@@ -2965,6 +2980,7 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
         if (Status != STATUS_PENDING)
         {
+            DPRINT("Status != STATUS_PENDING. DbgBreakPoint()\n");
             DbgBreakPoint();
             HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_GOING_IDLE;
             return;
@@ -3201,6 +3217,7 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
     IoReleaseCancelSpinLock(Irql);
 
     NtStatus = Irp->IoStatus.Status;
+    DPRINT("USBH_FdoIdleNotificationRequestComplete: NtStatus - %p\n", NtStatus);
 
     if (!NT_SUCCESS(NtStatus) &&
         NtStatus != STATUS_POWER_STATE_INVALID &&
@@ -3253,6 +3270,7 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
     if (IdleIrp ||
         InterlockedExchange((PLONG)&HubExtension->IdleRequestLock, 1))
     {
+        DPRINT("USBH_FdoIdleNotificationRequestComplete: Irp - %p\n", Irp);
         IoFreeIrp(Irp);
     }
 
@@ -4242,7 +4260,7 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
-    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p, MajorFunction - %x\n",
+    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p, MajorFunction - %d\n",
            HubExtension,
            Irp,
            IoStack->MajorFunction);
