@@ -2534,6 +2534,21 @@ USBH_HubQueuePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 VOID
 NTAPI
+USBH_HubCompleteQueuedPortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                   IN PLIST_ENTRY IdleList,
+                                   IN NTSTATUS NtStatus)
+{
+    DPRINT("USBH_HubCompleteQueuedPortIdleIrps ... \n");
+
+    while (!IsListEmpty(IdleList))
+    {
+        DPRINT1("USBH_HubCompleteQueuedPortIdleIrps: IdleList not Empty. FIXME. \n");
+        DbgBreakPoint();
+    }
+}
+
+VOID
+NTAPI
 USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
     PDEVICE_OBJECT PortDevice;
