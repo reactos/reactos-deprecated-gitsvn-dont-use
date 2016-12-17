@@ -3889,6 +3889,14 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     KeInitializeSpinLock(&PortExtension->PortTimeoutSpinLock);
 
+    InitializeListHead(&PortExtension->PortPowerList);
+    KeInitializeSpinLock(&PortExtension->PortPowerListSpinLock);
+
+    PortExtension->PoRequestCounter = 0;
+    PortExtension->PendingSystemPoRequest = 0;
+    PortExtension->PendingDevicePoRequest = 0;
+    PortExtension->StateBehindD2 = 0;
+
     SerialNumberBuffer = NULL;
 
     IsHsDevice = UsbPortStatus.HsDeviceAttached; // High-speed Device Attached
