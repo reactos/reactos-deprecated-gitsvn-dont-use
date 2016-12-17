@@ -1663,9 +1663,180 @@ NTAPI
 USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                      IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT1("USBH_PdoRemoveDevice: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    NTSTATUS Status = STATUS_SUCCESS;
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExt;
+    PUSBHUB_PORT_DATA PortData;
+    PIRP IdleNotificationIrp;
+    PIRP WakeIrp;
+    LONG DeviceHandle;
+    PDEVICE_OBJECT Pdo;
+    LONG SerialNumber;
+    USHORT Port;
+    KIRQL Irql;
+
+    DPRINT("USBH_PdoRemoveDevice ... \n");
+
+    PortDevice = PortExtension->Common.SelfDevice;
+    PortExtension->HubExtension = NULL;
+
+    Port = PortExtension->PortNumber;
+
+    if (HubExtension)
+    {
+        if (HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0)
+        {
+            if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
+            {
+                USBH_HubSetD0(HubExtension);
+            }
+        }
+    }
+
+    IoAcquireCancelSpinLock(&Irql);
+    IdleNotificationIrp = PortExtension->IdleNotificationIrp;
+
+    if (IdleNotificationIrp)
+    {
+        PortExtension->IdleNotificationIrp = NULL;
+        PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
+
+        if (IdleNotificationIrp->Cancel)
+        {
+            IdleNotificationIrp = NULL;
+        }
+
+        if (IdleNotificationIrp)
+        {
+            IoSetCancelRoutine(IdleNotificationIrp, NULL);
+        }
+    }
+
+    WakeIrp = PortExtension->PdoWaitWakeIrp;
+
+    if (WakeIrp)
+    {
+        PortExtension->PdoWaitWakeIrp = NULL;
+        PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_WAIT_WAKE;
+
+        if (WakeIrp->Cancel || !IoSetCancelRoutine(WakeIrp, NULL))
+        {
+            WakeIrp = NULL;
+
+            if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+            {
+                KeSetEvent(&HubExtension->PendingRequestEvent,
+                           EVENT_INCREMENT,
+                           FALSE);
+            }
+        }
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    if (IdleNotificationIrp)
+    {
+        IdleNotificationIrp->IoStatus.Status = STATUS_CANCELLED;
+        IoCompleteRequest(IdleNotificationIrp, IO_NO_INCREMENT);
+    }
+
+    if (WakeIrp)
+    {
+        USBH_CompletePowerIrp(HubExtension, WakeIrp, STATUS_CANCELLED);
+    }
+
+    PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_POWER_D3;
+
+    if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_REG_DEV_INTERFACE)
+    {
+        Status = USBH_SymbolicLink(PortExtension, NULL, FALSE);
+
+        if (NT_SUCCESS(Status))
+        {
+            PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_REG_DEV_INTERFACE;
+        }
+    }
+
+    DeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
+
+    if (DeviceHandle)
+    {
+        Status = USBD_RemoveDeviceEx(HubExtension,
+                                     (PUSB_DEVICE_HANDLE)DeviceHandle,
+                                     0);
+
+        if (HubExtension->PortData)
+        {
+            if (HubExtension->PortData[Port - 1].DeviceObject == PortDevice)
+            {
+                USBH_SyncDisablePort(HubExtension, Port);
+            }
+        }
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_DEVICE_STARTED;
+
+        if (HubExtension)
+        {
+            if (HubExtension->PortData)
+            {
+                PortData = &HubExtension->PortData[Port - 1];
+
+                if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_DELETE_PENDING)
+                {
+                    Pdo = PortData->DeviceObject;
+
+                    if (Pdo)
+                    {
+                        PortData->DeviceObject = NULL;
+                        PortData->ConnectionStatus = NoDeviceConnected;
+
+                        if (PdoExt(Pdo)->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT)
+                        {
+                            PortExt = PdoExt(Pdo);
+
+                            InsertTailList(&HubExtension->PdoList,
+                                           &PortExt->PortLink);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!(PortExtension->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT))
+        {
+            if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_NOT_CONNECTED))
+            {
+                PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_NOT_CONNECTED;
+
+                SerialNumber = InterlockedExchange((PLONG)&PortExtension->SerialNumber,
+                                                   0);
+
+                if (SerialNumber)
+                {
+                    ExFreePool((PVOID)SerialNumber);
+                }
+
+                DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
+
+                if (HubExtension)
+                {
+                    USBHUB_FlushAllTransfers(HubExtension);
+                }
+
+                IoDeleteDevice(PortDevice);
+            }
+        }
+    }
+
+    if (HubExtension)
+    {
+        USBH_CheckIdleDeferred(HubExtension);
+    }
+
+    return Status;
 }
 
 NTSTATUS
