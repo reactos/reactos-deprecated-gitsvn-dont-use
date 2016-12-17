@@ -2467,6 +2467,73 @@ USBH_HubSetDWakeCompletion(IN PDEVICE_OBJECT DeviceObject,
 
 VOID
 NTAPI
+USBH_HubQueuePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                          IN PLIST_ENTRY IdleList)
+{
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PIRP IdleIrp;
+    PIRP HubIdleIrp;
+    ULONG NumPorts;
+    ULONG Port;
+    KIRQL Irql;
+
+    DPRINT("USBH_HubQueuePortIdleIrps ... \n");
+
+    InitializeListHead(IdleList);
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+
+    if (NumPorts)
+    {
+        Port = 0;
+
+        do
+        {
+            PortDevice = HubExtension->PortData[Port].DeviceObject;
+
+            if (PortDevice)
+            {
+                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+                IdleIrp = PortExtension->IdleNotificationIrp;
+                PortExtension->IdleNotificationIrp = NULL;
+
+                if (IdleIrp &&
+                    InterlockedExchange((PLONG)&IdleIrp->CancelRoutine, 0))
+                {
+                    DPRINT1("USBH_HubQueuePortIdleIrps: IdleIrp != NULL. FIXME. \n");
+                    DbgBreakPoint();
+                }
+            }
+
+            ++Port;
+        }
+        while (Port < NumPorts);
+    }
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
+    {
+        HubIdleIrp = HubExtension->PendingIdleIrp;
+        HubExtension->PendingIdleIrp = NULL;
+    }
+    else
+    {
+        HubIdleIrp = NULL;
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    if (HubIdleIrp)
+    {
+        USBH_HubCancelIdleIrp(HubExtension, HubIdleIrp);
+    }
+}
+
+VOID
+NTAPI
 USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
     PDEVICE_OBJECT PortDevice;
