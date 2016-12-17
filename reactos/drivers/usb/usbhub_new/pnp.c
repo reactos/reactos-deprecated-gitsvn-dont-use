@@ -1157,8 +1157,18 @@ RelationsWorker:
 
     while (!IsListEmpty(PdoList))
     {
-        DPRINT1("USBH_: UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
+        Entry = RemoveHeadList(PdoList);
+
+        PdoExtension = CONTAINING_RECORD(Entry,
+                                         USBHUB_PORT_PDO_EXTENSION,
+                                         Common.SelfDevice);
+
+        PdoExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
+
+        if (PdoExtension->EnumFlags & USBHUB_ENUM_FLAG_GHOST_DEVICE)
+        {
+            InsertTailList(&GhostPdoList, &PdoExtension->PortLink);
+        }
     }
 
     KeReleaseSpinLock(&HubExtension->RelationsWorkerSpinLock, OldIrql);
@@ -1170,8 +1180,13 @@ RelationsWorker:
             break;
         }
 
-        DPRINT1("USBH_: UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
+        Entry = RemoveHeadList(&GhostPdoList);
+
+        PdoExtension = CONTAINING_RECORD(Entry,
+                                         USBHUB_PORT_PDO_EXTENSION,
+                                         Common.SelfDevice);
+
+        IoDeleteDevice(PdoExtension->Common.SelfDevice);
     }
 
     Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
