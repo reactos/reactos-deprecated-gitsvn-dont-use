@@ -14,6 +14,32 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 VOID
 NTAPI
+USBH_FdoPoRequestD0Completion(IN PDEVICE_OBJECT DeviceObject,
+                              IN UCHAR MinorFunction,
+                              IN POWER_STATE PowerState,
+                              IN PVOID Context,
+                              IN PIO_STATUS_BLOCK IoStatus)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+
+    DPRINT("USBH_FdoPoRequestD0Completion ... \n");
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    USBH_HubCompletePortWakeIrps(HubExtension, STATUS_SUCCESS);
+
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_WAKEUP_START;
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+}
+
+VOID
+NTAPI
 USBH_CompletePortWakeIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                 IN PVOID Context)
 {
