@@ -12,6 +12,15 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return 0;
 }
 
+VOID
+NTAPI
+USBH_CompletePortWakeIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                IN PVOID Context)
+{
+    DPRINT1("USBH_CompletePortWakeIrpsWorker: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
 NTSTATUS
 NTAPI
 USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
