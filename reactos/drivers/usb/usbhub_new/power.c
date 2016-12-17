@@ -14,6 +14,25 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 VOID
 NTAPI
+USBH_HubCompletePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                             IN NTSTATUS NtStatus)
+{
+    LIST_ENTRY ListIrps;
+
+    DPRINT("USBH_HubCompletePortWakeIrps: NtStatus - %x\n", NtStatus);
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
+    {
+        USBH_HubQueuePortWakeIrps(HubExtension, &ListIrps);
+
+        USBH_HubCompleteQueuedPortWakeIrps(HubExtension,
+                                           &ListIrps,
+                                           NtStatus);
+    }
+}
+
+VOID
+NTAPI
 USBH_FdoPoRequestD0Completion(IN PDEVICE_OBJECT DeviceObject,
                               IN UCHAR MinorFunction,
                               IN POWER_STATE PowerState,
