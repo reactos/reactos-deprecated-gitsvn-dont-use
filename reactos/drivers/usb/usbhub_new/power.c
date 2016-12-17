@@ -14,6 +14,56 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 VOID
 NTAPI
+USBH_HubQueuePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                          IN PLIST_ENTRY ListIrps)
+{
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    USHORT NumPorts;
+    USHORT Port;
+    PIRP WakeIrp;
+    KIRQL OldIrql;
+
+    DPRINT("USBH_HubQueuePortWakeIrps ... \n");
+
+    NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+
+    InitializeListHead(ListIrps);
+
+    IoAcquireCancelSpinLock(&OldIrql);
+
+    if (NumPorts)
+    {
+        Port = 0;
+
+        do
+        {
+            PortDevice = HubExtension->PortData[Port].DeviceObject;
+
+            if (PortDevice)
+            {
+                PortExtension = PortDevice->DeviceExtension;
+
+                WakeIrp = PortExtension->PdoWaitWakeIrp;
+                PortExtension->PdoWaitWakeIrp = NULL;
+
+                if (WakeIrp)
+                {
+                    DPRINT1("USBH_HubQueuePortWakeIrps: UNIMPLEMENTED. FIXME. \n");
+                    DbgBreakPoint();
+                }
+            }
+
+            ++Port;
+        }
+        while (Port < NumPorts);
+    }
+
+    IoReleaseCancelSpinLock(OldIrql);
+}
+
+VOID
+NTAPI
 USBH_HubCompleteQueuedPortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                    IN PLIST_ENTRY ListIrps,
                                    IN NTSTATUS NtStatus)
