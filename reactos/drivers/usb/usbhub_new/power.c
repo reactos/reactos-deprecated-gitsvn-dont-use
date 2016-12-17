@@ -14,6 +14,86 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
+                          IN PIRP Irp,
+                          IN PVOID Context)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    NTSTATUS Status;
+    KIRQL OldIrql;
+    POWER_STATE PowerState;
+    LONG WakeIrp;
+
+    DPRINT("USBH_FdoWWIrpIoCompletion: DeviceObject - %p, Irp - %p\n",
+            DeviceObject,
+            Irp);
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    Status = Irp->IoStatus.Status;
+
+    IoAcquireCancelSpinLock(&OldIrql);
+
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_PENDING_WAKE_IRP;
+
+    WakeIrp = InterlockedExchange((PLONG)&HubExtension->PendingWakeIrp,
+                                  0);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    IoReleaseCancelSpinLock(OldIrql);
+
+    DPRINT("USBH_FdoWWIrpIoCompletion: Status - %p\n", Status);
+
+    if (!NT_SUCCESS(Status))
+    {
+        DPRINT1("USBH_FdoWWIrpIoCompletion: DbgBreakPoint() \n");
+        DbgBreakPoint();
+    }
+    else
+    {
+        PowerState.DeviceState = PowerDeviceD0;
+
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_WAKEUP_START;
+        InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+        Status = STATUS_SUCCESS;
+
+        PoRequestPowerIrp(HubExtension->LowerPDO,
+                          IRP_MN_SET_POWER,
+                          PowerState,
+                          USBH_FdoPoRequestD0Completion,
+                          (PVOID)HubExtension,
+                          NULL);
+    }
+
+    if (!WakeIrp)
+    {
+        if (!InterlockedExchange(&HubExtension->FdoWaitWakeLock, 1))
+        {
+            Status = STATUS_MORE_PROCESSING_REQUIRED;
+        }
+    }
+
+    DPRINT("USBH_FdoWWIrpIoCompletion: Status - %p\n", Status);
+
+    IoMarkIrpPending(Irp);
+
+    if (Status != STATUS_MORE_PROCESSING_REQUIRED)
+    {
+        PoStartNextPowerIrp(Irp);
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
                         IN PIRP Irp,
                         IN PVOID Context)
