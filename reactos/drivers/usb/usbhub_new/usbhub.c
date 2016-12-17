@@ -3045,6 +3045,15 @@ IdleHub:
     }
 }
 
+VOID
+NTAPI
+USBH_CompletePortIdleIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                IN PVOID Context)
+{
+    DPRINT1("USBH_CompletePortIdleIrpsWorker: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
 NTSTATUS
 NTAPI
 USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
