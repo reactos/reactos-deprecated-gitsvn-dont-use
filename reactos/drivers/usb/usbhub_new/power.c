@@ -3,6 +3,31 @@
 //#define NDEBUG
 #include <debug.h>
 
+VOID
+NTAPI
+USBH_CompletePowerIrp(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                      IN PIRP Irp,
+                      IN NTSTATUS NtStatus)
+{
+    DPRINT("USBH_CompletePowerIrp: HubExtension - %p, Irp - %p, NtStatus - %p\n",
+           HubExtension,
+           Irp,
+           NtStatus);
+
+    Irp->IoStatus.Status = NtStatus;
+
+    PoStartNextPowerIrp(Irp);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+}
+
 NTSTATUS
 NTAPI
 USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)

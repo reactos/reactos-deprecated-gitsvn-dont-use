@@ -242,7 +242,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
-    DPRINT("USBH_PdoInternalControl: ControlCode - %p\n", ControlCode);
+    DPRINT("USBH_DeviceControl: ControlCode - %p\n", ControlCode);
 
     return 0;
 }
