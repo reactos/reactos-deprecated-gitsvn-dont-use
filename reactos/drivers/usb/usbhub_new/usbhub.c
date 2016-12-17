@@ -1603,42 +1603,41 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
     PUSBHUB_IO_WORK_ITEM WorkItem;
     USHORT RequestValue;
 
-    DPRINT("USBH_ChangeIndicationProcessChange: ... \n");
-
     HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
 
-    if (NT_SUCCESS(Irp->IoStatus.Status) ||
-        USBD_SUCCESS(HubExtension->SCEWorkerUrb.Hdr.Status))
+    DPRINT("USBH_ChangeIndicationProcessChange: PortStatus - %p\n",
+           HubExtension->PortStatus.AsULONG);
+
+    if ( (NT_SUCCESS(Irp->IoStatus.Status) ||
+        USBD_SUCCESS(HubExtension->SCEWorkerUrb.Hdr.Status)) &&
+        (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange ||
+         HubExtension->PortStatus.UsbPortStatusChange.EnableStatusChange) )
     {
-        if (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange ||
-            HubExtension->PortStatus.UsbPortStatusChange.EnableStatusChange)
+        if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
         {
-            if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
-            {
-                KeSetEvent(&HubExtension->PendingRequestEvent,
-                           EVENT_INCREMENT,
-                           FALSE);
-            }
-
-            USBH_FreeWorkItem(HubExtension->WorkItemToQueue);
-
-            HubExtension->WorkItemToQueue = NULL;
-
-            if (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange)
-            {
-                RequestValue = USBHUB_FEATURE_C_PORT_RESET;
-            }
-            else
-            {
-                RequestValue = USBHUB_FEATURE_C_PORT_ENABLE;
-            }
-
-            USBH_ChangeIndicationAckChange(HubExtension,
-                                           HubExtension->ResetPortIrp,
-                                           &HubExtension->SCEWorkerUrb,
-                                           HubExtension->Port,
-                                           RequestValue);
+            KeSetEvent(&HubExtension->PendingRequestEvent,
+                       EVENT_INCREMENT,
+                       FALSE);
         }
+
+        USBH_FreeWorkItem(HubExtension->WorkItemToQueue);
+
+        HubExtension->WorkItemToQueue = NULL;
+
+        if (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange)
+        {
+           RequestValue = USBHUB_FEATURE_C_PORT_RESET;
+        }
+        else
+        {
+            RequestValue = USBHUB_FEATURE_C_PORT_ENABLE;
+        }
+
+        USBH_ChangeIndicationAckChange(HubExtension,
+                                       HubExtension->ResetPortIrp,
+                                       &HubExtension->SCEWorkerUrb,
+                                       HubExtension->Port,
+                                       RequestValue);
     }
     else
     {
@@ -1723,11 +1722,184 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 VOID
 NTAPI
-USBH_ChangeIndicationWorker(IN PVOID Context,
-                            IN PUSBHUB_STATUS_CHANGE_CONTEXT WorkItem)
+USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                            IN USHORT Port,
+                            IN PUSBHUB_PORT_STATUS PortStatus)
 {
-    DPRINT1("USBH_ChangeIndicationWorker: UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_ProcessPortStateChange: UNIMPLEMENTED. FIXME. \n");
     DbgBreakPoint();
+}
+
+VOID
+NTAPI
+USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                            IN PVOID Context)
+{
+    PUSBHUB_FDO_EXTENSION LowerHubExtension;
+    PUSBHUB_PORT_PDO_EXTENSION LowerPortExtension;
+    PUSBHUB_STATUS_CHANGE_CONTEXT WorkItem;
+    USBHUB_PORT_STATUS PortStatus;
+    ULONG Port = 0;
+    NTSTATUS Status;
+
+    DPRINT("USBH_ChangeIndicationWorker ... \n");
+
+    WorkItem = (PUSBHUB_STATUS_CHANGE_CONTEXT)Context;
+
+    KeWaitForSingleObject(&HubExtension->HubSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING)
+    {
+        KeSetEvent(&HubExtension->StatusChangeEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+
+        goto Exit;
+    }
+
+    if (!HubExtension->RequestErrors)
+    {
+        goto Enum;
+    }
+
+    if (HubExtension->LowerPDO == HubExtension->RootHubPdo)
+    {
+        goto Enum;
+    }
+
+    LowerPortExtension = (PUSBHUB_PORT_PDO_EXTENSION)HubExtension->LowerPDO->DeviceExtension;
+
+    if (LowerPortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D1_OR_D2)
+    {
+        goto Enum;
+    }
+
+    LowerHubExtension = LowerPortExtension->HubExtension;
+
+    if (!LowerHubExtension)
+    {
+        goto Enum;
+    }
+
+    Status = USBH_SyncGetPortStatus(LowerHubExtension,
+                                    LowerPortExtension->PortNumber,
+                                    &PortStatus,
+                                    sizeof(USBHUB_PORT_STATUS));
+
+    if (!NT_SUCCESS(Status) || !PortStatus.UsbPortStatus.ConnectStatus)
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_REMOVED;
+
+        KeSetEvent(&HubExtension->StatusChangeEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+
+        goto Exit;
+    }
+
+    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING))
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_ESD_RECOVERING;
+
+        DPRINT1("USBH_ChangeIndicationWorker: USBHUB_FDO_FLAG_ESD_RECOVERING FIXME. \n");
+        DbgBreakPoint();
+
+        goto Exit;
+    }
+
+Enum:
+
+    if (WorkItem->RequestErrors & 1)
+    {
+        DPRINT1("USBH_ChangeIndicationWorker: USBH_ResetHub() UNIMPLEMENTED. FIXME. \n");
+        DbgBreakPoint();
+    }
+    else
+    {
+        do
+        {
+            if (IsBitSet(((ULONG)WorkItem + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)), Port))
+            {
+                break;
+            }
+
+            ++Port;
+        }
+        while (Port <= HubExtension->HubDescriptor->bNumberOfPorts);
+
+        if (Port <= HubExtension->HubDescriptor->bNumberOfPorts)
+        {
+            if (Port)
+            {
+                Status = USBH_SyncGetPortStatus(HubExtension,
+                                                Port,
+                                                &PortStatus,
+                                                sizeof(USBHUB_PORT_STATUS));
+            }
+            else
+            {
+                DPRINT1("USBH_ChangeIndicationWorker: USBH_SyncGetHubStatus() UNIMPLEMENTED. FIXME. \n");
+                DbgBreakPoint();
+            }
+
+            if (NT_SUCCESS(Status))
+            {
+               if (Port)
+               {
+                   USBH_ProcessPortStateChange(HubExtension,
+                                               Port,
+                                               &PortStatus);
+               }
+               else
+               {
+                    DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME. \n");
+                    DbgBreakPoint();
+               }
+            }
+            else
+            {
+               ++HubExtension->RequestErrors;
+
+               if (HubExtension->RequestErrors > 3)
+               {
+                   HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
+                   goto Exit;
+               }
+            }
+        }
+    }
+
+    USBH_SubmitStatusChangeTransfer(HubExtension);
+
+Exit:
+
+    KeReleaseSemaphore(&HubExtension->HubSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    if (!InterlockedDecrement((PLONG)&HubExtension->ResetRequestCount))
+    {
+        KeSetEvent(&HubExtension->ResetEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+
+        if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEFER_CHECK_IDLE)
+        {
+            USBH_CheckHubIdle(HubExtension);
+        }
+    }
 }
 
 NTSTATUS
