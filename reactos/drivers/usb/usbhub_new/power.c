@@ -14,6 +14,21 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 VOID
 NTAPI
+USBH_HubCompleteQueuedPortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                   IN PLIST_ENTRY ListIrps,
+                                   IN NTSTATUS NtStatus)
+{
+    DPRINT("USBH_HubCompleteQueuedPortWakeIrps ... \n");
+
+    while (!IsListEmpty(ListIrps))
+    {
+        DPRINT1("USBH_HubCompleteQueuedPortWakeIrps: UNIMPLEMENTED. FIXME. \n");
+        DbgBreakPoint();
+    }
+}
+
+VOID
+NTAPI
 USBH_HubCompletePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              IN NTSTATUS NtStatus)
 {
