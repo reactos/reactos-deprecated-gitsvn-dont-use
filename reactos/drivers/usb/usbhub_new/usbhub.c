@@ -3082,9 +3082,85 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
                                         IN PIRP Irp,
                                         IN PVOID Context)
 {
-    DPRINT1("USBH_FdoIdleNotificationRequestComplete: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    NTSTATUS NtStatus;
+    LONG IdleIrp;
+    KIRQL Irql;
+    NTSTATUS Status;
+    PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
+
+    IdleIrp = InterlockedExchange((PLONG)&HubExtension->PendingIdleIrp, 0);
+    DPRINT("USBH_FdoIdleNotificationRequestComplete: IdleIrp - %p\n", IdleIrp);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent, EVENT_INCREMENT, FALSE);
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    NtStatus = Irp->IoStatus.Status;
+
+    if (!NT_SUCCESS(NtStatus) &&
+        NtStatus != STATUS_POWER_STATE_INVALID &&
+        !(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_REMOVED) &&
+        !(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+    {
+        DPRINT("USBH_FdoIdleNotificationRequestComplete: DeviceState - %x\n",
+               HubExtension->CurrentPowerState.DeviceState);
+
+        if (HubExtension->CurrentPowerState.DeviceState == PowerDeviceD0)
+        {
+            PUSBHUB_IDLE_PORT_CONTEXT HubWorkItemBuffer;
+
+            Status = USBH_AllocateWorkItem(HubExtension,
+                                           &HubIoWorkItem,
+                                           USBH_CompletePortIdleIrpsWorker,
+                                           sizeof(USBHUB_IDLE_PORT_CONTEXT),
+                                           (PVOID *)&HubWorkItemBuffer,
+                                           DelayedWorkQueue);
+
+            if (NT_SUCCESS(Status))
+            {
+                HubWorkItemBuffer->Status = NtStatus;
+
+                USBH_HubQueuePortIdleIrps(HubExtension,
+                                          &HubWorkItemBuffer->PwrList);
+
+                USBH_QueueWorkItem(HubExtension, HubIoWorkItem);
+            }
+        }
+        else
+        {
+            PUSBHUB_IDLE_HUB_CONTEXT HubWorkItemBuffer;
+
+            Status = USBH_AllocateWorkItem(HubExtension,
+                                           &HubIoWorkItem,
+                                           USBH_IdleCompletePowerHubWorker,
+                                           sizeof(USBHUB_IDLE_HUB_CONTEXT),
+                                           (PVOID *)&HubWorkItemBuffer,
+                                           DelayedWorkQueue);
+
+            if (NT_SUCCESS(Status))
+            {
+                HubWorkItemBuffer->Status = NtStatus;
+                USBH_QueueWorkItem(HubExtension, HubIoWorkItem);
+            }
+        }
+    }
+
+    if (IdleIrp ||
+        InterlockedExchange((PLONG)&HubExtension->IdleRequestLock, 1))
+    {
+        IoFreeIrp(Irp);
+    }
+
+    return STATUS_MORE_PROCESSING_REQUIRED;
 }
 
 NTSTATUS
