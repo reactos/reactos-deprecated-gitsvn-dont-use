@@ -3054,6 +3054,28 @@ USBH_CompletePortIdleIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
     DbgBreakPoint();
 }
 
+VOID
+NTAPI
+USBH_IdleCompletePowerHubWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                IN PVOID Context)
+{
+    PUSBHUB_IDLE_HUB_CONTEXT HubWorkItemBuffer;
+
+    DPRINT("USBH_IdleCompletePowerHubWorker ... \n");
+
+    if (HubExtension &&
+        HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0 &&
+        HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
+    {
+        USBH_HubSetD0(HubExtension);
+    }
+
+    HubWorkItemBuffer = (PUSBHUB_IDLE_HUB_CONTEXT)Context;
+
+    USBH_HubCompletePortIdleIrps(HubExtension, HubWorkItemBuffer->Status);
+
+}
+
 NTSTATUS
 NTAPI
 USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
