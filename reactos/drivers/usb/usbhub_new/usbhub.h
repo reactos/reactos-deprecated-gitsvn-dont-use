@@ -216,6 +216,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   PUSBHUB_IO_WORK_ITEM WorkItemToQueue;
   USB_IDLE_CALLBACK_INFO IdleCallbackInfo;
   USBHUB_PORT_STATUS PortStatus;
+  PIRP PowerIrp;
 } USBHUB_FDO_EXTENSION, *PUSBHUB_FDO_EXTENSION;
 
 typedef struct _USBHUB_PORT_PDO_EXTENSION {
@@ -247,6 +248,9 @@ typedef struct _USBHUB_PORT_PDO_EXTENSION {
   LONG PendingSystemPoRequest;
   LONG PendingDevicePoRequest;
   LONG StateBehindD2;
+  PIRP PdoWaitWakeIrp;
+  LIST_ENTRY PortPowerList;
+  KSPIN_LOCK PortPowerListSpinLock;
 } USBHUB_PORT_PDO_EXTENSION, *PUSBHUB_PORT_PDO_EXTENSION;
 
 typedef struct _USBHUB_URB_TIMEOUT_CONTEXT {
@@ -263,6 +267,17 @@ typedef struct _USBHUB_STATUS_CHANGE_CONTEXT {
   BOOL RequestErrors;
   PUSBHUB_FDO_EXTENSION HubExtension;
 } USBHUB_STATUS_CHANGE_CONTEXT, *PUSBHUB_STATUS_CHANGE_CONTEXT;
+
+typedef struct _USBHUB_IDLE_HUB_CONTEXT {
+  ULONG Reserved;
+  NTSTATUS Status;
+} USBHUB_IDLE_HUB_CONTEXT, *PUSBHUB_IDLE_HUB_CONTEXT;
+
+typedef struct _USBHUB_IDLE_PORT_CONTEXT {
+  ULONG Reserved;
+  LIST_ENTRY PwrList;
+  NTSTATUS Status;
+} USBHUB_IDLE_PORT_CONTEXT, *PUSBHUB_IDLE_PORT_CONTEXT;
 
 /* debug.c */
 
@@ -391,6 +406,11 @@ USBH_GetDeviceType(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN PUSB_DEVICE_HANDLE DeviceHandle,
   OUT USB_DEVICE_TYPE * OutDeviceType);
+
+PUSBHUB_FDO_EXTENSION
+NTAPI
+USBH_GetRootHubExtension(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
 
 NTSTATUS
 NTAPI
@@ -536,6 +556,24 @@ USBD_RegisterRootHubCallBack(
 NTSTATUS
 NTAPI
 USBD_UnRegisterRootHubCallBack(
+  IN PUSBHUB_FDO_EXTENSION HubExtension);
+
+VOID
+NTAPI
+USBH_HubCancelIdleIrp(
+  IN PUSBHUB_FDO_EXTENSION HubExtension, 
+  IN PIRP IdleIrp);
+
+BOOLEAN
+NTAPI
+USBH_CheckIdleAbort(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN BOOLEAN IsWait,
+  IN BOOLEAN IsExtCheck);
+
+VOID
+NTAPI
+USBH_CheckHubIdle(
   IN PUSBHUB_FDO_EXTENSION HubExtension);
 
 VOID

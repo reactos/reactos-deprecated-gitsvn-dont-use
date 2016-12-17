@@ -12,6 +12,18 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
     return 0;
 }
 
+VOID
+NTAPI
+USBH_FdoDeferPoRequestCompletion(IN PDEVICE_OBJECT DeviceObject,
+                                 IN UCHAR MinorFunction,
+                                 IN POWER_STATE PowerState,
+                                 IN PVOID Context,
+                                 IN PIO_STATUS_BLOCK IoStatus)
+{
+    DPRINT1("USBH_FdoDeferPoRequestCompletion: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
 NTSTATUS
 NTAPI
 USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
