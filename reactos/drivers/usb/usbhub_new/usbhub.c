@@ -2465,14 +2465,25 @@ USBH_HubSetDWakeCompletion(IN PDEVICE_OBJECT DeviceObject,
     KeSetEvent((PRKEVENT)Context, IO_NO_INCREMENT, FALSE);
 }
 
-NTSTATUS
+VOID
 NTAPI
 USBH_HubCompletePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              IN NTSTATUS NtStatus)
 {
-    DPRINT1("USBH_HubCompletePortIdleIrps: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    LIST_ENTRY IdleList;
+
+    DPRINT("USBH_HubCompletePortIdleIrps ... \n");
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
+    {
+        USBH_HubQueuePortIdleIrps(HubExtension, &IdleList);
+
+        USBH_HubCompleteQueuedPortIdleIrps(HubExtension,
+                                           &IdleList,
+                                           NtStatus);
+
+        USBH_FlushPortPwrList(HubExtension);
+    }
 }
 
 VOID
