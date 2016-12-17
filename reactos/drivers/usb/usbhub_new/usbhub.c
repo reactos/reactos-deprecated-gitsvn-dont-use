@@ -1726,8 +1726,104 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
                             IN USHORT Port,
                             IN PUSBHUB_PORT_STATUS PortStatus)
 {
-    DPRINT1("USBH_ProcessPortStateChange: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_PORT_DATA PortData;
+    USB_PORT_STATUS_CHANGE PortStatusChange;
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    LONG SerialNumber;
+    LONG DeviceHandle;
+    USHORT RequestValue;
+    KIRQL Irql;
+
+    DPRINT("USBH_ProcessPortStateChange ... \n");
+
+    PortData = &HubExtension->PortData[Port - 1];
+
+    PortStatusChange = PortStatus->UsbPortStatusChange;
+
+    if (PortStatusChange.ConnectStatusChange)
+    {
+        PortData->PortStatus.AsULONG = *(PULONG)PortStatus;
+
+        USBH_SyncClearPortStatus(HubExtension,
+                                 Port,
+                                 USBHUB_FEATURE_C_PORT_CONNECTION);
+
+        PortData = &HubExtension->PortData[Port - 1];
+
+        PortDevice = PortData->DeviceObject;
+
+        if (!PortDevice)
+        {
+            IoInvalidateDeviceRelations(HubExtension->LowerPDO, BusRelations);
+            return;
+        }
+
+        PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+        if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_OVERCURRENT_PORT)
+        {
+            return;
+        }
+
+        KeAcquireSpinLock(&HubExtension->RelationsWorkerSpinLock, &Irql);
+
+        if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D3)
+        {
+            KeReleaseSpinLock(&HubExtension->RelationsWorkerSpinLock, Irql);
+            IoInvalidateDeviceRelations(HubExtension->LowerPDO, BusRelations);
+            return;
+        }
+
+        PortData->DeviceObject = NULL;
+        PortData->ConnectionStatus = NoDeviceConnected;
+
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_STATE_CHANGING;
+
+        InsertTailList(&HubExtension->PdoList, &PortExtension->PortLink);
+
+        KeReleaseSpinLock(&HubExtension->RelationsWorkerSpinLock, Irql);
+
+        SerialNumber = InterlockedExchange((PLONG)&PortExtension->SerialNumber, 0);
+
+        if (SerialNumber)
+        {
+            ExFreePool((PVOID)SerialNumber);
+        }
+
+        DeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
+
+        if (DeviceHandle)
+        {
+            USBD_RemoveDeviceEx(HubExtension, (PUSB_DEVICE_HANDLE)DeviceHandle, 0);
+            USBH_SyncDisablePort(HubExtension, Port);
+        }
+
+        IoInvalidateDeviceRelations(HubExtension->LowerPDO, BusRelations);
+    }
+    else if (PortStatusChange.EnableStatusChange)
+    {
+        RequestValue = USBHUB_FEATURE_C_PORT_ENABLE;
+        PortData->PortStatus = *PortStatus;
+        USBH_SyncClearPortStatus(HubExtension, Port, RequestValue);
+        return;
+    }
+    else if (PortStatusChange.SuspendStatusChange)
+    {
+        DPRINT1("USBH_ProcessPortStateChange: SuspendStatusChange UNIMPLEMENTED. FIXME. \n");
+        DbgBreakPoint();
+    }
+    else if (PortStatusChange.OverCurrentChange)
+    {
+        DPRINT1("USBH_ProcessPortStateChange: OverCurrentChange UNIMPLEMENTED. FIXME. \n");
+        DbgBreakPoint();
+    }
+    else if (PortStatusChange.ResetStatusChange)
+    {
+        RequestValue = USBHUB_FEATURE_C_PORT_RESET;
+        PortData->PortStatus = *PortStatus;
+        USBH_SyncClearPortStatus(HubExtension, Port, RequestValue);
+    }
 }
 
 VOID
