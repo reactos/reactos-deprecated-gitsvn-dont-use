@@ -2467,6 +2467,79 @@ USBH_HubSetDWakeCompletion(IN PDEVICE_OBJECT DeviceObject,
 
 VOID
 NTAPI
+USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PLIST_ENTRY Entry;
+    ULONG Port;
+
+    DPRINT("USBH_FlushPortPwrList ... \n");
+
+    InterlockedIncrement((PLONG)&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    if (!HubExtension->HubDescriptor->bNumberOfPorts)
+    {
+        goto Exit;
+    }
+
+    Port = 0;
+
+    do
+    {
+        PortDevice = HubExtension->PortData[Port].DeviceObject;
+
+        if (!PortDevice)
+        {
+            goto NextPort;
+        }
+
+        PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+        InterlockedExchange((PLONG)&PortExtension->StateBehindD2, 0);
+
+        while (TRUE)
+        {
+            Entry = ExInterlockedRemoveHeadList(&PortExtension->PortPowerList,
+                                                &PortExtension->PortPowerListSpinLock);
+
+            if (!Entry)
+            {
+                break;
+            }
+
+            DPRINT1("USBH_FlushPortPwrList: PortPowerList FIXME. \n");
+            DbgBreakPoint();
+        }
+
+  NextPort:
+        ++Port;
+    }
+    while (Port < HubExtension->HubDescriptor->bNumberOfPorts);
+
+Exit:
+
+    KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement((PLONG)&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                            EVENT_INCREMENT,
+                            FALSE);
+    }
+}
+
+VOID
+NTAPI
 USBH_HubCompletePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              IN NTSTATUS NtStatus)
 {
