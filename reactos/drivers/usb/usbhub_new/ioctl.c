@@ -380,6 +380,119 @@ Exit:
 
 NTSTATUS
 NTAPI
+USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                       IN PIRP Irp,
+                                       IN BOOLEAN IsExt)
+{
+    PUSBHUB_PORT_DATA PortData;
+    ULONG BufferLength;
+    PUSB_NODE_CONNECTION_INFORMATION_EX Info;
+    ULONG ConnectionIndex;
+    ULONG NumPorts;
+    NTSTATUS Status;
+    PDEVICE_OBJECT DeviceObject;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    ULONG Port;
+    PIO_STACK_LOCATION IoStack;
+
+    DPRINT("USBH_IoctlGetNodeConnectionInformation ... \n");
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    Info = (PUSB_NODE_CONNECTION_INFORMATION_EX)Irp->AssociatedIrp.SystemBuffer;
+    BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+
+    PortData = HubExtension->PortData;
+
+    if (BufferLength < (sizeof(USB_NODE_CONNECTION_INFORMATION_EX) - sizeof(USB_PIPE_INFO)))
+    {
+        Status = STATUS_BUFFER_TOO_SMALL;
+        goto Exit;
+    }
+
+    ConnectionIndex = Info->ConnectionIndex;
+    RtlZeroMemory(Info, BufferLength);
+    Info->ConnectionIndex = ConnectionIndex;
+
+    NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+
+    Status = STATUS_INVALID_PARAMETER;
+
+    Port = 1;
+
+    if (NumPorts >= 1)
+    {
+        while (Port != Info->ConnectionIndex)
+        {
+            ++PortData;
+            ++Port;
+
+            if (Port > NumPorts)
+            {
+                goto Exit;
+            }
+        }
+
+        DeviceObject = PortData->DeviceObject;
+
+        if (DeviceObject)
+        {
+            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)DeviceObject->DeviceExtension;
+
+            Info->ConnectionStatus = PortData->ConnectionStatus;
+            Info->DeviceIsHub = PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE;
+
+            RtlCopyMemory(&Info->DeviceDescriptor,
+                          &PortExtension->DeviceDescriptor,
+                          sizeof(USB_DEVICE_DESCRIPTOR));
+
+            if (PortExtension->DeviceHandle)
+            {
+                Status = USBD_GetDeviceInformationEx(PortExtension,
+                                                     HubExtension,
+                                                     Info,
+                                                     BufferLength,
+                                                     PortExtension->DeviceHandle);
+            }
+            else
+            {
+                Status = STATUS_SUCCESS;
+            }
+
+            if (NT_SUCCESS(Status))
+            {
+                if (!IsExt)
+                {
+                    Info->Speed = Info->Speed == FALSE;
+                }
+
+                Irp->IoStatus.Information = (sizeof(USB_NODE_CONNECTION_INFORMATION_EX) +
+                                            (Info->NumberOfOpenPipes - 1) * sizeof(USB_PIPE_INFO));
+                goto Exit;
+            }
+
+            if (Status != STATUS_BUFFER_TOO_SMALL)
+            {
+                goto Exit;
+            }
+        }
+        else
+        {
+            Info->ConnectionStatus = PortData->ConnectionStatus;
+        }
+
+        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_INFORMATION_EX) -
+                                    sizeof(USB_PIPE_INFO);
+
+        Status = STATUS_SUCCESS;
+    }
+
+Exit:
+    USBH_CompleteIrp(Irp, Status);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
@@ -415,7 +528,6 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
             USBH_CompleteIrp(Irp, Status);
             break;
-            break;
 
         case IOCTL_USB_HUB_CYCLE_PORT:
             DPRINT("USBH_DeviceControl: IOCTL_USB_HUB_CYCLE_PORT. \n");
@@ -434,22 +546,41 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             USBH_CompleteIrp(Irp, Status);
             break;
 
+        case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION. \n");
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetNodeConnectionInformation(HubExtension,
+                                                                Irp,
+                                                                FALSE);
+                break;
+            }
+
+            USBH_CompleteIrp(Irp, Status);
+            break;
+
         case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX:
             DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
-            DbgBreakPoint();
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetNodeConnectionInformation(HubExtension,
+                                                                Irp,
+                                                                TRUE);
+                break;
+            }
+
+            USBH_CompleteIrp(Irp, Status);
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES:
             DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
-            DbgBreakPoint();
-            break;
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetNodeConnectionAttributes(HubExtension, Irp);
+                break;
+            }
 
-        case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
-            DbgBreakPoint();
+            USBH_CompleteIrp(Irp, Status);
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_NAME:

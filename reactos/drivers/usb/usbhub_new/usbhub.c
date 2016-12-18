@@ -2320,6 +2320,19 @@ USBHUB_FlushAllTransfers(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                            IN PUSBHUB_FDO_EXTENSION HubExtension,
+                            IN PUSB_NODE_CONNECTION_INFORMATION_EX Info,
+                            IN ULONG Length,
+                            IN PUSB_DEVICE_HANDLE DeviceHandle)
+{
+    DPRINT1("USBD_GetDeviceInformationEx: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
                       PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,
                       PVOID WorkerRoutine,
