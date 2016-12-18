@@ -230,11 +230,59 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_IoctlGetNodeInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                             IN PIRP Irp)
+{
+    PUSB_NODE_INFORMATION NodeInfo;
+    PIO_STACK_LOCATION IoStack;
+    ULONG BufferLength;
+    NTSTATUS Status;
+    BOOLEAN HubIsBusPowered;
+
+    DPRINT("USBH_IoctlGetNodeInformation ... \n");
+
+    Status = STATUS_SUCCESS;
+
+    NodeInfo = (PUSB_NODE_INFORMATION)Irp->AssociatedIrp.SystemBuffer;
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+
+    RtlZeroMemory(Irp->AssociatedIrp.SystemBuffer, BufferLength);
+
+    if (BufferLength < sizeof(USB_NODE_INFORMATION))
+    {
+        USBH_CompleteIrp(Irp, STATUS_BUFFER_TOO_SMALL);
+        return STATUS_BUFFER_TOO_SMALL;
+    }
+
+    NodeInfo->NodeType = UsbHub;
+
+    RtlCopyMemory(&NodeInfo->u.HubInformation.HubDescriptor,
+                  HubExtension->HubDescriptor,
+                  sizeof(USB_HUB_DESCRIPTOR));
+
+    HubIsBusPowered = USBH_HubIsBusPowered(HubExtension->Common.SelfDevice,
+                                           HubExtension->HubConfigDescriptor);
+
+    NodeInfo->u.HubInformation.HubIsBusPowered = HubIsBusPowered;
+
+    Irp->IoStatus.Information = sizeof(USB_NODE_INFORMATION);
+
+    USBH_CompleteIrp(Irp, Status);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
+    NTSTATUS Status = STATUS_DEVICE_BUSY;
     PIO_STACK_LOCATION IoStack;
     ULONG ControlCode;
+    BOOLEAN IsCheckHubIdle = FALSE; 
 
     DPRINT("USBH_DeviceControl: HubExtension - %p, Irp - %p\n",
            HubExtension,
@@ -244,7 +292,92 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
     DPRINT("USBH_DeviceControl: ControlCode - %p\n", ControlCode);
 
-    return 0;
+    if ((HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0) &&
+        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED))
+    {
+        IsCheckHubIdle = TRUE;
+        USBH_HubSetD0(HubExtension);
+    }
+
+    switch (ControlCode)
+    {
+        case IOCTL_USB_GET_HUB_CAPABILITIES:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_HUB_CAPABILITIES. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_HUB_CYCLE_PORT:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_HUB_CYCLE_PORT. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_GET_NODE_INFORMATION:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_INFORMATION. \n");
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetNodeInformation(HubExtension, Irp);
+                break;
+            }
+
+            USBH_CompleteIrp(Irp, Status);
+            break;
+
+        case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_GET_NODE_CONNECTION_NAME:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_NAME. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION:
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION. \n");
+            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+            break;
+
+        case IOCTL_KS_PROPERTY:
+            DPRINT("USBH_DeviceControl: IOCTL_KS_PROPERTY. \n");
+            Status = STATUS_INVALID_DEVICE_REQUEST;
+            USBH_CompleteIrp(Irp, Status);
+            break;
+
+        default:
+            DPRINT("USBH_DeviceControl: IOCTL_ ???\n");
+            Status = USBH_PassIrp(HubExtension->RootHubPdo, Irp);
+            break;
+    }
+
+    if (IsCheckHubIdle)
+    {
+        USBH_CheckHubIdle(HubExtension);
+    }
+
+    return Status;
 }
 
 NTSTATUS
