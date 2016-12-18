@@ -493,6 +493,103 @@ Exit:
 
 NTSTATUS
 NTAPI
+USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                         IN PIRP Irp)
+{
+    PUSBHUB_PORT_DATA PortData;
+    PDEVICE_OBJECT PortDevice;
+    ULONG Length;
+    ULONG ResultLength;
+    ULONG Port;
+    NTSTATUS Status;
+    PIO_STACK_LOCATION IoStack;
+    ULONG BufferLength;
+    PUSB_NODE_CONNECTION_DRIVERKEY_NAME KeyName;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+
+    DPRINT("USBH_IoctlGetNodeConnectionDriverKeyName ... \n");
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    KeyName = (PUSB_NODE_CONNECTION_DRIVERKEY_NAME)Irp->AssociatedIrp.SystemBuffer;
+    BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+
+    if (BufferLength < sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME))
+    {
+        Status = STATUS_BUFFER_TOO_SMALL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    Status = STATUS_INVALID_PARAMETER;
+
+    if (!HubExtension->HubDescriptor->bNumberOfPorts)
+    {
+        Status = STATUS_BUFFER_TOO_SMALL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    Port = 1;
+
+    do
+    {
+        if (Port == KeyName->ConnectionIndex)
+        {
+            PortData = &HubExtension->PortData[KeyName->ConnectionIndex - 1];
+
+            PortDevice = PortData->DeviceObject;
+
+            if (PortDevice)
+            {
+                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+                if (PortExtension->PortPdoFlags & 0x04000000)
+                {
+                    ResultLength = BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+
+                    Status = IoGetDeviceProperty(PortDevice,
+                                                 DevicePropertyDriverKeyName,
+                                                 BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME),
+                                                 &KeyName->DriverKeyName,
+                                                 &ResultLength);
+
+                    if (Status == STATUS_BUFFER_TOO_SMALL)
+                    {
+                        Status = STATUS_SUCCESS;
+                    }
+
+                    Length = ResultLength + sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+
+                    KeyName->ActualLength = Length;
+
+                    if (BufferLength < Length)
+                    {
+                        KeyName->DriverKeyName[0] = 0;
+                        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+                    }
+                    else
+                    {
+                        Irp->IoStatus.Information = Length;
+                    }
+                }
+                else
+                {
+                    Status = STATUS_INVALID_DEVICE_STATE;
+                }
+            }
+        }
+
+        ++Port;
+    }
+    while (Port <= HubExtension->HubDescriptor->bNumberOfPorts);
+
+    USBH_CompleteIrp(Irp, Status);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
@@ -591,8 +688,13 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME:
             DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
-            DbgBreakPoint();
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetNodeConnectionDriverKeyName(HubExtension, Irp);
+                break;
+            }
+
+            USBH_CompleteIrp(Irp, Status);
             break;
 
         case IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION:

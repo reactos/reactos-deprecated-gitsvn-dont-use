@@ -2200,6 +2200,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
+            PortExtension->PortPdoFlags |= 0x04000000;
 
             /* FIXME HKEY_LOCAL_MACHINE\SYSTEM\ControlSetXXX\Enum\USB\
                Vid_????&Pid_????\????????????\Device Parameters\
