@@ -316,6 +316,70 @@ USBH_IoctlGetHubCapabilities(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_IoctlGetNodeConnectionAttributes(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                                      IN PIRP Irp)
+{
+    PUSB_NODE_CONNECTION_ATTRIBUTES Attributes;
+    ULONG ConnectionIndex;
+    ULONG NumPorts;
+    ULONG Port;
+    NTSTATUS Status;
+    PUSBHUB_PORT_DATA PortData;
+    PIO_STACK_LOCATION IoStack;
+    ULONG BufferLength;
+
+    DPRINT("USBH_IoctlGetNodeConnectionAttributes ... \n");
+
+    PortData = HubExtension->PortData;
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+    Attributes = (PUSB_NODE_CONNECTION_ATTRIBUTES)Irp->AssociatedIrp.SystemBuffer;
+
+    if (BufferLength < sizeof(USB_NODE_CONNECTION_ATTRIBUTES))
+    {
+        Status = STATUS_BUFFER_TOO_SMALL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    ConnectionIndex = Attributes->ConnectionIndex;
+    RtlZeroMemory(Attributes, BufferLength);
+    Attributes->ConnectionIndex = ConnectionIndex;
+
+    Status = STATUS_INVALID_PARAMETER;
+
+    NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+    Port = 1;
+
+    if (NumPorts > 0)
+    {
+        while (Port != ConnectionIndex)
+        {
+            ++PortData;
+            ++Port;
+
+            if (Port > NumPorts)
+            {
+                goto Exit;
+            }
+        }
+
+        Attributes->ConnectionStatus = PortData->ConnectionStatus;
+        Attributes->PortAttributes = PortData->PortAttributes;
+
+        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_ATTRIBUTES);
+        Status = STATUS_SUCCESS;
+    }
+
+Exit:
+
+    USBH_CompleteIrp(Irp, Status);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
