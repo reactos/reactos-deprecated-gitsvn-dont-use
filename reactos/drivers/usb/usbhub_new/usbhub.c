@@ -3175,8 +3175,30 @@ NTAPI
 USBH_CompletePortIdleIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                 IN PVOID Context)
 {
-    DPRINT1("USBH_CompletePortIdleIrpsWorker: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_IDLE_PORT_CONTEXT IdlePortContext;
+    NTSTATUS NtStatus;
+    NTSTATUS Status;
+    BOOLEAN IsFlush = FALSE;
+
+    DPRINT("USBH_CompletePortIdleIrpsWorker ... \n");
+
+    IdlePortContext = (PUSBHUB_IDLE_PORT_CONTEXT)Context;
+    NtStatus = IdlePortContext->Status;
+
+    USBH_HubCompleteQueuedPortIdleIrps(HubExtension,
+                                       &IdlePortContext->PwrList,
+                                       NtStatus);
+
+    DPRINT1("USBH_CompletePortIdleIrpsWorker: USBH_RegQueryFlushPortPowerIrpsFlag() UNIMPLEMENTED. FIXME. \n");
+    Status = 0xC0000000;// USBH_RegQueryFlushPortPowerIrpsFlag(&IsFlush);
+
+    if (NT_SUCCESS(Status))
+    {
+        if (IsFlush)
+        {
+            USBH_FlushPortPwrList(HubExtension);
+        }
+    }
 }
 
 VOID
