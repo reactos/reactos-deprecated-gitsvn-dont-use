@@ -323,8 +323,34 @@ USBH_FdoDeferPoRequestCompletion(IN PDEVICE_OBJECT DeviceObject,
                                  IN PVOID Context,
                                  IN PIO_STATUS_BLOCK IoStatus)
 {
-    DPRINT1("USBH_FdoDeferPoRequestCompletion: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_FDO_EXTENSION Extension;
+    PUSBHUB_FDO_EXTENSION HubExtension = NULL;
+    PIRP PowerIrp;
+    PIO_STACK_LOCATION IoStack;
+
+    DPRINT("USBH_FdoDeferPoRequestCompletion ... \n");
+
+    Extension = (PUSBHUB_FDO_EXTENSION)Context;
+
+    PowerIrp = Extension->PowerIrp;
+
+    if (Extension->Common.ExtensionType == USBH_EXTENSION_TYPE_HUB)
+    {
+        HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    }
+
+    IoStack = IoGetCurrentIrpStackLocation(PowerIrp);
+
+    if (IoStack->Parameters.Power.State.SystemState == PowerSystemWorking &&
+        HubExtension && HubExtension->LowerPDO == HubExtension->RootHubPdo)
+    {
+        HubExtension->SystemPowerState.SystemState = PowerSystemWorking;
+        USBH_CheckIdleDeferred(HubExtension);
+    }
+
+    IoCopyCurrentIrpStackLocationToNext(PowerIrp);
+    PoStartNextPowerIrp(PowerIrp);
+    PoCallDriver(Extension->LowerDevice, PowerIrp);
 }
 
 NTSTATUS
