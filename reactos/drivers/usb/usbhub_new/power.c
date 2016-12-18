@@ -32,9 +32,58 @@ NTSTATUS
 NTAPI
 USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT1("USBH_HubSetD0: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_FDO_EXTENSION RootHubDevExt;
+    NTSTATUS Status;
+    KEVENT Event;
+    POWER_STATE PowerState;
+
+    DPRINT("USBH_HubSetD0: HubExtension - %p\n", HubExtension);
+
+    RootHubDevExt = USBH_GetRootHubExtension(HubExtension);
+
+    if (RootHubDevExt->SystemPowerState.SystemState != PowerSystemWorking)
+    {
+        Status = STATUS_INVALID_DEVICE_STATE;
+        return Status;
+    }
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
+    {
+        DPRINT("USBH_HubSetD0: HubFlags - %p\n", HubExtension->HubFlags);
+
+        KeWaitForSingleObject(&HubExtension->IdleEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    PowerState.DeviceState = PowerDeviceD0;
+
+    Status = PoRequestPowerIrp(HubExtension->LowerPDO,
+                               IRP_MN_SET_POWER,
+                               PowerState,
+                               USBH_HubESDRecoverySetD3Completion,
+                               &Event,
+                               NULL);
+
+    if (Status == STATUS_PENDING)
+    {
+       Status = KeWaitForSingleObject(&Event,
+                                      Suspended,
+                                      KernelMode,
+                                      FALSE,
+                                      NULL);
+    }
+
+    while (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAKEUP_START)
+    {
+        USBH_Wait(10);
+    }
+
+    return Status;
 }
 
 VOID
