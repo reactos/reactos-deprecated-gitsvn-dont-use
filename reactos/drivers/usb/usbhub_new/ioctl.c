@@ -465,8 +465,8 @@ USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
                     Info->Speed = Info->Speed == FALSE;
                 }
 
-                Irp->IoStatus.Information = (sizeof(USB_NODE_CONNECTION_INFORMATION_EX) +
-                                            (Info->NumberOfOpenPipes - 1) * sizeof(USB_PIPE_INFO));
+                Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_INFORMATION_EX) +
+                                            (Info->NumberOfOpenPipes - 1) * sizeof(USB_PIPE_INFO);
                 goto Exit;
             }
 

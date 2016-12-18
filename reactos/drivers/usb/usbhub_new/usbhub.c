@@ -2326,9 +2326,122 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                             IN ULONG Length,
                             IN PUSB_DEVICE_HANDLE DeviceHandle)
 {
-    DPRINT1("USBD_GetDeviceInformationEx: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSB_BUSIFFN_GET_DEVICE_INFORMATION QueryDeviceInformation;
+    PUSB_DEVICE_INFORMATION_0 DeviceInfo;
+    SIZE_T DeviceInfoLength;
+    PUSB_NODE_CONNECTION_INFORMATION_EX NodeInfo;
+    SIZE_T NodeInfoLength;
+    ULONG PipeNumber;
+    ULONG dummy;
+    NTSTATUS Status;
+
+    DPRINT("USBD_GetDeviceInformationEx ... \n");
+
+    QueryDeviceInformation = HubExtension->BusInterface.QueryDeviceInformation;
+
+    if (!QueryDeviceInformation)
+    {
+        Status = STATUS_NOT_IMPLEMENTED;
+        return Status;
+    }
+
+    DeviceInfoLength = sizeof(USB_DEVICE_INFORMATION_0);
+
+    while (TRUE)
+    {
+        DeviceInfo = ExAllocatePoolWithTag(PagedPool,
+                                           DeviceInfoLength,
+                                           USB_HUB_TAG);
+
+        if (!DeviceInfo)
+        {
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+
+        DeviceInfo->InformationLevel = 0;
+
+        Status = QueryDeviceInformation(HubExtension->BusInterface.BusContext,
+                                        DeviceHandle,
+                                        DeviceInfo,
+                                        DeviceInfoLength,
+                                        &dummy);
+
+        if (Status != STATUS_BUFFER_TOO_SMALL)
+        {
+            break;
+        }
+
+        DeviceInfoLength = DeviceInfo->ActualLength;
+
+        ExFreePool(DeviceInfo);
+    }
+
+    NodeInfo = NULL;
+    NodeInfoLength = 0;
+
+    if (NT_SUCCESS(Status))
+    {
+        NodeInfoLength = (sizeof(USB_NODE_CONNECTION_INFORMATION_EX) - sizeof(USB_PIPE_INFO)) +
+                         DeviceInfo->NumberOfOpenPipes * sizeof(USB_PIPE_INFO);
+
+        NodeInfo = ExAllocatePoolWithTag(PagedPool, NodeInfoLength, USB_HUB_TAG);
+
+        if (!NodeInfo)
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+        }
+
+        if (NT_SUCCESS(Status))
+        {
+            NodeInfo->ConnectionIndex = Info->ConnectionIndex;
+
+            RtlCopyMemory(&NodeInfo->DeviceDescriptor,
+                          &DeviceInfo->DeviceDescriptor,
+                          sizeof(USB_DEVICE_DESCRIPTOR));
+
+            NodeInfo->CurrentConfigurationValue = DeviceInfo->CurrentConfigurationValue;
+            NodeInfo->Speed = DeviceInfo->DeviceSpeed;
+            NodeInfo->DeviceIsHub = PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE;
+            NodeInfo->DeviceAddress = DeviceInfo->DeviceAddress;
+            NodeInfo->NumberOfOpenPipes = DeviceInfo->NumberOfOpenPipes;
+            NodeInfo->ConnectionStatus = Info->ConnectionStatus;
+
+            PipeNumber = 0;
+
+            if (DeviceInfo->NumberOfOpenPipes)
+            {
+                do
+                {
+                    RtlCopyMemory(&NodeInfo->PipeList[PipeNumber],
+                                  &DeviceInfo->PipeList[PipeNumber],
+                                  sizeof(USB_PIPE_INFO));
+
+                    ++PipeNumber;
+                }
+                while (PipeNumber < DeviceInfo->NumberOfOpenPipes);
+            }
+        }
+    }
+
+    ExFreePool(DeviceInfo);
+
+    if (NodeInfo)
+    {
+        if (NodeInfoLength <= Length)
+        {
+            Length = NodeInfoLength;
+        }
+        else
+        {
+            Status = STATUS_BUFFER_TOO_SMALL;
+        }
+
+        RtlCopyMemory(Info, NodeInfo, Length);
+
+        ExFreePool(NodeInfo);
+    }
+
+    return Status;
 }
 
 NTSTATUS
