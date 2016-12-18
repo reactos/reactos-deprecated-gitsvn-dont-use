@@ -276,6 +276,46 @@ USBH_IoctlGetNodeInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_IoctlGetHubCapabilities(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                             IN PIRP Irp)
+{
+    PUSB_HUB_CAPABILITIES Capabilities;
+    PIO_STACK_LOCATION IoStack;
+    ULONG BufferLength;
+    ULONG Length;
+    ULONG HubIs2xCapable = 0;
+
+    DPRINT("USBH_IoctlGetHubCapabilities ... \n");
+
+    Capabilities = (PUSB_HUB_CAPABILITIES)Irp->AssociatedIrp.SystemBuffer;
+
+    HubIs2xCapable = HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB;
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+
+    BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+
+    if (BufferLength <= sizeof(HubIs2xCapable))
+    {
+        Length = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+    }
+    else
+    {
+        Length = sizeof(HubIs2xCapable);
+    }
+
+    RtlZeroMemory(Capabilities, BufferLength);
+    RtlCopyMemory(Capabilities, &HubIs2xCapable, Length);
+
+    Irp->IoStatus.Information = Length;
+
+    USBH_CompleteIrp(Irp, STATUS_SUCCESS);
+
+    return 0;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
@@ -303,8 +343,14 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         case IOCTL_USB_GET_HUB_CAPABILITIES:
             DPRINT("USBH_DeviceControl: IOCTL_USB_GET_HUB_CAPABILITIES. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
-            DbgBreakPoint();
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetHubCapabilities(HubExtension, Irp);
+                break;
+            }
+
+            USBH_CompleteIrp(Irp, Status);
+            break;
             break;
 
         case IOCTL_USB_HUB_CYCLE_PORT:
@@ -360,7 +406,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             DbgBreakPoint();
             break;
 
-        case IOCTL_KS_PROPERTY:
+        case 0x2F0003:
             DPRINT("USBH_DeviceControl: IOCTL_KS_PROPERTY. \n");
             Status = STATUS_INVALID_DEVICE_REQUEST;
             USBH_CompleteIrp(Irp, Status);
