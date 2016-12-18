@@ -28,6 +28,21 @@ USBH_CompletePowerIrp(IN PUSBHUB_FDO_EXTENSION HubExtension,
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
 }
 
+VOID
+NTAPI
+USBH_HubESDRecoverySetD3Completion(IN PDEVICE_OBJECT DeviceObject,
+                                   IN UCHAR MinorFunction,
+                                   IN POWER_STATE PowerState,
+                                   IN PVOID Context,
+                                   IN PIO_STATUS_BLOCK IoStatus)
+{
+    DPRINT("USBH_HubESDRecoverySetD3Completion ... \n");
+
+    KeSetEvent((PRKEVENT)Context,
+               EVENT_INCREMENT,
+               FALSE);
+}
+
 NTSTATUS
 NTAPI
 USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
