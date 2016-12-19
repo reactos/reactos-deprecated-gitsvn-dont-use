@@ -895,7 +895,7 @@ EnumStart:
                 PdoExtension->PortPdoFlags |= USBHUB_PDO_FLAG_DELETE_PENDING;
                 PdoExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
 
-                SerialNumber = InterlockedExchange((PLONG)PdoExtension->SerialNumber,
+                SerialNumber = InterlockedExchange((PLONG)&PdoExtension->SerialNumber,
                                                    0);
 
                 if (SerialNumber)
@@ -903,7 +903,7 @@ EnumStart:
                     ExFreePool((PVOID)SerialNumber);
                 }
 
-                DeviceHandle = InterlockedExchange((PLONG)PdoExtension->DeviceHandle,
+                DeviceHandle = InterlockedExchange((PLONG)&PdoExtension->DeviceHandle,
                                                    0);
 
                 if (DeviceHandle)

@@ -33,9 +33,9 @@ NTAPI
 USBH_PassIrp(IN PDEVICE_OBJECT DeviceObject,
              IN PIRP Irp)
 {
-    DPRINT("USBH_PassIrp: DeviceObject - %p, Irp - %p\n",
-           DeviceObject,
-           Irp);
+    //DPRINT("USBH_PassIrp: DeviceObject - %p, Irp - %p\n",
+    //       DeviceObject,
+    //       Irp);
 
     IoSkipCurrentIrpStackLocation(Irp);
     return IoCallDriver(DeviceObject, Irp);
@@ -4327,12 +4327,12 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     MajorFunction = IoStack->MajorFunction;
 
-    DPRINT("USBH_PdoDispatch: MajorFunction - %d\n", MajorFunction);
-
     switch (MajorFunction)
     {
         case IRP_MJ_CREATE:
         case IRP_MJ_CLOSE:
+            DPRINT("USBH_PdoDispatch: IRP_MJ_CREATE / IRP_MJ_CLOSE (%d)\n",
+                   MajorFunction);
             Status = STATUS_SUCCESS;
             USBH_CompleteIrp(Irp, Status);
             break;
@@ -4389,6 +4389,7 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             break;
 
         default:
+            DPRINT("USBH_PdoDispatch: Unhandled MajorFunction - %d\n", MajorFunction);
             Status = Irp->IoStatus.Status;
             USBH_CompleteIrp(Irp, Status);
             break;
@@ -4538,19 +4539,41 @@ USBH_HubDispatch(IN PDEVICE_OBJECT DeviceObject,
     ULONG ExtensionType;
     NTSTATUS Status;
 
-    DPRINT("USBH_HubDispatch: DeviceObject - %p, Irp - %p\n",
-           DeviceObject,
-           Irp);
 
     DeviceExtension = (PCOMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
     ExtensionType = DeviceExtension->ExtensionType;
 
     if (ExtensionType == USBH_EXTENSION_TYPE_HUB)
     {
+        DPRINT("USBH_HubDispatch: DeviceObject - %p, Irp - %p\n",
+               DeviceObject,
+               Irp);
+
         Status = USBH_FdoDispatch((PUSBHUB_FDO_EXTENSION)DeviceExtension, Irp);
     }
     else if (ExtensionType == USBH_EXTENSION_TYPE_PORT)
     {
+        PIO_STACK_LOCATION IoStack = IoGetCurrentIrpStackLocation(Irp);
+        UCHAR MajorFunction = IoStack->MajorFunction;
+        BOOLEAN IsDprint = TRUE;
+
+        if (MajorFunction == IRP_MJ_INTERNAL_DEVICE_CONTROL)
+        {
+            ULONG ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
+
+            if (ControlCode == IOCTL_INTERNAL_USB_SUBMIT_URB)
+            {
+                IsDprint = FALSE;
+            }
+        }
+
+        if (IsDprint)
+        {
+            DPRINT("USBH_HubDispatch: DeviceObject - %p, Irp - %p\n",
+                   DeviceObject,
+                   Irp);
+        }
+
         Status = USBH_PdoDispatch((PUSBHUB_PORT_PDO_EXTENSION)DeviceExtension, Irp);
     }
     else

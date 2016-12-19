@@ -1,6 +1,6 @@
 #include "usbhub.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
 
 NTSTATUS
@@ -748,8 +748,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_HUB_CYCLE_PORT:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_HUB_CYCLE_PORT. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DPRINT1("USBH_DeviceControl: IOCTL_USB_HUB_CYCLE_PORT UNIMPLEMENTED. FIXME. \n");
             DbgBreakPoint();
             break;
 
@@ -802,8 +801,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_NAME:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_NAME. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
+            DPRINT1("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_NAME UNIMPLEMENTED. FIXME. \n");
             DbgBreakPoint();
             break;
 
@@ -836,7 +834,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         default:
-            DPRINT("USBH_DeviceControl: IOCTL_ ???\n");
+            DPRINT1("USBH_DeviceControl: Unhandled IOCTL_ - %p\n", ControlCode);
             Status = USBH_PassIrp(HubExtension->RootHubPdo, Irp);
             break;
     }
