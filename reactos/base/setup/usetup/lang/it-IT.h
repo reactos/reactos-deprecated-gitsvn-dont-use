@@ -36,7 +36,7 @@ static MUI_ENTRY itITLanguagePageEntries[] =
     {
         8,
         13,
-        "\x07  Questa lingua sar… quella predefinita per il sistema finale.",
+        "\x07  Questa lingua sarâ€¦ quella predefinita per il sistema finale.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -146,7 +146,7 @@ static MUI_ENTRY itITIntroPageEntries[] =
     {
         6, 
         8, 
-        "Il setup di ReactOS Š ancora in una fase preliminare.",
+        "Il setup di ReactOS Å  ancora in una fase preliminare.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -294,13 +294,13 @@ static MUI_ENTRY itITLicensePageEntries[] =
     {           
         8,
         24,
-        "Questo software Š libero; vedere il codice per le condizioni di copia.",
+        "Questo software Å  libero; vedere il codice per le condizioni di copia.",
         TEXT_STYLE_NORMAL
     },
     {           
         8,
         25,
-        "NON esiste garanzia; n‚ di COMMERCIABILIT·",
+        "NON esiste garanzia; nâ€š di COMMERCIABILITÂ·",
         TEXT_STYLE_NORMAL
     },
     {           
@@ -375,7 +375,7 @@ static MUI_ENTRY itITDevicePageEntries[] =
     {
         6,
         19,
-        "Pu• scegliere un elemento della configurazione con i tasti SU e GIë",
+        "Puâ€¢ scegliere un elemento della configurazione con i tasti SU e GIÃ«",
         TEXT_STYLE_NORMAL
     },
     {
@@ -427,7 +427,7 @@ static MUI_ENTRY itITRepairPageEntries[] =
     {
         6, 
         8,
-        "Il setup di ReactOS Š ancora in una fase preliminare.",
+        "Il setup di ReactOS Å  ancora in una fase preliminare.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -457,7 +457,7 @@ static MUI_ENTRY itITRepairPageEntries[] =
     {
         8, 
         19,
-        "\x07  Premere ESC tornare al men— principale.",
+        "\x07  Premere ESC tornare al menâ€” principale.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -469,7 +469,7 @@ static MUI_ENTRY itITRepairPageEntries[] =
     {
         0, 
         0,
-        "ESC = Men— iniziale INVIO = Riavvio",
+        "ESC = Menâ€” iniziale INVIO = Riavvio",
         TEXT_TYPE_STATUS
     },
     {
@@ -497,7 +497,7 @@ static MUI_ENTRY itITComputerPageEntries[] =
     {
         8,
         10,
-        "\x07  Premere i tasti SU e GIë per scegliere il tipo.",
+        "\x07  Premere i tasti SU e GIÃ« per scegliere il tipo.",
         TEXT_STYLE_NORMAL
     },    
     {
@@ -555,7 +555,7 @@ static MUI_ENTRY itITFlushPageEntries[] =
     {
         10,
         9,
-        "Al termine, il computer verr… riavviato automaticamente",
+        "Al termine, il computer verrâ€¦ riavviato automaticamente",
         TEXT_STYLE_NORMAL
     },
     {
@@ -583,19 +583,19 @@ static MUI_ENTRY itITQuitPageEntries[] =
     {
         10,
         6,
-        "ReactOS non Š stato installato completamente",
+        "ReactOS non Å  stato installato completamente",
         TEXT_STYLE_NORMAL
     },
     {
         10,
         8,
-        "Rimuovere il disco floppy dall'unit… A: e",
+        "Rimuovere il disco floppy dall'unitâ€¦ A: e",
         TEXT_STYLE_NORMAL
     },
     {
         10,
         9,
-        "tutti i CD-ROMs dalle unit….",
+        "tutti i CD-ROMs dalle unitâ€¦.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -634,7 +634,7 @@ static MUI_ENTRY itITDisplayPageEntries[] =
     },
     {   8,
         10,
-         "\x07  Premere i tasti SU e GIë per modificare il tipo.",
+         "\x07  Premere i tasti SU e GIÃ« per modificare il tipo.",
          TEXT_STYLE_NORMAL
     },
     {
@@ -686,13 +686,13 @@ static MUI_ENTRY itITSuccessPageEntries[] =
     {
         10,
         8,
-        "Rimuovere il disco dall'unit… A: e",
+        "Rimuovere il disco dall'unitâ€¦ A: e",
         TEXT_STYLE_NORMAL
     },
     {
         10,
         9,
-        "tutti i CD-ROMs dalle unit….",
+        "tutti i CD-ROMs dalle unitâ€¦.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -738,7 +738,7 @@ static MUI_ENTRY itITBootPageEntries[] =
     {
         6,
         13,
-        "Inserire un disco floppy formattato nell'unit… A: e",
+        "Inserire un disco floppy formattato nell'unitâ€¦ A: e",
         TEXT_STYLE_NORMAL
     },
     {
@@ -785,7 +785,7 @@ static MUI_ENTRY itITSelectPartitionEntries[] =
     {
         8,
         11,
-        "\x07  Premere SU o GIë per selezionare un elemento della lista.",
+        "\x07  Premere SU o GIÃ« per selezionare un elemento della lista.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -797,20 +797,19 @@ static MUI_ENTRY itITSelectPartitionEntries[] =
     {
         8,
         15,
-        "\x07  Press P to create a primary partition.",
-//        "\x07  Premere C per creare una nuova partizione.",
+       "\x07  Premere P per creare una nuova partizione.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         17,
-        "\x07  Press E to create an extended partition.",
+        "\x07  Premere E per creare una partizione estesa.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         19,
-        "\x07  Press L to create a logical partition.",
+        "\x07  Premere L  per creare una partizione logica.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -844,79 +843,79 @@ static MUI_ENTRY itITConfirmDeleteSystemPartitionEntries[] =
     {
         6,
         8,
-        "You have chosen to delete the system partition.",
+        "Hai scelto di eliminare la partizione del sistema.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         10,
-        "System partitions can contain diagnostic programs, hardware configuration",
+        "Le partizioni di Sistema possono contenere i programmi di diagnostica, configurazione hardware,",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         11,
-        "programs, programs to start an operating system (like ReactOS) or other",
+        "programmi utilizzati per l'avvio di un sistema operativo (come ReactOS) o altri",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         12,
-        "programs provided by the hardware manufacturer.",
+        "programmi forniti dall'azienda hardware.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         14,
-        "Delete a system partition only when you are sure that there are no such",
+        "Elimina una partizione di sistema solo quando tu sei sicuro che non ci siano",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         15,
-        "programs on the partition, or when you are sure you want to delete them.",
+        "programmi sulla partizione, o quando tu sei sicuro di eliminarla.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         16,
-        "When you delete the partition, you might not be able to boot the",
+        "Quando tu cancelli una partizione, potresti non essere in grado di utilizzare il tuo",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         17,
-        "computer from the harddisk until you finished the ReactOS Setup.",
+        "computer dall'harddisk finchÃ¨ non hai terminato il setup di ReactOS.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         20,
-        "\x07  Press ENTER to delete the system partition. You will be asked",
+        "\x07  Premere INVIO per eliminare una partizione di sistema. Ti sarÃ  chiesto piÃ¹ tardi",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         21,
-        "   to confirm the deletion of the partition again later.",
+        "   di confermare ancora l'eliminazione della partizione.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         24,
-        "\x07  Press ESC to return to the previous page. The partition will",
+        "\x07  Premere ESC per ritornare alla pagina precedente. La partizione",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         25,
-        "   not be deleted.",
+        "   non verrÃ  cancellata.",
         TEXT_STYLE_NORMAL
     },
     {
         0,
         0,
-        "ENTER=Continue  ESC=Cancel",
+        "INVIO=Continua ESC=Cancella",
         TEXT_TYPE_STATUS | TEXT_PADDING_BIG
     },
     {
@@ -944,7 +943,7 @@ static MUI_ENTRY itITFormatPartitionEntries[] =
     {
         6,
         10,
-        "Setup formatter… la partizione. Premere INVIO per continuare.",
+        "Setup formatterâ€¦ la partizione. Premere INVIO per continuare.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -972,7 +971,7 @@ static MUI_ENTRY itITInstallDirectoryEntries[] =
     {
         6,
         8,
-        "Setup installer… i file di ReactOS nella partizione selezionata.",
+        "Setup installerâ€¦ i file di ReactOS nella partizione selezionata.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -1122,7 +1121,7 @@ static MUI_ENTRY itITKeyboardSettingsEntries[] =
     {
         8,
         10,
-        "\x07  Premere SU o GIë per selezionare il tipo di tastiera desiderato.",
+        "\x07  Premere SU o GIÃ« per selezionare il tipo di tastiera desiderato.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -1168,13 +1167,13 @@ static MUI_ENTRY itITLayoutSettingsEntries[] =
     {
         6,
         8,
-        "Selezionare la nazionalit… predefinita della tastiera.",
+        "Selezionare la nazionalitâ€¦ predefinita della tastiera.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         10,
-        "\x07  Premere SU o GIë per selezionare il tipo di tastiera",
+        "\x07  Premere SU o GIÃ« per selezionare il tipo di tastiera",
         TEXT_STYLE_NORMAL
     },
     {
@@ -1192,7 +1191,7 @@ static MUI_ENTRY itITLayoutSettingsEntries[] =
     {
         8,
         14,
-        "   la nazionalit… della tastiera.",
+        "   la nazionalitâ€¦ della tastiera.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -1256,7 +1255,7 @@ static MUI_ENTRY itITSelectFSEntries[] =
     {
         8,
         19,
-        "\x07  Premere SU o GIë per selezionare un filesystem.",
+        "\x07  Premere SU o GIÃ« per selezionare un filesystem.",
         0
     },
     {
@@ -1369,8 +1368,8 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_NOT_INSTALLED
-        "ReactOS non Š installato completamente nel vostro\n"
-        "computer. Se esce adesso, dovr… eseguire il Setup\n"
+        "ReactOS non Å  installato completamente nel vostro\n"
+        "computer. Se esce adesso, dovrâ€¦ eseguire il Setup\n"
         "nuovamente per installare ReactOS.\n"
         "\n"
         "  \x07  Premere INVIO per continuare il setup.\n"
@@ -1384,7 +1383,7 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_NO_SOURCE_DRIVE
-        "Setup non ha trovato l'unit… di origine.\n",
+        "Setup non ha trovato l'unitâ€¦ di origine.\n",
         "INVIO = Riavviare il computer"
     },
     {
@@ -1404,7 +1403,7 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_DRIVE_INFORMATION
-        "Setup non ha potuto recuperare le informazioni dell'unit… di sistema.\n",
+        "Setup non ha potuto recuperare le informazioni dell'unitâ€¦ di sistema.\n",
         "INVIO = Riavviare il computer"
     },
     {
@@ -1429,15 +1428,15 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_LOAD_KBLAYOUT,
-        "Setup non ha potuto caricare l'elenco delle nazionalit… di tastiera.\n",
+        "Setup non ha potuto caricare l'elenco delle nazionalitâ€¦ di tastiera.\n",
         "INVIO = Riavviare il computer"
     },
     {
         //ERROR_WARN_PARTITION,
         "Setup ha trovato che almeno un disco fisso contiene una tabella delle\n"
-        "partizioni incompatibile che non pu• essere gestita correttamente!\n"
+        "partizioni incompatibile che non puâ€¢ essere gestita correttamente!\n"
         "\n"
-        "Il creare o cancellare partizioni pu• distruggere la tabella delle partizioni.\n"
+        "Il creare o cancellare partizioni puâ€¢ distruggere la tabella delle partizioni.\n"
         "\n"
         "  \x07  Premere F3 per uscire dal Setup.\n"
         "  \x07  Premere INVIO per continuare.",
@@ -1445,15 +1444,15 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_NEW_PARTITION,
-        "Non si pu• creare una nuova partizione all'interno\n"
-        "di una partizione gi… esistente!\n"
+        "Non si puâ€¢ creare una nuova partizione all'interno\n"
+        "di una partizione giâ€¦ esistente!\n"
         "\n"
         "  * Premere un tasto qualsiasi per continuare.",
         NULL
     },
     {
         //ERROR_DELETE_SPACE,
-        "Non si pu• cancellare spazio in un disco non partizionato!\n"
+        "Non si puâ€¢ cancellare spazio in un disco non partizionato!\n"
         "\n"
         "  * Premere un tasto qualsiasi per continuare.",
         NULL
@@ -1465,12 +1464,12 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_NO_FLOPPY,
-        "Non c'Š un disco nell'unit… A:.",
+        "Non c'Å  un disco nell'unitâ€¦ A:.",
         "ENTER = Continue"
     },
     {
         //ERROR_UPDATE_KBSETTINGS,
-        "Setup non ha potuto aggiornare la nazionalit… della tastiera.",
+        "Setup non ha potuto aggiornare la nazionalitâ€¦ della tastiera.",
         "INVIO = Riavviare il computer"
     },
     {
@@ -1563,7 +1562,7 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_ADDING_KBLAYOUTS,
-        "Impossibile aggiungere le nazionalit… di tastiera al registro.\n"
+        "Impossibile aggiungere le nazionalitâ€¦ di tastiera al registro.\n"
         "INVIO = Riavviare il computer"
     },
     {
@@ -1573,25 +1572,25 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_DIRECTORY_NAME,
-        "Invalid directory name.\n"
+        "Nome della cartella invalida.\n"
         "\n"
-        "  * Press any key to continue."
+        "  * Premere un tasto qualsiasi per continuare."
     },
     {
         //ERROR_INSUFFICIENT_PARTITION_SIZE,
-        "The selected partition is not large enough to install ReactOS.\n"
-        "The install partition must have a size of at least %lu MB.\n"
+        "La partizione selezionata non Ã¨ tanto larga per installare ReactOS.\n"
+        "La partizione deve avere una dimensione di almeno %lu MB.\n"
         "\n"
         "  * Premere un tasto qualsiasi per continuare.",
         NULL
     },
     {
         //ERROR_PARTITION_TABLE_FULL,
-        "You can not create a new primary or extended partition in the\n"
-        "partition table of this disk because the partition table is full.\n"
+        "Non puoi creare una partzione primaria o secondaria nella\n"
+        "tavola delle partizioni del disco perchÃ¨ questa Ã¨ piena.\n"
         "\n"
-        "  * Press any key to continue."
-    },
+        "  * Premere un qualsiasi tasto per continuare."
+        },
     {
         //ERROR_ONLY_ONE_EXTENDED,
         "You can not create more than one extended partition per disk.\n"
@@ -1600,10 +1599,10 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_FORMATTING_PARTITION,
-        "Setup is unable to format the partition:\n"
+        "Setup non Ã¨ riuscito a formattare la partizione:\n"
         " %S\n"
         "\n"
-        "ENTER = Reboot computer"
+        "INVIO = Riavvia il computer"
     },
     {
         NULL,
@@ -1720,37 +1719,37 @@ MUI_STRING itITStrings[] =
     {STRING_PLEASEWAIT,
      "   Attendere..."},
     {STRING_INSTALLCREATEPARTITION,
-     "   ENTER = Install   P = Create Primary   E = Create Extended   F3 = Quit"},
+     "   ENTER = Installa   P = Crea Partizione Primaria   E = Crea Partizione Estesa   F3 = Esci"},
 //     "   INVIO = Installa   C = Crea Partizione   F3 = Esci"},
     {STRING_INSTALLCREATELOGICAL,
-     "   ENTER = Install   L = Create Logical Partition   F3 = Quit"},
+     "   ENTER = Installa   L = Crea partizione Logica.   F3 = Esci"},
     {STRING_INSTALLDELETEPARTITION,
      "   INVIO = Installa   D = Rimuovi Partizione   F3 = Esci"},
     {STRING_DELETEPARTITION,
-     "   D = Delete Partition   F3 = Quit"},
+     "   D = Elimina Partitizione   F3 = Esci"},
     {STRING_PARTITIONSIZE,
      "Dimensione della nuova partizione:"},
     {STRING_CHOOSENEWPARTITION,
-     "You have chosen to create a primary partition on"},
+     "Avete scelto di creare una nuova partizione su"},
 //     "Avete scelto di creare una nuova partizione su"},
     {STRING_CHOOSE_NEW_EXTENDED_PARTITION,
-     "You have chosen to create an extended partition on"},
+     "Avete scelto di creare una nuova partizione estesa su"},
     {STRING_CHOOSE_NEW_LOGICAL_PARTITION,
-     "You have chosen to create a logical partition on"},
+     "Avete scelto di creare una nuova partizione logica su"},
     {STRING_HDDSIZE,
     "Indicare la dimensione della nuova partizione in megabyte."},
     {STRING_CREATEPARTITION,
      "   INVIO = Creare la partizione   ESC = Annulla   F3 = Esci"},
     {STRING_PARTFORMAT,
-    "Questa partizione sar… formattata successivamente."},
+    "Questa partizione sarâ€¦ formattata successivamente."},
     {STRING_NONFORMATTEDPART,
     "Avete scelto di installare ReactOS su una partizione nuova o non formattata."},
     {STRING_NONFORMATTEDSYSTEMPART,
-    "The system partition is not formatted yet."},
+    "La partizione del sistema non Ã¨ stata ancora formattata."},
     {STRING_NONFORMATTEDOTHERPART,
-    "The new partition is not formatted yet."},
+    "La nuova partizione non Ã¨ stata ancora formattata."},
     {STRING_INSTALLONPART,
-    "Setup installer… ReactOS sulla partitione"},
+    "Setup installerâ€¦ ReactOS sulla partitione"},
     {STRING_CHECKINGPART,
     "Setup sta controllando la partizione selezionata."},
     {STRING_CONTINUE,
@@ -1784,7 +1783,7 @@ MUI_STRING itITStrings[] =
     {STRING_CONSOLEFAIL1,
     "Impossibile aprire la console\r\n\r\n"},
     {STRING_CONSOLEFAIL2,
-    "La causa pi— frequente di questo Š l'uso di una tastiera USB\r\n"},
+    "La causa piâ€” frequente di questo Å  l'uso di una tastiera USB\r\n"},
     {STRING_CONSOLEFAIL3,
     "le tastiere USB non sono ancora completamente supportate\r\n"},
     {STRING_FORMATTINGDISK,
@@ -1840,6 +1839,6 @@ MUI_STRING itITStrings[] =
     {STRING_GB,
     "GB"},
     {STRING_ADDKBLAYOUTS,
-    "Aggiunta delle nazionalit… di tastiera"},
+    "Aggiunta delle nazionalitâ€¦ di tastiera"},
     {0, 0}
 };
