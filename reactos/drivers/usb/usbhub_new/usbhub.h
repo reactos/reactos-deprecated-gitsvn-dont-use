@@ -399,6 +399,12 @@ USBH_SetPdoRegistryParameter(
 
 NTSTATUS
 NTAPI
+USBH_SyncSubmitUrb(
+  IN PDEVICE_OBJECT DeviceObject,
+  IN PURB Urb);
+
+NTSTATUS
+NTAPI
 USBH_FdoSyncSubmitUrb(
   IN PDEVICE_OBJECT FdoDevice,
   IN PURB Urb);

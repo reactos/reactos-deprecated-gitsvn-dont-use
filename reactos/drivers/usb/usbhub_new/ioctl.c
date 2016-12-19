@@ -590,6 +590,127 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                        IN PIRP Irp)
+{
+    ULONG BufferLength;
+    PUSBHUB_PORT_DATA PortData;
+    PUSB_DESCRIPTOR_REQUEST UsbRequest;
+    ULONG Port;
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    struct _URB_CONTROL_TRANSFER * Urb;
+    NTSTATUS Status;
+    ULONG RequestBufferLength;
+    PIO_STACK_LOCATION IoStack;
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
+    PortData = HubExtension->PortData;
+
+    DPRINT("USBH_IoctlGetDescriptor: BufferLength - %x\n", BufferLength);
+
+    if (BufferLength < sizeof(USB_DESCRIPTOR_REQUEST))
+    {
+        Status = STATUS_BUFFER_TOO_SMALL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    UsbRequest = (PUSB_DESCRIPTOR_REQUEST)Irp->AssociatedIrp.SystemBuffer;
+
+    RequestBufferLength = UsbRequest->SetupPacket.wLength;
+
+    if (RequestBufferLength > BufferLength - 
+                              (sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR)))
+    {
+        DPRINT("USBH_IoctlGetDescriptor: RequestBufferLength - %x\n",
+               RequestBufferLength);
+
+        Status = STATUS_BUFFER_TOO_SMALL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    Port = 1;
+
+    Status = STATUS_INVALID_PARAMETER;
+
+    if (HubExtension->HubDescriptor->bNumberOfPorts >= 1)
+    {
+        while (Port != UsbRequest->ConnectionIndex)
+        {
+            ++PortData;
+            ++Port;
+
+            if (Port > HubExtension->HubDescriptor->bNumberOfPorts)
+            {
+                goto Exit;
+            }
+        }
+
+        PortDevice = PortData->DeviceObject;
+
+        if (PortDevice)
+        {
+            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+            if (UsbRequest->SetupPacket.bmRequest == USB_CONFIGURATION_DESCRIPTOR_TYPE &&
+                RequestBufferLength == sizeof(USB_CONFIGURATION_DESCRIPTOR))
+            {
+                Status = STATUS_SUCCESS;
+
+                RtlCopyMemory(&UsbRequest->Data[0],
+                              &PortExtension->ConfigDescriptor,
+                              sizeof(USB_CONFIGURATION_DESCRIPTOR));
+
+                Irp->IoStatus.Information = sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR) +
+                                            sizeof(USB_CONFIGURATION_DESCRIPTOR);
+            }
+            else
+            {
+                Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                            sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST),
+                                            USB_HUB_TAG);
+
+                if (Urb)
+                {
+                    Urb->Hdr.Function = URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE;
+                    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST);
+
+                    Urb->TransferBuffer = &UsbRequest->Data[0];
+                    Urb->TransferBufferLength = RequestBufferLength;
+                    Urb->TransferBufferMDL = 0;
+                    Urb->UrbLink = 0;
+
+                    RtlCopyMemory(Urb->SetupPacket,
+                                  &UsbRequest->SetupPacket,
+                                  sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+                    Status = USBH_SyncSubmitUrb(PortExtension->Common.SelfDevice,
+                                                (PURB)Urb);
+
+                    Irp->IoStatus.Information = (sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR)) +
+                                                Urb->TransferBufferLength;
+
+                    ExFreePool(Urb);
+                }
+                else
+                {
+                    Status = STATUS_INSUFFICIENT_RESOURCES;
+                }
+            }
+        }
+    }
+
+Exit:
+
+    USBH_CompleteIrp(Irp, Status);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
@@ -699,8 +820,13 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION:
             DPRINT("USBH_DeviceControl: IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION. \n");
-            DPRINT1("USBH_DeviceControl: UNIMPLEMENTED. FIXME. \n");
-            DbgBreakPoint();
+            if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
+            {
+                Status = USBH_IoctlGetDescriptor(HubExtension, Irp);
+                break;
+            }
+
+            USBH_CompleteIrp(Irp, Status);
             break;
 
         case 0x2F0003:
