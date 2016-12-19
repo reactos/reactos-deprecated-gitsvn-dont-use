@@ -858,6 +858,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     NTSTATUS Status = STATUS_NOT_SUPPORTED;
     ULONG ControlCode;
     PIO_STACK_LOCATION IoStack;
+    PULONG HubCount;
 
     DPRINT("USBH_PdoInternalControl: PortExtension - %p, Irp - %p\n",
            PortExtension,
@@ -900,55 +901,96 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             return USBH_PdoIoctlSubmitUrb(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_PORT_STATUS:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_RESET_PORT:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_RESET_PORT. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_RESET_PORT. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_ENABLE_PORT:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_ENABLE_PORT. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_ENABLE_PORT. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_CYCLE_PORT:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_CYCLE_PORT. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_CYCLE_PORT. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE:
             DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE. \n");
+            *(PVOID *)IoStack->Parameters.Others.Argument1 = PortExtension->DeviceHandle;
+            Status = STATUS_SUCCESS;
             break;
 
         case IOCTL_INTERNAL_USB_GET_HUB_COUNT:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_COUNT. \n");
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_COUNT. PortPdoFlags - %p\n",
+                   PortExtension->PortPdoFlags);
+
+            if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE))
+            {
+                Status = STATUS_INVALID_PARAMETER;
+                break;
+            }
+
+            HubCount = (PULONG)IoStack->Parameters.Others.Argument1;
+
+            ++*HubCount;
+
+            Status = USBH_SyncGetHubCount(HubExtension->LowerDevice,
+                                          HubCount);
+
+            DPRINT("USBH_PdoInternalControl: *HubCount - %p\n", *HubCount);
             break;
 
         case IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO. \n");
-            break;
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO. PortPdoFlags - %p\n",
+                   PortExtension->PortPdoFlags);
+
+            if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE))
+            {
+                DbgBreakPoint();
+                Status = STATUS_SUCCESS;
+
+                *(PVOID *)IoStack->Parameters.Others.Argument1 = NULL;
+
+                USBH_CompleteIrp(Irp, Status);
+                break;
+            }
+
+            ASSERT(HubExtension->RootHubPdo);
+            return USBH_PassIrp(HubExtension->RootHubPdo, Irp);
 
         case IOCTL_INTERNAL_USB_GET_HUB_NAME:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_NAME. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_NAME. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_GET_HCD_DRIVERKEY_NAME:
-            DPRINT("USBH_PdoInternalControl: IOCTL_GET_HCD_DRIVERKEY_NAME. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_GET_HCD_DRIVERKEY_NAME. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_BUS_INFO:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_BUS_INFO. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_BUS_INFO. \n");
+            DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_PARENT_HUB_INFO:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PARENT_HUB_INFO. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PARENT_HUB_INFO. \n");
+            DbgBreakPoint();
             break;
 
         default:
-            DPRINT("USBH_PdoInternalControl: IOCTL_ ???\n");
+            DPRINT1("USBH_PdoInternalControl: unhandled IOCTL_ - %p\n", ControlCode);
             break;
     }
 
