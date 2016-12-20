@@ -28,6 +28,96 @@
 #define UNIMPLEMENTED DbgPrint("%s is UNIMPLEMENTED!\n", __FUNCTION__)
 #endif
 
+/** TODO: We should find a better way than copypasta shell32 to check if a folder
+ * is a special folder or not
+ */
+typedef struct _PIDLDATA
+{
+    BYTE type;
+    BYTE data[1];
+} PIDLDATA, *LPPIDLDATA;
+
+#define PT_GUID 0x1F
+#define PT_SHELLEXT 0x2E
+#define PT_YAGUID 0x70
+
+static BOOL _ILIsSpecialFolder (LPCITEMIDLIST pidl)
+{
+    LPPIDLDATA lpPData = (LPPIDLDATA)&pidl->mkid.abID;
+
+    return (pidl &&
+        ((lpPData && (PT_GUID == lpPData->type || PT_SHELLEXT== lpPData->type ||
+        PT_YAGUID == lpPData->type)) || (pidl && pidl->mkid.cb == 0x00)));
+}
+
+static BOOL _ILIsDesktop (LPCITEMIDLIST pidl)
+{
+    return (pidl && pidl->mkid.cb == 0x00);
+}
+
+/*
+ This is a Windows hack, because shell event messages in Windows gives an 
+ ill-formed PIDL stripped from useful data that parses incorrectly with SHGetFileInfo.
+ So we need to re-enumerate subfolders until we find one with the same name.
+ */
+HRESULT _ReparsePIDL(LPITEMIDLIST buggyPidl, LPITEMIDLIST *cleanPidl)
+{
+    HRESULT                             hr;
+    CComPtr<IShellFolder>               folder;
+    CComPtr<IPersistFolder2>            persist;
+    CComPtr<IEnumIDList>                pEnumIDList;
+    LPITEMIDLIST                        childPidl;
+    LPITEMIDLIST                        correctChild;
+    LPITEMIDLIST                        correctParent;
+    ULONG                               fetched;
+    DWORD                               EnumFlags;
+
+
+    EnumFlags = SHCONTF_FOLDERS | SHCONTF_INCLUDEHIDDEN;
+    hr = SHBindToParent(buggyPidl, IID_PPV_ARG(IShellFolder, &folder), (LPCITEMIDLIST*)&childPidl);
+    *cleanPidl = NULL;
+    if (!SUCCEEDED(hr))
+    {
+        ERR("Can't bind to parent folder\n");
+        return hr;
+    }
+    hr = folder->QueryInterface(IID_PPV_ARG(IPersistFolder2, &persist));
+    if (!SUCCEEDED(hr))
+    {
+        ERR("PIDL doesn't belong to the shell namespace, aborting\n");
+        return hr;
+    }
+
+    hr = persist->GetCurFolder(&correctParent);
+    if (!SUCCEEDED(hr))
+    {
+        ERR("Unable to get current folder\n");
+        return hr;
+    }
+
+    hr = folder->EnumObjects(NULL,EnumFlags,&pEnumIDList);
+    // avoid broken IShellFolder implementations that return null pointer with success
+    if (!SUCCEEDED(hr) || !pEnumIDList)
+    {
+        ERR("Can't enum the folder !\n");
+        return hr;
+    }
+
+    while(SUCCEEDED(pEnumIDList->Next(1, &correctChild, &fetched)) && correctChild && fetched)
+    {
+        if (!folder->CompareIDs(0, childPidl, correctChild))
+        {
+            *cleanPidl = ILCombine(correctParent, correctChild);
+            ILFree(correctChild);
+            goto Cleanup;
+        }
+        ILFree(correctChild);
+    }
+Cleanup:
+    ILFree(correctParent);
+    return hr;
+}
+
 CExplorerBand::CExplorerBand() :
     pSite(NULL), fVisible(FALSE), bNavigating(FALSE), dwBandID(0)
 {
@@ -214,6 +304,17 @@ BOOL CExplorerBand::OnTreeItemExpanding(LPNMTREEVIEW pnmtv)
     return FALSE;
 }
 
+BOOL CExplorerBand::OnTreeItemDeleted(LPNMTREEVIEW pnmtv)
+{
+    /* Destroy memory associated to our node */
+    NodeInfo* ptr = GetNodeInfo(pnmtv->itemNew.hItem);
+
+    ILFree(ptr->relativePidl);
+    ILFree(ptr->absolutePidl);
+    delete ptr;
+    return TRUE;
+}
+
 void CExplorerBand::OnSelectionChanged(LPNMTREEVIEW pnmtv)
 {
     NodeInfo* pNodeInfo = GetNodeInfo(pnmtv->itemNew.hItem);
@@ -229,6 +330,28 @@ void CExplorerBand::OnSelectionChanged(LPNMTREEVIEW pnmtv)
     //TreeView_Expand(m_hWnd, pnmtv->itemNew.hItem, TVE_EXPAND);
 }
 
+void CExplorerBand::OnTreeItemDragging(LPNMTREEVIEW pnmtv, BOOL isRightClick)
+{
+    CComPtr<IShellFolder>               pSrcFolder;
+    CComPtr<IDataObject>                pObj;
+    LPCITEMIDLIST                       pLast;
+    HRESULT                             hr;
+    DWORD                               dwEffect;
+    DWORD                               dwEffect2;
+
+    dwEffect = DROPEFFECT_COPY | DROPEFFECT_MOVE;
+    if (!pnmtv->itemNew.lParam)
+        return;
+    NodeInfo* pNodeInfo = GetNodeInfo(pnmtv->itemNew.hItem);
+    hr = SHBindToParent(pNodeInfo->absolutePidl, IID_PPV_ARG(IShellFolder, &pSrcFolder), &pLast);
+    if (!SUCCEEDED(hr))
+        return;
+    hr = pSrcFolder->GetUIObjectOf(m_hWnd, 1, &pLast, IID_IDataObject, 0, reinterpret_cast<void**>(&pObj));
+    if (!SUCCEEDED(hr))
+        return;
+    DoDragDrop(pObj, this, dwEffect, &dwEffect2);
+    return;
+}
 
 // *** ATL event handlers ***
 LRESULT CExplorerBand::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
@@ -323,6 +446,62 @@ LRESULT CExplorerBand::ContextMenuHack(UINT uMsg, WPARAM wParam, LPARAM lParam, 
     }
     return FALSE; /* let the wndproc process the message */
 }
+
+LRESULT CExplorerBand::OnShellEvent(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+{
+    LPITEMIDLIST *dest;
+    LPITEMIDLIST clean;
+    HTREEITEM pItem;
+
+    dest = (LPITEMIDLIST*)wParam;
+    switch(lParam & ~SHCNE_INTERRUPT)
+    {
+    case SHCNE_MKDIR:
+        if (!SUCCEEDED(_ReparsePIDL(dest[0], &clean)))
+        {
+            ERR("Can't reparse PIDL to a valid one\n");
+            return FALSE;
+        }
+        NavigateToPIDL(clean, &pItem, FALSE, TRUE, FALSE);
+        ILFree(clean);
+        break;
+    case SHCNE_RMDIR:
+        DeleteItem(dest[0]);
+        break;
+    case SHCNE_RENAMEFOLDER:
+        if (!SUCCEEDED(_ReparsePIDL(dest[1], &clean)))
+        {
+            ERR("Can't reparse PIDL to a valid one\n");
+            return FALSE;
+        }
+        if (NavigateToPIDL(dest[0], &pItem, FALSE, FALSE, FALSE))
+            RenameItem(pItem, clean);
+        ILFree(clean);
+        break;
+    case SHCNE_UPDATEDIR:
+        // We don't take care of this message
+        TRACE("Directory updated\n");
+        break;
+    default:
+        TRACE("Unhandled message\n");
+    }
+    return TRUE;
+}
+
+LRESULT CExplorerBand::OnSetFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+{
+    bFocused = TRUE;
+    pInputSite->OnFocusChangeIS(reinterpret_cast<IUnknown*>(this), TRUE);
+    return TRUE;
+}
+
+LRESULT CExplorerBand::OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+{
+    bFocused = FALSE;
+    pInputSite->OnFocusChangeIS(reinterpret_cast<IUnknown*>(this), FALSE);
+    return TRUE;
+}
+
 // *** Helper functions ***
 HTREEITEM CExplorerBand::InsertItem(HTREEITEM hParent, IShellFolder *psfParent, LPITEMIDLIST pElt, LPITEMIDLIST pEltRelative, BOOL bSort)
 {
@@ -596,6 +775,165 @@ BOOL CExplorerBand::NavigateToCurrentFolder()
     return result;
 }
 
+BOOL CExplorerBand::DeleteItem(LPITEMIDLIST idl)
+{
+    HTREEITEM                   toDelete;
+    TVITEM                      tvItem;
+    HTREEITEM                   parentNode;
+
+    if (!NavigateToPIDL(idl, &toDelete, FALSE, FALSE, FALSE))
+        return FALSE;
+
+    // TODO: check that the treeview item is really deleted
+
+    parentNode = TreeView_GetParent(m_hWnd, toDelete);
+    // Remove the child item
+    TreeView_DeleteItem(m_hWnd, toDelete);
+    // Probe parent to see if it has children
+    if (!TreeView_GetChild(m_hWnd, parentNode))
+    {
+        // Decrement parent's child count
+        ZeroMemory(&tvItem, sizeof(tvItem));
+        tvItem.mask = TVIF_CHILDREN;
+        tvItem.hItem = parentNode;
+        tvItem.cChildren = 0;
+        TreeView_SetItem(m_hWnd, &tvItem);
+    }
+    return TRUE;
+}
+
+BOOL CExplorerBand::RenameItem(HTREEITEM toRename, LPITEMIDLIST newPidl)
+{
+    WCHAR                               wszDisplayName[MAX_PATH];
+    TVITEM                              itemInfo;
+    LPCITEMIDLIST                       relPidl;
+    NodeInfo                            *treeInfo;
+    TVSORTCB                            sortCallback;
+
+    ZeroMemory(&itemInfo, sizeof(itemInfo));
+    itemInfo.mask = TVIF_PARAM;
+    itemInfo.hItem = toRename;
+
+    // Change PIDL associated to the item
+    relPidl = ILFindLastID(newPidl);
+    TreeView_GetItem(m_hWnd, &itemInfo);
+    if (!itemInfo.lParam)
+    {
+        ERR("Unable to fetch lParam\n");
+        return FALSE;
+    }
+    SendMessage(WM_SETREDRAW, FALSE, 0);
+    treeInfo = (NodeInfo*)itemInfo.lParam;
+    ILFree(treeInfo->absolutePidl);
+    ILFree(treeInfo->relativePidl);
+    treeInfo->absolutePidl = ILClone(newPidl);
+    treeInfo->relativePidl = ILClone(relPidl);
+
+    // Change the display name
+    ILGetDisplayNameEx(NULL, newPidl, wszDisplayName, SHGDN_INFOLDER);
+    ZeroMemory(&itemInfo, sizeof(itemInfo));
+    itemInfo.hItem = toRename;
+    itemInfo.mask = TVIF_TEXT;
+    itemInfo.pszText = wszDisplayName;
+    TreeView_SetItem(m_hWnd, &itemInfo);
+
+    // Sorting
+    sortCallback.hParent = TreeView_GetParent(m_hWnd, toRename);
+    sortCallback.lpfnCompare = CompareTreeItems;
+    sortCallback.lParam = (LPARAM)this;
+    SendMessage(TVM_SORTCHILDRENCB, 0, (LPARAM)&sortCallback);
+
+    SendMessage(WM_SETREDRAW, TRUE, 0);
+    return TRUE;
+}
+
+/* Function used to update absolutePidl of renamed folder when renaming/receiving
+ * renaming shell notifications */
+BOOL CExplorerBand::RefreshTreePidl(HTREEITEM tree, LPITEMIDLIST pidlParent)
+{
+    HTREEITEM                           tmp;
+    NodeInfo                            *pInfo;
+
+    // Update our node data
+    pInfo = GetNodeInfo(tree);
+    if (!pInfo)
+    {
+        return FALSE;
+    }
+    ILFree(pInfo->absolutePidl);
+    pInfo->absolutePidl = ILCombine(pidlParent, pInfo->relativePidl);
+    if (!pInfo->absolutePidl)
+    {
+        return FALSE;
+    }
+    // Recursively update children
+    if ((tmp = TreeView_GetChild(m_hWnd, tree)) != NULL)
+    {
+        RefreshTreePidl(tmp, pInfo->absolutePidl);
+    }
+
+    tmp = TreeView_GetNextSibling(m_hWnd, tree);
+    while(tmp != NULL)
+    {
+        pInfo = GetNodeInfo(tmp);
+        if(!pInfo)
+        {
+            continue;
+        }
+        ILFree(pInfo->absolutePidl);
+        pInfo->absolutePidl = ILCombine(pidlParent, pInfo->relativePidl);
+        tmp = TreeView_GetNextSibling(m_hWnd, tmp);
+    }
+    return TRUE;
+}
+
+// *** Tree item sorting callback ***
+int CALLBACK CExplorerBand::CompareTreeItems(LPARAM p1, LPARAM p2, LPARAM p3)
+{
+    /*
+     * We first sort drive letters (Path root), then PIDLs and then regular folder
+     * display name.
+     * This is not how Windows sorts item, but it gives decent results.
+     */
+    NodeInfo                            *info1;
+    NodeInfo                            *info2;
+    CExplorerBand                       *pThis;
+    WCHAR                               wszFolder1[MAX_PATH];
+    WCHAR                               wszFolder2[MAX_PATH];
+
+    info1 = (NodeInfo*)p1;
+    info2 = (NodeInfo*)p2;
+    pThis = (CExplorerBand*)p3;
+
+    ILGetDisplayNameEx(NULL, info1->absolutePidl, wszFolder1, SHGDN_FORPARSING);
+    ILGetDisplayNameEx(NULL, info2->absolutePidl, wszFolder2, SHGDN_FORPARSING);
+    if (PathIsRoot(wszFolder1) && PathIsRoot(wszFolder2))
+    {
+        return lstrcmpiW(wszFolder1,wszFolder2);
+    }
+    if (PathIsRoot(wszFolder1) && !PathIsRoot(wszFolder2))
+    {
+        return -1;
+    }
+    if (!PathIsRoot(wszFolder1) && PathIsRoot(wszFolder2))
+    {
+        return 1;
+    }
+    // Now, we compare non-root folders, grab display name
+    if (_ILIsSpecialFolder(info1->relativePidl) && !_ILIsSpecialFolder(info2->relativePidl))
+    {
+        return -1;
+    }
+    if (!_ILIsSpecialFolder(info1->relativePidl) && _ILIsSpecialFolder(info2->relativePidl))
+    {
+        return 1;
+    }
+
+    ILGetDisplayNameEx(NULL, info1->absolutePidl, wszFolder1, SHGDN_INFOLDER);
+    ILGetDisplayNameEx(NULL, info2->absolutePidl, wszFolder2, SHGDN_INFOLDER);
+    return StrCmpLogicalW(wszFolder1, wszFolder2);
+}
+
 // *** IOleWindow methods ***
 HRESULT STDMETHODCALLTYPE CExplorerBand::GetWindow(HWND *lphwnd)
 {
@@ -704,6 +1042,7 @@ HRESULT STDMETHODCALLTYPE CExplorerBand::SetSite(IUnknown *pUnkSite)
     if (pUnkSite != pSite)
     {
         pSite = NULL;
+        pInputSite = NULL;
     }
 
     if(!pUnkSite)
@@ -718,6 +1057,11 @@ HRESULT STDMETHODCALLTYPE CExplorerBand::SetSite(IUnknown *pUnkSite)
 
     pSite = pUnkSite;    
 
+    hr = pSite->QueryInterface(IID_PPV_ARG(IInputObjectSite, &pInputSite));
+    if(!SUCCEEDED(hr))
+    {
+        ERR("Can't get IInputObjectSite window, status: %08lx\n", hr);
+    }
     if (m_hWnd)
     {
         // Change its parent
@@ -859,6 +1203,9 @@ HRESULT STDMETHODCALLTYPE CExplorerBand::OnWinEvent(HWND hWnd, UINT uMsg, WPARAM
                 OnContextMenu(WM_CONTEXTMENU, (WPARAM)m_hWnd, GetMessagePos(), bHandled);
                 *theResult = 1;
                 break;
+            case TVN_BEGINDRAG:
+            case TVN_BEGINRDRAG:
+                OnTreeItemDragging((LPNMTREEVIEW)lParam, pNotifyHeader->code == TVN_BEGINRDRAG);
             case TVN_BEGINLABELEDITW:
             {
                 // TODO: put this in a function ? (mostly copypasta from CDefView)
@@ -1009,37 +1356,119 @@ HRESULT STDMETHODCALLTYPE CExplorerBand::Invoke(DISPID dispIdMember, REFIID riid
 // *** IDropTarget methods ***
 HRESULT STDMETHODCALLTYPE CExplorerBand::DragEnter(IDataObject *pObj, DWORD glfKeyState, POINTL pt, DWORD *pdwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    pCurObject = pObj;
+    oldSelected = TreeView_GetSelection(m_hWnd);
+    return DragOver(glfKeyState, pt, pdwEffect);
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::DragOver(DWORD glfKeyState, POINTL pt, DWORD *pdwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    TVHITTESTINFO                           info;
+    CComPtr<IShellFolder>                   pShellFldr;
+    NodeInfo                                *nodeInfo;
+    //LPCITEMIDLIST                         pChild;
+    HRESULT                                 hr;
+
+    info.pt.x = pt.x;
+    info.pt.y = pt.y;
+    info.flags = TVHT_ONITEM;
+    info.hItem = NULL;
+    ScreenToClient(&info.pt);
+
+    // Move to the item selected by the treeview (don't change right pane)
+    TreeView_HitTest(m_hWnd, &info);
+
+    if (info.hItem)
+    {
+        bNavigating = TRUE;
+        TreeView_SelectItem(m_hWnd, info.hItem);
+        bNavigating = FALSE;
+        // Delegate to shell folder
+        if (pDropTarget && info.hItem != childTargetNode)
+        {
+            pDropTarget = NULL;
+        }
+        if (info.hItem != childTargetNode)
+        {
+            nodeInfo = GetNodeInfo(info.hItem);
+            if (!nodeInfo)
+                return E_FAIL;
+#if 0
+            hr = SHBindToParent(nodeInfo->absolutePidl, IID_PPV_ARG(IShellFolder, &pShellFldr), &pChild);
+            if (!SUCCEEDED(hr))
+                return E_FAIL;
+            hr = pShellFldr->GetUIObjectOf(m_hWnd, 1, &pChild, IID_IDropTarget, NULL, reinterpret_cast<void**>(&pDropTarget));
+            if (!SUCCEEDED(hr))
+                return E_FAIL;
+#endif
+            if(_ILIsDesktop(nodeInfo->absolutePidl))
+                pShellFldr = pDesktop;
+            else
+            {
+                hr = pDesktop->BindToObject(nodeInfo->absolutePidl, 0, IID_PPV_ARG(IShellFolder, &pShellFldr));
+                if (!SUCCEEDED(hr))
+                {
+                    /* Don't allow dnd since we couldn't get our folder object */
+                    ERR("Can't bind to folder object\n");
+                    *pdwEffect = DROPEFFECT_NONE;
+                    return E_FAIL;
+                }
+            }
+            hr = pShellFldr->CreateViewObject(m_hWnd, IID_PPV_ARG(IDropTarget, &pDropTarget));
+            if (!SUCCEEDED(hr))
+            {
+                /* Don't allow dnd since we couldn't get our drop target */
+                ERR("Can't get drop target for folder object\n");
+                *pdwEffect = DROPEFFECT_NONE;
+                return E_FAIL;
+            }
+            hr = pDropTarget->DragEnter(pCurObject, glfKeyState, pt, pdwEffect);
+            childTargetNode = info.hItem;
+        }
+        hr = pDropTarget->DragOver(glfKeyState, pt, pdwEffect);
+    }
+    else
+    {
+        childTargetNode = NULL;
+        pDropTarget = NULL;
+        *pdwEffect = DROPEFFECT_NONE;
+    }
+    return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::DragLeave()
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    bNavigating = TRUE;
+    TreeView_SelectItem(m_hWnd, oldSelected);
+    bNavigating = FALSE;
+    childTargetNode = NULL;
+    if (pCurObject)
+    {
+        pCurObject = NULL;
+    }
+    return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::Drop(IDataObject *pObj, DWORD glfKeyState, POINTL pt, DWORD *pdwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    if (!pDropTarget)
+        return E_FAIL;
+    pDropTarget->Drop(pObj, glfKeyState, pt, pdwEffect);
+    DragLeave();
+    return S_OK;
 }
 
 // *** IDropSource methods ***
 HRESULT STDMETHODCALLTYPE CExplorerBand::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    if (fEscapePressed)
+        return DRAGDROP_S_CANCEL;
+    if ((grfKeyState & MK_LBUTTON) || (grfKeyState & MK_RBUTTON))
+        return S_OK;
+    return DRAGDROP_S_DROP;
 }
 
 HRESULT STDMETHODCALLTYPE CExplorerBand::GiveFeedback(DWORD dwEffect)
 {
-    UNIMPLEMENTED;
-    return E_NOTIMPL;
+    return DRAGDROP_S_USEDEFAULTCURSORS;
 }
