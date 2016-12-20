@@ -230,6 +230,71 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                           IN PIRP Irp)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PUSBHUB_PORT_DATA PortData;
+    PIO_STACK_LOCATION IoStack;
+    PULONG PortStatus;
+    NTSTATUS Status;
+
+    DPRINT("USBH_PdoIoctlGetPortStatus ... \n");
+
+    HubExtension = PortExtension->HubExtension;
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->HubSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
+
+    Status = USBH_SyncGetPortStatus(HubExtension,
+                                    PortExtension->PortNumber,
+                                    &PortData->PortStatus,
+                                    sizeof(USBHUB_PORT_STATUS));
+
+    IoStack = Irp->Tail.Overlay.CurrentStackLocation;
+    PortStatus = IoStack->Parameters.Others.Argument1;
+
+    *PortStatus = 0;
+
+    if (PortExtension->Common.SelfDevice == PortData->DeviceObject)
+    {
+        if (PortData->PortStatus.UsbPortStatus.EnableStatus)
+        {
+            *PortStatus |= USBD_PORT_ENABLED;
+        }
+
+        if (PortData->PortStatus.UsbPortStatus.ConnectStatus)
+        {
+            *PortStatus |= USBD_PORT_CONNECTED;
+        }
+    }
+
+    KeReleaseSemaphore(&HubExtension->HubSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    USBH_CompleteIrp(Irp, Status);
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_IoctlGetNodeInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              IN PIRP Irp)
 {
@@ -904,9 +969,8 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             break;
 
         case IOCTL_INTERNAL_USB_GET_PORT_STATUS:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS. \n");
-            DbgBreakPoint();
-            break;
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS. \n");
+            return USBH_PdoIoctlGetPortStatus(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_RESET_PORT:
             DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_RESET_PORT. \n");
