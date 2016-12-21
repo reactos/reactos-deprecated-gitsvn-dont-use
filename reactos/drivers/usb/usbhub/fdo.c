@@ -569,6 +569,11 @@ QueryInterface(
     Stack->Parameters.QueryInterface.Interface = Interface;
     Stack->Parameters.QueryInterface.InterfaceSpecificData = NULL;
 
+    //
+    // Initialize the status block before sending the IRP
+    //
+    Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
+
     Status = IoCallDriver(DeviceObject, Irp);
 
     if (Status == STATUS_PENDING)
@@ -1089,8 +1094,6 @@ DestroyUsbChildDeviceObject(
     PDEVICE_OBJECT ChildDeviceObject = NULL;
     ULONG Index = 0;
 
-    DPRINT("Removing device on port %d (Child index: %d)\n", PortId, Index);
-
     for (Index = 0; Index < USB_MAXCHILDREN; Index++)
     {
         if (HubDeviceExtension->ChildDeviceObject[Index])
@@ -1114,7 +1117,10 @@ DestroyUsbChildDeviceObject(
         return STATUS_UNSUCCESSFUL;
     }
 
+    DPRINT("Removing device on port %d (Child index: %d)\n", PortId, Index);
+
     /* Remove the device from the table */
+    // is lock needed?
     HubDeviceExtension->ChildDeviceObject[Index] = NULL;
 
     /* Invalidate device relations for the root hub */
@@ -1339,6 +1345,8 @@ CreateUsbChildDeviceObject(
         goto Cleanup;
     }
 
+    UsbChildExtension->IsRemovePending = FALSE;
+
     HubDeviceExtension->ChildDeviceObject[ChildDeviceCount] = NewChildDeviceObject;
     HubDeviceExtension->InstanceCount++;
 
@@ -1384,11 +1392,13 @@ Cleanup:
 NTSTATUS
 USBHUB_FdoQueryBusRelations(
     IN PDEVICE_OBJECT DeviceObject,
+    IN PDEVICE_RELATIONS RelationsFromTop,
     OUT PDEVICE_RELATIONS* pDeviceRelations)
 {
     PHUB_DEVICE_EXTENSION HubDeviceExtension;
     PDEVICE_RELATIONS DeviceRelations;
     ULONG i;
+    ULONG ChildrenFromTop = 0;
     ULONG Children = 0;
     ULONG NeededSize;
 
@@ -1407,9 +1417,16 @@ USBHUB_FdoQueryBusRelations(
         Children++;
     }
 
-    NeededSize = sizeof(DEVICE_RELATIONS);
-    if (Children > 1)
-        NeededSize += (Children - 1) * sizeof(PDEVICE_OBJECT);
+    if (RelationsFromTop) {
+        ChildrenFromTop = RelationsFromTop->Count;
+        if (!Children) {
+            // We have nothing to add
+            *pDeviceRelations = RelationsFromTop;
+            return STATUS_SUCCESS;
+        }
+    }
+
+    NeededSize = sizeof(DEVICE_RELATIONS) + (Children + ChildrenFromTop - 1) * sizeof(PDEVICE_OBJECT);
 
     //
     // Allocate DeviceRelations
@@ -1419,8 +1436,15 @@ USBHUB_FdoQueryBusRelations(
 
     if (!DeviceRelations)
         return STATUS_INSUFFICIENT_RESOURCES;
-    DeviceRelations->Count = Children;
-    Children = 0;
+
+    DeviceRelations->Count = Children + ChildrenFromTop;
+    Children = ChildrenFromTop;
+
+    // Copy the objects coming from top
+    if (ChildrenFromTop) {
+        RtlCopyMemory(DeviceRelations->Objects, RelationsFromTop->Objects,
+                      ChildrenFromTop * sizeof(PDEVICE_OBJECT));
+    }
 
     //
     // Fill in return structure
@@ -1429,10 +1453,16 @@ USBHUB_FdoQueryBusRelations(
     {
         if (HubDeviceExtension->ChildDeviceObject[i])
         {
+            // The PnP Manager removes the reference when appropriate.
             ObReferenceObject(HubDeviceExtension->ChildDeviceObject[i]);
             HubDeviceExtension->ChildDeviceObject[i]->Flags &= ~DO_DEVICE_INITIALIZING;
             DeviceRelations->Objects[Children++] = HubDeviceExtension->ChildDeviceObject[i];
         }
+    }
+
+    // We should do this, because replaced this with our's one
+    if (RelationsFromTop) {
+        ExFreePool(RelationsFromTop);
     }
 
     ASSERT(Children == DeviceRelations->Count);
@@ -1972,7 +2002,6 @@ USBHUB_FdoHandlePnp(
 {
     PIO_STACK_LOCATION Stack;
     NTSTATUS Status = STATUS_SUCCESS;
-    ULONG_PTR Information = 0;
     PHUB_DEVICE_EXTENSION HubDeviceExtension;
 
     HubDeviceExtension = (PHUB_DEVICE_EXTENSION) DeviceObject->DeviceExtension;
@@ -1983,6 +2012,7 @@ USBHUB_FdoHandlePnp(
     {
         case IRP_MN_START_DEVICE:
         {
+            DPRINT("IRP_MN_START_DEVICE\n");
             if (USBHUB_IsRootHubFDO(DeviceObject))
             {
                 // start root hub fdo
@@ -2002,12 +2032,21 @@ USBHUB_FdoHandlePnp(
                 case BusRelations:
                 {
                     PDEVICE_RELATIONS DeviceRelations = NULL;
+                    PDEVICE_RELATIONS RelationsFromTop = (PDEVICE_RELATIONS)Irp->IoStatus.Information;
                     DPRINT("IRP_MJ_PNP / IRP_MN_QUERY_DEVICE_RELATIONS / BusRelations\n");
 
-                    Status = USBHUB_FdoQueryBusRelations(DeviceObject, &DeviceRelations);
+                    Status = USBHUB_FdoQueryBusRelations(DeviceObject, RelationsFromTop, &DeviceRelations);
 
-                    Information = (ULONG_PTR)DeviceRelations;
-                    break;
+                    if (!NT_SUCCESS(Status)) {
+                        // We should fail an IRP
+                        Irp->IoStatus.Status = Status;
+                        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+                        return Status;
+                    }
+
+                    Irp->IoStatus.Information = (ULONG_PTR)DeviceRelations;
+                    Irp->IoStatus.Status = Status;
+                    return ForwardIrpAndForget(DeviceObject, Irp);
                 }
                 case RemovalRelations:
                 {
@@ -2024,11 +2063,13 @@ USBHUB_FdoHandlePnp(
         case IRP_MN_QUERY_REMOVE_DEVICE:
         case IRP_MN_QUERY_STOP_DEVICE:
         {
+            DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             return ForwardIrpAndForget(DeviceObject, Irp);
         }
         case IRP_MN_REMOVE_DEVICE:
         {
+            DPRINT("IRP_MN_REMOVE_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
@@ -2040,17 +2081,23 @@ USBHUB_FdoHandlePnp(
         case IRP_MN_QUERY_BUS_INFORMATION:
         {
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
-            break;
+            // Function drivers and filter drivers do not handle this IRP.
+            return ForwardIrpAndForget(DeviceObject, Irp);
         }
         case IRP_MN_QUERY_ID:
         {
             DPRINT("IRP_MN_QUERY_ID\n");
-            break;
+            // Function drivers and filter drivers do not handle this IRP.
+            return ForwardIrpAndForget(DeviceObject, Irp);
         }
         case IRP_MN_QUERY_CAPABILITIES:
         {
+            //
+            // If a function or filter driver does not handle this IRP, it
+            // should pass that down.
+            //
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
-            break;
+            return ForwardIrpAndForget(DeviceObject, Irp);
         }
         default:
         {
@@ -2059,7 +2106,6 @@ USBHUB_FdoHandlePnp(
         }
     }
 
-    Irp->IoStatus.Information = Information;
     Irp->IoStatus.Status = Status;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
     return Status;
