@@ -1427,6 +1427,8 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PVOID DeviceText;
     UCHAR iProduct = 0;
     NTSTATUS Status;
+    ULONG NumSymbols;
+    ULONG Length;
 
     DPRINT("USBH_PdoQueryDeviceText ... \n");
 
@@ -1538,12 +1540,40 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         Status = STATUS_NOT_SUPPORTED;
     }
 
-    DPRINT1("USBH_PdoQueryDeviceText: GenericUSBDeviceString UNIMPLEMENTED. FIXME. \n");
-    /* HKEY_LOCAL_MACHINE\SYSTEM\ControlSetXXX\Control\UsbFlags\
-      if (GenericUSBDeviceString = 'USB Device')
-    */
+    if (GenericUSBDeviceString)
+    {
+        NumSymbols = 0;
 
-    DbgBreakPoint();
+        if (*(PWCHAR)GenericUSBDeviceString)
+        {
+            do
+            {
+                ++NumSymbols;
+            }
+            while (*((PWCHAR)GenericUSBDeviceString + NumSymbols));
+        }
+
+        Length = NumSymbols * sizeof(WCHAR) + 2;
+
+        DeviceText = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
+
+        if (DeviceText)
+        {
+            RtlZeroMemory(DeviceText, Length);
+
+            RtlCopyMemory(DeviceText,
+                          GenericUSBDeviceString,
+                          NumSymbols * sizeof(WCHAR));
+
+            Status = STATUS_SUCCESS;
+
+            Irp->IoStatus.Information = (ULONG)DeviceText;
+        }
+        else
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+        }
+    }
 
     return Status;
 }

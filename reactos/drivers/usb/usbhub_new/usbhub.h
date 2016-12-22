@@ -91,6 +91,8 @@
 #define USBHUB_FEATURE_PORT_TEST           21
 #define USBHUB_FEATURE_PORT_INDICATOR      22
 
+extern PVOID GenericUSBDeviceString;
+
 typedef union _USB_PORT_STATUS {
   struct {
     USHORT ConnectStatus          : 1; // Current Connect Status
