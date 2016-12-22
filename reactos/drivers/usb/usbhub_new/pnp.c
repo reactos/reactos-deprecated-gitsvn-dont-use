@@ -1292,9 +1292,41 @@ NTAPI
 USBH_FdoSurpriseRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              IN PIRP Irp)
 {
-    DPRINT1("USBH_FdoSurpriseRemoveDevice: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PUSBHUB_PORT_DATA PortData;
+    ULONG NumberPorts;
+    ULONG Port;
+
+    DPRINT("USBH_FdoSurpriseRemoveDevice: HubExtension - %p, Irp - %p\n",
+           HubExtension,
+           Irp);
+
+    if (!HubExtension->PortData ||
+        !HubExtension->HubDescriptor)
+    {
+        return;
+    }
+
+    if (!HubExtension->HubDescriptor->bNumberOfPorts)
+    {
+        return;
+    }
+
+    PortData = HubExtension->PortData;
+    NumberPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+
+    for (Port = 0; Port < NumberPorts; Port++)
+    {
+        if (PortData[Port].DeviceObject)
+        {
+            PortExtension = PdoExt(PortData[Port].DeviceObject);
+            PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_DELETE_PENDING;
+            PortExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
+
+            PortData[Port].DeviceObject = NULL;
+            PortData[Port].ConnectionStatus = NoDeviceConnected;
+        }
+    }
 }
 
 NTSTATUS
