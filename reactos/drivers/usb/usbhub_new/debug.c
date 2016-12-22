@@ -33,64 +33,81 @@ VOID
 NTAPI
 USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
 {
+    PUSB_COMMON_DESCRIPTOR Descriptor;
+    PUSB_CONFIGURATION_DESCRIPTOR cDescriptor;
     PUSB_INTERFACE_DESCRIPTOR iDescriptor;
-    PUSB_ENDPOINT_DESCRIPTOR Descriptor;
-    ULONG ix;
+    PUSB_ENDPOINT_DESCRIPTOR eDescriptor;
 
     if (!ConfigDescriptor)
     {
         return;
     }
 
-    DPRINT("Dumping ConfigDescriptor - %p\n", ConfigDescriptor);
-    DPRINT("bLength             - %x\n", ConfigDescriptor->bLength);
-    DPRINT("bDescriptorType     - %x\n", ConfigDescriptor->bDescriptorType);
-    DPRINT("wTotalLength        - %x\n", ConfigDescriptor->wTotalLength);
-    DPRINT("bNumInterfaces      - %x\n", ConfigDescriptor->bNumInterfaces);
-    DPRINT("bConfigurationValue - %x\n", ConfigDescriptor->bConfigurationValue);
-    DPRINT("iConfiguration      - %x\n", ConfigDescriptor->iConfiguration);
-    DPRINT("bmAttributes        - %x\n", ConfigDescriptor->bmAttributes);
-    DPRINT("MaxPower            - %x\n", ConfigDescriptor->MaxPower);
+    Descriptor = (PUSB_COMMON_DESCRIPTOR)ConfigDescriptor;
 
-    iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)((ULONG_PTR)ConfigDescriptor +
-                                                         ConfigDescriptor->bLength);
-
-    if (!iDescriptor)
+    do
     {
-        return;
-    }
+        if (((ULONG)Descriptor) >= ((ULONG)ConfigDescriptor +
+                                    ConfigDescriptor->wTotalLength))
+        {
+            break;
+        }
 
-    DPRINT("Dumping iDescriptor - %p\n", iDescriptor);
-    DPRINT("bLength             - %x\n", iDescriptor->bLength);
-    DPRINT("bDescriptorType     - %x\n", iDescriptor->bDescriptorType);
-    DPRINT("bInterfaceNumber    - %x\n", iDescriptor->bInterfaceNumber);
-    DPRINT("bAlternateSetting   - %x\n", iDescriptor->bAlternateSetting);
-    DPRINT("bNumEndpoints       - %x\n", iDescriptor->bNumEndpoints);
-    DPRINT("bInterfaceClass     - %x\n", iDescriptor->bInterfaceClass);
-    DPRINT("bInterfaceSubClass  - %x\n", iDescriptor->bInterfaceSubClass);
-    DPRINT("bInterfaceProtocol  - %x\n", iDescriptor->bInterfaceProtocol);
-    DPRINT("iInterface          - %x\n", iDescriptor->iInterface);
+        if (Descriptor->bDescriptorType == USB_CONFIGURATION_DESCRIPTOR_TYPE)
+        {
+            cDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)Descriptor;
 
-    Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)iDescriptor +
-                                                       iDescriptor->bLength);
+            DPRINT("Dumping cDescriptor - %p\n", cDescriptor);
+            DPRINT("bLength             - %x\n", cDescriptor->bLength);
+            DPRINT("bDescriptorType     - %x\n", cDescriptor->bDescriptorType);
+            DPRINT("wTotalLength        - %x\n", cDescriptor->wTotalLength);
+            DPRINT("bNumInterfaces      - %x\n", cDescriptor->bNumInterfaces);
+            DPRINT("bConfigurationValue - %x\n", cDescriptor->bConfigurationValue);
+            DPRINT("iConfiguration      - %x\n", cDescriptor->iConfiguration);
+            DPRINT("bmAttributes        - %x\n", cDescriptor->bmAttributes);
+            DPRINT("MaxPower            - %x\n", cDescriptor->MaxPower);
+        }
+        else if (Descriptor->bDescriptorType == USB_INTERFACE_DESCRIPTOR_TYPE)
+        {
+            iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)Descriptor;
 
-    if (!Descriptor)
-    {
-        return;
-    }
+            DPRINT("Dumping iDescriptor - %p\n", iDescriptor);
+            DPRINT("bLength             - %x\n", iDescriptor->bLength);
+            DPRINT("bDescriptorType     - %x\n", iDescriptor->bDescriptorType);
+            DPRINT("bInterfaceNumber    - %x\n", iDescriptor->bInterfaceNumber);
+            DPRINT("bAlternateSetting   - %x\n", iDescriptor->bAlternateSetting);
+            DPRINT("bNumEndpoints       - %x\n", iDescriptor->bNumEndpoints);
+            DPRINT("bInterfaceClass     - %x\n", iDescriptor->bInterfaceClass);
+            DPRINT("bInterfaceSubClass  - %x\n", iDescriptor->bInterfaceSubClass);
+            DPRINT("bInterfaceProtocol  - %x\n", iDescriptor->bInterfaceProtocol);
+            DPRINT("iInterface          - %x\n", iDescriptor->iInterface);
+        }
+        else if (Descriptor->bDescriptorType == USB_ENDPOINT_DESCRIPTOR_TYPE)
+        {
+            eDescriptor = (PUSB_ENDPOINT_DESCRIPTOR)Descriptor;
 
-    for (ix = 0; ix < iDescriptor->bNumEndpoints; ix++)
-    {
-        DPRINT("Dumping Descriptor  - %p\n", Descriptor);
-        DPRINT("bLength             - %x\n", Descriptor->bLength);
-        DPRINT("bDescriptorType     - %x\n", Descriptor->bDescriptorType);
-        DPRINT("bEndpointAddress    - %x\n", Descriptor->bEndpointAddress);
-        DPRINT("bmAttributes        - %x\n", Descriptor->bmAttributes);
-        DPRINT("wMaxPacketSize      - %x\n", Descriptor->wMaxPacketSize);
-        DPRINT("bInterval           - %x\n", Descriptor->bInterval);
+            DPRINT("Dumping Descriptor  - %p\n", eDescriptor);
+            DPRINT("bLength             - %x\n", eDescriptor->bLength);
+            DPRINT("bDescriptorType     - %x\n", eDescriptor->bDescriptorType);
+            DPRINT("bEndpointAddress    - %x\n", eDescriptor->bEndpointAddress);
+            DPRINT("bmAttributes        - %x\n", eDescriptor->bmAttributes);
+            DPRINT("wMaxPacketSize      - %x\n", eDescriptor->wMaxPacketSize);
+            DPRINT("bInterval           - %x\n", eDescriptor->bInterval);
+        }
+        else
+        {
+            DPRINT("bDescriptorType - %x\n", Descriptor->bDescriptorType);
+        }
 
-        Descriptor += 1;
-    }
+        if (!Descriptor->bLength) 
+        {
+            break;
+        }
+
+        Descriptor = (PUSB_COMMON_DESCRIPTOR)((ULONG)Descriptor +
+                                              Descriptor->bLength);
+
+    } while (TRUE);
 }
 
 VOID
