@@ -375,6 +375,14 @@ USBD_Initialize20Hub(IN PUSBHUB_FDO_EXTENSION HubExtension)
                            TtCount);
 }
 
+VOID
+NTAPI
+USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT1("USBH_FdoCleanup: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
 NTSTATUS
 NTAPI
 USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
@@ -1212,9 +1220,71 @@ NTAPI
 USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                      IN PIRP Irp)
 {
-    DPRINT1("USBH_FdoRemoveDevice: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSB_HUB_DESCRIPTOR HubDescriptor;
+    PUSBHUB_PORT_DATA PortData;
+    USHORT NumPorts;
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    NTSTATUS Status;
+
+    DPRINT("USBH_FdoRemoveDevice: HubExtension - %p\n", HubExtension);
+
+    PortData = HubExtension->PortData;
+
+    if (PortData)
+    {
+        HubDescriptor = HubExtension->HubDescriptor;
+
+        if (HubDescriptor)
+        {
+            if (HubDescriptor->bNumberOfPorts)
+            {
+                NumPorts = HubDescriptor->bNumberOfPorts;
+
+                do
+                {
+                   PortDevice = PortData->DeviceObject;
+
+                   if (PortDevice)
+                    {
+                        PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+                        PortData->PortStatus.AsULONG = 0;
+                        PortData->DeviceObject = NULL;
+
+                        PortExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
+
+                        USBH_PdoRemoveDevice(PortExtension, HubExtension);
+                    }
+
+                    ++PortData;
+                    --NumPorts;
+                }
+                while (NumPorts);
+            }
+        }
+    }
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
+    {
+        USBH_FdoCleanup(HubExtension);
+    }
+
+    if (HubExtension->PortData)
+    {
+        ExFreePool(HubExtension->PortData);
+        HubExtension->PortData = NULL;
+
+    }
+
+    DPRINT1("USBH_FdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
+
+    Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
+
+    IoDetachDevice(HubExtension->LowerDevice);
+    IoDeleteDevice(HubExtension->Common.SelfDevice);
+
+    return Status;
 }
 
 NTSTATUS
