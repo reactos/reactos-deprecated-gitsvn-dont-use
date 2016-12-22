@@ -1931,6 +1931,56 @@ USBH_GetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_EnableParentPort(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    PIRP Irp;
+    NTSTATUS Status;
+    KEVENT Event;
+    IO_STATUS_BLOCK IoStatusBlock;
+
+    DPRINT("USBH_EnableParentPort ... \n");
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Irp = IoBuildDeviceIoControlRequest(IOCTL_INTERNAL_USB_ENABLE_PORT,
+                                        HubExtension->LowerDevice,
+                                        NULL,
+                                        0,
+                                        NULL,
+                                        0,
+                                        TRUE,
+                                        &Event,
+                                        &IoStatusBlock);
+
+    if (Irp)
+    {
+        Status = IoCallDriver(HubExtension->LowerDevice, Irp);
+
+        if (Status == STATUS_PENDING)
+        {
+            KeWaitForSingleObject(&Event,
+                                  Suspended,
+                                  KernelMode,
+                                  FALSE,
+                                  NULL);
+        }
+        else
+        {
+            IoStatusBlock.Status = Status;
+        }
+
+        Status = IoStatusBlock.Status;
+    }
+    else
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_ResetHub(IN PUSBHUB_FDO_EXTENSION HubExtension,
               IN ULONG PortStatus)
 {
