@@ -1981,6 +1981,45 @@ USBH_EnableParentPort(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
+USBH_ResetInterruptPipe(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    struct _URB_PIPE_REQUEST * Urb;
+    NTSTATUS Status;
+
+    DPRINT("USBH_ResetInterruptPipe ... \n");
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_PIPE_REQUEST),
+                                USB_HUB_TAG);
+
+    if (Urb)
+    {
+        RtlZeroMemory(Urb, sizeof(struct _URB_PIPE_REQUEST));
+
+        Urb->Hdr.Length = sizeof(struct _URB_PIPE_REQUEST);
+        Urb->Hdr.Function = URB_FUNCTION_SYNC_RESET_PIPE_AND_CLEAR_STALL;
+        Urb->PipeHandle = HubExtension->PipeInfo.PipeHandle;
+
+        Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice,
+                                       (PURB)Urb);
+
+        ExFreePool(Urb);
+    }
+    else
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    if (NT_SUCCESS(Status))
+    {
+        HubExtension->RequestErrors = 0;
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_ResetHub(IN PUSBHUB_FDO_EXTENSION HubExtension,
               IN ULONG PortStatus)
 {
