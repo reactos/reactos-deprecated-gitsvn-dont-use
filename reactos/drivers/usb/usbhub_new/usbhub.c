@@ -279,6 +279,8 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
 
     if (HubTimeoutContext)
     {
+        RtlZeroMemory(HubTimeoutContext, sizeof(USBHUB_URB_TIMEOUT_CONTEXT));
+
         HubTimeoutContext->Irp = Irp;
         HubTimeoutContext->IsNormalCompleted = FALSE;
 
@@ -384,6 +386,8 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
         {
             return STATUS_INSUFFICIENT_RESOURCES;
         }
+
+        RtlZeroMemory(Buffer, (BufferLen + sizeof(ULONG)) & ~((sizeof(ULONG) - 1)));
     }
 
     Urb = ExAllocatePoolWithTag(NonPagedPool,
@@ -399,6 +403,8 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         return STATUS_INSUFFICIENT_RESOURCES;
     }
+
+    RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST));
 
     if (Direction)
     {
@@ -556,21 +562,20 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
         KeInitializeEvent(&Event, NotificationEvent, FALSE);
     }
 
-    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB)
+    Status = USBH_SyncGetPortStatus(HubExtension,
+                                    Port,
+                                    &PortStatus,
+                                    4);
+
+    if (!PortStatus.UsbPortStatus.ConnectStatus &&
+        NT_SUCCESS(Status) &&
+        HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB)
     {
-        Status = USBH_SyncGetPortStatus(HubExtension,
-                                        Port,
-                                        &PortStatus,
-                                        4);
-
-        if (!NT_SUCCESS(Status) && !PortStatus.UsbPortStatus.ConnectStatus)
-        {
-            USBH_Wait(10);
-            HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;
-
-            Status = STATUS_DEVICE_DATA_ERROR;
-        }
+        Status = STATUS_DEVICE_DATA_ERROR;
     }
+
+    USBH_Wait(10);
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;
 
 Exit:
 
@@ -626,6 +631,8 @@ USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
             Status = STATUS_INSUFFICIENT_RESOURCES;
             break;
         }
+
+        RtlZeroMemory(DeviceInfo, DeviceInformationBufferLength);
 
         DeviceInfo->InformationLevel = 0;
 
@@ -979,6 +986,8 @@ USBH_GetConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
         goto ErrorExit;
     }
 
+    RtlZeroMemory(ConfigDescriptor, 0xFF);
+
     Status = USBH_SyncGetDeviceConfigurationDescriptor(DeviceObject,
                                                        ConfigDescriptor,
                                                        0xFF,
@@ -1048,6 +1057,8 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
         goto ErrorExit;
     }
 
+    RtlZeroMemory(ExtendedHubInfo, sizeof(USB_EXTHUB_INFORMATION_0));
+
     Status = USBHUB_GetExtendedHubInfo(HubExtension, ExtendedHubInfo);
 
     if (!NT_SUCCESS(Status))
@@ -1066,6 +1077,8 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
         Status = STATUS_INSUFFICIENT_RESOURCES;
         goto ErrorExit;
     }
+
+    RtlZeroMemory(HubDescriptor, NumberOfBytes);
 
     RequestValue = 0;
 
@@ -1115,6 +1128,8 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
             Status = STATUS_INSUFFICIENT_RESOURCES;
             goto ErrorExit;
         }
+
+        RtlZeroMemory(HubDescriptor, NumberOfBytes);
     }
 
     NumberPorts = HubDescriptor->bNumberOfPorts;
@@ -1893,6 +1908,9 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
         goto Enum;
     }
 
+    DPRINT("USBH_ChangeIndicationWorker: RequestErrors - %x\n",
+           HubExtension->RequestErrors);
+
     if (HubExtension->LowerPDO == HubExtension->RootHubPdo)
     {
         goto Enum;
@@ -2389,6 +2407,8 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             return STATUS_INSUFFICIENT_RESOURCES;
         }
 
+        RtlZeroMemory(DeviceInfo, DeviceInfoLength);
+
         DeviceInfo->InformationLevel = 0;
 
         Status = QueryDeviceInformation(HubExtension->BusInterface.BusContext,
@@ -2421,6 +2441,8 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         {
             Status = STATUS_INSUFFICIENT_RESOURCES;
         }
+
+        RtlZeroMemory(NodeInfo, NodeInfoLength);
 
         if (NT_SUCCESS(Status))
         {
@@ -2531,6 +2553,8 @@ USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
 
             return STATUS_INSUFFICIENT_RESOURCES;
         }
+
+        RtlZeroMemory(WorkItemBuffer, BufferLength);
     }
     else
     {
@@ -3467,7 +3491,9 @@ USBH_FdoSubmitIdleRequestIrp(IN PUSBHUB_FDO_EXTENSION HubExtension)
     PIO_STACK_LOCATION IoStack;
     KIRQL Irql;
 
-    DPRINT("USBH_FdoSubmitIdleRequestIrp: ... \n");
+    DPRINT("USBH_FdoSubmitIdleRequestIrp: HubExtension - %p, PendingIdleIrp - %p\n",
+           HubExtension,
+           HubExtension->PendingIdleIrp);
 
     if (HubExtension->PendingIdleIrp)
     {
@@ -3553,7 +3579,7 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
     BOOLEAN IsHubIdle = FALSE;
     BOOLEAN IsAllPortsIdle;
 
-    DPRINT("USBH_CheckHubIdle: ... \n");
+    DPRINT("USBH_CheckHubIdle: HubExtension - %p\n", HubExtension);
 
     KeAcquireSpinLock(&HubExtension->CheckIdleSpinLock, &Irql);
 
@@ -3589,7 +3615,7 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
             !(HubFlags & USBHUB_FDO_FLAG_WAKEUP_START) &&
             !(HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING))
         {
-            if (HubExtension->ResetRequestCount > 0)
+            if (HubExtension->ResetRequestCount)
             {
                 HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
             }
@@ -3625,6 +3651,7 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
                             if (!PortExtension->IdleNotificationIrp)
                             {
+                                DPRINT("USBH_CheckHubIdle: PortExtension - %p\n", PortExtension);
                                 break;
                             }
                         }
@@ -3664,6 +3691,10 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
                                FALSE);
                 }
 
+                DPRINT("USBH_CheckHubIdle: IsAllPortsIdle - %x, IsHubIdle - %x\n",
+                       IsAllPortsIdle,
+                       IsHubIdle);
+
                 if (IsAllPortsIdle && IsHubIdle)
                 {
                     USBH_FdoSubmitIdleRequestIrp(HubExtension);
@@ -3693,7 +3724,7 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
     PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
     NTSTATUS Status;
 
-    DPRINT("USBH_CheckIdleDeferred: ... \n");
+    DPRINT("USBH_CheckIdleDeferred: HubExtension - %p\n", HubExtension);
 
     Status = USBH_AllocateWorkItem(HubExtension,
                                    &HubIoWorkItem,
@@ -3701,6 +3732,8 @@ USBH_CheckIdleDeferred(IN PUSBHUB_FDO_EXTENSION HubExtension)
                                    0,
                                    NULL,
                                    DelayedWorkQueue);
+
+    DPRINT("USBH_CheckIdleDeferred: HubIoWorkItem - %p\n", HubIoWorkItem);
 
     if (NT_SUCCESS(Status))
     {
@@ -4002,6 +4035,8 @@ USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
+    RtlZeroMemory(Descriptor, 0xFF);
+
     Status = USBH_SyncGetStringDescriptor(DeviceObject,
                                           0,
                                           0,
@@ -4069,6 +4104,8 @@ USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
     {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
+
+    RtlZeroMemory(Descriptor, 0xFF);
 
     Status = USBH_CheckDeviceLanguage(DeviceObject, LanguageId);
 
