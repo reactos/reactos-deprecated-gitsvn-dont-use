@@ -15,6 +15,35 @@ USBH_Wait(IN ULONG Milliseconds)
     return KeDelayExecutionThread(KernelMode, FALSE, &Interval);
 }
 
+NTSTATUS
+NTAPI
+USBH_GetConfigValue(IN PWSTR ValueName,
+                    IN ULONG ValueType,
+                    IN PVOID ValueData,
+                    IN ULONG ValueLength,
+                    IN PVOID Context,
+                    IN PVOID EntryContext)
+{
+    NTSTATUS Status = STATUS_SUCCESS;
+
+    DPRINT("USBPORT_GetConfigValue: ... \n");
+
+    if (ValueType == REG_BINARY)
+    {
+        *(PUCHAR)EntryContext = *(PUCHAR)ValueData;
+    }
+    else if (ValueType == REG_DWORD)
+    {
+        *(PULONG)EntryContext = *(PULONG)ValueData;
+    }
+    else
+    {
+        Status = STATUS_INVALID_PARAMETER;
+    }
+
+    return Status;
+}
+
 VOID
 NTAPI
 USBH_CompleteIrp(IN PIRP Irp,
