@@ -3,6 +3,8 @@
 //#define NDEBUG
 #include <debug.h>
 
+PVOID GenericUSBDeviceString = NULL;
+
 NTSTATUS
 NTAPI
 USBH_Wait(IN ULONG Milliseconds)
@@ -4557,6 +4559,12 @@ NTAPI
 USBH_DriverUnload(IN PDRIVER_OBJECT DriverObject)
 {
     DPRINT("USBH_DriverUnload: UNIMPLEMENTED\n");
+
+    if (GenericUSBDeviceString)
+    {
+        ExFreePool(GenericUSBDeviceString);
+        GenericUSBDeviceString = NULL;
+    }
 }
 
 NTSTATUS
@@ -4616,6 +4624,29 @@ USBH_HubDispatch(IN PDEVICE_OBJECT DeviceObject,
 
 NTSTATUS
 NTAPI
+USBH_RegQueryGenericUSBDeviceString(PVOID USBDeviceString)
+{
+    RTL_QUERY_REGISTRY_TABLE QueryTable[2];
+
+    DPRINT("USBH_RegQueryGenericUSBDeviceString ... \n");
+
+    QueryTable[0].QueryRoutine = USBH_GetConfigValue;
+    QueryTable[0].Flags = RTL_QUERY_REGISTRY_REQUIRED;
+    QueryTable[0].Name = L"GenericUSBDeviceString";
+    QueryTable[0].EntryContext = USBDeviceString;
+    QueryTable[0].DefaultType = REG_NONE;
+    QueryTable[0].DefaultData = 0;
+    QueryTable[0].DefaultLength = 0;
+
+    return RtlQueryRegistryValues(RTL_REGISTRY_CONTROL,
+                                  L"usbflags",
+                                  QueryTable,
+                                  NULL,
+                                  NULL);
+}
+
+NTSTATUS
+NTAPI
 DriverEntry(IN PDRIVER_OBJECT DriverObject,
             IN PUNICODE_STRING RegistryPath)
 {
@@ -4633,6 +4664,8 @@ DriverEntry(IN PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_PNP] = USBH_HubDispatch;
     DriverObject->MajorFunction[IRP_MJ_POWER] = USBH_HubDispatch;
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = USBH_HubDispatch;
+
+    USBH_RegQueryGenericUSBDeviceString(&GenericUSBDeviceString);
 
     return STATUS_SUCCESS;
 }
