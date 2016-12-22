@@ -365,6 +365,18 @@ USBH_PdoPower(
   IN PIRP Irp,
   IN UCHAR Minor);
 
+VOID
+NTAPI
+USBH_HubCompletePortWakeIrps(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN NTSTATUS NtStatus);
+
+VOID
+NTAPI
+USBH_HubCancelWakeIrp(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PIRP Irp);
+
 /* usbhub.c */
 
 NTSTATUS

@@ -375,12 +375,233 @@ USBD_Initialize20Hub(IN PUSBHUB_FDO_EXTENSION HubExtension)
                            TtCount);
 }
 
+NTSTATUS
+NTAPI
+USBH_AbortInterruptPipe(IN PUSBHUB_FDO_EXTENSION HubExtension)
+{
+    DPRINT1("USBH_AbortInterruptPipe: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+    return 0;
+}
+
 VOID
 NTAPI
 USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT1("USBH_FdoCleanup: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PIRP IdleIrp = NULL;
+    PIRP WakeIrp = NULL;
+    PUSBHUB_PORT_DATA PortData;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    ULONG NumberPorts;
+    ULONG Port;
+    PIRP PortIdleIrp = NULL;
+    PIRP PortWakeIrp = NULL;
+    LONG DeviceHandle;
+    NTSTATUS Status;
+    KIRQL Irql;
+
+    DPRINT("USBH_FdoCleanup: HubExtension - %p\n", HubExtension);
+
+    USBD_UnRegisterRootHubCallBack(HubExtension);
+
+    HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_STOPPING;
+
+    if (HubExtension->ResetRequestCount)
+    {
+        IoCancelIrp(HubExtension->ResetPortIrp);
+
+        KeWaitForSingleObject(&HubExtension->IdleEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    IoFreeIrp(HubExtension->ResetPortIrp);
+
+    HubExtension->ResetPortIrp = NULL;
+
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
+    {
+        KeWaitForSingleObject(&HubExtension->IdleEvent,
+                               Suspended,
+                               KernelMode,
+                               FALSE,
+                               NULL);
+    }
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    if (HubExtension->PendingWakeIrp)
+    {
+        WakeIrp = HubExtension->PendingWakeIrp;
+        HubExtension->PendingWakeIrp = NULL;
+    }
+
+    if (HubExtension->PendingIdleIrp)
+    {
+        IdleIrp = HubExtension->PendingIdleIrp;
+        HubExtension->PendingIdleIrp = NULL;
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    if (WakeIrp)
+    {
+        USBH_HubCancelWakeIrp(HubExtension, WakeIrp);
+    }
+
+    USBH_HubCompletePortWakeIrps(HubExtension, STATUS_DELETE_PENDING);
+
+    if (IdleIrp)
+    {
+        USBH_HubCancelIdleIrp(HubExtension, IdleIrp);
+    }
+
+    if (InterlockedDecrement(&HubExtension->PendingRequestCount) > 0)
+    {
+        KeWaitForSingleObject(&HubExtension->PendingRequestEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    if (HubExtension->SCEIrp)
+    {
+        Status = USBH_AbortInterruptPipe(HubExtension);
+
+        if (!NT_SUCCESS(Status) && IoCancelIrp(HubExtension->SCEIrp))
+        {
+            KeWaitForSingleObject(&HubExtension->StatusChangeEvent,
+                                  Suspended,
+                                  KernelMode,
+                                  FALSE,
+                                  NULL);
+        }
+
+        IoFreeIrp(HubExtension->SCEIrp);
+
+        HubExtension->SCEIrp = NULL;
+    }
+
+    if (!HubExtension->PortData ||
+        !HubExtension->HubDescriptor)
+    {
+        goto Exit;
+    }
+
+    if (!HubExtension->HubDescriptor->bNumberOfPorts)
+    {
+        goto Exit;
+    }
+
+    PortData = HubExtension->PortData;
+    NumberPorts = HubExtension->HubDescriptor->bNumberOfPorts;
+
+    for (Port = 0; Port < NumberPorts; Port++)
+    {
+        if (PortData[Port].DeviceObject)
+        {
+            PortExtension = PortData[Port].DeviceObject->DeviceExtension;
+
+            IoAcquireCancelSpinLock(&Irql);
+
+            PortIdleIrp = PortExtension->IdleNotificationIrp;
+
+            if (PortIdleIrp)
+            {
+                PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
+                PortExtension->IdleNotificationIrp = NULL;
+
+                if (PortIdleIrp->Cancel)
+                {
+                    PortIdleIrp = NULL;
+                }
+
+                if (PortIdleIrp)
+                {
+                    IoSetCancelRoutine(PortIdleIrp, NULL);
+                }
+            }
+
+            PortWakeIrp = PortExtension->PdoWaitWakeIrp;
+
+            if (PortWakeIrp)
+            {
+                PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_WAIT_WAKE;
+                PortExtension->PdoWaitWakeIrp = NULL;
+
+                if (PortIdleIrp->Cancel ||
+                    !IoSetCancelRoutine(PortWakeIrp, NULL))
+                {
+                    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+                    {
+                        KeSetEvent(&HubExtension->PendingRequestEvent,
+                                   EVENT_INCREMENT,
+                                   FALSE);
+                    }
+                }
+            }
+
+            IoReleaseCancelSpinLock(Irql);
+
+            if (PortIdleIrp)
+            {
+                PortIdleIrp->IoStatus.Status = STATUS_CANCELLED;
+                IoCompleteRequest(PortIdleIrp, IO_NO_INCREMENT);
+            }
+
+            if (PortWakeIrp)
+            {
+                USBH_CompletePowerIrp(HubExtension,
+                                      PortWakeIrp,
+                                      STATUS_CANCELLED);
+            }
+
+            if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D3))
+            {
+                DeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle,
+                                                   0);
+
+                if (DeviceHandle)
+                {
+                    USBD_RemoveDeviceEx(HubExtension,
+                                        (PUSB_DEVICE_HANDLE)DeviceHandle,
+                                        0);
+                }
+
+                PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_POWER_D3;
+            }
+        }
+
+        USBH_SyncDisablePort(HubExtension, Port + 1);
+    }
+
+Exit:
+
+    if (HubExtension->SCEBitmap)
+    {
+        ExFreePool(HubExtension->SCEBitmap);
+    }
+
+    if (HubExtension->HubDescriptor)
+    {
+        ExFreePool(HubExtension->HubDescriptor);
+    }
+
+    if (HubExtension->HubConfigDescriptor)
+    {
+        ExFreePool(HubExtension->HubConfigDescriptor);
+    }
+
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_DEVICE_STARTED;
+
+    HubExtension->HubDescriptor = NULL;
+    HubExtension->HubConfigDescriptor = NULL;
+
+    HubExtension->SCEIrp = NULL;
+    HubExtension->SCEBitmap = NULL;
 }
 
 NTSTATUS

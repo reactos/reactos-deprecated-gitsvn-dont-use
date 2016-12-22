@@ -30,6 +30,15 @@ USBH_CompletePowerIrp(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 VOID
 NTAPI
+USBH_HubCancelWakeIrp(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                      IN PIRP Irp)
+{
+    DPRINT1("USBH_HubCancelWakeIrp: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
+VOID
+NTAPI
 USBH_HubESDRecoverySetD3Completion(IN PDEVICE_OBJECT DeviceObject,
                                    IN UCHAR MinorFunction,
                                    IN POWER_STATE PowerState,
