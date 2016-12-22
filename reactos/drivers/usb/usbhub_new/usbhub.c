@@ -1872,6 +1872,35 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 }
 
+NTSTATUS
+NTAPI
+USBH_ResetHub(IN PUSBHUB_FDO_EXTENSION HubExtension,
+              IN ULONG PortStatus)
+{
+    NTSTATUS Status;
+
+    DPRINT("USBH_ResetHub: ... \n");
+
+    Status = USBH_GetPortStatus(HubExtension, &PortStatus);
+
+    if (!NT_SUCCESS(Status))
+    {
+        return Status;
+    }
+
+    if (!(PortStatus & USBD_PORT_ENABLED))
+    {
+        if (PortStatus & USBD_PORT_CONNECTED)
+        {
+            USBH_EnableParentPort(HubExtension);
+        }
+    }
+
+    Status = USBH_ResetInterruptPipe(HubExtension);
+
+    return Status;
+}
+
 VOID
 NTAPI
 USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
@@ -1960,8 +1989,8 @@ Enum:
 
     if (WorkItem->RequestErrors & 1)
     {
-        DPRINT1("USBH_ChangeIndicationWorker: USBH_ResetHub() UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
+        ULONG PortStatusFlags = 0x200;
+        USBH_ResetHub(HubExtension, PortStatusFlags);
     }
     else
     {
