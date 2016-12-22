@@ -1874,6 +1874,63 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 NTSTATUS
 NTAPI
+USBH_GetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                   IN PULONG PortStatus)
+{
+    PIRP Irp;
+    PIO_STACK_LOCATION IoStack;
+    NTSTATUS Status;
+    KEVENT Event;
+    IO_STATUS_BLOCK IoStatusBlock;
+
+    DPRINT("USBH_GetPortStatus ... \n");
+
+    *PortStatus = 0;
+
+    KeInitializeEvent(&Event, NotificationEvent, FALSE);
+
+    Irp = IoBuildDeviceIoControlRequest(IOCTL_INTERNAL_USB_GET_PORT_STATUS,
+                                        HubExtension->LowerDevice,
+                                        NULL,
+                                        0,
+                                        NULL,
+                                        0,
+                                        TRUE,
+                                        &Event,
+                                        &IoStatusBlock);
+
+    if (Irp)
+    {
+        IoStack = IoGetNextIrpStackLocation(Irp);
+        IoStack->Parameters.Others.Argument1 = PortStatus;
+
+        Status = IoCallDriver(HubExtension->LowerDevice, Irp);
+
+        if (Status == STATUS_PENDING)
+        {
+            KeWaitForSingleObject(&Event,
+                                  Suspended,
+                                  KernelMode,
+                                  FALSE,
+                                  NULL);
+        }
+        else
+        {
+            IoStatusBlock.Status = Status;
+        }
+
+        Status = IoStatusBlock.Status;
+    }
+    else
+    {
+        Status = STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_ResetHub(IN PUSBHUB_FDO_EXTENSION HubExtension,
               IN ULONG PortStatus)
 {
