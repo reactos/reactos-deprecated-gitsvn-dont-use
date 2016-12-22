@@ -293,6 +293,87 @@ USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     return Status;
 }
 
+VOID
+NTAPI
+USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
+                                       IN PIRP Irp)
+{
+    DPRINT1("USBH_PortIdleNotificationCancelRoutine: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
+NTSTATUS
+NTAPI
+USBH_PortIdleNotificationRequest(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                                 IN PIRP Irp)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PIO_STACK_LOCATION IoStack;
+    PUSB_IDLE_CALLBACK_INFO IdleCallbackInfo;
+    NTSTATUS Status;
+    KIRQL Irql;
+
+    DPRINT("USBH_PortIdleNotificationRequest ... \n");
+
+    HubExtension = PortExtension->HubExtension;
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    if (PortExtension->IdleNotificationIrp)
+    {
+        IoReleaseCancelSpinLock(Irql);
+        Irp->IoStatus.Status = STATUS_DEVICE_BUSY;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+        return STATUS_DEVICE_BUSY;
+    }
+
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    IdleCallbackInfo = (PUSB_IDLE_CALLBACK_INFO)IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+
+    if (!IdleCallbackInfo || !IdleCallbackInfo->IdleCallback)
+    {
+        IoReleaseCancelSpinLock(Irql);
+
+        Status = STATUS_NO_CALLBACK_ACTIVE;
+        Irp->IoStatus.Status = Status;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+        return Status;
+    }
+
+    IoSetCancelRoutine(Irp, USBH_PortIdleNotificationCancelRoutine);
+
+    if (Irp->Cancel)
+    {
+        if (IoSetCancelRoutine(Irp, NULL))
+        {
+            IoReleaseCancelSpinLock(Irql);
+            Status = STATUS_CANCELLED;
+            Irp->IoStatus.Status = STATUS_CANCELLED;
+            IoCompleteRequest(Irp, IO_NO_INCREMENT);
+        }
+        else
+        {
+            IoMarkIrpPending(Irp);
+            IoReleaseCancelSpinLock(Irql);
+            Status = STATUS_PENDING;
+        }
+    }
+    else
+    {
+        PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
+        PortExtension->IdleNotificationIrp = Irp;
+        IoMarkIrpPending(Irp);
+        IoReleaseCancelSpinLock(Irql);
+        Status = STATUS_PENDING;
+
+        DbgBreakPoint();
+        USBH_CheckIdleDeferred(HubExtension);
+    }
+
+    return Status;
+}
+
 NTSTATUS
 NTAPI
 USBH_IoctlGetNodeInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
@@ -965,8 +1046,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
             DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION. \n");
-            DbgBreakPoint();
-            break;
+            return USBH_PortIdleNotificationRequest(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_GET_PORT_STATUS:
             DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS. \n");
