@@ -379,9 +379,41 @@ NTSTATUS
 NTAPI
 USBH_AbortInterruptPipe(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    DPRINT1("USBH_AbortInterruptPipe: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    struct _URB_PIPE_REQUEST * Urb;
+    NTSTATUS Status;
+
+    DPRINT("USBH_AbortInterruptPipe: HubExtension - %p\n", HubExtension);
+
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_PIPE_REQUEST),
+                                USB_HUB_TAG);
+
+    if (!Urb)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(Urb, sizeof(struct _URB_PIPE_REQUEST));
+
+    Urb->Hdr.Length = sizeof(struct _URB_PIPE_REQUEST);
+    Urb->Hdr.Function = URB_FUNCTION_ABORT_PIPE;
+    Urb->PipeHandle = HubExtension->PipeInfo.PipeHandle;
+
+    Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice,
+                                   (PURB)Urb);
+
+    if (NT_SUCCESS(Status))
+    {
+        KeWaitForSingleObject(&HubExtension->StatusChangeEvent,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+    }
+
+    ExFreePool(Urb);
+
+    return Status;
 }
 
 VOID
