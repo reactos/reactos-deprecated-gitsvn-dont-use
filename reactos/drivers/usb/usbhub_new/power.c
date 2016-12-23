@@ -33,8 +33,18 @@ NTAPI
 USBH_HubCancelWakeIrp(IN PUSBHUB_FDO_EXTENSION HubExtension,
                       IN PIRP Irp)
 {
-    DPRINT1("USBH_HubCancelWakeIrp: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    DPRINT("USBH_HubCancelWakeIrp: HubExtension - %p, Irp - %p\n",
+           HubExtension,
+           Irp);
+
+    IoCancelIrp(Irp);
+
+    if (InterlockedExchange((PLONG)&HubExtension->FdoWaitWakeLock, 1))
+    {
+        PoStartNextPowerIrp(Irp);
+        Irp->IoStatus.Status = STATUS_CANCELLED;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    }
 }
 
 VOID
