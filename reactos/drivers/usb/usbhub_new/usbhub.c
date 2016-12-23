@@ -4059,7 +4059,8 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
          PortExtension->DeviceDescriptor.bDeviceSubClass == 2 &&
          PortExtension->DeviceDescriptor.bDeviceProtocol == 1))
     {
-        DbgBreakPoint();
+        DPRINT("USBH_ProcessDeviceInformation: Multi-Interface configuration\n");
+        //DbgBreakPoint();
 
         PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_MULTI_INTERFACE;
 

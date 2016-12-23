@@ -1,6 +1,6 @@
 #include "usbhub.h"
 
-#define NDEBUG
+//#define NDEBUG
 #include <debug.h>
 
 NTSTATUS
@@ -73,7 +73,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
     PUSBHUB_FDO_EXTENSION HubExtension;
-    PDEVICE_OBJECT DeviceObject;
+    //PDEVICE_OBJECT DeviceObject;
     PIO_STACK_LOCATION IoStack;
     PURB Urb;
     USHORT Function;
@@ -82,15 +82,15 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     BOOLEAN IsValidConfig;
 
     HubExtension = PortExtension->HubExtension;
-    DeviceObject = PortExtension->Common.SelfDevice;
+    //DeviceObject = PortExtension->Common.SelfDevice;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Urb = (PURB)IoStack->Parameters.Others.Argument1;
 
-    DPRINT("USBH_PdoUrbFilter: Device - %p, Irp - %p, Urb - %p\n",
-           DeviceObject,
-           Irp,
-           Urb);
+    //DPRINT("USBH_PdoUrbFilter: Device - %p, Irp - %p, Urb - %p\n",
+    //       DeviceObject,
+    //       Irp,
+    //       Urb);
 
     if (PortExtension->PortPdoFlags & (USBHUB_PDO_FLAG_PORT_RESTORE_FAIL |
                                        USBHUB_PDO_FLAG_PORT_RESSETING))
@@ -191,7 +191,8 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     else
     {
         DPRINT1("USBH_PdoUrbFilter: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
+        //DbgBreakPoint();
+
         USBH_CompleteIrp(Irp, STATUS_NOT_IMPLEMENTED);
         return STATUS_NOT_IMPLEMENTED;
     }
@@ -207,7 +208,7 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PURB Urb;
     NTSTATUS Status;
 
-    DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
+    //DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
 
     HubExtension = (PUSBHUB_FDO_EXTENSION)PortExtension->HubExtension;
     IoStack = Irp->Tail.Overlay.CurrentStackLocation;
@@ -408,12 +409,17 @@ USBH_PortIdleNotificationRequest(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     else
     {
         PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
+
         PortExtension->IdleNotificationIrp = Irp;
         IoMarkIrpPending(Irp);
+
         IoReleaseCancelSpinLock(Irql);
         Status = STATUS_PENDING;
 
-        DbgBreakPoint();
+        DPRINT("USBH_PortIdleNotificationRequest: IdleNotificationIrp - %p\n",
+               PortExtension->IdleNotificationIrp);
+        //DbgBreakPoint();
+
         USBH_CheckIdleDeferred(HubExtension);
     }
 
@@ -1052,9 +1058,9 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PIO_STACK_LOCATION IoStack;
     PULONG HubCount;
 
-    DPRINT("USBH_PdoInternalControl: PortExtension - %p, Irp - %p\n",
-           PortExtension,
-           Irp);
+    //DPRINT("USBH_PdoInternalControl: PortExtension - %p, Irp - %p\n",
+    //       PortExtension,
+    //       Irp);
 
     HubExtension = PortExtension->HubExtension;
 
@@ -1072,7 +1078,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
-    DPRINT("USBH_PdoInternalControl: ControlCode - %p\n", ControlCode);
+    //DPRINT("USBH_PdoInternalControl: ControlCode - %p\n", ControlCode);
 
     if (ControlCode == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
     {
@@ -1089,7 +1095,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     switch (ControlCode)
     {
         case IOCTL_INTERNAL_USB_SUBMIT_URB:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_URB. \n");
+            //DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_URB. \n");
             return USBH_PdoIoctlSubmitUrb(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:

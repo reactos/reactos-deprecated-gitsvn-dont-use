@@ -1540,7 +1540,7 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     return Status;
 }
 
-NTSTATUS
+VOID
 NTAPI
 USBH_FdoSurpriseRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                              IN PIRP Irp)
