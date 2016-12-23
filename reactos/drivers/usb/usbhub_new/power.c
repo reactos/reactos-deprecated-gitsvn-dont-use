@@ -125,8 +125,24 @@ NTAPI
 USBH_IdleCancelPowerHubWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                               IN PVOID Context)
 {
-    DPRINT1("USBH_IdleCancelPowerHubWorker: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_IDLE_PORT_CANCEL_CONTEXT WorkItemIdlePower;
+    PIRP Irp;
+
+    DPRINT("USBH_IdleCancelPowerHubWorker: ... \n");
+
+    WorkItemIdlePower = (PUSBHUB_IDLE_PORT_CANCEL_CONTEXT)Context;
+
+    if (HubExtension &&
+        HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0 &&
+        HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
+    {
+        USBH_HubSetD0(HubExtension);
+    }
+
+    Irp = WorkItemIdlePower->Irp;
+    Irp->IoStatus.Status = STATUS_CANCELLED;
+
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
 }
 
 VOID
