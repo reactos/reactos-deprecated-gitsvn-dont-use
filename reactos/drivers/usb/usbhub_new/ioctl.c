@@ -298,8 +298,54 @@ NTAPI
 USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
                                        IN PIRP Irp)
 {
-    DPRINT1("USBH_PortIdleNotificationCancelRoutine: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PIRP PendingIdleIrp = NULL;
+    PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
+    PUSBHUB_IDLE_PORT_CANCEL_CONTEXT HubWorkItemBuffer;
+    NTSTATUS Status;
+
+    DPRINT("USBH_PortIdleNotificationCancelRoutine ... \n");
+
+    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)Device->DeviceExtension;
+    PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
+
+    HubExtension = PortExtension->HubExtension;
+
+    PortExtension->IdleNotificationIrp = NULL;
+
+    if (HubExtension &&
+        HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
+    {
+        PendingIdleIrp = HubExtension->PendingIdleIrp;
+        HubExtension->PendingIdleIrp = NULL;
+    }
+
+    IoReleaseCancelSpinLock(Irp->CancelIrql);
+
+    if (PendingIdleIrp)
+    {
+        USBH_HubCancelIdleIrp(HubExtension, PendingIdleIrp);
+    }
+
+    Status = USBH_AllocateWorkItem(HubExtension,
+                                   &HubIoWorkItem, 
+                                   USBH_IdleCancelPowerHubWorker,
+                                   sizeof(USBHUB_IDLE_PORT_CANCEL_CONTEXT),
+                                   (PVOID *)&HubWorkItemBuffer,
+                                   DelayedWorkQueue);
+
+    if (HubExtension->CurrentPowerState.DeviceState == PowerDeviceD0 ||
+        !NT_SUCCESS(Status))
+    {
+        Irp->IoStatus.Status = STATUS_CANCELLED;
+        IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    }
+    else
+    {
+        HubWorkItemBuffer->Irp = Irp;
+        USBH_QueueWorkItem(HubExtension, HubIoWorkItem);
+    }
 }
 
 NTSTATUS

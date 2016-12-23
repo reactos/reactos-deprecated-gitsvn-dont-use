@@ -122,6 +122,15 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 VOID
 NTAPI
+USBH_IdleCancelPowerHubWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                              IN PVOID Context)
+{
+    DPRINT1("USBH_IdleCancelPowerHubWorker: UNIMPLEMENTED. FIXME. \n");
+    DbgBreakPoint();
+}
+
+VOID
+NTAPI
 USBH_HubQueuePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                           IN PLIST_ENTRY ListIrps)
 {

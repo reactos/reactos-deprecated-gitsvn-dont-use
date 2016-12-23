@@ -283,6 +283,11 @@ typedef struct _USBHUB_IDLE_PORT_CONTEXT {
   NTSTATUS Status;
 } USBHUB_IDLE_PORT_CONTEXT, *PUSBHUB_IDLE_PORT_CONTEXT;
 
+typedef struct _USBHUB_IDLE_PORT_CANCEL_CONTEXT {
+  ULONG Reserved;
+  PIRP Irp;
+} USBHUB_IDLE_PORT_CANCEL_CONTEXT, *PUSBHUB_IDLE_PORT_CANCEL_CONTEXT;
+
 /* debug.c */
 
 VOID
@@ -376,6 +381,12 @@ NTAPI
 USBH_HubCancelWakeIrp(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   IN PIRP Irp);
+
+VOID
+NTAPI
+USBH_IdleCancelPowerHubWorker(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN PVOID Context);
 
 /* usbhub.c */
 
