@@ -1655,10 +1655,10 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
     DPRINT("USBH_ChangeIndicationProcessChange: PortStatus - %p\n",
            HubExtension->PortStatus.AsULONG);
 
-    if ( (NT_SUCCESS(Irp->IoStatus.Status) ||
+    if ((NT_SUCCESS(Irp->IoStatus.Status) ||
         USBD_SUCCESS(HubExtension->SCEWorkerUrb.Hdr.Status)) &&
         (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange ||
-         HubExtension->PortStatus.UsbPortStatusChange.EnableStatusChange) )
+         HubExtension->PortStatus.UsbPortStatusChange.EnableStatusChange))
     {
         if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
         {
