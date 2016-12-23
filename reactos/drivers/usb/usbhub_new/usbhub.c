@@ -1064,6 +1064,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
     if (!NT_SUCCESS(Status))
     {
         ExFreePool(ExtendedHubInfo);
+        ExtendedHubInfo = NULL;
     }
 
     NumberOfBytes = sizeof(USB_HUB_DESCRIPTOR);
