@@ -110,6 +110,127 @@ USBPORT_RemoveUSBxFdo(IN PDEVICE_OBJECT FdoDevice)
     FdoExtension->ControllerLink.Blink = NULL;
 }
 
+PDEVICE_RELATIONS
+NTAPI
+USBPORT_FindCompanionControllers(IN PDEVICE_OBJECT USB2FdoDevice,
+                                 IN BOOLEAN IsObRefer,
+                                 IN BOOLEAN IsFDOsReturned)
+{
+    PLIST_ENTRY USB1FdoList;
+    PUSBPORT_DEVICE_EXTENSION USB1FdoExtension;
+    ULONG NumControllers = 0; 
+    PDEVICE_OBJECT * Entry;
+    PDEVICE_RELATIONS ControllersList = NULL;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_FindCompanionControllers: USB2Fdo - %p, IsObRefer - %x, IsFDOs - %x\n",
+           USB2FdoDevice,
+           IsObRefer,
+           IsFDOsReturned);
+
+    KeAcquireSpinLock(&USBPORT_SpinLock, &OldIrql);
+
+    USB1FdoList = USBPORT_USB1FdoList.Flink;
+
+    if (!IsListEmpty(&USBPORT_USB1FdoList) && USBPORT_USB1FdoList.Flink)
+    {
+        do
+        {
+            if (USB1FdoList == &USBPORT_USB1FdoList)
+            {
+                break;
+            }
+
+            USB1FdoExtension = CONTAINING_RECORD(USB1FdoList,
+                                                 USBPORT_DEVICE_EXTENSION,
+                                                 ControllerLink);
+
+            if (USB1FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC &&
+                USBPORT_IsCompanionFdoExtension(USB2FdoDevice, USB1FdoExtension))
+            {
+                ++NumControllers;
+            }
+
+            USB1FdoList = USB1FdoExtension->ControllerLink.Flink;
+        }
+        while (USB1FdoList);
+    }
+
+    DPRINT("USBPORT_FindCompanionControllers: NumControllers - %x\n",
+           NumControllers);
+
+    if (!NumControllers)
+    {
+        goto Exit;
+    }
+
+    ControllersList = ExAllocatePoolWithTag(NonPagedPool,
+                                            NumControllers * sizeof(DEVICE_RELATIONS),
+                                            USB_PORT_TAG);
+
+    if (!ControllersList)
+    {
+        goto Exit;
+    }
+
+    RtlZeroMemory(ControllersList, NumControllers * sizeof(DEVICE_RELATIONS));
+
+    ControllersList->Count = NumControllers;
+
+    if (IsListEmpty(&USBPORT_USB1FdoList))
+    {
+        goto Exit;
+    }
+
+    USB1FdoList = USBPORT_USB1FdoList.Flink;
+
+    if (USBPORT_USB1FdoList.Flink == NULL)
+    {
+        goto Exit;
+    }
+
+    Entry = &ControllersList->Objects[0];
+
+    do
+    {
+        if (USB1FdoList == &USBPORT_USB1FdoList)
+        {
+            break;
+        }
+
+        USB1FdoExtension = CONTAINING_RECORD(USB1FdoList,
+                                             USBPORT_DEVICE_EXTENSION,
+                                             ControllerLink);
+
+        if (USB1FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC &&
+            USBPORT_IsCompanionFdoExtension(USB2FdoDevice, USB1FdoExtension))
+        {
+            *Entry = USB1FdoExtension->CommonExtension.LowerPdoDevice;
+
+            if (IsObRefer)
+            {
+                ObReferenceObject(USB1FdoExtension->CommonExtension.LowerPdoDevice);
+            }
+
+            if (IsFDOsReturned)
+            {
+                *Entry = USB1FdoExtension->CommonExtension.SelfDevice;
+            }
+
+            ++Entry;
+        }
+
+        USB1FdoList = USB1FdoExtension->ControllerLink.Flink;
+    }
+    while (USB1FdoList);
+
+Exit:
+
+    KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
+
+    return ControllersList;
+}
+
 MPSTATUS
 NTAPI
 USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
