@@ -437,7 +437,7 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
     ULONG NumPorts;
     ULONG ix;
     PUSB_EXTHUB_INFORMATION_0 HubInfoBuffer;
-    ULONG PortStatus;
+    ULONG PortStatus = 0;
     ULONG PortAttrX;
 
     DPRINT("USBHI_GetExtendedHubInformation: ... \n");
@@ -489,31 +489,35 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
 
             if (PortStatus & 0x8000)
             {
-                HubInfoBuffer->Port[ix].PortAttributes |= USB_PORTATTR_NO_CONNECTOR;
+                HubInfoBuffer->Port[ix].PortAttributes |= USB_PORTATTR_OWNED_BY_CC;
             }
         }
         else
         {
             if (!(FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC))
+            {
                 continue;
+            }
 
             if (USBPORT_FindUSB2Controller(FdoDevice))
             {
-                HubInfoBuffer->Port[ix].PortAttributes |= USB_PORTATTR_SHARED_USB2;
+                HubInfoBuffer->Port[ix].PortAttributes |= USB_PORTATTR_NO_OVERCURRENT_UI;
             }
         }
     }
 
-    USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
-                                        FdoExtension->CommonExtension.LowerPdoDevice,
-                                        0,
-                                        L"PortAttrX",
-                                        128,
-                                        &PortAttrX,
-                                        sizeof(PortAttrX));
-
     for (ix = 1; ix <= HubInfoBuffer->NumberOfPorts; ++ix)
     {
+        PortAttrX = 0;
+
+        USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
+                                            FdoExtension->CommonExtension.LowerPdoDevice,
+                                            0,
+                                            L"PortAttrX",
+                                            128,
+                                            &PortAttrX,
+                                            sizeof(PortAttrX));
+
         HubInfoBuffer->Port[ix].PortAttributes |= PortAttrX;
     }
 
