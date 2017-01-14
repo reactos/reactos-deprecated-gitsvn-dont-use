@@ -1477,6 +1477,89 @@ USBPORT_CreateWorkerThread(IN PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
+USBPORT_SynchronizeControllersStart(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PDEVICE_OBJECT USB2FdoDevice = NULL;
+    PUSBPORT_DEVICE_EXTENSION USB2FdoExtension;
+    BOOLEAN IsOn; 
+
+    DPRINT_TIMER("USBPORT_SynchronizeControllersStart: FdoDevice - %p\n",
+                 FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    PdoDevice = FdoExtension->RootHubPdo;
+
+    if (!PdoDevice)
+    {
+        return;
+    }
+
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+    if (PdoExtension->RootHubInitCallback == NULL ||
+        FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK)
+    {
+        return;
+    }
+
+    DPRINT_TIMER("USBPORT_SynchronizeControllersStart: Flags - %p\n",
+                 FdoExtension->Flags);
+
+    if (FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC)
+    {
+        IsOn = FALSE;
+
+        USB2FdoDevice = USBPORT_FindUSB2Controller(FdoDevice);
+
+        DPRINT_TIMER("USBPORT_SynchronizeControllersStart: USB2FdoDevice - %p\n",
+                     USB2FdoDevice);
+
+        if (USB2FdoDevice)
+        {
+            USB2FdoExtension = (PUSBPORT_DEVICE_EXTENSION)USB2FdoDevice->DeviceExtension;
+
+            if (USB2FdoExtension->CommonExtension.PnpStateFlags & 2)
+            {
+                IsOn = TRUE;
+            }
+        }
+
+        if (!(FdoExtension->Flags & USBPORT_FLAG_NO_HACTION))
+        {
+            goto Start;
+        }
+
+        USB2FdoDevice = NULL;
+    }
+
+    IsOn = TRUE;
+
+  Start:
+
+    if (IsOn &&
+        !InterlockedCompareExchange(&FdoExtension->RHInitCallBackLock, 1, 0))
+    {
+        FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
+        USBPORT_SignalWorkerThread(FdoDevice);
+
+        if (USB2FdoDevice)
+        {
+            USB2FdoExtension = (PUSBPORT_DEVICE_EXTENSION)USB2FdoDevice->DeviceExtension;
+
+            USB2FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
+            USBPORT_SignalWorkerThread(USB2FdoDevice);
+        }
+    }
+
+    DPRINT_TIMER("USBPORT_SynchronizeControllersStart: exit\n");
+}
+
+VOID
+NTAPI
 USBPORT_TimerDpc(IN PRKDPC Dpc,
                  IN PVOID DeferredContext,
                  IN PVOID SystemArgument1,
