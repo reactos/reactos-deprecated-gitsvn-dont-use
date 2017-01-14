@@ -51,9 +51,13 @@ NTAPI
 USBH_CompleteIrp(IN PIRP Irp,
                  IN NTSTATUS CompleteStatus)
 {
-    DPRINT("USBH_CompleteIrp: Irp - %p, CompleteStatus - %x\n",
-           Irp,
-           CompleteStatus);
+    if (CompleteStatus != STATUS_SUCCESS)
+    {
+        //DbgBreakPoint();
+        DPRINT1("USBH_CompleteIrp: Irp - %p, CompleteStatus - %x\n",
+                Irp,
+                CompleteStatus);
+    }
 
     Irp->IoStatus.Status = CompleteStatus;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
@@ -1689,6 +1693,15 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
     else
     {
         WorkItem = HubExtension->WorkItemToQueue;
+
+        if (!HubExtension->WorkItemToQueue)
+        {
+            DPRINT1("USBH_ChangeIndicationProcessChange: WorkItem == NULL \n");
+            KeBugCheckEx(0xFE, 0xC1, 0, 0, 0);
+            //DbgBreakPoint();
+            return STATUS_MORE_PROCESSING_REQUIRED;
+        }
+
         HubExtension->WorkItemToQueue = NULL;
 
         USBH_QueueWorkItem(HubExtension, WorkItem);
@@ -1716,11 +1729,21 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     if (!Port)
     {
         WorkItem = HubExtension->WorkItemToQueue;
-        HubExtension->WorkItemToQueue = NULL;
+        if (!HubExtension->WorkItemToQueue)
+        {
+            DPRINT1("USBH_ChangeIndicationProcessChange: WorkItem == NULL \n");
+            KeBugCheckEx(0xFE, 0xC2, 0, 0, 0);
+            //DbgBreakPoint();
+            return STATUS_MORE_PROCESSING_REQUIRED;
+        }
+        else
+        {
+            HubExtension->WorkItemToQueue = NULL;
 
-        USBH_QueueWorkItem(HubExtension, WorkItem);
+            USBH_QueueWorkItem(HubExtension, WorkItem);
 
-        Status = STATUS_SUCCESS;
+            Status = STATUS_SUCCESS;
+        }
     }
 
     Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
@@ -2248,10 +2271,9 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
            UrbStatus,
            HubExtension->HubFlags);
 
-    if ((Irp->IoStatus.Status & 0xC0000000) == 0xC0000000 ||
-       USBD_ERROR(UrbStatus) ||
+    if (NT_ERROR(Irp->IoStatus.Status) || USBD_ERROR(UrbStatus) ||
        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) ||
-       (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) )
+       (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING))
     {
         ++HubExtension->RequestErrors;
 
@@ -2344,7 +2366,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
                                               &HubExtension->SCEWorkerUrb,
                                               Port);
 
-    if ((Status & 0xC0000000) == 0xC0000000)
+    if (NT_ERROR(Status))
     {
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
     }
@@ -2361,10 +2383,14 @@ USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
     struct _URB_BULK_OR_INTERRUPT_TRANSFER * Urb;
     PIO_STACK_LOCATION IoStack;
 
-    DPRINT("USBH_SubmitStatusChangeTransfer ... \n");
+    DPRINT("USBH_SubmitStatusChangeTransfer: HubExtension - %p, SCEIrp - %p\n",
+           HubExtension,
+           HubExtension->SCEIrp);
 
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_NOT_D0_STATE)
     {
+        DPRINT("USBH_SubmitStatusChangeTransfer: USBHUB_FDO_FLAG_NOT_D0_STATE - FALSE\n");
+        DPRINT("USBH_SubmitStatusChangeTransfer: HubFlags - %p\n", HubExtension->HubFlags);
         return STATUS_INVALID_DEVICE_STATE;
     }
 
