@@ -294,6 +294,77 @@ USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     return Status;
 }
 
+VOID
+NTAPI
+USBH_ResetPortWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                     IN PVOID Context)
+{
+    PUSBHUB_RESET_PORT_CONTEXT WorkItemReset;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    PUSB_DEVICE_HANDLE DeviceHandle;
+    NTSTATUS Status;
+    USHORT Port;
+
+    DPRINT("USBH_ResetPortWorker ... \n");
+
+    WorkItemReset = (PUSBHUB_RESET_PORT_CONTEXT)Context;
+
+    PortExtension = WorkItemReset->PortExtension;
+
+    if (!HubExtension)
+    {
+        Status = STATUS_UNSUCCESSFUL;
+        goto Exit;
+    }
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->HubSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    Port = PortExtension->PortNumber;
+
+    if (PortExtension->Common.SelfDevice == HubExtension->PortData[Port-1].DeviceObject &&
+        (DeviceHandle = PortExtension->DeviceHandle) != 0)
+    {
+        USBD_RemoveDeviceEx(HubExtension,
+                            DeviceHandle,
+                            USBD_MARK_DEVICE_BUSY);
+
+       Status = USBH_ResetDevice(HubExtension,
+                                 Port,
+                                 1,
+                                 0);
+    }
+    else
+    {
+        Status = STATUS_INVALID_PARAMETER;
+    }
+
+    KeReleaseSemaphore(&HubExtension->HubSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+Exit:
+
+    PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_PORT_RESSETING;
+
+    USBH_CompleteIrp(WorkItemReset->Irp, Status);
+
+    WorkItemReset->PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_PORT_RESTORE_FAIL;
+}
+
 NTSTATUS
 NTAPI
 USBH_PdoIoctlResetPort(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
