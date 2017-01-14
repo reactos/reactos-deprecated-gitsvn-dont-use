@@ -294,6 +294,55 @@ USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     return Status;
 }
 
+NTSTATUS
+NTAPI
+USBH_PdoIoctlResetPort(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
+                       IN PIRP Irp)
+{
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PUSBHUB_RESET_PORT_CONTEXT HubWorkItemBuffer;
+    PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
+    NTSTATUS Status;
+
+    HubExtension = PortExtension->HubExtension;
+
+    DPRINT("USBH_PdoIoctlResetPort ... \n");
+
+    if (PortExtension->PortPdoFlags & (USBHUB_PDO_FLAG_PORT_RESSETING |
+                                       0x08000000))
+    {
+        Status = STATUS_UNSUCCESSFUL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    Status = USBH_AllocateWorkItem(HubExtension,
+                                   &HubIoWorkItem,
+                                   USBH_ResetPortWorker,
+                                   sizeof(USBHUB_RESET_PORT_CONTEXT),
+                                   (PVOID *)&HubWorkItemBuffer,
+                                   DelayedWorkQueue);
+
+    if (!NT_SUCCESS(Status))
+    {
+        Status = STATUS_UNSUCCESSFUL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
+    }
+
+    PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_PORT_RESSETING;
+    IoMarkIrpPending(Irp);
+
+    HubWorkItemBuffer->PortExtension = PortExtension;
+    HubWorkItemBuffer->Irp = Irp;
+
+    Status = STATUS_PENDING;
+
+    USBH_QueueWorkItem(PortExtension->HubExtension, HubIoWorkItem);
+
+    return Status;
+}
+
 VOID
 NTAPI
 USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
@@ -1241,8 +1290,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         case IOCTL_INTERNAL_USB_RESET_PORT:
             DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_RESET_PORT. \n");
-            DbgBreakPoint();
-            break;
+            return USBH_PdoIoctlResetPort(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_ENABLE_PORT:
             DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_ENABLE_PORT. \n");
