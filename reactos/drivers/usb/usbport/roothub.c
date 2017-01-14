@@ -929,3 +929,118 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
     return 0;
 }
+
+VOID
+NTAPI
+USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    USBPORT_ROOT_HUB_DATA RootHubData;
+    ULONG Port;
+    PDEVICE_RELATIONS CompanionControllersList;
+    PUSBPORT_DEVICE_EXTENSION CompanionFdoExtension;
+    PUSBPORT_REGISTRATION_PACKET CompanionPacket;
+    ULONG CompanionPorts;
+    ULONG NumController;
+    PDEVICE_OBJECT * Entry;
+    ULONG NumPorts;
+
+    DPRINT("USBPORT_RootHub_PowerAndChirpAllCcPorts: FdoDevice - %p\n",
+           FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+    RtlZeroMemory(&RootHubData, sizeof(RootHubData));
+
+    Packet->RH_GetRootHubData(FdoExtension->MiniPortExt,
+                              &RootHubData);
+
+    NumPorts = RootHubData.NumberOfPorts;
+
+    if (NumPorts)
+    {
+        Port = 1;
+
+        do
+        {
+            Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
+                                           Port);
+            ++Port;
+        }
+        while (Port < NumPorts);
+    }
+
+    USBPORT_Wait(FdoDevice, 10);
+
+    CompanionControllersList = USBPORT_FindCompanionControllers(FdoDevice,
+                                                                FALSE,
+                                                                TRUE);
+
+    if (CompanionControllersList)
+    {
+        NumController = 0;
+
+        if (CompanionControllersList->Count)
+        {
+            Entry = &CompanionControllersList->Objects[0];
+
+            do
+            {
+                CompanionPacket = &FdoExtension->MiniPortInterface->Packet;
+
+                CompanionFdoExtension = (PUSBPORT_DEVICE_EXTENSION)(*Entry)->DeviceExtension;
+
+                CompanionPacket->RH_GetRootHubData(CompanionFdoExtension->MiniPortExt,
+                                                   &RootHubData);
+
+                CompanionPorts = RootHubData.NumberOfPorts;
+
+                if (RootHubData.NumberOfPorts)
+                {
+                    Port = 1;
+
+                    do
+                    {
+                        CompanionPacket->RH_SetFeaturePortPower(CompanionFdoExtension->MiniPortExt,
+                                                                Port);
+                        ++Port;
+                    }
+                    while (Port < CompanionPorts);
+                }
+
+                ++NumController;
+                ++Entry;
+            }
+            while (NumController < CompanionControllersList->Count);
+        }
+
+        ExFreePool(CompanionControllersList);
+    }
+
+    USBPORT_Wait(FdoDevice, 100);
+
+    if (NumPorts == 0)
+    {
+        return;
+    }
+
+    Port = 1;
+
+    do
+    {
+        if (FdoExtension->MiniPortInterface->Version < 200)
+        {
+            break;
+        }
+
+        InterlockedIncrement((PLONG)&FdoExtension->ChirpRootPortLock);
+        Packet->RH_ChirpRootPort(FdoExtension->MiniPortExt, Port);
+        InterlockedDecrement((PLONG)&FdoExtension->ChirpRootPortLock);
+
+        ++Port;
+    }
+    while (Port < NumPorts);
+}
