@@ -302,10 +302,26 @@ USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
 
 VOID
 NTAPI
-USBPORT_CancelPendingWakeIrp(IN PDEVICE_OBJECT DeviceObject,
+USBPORT_CancelPendingWakeIrp(IN PDEVICE_OBJECT PdoDevice,
                              IN PIRP Irp)
 {
-    DPRINT1("USBPORT_CancelPendingWakeIrp: UNIMPLEMENTED. FIXME. \n");
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    KIRQL OldIrql;
+
+    DPRINT("USBPORT_CancelPendingWakeIrp: ... \n");
+
+    IoReleaseCancelSpinLock(Irp->CancelIrql);
+    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)PdoExtension->FdoDevice->DeviceExtension;
+
+    KeAcquireSpinLock(&FdoExtension->PowerWakeSpinLock, &OldIrql);
+    PdoExtension->WakeIrp = NULL;
+    KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+
+    Irp->IoStatus.Status = STATUS_CANCELLED;
+    Irp->IoStatus.Information = 0;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
 }
 
 NTSTATUS
