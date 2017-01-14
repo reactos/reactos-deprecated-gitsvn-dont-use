@@ -4749,7 +4749,7 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                      &PortExtension->DeviceDescriptor.bLength,
                                      sizeof(PortExtension->DeviceDescriptor),
                                      &PortExtension->ConfigDescriptor.bLength,
-                                     sizeof(PortExtension->ConfigDescriptor);
+                                     sizeof(PortExtension->ConfigDescriptor));
 
     if (NT_SUCCESS(Status))
     {
