@@ -495,7 +495,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG MiniPortStatus;
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
     ULONG ResultLength;
-    KIRQL OldIrql;
+    //KIRQL OldIrql;
     ULONG DisableSelectiveSuspend = 0;
     ULONG DisableCcDetect = 0;
     ULONG IdleEpSupport = 0;
@@ -606,8 +606,6 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     USBPORT_WorkerRequestDpc,
                     FdoDevice);
 
-    KeInitializeSemaphore(&FdoExtension->DeviceSemaphore, 1, 1);
-
     IoCsqInitialize(&FdoExtension->IdleIoCsq,
                     USBPORT_InsertIdleIrp,
                     USBPORT_RemoveIdleIrp,
@@ -628,6 +626,9 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension->IsrDpcHandlerCounter = -1;
     FdoExtension->IdleLockCounter = -1;
     FdoExtension->BadRequestLockCounter = -1;
+    FdoExtension->ChirpRootPortLock = -1;
+
+    FdoExtension->RHInitCallBackLock = 0;
 
     FdoExtension->UsbAddressBitMap[0] = 1;
     FdoExtension->UsbAddressBitMap[1] = 0;
@@ -703,14 +704,20 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         if (!NT_SUCCESS(Status))
         {
             if (IsCompanion)
+            {
                 FdoExtension->Flags |= USBPORT_FLAG_COMPANION_HC;
+            }
             else
+            {
                 FdoExtension->Flags &= ~USBPORT_FLAG_COMPANION_HC;
+            }
         }
     }
 
     if (DisableCcDetect)
+    {
         FdoExtension->Flags &= USBPORT_FLAG_COMPANION_HC;
+    }
 
     TotalBusBandwidth = Packet->MiniPortBusBandwidth;
     FdoExtension->TotalBusBandwidth = TotalBusBandwidth;
@@ -724,7 +731,9 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                                         sizeof(TotalBusBandwidth));
 
     if (TotalBusBandwidth != FdoExtension->TotalBusBandwidth)
+    {
         FdoExtension->TotalBusBandwidth = TotalBusBandwidth;
+    }
 
     FdoExtension->ActiveIrpTable = ExAllocatePoolWithTag(NonPagedPool,
                                                          sizeof(USBPORT_IRP_TABLE),
@@ -798,10 +807,10 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         FdoExtension->MiniPortCommonBuffer = NULL;
     }
 
-    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+    //KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
     MiniPortStatus = Packet->StartController(FdoExtension->MiniPortExt,
                                              UsbPortResources);
-    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+    //KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
     if (UsbPortResources->LegacySupport)
     {
@@ -1093,7 +1102,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Minor = IoStack->MinorFunction;
 
-    DPRINT("USBPORT_FdoPnP: Minor - %d\n", Minor);
+    DPRINT("USBPORT_FdoPnP: FdoDevice - %p, Minor - %x\n", FdoDevice, Minor);
 
     RelationType = IoStack->Parameters.QueryDeviceRelations.Type;
 
@@ -1139,6 +1148,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
 
                     if (NT_SUCCESS(Status))
                     {
+                        FdoExtension->CommonExtension.PnpStateFlags = (FdoExtension->CommonExtension.PnpStateFlags & ~1) | 2;
                         FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
 
                         if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
@@ -1149,8 +1159,15 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                         {
                             USBPORT_AddUSB1Fdo(FdoDevice);
                         }
-
                     }
+                    else
+                    {
+                        FdoExtension->CommonExtension.PnpStateFlags |= 8;
+                    }
+                }
+                else
+                {
+                    FdoExtension->CommonExtension.PnpStateFlags |= 8;
                 }
             }
 
@@ -1331,6 +1348,8 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
+    DPRINT("USBPORT_GetDeviceHwIds: FdoDevice - %p, Packet->MiniPortFlags - %p\n", FdoDevice, Packet->MiniPortFlags);
+
     if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
     {
         /* USB 2.0 hub */
@@ -1423,7 +1442,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Minor = IoStack->MinorFunction;
 
-    DPRINT("USBPORT_PdoPnP: Minor - %d\n", Minor);
+    DPRINT("USBPORT_PdoPnP: PdoDevice - %p, Minor - %x\n", PdoDevice, Minor);
 
     switch (Minor)
     {
@@ -1441,7 +1460,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                 if (NT_SUCCESS(Status))
                 {
                     PdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
-                    // TODO Flags |= DeviceIsStarted;
+                    PdoExtension->CommonExtension.PnpStateFlags = 2;
                 }
             }
 

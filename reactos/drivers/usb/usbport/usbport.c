@@ -52,9 +52,9 @@ USBPORT_FindUSB2Controller(IN PDEVICE_OBJECT FdoDevice)
         }
     }
 
-  KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
+    KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
 
-  return USB2FdoDevice;
+    return USB2FdoDevice;
 }
 
 VOID
@@ -1132,7 +1132,7 @@ USBPORT_SignalWorkerThread(IN PDEVICE_OBJECT FdoDevice)
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->WorkerThreadEventSpinLock, &OldIrql);
-    KeSetEvent(&FdoExtension->WorkerThreadEvent, 1, FALSE);
+    KeSetEvent(&FdoExtension->WorkerThreadEvent, EVENT_INCREMENT, FALSE);
     KeReleaseSpinLock(&FdoExtension->WorkerThreadEventSpinLock, OldIrql);
 }
 
@@ -1697,7 +1697,7 @@ USBPORT_StartTimer(IN PDEVICE_OBJECT FdoDevice,
 
     TimeIncrement = KeQueryTimeIncrement();
 
-    FdoExtension->TimerFlags |= 1;
+    FdoExtension->TimerFlags |= USBPORT_TMFLAG_TIMER_QUEUED;
     FdoExtension->TimerValue = Time;
 
     KeInitializeTimer(&FdoExtension->TimerObject);
@@ -1919,6 +1919,9 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     FdoExtension->MiniPortInterface = MiniPortInterface;
     FdoExtension->FdoNameNumber = DeviceNumber;
 
+    KeInitializeSemaphore(&FdoExtension->DeviceSemaphore, 1, 1);
+    KeInitializeSemaphore(&FdoExtension->ControllerSemaphore, 1, 1);
+
     InitializeListHead(&FdoExtension->EndpointList);
     InitializeListHead(&FdoExtension->DoneTransferList);
     InitializeListHead(&FdoExtension->WorkerList);
@@ -1940,7 +1943,7 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
 {
     PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
 
-    DPRINT("USBPORT_Unload: FIXME!\n");
+    DPRINT1("USBPORT_Unload: FIXME!\n");
 
     MiniPortInterface = USBPORT_FindMiniPort(DriverObject);
     if (!MiniPortInterface)
@@ -2243,7 +2246,9 @@ USBPORT_CompleteTransfer(IN PURB Urb,
     Event = Transfer->Event;
 
     if (Event)
-        KeSetEvent(Event, 1, FALSE);
+    {
+        KeSetEvent(Event, EVENT_INCREMENT, FALSE);
+    }
 
     ExFreePool(Transfer);
 
@@ -2626,6 +2631,12 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
     DeviceExtension = (PUSBPORT_COMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
+    if (DeviceExtension->PnpStateFlags & 0x00000004)
+    {
+        DPRINT1("USBPORT_Dispatch: DeviceExtension->PnpStateFlags & 0x00000004\n");
+        DbgBreakPoint();
+    }
+
     switch (IoStack->MajorFunction)
     {
         case IRP_MJ_DEVICE_CONTROL: // 14
@@ -2816,6 +2827,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
 
     MiniPortInterface->DriverObject = DriverObject;
     MiniPortInterface->DriverUnload = DriverObject->DriverUnload;
+    MiniPortInterface->Version = Version;
 
     ExInterlockedInsertTailList(&USBPORT_MiniPortDrivers,
                                 &MiniPortInterface->DriverLink,

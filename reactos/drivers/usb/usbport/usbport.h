@@ -66,10 +66,13 @@
 #define USBPORT_FLAG_REGISTERED_FDO    0x02000000
 #define USBPORT_FLAG_NO_HACTION        0x04000000
 #define USBPORT_FLAG_BIOS_DISABLE_SS   0x08000000 //Selective Suspend
+#define USBPORT_FLAG_PWR_AND_CHIRP_LOCK 0x10000000
+#define USBPORT_FLAG_POWER_AND_CHIRP_OK 0x40000000
 #define USBPORT_FLAG_RH_INIT_CALLBACK  0x80000000
 
 /* Timer Flags */
 
+#define USBPORT_TMFLAG_TIMER_QUEUED       0x00000001
 #define USBPORT_TMFLAG_HC_SUSPENDED       0x00000002
 #define USBPORT_TMFLAG_RH_SUSPENDED       0x00000008
 #define USBPORT_TMFLAG_TIMER_STARTED      0x00000010
@@ -242,6 +245,7 @@ typedef struct _USBPORT_COMMON_DEVICE_EXTENSION {
   UNICODE_STRING SymbolicLinkName;
   BOOL IsInterfaceEnabled;
   DEVICE_POWER_STATE DevicePowerState;
+  ULONG PnpStateFlags;
 } USBPORT_COMMON_DEVICE_EXTENSION, *PUSBPORT_COMMON_DEVICE_EXTENSION;
 
 typedef struct _USBPORT_DEVICE_EXTENSION {
@@ -249,6 +253,9 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   ULONG Flags;
   PDEVICE_OBJECT RootHubPdo; // RootHubDeviceObject
   KSPIN_LOCK RootHubCallbackSpinLock;
+  LONG RHInitCallBackLock;
+  LONG ChirpRootPortLock;
+  KSEMAPHORE ControllerSemaphore;
   ULONG FdoNameNumber;
   UNICODE_STRING DosDeviceSymbolicName;
   ULONG UsbBIOSx;
@@ -338,7 +345,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
-  ULONG Padded[50]; // Miniport extension should be aligned on 0x100
+  ULONG Padded[34]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
@@ -548,6 +555,13 @@ PDEVICE_OBJECT
 NTAPI
 USBPORT_FindUSB2Controller(
   IN PDEVICE_OBJECT FdoDevice);
+
+PDEVICE_RELATIONS
+NTAPI
+USBPORT_FindCompanionControllers(
+  IN PDEVICE_OBJECT USB2FdoDevice,
+  IN BOOLEAN IsObRefer,
+  IN BOOLEAN IsFDOsReturned);
 
 /* debug.c */
 
@@ -1064,6 +1078,11 @@ ULONG
 NTAPI
 USBPORT_InvalidateRootHub(
   PVOID Context);
+
+VOID
+NTAPI
+USBPORT_RootHubPowerAndChirpAllCcPorts(
+  IN PDEVICE_OBJECT FdoDevice);
 
 /* urb.c */
 
