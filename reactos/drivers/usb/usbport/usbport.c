@@ -1234,6 +1234,120 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
+USBPORT_SynchronizeRootHubCallback(IN PDEVICE_OBJECT FdoDevice,
+                                   IN PDEVICE_OBJECT Usb2FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
+    PUSBPORT_DEVICE_EXTENSION Usb2FdoExtension;
+    PDEVICE_RELATIONS CompanionControllersList;
+    PUSBPORT_DEVICE_EXTENSION CompanionFdoExtension;
+    PDEVICE_OBJECT * Entry;
+    ULONG ix;
+
+    DPRINT("USBPORT_SynchronizeRootHubCallback: FdoDevice - %p, Usb2FdoDevice - %p\n",
+           FdoDevice,
+           Usb2FdoDevice);
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
+
+    if (Usb2FdoDevice == NULL &&
+        !(Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2))
+    {
+        /* Not Companion USB11 Controller */
+        USBPORT_DoRootHubCallback(FdoDevice);
+
+        FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
+        InterlockedCompareExchange(&FdoExtension->RHInitCallBackLock, 0, 1);
+
+        DPRINT("USBPORT_SynchronizeRootHubCallback: exit \n");
+        return;
+    }
+
+    /* USB2 or Companion USB11 */
+
+    DPRINT("USBPORT_SynchronizeRootHubCallback: FdoExtension->Flags - %p\n",
+           FdoExtension->Flags);
+
+    if (!(FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC))
+    {
+        KeWaitForSingleObject(&FdoExtension->ControllerSemaphore,
+                              Executive,
+                              KernelMode,
+                              FALSE,
+                              NULL);
+
+        FdoExtension->Flags |= USBPORT_FLAG_PWR_AND_CHIRP_LOCK;
+
+        if (!(FdoExtension->Flags & (USBPORT_FLAG_HC_SUSPEND |
+                                     USBPORT_FLAG_POWER_AND_CHIRP_OK)))
+        {
+            USBPORT_RootHubPowerAndChirpAllCcPorts(FdoDevice);
+            FdoExtension->Flags |= USBPORT_FLAG_POWER_AND_CHIRP_OK;
+        }
+
+        FdoExtension->Flags &= ~USBPORT_FLAG_PWR_AND_CHIRP_LOCK;
+
+        KeReleaseSemaphore(&FdoExtension->ControllerSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+
+        CompanionControllersList = USBPORT_FindCompanionControllers(FdoDevice,
+                                                                    FALSE,
+                                                                    TRUE);
+
+        ix = 0;
+
+        if (CompanionControllersList)
+        {
+            Entry = &CompanionControllersList->Objects[0];
+
+            while (ix < CompanionControllersList->Count)
+            {
+                CompanionFdoExtension = (PUSBPORT_DEVICE_EXTENSION)((*Entry)->DeviceExtension);
+
+                InterlockedCompareExchange(&CompanionFdoExtension->RHInitCallBackLock,
+                                           0,
+                                           1);
+
+                ++Entry;
+                ++ix;
+            }
+
+            ExFreePool(CompanionControllersList);
+        }
+
+        USBPORT_DoRootHubCallback(FdoDevice);
+
+        FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
+        InterlockedCompareExchange(&FdoExtension->RHInitCallBackLock, 0, 1);
+    }
+    else
+    {
+        Usb2FdoExtension = (PUSBPORT_DEVICE_EXTENSION)Usb2FdoDevice->DeviceExtension;
+
+        USBPORT_Wait(FdoDevice, 50);
+
+        while (FdoExtension->RHInitCallBackLock)
+        {
+            USBPORT_Wait(FdoDevice, 10);
+
+            Usb2FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
+            USBPORT_SignalWorkerThread(Usb2FdoDevice);
+        }
+
+        USBPORT_DoRootHubCallback(FdoDevice);
+
+        FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
+    }
+
+    DPRINT("USBPORT_SynchronizeRootHubCallback: exit \n");
+}
+
+VOID
+NTAPI
 USBPORT_WorkerThread(IN PVOID StartContext)
 {
     PDEVICE_OBJECT FdoDevice;
