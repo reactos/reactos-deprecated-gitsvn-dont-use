@@ -943,7 +943,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     NTSTATUS Status;
 
-    DPRINT("USBPORT_CreateDevice: PortStatus - %p, Port - %p\n",
+    DPRINT("USBPORT_CreateDevice: PortStatus - %p, Port - %x\n",
            PortStatus,
            Port);
 
@@ -966,13 +966,11 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         return STATUS_DEVICE_NOT_CONNECTED;
     }
 
-    if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+    if (FdoExtension->MiniPortInterface->Packet.MiniPortFlags & USB_MINIPORT_FLAGS_USB2 &&
+        !(PortStatus & USB_PORT_STATUS_HIGH_SPEED))
     {
-        if (!(PortStatus & USB_PORT_STATUS_HIGH_SPEED))
-        {
-            DPRINT1("USBPORT_CreateDevice: USB1 device connected to USB2 port. FIXME: Transaction Translator.\n");
-            DbgBreakPoint();
-        }
+        DPRINT1("USBPORT_CreateDevice: USB1 device connected to USB2 port. FIXME: Transaction Translator.\n");
+        DbgBreakPoint();
     }
 
     KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
@@ -980,12 +978,15 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                        1,
                        FALSE);
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
-                                                                 sizeof(USBPORT_DEVICE_HANDLE),
-                                                                 USB_PORT_TAG);
+    DeviceHandle = ExAllocatePoolWithTag(NonPagedPool,
+                                         sizeof(USBPORT_DEVICE_HANDLE),
+                                         USB_PORT_TAG);
 
     if (!DeviceHandle)
+    {
+        DPRINT1("USBPORT_CreateDevice: Not allocated DeviceHandle\n");
         return STATUS_INSUFFICIENT_RESOURCES;
+    }
 
     RtlZeroMemory(DeviceHandle, sizeof(USBPORT_DEVICE_HANDLE));
 
@@ -994,10 +995,18 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     DeviceHandle->PortNumber = Port;
     DeviceHandle->HubDeviceHandle = HubDeviceHandle;
 
-    if (PortStatus & USB_PORT_STATUS_LOW_SPEED)
+    if ( PortStatus & USB_PORT_STATUS_LOW_SPEED )
+    {
         DeviceHandle->DeviceSpeed = UsbLowSpeed;
+    }
+    else if ( PortStatus & USB_PORT_STATUS_HIGH_SPEED )
+    {
+        DeviceHandle->DeviceSpeed = UsbHighSpeed;
+    }
     else
+    {
         DeviceHandle->DeviceSpeed = UsbFullSpeed;
+    }
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,
@@ -1007,19 +1016,19 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     PipeHandle = &DeviceHandle->PipeHandle;
 
-    PipeHandle->EndpointDescriptor.bLength = 7;
-    PipeHandle->EndpointDescriptor.bDescriptorType = 5;
-    PipeHandle->EndpointDescriptor.bEndpointAddress = 0;
-    PipeHandle->EndpointDescriptor.bmAttributes = 0;
-    PipeHandle->EndpointDescriptor.bInterval = 0;
-
     PipeHandle->Flags = PIPE_HANDLE_FLAG_CLOSED;
-    PipeHandle->PipeFlags = 0;
+
+    PipeHandle->EndpointDescriptor.bLength = sizeof(PipeHandle->EndpointDescriptor);
+    PipeHandle->EndpointDescriptor.bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE;
 
     if (DeviceHandle->DeviceSpeed == UsbLowSpeed)
+    {
         PipeHandle->EndpointDescriptor.wMaxPacketSize = 8;
+    }
     else
+    {
         PipeHandle->EndpointDescriptor.wMaxPacketSize = USB_DEFAULT_MAX_PACKET;
+    }
 
     InitializeListHead(&DeviceHandle->PipeHandleList);
 
@@ -1032,14 +1041,18 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     {
         IsOpenedPipe = TRUE;
     }
-    else
+
+    if (NT_ERROR(Status))
     {
+        DPRINT1("USBPORT_CreateDevice: USBPORT_OpenPipe return - %p\n", Status);
+
         KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
                            LOW_REALTIME_PRIORITY,
                            1,
                            FALSE);
 
         ExFreePool(DeviceHandle);
+
         return Status;
     }
 
@@ -1049,20 +1062,8 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     if (!DeviceDescriptor)
     {
-        Status = STATUS_DEVICE_DATA_ERROR;
-
-        if (IsOpenedPipe)
-        {
-            USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
-        }
-
-        KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
-                           LOW_REALTIME_PRIORITY,
-                           1,
-                           FALSE);
-
-        ExFreePool(DeviceHandle);
-        return Status;
+        DPRINT1("USBPORT_CreateDevice: Not allocated DeviceDescriptor\n");
+        goto ErrorExit;
     }
 
     RtlZeroMemory(DeviceDescriptor, USB_DEFAULT_MAX_PACKET);
@@ -1089,13 +1090,15 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     ExFreePool(DeviceDescriptor);
 
-    if ((TransferedLen == 8) && (!NT_SUCCESS(Status)))
+    if ((TransferedLen == 8) && !NT_SUCCESS(Status))
+    {
         Status = STATUS_SUCCESS;
+    }
 
     if (NT_SUCCESS(Status) && (TransferedLen >= 8))
     {
         if ((DeviceHandle->DeviceDescriptor.bLength >= sizeof(USB_DEVICE_DESCRIPTOR)) &&
-            (DeviceHandle->DeviceDescriptor.bDescriptorType == 1))
+            (DeviceHandle->DeviceDescriptor.bDescriptorType == USB_DEVICE_DESCRIPTOR_TYPE))
         {
             MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
 
@@ -1105,15 +1108,13 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                 MaxPacketSize == 64)
             {
                 USBPORT_AddDeviceHandle(FdoDevice, DeviceHandle);
+
                 *pUsbdDeviceHandle = (PUSB_DEVICE_HANDLE)DeviceHandle;
 
                 KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
                                    LOW_REALTIME_PRIORITY,
                                    1,
                                    FALSE);
-
-                if (!NT_SUCCESS(Status))
-                    ExFreePool(DeviceHandle);
 
                 return Status;
             }
@@ -1123,6 +1124,24 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     DPRINT1("USBPORT_CreateDevice: ERROR!!! TransferedLen - %x, Status - %p\n",
             TransferedLen,
             Status);
+
+ErrorExit:
+
+    // FIXME: if Transaction Translator
+
+    Status = STATUS_DEVICE_DATA_ERROR;
+
+    if (IsOpenedPipe)
+    {
+        USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
+    }
+
+    KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    ExFreePool(DeviceHandle);
 
     return Status;
 }
