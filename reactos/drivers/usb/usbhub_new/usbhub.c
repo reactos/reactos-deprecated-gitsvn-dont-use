@@ -2476,7 +2476,7 @@ USBD_RemoveDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     PUSB_BUSIFFN_REMOVE_USB_DEVICE RemoveUsbDevice;
 
-    DPRINT("USBD_RemoveDeviceEx: DeviceHandle - %p, Flags - x\n",
+    DPRINT("USBD_RemoveDeviceEx: DeviceHandle - %p, Flags - %x\n",
            DeviceHandle,
            Flags);
 
@@ -4611,6 +4611,202 @@ ErrorExit:
 Exit:
 
     HubExtension->PortData[Port-1].DeviceObject = DeviceObject;
+    return Status;
+}
+
+NTSTATUS
+NTAPI
+USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                 IN USHORT Port,
+                 IN BOOLEAN IsKeepDeviceData,
+                 IN BOOLEAN IsWait)
+{
+    NTSTATUS Status;
+    PUSBHUB_PORT_DATA PortData;
+    PDEVICE_OBJECT PortDevice;
+    PUSBHUB_PORT_PDO_EXTENSION PortExtension;
+    LONG NewDeviceHandle;
+    LONG Handle;
+    LONG OldDeviceHandle;
+    PUSB_DEVICE_HANDLE * DeviceHandle;
+    USBHUB_PORT_STATUS PortStatus;
+
+    DPRINT("USBH_ResetDevice: HubExtension - %p, Port - %x, IsKeepDeviceData - %x, IsWait - %x\n",
+           HubExtension,
+           Port,
+           IsKeepDeviceData,
+           IsWait);
+
+    Status = USBH_SyncGetPortStatus(HubExtension,
+                                    Port,
+                                    &PortStatus,
+                                    sizeof(USBHUB_PORT_STATUS));
+
+    if (!NT_SUCCESS(Status) ||
+        !(PortStatus.UsbPortStatus.ConnectStatus))
+    {
+        return STATUS_UNSUCCESSFUL;
+    }
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    PortData = &HubExtension->PortData[Port-1];
+
+    PortDevice = PortData->DeviceObject;
+
+    if (!PortDevice)
+    {
+        Status = STATUS_INVALID_PARAMETER;
+
+        KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                           LOW_REALTIME_PRIORITY,
+                           1,
+                           FALSE);
+
+        if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+        {
+            KeSetEvent(&HubExtension->PendingRequestEvent,
+                       EVENT_INCREMENT,
+                       FALSE);
+        }
+
+        return Status;
+    }
+
+    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+
+    DeviceHandle = &PortExtension->DeviceHandle;
+    OldDeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
+
+    if (OldDeviceHandle)
+    {
+        if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_REMOVING_PORT_PDO))
+        {
+            Status = USBD_RemoveDeviceEx(HubExtension,
+                                         (PUSB_DEVICE_HANDLE)OldDeviceHandle,
+                                         IsKeepDeviceData);
+
+            PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_REMOVING_PORT_PDO;
+        }
+    }
+    else
+    {
+      OldDeviceHandle = 0;
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    Status = USBH_SyncResetPort(HubExtension, Port);
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    Status = USBH_SyncGetPortStatus(HubExtension,
+                                    Port,
+                                    &PortStatus,
+                                    sizeof(USBHUB_PORT_STATUS));
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    Status = USBD_CreateDeviceEx(HubExtension,
+                                 DeviceHandle,
+                                 PortStatus.UsbPortStatus,
+                                 Port);
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    Status = USBH_SyncResetPort(HubExtension, Port);
+
+    if (IsWait)
+    {
+        USBH_Wait(50);
+    }
+
+    if (!NT_SUCCESS(Status))
+    {
+        goto ErrorExit;
+    }
+
+    Status = USBD_InitializeDeviceEx(HubExtension,
+                                     *DeviceHandle,
+                                     &PortExtension->DeviceDescriptor.bLength,
+                                     sizeof(PortExtension->DeviceDescriptor),
+                                     &PortExtension->ConfigDescriptor.bLength,
+                                     sizeof(PortExtension->ConfigDescriptor);
+
+    if (NT_SUCCESS(Status))
+    {
+        if (IsKeepDeviceData)
+        {
+            Status = USBD_RestoreDeviceEx(HubExtension,
+                                          (PUSB_DEVICE_HANDLE)OldDeviceHandle,
+                                          *DeviceHandle);
+
+            if (!NT_SUCCESS(Status))
+            {
+                Handle = InterlockedExchange((PLONG)DeviceHandle, 0);
+
+                USBD_RemoveDeviceEx(HubExtension,
+                                    (PUSB_DEVICE_HANDLE)Handle,
+                                    0);
+
+                USBH_SyncDisablePort(HubExtension, Port);
+
+                Status = STATUS_NO_SUCH_DEVICE;
+            }
+        }
+        else
+        {
+            PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_REMOVING_PORT_PDO;
+        }
+
+        goto Exit;
+    }
+
+    *DeviceHandle = NULL;
+
+ErrorExit:
+
+    NewDeviceHandle = InterlockedExchange((PLONG)DeviceHandle, OldDeviceHandle);
+
+    if (NewDeviceHandle)
+    {
+        Status = USBD_RemoveDeviceEx(HubExtension,
+                                     (PUSB_DEVICE_HANDLE)NewDeviceHandle,
+                                     0);
+    }
+
+Exit:
+
+    KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
     return Status;
 }
 
