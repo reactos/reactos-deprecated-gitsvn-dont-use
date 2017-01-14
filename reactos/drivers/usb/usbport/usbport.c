@@ -1237,13 +1237,9 @@ NTAPI
 USBPORT_WorkerThread(IN PVOID StartContext)
 {
     PDEVICE_OBJECT FdoDevice;
-    PDEVICE_OBJECT PdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     LARGE_INTEGER OldTime = {{0, 0}};
     LARGE_INTEGER NewTime = {{0, 0}};
-    PRH_INIT_CALLBACK RootHubInitCallback;
-    PVOID RootHubInitContext;
     KIRQL OldIrql;
 
     DPRINT_CORE("USBPORT_WorkerThread ... \n");
@@ -1276,28 +1272,23 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 
             if (FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK)
             {
-                DPRINT_CORE("USBPORT_WorkerThread: RootHubInitCallback \n");
+                PDEVICE_OBJECT USB2FdoDevice = NULL;
 
-                PdoDevice = FdoExtension->RootHubPdo;
-
-                if (PdoDevice)
-                {
-                    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-
-                    RootHubInitContext = PdoExtension->RootHubInitContext;
-                    RootHubInitCallback = PdoExtension->RootHubInitCallback;
-
-                    PdoExtension->RootHubInitCallback = NULL;
-                    PdoExtension->RootHubInitContext = NULL;
-
-                    if (RootHubInitCallback)
-                        RootHubInitCallback(RootHubInitContext);
-                }
-
-                FdoExtension->Flags &= ~USBPORT_FLAG_RH_INIT_CALLBACK;
-
-                DPRINT_CORE("USBPORT_WorkerThread: end RootHubInitCallback \n");
+                USB2FdoDevice = USBPORT_FindUSB2Controller(FdoDevice);
+                USBPORT_SynchronizeRootHubCallback(FdoDevice, USB2FdoDevice);
             }
+
+            if (FdoExtension->Flags & 0x00100000)
+            {
+                DPRINT("USBPORT_WorkerThread: EndTransmitTriggerPacket UNIMPLEMENTED.\n");
+                DbgBreakPoint();
+            }
+        }
+        else if (!(FdoExtension->Flags & 0x00020000))
+        {
+            DPRINT1("USBPORT_WorkerThread: !0x00020000 \n");
+            DbgBreakPoint();
+            continue;
         }
 
         USBPORT_WorkerThreadHandler(FdoDevice);
