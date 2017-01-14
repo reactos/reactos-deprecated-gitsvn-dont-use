@@ -1987,9 +1987,71 @@ NTAPI
 USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                    IN BOOLEAN IsKeepDeviceData)
 {
-    DPRINT1("USBH_RestoreDevice: UNIMPLEMENTED. FIXME. \n");
-    DbgBreakPoint();
-    return 0;
+    PUSBHUB_FDO_EXTENSION HubExtension;
+    PUSBHUB_PORT_DATA PortData;
+    NTSTATUS Status;
+    ULONG ix = 0;
+
+    DPRINT("USBH_RestoreDevice ... \n");
+
+    HubExtension = PortExtension->HubExtension;
+
+    if (!HubExtension)
+    {
+        Status = STATUS_UNSUCCESSFUL;
+        return Status;
+    }
+
+    PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
+
+    if ( PortExtension->Common.SelfDevice == PortData->DeviceObject )
+    {
+        Status = STATUS_UNSUCCESSFUL;
+        return Status;
+    }
+
+    Status = USBH_SyncGetPortStatus(HubExtension,
+                                PortExtension->PortNumber,
+                                &PortData->PortStatus,
+                                sizeof(USBHUB_PORT_STATUS));
+
+    if (NT_SUCCESS(Status))
+    {
+        do
+        {
+            Status = USBH_ResetDevice((PUSBHUB_FDO_EXTENSION)HubExtension,
+                                      PortExtension->PortNumber,
+                                      IsKeepDeviceData,
+                                      ix++);
+
+            if (NT_SUCCESS(Status))
+            {
+                break;
+            }
+
+            if (Status == STATUS_NO_SUCH_DEVICE)
+            {
+                break;
+            }
+
+            USBH_Wait(1000);
+        }
+        while (ix < 3);
+    }
+
+    PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_POWER_D3;
+
+    if (NT_SUCCESS(Status))
+    {
+        PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_PORT_RESTORE_FAIL;
+    }
+    else
+    {
+        PortExtension->PortPdoFlags |= (USBHUB_PDO_FLAG_INIT_PORT_FAILED |
+                                        USBHUB_PDO_FLAG_PORT_RESTORE_FAIL);
+    }
+
+    return Status;
 }
 
 NTSTATUS
