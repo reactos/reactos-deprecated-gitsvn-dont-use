@@ -222,23 +222,23 @@ USBPORT_DumpingURB(IN PURB Urb)
 {
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
 
-    DPRINT("UrbHeader.Length           - %x\n", Urb->UrbHeader.Length);
-    DPRINT("UrbHeader.Function         - %x\n", Urb->UrbHeader.Function);
-    DPRINT("UrbHeader.Status           - %x\n", Urb->UrbHeader.Status);
-    DPRINT("UrbHeader.UsbdDeviceHandle - %p\n", Urb->UrbHeader.UsbdDeviceHandle);
-    DPRINT("UrbHeader.UsbdFlags        - %x\n", Urb->UrbHeader.UsbdFlags);
+    DPRINT_URB("UrbHeader.Length           - %x\n", Urb->UrbHeader.Length);
+    DPRINT_URB("UrbHeader.Function         - %x\n", Urb->UrbHeader.Function);
+    DPRINT_URB("UrbHeader.Status           - %x\n", Urb->UrbHeader.Status);
+    DPRINT_URB("UrbHeader.UsbdDeviceHandle - %p\n", Urb->UrbHeader.UsbdDeviceHandle);
+    DPRINT_URB("UrbHeader.UsbdFlags        - %x\n", Urb->UrbHeader.UsbdFlags);
 
     if (Urb->UrbHeader.Length < 0x48)
     {
         return;
     }
 
-    DPRINT("PipeHandle                - %p\n", Urb->UrbControlTransfer.PipeHandle);
-    DPRINT("TransferFlags             - %x\n", Urb->UrbControlTransfer.TransferFlags);
-    DPRINT("TransferBufferLength      - %x\n", Urb->UrbControlTransfer.TransferBufferLength);
-    DPRINT("TransferBuffer            - %p\n", Urb->UrbControlTransfer.TransferBuffer);
-    DPRINT("TransferBufferMDL         - %p\n", Urb->UrbControlTransfer.TransferBufferMDL);
-    DPRINT("UrbLink                   - %p\n", Urb->UrbControlTransfer.UrbLink);
+    DPRINT_URB("PipeHandle                - %p\n", Urb->UrbControlTransfer.PipeHandle);
+    DPRINT_URB("TransferFlags             - %x\n", Urb->UrbControlTransfer.TransferFlags);
+    DPRINT_URB("TransferBufferLength      - %x\n", Urb->UrbControlTransfer.TransferBufferLength);
+    DPRINT_URB("TransferBuffer            - %p\n", Urb->UrbControlTransfer.TransferBuffer);
+    DPRINT_URB("TransferBufferMDL         - %p\n", Urb->UrbControlTransfer.TransferBufferMDL);
+    DPRINT_URB("UrbLink                   - %p\n", Urb->UrbControlTransfer.UrbLink);
 
     if (Urb->UrbHeader.Length < 0x50)
     {
