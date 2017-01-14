@@ -1484,66 +1484,109 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    PDEVICE_OBJECT PdoDevice;
-    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_REGISTRATION_PACKET Packet;
     LARGE_INTEGER DueTime = {{0, 0}};
     ULONG TimerFlags;
-    ULONG TimeIncrement;
     PTIMER_WORK_QUEUE_ITEM IdleQueueItem;
+    KIRQL OldIrql;
+    KIRQL TimerOldIrql;
 
-    DPRINT_TIMER("USBPORT_TimerDpc: Dpc - %p, DeferredContext - %p, SystemArgument1 - %p, SystemArgument2 - %p\n",
+    DPRINT_TIMER("USBPORT_TimerDpc: Dpc - %p, DeferredContext - %p\n",
            Dpc,
-           DeferredContext,
-           SystemArgument1,
-           SystemArgument2);
+           DeferredContext);
 
     FdoDevice = (PDEVICE_OBJECT)DeferredContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    PdoDevice = FdoExtension->RootHubPdo;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &TimerOldIrql);
 
     TimerFlags = FdoExtension->TimerFlags;
 
-    if (PdoDevice &&
-        (PdoExtension->RootHubInitCallback != NULL) &&
-        !(FdoExtension->Flags & USBPORT_FLAG_RH_INIT_CALLBACK))
+    DPRINT_TIMER("USBPORT_TimerDpc: Flags - %p, TimerFlags - %p\n",
+                 FdoExtension->Flags,
+                 TimerFlags);
+
+    if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND &&
+        FdoExtension->Flags & 0x00200000 &&
+        !(TimerFlags & 0x00000004))
     {
-        FdoExtension->Flags |= USBPORT_FLAG_RH_INIT_CALLBACK;
-        USBPORT_SignalWorkerThread(FdoDevice);
+        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+        Packet->PollController(FdoExtension->MiniPortExt);
+        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+    }
+
+    USBPORT_SynchronizeControllersStart(FdoDevice);
+
+    if (TimerFlags & USBPORT_TMFLAG_HC_SUSPENDED)
+    {
+        USBPORT_BadRequestFlush(FdoDevice);
+        goto Exit;
+    }
+
+    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+    if (!(FdoExtension->Flags & (0x00020000 |
+                                 0x00000200 |
+                                 USBPORT_FLAG_HC_SUSPEND)))
+    {
+        Packet->CheckController(FdoExtension->MiniPortExt);
+    }
+
+    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+    if (FdoExtension->Flags & 0x00000004)
+    {
+        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+        Packet->PollController(FdoExtension->MiniPortExt);
+        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
     }
 
     USBPORT_IsrDpcHandler(FdoDevice, FALSE);
 
+    DPRINT_TIMER("USBPORT_TimerDpc: USBPORT_TimeoutAllEndpoints UNIMPLEMENTED.\n");
+    //USBPORT_TimeoutAllEndpoints(FdoDevice);
+    DPRINT_TIMER("USBPORT_TimerDpc: USBPORT_CheckIdleEndpoints UNIMPLEMENTED.\n");
+    //USBPORT_CheckIdleEndpoints(FdoDevice);
+
+    USBPORT_BadRequestFlush(FdoDevice);
+
     if (FdoExtension->IdleLockCounter > -1 &&
         !(TimerFlags & USBPORT_TMFLAG_IDLE_QUEUEITEM_ON))
     {
-        IdleQueueItem = (PTIMER_WORK_QUEUE_ITEM)ExAllocatePoolWithTag(NonPagedPool,
-                                                                      sizeof(TIMER_WORK_QUEUE_ITEM),
-                                                                      USB_PORT_TAG);
+        IdleQueueItem = ExAllocatePoolWithTag(NonPagedPool,
+                                              sizeof(TIMER_WORK_QUEUE_ITEM),
+                                              USB_PORT_TAG);
 
         DPRINT("USBPORT_TimerDpc: IdleLockCounter - %x, IdleQueueItem - %p\n",
-                FdoExtension->IdleLockCounter,
-                IdleQueueItem);
+               FdoExtension->IdleLockCounter,
+               IdleQueueItem);
 
         if (IdleQueueItem)
         {
             RtlZeroMemory(IdleQueueItem, sizeof(TIMER_WORK_QUEUE_ITEM));
 
-            IdleQueueItem->WqItem.WorkerRoutine = (PWORKER_THREAD_ROUTINE)USBPORT_DoIdleNotificationCallback;
-            IdleQueueItem->WqItem.Parameter = (PVOID)IdleQueueItem;
+            IdleQueueItem->WqItem.List.Flink = NULL;
+            IdleQueueItem->WqItem.WorkerRoutine = USBPORT_DoIdleNotificationCallback;
+            IdleQueueItem->WqItem.Parameter = IdleQueueItem;
+
             IdleQueueItem->FdoDevice = FdoDevice;
+            IdleQueueItem->Context = 0;
 
             FdoExtension->TimerFlags |= USBPORT_TMFLAG_IDLE_QUEUEITEM_ON;
 
-            ExQueueWorkItem((PWORK_QUEUE_ITEM)IdleQueueItem, 0);
+            ExQueueWorkItem(&IdleQueueItem->WqItem, CriticalWorkQueue);
         }
     }
 
-    if (TimerFlags & 1)
+Exit:
+
+    KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, TimerOldIrql);
+
+    if (TimerFlags & USBPORT_TMFLAG_TIMER_QUEUED)
     {
-        TimeIncrement = KeQueryTimeIncrement();
-        DueTime.QuadPart -= 10000 * FdoExtension->TimerValue + (TimeIncrement - 1);
+        DueTime.QuadPart -= FdoExtension->TimerValue * 10000 +
+                            (KeQueryTimeIncrement() - 1);
 
         KeSetTimer(&FdoExtension->TimerObject,
                    DueTime,
