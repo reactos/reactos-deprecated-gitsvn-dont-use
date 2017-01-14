@@ -45,18 +45,64 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_REGISTRATION_PACKET Packet;
-    MPSTATUS MPStatus;
+    PDEVICE_RELATIONS CompanionControllersList;
+    PUSBPORT_REGISTRATION_PACKET CompanionPacket;
+    PDEVICE_OBJECT CompanionFdoDevice;
+    PUSBPORT_DEVICE_EXTENSION CompanionFdoExtension;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    USHORT ix;
+    PDEVICE_OBJECT * Entry;
+    ULONG NumController = 0;
 
-    DPRINT1("USBPORT_RootHubClassCommand: Usb2PortPower UNIMPLEMENTED. FIXME.\n");
+    DPRINT("USBPORT_RootHub_PowerUsb2Port: FdoDevice - %p, Port - %p\n",
+           FdoDevice,
+           Port);
 
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-//FIXME
-MPStatus = Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt,
-                                          Port);
+    CompanionControllersList = USBPORT_FindCompanionControllers(FdoDevice,
+                                                                FALSE,
+                                                                TRUE);
 
-    return MPStatus;
+    if (!CompanionControllersList)
+    {
+        Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt, Port);
+        return 0;
+    }
+
+    Entry = &CompanionControllersList->Objects[0];
+
+    while (NumController < CompanionControllersList->Count)
+    {
+        CompanionFdoDevice = *Entry;
+
+        CompanionFdoExtension = (PUSBPORT_DEVICE_EXTENSION)CompanionFdoDevice->DeviceExtension;
+        CompanionPacket = &CompanionFdoExtension->MiniPortInterface->Packet;
+
+        PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)CompanionFdoExtension->RootHubPdo->DeviceExtension;
+
+        for (ix = 0;
+             (PdoExtension->CommonExtension.PnpStateFlags & 2) &&
+              ix < PdoExtension->RootHubDescriptors->Descriptor.bNumberOfPorts;
+             ++ix)
+        {
+            CompanionPacket->RH_SetFeaturePortPower(CompanionFdoExtension->MiniPortExt,
+                                                    ix + 1);
+        }
+
+        ++NumController;
+        ++Entry;
+    }
+
+    Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt, Port);
+
+    if (CompanionControllersList)
+    {
+        ExFreePool(CompanionControllersList);
+    }
+
+    return 0;
 }
 
 RHSTATUS
@@ -544,7 +590,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
 
             while (ix < 256)
             {
-                DPRINT("USBPORT_RootHubSCE: ix - %p\n", ix);
+                DPRINT_CORE("USBPORT_RootHubSCE: ix - %p\n", ix);
 
                 if (Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
                                              ix + 1,
@@ -875,6 +921,10 @@ USBPORT_InvalidateRootHub(PVOID Context)
     if (Endpoint)
     {
         USBPORT_InvalidateEndpointHandler(FdoDevice, PdoExtension->Endpoint, 1);
+        
+        DPRINT1("USBPORT_InvalidateRootHub: USBPORT_HcQueueWakeDpc UNIMPLEMENTED. FIXME. \n");
+        DbgBreakPoint();
+        //USBPORT_HcQueueWakeDpc(FdoDevice);
     }
 
     return 0;
