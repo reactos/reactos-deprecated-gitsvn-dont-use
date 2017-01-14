@@ -901,10 +901,7 @@ USBPORT_InvalidateRootHub(PVOID Context)
          FdoExtension->MiniPortFlags & USBPORT_MPFLAG_SUSPENDED &&
          FdoExtension->TimerFlags & USBPORT_TMFLAG_WAKE)
     {
-        
-        DPRINT1("USBPORT_InvalidateRootHub: USBPORT_HcQueueWakeDpc UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
-        //USBPORT_HcQueueWakeDpc(FdoDevice);
+        USBPORT_HcQueueWakeDpc(FdoDevice);
         return 0;
     }
     
@@ -921,10 +918,6 @@ USBPORT_InvalidateRootHub(PVOID Context)
     if (Endpoint)
     {
         USBPORT_InvalidateEndpointHandler(FdoDevice, PdoExtension->Endpoint, 1);
-        
-        DPRINT1("USBPORT_InvalidateRootHub: USBPORT_HcQueueWakeDpc UNIMPLEMENTED. FIXME. \n");
-        DbgBreakPoint();
-        //USBPORT_HcQueueWakeDpc(FdoDevice);
     }
 
     return 0;

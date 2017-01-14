@@ -42,6 +42,29 @@ USBPORT_CompletePdoWaitWake(IN PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
+USBPORT_HcWakeDpc(IN PRKDPC Dpc,
+                  IN PVOID DeferredContext,
+                  IN PVOID SystemArgument1,
+                  IN PVOID SystemArgument2)
+{
+    DPRINT("USBPORT_HcWakeDpc: ... \n");
+    USBPORT_CompletePdoWaitWake((PDEVICE_OBJECT)DeferredContext);
+}
+
+VOID
+NTAPI
+USBPORT_HcQueueWakeDpc(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+
+    DPRINT("USBPORT_HcQueueWakeDpc: ... \n");
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    KeInsertQueueDpc(&FdoExtension->HcWakeDpc, NULL, NULL);
+}
+
+VOID
+NTAPI
 USBPORT_CompletePendingIdleIrp(IN PDEVICE_OBJECT PdoDevice)
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;

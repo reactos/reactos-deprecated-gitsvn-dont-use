@@ -606,6 +606,10 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                     USBPORT_WorkerRequestDpc,
                     FdoDevice);
 
+    KeInitializeDpc(&FdoExtension->HcWakeDpc,
+                    USBPORT_HcWakeDpc,
+                    FdoDevice);
+
     IoCsqInitialize(&FdoExtension->IdleIoCsq,
                     USBPORT_InsertIdleIrp,
                     USBPORT_RemoveIdleIrp,

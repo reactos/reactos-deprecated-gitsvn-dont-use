@@ -345,6 +345,7 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
   KSPIN_LOCK PowerWakeSpinLock;
   KSPIN_LOCK SetPowerD0SpinLock;
   KDPC WorkerRequestDpc;
+  KDPC HcWakeDpc;
   ULONG Padded[34]; // Miniport extension should be aligned on 0x100
 } USBPORT_DEVICE_EXTENSION, *PUSBPORT_DEVICE_EXTENSION;
 
@@ -904,6 +905,19 @@ USBPORT_CompletePdoWaitWake(
 VOID
 NTAPI
 USBPORT_DoSetPowerD0(
+  IN PDEVICE_OBJECT FdoDevice);
+
+VOID
+NTAPI
+USBPORT_HcWakeDpc(
+  IN PRKDPC Dpc,
+  IN PVOID DeferredContext,
+  IN PVOID SystemArgument1,
+  IN PVOID SystemArgument2);
+
+VOID
+NTAPI
+USBPORT_HcQueueWakeDpc(
   IN PDEVICE_OBJECT FdoDevice);
 
 /* queue.c */
