@@ -1234,6 +1234,41 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
 
 VOID
 NTAPI
+USBPORT_DoRootHubCallback(IN PDEVICE_OBJECT FdoDevice)
+{
+    PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PDEVICE_OBJECT PdoDevice;
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PRH_INIT_CALLBACK RootHubInitCallback;
+    PVOID RootHubInitContext;
+
+    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+
+    DPRINT("USBPORT_DoRootHubCallback: FdoDevice - %p\n", FdoDevice);
+
+    PdoDevice = FdoExtension->RootHubPdo;
+
+    if (PdoDevice)
+    {
+        PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+
+        RootHubInitContext = PdoExtension->RootHubInitContext;
+        RootHubInitCallback = PdoExtension->RootHubInitCallback;
+
+        PdoExtension->RootHubInitCallback = NULL;
+        PdoExtension->RootHubInitContext = NULL;
+
+        if (RootHubInitCallback)
+        {
+            RootHubInitCallback(RootHubInitContext);
+        }
+    }
+
+    DPRINT("USBPORT_DoRootHubCallback: exit\n");
+}
+
+VOID
+NTAPI
 USBPORT_SynchronizeRootHubCallback(IN PDEVICE_OBJECT FdoDevice,
                                    IN PDEVICE_OBJECT Usb2FdoDevice)
 {
