@@ -589,6 +589,13 @@ USBD_GetDeviceInformationEx(
 
 NTSTATUS
 NTAPI
+USBD_RestoreDeviceEx(
+  IN PUSBHUB_FDO_EXTENSION HubExtension,
+  IN OUT PUSB_DEVICE_HANDLE OldDeviceHandle,
+  IN OUT PUSB_DEVICE_HANDLE NewDeviceHandle);
+
+NTSTATUS
+NTAPI
 USBH_AllocateWorkItem(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   OUT PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,

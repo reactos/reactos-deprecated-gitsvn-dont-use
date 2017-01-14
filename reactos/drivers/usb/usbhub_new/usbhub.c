@@ -2701,6 +2701,36 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
 NTSTATUS
 NTAPI
+USBD_RestoreDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
+                     IN OUT PUSB_DEVICE_HANDLE OldDeviceHandle,
+                     IN OUT PUSB_DEVICE_HANDLE NewDeviceHandle)
+{
+    PUSB_BUSIFFN_RESTORE_DEVICE RestoreUsbDevice;
+    NTSTATUS Status;
+
+    DPRINT("USBD_RestoreDeviceEx: HubExtension - %p, OldDeviceHandle - %p, NewDeviceHandle - %p\n",
+           HubExtension,
+           OldDeviceHandle,
+           NewDeviceHandle);
+
+    RestoreUsbDevice = HubExtension->BusInterface.RestoreUsbDevice;
+
+    if (RestoreUsbDevice)
+    {
+        Status = RestoreUsbDevice(HubExtension->BusInterface.BusContext,
+                                  OldDeviceHandle,
+                                  NewDeviceHandle);
+    }
+    else
+    {
+        Status = STATUS_NOT_IMPLEMENTED;
+    }
+
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
                       PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,
                       PVOID WorkerRoutine,
