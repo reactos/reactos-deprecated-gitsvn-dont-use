@@ -552,7 +552,9 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
 
         KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
 
-        USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+        USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                          Endpoint,
+                                          INVALIDATE_ENDPOINT_WORKER_THREAD);
         return;
     }
 
@@ -719,7 +721,7 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
         }
         else
         {
-            if (Transfer->Flags & 0x80)
+            if (Transfer->Flags & TRANSFER_FLAG_DEVICE_GONE)
             {
                 USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_DEVICE_GONE);
             }
@@ -903,7 +905,9 @@ Worker:
         KeLowerIrql(PrevIrql);
 
         if (Result)
-            USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+            USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                              Endpoint,
+                                              INVALIDATE_ENDPOINT_WORKER_THREAD);
 
 Next:
         if (IsEnd)
@@ -1051,7 +1055,15 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
     Parameters->TransferFlags = Urb->UrbControlTransfer.TransferFlags;
 
     Transfer->TransferBufferMDL = Urb->UrbControlTransfer.TransferBufferMDL;
-    Transfer->Direction = ((Urb->UrbControlTransfer.TransferFlags & 1) == 0) + 1;
+
+    if (Urb->UrbControlTransfer.TransferFlags & USBD_TRANSFER_DIRECTION_IN)
+    {
+        Transfer->Direction = USBPORT_DMA_DIRECTION_FROM_DEVICE;
+    }
+    else
+    {
+        Transfer->Direction = USBPORT_DMA_DIRECTION_TO_DEVICE;
+    }
 
     if (Endpoint->EndpointProperties.TransferType == USBPORT_TRANSFER_TYPE_CONTROL)
     {
@@ -1133,7 +1145,7 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
                                          USBPORT_ENDPOINT,
                                          EndpointLink);
 
-            if (USBPORT_GetEndpointState(Endpoint) != 5)
+            if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
             {
                 InsertTailList(&List, &Endpoint->FlushLink);
             }
@@ -1239,7 +1251,8 @@ USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
                                              USBPORT_ENDPOINT,
                                              EndpointLink);
 
-                if (Endpoint->StateLast != 4 && Endpoint->StateLast != 5)
+                if (Endpoint->StateLast != USBPORT_ENDPOINT_CLOSED &&
+                    Endpoint->StateLast != USBPORT_ENDPOINT_NOT_HANDLED)
                 {
                     InterlockedIncrement(&Endpoint->LockCounter);
                     InsertTailList(&FlushList, &Endpoint->FlushControllerLink);
@@ -1356,9 +1369,9 @@ USBPORT_AbortEndpoint(IN PDEVICE_OBJECT FdoDevice,
 
             ActiveTransfer->Flags |= TRANSFER_FLAG_ABORTED;
 
-            if (Endpoint->Flags & 0x20)
+            if (Endpoint->Flags & ENDPOINT_FLAG_ABORTING)
             {
-                ActiveTransfer->Flags |= 0x80;
+                ActiveTransfer->Flags |= TRANSFER_FLAG_DEVICE_GONE;
             }
 
             ActiveList = ActiveTransfer->TransferLink.Flink;
@@ -1367,7 +1380,9 @@ USBPORT_AbortEndpoint(IN PDEVICE_OBJECT FdoDevice,
 
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
-    USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 3);
+    USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                      Endpoint,
+                                      INVALIDATE_ENDPOINT_INT_NEXT_SOF);
 
     USBPORT_FlushPendingTransfers(Endpoint);
     USBPORT_FlushCancelList(Endpoint);

@@ -10,9 +10,11 @@
 
 /* Endpoint states */
 
+#define USBPORT_ENDPOINT_UNKNOWN 0
 #define USBPORT_ENDPOINT_PAUSED 2
 #define USBPORT_ENDPOINT_ACTIVE 3
 #define USBPORT_ENDPOINT_CLOSED 4
+#define USBPORT_ENDPOINT_NOT_HANDLED 5
 
 typedef struct _USBPORT_RESOURCES {
   ULONG TypesResources; // 1 | 2 | 4  (Port | Interrupt | Memory)

@@ -75,7 +75,7 @@ USBPORT_AbortPipe(IN PDEVICE_OBJECT FdoDevice,
 
     if (USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
     {
-        if (!(PipeHandle->Flags & 0x00000002))
+        if (!(PipeHandle->Flags & PIPE_HANDLE_FLAG_NULL_PACKET_SIZE))
         {
             Endpoint = PipeHandle->Endpoint;
 
@@ -131,7 +131,7 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
 
     if (IsListEmpty(&Endpoint->TransferList))
     {
-        if (Urb->UrbHeader.UsbdFlags & 0x00000010)
+        if (Urb->UrbHeader.UsbdFlags & USBD_FLAG_NOT_ISO_TRANSFER)
         {
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
@@ -229,17 +229,21 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
     PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
 
     if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
+    {
         return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    }
 
-    if (PipeHandle->Flags & 2)
+    if (PipeHandle->Flags & PIPE_HANDLE_FLAG_NULL_PACKET_SIZE)
+    {
         return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
+    }
 
     Endpoint = PipeHandle->Endpoint;
     InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
 
     if (Endpoint->EndpointProperties.TransferType != USBPORT_TRANSFER_TYPE_ISOCHRONOUS)
     {
-        Urb->UrbHeader.UsbdFlags |= 0x00000010;
+        Urb->UrbHeader.UsbdFlags |= USBD_FLAG_NOT_ISO_TRANSFER;
         Status = USBPORT_ClearStall(FdoDevice, Irp, Urb);
     }
     else
@@ -268,7 +272,9 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
                 KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
                 if (EndpointState == USBPORT_ENDPOINT_ACTIVE)
+                {
                     break;
+                }
 
                 USBPORT_Wait(FdoDevice, 1);
             }

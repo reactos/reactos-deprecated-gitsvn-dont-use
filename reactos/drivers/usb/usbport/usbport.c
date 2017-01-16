@@ -823,7 +823,9 @@ USBPORT_FlushDoneTransfers(IN PDEVICE_OBJECT FdoDevice)
 
             if (IsHasTransfers && !TransferCount)
             {
-                USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 2);
+                USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                                  Endpoint,
+                                                  INVALIDATE_ENDPOINT_WORKER_DPC);
             }
         }
     }
@@ -1019,11 +1021,15 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
 
         if (IsDpcHandler)
         {
-            USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 0);
+            USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                              Endpoint,
+                                              INVALIDATE_ENDPOINT_ONLY);
         }
         else
         {
-            USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+            USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                              Endpoint,
+                                              INVALIDATE_ENDPOINT_WORKER_THREAD);
         }
     }
 
@@ -2135,11 +2141,15 @@ USBPORT_InvalidateEndpoint(IN PVOID Context1,
 
     if (Context2)
     {
-        USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 0);
+        USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                          Endpoint,
+                                          INVALIDATE_ENDPOINT_ONLY);
     }
     else
     {
-        USBPORT_InvalidateEndpointHandler(FdoDevice, NULL, 0);
+        USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                          NULL,
+                                          INVALIDATE_ENDPOINT_ONLY);
     }
 
     return 0;
@@ -2185,7 +2195,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
         FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
         DmaOperations = FdoExtension->DmaAdapter->DmaOperations;
 
-        WriteToDevice = Transfer->Direction == 2;
+        WriteToDevice = Transfer->Direction == USBPORT_DMA_DIRECTION_TO_DEVICE;
         Mdl = UrbTransfer->TransferBufferMDL;
         CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
         TransferLength = UrbTransfer->TransferBufferLength;
@@ -2319,7 +2329,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
     do
     {
-        WriteToDevice = Transfer->Direction == 2;
+        WriteToDevice = Transfer->Direction == USBPORT_DMA_DIRECTION_TO_DEVICE;
         ASSERT(Transfer->Direction != 0);
 
         PhAddress = DmaOperations->MapTransfer(DmaAdapter,
@@ -2391,7 +2401,9 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
     if (USBPORT_EndpointWorker(Endpoint, 0))
     {
-        USBPORT_InvalidateEndpointHandler(FdoDevice, Endpoint, 1);
+        USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                          Endpoint,
+                                          INVALIDATE_ENDPOINT_WORKER_THREAD);
     }
 
     return DeallocateObjectKeepRegisters;

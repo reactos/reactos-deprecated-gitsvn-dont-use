@@ -280,7 +280,7 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
 
             do
             {
-                if (PipeHandle->Flags & 2)
+                if (PipeHandle->Flags & PIPE_HANDLE_FLAG_NULL_PACKET_SIZE)
                 {
                     PipeInfo->ScheduleOffset = 1;
                 }

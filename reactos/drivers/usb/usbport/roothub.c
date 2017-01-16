@@ -917,7 +917,9 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
     if (Endpoint)
     {
-        USBPORT_InvalidateEndpointHandler(FdoDevice, PdoExtension->Endpoint, 1);
+        USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                          PdoExtension->Endpoint,
+                                          INVALIDATE_ENDPOINT_WORKER_THREAD);
     }
 
     return 0;
