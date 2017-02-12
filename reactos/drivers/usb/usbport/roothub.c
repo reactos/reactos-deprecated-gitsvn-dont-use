@@ -549,9 +549,9 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PUSBPORT_REGISTRATION_PACKET Packet;
     ULONG TransferLength;
-    ULONG PortStatus = 0;
+    USBHUB_PORT_STATUS PortStatus;
     ULONG HubStatus = 0;
-    ULONG_PTR Buffer;
+    PVOID Buffer;
     PURB Urb;
     RHSTATUS RHStatus = 1;
     PUSB_HUB_DESCRIPTOR HubDescriptor;
@@ -569,72 +569,112 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     HubDescriptor = (PUSB_HUB_DESCRIPTOR)&PdoExtension->RootHubDescriptors->Descriptor;
     NumberOfPorts = HubDescriptor->bNumberOfPorts;
 
+    PortStatus.AsULONG = 0;
+
     if (FdoExtension->Flags & 0x20000)
+    {
         return 1;
+    }
 
     Urb = Transfer->Urb;
     TransferLength = Transfer->TransferParameters.TransferBufferLength;
 
     if (TransferLength)
-        Buffer = (ULONG_PTR)Urb->UrbControlTransfer.TransferBufferMDL->MappedSystemVa;
-    else
-        Buffer = 0;
-
-    if (Buffer && TransferLength >= (NumberOfPorts / 8 + 1))
     {
-        RtlZeroMemory((PVOID)Buffer, TransferLength);
+        Buffer = Urb->UrbControlTransfer.TransferBufferMDL->MappedSystemVa;
+    }
+    else
+    {
+        Buffer = NULL;
+    }
 
-        if (NumberOfPorts)
+    /* Check parameters */
+
+    if (!Buffer)
+    {
+        /* Not valid parameter */
+        DPRINT1("USBPORT_RootHubSCE: Error! Buffer is NULL\n");
+        return 2;
+    }
+
+    if ((TransferLength < (NumberOfPorts / 8 + 1)))
+    {
+        /* Not valid parameters */
+        DPRINT1("USBPORT_RootHubSCE: Error! TransferLength - %x, NumberOfPorts - %x\n",
+                TransferLength,
+                NumberOfPorts);
+
+        return 2;
+    }
+
+    RtlZeroMemory(Buffer, TransferLength);
+
+    /* Scan all the ports for changes */
+    if (NumberOfPorts)
+    {
+        ix = 0;
+
+        while (ix < 256)
         {
-            ix = 0;
+            DPRINT_CORE("USBPORT_RootHubSCE: ix - %p\n", ix);
 
-            while (ix < 256)
+            /* Request the port status from miniport */
+            if (Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
+                                         ix + 1,
+                                         &PortStatus.AsULONG))
             {
-                DPRINT_CORE("USBPORT_RootHubSCE: ix - %p\n", ix);
-
-                if (Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
-                                             ix + 1,
-                                             &PortStatus))
-                {
-                    return 2;
-                }
-
-                if (PortStatus & 0x001F0000)
-                {
-                    USBPORT_SetBit(Buffer, ix + 1);
-                    RHStatus = 0;
-                }
-
-                ++ix;
-
-                if (ix >= NumberOfPorts)
-                    break;
+                /* Miniport returned an error */ 
+                return 2;
             }
-        }
 
-        if (!Packet->RH_GetHubStatus(FdoExtension->MiniPortExt, &HubStatus))
-        {
-            if (HubStatus & 0x30000)
+            if (PortStatus.UsbPortStatusChange.ConnectStatusChange ||
+                PortStatus.UsbPortStatusChange.EnableStatusChange ||
+                PortStatus.UsbPortStatusChange.SuspendStatusChange ||
+                PortStatus.UsbPortStatusChange.OverCurrentChange ||
+                PortStatus.UsbPortStatusChange.ResetStatusChange)
             {
-                USBPORT_SetBit(Buffer, 0);
+                /* At the hub port status there is a change */
+                USBPORT_SetBit((ULONG_PTR)Buffer, ix + 1);
                 RHStatus = 0;
             }
 
-            if (RHStatus == 0)
-            {
-                Urb->UrbControlTransfer.TransferBufferLength = TransferLength;
-                return 0;
-            }
+            ++ix;
 
-            if (RHStatus == 1)
+            if (ix >= NumberOfPorts)
             {
-                Packet->RH_EnableIrq(FdoExtension->MiniPortExt);
+                break;
             }
-
-            return RHStatus;
         }
     }
 
+    /* Request the hub status from miniport */
+    if (!Packet->RH_GetHubStatus(FdoExtension->MiniPortExt, &HubStatus))
+    {
+        if (HubStatus & (HUB_STATUS_CHANGE_LOCAL_POWER |
+                         HUB_STATUS_CHANGE_OVERCURRENT)) //0x00030000
+        {
+            /* At the hub status there is a change */
+            USBPORT_SetBit((ULONG_PTR)Buffer, 0);
+            RHStatus = 0;
+        }
+
+        if (RHStatus == 0)
+        {
+            /* Done */
+            Urb->UrbControlTransfer.TransferBufferLength = TransferLength;
+            return 0;
+        }
+
+        if (RHStatus == 1)
+        {
+            /* No changes. Enable IRQs for miniport root hub */
+            Packet->RH_EnableIrq(FdoExtension->MiniPortExt);
+        }
+
+        return RHStatus;
+    }
+
+    /* Miniport returned an error */ 
     return 2;
 }
 
