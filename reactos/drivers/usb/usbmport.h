@@ -603,4 +603,61 @@ typedef struct _USBPORT_ROOT_HUB_DATA {
 
 C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
 
+/* Hub port status and port status change bits.
+   See USB 2.0 spec Table 11-19 and Table 11-20.
+*/
+
+typedef union _USB_PORT_STATUS {
+  struct {
+    USHORT ConnectStatus          : 1; // Current Connect Status
+    USHORT EnableStatus           : 1; // Port Enabled/Disabled
+    USHORT SuspendStatus          : 1;
+    USHORT OverCurrent            : 1;
+    USHORT ResetStatus            : 1;
+    USHORT Reserved1              : 3;
+    USHORT PowerStatus            : 1;
+    USHORT LsDeviceAttached       : 1; // Low-Speed Device Attached
+    USHORT HsDeviceAttached       : 1; // High-speed Device Attached
+    USHORT TestMode               : 1; // Port Test Mode
+    USHORT IndicatorControl       : 1; // Port Indicator Control
+    USHORT Reserved2              : 3;
+  };
+  USHORT AsUSHORT;
+} USB_PORT_STATUS;
+
+typedef union _USB_PORT_STATUS_CHANGE {
+  struct {
+    USHORT ConnectStatusChange    : 1;
+    USHORT EnableStatusChange     : 1;
+    USHORT SuspendStatusChange    : 1;
+    USHORT OverCurrentChange      : 1;
+    USHORT ResetStatusChange      : 1;
+    USHORT Reserved3              : 3;
+    USHORT PowerStatusChange      : 1;
+    USHORT LsDeviceAttachedChange : 1;
+    USHORT HsDeviceAttachedChange : 1;
+    USHORT TestModeChange         : 1;
+    USHORT IndicatorControlChange : 1;
+    USHORT Reserved4              : 3;
+  };
+  USHORT AsUSHORT;
+} USB_PORT_STATUS_CHANGE;
+
+typedef union _USBHUB_PORT_STATUS {
+struct {
+    USB_PORT_STATUS UsbPortStatus;
+    USB_PORT_STATUS_CHANGE UsbPortStatusChange;
+  };
+  ULONG AsULONG;
+} USBHUB_PORT_STATUS, *PUSBHUB_PORT_STATUS;
+
+/* Hub status & hub status change bits.
+   See USB 2.0 spec Table 11-19 and Table 11-20.
+*/
+
+#define HUB_STATUS_LOCAL_POWER        0x00000001
+#define HUB_STATUS_OVERCURRENT        0x00000002
+#define HUB_STATUS_CHANGE_LOCAL_POWER 0x00010000
+#define HUB_STATUS_CHANGE_OVERCURRENT 0x00020000
+
 #endif /* USBMPORT_H__ */
