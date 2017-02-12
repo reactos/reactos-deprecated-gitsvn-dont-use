@@ -39,9 +39,13 @@ typedef struct _USBPORT_RESOURCES {
 
 C_ASSERT(sizeof(USBPORT_RESOURCES) == 52);
 
-typedef ULONG MPSTATUS;
-typedef ULONG RHSTATUS;
+typedef ULONG MPSTATUS; // Miniport status
+typedef ULONG RHSTATUS; // Roothub status
 
+#define MP_STATUS_SUCCESS 0
+
+#define RH_STATUS_SUCCESS 0
+ 
 /* Miniport */
 
 typedef MPSTATUS

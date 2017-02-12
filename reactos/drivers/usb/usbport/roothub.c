@@ -10,7 +10,7 @@ RHSTATUS
 NTAPI
 USBPORT_MPStatusToRHStatus(IN MPSTATUS MPStatus)
 {
-    RHSTATUS RHStatus = 0;
+    RHSTATUS RHStatus = RH_STATUS_SUCCESS;
 
     //DPRINT("USBPORT_MPStatusToRHStatus: MPStatus - %x\n", MPStatus);
 
@@ -182,7 +182,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             {
                 if (Feature == FEATURE_C_HUB_LOCAL_POWER) //0
                 {
-                    RHStatus = 0;
+                    RHStatus = RH_STATUS_SUCCESS;
                     return RHStatus;
                 }
             
@@ -313,7 +313,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
                               DescriptorLength);
 
                 *BufferLength = DescriptorLength;
-                RHStatus = 0;
+                RHStatus = RH_STATUS_SUCCESS;
             }
 
             break;
@@ -401,7 +401,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             RtlCopyMemory(Buffer, Descriptor, Length);
             *TransferLength = Length;
 
-            RHStatus = 0;
+            RHStatus = RH_STATUS_SUCCESS;
             break;
 
         case USB_REQUEST_GET_STATUS: //0x00
@@ -442,7 +442,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
             *TransferLength = Length;
 
-            RHStatus = 0;
+            RHStatus = RH_STATUS_SUCCESS;
             break;
 
         case USB_REQUEST_SET_CONFIGURATION: //0x09
@@ -455,7 +455,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                         PdoExtension->RootHubDescriptors->ConfigDescriptor.bConfigurationValue)
                 {
                   PdoExtension->ConfigurationValue = SetupPacket->wValue.LowByte;
-                  RHStatus = 0;
+                  RHStatus = RH_STATUS_SUCCESS;
                 }
             }
 
@@ -467,7 +467,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
                 !(SetupPacket->bmRequestType._BM.Dir))
             {
                 PdoExtension->DeviceHandle.DeviceAddress = SetupPacket->wValue.LowByte;
-                RHStatus = 0;
+                RHStatus = RH_STATUS_SUCCESS;
                 break;
             }
 
@@ -534,7 +534,7 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
         return 2;
     }
 
-    if (RHStatus == 0)
+    if (RHStatus == RH_STATUS_SUCCESS)
         Transfer->CompletedTransferLen = TransferLength;
 
     return RHStatus;
@@ -635,7 +635,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
             {
                 /* At the hub port status there is a change */
                 USBPORT_SetBit((ULONG_PTR)Buffer, ix + 1);
-                RHStatus = 0;
+                RHStatus = RH_STATUS_SUCCESS;
             }
 
             ++ix;
@@ -655,14 +655,14 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
         {
             /* At the hub status there is a change */
             USBPORT_SetBit((ULONG_PTR)Buffer, 0);
-            RHStatus = 0;
+            RHStatus = RH_STATUS_SUCCESS;
         }
 
-        if (RHStatus == 0)
+        if (RHStatus == RH_STATUS_SUCCESS)
         {
             /* Done */
             Urb->UrbControlTransfer.TransferBufferLength = TransferLength;
-            return 0;
+            return RH_STATUS_SUCCESS;
         }
 
         if (RHStatus == 1)
@@ -745,7 +745,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 
     if (RHStatus != 1)
     {
-        if (!RHStatus)
+        if (RHStatus == RH_STATUS_SUCCESS)
             USBDStatus = USBD_STATUS_SUCCESS;
         else
             USBDStatus = USBD_STATUS_STALL_PID;
