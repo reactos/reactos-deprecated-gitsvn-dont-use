@@ -624,6 +624,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
                                          &PortStatus.AsULONG))
             {
                 /* Miniport returned an error */ 
+                DPRINT1("USBPORT_RootHubSCE: RH_GetPortStatus failed\n");
                 return 2;
             }
 
@@ -675,6 +676,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     }
 
     /* Miniport returned an error */ 
+    DPRINT1("USBPORT_RootHubSCE: RH_GetHubStatus failed\n");
     return 2;
 }
 
