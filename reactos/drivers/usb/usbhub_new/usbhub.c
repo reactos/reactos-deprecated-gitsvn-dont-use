@@ -4101,19 +4101,22 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
     //       PortExtension->DeviceDescriptor.bNumConfigurations,
     //       ConfigDescriptor->bNumInterfaces);
 
-    /*
-       If bDeviceClass == USB_DEVICE_CLASS_RESERVED then
-       use class code info from Interface Descriptors.
-       If Class == 0xEF, SubClass == 2 and Protocol == 1 then
-       this set of class codes is defined as Multi-Interface Function Device Class Codes.
+
+    /* Enumeration of USB Composite Devices (msdn):
+       1) The device class field of the device descriptor (bDeviceClass) must contain a value of zero,
+       or the class (bDeviceClass), subclass (bDeviceSubClass), and protocol (bDeviceProtocol)
+       fields of the device descriptor must have the values 0xEF, 0x02 and 0x01 respectively,
+       as explained in USB Interface Association Descriptor.
+       2) The device must have multiple interfaces
+       3) The device must have a single configuration.
     */
 
-    if (((PortExtension->DeviceDescriptor.bDeviceClass == USB_DEVICE_CLASS_RESERVED) &&
-         (PortExtension->DeviceDescriptor.bNumConfigurations < 2) &&
-         (ConfigDescriptor->bNumInterfaces > 1)) ||
-        (PortExtension->DeviceDescriptor.bDeviceClass == 0xEF &&
-         PortExtension->DeviceDescriptor.bDeviceSubClass == 2 &&
-         PortExtension->DeviceDescriptor.bDeviceProtocol == 1))
+    if (((PortExtension->DeviceDescriptor.bDeviceClass == USB_DEVICE_CLASS_RESERVED) ||
+        (PortExtension->DeviceDescriptor.bDeviceClass == USBC_DEVICE_CLASS_MISCELLANEOUS &&
+         PortExtension->DeviceDescriptor.bDeviceSubClass == 0x02 &&
+         PortExtension->DeviceDescriptor.bDeviceProtocol == 0x01)) &&
+         (ConfigDescriptor->bNumInterfaces > 1) &&
+         (PortExtension->DeviceDescriptor.bNumConfigurations < 2))
     {
         DPRINT("USBH_ProcessDeviceInformation: Multi-Interface configuration\n");
         //DbgBreakPoint();
