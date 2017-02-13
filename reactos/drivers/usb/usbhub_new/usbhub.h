@@ -11,6 +11,7 @@
 #include <hubbusif.h>
 #include <usbbusif.h>
 #include <usbdlib.h>
+#include <drivers/usbport/usbmport.h>
 
 #define USB_HUB_TAG 'BUHU'
 
@@ -93,50 +94,6 @@
 #define USBHUB_FEATURE_PORT_INDICATOR      22
 
 extern PVOID GenericUSBDeviceString;
-
-typedef union _USB_PORT_STATUS {
-  struct {
-    USHORT ConnectStatus          : 1; // Current Connect Status
-    USHORT EnableStatus           : 1; // Port Enabled/Disabled
-    USHORT SuspendStatus          : 1;
-    USHORT OverCurrent            : 1;
-    USHORT ResetStatus            : 1;
-    USHORT Reserved1              : 3;
-    USHORT PowerStatus            : 1;
-    USHORT LsDeviceAttached       : 1; // Low-Speed Device Attached
-    USHORT HsDeviceAttached       : 1; // High-speed Device Attached
-    USHORT TestMode               : 1; // Port Test Mode
-    USHORT IndicatorControl       : 1; // Port Indicator Control
-    USHORT Reserved2              : 3;
-  };
-  USHORT AsUSHORT;
-} USB_PORT_STATUS;
-
-typedef union _USB_PORT_STATUS_CHANGE {
-  struct {
-    USHORT ConnectStatusChange    : 1;
-    USHORT EnableStatusChange     : 1;
-    USHORT SuspendStatusChange    : 1;
-    USHORT OverCurrentChange      : 1;
-    USHORT ResetStatusChange      : 1;
-    USHORT Reserved3              : 3;
-    USHORT PowerStatusChange      : 1;
-    USHORT LsDeviceAttachedChange : 1;
-    USHORT HsDeviceAttachedChange : 1;
-    USHORT TestModeChange         : 1;
-    USHORT IndicatorControlChange : 1;
-    USHORT Reserved4              : 3;
-  };
-  USHORT AsUSHORT;
-} USB_PORT_STATUS_CHANGE;
-
-typedef union _USBHUB_PORT_STATUS {
-struct {
-    USB_PORT_STATUS UsbPortStatus;
-    USB_PORT_STATUS_CHANGE UsbPortStatusChange;
-  };
-  ULONG AsULONG;
-} USBHUB_PORT_STATUS, *PUSBHUB_PORT_STATUS;
 
 typedef struct _USBHUB_PORT_DATA {
   USBHUB_PORT_STATUS PortStatus;
