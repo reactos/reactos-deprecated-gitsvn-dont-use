@@ -3811,7 +3811,9 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
     BOOLEAN IsHubIdle = FALSE;
     BOOLEAN IsAllPortsIdle;
 
-    DPRINT("USBH_CheckHubIdle: HubExtension - %p\n", HubExtension);
+    DPRINT("USBH_CheckHubIdle: FIXME !!! HubExtension - %p\n", HubExtension);
+
+return; //HACK: delete it line after fixing Power Manager!!!
 
     KeAcquireSpinLock(&HubExtension->CheckIdleSpinLock, &Irql);
 
