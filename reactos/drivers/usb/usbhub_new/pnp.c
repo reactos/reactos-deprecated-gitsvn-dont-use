@@ -1426,7 +1426,7 @@ RelationsWorker:
 
         PdoExtension = CONTAINING_RECORD(Entry,
                                          USBHUB_PORT_PDO_EXTENSION,
-                                         Common.SelfDevice);
+                                         PortLink);
 
         PdoExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
 
@@ -1449,7 +1449,7 @@ RelationsWorker:
 
         PdoExtension = CONTAINING_RECORD(Entry,
                                          USBHUB_PORT_PDO_EXTENSION,
-                                         Common.SelfDevice);
+                                         PortLink);
 
         IoDeleteDevice(PdoExtension->Common.SelfDevice);
     }
