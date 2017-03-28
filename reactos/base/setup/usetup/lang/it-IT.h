@@ -797,20 +797,19 @@ static MUI_ENTRY itITSelectPartitionEntries[] =
     {
         8,
         15,
-        "\x07  Press P to create a primary partition.",
-//        "\x07  Premere C per creare una nuova partizione.",
+        "\x07  Premere P per creare una nuova partizione.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         17,
-        "\x07  Press E to create an extended partition.",
+        "\x07  Premere E per creare una partizione estesta.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         19,
-        "\x07  Press L to create a logical partition.",
+        "\x07  Premere L per creare una partizione logica.",
         TEXT_STYLE_NORMAL
     },
     {
@@ -839,84 +838,84 @@ static MUI_ENTRY itITConfirmDeleteSystemPartitionEntries[] =
         4, 
         3,
         " Installazione di ReactOS " KERNEL_VERSION_STR " ",
-        TEXT_STYLE_UNDERLINE
+        TEXT_STYLE_UNDERLINE1
     },
     {
         6,
         8,
-        "You have chosen to delete the system partition.",
+        "Hai scelto di eliminare la partizione del sistema.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         10,
-        "System partitions can contain diagnostic programs, hardware configuration",
+        "La partizioni di sistema possono contenere i programmi di diagnostica, configurazione hardware",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         11,
-        "programs, programs to start an operating system (like ReactOS) or other",
+        "Programmi utilizzati per l'avvio di un sistema operativo (come ReactOS) o altri.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         12,
-        "programs provided by the hardware manufacturer.",
+        "Programmi forniti dall'azienda hardware.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         14,
-        "Delete a system partition only when you are sure that there are no such",
+        "Elimina una partizione di sistema solo quando tu sei sicuro che non ci siano.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         15,
-        "programs on the partition, or when you are sure you want to delete them.",
+        "Programmi sulla pertizione, o quando tu sei sicuro di eliminarla.",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         16,
-        "When you delete the partition, you might not be able to boot the",
+        "Quando tu cancelli una partizione, potresti non essere in grando di utilizzare il tuo",
         TEXT_STYLE_NORMAL
     },
     {
         6,
         17,
-        "computer from the harddisk until you finished the ReactOS Setup.",
+        "dall'harddisk finchè non hai terminato il setup di ReactOS.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         20,
-        "\x07  Press ENTER to delete the system partition. You will be asked",
+        "\x07  Primere INIVO per elimnare una partizione di sistema. Ti sarà chiesto più tardi",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         21,
-        "   to confirm the deletion of the partition again later.",
+        "   di confermare ancora l'eliminazione della partizione.",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         24,
-        "\x07  Press ESC to return to the previous page. The partition will",
+        "\x07  Primere ESC per ritornare alla pagnia precedente. La partizione",
         TEXT_STYLE_NORMAL
     },
     {
         8,
         25,
-        "   not be deleted.",
+        "   non verrà cencellata.",
         TEXT_STYLE_NORMAL
     },
     {
         0,
         0,
-        "ENTER=Continue  ESC=Cancel",
+        "INVIO=Continua  ESC=Cancella",
         TEXT_TYPE_STATUS | TEXT_PADDING_BIG
     },
     {
@@ -1573,37 +1572,37 @@ MUI_ERROR itITErrorEntries[] =
     },
     {
         //ERROR_DIRECTORY_NAME,
-        "Invalid directory name.\n"
+        "Nome della cartella invalida.\n"
         "\n"
-        "  * Press any key to continue."
+        "  * Premere un tasto qualsiasi per continuare."
     },
     {
         //ERROR_INSUFFICIENT_PARTITION_SIZE,
-        "The selected partition is not large enough to install ReactOS.\n"
-        "The install partition must have a size of at least %lu MB.\n"
+        "La partizione selezionata non è tanto larga per installare ReactOS.\n"
+        "La partizione deve avre una dimensione di almeno %lu MB.\n"
         "\n"
         "  * Premere un tasto qualsiasi per continuare.",
         NULL
     },
     {
         //ERROR_PARTITION_TABLE_FULL,
-        "You can not create a new primary or extended partition in the\n"
-        "partition table of this disk because the partition table is full.\n"
+        "non puoi creare una partizione primaria o secondaria nella\n"
+        "tavola delle partizioni del disco perchè questa è piena.\n"
         "\n"
-        "  * Press any key to continue."
+        "  * Premere un tasto qualsiasi per continuare."
     },
     {
         //ERROR_ONLY_ONE_EXTENDED,
         "You can not create more than one extended partition per disk.\n"
         "\n"
-        "  * Press any key to continue."
+        "  * Premere un tasto qualsiasi per continuare."
     },
     {
         //ERROR_FORMATTING_PARTITION,
-        "Setup is unable to format the partition:\n"
+        "Setup non è riuscito a formatte la partizione:\n"
         " %S\n"
         "\n"
-        "ENTER = Reboot computer"
+        "ENTER = Riavvia il computer"
     },
     {
         NULL,
@@ -1720,23 +1719,21 @@ MUI_STRING itITStrings[] =
     {STRING_PLEASEWAIT,
      "   Attendere..."},
     {STRING_INSTALLCREATEPARTITION,
-     "   ENTER = Install   P = Create Primary   E = Create Extended   F3 = Quit"},
-//     "   INVIO = Installa   C = Crea Partizione   F3 = Esci"},
+     "   ENTER = Installa   P = Crea Partizione primaria   E = Crea Partizione Estesa  F3 = Esci"},
     {STRING_INSTALLCREATELOGICAL,
-     "   ENTER = Install   L = Create Logical Partition   F3 = Quit"},
+     "   ENTER = Installa   L = Crea Partizione Logica   F3 = Esci"},
     {STRING_INSTALLDELETEPARTITION,
      "   INVIO = Installa   D = Rimuovi Partizione   F3 = Esci"},
     {STRING_DELETEPARTITION,
-     "   D = Delete Partition   F3 = Quit"},
+     "   D = Elimina Partizione   F3 = Esci"},
     {STRING_PARTITIONSIZE,
      "Dimensione della nuova partizione:"},
     {STRING_CHOOSENEWPARTITION,
-     "You have chosen to create a primary partition on"},
-//     "Avete scelto di creare una nuova partizione su"},
+     "Avete scelto di creare una nuova partizione primaria su"},
     {STRING_CHOOSE_NEW_EXTENDED_PARTITION,
-     "You have chosen to create an extended partition on"},
+     "Avete scelto di creare una nuova partizione estesa su"},
     {STRING_CHOOSE_NEW_LOGICAL_PARTITION,
-     "You have chosen to create a logical partition on"},
+     "YAvete scelto di creare una nuova partizione logica su"},
     {STRING_HDDSIZE,
     "Indicare la dimensione della nuova partizione in megabyte."},
     {STRING_CREATEPARTITION,
@@ -1746,9 +1743,9 @@ MUI_STRING itITStrings[] =
     {STRING_NONFORMATTEDPART,
     "Avete scelto di installare ReactOS su una partizione nuova o non formattata."},
     {STRING_NONFORMATTEDSYSTEMPART,
-    "The system partition is not formatted yet."},
+    "La partizione del sistema non è stata ancora formattata."},
     {STRING_NONFORMATTEDOTHERPART,
-    "The new partition is not formatted yet."},
+    "La nuova partizione non è stata ancora fomattata."},
     {STRING_INSTALLONPART,
     "Setup installer… ReactOS sulla partitione"},
     {STRING_CHECKINGPART,
