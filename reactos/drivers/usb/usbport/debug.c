@@ -106,7 +106,8 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
     PUSB_ENDPOINT_DESCRIPTOR Descriptor;
     ULONG ix;
 
-    if (!ConfigDescriptor)
+    if (!ConfigDescriptor ||
+        ConfigDescriptor->bLength < sizeof(USB_CONFIGURATION_DESCRIPTOR))
     {
         return;
     }
@@ -124,7 +125,7 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
     iDescriptor = (PUSB_INTERFACE_DESCRIPTOR)((ULONG_PTR)ConfigDescriptor +
                                                          ConfigDescriptor->bLength);
 
-    if (!iDescriptor)
+    if (iDescriptor->bLength < sizeof(USB_INTERFACE_DESCRIPTOR))
     {
         return;
     }
@@ -143,13 +144,13 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
     Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)iDescriptor +
                                                        iDescriptor->bLength);
 
-    if (!Descriptor)
-    {
-        return;
-    }
-
     for (ix = 0; ix < iDescriptor->bNumEndpoints; ix++)
     {
+        if (Descriptor->bLength < sizeof(USB_ENDPOINT_DESCRIPTOR))
+        {
+            return;
+        }
+
         DPRINT_URB("Dumping Descriptor  - %p\n", Descriptor);
         DPRINT_URB("bLength             - %x\n", Descriptor->bLength);
         DPRINT_URB("bDescriptorType     - %x\n", Descriptor->bDescriptorType);
