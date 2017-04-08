@@ -274,7 +274,7 @@ USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
     NTSTATUS Status;
     KIRQL OldIrql;
     POWER_STATE PowerState;
-    LONG WakeIrp;
+    PIRP WakeIrp;
 
     DPRINT("USBH_FdoWWIrpIoCompletion: DeviceObject - %p, Irp - %p\n",
             DeviceObject,
@@ -288,8 +288,8 @@ USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
 
     HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_PENDING_WAKE_IRP;
 
-    WakeIrp = InterlockedExchange((PLONG)&HubExtension->PendingWakeIrp,
-                                  0);
+    WakeIrp = InterlockedExchangePointer((PVOID *)&HubExtension->PendingWakeIrp,
+                                         NULL);
 
     if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
     {
