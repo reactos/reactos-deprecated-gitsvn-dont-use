@@ -368,12 +368,6 @@ USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
     Status = Irp->IoStatus.Status;
     DPRINT("USBH_PowerIrpCompletion: Status - %p\n", Status);
 
-
-    if (Irp->PendingReturned)
-    {
-        IoMarkIrpPending(Irp);
-    }
-
     if (!NT_SUCCESS(Status))
     {
         if (PowerState.DeviceState == PowerDeviceD0)
