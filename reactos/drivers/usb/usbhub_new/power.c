@@ -565,7 +565,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
                           IoCancelIrp(HubExtension->ResetPortIrp);
 
                           KeWaitForSingleObject(&HubExtension->ResetEvent,
-                                                Suspended,
+                                                Executive,
                                                 KernelMode,
                                                 FALSE,
                                                 NULL);
@@ -579,7 +579,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
                           IoCancelIrp(HubExtension->SCEIrp);
 
                           KeWaitForSingleObject(&HubExtension->StatusChangeEvent,
-                                                Suspended,
+                                                Executive,
                                                 KernelMode,
                                                 FALSE,
                                                 NULL);
