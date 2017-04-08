@@ -334,8 +334,6 @@ USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_FdoWWIrpIoCompletion: Status - %p\n", Status);
 
-    IoMarkIrpPending(Irp);
-
     if (Status != STATUS_MORE_PROCESSING_REQUIRED)
     {
         PoStartNextPowerIrp(Irp);
