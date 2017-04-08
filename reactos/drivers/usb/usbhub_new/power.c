@@ -778,7 +778,7 @@ USBH_PdoPower(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
               IN PIRP Irp,
               IN UCHAR Minor)
 {
-    NTSTATUS Status=0;
+    NTSTATUS Status = Irp->IoStatus.Status;
 
     DPRINT("USBH_FdoPower: PortExtension - %p, Irp - %p, Minor - %x\n",
            PortExtension,
