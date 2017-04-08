@@ -333,7 +333,6 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
     PDEVICE_OBJECT FdoDevice;
     PIO_STACK_LOCATION IoStack;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    PDRIVER_CANCEL OldCancelRoutine;
     NTSTATUS Status;
     KIRQL OldIrql;
 
@@ -359,15 +358,17 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
 
           KeAcquireSpinLock(&FdoExtension->PowerWakeSpinLock, &OldIrql);
 
-          OldCancelRoutine = IoSetCancelRoutine(Irp, USBPORT_CancelPendingWakeIrp);
+          IoSetCancelRoutine(Irp, USBPORT_CancelPendingWakeIrp);
 
-          if (Irp->Cancel && InterlockedExchange((PLONG)OldCancelRoutine, 0))
+          if (Irp->Cancel)
           {
-              KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
-
-              DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_CANCELLED\n");
-              Status = STATUS_CANCELLED;
-              break;
+              if (IoSetCancelRoutine(Irp, NULL))
+              {
+                  KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+                  DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_CANCELLED\n");
+                  Status = STATUS_CANCELLED;
+                  break;
+              }
           }
 
           if (!PdoExtension->WakeIrp)
@@ -381,7 +382,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
               return STATUS_PENDING;
           }
 
-          if (InterlockedExchange((PLONG)OldCancelRoutine, 0))
+          if (IoSetCancelRoutine(Irp, NULL))
           {
               DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_DEVICE_BUSY\n");
 
