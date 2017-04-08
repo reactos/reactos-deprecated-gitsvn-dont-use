@@ -167,9 +167,7 @@ USBH_HubQueuePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (NumPorts)
     {
-        Port = 0;
-
-        do
+        for (Port = 0; Port < NumPorts; ++Port)
         {
             PortDevice = HubExtension->PortData[Port].DeviceObject;
 
@@ -186,10 +184,7 @@ USBH_HubQueuePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
                     DbgBreakPoint();
                 }
             }
-
-            ++Port;
         }
-        while (Port < NumPorts);
     }
 
     IoReleaseCancelSpinLock(OldIrql);
