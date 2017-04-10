@@ -96,22 +96,6 @@ VOID
 NTAPI
 USBPORT_DoSetPowerD0(IN PDEVICE_OBJECT FdoDevice)
 {
-    KIRQL OldIrql;
-
-    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
-
-    DPRINT("USBPORT_DoSetPowerD0: ... \n");
-
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-
-    KeAcquireSpinLock(&FdoExtension->SetPowerD0SpinLock, &OldIrql);
-
-    if (!(FdoExtension->Flags & 0x00000020))
-    {
-        KeReleaseSpinLock(&FdoExtension->SetPowerD0SpinLock, OldIrql);
-        return;
-    }
-
     DPRINT1("USBPORT_DoSetPowerD0: FIXME!\n");
     DbgBreakPoint();
     //ASSERT(FALSE);
@@ -266,8 +250,8 @@ USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
     {
         if (FdoExtension->CommonExtension.DevicePowerState == PowerDeviceD0)
         {
-            while ((FdoExtension->Flags & 0x00000020) ||
-                   FdoExtension->SetPowerLockCounter)
+            // FIXME FdoExtension->Flags
+            while (FdoExtension->SetPowerLockCounter)
             {
                 USBPORT_Wait(FdoDevice, 10);
             }
