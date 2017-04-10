@@ -290,18 +290,16 @@ USBPORT_CancelPendingWakeIrp(IN PDEVICE_OBJECT PdoDevice,
                              IN PIRP Irp)
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
-    PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    KIRQL OldIrql;
 
     DPRINT("USBPORT_CancelPendingWakeIrp: ... \n");
 
     IoReleaseCancelSpinLock(Irp->CancelIrql);
     PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)PdoExtension->FdoDevice->DeviceExtension;
 
-    KeAcquireSpinLock(&FdoExtension->PowerWakeSpinLock, &OldIrql);
-    PdoExtension->WakeIrp = NULL;
-    KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+    if (PdoExtension->WakeIrp == Irp)
+    {
+        PdoExtension->WakeIrp = NULL;
+    }
 
     Irp->IoStatus.Status = STATUS_CANCELLED;
     Irp->IoStatus.Information = 0;
