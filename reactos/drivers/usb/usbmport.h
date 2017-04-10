@@ -32,7 +32,7 @@ typedef struct _USBPORT_RESOURCES {
   PVOID StartVA;
   PVOID StartPA;
   UCHAR LegacySupport;
-  UCHAR Reserved1;
+  BOOLEAN IsHandleChirp;
   UCHAR Reserved2;
   UCHAR Reserved3;
 } USBPORT_RESOURCES, *PUSBPORT_RESOURCES;
