@@ -107,7 +107,6 @@ USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
     PUSBPORT_REGISTRATION_PACKET Packet;
-    KIRQL OldIrql;
 
     DPRINT1("USBPORT_SuspendController \n");
 
@@ -120,9 +119,7 @@ USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 
     if (!(FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND))
     {
-        KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
         FdoExtension->TimerFlags |= USBPORT_TMFLAG_HC_SUSPENDED;
-        KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
 
         if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
         {
@@ -132,9 +129,7 @@ USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
             Packet->SuspendController(FdoExtension->MiniPortExt);
         }
 
-        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
         FdoExtension->Flags |= USBPORT_FLAG_HC_SUSPEND;
-        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
     }
 }
 
