@@ -182,7 +182,7 @@ USBPORT_ResumeController(IN PDEVICE_OBJECT FdoDevice)
     }
 
     KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
-    FdoExtension->TimerFlags |= (USBPORT_TMFLAG_HC_SUSPENDED | 0x00000004);
+    FdoExtension->TimerFlags |= (USBPORT_TMFLAG_HC_SUSPENDED | USBPORT_TMFLAG_HC_RESUME);
     KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
 
     USBPORT_MiniportInterrupts(FdoDevice, FALSE);
@@ -211,7 +211,7 @@ USBPORT_ResumeController(IN PDEVICE_OBJECT FdoDevice)
     KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
 
     FdoExtension->TimerFlags &= ~(USBPORT_TMFLAG_HC_SUSPENDED |
-                                  0x00000004 |
+                                  USBPORT_TMFLAG_HC_RESUME |
                                   USBPORT_TMFLAG_RH_SUSPENDED);
 
     KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);

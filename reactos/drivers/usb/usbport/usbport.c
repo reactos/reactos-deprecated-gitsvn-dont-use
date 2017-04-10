@@ -1598,7 +1598,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
 
     if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND &&
         FdoExtension->Flags & 0x00200000 &&
-        !(TimerFlags & 0x00000004))
+        !(TimerFlags & USBPORT_TMFLAG_HC_RESUME))
     {
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
         Packet->PollController(FdoExtension->MiniPortExt);
