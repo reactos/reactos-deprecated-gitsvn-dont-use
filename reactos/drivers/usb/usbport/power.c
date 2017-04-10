@@ -352,6 +352,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
 
           if (!(FdoExtension->Flags & USBPORT_FLAG_HC_STARTED))
           {
+              /* The device does not support wake-up */
               Status = STATUS_NOT_SUPPORTED;
               break;
           }
@@ -360,12 +361,17 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
 
           IoSetCancelRoutine(Irp, USBPORT_CancelPendingWakeIrp);
 
+          /* Check if the IRP has been cancelled */
           if (Irp->Cancel)
           {
               if (IoSetCancelRoutine(Irp, NULL))
               {
+                  /* IRP has been cancelled, release cancel spinlock */
                   KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+
                   DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_CANCELLED\n");
+
+                  /* IRP is cancelled */
                   Status = STATUS_CANCELLED;
                   break;
               }
@@ -373,6 +379,8 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
 
           if (!PdoExtension->WakeIrp)
           {
+              /* The driver received the IRP
+                 and is waiting for the device to signal wake-up. */
               DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - No WakeIrp\n");
 
               IoMarkIrpPending(Irp);
@@ -381,19 +389,26 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
               KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
               return STATUS_PENDING;
           }
-
-          if (IoSetCancelRoutine(Irp, NULL))
+          else
           {
-              DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_DEVICE_BUSY\n");
+              /* An IRP_MN_WAIT_WAKE request is already pending and must be completed
+                 or canceled before another IRP_MN_WAIT_WAKE request can be issued. */
+              if (IoSetCancelRoutine(Irp, NULL))
+              {
+                  DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_DEVICE_BUSY\n");
 
-              KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
-              PoStartNextPowerIrp(Irp);
-              Status = STATUS_DEVICE_BUSY;
-              break;
+                  KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+                  PoStartNextPowerIrp(Irp);
+                  Status = STATUS_DEVICE_BUSY;
+                  break;
+              }
+              else
+              {
+                  ASSERT(FALSE);
+                  KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
+                  return Status;
+              }
           }
-
-          KeReleaseSpinLock(&FdoExtension->PowerWakeSpinLock, OldIrql);
-          return Status;
 
       case IRP_MN_POWER_SEQUENCE:
           DPRINT("USBPORT_PdoPower: IRP_MN_POWER_SEQUENCE\n");
