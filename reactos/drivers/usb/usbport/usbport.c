@@ -1161,7 +1161,7 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
-    if (!(FdoExtension->Flags & 0x20300))
+    if (!(FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND))
     {
         Packet->CheckController(FdoExtension->MiniPortExt);
     }
@@ -1432,18 +1432,6 @@ USBPORT_WorkerThread(IN PVOID StartContext)
                 USB2FdoDevice = USBPORT_FindUSB2Controller(FdoDevice);
                 USBPORT_SynchronizeRootHubCallback(FdoDevice, USB2FdoDevice);
             }
-
-            if (FdoExtension->Flags & 0x00100000)
-            {
-                DPRINT("USBPORT_WorkerThread: EndTransmitTriggerPacket UNIMPLEMENTED.\n");
-                DbgBreakPoint();
-            }
-        }
-        else if (!(FdoExtension->Flags & 0x00020000))
-        {
-            DPRINT1("USBPORT_WorkerThread: !0x00020000 \n");
-            DbgBreakPoint();
-            continue;
         }
 
         USBPORT_WorkerThreadHandler(FdoDevice);
@@ -1597,7 +1585,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
                  TimerFlags);
 
     if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND &&
-        FdoExtension->Flags & 0x00200000 &&
+        FdoExtension->Flags & USBPORT_FLAG_HC_WAKE_SUPPORT &&
         !(TimerFlags & USBPORT_TMFLAG_HC_RESUME))
     {
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
@@ -1615,16 +1603,14 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
-    if (!(FdoExtension->Flags & (0x00020000 |
-                                 0x00000200 |
-                                 USBPORT_FLAG_HC_SUSPEND)))
+    if (!(FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND))
     {
         Packet->CheckController(FdoExtension->MiniPortExt);
     }
 
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
-    if (FdoExtension->Flags & 0x00000004)
+    if (FdoExtension->Flags & USBPORT_FLAG_HC_POLLING)
     {
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
         Packet->PollController(FdoExtension->MiniPortExt);

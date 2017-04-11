@@ -776,7 +776,7 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
         KeAcquireSpinLock(&FdoExtension->FlushPendingTransferSpinLock, &OldIrql);
         KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
-        if (FdoExtension->Flags & 0x300)
+        if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND)
         {
             IsEnd = TRUE;
 

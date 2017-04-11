@@ -571,11 +571,6 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
 
     PortStatus.AsULONG = 0;
 
-    if (FdoExtension->Flags & 0x20000)
-    {
-        return 1;
-    }
-
     Urb = Transfer->Urb;
     TransferLength = Transfer->TransferParameters.TransferBufferLength;
 
@@ -699,7 +694,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-    if (!(FdoExtension->Flags & 0x20300))
+    if (!(FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND))
     {
         Packet->CheckController(FdoExtension->MiniPortExt);
     }
@@ -939,7 +934,7 @@ USBPORT_InvalidateRootHub(PVOID Context)
     FdoDevice = FdoExtension->CommonExtension.SelfDevice;
 
     if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND && 
-         FdoExtension->Flags & 0x00200000 &&
+         FdoExtension->Flags & USBPORT_FLAG_HC_WAKE_SUPPORT &&
          FdoExtension->MiniPortFlags & USBPORT_MPFLAG_SUSPENDED &&
          FdoExtension->TimerFlags & USBPORT_TMFLAG_WAKE)
     {

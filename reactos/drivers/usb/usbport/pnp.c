@@ -661,12 +661,12 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     MiniportFlags = Packet->MiniPortFlags;
 
     if (MiniportFlags & USB_MINIPORT_FLAGS_POLLING)
-        FdoExtension->Flags |= 4;
+        FdoExtension->Flags |= USBPORT_FLAG_HC_POLLING;
 
     if (MiniportFlags & USB_MINIPORT_FLAGS_WAKE_SUPPORT)
-        FdoExtension->Flags |= 0x00200000;
+        FdoExtension->Flags |= USBPORT_FLAG_HC_WAKE_SUPPORT;
 
-    if (MiniportFlags & 0x20)
+    if (MiniportFlags & USB_MINIPORT_FLAGS_DISABLE_SS)
         FdoExtension->Flags = (FdoExtension->Flags & ~USBPORT_FLAG_SELECTIVE_SUSPEND) |
                               USBPORT_FLAG_BIOS_DISABLE_SS;
 
