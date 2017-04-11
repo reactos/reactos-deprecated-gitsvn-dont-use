@@ -1752,7 +1752,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
 
                         Packet->SetEndpointStatus(FdoExtension->MiniPortExt,
                                                   (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                  0);
+                                                  USBPORT_ENDPOINT_RUN);
 
                         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
                     }
