@@ -515,6 +515,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     Status = USBPORT_QueryPciBusInterface(FdoDevice);
+    if (!NT_SUCCESS(Status))
+        goto ExitWithError;
 
     BytesRead = (*FdoExtension->BusInterface.GetBusData)(FdoExtension->BusInterface.Context,
                                                          PCI_WHICHSPACE_CONFIG,
