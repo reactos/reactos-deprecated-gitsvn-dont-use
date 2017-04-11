@@ -191,12 +191,12 @@ USBPORT_ResumeController(IN PDEVICE_OBJECT FdoDevice)
     RtlZeroMemory(FdoExtension->UsbPortResources.StartVA,
                   Packet->MiniPortResourcesSize);
 
-    FdoExtension->UsbPortResources.IsHandleChirp = TRUE;
+    FdoExtension->UsbPortResources.IsChirpHandled = TRUE;
 
     MpStatus = Packet->StartController(FdoExtension->MiniPortExt,
                                        &FdoExtension->UsbPortResources);
 
-    FdoExtension->UsbPortResources.IsHandleChirp = FALSE;
+    FdoExtension->UsbPortResources.IsChirpHandled = FALSE;
 
     if (!MpStatus)
     {
