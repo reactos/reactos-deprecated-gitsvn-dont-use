@@ -1,6 +1,8 @@
 #ifndef USBMPORT_H__
 #define USBMPORT_H__
 
+#define USBPORT_HCI_MN 0x10000001
+
 /* Tranfer types */
 
 #define USBPORT_TRANSFER_TYPE_ISOCHRONOUS 0
