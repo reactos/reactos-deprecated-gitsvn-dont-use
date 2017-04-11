@@ -798,7 +798,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
 
     InitializeListHead(&DeviceHandle->PipeHandleList);
 
-    DeviceHandle->IsRootHub = 1;
+    DeviceHandle->IsRootHub = TRUE;
     DeviceHandle->DeviceSpeed = UsbFullSpeed;
     DeviceHandle->Flags = DEVICE_HANDLE_FLAG_ROOTHUB;
 
