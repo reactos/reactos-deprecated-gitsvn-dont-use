@@ -959,7 +959,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
             if (UsbPortResources->ResourceBase)
             {
-                UsbPortResources->TypesResources |= 1; // FIXME const
+                UsbPortResources->TypesResources |= USBPORT_RESOURCES_PORT;
             }
             else
             {
@@ -977,7 +977,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
             if (UsbPortResources->ResourceBase)
             {
-                UsbPortResources->TypesResources |= 4;// FIXME const
+                UsbPortResources->TypesResources |= USBPORT_RESOURCES_MEMORY;
             }
             else
             {
@@ -987,7 +987,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
         if (InterruptDescriptor && NT_SUCCESS(Status))
         {
-            UsbPortResources->TypesResources |= 2; // FIXME const
+            UsbPortResources->TypesResources |= USBPORT_RESOURCES_INTERRUPT;
 
             UsbPortResources->InterruptVector = InterruptDescriptor->u.Interrupt.Vector;
             UsbPortResources->InterruptLevel = InterruptDescriptor->u.Interrupt.Level;

@@ -24,6 +24,12 @@
 #define USBPORT_ENDPOINT_HALT    1
 #define USBPORT_ENDPOINT_CONTROL 4
 
+/* Types of resources */
+
+#define USBPORT_RESOURCES_PORT      1
+#define USBPORT_RESOURCES_INTERRUPT 2
+#define USBPORT_RESOURCES_MEMORY    4
+
 typedef struct _USBPORT_RESOURCES {
   ULONG TypesResources; // 1 | 2 | 4  (Port | Interrupt | Memory)
   ULONG HcFlavor;
