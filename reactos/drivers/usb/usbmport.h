@@ -50,7 +50,12 @@ C_ASSERT(sizeof(USBPORT_RESOURCES) == 52);
 typedef ULONG MPSTATUS; // Miniport status
 typedef ULONG RHSTATUS; // Roothub status
 
-#define MP_STATUS_SUCCESS 0
+#define MP_STATUS_SUCCESS       0
+#define MP_STATUS_FAILURE       1
+#define MP_STATUS_NO_RESOURCES  2
+#define MP_STATUS_NO_BANDWIDTH  3
+#define MP_STATUS_ERROR         4
+#define MP_STATUS_NOT_SUPPORTED 6
 
 #define RH_STATUS_SUCCESS 0
  
