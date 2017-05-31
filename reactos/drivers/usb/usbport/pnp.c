@@ -852,8 +852,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     }
     else
     {
-        USBPORT_MiniportInterrupts(FdoDevice, TRUE);
         FdoExtension->MiniPortFlags |= USBPORT_MPFLAG_INTERRUPTS_ENABLED;
+        USBPORT_MiniportInterrupts(FdoDevice, TRUE);
     }
 
     FdoExtension->TimerValue = 500;
