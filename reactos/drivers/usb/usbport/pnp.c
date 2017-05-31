@@ -1653,7 +1653,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             if (IdType == BusQueryCompatibleIDs ||
                 IdType == BusQueryInstanceID)
             {
-                Status = STATUS_SUCCESS;
                 Irp->IoStatus.Information = 0;
                 break;
             }
