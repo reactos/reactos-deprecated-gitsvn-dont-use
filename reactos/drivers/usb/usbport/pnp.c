@@ -136,7 +136,7 @@ USBPORT_GetDefaultBIOSx(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_GetDefaultBIOS_X: ... \n");
 
-    RtlZeroMemory(QueryTable, 7 * sizeof(RTL_QUERY_REGISTRY_TABLE));
+    RtlZeroMemory(QueryTable, sizeof(QueryTable));
 
     *UsbBIOSx = 2;
 
