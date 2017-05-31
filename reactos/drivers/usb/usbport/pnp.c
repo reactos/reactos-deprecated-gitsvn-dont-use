@@ -110,11 +110,7 @@ USBPORT_GetConfigValue(IN PWSTR ValueName,
 
     DPRINT("USBPORT_GetConfigValue \n");
 
-    if (ValueType == REG_BINARY)
-    {
-        *(PUCHAR)EntryContext = *(PUCHAR)ValueData;
-    }
-    else if (ValueType == REG_DWORD)
+    if (ValueType == REG_DWORD)
     {
         *(PULONG)EntryContext = *(PULONG)ValueData;
     }
