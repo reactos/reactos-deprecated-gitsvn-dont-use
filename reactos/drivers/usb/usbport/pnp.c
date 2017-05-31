@@ -220,9 +220,9 @@ USBPORT_IsCompanionController(IN PDEVICE_OBJECT DeviceObject,
 
     Irp = IoBuildSynchronousFsdRequest(IRP_MJ_PNP,
                                        HighestDevice,
+                                       NULL,
                                        0,
-                                       0,
-                                       0,
+                                       NULL,
                                        &Event,
                                        &IoStatusBlock);
 
