@@ -536,7 +536,7 @@ NTAPI
 USBPORT_GetRegistryKeyValueFullInfo(
   IN PDEVICE_OBJECT FdoDevice,
   IN PDEVICE_OBJECT PdoDevice,
-  IN ULONG Type,
+  IN BOOL UseDriverKey,
   IN PCWSTR SourceString,
   IN ULONG LengthStr,
   IN PVOID Buffer,

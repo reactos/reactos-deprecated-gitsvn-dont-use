@@ -315,11 +315,11 @@ NTSTATUS
 NTAPI
 USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
                                     IN PDEVICE_OBJECT PdoDevice,
-                                    IN ULONG Type,
+                                    IN BOOL UseDriverKey,
                                     IN PCWSTR SourceString,
                                     IN ULONG LengthStr,
                                     IN PVOID Buffer,
-                                    IN ULONG NumberOfBytes)
+                                    IN ULONG BufferLength)
 {
     NTSTATUS Status;
     PKEY_VALUE_FULL_INFORMATION KeyValue;
@@ -327,14 +327,14 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
     HANDLE KeyHandle;
     ULONG LengthKey;
 
-    DPRINT("USBPORT_GetRegistryKeyValue: Type - %x, SourceString - %S, LengthStr - %x, Buffer - %p, NumberOfBytes - %x\n",
-           Type,
+    DPRINT("USBPORT_GetRegistryKeyValue: UseDriverKey - %x, SourceString - %S, LengthStr - %x, Buffer - %p, BufferLength - %x\n",
+           UseDriverKey,
            SourceString,
            LengthStr,
            Buffer,
-           NumberOfBytes);
+           BufferLength);
 
-    if (Type)
+    if (UseDriverKey)
     {
         Status = IoOpenDeviceRegistryKey(PdoDevice,
                                          PLUGPLAY_REGKEY_DRIVER,
@@ -352,7 +352,7 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
     if (NT_SUCCESS(Status))
     {
         RtlInitUnicodeString(&ValueName, SourceString);
-        LengthKey = sizeof(KEY_VALUE_FULL_INFORMATION) + LengthStr + NumberOfBytes;
+        LengthKey = sizeof(KEY_VALUE_FULL_INFORMATION) + LengthStr + BufferLength;
 
         KeyValue = (PKEY_VALUE_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool,
                                                                       LengthKey,
@@ -373,7 +373,7 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
             {
                 RtlCopyMemory(Buffer,
                               (PUCHAR)KeyValue + KeyValue->DataOffset,
-                              NumberOfBytes);
+                              BufferLength);
             }
 
             ExFreePool(KeyValue);
@@ -388,23 +388,23 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
 MPSTATUS
 NTAPI
 USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
-                                    IN ULONG Type,
+                                    IN BOOL UseDriverKey,
                                     IN PCWSTR SourceString,
                                     IN SIZE_T LengthStr,
                                     IN PVOID Buffer,
-                                    IN SIZE_T NumberOfBytes)
+                                    IN SIZE_T BufferLength)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDEVICE_OBJECT FdoDevice;
     NTSTATUS Status;
 
-    DPRINT("USBPORT_GetMiniportRegistryKeyValue: Context - %p, Type - %x, SourceString - %S, LengthStr - %x, Buffer - %p, NumberOfBytes - %x\n",
+    DPRINT("USBPORT_GetMiniportRegistryKeyValue: Context - %p, UseDriverKey - %x, SourceString - %S, LengthStr - %x, Buffer - %p, BufferLength - %x\n",
            Context,
-           Type,
+           UseDriverKey,
            SourceString,
            LengthStr,
            Buffer,
-           NumberOfBytes);
+           BufferLength);
 
     //DbgBreakPoint();
 
@@ -416,11 +416,11 @@ USBPORT_GetMiniportRegistryKeyValue(IN PVOID Context,
 
     Status = USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
                                                  FdoExtension->CommonExtension.LowerPdoDevice,
-                                                 Type,
+                                                 UseDriverKey,
                                                  SourceString,
                                                  LengthStr,
                                                  Buffer,
-                                                 NumberOfBytes);
+                                                 BufferLength);
 
     return USBPORT_NtStatusToMpStatus(Status);
 }

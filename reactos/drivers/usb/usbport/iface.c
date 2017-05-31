@@ -512,9 +512,9 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
 
         USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
                                             FdoExtension->CommonExtension.LowerPdoDevice,
-                                            0,
+                                            FALSE,
                                             L"PortAttrX",
-                                            128,
+                                            sizeof(L"PortAttrX"),
                                             &PortAttrX,
                                             sizeof(PortAttrX));
 

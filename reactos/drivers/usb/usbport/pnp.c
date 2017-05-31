@@ -88,9 +88,9 @@ USBPORT_IsSelectiveSuspendEnabled(IN PDEVICE_OBJECT FdoDevice)
 
     USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
                                         FdoExtension->CommonExtension.LowerPdoDevice,
-                                        1,
+                                        TRUE,
                                         L"HcDisableSelectiveSuspend",
-                                        52, //FIXME: Length "HcDisableSelectiveSuspend" + 0
+                                        sizeof(L"HcDisableSelectiveSuspend"),
                                         &IsEnabled,
                                         sizeof(IsEnabled));
 
@@ -693,9 +693,9 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 
     USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
                                         FdoExtension->CommonExtension.LowerPdoDevice,
-                                        1,
+                                        TRUE,
                                         L"CommonBuffer2GBLimit",
-                                        42,
+                                        sizeof(L"CommonBuffer2GBLimit"),
                                         &Limit2GB,
                                         sizeof(Limit2GB));
 
@@ -730,9 +730,9 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 
     USBPORT_GetRegistryKeyValueFullInfo(FdoDevice,
                                         FdoExtension->CommonExtension.LowerPdoDevice,
-                                        1,
+                                        TRUE,
                                         L"TotalBusBandwidth",
-                                        36,
+                                        sizeof(L"TotalBusBandwidth"),
                                         &TotalBusBandwidth,
                                         sizeof(TotalBusBandwidth));
 
