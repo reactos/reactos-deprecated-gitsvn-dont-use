@@ -256,11 +256,11 @@ USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
 
     if (NtStatus == STATUS_SUCCESS)
     {
-        return 0;
+        return MP_STATUS_SUCCESS;
     }
     else
     {
-        return 8;
+        return MP_STATUS_UNSUCCESSFUL;
     }
 }
 
