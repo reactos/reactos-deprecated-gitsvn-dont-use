@@ -1849,14 +1849,14 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
 
     while (TRUE)
     {
-        // Construct device name
+        /* Construct device name */
         swprintf(CharDeviceName, L"\\Device\\USBFDO-%d", DeviceNumber);
         RtlInitUnicodeString(&DeviceName, CharDeviceName);
 
         Length = sizeof(USBPORT_DEVICE_EXTENSION) +
                  MiniPortInterface->Packet.MiniPortExtensionSize;
 
-        // Create device
+        /* Create device */
         Status = IoCreateDevice(DriverObject,
                                 Length,
                                 &DeviceName,
@@ -1865,19 +1865,19 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
                                 FALSE,
                                 &DeviceObject);
 
-        // Check for success
+        /* Check for success */
         if (NT_SUCCESS(Status)) break;
 
-        // Is there a device object with that same name
+        /* Is there a device object with that same name */
         if ((Status == STATUS_OBJECT_NAME_EXISTS) ||
             (Status == STATUS_OBJECT_NAME_COLLISION))
         {
-            // Try the next name
+            /* Try the next name */
             DeviceNumber++;
             continue;
         }
 
-        // Bail out on other errors
+        /* Bail out on other errors */
         if (!NT_SUCCESS(Status))
         {
             DPRINT1("USBPORT_AddDevice: failed to create %wZ, Status %x\n",
