@@ -267,19 +267,20 @@ USBPORT_NtStatusToMpStatus(NTSTATUS NtStatus)
 NTSTATUS
 NTAPI
 USBPORT_SetRegistryKeyValue(IN PDEVICE_OBJECT DeviceObject,
-                            IN HANDLE KeyHandle,
+                            IN BOOL UseDriverKey,
                             IN ULONG Type,
                             IN PCWSTR ValueNameString,
                             IN PVOID Data,
                             IN ULONG DataSize)
 {
     UNICODE_STRING ValueName;
+    HANDLE KeyHandle;
     NTSTATUS Status;
 
     DPRINT("USBPORT_SetRegistryKeyValue: ValueNameString - %S \n",
            ValueNameString);
 
-    if (KeyHandle)
+    if (UseDriverKey)
     {
         Status = IoOpenDeviceRegistryKey(DeviceObject,
                                          PLUGPLAY_REGKEY_DRIVER,

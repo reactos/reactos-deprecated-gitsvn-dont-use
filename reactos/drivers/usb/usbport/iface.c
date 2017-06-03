@@ -404,7 +404,7 @@ USBHI_ControllerSelectiveSuspend(IN PVOID BusContext,
     }
 
     Status = USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
-                                         (HANDLE)1,
+                                         TRUE,
                                          REG_DWORD,
                                          L"HcDisableSelectiveSuspend",
                                          &HcDisable,

@@ -46,7 +46,7 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
             DeviceExtension->CommonExtension.IsInterfaceEnabled = 1;
 
             Status = USBPORT_SetRegistryKeyValue(PdoDevice,
-                                                 (HANDLE)0,
+                                                 FALSE,
                                                  REG_SZ,
                                                  L"SymbolicName",
                                                  SymbolicLinkName->Buffer,
@@ -667,21 +667,21 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
                               USBPORT_FLAG_BIOS_DISABLE_SS;
 
     USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
-                                (PVOID)1,
+                                TRUE,
                                 REG_DWORD,
                                 L"EnIdleEndpointSupport",
                                 &IdleEpSupport,
                                 sizeof(IdleEpSupport));
 
     USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
-                                (PVOID)1,
+                                TRUE,
                                 REG_DWORD,
                                 L"EnIdleEndpointSupportEx",
                                 &IdleEpSupportEx,
                                 sizeof(IdleEpSupportEx));
 
     USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
-                                (PVOID)1,
+                                TRUE,
                                 REG_DWORD,
                                 L"EnSoftRetry",
                                 &SoftRetry,
@@ -825,7 +825,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     }
 
     USBPORT_SetRegistryKeyValue(FdoExtension->CommonExtension.LowerPdoDevice,
-                                (HANDLE)0,
+                                FALSE,
                                 REG_DWORD,
                                 L"DetectedLegacyBIOS",
                                 &LegacyBIOS,

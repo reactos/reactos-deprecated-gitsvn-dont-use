@@ -525,7 +525,7 @@ NTSTATUS
 NTAPI
 USBPORT_SetRegistryKeyValue(
   IN PDEVICE_OBJECT DeviceObject,
-  IN HANDLE KeyHandle,
+  IN BOOL UseDriverKey,
   IN ULONG Type,
   IN PCWSTR ValueNameString,
   IN PVOID Data,
