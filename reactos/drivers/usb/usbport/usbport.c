@@ -1095,7 +1095,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_REGISTRATION_PACKET Packet;
-    BOOLEAN Result = 0;
+    BOOLEAN Result = FALSE;
 
     FdoDevice = (PDEVICE_OBJECT)ServiceContext;
     FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
@@ -1118,7 +1118,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     }
     else
     {
-        Result = 0;
+        Result = FALSE;
     }
 
     DPRINT_INT("USBPORT_InterruptService: return - %x\n", Result);
