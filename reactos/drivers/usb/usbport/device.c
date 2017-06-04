@@ -30,9 +30,9 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     KeInitializeEvent(&Event, NotificationEvent, FALSE);
 
-    Urb = (PURB)ExAllocatePoolWithTag(NonPagedPool,
-                                      sizeof(struct _URB_CONTROL_TRANSFER),
-                                      USB_PORT_TAG);
+    Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                sizeof(struct _URB_CONTROL_TRANSFER),
+                                USB_PORT_TAG);
 
     if (Urb)
     {
@@ -46,7 +46,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
         Urb->UrbHeader.Length = sizeof(struct _URB_CONTROL_TRANSFER);
         Urb->UrbHeader.Function = URB_FUNCTION_CONTROL_TRANSFER;
-        Urb->UrbHeader.UsbdDeviceHandle = (PVOID)DeviceHandle;
+        Urb->UrbHeader.UsbdDeviceHandle = DeviceHandle;
         Urb->UrbHeader.UsbdFlags = 0;
 
         Urb->UrbControlTransfer.PipeHandle = &DeviceHandle->PipeHandle;
@@ -294,9 +294,9 @@ USBPORT_OpenInterface(IN PURB Urb,
         HandleLength = sizeof(USBPORT_INTERFACE_HANDLE) +
                        (NumInterfaces - 1) * sizeof(USBPORT_PIPE_HANDLE);
 
-        InterfaceHandle = (PUSBPORT_INTERFACE_HANDLE)ExAllocatePoolWithTag(NonPagedPool,
-                                                                           HandleLength,
-                                                                           USB_PORT_TAG);
+        InterfaceHandle = ExAllocatePoolWithTag(NonPagedPool,
+                                                HandleLength,
+                                                USB_PORT_TAG);
 
         if (!InterfaceHandle)
         {
@@ -639,8 +639,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
     if ((iNumber > 0) && (iNumber == ConfigDescriptor->bNumInterfaces))
     {
-        ConfigHandle = (PUSBPORT_CONFIGURATION_HANDLE)
-                       ExAllocatePoolWithTag(NonPagedPool,
+        ConfigHandle = ExAllocatePoolWithTag(NonPagedPool,
                                              ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE),
                                              USB_PORT_TAG);
 

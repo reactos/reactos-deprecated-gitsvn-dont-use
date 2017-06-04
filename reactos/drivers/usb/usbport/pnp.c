@@ -1509,9 +1509,9 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                 break;
             }
 
-            DeviceRelations = (PDEVICE_RELATIONS)ExAllocatePoolWithTag(PagedPool,
-                                                                       sizeof(DEVICE_RELATIONS),
-                                                                       USB_PORT_TAG);
+            DeviceRelations = ExAllocatePoolWithTag(PagedPool,
+                                                    sizeof(DEVICE_RELATIONS),
+                                                    USB_PORT_TAG);
 
             if (!DeviceRelations)
             {

@@ -355,9 +355,9 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
         RtlInitUnicodeString(&ValueName, SourceString);
         LengthKey = sizeof(KEY_VALUE_FULL_INFORMATION) + LengthStr + BufferLength;
 
-        KeyValue = (PKEY_VALUE_FULL_INFORMATION)ExAllocatePoolWithTag(PagedPool,
-                                                                      LengthKey,
-                                                                      USB_PORT_TAG);
+        KeyValue = ExAllocatePoolWithTag(PagedPool,
+                                         LengthKey,
+                                         USB_PORT_TAG);
 
         if (KeyValue)
         {
@@ -2041,8 +2041,7 @@ USBPORT_RequestAsyncCallback(IN PVOID Context,
 
     FdoDevice = FdoExtension->CommonExtension.SelfDevice;
 
-    AsyncCallbackData = (PUSBPORT_ASYNC_CALLBACK_DATA)
-                        ExAllocatePoolWithTag(NonPagedPool,
+    AsyncCallbackData = ExAllocatePoolWithTag(NonPagedPool,
                                               sizeof(USBPORT_ASYNC_CALLBACK_DATA) + Length,
                                               USB_PORT_TAG);
 
@@ -2813,8 +2812,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
         USBPORT_Initialized = TRUE;
     }
 
-    MiniPortInterface = (PUSBPORT_MINIPORT_INTERFACE)
-                        ExAllocatePoolWithTag(NonPagedPool,
+    MiniPortInterface = ExAllocatePoolWithTag(NonPagedPool,
                                               sizeof(USBPORT_MINIPORT_INTERFACE),
                                               USB_PORT_TAG);
     if (!MiniPortInterface)
