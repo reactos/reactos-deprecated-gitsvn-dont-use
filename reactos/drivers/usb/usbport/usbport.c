@@ -1334,13 +1334,11 @@ USBPORT_SynchronizeRootHubCallback(IN PDEVICE_OBJECT FdoDevice,
                                                                     FALSE,
                                                                     TRUE);
 
-        ix = 0;
-
         if (CompanionControllersList)
         {
             Entry = &CompanionControllersList->Objects[0];
 
-            while (ix < CompanionControllersList->Count)
+            for (ix = 0; ix < CompanionControllersList->Count; ++ix)
             {
                 CompanionFdoExtension = ((*Entry)->DeviceExtension);
 
@@ -1349,7 +1347,6 @@ USBPORT_SynchronizeRootHubCallback(IN PDEVICE_OBJECT FdoDevice,
                                            1);
 
                 ++Entry;
-                ++ix;
             }
 
             ExFreePool(CompanionControllersList);

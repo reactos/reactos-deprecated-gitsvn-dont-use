@@ -256,8 +256,6 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
 
     while (InterfaceEntry && InterfaceEntry != &ConfigHandle->InterfaceHandleList)
     {
-        ix = 0;
-
         InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
                                             USBPORT_INTERFACE_HANDLE,
                                             InterfaceLink);
@@ -267,7 +265,7 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
             PipeInfo = &DeviceInfo->PipeList[0];
             PipeHandle = &InterfaceHandle->PipeHandle[0];
 
-            do
+            for (ix = 0; ix < InterfaceHandle->InterfaceDescriptor.bNumEndpoints; ++ix)
             {
                 if (PipeHandle->Flags & PIPE_HANDLE_FLAG_NULL_PACKET_SIZE)
                 {
@@ -283,13 +281,11 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
                               &PipeHandle->EndpointDescriptor,
                               sizeof(USB_ENDPOINT_DESCRIPTOR));
 
-                ++ix;
                 ++jx;
 
                 PipeInfo += 1;
                 PipeHandle += 1;
             }
-            while (ix < InterfaceHandle->InterfaceDescriptor.bNumEndpoints);
         }
 
         InterfaceEntry = InterfaceEntry->Flink;

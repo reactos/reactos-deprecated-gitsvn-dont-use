@@ -949,11 +949,11 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     DeviceHandle->PortNumber = Port;
     DeviceHandle->HubDeviceHandle = HubDeviceHandle;
 
-    if ( PortStatus & USB_PORT_STATUS_LOW_SPEED )
+    if (PortStatus & USB_PORT_STATUS_LOW_SPEED)
     {
         DeviceHandle->DeviceSpeed = UsbLowSpeed;
     }
-    else if ( PortStatus & USB_PORT_STATUS_HIGH_SPEED )
+    else if (PortStatus & USB_PORT_STATUS_HIGH_SPEED)
     {
         DeviceHandle->DeviceSpeed = UsbHighSpeed;
     }
@@ -1365,7 +1365,6 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_INTERFACE_HANDLE iHandle;
     PUSBPORT_PIPE_HANDLE PipeHandle;
     USBD_STATUS USBDStatus;
-    ULONG NumInterfaces;
     USHORT Length;
     ULONG ix;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
@@ -1406,21 +1405,17 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
     {
         RemoveEntryList(&InterfaceHandle->InterfaceLink);
 
-
         if (InterfaceHandle->InterfaceDescriptor.bNumEndpoints)
         {
             PipeHandle = &InterfaceHandle->PipeHandle[0];
 
-            ix = 0;
-
-            do
+            for (ix = 0;
+                 ix < InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
+                 ix++)
             {
                 USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
-                NumInterfaces = InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
-                ++ix;
                 PipeHandle += 1;
             }
-            while (ix < NumInterfaces);
         }
     }
 
@@ -1800,20 +1795,12 @@ USBPORT_Initialize20Hub(IN PDEVICE_OBJECT FdoDevice,
         return STATUS_SUCCESS;
     }
 
-    ix = 0;
-
-    if (TtCount)
+    for (ix = 0; ix < TtCount; ++ix)
     {
-        do
-        {
-            Status = USBPORT_InitializeTT(FdoDevice, HubDeviceHandle, ix + 1);
+        Status = USBPORT_InitializeTT(FdoDevice, HubDeviceHandle, ix + 1);
 
-            if (!NT_SUCCESS(Status))
-                break;
-
-            ++ix;
-        }
-        while (ix < TtCount);
+        if (!NT_SUCCESS(Status))
+            break;
     }
 
     HubDeviceHandle->TtCount = TtCount;

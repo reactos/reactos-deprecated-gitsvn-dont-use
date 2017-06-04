@@ -897,7 +897,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
     PCM_PARTIAL_RESOURCE_DESCRIPTOR MemoryDescriptor = NULL;
     PCM_PARTIAL_RESOURCE_DESCRIPTOR InterruptDescriptor = NULL;
     PIO_STACK_LOCATION IoStack;
-    ULONG ix = 0;
+    ULONG ix;
     NTSTATUS Status = STATUS_SUCCESS;
 
     DPRINT("USBPORT_ParseResources: ... \n");
@@ -911,31 +911,27 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
         ResourceList = &AllocatedResourcesTranslated->List[0].PartialResourceList;
 
-        if (ResourceList->Count > 0)
-        {
-            PartialDescriptor = &ResourceList->PartialDescriptors[0];
+        PartialDescriptor = &ResourceList->PartialDescriptors[0];
 
-            do
+        for (ix = 0; ix < ResourceList->Count; ++ix)
+        {
+            if (PartialDescriptor->Type == CmResourceTypePort)
             {
-                if (PartialDescriptor->Type == CmResourceTypePort) // 1
-                {
-                    if (!PortDescriptor)
-                        PortDescriptor = PartialDescriptor;
-                }
-                else if (PartialDescriptor->Type == CmResourceTypeInterrupt) // 2
-                {
-                    if (!InterruptDescriptor)
-                        InterruptDescriptor = PartialDescriptor;
-                }
-                else if (PartialDescriptor->Type == CmResourceTypeMemory) // 3
-                {
-                    if (!MemoryDescriptor)
-                        MemoryDescriptor = PartialDescriptor;
-                }
-                ++ix;
-                PartialDescriptor += 1;
+                if (!PortDescriptor)
+                    PortDescriptor = PartialDescriptor;
             }
-            while (ix < ResourceList->Count);
+            else if (PartialDescriptor->Type == CmResourceTypeInterrupt)
+            {
+                if (!InterruptDescriptor)
+                    InterruptDescriptor = PartialDescriptor;
+            }
+            else if (PartialDescriptor->Type == CmResourceTypeMemory)
+            {
+                if (!MemoryDescriptor)
+                    MemoryDescriptor = PartialDescriptor;
+            }
+
+            PartialDescriptor += 1;
         }
 
         if (PortDescriptor)
