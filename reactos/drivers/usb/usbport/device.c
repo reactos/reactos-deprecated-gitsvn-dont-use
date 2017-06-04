@@ -611,111 +611,108 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
     }
     while ((ULONG_PTR)InterfaceInfo < (ULONG_PTR)Urb + Urb->UrbHeader.Length);
 
-    if ((iNumber > 0) && (iNumber == ConfigDescriptor->bNumInterfaces))
-    {
-        ConfigHandle = ExAllocatePoolWithTag(NonPagedPool,
-                                             ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE),
-                                             USB_PORT_TAG);
-
-        if (ConfigHandle)
-        {
-            RtlZeroMemory(ConfigHandle,
-                          ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE));
-
-            InitializeListHead(&ConfigHandle->InterfaceHandleList);
-
-            ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)ConfigHandle +
-                                                                                    sizeof(USBPORT_CONFIGURATION_HANDLE));
-
-            RtlCopyMemory(ConfigHandle->ConfigurationDescriptor,
-                          ConfigDescriptor,
-                          ConfigDescriptor->wTotalLength);
-
-            RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
-
-            SetupPacket.bmRequestType.B = 0;
-            SetupPacket.bRequest = USB_REQUEST_SET_CONFIGURATION;
-            SetupPacket.wValue.W = ConfigDescriptor->bConfigurationValue;
-            SetupPacket.wIndex.W = 0;
-            SetupPacket.wLength = 0;
-
-            USBPORT_SendSetupPacket(DeviceHandle,
-                                    FdoDevice,
-                                    &SetupPacket,
-                                    NULL,
-                                    0,
-                                    NULL,
-                                    &USBDStatus);
-
-            if (USBD_SUCCESS(USBDStatus))
-            {
-                if (iNumber <= 0)
-                {
-                    Status = USBPORT_USBDStatusToNtStatus(Urb,
-                                                          USBD_STATUS_SUCCESS);
-
-                    goto Exit;
-                }
-
-                InterfaceInfo = &Urb->UrbSelectConfiguration.Interface;
-
-                for (ix = 0; ix < iNumber; ++ix)
-                {
-                    USBDStatus = USBPORT_InitInterfaceInfo(InterfaceInfo,
-                                                           ConfigHandle);
-
-                    InterfaceHandle = NULL;
-
-                    if (USBD_SUCCESS(USBDStatus))
-                    {
-                        USBDStatus = USBPORT_OpenInterface(Urb,
-                                                           DeviceHandle,
-                                                           FdoDevice,
-                                                           ConfigHandle,
-                                                           InterfaceInfo,
-                                                           &InterfaceHandle,
-                                                           TRUE);
-                    }
-
-                    if (InterfaceHandle)
-                    {
-                        InsertTailList(&ConfigHandle->InterfaceHandleList,
-                                       &InterfaceHandle->InterfaceLink);
-                    }
-
-                    if (USBD_ERROR(USBDStatus))
-                        break;
-
-                    InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)((ULONG_PTR)InterfaceInfo +
-                                                                  InterfaceInfo->Length);
-                }
-
-                if (ix >= iNumber)
-                {
-                    Status = USBPORT_USBDStatusToNtStatus(Urb,
-                                                          USBD_STATUS_SUCCESS);
-                }
-                else
-                {
-                    Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
-                }
-            }
-            else
-            {
-                Status = USBPORT_USBDStatusToNtStatus(Urb,
-                                                      USBD_STATUS_SET_CONFIG_FAILED);
-            }
-        }
-        else
-        {
-            Status = USBPORT_USBDStatusToNtStatus(Urb,
-                                                  USBD_STATUS_INSUFFICIENT_RESOURCES);
-        }
-    }
-    else
+    if ((iNumber <= 0) || (iNumber != ConfigDescriptor->bNumInterfaces))
     {
         Status = USBPORT_USBDStatusToNtStatus(Urb,
                                               USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR);
+        goto Exit;
+    }
+
+    ConfigHandle = ExAllocatePoolWithTag(NonPagedPool,
+                                         ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE),
+                                         USB_PORT_TAG);
+
+    if (!ConfigHandle)
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_INSUFFICIENT_RESOURCES);
+        goto Exit;
+    }
+
+    RtlZeroMemory(ConfigHandle,
+                  ConfigDescriptor->wTotalLength + sizeof(USBPORT_CONFIGURATION_HANDLE));
+
+    InitializeListHead(&ConfigHandle->InterfaceHandleList);
+
+    ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)ConfigHandle +
+                                                                            sizeof(USBPORT_CONFIGURATION_HANDLE));
+
+    RtlCopyMemory(ConfigHandle->ConfigurationDescriptor,
+                  ConfigDescriptor,
+                  ConfigDescriptor->wTotalLength);
+
+    RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+    SetupPacket.bmRequestType.B = 0;
+    SetupPacket.bRequest = USB_REQUEST_SET_CONFIGURATION;
+    SetupPacket.wValue.W = ConfigDescriptor->bConfigurationValue;
+    SetupPacket.wIndex.W = 0;
+    SetupPacket.wLength = 0;
+
+    USBPORT_SendSetupPacket(DeviceHandle,
+                            FdoDevice,
+                            &SetupPacket,
+                            NULL,
+                            0,
+                            NULL,
+                            &USBDStatus);
+
+    if (USBD_ERROR(USBDStatus))
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_SET_CONFIG_FAILED);
+        goto Exit;
+    }
+
+    if (iNumber <= 0)
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_SUCCESS);
+
+        goto Exit;
+    }
+
+    InterfaceInfo = &Urb->UrbSelectConfiguration.Interface;
+
+    for (ix = 0; ix < iNumber; ++ix)
+    {
+        USBDStatus = USBPORT_InitInterfaceInfo(InterfaceInfo,
+                                               ConfigHandle);
+
+        InterfaceHandle = NULL;
+
+        if (USBD_SUCCESS(USBDStatus))
+        {
+            USBDStatus = USBPORT_OpenInterface(Urb,
+                                               DeviceHandle,
+                                               FdoDevice,
+                                               ConfigHandle,
+                                               InterfaceInfo,
+                                               &InterfaceHandle,
+                                               TRUE);
+        }
+
+        if (InterfaceHandle)
+        {
+            InsertTailList(&ConfigHandle->InterfaceHandleList,
+                           &InterfaceHandle->InterfaceLink);
+        }
+
+        if (USBD_ERROR(USBDStatus))
+            break;
+
+        InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)((ULONG_PTR)InterfaceInfo +
+                                                      InterfaceInfo->Length);
+    }
+
+    if (ix >= iNumber)
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_SUCCESS);
+    }
+    else
+    {
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
     }
 
 Exit:
