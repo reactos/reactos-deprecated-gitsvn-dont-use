@@ -189,21 +189,15 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
     {
         InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
 
-        if (!IsListEmpty(&ConfigHandle->InterfaceHandleList))
+        while (InterfaceEntry && InterfaceEntry != &ConfigHandle->InterfaceHandleList)
         {
-            while (InterfaceEntry)
-            {
-                if (InterfaceEntry == &ConfigHandle->InterfaceHandleList)
-                    break;
+            InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
+                                                USBPORT_INTERFACE_HANDLE,
+                                                InterfaceLink);
 
-                InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
-                                                    USBPORT_INTERFACE_HANDLE,
-                                                    InterfaceLink);
+            NumberOfOpenPipes += InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
 
-                NumberOfOpenPipes += InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
-
-                InterfaceEntry = InterfaceEntry->Flink;
-            }
+            InterfaceEntry = InterfaceEntry->Flink;
         }
     }
 
@@ -256,12 +250,7 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
     DeviceInfo->CurrentConfigurationValue = 
         ConfigHandle->ConfigurationDescriptor->bConfigurationValue;
 
-    InterfaceEntry = NULL;
-
-    if (!IsListEmpty(&ConfigHandle->InterfaceHandleList))
-    {
-        InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
-    }
+    InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
 
     jx = 0;
 

@@ -182,19 +182,16 @@ USBPORT_NukeAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
 
     EndpointList = FdoExtension->EndpointList.Flink;
 
-    if (!IsListEmpty(&FdoExtension->EndpointList))
+    while (EndpointList && (EndpointList != &FdoExtension->EndpointList))
     {
-        while (EndpointList && (EndpointList != &FdoExtension->EndpointList))
-        {
-            Endpoint = CONTAINING_RECORD(EndpointList,
-                                         USBPORT_ENDPOINT,
-                                         EndpointLink);
+        Endpoint = CONTAINING_RECORD(EndpointList,
+                                     USBPORT_ENDPOINT,
+                                     EndpointLink);
 
-            if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
-                Endpoint->Flags |= ENDPOINT_FLAG_NUKE;
+        if (!(Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0))
+            Endpoint->Flags |= ENDPOINT_FLAG_NUKE;
 
-            EndpointList = Endpoint->EndpointLink.Flink;
-        }
+        EndpointList = Endpoint->EndpointLink.Flink;
     }
 
     KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
@@ -338,19 +335,14 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                            IN PUSBPORT_PIPE_HANDLE PipeHandle)
 {
     PLIST_ENTRY HandleList;
-    BOOLEAN Result;
+    BOOLEAN Result = FALSE;
     PUSBPORT_PIPE_HANDLE CurrentHandle;
 
     //DPRINT("USBPORT_ValidatePipeHandle: DeviceHandle - %p, PipeHandle - %p\n",
     //       DeviceHandle,
     //       PipeHandle);
 
-    HandleList = &DeviceHandle->PipeHandleList;
-
-    Result = FALSE;
-
-    if (!IsListEmpty(HandleList))
-        HandleList = HandleList->Flink;
+    HandleList = DeviceHandle->PipeHandleList.Flink;
 
     if (HandleList != &DeviceHandle->PipeHandleList)
     {
@@ -1155,28 +1147,25 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
 
         Entry = &FdoExtension->EndpointList;
 
-        if (Entry != &FdoExtension->EndpointList)
+        while (Entry && Entry != &FdoExtension->EndpointList)
         {
-            while (Entry && Entry != &FdoExtension->EndpointList)
+            endpoint = CONTAINING_RECORD(Entry,
+                                         USBPORT_ENDPOINT,
+                                         EndpointLink);
+
+            if (!endpoint->WorkerLink.Flink || !endpoint->WorkerLink.Blink)
             {
-                endpoint = CONTAINING_RECORD(Entry,
-                                             USBPORT_ENDPOINT,
-                                             EndpointLink);
-
-                if (!endpoint->WorkerLink.Flink || !endpoint->WorkerLink.Blink)
+                if (!(endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
+                    !(endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
+                    USBPORT_GetEndpointState(endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
                 {
-                    if (!(endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
-                        !(endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
-                        USBPORT_GetEndpointState(endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
-                    {
-                        DPRINT_CORE("USBPORT_InvalidateEndpointHandler: InsertTailList \n");
-                        InsertTailList(&FdoExtension->WorkerList, &endpoint->WorkerLink);
-                        IsAddEntry = TRUE;
-                    }
+                    DPRINT_CORE("USBPORT_InvalidateEndpointHandler: InsertTailList \n");
+                    InsertTailList(&FdoExtension->WorkerList, &endpoint->WorkerLink);
+                    IsAddEntry = TRUE;
                 }
-
-                Entry = endpoint->EndpointLink.Flink;
             }
+
+            Entry = endpoint->EndpointLink.Flink;
         }
 
         KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
@@ -1326,81 +1315,78 @@ USBPORT_DmaEndpointActive(IN PDEVICE_OBJECT FdoDevice,
 
     Entry = Endpoint->TransferList.Flink;
 
-    if (Entry != &Endpoint->TransferList)
+    while (Entry && Entry != &Endpoint->TransferList)
     {
-        while (Entry && Entry != &Endpoint->TransferList)
-        {
-            Transfer = CONTAINING_RECORD(Entry,
-                                         USBPORT_TRANSFER,
-                                         TransferLink);
+        Transfer = CONTAINING_RECORD(Entry,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
 
-            if (Transfer->Flags & 0x800)
+        if (Transfer->Flags & 0x800)
+        {
+            USBPORT_QueueDoneTransfer(Transfer, USBD_STATUS_SUCCESS);
+            return USBPORT_ENDPOINT_ACTIVE;
+        }
+
+        if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED) &&
+             !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+        {
+            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+
+            Packet = &FdoExtension->MiniPortInterface->Packet;
+
+            if (Transfer->Flags & TRANSFER_FLAG_ISO)
             {
-                USBPORT_QueueDoneTransfer(Transfer, USBD_STATUS_SUCCESS);
+                DPRINT1("USBPORT_DmaEndpointActive: FIXME call SubmitIsoTransfer\n");
+
+                MpStatus = Packet->SubmitIsoTransfer(FdoExtension->MiniPortExt,
+                                                     (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                     &Transfer->TransferParameters,
+                                                     Transfer->MiniportTransfer,
+                                                     NULL);//&Transfer->IsoTransferParameters);
+            }
+            else
+            {
+                MpStatus = Packet->SubmitTransfer(FdoExtension->MiniPortExt,
+                                                  (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                  &Transfer->TransferParameters,
+                                                  Transfer->MiniportTransfer,
+                                                  &Transfer->SgList);
+            }
+
+            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+
+            if (MpStatus)
+            {
+                if ((MpStatus != 1) && Transfer->Flags & TRANSFER_FLAG_ISO)
+                {
+                    DPRINT1("USBPORT_DmaEndpointActive: FIXME call USBPORT_ErrorCompleteIsoTransfer\n");
+                    ASSERT(FALSE); //USBPORT_ErrorCompleteIsoTransfer();
+                }
+
                 return USBPORT_ENDPOINT_ACTIVE;
             }
 
-            if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED) &&
-                 !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+            Transfer->Flags |= TRANSFER_FLAG_SUBMITED;
+            KeQuerySystemTime(&Transfer->Time);
+
+            CF = 0;
+            TimeOut.QuadPart = 10000 * Transfer->TimeOut;
+
+            if (TimeOut.LowPart > (0xFFFFFFFF - Transfer->Time.LowPart))
             {
-                KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
-
-                Packet = &FdoExtension->MiniPortInterface->Packet;
-
-                if (Transfer->Flags & TRANSFER_FLAG_ISO)
-                {
-                    DPRINT1("USBPORT_DmaEndpointActive: FIXME call SubmitIsoTransfer\n");
-
-                    MpStatus = Packet->SubmitIsoTransfer(FdoExtension->MiniPortExt,
-                                                         (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                         &Transfer->TransferParameters,
-                                                         Transfer->MiniportTransfer,
-                                                         NULL);//&Transfer->IsoTransferParameters);
-                }
-                else
-                {
-                    MpStatus = Packet->SubmitTransfer(FdoExtension->MiniPortExt,
-                                                      (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                                      &Transfer->TransferParameters,
-                                                      Transfer->MiniportTransfer,
-                                                      &Transfer->SgList);
-                }
-
-                KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
-
-                if (MpStatus)
-                {
-                    if ((MpStatus != 1) && Transfer->Flags & TRANSFER_FLAG_ISO)
-                    {
-                        DPRINT1("USBPORT_DmaEndpointActive: FIXME call USBPORT_ErrorCompleteIsoTransfer\n");
-                        ASSERT(FALSE); //USBPORT_ErrorCompleteIsoTransfer();
-                    }
-
-                    return USBPORT_ENDPOINT_ACTIVE;
-                }
-
-                Transfer->Flags |= TRANSFER_FLAG_SUBMITED;
-                KeQuerySystemTime(&Transfer->Time);
-
-                CF = 0;
-                TimeOut.QuadPart = 10000 * Transfer->TimeOut;
-
-                if (TimeOut.LowPart > (0xFFFFFFFF - Transfer->Time.LowPart))
-                {
-                    CF = 1;
-                }
-
-                Transfer->Time.LowPart += TimeOut.LowPart;
-                Transfer->Time.HighPart += (TimeOut.HighPart + CF);
+                CF = 1;
             }
 
-            if (Transfer->Flags & (TRANSFER_FLAG_CANCELED | TRANSFER_FLAG_ABORTED))
-            {
-                return USBPORT_ENDPOINT_PAUSED;
-            }
-
-            Entry = Transfer->TransferLink.Flink;
+            Transfer->Time.LowPart += TimeOut.LowPart;
+            Transfer->Time.HighPart += (TimeOut.HighPart + CF);
         }
+
+        if (Transfer->Flags & (TRANSFER_FLAG_CANCELED | TRANSFER_FLAG_ABORTED))
+        {
+            return USBPORT_ENDPOINT_PAUSED;
+        }
+
+        Entry = Transfer->TransferLink.Flink;
     }
 
     return USBPORT_ENDPOINT_ACTIVE;

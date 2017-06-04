@@ -33,23 +33,20 @@ USBPORT_FindUSB2Controller(IN PDEVICE_OBJECT FdoDevice)
 
     USB2FdoEntry = USBPORT_USB2FdoList.Flink;
 
-    if (!IsListEmpty(&USBPORT_USB2FdoList))
+    while (USB2FdoEntry && USB2FdoEntry != &USBPORT_USB2FdoList)
     {
-        while (USB2FdoEntry && USB2FdoEntry != &USBPORT_USB2FdoList)
+        USB2FdoExtension = CONTAINING_RECORD(USB2FdoEntry,
+                                             USBPORT_DEVICE_EXTENSION,
+                                             ControllerLink);
+
+        if (USB2FdoExtension->BusNumber == FdoExtension->BusNumber &&
+            USB2FdoExtension->PciDeviceNumber == FdoExtension->PciDeviceNumber)
         {
-            USB2FdoExtension = CONTAINING_RECORD(USB2FdoEntry,
-                                                 USBPORT_DEVICE_EXTENSION,
-                                                 ControllerLink);
-
-            if (USB2FdoExtension->BusNumber == FdoExtension->BusNumber &&
-                USB2FdoExtension->PciDeviceNumber == FdoExtension->PciDeviceNumber)
-            {
-                USB2FdoDevice = USB2FdoExtension->CommonExtension.SelfDevice;
-                break;
-            }
-
-            USB2FdoEntry = USB2FdoEntry->Flink;
+            USB2FdoDevice = USB2FdoExtension->CommonExtension.SelfDevice;
+            break;
         }
+
+        USB2FdoEntry = USB2FdoEntry->Flink;
     }
 
     KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
@@ -893,37 +890,34 @@ USBPORT_DpcHandler(IN PDEVICE_OBJECT FdoDevice)
     KeAcquireSpinLockAtDpcLevel(&FdoExtension->EndpointListSpinLock);
     Entry = FdoExtension->EndpointList.Flink;
 
-    if (!IsListEmpty(&FdoExtension->EndpointList))
+    while (Entry && Entry != &FdoExtension->EndpointList)
     {
-        while (Entry && Entry != &FdoExtension->EndpointList)
+        Endpoint = CONTAINING_RECORD(Entry,
+                                     USBPORT_ENDPOINT,
+                                     EndpointLink);
+
+        LockCounter = InterlockedIncrement(&Endpoint->LockCounter);
+
+        if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_ACTIVE ||
+            LockCounter ||
+            Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0)
         {
-            Endpoint = CONTAINING_RECORD(Entry,
-                                         USBPORT_ENDPOINT,
-                                         EndpointLink);
-
-            LockCounter = InterlockedIncrement(&Endpoint->LockCounter);
-
-            if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_ACTIVE ||
-                LockCounter ||
-                Endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0)
-            {
-                InterlockedDecrement(&Endpoint->LockCounter);
-            }
-            else
-            {
-                InsertTailList(&List, &Endpoint->DispatchLink);
-
-                if (Endpoint->WorkerLink.Flink && Endpoint->WorkerLink.Blink)
-                {
-                    RemoveEntryList(&Endpoint->WorkerLink);
-
-                    Endpoint->WorkerLink.Flink = NULL;
-                    Endpoint->WorkerLink.Blink = NULL;
-                }
-            }
-
-            Entry = Endpoint->EndpointLink.Flink;
+            InterlockedDecrement(&Endpoint->LockCounter);
         }
+        else
+        {
+            InsertTailList(&List, &Endpoint->DispatchLink);
+
+            if (Endpoint->WorkerLink.Flink && Endpoint->WorkerLink.Blink)
+            {
+                RemoveEntryList(&Endpoint->WorkerLink);
+
+                Endpoint->WorkerLink.Flink = NULL;
+                Endpoint->WorkerLink.Blink = NULL;
+            }
+        }
+
+        Entry = Endpoint->EndpointLink.Flink;
     }
 
     KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);

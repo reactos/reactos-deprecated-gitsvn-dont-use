@@ -785,12 +785,7 @@ USBPORT_ValidateDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
     KeAcquireSpinLock(&FdoExtension->DeviceHandleSpinLock, &OldIrql);
     if (DeviceHandle)
     {
-        HandleList = &FdoExtension->DeviceHandleList;
-
-        if (!IsListEmpty(HandleList))
-        {
-            HandleList = HandleList->Flink;
-        }
+        HandleList = FdoExtension->DeviceHandleList.Flink;
 
         while (HandleList != &FdoExtension->DeviceHandleList)
         {
@@ -822,12 +817,7 @@ USBPORT_DeviceHasTransfers(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_DeviceHasTransfers: ... \n");
 
-    PipeHandleList = &DeviceHandle->PipeHandleList;
-
-    if (!IsListEmpty(&DeviceHandle->PipeHandleList))
-    {
-        PipeHandleList = PipeHandleList->Flink;
-    }
+    PipeHandleList = DeviceHandle->PipeHandleList.Flink;
 
     while (PipeHandleList != &DeviceHandle->PipeHandleList)
     {
@@ -858,12 +848,7 @@ USBPORT_AbortTransfers(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_AbortAllTransfers: ... \n");
 
-    HandleList = &DeviceHandle->PipeHandleList;
-
-    if (!IsListEmpty(HandleList))
-    {
-        HandleList = HandleList->Flink;
-    }
+    HandleList = DeviceHandle->PipeHandleList.Flink;
 
     while (HandleList != &DeviceHandle->PipeHandleList)
     {
@@ -1347,24 +1332,21 @@ USBPORT_GetInterfaceHandle(IN PUSBPORT_CONFIGURATION_HANDLE ConfigurationHandle,
            ConfigurationHandle,
            InterfaceNumber);
 
-    if (!IsListEmpty(&ConfigurationHandle->InterfaceHandleList))
+    iHandleList = ConfigurationHandle->InterfaceHandleList.Flink;
+
+    while (iHandleList &&
+           (iHandleList != &ConfigurationHandle->InterfaceHandleList))
     {
-        iHandleList = ConfigurationHandle->InterfaceHandleList.Flink;
+        InterfaceHandle = CONTAINING_RECORD(iHandleList,
+                                            USBPORT_INTERFACE_HANDLE,
+                                            InterfaceLink);
 
-        while (iHandleList &&
-               (iHandleList != &ConfigurationHandle->InterfaceHandleList))
-        {
-            InterfaceHandle = CONTAINING_RECORD(iHandleList,
-                                                USBPORT_INTERFACE_HANDLE,
-                                                InterfaceLink);
+        InterfaceNum = InterfaceHandle->InterfaceDescriptor.bInterfaceNumber;
 
-            InterfaceNum = InterfaceHandle->InterfaceDescriptor.bInterfaceNumber;
+        if (InterfaceNum == InterfaceNumber)
+            return InterfaceHandle;
 
-            if (InterfaceNum == InterfaceNumber)
-                return InterfaceHandle;
-
-            iHandleList = InterfaceHandle->InterfaceLink.Flink;
-        }
+        iHandleList = InterfaceHandle->InterfaceLink.Flink;
     }
 
     return NULL;
@@ -1643,38 +1625,36 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
             {
                 iHandleList = NewDeviceHandle->ConfigHandle->InterfaceHandleList.Flink;
 
-                if (!IsListEmpty(&NewDeviceHandle->ConfigHandle->InterfaceHandleList))
+                while (iHandleList &&
+                       iHandleList != &NewDeviceHandle->ConfigHandle->InterfaceHandleList)
                 {
-                    while (iHandleList && iHandleList != &NewDeviceHandle->ConfigHandle->InterfaceHandleList)
+                    InterfaceHandle = CONTAINING_RECORD(iHandleList,
+                                                        USBPORT_INTERFACE_HANDLE,
+                                                        InterfaceLink);
+
+                    if (InterfaceHandle->AlternateSetting)
                     {
-                        InterfaceHandle = CONTAINING_RECORD(iHandleList,
-                                                            USBPORT_INTERFACE_HANDLE,
-                                                            InterfaceLink);
+                        RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-                        if (InterfaceHandle->AlternateSetting)
-                        {
-                            RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+                        SetupPacket.bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+                        SetupPacket.bmRequestType._BM.Type = BMREQUEST_STANDARD;
+                        SetupPacket.bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
 
-                            SetupPacket.bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
-                            SetupPacket.bmRequestType._BM.Type = BMREQUEST_STANDARD;
-                            SetupPacket.bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+                        SetupPacket.bRequest = USB_REQUEST_SET_INTERFACE;
+                        SetupPacket.wValue.W = InterfaceHandle->InterfaceDescriptor.bAlternateSetting;
+                        SetupPacket.wIndex.W = InterfaceHandle->InterfaceDescriptor.bInterfaceNumber;
+                        SetupPacket.wLength = 0;
 
-                            SetupPacket.bRequest = USB_REQUEST_SET_INTERFACE;
-                            SetupPacket.wValue.W = InterfaceHandle->InterfaceDescriptor.bAlternateSetting;
-                            SetupPacket.wIndex.W = InterfaceHandle->InterfaceDescriptor.bInterfaceNumber;
-                            SetupPacket.wLength = 0;
-
-                            USBPORT_SendSetupPacket(NewDeviceHandle,
-                                                    FdoDevice,
-                                                    &SetupPacket,
-                                                    NULL,
-                                                    0,
-                                                    NULL,
-                                                    &USBDStatus);
-                        }
-
-                        iHandleList = iHandleList->Flink;
+                        USBPORT_SendSetupPacket(NewDeviceHandle,
+                                                FdoDevice,
+                                                &SetupPacket,
+                                                NULL,
+                                                0,
+                                                NULL,
+                                                &USBDStatus);
                     }
+
+                    iHandleList = iHandleList->Flink;
                 }
             }
         }

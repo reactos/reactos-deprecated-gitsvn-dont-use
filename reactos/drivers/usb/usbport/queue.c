@@ -586,50 +586,44 @@ USBPORT_FlushAbortList(IN PUSBPORT_ENDPOINT Endpoint)
         return;
     }
 
-    if (!IsListEmpty(&Endpoint->PendingTransferList))
+    Entry = Endpoint->PendingTransferList.Flink;
+
+    while (Entry && Entry != &Endpoint->PendingTransferList)
     {
-        Entry = Endpoint->PendingTransferList.Flink;
+        Transfer = CONTAINING_RECORD(Entry,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
 
-        while (Entry && Entry != &Endpoint->PendingTransferList)
+        if (Transfer->Flags & TRANSFER_FLAG_ABORTED)
         {
-            Transfer = CONTAINING_RECORD(Entry,
-                                         USBPORT_TRANSFER,
-                                         TransferLink);
+            DPRINT_CORE("USBPORT_FlushAbortList: Aborted PendingTransfer  - %p\n",
+                        Transfer);
 
-            if (Transfer->Flags & TRANSFER_FLAG_ABORTED)
-            {
-                DPRINT_CORE("USBPORT_FlushAbortList: Aborted PendingTransfer  - %p\n",
-                            Transfer);
-
-                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
-                return;
-            }
-
-            Entry = Transfer->TransferLink.Flink;
+            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+            return;
         }
+
+        Entry = Transfer->TransferLink.Flink;
     }
 
-    if (!IsListEmpty(&Endpoint->TransferList))
+    Entry = Endpoint->TransferList.Flink;
+
+    while (Entry && Entry != &Endpoint->TransferList)
     {
-        Entry = Endpoint->TransferList.Flink;
+        Transfer = CONTAINING_RECORD(Entry,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
 
-        while (Entry && Entry != &Endpoint->TransferList)
+        if (Transfer->Flags & TRANSFER_FLAG_ABORTED)
         {
-            Transfer = CONTAINING_RECORD(Entry,
-                                         USBPORT_TRANSFER,
-                                         TransferLink);
+            DPRINT_CORE("USBPORT_FlushAbortList: Aborted ActiveTransfer - %p\n",
+                        Transfer);
 
-            if (Transfer->Flags & TRANSFER_FLAG_ABORTED)
-            {
-                DPRINT_CORE("USBPORT_FlushAbortList: Aborted ActiveTransfer - %p\n",
-                            Transfer);
-
-                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
-                return;
-            }
-
-            Entry = Transfer->TransferLink.Flink;
+            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+            return;
         }
+
+        Entry = Transfer->TransferLink.Flink;
     }
 
     AbortList = &Endpoint->AbortList;
@@ -1195,20 +1189,17 @@ USBPORT_KillEndpointActiveTransfers(IN PDEVICE_OBJECT FdoDevice,
 
     ActiveList = Endpoint->TransferList.Flink;
 
-    if (!IsListEmpty(&Endpoint->TransferList))
+    while (ActiveList && ActiveList != &Endpoint->TransferList)
     {
-        while (ActiveList && ActiveList != &Endpoint->TransferList)
-        {
-            ++KilledTransfers;
+        ++KilledTransfers;
 
-            Transfer = CONTAINING_RECORD(ActiveList,
-                                         USBPORT_TRANSFER,
-                                         TransferLink);
+        Transfer = CONTAINING_RECORD(ActiveList,
+                                     USBPORT_TRANSFER,
+                                     TransferLink);
 
-            Transfer->Flags |= TRANSFER_FLAG_ABORTED;
+        Transfer->Flags |= TRANSFER_FLAG_ABORTED;
 
-            ActiveList = Transfer->TransferLink.Flink;
-        }
+        ActiveList = Transfer->TransferLink.Flink;
     }
 
     USBPORT_FlushPendingTransfers(Endpoint);
@@ -1337,45 +1328,39 @@ USBPORT_AbortEndpoint(IN PDEVICE_OBJECT FdoDevice,
 
     PendingList = Endpoint->PendingTransferList.Flink;
 
-    if (PendingList != &Endpoint->PendingTransferList)
+    while (PendingList && PendingList != &Endpoint->PendingTransferList)
     {
-        while (PendingList && PendingList != &Endpoint->PendingTransferList)
-        {
-            PendingTransfer = CONTAINING_RECORD(PendingList,
-                                                USBPORT_TRANSFER,
-                                                TransferLink);
+        PendingTransfer = CONTAINING_RECORD(PendingList,
+                                            USBPORT_TRANSFER,
+                                            TransferLink);
 
-            DPRINT_CORE("USBPORT_AbortEndpoint: Abort PendingTransfer - %p\n",
-                        PendingTransfer);
+        DPRINT_CORE("USBPORT_AbortEndpoint: Abort PendingTransfer - %p\n",
+                    PendingTransfer);
 
-            PendingTransfer->Flags |= TRANSFER_FLAG_ABORTED;
+        PendingTransfer->Flags |= TRANSFER_FLAG_ABORTED;
 
-            PendingList = PendingTransfer->TransferLink.Flink;
-        }
+        PendingList = PendingTransfer->TransferLink.Flink;
     }
 
     ActiveList = Endpoint->TransferList.Flink;
 
-    if (ActiveList != &Endpoint->TransferList)
+    while (ActiveList && ActiveList != &Endpoint->TransferList)
     {
-        while (ActiveList && ActiveList != &Endpoint->TransferList)
+        ActiveTransfer = CONTAINING_RECORD(ActiveList,
+                                           USBPORT_TRANSFER,
+                                           TransferLink);
+
+        DPRINT_CORE("USBPORT_AbortEndpoint: Abort ActiveTransfer - %p\n",
+                    ActiveTransfer);
+
+        ActiveTransfer->Flags |= TRANSFER_FLAG_ABORTED;
+
+        if (Endpoint->Flags & ENDPOINT_FLAG_ABORTING)
         {
-            ActiveTransfer = CONTAINING_RECORD(ActiveList,
-                                               USBPORT_TRANSFER,
-                                               TransferLink);
-
-            DPRINT_CORE("USBPORT_AbortEndpoint: Abort ActiveTransfer - %p\n",
-                        ActiveTransfer);
-
-            ActiveTransfer->Flags |= TRANSFER_FLAG_ABORTED;
-
-            if (Endpoint->Flags & ENDPOINT_FLAG_ABORTING)
-            {
-                ActiveTransfer->Flags |= TRANSFER_FLAG_DEVICE_GONE;
-            }
-
-            ActiveList = ActiveTransfer->TransferLink.Flink;
+            ActiveTransfer->Flags |= TRANSFER_FLAG_DEVICE_GONE;
         }
+
+        ActiveList = ActiveTransfer->TransferLink.Flink;
     }
 
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
