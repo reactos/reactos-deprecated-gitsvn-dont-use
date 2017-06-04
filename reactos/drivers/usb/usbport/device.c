@@ -146,9 +146,7 @@ USBPORT_GetInterfaceLength(IN PUSB_INTERFACE_DESCRIPTOR iDescriptor,
 
     if (iDescriptor->bNumEndpoints)
     {
-        ix = iDescriptor->bNumEndpoints;
-
-        do
+        for (ix = 0; ix < iDescriptor->bNumEndpoints; ix++)
         {
             while ((Descriptor->bDescriptorType != USB_ENDPOINT_DESCRIPTOR_TYPE) &&
                    (Descriptor->bLength > 0))
@@ -161,9 +159,7 @@ USBPORT_GetInterfaceLength(IN PUSB_INTERFACE_DESCRIPTOR iDescriptor,
             Length += Descriptor->bLength;
             Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
                                                     Descriptor->bLength);
-            --ix;
         }
-        while (ix);
     }
 
     while (((ULONG_PTR)Descriptor < EndDescriptors) &&
@@ -306,21 +302,17 @@ USBPORT_OpenInterface(IN PURB Urb,
 
         RtlZeroMemory(InterfaceHandle, HandleLength);
 
-        ix = NumInterfaces;
-
         if (NumInterfaces > 0)
         {
             PipeHandle = &InterfaceHandle->PipeHandle[0];
 
-            do
+            for (ix = 0; ix < NumInterfaces; ++ix)
             {
                 PipeHandle->Flags = PIPE_HANDLE_FLAG_CLOSED;
                 PipeHandle->Endpoint = NULL;
 
                 PipeHandle += 1;
-                --ix;
             }
-            while (ix);
         }
 
         IsAllocated = TRUE;
@@ -341,29 +333,29 @@ USBPORT_OpenInterface(IN PURB Urb,
     Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)InterfaceDescriptor +
                                             InterfaceDescriptor->bLength);
 
-    ix = 0;
-
     if (NumInterfaces)
     {
         PipeHandle = &InterfaceHandle->PipeHandle[0];
 
-        do
+        for (ix = 0; ix < NumInterfaces; ++ix)
         {
-            if (Descriptor->bDescriptorType != USB_ENDPOINT_DESCRIPTOR_TYPE)
+            while (Descriptor->bDescriptorType != USB_ENDPOINT_DESCRIPTOR_TYPE)
             {
-                do
+                if (Descriptor->bLength == 0)
                 {
-                    if (Descriptor->bLength == 0)
-                        break;
-                    else
-                        Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
-                                                                Descriptor->bLength);
+                    break;
                 }
-                while (Descriptor->bDescriptorType != USB_ENDPOINT_DESCRIPTOR_TYPE);
+                else
+                {
+                    Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
+                                                            Descriptor->bLength);
+                }
             }
 
             if (InterfaceInfo->Pipes[ix].PipeFlags & USBD_PF_CHANGE_MAX_PACKET)
+            {
                 Descriptor->wMaxPacketSize = InterfaceInfo->Pipes[ix].MaximumPacketSize;
+            }
 
             RtlCopyMemory(&PipeHandle->EndpointDescriptor,
                           Descriptor,
@@ -383,26 +375,21 @@ USBPORT_OpenInterface(IN PURB Urb,
             InterfaceInfo->Pipes[ix].PipeHandle = (USBD_PIPE_HANDLE)-1;
             InterfaceInfo->Pipes[ix].Interval = Descriptor->bInterval;
 
-            ++ix;
-
             Descriptor = (PUSB_ENDPOINT_DESCRIPTOR)((ULONG_PTR)Descriptor +
                                                     Descriptor->bLength);
 
             PipeHandle += 1;
         }
-        while (ix < NumInterfaces);
     }
 
     if (USBD_SUCCESS(USBDStatus))
     {
-        ix = 0;
-
-        if (InterfaceDescriptor->bNumEndpoints)
+        if (NumInterfaces)
         {
-            PipeInfo = &InterfaceInfo->Pipes[ix];
+            PipeInfo = &InterfaceInfo->Pipes[0];
             PipeHandle = &InterfaceHandle->PipeHandle[0];
 
-            while (TRUE)
+            for (ix = 0; ix < NumInterfaces; ++ix)
             {
                 Status = USBPORT_OpenPipe(FdoDevice,
                                           DeviceHandle,
@@ -416,11 +403,6 @@ USBPORT_OpenInterface(IN PURB Urb,
 
                 PipeHandle += 1;
                 PipeInfo += 1;
-
-                ++ix;
-
-                if (ix >= InterfaceDescriptor->bNumEndpoints)
-                    goto Exit;
             }
 
             USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
@@ -483,17 +465,13 @@ USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
             NumEndpoints = iHandle->InterfaceDescriptor.bNumEndpoints;
 
-            if (NumEndpoints > 0)
-            {
-                PipeHandle = &iHandle->PipeHandle[0];
+            PipeHandle = &iHandle->PipeHandle[0];
 
-                do
-                {
-                    USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
-                    PipeHandle += 1;
-                    --NumEndpoints;
-                }
-                while (NumEndpoints > 0);
+            while (NumEndpoints > 0)
+            {
+                USBPORT_ClosePipe(DeviceHandle, FdoDevice, PipeHandle);
+                PipeHandle += 1;
+                --NumEndpoints;
             }
 
             ExFreePool(iHandle);
@@ -544,29 +522,25 @@ USBPORT_InitInterfaceInfo(IN PUSBD_INTERFACE_INFORMATION InterfaceInfo,
             InterfaceInfo->InterfaceHandle = 0;
             InterfaceInfo->NumberOfPipes = NumberOfPipes;
 
-            if (NumberOfPipes > 0)
+            Pipe = InterfaceInfo->Pipes;
+
+            while (NumberOfPipes > 0)
             {
-                Pipe = InterfaceInfo->Pipes;
+                Pipe->EndpointAddress = 0;
+                Pipe->Interval = 0;
+                Pipe->PipeType = 0;
+                Pipe->PipeHandle = 0;
 
-                do
-                {
-                    Pipe->EndpointAddress = 0;
-                    Pipe->Interval = 0;
-                    Pipe->PipeType = 0;
-                    Pipe->PipeHandle = 0;
+                PipeFlags = Pipe->PipeFlags;
 
-                    PipeFlags = Pipe->PipeFlags;
+                if (PipeFlags & ~USBD_PF_VALID_MASK)
+                    USBDStatus = USBD_STATUS_INVALID_PIPE_FLAGS;
 
-                    if (PipeFlags & ~USBD_PF_VALID_MASK)
-                        USBDStatus = USBD_STATUS_INVALID_PIPE_FLAGS;
+                if (!(PipeFlags & USBD_PF_CHANGE_MAX_PACKET))
+                    Pipe->MaximumPacketSize = 0;
 
-                    if (!(PipeFlags & USBD_PF_CHANGE_MAX_PACKET))
-                        Pipe->MaximumPacketSize = 0;
-
-                    Pipe += 1;
-                    --NumberOfPipes;
-                }
-                while (NumberOfPipes > 0);
+                Pipe += 1;
+                --NumberOfPipes;
             }
         }
         else
@@ -685,16 +659,15 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
                 InterfaceInfo = &Urb->UrbSelectConfiguration.Interface;
 
-                ix = 0;
-
-                while (TRUE)
+                for (ix = 0; ix < iNumber; ++ix)
                 {
                     USBDStatus = USBPORT_InitInterfaceInfo(InterfaceInfo,
                                                            ConfigHandle);
 
-                    InterfaceHandle = 0;
+                    InterfaceHandle = NULL;
 
                     if (USBD_SUCCESS(USBDStatus))
+                    {
                         USBDStatus = USBPORT_OpenInterface(Urb,
                                                            DeviceHandle,
                                                            FdoDevice,
@@ -702,6 +675,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
                                                            InterfaceInfo,
                                                            &InterfaceHandle,
                                                            TRUE);
+                    }
 
                     if (InterfaceHandle)
                     {
@@ -712,20 +686,19 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
                     if (USBD_ERROR(USBDStatus))
                         break;
 
-                    ++ix;
-
-                    if (ix >= iNumber)
-                    {
-                        Status = USBPORT_USBDStatusToNtStatus(Urb,
-                                                              USBD_STATUS_SUCCESS);
-                        goto Exit;
-                    }
-
                     InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)((ULONG_PTR)InterfaceInfo +
                                                                   InterfaceInfo->Length);
                 }
 
-                Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+                if (ix >= iNumber)
+                {
+                    Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                          USBD_STATUS_SUCCESS);
+                }
+                else
+                {
+                    Status = USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
+                }
             }
             else
             {
