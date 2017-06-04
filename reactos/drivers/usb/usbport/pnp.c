@@ -955,7 +955,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
             if (UsbPortResources->ResourceBase)
             {
-                UsbPortResources->TypesResources |= USBPORT_RESOURCES_PORT;
+                UsbPortResources->ResourcesTypes |= USBPORT_RESOURCES_PORT;
             }
             else
             {
@@ -973,7 +973,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
             if (UsbPortResources->ResourceBase)
             {
-                UsbPortResources->TypesResources |= USBPORT_RESOURCES_MEMORY;
+                UsbPortResources->ResourcesTypes |= USBPORT_RESOURCES_MEMORY;
             }
             else
             {
@@ -983,7 +983,7 @@ USBPORT_ParseResources(IN PDEVICE_OBJECT FdoDevice,
 
         if (InterruptDescriptor && NT_SUCCESS(Status))
         {
-            UsbPortResources->TypesResources |= USBPORT_RESOURCES_INTERRUPT;
+            UsbPortResources->ResourcesTypes |= USBPORT_RESOURCES_INTERRUPT;
 
             UsbPortResources->InterruptVector = InterruptDescriptor->u.Interrupt.Vector;
             UsbPortResources->InterruptLevel = InterruptDescriptor->u.Interrupt.Level;
