@@ -43,7 +43,7 @@ USBPORT_HandleGetCurrentFrame(IN PDEVICE_OBJECT FdoDevice,
     ULONG FrameNumber;
     KIRQL OldIrql;
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
@@ -114,7 +114,7 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT_URB("USBPORT_ResetPipe: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
@@ -763,9 +763,9 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
 
     ASSERT(Urb);
 
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     Urb->UrbHeader.Status = USBD_STATUS_SUCCESS;
     Urb->UrbHeader.UsbdFlags = 0;

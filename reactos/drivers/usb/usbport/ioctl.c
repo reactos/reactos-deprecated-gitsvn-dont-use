@@ -16,7 +16,7 @@ USBPORT_UserGetHcName(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_UserGetHcName: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     Length = ControllerName->Header.RequestBufferLength -
              sizeof(USBUSER_CONTROLLER_UNICODE_NAME);
@@ -65,7 +65,7 @@ USBPORT_GetSymbolicName(IN PDEVICE_OBJECT RootHubPdo,
 
     DPRINT("USBPORT_GetSymbolicName: ... \n");
 
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)RootHubPdo->DeviceExtension;
+    PdoExtension = RootHubPdo->DeviceExtension;
     RootHubName = &PdoExtension->CommonExtension.SymbolicLinkName;
     Buffer = RootHubName->Buffer;
 
@@ -148,7 +148,7 @@ USBPORT_UserGetRootHubName(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_UserGetRootHubName: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     Length = RootHubName->Header.RequestBufferLength -
              sizeof(USBUSER_CONTROLLER_UNICODE_NAME);
@@ -314,7 +314,7 @@ USBPORT_FdoDeviceControl(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_FdoDeviceControl: Irp - %p\n", Irp);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;

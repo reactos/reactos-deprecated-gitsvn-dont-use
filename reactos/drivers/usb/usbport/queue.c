@@ -354,7 +354,7 @@ USBPORT_RemoveActiveTransferIrp(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     DPRINT_CORE("USBPORT_RemoveActiveTransferIrp: Irp - %p\n", Irp);
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     return USBPORT_RemoveIrpFromTable(FdoExtension->ActiveIrpTable, Irp);
 }
 
@@ -366,7 +366,7 @@ USBPORT_RemovePendingTransferIrp(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     DPRINT_CORE("USBPORT_RemovePendingTransferIrp: Irp - %p\n", Irp);
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     return USBPORT_RemoveIrpFromTable(FdoExtension->PendingIrpTable, Irp);
 }
 
@@ -456,7 +456,7 @@ USBPORT_FindActiveTransferIrp(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
     DPRINT_CORE("USBPORT_FindActiveTransferIrp: Irp - %p\n", Irp);
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     return USBPORT_FindIrpInTable(FdoExtension->ActiveIrpTable, Irp);
 }
 
@@ -482,7 +482,7 @@ USBPORT_CancelPendingTransferIrp(IN PDEVICE_OBJECT DeviceObject,
     Endpoint = Transfer->Endpoint;
 
     FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    FdoExtension = DeviceObject->DeviceExtension;
 
     IoReleaseCancelSpinLock(Irp->CancelIrql);
 
@@ -525,9 +525,9 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT_CORE("USBPORT_CancelTransferIrp: Irp - %p\n", Irp);
 
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    PdoExtension = DeviceObject->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     IoReleaseCancelSpinLock(Irp->CancelIrql);
 
@@ -686,7 +686,7 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
     DPRINT_CORE("USBPORT_FlushCancelList: ... \n");
 
     FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
@@ -761,7 +761,7 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
     DPRINT_CORE("USBPORT_FlushPendingTransfers: Endpoint - %p\n", Endpoint);
 
     FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     if (InterlockedCompareExchange(&Endpoint->FlushPendingLock, 1, 0))
     {
@@ -953,7 +953,7 @@ USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
 
     Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
     FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
@@ -1012,7 +1012,7 @@ USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
     Endpoint = Transfer->Endpoint;
 
     FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     Irp->IoStatus.Status = STATUS_PENDING;
     IoMarkIrpPending(Irp);
@@ -1128,7 +1128,7 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
 
     DPRINT_CORE("USBPORT_FlushAllEndpoints: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->EndpointListSpinLock, &OldIrql);
 
@@ -1231,7 +1231,7 @@ USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
 
     DPRINT_CORE("USBPORT_FlushController \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     EndpointList = &FdoExtension->EndpointList;
 
@@ -1298,7 +1298,7 @@ USBPORT_BadRequestFlush(IN PDEVICE_OBJECT FdoDevice)
 
     DPRINT_QUEUE("USBPORT_BadRequestFlush: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     while (TRUE)
     {

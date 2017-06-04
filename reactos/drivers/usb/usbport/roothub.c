@@ -58,7 +58,7 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
            FdoDevice,
            Port);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     CompanionControllersList = USBPORT_FindCompanionControllers(FdoDevice,
@@ -77,10 +77,10 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
     {
         CompanionFdoDevice = *Entry;
 
-        CompanionFdoExtension = (PUSBPORT_DEVICE_EXTENSION)CompanionFdoDevice->DeviceExtension;
+        CompanionFdoExtension = CompanionFdoDevice->DeviceExtension;
         CompanionPacket = &CompanionFdoExtension->MiniPortInterface->Packet;
 
-        PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)CompanionFdoExtension->RootHubPdo->DeviceExtension;
+        PdoExtension = CompanionFdoExtension->RootHubPdo->DeviceExtension;
 
         for (ix = 0;
              (PdoExtension->CommonExtension.PnpStateFlags & 2) &&
@@ -125,8 +125,8 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
            SetupPacket->bRequest,
            *BufferLength);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
+    PdoExtension = FdoExtension->RootHubPdo->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     Port = SetupPacket->wIndex.W;
@@ -355,8 +355,8 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
            SetupPacket->bRequest,
            TransferLength);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
+    PdoExtension = FdoExtension->RootHubPdo->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     switch (SetupPacket->bRequest)
@@ -562,8 +562,8 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
 
     Endpoint = Transfer->Endpoint;
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)Endpoint->FdoDevice->DeviceExtension;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)FdoExtension->RootHubPdo->DeviceExtension;
+    FdoExtension = Endpoint->FdoDevice->DeviceExtension;
+    PdoExtension = FdoExtension->RootHubPdo->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     HubDescriptor = (PUSB_HUB_DESCRIPTOR)&PdoExtension->RootHubDescriptors->Descriptor;
@@ -690,7 +690,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     DPRINT_CORE("USBPORT_RootHubEndpointWorker: Endpoint - %p\n", Endpoint);
 
     FdoDevice = Endpoint->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
@@ -784,8 +784,8 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
            FdoDevice,
            PdoDevice);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
+    PdoExtension = PdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     DeviceHandle = &PdoExtension->DeviceHandle;
@@ -948,7 +948,7 @@ USBPORT_InvalidateRootHub(PVOID Context)
 
     if (PdoDevice)
     {
-        PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+        PdoExtension = PdoDevice->DeviceExtension;
         Endpoint = PdoExtension->Endpoint;
     }
 
@@ -981,7 +981,7 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
     DPRINT("USBPORT_RootHub_PowerAndChirpAllCcPorts: FdoDevice - %p\n",
            FdoDevice);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
@@ -1023,7 +1023,7 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
             {
                 CompanionPacket = &FdoExtension->MiniPortInterface->Packet;
 
-                CompanionFdoExtension = (PUSBPORT_DEVICE_EXTENSION)(*Entry)->DeviceExtension;
+                CompanionFdoExtension = (*Entry)->DeviceExtension;
 
                 CompanionPacket->RH_GetRootHubData(CompanionFdoExtension->MiniPortExt,
                                                    &RootHubData);

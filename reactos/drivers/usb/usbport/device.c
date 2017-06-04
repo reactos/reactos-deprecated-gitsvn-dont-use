@@ -577,7 +577,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_HandleSelectConfiguration: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,
@@ -744,7 +744,7 @@ USBPORT_AddDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_AddDeviceHandle: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)(FdoDevice->DeviceExtension);
+    FdoExtension = (FdoDevice->DeviceExtension);
 
     InsertTailList(&FdoExtension->DeviceHandleList,
                    &DeviceHandle->DeviceHandleLink);
@@ -760,7 +760,7 @@ USBPORT_RemoveDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_RemoveDeviceHandle \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->DeviceHandleSpinLock, &OldIrql);
     RemoveEntryList(&DeviceHandle->DeviceHandleLink);
@@ -780,7 +780,7 @@ USBPORT_ValidateDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
 
     //DPRINT("USBPORT_ValidateDeviceHandle: DeviceHandle - %p\n", DeviceHandle \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->DeviceHandleSpinLock, &OldIrql);
     if (DeviceHandle)
@@ -916,7 +916,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
            PortStatus,
            Port);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,
@@ -1126,7 +1126,7 @@ USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 
     DPRINT("USBPORT_AllocateUsbAddress \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     while (TRUE)
     {
@@ -1170,7 +1170,7 @@ USBPORT_FreeUsbAddress(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_FreeUsbAddress: DeviceAddress - %x\n", DeviceAddress);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     while (TRUE)
     {
@@ -1220,7 +1220,7 @@ USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     ASSERT(DeviceHandle != NULL);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,
@@ -1390,7 +1390,7 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_HandleSelectInterface: ... \n");
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,
@@ -1487,7 +1487,7 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
            DeviceHandle,
            Flags);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
     {
@@ -1572,7 +1572,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
            OldDeviceHandle,
            NewDeviceHandle);
 
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeWaitForSingleObject(&FdoExtension->DeviceSemaphore,
                           Executive,

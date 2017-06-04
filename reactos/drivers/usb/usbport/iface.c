@@ -34,8 +34,8 @@ USBHI_CreateUsbDevice(IN PVOID BusContext,
 
     DPRINT("USBHI_CreateUsbDevice: ... \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     Status = USBPORT_CreateDevice(&deviceHandle,
                                   PdoExtension->FdoDevice,
@@ -58,8 +58,8 @@ USBHI_InitializeUsbDevice(IN PVOID BusContext,
 
     DPRINT("USBHI_InitializeUsbDevice \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     return USBPORT_InitializeDevice((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle,
                                     PdoExtension->FdoDevice);
@@ -80,8 +80,8 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
 
     DPRINT("USBHI_GetUsbDescriptors ...\n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     if (DeviceDescBuffer && *DeviceDescBufferLen)
     {
@@ -117,8 +117,8 @@ USBHI_RemoveUsbDevice(IN PVOID BusContext,
            UsbdDeviceHandle,
            Flags);
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     return USBPORT_RemoveDevice(PdoExtension->FdoDevice,
                                 (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle,
@@ -138,8 +138,8 @@ USBHI_RestoreUsbDevice(IN PVOID BusContext,
            OldUsbdDeviceHandle,
            NewUsbdDeviceHandle);
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     return USBPORT_RestoreDevice(PdoExtension->FdoDevice,
                                 (PUSBPORT_DEVICE_HANDLE)OldUsbdDeviceHandle,
@@ -328,10 +328,10 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
     DPRINT("USBHI_GetControllerInformation: ControllerInfoBufferLen - %x\n",
            ControllerInfoBufferLen);
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     InfoBuffer = (PUSB_CONTROLLER_INFORMATION_0)ControllerInfoBuffer;
 
@@ -380,10 +380,10 @@ USBHI_ControllerSelectiveSuspend(IN PVOID BusContext,
 
     DPRINT("USBHI_ControllerSelectiveSuspend: Enable - %x\n", Enable);
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     Flags = FdoExtension->Flags;
 
@@ -442,10 +442,10 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
 
     DPRINT("USBHI_GetExtendedHubInformation: ... \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     HubInfoBuffer = (PUSB_EXTHUB_INFORMATION_0)HubInformationBuffer;
@@ -540,7 +540,7 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
 
     DPRINT("USBHI_GetRootHubSymbolicName: ... \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
+    PdoDevice = BusContext;
 
     Status = USBPORT_GetSymbolicName(PdoDevice, &HubName);
 
@@ -583,8 +583,8 @@ USBHI_Initialize20Hub(IN PVOID BusContext,
            UsbdHubDeviceHandle,
            TtCount);
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     return USBPORT_Initialize20Hub(PdoExtension->FdoDevice,
                                    (PUSBPORT_DEVICE_HANDLE)UsbdHubDeviceHandle,
@@ -605,10 +605,10 @@ USBHI_RootHubInitNotification(IN PVOID BusContext,
 
     DPRINT("USBHI_RootHubInitNotification \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->RootHubCallbackSpinLock, &OldIrql);
     PdoExtension->RootHubInitContext = CallbackContext;
@@ -628,8 +628,8 @@ USBHI_FlushTransfers(IN PVOID BusContext,
 
     DPRINT("USBHI_FlushTransfers: ... \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
 
     USBPORT_BadRequestFlush(PdoExtension->FdoDevice);
 }
@@ -696,10 +696,10 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
         return STATUS_NOT_SUPPORTED;
     }
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
 
     if (Level == 0)
     {
@@ -764,10 +764,10 @@ USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
 
     DPRINT("USBDI_IsDeviceHighSpeed: ... \n");
 
-    PdoDevice = (PDEVICE_OBJECT)BusContext;
-    PdoExtension = (PUSBPORT_RHDEVICE_EXTENSION)PdoDevice->DeviceExtension;
+    PdoDevice = BusContext;
+    PdoExtension = PdoDevice->DeviceExtension;
     FdoDevice = PdoExtension->FdoDevice;
-    FdoExtension = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     return Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2;
