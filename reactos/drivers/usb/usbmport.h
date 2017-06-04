@@ -573,8 +573,8 @@ typedef struct _USBPORT_ENDPOINT_PROPERTIES {
   ULONG ScheduleOffset;
   ULONG TransferType;
   ULONG Direction;
-  ULONG BufferVA;
-  ULONG BufferPA;
+  ULONG_PTR BufferVA;
+  ULONG_PTR BufferPA;
   ULONG BufferLength;
   ULONG Reserved3;
   ULONG MaxTransferSize;
