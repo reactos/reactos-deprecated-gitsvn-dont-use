@@ -112,16 +112,16 @@ NTAPI
 USBPORT_IsCompanionFdoExtension(IN PDEVICE_OBJECT USB2FdoDevice,
                                 IN PUSBPORT_DEVICE_EXTENSION USB1FdoExtension)
 {
-  PUSBPORT_DEVICE_EXTENSION USB2FdoExtension;
+    PUSBPORT_DEVICE_EXTENSION USB2FdoExtension;
 
-  DPRINT("USBPORT_IsCompanionFdoExtension: USB2Fdo - %p, USB1FdoExtension - %p\n",
-          USB2FdoDevice,
-          USB1FdoExtension);
+    DPRINT("USBPORT_IsCompanionFdoExtension: USB2Fdo - %p, USB1FdoExtension - %p\n",
+           USB2FdoDevice,
+           USB1FdoExtension);
 
-  USB2FdoExtension = USB2FdoDevice->DeviceExtension;
+    USB2FdoExtension = USB2FdoDevice->DeviceExtension;
 
-  return USB2FdoExtension->BusNumber == USB1FdoExtension->BusNumber &&
-         USB2FdoExtension->PciDeviceNumber == USB1FdoExtension->PciDeviceNumber;
+    return USB2FdoExtension->BusNumber == USB1FdoExtension->BusNumber &&
+           USB2FdoExtension->PciDeviceNumber == USB1FdoExtension->PciDeviceNumber;
 }
 
 PDEVICE_RELATIONS
