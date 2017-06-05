@@ -678,7 +678,7 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
 
     EndpointProperties->DeviceAddress = DeviceHandle->DeviceAddress;
     EndpointProperties->DeviceSpeed = DeviceHandle->DeviceSpeed;
-    EndpointProperties->Period = 0; // HighSpeedInterval
+    EndpointProperties->Period = 0;
     EndpointProperties->EndpointAddress = EndpointDescriptor->bEndpointAddress;
     EndpointProperties->TransactionPerMicroframe = AdditionalTransaction + 1;
     EndpointProperties->MaxPacketSize = MaxPacketSize;
@@ -686,7 +686,7 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
 
     switch (EndpointDescriptor->bmAttributes & USB_ENDPOINT_TYPE_MASK)
     {
-        case USB_ENDPOINT_TYPE_CONTROL: // 0x00
+        case USB_ENDPOINT_TYPE_CONTROL:
             EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_CONTROL;
 
             if (EndpointProperties->EndpointAddress == 0)
@@ -700,18 +700,18 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
 
             break;
 
-        case USB_ENDPOINT_TYPE_ISOCHRONOUS: // 0x01
+        case USB_ENDPOINT_TYPE_ISOCHRONOUS:
             DPRINT1("USBPORT_OpenPipe: USB_ENDPOINT_TYPE_ISOCHRONOUS UNIMPLEMENTED. FIXME. \n");
             EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_ISOCHRONOUS;
             EndpointProperties->MaxTransferSize = 0x1000000;
             break;
 
-        case USB_ENDPOINT_TYPE_BULK: // 0x02
+        case USB_ENDPOINT_TYPE_BULK:
             EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_BULK;
             EndpointProperties->MaxTransferSize = 0x10000;
             break;
 
-        case USB_ENDPOINT_TYPE_INTERRUPT: // 0x03
+        case USB_ENDPOINT_TYPE_INTERRUPT:
             EndpointProperties->TransferType = USBPORT_TRANSFER_TYPE_INTERRUPT;
             EndpointProperties->MaxTransferSize = 0x400;
             break;

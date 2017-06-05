@@ -133,7 +133,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 
     switch (SetupPacket->bRequest)
     {
-        case USB_REQUEST_GET_STATUS: // 0x00
+        case USB_REQUEST_GET_STATUS:
         {
             if (!Buffer)
             {
@@ -175,18 +175,18 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             break;
         }
 
-        case USB_REQUEST_CLEAR_FEATURE: // 0x01
+        case USB_REQUEST_CLEAR_FEATURE:
             Feature = SetupPacket->wValue.W;
 
             if ((SetupPacket->bmRequestType._BM.Recipient) != USBPORT_RECIPIENT_ROOT_PORT)
             {
-                if (Feature == FEATURE_C_HUB_LOCAL_POWER) //0
+                if (Feature == FEATURE_C_HUB_LOCAL_POWER)
                 {
                     RHStatus = RH_STATUS_SUCCESS;
                     return RHStatus;
                 }
             
-                if (Feature == FEATURE_C_HUB_OVER_CURRENT) //1
+                if (Feature == FEATURE_C_HUB_OVER_CURRENT)
                 {
                     MPStatus = Packet->RH_ClearFeaturePortOvercurrentChange(FdoExtension->MiniPortExt,
                                                                             0);
@@ -200,42 +200,42 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 
             switch (Feature)
             {
-                case FEATURE_PORT_ENABLE: // 1
+                case FEATURE_PORT_ENABLE:
                     MPStatus = Packet->RH_ClearFeaturePortEnable(FdoExtension->MiniPortExt,
                                                                  Port);
                     break;
 
-                case FEATURE_PORT_SUSPEND: // 2
+                case FEATURE_PORT_SUSPEND:
                     MPStatus = Packet->RH_ClearFeaturePortSuspend(FdoExtension->MiniPortExt,
                                                                   Port);
                     break;
 
-                case FEATURE_PORT_POWER: // 8
+                case FEATURE_PORT_POWER:
                     MPStatus = Packet->RH_ClearFeaturePortPower(FdoExtension->MiniPortExt,
                                                                 Port);
                     break;
 
-                case FEATURE_C_PORT_CONNECTION: // 16
+                case FEATURE_C_PORT_CONNECTION:
                     MPStatus = Packet->RH_ClearFeaturePortConnectChange(FdoExtension->MiniPortExt,
                                                                         Port);
                     break;
 
-                case FEATURE_C_PORT_ENABLE: // 17
+                case FEATURE_C_PORT_ENABLE:
                      MPStatus = Packet->RH_ClearFeaturePortEnableChange(FdoExtension->MiniPortExt,
                                                                         Port);
                     break;
 
-                case FEATURE_C_PORT_SUSPEND: // 18
+                case FEATURE_C_PORT_SUSPEND:
                     MPStatus = Packet->RH_ClearFeaturePortSuspendChange(FdoExtension->MiniPortExt,
                                                                         Port);
                     break;
 
-                case FEATURE_C_PORT_OVER_CURRENT: // 19
+                case FEATURE_C_PORT_OVER_CURRENT:
                     MPStatus = Packet->RH_ClearFeaturePortOvercurrentChange(FdoExtension->MiniPortExt,
                                                                             Port);
                     break;
 
-                case FEATURE_C_PORT_RESET: // 20
+                case FEATURE_C_PORT_RESET:
                     MPStatus = Packet->RH_ClearFeaturePortResetChange(FdoExtension->MiniPortExt,
                                                                       Port);
                     break;
@@ -249,7 +249,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             RHStatus = USBPORT_MPStatusToRHStatus(MPStatus);
             break;
 
-        case USB_REQUEST_SET_FEATURE:  // 0x03
+        case USB_REQUEST_SET_FEATURE:
             if (SetupPacket->bmRequestType._BM.Recipient != USBPORT_RECIPIENT_ROOT_PORT)
             {
                 return RHStatus;
@@ -259,22 +259,22 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 
             switch (Feature)
             {
-                case FEATURE_PORT_ENABLE: // 1
+                case FEATURE_PORT_ENABLE:
                     MPStatus = Packet->RH_SetFeaturePortEnable(FdoExtension->MiniPortExt,
                                                                Port);
                     break;
 
-                case FEATURE_PORT_SUSPEND: // 2
+                case FEATURE_PORT_SUSPEND:
                     MPStatus = Packet->RH_SetFeaturePortSuspend(FdoExtension->MiniPortExt,
                                                                 Port);
                     break;
 
-                case FEATURE_PORT_RESET: // 4
+                case FEATURE_PORT_RESET:
                     MPStatus = Packet->RH_SetFeaturePortReset(FdoExtension->MiniPortExt,
                                                               Port);
                     break;
 
-                case FEATURE_PORT_POWER: // 8
+                case FEATURE_PORT_POWER:
                     if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
                     {
                         MPStatus = USBPORT_RH_SetFeatureUSB2PortPower(FdoDevice, Port);
@@ -296,7 +296,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             RHStatus = USBPORT_MPStatusToRHStatus(MPStatus);
             break;
 
-        case USB_REQUEST_GET_DESCRIPTOR: // 0x06
+        case USB_REQUEST_GET_DESCRIPTOR:
             if (Buffer &&
                 SetupPacket->wValue.W == 0 &&
                 SetupPacket->bmRequestType._BM.Dir == BMREQUEST_DEVICE_TO_HOST)
@@ -361,7 +361,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
     switch (SetupPacket->bRequest)
     {
-        case USB_REQUEST_GET_DESCRIPTOR: //0x06
+        case USB_REQUEST_GET_DESCRIPTOR:
             if (SetupPacket->wValue.LowByte ||
                 !(SetupPacket->bmRequestType._BM.Dir))
             {
@@ -404,7 +404,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             RHStatus = RH_STATUS_SUCCESS;
             break;
 
-        case USB_REQUEST_GET_STATUS: //0x00
+        case USB_REQUEST_GET_STATUS:
             if (!SetupPacket->wValue.W &&
                  SetupPacket->wLength == 2 &&
                  !SetupPacket->wIndex.W &&
@@ -423,7 +423,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
             break;
 
-        case USB_REQUEST_GET_CONFIGURATION: //0x08
+        case USB_REQUEST_GET_CONFIGURATION:
             if (SetupPacket->wValue.W ||
                 SetupPacket->wIndex.W ||
                 SetupPacket->wLength != 1 ||
@@ -445,7 +445,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             RHStatus = RH_STATUS_SUCCESS;
             break;
 
-        case USB_REQUEST_SET_CONFIGURATION: //0x09
+        case USB_REQUEST_SET_CONFIGURATION:
             if (!SetupPacket->wIndex.W &&
                 !SetupPacket->wLength &&
                 !(SetupPacket->bmRequestType._BM.Dir == BMREQUEST_DEVICE_TO_HOST))
@@ -461,7 +461,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
             break;
 
-        case USB_REQUEST_SET_ADDRESS: //0x05
+        case USB_REQUEST_SET_ADDRESS:
             if (!SetupPacket->wIndex.W &&
                 !SetupPacket->wLength &&
                 !(SetupPacket->bmRequestType._BM.Dir))
@@ -647,7 +647,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     if (!Packet->RH_GetHubStatus(FdoExtension->MiniPortExt, &HubStatus))
     {
         if (HubStatus & (HUB_STATUS_CHANGE_LOCAL_POWER |
-                         HUB_STATUS_CHANGE_OVERCURRENT)) //0x00030000
+                         HUB_STATUS_CHANGE_OVERCURRENT))
         {
             /* At the hub status there is a change */
             USBPORT_SetBit((ULONG_PTR)Buffer, 0);

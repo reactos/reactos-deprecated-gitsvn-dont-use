@@ -63,7 +63,7 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
     }
     else if (DeviceExtension->CommonExtension.IsInterfaceEnabled)
     {
-        // Disable device interface
+        /* Disable device interface */
         Status = IoSetDeviceInterfaceState(SymbolicLinkName, FALSE);
 
         if (NT_SUCCESS(Status))
@@ -491,7 +491,6 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
     ULONG MiniPortStatus;
     PUSBPORT_COMMON_BUFFER_HEADER HeaderBuffer;
     ULONG ResultLength;
-    //KIRQL OldIrql;
     ULONG DisableSelectiveSuspend = 0;
     ULONG DisableCcDetect = 0;
     ULONG IdleEpSupport = 0;
@@ -809,10 +808,8 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
         FdoExtension->MiniPortCommonBuffer = NULL;
     }
 
-    //KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
     MiniPortStatus = Packet->StartController(FdoExtension->MiniPortExt,
                                              UsbPortResources);
-    //KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
     if (UsbPortResources->LegacySupport)
     {
@@ -1106,7 +1103,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
 
     switch (Minor)
     {
-        case IRP_MN_START_DEVICE: // 0
+        case IRP_MN_START_DEVICE:
             DPRINT("IRP_MN_START_DEVICE\n");
 
             KeInitializeEvent(&Event, NotificationEvent, FALSE);
@@ -1173,37 +1170,34 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
             return Status;
 
-        case IRP_MN_QUERY_REMOVE_DEVICE: // 1
-            //DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+        case IRP_MN_QUERY_REMOVE_DEVICE:
             DPRINT1("USBPORT_FdoPnP: IRP_MN_QUERY_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
-        case IRP_MN_REMOVE_DEVICE: // 2
-            //DPRINT("IRP_MN_REMOVE_DEVICE\n");
+        case IRP_MN_REMOVE_DEVICE:
             DPRINT1("USBPORT_FdoPnP: IRP_MN_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
-        case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
+        case IRP_MN_CANCEL_REMOVE_DEVICE:
             DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             goto ForwardIrp;
 
-        case IRP_MN_STOP_DEVICE: // 4
-            //DPRINT("IRP_MN_STOP_DEVICE\n");
+        case IRP_MN_STOP_DEVICE:
             DPRINT1("USBPORT_FdoPnP: IRP_MN_STOP_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
-        case IRP_MN_QUERY_STOP_DEVICE: // 5
+        case IRP_MN_QUERY_STOP_DEVICE:
             DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             goto ForwardIrp;
 
-        case IRP_MN_CANCEL_STOP_DEVICE: // 6
+        case IRP_MN_CANCEL_STOP_DEVICE:
             DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+        case IRP_MN_QUERY_DEVICE_RELATIONS:
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
             if (RelationType == BusRelations)
             {
@@ -1258,71 +1252,70 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
             Irp->IoStatus.Status = Status;
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_INTERFACE: // 8
+        case IRP_MN_QUERY_INTERFACE:
             DPRINT("IRP_MN_QUERY_INTERFACE\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_CAPABILITIES:           // 9
+        case IRP_MN_QUERY_CAPABILITIES:
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_RESOURCES:              // 10
+        case IRP_MN_QUERY_RESOURCES:
             DPRINT("IRP_MN_QUERY_RESOURCES\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:  // 11
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_DEVICE_TEXT:            // 12
+        case IRP_MN_QUERY_DEVICE_TEXT:
             DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
             goto ForwardIrp;
 
-        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
+        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS:
             DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
             goto ForwardIrp;
 
-        case IRP_MN_READ_CONFIG: // 15
+        case IRP_MN_READ_CONFIG:
             DPRINT("IRP_MN_READ_CONFIG\n");
             goto ForwardIrp;
 
-        case IRP_MN_WRITE_CONFIG: // 16
+        case IRP_MN_WRITE_CONFIG:
             DPRINT("IRP_MN_WRITE_CONFIG\n");
             goto ForwardIrp;
 
-        case IRP_MN_EJECT: // 17
+        case IRP_MN_EJECT:
             DPRINT("IRP_MN_EJECT\n");
             goto ForwardIrp;
 
-        case IRP_MN_SET_LOCK: // 18
+        case IRP_MN_SET_LOCK:
             DPRINT("IRP_MN_SET_LOCK\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_ID: // 19
+        case IRP_MN_QUERY_ID:
             DPRINT("IRP_MN_QUERY_ID\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
+        case IRP_MN_QUERY_PNP_DEVICE_STATE:
             DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
             goto ForwardIrp;
 
-        case IRP_MN_QUERY_BUS_INFORMATION: // 21
+        case IRP_MN_QUERY_BUS_INFORMATION:
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
             goto ForwardIrp;
 
-        case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
+        case IRP_MN_DEVICE_USAGE_NOTIFICATION:
             DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
             goto ForwardIrp;
 
-        case IRP_MN_SURPRISE_REMOVAL: // 23
-            //DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+        case IRP_MN_SURPRISE_REMOVAL:
             DPRINT1("USBPORT_FdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
             goto ForwardIrp;
 
         default:
             DPRINT("unknown IRP_MN_???\n");
 ForwardIrp:
-            // forward irp to next device object
+            /* forward irp to next device object */
             IoSkipCurrentIrpStackLocation(Irp);
             break;
     }
@@ -1444,7 +1437,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
     switch (Minor)
     {
-        case IRP_MN_START_DEVICE: // 0
+        case IRP_MN_START_DEVICE:
             DPRINT("IRP_MN_START_DEVICE\n");
 
             Status = USBPORT_RootHubCreateDevice(FdoDevice, PdoDevice);
@@ -1464,37 +1457,34 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
             break;
 
-        case IRP_MN_QUERY_REMOVE_DEVICE: // 1
-            //DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+        case IRP_MN_QUERY_REMOVE_DEVICE:
             DPRINT1("USBPORT_PdoPnP: IRP_MN_QUERY_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
-        case IRP_MN_REMOVE_DEVICE: // 2
-            //DPRINT("IRP_MN_REMOVE_DEVICE\n");
+        case IRP_MN_REMOVE_DEVICE:
             DPRINT1("USBPORT_PdoPnP: IRP_MN_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
-        case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
+        case IRP_MN_CANCEL_REMOVE_DEVICE:
             DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_STOP_DEVICE: // 4
-            //DPRINT("IRP_MN_STOP_DEVICE\n");
+        case IRP_MN_STOP_DEVICE:
             DPRINT1("USBPORT_PdoPnP: IRP_MN_STOP_DEVICE UNIMPLEMENTED. FIXME. \n");
             break;
 
-        case IRP_MN_QUERY_STOP_DEVICE: // 5
+        case IRP_MN_QUERY_STOP_DEVICE:
             DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_CANCEL_STOP_DEVICE: // 6
+        case IRP_MN_CANCEL_STOP_DEVICE:
             DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+        case IRP_MN_QUERY_DEVICE_RELATIONS:
         {
             PDEVICE_RELATIONS DeviceRelations;
 
@@ -1526,12 +1516,12 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
         }
 
-        case IRP_MN_QUERY_INTERFACE: // 8
+        case IRP_MN_QUERY_INTERFACE:
             DPRINT("IRP_MN_QUERY_INTERFACE\n");
             Status = USBPORT_PdoQueryInterface(FdoDevice, PdoDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_CAPABILITIES: // 9
+        case IRP_MN_QUERY_CAPABILITIES:
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
 
             DeviceCapabilities = (PDEVICE_CAPABILITIES)
@@ -1544,51 +1534,47 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_QUERY_RESOURCES: // 10
-            //DPRINT("IRP_MN_QUERY_RESOURCES\n");
+        case IRP_MN_QUERY_RESOURCES:
             DPRINT("USBPORT_PdoPnP: IRP_MN_QUERY_RESOURCES\n");
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
-            //ASSERT(FALSE);
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_QUERY_DEVICE_TEXT: // 12
+        case IRP_MN_QUERY_DEVICE_TEXT:
             DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
-            //ASSERT(FALSE);
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
+        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS:
             DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
-            //ASSERT(FALSE);
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_READ_CONFIG: // 15
+        case IRP_MN_READ_CONFIG:
             DPRINT("IRP_MN_READ_CONFIG\n");
             ASSERT(FALSE);
             break;
 
-        case IRP_MN_WRITE_CONFIG: // 16
+        case IRP_MN_WRITE_CONFIG:
             DPRINT("IRP_MN_WRITE_CONFIG\n");
             ASSERT(FALSE);
             break;
 
-        case IRP_MN_EJECT: // 17
+        case IRP_MN_EJECT:
             DPRINT("IRP_MN_EJECT\n");
             ASSERT(FALSE);
             break;
 
-        case IRP_MN_SET_LOCK: // 18
+        case IRP_MN_SET_LOCK:
             DPRINT("IRP_MN_SET_LOCK\n");
             ASSERT(FALSE);
             break;
 
-        case IRP_MN_QUERY_ID: // 19
+        case IRP_MN_QUERY_ID:
         {
             ULONG IdType;
             LONG Length;
@@ -1600,7 +1586,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
             DPRINT("IRP_MN_QUERY_ID/Type %x\n", IdType);
 
-            if (IdType == BusQueryDeviceID) // 0
+            if (IdType == BusQueryDeviceID)
             {
                 PUSBPORT_REGISTRATION_PACKET Packet;
                 Packet = &FdoExtension->MiniPortInterface->Packet;
@@ -1635,7 +1621,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                 break;
             }
 
-            if (IdType == BusQueryHardwareIDs) // 1
+            if (IdType == BusQueryHardwareIDs)
             {
                 Id = USBPORT_GetDeviceHwIds(FdoDevice,
                                             FdoExtension->VendorID,
@@ -1657,15 +1643,15 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
         }
 
-        case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
+        case IRP_MN_QUERY_PNP_DEVICE_STATE:
             DPRINT("IRP_MN_QUERY_PNP_DEVICE_STATE\n");
             Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_QUERY_BUS_INFORMATION: // 21
+        case IRP_MN_QUERY_BUS_INFORMATION:
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
 
-            // Allocate buffer for bus information
+            /* Allocate buffer for bus information */
             BusInformation = (PPNP_BUS_INFORMATION)ExAllocatePool(PagedPool,
                                                                   sizeof(PNP_BUS_INFORMATION));
 
@@ -1673,12 +1659,12 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
             if (BusInformation)
             {
-                // Copy BUS GUID
+                /* Copy BUS GUID */
                 RtlMoveMemory(&BusInformation->BusTypeGuid,
                               &GUID_BUS_TYPE_USB,
                               sizeof(GUID));
 
-                // Set bus type
+                /* Set bus type */
                 BusInformation->LegacyBusType = PNPBus;
                 BusInformation->BusNumber = 0;
 
@@ -1687,19 +1673,18 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             }
             else
             {
-                // No memory
+                /* No memory */
                 Status = STATUS_INSUFFICIENT_RESOURCES;
             }
 
             break;
 
-        case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
+        case IRP_MN_DEVICE_USAGE_NOTIFICATION:
             DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_SURPRISE_REMOVAL: // 23
-            //DPRINT("IRP_MN_SURPRISE_REMOVAL\n");
+        case IRP_MN_SURPRISE_REMOVAL:
             DPRINT1("USBPORT_PdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
             Status = Irp->IoStatus.Status;
             break;
@@ -1710,7 +1695,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
     }
 
-    //Irp->IoStatus.Information = Information;
     Irp->IoStatus.Status = Status;
     IoCompleteRequest(Irp, IO_NO_INCREMENT);
     return Status;

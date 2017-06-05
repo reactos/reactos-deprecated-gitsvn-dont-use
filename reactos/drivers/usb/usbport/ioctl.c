@@ -321,27 +321,27 @@ USBPORT_FdoDeviceControl(IN PDEVICE_OBJECT FdoDevice,
 
     switch (ControlCode)
     {
-        case IOCTL_USB_DIAGNOSTIC_MODE_ON: // 220400
+        case IOCTL_USB_DIAGNOSTIC_MODE_ON:
             DPRINT("USBPORT_FdoDeviceControl: IOCTL_USB_DIAGNOSTIC_MODE_ON\n");
             FdoExtension->Flags |= USBPORT_FLAG_DIAGNOSTIC_MODE;
             break;
 
-        case IOCTL_USB_DIAGNOSTIC_MODE_OFF: // 0x220404
+        case IOCTL_USB_DIAGNOSTIC_MODE_OFF:
             DPRINT("USBPORT_FdoDeviceControl: IOCTL_USB_DIAGNOSTIC_MODE_OFF\n");
             FdoExtension->Flags &= ~USBPORT_FLAG_DIAGNOSTIC_MODE;
             break;
 
-        case IOCTL_USB_GET_NODE_INFORMATION: // 0x220408
+        case IOCTL_USB_GET_NODE_INFORMATION:
             DPRINT1("USBPORT_FdoDeviceControl: IOCTL_USB_GET_NODE_INFORMATION\n");
             Status = USBPORT_GetUnicodeName(FdoDevice, Irp, &Information);
             break;
 
-        case IOCTL_GET_HCD_DRIVERKEY_NAME: // 0x220424
+        case IOCTL_GET_HCD_DRIVERKEY_NAME:
             DPRINT1("USBPORT_FdoDeviceControl: IOCTL_GET_HCD_DRIVERKEY_NAME\n");
             Status = USBPORT_GetUnicodeName(FdoDevice, Irp, &Information);
             break;
 
-        case IOCTL_USB_USER_REQUEST: // 0x220438
+        case IOCTL_USB_USER_REQUEST:
             DPRINT1("USBPORT_FdoDeviceControl: IOCTL_USB_USER_REQUEST UNIMPLEMENTED. FIXME\n");
             break;
 

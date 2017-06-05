@@ -1719,7 +1719,7 @@ USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
 
     HeaderBuffer->Length = Length;
     HeaderBuffer->BaseVA = BaseVA;
-    HeaderBuffer->LogicalAddress = LogicalAddress; // PHYSICAL_ADDRESS
+    HeaderBuffer->LogicalAddress = LogicalAddress;
 
     HeaderBuffer->BufferLength = BufferLength + LengthPadded;
     HeaderBuffer->VirtualAddress = StartBufferVA;
@@ -1910,9 +1910,7 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
     }
 
     DPRINT1("USBPORT_Unload: UNIMPLEMENTED. FIXME. \n");
-    // ...
     //MiniPortInterface->DriverUnload(DriverObject); // Call MiniPort _HCI_Unload
-    // ...
 }
 
 ULONG
@@ -2601,7 +2599,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
     switch (IoStack->MajorFunction)
     {
-        case IRP_MJ_DEVICE_CONTROL: // 14
+        case IRP_MJ_DEVICE_CONTROL:
             if (DeviceExtension->IsPDO)
             {
                 DPRINT("USBPORT_Dispatch: PDO IRP_MJ_DEVICE_CONTROL. Major - %d, Minor - %d\n",
@@ -2621,10 +2619,10 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
             break;
 
-        case IRP_MJ_SCSI: // 15 IRP_MJ_NTERNAL_DEVICE_CONTROL:
+        case IRP_MJ_INTERNAL_DEVICE_CONTROL:
             if (DeviceExtension->IsPDO)
             {
-                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_SCSI. Major - %d, Minor - %d\n",
+                DPRINT("USBPORT_Dispatch: PDO IRP_MJ_INTERNAL_DEVICE_CONTROL. Major - %d, Minor - %d\n",
                        IoStack->MajorFunction,
                        IoStack->MinorFunction);
 
@@ -2632,7 +2630,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
             }
             else
             {
-                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_SCSI. Major - %d, Minor - %d\n",
+                DPRINT("USBPORT_Dispatch: FDO IRP_MJ_INTERNAL_DEVICE_CONTROL. Major - %d, Minor - %d\n",
                        IoStack->MajorFunction,
                        IoStack->MinorFunction);
 
@@ -2641,7 +2639,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
             break;
 
-        case IRP_MJ_POWER: // 22
+        case IRP_MJ_POWER:
             if (DeviceExtension->IsPDO)
             {
                 DPRINT("USBPORT_Dispatch: PDO IRP_MJ_POWER. Major - %d, Minor - %d\n",
@@ -2661,7 +2659,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
             break;
 
-        case IRP_MJ_SYSTEM_CONTROL: // 23
+        case IRP_MJ_SYSTEM_CONTROL:
             if (DeviceExtension->IsPDO)
             {
                 DPRINT("USBPORT_Dispatch: PDO IRP_MJ_SYSTEM_CONTROL. Major - %d, Minor - %d\n",
@@ -2683,7 +2681,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
             break;
 
-        case IRP_MJ_PNP: // 27
+        case IRP_MJ_PNP:
             if (DeviceExtension->IsPDO)
             {
                 DPRINT("USBPORT_Dispatch: PDO IRP_MJ_PNP. Major - %d, Minor - %d\n",
@@ -2703,8 +2701,8 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
 
             break;
 
-        case IRP_MJ_CREATE: // 0
-        case IRP_MJ_CLOSE: // 2
+        case IRP_MJ_CREATE:
+        case IRP_MJ_CLOSE:
             DPRINT("USBPORT_Dispatch: IRP_MJ_CREATE | IRP_MJ_CLOSE\n");
             Irp->IoStatus.Status = Status;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
@@ -2800,7 +2798,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
     DriverObject->MajorFunction[IRP_MJ_CREATE] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_CLOSE] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch; // [== IRP_MJ_SCSI]
+    DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_PNP] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_POWER] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
     DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
