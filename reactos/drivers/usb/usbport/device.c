@@ -1385,9 +1385,7 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
     Interface = (PUSBD_INTERFACE_INFORMATION)&Urb->UrbSelectInterface.Interface;
 
     Length = Interface->Length + sizeof(USBD_PIPE_INFORMATION);
-
-    if (Length != Urb->UrbHeader.Length)
-        Urb->UrbHeader.Length = Length;
+    Urb->UrbHeader.Length = Length;
 
     USBDStatus = USBPORT_InitInterfaceInfo(Interface, ConfigurationHandle);
 
