@@ -344,27 +344,22 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     HandleList = DeviceHandle->PipeHandleList.Flink;
 
-    if (HandleList != &DeviceHandle->PipeHandleList)
+    while (HandleList != &DeviceHandle->PipeHandleList)
     {
-        while (TRUE)
-        {
-            CurrentHandle = CONTAINING_RECORD(HandleList,
-                                              USBPORT_PIPE_HANDLE,
-                                              PipeLink);
-      
-            HandleList = HandleList->Flink;
-      
-            if (CurrentHandle == PipeHandle)
-                break;
-      
-            if (HandleList == &DeviceHandle->PipeHandleList)
-                return Result;
-        }
-    
-        Result = TRUE;
+        CurrentHandle = CONTAINING_RECORD(HandleList,
+                                          USBPORT_PIPE_HANDLE,
+                                          PipeLink);
+  
+        HandleList = HandleList->Flink;
+  
+        if (CurrentHandle == PipeHandle)
+            break;
+  
+        if (HandleList == &DeviceHandle->PipeHandleList)
+            return Result;
     }
 
-    return Result;
+    return TRUE;
 }
 
 BOOLEAN
@@ -1077,11 +1072,8 @@ USBPORT_FlushClosedEndpointList(IN PDEVICE_OBJECT FdoDevice)
     KeAcquireSpinLock(&FdoExtension->EndpointClosedSpinLock, &OldIrql);
     ClosedList = &FdoExtension->EndpointClosedList;
 
-    while (TRUE)
+    while (!IsListEmpty(ClosedList))
     {
-        if (IsListEmpty(ClosedList))
-            break;
-
         Endpoint = CONTAINING_RECORD(ClosedList->Flink,
                                      USBPORT_ENDPOINT,
                                      CloseLink);

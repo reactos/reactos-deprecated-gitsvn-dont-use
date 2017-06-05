@@ -146,29 +146,21 @@ USBPORT_FindCompanionControllers(IN PDEVICE_OBJECT USB2FdoDevice,
 
     USB1FdoList = USBPORT_USB1FdoList.Flink;
 
-    if (!IsListEmpty(&USBPORT_USB1FdoList) && USBPORT_USB1FdoList.Flink)
+    while (USB1FdoList && USB1FdoList != &USBPORT_USB1FdoList)
     {
-        do
+        USB1FdoExtension = CONTAINING_RECORD(USB1FdoList,
+                                             USBPORT_DEVICE_EXTENSION,
+                                             ControllerLink);
+
+        if (USB1FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC &&
+            USBPORT_IsCompanionFdoExtension(USB2FdoDevice, USB1FdoExtension))
         {
-            if (USB1FdoList == &USBPORT_USB1FdoList)
-            {
-                break;
-            }
-
-            USB1FdoExtension = CONTAINING_RECORD(USB1FdoList,
-                                                 USBPORT_DEVICE_EXTENSION,
-                                                 ControllerLink);
-
-            if (USB1FdoExtension->Flags & USBPORT_FLAG_COMPANION_HC &&
-                USBPORT_IsCompanionFdoExtension(USB2FdoDevice, USB1FdoExtension))
-            {
-                ++NumControllers;
-            }
-
-            USB1FdoList = USB1FdoExtension->ControllerLink.Flink;
+            ++NumControllers;
         }
-        while (USB1FdoList);
+
+        USB1FdoList = USB1FdoExtension->ControllerLink.Flink;
     }
+    while (USB1FdoList);
 
     DPRINT("USBPORT_FindCompanionControllers: NumControllers - %x\n",
            NumControllers);
@@ -191,27 +183,12 @@ USBPORT_FindCompanionControllers(IN PDEVICE_OBJECT USB2FdoDevice,
 
     ControllersList->Count = NumControllers;
 
-    if (IsListEmpty(&USBPORT_USB1FdoList))
-    {
-        goto Exit;
-    }
-
     USB1FdoList = USBPORT_USB1FdoList.Flink;
-
-    if (USBPORT_USB1FdoList.Flink == NULL)
-    {
-        goto Exit;
-    }
 
     Entry = &ControllersList->Objects[0];
 
-    do
+    while (USB1FdoList && USB1FdoList != &USBPORT_USB1FdoList)
     {
-        if (USB1FdoList == &USBPORT_USB1FdoList)
-        {
-            break;
-        }
-
         USB1FdoExtension = CONTAINING_RECORD(USB1FdoList,
                                              USBPORT_DEVICE_EXTENSION,
                                              ControllerLink);
@@ -236,7 +213,6 @@ USBPORT_FindCompanionControllers(IN PDEVICE_OBJECT USB2FdoDevice,
 
         USB1FdoList = USB1FdoExtension->ControllerLink.Flink;
     }
-    while (USB1FdoList);
 
 Exit:
 
@@ -1201,11 +1177,8 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
             }
         }
 
-        while (TRUE)
+        while (!IsListEmpty(&list))
         {
-            if (IsListEmpty(&list))
-                break;
-
             Endpoint = CONTAINING_RECORD(list.Flink,
                                          USBPORT_ENDPOINT,
                                          FlushAbortLink);

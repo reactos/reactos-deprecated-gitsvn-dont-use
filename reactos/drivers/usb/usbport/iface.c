@@ -164,7 +164,6 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
     PUSBPORT_INTERFACE_HANDLE InterfaceHandle;
     ULONG ActualLength;
     ULONG ix;
-    ULONG jx;
 
     DPRINT("USBHI_QueryDeviceInformation: ... \n");
 
@@ -252,8 +251,6 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
 
     InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
 
-    jx = 0;
-
     while (InterfaceEntry && InterfaceEntry != &ConfigHandle->InterfaceHandleList)
     {
         InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
@@ -280,8 +277,6 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
                 RtlCopyMemory(&PipeInfo->EndpointDescriptor,
                               &PipeHandle->EndpointDescriptor,
                               sizeof(USB_ENDPOINT_DESCRIPTOR));
-
-                ++jx;
 
                 PipeInfo += 1;
                 PipeHandle += 1;

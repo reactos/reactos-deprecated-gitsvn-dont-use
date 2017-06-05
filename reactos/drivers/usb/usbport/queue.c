@@ -265,42 +265,41 @@ USBPORT_InsertIrpInTable(IN PUSBPORT_IRP_TABLE IrpTable,
 
     ASSERT(IrpTable != NULL);
 
-Start:
-
-    for (ix = 0; ix < 0x200; ix++)
+    while (TRUE)
     {
-        if (IrpTable->irp[ix] == NULL)
+        for (ix = 0; ix < 0x200; ix++)
         {
-            IrpTable->irp[ix] = Irp;
-
-            if (ix > 0)
+            if (IrpTable->irp[ix] == NULL)
             {
-                DPRINT_CORE("USBPORT_InsertIrpInTable: ix - %x\n", ix);
+                IrpTable->irp[ix] = Irp;
+
+                if (ix > 0)
+                {
+                    DPRINT_CORE("USBPORT_InsertIrpInTable: ix - %x\n", ix);
+                }
+
+                return;
             }
-
-            return;
         }
+
+        if (ix != 0x200)
+        {
+            KeBugCheckEx(0xFE, 1, 0, 0, 0);
+        }
+
+        IrpTable->LinkNextTable = ExAllocatePoolWithTag(NonPagedPool,
+                                                        sizeof(USBPORT_IRP_TABLE),
+                                                        USB_PORT_TAG);
+
+        if (IrpTable->LinkNextTable == NULL)
+        {
+            KeBugCheckEx(0xFE, 1, 0, 0, 0);
+        }
+
+        RtlZeroMemory(IrpTable->LinkNextTable, sizeof(USBPORT_IRP_TABLE));
+
+        IrpTable = IrpTable->LinkNextTable;
     }
-
-    if (ix != 0x200)
-    {
-        KeBugCheckEx(0xFE, 1, 0, 0, 0);
-    }
-
-    IrpTable->LinkNextTable = ExAllocatePoolWithTag(NonPagedPool,
-                                                    sizeof(USBPORT_IRP_TABLE),
-                                                    USB_PORT_TAG);
-
-    if (IrpTable->LinkNextTable == NULL)
-    {
-        KeBugCheckEx(0xFE, 1, 0, 0, 0);
-    }
-
-    RtlZeroMemory(IrpTable->LinkNextTable, sizeof(USBPORT_IRP_TABLE));
-
-    IrpTable = IrpTable->LinkNextTable;
-
-    goto Start;
 }
 
 PIRP
@@ -1128,36 +1127,26 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
 
     InitializeListHead(&List);
 
-    if (!IsListEmpty(&FdoExtension->EndpointList) &&
-        FdoExtension->EndpointList.Flink)
+    Entry = FdoExtension->EndpointList.Flink;
+
+    while (Entry && Entry != &FdoExtension->EndpointList)
     {
-        Entry = FdoExtension->EndpointList.Flink;
+        Endpoint = CONTAINING_RECORD(Entry,
+                                     USBPORT_ENDPOINT,
+                                     EndpointLink);
 
-        while (Entry != &FdoExtension->EndpointList)
+        if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
         {
-            Endpoint = CONTAINING_RECORD(Entry,
-                                         USBPORT_ENDPOINT,
-                                         EndpointLink);
-
-            if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
-            {
-                InsertTailList(&List, &Endpoint->FlushLink);
-            }
-
-            Entry = Endpoint->EndpointLink.Flink;
-
-            if (!Entry)
-                break;
+            InsertTailList(&List, &Endpoint->FlushLink);
         }
+
+        Entry = Endpoint->EndpointLink.Flink;
     }
 
     KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
 
-    while (TRUE)
+    while (!IsListEmpty(&List))
     {
-        if (IsListEmpty(&List))
-            break;
-
         Endpoint = CONTAINING_RECORD(List.Flink,
                                      USBPORT_ENDPOINT,
                                      FlushLink);
@@ -1255,10 +1244,7 @@ USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
 
         KeReleaseSpinLock(&FdoExtension->EndpointListSpinLock, OldIrql);
 
-        if (IsListEmpty(&FlushList))
-            break;
-
-        do
+        while (!IsListEmpty(&FlushList))
         {
             Endpoint = CONTAINING_RECORD(FlushList.Flink,
                                          USBPORT_ENDPOINT,
@@ -1271,7 +1257,6 @@ USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
 
             InterlockedDecrement(&Endpoint->LockCounter);
         }
-        while (!IsListEmpty(&FlushList));
 
         if (!KilledTransfers)
             break;
