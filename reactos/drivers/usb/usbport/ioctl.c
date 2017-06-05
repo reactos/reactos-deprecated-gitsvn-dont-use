@@ -116,7 +116,7 @@ USBPORT_GetSymbolicName(IN PDEVICE_OBJECT RootHubPdo,
         }
 
 Exit:
-        Length = (ULONG)Buffer - (ULONG)RootHubName->Buffer;
+        Length = (ULONG_PTR)Buffer - (ULONG_PTR)RootHubName->Buffer;
     }
     else
     {
@@ -124,7 +124,7 @@ Exit:
     }
 
     RtlCopyMemory(SourceString,
-                  (PVOID)((ULONG)RootHubName->Buffer + Length),
+                  (PVOID)((ULONG_PTR)RootHubName->Buffer + Length),
                   RootHubName->Length - Length);
 
     RtlInitUnicodeString(DestinationString, SourceString);

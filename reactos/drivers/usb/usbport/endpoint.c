@@ -990,7 +990,7 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
     if (Endpoint->HeaderBuffer)
     {
         USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
-        Endpoint->HeaderBuffer = 0;
+        Endpoint->HeaderBuffer = NULL;
     }
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
