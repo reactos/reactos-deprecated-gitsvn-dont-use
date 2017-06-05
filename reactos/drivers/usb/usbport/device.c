@@ -367,6 +367,7 @@ USBPORT_OpenInterface(IN PURB Urb,
 
             wMaxPacketSize = Descriptor->wMaxPacketSize;
 
+            /* USB 2.0 Specification, 5.9 High-Speed, High Bandwidth Endpoints */
             MaxPacketSize = (wMaxPacketSize & 0x7FF) * (((wMaxPacketSize >> 11) & 3) + 1);
 
             InterfaceInfo->Pipes[ix].EndpointAddress = Descriptor->bEndpointAddress;
