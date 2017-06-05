@@ -847,7 +847,13 @@ USBPORT_FdoDeviceControl(
 
 NTSTATUS
 NTAPI
-USBPORT_FdoScsi(
+USBPORT_FdoInternalDeviceControl(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN PIRP Irp);
+
+NTSTATUS
+NTAPI
+USBPORT_PdoInternalDeviceControl(
   IN PDEVICE_OBJECT FdoDevice,
   IN PIRP Irp);
 

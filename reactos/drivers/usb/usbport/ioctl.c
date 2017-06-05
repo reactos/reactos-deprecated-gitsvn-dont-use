@@ -303,6 +303,86 @@ USBPORT_PdoDeviceControl(IN PDEVICE_OBJECT PdoDevice,
 
 NTSTATUS
 NTAPI
+USBPORT_PdoInternalDeviceControl(IN PDEVICE_OBJECT PdoDevice,
+                                 IN PIRP Irp)
+{
+    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PIO_STACK_LOCATION IoStack;
+    ULONG IoCtl;
+    NTSTATUS Status;
+
+    PdoExtension = PdoDevice->DeviceExtension;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    IoCtl = IoStack->Parameters.DeviceIoControl.IoControlCode;
+
+    DPRINT("USBPORT_PdoInternalDeviceControl: PdoDevice - %p, Irp - %p, IoCtl - %x\n",
+           PdoDevice,
+           Irp,
+           IoCtl);
+
+    if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_URB)
+    {
+        return USBPORT_HandleSubmitURB(PdoDevice, Irp, URB_FROM_IRP(Irp));
+    }
+
+    if (IoCtl == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
+    {
+        DPRINT("USBPORT_PdoInternalDeviceControl: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO\n");
+
+        if (IoStack->Parameters.Others.Argument1)
+            *(PVOID *)IoStack->Parameters.Others.Argument1 = PdoDevice;
+
+        if (IoStack->Parameters.Others.Argument2)
+            *(PVOID *)IoStack->Parameters.Others.Argument2 = PdoDevice;
+
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
+
+    if (IoCtl == IOCTL_INTERNAL_USB_GET_HUB_COUNT)
+    {
+        DPRINT("USBPORT_PdoInternalDeviceControl: IOCTL_INTERNAL_USB_GET_HUB_COUNT\n");
+
+        if (IoStack->Parameters.Others.Argument1)
+        {
+            *(PULONG)IoStack->Parameters.Others.Argument1 =
+            *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+        }
+
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
+
+    if (IoCtl == IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE)
+    {
+        DPRINT("USBPORT_PdoInternalDeviceControl: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
+
+        if (IoStack->Parameters.Others.Argument1)
+        {
+            *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtension->DeviceHandle;
+        }
+
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
+
+    if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION)
+    {
+        DPRINT("USBPORT_PdoInternalDeviceControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n");
+        return USBPORT_IdleNotification(PdoDevice, Irp);
+    }
+
+    DPRINT("USBPORT_PdoInternalDeviceControl: INVALID INTERNAL DEVICE CONTROL\n");
+    Status = STATUS_INVALID_DEVICE_REQUEST;
+
+Exit:
+    Irp->IoStatus.Status = Status;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
+    return Status;
+}
+
+NTSTATUS
+NTAPI
 USBPORT_FdoDeviceControl(IN PDEVICE_OBJECT FdoDevice,
                          IN PIRP Irp)
 {
@@ -361,9 +441,9 @@ USBPORT_FdoDeviceControl(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_FdoScsi(IN PDEVICE_OBJECT FdoDevice,
-                IN PIRP Irp)
+USBPORT_FdoInternalDeviceControl(IN PDEVICE_OBJECT FdoDevice,
+                                 IN PIRP Irp)
 {
-    DPRINT1("USBPORT_FdoScsi: UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBPORT_FdoInternalDeviceControl: UNIMPLEMENTED. FIXME. \n");
     return 0;
 }

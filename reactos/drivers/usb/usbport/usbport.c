@@ -2501,86 +2501,6 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
 
 NTSTATUS
 NTAPI
-USBPORT_PdoScsi(IN PDEVICE_OBJECT PdoDevice,
-                IN PIRP Irp)
-{
-    PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
-    PIO_STACK_LOCATION IoStack;
-    ULONG IoCtl;
-    NTSTATUS Status;
-
-    PdoExtension = PdoDevice->DeviceExtension;
-    IoStack = IoGetCurrentIrpStackLocation(Irp);
-    IoCtl = IoStack->Parameters.DeviceIoControl.IoControlCode;
-
-    DPRINT("USBPORT_PdoScsi: PdoDevice - %p, Irp - %p, IoCtl - %x\n",
-           PdoDevice,
-           Irp,
-           IoCtl);
-
-    if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_URB)
-    {
-        return USBPORT_HandleSubmitURB(PdoDevice, Irp, URB_FROM_IRP(Irp));
-    }
-
-    if (IoCtl == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
-    {
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO\n");
-
-        if (IoStack->Parameters.Others.Argument1)
-            *(PVOID *)IoStack->Parameters.Others.Argument1 = PdoDevice;
-
-        if (IoStack->Parameters.Others.Argument2)
-            *(PVOID *)IoStack->Parameters.Others.Argument2 = PdoDevice;
-
-        Status = STATUS_SUCCESS;
-        goto Exit;
-    }
-
-    if (IoCtl == IOCTL_INTERNAL_USB_GET_HUB_COUNT)
-    {
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_HUB_COUNT\n");
-
-        if (IoStack->Parameters.Others.Argument1)
-        {
-            *(PULONG)IoStack->Parameters.Others.Argument1 =
-            *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
-        }
-
-        Status = STATUS_SUCCESS;
-        goto Exit;
-    }
-
-    if (IoCtl == IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE)
-    {
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
-
-        if (IoStack->Parameters.Others.Argument1)
-        {
-            *(PVOID *)IoStack->Parameters.Others.Argument1 = &PdoExtension->DeviceHandle;
-        }
-
-        Status = STATUS_SUCCESS;
-        goto Exit;
-    }
-
-    if (IoCtl == IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION)
-    {
-        DPRINT("USBPORT_PdoScsi: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n");
-        return USBPORT_IdleNotification(PdoDevice, Irp);
-    }
-
-    DPRINT("USBPORT_PdoScsi: INVALID INTERNAL DEVICE CONTROL\n");
-    Status = STATUS_INVALID_DEVICE_REQUEST;
-
-Exit:
-    Irp->IoStatus.Status = Status;
-    IoCompleteRequest(Irp, IO_NO_INCREMENT);
-    return Status;
-}
-
-NTSTATUS
-NTAPI
 USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
                  IN PIRP Irp)
 {
@@ -2626,7 +2546,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
                        IoStack->MajorFunction,
                        IoStack->MinorFunction);
 
-                Status = USBPORT_PdoScsi(DeviceObject, Irp);
+                Status = USBPORT_PdoInternalDeviceControl(DeviceObject, Irp);
             }
             else
             {
@@ -2634,7 +2554,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
                        IoStack->MajorFunction,
                        IoStack->MinorFunction);
 
-                Status = USBPORT_FdoScsi(DeviceObject, Irp);
+                Status = USBPORT_FdoInternalDeviceControl(DeviceObject, Irp);
             }
 
             break;
