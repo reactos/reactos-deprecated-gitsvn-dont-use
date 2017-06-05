@@ -779,7 +779,7 @@ USBPORT_PdoQueryInterface(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_PdoQueryInterface: ... \n");
 
-    if (IsEqualGUIDAligned((REFGUID)(IoStack->Parameters.QueryInterface.InterfaceType),
+    if (IsEqualGUIDAligned(IoStack->Parameters.QueryInterface.InterfaceType,
                            &USB_BUS_INTERFACE_HUB_GUID))
     {
         /* Get request parameters */

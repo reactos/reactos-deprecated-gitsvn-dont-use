@@ -127,7 +127,7 @@ Exit:
                   (PVOID)((ULONG)RootHubName->Buffer + Length),
                   RootHubName->Length - Length);
 
-    RtlInitUnicodeString(DestinationString, (PCWSTR)SourceString);
+    RtlInitUnicodeString(DestinationString, SourceString);
     DPRINT("USBPORT_RegisterDeviceInterface: DestinationString  - %wZ\n",
            DestinationString);
 

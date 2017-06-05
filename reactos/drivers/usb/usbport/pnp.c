@@ -858,7 +858,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 
     Status = USBPORT_RegisterDeviceInterface(FdoExtension->CommonExtension.LowerPdoDevice,
                                              FdoDevice,
-                                             (CONST GUID *)&GUID_DEVINTERFACE_USB_HOST_CONTROLLER,
+                                             &GUID_DEVINTERFACE_USB_HOST_CONTROLLER,
                                              TRUE);
 
     if (!NT_SUCCESS(Status))
@@ -1445,7 +1445,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             {
                 Status = USBPORT_RegisterDeviceInterface(PdoDevice,
                                                          PdoDevice,
-                                                         (CONST GUID *)&GUID_DEVINTERFACE_USB_HUB,
+                                                         &GUID_DEVINTERFACE_USB_HUB,
                                                          TRUE);
 
                 if (NT_SUCCESS(Status))
@@ -1524,8 +1524,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
         case IRP_MN_QUERY_CAPABILITIES:
             DPRINT("IRP_MN_QUERY_CAPABILITIES\n");
 
-            DeviceCapabilities = (PDEVICE_CAPABILITIES)
-                                 IoStack->Parameters.DeviceCapabilities.Capabilities;
+            DeviceCapabilities = IoStack->Parameters.DeviceCapabilities.Capabilities;
 
             RtlCopyMemory(DeviceCapabilities,
                           &PdoExtension->Capabilities,
