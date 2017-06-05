@@ -1689,14 +1689,14 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
 
                         Packet->ReopenEndpoint(FdoExtension->MiniPortExt,
                                                &Endpoint->EndpointProperties,
-                                               (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)));
+                                               Endpoint + 1);
 
                         Packet->SetEndpointDataToggle(FdoExtension->MiniPortExt,
-                                                      (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                      Endpoint + 1,
                                                       0);
 
                         Packet->SetEndpointStatus(FdoExtension->MiniPortExt,
-                                                  (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                  Endpoint + 1,
                                                   USBPORT_ENDPOINT_RUN);
 
                         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
@@ -1705,8 +1705,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                     {
                         MiniportCloseEndpoint(FdoDevice, Endpoint);
 
-                        RtlZeroMemory((PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
-                                      Packet->MiniPortEndpointSize);
+                        RtlZeroMemory(Endpoint + 1, Packet->MiniPortEndpointSize);
 
                         RtlZeroMemory((PVOID)Endpoint->EndpointProperties.BufferVA,
                                       Endpoint->EndpointProperties.BufferLength);
@@ -1730,7 +1729,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
                             Packet->SetEndpointState(FdoExtension->MiniPortExt,
-                                                     (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                                     Endpoint + 1,
                                                      USBPORT_ENDPOINT_ACTIVE);
 
                             KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);

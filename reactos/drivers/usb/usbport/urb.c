@@ -136,7 +136,7 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
             KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
             Packet->SetEndpointDataToggle(FdoExtension->MiniPortExt,
-                                          (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                                          Endpoint + 1,
                                           0);
 
             KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
@@ -154,7 +154,7 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
     Packet->SetEndpointStatus(FdoExtension->MiniPortExt,
-                              (PVOID)((ULONG_PTR)Endpoint + sizeof(USBPORT_ENDPOINT)),
+                              Endpoint + 1,
                               USBPORT_ENDPOINT_RUN);
 
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
