@@ -67,6 +67,8 @@ typedef ULONG RHSTATUS; // Roothub status
 #define MP_STATUS_UNSUCCESSFUL  8
 
 #define RH_STATUS_SUCCESS 0
+#define RH_STATUS_NO_CHANGES 1
+#define RH_STATUS_UNSUCCESSFUL 2
  
 /* Miniport */
 

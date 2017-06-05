@@ -1404,7 +1404,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
                                USB_PORT_TAG);
 
     if (!Id)
-        return 0;
+        return NULL;
 
     RtlZeroMemory(Id, Index * sizeof(WCHAR));
     RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR)); // copy device name

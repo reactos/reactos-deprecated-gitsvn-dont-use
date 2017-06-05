@@ -890,7 +890,7 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
         }
         else
         {
-            MpStatus = 2;
+            MpStatus = MP_STATUS_NO_RESOURCES;
             Endpoint->HeaderBuffer = NULL;
         }
 

@@ -16,7 +16,7 @@ USBPORT_MPStatusToRHStatus(IN MPSTATUS MPStatus)
 
     if (MPStatus)
     {
-        RHStatus = (MPStatus != 1);
+        RHStatus = (MPStatus != MP_STATUS_FAILURE);
         ++RHStatus;
     }
 
@@ -68,7 +68,7 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
     if (!CompanionControllersList)
     {
         Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt, Port);
-        return 0;
+        return MP_STATUS_SUCCESS;
     }
 
     Entry = &CompanionControllersList->Objects[0];
@@ -102,7 +102,7 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
         ExFreePool(CompanionControllersList);
     }
 
-    return 0;
+    return MP_STATUS_SUCCESS;
 }
 
 RHSTATUS
@@ -118,7 +118,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
     USHORT Port;
     USHORT Feature;
     MPSTATUS MPStatus;
-    RHSTATUS RHStatus = 2;
+    RHSTATUS RHStatus = RH_STATUS_UNSUCCESSFUL;
     KIRQL OldIrql;
 
     DPRINT("USBPORT_RootHubClassCommand: USB command - %x, *BufferLength - %x\n",
@@ -348,7 +348,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
     PVOID Descriptor;
     SIZE_T DescriptorLength;
     MPSTATUS MPStatus;
-    RHSTATUS RHStatus = 2;
+    RHSTATUS RHStatus = RH_STATUS_UNSUCCESSFUL;
     KIRQL OldIrql;
 
     DPRINT("USBPORT_RootHubStandardCommand: USB command - %x, TransferLength - %p\n",
@@ -531,7 +531,7 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
     }
     else
     {
-        return 2;
+        return RH_STATUS_UNSUCCESSFUL;
     }
 
     if (RHStatus == RH_STATUS_SUCCESS)
@@ -553,7 +553,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     ULONG HubStatus = 0;
     PVOID Buffer;
     PURB Urb;
-    RHSTATUS RHStatus = 1;
+    RHSTATUS RHStatus = RH_STATUS_NO_CHANGES;
     PUSB_HUB_DESCRIPTOR HubDescriptor;
     UCHAR NumberOfPorts;
     UCHAR ix;
@@ -589,7 +589,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     {
         /* Not valid parameter */
         DPRINT1("USBPORT_RootHubSCE: Error! Buffer is NULL\n");
-        return 2;
+        return RH_STATUS_UNSUCCESSFUL;
     }
 
     if ((TransferLength < (NumberOfPorts / 8 + 1)))
@@ -599,7 +599,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
                 TransferLength,
                 NumberOfPorts);
 
-        return 2;
+        return RH_STATUS_UNSUCCESSFUL;
     }
 
     RtlZeroMemory(Buffer, TransferLength);
@@ -620,7 +620,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
             {
                 /* Miniport returned an error */ 
                 DPRINT1("USBPORT_RootHubSCE: RH_GetPortStatus failed\n");
-                return 2;
+                return RH_STATUS_UNSUCCESSFUL;
             }
 
             if (PortStatus.UsbPortStatusChange.ConnectStatusChange ||
@@ -661,7 +661,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
             return RH_STATUS_SUCCESS;
         }
 
-        if (RHStatus == 1)
+        if (RHStatus == RH_STATUS_NO_CHANGES)
         {
             /* No changes. Enable IRQs for miniport root hub */
             Packet->RH_EnableIrq(FdoExtension->MiniPortExt);
@@ -672,7 +672,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
 
     /* Miniport returned an error */ 
     DPRINT1("USBPORT_RootHubSCE: RH_GetHubStatus failed\n");
-    return 2;
+    return RH_STATUS_UNSUCCESSFUL;
 }
 
 VOID
@@ -740,7 +740,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
     else
         RHStatus = USBPORT_RootHubSCE(Transfer);
 
-    if (RHStatus != 1)
+    if (RHStatus != RH_STATUS_NO_CHANGES)
     {
         if (RHStatus == RH_STATUS_SUCCESS)
             USBDStatus = USBD_STATUS_SUCCESS;
