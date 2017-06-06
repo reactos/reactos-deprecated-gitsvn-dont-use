@@ -12,7 +12,7 @@ LIST_ENTRY USBPORT_MiniPortDrivers = {NULL, NULL};
 LIST_ENTRY USBPORT_USB1FdoList = {NULL, NULL};
 LIST_ENTRY USBPORT_USB2FdoList = {NULL, NULL};
 
-KSPIN_LOCK USBPORT_SpinLock = 0;
+KSPIN_LOCK USBPORT_SpinLock;
 BOOLEAN USBPORT_Initialized = FALSE;
 
 PDEVICE_OBJECT
@@ -1075,21 +1075,15 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     DPRINT_INT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
            FdoExtension->Flags);
 
-    if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED)
+    if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED &&
+        FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
     {
-        if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
-        {
-            Result = Packet->InterruptService(FdoExtension->MiniPortExt);
+        Result = Packet->InterruptService(FdoExtension->MiniPortExt);
 
-            if (Result)
-            {
-                KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, NULL);
-            }
+        if (Result)
+        {
+            KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, NULL);
         }
-    }
-    else
-    {
-        Result = FALSE;
     }
 
     DPRINT_INT("USBPORT_InterruptService: return - %x\n", Result);
@@ -1358,8 +1352,8 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    LARGE_INTEGER OldTime = {{0, 0}};
-    LARGE_INTEGER NewTime = {{0, 0}};
+    LARGE_INTEGER OldTime;
+    LARGE_INTEGER NewTime;
     KIRQL OldIrql;
 
     DPRINT_CORE("USBPORT_WorkerThread ... \n");
