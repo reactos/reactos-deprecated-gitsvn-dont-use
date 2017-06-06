@@ -808,7 +808,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
                         sizeof(USB_CONFIGURATION_DESCRIPTOR) +
                         sizeof(USB_INTERFACE_DESCRIPTOR) +
                         sizeof(USB_ENDPOINT_DESCRIPTOR) +
-                        (7 + 2 * NumMaskByte);
+                        (sizeof(USB_HUB_DESCRIPTOR) + 2 * NumMaskByte);
 
     Descriptors = ExAllocatePoolWithTag(NonPagedPool,
                                         DescriptorsLength,
@@ -875,7 +875,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
 
         RH_HubDescriptor = &PdoExtension->RootHubDescriptors->Descriptor;
 
-        RH_HubDescriptor->bDescriptorLength = 7 + 2 * NumMaskByte;
+        RH_HubDescriptor->bDescriptorLength = sizeof(USB_HUB_DESCRIPTOR) + 2 * NumMaskByte;
         RH_HubDescriptor->bDescriptorType = 0x29;
         RH_HubDescriptor->bNumberOfPorts = RootHubData.NumberOfPorts;
         RH_HubDescriptor->wHubCharacteristics = RootHubData.HubCharacteristics;
