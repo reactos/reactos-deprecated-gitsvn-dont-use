@@ -806,7 +806,7 @@ USBPORT_FlushPendingTransfers(IN PUSBPORT_ENDPOINT Endpoint)
 
         List = Endpoint->PendingTransferList.Flink;
 
-        if (IsListEmpty(&Endpoint->PendingTransferList) || List == NULL)
+        if (List == NULL || IsListEmpty(&Endpoint->PendingTransferList))
         {
             KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
             KeReleaseSpinLock(&FdoExtension->FlushPendingTransferSpinLock, OldIrql);
