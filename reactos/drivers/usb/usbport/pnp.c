@@ -1596,7 +1596,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
                 RtlZeroMemory(Id, Length * sizeof(WCHAR));
 
-                wcscpy(Id, Buffer);
+                RtlStringCbCopyW(Id, Length * sizeof(WCHAR), Buffer);
                 DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n", Id, Length);
 
                 Irp->IoStatus.Information = (ULONG_PTR)Id;

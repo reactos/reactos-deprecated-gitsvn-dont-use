@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <wdm.h>
 #include <wdmguid.h>
+#include <ntstrsafe.h>
 #include <usb.h>
 #include <hubbusif.h>
 #include <usbbusif.h>
