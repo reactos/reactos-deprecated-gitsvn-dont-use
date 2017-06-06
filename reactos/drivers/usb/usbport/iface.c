@@ -749,7 +749,7 @@ USBDI_IsDeviceHighSpeed(IN PVOID BusContext)
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    return Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2;
+    return (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2) != 0;
 }
 
 NTSTATUS
