@@ -57,11 +57,11 @@ USBPORT_GetSymbolicName(IN PDEVICE_OBJECT RootHubPdo,
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
     PUNICODE_STRING RootHubName;
-    PUSHORT Buffer;
+    PWCHAR Buffer;
     SIZE_T LengthName;
     SIZE_T Length;
     PWSTR SourceString;
-    USHORT Symbol;
+    WCHAR Character;
 
     DPRINT("USBPORT_GetSymbolicName: ... \n");
 
@@ -86,31 +86,31 @@ USBPORT_GetSymbolicName(IN PDEVICE_OBJECT RootHubPdo,
 
     RtlZeroMemory(SourceString, LengthName);
 
-    if (*Buffer == 0x005C) // '\'
+    if (*Buffer == L'\\')
     {
          Buffer += 1;
 
-        if (*Buffer == 0x005C)
+        if (*Buffer == L'\\')
         {
             Buffer += 1;
             goto Exit;
         }
 
-        Symbol = *Buffer;
+        Character = *Buffer;
 
         do
         {
-            if (Symbol == 0)
+            if (Character == UNICODE_NULL)
             {
                 break;
             }
 
             Buffer += 1;
-            Symbol = *Buffer;
+            Character = *Buffer;
         }
-        while (*Buffer != 0x005C);
+        while (*Buffer != L'\\');
 
-        if (*Buffer == 0x005C)
+        if (*Buffer == L'\\')
         {
             Buffer += 1;
         }
@@ -128,6 +128,7 @@ Exit:
                   RootHubName->Length - Length);
 
     RtlInitUnicodeString(DestinationString, SourceString);
+
     DPRINT("USBPORT_RegisterDeviceInterface: DestinationString  - %wZ\n",
            DestinationString);
 
