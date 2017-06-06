@@ -1,0 +1,69 @@
+/*
+ * Translated by Marcin Mikołajczak <me@m4sk.in> (5-06-2017)
+ * Catch me on IRC as m4sk1n
+ */
+LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
+
+ID_ACCEL ACCELERATORS
+BEGIN
+    VK_DELETE, CMD_DELETE, VIRTKEY
+END
+
+MAIN_MENU MENU
+BEGIN
+    POPUP "&Plik"
+    BEGIN
+        MENUITEM "&Otwórz...", CMD_OPEN
+        MENUITEM "Z&apisz jako...", CMD_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Zakończ", CMD_EXIT
+    END
+    POPUP "&Edytuj"
+    BEGIN
+        MENUITEM "&Delete\tDel", CMD_DELETE
+    END
+    POPUP "&Wyświetl"
+    BEGIN
+        MENUITEM "&Automatycznie", CMD_AUTOMATIC
+    END
+    POPUP "&Pomoc"
+    BEGIN
+        MENUITEM "&Tematy pomocy", CMD_HELP
+        MENUITEM SEPARATOR
+        MENUITEM "&O programie", CMD_ABOUT
+    END
+END
+
+STRINGTABLE
+BEGIN
+    STRING_CLIPBOARD "Podgląd schowka"
+    STRING_CLIPFILE  "Zawartość schowka"
+    STRING_DELETE_MSG "Wyczyścić zawartość schowka?"
+    STRING_DELETE_TITLE "Wyczyść schowek"
+    STRING_FORMAT_NT "Pliki schowka systemu ReactOS (*.clp)"
+    STRING_FORMAT_GEN "Pliki schowka (*.clp)"
+END
+
+STRINGTABLE
+BEGIN
+    STRING_CF_UNKNOWN "Nieznany format"
+    STRING_CF_TEXT "Tekst"
+    STRING_CF_BITMAP "Mapa bitowa"
+    STRING_CF_OEMTEXT "Tekst OEM"
+    STRING_CF_UNICODETEXT "Tekst Unicode"
+    STRING_CF_DIB "Mapa bitowa DIB"
+    STRING_CF_LOCALE "Dane regionu"
+    STRING_CF_ENHMETAFILE "Ulepszony plik meta"
+    STRING_CF_METAFILEPICT "Plik meta"
+    STRING_CF_PALETTE "Paleta kolorów"
+    STRING_CF_DIBV5 "Mapa bitowa DIB (wersja 5)"
+    STRING_CF_SYLK "Dowiązanie symboliczne"
+    STRING_CF_DIF "Format wymiany danych"
+    STRING_CF_HDROP "Drop Data"
+END
+
+STRINGTABLE
+BEGIN
+    ERROR_UNSUPPORTED_FORMAT "W schowku znajduje się element, którego nie można wyświetlić."
+    ERROR_INVALID_FILE_FORMAT "Zaznaczony plik nie jest prawidłowym plikiem schowka."
+END

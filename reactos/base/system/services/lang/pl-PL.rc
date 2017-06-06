@@ -1,0 +1,15 @@
+/*
+ *    Translated by Marcin Mikołajczak <me@m4sk.in> (06-06-2017)
+ */
+LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
+
+STRINGTABLE
+BEGIN
+    IDS_SERVICE_START   "rozpocznij"
+    IDS_SERVICE_STOP    "zatrzymaj"
+    IDS_SERVICE_PAUSE   "pauzuj"
+    IDS_SERVICE_RESUME  "wznów"
+    IDS_SERVICE_RUNNING "Uruchomiony"
+    IDS_SERVICE_STOPPED "Zatrzymany"
+    IDS_SERVICE_PAUSED  "Spauzowany"
+END

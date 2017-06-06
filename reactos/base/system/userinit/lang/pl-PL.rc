@@ -3,6 +3,7 @@
  *    xxrogers@users.sourceforge.net
  *    https://sourceforge.net/projects/reactospl
  *    UTF-8 conversion by Caemyr (May, 2011)
+ *    Updated by Marcin Mikołajczak <me@m4sk.in> (06-06-2017)
  */
 
 LANGUAGE LANG_POLISH, SUBLANG_DEFAULT
@@ -13,7 +14,7 @@ CAPTION "ReactOS LiveCD"
 FONT 8, "MS Shell Dlg"
 BEGIN
     CONTROL "IDB_LOGO", IDC_LOCALELOGO, "Static", WS_CHILD | WS_VISIBLE | SS_OWNERDRAW, 18, 0, 290, 99
-    RTEXT "Language:", IDC_STATIC, 20, 109, 106, 11, WS_CHILD | WS_VISIBLE | WS_GROUP
+    RTEXT "Język:", IDC_STATIC, 20, 109, 106, 11, WS_CHILD | WS_VISIBLE | WS_GROUP
     COMBOBOX IDC_LANGUAGELIST, 132, 107, 176, 142, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_CHILD | WS_VISIBLE | WS_TABSTOP
     RTEXT "Keyboard layout:", IDC_STATIC, 20, 132, 106, 11, WS_CHILD | WS_VISIBLE | WS_GROUP
     COMBOBOX IDC_LAYOUTLIST, 132, 130, 176, 81, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_CHILD | WS_VISIBLE | WS_TABSTOP
