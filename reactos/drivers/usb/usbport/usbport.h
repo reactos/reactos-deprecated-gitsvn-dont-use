@@ -638,6 +638,11 @@ NTAPI
 USBPORT_DumpingURB(
   IN PURB Urb);
 
+VOID
+NTAPI
+USBPORT_DumpingIDs(
+  IN PVOID Buffer);
+
 /* device.c */
 
 NTSTATUS

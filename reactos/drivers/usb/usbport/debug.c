@@ -249,3 +249,27 @@ USBPORT_DumpingURB(IN PURB Urb)
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlTransfer.SetupPacket;
     USBPORT_DumpingSetupPacket(SetupPacket);
 }
+
+VOID
+NTAPI
+USBPORT_DumpingIDs(IN PVOID Buffer)
+{
+    PWSTR Ptr;
+    ULONG Length;
+    ULONG TotalLength = 0;
+
+    Ptr = (PWSTR)Buffer;
+
+    while (*Ptr)
+    {
+        DPRINT("  %S\n", Ptr);
+        Length = (ULONG)wcslen(Ptr) + 1;
+
+        Ptr += Length;
+        TotalLength += Length;
+    }
+
+    DPRINT("TotalLength: %hu\n", TotalLength);
+    DPRINT("\n");
+}
+

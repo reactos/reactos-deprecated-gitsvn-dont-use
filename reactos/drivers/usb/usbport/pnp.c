@@ -1343,7 +1343,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
 
     if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
     {
-        /* USB 2.0 hub */
+        /* USB 2.0 root hub */
         Index += swprintf(&Buffer[Index],
                           L"USB\\ROOT_HUB20&VID%04x&PID%04x&REV%04x",
                           VendorID,
@@ -1359,7 +1359,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     }
     else
     {
-        /* USB 1.1 */
+        /* USB 1.1 root hub */
         Index += swprintf(&Buffer[Index],
                           L"USB\\ROOT_HUB&VID%04x&PID%04x&REV%04x",
                           VendorID,
@@ -1375,28 +1375,12 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     }
 
     Buffer[Index] = UNICODE_NULL;
-    Index++;
 
-    if (FALSE) // for debug only
+     /* for debug only */
+    if (FALSE)
     {
-        PWSTR Ptr;
-        ULONG Length;
-        ULONG TotalLength = 0;
-
-        Ptr = (PWSTR)Buffer;
         DPRINT("Hardware IDs:\n");
-
-        while (*Ptr)
-        {
-            DPRINT("  %S\n", Ptr);
-            Length = (ULONG)wcslen(Ptr) + 1;
-
-            Ptr += Length;
-            TotalLength += Length;
-        }
-
-        DPRINT("TotalLength: %hu\n", TotalLength);
-        DPRINT("\n");
+        USBPORT_DumpingIDs(Buffer);
     }
 
     Id = ExAllocatePoolWithTag(PagedPool,
@@ -1406,8 +1390,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     if (!Id)
         return NULL;
 
-    RtlZeroMemory(Id, Index * sizeof(WCHAR));
-    RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR)); // copy device name
+    RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR));
 
     return Id;
 }
