@@ -230,8 +230,8 @@ USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
     IoStack->Parameters.DeviceCapabilities.Capabilities = DeviceCapabilities;
     IoStack->Parameters.DeviceCapabilities.Capabilities->Size = sizeof(DEVICE_CAPABILITIES);
     IoStack->Parameters.DeviceCapabilities.Capabilities->Version = 1;
-    IoStack->Parameters.DeviceCapabilities.Capabilities->Address = -1;
-    IoStack->Parameters.DeviceCapabilities.Capabilities->UINumber = -1;
+    IoStack->Parameters.DeviceCapabilities.Capabilities->Address = MAXULONG;
+    IoStack->Parameters.DeviceCapabilities.Capabilities->UINumber = MAXULONG;
 
     if (IoCallDriver(DeviceObject, Irp) == STATUS_PENDING)
     {
