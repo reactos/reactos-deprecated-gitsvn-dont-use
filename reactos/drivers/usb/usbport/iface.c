@@ -451,9 +451,9 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
         return STATUS_SUCCESS;
     }
 
-    for (ix = 1; ix <= HubInfoBuffer->NumberOfPorts; ++ix)
+    for (ix = 0; ix < HubInfoBuffer->NumberOfPorts; ++ix)
     {
-        HubInfoBuffer->Port[ix].PhysicalPortNumber = ix;
+        HubInfoBuffer->Port[ix].PhysicalPortNumber = ix + 1;
         HubInfoBuffer->Port[ix].PortLabelNumber = ix;
         HubInfoBuffer->Port[ix].VidOverride = 0;
         HubInfoBuffer->Port[ix].PidOverride = 0;
@@ -486,7 +486,7 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
         }
     }
 
-    for (ix = 1; ix <= HubInfoBuffer->NumberOfPorts; ++ix)
+    for (ix = 0; ix < HubInfoBuffer->NumberOfPorts; ++ix)
     {
         PortAttrX = 0;
 
