@@ -1637,28 +1637,26 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             BusInformation = (PPNP_BUS_INFORMATION)ExAllocatePool(PagedPool,
                                                                   sizeof(PNP_BUS_INFORMATION));
 
-            RtlZeroMemory(BusInformation, sizeof(PNP_BUS_INFORMATION));
-
-            if (BusInformation)
-            {
-                /* Copy BUS GUID */
-                RtlMoveMemory(&BusInformation->BusTypeGuid,
-                              &GUID_BUS_TYPE_USB,
-                              sizeof(GUID));
-
-                /* Set bus type */
-                BusInformation->LegacyBusType = PNPBus;
-                BusInformation->BusNumber = 0;
-
-                Status = STATUS_SUCCESS;
-                Irp->IoStatus.Information = (ULONG_PTR)BusInformation;
-            }
-            else
+            if (!BusInformation)
             {
                 /* No memory */
                 Status = STATUS_INSUFFICIENT_RESOURCES;
+                break;
             }
 
+            RtlZeroMemory(BusInformation, sizeof(PNP_BUS_INFORMATION));
+
+            /* Copy BUS GUID */
+            RtlMoveMemory(&BusInformation->BusTypeGuid,
+                          &GUID_BUS_TYPE_USB,
+                          sizeof(GUID));
+
+            /* Set bus type */
+            BusInformation->LegacyBusType = PNPBus;
+            BusInformation->BusNumber = 0;
+
+            Status = STATUS_SUCCESS;
+            Irp->IoStatus.Information = (ULONG_PTR)BusInformation;
             break;
 
         case IRP_MN_DEVICE_USAGE_NOTIFICATION:
