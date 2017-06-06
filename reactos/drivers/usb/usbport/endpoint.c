@@ -1294,8 +1294,7 @@ USBPORT_DmaEndpointActive(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_REGISTRATION_PACKET Packet;
     PLIST_ENTRY Entry;
     PUSBPORT_TRANSFER Transfer;
-    LARGE_INTEGER TimeOut = {{0, 0}};
-    UCHAR CF;
+    LARGE_INTEGER TimeOut;
     MPSTATUS MpStatus;
     KIRQL OldIrql;
 
@@ -1353,16 +1352,8 @@ USBPORT_DmaEndpointActive(IN PDEVICE_OBJECT FdoDevice,
             Transfer->Flags |= TRANSFER_FLAG_SUBMITED;
             KeQuerySystemTime(&Transfer->Time);
 
-            CF = 0;
             TimeOut.QuadPart = 10000 * Transfer->TimeOut;
-
-            if (TimeOut.LowPart > (0xFFFFFFFF - Transfer->Time.LowPart))
-            {
-                CF = 1;
-            }
-
-            Transfer->Time.LowPart += TimeOut.LowPart;
-            Transfer->Time.HighPart += (TimeOut.HighPart + CF);
+            Transfer->Time.QuadPart += TimeOut.QuadPart;
         }
 
         if (Transfer->Flags & (TRANSFER_FLAG_CANCELED | TRANSFER_FLAG_ABORTED))
