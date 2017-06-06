@@ -468,7 +468,7 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
 
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
-    SetupPacket->bmRequestType._BM.Dir = Urb->UrbControlTransfer.TransferFlags & 1;
+    SetupPacket->bmRequestType._BM.Dir = USBD_TRANSFER_DIRECTION_FLAG(Urb->UrbControlTransfer.TransferFlags);
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
 
     Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK;
