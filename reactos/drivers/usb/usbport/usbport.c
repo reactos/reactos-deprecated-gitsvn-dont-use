@@ -936,6 +936,8 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
     ULONG FrameNumber;
     KIRQL OldIrql;
 
+    ASSERT (KeGetCurrentIrql() == DISPATCH_LEVEL);
+
     DPRINT_CORE("USBPORT_IsrDpcHandler: IsDpcHandler - %x\n", IsDpcHandler);
 
     FdoExtension = FdoDevice->DeviceExtension;
