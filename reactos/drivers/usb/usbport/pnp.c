@@ -80,7 +80,7 @@ NTAPI
 USBPORT_IsSelectiveSuspendEnabled(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    ULONG IsEnabled = 0;
+    ULONG Disabled = 0;
 
     DPRINT("USBPORT_IsSelectiveSuspendEnabled: ... \n");
 
@@ -91,10 +91,10 @@ USBPORT_IsSelectiveSuspendEnabled(IN PDEVICE_OBJECT FdoDevice)
                                         TRUE,
                                         L"HcDisableSelectiveSuspend",
                                         sizeof(L"HcDisableSelectiveSuspend"),
-                                        &IsEnabled,
-                                        sizeof(IsEnabled));
+                                        &Disabled,
+                                        sizeof(Disabled));
 
-    return (IsEnabled == 0);
+    return (Disabled == 0);
 }
 
 NTSTATUS
