@@ -968,6 +968,9 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
     {
         if (!InterlockedIncrement(&Endpoint->LockCounter))
             break;
+
+        InterlockedDecrement(&Endpoint->LockCounter);
+        USBPORT_Wait(FdoDevice, 1);
     }
 
     KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &MiniportOldIrql);
