@@ -717,7 +717,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 
     if (DisableCcDetect)
     {
-        FdoExtension->Flags &= USBPORT_FLAG_COMPANION_HC;
+        FdoExtension->Flags &= ~USBPORT_FLAG_COMPANION_HC;
     }
 
     TotalBusBandwidth = Packet->MiniPortBusBandwidth;
