@@ -1091,20 +1091,20 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
 
     if (Urb->UrbControlTransfer.TransferBufferLength)
     {
-        ULONG Buffer;
+        PULONG Buffer;
         ULONG BufferLength;
-        ULONG BufferEnd;
+        ULONG_PTR BufferEnd;
         ULONG ix;
 
-        Buffer = (ULONG)Urb->UrbControlTransfer.TransferBuffer;
+        Buffer = (PULONG)Urb->UrbControlTransfer.TransferBuffer;
         BufferLength = Urb->UrbControlTransfer.TransferBufferLength;
-        BufferEnd = Buffer + BufferLength;
+        BufferEnd = (ULONG_PTR)Buffer + BufferLength;
 
         DPRINT_URB("URB TransferBuffer - %p\n", Buffer);
 
-        for (ix = 0; (Buffer + ix * 4) <= BufferEnd; ix++)
+        for (ix = 0; (ULONG_PTR)(Buffer + ix) <= BufferEnd; ix++)
         {
-            DPRINT_URB("Buffer[%02X] - %p\n", ix, *(PULONG)(Buffer + ix * 4));
+            DPRINT_URB("Buffer[%02X] - %p\n", ix, Buffer[ix]);
         }
     }
 }
