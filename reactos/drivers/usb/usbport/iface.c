@@ -665,7 +665,6 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     SIZE_T Length;
-    //PUSB_BUS_INFORMATION_LEVEL_0 Buffer0;
     PUSB_BUS_INFORMATION_LEVEL_1 Buffer1;
 
     DPRINT("USBDI_QueryBusInformation: Level - %p\n", Level);
@@ -685,19 +684,19 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     {
         if (BusInfoActualLen)
             *BusInfoActualLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
-    
+
         if (*BusInfoBufferLen < sizeof(USB_BUS_INFORMATION_LEVEL_0))
         {
             return STATUS_BUFFER_TOO_SMALL;
         }
-    
+
         *BusInfoBufferLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
-    
+
         //Buffer0 = (PUSB_BUS_INFORMATION_LEVEL_0)BusInfoBuffer;
-        DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBDI_QueryBusInformation: LEVEL_0 UNIMPLEMENTED. FIXME\n");
         //Buffer0->TotalBandwidth = USBPORT_GetTotalBandwidth();
         //Buffer0->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
-    
+
         return STATUS_SUCCESS;
     }
 
@@ -705,27 +704,27 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
     {
         Length = sizeof(USB_BUS_INFORMATION_LEVEL_1) + 
                  FdoExtension->CommonExtension.SymbolicLinkName.Length;
-    
+
         if (BusInfoActualLen)
             *BusInfoActualLen = Length;
-    
+
         if (*BusInfoBufferLen < Length)
         {
             return STATUS_BUFFER_TOO_SMALL;
         }
-    
+
         *BusInfoBufferLen = Length;
-    
+
         Buffer1 = (PUSB_BUS_INFORMATION_LEVEL_1)BusInfoBuffer;
-        DPRINT1("USBDI_QueryBusInformation: UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBDI_QueryBusInformation: LEVEL_1 UNIMPLEMENTED. FIXME\n");
         //Buffer1->TotalBandwidth = USBPORT_GetTotalBandwidth();
         //Buffer1->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
         Buffer1->ControllerNameLength = FdoExtension->CommonExtension.SymbolicLinkName.Length;
-    
+
         RtlCopyMemory(&Buffer1->ControllerNameUnicodeString,
                       FdoExtension->CommonExtension.SymbolicLinkName.Buffer,
                       FdoExtension->CommonExtension.SymbolicLinkName.Length);
-    
+
         return STATUS_SUCCESS;
     }
 

@@ -1311,12 +1311,6 @@ USBPORT_DmaEndpointActive(IN PDEVICE_OBJECT FdoDevice,
                                      USBPORT_TRANSFER,
                                      TransferLink);
 
-        if (Transfer->Flags & 0x800)
-        {
-            USBPORT_QueueDoneTransfer(Transfer, USBD_STATUS_SUCCESS);
-            return USBPORT_ENDPOINT_ACTIVE;
-        }
-
         if (!(Transfer->Flags & TRANSFER_FLAG_SUBMITED) &&
              !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
         {
@@ -1347,7 +1341,7 @@ USBPORT_DmaEndpointActive(IN PDEVICE_OBJECT FdoDevice,
 
             if (MpStatus)
             {
-                if ((MpStatus != 1) && Transfer->Flags & TRANSFER_FLAG_ISO)
+                if ((MpStatus != MP_STATUS_FAILURE) && Transfer->Flags & TRANSFER_FLAG_ISO)
                 {
                     DPRINT1("USBPORT_DmaEndpointActive: FIXME call USBPORT_ErrorCompleteIsoTransfer\n");
                     ASSERT(FALSE); //USBPORT_ErrorCompleteIsoTransfer();
