@@ -536,7 +536,8 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
 
     *HubNameActualLen = HubName.Length;
 
-    RtlFreeUnicodeString(&HubName);
+    if (NT_SUCCESS(Status))
+        RtlFreeUnicodeString(&HubName);
 
     return Status;
 }
