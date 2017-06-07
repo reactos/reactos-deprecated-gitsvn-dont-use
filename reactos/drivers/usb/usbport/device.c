@@ -888,6 +888,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     PVOID DeviceDescriptor;
     USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     SIZE_T TransferedLen;
+    SIZE_T DescriptorMinSize;
     UCHAR MaxPacketSize;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
@@ -1040,12 +1041,15 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     ExFreePool(DeviceDescriptor);
 
-    if ((TransferedLen == 8) && !NT_SUCCESS(Status))
+    DescriptorMinSize = RTL_SIZEOF_THROUGH_FIELD(USB_DEVICE_DESCRIPTOR,
+                                                 bMaxPacketSize0);
+
+    if ((TransferedLen == DescriptorMinSize) && !NT_SUCCESS(Status))
     {
         Status = STATUS_SUCCESS;
     }
 
-    if (NT_SUCCESS(Status) && (TransferedLen >= 8))
+    if (NT_SUCCESS(Status) && (TransferedLen >= DescriptorMinSize))
     {
         if ((DeviceHandle->DeviceDescriptor.bLength >= sizeof(USB_DEVICE_DESCRIPTOR)) &&
             (DeviceHandle->DeviceDescriptor.bDescriptorType == USB_DEVICE_DESCRIPTOR_TYPE))
