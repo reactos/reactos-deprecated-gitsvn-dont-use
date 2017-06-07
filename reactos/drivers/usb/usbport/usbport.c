@@ -1706,8 +1706,8 @@ USBPORT_AllocateCommonBuffer(IN PDEVICE_OBJECT FdoDevice,
     if (!BaseVA)
         goto Exit;
 
-    StartBufferVA = BaseVA & 0xFFFFF000;
-    StartBufferPA = LogicalAddress.LowPart & 0xFFFFF000;
+    StartBufferVA = BaseVA & ~(PAGE_SIZE - 1);
+    StartBufferPA = LogicalAddress.LowPart & ~(PAGE_SIZE - 1);
 
     HeaderBuffer = (PUSBPORT_COMMON_BUFFER_HEADER)(StartBufferVA +
                                                    BufferLength +
