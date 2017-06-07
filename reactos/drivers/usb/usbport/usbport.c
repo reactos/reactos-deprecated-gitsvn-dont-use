@@ -1477,7 +1477,7 @@ USBPORT_SynchronizeControllersStart(IN PDEVICE_OBJECT FdoDevice)
         {
             USB2FdoExtension = USB2FdoDevice->DeviceExtension;
 
-            if (USB2FdoExtension->CommonExtension.PnpStateFlags & 2)
+            if (USB2FdoExtension->CommonExtension.PnpStateFlags & USBPORT_PNP_STATE_STARTED)
             {
                 IsOn = TRUE;
             }
@@ -2507,9 +2507,9 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
     DeviceExtension = (PUSBPORT_COMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
-    if (DeviceExtension->PnpStateFlags & 0x00000004)
+    if (DeviceExtension->PnpStateFlags & USBPORT_PNP_STATE_FAILED)
     {
-        DPRINT1("USBPORT_Dispatch: DeviceExtension->PnpStateFlags & 0x00000004\n");
+        DPRINT1("USBPORT_Dispatch: USBPORT_PNP_STATE_FAILED\n");
         DbgBreakPoint();
     }
 

@@ -1143,7 +1143,9 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
 
                     if (NT_SUCCESS(Status))
                     {
-                        FdoExtension->CommonExtension.PnpStateFlags = (FdoExtension->CommonExtension.PnpStateFlags & ~1) | 2;
+                        FdoExtension->CommonExtension.PnpStateFlags &= ~USBPORT_PNP_STATE_NOT_INIT;
+                        FdoExtension->CommonExtension.PnpStateFlags |= USBPORT_PNP_STATE_STARTED;
+
                         FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
 
                         if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
@@ -1157,12 +1159,12 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                     }
                     else
                     {
-                        FdoExtension->CommonExtension.PnpStateFlags |= 8;
+                        FdoExtension->CommonExtension.PnpStateFlags |= USBPORT_PNP_STATE_STOPPED;
                     }
                 }
                 else
                 {
-                    FdoExtension->CommonExtension.PnpStateFlags |= 8;
+                    FdoExtension->CommonExtension.PnpStateFlags |= USBPORT_PNP_STATE_STOPPED;
                 }
             }
 
@@ -1424,6 +1426,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             DPRINT("IRP_MN_START_DEVICE\n");
 
             Status = USBPORT_RootHubCreateDevice(FdoDevice, PdoDevice);
+
             if (NT_SUCCESS(Status))
             {
                 Status = USBPORT_RegisterDeviceInterface(PdoDevice,
@@ -1434,7 +1437,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                 if (NT_SUCCESS(Status))
                 {
                     PdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
-                    PdoExtension->CommonExtension.PnpStateFlags = 2;
+                    PdoExtension->CommonExtension.PnpStateFlags = USBPORT_PNP_STATE_STARTED;
                 }
             }
 

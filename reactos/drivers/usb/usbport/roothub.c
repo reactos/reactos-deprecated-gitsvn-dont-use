@@ -83,7 +83,7 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
         PdoExtension = CompanionFdoExtension->RootHubPdo->DeviceExtension;
 
         for (ix = 0;
-             (PdoExtension->CommonExtension.PnpStateFlags & 2) &&
+             (PdoExtension->CommonExtension.PnpStateFlags & USBPORT_PNP_STATE_STARTED) &&
               ix < PdoExtension->RootHubDescriptors->Descriptor.bNumberOfPorts;
              ++ix)
         {
