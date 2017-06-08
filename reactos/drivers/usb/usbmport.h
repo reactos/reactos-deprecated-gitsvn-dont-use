@@ -453,6 +453,7 @@ typedef VOID
 #define USB_MINIPORT_FLAGS_MEMORY_IO    0x0004
 #define USB_MINIPORT_FLAGS_USB2         0x0010
 #define USB_MINIPORT_FLAGS_DISABLE_SS   0x0020
+#define USB_MINIPORT_FLAGS_NOT_LOCK_INT 0x0040
 #define USB_MINIPORT_FLAGS_POLLING      0x0080
 #define USB_MINIPORT_FLAGS_NO_DMA       0x0100
 #define USB_MINIPORT_FLAGS_WAKE_SUPPORT 0x0200
@@ -633,7 +634,7 @@ typedef struct _USBPORT_ROOT_HUB_DATA {
 C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
 
 /* Hub port status and port status change bits.
-   See USB 2.0 spec Table 11-19 and Table 11-20.
+   See USB 2.0 spec Table 11-21 and Table 11-22.
 */
 
 typedef union _USB_PORT_STATUS {

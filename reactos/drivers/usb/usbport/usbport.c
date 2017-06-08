@@ -554,7 +554,7 @@ USBPORT_MiniportInterrupts(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    IsLock = ~(UCHAR)(Packet->MiniPortFlags >> 6) & 1;
+    IsLock = (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_NOT_LOCK_INT) == 0;
 
     if (IsLock)
         KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
@@ -936,7 +936,7 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
     ULONG FrameNumber;
     KIRQL OldIrql;
 
-    ASSERT (KeGetCurrentIrql() == DISPATCH_LEVEL);
+    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
 
     DPRINT_CORE("USBPORT_IsrDpcHandler: IsDpcHandler - %x\n", IsDpcHandler);
 
