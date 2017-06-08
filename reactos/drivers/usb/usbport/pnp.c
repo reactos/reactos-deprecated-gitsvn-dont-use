@@ -385,10 +385,10 @@ USBPORT_QueryCapabilities(IN PDEVICE_OBJECT FdoDevice,
 
     RtlZeroMemory(Capabilities, sizeof(DEVICE_CAPABILITIES));
 
-    Capabilities->Size     = 64;
+    Capabilities->Size     = sizeof(DEVICE_CAPABILITIES);
     Capabilities->Version  = 1;
-    Capabilities->Address  = -1;
-    Capabilities->UINumber = -1;
+    Capabilities->Address  = MAXULONG;
+    Capabilities->UINumber = MAXULONG;
 
     Irp = IoAllocateIrp(FdoExtention->CommonExtension.LowerDevice->StackSize, FALSE);
 
