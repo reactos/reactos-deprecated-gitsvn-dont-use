@@ -375,9 +375,13 @@ USBPORT_HandleDataTransfers(IN PURB Urb)
     if (Endpoint->EndpointProperties.TransferType != USBPORT_TRANSFER_TYPE_CONTROL)
     {
         if (Endpoint->EndpointProperties.Direction)
-            Urb->UrbBulkOrInterruptTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN;
-        else
+        {
             Urb->UrbBulkOrInterruptTransfer.TransferFlags |= USBD_TRANSFER_DIRECTION_IN;
+        }
+        else
+        {
+            Urb->UrbBulkOrInterruptTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN;
+        }
     }
 
     USBPORT_QueueTransferUrb(Urb);

@@ -792,9 +792,7 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
         goto ExitWithError;
     }
 
-    //EndpointProperties->Direction = ~EndpointDescriptor->bEndpointAddress >> 7;
-    Direction = ~EndpointDescriptor->bEndpointAddress;
-    Direction >>= 7;
+    Direction = USB_ENDPOINT_DIRECTION_IN(EndpointDescriptor->bEndpointAddress);
     EndpointProperties->Direction = Direction;
 
     if (DeviceHandle->IsRootHub)
