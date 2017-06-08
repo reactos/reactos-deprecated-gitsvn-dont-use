@@ -1105,38 +1105,28 @@ NTAPI
 USBPORT_AllocateUsbAddress(IN PDEVICE_OBJECT FdoDevice)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
-    ULONG BitMap;
-    ULONG Bit;
-    ULONG ix = 0;
+    ULONG BitMapIdx;
+    ULONG BitNumber;
+    ULONG ix;
 
     DPRINT("USBPORT_AllocateUsbAddress \n");
 
     FdoExtension = FdoDevice->DeviceExtension;
 
-    while (TRUE)
+    for (ix = 0; ix < 4; ++ix)
     {
-        BitMap = 1;
-        Bit = 0;
+        BitMapIdx = 1;
 
-        do
+        for (BitNumber = 0; BitNumber < 32; ++BitNumber)
         {
-            if (!(FdoExtension->UsbAddressBitMap[ix] & BitMap))
+            if (!(FdoExtension->UsbAddressBitMap[ix] & BitMapIdx))
             {
-                FdoExtension->UsbAddressBitMap[ix] |= BitMap;
-                return 32 * ix + Bit;
+                FdoExtension->UsbAddressBitMap[ix] |= BitMapIdx;
+                return 32 * ix + BitNumber;
             }
 
-            BitMap *= 2;
-            ++Bit;
+            BitMapIdx <<= 2;
         }
-        while (Bit < 32);
-
-        ++ix;
-
-        if (ix < 4)
-            continue;
-
-        break;
     }
 
     return 0;
@@ -1148,43 +1138,31 @@ USBPORT_FreeUsbAddress(IN PDEVICE_OBJECT FdoDevice,
                        IN USHORT DeviceAddress)
 {
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
-    ULONG ix = 0;
-    ULONG BitMap;
-    ULONG Bit;
+    ULONG ix;
+    ULONG BitMapIdx;
+    ULONG BitNumber;
     USHORT CurrentAddress;
 
     DPRINT("USBPORT_FreeUsbAddress: DeviceAddress - %x\n", DeviceAddress);
 
     FdoExtension = FdoDevice->DeviceExtension;
 
-    while (TRUE)
+    for (ix = 0; ix < 4; ++ix)
     {
-        BitMap = 1;
-        Bit = 0;
+        BitMapIdx = 1;
         CurrentAddress = 32 * ix;
 
-        do
+        for (BitNumber = 0; BitNumber < 32; ++BitNumber)
         {
             if (CurrentAddress == DeviceAddress)
             {
-                BitMap = ~BitMap;
-                FdoExtension->UsbAddressBitMap[ix] &= BitMap;
+                FdoExtension->UsbAddressBitMap[ix] &= ~BitMapIdx;
                 return;
             }
 
-            BitMap *= 2;
-
-            ++Bit;
-            ++CurrentAddress;
+            BitMapIdx <<= 2;
+            CurrentAddress++;
         }
-        while (Bit < 32);
-
-        ++ix;
-
-        if (ix < 4)
-            continue;
-
-        break;
     }
 }
 
