@@ -23,21 +23,6 @@ USBPORT_MPStatusToRHStatus(IN MPSTATUS MPStatus)
     return RHStatus;
 }
 
-ULONG
-NTAPI
-USBPORT_SetBit(ULONG_PTR Address,
-               UCHAR Index)
-{
-    ULONG_PTR AddressBitMap;
-
-    DPRINT("USBPORT_SetBit: Address - %p, Index - %p\n", Address, Index);
-
-    AddressBitMap = Address + 4 * (Index >> 5);
-    *(ULONG_PTR *)AddressBitMap |= 1 << (Index & 0x1F);
-
-    return AddressBitMap;
-}
-
 MPSTATUS
 NTAPI
 USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
@@ -552,11 +537,12 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     USBHUB_PORT_STATUS PortStatus;
     ULONG HubStatus = 0;
     PVOID Buffer;
+    PULONG AddressBitMap;
+    ULONG Port;
     PURB Urb;
     RHSTATUS RHStatus = RH_STATUS_NO_CHANGES;
     PUSB_HUB_DESCRIPTOR HubDescriptor;
     UCHAR NumberOfPorts;
-    UCHAR ix;
 
     DPRINT("USBPORT_RootHubSCE: Transfer - %p\n", Transfer);
 
@@ -604,42 +590,32 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
 
     RtlZeroMemory(Buffer, TransferLength);
 
+    AddressBitMap = Buffer;
+
     /* Scan all the ports for changes */
-    if (NumberOfPorts)
+    for (Port = 1; Port <= NumberOfPorts; Port++)
     {
-        ix = 0;
+        DPRINT_CORE("USBPORT_RootHubSCE: Port - %p\n", Port);
 
-        while (ix < 256)
+        /* Request the port status from miniport */
+        if (Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
+                                     Port,
+                                     &PortStatus.AsULONG))
         {
-            DPRINT_CORE("USBPORT_RootHubSCE: ix - %p\n", ix);
+            /* Miniport returned an error */ 
+            DPRINT1("USBPORT_RootHubSCE: RH_GetPortStatus failed\n");
+            return RH_STATUS_UNSUCCESSFUL;
+        }
 
-            /* Request the port status from miniport */
-            if (Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
-                                         ix + 1,
-                                         &PortStatus.AsULONG))
-            {
-                /* Miniport returned an error */ 
-                DPRINT1("USBPORT_RootHubSCE: RH_GetPortStatus failed\n");
-                return RH_STATUS_UNSUCCESSFUL;
-            }
-
-            if (PortStatus.UsbPortStatusChange.ConnectStatusChange ||
-                PortStatus.UsbPortStatusChange.EnableStatusChange ||
-                PortStatus.UsbPortStatusChange.SuspendStatusChange ||
-                PortStatus.UsbPortStatusChange.OverCurrentChange ||
-                PortStatus.UsbPortStatusChange.ResetStatusChange)
-            {
-                /* At the hub port status there is a change */
-                USBPORT_SetBit((ULONG_PTR)Buffer, ix + 1);
-                RHStatus = RH_STATUS_SUCCESS;
-            }
-
-            ++ix;
-
-            if (ix >= NumberOfPorts)
-            {
-                break;
-            }
+        if (PortStatus.UsbPortStatusChange.ConnectStatusChange ||
+            PortStatus.UsbPortStatusChange.EnableStatusChange ||
+            PortStatus.UsbPortStatusChange.SuspendStatusChange ||
+            PortStatus.UsbPortStatusChange.OverCurrentChange ||
+            PortStatus.UsbPortStatusChange.ResetStatusChange)
+        {
+            /* At the port status there is a change */
+            AddressBitMap[Port >> 5] |= 1 << (Port & 0x1F);
+            RHStatus = RH_STATUS_SUCCESS;
         }
     }
 
@@ -650,7 +626,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
                          HUB_STATUS_CHANGE_OVERCURRENT))
         {
             /* At the hub status there is a change */
-            USBPORT_SetBit((ULONG_PTR)Buffer, 0);
+            AddressBitMap[0] |= 1;
             RHStatus = RH_STATUS_SUCCESS;
         }
 
