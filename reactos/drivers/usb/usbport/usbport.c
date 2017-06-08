@@ -1968,12 +1968,12 @@ USBPORT_AsyncTimerDpc(IN PRKDPC Dpc,
 
     DPRINT("USBPORT_AsyncTimerDpc: ... \n");
 
-    AsyncCallbackData = (PUSBPORT_ASYNC_CALLBACK_DATA)DeferredContext;
+    AsyncCallbackData = DeferredContext;
     FdoDevice = AsyncCallbackData->FdoDevice;
     FdoExtension = FdoDevice->DeviceExtension;
 
-    (*(ASYNC_TIMER_CALLBACK *)AsyncCallbackData->CallbackFunction)(FdoExtension->MiniPortExt,
-                                                                   &AsyncCallbackData->CallbackContext);
+    (*AsyncCallbackData->CallbackFunction)(FdoExtension->MiniPortExt,
+                                           &AsyncCallbackData->CallbackContext);
 
     ExFreePool(AsyncCallbackData);
 }
@@ -1984,7 +1984,7 @@ USBPORT_RequestAsyncCallback(IN PVOID Context,
                              IN ULONG TimerValue,
                              IN PVOID Buffer,
                              IN SIZE_T Length,
-                             IN ULONG Callback)
+                             IN PVOID Callback)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDEVICE_OBJECT FdoDevice;
@@ -2017,7 +2017,7 @@ USBPORT_RequestAsyncCallback(IN PVOID Context,
     }
 
     AsyncCallbackData->FdoDevice = FdoDevice;
-    AsyncCallbackData->CallbackFunction = (ASYNC_TIMER_CALLBACK *)Callback;
+    AsyncCallbackData->CallbackFunction = Callback;
 
     KeInitializeTimer(&AsyncCallbackData->AsyncTimer);
 
