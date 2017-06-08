@@ -1701,13 +1701,13 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
 
                         if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
                         {
-                            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                            KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportSpinLock);
 
                             Packet->SetEndpointState(FdoExtension->MiniPortExt,
                                                      Endpoint + 1,
                                                      USBPORT_ENDPOINT_ACTIVE);
 
-                            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+                            KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
                         }
 
                         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);

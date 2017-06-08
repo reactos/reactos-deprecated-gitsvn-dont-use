@@ -934,7 +934,6 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_ENDPOINT Endpoint;
     PLIST_ENTRY List;
     ULONG FrameNumber;
-    KIRQL OldIrql;
 
     ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
 
@@ -962,32 +961,32 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
 
         DPRINT_CORE("USBPORT_IsrDpcHandler: Endpoint - %p\n", Endpoint);
 
-        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+        KeAcquireSpinLockAtDpcLevel(&Endpoint->EndpointSpinLock);
 
-        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+        KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportSpinLock);
         FrameNumber = Packet->Get32BitFrameNumber(FdoExtension->MiniPortExt);
-        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+        KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
 
         if (FrameNumber <= Endpoint->FrameNumber && !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
         {
-            KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+            KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
 
             ExInterlockedInsertHeadList(&FdoExtension->EpStateChangeList,
                                         &Endpoint->StateChangeLink,
                                         &FdoExtension->EpStateChangeSpinLock);
 
-            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+            KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportSpinLock);
             Packet->InterruptNextSOF(FdoExtension->MiniPortExt);
-            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+            KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
 
             break;
         }
 
-        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
 
-        KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
+        KeAcquireSpinLockAtDpcLevel(&Endpoint->StateChangeSpinLock);
         Endpoint->StateLast = Endpoint->StateNext;
-        KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
+        KeReleaseSpinLockFromDpcLevel(&Endpoint->StateChangeSpinLock);
 
         DPRINT_CORE("USBPORT_IsrDpcHandler: Endpoint->StateLast - %x\n",
                     Endpoint->StateLast);

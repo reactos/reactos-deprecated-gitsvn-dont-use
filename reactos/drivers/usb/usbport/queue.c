@@ -495,14 +495,14 @@ USBPORT_CancelPendingTransferIrp(IN PDEVICE_OBJECT DeviceObject,
         return;
     }
 
-    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+    KeAcquireSpinLockAtDpcLevel(&Endpoint->EndpointSpinLock);
 
     RemoveEntryList(&Transfer->TransferLink);
 
     Transfer->TransferLink.Flink = NULL;
     Transfer->TransferLink.Blink = NULL;
 
-    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+    KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
     KeReleaseSpinLock(&FdoExtension->FlushPendingTransferSpinLock, OldIrql);
 
     USBPORT_CompleteTransfer(Transfer->Urb, USBD_STATUS_CANCELED);
@@ -545,9 +545,9 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
                     Urb,
                     Transfer);
 
-        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+        KeAcquireSpinLockAtDpcLevel(&Endpoint->EndpointSpinLock);
         Transfer->Flags |= TRANSFER_FLAG_CANCELED;
-        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
 
         KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
 
@@ -682,7 +682,7 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
     FdoExtension = FdoDevice->DeviceExtension;
 
     KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
-    KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+    KeAcquireSpinLockAtDpcLevel(&Endpoint->EndpointSpinLock);
 
     while (!IsListEmpty(&Endpoint->CancelList))
     {
@@ -705,7 +705,7 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
             USBPORT_RemoveActiveTransferIrp(FdoDevice, Irp);
         }
 
-        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+        KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
         KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
 
         if (Endpoint->Flags & ENDPOINT_FLAG_NUKE)
@@ -725,10 +725,10 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
         }
 
         KeAcquireSpinLock(&FdoExtension->FlushTransferSpinLock, &OldIrql);
-        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+        KeAcquireSpinLockAtDpcLevel(&Endpoint->EndpointSpinLock);
     }
 
-    KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+    KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
     KeReleaseSpinLock(&FdoExtension->FlushTransferSpinLock, OldIrql);
 
     USBPORT_FlushAbortList(Endpoint);

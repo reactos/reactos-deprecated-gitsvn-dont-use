@@ -109,7 +109,6 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_REGISTRATION_PACKET Packet;
     PUSBPORT_PIPE_HANDLE PipeHandle;
     PUSBPORT_ENDPOINT Endpoint;
-    KIRQL OldIrql;
     NTSTATUS Status;
 
     DPRINT_URB("USBPORT_ResetPipe: ... \n");
@@ -133,13 +132,13 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
     {
         if (Urb->UrbHeader.UsbdFlags & USBD_FLAG_NOT_ISO_TRANSFER)
         {
-            KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+            KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportSpinLock);
 
             Packet->SetEndpointDataToggle(FdoExtension->MiniPortExt,
                                           Endpoint + 1,
                                           0);
 
-            KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+            KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
         }
 
         Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
@@ -151,13 +150,13 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
 
     Endpoint->Flags |= ENDPOINT_FLAG_QUEUENE_EMPTY;
 
-    KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+    KeAcquireSpinLockAtDpcLevel(&FdoExtension->MiniportSpinLock);
 
     Packet->SetEndpointStatus(FdoExtension->MiniPortExt,
                               Endpoint + 1,
                               USBPORT_ENDPOINT_RUN);
 
-    KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+    KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
     return Status;
