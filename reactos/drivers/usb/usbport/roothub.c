@@ -1004,11 +1004,6 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
 
     USBPORT_Wait(FdoDevice, 100);
 
-    if (NumPorts == 0)
-    {
-        return;
-    }
-
     for (Port = 1; Port < NumPorts; ++Port)
     {
         if (FdoExtension->MiniPortInterface->Version < 200)
