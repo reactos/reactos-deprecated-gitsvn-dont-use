@@ -160,7 +160,6 @@ USBPORT_FindCompanionControllers(IN PDEVICE_OBJECT USB2FdoDevice,
 
         USB1FdoList = USB1FdoExtension->ControllerLink.Flink;
     }
-    while (USB1FdoList);
 
     DPRINT("USBPORT_FindCompanionControllers: NumControllers - %x\n",
            NumControllers);
@@ -586,7 +585,7 @@ USBPORT_SoftInterruptDpc(IN PRKDPC Dpc,
 
     DPRINT("USBPORT_SoftInterruptDpc: ... \n");
 
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoDevice = DeferredContext;
     FdoExtension = FdoDevice->DeviceExtension;
 
     if (!KeInsertQueueDpc(&FdoExtension->IsrDpc, NULL, (PVOID)1))
@@ -696,7 +695,7 @@ USBPORT_WorkerRequestDpc(IN PRKDPC Dpc,
 
     DPRINT("USBPORT_WorkerRequestDpc: ... \n");
 
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoDevice = DeferredContext;
     FdoExtension = FdoDevice->DeviceExtension;
 
     if (!InterlockedIncrement(&FdoExtension->IsrDpcHandlerCounter))
@@ -818,7 +817,7 @@ USBPORT_TransferFlushDpc(IN PRKDPC Dpc,
     PDEVICE_OBJECT FdoDevice;
 
     DPRINT_CORE("USBPORT_TransferFlushDpc: ... \n");
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoDevice = DeferredContext;
     USBPORT_FlushDoneTransfers(FdoDevice);
 }
 
@@ -1029,7 +1028,7 @@ USBPORT_IsrDpc(IN PRKDPC Dpc,
                DeferredContext,
                SystemArgument2);
 
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoDevice = DeferredContext;
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
@@ -1069,7 +1068,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     PUSBPORT_REGISTRATION_PACKET Packet;
     BOOLEAN Result = FALSE;
 
-    FdoDevice = (PDEVICE_OBJECT)ServiceContext;
+    FdoDevice = ServiceContext;
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
@@ -1359,7 +1358,7 @@ USBPORT_WorkerThread(IN PVOID StartContext)
 
     DPRINT_CORE("USBPORT_WorkerThread ... \n");
 
-    FdoDevice = (PDEVICE_OBJECT)StartContext;
+    FdoDevice = StartContext;
     FdoExtension = FdoDevice->DeviceExtension;
 
     FdoExtension->WorkerThread = KeGetCurrentThread();
@@ -1532,7 +1531,7 @@ USBPORT_TimerDpc(IN PRKDPC Dpc,
            Dpc,
            DeferredContext);
 
-    FdoDevice = (PDEVICE_OBJECT)DeferredContext;
+    FdoDevice = DeferredContext;
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
@@ -2124,7 +2123,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
            TransferStatus);
 
     UrbTransfer = &Urb->UrbControlTransfer;
-    Transfer = (PUSBPORT_TRANSFER)UrbTransfer->hca.Reserved8[0];
+    Transfer = UrbTransfer->hca.Reserved8[0];
 
     Transfer->USBDStatus = TransferStatus;
     Status = USBPORT_USBDStatusToNtStatus(Urb, TransferStatus);
@@ -2241,7 +2240,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     DmaAdapter = FdoExtension->DmaAdapter;
     DmaOperations = DmaAdapter->DmaOperations;
 
-    Transfer = (PUSBPORT_TRANSFER)Context;
+    Transfer = Context;
 
     Urb = Transfer->Urb;
     Endpoint = Transfer->Endpoint;
@@ -2339,7 +2338,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     InsertTailList(&Endpoint->TransferList, &Transfer->TransferLink);
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
     InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
 
     if (USBPORT_EndpointWorker(Endpoint, 0))
@@ -2503,7 +2502,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
     PIO_STACK_LOCATION IoStack;
     NTSTATUS Status = STATUS_SUCCESS;
 
-    DeviceExtension = (PUSBPORT_COMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    DeviceExtension = DeviceObject->DeviceExtension;
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
     if (DeviceExtension->PnpStateFlags & USBPORT_PNP_STATE_FAILED)
@@ -2707,16 +2706,16 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
                                 &MiniPortInterface->DriverLink,
                                 &USBPORT_SpinLock);
 
-    DriverObject->DriverExtension->AddDevice = (PDRIVER_ADD_DEVICE)USBPORT_AddDevice;
-    DriverObject->DriverUnload = (PDRIVER_UNLOAD)USBPORT_Unload;
+    DriverObject->DriverExtension->AddDevice = USBPORT_AddDevice;
+    DriverObject->DriverUnload = USBPORT_Unload;
 
-    DriverObject->MajorFunction[IRP_MJ_CREATE] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_CLOSE] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_PNP] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_POWER] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
-    DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = (PDRIVER_DISPATCH)USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_CREATE] = USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_CLOSE] = USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_INTERNAL_DEVICE_CONTROL] = USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_PNP] = USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_POWER] = USBPORT_Dispatch;
+    DriverObject->MajorFunction[IRP_MJ_SYSTEM_CONTROL] = USBPORT_Dispatch;
 
     RegPacket->UsbPortDbgPrint = USBPORT_DbgPrint;
     RegPacket->UsbPortTestDebugBreak = USBPORT_TestDebugBreak;

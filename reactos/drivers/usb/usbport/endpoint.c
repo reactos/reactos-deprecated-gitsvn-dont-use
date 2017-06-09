@@ -659,7 +659,7 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
     RtlZeroMemory(Endpoint, EndpointSize);
 
     Endpoint->FdoDevice = FdoDevice;
-    Endpoint->DeviceHandle = (PUSBPORT_DEVICE_HANDLE)DeviceHandle;
+    Endpoint->DeviceHandle = DeviceHandle;
     Endpoint->LockCounter = -1;
 
     KeInitializeSpinLock(&Endpoint->EndpointSpinLock);

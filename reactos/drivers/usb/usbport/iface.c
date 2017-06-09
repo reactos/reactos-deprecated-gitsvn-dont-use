@@ -174,14 +174,14 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
         return STATUS_BUFFER_TOO_SMALL;
     }
 
-    DeviceInfo = (PUSB_DEVICE_INFORMATION_0)DeviceInfoBuffer;
+    DeviceInfo = DeviceInfoBuffer;
 
     if (DeviceInfo->InformationLevel > 0)
     {
         return STATUS_NOT_SUPPORTED;
     }
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle;
+    DeviceHandle = UsbdDeviceHandle;
     ConfigHandle = DeviceHandle->ConfigHandle;
 
     if (ConfigHandle)
@@ -313,7 +313,7 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = FdoDevice->DeviceExtension;
 
-    InfoBuffer = (PUSB_CONTROLLER_INFORMATION_0)ControllerInfoBuffer;
+    InfoBuffer = ControllerInfoBuffer;
 
     *LenDataReturned = 0;
 
@@ -428,7 +428,7 @@ USBHI_GetExtendedHubInformation(IN PVOID BusContext,
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    HubInfoBuffer = (PUSB_EXTHUB_INFORMATION_0)HubInformationBuffer;
+    HubInfoBuffer = HubInformationBuffer;
 
     if (HubPhysicalDeviceObject != PdoDevice)
     {
@@ -526,7 +526,7 @@ USBHI_GetRootHubSymbolicName(IN PVOID BusContext,
 
     if (HubInfoBufferLen < HubName.Length)
     {
-        InfoBuffer = (PUNICODE_STRING)HubInfoBuffer;
+        InfoBuffer = HubInfoBuffer;
         InfoBuffer->Length = 0;
     }
     else
@@ -693,7 +693,7 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
 
         *BusInfoBufferLen = sizeof(USB_BUS_INFORMATION_LEVEL_0);
 
-        //Buffer0 = (PUSB_BUS_INFORMATION_LEVEL_0)BusInfoBuffer;
+        //Buffer0 = BusInfoBuffer;
         DPRINT1("USBDI_QueryBusInformation: LEVEL_0 UNIMPLEMENTED. FIXME\n");
         //Buffer0->TotalBandwidth = USBPORT_GetTotalBandwidth();
         //Buffer0->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
@@ -716,7 +716,7 @@ USBDI_QueryBusInformation(IN PVOID BusContext,
 
         *BusInfoBufferLen = Length;
 
-        Buffer1 = (PUSB_BUS_INFORMATION_LEVEL_1)BusInfoBuffer;
+        Buffer1 = BusInfoBuffer;
         DPRINT1("USBDI_QueryBusInformation: LEVEL_1 UNIMPLEMENTED. FIXME\n");
         //Buffer1->TotalBandwidth = USBPORT_GetTotalBandwidth();
         //Buffer1->ConsumedBandwidth = USBPORT_GetAllocatedBandwidth();
@@ -797,7 +797,7 @@ USBPORT_PdoQueryInterface(IN PDEVICE_OBJECT FdoDevice,
 
         /* Interface version 0 */
         InterfaceHub->Size = IoStack->Parameters.QueryInterface.Size;
-        InterfaceHub->BusContext = (PVOID)PdoDevice;
+        InterfaceHub->BusContext = PdoDevice;
 
         InterfaceHub->InterfaceReference = USBI_InterfaceReference;
         InterfaceHub->InterfaceDereference = USBI_InterfaceDereference;
@@ -857,7 +857,7 @@ USBPORT_PdoQueryInterface(IN PDEVICE_OBJECT FdoDevice,
 
         /* Interface version 0 */
         InterfaceDI->Size = IoStack->Parameters.QueryInterface.Size;
-        InterfaceDI->BusContext = (PVOID)PdoDevice;
+        InterfaceDI->BusContext = PdoDevice;
         InterfaceDI->InterfaceReference = USBI_InterfaceReference;
         InterfaceDI->InterfaceDereference = USBI_InterfaceDereference;
         InterfaceDI->GetUSBDIVersion = USBDI_GetUSBDIVersion;

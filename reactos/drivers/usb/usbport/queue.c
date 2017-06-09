@@ -477,7 +477,7 @@ USBPORT_CancelPendingTransferIrp(IN PDEVICE_OBJECT DeviceObject,
                 Irp);
 
     Urb = URB_FROM_IRP(Irp);
-    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
     Endpoint = Transfer->Endpoint;
 
     FdoDevice = Endpoint->FdoDevice;
@@ -537,7 +537,7 @@ USBPORT_CancelActiveTransferIrp(IN PDEVICE_OBJECT DeviceObject,
     if (irp)
     {
         Urb = URB_FROM_IRP(irp);
-        Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+        Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
         Endpoint = Transfer->Endpoint;
 
         DPRINT_CORE("USBPORT_CancelTransferIrp: irp - %p, Urb - %p, Transfer - %p\n",
@@ -653,7 +653,7 @@ USBPORT_FlushAbortList(IN PUSBPORT_ENDPOINT Endpoint)
 
         Urb = URB_FROM_IRP(Irp);
 
-        DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+        DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
         InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
 
         Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
@@ -923,7 +923,7 @@ USBPORT_QueuePendingUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
                 Endpoint,
                 Urb);
 
-    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
     //FIXME USBPORT_ResetEndpointIdle();
     InsertTailList(&Endpoint->PendingTransferList, &Transfer->TransferLink);
     Urb->UrbHeader.Status = USBD_STATUS_PENDING;
@@ -944,7 +944,7 @@ USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
                 Endpoint,
                 Urb);
 
-    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = FdoDevice->DeviceExtension;
 
@@ -978,7 +978,7 @@ USBPORT_QueueActiveUrbToEndpoint(IN PUSBPORT_ENDPOINT Endpoint,
 
     InsertTailList(&FdoExtension->MapTransferList, &Transfer->TransferLink);
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Transfer->Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Transfer->Urb->UrbHeader.UsbdDeviceHandle;
     InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
 
     KeReleaseSpinLock(&FdoExtension->MapTransferSpinLock, OldIrql);
@@ -1001,7 +1001,7 @@ USBPORT_QueuePendingTransferIrp(IN PIRP Irp)
 
     Urb = URB_FROM_IRP(Irp);
 
-    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
     Endpoint = Transfer->Endpoint;
 
     FdoDevice = Endpoint->FdoDevice;
@@ -1038,7 +1038,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
     if (Urb->UrbControlTransfer.TransferFlags & USBD_DEFAULT_PIPE_TRANSFER)
         Urb->UrbHeader.Function = URB_FUNCTION_CONTROL_TRANSFER;
 
-    Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+    Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
     Parameters = &Transfer->TransferParameters;
 
     Endpoint = Transfer->Endpoint;
@@ -1081,7 +1081,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
         USBPORT_QueuePendingUrbToEndpoint(Endpoint, Urb);
     }
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
     InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
 
     USBPORT_FlushPendingTransfers(Endpoint);
@@ -1096,7 +1096,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
         ULONG_PTR BufferEnd;
         ULONG ix;
 
-        Buffer = (PULONG)Urb->UrbControlTransfer.TransferBuffer;
+        Buffer = Urb->UrbControlTransfer.TransferBuffer;
         BufferLength = Urb->UrbControlTransfer.TransferBufferLength;
         BufferEnd = (ULONG_PTR)Buffer + BufferLength;
 

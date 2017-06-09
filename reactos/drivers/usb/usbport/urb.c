@@ -70,8 +70,8 @@ USBPORT_AbortPipe(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT_URB("USBPORT_AbortPipe: ... \n");
 
-    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    PipeHandle = Urb->UrbPipeRequest.PipeHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
 
     if (USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
     {
@@ -116,7 +116,7 @@ USBPORT_ResetPipe(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
+    PipeHandle = Urb->UrbPipeRequest.PipeHandle;
 
     if (!USBPORT_ValidatePipeHandle((PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle,
                                     PipeHandle))
@@ -177,8 +177,8 @@ USBPORT_ClearStall(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT_URB("USBPORT_ClearStall: ... \n");
 
-    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    PipeHandle = Urb->UrbPipeRequest.PipeHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
 
     if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
         return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
@@ -224,8 +224,8 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
     ASSERT(Urb->UrbHeader.Length == sizeof(struct _URB_PIPE_REQUEST));
     ASSERT(Urb->UrbPipeRequest.PipeHandle);
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
-    PipeHandle = (PUSBPORT_PIPE_HANDLE)Urb->UrbPipeRequest.PipeHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
+    PipeHandle = Urb->UrbPipeRequest.PipeHandle;
 
     if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
     {
@@ -685,7 +685,7 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
         return Status;
     }
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
 
     if (IsControlTransfer)
     {
@@ -799,7 +799,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
         return STATUS_PENDING;
     }
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
 
     if (!DeviceHandle)
     {
@@ -1012,7 +1012,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
     {
         PUSBPORT_TRANSFER Transfer;
 
-        Transfer = (PUSBPORT_TRANSFER)Urb->UrbControlTransfer.hca.Reserved8[0];
+        Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
         Urb->UrbControlTransfer.hca.Reserved8[0] = NULL;
         Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
         ExFreePool(Transfer);

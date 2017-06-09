@@ -552,7 +552,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     PdoExtension = FdoExtension->RootHubPdo->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    HubDescriptor = (PUSB_HUB_DESCRIPTOR)&PdoExtension->RootHubDescriptors->Descriptor;
+    HubDescriptor = &PdoExtension->RootHubDescriptors->Descriptor;
     NumberOfPorts = HubDescriptor->bNumberOfPorts;
 
     PortStatus.AsULONG = 0;

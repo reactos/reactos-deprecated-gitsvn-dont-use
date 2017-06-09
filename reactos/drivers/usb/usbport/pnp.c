@@ -31,7 +31,7 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
 
     DPRINT("USBPORT_RegisterDeviceInterface: Enable - %x\n", Enable);
 
-    DeviceExtension = (PUSBPORT_RHDEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    DeviceExtension = DeviceObject->DeviceExtension;
     SymbolicLinkName = &DeviceExtension->CommonExtension.SymbolicLinkName;
 
     if (Enable)
@@ -381,7 +381,7 @@ USBPORT_QueryCapabilities(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_QueryCapabilities: ... \n");
 
-    FdoExtention = (PUSBPORT_DEVICE_EXTENSION)FdoDevice->DeviceExtension;
+    FdoExtention = FdoDevice->DeviceExtension;
 
     RtlZeroMemory(Capabilities, sizeof(DEVICE_CAPABILITIES));
 
@@ -1091,7 +1091,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
     PDEVICE_RELATIONS DeviceRelations;
 
     FdoExtension = FdoDevice->DeviceExtension;
-    UsbPortResources = (PUSBPORT_RESOURCES)&FdoExtension->UsbPortResources;
+    UsbPortResources = &FdoExtension->UsbPortResources;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
@@ -1637,8 +1637,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
 
             /* Allocate buffer for bus information */
-            BusInformation = (PPNP_BUS_INFORMATION)ExAllocatePool(PagedPool,
-                                                                  sizeof(PNP_BUS_INFORMATION));
+            BusInformation = ExAllocatePool(PagedPool, sizeof(PNP_BUS_INFORMATION));
 
             if (!BusInformation)
             {

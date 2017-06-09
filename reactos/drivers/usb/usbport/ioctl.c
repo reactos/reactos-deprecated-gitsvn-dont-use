@@ -217,7 +217,7 @@ USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
     DPRINT("USBPORT_GetUnicodeName: ... \n");
 
     *Information = 0;
-    DriverKey = (PUSB_HCD_DRIVERKEY_NAME)Irp->AssociatedIrp.SystemBuffer;
+    DriverKey = Irp->AssociatedIrp.SystemBuffer;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     OutputBufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;

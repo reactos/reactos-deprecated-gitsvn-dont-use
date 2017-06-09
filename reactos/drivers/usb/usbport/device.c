@@ -395,7 +395,7 @@ USBPORT_OpenInterface(IN PURB Urb,
                 if (!NT_SUCCESS(Status))
                     break;
 
-                PipeInfo->PipeHandle = (USBD_PIPE_HANDLE)PipeHandle;
+                PipeInfo->PipeHandle = PipeHandle;
 
                 PipeHandle += 1;
                 PipeInfo += 1;
@@ -409,7 +409,7 @@ Exit:
 
     if (USBD_SUCCESS(USBDStatus))
     {
-        InterfaceInfo->InterfaceHandle = (USBD_INTERFACE_HANDLE)InterfaceHandle;
+        InterfaceInfo->InterfaceHandle = InterfaceHandle;
         *iHandle = InterfaceHandle;
         InterfaceInfo->Length = Length;
     }
@@ -581,7 +581,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
                           FALSE,
                           NULL);
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
     ConfigDescriptor = Urb->UrbSelectConfiguration.ConfigurationDescriptor;
 
     DPRINT("USBPORT_SelectConfiguration: ConfigDescriptor %x\n",
@@ -740,7 +740,7 @@ USBPORT_AddDeviceHandle(IN PDEVICE_OBJECT FdoDevice,
 
     DPRINT("USBPORT_AddDeviceHandle: ... \n");
 
-    FdoExtension = (FdoDevice->DeviceExtension);
+    FdoExtension = FdoDevice->DeviceExtension;
 
     InsertTailList(&FdoExtension->DeviceHandleList,
                    &DeviceHandle->DeviceHandleLink);
@@ -1063,7 +1063,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
             {
                 USBPORT_AddDeviceHandle(FdoDevice, DeviceHandle);
 
-                *pUsbdDeviceHandle = (PUSB_DEVICE_HANDLE)DeviceHandle;
+                *pUsbdDeviceHandle = DeviceHandle;
 
                 KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
                                    LOW_REALTIME_PRIORITY,
@@ -1357,9 +1357,9 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
                           FALSE,
                           NULL);
 
-    ConfigurationHandle = (PUSBPORT_CONFIGURATION_HANDLE)Urb->UrbSelectInterface.ConfigurationHandle;
+    ConfigurationHandle = Urb->UrbSelectInterface.ConfigurationHandle;
 
-    Interface = (PUSBD_INTERFACE_INFORMATION)&Urb->UrbSelectInterface.Interface;
+    Interface = &Urb->UrbSelectInterface.Interface;
 
     Length = Interface->Length + sizeof(USBD_PIPE_INFORMATION);
     Urb->UrbHeader.Length = Length;
@@ -1372,7 +1372,7 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
         return USBPORT_USBDStatusToNtStatus(Urb, USBDStatus);
     }
 
-    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)Urb->UrbHeader.UsbdDeviceHandle;
+    DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
 
     InterfaceHandle = USBPORT_GetInterfaceHandle(ConfigurationHandle,
                                                  Interface->InterfaceNumber);
@@ -1414,7 +1414,7 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
         if (InterfaceHandle)
             ExFreePool(InterfaceHandle);
 
-        Interface->InterfaceHandle = (USBD_INTERFACE_HANDLE)iHandle;
+        Interface->InterfaceHandle = iHandle;
 
         InsertTailList(&ConfigurationHandle->InterfaceHandleList,
                        &iHandle->InterfaceLink);

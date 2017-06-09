@@ -546,7 +546,7 @@ USBPORT_DoIdleNotificationCallback(IN PVOID Context)
 
     DPRINT("USBPORT_DoIdleNotificationCallback \n");
 
-    IdleQueueItem = (PTIMER_WORK_QUEUE_ITEM)Context;
+    IdleQueueItem = Context;
 
     FdoDevice = IdleQueueItem->FdoDevice;
     FdoExtension = FdoDevice->DeviceExtension;
@@ -566,7 +566,7 @@ USBPORT_DoIdleNotificationCallback(IN PVOID Context)
             if (NextIrp)
             {
                 IoStack = IoGetCurrentIrpStackLocation(NextIrp);
-                IdleCallbackInfo = (PUSB_IDLE_CALLBACK_INFO)IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+                IdleCallbackInfo = IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
 
                 if (IdleCallbackInfo && IdleCallbackInfo->IdleCallback)
                 {
