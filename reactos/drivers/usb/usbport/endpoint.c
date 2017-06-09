@@ -515,10 +515,10 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         if (!IsListEmpty(&Endpoint->AbortList))
             IsReady = FALSE;
 
-        KeAcquireSpinLock(&Endpoint->StateChangeSpinLock, &Endpoint->EndpointStateOldIrql);
+        KeAcquireSpinLockAtDpcLevel(&Endpoint->StateChangeSpinLock);
         if (Endpoint->StateLast != Endpoint->StateNext)
             IsReady = FALSE;
-        KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
+        KeReleaseSpinLockFromDpcLevel(&Endpoint->StateChangeSpinLock);
 
         KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
