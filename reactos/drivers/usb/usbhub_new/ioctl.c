@@ -25,7 +25,7 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
          IoMarkIrpPending(Irp);
     }
 
-    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)Context;
+    PortExtension = Context;
     HubExtension = PortExtension->HubExtension;
 
     if (HubExtension)
@@ -85,7 +85,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     //DeviceObject = PortExtension->Common.SelfDevice;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
-    Urb = (PURB)IoStack->Parameters.Others.Argument1;
+    Urb = IoStack->Parameters.Others.Argument1;
 
     //DPRINT("USBH_PdoUrbFilter: Device - %p, Irp - %p, Urb - %p\n",
     //       DeviceObject,
@@ -210,10 +210,10 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     //DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)PortExtension->HubExtension;
+    HubExtension = PortExtension->HubExtension;
     IoStack = Irp->Tail.Overlay.CurrentStackLocation;
 
-    Urb = (PURB)IoStack->Parameters.Others.Argument1;
+    Urb = IoStack->Parameters.Others.Argument1;
 
     if (PortExtension->DeviceHandle == NULL)
     {
@@ -307,7 +307,7 @@ USBH_ResetPortWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_ResetPortWorker ... \n");
 
-    WorkItemReset = (PUSBHUB_RESET_PORT_CONTEXT)Context;
+    WorkItemReset = Context;
 
     PortExtension = WorkItemReset->PortExtension;
 
@@ -428,7 +428,7 @@ USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
 
     DPRINT("USBH_PortIdleNotificationCancelRoutine ... \n");
 
-    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)Device->DeviceExtension;
+    PortExtension = Device->DeviceExtension;
     PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
 
     HubExtension = PortExtension->HubExtension;
@@ -495,7 +495,7 @@ USBH_PortIdleNotificationRequest(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     }
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
-    IdleCallbackInfo = (PUSB_IDLE_CALLBACK_INFO)IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+    IdleCallbackInfo = IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
 
     if (!IdleCallbackInfo || !IdleCallbackInfo->IdleCallback)
     {
@@ -567,7 +567,7 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Status = STATUS_SUCCESS;
 
-    ConnectionName = (PUSB_NODE_CONNECTION_NAME)Irp->AssociatedIrp.SystemBuffer;
+    ConnectionName = Irp->AssociatedIrp.SystemBuffer;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Length = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
@@ -598,7 +598,7 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
         return Status;
     }
 
-    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+    PortExtension = PortDevice->DeviceExtension;
 
     if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE) ||
         !(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_DEVICE_STARTED) ||
@@ -688,7 +688,7 @@ USBH_IoctlGetNodeInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Status = STATUS_SUCCESS;
 
-    NodeInfo = (PUSB_NODE_INFORMATION)Irp->AssociatedIrp.SystemBuffer;
+    NodeInfo = Irp->AssociatedIrp.SystemBuffer;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
@@ -732,7 +732,7 @@ USBH_IoctlGetHubCapabilities(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_IoctlGetHubCapabilities ... \n");
 
-    Capabilities = (PUSB_HUB_CAPABILITIES)Irp->AssociatedIrp.SystemBuffer;
+    Capabilities = Irp->AssociatedIrp.SystemBuffer;
 
     HubIs2xCapable = HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB;
 
@@ -779,7 +779,7 @@ USBH_IoctlGetNodeConnectionAttributes(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
-    Attributes = (PUSB_NODE_CONNECTION_ATTRIBUTES)Irp->AssociatedIrp.SystemBuffer;
+    Attributes = Irp->AssociatedIrp.SystemBuffer;
 
     if (BufferLength < sizeof(USB_NODE_CONNECTION_ATTRIBUTES))
     {
@@ -843,7 +843,7 @@ USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
     DPRINT("USBH_IoctlGetNodeConnectionInformation ... \n");
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
-    Info = (PUSB_NODE_CONNECTION_INFORMATION_EX)Irp->AssociatedIrp.SystemBuffer;
+    Info = Irp->AssociatedIrp.SystemBuffer;
     BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
 
     PortData = HubExtension->PortData;
@@ -881,7 +881,7 @@ USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         if (DeviceObject)
         {
-            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)DeviceObject->DeviceExtension;
+            PortExtension = DeviceObject->DeviceExtension;
 
             Info->ConnectionStatus = PortData->ConnectionStatus;
             Info->DeviceIsHub = PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE;
@@ -955,7 +955,7 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     DPRINT("USBH_IoctlGetNodeConnectionDriverKeyName ... \n");
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
-    KeyName = (PUSB_NODE_CONNECTION_DRIVERKEY_NAME)Irp->AssociatedIrp.SystemBuffer;
+    KeyName = Irp->AssociatedIrp.SystemBuffer;
     BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
 
     if (BufferLength < sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME))
@@ -986,7 +986,7 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
             if (PortDevice)
             {
-                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+                PortExtension = PortDevice->DeviceExtension;
 
                 if (PortExtension->PortPdoFlags & 0x04000000)
                 {
@@ -1062,7 +1062,7 @@ USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
         return Status;
     }
 
-    UsbRequest = (PUSB_DESCRIPTOR_REQUEST)Irp->AssociatedIrp.SystemBuffer;
+    UsbRequest = Irp->AssociatedIrp.SystemBuffer;
 
     RequestBufferLength = UsbRequest->SetupPacket.wLength;
 
@@ -1098,7 +1098,7 @@ USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         if (PortDevice)
         {
-            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+            PortExtension = PortDevice->DeviceExtension;
 
             if (UsbRequest->SetupPacket.bmRequest == USB_CONFIGURATION_DESCRIPTOR_TYPE &&
                 RequestBufferLength == sizeof(USB_CONFIGURATION_DESCRIPTOR))
@@ -1389,7 +1389,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                 break;
             }
 
-            HubCount = (PULONG)IoStack->Parameters.Others.Argument1;
+            HubCount = IoStack->Parameters.Others.Argument1;
 
             ++*HubCount;
 

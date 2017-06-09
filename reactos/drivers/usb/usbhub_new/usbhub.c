@@ -88,7 +88,7 @@ USBH_SyncIrpComplete(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_SyncIrpComplete: ... \n");
 
-    HubTimeoutContext = (PUSBHUB_URB_TIMEOUT_CONTEXT)Context;
+    HubTimeoutContext = Context;
 
     KeAcquireSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock, &OldIrql);
     HubTimeoutContext->IsNormalCompleted = TRUE;
@@ -186,7 +186,7 @@ USBH_UrbTimeoutDPC(IN PKDPC Dpc,
 
     DPRINT("USBH_TimeoutDPC ... \n");
 
-    HubTimeoutContext = (PUSBHUB_URB_TIMEOUT_CONTEXT)DeferredContext;
+    HubTimeoutContext = DeferredContext;
 
     KeAcquireSpinLock(&HubTimeoutContext->UrbTimeoutSpinLock, &OldIrql);
     IsCompleted = HubTimeoutContext->IsNormalCompleted;
@@ -357,7 +357,7 @@ USBH_FdoSyncSubmitUrb(IN PDEVICE_OBJECT FdoDevice,
            FdoDevice,
            Urb);
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)FdoDevice->DeviceExtension;
+    HubExtension = FdoDevice->DeviceExtension;
     return USBH_SyncSubmitUrb(HubExtension->LowerDevice, Urb);
 }
 
@@ -711,7 +711,7 @@ USBH_GetRootHubExtension(IN PUSBHUB_FDO_EXTENSION HubExtension)
         }
         while (RootHubFdo->DriverObject != HubExtension->Common.SelfDevice->DriverObject);
 
-        RootHubExtension = (PUSBHUB_FDO_EXTENSION)RootHubFdo->DeviceExtension;
+        RootHubExtension = RootHubFdo->DeviceExtension;
     }
 
     DPRINT("USBH_GetRootHubExtension: RootHubExtension - %p\n", RootHubExtension);
@@ -923,7 +923,7 @@ USBH_SyncGetDeviceConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_SyncGetDeviceConfigurationDescriptor: ... \n");
 
-    DeviceExtension = (PCOMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    DeviceExtension = DeviceObject->DeviceExtension;
 
     if (OutLength)
     {
@@ -1565,7 +1565,7 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
     LONG Event;
     USHORT Port;
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     DPRINT("USBH_ChangeIndicationAckChangeComplete: ... \n");
 
@@ -1654,7 +1654,7 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
     PUSBHUB_IO_WORK_ITEM WorkItem;
     USHORT RequestValue;
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     DPRINT("USBH_ChangeIndicationProcessChange: PortStatus - %p\n",
            HubExtension->PortStatus.AsULONG);
@@ -1829,7 +1829,7 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
             return;
         }
 
-        PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+        PortExtension = PortDevice->DeviceExtension;
 
         if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_OVERCURRENT_PORT)
         {
@@ -2085,7 +2085,7 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_ChangeIndicationWorker ... \n");
 
-    WorkItem = (PUSBHUB_STATUS_CHANGE_CONTEXT)Context;
+    WorkItem = Context;
 
     KeWaitForSingleObject(&HubExtension->HubSemaphore,
                           Executive,
@@ -2115,7 +2115,7 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
         goto Enum;
     }
 
-    LowerPortExtension = (PUSBHUB_PORT_PDO_EXTENSION)HubExtension->LowerPDO->DeviceExtension;
+    LowerPortExtension = HubExtension->LowerPDO->DeviceExtension;
 
     if (LowerPortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D1_OR_D2)
     {
@@ -2263,7 +2263,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
     ULONG_PTR Bitmap;
     ULONG BufferLength;
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
     UrbStatus = HubExtension->SCEWorkerUrb.Hdr.Status;
 
     DPRINT("USBH_ChangeIndication: IrpStatus - %p, UrbStatus - %p, HubFlags - %p\n",
@@ -2822,7 +2822,7 @@ USBH_Worker(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_Worker: HubIoWorkItem - %p\n", Context);
 
-    HubIoWorkItem = (PUSBHUB_IO_WORK_ITEM)Context;
+    HubIoWorkItem = Context;
 
     InterlockedDecrement(&HubIoWorkItem->HubWorkerQueued);
 
@@ -2903,7 +2903,7 @@ USBHUB_RootHubCallBack(IN PVOID Context)
 
     DPRINT("USBHUB_RootHubCallBack: ... \n");
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     if (HubExtension->SCEIrp)
     {
@@ -3021,7 +3021,7 @@ USBH_HubQueuePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
             if (PortDevice)
             {
-                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+                PortExtension = PortDevice->DeviceExtension;
 
                 IdleIrp = PortExtension->IdleNotificationIrp;
                 PortExtension->IdleNotificationIrp = NULL;
@@ -3106,7 +3106,7 @@ USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
             goto NextPort;
         }
 
-        PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+        PortExtension = PortDevice->DeviceExtension;
 
         InterlockedExchange((PLONG)&PortExtension->StateBehindD2, 0);
 
@@ -3219,7 +3219,7 @@ USBH_CheckIdleAbort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
             if (PdoDevice)
             {
-                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+                PortExtension = PdoDevice->DeviceExtension;
 
                 if (PortExtension->PoRequestCounter)
                 {
@@ -3255,7 +3255,7 @@ ExtCheck:
 
                 if (PdoDevice)
                 {
-                    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+                    PortExtension = PdoDevice->DeviceExtension;
                     InterlockedExchange(&PortExtension->StateBehindD2, 0);
                 }
 
@@ -3365,7 +3365,7 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
     KIRQL OldIrql;
     NTSTATUS Status;
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     DPRINT("USBH_FdoIdleNotificationCallback: HubExtension - %p, HubFlags - %p\n",
            HubExtension,
@@ -3428,7 +3428,7 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
             if (PortDevice)
             {
-                PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+                PortExtension = PortDevice->DeviceExtension;
 
                 IdleIrp = PortExtension->IdleNotificationIrp;
 
@@ -3439,7 +3439,7 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
                 IoStack = IoGetCurrentIrpStackLocation(IdleIrp);
 
-                CallbackInfo = (PUSB_IDLE_CALLBACK_INFO)IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+                CallbackInfo = IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
 
                 if (!CallbackInfo)
                 {
@@ -3582,7 +3582,7 @@ USBH_CompletePortIdleIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_CompletePortIdleIrpsWorker ... \n");
 
-    IdlePortContext = (PUSBHUB_IDLE_PORT_CONTEXT)Context;
+    IdlePortContext = Context;
     NtStatus = IdlePortContext->Status;
 
     USBH_HubCompleteQueuedPortIdleIrps(HubExtension,
@@ -3617,7 +3617,7 @@ USBH_IdleCompletePowerHubWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
         USBH_HubSetD0(HubExtension);
     }
 
-    HubWorkItemBuffer = (PUSBHUB_IDLE_HUB_CONTEXT)Context;
+    HubWorkItemBuffer = Context;
 
     USBH_HubCompletePortIdleIrps(HubExtension, HubWorkItemBuffer->Status);
 
@@ -3638,7 +3638,7 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
 
     IoAcquireCancelSpinLock(&Irql);
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
     HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
 
     IdleIrp = InterlockedExchange((PLONG)&HubExtension->PendingIdleIrp, 0);
@@ -3881,7 +3881,7 @@ return; //HACK: delete it line after fixing Power Manager!!!
 
                         if (PdoDevice)
                         {
-                            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+                            PortExtension = PdoDevice->DeviceExtension;
 
                             if (!PortExtension->IdleNotificationIrp)
                             {
@@ -4195,7 +4195,7 @@ USBH_CheckDeviceIDUnique(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         if (PortDevice)
         {
-            PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+            PortExtension = PortDevice->DeviceExtension;
 
             if (PortExtension->DeviceDescriptor.idVendor == idVendor &&
                 PortExtension->DeviceDescriptor.idProduct == idProduct &&
@@ -4438,7 +4438,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DeviceObject->StackSize = HubExtension->RootHubPdo2->StackSize;
 
-    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)DeviceObject->DeviceExtension;
+    PortExtension = DeviceObject->DeviceExtension;
 
     DPRINT("USBH_CreateDevice: PortDevice - %p, <%wZ>\n", DeviceObject, &DeviceName);
     DPRINT("USBH_CreateDevice: PortExtension - %p\n", PortExtension);
@@ -4684,7 +4684,7 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         return Status;
     }
 
-    PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+    PortExtension = PortDevice->DeviceExtension;
 
     DeviceHandle = &PortExtension->DeviceHandle;
     OldDeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
@@ -4989,7 +4989,7 @@ USBH_AddDevice(IN PDRIVER_OBJECT DriverObject,
 
     DPRINT("USBH_AddDevice: DeviceObject - %p\n", DeviceObject);
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)DeviceObject->DeviceExtension;
+    HubExtension = DeviceObject->DeviceExtension;
     RtlZeroMemory(HubExtension, sizeof(USBHUB_FDO_EXTENSION));
 
     HubExtension->Common.ExtensionType = USBH_EXTENSION_TYPE_HUB;
@@ -5048,7 +5048,7 @@ USBH_HubDispatch(IN PDEVICE_OBJECT DeviceObject,
     NTSTATUS Status;
 
 
-    DeviceExtension = (PCOMMON_DEVICE_EXTENSION)DeviceObject->DeviceExtension;
+    DeviceExtension = DeviceObject->DeviceExtension;
     ExtensionType = DeviceExtension->ExtensionType;
 
     if (ExtensionType == USBH_EXTENSION_TYPE_HUB)

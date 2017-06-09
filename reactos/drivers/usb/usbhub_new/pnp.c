@@ -13,7 +13,7 @@ USBH_IrpCompletion(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_IrpCompletion: Irp - %p\n", Irp);
 
-    Event = (PRKEVENT)Context;
+    Event = Context;
     KeSetEvent(Event, EVENT_INCREMENT, FALSE);
     return STATUS_MORE_PROCESSING_REQUIRED;
 }
@@ -28,7 +28,7 @@ USBH_HubPnPIrpComplete(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_HubPnPIrpComplete: Irp - %p\n", Irp);
 
-     HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+     HubExtension = Context;
 
     if (!NT_SUCCESS(Irp->IoStatus.Status))
     {
@@ -1137,7 +1137,7 @@ EnumStart:
 
         if (PortData->DeviceObject)
         {
-            PdoExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+            PdoExtension = PdoDevice->DeviceExtension;
 
             if (PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_OVERCURRENT_PORT)
             {
@@ -1155,7 +1155,7 @@ EnumStart:
         {
             if (PdoDevice)
             {
-                PdoExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+                PdoExtension = PdoDevice->DeviceExtension;
 
                 PdoExtension->PortPdoFlags |= USBHUB_PDO_FLAG_DELETE_PENDING;
                 PdoExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
@@ -1195,7 +1195,7 @@ EnumStart:
 
             DeviceRelations->Objects[DeviceRelations->Count++] = PdoDevice;
 
-            PdoExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+            PdoExtension = PdoDevice->DeviceExtension;
             PdoExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_POWER_D1_OR_D2;
 
             goto NextPort;
@@ -1252,7 +1252,7 @@ EnumStart:
 
                 if (PortData->DeviceObject)
                 {
-                    PdoExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortData->DeviceObject->DeviceExtension;
+                    PdoExtension = PortData->DeviceObject->DeviceExtension;
 
                     if (!(PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_LOW_SPEED) &&
                         !(PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_HIGH_SPEED) &&
@@ -1361,7 +1361,7 @@ RelationsWorker:
                                                      USBHUB_PORT_PDO_EXTENSION,
                                                      PortLink);
 
-                    if (pdoExtension == (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension)
+                    if (pdoExtension == PdoDevice->DeviceExtension)
                     {
                         break;
                     }
@@ -1500,7 +1500,7 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
                    if (PortDevice)
                     {
-                        PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PortDevice->DeviceExtension;
+                        PortExtension = PortDevice->DeviceExtension;
 
                         PortData->PortStatus.AsULONG = 0;
                         PortData->DeviceObject = NULL;

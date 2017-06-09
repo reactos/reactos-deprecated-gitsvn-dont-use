@@ -118,7 +118,7 @@ USBPORT_DumpingIDs(IN PVOID Id)
     ULONG Length;
     ULONG TotalLength = 0;
 
-    Ptr = (PWSTR)Id;
+    Ptr = Id;
     DPRINT("USBPORT_DumpingIDs:\n");
 
     while (*Ptr)

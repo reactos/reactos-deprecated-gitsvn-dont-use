@@ -130,7 +130,7 @@ USBH_IdleCancelPowerHubWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_IdleCancelPowerHubWorker: ... \n");
 
-    WorkItemIdlePower = (PUSBHUB_IDLE_PORT_CANCEL_CONTEXT)Context;
+    WorkItemIdlePower = Context;
 
     if (HubExtension &&
         HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0 &&
@@ -236,7 +236,7 @@ USBH_FdoPoRequestD0Completion(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_FdoPoRequestD0Completion ... \n");
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     USBH_HubCompletePortWakeIrps(HubExtension, STATUS_SUCCESS);
 
@@ -275,7 +275,7 @@ USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
             DeviceObject,
             Irp);
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     Status = Irp->IoStatus.Status;
 
@@ -353,7 +353,7 @@ USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
            DeviceObject,
            Irp);
 
-    HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+    HubExtension = Context;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     PowerState = IoStack->Parameters.Power.State;
@@ -425,13 +425,13 @@ USBH_FdoDeferPoRequestCompletion(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_FdoDeferPoRequestCompletion ... \n");
 
-    Extension = (PUSBHUB_FDO_EXTENSION)Context;
+    Extension = Context;
 
     PowerIrp = Extension->PowerIrp;
 
     if (Extension->Common.ExtensionType == USBH_EXTENSION_TYPE_HUB)
     {
-        HubExtension = (PUSBHUB_FDO_EXTENSION)Context;
+        HubExtension = Context;
     }
 
     IoStack = IoGetCurrentIrpStackLocation(PowerIrp);
@@ -661,7 +661,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
                           if (PdoDevice)
                           {
-                              PortExtension = (PUSBHUB_PORT_PDO_EXTENSION)PdoDevice->DeviceExtension;
+                              PortExtension = PdoDevice->DeviceExtension;
 
                               if (PortExtension->CurrentPowerState.DeviceState != PowerDeviceD3)
                               {
