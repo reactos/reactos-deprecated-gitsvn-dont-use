@@ -59,7 +59,7 @@ typedef ULONG RHSTATUS; // Roothub status
 #define MP_STATUS_ERROR         4
 #define MP_STATUS_RESERVED1     5
 #define MP_STATUS_NOT_SUPPORTED 6
-#define MP_STATUS_RESERVED2     7
+#define MP_STATUS_HW_ERROR      7
 #define MP_STATUS_UNSUCCESSFUL  8
 
 #define RH_STATUS_SUCCESS       0
