@@ -1114,7 +1114,7 @@ EnumStart:
     {
         DPRINT("USBH_FdoQueryBusRelations: Port - %x, ConnectStatus - %x\n",
                Port,
-               PortData->PortStatus.UsbPortStatus.ConnectStatus);
+               PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus);
 
         if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED)
         {
@@ -1141,7 +1141,7 @@ EnumStart:
 
             if (PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_OVERCURRENT_PORT)
             {
-                PortData->PortStatus.UsbPortStatus.ConnectStatus = 1;
+                PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus = 1;
             }
         }
 
@@ -1151,7 +1151,7 @@ EnumStart:
             DbgBreakPoint();
         }
 
-        if (!PortData->PortStatus.UsbPortStatus.ConnectStatus)
+        if (!PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
         {
             if (PdoDevice)
             {

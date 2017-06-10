@@ -266,12 +266,12 @@ USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     if (PortExtension->Common.SelfDevice == PortData->DeviceObject)
     {
-        if (PortData->PortStatus.UsbPortStatus.EnableStatus)
+        if (PortData->PortStatus.UsbPortStatus.Usb20PortStatus.PortEnabledDisabled)
         {
             *PortStatus |= USBD_PORT_ENABLED;
         }
 
-        if (PortData->PortStatus.UsbPortStatus.ConnectStatus)
+        if (PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
         {
             *PortStatus |= USBD_PORT_CONNECTED;
         }

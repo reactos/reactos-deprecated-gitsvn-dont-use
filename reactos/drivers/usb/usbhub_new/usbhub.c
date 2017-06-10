@@ -487,7 +487,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                     &PortStatus,
                                     4);
 
-    if (NT_SUCCESS(Status) && !PortStatus.UsbPortStatus.ConnectStatus)
+    if (NT_SUCCESS(Status) && !PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
     {
         Status = STATUS_UNSUCCESSFUL;
         goto Exit;
@@ -549,7 +549,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                         4);
 
         if (!NT_SUCCESS(Status) ||
-            !PortStatus.UsbPortStatus.ConnectStatus ||
+            !PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus ||
             ix >= 3)
         {
             InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
@@ -571,7 +571,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                     &PortStatus,
                                     4);
 
-    if (!PortStatus.UsbPortStatus.ConnectStatus &&
+    if (!PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus &&
         NT_SUCCESS(Status) &&
         HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB)
     {
@@ -1419,7 +1419,7 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     HubDescriptor = HubExtension->HubDescriptor;
 
-    if (PortData->PortStatus.UsbPortStatus.ConnectStatus)
+    if (PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
     {
         return STATUS_SUCCESS;
     }
@@ -1446,7 +1446,7 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
             USBH_Wait(2 * HubDescriptor->bPowerOnToPowerGood);
         }
 
-        PortData->PortStatus.UsbPortStatus.ConnectStatus = 1;
+        PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus = 1;
     }
 
     return Status;
@@ -1521,7 +1521,7 @@ USBH_SyncDisablePort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (NT_SUCCESS(Status))
     {
-        PortData->PortStatus.UsbPortStatus.EnableStatus = 0;
+        PortData->PortStatus.UsbPortStatus.Usb20PortStatus.PortEnabledDisabled = 0;
     }
 
     return Status;
@@ -1661,8 +1661,8 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
 
     if ((NT_SUCCESS(Irp->IoStatus.Status) ||
         USBD_SUCCESS(HubExtension->SCEWorkerUrb.Hdr.Status)) &&
-        (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange ||
-         HubExtension->PortStatus.UsbPortStatusChange.EnableStatusChange))
+        (HubExtension->PortStatus.UsbPortStatusChange.ResetChange ||
+         HubExtension->PortStatus.UsbPortStatusChange.PortEnableDisableChange))
     {
         if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
         {
@@ -1675,7 +1675,7 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
 
         HubExtension->WorkItemToQueue = NULL;
 
-        if (HubExtension->PortStatus.UsbPortStatusChange.ResetStatusChange)
+        if (HubExtension->PortStatus.UsbPortStatusChange.ResetChange)
         {
            RequestValue = USBHUB_FEATURE_C_PORT_RESET;
         }
@@ -1871,24 +1871,24 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         IoInvalidateDeviceRelations(HubExtension->LowerPDO, BusRelations);
     }
-    else if (PortStatusChange.EnableStatusChange)
+    else if (PortStatusChange.PortEnableDisableChange)
     {
         RequestValue = USBHUB_FEATURE_C_PORT_ENABLE;
         PortData->PortStatus = *PortStatus;
         USBH_SyncClearPortStatus(HubExtension, Port, RequestValue);
         return;
     }
-    else if (PortStatusChange.SuspendStatusChange)
+    else if (PortStatusChange.SuspendChange)
     {
-        DPRINT1("USBH_ProcessPortStateChange: SuspendStatusChange UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBH_ProcessPortStateChange: SuspendChange UNIMPLEMENTED. FIXME. \n");
         DbgBreakPoint();
     }
-    else if (PortStatusChange.OverCurrentChange)
+    else if (PortStatusChange.OverCurrentIndicatorChange)
     {
-        DPRINT1("USBH_ProcessPortStateChange: OverCurrentChange UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBH_ProcessPortStateChange: OverCurrentIndicatorChange UNIMPLEMENTED. FIXME. \n");
         DbgBreakPoint();
     }
-    else if (PortStatusChange.ResetStatusChange)
+    else if (PortStatusChange.ResetChange)
     {
         RequestValue = USBHUB_FEATURE_C_PORT_RESET;
         PortData->PortStatus = *PortStatus;
@@ -2134,7 +2134,8 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                     &PortStatus,
                                     sizeof(USBHUB_PORT_STATUS));
 
-    if (!NT_SUCCESS(Status) || !PortStatus.UsbPortStatus.ConnectStatus)
+    if (!NT_SUCCESS(Status) ||
+        !PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
     {
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_REMOVED;
 
@@ -2450,7 +2451,7 @@ USBD_CreateDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBD_CreateDeviceEx: Port - %x, UsbPortStatus - 0x%04X\n",
            Port,
-           UsbPortStatus.AsUSHORT);
+           UsbPortStatus.AsUshort16);
 
     CreateUsbDevice = HubExtension->BusInterface.CreateUsbDevice;
 
@@ -2464,7 +2465,7 @@ USBD_CreateDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
     return CreateUsbDevice(HubExtension->BusInterface.BusContext,
                            OutDeviceHandle,
                            HubDeviceHandle,
-                           UsbPortStatus.AsUSHORT,
+                           UsbPortStatus.AsUshort16,
                            Port);
 }
 
@@ -4114,7 +4115,7 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
     */
 
     if (((PortExtension->DeviceDescriptor.bDeviceClass == USB_DEVICE_CLASS_RESERVED) ||
-        (PortExtension->DeviceDescriptor.bDeviceClass == USBC_DEVICE_CLASS_MISCELLANEOUS &&
+        (PortExtension->DeviceDescriptor.bDeviceClass == USB_DEVICE_CLASS_MISCELLANEOUS &&
          PortExtension->DeviceDescriptor.bDeviceSubClass == 0x02 &&
          PortExtension->DeviceDescriptor.bDeviceProtocol == 0x01)) &&
          (ConfigDescriptor->bNumInterfaces > 1) &&
@@ -4411,7 +4412,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_CreateDevice: Port - %x, UsbPortStatus - %p\n",
            Port,
-           UsbPortStatus.AsUSHORT);
+           UsbPortStatus.AsUshort16);
 
     do
     {
@@ -4467,8 +4468,8 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     SerialNumberBuffer = NULL;
 
-    IsHsDevice = UsbPortStatus.HsDeviceAttached; // High-speed Device Attached
-    IsLsDevice = UsbPortStatus.LsDeviceAttached; // Low-Speed Device Attached
+    IsHsDevice = UsbPortStatus.Usb20PortStatus.HighSpeedDeviceAttached;
+    IsLsDevice = UsbPortStatus.Usb20PortStatus.LowSpeedDeviceAttached;
 
     if (IsLsDevice == 0)
     {
@@ -4648,7 +4649,7 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                     sizeof(USBHUB_PORT_STATUS));
 
     if (!NT_SUCCESS(Status) ||
-        !(PortStatus.UsbPortStatus.ConnectStatus))
+        !(PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus))
     {
         return STATUS_UNSUCCESSFUL;
     }
