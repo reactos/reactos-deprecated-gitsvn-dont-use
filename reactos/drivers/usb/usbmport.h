@@ -4,14 +4,12 @@
 #define USBPORT_HCI_MN 0x10000001
 
 /* Tranfer types */
-
 #define USBPORT_TRANSFER_TYPE_ISOCHRONOUS 0
 #define USBPORT_TRANSFER_TYPE_CONTROL     1
 #define USBPORT_TRANSFER_TYPE_BULK        2
 #define USBPORT_TRANSFER_TYPE_INTERRUPT   3
 
 /* Endpoint states */
-
 #define USBPORT_ENDPOINT_UNKNOWN 0
 #define USBPORT_ENDPOINT_PAUSED 2
 #define USBPORT_ENDPOINT_ACTIVE 3
@@ -19,13 +17,11 @@
 #define USBPORT_ENDPOINT_NOT_HANDLED 5
 
 /* Endpoint status */
-
 #define USBPORT_ENDPOINT_RUN     0
 #define USBPORT_ENDPOINT_HALT    1
 #define USBPORT_ENDPOINT_CONTROL 4
 
 /* Types of resources. For USBPORT_RESOURCES::ResourcesTypes */
-
 #define USBPORT_RESOURCES_PORT      1
 #define USBPORT_RESOURCES_INTERRUPT 2
 #define USBPORT_RESOURCES_MEMORY    4
@@ -66,12 +62,31 @@ typedef ULONG RHSTATUS; // Roothub status
 #define MP_STATUS_RESERVED2     7
 #define MP_STATUS_UNSUCCESSFUL  8
 
-#define RH_STATUS_SUCCESS 0
-#define RH_STATUS_NO_CHANGES 1
-#define RH_STATUS_UNSUCCESSFUL 2
- 
-/* Miniport */
+#define RH_STATUS_SUCCESS       0
+#define RH_STATUS_NO_CHANGES    1
+#define RH_STATUS_UNSUCCESSFUL  2
 
+typedef USB_20_PORT_CHANGE USB_PORT_STATUS_CHANGE;
+
+typedef union _USBHUB_PORT_STATUS {
+struct {
+    USB_PORT_STATUS UsbPortStatus;
+    USB_PORT_STATUS_CHANGE UsbPortStatusChange;
+  };
+  ULONG AsULONG;
+} USBHUB_PORT_STATUS, *PUSBHUB_PORT_STATUS;
+
+/* Hub status & hub status change bits.
+   See USB 2.0 spec Table 11-19 and Table 11-20. */
+#define HUB_STATUS_CHANGE_LOCAL_POWER 0x00010000
+#define HUB_STATUS_CHANGE_OVERCURRENT 0x00020000
+
+/* Additional USB Class Codes from USB.org */
+#define USBC_DEVICE_CLASS_AUDIO_VIDEO           0x10
+#define USBC_DEVICE_CLASS_BILLBOARD             0x11
+#define USBC_DEVICE_CLASS_TYPE_C_BRIDGE         0x12
+
+/* Miniport functions */
 typedef MPSTATUS
 (NTAPI *PHCI_OPEN_ENDPOINT)(
   PVOID,
@@ -197,8 +212,7 @@ typedef VOID
 typedef VOID
 (NTAPI *PHCI_RESET_CONTROLLER)(PVOID);
 
-/* Roothub */
-
+/* Roothub functions */
 typedef VOID
 (NTAPI *PHCI_RH_GET_ROOT_HUB_DATA)(
   PVOID,
@@ -213,12 +227,12 @@ typedef MPSTATUS
 (NTAPI *PHCI_RH_GET_PORT_STATUS)(
   PVOID,
   USHORT,
-  PULONG);
+  PUSBHUB_PORT_STATUS);
 
 typedef MPSTATUS
 (NTAPI *PHCI_RH_GET_HUB_STATUS)(
   PVOID,
-  PULONG);
+  PUSB_HUB_STATUS);
 
 typedef MPSTATUS
 (NTAPI *PHCI_RH_SET_FEATURE_PORT_RESET)(
@@ -286,8 +300,7 @@ typedef VOID
 typedef VOID
 (NTAPI *PHCI_RH_ENABLE_IRQ)(PVOID);
 
-/* Miniport ioctl */
-
+/* Miniport ioctl functions */
 typedef MPSTATUS
 (NTAPI *PHCI_START_SEND_ONE_PACKET)(
   PVOID,
@@ -317,8 +330,7 @@ typedef MPSTATUS
   ULONG,
   PVOID);
 
-/* Port */
-
+/* Port functions */
 typedef ULONG
 (NTAPI *PUSBPORT_DBG_PRINT)(
   PVOID,
@@ -425,8 +437,7 @@ typedef ULONG
   PVOID,
   SIZE_T);
 
-/* Miniport */
-
+/* Miniport functions */
 typedef VOID
 (NTAPI *PHCI_REBALANCE_ENDPOINT)(
   PVOID,
@@ -471,7 +482,6 @@ typedef struct _USBPORT_REGISTRATION_PACKET {
   SIZE_T MiniPortResourcesSize;
 
   /* Miniport */
-
   PHCI_OPEN_ENDPOINT OpenEndpoint;
   PHCI_REOPEN_ENDPOINT ReopenEndpoint;
   PHCI_QUERY_ENDPOINT_REQUIREMENTS QueryEndpointRequirements;
@@ -500,7 +510,6 @@ typedef struct _USBPORT_REGISTRATION_PACKET {
   PHCI_RESET_CONTROLLER ResetController;
 
   /* Roothub */
-
   PHCI_RH_GET_ROOT_HUB_DATA RH_GetRootHubData;
   PHCI_RH_GET_STATUS RH_GetStatus;
   PHCI_RH_GET_PORT_STATUS RH_GetPortStatus;
@@ -521,13 +530,11 @@ typedef struct _USBPORT_REGISTRATION_PACKET {
   PHCI_RH_ENABLE_IRQ RH_EnableIrq;
 
   /* Miniport ioctl */
-
   PHCI_START_SEND_ONE_PACKET StartSendOnePacket;
   PHCI_END_SEND_ONE_PACKET EndSendOnePacket;
   PHCI_PASS_THRU PassThru;
 
   /* Port */
-
   PUSBPORT_DBG_PRINT UsbPortDbgPrint;
   PUSBPORT_TEST_DEBUG_BREAK UsbPortTestDebugBreak;
   PUSBPORT_ASSERT_FAILURE UsbPortAssertFailure;
@@ -546,7 +553,6 @@ typedef struct _USBPORT_REGISTRATION_PACKET {
   PUSBPORT_NOTIFY_DOUBLE_BUFFER UsbPortNotifyDoubleBuffer;
 
   /* Miniport */
-
   PHCI_REBALANCE_ENDPOINT RebalanceEndpoint;
   PHCI_FLUSH_INTERRUPTS FlushInterrupts;
   PHCI_RH_CHIRP_ROOT_PORT RH_ChirpRootPort;
@@ -632,78 +638,6 @@ typedef struct _USBPORT_ROOT_HUB_DATA {
 } USBPORT_ROOT_HUB_DATA, *PUSBPORT_ROOT_HUB_DATA;
 
 C_ASSERT(sizeof(USBPORT_ROOT_HUB_DATA) == 16);
-
-/* Hub port status and port status change bits.
-   See USB 2.0 spec Table 11-21 and Table 11-22.
-*/
-
-typedef union _USB_PORT_STATUS {
-  struct {
-    USHORT ConnectStatus          : 1; // Current Connect Status
-    USHORT EnableStatus           : 1; // Port Enabled/Disabled
-    USHORT SuspendStatus          : 1;
-    USHORT OverCurrent            : 1;
-    USHORT ResetStatus            : 1;
-    USHORT Reserved1              : 3;
-    USHORT PowerStatus            : 1;
-    USHORT LsDeviceAttached       : 1; // Low-Speed Device Attached
-    USHORT HsDeviceAttached       : 1; // High-speed Device Attached
-    USHORT TestMode               : 1; // Port Test Mode
-    USHORT IndicatorControl       : 1; // Port Indicator Control
-    USHORT Reserved2              : 3;
-  };
-  USHORT AsUSHORT;
-} USB_PORT_STATUS;
-
-typedef union _USB_PORT_STATUS_CHANGE {
-  struct {
-    USHORT ConnectStatusChange    : 1;
-    USHORT EnableStatusChange     : 1;
-    USHORT SuspendStatusChange    : 1;
-    USHORT OverCurrentChange      : 1;
-    USHORT ResetStatusChange      : 1;
-    USHORT Reserved3              : 3;
-    USHORT PowerStatusChange      : 1;
-    USHORT LsDeviceAttachedChange : 1;
-    USHORT HsDeviceAttachedChange : 1;
-    USHORT TestModeChange         : 1;
-    USHORT IndicatorControlChange : 1;
-    USHORT Reserved4              : 3;
-  };
-  USHORT AsUSHORT;
-} USB_PORT_STATUS_CHANGE;
-
-typedef union _USBHUB_PORT_STATUS {
-struct {
-    USB_PORT_STATUS UsbPortStatus;
-    USB_PORT_STATUS_CHANGE UsbPortStatusChange;
-  };
-  ULONG AsULONG;
-} USBHUB_PORT_STATUS, *PUSBHUB_PORT_STATUS;
-
-/* Hub status & hub status change bits.
-   See USB 2.0 spec Table 11-19 and Table 11-20.
-*/
-
-#define HUB_STATUS_LOCAL_POWER        0x00000001
-#define HUB_STATUS_OVERCURRENT        0x00000002
-#define HUB_STATUS_CHANGE_LOCAL_POWER 0x00010000
-#define HUB_STATUS_CHANGE_OVERCURRENT 0x00020000
-
-/* Additional USB Class Codes from USB.org */
-
-#define USBC_DEVICE_CLASS_CDC_DATA              0x0A
-#define USBC_DEVICE_CLASS_SMART_CARD            0x0B
-#define USBC_DEVICE_CLASS_CONTENT_SECURITY      0x0D
-#define USBC_DEVICE_CLASS_VIDEO                 0x0E
-#define USBC_DEVICE_CLASS_PERSONAL_HEALTHCARE   0x0F
-#define USBC_DEVICE_CLASS_AUDIO_VIDEO           0x10
-#define USBC_DEVICE_CLASS_BILLBOARD             0x11
-#define USBC_DEVICE_CLASS_TYPE_C_BRIDGE         0x12
-#define USBC_DEVICE_CLASS_WIRELESS_Diagnostic   0xDC
-#define USBC_DEVICE_CLASS_WIRELESS_CONTROLLER   0xE0
-#define USBC_DEVICE_CLASS_MISCELLANEOUS         0xEF
-#define USBC_DEVICE_CLASS_APPLICATION_SPECIFIC  0xFE
 
 ULONG
 NTAPI

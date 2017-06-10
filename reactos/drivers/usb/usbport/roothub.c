@@ -535,7 +535,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     PUSBPORT_REGISTRATION_PACKET Packet;
     ULONG TransferLength;
     USBHUB_PORT_STATUS PortStatus;
-    ULONG HubStatus = 0;
+    USB_HUB_STATUS HubStatus;
     PVOID Buffer;
     PULONG AddressBitMap;
     ULONG Port;
@@ -556,6 +556,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     NumberOfPorts = HubDescriptor->bNumberOfPorts;
 
     PortStatus.AsULONG = 0;
+    HubStatus.AsUshort16 = 0;
 
     Urb = Transfer->Urb;
     TransferLength = Transfer->TransferParameters.TransferBufferLength;
@@ -600,7 +601,7 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
         /* Request the port status from miniport */
         if (Packet->RH_GetPortStatus(FdoExtension->MiniPortExt,
                                      Port,
-                                     &PortStatus.AsULONG))
+                                     &PortStatus))
         {
             /* Miniport returned an error */ 
             DPRINT1("USBPORT_RootHubSCE: RH_GetPortStatus failed\n");
@@ -608,10 +609,10 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
         }
 
         if (PortStatus.UsbPortStatusChange.ConnectStatusChange ||
-            PortStatus.UsbPortStatusChange.EnableStatusChange ||
-            PortStatus.UsbPortStatusChange.SuspendStatusChange ||
-            PortStatus.UsbPortStatusChange.OverCurrentChange ||
-            PortStatus.UsbPortStatusChange.ResetStatusChange)
+            PortStatus.UsbPortStatusChange.PortEnableDisableChange ||
+            PortStatus.UsbPortStatusChange.SuspendChange ||
+            PortStatus.UsbPortStatusChange.OverCurrentIndicatorChange ||
+            PortStatus.UsbPortStatusChange.ResetChange)
         {
             /* At the port status there is a change */
             AddressBitMap[Port >> 5] |= 1 << (Port & 0x1F);
@@ -622,8 +623,8 @@ USBPORT_RootHubSCE(IN PUSBPORT_TRANSFER Transfer)
     /* Request the hub status from miniport */
     if (!Packet->RH_GetHubStatus(FdoExtension->MiniPortExt, &HubStatus))
     {
-        if (HubStatus & (HUB_STATUS_CHANGE_LOCAL_POWER |
-                         HUB_STATUS_CHANGE_OVERCURRENT))
+        if (HubStatus.AsUshort16 & (HUB_STATUS_CHANGE_LOCAL_POWER |
+                                    HUB_STATUS_CHANGE_OVERCURRENT))
         {
             /* At the hub status there is a change */
             AddressBitMap[0] |= 1;
