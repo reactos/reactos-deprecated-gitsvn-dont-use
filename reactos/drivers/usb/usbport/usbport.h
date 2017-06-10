@@ -12,7 +12,7 @@
 #include <usbbusif.h>
 #include <usbdlib.h>
 #include <usbuser.h>
-#include "..\usbmport.h"
+#include <drivers/usbport/usbmport.h>
 
 #define PCI_INTERFACE_USB_ID_UHCI 0x00
 #define PCI_INTERFACE_USB_ID_OHCI 0x10
