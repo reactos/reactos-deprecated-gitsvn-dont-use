@@ -520,6 +520,9 @@ USBPORT_USBDStatusToNtStatus(IN PURB Urb,
         default:
             if (USBD_ERROR(USBDStatus))
                 Status = STATUS_UNSUCCESSFUL;
+            else
+                Status = STATUS_SUCCESS;
+
             break;
     }
 
