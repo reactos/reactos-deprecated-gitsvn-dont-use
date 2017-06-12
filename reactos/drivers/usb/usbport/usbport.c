@@ -1803,6 +1803,7 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
            PhysicalDeviceObject);
 
     MiniPortInterface = USBPORT_FindMiniPort(DriverObject);
+
     if (!MiniPortInterface)
     {
         DPRINT("USBPORT_AddDevice: USBPORT_FindMiniPort not found MiniPortInterface\n");
@@ -1812,7 +1813,11 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     while (TRUE)
     {
         /* Construct device name */
-        swprintf(CharDeviceName, L"\\Device\\USBFDO-%d", DeviceNumber);
+        RtlStringCbPrintfW(CharDeviceName,
+                           sizeof(CharDeviceName),
+                           L"\\Device\\USBFDO-%d",
+                           DeviceNumber);
+
         RtlInitUnicodeString(&DeviceName, CharDeviceName);
 
         Length = sizeof(USBPORT_DEVICE_EXTENSION) +

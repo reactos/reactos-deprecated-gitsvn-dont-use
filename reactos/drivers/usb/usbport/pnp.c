@@ -447,10 +447,18 @@ USBPORT_CreateLegacySymbolicLink(IN PDEVICE_OBJECT FdoDevice)
 
     FdoExtension = FdoDevice->DeviceExtension;
 
-    swprintf(CharName, L"\\Device\\USBFDO-%d", FdoExtension->FdoNameNumber);
+    RtlStringCbPrintfW(CharName,
+                       sizeof(CharName),
+                       L"\\Device\\USBFDO-%d",
+                       FdoExtension->FdoNameNumber);
+
     RtlInitUnicodeString(&DeviceName, CharName);
 
-    swprintf(CharDosName, L"\\DosDevices\\HCD%d", FdoExtension->FdoNameNumber);
+    RtlStringCbPrintfW(CharDosName,
+                       sizeof(CharDosName),
+                       L"\\DosDevices\\HCD%d",
+                       FdoExtension->FdoNameNumber);
+
     RtlInitUnicodeString(&FdoExtension->DosDeviceSymbolicName, CharDosName);
 
     DPRINT("USBPORT_CreateLegacySymbolicLink: DeviceName - %wZ, DosSymbolicName - %wZ\n",
@@ -1019,7 +1027,11 @@ USBPORT_CreatePdo(IN PDEVICE_OBJECT FdoDevice,
 
     do
     {
-        swprintf(CharDeviceName, L"\\Device\\USBPDO-%d", DeviceNumber);
+        RtlStringCbPrintfW(CharDeviceName,
+                           sizeof(CharDeviceName),
+                           L"\\Device\\USBPDO-%d",
+                           DeviceNumber);
+
         RtlInitUnicodeString(&DeviceName, CharDeviceName);
 
         DPRINT("USBPORT_CreatePdo: DeviceName - %wZ\n", &DeviceName);
@@ -1337,7 +1349,9 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_REGISTRATION_PACKET Packet;
     PVOID Id;
     WCHAR Buffer[300] = {0};
-    ULONG Index = 0;
+    ULONG Length = 0;
+    size_t Remaining = sizeof(Buffer);
+    PWCHAR EndBuffer;
 
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
@@ -1346,38 +1360,74 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
 
     if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
     {
-        /* USB 2.0 root hub */
-        Index += swprintf(&Buffer[Index],
-                          L"USB\\ROOT_HUB20&VID%04x&PID%04x&REV%04x",
-                          VendorID,
-                          DeviceID,
-                          RevisionID) + 1;
+        RtlStringCbPrintfExW(Buffer,
+                             Remaining,
+                             &EndBuffer,
+                             &Remaining,
+                             0,
+                             L"USB\\ROOT_HUB20&VID%04x&PID%04x&REV%04x",
+                             VendorID,
+                             DeviceID,
+                             RevisionID);
 
-        Index += swprintf(&Buffer[Index],
-                          L"USB\\ROOT_HUB20&VID%04x&PID%04x",
-                          VendorID,
-                          DeviceID) + 1;
+        EndBuffer++;
+        Remaining -= sizeof(UNICODE_NULL);
 
-        Index += swprintf(&Buffer[Index], L"USB\\ROOT_HUB20") + 1;
+        RtlStringCbPrintfExW(EndBuffer,
+                             Remaining,
+                             &EndBuffer,
+                             &Remaining,
+                             0,
+                             L"USB\\ROOT_HUB20&VID%04x&PID%04x",
+                             VendorID,
+                             DeviceID);
+
+        EndBuffer++;
+        Remaining -= sizeof(UNICODE_NULL);
+
+        RtlStringCbPrintfExW(EndBuffer,
+                             Remaining,
+                             &EndBuffer,
+                             &Remaining,
+                             0,
+                             L"USB\\ROOT_HUB20");
     }
     else
     {
-        /* USB 1.1 root hub */
-        Index += swprintf(&Buffer[Index],
-                          L"USB\\ROOT_HUB&VID%04x&PID%04x&REV%04x",
-                          VendorID,
-                          DeviceID,
-                          RevisionID) + 1;
+        RtlStringCbPrintfExW(Buffer,
+                             Remaining,
+                             &EndBuffer,
+                             &Remaining,
+                             0,
+                             L"USB\\ROOT_HUB&VID%04x&PID%04x&REV%04x",
+                             VendorID,
+                             DeviceID,
+                             RevisionID);
 
-        Index += swprintf(&Buffer[Index],
-                          L"USB\\ROOT_HUB&VID%04x&PID%04x",
-                          VendorID,
-                          DeviceID) + 1;
+        EndBuffer++;
+        Remaining -= sizeof(UNICODE_NULL);
 
-        Index += swprintf(&Buffer[Index], L"USB\\ROOT_HUB") + 1;
+        RtlStringCbPrintfExW(EndBuffer,
+                             Remaining,
+                             &EndBuffer,
+                             &Remaining,
+                             0,
+                             L"USB\\ROOT_HUB&VID%04x&PID%04x",
+                             VendorID,
+                             DeviceID);
+
+        EndBuffer++;
+        Remaining -= sizeof(UNICODE_NULL);
+
+        RtlStringCbPrintfExW(EndBuffer,
+                             Remaining,
+                             &EndBuffer,
+                             &Remaining,
+                             0,
+                             L"USB\\ROOT_HUB");
     }
 
-    Buffer[Index] = UNICODE_NULL;
+    Length = (sizeof(Buffer) - Remaining + sizeof(UNICODE_NULL));
 
      /* for debug only */
     if (FALSE)
@@ -1386,14 +1436,12 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
         USBPORT_DumpingIDs(Buffer);
     }
 
-    Id = ExAllocatePoolWithTag(PagedPool,
-                               Index * sizeof(WCHAR),
-                               USB_PORT_TAG);
+    Id = ExAllocatePoolWithTag(PagedPool, Length, USB_PORT_TAG);
 
     if (!Id)
         return NULL;
 
-    RtlMoveMemory(Id, Buffer, Index * sizeof(WCHAR));
+    RtlMoveMemory(Id, Buffer, Length);
 
     return Id;
 }
@@ -1579,11 +1627,11 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
                 if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
                 {
-                    swprintf(Buffer, L"USB\\ROOT_HUB20");
+                    RtlStringCbPrintfW(Buffer, sizeof(Buffer), L"USB\\ROOT_HUB20");
                 }
                 else
                 {
-                    swprintf(Buffer, L"USB\\ROOT_HUB");
+                    RtlStringCbPrintfW(Buffer, sizeof(Buffer), L"USB\\ROOT_HUB");
                 }
 
                 Length = (wcslen(Buffer) + 1);
