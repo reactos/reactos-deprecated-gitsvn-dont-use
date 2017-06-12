@@ -921,13 +921,13 @@ USBPORT_InvalidateRootHub(PVOID Context)
     {
         PdoExtension = PdoDevice->DeviceExtension;
         Endpoint = PdoExtension->Endpoint;
-    }
 
-    if (Endpoint)
-    {
-        USBPORT_InvalidateEndpointHandler(FdoDevice,
-                                          PdoExtension->Endpoint,
-                                          INVALIDATE_ENDPOINT_WORKER_THREAD);
+        if (Endpoint)
+        {
+            USBPORT_InvalidateEndpointHandler(FdoDevice,
+                                              PdoExtension->Endpoint,
+                                              INVALIDATE_ENDPOINT_WORKER_THREAD);
+        }
     }
 
     return 0;
