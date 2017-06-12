@@ -941,7 +941,7 @@ ExitWithError:
         ExFreePool(Endpoint);
     }
 
-    DPRINT1("USBPORT_OpenPipe: Status - %p\n", Status);
+    DPRINT1("USBPORT_OpenPipe: Status - %lx\n", Status);
     return Status;
 }
 

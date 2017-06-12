@@ -419,7 +419,7 @@ Exit:
         {
             if (NumInterfaces)
             {
-                DPRINT1("USBPORT_OpenInterface: USBDStatus - %p\n", USBDStatus);
+                DPRINT1("USBPORT_OpenInterface: USBDStatus - %lx\n", USBDStatus);
             }
 
             if (IsAllocated)
@@ -995,7 +995,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 
     if (NT_ERROR(Status))
     {
-        DPRINT1("USBPORT_CreateDevice: USBPORT_OpenPipe return - %p\n", Status);
+        DPRINT1("USBPORT_CreateDevice: USBPORT_OpenPipe return - %lx\n", Status);
 
         KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
                            LOW_REALTIME_PRIORITY,
@@ -1075,7 +1075,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
         }
     }
 
-    DPRINT1("USBPORT_CreateDevice: ERROR!!! TransferedLen - %x, Status - %p\n",
+    DPRINT1("USBPORT_CreateDevice: ERROR!!! TransferedLen - %x, Status - %lx\n",
             TransferedLen,
             Status);
 

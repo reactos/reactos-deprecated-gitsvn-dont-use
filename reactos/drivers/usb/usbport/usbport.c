@@ -1075,7 +1075,7 @@ USBPORT_InterruptService(IN PKINTERRUPT Interrupt,
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    DPRINT_INT("USBPORT_InterruptService: FdoExtension->Flags - %p\n",
+    DPRINT_INT("USBPORT_InterruptService: FdoExtension->Flags - %lx\n",
            FdoExtension->Flags);
 
     if (FdoExtension->Flags & USBPORT_FLAG_INTERRUPT_ENABLED &&
@@ -2183,7 +2183,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
         if (!NT_SUCCESS(Status))
         {
             //DbgBreakPoint();
-            DPRINT1("USBPORT_CompleteTransfer: Irp - %p complete with Status - %p\n",
+            DPRINT1("USBPORT_CompleteTransfer: Irp - %p complete with Status - %lx\n",
                     Irp,
                     Status);
 
