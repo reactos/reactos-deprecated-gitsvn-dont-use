@@ -1467,6 +1467,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     Minor = IoStack->MinorFunction;
 
+    Status = Irp->IoStatus.Status;
+
     DPRINT("USBPORT_PdoPnP: PdoDevice - %p, Minor - %x\n", PdoDevice, Minor);
 
     switch (Minor)
@@ -1493,30 +1495,35 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             break;
 
         case IRP_MN_QUERY_REMOVE_DEVICE:
-            DPRINT1("USBPORT_PdoPnP: IRP_MN_QUERY_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
+            DPRINT("USBPORT_PdoPnP: IRP_MN_QUERY_REMOVE_DEVICE\n");
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_REMOVE_DEVICE:
             DPRINT1("USBPORT_PdoPnP: IRP_MN_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
+            //USBPORT_StopRootHub();
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_CANCEL_REMOVE_DEVICE:
             DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
-            Irp->IoStatus.Status = STATUS_SUCCESS;
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_STOP_DEVICE:
             DPRINT1("USBPORT_PdoPnP: IRP_MN_STOP_DEVICE UNIMPLEMENTED. FIXME. \n");
+            //USBPORT_StopRootHub();
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_QUERY_STOP_DEVICE:
             DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
-            Irp->IoStatus.Status = STATUS_SUCCESS;
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_CANCEL_STOP_DEVICE:
             DPRINT("IRP_MN_CANCEL_STOP_DEVICE\n");
-            Irp->IoStatus.Status = STATUS_SUCCESS;
+            Status = STATUS_SUCCESS;
             break;
 
         case IRP_MN_QUERY_DEVICE_RELATIONS:
@@ -1526,7 +1533,6 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             DPRINT("IRP_MN_QUERY_DEVICE_RELATIONS\n");
             if (IoStack->Parameters.QueryDeviceRelations.Type != TargetDeviceRelation)
             {
-                Status = Irp->IoStatus.Status;
                 break;
             }
 
@@ -1570,22 +1576,18 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_QUERY_RESOURCES:
             DPRINT("USBPORT_PdoPnP: IRP_MN_QUERY_RESOURCES\n");
-            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:
             DPRINT("IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
-            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_QUERY_DEVICE_TEXT:
             DPRINT("IRP_MN_QUERY_DEVICE_TEXT\n");
-            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_FILTER_RESOURCE_REQUIREMENTS:
             DPRINT("IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
-            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_READ_CONFIG:
@@ -1640,16 +1642,12 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                                            Length * sizeof(WCHAR),
                                            USB_PORT_TAG);
 
-                if (!Id)
+                if (Id)
                 {
-                    Status = STATUS_INSUFFICIENT_RESOURCES;
-                    break;
+                    RtlZeroMemory(Id, Length * sizeof(WCHAR));
+                    RtlStringCbCopyW(Id, Length * sizeof(WCHAR), Buffer);
+                    DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n", Id, Length);
                 }
-
-                RtlZeroMemory(Id, Length * sizeof(WCHAR));
-
-                RtlStringCbCopyW(Id, Length * sizeof(WCHAR), Buffer);
-                DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n", Id, Length);
 
                 Irp->IoStatus.Information = (ULONG_PTR)Id;
                 break;
@@ -1673,6 +1671,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                 break;
             }
 
+            /* IdType == BusQueryDeviceSerialNumber */
             Status = Irp->IoStatus.Status;
             break;
         }
@@ -1712,17 +1711,15 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
         case IRP_MN_DEVICE_USAGE_NOTIFICATION:
             DPRINT("IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
-            Status = Irp->IoStatus.Status;
             break;
 
         case IRP_MN_SURPRISE_REMOVAL:
-            DPRINT1("USBPORT_PdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
-            Status = Irp->IoStatus.Status;
+            DPRINT("USBPORT_PdoPnP: IRP_MN_SURPRISE_REMOVAL\n");
+            Status = STATUS_SUCCESS;
             break;
 
         default:
             DPRINT("unknown IRP_MN_???\n");
-            Status = Irp->IoStatus.Status;
             break;
     }
 
