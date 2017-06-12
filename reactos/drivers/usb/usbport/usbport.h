@@ -604,8 +604,8 @@ ULONG
 NTAPI
 USBPORT_LogEntry(
   IN PVOID BusContext,
-  IN PVOID DriverTag,
-  IN PVOID EnumTag,
+  IN ULONG DriverTag,
+  IN ULONG EnumTag,
   IN ULONG P1,
   IN ULONG P2,
   IN ULONG P3);

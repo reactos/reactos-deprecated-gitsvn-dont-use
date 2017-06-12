@@ -56,20 +56,20 @@ USBPORT_BugCheck(IN PVOID Context)
 ULONG
 NTAPI
 USBPORT_LogEntry(IN PVOID BusContext,
-                 IN PVOID DriverTag,
-                 IN PVOID EnumTag,
+                 IN ULONG DriverTag,
+                 IN ULONG EnumTag,
                  IN ULONG P1,
                  IN ULONG P2,
                  IN ULONG P3)
 {
-    DPRINT_MINIPORT("USBPORT_LogEntry: BusContext - %p, EnumTag - %p, P1 - %p, P2 - %p, P3 - %p\n",
+    DPRINT_MINIPORT("USBPORT_LogEntry: BusContext - %p, EnumTag - %lx, P1 - %lx, P2 - %lx, P3 - %lx\n",
            BusContext,
            EnumTag,
            P1,
            P2,
            P3);
 
-    return (ULONG)BusContext;
+    return 0;
 }
 
 VOID

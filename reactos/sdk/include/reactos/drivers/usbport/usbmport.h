@@ -389,8 +389,8 @@ typedef ULONG
 typedef ULONG
 (NTAPI *PUSBPORT_LOG_ENTRY)(
   PVOID,
-  PVOID,
-  PVOID,
+  ULONG,
+  ULONG,
   ULONG,
   ULONG,
   ULONG);

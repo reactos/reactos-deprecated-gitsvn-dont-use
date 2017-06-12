@@ -409,7 +409,7 @@ USBPORT_GetSetConfigSpaceData(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     ULONG BytesReadWrite;
 
-    DPRINT("USBPORT_ReadWriteConfigSpace ... \n");
+    DPRINT("USBPORT_GetSetConfigSpaceData ... \n");
 
     FdoExtension = FdoDevice->DeviceExtension;
 
