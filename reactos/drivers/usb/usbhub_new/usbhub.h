@@ -4,7 +4,6 @@
 #include <ntddk.h>
 #include <windef.h>
 #include <stdio.h>
-#include <wdm.h>
 #include <wmistr.h>
 #include <wmilib.h>
 #include <wdmguid.h>
