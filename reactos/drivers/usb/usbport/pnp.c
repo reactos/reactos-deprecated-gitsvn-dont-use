@@ -61,15 +61,16 @@ USBPORT_RegisterDeviceInterface(IN PDEVICE_OBJECT PdoDevice,
             }
         }
     }
-    else if (DeviceExtension->CommonExtension.IsInterfaceEnabled)
+    else
     {
         /* Disable device interface */
         Status = IoSetDeviceInterfaceState(SymbolicLinkName, FALSE);
 
         if (NT_SUCCESS(Status))
+        {
             RtlFreeUnicodeString(SymbolicLinkName);
-
-        DeviceExtension->CommonExtension.IsInterfaceEnabled = 0; // Disabled interface
+            DeviceExtension->CommonExtension.IsInterfaceEnabled = 0; // Disabled interface
+        }
     }
 
     return Status;
