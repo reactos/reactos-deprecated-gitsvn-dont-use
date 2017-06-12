@@ -225,17 +225,14 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
 
     USBPORT_DumpingDeviceDescriptor(&DeviceInfo->DeviceDescriptor);
 
-    if (DeviceHandle->DeviceSpeed >= 0)
+    if (DeviceHandle->DeviceSpeed == UsbFullSpeed ||
+        DeviceHandle->DeviceSpeed == UsbLowSpeed)
     {
-        if (DeviceHandle->DeviceSpeed == UsbFullSpeed ||
-            DeviceHandle->DeviceSpeed == UsbLowSpeed)
-        {
-            DeviceInfo->DeviceType = Usb11Device;
-        }
-        else if (DeviceHandle->DeviceSpeed == UsbHighSpeed)
-        {
-            DeviceInfo->DeviceType = Usb20Device;
-        }
+        DeviceInfo->DeviceType = Usb11Device;
+    }
+    else if (DeviceHandle->DeviceSpeed == UsbHighSpeed)
+    {
+        DeviceInfo->DeviceType = Usb20Device;
     }
 
     DeviceInfo->CurrentConfigurationValue = 0;
