@@ -16,7 +16,7 @@ USBPORT_HandleGetConfiguration(IN PURB Urb)
 
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlGetConfigurationRequest.Reserved1;
 
-    SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
     SetupPacket->bRequest = USB_REQUEST_GET_CONFIGURATION;
     SetupPacket->wValue.W = 0;
     SetupPacket->wIndex.W = 0;
@@ -187,7 +187,7 @@ USBPORT_ClearStall(IN PDEVICE_OBJECT FdoDevice,
 
     RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-    SetupPacket.bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+    SetupPacket.bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
     SetupPacket.bRequest = USB_REQUEST_CLEAR_FEATURE;
     SetupPacket.wValue.W = 0;
     SetupPacket.wIndex.W = Endpoint->EndpointProperties.EndpointAddress;
@@ -298,56 +298,56 @@ USBPORT_HandleSetOrClearFeature(IN PURB Urb)
     SetupPacket->wLength = 0;
     Urb->UrbControlFeatureRequest.Reserved3 = 0; // TransferBufferLength
 
-    SetupPacket->bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+    SetupPacket->bmRequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
 
     switch (Urb->UrbHeader.Function)
     {
         case URB_FUNCTION_SET_FEATURE_TO_DEVICE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n");
             SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_SET_FEATURE_TO_INTERFACE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE\n");
             SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
 
         case URB_FUNCTION_SET_FEATURE_TO_ENDPOINT:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE\n");
             SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_CLEAR_FEATURE_TO_DEVICE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_ENDPOINT\n");
             SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_CLEAR_FEATURE_TO_INTERFACE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT\n");
             SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
 
         case URB_FUNCTION_CLEAR_FEATURE_TO_ENDPOINT:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n");
             SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_CLEAR_FEATURE_TO_OTHER:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE\n");
             SetupPacket->bRequest = USB_REQUEST_CLEAR_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_OTHER;
             break;
 
         case URB_FUNCTION_SET_FEATURE_TO_OTHER:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE\n");
             SetupPacket->bRequest = USB_REQUEST_SET_FEATURE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_OTHER;
             break;
     }
 
@@ -397,7 +397,7 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
     NTSTATUS Status;
 
     SetupPacket->bmRequestType.B = 0;
-    SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
     SetupPacket->bRequest = USB_REQUEST_GET_STATUS;
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
     SetupPacket->wValue.W = 0;
@@ -406,22 +406,22 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
     {
         case URB_FUNCTION_GET_STATUS_FROM_DEVICE:
             DPRINT_URB("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_DEVICE\n");
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_GET_STATUS_FROM_INTERFACE:
             DPRINT_URB("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_INTERFACE\n");
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
 
         case URB_FUNCTION_GET_STATUS_FROM_ENDPOINT:
             DPRINT_URB("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_ENDPOINT\n");
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_GET_STATUS_FROM_OTHER:
             DPRINT_URB("USBPORT_HandleGetStatus: URB_FUNCTION_GET_STATUS_FROM_OTHER\n");
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_OTHER;
             break;
     }
 
@@ -429,7 +429,7 @@ USBPORT_HandleGetStatus(IN PIRP Irp,
     {
         Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK;
 
-        if (SetupPacket->bmRequestType._BM.Dir)
+        if (SetupPacket->bmRequestType.Dir)
             Urb->UrbControlTransfer.TransferFlags |= USBD_TRANSFER_DIRECTION_IN;
         else
             Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN;
@@ -467,7 +467,7 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
 
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
 
-    SetupPacket->bmRequestType._BM.Dir = USBD_TRANSFER_DIRECTION_FLAG(Urb->UrbControlTransfer.TransferFlags);
+    SetupPacket->bmRequestType.Dir = USBD_TRANSFER_DIRECTION_FLAG(Urb->UrbControlTransfer.TransferFlags);
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
 
     Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK;
@@ -476,50 +476,50 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
     {
         case URB_FUNCTION_VENDOR_DEVICE:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_DEVICE\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_VENDOR_INTERFACE:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_INTERFACE\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
 
         case URB_FUNCTION_VENDOR_ENDPOINT:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_ENDPOINT\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_CLASS_DEVICE:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_DEVICE\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_CLASS_INTERFACE:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_INTERFACE\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
 
         case URB_FUNCTION_CLASS_ENDPOINT:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_ENDPOINT\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_CLASS_OTHER:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_CLASS_OTHER\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_CLASS;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            SetupPacket->bmRequestType.Type = BMREQUEST_CLASS;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_OTHER;
             break;
 
         case URB_FUNCTION_VENDOR_OTHER:
             DPRINT_URB("USBPORT_HandleVendorOrClass: URB_FUNCTION_VENDOR_OTHER\n");
-            SetupPacket->bmRequestType._BM.Type = BMREQUEST_VENDOR;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_OTHER;
+            SetupPacket->bmRequestType.Type = BMREQUEST_VENDOR;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_OTHER;
             break;
     }
 
@@ -541,56 +541,56 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
 
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
     SetupPacket->bmRequestType.B = 0; // Clear bmRequestType
-    SetupPacket->bmRequestType._BM.Type = BMREQUEST_STANDARD;
+    SetupPacket->bmRequestType.Type = BMREQUEST_STANDARD;
 
     switch (Urb->UrbHeader.Function)
     {
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE\n");
             SetupPacket->bRequest = USB_REQUEST_GET_DESCRIPTOR;
-            SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_DEVICE\n");
             SetupPacket->bRequest = USB_REQUEST_SET_DESCRIPTOR;
-            SetupPacket->bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
+            SetupPacket->bmRequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_DEVICE;
             break;
 
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_ENDPOINT:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_ENDPOINT\n");
             SetupPacket->bRequest = USB_REQUEST_GET_DESCRIPTOR;
-            SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_ENDPOINT\n");
             SetupPacket->bRequest = USB_REQUEST_SET_DESCRIPTOR;
-            SetupPacket->bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_ENDPOINT;
+            SetupPacket->bmRequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_ENDPOINT;
             break;
 
         case URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_GET_DESCRIPTOR_FROM_INTERFACE\n");
             SetupPacket->bRequest = USB_REQUEST_GET_DESCRIPTOR;
-            SetupPacket->bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
 
         case URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE:
             DPRINT_URB("USBPORT_HandleGetSetDescriptor: URB_FUNCTION_SET_DESCRIPTOR_TO_INTERFACE\n");
             SetupPacket->bRequest = USB_REQUEST_SET_DESCRIPTOR;
-            SetupPacket->bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
-            SetupPacket->bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+            SetupPacket->bmRequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
+            SetupPacket->bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
             break;
     }
 
     Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK;
 
-    if (SetupPacket->bmRequestType._BM.Dir)
+    if (SetupPacket->bmRequestType.Dir)
         Urb->UrbControlTransfer.TransferFlags |= USBD_TRANSFER_DIRECTION_IN;
     else
         Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN;

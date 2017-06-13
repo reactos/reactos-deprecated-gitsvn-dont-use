@@ -57,7 +57,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         Urb->UrbControlTransfer.TransferFlags = USBD_SHORT_TRANSFER_OK |
                                                 USBD_TRANSFER_DIRECTION;
 
-        if (SetupPacket->bmRequestType._BM.Dir != BMREQUEST_DEVICE_TO_HOST)
+        if (SetupPacket->bmRequestType.Dir != BMREQUEST_DEVICE_TO_HOST)
         {
             Urb->UrbControlTransfer.TransferFlags &= ~USBD_TRANSFER_DIRECTION_IN;
         }
@@ -1036,7 +1036,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
     RtlZeroMemory(DeviceDescriptor, USB_DEFAULT_MAX_PACKET);
     RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-    SetupPacket.bmRequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    SetupPacket.bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
     SetupPacket.bRequest = USB_REQUEST_GET_DESCRIPTOR;
     SetupPacket.wValue.HiByte = USB_DEVICE_DESCRIPTOR_TYPE;
     SetupPacket.wLength = USB_DEFAULT_MAX_PACKET;
@@ -1623,9 +1623,9 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                     {
                         RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-                        SetupPacket.bmRequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
-                        SetupPacket.bmRequestType._BM.Type = BMREQUEST_STANDARD;
-                        SetupPacket.bmRequestType._BM.Recipient = BMREQUEST_TO_INTERFACE;
+                        SetupPacket.bmRequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
+                        SetupPacket.bmRequestType.Type = BMREQUEST_STANDARD;
+                        SetupPacket.bmRequestType.Recipient = BMREQUEST_TO_INTERFACE;
 
                         SetupPacket.bRequest = USB_REQUEST_SET_INTERFACE;
                         SetupPacket.wValue.W = InterfaceHandle->InterfaceDescriptor.bAlternateSetting;

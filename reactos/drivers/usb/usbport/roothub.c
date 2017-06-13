@@ -127,7 +127,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
 
             *(PULONG)Buffer = 0;
 
-            if (SetupPacket->bmRequestType._BM.Recipient == BMREQUEST_TO_OTHER)
+            if (SetupPacket->bmRequestType.Recipient == BMREQUEST_TO_OTHER)
             {
                 ASSERT(*BufferLength >= 4);
 
@@ -163,7 +163,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
         case USB_REQUEST_CLEAR_FEATURE:
             Feature = SetupPacket->wValue.W;
 
-            if ((SetupPacket->bmRequestType._BM.Recipient) != USBPORT_RECIPIENT_ROOT_PORT)
+            if ((SetupPacket->bmRequestType.Recipient) != USBPORT_RECIPIENT_ROOT_PORT)
             {
                 if (Feature == FEATURE_C_HUB_LOCAL_POWER)
                 {
@@ -235,7 +235,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
             break;
 
         case USB_REQUEST_SET_FEATURE:
-            if (SetupPacket->bmRequestType._BM.Recipient != USBPORT_RECIPIENT_ROOT_PORT)
+            if (SetupPacket->bmRequestType.Recipient != USBPORT_RECIPIENT_ROOT_PORT)
             {
                 return RHStatus;
             }
@@ -284,7 +284,7 @@ USBPORT_RootHubClassCommand(IN PDEVICE_OBJECT FdoDevice,
         case USB_REQUEST_GET_DESCRIPTOR:
             if (Buffer &&
                 SetupPacket->wValue.W == 0 &&
-                SetupPacket->bmRequestType._BM.Dir == BMREQUEST_DEVICE_TO_HOST)
+                SetupPacket->bmRequestType.Dir == BMREQUEST_DEVICE_TO_HOST)
             {
                 SIZE_T DescriptorLength;
 
@@ -348,7 +348,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
     {
         case USB_REQUEST_GET_DESCRIPTOR:
             if (SetupPacket->wValue.LowByte ||
-                !(SetupPacket->bmRequestType._BM.Dir))
+                !(SetupPacket->bmRequestType.Dir))
             {
                 return RHStatus;
             }
@@ -393,7 +393,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             if (!SetupPacket->wValue.W &&
                  SetupPacket->wLength == 2 &&
                  !SetupPacket->wIndex.W &&
-                 SetupPacket->bmRequestType._BM.Dir)
+                 SetupPacket->bmRequestType.Dir)
             {
                 KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
@@ -412,7 +412,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             if (SetupPacket->wValue.W ||
                 SetupPacket->wIndex.W ||
                 SetupPacket->wLength != 1 ||
-                !(SetupPacket->bmRequestType._BM.Dir))
+                !(SetupPacket->bmRequestType.Dir))
             {
                 return RHStatus;
             }
@@ -433,7 +433,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
         case USB_REQUEST_SET_CONFIGURATION:
             if (!SetupPacket->wIndex.W &&
                 !SetupPacket->wLength &&
-                !(SetupPacket->bmRequestType._BM.Dir == BMREQUEST_DEVICE_TO_HOST))
+                !(SetupPacket->bmRequestType.Dir == BMREQUEST_DEVICE_TO_HOST))
             {
                 if (SetupPacket->wValue.W == 0 ||
                     SetupPacket->wValue.W == 
@@ -449,7 +449,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
         case USB_REQUEST_SET_ADDRESS:
             if (!SetupPacket->wIndex.W &&
                 !SetupPacket->wLength &&
-                !(SetupPacket->bmRequestType._BM.Dir))
+                !(SetupPacket->bmRequestType.Dir))
             {
                 PdoExtension->DeviceHandle.DeviceAddress = SetupPacket->wValue.LowByte;
                 RHStatus = RH_STATUS_SUCCESS;
@@ -498,7 +498,7 @@ USBPORT_RootHubEndpoint0(IN PUSBPORT_TRANSFER Transfer)
 
     SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)Urb->UrbControlTransfer.SetupPacket;
 
-    Type = SetupPacket->bmRequestType._BM.Type;
+    Type = SetupPacket->bmRequestType.Type;
 
     if (Type == BMREQUEST_STANDARD)
     {
