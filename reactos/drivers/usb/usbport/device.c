@@ -571,7 +571,8 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
     USBD_STATUS USBDStatus;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
-    DPRINT("USBPORT_HandleSelectConfiguration: ... \n");
+    DPRINT("USBPORT_HandleSelectConfiguration: ConfigDescriptor %p\n",
+           Urb->UrbSelectConfiguration.ConfigurationDescriptor);
 
     FdoExtension = FdoDevice->DeviceExtension;
 
@@ -584,12 +585,27 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
     DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
     ConfigDescriptor = Urb->UrbSelectConfiguration.ConfigurationDescriptor;
 
-    DPRINT("USBPORT_SelectConfiguration: ConfigDescriptor %x\n",
-           ConfigDescriptor);
-
     if (!ConfigDescriptor)
     {
-        DPRINT1("USBPORT_SelectConfiguration: ConfigDescriptor == NULL!\n");
+        DPRINT("USBPORT_HandleSelectConfiguration: ConfigDescriptor == NULL\n");
+
+        RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
+
+        SetupPacket.bmRequestType.B = 0;
+        SetupPacket.bRequest = USB_REQUEST_SET_CONFIGURATION;
+        SetupPacket.wValue.W = 0;
+        SetupPacket.wIndex.W = 0;
+        SetupPacket.wLength = 0;
+
+        USBPORT_SendSetupPacket(DeviceHandle,
+                                FdoDevice,
+                                &SetupPacket,
+                                NULL,
+                                0,
+                                NULL,
+                                NULL);
+
+        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
         goto Exit;
     }
 
@@ -630,7 +646,8 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
     InitializeListHead(&ConfigHandle->InterfaceHandleList);
 
-    ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)ConfigHandle +
+    ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)
+                                            ((ULONG_PTR)ConfigHandle +
                                                                             sizeof(USBPORT_CONFIGURATION_HANDLE));
 
     RtlCopyMemory(ConfigHandle->ConfigurationDescriptor,
@@ -720,7 +737,7 @@ Exit:
     }
     else
     {
-        DPRINT1("USBPORT_SelectConfiguration: Status %x\n", Status);
+        DPRINT1("USBPORT_HandleSelectConfiguration: Status %x\n", Status);
     }
 
     KeReleaseSemaphore(&FdoExtension->DeviceSemaphore,
