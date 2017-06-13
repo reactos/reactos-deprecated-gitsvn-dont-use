@@ -1136,7 +1136,7 @@ USBPORT_FlushAllEndpoints(IN PDEVICE_OBJECT FdoDevice)
                                      USBPORT_ENDPOINT,
                                      EndpointLink);
 
-        if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
+        if (USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_CLOSED)
         {
             InsertTailList(&List, &Endpoint->FlushLink);
         }
@@ -1232,8 +1232,8 @@ USBPORT_FlushController(IN PDEVICE_OBJECT FdoDevice)
                                              USBPORT_ENDPOINT,
                                              EndpointLink);
 
-                if (Endpoint->StateLast != USBPORT_ENDPOINT_CLOSED &&
-                    Endpoint->StateLast != USBPORT_ENDPOINT_NOT_HANDLED)
+                if (Endpoint->StateLast != USBPORT_ENDPOINT_REMOVE &&
+                    Endpoint->StateLast != USBPORT_ENDPOINT_CLOSED)
                 {
                     InterlockedIncrement(&Endpoint->LockCounter);
                     InsertTailList(&FlushList, &Endpoint->FlushControllerLink);

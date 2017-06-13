@@ -687,7 +687,7 @@ USBPORT_RootHubEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
         Endpoint->TransferList.Flink == NULL ||
         !Transfer)
     {
-        if (Endpoint->StateLast == USBPORT_ENDPOINT_CLOSED)
+        if (Endpoint->StateLast == USBPORT_ENDPOINT_REMOVE)
         {
             ExInterlockedInsertTailList(&FdoExtension->EndpointClosedList,
                                         &Endpoint->CloseLink,

@@ -290,7 +290,7 @@ USBPORT_SetEndpointState(IN PUSBPORT_ENDPOINT Endpoint,
         Endpoint->StateLast = State;
         Endpoint->StateNext = State;
 
-        if (State == USBPORT_ENDPOINT_CLOSED)
+        if (State == USBPORT_ENDPOINT_REMOVE)
         {
             KeReleaseSpinLock(&Endpoint->StateChangeSpinLock, Endpoint->EndpointStateOldIrql);
 
@@ -546,7 +546,7 @@ USBPORT_ClosePipe(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     }
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
-    USBPORT_SetEndpointState(Endpoint, USBPORT_ENDPOINT_CLOSED);
+    USBPORT_SetEndpointState(Endpoint, USBPORT_ENDPOINT_REMOVE);
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
 
     USBPORT_SignalWorkerThread(FdoDevice);
@@ -975,7 +975,7 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
 
     Packet->SetEndpointState(FdoExtension->MiniPortExt,
                              Endpoint + 1,
-                             USBPORT_ENDPOINT_CLOSED);
+                             USBPORT_ENDPOINT_REMOVE);
 
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
 
@@ -1120,7 +1120,7 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
 
         if ((!WorkerLink->Flink || !WorkerLink->Blink) &&
             !(Endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
-            USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
+            USBPORT_GetEndpointState(Endpoint) != USBPORT_ENDPOINT_CLOSED)
         {
             DPRINT_CORE("USBPORT_InvalidateEndpointHandler: InsertTailList \n");
             InsertTailList(&FdoExtension->WorkerList, WorkerLink);
@@ -1148,7 +1148,7 @@ USBPORT_InvalidateEndpointHandler(IN PDEVICE_OBJECT FdoDevice,
             {
                 if (!(endpoint->Flags & ENDPOINT_FLAG_IDLE) &&
                     !(endpoint->Flags & ENDPOINT_FLAG_ROOTHUB_EP0) &&
-                    USBPORT_GetEndpointState(endpoint) != USBPORT_ENDPOINT_NOT_HANDLED)
+                    USBPORT_GetEndpointState(endpoint) != USBPORT_ENDPOINT_CLOSED)
                 {
                     DPRINT_CORE("USBPORT_InvalidateEndpointHandler: InsertTailList \n");
                     InsertTailList(&FdoExtension->WorkerList, &endpoint->WorkerLink);
@@ -1373,7 +1373,7 @@ NTAPI
 USBPORT_DmaEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 {
     PDEVICE_OBJECT FdoDevice;
-    ULONG PipeState;
+    ULONG PrevState;
     ULONG EndpointState;
     BOOLEAN IsPaused = FALSE;
 
@@ -1383,15 +1383,23 @@ USBPORT_DmaEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
-    PipeState = USBPORT_GetEndpointState(Endpoint);
+    PrevState = USBPORT_GetEndpointState(Endpoint);
 
-    if (PipeState == USBPORT_ENDPOINT_PAUSED)
+    if (PrevState == USBPORT_ENDPOINT_PAUSED)
     {
         EndpointState = USBPORT_DmaEndpointPaused(FdoDevice, Endpoint);
     }
-    else if (PipeState == USBPORT_ENDPOINT_ACTIVE)
+    else if (PrevState == USBPORT_ENDPOINT_ACTIVE)
     {
         EndpointState = USBPORT_DmaEndpointActive(FdoDevice, Endpoint);
+    }
+    else
+    {
+#ifndef NDEBUG_USBPORT_CORE
+        DPRINT1("USBPORT_DmaEndpointWorker: DbgBreakPoint. EndpointState - %x\n", EndpointState);
+        DbgBreakPoint();
+#endif
+        EndpointState = USBPORT_ENDPOINT_UNKNOWN;
     }
 
     KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
@@ -1400,7 +1408,7 @@ USBPORT_DmaEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 
     KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
 
-    if (EndpointState == PipeState)
+    if (EndpointState == PrevState)
     {
         if (EndpointState == USBPORT_ENDPOINT_PAUSED)
         {
@@ -1456,11 +1464,11 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 
     KeAcquireSpinLockAtDpcLevel(&Endpoint->EndpointSpinLock);
 
-    if (USBPORT_GetEndpointState(Endpoint) == USBPORT_ENDPOINT_NOT_HANDLED)
+    if (USBPORT_GetEndpointState(Endpoint) == USBPORT_ENDPOINT_CLOSED)
     {
         KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
         InterlockedDecrement(&Endpoint->LockCounter);
-        DPRINT_CORE("USBPORT_EndpointWorker: State == USBPORT_ENDPOINT_NOT_HANDLED. return FALSE\n");
+        DPRINT_CORE("USBPORT_EndpointWorker: State == USBPORT_ENDPOINT_CLOSED. return FALSE\n");
         return FALSE;
     }
 
@@ -1473,11 +1481,11 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
 
     EndpointState = USBPORT_GetEndpointState(Endpoint);
 
-    if (EndpointState == USBPORT_ENDPOINT_CLOSED)
+    if (EndpointState == USBPORT_ENDPOINT_REMOVE)
     {
         KeAcquireSpinLockAtDpcLevel(&Endpoint->StateChangeSpinLock);
-        Endpoint->StateLast = USBPORT_ENDPOINT_NOT_HANDLED;
-        Endpoint->StateNext = USBPORT_ENDPOINT_NOT_HANDLED;
+        Endpoint->StateLast = USBPORT_ENDPOINT_CLOSED;
+        Endpoint->StateNext = USBPORT_ENDPOINT_CLOSED;
         KeReleaseSpinLockFromDpcLevel(&Endpoint->StateChangeSpinLock);
 
         KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
@@ -1491,7 +1499,7 @@ USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
         KeReleaseSpinLockFromDpcLevel(&FdoExtension->EndpointListSpinLock);
 
         InterlockedDecrement(&Endpoint->LockCounter);
-        DPRINT_CORE("USBPORT_EndpointWorker: State == USBPORT_ENDPOINT_CLOSED. return FALSE\n");
+        DPRINT_CORE("USBPORT_EndpointWorker: State == USBPORT_ENDPOINT_REMOVE. return FALSE\n");
         return FALSE;
     }
 
