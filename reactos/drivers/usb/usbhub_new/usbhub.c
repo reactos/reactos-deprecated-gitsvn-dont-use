@@ -506,9 +506,9 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                             (LONG)&Event);
 
         RequestType.B = 0;//0x23
-        RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
-        RequestType._BM.Type = BMREQUEST_CLASS;
-        RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+        RequestType.Recipient = BMREQUEST_TO_DEVICE;
+        RequestType.Type = BMREQUEST_CLASS;
+        RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
 
         Status = USBH_Transact(HubExtension,
                                NULL,
@@ -1094,9 +1094,9 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
             BM_REQUEST_TYPE RequestType;
 
             RequestType.B = 0;//0xA0
-            RequestType._BM.Recipient = 0;
-            RequestType._BM.Type = 0;
-            RequestType._BM.Dir = 0;
+            RequestType.Recipient = 0;
+            RequestType.Type = 0;
+            RequestType.Dir = 0;
 
             Status = USBH_Transact(HubExtension,
                                    HubDescriptor,
@@ -1358,9 +1358,9 @@ USBH_SyncGetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
     DPRINT("USBH_SyncGetPortStatus: Port - %x\n", Port);
 
     RequestType.B = 0;//0xA3
-    RequestType._BM.Recipient = BMREQUEST_TO_OTHER;
-    RequestType._BM.Type = BMREQUEST_CLASS;
-    RequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    RequestType.Recipient = BMREQUEST_TO_OTHER;
+    RequestType.Type = BMREQUEST_CLASS;
+    RequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
 
     return USBH_Transact(HubExtension,
                          PortStatus,
@@ -1387,9 +1387,9 @@ USBH_SyncClearPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
            RequestValue);
 
     RequestType.B = 0;//0x23
-    RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
-    RequestType._BM.Type = BMREQUEST_CLASS;
-    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+    RequestType.Recipient = BMREQUEST_TO_DEVICE;
+    RequestType.Type = BMREQUEST_CLASS;
+    RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
 
     return USBH_Transact(HubExtension,
                          NULL,
@@ -1425,9 +1425,9 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 
     RequestType.B = 0;
-    RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
-    RequestType._BM.Type = BMREQUEST_CLASS;
-    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+    RequestType.Recipient = BMREQUEST_TO_DEVICE;
+    RequestType.Type = BMREQUEST_CLASS;
+    RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
 
     Status = USBH_Transact(HubExtension,
                            NULL,
@@ -1505,9 +1505,9 @@ USBH_SyncDisablePort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PortData = &HubExtension->PortData[Port - 1];
 
     RequestType.B = 0;//0x23
-    RequestType._BM.Recipient = BMREQUEST_TO_DEVICE;
-    RequestType._BM.Type = BMREQUEST_CLASS;
-    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+    RequestType.Recipient = BMREQUEST_TO_DEVICE;
+    RequestType.Type = BMREQUEST_CLASS;
+    RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
 
     Status = USBH_Transact(HubExtension,
                            NULL,
@@ -1615,9 +1615,9 @@ USBH_ChangeIndicationAckChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Urb->UrbLink = NULL;
 
     RequestType.B = 0;
-    RequestType._BM.Recipient = BMREQUEST_TO_OTHER;
-    RequestType._BM.Type = BMREQUEST_CLASS;
-    RequestType._BM.Dir = BMREQUEST_HOST_TO_DEVICE;
+    RequestType.Recipient = BMREQUEST_TO_OTHER;
+    RequestType.Type = BMREQUEST_CLASS;
+    RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
 
     Urb->RequestTypeReservedBits = RequestType.B;
     Urb->Request = USB_REQUEST_CLEAR_FEATURE;
@@ -1757,9 +1757,9 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Urb->UrbLink = NULL;
 
     RequestType.B = 0;
-    RequestType._BM.Recipient = BMREQUEST_TO_OTHER;
-    RequestType._BM.Type = BMREQUEST_CLASS;
-    RequestType._BM.Dir = BMREQUEST_DEVICE_TO_HOST;
+    RequestType.Recipient = BMREQUEST_TO_OTHER;
+    RequestType.Type = BMREQUEST_CLASS;
+    RequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
 
     Urb->RequestTypeReservedBits = RequestType.B;
     Urb->Request = USB_REQUEST_GET_STATUS;
