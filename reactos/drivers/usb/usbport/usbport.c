@@ -2126,7 +2126,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDMA_OPERATIONS DmaOperations;
 
-    DPRINT("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %p\n",
+    DPRINT("USBPORT_CompleteTransfer: Urb - %p, TransferStatus - %X\n",
            Urb,
            TransferStatus);
 
