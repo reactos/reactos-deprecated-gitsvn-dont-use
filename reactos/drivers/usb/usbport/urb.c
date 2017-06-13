@@ -1015,7 +1015,7 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
         Transfer = Urb->UrbControlTransfer.hca.Reserved8[0];
         Urb->UrbControlTransfer.hca.Reserved8[0] = NULL;
         Urb->UrbHeader.UsbdFlags |= ~USBD_FLAG_ALLOCATED_TRANSFER;
-        ExFreePool(Transfer);
+        ExFreePoolWithTag(Transfer, USB_PORT_TAG);
     }
 
     if (DeviceHandle)

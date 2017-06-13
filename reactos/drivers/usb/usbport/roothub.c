@@ -84,7 +84,7 @@ USBPORT_RH_SetFeatureUSB2PortPower(IN PDEVICE_OBJECT FdoDevice,
 
     if (CompanionControllersList)
     {
-        ExFreePool(CompanionControllersList);
+        ExFreePoolWithTag(CompanionControllersList, USB_PORT_TAG);
     }
 
     return MP_STATUS_SUCCESS;
@@ -1000,7 +1000,7 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
             ++Entry;
         }
 
-        ExFreePool(CompanionControllersList);
+        ExFreePoolWithTag(CompanionControllersList, USB_PORT_TAG);
     }
 
     USBPORT_Wait(FdoDevice, 100);

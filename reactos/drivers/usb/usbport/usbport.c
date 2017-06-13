@@ -349,7 +349,7 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
                               BufferLength);
             }
 
-            ExFreePool(KeyValue);
+            ExFreePoolWithTag(KeyValue, USB_PORT_TAG);
         }
 
         ZwClose(KeyHandle);
@@ -1319,7 +1319,7 @@ USBPORT_SynchronizeRootHubCallback(IN PDEVICE_OBJECT FdoDevice,
                 ++Entry;
             }
 
-            ExFreePool(CompanionControllersList);
+            ExFreePoolWithTag(CompanionControllersList, USB_PORT_TAG);
         }
 
         USBPORT_DoRootHubCallback(FdoDevice);
@@ -1982,7 +1982,7 @@ USBPORT_AsyncTimerDpc(IN PRKDPC Dpc,
     (*AsyncCallbackData->CallbackFunction)(FdoExtension->MiniPortExt,
                                            &AsyncCallbackData->CallbackContext);
 
-    ExFreePool(AsyncCallbackData);
+    ExFreePoolWithTag(AsyncCallbackData, USB_PORT_TAG);
 }
 
 ULONG
@@ -2210,7 +2210,7 @@ USBPORT_CompleteTransfer(IN PURB Urb,
         KeSetEvent(Event, EVENT_INCREMENT, FALSE);
     }
 
-    ExFreePool(Transfer);
+    ExFreePoolWithTag(Transfer, USB_PORT_TAG);
 
     DPRINT_CORE("USBPORT_CompleteTransfer: exit\n");
 }

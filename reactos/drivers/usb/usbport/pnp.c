@@ -1239,7 +1239,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
 
                     if (!NT_SUCCESS(Status))
                     {
-                        ExFreePool(DeviceRelations);
+                        ExFreePoolWithTag(DeviceRelations, USB_PORT_TAG);
                         goto ForwardIrp;
                     }
                 }
@@ -1685,7 +1685,9 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
             DPRINT("IRP_MN_QUERY_BUS_INFORMATION\n");
 
             /* Allocate buffer for bus information */
-            BusInformation = ExAllocatePool(PagedPool, sizeof(PNP_BUS_INFORMATION));
+            BusInformation = ExAllocatePoolWithTag(PagedPool,
+                                                   sizeof(PNP_BUS_INFORMATION),
+                                                   USB_PORT_TAG);
 
             if (!BusInformation)
             {

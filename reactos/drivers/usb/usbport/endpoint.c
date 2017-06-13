@@ -405,7 +405,7 @@ USBPORT_DeleteEndpoint(IN PDEVICE_OBJECT FdoDevice,
             USBPORT_FreeCommonBuffer(FdoDevice, Endpoint->HeaderBuffer);
         }
 
-        ExFreePool(Endpoint);
+        ExFreePoolWithTag(Endpoint, USB_PORT_TAG);
 
         Result = TRUE;
     }
@@ -938,7 +938,7 @@ ExitWithError:
             }
         }
 
-        ExFreePool(Endpoint);
+        ExFreePoolWithTag(Endpoint, USB_PORT_TAG);
     }
 
     DPRINT1("USBPORT_OpenPipe: Status - %lx\n", Status);

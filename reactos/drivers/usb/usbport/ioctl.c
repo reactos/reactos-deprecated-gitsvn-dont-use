@@ -262,7 +262,7 @@ USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
 
         Length = ControllerName->Header.ActualBufferLength;
 
-        ExFreePool(ControllerName);
+        ExFreePoolWithTag(ControllerName, USB_PORT_TAG);
     }
 
     if (ControllerName->Header.UsbUserStatusCode != UsbUserSuccess)
@@ -288,7 +288,7 @@ USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
         *Information = DriverKey->ActualLength;
     }
 
-    ExFreePool(ControllerName);
+    ExFreePoolWithTag(ControllerName, USB_PORT_TAG);
 
     return STATUS_SUCCESS;
 }

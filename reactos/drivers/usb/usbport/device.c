@@ -115,7 +115,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         }
 
         InterlockedDecrement(&DeviceHandle->DeviceHandleLock);
-        ExFreePool(Urb);
+        ExFreePoolWithTag(Urb, USB_PORT_TAG);
     }
     else
     {
@@ -423,7 +423,7 @@ Exit:
             }
 
             if (IsAllocated)
-                ExFreePool(InterfaceHandle);
+                ExFreePoolWithTag(InterfaceHandle, USB_PORT_TAG);
         }
     }
 
@@ -470,10 +470,10 @@ USBPORT_CloseConfiguration(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                 --NumEndpoints;
             }
 
-            ExFreePool(iHandle);
+            ExFreePoolWithTag(iHandle, USB_PORT_TAG);
         }
 
-        ExFreePool(ConfigHandle);
+        ExFreePoolWithTag(ConfigHandle, USB_PORT_TAG);
         DeviceHandle->ConfigHandle = NULL;
     }
 }
@@ -1018,7 +1018,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                            1,
                            FALSE);
 
-        ExFreePool(DeviceHandle);
+        ExFreePoolWithTag(DeviceHandle, USB_PORT_TAG);
 
         return Status;
     }
@@ -1055,7 +1055,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                   DeviceDescriptor,
                   sizeof(USB_DEVICE_DESCRIPTOR));
 
-    ExFreePool(DeviceDescriptor);
+    ExFreePoolWithTag(DeviceDescriptor, USB_PORT_TAG);
 
     DescriptorMinSize = RTL_SIZEOF_THROUGH_FIELD(USB_DEVICE_DESCRIPTOR,
                                                  bMaxPacketSize0);
@@ -1111,7 +1111,7 @@ ErrorExit:
                        1,
                        FALSE);
 
-    ExFreePool(DeviceHandle);
+    ExFreePoolWithTag(DeviceHandle, USB_PORT_TAG);
 
     return Status;
 }
@@ -1428,7 +1428,7 @@ USBPORT_HandleSelectInterface(IN PDEVICE_OBJECT FdoDevice,
     else
     {
         if (InterfaceHandle)
-            ExFreePool(InterfaceHandle);
+            ExFreePoolWithTag(InterfaceHandle, USB_PORT_TAG);
 
         Interface->InterfaceHandle = iHandle;
 
@@ -1513,7 +1513,7 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
     if (!(DeviceHandle->Flags & DEVICE_HANDLE_FLAG_ROOTHUB))
     {
-        ExFreePool(DeviceHandle);
+        ExFreePoolWithTag(DeviceHandle, USB_PORT_TAG);
     }
 
     return STATUS_SUCCESS;
@@ -1750,7 +1750,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                        1,
                        FALSE);
 
-    ExFreePool(OldDeviceHandle);
+    ExFreePoolWithTag(OldDeviceHandle, USB_PORT_TAG);
 
     return Status;
 }
