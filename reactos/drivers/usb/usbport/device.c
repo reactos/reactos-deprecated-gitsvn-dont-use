@@ -618,8 +618,9 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
     do
     {
         ++iNumber;
-        InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)((ULONG_PTR)InterfaceInfo +
-                                                      InterfaceInfo->Length);
+        InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)
+                        ((ULONG_PTR)InterfaceInfo +
+                         InterfaceInfo->Length);
     }
     while ((ULONG_PTR)InterfaceInfo < (ULONG_PTR)Urb + Urb->UrbHeader.Length);
 
@@ -648,7 +649,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
     ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)
                                             ((ULONG_PTR)ConfigHandle +
-                                                                            sizeof(USBPORT_CONFIGURATION_HANDLE));
+                                             sizeof(USBPORT_CONFIGURATION_HANDLE));
 
     RtlCopyMemory(ConfigHandle->ConfigurationDescriptor,
                   ConfigDescriptor,
@@ -714,8 +715,9 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
         if (USBD_ERROR(USBDStatus))
             break;
 
-        InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)((ULONG_PTR)InterfaceInfo +
-                                                      InterfaceInfo->Length);
+        InterfaceInfo = (PUSBD_INTERFACE_INFORMATION)
+                         ((ULONG_PTR)InterfaceInfo +
+                          InterfaceInfo->Length);
     }
 
     if (ix >= iNumber)
@@ -901,7 +903,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
 {
     PUSBPORT_DEVICE_HANDLE DeviceHandle;
     PUSBPORT_PIPE_HANDLE PipeHandle;
-    BOOLEAN IsOpenedPipe;
+    BOOL IsOpenedPipe;
     PVOID DeviceDescriptor;
     USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     SIZE_T TransferedLen;
@@ -1005,10 +1007,7 @@ USBPORT_CreateDevice(IN OUT PUSB_DEVICE_HANDLE *pUsbdDeviceHandle,
                               PipeHandle,
                               NULL);
 
-    if (NT_SUCCESS(Status))
-    {
-        IsOpenedPipe = TRUE;
-    }
+    IsOpenedPipe = NT_SUCCESS(Status);
 
     if (NT_ERROR(Status))
     {
