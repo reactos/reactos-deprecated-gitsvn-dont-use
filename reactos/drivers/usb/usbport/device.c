@@ -1786,6 +1786,12 @@ USBPORT_Initialize20Hub(IN PDEVICE_OBJECT FdoDevice,
         return STATUS_SUCCESS;
     }
 
+    if (TtCount == 0)
+    {
+        HubDeviceHandle->TtCount = 0;
+        return STATUS_SUCCESS;
+    }
+
     for (ix = 0; ix < TtCount; ++ix)
     {
         Status = USBPORT_InitializeTT(FdoDevice, HubDeviceHandle, ix + 1);
