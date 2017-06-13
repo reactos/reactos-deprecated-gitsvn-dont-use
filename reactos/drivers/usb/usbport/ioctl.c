@@ -144,7 +144,7 @@ USBPORT_UserGetRootHubName(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     UNICODE_STRING UnicodeString;
     ULONG Length;
-    ULONG ResultLength;
+    ULONG ResultLength = 0;
     NTSTATUS Status;
 
     DPRINT("USBPORT_UserGetRootHubName: ... \n");
