@@ -963,7 +963,7 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
 
     NumPorts = RootHubData.NumberOfPorts;
 
-    for (Port = 1; Port < NumPorts; ++Port)
+    for (Port = 1; Port <= NumPorts; ++Port)
     {
         Packet->RH_SetFeaturePortPower(FdoExtension->MiniPortExt, Port);
     }
@@ -991,7 +991,7 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
 
             CompanionPorts = RootHubData.NumberOfPorts;
 
-            for (Port = 1; Port < CompanionPorts; ++Port)
+            for (Port = 1; Port <= CompanionPorts; ++Port)
             {
                 CompanionPacket->RH_SetFeaturePortPower(CompanionFdoExtension->MiniPortExt,
                                                         Port);
@@ -1005,7 +1005,7 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(IN PDEVICE_OBJECT FdoDevice)
 
     USBPORT_Wait(FdoDevice, 100);
 
-    for (Port = 1; Port < NumPorts; ++Port)
+    for (Port = 1; Port <= NumPorts; ++Port)
     {
         if (FdoExtension->MiniPortInterface->Version < 200)
         {
