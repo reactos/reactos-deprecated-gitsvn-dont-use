@@ -179,7 +179,7 @@ NTAPI
 USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor,
                                      IN UCHAR InterfaceNumber,
                                      IN UCHAR Alternate,
-                                     OUT PUCHAR pAlternate)
+                                     OUT PUCHAR OutAlternate)
 {
     PUSB_CONFIGURATION_DESCRIPTOR TmpDescriptor;
     PUSB_INTERFACE_DESCRIPTOR iDescriptor;
@@ -190,8 +190,8 @@ USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDesc
 
     DPRINT("USBPORT_ParseConfigurationDescriptor ... \n");
 
-    if (pAlternate)
-        *pAlternate = 0;
+    if (OutAlternate)
+        *OutAlternate = 0;
 
     for (TmpDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)((ULONG_PTR)ConfigDescriptor + ConfigDescriptor->bLength);
          TmpDescriptor->bDescriptorType == USB_CONFIGURATION_DESCRIPTOR_TYPE && TmpDescriptor->bDescriptorType > 0;
@@ -228,8 +228,8 @@ USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDesc
         ++ix;
     }
 
-    if ((ix > 1) && pAlternate)
-        *pAlternate = 1;
+    if ((ix > 1) && OutAlternate)
+        *OutAlternate = 1;
 
     return OutDescriptor;
 }
