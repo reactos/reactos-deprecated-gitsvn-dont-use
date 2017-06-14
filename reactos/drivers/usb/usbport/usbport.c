@@ -1767,7 +1767,8 @@ USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
 {
     KIRQL OldIrql;
     PLIST_ENTRY List;
-    PUSBPORT_MINIPORT_INTERFACE MiniPortInterface = NULL;
+    PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
+    BOOLEAN IsFound = FALSE;
 
     DPRINT("USBPORT_FindMiniPort: ... \n");
 
@@ -1785,13 +1786,19 @@ USBPORT_FindMiniPort(IN PDRIVER_OBJECT DriverObject)
         {
             DPRINT("USBPORT_FindMiniPort: find MiniPortInterface - %p\n",
                    MiniPortInterface);
+
+            IsFound = TRUE;
             break;
         }
     }
 
     KeReleaseSpinLock(&USBPORT_SpinLock, OldIrql);
 
-    return MiniPortInterface;
+    if (IsFound)
+        return MiniPortInterface;
+    else
+        return NULL;
+    
 }
 
 NTSTATUS
@@ -1921,10 +1928,11 @@ USBPORT_Unload(IN PDRIVER_OBJECT DriverObject)
     DPRINT1("USBPORT_Unload: FIXME!\n");
 
     MiniPortInterface = USBPORT_FindMiniPort(DriverObject);
+
     if (!MiniPortInterface)
     {
         DPRINT("USBPORT_Unload: CRITICAL ERROR!!! USBPORT_FindMiniPort not found MiniPortInterface\n");
-        ASSERT(FALSE);
+        KeBugCheckEx(BUGCODE_USB_DRIVER, 1, 0, 0, 0);
     }
 
     DPRINT1("USBPORT_Unload: UNIMPLEMENTED. FIXME. \n");
