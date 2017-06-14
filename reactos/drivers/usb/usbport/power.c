@@ -118,20 +118,22 @@ USBPORT_SuspendController(IN PDEVICE_OBJECT FdoDevice)
 
     USBPORT_FlushController(FdoDevice);
 
-    if (!(FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND))
+    if (FdoExtension->Flags & USBPORT_FLAG_HC_SUSPEND)
     {
-        FdoExtension->TimerFlags |= USBPORT_TMFLAG_HC_SUSPENDED;
-
-        if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
-        {
-            FdoExtension->MiniPortFlags |= USBPORT_MPFLAG_SUSPENDED;
-
-            USBPORT_Wait(FdoDevice, 10);
-            Packet->SuspendController(FdoExtension->MiniPortExt);
-        }
-
-        FdoExtension->Flags |= USBPORT_FLAG_HC_SUSPEND;
+        return;
     }
+
+    FdoExtension->TimerFlags |= USBPORT_TMFLAG_HC_SUSPENDED;
+
+    if (FdoExtension->MiniPortFlags & USBPORT_MPFLAG_INTERRUPTS_ENABLED)
+    {
+        FdoExtension->MiniPortFlags |= USBPORT_MPFLAG_SUSPENDED;
+
+        USBPORT_Wait(FdoDevice, 10);
+        Packet->SuspendController(FdoExtension->MiniPortExt);
+    }
+
+    FdoExtension->Flags |= USBPORT_FLAG_HC_SUSPEND;
 }
 
 NTSTATUS
@@ -178,7 +180,8 @@ USBPORT_ResumeController(IN PDEVICE_OBJECT FdoDevice)
     }
 
     KeAcquireSpinLock(&FdoExtension->TimerFlagsSpinLock, &OldIrql);
-    FdoExtension->TimerFlags |= (USBPORT_TMFLAG_HC_SUSPENDED | USBPORT_TMFLAG_HC_RESUME);
+    FdoExtension->TimerFlags |= (USBPORT_TMFLAG_HC_SUSPENDED |
+                                 USBPORT_TMFLAG_HC_RESUME);
     KeReleaseSpinLock(&FdoExtension->TimerFlagsSpinLock, OldIrql);
 
     USBPORT_MiniportInterrupts(FdoDevice, FALSE);
@@ -366,6 +369,7 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
           {
               /* The driver received the IRP
                  and is waiting for the device to signal wake-up. */
+
               DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - No WakeIrp\n");
 
               IoMarkIrpPending(Irp);
@@ -376,8 +380,10 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
           }
           else
           {
-              /* An IRP_MN_WAIT_WAKE request is already pending and must be completed
-                 or canceled before another IRP_MN_WAIT_WAKE request can be issued. */
+              /* An IRP_MN_WAIT_WAKE request is already pending and must be
+                 completed or canceled before another IRP_MN_WAIT_WAKE request
+                 can be issued. */
+
               if (IoSetCancelRoutine(Irp, NULL))
               {
                   DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE - STATUS_DEVICE_BUSY\n");
@@ -407,22 +413,22 @@ USBPORT_PdoPower(IN PDEVICE_OBJECT PdoDevice,
           {
               DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/DevicePowerState\n");
               Status = USBPORT_PdoDevicePowerState(PdoDevice, Irp);
+              PoStartNextPowerIrp(Irp);
+              break;
+          }
+
+          DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState \n");
+
+          if (IoStack->Parameters.Power.State.SystemState == PowerSystemWorking)
+          {
+              FdoExtension->TimerFlags |= USBPORT_TMFLAG_WAKE;
           }
           else
           {
-              DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER/SystemPowerState \n");
-
-              if (IoStack->Parameters.Power.State.SystemState == PowerSystemWorking)
-              {
-                  FdoExtension->TimerFlags |= USBPORT_TMFLAG_WAKE;
-              }
-              else
-              {
-                  FdoExtension->TimerFlags &= ~USBPORT_TMFLAG_WAKE;
-              }
-
-              Status = STATUS_SUCCESS;
+              FdoExtension->TimerFlags &= ~USBPORT_TMFLAG_WAKE;
           }
+
+          Status = STATUS_SUCCESS;
 
           PoStartNextPowerIrp(Irp);
           break;
@@ -570,7 +576,6 @@ USBPORT_DoIdleNotificationCallback(IN PVOID Context)
 
                 if (IdleCallbackInfo && IdleCallbackInfo->IdleCallback)
                 {
-                    //DbgBreakPoint();
                     IdleCallbackInfo->IdleCallback(IdleCallbackInfo->IdleContext);
                 }
 
@@ -668,7 +673,9 @@ USBPORT_AdjustDeviceCapabilities(IN PDEVICE_OBJECT FdoDevice,
     PdoExtension = PdoDevice->DeviceExtension;
     Capabilities = &PdoExtension->Capabilities;
 
-    RtlCopyMemory(Capabilities, &FdoExtension->Capabilities, sizeof(DEVICE_CAPABILITIES));
+    RtlCopyMemory(Capabilities,
+                  &FdoExtension->Capabilities,
+                  sizeof(DEVICE_CAPABILITIES));
 
     Capabilities->DeviceD1 = FALSE;
     Capabilities->DeviceD2 = TRUE;

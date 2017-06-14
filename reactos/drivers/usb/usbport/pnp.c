@@ -282,7 +282,8 @@ USBPORT_IsCompanionController(IN PDEVICE_OBJECT DeviceObject,
                        PCI_USE_CLASS_SUBCLASS |
                        PCI_USE_PROGIF;
 
-    IsPresent = (PciInterface.IsDevicePresentEx)(PciInterface.Context, &Parameters);
+    IsPresent = (PciInterface.IsDevicePresentEx)(PciInterface.Context,
+                                                 &Parameters);
 
     if (IsPresent)
     {
@@ -391,7 +392,8 @@ USBPORT_QueryCapabilities(IN PDEVICE_OBJECT FdoDevice,
     Capabilities->Address  = MAXULONG;
     Capabilities->UINumber = MAXULONG;
 
-    Irp = IoAllocateIrp(FdoExtention->CommonExtension.LowerDevice->StackSize, FALSE);
+    Irp = IoAllocateIrp(FdoExtention->CommonExtension.LowerDevice->StackSize,
+                        FALSE);
 
     if (!Irp)
     {
@@ -1094,6 +1096,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                IN PIRP Irp)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_COMMON_DEVICE_EXTENSION FdoCommonExtension;
     PUSBPORT_REGISTRATION_PACKET Packet;
     PUSBPORT_RESOURCES UsbPortResources;
     PIO_STACK_LOCATION IoStack;
@@ -1104,6 +1107,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
     PDEVICE_RELATIONS DeviceRelations;
 
     FdoExtension = FdoDevice->DeviceExtension;
+    FdoCommonExtension = &FdoExtension->CommonExtension;
     UsbPortResources = &FdoExtension->UsbPortResources;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
@@ -1130,7 +1134,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                                    TRUE,
                                    TRUE);
 
-            Status = IoCallDriver(FdoExtension->CommonExtension.LowerDevice,
+            Status = IoCallDriver(FdoCommonExtension->LowerDevice,
                                   Irp);
 
             if (Status == STATUS_PENDING)
@@ -1144,43 +1148,44 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
                 Status = Irp->IoStatus.Status;
             }
 
-            if (NT_SUCCESS(Status))
+            if (!NT_SUCCESS(Status))
             {
-                Status = USBPORT_ParseResources(FdoDevice,
-                                                Irp,
-                                                UsbPortResources);
-
-                if (NT_SUCCESS(Status))
-                {
-                    Status = USBPORT_StartDevice(FdoDevice, UsbPortResources);
-
-                    if (NT_SUCCESS(Status))
-                    {
-                        FdoExtension->CommonExtension.PnpStateFlags &= ~USBPORT_PNP_STATE_NOT_INIT;
-                        FdoExtension->CommonExtension.PnpStateFlags |= USBPORT_PNP_STATE_STARTED;
-
-                        FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
-
-                        if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
-                        {
-                            USBPORT_AddUSB2Fdo(FdoDevice);
-                        }
-                        else
-                        {
-                            USBPORT_AddUSB1Fdo(FdoDevice);
-                        }
-                    }
-                    else
-                    {
-                        FdoExtension->CommonExtension.PnpStateFlags |= USBPORT_PNP_STATE_STOPPED;
-                    }
-                }
-                else
-                {
-                    FdoExtension->CommonExtension.PnpStateFlags |= USBPORT_PNP_STATE_STOPPED;
-                }
+                goto Exit;
             }
 
+            Status = USBPORT_ParseResources(FdoDevice,
+                                            Irp,
+                                            UsbPortResources);
+
+            if (!NT_SUCCESS(Status))
+            {
+                FdoCommonExtension->PnpStateFlags |= USBPORT_PNP_STATE_STOPPED;
+                goto Exit;
+            }
+
+            Status = USBPORT_StartDevice(FdoDevice, UsbPortResources);
+
+            if (!NT_SUCCESS(Status))
+            {
+                FdoCommonExtension->PnpStateFlags |= USBPORT_PNP_STATE_STOPPED;
+                goto Exit;
+            }
+
+            FdoCommonExtension->PnpStateFlags &= ~USBPORT_PNP_STATE_NOT_INIT;
+            FdoCommonExtension->PnpStateFlags |= USBPORT_PNP_STATE_STARTED;
+
+            FdoCommonExtension->DevicePowerState = PowerDeviceD0;
+
+            if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+            {
+                USBPORT_AddUSB2Fdo(FdoDevice);
+            }
+            else
+            {
+                USBPORT_AddUSB1Fdo(FdoDevice);
+            }
+
+Exit:
             Irp->IoStatus.Status = Status;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
             return Status;
@@ -1335,7 +1340,7 @@ ForwardIrp:
             break;
     }
 
-    return IoCallDriver(FdoExtension->CommonExtension.LowerDevice, Irp);
+    return IoCallDriver(FdoCommonExtension->LowerDevice, Irp);
 }
 
 PVOID
@@ -1356,7 +1361,9 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    DPRINT("USBPORT_GetDeviceHwIds: FdoDevice - %p, Packet->MiniPortFlags - %p\n", FdoDevice, Packet->MiniPortFlags);
+    DPRINT("USBPORT_GetDeviceHwIds: FdoDevice - %p, Packet->MiniPortFlags - %p\n",
+           FdoDevice,
+           Packet->MiniPortFlags);
 
     if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
     {
@@ -1452,6 +1459,7 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                IN PIRP Irp)
 {
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_COMMON_DEVICE_EXTENSION PdoCommonExtension;
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PIO_STACK_LOCATION IoStack;
@@ -1461,6 +1469,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
     PDEVICE_CAPABILITIES DeviceCapabilities;
 
     PdoExtension = PdoDevice->DeviceExtension;
+    PdoCommonExtension = &PdoExtension->CommonExtension;
+
     FdoDevice = PdoExtension->FdoDevice;
     FdoExtension = FdoDevice->DeviceExtension;
 
@@ -1487,8 +1497,8 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
                 if (NT_SUCCESS(Status))
                 {
-                    PdoExtension->CommonExtension.DevicePowerState = PowerDeviceD0;
-                    PdoExtension->CommonExtension.PnpStateFlags = USBPORT_PNP_STATE_STARTED;
+                    PdoCommonExtension->DevicePowerState = PowerDeviceD0;
+                    PdoCommonExtension->PnpStateFlags = USBPORT_PNP_STATE_STARTED;
                 }
             }
 
@@ -1629,11 +1639,15 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
 
                 if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
                 {
-                    RtlStringCbPrintfW(Buffer, sizeof(Buffer), L"USB\\ROOT_HUB20");
+                    RtlStringCbPrintfW(Buffer,
+                                       sizeof(Buffer),
+                                       L"USB\\ROOT_HUB20");
                 }
                 else
                 {
-                    RtlStringCbPrintfW(Buffer, sizeof(Buffer), L"USB\\ROOT_HUB");
+                    RtlStringCbPrintfW(Buffer,
+                                       sizeof(Buffer),
+                                       L"USB\\ROOT_HUB");
                 }
 
                 Length = (wcslen(Buffer) + 1);
@@ -1646,7 +1660,10 @@ USBPORT_PdoPnP(IN PDEVICE_OBJECT PdoDevice,
                 {
                     RtlZeroMemory(Id, Length * sizeof(WCHAR));
                     RtlStringCbCopyW(Id, Length * sizeof(WCHAR), Buffer);
-                    DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n", Id, Length);
+
+                    DPRINT("BusQueryDeviceID - %S, TotalLength - %hu\n",
+                           Id,
+                           Length);
                 }
 
                 Irp->IoStatus.Information = (ULONG_PTR)Id;

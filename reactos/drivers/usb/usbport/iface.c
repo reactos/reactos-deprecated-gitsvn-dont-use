@@ -76,12 +76,15 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
 {
     PDEVICE_OBJECT PdoDevice;
     PUSBPORT_RHDEVICE_EXTENSION PdoExtension;
+    PUSBPORT_DEVICE_HANDLE DeviceHandle;
+
     NTSTATUS Status;
 
     DPRINT("USBHI_GetUsbDescriptors ...\n");
 
     PdoDevice = BusContext;
     PdoExtension = PdoDevice->DeviceExtension;
+    DeviceHandle = (PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle;
 
     if (DeviceDescBuffer && *DeviceDescBufferLen)
     {
@@ -89,11 +92,11 @@ USBHI_GetUsbDescriptors(IN PVOID BusContext,
             *DeviceDescBufferLen = sizeof(USB_DEVICE_DESCRIPTOR);
 
         RtlCopyMemory(DeviceDescBuffer,
-                      &(((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle)->DeviceDescriptor),
+                      &DeviceHandle->DeviceDescriptor,
                       *DeviceDescBufferLen);
     }
 
-    Status = USBPORT_GetUsbDescriptor((PUSBPORT_DEVICE_HANDLE)UsbdDeviceHandle,
+    Status = USBPORT_GetUsbDescriptor(DeviceHandle,
                                       PdoExtension->FdoDevice,
                                       USB_CONFIGURATION_DESCRIPTOR_TYPE,
                                       ConfigDescBuffer,
@@ -188,7 +191,8 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
     {
         InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
 
-        while (InterfaceEntry && InterfaceEntry != &ConfigHandle->InterfaceHandleList)
+        while (InterfaceEntry &&
+               InterfaceEntry != &ConfigHandle->InterfaceHandleList)
         {
             InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
                                                 USBPORT_INTERFACE_HANDLE,
@@ -248,7 +252,8 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
 
     InterfaceEntry = ConfigHandle->InterfaceHandleList.Flink;
 
-    while (InterfaceEntry && InterfaceEntry != &ConfigHandle->InterfaceHandleList)
+    while (InterfaceEntry &&
+           InterfaceEntry != &ConfigHandle->InterfaceHandleList)
     {
         InterfaceHandle = CONTAINING_RECORD(InterfaceEntry,
                                             USBPORT_INTERFACE_HANDLE,
@@ -259,7 +264,9 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
             PipeInfo = &DeviceInfo->PipeList[0];
             PipeHandle = &InterfaceHandle->PipeHandle[0];
 
-            for (ix = 0; ix < InterfaceHandle->InterfaceDescriptor.bNumEndpoints; ++ix)
+            for (ix = 0;
+                 ix < InterfaceHandle->InterfaceDescriptor.bNumEndpoints;
+                 ix++)
             {
                 if (PipeHandle->Flags & PIPE_HANDLE_FLAG_NULL_PACKET_SIZE)
                 {

@@ -1456,7 +1456,8 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
     FdoExtension = FdoDevice->DeviceExtension;
 
-    if ((Flags & USBD_KEEP_DEVICE_DATA) || (Flags & USBD_MARK_DEVICE_BUSY))
+    if ((Flags & USBD_KEEP_DEVICE_DATA) ||
+        (Flags & USBD_MARK_DEVICE_BUSY))
     {
         return STATUS_SUCCESS;
     }
@@ -1484,12 +1485,15 @@ USBPORT_RemoveDevice(IN PDEVICE_OBJECT FdoDevice,
 
     USBPORT_AbortTransfers(FdoDevice, DeviceHandle);
 
-    DPRINT("USBPORT_RemoveDevice: DeviceHandleLock - %x\n", DeviceHandle->DeviceHandleLock);
+    DPRINT("USBPORT_RemoveDevice: DeviceHandleLock - %x\n",
+           DeviceHandle->DeviceHandleLock);
+
     while (InterlockedDecrement(&DeviceHandle->DeviceHandleLock) >= 0)
     {
         InterlockedIncrement(&DeviceHandle->DeviceHandleLock);
         USBPORT_Wait(FdoDevice, 100);
     }
+
     DPRINT("USBPORT_RemoveDevice: DeviceHandleLock ok\n");
 
     if (DeviceHandle->ConfigHandle)
@@ -1678,7 +1682,8 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
 
                     if (!(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
                     {
-                        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
+                        KeAcquireSpinLock(&FdoExtension->MiniportSpinLock,
+                                          &OldIrql);
 
                         Packet->ReopenEndpoint(FdoExtension->MiniPortExt,
                                                &Endpoint->EndpointProperties,
@@ -1692,7 +1697,8 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                                                   Endpoint + 1,
                                                   USBPORT_ENDPOINT_RUN);
 
-                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock,
+                                          OldIrql);
                     }
                     else
                     {
@@ -1709,13 +1715,16 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                                                           &Endpoint->EndpointProperties,
                                                           EndpointRequirements);
 
-                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
+                        KeReleaseSpinLock(&FdoExtension->MiniportSpinLock,
+                                          OldIrql);
 
                         MiniportOpenEndpoint(FdoDevice, Endpoint);
 
-                        Endpoint->Flags &= ~(ENDPOINT_FLAG_NUKE | ENDPOINT_FLAG_ABORTING);
+                        Endpoint->Flags &= ~(ENDPOINT_FLAG_NUKE |
+                                             ENDPOINT_FLAG_ABORTING);
 
-                        KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+                        KeAcquireSpinLock(&Endpoint->EndpointSpinLock,
+                                          &Endpoint->EndpointOldIrql);
 
                         if (Endpoint->StateLast == USBPORT_ENDPOINT_ACTIVE)
                         {
@@ -1728,7 +1737,8 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                             KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
                         }
 
-                        KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+                        KeReleaseSpinLock(&Endpoint->EndpointSpinLock,
+                                          Endpoint->EndpointOldIrql);
                     }
                 }
             }

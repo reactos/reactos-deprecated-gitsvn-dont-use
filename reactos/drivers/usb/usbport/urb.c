@@ -14,7 +14,8 @@ USBPORT_HandleGetConfiguration(IN PURB Urb)
 
     DPRINT_URB("USBPORT_HandleGetConfiguration: Urb - %p\n", Urb);
 
-    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlGetConfigurationRequest.Reserved1;
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)
+                   &Urb->UrbControlGetConfigurationRequest.Reserved1;
 
     SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
     SetupPacket->bRequest = USB_REQUEST_GET_CONFIGURATION;
@@ -52,7 +53,8 @@ USBPORT_HandleGetCurrentFrame(IN PDEVICE_OBJECT FdoDevice,
 
     Urb->UrbGetCurrentFrameNumber.FrameNumber = FrameNumber;
 
-    DPRINT_URB("USBPORT_HandleGetCurrentFrame: FrameNumber - %p\n", FrameNumber);
+    DPRINT_URB("USBPORT_HandleGetCurrentFrame: FrameNumber - %p\n",
+               FrameNumber);
 
     return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_SUCCESS);
 }
@@ -93,7 +95,8 @@ USBPORT_AbortPipe(IN PDEVICE_OBJECT FdoDevice,
     }
     else
     {
-        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_INVALID_PIPE_HANDLE);
     }
 
     return Status;
@@ -181,7 +184,10 @@ USBPORT_ClearStall(IN PDEVICE_OBJECT FdoDevice,
     DeviceHandle = Urb->UrbHeader.UsbdDeviceHandle;
 
     if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
-        return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+    {
+        return USBPORT_USBDStatusToNtStatus(Urb,
+                                            USBD_STATUS_INVALID_PIPE_HANDLE);
+    }
 
     Endpoint = PipeHandle->Endpoint;
 
@@ -229,7 +235,8 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
 
     if (!USBPORT_ValidatePipeHandle(DeviceHandle, PipeHandle))
     {
-        return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+        return USBPORT_USBDStatusToNtStatus(Urb,
+                                            USBD_STATUS_INVALID_PIPE_HANDLE);
     }
 
     if (PipeHandle->Flags & PIPE_HANDLE_FLAG_NULL_PACKET_SIZE)
@@ -258,17 +265,20 @@ USBPORT_SyncResetPipeAndClearStall(IN PDEVICE_OBJECT FdoDevice,
         {
             while (TRUE)
             {
-                KeAcquireSpinLock(&Endpoint->EndpointSpinLock, &Endpoint->EndpointOldIrql);
+                KeAcquireSpinLock(&Endpoint->EndpointSpinLock,
+                                  &Endpoint->EndpointOldIrql);
 
                 EndpointState = USBPORT_GetEndpointState(Endpoint);
 
                 if (EndpointState == USBPORT_ENDPOINT_PAUSED &&
                     IsListEmpty(&Endpoint->TransferList))
                 {
-                    USBPORT_SetEndpointState(Endpoint, USBPORT_ENDPOINT_ACTIVE);
+                    USBPORT_SetEndpointState(Endpoint,
+                                             USBPORT_ENDPOINT_ACTIVE);
                 }
 
-                KeReleaseSpinLock(&Endpoint->EndpointSpinLock, Endpoint->EndpointOldIrql);
+                KeReleaseSpinLock(&Endpoint->EndpointSpinLock,
+                                  Endpoint->EndpointOldIrql);
 
                 if (EndpointState == USBPORT_ENDPOINT_ACTIVE)
                 {
@@ -293,7 +303,8 @@ USBPORT_HandleSetOrClearFeature(IN PURB Urb)
 
     DPRINT_URB("USBPORT_HandleSetOrClearFeature: Urb - %p\n", Urb);
 
-    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlFeatureRequest.Reserved0;
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)
+                  &Urb->UrbControlFeatureRequest.Reserved0;
 
     SetupPacket->wLength = 0;
     Urb->UrbControlFeatureRequest.Reserved3 = 0; // TransferBufferLength
@@ -369,7 +380,8 @@ USBPORT_HandleDataTransfers(IN PURB Urb)
 
     DPRINT_URB("USBPORT_HandleDataTransfers: Urb - %p\n", Urb);
 
-    Endpoint = ((PUSBPORT_PIPE_HANDLE)(Urb->UrbBulkOrInterruptTransfer.PipeHandle))->Endpoint;
+    Endpoint = ((PUSBPORT_PIPE_HANDLE)
+                (Urb->UrbBulkOrInterruptTransfer.PipeHandle))->Endpoint;
 
     if (Endpoint->EndpointProperties.TransferType != USBPORT_TRANSFER_TYPE_CONTROL)
     {
@@ -393,8 +405,11 @@ NTAPI
 USBPORT_HandleGetStatus(IN PIRP Irp,
                         IN PURB Urb)
 {
-    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+    PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     NTSTATUS Status;
+
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)
+                   &Urb->UrbControlDescriptorRequest.Reserved1;
 
     SetupPacket->bmRequestType.B = 0;
     SetupPacket->bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
@@ -465,9 +480,12 @@ USBPORT_HandleVendorOrClass(IN PIRP Irp,
         This value is defined by USB for a class request or the vendor for a vendor request.
     */
 
-    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)
+                   &Urb->UrbControlDescriptorRequest.Reserved1;
 
-    SetupPacket->bmRequestType.Dir = USBD_TRANSFER_DIRECTION_FLAG(Urb->UrbControlTransfer.TransferFlags);
+    SetupPacket->bmRequestType.Dir = USBD_TRANSFER_DIRECTION_FLAG
+                                     (Urb->UrbControlTransfer.TransferFlags);
+
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
 
     Urb->UrbControlTransfer.TransferFlags |= USBD_SHORT_TRANSFER_OK;
@@ -537,7 +555,8 @@ USBPORT_HandleGetSetDescriptor(IN PIRP Irp,
 {
     PUSB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
 
-    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)&Urb->UrbControlDescriptorRequest.Reserved1;
+    SetupPacket = (PUSB_DEFAULT_PIPE_SETUP_PACKET)
+                   &Urb->UrbControlDescriptorRequest.Reserved1;
 
     SetupPacket->wLength = Urb->UrbControlDescriptorRequest.TransferBufferLength;
     SetupPacket->bmRequestType.B = 0; // Clear bmRequestType
@@ -679,8 +698,11 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
 
     if (UrbRequest->UrbLink)
     {
-        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PARAMETER);
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_INVALID_PARAMETER);
+
         DPRINT1("USBPORT_ValidateURB: Not valid parameter\n");
+
         USBPORT_DumpingURB(Urb);
         return Status;
     }
@@ -697,8 +719,11 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
     {
         if (UrbRequest->TransferBufferLength > 0x1000)
         {
-            Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PARAMETER);
+            Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                                  USBD_STATUS_INVALID_PARAMETER);
+
             DPRINT1("USBPORT_ValidateURB: Not valid parameter\n");
+
             USBPORT_DumpingURB(Urb);
             return Status;
         }
@@ -711,8 +736,11 @@ USBPORT_ValidateURB(IN PDEVICE_OBJECT FdoDevice,
 
     if (!USBPORT_ValidatePipeHandle(DeviceHandle, UrbRequest->PipeHandle))
     {
-        Status = USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_PIPE_HANDLE);
+        Status = USBPORT_USBDStatusToNtStatus(Urb,
+                                              USBD_STATUS_INVALID_PIPE_HANDLE);
+
         DPRINT1("USBPORT_ValidateURB: Not valid pipe handle\n");
+
         USBPORT_DumpingURB(Urb);
         return Status;
     }
@@ -882,7 +910,8 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
 
         case URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR:
             DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR (0x2A) NOT_SUPPORTED\n");
-            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_URB_FUNCTION);
+            return USBPORT_USBDStatusToNtStatus(Urb,
+                                                USBD_STATUS_INVALID_URB_FUNCTION);
 
         case URB_FUNCTION_GET_STATUS_FROM_DEVICE:
         case URB_FUNCTION_GET_STATUS_FROM_INTERFACE:
@@ -925,7 +954,8 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
 
         case URB_FUNCTION_GET_INTERFACE:
             DPRINT1("USBPORT_HandleSubmitURB: URB_FUNCTION_GET_INTERFACE (0x27) NOT_SUPPORTED\n");
-            return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_INVALID_URB_FUNCTION);
+            return USBPORT_USBDStatusToNtStatus(Urb,
+                                                USBD_STATUS_INVALID_URB_FUNCTION);
 
         case URB_FUNCTION_SYNC_RESET_PIPE_AND_CLEAR_STALL:
             Status = USBPORT_SyncResetPipeAndClearStall(PdoExtension->FdoDevice,
@@ -992,7 +1022,8 @@ USBPORT_HandleSubmitURB(IN PDEVICE_OBJECT PdoDevice,
             return USBPORT_USBDStatusToNtStatus(Urb, USBD_STATUS_NOT_SUPPORTED);
 
         default:
-            DPRINT1("USBPORT_HandleSubmitURB: Unknown URB Function - %x\n", Function);
+            DPRINT1("USBPORT_HandleSubmitURB: Unknown URB Function - %x\n",
+                    Function);
             //URB_FUNCTION_RESERVED_0X0016
             //URB_FUNCTION_RESERVE_0X001D
             //URB_FUNCTION_RESERVE_0X002B

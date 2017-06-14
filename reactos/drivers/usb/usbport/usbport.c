@@ -325,7 +325,10 @@ USBPORT_GetRegistryKeyValueFullInfo(IN PDEVICE_OBJECT FdoDevice,
     if (NT_SUCCESS(Status))
     {
         RtlInitUnicodeString(&ValueName, SourceString);
-        LengthKey = sizeof(KEY_VALUE_FULL_INFORMATION) + LengthStr + BufferLength;
+
+        LengthKey = sizeof(KEY_VALUE_FULL_INFORMATION) +
+                    LengthStr +
+                    BufferLength;
 
         KeyValue = ExAllocatePoolWithTag(PagedPool,
                                          LengthKey,
@@ -419,19 +422,21 @@ USBPORT_GetSetConfigSpaceData(IN PDEVICE_OBJECT FdoDevice,
     {
         RtlZeroMemory(Buffer, Length);
 
-        BytesReadWrite = (*FdoExtension->BusInterface.GetBusData)(FdoExtension->BusInterface.Context,
-                                                                  PCI_WHICHSPACE_CONFIG,
-                                                                  Buffer,
-                                                                  Offset,
-                                                                  Length);
+        BytesReadWrite = (*FdoExtension->BusInterface.GetBusData)
+                          (FdoExtension->BusInterface.Context,
+                           PCI_WHICHSPACE_CONFIG,
+                           Buffer,
+                           Offset,
+                           Length);
     }
     else
     {
-        BytesReadWrite = (*FdoExtension->BusInterface.SetBusData)(FdoExtension->BusInterface.Context,
-                                                                  PCI_WHICHSPACE_CONFIG,
-                                                                  Buffer,
-                                                                  Offset,
-                                                                  Length);
+        BytesReadWrite = (*FdoExtension->BusInterface.SetBusData)
+                          (FdoExtension->BusInterface.Context,
+                           PCI_WHICHSPACE_CONFIG,
+                           Buffer,
+                           Offset,
+                           Length);
     }
 
     if (BytesReadWrite == Length)
@@ -628,7 +633,8 @@ USBPORT_InvalidateControllerHandler(IN PDEVICE_OBJECT FdoDevice,
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
 
-    DPRINT("USBPORT_InvalidateControllerHandler: Invalidate Type - %x\n", Type);
+    DPRINT("USBPORT_InvalidateControllerHandler: Invalidate Type - %x\n",
+           Type);
 
     FdoExtension = FdoDevice->DeviceExtension;
 
@@ -969,7 +975,8 @@ USBPORT_IsrDpcHandler(IN PDEVICE_OBJECT FdoDevice,
         FrameNumber = Packet->Get32BitFrameNumber(FdoExtension->MiniPortExt);
         KeReleaseSpinLockFromDpcLevel(&FdoExtension->MiniportSpinLock);
 
-        if (FrameNumber <= Endpoint->FrameNumber && !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
+        if (FrameNumber <= Endpoint->FrameNumber &&
+            !(Endpoint->Flags & ENDPOINT_FLAG_NUKE))
         {
             KeReleaseSpinLockFromDpcLevel(&Endpoint->EndpointSpinLock);
 
@@ -1188,7 +1195,9 @@ USBPORT_WorkerThreadHandler(IN PDEVICE_OBJECT FdoDevice)
             if (Endpoint->WorkerLink.Flink == NULL ||
                 Endpoint->WorkerLink.Blink == NULL)
             {
-                InsertTailList(&FdoExtension->WorkerList, &Endpoint->WorkerLink);
+                InsertTailList(&FdoExtension->WorkerList,
+                               &Endpoint->WorkerLink);
+
                 USBPORT_SignalWorkerThread(FdoDevice);
             }
         }
@@ -1478,7 +1487,8 @@ USBPORT_SynchronizeControllersStart(IN PDEVICE_OBJECT FdoDevice)
         {
             USB2FdoExtension = USB2FdoDevice->DeviceExtension;
 
-            if (USB2FdoExtension->CommonExtension.PnpStateFlags & USBPORT_PNP_STATE_STARTED)
+            if (USB2FdoExtension->CommonExtension.PnpStateFlags &
+                USBPORT_PNP_STATE_STARTED)
             {
                 IsOn = TRUE;
             }
@@ -1796,6 +1806,8 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
     UNICODE_STRING DeviceName;
     PDEVICE_OBJECT DeviceObject;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
+    PUSBPORT_COMMON_DEVICE_EXTENSION FdoCommonExtension;
+    PDEVICE_OBJECT LowerDevice;
     ULONG Length;
 
     DPRINT("USBPORT_AddDevice: DriverObject - %p, PhysicalDeviceObject - %p\n",
@@ -1861,16 +1873,20 @@ USBPORT_AddDevice(IN PDRIVER_OBJECT DriverObject,
            Status);
 
     FdoExtension = DeviceObject->DeviceExtension;
+    FdoCommonExtension = &FdoExtension->CommonExtension;
 
     RtlZeroMemory(FdoExtension, sizeof(USBPORT_DEVICE_EXTENSION));
 
-    FdoExtension->CommonExtension.SelfDevice = DeviceObject;
-    FdoExtension->CommonExtension.LowerPdoDevice = PhysicalDeviceObject;
-    FdoExtension->CommonExtension.IsPDO = FALSE;
-    FdoExtension->CommonExtension.LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
-                                                                            PhysicalDeviceObject);
+    FdoCommonExtension->SelfDevice = DeviceObject;
+    FdoCommonExtension->LowerPdoDevice = PhysicalDeviceObject;
+    FdoCommonExtension->IsPDO = FALSE;
 
-    FdoExtension->CommonExtension.DevicePowerState = PowerDeviceD3;
+    LowerDevice = IoAttachDeviceToDeviceStack(DeviceObject,
+                                              PhysicalDeviceObject);
+
+    FdoCommonExtension->LowerDevice = LowerDevice;
+
+    FdoCommonExtension->DevicePowerState = PowerDeviceD3;
 
     FdoExtension->MiniPortExt = (PVOID)((ULONG_PTR)FdoExtension +
                                         sizeof(USBPORT_DEVICE_EXTENSION));
@@ -2260,10 +2276,15 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
     Mdl->MdlFlags |= MDL_MAPPING_CAN_FAIL;
 
-    if (Mdl->MdlFlags & (MDL_SOURCE_IS_NONPAGED_POOL | MDL_MAPPED_TO_SYSTEM_VA))
+    if (Mdl->MdlFlags & (MDL_SOURCE_IS_NONPAGED_POOL |
+                         MDL_MAPPED_TO_SYSTEM_VA))
+    {
         MappedSystemVa = Mdl->MappedSystemVa;
+    }
     else
+    {
         MappedSystemVa = MmMapLockedPages(Mdl, KernelMode);
+    }
 
     Transfer->SgList.MappedSystemVa = MappedSystemVa;
 
@@ -2311,7 +2332,8 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
             sgList->SgElement[ix].SgPhysicalAddress = PhAddress;
             sgList->SgElement[ix].SgTransferLength = ElementLength;
-            sgList->SgElement[ix].SgOffset = CurrentLength + (TransferLength - SgCurrentLength);
+            sgList->SgElement[ix].SgOffset = CurrentLength +
+                                             (TransferLength - SgCurrentLength);
 
             PhAddress.LowPart += ElementLength;
             SgCurrentLength -= ElementLength;
@@ -2490,6 +2512,7 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
 
         Urb->UrbControlTransfer.hca.Reserved8[0] = Transfer;
         Urb->UrbHeader.UsbdFlags |= USBD_FLAG_ALLOCATED_TRANSFER;
+
         USBDStatus = USBD_STATUS_SUCCESS;
     }
     else
@@ -2497,7 +2520,9 @@ USBPORT_AllocateTransfer(IN PDEVICE_OBJECT FdoDevice,
         USBDStatus = USBD_STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    DPRINT_CORE("USBPORT_AllocateTransfer: return USBDStatus - %x\n", USBDStatus);
+    DPRINT_CORE("USBPORT_AllocateTransfer: return USBDStatus - %x\n",
+                USBDStatus);
+
     return USBDStatus;
 }
 
@@ -2644,8 +2669,7 @@ USBPORT_Dispatch(IN PDEVICE_OBJECT DeviceObject,
                        IoStack->MinorFunction);
             }
 
-            Status = STATUS_INVALID_DEVICE_REQUEST;
-            Irp->IoStatus.Status = Status;
+            Irp->IoStatus.Status = STATUS_INVALID_DEVICE_REQUEST;
             IoCompleteRequest(Irp, IO_NO_INCREMENT);
             break;
     }
@@ -2667,7 +2691,6 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
                               IN ULONG Version,
                               IN PUSBPORT_REGISTRATION_PACKET RegPacket)
 {
-    NTSTATUS Status;
     PUSBPORT_MINIPORT_INTERFACE MiniPortInterface;
 
     DPRINT("USBPORT_RegisterUSBPortDriver: DriverObject - %p, Version - %p, RegPacket - %p\n",
@@ -2746,8 +2769,7 @@ USBPORT_RegisterUSBPortDriver(IN PDRIVER_OBJECT DriverObject,
                   RegPacket,
                   sizeof(USBPORT_REGISTRATION_PACKET));
 
-    Status = STATUS_SUCCESS;
-    return Status;
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS

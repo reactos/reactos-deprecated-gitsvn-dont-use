@@ -232,7 +232,9 @@ USBPORT_GetUnicodeName(IN PDEVICE_OBJECT FdoDevice,
 
     while (TRUE)
     {
-        ControllerName = ExAllocatePoolWithTag(PagedPool, Length, USB_PORT_TAG);
+        ControllerName = ExAllocatePoolWithTag(PagedPool,
+                                               Length,
+                                               USB_PORT_TAG);
 
         if (!ControllerName)
         {
