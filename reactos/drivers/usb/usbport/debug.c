@@ -49,7 +49,7 @@ NTAPI
 USBPORT_BugCheck(IN PVOID Context)
 {
     DPRINT1("USBPORT_BugCheck: FIXME \n");
-    //KeBugCheckEx(...);
+    //KeBugCheckEx(BUGCODE_USB_DRIVER, ...);
     ASSERT(FALSE);
 }
 

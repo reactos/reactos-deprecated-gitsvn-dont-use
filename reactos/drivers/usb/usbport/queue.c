@@ -284,7 +284,7 @@ USBPORT_InsertIrpInTable(IN PUSBPORT_IRP_TABLE IrpTable,
 
         if (ix != 0x200)
         {
-            KeBugCheckEx(0xFE, 1, 0, 0, 0);
+            KeBugCheckEx(BUGCODE_USB_DRIVER, 1, 0, 0, 0);
         }
 
         IrpTable->LinkNextTable = ExAllocatePoolWithTag(NonPagedPool,
@@ -293,7 +293,7 @@ USBPORT_InsertIrpInTable(IN PUSBPORT_IRP_TABLE IrpTable,
 
         if (IrpTable->LinkNextTable == NULL)
         {
-            KeBugCheckEx(0xFE, 1, 0, 0, 0);
+            KeBugCheckEx(BUGCODE_USB_DRIVER, 1, 0, 0, 0);
         }
 
         RtlZeroMemory(IrpTable->LinkNextTable, sizeof(USBPORT_IRP_TABLE));
@@ -317,8 +317,6 @@ USBPORT_RemoveIrpFromTable(IN PUSBPORT_IRP_TABLE IrpTable,
 
     while (TRUE)
     {
-        ix = 0;
-
         for (ix = 0; ix < 0x200; ix++)
         {
             if (IrpTable->irp[ix] == Irp)
@@ -400,10 +398,18 @@ USBPORT_FindUrbInIrpTable(IN PUSBPORT_IRP_TABLE IrpTable,
                 {
                     if (irp == Irp)
                     {
-                        KeBugCheckEx(0xFE, 4, (ULONG_PTR)irp, (ULONG_PTR)urbIn, 0);
+                        KeBugCheckEx(BUGCODE_USB_DRIVER,
+                                     4,
+                                     (ULONG_PTR)irp,
+                                     (ULONG_PTR)urbIn,
+                                     0);
                     }
 
-                    KeBugCheckEx(0xFE, 2, (ULONG_PTR)irp, (ULONG_PTR)Irp, (ULONG_PTR)urbIn);
+                    KeBugCheckEx(BUGCODE_USB_DRIVER,
+                                 2,
+                                 (ULONG_PTR)irp,
+                                 (ULONG_PTR)Irp,
+                                 (ULONG_PTR)urbIn);
                 }
             }
         }
