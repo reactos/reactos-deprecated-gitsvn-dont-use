@@ -348,8 +348,7 @@ USBPORT_PdoInternalDeviceControl(IN PDEVICE_OBJECT PdoDevice,
 
         if (IoStack->Parameters.Others.Argument1)
         {
-            *(PULONG)IoStack->Parameters.Others.Argument1 =
-            *(PULONG)IoStack->Parameters.Others.Argument1 + 1;
+            ++*(PULONG)IoStack->Parameters.Others.Argument1;
         }
 
         Status = STATUS_SUCCESS;
