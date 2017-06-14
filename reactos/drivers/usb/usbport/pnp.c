@@ -888,7 +888,7 @@ USBPORT_StartDevice(IN PDEVICE_OBJECT FdoDevice,
 ExitWithError:
     USBPORT_StopDevice(FdoDevice);
 
-    DPRINT1("USBPORT_StartDevice: ExitWithError Status - %p\n", Status);
+    DPRINT1("USBPORT_StartDevice: ExitWithError Status - %lx\n", Status);
     return Status;
 }
 

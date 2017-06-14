@@ -264,7 +264,7 @@ USBPORT_PdoDevicePowerState(IN PDEVICE_OBJECT PdoDevice,
         }
         else
         {
-            DPRINT1("USBPORT_PdoDevicePowerState: FdoExtension->Flags - %p\n",
+            DPRINT1("USBPORT_PdoDevicePowerState: FdoExtension->Flags - %lx\n",
                     FdoExtension->Flags);
 
             DbgBreakPoint();
