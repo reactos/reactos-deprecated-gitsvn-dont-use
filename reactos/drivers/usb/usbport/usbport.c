@@ -2275,20 +2275,10 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     Transfer->SgList.CurrentVa = CurrentVa;
 
     Mdl->MdlFlags |= MDL_MAPPING_CAN_FAIL;
-
-    if (Mdl->MdlFlags & (MDL_SOURCE_IS_NONPAGED_POOL |
-                         MDL_MAPPED_TO_SYSTEM_VA))
-    {
-        MappedSystemVa = Mdl->MappedSystemVa;
-    }
-    else
-    {
-        MappedSystemVa = MmMapLockedPages(Mdl, KernelMode);
-    }
+    MappedSystemVa = MmGetSystemAddressForMdl(Mdl);
+    Mdl->MdlFlags &= ~MDL_MAPPING_CAN_FAIL;
 
     Transfer->SgList.MappedSystemVa = MappedSystemVa;
-
-    Mdl->MdlFlags &= ~MDL_MAPPING_CAN_FAIL;
 
     sgList = &Transfer->SgList;
     sgList->Flags = 0;
