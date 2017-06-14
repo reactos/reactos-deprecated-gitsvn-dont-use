@@ -169,7 +169,7 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
 
     *LenDataReturned = 0;
 
-    if (DeviceInfoBufferLen < (2 * sizeof(ULONG)))
+    if (DeviceInfoBufferLen < sizeof(USB_LEVEL_INFORMATION))
     {
         return STATUS_BUFFER_TOO_SMALL;
     }
@@ -206,7 +206,7 @@ USBHI_QueryDeviceInformation(IN PVOID BusContext,
     if (DeviceInfoBufferLen < ActualLength)
     {
         DeviceInfo->ActualLength = ActualLength;
-        *LenDataReturned = 2 * sizeof(ULONG);
+        *LenDataReturned = sizeof(USB_LEVEL_INFORMATION);
 
         return STATUS_BUFFER_TOO_SMALL;
     }
@@ -314,13 +314,13 @@ USBHI_GetControllerInformation(IN PVOID BusContext,
 
     *LenDataReturned = 0;
 
-    if (ControllerInfoBufferLen < (2 * sizeof(ULONG)))
+    if (ControllerInfoBufferLen < sizeof(USB_LEVEL_INFORMATION))
     {
         Status = STATUS_BUFFER_TOO_SMALL;
         return Status;
     }
 
-    *LenDataReturned = 8;
+    *LenDataReturned = sizeof(USB_LEVEL_INFORMATION);
 
     if (InfoBuffer->InformationLevel > 0)
     {

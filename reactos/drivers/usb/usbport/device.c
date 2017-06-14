@@ -366,7 +366,7 @@ USBPORT_OpenInterface(IN PURB Urb,
             MaxPacketSize = (wMaxPacketSize & 0x7FF) * (((wMaxPacketSize >> 11) & 3) + 1);
 
             InterfaceInfo->Pipes[ix].EndpointAddress = Descriptor->bEndpointAddress;
-            InterfaceInfo->Pipes[ix].PipeType = Descriptor->bmAttributes & 3;
+            InterfaceInfo->Pipes[ix].PipeType = Descriptor->bmAttributes & USB_ENDPOINT_TYPE_MASK;
             InterfaceInfo->Pipes[ix].MaximumPacketSize = MaxPacketSize;
             InterfaceInfo->Pipes[ix].PipeHandle = (USBD_PIPE_HANDLE)-1;
             InterfaceInfo->Pipes[ix].Interval = Descriptor->bInterval;
@@ -1260,7 +1260,7 @@ USBPORT_InitializeDevice(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
     {
         ASSERT(TransferedLen == sizeof(USB_DEVICE_DESCRIPTOR));
         ASSERT(DeviceHandle->DeviceDescriptor.bLength >= sizeof(USB_DEVICE_DESCRIPTOR));
-        ASSERT(DeviceHandle->DeviceDescriptor.bDescriptorType == 1);
+        ASSERT(DeviceHandle->DeviceDescriptor.bDescriptorType == USB_DEVICE_DESCRIPTOR_TYPE);
 
         MaxPacketSize = DeviceHandle->DeviceDescriptor.bMaxPacketSize0;
 
@@ -1297,7 +1297,7 @@ USBPORT_GetUsbDescriptor(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 
     RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-    SetupPacket.bmRequestType.B = 0x80;
+    SetupPacket.bmRequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
     SetupPacket.bRequest = USB_REQUEST_GET_DESCRIPTOR;
     SetupPacket.wValue.HiByte = Type;
     SetupPacket.wLength = (USHORT)*ConfigDescSize;
@@ -1589,7 +1589,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
         {
             RtlZeroMemory(&SetupPacket, sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-            SetupPacket.bmRequestType.B = 0;
+            SetupPacket.bmRequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
             SetupPacket.bRequest = USB_REQUEST_SET_CONFIGURATION;
             SetupPacket.wValue.W = OldDeviceHandle->ConfigHandle->ConfigurationDescriptor->bConfigurationValue;
             SetupPacket.wIndex.W = 0;

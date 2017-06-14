@@ -334,7 +334,7 @@ USBPORT_RemoveIrpFromTable(IN PUSBPORT_IRP_TABLE IrpTable,
             }
         }
 
-        if (IrpTable->LinkNextTable == 0)
+        if (IrpTable->LinkNextTable == NULL)
             break;
 
         IrpTable = IrpTable->LinkNextTable;

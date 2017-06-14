@@ -391,9 +391,9 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
         case USB_REQUEST_GET_STATUS:
             if (!SetupPacket->wValue.W &&
-                 SetupPacket->wLength == 2 &&
+                 SetupPacket->wLength == sizeof(USHORT) &&
                  !SetupPacket->wIndex.W &&
-                 SetupPacket->bmRequestType.Dir)
+                 SetupPacket->bmRequestType.Dir == BMREQUEST_DEVICE_TO_HOST)
             {
                 KeAcquireSpinLock(&FdoExtension->MiniportSpinLock, &OldIrql);
 
@@ -402,7 +402,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
 
                 KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
-                *TransferLength = 2;
+                *TransferLength = sizeof(USHORT);
                 RHStatus = USBPORT_MPStatusToRHStatus(MPStatus);
             }
 
@@ -412,7 +412,7 @@ USBPORT_RootHubStandardCommand(IN PDEVICE_OBJECT FdoDevice,
             if (SetupPacket->wValue.W ||
                 SetupPacket->wIndex.W ||
                 SetupPacket->wLength != 1 ||
-                !(SetupPacket->bmRequestType.Dir))
+                SetupPacket->bmRequestType.Dir == BMREQUEST_HOST_TO_DEVICE)
             {
                 return RHStatus;
             }
@@ -826,7 +826,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
         RH_ConfigurationDescriptor->bNumInterfaces = 0x01;
         RH_ConfigurationDescriptor->bConfigurationValue = 0x01;
         RH_ConfigurationDescriptor->iConfiguration = 0x00;
-        RH_ConfigurationDescriptor->bmAttributes = 0x40;
+        RH_ConfigurationDescriptor->bmAttributes = USB_CONFIG_SELF_POWERED;
         RH_ConfigurationDescriptor->MaxPower = 0x00;
 
         RH_InterfaceDescriptor = &PdoExtension->RootHubDescriptors->InterfaceDescriptor;
@@ -853,7 +853,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
         RH_HubDescriptor = &PdoExtension->RootHubDescriptors->Descriptor;
 
         RH_HubDescriptor->bDescriptorLength = sizeof(USB_HUB_DESCRIPTOR) + 2 * NumMaskByte;
-        RH_HubDescriptor->bDescriptorType = 0x29;
+        RH_HubDescriptor->bDescriptorType = 0x29; // USB_20_HUB_DESCRIPTOR_TYPE - need add in .h file
         RH_HubDescriptor->bNumberOfPorts = RootHubData.NumberOfPorts;
         RH_HubDescriptor->wHubCharacteristics = RootHubData.HubCharacteristics;
         RH_HubDescriptor->bPowerOnToPowerGood = RootHubData.PowerOnToPowerGood;
@@ -870,7 +870,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
         EndpointDescriptor->bLength = sizeof(USB_ENDPOINT_DESCRIPTOR);
         EndpointDescriptor->bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE;
         EndpointDescriptor->bEndpointAddress = 0x00;
-        EndpointDescriptor->bmAttributes = 0x00;
+        EndpointDescriptor->bmAttributes = USB_ENDPOINT_TYPE_CONTROL;
         EndpointDescriptor->wMaxPacketSize = 0x0040;
         EndpointDescriptor->bInterval = 0x00;
 
