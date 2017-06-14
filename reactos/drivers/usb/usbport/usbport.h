@@ -157,18 +157,18 @@ typedef struct _USBPORT_PIPE_HANDLE {
 } USBPORT_PIPE_HANDLE, *PUSBPORT_PIPE_HANDLE;
 
 typedef struct _USBPORT_CONFIGURATION_HANDLE {
-  PUSB_CONFIGURATION_DESCRIPTOR ConfigurationDescriptor; // 00
-  LIST_ENTRY InterfaceHandleList; // 04
-  //USB_CONFIGURATION_DESCRIPTOR CfgDescriptor; // 12 Body
+  PUSB_CONFIGURATION_DESCRIPTOR ConfigurationDescriptor;
+  LIST_ENTRY InterfaceHandleList;
+  //USB_CONFIGURATION_DESCRIPTOR CfgDescriptor; // Body.
 } USBPORT_CONFIGURATION_HANDLE, *PUSBPORT_CONFIGURATION_HANDLE;
 
 typedef struct _USBPORT_INTERFACE_HANDLE {
-  LIST_ENTRY InterfaceLink; // 00
-  UCHAR AlternateSetting; // 08
-  UCHAR Pad1[3]; // 09
-  USB_INTERFACE_DESCRIPTOR InterfaceDescriptor; // 12
-  UCHAR Pad2[3]; // 21
-  USBPORT_PIPE_HANDLE PipeHandle[1]; // 24
+  LIST_ENTRY InterfaceLink;
+  UCHAR AlternateSetting;
+  UCHAR Pad1[3];
+  USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
+  UCHAR Pad2[3];
+  USBPORT_PIPE_HANDLE PipeHandle[1];CfgDescriptor
 } USBPORT_INTERFACE_HANDLE, *PUSBPORT_INTERFACE_HANDLE;
 
 typedef struct _USBPORT_DEVICE_HANDLE {
@@ -181,7 +181,7 @@ typedef struct _USBPORT_DEVICE_HANDLE {
   LIST_ENTRY PipeHandleList;
   PUSBPORT_CONFIGURATION_HANDLE ConfigHandle;
   struct _USBPORT_DEVICE_HANDLE *HubDeviceHandle;
-  USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 0x12
+  USB_DEVICE_DESCRIPTOR DeviceDescriptor;
   LIST_ENTRY DeviceHandleLink;
   LONG DeviceHandleLock;
   ULONG TtCount;
@@ -365,11 +365,11 @@ typedef struct _USBPORT_DEVICE_EXTENSION {
 C_ASSERT(sizeof(USBPORT_DEVICE_EXTENSION) == 0x400);
 
 typedef struct _USBPORT_RH_DESCRIPTORS {
-  USB_DEVICE_DESCRIPTOR DeviceDescriptor; // 18
-  USB_CONFIGURATION_DESCRIPTOR ConfigDescriptor; // 9
-  USB_INTERFACE_DESCRIPTOR InterfaceDescriptor; // 9
-  USB_ENDPOINT_DESCRIPTOR EndPointDescriptor; // 7
-  USB_HUB_DESCRIPTOR Descriptor; // 7 + 2[1..32] (7 + 2..64)
+  USB_DEVICE_DESCRIPTOR DeviceDescriptor;
+  USB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
+  USB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
+  USB_ENDPOINT_DESCRIPTOR EndPointDescriptor;
+  USB_HUB_DESCRIPTOR Descriptor; // Size may be: 7 + 2[1..32] (7 + 2..64)
 } USBPORT_RH_DESCRIPTORS, *PUSBPORT_RH_DESCRIPTORS;
 
 typedef struct _USBPORT_RHDEVICE_EXTENSION {
@@ -410,7 +410,6 @@ typedef struct _TIMER_WORK_QUEUE_ITEM {
 } TIMER_WORK_QUEUE_ITEM, *PTIMER_WORK_QUEUE_ITEM;
 
 /* usbport.c */
-
 NTSTATUS
 NTAPI
 USBPORT_USBDStatusToNtStatus(
@@ -567,7 +566,6 @@ USBPORT_FindCompanionControllers(
   IN BOOLEAN IsFDOsReturned);
 
 /* debug.c */
-
 ULONG
 NTAPI
 USBPORT_DbgPrint(
@@ -641,7 +639,6 @@ USBPORT_DumpingIDs(
   IN PVOID Buffer);
 
 /* device.c */
-
 NTSTATUS
 NTAPI
 USBPORT_HandleSelectConfiguration(
@@ -731,7 +728,6 @@ USBPORT_Initialize20Hub(
   IN ULONG TtCount);
 
 /* endpoint.c */
-
 NTSTATUS
 NTAPI
 USBPORT_OpenPipe(
@@ -825,7 +821,6 @@ USBPORT_EndpointHasQueuedTransfers(
   IN PULONG TransferCount);
 
 /* iface.c */
-
 NTSTATUS
 NTAPI
 USBPORT_PdoQueryInterface(
@@ -834,7 +829,6 @@ USBPORT_PdoQueryInterface(
   IN PIRP Irp);
 
 /* ioctl.c */
-
 NTSTATUS
 NTAPI
 USBPORT_PdoDeviceControl(
@@ -866,7 +860,6 @@ USBPORT_GetSymbolicName(
   IN PUNICODE_STRING DestinationString);
 
 /* pnp.c */
-
 NTSTATUS
 NTAPI
 USBPORT_FdoPnP(
@@ -880,7 +873,6 @@ USBPORT_PdoPnP(
   IN PIRP Irp);
 
 /* power.c */
-
 NTSTATUS
 NTAPI
 USBPORT_PdoPower(
@@ -934,7 +926,6 @@ USBPORT_HcQueueWakeDpc(
   IN PDEVICE_OBJECT FdoDevice);
 
 /* queue.c */
-
 VOID
 NTAPI
 USBPORT_InsertIdleIrp(
@@ -1089,7 +1080,6 @@ USBPORT_AbortEndpoint(
   IN PIRP Irp);
 
 /* roothub.c */
-
 VOID
 NTAPI
 USBPORT_RootHubEndpointWorker(
@@ -1112,7 +1102,6 @@ USBPORT_RootHubPowerAndChirpAllCcPorts(
   IN PDEVICE_OBJECT FdoDevice);
 
 /* urb.c */
-
 NTSTATUS
 NTAPI
 USBPORT_HandleSubmitURB(
@@ -1121,7 +1110,6 @@ USBPORT_HandleSubmitURB(
   IN PURB Urb);
 
 /* usb2.c */
-
 BOOLEAN
 NTAPI
 USBPORT_AllocateBandwidthUSB2(

@@ -1577,13 +1577,11 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
     USBPORT_RemoveDeviceHandle(FdoDevice, OldDeviceHandle);
     USBPORT_AbortTransfers(FdoDevice, OldDeviceHandle);
 
-    //DPRINT1("USBPORT_RestoreDevice: DeviceHandleLock - %x\n", OldDeviceHandle->DeviceHandleLock);
     while (InterlockedDecrement(&OldDeviceHandle->DeviceHandleLock) >= 0)
     {
         InterlockedIncrement(&OldDeviceHandle->DeviceHandleLock);
         USBPORT_Wait(FdoDevice, 100);
     }
-    //DPRINT1("USBPORT_RestoreDevice: DeviceHandleLock ok\n");
 
     if (sizeof(USB_DEVICE_DESCRIPTOR) == RtlCompareMemory(&NewDeviceHandle->DeviceDescriptor,
                                                           &OldDeviceHandle->DeviceDescriptor,
