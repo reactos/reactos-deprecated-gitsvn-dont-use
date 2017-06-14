@@ -1554,7 +1554,10 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                            1,
                            FALSE);
 
-        ASSERT(FALSE);
+#ifndef NDEBUG
+        DPRINT("USBPORT_RestoreDevice: OldDeviceHandle not valid\n");
+        DbgBreakPoint();
+#endif
         return STATUS_DEVICE_NOT_CONNECTED;
     }
 
@@ -1564,7 +1567,10 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
                            LOW_REALTIME_PRIORITY,
                            1,
                            FALSE);
-        ASSERT(FALSE);
+#ifndef NDEBUG
+        DPRINT("USBPORT_RestoreDevice: NewDeviceHandle not valid\n");
+        DbgBreakPoint();
+#endif
         return STATUS_DEVICE_NOT_CONNECTED;
     }
 
@@ -1734,7 +1740,10 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
     }
     else
     {
-        ASSERT(FALSE);
+#ifndef NDEBUG
+        DPRINT("USBPORT_RestoreDevice: New DeviceDescriptor != Old DeviceDescriptor\n");
+        DbgBreakPoint();
+#endif
         Status = STATUS_UNSUCCESSFUL;
     }
 
