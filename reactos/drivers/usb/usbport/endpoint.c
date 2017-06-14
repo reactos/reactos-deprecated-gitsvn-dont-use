@@ -340,7 +340,6 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
                            IN PUSBPORT_PIPE_HANDLE PipeHandle)
 {
     PLIST_ENTRY HandleList;
-    BOOLEAN Result = FALSE;
     PUSBPORT_PIPE_HANDLE CurrentHandle;
 
     //DPRINT("USBPORT_ValidatePipeHandle: DeviceHandle - %p, PipeHandle - %p\n",
@@ -358,13 +357,10 @@ USBPORT_ValidatePipeHandle(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
         HandleList = HandleList->Flink;
   
         if (CurrentHandle == PipeHandle)
-            break;
-  
-        if (HandleList == &DeviceHandle->PipeHandleList)
-            return Result;
+            return TRUE;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 BOOLEAN
