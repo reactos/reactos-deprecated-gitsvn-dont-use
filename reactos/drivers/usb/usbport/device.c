@@ -133,7 +133,7 @@ USBPORT_SendSetupPacket(IN PUSBPORT_DEVICE_HANDLE DeviceHandle,
 ULONG
 NTAPI
 USBPORT_GetInterfaceLength(IN PUSB_INTERFACE_DESCRIPTOR iDescriptor,
-                           IN ULONG EndDescriptors)
+                           IN ULONG_PTR EndDescriptors)
 {
     SIZE_T Length;
     PUSB_ENDPOINT_DESCRIPTOR Descriptor;
@@ -185,7 +185,7 @@ USBPORT_ParseConfigurationDescriptor(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDesc
     PUSB_INTERFACE_DESCRIPTOR iDescriptor;
     PUSB_INTERFACE_DESCRIPTOR OutDescriptor = NULL;
     ULONG_PTR Descriptor = (ULONG_PTR)ConfigDescriptor;
-    ULONG EndDescriptors;
+    ULONG_PTR EndDescriptors;
     ULONG ix;
 
     DPRINT("USBPORT_ParseConfigurationDescriptor ... \n");
@@ -647,9 +647,7 @@ USBPORT_HandleSelectConfiguration(IN PDEVICE_OBJECT FdoDevice,
 
     InitializeListHead(&ConfigHandle->InterfaceHandleList);
 
-    ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)
-                                            ((ULONG_PTR)ConfigHandle +
-                                             sizeof(USBPORT_CONFIGURATION_HANDLE));
+    ConfigHandle->ConfigurationDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)(ConfigHandle + 1);
 
     RtlCopyMemory(ConfigHandle->ConfigurationDescriptor,
                   ConfigDescriptor,
@@ -1528,7 +1526,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_DEVICE_EXTENSION  FdoExtension;
     PLIST_ENTRY iHandleList;
     PUSBPORT_ENDPOINT Endpoint;
-    ULONG EndpointRequirements[2] = { 0 };
+    ULONG EndpointRequirements[2] = {0};
     USB_DEFAULT_PIPE_SETUP_PACKET SetupPacket;
     NTSTATUS Status = STATUS_SUCCESS;
     USBD_STATUS USBDStatus;
@@ -1705,7 +1703,7 @@ USBPORT_RestoreDevice(IN PDEVICE_OBJECT FdoDevice,
 
                         Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
                                                           &Endpoint->EndpointProperties,
-                                                          (PULONG)&EndpointRequirements);
+                                                          EndpointRequirements);
 
                         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 

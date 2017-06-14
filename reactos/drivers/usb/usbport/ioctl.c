@@ -391,7 +391,7 @@ USBPORT_FdoDeviceControl(IN PDEVICE_OBJECT FdoDevice,
     PIO_STACK_LOCATION IoStack;
     ULONG ControlCode;
     NTSTATUS Status = STATUS_INVALID_DEVICE_REQUEST;
-    ULONG Information = 0;
+    ULONG_PTR Information = 0;
 
     DPRINT("USBPORT_FdoDeviceControl: Irp - %p\n", Irp);
 

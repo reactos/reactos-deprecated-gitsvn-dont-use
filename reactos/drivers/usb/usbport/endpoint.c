@@ -821,7 +821,7 @@ USBPORT_OpenPipe(IN PDEVICE_OBJECT FdoDevice,
 
         Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
                                           &Endpoint->EndpointProperties,
-                                          (PULONG)&TransferParams);
+                                          TransferParams);
 
         KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, OldIrql);
 
@@ -996,7 +996,7 @@ USBPORT_ReopenPipe(IN PDEVICE_OBJECT FdoDevice,
 
     Packet->QueryEndpointRequirements(FdoExtension->MiniPortExt,
                                       &Endpoint->EndpointProperties,
-                                      (PULONG)&EndpointRequirements);
+                                      EndpointRequirements);
 
     KeReleaseSpinLock(&FdoExtension->MiniportSpinLock, MiniportOldIrql);
 
