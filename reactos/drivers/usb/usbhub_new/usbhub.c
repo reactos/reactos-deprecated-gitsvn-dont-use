@@ -1697,8 +1697,7 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
         if (!HubExtension->WorkItemToQueue)
         {
             DPRINT1("USBH_ChangeIndicationProcessChange: WorkItem == NULL \n");
-            KeBugCheckEx(0xFE, 0xC1, 0, 0, 0);
-            //DbgBreakPoint();
+            KeBugCheckEx(BUGCODE_USB_DRIVER, 0xC1, 0, 0, 0);
             return STATUS_MORE_PROCESSING_REQUIRED;
         }
 
@@ -1729,11 +1728,11 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     if (!Port)
     {
         WorkItem = HubExtension->WorkItemToQueue;
+
         if (!HubExtension->WorkItemToQueue)
         {
             DPRINT1("USBH_ChangeIndicationProcessChange: WorkItem == NULL \n");
-            KeBugCheckEx(0xFE, 0xC2, 0, 0, 0);
-            //DbgBreakPoint();
+            KeBugCheckEx(BUGCODE_USB_DRIVER, 0xC2, 0, 0, 0);
             return STATUS_MORE_PROCESSING_REQUIRED;
         }
         else
