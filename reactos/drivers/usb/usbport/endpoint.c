@@ -1435,22 +1435,22 @@ USBPORT_DmaEndpointWorker(IN PUSBPORT_ENDPOINT Endpoint)
 BOOLEAN
 NTAPI
 USBPORT_EndpointWorker(IN PUSBPORT_ENDPOINT Endpoint,
-                       IN BOOLEAN Flag)
+                       IN BOOLEAN LockNotChecked)
 {
     PDEVICE_OBJECT FdoDevice;
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PUSBPORT_REGISTRATION_PACKET Packet;
     ULONG EndpointState;
 
-    DPRINT_CORE("USBPORT_EndpointWorker: Endpoint - %p, Flag - %x\n",
+    DPRINT_CORE("USBPORT_EndpointWorker: Endpoint - %p, LockNotChecked - %x\n",
            Endpoint,
-           Flag);
+           LockNotChecked);
 
     FdoDevice = Endpoint->FdoDevice;
     FdoExtension = FdoDevice->DeviceExtension;
     Packet = &FdoExtension->MiniPortInterface->Packet;
 
-    if (Flag == FALSE)
+    if (LockNotChecked == FALSE)
     {
         if (InterlockedIncrement(&Endpoint->LockCounter))
         {
