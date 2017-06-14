@@ -778,7 +778,7 @@ USBPORT_RootHubCreateDevice(IN PDEVICE_OBJECT FdoDevice,
 
     Packet->RH_GetRootHubData(FdoExtension->MiniPortExt, &RootHubData);
 
-    ASSERT(RootHubData.NumberOfPorts > 1);
+    ASSERT(RootHubData.NumberOfPorts != 0);
     NumMaskByte = ((RootHubData.NumberOfPorts - 1) >> 3) + 1;
 
     DescriptorsLength = sizeof(USB_DEVICE_DESCRIPTOR) +

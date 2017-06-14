@@ -1109,7 +1109,7 @@ USBPORT_QueueTransferUrb(IN PURB Urb)
 
         DPRINT_URB("URB TransferBuffer - %p\n", Buffer);
 
-        for (ix = 0; (ULONG_PTR)(Buffer + ix) <= BufferEnd; ix++)
+        for (ix = 0; (ULONG_PTR)(Buffer + ix) < BufferEnd; ix++)
         {
             DPRINT_URB("Buffer[%02X] - %p\n", ix, Buffer[ix]);
         }
