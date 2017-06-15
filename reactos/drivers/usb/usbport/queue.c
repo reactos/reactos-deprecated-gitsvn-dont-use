@@ -683,10 +683,11 @@ NTAPI
 USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
 {
     PDEVICE_OBJECT FdoDevice;
+    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
     PUSBPORT_TRANSFER Transfer;
     PIRP Irp;
     KIRQL OldIrql;
-    PUSBPORT_DEVICE_EXTENSION  FdoExtension;
+    KIRQL PrevIrql;
 
     DPRINT_CORE("USBPORT_FlushCancelList: ... \n");
 
@@ -710,9 +711,9 @@ USBPORT_FlushCancelList(IN PUSBPORT_ENDPOINT Endpoint)
         {
             DPRINT("USBPORT_FlushCancelList: Irp - %p\n", Irp);
 
-            IoAcquireCancelSpinLock(&OldIrql);
+            IoAcquireCancelSpinLock(&PrevIrql);
             IoSetCancelRoutine(Irp, NULL);
-            IoReleaseCancelSpinLock(OldIrql);
+            IoReleaseCancelSpinLock(PrevIrql);
 
             USBPORT_RemoveActiveTransferIrp(FdoDevice, Irp);
         }
