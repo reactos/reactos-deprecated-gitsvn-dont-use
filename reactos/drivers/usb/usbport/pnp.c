@@ -1394,7 +1394,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
 
         RtlStringCbPrintfExW(EndBuffer,
                              Remaining,
-                             &EndBuffer,
+                             NULL,
                              &Remaining,
                              0,
                              L"USB\\ROOT_HUB20");
@@ -1428,13 +1428,13 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
 
         RtlStringCbPrintfExW(EndBuffer,
                              Remaining,
-                             &EndBuffer,
+                             NULL,
                              &Remaining,
                              0,
                              L"USB\\ROOT_HUB");
     }
 
-    Length = (sizeof(Buffer) - Remaining + sizeof(UNICODE_NULL));
+    Length = sizeof(Buffer) - (Remaining - sizeof(UNICODE_NULL));
 
      /* for debug only */
     if (FALSE)
