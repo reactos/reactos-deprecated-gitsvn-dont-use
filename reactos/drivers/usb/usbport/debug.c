@@ -12,15 +12,10 @@ NTAPI
 USBPORT_DbgPrint(IN PVOID Context,
                  IN ULONG Level,
                  IN PCH Format,
-                 IN ULONG Arg1,
-                 IN ULONG Arg2,
-                 IN ULONG Arg3,
-                 IN ULONG Arg4,
-                 IN ULONG Arg5,
-                 IN ULONG Arg6)
+                 ...)
 {
     DPRINT("USBPORT_DbgPrint: UNIMPLEMENTED. FIXME. \n");
-    return Level;
+    return 0;
 }
 
 ULONG

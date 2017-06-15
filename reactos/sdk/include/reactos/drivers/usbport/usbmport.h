@@ -336,12 +336,7 @@ typedef ULONG
   PVOID,
   ULONG,
   PCH,
-  ULONG,
-  ULONG,
-  ULONG,
-  ULONG,
-  ULONG,
-  ULONG);
+  ...);
 
 typedef ULONG
 (NTAPI *PUSBPORT_TEST_DEBUG_BREAK)(PVOID);

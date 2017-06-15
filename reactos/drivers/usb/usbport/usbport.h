@@ -18,7 +18,7 @@
 #define PCI_INTERFACE_USB_ID_EHCI 0x20
 #define PCI_INTERFACE_USB_ID_XHCI 0x30
 
-#ifdef USBD_TRANSFER_DIRECTION
+#ifdef USBD_TRANSFER_DIRECTION // due hubbusif.h included usbdi.h (Which overwrites...)
 #undef USBD_TRANSFER_DIRECTION
 #define USBD_TRANSFER_DIRECTION 0x00000001
 #endif
@@ -578,12 +578,7 @@ USBPORT_DbgPrint(
   IN PVOID Context,
   IN ULONG Level,
   IN PCH Format,
-  IN ULONG Arg1,
-  IN ULONG Arg2,
-  IN ULONG Arg3,
-  IN ULONG Arg4,
-  IN ULONG Arg5,
-  IN ULONG Arg6);
+  ...);
 
 ULONG
 NTAPI
