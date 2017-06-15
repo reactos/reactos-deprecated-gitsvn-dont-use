@@ -2015,7 +2015,7 @@ USBPORT_RequestAsyncCallback(IN PVOID Context,
                              IN ULONG TimerValue,
                              IN PVOID Buffer,
                              IN SIZE_T Length,
-                             IN PVOID Callback)
+                             IN ASYNC_TIMER_CALLBACK * Callback)
 {
     PUSBPORT_DEVICE_EXTENSION FdoExtension;
     PDEVICE_OBJECT FdoDevice;
