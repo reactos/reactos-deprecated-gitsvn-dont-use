@@ -565,6 +565,12 @@ USBPORT_FindCompanionControllers(
   IN BOOLEAN IsObRefer,
   IN BOOLEAN IsFDOsReturned);
 
+VOID
+NTAPI
+USBPORT_InvalidateControllerHandler(
+  IN PDEVICE_OBJECT FdoDevice,
+  IN ULONG Type);
+
 /* debug.c */
 ULONG
 NTAPI

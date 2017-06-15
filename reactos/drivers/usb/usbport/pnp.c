@@ -1105,6 +1105,7 @@ USBPORT_FdoPnP(IN PDEVICE_OBJECT FdoDevice,
     NTSTATUS Status;
     DEVICE_RELATION_TYPE RelationType;
     PDEVICE_RELATIONS DeviceRelations;
+    PDEVICE_OBJECT RootHubPdo;
 
     FdoExtension = FdoDevice->DeviceExtension;
     FdoCommonExtension = &FdoExtension->CommonExtension;
@@ -1191,12 +1192,42 @@ Exit:
             return Status;
 
         case IRP_MN_QUERY_REMOVE_DEVICE:
-            DPRINT1("USBPORT_FdoPnP: IRP_MN_QUERY_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
-            break;
+            DPRINT("IRP_MN_QUERY_REMOVE_DEVICE\n");
+            if (Packet->MiniPortFlags & USB_MINIPORT_FLAGS_USB2)
+            {
+                DPRINT1("USBPORT_FdoPnP: Haction registry write FIXME\n");
+            }
+
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            goto ForwardIrp;
 
         case IRP_MN_REMOVE_DEVICE:
-            DPRINT1("USBPORT_FdoPnP: IRP_MN_REMOVE_DEVICE UNIMPLEMENTED. FIXME. \n");
-            break;
+            DPRINT("USBPORT_FdoPnP: IRP_MN_REMOVE_DEVICE\n");
+            FdoCommonExtension->PnpStateFlags |= USBPORT_PNP_STATE_FAILED;
+
+            if (FdoCommonExtension->PnpStateFlags & USBPORT_PNP_STATE_STARTED &&
+               !(FdoCommonExtension->PnpStateFlags & USBPORT_PNP_STATE_NOT_INIT))
+            {
+                DPRINT1("USBPORT_FdoPnP: stop fdo FIXME\n");
+                FdoCommonExtension->PnpStateFlags |= USBPORT_PNP_STATE_NOT_INIT;
+            }
+
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            IoSkipCurrentIrpStackLocation(Irp);
+            Status = IoCallDriver(FdoCommonExtension->LowerDevice, Irp);
+
+            IoDetachDevice(FdoCommonExtension->LowerDevice);
+
+            RootHubPdo = FdoExtension->RootHubPdo;
+
+            IoDeleteDevice(FdoDevice);
+
+            if (RootHubPdo)
+            {
+                IoDeleteDevice(RootHubPdo);
+            }
+
+            return Status;
 
         case IRP_MN_CANCEL_REMOVE_DEVICE:
             DPRINT("IRP_MN_CANCEL_REMOVE_DEVICE\n");
@@ -1204,8 +1235,17 @@ Exit:
             goto ForwardIrp;
 
         case IRP_MN_STOP_DEVICE:
-            DPRINT1("USBPORT_FdoPnP: IRP_MN_STOP_DEVICE UNIMPLEMENTED. FIXME. \n");
-            break;
+            DPRINT("IRP_MN_STOP_DEVICE\n");
+            if (FdoCommonExtension->PnpStateFlags & USBPORT_PNP_STATE_STARTED)
+            {
+                DPRINT1("USBPORT_FdoPnP: stop fdo FIXME\n");
+
+                FdoCommonExtension->PnpStateFlags &= ~USBPORT_PNP_STATE_STARTED;
+                FdoCommonExtension->PnpStateFlags |= USBPORT_PNP_STATE_NOT_INIT;
+            }
+
+            Irp->IoStatus.Status = STATUS_SUCCESS;
+            goto ForwardIrp;
 
         case IRP_MN_QUERY_STOP_DEVICE:
             DPRINT("IRP_MN_QUERY_STOP_DEVICE\n");
@@ -1329,7 +1369,12 @@ Exit:
             goto ForwardIrp;
 
         case IRP_MN_SURPRISE_REMOVAL:
-            DPRINT1("USBPORT_FdoPnP: IRP_MN_SURPRISE_REMOVAL UNIMPLEMENTED. FIXME. \n");
+            DPRINT1("IRP_MN_SURPRISE_REMOVAL\n");
+            if (!(FdoCommonExtension->PnpStateFlags & USBPORT_PNP_STATE_FAILED))
+            {
+                USBPORT_InvalidateControllerHandler(FdoDevice,
+                                                    INVALIDATE_CONTROLLER_SURPRISE_REMOVE);
+            }
             goto ForwardIrp;
 
         default:
@@ -1434,7 +1479,7 @@ USBPORT_GetDeviceHwIds(IN PDEVICE_OBJECT FdoDevice,
                              L"USB\\ROOT_HUB");
     }
 
-    Length = sizeof(Buffer) - (Remaining - sizeof(UNICODE_NULL));
+    Length = (sizeof(Buffer) - Remaining + sizeof(UNICODE_NULL));
 
      /* for debug only */
     if (FALSE)
