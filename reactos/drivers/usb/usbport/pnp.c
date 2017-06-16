@@ -1268,7 +1268,6 @@ Exit:
                 if (!DeviceRelations)
                 {
                     Status = STATUS_INSUFFICIENT_RESOURCES;
-                    Irp->IoStatus.Information = 0;
                     Irp->IoStatus.Status = Status;
                     IoCompleteRequest(Irp, IO_NO_INCREMENT);
                     return Status;
