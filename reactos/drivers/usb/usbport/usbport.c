@@ -2281,7 +2281,7 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
 
     Transfer->SgList.CurrentVa = CurrentVa;
-    Transfer->SgList.MappedSystemVa = MmGetSystemAddressForMdlSafe(Mdl);
+    Transfer->SgList.MappedSystemVa = MmGetSystemAddressForMdlSafe(Mdl, NormalPagePriority);
 
     sgList = &Transfer->SgList;
     sgList->Flags = 0;
