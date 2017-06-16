@@ -2253,7 +2253,6 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
     PUSBPORT_ENDPOINT Endpoint;
     PMDL Mdl;
     ULONG_PTR CurrentVa;
-    PVOID MappedSystemVa;
     PUSBPORT_SCATTER_GATHER_LIST sgList;
     SIZE_T CurrentLength;
     ULONG ix;
@@ -2280,13 +2279,9 @@ USBPORT_MapTransfer(IN PDEVICE_OBJECT FdoDevice,
 
     Mdl = Urb->UrbControlTransfer.TransferBufferMDL;
     CurrentVa = (ULONG_PTR)MmGetMdlVirtualAddress(Mdl);
+
     Transfer->SgList.CurrentVa = CurrentVa;
-
-    Mdl->MdlFlags |= MDL_MAPPING_CAN_FAIL;
-    MappedSystemVa = MmGetSystemAddressForMdl(Mdl);
-    Mdl->MdlFlags &= ~MDL_MAPPING_CAN_FAIL;
-
-    Transfer->SgList.MappedSystemVa = MappedSystemVa;
+    Transfer->SgList.MappedSystemVa = MmGetSystemAddressForMdlSafe(Mdl);
 
     sgList = &Transfer->SgList;
     sgList->Flags = 0;
