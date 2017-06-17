@@ -446,6 +446,11 @@ USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
         USBH_HubCancelIdleIrp(HubExtension, PendingIdleIrp);
     }
 
+    if (HubExtension->CurrentPowerState.DeviceState == PowerDeviceD0)
+    {
+        goto ErrorExit;
+    }
+
     Status = USBH_AllocateWorkItem(HubExtension,
                                    &HubIoWorkItem, 
                                    USBH_IdleCancelPowerHubWorker,
@@ -453,17 +458,17 @@ USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
                                    (PVOID *)&HubWorkItemBuffer,
                                    DelayedWorkQueue);
 
-    if (HubExtension->CurrentPowerState.DeviceState == PowerDeviceD0 ||
-        !NT_SUCCESS(Status))
-    {
-        Irp->IoStatus.Status = STATUS_CANCELLED;
-        IoCompleteRequest(Irp, IO_NO_INCREMENT);
-    }
-    else
+    if (NT_SUCCESS(Status))
     {
         HubWorkItemBuffer->Irp = Irp;
         USBH_QueueWorkItem(HubExtension, HubIoWorkItem);
+        return;
     }
+
+ErrorExit:
+
+    Irp->IoStatus.Status = STATUS_CANCELLED;
+    IoCompleteRequest(Irp, IO_NO_INCREMENT);
 }
 
 NTSTATUS
