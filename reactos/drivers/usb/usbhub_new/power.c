@@ -9,7 +9,7 @@ USBH_CompletePowerIrp(IN PUSBHUB_FDO_EXTENSION HubExtension,
                       IN PIRP Irp,
                       IN NTSTATUS NtStatus)
 {
-    DPRINT("USBH_CompletePowerIrp: HubExtension - %p, Irp - %p, NtStatus - %p\n",
+    DPRINT("USBH_CompletePowerIrp: HubExtension - %p, Irp - %p, NtStatus - %lX\n",
            HubExtension,
            Irp,
            NtStatus);
@@ -83,7 +83,7 @@ USBH_HubSetD0(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
     {
-        DPRINT("USBH_HubSetD0: HubFlags - %p\n", HubExtension->HubFlags);
+        DPRINT("USBH_HubSetD0: HubFlags - %lX\n", HubExtension->HubFlags);
 
         KeWaitForSingleObject(&HubExtension->IdleEvent,
                               Suspended,
@@ -295,7 +295,7 @@ USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
 
     IoReleaseCancelSpinLock(OldIrql);
 
-    DPRINT("USBH_FdoWWIrpIoCompletion: Status - %p\n", Status);
+    DPRINT("USBH_FdoWWIrpIoCompletion: Status - %lX\n", Status);
 
     if (!NT_SUCCESS(Status))
     {
@@ -327,7 +327,7 @@ USBH_FdoWWIrpIoCompletion(IN PDEVICE_OBJECT DeviceObject,
         }
     }
 
-    DPRINT("USBH_FdoWWIrpIoCompletion: Status - %p\n", Status);
+    DPRINT("USBH_FdoWWIrpIoCompletion: Status - %lX\n", Status);
 
     if (Status != STATUS_MORE_PROCESSING_REQUIRED)
     {
@@ -359,7 +359,7 @@ USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
     PowerState = IoStack->Parameters.Power.State;
 
     Status = Irp->IoStatus.Status;
-    DPRINT("USBH_PowerIrpCompletion: Status - %p\n", Status);
+    DPRINT("USBH_PowerIrpCompletion: Status - %lX\n", Status);
 
     if (!NT_SUCCESS(Status))
     {
@@ -398,7 +398,7 @@ USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
             USBH_SubmitStatusChangeTransfer(HubExtension);
         }
 
-        DPRINT("USBH_PowerIrpCompletion: Status - %p\n", Status);
+        DPRINT("USBH_PowerIrpCompletion: Status - %lX\n", Status);
 
         if (Status != STATUS_MORE_PROCESSING_REQUIRED)
         {

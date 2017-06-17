@@ -3,6 +3,9 @@
 //#define NDEBUG
 #include <debug.h>
 
+#include <ntddstor.h>
+#include <ks.h>
+
 PVOID GenericUSBDeviceString = NULL;
 
 NTSTATUS
@@ -112,7 +115,7 @@ IsBitSet(IN ULONG_PTR BitMapAddress,
     BOOLEAN IsSet;
 
     IsSet = (*(PUCHAR)(BitMapAddress + (Bit >> 3)) & (1 << (Bit & 7))) != 0;
-    DPRINT("IsBitSet: Bit - %p, IsSet - %x\n", Bit, IsSet);
+    DPRINT("IsBitSet: Bit - %lX, IsSet - %x\n", Bit, IsSet);
     return IsSet;
 }
 
@@ -1475,7 +1478,7 @@ USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
             if (!NT_SUCCESS(Status))
             {
-                DPRINT1("USBH_SyncPowerOnPorts: USBH_SyncPowerOnPort() failed - %p\n",
+                DPRINT1("USBH_SyncPowerOnPorts: USBH_SyncPowerOnPort() failed - %lX\n",
                         Status);
                 break;
             }
@@ -1655,7 +1658,7 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
 
     HubExtension = Context;
 
-    DPRINT("USBH_ChangeIndicationProcessChange: PortStatus - %p\n",
+    DPRINT("USBH_ChangeIndicationProcessChange: PortStatus - %lX\n",
            HubExtension->PortStatus.AsULONG);
 
     if ((NT_SUCCESS(Irp->IoStatus.Status) ||
@@ -2265,7 +2268,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
     HubExtension = Context;
     UrbStatus = HubExtension->SCEWorkerUrb.Hdr.Status;
 
-    DPRINT("USBH_ChangeIndication: IrpStatus - %p, UrbStatus - %p, HubFlags - %p\n",
+    DPRINT("USBH_ChangeIndication: IrpStatus - %x, UrbStatus - %x, HubFlags - %lX\n",
            Irp->IoStatus.Status,
            UrbStatus,
            HubExtension->HubFlags);
@@ -2389,7 +2392,7 @@ USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_NOT_D0_STATE)
     {
         DPRINT("USBH_SubmitStatusChangeTransfer: USBHUB_FDO_FLAG_NOT_D0_STATE - FALSE\n");
-        DPRINT("USBH_SubmitStatusChangeTransfer: HubFlags - %p\n", HubExtension->HubFlags);
+        DPRINT("USBH_SubmitStatusChangeTransfer: HubFlags - %lX\n", HubExtension->HubFlags);
         return STATUS_INVALID_DEVICE_STATE;
     }
 
@@ -3366,7 +3369,7 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
     HubExtension = Context;
 
-    DPRINT("USBH_FdoIdleNotificationCallback: HubExtension - %p, HubFlags - %p\n",
+    DPRINT("USBH_FdoIdleNotificationCallback: HubExtension - %p, HubFlags - %lX\n",
            HubExtension,
            HubExtension->HubFlags);
 
@@ -3505,7 +3508,7 @@ IdleHub:
     if (!IsReady ||
         (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_SUSPENDED))
     {
-        DPRINT1("USBH_FdoIdleNotificationCallback: HubFlags - %p\n",
+        DPRINT1("USBH_FdoIdleNotificationCallback: HubFlags - %lX\n",
                 HubExtension->HubFlags);
 
         HubExtension->HubFlags &= ~(USBHUB_FDO_FLAG_DEVICE_SUSPENDED |
@@ -3651,7 +3654,7 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
     IoReleaseCancelSpinLock(Irql);
 
     NtStatus = Irp->IoStatus.Status;
-    DPRINT("USBH_FdoIdleNotificationRequestComplete: NtStatus - %p\n", NtStatus);
+    DPRINT("USBH_FdoIdleNotificationRequestComplete: NtStatus - %lX\n", NtStatus);
 
     if (!NT_SUCCESS(NtStatus) &&
         NtStatus != STATUS_POWER_STATE_INVALID &&
@@ -3834,7 +3837,7 @@ return; //HACK: delete it line after fixing Power Manager!!!
     }
 
     HubFlags = HubExtension->HubFlags;
-    DPRINT("USBH_CheckHubIdle: HubFlags - %p\n", HubFlags);
+    DPRINT("USBH_CheckHubIdle: HubFlags - %lX\n", HubFlags);
 
     if (HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED &&
         HubFlags & USBHUB_FDO_FLAG_DO_ENUMERATION)
@@ -4407,7 +4410,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     NTSTATUS Status;
     UNICODE_STRING DestinationString;
 
-    DPRINT("USBH_CreateDevice: Port - %x, UsbPortStatus - %p\n",
+    DPRINT("USBH_CreateDevice: Port - %x, UsbPortStatus - %lX\n",
            Port,
            UsbPortStatus.AsUshort16);
 

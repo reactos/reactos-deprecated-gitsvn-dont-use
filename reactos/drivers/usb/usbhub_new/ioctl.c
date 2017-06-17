@@ -1169,7 +1169,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
-    DPRINT("USBH_DeviceControl: ControlCode - %p\n", ControlCode);
+    DPRINT("USBH_DeviceControl: ControlCode - %lX\n", ControlCode);
 
     if ((HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0) &&
         (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED))
@@ -1284,7 +1284,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         default:
-            DPRINT1("USBH_DeviceControl: Unhandled IOCTL_ - %p\n", ControlCode);
+            DPRINT1("USBH_DeviceControl: Unhandled IOCTL_ - %lX\n", ControlCode);
             Status = USBH_PassIrp(HubExtension->RootHubPdo, Irp);
             break;
     }
@@ -1376,7 +1376,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             break;
 
         case IOCTL_INTERNAL_USB_GET_HUB_COUNT:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_COUNT. PortPdoFlags - %p\n",
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_COUNT. PortPdoFlags - %lX\n",
                    PortExtension->PortPdoFlags);
 
             if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE))
@@ -1392,11 +1392,11 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = USBH_SyncGetHubCount(HubExtension->LowerDevice,
                                           HubCount);
 
-            DPRINT("USBH_PdoInternalControl: *HubCount - %p\n", *HubCount);
+            DPRINT("USBH_PdoInternalControl: *HubCount - %x\n", *HubCount);
             break;
 
         case IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO. PortPdoFlags - %p\n",
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO. PortPdoFlags - %lX\n",
                    PortExtension->PortPdoFlags);
 
             if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE))
@@ -1434,7 +1434,7 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             break;
 
         default:
-            DPRINT1("USBH_PdoInternalControl: unhandled IOCTL_ - %p\n", ControlCode);
+            DPRINT1("USBH_PdoInternalControl: unhandled IOCTL_ - %lX\n", ControlCode);
             break;
     }
 
