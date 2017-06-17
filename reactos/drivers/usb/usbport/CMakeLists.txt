@@ -24,5 +24,5 @@ add_library(usbport SHARED
 
 add_pch(usbport usbport.h SOURCE)
 set_module_type(usbport kernelmodedriver)
-add_importlibs(usbport ntoskrnl hal)
+add_importlibs(usbport hal ntoskrnl)
 add_cd_file(TARGET usbport DESTINATION reactos/system32/drivers NO_CAB FOR all)
