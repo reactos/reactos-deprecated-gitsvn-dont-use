@@ -45,7 +45,7 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
 
     Descriptor = (PUSB_COMMON_DESCRIPTOR)ConfigDescriptor;
 
-    do
+    while (Descriptor->bLength)
     {
         if (((ULONG)Descriptor) >= ((ULONG)ConfigDescriptor +
                                     ConfigDescriptor->wTotalLength))
@@ -99,15 +99,9 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
             DPRINT("bDescriptorType - %x\n", Descriptor->bDescriptorType);
         }
 
-        if (!Descriptor->bLength) 
-        {
-            break;
-        }
-
         Descriptor = (PUSB_COMMON_DESCRIPTOR)((ULONG)Descriptor +
                                               Descriptor->bLength);
-
-    } while (TRUE);
+    }
 }
 
 VOID
