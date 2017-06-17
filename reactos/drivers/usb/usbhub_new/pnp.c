@@ -1065,7 +1065,7 @@ USBH_FdoQueryBusRelations(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!DeviceRelations)
     {
-        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_NOT_ENUMERATED;//0xFF7FFFFF
+        HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_NOT_ENUMERATED;
 
         KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
                            LOW_REALTIME_PRIORITY,
@@ -2106,7 +2106,6 @@ USBH_PdoStartDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PortExtension->CurrentPowerState.DeviceState = PowerDeviceD0;
 
     DPRINT1("USBH_PdoStartDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
-    //IoWMIRegistrationControl()
 
     return Status;
 }
@@ -2349,20 +2348,20 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     switch (Minor)
     {
-        case IRP_MN_START_DEVICE: // 0
+        case IRP_MN_START_DEVICE:
             DPRINT("FDO IRP_MN_START_DEVICE\n");
             IsCheckIdle = FALSE;
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_FdoStartDevice(HubExtension, Irp);
             break;
 
-        case IRP_MN_QUERY_REMOVE_DEVICE: // 1
+        case IRP_MN_QUERY_REMOVE_DEVICE:
             DPRINT("FDO IRP_MN_QUERY_REMOVE_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_REMOVE_DEVICE: // 2
+        case IRP_MN_REMOVE_DEVICE:
             DPRINT("FDO IRP_MN_REMOVE_DEVICE\n");
             IsCheckIdle = FALSE;
             HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_REMOVED;
@@ -2370,32 +2369,32 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             Status = USBH_FdoRemoveDevice(HubExtension, Irp);
             break;
 
-        case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
+        case IRP_MN_CANCEL_REMOVE_DEVICE:
             DPRINT("FDO IRP_MN_CANCEL_REMOVE_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_STOP_DEVICE: // 4
+        case IRP_MN_STOP_DEVICE:
             DPRINT("FDO IRP_MN_STOP_DEVICE\n");
             IsCheckIdle = FALSE;
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_FdoStopDevice(HubExtension, Irp);
             break;
 
-        case IRP_MN_QUERY_STOP_DEVICE: // 5
+        case IRP_MN_QUERY_STOP_DEVICE:
             DPRINT("FDO IRP_MN_QUERY_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_CANCEL_STOP_DEVICE: // 6
+        case IRP_MN_CANCEL_STOP_DEVICE:
             DPRINT("FDO IRP_MN_CANCEL_STOP_DEVICE\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+        case IRP_MN_QUERY_DEVICE_RELATIONS:
             DPRINT("FDO IRP_MN_QUERY_DEVICE_RELATIONS\n");
 
             IoStack = IoGetCurrentIrpStackLocation(Irp);
@@ -2416,12 +2415,12 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_HUB_BUSY;
             break;
 
-        case IRP_MN_QUERY_INTERFACE: // 8
+        case IRP_MN_QUERY_INTERFACE:
             DPRINT("FDO IRP_MN_QUERY_INTERFACE\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_CAPABILITIES: // 9
+        case IRP_MN_QUERY_CAPABILITIES:
             DPRINT("FDO IRP_MN_QUERY_CAPABILITIES\n");
             IoCopyCurrentIrpStackLocationToNext(Irp);
 
@@ -2435,52 +2434,52 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             Status = IoCallDriver(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_RESOURCES: // 10
+        case IRP_MN_QUERY_RESOURCES:
             DPRINT("FDO IRP_MN_QUERY_RESOURCES\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:
             DPRINT("FDO IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_DEVICE_TEXT: // 12
+        case IRP_MN_QUERY_DEVICE_TEXT:
             DPRINT("FDO IRP_MN_QUERY_DEVICE_TEXT\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
+        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS:
             DPRINT("FDO IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_READ_CONFIG: // 15
+        case IRP_MN_READ_CONFIG:
             DPRINT("FDO IRP_MN_READ_CONFIG\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_WRITE_CONFIG: // 16
+        case IRP_MN_WRITE_CONFIG:
             DPRINT("FDO IRP_MN_WRITE_CONFIG\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_EJECT: // 17
+        case IRP_MN_EJECT:
             DPRINT("FDO IRP_MN_EJECT\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_SET_LOCK: // 18
+        case IRP_MN_SET_LOCK:
             DPRINT("FDO IRP_MN_SET_LOCK\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_ID: // 19
+        case IRP_MN_QUERY_ID:
             DPRINT("FDO IRP_MN_QUERY_ID\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
+        case IRP_MN_QUERY_PNP_DEVICE_STATE:
             DPRINT("FDO IRP_MN_QUERY_PNP_DEVICE_STATE\n");
 
             if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED)
@@ -2491,18 +2490,18 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_QUERY_BUS_INFORMATION: // 21
+        case IRP_MN_QUERY_BUS_INFORMATION:
             DPRINT("FDO IRP_MN_QUERY_BUS_INFORMATION\n");
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
+        case IRP_MN_DEVICE_USAGE_NOTIFICATION:
             DPRINT("FDO IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
             Irp->IoStatus.Status = STATUS_SUCCESS;
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
             break;
 
-        case IRP_MN_SURPRISE_REMOVAL: // 23
+        case IRP_MN_SURPRISE_REMOVAL:
             DPRINT("FDO IRP_MN_SURPRISE_REMOVAL\n");
             USBH_FdoSurpriseRemoveDevice(HubExtension, Irp);
             Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
@@ -2557,35 +2556,35 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     switch (Minor)
     {
-        case IRP_MN_START_DEVICE: // 0
+        case IRP_MN_START_DEVICE:
             DPRINT("PDO IRP_MN_START_DEVICE\n");
             return USBH_PdoStartDevice(PortExtension, Irp);
 
-        case IRP_MN_QUERY_REMOVE_DEVICE: // 1
+        case IRP_MN_QUERY_REMOVE_DEVICE:
             DPRINT("PDO IRP_MN_QUERY_REMOVE_DEVICE\n");
             return STATUS_SUCCESS;
 
-        case IRP_MN_REMOVE_DEVICE: // 2
+        case IRP_MN_REMOVE_DEVICE:
             DPRINT("PDO IRP_MN_REMOVE_DEVICE\n");
             return USBH_PdoRemoveDevice(PortExtension, PortExtension->HubExtension);
 
-        case IRP_MN_CANCEL_REMOVE_DEVICE: // 3
+        case IRP_MN_CANCEL_REMOVE_DEVICE:
             DPRINT("PDO IRP_MN_CANCEL_REMOVE_DEVICE\n");
             return STATUS_SUCCESS;
 
-        case IRP_MN_STOP_DEVICE: // 4
+        case IRP_MN_STOP_DEVICE:
             DPRINT("PDO IRP_MN_STOP_DEVICE\n");
             return USBH_PdoStopDevice(PortExtension, Irp);
 
-        case IRP_MN_QUERY_STOP_DEVICE: // 5
+        case IRP_MN_QUERY_STOP_DEVICE:
             DPRINT("PDO IRP_MN_QUERY_STOP_DEVICE\n");
             return STATUS_SUCCESS;
 
-        case IRP_MN_CANCEL_STOP_DEVICE: // 6
+        case IRP_MN_CANCEL_STOP_DEVICE:
             DPRINT("PDO IRP_MN_CANCEL_STOP_DEVICE\n");
             return STATUS_SUCCESS;
 
-        case IRP_MN_QUERY_DEVICE_RELATIONS: // 7
+        case IRP_MN_QUERY_DEVICE_RELATIONS:
             DPRINT("PDO IRP_MN_QUERY_DEVICE_RELATIONS\n");
 
             if (IoStack->Parameters.QueryDeviceRelations.Type != TargetDeviceRelation)
@@ -2616,7 +2615,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Irp->IoStatus.Information = (ULONG_PTR)DeviceRelation;
             break;
 
-        case IRP_MN_QUERY_INTERFACE: // 8
+        case IRP_MN_QUERY_INTERFACE:
             DPRINT("PDO IRP_MN_QUERY_INTERFACE\n");
 
             *IsCompleteIrp = 0;
@@ -2637,7 +2636,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = USBH_PassIrp(HubExtension->RootHubPdo, Irp);
             break;
 
-        case IRP_MN_QUERY_CAPABILITIES: // 9
+        case IRP_MN_QUERY_CAPABILITIES:
             DPRINT("PDO IRP_MN_QUERY_CAPABILITIES\n");
 
             DeviceCapabilities = IoStack->Parameters.DeviceCapabilities.Capabilities;
@@ -2655,12 +2654,12 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_QUERY_RESOURCES: // 10
+        case IRP_MN_QUERY_RESOURCES:
             DPRINT("PDO IRP_MN_QUERY_RESOURCES\n");
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS: // 11
+        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:
             DPRINT("PDO IRP_MN_QUERY_RESOURCE_REQUIREMENTS\n");
             PortExtension->PortPdoFlags |= 0x04000000;
 
@@ -2672,44 +2671,44 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_QUERY_DEVICE_TEXT: // 12
+        case IRP_MN_QUERY_DEVICE_TEXT:
             DPRINT("PDO IRP_MN_QUERY_DEVICE_TEXT\n");
             return USBH_PdoQueryDeviceText(PortExtension, Irp);
 
-        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: // 13
+        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS:
             DPRINT("PDO IRP_MN_FILTER_RESOURCE_REQUIREMENTS\n");
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_READ_CONFIG: // 15
+        case IRP_MN_READ_CONFIG:
             DPRINT("PDO IRP_MN_READ_CONFIG\n");
             DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_WRITE_CONFIG: // 16
+        case IRP_MN_WRITE_CONFIG:
             DPRINT("PDO IRP_MN_WRITE_CONFIG\n");
             DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_EJECT: // 17
+        case IRP_MN_EJECT:
             DPRINT("PDO IRP_MN_EJECT\n");
             DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_SET_LOCK: // 18
+        case IRP_MN_SET_LOCK:
             DPRINT("PDO IRP_MN_SET_LOCK\n");
             DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_QUERY_ID: // 19
+        case IRP_MN_QUERY_ID:
             DPRINT("PDO IRP_MN_QUERY_ID\n");
             return USBH_PdoQueryId(PortExtension, Irp);
 
-        case IRP_MN_QUERY_PNP_DEVICE_STATE: // 20
+        case IRP_MN_QUERY_PNP_DEVICE_STATE:
             DPRINT("PDO IRP_MN_QUERY_PNP_DEVICE_STATE\n");
             if (PortExtension->PortPdoFlags & (USBHUB_PDO_FLAG_INSUFFICIENT_PWR |
                                                USBHUB_PDO_FLAG_OVERCURRENT_PORT |
@@ -2722,7 +2721,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_QUERY_BUS_INFORMATION: // 21
+        case IRP_MN_QUERY_BUS_INFORMATION:
             DPRINT("PDO IRP_MN_QUERY_BUS_INFORMATION\n");
 
             BusInfo = ExAllocatePoolWithTag(PagedPool,
@@ -2747,13 +2746,13 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = STATUS_SUCCESS;
             break;
 
-        case IRP_MN_DEVICE_USAGE_NOTIFICATION: // 22
+        case IRP_MN_DEVICE_USAGE_NOTIFICATION:
             DPRINT("PDO IRP_MN_DEVICE_USAGE_NOTIFICATION\n");
             DbgBreakPoint();
             Status = Irp->IoStatus.Status;
             break;
 
-        case IRP_MN_SURPRISE_REMOVAL: // 23
+        case IRP_MN_SURPRISE_REMOVAL:
             DPRINT("PDO IRP_MN_SURPRISE_REMOVAL\n");
             if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_REG_DEV_INTERFACE)
             {

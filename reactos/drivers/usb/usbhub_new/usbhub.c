@@ -53,7 +53,6 @@ USBH_CompleteIrp(IN PIRP Irp,
 {
     if (CompleteStatus != STATUS_SUCCESS)
     {
-        //DbgBreakPoint();
         DPRINT1("USBH_CompleteIrp: Irp - %p, CompleteStatus - %x\n",
                 Irp,
                 CompleteStatus);
@@ -505,7 +504,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
         InterlockedExchange((PLONG)&HubExtension->pResetPortEvent,
                             (LONG)&Event);
 
-        RequestType.B = 0;//0x23
+        RequestType.B = 0;
         RequestType.Recipient = BMREQUEST_TO_DEVICE;
         RequestType.Type = BMREQUEST_CLASS;
         RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
@@ -1093,7 +1092,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
         {
             BM_REQUEST_TYPE RequestType;
 
-            RequestType.B = 0;//0xA0
+            RequestType.B = 0;
             RequestType.Recipient = 0;
             RequestType.Type = 0;
             RequestType.Dir = 0;
@@ -1357,7 +1356,7 @@ USBH_SyncGetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_SyncGetPortStatus: Port - %x\n", Port);
 
-    RequestType.B = 0;//0xA3
+    RequestType.B = 0;
     RequestType.Recipient = BMREQUEST_TO_OTHER;
     RequestType.Type = BMREQUEST_CLASS;
     RequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
@@ -1386,7 +1385,7 @@ USBH_SyncClearPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
            Port,
            RequestValue);
 
-    RequestType.B = 0;//0x23
+    RequestType.B = 0;
     RequestType.Recipient = BMREQUEST_TO_DEVICE;
     RequestType.Type = BMREQUEST_CLASS;
     RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
@@ -1504,7 +1503,7 @@ USBH_SyncDisablePort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     PortData = &HubExtension->PortData[Port - 1];
 
-    RequestType.B = 0;//0x23
+    RequestType.B = 0;
     RequestType.Recipient = BMREQUEST_TO_DEVICE;
     RequestType.Type = BMREQUEST_CLASS;
     RequestType.Dir = BMREQUEST_HOST_TO_DEVICE;
@@ -4121,7 +4120,6 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
          (PortExtension->DeviceDescriptor.bNumConfigurations < 2))
     {
         DPRINT("USBH_ProcessDeviceInformation: Multi-Interface configuration\n");
-        //DbgBreakPoint();
 
         PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_MULTI_INTERFACE;
 
@@ -4844,14 +4842,14 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             DPRINT("USBH_PdoDispatch: IRP_MJ_DEVICE_CONTROL ControlCode - %x\n",
                    ControlCode);
 
-            if (ControlCode == 0X2D0C10)//IOCTL_STORAGE_GET_MEDIA_SERIAL_NUMBER
+            if (ControlCode == IOCTL_STORAGE_GET_MEDIA_SERIAL_NUMBER)
             {
                 Status = STATUS_NOT_SUPPORTED;
                 USBH_CompleteIrp(Irp, Status);
                 break;
             }
 
-            if (ControlCode == 0x2F0003)//IOCTL_KS_PROPERTY
+            if (ControlCode == IOCTL_KS_PROPERTY)
             {
                 DPRINT1("USBH_PdoDispatch: IOCTL_KS_PROPERTY FIXME. \n");
                 DbgBreakPoint();
@@ -4939,7 +4937,6 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MJ_SYSTEM_CONTROL:
             DPRINT1("USBH_FdoDispatch: USBH_SystemControl() UNIMPLEMENTED. FIXME\n");
-            //Status USBH_SystemControl(HubExtension, Irp);
             break;
 
         case IRP_MJ_INTERNAL_DEVICE_CONTROL:

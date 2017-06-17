@@ -134,11 +134,11 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             if (HubExtension->MaxPower < MaxPower)
             {
-                DPRINT1("USBH_PdoUrbFilter: USBH_InvalidatePortDeviceState() UNIMPLEMENTED. FIXME. \n");
-
-                DbgBreakPoint();
                 PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_INSUFFICIENT_PWR;
-                //USBH_InvalidatePortDeviceState()
+
+                DPRINT1("USBH_PdoUrbFilter: USBH_InvalidatePortDeviceState() UNIMPLEMENTED. FIXME. \n");
+                DbgBreakPoint();
+
                 USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
                 return STATUS_INVALID_PARAMETER;
             }
@@ -191,8 +191,6 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     else
     {
         DPRINT1("USBH_PdoUrbFilter: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR UNIMPLEMENTED. FIXME. \n");
-        //DbgBreakPoint();
-
         USBH_CompleteIrp(Irp, STATUS_NOT_IMPLEMENTED);
         return STATUS_NOT_IMPLEMENTED;
     }
@@ -538,7 +536,6 @@ USBH_PortIdleNotificationRequest(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         DPRINT("USBH_PortIdleNotificationRequest: IdleNotificationIrp - %p\n",
                PortExtension->IdleNotificationIrp);
-        //DbgBreakPoint();
 
         USBH_CheckIdleDeferred(HubExtension);
     }
@@ -1331,7 +1328,6 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     ControlCode = IoStack->Parameters.DeviceIoControl.IoControlCode;
-    //DPRINT("USBH_PdoInternalControl: ControlCode - %p\n", ControlCode);
 
     if (ControlCode == IOCTL_INTERNAL_USB_GET_ROOTHUB_PDO)
     {
