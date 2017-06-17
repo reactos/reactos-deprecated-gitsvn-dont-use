@@ -971,9 +971,7 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
         return Status;
     }
 
-    Port = 1;
-
-    do
+    for (Port = 1; Port <= HubExtension->HubDescriptor->bNumberOfPorts; ++Port)
     {
         if (Port == KeyName->ConnectionIndex)
         {
@@ -985,7 +983,7 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
             {
                 PortExtension = PortDevice->DeviceExtension;
 
-                if (PortExtension->PortPdoFlags & 0x04000000)
+                if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_ENUMERATED)
                 {
                     ResultLength = BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
 
@@ -1020,10 +1018,7 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
                 }
             }
         }
-
-        ++Port;
     }
-    while (Port <= HubExtension->HubDescriptor->bNumberOfPorts);
 
     USBH_CompleteIrp(Irp, Status);
 
