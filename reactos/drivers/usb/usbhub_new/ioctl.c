@@ -377,8 +377,7 @@ USBH_PdoIoctlResetPort(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     DPRINT("USBH_PdoIoctlResetPort ... \n");
 
-    if (PortExtension->PortPdoFlags & (USBHUB_PDO_FLAG_PORT_RESSETING |
-                                       0x08000000))
+    if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_RESSETING)
     {
         Status = STATUS_UNSUCCESSFUL;
         USBH_CompleteIrp(Irp, Status);
