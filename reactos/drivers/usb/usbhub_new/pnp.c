@@ -1968,14 +1968,14 @@ USBH_SymbolicLink(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     {
         NameBuffer = PortExtension->SymbolicLinkName.Buffer;
 
-        if (NameBuffer && NameBuffer != (PVOID)-2)
+        if (NameBuffer)
         {
             Status = IoSetDeviceInterfaceState(&PortExtension->SymbolicLinkName,
                                                FALSE);
 
             ExFreePool(PortExtension->SymbolicLinkName.Buffer);
 
-            PortExtension->SymbolicLinkName.Buffer = (PVOID)-2;
+            PortExtension->SymbolicLinkName.Buffer = NULL;
         }
     }
 
