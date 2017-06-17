@@ -2002,6 +2002,7 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         return Status;
     }
 
+    ASSERT(PortExtension->PortNumber > 0);
     PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
 
     if ( PortExtension->Common.SelfDevice == PortData->DeviceObject )
@@ -2133,6 +2134,7 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PortExtension->HubExtension = NULL;
 
     Port = PortExtension->PortNumber;
+    ASSERT(Port > 0);
 
     if (HubExtension)
     {

@@ -1417,6 +1417,7 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_SyncPowerOnPort: Port - %x, IsWait - %x\n", Port, IsWait);
 
+    ASSERT(Port > 0);
     PortData = &HubExtension->PortData[Port - 1];
 
     HubDescriptor = HubExtension->HubDescriptor;
@@ -1572,6 +1573,8 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
     DPRINT("USBH_ChangeIndicationAckChangeComplete: ... \n");
 
     Port = HubExtension->Port - 1;
+    ASSERT(Port > 0);
+
     HubExtension->PortData[Port].PortStatus = HubExtension->PortStatus;
 
     Event = InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
@@ -1808,6 +1811,7 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     DPRINT("USBH_ProcessPortStateChange ... \n");
 
+    ASSERT(Port > 0);
     PortData = &HubExtension->PortData[Port - 1];
 
     PortStatusChange = PortStatus->UsbPortStatusChange;
@@ -4433,6 +4437,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
+        ASSERT(Port > 0);
         HubExtension->PortData[Port-1].DeviceObject = DeviceObject;
         return Status;
     }
@@ -4616,6 +4621,7 @@ ErrorExit:
 
 Exit:
 
+    ASSERT(Port > 0);
     HubExtension->PortData[Port-1].DeviceObject = DeviceObject;
     return Status;
 }
@@ -4662,6 +4668,7 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                           FALSE,
                           NULL);
 
+    ASSERT(Port > 0);
     PortData = &HubExtension->PortData[Port-1];
 
     PortDevice = PortData->DeviceObject;

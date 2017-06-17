@@ -26,6 +26,8 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
     PortExtension = Context;
     HubExtension = PortExtension->HubExtension;
 
+    ASSERT(PortExtension->PortNumber > 0);
+
     if (HubExtension)
     {
         PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
@@ -248,6 +250,7 @@ USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                           FALSE,
                           NULL);
 
+    ASSERT(PortExtension->PortNumber > 0);
     PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
 
     Status = USBH_SyncGetPortStatus(HubExtension,
@@ -323,6 +326,8 @@ USBH_ResetPortWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Port = PortExtension->PortNumber;
     DeviceHandle = PortExtension->DeviceHandle;
+
+    ASSERT(Port > 0);
 
     if (PortExtension->Common.SelfDevice == HubExtension->PortData[Port-1].DeviceObject &&
         DeviceHandle != NULL)
