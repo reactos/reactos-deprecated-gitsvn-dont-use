@@ -18,8 +18,6 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_SelectConfigOrInterfaceComplete ... \n");
 
-    PortData;
-
     if (Irp->PendingReturned)
     {
          IoMarkIrpPending(Irp);
@@ -324,9 +322,10 @@ USBH_ResetPortWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                           NULL);
 
     Port = PortExtension->PortNumber;
+    DeviceHandle = PortExtension->DeviceHandle;
 
     if (PortExtension->Common.SelfDevice == HubExtension->PortData[Port-1].DeviceObject &&
-        (DeviceHandle = PortExtension->DeviceHandle) != 0)
+        DeviceHandle != NULL)
     {
         USBD_RemoveDeviceEx(HubExtension,
                             DeviceHandle,
@@ -1123,8 +1122,8 @@ USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
                     Urb->TransferBuffer = &UsbRequest->Data[0];
                     Urb->TransferBufferLength = RequestBufferLength;
-                    Urb->TransferBufferMDL = 0;
-                    Urb->UrbLink = 0;
+                    Urb->TransferBufferMDL = NULL;
+                    Urb->UrbLink = NULL;
 
                     RtlCopyMemory(Urb->SetupPacket,
                                   &UsbRequest->SetupPacket,

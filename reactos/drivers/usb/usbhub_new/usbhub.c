@@ -133,7 +133,7 @@ PdoExt(IN PDEVICE_OBJECT DeviceObject)
     }
     else
     {
-        PdoExtension = (PVOID)-1;
+        PdoExtension = NULL;
     }
 
     return (PUSBHUB_PORT_PDO_EXTENSION)PdoExtension;
