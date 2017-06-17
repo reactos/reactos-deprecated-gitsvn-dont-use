@@ -47,8 +47,8 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
 
     while (Descriptor->bLength)
     {
-        if (((ULONG)Descriptor) >= ((ULONG)ConfigDescriptor +
-                                    ConfigDescriptor->wTotalLength))
+        if (((ULONG_PTR)Descriptor) >= ((ULONG_PTR)ConfigDescriptor +
+                                        ConfigDescriptor->wTotalLength))
         {
             break;
         }
@@ -99,7 +99,7 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
             DPRINT("bDescriptorType - %x\n", Descriptor->bDescriptorType);
         }
 
-        Descriptor = (PUSB_COMMON_DESCRIPTOR)((ULONG)Descriptor +
+        Descriptor = (PUSB_COMMON_DESCRIPTOR)((ULONG_PTR)Descriptor +
                                               Descriptor->bLength);
     }
 }
@@ -118,7 +118,7 @@ USBPORT_DumpingIDs(IN PVOID Id)
     while (*Ptr)
     {
         DPRINT("  %S\n", Ptr);
-        Length = (ULONG)wcslen(Ptr) + 1;
+        Length = wcslen(Ptr) + 1;
 
         Ptr += Length;
         TotalLength += Length;

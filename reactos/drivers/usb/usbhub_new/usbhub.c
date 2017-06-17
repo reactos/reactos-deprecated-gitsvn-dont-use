@@ -2345,7 +2345,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
 
-    Bitmap = (ULONG)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT);
+    Bitmap = (ULONG_PTR)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT);
 
     do
     {

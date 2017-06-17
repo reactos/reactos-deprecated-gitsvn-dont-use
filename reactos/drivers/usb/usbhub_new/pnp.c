@@ -1415,7 +1415,7 @@ RelationsWorker:
         }
     }
 
-    Irp->IoStatus.Information = (ULONG)DeviceRelations;
+    Irp->IoStatus.Information = (ULONG_PTR)DeviceRelations;
 
     InitializeListHead(&GhostPdoList);
     PdoList = &HubExtension->PdoList;
@@ -1755,7 +1755,7 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             return Irp->IoStatus.Status;
     }
 
-    Irp->IoStatus.Information = (ULONG)Id;
+    Irp->IoStatus.Information = (ULONG_PTR)Id;
 
     if (!Id)
     {
@@ -1865,7 +1865,7 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                   Descriptor->bString,
                                   Descriptor->bLength - 2);
 
-                    Irp->IoStatus.Information = (ULONG)DeviceText;
+                    Irp->IoStatus.Information = (ULONG_PTR)DeviceText;
 
                     DPRINT("USBH_PdoQueryDeviceText: Descriptor->bString - %S\n",
                            DeviceText);
@@ -1922,7 +1922,7 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             Status = STATUS_SUCCESS;
 
-            Irp->IoStatus.Information = (ULONG)DeviceText;
+            Irp->IoStatus.Information = (ULONG_PTR)DeviceText;
         }
         else
         {

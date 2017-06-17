@@ -642,8 +642,8 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
                 BufferEnd += 1;
             }
 
-            LengthSkip = (ULONG)BufferEnd -
-                         (ULONG)&PortExtension->SymbolicLinkName.Buffer[0];
+            LengthSkip = (ULONG_PTR)BufferEnd -
+                         (ULONG_PTR)&PortExtension->SymbolicLinkName.Buffer[0];
         }
     }
 
