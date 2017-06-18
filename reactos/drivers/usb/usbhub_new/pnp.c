@@ -32,7 +32,7 @@ USBH_HubPnPIrpComplete(IN PDEVICE_OBJECT DeviceObject,
 
     if (!NT_SUCCESS(Irp->IoStatus.Status))
     {
-        DPRINT1("USBH_HubPnPIrpComplete: Irp failed - %p\n", Irp->IoStatus.Status);
+        DPRINT1("USBH_HubPnPIrpComplete: Irp failed - %lX\n", Irp->IoStatus.Status);
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
     }
 
@@ -705,7 +705,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_SyncGetRootHubPdo() failed - %p\n", Status);
+        DPRINT1("USBH_SyncGetRootHubPdo() failed - %lX\n", Status);
         goto ErrorExit;
     }
 
@@ -744,7 +744,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_StartHubFdoDevice: USBHUB_GetBusInterface() failed - %p\n",
+        DPRINT1("USBH_StartHubFdoDevice: USBHUB_GetBusInterface() failed - %lX\n",
                 Status);
         goto ErrorExit;
     }
@@ -754,7 +754,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_StartHubFdoDevice: USBHUB_GetBusInterfaceUSBDI() failed - %p\n",
+        DPRINT1("USBH_StartHubFdoDevice: USBHUB_GetBusInterfaceUSBDI() failed - %lX\n",
                 Status);
         goto ErrorExit;
     }
@@ -767,7 +767,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         if (!NT_SUCCESS(Status))
         {
-            DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceType() failed - %p\n",
+            DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceType() failed - %lX\n",
                     Status);
 
             goto ErrorExit;
@@ -803,7 +803,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceDescriptor() failed - %p\n",
+        DPRINT1("USBH_StartHubFdoDevice: USBH_GetDeviceDescriptor() failed - %lX\n",
                 Status);
         goto ErrorExit;
     }
@@ -813,7 +813,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_StartHubFdoDevice: USBH_GetConfigurationDescriptor() failed - %p\n",
+        DPRINT1("USBH_StartHubFdoDevice: USBH_GetConfigurationDescriptor() failed - %lX\n",
                 Status);
         goto ErrorExit;
     }
@@ -822,7 +822,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_StartHubFdoDevice: USBH_SyncGetHubDescriptor() failed - %p\n",
+        DPRINT1("USBH_StartHubFdoDevice: USBH_SyncGetHubDescriptor() failed - %lX\n",
                 Status);
         goto ErrorExit;
     }
@@ -844,7 +844,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_StartHubFdoDevice: USBH_OpenConfiguration() failed - %p\n",
+        DPRINT1("USBH_StartHubFdoDevice: USBH_OpenConfiguration() failed - %lX\n",
                 Status);
         goto ErrorExit;
     }
@@ -991,7 +991,7 @@ USBH_FdoStartDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
     else
     {
-        DPRINT1("USBH_FdoStartDevice: FIXME. USBH_SyncGetRootHubPdo return - %p\n",
+        DPRINT1("USBH_FdoStartDevice: FIXME. USBH_SyncGetRootHubPdo return - %lX\n",
                 Status);
 
         DbgBreakPoint();
@@ -1022,7 +1022,7 @@ USBH_FdoQueryBusRelations(IN PUSBHUB_FDO_EXTENSION HubExtension,
     USB_PORT_STATUS UsbPortStatus;
     PLIST_ENTRY Entry;
 
-    DPRINT("USBH_FdoQueryBusRelations: HubFlags - %p\n", HubExtension->HubFlags);
+    DPRINT("USBH_FdoQueryBusRelations: HubFlags - %lX\n", HubExtension->HubFlags);
 
     if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED))
     {
@@ -2288,7 +2288,7 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PIO_STACK_LOCATION IoStack;
     BOOLEAN IsCheckIdle = FALSE;
 
-    DPRINT("USBH_FdoPnP: HubExtension - %p, Irp - %p, Minor - %x\n",
+    DPRINT("USBH_FdoPnP: HubExtension - %p, Irp - %p, Minor - %X\n",
            HubExtension,
            Irp,
            Minor);
@@ -2305,7 +2305,7 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
                           FALSE,
                           NULL);
 
-    DPRINT("USBH_FdoPnP: HubFlags - %p\n", HubExtension->HubFlags);
+    DPRINT("USBH_FdoPnP: HubFlags - %lX\n", HubExtension->HubFlags);
 
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_GOING_IDLE)
     {
@@ -2521,7 +2521,7 @@ USBH_PdoPnP(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PUSBHUB_FDO_EXTENSION HubExtension;
     PDEVICE_RELATIONS DeviceRelation;
 
-    DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %d\n",
+    DPRINT("USBH_PdoPnP: PortExtension - %p, Irp - %p, Minor - %X\n",
            PortExtension,
            Irp,
            Minor);

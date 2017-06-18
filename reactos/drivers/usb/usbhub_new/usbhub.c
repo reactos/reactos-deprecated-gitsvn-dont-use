@@ -55,7 +55,7 @@ USBH_CompleteIrp(IN PIRP Irp,
 {
     if (CompleteStatus != STATUS_SUCCESS)
     {
-        DPRINT1("USBH_CompleteIrp: Irp - %p, CompleteStatus - %x\n",
+        DPRINT1("USBH_CompleteIrp: Irp - %p, CompleteStatus - %X\n",
                 Irp,
                 CompleteStatus);
     }
@@ -2467,7 +2467,7 @@ USBD_RemoveDeviceEx(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     PUSB_BUSIFFN_REMOVE_USB_DEVICE RemoveUsbDevice;
 
-    DPRINT("USBD_RemoveDeviceEx: DeviceHandle - %p, Flags - %x\n",
+    DPRINT("USBD_RemoveDeviceEx: DeviceHandle - %p, Flags - %X\n",
            DeviceHandle,
            Flags);
 
@@ -4483,7 +4483,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_CreateDevice: IoCreateDevice() failed - %p\n", Status);
+        DPRINT1("USBH_CreateDevice: IoCreateDevice() failed - %lX\n", Status);
         goto ErrorExit;
     }
 
@@ -4494,7 +4494,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_CreateDevice: USBD_CreateDeviceEx() failed - %p\n", Status);
+        DPRINT1("USBH_CreateDevice: USBD_CreateDeviceEx() failed - %lX\n", Status);
         goto ErrorExit;
     }
 
@@ -4502,7 +4502,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_CreateDevice: USBH_SyncResetPort() failed - %p\n", Status);
+        DPRINT1("USBH_CreateDevice: USBH_SyncResetPort() failed - %lX\n", Status);
         goto ErrorExit;
     }
 
@@ -4520,7 +4520,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("USBH_CreateDevice: USBD_InitializeDeviceEx() failed - %p\n", Status);
+        DPRINT1("USBH_CreateDevice: USBD_InitializeDeviceEx() failed - %lX\n", Status);
         PortExtension->DeviceHandle = NULL;
         goto ErrorExit;
     }
@@ -4904,7 +4904,7 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
-    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p, MajorFunction - %d\n",
+    DPRINT("USBH_FdoDispatch: HubExtension - %p, Irp - %p, MajorFunction - %X\n",
            HubExtension,
            Irp,
            IoStack->MajorFunction);

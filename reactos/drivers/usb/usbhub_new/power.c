@@ -461,7 +461,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
     ULONG Port;
 
-    DPRINT("USBH_FdoPower: HubExtension - %p, Irp - %p, Minor - %x\n",
+    DPRINT("USBH_FdoPower: HubExtension - %p, Irp - %p, Minor - %X\n",
            HubExtension,
            Irp,
            Minor);
@@ -750,7 +750,7 @@ USBH_PdoPower(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     NTSTATUS Status = Irp->IoStatus.Status;
 
-    DPRINT("USBH_FdoPower: PortExtension - %p, Irp - %p, Minor - %x\n",
+    DPRINT("USBH_FdoPower: PortExtension - %p, Irp - %p, Minor - %X\n",
            PortExtension,
            Irp,
            Minor);
