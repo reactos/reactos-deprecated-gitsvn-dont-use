@@ -1981,7 +1981,7 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PUSBHUB_FDO_EXTENSION HubExtension;
     PUSBHUB_PORT_DATA PortData;
     NTSTATUS Status;
-    ULONG ix = 0;
+    ULONG ix;
 
     DPRINT("USBH_RestoreDevice ... \n");
 
@@ -2009,12 +2009,12 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     if (NT_SUCCESS(Status))
     {
-        do
+        for (ix = 0; ix < 3; ix++)
         {
             Status = USBH_ResetDevice((PUSBHUB_FDO_EXTENSION)HubExtension,
                                       PortExtension->PortNumber,
                                       IsKeepDeviceData,
-                                      ix++);
+                                      ix == 0);
 
             if (NT_SUCCESS(Status) || Status == STATUS_NO_SUCH_DEVICE)
             {
@@ -2023,7 +2023,6 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             USBH_Wait(1000);
         }
-        while (ix < 3);
     }
 
     PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_POWER_D3;
