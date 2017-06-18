@@ -165,24 +165,21 @@ USBH_HubQueuePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     IoAcquireCancelSpinLock(&OldIrql);
 
-    if (NumPorts)
+    for (Port = 0; Port < NumPorts; ++Port)
     {
-        for (Port = 0; Port < NumPorts; ++Port)
+        PortDevice = HubExtension->PortData[Port].DeviceObject;
+
+        if (PortDevice)
         {
-            PortDevice = HubExtension->PortData[Port].DeviceObject;
+            PortExtension = PortDevice->DeviceExtension;
 
-            if (PortDevice)
+            WakeIrp = PortExtension->PdoWaitWakeIrp;
+            PortExtension->PdoWaitWakeIrp = NULL;
+
+            if (WakeIrp)
             {
-                PortExtension = PortDevice->DeviceExtension;
-
-                WakeIrp = PortExtension->PdoWaitWakeIrp;
-                PortExtension->PdoWaitWakeIrp = NULL;
-
-                if (WakeIrp)
-                {
-                    DPRINT1("USBH_HubQueuePortWakeIrps: UNIMPLEMENTED. FIXME. \n");
-                    DbgBreakPoint();
-                }
+                DPRINT1("USBH_HubQueuePortWakeIrps: UNIMPLEMENTED. FIXME. \n");
+                DbgBreakPoint();
             }
         }
     }
