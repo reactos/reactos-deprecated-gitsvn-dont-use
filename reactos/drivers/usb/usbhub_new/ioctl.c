@@ -740,29 +740,37 @@ USBH_IoctlGetHubCapabilities(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PIO_STACK_LOCATION IoStack;
     ULONG BufferLength;
     ULONG Length;
-    ULONG HubIs2xCapable = 0;
+    USB_HUB_CAPABILITIES HubCaps;
 
     DPRINT("USBH_IoctlGetHubCapabilities ... \n");
 
     Capabilities = Irp->AssociatedIrp.SystemBuffer;
 
-    HubIs2xCapable = HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB;
+    HubCaps.HubIs2xCapable = (HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB) ==
+                              USBHUB_FDO_FLAG_USB20_HUB;
 
     IoStack = IoGetCurrentIrpStackLocation(Irp);
 
     BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
 
-    if (BufferLength <= sizeof(HubIs2xCapable))
+    if (BufferLength == 0)
+    {
+        Irp->IoStatus.Information = BufferLength;
+        USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
+        return STATUS_INVALID_PARAMETER;
+    }
+
+    if (BufferLength <= sizeof(HubCaps))
     {
         Length = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
     }
     else
     {
-        Length = sizeof(HubIs2xCapable);
+        Length = sizeof(HubCaps);
     }
 
     RtlZeroMemory(Capabilities, BufferLength);
-    RtlCopyMemory(Capabilities, &HubIs2xCapable, Length);
+    RtlCopyMemory(Capabilities, &HubCaps, Length);
 
     Irp->IoStatus.Information = Length;
 
