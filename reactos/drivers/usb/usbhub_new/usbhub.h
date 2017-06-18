@@ -10,6 +10,7 @@
 #include <hubbusif.h>
 #include <usbbusif.h>
 #include <usbdlib.h>
+#include <ks.h>
 #include <drivers/usbport/usbmport.h>
 
 #define USB_HUB_TAG 'BUHU'

@@ -1304,7 +1304,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             USBH_CompleteIrp(Irp, Status);
             break;
 
-        case 0x2F0003:
+        case IOCTL_KS_PROPERTY:
             DPRINT("USBH_DeviceControl: IOCTL_KS_PROPERTY. \n");
             Status = STATUS_INVALID_DEVICE_REQUEST;
             USBH_CompleteIrp(Irp, Status);

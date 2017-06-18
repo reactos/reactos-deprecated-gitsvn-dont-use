@@ -4,7 +4,6 @@
 #include <debug.h>
 
 #include <ntddstor.h>
-#include <ks.h>
 
 PVOID GenericUSBDeviceString = NULL;
 
