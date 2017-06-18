@@ -868,7 +868,7 @@ USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     PortData = HubExtension->PortData;
 
-    if (BufferLength < (sizeof(USB_NODE_CONNECTION_INFORMATION_EX) - sizeof(USB_PIPE_INFO)))
+    if (BufferLength < FIELD_OFFSET(USB_NODE_CONNECTION_INFORMATION_EX, PipeList))
     {
         Status = STATUS_BUFFER_TOO_SMALL;
         goto Exit;
@@ -882,74 +882,82 @@ USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Status = STATUS_INVALID_PARAMETER;
 
-    Port = 1;
-
-    if (NumPorts >= 1)
+    if (NumPorts == 0)
     {
-        while (Port != Info->ConnectionIndex)
+        goto Exit;
+    }
+
+    for (Port = 1; Port != Info->ConnectionIndex; ++Port)
+    {
+        ++PortData;
+
+        if (Port > NumPorts)
         {
-            ++PortData;
-            ++Port;
-
-            if (Port > NumPorts)
-            {
-                goto Exit;
-            }
+            goto Exit;
         }
+    }
 
-        DeviceObject = PortData->DeviceObject;
+    DeviceObject = PortData->DeviceObject;
 
-        if (DeviceObject)
-        {
-            PortExtension = DeviceObject->DeviceExtension;
+    if (!DeviceObject)
+    {
+        Info->ConnectionStatus = PortData->ConnectionStatus;
 
-            Info->ConnectionStatus = PortData->ConnectionStatus;
-            Info->DeviceIsHub = PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE;
+        Irp->IoStatus.Information = FIELD_OFFSET(USB_NODE_CONNECTION_INFORMATION_EX,
+                                                 PipeList);
+        Status = STATUS_SUCCESS;
+        goto Exit;
+    }
 
-            RtlCopyMemory(&Info->DeviceDescriptor,
-                          &PortExtension->DeviceDescriptor,
-                          sizeof(USB_DEVICE_DESCRIPTOR));
+    PortExtension = DeviceObject->DeviceExtension;
 
-            if (PortExtension->DeviceHandle)
-            {
-                Status = USBD_GetDeviceInformationEx(PortExtension,
-                                                     HubExtension,
-                                                     Info,
-                                                     BufferLength,
-                                                     PortExtension->DeviceHandle);
-            }
-            else
-            {
-                Status = STATUS_SUCCESS;
-            }
+    Info->ConnectionStatus = PortData->ConnectionStatus;
 
-            if (NT_SUCCESS(Status))
-            {
-                if (!IsExt)
-                {
-                    Info->Speed = Info->Speed == FALSE;
-                }
+    Info->DeviceIsHub = (PortExtension->PortPdoFlags &
+                         USBHUB_PDO_FLAG_HUB_DEVICE) == 
+                         USBHUB_PDO_FLAG_HUB_DEVICE;
 
-                Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_INFORMATION_EX) +
-                                            (Info->NumberOfOpenPipes - 1) * sizeof(USB_PIPE_INFO);
-                goto Exit;
-            }
+    RtlCopyMemory(&Info->DeviceDescriptor,
+                  &PortExtension->DeviceDescriptor,
+                  sizeof(USB_DEVICE_DESCRIPTOR));
 
-            if (Status != STATUS_BUFFER_TOO_SMALL)
-            {
-                goto Exit;
-            }
-        }
-        else
-        {
-            Info->ConnectionStatus = PortData->ConnectionStatus;
-        }
-
-        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_INFORMATION_EX) -
-                                    sizeof(USB_PIPE_INFO);
-
+    if (PortExtension->DeviceHandle)
+    {
+        Status = USBD_GetDeviceInformationEx(PortExtension,
+                                             HubExtension,
+                                             Info,
+                                             BufferLength,
+                                             PortExtension->DeviceHandle);
+    }
+    else
+    {
         Status = STATUS_SUCCESS;
     }
+
+    if (NT_SUCCESS(Status))
+    {
+        if (!IsExt)
+        {
+            /* IOCTL_USB_GET_NODE_CONNECTION_INFORMATION request reports
+               only low and full speed connections. Info->Speed member
+               is Info->LowSpeed in the non-EX version of the structure */
+
+            Info->Speed = (Info->Speed == UsbLowSpeed);
+        }
+
+        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_INFORMATION_EX) +
+                                    (Info->NumberOfOpenPipes - 1) * sizeof(USB_PIPE_INFO);
+        goto Exit;
+    }
+
+    if (Status != STATUS_BUFFER_TOO_SMALL)
+    {
+        goto Exit;
+    }
+
+    Irp->IoStatus.Information = FIELD_OFFSET(USB_NODE_CONNECTION_INFORMATION_EX,
+                                             PipeList);
+    Status = STATUS_SUCCESS;
 
 Exit:
     USBH_CompleteIrp(Irp, Status);
