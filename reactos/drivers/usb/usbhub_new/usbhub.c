@@ -501,8 +501,8 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         BM_REQUEST_TYPE RequestType;
 
-        InterlockedExchange((PLONG)&HubExtension->pResetPortEvent,
-                            (LONG)&Event);
+        InterlockedExchangePointer((PVOID)&HubExtension->pResetPortEvent,
+                                   &Event);
 
         RequestType.B = 0;
         RequestType.Recipient = BMREQUEST_TO_DEVICE;
@@ -523,7 +523,8 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         if (!NT_SUCCESS(Status))
         {
-            InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
+            InterlockedExchangePointer((PVOID)&HubExtension->pResetPortEvent,
+                                       NULL);
 
             USBH_Wait(10);
             HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;
@@ -551,7 +552,8 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
             !PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus ||
             ix >= 3)
         {
-            InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
+            InterlockedExchangePointer((PVOID)&HubExtension->pResetPortEvent,
+                                       NULL);
 
             USBH_Wait(10);
             HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_RESET_PORT_LOCK;

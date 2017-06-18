@@ -429,7 +429,7 @@ USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
     ULONG Port;
     PIRP PortIdleIrp = NULL;
     PIRP PortWakeIrp = NULL;
-    LONG DeviceHandle;
+    PVOID DeviceHandle;
     NTSTATUS Status;
     KIRQL Irql;
 
@@ -589,14 +589,12 @@ USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
             if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_POWER_D3))
             {
-                DeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle,
-                                                   0);
+                DeviceHandle = InterlockedExchangePointer(&PortExtension->DeviceHandle,
+                                                          NULL);
 
                 if (DeviceHandle)
                 {
-                    USBD_RemoveDeviceEx(HubExtension,
-                                        (PUSB_DEVICE_HANDLE)DeviceHandle,
-                                        0);
+                    USBD_RemoveDeviceEx(HubExtension, DeviceHandle, 0);
                 }
 
                 PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_POWER_D3;
@@ -1019,8 +1017,8 @@ USBH_FdoQueryBusRelations(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PDEVICE_OBJECT PdoDevice;
     PUSBHUB_PORT_PDO_EXTENSION PdoExtension;
     NTSTATUS NtStatus;
-    LONG SerialNumber;
-    LONG DeviceHandle;
+    PVOID SerialNumber;
+    PVOID DeviceHandle;
     USB_PORT_STATUS UsbPortStatus;
     PLIST_ENTRY Entry;
 
@@ -1156,23 +1154,20 @@ EnumStart:
                 PdoExtension->PortPdoFlags |= USBHUB_PDO_FLAG_DELETE_PENDING;
                 PdoExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
 
-                SerialNumber = InterlockedExchange((PLONG)&PdoExtension->SerialNumber,
-                                                   0);
+                SerialNumber = InterlockedExchangePointer((PVOID)&PdoExtension->SerialNumber,
+                                                          NULL);
 
                 if (SerialNumber)
                 {
-                    ExFreePool((PVOID)SerialNumber);
+                    ExFreePool(SerialNumber);
                 }
 
-                DeviceHandle = InterlockedExchange((PLONG)&PdoExtension->DeviceHandle,
-                                                   0);
+                DeviceHandle = InterlockedExchangePointer(&PdoExtension->DeviceHandle,
+                                                          NULL);
 
                 if (DeviceHandle)
                 {
-                    USBD_RemoveDeviceEx(HubExtension,
-                                        (PUSB_DEVICE_HANDLE)DeviceHandle,
-                                        0);
-
+                    USBD_RemoveDeviceEx(HubExtension, DeviceHandle, 0);
                     USBH_SyncDisablePort(HubExtension, Port);
                 }
             }
