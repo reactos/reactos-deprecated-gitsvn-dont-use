@@ -93,6 +93,12 @@
 #define USBHUB_FEATURE_PORT_TEST           21
 #define USBHUB_FEATURE_PORT_INDICATOR      22
 
+#define USBHUB_MAX_CASCADE_LEVELS  6
+
+#define USBHUB_FAIL_NO_FAIL            5
+#define USBHUB_FAIL_NESTED_TOO_DEEPLY  6
+#define USBHUB_FAIL_OVERCURRENT        7
+
 extern PVOID GenericUSBDeviceString;
 
 typedef struct _USBHUB_PORT_DATA {
@@ -140,7 +146,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   DEVICE_POWER_STATE DeviceWake;
   POWER_STATE CurrentPowerState;
   POWER_STATE SystemPowerState;
-  ULONG MaxPower;
+  ULONG MaxPowerPerPort;
   USB_DEVICE_DESCRIPTOR HubDeviceDescriptor;
   USHORT Port;
   PUSB_CONFIGURATION_DESCRIPTOR HubConfigDescriptor;

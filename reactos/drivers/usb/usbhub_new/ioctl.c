@@ -132,7 +132,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             MaxPower = 2 * ConfigDescriptor->MaxPower;
             PortExtension->MaxPower = MaxPower;
 
-            if (HubExtension->MaxPower < MaxPower)
+            if (HubExtension->MaxPowerPerPort < MaxPower)
             {
                 PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_INSUFFICIENT_PWR;
 

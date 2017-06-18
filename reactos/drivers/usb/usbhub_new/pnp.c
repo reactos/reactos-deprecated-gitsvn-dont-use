@@ -636,13 +636,13 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                        IN PIRP Irp)
 {
     NTSTATUS Status;
-    WCHAR KeyName[64];
-    PVOID DisableRemoteWakeup = NULL;
+    ULONG DisableRemoteWakeup = 0;
     ULONG HubCount = 0;
     PUSB_DEVICE_HANDLE DeviceHandle;
     USB_DEVICE_TYPE DeviceType;
     DEVICE_CAPABILITIES  DeviceCapabilities;
     BOOLEAN IsBusPowered;
+    static WCHAR DisableWakeValueName[] = L"DisableRemoteWakeup";
 
     DPRINT("USBH_StartHubFdoDevice: ... \n");
 
@@ -709,7 +709,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         goto ErrorExit;
     }
 
-    USBH_WriteFailReasonID(HubExtension->LowerPDO, 5);
+    USBH_WriteFailReasonID(HubExtension->LowerPDO, USBHUB_FAIL_NO_FAIL);
 
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED)
     {
@@ -720,13 +720,11 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     HubExtension->HubFlags |= USBHUB_FDO_FLAG_REMOTE_WAKEUP;
 
-    swprintf(KeyName, L"DisableRemoteWakeup");
-
     Status = USBD_GetPdoRegistryParameter(HubExtension->LowerPDO,
                                           &DisableRemoteWakeup,
                                           sizeof(DisableRemoteWakeup),
-                                          KeyName,
-                                          (wcslen(KeyName) + 1) * sizeof(WCHAR));
+                                          DisableWakeValueName,
+                                          sizeof(DisableWakeValueName));
 
     if (NT_SUCCESS(Status) && DisableRemoteWakeup)
     {
@@ -779,12 +777,26 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         }
     }
 
-    if (HubCount > 6)
+    if (HubCount > USBHUB_MAX_CASCADE_LEVELS)
     {
+        PUSBHUB_PORT_PDO_EXTENSION ParentPdoExtension;
+        PUSBHUB_FDO_EXTENSION ParentHubExtension;
+        USHORT ParentPort;
+        PUSBHUB_PORT_DATA PortData;
+
         DPRINT1("USBH_StartHubFdoDevice: HubCount > 6 - %x\n", HubCount);
-        USBH_WriteFailReasonID(HubExtension->LowerPDO, 6);
+
+        USBH_WriteFailReasonID(HubExtension->LowerPDO,
+                               USBHUB_FAIL_NESTED_TOO_DEEPLY);
+
+        ParentPdoExtension = HubExtension->LowerPDO->DeviceExtension;
+        ParentHubExtension = ParentPdoExtension->HubExtension;
+
+        ParentPort = ParentPdoExtension->PortNumber - 1;
+        PortData = &ParentHubExtension->PortData[ParentPort];
+        PortData->ConnectionStatus = DeviceHubNestedTooDeeply;
+
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
-        DbgBreakPoint();
     }
 
     RtlZeroMemory(&DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
@@ -832,12 +844,16 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (IsBusPowered)
     {
-        HubExtension->MaxPower = 100;
+        /* bus-powered hub is allowed a maximum of 100 mA only for each port */
+        HubExtension->MaxPowerPerPort = 100;
+
+        /* can have 4 ports (4 * 100 mA) and 100 mA remains for itself */
         HubExtension->HubConfigDescriptor->MaxPower = 250; // 500 mA
     }
     else
     {
-        HubExtension->MaxPower = 500;
+        /* self-powered hub is allowed a maximum of 500 mA for each port */
+        HubExtension->MaxPowerPerPort = 500;
     }
 
     Status = USBH_OpenConfiguration(HubExtension);
@@ -897,17 +913,13 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_STARTED;
 
-        Port = 1;
-
-        if (HubExtension->HubDescriptor->bNumberOfPorts >= 1)
+        for (Port = 1;
+             Port <= HubExtension->HubDescriptor->bNumberOfPorts;
+             Port++)
         {
-            do
-            {
-                USBH_SyncClearPortStatus(HubExtension,
-                                         Port++,
-                                         USBHUB_FEATURE_C_PORT_CONNECTION);
-            }
-            while (Port <= HubExtension->HubDescriptor->bNumberOfPorts);
+            USBH_SyncClearPortStatus(HubExtension,
+                                     Port,
+                                     USBHUB_FEATURE_C_PORT_CONNECTION);
         }
     }
 
