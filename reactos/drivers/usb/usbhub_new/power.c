@@ -646,42 +646,28 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
               PortData = HubExtension->PortData;
 
-              IsAllPortsD3 = 1;
+              IsAllPortsD3 = TRUE;
 
-              if (PortData)
+              if (PortData && HubExtension->HubDescriptor)
               {
-                  if (HubExtension->HubDescriptor &&
-                      HubExtension->HubDescriptor->bNumberOfPorts)
+                  for (Port = 0;
+                       Port < HubExtension->HubDescriptor->bNumberOfPorts;
+                       Port++)
                   {
-                      Port = 0;
+                      PdoDevice = PortData[Port].DeviceObject;
 
-                      while (TRUE)
+                      if (PdoDevice)
                       {
-                          PdoDevice = PortData[Port].DeviceObject;
+                          PortExtension = PdoDevice->DeviceExtension;
 
-                          if (PdoDevice)
+                          if (PortExtension->CurrentPowerState.DeviceState != PowerDeviceD3)
                           {
-                              PortExtension = PdoDevice->DeviceExtension;
-
-                              if (PortExtension->CurrentPowerState.DeviceState != PowerDeviceD3)
-                              {
-                                  break;
-                              }
-                          }
-
-                          ++Port;
-
-                          if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
-                          {
-                              goto Next;
+                              IsAllPortsD3 = FALSE;
+                              break;
                           }
                       }
-
-                      IsAllPortsD3 = FALSE;
                   }
               }
-
-          Next:
 
               if (PowerState.SystemState == PowerSystemWorking)
               {
