@@ -412,7 +412,7 @@ USBH_AbortInterruptPipe(IN PUSBHUB_FDO_EXTENSION HubExtension)
                               NULL);
     }
 
-    ExFreePool(Urb);
+    ExFreePoolWithTag(Urb, USB_HUB_TAG);
 
     return Status;
 }
@@ -608,17 +608,17 @@ Exit:
 
     if (HubExtension->SCEBitmap)
     {
-        ExFreePool(HubExtension->SCEBitmap);
+        ExFreePoolWithTag(HubExtension->SCEBitmap, USB_HUB_TAG);
     }
 
     if (HubExtension->HubDescriptor)
     {
-        ExFreePool(HubExtension->HubDescriptor);
+        ExFreePoolWithTag(HubExtension->HubDescriptor, USB_HUB_TAG);
     }
 
     if (HubExtension->HubConfigDescriptor)
     {
-        ExFreePool(HubExtension->HubConfigDescriptor);
+        ExFreePoolWithTag(HubExtension->HubConfigDescriptor, USB_HUB_TAG);
     }
 
     HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_DEVICE_STARTED;
@@ -939,7 +939,7 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (HubExtension->HubDescriptor)
     {
-        ExFreePool(HubExtension->HubDescriptor);
+        ExFreePoolWithTag(HubExtension->HubDescriptor, USB_HUB_TAG);
         HubExtension->HubDescriptor = NULL;
     }
 
@@ -957,13 +957,13 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (HubExtension->SCEBitmap)
     {
-        ExFreePool(HubExtension->SCEBitmap);
+        ExFreePoolWithTag(HubExtension->SCEBitmap, USB_HUB_TAG);
         HubExtension->SCEBitmap = NULL;
     }
 
     if (HubExtension->HubConfigDescriptor)
     {
-        ExFreePool(HubExtension->HubConfigDescriptor);
+        ExFreePoolWithTag(HubExtension->HubConfigDescriptor, USB_HUB_TAG);
         HubExtension->HubConfigDescriptor = NULL;
     }
 
@@ -1171,7 +1171,7 @@ EnumStart:
 
                 if (SerialNumber)
                 {
-                    ExFreePool(SerialNumber);
+                    ExFreePoolWithTag(SerialNumber, USB_HUB_TAG);
                 }
 
                 DeviceHandle = InterlockedExchangePointer(&PdoExtension->DeviceHandle,
@@ -1331,7 +1331,7 @@ RelationsWorker:
 
         if (DeviceRelations)
         {
-            ExFreePool(DeviceRelations);
+            ExFreePoolWithTag(DeviceRelations, USB_HUB_TAG);
         }
 
         USBH_CompleteIrp(Irp, Status);
@@ -1523,7 +1523,7 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (HubExtension->PortData)
     {
-        ExFreePool(HubExtension->PortData);
+        ExFreePoolWithTag(HubExtension->PortData, USB_HUB_TAG);
         HubExtension->PortData = NULL;
     }
 
@@ -1606,7 +1606,9 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                  PortExtension->DeviceDescriptor.idProduct) + 2;
             }
 
-            Id = ExAllocatePool(PagedPool, Index * sizeof(WCHAR));
+            Id = ExAllocatePoolWithTag(PagedPool,
+                                       Index * sizeof(WCHAR),
+                                       USB_HUB_TAG);
 
             if (!Id)
             {
@@ -1639,7 +1641,9 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                   PortExtension->DeviceDescriptor.idProduct) + 2;
             }
 
-            Id = ExAllocatePool(PagedPool, Index * sizeof(WCHAR));
+            Id = ExAllocatePoolWithTag(PagedPool,
+                                       Index * sizeof(WCHAR),
+                                       USB_HUB_TAG);
 
             if (!Id)
             {
@@ -1694,7 +1698,9 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                   PortExtension->InterfaceDescriptor.bInterfaceClass) + 2;
             }
 
-            Id = ExAllocatePool(PagedPool, Index * sizeof(WCHAR));
+            Id = ExAllocatePoolWithTag(PagedPool,
+                                       Index * sizeof(WCHAR),
+                                       USB_HUB_TAG);
 
             if (!Id)
             {
@@ -1870,7 +1876,7 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         Exit:
 
-            ExFreePool(Descriptor);
+            ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
 
             if (NT_SUCCESS(Status))
             {
@@ -1965,7 +1971,8 @@ USBH_SymbolicLink(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = IoSetDeviceInterfaceState(&PortExtension->SymbolicLinkName,
                                                FALSE);
 
-            ExFreePool(PortExtension->SymbolicLinkName.Buffer);
+            ExFreePoolWithTag(PortExtension->SymbolicLinkName.Buffer,
+                              USB_HUB_TAG);
 
             PortExtension->SymbolicLinkName.Buffer = NULL;
         }
@@ -2110,7 +2117,7 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PIRP WakeIrp;
     LONG DeviceHandle;
     PDEVICE_OBJECT Pdo;
-    LONG SerialNumber;
+    PVOID SerialNumber;
     USHORT Port;
     KIRQL Irql;
 
@@ -2251,12 +2258,12 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             {
                 PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_NOT_CONNECTED;
 
-                SerialNumber = InterlockedExchange((PLONG)&PortExtension->SerialNumber,
-                                                   0);
+                SerialNumber = InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber,
+                                                          NULL);
 
                 if (SerialNumber)
                 {
-                    ExFreePool((PVOID)SerialNumber);
+                    ExFreePoolWithTag(SerialNumber, USB_HUB_TAG);
                 }
 
                 DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");

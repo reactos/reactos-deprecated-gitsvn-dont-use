@@ -1136,7 +1136,8 @@ USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Irp->IoStatus.Information = (sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR)) +
                                 Urb->TransferBufferLength;
-    ExFreePool(Urb);
+
+    ExFreePoolWithTag(Urb, USB_HUB_TAG);
 
 Exit:
     USBH_CompleteIrp(Irp, Status);

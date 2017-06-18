@@ -339,7 +339,7 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
                               FALSE,
                               NULL);
 
-        ExFreePool(HubTimeoutContext);
+        ExFreePoolWithTag(HubTimeoutContext, USB_HUB_TAG);
     }
 
     return IoStatusBlock.Status;
@@ -401,7 +401,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         if (Buffer)
         {
-            ExFreePool(Buffer);
+            ExFreePoolWithTag(Buffer, USB_HUB_TAG);
         }
 
         return STATUS_INSUFFICIENT_RESOURCES;
@@ -452,10 +452,10 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (Buffer)
     {
-        ExFreePool(Buffer);
+        ExFreePoolWithTag(Buffer, USB_HUB_TAG);
     }
 
-    ExFreePool(Urb);
+    ExFreePoolWithTag(Urb, USB_HUB_TAG);
 
     return Status;
 }
@@ -654,12 +654,12 @@ USBH_GetDeviceType(IN PUSBHUB_FDO_EXTENSION HubExtension,
                 DeviceType = DeviceInfo->DeviceType;
             }
 
-            ExFreePool(DeviceInfo);
+            ExFreePoolWithTag(DeviceInfo, USB_HUB_TAG);
             break;
         }
 
         DeviceInformationBufferLength = DeviceInfo->ActualLength;
-        ExFreePool(DeviceInfo);
+        ExFreePoolWithTag(DeviceInfo, USB_HUB_TAG);
     }
 
     if (OutDeviceType)
@@ -900,7 +900,7 @@ USBH_GetDeviceDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
     Status = USBH_FdoSyncSubmitUrb(DeviceObject, (PURB)Urb);
 
-    ExFreePool(Urb);
+    ExFreePoolWithTag(Urb, USB_HUB_TAG);
 
     return Status;
 }
@@ -960,7 +960,7 @@ USBH_SyncGetDeviceConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
     if (Urb)
     {
-        ExFreePool(Urb);
+        ExFreePoolWithTag(Urb, USB_HUB_TAG);
     }
 
     return Status;
@@ -1023,7 +1023,7 @@ ErrorExit:
 
     if (ConfigDescriptor)
     {
-        ExFreePool(ConfigDescriptor);
+        ExFreePoolWithTag(ConfigDescriptor, USB_HUB_TAG);
     }
 
     *pConfigurationDescriptor = NULL;
@@ -1062,7 +1062,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
     if (!NT_SUCCESS(Status))
     {
-        ExFreePool(ExtendedHubInfo);
+        ExFreePoolWithTag(ExtendedHubInfo, USB_HUB_TAG);
         ExtendedHubInfo = NULL;
     }
 
@@ -1117,7 +1117,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
         }
 
         NumberOfBytes = HubDescriptor->bDescriptorLength;
-        ExFreePool(HubDescriptor);
+        ExFreePoolWithTag(HubDescriptor, USB_HUB_TAG);
 
         HubDescriptor = ExAllocatePoolWithTag(NonPagedPool,
                                               NumberOfBytes,
@@ -1206,7 +1206,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
     if (ExtendedHubInfo)
     {
-        ExFreePool(ExtendedHubInfo);
+        ExFreePoolWithTag(ExtendedHubInfo, USB_HUB_TAG);
     }
 
     return Status;
@@ -1215,12 +1215,12 @@ ErrorExit:
 
     if (HubDescriptor)
     {
-        ExFreePool(HubDescriptor);
+        ExFreePoolWithTag(HubDescriptor, USB_HUB_TAG);
     }
 
     if (ExtendedHubInfo)
     {
-        ExFreePool(ExtendedHubInfo);
+        ExFreePoolWithTag(ExtendedHubInfo, USB_HUB_TAG);
     }
 
     return Status;
@@ -1269,7 +1269,7 @@ USBH_SyncGetStringDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
     if (!NT_SUCCESS(Status))
     {
-        ExFreePool(Urb);
+        ExFreePoolWithTag(Urb, USB_HUB_TAG);
         return Status;
     }
 
@@ -1282,7 +1282,7 @@ USBH_SyncGetStringDescriptor(IN PDEVICE_OBJECT DeviceObject,
 
     if (!NT_SUCCESS(Status))
     {
-        ExFreePool(Urb);
+        ExFreePoolWithTag(Urb, USB_HUB_TAG);
         return Status;
     }
 
@@ -1296,7 +1296,7 @@ USBH_SyncGetStringDescriptor(IN PDEVICE_OBJECT DeviceObject,
         Status = STATUS_DEVICE_DATA_ERROR;
     }
 
-    ExFreePool(Urb);
+    ExFreePoolWithTag(Urb, USB_HUB_TAG);
 
     return Status;
 }
@@ -1336,7 +1336,7 @@ USBH_SyncGetStatus(IN PDEVICE_OBJECT DeviceObject,
 
     *OutStatus = UsbStatus;
 
-    ExFreePool(Urb);
+    ExFreePoolWithTag(Urb, USB_HUB_TAG);
 
     return NtStatus;
 }
@@ -1797,8 +1797,8 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     USB_PORT_STATUS_CHANGE PortStatusChange;
     PDEVICE_OBJECT PortDevice;
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
-    LONG SerialNumber;
-    LONG DeviceHandle;
+    PVOID SerialNumber;
+    PVOID DeviceHandle;
     USHORT RequestValue;
     KIRQL Irql;
 
@@ -1852,18 +1852,20 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         KeReleaseSpinLock(&HubExtension->RelationsWorkerSpinLock, Irql);
 
-        SerialNumber = InterlockedExchange((PLONG)&PortExtension->SerialNumber, 0);
+        SerialNumber = InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber,
+                                                  NULL);
 
         if (SerialNumber)
         {
-            ExFreePool((PVOID)SerialNumber);
+            ExFreePoolWithTag(SerialNumber, USB_HUB_TAG);
         }
 
-        DeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
+        DeviceHandle = InterlockedExchangePointer(&PortExtension->DeviceHandle,
+                                                  NULL);
 
         if (DeviceHandle)
         {
-            USBD_RemoveDeviceEx(HubExtension, (PUSB_DEVICE_HANDLE)DeviceHandle, 0);
+            USBD_RemoveDeviceEx(HubExtension, DeviceHandle, 0);
             USBH_SyncDisablePort(HubExtension, Port);
         }
 
@@ -2017,7 +2019,7 @@ USBH_ResetInterruptPipe(IN PUSBHUB_FDO_EXTENSION HubExtension)
         Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice,
                                        (PURB)Urb);
 
-        ExFreePool(Urb);
+        ExFreePoolWithTag(Urb, USB_HUB_TAG);
     }
     else
     {
@@ -2617,7 +2619,7 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         DeviceInfoLength = DeviceInfo->ActualLength;
 
-        ExFreePool(DeviceInfo);
+        ExFreePoolWithTag(DeviceInfo, USB_HUB_TAG);
     }
 
     NodeInfo = NULL;
@@ -2669,7 +2671,7 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         }
     }
 
-    ExFreePool(DeviceInfo);
+    ExFreePoolWithTag(DeviceInfo, USB_HUB_TAG);
 
     if (NodeInfo)
     {
@@ -2684,7 +2686,7 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         RtlCopyMemory(Info, NodeInfo, Length);
 
-        ExFreePool(NodeInfo);
+        ExFreePoolWithTag(NodeInfo, USB_HUB_TAG);
     }
 
     return Status;
@@ -2757,7 +2759,7 @@ USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!WorkItem)
     {
-        ExFreePool(HubIoWorkItem);
+        ExFreePoolWithTag(HubIoWorkItem, USB_HUB_TAG);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
@@ -2772,7 +2774,7 @@ USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
         if (!WorkItemBuffer)
         {
             IoFreeWorkItem(HubIoWorkItem->HubWorkItem);
-            ExFreePool(HubIoWorkItem);
+            ExFreePoolWithTag(HubIoWorkItem, USB_HUB_TAG);
 
             return STATUS_INSUFFICIENT_RESOURCES;
         }
@@ -2829,10 +2831,10 @@ USBH_Worker(IN PDEVICE_OBJECT DeviceObject,
 
     if (HubIoWorkItem->HubWorkItemBuffer)
     {
-        ExFreePool(HubIoWorkItem->HubWorkItemBuffer);
+        ExFreePoolWithTag(HubIoWorkItem->HubWorkItemBuffer, USB_HUB_TAG);
     }
 
-    ExFreePool(HubIoWorkItem);
+    ExFreePoolWithTag(HubIoWorkItem, USB_HUB_TAG);
 
     if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
     {
@@ -2878,10 +2880,10 @@ USBH_FreeWorkItem(IN PUSBHUB_IO_WORK_ITEM HubIoWorkItem)
 
     if (HubIoWorkItem->HubWorkItemBuffer)
     {
-        ExFreePool(HubIoWorkItem->HubWorkItemBuffer);
+        ExFreePoolWithTag(HubIoWorkItem->HubWorkItemBuffer, USB_HUB_TAG);
     }
 
-    ExFreePool(HubIoWorkItem);
+    ExFreePoolWithTag(HubIoWorkItem, USB_HUB_TAG);
 
     IoFreeWorkItem(WorkItem);
 }
@@ -4295,7 +4297,7 @@ USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
 
                 if (ix >= NumSymbols)
                 {
-                    ExFreePool(Descriptor);
+                    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
                     return STATUS_NOT_SUPPORTED;
                 }
             }
@@ -4304,7 +4306,7 @@ USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
         }
     }
 
-    ExFreePool(Descriptor);
+    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
 
     return Status;
 }
@@ -4339,7 +4341,7 @@ USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
 
     if (!NT_SUCCESS(Status))
     {
-        ExFreePool(Descriptor);
+        ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
         return Status;
     }
 
@@ -4374,7 +4376,7 @@ USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
         Status = STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    ExFreePool(Descriptor);
+    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
 
     return Status;
 }
@@ -4555,7 +4557,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         {
             if (!USBH_ValidateSerialNumberString((PUSHORT)SerialNumberBuffer))
             {
-                ExFreePool(SerialNumberBuffer);
+                ExFreePoolWithTag(SerialNumberBuffer, USB_HUB_TAG);
                 SerialNumberBuffer = NULL;
             }
 
@@ -4566,7 +4568,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                           SerialNumberBuffer,
                                           PortExtension->SN_DescriptorLength))
             {
-                ExFreePool(SerialNumberBuffer);
+                ExFreePoolWithTag(SerialNumberBuffer, USB_HUB_TAG);
                 SerialNumberBuffer = NULL;
             }
         }
@@ -4601,7 +4603,7 @@ ErrorExit:
 
     if (SerialNumberBuffer)
     {
-        ExFreePool(SerialNumberBuffer);
+        ExFreePoolWithTag(SerialNumberBuffer, USB_HUB_TAG);
     }
 
 Exit:
