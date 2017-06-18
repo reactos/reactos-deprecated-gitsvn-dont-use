@@ -209,7 +209,7 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     //DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
 
     HubExtension = PortExtension->HubExtension;
-    IoStack = Irp->Tail.Overlay.CurrentStackLocation;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
 
     Urb = IoStack->Parameters.Others.Argument1;
 
@@ -258,7 +258,7 @@ USBH_PdoIoctlGetPortStatus(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                     &PortData->PortStatus,
                                     sizeof(USBHUB_PORT_STATUS));
 
-    IoStack = Irp->Tail.Overlay.CurrentStackLocation;
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
     PortStatus = IoStack->Parameters.Others.Argument1;
 
     *PortStatus = 0;
