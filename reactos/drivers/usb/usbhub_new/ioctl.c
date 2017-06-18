@@ -815,27 +815,27 @@ USBH_IoctlGetNodeConnectionAttributes(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Status = STATUS_INVALID_PARAMETER;
 
     NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
-    Port = 1;
 
-    if (NumPorts > 0)
+    if (NumPorts == 0)
     {
-        while (Port != ConnectionIndex)
-        {
-            ++PortData;
-            ++Port;
-
-            if (Port > NumPorts)
-            {
-                goto Exit;
-            }
-        }
-
-        Attributes->ConnectionStatus = PortData->ConnectionStatus;
-        Attributes->PortAttributes = PortData->PortAttributes;
-
-        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_ATTRIBUTES);
-        Status = STATUS_SUCCESS;
+        goto Exit;
     }
+
+    for (Port = 1; Port != ConnectionIndex; ++Port)
+    {
+        ++PortData;
+
+        if (Port > NumPorts)
+        {
+            goto Exit;
+        }
+    }
+
+    Attributes->ConnectionStatus = PortData->ConnectionStatus;
+    Attributes->PortAttributes = PortData->PortAttributes;
+
+    Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_ATTRIBUTES);
+    Status = STATUS_SUCCESS;
 
 Exit:
 
@@ -1002,12 +1002,13 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
         return Status;
     }
 
-    for (Port = 1; Port <= HubExtension->HubDescriptor->bNumberOfPorts; ++Port)
+    for (Port = 1;
+         Port <= HubExtension->HubDescriptor->bNumberOfPorts;
+         ++Port)
     {
         if (Port == KeyName->ConnectionIndex)
         {
             PortData = &HubExtension->PortData[KeyName->ConnectionIndex - 1];
-
             PortDevice = PortData->DeviceObject;
 
             if (PortDevice)
@@ -1089,8 +1090,8 @@ USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     RequestBufferLength = UsbRequest->SetupPacket.wLength;
 
-    if (RequestBufferLength > BufferLength - 
-                              (sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR)))
+    if (RequestBufferLength > BufferLength -
+                              FIELD_OFFSET(USB_DESCRIPTOR_REQUEST, Data))
     {
         DPRINT("USBH_IoctlGetDescriptor: RequestBufferLength - %x\n",
                RequestBufferLength);
@@ -1100,77 +1101,77 @@ USBH_IoctlGetDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension,
         return Status;
     }
 
-    Port = 1;
-
     Status = STATUS_INVALID_PARAMETER;
 
-    if (HubExtension->HubDescriptor->bNumberOfPorts >= 1)
+    if (HubExtension->HubDescriptor->bNumberOfPorts == 0)
     {
-        while (Port != UsbRequest->ConnectionIndex)
-        {
-            ++PortData;
-            ++Port;
+        goto Exit;
+    }
 
-            if (Port > HubExtension->HubDescriptor->bNumberOfPorts)
-            {
-                goto Exit;
-            }
+    for (Port = 1; Port != UsbRequest->ConnectionIndex; ++Port)
+    {
+        ++PortData;
+
+        if (Port > HubExtension->HubDescriptor->bNumberOfPorts)
+        {
+            goto Exit;
+        }
+    }
+
+    PortDevice = PortData->DeviceObject;
+
+    if (!PortDevice)
+    {
+        goto Exit;
+    }
+
+    PortExtension = PortDevice->DeviceExtension;
+
+    if (UsbRequest->SetupPacket.bmRequest == USB_CONFIGURATION_DESCRIPTOR_TYPE &&
+        RequestBufferLength == sizeof(USB_CONFIGURATION_DESCRIPTOR))
+    {
+        Status = STATUS_SUCCESS;
+
+        RtlCopyMemory(&UsbRequest->Data[0],
+                      &PortExtension->ConfigDescriptor,
+                      sizeof(USB_CONFIGURATION_DESCRIPTOR));
+
+        Irp->IoStatus.Information = sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR) +
+                                    sizeof(USB_CONFIGURATION_DESCRIPTOR);
+    }
+    else
+    {
+        Urb = ExAllocatePoolWithTag(NonPagedPool,
+                                    sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST),
+                                    USB_HUB_TAG);
+
+        if (!Urb)
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            goto Exit;
         }
 
-        PortDevice = PortData->DeviceObject;
+        RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST));
 
-        if (PortDevice)
-        {
-            PortExtension = PortDevice->DeviceExtension;
+        Urb->Hdr.Function = URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE;
+        Urb->Hdr.Length = sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST);
 
-            if (UsbRequest->SetupPacket.bmRequest == USB_CONFIGURATION_DESCRIPTOR_TYPE &&
-                RequestBufferLength == sizeof(USB_CONFIGURATION_DESCRIPTOR))
-            {
-                Status = STATUS_SUCCESS;
+        Urb->TransferBuffer = &UsbRequest->Data[0];
+        Urb->TransferBufferLength = RequestBufferLength;
+        Urb->TransferBufferMDL = NULL;
+        Urb->UrbLink = NULL;
 
-                RtlCopyMemory(&UsbRequest->Data[0],
-                              &PortExtension->ConfigDescriptor,
-                              sizeof(USB_CONFIGURATION_DESCRIPTOR));
+        RtlCopyMemory(Urb->SetupPacket,
+                      &UsbRequest->SetupPacket,
+                      sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
 
-                Irp->IoStatus.Information = sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR) +
-                                            sizeof(USB_CONFIGURATION_DESCRIPTOR);
-            }
-            else
-            {
-                Urb = ExAllocatePoolWithTag(NonPagedPool,
-                                            sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST),
-                                            USB_HUB_TAG);
+        Status = USBH_SyncSubmitUrb(PortExtension->Common.SelfDevice,
+                                    (PURB)Urb);
 
-                if (Urb)
-                {
-                    RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST));
+        Irp->IoStatus.Information = (sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR)) +
+                                    Urb->TransferBufferLength;
 
-                    Urb->Hdr.Function = URB_FUNCTION_GET_DESCRIPTOR_FROM_DEVICE;
-                    Urb->Hdr.Length = sizeof(struct _URB_CONTROL_DESCRIPTOR_REQUEST);
-
-                    Urb->TransferBuffer = &UsbRequest->Data[0];
-                    Urb->TransferBufferLength = RequestBufferLength;
-                    Urb->TransferBufferMDL = NULL;
-                    Urb->UrbLink = NULL;
-
-                    RtlCopyMemory(Urb->SetupPacket,
-                                  &UsbRequest->SetupPacket,
-                                  sizeof(USB_DEFAULT_PIPE_SETUP_PACKET));
-
-                    Status = USBH_SyncSubmitUrb(PortExtension->Common.SelfDevice,
-                                                (PURB)Urb);
-
-                    Irp->IoStatus.Information = (sizeof(USB_DESCRIPTOR_REQUEST) - sizeof(UCHAR)) +
-                                                Urb->TransferBufferLength;
-
-                    ExFreePool(Urb);
-                }
-                else
-                {
-                    Status = STATUS_INSUFFICIENT_RESOURCES;
-                }
-            }
-        }
+        ExFreePool(Urb);
     }
 
 Exit:
