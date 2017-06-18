@@ -338,8 +338,8 @@ USBH_ResetPortWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
        Status = USBH_ResetDevice(HubExtension,
                                  Port,
-                                 1,
-                                 0);
+                                 TRUE,
+                                 FALSE);
     }
     else
     {

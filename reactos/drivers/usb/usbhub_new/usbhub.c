@@ -3738,7 +3738,7 @@ USBH_FdoSubmitIdleRequestIrp(IN PUSBHUB_FDO_EXTENSION HubExtension)
     HubExtension->IdleCallbackInfo.IdleCallback = USBH_FdoIdleNotificationCallback;
     HubExtension->IdleCallbackInfo.IdleContext = HubExtension;
 
-    Irp = IoAllocateIrp(LowerPDO->StackSize, 0);
+    Irp = IoAllocateIrp(LowerPDO->StackSize, FALSE);
 
     if (!Irp)
     {

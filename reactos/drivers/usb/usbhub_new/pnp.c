@@ -74,7 +74,7 @@ USBH_QueryCapsComplete(IN PDEVICE_OBJECT DeviceObject,
 NTSTATUS
 NTAPI
 USBHUB_GetBusInterface(IN PDEVICE_OBJECT DeviceObject,
-                       IN PUSB_BUS_INTERFACE_HUB_V5 BusInterface)
+                       OUT PUSB_BUS_INTERFACE_HUB_V5 BusInterface)
 {
     PIRP Irp;
     NTSTATUS Status;
@@ -83,7 +83,7 @@ USBHUB_GetBusInterface(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBHUB_GetBusInterface: ... \n");
 
-    Irp = IoAllocateIrp(DeviceObject->StackSize, 0);
+    Irp = IoAllocateIrp(DeviceObject->StackSize, FALSE);
 
     if (!Irp)
     {
@@ -134,7 +134,7 @@ USBHUB_GetBusInterface(IN PDEVICE_OBJECT DeviceObject,
 NTSTATUS
 NTAPI
 USBHUB_GetBusInterfaceUSBDI(IN PDEVICE_OBJECT DeviceObject,
-                            IN PUSB_BUS_INTERFACE_USBDI_V2 BusInterfaceUSBDI)
+                            OUT PUSB_BUS_INTERFACE_USBDI_V2 BusInterfaceUSBDI)
 {
     PIRP Irp;
     NTSTATUS Status;
@@ -143,7 +143,7 @@ USBHUB_GetBusInterfaceUSBDI(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBHUB_GetBusInterfaceUSBDI: ... \n");
 
-    Irp = IoAllocateIrp(DeviceObject->StackSize, 0);
+    Irp = IoAllocateIrp(DeviceObject->StackSize, FALSE);
 
     if (!Irp)
     {
@@ -202,7 +202,7 @@ USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_QueryCapabilities: ... \n");
 
-    Irp = IoAllocateIrp(DeviceObject->StackSize, 0);
+    Irp = IoAllocateIrp(DeviceObject->StackSize, FALSE);
 
     if (!Irp)
     {
@@ -520,11 +520,6 @@ USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
     if (!HubExtension->PortData ||
         !HubExtension->HubDescriptor)
-    {
-        goto Exit;
-    }
-
-    if (!HubExtension->HubDescriptor->bNumberOfPorts)
     {
         goto Exit;
     }
@@ -2026,12 +2021,7 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                       IsKeepDeviceData,
                                       ix++);
 
-            if (NT_SUCCESS(Status))
-            {
-                break;
-            }
-
-            if (Status == STATUS_NO_SUCH_DEVICE)
+            if (NT_SUCCESS(Status) || Status == STATUS_NO_SUCH_DEVICE)
             {
                 break;
             }
