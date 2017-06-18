@@ -580,7 +580,7 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     if (Length < sizeof(USB_NODE_CONNECTION_NAME))
     {
         Status = STATUS_BUFFER_TOO_SMALL;
-        USBH_CompleteIrp(Irp, STATUS_BUFFER_TOO_SMALL);
+        USBH_CompleteIrp(Irp, Status);
         return Status;
     }
 
@@ -708,8 +708,9 @@ USBH_IoctlGetNodeInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (BufferLength < sizeof(USB_NODE_INFORMATION))
     {
-        USBH_CompleteIrp(Irp, STATUS_BUFFER_TOO_SMALL);
-        return STATUS_BUFFER_TOO_SMALL;
+        Status = STATUS_BUFFER_TOO_SMALL;
+        USBH_CompleteIrp(Irp, Status);
+        return Status;
     }
 
     NodeInfo->NodeType = UsbHub;
@@ -767,7 +768,7 @@ USBH_IoctlGetHubCapabilities(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     USBH_CompleteIrp(Irp, STATUS_SUCCESS);
 
-    return 0;
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS

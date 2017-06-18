@@ -340,12 +340,10 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
                               FALSE,
                               NULL);
 
-       ExFreePool(HubTimeoutContext);
+        ExFreePool(HubTimeoutContext);
     }
 
-    Status = IoStatusBlock.Status;
-
-    return Status;
+    return IoStatusBlock.Status;
 }
 
 NTSTATUS
@@ -732,7 +730,6 @@ USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
     PIRP Irp;
     PIO_STACK_LOCATION IoStack;
     NTSTATUS Status;
-    NTSTATUS result;
 
     DPRINT("USBH_SyncGetRootHubPdo: ... \n");
 
@@ -757,9 +754,9 @@ USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
     IoStack->Parameters.Others.Argument1 = OutPdo1;
     IoStack->Parameters.Others.Argument2 = OutPdo2;
 
-    result = IoCallDriver(DeviceObject, Irp);
+    Status = IoCallDriver(DeviceObject, Irp);
 
-    if (result == STATUS_PENDING)
+    if (Status == STATUS_PENDING)
     {
         KeWaitForSingleObject(&Event,
                               Suspended,
@@ -769,12 +766,10 @@ USBH_SyncGetRootHubPdo(IN PDEVICE_OBJECT DeviceObject,
     }
     else
     {
-        IoStatusBlock.Status = result;
+        IoStatusBlock.Status = Status;
     }
 
-    Status = IoStatusBlock.Status;
-
-    return Status;
+    return IoStatusBlock.Status;
 }
 
 NTSTATUS
@@ -787,7 +782,6 @@ USBH_SyncGetHubCount(IN PDEVICE_OBJECT DeviceObject,
     PIRP Irp;
     PIO_STACK_LOCATION IoStack;
     NTSTATUS Status;
-    NTSTATUS result;
 
     DPRINT("USBH_SyncGetHubCount: *OutHubCount - %x\n", *OutHubCount);
 
@@ -811,9 +805,9 @@ USBH_SyncGetHubCount(IN PDEVICE_OBJECT DeviceObject,
     IoStack = IoGetNextIrpStackLocation(Irp);
     IoStack->Parameters.Others.Argument1 = OutHubCount;
 
-    result = IoCallDriver(DeviceObject, Irp);
+    Status = IoCallDriver(DeviceObject, Irp);
 
-    if (result == STATUS_PENDING)
+    if (Status == STATUS_PENDING)
     {
         KeWaitForSingleObject(&Event,
                               Suspended,
@@ -823,12 +817,10 @@ USBH_SyncGetHubCount(IN PDEVICE_OBJECT DeviceObject,
     }
     else
     {
-        IoStatusBlock.Status = result;
+        IoStatusBlock.Status = Status;
     }
 
-    Status = IoStatusBlock.Status;
-
-    return Status;
+    return IoStatusBlock.Status;
 }
 
 PUSB_DEVICE_HANDLE
@@ -1928,34 +1920,30 @@ USBH_GetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                         &Event,
                                         &IoStatusBlock);
 
-    if (Irp)
+    if (!Irp)
     {
-        IoStack = IoGetNextIrpStackLocation(Irp);
-        IoStack->Parameters.Others.Argument1 = PortStatus;
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
 
-        Status = IoCallDriver(HubExtension->LowerDevice, Irp);
+    IoStack = IoGetNextIrpStackLocation(Irp);
+    IoStack->Parameters.Others.Argument1 = PortStatus;
 
-        if (Status == STATUS_PENDING)
-        {
-            KeWaitForSingleObject(&Event,
-                                  Suspended,
-                                  KernelMode,
-                                  FALSE,
-                                  NULL);
-        }
-        else
-        {
-            IoStatusBlock.Status = Status;
-        }
+    Status = IoCallDriver(HubExtension->LowerDevice, Irp);
 
-        Status = IoStatusBlock.Status;
+    if (Status == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
     }
     else
     {
-        Status = STATUS_INSUFFICIENT_RESOURCES;
+        IoStatusBlock.Status = Status;
     }
 
-    return Status;
+    return IoStatusBlock.Status;
 }
 
 NTSTATUS
@@ -1981,31 +1969,27 @@ USBH_EnableParentPort(IN PUSBHUB_FDO_EXTENSION HubExtension)
                                         &Event,
                                         &IoStatusBlock);
 
-    if (Irp)
+    if (!Irp)
     {
-        Status = IoCallDriver(HubExtension->LowerDevice, Irp);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
 
-        if (Status == STATUS_PENDING)
-        {
-            KeWaitForSingleObject(&Event,
-                                  Suspended,
-                                  KernelMode,
-                                  FALSE,
-                                  NULL);
-        }
-        else
-        {
-            IoStatusBlock.Status = Status;
-        }
+    Status = IoCallDriver(HubExtension->LowerDevice, Irp);
 
-        Status = IoStatusBlock.Status;
+    if (Status == STATUS_PENDING)
+    {
+        KeWaitForSingleObject(&Event,
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
     }
     else
     {
-        Status = STATUS_INSUFFICIENT_RESOURCES;
+        IoStatusBlock.Status = Status;
     }
 
-    return Status;
+    return IoStatusBlock.Status;
 }
 
 NTSTATUS
@@ -4254,7 +4238,7 @@ USBH_ValidateSerialNumberString(IN PUSHORT SerialNumberString)
         ++SerialNumberString;
     }
 
-    return 0;
+    return TRUE;
 }
 
 NTSTATUS

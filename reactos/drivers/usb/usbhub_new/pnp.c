@@ -56,6 +56,7 @@ USBH_QueryCapsComplete(IN PDEVICE_OBJECT DeviceObject,
     DPRINT("USBH_QueryCapsComplete: ... \n");
 
     Status = Irp->IoStatus.Status;
+    ASSERT(NT_SUCCESS(Irp->IoStatus.Status));
 
     if (Irp->PendingReturned)
     {
@@ -87,7 +88,7 @@ USBHUB_GetBusInterface(IN PDEVICE_OBJECT DeviceObject,
     if (!Irp)
     {
         DPRINT1("USBHUB_GetBusInterface: IoAllocateIrp() failed\n");
-        return STATUS_UNSUCCESSFUL;
+        return STATUS_INSUFFICIENT_RESOURCES;
     }
 
     Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
@@ -147,7 +148,7 @@ USBHUB_GetBusInterfaceUSBDI(IN PDEVICE_OBJECT DeviceObject,
     if (!Irp)
     {
         DPRINT1("USBHUB_GetBusInterfaceUSBDI: IoAllocateIrp() failed\n");
-        return STATUS_UNSUCCESSFUL;
+        return STATUS_INSUFFICIENT_RESOURCES;
     }
 
     Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
@@ -1465,7 +1466,7 @@ USBH_FdoStopDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     DPRINT1("USBH_FdoStopDevice: UNIMPLEMENTED. FIXME. \n");
     DbgBreakPoint();
-    return 0;
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS
@@ -2301,7 +2302,7 @@ USBH_PdoStopDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     DPRINT1("USBH_PdoStopDevice: UNIMPLEMENTED. FIXME. \n");
     DbgBreakPoint();
-    return 0;
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS
