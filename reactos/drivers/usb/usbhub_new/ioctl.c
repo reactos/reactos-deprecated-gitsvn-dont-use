@@ -35,7 +35,7 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
 
     Status = Irp->IoStatus.Status;
 
-    if (Irp->IoStatus.Status == STATUS_SUCCESS)
+    if (NT_SUCCESS(Irp->IoStatus.Status))
     {
         KeAcquireSpinLock(&PortExtension->PortTimeoutSpinLock, &OldIrql);
 

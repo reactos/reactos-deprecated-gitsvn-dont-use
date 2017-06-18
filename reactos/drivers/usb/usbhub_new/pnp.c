@@ -1228,7 +1228,7 @@ EnumStart:
                 ULONG ix = 0;
 
                 for (NtStatus = USBH_CreateDevice(HubExtension, Port, UsbPortStatus, 0);
-                     NtStatus < 0;
+                     !NT_SUCCESS(NtStatus);
                      NtStatus = USBH_CreateDevice(HubExtension, Port, UsbPortStatus, ix))
                 {
                     ++ix;
@@ -1269,7 +1269,7 @@ EnumStart:
 
           AddObject:
 
-                if (NtStatus >= 0)
+                if (NT_SUCCESS(NtStatus))
                 {
                     ObReferenceObject(PortData->DeviceObject);
 
