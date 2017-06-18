@@ -618,12 +618,15 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     LengthSkip = 0;
 
-    if (PortExtension->SymbolicLinkName.Buffer[0] == '\\')
+    ASSERT(UNICODE_NULL == PortExtension->SymbolicLinkName.
+           Buffer[PortExtension->SymbolicLinkName.Length / sizeof(WCHAR)]);
+
+    if (PortExtension->SymbolicLinkName.Buffer[0] == L'\\')
     {
         BufferEnd = &PortExtension->SymbolicLinkName.Buffer[1];
         Symbol = *BufferEnd;
 
-        if (PortExtension->SymbolicLinkName.Buffer[1] == '\\')
+        if (PortExtension->SymbolicLinkName.Buffer[1] == L'\\')
         {
             LengthSkip = 2 * sizeof(WCHAR);
         }
@@ -639,21 +642,24 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
                 BufferEnd += 1;
                 Symbol = *BufferEnd;
             }
-            while (*BufferEnd != '\\');
+            while (*BufferEnd != L'\\');
 
-            if (*BufferEnd == '\\')
+            if (*BufferEnd == L'\\')
             {
                 BufferEnd += 1;
             }
 
-            LengthSkip = (ULONG_PTR)BufferEnd -
-                         (ULONG_PTR)&PortExtension->SymbolicLinkName.Buffer[0];
+            LengthSkip = sizeof(WCHAR) *
+                         (BufferEnd - PortExtension->SymbolicLinkName.Buffer);
         }
     }
 
     LengthName = PortExtension->SymbolicLinkName.Length - LengthSkip;
 
-    RtlZeroMemory(&ConnectionName->ActualLength, Length - 2 * sizeof(WCHAR));
+    ConnectionName->ActualLength = 0;
+
+    RtlZeroMemory(ConnectionName->NodeName,
+                  Length - FIELD_OFFSET(USB_NODE_CONNECTION_NAME, NodeName));
 
     LengthReturned = sizeof(USB_NODE_CONNECTION_NAME) + LengthName;
 
@@ -667,7 +673,7 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 
     RtlCopyMemory(&ConnectionName->NodeName[0],
-                  &PortExtension->SymbolicLinkName.Buffer[LengthSkip >> 1],
+                  &PortExtension->SymbolicLinkName.Buffer[LengthSkip / sizeof(WCHAR)],
                   LengthName);
 
     ConnectionName->ActualLength = LengthReturned;
