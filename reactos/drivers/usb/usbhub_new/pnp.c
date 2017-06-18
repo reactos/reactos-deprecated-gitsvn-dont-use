@@ -1467,6 +1467,7 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PUSB_HUB_DESCRIPTOR HubDescriptor;
     PUSBHUB_PORT_DATA PortData;
     USHORT NumPorts;
+    USHORT ix;
     PDEVICE_OBJECT PortDevice;
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
     NTSTATUS Status;
@@ -1479,32 +1480,26 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         HubDescriptor = HubExtension->HubDescriptor;
 
-        if (HubDescriptor)
+        if (HubDescriptor && HubDescriptor->bNumberOfPorts)
         {
-            if (HubDescriptor->bNumberOfPorts)
+            NumPorts = HubDescriptor->bNumberOfPorts;
+
+            for (ix = 0; ix < NumPorts; ++ix)
             {
-                NumPorts = HubDescriptor->bNumberOfPorts;
+                PortDevice = PortData->DeviceObject;
 
-                do
+                if (PortDevice)
                 {
-                   PortDevice = PortData->DeviceObject;
+                    PortData->PortStatus.AsULONG = 0;
+                    PortData->DeviceObject = NULL;
 
-                   if (PortDevice)
-                    {
-                        PortExtension = PortDevice->DeviceExtension;
+                    PortExtension = PortDevice->DeviceExtension;
+                    PortExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
 
-                        PortData->PortStatus.AsULONG = 0;
-                        PortData->DeviceObject = NULL;
-
-                        PortExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
-
-                        USBH_PdoRemoveDevice(PortExtension, HubExtension);
-                    }
-
-                    ++PortData;
-                    --NumPorts;
+                    USBH_PdoRemoveDevice(PortExtension, HubExtension);
                 }
-                while (NumPorts);
+
+                PortData++;
             }
         }
     }
@@ -1518,7 +1513,6 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         ExFreePool(HubExtension->PortData);
         HubExtension->PortData = NULL;
-
     }
 
     DPRINT1("USBH_FdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
@@ -1547,11 +1541,6 @@ USBH_FdoSurpriseRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!HubExtension->PortData ||
         !HubExtension->HubDescriptor)
-    {
-        return;
-    }
-
-    if (!HubExtension->HubDescriptor->bNumberOfPorts)
     {
         return;
     }
@@ -1996,7 +1985,7 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     ASSERT(PortExtension->PortNumber > 0);
     PortData = &HubExtension->PortData[PortExtension->PortNumber - 1];
 
-    if ( PortExtension->Common.SelfDevice == PortData->DeviceObject )
+    if (PortExtension->Common.SelfDevice == PortData->DeviceObject)
     {
         Status = STATUS_UNSUCCESSFUL;
         return Status;
