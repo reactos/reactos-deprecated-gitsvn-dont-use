@@ -4322,62 +4322,67 @@ USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
     PUSB_STRING_DESCRIPTOR Descriptor;
     NTSTATUS Status;
     LPWSTR SerialNumberBuffer = NULL;
+    UCHAR StringLength;
+    ULONG Length;
 
     DPRINT("USBH_GetSerialNumberString: ... \n");
 
     *OutSerialNumber = NULL;
     *OutDescriptorLength = 0;
 
-    Descriptor = ExAllocatePoolWithTag(NonPagedPool, 0xFF, USB_HUB_TAG);
+    Descriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                       MAXIMUM_USB_STRING_LENGTH,
+                                       USB_HUB_TAG);
 
     if (!Descriptor)
     {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    RtlZeroMemory(Descriptor, 0xFF);
+    RtlZeroMemory(Descriptor, MAXIMUM_USB_STRING_LENGTH);
 
     Status = USBH_CheckDeviceLanguage(DeviceObject, LanguageId);
 
     if (!NT_SUCCESS(Status))
     {
-        ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
-        return Status;
+        goto Exit;
     }
 
     Status = USBH_SyncGetStringDescriptor(DeviceObject,
                                           Index,
                                           LanguageId,
                                           Descriptor,
-                                          0xFF,
+                                          MAXIMUM_USB_STRING_LENGTH,
                                           0,
                                           TRUE);
 
-    if (NT_SUCCESS(Status) && Descriptor->bLength > 2)
-    {
-        SerialNumberBuffer = ExAllocatePoolWithTag(PagedPool,
-                                                   Descriptor->bLength,
-                                                   USB_HUB_TAG);
-
-        if (SerialNumberBuffer)
-        {
-            RtlZeroMemory(SerialNumberBuffer, Descriptor->bLength);
-
-            RtlCopyMemory(SerialNumberBuffer,
-                          Descriptor->bString,
-                          Descriptor->bLength - 2);
-
-            *OutSerialNumber = SerialNumberBuffer;
-            *OutDescriptorLength = Descriptor->bLength;
-        }
-    }
-    else
+    if (!NT_SUCCESS(Status) ||
+        Descriptor->bLength <= sizeof(USB_COMMON_DESCRIPTOR))
     {
         Status = STATUS_INSUFFICIENT_RESOURCES;
+        goto Exit;
     }
 
-    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
+    StringLength = Descriptor->bLength -
+                   FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString);
 
+    Length = StringLength + sizeof(UNICODE_NULL);
+
+    SerialNumberBuffer = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
+
+    if (!SerialNumberBuffer)
+    {
+        goto Exit;
+    }
+
+    RtlZeroMemory(SerialNumberBuffer, Length);
+    RtlCopyMemory(SerialNumberBuffer, Descriptor->bString, StringLength);
+
+    *OutSerialNumber = SerialNumberBuffer;
+    *OutDescriptorLength = Length;
+
+Exit:
+    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
     return Status;
 }
 
