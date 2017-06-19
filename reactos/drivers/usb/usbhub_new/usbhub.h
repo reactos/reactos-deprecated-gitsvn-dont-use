@@ -7,6 +7,7 @@
 #include <wmistr.h>
 #include <wmilib.h>
 #include <wdmguid.h>
+#include <ntstrsafe.h>
 #include <hubbusif.h>
 #include <usbbusif.h>
 #include <usbdlib.h>

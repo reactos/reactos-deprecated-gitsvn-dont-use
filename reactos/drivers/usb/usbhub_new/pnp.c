@@ -1565,14 +1565,20 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                 IN PIRP Irp)
 {
     ULONG IdType;
-    ULONG Index = 0;
     WCHAR Buffer[200];
+    PWCHAR EndBuffer;
+    size_t Remaining = sizeof(Buffer);
+    ULONG Length;
     PVOID Id = NULL;
     NTSTATUS Status = STATUS_SUCCESS;
+    PUSB_DEVICE_DESCRIPTOR DeviceDescriptor;
+    PUSB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
 
     IdType = IoGetCurrentIrpStackLocation(Irp)->Parameters.QueryId.IdType;
+    DeviceDescriptor = &PortExtension->DeviceDescriptor;
+    InterfaceDescriptor = &PortExtension->InterfaceDescriptor;
 
-    RtlZeroMemory(Buffer, 200 * sizeof(WCHAR));
+    RtlZeroMemory(Buffer, sizeof(Buffer));
 
     switch (IdType)
     {
@@ -1581,119 +1587,209 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED)
             {
-                Index = swprintf(Buffer, L"USB\\Vid_0000&Pid0000") + 2;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Vid_0000&Pid0000");
             }
             else
             {
-                Index = swprintf(Buffer,
-                                 L"USB\\Vid_%04x&Pid_%04x",
-                                 PortExtension->DeviceDescriptor.idVendor,
-                                 PortExtension->DeviceDescriptor.idProduct) + 2;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Vid_%04x&Pid_%04x",
+                                     DeviceDescriptor->idVendor,
+                                     DeviceDescriptor->idProduct);
             }
 
-            Id = ExAllocatePoolWithTag(PagedPool,
-                                       Index * sizeof(WCHAR),
-                                       USB_HUB_TAG);
+            Length = sizeof(Buffer) - (Remaining - sizeof(UNICODE_NULL));
+
+            Id = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
 
             if (!Id)
             {
                 break;
             }
 
-            RtlZeroMemory(Id, Index * sizeof(WCHAR));
-            RtlCopyMemory(Id, Buffer, (Index-2) * sizeof(WCHAR));
-
-            //DPRINT("USBH_PdoQueryId: BusQueryDeviceID - %S\n", Id);
+            RtlCopyMemory(Id, Buffer, Length);
+            DPRINT("USBH_PdoQueryId: BusQueryDeviceID - %S\n", Id);
             break;
 
         case BusQueryHardwareIDs:
             DPRINT("USBH_PdoQueryId: BusQueryHardwareIDs\n");
+
             if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED)
             {
-                Index = swprintf(Buffer, L"USB\\UNKNOWN") + 2;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\UNKNOWN");
             }
             else
             {
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\Vid_%04x&Pid_%04x&Rev_%04x",
-                                  PortExtension->DeviceDescriptor.idVendor,
-                                  PortExtension->DeviceDescriptor.idProduct,
-                                  PortExtension->DeviceDescriptor.bcdDevice) + 1;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     &EndBuffer,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Vid_%04x&Pid_%04x&Rev_%04x",
+                                     DeviceDescriptor->idVendor,
+                                     DeviceDescriptor->idProduct,
+                                     DeviceDescriptor->bcdDevice);
 
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\Vid_%04x&Pid_%04x",
-                                  PortExtension->DeviceDescriptor.idVendor,
-                                  PortExtension->DeviceDescriptor.idProduct) + 2;
+                EndBuffer++;
+                Remaining -= sizeof(UNICODE_NULL);
+
+                RtlStringCbPrintfExW(EndBuffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Vid_%04x&Pid_%04x",
+                                     DeviceDescriptor->idVendor,
+                                     DeviceDescriptor->idProduct);
             }
 
-            Id = ExAllocatePoolWithTag(PagedPool,
-                                       Index * sizeof(WCHAR),
-                                       USB_HUB_TAG);
+            Length = sizeof(Buffer) - (Remaining - sizeof(UNICODE_NULL));
+
+            Id = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
 
             if (!Id)
             {
                 break;
             }
 
-            RtlZeroMemory(Id, Index * sizeof(WCHAR));
-            RtlCopyMemory(Id, Buffer, (Index-2) * sizeof(WCHAR));
+            RtlCopyMemory(Id, Buffer, Length);
+
+            if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED)
+            {
+                DPRINT("USBH_PdoQueryId: BusQueryInstanceID - %S\n", Id);
+            }
+            else
+            {
+                USBPORT_DumpingIDs(Id);
+            }
 
             break;
 
         case BusQueryCompatibleIDs:
             DPRINT("USBH_PdoQueryId: BusQueryCompatibleIDs\n");
+
             if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED)
             {
-                Index = swprintf(Buffer, L"USB\\UNKNOWN") + 2;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\UNKNOWN");
             }
             else if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_MULTI_INTERFACE)
             {
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\DevClass_%02x&SubClass_%02x&Prot_%02x",
-                                  PortExtension->InterfaceDescriptor.bInterfaceClass,
-                                  PortExtension->InterfaceDescriptor.bInterfaceSubClass,
-                                  PortExtension->InterfaceDescriptor.bInterfaceProtocol) + 1;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     &EndBuffer,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\DevClass_%02x&SubClass_%02x&Prot_%02x",
+                                     InterfaceDescriptor->bInterfaceClass,
+                                     InterfaceDescriptor->bInterfaceSubClass,
+                                     InterfaceDescriptor->bInterfaceProtocol);
 
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\DevClass_%02x&SubClass_%02x",
-                                  PortExtension->InterfaceDescriptor.bInterfaceClass,
-                                  PortExtension->InterfaceDescriptor.bInterfaceSubClass) + 1;
+                EndBuffer++;
+                Remaining -= sizeof(UNICODE_NULL);
 
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\DevClass_%02x",
-                                  PortExtension->InterfaceDescriptor.bInterfaceClass) + 1;
+                RtlStringCbPrintfExW(EndBuffer,
+                                     Remaining,
+                                     &EndBuffer,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\DevClass_%02x&SubClass_%02x",
+                                     InterfaceDescriptor->bInterfaceClass,
+                                     InterfaceDescriptor->bInterfaceSubClass);
 
-                Index += swprintf(&Buffer[Index], L"USB\\COMPOSITE") + 2;
+                EndBuffer++;
+                Remaining -= sizeof(UNICODE_NULL);
+
+                RtlStringCbPrintfExW(EndBuffer,
+                                     Remaining,
+                                     &EndBuffer,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\DevClass_%02x",
+                                     InterfaceDescriptor->bInterfaceClass);
+
+                EndBuffer++;
+                Remaining -= sizeof(UNICODE_NULL);
+
+                RtlStringCbPrintfExW(EndBuffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\COMPOSITE");
             }
             else
             {
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\Class_%02x&SubClass_%02x&Prot_%02x",
-                                  PortExtension->InterfaceDescriptor.bInterfaceClass,
-                                  PortExtension->InterfaceDescriptor.bInterfaceSubClass,
-                                  PortExtension->InterfaceDescriptor.bInterfaceProtocol) + 1;
+                RtlStringCbPrintfExW(Buffer,
+                                     Remaining,
+                                     &EndBuffer,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Class_%02x&SubClass_%02x&Prot_%02x",
+                                     InterfaceDescriptor->bInterfaceClass,
+                                     InterfaceDescriptor->bInterfaceSubClass,
+                                     InterfaceDescriptor->bInterfaceProtocol);
 
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\Class_%02x&SubClass_%02x",
-                                  PortExtension->InterfaceDescriptor.bInterfaceClass,
-                                  PortExtension->InterfaceDescriptor.bInterfaceSubClass) + 1;
+                EndBuffer++;
+                Remaining -= sizeof(UNICODE_NULL);
 
-                Index += swprintf(&Buffer[Index],
-                                  L"USB\\Class_%02x",
-                                  PortExtension->InterfaceDescriptor.bInterfaceClass) + 2;
+                RtlStringCbPrintfExW(EndBuffer,
+                                     Remaining,
+                                     &EndBuffer,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Class_%02x&SubClass_%02x",
+                                     InterfaceDescriptor->bInterfaceClass,
+                                     InterfaceDescriptor->bInterfaceSubClass);
+
+                EndBuffer++;
+                Remaining -= sizeof(UNICODE_NULL);
+
+                RtlStringCbPrintfExW(EndBuffer,
+                                     Remaining,
+                                     NULL,
+                                     &Remaining,
+                                     0,
+                                     L"USB\\Class_%02x",
+                                     InterfaceDescriptor->bInterfaceClass);
             }
 
-            Id = ExAllocatePoolWithTag(PagedPool,
-                                       Index * sizeof(WCHAR),
-                                       USB_HUB_TAG);
+            Length = sizeof(Buffer) - (Remaining - sizeof(UNICODE_NULL));
+
+            Id = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
 
             if (!Id)
             {
                 break;
             }
 
-            RtlZeroMemory(Id, Index * sizeof(WCHAR));
-            RtlCopyMemory(Id, Buffer, (Index-2) * sizeof(WCHAR));
+            RtlCopyMemory(Id, Buffer, Length);
+
+            if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED)
+            {
+                DPRINT("USBH_PdoQueryId: BusQueryInstanceID - %S\n", Id);
+            }
+            else
+            {
+                USBPORT_DumpingIDs(Id);
+            }
 
             break;
 
@@ -1703,34 +1799,36 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             if (PortExtension->SerialNumber)
             {
                 Id = ExAllocatePoolWithTag(PagedPool,
-                                           PortExtension->SN_DescriptorLength + 2,
+                                           PortExtension->SN_DescriptorLength,
                                            USB_HUB_TAG);
 
                 if (Id)
                 {
-                    RtlZeroMemory(Id, PortExtension->SN_DescriptorLength + 2);
+                    RtlZeroMemory(Id, PortExtension->SN_DescriptorLength);
 
                     RtlCopyMemory(Id,
                                   PortExtension->SerialNumber,
-                                  PortExtension->SN_DescriptorLength - 2);
+                                  PortExtension->SN_DescriptorLength);
                 }
             }
             else
             {
-                 Id = ExAllocatePoolWithTag(PagedPool,
-                                            4 * sizeof(WCHAR) + 2,
-                                            USB_HUB_TAG);
+                 Length = sizeof(PortExtension->InstanceID) +
+                          sizeof(UNICODE_NULL);
+
+                 Id = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
 
                  if (Id)
                  {
-                     RtlZeroMemory(Id, 4 * sizeof(WCHAR) + 2);
+                     RtlZeroMemory(Id, Length);
 
                      RtlCopyMemory(Id,
-                                   &PortExtension->InstanceID,
-                                   4 * sizeof(WCHAR));
+                                   PortExtension->InstanceID,
+                                   sizeof(PortExtension->InstanceID));
                  }
             }
 
+            DPRINT("USBH_PdoQueryId: BusQueryInstanceID - %S\n", Id);
             break;
 
         default:
@@ -1743,10 +1841,6 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     if (!Id)
     {
         Status = STATUS_INSUFFICIENT_RESOURCES;
-    }
-    else
-    {
-        USBPORT_DumpingIDs(Id);
     }
 
     return Status;
