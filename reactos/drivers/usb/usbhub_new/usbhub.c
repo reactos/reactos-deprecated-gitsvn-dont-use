@@ -4252,62 +4252,57 @@ USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
     PUSB_STRING_DESCRIPTOR Descriptor;
     NTSTATUS Status;
     ULONG NumSymbols;
-    ULONG ix = 0;
+    ULONG ix;
     PWCHAR pSymbol;
     ULONG Length;
 
     DPRINT("USBH_CheckDeviceLanguage: LanguageId - 0x%04X\n", LanguageId);
 
-    Descriptor = ExAllocatePoolWithTag(NonPagedPool, 0xFF, USB_HUB_TAG);
+    Descriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                       MAXIMUM_USB_STRING_LENGTH,
+                                       USB_HUB_TAG);
 
     if (!Descriptor)
     {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
 
-    RtlZeroMemory(Descriptor, 0xFF);
+    RtlZeroMemory(Descriptor, MAXIMUM_USB_STRING_LENGTH);
 
     Status = USBH_SyncGetStringDescriptor(DeviceObject,
                                           0,
                                           0,
                                           Descriptor,
-                                          0xFF,
+                                          MAXIMUM_USB_STRING_LENGTH,
                                           &Length,
                                           TRUE);
 
-    if (NT_SUCCESS(Status))
+    if (!NT_SUCCESS(Status) ||
+        Length < sizeof(USB_COMMON_DESCRIPTOR))
     {
-        if (Length >= 2)
-        {
-            NumSymbols = (Length - 2) >> 1;
-        }
-        else
-        {
-            NumSymbols = 0;
-        }
-
-        pSymbol = Descriptor->bString;
-
-        if (NumSymbols > 0)
-        {
-            while (*pSymbol != (WCHAR)LanguageId)
-            {
-                ++pSymbol;
-                ++ix;
-
-                if (ix >= NumSymbols)
-                {
-                    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
-                    return STATUS_NOT_SUPPORTED;
-                }
-            }
-
-            Status = STATUS_SUCCESS;
-        }
+        goto Exit;
     }
 
-    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
+    NumSymbols = (Length -
+                  FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString)) >> 1;
 
+    pSymbol = Descriptor->bString;
+
+    for (ix = 1; *pSymbol != (WCHAR)LanguageId; ++ix)
+    {
+        if (ix >= NumSymbols)
+        {
+            ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
+            return STATUS_NOT_SUPPORTED;
+        }
+
+        pSymbol++;
+    }
+
+    Status = STATUS_SUCCESS;
+
+Exit:
+    ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
     return Status;
 }
 
@@ -4353,7 +4348,7 @@ USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
                                           LanguageId,
                                           Descriptor,
                                           MAXIMUM_USB_STRING_LENGTH,
-                                          0,
+                                          NULL,
                                           TRUE);
 
     if (!NT_SUCCESS(Status) ||
