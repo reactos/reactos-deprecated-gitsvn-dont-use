@@ -1565,8 +1565,8 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_ChangeIndicationAckChangeComplete: ... \n");
 
+    ASSERT(HubExtension->Port > 0);
     Port = HubExtension->Port - 1;
-    ASSERT(Port > 0);
 
     HubExtension->PortData[Port].PortStatus = HubExtension->PortStatus;
 
