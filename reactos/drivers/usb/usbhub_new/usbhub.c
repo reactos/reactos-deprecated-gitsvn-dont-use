@@ -11,11 +11,10 @@ NTSTATUS
 NTAPI
 USBH_Wait(IN ULONG Milliseconds)
 {
-    LARGE_INTEGER Interval = {{0, 0}};
+    LARGE_INTEGER Interval;
 
     DPRINT("USBH_Wait: Milliseconds - %x\n", Milliseconds);
-    Interval.QuadPart -= 10000 * Milliseconds + (KeQueryTimeIncrement() - 1);
-    Interval.HighPart = -1;
+    Interval.QuadPart = -10000 * Milliseconds + (KeQueryTimeIncrement() - 1);
     return KeDelayExecutionThread(KernelMode, FALSE, &Interval);
 }
 
@@ -251,7 +250,7 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
     PIO_STACK_LOCATION IoStack;
     PUSBHUB_URB_TIMEOUT_CONTEXT HubTimeoutContext;
     BOOLEAN IsWaitTimeout = FALSE;
-    LARGE_INTEGER DueTime = {{0, 0}};
+    LARGE_INTEGER DueTime;
     NTSTATUS Status;
 
     DPRINT("USBH_SyncSubmitUrb: ... \n");
@@ -300,7 +299,7 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
                         USBH_UrbTimeoutDPC,
                         HubTimeoutContext);
 
-        DueTime.QuadPart -= 5000 * 10000; // Timeout 5 sec.
+        DueTime.QuadPart = -5000 * 10000; // Timeout 5 sec.
 
         KeSetTimer(&HubTimeoutContext->UrbTimeoutTimer,
                    DueTime,
@@ -467,7 +466,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     USBHUB_PORT_STATUS PortStatus;
     KEVENT Event;
-    LARGE_INTEGER Timeout = {{0, 0}};
+    LARGE_INTEGER Timeout;
     ULONG ix;
     NTSTATUS Status;
 
@@ -519,7 +518,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                USBHUB_FEATURE_PORT_RESET,
                                Port);
 
-        Timeout.QuadPart -= 5000 * 10000;
+        Timeout.QuadPart = -5000 * 10000;
 
         if (!NT_SUCCESS(Status))
         {
