@@ -1476,32 +1476,28 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     DPRINT("USBH_FdoRemoveDevice: HubExtension - %p\n", HubExtension);
 
     PortData = HubExtension->PortData;
+    HubDescriptor = HubExtension->HubDescriptor;
 
-    if (PortData)
+    if (PortData && HubDescriptor)
     {
-        HubDescriptor = HubExtension->HubDescriptor;
+        NumPorts = HubDescriptor->bNumberOfPorts;
 
-        if (HubDescriptor && HubDescriptor->bNumberOfPorts)
+        for (ix = 0; ix < NumPorts; ++ix)
         {
-            NumPorts = HubDescriptor->bNumberOfPorts;
+            PortDevice = PortData->DeviceObject;
 
-            for (ix = 0; ix < NumPorts; ++ix)
+            if (PortDevice)
             {
-                PortDevice = PortData->DeviceObject;
+                PortData->PortStatus.AsULONG = 0;
+                PortData->DeviceObject = NULL;
 
-                if (PortDevice)
-                {
-                    PortData->PortStatus.AsULONG = 0;
-                    PortData->DeviceObject = NULL;
+                PortExtension = PortDevice->DeviceExtension;
+                PortExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
 
-                    PortExtension = PortDevice->DeviceExtension;
-                    PortExtension->EnumFlags &= ~USBHUB_ENUM_FLAG_DEVICE_PRESENT;
-
-                    USBH_PdoRemoveDevice(PortExtension, HubExtension);
-                }
-
-                PortData++;
+                USBH_PdoRemoveDevice(PortExtension, HubExtension);
             }
+
+            PortData++;
         }
     }
 
