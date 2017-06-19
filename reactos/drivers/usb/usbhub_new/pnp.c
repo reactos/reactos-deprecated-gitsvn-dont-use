@@ -1855,6 +1855,7 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PIO_STACK_LOCATION IoStack;
     DEVICE_TEXT_TYPE DeviceTextType;
     USHORT LanguageId;
+    USHORT DefaultId;
     PUSB_STRING_DESCRIPTOR Descriptor;
     PVOID DeviceText;
     UCHAR iProduct = 0;
@@ -1875,10 +1876,11 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     }
 
     LanguageId = IoStack->Parameters.QueryDeviceText.LocaleId;
+    DefaultId = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 
     if (!LanguageId)
     {
-        LanguageId = 0x0409;
+        LanguageId = DefaultId;
     }
 
     iProduct = PortExtension->DeviceDescriptor.iProduct;
@@ -1888,16 +1890,16 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         !(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_INIT_PORT_FAILED))
     {
         Descriptor = ExAllocatePoolWithTag(NonPagedPool,
-                                           0xFF,
+                                           MAXIMUM_USB_STRING_LENGTH,
                                            USB_HUB_TAG);
 
         if (Descriptor)
         {
-            RtlZeroMemory(Descriptor, 0xFF);
+            RtlZeroMemory(Descriptor, MAXIMUM_USB_STRING_LENGTH);
 
             for (Status = USBH_CheckDeviceLanguage(DeviceObject, LanguageId);
                  ; 
-                 Status = USBH_CheckDeviceLanguage(DeviceObject, 0x0409))
+                 Status = USBH_CheckDeviceLanguage(DeviceObject, DefaultId))
             {
                 if (NT_SUCCESS(Status))
                 {
@@ -1905,9 +1907,9 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                                                           iProduct,
                                                           LanguageId,
                                                           Descriptor,
-                                                          0xFF,
-                                                          0,
-                                                          1);
+                                                          MAXIMUM_USB_STRING_LENGTH,
+                                                          NULL,
+                                                          TRUE);
 
                     if (NT_SUCCESS(Status))
                     {
@@ -1915,15 +1917,15 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                     }
                 }
 
-                if (LanguageId == 0x0409)
+                if (LanguageId == DefaultId)
                 {
                     goto Exit;
                 }
 
-                LanguageId = 0x0409;
+                LanguageId = DefaultId;
             }
 
-            if (Descriptor->bLength <= 2)
+            if (Descriptor->bLength <= sizeof(USB_COMMON_DESCRIPTOR))
             {
                 Status = STATUS_UNSUCCESSFUL;
             }
@@ -1940,7 +1942,8 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
                     RtlCopyMemory(DeviceText,
                                   Descriptor->bString,
-                                  Descriptor->bLength - 2);
+                                  Descriptor->bLength -
+                                  FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString));
 
                     Irp->IoStatus.Information = (ULONG_PTR)DeviceText;
 
@@ -1972,42 +1975,30 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         Status = STATUS_NOT_SUPPORTED;
     }
 
-    if (GenericUSBDeviceString)
+    if (!GenericUSBDeviceString)
     {
-        NumSymbols = 0;
-
-        if (*(PWCHAR)GenericUSBDeviceString)
-        {
-            do
-            {
-                ++NumSymbols;
-            }
-            while (*((PWCHAR)GenericUSBDeviceString + NumSymbols));
-        }
-
-        Length = NumSymbols * sizeof(WCHAR) + 2;
-
-        DeviceText = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
-
-        if (DeviceText)
-        {
-            RtlZeroMemory(DeviceText, Length);
-
-            RtlCopyMemory(DeviceText,
-                          GenericUSBDeviceString,
-                          NumSymbols * sizeof(WCHAR));
-
-            Status = STATUS_SUCCESS;
-
-            Irp->IoStatus.Information = (ULONG_PTR)DeviceText;
-        }
-        else
-        {
-            Status = STATUS_INSUFFICIENT_RESOURCES;
-        }
+        return Status;
     }
 
-    return Status;
+    NumSymbols = wcslen(GenericUSBDeviceString);
+    Length = (NumSymbols + 1) * sizeof(WCHAR);
+
+    DeviceText = ExAllocatePoolWithTag(PagedPool, Length, USB_HUB_TAG);
+
+    if (!DeviceText)
+    {
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(DeviceText, Length);
+
+    RtlCopyMemory(DeviceText,
+                  GenericUSBDeviceString,
+                  NumSymbols * sizeof(WCHAR));
+
+    Irp->IoStatus.Information = (ULONG_PTR)DeviceText;
+
+    return STATUS_SUCCESS;
 }
 
 NTSTATUS
