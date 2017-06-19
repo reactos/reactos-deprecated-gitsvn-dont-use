@@ -1971,8 +1971,7 @@ USBH_SymbolicLink(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = IoSetDeviceInterfaceState(&PortExtension->SymbolicLinkName,
                                                FALSE);
 
-            ExFreePoolWithTag(PortExtension->SymbolicLinkName.Buffer,
-                              USB_HUB_TAG);
+            ExFreePool(PortExtension->SymbolicLinkName.Buffer);
 
             PortExtension->SymbolicLinkName.Buffer = NULL;
         }
