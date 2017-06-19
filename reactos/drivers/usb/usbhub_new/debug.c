@@ -5,7 +5,7 @@
 
 VOID
 NTAPI
-USBPORT_DumpingDeviceDescriptor(IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor)
+USBHUB_DumpingDeviceDescriptor(IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor)
 {
     if (!DeviceDescriptor)
     {
@@ -31,7 +31,7 @@ USBPORT_DumpingDeviceDescriptor(IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor)
 
 VOID
 NTAPI
-USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
+USBHUB_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
 {
     PUSB_COMMON_DESCRIPTOR Descriptor;
     PUSB_CONFIGURATION_DESCRIPTOR cDescriptor;
@@ -106,14 +106,14 @@ USBPORT_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
 
 VOID
 NTAPI
-USBPORT_DumpingIDs(IN PVOID Id)
+USBHUB_DumpingIDs(IN PVOID Id)
 {
     PWSTR Ptr;
     ULONG Length;
     ULONG TotalLength = 0;
 
     Ptr = Id;
-    DPRINT("USBPORT_DumpingIDs:\n");
+    DPRINT("USBHUB_DumpingIDs:\n");
 
     while (*Ptr)
     {

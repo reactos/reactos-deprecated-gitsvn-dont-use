@@ -262,17 +262,17 @@ typedef struct _USBHUB_RESET_PORT_CONTEXT {
 /* debug.c */
 VOID
 NTAPI
-USBPORT_DumpingDeviceDescriptor(
+USBHUB_DumpingDeviceDescriptor(
   IN PUSB_DEVICE_DESCRIPTOR DeviceDescriptor);
 
 VOID
 NTAPI
-USBPORT_DumpingConfiguration(
+USBHUB_DumpingConfiguration(
   IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor);
 
 VOID
 NTAPI
-USBPORT_DumpingIDs(
+USBHUB_DumpingIDs(
   IN PVOID Id);
 
 /* ioctl.c */

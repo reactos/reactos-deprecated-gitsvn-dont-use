@@ -1673,7 +1673,7 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             }
             else
             {
-                USBPORT_DumpingIDs(Id);
+                USBHUB_DumpingIDs(Id);
             }
 
             break;
@@ -1788,7 +1788,7 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             }
             else
             {
-                USBPORT_DumpingIDs(Id);
+                USBHUB_DumpingIDs(Id);
             }
 
             break;

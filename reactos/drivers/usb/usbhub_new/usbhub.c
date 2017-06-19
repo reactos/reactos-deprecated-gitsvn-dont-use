@@ -29,7 +29,7 @@ USBH_GetConfigValue(IN PWSTR ValueName,
 {
     NTSTATUS Status = STATUS_SUCCESS;
 
-    DPRINT("USBPORT_GetConfigValue: ... \n");
+    DPRINT("USBHUB_GetConfigValue: ... \n");
 
     if (ValueType == REG_BINARY)
     {
@@ -4083,8 +4083,8 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
         PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_REMOTE_WAKEUP;
     }
 
-    USBPORT_DumpingDeviceDescriptor(&PortExtension->DeviceDescriptor);
-    USBPORT_DumpingConfiguration(ConfigDescriptor);
+    USBHUB_DumpingDeviceDescriptor(&PortExtension->DeviceDescriptor);
+    USBHUB_DumpingConfiguration(ConfigDescriptor);
 
     //DPRINT("USBH_ProcessDeviceInformation: Class - %x, SubClass - %x, Protocol - %x\n",
     //       PortExtension->DeviceDescriptor.bDeviceClass,

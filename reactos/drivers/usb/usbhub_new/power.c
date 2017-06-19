@@ -758,27 +758,27 @@ USBH_PdoPower(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     switch (Minor)
     {
       case IRP_MN_WAIT_WAKE:
-          DPRINT("USBPORT_PdoPower: IRP_MN_WAIT_WAKE\n");
+          DPRINT("USBHUB_PdoPower: IRP_MN_WAIT_WAKE\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_POWER_SEQUENCE:
-          DPRINT("USBPORT_PdoPower: IRP_MN_POWER_SEQUENCE\n");
+          DPRINT("USBHUB_PdoPower: IRP_MN_POWER_SEQUENCE\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_SET_POWER:
-          DPRINT("USBPORT_PdoPower: IRP_MN_SET_POWER\n");
+          DPRINT("USBHUB_PdoPower: IRP_MN_SET_POWER\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_QUERY_POWER:
-          DPRINT("USBPORT_PdoPower: IRP_MN_QUERY_POWER\n");
+          DPRINT("USBHUB_PdoPower: IRP_MN_QUERY_POWER\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       default:
-          DPRINT1("USBPORT_PdoPower: unknown IRP_MN_POWER!\n");
+          DPRINT1("USBHUB_PdoPower: unknown IRP_MN_POWER!\n");
           PoStartNextPowerIrp(Irp);
           break;
     }
