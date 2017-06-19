@@ -160,12 +160,12 @@ USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
     {
         RtlInitUnicodeString(&DestinationString, SourceString);
 
-        return ZwSetValueKey(KeyHandle,
-                             &DestinationString,
-                             0,
-                             REG_DWORD,
-                             &Data,
-                             sizeof(Data));
+        ZwSetValueKey(KeyHandle,
+                      &DestinationString,
+                      0,
+                      REG_DWORD,
+                      &Data,
+                      sizeof(Data));
 
         ZwClose(KeyHandle);
     }
@@ -374,22 +374,23 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
     struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST * Urb;
     ULONG TransferFlags;
     PVOID Buffer = NULL;
+    ULONG Length;
     NTSTATUS Status;
 
     DPRINT("USBH_Transact: ... \n");
 
     if (BufferLen)
     {
-        Buffer = ExAllocatePoolWithTag(NonPagedPool,
-                                       (BufferLen + sizeof(ULONG)) & ~((sizeof(ULONG) - 1)),
-                                       USB_HUB_TAG);
+        Length = ALIGN_DOWN_BY(BufferLen + sizeof(ULONG), sizeof(ULONG));
+
+        Buffer = ExAllocatePoolWithTag(NonPagedPool, Length, USB_HUB_TAG);
 
         if (!Buffer)
         {
             return STATUS_INSUFFICIENT_RESOURCES;
         }
 
-        RtlZeroMemory(Buffer, (BufferLen + sizeof(ULONG)) & ~((sizeof(ULONG) - 1)));
+        RtlZeroMemory(Buffer, Length);
     }
 
     Urb = ExAllocatePoolWithTag(NonPagedPool,
