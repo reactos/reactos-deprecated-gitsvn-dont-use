@@ -1131,27 +1131,24 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
     {
         PortData = HubExtension->PortData;
 
-        if (HubDescriptor->bNumberOfPorts)
+        for (ix = 0; ix < NumberPorts; ix++)
         {
-            for (ix = 0; ix < NumberPorts; ix++)
+            PortData[ix].PortStatus.AsULONG = 0;
+
+            if (ExtendedHubInfo)
             {
-                PortData[ix].PortStatus.AsULONG = 0;
+                PortData[ix].PortAttributes = ExtendedHubInfo->Port[ix].PortAttributes;
+            }
+            else
+            {
+                PortData[ix].PortAttributes = 0;
+            }
 
-                if (ExtendedHubInfo)
-                {
-                    PortData[ix].PortAttributes = ExtendedHubInfo->Port[ix].PortAttributes;
-                }
-                else
-                {
-                    PortData[ix].PortAttributes = 0;
-                }
+            PortData[ix].ConnectionStatus = NoDeviceConnected;
 
-                PortData[ix].ConnectionStatus = NoDeviceConnected;
-
-                if (PortData[ix].DeviceObject != NULL)
-                {
-                    PortData[ix].ConnectionStatus = DeviceConnected;
-                }
+            if (PortData[ix].DeviceObject != NULL)
+            {
+                PortData[ix].ConnectionStatus = DeviceConnected;
             }
         }
     }
