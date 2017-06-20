@@ -1533,8 +1533,7 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
     }
     else
     {
-        Result = (UsbStatus & USB_GETSTATUS_SELF_POWERED) !=
-                              USB_GETSTATUS_SELF_POWERED;
+        Result = (UsbStatus & USB_GETSTATUS_SELF_POWERED) == 0;
     }
 
     return Result;
@@ -1679,15 +1678,9 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
     }
     else
     {
+        ASSERT("HubExtension->WorkItemToQueue != NULL");
+
         WorkItem = HubExtension->WorkItemToQueue;
-
-        if (!HubExtension->WorkItemToQueue)
-        {
-            DPRINT1("USBH_ChangeIndicationProcessChange: WorkItem == NULL \n");
-            KeBugCheckEx(BUGCODE_USB_DRIVER, 0xC1, 0, 0, 0);
-            return STATUS_MORE_PROCESSING_REQUIRED;
-        }
-
         HubExtension->WorkItemToQueue = NULL;
 
         USBH_QueueWorkItem(HubExtension, WorkItem);
@@ -1714,22 +1707,14 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!Port)
     {
+        ASSERT("HubExtension->WorkItemToQueue != NULL");
+
         WorkItem = HubExtension->WorkItemToQueue;
+        HubExtension->WorkItemToQueue = NULL;
 
-        if (!HubExtension->WorkItemToQueue)
-        {
-            DPRINT1("USBH_ChangeIndicationProcessChange: WorkItem == NULL \n");
-            KeBugCheckEx(BUGCODE_USB_DRIVER, 0xC2, 0, 0, 0);
-            return STATUS_MORE_PROCESSING_REQUIRED;
-        }
-        else
-        {
-            HubExtension->WorkItemToQueue = NULL;
+        USBH_QueueWorkItem(HubExtension, WorkItem);
 
-            USBH_QueueWorkItem(HubExtension, WorkItem);
-
-            Status = STATUS_SUCCESS;
-        }
+        return STATUS_SUCCESS;
     }
 
     Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
