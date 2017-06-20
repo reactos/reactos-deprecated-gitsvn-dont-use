@@ -1684,7 +1684,7 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
     }
     else
     {
-        ASSERT("HubExtension->WorkItemToQueue != NULL");
+        ASSERT(HubExtension->WorkItemToQueue != NULL);
 
         WorkItem = HubExtension->WorkItemToQueue;
         HubExtension->WorkItemToQueue = NULL;
@@ -1713,7 +1713,7 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     if (!Port)
     {
-        ASSERT("HubExtension->WorkItemToQueue != NULL");
+        ASSERT(HubExtension->WorkItemToQueue != NULL);
 
         WorkItem = HubExtension->WorkItemToQueue;
         HubExtension->WorkItemToQueue = NULL;
@@ -4181,7 +4181,7 @@ USBH_ValidateSerialNumberString(IN PUSHORT SerialNumberString)
         ++SerialNumberString;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 NTSTATUS

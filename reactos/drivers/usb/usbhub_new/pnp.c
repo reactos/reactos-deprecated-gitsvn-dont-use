@@ -1293,7 +1293,7 @@ EnumStart:
 
         PortData->ConnectionStatus = DeviceFailedEnumeration;
 
-        if (!NT_SUCCESS(USBH_SyncDisablePort(HubExtension, Port)))
+        if (NT_ERROR(USBH_SyncDisablePort(HubExtension, Port)))
         {
             HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
         }
@@ -2194,15 +2194,11 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     Port = PortExtension->PortNumber;
     ASSERT(Port > 0);
 
-    if (HubExtension)
+    if (HubExtension &&
+        HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0 &&
+        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED) != 0)
     {
-        if (HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0)
-        {
-            if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED)
-            {
-                USBH_HubSetD0(HubExtension);
-            }
-        }
+        USBH_HubSetD0(HubExtension);
     }
 
     IoAcquireCancelSpinLock(&Irql);
