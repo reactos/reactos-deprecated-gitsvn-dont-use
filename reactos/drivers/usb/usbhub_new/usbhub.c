@@ -962,64 +962,73 @@ USBH_SyncGetDeviceConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
 NTSTATUS
 NTAPI
 USBH_GetConfigurationDescriptor(IN PDEVICE_OBJECT DeviceObject,
-                                IN PUSB_CONFIGURATION_DESCRIPTOR * pConfigurationDescriptor)
+                                IN PUSB_CONFIGURATION_DESCRIPTOR * OutDescriptor)
 {
     PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
+    ULONG ReturnedLen;
+    SIZE_T DescriptorLen;
     NTSTATUS Status;
-    ULONG Length;
 
     DPRINT("USBH_GetConfigurationDescriptor: ... \n");
 
-    ConfigDescriptor = ExAllocatePoolWithTag(NonPagedPool, 0xFF, USB_HUB_TAG);
+    DescriptorLen = MAXUCHAR;
 
-    if (!ConfigDescriptor)
+    while (TRUE)
     {
-        Status = STATUS_INSUFFICIENT_RESOURCES;
-        goto ErrorExit;
+        ConfigDescriptor = ExAllocatePoolWithTag(NonPagedPool,
+                                                 DescriptorLen,
+                                                 USB_HUB_TAG);
+
+        if (!ConfigDescriptor)
+        {
+            Status = STATUS_INSUFFICIENT_RESOURCES;
+            break;
+        }
+
+        Status = USBH_SyncGetDeviceConfigurationDescriptor(DeviceObject,
+                                                           ConfigDescriptor,
+                                                           DescriptorLen,
+                                                           &ReturnedLen);
+
+        if (ReturnedLen < sizeof(USB_CONFIGURATION_DESCRIPTOR))
+        {
+            Status = STATUS_DEVICE_DATA_ERROR;
+        }
+
+        if (!NT_SUCCESS(Status))
+        {
+            break;
+        }
+
+        *OutDescriptor = ConfigDescriptor;
+
+        if (ConfigDescriptor->wTotalLength <= DescriptorLen)
+        {
+            break;
+        }
+
+        DescriptorLen = ConfigDescriptor->wTotalLength;
+
+        ExFreePool(ConfigDescriptor);
+        *OutDescriptor = NULL;
     }
 
-    RtlZeroMemory(ConfigDescriptor, 0xFF);
-
-    Status = USBH_SyncGetDeviceConfigurationDescriptor(DeviceObject,
-                                                       ConfigDescriptor,
-                                                       0xFF,
-                                                       &Length);
-
-    if (!NT_SUCCESS(Status))
+    if (NT_SUCCESS(Status))
     {
-        goto ErrorExit;
+        if (ReturnedLen < ConfigDescriptor->wTotalLength)
+        {
+            Status = STATUS_DEVICE_DATA_ERROR;
+        }
     }
-
-    if (Length < sizeof(USB_CONFIGURATION_DESCRIPTOR))
+    else
     {
-        Status = STATUS_DEVICE_DATA_ERROR;
-        goto ErrorExit;
+        if (ConfigDescriptor)
+        {
+            ExFreePool(ConfigDescriptor);
+        }
+
+        *OutDescriptor = NULL;
     }
-
-    if (Length < ConfigDescriptor->wTotalLength)
-    {
-        Status = STATUS_DEVICE_DATA_ERROR;
-        goto ErrorExit;
-    }
-
-    if (ConfigDescriptor->wTotalLength > 0xFF)
-    {
-        Status = STATUS_INSUFFICIENT_RESOURCES;
-        goto ErrorExit;
-    }
-
-    *pConfigurationDescriptor = ConfigDescriptor;
-
-     return Status;
-
-ErrorExit:
-
-    if (ConfigDescriptor)
-    {
-        ExFreePoolWithTag(ConfigDescriptor, USB_HUB_TAG);
-    }
-
-    *pConfigurationDescriptor = NULL;
 
     return Status;
 }
