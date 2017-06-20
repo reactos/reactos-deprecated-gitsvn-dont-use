@@ -2184,7 +2184,7 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PUSBHUB_PORT_DATA PortData;
     PIRP IdleNotificationIrp;
     PIRP WakeIrp;
-    LONG DeviceHandle;
+    PVOID DeviceHandle;
     PDEVICE_OBJECT Pdo;
     PVOID SerialNumber;
     USHORT Port;
@@ -2273,13 +2273,12 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         }
     }
 
-    DeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
+    DeviceHandle = InterlockedExchangePointer(&PortExtension->DeviceHandle,
+                                              NULL);
 
     if (DeviceHandle)
     {
-        Status = USBD_RemoveDeviceEx(HubExtension,
-                                     (PUSB_DEVICE_HANDLE)DeviceHandle,
-                                     0);
+        Status = USBD_RemoveDeviceEx(HubExtension, DeviceHandle, 0);
 
         if (HubExtension->PortData)
         {

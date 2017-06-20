@@ -1542,7 +1542,7 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
                                        IN PVOID Context)
 {
     PUSBHUB_FDO_EXTENSION HubExtension;
-    LONG Event;
+    PVOID Event;
     USHORT Port;
 
     HubExtension = Context;
@@ -1554,11 +1554,12 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
 
     HubExtension->PortData[Port].PortStatus = HubExtension->PortStatus;
 
-    Event = InterlockedExchange((PLONG)&HubExtension->pResetPortEvent, 0);
+    Event = InterlockedExchangePointer((PVOID)&HubExtension->pResetPortEvent,
+                                       NULL);
 
     if (Event)
     {
-        KeSetEvent((PRKEVENT)Event, EVENT_INCREMENT, FALSE);
+        KeSetEvent(Event, EVENT_INCREMENT, FALSE);
     }
 
     USBH_SubmitStatusChangeTransfer(HubExtension);
@@ -3553,7 +3554,7 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
 {
     PUSBHUB_FDO_EXTENSION HubExtension;
     NTSTATUS NtStatus;
-    LONG IdleIrp;
+    PVOID IdleIrp;
     KIRQL Irql;
     NTSTATUS Status;
     PUSBHUB_IO_WORK_ITEM HubIoWorkItem;
@@ -3563,7 +3564,9 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
     HubExtension = Context;
     HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
 
-    IdleIrp = InterlockedExchange((PLONG)&HubExtension->PendingIdleIrp, 0);
+    IdleIrp = InterlockedExchangePointer((PVOID)&HubExtension->PendingIdleIrp,
+                                         NULL);
+
     DPRINT("USBH_FdoIdleNotificationRequestComplete: IdleIrp - %p\n", IdleIrp);
 
     if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
@@ -3574,7 +3577,9 @@ USBH_FdoIdleNotificationRequestComplete(IN PDEVICE_OBJECT DeviceObject,
     IoReleaseCancelSpinLock(Irql);
 
     NtStatus = Irp->IoStatus.Status;
-    DPRINT("USBH_FdoIdleNotificationRequestComplete: NtStatus - %lX\n", NtStatus);
+
+    DPRINT("USBH_FdoIdleNotificationRequestComplete: NtStatus - %lX\n",
+           NtStatus);
 
     if (!NT_SUCCESS(NtStatus) &&
         NtStatus != STATUS_POWER_STATE_INVALID &&
@@ -4471,12 +4476,12 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     if (PortExtension->DeviceDescriptor.iSerialNumber &&
        !PortExtension->IgnoringHwSerial)
     {
-        InterlockedExchange((PLONG)&PortExtension->SerialNumber, 0);
+        InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber, NULL);
 
         USBH_GetSerialNumberString(PortExtension->Common.SelfDevice,
                                    &SerialNumberBuffer,
                                    &PortExtension->SN_DescriptorLength,
-                                   0x0409,
+                                   MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
                                    PortExtension->DeviceDescriptor.iSerialNumber);
 
         if (SerialNumberBuffer)
@@ -4499,8 +4504,8 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
             }
         }
 
-        InterlockedExchange((PLONG)&PortExtension->SerialNumber,
-                            (LONG)SerialNumberBuffer);
+        InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber,
+                                   SerialNumberBuffer);
     }
 
     Status = USBH_ProcessDeviceInformation(PortExtension);
@@ -4516,16 +4521,16 @@ ErrorExit:
 
     PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_INIT_PORT_FAILED;
 
-    DeviceHandle = (PUSB_DEVICE_HANDLE)InterlockedExchange((PLONG)&PortExtension->DeviceHandle,
-                                                           0);
+    DeviceHandle = InterlockedExchangePointer(&PortExtension->DeviceHandle,
+                                              NULL);
 
     if (DeviceHandle)
     {
         USBD_RemoveDeviceEx(HubExtension, DeviceHandle, 0);
     }
 
-    SerialNumberBuffer = (LPWSTR)InterlockedExchange((PLONG)&PortExtension->SerialNumber,
-                                                     0);
+    SerialNumberBuffer = InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber,
+                                                     NULL);
 
     if (SerialNumberBuffer)
     {
@@ -4550,9 +4555,9 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PUSBHUB_PORT_DATA PortData;
     PDEVICE_OBJECT PortDevice;
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
-    LONG NewDeviceHandle;
-    LONG Handle;
-    LONG OldDeviceHandle;
+    PVOID NewDeviceHandle;
+    PVOID Handle;
+    PVOID OldDeviceHandle;
     PUSB_DEVICE_HANDLE * DeviceHandle;
     USBHUB_PORT_STATUS PortStatus;
 
@@ -4606,16 +4611,17 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 
     PortExtension = PortDevice->DeviceExtension;
-
     DeviceHandle = &PortExtension->DeviceHandle;
-    OldDeviceHandle = InterlockedExchange((PLONG)&PortExtension->DeviceHandle, 0);
+
+    OldDeviceHandle = InterlockedExchangePointer(&PortExtension->DeviceHandle,
+                                                 NULL);
 
     if (OldDeviceHandle)
     {
         if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_REMOVING_PORT_PDO))
         {
             Status = USBD_RemoveDeviceEx(HubExtension,
-                                         (PUSB_DEVICE_HANDLE)OldDeviceHandle,
+                                         OldDeviceHandle,
                                          IsKeepDeviceData);
 
             PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_REMOVING_PORT_PDO;
@@ -4623,7 +4629,7 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
     else
     {
-      OldDeviceHandle = 0;
+        OldDeviceHandle = NULL;
     }
 
     if (!NT_SUCCESS(Status))
@@ -4682,17 +4688,14 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         if (IsKeepDeviceData)
         {
             Status = USBD_RestoreDeviceEx(HubExtension,
-                                          (PUSB_DEVICE_HANDLE)OldDeviceHandle,
+                                          OldDeviceHandle,
                                           *DeviceHandle);
 
             if (!NT_SUCCESS(Status))
             {
-                Handle = InterlockedExchange((PLONG)DeviceHandle, 0);
+                Handle = InterlockedExchangePointer(DeviceHandle, NULL);
 
-                USBD_RemoveDeviceEx(HubExtension,
-                                    (PUSB_DEVICE_HANDLE)Handle,
-                                    0);
-
+                USBD_RemoveDeviceEx(HubExtension, Handle, 0);
                 USBH_SyncDisablePort(HubExtension, Port);
 
                 Status = STATUS_NO_SUCH_DEVICE;
@@ -4710,13 +4713,12 @@ USBH_ResetDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 ErrorExit:
 
-    NewDeviceHandle = InterlockedExchange((PLONG)DeviceHandle, OldDeviceHandle);
+    NewDeviceHandle = InterlockedExchangePointer(DeviceHandle,
+                                                 OldDeviceHandle);
 
     if (NewDeviceHandle)
     {
-        Status = USBD_RemoveDeviceEx(HubExtension,
-                                     (PUSB_DEVICE_HANDLE)NewDeviceHandle,
-                                     0);
+        Status = USBD_RemoveDeviceEx(HubExtension, NewDeviceHandle, 0);
     }
 
 Exit:
