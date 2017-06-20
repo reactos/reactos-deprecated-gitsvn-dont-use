@@ -1034,7 +1034,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
     USHORT RequestValue;
     ULONG NumberOfBytes;
     NTSTATUS Status;
-    PUSB_HUB_DESCRIPTOR HubDescriptor;
+    PUSB_HUB_DESCRIPTOR HubDescriptor = NULL;
     ULONG ix;
 
     DPRINT("USBH_SyncGetHubDescriptor: ... \n");
