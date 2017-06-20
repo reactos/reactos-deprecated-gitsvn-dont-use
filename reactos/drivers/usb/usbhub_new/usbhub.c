@@ -1446,7 +1446,7 @@ USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
     PUSB_HUB_DESCRIPTOR HubDescriptor;
     ULONG NumberOfPorts;
     ULONG Port;
-    NTSTATUS Status;
+    NTSTATUS Status = STATUS_UNSUCCESSFUL;
 
     DPRINT("USBH_SyncPowerOnPorts: ... \n");
 
