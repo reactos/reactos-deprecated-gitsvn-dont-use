@@ -4745,7 +4745,7 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     PIO_STACK_LOCATION IoStack;
     UCHAR MajorFunction;
-    BOOLEAN IsCompleteIrp;
+    BOOLEAN ShouldCompleteIrp;
     ULONG ControlCode;
     NTSTATUS Status;
 
@@ -4795,9 +4795,9 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             Status = USBH_PdoPnP(PortExtension,
                                  Irp,
                                  IoStack->MinorFunction,
-                                 &IsCompleteIrp);
+                                 &ShouldCompleteIrp);
 
-            if (IsCompleteIrp)
+            if (ShouldCompleteIrp)
             {
                 USBH_CompleteIrp(Irp, Status);
             }
