@@ -463,7 +463,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     USBHUB_PORT_STATUS PortStatus;
     KEVENT Event;
     LARGE_INTEGER Timeout;
-    ULONG ix;
+    ULONG ResetRetry = 0;
     NTSTATUS Status;
 
     DPRINT("USBH_SyncResetPort: Port - %x\n", Port);
@@ -479,9 +479,10 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Status = USBH_SyncGetPortStatus(HubExtension,
                                     Port,
                                     &PortStatus,
-                                    4);
+                                    sizeof(USBHUB_PORT_STATUS));
 
-    if (NT_SUCCESS(Status) && !PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
+    if (NT_SUCCESS(Status) &&
+        (PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus == 0))
     {
         Status = STATUS_UNSUCCESSFUL;
         goto Exit;
@@ -489,8 +490,6 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     HubExtension->HubFlags |= USBHUB_FDO_FLAG_RESET_PORT_LOCK;
     KeInitializeEvent(&Event, NotificationEvent, FALSE);
-
-    ix = 0;
 
     while (TRUE)
     {
@@ -541,11 +540,11 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
         Status = USBH_SyncGetPortStatus(HubExtension,
                                         Port,
                                         &PortStatus,
-                                        4);
+                                        sizeof(USBHUB_PORT_STATUS));
 
         if (!NT_SUCCESS(Status) ||
-            !PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus ||
-            ix >= 3)
+            (PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus == 0) ||
+            ResetRetry >= USBHUB_RESET_PORT_MAX_RETRY)
         {
             InterlockedExchangePointer((PVOID)&HubExtension->pResetPortEvent,
                                        NULL);
@@ -557,7 +556,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
             goto Exit;
         }
 
-        ++ix;
+        ResetRetry++;
 
         KeInitializeEvent(&Event, NotificationEvent, FALSE);
     }
@@ -565,9 +564,9 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Status = USBH_SyncGetPortStatus(HubExtension,
                                     Port,
                                     &PortStatus,
-                                    4);
+                                    sizeof(USBHUB_PORT_STATUS));
 
-    if (!PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus &&
+    if ((PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus == 0) &&
         NT_SUCCESS(Status) &&
         HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB)
     {
@@ -2010,23 +2009,23 @@ USBH_ResetInterruptPipe(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
 NTSTATUS
 NTAPI
-USBH_ResetHub(IN PUSBHUB_FDO_EXTENSION HubExtension,
-              IN ULONG PortStatus)
+USBH_ResetHub(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
     NTSTATUS Status;
+    ULONG PortStatusFlags = 0;
 
     DPRINT("USBH_ResetHub: ... \n");
 
-    Status = USBH_GetPortStatus(HubExtension, &PortStatus);
+    Status = USBH_GetPortStatus(HubExtension, &PortStatusFlags);
 
     if (!NT_SUCCESS(Status))
     {
         return Status;
     }
 
-    if (!(PortStatus & USBD_PORT_ENABLED))
+    if (!(PortStatusFlags & USBD_PORT_ENABLED))
     {
-        if (PortStatus & USBD_PORT_CONNECTED)
+        if (PortStatusFlags & USBD_PORT_CONNECTED)
         {
             USBH_EnableParentPort(HubExtension);
         }
@@ -2124,10 +2123,9 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 Enum:
 
-    if (WorkItem->RequestErrors & 1)
+    if (WorkItem->IsRequestErrors)
     {
-        ULONG PortStatusFlags = 0x200;
-        USBH_ResetHub(HubExtension, PortStatusFlags);
+        USBH_ResetHub(HubExtension);
     }
     else
     {
@@ -2169,9 +2167,9 @@ Enum:
         }
         else
         {
-           ++HubExtension->RequestErrors;
+           HubExtension->RequestErrors++;
 
-           if (HubExtension->RequestErrors > 3)
+           if (HubExtension->RequestErrors > USBHUB_MAX_REQUEST_ERRORS)
            {
                HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
                goto Exit;
@@ -2237,7 +2235,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) ||
        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING))
     {
-        ++HubExtension->RequestErrors;
+        HubExtension->RequestErrors++;
 
         IsErrors = TRUE;
 
@@ -2247,7 +2245,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
         if (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING ||
             HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED ||
-            HubExtension->RequestErrors > 3 ||
+            HubExtension->RequestErrors > USBHUB_MAX_REQUEST_ERRORS ||
             Irp->IoStatus.Status == STATUS_DELETE_PENDING)
         {
             DPRINT("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
@@ -2281,11 +2279,11 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     RtlZeroMemory(HubWorkItemBuffer, BufferLength);
 
-    HubWorkItemBuffer->RequestErrors = 0;
+    HubWorkItemBuffer->IsRequestErrors = FALSE;
 
-    if (IsErrors == TRUE)
+    if (IsErrors)
     {
-        HubWorkItemBuffer->RequestErrors = 1;
+        HubWorkItemBuffer->IsRequestErrors = TRUE;
     }
 
     if (InterlockedIncrement(&HubExtension->ResetRequestCount) == 1)

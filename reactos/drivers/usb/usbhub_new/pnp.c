@@ -2080,9 +2080,9 @@ USBH_RestoreDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     }
 
     Status = USBH_SyncGetPortStatus(HubExtension,
-                                PortExtension->PortNumber,
-                                &PortData->PortStatus,
-                                sizeof(USBHUB_PORT_STATUS));
+                                    PortExtension->PortNumber,
+                                    &PortData->PortStatus,
+                                    sizeof(USBHUB_PORT_STATUS));
 
     if (NT_SUCCESS(Status))
     {
