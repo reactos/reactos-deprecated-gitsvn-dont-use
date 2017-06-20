@@ -688,8 +688,7 @@ PUSBHUB_FDO_EXTENSION
 NTAPI
 USBH_GetRootHubExtension(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
-    PDEVICE_OBJECT RootHubPdo;
-    PDEVICE_OBJECT RootHubFdo;
+    PDEVICE_OBJECT Device;
     PUSBHUB_FDO_EXTENSION RootHubExtension;
 
     DPRINT("USBH_GetRootHubExtension: HubExtension - %p\n", HubExtension);
@@ -698,15 +697,15 @@ USBH_GetRootHubExtension(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
     if (HubExtension->LowerPDO != HubExtension->RootHubPdo)
     {
-        RootHubPdo = HubExtension->RootHubPdo;
+        Device = HubExtension->RootHubPdo;
 
         do
         {
-            RootHubFdo = RootHubPdo->AttachedDevice;
+            Device = Device->AttachedDevice;
         }
-        while (RootHubFdo->DriverObject != HubExtension->Common.SelfDevice->DriverObject);
+        while (Device->DriverObject != HubExtension->Common.SelfDevice->DriverObject);
 
-        RootHubExtension = RootHubFdo->DeviceExtension;
+        RootHubExtension = Device->DeviceExtension;
     }
 
     DPRINT("USBH_GetRootHubExtension: RootHubExtension - %p\n", RootHubExtension);
