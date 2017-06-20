@@ -107,12 +107,12 @@ USBH_SyncIrpComplete(IN PDEVICE_OBJECT DeviceObject,
 
 BOOLEAN
 NTAPI
-IsBitSet(IN ULONG_PTR BitMapAddress,
-         IN ULONG Bit)
+IsBitSet(IN PUCHAR BitMapAddress,
+         IN USHORT Bit)
 {
     BOOLEAN IsSet;
 
-    IsSet = (*(PUCHAR)(BitMapAddress + (Bit >> 3)) & (1 << (Bit & 7))) != 0;
+    IsSet = (BitMapAddress[Bit / 8] & (1 << (Bit & 7))) != 0;
     DPRINT("IsBitSet: Bit - %lX, IsSet - %x\n", Bit, IsSet);
     return IsSet;
 }
@@ -2159,7 +2159,7 @@ Enum:
     {
         do
         {
-            if (IsBitSet(((ULONG)WorkItem + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)), Port))
+            if (IsBitSet(((PUCHAR)WorkItem + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)), Port))
             {
                 break;
             }
@@ -2340,7 +2340,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     do
     {
-        if (IsBitSet(Bitmap, Port))
+        if (IsBitSet((PUCHAR)Bitmap, Port))
         {
             break;
         }
