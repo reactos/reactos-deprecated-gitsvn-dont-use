@@ -1932,18 +1932,18 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             if (NT_SUCCESS(Status))
             {
+                Length = Descriptor->bLength -
+                         FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString);
+
                 DeviceText = ExAllocatePoolWithTag(PagedPool,
-                                                   Descriptor->bLength,
+                                                   Length + sizeof(UNICODE_NULL),
                                                    USB_HUB_TAG);
 
                 if (DeviceText)
                 {
-                    RtlZeroMemory(DeviceText, Descriptor->bLength);
+                    RtlZeroMemory(DeviceText, Length + sizeof(UNICODE_NULL));
 
-                    RtlCopyMemory(DeviceText,
-                                  Descriptor->bString,
-                                  Descriptor->bLength -
-                                  FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString));
+                    RtlCopyMemory(DeviceText, Descriptor->bString, Length);
 
                     Irp->IoStatus.Information = (ULONG_PTR)DeviceText;
 
