@@ -74,7 +74,6 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
     PUSBHUB_FDO_EXTENSION HubExtension;
     //PDEVICE_OBJECT DeviceObject;
-    PIO_STACK_LOCATION IoStack;
     PURB Urb;
     USHORT Function;
     ULONG MaxPower;
@@ -84,8 +83,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     HubExtension = PortExtension->HubExtension;
     //DeviceObject = PortExtension->Common.SelfDevice;
 
-    IoStack = IoGetCurrentIrpStackLocation(Irp);
-    Urb = IoStack->Parameters.Others.Argument1;
+    Urb = URB_FROM_IRP(Irp);
 
     //DPRINT("USBH_PdoUrbFilter: Device - %p, Irp - %p, Urb - %p\n",
     //       DeviceObject,
@@ -201,7 +199,6 @@ NTAPI
 USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                        IN PIRP Irp)
 {
-    PIO_STACK_LOCATION IoStack;
     PUSBHUB_FDO_EXTENSION HubExtension;
     PURB Urb;
     NTSTATUS Status;
@@ -209,9 +206,8 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     //DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
 
     HubExtension = PortExtension->HubExtension;
-    IoStack = IoGetCurrentIrpStackLocation(Irp);
 
-    Urb = IoStack->Parameters.Others.Argument1;
+    Urb = URB_FROM_IRP(Irp);
 
     if (PortExtension->DeviceHandle == NULL)
     {
