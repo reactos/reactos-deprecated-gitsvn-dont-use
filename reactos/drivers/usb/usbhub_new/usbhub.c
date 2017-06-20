@@ -408,19 +408,19 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         if (BufferLen)
         {
-            RtlCopyMemory(Buffer, TransferBuffer, BufferLen);
+            RtlZeroMemory(TransferBuffer, BufferLen);
         }
 
-        TransferFlags = USBD_TRANSFER_DIRECTION_OUT;
+        TransferFlags = USBD_TRANSFER_DIRECTION_IN | USBD_SHORT_TRANSFER_OK;
     }
     else
     {
         if (BufferLen)
         {
-            RtlZeroMemory(TransferBuffer, BufferLen);
+            RtlCopyMemory(Buffer, TransferBuffer, BufferLen);
         }
 
-        TransferFlags = USBD_TRANSFER_DIRECTION_IN | USBD_SHORT_TRANSFER_OK;
+        TransferFlags = USBD_TRANSFER_DIRECTION_OUT;
     }
 
     Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
@@ -440,7 +440,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice, (PURB)Urb);
 
-    if (!Direction && BufferLen)
+    if (Direction && BufferLen)
     {
         RtlCopyMemory(TransferBuffer, Buffer, BufferLen);
     }
@@ -507,7 +507,7 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
         Status = USBH_Transact(HubExtension,
                                NULL,
                                0,
-                               1, // to device
+                               BMREQUEST_HOST_TO_DEVICE,
                                URB_FUNCTION_CLASS_OTHER,
                                RequestType,
                                USB_REQUEST_SET_FEATURE,
@@ -1084,14 +1084,14 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
             BM_REQUEST_TYPE RequestType;
 
             RequestType.B = 0;
-            RequestType.Recipient = 0;
-            RequestType.Type = 0;
-            RequestType.Dir = 0;
+            RequestType.Recipient = BMREQUEST_TO_DEVICE;
+            RequestType.Type = BMREQUEST_STANDARD;
+            RequestType.Dir = BMREQUEST_DEVICE_TO_HOST;
 
             Status = USBH_Transact(HubExtension,
                                    HubDescriptor,
                                    NumberOfBytes,
-                                   0,
+                                   BMREQUEST_DEVICE_TO_HOST,
                                    URB_FUNCTION_CLASS_DEVICE,
                                    RequestType,
                                    USB_REQUEST_GET_DESCRIPTOR,
@@ -1355,7 +1355,7 @@ USBH_SyncGetPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
     return USBH_Transact(HubExtension,
                          PortStatus,
                          Length,
-                         0, // to host
+                         BMREQUEST_DEVICE_TO_HOST,
                          URB_FUNCTION_CLASS_OTHER,
                          RequestType,
                          USB_REQUEST_GET_STATUS,
@@ -1384,7 +1384,7 @@ USBH_SyncClearPortStatus(IN PUSBHUB_FDO_EXTENSION HubExtension,
     return USBH_Transact(HubExtension,
                          NULL,
                          0,
-                         1, // to device
+                         BMREQUEST_HOST_TO_DEVICE,
                          URB_FUNCTION_CLASS_OTHER,
                          RequestType,
                          USB_REQUEST_CLEAR_FEATURE,
@@ -1423,7 +1423,7 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Status = USBH_Transact(HubExtension,
                            NULL,
                            0,
-                           1,
+                           BMREQUEST_HOST_TO_DEVICE,
                            URB_FUNCTION_CLASS_OTHER,
                            RequestType,
                            USB_REQUEST_SET_FEATURE,
@@ -1495,7 +1495,7 @@ USBH_SyncDisablePort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     Status = USBH_Transact(HubExtension,
                            NULL,
                            0,
-                           1, // to device
+                           BMREQUEST_HOST_TO_DEVICE,
                            URB_FUNCTION_CLASS_OTHER,
                            RequestType,
                            USB_REQUEST_CLEAR_FEATURE,
