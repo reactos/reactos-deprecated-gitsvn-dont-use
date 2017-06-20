@@ -140,16 +140,13 @@ PdoExt(IN PDEVICE_OBJECT DeviceObject)
 NTSTATUS
 NTAPI
 USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
-                       IN ULONG Data)
+                       IN ULONG FailReason)
 {
     NTSTATUS Status;
-    WCHAR SourceString[64];
     HANDLE KeyHandle;
-    UNICODE_STRING DestinationString;
+    UNICODE_STRING ValueName = RTL_CONSTANT_STRING(L"FailReasonID");
 
-    DPRINT("USBH_WriteFailReason: ID - %x\n", Data);
-
-    swprintf(SourceString, L"FailReasonID");
+    DPRINT("USBH_WriteFailReason: ID - %x\n", FailReason);
 
     Status = IoOpenDeviceRegistryKey(DeviceObject,
                                      PLUGPLAY_REGKEY_DEVICE,
@@ -158,14 +155,12 @@ USBH_WriteFailReasonID(IN PDEVICE_OBJECT DeviceObject,
 
     if (NT_SUCCESS(Status))
     {
-        RtlInitUnicodeString(&DestinationString, SourceString);
-
         ZwSetValueKey(KeyHandle,
-                      &DestinationString,
+                      &ValueName,
                       0,
                       REG_DWORD,
-                      &Data,
-                      sizeof(Data));
+                      &FailReason,
+                      sizeof(FailReason));
 
         ZwClose(KeyHandle);
     }
