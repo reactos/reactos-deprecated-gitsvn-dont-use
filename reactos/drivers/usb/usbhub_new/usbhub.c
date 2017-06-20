@@ -1528,11 +1528,13 @@ USBH_HubIsBusPowered(IN PDEVICE_OBJECT DeviceObject,
 
     if (!NT_SUCCESS(Status))
     {
-        Result = (HubConfigDescriptor->bmAttributes & 0xC0) == 0x80;
+        Result = (HubConfigDescriptor->bmAttributes & USB_CONFIG_POWERED_MASK)
+                                                   == USB_CONFIG_BUS_POWERED;
     }
     else
     {
-        Result = ~UsbStatus & 1; //SelfPowered bit from status word
+        Result = (UsbStatus & USB_GETSTATUS_SELF_POWERED) !=
+                              USB_GETSTATUS_SELF_POWERED;
     }
 
     return Result;
