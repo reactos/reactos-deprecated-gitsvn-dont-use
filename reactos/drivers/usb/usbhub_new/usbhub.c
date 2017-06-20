@@ -1462,24 +1462,16 @@ USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
     HubDescriptor = HubExtension->HubDescriptor;
     NumberOfPorts = HubDescriptor->bNumberOfPorts;
 
-    Port = 1;
-
-    if (HubDescriptor->bNumberOfPorts)
+    for (Port = 1; Port <= NumberOfPorts; ++Port)
     {
-        do
+        Status = USBH_SyncPowerOnPort(HubExtension, Port, 0);
+
+        if (!NT_SUCCESS(Status))
         {
-            Status = USBH_SyncPowerOnPort(HubExtension, Port, 0);
-
-            if (!NT_SUCCESS(Status))
-            {
-                DPRINT1("USBH_SyncPowerOnPorts: USBH_SyncPowerOnPort() failed - %lX\n",
-                        Status);
-                break;
-            }
-
-            ++Port;
+            DPRINT1("USBH_SyncPowerOnPorts: USBH_SyncPowerOnPort() failed - %lX\n",
+                    Status);
+            break;
         }
-        while (Port <= NumberOfPorts);
     }
 
     USBH_Wait(2 * HubDescriptor->bPowerOnToPowerGood);
@@ -2157,56 +2149,51 @@ Enum:
     }
     else
     {
-        do
+        for (Port = 0; Port < HubExtension->HubDescriptor->bNumberOfPorts; ++Port)
         {
-            if (IsBitSet(((PUCHAR)WorkItem + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)), Port))
+            if (IsBitSet(((PUCHAR)WorkItem + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)),
+                         Port))
             {
                 break;
             }
-
-            ++Port;
         }
-        while (Port <= HubExtension->HubDescriptor->bNumberOfPorts);
 
-        if (Port <= HubExtension->HubDescriptor->bNumberOfPorts)
+        if (Port)
         {
-            if (Port)
-            {
-                Status = USBH_SyncGetPortStatus(HubExtension,
-                                                Port,
-                                                &PortStatus,
-                                                sizeof(USBHUB_PORT_STATUS));
-            }
-            else
-            {
-                DPRINT1("USBH_ChangeIndicationWorker: USBH_SyncGetHubStatus() UNIMPLEMENTED. FIXME. \n");
+            Status = USBH_SyncGetPortStatus(HubExtension,
+                                            Port,
+                                            &PortStatus,
+                                            sizeof(USBHUB_PORT_STATUS));
+        }
+        else
+        {
+            DPRINT1("USBH_ChangeIndicationWorker: USBH_SyncGetHubStatus() UNIMPLEMENTED. FIXME. \n");
+            DbgBreakPoint();
+        }
+
+        if (NT_SUCCESS(Status))
+        {
+           if (Port)
+           {
+               USBH_ProcessPortStateChange(HubExtension,
+                                           Port,
+                                           &PortStatus);
+           }
+           else
+           {
+                DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME. \n");
                 DbgBreakPoint();
-            }
+           }
+        }
+        else
+        {
+           ++HubExtension->RequestErrors;
 
-            if (NT_SUCCESS(Status))
-            {
-               if (Port)
-               {
-                   USBH_ProcessPortStateChange(HubExtension,
-                                               Port,
-                                               &PortStatus);
-               }
-               else
-               {
-                    DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME. \n");
-                    DbgBreakPoint();
-               }
-            }
-            else
-            {
-               ++HubExtension->RequestErrors;
-
-               if (HubExtension->RequestErrors > 3)
-               {
-                   HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
-                   goto Exit;
-               }
-            }
+           if (HubExtension->RequestErrors > 3)
+           {
+               HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
+               goto Exit;
+           }
         }
     }
 
@@ -2326,8 +2313,6 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     HubWorkItemBuffer->HubExtension = HubExtension;
 
-    Port = 0;
-
     HubExtension->WorkItemToQueue = HubWorkItem;
 
     RtlCopyMemory((PVOID)((ULONG)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)),
@@ -2338,16 +2323,13 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     Bitmap = (ULONG_PTR)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT);
 
-    do
+    for (Port = 0; Port <= NumPorts; ++Port)
     {
         if (IsBitSet((PUCHAR)Bitmap, Port))
         {
             break;
         }
-
-        ++Port;
     }
-    while (Port <= NumPorts);
 
     if (Port > NumPorts)
     {
@@ -2654,19 +2636,13 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             NodeInfo->NumberOfOpenPipes = DeviceInfo->NumberOfOpenPipes;
             NodeInfo->ConnectionStatus = Info->ConnectionStatus;
 
-            PipeNumber = 0;
-
-            if (DeviceInfo->NumberOfOpenPipes)
+            for (PipeNumber = 0;
+                 PipeNumber < DeviceInfo->NumberOfOpenPipes;
+                 PipeNumber++)
             {
-                do
-                {
-                    RtlCopyMemory(&NodeInfo->PipeList[PipeNumber],
-                                  &DeviceInfo->PipeList[PipeNumber],
-                                  sizeof(USB_PIPE_INFO));
-
-                    ++PipeNumber;
-                }
-                while (PipeNumber < DeviceInfo->NumberOfOpenPipes);
+                RtlCopyMemory(&NodeInfo->PipeList[PipeNumber],
+                              &DeviceInfo->PipeList[PipeNumber],
+                              sizeof(USB_PIPE_INFO));
             }
         }
     }
@@ -3004,31 +2980,23 @@ USBH_HubQueuePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
 
-    if (NumPorts)
+    for (Port = 0; Port < NumPorts; ++Port)
     {
-        Port = 0;
+        PortDevice = HubExtension->PortData[Port].DeviceObject;
 
-        do
+        if (PortDevice)
         {
-            PortDevice = HubExtension->PortData[Port].DeviceObject;
+            PortExtension = PortDevice->DeviceExtension;
 
-            if (PortDevice)
+            IdleIrp = PortExtension->IdleNotificationIrp;
+            PortExtension->IdleNotificationIrp = NULL;
+
+            if (IdleIrp && IoSetCancelRoutine(IdleIrp, NULL))
             {
-                PortExtension = PortDevice->DeviceExtension;
-
-                IdleIrp = PortExtension->IdleNotificationIrp;
-                PortExtension->IdleNotificationIrp = NULL;
-
-                if (IdleIrp && IoSetCancelRoutine(IdleIrp, NULL))
-                {
-                    DPRINT1("USBH_HubQueuePortIdleIrps: IdleIrp != NULL. FIXME. \n");
-                    DbgBreakPoint();
-                }
+                DPRINT1("USBH_HubQueuePortIdleIrps: IdleIrp != NULL. FIXME. \n");
+                DbgBreakPoint();
             }
-
-            ++Port;
         }
-        while (Port < NumPorts);
     }
 
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
@@ -3083,20 +3051,13 @@ USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
                           FALSE,
                           NULL);
 
-    if (!HubExtension->HubDescriptor->bNumberOfPorts)
-    {
-        goto Exit;
-    }
-
-    Port = 0;
-
-    do
+    for (Port = 0; Port < HubExtension->HubDescriptor->bNumberOfPorts; ++Port)
     {
         PortDevice = HubExtension->PortData[Port].DeviceObject;
 
         if (!PortDevice)
         {
-            goto NextPort;
+            continue;
         }
 
         PortExtension = PortDevice->DeviceExtension;
@@ -3116,13 +3077,7 @@ USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
             DPRINT1("USBH_FlushPortPwrList: PortPowerList FIXME. \n");
             DbgBreakPoint();
         }
-
-  NextPort:
-        ++Port;
     }
-    while (Port < HubExtension->HubDescriptor->bNumberOfPorts);
-
-Exit:
 
     KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
                        LOW_REALTIME_PRIORITY,
@@ -3235,14 +3190,13 @@ USBH_CheckIdleAbort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
 ExtCheck:
 
-        if (IsExtCheck == TRUE &&
-            HubExtension->HubDescriptor->bNumberOfPorts)
+        if (IsExtCheck == TRUE)
         {
             PortData = HubExtension->PortData;
 
-            Port = 0;
-
-            do
+            for (Port = 0;
+                 Port < HubExtension->HubDescriptor->bNumberOfPorts;
+                 Port++)
             {
                 PdoDevice = PortData[Port].DeviceObject;
 
@@ -3251,10 +3205,7 @@ ExtCheck:
                     PortExtension = PdoDevice->DeviceExtension;
                     InterlockedExchange(&PortExtension->StateBehindD2, 0);
                 }
-
-                ++Port;
             }
-            while (Port < HubExtension->HubDescriptor->bNumberOfPorts);
         }
     }
 
@@ -4017,11 +3968,9 @@ USBH_PdoSetCapabilities(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
 
         pDeviceState = &PortExtension->Capabilities.DeviceState[2];
 
-        State = 2;
-
-        do
+        for (State = 2; State <= 5; State++)
         {
-            SystemPowerState = State++;
+            SystemPowerState = State;
 
             if (PortExtension->Capabilities.SystemWake < SystemPowerState)
             {
@@ -4034,7 +3983,6 @@ USBH_PdoSetCapabilities(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
 
             ++pDeviceState;
         }
-        while (State <= 5);
     }
     else
     {
