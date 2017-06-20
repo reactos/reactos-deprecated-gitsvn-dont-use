@@ -202,6 +202,8 @@ USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
 
     DPRINT("USBH_QueryCapabilities: ... \n");
 
+    RtlZeroMemory(DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
+
     Irp = IoAllocateIrp(DeviceObject->StackSize, FALSE);
 
     if (!Irp)
@@ -211,8 +213,6 @@ USBH_QueryCapabilities(IN PDEVICE_OBJECT DeviceObject,
     }
 
     Irp->IoStatus.Status = STATUS_NOT_SUPPORTED;
-
-    RtlZeroMemory(DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
 
     KeInitializeEvent(&Event, NotificationEvent, FALSE);
 
@@ -798,8 +798,6 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
     }
-
-    RtlZeroMemory(&DeviceCapabilities, sizeof(DEVICE_CAPABILITIES));
 
     USBH_QueryCapabilities(HubExtension->LowerDevice, &DeviceCapabilities);
 
