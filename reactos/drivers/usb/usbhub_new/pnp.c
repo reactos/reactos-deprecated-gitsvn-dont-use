@@ -1875,7 +1875,7 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         return Irp->IoStatus.Status;
     }
 
-    LanguageId = IoStack->Parameters.QueryDeviceText.LocaleId;
+    LanguageId = LANGIDFROMLCID(IoStack->Parameters.QueryDeviceText.LocaleId);
     DefaultId = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 
     if (!LanguageId)
