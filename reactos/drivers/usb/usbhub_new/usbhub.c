@@ -359,7 +359,7 @@ NTAPI
 USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
               IN PVOID TransferBuffer,
               IN ULONG BufferLen,
-              IN BOOLEAN Direction,
+              IN BOOLEAN IsDeviceToHost,
               IN USHORT Function,
               IN BM_REQUEST_TYPE RequestType,
               IN UCHAR Request,
@@ -404,7 +404,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     RtlZeroMemory(Urb, sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST));
 
-    if (Direction)
+    if (IsDeviceToHost)
     {
         if (BufferLen)
         {
@@ -440,7 +440,7 @@ USBH_Transact(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     Status = USBH_FdoSyncSubmitUrb(HubExtension->Common.SelfDevice, (PURB)Urb);
 
-    if (Direction && BufferLen)
+    if (IsDeviceToHost && BufferLen)
     {
         RtlCopyMemory(TransferBuffer, Buffer, BufferLen);
     }
