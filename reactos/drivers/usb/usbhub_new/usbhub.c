@@ -2126,10 +2126,11 @@ Enum:
     }
     else
     {
-        for (Port = 0; Port < HubExtension->HubDescriptor->bNumberOfPorts; ++Port)
+        for (Port = 0;
+             Port < HubExtension->HubDescriptor->bNumberOfPorts;
+             Port++)
         {
-            if (IsBitSet(((PUCHAR)WorkItem + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)),
-                         Port))
+            if (IsBitSet((PUCHAR)(WorkItem + 1), Port))
             {
                 break;
             }
@@ -2217,7 +2218,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
     USHORT NumPorts;
     USHORT Port;
     NTSTATUS Status;
-    ULONG_PTR Bitmap;
+    PVOID Bitmap;
     ULONG BufferLength;
 
     HubExtension = Context;
@@ -2292,17 +2293,17 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     HubExtension->WorkItemToQueue = HubWorkItem;
 
-    RtlCopyMemory((PVOID)((ULONG)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT)),
+    Bitmap = HubWorkItemBuffer + 1;
+
+    RtlCopyMemory(Bitmap,
                   HubExtension->SCEBitmap,
                   HubExtension->SCEBitmapLength);
 
     NumPorts = HubExtension->HubDescriptor->bNumberOfPorts;
 
-    Bitmap = (ULONG_PTR)HubWorkItemBuffer + sizeof(USBHUB_STATUS_CHANGE_CONTEXT);
-
     for (Port = 0; Port <= NumPorts; ++Port)
     {
-        if (IsBitSet((PUCHAR)Bitmap, Port))
+        if (IsBitSet(Bitmap, Port))
         {
             break;
         }
