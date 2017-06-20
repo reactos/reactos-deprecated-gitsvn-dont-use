@@ -50,12 +50,10 @@ USBH_QueryCapsComplete(IN PDEVICE_OBJECT DeviceObject,
                        IN PVOID Context)
 {
     PIO_STACK_LOCATION IoStack;
-    NTSTATUS Status;
     PDEVICE_CAPABILITIES Capabilities;
 
     DPRINT("USBH_QueryCapsComplete: ... \n");
 
-    Status = Irp->IoStatus.Status;
     ASSERT(NT_SUCCESS(Irp->IoStatus.Status));
 
     if (Irp->PendingReturned)
@@ -68,7 +66,7 @@ USBH_QueryCapsComplete(IN PDEVICE_OBJECT DeviceObject,
 
     Capabilities->SurpriseRemovalOK = 1;
 
-    return Status;
+    return STATUS_CONTINUE_COMPLETION;
 }
 
 NTSTATUS
