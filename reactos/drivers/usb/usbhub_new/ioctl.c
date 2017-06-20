@@ -100,98 +100,91 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     Function = Urb->UrbHeader.Function;
 
-    if (Function == URB_FUNCTION_SELECT_CONFIGURATION)
+    switch (Function)
     {
-        ConfigDescriptor = Urb->UrbSelectConfiguration.ConfigurationDescriptor;
-
-        if (ConfigDescriptor)
+        case URB_FUNCTION_SELECT_CONFIGURATION:
         {
-            IsValidConfig = TRUE;
+            ConfigDescriptor = Urb->UrbSelectConfiguration.ConfigurationDescriptor;
 
-            if (ConfigDescriptor->bDescriptorType != USB_CONFIGURATION_DESCRIPTOR_TYPE)
+            if (ConfigDescriptor)
             {
-                IsValidConfig = FALSE;
-                UrbStatus = USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR;
-            }
+                IsValidConfig = TRUE;
 
-            if (ConfigDescriptor->bLength < sizeof(USB_CONFIGURATION_DESCRIPTOR))
-            {
-                IsValidConfig = FALSE;
-                UrbStatus = USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR;
-            }
+                if (ConfigDescriptor->bDescriptorType != USB_CONFIGURATION_DESCRIPTOR_TYPE)
+                {
+                    IsValidConfig = FALSE;
+                    UrbStatus = USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR;
+                }
 
-            if (!IsValidConfig)
-            {
-                Urb->UrbHeader.Status = UrbStatus;
-                USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
-                return STATUS_INVALID_PARAMETER;
-            }
+                if (ConfigDescriptor->bLength < sizeof(USB_CONFIGURATION_DESCRIPTOR))
+                {
+                    IsValidConfig = FALSE;
+                    UrbStatus = USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR;
+                }
 
-            MaxPower = 2 * ConfigDescriptor->MaxPower;
-            PortExtension->MaxPower = MaxPower;
+                if (!IsValidConfig)
+                {
+                    Urb->UrbHeader.Status = UrbStatus;
+                    USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
+                    return STATUS_INVALID_PARAMETER;
+                }
 
-            if (HubExtension->MaxPowerPerPort < MaxPower)
-            {
-                PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_INSUFFICIENT_PWR;
+                MaxPower = 2 * ConfigDescriptor->MaxPower;
+                PortExtension->MaxPower = MaxPower;
 
-                DPRINT1("USBH_PdoUrbFilter: USBH_InvalidatePortDeviceState() UNIMPLEMENTED. FIXME. \n");
-                DbgBreakPoint();
+                if (HubExtension->MaxPowerPerPort < MaxPower)
+                {
+                    PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_INSUFFICIENT_PWR;
 
-                USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
-                return STATUS_INVALID_PARAMETER;
+                    DPRINT1("USBH_PdoUrbFilter: USBH_InvalidatePortDeviceState() UNIMPLEMENTED. FIXME. \n");
+                    DbgBreakPoint();
+
+                    USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
+                    return STATUS_INVALID_PARAMETER;
+                }
             }
         }
-    }
 
-    if (Function == URB_FUNCTION_SELECT_CONFIGURATION ||
-        Function == URB_FUNCTION_SELECT_INTERFACE)
-    {
-        IoCopyCurrentIrpStackLocationToNext(Irp);
+        /* fall through */
 
-        IoSetCompletionRoutine(Irp,
-                               USBH_SelectConfigOrInterfaceComplete,
-                               PortExtension,
-                               TRUE,
-                               TRUE,
-                               TRUE);
-
-        return IoCallDriver(HubExtension->RootHubPdo2, Irp);
-    }
-
-    if (Function == URB_FUNCTION_ABORT_PIPE ||
-        Function == URB_FUNCTION_TAKE_FRAME_LENGTH_CONTROL ||
-        Function == URB_FUNCTION_RELEASE_FRAME_LENGTH_CONTROL ||
-        Function == URB_FUNCTION_GET_FRAME_LENGTH ||
-        Function == URB_FUNCTION_SET_FRAME_LENGTH ||
-        Function == URB_FUNCTION_GET_CURRENT_FRAME_NUMBER)
-    {
-        return USBH_PassIrp(HubExtension->RootHubPdo2, Irp);
-    }
-
-    if (Function == URB_FUNCTION_CONTROL_TRANSFER ||
-        Function == URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER ||
-        Function == URB_FUNCTION_ISOCH_TRANSFER)
-    {
-        if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_DELETE_PENDING)
+        case URB_FUNCTION_SELECT_INTERFACE:
         {
-            Urb->UrbHeader.Status = USBD_STATUS_INVALID_PARAMETER;
-            USBH_CompleteIrp(Irp, STATUS_DELETE_PENDING);
-            return STATUS_DELETE_PENDING;
+            IoCopyCurrentIrpStackLocationToNext(Irp);
+
+            IoSetCompletionRoutine(Irp,
+                                   USBH_SelectConfigOrInterfaceComplete,
+                                   PortExtension,
+                                   TRUE,
+                                   TRUE,
+                                   TRUE);
+
+            return IoCallDriver(HubExtension->RootHubPdo2, Irp);
         }
 
-        return USBH_PassIrp(HubExtension->RootHubPdo2, Irp);
+        case URB_FUNCTION_CONTROL_TRANSFER:
+        case URB_FUNCTION_BULK_OR_INTERRUPT_TRANSFER:
+        case URB_FUNCTION_ISOCH_TRANSFER:
+        {
+            if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_DELETE_PENDING)
+            {
+                Urb->UrbHeader.Status = USBD_STATUS_INVALID_PARAMETER;
+                USBH_CompleteIrp(Irp, STATUS_DELETE_PENDING);
+                return STATUS_DELETE_PENDING;
+            }
+
+            break;
+        }
+
+        case URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR:
+            DPRINT1("USBH_PdoUrbFilter: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR UNIMPLEMENTED. FIXME. \n");
+            USBH_CompleteIrp(Irp, STATUS_NOT_IMPLEMENTED);
+            return STATUS_NOT_IMPLEMENTED;
+
+        default:
+            break;
     }
 
-    if (Function != URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR)
-    {
-        return USBH_PassIrp(HubExtension->RootHubPdo2, Irp);
-    }
-    else
-    {
-        DPRINT1("USBH_PdoUrbFilter: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR UNIMPLEMENTED. FIXME. \n");
-        USBH_CompleteIrp(Irp, STATUS_NOT_IMPLEMENTED);
-        return STATUS_NOT_IMPLEMENTED;
-    }
+    return USBH_PassIrp(HubExtension->RootHubPdo2, Irp);
 }
 
 NTSTATUS
@@ -211,7 +204,7 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     if (PortExtension->DeviceHandle == NULL)
     {
-        Urb->UrbHeader.UsbdDeviceHandle = (PVOID)-1;
+        Urb->UrbHeader.UsbdDeviceHandle = NULL;
         Status = USBH_PassIrp(HubExtension->RootHubPdo2, Irp);
     }
     else
