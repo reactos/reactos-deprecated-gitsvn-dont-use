@@ -1399,19 +1399,19 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     PUSBHUB_PORT_DATA PortData;
     PUSB_HUB_DESCRIPTOR HubDescriptor;
-    NTSTATUS Status;
+    NTSTATUS Status = STATUS_SUCCESS;
     BM_REQUEST_TYPE RequestType;
+    PUSBHUB_PORT_STATUS PortStatus;
 
     DPRINT("USBH_SyncPowerOnPort: Port - %x, IsWait - %x\n", Port, IsWait);
 
     ASSERT(Port > 0);
     PortData = &HubExtension->PortData[Port - 1];
+    PortStatus = &PortData->PortStatus;
 
-    HubDescriptor = HubExtension->HubDescriptor;
-
-    if (PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus)
+    if (PortStatus->UsbPortStatus.Usb20PortStatus.CurrentConnectStatus == 1)
     {
-        return STATUS_SUCCESS;
+        return Status;
     }
 
     RequestType.B = 0;
@@ -1433,10 +1433,11 @@ USBH_SyncPowerOnPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         if (IsWait)
         {
+            HubDescriptor = HubExtension->HubDescriptor;
             USBH_Wait(2 * HubDescriptor->bPowerOnToPowerGood);
         }
 
-        PortData->PortStatus.UsbPortStatus.Usb20PortStatus.CurrentConnectStatus = 1;
+        PortStatus->UsbPortStatus.Usb20PortStatus.CurrentConnectStatus = 1;
     }
 
     return Status;
