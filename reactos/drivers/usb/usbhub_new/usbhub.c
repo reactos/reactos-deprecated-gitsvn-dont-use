@@ -2157,6 +2157,7 @@ Enum:
         {
             DPRINT1("USBH_ChangeIndicationWorker: USBH_SyncGetHubStatus() UNIMPLEMENTED. FIXME. \n");
             DbgBreakPoint();
+            Status = STATUS_ASSERTION_FAILURE;
         }
 
         if (NT_SUCCESS(Status))
@@ -5024,6 +5025,7 @@ USBH_HubDispatch(IN PDEVICE_OBJECT DeviceObject,
     {
         DPRINT1("USBH_HubDispatch: Unknown ExtensionType - %x\n", ExtensionType);
         DbgBreakPoint();
+        Status = STATUS_ASSERTION_FAILURE;
     }
 
     return Status;
