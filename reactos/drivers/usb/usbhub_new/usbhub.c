@@ -4858,7 +4858,8 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         case IRP_MJ_CREATE:
         case IRP_MJ_CLOSE:
-            USBH_CompleteIrp(Irp, STATUS_SUCCESS);
+            Status = STATUS_SUCCESS;
+            USBH_CompleteIrp(Irp, Status);
             break;
 
         case IRP_MJ_DEVICE_CONTROL:
