@@ -4347,7 +4347,11 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     do
     {
-        swprintf(CharDeviceName, L"\\Device\\USBPDO-%d", PdoNumber);
+        RtlStringCbPrintfW(CharDeviceName,
+                           sizeof(CharDeviceName),
+                           L"\\Device\\USBPDO-%d",
+                           PdoNumber);
+
         RtlInitUnicodeString(&DeviceName, CharDeviceName);
 
         Status = IoCreateDevice(HubExtension->Common.SelfDevice->DriverObject,
