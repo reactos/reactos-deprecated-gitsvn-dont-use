@@ -568,7 +568,7 @@ NTAPI
 USBH_AllocateWorkItem(
   IN PUSBHUB_FDO_EXTENSION HubExtension,
   OUT PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,
-  IN PVOID WorkerRoutine,
+  IN PUSBHUB_WORKER_ROUTINE WorkerRoutine,
   IN SIZE_T BufferLength,
   OUT PVOID * OutHubWorkItemBuffer,
   IN WORK_QUEUE_TYPE Type);

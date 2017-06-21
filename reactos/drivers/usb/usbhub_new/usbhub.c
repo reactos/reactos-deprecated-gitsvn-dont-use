@@ -2690,7 +2690,7 @@ NTSTATUS
 NTAPI
 USBH_AllocateWorkItem(PUSBHUB_FDO_EXTENSION HubExtension,
                       PUSBHUB_IO_WORK_ITEM * OutHubIoWorkItem,
-                      PVOID WorkerRoutine,
+                      PUSBHUB_WORKER_ROUTINE WorkerRoutine,
                       SIZE_T BufferLength,
                       PVOID * OutHubWorkItemBuffer,
                       WORK_QUEUE_TYPE Type)
