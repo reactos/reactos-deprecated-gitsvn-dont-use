@@ -843,8 +843,9 @@ USBH_StartHubFdoDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         /* bus-powered hub is allowed a maximum of 100 mA only for each port */
         HubExtension->MaxPowerPerPort = 100;
 
-        /* can have 4 ports (4 * 100 mA) and 100 mA remains for itself */
-        HubExtension->HubConfigDescriptor->MaxPower = 250; // 500 mA
+        /* can have 4 ports (4 * 100 mA) and 100 mA remains for itself;
+           expressed in 2 mA units (i.e., 250 = 500 mA). */
+        HubExtension->HubConfigDescriptor->MaxPower = 250;
     }
     else
     {
