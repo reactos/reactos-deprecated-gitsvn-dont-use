@@ -844,7 +844,8 @@ USBH_IoctlGetNodeConnectionInformation(IN PUSBHUB_FDO_EXTENSION HubExtension,
     IoStack = IoGetCurrentIrpStackLocation(Irp);
     BufferLength = IoStack->Parameters.DeviceIoControl.OutputBufferLength;
 
-    if (BufferLength < FIELD_OFFSET(USB_NODE_CONNECTION_INFORMATION_EX, PipeList))
+    if (BufferLength < (ULONG)FIELD_OFFSET(USB_NODE_CONNECTION_INFORMATION_EX,
+                                           PipeList))
     {
         Status = STATUS_BUFFER_TOO_SMALL;
         goto Exit;
