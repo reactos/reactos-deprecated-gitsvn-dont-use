@@ -8,6 +8,8 @@
 #include <wmilib.h>
 #include <wdmguid.h>
 #include <ntstrsafe.h>
+#include <usb.h>
+#include <usbioctl.h>
 #include <hubbusif.h>
 #include <usbbusif.h>
 #include <usbdlib.h>
