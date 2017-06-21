@@ -1565,7 +1565,7 @@ USBH_PdoQueryId(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PWCHAR EndBuffer;
     size_t Remaining = sizeof(Buffer);
     ULONG Length;
-    PVOID Id = NULL;
+    PWCHAR Id = NULL;
     NTSTATUS Status = STATUS_SUCCESS;
     PUSB_DEVICE_DESCRIPTOR DeviceDescriptor;
     PUSB_INTERFACE_DESCRIPTOR InterfaceDescriptor;
@@ -1853,7 +1853,7 @@ USBH_PdoQueryDeviceText(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     USHORT LanguageId;
     USHORT DefaultId;
     PUSB_STRING_DESCRIPTOR Descriptor;
-    PVOID DeviceText;
+    PWCHAR DeviceText;
     UCHAR iProduct = 0;
     NTSTATUS Status;
     ULONG NumSymbols;

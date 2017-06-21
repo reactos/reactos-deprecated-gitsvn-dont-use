@@ -499,7 +499,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
           if (IoStack->Parameters.Power.Type == DevicePowerState)
           {
-              DPRINT("USBH_FdoPower: PowerState - %x\n", PowerState);
+              DPRINT("USBH_FdoPower: PowerState - %x\n", PowerState.DeviceState);
 
               if (HubExtension->CurrentPowerState.DeviceState == PowerState.DeviceState)
               {
