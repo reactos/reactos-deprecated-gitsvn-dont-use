@@ -423,12 +423,12 @@ USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
     PIRP WakeIrp = NULL;
     PUSBHUB_PORT_DATA PortData;
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
-    ULONG NumberPorts;
-    ULONG Port;
     PIRP PortIdleIrp = NULL;
     PIRP PortWakeIrp = NULL;
     PVOID DeviceHandle;
     NTSTATUS Status;
+    USHORT Port;
+    UCHAR NumberPorts;
     KIRQL Irql;
 
     DPRINT("USBH_FdoCleanup: HubExtension - %p\n", HubExtension);

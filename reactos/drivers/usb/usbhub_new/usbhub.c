@@ -1453,9 +1453,9 @@ NTAPI
 USBH_SyncPowerOnPorts(IN PUSBHUB_FDO_EXTENSION HubExtension)
 {
     PUSB_HUB_DESCRIPTOR HubDescriptor;
-    ULONG NumberOfPorts;
-    ULONG Port;
     NTSTATUS Status = STATUS_UNSUCCESSFUL;
+    USHORT Port;
+    UCHAR NumberOfPorts;
 
     DPRINT("USBH_SyncPowerOnPorts: ... \n");
 
@@ -2052,8 +2052,8 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PUSBHUB_PORT_PDO_EXTENSION LowerPortExtension;
     PUSBHUB_STATUS_CHANGE_CONTEXT WorkItem;
     USBHUB_PORT_STATUS PortStatus;
-    ULONG Port = 0;
     NTSTATUS Status;
+    USHORT Port = 0;
 
     DPRINT("USBH_ChangeIndicationWorker ... \n");
 
@@ -4259,7 +4259,7 @@ USBH_GetSerialNumberString(IN PDEVICE_OBJECT DeviceObject,
     NTSTATUS Status;
     LPWSTR SerialNumberBuffer = NULL;
     UCHAR StringLength;
-    ULONG Length;
+    UCHAR Length;
 
     DPRINT("USBH_GetSerialNumberString: ... \n");
 
