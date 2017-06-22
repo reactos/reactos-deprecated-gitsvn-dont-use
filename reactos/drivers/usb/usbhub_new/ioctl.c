@@ -936,7 +936,6 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PDEVICE_OBJECT PortDevice;
     ULONG Length;
     ULONG ResultLength;
-    ULONG Port;
     NTSTATUS Status;
     PIO_STACK_LOCATION IoStack;
     ULONG BufferLength;
@@ -958,54 +957,46 @@ USBH_IoctlGetNodeConnectionDriverKeyName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     KeyName = Irp->AssociatedIrp.SystemBuffer;
     Status = STATUS_INVALID_PARAMETER;
 
-    for (Port = 1;
-         Port <= HubExtension->HubDescriptor->bNumberOfPorts;
-         ++Port)
+    PortData = &HubExtension->PortData[KeyName->ConnectionIndex - 1];
+    PortDevice = PortData->DeviceObject;
+
+    if (!PortDevice)
     {
-        if (Port == KeyName->ConnectionIndex)
-        {
-            PortData = &HubExtension->PortData[KeyName->ConnectionIndex - 1];
-            PortDevice = PortData->DeviceObject;
+        goto Exit;
+    }
 
-            if (PortDevice)
-            {
-                PortExtension = PortDevice->DeviceExtension;
+    PortExtension = PortDevice->DeviceExtension;
 
-                if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_ENUMERATED)
-                {
-                    ResultLength = BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+    if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_ENUMERATED))
+    {
+        Status = STATUS_INVALID_DEVICE_STATE;
+        goto Exit;
+    }
 
-                    Status = IoGetDeviceProperty(PortDevice,
-                                                 DevicePropertyDriverKeyName,
-                                                 BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME),
-                                                 &KeyName->DriverKeyName,
-                                                 &ResultLength);
+    ResultLength = BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
 
-                    if (Status == STATUS_BUFFER_TOO_SMALL)
-                    {
-                        Status = STATUS_SUCCESS;
-                    }
+    Status = IoGetDeviceProperty(PortDevice,
+                                 DevicePropertyDriverKeyName,
+                                 BufferLength - sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME),
+                                 &KeyName->DriverKeyName,
+                                 &ResultLength);
 
-                    Length = ResultLength + sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+    if (Status == STATUS_BUFFER_TOO_SMALL)
+    {
+        Status = STATUS_SUCCESS;
+    }
 
-                    KeyName->ActualLength = Length;
+    Length = ResultLength + sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+    KeyName->ActualLength = Length;
 
-                    if (BufferLength < Length)
-                    {
-                        KeyName->DriverKeyName[0] = 0;
-                        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
-                    }
-                    else
-                    {
-                        Irp->IoStatus.Information = Length;
-                    }
-                }
-                else
-                {
-                    Status = STATUS_INVALID_DEVICE_STATE;
-                }
-            }
-        }
+    if (BufferLength < Length)
+    {
+        KeyName->DriverKeyName[0] = 0;
+        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_DRIVERKEY_NAME);
+    }
+    else
+    {
+        Irp->IoStatus.Information = Length;
     }
 
 Exit:
