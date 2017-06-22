@@ -2369,7 +2369,8 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
 {
     NTSTATUS Status;
     PIO_STACK_LOCATION IoStack;
-    BOOLEAN IsCheckIdle = FALSE;
+    DEVICE_RELATION_TYPE RelationsType;
+    BOOLEAN IsCheckIdle;
 
     DPRINT_PNP("USBH_FdoPnP: HubExtension - %p, Irp - %p, Minor - %X\n",
                HubExtension,
@@ -2395,10 +2396,16 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_SUSPENDED;
     }
 
-    if ((HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0) &&
-        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED) &&
-        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED) &&
-        (Minor != IRP_MN_QUERY_DEVICE_RELATIONS || Minor != IRP_MN_STOP_DEVICE))
+    IoStack = IoGetCurrentIrpStackLocation(Irp);
+    RelationsType = IoStack->Parameters.QueryDeviceRelations.Type;
+
+    if ((HubExtension->CurrentPowerState.DeviceState == PowerDeviceD0) ||
+        !(HubExtension->HubFlags & (USBHUB_FDO_FLAG_DEVICE_STOPPED | USBHUB_FDO_FLAG_DEVICE_STARTED)) ||
+        (Minor == IRP_MN_QUERY_DEVICE_RELATIONS && RelationsType == TargetDeviceRelation))
+    {
+        IsCheckIdle = FALSE;
+    }
+    else
     {
         DPRINT_PNP("USBH_FdoPnP: IsCheckIdle - TRUE\n");
         IsCheckIdle = TRUE;
@@ -2456,9 +2463,7 @@ USBH_FdoPnP(IN PUSBHUB_FDO_EXTENSION HubExtension,
         case IRP_MN_QUERY_DEVICE_RELATIONS:
             DPRINT_PNP("FDO IRP_MN_QUERY_DEVICE_RELATIONS\n");
 
-            IoStack = IoGetCurrentIrpStackLocation(Irp);
-
-            if (IoStack->Parameters.QueryDeviceRelations.Type != BusRelations)
+            if (RelationsType != BusRelations)
             {
                 Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
                 break;
