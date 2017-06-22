@@ -45,14 +45,10 @@ USBHUB_DumpingConfiguration(IN PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor)
 
     Descriptor = (PUSB_COMMON_DESCRIPTOR)ConfigDescriptor;
 
-    while (Descriptor->bLength)
+    while ((ULONG_PTR)Descriptor < 
+           ((ULONG_PTR)ConfigDescriptor + ConfigDescriptor->wTotalLength) &&
+           Descriptor->bLength)
     {
-        if (((ULONG_PTR)Descriptor) >= ((ULONG_PTR)ConfigDescriptor +
-                                        ConfigDescriptor->wTotalLength))
-        {
-            break;
-        }
-
         if (Descriptor->bDescriptorType == USB_CONFIGURATION_DESCRIPTOR_TYPE)
         {
             cDescriptor = (PUSB_CONFIGURATION_DESCRIPTOR)Descriptor;
