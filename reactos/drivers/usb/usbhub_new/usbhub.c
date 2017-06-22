@@ -1,7 +1,11 @@
 #include "usbhub.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
+
+#define NDEBUG_USBHUB_SCE
+#define NDEBUG_USBHUB_PNP
+#include "dbg_uhub.h"
 
 #include <ntddstor.h>
 
@@ -68,9 +72,9 @@ NTAPI
 USBH_PassIrp(IN PDEVICE_OBJECT DeviceObject,
              IN PIRP Irp)
 {
-    //DPRINT("USBH_PassIrp: DeviceObject - %p, Irp - %p\n",
-    //       DeviceObject,
-    //       Irp);
+    DPRINT_PNP("USBH_PassIrp: DeviceObject - %p, Irp - %p\n",
+               DeviceObject,
+               Irp);
 
     IoSkipCurrentIrpStackLocation(Irp);
     return IoCallDriver(DeviceObject, Irp);
@@ -1556,7 +1560,7 @@ USBH_ChangeIndicationAckChangeComplete(IN PDEVICE_OBJECT DeviceObject,
 
     HubExtension = Context;
 
-    DPRINT("USBH_ChangeIndicationAckChangeComplete: ... \n");
+    DPRINT_SCE("USBH_ChangeIndicationAckChangeComplete: ... \n");
 
     ASSERT(HubExtension->Port > 0);
     Port = HubExtension->Port - 1;
@@ -1594,7 +1598,7 @@ USBH_ChangeIndicationAckChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PIO_STACK_LOCATION IoStack;
     BM_REQUEST_TYPE RequestType;
 
-    DPRINT("USBH_ChangeIndicationAckChange: ... \n");
+    DPRINT_SCE("USBH_ChangeIndicationAckChange: ... \n");
 
     Urb->Hdr.Length = sizeof(struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST);
     Urb->Hdr.Function = URB_FUNCTION_CLASS_OTHER;
@@ -1648,8 +1652,8 @@ USBH_ChangeIndicationProcessChange(IN PDEVICE_OBJECT DeviceObject,
 
     HubExtension = Context;
 
-    DPRINT("USBH_ChangeIndicationProcessChange: PortStatus - %lX\n",
-           HubExtension->PortStatus.AsULONG);
+    DPRINT_SCE("USBH_ChangeIndicationProcessChange: PortStatus - %lX\n",
+               HubExtension->PortStatus.AsULONG);
 
     if ((NT_SUCCESS(Irp->IoStatus.Status) ||
         USBD_SUCCESS(HubExtension->SCEWorkerUrb.Hdr.Status)) &&
@@ -1707,7 +1711,7 @@ USBH_ChangeIndicationQueryChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PIO_STACK_LOCATION IoStack;
     BM_REQUEST_TYPE RequestType;
 
-    DPRINT("USBH_ChangeIndicationQueryChange: Port - %x\n", Port);
+    DPRINT_SCE("USBH_ChangeIndicationQueryChange: Port - %x\n", Port);
 
     InterlockedIncrement(&HubExtension->PendingRequestCount);
 
@@ -1782,7 +1786,7 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     USHORT RequestValue;
     KIRQL Irql;
 
-    DPRINT("USBH_ProcessPortStateChange ... \n");
+    DPRINT_SCE("USBH_ProcessPortStateChange ... \n");
 
     ASSERT(Port > 0);
     PortData = &HubExtension->PortData[Port - 1];
@@ -2055,7 +2059,7 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
     NTSTATUS Status;
     USHORT Port = 0;
 
-    DPRINT("USBH_ChangeIndicationWorker ... \n");
+    DPRINT_SCE("USBH_ChangeIndicationWorker ... \n");
 
     WorkItem = Context;
 
@@ -2079,8 +2083,8 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
         goto Enum;
     }
 
-    DPRINT("USBH_ChangeIndicationWorker: RequestErrors - %x\n",
-           HubExtension->RequestErrors);
+    DPRINT_SCE("USBH_ChangeIndicationWorker: RequestErrors - %x\n",
+               HubExtension->RequestErrors);
 
     if (HubExtension->LowerPDO == HubExtension->RootHubPdo)
     {
@@ -2235,10 +2239,10 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
     HubExtension = Context;
     UrbStatus = HubExtension->SCEWorkerUrb.Hdr.Status;
 
-    DPRINT("USBH_ChangeIndication: IrpStatus - %x, UrbStatus - %x, HubFlags - %lX\n",
-           Irp->IoStatus.Status,
-           UrbStatus,
-           HubExtension->HubFlags);
+    DPRINT_SCE("USBH_ChangeIndication: IrpStatus - %x, UrbStatus - %x, HubFlags - %lX\n",
+               Irp->IoStatus.Status,
+               UrbStatus,
+               HubExtension->HubFlags);
 
     if (NT_ERROR(Irp->IoStatus.Status) || USBD_ERROR(UrbStatus) ||
        (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) ||
@@ -2257,14 +2261,14 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
             HubExtension->RequestErrors > USBHUB_MAX_REQUEST_ERRORS ||
             Irp->IoStatus.Status == STATUS_DELETE_PENDING)
         {
-            DPRINT("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
-                   HubExtension->RequestErrors);
+            DPRINT_SCE("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
+                       HubExtension->RequestErrors);
 
             return STATUS_MORE_PROCESSING_REQUIRED;
         }
 
-        DPRINT("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
-               HubExtension->RequestErrors);
+        DPRINT_SCE("USBH_ChangeIndication: HubExtension->RequestErrors - %x\n",
+                   HubExtension->RequestErrors);
     }
     else
     {
@@ -2347,14 +2351,16 @@ USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
     struct _URB_BULK_OR_INTERRUPT_TRANSFER * Urb;
     PIO_STACK_LOCATION IoStack;
 
-    DPRINT("USBH_SubmitStatusChangeTransfer: HubExtension - %p, SCEIrp - %p\n",
-           HubExtension,
-           HubExtension->SCEIrp);
+    DPRINT_SCE("USBH_SubmitStatusChangeTransfer: HubExtension - %p, SCEIrp - %p\n",
+               HubExtension,
+               HubExtension->SCEIrp);
 
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_NOT_D0_STATE)
     {
-        DPRINT("USBH_SubmitStatusChangeTransfer: USBHUB_FDO_FLAG_NOT_D0_STATE - FALSE\n");
-        DPRINT("USBH_SubmitStatusChangeTransfer: HubFlags - %lX\n", HubExtension->HubFlags);
+        DPRINT_SCE("USBH_SubmitStatusChangeTransfer: USBHUB_FDO_FLAG_NOT_D0_STATE\n");
+        DPRINT_SCE("USBH_SubmitStatusChangeTransfer: HubFlags - %lX\n",
+                   HubExtension->HubFlags);
+
         return STATUS_INVALID_DEVICE_STATE;
     }
 
@@ -4028,14 +4034,14 @@ USBH_ProcessDeviceInformation(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension)
     USBHUB_DumpingDeviceDescriptor(&PortExtension->DeviceDescriptor);
     USBHUB_DumpingConfiguration(ConfigDescriptor);
 
-    //DPRINT("USBH_ProcessDeviceInformation: Class - %x, SubClass - %x, Protocol - %x\n",
-    //       PortExtension->DeviceDescriptor.bDeviceClass,
-    //       PortExtension->DeviceDescriptor.bDeviceSubClass,
-    //       PortExtension->DeviceDescriptor.bDeviceProtocol);
+    DPRINT_PNP("USBH_ProcessDeviceInformation: Class - %x, SubClass - %x, Protocol - %x\n",
+               PortExtension->DeviceDescriptor.bDeviceClass,
+               PortExtension->DeviceDescriptor.bDeviceSubClass,
+               PortExtension->DeviceDescriptor.bDeviceProtocol);
 
-    //DPRINT("USBH_ProcessDeviceInformation: bNumConfigurations - %x, bNumInterfaces - %x\n",
-    //       PortExtension->DeviceDescriptor.bNumConfigurations,
-    //       ConfigDescriptor->bNumInterfaces);
+    DPRINT_PNP("USBH_ProcessDeviceInformation: bNumConfigurations - %x, bNumInterfaces - %x\n",
+               PortExtension->DeviceDescriptor.bNumConfigurations,
+               ConfigDescriptor->bNumInterfaces);
 
 
     /* Enumeration of USB Composite Devices (msdn):

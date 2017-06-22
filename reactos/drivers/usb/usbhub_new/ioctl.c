@@ -1,7 +1,10 @@
 #include "usbhub.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
+
+#define NDEBUG_USBHUB_IOCTL
+#include "dbg_uhub.h"
 
 NTSTATUS
 NTAPI
@@ -73,7 +76,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     PUSB_CONFIGURATION_DESCRIPTOR ConfigDescriptor;
     PUSBHUB_FDO_EXTENSION HubExtension;
-    //PDEVICE_OBJECT DeviceObject;
+    PDEVICE_OBJECT DeviceObject;
     PURB Urb;
     USHORT Function;
     ULONG MaxPower;
@@ -81,14 +84,14 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     BOOLEAN IsValidConfig;
 
     HubExtension = PortExtension->HubExtension;
-    //DeviceObject = PortExtension->Common.SelfDevice;
+    DeviceObject = PortExtension->Common.SelfDevice;
 
     Urb = URB_FROM_IRP(Irp);
 
-    //DPRINT("USBH_PdoUrbFilter: Device - %p, Irp - %p, Urb - %p\n",
-    //       DeviceObject,
-    //       Irp,
-    //       Urb);
+    DPRINT_IOCTL("USBH_PdoUrbFilter: Device - %p, Irp - %p, Urb - %p\n",
+                 DeviceObject,
+                 Irp,
+                 Urb);
 
     if (PortExtension->PortPdoFlags & (USBHUB_PDO_FLAG_PORT_RESTORE_FAIL |
                                        USBHUB_PDO_FLAG_PORT_RESSETING))
@@ -196,7 +199,7 @@ USBH_PdoIoctlSubmitUrb(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PURB Urb;
     NTSTATUS Status;
 
-    //DPRINT("USBH_PdoIoctlSubmitUrb ... \n");
+    DPRINT_IOCTL("USBH_PdoIoctlSubmitUrb ... \n");
 
     HubExtension = PortExtension->HubExtension;
 
@@ -1289,9 +1292,9 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     PIO_STACK_LOCATION IoStack;
     PULONG HubCount;
 
-    //DPRINT("USBH_PdoInternalControl: PortExtension - %p, Irp - %p\n",
-    //       PortExtension,
-    //       Irp);
+    DPRINT_IOCTL("USBH_PdoInternalControl: PortExtension - %p, Irp - %p\n",
+                 PortExtension,
+                 Irp);
 
     HubExtension = PortExtension->HubExtension;
 
@@ -1325,7 +1328,6 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     switch (ControlCode)
     {
         case IOCTL_INTERNAL_USB_SUBMIT_URB:
-            //DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_URB. \n");
             return USBH_PdoIoctlSubmitUrb(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:

@@ -1,7 +1,10 @@
 #include "usbhub.h"
 
-//#define NDEBUG
+#define NDEBUG
 #include <debug.h>
+
+#define NDEBUG_USBHUB_POWER
+#include "dbg_uhub.h"
 
 VOID
 NTAPI
@@ -461,15 +464,15 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
     ULONG Port;
 
-    DPRINT("USBH_FdoPower: HubExtension - %p, Irp - %p, Minor - %X\n",
-           HubExtension,
-           Irp,
-           Minor);
+    DPRINT_PWR("USBH_FdoPower: HubExtension - %p, Irp - %p, Minor - %X\n",
+               HubExtension,
+               Irp,
+               Minor);
 
     switch (Minor)
     {
       case IRP_MN_WAIT_WAKE:
-          DPRINT("USBH_FdoPower: IRP_MN_WAIT_WAKE\n");
+          DPRINT_PWR("USBH_FdoPower: IRP_MN_WAIT_WAKE\n");
           IoCopyCurrentIrpStackLocationToNext(Irp);
 
           IoSetCompletionRoutine(Irp,
@@ -487,19 +490,20 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
           return STATUS_PENDING;
 
       case IRP_MN_POWER_SEQUENCE:
-          DPRINT("USBH_FdoPower: IRP_MN_POWER_SEQUENCE\n");
+          DPRINT_PWR("USBH_FdoPower: IRP_MN_POWER_SEQUENCE\n");
           break;
 
       case IRP_MN_SET_POWER:
-          DPRINT("USBH_FdoPower: IRP_MN_SET_POWER\n");
+          DPRINT_PWR("USBH_FdoPower: IRP_MN_SET_POWER\n");
 
           IoStack = IoGetCurrentIrpStackLocation(Irp);
-          DPRINT("USBH_FdoPower: IRP_MN_SET_POWER/DevicePowerState\n");
+          DPRINT_PWR("USBH_FdoPower: IRP_MN_SET_POWER/DevicePowerState\n");
           PowerState = IoStack->Parameters.Power.State;
 
           if (IoStack->Parameters.Power.Type == DevicePowerState)
           {
-              DPRINT("USBH_FdoPower: PowerState - %x\n", PowerState.DeviceState);
+              DPRINT_PWR("USBH_FdoPower: PowerState - %x\n",
+                         PowerState.DeviceState);
 
               if (HubExtension->CurrentPowerState.DeviceState == PowerState.DeviceState)
               {
@@ -727,7 +731,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
           break;
 
       case IRP_MN_QUERY_POWER:
-          DPRINT("USBH_FdoPower: IRP_MN_QUERY_POWER\n");
+          DPRINT_PWR("USBH_FdoPower: IRP_MN_QUERY_POWER\n");
           break;
 
       default:
@@ -750,30 +754,30 @@ USBH_PdoPower(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 {
     NTSTATUS Status = Irp->IoStatus.Status;
 
-    DPRINT("USBH_FdoPower: PortExtension - %p, Irp - %p, Minor - %X\n",
-           PortExtension,
-           Irp,
-           Minor);
+    DPRINT_PWR("USBH_FdoPower: PortExtension - %p, Irp - %p, Minor - %X\n",
+               PortExtension,
+               Irp,
+               Minor);
 
     switch (Minor)
     {
       case IRP_MN_WAIT_WAKE:
-          DPRINT("USBHUB_PdoPower: IRP_MN_WAIT_WAKE\n");
+          DPRINT_PWR("USBHUB_PdoPower: IRP_MN_WAIT_WAKE\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_POWER_SEQUENCE:
-          DPRINT("USBHUB_PdoPower: IRP_MN_POWER_SEQUENCE\n");
+          DPRINT_PWR("USBHUB_PdoPower: IRP_MN_POWER_SEQUENCE\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_SET_POWER:
-          DPRINT("USBHUB_PdoPower: IRP_MN_SET_POWER\n");
+          DPRINT_PWR("USBHUB_PdoPower: IRP_MN_SET_POWER\n");
           PoStartNextPowerIrp(Irp);
           break;
 
       case IRP_MN_QUERY_POWER:
-          DPRINT("USBHUB_PdoPower: IRP_MN_QUERY_POWER\n");
+          DPRINT_PWR("USBHUB_PdoPower: IRP_MN_QUERY_POWER\n");
           PoStartNextPowerIrp(Irp);
           break;
 
