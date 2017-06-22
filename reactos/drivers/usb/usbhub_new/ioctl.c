@@ -554,13 +554,15 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PDEVICE_OBJECT PortDevice;
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
     ULONG LengthSkip;
+    PWCHAR Buffer;
+    ULONG BufferLength;
     PWCHAR BufferEnd;
-    WCHAR Symbol;
     ULONG LengthReturned;
     ULONG LengthName;
     ULONG Length;
     NTSTATUS Status;
     PIO_STACK_LOCATION IoStack;
+    ULONG_PTR Information;
 
     DPRINT("USBH_IoctlGetNodeName ... \n");
 
@@ -574,27 +576,25 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     if (Length < sizeof(USB_NODE_CONNECTION_NAME))
     {
         Status = STATUS_BUFFER_TOO_SMALL;
-        USBH_CompleteIrp(Irp, Status);
-        return Status;
+        goto Exit;
     }
 
     if (ConnectionName->ConnectionIndex == 0 ||
         ConnectionName->ConnectionIndex > HubExtension->HubDescriptor->bNumberOfPorts)
     {
         Status = STATUS_INVALID_PARAMETER;
-        USBH_CompleteIrp(Irp, Status);
-        return Status;
+        goto Exit;
     }
 
     PortDevice = HubExtension->PortData[ConnectionName->ConnectionIndex - 1].DeviceObject;
 
     if (!PortDevice)
     {
-        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_NAME);
         ConnectionName->NodeName[0] = 0;
         ConnectionName->ActualLength = sizeof(USB_NODE_CONNECTION_NAME);
-        USBH_CompleteIrp(Irp, Status);
-        return Status;
+
+        Information = sizeof(USB_NODE_CONNECTION_NAME);
+        goto Exit;
     }
 
     PortExtension = PortDevice->DeviceExtension;
@@ -605,50 +605,33 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         ConnectionName->NodeName[0] = 0;
         ConnectionName->ActualLength = sizeof(USB_NODE_CONNECTION_NAME);
-        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_NAME);
-        USBH_CompleteIrp(Irp, Status);
-        return Status;
+
+        Information = sizeof(USB_NODE_CONNECTION_NAME);
+        goto Exit;
     }
+
+    Buffer = PortExtension->SymbolicLinkName.Buffer;
+    BufferLength = PortExtension->SymbolicLinkName.Length;
+
+    ASSERT(Buffer[BufferLength / sizeof(WCHAR)] == UNICODE_NULL);
 
     LengthSkip = 0;
 
-    ASSERT(UNICODE_NULL == PortExtension->SymbolicLinkName.
-           Buffer[PortExtension->SymbolicLinkName.Length / sizeof(WCHAR)]);
-
-    if (PortExtension->SymbolicLinkName.Buffer[0] == L'\\')
+    if (*Buffer == L'\\')
     {
-        BufferEnd = &PortExtension->SymbolicLinkName.Buffer[1];
-        Symbol = *BufferEnd;
+        BufferEnd = wcschr(Buffer + 1, L'\\');
 
-        if (PortExtension->SymbolicLinkName.Buffer[1] == L'\\')
+        if (BufferEnd != NULL)
         {
-            LengthSkip = 2 * sizeof(WCHAR);
+            LengthSkip = (BufferEnd + 1 - Buffer) * sizeof(WCHAR);
         }
         else
         {
-            do
-            {
-                if (!Symbol)
-                {
-                    break;
-                }
-
-                BufferEnd += 1;
-                Symbol = *BufferEnd;
-            }
-            while (*BufferEnd != L'\\');
-
-            if (*BufferEnd == L'\\')
-            {
-                BufferEnd += 1;
-            }
-
-            LengthSkip = sizeof(WCHAR) *
-                         (BufferEnd - PortExtension->SymbolicLinkName.Buffer);
+            LengthSkip = PortExtension->SymbolicLinkName.Length;
         }
     }
 
-    LengthName = PortExtension->SymbolicLinkName.Length - LengthSkip;
+    LengthName = BufferLength - LengthSkip;
 
     ConnectionName->ActualLength = 0;
 
@@ -661,19 +644,22 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         ConnectionName->NodeName[0] = 0;
         ConnectionName->ActualLength = LengthReturned;
-        Irp->IoStatus.Information = sizeof(USB_NODE_CONNECTION_NAME);
-        USBH_CompleteIrp(Irp, Status);
-        return Status;
+
+        Information = sizeof(USB_NODE_CONNECTION_NAME);
+        goto Exit;
     }
 
     RtlCopyMemory(&ConnectionName->NodeName[0],
-                  &PortExtension->SymbolicLinkName.Buffer[LengthSkip / sizeof(WCHAR)],
+                  &Buffer[LengthSkip / sizeof(WCHAR)],
                   LengthName);
 
     ConnectionName->ActualLength = LengthReturned;
 
     Status = STATUS_SUCCESS;
-    Irp->IoStatus.Information = LengthReturned;
+    Information = LengthReturned;
+
+Exit:
+    Irp->IoStatus.Information = Information;
     USBH_CompleteIrp(Irp, Status);
     return Status;
 }
