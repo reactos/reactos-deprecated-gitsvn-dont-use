@@ -181,7 +181,7 @@ USBH_HubQueuePortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
             if (WakeIrp)
             {
-                DPRINT1("USBH_HubQueuePortWakeIrps: UNIMPLEMENTED. FIXME. \n");
+                DPRINT1("USBH_HubQueuePortWakeIrps: UNIMPLEMENTED. FIXME\n");
                 DbgBreakPoint();
             }
         }
@@ -200,7 +200,7 @@ USBH_HubCompleteQueuedPortWakeIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     while (!IsListEmpty(ListIrps))
     {
-        DPRINT1("USBH_HubCompleteQueuedPortWakeIrps: UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBH_HubCompleteQueuedPortWakeIrps: UNIMPLEMENTED. FIXME\n");
         DbgBreakPoint();
     }
 }
@@ -255,7 +255,7 @@ NTAPI
 USBH_CompletePortWakeIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                 IN PVOID Context)
 {
-    DPRINT1("USBH_CompletePortWakeIrpsWorker: UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_CompletePortWakeIrpsWorker: UNIMPLEMENTED. FIXME\n");
     DbgBreakPoint();
 }
 
@@ -380,7 +380,7 @@ USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
 
         if (HubExtension->HubFlags & USBHUB_FDO_FLAG_HIBERNATE_STATE)
         {
-            DPRINT1("USBH_PowerIrpCompletion: USBHUB_FDO_FLAG_HIBERNATE_STATE. FIXME. \n");
+            DPRINT1("USBH_PowerIrpCompletion: USBHUB_FDO_FLAG_HIBERNATE_STATE. FIXME\n");
             DbgBreakPoint();
         }
 
@@ -388,7 +388,7 @@ USBH_PowerIrpCompletion(IN PDEVICE_OBJECT DeviceObject,
 
         if (OldDeviceState == PowerDeviceD3)
         {
-            DPRINT1("USBH_PowerIrpCompletion: PowerDeviceD3. FIXME. \n");
+            DPRINT1("USBH_PowerIrpCompletion: PowerDeviceD3. FIXME\n");
             DbgBreakPoint();
         }
 

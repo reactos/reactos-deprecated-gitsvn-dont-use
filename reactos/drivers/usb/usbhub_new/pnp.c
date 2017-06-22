@@ -1457,7 +1457,7 @@ NTAPI
 USBH_FdoStopDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
                    IN PIRP Irp)
 {
-    DPRINT1("USBH_FdoStopDevice: UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_FdoStopDevice: UNIMPLEMENTED. FIXME\n");
     DbgBreakPoint();
     return STATUS_SUCCESS;
 }
@@ -1514,7 +1514,7 @@ USBH_FdoRemoveDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         HubExtension->PortData = NULL;
     }
 
-    DPRINT1("USBH_FdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_FdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME\n");
 
     Status = USBH_PassIrp(HubExtension->LowerDevice, Irp);
 
@@ -2170,7 +2170,7 @@ USBH_PdoStartDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
     PortExtension->CurrentPowerState.DeviceState = PowerDeviceD0;
 
-    DPRINT1("USBH_PdoStartDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_PdoStartDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME\n");
 
     return Status;
 }
@@ -2332,7 +2332,7 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                     ExFreePoolWithTag(SerialNumber, USB_HUB_TAG);
                 }
 
-                DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME. \n");
+                DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME\n");
 
                 if (HubExtension)
                 {
@@ -2358,7 +2358,7 @@ NTAPI
 USBH_PdoStopDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                    IN PIRP Irp)
 {
-    DPRINT1("USBH_PdoStopDevice: UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_PdoStopDevice: UNIMPLEMENTED. FIXME\n");
     DbgBreakPoint();
     return STATUS_SUCCESS;
 }

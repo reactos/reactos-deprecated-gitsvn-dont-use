@@ -23,7 +23,7 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
 
     if (Irp->PendingReturned)
     {
-         IoMarkIrpPending(Irp);
+        IoMarkIrpPending(Irp);
     }
 
     PortExtension = Context;
@@ -46,7 +46,7 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
 
         if (TimeoutContext)
         {
-            DPRINT1("USBH_SelectConfigOrInterfaceComplete: TimeoutContext != NULL. FIXME. \n");
+            DPRINT1("USBH_SelectConfigOrInterfaceComplete: TimeoutContext != NULL. FIXME\n");
             DbgBreakPoint();
         }
 
@@ -62,7 +62,7 @@ USBH_SelectConfigOrInterfaceComplete(IN PDEVICE_OBJECT DeviceObject,
     }
     else
     {
-        DPRINT1("USBH_SelectConfigOrInterfaceComplete: Status != STATUS_SUCCESS. FIXME. \n");
+        DPRINT1("USBH_SelectConfigOrInterfaceComplete: Status != STATUS_SUCCESS. FIXME\n");
         DbgBreakPoint();
     }
 
@@ -139,7 +139,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
                 {
                     PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_INSUFFICIENT_PWR;
 
-                    DPRINT1("USBH_PdoUrbFilter: USBH_InvalidatePortDeviceState() UNIMPLEMENTED. FIXME. \n");
+                    DPRINT1("USBH_PdoUrbFilter: USBH_InvalidatePortDeviceState() UNIMPLEMENTED. FIXME\n");
                     DbgBreakPoint();
 
                     USBH_CompleteIrp(Irp, STATUS_INVALID_PARAMETER);
@@ -179,7 +179,7 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
         }
 
         case URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR:
-            DPRINT1("USBH_PdoUrbFilter: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR UNIMPLEMENTED. FIXME. \n");
+            DPRINT1("USBH_PdoUrbFilter: URB_FUNCTION_GET_MS_FEATURE_DESCRIPTOR UNIMPLEMENTED. FIXME\n");
             USBH_CompleteIrp(Irp, STATUS_NOT_IMPLEMENTED);
             return STATUS_NOT_IMPLEMENTED;
 
@@ -1165,7 +1165,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
     switch (ControlCode)
     {
         case IOCTL_USB_GET_HUB_CAPABILITIES:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_HUB_CAPABILITIES. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_HUB_CAPABILITIES\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetHubCapabilities(HubExtension, Irp);
@@ -1176,12 +1176,12 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_HUB_CYCLE_PORT:
-            DPRINT1("USBH_DeviceControl: IOCTL_USB_HUB_CYCLE_PORT UNIMPLEMENTED. FIXME. \n");
+            DPRINT1("USBH_DeviceControl: IOCTL_USB_HUB_CYCLE_PORT UNIMPLEMENTED. FIXME\n");
             DbgBreakPoint();
             break;
 
         case IOCTL_USB_GET_NODE_INFORMATION:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_INFORMATION. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_INFORMATION\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetNodeInformation(HubExtension, Irp);
@@ -1192,7 +1192,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetNodeConnectionInformation(HubExtension,
@@ -1205,7 +1205,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_INFORMATION_EX\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetNodeConnectionInformation(HubExtension,
@@ -1218,7 +1218,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_ATTRIBUTES\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetNodeConnectionAttributes(HubExtension, Irp);
@@ -1229,7 +1229,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_NAME:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_NAME.\n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_NAME\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetNodeName(HubExtension, Irp);
@@ -1240,7 +1240,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_NODE_CONNECTION_DRIVERKEY_NAME\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetNodeConnectionDriverKeyName(HubExtension, Irp);
@@ -1251,7 +1251,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION:
-            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_USB_GET_DESCRIPTOR_FROM_NODE_CONNECTION\n");
             if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPED))
             {
                 Status = USBH_IoctlGetDescriptor(HubExtension, Irp);
@@ -1262,7 +1262,7 @@ USBH_DeviceControl(IN PUSBHUB_FDO_EXTENSION HubExtension,
             break;
 
         case IOCTL_KS_PROPERTY:
-            DPRINT("USBH_DeviceControl: IOCTL_KS_PROPERTY. \n");
+            DPRINT("USBH_DeviceControl: IOCTL_KS_PROPERTY\n");
             Status = STATUS_INVALID_DEVICE_REQUEST;
             USBH_CompleteIrp(Irp, Status);
             break;
@@ -1331,29 +1331,29 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             return USBH_PdoIoctlSubmitUrb(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_SUBMIT_IDLE_NOTIFICATION\n");
             return USBH_PortIdleNotificationRequest(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_GET_PORT_STATUS:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS. \n");
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PORT_STATUS\n");
             return USBH_PdoIoctlGetPortStatus(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_RESET_PORT:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_RESET_PORT. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_RESET_PORT\n");
             return USBH_PdoIoctlResetPort(PortExtension, Irp);
 
         case IOCTL_INTERNAL_USB_ENABLE_PORT:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_ENABLE_PORT. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_ENABLE_PORT\n");
             DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_CYCLE_PORT:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_CYCLE_PORT. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_CYCLE_PORT\n");
             DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE:
-            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE. \n");
+            DPRINT("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_DEVICE_HANDLE\n");
             *(PVOID *)IoStack->Parameters.Others.Argument1 = PortExtension->DeviceHandle;
             Status = STATUS_SUCCESS;
             break;
@@ -1397,22 +1397,22 @@ USBH_PdoInternalControl(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             return USBH_PassIrp(HubExtension->RootHubPdo, Irp);
 
         case IOCTL_INTERNAL_USB_GET_HUB_NAME:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_NAME. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_HUB_NAME\n");
             DbgBreakPoint();
             break;
 
         case IOCTL_GET_HCD_DRIVERKEY_NAME:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_GET_HCD_DRIVERKEY_NAME. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_GET_HCD_DRIVERKEY_NAME\n");
             DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_BUS_INFO:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_BUS_INFO. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_BUS_INFO\n");
             DbgBreakPoint();
             break;
 
         case IOCTL_INTERNAL_USB_GET_PARENT_HUB_INFO:
-            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PARENT_HUB_INFO. \n");
+            DPRINT1("USBH_PdoInternalControl: IOCTL_INTERNAL_USB_GET_PARENT_HUB_INFO\n");
             DbgBreakPoint();
             break;
 

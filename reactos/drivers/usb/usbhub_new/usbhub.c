@@ -1864,12 +1864,12 @@ USBH_ProcessPortStateChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
     else if (PortStatusChange.SuspendChange)
     {
-        DPRINT1("USBH_ProcessPortStateChange: SuspendChange UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBH_ProcessPortStateChange: SuspendChange UNIMPLEMENTED. FIXME\n");
         DbgBreakPoint();
     }
     else if (PortStatusChange.OverCurrentIndicatorChange)
     {
-        DPRINT1("USBH_ProcessPortStateChange: OverCurrentIndicatorChange UNIMPLEMENTED. FIXME. \n");
+        DPRINT1("USBH_ProcessPortStateChange: OverCurrentIndicatorChange UNIMPLEMENTED. FIXME\n");
         DbgBreakPoint();
     }
     else if (PortStatusChange.ResetChange)
@@ -2126,7 +2126,7 @@ USBH_ChangeIndicationWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
     {
         HubExtension->HubFlags |= USBHUB_FDO_FLAG_ESD_RECOVERING;
 
-        DPRINT1("USBH_ChangeIndicationWorker: USBHUB_FDO_FLAG_ESD_RECOVERING FIXME. \n");
+        DPRINT1("USBH_ChangeIndicationWorker: USBHUB_FDO_FLAG_ESD_RECOVERING FIXME\n");
         DbgBreakPoint();
 
         goto Exit;
@@ -2159,7 +2159,7 @@ Enum:
         }
         else
         {
-            DPRINT1("USBH_ChangeIndicationWorker: USBH_SyncGetHubStatus() UNIMPLEMENTED. FIXME. \n");
+            DPRINT1("USBH_ChangeIndicationWorker: USBH_SyncGetHubStatus() UNIMPLEMENTED. FIXME\n");
             DbgBreakPoint();
             Status = STATUS_ASSERTION_FAILURE;
         }
@@ -2174,7 +2174,7 @@ Enum:
            }
            else
            {
-                DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME. \n");
+                DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME\n");
                 DbgBreakPoint();
            }
         }
@@ -2988,7 +2988,7 @@ USBH_HubQueuePortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
             if (IdleIrp && IoSetCancelRoutine(IdleIrp, NULL))
             {
-                DPRINT1("USBH_HubQueuePortIdleIrps: IdleIrp != NULL. FIXME. \n");
+                DPRINT1("USBH_HubQueuePortIdleIrps: IdleIrp != NULL. FIXME\n");
                 DbgBreakPoint();
             }
         }
@@ -3022,7 +3022,7 @@ USBH_HubCompleteQueuedPortIdleIrps(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
     while (!IsListEmpty(IdleList))
     {
-        DPRINT1("USBH_HubCompleteQueuedPortIdleIrps: IdleList not Empty. FIXME. \n");
+        DPRINT1("USBH_HubCompleteQueuedPortIdleIrps: IdleList not Empty. FIXME\n");
         DbgBreakPoint();
     }
 }
@@ -3069,7 +3069,7 @@ USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
                 break;
             }
 
-            DPRINT1("USBH_FlushPortPwrList: PortPowerList FIXME. \n");
+            DPRINT1("USBH_FlushPortPwrList: PortPowerList FIXME\n");
             DbgBreakPoint();
         }
     }
@@ -3528,7 +3528,7 @@ USBH_CompletePortIdleIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                        &IdlePortContext->PwrList,
                                        NtStatus);
 
-    DPRINT1("USBH_CompletePortIdleIrpsWorker: USBH_RegQueryFlushPortPowerIrpsFlag() UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_CompletePortIdleIrpsWorker: USBH_RegQueryFlushPortPowerIrpsFlag() UNIMPLEMENTED. FIXME\n");
     Status = 0xC0000000;// USBH_RegQueryFlushPortPowerIrpsFlag(&IsFlush);
 
     if (NT_SUCCESS(Status))
@@ -4478,7 +4478,7 @@ USBH_CreateDevice(IN PUSBHUB_FDO_EXTENSION HubExtension,
         goto ErrorExit;
     }
 
-    DPRINT1("USBH_RegQueryDeviceIgnoreHWSerNumFlag UNIMPLEMENTED. FIXME. \n");
+    DPRINT1("USBH_RegQueryDeviceIgnoreHWSerNumFlag UNIMPLEMENTED. FIXME\n");
     //Status = USBH_RegQueryDeviceIgnoreHWSerNumFlag(PortExtension->DeviceDescriptor.idVendor,
     //                                               PortExtension->DeviceDescriptor.idProduct,
     //                                               &IgnoringHwSerial);
@@ -4796,7 +4796,7 @@ USBH_PdoDispatch(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             if (ControlCode == IOCTL_KS_PROPERTY)
             {
-                DPRINT1("USBH_PdoDispatch: IOCTL_KS_PROPERTY FIXME. \n");
+                DPRINT1("USBH_PdoDispatch: IOCTL_KS_PROPERTY FIXME\n");
                 DbgBreakPoint();
                 Status = STATUS_NOT_SUPPORTED;
                 USBH_CompleteIrp(Irp, Status);
@@ -4963,7 +4963,7 @@ USBH_AddDevice(IN PDRIVER_OBJECT DriverObject,
     DeviceObject->Flags |= DO_POWER_PAGABLE;
     DeviceObject->Flags &= ~DO_DEVICE_INITIALIZING;
 
-    DPRINT("USBH_AddDevice: call IoWMIRegistrationControl() UNIMPLEMENTED. FIXME. \n");
+    DPRINT("USBH_AddDevice: call IoWMIRegistrationControl() UNIMPLEMENTED. FIXME\n");
 
     return Status;
 }
