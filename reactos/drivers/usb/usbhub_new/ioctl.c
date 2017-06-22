@@ -330,10 +330,10 @@ USBH_ResetPortWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                             DeviceHandle,
                             USBD_MARK_DEVICE_BUSY);
 
-       Status = USBH_ResetDevice(HubExtension,
-                                 Port,
-                                 TRUE,
-                                 FALSE);
+        Status = USBH_ResetDevice(HubExtension,
+                                  Port,
+                                  TRUE,
+                                  FALSE);
     }
     else
     {

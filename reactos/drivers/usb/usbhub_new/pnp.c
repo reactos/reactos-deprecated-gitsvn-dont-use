@@ -459,10 +459,10 @@ USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
     if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
     {
         KeWaitForSingleObject(&HubExtension->IdleEvent,
-                               Suspended,
-                               KernelMode,
-                               FALSE,
-                               NULL);
+                              Suspended,
+                              KernelMode,
+                              FALSE,
+                              NULL);
     }
 
     IoAcquireCancelSpinLock(&Irql);
@@ -2278,12 +2278,10 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     {
         Status = USBD_RemoveDeviceEx(HubExtension, DeviceHandle, 0);
 
-        if (HubExtension->PortData)
+        if (HubExtension->PortData &&
+            HubExtension->PortData[Port - 1].DeviceObject == PortDevice)
         {
-            if (HubExtension->PortData[Port - 1].DeviceObject == PortDevice)
-            {
-                USBH_SyncDisablePort(HubExtension, Port);
-            }
+            USBH_SyncDisablePort(HubExtension, Port);
         }
     }
 

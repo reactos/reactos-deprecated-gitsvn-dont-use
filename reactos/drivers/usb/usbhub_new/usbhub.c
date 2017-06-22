@@ -1631,11 +1631,11 @@ USBH_ChangeIndicationAckChange(IN PUSBHUB_FDO_EXTENSION HubExtension,
     IoStack->Parameters.DeviceIoControl.IoControlCode = IOCTL_INTERNAL_USB_SUBMIT_URB;
 
     IoSetCompletionRoutine(Irp,
-                          USBH_ChangeIndicationAckChangeComplete,
-                          HubExtension,
-                          TRUE,
-                          TRUE,
-                          TRUE);
+                           USBH_ChangeIndicationAckChangeComplete,
+                           HubExtension,
+                           TRUE,
+                           TRUE,
+                           TRUE);
 
     return IoCallDriver(HubExtension->LowerDevice, Irp);
 }
@@ -2326,7 +2326,7 @@ USBH_ChangeIndication(IN PDEVICE_OBJECT DeviceObject,
 
     if (Port > NumPorts)
     {
-       Port = 0;
+        Port = 0;
     }
 
     Status = USBH_ChangeIndicationQueryChange(HubExtension,
@@ -2395,11 +2395,11 @@ USBH_SubmitStatusChangeTransfer(IN PUSBHUB_FDO_EXTENSION HubExtension)
     IoStack->Parameters.DeviceIoControl.IoControlCode = IOCTL_INTERNAL_USB_SUBMIT_URB;
 
     IoSetCompletionRoutine(Irp,
-                          USBH_ChangeIndication,
-                          HubExtension,
-                          TRUE,
-                          TRUE,
-                          TRUE);
+                           USBH_ChangeIndication,
+                           HubExtension,
+                           TRUE,
+                           TRUE,
+                           TRUE);
 
     KeResetEvent(&HubExtension->StatusChangeEvent);
 
@@ -3082,8 +3082,8 @@ USBH_FlushPortPwrList(IN PUSBHUB_FDO_EXTENSION HubExtension)
     if (!InterlockedDecrement((PLONG)&HubExtension->PendingRequestCount))
     {
         KeSetEvent(&HubExtension->PendingRequestEvent,
-                            EVENT_INCREMENT,
-                            FALSE);
+                   EVENT_INCREMENT,
+                   FALSE);
     }
 }
 
