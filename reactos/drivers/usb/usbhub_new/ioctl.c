@@ -115,12 +115,14 @@ USBH_PdoUrbFilter(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
                 if (ConfigDescriptor->bDescriptorType != USB_CONFIGURATION_DESCRIPTOR_TYPE)
                 {
+                    DPRINT1("USBH_PdoUrbFilter: Not valid Cfg. bDescriptorType\n");
                     IsValidConfig = FALSE;
                     UrbStatus = USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR;
                 }
 
                 if (ConfigDescriptor->bLength < sizeof(USB_CONFIGURATION_DESCRIPTOR))
                 {
+                    DPRINT1("USBH_PdoUrbFilter: Size Cfg. descriptor is too small\n");
                     IsValidConfig = FALSE;
                     UrbStatus = USBD_STATUS_INVALID_CONFIGURATION_DESCRIPTOR;
                 }
