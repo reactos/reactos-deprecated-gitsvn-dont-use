@@ -270,7 +270,7 @@ USBH_SyncSubmitUrb(IN PDEVICE_OBJECT DeviceObject,
 
     if (!Irp)
     {
-        Status = STATUS_INSUFFICIENT_RESOURCES;
+        return STATUS_INSUFFICIENT_RESOURCES;
     }
 
     IoStack = IoGetNextIrpStackLocation(Irp);
