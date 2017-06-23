@@ -493,11 +493,12 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     }
 
     HubExtension->HubFlags |= USBHUB_FDO_FLAG_RESET_PORT_LOCK;
-    KeInitializeEvent(&Event, NotificationEvent, FALSE);
 
     while (TRUE)
     {
         BM_REQUEST_TYPE RequestType;
+
+        KeInitializeEvent(&Event, NotificationEvent, FALSE);
 
         InterlockedExchangePointer((PVOID)&HubExtension->pResetPortEvent,
                                    &Event);
@@ -561,8 +562,6 @@ USBH_SyncResetPort(IN PUSBHUB_FDO_EXTENSION HubExtension,
         }
 
         ResetRetry++;
-
-        KeInitializeEvent(&Event, NotificationEvent, FALSE);
     }
 
     Status = USBH_SyncGetPortStatus(HubExtension,
