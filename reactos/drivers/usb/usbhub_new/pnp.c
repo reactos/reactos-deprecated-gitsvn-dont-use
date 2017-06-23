@@ -2316,29 +2316,27 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
             }
         }
 
-        if (!(PortExtension->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT))
+        if (!(PortExtension->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT) &&
+            !(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_NOT_CONNECTED))
         {
-            if (!(PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_NOT_CONNECTED))
+            PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_NOT_CONNECTED;
+
+            SerialNumber = InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber,
+                                                      NULL);
+
+            if (SerialNumber)
             {
-                PortExtension->PortPdoFlags |= USBHUB_PDO_FLAG_NOT_CONNECTED;
-
-                SerialNumber = InterlockedExchangePointer((PVOID)&PortExtension->SerialNumber,
-                                                          NULL);
-
-                if (SerialNumber)
-                {
-                    ExFreePoolWithTag(SerialNumber, USB_HUB_TAG);
-                }
-
-                DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME\n");
-
-                if (HubExtension)
-                {
-                    USBHUB_FlushAllTransfers(HubExtension);
-                }
-
-                IoDeleteDevice(PortDevice);
+                ExFreePoolWithTag(SerialNumber, USB_HUB_TAG);
             }
+
+            DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME\n");
+
+            if (HubExtension)
+            {
+                USBHUB_FlushAllTransfers(HubExtension);
+            }
+
+            IoDeleteDevice(PortDevice);
         }
     }
 
