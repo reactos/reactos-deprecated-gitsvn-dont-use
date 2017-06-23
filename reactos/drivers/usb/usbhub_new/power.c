@@ -700,7 +700,7 @@ USBH_FdoPower(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                           DevicePwrState,
                                           USBH_FdoDeferPoRequestCompletion,
                                           (PVOID)HubExtension,
-                                          0) == STATUS_PENDING)
+                                          NULL) == STATUS_PENDING)
                     {
                         return STATUS_PENDING;
                     }

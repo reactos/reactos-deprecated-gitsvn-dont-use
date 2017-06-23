@@ -2611,7 +2611,8 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         if (!NodeInfo)
         {
-            Status = STATUS_INSUFFICIENT_RESOURCES;
+            ExFreePoolWithTag(DeviceInfo, USB_HUB_TAG);
+            return STATUS_INSUFFICIENT_RESOURCES;
         }
 
         RtlZeroMemory(NodeInfo, NodeInfoLength);
@@ -3467,7 +3468,7 @@ IdleHub:
                                    PowerState,
                                    USBH_HubSetDWakeCompletion,
                                    &Event,
-                                   0);
+                                   NULL);
 
         if (Status == STATUS_PENDING)
         {
@@ -3500,7 +3501,7 @@ USBH_CompletePortIdleIrpsWorker(IN PUSBHUB_FDO_EXTENSION HubExtension,
                                        NtStatus);
 
     DPRINT1("USBH_CompletePortIdleIrpsWorker: USBH_RegQueryFlushPortPowerIrpsFlag() UNIMPLEMENTED. FIXME\n");
-    Status = 0xC0000000;// USBH_RegQueryFlushPortPowerIrpsFlag(&IsFlush);
+    Status = STATUS_NOT_IMPLEMENTED;// USBH_RegQueryFlushPortPowerIrpsFlag(&IsFlush);
 
     if (NT_SUCCESS(Status))
     {
