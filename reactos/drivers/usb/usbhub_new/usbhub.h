@@ -162,7 +162,7 @@ typedef struct _USBHUB_FDO_EXTENSION {
   USBD_PIPE_INFORMATION PipeInfo;
   PIRP SCEIrp;
   PIRP ResetPortIrp;
-  PVOID SCEBitmap;
+  PVOID SCEBitmap; // 11.12.4 Hub and Port Status Change Bitmap (USB 2.0 Specification)
   ULONG SCEBitmapLength;
   KEVENT RootHubNotificationEvent;
   struct _URB_CONTROL_VENDOR_OR_CLASS_REQUEST SCEWorkerUrb;
