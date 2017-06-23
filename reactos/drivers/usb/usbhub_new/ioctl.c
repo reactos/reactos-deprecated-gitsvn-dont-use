@@ -576,6 +576,7 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
     if (Length < sizeof(USB_NODE_CONNECTION_NAME))
     {
         Status = STATUS_BUFFER_TOO_SMALL;
+        Information = Irp->IoStatus.Information;
         goto Exit;
     }
 
@@ -583,6 +584,7 @@ USBH_IoctlGetNodeName(IN PUSBHUB_FDO_EXTENSION HubExtension,
         ConnectionName->ConnectionIndex > HubExtension->HubDescriptor->bNumberOfPorts)
     {
         Status = STATUS_INVALID_PARAMETER;
+        Information = Irp->IoStatus.Information;
         goto Exit;
     }
 
