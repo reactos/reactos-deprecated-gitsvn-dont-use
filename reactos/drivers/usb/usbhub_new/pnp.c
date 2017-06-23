@@ -562,9 +562,10 @@ USBH_FdoCleanup(IN PUSBHUB_FDO_EXTENSION HubExtension)
                 PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_WAIT_WAKE;
                 PortExtension->PdoWaitWakeIrp = NULL;
 
-                if (PortWakeIrp->Cancel ||
-                    !IoSetCancelRoutine(PortWakeIrp, NULL))
+                if (PortWakeIrp->Cancel || !IoSetCancelRoutine(PortWakeIrp, NULL))
                 {
+                    PortWakeIrp = NULL;
+
                     if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
                     {
                         KeSetEvent(&HubExtension->PendingRequestEvent,
