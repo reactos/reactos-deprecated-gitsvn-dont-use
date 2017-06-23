@@ -427,11 +427,11 @@ USBH_PortIdleNotificationCancelRoutine(IN PDEVICE_OBJECT Device,
     PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_IDLE_NOTIFICATION;
 
     HubExtension = PortExtension->HubExtension;
+    ASSERT(HubExtension);
 
     PortExtension->IdleNotificationIrp = NULL;
 
-    if (HubExtension &&
-        HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
+    if (HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST)
     {
         PendingIdleIrp = HubExtension->PendingIdleIrp;
         HubExtension->PendingIdleIrp = NULL;
