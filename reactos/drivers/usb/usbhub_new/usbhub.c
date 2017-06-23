@@ -1183,18 +1183,15 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
         RtlZeroMemory(PortData, NumberPorts * sizeof(USBHUB_PORT_DATA));
 
-        if (NumberPorts)
+        for (ix = 0; ix < NumberPorts; ix++)
         {
-            for (ix = 0; ix < NumberPorts; ix++)
-            {
-                PortData[ix].ConnectionStatus = NoDeviceConnected;
+            PortData[ix].ConnectionStatus = NoDeviceConnected;
 
-                if (ExtendedHubInfo)
-                {
-                    PortData[ix].PortAttributes = ExtendedHubInfo->Port[ix].PortAttributes;
-                }
+            if (ExtendedHubInfo)
+            {
+                PortData[ix].PortAttributes = ExtendedHubInfo->Port[ix].PortAttributes;
             }
-       }
+        }
     }
 
     if (!NT_SUCCESS(Status))
