@@ -1130,7 +1130,9 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
         if (Retry >= 5)
         {
-            break;
+            Status = STATUS_DEVICE_DATA_ERROR;
+            HubDescriptor = NULL;
+            goto ErrorExit;
         }
 
         HubDescriptor = ExAllocatePoolWithTag(NonPagedPool,
