@@ -105,7 +105,7 @@
 #define USBHUB_FAIL_NESTED_TOO_DEEPLY  6
 #define USBHUB_FAIL_OVERCURRENT        7
 
-extern PVOID GenericUSBDeviceString;
+extern PWSTR GenericUSBDeviceString;
 
 typedef struct _USBHUB_PORT_DATA {
   USBHUB_PORT_STATUS PortStatus;

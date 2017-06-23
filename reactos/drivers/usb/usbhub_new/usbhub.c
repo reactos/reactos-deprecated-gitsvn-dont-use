@@ -9,7 +9,7 @@
 
 #include <ntddstor.h>
 
-PVOID GenericUSBDeviceString = NULL;
+PWSTR GenericUSBDeviceString = NULL;
 
 NTSTATUS
 NTAPI
