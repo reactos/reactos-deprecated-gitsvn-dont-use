@@ -1266,20 +1266,17 @@ EnumStart:
 
                 if (NT_SUCCESS(NtStatus))
                 {
-                    if (PortData->DeviceObject)
+                    PdoExtension = PortData->DeviceObject->DeviceExtension;
+
+                    if (!(PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_LOW_SPEED) &&
+                        !(PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_HIGH_SPEED) &&
+                        !(HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB))
                     {
-                        PdoExtension = PortData->DeviceObject->DeviceExtension;
+                        DPRINT1("USBH_FdoQueryBusRelations: FIXME USBH_DeviceIs2xDualMode()\n");
 
-                        if (!(PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_LOW_SPEED) &&
-                            !(PdoExtension->PortPdoFlags & USBHUB_PDO_FLAG_PORT_HIGH_SPEED) &&
-                            !(HubExtension->HubFlags & USBHUB_FDO_FLAG_USB20_HUB))
+                        if (0)//USBH_DeviceIs2xDualMode(PdoExtension))
                         {
-                            DPRINT1("USBH_FdoQueryBusRelations: FIXME USBH_DeviceIs2xDualMode()\n");
-
-                            if (0)//USBH_DeviceIs2xDualMode(PdoExtension))
-                            {
-                                PdoExtension->PortPdoFlags |= USBHUB_PDO_FLAG_HS_USB1_DUALMODE;
-                            }
+                            PdoExtension->PortPdoFlags |= USBHUB_PDO_FLAG_HS_USB1_DUALMODE;
                         }
                     }
 
