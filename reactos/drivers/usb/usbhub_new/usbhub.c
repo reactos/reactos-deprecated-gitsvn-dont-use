@@ -1048,6 +1048,7 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
     NTSTATUS Status;
     PUSB_HUB_DESCRIPTOR HubDescriptor = NULL;
     ULONG ix;
+    ULONG Retry;
 
     DPRINT("USBH_SyncGetHubDescriptor: ... \n");
 
@@ -1086,10 +1087,11 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
     RtlZeroMemory(HubDescriptor, NumberOfBytes);
 
     RequestValue = 0;
+    Retry = 0;
 
     while (TRUE)
     {
-        while (TRUE)
+        while (Retry <= 5)
         {
             BM_REQUEST_TYPE RequestType;
 
@@ -1114,6 +1116,8 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
             }
 
             RequestValue = 0x2900; // Hub DescriptorType - 0x29
+
+            Retry++;
         }
 
         if (HubDescriptor->bDescriptorLength <= NumberOfBytes)
@@ -1123,6 +1127,11 @@ USBH_SyncGetHubDescriptor(IN PUSBHUB_FDO_EXTENSION HubExtension)
 
         NumberOfBytes = HubDescriptor->bDescriptorLength;
         ExFreePoolWithTag(HubDescriptor, USB_HUB_TAG);
+
+        if (Retry >= 5)
+        {
+            break;
+        }
 
         HubDescriptor = ExAllocatePoolWithTag(NonPagedPool,
                                               NumberOfBytes,
