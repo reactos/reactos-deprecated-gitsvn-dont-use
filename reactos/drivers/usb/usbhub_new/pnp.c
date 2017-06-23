@@ -2183,8 +2183,9 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     Port = PortExtension->PortNumber;
     ASSERT(Port > 0);
 
-    if (HubExtension &&
-        HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0 &&
+    ASSERT(HubExtension);
+
+    if (HubExtension->CurrentPowerState.DeviceState != PowerDeviceD0 &&
         (HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED) != 0)
     {
         USBH_HubSetD0(HubExtension);
@@ -2272,28 +2273,25 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
     {
         PortExtension->PortPdoFlags &= ~USBHUB_PDO_FLAG_DEVICE_STARTED;
 
-        if (HubExtension)
+        if (HubExtension->PortData)
         {
-            if (HubExtension->PortData)
+            PortData = &HubExtension->PortData[Port - 1];
+
+            if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_DELETE_PENDING)
             {
-                PortData = &HubExtension->PortData[Port - 1];
+                Pdo = PortData->DeviceObject;
 
-                if (PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_DELETE_PENDING)
+                if (Pdo)
                 {
-                    Pdo = PortData->DeviceObject;
+                    PortData->DeviceObject = NULL;
+                    PortData->ConnectionStatus = NoDeviceConnected;
 
-                    if (Pdo)
+                    if (PdoExt(Pdo)->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT)
                     {
-                        PortData->DeviceObject = NULL;
-                        PortData->ConnectionStatus = NoDeviceConnected;
+                        PortExt = PdoExt(Pdo);
 
-                        if (PdoExt(Pdo)->EnumFlags & USBHUB_ENUM_FLAG_DEVICE_PRESENT)
-                        {
-                            PortExt = PdoExt(Pdo);
-
-                            InsertTailList(&HubExtension->PdoList,
-                                           &PortExt->PortLink);
-                        }
+                        InsertTailList(&HubExtension->PdoList,
+                                       &PortExt->PortLink);
                     }
                 }
             }
@@ -2314,20 +2312,14 @@ USBH_PdoRemoveDevice(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
             DPRINT1("USBH_PdoRemoveDevice: call IoWMIRegistrationControl UNIMPLEMENTED. FIXME\n");
 
-            if (HubExtension)
-            {
-                USBHUB_FlushAllTransfers(HubExtension);
-            }
+            USBHUB_FlushAllTransfers(HubExtension);
 
             IoDeleteDevice(PortDevice);
         }
     }
 
-    if (HubExtension)
-    {
-        DPRINT("USBH_PdoRemoveDevice: call USBH_CheckIdleDeferred()\n");
-        USBH_CheckIdleDeferred(HubExtension);
-    }
+    DPRINT("USBH_PdoRemoveDevice: call USBH_CheckIdleDeferred()\n");
+    USBH_CheckIdleDeferred(HubExtension);
 
     return Status;
 }
