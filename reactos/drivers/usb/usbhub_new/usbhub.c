@@ -3339,13 +3339,6 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
          Port < HubExtension->HubDescriptor->bNumberOfPorts;
          Port++)
     {
-        if ((HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) ||
-            (USBH_CheckIdleAbort(HubExtension, FALSE, FALSE) != TRUE))
-        {
-            IsReady = FALSE;
-            goto IdleHub;
-        }
-
         PortDevice = PortData[Port].DeviceObject;
 
         if (PortDevice)
