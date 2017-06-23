@@ -4235,18 +4235,18 @@ USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
 
     pSymbol = Descriptor->bString;
 
-    for (ix = 1; *pSymbol != (WCHAR)LanguageId; ++ix)
+    for (ix = 1; ix < NumSymbols; ix++)
     {
-        if (ix >= NumSymbols)
+        if (*pSymbol == (WCHAR)LanguageId)
         {
-            ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
-            return STATUS_NOT_SUPPORTED;
+            Status = STATUS_SUCCESS;
+            goto Exit;
         }
 
         pSymbol++;
     }
 
-    Status = STATUS_SUCCESS;
+    Status = STATUS_NOT_SUPPORTED;
 
 Exit:
     ExFreePoolWithTag(Descriptor, USB_HUB_TAG);
