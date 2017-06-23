@@ -2173,27 +2173,27 @@ Enum:
 
         if (NT_SUCCESS(Status))
         {
-           if (Port)
-           {
-               USBH_ProcessPortStateChange(HubExtension,
-                                           Port,
-                                           &PortStatus);
-           }
-           else
-           {
-                DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME\n");
-                DbgBreakPoint();
-           }
+            if (Port)
+            {
+                USBH_ProcessPortStateChange(HubExtension,
+                                            Port,
+                                            &PortStatus);
+            }
+            else
+            {
+                 DPRINT1("USBH_ChangeIndicationWorker: USBH_ProcessHubStateChange() UNIMPLEMENTED. FIXME\n");
+                 DbgBreakPoint();
+            }
         }
         else
         {
-           HubExtension->RequestErrors++;
+            HubExtension->RequestErrors++;
 
-           if (HubExtension->RequestErrors > USBHUB_MAX_REQUEST_ERRORS)
-           {
-               HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
-               goto Exit;
-           }
+            if (HubExtension->RequestErrors > USBHUB_MAX_REQUEST_ERRORS)
+            {
+                HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEVICE_FAILED;
+                goto Exit;
+            }
         }
     }
 
