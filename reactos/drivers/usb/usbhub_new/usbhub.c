@@ -3133,11 +3133,9 @@ USBH_CheckIdleAbort(IN PUSBHUB_FDO_EXTENSION HubExtension,
     PUSBHUB_PORT_PDO_EXTENSION PortExtension;
     PUSBHUB_PORT_DATA PortData;
     ULONG Port;
-    BOOLEAN Result;
+    BOOLEAN Result = FALSE;
 
     DPRINT("USBH_CheckIdleAbort: ... \n");
-
-    Result = FALSE;
 
     InterlockedIncrement(&HubExtension->PendingRequestCount);
 
@@ -3150,59 +3148,43 @@ USBH_CheckIdleAbort(IN PUSBHUB_FDO_EXTENSION HubExtension,
                               NULL);
     }
 
-    Port = 0;
+    PortData = HubExtension->PortData;
 
-    if (HubExtension->HubDescriptor->bNumberOfPorts)
+    for (Port = 0; Port < HubExtension->HubDescriptor->bNumberOfPorts; Port++)
+    {
+        PdoDevice = PortData[Port].DeviceObject;
+
+        if (PdoDevice)
+        {
+            PortExtension = PdoDevice->DeviceExtension;
+
+            if (PortExtension->PoRequestCounter)
+            {
+                Result = TRUE;
+                goto Wait;
+            }
+        }
+    }
+
+    if (IsExtCheck == TRUE)
     {
         PortData = HubExtension->PortData;
 
-        while (TRUE)
+        for (Port = 0;
+             Port < HubExtension->HubDescriptor->bNumberOfPorts;
+             Port++)
         {
             PdoDevice = PortData[Port].DeviceObject;
 
             if (PdoDevice)
             {
                 PortExtension = PdoDevice->DeviceExtension;
-
-                if (PortExtension->PoRequestCounter)
-                {
-                    break;
-                }
-            }
-
-            ++Port;
-
-            if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
-            {
-                goto ExtCheck;
-            }
-        }
-
-        Result = TRUE;
-    }
-    else
-    {
-
-ExtCheck:
-
-        if (IsExtCheck == TRUE)
-        {
-            PortData = HubExtension->PortData;
-
-            for (Port = 0;
-                 Port < HubExtension->HubDescriptor->bNumberOfPorts;
-                 Port++)
-            {
-                PdoDevice = PortData[Port].DeviceObject;
-
-                if (PdoDevice)
-                {
-                    PortExtension = PdoDevice->DeviceExtension;
-                    InterlockedExchange(&PortExtension->StateBehindD2, 0);
-                }
+                InterlockedExchange(&PortExtension->StateBehindD2, 0);
             }
         }
     }
+
+Wait:
 
     if (IsWait == TRUE)
     {
@@ -3347,86 +3329,75 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
                           FALSE,
                           NULL);
 
-    Port = 0;
+    PortData = HubExtension->PortData;
 
-    if (HubExtension->HubDescriptor->bNumberOfPorts == 0)
+    for (Port = 0;
+         Port < HubExtension->HubDescriptor->bNumberOfPorts;
+         Port++)
     {
         if ((HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) ||
             (USBH_CheckIdleAbort(HubExtension, FALSE, FALSE) != TRUE))
         {
+            IsReady = FALSE;
             goto IdleHub;
         }
-    }
-    else
-    {
-        PortData = HubExtension->PortData;
 
-        while (TRUE)
+        PortDevice = PortData[Port].DeviceObject;
+
+        if (PortDevice)
         {
-            PortDevice = PortData[Port].DeviceObject;
+            PortExtension = PortDevice->DeviceExtension;
 
-            if (PortDevice)
+            IdleIrp = PortExtension->IdleNotificationIrp;
+
+            if (!IdleIrp)
             {
-                PortExtension = PortDevice->DeviceExtension;
-
-                IdleIrp = PortExtension->IdleNotificationIrp;
-
-                if (!IdleIrp)
-                {
-                    break;
-                }
-
-                IoStack = IoGetCurrentIrpStackLocation(IdleIrp);
-
-                CallbackInfo = IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
-
-                if (!CallbackInfo)
-                {
-                    break;
-                }
-
-                if (!CallbackInfo->IdleCallback)
-                {
-                    break;
-                }
-
-                if (PortExtension->PendingSystemPoRequest)
-                {
-                    break;
-                }
-
-                if (InterlockedCompareExchange(&PortExtension->StateBehindD2,
-                                               1,
-                                               0))
-                {
-                    break;
-                }
-
-                DPRINT("USBH_FdoIdleNotificationCallback: IdleContext - %p\n",
-                       CallbackInfo->IdleContext);
-
-                CallbackInfo->IdleCallback(CallbackInfo->IdleContext);
-
-                if (PortExtension->CurrentPowerState.DeviceState == PowerDeviceD0)
-                {
-                    break;
-                }
+                break;
             }
 
-            ++Port;
+            IoStack = IoGetCurrentIrpStackLocation(IdleIrp);
 
-            if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
+            CallbackInfo = IoStack->Parameters.DeviceIoControl.Type3InputBuffer;
+
+            if (!CallbackInfo)
             {
-                if ((HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) ||
-                    (USBH_CheckIdleAbort(HubExtension, FALSE, FALSE) != TRUE))
-                {
-                    goto IdleHub;
-                }
+                break;
+            }
+
+            if (!CallbackInfo->IdleCallback)
+            {
+                break;
+            }
+
+            if (PortExtension->PendingSystemPoRequest)
+            {
+                break;
+            }
+
+            if (InterlockedCompareExchange(&PortExtension->StateBehindD2,
+                                           1,
+                                           0))
+            {
+                break;
+            }
+
+            DPRINT("USBH_FdoIdleNotificationCallback: IdleContext - %p\n",
+                   CallbackInfo->IdleContext);
+
+            CallbackInfo->IdleCallback(CallbackInfo->IdleContext);
+
+            if (PortExtension->CurrentPowerState.DeviceState == PowerDeviceD0)
+            {
+                break;
             }
         }
     }
 
-    IsReady = FALSE;
+    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) &&
+        (USBH_CheckIdleAbort(HubExtension, FALSE, FALSE) == TRUE))
+    {
+        IsReady = FALSE;
+    }
 
 IdleHub:
 
@@ -3753,6 +3724,7 @@ USBH_CheckHubIdle(IN PUSBHUB_FDO_EXTENSION HubExtension)
     KIRQL Irql;
     BOOLEAN IsHubIdle = FALSE;
     BOOLEAN IsAllPortsIdle;
+    BOOLEAN IsHubCheck = TRUE;
 
     DPRINT("USBH_CheckHubIdle: FIXME !!! HubExtension - %p\n", HubExtension);
 
@@ -3780,106 +3752,101 @@ return; //HACK: delete it line after fixing Power Manager!!!
     HubFlags = HubExtension->HubFlags;
     DPRINT("USBH_CheckHubIdle: HubFlags - %lX\n", HubFlags);
 
-    if (HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED &&
-        HubFlags & USBHUB_FDO_FLAG_DO_ENUMERATION)
+    if (!(HubFlags & USBHUB_FDO_FLAG_DEVICE_STARTED) ||
+        !(HubFlags & USBHUB_FDO_FLAG_DO_ENUMERATION))
     {
-        if (!(HubFlags & USBHUB_FDO_FLAG_NOT_ENUMERATED) &&
-            !(HubFlags & USBHUB_FDO_FLAG_ENUM_POST_RECOVER) &&
-            !(HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED) &&
-            !(HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING) &&
-            !(HubFlags & USBHUB_FDO_FLAG_DEVICE_REMOVED) &&
-            !(HubFlags & USBHUB_FDO_FLAG_STATE_CHANGING) &&
-            !(HubFlags & USBHUB_FDO_FLAG_WAKEUP_START) &&
-            !(HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING))
+        goto Exit;
+    }
+
+    if (HubFlags & USBHUB_FDO_FLAG_NOT_ENUMERATED ||
+        HubFlags & USBHUB_FDO_FLAG_ENUM_POST_RECOVER ||
+        HubFlags & USBHUB_FDO_FLAG_DEVICE_FAILED ||
+        HubFlags & USBHUB_FDO_FLAG_DEVICE_STOPPING ||
+        HubFlags & USBHUB_FDO_FLAG_DEVICE_REMOVED ||
+        HubFlags & USBHUB_FDO_FLAG_STATE_CHANGING ||
+        HubFlags & USBHUB_FDO_FLAG_WAKEUP_START ||
+        HubFlags & USBHUB_FDO_FLAG_ESD_RECOVERING)
+    {
+        goto Exit;
+    }
+
+    if (HubExtension->ResetRequestCount)
+    {
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
+        goto Exit;
+    }
+
+    HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
+
+    InterlockedIncrement(&HubExtension->PendingRequestCount);
+
+    KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
+                          Executive,
+                          KernelMode,
+                          FALSE,
+                          NULL);
+
+    IoAcquireCancelSpinLock(&Irql);
+
+    IsAllPortsIdle = TRUE;
+
+    PortData = HubExtension->PortData;
+
+    for (Port = 0;
+         Port < HubExtension->HubDescriptor->bNumberOfPorts;
+         Port++)
+    {
+        PdoDevice = PortData[Port].DeviceObject;
+
+        if (PdoDevice)
         {
-            if (HubExtension->ResetRequestCount)
+            PortExtension = PdoDevice->DeviceExtension;
+
+            if (!PortExtension->IdleNotificationIrp)
             {
-                HubExtension->HubFlags |= USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
-            }
-            else
-            {
-                HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_DEFER_CHECK_IDLE;
+                DPRINT("USBH_CheckHubIdle: PortExtension - %p\n",
+                       PortExtension);
 
-                InterlockedIncrement(&HubExtension->PendingRequestCount);
+                IsAllPortsIdle = FALSE;
+                IsHubCheck = FALSE;
 
-                KeWaitForSingleObject(&HubExtension->ResetDeviceSemaphore,
-                                      Executive,
-                                      KernelMode,
-                                      FALSE,
-                                      NULL);
-
-                IoAcquireCancelSpinLock(&Irql);
-
-                IsAllPortsIdle = TRUE;
-
-                Port = 0;
-
-                if (HubExtension->HubDescriptor->bNumberOfPorts)
-                {
-                    PortData = HubExtension->PortData;
-
-                    while (TRUE)
-                    {
-                        PdoDevice = PortData[Port].DeviceObject;
-
-                        if (PdoDevice)
-                        {
-                            PortExtension = PdoDevice->DeviceExtension;
-
-                            if (!PortExtension->IdleNotificationIrp)
-                            {
-                                DPRINT("USBH_CheckHubIdle: PortExtension - %p\n", PortExtension);
-                                break;
-                            }
-                        }
-
-                        ++Port;
-
-                        if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
-                        {
-                            goto HubIdleCheck;
-                        }
-                    }
-
-                    IsAllPortsIdle = FALSE;
-                }
-                else
-                {
-      HubIdleCheck:
-                    if (!(HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST))
-                    {
-                        KeResetEvent(&HubExtension->IdleEvent);
-                        HubExtension->HubFlags |= USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
-                        IsHubIdle = TRUE;
-                    }
-                }
-
-                IoReleaseCancelSpinLock(Irql);
-
-                KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
-                                   LOW_REALTIME_PRIORITY,
-                                   1,
-                                   FALSE);
-
-                if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
-                {
-                    KeSetEvent(&HubExtension->PendingRequestEvent,
-                               EVENT_INCREMENT,
-                               FALSE);
-                }
-
-                DPRINT("USBH_CheckHubIdle: IsAllPortsIdle - %x, IsHubIdle - %x\n",
-                       IsAllPortsIdle,
-                       IsHubIdle);
-
-                if (IsAllPortsIdle && IsHubIdle)
-                {
-                    USBH_FdoSubmitIdleRequestIrp(HubExtension);
-                }
+                break;
             }
         }
     }
 
+    if (IsHubCheck &&
+        !(HubExtension->HubFlags & USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST))
+    {
+        KeResetEvent(&HubExtension->IdleEvent);
+        HubExtension->HubFlags |= USBHUB_FDO_FLAG_WAIT_IDLE_REQUEST;
+        IsHubIdle = TRUE;
+    }
+
+    IoReleaseCancelSpinLock(Irql);
+
+    KeReleaseSemaphore(&HubExtension->ResetDeviceSemaphore,
+                       LOW_REALTIME_PRIORITY,
+                       1,
+                       FALSE);
+
+    if (!InterlockedDecrement(&HubExtension->PendingRequestCount))
+    {
+        KeSetEvent(&HubExtension->PendingRequestEvent,
+                   EVENT_INCREMENT,
+                   FALSE);
+    }
+
+    DPRINT("USBH_CheckHubIdle: IsAllPortsIdle - %x, IsHubIdle - %x\n",
+           IsAllPortsIdle,
+           IsHubIdle);
+
+    if (IsAllPortsIdle && IsHubIdle)
+    {
+        USBH_FdoSubmitIdleRequestIrp(HubExtension);
+    }
+
+Exit:
     KeAcquireSpinLock(&HubExtension->CheckIdleSpinLock, &Irql);
     HubExtension->HubFlags &= ~USBHUB_FDO_FLAG_CHECK_IDLE_LOCK;
     KeReleaseSpinLock(&HubExtension->CheckIdleSpinLock, Irql);
@@ -4121,14 +4088,12 @@ USBH_CheckDeviceIDUnique(IN PUSBHUB_FDO_EXTENSION HubExtension,
            idVendor,
            idProduct);
 
-    Port = 0;
-
     if (!HubExtension->HubDescriptor->bNumberOfPorts)
     {
         return TRUE;
     }
 
-    while (TRUE)
+    for (Port = 0; Port < HubExtension->HubDescriptor->bNumberOfPorts; Port++)
     {
         PortDevice = HubExtension->PortData[Port].DeviceObject;
 
@@ -4153,13 +4118,6 @@ USBH_CheckDeviceIDUnique(IN PUSBHUB_FDO_EXTENSION HubExtension,
                 }
             }
         }
-
-        ++Port;
-
-        if (Port >= HubExtension->HubDescriptor->bNumberOfPorts)
-        {
-            return TRUE;
-        }
     }
 
     return FALSE;
@@ -4169,27 +4127,24 @@ BOOLEAN
 NTAPI
 USBH_ValidateSerialNumberString(IN PUSHORT SerialNumberString)
 {
+    USHORT ix;
     USHORT Symbol;
 
     DPRINT("USBH_ValidateSerialNumberString: ... \n");
 
-    for (Symbol = *SerialNumberString; ; Symbol = *SerialNumberString)
+    for (ix = 0; SerialNumberString[ix] != UNICODE_NULL; ix++)
     {
-        if (!Symbol)
-        {
-            return TRUE;
-        }
+        Symbol = SerialNumberString[ix];
 
-        if (Symbol < 0x0020 || Symbol > 0x007F || Symbol == 0x002C) // ','
+        if (Symbol < 0x20 || Symbol > 0x7F || Symbol == 0x2C) // ','
         {
-            break;
+            return FALSE;
         }
-
-        ++SerialNumberString;
     }
 
-    return FALSE;
+    return TRUE;
 }
+
 
 NTSTATUS
 NTAPI
