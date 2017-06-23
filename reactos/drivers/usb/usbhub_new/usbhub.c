@@ -5045,6 +5045,8 @@ USBH_RegQueryGenericUSBDeviceString(PVOID USBDeviceString)
 
     DPRINT("USBH_RegQueryGenericUSBDeviceString ... \n");
 
+    RtlZeroMemory(QueryTable, sizeof(QueryTable));
+
     QueryTable[0].QueryRoutine = USBH_GetConfigValue;
     QueryTable[0].Flags = RTL_QUERY_REGISTRY_REQUIRED;
     QueryTable[0].Name = L"GenericUSBDeviceString";
