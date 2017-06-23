@@ -4883,7 +4883,7 @@ USBH_FdoDispatch(IN PUSBHUB_FDO_EXTENSION HubExtension,
 
         case IRP_MJ_SYSTEM_CONTROL:
             DPRINT1("USBH_FdoDispatch: USBH_SystemControl() UNIMPLEMENTED. FIXME\n");
-            break;
+            /* fall through */
 
         case IRP_MJ_INTERNAL_DEVICE_CONTROL:
         default:
