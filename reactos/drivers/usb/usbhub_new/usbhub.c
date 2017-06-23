@@ -2622,29 +2622,26 @@ USBD_GetDeviceInformationEx(IN PUSBHUB_PORT_PDO_EXTENSION PortExtension,
 
         RtlZeroMemory(NodeInfo, NodeInfoLength);
 
-        if (NT_SUCCESS(Status))
+        NodeInfo->ConnectionIndex = Info->ConnectionIndex;
+
+        RtlCopyMemory(&NodeInfo->DeviceDescriptor,
+                      &DeviceInfo->DeviceDescriptor,
+                      sizeof(USB_DEVICE_DESCRIPTOR));
+
+        NodeInfo->CurrentConfigurationValue = DeviceInfo->CurrentConfigurationValue;
+        NodeInfo->Speed = DeviceInfo->DeviceSpeed;
+        NodeInfo->DeviceIsHub = PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE;
+        NodeInfo->DeviceAddress = DeviceInfo->DeviceAddress;
+        NodeInfo->NumberOfOpenPipes = DeviceInfo->NumberOfOpenPipes;
+        NodeInfo->ConnectionStatus = Info->ConnectionStatus;
+
+        for (PipeNumber = 0;
+             PipeNumber < DeviceInfo->NumberOfOpenPipes;
+             PipeNumber++)
         {
-            NodeInfo->ConnectionIndex = Info->ConnectionIndex;
-
-            RtlCopyMemory(&NodeInfo->DeviceDescriptor,
-                          &DeviceInfo->DeviceDescriptor,
-                          sizeof(USB_DEVICE_DESCRIPTOR));
-
-            NodeInfo->CurrentConfigurationValue = DeviceInfo->CurrentConfigurationValue;
-            NodeInfo->Speed = DeviceInfo->DeviceSpeed;
-            NodeInfo->DeviceIsHub = PortExtension->PortPdoFlags & USBHUB_PDO_FLAG_HUB_DEVICE;
-            NodeInfo->DeviceAddress = DeviceInfo->DeviceAddress;
-            NodeInfo->NumberOfOpenPipes = DeviceInfo->NumberOfOpenPipes;
-            NodeInfo->ConnectionStatus = Info->ConnectionStatus;
-
-            for (PipeNumber = 0;
-                 PipeNumber < DeviceInfo->NumberOfOpenPipes;
-                 PipeNumber++)
-            {
-                RtlCopyMemory(&NodeInfo->PipeList[PipeNumber],
-                              &DeviceInfo->PipeList[PipeNumber],
-                              sizeof(USB_PIPE_INFO));
-            }
+            RtlCopyMemory(&NodeInfo->PipeList[PipeNumber],
+                          &DeviceInfo->PipeList[PipeNumber],
+                          sizeof(USB_PIPE_INFO));
         }
     }
 
