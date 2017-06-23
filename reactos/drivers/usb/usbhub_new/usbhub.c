@@ -4192,7 +4192,7 @@ USBH_CheckDeviceLanguage(IN PDEVICE_OBJECT DeviceObject,
     }
 
     NumSymbols = (Length -
-                  FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString)) >> 1;
+                  FIELD_OFFSET(USB_STRING_DESCRIPTOR, bString)) / sizeof(WCHAR);
 
     pSymbol = Descriptor->bString;
 
