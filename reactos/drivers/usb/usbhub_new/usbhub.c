@@ -3297,8 +3297,6 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
            HubExtension,
            HubExtension->HubFlags);
 
-    IsReady = TRUE;
-
     if (HubExtension->HubFlags & (USBHUB_FDO_FLAG_ENUM_POST_RECOVER |
                                   USBHUB_FDO_FLAG_WAKEUP_START |
                                   USBHUB_FDO_FLAG_DEVICE_REMOVED |
@@ -3335,6 +3333,7 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
                           NULL);
 
     PortData = HubExtension->PortData;
+    IsReady = TRUE;
 
     for (Port = 0;
          Port < HubExtension->HubDescriptor->bNumberOfPorts;
@@ -3357,7 +3356,8 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
             if (!IdleIrp)
             {
-                break;
+                IsReady = FALSE;
+                goto IdleHub;
             }
 
             IoStack = IoGetCurrentIrpStackLocation(IdleIrp);
@@ -3366,24 +3366,28 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
             if (!CallbackInfo)
             {
-                break;
+                IsReady = FALSE;
+                goto IdleHub;
             }
 
             if (!CallbackInfo->IdleCallback)
             {
-                break;
+                IsReady = FALSE;
+                goto IdleHub;
             }
 
             if (PortExtension->PendingSystemPoRequest)
             {
-                break;
+                IsReady = FALSE;
+                goto IdleHub;
             }
 
             if (InterlockedCompareExchange(&PortExtension->StateBehindD2,
                                            1,
                                            0))
             {
-                break;
+                IsReady = FALSE;
+                goto IdleHub;
             }
 
             DPRINT("USBH_FdoIdleNotificationCallback: IdleContext - %p\n",
@@ -3393,7 +3397,8 @@ USBH_FdoIdleNotificationCallback(IN PVOID Context)
 
             if (PortExtension->CurrentPowerState.DeviceState == PowerDeviceD0)
             {
-                break;
+                IsReady = FALSE;
+                goto IdleHub;
             }
         }
     }
@@ -3427,7 +3432,7 @@ IdleHub:
         HubExtension->HubFlags &= ~(USBHUB_FDO_FLAG_DEVICE_SUSPENDED |
                                     USBHUB_FDO_FLAG_GOING_IDLE);
 
-        //Aborting Idle for Hub
+        /* Aborting Idle for Hub */
         IoAcquireCancelSpinLock(&OldIrql);
 
         if (HubExtension->PendingIdleIrp)
